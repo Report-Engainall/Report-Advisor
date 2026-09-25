@@ -5,6 +5,7 @@ import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs,
 import type { Alert, Recommendation } from '@/lib/types';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
 
 function Metric({ label, value, hint }: { label: string; value: string; hint: string }) {
   return <div className="rounded-2xl border border-ink-100 bg-ink-50/70 p-4">
@@ -76,6 +77,13 @@ export function ExecutiveReportPage() {
   const activeDecisionCount = recommendations.filter((item) => ['pending', 'proposed', 'approved', 'in_progress'].includes(item.status)).length;
   const accountableDecisionCount = recommendations.filter((item) => Boolean(item.owner)).length;
   const recordedOutcomeCount = recommendations.filter((item) => Boolean(item.impact_result?.trim())).length;
+  const nextAction = kpis?.status !== 'CALCULATED' || kpis?.status === 'INSUFFICIENT_DATA'
+    ? { to: '/data-quality', label: 'مراجعة جودة البيانات', reason: 'الحقيقة المالية أو التشغيلية غير مكتملة بعد.' }
+    : data?.alerts.length
+      ? { to: '/decision-experience?stage=decision', label: 'فتح سياق القرار', reason: 'هناك تنبيهات مصدرية تحتاج إلى متابعة.' }
+      : recommendations.length
+        ? { to: '/decision-experience', label: 'مراجعة التوصيات', reason: 'هناك توصيات مصدرية جاهزة للمراجعة.' }
+        : { to: '/trust', label: 'فحص الدليل', reason: 'لا توجد عناصر قرار نشطة؛ راجع مصدر الحقيقة قبل الانتقال.' };
 
   return <div dir="rtl" className="ag-executive-report report-page space-y-5 pb-10 print:space-y-3">
     <header className="ag-exec-hero overflow-hidden rounded-[14px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
@@ -92,8 +100,8 @@ export function ExecutiveReportPage() {
       </div>
     </header>
 
-    {loading && <div role="status" className="rounded-2xl border border-ink-200 bg-white p-6 text-sm text-ink-600">جارٍ بناء التقرير من المصادر المعتمدة…</div>}
-    {error && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">{error}<button type="button" onClick={() => void load()} className="mr-3 rounded-lg border border-red-300 bg-white px-3 py-1 font-semibold">إعادة المحاولة</button></div>}
+    {loading && <LoadingState message="جارٍ بناء التقرير التنفيذي من المصادر المعتمدة..." />}
+    {error && <ErrorState message={error} onRetry={() => void load()} />}
 
     {!loading && !error && <>
       <section className="ag-decision-strip" aria-label="ملخص التقرير التنفيذي">
@@ -105,6 +113,12 @@ export function ExecutiveReportPage() {
       </section>
 
       <TruthContextStrip months={6} status={kpis?.status ?? 'INSUFFICIENT_DATA'} asOf={asOf} />
+      <section className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm" aria-label="الخطوة التالية في التقرير التنفيذي">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div><div className="text-[10px] font-black uppercase tracking-[0.14em] text-primary-700">NEXT ACTION</div><p className="mt-1 text-sm font-black text-ink-900">{nextAction.label}</p><p className="mt-1 text-[11px] text-ink-500">{nextAction.reason}</p></div>
+          <Link to={nextAction.to} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-ink-950 px-4 text-xs font-bold text-white hover:bg-ink-800">متابعة الإجراء <ArrowLeft size={13} className="mr-1" /></Link>
+        </div>
+      </section>
 
       <section className="ag-exec-panel rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold tracking-wider text-primary-600">الملخص التنفيذي</p><h2 className="mt-1 text-lg font-black">لقطة الإدارة الحالية</h2></div><span className="rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-[11px] font-bold text-primary-700">المصدر: بيانات قانونية</span></div>
@@ -124,7 +138,7 @@ export function ExecutiveReportPage() {
       <section className="grid gap-5 lg:grid-cols-2">
         <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-danger-600">الانتباه</p><h2 className="mt-1 text-lg font-black">أهم التنبيهات</h2></div><span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700">{formatNumber(data?.alerts.length ?? 0)}</span></div>
-          <div className="mt-4 space-y-3">{(data?.alerts ?? []).slice(0, 6).map((alert) => <article key={alert.id} className="rounded-xl border border-ink-100 p-4"><p className="font-bold text-ink-900">{alert.title}</p><Link to="/decision-experience?stage=decision" className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-primary-700">فتح سياق القرار <ArrowLeft size={13} /></Link></article>)}{!(data?.alerts?.length) && <p className="rounded-xl bg-ink-50 p-4 text-sm text-ink-500">لا توجد تنبيهات مصدرية حاليًا.</p>}</div>
+          <div className="mt-4 space-y-3">{(data?.alerts ?? []).slice(0, 6).map((alert) => <article key={alert.id} className="rounded-xl border border-ink-100 p-4"><p className="font-bold text-ink-900">{alert.title}</p><Link to="/decision-experience?stage=decision" className="mt-2 inline-flex min-h-11 items-center gap-1 text-xs font-bold text-primary-700">فتح سياق القرار <ArrowLeft size={13} /></Link></article>)}{!(data?.alerts?.length) && <EmptyState title="لا توجد تنبيهات مصدرية حاليًا" message="لا يتم تصنيع تنبيه عند غياب الإشارة المثبتة." action={<Link to="/trust" className="btn-secondary min-h-11">فحص الدليل</Link>} />}</div>
         </div>
         <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-primary-600">الإجراء</p><h2 className="mt-1 text-lg font-black">التوصيات النشطة</h2></div><span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-bold text-primary-700">{formatNumber(data?.recommendations.length ?? 0)}</span></div>
@@ -133,7 +147,7 @@ export function ExecutiveReportPage() {
             <p className="mt-2 font-bold text-ink-900">{rec.title}</p>
             <div className="mt-2 flex flex-wrap gap-3 text-[10px] text-ink-500"><span>الأثر المتوقع: {rec.expected_impact == null ? 'غير متاح' : formatCurrency(rec.expected_impact)}</span><span>الأثر الفعلي: {rec.impact_result ?? 'غير مسجل'}</span></div>
             <Link to="/decision-experience" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-primary-700">فتح مساحة القرار <ArrowLeft size={13} /></Link>
-          </article>)}{!(data?.recommendations?.length) && <p className="rounded-xl bg-ink-50 p-4 text-sm text-ink-500">لا توجد توصيات مصدرية حاليًا.</p>}</div>
+          </article>)}{!(data?.recommendations?.length) && <EmptyState title="لا توجد توصيات مصدرية حاليًا" message="لا تُنتج توصية بديلة عند غياب الإشارة المثبتة." action={<Link to="/trust" className="btn-secondary min-h-11">فحص الدليل</Link>} />}</div>
         </div>
       </section>
 
