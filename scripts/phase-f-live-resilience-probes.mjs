@@ -5,6 +5,7 @@ import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { buildSupabaseSessionPoolerUrl } from '../src/server/resilience-runtime.mjs';
 
 const backupMode = (process.env.RESILIENCE_BACKUP_MODE || 'logical').trim().toLowerCase() || 'logical';
 if (!['managed', 'logical'].includes(backupMode)) throw new Error(`invalid_resilience_backup_mode:${backupMode}`);
@@ -155,6 +156,8 @@ async function logicalBackupRestore() {
   };
   const candidateSources = [];
   if (explicitSource) candidateSources.push({ label: 'configured-source', url: explicitSource });
+  const poolerFallback = buildSupabaseSessionPoolerUrl(explicitSource, projectRef, poolerHost);
+  if (poolerFallback) candidateSources.push({ label: 'configured-source-pooler-session', url: poolerFallback });
   const credentialBase = explicitSource || fallbackSource;
   if (temporaryAccessToken) {
     try {
