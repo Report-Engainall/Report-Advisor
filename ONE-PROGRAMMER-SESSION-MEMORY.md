@@ -1,15 +1,15 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-135
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-136
 
-- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-135.
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `51bc9899542bbcbce1af228c5ad10036fd9b61da`.
-- CURRENT CODE/TEST CANDIDATE BEFORE GOVERNANCE WRITE: `75c6978d753a21377c7bee2378038862db2051b5`.
-- DONE — CORE: normalized `current_company_id()` migration query to `FROM company_memberships cm` so the bounded-select tenant security contract matches exactly.
-- EXACT FAILURE FIXED: Final Certification `36093301409` tenant-security failed at the bounded-single-tenant SELECT regex; the resolver logic itself remained deterministic and fail-closed.
-- STAGING: live tenant membership schema is reconciled and unchanged semantically.
-- UI: 40 routes / 38 canonical navigation links remain green; no UI code changed.
-- NOT PROVEN: fresh exact-head Final Certification, fresh Phase-F restore, exact production identity, measured RPO/RTO, rollback.
-- CURRENT PRECISE STOP POINT: governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure only → production alignment → measured recovery.
-- CURRENT RESUME POINTER: `75c6978d... fresh exact-head certification → fresh Phase-F → exact production identity → measured recovery → release closeout`.
+- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-136.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `80e1a95792c0ceea00954da8131dd98458f3bed1`.
+- CURRENT CODE/TEST CANDIDATE BEFORE GOVERNANCE WRITE: `d717fefe55386e04d6d25221f08b120510fdca13`.
+- DONE — CORE: added the fail-closed single-membership ambiguity guard to `current_company_id()`.
+- EXACT FAILURE FIXED: Final Certification `360934538278` tenant-resolver lineage required `SELECT count(*), min(company_id)` and `IF v_count = 1 THEN`; the resolver now implements both.
+- STAGING: same resolver semantics applied to Supabase staging.
+- UI: 40 routes / 38 canonical nav links remain green; no UI code changed in this fix.
+- NOT PROVEN: fresh exact-head certification, fresh Phase-F restore, exact production identity, measured RPO/RTO, rollback.
+- CURRENT PRECISE STOP POINT: governance rebind → fresh exact-head certification → fresh Phase-F → first new live failure → production alignment → measured recovery.
+- CURRENT RESUME POINTER: `d717fefe... fresh exact-head certification → fresh Phase-F → exact production identity → measured RPO/RTO/rollback → release closeout`.
 
 
 - SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-130.

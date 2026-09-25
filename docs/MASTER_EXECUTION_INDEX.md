@@ -1,16 +1,16 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD 75C6
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD D717
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `51bc9899542bbcbce1af228c5ad10036fd9b61da`.
-- CURRENT CODE/TEST CANDIDATE: `75c6978d753a21377c7bee2378038862db2051b5` on PR #628.
-- DONE — CORE: aligned the tenant resolver select shape with the explicit bounded-select certification contract while preserving fixed `search_path` and schema ownership.
-- STAGING: tenant membership `is_default` and the three live indexes are present; live resolver semantics remain unchanged.
-- EXACT 622 FAILURE: Final Certification `36093301409` failed only because the resolver used `FROM public.company_memberships AS cm` while the contract regex requires `FROM company_memberships cm ... LIMIT 1`. All other visible P0 families passed.
-- EXACT 622 RESULTS: Enforcement `36093306201` SUCCESS; production-chain `36093306388` SUCCESS; Browser/Quality/Phase-F fresh results still pending on the new head.
-- PHASE-F: fresh proof on `75c6978d...` is required. Production alias remains SHA `7be9f014...`; RPO/RTO/rollback/release NOT PROVEN.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `80e1a95792c0ceea00954da8131dd98458f3bed1`.
+- CURRENT CODE/TEST CANDIDATE: `d717fefe55386e04d6d25221f08b120510fdca13` on PR #628.
+- DONE — CORE: `current_company_id()` now has an explicit single-active-membership ambiguity guard: exactly one active company returns its id; zero or multiple active memberships return `NULL`.
+- LIVE STAGING RECONCILIATION: the same resolver is applied with fixed `search_path = public, pg_catalog` and restricted authenticated/service-role execution.
+- EXACT 80E1 FAILURE: Final Certification `360934538278` failed at `check-tenant-resolver-lineage.mjs` because the resolver lacked the explicit `count(*) + min(company_id)` / `v_count = 1` fail-closed guard.
+- OTHER EXACT 80E1 RESULT: Execution Enforcement SUCCESS; Browser E2E SUCCESS; production-chain SUCCESS; Phase-F was cancelled before job creation and therefore remains NOT PROVEN.
+- PHASE-F: fresh live proof on `d717fefe...` is still required. Production alias remains SHA `7be9f014...`; RPO/RTO/rollback/release NOT PROVEN.
 - UI LANE: 40 application routes / 38 canonical navigation links; Executive, Connections, Decision, Document, Inventory and Product-WOW contracts remain green.
-- NEXT EXECUTABLE ACTION: governance rebind → fresh exact-head certification and Phase-F → first new live failure only → exact production alignment → measured recovery.
-- DO NOT REPEAT: countSql, carts/cart_items, helper search_path, profiles, cash_accounts, membership schema, resolver syntax, stale bindings, historical evidence transfer, production-SHA bypass, speculative UI rewrites.
-- CURRENT RESUME POINTER: `75c6978d... governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure → production alignment → measured recovery → release closeout`.
+- NEXT EXECUTABLE ACTION: fresh governance rebind → exact-head certification → fresh Phase-F → first new live failure only → exact production alignment → measured recovery.
+- DO NOT REPEAT: countSql, carts/cart_items, profiles, cash_accounts, membership schema, resolver syntax, missing ambiguity guard, stale bindings, historical evidence transfer, production-SHA bypass.
+- CURRENT RESUME POINTER: `d717fefe... governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure → production alignment → measured recovery → release closeout`.
 
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
