@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { DeterministicIntelligenceAssistant } from '@/components/DeterministicIntelligenceAssistant';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { SeverityBadge, PriorityBadge, ConfidenceBadge } from '@/components/ui/Badge';
-import { LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
+import { BoundaryState, LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
 import { ForecastChart } from '@/components/ui/Charts';
 import {
   fetchRecommendations,
@@ -17,6 +17,28 @@ import {
 } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Recommendation, Alert, Forecast } from '@/lib/types';
+
+function IntelligenceLoadBoundary({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div dir="rtl" className="space-y-4 animate-fade-in">
+      <BoundaryState
+        variant="blocked"
+        title="تعذر قراءة سجل الذكاء الحالي"
+        message={message}
+        action={
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={onRetry} className="btn-secondary">
+              <RefreshCw size={14}/> إعادة المحاولة
+            </button>
+            <Link to="/trust" className="btn-primary">
+              <ShieldCheck size={14}/> فحص الثقة والدليل
+            </Link>
+          </div>
+        }
+      />
+    </div>
+  );
+}
 
 function MetricStrip({
   label,
@@ -115,7 +137,7 @@ export function IntelligenceCenterPage() {
   );
 
   if (loading) return <LoadingState message="جارٍ تجميع الإشارات والتوصيات والتنبؤات..." />;
-  if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  if (error) return <IntelligenceLoadBoundary message={error} onRetry={() => void load()} />;
 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
@@ -404,7 +426,7 @@ export function RecommendationsPage() {
   };
 
   if (loading) return <LoadingState message="جارٍ تجميع التوصيات من المصدر المعتمد..." />;
-  if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  if (error) return <IntelligenceLoadBoundary message={error} onRetry={() => void load()} />;
 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
