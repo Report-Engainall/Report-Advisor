@@ -1,15 +1,14 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-136
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-137
 
-- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-136.
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `80e1a95792c0ceea00954da8131dd98458f3bed1`.
-- CURRENT CODE/TEST CANDIDATE BEFORE GOVERNANCE WRITE: `d717fefe55386e04d6d25221f08b120510fdca13`.
-- DONE — CORE: added the fail-closed single-membership ambiguity guard to `current_company_id()`.
-- EXACT FAILURE FIXED: Final Certification `360934538278` tenant-resolver lineage required `SELECT count(*), min(company_id)` and `IF v_count = 1 THEN`; the resolver now implements both.
-- STAGING: same resolver semantics applied to Supabase staging.
-- UI: 40 routes / 38 canonical nav links remain green; no UI code changed in this fix.
-- NOT PROVEN: fresh exact-head certification, fresh Phase-F restore, exact production identity, measured RPO/RTO, rollback.
-- CURRENT PRECISE STOP POINT: governance rebind → fresh exact-head certification → fresh Phase-F → first new live failure → production alignment → measured recovery.
-- CURRENT RESUME POINTER: `d717fefe... fresh exact-head certification → fresh Phase-F → exact production identity → measured RPO/RTO/rollback → release closeout`.
+- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-137.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: 5f0984e0e752d5e7662a123ea76ca33e6060edf7.
+- CURRENT CODE/TEST CANDIDATE BEFORE GOVERNANCE WRITE: 95581636c374d61f3830aee5b664695c29c42208.
+- DONE — CORE: completed the canonical tenant resolver with active-default membership filter, single-membership ambiguity guard, and bounded select; both tenant contracts PASS locally.
+- STAGING: same resolver applied to Supabase staging.
+- UI: no code changed; existing route/surface contracts remain green.
+- NOT PROVEN: fresh exact-head Final Certification, fresh Phase-F restore, exact production identity, measured RPO/RTO, rollback.
+- CURRENT PRECISE STOP POINT: governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure only → production alignment → measured recovery.
+- CURRENT RESUME POINTER: 95581636... fresh exact-head certification → fresh Phase-F → exact production identity → measured RPO/RTO/rollback → release closeout.
 
 
 - SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-130.

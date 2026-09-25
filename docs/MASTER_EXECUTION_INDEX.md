@@ -1,16 +1,17 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD D717
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD 9558
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `80e1a95792c0ceea00954da8131dd98458f3bed1`.
-- CURRENT CODE/TEST CANDIDATE: `d717fefe55386e04d6d25221f08b120510fdca13` on PR #628.
-- DONE — CORE: `current_company_id()` now has an explicit single-active-membership ambiguity guard: exactly one active company returns its id; zero or multiple active memberships return `NULL`.
-- LIVE STAGING RECONCILIATION: the same resolver is applied with fixed `search_path = public, pg_catalog` and restricted authenticated/service-role execution.
-- EXACT 80E1 FAILURE: Final Certification `360934538278` failed at `check-tenant-resolver-lineage.mjs` because the resolver lacked the explicit `count(*) + min(company_id)` / `v_count = 1` fail-closed guard.
-- OTHER EXACT 80E1 RESULT: Execution Enforcement SUCCESS; Browser E2E SUCCESS; production-chain SUCCESS; Phase-F was cancelled before job creation and therefore remains NOT PROVEN.
-- PHASE-F: fresh live proof on `d717fefe...` is still required. Production alias remains SHA `7be9f014...`; RPO/RTO/rollback/release NOT PROVEN.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: 5f0984e0e752d5e7662a123ea76ca33e6060edf7.
+- CURRENT CODE/TEST CANDIDATE: 95581636c374d61f3830aee5b664695c29c42208 on PR #628.
+- DONE — CORE: tenant resolver now enforces active default membership, explicit count/min ambiguity guard, and bounded single-row SELECT; all tenant-security/resolver contracts pass locally.
+- STAGING: identical resolver semantics applied to Supabase staging; is_default membership schema/index lineage is already present.
+- EXACT 80E1→955 FAILURE CHAIN CLOSED: tenant contract required default membership → unqualified ALTER marker → bounded SELECT → ambiguity guard. The final resolver satisfies all four explicit contract invariants.
+- VERIFIED LOCAL 955: Tenant Security Contract PASS; Tenant Resolver Lineage PASS. Previous migration schema audit and Phase-F runtime closure also pass on the same migration lineage.
+- EXACT CI BEFORE THIS FIX: 80e1 Final Certification failed at tenant resolver lineage for missing ambiguity guard; 622d failed for bounded SELECT shape. Both are now repaired.
+- PHASE-F: previous live runs remain NOT PROVEN on current lineage; current production alias is still SHA 7be9f014...; RPO/RTO/rollback/release remain NOT PROVEN.
 - UI LANE: 40 application routes / 38 canonical navigation links; Executive, Connections, Decision, Document, Inventory and Product-WOW contracts remain green.
-- NEXT EXECUTABLE ACTION: fresh governance rebind → exact-head certification → fresh Phase-F → first new live failure only → exact production alignment → measured recovery.
-- DO NOT REPEAT: countSql, carts/cart_items, profiles, cash_accounts, membership schema, resolver syntax, missing ambiguity guard, stale bindings, historical evidence transfer, production-SHA bypass.
-- CURRENT RESUME POINTER: `d717fefe... governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure → production alignment → measured recovery → release closeout`.
+- NEXT EXECUTABLE ACTION: fresh governance rebind → exact-head certification → fresh Phase-F → first new live failure only → production alignment → measured recovery → release closeout.
+- DO NOT REPEAT: prior schema drifts, tenant contract syntax/guard fixes, stale bindings, historical evidence transfer, production-SHA bypass, speculative UI rewrites.
+- CURRENT RESUME POINTER: 95581636... governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure → production alignment → measured recovery → release closeout.
 
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
