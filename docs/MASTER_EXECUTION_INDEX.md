@@ -1,17 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 143
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 144
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
-- CURRENT CODE/TEST CANDIDATE A: `124eec1cb322e06a59fde8dbd9de84e86803cec6` (PR #657).
-- CURRENT CODE/TEST CANDIDATE B: `b324e023f1dbf603811f2cfe47bf58bfff6a0660` (PR #658).
-- GOVERNANCE WRITE PURPOSE: synchronize the live control plane after executable UI+core integration and receivables fail-closed repair; no code or historical evidence is being asserted as merged.
-- UI DELIVERY: #657 carries deep current-main UI closure across shell/accessibility, DataTable/Work Center, Advisor, settings/report surfaces and purchase truth context; #658 closes receivables NO_DATA truth semantics.
-- CORE DELIVERY: #657 carries source-backed cart SECURITY DEFINER hardening, client_ui_settings restore parity, carts schema parity continuation and Phase-F restore-contract guards.
-- EXACT CURRENT EVIDENCE: Netlify preview for #657 is READY on exact SHA `124eec1...`; Desktop Windows run `36180631328` SUCCESS on that exact SHA; remaining #657 workflows are not yet terminal. #658 Netlify preview is still BUILDING.
-- SUPERSEDED PRS: #647/#651/#653/#654 closed without merge after their executable code was integrated into #657/#658; no historical PASS transferred.
-- LIVE CORE OBSERVATION: staging client_ui_settings parity is source-backed; cart functions are search_path-hardened; 151 processing jobs remain untouched.
-- EXTERNAL BOUNDARY: Vercel free-plan deployment rate limit and TinyFish wallet unavailability prevent production/browser evidence respectively. These are not treated as application PASS/FAIL substitutions.
-- NEXT EXECUTABLE ACTION: consume exact-head #657 results, then #658 results; first current failure only; merge only after required evidence. If release boundary remains solely deployment identity/Phase-F, continue independent UI/core work rather than waiting.
-- DO NOT REPEAT: stale evidence transfer, production SHA bypass, blanket security cleanup, unsafe import-job mutation, or duplicate architecture.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `8eb5b4154e02a1320942e08a33e052e0a35ab238`.
+- CURRENT CODE/TEST CANDIDATE A: `e76d7fb639da2e7a1a8b603156e82fc3ab27b0f9` (PR #657; current-main deep UI/core lane + Work Center zero-progress signal).
+- CURRENT CODE/TEST CANDIDATE B: `b324e023f1dbf603811f2cfe47bf58bfff6a0660` (PR #658; receivables truth closure).
+- CURRENT GATES: previous #657 Vercel/Netlify/CodeRabbit and Windows success were exact for `124eec1...` only; they are not proof for `e76d7fb...`. #658 Netlify is READY exact; Vercel is externally rate-limited.
+- WORK CENTER CLOSURE: active rows with progress 0 are now explicitly surfaced as an operational signal and routed to active-work review. No DB status is altered.
+- KNOWLEDGE ARCHITECTURE: quality workflow includes `npm run test:knowledge-architecture`; current-head execution remains unproven until the new quality run terminalizes.
+- SUPERSEDED PRS: #647/#651/#653/#654 closed without merge. Their source lineage is preserved through #657/#658; no stale PASS transferred.
+- NEXT EXECUTABLE ACTION: consume new exact-head #657 CI result first; then #658. Repair only the first reproduced current failure, and merge only after required exact-head evidence.
+- DO NOT REPEAT: stale evidence, duplicate PR fronts, production promotion bypass, blanket security revokes, unsafe import-job mutations.
 
 ---
 
