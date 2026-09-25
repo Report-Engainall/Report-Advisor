@@ -1,3 +1,20 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-125
+
+- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-125.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- CURRENT CODE/TEST CANDIDATE: `80b7634f9bf309602914ddd383546cdb83aaf727` on PR #628.
+- DONE — CORE: added safe Supabase Session Pooler fallback for direct logical-backup source URLs; preserves the source password, forces session mode port 5432, and requires the Supavisor IPv4 pooler hostname pattern.
+- VERIFIED LOCAL EXACT CANDIDATE: resilience runtime/adversarial PASS; Phase-F runtime closure PASS; operational resilience + backup evidence integrity PASS; typecheck PASS; git diff --check PASS.
+- PREVIOUS PHASE-F EXACT RESULT: run `36077272069` on `bf89e67...` failed closed 1/4: tenant canary PASS; production health deployment SHA mismatch; configured DB URL connection failed; rollback drill HTTP 503.
+- ROOT-CAUSE BOUNDARY: the prior probe did not derive an IPv4 Session Pooler candidate from a direct Supabase DB URL, despite Supabase documenting Session Pooler as the recommended path for dump/restore and noting IPv4 compatibility for GitHub Actions.
+- DEPLOYMENT: Vercel `dpl_BszWJinipThNmTfiN6oVCEf9wSmk` is READY for `80b7634...`; governance head will produce a fresh exact-head deployment as well.
+- CURRENT RELEASE GATES: current head after governance write is `ee866d642d942af9e347bb7885e2734401df8a76`; fresh Enforcement / Browser / Final Certification / Phase-F runs are expected on this exact head. No historical PASS transfer.
+- NOT PROVEN: new live backup/restore, measured RPO/RTO, rollback, final certification, production exact-SHA.
+- DO NOT REPEAT: historical Phase-F, unchanged logical credential retries, production-SHA bypass, closed migration/runtime contracts.
+- OPEN FRONTS: current-head Phase-F result; first remaining live failure only; production alignment / rollback baseline if still required.
+- CURRENT PRECISE STOP POINT: `consume current-head Phase-F after Session Pooler hardening → repair first new live failure only → measured recovery → release closeout`.
+- CURRENT RESUME POINTER: `current-head Phase-F → first new live failure only → measured recovery → release closeout`.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-124
 
 - SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-124.
