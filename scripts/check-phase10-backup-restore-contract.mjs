@@ -4,6 +4,7 @@ import path from 'node:path';
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const migration = read('supabase/migrations/20260829023000_restore_import_lifecycle_rpcs.sql');
+const referenceIntegrityMigration = read('supabase/migrations/20260829175705_harden_cross_tenant_reference_integrity_v2.sql');
 const evidence = read('scripts/check-production-certification-evidence-integrity.mjs');
 const contract = read('scripts/check-production-certification-contract.mjs');
 const index = read('docs/MASTER_EXECUTION_INDEX.md');
@@ -12,6 +13,10 @@ const stripSqlComments = (sql) => sql
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/(^|\n)\s*--[^\n]*/g, '$1');
 const executable = stripSqlComments(migration);
+const normalizedReferenceIntegrityMigration = referenceIntegrityMigration.replace(/\r\n/g, '\n').toLowerCase();
+if (!normalizedReferenceIntegrityMigration.includes('create or replace function public.enforce_same_company_reference()')) {
+  throw new Error('Missing recovery security/lifecycle invariant: enforce_same_company_reference source definition');
+}
 
 for (const token of [
   'CREATE OR REPLACE FUNCTION public.import_create_job',
