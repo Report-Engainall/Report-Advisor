@@ -150,6 +150,7 @@
     "test:product-wow-ui": "node scripts/check-product-wow-ui-contract.mjs",
     "test:connections-language-ui": "node scripts/check-connections-language-ui.mjs",
     "test:knowledge-architecture": "node scripts/check-knowledge-architecture.mjs",
-    "test:deep-truth-ui": "node scripts/check-deep-truth-ui-contract.mjs"
+    "test:deep-truth-ui": "node scripts/check-deep-truth-ui-contract.mjs",
+    "test:import-readback-fidelity": "node scripts/check-import-readback-fidelity.mjs"
   }
 }
