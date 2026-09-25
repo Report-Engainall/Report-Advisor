@@ -1,14 +1,13 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / UI SHELL ACCESSIBILITY CLOSURE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / UI SHELL + PHASE-F WORKFLOW TRIGGER FIX
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
-- CURRENT CODE/TEST CANDIDATE: `8749cb6291304e4e1754a1c24c62713908165397`.
-- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `8749cb6291304e4e1754a1c24c62713908165397`.
-- DONE: raised shell interactive targets to the mobile-safe minimum, added Escape close behavior for the alert popover, and bound sidebar disclosure buttons to their controlled regions with explicit `aria-controls`.
-- SCOPE: two shell files only; no business/data/runtime semantics changed.
-- NEXT: consume exact-head UI Quality, route completeness, browser, device-independent, certification and enforcement evidence. Do not claim UI closure until the exact current head proves it.
-- DO NOT REPEAT: do not transfer prior browser PASS across SHAs; do not reintroduce sub-44px shell targets; do not create a duplicate navigation registry.
-
----
+- CURRENT CODE/TEST CANDIDATE: `ebb992c053d804e07a2913ecbdd5a994359c682f`.
+- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `ebb992c053d804e07a2913ecbdd5a994359c682f`.
+- DONE: shell touch-target and keyboard/disclosure accessibility closure remains in source commit `8749cb6291304e4e1754a1c24c62713908165397`; removed the prohibited `push: main` trigger from the Phase-F workflow so it is PR/manual-dispatch only.
+- EXACT CURRENT UI CI: UI route completeness, Device-Independent Browser E2E, Storage Tenant Runtime E2E and broad security/data contracts succeeded on prior UI candidate `dc7341b...`; current head `ebb992c...` has fresh workflows running. Previous enforcement/certification failure was stale-index binding after workflow change.
+- PHASE-F: remains NOT READY; previous exact run on UI branch failed deployment SHA identity (production serves `dcabe46...`) and restore replay hit missing `enforce_same_company_reference()` because UI branch is based on main without PR #632's helper migration. Do not call this UI defect or weaken the gate.
+- NEXT: consume exact-head CI after index rebind; keep PR #633 separate from core PR #632 until dependency/order is resolved.
+- DO NOT REPEAT: no stale PASS transfer; no push trigger on live resilience; no merge/promotion based on preview; no duplicate UI surfaces.
 
 ---
 
