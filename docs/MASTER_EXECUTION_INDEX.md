@@ -1,10 +1,11 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / PURCHASES REPORT TRUTH CANDIDATE
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `fa2256c0c5b311464d9d8960e3480ac33f87830d`.
-- CURRENT CODE/TEST CANDIDATE: `68e34f5c15db9ec17cad0c7731b01894d99cb0f4`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `68e34f5c15db9ec17cad0c7731b01894d99cb0f4`.
-- UI DELIVERY: Purchases report is anchored to the existing canonical dashboard snapshot and existing purchase rows/summary; ReportTruthBar carries authoritative status/as-of/period context. No new RPC, route, runner, importer, or production mutation.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head Enforcement/Quality/Browser/Final Certification gates; repair only the first current-head failure.
+- CURRENT CODE/TEST CANDIDATE: `3d3de54a74f7dc3ad3f1aa0fd0babe38e6f576fe`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `3d3de54a74f7dc3ad3f1aa0fd0babe38e6f576fe`.
+- UI DELIVERY: Purchases report is anchored to the canonical dashboard snapshot and purchase rows/summary; ReportTruthBar carries authoritative status/as-of/period truth. No new RPC, route, runner, importer or production mutation.
+- PRIOR FAILURE CONSUMED: Enforcement rejected the predecessor head because the index remained bound to `ae6410...`; this is governance-only and now corrected against the exact current head.
+- NEXT EXECUTABLE ACTION: consume the fresh pull_request Quality/Enforcement/Browser/Final Certification/Phase-F evidence for `3d3de54...` and repair only the first new functional failure.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
