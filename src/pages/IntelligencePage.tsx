@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   AlertTriangle, ArrowLeft, ArrowUpLeft, Brain, CheckCircle2, CircleAlert, Lightbulb,
-  RefreshCw, Sparkles, Target, TrendingUp, WalletCards, XCircle, Zap
+  RefreshCw, ShieldCheck, Sparkles, Target, TrendingUp, WalletCards, XCircle, Zap
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DeterministicIntelligenceAssistant } from '@/components/DeterministicIntelligenceAssistant';
