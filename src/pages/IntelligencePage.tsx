@@ -372,12 +372,15 @@ export function RecommendationsPage() {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [truthContext, setTruthContext] = useState<{ status: 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA'; asOf: string } | null>(null);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      setItems(await fetchRecommendations());
+      const [nextItems, snapshot] = await Promise.all([fetchRecommendations(), fetchDashboardSnapshot(6)]);
+      setItems(nextItems);
+      setTruthContext({ status: snapshot.kpis.status, asOf: snapshot.asOf });
     } catch (cause: unknown) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل التوصيات');
     } finally {
@@ -428,6 +431,8 @@ export function RecommendationsPage() {
           </div>
         </div>
       </section>
+
+      <TruthContextStrip months={6} status={truthContext?.status ?? 'INSUFFICIENT_DATA'} asOf={truthContext?.asOf ?? 'غير متاح'} />
 
       <SummaryStrip cells={[
         { label: 'إجمالي التوصيات', value: counts.all, note: 'السجل المتاح حاليًا' },
@@ -499,12 +504,15 @@ export function ForecastsPage() {
   const [items, setItems] = useState<Forecast[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [truthContext, setTruthContext] = useState<{ status: 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA'; asOf: string } | null>(null);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      setItems(await fetchForecasts());
+      const [nextItems, snapshot] = await Promise.all([fetchForecasts(), fetchDashboardSnapshot(6)]);
+      setItems(nextItems);
+      setTruthContext({ status: snapshot.kpis.status, asOf: snapshot.asOf });
     } catch (cause: unknown) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل التنبؤات');
     } finally {
@@ -543,6 +551,8 @@ export function ForecastsPage() {
           <button type="button" onClick={() => void load()} className="inline-flex items-center gap-2 self-start rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15"><RefreshCw size={14}/>تحديث</button>
         </div>
       </section>
+
+      <TruthContextStrip months={6} status={truthContext?.status ?? 'INSUFFICIENT_DATA'} asOf={truthContext?.asOf ?? 'غير متاح'} />
 
       <SummaryStrip cells={[
         {label:'إجمالي التنبؤات',value:items.length,note:'سجلات تقديرية متاحة'},
