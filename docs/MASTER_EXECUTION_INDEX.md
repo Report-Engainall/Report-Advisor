@@ -1,12 +1,12 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / UI SHELL + PURCHASE TRUTH WAVE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI SHELL CLOSURE
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- CURRENT CODE/TEST CANDIDATE: `eeb393f59d914cee7de04fff907bc217c7fd2908`.
+- CURRENT CODE/TEST CANDIDATE: `52baae6e8ad115a438cff78b8f5aa418c613ef27`.
 - GOVERNANCE HEAD BEFORE THIS WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- UI DELIVERY: Purchases report now consumes canonical dashboard snapshot truth context; Command Palette restores opener focus, locks background scroll, traps Tab, and exposes an accessible close control; Alert Drawer now has the same modal focus/restore semantics.
-- CONTRACT COVERAGE: WOW/UI contract verifies purchase truth anchoring, command-palette focus/scroll/Tab semantics, and alert-drawer modal semantics.
-- NO NEW DATA PATH: no RPC, route, runner, importer, or production mutation added.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head UI Route/Browser/Desktop/Quality/Final evidence for `eeb393f5...`; merge only after current-head proof, excluding the known Vercel free-plan rate-limit failure.
+- UI DELIVERY: Purchases report truth-context closure; Command Palette focus restore/scroll-lock/Tab trap/accessible close; Alert Drawer modal semantics/focus restore; mobile navigation drawer modal semantics/focus trap/scroll lock.
+- CONTRACT COVERAGE: WOW/UI contract locks all four surfaces.
+- NO NEW DATA PATH: no RPC, route, runner, importer, or production mutation.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head UI Route/Browser/Desktop/Quality/Final evidence for `52baae6e...`; merge only after exact-head proof, excluding known Vercel free-plan rate-limit.
 - DO NOT REPEAT: no stale UI PASS transfer, no preview-as-production, no duplicate navigation path.
 
 
