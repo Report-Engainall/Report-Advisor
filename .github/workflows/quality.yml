@@ -104,7 +104,7 @@ jobs:
       - name: KPI presentation truth
         run: node scripts/check-kpi-presentation-truth.mjs
       - name: Deep truth UI contract
-        run: npm run test:deep-truth-ui && npm run test:import-readback-fidelity && npm run test:profitability-snapshot-contract && npm run test:receivables-read-contract && npm run test:dashboard-snapshot-contract && npm run test:inventory-intelligence-ui
+        run: npm run test:deep-truth-ui && npm run test:import-readback-fidelity && npm run test:profitability-snapshot-contract && npm run test:receivables-read-contract && npm run test:dashboard-snapshot-contract && npm run test:inventory-intelligence-ui && npm run test:demand-series-contract
       - name: Secondary consumer canonical data truth
         run: node scripts/check-secondary-consumer-canonical.mjs && node scripts/check-report-data-truth-closure.mjs
       - name: Production release blockers
