@@ -1,8 +1,16 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / GOVERNANCE REBIND AFTER PHASE-F REPAIR
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F IPV4 FALLBACK REPAIR
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `2ed286ec4a24b68418966a2cd2d8320fd7c5e164`.
-- CURRENT CODE/TEST CANDIDATE: `886c3e11afb0304f48b8653001bf5b6a4f039ab5`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `2ed286ec4a24b68418966a2cd2d8320fd7c5e164`.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `eb2727558b8f88ad99edcde376c04c738a0e72bb`.
+- CURRENT CODE/TEST CANDIDATE: `aad5a533f123a3fab1a6b472b4f5340d989742e1`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `eb2727558b8f88ad99edcde376c04c738a0e72bb`.
+- DONE: repaired Phase-F direct-DNS IPv6 fallback so a failed IPv4 lookup continues into the existing project-scoped shared pooler path instead of returning the unusable direct URI.
+- EXACT CURRENT-SHA PROOF: targeted source contract has been added; live Phase-F and full CI are re-running against the new candidate. No PASS is transferred.
+- NEXT EXECUTABLE ACTION: consume current-head Quality/Enforcement/Final Certification/Phase-F results; repair only the first reproduced current-head failure.
+- DO NOT REPEAT: no stale candidate transfer, no acceptance weakening, no credential bypass.
+
+---
+
+# PREVIOUS CURRENT EXECUTION BOUNDARY
 - CORE MERGE: PR #632 merged at `886c3e11afb0304f48b8653001bf5b6a4f039ab5` with the current Phase-F restore dependency repair.
 - UI CANDIDATE: PR #634 head `57b19ff9a0bbd56c506f2f8df3f22fbcdd2715be`; keep separate from the current main code candidate until merged.
 - PHASE-F EVIDENCE: run `36165329471` / `36165787138` reached live probes and failed closed: deployment SHA mismatch on the PR heads, Supabase direct DB IPv6 network unreachable during logical restore, rollback-forward-fix drill HTTP 503. These are live observations, not synthetic failures.
