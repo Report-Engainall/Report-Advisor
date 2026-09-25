@@ -1,3 +1,22 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143`.
+- CURRENT CODE/TEST CANDIDATE BEFORE THIS WRITE → `6a02c3911ec06f944d5a126d24df929b6da22deb`.
+- FUNCTIONAL DELIVERY → PR #656 `feat(ui-core): deepen current-head decision surfaces and resilience contracts` consolidates the current-main UI/core wave on top of exact main 66809, without production mutation.
+- UI DONE ON CANDIDATE → Global Advisor modal focus trap/Escape/focus restoration/scroll lock; Command Palette and alert drawer semantics; mobile navigation focus boundary; shared DataTable loading/empty/header/pagination semantics; deterministic Advisor loading/recovery states; purchase report truth context; executive/inventory-intelligence/demand-velocity/settings/profile/onboarding/proposal/scenario/work-center interaction/state/accessibility closures; External File Analysis now has keyboard/same drop-zone semantics, retry, trust/import paths and explicit evidence boundary.
+- CORE DONE ON CANDIDATE → forward-only `client_ui_settings` restore-parity migration; targeted hardening for four legacy cart SECURITY DEFINER RPCs; restore contract bound to resolved Phase-F source and parity invariants.
+- VERIFIED LIVE STAGING → read-only SQL on `fnqbvfuwbdpwvhcgzksl` confirmed `client_ui_settings` columns, FK, UNIQUE, config-shape CHECK, RLS, authenticated SELECT policy, authenticated INSERT/SELECT/UPDATE grants, service_role grants, and `supabase_realtime` membership.
+- DEFECT FOUND/FIXED → combined UI contract had duplicate `const appShell`; removed at commit `eb7c6a360822bc2328e3b3413c78a56194598098` before current revalidation.
+- CURRENT HEAD AFTER UI EXTENSION → `6a02c3911ec06f944d5a126d24df929b6da22deb`; current checks are queued/in-progress, with no failure observed and no PASS claimed.
+- EXACT CURRENT CHECK STATE → latest-head check runs include build-windows in progress, Cloudflare Pages in progress, multiple contract/browser/certification/security checks queued; skipped PWA/Supabase Preview are not product PASS evidence.
+- BLOCKED / NOT PROVEN → Vercel production exact-SHA identity, authenticated production business readback, Phase-F backup/restore completion, measured RPO/RTO, rollback, and local-device browser proof. The known Vercel free-plan deployment rate limit remains external.
+- CURRENT PR → #656, base `66809d148fe106acd16ceffcbd78f0ab17549fe1`, current functional head `6a02c3911ec06f944d5a126d24df929b6da22deb`.
+- CURRENT RESUME POINTER → `PR #656 current-head certification → first reproduced failure only → repair exact dependency → rerun exact-head gates; preserve Phase-F fail-closed production identity boundary`.
+- NEXT EXECUTABLE ACTION → consume current-head checks on #656; merge only after required exact-head gates prove the branch. If Phase-F reaches logical restore failure, repair the first source-backed missing dependency only.
+- UI LANE → deep interaction/state/truth/accessibility closure delivered across the current decision/report/settings/import surfaces; do not rework merged shell/accessibility closures.
+- CORE LANE → restore parity + targeted security hardening + recovery contract delivered; do not perform blanket SECURITY DEFINER cleanup or unsafe import-job mutation.
+- DO NOT REPEAT → no stale PASS transfer, no production-SHA bypass, no preview-as-production, no duplicate RPC/import/runner, no blanket security cleanup, no blind terminalization of the 151 processing import jobs.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-142
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
