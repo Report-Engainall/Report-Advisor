@@ -1,3 +1,19 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-127
+
+- SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-127.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → 9c4e5f03a53ae211d5ed00077c2fd43a339a7db2.
+- CURRENT CODE/TEST CANDIDATE → 10d2d4f5556efa662eba46f235c963f2c75126c5.
+- GOVERNANCE HEAD BEFORE THIS WRITE → 993778e43d72e77747a67c61cabd49304f962695.
+- DONE → Storage tenant E2E test harness now retries only Supabase Auth JWT issued at future for a bounded period; other authentication failures still fail immediately.
+- PRIOR DONE RETAINED → UUID-safe current_company_id resolver, resolver lineage contract, IPv4 logical-backup fallback.
+- EXACT VERIFIED PRIOR GATES → Full Product Browser SUCCESS and Execution Enforcement SUCCESS on 993...; Storage on 993... failed solely at the future-JWT auth response.
+- UI LANE → no UI source change; prior exact-head browser gates remain valid only for their own SHA.
+- CORE LANE → auth test resilience + Phase-F IPv4 restore resilience; production identity remains externally blocked until an exact promotion path is available.
+- BLOCKED/NOT PROVEN → production still serves dcabe46...; Phase-F 36160600882 for b8a19ec... was still running and cannot certify 10d2d4...
+- CURRENT RESUME POINTER → 10d2d4f5556efa662eba46f235c963f2c75126c5 → consume exact-head Quality/Enforcement/Final Certification/Browser/Storage/Phase-F → fix first current-SHA failure.
+- NEXT EXECUTABLE ACTION → inspect the new stable workflow set from 10d2d4...; do not mutate the branch again until the first current-head failure is reproduced.
+- DO NOT REPEAT → do not treat JWT issued at future as a product/auth bypass; do not broaden retry to generic 401; do not transfer prior Phase-F result.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-126
 
 - SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-126`.
