@@ -12,6 +12,16 @@
 
 ---
 
+## CURRENT EXECUTION BOUNDARY — 2026-09-25 / PR #630
+
+- CURRENT MAIN HEAD OBSERVED: `39a39ca1125ea7aca6c0f1cf07aec325c266b042`.
+- CURRENT CODE/TEST CANDIDATE: `de07175316ca7a6ca9799d5cd0e9fd8932e74ad2`.
+- PURPOSE: exact Phase-F logical-restore repair; canonical `enforce_same_company_reference()` restored in migration `20260829175705_harden_cross_tenant_reference_integrity_v2.sql` and guarded by the existing Phase 10 contract.
+- LOCAL VERIFIED: Phase 10 contract PASS; migration schema audit 254/254 with 0 findings; terminal approval concurrency PASS; TypeScript PASS; Vite build PASS.
+- LIVE CERTIFICATION: not yet proven on this head; no stale evidence transfer.
+- NEXT EXECUTABLE ACTION: exact-head Quality + Enforcement + Final Certification + Browser + Phase-F; repair only the first new failure.
+
+
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / EXACT CANDIDATE DDD
 
 > Exact-head routing header. The code candidate is the tested source SHA; the governance commit that follows must not be mistaken for the code candidate.
