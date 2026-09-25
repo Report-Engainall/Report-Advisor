@@ -203,3 +203,14 @@
 - NEXT ACTION: consume terminal exact-head workflow evidence and repair only the first reproduced failure; continue next independent UI/core surface if no failure is available yet.
 - DO NOT REPEAT: previously closed Work Center, Connections, Master Data, import readback, Executive Report, Profitability, Receivables, Decision Experience, and Data Quality/dashboard snapshot work.
 - RESUME POINTER: `main c985deeb… → PR #659 → exact head 459f6d9e5823… → first terminal failure only → next uncovered UI/core closure → exact green merge evidence`.
+
+
+## SESSION 154 — demand-series core closure checkpoint
+
+- OBSERVED HEAD BEFORE DOC WRITE: `ff13cccc17d7f4ddb42f2f96b2097ba60659fc9d`
+- CORE: `src/lib/free-toolbox/sales-demand-series.ts` now validates invoice rows, demand item rows, and product relations; malformed source payloads fail closed instead of being silently skipped into partial demand analysis.
+- CONTRACT: added `scripts/check-demand-series-contract.mjs`, registered in `package.json`, and enforced by Quality workflow.
+- UI/CORE BALANCE: this closes the canonical source underneath Inventory Intelligence without introducing a duplicate RPC or data path.
+- EVIDENCE STATUS: exact-head Actions remain the authoritative gate; browser/device, production, and Phase-F are still unproven until their required evidence exists.
+- NEXT ACTION: consume the first terminal exact-head workflow failure only; if still queued, continue the next independent uncovered surface.
+- DO NOT REPEAT: prior Work Center, Connections, Master Data, Import, Executive, Profitability, Receivables, Decision Experience, Data Quality, Dashboard Snapshot, and Inventory Intelligence closures.
