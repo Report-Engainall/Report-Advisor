@@ -1,3 +1,21 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-138
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `efa732b1533cc63c0050323616cf55ba61851077`.
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-138`.
+- UI DELIVERY → PR #638 merged into main as `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda`. Exact-head UI evidence was successful for Quality, Enforcement, Final Certification, Full Product Browser E2E, Device-Independent Browser E2E, Storage Tenant Runtime E2E, Desktop Windows, and UI Route Completeness. The shell accessibility closure is now in main; PR #635 is closed/superseded.
+- UI GOVERNANCE → post-merge Enforcement briefly failed because the main index still referenced pre-merge UI head `14f35b...`; that was repaired in main by commit `efa732b1533cc63c0050323616cf55ba61851077`. Fresh post-merge main gates are executing; no stale PASS is transferred.
+- CORE DELIVERY → PR #637 progressed through exact-head Quality, Browser E2E, Storage, Desktop, Device-Independent Browser, Final Certification and Enforcement successfully on candidate `09c2386...` before live Phase-F.
+- CORE PHASE-F RUN → `36170355037` on exact candidate `09c2386f06b07e0c094cfe94e829c3e600a05c5c` failed closed. Tenant canary passed. Operational health returned HTTP 200 but served deployment SHA `886c3e11afb0304f48b8653001bf5b6a4f039ab5`, not the tested candidate. Logical restore progressed through `public.carts` but failed at missing `public.cart_items`. Rollback-forward-fix remained HTTP 503. Artifact ID `10880200125`.
+- CORE REPAIR NOW IN FLIGHT → PR #637 candidate advanced to `87a8d4d1709cbe39f97b4b27050ac1b1543c1d1b`, adding replay-safe `public.cart_items` parity to the existing `profiles/carts` restore migration: FK to carts/products, unique `(cart_id,product_id)`, quantity bounds, product index, authenticated self-select RLS, and grants; Phase-10 contract assertions were extended accordingly.
+- CORE CURRENT CI → Browser E2E and Execution Enforcement are SUCCESS on `87a8d4d...`; Final Certification is still in progress. Fresh Phase-F has not yet appeared for this candidate and is expected to run only through the governed workflow path.
+- LIVE STAGING OBSERVATION → `public.carts` and `public.cart_items` shapes were queried directly and match the new parity contract; `cart_items_self_select` enforces user/customer/company context.
+- UNSAFE MUTATION AVOIDED → 151 `import_jobs` remain `processing`, 150 at progress 0, oldest 2026-09-14 12:53:22Z. No terminalization was performed because no governed import-job recovery contract was proven.
+- SECURITY/PERFORMANCE REVIEW → staging advisors continue to report 46 authenticated-callable SECURITY DEFINER functions and multiple unused indexes. No blanket revokes/deletions were applied.
+- VERIFIED → UI merge on exact current main; public Netlify preview for current UI candidate; direct staging schema/RLS verification for carts/cart_items/profiles; exact core gates and exact Phase-F failure evidence; governance rebinds on both UI and core branches.
+- BLOCKED / NOT PROVEN → Phase-F production exact-SHA identity, logical restore completion/RPO/RTO, rollback, and production promotion remain unproven. Vercel free-plan rate-limit remains external. Local device/browser execution is unavailable in this session.
+- CURRENT RESUME POINTER → `efa732b1533cc63c0050323616cf55ba61851077` → consume current main post-merge certification and PR #637 exact-head CI → fresh Phase-F on `87a8d4d...` → repair only first new live restore defect → merge core only after exact live evidence.
+- NEXT EXECUTABLE ACTION → inspect the first current-head result from PR #637 and main post-merge certification; if Phase-F reaches another missing schema, add only that source-backed parity layer and rebind exact-head governance.
+- DO NOT REPEAT → no UI shell rewrite, no PR #635 evidence reuse, no transfer from `09c2386...` Phase-F PASS (none exists), no production SHA bypass, no unsafe import-job mutation, no blanket SECURITY DEFINER or index cleanup.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-137
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `d77013f830f911c2c267a1c8986783c1a4840370` (exact GitHub main after execution-index reconciliation).
