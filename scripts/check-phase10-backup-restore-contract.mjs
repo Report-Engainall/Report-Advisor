@@ -42,6 +42,7 @@ for (const token of [
 }
 
 const profilesParityUpper = stripSqlComments(cartsParityMigration).toUpperCase();
+assert.ok(cashAccountsParityUpper.includes('BRANCHES_ID_COMPANY_UNIQUE'), 'cash restore parity must establish the composite branch/company key prerequisite');
 const cashAccountsParityUpper = stripSqlComments(cashAccountsParityMigration).toUpperCase();
 for (const token of [
   'CREATE TABLE IF NOT EXISTS PUBLIC.CASH_ACCOUNTS',
