@@ -84,7 +84,10 @@ function runCommand(command, args, options = {}) {
     const stderr = typeof error?.stderr === 'string' ? error.stderr.trim() : '';
     const stdout = typeof error?.stdout === 'string' ? error.stdout.trim() : '';
     const diagnostics = [stderr, stdout].filter(Boolean).join('\n');
-    throw new Error(`${command}_failed:${diagnostics.slice(-12000) || error?.message || String(error)}`);
+    const boundedDiagnostics = diagnostics.length > 12000
+      ? `HEAD:\n${diagnostics.slice(0, 3000)}\n...TRUNCATED...\nTAIL:\n${diagnostics.slice(-9000)}`
+      : diagnostics;
+    throw new Error(`${command}_failed:${boundedDiagnostics || error?.message || String(error)}`);
   }
 }
 
