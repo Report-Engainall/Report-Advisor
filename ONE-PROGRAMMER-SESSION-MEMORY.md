@@ -1,4 +1,20 @@
-﻿## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-121
+﻿## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-122
+
+- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-122.
+- MAIN HEAD VERIFIED: 7159553fcfc9d21304ffff60e1086a34b714ac09.
+- CURRENT CODE/TEST CANDIDATE: 487284b10b36f2b8a301c4319873980ff3b9a3a2 on PR #628.
+- DONE: patched Phase-F logical backup source selection to try the configured source first and then authorized DB-password/temporary-access credentials when present, without emitting credentials in evidence.
+- LOCAL EXACT-SHA CHECKS: node syntax check PASS; git diff --check PASS; test:phase-f-runtime-closure PASS; test:operational-resilience PASS; backup/restore evidence-integrity PASS; typecheck PASS.
+- VERCEL EXACT CANDIDATE: deployment dpl_2FKip2ZdSaMAXRh2XSGoxNgY1KZS READY for SHA 487284b...; preview root HTTP 200 and Arabic RTL الأغبري shell verified. Production alias remains on dpl_F4nkx3kwgxgncjre1Mo34sfp8448 / SHA 7be9f01491384e641f32b31b2753c46fd32f7128.
+- PHASE-F EXACT RESULT: fresh run 36075872644 on SHA 487284b... failed closed 1/4. Health HTTP 200 but DEPLOYMENT_SHA_MISMATCH; tenant-canary PASS; logical backup/restore failed with logical_backup_source_unavailable:configured-source:connection_failed; rollback-forward drill HTTP 503 because the forward baseline was not established. Artifact 10840012643 is the exact readiness evidence.
+- ROOT CAUSE BOUNDARY: this Phase-F run proved that GitHub currently delivered only RESILIENCE_LOGICAL_SOURCE_DB_URL as the usable logical credential candidate; no SUPABASE_DB_PASSWORD / temporary-access fallback was present in the execution environment. The configured DB URL is therefore still externally invalid/unusable. No database password rotation or bypass was attempted.
+- SUPABASE CONNECTION SAFETY: current Supabase documentation requires copying the actual Session Pooler host from Connect; pooler cluster index cannot safely be inferred from region. Do not keep or certify an inferred host as production evidence.
+- RELEASE BOUNDARY: no production promotion, alias mutation, merge, RPO/RTO, rollback PASS, or final release certification is claimed.
+- DO NOT REPEAT: no Phase-F rerun with the unchanged external credential; no transfer of 38146ca/fcb5148 or older runtime evidence to 487284b; no production-SHA bypass; no unsafe password rotation; no managed-backup substitution without changing the governing product acceptance path.
+- CURRENT PRECISE STOP POINT: two external release inputs remain: (1) authorized valid logical Postgres connection credential/source, preferably copied from Supabase Connect Session Pooler or an approved temporary/DB credential path; (2) exact production promotion of the validated candidate.
+- NEXT EXECUTABLE ACTION: after the authorized logical DB credential/source is corrected and exact production deployment is aligned, run one fresh Phase-F on the new exact boundary; consume measured backup/restore → RPO/RTO → rollback → final release certification. Unchanged failures must not be rerun.
+
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-121
 
 - SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-121.
 - MAIN HEAD VERIFIED: 7159553fcfc9d21304ffff60e1086a34b714ac09.
