@@ -1,3 +1,20 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-126
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-126`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `b8a19ec642955f695e7fe8b8a8525b9fa0918cc5`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `bb6bf125474c185670bb0bcf44f75eac8f85b4d8`.
+- DONE → Phase-F run `36159874884` was consumed exactly: production health returned HTTP 200 but `DEPLOYMENT_SHA_MISMATCH` (`dcabe46...` served vs `bb6bf12...` expected); tenant canary returned HTTP 200. Logical backup/restore then failed on GitHub runner IPv6 route, and rollback-forward drill returned 503.
+- DONE → independent logical-backup resilience hardening now resolves an IPv4 address and adds libpq `hostaddr` while preserving the source hostname for TLS. Final source commit `b8a19ec...`.
+- VERIFIED PRIOR STABLE GATES → Quality, Final Certification, Enforcement, Storage Tenant Runtime, Full Product Browser and Device-Independent Browser all SUCCESS on `bb6bf12...`.
+- UI LANE → no new UI source change; prior exact-head browser smoke/full product/device-independent gates were green on `bb6bf12...`; current `b8a19ec...` requires fresh browser proof.
+- CORE LANE → current_company_id UUID resolver fixed; lineage contract aligned; staging live resolver verified; logical backup IPv4 fallback added; production identity/recovery remain the release boundary.
+- FAILED → Phase-F `36159874884` on `bb6bf12...`; do not transfer its result to `b8a19ec...`.
+- BLOCKED → production still serves `dcabe46...`; supported Vercel connector has no promote mutation, and PC01 is offline, so no promotion or production mutation was performed.
+- CURRENT RESUME POINTER → `b8a19ec642955f695e7fe8b8a8525b9fa0918cc5` → consume exact-head Quality/Enforcement/Final Certification/Browser/Storage/Phase-F → repair first current-SHA failure → then re-establish exact production identity and recovery proof.
+- NEXT EXECUTABLE ACTION → inspect fresh workflows created from `b8a19ec...`; if Phase-F backup/restore is now green but deployment SHA mismatch remains, close the production-promotion boundary through an authorized supported path rather than weakening the check.
+- DO NOT REPEAT → do not reintroduce `min(uuid)`; do not weaken ambiguity guard; do not transfer old Phase-F PASS; do not label preview production.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-125
 
 - SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-125`.
