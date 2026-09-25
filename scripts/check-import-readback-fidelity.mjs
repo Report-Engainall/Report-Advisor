@@ -13,4 +13,6 @@ for (const token of [
   if (!source.includes(token)) throw new Error(`Import readback fidelity contract missing: ${token}`);
 }
 if (source.includes("source_type: 'import', file_size: 0")) throw new Error('Import readback still hardcodes source type or file size');
+if (!source.includes('.eq(\'company_id\', companyId)')) throw new Error('Import readback is missing tenant scoping on the canonical list query');
+if (!source.includes('.eq(\'id\', focusJobId)')) throw new Error('Import focused readback is missing job-id scoping');
 console.log('Import readback fidelity contract: PASS (tenant-scoped import metadata is preserved from result_summary with safe fallbacks).');
