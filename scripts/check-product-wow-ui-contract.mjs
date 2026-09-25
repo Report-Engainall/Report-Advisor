@@ -233,6 +233,11 @@ assert.ok(externalFileAnalysis.includes('دليل محلي + بصمة المصد
 const intelligenceCenter = fs.readFileSync('src/pages/IntelligencePage.tsx', 'utf8');
 assert.ok(intelligenceCenter.includes('<TruthContextStrip months={6} status={truthContext?.status ?? \'INSUFFICIENT_DATA\'} asOf={truthContext?.asOf ?? \'غير متاح\'} />'), 'intelligence center must expose canonical period/status/as-of context');
 assert.ok(intelligenceCenter.includes('fetchDashboardSnapshot(6)'), 'intelligence center must bind truth context to the canonical dashboard snapshot');
+const recommendationsSurface = fs.readFileSync('src/pages/IntelligencePage.tsx', 'utf8');
+assert.ok(recommendationsSurface.includes('<TruthContextStrip months={6} status={truthContext?.status ?? \'INSUFFICIENT_DATA\'} asOf={truthContext?.asOf ?? \'غير متاح\'} />'), 'recommendations/forecast surfaces must expose canonical truth context');
+assert.ok((recommendationsSurface.match(/<TruthContextStrip months={6}/g) || []).length >= 3, 'intelligence center, recommendations, and forecasts must each expose canonical truth context');
+assert.ok((recommendationsSurface.match(/fetchDashboardSnapshot\(6\)/g) || []).length >= 3, 'all intelligence surfaces must bind truth context to the canonical dashboard snapshot');
+
 const metricInspector = fs.readFileSync('src/pages/MetricInspectorPage.tsx', 'utf8');
 assert.ok(metricInspector.includes('const filteredItems = useMemo'), 'metric inspector must derive a filtered semantic list without mutating the source contract');
 assert.ok(metricInspector.includes('aria-label="البحث في المؤشرات"'), 'metric inspector search must be accessible');
