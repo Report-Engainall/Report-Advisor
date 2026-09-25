@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-132
+
+- SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-132.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `ebb992c053d804e07a2913ecbdd5a994359c682f`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `8e89459307806d7f91386092e2e664a21e9c3ffa`.
+- DONE → removed the forbidden `push: main` trigger from Phase-F workflow on UI branch; shell accessibility changes remain limited to Header/Sidebar.
+- CURRENT EXACT-HEAD CI → route completeness, Device-Independent Browser E2E, Storage Tenant Runtime E2E and broad contract checks were green on ancestor candidate; new workflows for `ebb992c...` are active. The prior enforcement/certification failure was due to index still pointing at `8749cb6...` after workflow config changed; index is now rebound to the current candidate.
+- PHASE-F NOT READY → prior UI run failed production deployment SHA identity (`dcabe46...` served) and logical restore failed because this branch lacks the helper migration from PR #632. This is an integration-order dependency, not a UI regression. Do not weaken the gate.
+- UI LANE → mobile-safe shell target sizes, Escape dismissal, focus-visible affordances, explicit disclosure relationships.
+- CORE LANE → PR #632 contains helper/tenant-resolver/backup hardening; latest candidate there is `1843040d9f43199102516dd53702ad5b2e2f6efc`; fresh exact-head runs pending.
+- CURRENT RESUME POINTER → `ebb992c...` → consume UI exact-head quality/enforcement/certification/browser → resolve Phase-F dependency via core integration order, not bypass.
+- NEXT EXECUTABLE ACTION → inspect fresh workflows after index rebind; repair only first reproduced failure.
+- DO NOT REPEAT → no stale PASS transfer, no production SHA bypass, no live-resilience push trigger, no duplicate UI path.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-UI-CONTINUOUS-EXECUTION-131
 
 - SESSION-ID → 2026-09-25-AGHBARI-UI-CONTINUOUS-EXECUTION-131.
