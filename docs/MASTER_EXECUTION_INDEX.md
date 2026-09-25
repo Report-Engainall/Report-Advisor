@@ -1,3 +1,20 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS DEEP UI + CORE WAVE 143E
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- WORKING HEAD OBSERVED BEFORE THIS WRITE: `c41fbe5176d8b32ac56d53a5d301e3daadad6af7`.
+- CURRENT PR #656: exact current-main UI/core consolidation, mergeable, unmerged.
+- UI LANE: shell/overlay/accessibility semantics; report truth context; External File Analysis recovery/evidence; Decision Experience truth context; Data Quality empty-state semantics; Intelligence Center + Recommendations + Forecasts all bound to canonical period/status/As-of.
+- CORE LANE: client_ui_settings restore parity; four targeted cart SECURITY DEFINER hardenings; Phase-F resolved-source contract; server-owned canonical import terminalization + idempotent UI finalization.
+- LEGACY IMPORT JOBS: 151 processing, source_fingerprint null on observed processing set; no safe durable proof for bulk recovery, so no terminalization mutation performed.
+- LOCAL WRITE BLOCKER: EntityContextDrawer focus-trap/focus-restore patch was rejected by GitHub safety checks; no partial change. Treat as blocked, not done.
+- CURRENT CI: 44 queued, 2 in progress, 3 completed/skipped, 0 failures observed; no PASS transferred.
+- PRODUCTION: report-advisor.vercel.app still serves SHA `7edc3cc210e4b81cf18d11fd995296de7a37df87`; current branch preview not found in Vercel deployment listing.
+- NEXT EXECUTABLE ACTION: consume #656 exact-head mandatory gates. If green, merge #656, then start Phase-F on exact merged SHA. Otherwise repair only the first current-SHA failure.
+- RESUME POINTER: `#656 exact-head gates -> first failure -> smallest repair -> exact rerun -> merge -> Phase-F exact-merge resilience`.
+- DO NOT REPEAT: stale PASS, production-SHA bypass, preview-as-production, duplicate import/RPC/runner, blanket security cleanup, unsafe import-job terminalization, identical blocked drawer patch.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS DEEP UI + CORE WAVE 143D
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
