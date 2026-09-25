@@ -1,3 +1,19 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-128
+
+- SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-128.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → 9c4e5f03a53ae211d5ed00077c2fd43a339a7db2.
+- CURRENT CODE/TEST CANDIDATE → 5642b6ee4856fb54ffea4fc415e69a9876f59250e.
+- GOVERNANCE HEAD BEFORE THIS WRITE → 9646e9927e7fddf24d977f5f32b986fffcb7ea24.
+- DONE → direct DB host remained IPv6-only/unreachable in Phase-F run 36160600882. Added a guarded same-project regional transaction-pooler fallback after IPv4 DNS fails; project ref must match and the original source password is reused.
+- EXACT PRIOR RESULT → Phase-F failed operational health with production SHA mismatch (dcabe46... served vs bb6bf12... expected), tenant canary 200, logical backup/restore IPv6 network unreachable, rollback drill 503.
+- CURRENT CI → 9646... workflow set was still running at the time of this write; no PASS transferred.
+- UI LANE → no source UI mutation; core gate is the active frontier.
+- CORE LANE → UUID-safe tenant resolver, lineage contract, IPv4/pooler restore fallback, and bounded future-JWT test retry.
+- BLOCKED → production still serves dcabe46...; no production promotion performed because the connected tools do not expose the promotion mutation and PC01 is offline.
+- CURRENT RESUME POINTER → 5642b6ee4856fb54ffea4fc415e69a9876f59250e → consume exact-head Quality/Enforcement/Final/Browser/Storage/Phase-F; repair first current-SHA failure only.
+- NEXT EXECUTABLE ACTION → inspect the workflow set produced from 5642b6e...; if Phase-F backup passes, isolate the remaining production deployment identity blocker.
+- DO NOT REPEAT → do not transfer Phase-F failure from b8a...; do not claim the pooler fallback works until exact-run evidence exists; do not change auth retry semantics beyond the exact transient condition.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-127
 
 - SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-127.
