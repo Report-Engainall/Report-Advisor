@@ -113,6 +113,13 @@ assert.ok(canonicalImport.includes('role="list" aria-label="مراحل الاس�
 assert.ok(canonicalImport.includes('aria-current={active ? \'step\' : undefined}'), 'canonical import must expose the active step to assistive technology');
 
 const commandPalette = fs.readFileSync('src/components/CommandPalette.tsx', 'utf8');
+const header = fs.readFileSync('src/components/Header.tsx', 'utf8');
+assert.ok(header.includes('alertPanelRef'), 'alert drawer must expose a dialog focus boundary');
+assert.ok(header.includes("event.key === 'Tab'"), 'alert drawer must trap keyboard focus while open');
+assert.ok(header.includes('aria-label="إغلاق التنبيهات"'), 'alert drawer must expose an accessible close control');
+assert.ok(header.includes('document.body.style.overflow = \'hidden\''), 'alert drawer must lock background scroll while open');
+
+
 assert.ok(commandPalette.includes('restoreFocusRef'), 'command palette must restore focus to its opener');
 assert.ok(commandPalette.includes('document.body.style.overflow = \'hidden\''), 'command palette must lock background scroll while open');
 assert.ok(commandPalette.includes("event.key === 'Tab'"), 'command palette must trap keyboard focus inside the dialog');
