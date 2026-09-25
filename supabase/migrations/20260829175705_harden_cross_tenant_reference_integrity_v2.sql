@@ -1,4 +1,20 @@
 -- Harden cross-tenant references that are not fully covered by FK constraints.
+
+create or replace function public.enforce_same_company_reference()
+returns trigger
+language plpgsql
+set search_path to 'public'
+as $function$
+declare parent_company uuid; parent_table text := TG_ARGV[0]; parent_id_col text := TG_ARGV[1]; parent_id uuid;
+begin
+  parent_id := to_jsonb(NEW)->>TG_ARGV[1];
+  if parent_id is null then return NEW; end if;
+  execute format('select company_id from public.%I where id = $1', parent_table) into parent_company using parent_id;
+  if parent_company is null then raise exception 'REFERENCED_ENTITY_NOT_FOUND'; end if;
+  if NEW.company_id is distinct from parent_company then raise exception 'TENANT_CONTEXT_MISMATCH'; end if;
+  return NEW;
+end;
+$function$;
 -- Recovered from the production-applied migration state on 2026-08-29.
 
 create or replace function public.enforce_payment_reference_same_company()
