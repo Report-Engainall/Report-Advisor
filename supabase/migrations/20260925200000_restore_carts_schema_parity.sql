@@ -1,6 +1,7 @@
 -- Restore parity for the live public.carts relation discovered by Phase-F logical restore.
 -- Source-of-truth: staging project fnqbvfuwbdpwvhcgzksl at 2026-09-25.
 -- Forward-only: preserves the live relation shape, tenant FK boundaries, indexes, RLS and authenticated read policy.
+
 create table if not exists public.profiles (
   id uuid primary key,
   organization_id uuid not null,
@@ -9,7 +10,7 @@ create table if not exists public.profiles (
   created_at timestamptz not null default now()
 );
 
-do $
+do $$
 begin
   if not exists (
     select 1 from pg_constraint
@@ -41,7 +42,7 @@ begin
       foreign key (customer_id) references public.customers(id) on delete set null;
   end if;
 end
-$;
+$$;
 
 create index if not exists profiles_customer_idx
   on public.profiles(customer_id);
