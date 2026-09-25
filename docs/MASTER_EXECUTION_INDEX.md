@@ -1,8 +1,8 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F IPV4 FALLBACK REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `eb2727558b8f88ad99edcde376c04c738a0e72bb`.
-- CURRENT CODE/TEST CANDIDATE: `683c6fe1c79cdf6a7e6d8e7e1cd17e6a73137002`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `683c6fe1c79cdf6a7e6d8e7e1cd17e6a73137002`.
+- CURRENT CODE/TEST CANDIDATE: `caefbdc6b2cd4054415a5dc725ff15ddf0cf56e7`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `caefbdc6b2cd4054415a5dc725ff15ddf0cf56e7`.
 - DONE: repaired Phase-F direct-DNS IPv6 fallback so a failed IPv4 lookup continues into the existing project-scoped shared pooler path instead of returning the unusable direct URI.
 - EXACT CURRENT-SHA PROOF: targeted source contract has been added; live Phase-F and full CI are re-running against the new candidate. No PASS is transferred.
 - NEXT EXECUTABLE ACTION: consume current-head Quality/Enforcement/Final Certification/Phase-F results; repair only the first reproduced current-head failure.
