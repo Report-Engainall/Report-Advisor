@@ -1,8 +1,8 @@
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / PHASE-F RESTORE CANDIDATE
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE REBIND: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
-- CURRENT CODE/TEST CANDIDATE: `7effcba80391f098c6f81ad062509e65f39f9705`.
-- CURRENT GOVERNANCE HEAD: `7effcba80391f098c6f81ad062509e65f39f9705`.
+- CURRENT CODE/TEST CANDIDATE: `46003d9f600bfaa59ff7f5635982f4abb90e0f7a`.
+- CURRENT GOVERNANCE HEAD: `46003d9f600bfaa59ff7f5635982f4abb90e0f7a`.
 - DONE: Phase-F restore chain fixed through the generic tenant-reference helper, dashboard UUID→text fallback, and import progress RPC default preservation in both monotonic and terminal-resurrection migrations.
 - EXACT PHASE-F HEAD: run `36096134320` is executing against the exact current candidate lineage.
 - CURRENT CERTIFICATION GATE: previous boundary drift from `1e93d43...` is corrected in this branch; no historical PASS transferred.
