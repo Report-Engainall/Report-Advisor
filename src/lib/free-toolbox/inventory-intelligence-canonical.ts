@@ -58,7 +58,7 @@ export async function fetchInventoryIntelligenceSource(): Promise<InventoryIntel
   const rows: DetailReportRow[] = [];
   for (const [productId, stock] of stockByProduct) {
     const product = productById.get(productId);
-    if (!product) continue;
+    if (!product) throw new Error('REPORT_DATA_UNAVAILABLE: inventory balance product reference invalid');
     const series = demandByProduct.get(productId);
     rows.push({
       sku: product.sku,
