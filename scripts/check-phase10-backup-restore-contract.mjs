@@ -100,7 +100,30 @@ for (const token of [
   'CUSTOMER_ID = CURRENT_CUSTOMER_ID()',
   'COMPANY_ID = CURRENT_CUSTOMER_COMPANY_ID()',
   'GRANT SELECT ON TABLE PUBLIC.CART_ITEMS TO AUTHENTICATED',
+])
+
+const cashAccountsParityUpper = stripSqlComments(cartsParityMigration).toUpperCase();
+for (const token of [
+  'CREATE TABLE IF NOT EXISTS PUBLIC.CASH_ACCOUNTS',
+  'COMPANY_ID UUID NOT NULL',
+  'BRANCH_ID UUID NOT NULL',
+  'NAME TEXT NOT NULL',
+  'CURRENCY TEXT NOT NULL',
+  'OPENING_BALANCE NUMERIC NOT NULL',
+  'RECEIVED NUMERIC NOT NULL',
+  'SPENT NUMERIC NOT NULL',
+  'CURRENT_BALANCE NUMERIC',
+  'CASH_ACCOUNTS_COMPANY_ID_FKEY',
+  'CASH_ACCOUNTS_BRANCH_COMPANY_FKEY',
+  'CASH_ACCOUNTS_CURRENCY_FORMAT',
+  'CASH_ACCOUNTS_NONNEGATIVE',
+  'IDX_CASH_ACCOUNTS_COMPANY_BRANCH',
+  'CASH_ACCOUNTS_TENANT_SELECT',
+  'GRANT SELECT ON TABLE PUBLIC.CASH_ACCOUNTS TO AUTHENTICATED',
 ]) {
+  if (!cashAccountsParityUpper.includes(token)) throw new Error(`Missing cash account restore-parity invariant: ${token}`);
+}
+ {
   if (!cartsParityUpper.includes(token)) throw new Error(`Missing carts schema restore-parity invariant: ${token}`);
 }
 
