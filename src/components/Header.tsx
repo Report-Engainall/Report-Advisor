@@ -136,6 +136,8 @@ export function Header({
               className="relative flex min-h-11 min-w-11 items-center justify-center rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 hover:text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
               aria-label={'التنبيهات، ' + unreadAlerts.length + ' غير مقروء'}
               aria-expanded={showAlerts}
+              aria-controls="ag-alert-panel"
+              aria-haspopup="dialog"
             >
               <Bell size={17} />
               {unreadAlerts.length > 0 && (
@@ -148,7 +150,7 @@ export function Header({
             {showAlerts && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowAlerts(false)} />
-                <div className="ag-alert-panel absolute left-0 z-50 mt-1.5 w-80 overflow-hidden rounded-[12px] border border-ink-200 bg-white shadow-elevated">
+                <div id="ag-alert-panel" role="dialog" aria-label="التنبيهات" className="ag-alert-panel absolute left-0 z-50 mt-1.5 w-80 overflow-hidden rounded-[12px] border border-ink-200 bg-white shadow-elevated">
                   <div className="ag-alert-head flex items-center justify-between border-b border-ink-100 px-4 py-3">
                     <span className="text-sm font-black text-ink-900">الانتباه</span>
                     <span className="text-[11px] text-ink-400">{unreadAlerts.length} غير مقروء</span>
