@@ -99,7 +99,7 @@ function runCommand(command, args, options = {}) {
 async function preferIpv4Host(databaseUrl) {
   try {
     const parsed = new URL(databaseUrl);
-    if (!parsed.hostname || /^\\d+(?:\\.\\d+){3}$/.test(parsed.hostname)) return databaseUrl;
+    if (!parsed.hostname || /^\d+(?:\.\d+){3}$/.test(parsed.hostname)) return databaseUrl;
     const answers = await dns.lookup(parsed.hostname, { family: 4, all: true, verbatim: false });
     const ipv4 = answers.find(answer => answer.family === 4)?.address;
     if (!ipv4) return databaseUrl;
