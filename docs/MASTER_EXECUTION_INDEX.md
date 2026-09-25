@@ -1,8 +1,8 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / EXACT GITHUB MAIN RECONCILIATION
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `d43c8203ca249f6e8f9661a784d8a170a3870111`.
-- CURRENT CODE/TEST CANDIDATE: `dfbb1a9c42128c5210bba6a60fb4d66feaa9652d` (latest merged functional core candidate; later main commits are governance-only).
-- GOVERNANCE HEAD BEFORE THIS WRITE: `dfbb1a9c42128c5210bba6a60fb4d66feaa9652d`.
+- CURRENT CODE/TEST CANDIDATE: `b319bf2caed51f90fcf196828012b90559dcfa9d` (latest merged functional core candidate; later main commits are governance-only).
+- GOVERNANCE HEAD BEFORE THIS WRITE: `b319bf2caed51f90fcf196828012b90559dcfa9d`.
 - CORE STATE: PR #632 is merged at `886c3e11afb0304f48b8653001bf5b6a4f039ab5`. Current main also contains subsequent governance synchronization commits through `eb2727558...`.
 - UI STATE: PR #635 / branch `ui/shell-accessibility-closure-mainhead-20260925` is 6 commits ahead of current main and changes only Header, Sidebar, and this index; it contains the shell accessibility closure (44px targets, Escape/focus restoration, disclosure semantics, keyboard focus).
 - PHASE-F RUN CONSUMED: `36165329471` completed FAILED/CLOSED on PR head `dcff29f15d4851bd6f48dd863e5a62b29f67519e`. Exact observed failures: production deployment SHA `dcabe46e594cbb070e145882a87dd67fa91ddabe` did not match tested head; logical restore could not reach Supabase direct DB over IPv6; rollback-forward-fix drill returned HTTP 503. Tenant canary passed HTTP 200. No Phase-F PASS is transferable.
