@@ -1,12 +1,12 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CLIENT UI SETTINGS RESTORE PARITY
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CLIENT UI SETTINGS + REALTIME RESTORE PARITY
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- CURRENT CODE/TEST CANDIDATE: `d7144ee20ba056e5a6ca1906a062ba8a6cf3a881`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `d7144ee20ba056e5a6ca1906a062ba8a6cf3a881`.
-- CORE DELIVERY: replay parity now includes the live branch keys + cash_accounts layer and the newly reproduced `client_ui_settings` relation: organization FK, unique organization key, live config-shape validation, customer-company SELECT RLS, and live grants.
-- EXACT LIVE FAILURE CONSUMED: Phase-F `36174509884` on `53ef97...` passed exact-head/static/auth/canary, then logical restore failed at `public.client_ui_settings`; production runtime served stale SHA `7edc3cc...`; rollback-forward-fix returned HTTP 503. No Phase-F PASS exists.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head gates + Phase-F on this candidate, then fix only the first new restore dependency.
-- DO NOT REPEAT: no stale Phase-F evidence, no cash/branch/cart rework, no production-SHA bypass, no unsafe import-job mutation.
+- CURRENT CODE/TEST CANDIDATE: `ce29844fd191cb32018e76222d0ebc26bd6c0274`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `ce29844fd191cb32018e76222d0ebc26bd6c0274`.
+- CORE DELIVERY: client_ui_settings parity now includes live relation shape, organization FK/UNIQUE, config-shape constraint, customer-company SELECT RLS, live grants, and supabase_realtime publication membership.
+- EXACT FAILURE CONSUMED: Phase-F `36174509884` on `53ef97...` reached logical restore and stopped at missing `public.client_ui_settings`; this candidate closes that exact dependency without changing acceptance criteria.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head gates and Phase-F on this candidate; repair only the first newly reproduced live dependency.
+- DO NOT REPEAT: no stale Phase-F evidence, no prior cash/branch/cart parity rework, no production-SHA bypass.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
