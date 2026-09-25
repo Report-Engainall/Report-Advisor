@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-124
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-124`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `817b9298b08677ea87a0a8deeaaeee4e3e976431`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `f23d6f730c535ce858dec42cbf155c93a32205ab`.
+- DONE → Final Certification reproduced and isolated a contract defect: the bounded tenant SELECT guard rejected schema-qualified `public.company_memberships`. The guard is now corrected to accept the canonical qualified table path.
+- EXACT PRIOR RESULTS → Enforcement SUCCESS, Storage Tenant Runtime E2E SUCCESS, and Full Product Browser E2E SUCCESS on the previous stable candidate lineage; Final Certification failed only at the tenant-security contract before this patch.
+- CORE LANE → current_company_id UUID runtime repair remains intact; staging live function was verified; duplicate active-default count remains zero.
+- UI LANE → no new source UI change; current candidate requires fresh Browser/Device-Independent proof.
+- DO NOT REPEAT → do not weaken the bounded single-tenant SELECT requirement; do not transfer prior candidate PASS to `817b929...`; do not mutate branch after the stable governance synchronization.
+- CURRENT RESUME POINTER → `817b9298b08677ea87a0a8deeaaeee4e3e976431` → consume stable exact-head Quality/Enforcement/Final Certification/Browser/Storage/Phase-F → repair first real failure only.
+- NEXT EXECUTABLE ACTION → inspect workflows for the stable governance head after this write; no further branch mutation unless a reproduced defect requires it.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-123
 
 - SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-123`.
