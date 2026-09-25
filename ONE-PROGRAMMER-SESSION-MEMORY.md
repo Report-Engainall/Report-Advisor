@@ -1,3 +1,15 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143C
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- WORKING HEAD OBSERVED BEFORE THIS WRITE → `47914a71aa44d8e7e7895012d81e32dd6216479e`.
+- STAGING CORE MUTATION → exact source migration `20260925210000_harden_legacy_cart_rpc_security_definer.sql` applied to `Report-Advisor-P0-2-Staging` (`fnqbvfuwbdpwvhcgzksl`).
+- STAGING POST-MUTATION PROOF → `clear_cart`, `get_cart`, `remove_cart_item`, `set_cart_item` are `SECURITY DEFINER` with `search_path=public, pg_catalog`; `anon/public EXECUTE=false`; `authenticated EXECUTE=true`. No other SECURITY DEFINER functions were mutated.
+- SECURITY SCOPE → the 46-function advisor warning remains intentionally broader than this targeted legacy-cart hardening; no blanket revoke was performed.
+- UI STATE → Decision Experience truth context and Data Quality EMPTY semantics remain source-contract protected; External File Analysis interaction/evidence flow remains protected.
+- CURRENT CI → newest governance head has queued/in-progress required checks and no observed failure; no PASS transferred.
+- PRODUCTION BOUNDARY → report-advisor.vercel.app remains on SHA `7edc3cc210e4b81cf18d11fd995296de7a37df87`; no promotion/bypass.
+- CURRENT RESUME POINTER → `#656 exact-head checks -> first current-SHA failure -> smallest repair -> re-run; then merge and start Phase-F on exact merged SHA`.
+- DO NOT REPEAT → blanket SECURITY DEFINER cleanup, stale PASS, production-SHA bypass, shell rework, preview-as-production, unsafe import-job terminalization.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143B
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
