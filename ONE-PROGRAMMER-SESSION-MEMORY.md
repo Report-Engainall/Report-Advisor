@@ -1,3 +1,18 @@
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-121
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `886c3e11afb0304f48b8653001bf5b6a4f039ab5` (PR #632 merged successfully).
+- CORE DELIVERY → merged PR #632 `fix(phase-f): restore generic tenant-reference helper`; the first reproduced Phase-F restore failure was corrected by restoring the canonical replay-safe `public.enforce_same_company_reference()` migration dependency and extending the Phase-10 contract guard.
+- EXACT PHASE-F RUN → `36165329471` on PR head `dcff29f15d4851bd6f48dd863e5a62b29f67519e` is currently IN_PROGRESS. Steps through authenticated canary completed successfully; live resilience probes are the active step. No final Phase-F PASS is claimed yet.
+- UI DELIVERY → rebased the already-proven shell accessibility closure onto current main in PR #634, head `57b19ff9a0bbd56c506f2f8df3f22fbcdd2715be`. Changes are limited to Header/Sidebar: 44px touch targets, Escape close/focus restoration, explicit aria-controls, keyboard focus visibility. PR is open; Vercel remains externally rate-limited and blocks merge readiness.
+- UI CLOUD EVIDENCE → PR #634 workflows are queued/in progress; no fresh UI PASS is claimed until the exact head completes its gates.
+- CURRENT BLOCKERS → Phase-F live probes still running; Vercel free-plan deployment limit remains an external deployment blocker; browser/device-dependent authenticated runtime remains NOT PROVEN without current-head execution evidence.
+- DO NOT REPEAT → do not reapply PR #632 core fix; do not transfer PR-local or predecessor PASS; do not bypass deployment SHA/credentials; do not force-merge PR #634 through a Vercel failure.
+- CURRENT RESUME POINTER → `886c3e11afb0304f48b8653001bf5b6a4f039ab5` → consume exact Phase-F run `36165329471` result → if first live failure remains, fix only that failure → consume fresh exact-head Quality/Enforcement/Certification/Browser gates → then close PR #634 UI gate and merge only when required checks permit.
+- NEXT EXECUTABLE ACTION → poll Phase-F run `36165329471`; capture the first observed live probe result, then continue with the corresponding exact-head repair or certification closure.
+- UI LANE PROGRESS → shell accessibility closure implemented and rebased as PR #634; awaiting exact-head automated evidence.
+- CORE LANE PROGRESS → first current Phase-F restore defect closed and merged as PR #632; live resilience certification is actively executing.
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F IMPLICIT-PORT FALLBACK REPAIR
 
 - MAIN HEAD BASE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
