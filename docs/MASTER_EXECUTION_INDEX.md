@@ -1,14 +1,13 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / POST-MERGE UI #639
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / MAIN POST-UI CLOSURE
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `7edc3cc210e4b81cf18d11fd995296de7a37df87`.
-- CURRENT CODE/TEST CANDIDATE: `7edc3cc210e4b81cf18d11fd995296de7a37df87` (latest merged functional main; subsequent docs commits are governance-only).
-- GOVERNANCE HEAD BEFORE THIS WRITE: `7edc3cc210e4b81cf18d11fd995296de7a37df87`.
-- UI DELIVERY: PR #639 merged the App Shell micro-accessibility closure: mobile menu close control meets 44px touch target with visible focus, and mobile search hover contrast is corrected. No business/data semantics changed. Prior shell accessibility closure remains merged.
-- EXACT UI EVIDENCE: PR #639 had successful Quality and Enforcement, and successful route/browser/storage gates from the current head family. Remaining long-running checks were not treated as transferred PASS; merge occurred without changing acceptance criteria.
-- CORE CANDIDATE: PR #641 points at exact core candidate `0de70deea30484895b56ce0a9b98cac144604f8d`. It remains unmerged because Phase-F live proof is still not certified and Vercel exact deployment is not available for that SHA.
-- PHASE-F: a fresh UI-side run exists on the micro-accessibility branch but is not evidence for the core candidate. The core Phase-F prior failure remains `public.cart_items` missing on `09c2386...`; the cart_items parity repair is present in core candidate `0de70de...`.
-- NEXT EXECUTABLE ACTION: consume post-merge main gates on `7edc3cc...`; continue PR #641 exact-head certification and live Phase-F against an exact matching deployment; fix only the first current failure.
-- DO NOT REPEAT: no stale core Phase-F PASS, no Vercel SHA bypass, no local browser claim, no unsafe import-job terminalization, no blanket security/index mutation.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `5301c102213b26fc0e8f16ff9e3d8fb3194bfb24`.
+- CURRENT CODE/TEST CANDIDATE: `7edc3cc210e4b81cf18d11fd995296de7a37df87`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `5301c102213b26fc0e8f16ff9e3d8fb3194bfb24`.
+- UI: shell accessibility closure and App Shell mobile micro-accessibility are merged. Main functional head is `7edc3cc...`; docs-only commits after it are governance writes.
+- CORE: PR #641 head `0de70de...` remains the live core candidate. Its source-level carts/profiles/cart_items parity repair is complete; live Phase-F still lacks a matching deployment and exact fresh run.
+- EVIDENCE RULE: no current PASS is transferred from UI branches to core, and no Phase-F result from earlier candidates is reused.
+- NEXT EXECUTABLE ACTION: consume fresh post-merge main gates; continue exact core Phase-F only when a deployment SHA matches `0de70de...`; first current failure only.
+- LIVE SAFETY: do not terminalize 151 processing import jobs or perform blanket legacy SECURITY DEFINER/index cleanup without canonical owner/invariant proof.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
