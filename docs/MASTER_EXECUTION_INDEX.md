@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 156
+
+- CODE HEAD OBSERVED BEFORE THIS INDEX WRITE: `95371dbff307952972dd3d858926024f9294ea03`.
+- PR #659 / branch `feat/deep-ui-core-closure-20260925`.
+- CORE: Inventory Intelligence now rejects orphan balance→product references instead of silently dropping rows.
+- UI: blocked inventory truth now preserves Trust & Evidence and retry actions through the shared BoundaryState.
+- QUALITY: the inventory intelligence contract locks the orphan-reference fail-closed rule and removes the silent-discard pattern.
+- EXACT-HEAD EVIDENCE: no Actions run visible yet for `95371dbff307952972dd3d858926024f9294ea03`; Vercel reports the known free-plan deployment rate-limit failure only. No PASS transferred or claimed.
+- NOT PROVEN: current-head Quality/Certification/Browser evidence, production promotion/identity, Phase-F live resilience, and device-dependent visual evidence.
+- NEXT: consume current exact-head terminal evidence; first reproduced failure only; otherwise continue an independent UI/core closure.
+- DO NOT REPEAT: closed surfaces and stale evidence; do not interpret Vercel plan capacity as code failure; no production/Phase-F bypass.
+- RESUME POINTER: `main c985deeb… → PR #659 → exact head 95371db… → first terminal failure only → next independent UI/core closure → exact green merge evidence`.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 155
 
 - CODE HEAD OBSERVED BEFORE THIS INDEX WRITE: `74750363f5cf9b6f6050377d1d8a6d23ec8ee762`.
