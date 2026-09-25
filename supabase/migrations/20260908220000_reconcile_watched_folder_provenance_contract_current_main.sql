@@ -98,6 +98,15 @@ alter table public.canonical_text_provenance add constraint canonical_text_prove
 alter table public.canonical_text_provenance drop constraint if exists canonical_text_provenance_analysis_input_mode_check;
 alter table public.canonical_text_provenance add constraint canonical_text_provenance_analysis_input_mode_check check (analysis_input_mode in ('canonical_text','structured_source_fallback'));
 
+-- Existing installations may have the tables from the original 20260825110001 migration.
+-- CREATE TABLE IF NOT EXISTS does not backfill the composite uniqueness required
+-- by the tenant-bound foreign keys below, so make those uniqueness invariants
+-- explicit and replay-safe before the FK declarations execute.
+create unique index if not exists uq_watched_report_folders_company_id_id
+  on public.watched_report_folders(company_id, id);
+create unique index if not exists uq_watched_report_files_company_id_id
+  on public.watched_report_files(company_id, id);
+
 create index if not exists idx_watched_report_folders_company on public.watched_report_folders(company_id);
 create index if not exists idx_watched_report_files_company_folder on public.watched_report_files(company_id,folder_id);
 create index if not exists idx_watched_report_files_state on public.watched_report_files(company_id,state,updated_at);
