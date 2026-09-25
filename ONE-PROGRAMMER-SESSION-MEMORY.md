@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143F
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- WORKING HEAD OBSERVED BEFORE THIS WRITE → `90208954a229a7fe98313a878b64e38b2c2bcb47`.
+- CURRENT PR → #656, mergeable, unmerged, current-main UI/core consolidation.
+- UI DELIVERY → Intelligence Center + Recommendations + Forecasts share canonical period/status/As-of; RFM + ABC + Aging now do the same; UI contracts enforce the shared truth context.
+- CORE DELIVERY → server-owned canonical import terminalization + idempotent browser fallback; client_ui_settings parity; targeted cart hardening; Phase-F source resolution contract.
+- LIVE SECURITY POSTURE → staging advisor still reports 46 authenticated-callable SECURITY DEFINER functions. Targeted cart hardening did not reduce this advisor count because the lint measures authenticated EXECUTE on SECURITY DEFINER itself; search_path/grant hardening remains separately verified. No blanket revoke.
+- IMPORT POSTURE → 151 processing legacy jobs remain unmodified; null source_fingerprint means no durable correlation for safe bulk recovery.
+- ACCESSIBILITY BLOCKER → EntityContextDrawer focus-trap/focus-restore patch was rejected by GitHub write safety checks; no partial edit. Do not repeat identical blocked write.
+- CURRENT CI → 44 queued, 2 in progress, 3 completed/skipped, 0 failures observed on current HEAD. No PASS transferred.
+- PRODUCTION → report-advisor.vercel.app remains on SHA `7edc3cc210e4b81cf18d11fd995296de7a37df87`; current branch exact preview absent from Vercel listing.
+- CURRENT RESUME POINTER → `#656 exact-head mandatory gates -> first current-SHA failure -> smallest repair -> exact rerun -> merge -> Phase-F exact merged SHA`.
+- NEXT EXECUTABLE ACTION → consume current #656 gates; merge only after all mandatory exact-head checks are attributable and green, then start Phase-F on exact merged SHA.
+- DO NOT REPEAT → stale PASS transfer, production-SHA bypass, preview-as-production, blanket security revoke, unsafe legacy import cleanup, identical blocked drawer patch.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143E
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
