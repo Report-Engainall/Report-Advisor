@@ -1,14 +1,13 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F SUPABASE POOLER FALLBACK
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F RESTORE HELPER + GOVERNANCE REBIND
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: 9c4e5f03a53ae211d5ed00077c2fd43a339a7db2.
-- CURRENT CODE/TEST CANDIDATE: 5642b6ee4856fb54ffea4fc415e69a9876f59250e.
-- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: 9646e9927e7fddf24d977f5f32b986fffcb7ea24.
-- PHASE-F RUN 36160600882 on b8a19ec... proved that the direct Supabase DB hostname remains IPv6-only/unreachable from the GitHub runner; the earlier hostaddr-only fallback did not change the actual route.
-- DONE: Phase-F logical backup source selection now falls back, only when the source is exactly db.<project-ref>.supabase.co for the configured project and the region is known, to the same project's regional transaction pooler (default ap-southeast-2), preserving the original password and project identity. This is a connectivity fallback, not a target substitution.
-- STORAGE AUTH HARDENING RETAINED: exact JWT-issued-at-future retry remains bounded and fail-closed.
-- CURRENT GOVERNANCE/CI: stable head remains 9646... until this write; fresh workflow set for 10d2... was in progress when this change was made.
-- NEXT: consume exact-head gates for 5642b6e...; especially Phase-F backup/restore and production SHA mismatch.
-- DO NOT REPEAT: do not weaken production SHA check, do not use an arbitrary database host, do not claim pooler fallback PASS until the exact Phase-F run proves backup/restore.
+- CURRENT CODE/TEST CANDIDATE: e1fb7181be3e9dc9f44edb2ef46e85ce035a842f.
+- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: e1fb7181be3e9dc9f44edb2ef46e85ce035a842f.
+- DONE: restored the replay-safe `public.enforce_same_company_reference()` helper before `trg_warehouse_branch_company`; added the UUID-safe `current_company_id()` repair; hardened Phase-F probe source routing; and removed the forbidden push trigger from the Phase-F workflow.
+- CURRENT EXACT-HEAD GATES: Quality SUCCESS, Full Product Browser E2E SUCCESS, Storage Tenant Runtime E2E SUCCESS, plus the broad security/data contracts on PR #632. Final Certification and Execution Enforcement are currently blocked only by this stale indexed-candidate binding and are being regenerated from this exact branch head.
+- PHASE-F: live run 36161162918 is currently in progress on this exact PR head. No Phase-F PASS is transferred from earlier SHAs.
+- NEXT: consume the exact-head Certification/Enforcement/Phase-F results; if Phase-F exposes a new first failure, repair only that failure. Do not weaken production SHA validation, tenant isolation, backup/restore measurement, or fail-closed behavior.
+- DO NOT REPEAT: do not restore the main-branch push trigger; do not use an arbitrary database host; do not rewrite applied historical migrations; do not transfer PASS across SHAs.
 
 ---
 
