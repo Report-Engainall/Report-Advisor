@@ -19,6 +19,8 @@ for (const token of [
   'deployment_id',
   'DEPLOYMENT_SHA_MISMATCH',
   'logicalBackupRestore',
+  'buildSupabaseSessionPoolerUrl',
+  'configured-source-pooler-session',
   "runCommand('supabase'",
   "'db', 'dump'",
   "'--db-url'",
