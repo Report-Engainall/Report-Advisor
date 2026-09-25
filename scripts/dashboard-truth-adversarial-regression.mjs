@@ -14,6 +14,8 @@ assert.doesNotMatch(migration,/COALESCE\(x\.cost,0\)/);
 assert.doesNotMatch(migration,/COALESCE\(x\.sales,0\)-COALESCE\(x\.cost,0\)/);
 assert.match(topMigration,/get_dashboard_top_entities/);
 assert.match(topMigration,/current_company_id\(\)/);
+assert.match(topMigration,/COALESCE\(c\.name,q\.customer_id::text\)/);
+assert.match(topMigration,/COALESCE\(p\.name,q\.product_id::text\)/);
 assert.doesNotMatch(page,/aging\.reduce\(/);
 assert.doesNotMatch(page,/bucket\.amount \/ total/);
 assert.doesNotMatch(page,/categories\.map\(.*reduce/s);
