@@ -6,7 +6,7 @@ import {
 import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { ConfidenceBadge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
+import { EmptyState, ErrorState, LoadingState, BoundaryState } from '@/components/ui/States';
 import { fetchAlerts, fetchRecommendations } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Alert, Recommendation } from '@/lib/types';
@@ -52,19 +52,6 @@ function formatDeadline(value: string | null): string {
   return date.toLocaleDateString('ar-YE', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-function BlockedState({ title, detail }: { title: string; detail: string }) {
-  return (
-    <div className="rounded-[14px] border border-warning-200 bg-warning-50/70 p-4" role="status">
-      <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-100 text-warning-800"><ShieldCheck size={17}/></div>
-        <div className="min-w-0">
-          <div className="text-[12px] font-black text-warning-950">{title}</div>
-          <p className="mt-1 text-[11px] leading-5 text-warning-900/80">{detail}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function StageHeader({ label, description }: { label: string; description: string }) {
   return (
@@ -279,7 +266,7 @@ export function DecisionExperiencePage() {
                     <div className="rounded-[12px] border border-ink-100 bg-white p-3"><div className="text-[10px] text-ink-400">الثقة</div><div className="mt-1"><ConfidenceBadge confidence={selected.confidence}/></div></div>
                     <div className="rounded-[12px] border border-ink-100 bg-white p-3"><div className="text-[10px] text-ink-400">الأثر المتوقع</div><div className="mt-1 text-[12px] font-black text-ink-900">{selected.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)}</div></div>
                   </div>
-                  <BlockedState title="الدليل التشغيلي غير مثبت هنا" detail="لا تُعرض بيانات مصدرية مصطنعة ولا يتم تحويل وصف التوصية إلى دليل. الانتقال إلى القرار يحافظ على حالة المراجعة بدل الادعاء بوجود إثبات غير متاح." />
+                  <BoundaryState variant="blocked" title="الدليل التشغيلي غير مثبت هنا" message="لا تُعرض بيانات مصدرية مصطنعة ولا يتم تحويل وصف التوصية إلى دليل. الانتقال إلى القرار يحافظ على حالة المراجعة بدل الادعاء بوجود إثبات غير متاح." />
                   <div className="flex flex-wrap gap-2"><button type="button" onClick={() => navigateStage('decision')} className="btn-primary text-[11px]">متابعة إلى القرار <ArrowUpLeft size={13}/></button><Link to="/metrics" className="btn-secondary text-[11px]">فحص تعريف المؤشر <FileSearch size={13}/></Link></div>
                 </div>
               ) : <EmptyState title="اختر توصية" message="اختر عنصرًا موجودًا لفحص سياق الدليل." action={<Link to="/command-center" className="btn-secondary text-[11px]">العودة إلى الإشارات</Link>}/>} 
@@ -311,7 +298,7 @@ export function DecisionExperiencePage() {
             </CardBody>
           </Card>
           <div className="space-y-4">
-            <BlockedState title="القرار المحفوظ غير متاح من هذه الواجهة" detail="لا تتم كتابة حالة قرار محلية أو إنشاء موافقة اصطناعية. يتطلب الحفظ مسار الصلاحية والـDML المعتمدين." />
+            <BoundaryState variant="blocked" title="القرار المحفوظ غير متاح من هذه الواجهة" message="لا تتم كتابة حالة قرار محلية أو إنشاء موافقة اصطناعية. يتطلب الحفظ مسار الصلاحية والـDML المعتمدين." />
             <div className="grid gap-3">
               <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><CheckCircle2 size={15} className="text-success-700"/> التوصية</div><p className="mt-1 text-[10px] text-ink-400">موجودة في المصدر</p></div>
               <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><ShieldCheck size={15} className="text-warning-700"/> الموافقة</div><p className="mt-1 text-[10px] text-ink-400">تحتاج مسارًا تشغيليًا موثقًا</p></div>
@@ -335,7 +322,7 @@ export function DecisionExperiencePage() {
               </div>
             </CardBody>
           </Card>
-          <BlockedState title="الموافقة محجوبة عمدًا" detail="المنتج لا يختلق صاحب موافقة، توقيتًا، أو حالة اعتماد. عند توفر المسار التشغيلي الموثق، تبقى هذه المرحلة مكانًا واضحًا للمسؤولية قبل التنفيذ." />
+          <BoundaryState variant="blocked" title="الموافقة محجوبة عمدًا" message="المنتج لا يختلق صاحب موافقة، توقيتًا، أو حالة اعتماد. عند توفر المسار التشغيلي الموثق، تبقى هذه المرحلة مكانًا واضحًا للمسؤولية قبل التنفيذ." />
         </section>
       )}
 
@@ -358,7 +345,7 @@ export function DecisionExperiencePage() {
               </div>
             </CardBody>
           </Card>
-          <BlockedState title="لا يوجد سجل تنفيذ مُثبت" detail="لن يتم إنشاء مهمة أو حالة إنجاز من واجهة القرار. التنفيذ يجب أن يأتي من المسار التشغيلي المعتمد ويعود هنا كحالة persisted." />
+          <BoundaryState variant="blocked" title="لا يوجد سجل تنفيذ مُثبت" message="لن يتم إنشاء مهمة أو حالة إنجاز من واجهة القرار. التنفيذ يجب أن يأتي من المسار التشغيلي المعتمد ويعود هنا كحالة persisted." />
         </section>
       )}
 
@@ -384,7 +371,7 @@ export function DecisionExperiencePage() {
               </div>
             </CardBody>
           </Card>
-          <BlockedState title="النتيجة الفعلية غير موجودة بعد" detail="عدم توفر النتيجة ليس فشلًا في العرض؛ إنه حد حقيقي في الدليل. لن تُحوّل التوصية إلى نتيجة أو تعلّم تشغيلي قبل وجود سجل تنفيذ موثق." />
+          <BoundaryState variant="blocked" title="النتيجة الفعلية غير موجودة بعد" message="عدم توفر النتيجة ليس فشلًا في العرض؛ إنه حد حقيقي في الدليل. لن تُحوّل التوصية إلى نتيجة أو تعلّم تشغيلي قبل وجود سجل تنفيذ موثق." />
         </section>
       )}
 
