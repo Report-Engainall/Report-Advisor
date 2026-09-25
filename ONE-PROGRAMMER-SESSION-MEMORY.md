@@ -1,3 +1,14 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143A
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- GOVERNANCE/WORKING HEAD OBSERVED BEFORE THIS WRITE → `cd1c5e8a9709d68ca86c2c45ed0e27402187a96f`.
+- CURRENT CODE/TEST CANDIDATE → `6f7d6bc1e12d579747936073cc9d2a4a820cb1b9`.
+- DONE → External File Analysis received real keyboard activation, drag/drop, retry recovery, truth/import navigation and evidence-boundary UI; the Product-WOW contract now asserts those behaviors.
+- VERIFIED → no current-head CI failure observed; required checks remain queued/in-progress after this new candidate. No PASS transferred.
+- OPEN → PR #656 remains the consolidated UI+core wave; current head must finish exact-head checks before merge.
+- BLOCKED / NOT PROVEN → production exact-SHA identity, authenticated production business readback, Phase-F backup/restore/RPO/RTO/rollback, and local-browser proof.
+- CURRENT RESUME POINTER → `PR #656 current HEAD -> consume first current-SHA failure -> smallest repair -> rerun exact-head gates -> keep production identity fail-closed`.
+- DO NOT REPEAT → stale evidence, rework of merged shell closures, production-SHA bypass, blanket security cleanup, unsafe import-job terminalization.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
