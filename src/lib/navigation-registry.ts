@@ -29,6 +29,7 @@ export type NavigationIconKey =
   | 'inventory'
   | 'alternatives'
   | 'recommendations'
+  | 'playbooks'
   | 'forecasts'
   | 'scenarios'
   | 'rfm'
@@ -118,6 +119,7 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
       { section: 'intelligence', path: '/intelligence', label: 'مركز الذكاء', enLabel: 'Intelligence Center', description: 'الإشارات والتوصيات من المصدر الكانوني', keywords: ['ai', 'intelligence', 'ذكاء', 'إشارات'], icon: 'intelligence', minimumWorkspaceMode: 'advanced' },
       { section: 'intelligence', path: '/intelligence/recommendations', label: 'التوصيات', enLabel: 'Recommendations', description: 'إجراءات مقترحة مرتبطة بسياقها وأدلتها', keywords: ['recommendations', 'actions', 'توصيات'], icon: 'recommendations', minimumWorkspaceMode: 'advanced' },
       { section: 'intelligence', path: '/intelligence/forecasts', label: 'التنبؤات', enLabel: 'Forecasts', description: 'استعراض التنبؤات المتاحة دون اختلاق نتيجة', keywords: ['forecast', 'forecasts', 'تنبؤات'], icon: 'forecasts', minimumWorkspaceMode: 'advanced' },
+      { section: 'intelligence', path: '/intelligence/playbooks', label: 'مسارات القرار', enLabel: 'Decision Playbooks', description: 'تحويل التوصيات السجلية إلى مسار تنفيذ واضح دون اختلاق حالة جديدة', keywords: ['playbooks', 'decision playbooks', 'مسارات القرار', 'تنفيذ'], icon: 'playbooks', minimumWorkspaceMode: 'advanced' },
       { section: 'intelligence', path: '/intelligence/scenarios', label: 'السيناريوهات', enLabel: 'Scenarios', description: 'محاكاة محكومة منفصلة عن الحقيقة التشغيلية', keywords: ['scenarios', 'scenario', 'سيناريوهات'], icon: 'scenarios', minimumWorkspaceMode: 'advanced' },
     ],
   },
