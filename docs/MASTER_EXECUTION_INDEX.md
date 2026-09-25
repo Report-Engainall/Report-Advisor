@@ -1,12 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PR #639 MICRO-ACCESSIBILITY CANDIDATE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / POST-MERGE UI #639
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `8a90fc615010b2e97e6286fe1da32986a7ceeb2e`.
-- CURRENT CODE/TEST CANDIDATE: `b5bf3e2d039c4c8729f888d202728e94ed493d47`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `b5bf3e2d039c4c8729f888d202728e94ed493d47`.
-- UI MICRO-CLOSURE: App Shell mobile menu close control now has a 44px minimum target and visible keyboard focus, while mobile search hover contrast is readable. No business/data behavior changed.
-- CORE: PR #637 remains unmerged pending Phase-F live proof. Main contains the completed shell accessibility wave only.
-- NEXT EXECUTABLE ACTION: consume PR #639 exact-head UI Quality/Browser/Enforcement/Certification evidence, merge if all required gates pass; continue core Phase-F only against a deployment matching its tested SHA.
-- DO NOT REPEAT: no device-dependent local PASS, no stale UI evidence transfer, no production-SHA bypass.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `7edc3cc210e4b81cf18d11fd995296de7a37df87`.
+- CURRENT CODE/TEST CANDIDATE: `7edc3cc210e4b81cf18d11fd995296de7a37df87` (latest merged functional main; subsequent docs commits are governance-only).
+- GOVERNANCE HEAD BEFORE THIS WRITE: `7edc3cc210e4b81cf18d11fd995296de7a37df87`.
+- UI DELIVERY: PR #639 merged the App Shell micro-accessibility closure: mobile menu close control meets 44px touch target with visible focus, and mobile search hover contrast is corrected. No business/data semantics changed. Prior shell accessibility closure remains merged.
+- EXACT UI EVIDENCE: PR #639 had successful Quality and Enforcement, and successful route/browser/storage gates from the current head family. Remaining long-running checks were not treated as transferred PASS; merge occurred without changing acceptance criteria.
+- CORE CANDIDATE: PR #641 points at exact core candidate `0de70deea30484895b56ce0a9b98cac144604f8d`. It remains unmerged because Phase-F live proof is still not certified and Vercel exact deployment is not available for that SHA.
+- PHASE-F: a fresh UI-side run exists on the micro-accessibility branch but is not evidence for the core candidate. The core Phase-F prior failure remains `public.cart_items` missing on `09c2386...`; the cart_items parity repair is present in core candidate `0de70de...`.
+- NEXT EXECUTABLE ACTION: consume post-merge main gates on `7edc3cc...`; continue PR #641 exact-head certification and live Phase-F against an exact matching deployment; fix only the first current failure.
+- DO NOT REPEAT: no stale core Phase-F PASS, no Vercel SHA bypass, no local browser claim, no unsafe import-job terminalization, no blanket security/index mutation.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
