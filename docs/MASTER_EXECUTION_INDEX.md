@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 155
+
+- CODE HEAD OBSERVED BEFORE THIS INDEX WRITE: `74750363f5cf9b6f6050377d1d8a6d23ec8ee762`.
+- PR #659 / branch: `feat/deep-ui-core-closure-20260925`.
+- CORE CLOSURE: demand-series now rejects missing/blank `product_id` and invalid invoice references instead of silently producing partial product demand analysis.
+- UI CLOSURE: Demand Velocity now exposes Trust & Evidence directly, documents the source-reading boundary, and keeps no-data distinct from zero-demand presentation.
+- QUALITY CLOSURE: demand-series contract now guards product-id typing, invoice-reference membership, and relation fail-closed behavior.
+- CURRENT EXACT-HEAD EVIDENCE: no GitHub Actions run was visible yet for `74750363f5cf9b6f6050377d1d8a6d23ec8ee762`; combined status has Vercel FAILURE due the known free-plan deployment rate limit and a Vercel deployment PENDING. No PASS transferred or claimed.
+- NOT PROVEN: current-head Quality/Final Certification/Browser evidence, production promotion/identity, Phase-F live resilience, and device-dependent visual evidence.
+- NEXT EXECUTABLE ACTION: consume terminal evidence on exact head `74750363…`; repair only the first reproduced failure. If still queued/no-run, continue another non-overlapping UI/core closure.
+- DO NOT REPEAT: closed Work Center/Connections/Master Data/Import/Executive/Profitability/Receivables/Decision/Data Quality/Dashboard/Inventory closures; stale PASS; preview-as-production; Vercel rate-limit-as-code-failure; duplicate importer/RPC/runner; device-dependent work.
+- RESUME POINTER: `main c985deeb… → PR #659 → code head 74750363… → first terminal exact-head failure only → next independent UI/core closure → exact green merge evidence`.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 151
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
