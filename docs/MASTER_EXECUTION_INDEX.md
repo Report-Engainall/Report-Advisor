@@ -1,12 +1,10 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI-CORE CANDIDATE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PURCHASES REPORT TRUTH CANDIDATE
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `fa2256c0c5b311464d9d8960e3480ac33f87830d`.
-- CURRENT CODE/TEST CANDIDATE: `ae6410b30f9305585b8bbb13f18b2da6b17214da`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `ae6410b30f9305585b8bbb13f18b2da6b17214da`.
-- UI DELIVERY: Metric Inspector now has accessible search, governance-status/freshness filters, reset and filtered-empty semantics; shared Loading/Empty/Error states expose explicit assistive semantics/retry labeling; Decision Experience progress stages expose accessible text; Reports surfaces retain evidence-safe truth context.
-- CORE PROOF: Phase-10 contract/security-definer provenance and Phase-F governance-head/exact-head evidence were hardened without adding RPCs, runners or production mutations.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head Quality/Enforcement/Final Certification/Browser/Storage/Desktop/Route gates; merge only after all required current-head checks pass.
-- DO NOT REPEAT: no stale candidate evidence, no production bypass, no duplicate navigation/data path.
+- CURRENT CODE/TEST CANDIDATE: `68e34f5c15db9ec17cad0c7731b01894d99cb0f4`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `68e34f5c15db9ec17cad0c7731b01894d99cb0f4`.
+- UI DELIVERY: Purchases report is anchored to the existing canonical dashboard snapshot and existing purchase rows/summary; ReportTruthBar carries authoritative status/as-of/period context. No new RPC, route, runner, importer, or production mutation.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head Enforcement/Quality/Browser/Final Certification gates; repair only the first current-head failure.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
