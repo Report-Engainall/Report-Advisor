@@ -1,13 +1,13 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / UI SHELL + PHASE-F WORKFLOW TRIGGER FIX
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / UI DISCLOSURE TARGET SEMANTICS
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
-- CURRENT CODE/TEST CANDIDATE: `ebb992c053d804e07a2913ecbdd5a994359c682f`.
-- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `ebb992c053d804e07a2913ecbdd5a994359c682f`.
-- DONE: shell touch-target and keyboard/disclosure accessibility closure remains in source commit `8749cb6291304e4e1754a1c24c62713908165397`; removed the prohibited `push: main` trigger from the Phase-F workflow so it is PR/manual-dispatch only.
-- EXACT CURRENT UI CI: UI route completeness, Device-Independent Browser E2E, Storage Tenant Runtime E2E and broad security/data contracts succeeded on prior UI candidate `dc7341b...`; current head `ebb992c...` has fresh workflows running. Previous enforcement/certification failure was stale-index binding after workflow change.
-- PHASE-F: remains NOT READY; previous exact run on UI branch failed deployment SHA identity (production serves `dcabe46...`) and restore replay hit missing `enforce_same_company_reference()` because UI branch is based on main without PR #632's helper migration. Do not call this UI defect or weaken the gate.
-- NEXT: consume exact-head CI after index rebind; keep PR #633 separate from core PR #632 until dependency/order is resolved.
-- DO NOT REPEAT: no stale PASS transfer; no push trigger on live resilience; no merge/promotion based on preview; no duplicate UI surfaces.
+- CURRENT CODE/TEST CANDIDATE: `5b06be0cf05e7530eb272a2623c0f2e4a4026304`.
+- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `5b06be0cf05e7530eb272a2623c0f2e4a4026304`.
+- DONE: shell accessibility changes remain in Header/Sidebar; Phase-F workflow is PR/manual-dispatch only. Sidebar disclosure targets now remain mounted with `hidden={!open}`, so each button's `aria-controls` references a real DOM element even while collapsed.
+- EXACT-HEAD CI: fresh checks are running for the UI candidate; previous UI route, device-independent browser, storage and security contracts were green on the prior UI source candidate. No prior PASS is transferred.
+- PHASE-F: blocked/not ready due production SHA mismatch and missing helper migration on the UI-only branch; this is not bypassed. Core helper/restore work remains isolated in PR #632.
+- NEXT: consume exact-head UI quality/accessibility/browser/certification results; coordinate merge only after required gates and dependency order are satisfied.
+- DO NOT REPEAT: no missing aria-controls target, no push trigger for live resilience, no stale PASS transfer, no production promotion from preview.
 
 ---
 
