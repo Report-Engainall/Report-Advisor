@@ -170,3 +170,82 @@ revoke all on table public.carts from anon;
 revoke all on table public.carts from authenticated;
 grant select on table public.carts to authenticated;
 grant all on table public.carts to service_role;
+
+ 
+create table if not exists public.cart_items (
+  id uuid primary key default gen_random_uuid(),
+  cart_id uuid not null,
+  product_id uuid not null,
+  quantity integer not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'cart_items_cart_id_fkey'
+      and conrelid = 'public.cart_items'::regclass
+  ) then
+    alter table public.cart_items
+      add constraint cart_items_cart_id_fkey
+      foreign key (cart_id) references public.carts(id) on delete cascade;
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'cart_items_product_id_fkey'
+      and conrelid = 'public.cart_items'::regclass
+  ) then
+    alter table public.cart_items
+      add constraint cart_items_product_id_fkey
+      foreign key (product_id) references public.products(id) on delete restrict;
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'cart_items_cart_id_product_id_key'
+      and conrelid = 'public.cart_items'::regclass
+  ) then
+    alter table public.cart_items
+      add constraint cart_items_cart_id_product_id_key unique (cart_id, product_id);
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'cart_items_quantity_check'
+      and conrelid = 'public.cart_items'::regclass
+  ) then
+    alter table public.cart_items
+      add constraint cart_items_quantity_check check (quantity > 0 and quantity <= 100000);
+  end if;
+end
+$$;
+
+create index if not exists idx_cart_items_product_id_fk
+  on public.cart_items(product_id);
+
+alter table public.cart_items enable row level security;
+
+drop policy if exists cart_items_self_select on public.cart_items;
+create policy cart_items_self_select
+  on public.cart_items
+  as permissive
+  for select
+  to authenticated
+  using (
+    exists (
+      select 1
+      from public.carts c
+      where c.id = cart_items.cart_id
+        and c.user_id = (select auth.uid())
+        and c.customer_id = current_customer_id()
+        and c.company_id = current_customer_company_id()
+    )
+  );
+
+revoke all on table public.cart_items from anon;
+revoke all on table public.cart_items from authenticated;
+grant select on table public.cart_items to authenticated;
+grant all on table public.cart_items to service_role;
