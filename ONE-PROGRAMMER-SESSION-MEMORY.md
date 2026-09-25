@@ -1,3 +1,21 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-139
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `fedb08b904d5d27d738f625585f357146bd2deab`.
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-139`.
+- UI DELIVERY → PR #638 shell accessibility closure was merged at `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda`; PR #639 then merged the App Shell micro-accessibility closure at `7edc3cc210e4b81cf18d11fd995296de7a37df87`: 44px mobile menu close target + visible focus and corrected mobile search hover contrast. No business/data semantics changed.
+- UI GATES → current UI candidate family has successful Quality, Enforcement, Full Product Browser E2E, UI Route Completeness, Storage Tenant Runtime E2E and device-independent browser gates; long-running Desktop/Device/Final gates were not transferred as stale evidence. Post-merge main gates are executing against `7edc3cc...`.
+- CORE DELIVERY → carts/profiles/cart_items parity wave is implemented on PR #641 exact head `0de70deea30484895b56ce0a9b98cac144604f8d`, with carts/cart_items RLS, tenant FKs, quantity bounds, indexes and Phase-10 contract guards. Exact pre-repair core gates were green.
+- CORE PHASE-F FACT → run `36170355037` on `09c2386...` failed closed: tenant canary passed; production served deployment SHA `886c3e11...` instead of tested candidate; logical restore reached `public.carts` then failed at missing `public.cart_items`; rollback-forward-fix returned HTTP 503; artifact `10880200125`.
+- CORE PHASE-F CURRENT → fresh pull_request execution is still not available on core candidate despite new certification PR attempts; Vercel has no deployment matching `0de70de...`, so production exact-SHA certification remains blocked and is not bypassed.
+- UI PHASE-F NOTE → a fresh phase-f run exists for UI micro branch but is not evidence for the core candidate; its purpose was CI propagation only.
+- LIVE STAGING → direct SQL confirmed `profiles`, `carts`, and `cart_items` constraints/indexes/RLS. Cart-related legacy SECURITY DEFINER functions (`set_cart_item`, `clear_cart`, `get_cart`, `remove_cart_item`, order/payment legacy RPCs) show zero recorded calls in `pg_stat_user_functions`; no destructive cleanup performed.
+- MIGRATION INVENTORY → staging has 327 migration-history entries while repo contains 256 migration files; raw filename/version comparison is not semantically 1:1 because staging `version` and migration source filename timestamps differ. The live `reconcile_live_cart_schema` migration was a concrete source gap and is covered by the new parity migration. No bulk historical migration re-import was attempted.
+- SECURITY OBSERVATION → 46 authenticated-callable SECURITY DEFINER functions were inspected. No blanket revoke performed. Several legacy functions with empty search_path were found dormant (zero recorded calls); they remain review/cleanup candidates pending canonical-source ownership.
+- LIVE IMPORT OBSERVATION → 151 `import_jobs` processing, 150 at progress 0, oldest 2026-09-14 12:53:22Z. No unsafe terminalization.
+- BLOCKED / NOT PROVEN → Phase-F production exact-SHA identity, logical restore completion/RPO/RTO, rollback, and core deployment are unproven. Local device/browser is unavailable. Vercel free-plan build-rate limit remains external.
+- CURRENT RESUME POINTER → `fedb08b904d5d27d738f625585f357146bd2deab` → consume post-merge main gates → consume/obtain fresh exact-head core Phase-F on `0de70de...` with matching deployment → first current failure only.
+- NEXT EXECUTABLE ACTION → inspect current post-merge main UI certification and any newly generated core Phase-F run; do not mutate production or legacy security surfaces without exact owner/invariant proof.
+- DO NOT REPEAT → no stale PASS transfer, no PR #635/#637/#640 evidence reuse, no production-SHA bypass, no blind legacy migration rehydration, no blanket SECURITY DEFINER revoke, no unsafe import-job mutation.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-138
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `efa732b1533cc63c0050323616cf55ba61851077`.
