@@ -23,13 +23,25 @@ export function ReceivablesReportCanonicalPage() {
   if (loading && !snapshot) return <LoadingState />;
   if (error && !snapshot) return <ErrorState message={error} onRetry={load} />;
   if (!snapshot) return <DataUnavailableState title="تقرير الذمم ينتظر البيانات" message="لم تصل صورة موثوقة للذمم بعد. لا يتم تحويل غياب البيانات إلى صفر أو تقرير فارغ." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
+  const truthStatus = snapshot.status === 'CALCULATED' ? 'VERIFIED' : 'INSUFFICIENT DATA';
+  const truthMessage = snapshot.status === 'CALCULATED'
+    ? 'الإجماليات والصفوف مشتقة من المسار المالي المعتمد.'
+    : 'لا توجد سجلات ذمم مثبتة حاليًا؛ القيم غير المتاحة تبقى غير متاحة ولا تتحول إلى صفر.';
+  if (snapshot.status === 'NO_DATA') return <div dir="rtl" className="report-page space-y-5 animate-fade-in"><PageHeader title="تقرير الذمم والتحصيل" subtitle="المصدر لم يثبت بيانات قابلة للحساب في السياق الحالي." actions={<button type="button" onClick={() => void load()} className="btn-secondary text-xs">تحديث</button>} /><DataUnavailableState title="لا توجد ذمم مثبتة بعد" message="لا يتم عرض إجمالي أو رصيد بديل عند غياب السجلات. أضف مصدرًا موثوقًا ثم أعد المحاولة." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} /></div>;
   const totalPages = Math.max(1, Math.ceil(snapshot.total_rows / pageSize));
   const exportRows = async () => {
+
     const rows = await fetchReceivablesExportRows();
     downloadReportArtifact('receivables-report', 'تقرير الذمم والتحصيل', ['رقم الفاتورة','العميل','تاريخ الفاتورة','تاريخ الاستحقاق','الإجمالي','المدفوع','المتبقي'], rows.map(r => ({ 'رقم الفاتورة': r.invoice_number, 'العميل': r.customer, 'تاريخ الفاتورة': r.invoice_date, 'تاريخ الاستحقاق': r.due_date, 'الإجمالي': r.total, 'المدفوع': r.paid_amount, 'المتبقي': r.balance })));
   };
   return <div dir="rtl" className="report-page space-y-5 animate-fade-in">
-    <PageHeader title="تقرير الذمم والتحصيل" subtitle="الإجماليات والصفحات مشتقة من نفس الحقيقة المعتمدة على الخادم." actions={<div className="flex items-center gap-2"><button onClick={() => void exportRows()} className="btn-secondary text-xs">تصدير XLSX</button><button type="button" onClick={() => window.print()} className="btn-primary print-hide text-xs">طباعة</button></div>} />
+    <PageHeader title="تقرير الذمم والتحصيل" subtitle="الإجماليات والصفحات مشتقة من نفس الحقيقة المعتمدة على الخادم." actions={<div className="flex items-center gap-2"><button type="button" onClick={() => void load()} disabled={loading} className="btn-secondary inline-flex items-center gap-2 text-xs disabled:cursor-wait disabled:opacity-60" aria-label="تحديث تقرير الذمم">{loading ? 'جارٍ التحديث' : 'تحديث'}</button>{snapshot.status === 'CALCULATED' && <><button onClick={() => void exportRows()} className="btn-secondary text-xs">تصدير XLSX</button><button type="button" onClick={() => window.print()} className="btn-primary print-hide text-xs">طباعة</button></>}</div>} />
+    <section className="rounded-2xl border border-primary-200 bg-primary-50/60 p-4" role="status" aria-live="polite" aria-busy={loading}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">TRUTH CONTEXT</div><div className="mt-1 text-sm font-black text-ink-950">حالة التقرير: {truthStatus}</div><div className="mt-1 text-[11px] leading-5 text-ink-600">{truthMessage}</div></div>
+        <Link to={snapshot.status === 'CALCULATED' ? '/trust' : '/import'} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-ink-950 px-3 py-2 text-[10px] font-black text-white">{snapshot.status === 'CALCULATED' ? 'فحص الثقة' : 'إضافة مصدر'}</Link>
+      </div>
+    </section>
     {error && <div role="alert" className="danger-callout text-xs font-semibold text-danger-800">{error}</div>}
     <section className="grid gap-3 md:grid-cols-2">
       <Card className="hero-surface"><CardBody><div className="surface-label">إجمالي الذمم</div><div className="display-number mt-1">{formatCurrency(snapshot.total_outstanding)}</div><div className="mt-1 text-[11px] text-ink-400">المتبقي المستخرج من السجلات المعتمدة</div></CardBody></Card>
