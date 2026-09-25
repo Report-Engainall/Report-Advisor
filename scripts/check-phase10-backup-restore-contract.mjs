@@ -7,6 +7,16 @@ const migration = read('supabase/migrations/20260829023000_restore_import_lifecy
 const evidence = read('scripts/check-production-certification-evidence-integrity.mjs');
 const contract = read('scripts/check-production-certification-contract.mjs');
 const index = read('docs/MASTER_EXECUTION_INDEX.md');
+const phaseFProbe = read('scripts/phase-f-live-resilience-probes.mjs');
+
+
+// All logical source reads must use the resolved IPv4-safe runner URI, not the original host URI.
+if (!/const generatedCountSql = runDockerPsql\(runnerSource, countSql\);/.test(phaseFProbe)) {
+  throw new Error('Phase-F schema-count query must use the resolved runnerSource URI');
+}
+if (!/runCommand\('supabase', \[\s*'db', 'dump',[\s\S]*?'--db-url', runnerSource,/.test(phaseFProbe)) {
+  throw new Error('Phase-F logical dump must use the resolved runnerSource URI');
+}
 
 const stripSqlComments = (sql) => sql
   .replace(/\/\*[\s\S]*?\*\//g, '')
