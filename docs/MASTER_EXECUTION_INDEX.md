@@ -1,3 +1,17 @@
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #629
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `dcabe46e594cbb070e145882a87dd67fa91ddabe` (live-memory write-back commit; code merge is `35c8a8bcdc0253418ed8f21cdd664a09cac31e69`).
+- MERGED CODE CANDIDATE: `35c8a8bcdc0253418ed8f21cdd664a09cac31e69`.
+- DONE: merged PR #629; fixed canonical migration-path references for watched-report pipeline and production-readiness/import-lineage contracts.
+- PR-REPORTED LOCAL CHECKS (PR head `cca051215037b6fa3b7ca6901dd9666af6d162fc`): P0 13/13, P1 8/8, Production Readiness 21/21, TypeScript, diff check PASS. Not a fresh main-head CI proof.
+- EXACT MAIN-SHA CLOUD PROOF: NOT PROVEN. Commit-associated workflow lookup returned no runs at observation time.
+- PHASE-F: production runtime identity, valid authorized logical source, backup/restore, RPO/RTO, rollback and current-production certification remain NOT PROVEN/BLOCKED; no stale evidence transfer.
+- UI LANE: no UI change in this batch; continue from evidenced UI gaps and require fresh browser proof for new code lineage.
+- NEXT EXECUTABLE ACTION: obtain fresh exact-main Quality + Enforcement + Final Certification + Browser evidence for `35c8a8b...`; then proceed to Phase-F only with valid authorized runtime inputs and exact target identity.
+- DO NOT REPEAT: do not reapply PR #629 migration-reference changes; do not promote PR-local checks to cloud PASS; no production SHA or credential bypass.
+
+---
+
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / EXACT CANDIDATE DDD
 
 > Exact-head routing header. The code candidate is the tested source SHA; the governance commit that follows must not be mistaken for the code candidate.
