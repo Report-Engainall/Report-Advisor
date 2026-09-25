@@ -24,6 +24,7 @@ export interface AgingSnapshot {rows:AgingSnapshotRow[];asOf:string;unknownRows:
 interface Snapshot { kpis:DashboardKPIs; trend:MonthlyTrend[]; topCustomers:TopEntity[]; topProducts:TopEntity[]; categories:CategoryBreakdown[]; aging:AgingDashboard; asOf:string; months:number; }
 function finiteOrNull(value: unknown): number|null { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 function requiredArray<T>(value: unknown): T[] { return Array.isArray(value) ? value as T[] : []; }
+function validatedObjectArray(value: unknown, label: string): Record<string, unknown>[] { if (!Array.isArray(value)) throw new Error('REPORT_DATA_UNAVAILABLE: dashboard ' + label + ' missing'); if (value.some((item) => item === null || typeof item !== 'object' || Array.isArray(item))) throw new Error('REPORT_DATA_UNAVAILABLE: dashboard ' + label + ' invalid'); return value as Record<string, unknown>[]; }
 function asOfDate(): string { return new Date().toISOString().slice(0, 10); }
 
 export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
@@ -66,14 +67,14 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
   const agingRow=(row.aging&&typeof row.aging==='object'?row.aging:{}) as Record<string,unknown>;
   return {
     kpis,
-    trend: requiredArray<MonthlyTrend>(row.trend),
-    topCustomers: requiredArray<TopEntity>(row.topCustomers).slice(0,10),
-    topProducts: requiredArray<TopEntity>(row.topProducts).slice(0,10),
-    categories: requiredArray<CategoryBreakdown>(row.categories),
+    trend: validatedObjectArray(row.trend, 'trend') as MonthlyTrend[],
+    topCustomers: validatedObjectArray(row.topCustomers, 'topCustomers').slice(0,10) as TopEntity[],
+    topProducts: validatedObjectArray(row.topProducts, 'topProducts').slice(0,10) as TopEntity[],
+    categories: validatedObjectArray(row.categories, 'categories') as CategoryBreakdown[],
     asOf: typeof row.asOf === 'string' ? row.asOf : asOfDate(),
     months: typeof row.months === 'number' && Number.isInteger(row.months) ? row.months : months,
     aging:{
-      rows:requiredArray<AgingBucket>(agingRow.rows),
+      rows:validatedObjectArray(agingRow.rows, 'aging rows') as AgingBucket[],
       totalAmount:finiteOrNull(agingRow.totalAmount),
       unknownRows:typeof agingRow.unknownRows==='number'?agingRow.unknownRows:0,
       status:agingRow.status==='CALCULATED'?'CALCULATED':agingRow.status==='NO_DATA'?'NO_DATA':'INSUFFICIENT_DATA'
