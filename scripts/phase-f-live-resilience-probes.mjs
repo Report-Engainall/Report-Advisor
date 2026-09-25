@@ -97,7 +97,7 @@ function runCommand(command, args, options = {}) {
 
 function runDockerPsql(databaseUrl, sql) {
   return runCommand('docker', [
-    'run', '--rm',
+    'run', '--rm', '--network', 'host',
     '-e', `PGURI=${databaseUrl}`,
     '-e', `QUERY=${sql}`,
     'postgres:17',
