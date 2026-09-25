@@ -125,6 +125,15 @@ assert.ok(header.includes("event.key === 'Tab'"), 'alert drawer must trap keyboa
 assert.ok(header.includes('aria-label="إغلاق التنبيهات"'), 'alert drawer must expose an accessible close control');
 assert.ok(header.includes('document.body.style.overflow = \'hidden\''), 'alert drawer must lock background scroll while open');
 
+const advisorSurface = fs.readFileSync('src/App.tsx', 'utf8');
+assert.ok(advisorSurface.includes('advisorPanelRef'), 'global Advisor must expose a focus boundary');
+assert.ok(advisorSurface.includes('advisorRestoreFocusRef'), 'global Advisor must restore focus to its trigger');
+assert.ok(advisorSurface.includes('role="dialog" aria-modal="true"'), 'global Advisor must declare modal dialog semantics');
+assert.ok(advisorSurface.includes('aria-labelledby="ag-global-advisor-title"'), 'global Advisor must have an accessible title binding');
+assert.ok(advisorSurface.includes('aria-label="إغلاق المستشار"'), 'global Advisor must expose an accessible close control');
+assert.ok(advisorSurface.includes("event.key === 'Escape'"), 'global Advisor must close on Escape');
+assert.ok(advisorSurface.includes("event.key === 'Tab'"), 'global Advisor must trap keyboard focus');
+assert.ok(advisorSurface.includes('document.body.style.overflow = \'hidden\''), 'global Advisor must lock background scroll while open');
 
 assert.ok(commandPalette.includes('restoreFocusRef'), 'command palette must restore focus to its opener');
 assert.ok(commandPalette.includes('document.body.style.overflow = \'hidden\''), 'command palette must lock background scroll while open');
