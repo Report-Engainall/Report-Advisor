@@ -1,12 +1,13 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CORE PARITY REBASED ON CURRENT MAIN
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CORE RESTORE PARITY WAVE — CASH ACCOUNTS
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `4eefd7390535d6bec29f1d7f907d02aefcc1d157`.
-- CURRENT CODE/TEST CANDIDATE: `601851330ad6124ce0c826b1775a49921a35fa2b`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `601851330ad6124ce0c826b1775a49921a35fa2b`.
-- CORE DELIVERY: rebased Phase-F functional changes onto the current main governance head instead of carrying the older PR base. Functional scope is unchanged: exact-head resilience topology, IPv4-safe runnerSource, restore parity for profiles/carts/cart_items, Phase-10 guards, and resilience runtime tests.
-- UI: current main already contains both shell accessibility closures; no UI code is duplicated on this core branch.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head Quality/Enforcement/Browser/Final Certification on this current-main-based core candidate, then consume the fresh Phase-F live run generated from this new head. Repair only the first current live failure.
-- DO NOT REPEAT: no stale core candidate evidence, no production-SHA bypass, no push-trigger restoration, no unsafe staging mutation.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `fa2256c0c5b311464d9d8960e3480ac33f87830d`.
+- CURRENT CODE/TEST CANDIDATE: `41a352acfdcaf1bfde096f8a48afc4594a87c4de`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `41a352acfdcaf1bfde096f8a48afc4594a87c4de`.
+- CORE LIVE RESULT CONSUMED: Phase-F run `36172345104` on `82bd148...` passed tenant canary but failed production SHA identity (`7edc3cc...` served) and logical restore at missing `public.cash_accounts`; rollback-forward-fix remained HTTP 503. Artifact `10881102542`.
+- CASH ACCOUNTS REPAIR: live staging schema/constraints/RLS/indexes were inspected directly; current candidate now carries replay-safe `cash_accounts` parity and a Phase-10 contract guard.
+- UI: current main UI closures remain merged; no UI duplication in this core branch.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head core gates and fresh Phase-F on this SHA; repair only the first new live restore defect.
+- DO NOT REPEAT: no cart/profile rework, no stale Phase-F transfer, no production-SHA bypass, no unsafe import-job mutation.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
