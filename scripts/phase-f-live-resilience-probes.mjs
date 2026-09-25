@@ -22,14 +22,26 @@ const required = [
   ...baseRequired,
   ...(backupMode === 'managed'
     ? ['RESILIENCE_BACKUP_VERIFY_URL']
-    : ['RESILIENCE_LOGICAL_SOURCE_DB_URL', 'RESILIENCE_MAX_RPO_SECONDS']),
+    : ['RESILIENCE_MAX_RPO_SECONDS']),
+];
+const logicalCredentialNames = [
+  'RESILIENCE_LOGICAL_SOURCE_DB_URL',
+  'SUPABASE_DB_PASSWORD',
+  'SUPABASE_TEMPORARY_ACCESS_TOKEN',
+  'SUPABASE_MANAGEMENT_TOKEN',
 ];
 
 const reportDir = path.join(process.cwd(), 'artifacts', 'phase-f');
 const reportPath = path.join(reportDir, 'phase-f-readiness.json');
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const target = process.env.RESILIENCE_TARGET_ENV?.trim() || null;
-const missing = required.filter(name => !process.env[name]?.trim());
+const logicalCredentialConfigured = logicalCredentialNames.some(name => Boolean(process.env[name]?.trim()));
+const missing = [
+  ...required.filter(name => !process.env[name]?.trim()),
+  ...(backupMode === 'logical' && !logicalCredentialConfigured
+    ? ['ONE_OF_RESILIENCE_LOGICAL_SOURCE_DB_URL_OR_SUPABASE_DB_CREDENTIAL']
+    : []),
+];
 
 fs.mkdirSync(reportDir, { recursive: true });
 
@@ -129,17 +141,38 @@ async function logicalBackupRestore() {
   const temporaryAccessToken = process.env.SUPABASE_TEMPORARY_ACCESS_TOKEN?.trim()
     || process.env.SUPABASE_MANAGEMENT_TOKEN?.trim()
     || '';
-  if ((dbPassword || temporaryAccessToken) && !projectRef) {
+  if ((dbPassword || temporaryAccessToken || !explicitSource) && !projectRef) {
     throw new Error('logical_backup_project_ref_not_configured');
   }
-  const jitEnabled = !dbPassword && Boolean(temporaryAccessToken);
-  const password = dbPassword || temporaryAccessToken;
-  const querySuffix = jitEnabled ? '?options=-c%20jit%3Don' : '';
-  const source = explicitSource
-    || (password
-      ? `postgresql://postgres.${encodeURIComponent(projectRef)}:${encodeURIComponent(password)}@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres${querySuffix}`
-      : '');
-  if (!source) throw new Error('logical_backup_source_db_url_not_configured');
+  const poolerHost = process.env.RESILIENCE_LOGICAL_POOLER_HOST?.trim()
+    || 'aws-0-ap-southeast-2.pooler.supabase.com';
+  const fallbackSource = 'postgresql://postgres.' + encodeURIComponent(projectRef) + '@' + poolerHost + ':5432/postgres';
+  const credentializeSource = (baseSource, password, enableJit) => {
+    const url = new URL(baseSource);
+    url.password = password;
+    if (enableJit) url.searchParams.set('options', '-c jit=on');
+    return url.toString();
+  };
+  const candidateSources = [];
+  if (explicitSource) candidateSources.push({ label: 'configured-source', url: explicitSource });
+  const credentialBase = explicitSource || fallbackSource;
+  if (temporaryAccessToken) {
+    try {
+      candidateSources.push({
+        label: 'temporary-access-fallback',
+        url: credentializeSource(credentialBase, temporaryAccessToken, true),
+      });
+    } catch {}
+  }
+  if (dbPassword) {
+    try {
+      candidateSources.push({
+        label: 'db-password-fallback',
+        url: credentializeSource(credentialBase, dbPassword, false),
+      });
+    } catch {}
+  }
+  if (!candidateSources.length) throw new Error('logical_backup_source_db_url_not_configured');
   const maxRpoSeconds = Number(process.env.RESILIENCE_MAX_RPO_SECONDS);
   if (!Number.isFinite(maxRpoSeconds) || maxRpoSeconds < 0) {
     throw new Error('invalid_max_rpo_seconds');
@@ -171,7 +204,24 @@ async function logicalBackupRestore() {
 
     runCommand('supabase', ['db', 'reset'], { cwd: workDir });
 
-    const snapshotText = runDockerPsql(source, exactSnapshotSql);
+    let source = null;
+    let snapshotText = null;
+    const sourceFailures = [];
+    for (const candidate of candidateSources) {
+      try {
+        const probeText = runDockerPsql(candidate.url, exactSnapshotSql);
+        if (!Number.isFinite(Date.parse(probeText))) {
+          sourceFailures.push(candidate.label + ':timestamp_invalid');
+          continue;
+        }
+        source = candidate.url;
+        snapshotText = probeText;
+        break;
+      } catch {
+        sourceFailures.push(candidate.label + ':connection_failed');
+      }
+    }
+    if (!source) throw new Error('logical_backup_source_unavailable:' + sourceFailures.join(','));
     const snapshotAt = Date.parse(snapshotText);
     if (!Number.isFinite(snapshotAt)) throw new Error('source_snapshot_timestamp_invalid');
 
