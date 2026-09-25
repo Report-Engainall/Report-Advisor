@@ -26,6 +26,9 @@ for (const token of [
   'artifact_sha256',
   'rpo_seconds',
   'rto_seconds',
+  'snapshot_request_started_at',
+  'snapshot_response_received_at',
+  'snapshot_observed_at',
   'logical-',
 ]) if (!probe.includes(token)) throw new Error(`Logical backup/restore runtime invariant missing: ${token}`);
 console.log('Phase F runtime closure contract: PASS');
