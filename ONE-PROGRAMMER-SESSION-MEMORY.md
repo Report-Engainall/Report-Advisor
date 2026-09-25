@@ -2,7 +2,7 @@
 
 - SESSION-ID → `2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-116`
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `419cd4f0eb2317c702e7ee656761d5e084ebe6ce`.
-- CURRENT CODE/TEST CANDIDATE → `adb093bb20d488ce593b5e2598168c74711d4346`.
+- CURRENT CODE/TEST CANDIDATE → `c06a40813ab16783a6b38004c4766f69f3bc0114`.
 - GOVERNANCE HEAD → `419cd4f...` is documentation-only synchronization; candidate remains `adb093bb...`.
 - DONE → synchronized `docs/MASTER_PRODUCT_REFERENCE.md` with the current intelligence consolidation, unavailable-data closure, migration restore repair, and exact Phase-F runtime boundary.
 - VERIFIED SOURCE STATE → repaired migration branch audit was 285 migrations / 0 findings; live Phase-F baseline remains 1/4 before the repair and is not re-certified after it.

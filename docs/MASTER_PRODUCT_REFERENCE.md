@@ -1,6 +1,6 @@
 ## IMPLEMENTATION UPDATE — 2026-09-23 / CURRENT GOVERNED STATE
 
-- Current code candidate: `adb093bb20d488ce593b5e2598168c74711d4346` (Phase-F migration restore repair).
+- Current code candidate: `c06a40813ab16783a6b38004c4766f69f3bc0114` (Phase-F migration restore repair).
 - UI consolidation closed: Recommendations + Forecasts now live in canonical `src/pages/IntelligencePage.tsx`; duplicate `src/pages/IntelligencePages.tsx` was removed and App imports were rebound.
 - Data truth UI closure closed the real blank fallthroughs for Dashboard/Command Center/Liquidity/Receivables/Reports/Inventory/Profitability and is guarded by the Product WOW contract.
 - Quality governance now executes `test:knowledge-architecture` in the canonical Quality workflow.
