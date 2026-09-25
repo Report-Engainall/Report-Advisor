@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ArrowLeft, FileText, Printer, RefreshCw, ShieldCheck, Target, TrendingUp } from 'lucide-react';
+import { ArrowLeft, ArrowUpLeft, FileText, Printer, RefreshCw, ShieldCheck, Target, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs, type MonthlyTrend } from '@/lib/dashboard-canonical';
 import type { Alert, Recommendation } from '@/lib/types';
@@ -106,6 +106,27 @@ export function ExecutiveReportPage() {
 
       <TruthContextStrip months={6} status={kpis?.status ?? 'INSUFFICIENT_DATA'} asOf={asOf} />
 
+      <section className="grid gap-3 md:grid-cols-3 print:hidden" aria-label="مسارات التحقق والتنفيذ">
+        <Link to="/trust" className="group rounded-2xl border border-ink-200 bg-white p-4 shadow-sm transition hover:border-primary-200 hover:shadow-card">
+          <div className="flex items-center justify-between"><span className="text-[9px] font-black tracking-[.12em] text-primary-700">EVIDENCE</span><ShieldCheck size={16} className="text-primary-600" /></div>
+          <div className="mt-2 text-sm font-black text-ink-900">مركز الدليل والثقة</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">افتح المصدر، حالة الثقة، والسياق الذي يبرر المؤشرات قبل اتخاذ الإجراء.</p>
+          <span className="mt-3 inline-flex items-center gap-1 text-[10px] font-black text-primary-700">فتح الدليل <ArrowUpLeft size={12}/></span>
+        </Link>
+        <Link to="/metrics" className="group rounded-2xl border border-ink-200 bg-white p-4 shadow-sm transition hover:border-primary-200 hover:shadow-card">
+          <div className="flex items-center justify-between"><span className="text-[9px] font-black tracking-[.12em] text-primary-700">METRIC GOVERNANCE</span><TrendingUp size={16} className="text-primary-600" /></div>
+          <div className="mt-2 text-sm font-black text-ink-900">حوكمة المؤشرات</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">راجع تعريف المؤشر، نسخته، حداثته، والأدلة القابلة للالتقاط.</p>
+          <span className="mt-3 inline-flex items-center gap-1 text-[10px] font-black text-primary-700">فحص الحوكمة <ArrowUpLeft size={12}/></span>
+        </Link>
+        <Link to="/decision-experience" className="group rounded-2xl border border-ink-200 bg-white p-4 shadow-sm transition hover:border-primary-200 hover:shadow-card">
+          <div className="flex items-center justify-between"><span className="text-[9px] font-black tracking-[.12em] text-primary-700">DECISION</span><Target size={16} className="text-primary-600" /></div>
+          <div className="mt-2 text-sm font-black text-ink-900">مساحة القرار</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">انقل الإشارة إلى الدليل والموافقة والإجراء دون خلط التقرير بتنفيذ القرار.</p>
+          <span className="mt-3 inline-flex items-center gap-1 text-[10px] font-black text-primary-700">فتح القرار <ArrowUpLeft size={12}/></span>
+        </Link>
+      </section>
+
       <section className="ag-exec-panel rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold tracking-wider text-primary-600">الملخص التنفيذي</p><h2 className="mt-1 text-lg font-black">لقطة الإدارة الحالية</h2></div><span className="rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-[11px] font-bold text-primary-700">المصدر: بيانات قانونية</span></div>
         <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -118,13 +139,18 @@ export function ExecutiveReportPage() {
 
       <section className="ag-exec-panel rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-center gap-2"><TrendingUp size={18} className="text-primary-600" /><div><h2 className="text-lg font-black">نبض المبيعات</h2><p className="text-xs text-ink-500">آخر 6 أشهر من المصدر المعتمد</p></div></div>
-        <div className="mt-5">{trend.length ? <TrendStrip trend={trend} /> : <p className="rounded-xl bg-ink-50 p-4 text-sm text-ink-500">لا توجد سلسلة زمنية كافية للعرض.</p>}</div>
+        <div className="mt-5">{trend.length ? <>
+          <div role="img" aria-label="اتجاه المبيعات لآخر ستة أشهر"><TrendStrip trend={trend} /></div>
+          <div className="mt-4 overflow-x-auto rounded-xl border border-ink-100">
+            <table className="w-full min-w-[520px] text-[10px]" aria-label="بيانات اتجاه المبيعات"><thead className="bg-ink-50 text-ink-500"><tr><th className="px-3 py-2 text-right font-bold">الشهر</th><th className="px-3 py-2 text-right font-bold">المبيعات</th></tr></thead><tbody>{trend.slice(-6).map((point, index) => <tr key={`${point.month}-${index}`} className="border-t border-ink-100"><td className="px-3 py-2 font-semibold text-ink-700">{point.month}</td><td className="px-3 py-2 text-ink-600">{typeof point.sales === 'number' && Number.isFinite(point.sales) ? formatCurrency(point.sales) : 'غير متاح'}</td></tr>)}</tbody></table>
+          </div>
+        </> : <p className="rounded-xl bg-ink-50 p-4 text-sm text-ink-500">لا توجد سلسلة زمنية كافية للعرض.</p>}</div>
       </section>
 
       <section className="grid gap-5 lg:grid-cols-2">
         <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-danger-600">الانتباه</p><h2 className="mt-1 text-lg font-black">أهم التنبيهات</h2></div><span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700">{formatNumber(data?.alerts.length ?? 0)}</span></div>
-          <div className="mt-4 space-y-3">{(data?.alerts ?? []).slice(0, 6).map((alert) => <article key={alert.id} className="rounded-xl border border-ink-100 p-4"><p className="font-bold text-ink-900">{alert.title}</p><Link to="/decision-experience?stage=decision" className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-primary-700">فتح سياق القرار <ArrowLeft size={13} /></Link></article>)}{!(data?.alerts?.length) && <p className="rounded-xl bg-ink-50 p-4 text-sm text-ink-500">لا توجد تنبيهات مصدرية حاليًا.</p>}</div>
+          <div className="mt-4 space-y-3">{(data?.alerts ?? []).slice(0, 6).map((alert) => <article key={alert.id} className="rounded-xl border border-ink-100 p-4"><div className="flex flex-wrap items-center gap-2"><p className="font-bold text-ink-900">{alert.title}</p><span className="rounded-full bg-ink-50 px-2 py-1 text-[9px] font-black text-ink-500">{alert.severity || 'غير مصنف'}</span></div>{alert.description && <p className="mt-2 text-[10px] leading-5 text-ink-500">{alert.description}</p>}<div className="mt-3 flex flex-wrap gap-3 text-[9px] text-ink-400">{alert.metric_value != null && <span>القيمة: {formatNumber(alert.metric_value)}</span>}{alert.threshold != null && <span>الحد: {formatNumber(alert.threshold)}</span>}</div><Link to="/decision-experience?stage=decision" className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-primary-700">فتح سياق القرار <ArrowLeft size={13} /></Link></article>)}{!(data?.alerts?.length) && <p className="rounded-xl bg-ink-50 p-4 text-sm text-ink-500">لا توجد تنبيهات مصدرية حاليًا.</p>}</div>
         </div>
         <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-primary-600">الإجراء</p><h2 className="mt-1 text-lg font-black">التوصيات النشطة</h2></div><span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-bold text-primary-700">{formatNumber(data?.recommendations.length ?? 0)}</span></div>
