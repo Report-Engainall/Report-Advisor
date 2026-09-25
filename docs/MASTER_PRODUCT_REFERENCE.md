@@ -1,6 +1,9 @@
 ## IMPLEMENTATION UPDATE — 2026-09-25 / CURRENT GOVERNED STATE
 
-- Current code/test candidate: `647f3ced71166386cb55f72942b865d3c902aabe` (exact-head repair of the remaining terminal-approval concurrency migration reference).
+- Current code/test candidate: `ddd9382f347cc02eb401fee75a9df48beaae7f05` (restore-safe RLS qualification fix discovered by live Phase-F backup/restore).
+- Fresh local contracts: migration schema audit PASS (254 migrations / 0 findings); decision/intelligence runtime closure PASS; route/sidebar parity 39/37 PASS; Product WOW, Connections/Language, Executive Dashboard, Intelligence and Executive Report contracts PASS; TypeScript and Vite production build PASS.
+- Fresh exact Phase-F artifact `phase-f-readiness-d5c618a9`: canary PASS; production deployment SHA mismatch `7be9f014...` vs exact head `d5c618a9...`; logical backup/restore failed at the unqualified `decision_action_receipts_tenant` policy; rollback drill returned 503. The source migration was corrected at `ddd9382f...`.
+- Current Vercel production is `dpl_F4nkx3kwgxgncjre1Mo34sfp8448` on `7be9f01491384e641f32b31b2753c46fd32f7128`; GitHub main is `7159553fcfc9d21304ffff60e1086a34b714ac09`. No production evidence is transferred to the candidate.
 - UI consolidation closed: Recommendations + Forecasts now live in canonical `src/pages/IntelligencePage.tsx`; duplicate `src/pages/IntelligencePages.tsx` was removed and App imports were rebound.
 - Data truth UI closure closed the real blank fallthroughs for Dashboard/Command Center/Liquidity/Receivables/Reports/Inventory/Profitability and is guarded by the Product WOW contract.
 - Quality governance now executes `test:knowledge-architecture` in the canonical Quality workflow.

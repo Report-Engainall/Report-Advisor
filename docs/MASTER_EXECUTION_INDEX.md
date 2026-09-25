@@ -1,18 +1,18 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / EXACT CANDIDATE 647
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / EXACT CANDIDATE DDD
 
 > Exact-head routing header. The code candidate is the tested source SHA; the governance commit that follows must not be mistaken for the code candidate.
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `647f3ced71166386cb55f72942b865d3c902aabe`.
-- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `734c1b402c6698f2256fa8c0c07dd604bbe4ac5e`.
-- DONE: reproduced and fixed the first current-head Quality failure: terminal-approval concurrency regression referenced a renumbered migration; canonical path is now `20260904004001_harden_terminal_approval_concurrency.sql`.
-- TARGETED PROOF: `node scripts/check-terminal-approval-concurrency.test.mjs` PASS on `647f3c...`.
-- PRIOR EXACT CANDIDATE PROOF: P0 `13/13`, P1 `8/8`, Production Readiness `21/21`, production-certification contract, certification-evidence integrity and execution-enforcement were green on the preceding `5ad6c1...` candidate; no evidence is transferred to `647f3c...`.
-- CLOUD STATUS: fresh exact-head gates have not yet been consumed for `647f3c...`.
-- RUNTIME BOUNDARY: production identity, backup/restore, RPO, RTO and rollback remain NOT PROVEN; do not infer them from older deployments.
-- NEXT CORE FRONT: push/rebind `647f3c...`, consume fresh exact-head Quality/Enforcement/Certification/Browser/Phase-F, repair only the first reproduced current-head defect.
-- NEXT UI FRONT: consume fresh exact-head browser evidence and only implement a UI change if the current surface audit exposes a real gap.
-- DO NOT REPEAT: no stale PASS transfer, no production-SHA bypass, no unchanged-credential Phase-F retry, no deletion based on filename age.
+- CURRENT CODE/TEST CANDIDATE: `ddd9382f347cc02eb401fee75a9df48beaae7f05`.
+- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `ddd9382f347cc02eb401fee75a9df48beaae7f05`.
+- DONE: terminal-approval concurrency migration reference fixed at `647f3c...`; live Phase-F then exposed a real restore defect in `20260828172000_runtime_lifecycle_idempotency_hardening.sql`, now corrected to fully-qualified RLS target columns.
+- EXACT LOCAL PROOF: migration schema audit PASS (254 migrations / 0 findings), decision/intelligence closure PASS, TypeScript PASS, Vite build PASS, route/sidebar parity PASS, Product WOW/Executive/Intelligence/Report UI contracts PASS.
+- EXACT CLOUD BASELINE: Quality/Final Certification/Execution Enforcement/Full Product Browser E2E succeeded on governed head `d5c618a9...`; no PASS is transferred to `ddd9382f...`.
+- PHASE-F FAILURE `36092211529`: target `staging`; canary PASS; deployment identity failed because production currently serves `7be9f014...` instead of exact head; logical restore failed on the unqualified action-receipt RLS policy; rollback drill returned 503.
+- PRODUCTION IDENTITY NOW OBSERVED: Vercel production deployment `dpl_F4nkx3kwgxgncjre1Mo34sfp8448` / SHA `7be9f01491384e641f32b31b2753c46fd32f7128`; GitHub main is 12 commits ahead. No current-head production proof.
+- NEXT CORE FRONT: consume fresh exact-head gates on `ddd9382f...`; then rerun Phase-F. If deployment identity remains the only live blocker after the restore fix, promote the certified release through the normal main/Vercel path rather than bypassing the SHA guard.
+- NEXT UI FRONT: consume fresh exact-head browser/device-independent evidence; only alter UI on a reproduced current-head gap.
+- DO NOT REPEAT: no stale PASS transfer, no SHA bypass, no credential bypass, no migration deletion without dependency proof.
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
 
