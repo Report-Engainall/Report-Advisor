@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-148
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-148`.
+- CURRENT CODE/TEST CANDIDATE → PR #659 exact head `65d3b172f6008bfc56f26a358eff68945c2ddb53`.
+- UI DELIVERY → added canonical source-trust display to Canonical Import: `BLOCKED` for duplicate/security/quality<50, `REVIEW` for quality 50–74, `TRUSTED` for quality >=75, and `VERIFIED` only after a persisted authoritative snapshot exists. Command Center now also displays the canonical TrustBadge.
+- SHARED UI DELIVERY → Decision Experience no longer owns a duplicate BlockedState component; it uses the shared BoundaryState for blocked/review/insufficient surfaces. Deep truth UI contract is now registered in package scripts and the Quality workflow.
+- CORE DELIVERY → Phase-F RPO timing is now measured from a runner-side midpoint around the source snapshot request/response; the artifact stores request, response, and observed midpoint timestamps. Direct cross-clock subtraction was removed.
+- EXACT SOURCE CONTRACT → `check-deep-truth-ui-contract.mjs` enforces trust-state mappings, shared boundary state usage, import trust state, command-center trust usage, and Phase-F identity/timing guards.
+- CURRENT GATES → latest #659 head has 46 check-runs: 43 pending and only expected skipped checks completed. No repository gate PASS is claimed yet.
+- EXTERNAL STATUS → Vercel remains limited by the current free-plan deployment rate limit; local/device/browser execution remains unavailable.
+- NOT PROVEN → #659 full Quality/Certification/Browser/Phase-F live evidence, production deployment identity, production promotion, and device/browser visual verification.
+- CURRENT RESUME POINTER → `main c985deeb... → consume first terminal #659 gate → repair only reproduced failure → continue non-overlapping UI/core closure → merge only exact required green evidence`.
+- DO NOT REPEAT → no stale PASS transfer, no preview-as-production, no cross-clock RPO claim, no duplicate UI boundary component, no production/Phase-F bypass, no unsafe import-job mutation.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-147
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `c985deeb6e9f93383fca27473439a4e14cf9070d`.
