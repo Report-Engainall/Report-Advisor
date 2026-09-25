@@ -197,6 +197,12 @@ assert.ok(onboarding.includes('role="listitem"'), 'onboarding steps must expose 
 assert.ok(onboarding.includes('role="status" aria-label={badge.text}'), 'onboarding states must be announced');
 assert.ok(onboarding.includes('min-h-11 items-center'), 'onboarding route actions must meet touch-target sizing');
 
+const proposalDemo = fs.readFileSync('src/pages/ProposalDemoPage.tsx', 'utf8');
+assert.ok(proposalDemo.includes('proposal-demo-title'), 'proposal demo title field must remain addressable');
+assert.ok(proposalDemo.includes('proposal-demo-client'), 'proposal demo client field must remain addressable');
+assert.ok(proposalDemo.includes('proposal-demo-requirements'), 'proposal demo requirements field must remain addressable');
+assert.ok(proposalDemo.includes('min-h-11'), 'proposal demo primary controls must meet touch-target sizing');
+
 const metricInspector = fs.readFileSync('src/pages/MetricInspectorPage.tsx', 'utf8');
 assert.ok(metricInspector.includes('const filteredItems = useMemo'), 'metric inspector must derive a filtered semantic list without mutating the source contract');
 assert.ok(metricInspector.includes('aria-label="البحث في المؤشرات"'), 'metric inspector search must be accessible');
