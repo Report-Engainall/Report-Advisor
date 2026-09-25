@@ -1,3 +1,17 @@
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / GOVERNANCE REBIND AFTER PHASE-F REPAIR
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `2ed286ec4a24b68418966a2cd2d8320fd7c5e164`.
+- CURRENT CODE/TEST CANDIDATE: `886c3e11afb0304f48b8653001bf5b6a4f039ab5`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `2ed286ec4a24b68418966a2cd2d8320fd7c5e164`.
+- CORE MERGE: PR #632 merged at `886c3e11afb0304f48b8653001bf5b6a4f039ab5` with the current Phase-F restore dependency repair.
+- UI CANDIDATE: PR #634 head `57b19ff9a0bbd56c506f2f8df3f22fbcdd2715be`; keep separate from the current main code candidate until merged.
+- PHASE-F EVIDENCE: run `36165329471` / `36165787138` reached live probes and failed closed: deployment SHA mismatch on the PR heads, Supabase direct DB IPv6 network unreachable during logical restore, rollback-forward-fix drill HTTP 503. These are live observations, not synthetic failures.
+- CURRENT MAIN CI: Quality, Browser, Final Execution Batch, Final Certification and Storage isolation have completed successfully on governance heads; Enforcement exposed the index-format/ancestor mismatch being repaired by this rebind.
+- NEXT EXECUTABLE ACTION: consume fresh Enforcement + Final Certification after this exact candidate rebind; then continue Phase-F only against a deployment whose runtime SHA exactly matches the tested release candidate.
+- DO NOT REPEAT: no stale candidate transfer, no Phase-F credential bypass, no deployment-SHA bypass, no forced UI merge through unresolved checks.
+
+---
+
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `6ef890dc59aabe05efd93e496c863a40e1d28f66` (live-memory write-back commit; functional core merge is `886c3e11afb0304f48b8653001bf5b6a4f039ab5`).
