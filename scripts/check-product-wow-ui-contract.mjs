@@ -12,6 +12,10 @@ assert.ok(dataTable.includes('aria-rowcount={visibleRows.length + 1}') && dataTa
 assert.ok(dataTable.includes('role="navigation" aria-label="تنقّل الجدول"'), 'shared table pagination must expose navigation semantics');
 
 const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
+assert.ok(workCenter.includes('const zeroProgressActive = useMemo'), 'work center must expose an explicit zero-progress active signal');
+assert.ok(workCenter.includes('تحقق من العمليات دون تقدم'), 'work center must route zero-progress work to a visible next action');
+assert.ok(workCenter.includes('نشطة بلا تقدم'), 'work center must expose zero-progress active count in the decision summary');
+assert.ok(workCenter.includes('بدون تقدم'), 'work center active rows must distinguish zero-progress processing from ordinary active work');
 assert.ok(workCenter.includes('role="progressbar"'), 'work center progress must expose a semantic progressbar');
 assert.ok(workCenter.includes('aria-valuenow={Math.max(0, Math.min(100, r.progress))}'), 'work center progress must expose the numeric progress value');
 
