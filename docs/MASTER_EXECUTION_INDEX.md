@@ -1,7 +1,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CLIENT UI SETTINGS PARITY CANDIDATE
 
 - MAIN HEAD OBSERVED BEFORE THIS WAVE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- CURRENT CODE/TEST CANDIDATE: `5fa3462eba69a2c0e02015e75942aec4c726781f`.
+- CURRENT CODE/TEST CANDIDATE: `52266e483da05209f6f0bee4deabe465a33e507e`.
 - GOVERNANCE HEAD BEFORE THIS WRITE: `5fa3462eba69a2c0e02015e75942aec4c726781f`.
 - CORE DELIVERY: client_ui_settings remains isolated in its own restore-parity migration; its live schema, FK/UNIQUE, config shape, RLS/grants and supabase_realtime publication are now source-bound and guarded.
 - FIRST FAILURE CONSUMED: Phase-F `36174509884` stopped at missing `public.client_ui_settings` on `53ef97...`; no PASS transferred.
