@@ -10,6 +10,7 @@ const intendedAuthenticatedSecurityDefiners = [
   'create_runtime_recommendation', 'current_company_id', 'decide_approval',
   'link_recommendation_to_decision', 'mark_alert_read', 'notify_decision_work_item',
   'record_decision_outcome', 'record_recommendation_outcome', 'request_decision_approval',
+  'clear_cart', 'get_cart', 'remove_cart_item', 'set_cart_item',
 ];
 
 // Live-only functions are not asserted as repository definitions here. Their
