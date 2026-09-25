@@ -157,6 +157,7 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
                     to={item.path}
                     onClick={onNavigate}
                     className={'ag-nav-item nav-item min-h-11 ' + (activeItem ? 'ag-nav-item-active' : 'ag-nav-item-inactive')}
+                    aria-current={activeItem ? 'page' : undefined}
                   >
                     <span className="shrink-0">{item.iconNode}</span>
                     <span className="min-w-0 flex-1 truncate">{language === 'ar' ? item.label : item.enLabel}</span>
