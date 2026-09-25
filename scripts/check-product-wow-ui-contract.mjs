@@ -113,6 +113,12 @@ assert.ok(canonicalImport.includes('role="list" aria-label="مراحل الاس�
 assert.ok(canonicalImport.includes('aria-current={active ? \'step\' : undefined}'), 'canonical import must expose the active step to assistive technology');
 
 const commandPalette = fs.readFileSync('src/components/CommandPalette.tsx', 'utf8');
+const appShell = fs.readFileSync('src/App.tsx', 'utf8');
+assert.ok(appShell.includes('mobileSidebarRef'), 'mobile navigation drawer must expose a focus boundary');
+assert.ok(appShell.includes('aria-modal="true" aria-label="القائمة الرئيسية"'), 'mobile navigation drawer must declare modal semantics');
+assert.ok(appShell.includes("event.key === 'Tab'"), 'mobile navigation drawer must trap keyboard focus');
+assert.ok(appShell.includes('document.body.style.overflow = \'hidden\''), 'mobile navigation drawer must lock background scroll');
+
 const header = fs.readFileSync('src/components/Header.tsx', 'utf8');
 assert.ok(header.includes('alertPanelRef'), 'alert drawer must expose a dialog focus boundary');
 assert.ok(header.includes("event.key === 'Tab'"), 'alert drawer must trap keyboard focus while open');
