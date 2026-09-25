@@ -87,7 +87,10 @@ function runCommand(command, args, options = {}) {
     const boundedDiagnostics = diagnostics.length > 12000
       ? `HEAD:\n${diagnostics.slice(0, 3000)}\n...TRUNCATED...\nTAIL:\n${diagnostics.slice(-9000)}`
       : diagnostics;
-    throw new Error(`${command}_failed:${boundedDiagnostics || error?.message || String(error)}`);
+    const exitCode = Number.isInteger(error?.status) ? error.status : null;
+    const signal = typeof error?.signal === 'string' ? error.signal : null;
+    const code = typeof error?.code === 'string' ? error.code : null;
+    throw new Error(`${command}_failed:exit_code=${exitCode ?? 'unknown'}:signal=${signal ?? 'none'}:code=${code ?? 'none'}:${boundedDiagnostics || error?.message || String(error)}`);
   }
 }
 
@@ -174,7 +177,7 @@ async function logicalBackupRestore() {
     if (!dbLine) throw new Error('local_restore_db_url_missing');
     localDbUrl = dbLine.slice('DB_URL='.length).trim().replace(/^['"]|['"]$/g, '');
 
-    runCommand('supabase', ['db', 'reset', '--debug'], { cwd: workDir });
+    runCommand('supabase', ['db', 'reset', '--debug', '--no-seed'], { cwd: workDir });
 
     const snapshotText = runDockerPsql(source, exactSnapshotSql);
     const snapshotAt = Date.parse(snapshotText);
