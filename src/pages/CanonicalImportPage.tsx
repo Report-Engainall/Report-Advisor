@@ -3,6 +3,8 @@ import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, Check
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
+import { TrustBadge } from '@/components/ui/TrustBadge';
+import type { TrustState } from '@/lib/trust-state';
 import { DataTable } from '@/components/ui/DataTable';
 import { fetchImportRecords, createImportRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
@@ -72,6 +74,25 @@ function describeImportFailure(message: string | null): { title: string; detail:
     detail: message.replace(/^فشل اعتماد المصدر:\s*/, ''),
     action: 'راجع حالة المصدر والسجل ثم أعد المحاولة.',
   };
+}
+
+function importTrustState({
+  step,
+  quality,
+  duplicate,
+  securityPassed,
+  snapshotId,
+}: {
+  step: Step;
+  quality: number;
+  duplicate: boolean;
+  securityPassed: boolean;
+  snapshotId?: string | null;
+}): TrustState {
+  if (step === 'done' && snapshotId) return 'VERIFIED';
+  if (duplicate || !securityPassed || quality < 50) return 'BLOCKED';
+  if (quality < 75) return 'REVIEW';
+  return 'TRUSTED';
 }
 
 function Stepper({ step }: { step: Step }) {
@@ -320,10 +341,18 @@ export function CanonicalImportPage() {
   const qualityVariant = quality >= 75 ? 'success' : quality >= 50 ? 'warning' : 'danger';
   const ready = Boolean(file && fileHash && securityPassed && !duplicate && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
   const failurePresentation = describeImportFailure(error);
+  const trustState = importTrustState({ step, quality, duplicate, securityPassed, snapshotId: typeof result?.snapshotId === 'string' ? result.snapshotId : null });
 
   return <div className="space-y-5 animate-fade-in">
     <PageHeader title="مركز المصادر" subtitle="مسار موحد: فحص أمني → قراءة المحتوى → فهم دلالي → جودة → اعتماد → معرفة موثوقة" />
     <Stepper step={step} />
+    <section className="flex flex-col gap-2 rounded-[14px] border border-ink-200 bg-white p-3 shadow-card sm:flex-row sm:items-center sm:justify-between" aria-label="حالة ثقة المصدر">
+      <div className="min-w-0">
+        <div className="text-[10px] font-black text-ink-800">حالة المصدر قبل الاعتماد</div>
+        <p className="mt-0.5 text-[10px] leading-5 text-ink-400">الجودة تحدد الحاجة للمراجعة؛ الاعتماد النهائي يتطلب نجاح المسار السلطوي ووجود snapshot مثبت.</p>
+      </div>
+      <TrustBadge state={trustState} compact />
+    </section>
 
     {step === 'upload' && <Card><CardBody>
       <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
