@@ -1,4 +1,22 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD 2D9
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD A851
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- CURRENT CODE/TEST CANDIDATE: `a851e3f1adc10d5e6234ad4e6d6f509f87e614cc` on PR #628.
+- GOVERNANCE STATE: Decision Playbooks and resilience/session-pooler repairs remain intact; this candidate additionally restores missing commerce cart schema lineage required for logical backup restore.
+- DONE — CORE: canonical migration `20260925033521_reconcile_live_cart_schema.sql` recreates/guards `public.carts` and `public.cart_items` with live constraints, indexes, RLS and authenticated self-select policies.
+- LIVE DB RECONCILIATION: Supabase staging accepted migration `reconcile_live_cart_schema` as migration version `20260925033521`; live schema already matched these objects, so no business data was altered.
+- VERIFIED LOCAL EXACT HEAD: migration schema audit PASS (255 migrations, 113 tables, 125 indexes, 121 policies, 11 triggers, 0 findings); Phase-F runtime closure PASS; operational resilience/evidence integrity PASS; Product-WOW UI PASS; git diff --check PASS.
+- PREVIOUS EXACT PHASE-F RESULT: run `36090389863` on `2d9f46b...` failed 1/4. Tenant canary passed; production health was exact-SHA mismatch; backup/restore reached restore and failed on missing `public.carts`; rollback-forward drill was HTTP 503 because production forward baseline was unavailable.
+- ROOT CAUSE CLOSED: `public.carts` and `public.cart_items` existed in Supabase but had no corresponding repository migration, causing fresh logical restore schema drift. The canonical migration now restores that lineage.
+- VERCEL: branch deployment for the next exact candidate must be checked; do not transfer preview evidence from earlier SHAs.
+- PHASE-F: fresh live proof is required on the new exact head after governance rebind. Current production alias remains on old SHA `7be9f014...`; RPO/RTO/rollback/production identity are still NOT PROVEN.
+- NEXT EXECUTABLE ACTION: commit governance rebind for `a851e3f...`, consume fresh exact-head quality/Browser/Enforcement/Final Certification, then consume fresh Phase-F; repair only the first newly reproduced live failure.
+- DO NOT REPEAT: old `countSql` defect, stale cart schema state, unchanged Phase-F credentials, historical PASS transfer, production-SHA bypass, or speculative UI rewrites.
+- UI LANE: 40 application routes / 38 canonical navigation links remain green; Decision Playbooks is closed and no new surface defect is evidenced.
+- CORE LANE: exact-head certification → fresh Phase-F restore proof → exact production alignment → measured RPO/RTO/rollback → release closeout.
+- CURRENT RESUME POINTER: `a851e3f... governance rebind → fresh exact-head gates → fresh Phase-F → exact production alignment → measured recovery → release closeout`.
+
+
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
 - CURRENT CODE/TEST CANDIDATE: `2d9f46b9960ec5895c1e34e4c03ab6621f9ebb04` on PR #628.

@@ -1,4 +1,19 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-126
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-127
+
+- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-127.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- CURRENT CODE/TEST CANDIDATE: `a851e3f1adc10d5e6234ad4e6d6f509f87e614cc` on PR #628.
+- DONE — CORE: reconciled live commerce cart schema into canonical repository migration `20260925033521_reconcile_live_cart_schema.sql`; live Supabase migration applied successfully under the same version.
+- ROOT CAUSE CLOSED: fresh logical restore on exact `2d9f46b...` failed because `public.carts` was live but absent from repository migrations; `public.cart_items` was likewise absent from repository lineage.
+- VERIFIED LOCAL EXACT CANDIDATE: migration schema audit PASS (255/113/125/121/11, 0 findings); Phase-F runtime closure PASS; operational resilience/evidence integrity PASS; Product-WOW UI PASS; diff-check PASS.
+- EXACT LIVE PHASE-F FAILURE: run `36090389863` on `2d9f46b...` was 1/4. Operational health failed production SHA match, tenant canary passed, backup/restore failed at `public.carts` missing, rollback-forward drill returned HTTP 503. The schema drift is now repaired in `a851e3f...`.
+- UI LANE: no new visual defect reproduced; 40 routes / 38 canonical navigation links remain aligned and Product-WOW is green.
+- NOT PROVEN: fresh Final Certification on `a851e3f...`, current production exact identity, logical backup/restore after schema repair, measured RPO/RTO, rollback.
+- DO NOT REPEAT: old countSql defect, cart schema drift, stale index binding, unchanged Phase-F retries, historical evidence transfer, production-SHA bypass.
+- CURRENT PRECISE STOP POINT: rebind governance to `a851e3f...` → consume fresh exact-head gates → fresh Phase-F after the migration change → repair only first new live failure → exact production alignment → measured recovery.
+- CURRENT RESUME POINTER: `a851e3f... governance rebind → exact-head certification → fresh Phase-F → exact production alignment → measured RPO/RTO/rollback → release closeout`.
+
+
 
 - SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-126.
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
