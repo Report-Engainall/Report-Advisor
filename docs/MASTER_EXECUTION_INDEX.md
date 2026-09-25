@@ -1,12 +1,17 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CORE RESTORE PARITY ON LATEST MAIN
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F RESTORE PARITY: CLIENT UI SETTINGS
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- CURRENT CODE/TEST CANDIDATE: `13bea9161553490e4cd40cea139950b3c736ed4d`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `13bea9161553490e4cd40cea139950b3c736ed4d`.
-- CORE SOURCE: existing main parity migration already contains profiles/carts/cart_items. This wave adds the live `branches` unique keys required by the cash-account composite FK, plus `cash_accounts` schema/RLS/indexes/grants and exact contract guards.
-- LIVE FACT CONSUMED: Phase-F `36173736554` reached logical replay and failed at the composite `cash_accounts -> branches(company_id,id)` FK because local baseline lacked a matching unique constraint. Staging directly confirmed live constraints `branches_id_company_unique` and `branches_company_id_id_key`.
-- NEXT EXECUTABLE ACTION: fresh exact-head Quality/Enforcement/Final Certification/Browser/Storage/Desktop and fresh Phase-F on this head; repair only the first new live failure.
-- DO NOT REPEAT: no old PR #645 evidence, no stale Phase-F transfer, no production-SHA bypass, no weaker cash-account FK substitute.
+- MAIN HEAD OBSERVED BEFORE THIS WAVE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
+- SOURCE CODE/TEST BASE: `53ef97c72c4f0fc94116848e35b1dd4c5e1f44f7` (PR #649 restore-parity wave).
+- CURRENT CODE/TEST CANDIDATE: `5fd84ecb6ab87ce1aed4d207218dc79b0895b2fb`.
+- CORE DELIVERY: Phase-F restore parity now adds the live `public.client_ui_settings` schema, organization FK/uniqueness, config-shape invariant, tenant RLS policy and observed role grants; Phase-10 contract locks the exact source invariants.
+- FIRST CURRENT FAILURE CONSUMED: Phase-F run `36174509884` on `53ef97c72c4f0fc94116848e35b1dd4c5e1f44f7` reached logical restore and failed at `public.client_ui_settings`; tenant canary passed, but production identity still served deployment SHA `7edc3cc210e4b81cf18d11fd995296de7a37df87` instead of the candidate.
+- LIVE SOURCE VERIFICATION: staging `fnqbvfuwbdpwvhcgzksl` confirms `client_ui_settings` columns, FK, UNIQUE organization key, JSON shape CHECK, RLS enabled, `ui_settings_customer_select` policy and authenticated/service-role grants. No staging/production mutation was performed.
+- UI PARALLEL FRONT: PR #647 remains independent on current main and carries purchases truth-context plus command-palette/mobile/alert-drawer focus and modal accessibility closure; do not transfer stale evidence.
+- EXTERNAL: Vercel current-head deployment remains rate-limited on the free plan; Netlify preview is evidence only.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head Phase-F + Quality/Final/Browser/Desktop evidence for `5fd84ecb...`; repair only the first current runtime restore failure, while consuming PR #647 gates in parallel.
+- DO NOT REPEAT: no stale Phase-F transfer, no production-SHA bypass, no preview-as-production, no duplicate RPC/runner/import path, no blanket SECURITY DEFINER cleanup.
+
+
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
