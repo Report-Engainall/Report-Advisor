@@ -48,7 +48,11 @@ jobs:
             )"
           fi
           test "$candidate" = "$(git rev-parse "$candidate^{commit}")"
-          git merge-base --is-ancestor "$candidate" "${{ github.sha }}"
+          if [[ -z "${{ github.event.pull_request.head.sha }}" ]]; then
+            git merge-base --is-ancestor "$candidate" "${{ github.sha }}"
+          else
+            test "$candidate" = "${{ github.event.pull_request.head.sha }}"
+          fi
           git checkout --detach "$candidate"
           test -z "$(git status --porcelain)"
           printf 'EXACT_HEAD=%s\n' "$candidate" >> "$GITHUB_ENV"
