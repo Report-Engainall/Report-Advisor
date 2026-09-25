@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI + PHASE-F IDENTITY CLOSURE 146
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT CODE/TEST CANDIDATE: `42de80a59c0c5fa40892e379f5d7a84c6a9bdbf3` (PR #659).
+- UI CLOSURE: analytics status strips now surface canonical trust state; `INSUFFICIENT SAMPLE` is separated from `INSUFFICIENT DATA` and never presented as a calculated result.
+- CORE CLOSURE: Phase-F rejects noncanonical exact-head identities before live probes, and the static Phase-F closure contract asserts this guard.
+- ACTIVE-LANE ISOLATION: #659 is based directly on current main and does not modify the active #657/#658 code paths.
+- CURRENT GATES: GitHub Actions on #659 have started; most of the 48 checks are still queued/pending. Vercel is externally rate-limited; Netlify preview for the latest pushed head was canceled. No deployment PASS is claimed.
+- #657/#658: desktop-windows exact-head runs are terminal success; broader required matrices remain incomplete/queued, so neither lane is merge-ready from the observed evidence.
+- NEXT EXECUTABLE ACTION: consume the first terminal #659 repository gate; repair only a reproduced failure; otherwise continue independent UI/core closure without reopening completed work.
+- DO NOT REPEAT: stale evidence, deployment-limit confusion, preview-as-production, duplicate importer/RPC/runner, production or Phase-F bypass.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI + PHASE-F IDENTITY CLOSURE 145
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
