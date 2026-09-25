@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / TENANT-CONTRACT REPAIR
+
+- MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE: `ec1006f555a17a9c02492e29839c285c7214282e`.
+- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `ec1006f555a17a9c02492e29839c285c7214282e`.
+- DONE: repaired `current_company_id()` with an incremental UUID-safe resolver migration and verified the live staging function; Storage Tenant Runtime E2E is SUCCESS and Full Product Browser E2E is SUCCESS on the prior exact code candidate.
+- DONE: corrected `check-tenant-security-contract.mjs` so tenant schema evidence is validated across the full migration chain, while resolver-specific invariants remain bound to the latest resolver definition.
+- EXACT CURRENT FAILURE: Quality run `36158568461` failed only at routing/security discovery because the checker incorrectly required `ALTER TABLE company_memberships` in the latest resolver migration. This code-contract defect is fixed at `ec1006f...`; the failure is not transferred as a runtime defect.
+- NEXT: consume fresh exact-head workflows for `ec1006f...`; then Phase-F live resilience and final certification. Repair only the first reproduced current-SHA failure.
+- DO NOT REPEAT: no stale PASS transfer, no SHA/production bypass, no historical migration rewrite, no weakening of tenant invariants, no direct SQL substituted for source lineage.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / UUID-RESOLVER REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
