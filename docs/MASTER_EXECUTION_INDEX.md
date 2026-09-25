@@ -1,16 +1,18 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 149
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
-- CURRENT CODE/TEST CANDIDATE: `dd6a715bec3fb17a122005e086125e5d32737c9a` (PR #659).
-- UI CLOSURE: Work Center, Sources & Connections, Master Data Hub, and Executive Report received new operational depth without introducing parallel routes or fake business state.
-- CORE CLOSURE: import readback preserves source metadata from result_summary and proves company/job scoping through a dedicated contract.
-- QUALITY CLOSURE: `test:import-readback-fidelity` is registered in package scripts and enforced by Quality after the existing deep truth UI contract.
-- CURRENT GATES: exact-head repository workflows are queued/pending; no current-head PASS transferred or claimed. Vercel remains externally rate-limited by plan.
+- CURRENT CODE/TEST CANDIDATE: `9dcb06e82c44d0ac44862ccad55a4cac68f81ff6` (PR #659).
+- UI CLOSURE: Work Center, Sources & Connections, Master Data Hub, and Executive Report received operational depth, state/action coverage, accessibility improvements, and evidence-aware navigation without parallel routes.
+- CORE CLOSURE: import readback now preserves source metadata from result_summary with validated fallbacks and explicit tenant/focused-job scoping.
+- QUALITY CLOSURE: `test:import-readback-fidelity` is registered in package scripts and enforced by Quality after the deep truth UI contract.
+- CURRENT GATES: 45 exact-head workflows remain queued/pending; only Commercial PWA is terminal-skipped. No PASS transferred or claimed.
+- EXTERNAL BOUNDARY: Vercel remains blocked by the free-plan deployment rate limit; this is not application evidence.
 - NOT PROVEN: production promotion, Phase-F live evidence, current-head browser certification, and device-dependent visual evidence.
-- NEXT EXECUTABLE ACTION: consume the first terminal #659 repository gate on exact head `dd6a715bec3fb17a122005e086125e5d32737c9a`; repair only the first reproduced current failure, then continue the next uncovered UI/core surface.
+- NEXT EXECUTABLE ACTION: consume the first terminal #659 repository gate on exact head `9dcb06e82c44d0ac44862ccad55a4cac68f81ff6`; repair only its first reproducible failure, then continue the next uncovered UI/core surface.
 - DO NOT REPEAT: stale evidence, preview-as-production, deployment-limit confusion, reopened UI closures, duplicate importer/RPC/runner, unsafe import-job mutation.
-- RESUME POINTER: `main c985deeb6e9f… → first terminal #659 gate dd6a715bec3f… → first reproduced failure only → uncovered UI/core closure → exact green merge evidence`.
+- RESUME POINTER: `main c985deeb6e9f… → first terminal #659 gate 9dcb06e82c44… → first reproduced failure only → next uncovered UI/core closure → exact green merge evidence`.
 
+---
 ---
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI + PHASE-F IDENTITY/RPO CLOSURE 148
