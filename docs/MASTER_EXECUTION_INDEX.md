@@ -566,3 +566,12 @@
 - **UI IMPLEMENTATION:** `42ca66e327ce63fd5353de86d3f8753f12356b55`.
 - **UI CONTRACT:** `34b2038602f4899a78e6e183087cfe232c02faa8`.
 - **DONE:** decision alerts now send «فحص المصدر أولًا» to the existing Trust & Evidence route instead of returning to the same command screen.
+
+## Session 152 checkpoint
+
+- Branch: `feat/deep-ui-core-closure-20260925`
+- Head before this checkpoint write: `bf3b86de5d1a27d371c702fc3313c274b2e6bb09`
+- Added Data Quality issue triage controls and a fail-closed dashboard snapshot array validator.
+- Added/registered dashboard snapshot contract and enforced it in Quality workflow.
+- Evidence boundary unchanged: no browser/device certification, no production/Phase-F PASS, and external Vercel rate-limit remains a deployment-capacity blocker.
+- Resume: wait for exact-head terminal workflow evidence, repair only first reproduced failure, then continue next independent UI/core surface.
