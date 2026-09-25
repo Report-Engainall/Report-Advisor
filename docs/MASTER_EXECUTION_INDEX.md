@@ -1,13 +1,13 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PURCHASE + COMMAND-PALETTE UI WAVE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / UI SHELL + PURCHASE TRUTH WAVE
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- CURRENT CODE/TEST CANDIDATE: `1e00df794bd375571a5b428fdb73b15f1b2d244e`.
+- CURRENT CODE/TEST CANDIDATE: `eeb393f59d914cee7de04fff907bc217c7fd2908`.
 - GOVERNANCE HEAD BEFORE THIS WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- UI CHANGE: Purchases report reads the existing canonical dashboard snapshot for truth status/as-of/period; contract coverage enforces fail-closed semantics.
-- UI CHANGE: Command Palette now restores opener focus, locks background scroll while open, traps Tab inside the dialog, exposes a keyboard-accessible close control, and exposes live result semantics.
-- NO NEW DATA PATH: no RPC, route, runner, importer, or production mutation was added.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head UI route/Browser/Desktop/Quality/Final evidence for `1e00df79...`; merge only after current-head proof, ignoring the known Vercel free-plan rate-limit failure.
-- DO NOT REPEAT: no stale UI PASS transfer; no preview-as-production; no duplicate navigation path.
+- UI DELIVERY: Purchases report now consumes canonical dashboard snapshot truth context; Command Palette restores opener focus, locks background scroll, traps Tab, and exposes an accessible close control; Alert Drawer now has the same modal focus/restore semantics.
+- CONTRACT COVERAGE: WOW/UI contract verifies purchase truth anchoring, command-palette focus/scroll/Tab semantics, and alert-drawer modal semantics.
+- NO NEW DATA PATH: no RPC, route, runner, importer, or production mutation added.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head UI Route/Browser/Desktop/Quality/Final evidence for `eeb393f5...`; merge only after current-head proof, excluding the known Vercel free-plan rate-limit failure.
+- DO NOT REPEAT: no stale UI PASS transfer, no preview-as-production, no duplicate navigation path.
 
 
 ---
