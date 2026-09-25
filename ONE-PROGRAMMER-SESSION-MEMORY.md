@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-155
+
+- CODE HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE → `74750363f5cf9b6f6050377d1d8a6d23ec8ee762`.
+- PR → #659, branch `feat/deep-ui-core-closure-20260925`; code lane remains unmerged and must retain exact-head evidence.
+- DONE / CORE → `src/lib/free-toolbox/sales-demand-series.ts` now fails closed when a demand item lacks a valid `product_id` or references an invoice outside the selected invoice set; malformed relation rows no longer get silently skipped into partial demand analysis.
+- DONE / CONTRACT → `scripts/check-demand-series-contract.mjs` now locks the product-id type boundary, invoice-reference boundary, and row-relation fail-closed error.
+- DONE / UI → `src/pages/DemandVelocityPage.tsx` now exposes the evidence path to Trust & Evidence, states the data-reading boundary explicitly, and distinguishes an absent demand series from a fabricated zero-demand result.
+- ARCHITECTURE → no new RPC, importer, runner, persistence path, or DB mutation introduced; Inventory Intelligence continues consuming the same canonical demand adapter.
+- CI EVIDENCE ON CODE HEAD → GitHub has not yet produced a workflow run for `74750363f5cf9b6f6050377d1d8a6d23ec8ee762` at the observation point; combined status shows Vercel FAILURE from the known free-plan deployment rate limit and a Vercel deployment PENDING. No code PASS is claimed from that status.
+- STILL UNPROVEN → current-head Quality/Certification/Browser E2E, production identity/promotion, Phase-F live resilience, and device-dependent visual verification.
+- NEXT EXECUTABLE ACTION → consume only terminal evidence for the current exact head after CI starts; repair only the first reproduced failure. If still queued/no-run, continue the next independent UI/core surface without reopening closed work.
+- DO NOT REPEAT → Work Center, Connections, Master Data, Import readback, Executive Report, Profitability, Receivables, Decision Experience, Data Quality, Dashboard Snapshot, Inventory Intelligence closures; no stale PASS transfer; no Vercel deployment-limit-as-code-failure; no production/Phase-F bypass.
+- RESUME POINTER → `main c985deeb… → PR #659 exact code head 74750363… → terminal exact-head gate / first failure only → next independent UI/core surface → exact green merge evidence`.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-151
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `c985deeb6e9f93383fca27473439a4e14cf9070d`.
