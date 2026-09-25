@@ -14,18 +14,26 @@ declare
   v_company_id uuid;
   v_count integer;
 begin
-  select count(*), max(company_id::text)::uuid
-    into v_count, v_company_id
+  select count(*)
+    into v_count
   from public.company_memberships cm
   where cm.user_id = auth.uid()
     and cm.is_active = true
     and cm.is_default = true;
 
-  if v_count = 1 then
-    return v_company_id;
+  if v_count <> 1 then
+    return null;
   end if;
 
-  return null;
+  select cm.company_id
+    into v_company_id
+  from public.company_memberships cm
+  where cm.user_id = auth.uid()
+    and cm.is_active = true
+    and cm.is_default = true
+  limit 1;
+
+  return v_company_id;
 end;
 $function$;
 
