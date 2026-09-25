@@ -1,6 +1,6 @@
 import { CalendarRange, CheckCircle2, Database, ShieldAlert } from 'lucide-react';
 
-type TruthState = 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA';
+type TruthState = 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA' | 'INSUFFICIENT_SAMPLE';
 
 interface TruthContextStripProps {
   months: number;
@@ -12,6 +12,7 @@ const stateMeta: Record<TruthState, { label: string; className: string; icon: ty
   CONFIRMED: { label: 'مصدر مؤكد', className: 'text-success-700 bg-success-50 ring-success-100', icon: CheckCircle2 },
   CALCULATED: { label: 'محسوب من المصدر', className: 'text-primary-700 bg-primary-50 ring-primary-100', icon: CheckCircle2 },
   INSUFFICIENT_DATA: { label: 'بيانات غير كافية', className: 'text-warning-700 bg-warning-50 ring-warning-100', icon: ShieldAlert },
+  INSUFFICIENT_SAMPLE: { label: 'عينة غير كافية', className: 'text-warning-700 bg-warning-50 ring-warning-100', icon: ShieldAlert },
 };
 
 export function TruthContextStrip({ months, status, asOf }: TruthContextStripProps) {
