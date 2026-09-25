@@ -1,13 +1,13 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / POST-MERGE PHASE-F CANDIDATE REBIND
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / FINAL CORE PARITY CANDIDATE ON STABLE MAIN
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `1001331962e13ec991d8fce5777fa61702ddc7ef`.
-- CURRENT CODE/TEST CANDIDATE: `1001331962e13ec991d8fce5777fa61702ddc7ef`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `1001331962e13ec991d8fce5777fa61702ddc7ef`.
-- CORE DELIVERY: PR #642 restore-parity repair is merged into current main. The current main tree is now the exact certification candidate; no pre-squash candidate is referenced.
-- UI: shell accessibility and mobile micro-accessibility closures remain on main; this wave introduces no duplicate shell path.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head main quality/enforcement/final-certification and Phase-F evidence against `1001331962e13ec991d8fce5777fa61702ddc7ef`; repair only the first current failure.
-- LIVE SAFETY: do not terminalize legacy processing import jobs or perform blanket SECURITY DEFINER/index cleanup without canonical owner/invariant proof.
-
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `fa2256c0c5b311464d9d8960e3480ac33f87830d`.
+- CURRENT CODE/TEST CANDIDATE: `cc9757885c8cb100c1e3dac2299fadc0d291593b`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `cc9757885c8cb100c1e3dac2299fadc0d291593b`.
+- STABLE MAIN GATES: current main `fa2256c...` has successful Quality, Browser, Enforcement, Final Execution Batch, Storage Tenant Isolation and Final Certification.
+- CORE SOURCE WAVE: current candidate carries exact-head Phase-F topology, IPv4-safe runnerSource, profiles/carts/cart_items/cash_accounts restore parity, Phase-10 contract guards, and resilience runtime checks.
+- PRIOR LIVE FACT CONSUMED: Phase-F `36172345104` on `82bd148...` passed tenant canary but failed production SHA identity (`7edc3cc...` served), logical restore at missing `public.cash_accounts`, and rollback-forward-fix HTTP 503. Artifact `10881102542`.
+- NEXT EXECUTABLE ACTION: consume this stable-main-based candidate's fresh exact-head gates and new pull_request Phase-F run; repair only the first newly reproduced live restore defect.
+- DO NOT REPEAT: no stale SHA transfer, no cart/profile/carts_items rework, no production deployment bypass, no unsafe import-job mutation.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
