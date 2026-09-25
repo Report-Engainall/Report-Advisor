@@ -19,8 +19,8 @@ const targetGenericReferenceUpper = targetGenericReferenceExecutable.toUpperCase
 for (const token of [
   'CREATE OR REPLACE FUNCTION PUBLIC.ENFORCE_SAME_COMPANY_REFERENCE()',
   'TENANT_REFERENCE_ARGUMENTS_REQUIRED',
-  'trg_warehouse_branch_company',
-  "enforce_same_company_reference('branches','branch_id')",
+  'TRG_WAREHOUSE_BRANCH_COMPANY',
+  "ENFORCE_SAME_COMPANY_REFERENCE('BRANCHES','BRANCH_ID')",
 ]) if (!targetGenericReferenceUpper.includes(token)) {
   throw new Error(`Missing Phase-F restore-chain generic tenant-reference invariant: ${token}`);
 }
