@@ -17,6 +17,8 @@ for (const token of [
   'companyForecasts',
   'مساحة القرار',
   'FORECAST',
+  'فحص الثقة والدليل',
+  'function IntelligenceLoadBoundary({ message, onRetry }',
 ]) {
   assert.ok(source.includes(token), 'intelligence product contract missing: ' + token);
 }
