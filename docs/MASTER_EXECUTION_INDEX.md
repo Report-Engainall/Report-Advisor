@@ -1,13 +1,12 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / MAIN POST-UI CLOSURE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / SECURITY RPC HARDENING CANDIDATE
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `5301c102213b26fc0e8f16ff9e3d8fb3194bfb24`.
-- CURRENT CODE/TEST CANDIDATE: `7edc3cc210e4b81cf18d11fd995296de7a37df87`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `5301c102213b26fc0e8f16ff9e3d8fb3194bfb24`.
-- UI: shell accessibility closure and App Shell mobile micro-accessibility are merged. Main functional head is `7edc3cc...`; docs-only commits after it are governance writes.
-- CORE: PR #641 head `0de70de...` remains the live core candidate. Its source-level carts/profiles/cart_items parity repair is complete; live Phase-F still lacks a matching deployment and exact fresh run.
-- EVIDENCE RULE: no current PASS is transferred from UI branches to core, and no Phase-F result from earlier candidates is reused.
-- NEXT EXECUTABLE ACTION: consume fresh post-merge main gates; continue exact core Phase-F only when a deployment SHA matches `0de70de...`; first current failure only.
-- LIVE SAFETY: do not terminalize 151 processing import jobs or perform blanket legacy SECURITY DEFINER/index cleanup without canonical owner/invariant proof.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `fa2256c0c5b311464d9d8960e3480ac33f87830d`.
+- CURRENT CODE/TEST CANDIDATE: `66cec9dad8ad9c54708f4e5732adc49c858cf684`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `66cec9dad8ad9c54708f4e5732adc49c858cf684`.
+- SECURITY DELIVERY: four live legacy cart SECURITY DEFINER RPCs are now canonical in source with explicit public-qualified relations, safe `public,pg_catalog` search_path, authenticated/service-role grants, and no anon grant. Staging confirmed public schema CREATE is denied to anon/authenticated/public.
+- CONTRACT: existing SECURITY DEFINER exposure contract now asserts these four functions.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head security/certification gates on this candidate; then review Phase-F result only as a deployment/certification observation, not as security PASS.
+- DO NOT REPEAT: no blanket SECURITY DEFINER revoke, no stale index evidence, no legacy function deletion.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
