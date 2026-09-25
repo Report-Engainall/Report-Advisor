@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-121
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-121`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `34f77c248de5bcdb77c77f7fd1a016559c1fd1c5`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `34f77c248de5bcdb77c77f7fd1a016559c1fd1c5`.
+- DONE → exact Phase-F/Storage evidence identified the live tenant resolver defect: `current_company_id()` called `min(company_id)` on UUID. Added incremental source migration `20260925154500_repair_current_company_id_uuid_resolver.sql`; no historical migration was rewritten.
+- LIVE STAGING VERIFIED → `Report-Advisor-P0-2-Staging` was updated with the same resolver SQL and re-read successfully; the definition contains no UUID aggregate and retains authenticated/service_role execute only.
+- CERTIFICATION BOUNDARY → fresh exact-head certification initially failed because the execution index still referenced `a35e5a...`; governance is now rebound to `34f77c2...`.
+- UI LANE → no source UI change in this batch; exact-head Browser/Device-Independent workflows are running. No stale UI PASS transferred.
+- CORE LANE → resolver repair is the current core closure; Phase-F remains fail-closed until exact-head runtime identity, backup/restore, RPO/RTO and rollback are proven.
+- DO NOT REPEAT → do not reapply #632 restore helper fix; do not use direct staging SQL as a substitute for the migration; do not claim Phase-F PASS from queued/running jobs.
+- CURRENT RESUME POINTER → `34f77c248de5bcdb77c77f7fd1a016559c1fd1c5` → consume exact-head Quality/Enforcement/Certification/Browser/Storage/Phase-F evidence → repair first new failure → merge only after required checks.
+- NEXT EXECUTABLE ACTION → inspect completed exact-head workflows; fix the first reproduced failure, then rerun only affected gates.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-120
 
 - SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-120`.
