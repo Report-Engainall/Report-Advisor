@@ -136,7 +136,11 @@ revoke all on function public.get_cart() from public, anon;
 revoke all on function public.remove_cart_item(uuid) from public, anon;
 revoke all on function public.set_cart_item(uuid, integer) from public, anon;
 
-grant execute on function public.clear_cart() to authenticated, service_role;
-grant execute on function public.get_cart() to authenticated, service_role;
-grant execute on function public.remove_cart_item(uuid) to authenticated, service_role;
-grant execute on function public.set_cart_item(uuid, integer) to authenticated, service_role;
+grant execute on function public.clear_cart() to authenticated;
+grant execute on function public.clear_cart() to service_role;
+grant execute on function public.get_cart() to authenticated;
+grant execute on function public.get_cart() to service_role;
+grant execute on function public.remove_cart_item(uuid) to authenticated;
+grant execute on function public.remove_cart_item(uuid) to service_role;
+grant execute on function public.set_cart_item(uuid, integer) to authenticated;
+grant execute on function public.set_cart_item(uuid, integer) to service_role;
