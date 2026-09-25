@@ -1,17 +1,15 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / POST-MERGE DEEP UI-CORE CLOSURE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F CASH-ACCOUNT PARITY WAVE
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `317f560eae727dd660e1d3adc80c2ce26cc13805`.
-- CURRENT CODE/TEST CANDIDATE: `317f560eae727dd660e1d3adc80c2ce26cc13805`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `317f560eae727dd660e1d3adc80c2ce26cc13805`.
-- MERGE: PR #644 was merged squash at `317f560eae727dd660e1d3adc80c2ce26cc13805` after exact-head Quality + Final Certification + UI Route/Browser/Desktop gates passed on the pre-merge code head `2eb7c69cad1c07d77df354e4ef5371200868f236`.
-- UI DELIVERY: Metric Inspector gained semantic search, certification-status/freshness filters, reset and filtered-empty state; shared Loading/Empty/Error states gained explicit assistive semantics and retry labeling; Decision Experience progress gained stage descriptions; Reports gained evidence-safe truth context; Canonical Import stepper gained semantic active/completed stage semantics.
-- CORE DELIVERY: Phase-10 restore contract strengthened SECURITY DEFINER helper hardening; Phase-F evidence now preserves exact-head/governance-head provenance.
-- EXACT EVIDENCE: Quality run `36173306930` → SUCCESS; Final Certification `36173306852` → SUCCESS; UI Route Completeness `36173306908` → SUCCESS; Browser `36173307013` → SUCCESS; Desktop Windows `36173306970` → SUCCESS; Metric Governance RLS `36173307044` → SUCCESS on the pre-merge candidate lineage.
-- PHASE-F: run `36173306548` reached Live resilience probes on exact pre-merge head `2eb7c69...` but had not terminated at observation time; no Phase-F PASS is transferred to `317f560...`. No post-merge Phase-F workflow was observed for the main commit at this write.
-- EXTERNAL HOSTING: Vercel remains externally rate-limited by the free-plan build limit. Netlify remains a preview path only.
-- PARALLEL UI FOLLOW-UP: PR #646 contains purchase-report truth-context closure; its first Netlify preview failed due a JSX transform defect, which was identified and corrected at `68e34f5c15db9ec17cad0c7731b01894d99cb0f4`. Fresh exact-head gates are now required for PR #646; its failure is not transferred as a main defect.
-- NEXT EXECUTABLE ACTION: re-establish fresh exact-head main certification/Phase-F evidence for `317f560...`; in parallel consume PR #646 current-head checks, repair only the first reproduced current defect, then fast-forward/merge only after exact-head proof.
-- DO NOT REPEAT: no stale pre-merge Phase-F PASS transfer, no production SHA bypass, no preview-as-production, no duplicate RPC/runner/import path, no blanket DB/security cleanup.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
+- CURRENT CODE/TEST CANDIDATE: `cbd2d4fd1eab522f093dc1bc1bde3fb0b096fe25`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
+- CORE CHANGE: restore-parity migration `20260925185000_restore_cash_accounts_schema_parity.sql` reconstructs the live `public.cash_accounts` schema, composite branch/company FK, invariants, index, RLS and ACL; Phase-10 contract locks the shape.
+- ROOT-CAUSE EVIDENCE: Phase-F run `36173306548` stopped at logical restore because live source contained `public.cash_accounts` while canonical replay did not create it. This branch fixes that first reproduced gap only.
+- NO PRODUCTION MUTATION: live Supabase was inspected read-only; no production DDL was executed.
+- OPEN UI: PR #647 remains independent and contains purchase-report truth context plus command-palette focus/keyboard closure.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head Phase-F + Quality/Final/Browser/Desktop evidence for `cbd2d4fd...`; repair only the first new runtime failure; merge only after exact-head evidence.
+- DO NOT REPEAT: do not transfer Phase-F evidence from `2eb7c69...`; no preview-as-production; no Vercel bypass; no duplicate RPC/runner/import path.
+
 
 ---
 
