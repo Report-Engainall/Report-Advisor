@@ -4,6 +4,18 @@ import fs from 'node:fs';
 const login = fs.readFileSync('src/pages/LoginPage.tsx', 'utf8');
 const dashboard = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 const entities = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
+const dataTable = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
+assert.ok(dataTable.includes('role="status" aria-live="polite" aria-busy="true"'), 'shared table loading state must expose assistive status semantics');
+assert.ok(dataTable.includes('role="status" aria-live="polite"'), 'shared table empty state must expose assistive status semantics');
+assert.ok(dataTable.includes('scope="col"'), 'shared table headers must declare column scope');
+assert.ok(dataTable.includes('aria-rowcount={visibleRows.length + 1}') && dataTable.includes('aria-colcount={columns.length}'), 'shared table must expose row and column counts');
+assert.ok(dataTable.includes('role="navigation" aria-label="تنقّل الجدول"'), 'shared table pagination must expose navigation semantics');
+
+const assistant = fs.readFileSync('src/components/DeterministicIntelligenceAssistant.tsx', 'utf8');
+assert.ok(assistant.includes("type AssistantMode = 'LOADING' | 'READY' | 'INSUFFICIENT_DATA' | 'ERROR'"), 'assistant must distinguish loading from ready state');
+assert.ok(assistant.includes("mode === 'LOADING'"), 'assistant must expose loading semantics while context is fetched');
+assert.ok(assistant.includes('إعادة تحميل سياق المؤشرات'), 'assistant must expose explicit recovery when the canonical snapshot is unavailable');
+
 const appShell = fs.readFileSync('src/App.tsx', 'utf8');
 const sidebar = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
 
@@ -100,6 +112,10 @@ assert.ok(decisionExperience.includes('العودة إلى الإشارات'), '
 assert.ok(decisionExperience.includes('<Link to="/trust"'), 'decision alerts must route source inspection to the trust/evidence surface');
 
 const reportsSurface = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
+assert.ok(reportsSurface.includes('setSnapshot(snap)'), 'purchases report must read the canonical dashboard snapshot alongside purchase rows');
+assert.ok(reportsSurface.includes("status={snapshot?.kpis.status ?? (summary.total == null ? 'INSUFFICIENT_DATA' : 'CALCULATED')}"), 'purchases report must preserve fail-closed truth status');
+assert.ok(reportsSurface.includes('المشتريات تعرض أرقامها من سجلات الشراء'), 'purchases report must expose its evidence context to the user');
+
 assert.ok(reportsSurface.includes('function ReportTruthBar'), 'reports must expose one shared truth-context bar across decision-report surfaces');
 assert.ok(reportsSurface.includes('سياق حقيقة التقرير'), 'report truth context must be accessible and explicit');
 assert.ok(reportsSurface.includes('القيم غير المتاحة تبقى غير متاحة'), 'report truth context must preserve fail-closed numeric semantics');
@@ -107,6 +123,97 @@ assert.ok(reportsSurface.includes('القيم غير المتاحة تبقى غ�
 const canonicalImport = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
 assert.ok(canonicalImport.includes('role="list" aria-label="مراحل الاستيراد"'), 'canonical import stepper must expose a semantic list boundary');
 assert.ok(canonicalImport.includes('aria-current={active ? \'step\' : undefined}'), 'canonical import must expose the active step to assistive technology');
+
+const commandPalette = fs.readFileSync('src/components/CommandPalette.tsx', 'utf8');
+const appShell = fs.readFileSync('src/App.tsx', 'utf8');
+assert.ok(appShell.includes('mobileSidebarRef'), 'mobile navigation drawer must expose a focus boundary');
+assert.ok(appShell.includes('aria-modal="true" aria-label="القائمة الرئيسية"'), 'mobile navigation drawer must declare modal semantics');
+assert.ok(appShell.includes("event.key === 'Tab'"), 'mobile navigation drawer must trap keyboard focus');
+assert.ok(appShell.includes('document.body.style.overflow = \'hidden\''), 'mobile navigation drawer must lock background scroll');
+
+const header = fs.readFileSync('src/components/Header.tsx', 'utf8');
+assert.ok(header.includes('alertPanelRef'), 'alert drawer must expose a dialog focus boundary');
+assert.ok(header.includes("event.key === 'Tab'"), 'alert drawer must trap keyboard focus while open');
+assert.ok(header.includes('aria-label="إغلاق التنبيهات"'), 'alert drawer must expose an accessible close control');
+assert.ok(header.includes('document.body.style.overflow = \'hidden\''), 'alert drawer must lock background scroll while open');
+
+const advisorSurface = fs.readFileSync('src/App.tsx', 'utf8');
+assert.ok(advisorSurface.includes('advisorPanelRef'), 'global Advisor must expose a focus boundary');
+assert.ok(advisorSurface.includes('advisorRestoreFocusRef'), 'global Advisor must restore focus to its trigger');
+assert.ok(advisorSurface.includes('role="dialog" aria-modal="true"'), 'global Advisor must declare modal dialog semantics');
+assert.ok(advisorSurface.includes('aria-labelledby="ag-global-advisor-title"'), 'global Advisor must have an accessible title binding');
+assert.ok(advisorSurface.includes('aria-label="إغلاق المستشار"'), 'global Advisor must expose an accessible close control');
+assert.ok(advisorSurface.includes("event.key === 'Escape'"), 'global Advisor must close on Escape');
+assert.ok(advisorSurface.includes("event.key === 'Tab'"), 'global Advisor must trap keyboard focus');
+assert.ok(advisorSurface.includes('document.body.style.overflow = \'hidden\''), 'global Advisor must lock background scroll while open');
+
+assert.ok(commandPalette.includes('restoreFocusRef'), 'command palette must restore focus to its opener');
+assert.ok(commandPalette.includes('document.body.style.overflow = \'hidden\''), 'command palette must lock background scroll while open');
+assert.ok(commandPalette.includes("event.key === 'Tab'"), 'command palette must trap keyboard focus inside the dialog');
+assert.ok(commandPalette.includes('aria-label="إغلاق لوحة الأوامر"'), 'command palette must expose a keyboard-accessible close control');
+
+const inventoryIntelligence = fs.readFileSync('src/pages/InventoryIntelligencePage.tsx', 'utf8');
+assert.ok(inventoryIntelligence.includes('سياق حقيقة ذكاء المخزون'), 'inventory intelligence must expose truth context');
+assert.ok(inventoryIntelligence.includes('آخر 180 يومًا'), 'inventory intelligence truth context must disclose its fixed demand window');
+assert.ok(inventoryIntelligence.includes('to="/trust"'), 'inventory intelligence must expose a direct evidence action');
+assert.ok(inventoryIntelligence.includes('const nextAction='), 'inventory intelligence must derive a next action from current truth');
+assert.ok(inventoryIntelligence.includes('to={nextAction.to}'), 'inventory intelligence empty state must use the derived next action');
+assert.ok(inventoryIntelligence.includes('لا تُصنع قيم بديلة'), 'inventory intelligence must preserve fail-closed semantics');
+
+const demandVelocity = fs.readFileSync('src/pages/DemandVelocityPage.tsx', 'utf8');
+assert.ok(demandVelocity.includes('سياق حقيقة حركة الطلب'), 'demand velocity must expose truth context');
+assert.ok(demandVelocity.includes('فواتير المبيعات وبنودها'), 'demand velocity must disclose its source tables');
+assert.ok(demandVelocity.includes('to="/trust"'), 'demand velocity must expose a direct evidence action');
+assert.ok(demandVelocity.includes('const nextAction='), 'demand velocity must derive a next action from current signal state');
+assert.ok(demandVelocity.includes('to={nextAction.to}'), 'demand velocity empty state must use the derived next action');
+assert.ok(demandVelocity.includes('لا تُستبدل القيم الناقصة'), 'demand velocity must preserve fail-closed semantics');
+
+const companySettings = fs.readFileSync('src/pages/CompanySettingsPage.tsx', 'utf8');
+assert.ok(companySettings.includes('aria-pressed={preferences.preset === option.id}'), 'company presets must expose selected state');
+assert.ok(companySettings.includes('aria-pressed={preferences.mode === mode}'), 'workspace modes must expose selected state');
+assert.ok(companySettings.includes('aria-label="الصفحة الافتراضية بعد تسجيل الدخول"'), 'default landing select must have an explicit accessible label');
+assert.ok(companySettings.includes('min-h-11 min-w-11'), 'settings reorder controls must meet touch-target sizing');
+assert.ok(companySettings.includes("aria-label={'تحريك '"), 'settings reorder controls must identify the affected section');
+
+const profileSettings = fs.readFileSync('src/pages/ProfileSettingsPage.tsx', 'utf8');
+assert.ok(profileSettings.includes('<LoadingState message="جارٍ تحميل بيانات الحساب..." />'), 'profile settings must use the shared loading state');
+assert.ok(profileSettings.includes('aria-busy={saving}'), 'profile save action must expose busy state');
+assert.ok(profileSettings.includes('role="status" aria-live="polite"'), 'profile success state must be announced');
+assert.ok(profileSettings.includes('role="alert" aria-live="assertive"'), 'profile error state must be announced');
+assert.ok(profileSettings.includes('min-h-11 w-full max-w-xl'), 'profile input must meet touch sizing');
+
+const masterDataHub = fs.readFileSync('src/pages/MasterDataHubPage.tsx', 'utf8');
+assert.ok(masterDataHub.includes('to="/trust"'), 'master data hub must expose a direct evidence path');
+assert.ok(masterDataHub.includes('to="/import"'), 'master data hub must expose the unified import path');
+assert.ok(masterDataHub.includes('لا تُعرض كيانات غير مثبتة'), 'master data hub must preserve fail-closed reference semantics');
+assert.ok(masterDataHub.includes('min-h-11'), 'master data actions must meet touch-target sizing');
+
+const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
+assert.ok(executiveReport.includes('<LoadingState message="جارٍ بناء التقرير التنفيذي من المصادر المعتمدة..." />'), 'executive report must use the shared loading state');
+assert.ok(executiveReport.includes('<ErrorState message={error} onRetry={() => void load()} />'), 'executive report must use the shared error state with retry');
+assert.ok(executiveReport.includes('const nextAction ='), 'executive report must derive a governed next action');
+assert.ok(executiveReport.includes('NEXT ACTION'), 'executive report must expose the next action visibly');
+assert.ok(executiveReport.includes('to={nextAction.to}'), 'executive report next action must use a canonical route');
+assert.ok(executiveReport.includes('لا تُنتج توصية بديلة'), 'executive report recommendation empty state must remain fail-closed');
+assert.ok(executiveReport.includes('لا يتم تصنيع تنبيه'), 'executive report alert empty state must remain fail-closed');
+
+const scenarioGuard = fs.readFileSync('src/pages/ScenarioTruthGuardPage.tsx', 'utf8');
+assert.ok(scenarioGuard.includes('const load = useCallback(async () =>'), 'scenario truth gate must expose a reusable refresh path');
+assert.ok(scenarioGuard.includes('إعادة فحص الحقيقة المالية'), 'scenario truth gate must expose an explicit retry action');
+assert.ok(scenarioGuard.includes('min-h-11'), 'scenario truth retry/action controls must meet touch-target sizing');
+assert.ok(scenarioGuard.includes('setState(\'blocked\')'), 'scenario truth gate must remain fail-closed after unavailable truth');
+
+const onboarding = fs.readFileSync('src/pages/OnboardingPage.tsx', 'utf8');
+assert.ok(onboarding.includes('role="list" aria-label="خطوات التجهيز"'), 'onboarding steps must expose a semantic list');
+assert.ok(onboarding.includes('role="listitem"'), 'onboarding steps must expose list-item semantics');
+assert.ok(onboarding.includes('role="status" aria-label={badge.text}'), 'onboarding states must be announced');
+assert.ok(onboarding.includes('min-h-11 items-center'), 'onboarding route actions must meet touch-target sizing');
+
+const proposalDemo = fs.readFileSync('src/pages/ProposalDemoPage.tsx', 'utf8');
+assert.ok(proposalDemo.includes('proposal-demo-title'), 'proposal demo title field must remain addressable');
+assert.ok(proposalDemo.includes('proposal-demo-client'), 'proposal demo client field must remain addressable');
+assert.ok(proposalDemo.includes('proposal-demo-requirements'), 'proposal demo requirements field must remain addressable');
+assert.ok(proposalDemo.includes('min-h-11'), 'proposal demo primary controls must meet touch-target sizing');
 
 const metricInspector = fs.readFileSync('src/pages/MetricInspectorPage.tsx', 'utf8');
 assert.ok(metricInspector.includes('const filteredItems = useMemo'), 'metric inspector must derive a filtered semantic list without mutating the source contract');
