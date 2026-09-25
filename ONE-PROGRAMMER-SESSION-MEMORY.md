@@ -1,3 +1,16 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143B
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- WORKING HEAD OBSERVED BEFORE THIS WRITE → `47914a71aa44d8e7e7895012d81e32dd6216479e`.
+- CURRENT FUNCTIONAL PR → #656 consolidated UI + core wave, still unmerged.
+- UI DELIVERY SINCE 143A → Decision Experience now reads the same canonical dashboard snapshot for period/status/As-of truth context; Data Quality EMPTY state now renders an unscored neutral `—` instead of misleading `0%`; both behaviors are protected by the Product-WOW contract.
+- CORE DELIVERY UNCHANGED → client_ui_settings restore parity, four targeted legacy cart SECURITY DEFINER hardenings, resolved-source Phase-10 restore contract.
+- EXACT CURRENT DEPLOYMENT FACT → `report-advisor.vercel.app` production is still deployment `dpl_3r3ruVzmP8aWE1jxVrPJD721itej` at SHA `7edc3cc210e4b81cf18d11fd995296de7a37df87`; latest Vercel previews are separate and cannot certify this branch or production.
+- LIVE SCHEMA PROOF RETAINED → staging `fnqbvfuwbdpwvhcgzksl` client_ui_settings FK/UNIQUE/config-shape/RLS/policy/grants/realtime matched source.
+- CURRENT CHECK STATE → current candidate has no observed failure; latest suites are being regenerated/queued after the newest UI contract and semantic fixes. No PASS transferred.
+- BLOCKED / NOT PROVEN → production exact-SHA identity, production business readback, Phase-F backup/restore, measured RPO/RTO, rollback, local-device browser proof.
+- CURRENT RESUME POINTER → `PR #656 current head -> consume exact-head CI -> first failure only -> smallest source-backed repair -> merge only after mandatory gates; production remains fail-closed`.
+- DO NOT REPEAT → no shell rework, no stale PASS, no preview-as-production, no production-SHA bypass, no blanket security revoke, no blind import-job terminalization.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143A
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
