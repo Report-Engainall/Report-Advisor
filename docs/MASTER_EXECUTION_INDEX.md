@@ -1,3 +1,16 @@
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `6ef890dc59aabe05efd93e496c863a40e1d28f66` (live-memory write-back commit; functional core merge is `886c3e11afb0304f48b8653001bf5b6a4f039ab5`).
+- CORE CODE MERGE: PR #632 merged as `886c3e11afb0304f48b8653001bf5b6a4f039ab5`.
+- UI CODE CANDIDATE: PR #634 head `57b19ff9a0bbd56c506f2f8df3f22fbcdd2715be`, rebased onto current main; only Header/Sidebar accessibility closure is pending merge.
+- PHASE-F: run `36165329471` is IN_PROGRESS on exact PR #632 head `dcff29f15d4851bd6f48dd863e5a62b29f67519e`; exact-head canary and all pre-probe steps succeeded, live resilience probes are running. Final status is NOT YET PROVEN.
+- UI AUTOMATION: PR #634 has exact-head workflows queued/in progress; no fresh UI PASS transferred.
+- EXTERNAL HOSTING: Vercel free-plan deployment rate limit remains a deployment-status blocker; do not bypass it or promote preview evidence to production.
+- NEXT EXECUTABLE ACTION: consume Phase-F live probe result first; repair only the first reproduced failure, then consume fresh exact-head Quality/Enforcement/Final Certification/Browser evidence and merge the UI closure when required checks permit.
+- DO NOT REPEAT: PR #632 repair; stale certification evidence; SHA/credential bypass; unsafe merge of PR #634.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F IMPLICIT-PORT FALLBACK REPAIR
 
 - MAIN HEAD BASE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
