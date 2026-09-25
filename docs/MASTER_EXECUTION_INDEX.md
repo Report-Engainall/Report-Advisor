@@ -1,19 +1,20 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / LIVE MIGRATION REPLAY + GOVERNANCE REBIND
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / UI 50% + CORE 50% GOVERNANCE REBIND
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `487284b10b36f2b8a301c4319873980ff3b9a3a2` (PR #628 functional code head before this governance-only write).
-- GOVERNANCE WRITE: this commit rebinds the execution index to the exact current code/test candidate; it changes governance files only and must not be treated as new runtime/code evidence.
-- DONE: Phase-F logical backup source selection now tries the configured source first, then only authorized DB-password/temporary-access fallbacks when actually provisioned; no credential is emitted in evidence.
-- VERIFIED: exact candidate `487284b...` local syntax/diff/typecheck and Phase-F runtime/operational resilience/evidence-integrity contracts pass; exact candidate Vercel preview `dpl_2FKip2ZdSaMAXRh2XSGoxNgY1KZS` is READY and preview root is HTTP 200 with the Arabic RTL الأغبري shell.
-- GITHUB EXACT-HEAD: Quality `36075872812`, Full Product Browser E2E `36075872986`, Device-Independent Browser E2E `36075872799`, Storage Tenant Runtime E2E `36075876668`, and the core security/data/import contract suite completed successfully on `487284b...`.
-- FAILED / BLOCKED: Phase-F `36075872644` is 1/4 on exact code `487284b...`: tenant canary PASS; health HTTP 200 but deployment SHA remains old `7be9f014...`; logical backup/restore fails because the configured external PostgreSQL credential/source is unusable; rollback-forward drill returns 503 because the forward baseline is not established.
-- CURRENT GOVERNANCE DEFECT: Enforcement `36075872785` and Final Certification `36075873080` on exact branch lineage failed at certification-boundary integrity because the index was still bound to stale candidate `fcb5148...`; no application defect was reproduced by that gate.
-- NOT PROVEN: production identity, logical backup/restore, measured RPO/RTO, rollback, and final release certification.
-- NEXT EXECUTABLE ACTION: consume fresh Enforcement + Final Certification after this governance rebind; keep Phase-F blocked only on the real authorized DB credential and production identity; continue independent UI/Core closure without rerunning unchanged Phase-F.
-- DO NOT REPEAT: stale candidate binding; stale migration paths; old Phase-F evidence; production-SHA bypass; merge/release before current-head release gates.
-- UI LANE: exact current candidate browser flow is proven; next work remains only on evidenced product-surface gaps.
-- CORE LANE: migration/replay contract repairs and Phase-F source-selection hardening are in the current candidate; the remaining release-critical boundary is external resilience credential + exact production promotion.
-- CURRENT RESUME POINTER: `governance rebind → fresh Enforcement/Final Certification → independent UI/Core closure → authorized DB credential + exact production alignment → fresh Phase-F → measured recovery → release closeout`.
+- CURRENT CODE/TEST CANDIDATE: `8ceb5923b1e9ae18de1fecd0fd6ddf7ba21ef5e7` (PR #628 functional UI candidate before this governance-only write).
+- GOVERNANCE WRITE: this commit records the exact current code/test candidate and the verified UI/core boundary; governance changes must not be treated as new runtime evidence.
+- DONE: added the evidence-backed `/intelligence/playbooks` Decision Playbooks surface, canonical navigation entry, mobile/desktop route wiring, and replaced the Intelligence Center dead-end `NOT AVAILABLE` card with a real route.
+- DONE: Decision Playbooks reuses the existing authoritative recommendation ledger and writer; it exposes persisted status/owner/deadline/impact fields and routes to the existing decision/evidence surface without creating a new execution-state model.
+- VERIFIED LOCAL EXACT CANDIDATE: `git diff --check` PASS; `npm run typecheck` PASS; `npm run test:product-wow-ui` PASS; `npm run test:ui-route-sidebar-parity` PASS with 40 application routes / 38 canonical navigation links; `npm run build` PASS; localhost root and the new page source both returned HTTP 200; `npm run test:knowledge-architecture` PASS.
+- CURRENT GITHUB RELEASE EVIDENCE: fresh Enforcement / Final Certification / Browser evidence for this candidate has not yet been consumed; do not transfer the older `487284b...` results.
+- PHASE-F BLOCKED: the previously proven external boundary remains an unusable authorized logical PostgreSQL source plus production alias still on old SHA; no new Phase-F rerun is justified until that external input changes.
+- NOT PROVEN: production identity for `8ceb5923...`, logical backup/restore, measured RPO/RTO, rollback, and final release certification.
+- NEXT EXECUTABLE ACTION: consume fresh current-head Enforcement + Final Certification after this governance rebind; then continue only the first newly reproduced release failure, while keeping Phase-F fail-closed until authorized DB credential and exact production promotion exist.
+- DO NOT REPEAT: stale candidate binding, unchanged Phase-F credential reruns, historical PASS transfer, production-SHA bypass, or merge/release before current-head gates.
+- UI LANE: Decision Playbooks closed as a real product surface on the exact candidate; no new backend/domain model was invented.
+- CORE LANE: core release blocker remains external resilience credential + exact production identity; migration/runtime contracts already closed on the prior exact lineage and are not being reopened.
+- CURRENT RESUME POINTER: `fresh exact-head Enforcement/Final Certification → independent core/front closure → authorized resilience DB source + exact production promotion → fresh Phase-F → measured recovery → release closeout`.
+
 
 > HEAD below is the exact GitHub HEAD observed before this write. Never treat it as the SHA of this file's own future commit.
 
