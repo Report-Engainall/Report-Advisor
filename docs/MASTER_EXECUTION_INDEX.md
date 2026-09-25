@@ -1,3 +1,21 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS DEEP UI + CORE WAVE 143F
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- WORKING HEAD OBSERVED BEFORE THIS WRITE: `90208954a229a7fe98313a878b64e38b2c2bcb47`.
+- CURRENT PR #656: mergeable, unmerged, current-main UI/core consolidation.
+- UI: shell and overlay accessibility; reports/truth context; External File Analysis recovery; Decision Experience truth context; Data Quality EMPTY semantics; Intelligence Center/Recommendations/Forecasts canonical truth context; RFM/ABC/Aging canonical truth context.
+- CORE: client_ui_settings parity; four targeted cart RPC hardenings; Phase-F source-resolution contract; server-owned canonical import terminal closure with idempotent UI fallback.
+- SECURITY: Supabase staging advisor still reports 46 authenticated-callable SECURITY DEFINER functions; targeted cart hardening is verified independently and intentionally does not blanket-revoke.
+- IMPORT LEGACY: 151 processing jobs remain untouched; null source_fingerprint prevents source-backed durable recovery proof for bulk cleanup.
+- ACCESSIBILITY LOCAL BLOCKER: shared EntityContextDrawer focus-trap/focus-restore edit was rejected by GitHub write safety checks; no partial change.
+- CURRENT CI: 44 queued, 2 in progress, 3 completed/skipped, 0 failures observed; no PASS transferred.
+- PRODUCTION: report-advisor.vercel.app remains on SHA `7edc3cc210e4b81cf18d11fd995296de7a37df87`; current exact branch preview absent in Vercel listing.
+- NEXT EXECUTABLE ACTION: consume #656 exact-head mandatory checks. If green, merge #656 and immediately bind Phase-F to exact merged SHA; otherwise fix only the first current-SHA failure.
+- RESUME POINTER: `#656 exact-head -> first current-SHA failure -> smallest repair -> exact rerun -> merge -> Phase-F exact-merge resilience`.
+- DO NOT REPEAT: stale PASS, production-SHA bypass, preview-as-production, duplicate import/RPC/runner, blanket security revoke, unsafe legacy import cleanup, identical blocked drawer patch.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS DEEP UI + CORE WAVE 143E
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
