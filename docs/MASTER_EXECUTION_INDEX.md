@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS DEEP UI + CORE WAVE 143B
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- WORKING HEAD OBSERVED BEFORE THIS WRITE: `47914a71aa44d8e7e7895012d81e32dd6216479e`.
+- CURRENT PR: #656, consolidated UI + core wave, unmerged and awaiting exact-head gates.
+- UI LANE CLOSED/IMPROVED: shell overlays and navigation semantics; reports/truth context; Advisor and table semantics; External File Analysis keyboard/drag/retry/evidence flow; Decision Experience canonical period/status/As-of context; Data Quality EMPTY/score semantics.
+- CORE LANE CLOSED/IMPROVED: client_ui_settings restore parity; targeted cart SECURITY DEFINER hardening; Phase-10 resolved-source/parity contract.
+- PRODUCTION BOUNDARY: `report-advisor.vercel.app` still targets SHA `7edc3cc210e4b81cf18d11fd995296de7a37df87`; previews are not production proof.
+- CURRENT AUTOMATION: no current-head failure observed; latest candidate suites are queued/regenerating after the latest UI contract changes.
+- NEXT EXECUTABLE ACTION: consume exact-head #656 checks; repair first current-SHA failure only; merge only after required current-head gates are attributable and green. Then resume Phase-F from the newly merged exact SHA.
+- RESUME POINTER: `#656 exact-head certification -> first failure -> smallest repair -> exact re-run -> merge -> Phase-F live resilience with production identity fail-closed`.
+- DO NOT REPEAT: shell rework, stale PASS transfer, preview-as-production, production-SHA bypass, duplicate RPC/import/runner, blanket SECURITY DEFINER cleanup, unsafe terminalization of processing jobs.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS DEEP UI + CORE WAVE 143A
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
