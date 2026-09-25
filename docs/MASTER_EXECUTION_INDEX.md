@@ -1,20 +1,18 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / UI 50% + CORE 50% GOVERNANCE REBIND
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD 80B
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `8ceb5923b1e9ae18de1fecd0fd6ddf7ba21ef5e7` (PR #628 functional UI candidate before this governance-only write).
-- GOVERNANCE WRITE: this commit records the exact current code/test candidate and the verified UI/core boundary; governance changes must not be treated as new runtime evidence.
-- DONE: added the evidence-backed `/intelligence/playbooks` Decision Playbooks surface, canonical navigation entry, mobile/desktop route wiring, and replaced the Intelligence Center dead-end `NOT AVAILABLE` card with a real route.
-- DONE: Decision Playbooks reuses the existing authoritative recommendation ledger and writer; it exposes persisted status/owner/deadline/impact fields and routes to the existing decision/evidence surface without creating a new execution-state model.
-- VERIFIED LOCAL EXACT CANDIDATE: `git diff --check` PASS; `npm run typecheck` PASS; `npm run test:product-wow-ui` PASS; `npm run test:ui-route-sidebar-parity` PASS with 40 application routes / 38 canonical navigation links; `npm run build` PASS; localhost root and the new page source both returned HTTP 200; `npm run test:knowledge-architecture` PASS.
-- CURRENT GITHUB RELEASE EVIDENCE: exact-head Execution Enforcement `36077171439` is `success` on `1465ea8...`; Final Certification `36077171489` and Full Product Browser E2E `36077175665` are still queued. Vercel deployment `dpl_BtLEtEkG6qsDcYeQbyYJFzvGyY6o` is READY for `1465ea8...`; `/intelligence/playbooks` returns HTTP 200 with Arabic RTL shell. Older `487284b...` evidence remains historical.
-- PHASE-F BLOCKED: the previously proven external boundary remains an unusable authorized logical PostgreSQL source plus production alias still on old SHA; no new Phase-F rerun is justified until that external input changes.
-- NOT PROVEN: production identity for `8ceb5923...`, logical backup/restore, measured RPO/RTO, rollback, and final release certification.
-- NEXT EXECUTABLE ACTION: consume fresh current-head Enforcement + Final Certification after this governance rebind; then continue only the first newly reproduced release failure, while keeping Phase-F fail-closed until authorized DB credential and exact production promotion exist.
-- DO NOT REPEAT: stale candidate binding, unchanged Phase-F credential reruns, historical PASS transfer, production-SHA bypass, or merge/release before current-head gates.
-- UI LANE: Decision Playbooks closed as a real product surface on the exact candidate; no new backend/domain model was invented.
-- CORE LANE: core release blocker remains external resilience credential + exact production identity; migration/runtime contracts already closed on the prior exact lineage and are not being reopened.
-- CURRENT RESUME POINTER: `fresh exact-head Enforcement/Final Certification → independent core/front closure → authorized resilience DB source + exact production promotion → fresh Phase-F → measured recovery → release closeout`.
-
+- CURRENT CODE/TEST CANDIDATE: `80b7634f9bf309602914ddd383546cdb83aaf727` on the active PR #628 branch; this is newer than the prior governed UI candidate.
+- GOVERNANCE STATE: the resilience code head contains the Decision Playbooks closure plus the live logical-source/session-pooler resilience repair; no historical evidence is transferred to this head.
+- DONE: Decision Playbooks is a real canonical route backed by the existing recommendation ledger, with loading/error/empty/filter/status-action states and evidence/decision navigation.
+- DONE: resilience runtime now derives a safe Supabase session-pooler fallback from the authorized direct source and guards outbound network targets.
+- VERIFIED EXACT HEAD: GitHub Actions run `36086967892` certification-evidence-boundary SUCCESS; production-chain-guard SUCCESS; deployment statuses SUCCESS for Netlify preview and Vercel preview on `80b7634...`.
+- CURRENT FAILURE: Final Certification run `36086965404` failed at certification-boundary-integrity because the index still referenced `8ceb5923...`; no product/runtime defect was reproduced by that failure.
+- PHASE-F: live backup/restore, measured RPO/RTO, rollback and current production identity remain NOT PROVEN. Do not transfer older evidence.
+- NEXT EXECUTABLE ACTION: rebind the execution index to `80b7634...`, run local exact-head gates, push the corrected branch state, consume fresh Final Certification/Browser/Enforcement evidence, then rerun Phase-F only with the changed authorized resilience input.
+- DO NOT REPEAT: stale candidate binding, unchanged Phase-F credentials, historical PASS transfer, production-SHA bypass, or unnecessary deployment churn.
+- UI LANE: Decision Playbooks closure is complete; continue only on newly evidenced cross-surface gaps.
+- CORE LANE: current priority is exact-head certification → live Phase-F recovery → production identity; independent security/contract/performance cleanup may proceed without waiting.
+- CURRENT RESUME POINTER: `80b7634... exact-head rebind → fresh Final Certification/Browser/Enforcement → authorized live Phase-F → measured backup/restore/RPO/RTO/rollback → release closeout`.
 
 > HEAD below is the exact GitHub HEAD observed before this write. Never treat it as the SHA of this file's own future commit.
 
