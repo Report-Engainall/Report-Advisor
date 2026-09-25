@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-UI-CONTINUOUS-EXECUTION-135
+
+- SESSION-ID → 2026-09-25-AGHBARI-UI-CONTINUOUS-EXECUTION-135.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `fc90d936f2da673c5d488a24c4b5fa6b84f52f79`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `584c4ed588d8832ae12b4a312002ff807980d888`.
+- DONE → Escape dismissal now returns keyboard focus to the alert trigger; trigger has explicit `type="button"`. Sidebar disclosure controls point to a mounted hidden region. Touch target and focus-visible improvements retained.
+- CURRENT PROOF → current-head CI reruns are queued/active; not yet proven. Prior browser/route PASS remains bound to earlier SHA only.
+- CORE → Phase-F logical schema-count now uses resolved `runnerSource` and has a source-contract guard on PR #632; exact-head gates are in progress. Live production SHA remains mismatched.
+- CURRENT RESUME POINTER → `fc90d936...` → consume fresh UI exact-head gates → first reproduced defect only; core `1843040...` gates in parallel.
+- NEXT EXECUTABLE ACTION → inspect fresh workflow outcomes for PR #633 and #632; no merge until gates and core dependency ordering are satisfied.
+- DO NOT REPEAT → no stale PASS transfer, no keyboard focus loss, no dangling disclosure target, no production SHA bypass.
+- UI LANE PROGRESS → header/sidebar accessibility fixes, verified only when fresh gates complete.
+- CORE LANE PROGRESS → helper migration, tenant resolver, IPv4-safe logical backup query and guard.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-UI-CONTINUOUS-EXECUTION-134
 
 - SESSION-ID → 2026-09-25-AGHBARI-UI-CONTINUOUS-EXECUTION-134.
