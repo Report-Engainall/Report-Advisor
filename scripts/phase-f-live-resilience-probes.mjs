@@ -29,6 +29,7 @@ const required = [
 const reportDir = path.join(process.cwd(), 'artifacts', 'phase-f');
 const reportPath = path.join(reportDir, 'phase-f-readiness.json');
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
+const governanceHead = process.env.GOVERNANCE_HEAD?.trim() || exactHead;
 const target = process.env.RESILIENCE_TARGET_ENV?.trim() || null;
 const missing = required.filter(name => !process.env[name]?.trim());
 
@@ -37,6 +38,7 @@ fs.mkdirSync(reportDir, { recursive: true });
 function writeReport(status, reason, extra = {}) {
   const report = {
     exactHead,
+    governanceHead,
     targetEnv: target,
     status,
     reason,
