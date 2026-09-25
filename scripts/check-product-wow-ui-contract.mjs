@@ -100,6 +100,9 @@ assert.ok(decisionExperience.includes('العودة إلى الإشارات'), '
 assert.ok(decisionExperience.includes('<Link to="/trust"'), 'decision alerts must route source inspection to the trust/evidence surface');
 
 const reportsSurface = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
+assert.ok(reportsSurface.includes('setSnapshot(snap)'), 'purchases report must read the canonical dashboard snapshot alongside purchase rows');
+assert.ok(reportsSurface.includes('status={snapshot?.kpis.status ?? (summary.total == null ? \'INSUFFICIENT_DATA\' : \'CALCULATED\')}'), 'purchases report must preserve fail-closed truth status');
+
 assert.ok(reportsSurface.includes('function ReportTruthBar'), 'reports must expose one shared truth-context bar across decision-report surfaces');
 assert.ok(reportsSurface.includes('سياق حقيقة التقرير'), 'report truth context must be accessible and explicit');
 assert.ok(reportsSurface.includes('القيم غير المتاحة تبقى غير متاحة'), 'report truth context must preserve fail-closed numeric semantics');
