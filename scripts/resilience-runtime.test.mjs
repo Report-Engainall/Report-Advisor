@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { timingSafeEqual } from 'node:crypto';
 import rollbackHandler, { deploymentReady } from '../api/rollback-drill.mjs';
@@ -13,6 +14,8 @@ const files = [
   'scripts/phase-f-live-resilience-probes.mjs',
 ];
 for (const file of files) execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
+const phaseFProbe = fs.readFileSync('scripts/phase-f-live-resilience-probes.mjs', 'utf8');
+assert.match(phaseFProbe, /format\('select %L as table_name, count\(\*\) as row_count from %I\.%I', table_schema \|\| '\.' \|\| table_name, table_schema, table_name\)/);
 
 assert.equal(timingSafeEqual(Buffer.from('resilience-secret'), Buffer.from('resilience-secret')), true);
 process.env.RESILIENCE_TARGET_ENV = 'production';
