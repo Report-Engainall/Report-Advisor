@@ -1,4 +1,24 @@
-﻿## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-122
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-123
+
+- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-123.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- GOVERNANCE HEAD OBSERVED BEFORE THIS WRITE: `211c3f1a5c2b0ccff82662604ddd95e5adb465b0`.
+- CURRENT CODE/TEST CANDIDATE: `8ceb5923b1e9ae18de1fecd0fd6ddf7ba21ef5e7` on PR #628.
+- DONE — UI: replaced the Intelligence Center `NOT AVAILABLE` Decision Playbooks dead-end with `/intelligence/playbooks`, added the page, canonical navigation, route wiring, and decision actions.
+- DONE — UI DATA CONTRACT: the new surface reads the existing recommendation ledger with `fetchRecommendations` and writes only through `updateRecommendationStatus`; it does not create a second playbook/execution state model.
+- VERIFIED — LOCAL EXACT CANDIDATE: `git diff --check` PASS; `npm run typecheck` PASS; `npm run test:product-wow-ui` PASS; `npm run test:ui-route-sidebar-parity` PASS (40 application routes / 38 canonical navigation links); `npm run build` PASS; localhost root and `DecisionPlaybooksPage.tsx` both returned HTTP 200; `npm run test:knowledge-architecture` PASS.
+- FIRST REPRODUCED FAILURE + CLOSED: missing `ClipboardCheck` import in `IntelligencePage.tsx`; fixed and re-run to green. An intermediate contents-API misuse briefly truncated that file; it was restored from exact prior candidate `532127c...` and re-verified before continuation.
+- GITHUB EXACT-HEAD: fresh Enforcement / Final Certification / Browser evidence for `8ceb5923...` is not yet consumed. Older `487284b...` evidence remains historical and is not transferred.
+- PHASE-F BLOCKED / UNCHANGED: authorized logical PostgreSQL source remains unusable and production alias remains on old SHA; no unchanged Phase-F rerun was performed.
+- NOT PROVEN: production identity for `8ceb5923...`, logical backup/restore, RPO/RTO, rollback, and final release certification.
+- OPEN FRONTS: fresh current-head release gates; external resilience DB source; exact production promotion; measured Phase-F recovery.
+- DO NOT REPEAT: stale candidate binding, unchanged Phase-F reruns, historical PASS transfer, production-SHA bypass, merge/release before current-head gates.
+- UI LANE PROGRESS: Decision Playbooks is now a real routed, responsive, evidence-linked decision surface with loading/error/empty/filter/action states.
+- CORE LANE PROGRESS: no new core-model branch was invented; existing recommendation writer/decision surface reused; release-critical external resilience blocker remains unchanged.
+- CURRENT PRECISE STOP POINT: `fresh exact-head Enforcement/Final Certification after governance rebind 211c3f1a → consume first new failure only → authorized resilience DB source + exact production alignment → fresh Phase-F → measured recovery → release closeout`.
+- CURRENT RESUME POINTER: `fresh exact-head Enforcement/Final Certification → authorized resilience DB source + exact production alignment → fresh Phase-F → measured recovery → release closeout`.
+
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-122
 
 - SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-122.
 - MAIN HEAD VERIFIED: 7159553fcfc9d21304ffff60e1086a34b714ac09.
