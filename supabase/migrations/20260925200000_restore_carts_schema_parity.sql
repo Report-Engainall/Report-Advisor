@@ -1,6 +1,69 @@
 -- Restore parity for the live public.carts relation discovered by Phase-F logical restore.
 -- Source-of-truth: staging project fnqbvfuwbdpwvhcgzksl at 2026-09-25.
 -- Forward-only: preserves the live relation shape, tenant FK boundaries, indexes, RLS and authenticated read policy.
+create table if not exists public.profiles (
+  id uuid primary key,
+  organization_id uuid not null,
+  customer_id uuid,
+  role text not null default 'customer'::text,
+  created_at timestamptz not null default now()
+);
+
+do $
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'profiles_id_fkey'
+      and conrelid = 'public.profiles'::regclass
+  ) then
+    alter table public.profiles
+      add constraint profiles_id_fkey
+      foreign key (id) references auth.users(id) on delete cascade;
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'profiles_organization_id_fkey'
+      and conrelid = 'public.profiles'::regclass
+  ) then
+    alter table public.profiles
+      add constraint profiles_organization_id_fkey
+      foreign key (organization_id) references public.companies(id) on delete restrict;
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'profiles_customer_id_fkey'
+      and conrelid = 'public.profiles'::regclass
+  ) then
+    alter table public.profiles
+      add constraint profiles_customer_id_fkey
+      foreign key (customer_id) references public.customers(id) on delete set null;
+  end if;
+end
+$;
+
+create index if not exists profiles_customer_idx
+  on public.profiles(customer_id);
+
+create index if not exists profiles_org_idx
+  on public.profiles(organization_id);
+
+alter table public.profiles enable row level security;
+
+drop policy if exists profiles_self_select on public.profiles;
+create policy profiles_self_select
+  on public.profiles
+  as permissive
+  for select
+  to authenticated
+  using (id = (select auth.uid()));
+
+revoke all on table public.profiles from public;
+revoke all on table public.profiles from anon;
+revoke all on table public.profiles from authenticated;
+grant all on table public.profiles to service_role;
+
 create or replace function public.current_customer_id()
 returns uuid
 language sql
