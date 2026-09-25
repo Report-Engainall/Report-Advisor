@@ -1,3 +1,21 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-142
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-142`.
+- GOVERNANCE WRITE → Execution Index checkpoint committed as `a1ae13649bfd7c4519c5e866cf72a45c4ffe98c3`.
+- UI MERGED MAIN → PR #644 merged at functional SHA `317f560eae727dd660e1d3adc80c2ce26cc13805`; shell/mobile accessibility closures are already in main. Do not rework them.
+- UI OPEN → PR #647 purchases truth-context lane; PR #654 Advisor dialog/Command Palette/settings/report accessibility lane. Both are current-main candidates with exact-head gates pending; no PASS transferred.
+- SECURITY OPEN → PR #651 legacy cart SECURITY DEFINER hardening for `clear_cart`, `get_cart`, `remove_cart_item`, `set_cart_item`. Staging confirmed empty search_path + unqualified public refs + authenticated EXECUTE; source hardening is targeted and non-blanket.
+- CORE OPEN → PR #653 head `1eb9e545e0860457e22e52bd6df07cb34fe6a24d`. It isolates `client_ui_settings` in migration `20260925220000_restore_client_ui_settings_schema_parity.sql`, with live FK/UNIQUE/config shape/RLS/grants and realtime publication membership, while preserving prior profiles/carts/cart_items/branches/cash_accounts parity through the existing restore migration.
+- LAST VALID CORE LIVE FAILURE → Phase-F run `36174509884` on `53ef97c72c4f0fc94116848e35b1dd4c5e1f44f7`: tenant canary passed, production served stale deployment SHA `7edc3cc210e4b81cf18d11fd995296de7a37df87`, logical restore stopped at missing `public.client_ui_settings`, rollback-forward-fix HTTP 503. No Phase-F PASS.
+- CURRENT CORE EVIDENCE → fresh PR #653 Quality/Enforcement/Final/Browser/Storage/Desktop/Phase-F runs are newly queued on exact head; no result has been transferred from predecessor candidates.
+- LIVE STAGING → `client_ui_settings` is actively populated and uses the full boolean/numeric config shape; `151` import_jobs remain processing, `150` at progress 0; no unsafe mutation.
+- EXTERNAL BLOCKED → Vercel free-plan deployment rate limit prevents exact production deployment identity; local device/browser unavailable. Netlify preview remains independent preview evidence.
+- VERIFIED → direct Supabase schema/constraints/RLS/grants/publication checks; current-main UI/core exact-head structure; historical PR cleanup; main execution index checkpoint.
+- BLOCKED / NOT PROVEN → production exact-SHA identity, live backup/restore completion, measured RPO/RTO, rollback, production promotion, and any local-device browser proof.
+- CURRENT RESUME POINTER → `a1ae13649bfd7c4519c5e866cf72a45c4ffe98c3` → consume PR #653 exact-head Phase-F result → first new live restore failure only; in parallel consume #651/#647/#654 gates.
+- NEXT EXECUTABLE ACTION → inspect the first current-head result of PR #653. If logical restore advances, fix only the next missing source-backed dependency; if only production SHA mismatch remains, preserve fail-closed and do not bypass deployment identity.
+- DO NOT REPEAT → no stale PASS transfer; no rework of merged UI closure; no production-SHA bypass; no blanket security/index cleanup; no blind import-job terminalization.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-141
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → 874b30cc04e9d30141989216463dd846881f2d3a.
