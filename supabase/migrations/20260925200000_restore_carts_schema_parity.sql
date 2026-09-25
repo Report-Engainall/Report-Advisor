@@ -249,3 +249,182 @@ revoke all on table public.cart_items from anon;
 revoke all on table public.cart_items from authenticated;
 grant select on table public.cart_items to authenticated;
 grant all on table public.cart_items to service_role;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'branches_id_company_unique'
+      and conrelid = 'public.branches'::regclass
+  ) then
+    alter table public.branches
+      add constraint branches_id_company_unique unique (id, company_id);
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'branches_company_id_id_key'
+      and conrelid = 'public.branches'::regclass
+  ) then
+    alter table public.branches
+      add constraint branches_company_id_id_key unique (company_id, id);
+  end if;
+end
+$$;
+
+create table if not exists public.cash_accounts (
+  id uuid primary key default gen_random_uuid(),
+  company_id uuid not null,
+  branch_id uuid not null,
+  name text not null,
+  currency text not null,
+  opening_balance numeric not null default 0,
+  received numeric not null default 0,
+  spent numeric not null default 0,
+  current_balance numeric,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'cash_accounts_company_id_fkey'
+      and conrelid = 'public.cash_accounts'::regclass
+  ) then
+    alter table public.cash_accounts
+      add constraint cash_accounts_company_id_fkey
+      foreign key (company_id) references public.companies(id) on delete cascade;
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'cash_accounts_branch_company_fkey'
+      and conrelid = 'public.cash_accounts'::regclass
+  ) then
+    alter table public.cash_accounts
+      add constraint cash_accounts_branch_company_fkey
+      foreign key (company_id, branch_id) references public.branches(company_id, id);
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'cash_accounts_currency_format'
+      and conrelid = 'public.cash_accounts'::regclass
+  ) then
+    alter table public.cash_accounts
+      add constraint cash_accounts_currency_format
+      check (currency = upper(btrim(currency)) and length(btrim(currency)) = 3);
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'cash_accounts_nonnegative'
+      and conrelid = 'public.cash_accounts'::regclass
+  ) then
+    alter table public.cash_accounts
+      add constraint cash_accounts_nonnegative
+      check (opening_balance >= 0 and received >= 0 and spent >= 0);
+  end if;
+end
+$$;
+
+create index if not exists idx_cash_accounts_company_branch
+  on public.cash_accounts(company_id, branch_id);
+
+alter table public.cash_accounts enable row level security;
+
+drop policy if exists cash_accounts_tenant_select on public.cash_accounts;
+create policy cash_accounts_tenant_select
+  on public.cash_accounts
+  as permissive
+  for select
+  to authenticated
+  using (company_id = public.current_company_id());
+
+revoke all on table public.cash_accounts from anon;
+revoke all on table public.cash_accounts from authenticated;
+grant select on table public.cash_accounts to authenticated;
+grant all on table public.cash_accounts to service_role;
+
+
+ 
+create table if not exists public.client_ui_settings (
+  id uuid primary key default gen_random_uuid(),
+  organization_id uuid not null,
+  config jsonb not null default '{"showExcel": true, "showCredit": true, "showSearch": true, "showInventory": true, "showTemplates": true, "showCategories": true, "showQuickOrder": true, "showRetailPrice": false}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'client_ui_settings_organization_id_fkey'
+      and conrelid = 'public.client_ui_settings'::regclass
+  ) then
+    alter table public.client_ui_settings
+      add constraint client_ui_settings_organization_id_fkey
+      foreign key (organization_id) references public.companies(id) on delete cascade;
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'client_ui_settings_organization_id_key'
+      and conrelid = 'public.client_ui_settings'::regclass
+  ) then
+    alter table public.client_ui_settings
+      add constraint client_ui_settings_organization_id_key unique (organization_id);
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'client_ui_settings_config_shape_check'
+      and conrelid = 'public.client_ui_settings'::regclass
+  ) then
+    alter table public.client_ui_settings
+      add constraint client_ui_settings_config_shape_check
+      check (
+        jsonb_typeof(config) = 'object'
+        and coalesce(jsonb_typeof(config->'showSearch'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'showCategories'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'showExcel'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'showQuickOrder'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'showTemplates'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'showCredit'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'showInventory'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'showRetailPrice'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'requireQuantityConfirmation'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'showTieredPricing'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'showSavingsCalculator'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'showImageSearch'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'showVoiceSearch'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'showPaymentMethods'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'paymentOnCredit'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'paymentCash'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'paymentTransfer'),'boolean') = 'boolean'
+        and coalesce(jsonb_typeof(config->'minOrderValue'),'number') = 'number'
+        and coalesce(jsonb_typeof(config->'maxOrderValue'),'number') = 'number'
+        and coalesce(jsonb_typeof(config->'maxTemplates'),'number') = 'number'
+      );
+  end if;
+end
+$$;
+
+create unique index if not exists client_ui_settings_organization_id_key
+  on public.client_ui_settings(organization_id);
+
+alter table public.client_ui_settings enable row level security;
+
+drop policy if exists ui_settings_customer_select on public.client_ui_settings;
+create policy ui_settings_customer_select
+  on public.client_ui_settings
+  as permissive
+  for select
+  to authenticated
+  using (organization_id = public.current_customer_company_id());
+
+revoke all on table public.client_ui_settings from anon;
+grant select, insert, update on table public.client_ui_settings to authenticated;
+grant all on table public.client_ui_settings to service_role;
