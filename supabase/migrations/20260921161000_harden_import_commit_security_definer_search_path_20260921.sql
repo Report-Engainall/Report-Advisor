@@ -3,11 +3,5 @@
 ALTER FUNCTION public.import_commit_batch(uuid, text, jsonb, text, text)
   SET search_path TO 'pg_catalog';
 
-DO $
-BEGIN
-  IF to_regprocedure('public.import_commit_batch(uuid,text,jsonb,text,text,uuid)') IS NOT NULL THEN
-    ALTER FUNCTION public.import_commit_batch(uuid, text, jsonb, text, text, uuid)
-      SET search_path TO 'pg_catalog';
-  END IF;
-END
-$;
+ALTER FUNCTION IF EXISTS public.import_commit_batch(uuid, text, jsonb, text, text, uuid)
+  SET search_path TO 'pg_catalog';
