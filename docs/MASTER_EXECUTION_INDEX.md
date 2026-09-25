@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F SUPABASE POOLER FALLBACK
+
+- MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: 9c4e5f03a53ae211d5ed00077c2fd43a339a7db2.
+- CURRENT CODE/TEST CANDIDATE: 5642b6ee4856fb54ffea4fc415e69a9876f59250e.
+- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: 9646e9927e7fddf24d977f5f32b986fffcb7ea24.
+- PHASE-F RUN 36160600882 on b8a19ec... proved that the direct Supabase DB hostname remains IPv6-only/unreachable from the GitHub runner; the earlier hostaddr-only fallback did not change the actual route.
+- DONE: Phase-F logical backup source selection now falls back, only when the source is exactly db.<project-ref>.supabase.co for the configured project and the region is known, to the same project's regional transaction pooler (default ap-southeast-2), preserving the original password and project identity. This is a connectivity fallback, not a target substitution.
+- STORAGE AUTH HARDENING RETAINED: exact JWT-issued-at-future retry remains bounded and fail-closed.
+- CURRENT GOVERNANCE/CI: stable head remains 9646... until this write; fresh workflow set for 10d2... was in progress when this change was made.
+- NEXT: consume exact-head gates for 5642b6e...; especially Phase-F backup/restore and production SHA mismatch.
+- DO NOT REPEAT: do not weaken production SHA check, do not use an arbitrary database host, do not claim pooler fallback PASS until the exact Phase-F run proves backup/restore.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / STORAGE AUTH CLOCK-SKEW RETRY
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: 9c4e5f03a53ae211d5ed00077c2fd43a339a7db2.
