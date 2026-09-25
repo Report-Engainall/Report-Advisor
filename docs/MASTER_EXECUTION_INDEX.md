@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / TENANT-RESOLVER LINEAGE CONTRACT REPAIR
+
+- MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE: `92a32692497234841d942e5548465d54f3ff017e`.
+- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `4558397568c844ea934bbc46697cdc6e3cd793c9`.
+- DONE: fixed `check-tenant-resolver-lineage.mjs`, which incorrectly required the historical `count(*), min(company_id)` UUID aggregation. The contract now proves the intended fail-closed resolver semantics: count active/default memberships, require exactly one, then bounded-select its UUID.
+- PRIOR EXACT EVIDENCE: Quality SUCCESS, Storage Tenant Runtime E2E SUCCESS, Execution Enforcement SUCCESS, Full Product Browser E2E SUCCESS on `4558397...`. Final Certification exposed the lineage-contract defect.
+- NEXT: consume the stable exact-head workflow set for `92a3269...`; repair only the first new reproduced defect. Phase-F remains the release boundary.
+- DO NOT REPEAT: do not reintroduce UUID min aggregation, do not weaken ambiguity protection, do not transfer stale evidence, do not rewrite applied migrations.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / TENANT-RESOLVER CONTRACT REGEX REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
