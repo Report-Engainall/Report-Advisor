@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-159
+
+- CODE HEAD OBSERVED BEFORE THIS WRITE → 1c681d6bd12e173591ea6ebb8c78bbc5e3260eb2.
+- PR #659 / branch feat/deep-ui-core-closure-20260925.
+- CORE CLOSURE → fetchSalesInvoices and fetchPurchaseInvoices now fail closed when rows are missing/malformed and require tenant/company identity, invoice identity/date/status, and finite total/paid values before casting to report truth. Silent data??[] coercion was removed from these two report readers.
+- CONTRACT → added scripts/check-invoice-read-contract.mjs, registered as test:invoice-read-contract in package.json, and enforced by .github/workflows/quality.yml.
+- PRIOR CORE RETAINED → dashboard canonical array/as-of fail-closed, forecast row validation, demand-series reference validation, and inventory orphan-reference closure remain active on the same branch.
+- PRIOR UI RETAINED → demand velocity, inventory intelligence, and intelligence failure-boundary work remain active; no duplicate RPC/importer/runner/persistence path.
+- EXACT-HEAD CI OBSERVATION → [{"name":"phase9-windows-contract","status":"pending","conclusion":null,"id":36189080089},{"name":"Commercial PWA E2E","status":"completed","conclusion":"skipped","id":36189080167},{"name":"Commercial Upwork Demo E2E","status":"completed","conclusion":"skipped","id":36189079839},{"name":"decision-dml-boundary","status":"pending","conclusion":null,"id":36189080163},{"name":"dashboard-numeric-truth","status":"pending","conclusion":null,"id":36189080121},{"name":"recommendation-outcome-dml-boundary","status":"pending","conclusion":null,"id":36189080160},{"name":"desktop-windows","status":"in_progress","conclusion":null,"id":36189080047}]; current head has not produced a terminal application PASS. Combined status: [{"context":"Vercel","state":"failure","target_url":"https://vercel.com/injaz2?upgradeToPro=build-rate-limit"},{"context":"Vercel Deployments – Injaz","state":"pending","target_url":"https://vercel.com/injaz2/~/deployments?repo=github%2FReport-Engainall%2FReport-Advisor&filterBranch=feat%2Fdeep-ui-core-closure-20260925&sha=1c681d6bd12e173591ea6ebb8c78bbc5e3260eb2"},{"context":"CodeRabbit","state":"success","target_url":null},{"context":"netlify/aghbari-report-advisor/deploy-preview","state":"pending","target_url":"https://app.netlify.com/projects/aghbari-report-advisor/deploys/6ab6e0e16fa5b90008448306"}] .
+- STILL UNPROVEN → exact-head Quality/Final Certification/Browser E2E terminal success, production identity/promotion, Phase-F live resilience, and device-dependent visual certification.
+- NEXT EXECUTABLE ACTION → consume only the first terminal failure on the exact current head; otherwise continue another non-overlapping closure.
+- DO NOT REPEAT → closed prior surfaces, stale evidence, Vercel plan-limit-as-code-failure, preview-as-production, production/Phase-F bypass, duplicate data paths.
+- RESUME POINTER → main c985deeb… → PR #659 → exact code head 1c681d6b… → first terminal failure only → exact green merge evidence.
+
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-158
 
 - CODE HEAD OBSERVED BEFORE THIS WRITE → cbbaced02eb9e093750192f5279021aa2361124d.
