@@ -1,15 +1,18 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-120
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-UI-CONTINUOUS-EXECUTION-131
 
-- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-120`.
-- MAIN HEAD OBSERVED BEFORE THIS WRITE → `35c8a8bcdc0253418ed8f21cdd664a09cac31e69` (merge commit for PR #629).
-- CODE CHANGE MERGED → PR #629 `fix: align core contracts with canonical migration paths`; corrected two contract references to the canonical watched-report and import-lineage migration files. PR merge succeeded; merged SHA `35c8a8bcdc0253418ed8f21cdd664a09cac31e69`.
-- PR-REPORTED LOCAL VERIFICATION → P0 13/13, P1 8/8, Production Readiness 21/21, TypeScript and diff check PASS on PR head `cca051215037b6fa3b7ca6901dd9666af6d162fc`. This is PR-reported local evidence, not a fresh main-SHA/cloud PASS.
-- CLOUD STATUS → commit-associated workflow query returned no runs at observation time. Fresh exact-main Quality/Enforcement/Certification/Browser/Phase-F results are NOT PROVEN.
-- UI LANE → no UI source was changed in this execution; keep the latest UI closure and require fresh browser proof for the new governed code lineage.
-- CORE LANE → migration contract-path alignment merged. Phase-F production identity, authorized logical source connectivity, backup/restore, measured RPO/RTO, rollback, and production release remain NOT PROVEN/BLOCKED as previously recorded; do not transfer older evidence.
-- DO NOT REPEAT → do not reapply PR #629 migration-path edits; do not treat PR local checks as cloud PASS; do not bypass production SHA or credentials.
-- CURRENT RESUME POINTER → `35c8a8bcdc0253418ed8f21cdd664a09cac31e69` → consume fresh main-head Quality/Enforcement/Final Certification/Browser evidence → run Phase-F only with valid authorized source and exact runtime identity → fix first reproduced failure.
-- NEXT EXECUTABLE ACTION → inspect fresh workflow results for merged main SHA; if no workflows start, trigger the repository's existing required CI path through its supported mechanism, without changing acceptance criteria.
+- SESSION-ID → 2026-09-25-AGHBARI-UI-CONTINUOUS-EXECUTION-131.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `8749cb6291304e4e1754a1c24c62713908165397`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `2a580ab7c66fa3993051c64fcf0b1b5b1c8a5ef7`.
+- DONE → UI shell accessibility closure implemented in Header and Sidebar: 44px-equivalent minimum interactive targets, Escape dismissal for alerts, focus-visible rings on shell actions, and explicit disclosure relationships.
+- CURRENT UI CI → PR #633 is running exact-head quality, route, browser, device-independent, certification and security workflows. The first Certification failure was governance-only because the inherited index pointed at historical candidate 1e93d...; the index is now rebound to the exact UI candidate.
+- CORE PARALLEL FRONT → PR #632 remains the Phase-F/core candidate; its code is independent and is not copied into this UI branch.
+- BLOCKED / NOT PROVEN → UI closure still requires fresh exact-head certification and browser results; no PASS from ancestor SHAs is transferred.
+- CURRENT RESUME POINTER → `2a580ab7c66fa3993051c64fcf0b1b5b1c8a5ef7` → consume exact-head UI gates → merge only if green; then return to main exact-head synchronization.
+- NEXT EXECUTABLE ACTION → consume PR #633 exact-head results and repair only the first current-SHA failure.
+- DO NOT REPEAT → no stale browser PASS transfer, no UI duplication, no business-contract changes in this shell-only wave.
+- UI LANE PROGRESS → shell accessibility semantics + touch target closure in PR #633.
+- CORE LANE PROGRESS → independent Phase-F restore helper and tenant runtime closure remain in PR #632.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-119
 
