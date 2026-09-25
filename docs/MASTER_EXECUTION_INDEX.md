@@ -1,12 +1,11 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI-CORE CANDIDATE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PURCHASES TRUTH FOLLOW-UP ON CURRENT MAIN
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `fa2256c0c5b311464d9d8960e3480ac33f87830d`.
-- CURRENT CODE/TEST CANDIDATE: `ae6410b30f9305585b8bbb13f18b2da6b17214da`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `ae6410b30f9305585b8bbb13f18b2da6b17214da`.
-- UI DELIVERY: Metric Inspector now has accessible search, governance-status/freshness filters, reset and filtered-empty semantics; shared Loading/Empty/Error states expose explicit assistive semantics/retry labeling; Decision Experience progress stages expose accessible text; Reports surfaces retain evidence-safe truth context.
-- CORE PROOF: Phase-10 contract/security-definer provenance and Phase-F governance-head/exact-head evidence were hardened without adding RPCs, runners or production mutations.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head Quality/Enforcement/Final Certification/Browser/Storage/Desktop/Route gates; merge only after all required current-head checks pass.
-- DO NOT REPEAT: no stale candidate evidence, no production bypass, no duplicate navigation/data path.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `317f560eae727dd660e1d3adc80c2ce26cc13805`.
+- CURRENT CODE/TEST CANDIDATE: `6025f259193374b048d90fb6136c692c894ad541`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `6025f259193374b048d90fb6136c692c894ad541`.
+- UI DELIVERY: only the purchase-report truth-context delta is carried onto the already merged deep UI main. Purchases now reads the canonical dashboard snapshot alongside purchase rows/summary and exposes fail-closed truth status plus period/as-of context.
+- NO DUPLICATION: Metric Inspector, shared state semantics, Decision Experience, Canonical Import and report truth bar are already in main; this branch adds only the purchases binding.
+- NEXT EXECUTABLE ACTION: consume exact-head purchase UI gates and merge only after current-head proof; do not transfer predecessor PR #646 evidence.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
