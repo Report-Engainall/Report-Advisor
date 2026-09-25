@@ -52,7 +52,8 @@ export async function fetchProductDemandSeries(days = 180): Promise<ProductDeman
   if (itemError) throw itemError;
   const itemRows = requiredDemandRows<Record<string, unknown>>(items, 'items');
   for (const row of itemRows) {
-    if (typeof row.invoice_id !== 'string' || !row.invoice_id.trim() || (row.product_id !== null && typeof row.product_id !== 'string') || !Number.isFinite(Number(row.quantity)) || !Number.isFinite(Number(row.line_total))) throw new Error('REPORT_DATA_UNAVAILABLE: demand item shape invalid');
+    if (typeof row.invoice_id !== 'string' || !row.invoice_id.trim() || typeof row.product_id !== 'string' || !row.product_id.trim() || !Number.isFinite(Number(row.quantity)) || !Number.isFinite(Number(row.line_total))) throw new Error('REPORT_DATA_UNAVAILABLE: demand item shape invalid');
+    if (!dateByInvoice.has(row.invoice_id)) throw new Error('REPORT_DATA_UNAVAILABLE: demand invoice reference invalid');
     const product = row.product as DemandRow['product'];
     const productValue = Array.isArray(product) ? product[0] : product;
     if (!productValue || typeof productValue !== 'object' || !productValue.sku?.trim() || !productValue.name?.trim()) throw new Error('REPORT_DATA_UNAVAILABLE: demand product relation invalid');
@@ -65,12 +66,13 @@ export async function fetchProductDemandSeries(days = 180): Promise<ProductDeman
     const product = productDetails(row.product);
     const quantity = Number(row.quantity);
     const sales = Number(row.line_total);
-    if (!date || !product || !Number.isFinite(quantity) || !Number.isFinite(sales)) continue;
+    if (!date || !product || !Number.isFinite(quantity) || !Number.isFinite(sales)) throw new Error('REPORT_DATA_UNAVAILABLE: demand row relation invalid');
+    const productId = row.product_id.trim();
 
-    let entry = map.get(row.product_id);
+    let entry = map.get(productId);
     if (!entry) {
-      entry = { productId: row.product_id, sku: product.sku, name: product.name, points: [], totalQuantity: 0, averageDaily: 0, peakDaily: 0, trend: 0 };
-      map.set(row.product_id, entry);
+      entry = { productId, sku: product.sku, name: product.name, points: [], totalQuantity: 0, averageDaily: 0, peakDaily: 0, trend: 0 };
+      map.set(productId, entry);
     }
 
     const point = entry.points.find((item) => item.date === date);
