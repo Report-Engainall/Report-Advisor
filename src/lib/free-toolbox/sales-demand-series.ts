@@ -17,6 +17,8 @@ const dayKey = (value: string) => {
   return new Date(time).toISOString().slice(0, 10);
 };
 
+function requiredDemandRows<T extends Record<string, unknown>>(value: unknown, label: string): T[] { if (!Array.isArray(value)) throw new Error('REPORT_DATA_UNAVAILABLE: demand ' + label + ' missing'); if (value.some((item) => item === null || typeof item !== 'object' || Array.isArray(item))) throw new Error('REPORT_DATA_UNAVAILABLE: demand ' + label + ' invalid'); return value as T[]; }
+
 function productDetails(product: DemandRow['product']): { sku: string; name: string } | null {
   const value = Array.isArray(product) ? product[0] : product;
   if (!value?.sku?.trim() || !value.name?.trim()) return null;
@@ -38,17 +40,26 @@ export async function fetchProductDemandSeries(days = 180): Promise<ProductDeman
     .order('invoice_date', { ascending: true });
   if (invoiceError) throw invoiceError;
   if (!invoices?.length) return [];
+  const invoiceRows = requiredDemandRows<Record<string, unknown>>(invoices, 'invoices');
+  for (const invoice of invoiceRows) if (typeof invoice.id !== 'string' || !invoice.id.trim() || typeof invoice.invoice_date !== 'string' || !invoice.invoice_date.trim()) throw new Error('REPORT_DATA_UNAVAILABLE: demand invoice shape invalid');
 
-  const ids = invoices.map((invoice) => invoice.id);
-  const dateByInvoice = new Map(invoices.map((invoice) => [invoice.id, dayKey(invoice.invoice_date)]));
+  const ids = invoiceRows.map((invoice) => invoice.id as string);
+  const dateByInvoice = new Map(invoiceRows.map((invoice) => [invoice.id as string, dayKey(invoice.invoice_date as string)]));
   const { data: items, error: itemError } = await supabase
     .from('sale_items')
     .select('invoice_id,product_id,quantity,line_total,product:products(sku,name)')
     .in('invoice_id', ids);
   if (itemError) throw itemError;
+  const itemRows = requiredDemandRows<Record<string, unknown>>(items, 'items');
+  for (const row of itemRows) {
+    if (typeof row.invoice_id !== 'string' || !row.invoice_id.trim() || (row.product_id !== null && typeof row.product_id !== 'string') || !Number.isFinite(Number(row.quantity)) || !Number.isFinite(Number(row.line_total))) throw new Error('REPORT_DATA_UNAVAILABLE: demand item shape invalid');
+    const product = row.product as DemandRow['product'];
+    const productValue = Array.isArray(product) ? product[0] : product;
+    if (!productValue || typeof productValue !== 'object' || !productValue.sku?.trim() || !productValue.name?.trim()) throw new Error('REPORT_DATA_UNAVAILABLE: demand product relation invalid');
+  }
 
   const map = new Map<string, ProductDemandSeries>();
-  for (const row of (items ?? []) as DemandRow[]) {
+  for (const row of itemRows as DemandRow[]) {
     if (!row.product_id) continue;
     const date = dateByInvoice.get(row.invoice_id);
     const product = productDetails(row.product);
