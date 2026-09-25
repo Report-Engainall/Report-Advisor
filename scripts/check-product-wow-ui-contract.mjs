@@ -230,6 +230,9 @@ assert.ok(externalFileAnalysis.includes('to="/trust"'), 'external file analysis 
 assert.ok(externalFileAnalysis.includes('to="/import"'), 'external file analysis must expose the canonical import path');
 assert.ok(externalFileAnalysis.includes('دليل محلي + بصمة المصدر'), 'external file analysis must disclose its evidence boundary');
 
+const intelligenceCenter = fs.readFileSync('src/pages/IntelligencePage.tsx', 'utf8');
+assert.ok(intelligenceCenter.includes('<TruthContextStrip months={6} status={truthContext?.status ?? \'INSUFFICIENT_DATA\'} asOf={truthContext?.asOf ?? \'غير متاح\'} />'), 'intelligence center must expose canonical period/status/as-of context');
+assert.ok(intelligenceCenter.includes('fetchDashboardSnapshot(6)'), 'intelligence center must bind truth context to the canonical dashboard snapshot');
 const metricInspector = fs.readFileSync('src/pages/MetricInspectorPage.tsx', 'utf8');
 assert.ok(metricInspector.includes('const filteredItems = useMemo'), 'metric inspector must derive a filtered semantic list without mutating the source contract');
 assert.ok(metricInspector.includes('aria-label="البحث في المؤشرات"'), 'metric inspector search must be accessible');
