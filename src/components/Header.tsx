@@ -36,6 +36,15 @@ export function Header({
   }, [currentNavigation?.section, language]);
 
   useEffect(() => {
+    if (!showAlerts) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setShowAlerts(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showAlerts]);
+
+  useEffect(() => {
     let mounted = true;
     const checkHealth = async () => {
       try {
@@ -84,7 +93,7 @@ export function Header({
   return (
     <header className="ag-topbar sticky top-0 z-30 border-b border-ink-200 bg-white">
       <div className="flex h-[60px] items-center gap-2.5 px-3 sm:px-4 lg:px-5">
-        <button onClick={onMenuClick} className="rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 xl:hidden" aria-label="فتح القائمة">
+        <button onClick={onMenuClick} className="min-h-11 min-w-11 rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 xl:hidden" aria-label="فتح القائمة">
           <Menu size={19} />
         </button>
 
@@ -99,7 +108,7 @@ export function Header({
         <button
           type="button"
           onClick={onOpenCommandPalette}
-          className="ag-top-search mx-auto flex h-10 w-full max-w-[470px] items-center gap-2.5 rounded-[10px] border border-ink-200 bg-ink-50/70 px-3.5 text-right text-xs text-ink-400 hover:border-primary-300 hover:bg-white"
+          className="ag-top-search mx-auto flex h-11 w-full max-w-[470px] items-center gap-2.5 rounded-[10px] border border-ink-200 bg-ink-50/70 px-3.5 text-right text-xs text-ink-400 hover:border-primary-300 hover:bg-white"
           aria-label="فتح البحث ولوحة الأوامر"
         >
           <Search size={16} className="text-ink-500" />
@@ -111,14 +120,14 @@ export function Header({
 
         <div className="flex items-center gap-0.5">
           <LanguageToggle />
-          <Link to="/import" className="rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 hover:text-primary-700" title="استيراد" aria-label="استيراد">
+          <Link to="/import" className="flex min-h-11 min-w-11 items-center justify-center rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400" title="استيراد" aria-label="استيراد">
             <Upload size={17} />
           </Link>
 
           <div className="relative">
             <button
               onClick={() => setShowAlerts((value) => !value)}
-              className="relative rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 hover:text-ink-900"
+              className="relative flex min-h-11 min-w-11 items-center justify-center rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 hover:text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
               aria-label={'التنبيهات، ' + unreadAlerts.length + ' غير مقروء'}
               aria-expanded={showAlerts}
             >
