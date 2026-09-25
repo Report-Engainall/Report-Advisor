@@ -153,6 +153,7 @@
     "test:deep-truth-ui": "node scripts/check-deep-truth-ui-contract.mjs",
     "test:import-readback-fidelity": "node scripts/check-import-readback-fidelity.mjs",
     "test:profitability-snapshot-contract": "node scripts/check-profitability-snapshot-contract.mjs",
-    "test:receivables-read-contract": "node scripts/check-receivables-read-contract.mjs"
+    "test:receivables-read-contract": "node scripts/check-receivables-read-contract.mjs",
+    "test:dashboard-snapshot-contract": "node scripts/check-dashboard-snapshot-contract.mjs"
   }
 }
