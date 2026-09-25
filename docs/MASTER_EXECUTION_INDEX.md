@@ -1,14 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F CASH-ACCOUNT PARITY WAVE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F CASH + BRANCH KEY PARITY WAVE
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- CURRENT CODE/TEST CANDIDATE: `cbd2d4fd1eab522f093dc1bc1bde3fb0b096fe25`.
+- CURRENT CODE/TEST CANDIDATE: `d0136c3fd3cbb21a70aa7a6f2c4efd45cedfbfed`.
 - GOVERNANCE HEAD BEFORE THIS WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- CORE CHANGE: restore-parity migration `20260925185000_restore_cash_accounts_schema_parity.sql` reconstructs the live `public.cash_accounts` schema, composite branch/company FK, invariants, index, RLS and ACL; Phase-10 contract locks the shape.
-- ROOT-CAUSE EVIDENCE: Phase-F run `36173306548` stopped at logical restore because live source contained `public.cash_accounts` while canonical replay did not create it. This branch fixes that first reproduced gap only.
-- NO PRODUCTION MUTATION: live Supabase was inspected read-only; no production DDL was executed.
-- OPEN UI: PR #647 remains independent and contains purchase-report truth context plus command-palette focus/keyboard closure.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head Phase-F + Quality/Final/Browser/Desktop evidence for `cbd2d4fd...`; repair only the first new runtime failure; merge only after exact-head evidence.
-- DO NOT REPEAT: do not transfer Phase-F evidence from `2eb7c69...`; no preview-as-production; no Vercel bypass; no duplicate RPC/runner/import path.
+- ROOT-CAUSE CHAIN: source has `public.cash_accounts`; replay lacked it. After adding it, replay exposed the source-required `branches(id, company_id)` unique constraint needed by the composite FK. Source definition confirmed as `UNIQUE (id, company_id)`.
+- CORE FIX: restore-parity migration now establishes `branches_id_company_unique` before adding the cash_accounts composite FK; Phase-10 contract locks this prerequisite and the cash_accounts schema/tenant invariants.
+- PHASE-F EVIDENCE: exact-head run `36174711518` failed at local migration replay on the branch/composite-FK prerequisite; deployment SHA/canary/local runtime/static contracts were otherwise reached successfully. No PASS.
+- NO PRODUCTION MUTATION: live Supabase inspection remained read-only; no source DDL was executed.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head Quality/Final/Phase-F evidence for `d0136c3f...`; inspect only the first new failure.
+- DO NOT REPEAT: no stale Phase-F PASS transfer, no Vercel bypass, no preview-as-production, no blanket migration reconstruction.
 
 
 ---
