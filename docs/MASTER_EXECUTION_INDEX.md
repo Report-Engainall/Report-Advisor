@@ -1,20 +1,18 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD F278
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD 1C48
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `f2783d287847097f9e4dd626c03a2704fa12720d` on PR #628.
-- GOVERNANCE STATE: Decision Playbooks and resilience/session-pooler repairs remain intact; the canonical cart reconciliation migration now owns `profiles` → customer-context helpers → carts/cart_items and their RLS dependencies.
-- DONE — CORE: migration `20260925033521_reconcile_live_cart_schema.sql` now creates/guards `public.profiles`, `current_customer_id()`, `current_customer_company_id()`, `public.carts`, and `public.cart_items` in dependency order before their RLS policies.
-- LIVE DB RECONCILIATION: staging already contains migration version `20260925033521`; profiles/helpers were reconciled directly because this migration was created in-session and is not in production.
-- VERIFIED LOCAL EXACT PRE-CANDIDATE: migration schema audit PASS (255 migrations / 114 tables / 127 indexes / 122 policies / 11 triggers / 0 findings); Phase-2 security-definer surface PASS across 99 migration files; Phase-F runtime closure PASS; operational resilience/evidence integrity PASS.
-- EXACT PHASE-F FAILURE DRIVING THIS FIX: run `36091815644` on `771e4c96...` passed operational health as SHA-mismatch, tenant canary, and reached logical restore, then failed because fresh restore lacked `public.profiles`; rollback-forward remained HTTP 503 because production forward baseline is old.
-- ROOT CAUSE CLOSED: `public.profiles` existed only in live schema, not migration lineage. The canonical migration now owns its table, constraints, indexes, RLS policy, and grants before the customer-context helper functions.
-- VERCEL: exact deployment for `f2783d28...` must be observed before transferring preview evidence; production remains on `7be9f014...`.
-- PHASE-F: fresh live proof is required on the next exact head after this governance write. Production identity, RPO/RTO, rollback and release remain NOT PROVEN.
-- NEXT EXECUTABLE ACTION: exact-head quality/Browser/Enforcement/Final Certification → fresh Phase-F → repair only first new live failure → exact production alignment → measured RPO/RTO/rollback → release closeout.
-- DO NOT REPEAT: countSql defect, carts/cart_items drift, helper-function drift, empty-search-path failure, profiles drift, stale candidate bindings, historical evidence transfer, production-SHA bypass.
-- UI LANE: 40 application routes / 38 canonical navigation links remain green; Executive, Connections, Decision, Document, Inventory and Product-WOW contracts are green.
-- CORE LANE: exact-head certification → fresh Phase-F restore proof → exact production alignment → measured recovery → release closeout.
-- CURRENT RESUME POINTER: `f2783d28... exact-head gates → fresh Phase-F → exact production alignment → measured recovery → release closeout`.
+- CURRENT CODE/TEST CANDIDATE: `1c48b7eb7c53bfbb8876ba4ec22556a549d5c002` on PR #628.
+- GOVERNANCE STATE: canonical resilience/session-pooler, cart schema, profiles lineage, customer-context helper lineage, and 50/50 UI/core control are intact.
+- EXACT GITHUB EVIDENCE ON THIS HEAD: Final Certification `36092154899` SUCCESS; Quality `36092155018` SUCCESS; Full Product Browser E2E `36092154845` SUCCESS; Execution Enforcement `36092154917` SUCCESS; production-chain-guard `36092154839` SUCCESS; certification-evidence-boundary `36092154960` SUCCESS.
+- VERCEL EXACT DEPLOYMENT: `dpl_HyB7EdGkm4ZTzTvgwKbz4VKRk8tM` READY, source SHA `1c48b7eb...`, preview alias `report-advisor-git-fix-update-migration-contract-131e1d-injaz2.vercel.app`; production remains SHA `7be9f014...`.
+- PHASE-F: run `36092155116` on `1c48b7eb...` was cancelled before a job started; connector retry is forbidden by GitHub API (403), and local gh CLI is unauthenticated. No Phase-F PASS is claimed.
+- ROOT CAUSE CHAIN CLOSED IN CODE: countSql → carts/cart_items → customer-context helpers → profiles schema drift have each been repaired and locally contract-tested.
+- VERIFIED LOCAL EXACT CANDIDATE: migration schema audit PASS (255 migrations / 114 tables / 127 indexes / 122 policies / 11 triggers / 0 findings); Phase-2 security-definer surface PASS; migration dependencies/tenant-security/global-RLS/import contracts PASS; Phase-F runtime closure PASS; operational resilience/evidence integrity PASS; knowledge architecture PASS; Product-WOW/UI route contracts PASS.
+- NEXT EXECUTABLE ACTION: trigger one fresh Phase-F on the exact current candidate after this governance write; consume only its result; if restore passes, repair/align only remaining production identity or rollback baseline; then measure RPO/RTO and close release.
+- DO NOT REPEAT: countSql, carts/cart_items, helper search_path, profiles lineage, stale evidence transfer, production-SHA bypass, or speculative UI rewrites.
+- UI LANE: 40 application routes / 38 canonical navigation links; Executive, Connections, Decision, Document, Inventory and Product-WOW contracts green.
+- CORE LANE: fresh Phase-F → exact production identity → measured backup/restore/RPO/RTO/rollback → release closeout.
+- CURRENT RESUME POINTER: `1c48b7eb... governance write → fresh Phase-F → first new live failure only → production alignment → measured recovery → release closeout`.
 
 
 

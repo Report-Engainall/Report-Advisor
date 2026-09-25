@@ -1,4 +1,19 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-130
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-131
+
+- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-131.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- CURRENT CODE/TEST CANDIDATE BEFORE GOVERNANCE WRITE: `1c48b7eb7c53bfbb8876ba4ec22556a549d5c002` on PR #628.
+- EXACT GITHUB EVIDENCE: Final Certification `36092154899` SUCCESS; Quality `36092155018` SUCCESS; Browser E2E `36092154845` SUCCESS; Enforcement `36092154917` SUCCESS; production-chain `36092154839` SUCCESS; evidence-boundary `36092154960` SUCCESS.
+- VERCEL EXACT PREVIEW: `dpl_HyB7EdGkm4ZTzTvgwKbz4VKRk8tM` READY for SHA `1c48b7eb...`; production remains `7be9f014...`.
+- PHASE-F: run `36092155116` was cancelled before job start; GitHub connector retry returned 403 and local `gh` is unauthenticated. No resilience PASS transferred.
+- DONE — CORE: profiles/cart/helper/countSql lineage chain is closed in code and staging; local schema/security/tenant/import/runtime contracts are green.
+- DONE — UI: route/surface contract set remains green at 40 application routes / 38 canonical navigation links, with Executive/Connections/Decision/Document/Inventory/Product-WOW gates green.
+- NOT PROVEN: fresh Phase-F restore, production exact identity, measured RPO/RTO, rollback, release promotion.
+- DO NOT REPEAT: prior migration drift fixes, stale Phase-F evidence, production-SHA bypass, speculative UI rewrites, unnecessary deployment churn.
+- CURRENT PRECISE STOP POINT: new governance head → fresh Phase-F only → first new live failure → exact production alignment → measured recovery.
+- CURRENT RESUME POINTER: `fresh Phase-F on the new governance head → exact production identity → measured RPO/RTO/rollback → release closeout`.
+
+
 
 - SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-130.
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
