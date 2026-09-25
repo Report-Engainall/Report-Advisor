@@ -1,8 +1,8 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F RESTORE HELPER + GOVERNANCE REBIND
 
-- MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: 9c4e5f03a53ae211d5ed00077c2fd43a339a7db2.
-- CURRENT CODE/TEST CANDIDATE: e1fb7181be3e9dc9f44edb2ef46e85ce035a842f.
-- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: e1fb7181be3e9dc9f44edb2ef46e85ce035a842f.
+- MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE: `e1fb7181be3e9dc9f44edb2ef46e85ce035a842f`.
+- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `5bb9705101a31808346e3d0bf2e33a9b877cde7c`.
 - DONE: restored the replay-safe `public.enforce_same_company_reference()` helper before `trg_warehouse_branch_company`; added the UUID-safe `current_company_id()` repair; hardened Phase-F probe source routing; and removed the forbidden push trigger from the Phase-F workflow.
 - CURRENT EXACT-HEAD GATES: Quality SUCCESS, Full Product Browser E2E SUCCESS, Storage Tenant Runtime E2E SUCCESS, plus the broad security/data contracts on PR #632. Final Certification and Execution Enforcement are currently blocked only by this stale indexed-candidate binding and are being regenerated from this exact branch head.
 - PHASE-F: live run 36161162918 is currently in progress on this exact PR head. No Phase-F PASS is transferred from earlier SHAs.
