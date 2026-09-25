@@ -25,6 +25,9 @@ Known canonical targets:
 - import_commit_batch
 - import_finish_job
 - get_dashboard_snapshot
+
+### Import terminal-state ownership
+Server-side durable execution owns the terminal transition of the corresponding `import_jobs` record after the durable business lifecycle succeeds. Browser/UI finalization is an idempotent compatibility fallback and must accept an already-terminal matching state. Transient durable-runner failures remain retryable; `import_jobs` is marked `failed` server-side only after the durable execution job exhausts its retry budget. This prevents successful imports from remaining indefinitely in `processing` when the browser disconnects after the business commit.
 - get_dashboard_intelligence
 - runDurableProductionLifecycle
 - production-coordinator-bridge.ts

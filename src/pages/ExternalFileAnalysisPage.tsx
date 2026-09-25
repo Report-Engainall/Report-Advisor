@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { AlertCircle, BarChart3, CheckCircle2, Download, FileImage, FileSpreadsheet, FileText, Loader2, ShieldCheck, Sparkles, Upload } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -37,8 +38,10 @@ export function ExternalFileAnalysisPage() {
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string|null>(null);
+  const [lastSelectedFile, setLastSelectedFile] = useState<File|null>(null);
 
   async function analyze(selected: File) {
+    setLastSelectedFile(selected);
     setLoading(true); setError(null); setDatasets([]); setActive(0);
     try {
       if (selected.size > MAX_FILE_SIZE) throw new Error(`حجم الملف يتجاوز الحد الآمن (${Math.round(MAX_FILE_SIZE / 1024 / 1024)} MB)`);
@@ -66,24 +69,50 @@ export function ExternalFileAnalysisPage() {
   } : null, [dataset]);
 
   return <div className="ag-file-lab space-y-6" dir="rtl">
-    <PageHeader title="مختبر الملفات والبيانات" subtitle="حلّل أي ملف خارجي دون إجباره على نموذج أعمال مسبق، مع إبقاء الحقول الأصلية متاحة للمراجعة." />
+    <PageHeader
+      title="مختبر الملفات والبيانات"
+      subtitle="حلّل أي ملف خارجي دون إجباره على نموذج أعمال مسبق، مع إبقاء الحقول الأصلية متاحة للمراجعة."
+      actions={<div className="flex flex-wrap items-center gap-2">
+        <Link to="/trust" className="btn-secondary text-xs inline-flex items-center gap-1"><ShieldCheck size={14}/> سياق الثقة</Link>
+        <Link to="/import" className="btn-primary text-xs inline-flex items-center gap-1"><Upload size={14}/> الاستيراد الكانوني</Link>
+      </div>}
+    />
     <Card><CardBody>
       <div className="grid gap-5 lg:grid-cols-[1fr_auto] items-center">
         <div><div className="flex items-center gap-2"><Sparkles size={18}/><h2 className="font-semibold">ذكاء الملفات الشامل</h2></div><p className="mt-2 text-sm leading-6 text-ink-500">فحص أمني → كشف الصيغة → استخراج → تهيئة تحليلية → مطابقة → جودة → جاهزية للتحليل. هذا المسار تحليلي ولا يكتب سجلات الأعمال تلقائيًا.</p><div className="mt-3 flex flex-wrap gap-2"><Badge variant="neutral">كل الأعمدة</Badge><Badge variant="neutral">أنواع البيانات</Badge><Badge variant="neutral">دليل المطابقة</Badge><Badge variant="neutral">إشارات الجودة</Badge><Badge variant="neutral">OCR عربي + إنجليزي</Badge><Badge variant="neutral">بصمة SHA-256</Badge></div></div>
-        <button type="button" onClick={() => inputRef.current?.click()} disabled={loading} className="btn-primary inline-flex items-center justify-center gap-2 min-w-52"><Upload size={18}/>{loading ? 'جارٍ التحليل...' : 'تحليل أي ملف خارجي'}</button>
+        <div className="flex flex-col gap-2">
+          <button type="button" onClick={() => inputRef.current?.click()} disabled={loading} className="btn-primary inline-flex min-h-11 items-center justify-center gap-2 min-w-52"><Upload size={18}/>{loading ? 'جارٍ التحليل...' : 'تحليل أي ملف خارجي'}</button>
+          <span className="text-center text-[10px] text-ink-400">التحليل محلي ولا يلتزم تلقائيًا بإدخال سجل أعمال</span>
+        </div>
       </div>
       <input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.markdown,.pdf,.docx,.doc,.rtf,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void analyze(f); e.currentTarget.value=''; }}/>
-      <div onClick={() => inputRef.current?.click()} className="mt-5 cursor-pointer rounded-2xl border-2 border-dashed border-ink-200 p-8 text-center hover:border-primary-400 transition-colors"><Upload className="mx-auto mb-2 text-primary-500" size={30}/><b>اسحب الملف هنا أو اضغط للاختيار</b><p className="mt-1 text-xs text-ink-400">الحد الآمن {Math.round(MAX_FILE_SIZE / 1024 / 1024)} MB · لا توجد كتابة تلقائية لبيانات الأعمال</p></div>
-      {error && <div className="mt-4 rounded-xl bg-danger-50 p-3 text-sm text-danger-700 flex gap-2"><AlertCircle size={17}/>{error}</div>}
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label="إسقاط ملف أو اختيار ملف للتحليل"
+        onClick={() => inputRef.current?.click()}
+        onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); inputRef.current?.click(); } }}
+        onDragOver={event => { event.preventDefault(); event.dataTransfer.dropEffect = 'copy'; }}
+        onDrop={event => { event.preventDefault(); const dropped = event.dataTransfer.files?.[0]; if (dropped) void analyze(dropped); }}
+        className="mt-5 cursor-pointer rounded-2xl border-2 border-dashed border-ink-200 p-8 text-center hover:border-primary-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 transition-colors"
+      >
+        <Upload className="mx-auto mb-2 text-primary-500" size={30}/>
+        <b>اسحب الملف هنا أو اضغط للاختيار</b>
+        <p className="mt-1 text-xs text-ink-400">الحد الآمن {Math.round(MAX_FILE_SIZE / 1024 / 1024)} MB · لا توجد كتابة تلقائية لبيانات الأعمال</p>
+      </div>
+      {error && <div className="mt-4 flex flex-col gap-3 rounded-xl bg-danger-50 p-3 text-sm text-danger-700" role="alert" aria-live="assertive">
+        <div className="flex gap-2"><AlertCircle size={17}/><span>{error}</span></div>
+        {lastSelectedFile && <button type="button" onClick={() => void analyze(lastSelectedFile)} disabled={loading} className="min-h-11 self-start rounded-xl border border-danger-200 bg-white px-3 py-2 text-xs font-bold text-danger-700 disabled:opacity-60">إعادة التحليل</button>}
+      </div>}
     </CardBody></Card>
-    {file && <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{fileIcon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} · {file.size.toLocaleString()} بايت · بصمة SHA-256: {file.hash.slice(0,16)}…</div></div></div><Badge variant="success"><ShieldCheck size={13}/> اجتاز الفحص الأمني</Badge></div></CardBody></Card>}
+    {file && <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3" role="status" aria-live="polite"><div className="flex items-center gap-3">{fileIcon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} · {file.size.toLocaleString()} بايت · بصمة SHA-256: {file.hash.slice(0,16)}…</div></div></div><Badge variant="success"><ShieldCheck size={13}/> اجتاز الفحص الأمني</Badge></div></CardBody></Card>}
     {datasets.length > 1 && <Card><CardBody><div className="flex gap-2 overflow-x-auto">{datasets.map((d,i)=><button key={`${d.id}-${i}`} type="button" aria-pressed={i===active} onClick={()=>setActive(i)} className={`whitespace-nowrap rounded-xl border px-4 py-2 text-xs font-semibold ${i===active?'border-primary-500 bg-primary-50 text-primary-700':'border-ink-200 bg-white text-ink-600'}`}>ورقة/مجموعة {i+1}: {d.name}</button>)}</div></CardBody></Card>}
     {dataset && <>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">{[['الصفوف',dataset.rowCount],['الأعمدة',dataset.columnCount],['المعيّنة',summary?.mapped??0],['غير المعيّنة',summary?.unmapped??0],['مشاكل الجودة',summary?.issues??0]].map(([label,value])=><Card key={String(label)}><CardBody><div className="text-xs text-ink-400">{label}</div><div className="mt-1 text-xl font-bold">{Number(value).toLocaleString()}</div></CardBody></Card>)}</div>
       <Card><CardHeader title="ذكاء المخطط" subtitle="كل حقل يحتفظ بهويته الأصلية ويُعامل كمرشح مستقل للمطابقة والتحليل" action={<button type="button" onClick={()=>downloadCsv(dataset)} className="btn-secondary text-xs inline-flex items-center gap-1"><Download size={14}/> تصدير البيانات المحللة</button>}/><CardBody><div className="overflow-x-auto"><table className="min-w-full text-sm"><thead><tr className="border-b border-ink-100"><th className="p-2 text-right">الحقل الأصلي</th><th className="p-2 text-right">الحقل القياسي</th><th className="p-2 text-right">النوع</th><th className="p-2 text-right">الثقة</th><th className="p-2 text-right">الفرادة</th><th className="p-2 text-right">القيم الفارغة</th></tr></thead><tbody>{dataset.columns.map(c=><tr key={c.name} className="border-b border-ink-50"><td className="p-2 font-medium">{c.name}</td><td className="p-2">{c.mappedField||<span className="text-ink-400">غير معين — محفوظ</span>}</td><td className="p-2">{c.dataType}</td><td className="p-2">{c.mappingConfidence}%</td><td className="p-2">{Math.round(c.uniqueRatio*100)}%</td><td className="p-2">{c.nullCount.toLocaleString()}</td></tr>)}</tbody></table></div></CardBody></Card>
       <Card><CardHeader title="المعاينة" subtitle={`عرض ${Math.min(dataset.preview.length, 50)} صفًا مع ${dataset.columnCount} عمودًا`}/><CardBody><div className="overflow-x-auto"><DataTable columns={dataset.columns.map(c=>({key:c.name,label:c.name,render:(r:any)=>String(r[c.name]??'')}))} data={dataset.preview.slice(0,50)} emptyMessage="لا توجد صفوف للعرض"/></div></CardBody></Card>
       <Card><CardHeader title="إشارات الجودة والتوصيات"/><CardBody><div className="grid gap-2 md:grid-cols-2">{dataset.columns.flatMap(c=>c.qualityIssues.map(issue=><div key={`${c.name}-${issue}`} className="flex gap-2 rounded-xl bg-warning-50 p-3 text-xs text-warning-800"><AlertCircle size={14}/><span><b>{c.name}</b>: {issue}</span></div>))}{!dataset.columns.some(c=>c.qualityIssues.length)&&<div className="flex gap-2 text-sm text-success-700"><CheckCircle2 size={16}/> لا توجد إشارات جودة على الحقول المفحوصة.</div>}</div></CardBody></Card>
-      <div className="rounded-2xl border border-primary-100 bg-primary-50/50 p-5"><div className="flex items-center gap-2 font-semibold"><BarChart3 size={18}/> قرار المعالجة</div><p className="mt-2 text-sm leading-6 text-ink-600">{summary?.unmapped ? `تم اكتشاف ${summary.unmapped} حقل غير معيّن. هذه الحقول لا تُحذف؛ تبقى متاحة للتحليل والتعيين اللاحق.` : 'المخطط المكتشف قابل للربط مع النموذج القياسي، مع بقاء المصدر الأصلي محفوظًا.'}</p></div>
+      <div className="rounded-2xl border border-primary-100 bg-primary-50/50 p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-2 font-semibold"><BarChart3 size={18}/> قرار المعالجة</div><div className="flex items-center gap-2 text-[10px] font-black text-primary-700"><ShieldCheck size={14}/> دليل محلي + بصمة المصدر</div></div><p className="mt-2 text-sm leading-6 text-ink-600">{summary?.unmapped ? `تم اكتشاف ${summary.unmapped} حقل غير معيّن. هذه الحقول لا تُحذف؛ تبقى متاحة للتحليل والتعيين اللاحق.` : 'المخطط المكتشف قابل للربط مع النموذج القياسي، مع بقاء المصدر الأصلي محفوظًا.'}</p><div className="mt-4 flex flex-wrap gap-2"><Link to="/import" className="btn-primary min-h-11 text-xs">الانتقال إلى الاستيراد الكانوني</Link><Link to="/trust" className="btn-secondary min-h-11 text-xs">فحص الدليل والثقة</Link></div></div>
     </>}
     {loading && <Card><CardBody><div className="py-10 text-center"><Loader2 className="mx-auto animate-spin text-primary-500" size={30}/><p className="mt-3 text-sm">جارٍ بناء ملف التعريف والتحليل…</p></div></CardBody></Card>}
   </div>;

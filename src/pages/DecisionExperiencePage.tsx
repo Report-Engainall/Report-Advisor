@@ -10,6 +10,8 @@ import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchAlerts, fetchRecommendations } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Alert, Recommendation } from '@/lib/types';
+import { fetchDashboardSnapshot } from '@/lib/dashboard-canonical';
+import { TruthContextStrip } from '@/components/TruthContextStrip';
 
 type Stage = 'command' | 'evidence' | 'decision' | 'approval' | 'work' | 'outcome';
 
@@ -118,13 +120,15 @@ export function DecisionExperiencePage() {
   const [selectedId, setSelectedId] = useState<string | null>(params.get('recommendationId'));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [truthContext, setTruthContext] = useState<{ status: string; asOf: string | null } | null>(null);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const [nextRecommendations, nextAlerts] = await Promise.all([fetchRecommendations(), fetchAlerts()]);
+      const [nextRecommendations, nextAlerts, snapshot] = await Promise.all([fetchRecommendations(), fetchAlerts(), fetchDashboardSnapshot(6)]);
       setRecommendations(nextRecommendations);
+      setTruthContext({ status: snapshot.kpis.status, asOf: snapshot.asOf });
       setAlerts(nextAlerts);
       setSelectedId((current) => current && nextRecommendations.some((item) => item.id === current) ? current : nextRecommendations[0]?.id ?? null);
     } catch (cause) {
@@ -178,6 +182,8 @@ export function DecisionExperiencePage() {
           {STAGES.map((item, index) => <button key={item.id} type="button" onClick={() => navigateStage(item.id)} aria-current={stage === item.id ? 'step' : undefined} className={'h-1.5 rounded-full transition-colors ' + (index <= currentStageIndex ? 'bg-primary-400' : 'bg-white/15')} title={item.label} aria-label={`${index + 1}. ${item.label}: ${item.description}`}/>)}
         </div>
       </section>
+
+<TruthContextStrip months={6} status={truthContext?.status ?? 'INSUFFICIENT_DATA'} asOf={truthContext?.asOf ?? 'غير متاح'} />
 
       <section className="ag-decision-strip" aria-label="ملخص القرار">
         <div className="ag-decision-cell"><span className="ag-decision-label">التوصية المحددة</span><span className="ag-decision-value">{selected?.title ?? 'لم تُحدد بعد'}</span></div>

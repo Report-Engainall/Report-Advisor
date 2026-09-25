@@ -62,6 +62,70 @@ function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: stri
   }
 }
 
+async function finalizeImportJobOnServer(
+  client: SupabaseClient,
+  companyId: string,
+  importJobId: string,
+  status: 'completed' | 'failed',
+  summary: Record<string, unknown>,
+  errorMessage?: string,
+): Promise<void> {
+  const { error } = await client.rpc('import_finish_job', {
+    p_job_id: importJobId,
+    p_status: status,
+    p_result_summary: summary,
+    p_error_message: errorMessage ?? null,
+  });
+  if (!error) return;
+
+  const { data: current, error: readError } = await client
+    .from('import_jobs')
+    .select('status')
+    .eq('id', importJobId)
+    .eq('company_id', companyId)
+    .maybeSingle();
+  if (!readError && current?.status === status) return;
+  throw error;
+}
+
+async function canonicalImportCompletionSummary(
+  client: SupabaseClient,
+  companyId: string,
+  input: DurableCanonicalImportInput,
+  jobId: string,
+  lifecycleResult: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const { data, error } = await client
+    .from('import_jobs')
+    .select('total_rows, invalid_rows, valid_rows')
+    .eq('id', input.importId)
+    .eq('company_id', companyId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error('IMPORT_JOB_NOT_FOUND_OR_FORBIDDEN');
+
+  const total = Number(data.total_rows ?? input.rows.length);
+  const committed = input.rows.length;
+  const knownInvalid = Number(data.invalid_rows ?? 0);
+  const inferredInvalid = Math.max(0, total - committed);
+  const invalidRows = Math.max(knownInvalid, inferredInvalid);
+  if (committed + invalidRows !== total) {
+    throw new Error('IMPORT_COMPLETION_SUMMARY_MISMATCH');
+  }
+
+  return {
+    total,
+    valid: committed,
+    invalid: invalidRows,
+    invalidRows,
+    committed,
+    importId: input.importId,
+    jobId,
+    sourceHash: input.sourceHash,
+    durableLifecycle: lifecycleResult,
+  };
+}
+
 interface CanonicalServerExecutionResult { jobId?: string; importId: string; sourceHash: string; [key: string]: unknown }
 
 async function executeThroughServerBoundary(input: DurableCanonicalImportInput, mode: 'execute' | 'finalize-source' = 'execute'): Promise<CanonicalServerExecutionResult> {
@@ -175,7 +239,9 @@ export async function runCanonicalImportThroughDurableRunner(
     value: row.value,
   }));
 
-  const result = await runDurableProductionLifecycle({
+  let result;
+  try {
+    result = await runDurableProductionLifecycle({
     jobId: job.id,
     workerId: `canonical-import-server:${crypto.randomUUID()}`,
     sourceHash: input.sourceHash,
@@ -223,7 +289,54 @@ export async function runCanonicalImportThroughDurableRunner(
       if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
       if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId, importJobId: input.importId });
     },
-  }, store);
+    }, store);
+  } catch (error) {
+    try {
+      const observedJob = await store.require(job.id);
+      if (observedJob.status === 'failed' && observedJob.attempt >= observedJob.maxAttempts) {
+        await finalizeImportJobOnServer(
+          activeDataClient,
+          companyId,
+          input.importId,
+          'failed',
+          {
+            total: input.rows.length,
+            valid: 0,
+            invalid: input.rows.length,
+            invalidRows: input.rows.length,
+            importId: input.importId,
+            jobId: job.id,
+            sourceHash: input.sourceHash,
+          },
+          error instanceof Error ? error.message : String(error),
+        );
+      }
+    } catch {
+      // Preserve the original durable-runner error; caller remains responsible for retry/error UI.
+    }
+    throw error;
+  }
+
+  try {
+    const completion = await canonicalImportCompletionSummary(
+      activeDataClient,
+      companyId,
+      input,
+      job.id,
+      result as Record<string, unknown>,
+    );
+    await finalizeImportJobOnServer(
+      activeDataClient,
+      companyId,
+      input.importId,
+      'completed',
+      completion,
+    );
+  } catch (error) {
+    // The durable business commit already succeeded. A failed terminal-status
+    // write must remain visible to the caller instead of silently claiming completion.
+    throw error;
+  }
 
   return { ...result, jobId: job.id, importId: input.importId };
 }

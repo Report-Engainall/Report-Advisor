@@ -173,7 +173,15 @@ export function CanonicalImportPage() {
       p_result_summary: resultSummary,
       p_error_message: errorMessage ?? null,
     });
-    if (error) throw error;
+    if (!error) return;
+
+    const { data: current, error: readError } = await supabase
+      .from('import_jobs')
+      .select('status')
+      .eq('id', importJobId)
+      .maybeSingle();
+    if (!readError && current?.status === status) return;
+    throw error;
   };
 
   const saveAnalysis = useCallback(async () => {

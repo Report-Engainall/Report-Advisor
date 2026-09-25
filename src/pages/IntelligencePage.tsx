@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DeterministicIntelligenceAssistant } from '@/components/DeterministicIntelligenceAssistant';
+import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { SeverityBadge, PriorityBadge, ConfidenceBadge } from '@/components/ui/Badge';
 import { LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
@@ -15,6 +16,7 @@ import {
   fetchForecasts,
   updateRecommendationStatus,
 } from '@/lib/queries';
+import { fetchDashboardSnapshot } from '@/lib/dashboard-canonical';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Recommendation, Alert, Forecast } from '@/lib/types';
 
@@ -49,18 +51,21 @@ export function IntelligenceCenterPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [decisionId, setDecisionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [truthContext, setTruthContext] = useState<{ status: 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA'; asOf: string } | null>(null);
 
   const load = useCallback(async (silent = false) => {
     try {
       if (silent) setRefreshing(true);
       else setLoading(true);
       setError(null);
-      const [recs, nextAlerts, nextForecasts] = await Promise.all([
+      const [recs, nextAlerts, nextForecasts, snapshot] = await Promise.all([
         fetchRecommendations(),
         fetchAlerts(),
         fetchForecasts(),
+        fetchDashboardSnapshot(6),
       ]);
       setRecommendations(recs);
+      setTruthContext({ status: snapshot.kpis.status, asOf: snapshot.asOf });
       setAlerts(nextAlerts);
       setForecasts(nextForecasts);
     } catch (cause) {
@@ -145,6 +150,8 @@ export function IntelligenceCenterPage() {
           <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold text-ink-200">لا قرار دون مسار قابل للمراجعة</span>
         </div>
       </section>
+
+      <TruthContextStrip months={6} status={truthContext?.status ?? 'INSUFFICIENT_DATA'} asOf={truthContext?.asOf ?? 'غير متاح'} />
 
       <section className="grid gap-3 md:grid-cols-3">
         <MetricStrip label="إشارات نشطة" value={activeAlerts.length} note="تحتاج انتباهًا غير مقروء" icon={<AlertTriangle size={15} />} />
@@ -365,12 +372,15 @@ export function RecommendationsPage() {
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [truthContext, setTruthContext] = useState<{ status: 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA'; asOf: string } | null>(null);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      setItems(await fetchRecommendations());
+      const [nextItems, snapshot] = await Promise.all([fetchRecommendations(), fetchDashboardSnapshot(6)]);
+      setItems(nextItems);
+      setTruthContext({ status: snapshot.kpis.status, asOf: snapshot.asOf });
     } catch (cause: unknown) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل التوصيات');
     } finally {
@@ -421,6 +431,8 @@ export function RecommendationsPage() {
           </div>
         </div>
       </section>
+
+      <TruthContextStrip months={6} status={truthContext?.status ?? 'INSUFFICIENT_DATA'} asOf={truthContext?.asOf ?? 'غير متاح'} />
 
       <SummaryStrip cells={[
         { label: 'إجمالي التوصيات', value: counts.all, note: 'السجل المتاح حاليًا' },
@@ -492,12 +504,15 @@ export function ForecastsPage() {
   const [items, setItems] = useState<Forecast[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [truthContext, setTruthContext] = useState<{ status: 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA'; asOf: string } | null>(null);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      setItems(await fetchForecasts());
+      const [nextItems, snapshot] = await Promise.all([fetchForecasts(), fetchDashboardSnapshot(6)]);
+      setItems(nextItems);
+      setTruthContext({ status: snapshot.kpis.status, asOf: snapshot.asOf });
     } catch (cause: unknown) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل التنبؤات');
     } finally {
@@ -536,6 +551,8 @@ export function ForecastsPage() {
           <button type="button" onClick={() => void load()} className="inline-flex items-center gap-2 self-start rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15"><RefreshCw size={14}/>تحديث</button>
         </div>
       </section>
+
+      <TruthContextStrip months={6} status={truthContext?.status ?? 'INSUFFICIENT_DATA'} asOf={truthContext?.asOf ?? 'غير متاح'} />
 
       <SummaryStrip cells={[
         {label:'إجمالي التنبؤات',value:items.length,note:'سجلات تقديرية متاحة'},
