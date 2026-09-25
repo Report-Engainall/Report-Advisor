@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowRight, Command, Search } from 'lucide-react';
+import { ArrowRight, Command, Search, X } from 'lucide-react';
 import { NAVIGATION_ITEMS, type NavigationItem, type NavigationSectionId } from '@/lib/navigation-registry';
 
 type CommandItem = Pick<NavigationItem, 'label' | 'description' | 'path' | 'keywords' | 'section'>;
@@ -34,6 +34,8 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const [recentPaths, setRecentPaths] = useState<string[]>([]);
@@ -95,6 +97,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
 
   useEffect(() => {
     if (!open) return;
+    restoreFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     setQuery('');
     setActive(0);
     try {
@@ -106,13 +111,42 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     } catch {
       // Optional persistence; command palette remains functional.
     }
-    requestAnimationFrame(() => inputRef.current?.focus());
+    requestAnimationFrame(() => inputRef.current?.focus({ preventScroll: true }));
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      const restoreTarget = restoreFocusRef.current;
+      if (restoreTarget?.isConnected) {
+        requestAnimationFrame(() => restoreTarget.focus({ preventScroll: true }));
+      }
+    };
   }, [open]);
 
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key === 'Tab') {
+        const root = dialogRef.current;
+        if (!root) return;
+        const focusable = Array.from(root.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), [href], select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ));
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+        return;
+      }
       if (event.key === 'ArrowDown') {
         event.preventDefault();
         setActive(value => Math.min(value + 1, Math.max(filtered.length - 1, 0)));
@@ -134,8 +168,8 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
 
   return (
     <div className="ag-command-overlay fixed inset-0 z-[100] flex items-start justify-center bg-ink-950/45 px-4 pt-[10vh] backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="لوحة الأوامر">
-      <button className="absolute inset-0 cursor-default" aria-label="إغلاق" onClick={onClose} />
-      <div className="ag-command-palette relative w-full max-w-3xl overflow-hidden rounded-[18px] border border-ink-200 bg-white shadow-2xl" dir="rtl">
+      <button className="absolute inset-0 cursor-default" aria-label="إغلاق" tabIndex={-1} onClick={onClose} />
+      <div ref={dialogRef} className="ag-command-palette relative w-full max-w-3xl overflow-hidden rounded-[18px] border border-ink-200 bg-white shadow-2xl" dir="rtl">
         <div className="ag-command-search flex items-center gap-3 border-b border-ink-100 px-4 py-3.5">
           <Search size={19} className="text-ink-400" />
           <input
@@ -149,10 +183,18 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
             aria-controls="command-results"
             aria-activedescendant={filtered[active] ? `command-option-${active}` : undefined}
           />
-          <kbd className="hidden rounded-md border border-ink-200 bg-ink-50 px-2 py-1 text-[10px] text-ink-400 sm:inline-flex">Esc</kbd>
+          <kbd className="hidden rounded-md border border-ink-200 bg-ink-50 px-2 py-1 text-[10px] text-ink-400 sm:inline-flex" aria-hidden="true">Esc</kbd>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-400 hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+            aria-label="إغلاق لوحة الأوامر"
+          >
+            <X size={17} aria-hidden="true" />
+          </button>
         </div>
 
-        <div id="command-results" className="max-h-[55vh] overflow-y-auto p-2" role="listbox" aria-label="نتائج لوحة الأوامر">
+        <div id="command-results" className="max-h-[55vh] overflow-y-auto p-2" role="listbox" aria-label="نتائج لوحة الأوامر" aria-live="polite">
           {!query.trim() && recentCommands.length > 0 && (
             <div className="mb-2">
               <div className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-wide text-ink-400">الوصول السريع</div>
@@ -186,7 +228,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
           )}
 
           {filtered.length === 0 ? (
-            <div className="px-4 py-10 text-center text-sm text-ink-400">لا توجد نتائج مطابقة</div>
+            <div className="px-4 py-10 text-center text-sm text-ink-400" role="status">لا توجد نتائج مطابقة</div>
           ) : (
             filtered.map((item, index) => {
               const isCurrent = contextScore(item.path) >= 45;
