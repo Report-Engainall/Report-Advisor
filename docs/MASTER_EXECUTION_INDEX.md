@@ -1,12 +1,12 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI OPERATIONS WAVE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / SHARED DATA SURFACE UI CLOSURE
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- CURRENT CODE/TEST CANDIDATE: `62811e046874c5689ad3efe19ce5ca6cd44fb955`.
+- CURRENT CODE/TEST CANDIDATE: `ed9f157b8223399b911926a30e5e5b687dd76cb9`.
 - GOVERNANCE HEAD BEFORE THIS WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- UI DELIVERY: Purchases truth context; Command Palette focus/scroll/Tab closure; Alert Drawer modal closure; mobile navigation modal closure; Advisor LOADING/READY/INSUFFICIENT_DATA/ERROR truth semantics and recovery; Work Center progressbar semantics with numeric accessibility value.
-- CONTRACT COVERAGE: WOW/UI contract guards purchase truth, command palette, alert drawer, mobile navigation, Advisor recovery, and Work Center progressbar.
-- NO NEW DATA PATH: no RPC, route, runner, importer, or production mutation added.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head UI Route/Browser/Desktop/Quality/Final evidence for `62811e04...`; merge only after exact-head proof, excluding known Vercel free-plan rate-limit.
+- UI DELIVERY: purchases truth context; Command Palette modal focus/scroll/Tab closure; Alert Drawer closure; mobile navigation closure; Advisor loading/recovery; Work Center progress semantics; shared DataTable busy/empty/headers/row-column counts/pagination semantics.
+- CONTRACT COVERAGE: WOW/UI contract guards all listed shell and shared-table surfaces.
+- NO NEW DATA PATH: no RPC, route, runner, importer, or production mutation.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head UI Route/Browser/Desktop/Quality/Final evidence for `ed9f157b...`; merge only after exact-head proof.
 - DO NOT REPEAT: no stale UI PASS transfer, no preview-as-production, no duplicate navigation path.
 
 
