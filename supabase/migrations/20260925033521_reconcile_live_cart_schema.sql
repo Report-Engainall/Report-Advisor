@@ -78,6 +78,39 @@ begin
   end if;
 end
 $$;
+
+-- These tenant/customer helpers exist in the live database but were missing from
+-- repository migration lineage. They must exist before the cart RLS policies.
+create or replace function public.current_customer_id()
+returns uuid
+language sql
+security definer
+set search_path = ''
+as $$
+  select p.customer_id
+  from public.profiles p
+  where p.id = auth.uid()
+  limit 1;
+$$;
+
+create or replace function public.current_customer_company_id()
+returns uuid
+language sql
+security definer
+set search_path = ''
+as $$
+  select p.organization_id
+  from public.profiles p
+  where p.id = auth.uid()
+  limit 1;
+$$;
+
+revoke all on function public.current_customer_id() from public;
+grant execute on function public.current_customer_id() to authenticated, service_role;
+
+revoke all on function public.current_customer_company_id() from public;
+grant execute on function public.current_customer_company_id() to authenticated, service_role;
+
 drop policy if exists carts_self_select on public.carts;
 create policy carts_self_select
   on public.carts
