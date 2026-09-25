@@ -4,6 +4,11 @@ import fs from 'node:fs';
 const login = fs.readFileSync('src/pages/LoginPage.tsx', 'utf8');
 const dashboard = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 const entities = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
+const assistant = fs.readFileSync('src/components/DeterministicIntelligenceAssistant.tsx', 'utf8');
+assert.ok(assistant.includes("type AssistantMode = 'LOADING' | 'READY' | 'INSUFFICIENT_DATA' | 'ERROR'"), 'assistant must distinguish loading from ready state');
+assert.ok(assistant.includes("mode === 'LOADING'"), 'assistant must expose loading semantics while context is fetched');
+assert.ok(assistant.includes('إعادة تحميل سياق المؤشرات'), 'assistant must expose explicit recovery when the canonical snapshot is unavailable');
+
 const appShell = fs.readFileSync('src/App.tsx', 'utf8');
 const sidebar = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
 
