@@ -216,6 +216,10 @@ assert.ok(proposalDemo.includes('proposal-demo-client'), 'proposal demo client f
 assert.ok(proposalDemo.includes('proposal-demo-requirements'), 'proposal demo requirements field must remain addressable');
 assert.ok(proposalDemo.includes('min-h-11'), 'proposal demo primary controls must meet touch-target sizing');
 
+const dataQualitySurface = fs.readFileSync('src/pages/DataQualitySnapshotPage.tsx', 'utf8');
+assert.ok(dataQualitySurface.includes("const displayScore = snapshotStatus === 'EMPTY' ? '—' :"), 'data quality empty state must not render EMPTY as a zero score');
+assert.ok(dataQualitySurface.includes("snapshotStatus === 'EMPTY' ? 'text-ink-400'"), 'data quality empty state must use neutral score styling');
+
 const externalFileAnalysis = fs.readFileSync('src/pages/ExternalFileAnalysisPage.tsx', 'utf8');
 assert.ok(externalFileAnalysis.includes('aria-label="إسقاط ملف أو اختيار ملف للتحليل"'), 'external file analysis dropzone must be keyboard-addressable');
 assert.ok(externalFileAnalysis.includes("event.key === 'Enter' || event.key === ' '"), 'external file analysis dropzone must support keyboard activation');
