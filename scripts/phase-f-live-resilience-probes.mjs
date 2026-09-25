@@ -82,7 +82,9 @@ function runCommand(command, args, options = {}) {
     }).trim();
   } catch (error) {
     const stderr = typeof error?.stderr === 'string' ? error.stderr.trim() : '';
-    throw new Error(`${command}_failed:${stderr.slice(-1200) || error?.message || String(error)}`);
+    const stdout = typeof error?.stdout === 'string' ? error.stdout.trim() : '';
+    const diagnostics = [stderr, stdout].filter(Boolean).join('\n');
+    throw new Error(`${command}_failed:${diagnostics.slice(-12000) || error?.message || String(error)}`);
   }
 }
 
@@ -169,7 +171,7 @@ async function logicalBackupRestore() {
     if (!dbLine) throw new Error('local_restore_db_url_missing');
     localDbUrl = dbLine.slice('DB_URL='.length).trim().replace(/^['"]|['"]$/g, '');
 
-    runCommand('supabase', ['db', 'reset'], { cwd: workDir });
+    runCommand('supabase', ['db', 'reset', '--debug'], { cwd: workDir });
 
     const snapshotText = runDockerPsql(source, exactSnapshotSql);
     const snapshotAt = Date.parse(snapshotText);
