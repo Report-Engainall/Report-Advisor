@@ -1,13 +1,17 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-117
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-118
 
-- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-117`.
-- EXACT CODE HEAD → `5ad6c1087b0eebabaf416bb1674b30494f8e9b63`.
-- DONE → fixed the remaining canonical migration-path contract references; `P0 13/13`, `P1 8/8`, production-readiness `21/21`, production-certification contract PASS, certification-boundary PASS; Decision runtime DML boundary PASS.
-- GOVERNANCE → candidate references are rebound to the exact code head; current working state is a governed continuation, not a stale historical PASS transfer.
-- LIVE STATUS → exact-head Phase-F must be consumed on this candidate; production identity, restore/RPO/RTO/rollback remain unproven until fresh live evidence exists.
-- NEXT EXECUTABLE ACTION → consume exact-head Phase-F/CI failures; repair only the first new boundary failure; rebind governance only when the code candidate changes.
-- DO NOT REPEAT → no historical Phase-F transfer, no production-SHA bypass, no stale candidate acceptance.
-- CURRENT RESUME POINTER → `5ad6c1087b0eebabaf416bb1674b30494f8e9b63` → exact-head CI/Phase-F → first live/runtime failure → fresh certification.
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-118`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- CURRENT CODE/TEST CANDIDATE → `647f3ced71166386cb55f72942b865d3c902aabe`.
+- GOVERNANCE HEAD → PR #629 current branch head is `734c1b402c6698f2256fa8c0c07dd604bbe4ac5e`; it differs from the code candidate only by governance synchronization before this code fix.
+- DONE → reproduced the first current-head CI defect: `scripts/check-terminal-approval-concurrency.test.mjs` referenced the renumbered migration `20260904004000...`; corrected it to canonical `20260904004001...` and the targeted boundary test now passes locally.
+- VERIFIED → exact PR-head `5ad6c108...` previously failed Quality only at the obsolete migration reference; P0 `13/13`, P1 `8/8`, Production Readiness `21/21`, certification-evidence integrity and execution-enforcement contracts were otherwise green on that head.
+- FAILED / NOT PROVEN → prior cloud Certification/Enforcement runs failed only at stale candidate binding (`34f09de...`); Phase-9 failed because the PR branch advanced after the workflow event. Current `647f3c...` has not yet consumed fresh cloud gates.
+- BLOCKED → live Phase-F production identity, backup/restore, RPO, RTO and rollback remain NOT PROVEN; no production-SHA bypass is allowed.
+- UI LANE → no new UI defect was exposed by the current-head core failure; exact-head browser evidence must be refreshed after the code fix.
+- CORE LANE → migration-contract defect fixed; next is push/rebind exact candidate, then fresh Quality/Enforcement/Certification/Browser, then Phase-F.
+- DO NOT REPEAT → no stale PASS transfer; no unchanged Phase-F credential retry; no production identity inference from old deployment.
+- CURRENT RESUME POINTER → `647f3ced71166386cb55f72942b865d3c902aabe` → push/rebind PR #629 → fresh exact-head Quality/Enforcement/Certification/Browser → Phase-F live evidence → final certification.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-116
 

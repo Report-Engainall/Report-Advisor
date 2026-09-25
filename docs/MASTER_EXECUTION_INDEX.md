@@ -1,16 +1,18 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / PHASE-F VERIFICATION HEAD 3C5
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / EXACT CANDIDATE 647
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `a38ba80bf5249c601da675a81de16f36b03695e3`.
-- CURRENT CODE/TEST CANDIDATE: `5ad6c1087b0eebabaf416bb1674b30494f8e9b63`.
-- CURRENT GOVERNANCE HEAD: `3e49a4f5ea57d2de28074b172a346ca91b0376dc`.
-- DONE: Phase-F migration restore repair merged at `adb093bb...`; 285-migration local audit had 0 findings.
-- VERIFICATION BRANCH: PR #627, latest exact head `3c5e12951a1cb2aa4c27e0c77297ed9541407c11`, governance-only trigger refresh.
-- PREVIEW: Netlify preview READY; Vercel rejected deployment with `api-deployments-free-per-day`.
-- ACTIONS: no connector-visible workflow run has appeared for the verification head; no Phase-F verdict is claimed.
-- RUNTIME BOUNDARY: production SHA remains `1d88b083...`; measured restore/RPO/RTO/rollback and current production identity remain NOT PROVEN.
-- NEXT CORE FRONT: consume PR #627 exact-head Phase-F evidence; repair only the first new live failure.
-- NEXT UI FRONT: only newly evidenced surface gaps; no duplicate modules or unproven migration deletion.
-- DO NOT REPEAT: no stale Phase-F transfer, no old-production rerun as current, no verification-PR merge, no Vercel rate-limit bypass.
+> Exact-head routing header. The code candidate is the tested source SHA; the governance commit that follows must not be mistaken for the code candidate.
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- CURRENT CODE/TEST CANDIDATE: `647f3ced71166386cb55f72942b865d3c902aabe`.
+- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `734c1b402c6698f2256fa8c0c07dd604bbe4ac5e`.
+- DONE: reproduced and fixed the first current-head Quality failure: terminal-approval concurrency regression referenced a renumbered migration; canonical path is now `20260904004001_harden_terminal_approval_concurrency.sql`.
+- TARGETED PROOF: `node scripts/check-terminal-approval-concurrency.test.mjs` PASS on `647f3c...`.
+- PRIOR EXACT CANDIDATE PROOF: P0 `13/13`, P1 `8/8`, Production Readiness `21/21`, production-certification contract, certification-evidence integrity and execution-enforcement were green on the preceding `5ad6c1...` candidate; no evidence is transferred to `647f3c...`.
+- CLOUD STATUS: fresh exact-head gates have not yet been consumed for `647f3c...`.
+- RUNTIME BOUNDARY: production identity, backup/restore, RPO, RTO and rollback remain NOT PROVEN; do not infer them from older deployments.
+- NEXT CORE FRONT: push/rebind `647f3c...`, consume fresh exact-head Quality/Enforcement/Certification/Browser/Phase-F, repair only the first reproduced current-head defect.
+- NEXT UI FRONT: consume fresh exact-head browser evidence and only implement a UI change if the current surface audit exposes a real gap.
+- DO NOT REPEAT: no stale PASS transfer, no production-SHA bypass, no unchanged-credential Phase-F retry, no deletion based on filename age.
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
 
