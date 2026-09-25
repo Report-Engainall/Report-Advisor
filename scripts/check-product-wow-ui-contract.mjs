@@ -191,6 +191,12 @@ assert.ok(scenarioGuard.includes('إعادة فحص الحقيقة المالي�
 assert.ok(scenarioGuard.includes('min-h-11'), 'scenario truth retry/action controls must meet touch-target sizing');
 assert.ok(scenarioGuard.includes('setState(\'blocked\')'), 'scenario truth gate must remain fail-closed after unavailable truth');
 
+const onboarding = fs.readFileSync('src/pages/OnboardingPage.tsx', 'utf8');
+assert.ok(onboarding.includes('role="list" aria-label="خطوات التجهيز"'), 'onboarding steps must expose a semantic list');
+assert.ok(onboarding.includes('role="listitem"'), 'onboarding steps must expose list-item semantics');
+assert.ok(onboarding.includes('role="status" aria-label={badge.text}'), 'onboarding states must be announced');
+assert.ok(onboarding.includes('min-h-11 items-center'), 'onboarding route actions must meet touch-target sizing');
+
 const metricInspector = fs.readFileSync('src/pages/MetricInspectorPage.tsx', 'utf8');
 assert.ok(metricInspector.includes('const filteredItems = useMemo'), 'metric inspector must derive a filtered semantic list without mutating the source contract');
 assert.ok(metricInspector.includes('aria-label="البحث في المؤشرات"'), 'metric inspector search must be accessible');
