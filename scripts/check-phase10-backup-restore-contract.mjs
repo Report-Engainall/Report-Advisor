@@ -100,7 +100,9 @@ for (const token of [
   'CUSTOMER_ID = CURRENT_CUSTOMER_ID()',
   'COMPANY_ID = CURRENT_CUSTOMER_COMPANY_ID()',
   'GRANT SELECT ON TABLE PUBLIC.CART_ITEMS TO AUTHENTICATED',
-])
+]) {
+  if (!cartsParityUpper.includes(token)) throw new Error(`Missing carts/cart-items restore-parity invariant: ${token}`);
+}
 
 const cashAccountsParityUpper = stripSqlComments(cartsParityMigration).toUpperCase();
 for (const token of [
@@ -123,10 +125,6 @@ for (const token of [
 ]) {
   if (!cashAccountsParityUpper.includes(token)) throw new Error(`Missing cash account restore-parity invariant: ${token}`);
 }
- {
-  if (!cartsParityUpper.includes(token)) throw new Error(`Missing carts schema restore-parity invariant: ${token}`);
-}
-
 for (const token of [
   'CREATE OR REPLACE FUNCTION public.import_create_job',
   'CREATE OR REPLACE FUNCTION public.import_update_job_progress',
