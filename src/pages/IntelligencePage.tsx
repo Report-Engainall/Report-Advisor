@@ -544,7 +544,7 @@ export function ForecastsPage() {
   const qualityBounded = useMemo(() => items.filter((item) => item.quality_score !== null).length, [items]);
 
   if (loading) return <LoadingState message="جارٍ تجميع التنبؤات المصدرية..." />;
-  if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  if (error) return <IntelligenceLoadBoundary message={error} onRetry={() => void load()} />;
 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
