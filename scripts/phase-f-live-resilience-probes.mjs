@@ -53,6 +53,16 @@ function writeReport(status, reason, extra = {}) {
   console.log(`PHASE_F_REASON=${reason}`);
 }
 
+if (!/^[0-9a-f]{40}$/i.test(exactHead)) {
+  writeReport(
+    'BLOCKED EXTERNAL',
+    'EXACT_HEAD must be the full 40-character commit SHA.',
+    { policyViolation: 'EXACT_HEAD' },
+  );
+  console.error('FAIL-CLOSED: EXACT_HEAD must be the full 40-character commit SHA.');
+  process.exit(4);
+}
+
 if (missing.length) {
   writeReport(
     'BLOCKED EXTERNAL',
