@@ -115,7 +115,61 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
     <div className="flex items-center justify-between px-2 pb-2"><div className="section-kicker">أدلة سريعة</div><span className="text-[9px] font-black text-ink-500">EVIDENCE</span></div>
     <div className="grid grid-cols-2 gap-1.5">{(favoriteItems.length?favoriteItems:navSections.flatMap(section=>section.items).filter(item=>isWorkspacePathVisible(item.path,workspaceMode,workspacePreferences)).slice(0,4)).map(item=><Link key={item.path} to={item.path} onClick={onNavigate} className="flex items-center gap-1.5 rounded-[8px] border border-ink-200 bg-white px-2 py-2 text-[11px] font-semibold text-ink-600 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800">{item.iconNode}<span className="truncate">{language==='ar'?item.label:item.enLabel}</span></Link>)}</div>
   </div>
-  <nav className="flex-1 overflow-y-auto px-3 py-3" aria-label={language==='ar'?'التنقل الرئيسي للمنصة':'Primary analytics navigation'}><div className="space-y-1">{visibleSections.map(section=>{const active=activeSection===section.id,open=expandedSection===section.id;const meta=sectionMeta[String(section.id) as keyof typeof sectionMeta]??{hint:'',tag:''};return <div key={section.id} className="ag-nav-section"><button type="button" onClick={()=>setExpandedSection(open?'':section.id)} className={'ag-section-toggle flex w-full items-center gap-2.5 rounded-[11px] px-2.5 py-2.5 text-right transition '+(active?'ag-section-toggle-active':'text-ink-600 hover:bg-ink-50 hover:text-ink-950')} aria-expanded={open}><span className={'flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] '+(active?'bg-white text-primary-700':'bg-ink-50 text-ink-400')}>{sectionIcons[section.id]}</span><span className="min-w-0 flex-1"><span className="flex items-center gap-2"><span className="text-[13px] font-black">{language==='ar'?section.title:section.enTitle}</span><span className="ag-section-tag">{meta.tag}</span></span><span className="mt-0.5 block truncate text-[9px] font-medium text-ink-400">{meta.hint}</span></span>{section.id==='decision-center'&&alertCount>0&&<span className="min-w-4 rounded-full bg-danger-600 px-1 text-center text-[9px] font-black text-white">{alertCount}</span>}<span className="flex h-6 min-w-6 items-center justify-center rounded-full border border-ink-200 bg-white/70 text-[9px] font-black text-ink-400">{section.items.length}</span><ChevronDown size={14} className={'shrink-0 text-ink-300 transition-transform '+(open?'':'-rotate-90')}/></button>{open&&<div className="ag-nav-sublist mr-3 mt-0.5 space-y-0.5 pr-2">{section.items.map(item=>{const activeItem=resolveNavigationItem(location.pathname)?.path===item.path;return <Link key={item.path} to={item.path} onClick={onNavigate} className={'ag-nav-item nav-item '+(activeItem?'ag-nav-item-active':'ag-nav-item-inactive')}><span className="shrink-0">{item.iconNode}</span><span className="min-w-0 flex-1 truncate">{language==='ar'?item.label:item.enLabel}</span>{activeItem&&<span className="ag-nav-current"/>}</Link>})}</div>}</div>})}</div></nav>
-  <div className="border-t border-ink-200 p-3"><div className="flex items-center gap-2.5"><div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-ink-100 text-[11px] font-black text-ink-700">{getDisplayName(user??null).slice(0,1)||'م'}</div><div className="min-w-0 flex-1"><div className="truncate text-[12px] font-bold text-ink-800">{getDisplayName(user??null)}</div><div className="truncate text-[10px] text-ink-400" dir="ltr">{getDisplayEmail(user??null)}</div></div><button type="button" onClick={()=>void signOut()} className="rounded-[8px] p-2 text-ink-400 hover:bg-ink-100 hover:text-ink-800" aria-label={language==='ar'?'تسجيل الخروج':'Sign out'}><LogOut size={15}/></button></div></div>
+  <nav className="flex-1 overflow-y-auto px-3 py-3" aria-label={language==='ar'?'التنقل الرئيسي للمنصة':'Primary analytics navigation'}>
+    <div className="space-y-1">
+      {visibleSections.map(section => {
+        const active = activeSection === section.id;
+        const open = expandedSection === section.id;
+        const meta = sectionMeta[String(section.id) as keyof typeof sectionMeta] ?? { hint: '', tag: '' };
+        return (
+          <div key={section.id} className="ag-nav-section">
+            <button
+              type="button"
+              onClick={() => setExpandedSection(open ? '' : section.id)}
+              className={'ag-section-toggle flex min-h-11 w-full items-center gap-2.5 rounded-[11px] px-2.5 py-2.5 text-right transition ' + (active ? 'ag-section-toggle-active' : 'text-ink-600 hover:bg-ink-50 hover:text-ink-950')}
+              aria-expanded={open}
+              aria-controls={`nav-section-${section.id}`}
+            >
+              <span className={'flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] ' + (active ? 'bg-white text-primary-700' : 'bg-ink-50 text-ink-400')}>
+                {sectionIcons[section.id]}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-2">
+                  <span className="text-[13px] font-black">{language === 'ar' ? section.title : section.enTitle}</span>
+                  <span className="ag-section-tag">{meta.tag}</span>
+                </span>
+                <span className="mt-0.5 block truncate text-[9px] font-medium text-ink-400">{meta.hint}</span>
+              </span>
+              {section.id === 'decision-center' && alertCount > 0 && (
+                <span className="min-w-4 rounded-full bg-danger-600 px-1 text-center text-[9px] font-black text-white">{alertCount}</span>
+              )}
+              <span className="flex h-6 min-w-6 items-center justify-center rounded-full border border-ink-200 bg-white/70 text-[9px] font-black text-ink-400">
+                {section.items.length}
+              </span>
+              <ChevronDown size={14} className={'shrink-0 text-ink-300 transition-transform ' + (open ? '' : '-rotate-90')} />
+            </button>
+            <div id={`nav-section-${section.id}`} hidden={!open} className="ag-nav-sublist mr-3 mt-0.5 space-y-0.5 pr-2">
+              {section.items.map(item => {
+                const activeItem = resolveNavigationItem(location.pathname)?.path === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={onNavigate}
+                    className={'ag-nav-item nav-item min-h-11 ' + (activeItem ? 'ag-nav-item-active' : 'ag-nav-item-inactive')}
+                  >
+                    <span className="shrink-0">{item.iconNode}</span>
+                    <span className="min-w-0 flex-1 truncate">{language === 'ar' ? item.label : item.enLabel}</span>
+                    {activeItem && <span className="ag-nav-current" />}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </nav>
+  <div className="border-t border-ink-200 p-3"><div className="flex items-center gap-2.5"><div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-ink-100 text-[11px] font-black text-ink-700">{getDisplayName(user??null).slice(0,1)||'م'}</div><div className="min-w-0 flex-1"><div className="truncate text-[12px] font-bold text-ink-800">{getDisplayName(user??null)}</div><div className="truncate text-[10px] text-ink-400" dir="ltr">{getDisplayEmail(user??null)}</div></div><button type="button" onClick={()=>void signOut()} className="flex min-h-11 min-w-11 items-center justify-center rounded-[8px] p-2 text-ink-400 hover:bg-ink-100 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400" aria-label={language==='ar'?'تسجيل الخروج':'Sign out'}><LogOut size={15}/></button></div></div>
  </aside>
 }
