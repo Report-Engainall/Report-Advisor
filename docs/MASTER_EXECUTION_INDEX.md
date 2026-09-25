@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 151
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT CODE/TEST CANDIDATE: `cce7418ab7e83db72939c724fc69ccf0cbfe2154` (PR #659).
+- UI CLOSURE: Decision Experience now has recommendation search/status filtering and active-alert severity triage, with no duplicate data source or route.
+- QUALITY CLOSURE: deep-truth UI contract now guards those controls and remains enforced by Quality.
+- CURRENT PR STATE: #659 OPEN; current GitHub evaluation is incomplete and reports mergeable=false at this moment. No merge/force action.
+- CURRENT GATES: no current-head terminal application PASS available in the latest observation. Vercel remains externally rate-limited.
+- NOT PROVEN: production promotion, Phase-F live evidence, current-head browser certification, device-dependent visual evidence.
+- NEXT EXECUTABLE ACTION: consume the first terminal #659 repository gate on exact head `cce7418ab7e83db72939c724fc69ccf0cbfe2154`; repair only its first reproduced failure, then continue the next uncovered UI/core surface.
+- DO NOT REPEAT: stale evidence, preview-as-production, deployment-limit confusion, reopened closures, duplicate importer/RPC/runner, unsafe import-job mutation.
+- RESUME POINTER: `main c985deeb6e9f… → first terminal #659 gate cce7418ab7e8… → first reproduced failure only → next uncovered UI/core closure → exact green merge evidence`.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 150
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
