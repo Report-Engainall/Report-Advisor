@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-UI-CONTINUOUS-EXECUTION-134
+
+- SESSION-ID → 2026-09-25-AGHBARI-UI-CONTINUOUS-EXECUTION-134.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `5b06be0cf05e7530eb272a2623c0f2e4a4026304`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `86b7c28470604cd9ed282da7f9f6586a8694999d`.
+- DONE → corrected a real accessibility edge case: Sidebar disclosure buttons' `aria-controls` now reference a mounted region even while collapsed (`hidden={!open}`), rather than a nonexistent conditional node. Touch targets, Escape dismissal, and focus-visible styles remain in the shell patch.
+- CI → exact-head UI workflows are queued/running after this source update and the index rebind; no current-head PASS claimed.
+- CORE → PR #632 exact candidate includes Phase-F resolved-source query fix and contract assertion; fresh gates are running. Production deployment SHA mismatch remains fail-closed.
+- CURRENT RESUME POINTER → `5b06be0...` → consume UI exact-head Quality/Enforcement/Certification/route/browser/device-independent checks → fix first reproduced defect; separately consume core PR #632 gates.
+- NEXT EXECUTABLE ACTION → inspect exact-head run outcomes; do not merge while required gates or Phase-F release dependency remain unresolved.
+- DO NOT REPEAT → no stale PASS transfer; no nonexistent disclosure target; no push trigger; no production SHA bypass.
+- UI LANE PROGRESS → header/sidebar touch, keyboard, disclosure semantics.
+- CORE LANE PROGRESS → generic tenant-reference helper, UUID-safe resolver, logical-backup resolved-source query and contract guard.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-132
 
 - SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-132.
