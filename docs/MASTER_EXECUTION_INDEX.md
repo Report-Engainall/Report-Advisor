@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS DEEP UI + CORE WAVE 143A
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- WORKING HEAD OBSERVED BEFORE THIS WRITE: `6f7d6bc1e12d579747936073cc9d2a4a820cb1b9`.
+- CURRENT PR #656: consolidated current-main UI/core wave; no production mutation.
+- UI LANE: deep Advisor/dialog, command palette, header alerts, mobile navigation, shared tables, deterministic assistant, purchase truth context, report/settings/master-data/scenario/onboarding/proposal/work-center surfaces, plus External File Analysis drag/drop/keyboard/recovery/evidence/import flow.
+- CORE LANE: client_ui_settings restore parity, targeted legacy cart RPC security hardening, resolved-source restore contract.
+- LIVE STAGING PROOF: client_ui_settings FK/UNIQUE/config-check/RLS/policy/grants/realtime matched the source migration through read-only SQL.
+- CURRENT EVIDENCE: current candidate checks have no observed failure; required suites are queued/in-progress. No PASS claimed.
+- EXTERNAL BLOCKERS: production deployment exact-SHA identity and local browser remain unavailable; Phase-F recovery/RPO/RTO/rollback remain not proven.
+- NEXT ACTION: consume PR #656 exact-head required checks; repair only the first reproduced current-SHA failure; merge only after mandatory gates are current and attributable.
+- RESUME POINTER: `PR #656 current HEAD -> exact-head gates -> first failure only -> smallest source-backed repair -> Phase-F remains fail-closed until production identity matches`.
+- DO NOT REPEAT: stale PASS transfer, production-SHA bypass, preview-as-production, duplicate import/RPC/runner, blanket SECURITY DEFINER cleanup, unsafe terminalization of processing import jobs.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS DEEP UI + CORE WAVE
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
