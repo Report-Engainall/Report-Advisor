@@ -1,3 +1,163 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F IMPLICIT-PORT FALLBACK REPAIR
+
+- MAIN HEAD BASE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CORE CODE/TEST HEAD → `6d4c849f7b9b10f13e71e41bf15f12138c640278`.
+- PRECISE FAILURE CONSUMED → Phase-F run `36163768006` on `d4e34ee...`: exact-head/local/static/canary checks passed; logical backup failed because the source remained `db.fnqbvf...supabase.co:5432` over IPv6; production health separately failed exact deployment SHA; rollback drill returned 503.
+- ROOT CAUSE → `URL.port` is empty when the connection URI omits the default port, so the prior fallback condition never matched `5432`.
+- DONE → `preferIpv4Host()` now treats an omitted port as `5432` and activates the same-project Supabase Pooler fallback; Phase-10 contract now asserts the implicit-port condition.
+- CURRENT PROOF → this repair is new and has no fresh CI result yet. No PASS claimed.
+- UI LANE → corrected Sidebar JSX closure is on exact UI head `a232508a...`; desktop-windows run `36164338872` remains in progress.
+- NEXT → consume the fresh Core exact-head Phase-F/certification set created by this repair; in parallel consume UI build/browser/certification; fix only the first reproduced failure.
+- DO NOT REPEAT → no return to direct IPv6 source routing, no production SHA bypass, no stale PASS transfer, no rollback/RPO/RTO claim without the measured artifact.
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-PARALLEL-EXECUTION-136
+
+- SESSION-ID → `2026-09-25-AGHBARI-PARALLEL-EXECUTION-136`.
+- MAIN HEAD OBSERVED → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CORE HEAD → `d4e34ee9650ed6f8daaff6c9343d8e4a0ba533aa`; PHASE-F run `36163768006` remains in progress at the live resilience probe.
+- CORE DONE → fixed remaining Phase-F logical source routing leak; schema-count and logical dump use `runnerSource`; contract assertions added.
+- UI HEAD → `a232508aeb7de8669cecc028bc3b146a0aa6d1d3`.
+- UI DONE → fixed reproduced Sidebar JSX `map` closure error that caused desktop-windows build `36164023271` to fail; fresh desktop-windows run `36164338872` is now executing on the corrected head.
+- CURRENT PROOF → neither lane is certified on these exact current heads yet. Existing green evidence remains SHA-bound and is not transferred.
+- CURRENT RESUME POINTER → Core `d4e34ee...` → consume Phase-F live result then exact certification; UI `a232508...` → consume desktop/build/route/browser/certification results.
+- NEXT EXECUTABLE ACTION → repair only the first new exact-head failure on either lane, then rebind governance if a new code SHA is created.
+- DO NOT REPEAT → no stale evidence transfer, no deployment identity bypass, no bypass of live backup/RPO/RTO/rollback, no accessibility semantics weakening.
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-133
+
+- SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-133.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `6d4c849f7b9b10f13e71e41bf15f12138c640278`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `ab0cd56b2db8611c6be516765da028d0bbf206ef`.
+- DONE → fixed one remaining Phase-F IPv6 routing leak: logical backup schema-count query now uses `runnerSource` rather than original `source`; added contract assertions that schema count and dump both use the resolved source URI.
+- EXACT CURRENT CI → new exact-head workflows are queued/running for `1843040...`; no PASS claimed yet.
+- PRIOR LIVE PHASE-F FACT → core candidate `56dc808...` failed production health identity (`dcabe46...` served) and logical backup direct DB connectivity; UI candidate also failed because it lacked the generic tenant-reference helper migration from this core branch. Production deployment mutation remains unavailable/unauthorized through current connector.
+- UI LANE → PR #633 has shell touch-target, Escape dismissal, and disclosure accessibility changes; workflow push trigger removed and index rebound to UI candidate `ebb992c...`; fresh UI workflows pending.
+- CORE LANE → PR #632 contains helper migration, UUID-safe resolver, source URI routing, and source-level contract guard.
+- CURRENT RESUME POINTER → core `1843040...` → consume exact-head core gates and Phase-F → fix only the first newly reproduced failure; UI `ebb992c...` → consume exact-head UI gates; coordinate merge order only after required evidence.
+- NEXT EXECUTABLE ACTION → inspect fresh exact-head workflows for both PRs; keep production SHA check fail-closed.
+- DO NOT REPEAT → no stale PASS transfer; no source URI regressions; no direct SQL substitute; no production promotion without exact authorization and release proof.
+
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-130
+
+- SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-130.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `e1fb7181be3e9dc9f44edb2ef46e85ce035a842f`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `14872d3760fdf290cbf1bc7956d8eec7f2d85ba9`.
+- DONE → normalized the current execution-index markers so certification/enforcement parsers read the exact governed candidate; the prior rejection was parser-format drift, not a new product defect.
+- EXACT CURRENT CORE STATE → PR #632 has the generic tenant-reference migration repair, UUID-safe tenant resolver, Phase-F connectivity fallback, bounded auth-clock-skew test retry, and the forbidden Phase-F push trigger removed. Fresh current-head workflows are running again after this governance-only synchronization.
+- EXACT UI STATE → PR #633 is open from exact main with shell accessibility closure: mobile-safe touch targets, Escape handling for alerts, and explicit sidebar disclosure semantics. No business/data behavior changed.
+- VERIFIED ON PR #632 BEFORE THE LATEST GOVERNANCE WRITE → Quality SUCCESS, Full Product Browser E2E SUCCESS, Storage Tenant Runtime E2E SUCCESS, broad security/data contracts SUCCESS. Certification/Enforcement must be regenerated against the normalized exact-head index.
+- BLOCKED / NOT PROVEN → Phase-F live resilience and production deployment identity remain unproven until their current exact-head evidence passes; Vercel promotion is not being bypassed.
+- CURRENT RESUME POINTER → `14872d3760fdf290cbf1bc7956d8eec7f2d85ba9` → consume exact-head core gates + Phase-F → merge only a green governed core candidate; in parallel consume PR #633 UI gates → merge UI only after exact-head browser/quality proof.
+- NEXT EXECUTABLE ACTION → inspect both active workflow sets; fix only the first new reproduced failure on each front.
+- DO NOT REPEAT → no stale PASS transfer, no acceptance weakening, no push-trigger restoration, no arbitrary DB routing, no duplicate UI navigation surface.
+- UI LANE PROGRESS → shell accessibility wave active in PR #633.
+- CORE LANE PROGRESS → Phase-F restore wave active in PR #632; governance binding normalized.
+
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-127
+
+- SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-127.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → 9c4e5f03a53ae211d5ed00077c2fd43a339a7db2.
+- CURRENT CODE/TEST CANDIDATE → 10d2d4f5556efa662eba46f235c963f2c75126c5.
+- GOVERNANCE HEAD BEFORE THIS WRITE → 993778e43d72e77747a67c61cabd49304f962695.
+- DONE → Storage tenant E2E test harness now retries only Supabase Auth JWT issued at future for a bounded period; other authentication failures still fail immediately.
+- PRIOR DONE RETAINED → UUID-safe current_company_id resolver, resolver lineage contract, IPv4 logical-backup fallback.
+- EXACT VERIFIED PRIOR GATES → Full Product Browser SUCCESS and Execution Enforcement SUCCESS on 993...; Storage on 993... failed solely at the future-JWT auth response.
+- UI LANE → no UI source change; prior exact-head browser gates remain valid only for their own SHA.
+- CORE LANE → auth test resilience + Phase-F IPv4 restore resilience; production identity remains externally blocked until an exact promotion path is available.
+- BLOCKED/NOT PROVEN → production still serves dcabe46...; Phase-F 36160600882 for b8a19ec... was still running and cannot certify 10d2d4...
+- CURRENT RESUME POINTER → 10d2d4f5556efa662eba46f235c963f2c75126c5 → consume exact-head Quality/Enforcement/Final Certification/Browser/Storage/Phase-F → fix first current-SHA failure.
+- NEXT EXECUTABLE ACTION → inspect the new stable workflow set from 10d2d4...; do not mutate the branch again until the first current-head failure is reproduced.
+- DO NOT REPEAT → do not treat JWT issued at future as a product/auth bypass; do not broaden retry to generic 401; do not transfer prior Phase-F result.
+
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-126
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-126`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `b8a19ec642955f695e7fe8b8a8525b9fa0918cc5`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `bb6bf125474c185670bb0bcf44f75eac8f85b4d8`.
+- DONE → Phase-F run `36159874884` was consumed exactly: production health returned HTTP 200 but `DEPLOYMENT_SHA_MISMATCH` (`dcabe46...` served vs `bb6bf12...` expected); tenant canary returned HTTP 200. Logical backup/restore then failed on GitHub runner IPv6 route, and rollback-forward drill returned 503.
+- DONE → independent logical-backup resilience hardening now resolves an IPv4 address and adds libpq `hostaddr` while preserving the source hostname for TLS. Final source commit `b8a19ec...`.
+- VERIFIED PRIOR STABLE GATES → Quality, Final Certification, Enforcement, Storage Tenant Runtime, Full Product Browser and Device-Independent Browser all SUCCESS on `bb6bf12...`.
+- UI LANE → no new UI source change; prior exact-head browser smoke/full product/device-independent gates were green on `bb6bf12...`; current `b8a19ec...` requires fresh browser proof.
+- CORE LANE → current_company_id UUID resolver fixed; lineage contract aligned; staging live resolver verified; logical backup IPv4 fallback added; production identity/recovery remain the release boundary.
+- FAILED → Phase-F `36159874884` on `bb6bf12...`; do not transfer its result to `b8a19ec...`.
+- BLOCKED → production still serves `dcabe46...`; supported Vercel connector has no promote mutation, and PC01 is offline, so no promotion or production mutation was performed.
+- CURRENT RESUME POINTER → `b8a19ec642955f695e7fe8b8a8525b9fa0918cc5` → consume exact-head Quality/Enforcement/Final Certification/Browser/Storage/Phase-F → repair first current-SHA failure → then re-establish exact production identity and recovery proof.
+- NEXT EXECUTABLE ACTION → inspect fresh workflows created from `b8a19ec...`; if Phase-F backup/restore is now green but deployment SHA mismatch remains, close the production-promotion boundary through an authorized supported path rather than weakening the check.
+- DO NOT REPEAT → do not reintroduce `min(uuid)`; do not weaken ambiguity guard; do not transfer old Phase-F PASS; do not label preview production.
+
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-125
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-125`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `92a32692497234841d942e5548465d54f3ff017e`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `4558397568c844ea934bbc46697cdc6e3cd793c9`.
+- DONE → corrected the tenant resolver lineage checker to match the canonical UUID-safe resolver: exactly-one ambiguity guard plus bounded company UUID selection.
+- EXACT PRIOR EVIDENCE → Quality, Storage Tenant Runtime, Execution Enforcement, and Full Product Browser were SUCCESS on `4558397...`; Final Certification failed specifically at `check-tenant-resolver-lineage.mjs`.
+- UI LANE → no new UI source change in this core-focused batch; exact Full Product Browser SUCCESS remains prior-head evidence and requires fresh current-head browser proof.
+- CORE LANE → resolver implementation is UUID-safe and staging verified; lineage checker is now aligned; Phase-F still requires exact production identity plus measured recovery evidence.
+- DO NOT REPEAT → do not change the resolver back to `min(uuid)`; do not weaken count/ambiguity fail-closed semantics; do not mutate the branch again until the stable workflow set is consumed.
+- CURRENT RESUME POINTER → `92a32692497234841d942e5548465d54f3ff017e` → consume exact-head Quality/Enforcement/Final Certification/Browser/Storage/Phase-F → repair first current-SHA failure → release closure.
+- NEXT EXECUTABLE ACTION → inspect the workflow set generated from this stable governance head.
+
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-124
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-124`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `817b9298b08677ea87a0a8deeaaeee4e3e976431`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `f23d6f730c535ce858dec42cbf155c93a32205ab`.
+- DONE → Final Certification reproduced and isolated a contract defect: the bounded tenant SELECT guard rejected schema-qualified `public.company_memberships`. The guard is now corrected to accept the canonical qualified table path.
+- EXACT PRIOR RESULTS → Enforcement SUCCESS, Storage Tenant Runtime E2E SUCCESS, and Full Product Browser E2E SUCCESS on the previous stable candidate lineage; Final Certification failed only at the tenant-security contract before this patch.
+- CORE LANE → current_company_id UUID runtime repair remains intact; staging live function was verified; duplicate active-default count remains zero.
+- UI LANE → no new source UI change; current candidate requires fresh Browser/Device-Independent proof.
+- DO NOT REPEAT → do not weaken the bounded single-tenant SELECT requirement; do not transfer prior candidate PASS to `817b929...`; do not mutate branch after the stable governance synchronization.
+- CURRENT RESUME POINTER → `817b9298b08677ea87a0a8deeaaeee4e3e976431` → consume stable exact-head Quality/Enforcement/Final Certification/Browser/Storage/Phase-F → repair first real failure only.
+- NEXT EXECUTABLE ACTION → inspect workflows for the stable governance head after this write; no further branch mutation unless a reproduced defect requires it.
+
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-123
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-123`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `ec1006f555a17a9c02492e29839c285c7214282e`.
+- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE → `fbd16eb658418e1681d475be3a4356ae6ac3a81b`.
+- DONE → Quality contract defect fixed in `check-tenant-security-contract.mjs`; previous Quality failure on `34f77c2...` was caused by the checker requiring schema evolution inside the latest resolver patch.
+- CI RACE IDENTIFIED → the first fresh Quality run for `ec1006f...` checked out merge ref `49a1847...` and failed the PR-head diagnostic because the branch advanced after the event. This is CI/event timing evidence, not a product defect.
+- REQUIRED STABLE STATE → leave the branch unchanged after this governance write so the next PR synchronization has a stable head and can prove `ec1006f...` with governance-only descendants.
+- CORE LANE → tenant resolver runtime defect fixed; Storage Tenant Runtime E2E and Full Product Browser E2E were SUCCESS on `34f77c2...`; fresh current-head gates remain required.
+- UI LANE → no source UI change; fresh Browser/Device-Independent evidence remains required for the current governed lineage.
+- DO NOT REPEAT → do not modify the branch again until the new workflow set is consumed; do not transfer the merge-ref race as a code failure; do not weaken exact-head checks.
+- CURRENT RESUME POINTER → `ec1006f555a17a9c02492e29839c285c7214282e` → consume the next stable PR workflow set → first real failure only → Phase-F live resilience → final certification.
+- NEXT EXECUTABLE ACTION → inspect the workflow runs created by this final governance synchronization; no further branch mutation unless a reproduced defect requires it.
+
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-122
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-122`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `ec1006f555a17a9c02492e29839c285c7214282e`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `ec1006f555a17a9c02492e29839c285c7214282e`.
+- DONE → fixed the first current-head Quality defect in `check-tenant-security-contract.mjs`: schema evolution is now proven from the complete migration chain, while latest-resolver invariants remain exact.
+- PREVIOUS EXACT EVIDENCE RETAINED → Storage Tenant Runtime E2E SUCCESS and Full Product Browser E2E SUCCESS on `34f77c2...`; previous Quality failure was contract-logic-only.
+- UI LANE → no new UI source change in this core batch; prior Full Product Browser E2E SUCCESS is exact for `34f77c2...`; fresh current-head browser evidence required.
+- CORE LANE → tenant resolver runtime defect closed; security contract checker corrected; Phase-F is still fail-closed until fresh exact-head resilience evidence proves deployment identity, backup/restore, RPO/RTO and rollback.
+- DO NOT REPEAT → do not reintroduce an `ALTER TABLE` requirement into every resolver patch; do not rewrite applied migrations; do not promote prior candidate PASS to `ec1006f...`.
+- CURRENT RESUME POINTER → `ec1006f555a17a9c02492e29839c285c7214282e` → consume fresh exact-head Quality/Enforcement/Certification/Browser/Storage/Phase-F evidence → repair first new failure → merge only after required checks.
+- NEXT EXECUTABLE ACTION → consume the fresh `ec1006f...` workflow set; inspect first completed failure if any.
+
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-121
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-121`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `34f77c248de5bcdb77c77f7fd1a016559c1fd1c5`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `34f77c248de5bcdb77c77f7fd1a016559c1fd1c5`.
+- DONE → exact Phase-F/Storage evidence identified the live tenant resolver defect: `current_company_id()` called `min(company_id)` on UUID. Added incremental source migration `20260925154500_repair_current_company_id_uuid_resolver.sql`; no historical migration was rewritten.
+- LIVE STAGING VERIFIED → `Report-Advisor-P0-2-Staging` was updated with the same resolver SQL and re-read successfully; the definition contains no UUID aggregate and retains authenticated/service_role execute only.
+- CERTIFICATION BOUNDARY → fresh exact-head certification initially failed because the execution index still referenced `a35e5a...`; governance is now rebound to `34f77c2...`.
+- UI LANE → no source UI change in this batch; exact-head Browser/Device-Independent workflows are running. No stale UI PASS transferred.
+- CORE LANE → resolver repair is the current core closure; Phase-F remains fail-closed until exact-head runtime identity, backup/restore, RPO/RTO and rollback are proven.
+- DO NOT REPEAT → do not reapply #632 restore helper fix; do not use direct staging SQL as a substitute for the migration; do not claim Phase-F PASS from queued/running jobs.
+- CURRENT RESUME POINTER → `34f77c248de5bcdb77c77f7fd1a016559c1fd1c5` → consume exact-head Quality/Enforcement/Certification/Browser/Storage/Phase-F evidence → repair first new failure → merge only after required checks.
+- NEXT EXECUTABLE ACTION → inspect completed exact-head workflows; fix the first reproduced failure, then rerun only affected gates.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-120
 
 - SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-120`.

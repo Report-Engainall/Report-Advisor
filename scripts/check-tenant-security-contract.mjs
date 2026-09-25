@@ -27,8 +27,8 @@ const schemaText = schemaMigrations.map(({ text }) => text).join('\n');
 if (!/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?company_memberships/i.test(schemaText)) {
   throw new Error(`Tenant membership base schema is missing from migration history`);
 }
-if (!/ALTER\s+TABLE\s+company_memberships/i.test(resolver.text)) {
-  throw new Error(`Latest tenant resolver ${resolver.file} does not evolve company_memberships schema`);
+if (!/ALTER\s+TABLE\s+company_memberships/i.test(schemaText)) {
+  throw new Error(`Tenant membership schema evolution is missing from migration history`);
 }
 
 const schemaMarkers = [
@@ -50,7 +50,7 @@ if (!resolver.text.includes('auth.uid()')) {
 if (!/cm\.user_id\s*=\s*auth\.uid\(\)[\s\S]*?cm\.is_active\s*=\s*true[\s\S]*?cm\.is_default\s*=\s*true/i.test(resolver.text)) {
   throw new Error(`Latest tenant resolver ${resolver.file} does not enforce active default membership for auth.uid()`);
 }
-if (!/SELECT\s+cm\.company_id[\s\S]*?FROM\s+company_memberships\s+cm[\s\S]*?LIMIT\s+1/i.test(resolver.text)) {
+if (!/SELECT\s+cm\.company_id[\s\S]*?FROM\s+(?:public\.)?company_memberships\s+cm[\s\S]*?LIMIT\s+1/i.test(resolver.text)) {
   throw new Error(`Latest tenant resolver ${resolver.file} is missing a bounded single-tenant SELECT`);
 }
 

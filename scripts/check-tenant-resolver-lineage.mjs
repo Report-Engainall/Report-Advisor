@@ -39,12 +39,16 @@ if (missing.length) {
   process.exit(1);
 }
 
-if (!/SELECT\s+count\(\*\),\s*min\(company_id\)/i.test(latestText)) {
-  console.error(`TENANT_RESOLVER_CONTRACT_FAIL: latest resolver migration ${latest.file} does not implement the single-membership ambiguity guard`);
+if (!/SELECT\s+count\(\*\)\s+INTO\s+v_count/i.test(latestText)) {
+  console.error(`TENANT_RESOLVER_CONTRACT_FAIL: latest resolver migration ${latest.file} does not count candidate memberships before resolving a tenant`);
   process.exit(1);
 }
-if (!/IF\s+v_count\s*=\s*1\s+THEN/i.test(latestText)) {
-  console.error(`TENANT_RESOLVER_CONTRACT_FAIL: latest resolver migration ${latest.file} does not fail closed on ambiguous memberships`);
+if (!/IF\s+v_count\s*<>\s*1\s+THEN/i.test(latestText)) {
+  console.error(`TENANT_RESOLVER_CONTRACT_FAIL: latest resolver migration ${latest.file} does not fail closed unless exactly one active default membership exists`);
+  process.exit(1);
+}
+if (!/SELECT\s+cm\.company_id[\s\S]*?FROM\s+(?:public\.)?company_memberships\s+cm[\s\S]*?LIMIT\s+1/i.test(latestText)) {
+  console.error(`TENANT_RESOLVER_CONTRACT_FAIL: latest resolver migration ${latest.file} does not resolve the single selected company with a bounded SELECT`);
   process.exit(1);
 }
 

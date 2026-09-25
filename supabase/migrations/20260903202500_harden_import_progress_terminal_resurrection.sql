@@ -6,9 +6,9 @@ create or replace function public.import_update_job_progress(
   p_job_id uuid,
   p_processed_rows integer,
   p_valid_rows integer,
-  p_invalid_rows integer,
-  p_duplicate_rows integer,
-  p_status text
+  p_invalid_rows integer DEFAULT 0,
+  p_duplicate_rows integer DEFAULT 0,
+  p_status text DEFAULT 'processing'
 )
 returns void
 language plpgsql
