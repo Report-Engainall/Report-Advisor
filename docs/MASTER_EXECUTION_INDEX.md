@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 157
+
+- HEAD OBSERVED BEFORE THIS INDEX WRITE: d799fab7eb911450faa920770ce020bae99d5030.
+- PR #659 / branch feat/deep-ui-core-closure-20260925.
+- CORE: dashboard canonical readbacks now fail closed on malformed arrays and missing source as-of; forecast snapshot rows now pass strict structural validation before reaching UI.
+- QUALITY: dashboard contract strengthened; new forecast read contract is registered and enforced by Quality.
+- CURRENT EVIDENCE: exact-head workflows remain queued/pending; no current-head application PASS. Vercel is externally rate-limited and is not treated as code failure.
+- NOT PROVEN: current-head terminal Quality/Certification/Browser evidence, production identity/promotion, Phase-F live resilience, device-dependent visual verification.
+- NEXT: consume only the first terminal failure on the exact current head; otherwise continue an independent UI/core closure.
+- DO NOT REPEAT: closed prior surfaces, stale evidence, deployment-limit confusion, duplicate data/RPC paths, or production/Phase-F bypass.
+- RESUME POINTER: main c985deeb… → PR #659 → d799fab7… → first terminal failure only → next independent UI/core closure → exact green merge evidence.
+
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 156
 
 - CODE HEAD OBSERVED BEFORE THIS INDEX WRITE: `95371dbff307952972dd3d858926024f9294ea03`.
