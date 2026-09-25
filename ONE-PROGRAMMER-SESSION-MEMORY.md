@@ -1,3 +1,19 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143D
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- WORKING HEAD OBSERVED BEFORE THIS WRITE → `6dec4c63d39e0ad1579c357d4c0dcc6706bcc4b9`.
+- CURRENT PR → #656, consolidated current-main UI + core wave, unmerged.
+- UI DELIVERY → Advisor/Command Palette/header/mobile/table semantics; purchase/report truth context; Executive/Inventory Intelligence/Demand/Settings/Profile/Onboarding/Proposal/Scenario/Work Center closures; External File Analysis keyboard/drag/retry/evidence/import flow; Decision Experience canonical status/period/As-of context; Data Quality EMPTY now displays neutral `—` instead of a misleading zero score.
+- CORE DELIVERY → client_ui_settings restore parity; targeted four legacy cart SECURITY DEFINER hardening; resolved-source Phase-F contract; server-owned terminalization for canonical import jobs; UI idempotent finalization fallback.
+- IMPORT RESILIENCE ROOT FIX → after durable business lifecycle success, server execution now finalizes `import_jobs` itself; transient durable-runner failures remain retryable; only exhausted durable retries can server-finalize `failed`. Browser finalization accepts an already-terminal matching status.
+- LIVE STAGING SECURITY PROOF → four cart RPCs have `search_path=public, pg_catalog`, authenticated EXECUTE=true, anon/public EXECUTE=false. No blanket 46-function revoke.
+- LIVE IMPORT OBSERVATION → 151 processing jobs, 150 at progress 0, oldest 2026-09-14; all observed processing jobs have null source_fingerprint, so no durable execution evidence safely authorizes bulk terminalization. No job was mutated.
+- DEPLOYMENT BOUNDARY → production `report-advisor.vercel.app` remains on `7edc3cc210e4b81cf18d11fd995296de7a37df87`; no exact preview for current branch was present in Vercel deployment listing; no production mutation.
+- CURRENT CI → latest head has 44 queued, 2 in progress (build-windows, Cloudflare Pages), 6 completed/skipped/neutral, 0 failures observed. No PASS transferred from any older SHA.
+- BLOCKED / NOT PROVEN → production exact-SHA identity, authenticated production business readback, Phase-F backup/restore completion, measured RPO/RTO, rollback, local-device browser proof.
+- CURRENT RESUME POINTER → `PR #656 exact-head certification -> consume first current-SHA failure -> smallest source-backed repair -> rerun exact-head gates -> merge only after mandatory gates -> start Phase-F on exact merged SHA`.
+- NEXT EXECUTABLE ACTION → consume #656 current-head required checks; if green, merge #656; then run Phase-F against the exact merged SHA. Do not terminalize the legacy 151 jobs without source-backed recovery evidence.
+- DO NOT REPEAT → no stale PASS transfer, no production-SHA bypass, no preview-as-production, no blanket SECURITY DEFINER cleanup, no shell rework, no unsafe import-job terminalization.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143C
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
