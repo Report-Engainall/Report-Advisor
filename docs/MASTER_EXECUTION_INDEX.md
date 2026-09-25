@@ -1,17 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / EXACT GITHUB MAIN RECONCILIATION
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PR #638 EXACT-HEAD UI REBIND
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `eb2727558b8f88ad99edcde376c04c738a0e72bb`.
-- CURRENT CODE/TEST CANDIDATE: `886c3e11afb0304f48b8653001bf5b6a4f039ab5` (latest merged functional core candidate; later main commits are governance-only).
-- GOVERNANCE HEAD BEFORE THIS WRITE: `eb2727558b8f88ad99edcde376c04c738a0e72bb`.
-- CORE STATE: PR #632 is merged at `886c3e11afb0304f48b8653001bf5b6a4f039ab5`. Current main also contains subsequent governance synchronization commits through `eb2727558...`.
-- UI STATE: PR #635 / branch `ui/shell-accessibility-closure-mainhead-20260925` is 6 commits ahead of current main and changes only Header, Sidebar, and this index; it contains the shell accessibility closure (44px targets, Escape/focus restoration, disclosure semantics, keyboard focus).
-- PHASE-F RUN CONSUMED: `36165329471` completed FAILED/CLOSED on PR head `dcff29f15d4851bd6f48dd863e5a62b29f67519e`. Exact observed failures: production deployment SHA `dcabe46e594cbb070e145882a87dd67fa91ddabe` did not match tested head; logical restore could not reach Supabase direct DB over IPv6; rollback-forward-fix drill returned HTTP 503. Tenant canary passed HTTP 200. No Phase-F PASS is transferable.
-- CURRENT MAIN SOURCE CHECK: `scripts/phase-f-live-resilience-probes.mjs` already contains the implicit-port `5432` Pooler fallback and routes both schema-count and dump through `runnerSource`; this repair is present in current main source, but requires a fresh exact-head live run to be proven.
-- LIVE STAGING OBSERVATION: Supabase `fnqbvfuwbdpwvhcgzksl` currently has 151 `import_jobs` in `processing`, 150 at progress 0; oldest began `2026-09-14 12:53:22Z`. No mutation performed because no governed recovery contract was identified.
-- SECURITY/PERFORMANCE OBSERVATION: current staging advisors report 46 authenticated-callable SECURITY DEFINER functions plus numerous unused indexes. These are audit findings, not blanket-removal authorization; each function/index requires caller and invariant analysis before mutation.
-- CURRENT EXTERNAL BLOCKERS: Vercel deployment rate limit / unavailable promotion path; device-dependent browser runtime unavailable in this session; Phase-F production identity and live logical restore/rollback remain NOT PROVEN on current main.
-- NEXT EXECUTABLE ACTION: consume/create fresh exact-head Quality + Enforcement + Final Certification + Browser evidence for current functional candidate; then run Phase-F only against a deployment whose runtime SHA equals the tested candidate. In parallel, close PR #635's exact-head UI gate and perform governed analysis of stale import recovery/security findings without destructive mutation.
-- DO NOT REPEAT: no stale PASS transfer, no production-SHA bypass, no unsafe terminalization of the 151 processing jobs, no blanket SECURITY DEFINER revoke, no deletion of unused indexes without usage/caller evidence, no forced UI merge through unresolved checks.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `d43c8203ca249f6e8f9661a784d8a170a3870111`.
+- CURRENT CODE/TEST CANDIDATE: `14f35b5ff7868bab43f2df120b9714e2a1207bab`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `14f35b5ff7868bab43f2df120b9714e2a1207bab`.
+- UI STATE: PR #638 is the current exact-main UI candidate and changes only Header/Sidebar. The previous PR #635 is closed/superseded and is not evidence.
+- UI DELIVERY: shell accessibility closure is implemented: 44px touch targets, Escape dismissal with focus restoration, explicit `aria-controls`, visible keyboard focus, semantic disclosure state, and `aria-current` navigation semantics. No business/data semantics changed.
+- PRIOR UI GATE FACT: Enforcement on initial PR #638 head failed only because the execution index still pointed at core SHA `886c3e11...`; this governance rebind is the direct repair and does not alter UI behavior.
+- CURRENT EXTERNAL BLOCKERS: Vercel build-rate limit remains external; local device/browser runtime is unavailable in this session. Public Netlify preview is independently readable and renders the Arabic product/login surface.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head UI Quality/Enforcement/Final Certification/Browser/desktop evidence for `14f35b...`; fix only the first current-head UI defect if reproduced.
+- DO NOT REPEAT: no stale UI PASS transfer, no PR #635 evidence reuse, no business-route changes while closing a shell-only accessibility gate, no production promotion through Vercel rate-limit failure.
 
 ---
 

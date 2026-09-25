@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Bell, CheckCircle2, Command, Menu, Search, Upload, WifiOff, AlertTriangle, ChevronLeft } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { LanguageToggle } from './LanguageToggle';
@@ -24,6 +24,7 @@ export function Header({
 }) {
   const { language } = useLanguage();
   const [showAlerts, setShowAlerts] = useState(false);
+  const alertTriggerRef = useRef<HTMLButtonElement>(null);
   const [health, setHealth] = useState<HealthState>('checking');
   const location = useLocation();
   const unreadAlerts = alerts.filter((alert) => !alert.is_read);
@@ -34,6 +35,18 @@ export function Header({
     const section = NAVIGATION_SECTIONS.find(item => item.id === currentNavigation?.section);
     return section ? (language === 'ar' ? section.title : section.enTitle) : 'Aghbari';
   }, [currentNavigation?.section, language]);
+
+  useEffect(() => {
+    if (!showAlerts) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setShowAlerts(false);
+        alertTriggerRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showAlerts]);
 
   useEffect(() => {
     let mounted = true;
@@ -84,7 +97,7 @@ export function Header({
   return (
     <header className="ag-topbar sticky top-0 z-30 border-b border-ink-200 bg-white">
       <div className="flex h-[60px] items-center gap-2.5 px-3 sm:px-4 lg:px-5">
-        <button onClick={onMenuClick} className="rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 xl:hidden" aria-label="فتح القائمة">
+        <button onClick={onMenuClick} className="min-h-11 min-w-11 rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 xl:hidden" aria-label="فتح القائمة">
           <Menu size={19} />
         </button>
 
@@ -99,7 +112,7 @@ export function Header({
         <button
           type="button"
           onClick={onOpenCommandPalette}
-          className="ag-top-search mx-auto flex h-10 w-full max-w-[470px] items-center gap-2.5 rounded-[10px] border border-ink-200 bg-ink-50/70 px-3.5 text-right text-xs text-ink-400 hover:border-primary-300 hover:bg-white"
+          className="ag-top-search mx-auto flex h-11 w-full max-w-[470px] items-center gap-2.5 rounded-[10px] border border-ink-200 bg-ink-50/70 px-3.5 text-right text-xs text-ink-400 hover:border-primary-300 hover:bg-white"
           aria-label="فتح البحث ولوحة الأوامر"
         >
           <Search size={16} className="text-ink-500" />
@@ -111,16 +124,20 @@ export function Header({
 
         <div className="flex items-center gap-0.5">
           <LanguageToggle />
-          <Link to="/import" className="rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 hover:text-primary-700" title="استيراد" aria-label="استيراد">
+          <Link to="/import" className="flex min-h-11 min-w-11 items-center justify-center rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400" title="استيراد" aria-label="استيراد">
             <Upload size={17} />
           </Link>
 
           <div className="relative">
             <button
+              ref={alertTriggerRef}
+              type="button"
               onClick={() => setShowAlerts((value) => !value)}
-              className="relative rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 hover:text-ink-900"
+              className="relative flex min-h-11 min-w-11 items-center justify-center rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 hover:text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
               aria-label={'التنبيهات، ' + unreadAlerts.length + ' غير مقروء'}
               aria-expanded={showAlerts}
+              aria-controls="ag-alert-panel"
+              aria-haspopup="dialog"
             >
               <Bell size={17} />
               {unreadAlerts.length > 0 && (
@@ -133,7 +150,7 @@ export function Header({
             {showAlerts && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowAlerts(false)} />
-                <div className="ag-alert-panel absolute left-0 z-50 mt-1.5 w-80 overflow-hidden rounded-[12px] border border-ink-200 bg-white shadow-elevated">
+                <div id="ag-alert-panel" role="dialog" aria-label="التنبيهات" className="ag-alert-panel absolute left-0 z-50 mt-1.5 w-80 overflow-hidden rounded-[12px] border border-ink-200 bg-white shadow-elevated">
                   <div className="ag-alert-head flex items-center justify-between border-b border-ink-100 px-4 py-3">
                     <span className="text-sm font-black text-ink-900">الانتباه</span>
                     <span className="text-[11px] text-ink-400">{unreadAlerts.length} غير مقروء</span>
