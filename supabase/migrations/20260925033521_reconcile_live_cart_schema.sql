@@ -23,7 +23,7 @@ security definer
 set search_path = public, pg_catalog
 as $$
   select cm.company_id
-  from public.company_memberships as cm
+  from company_memberships cm
   where cm.user_id = auth.uid()
     and cm.is_active = true
     and cm.is_default = true
