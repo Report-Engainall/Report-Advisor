@@ -4,6 +4,13 @@ import fs from 'node:fs';
 const login = fs.readFileSync('src/pages/LoginPage.tsx', 'utf8');
 const dashboard = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 const entities = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
+const dataTable = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
+assert.ok(dataTable.includes('role="status" aria-live="polite" aria-busy="true"'), 'shared table loading state must expose assistive status semantics');
+assert.ok(dataTable.includes('role="status" aria-live="polite"'), 'shared table empty state must expose assistive status semantics');
+assert.ok(dataTable.includes('scope="col"'), 'shared table headers must declare column scope');
+assert.ok(dataTable.includes('aria-rowcount={visibleRows.length + 1}') && dataTable.includes('aria-colcount={columns.length}'), 'shared table must expose row and column counts');
+assert.ok(dataTable.includes('role="navigation" aria-label="تنقّل الجدول"'), 'shared table pagination must expose navigation semantics');
+
 const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
 assert.ok(workCenter.includes('role="progressbar"'), 'work center progress must expose a semantic progressbar');
 assert.ok(workCenter.includes('aria-valuenow={Math.max(0, Math.min(100, r.progress))}'), 'work center progress must expose the numeric progress value');
