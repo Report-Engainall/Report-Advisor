@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-133
+
+- SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-133.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `1843040d9f43199102516dd53702ad5b2e2f6efc`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `ab0cd56b2db8611c6be516765da028d0bbf206ef`.
+- DONE → fixed one remaining Phase-F IPv6 routing leak: logical backup schema-count query now uses `runnerSource` rather than original `source`; added contract assertions that schema count and dump both use the resolved source URI.
+- EXACT CURRENT CI → new exact-head workflows are queued/running for `1843040...`; no PASS claimed yet.
+- PRIOR LIVE PHASE-F FACT → core candidate `56dc808...` failed production health identity (`dcabe46...` served) and logical backup direct DB connectivity; UI candidate also failed because it lacked the generic tenant-reference helper migration from this core branch. Production deployment mutation remains unavailable/unauthorized through current connector.
+- UI LANE → PR #633 has shell touch-target, Escape dismissal, and disclosure accessibility changes; workflow push trigger removed and index rebound to UI candidate `ebb992c...`; fresh UI workflows pending.
+- CORE LANE → PR #632 contains helper migration, UUID-safe resolver, source URI routing, and source-level contract guard.
+- CURRENT RESUME POINTER → core `1843040...` → consume exact-head core gates and Phase-F → fix only the first newly reproduced failure; UI `ebb992c...` → consume exact-head UI gates; coordinate merge order only after required evidence.
+- NEXT EXECUTABLE ACTION → inspect fresh exact-head workflows for both PRs; keep production SHA check fail-closed.
+- DO NOT REPEAT → no stale PASS transfer; no source URI regressions; no direct SQL substitute; no production promotion without exact authorization and release proof.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-130
 
 - SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-130.
