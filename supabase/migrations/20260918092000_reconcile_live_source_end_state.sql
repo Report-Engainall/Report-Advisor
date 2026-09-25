@@ -63,6 +63,15 @@ with check (false);
 
 revoke all on table public.import_field_lineage from anon, authenticated;
 
+revoke execute on function public.advance_report_execution_checkpoint(uuid, uuid, text, uuid, jsonb) from public, anon, authenticated;
+revoke execute on function public.claim_report_execution_job(uuid, uuid, text, integer) from public, anon, authenticated;
+revoke execute on function public.complete_report_execution_job(uuid, uuid, text, uuid, jsonb) from public, anon, authenticated;
+revoke execute on function public.enqueue_report_execution_job(uuid, text, text, text, text[], integer) from public, anon, authenticated;
+revoke execute on function public.fail_report_execution_job(uuid, uuid, text, uuid, jsonb) from public, anon, authenticated;
+revoke execute on function public.heartbeat_report_execution_job(uuid, uuid, text, uuid, integer) from public, anon, authenticated;
+revoke execute on function public.recover_expired_report_execution_jobs(uuid, integer) from public, anon, authenticated;
+revoke execute on function public.retry_report_execution_job(uuid, uuid) from public, anon, authenticated;
+
 do $$
 begin
   if exists (
@@ -84,15 +93,6 @@ begin
   end if;
 end
 $$;
-
-revoke execute on function public.advance_report_execution_checkpoint(uuid, uuid, text, uuid, jsonb) from public, anon, authenticated;
-revoke execute on function public.claim_report_execution_job(uuid, uuid, text, integer) from public, anon, authenticated;
-revoke execute on function public.complete_report_execution_job(uuid, uuid, text, uuid, jsonb) from public, anon, authenticated;
-revoke execute on function public.enqueue_report_execution_job(uuid, text, text, text, text[], integer) from public, anon, authenticated;
-revoke execute on function public.fail_report_execution_job(uuid, uuid, text, uuid, jsonb) from public, anon, authenticated;
-revoke execute on function public.heartbeat_report_execution_job(uuid, uuid, text, uuid, integer) from public, anon, authenticated;
-revoke execute on function public.recover_expired_report_execution_jobs(uuid, integer) from public, anon, authenticated;
-revoke execute on function public.retry_report_execution_job(uuid, uuid) from public, anon, authenticated;
 
 alter function public.advance_report_execution_checkpoint(uuid, uuid, text, uuid, jsonb)
   set search_path = public, pg_catalog;
