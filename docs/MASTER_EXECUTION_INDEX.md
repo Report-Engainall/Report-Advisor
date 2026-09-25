@@ -1,14 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PR #637 CART-ITEM RESTORE PARITY REPAIR
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PR #637 EXACT PHASE-F RE-RUN REBIND
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda`.
-- CURRENT CODE/TEST CANDIDATE: `902a2fabcfa438338e0ae12230d7b35dc76c64ad`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `902a2fabcfa438338e0ae12230d7b35dc76c64ad`.
-- CORE STATE: PR #637 remains the active Phase-F core candidate. The previous exact run reached the next live restore defect: `public.cart_items` missing in the replay database after `public.carts` parity was restored. This repair now adds replay-safe `cart_items` schema, FKs, uniqueness, quantity bounds, index, RLS, authenticated self-select policy, and grants.
-- UI STATE: current main UI shell accessibility closure is merged as `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda`; no UI rollback or stale PR reuse.
-- PHASE-F PRIOR CURRENT RESULT: run `36170355037` on `09c2386...` failed closed with operational SHA mismatch, logical restore missing `public.cart_items`, and rollback-forward-fix HTTP 503. The cart_items failure is now the only newly reproduced restore-parity defect being repaired in this wave.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head CI on `902a2fabcfa438338e0ae12230d7b35dc76c64ad`, then fresh Phase-F live result. Repair only the first new live restore defect if present.
-- DO NOT REPEAT: no stale PASS transfer, no direct production SHA bypass, no destructive import-job recovery, no blanket security-function changes.
-
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `efbb3ac5317f88a2d2b207122e43b009277e6a65`.
+- CURRENT CODE/TEST CANDIDATE: `aa17319698a1b30d20e18eaffedd9946a6601277`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `aa17319698a1b30d20e18eaffedd9946a6601277`.
+- CORE STATE: PR #637 remains the active functional core candidate. The carts/cart_items replay parity wave is now bound to the Phase-F workflow itself so a fresh exact-head resilience run is generated rather than relying on a previous candidate run.
+- PRIOR CORE PHASE-F: `36170355037` failed closed on `09c2386...` at missing `public.cart_items`; tenant canary passed; production deployment served `886c3e11...` instead of candidate; rollback-forward-fix returned HTTP 503. Artifact `10880200125`.
+- CURRENT PARITY: `profiles`, `carts`, and `cart_items` replay-safe schema/RLS/grants are source-bound to the current branch; Phase-10 contract guards all three layers.
+- UI: current main shell accessibility closure is merged as `c8d5f2b...`; no pending old UI PR is authoritative.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head PR #637 quality/browser/certification and especially fresh Phase-F live run on `aa173196...`; repair only the first new live restore defect.
+- DO NOT REPEAT: no stale Phase-F evidence, no production-SHA bypass, no import-job terminalization, no blanket security/index mutation.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
