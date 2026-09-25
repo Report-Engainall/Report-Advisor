@@ -29,6 +29,7 @@ const required = [
 const reportDir = path.join(process.cwd(), 'artifacts', 'phase-f');
 const reportPath = path.join(reportDir, 'phase-f-readiness.json');
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
+const governanceHead = process.env.GOVERNANCE_HEAD?.trim() || exactHead;
 const target = process.env.RESILIENCE_TARGET_ENV?.trim() || null;
 const missing = required.filter(name => !process.env[name]?.trim());
 
@@ -37,6 +38,7 @@ fs.mkdirSync(reportDir, { recursive: true });
 function writeReport(status, reason, extra = {}) {
   const report = {
     exactHead,
+    governanceHead,
     targetEnv: target,
     status,
     reason,
@@ -97,37 +99,42 @@ function runCommand(command, args, options = {}) {
 }
 
 async function preferIpv4Host(databaseUrl) {
+  const parsed = new URL(databaseUrl);
+  if (!parsed.hostname || /^\d+(?:\.\d+){3}$/.test(parsed.hostname)) return databaseUrl;
+
+  const projectRef = process.env.SUPABASE_PROJECT_REF?.trim() || '';
+  const region = process.env.RESILIENCE_SUPABASE_REGION?.trim() || 'ap-southeast-2';
+  const directMatch = parsed.hostname.match(/^db\.([a-z0-9]+)\.supabase\.co$/i);
+  const directPort = parsed.port || '5432';
+
   try {
-    const parsed = new URL(databaseUrl);
-    if (!parsed.hostname || /^\d+(?:\.\d+){3}$/.test(parsed.hostname)) return databaseUrl;
     const answers = await dns.lookup(parsed.hostname, { family: 4, all: true, verbatim: false });
     const ipv4 = answers.find(answer => answer.family === 4)?.address;
     if (ipv4) {
       parsed.searchParams.set('hostaddr', ipv4);
       return parsed.toString();
     }
+  } catch {
+    // IPv6-only/direct DNS is expected for Supabase projects on IPv4-only CI.
+    // Continue to the project-scoped shared pooler fallback instead of returning
+    // the unusable direct endpoint.
+  }
 
-    // Supabase project DB hosts can be IPv6-only from some CI runners.
-    // Fall back to the same project's regional transaction pooler, preserving
-    // the original database password and project identity.
-    const projectRef = process.env.SUPABASE_PROJECT_REF?.trim() || '';
-    const region = process.env.RESILIENCE_SUPABASE_REGION?.trim() || 'ap-southeast-2';
-    const directMatch = parsed.hostname.match(/^db\.([a-z0-9]+)\.supabase\.co$/i);
-    const directPort = parsed.port || '5432';
-    if (projectRef && directMatch && directMatch[1] === projectRef && directPort === '5432') {
-      parsed.hostname = `aws-0-${region}.pooler.supabase.com`;
-      parsed.username = `postgres.${projectRef}`;
-      parsed.searchParams.delete('hostaddr');
+  if (projectRef && directMatch && directMatch[1] === projectRef && directPort === '5432') {
+    parsed.hostname = `aws-0-${region}.pooler.supabase.com`;
+    parsed.username = `postgres.${projectRef}`;
+    parsed.searchParams.delete('hostaddr');
+    try {
       const poolerAnswers = await dns.lookup(parsed.hostname, { family: 4, all: true, verbatim: false });
       const poolerIpv4 = poolerAnswers.find(answer => answer.family === 4)?.address;
       if (poolerIpv4) parsed.searchParams.set('hostaddr', poolerIpv4);
       return parsed.toString();
+    } catch {
+      return databaseUrl;
     }
-
-    return databaseUrl;
-  } catch {
-    return databaseUrl;
   }
+
+  return databaseUrl;
 }
 
 function runDockerPsql(databaseUrl, sql) {
@@ -193,7 +200,7 @@ async function logicalBackupRestore() {
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'phase-f-logical-'));
   const backupPath = path.join(workDir, 'public-data.sql');
   const exactSnapshotSql = 'select clock_timestamp()::text';
-  const countSql = `select coalesce(string_agg(format('select %L as table_name, count(*) as row_count from %I.%I', table_schema, table_name), ' union all ' order by table_name), 'select null::text as table_name, 0::bigint as row_count where false') from information_schema.tables where table_schema = 'public' and table_type = 'BASE TABLE'`;
+  const countSql = `select coalesce(string_agg(format('select %L as table_name, count(*) as row_count from %I.%I', table_schema || '.' || table_name, table_schema, table_name), ' union all ' order by table_name), 'select null::text as table_name, 0::bigint as row_count where false') from information_schema.tables where table_schema = 'public' and table_type = 'BASE TABLE'`;
 
   let localDbUrl = null;
   let localStarted = false;

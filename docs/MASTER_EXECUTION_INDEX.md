@@ -1,13 +1,12 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / MAIN POST-UI CLOSURE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CORE PARITY REBASED ON CURRENT MAIN
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `5301c102213b26fc0e8f16ff9e3d8fb3194bfb24`.
-- CURRENT CODE/TEST CANDIDATE: `7edc3cc210e4b81cf18d11fd995296de7a37df87`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `5301c102213b26fc0e8f16ff9e3d8fb3194bfb24`.
-- UI: shell accessibility closure and App Shell mobile micro-accessibility are merged. Main functional head is `7edc3cc...`; docs-only commits after it are governance writes.
-- CORE: PR #641 head `0de70de...` remains the live core candidate. Its source-level carts/profiles/cart_items parity repair is complete; live Phase-F still lacks a matching deployment and exact fresh run.
-- EVIDENCE RULE: no current PASS is transferred from UI branches to core, and no Phase-F result from earlier candidates is reused.
-- NEXT EXECUTABLE ACTION: consume fresh post-merge main gates; continue exact core Phase-F only when a deployment SHA matches `0de70de...`; first current failure only.
-- LIVE SAFETY: do not terminalize 151 processing import jobs or perform blanket legacy SECURITY DEFINER/index cleanup without canonical owner/invariant proof.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `4eefd7390535d6bec29f1d7f907d02aefcc1d157`.
+- CURRENT CODE/TEST CANDIDATE: `601851330ad6124ce0c826b1775a49921a35fa2b`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `601851330ad6124ce0c826b1775a49921a35fa2b`.
+- CORE DELIVERY: rebased Phase-F functional changes onto the current main governance head instead of carrying the older PR base. Functional scope is unchanged: exact-head resilience topology, IPv4-safe runnerSource, restore parity for profiles/carts/cart_items, Phase-10 guards, and resilience runtime tests.
+- UI: current main already contains both shell accessibility closures; no UI code is duplicated on this core branch.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head Quality/Enforcement/Browser/Final Certification on this current-main-based core candidate, then consume the fresh Phase-F live run generated from this new head. Repair only the first current live failure.
+- DO NOT REPEAT: no stale core candidate evidence, no production-SHA bypass, no push-trigger restoration, no unsafe staging mutation.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634

@@ -8,6 +8,8 @@ const evidence = read('scripts/check-production-certification-evidence-integrity
 const contract = read('scripts/check-production-certification-contract.mjs');
 const index = read('docs/MASTER_EXECUTION_INDEX.md');
 const phaseFProbe = read('scripts/phase-f-live-resilience-probes.mjs');
+const cartsParityMigration = read('supabase/migrations/20260925200000_restore_carts_schema_parity.sql');
+
 
 
 // All logical source reads must use the resolved IPv4-safe runner URI, not the original host URI.
@@ -36,6 +38,70 @@ for (const token of [
   "ENFORCE_SAME_COMPANY_REFERENCE('BRANCHES','BRANCH_ID')",
 ]) if (!targetGenericReferenceUpper.includes(token)) {
   throw new Error(`Missing Phase-F restore-chain generic tenant-reference invariant: ${token}`);
+}
+
+const profilesParityUpper = stripSqlComments(cartsParityMigration).toUpperCase();
+for (const token of [
+  'CREATE TABLE IF NOT EXISTS PUBLIC.PROFILES',
+  'ORGANIZATION_ID UUID NOT NULL',
+  'CUSTOMER_ID UUID',
+  'ROLE TEXT NOT NULL',
+  'PROFILES_ID_FKEY',
+  'PROFILES_ORGANIZATION_ID_FKEY',
+  'PROFILES_CUSTOMER_ID_FKEY',
+  'PROFILES_CUSTOMER_IDX',
+  'PROFILES_ORG_IDX',
+  'PROFILES_SELF_SELECT',
+  'GRANT ALL ON TABLE PUBLIC.PROFILES TO SERVICE_ROLE',
+]) {
+  if (!profilesParityUpper.includes(token)) throw new Error(`Missing profiles schema restore-parity invariant: ${token}`);
+}
+
+const cartsParityUpper = stripSqlComments(cartsParityMigration).toUpperCase();
+for (const token of [
+  'CREATE TABLE IF NOT EXISTS PUBLIC.PROFILES',
+  'ORGANIZATION_ID UUID NOT NULL',
+  'CUSTOMER_ID UUID',
+  'ROLE TEXT NOT NULL',
+  'PROFILES_ID_FKEY',
+  'PROFILES_ORGANIZATION_ID_FKEY',
+  'PROFILES_CUSTOMER_ID_FKEY',
+  'PROFILES_CUSTOMER_IDX',
+  'PROFILES_ORG_IDX',
+  'PROFILES_SELF_SELECT',
+  'CREATE TABLE IF NOT EXISTS PUBLIC.CARTS',
+  'COMPANY_ID UUID NOT NULL',
+  'CUSTOMER_ID UUID NOT NULL',
+  'USER_ID UUID NOT NULL',
+  'CARTS_COMPANY_ID_FKEY',
+  'CARTS_CUSTOMER_ID_FKEY',
+  'CARTS_USER_ID_FKEY',
+  'CARTS_COMPANY_ID_USER_ID_KEY',
+  'IDX_CARTS_CUSTOMER_ID_FK',
+  'IDX_CARTS_USER_ID_FK',
+  'CARTS_SELF_SELECT',
+  'CREATE OR REPLACE FUNCTION PUBLIC.CURRENT_CUSTOMER_ID()',
+  'CREATE OR REPLACE FUNCTION PUBLIC.CURRENT_CUSTOMER_COMPANY_ID()',
+  'GRANT EXECUTE ON FUNCTION PUBLIC.CURRENT_CUSTOMER_ID() TO AUTHENTICATED, SERVICE_ROLE',
+  'GRANT EXECUTE ON FUNCTION PUBLIC.CURRENT_CUSTOMER_COMPANY_ID() TO AUTHENTICATED, SERVICE_ROLE',
+  'ENABLE ROW LEVEL SECURITY',
+  'GRANT SELECT ON TABLE PUBLIC.CARTS TO AUTHENTICATED',
+  'CREATE TABLE IF NOT EXISTS PUBLIC.CART_ITEMS',
+  'CART_ID UUID NOT NULL',
+  'PRODUCT_ID UUID NOT NULL',
+  'QUANTITY INTEGER NOT NULL',
+  'CART_ITEMS_CART_ID_FKEY',
+  'CART_ITEMS_PRODUCT_ID_FKEY',
+  'CART_ITEMS_CART_ID_PRODUCT_ID_KEY',
+  'CART_ITEMS_QUANTITY_CHECK',
+  'IDX_CART_ITEMS_PRODUCT_ID_FK',
+  'CART_ITEMS_SELF_SELECT',
+  'USER_ID = (SELECT AUTH.UID())',
+  'CUSTOMER_ID = CURRENT_CUSTOMER_ID()',
+  'COMPANY_ID = CURRENT_CUSTOMER_COMPANY_ID()',
+  'GRANT SELECT ON TABLE PUBLIC.CART_ITEMS TO AUTHENTICATED',
+]) {
+  if (!cartsParityUpper.includes(token)) throw new Error(`Missing carts schema restore-parity invariant: ${token}`);
 }
 
 for (const token of [
