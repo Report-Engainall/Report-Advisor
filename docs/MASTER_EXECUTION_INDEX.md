@@ -1,14 +1,13 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PR #637 EXACT PHASE-F RE-RUN REBIND
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PR #641 FRESH PHASE-F HEAD
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `efbb3ac5317f88a2d2b207122e43b009277e6a65`.
-- CURRENT CODE/TEST CANDIDATE: `aa17319698a1b30d20e18eaffedd9946a6601277`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `aa17319698a1b30d20e18eaffedd9946a6601277`.
-- CORE STATE: PR #637 remains the active functional core candidate. The carts/cart_items replay parity wave is now bound to the Phase-F workflow itself so a fresh exact-head resilience run is generated rather than relying on a previous candidate run.
-- PRIOR CORE PHASE-F: `36170355037` failed closed on `09c2386...` at missing `public.cart_items`; tenant canary passed; production deployment served `886c3e11...` instead of candidate; rollback-forward-fix returned HTTP 503. Artifact `10880200125`.
-- CURRENT PARITY: `profiles`, `carts`, and `cart_items` replay-safe schema/RLS/grants are source-bound to the current branch; Phase-10 contract guards all three layers.
-- UI: current main shell accessibility closure is merged as `c8d5f2b...`; no pending old UI PR is authoritative.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head PR #637 quality/browser/certification and especially fresh Phase-F live run on `aa173196...`; repair only the first new live restore defect.
-- DO NOT REPEAT: no stale Phase-F evidence, no production-SHA bypass, no import-job terminalization, no blanket security/index mutation.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `5301c102213b26fc0e8f16ff9e3d8fb3194bfb24`.
+- CURRENT CODE/TEST CANDIDATE: `46097e1f2e54ed235c248be19fb0159c0fa35146`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `46097e1f2e54ed235c248be19fb0159c0fa35146`.
+- CORE CHANGE: Phase-10 contract now additionally verifies authenticated cart-item RLS predicates for user, customer and company context. This is a real source-level security invariant; no business semantics are changed.
+- CORE CANDIDATE: PR #641 now points to this fresh SHA. A new head is intentional so GitHub creates a new check suite and fresh Phase-F event rather than reusing the prior `0de70de...` check suite.
+- PRIOR LIVE FACT: `09c2386...` reached missing `public.cart_items`, which the migration parity wave repaired. No Phase-F PASS exists for the repaired head yet.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head core gates and Phase-F on `46097e1...`; repair only the first new live failure.
+- DO NOT REPEAT: no stale check-suite reuse, no production-SHA bypass, no import-job mutation, no blanket security cleanup.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
