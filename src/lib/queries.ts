@@ -81,7 +81,35 @@ export async function fetchImportRecords(limit = MAX_IMPORT_RECORD_ROWS, focusJo
 }
 export async function markAlertRead(id: string): Promise<void> { if (!await resolveCurrentCompanyId()) throw new Error('TENANT_REQUIRED'); const { error } = await supabase.rpc('mark_alert_read', { p_alert_id: id }); if (error) throw error; }
 export async function updateRecommendationStatus(id: string, status: string): Promise<void> { if (!await resolveCurrentCompanyId()) throw new Error('TENANT_REQUIRED'); const { error } = await supabase.rpc('update_recommendation_status', { p_recommendation_id: id, p_status: status }); if (error) throw error; }
-export async function fetchForecasts(): Promise<Forecast[]> { const { data, error } = await supabase.rpc('get_forecast_snapshot', { p_limit: 500 }); if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: forecast snapshot missing'); const payload = data as Record<string, unknown>; if (!Array.isArray(payload.rows)) throw new Error('REPORT_DATA_UNAVAILABLE: forecast rows missing'); return payload.rows as Forecast[]; }
+export async function fetchForecasts(): Promise<Forecast[]> {
+  const { data, error } = await supabase.rpc('get_forecast_snapshot', { p_limit: 500 });
+  if (error) throw error;
+  if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: forecast snapshot missing');
+  const payload = data as Record<string, unknown>;
+  if (!Array.isArray(payload.rows)) throw new Error('REPORT_DATA_UNAVAILABLE: forecast rows missing');
+  const rows = payload.rows;
+  for (const row of rows) {
+    if (!row || typeof row !== 'object' || Array.isArray(row)) throw new Error('REPORT_DATA_UNAVAILABLE: forecast row shape invalid');
+    const item = row as Record<string, unknown>;
+    if (
+      typeof item.id !== 'string' || !item.id.trim()
+      || typeof item.company_id !== 'string' || !item.company_id.trim()
+      || typeof item.entity_type !== 'string' || !item.entity_type.trim()
+      || (item.entity_id !== null && typeof item.entity_id !== 'string')
+      || typeof item.entity_name !== 'string' || !item.entity_name.trim()
+      || typeof item.metric !== 'string' || !item.metric.trim()
+      || typeof item.period !== 'string' || !item.period.trim() || !Number.isFinite(new Date(item.period).getTime())
+      || !Number.isFinite(Number(item.forecast_value))
+      || !Number.isFinite(Number(item.lower_bound))
+      || !Number.isFinite(Number(item.upper_bound))
+      || typeof item.model_name !== 'string' || !item.model_name.trim()
+      || (item.quality_score !== null && !Number.isFinite(Number(item.quality_score)))
+      || typeof item.confidence !== 'string' || !item.confidence.trim()
+      || !Number.isInteger(Number(item.data_points)) || Number(item.data_points) < 0
+    ) throw new Error('REPORT_DATA_UNAVAILABLE: forecast row shape invalid');
+  }
+  return rows as Forecast[];
+}
 export type CustomersPage = { data: Customer[]; count: number|null; page: number; page_size: number };
 export async function fetchCustomersPage(page=0,pageSize=50,search=''):Promise<CustomersPage>{if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');if(!Number.isInteger(pageSize)||pageSize<1||pageSize>100)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');const companyId=await resolveCurrentCompanyId();if(!companyId)throw new Error('TENANT_REQUIRED');const normalized=search.trim().replace(/[,%()\\]/g,' ');const from=page*pageSize,to=from+pageSize-1;let query=supabase.from('customers').select('*',{count:'exact'}).eq('company_id',companyId);if(normalized)query=query.or(`name.ilike.%${normalized}%,code.ilike.%${normalized}%`);const {data,count,error}=await query.order('name',{ascending:true}).order('id',{ascending:true}).range(from,to);if(error)throw error;return{data:(data??[]) as Customer[],count,page,page_size:pageSize};}
 export type ProductsPage = { data: Product[]; count: number|null; page: number; page_size: number };
