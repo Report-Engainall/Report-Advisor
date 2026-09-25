@@ -79,6 +79,46 @@ begin
 end
 $$;
 
+-- The live customer-context helper functions depend on this profile mapping table.
+-- The table existed in staging but was absent from repository migration lineage.
+create table if not exists public.profiles (
+  id uuid primary key,
+  organization_id uuid not null,
+  customer_id uuid,
+  role text not null default 'customer',
+  created_at timestamptz not null default now()
+);
+
+alter table public.profiles enable row level security;
+
+create index if not exists profiles_customer_idx on public.profiles (customer_id);
+create index if not exists profiles_org_idx on public.profiles (organization_id);
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'profiles_id_fkey') then
+    alter table public.profiles add constraint profiles_id_fkey
+      foreign key (id) references auth.users(id) on delete cascade;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'profiles_organization_id_fkey') then
+    alter table public.profiles add constraint profiles_organization_id_fkey
+      foreign key (organization_id) references public.companies(id) on delete restrict;
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'profiles_customer_id_fkey') then
+    alter table public.profiles add constraint profiles_customer_id_fkey
+      foreign key (customer_id) references public.customers(id) on delete set null;
+  end if;
+end
+$$;
+
+revoke all on table public.profiles from public, anon, authenticated;
+grant all on table public.profiles to service_role;
+
+drop policy if exists profiles_self_select on public.profiles;
+create policy profiles_self_select on public.profiles
+  for select to authenticated
+  using (id = (select auth.uid()));
+
 -- These tenant/customer helpers exist in the live database but were missing from
 -- repository migration lineage. They must exist before the cart RLS policies.
 create or replace function public.current_customer_id()
