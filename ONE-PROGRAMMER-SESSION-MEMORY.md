@@ -1,3 +1,15 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-PARALLEL-EXECUTION-136
+
+- SESSION-ID → `2026-09-25-AGHBARI-PARALLEL-EXECUTION-136`.
+- MAIN HEAD OBSERVED → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CORE HEAD → `d4e34ee9650ed6f8daaff6c9343d8e4a0ba533aa`; PHASE-F run `36163768006` remains in progress at the live resilience probe.
+- CORE DONE → fixed remaining Phase-F logical source routing leak; schema-count and logical dump use `runnerSource`; contract assertions added.
+- UI HEAD → `a232508aeb7de8669cecc028bc3b146a0aa6d1d3`.
+- UI DONE → fixed reproduced Sidebar JSX `map` closure error that caused desktop-windows build `36164023271` to fail; fresh desktop-windows run `36164338872` is now executing on the corrected head.
+- CURRENT PROOF → neither lane is certified on these exact current heads yet. Existing green evidence remains SHA-bound and is not transferred.
+- CURRENT RESUME POINTER → Core `d4e34ee...` → consume Phase-F live result then exact certification; UI `a232508...` → consume desktop/build/route/browser/certification results.
+- NEXT EXECUTABLE ACTION → repair only the first new exact-head failure on either lane, then rebind governance if a new code SHA is created.
+- DO NOT REPEAT → no stale evidence transfer, no deployment identity bypass, no bypass of live backup/RPO/RTO/rollback, no accessibility semantics weakening.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-133
 
 - SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-133.
