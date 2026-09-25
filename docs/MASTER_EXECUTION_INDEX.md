@@ -1,7 +1,7 @@
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / EXACT PR #630
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `39a39ca1125ea7aca6c0f1cf07aec325c266b042`.
-- CURRENT CODE/TEST CANDIDATE: `de07175316ca7a6ca9799d5cd0e9fd8932e74ad2`.
+- CURRENT CODE/TEST CANDIDATE: `342e4473ce0c9f0ba70d45f3aec2eeb3bf9a0541`.
 - DONE: Phase-F restore root cause isolated to missing `enforce_same_company_reference()` definition; canonical production definition restored in migration `20260829175705_harden_cross_tenant_reference_integrity_v2.sql`.
 - LOCAL VERIFIED: Phase 10 backup/restore contract PASS; migration schema audit 254 migrations / 0 findings; terminal approval concurrency PASS; TypeScript PASS; Vite production build PASS; diff-check PASS.
 - CLOUD BOUNDARY: current PR #630 gates must prove exact head `de071753...`; no stale PASS transfer.
@@ -19,6 +19,7 @@
 - PURPOSE: exact Phase-F logical-restore repair; canonical `enforce_same_company_reference()` restored in migration `20260829175705_harden_cross_tenant_reference_integrity_v2.sql` and guarded by the existing Phase 10 contract.
 - LOCAL VERIFIED: Phase 10 contract PASS; migration schema audit 254/254 with 0 findings; terminal approval concurrency PASS; TypeScript PASS; Vite build PASS.
 - LIVE CERTIFICATION: not yet proven on this head; no stale evidence transfer.
+- LATEST REPAIR: Dashboard Truth top-entity restore failed on `COALESCE(text, uuid)` in `20260831061000_dashboard_top_entities_truth.sql`; canonical names now cast IDs to text and the adversarial regression guards the fix.
 - NEXT EXECUTABLE ACTION: exact-head Quality + Enforcement + Final Certification + Browser + Phase-F; repair only the first new failure.
 
 
