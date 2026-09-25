@@ -1,13 +1,13 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F RESTORE HELPER + GOVERNANCE REBIND
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F LOGICAL SOURCE QUERY REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
-- CURRENT CODE/TEST CANDIDATE: `e1fb7181be3e9dc9f44edb2ef46e85ce035a842f`.
-- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `5bb9705101a31808346e3d0bf2e33a9b877cde7c`.
-- DONE: restored the replay-safe `public.enforce_same_company_reference()` helper before `trg_warehouse_branch_company`; added the UUID-safe `current_company_id()` repair; hardened Phase-F probe source routing; and removed the forbidden push trigger from the Phase-F workflow.
-- CURRENT EXACT-HEAD GATES: Quality SUCCESS, Full Product Browser E2E SUCCESS, Storage Tenant Runtime E2E SUCCESS, plus the broad security/data contracts on PR #632. Final Certification and Execution Enforcement are currently blocked only by this stale indexed-candidate binding and are being regenerated from this exact branch head.
-- PHASE-F: live run 36161162918 is currently in progress on this exact PR head. No Phase-F PASS is transferred from earlier SHAs.
-- NEXT: consume the exact-head Certification/Enforcement/Phase-F results; if Phase-F exposes a new first failure, repair only that failure. Do not weaken production SHA validation, tenant isolation, backup/restore measurement, or fail-closed behavior.
-- DO NOT REPEAT: do not restore the main-branch push trigger; do not use an arbitrary database host; do not rewrite applied historical migrations; do not transfer PASS across SHAs.
+- CURRENT CODE/TEST CANDIDATE: `1843040d9f43199102516dd53702ad5b2e2f6efc`.
+- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `1843040d9f43199102516dd53702ad5b2e2f6efc`.
+- DONE: fixed the Phase-F logical backup path so the generated schema-count query uses the resolved `runnerSource` URI, not the original direct DB URI; added a contract guard proving both schema-count and dump use the resolved source. This closes the observed IPv6 direct-host leak in one remaining query.
+- RETAINED CORE FIXES: replay-safe `enforce_same_company_reference()` helper; UUID-safe `current_company_id()`; no push trigger on Phase-F; bounded auth clock-skew retry; IPv4-safe source URI resolution.
+- EXACT CURRENT-HEAD CI: fresh workflows launched for `1843040...`; no result is transferred from earlier candidates. Phase-F still has a separate production SHA mismatch against live deployment `dcabe46...`; production promotion remains external/authorized path only.
+- NEXT: consume Quality/Enforcement/Certification/Browser/Storage/Phase-F exact-head results. If logical restore passes but production SHA remains mismatched, preserve fail-closed boundary and resolve deployment identity through authorized release process.
+- DO NOT REPEAT: do not revert to original `source` for any logical DB read; no SHA bypass, no arbitrary host, no stale PASS transfer.
 
 ---
 
