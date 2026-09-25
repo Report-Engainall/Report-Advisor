@@ -1,3 +1,21 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS DEEP UI + CORE WAVE 143D
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- WORKING HEAD OBSERVED BEFORE THIS WRITE: `981e92e3dcb39170e4728038219cb8302bef6f0b`.
+- CURRENT PR: #656, current-main UI/core consolidation, unmerged.
+- UI: deep shell/overlay/table/accessibility semantics; report truth context; External File Analysis interaction/evidence/recovery; Decision Experience canonical truth context; Data Quality EMPTY semantics.
+- CORE: client_ui_settings restore parity; targeted cart RPC security hardening; Phase-F resolved-source contract; server-owned canonical import terminalization with idempotent UI fallback.
+- IMPORT ROOT CAUSE: the durable business lifecycle previously ended without necessarily closing `import_jobs` if the browser disconnected; current adapter now closes success server-side and closes failure only after durable retries are exhausted.
+- STAGING IMPORT POSTURE: 151 processing jobs remain from a legacy path; 150 at progress 0; source_fingerprint is null across the observed processing set, so no durable execution evidence authorizes bulk cleanup. No unsafe terminalization performed.
+- LIVE SECURITY PROOF: targeted cart hardening verified on staging; no blanket SECURITY DEFINER cleanup.
+- CURRENT CI: latest exact-head has 44 queued, 2 in progress, 6 completed/skipped/neutral, 0 failures observed. No PASS transferred.
+- PRODUCTION: `report-advisor.vercel.app` remains on SHA `7edc3cc210e4b81cf18d11fd995296de7a37df87`; no exact current-branch preview found; production mutation prohibited.
+- NEXT EXECUTABLE ACTION: consume #656 current-head mandatory gates; merge only after exact attributable proof. Then bind Phase-F to the exact merged SHA and repair only its first live failure.
+- RESUME POINTER: `#656 exact-head certification -> first current-SHA failure -> smallest repair -> exact rerun -> merge -> Phase-F exact-merged-SHA resilience`.
+- DO NOT REPEAT: stale PASS, production-SHA bypass, preview-as-production, duplicate import/RPC/runner, blanket security revokes, shell rework, unsafe import-job terminalization.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS DEEP UI + CORE WAVE 143B
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
