@@ -1,12 +1,12 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI INTELLIGENCE SHELL WAVE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI OPERATIONS WAVE
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- CURRENT CODE/TEST CANDIDATE: `2be9d4906df177259a8bd448f33107f33c714d64`.
+- CURRENT CODE/TEST CANDIDATE: `62811e046874c5689ad3efe19ce5ca6cd44fb955`.
 - GOVERNANCE HEAD BEFORE THIS WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- UI DELIVERY: Purchases report truth context; Command Palette modal/focus closure; Alert Drawer modal/focus closure; mobile navigation drawer modal/focus closure; contextual Advisor now distinguishes LOADING/READY/INSUFFICIENT_DATA/ERROR and exposes recovery.
-- CONTRACT COVERAGE: WOW/UI contract guards all shell surfaces and Advisor recovery semantics.
+- UI DELIVERY: Purchases truth context; Command Palette focus/scroll/Tab closure; Alert Drawer modal closure; mobile navigation modal closure; Advisor LOADING/READY/INSUFFICIENT_DATA/ERROR truth semantics and recovery; Work Center progressbar semantics with numeric accessibility value.
+- CONTRACT COVERAGE: WOW/UI contract guards purchase truth, command palette, alert drawer, mobile navigation, Advisor recovery, and Work Center progressbar.
 - NO NEW DATA PATH: no RPC, route, runner, importer, or production mutation added.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head UI Route/Browser/Desktop/Quality/Final evidence for `2be9d490...`; merge only after exact-head proof, excluding known Vercel free-plan rate-limit.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head UI Route/Browser/Desktop/Quality/Final evidence for `62811e04...`; merge only after exact-head proof, excluding known Vercel free-plan rate-limit.
 - DO NOT REPEAT: no stale UI PASS transfer, no preview-as-production, no duplicate navigation path.
 
 
