@@ -78,6 +78,7 @@ function runCommand(command, args, options = {}) {
     return execFileSync(command, args, {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
+      maxBuffer: 64 * 1024 * 1024,
       ...options,
     }).trim();
   } catch (error) {
