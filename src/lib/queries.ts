@@ -12,7 +12,32 @@ export async function fetchRecommendations(): Promise<Recommendation[]> { return
 export async function fetchAlerts(): Promise<Alert[]> { return (await fetchDashboardIntelligence()).alerts; }
 export type ReceivablesReportRow = { id:string; invoice_number:string; invoice_date:string; due_date:string|null; total:number|null; paid_amount:number|null; balance:number; status:string|null; customer:{id:string|null;name:string|null}|null };
 export type ReceivablesReportPage = { status:'CALCULATED'|'NO_DATA'; page:number; page_size:number; total_rows:number; total_outstanding:number; rows:ReceivablesReportRow[] };
-export async function fetchReceivablesReportPage(page=0,pageSize=25):Promise<ReceivablesReportPage>{if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');if(!Number.isInteger(pageSize)||pageSize<1||pageSize>100)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');const {data,error}=await supabase.rpc('get_receivables_report_page',{p_page:page,p_page_size:pageSize});if(error)throw error;if(!data||typeof data!=='object')throw new Error('REPORT_DATA_UNAVAILABLE: receivables snapshot missing');const p=data as Record<string,unknown>;if(!Array.isArray(p.rows))throw new Error('REPORT_DATA_UNAVAILABLE: receivables rows missing');return{status:p.status==='NO_DATA'?'NO_DATA':'CALCULATED',page:Number(p.page??page),page_size:Number(p.page_size??pageSize),total_rows:Number(p.total_rows??0),total_outstanding:Number(p.total_outstanding??0),rows:p.rows as ReceivablesReportRow[]};}
+export async function fetchReceivablesReportPage(page=0,pageSize=25):Promise<ReceivablesReportPage>{
+  if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');
+  if(!Number.isInteger(pageSize)||pageSize<1||pageSize>100)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');
+  const {data,error}=await supabase.rpc('get_receivables_report_page',{p_page:page,p_page_size:pageSize});
+  if(error)throw error;
+  if(!data||typeof data!=='object')throw new Error('REPORT_DATA_UNAVAILABLE: receivables snapshot missing');
+  const p=data as Record<string,unknown>;
+  const status=p.status==='NO_DATA'?'NO_DATA':'CALCULATED';
+  const responsePage=Number(p.page??page);
+  const responsePageSize=Number(p.page_size??pageSize);
+  const totalRows=Number(p.total_rows??0);
+  const totalOutstanding=Number(p.total_outstanding??0);
+  if(!Number.isInteger(responsePage)||responsePage<0)throw new Error('REPORT_DATA_UNAVAILABLE: invalid receivables page');
+  if(!Number.isInteger(responsePageSize)||responsePageSize<1||responsePageSize>100)throw new Error('REPORT_DATA_UNAVAILABLE: invalid receivables page size');
+  if(!Number.isFinite(totalRows)||totalRows<0)throw new Error('REPORT_DATA_UNAVAILABLE: invalid receivables total rows');
+  if(!Number.isFinite(totalOutstanding))throw new Error('REPORT_DATA_UNAVAILABLE: invalid receivables outstanding total');
+  if(!Array.isArray(p.rows))throw new Error('REPORT_DATA_UNAVAILABLE: receivables rows missing');
+  const rows=p.rows.filter((row): row is ReceivablesReportRow => {
+    if(!row||typeof row!=='object')return false;
+    const item=row as Record<string,unknown>;
+    return typeof item.invoice_number==='string'
+      && (item.balance==null || (typeof item.balance==='number' && Number.isFinite(item.balance)));
+  }) as ReceivablesReportRow[];
+  if(rows.length!==p.rows.length)throw new Error('REPORT_DATA_UNAVAILABLE: invalid receivables row shape');
+  return{status,page:responsePage,page_size:responsePageSize,total_rows:totalRows,total_outstanding:totalOutstanding,rows};
+}
 export type CanonicalExportRow = { [key:string]: string|number|null };
 export async function fetchReceivablesExportRows():Promise<CanonicalExportRow[]>{const companyId=await resolveCurrentCompanyId();if(!companyId)throw new Error('TENANT_REQUIRED');const {data,error}=await supabase.rpc('get_receivables_export_rows',{p_company_id:companyId,p_max_rows:10000});if(error)throw error;const payload=(data??{}) as Record<string,unknown>;if(!Array.isArray(payload.rows))throw new Error('REPORT_DATA_UNAVAILABLE: receivables export rows missing');return payload.rows as CanonicalExportRow[];}
 export async function fetchSalesInvoices(page=0,pageSize=20):Promise<{data:SalesInvoice[];count:number|null}>{if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');if(!Number.isInteger(pageSize)||pageSize<1||pageSize>500)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');const companyId=await resolveCurrentCompanyId();if(!companyId)throw new Error('TENANT_REQUIRED');const from=page*pageSize,to=from+pageSize-1,{data,count,error}=await supabase.from('sales_invoices').select('*, customer:customers(id,name)',{count:'exact'}).eq('company_id',companyId).order('invoice_date',{ascending:false}).order('created_at',{ascending:false}).order('id',{ascending:true}).range(from,to);if(error)throw error;return{data:(data??[]) as SalesInvoice[],count};}
