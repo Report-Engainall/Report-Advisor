@@ -8,6 +8,8 @@ import { DataTable } from '@/components/ui/DataTable';
 import { SimpleBarChart } from '@/components/ui/Charts';
 import { fetchRFMSnapshot, fetchABCSnapshot, fetchAgingSnapshot, type RFMSnapshotRow, type ABCSnapshotRow, type AgingSnapshotRow } from '@/lib/dashboard-canonical';
 import { formatCurrency, formatNumber } from '@/lib/format';
+import { TrustBadge } from '@/components/ui/TrustBadge';
+import type { TrustState } from '@/lib/trust-state';
 
 const analyticsCards = [
   { path: '/analytics/rfm', title: 'تحليل RFM للعملاء', desc: 'تصنيف العملاء حسب الحداثة والتكرار والقيمة', icon: Users, color: 'primary' },
@@ -63,13 +65,15 @@ function AnalyticsStatusStrip({
   label: string;
 }) {
   const insufficient = status === 'INSUFFICIENT_DATA' || status === 'NO_DATA';
+  const insufficientSample = status === 'INSUFFICIENT_SAMPLE' || status === 'SAMPLE_TOO_SMALL';
+  const trustState: TrustState = insufficientSample ? 'INSUFFICIENT_SAMPLE' : insufficient ? 'INSUFFICIENT_DATA' : 'TRUSTED';
   return (
     <section className="ag-decision-strip" aria-label={'حالة ' + label}>
-      <div className="ag-decision-cell"><span className="ag-decision-label">حالة التحليل</span><span className="ag-decision-value">{insufficient ? 'بيانات غير كافية' : 'محسوب من المصدر'}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">حالة التحليل</span><span className="ag-decision-value"><TrustBadge state={trustState} compact /></span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">السجلات المستخدمة</span><span className="ag-decision-value">{formatNumber(rows)}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">خارج الحساب</span><span className="ag-decision-value">{unknownRows == null ? 'غير متاح' : formatNumber(unknownRows)}</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">القاعدة</span><span className="ag-decision-value">{insufficient ? 'لا يتم تصنيع قيم بديلة' : 'النتيجة مرتبطة بالمصدر الكانوني'}</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">الإجراء</span><span className="ag-decision-value">{insufficient ? 'مراجعة المصدر / الثقة' : 'انقل النتيجة إلى القرار'}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">القاعدة</span><span className="ag-decision-value">{insufficient || insufficientSample ? 'لا يتم تصنيع قيم بديلة' : 'النتيجة مرتبطة بالمصدر الكانوني'}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">الإجراء</span><span className="ag-decision-value">{insufficient || insufficientSample ? 'مراجعة المصدر / الثقة' : 'انقل النتيجة إلى القرار'}</span></div>
     </section>
   );
 }
