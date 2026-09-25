@@ -98,6 +98,10 @@ const semanticSurfaces = [
 
     <div className="rounded-2xl border border-warning-200 bg-warning-50/60 p-4 text-xs leading-6 text-warning-800">
       لا تُعرض كيانات غير مثبتة كبيانات حقيقية. ما لا يملك مسارًا موثقًا يبقى غير متاح، بينما تبقى قدرته محفوظة في الخريطة المرجعية للتوسع لاحقًا.
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Link to="/trust" className="inline-flex min-h-11 items-center rounded-xl border border-warning-300 bg-white px-3 font-bold text-warning-900">فحص الدليل</Link>
+        <Link to="/import" className="inline-flex min-h-11 items-center rounded-xl bg-primary-600 px-3 font-bold text-white hover:bg-primary-700">إدخال مصدر موحد</Link>
+      </div>
     </div>
   </div>;
 }
