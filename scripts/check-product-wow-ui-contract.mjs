@@ -99,6 +99,12 @@ assert.ok(decisionExperience.includes('<Link to="/import"'), 'decision experienc
 assert.ok(decisionExperience.includes('العودة إلى الإشارات'), 'decision evidence empty-selection state must provide a return action');
 assert.ok(decisionExperience.includes('<Link to="/trust"'), 'decision alerts must route source inspection to the trust/evidence surface');
 
+const metricInspector = fs.readFileSync('src/pages/MetricInspectorPage.tsx', 'utf8');
+assert.ok(metricInspector.includes('const filteredItems = useMemo'), 'metric inspector must derive a filtered semantic list without mutating the source contract');
+assert.ok(metricInspector.includes('aria-label="البحث في المؤشرات"'), 'metric inspector search must be accessible');
+assert.ok(metricInspector.includes('statusFilter') && metricInspector.includes('freshnessFilter'), 'metric inspector must expose governance and freshness filters');
+assert.ok(metricInspector.includes('إعادة ضبط التصفية'), 'metric inspector filtering must expose a reset action');
+
 const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
 assert.ok(workCenter.includes('const queueEmptyState = rows.length === 0'), 'work center must distinguish an empty tenant from a filtered empty queue');
 assert.ok(workCenter.includes('إدخال مصدر من المسار الموحد'), 'work center empty tenant state must route to the canonical import entry');
