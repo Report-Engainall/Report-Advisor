@@ -16,6 +16,8 @@ const files = [
 for (const file of files) execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
 const phaseFProbe = fs.readFileSync('scripts/phase-f-live-resilience-probes.mjs', 'utf8');
 assert.match(phaseFProbe, /format\('select %L as table_name, count\(\*\) as row_count from %I\.%I', table_schema \|\| '\.' \|\| table_name, table_schema, table_name\)/);
+assert.match(phaseFProbe, /const governanceHead = process\.env\.GOVERNANCE_HEAD\?\.trim\(\) \|\| exactHead/);
+assert.match(phaseFProbe, /governanceHead,/);
 
 assert.equal(timingSafeEqual(Buffer.from('resilience-secret'), Buffer.from('resilience-secret')), true);
 process.env.RESILIENCE_TARGET_ENV = 'production';

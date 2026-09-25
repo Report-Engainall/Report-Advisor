@@ -1,13 +1,12 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / POST-MERGE PHASE-F CANDIDATE REBIND
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI-CORE CANDIDATE
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `1001331962e13ec991d8fce5777fa61702ddc7ef`.
-- CURRENT CODE/TEST CANDIDATE: `1001331962e13ec991d8fce5777fa61702ddc7ef`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `1001331962e13ec991d8fce5777fa61702ddc7ef`.
-- CORE DELIVERY: PR #642 restore-parity repair is merged into current main. The current main tree is now the exact certification candidate; no pre-squash candidate is referenced.
-- UI: shell accessibility and mobile micro-accessibility closures remain on main; this wave introduces no duplicate shell path.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head main quality/enforcement/final-certification and Phase-F evidence against `1001331962e13ec991d8fce5777fa61702ddc7ef`; repair only the first current failure.
-- LIVE SAFETY: do not terminalize legacy processing import jobs or perform blanket SECURITY DEFINER/index cleanup without canonical owner/invariant proof.
-
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `fa2256c0c5b311464d9d8960e3480ac33f87830d`.
+- CURRENT CODE/TEST CANDIDATE: `ae6410b30f9305585b8bbb13f18b2da6b17214da`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `ae6410b30f9305585b8bbb13f18b2da6b17214da`.
+- UI DELIVERY: Metric Inspector now has accessible search, governance-status/freshness filters, reset and filtered-empty semantics; shared Loading/Empty/Error states expose explicit assistive semantics/retry labeling; Decision Experience progress stages expose accessible text; Reports surfaces retain evidence-safe truth context.
+- CORE PROOF: Phase-10 contract/security-definer provenance and Phase-F governance-head/exact-head evidence were hardened without adding RPCs, runners or production mutations.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head Quality/Enforcement/Final Certification/Browser/Storage/Desktop/Route gates; merge only after all required current-head checks pass.
+- DO NOT REPEAT: no stale candidate evidence, no production bypass, no duplicate navigation/data path.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634

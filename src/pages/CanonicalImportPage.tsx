@@ -76,11 +76,11 @@ function describeImportFailure(message: string | null): { title: string; detail:
 
 function Stepper({ step }: { step: Step }) {
   const current = STEPS.findIndex(s => s.key === step);
-  return <div className="grid grid-cols-5 gap-2 mb-5" aria-label="مراحل الاستيراد">
+  return <div className="grid grid-cols-5 gap-2 mb-5" role="list" aria-label="مراحل الاستيراد">
     {STEPS.map((item, index) => {
       const complete = index < current || step === 'done';
       const active = index === current && step !== 'done';
-      return <div key={item.key} className={`ag-import-step rounded-[12px] border px-2.5 py-2.5 text-center text-xs ${complete ? 'ag-import-step-complete' : active ? 'ag-import-step-active' : 'ag-import-step-idle'}`}>
+      return <div key={item.key} role="listitem" aria-current={active ? 'step' : undefined} aria-label={`${index + 1}. ${item.label}${complete ? ' — مكتملة' : active ? ' — المرحلة الحالية' : ''}`} className={`ag-import-step rounded-[12px] border px-2.5 py-2.5 text-center text-xs ${complete ? 'ag-import-step-complete' : active ? 'ag-import-step-active' : 'ag-import-step-idle'}`}>
         <div className="font-semibold">{complete ? '✓' : index + 1}</div><div className="mt-1">{item.label}</div>
       </div>;
     })}

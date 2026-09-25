@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
   Camera,
@@ -7,6 +7,8 @@ import {
   Database,
   GitBranch,
   ShieldCheck,
+  Search,
+  X,
 } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
@@ -53,6 +55,9 @@ export function MetricInspectorPage() {
   const [capture, setCapture] = useState<KpiEvidenceSnapshot | null>(null);
   const [captureError, setCaptureError] = useState<string | null>(null);
   const [capturing, setCapturing] = useState(false);
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<CertificationStatus | 'ALL'>('ALL');
+  const [freshnessFilter, setFreshnessFilter] = useState<FreshnessState | 'ALL'>('ALL');
 
   const load = useCallback(async () => {
     try {
@@ -74,6 +79,30 @@ export function MetricInspectorPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const filteredItems = useMemo(() => {
+    const normalizedQuery = query.trim().toLocaleLowerCase('ar-YE');
+    return items.filter((item) => {
+      const governanceStatus = (item.governance?.certificationStatus ?? 'DRAFT') as CertificationStatus;
+      const metricFreshness = semanticMetricIsFresh(item.governance ?? null, null);
+      const matchesQuery = !normalizedQuery || [
+        item.definition.metricId,
+        item.definition.label,
+        item.definition.description,
+      ].some((value) => value.toLocaleLowerCase('ar-YE').includes(normalizedQuery));
+      return matchesQuery
+        && (statusFilter === 'ALL' || governanceStatus === statusFilter)
+        && (freshnessFilter === 'ALL' || metricFreshness === freshnessFilter);
+    });
+  }, [items, query, statusFilter, freshnessFilter]);
+
+  useEffect(() => {
+    if (selected && filteredItems.some((item) => item.definition.metricId === selected.definition.metricId)) return;
+    setSelected(filteredItems[0] ?? null);
+    setCapture(null);
+    setCaptureError(null);
+  }, [filteredItems, selected]);
+
 
   const captureSelected = useCallback(async () => {
     const metricId = selected?.definition.metricId;
@@ -118,10 +147,65 @@ export function MetricInspectorPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
         <Card className="ag-governance-list">
-          <CardHeader title="المؤشرات" subtitle={`${items.length} مؤشرًا محفوظًا`} />
-          <CardBody className="p-2">
-            <div className="space-y-1">
-              {items.map((item) => (
+          <CardHeader title="المؤشرات" subtitle={`${filteredItems.length} من ${items.length} مؤشرًا`} />
+          <CardBody className="p-3">
+            <div className="space-y-3">
+              <div className="relative">
+                <Search size={15} aria-hidden="true" className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-400" />
+                <input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="ابحث بالاسم أو المعرّف أو الوصف"
+                  aria-label="البحث في المؤشرات"
+                  className="w-full rounded-xl border border-ink-200 bg-white py-2.5 pr-9 pl-9 text-xs text-ink-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => setQuery('')}
+                    className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-ink-400 hover:bg-ink-50 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                    aria-label="مسح بحث المؤشرات"
+                  >
+                    <X size={14} aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <select
+                  value={statusFilter}
+                  onChange={(event) => setStatusFilter(event.target.value as CertificationStatus | 'ALL')}
+                  aria-label="تصفية حالة الحوكمة"
+                  className="rounded-xl border border-ink-200 bg-white px-2.5 py-2 text-[11px] font-bold text-ink-700 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                >
+                  <option value="ALL">كل الحالات</option>
+                  <option value="CERTIFIED">مؤكد</option>
+                  <option value="REVIEWED">مراجع</option>
+                  <option value="DRAFT">مسودة</option>
+                  <option value="DEPRECATED">متقاعد</option>
+                </select>
+                <select
+                  value={freshnessFilter}
+                  onChange={(event) => setFreshnessFilter(event.target.value as FreshnessState | 'ALL')}
+                  aria-label="تصفية حداثة المؤشرات"
+                  className="rounded-xl border border-ink-200 bg-white px-2.5 py-2 text-[11px] font-bold text-ink-700 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                >
+                  <option value="ALL">كل الحداثة</option>
+                  <option value="FRESH">حديث</option>
+                  <option value="STALE">قديم</option>
+                  <option value="UNKNOWN">غير مثبت</option>
+                </select>
+              </div>
+              {(query || statusFilter !== 'ALL' || freshnessFilter !== 'ALL') && (
+                <button
+                  type="button"
+                  onClick={() => { setQuery(''); setStatusFilter('ALL'); setFreshnessFilter('ALL'); }}
+                  className="w-full rounded-xl border border-ink-200 bg-ink-50 px-3 py-2 text-[10px] font-bold text-ink-600 hover:bg-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                >
+                  إعادة ضبط التصفية
+                </button>
+              )}
+              <div className="space-y-1">
+              {filteredItems.map((item) => (
                 <button
                   key={item.definition.metricId}
                   type="button"
@@ -144,6 +228,13 @@ export function MetricInspectorPage() {
                   </div>
                 </button>
               ))}
+              {!filteredItems.length && (
+                <div className="rounded-xl border border-warning-200 bg-warning-50/60 p-4 text-center" role="status" aria-live="polite">
+                  <div className="text-xs font-black text-warning-900">لا توجد مؤشرات مطابقة</div>
+                  <p className="mt-1 text-[10px] leading-5 text-warning-800">وسّع البحث أو أعد ضبط المرشحات لعرض بقية المؤشرات.</p>
+                </div>
+              )}
+              </div>
             </div>
           </CardBody>
         </Card>
