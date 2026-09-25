@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 150
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT CODE/TEST CANDIDATE: `b9ee9b149835902789a73fd1d95fc82a3e4b2792` (PR #659).
+- UI CLOSURE: Profitability and Receivables surfaces now expose evidence/decision paths, explicit boundary states, and stronger in-surface search/filter interaction.
+- CORE CLOSURE: Profitability and Receivables RPC readbacks are now fail-closed on required numeric/shape invariants.
+- QUALITY CLOSURE: dedicated profitability and receivables contracts are registered and enforced by Quality.
+- CURRENT GATES: current-head GitHub workflows are not yet terminal; no PASS transferred or claimed. Vercel remains externally rate-limited.
+- NOT PROVEN: production promotion, Phase-F live evidence, current-head browser certification, device-dependent visual evidence.
+- NEXT EXECUTABLE ACTION: consume the first terminal #659 repository gate on exact head `b9ee9b149835902789a73fd1d95fc82a3e4b2792`; repair only its first reproducible failure, then continue the next uncovered UI/core surface.
+- DO NOT REPEAT: stale evidence, preview-as-production, deployment-limit confusion, reopened financial UI closures, duplicate importer/RPC/runner, unsafe import-job mutation.
+- RESUME POINTER: `main c985deeb6e9f… → first terminal #659 gate b9ee9b149835… → first reproduced failure only → next uncovered UI/core closure → exact green merge evidence`.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 149
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
