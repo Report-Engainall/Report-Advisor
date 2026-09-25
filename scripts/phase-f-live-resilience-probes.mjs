@@ -5,6 +5,7 @@ import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import dns from 'node:dns/promises';
 
 const backupMode = (process.env.RESILIENCE_BACKUP_MODE || 'logical').trim().toLowerCase() || 'logical';
 if (!['managed', 'logical'].includes(backupMode)) throw new Error(`invalid_resilience_backup_mode:${backupMode}`);
@@ -95,6 +96,20 @@ function runCommand(command, args, options = {}) {
   }
 }
 
+async function preferIpv4Host(databaseUrl) {
+  try {
+    const parsed = new URL(databaseUrl);
+    if (!parsed.hostname || /^\\d+(?:\\.\\d+){3}$/.test(parsed.hostname)) return databaseUrl;
+    const answers = await dns.lookup(parsed.hostname, { family: 4, all: true, verbatim: false });
+    const ipv4 = answers.find(answer => answer.family === 4)?.address;
+    if (!ipv4) return databaseUrl;
+    parsed.searchParams.set('hostaddr', ipv4);
+    return parsed.toString();
+  } catch {
+    return databaseUrl;
+  }
+}
+
 function runDockerPsql(databaseUrl, sql) {
   return runCommand('docker', [
     'run', '--rm', '--network', 'host',
@@ -149,6 +164,7 @@ async function logicalBackupRestore() {
       ? `postgresql://postgres.${encodeURIComponent(projectRef)}:${encodeURIComponent(password)}@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres${querySuffix}`
       : '');
   if (!source) throw new Error('logical_backup_source_db_url_not_configured');
+  const runnerSource = await preferIpv4Host(source);
   const maxRpoSeconds = Number(process.env.RESILIENCE_MAX_RPO_SECONDS);
   if (!Number.isFinite(maxRpoSeconds) || maxRpoSeconds < 0) {
     throw new Error('invalid_max_rpo_seconds');
@@ -180,17 +196,17 @@ async function logicalBackupRestore() {
 
     runCommand('supabase', ['db', 'reset', '--debug', '--no-seed'], { cwd: workDir });
 
-    const snapshotText = runDockerPsql(source, exactSnapshotSql);
+    const snapshotText = runDockerPsql(runnerSource, exactSnapshotSql);
     const snapshotAt = Date.parse(snapshotText);
     if (!Number.isFinite(snapshotAt)) throw new Error('source_snapshot_timestamp_invalid');
 
     const generatedCountSql = runDockerPsql(source, countSql);
-    const sourceCounts = parseTableCounts(runDockerPsql(source, generatedCountSql));
+    const sourceCounts = parseTableCounts(runDockerPsql(runnerSource, generatedCountSql));
 
     const backupStartedAt = Date.now();
     runCommand('supabase', [
       'db', 'dump',
-      '--db-url', source,
+      '--db-url', runnerSource,
       '--schema', 'public',
       '--data-only',
       '--use-copy',
