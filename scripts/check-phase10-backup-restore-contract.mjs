@@ -13,6 +13,17 @@ const stripSqlComments = (sql) => sql
   .replace(/(^|\n)\s*--[^\n]*/g, '$1');
 const executable = stripSqlComments(migration);
 
+const targetGenericReferenceMigration = read('supabase/migrations/20260829175705_harden_cross_tenant_reference_integrity_v2.sql');
+const targetGenericReferenceExecutable = stripSqlComments(targetGenericReferenceMigration);
+for (const token of [
+  'CREATE OR REPLACE FUNCTION public.enforce_same_company_reference()',
+  'TENANT_REFERENCE_ARGUMENTS_REQUIRED',
+  'trg_warehouse_branch_company',
+  "enforce_same_company_reference('branches','branch_id')",
+]) if (!targetGenericReferenceExecutable.includes(token)) {
+  throw new Error(`Missing Phase-F restore-chain generic tenant-reference invariant: ${token}`);
+}
+
 for (const token of [
   'CREATE OR REPLACE FUNCTION public.import_create_job',
   'CREATE OR REPLACE FUNCTION public.import_update_job_progress',
