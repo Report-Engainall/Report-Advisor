@@ -1,13 +1,12 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / FINAL CORE PARITY CANDIDATE ON STABLE MAIN
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CORE CASH-ACCOUNT PARITY CONTRACT REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `fa2256c0c5b311464d9d8960e3480ac33f87830d`.
-- CURRENT CODE/TEST CANDIDATE: `cc9757885c8cb100c1e3dac2299fadc0d291593b`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `cc9757885c8cb100c1e3dac2299fadc0d291593b`.
-- STABLE MAIN GATES: current main `fa2256c...` has successful Quality, Browser, Enforcement, Final Execution Batch, Storage Tenant Isolation and Final Certification.
-- CORE SOURCE WAVE: current candidate carries exact-head Phase-F topology, IPv4-safe runnerSource, profiles/carts/cart_items/cash_accounts restore parity, Phase-10 contract guards, and resilience runtime checks.
-- PRIOR LIVE FACT CONSUMED: Phase-F `36172345104` on `82bd148...` passed tenant canary but failed production SHA identity (`7edc3cc...` served), logical restore at missing `public.cash_accounts`, and rollback-forward-fix HTTP 503. Artifact `10881102542`.
-- NEXT EXECUTABLE ACTION: consume this stable-main-based candidate's fresh exact-head gates and new pull_request Phase-F run; repair only the first newly reproduced live restore defect.
-- DO NOT REPEAT: no stale SHA transfer, no cart/profile/carts_items rework, no production deployment bypass, no unsafe import-job mutation.
+- CURRENT CODE/TEST CANDIDATE: `5b4fec7831e2572c7a00aa6c30d67206c2b551ab9`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `5b4fec7831e2572c7a00aa6c30d67206c2b551ab9`.
+- CORE LIVE FACT: prior Phase-F reached `public.cash_accounts`; no newer live restore failure has been consumed yet.
+- CORE CONTRACT REPAIR: fixed the malformed Phase-10 parity block so carts/cart_items and cash_accounts invariants are each validated by syntactically valid loops. No acceptance rule changed.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head core certification and a fresh Phase-F run on this SHA; first new live failure only.
+- DO NOT REPEAT: no stale Final Certification failure transfer, no production-SHA bypass, no parity rollback.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
