@@ -8,7 +8,7 @@ const requiredFiles = [
   'src/lib/analytics/intelligence-gate.ts','src/lib/report-execution/artifact-integrity.ts',
   'supabase/migrations/20260819200000_import_engine_rpcs.sql','supabase/migrations/20260819203000_import_engine_jobs.sql',
   'supabase/migrations/20260822180000_security_hardening_imports.sql','supabase/migrations/20260822200000_canonical_tenant_membership.sql',
-  'supabase/migrations/20260822200000_import_lineage_idempotency.sql','supabase/migrations/20260824190000_report_execution_runtime.sql',
+  'supabase/migrations/20260822200001_import_lineage_idempotency.sql','supabase/migrations/20260824190000_report_execution_runtime.sql',
   'supabase/migrations/20260825000000_entitlements_usage_billing.sql','supabase/migrations/20260825030000_decision_outcome_feedback.sql'
 ];
 const missing = requiredFiles.filter(file => !fs.existsSync(path.join(root,file)));

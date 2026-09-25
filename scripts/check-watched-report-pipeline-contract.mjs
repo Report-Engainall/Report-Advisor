@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 const root=process.cwd();
-const files=['src/lib/import-pipeline/folder-watch-service.ts','src/lib/import-pipeline/folder-watch-store.ts','src/lib/import-pipeline/canonical-text-orchestrator.ts','src/lib/import-pipeline/incremental-import-ledger.ts','supabase/migrations/20260825110000_watched_report_folders.sql','supabase/migrations/20260904002000_close_watched_report_file_direct_dml_boundary.sql'];
+const files=['src/lib/import-pipeline/folder-watch-service.ts','src/lib/import-pipeline/folder-watch-store.ts','src/lib/import-pipeline/canonical-text-orchestrator.ts','src/lib/import-pipeline/incremental-import-ledger.ts','supabase/migrations/20260825110001_watched_report_folders.sql','supabase/migrations/20260904002000_close_watched_report_file_direct_dml_boundary.sql'];
 for(const file of files)if(!fs.existsSync(path.join(root,file)))throw new Error(`Missing watched-report pipeline file: ${file}`);
 const read=f=>fs.readFileSync(path.join(root,f),'utf8');
 const watcher=read(files[0]);
