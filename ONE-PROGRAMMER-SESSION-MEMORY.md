@@ -1,21 +1,23 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-142
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE → `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-142`.
-- GOVERNANCE WRITE → Execution Index checkpoint committed as `a1ae13649bfd7c4519c5e866cf72a45c4ffe98c3`.
-- UI MERGED MAIN → PR #644 merged at functional SHA `317f560eae727dd660e1d3adc80c2ce26cc13805`; shell/mobile accessibility closures are already in main. Do not rework them.
-- UI OPEN → PR #647 purchases truth-context lane; PR #654 Advisor dialog/Command Palette/settings/report accessibility lane. Both are current-main candidates with exact-head gates pending; no PASS transferred.
-- SECURITY OPEN → PR #651 legacy cart SECURITY DEFINER hardening for `clear_cart`, `get_cart`, `remove_cart_item`, `set_cart_item`. Staging confirmed empty search_path + unqualified public refs + authenticated EXECUTE; source hardening is targeted and non-blanket.
-- CORE OPEN → PR #653 head `1eb9e545e0860457e22e52bd6df07cb34fe6a24d`. It isolates `client_ui_settings` in migration `20260925220000_restore_client_ui_settings_schema_parity.sql`, with live FK/UNIQUE/config shape/RLS/grants and realtime publication membership, while preserving prior profiles/carts/cart_items/branches/cash_accounts parity through the existing restore migration.
-- LAST VALID CORE LIVE FAILURE → Phase-F run `36174509884` on `53ef97c72c4f0fc94116848e35b1dd4c5e1f44f7`: tenant canary passed, production served stale deployment SHA `7edc3cc210e4b81cf18d11fd995296de7a37df87`, logical restore stopped at missing `public.client_ui_settings`, rollback-forward-fix HTTP 503. No Phase-F PASS.
-- CURRENT CORE EVIDENCE → fresh PR #653 Quality/Enforcement/Final/Browser/Storage/Desktop/Phase-F runs are newly queued on exact head; no result has been transferred from predecessor candidates.
-- LIVE STAGING → `client_ui_settings` is actively populated and uses the full boolean/numeric config shape; `151` import_jobs remain processing, `150` at progress 0; no unsafe mutation.
-- EXTERNAL BLOCKED → Vercel free-plan deployment rate limit prevents exact production deployment identity; local device/browser unavailable. Netlify preview remains independent preview evidence.
-- VERIFIED → direct Supabase schema/constraints/RLS/grants/publication checks; current-main UI/core exact-head structure; historical PR cleanup; main execution index checkpoint.
-- BLOCKED / NOT PROVEN → production exact-SHA identity, live backup/restore completion, measured RPO/RTO, rollback, production promotion, and any local-device browser proof.
-- CURRENT RESUME POINTER → `a1ae13649bfd7c4519c5e866cf72a45c4ffe98c3` → consume PR #653 exact-head Phase-F result → first new live restore failure only; in parallel consume #651/#647/#654 gates.
-- NEXT EXECUTABLE ACTION → inspect the first current-head result of PR #653. If logical restore advances, fix only the next missing source-backed dependency; if only production SHA mismatch remains, preserve fail-closed and do not bypass deployment identity.
-- DO NOT REPEAT → no stale PASS transfer; no rework of merged UI closure; no production-SHA bypass; no blanket security/index cleanup; no blind import-job terminalization.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143`.
+- CURRENT CODE/TEST CANDIDATES → PR #657 exact head `124eec1cb322e06a59fde8dbd9de84e86803cec6`; PR #658 exact head `b324e023f1dbf603811f2cfe47bf58bfff6a0660`. Neither is merged; no PASS transferred.
+- UI DELIVERY → #657 integrates the current-main deep UI lane: DataTable absolute pagination semantics, Work Center progress semantics, deterministic Advisor loading/recovery, mobile/shell/Command Palette/Header accessibility and focus containment, multiple report/settings surfaces, and purchase-report canonical truth context. #658 independently closes the real receivables NO_DATA zero-substitution defect with explicit VERIFIED / INSUFFICIENT DATA context and recovery action.
+- CORE DELIVERY → #657 integrates targeted legacy cart SECURITY DEFINER hardening plus source-backed client_ui_settings/carts restore-parity migrations and Phase-F backup/restore contract coverage. No duplicate RPC, runner, importer, or production mutation was introduced.
+- EXACT EVIDENCE → #657 Netlify preview `6ab6cd09b738c40008610649` is READY and maps exactly to `124eec1cb322e06a59fde8dbd9de84e86803cec6`; Desktop Windows run `36180631328` is SUCCESS on that exact head. Other required #657 workflows are still queued/in progress. #658 Netlify preview `6ab6cda4b81e210008e2da84` is still BUILDING; no browser PASS claimed.
+- LIVE STAGING → direct Supabase checks confirm client_ui_settings schema/constraints/RLS/grants/Realtime parity and all four hardened cart functions use `search_path=public, pg_catalog` with authenticated/service_role execution only. `151` import_jobs remain processing, `150` at progress 0; no mutation performed.
+- SECURITY → Supabase advisor still reports 46 authenticated-callable SECURITY DEFINER warnings plus leaked-password protection WARN. No blanket revoke/cleanup was performed; the cart lane remains targeted to the source-backed unsafe pattern.
+- FRONT CLEANUP → superseded source PRs #647/#651/#653/#654 were closed without merge. Their history remains preserved; #657/#658 are the active executable lanes.
+- EXTERNAL BLOCKED → Vercel remains free-plan rate-limited for deployment; TinyFish browser verification could not start because its wallet balance is below zero. This is an external verification blocker, not an application failure and not a reason to stop independent work.
+- VERIFIED → current GitHub HEAD reconciliation, source integration commit `124eec1cb322e06a59fde8dbd9de84e86803cec6`, receivables fix commit `b324e023f1dbf603811f2cfe47bf58bfff6a0660`, Netlify exact preview for #657, Desktop Windows exact-head success, direct staging schema/security observations, and superseded-PR cleanup.
+- NOT PROVEN → full exact-head certification set for #657, #658 browser evidence, production deployment identity, live Phase-F restore/RPO/RTO/rollback, and production promotion.
+- CURRENT RESUME POINTER → `main 66809d148fe106acd16ceffcbd78f0ab17549fe1 → consume #657 exact-head gate results / first failure only → consume #658 build/gates → merge only when required exact-head evidence is green; keep Phase-F fail-closed and continue independent UI/core work in parallel`.
+- NEXT EXECUTABLE ACTION → inspect the first non-queued #657 gate result; repair only a newly reproduced failure. In parallel, consume #658 build/gates; if both are clean, merge the current-head executable lanes before opening another overlapping PR.
+- UI LANE PROGRESS → deep shell/report/settings/accessibility work integrated into #657; receivables truth closure in #658.
+- CORE LANE PROGRESS → targeted cart security + restore parity integrated into #657; Phase-F runtime certification remains the release boundary.
+- DO NOT REPEAT → no rework of already merged shell closures; no stale PASS transfer; no production-SHA bypass; no blanket SECURITY DEFINER cleanup; no blind import-job terminalization; no duplicate navigation/RPC/import path.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-141
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → 874b30cc04e9d30141989216463dd846881f2d3a.

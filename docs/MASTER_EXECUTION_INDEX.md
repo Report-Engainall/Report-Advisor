@@ -1,20 +1,17 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 143
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- CURRENT FUNCTIONAL MAIN HEAD: `317f560eae727dd660e1d3adc80c2ce26cc13805`.
-- GOVERNANCE HEAD: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- UI MAIN: deep UI/core closure merged at `317f560e...`; shell accessibility + mobile micro-closure + Metric Inspector/report truth/decision-state semantics are in main and not to be reworked.
-- OPEN UI FRONT: PR #647 purchases truth-context lane; PR #654 global Advisor dialog/Command Palette/settings/report accessibility lane. Both are current-main candidates with exact-head gates pending; no stale PASS transferred.
-- OPEN SECURITY FRONT: PR #651 hardens four legacy cart SECURITY DEFINER RPCs (`clear_cart`, `get_cart`, `remove_cart_item`, `set_cart_item`) with explicit schema qualification, safe search_path and grant boundary; direct staging inspection confirmed the original exposure pattern and zero recorded function calls.
-- OPEN CORE FRONT: PR #653 is the sole current Phase-F restore-parity candidate. Exact candidate head currently advances through client_ui_settings parity in a dedicated migration, including live FK/UNIQUE/config-shape/RLS/grants and supabase_realtime membership.
-- LAST VALID CORE LIVE FAILURE: Phase-F run `36174509884` on `53ef97...` passed exact-head/local/static/auth/canary then failed logical restore on missing `public.client_ui_settings`; production served stale SHA `7edc3cc...`; rollback-forward-fix returned HTTP 503. No Phase-F PASS.
-- CURRENT CORE CANDIDATE: PR #653 head `1eb9e545e0860457e22e52bd6df07cb34fe6a24d`; fresh exact-head gates are queued/in progress and must be consumed only on that head.
-- LIVE STAGING OBSERVATION: `151` import jobs are in `processing`, `150` at progress 0; oldest `2026-09-14 12:53:22Z`. No unsafe terminalization performed.
-- SECURITY OBSERVATION: 46 authenticated-callable SECURITY DEFINER functions exist; the proven unsafe cart pattern is now isolated to the four targeted legacy RPCs. No blanket revoke performed.
-- EXTERNAL BLOCKER: Vercel free-plan build-rate-limit prevents production deployment identity from matching tested candidate; Netlify previews are preview evidence only. Local device/browser is unavailable.
-- CLOSED/SUPERSEDED ACTIVE FRONTS: #635, #633, #640, #641, #645, #649, #650, #652, #643, #630, #620, #619, #614. Their history remains preserved; no evidence is transferred.
-- NEXT EXECUTABLE ACTION: consume PR #653 exact-head Quality/Enforcement/Certification/Browser/Storage/Desktop/Phase-F; repair only the first newly reproduced restore dependency, while consuming #651/#647/#654 current-head gates in parallel.
-- DO NOT REPEAT: no stale PASS transfer, no production-SHA bypass, no preview-as-production, no duplicate RPC/import/runner, no blanket SECURITY DEFINER/index cleanup, no unsafe import-job mutation.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- CURRENT CODE/TEST CANDIDATE A: `124eec1cb322e06a59fde8dbd9de84e86803cec6` (PR #657).
+- CURRENT CODE/TEST CANDIDATE B: `b324e023f1dbf603811f2cfe47bf58bfff6a0660` (PR #658).
+- GOVERNANCE WRITE PURPOSE: synchronize the live control plane after executable UI+core integration and receivables fail-closed repair; no code or historical evidence is being asserted as merged.
+- UI DELIVERY: #657 carries deep current-main UI closure across shell/accessibility, DataTable/Work Center, Advisor, settings/report surfaces and purchase truth context; #658 closes receivables NO_DATA truth semantics.
+- CORE DELIVERY: #657 carries source-backed cart SECURITY DEFINER hardening, client_ui_settings restore parity, carts schema parity continuation and Phase-F restore-contract guards.
+- EXACT CURRENT EVIDENCE: Netlify preview for #657 is READY on exact SHA `124eec1...`; Desktop Windows run `36180631328` SUCCESS on that exact SHA; remaining #657 workflows are not yet terminal. #658 Netlify preview is still BUILDING.
+- SUPERSEDED PRS: #647/#651/#653/#654 closed without merge after their executable code was integrated into #657/#658; no historical PASS transferred.
+- LIVE CORE OBSERVATION: staging client_ui_settings parity is source-backed; cart functions are search_path-hardened; 151 processing jobs remain untouched.
+- EXTERNAL BOUNDARY: Vercel free-plan deployment rate limit and TinyFish wallet unavailability prevent production/browser evidence respectively. These are not treated as application PASS/FAIL substitutions.
+- NEXT EXECUTABLE ACTION: consume exact-head #657 results, then #658 results; first current failure only; merge only after required evidence. If release boundary remains solely deployment identity/Phase-F, continue independent UI/core work rather than waiting.
+- DO NOT REPEAT: stale evidence transfer, production SHA bypass, blanket security cleanup, unsafe import-job mutation, or duplicate architecture.
 
 ---
 
