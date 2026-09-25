@@ -1,17 +1,12 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F RESTORE PARITY: CLIENT UI SETTINGS
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CLIENT UI SETTINGS PARITY CANDIDATE
 
 - MAIN HEAD OBSERVED BEFORE THIS WAVE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
-- SOURCE CODE/TEST BASE: `53ef97c72c4f0fc94116848e35b1dd4c5e1f44f7` (PR #649 restore-parity wave).
-- CURRENT CODE/TEST CANDIDATE: `5fd84ecb6ab87ce1aed4d207218dc79b0895b2fb`.
-- CORE DELIVERY: Phase-F restore parity now adds the live `public.client_ui_settings` schema, organization FK/uniqueness, config-shape invariant, tenant RLS policy and observed role grants; Phase-10 contract locks the exact source invariants.
-- FIRST CURRENT FAILURE CONSUMED: Phase-F run `36174509884` on `53ef97c72c4f0fc94116848e35b1dd4c5e1f44f7` reached logical restore and failed at `public.client_ui_settings`; tenant canary passed, but production identity still served deployment SHA `7edc3cc210e4b81cf18d11fd995296de7a37df87` instead of the candidate.
-- LIVE SOURCE VERIFICATION: staging `fnqbvfuwbdpwvhcgzksl` confirms `client_ui_settings` columns, FK, UNIQUE organization key, JSON shape CHECK, RLS enabled, `ui_settings_customer_select` policy and authenticated/service-role grants. No staging/production mutation was performed.
-- UI PARALLEL FRONT: PR #647 remains independent on current main and carries purchases truth-context plus command-palette/mobile/alert-drawer focus and modal accessibility closure; do not transfer stale evidence.
-- EXTERNAL: Vercel current-head deployment remains rate-limited on the free plan; Netlify preview is evidence only.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head Phase-F + Quality/Final/Browser/Desktop evidence for `5fd84ecb...`; repair only the first current runtime restore failure, while consuming PR #647 gates in parallel.
-- DO NOT REPEAT: no stale Phase-F transfer, no production-SHA bypass, no preview-as-production, no duplicate RPC/runner/import path, no blanket SECURITY DEFINER cleanup.
-
-
+- CURRENT CODE/TEST CANDIDATE: `befc1705d0f5865e6bbb1d7cebae6dc183e157a4`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `befc1705d0f5865e6bbb1d7cebae6dc183e157a4`.
+- CORE DELIVERY: client_ui_settings remains isolated in its own restore-parity migration; its live schema, FK/UNIQUE, config shape, RLS/grants and supabase_realtime publication are now source-bound and guarded.
+- FIRST FAILURE CONSUMED: Phase-F `36174509884` stopped at missing `public.client_ui_settings` on `53ef97...`; no PASS transferred.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head gates and Phase-F on this candidate. Repair only the first new live dependency.
+- DO NOT REPEAT: no duplicate inline client_ui_settings migration, no stale Phase-F evidence, no production-SHA bypass.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
