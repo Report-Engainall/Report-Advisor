@@ -174,11 +174,12 @@ export function IntelligenceCenterPage() {
           <div className="mt-3 text-sm font-black text-ink-900">السيناريوهات</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">انتقل إلى حارس السيناريوهات مع بقاء شروط الحقيقة والحساب الحتمي في المقدمة.</p>
         </Link>
-        <div className="card p-4">
-          <div className="flex items-center justify-between"><Sparkles size={17} className="text-warning-700"/><span className="badge-warning">NOT AVAILABLE</span></div>
-          <div className="mt-3 text-sm font-black text-ink-900">Decision Playbooks</div>
-          <p className="mt-1 text-[10px] leading-5 text-ink-500">قوالب اللعبات التنفيذية تحتاج مسار سجل مستقل؛ لن تُعرض كقوالب جاهزة مزيفة.</p>
-        </div>
+        <Link to="/intelligence/playbooks" className="card card-hover p-4">
+          <div className="flex items-center justify-between"><ClipboardCheck size={17} className="text-primary-700"/><span className="badge-primary">DECISION LOOP</span></div>
+          <div className="mt-3 text-sm font-black text-ink-900">مسارات القرار</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">تحويل التوصية السجلية إلى مسار بصري: دليل → قرار → مالك/موعد → نتيجة، باستخدام الحقول المثبتة فقط.</p>
+          <div className="mt-3 text-[10px] font-black text-primary-700">فتح مسارات القرار <ArrowUpLeft size={12} className="inline"/></div>
+        </Link>
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
