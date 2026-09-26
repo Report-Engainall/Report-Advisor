@@ -1,3 +1,10 @@
+## CURRENT COMMERCIAL SURFACE CLOSURE — 2026-09-27
+
+- Business Replay now demonstrates the product's learning loop visually: execution history -> outcome -> learning signal, without inventing historical events.
+- Benchmark Network now explains the future benchmark experience while remaining truthful at `INSUFFICIENT_SAMPLE`: the buyer can see what evidence gates must exist before comparison becomes actionable.
+- Decision ROI now communicates why an ROI figure is unavailable and directs the user to the real outcome evidence instead of showing a misleading attainment ratio.
+- Report truth context now gives a one-step route from business output to Trust & Evidence, reinforcing the product's evidence-first commercial story.
+
 # MASTER COMMERCIAL REFERENCE — الأغبري
 Status: CANONICAL DOMAIN REFERENCE
 
