@@ -11,10 +11,23 @@ import { formatNumber } from '@/lib/format';
 type FilterKey = 'all' | 'active' | 'review' | 'completed' | 'failed';
 const statusLabel = (s: string | null) => ({ queued: 'بالانتظار', processing: 'قيد التنفيذ', completed: 'مكتمل', partial: 'مكتمل جزئيًا', failed: 'فشل', cancelled: 'ملغى' }[s ?? ''] ?? 'غير معروف');
 const statusClass = (s: string | null) => s === 'completed' ? 'bg-success-50 text-success-700' : s === 'failed' ? 'bg-danger-50 text-danger-700' : s === 'partial' ? 'bg-warning-50 text-warning-700' : s === 'processing' ? 'bg-primary-50 text-primary-700' : 'bg-ink-50 text-ink-600';
+function finiteProgress(value: number | null | undefined): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : null;
+}
+function finiteCount(value: number | null | undefined): number | null {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : null;
+}
+function exceptionCount(row: ImportRecord): number | null {
+  const invalid = finiteCount(row.invalid_rows);
+  const quarantined = finiteCount(row.quarantined_rows);
+  if (invalid === null || quarantined === null) return null;
+  return invalid + quarantined;
+}
+
 function matches(row: ImportRecord, filter: FilterKey) {
   if (filter === 'all') return true;
   if (filter === 'active') return row.status === 'queued' || row.status === 'processing';
-  if (filter === 'review') return row.status === 'partial' || (row.invalid_rows ?? 0) > 0 || (row.quarantined_rows ?? 0) > 0;
+  if (filter === 'review') return row.status === 'partial' || exceptionCount(row) === null || (exceptionCount(row) ?? 0) > 0;
   if (filter === 'completed') return row.status === 'completed';
   return row.status === 'failed' || row.status === 'cancelled';
 }
@@ -53,7 +66,10 @@ export function WorkCenterPage() {
     failed: rows.filter(r => r.status === 'failed' || r.status === 'cancelled').length,
   }), [rows]);
   const zeroProgressActive = useMemo(
-    () => rows.filter(r => (r.status === 'queued' || r.status === 'processing') && Number(r.progress ?? 0) === 0).length,
+    () => rows.filter(r => {
+      const progress = finiteProgress(r.progress);
+      return (r.status === 'queued' || r.status === 'processing') && progress === 0;
+    }).length,
     [rows],
   );
   const historyWindowNotice = rows.length >= 500
@@ -214,9 +230,15 @@ export function WorkCenterPage() {
             columns={[
               { key: 'file', label: 'المصدر', render: (r: ImportRecord) => <div><div className="font-semibold text-ink-800">{r.file_name}</div><div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-ink-400"><span>{r.source_type || 'مصدر عام'}</span><span>•</span><span>المعرّف التشغيلي محفوظ داخليًا</span></div></div> },
               { key: 'status', label: 'الحالة', align: 'center', render: (r: ImportRecord) => <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass(r.status)}`}>{statusLabel(r.status)}</span> },
-              { key: 'progress', label: 'التقدم', align: 'center', render: (r: ImportRecord) => r.progress == null ? '—' : <div className="min-w-24" aria-label={'تقدم العملية ' + Math.max(0, Math.min(100, r.progress)) + '%'}><div className="text-xs font-bold">{Math.max(0, Math.min(100, r.progress))}%</div><div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-100" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.max(0, Math.min(100, r.progress))} aria-label="نسبة اكتمال العملية"><div className="h-full rounded-full bg-primary-500" style={{ width: `${Math.max(0, Math.min(100, r.progress))}%` }}/></div></div> },
+              { key: 'progress', label: 'التقدم', align: 'center', render: (r: ImportRecord) => {
+                const progress = finiteProgress(r.progress);
+                return progress === null ? 'غير متاح' : <div className="min-w-24" aria-label={'تقدم العملية ' + progress + '%'}><div className="text-xs font-bold">{progress}%</div><div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-100" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress} aria-label="نسبة اكتمال العملية"><div className="h-full rounded-full bg-primary-500" style={{ width: `${progress}%` }}/></div></div>;
+              } },
               { key: 'valid', label: 'البيانات المقبولة', align: 'center', render: (r: ImportRecord) => r.valid_rows == null ? 'غير متاح' : formatNumber(r.valid_rows) },
-              { key: 'exceptions', label: 'الاستثناءات', align: 'center', render: (r: ImportRecord) => <span className={(r.invalid_rows ?? 0) + (r.quarantined_rows ?? 0) > 0 ? 'font-semibold text-warning-700' : 'text-ink-500'}>{formatNumber((r.invalid_rows ?? 0) + (r.quarantined_rows ?? 0))}</span> },
+              { key: 'exceptions', label: 'الاستثناءات', align: 'center', render: (r: ImportRecord) => {
+                const exceptions = exceptionCount(r);
+                return <span className={exceptions === null ? 'text-ink-400' : exceptions > 0 ? 'font-semibold text-warning-700' : 'text-ink-500'}>{exceptions === null ? 'غير متاح' : formatNumber(exceptions)}</span>;
+              } },
               { key: 'updated', label: 'آخر تحديث', align: 'center', render: (r: ImportRecord) => <span className="inline-flex items-center gap-1 text-xs text-ink-500"><Clock3 size={13}/>{new Date(r.completed_at ?? r.created_at).toLocaleString('ar-YE')}</span> },
             ]}
           />
