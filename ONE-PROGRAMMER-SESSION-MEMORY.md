@@ -1,3 +1,20 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-DEEP-FINISH-3
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `4192e9565db1985789a4a0a8ba80bb0a7aecf15a`.
+- CURRENT CODE/TEST CANDIDATE → PR #660 exact branch `exec/20260926-deep-ui-core-polish`; governance write rebinds the live state to the resulting head.
+- DONE — UI → DataTable focus/touch semantics; TrustBadge validated evidence counts; Decision Experience selected/focus states and blocking icon; Trust Evidence internally consistent severity breakdown or explicit unavailable state.
+- DONE — CORE → decision gate is runtime-shape-safe: malformed objects, missing/non-array evidence, invalid severity, invalid confidence, non-finite evidence values, empty metric/source IDs, and malformed unit/period values are rejected.
+- DONE — TEST → existing Product-WOW UI contract and existing decision-evidence regression extended; no new runner/test family.
+- VERIFIED SOURCE STATE → current code was re-read from GitHub after each semantic mutation; no malformed intermediate state retained.
+- NOT PROVEN → terminal exact-head CI completion, browser/device proof, production deployment identity, live Phase-F backup/restore/RPO/RTO/rollback.
+- EXTERNAL BLOCKED → Vercel free-plan build-rate-limit; local device/browser unavailable.
+- UI LANE → system-wide shared surface coverage materially advanced; no closed route reopened.
+- CORE LANE → decision/evidence runtime boundary materially hardened.
+- CURRENT RESUME POINTER → `PR #660 current head 1fdbd6ce6c8136b8028739de4abb103408ca7aed → consume first terminal exact-head workflow result → repair only reproduced defect → continue next uncovered UI/core boundary`.
+- NEXT EXECUTABLE ACTION → `consume terminal current-head workflow evidence, then continue independent high-value UI/core closure`.
+- DO NOT REPEAT → stale PASS transfer, device-only work, duplicate route/RPC/import/test family, unsupported production claim.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-DEEP-FINISH-2
 
 - MAIN HEAD OBSERVED BEFORE THIS WAVE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
