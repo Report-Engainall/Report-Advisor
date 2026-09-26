@@ -53,10 +53,21 @@ function validateInput(value: unknown): DurableCanonicalImportInput {
     if (!Number.isInteger(value.rowNumber) || Number(value.rowNumber) < 1) throw new Error(`row_number_invalid:${index + 1}`);
     if (!value.data || typeof value.data !== 'object' || Array.isArray(value.data)) throw new Error(`row_data_invalid:${index + 1}`);
     if (!value.provenance || typeof value.provenance !== 'object' || Array.isArray(value.provenance)) throw new Error(`row_provenance_invalid:${index + 1}`);
-    if (typeof value.recordKey !== 'string' || !value.recordKey.trim()) throw new Error(`record_key_invalid:${index + 1}`);
+    if (value.reconciliation !== 'RECONCILED') throw new Error(`reconciliation_invalid:${index + 1}`);
+    const provenance = value.provenance as Record<string, unknown>;
+    for (const field of ['tenantId', 'sourceId', 'sourceHash', 'sourceDocumentId', 'evidenceId', 'lineageId']) {
+      if (typeof provenance[field] !== 'string' || !String(provenance[field]).trim()) throw new Error(`provenance_${field}_invalid:${index + 1}`);
+    }
+    if (provenance.sourceHash !== body.sourceHash) throw new Error(`provenance_source_hash_mismatch:${index + 1}`);
   }
   if (typeof body.qualityScore !== 'number' || !Number.isFinite(body.qualityScore) || body.qualityScore < 0 || body.qualityScore > 100) throw new Error('quality_score_invalid');
   if (typeof body.qualityApproved !== 'boolean') throw new Error('quality_approval_invalid');
+  const rowNumbers = new Set<number>();
+  for (const row of body.rows as Array<Record<string, unknown>>) {
+    const rowNumber = Number(row.rowNumber);
+    if (rowNumbers.has(rowNumber)) throw new Error(`duplicate_row_number:${rowNumber}`);
+    rowNumbers.add(rowNumber);
+  }
   return body as unknown as DurableCanonicalImportInput;
 }
 
