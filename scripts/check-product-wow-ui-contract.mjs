@@ -169,7 +169,7 @@ const receivablesReport = fs.readFileSync('src/pages/ReceivablesReportCanonicalP
 assert.ok(receivablesReport.includes("const truthStatus = snapshot.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA';"), 'receivables report must not elevate calculated truth to verified');
 const profitabilityReport = fs.readFileSync('src/pages/ProfitabilityReportCanonicalPage.tsx', 'utf8');
 assert.ok(profitabilityReport.includes("snapshot.currency_status === 'CONSISTENT'"), 'profitability display must require consistent currency');
-const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
+
 assert.ok(executiveReport.includes('qualityIssues={qualityIssueTotal}'), 'executive report must bind quality truth into shared context');
 assert.ok(executiveReport.includes("kpis?.status === 'CALCULATED'"), 'executive report must route calculated truth through evidence review');
 assert.ok(executiveReport.includes('qualityIssueTotal === null || qualityIssueTotal > 0'), 'executive report next action must prioritize unresolved quality pressure');
@@ -249,7 +249,7 @@ assert.ok(!reports.slice(reports.indexOf('if (loading)'), reports.indexOf('if (e
 assert.ok(!reports.slice(reports.indexOf('if (loading)'), reports.indexOf('if (error)')).includes('qualityIssueTotal'), 'reports loading state must not reference loaded snapshot quality counters');
 assert.ok(reports.includes('ag-report-truth-bar'), 'reports center must expose a shared evidence hierarchy surface');
 
-const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
+
 assert.ok(trustEvidence.includes('EVIDENCE PASSPORT'), 'trust evidence must expose the evidence passport');
 assert.ok(trustEvidence.includes('جواز الدليل للحالة الحالية'), 'trust evidence passport must explain its purpose');
 assert.ok(trustEvidence.includes('معرّف شركة موجود دون عرضه للمستخدم'), 'trust evidence passport must preserve tenant context without exposing the raw tenant id');
@@ -262,7 +262,7 @@ assert.ok(trustEvidence.includes('criticalIssueTotal'), 'trust evidence must exp
 assert.ok(trustEvidence.includes('أغلق المشكلات الحرجة'), 'trust evidence must route critical data-quality pressure to an actionable next step');
 assert.ok(trustEvidence.includes("aria-label={'الخطوة التالية: ' + nextStep.label}"), 'trust evidence next-action link must use valid JSX');
 assert.ok(!trustEvidence.includes('aria-label={\\`'), 'trust evidence contract must reject escaped JSX template backticks');
-const decisionExperience = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
+
 assert.ok(decisionExperience.includes("['rejected', 'cancelled', 'completed'].includes(recommendation.status)"), 'decision readiness must block terminal recommendation states');
 assert.ok(decisionExperience.includes("if (!recommendation.confidence?.trim())"), 'decision readiness must require explicit confidence');
 assert.ok(decisionExperience.includes("if (!recommendation.owner?.trim())"), 'decision readiness must reject blank owner values');
@@ -299,7 +299,7 @@ assert.ok(appShell.includes('aria-modal="true" aria-label="القائمة الر
 assert.ok(appShell.includes("event.key === 'Tab'"), 'mobile navigation drawer must trap keyboard focus');
 assert.ok(appShell.includes('document.body.style.overflow = \'hidden\''), 'mobile navigation drawer must lock background scroll');
 
-const header = fs.readFileSync('src/components/Header.tsx', 'utf8');
+
 assert.ok(header.includes('alertPanelRef'), 'alert drawer must expose a dialog focus boundary');
 assert.ok(header.includes("event.key === 'Tab'"), 'alert drawer must trap keyboard focus while open');
 assert.ok(header.includes('aria-label="إغلاق التنبيهات"'), 'alert drawer must expose an accessible close control');
@@ -446,7 +446,7 @@ assert.ok(dataQuality.includes('انتقل للتحليل'), 'clean data quality
 assert.ok(dataQuality.includes('لا توجد مشكلات مرصودة في مؤشرات الجودة التي غطتها اللقطة الحالية.'), 'clean data quality must not claim global data completeness from a bounded issue snapshot');
 assert.ok(dataQuality.includes('overallScore == null ? \'غير متاح\''), 'empty data quality must not render a zero score as if it were a measured quality result');
 assert.ok(dataQuality.includes("snapshot.status === 'EMPTY' || totalRecords === 0 ? null"), 'empty data quality must keep diagnostic score unavailable');
-const canonicalImport = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
+
 assert.ok(canonicalImport.includes('COMMIT PASSPORT'), 'canonical import completion must expose the server commit passport');
 assert.ok(canonicalImport.includes('كتابة كانونية مثبتة'), 'canonical import completion must distinguish a server-confirmed canonical write');
 assert.ok(canonicalImport.includes('serverValidatedQualityScore'), 'canonical import completion must expose server-validated quality');
@@ -470,7 +470,7 @@ assert.ok(connections.includes('{nextLabel}'), 'connections summary must derive 
 assert.ok(connections.includes("id === 'documents' ? '/import' : '/trust'"), 'document connector must route into the unified import path rather than a disconnected connector workflow');
 assert.ok(connections.includes("id === 'documents' ? (ar ? 'ابدأ الاستيراد الموحد' : 'Start unified import')"), 'document connector CTA must explicitly expose the unified import path');
 
-const analytics = fs.readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
+
 assert.ok(analytics.includes('function AnalyticsStatusStrip'), 'analytics must expose one shared truth/status strip');
 assert.ok(analytics.includes('لا يتم تصنيع قيم بديلة'), 'analytics must state the no-fabrication rule');
 assert.ok(analytics.includes('تحليل RFM'), 'RFM must expose analysis status context');
