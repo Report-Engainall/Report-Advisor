@@ -1,3 +1,13 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / FORECAST + IMPORT STATE + TRUST UI
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- CORE → Forecast snapshots reject blank IDs, tenant identity, entity type/name, metric, period, model and confidence labels.
+- CORE → malformed import `result_summary` values are rejected unless object-shaped or null.
+- UI → Trust Evidence renders unavailable severity counts explicitly instead of leaving an empty numeric slot.
+- CONTRACTS → Report-Truth and Product-WOW cover the new forecast/import/trust boundaries.
+- NEXT → consume terminal exact-head CI; repair only reproduced current-SHA failure; continue next independent UI/Core boundary.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / DATA QUALITY SCORE REBIND
 
 > Exact-head evidence only. Historical PASS is not transferred.
