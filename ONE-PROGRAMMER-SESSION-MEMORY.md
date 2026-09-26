@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-162
+
+- HEAD OBSERVED BEFORE THIS WRITE → `87a660eb92ccd3efafcb6a637cfd9454bfdaf178` (functional code candidate).
+- PR #659 / branch `feat/deep-ui-core-closure-20260925`; code candidate `87a660eb92ccd3efafcb6a637cfd9454bfdaf178`.
+- UI FIX 1 → `ReceivablesReportCanonicalPage.tsx`: moved filtered-row `useMemo` before loading/error/empty early returns and made it safe for a null snapshot. This addresses the exact-head browser's React error #310 (hook order violation) on `/reports/receivables`.
+- UI FIX 2 → `InventoryIntelligencePage.tsx`: split grouped/detail filtering into branch-specific typed arrays and moved its memo hook before conditional returns. This addresses the exact-head TypeScript union errors and prevents a second hook-order violation during loading/error transitions.
+- EXACT EVIDENCE CONSUMED ON PRIOR CANDIDATE `e39ad6290a079579ddb2207207c63489a1586350`: 51 workflow runs; 40 success, 8 failures. Failures included stale candidate resolution (`cce7418...`) in certification/enforcement; Inventory TS union errors; receivables React #310; Phase-F production deployment SHA mismatch and logical restore failing because referenced `branches` composite uniqueness was absent; other failures included Vercel/device/runner conditions. These are evidence for e39 only, not the new candidate.
+- CURRENT NEW-CANDIDATE STATUS → commit `87a660e...` exists on the PR branch; at first read, no Actions run/status had yet appeared for this SHA. All new checks remain NOT PROVEN until exact-head terminal results arrive.
+- EXTERNAL / RELEASE BOUNDARY → Phase-F is not certified; production identity mismatch and logical restore constraint mismatch remain unresolved. No production mutation, acceptance-criteria relaxation, or stale PASS transfer.
+- UI LANE → fixed two reproducible report-page defects from exact-head browser/typecheck output.
+- CORE LANE → no new core mutation in this slice; prior e39 core changes remain in the candidate lineage. Phase-F blocker isolated, not closed.
+- DO NOT REPEAT → do not reuse e39 PASS; do not repeat hook-order/union fixes; do not alter production or loosen Phase-F gates; do not duplicate import/RPC/runner paths.
+- NEXT EXECUTABLE ACTION → consume first terminal exact-head failure for `87a660e...`; fix only a reproduced code defect. Then reconcile the index candidate and resume independent UI/core work while Phase-F remains fail-closed.
+- CURRENT RESUME POINTER → `main c985deeb… → PR #659 / branch feat/deep-ui-core-closure-20260925 → code candidate 87a660e… → first terminal exact-head failure → independent UI+core closure → exact-green merge evidence`.
+
 ## LATEST GOVERNANCE CORRECTION — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-161
 
 - HEAD OBSERVED BEFORE THIS WRITE → 5a2cd97bfe5e8f1da4a29b172e1a225b6d924652.
