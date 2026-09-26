@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-161
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `55fb70ba91f6a4c73a79313250c5a763ccef93e6` on PR #660 branch `exec/20260926-deep-ui-core-polish`; 131 commits ahead, 25 files changed relative to PR base.
+- UI → Command Center now passes source-quality pressure into the shared Truth Context and distinguishes CONFIRMED from CALCULATED decision use. Executive Report now routes CALCULATED snapshots to Evidence review instead of Data Quality and passes quality context. Analytics result surfaces require evidence review before decision. Canonical Import and Reports/Trust surfaces continue the same evidence-first language.
+- CORE → RFM/ABC/Aging result rows now fail closed on malformed fields; inventory intelligence rejects invalid/orphan balances; demand analysis requires a bounded integer day window; deterministic forecast/intelligence/import/report payloads remain strict.
+- CONTRACTS → Product WOW and Report Truth contracts were extended to cover command-center binding, executive-report routing, analytics evidence gating, analytics row semantics, inventory source truth and demand-window semantics.
+- VERIFICATION → no workflow runs are exposed for the current code head; prior combined-status pattern remains Vercel failure/pending with external build-rate-limit. No stale PASS transferred.
+- DEVICE → unavailable/offline; no device-dependent verification.
+- PHASE-F → fresh live recovery/RPO/RTO proof remains required; canonical tenant policy repair remains in source.
+- NO MERGE → PR #660 remains open; no production mutation or release certification.
+- RESUME POINTER → `PR #660 latest HEAD after this write → continue UI/core closure on current routes and data boundaries → consume exact-head gates when exposed → repair first reproduced current-head failure → merge only after certification`.
+- DO NOT REPEAT → stale gates, calculated-to-verified elevation, direct calculated-to-decision routing, silent inventory/demand row loss, device-dependent claims, preview-to-production promotion.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-160
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
