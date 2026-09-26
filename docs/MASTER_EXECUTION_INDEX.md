@@ -1,3 +1,16 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-168
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `f9171cc876cd7ba8868d0b0f1802181eb6d6ee3d` on PR #660.
+- UI → Connections gained proof-state filters, reset, visible counts, and proof ladder semantics.
+- CORE → inventory decision evidence now excludes nonfinite coverage/required numeric inputs; regression guards this boundary.
+- RUNTIME PROOF → Staging `fnqbvfuwbdpwvhcgzksl` was updated by the repository's forward tenant-policy reconciliation and readback confirmed `organization_id = current_company_id()`.
+- SECURITY → Advisor still shows the known SECURITY DEFINER/leaked-password warnings; no blanket cleanup.
+- GATES → new exact-head checks are queued/in-progress; Vercel remains externally rate-limited; no new PASS claimed.
+- RELEASE → PR #660 open; no production mutation or certification.
+- CURRENT RESUME POINTER → `PR #660 latest HEAD → consume exact-head gates → repair first reproduced failure → continue safe UI/core closure → merge only after release-critical evidence is green`.
+- DO NOT REPEAT → nonfinite evidence, missing-to-zero, stale evidence, blanket security cleanup, device-only proof, PR #659 overlap.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-167
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
