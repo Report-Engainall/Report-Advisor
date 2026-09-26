@@ -43,6 +43,7 @@ function nonNegativeIntegerOrNull(value: unknown, field: string): number|null {
   if (typeof value === 'number' && Number.isInteger(value) && value >= 0) return value;
   throw new Error('REPORT_DATA_INVALID: ' + field + ' must be a non-negative integer or null');
 }
+function nonEmptyText(value: unknown): value is string { return typeof value === 'string' && value.trim().length > 0; }
 function requiredArray<T>(value: unknown, field: string): T[] {
   if (!Array.isArray(value)) throw new Error('REPORT_DATA_INVALID: ' + field + ' must be an array');
   return value as T[];
@@ -52,7 +53,7 @@ function validateDashboardRows(row: Record<string, unknown>): void {
   trend.forEach((item, index) => {
     if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: trend[' + index + '] must be an object');
     const value = item as Record<string, unknown>;
-    if (typeof value.month !== 'string' || typeof value.label !== 'string' || !Number.isInteger(value.invoices) || value.invoices < 0) throw new Error('REPORT_DATA_INVALID: trend[' + index + '] shape is invalid');
+    if (!nonEmptyText(value.month) || !nonEmptyText(value.label) || !Number.isInteger(value.invoices) || value.invoices < 0) throw new Error('REPORT_DATA_INVALID: trend[' + index + '] shape is invalid');
     if (!['CALCULATED', 'NO_DATA', 'INSUFFICIENT_DATA'].includes(value.status as string)) throw new Error('REPORT_DATA_INVALID: trend[' + index + '].status is invalid');
     for (const field of ['sales', 'cost', 'profit']) {
       if (value[field] !== null && (typeof value[field] !== 'number' || !Number.isFinite(value[field] as number))) throw new Error('REPORT_DATA_INVALID: trend[' + index + '].' + field + ' is invalid');
@@ -64,7 +65,7 @@ function validateDashboardRows(row: Record<string, unknown>): void {
     items.forEach((item, index) => {
       if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: ' + field + '[' + index + '] must be an object');
       const value = item as Record<string, unknown>;
-      if (typeof value.id !== 'string' || typeof value.name !== 'string' || typeof value.value !== 'number' || !Number.isFinite(value.value as number)) throw new Error('REPORT_DATA_INVALID: ' + field + '[' + index + '] shape is invalid');
+      if (!nonEmptyText(value.id) || !nonEmptyText(value.name) || typeof value.value !== 'number' || !Number.isFinite(value.value as number)) throw new Error('REPORT_DATA_INVALID: ' + field + '[' + index + '] shape is invalid');
       if (value.secondary !== undefined && (typeof value.secondary !== 'number' || !Number.isFinite(value.secondary as number))) throw new Error('REPORT_DATA_INVALID: ' + field + '[' + index + '].secondary is invalid');
     });
   }
@@ -72,7 +73,7 @@ function validateDashboardRows(row: Record<string, unknown>): void {
   categories.forEach((item, index) => {
     if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: categories[' + index + '] must be an object');
     const value = item as Record<string, unknown>;
-    if ((value.name !== null && typeof value.name !== 'string') || ['sales', 'profit', 'quantity'].some((field) => typeof value[field] !== 'number' || !Number.isFinite(value[field] as number)) || !['CALCULATED', 'UNKNOWN'].includes(value.categoryStatus as string)) {
+    if ((value.name !== null && !nonEmptyText(value.name)) || ['sales', 'profit', 'quantity'].some((field) => typeof value[field] !== 'number' || !Number.isFinite(value[field] as number)) || !['CALCULATED', 'UNKNOWN'].includes(value.categoryStatus as string)) {
       throw new Error('REPORT_DATA_INVALID: categories[' + index + '] shape is invalid');
     }
   });
@@ -141,7 +142,7 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
       rows:requiredArray<AgingBucket>(agingRow.rows, 'aging.rows').map((item, index) => {
         if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: aging.rows[' + index + '] must be an object');
         const value = item as Record<string, unknown>;
-        if (typeof value.bucket !== 'string' || !Number.isInteger(value.count) || value.count < 0 || (value.amount !== null && (typeof value.amount !== 'number' || !Number.isFinite(value.amount as number)))) {
+        if (!nonEmptyText(value.bucket) || !Number.isInteger(value.count) || value.count < 0 || (value.amount !== null && (typeof value.amount !== 'number' || !Number.isFinite(value.amount as number)))) {
           throw new Error('REPORT_DATA_INVALID: aging.rows[' + index + '] shape is invalid');
         }
         return value as AgingBucket;
@@ -167,7 +168,7 @@ function validateInventoryRows(rows: unknown[]): InventoryReportRow[] {
     const value = item as Record<string, unknown>;
     const nullableFinite = (field: string) => value[field] === null || (typeof value[field] === 'number' && Number.isFinite(value[field] as number));
     if (
-      typeof value.id !== 'string' ||
+      !nonEmptyText(value.id) ||
       !nullableFinite('quantity') ||
       !nullableFinite('unit_cost') ||
       !nullableFinite('value')
@@ -178,7 +179,7 @@ function validateInventoryRows(rows: unknown[]): InventoryReportRow[] {
       if (nested === null || nested === undefined) continue;
       if (typeof nested !== 'object' || Array.isArray(nested)) throw new Error('REPORT_DATA_INVALID: inventory.rows[' + index + '].' + nestedField + ' must be an object or null');
       const record = nested as Record<string, unknown>;
-      if (typeof record.id !== 'string' || (record.name !== null && typeof record.name !== 'string')) {
+      if (!nonEmptyText(record.id) || (record.name !== null && !nonEmptyText(record.name))) {
         throw new Error('REPORT_DATA_INVALID: inventory.rows[' + index + '].' + nestedField + ' shape is invalid');
       }
     }
@@ -190,7 +191,7 @@ function validateInventoryRows(rows: unknown[]): InventoryReportRow[] {
           throw new Error('REPORT_DATA_INVALID: inventory.rows[' + index + '].product.' + field + ' is invalid');
         }
       }
-      if (product.sku !== null && typeof product.sku !== 'string') throw new Error('REPORT_DATA_INVALID: inventory.rows[' + index + '].product.sku is invalid');
+      if (product.sku !== null && !nonEmptyText(product.sku)) throw new Error('REPORT_DATA_INVALID: inventory.rows[' + index + '].product.sku is invalid');
     }
   });
   return rows as InventoryReportRow[];
@@ -250,15 +251,15 @@ function validateRFMRows(rows: unknown[]): RFMSnapshotRow[] {
     const value = item as Record<string, unknown>;
     const finiteNumber = (field: string) => typeof value[field] === 'number' && Number.isFinite(value[field] as number);
     if (
-      typeof value.customer_id !== 'string' ||
-      typeof value.customer_name !== 'string' ||
+      !nonEmptyText(value.customer_id) ||
+      !nonEmptyText(value.customer_name) ||
       !finiteNumber('recency') ||
       !finiteNumber('frequency') ||
       !finiteNumber('monetary') ||
       !finiteNumber('r_score') ||
       !finiteNumber('f_score') ||
       !finiteNumber('m_score') ||
-      typeof value.rfm_segment !== 'string'
+      !nonEmptyText(value.rfm_segment)
     ) throw new Error('REPORT_DATA_INVALID: rfm.rows[' + index + '] shape is invalid');
   });
   return rows as RFMSnapshotRow[];
@@ -269,8 +270,8 @@ function validateABCRows(rows: unknown[]): ABCSnapshotRow[] {
     if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: abc.rows[' + index + '] must be an object');
     const value = item as Record<string, unknown>;
     if (
-      typeof value.product_id !== 'string' ||
-      typeof value.product_name !== 'string' ||
+      !nonEmptyText(value.product_id) ||
+      !nonEmptyText(value.product_name) ||
       typeof value.revenue !== 'number' || !Number.isFinite(value.revenue) ||
       typeof value.cumulative !== 'number' || !Number.isFinite(value.cumulative) ||
       (value.cumulative_pct !== null && (typeof value.cumulative_pct !== 'number' || !Number.isFinite(value.cumulative_pct))) ||
@@ -285,7 +286,7 @@ function validateAgingRows(rows: unknown[]): AgingSnapshotRow[] {
     if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: aging.rows[' + index + '] must be an object');
     const value = item as Record<string, unknown>;
     if (
-      typeof value.name !== 'string' ||
+      !nonEmptyText(value.name) ||
       typeof value.amount !== 'number' || !Number.isFinite(value.amount) ||
       typeof value.count !== 'number' || !Number.isInteger(value.count) || value.count < 0
     ) throw new Error('REPORT_DATA_INVALID: aging.rows[' + index + '] shape is invalid');
