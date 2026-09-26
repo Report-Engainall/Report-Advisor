@@ -484,4 +484,12 @@ assert.ok(decisionExperienceSource.includes('status: \'BLOCKED\''), 'Decision Ex
 assert.ok(decisionExperienceSource.includes("typeof recommendation.expected_impact !== 'number' || !Number.isFinite(recommendation.expected_impact)"), 'Decision Experience must fail closed on non-finite expected impact');
 assert.ok(decisionExperienceSource.includes('function formatImpact(value: number | null | undefined): string'), 'Decision Experience must centralize safe impact rendering');
 assert.ok(decisionExperienceSource.includes("formatImpact(selected?.expected_impact)"), 'Decision Experience must never render unavailable impact as a numeric placeholder');
+const statesSurface = fs.readFileSync(path.join(srcDir, 'components', 'ui', 'States.tsx'), 'utf8');
+for (const token of ['export function ReviewState', 'export function BlockedState', 'export function InsufficientDataState']) {
+  if (!statesSurface.includes(token)) throw new Error('WOW UI contract missing canonical state primitive: ' + token);
+}
+const fileAnalysisSurface = fs.readFileSync(path.join(srcDir, 'pages', 'ExternalFileAnalysisPage.tsx'), 'utf8');
+for (const token of ['BlockedState', 'InsufficientDataState', 'ReviewState', 'الملف محجوب قبل التحليل', 'لم تتكوّن صورة قابلة للتحليل']) {
+  if (!fileAnalysisSurface.includes(token)) throw new Error('WOW UI contract missing file-analysis state closure: ' + token);
+}
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
