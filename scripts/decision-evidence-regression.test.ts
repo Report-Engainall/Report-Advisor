@@ -11,6 +11,7 @@ const decision = createDecision({
   evidenceIds: [' evidence-1 ', 'evidence-1', 'evidence-2'], action: 'BUY_SOON',
 });
 assert.deepEqual(decision.evidenceIds, ['evidence-1', 'evidence-2']);
+
 const criticalWithoutCoverage = alternativeGroupDecisions([{
   id: 'g-null', name: 'مجموعة بلا تغطية', stockoutRisk: 'critical', normalizedStock: 10, normalizedDemand: 5,
   coverageDays: null, recommendedOrder: 20, trendPct: 4,
@@ -18,6 +19,20 @@ const criticalWithoutCoverage = alternativeGroupDecisions([{
 assert.ok(criticalWithoutCoverage);
 assert.equal(criticalWithoutCoverage.evidence.some((item) => item.metric === 'group_coverage'), false);
 assert.equal(criticalWithoutCoverage.evidence.some((item) => item.metric === 'group_coverage' && item.value === 0), false);
+
+const invalidAlternativeGroup = alternativeGroupDecisions([{
+  id: 'g-invalid', name: 'مجموعة بقيم غير قابلة للاستخدام', stockoutRisk: 'critical',
+  normalizedStock: Number.POSITIVE_INFINITY, normalizedDemand: 5, coverageDays: 1,
+  normalizedSales: 10, trendPct: 4, recommendedOrder: 20, memberSkus: [],
+}])[0];
+assert.equal(invalidAlternativeGroup, undefined);
+
+const invalidTrendAlternativeGroup = alternativeGroupDecisions([{
+  id: 'g-trend-invalid', name: 'مجموعة باتجاه غير صالح', stockoutRisk: 'medium',
+  normalizedStock: 20, normalizedDemand: 5, coverageDays: 4,
+  normalizedSales: 10, trendPct: Number.NaN, recommendedOrder: 10, memberSkus: [],
+}])[0];
+assert.equal(invalidTrendAlternativeGroup, undefined);
 
 const infiniteCoverageFrozen = inventoryDecisions([{
   sku: 'sku-frozen', avgDailySales: 0, stdDailySales: 0, demandDuringLeadTime: 0, safetyStock: 0,
