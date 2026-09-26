@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-160
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `e2e1d1e5fda4a9169665b81e409359336b59d576` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI → Canonical Import now exposes a SOURCE PASSPORT before approval (security, duplicate, quality, understanding, SHA-256) and a stronger canonical-commit confirmation; shared Truth Context now exposes explicit decision-use state; Header distinguishes missing tenant context from degraded connectivity; Reports Center no longer elevates CALCULATED snapshots to VERIFIED.
+- CORE → dashboard intelligence payloads now validate recommendation/alert semantics and fail immediately on malformed authoritative payloads; forecast rows now validate deterministic numeric bounds, quality score range, data-point counts and bound ordering.
+- CONTRACTS → Product WOW UI contract guards Source Passport, shared decision-use state, explicit tenant health, report evidence semantics, intelligence validation and forecast validation.
+- VERIFICATION → exact-head GitHub workflow runs remain unavailable for the current code head; combined status shows Vercel failure/pending contexts only, with the failure tied to external build-rate-limit. No PASS transferred.
+- DEVICE → unavailable/offline; no device-dependent proof claimed.
+- PHASE-F → live recovery/RPO/RTO proof remains required; source-side canonical tenant repair remains in place.
+- NO MERGE → PR #660 remains open; no production mutation or release certification claimed.
+- RESUME POINTER → `PR #660 latest HEAD after this write → consume exact-head gates → repair first current-head failure → continue UI/core closure`.
+- DO NOT REPEAT → stale gates, calculated-to-verified elevation, malformed intelligence/forecast acceptance, tenant-context ambiguity, preview-to-production claims, device-dependent PASS.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-159
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
