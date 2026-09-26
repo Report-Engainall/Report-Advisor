@@ -1,3 +1,10 @@
+## Decision surface state closure — 2026-09-27
+
+- Decision Experience stage navigation is now state-gated from persisted decision/approval/work/outcome context; a URL cannot open a downstream stage merely by naming it.
+- Decision Evidence renders the persisted evidence snapshot when present and remains BLOCKED only when no snapshot exists.
+- Work Center no longer clamps malformed progress into a valid percentage; invalid or missing bounded values display as `غير موثوق`.
+- Business Replay is surfaced in Decision Center and its command-center card now reflects real persisted replay availability.
+
 # CURRENT UI CLOSURE — 2026-09-27
 
 - Replay timeline contract: event type, lifecycle state, occurred-at timestamp, expected/actual impact where available, evidence presence, bounded-window disclosure, and learning status counts.
