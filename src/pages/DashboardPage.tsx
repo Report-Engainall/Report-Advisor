@@ -179,12 +179,14 @@ export function DashboardPage() {
     const outcomes = actionable.filter((item) => item.impact_result?.trim()).length;
     const pending = recommendations.filter((item) => item.status === 'new').length;
 
-    const windowBounded = recommendations.length >= 100;
+    const windowLimit = 100;
+    const windowBounded = recommendations.length >= windowLimit;
     return {
       total: actionable.length,
       owned,
       outcomes,
       pending,
+      windowLimit,
       windowBounded,
       ownerCoverage: actionable.length ? Math.round((owned / actionable.length) * 100) : null,
       outcomeCoverage: actionable.length ? Math.round((outcomes / actionable.length) * 100) : null,
@@ -326,7 +328,7 @@ export function DashboardPage() {
                 <div className="mt-1 text-[10px] font-semibold text-ink-400">تغطية المؤشرات الحالية</div>
               </div>
               <div className="text-left text-[11px] text-ink-500">
-                <div>{decisionAccountability.windowBounded ? '100+ ' : decisionAccountability.total + ' '}توصية قابلة للتنفيذ ضمن نافذة القراءة الحالية</div>
+                <div>{decisionAccountability.total} توصية قابلة للتنفيذ ضمن نافذة القراءة الحالية</div><div className="mt-1 text-[9px] text-ink-400">{decisionAccountability.windowBounded ? 'القراءة محدودة بحد أقصى ' + decisionAccountability.windowLimit + ' سجل' : 'ضمن الحد الحالي للقراءة'}</div>
                 <div className="mt-1">آخر تحديث: {snapshotAsOf ?? 'غير متاح'}</div>
               </div>
             </div>
@@ -355,7 +357,7 @@ export function DashboardPage() {
               </div>
               <Link to="/decision-experience?stage=decision" className="rounded-xl border border-primary-100 bg-primary-50/60 p-2.5 transition-colors hover:bg-primary-100">
                 <div className="text-[9px] font-black text-primary-700">تحتاج مراجعة</div>
-                <div className="mt-1 text-sm font-black text-ink-900">{decisionAccountability.pending}</div><div className="mt-1 text-[9px] text-ink-400">ضمن نافذة intelligence الحالية</div>
+                <div className="mt-1 text-sm font-black text-ink-900">{decisionAccountability.pending}</div><div className="mt-1 text-[9px] text-ink-400">{decisionAccountability.windowBounded ? 'القيمة تخص نافذة intelligence الحالية وقد لا تمثل كامل السجل' : 'ضمن نافذة intelligence الحالية'}</div>
                 <div className="mt-0.5 inline-flex items-center gap-1 text-[9px] font-bold text-primary-700">افتح المسار <ArrowUpLeft size={11} /></div>
               </Link>
             </div>
