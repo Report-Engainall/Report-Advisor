@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 180
+
+- MAIN HEAD OBSERVED BEFORE THIS WAVE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE CANDIDATE: `d7b0d6510eee6e7b98fb5059257f3c588a9a23c0` on PR #661, `exec/20260926-continuous-ui-core-deep`.
+- CORE: strict dashboard metadata/enum/inventory/profitability/RFM/ABC/aging payload validation; no silent current-date/zero/default fallbacks on authoritative fields.
+- UI: Decision Experience now fails closed on stage navigation without a selected real recommendation, including deep-link correction and visible/accessible locked-stage explanation.
+- TYPE CORRECTION: `AgingDashboard.unknownRows` is nullable and DashboardPage preserves unavailable counts instead of comparing/displaying them as zero.
+- PROOF: exact-head workflow evidence is not available yet; no current-head PASS transferred. Device/browser verification and Phase-F recovery remain NOT PROVEN; PC01 is offline.
+- NEXT: consume first terminal exact-head PR #661 gate; repair only first reproduced current-SHA failure; continue next uncovered UI/core boundary.
+- DO NOT REPEAT: stale PASS, prior #660 closure, duplicate paths, production bypass, blanket security changes, unsafe import-job mutation.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 179
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
