@@ -155,6 +155,9 @@ for (const token of [
   "badInventoryRows:qualityCountOrNull(qualityRow.badInventoryRows, 'quality.badInventoryRows')",
   "salesCurrencyMismatchRows:qualityCountOrNull(qualityRow.salesCurrencyMismatchRows, 'quality.salesCurrencyMismatchRows')",
   "purchaseCurrencyMismatchRows:qualityCountOrNull(qualityRow.purchaseCurrencyMismatchRows, 'quality.purchaseCurrencyMismatchRows')",
+  "typeof value.expected_impact !== 'number' || !Number.isFinite(value.expected_impact as number)",
+  "typeof value.metric_value !== 'number' || !Number.isFinite(value.metric_value as number)",
+  "typeof value.threshold !== 'number' || !Number.isFinite(value.threshold as number)",
 ]) {
   if (!dashboardCanonical.includes(token)) {
     throw new Error(`Report truth contract missing fail-closed dashboard invariant: ${token}`);
