@@ -119,6 +119,8 @@ assert.ok(decisionExperience.includes("disabled={!canEnterStage(item.id)}"), 'de
 assert.ok(decisionExperience.includes('stageLockReason'), 'locked decision stages must explain why context is required');
 assert.ok(decisionExperience.includes('aria-disabled={!canEnterStage(item.id) || undefined}'), 'locked decision stages must expose disabled semantics');
 assert.ok(decisionExperience.includes("selected === null && stage !== 'command'"), 'deep-linked decision stages must return to command when no recommendation is selected');
+assert.ok(decisionExperience.includes('if (loading) return;'), 'decision deep-link guard must wait for recommendation loading to finish');
+assert.ok(decisionExperience.includes('setStage(requestedStage);'), 'valid decision deep-links must be restored after context loads');
 
 assert.ok(decisionExperience.includes('recommendation.expected_impact == null'), 'decision readiness must treat zero expected impact as a valid value');
 assert.ok(!decisionExperience.includes('if (!recommendation.expected_impact)'), 'decision readiness must not classify zero expected impact as missing');
