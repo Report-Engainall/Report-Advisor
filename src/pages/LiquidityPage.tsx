@@ -8,7 +8,12 @@ import { fetchDashboardSnapshot, type DashboardKPIs } from '@/lib/dashboard-cano
 import { formatCurrency } from '@/lib/format';
 
 function MoneyMetric({ label, value, note }: { label: string; value: number | null; note: string }) {
-  return <div className="rounded-2xl border border-ink-100 bg-white p-4"><div className="text-[10px] font-black text-ink-400">{label}</div><div className="mt-2 text-xl font-black tabular-nums text-ink-950">{value == null ? 'غير متاح' : formatCurrency(value)}</div><div className="mt-1 text-[10px] leading-5 text-ink-400">{note}</div></div>;
+  const state = value == null ? 'unavailable' : 'available';
+  return <div className="rounded-2xl border border-ink-100 bg-white p-4" data-value-state={state}>
+    <div className="text-[10px] font-black text-ink-400">{label}</div>
+    <div className="mt-2 text-xl font-black tabular-nums text-ink-950">{value == null ? 'غير متاح' : formatCurrency(value)}</div>
+    <div className="mt-1 text-[10px] leading-5 text-ink-400">{note}</div>
+  </div>;
 }
 
 export function LiquidityPage() {
