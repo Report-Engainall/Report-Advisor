@@ -41,3 +41,38 @@
 .ag-passport-cell > span { display: block; font-size: 9px; font-weight: 900; letter-spacing: .12em; color: rgb(100 116 139); }
 .ag-passport-cell > strong { display: block; margin-top: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 900; color: rgb(15 23 42); }
 .ag-passport-cell > small { display: block; margin-top: 4px; font-size: 9px; line-height: 1.6; color: rgb(100 116 139); }
+
+
+.ag-report-truth-bar {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+.ag-report-truth-bar::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block: 0;
+  width: 3px;
+  background: linear-gradient(180deg, rgba(13, 148, 136, .75), rgba(13, 148, 136, .08));
+}
+.ag-reports-center-surface [aria-label="اللقطة التنفيذية الحالية"] {
+  position: relative;
+  overflow: hidden;
+}
+.ag-reports-center-surface [aria-label="اللقطة التنفيذية الحالية"]::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: 0;
+  inset-block-start: 0;
+  width: 34%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(13, 148, 136, .32));
+  pointer-events: none;
+}
+@media (max-width: 640px) {
+  .ag-report-truth-bar { padding-inline: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ag-report-truth-bar { scroll-behavior: auto; }
+}
