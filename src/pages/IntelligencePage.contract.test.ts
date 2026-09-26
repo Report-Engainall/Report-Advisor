@@ -9,6 +9,7 @@ describe('intelligence decision handoff contract', () => {
     expect(page).toContain('/decision-experience?stage=decision&recommendationId=');
     expect(page).toContain('بدء مسار القرار');
     expect(page).not.toContain("updateRecommendationStatus(recommendationId, 'accepted')");
+    expect(page).not.toContain("updateRecommendationStatus(id, 'accepted')");
   });
 
   it('keeps direct rejection as the only immediate terminal transition from the new queue', () => {
