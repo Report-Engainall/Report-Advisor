@@ -1,3 +1,22 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-145
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT EXECUTION BRANCH → `exec/20260926-deep-ui-core-polish`.
+- CURRENT CODE/TEST CANDIDATE → `23c23143f04fe1fcf342f82a85469e5005d3ab57`; branch compare is 475 commits ahead / 0 behind main with 49 changed files.
+- SESSION DELIVERY — UI → canonical import entry now supports keyboard activation plus drag-and-drop with explicit active-drop state, accessible labeling, and touch-safe presentation; decision workspace stage rail and next-action surface received a deeper hierarchy/focus/mobile polish layer in the existing Aghbari design system. No new navigation taxonomy or duplicate workflow introduced.
+- SESSION DELIVERY — CORE → decision engine now rejects blank decision identities and negative inventory/alternative-group evidence before emitting decisions; canonical import runtime now enforces row number, row shape, tenant-bound provenance, and source-hash integrity again immediately before durable execution/commit.
+- EXACT CHANGE SHAs → import UX `9e6d724165bfcdc591966171e388053941beff0f`; decision regression `d8a1e6db4948ed7d5a9454b3e990ea949505e2bd`; canonical runtime boundary `d014adf0499a50c1ccae1dbb0567eb939b4fa9a6`; deep UI polish `23c23143f04fe1fcf342f82a85469e5005d3ab57`.
+- WORKFLOW EVIDENCE → exact-head workflow runs were observed for `9e6d724...` and `d8a1e6db...`; they were still queued/in-progress or cancelled at inspection time, so no PASS was transferred. No workflow result was surfaced yet for `d014adf...` during this write-back window. Latest candidate remains NOT PROVEN until exact-head gates execute.
+- EXTERNAL / DEVICE BLOCKED → local device remains unavailable; Desktop/PC evidence cannot be produced in this session. Vercel free-plan deployment rate limit remains external. Phase-F live identity/backup/restore/RPO/RTO/rollback and production promotion remain NOT PROVEN. No production mutation performed.
+- CURRENT RESUME POINTER → `main 46675643... → branch 23c23143... → consume exact-head quality/import/decision/UI gate results and repair first newly reproduced failure only; continue independent UI + core closure while Phase-F/device blockers remain local`.
+- NEXT EXECUTABLE ACTION → inspect the first non-queued exact-head gate on `23c23143...`; if a failure is reproduced, patch only that failure and let the next gate cycle prove it. In parallel, continue one deeper decision/evidence UI surface and one independent truth-boundary/core closure; do not reopen closed work.
+- UI LANE PROGRESS → import entry interaction closure + decision-stage visual hierarchy/focus/mobile closure.
+- CORE LANE PROGRESS → semantic decision evidence hardening + pre-commit canonical provenance boundary.
+- VERIFIED → GitHub main exact HEAD, branch ancestry (475 ahead / 0 behind), real code commits above, no duplicate workflow/import/RPC introduced.
+- FAILED → none newly established on current candidate.
+- BLOCKED → device-dependent verification and live Phase-F remain blocked externally; latest candidate exact runtime certification not yet proven.
+- DO NOT REPEAT → no rework of prior #660 closures; no stale PASS transfer; no preview-as-production; no production mutation; no duplicate importer/RPC/runner/navigation; no broad security-definer cleanup; no blind import-job terminalization.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-WAVE-10
 
 - DONE — CORE → Forecast rows reject blank identity/semantic labels instead of allowing empty prediction records through validation.
