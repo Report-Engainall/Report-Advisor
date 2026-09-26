@@ -7,7 +7,7 @@ export type HeaderCandidate = {
   reasons: string[];
 };
 
-const HEADER_HINTS = [
+export const HEADER_HINTS = [
   'sku', 'code', 'item', 'product', 'name', 'price', 'quantity', 'qty',
   'رقم', 'كود', 'صنف', 'منتج', 'اسم', 'السعر', 'الكمية', 'العدد', 'التاريخ', 'date',
 ];
