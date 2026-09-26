@@ -920,3 +920,17 @@
 - Release boundary: Phase-F NOT PROVEN; no production mutation/certification.
 - Resume priority: consume current-head gate results first; fix only a reproduced current-SHA failure; otherwise continue independent UI + core closure.
 - Do-not-repeat: no stale PASS transfer, no queued-as-PASS, no production bypass, no duplicate workflow/RPC/import path.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26 / WAVE — GROUPED INVENTORY + CONNECTOR PROOF LANGUAGE
+
+- SOURCE HEAD OBSERVED BEFORE GOVERNANCE → 10faaff343ca7438788d9d8d155dbb2c47d5d5c3 on PR #660 / branch exec/20260926-deep-ui-core-polish.
+- CORE DELIVERY → grouped inventory reports now fail closed on malformed row objects, missing referenced groups, malformed group identity, and missing row identity instead of silently skipping them.
+- UI DELIVERY → Sources & Connections no longer labels a product-ready connector path as "Proven"; the summary now says "Product-ready paths" / "المسارات الجاهزة في المنتج".
+- UI DELIVERY → connector summary states are machine-addressable and visually differentiated as available / bounded / adapter.
+- CONTRACT DELIVERY → report-truth guards grouped inventory identity; product-wow guards connector proof language and state.
+- EXACT-HEAD STATUS → current head has Vercel failure at the known build-rate-limit target; workflow run snapshot is currently empty for this latest commit, so no CI PASS is inferred.
+- MERGE BOUNDARY → GitHub currently reports mergeable=false while compare against main previously showed behind_by=0 and status=ahead; no reproducible file conflict has been established, so no speculative conflict repair.
+- DEVICE → PC01 remains offline; no device/browser PASS.
+- RELEASE → Phase-F live backup/restore/RPO/RTO/rollback remains NOT PROVEN; no production mutation.
+- NEXT EXECUTABLE ACTION → on next session, query this exact latest HEAD and its workflow runs first; repair only the first reproduced current-head failure, then continue independent UI/core closure.
+- DO NOT REPEAT → no silent grouped-row skipping, no connector-availability-as-runtime-proof language, no stale PASS transfer, no speculative merge repair, no production/device certification claim.
