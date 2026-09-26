@@ -1,17 +1,16 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 160
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 162
 
-- HEAD OBSERVED BEFORE THIS INDEX WRITE: 929c908a197d5f887eba07f6ba3e93213407da94.
-- CURRENT CODE/TEST CANDIDATE: e39ad6290a079579ddb2207207c63489a1586350.
-- PR #659 / branch feat/deep-ui-core-closure-20260925.
-- CORE: dashboard canonical arrays/type boundaries, inventory product-reference validation, dashboard authoritative as-of contract, and canonical-import authoritative proof are now fail-closed.
-- DB: cash_accounts schema drift is now reconciled through a tracked idempotent migration with tenant FKs/RLS; migration applied successfully to staging.
-- UI: Inventory Intelligence type/state boundary, logout convergence, canonical source labeling, and keyboard/drag-drop import UX were deepened without new data paths.
-- CURRENT EVIDENCE: exact-head workflows for e39ad62 have started; several are queued/in-progress and no final application PASS is available yet.
-- PRODUCTION BOUNDARY: Vercel branch previews exist, but production remains on an older main deployment; preview is not production proof.
-- NOT PROVEN: current-head Quality/Final Certification/Browser/Phase-F terminal success, production promotion/identity, and device-dependent visual certification.
-- NEXT EXECUTABLE ACTION: consume the first terminal exact-head failure only; if none is terminal, continue the next independent UI/core closure. After code work settles, make a governance-only write-back for this exact code candidate.
-- DO NOT REPEAT: stale PASS, old UI closures, preview-as-production, deployment-limit confusion, duplicate importer/RPC/runner, or device-dependent work.
-- RESUME POINTER: main c985deeb… → PR #659 → e39ad629… → first terminal exact-head failure only → next independent UI/core closure → exact green merge evidence.
+- MAIN HEAD OBSERVED: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT CODE/TEST CANDIDATE: `87a660eb92ccd3efafcb6a637cfd9454bfdaf178` (PR #659 branch `feat/deep-ui-core-closure-20260925`).
+- CORE RETAINED FROM e39: canonical dashboard and import fail-closed truth boundaries; inventory product-reference validation; cash_accounts reconciliation migration. No new core mutation in this checkpoint.
+- UI FIXES: Receivables report memo now obeys stable React hook order; Inventory Intelligence grouped/detail filtering is type-narrowed and its memo executes before loading/error early returns.
+- EXACT FAILURE BASIS: e39 exact-head typecheck reported Inventory union errors; device-independent browser reported React error #310 on `/reports/receivables`. Both were repaired in the new candidate. Prior certification/enforcement also resolved stale indexed candidate `cce7418...`; Phase-F still reported production SHA mismatch and logical restore's missing composite uniqueness on `branches`.
+- NEW CANDIDATE EVIDENCE: no workflow/status had appeared for `87a660e...` at initial verification. All new-head gates remain NOT PROVEN; no prior PASS transferred.
+- NOT PROVEN / BLOCKED: Phase-F live resilience, production exact-SHA identity/promotion, full new-head Quality/Certification/Browser/desktop gates.
+- NEXT EXECUTABLE ACTION: consume first terminal exact-head failure on `87a660e...`; repair only a reproduced defect, then continue independent UI + core work. Keep Phase-F fail-closed.
+- DO NOT REPEAT: hook-order/union defects fixed here, stale SHA evidence, preview-as-production, production bypass, duplicate importer/RPC/runner.
+- RESUME POINTER: `main c985deeb… → PR #659 → code candidate 87a660e… → first terminal exact-head failure → independent UI/core closure → exact-green merge evidence`.
+
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 159
 
