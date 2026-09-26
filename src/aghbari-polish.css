@@ -737,3 +737,17 @@
 .ag-command-money-metric[data-value-state="available"]::after{background:linear-gradient(90deg,rgba(17,155,136,.65),transparent)}
 .ag-command-money-metric[data-value-state="unavailable"]::after{background:linear-gradient(90deg,rgba(231,181,43,.7),transparent)}
 .ag-command-money-metric[data-value-state="unavailable"] .tabular-nums{color:#75683f}
+
+/* Work Center: persisted progress outside the canonical 0–100 range stays visibly unavailable. */
+.ag-progress-unavailable{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:.2rem .5rem;
+  border-radius:999px;
+  background:#f7f3e7;
+  color:#756841;
+  font-size:10px;
+  font-weight:800;
+  border:1px solid #ddd4b7;
+}
