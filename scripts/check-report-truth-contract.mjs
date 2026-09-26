@@ -125,6 +125,12 @@ if (/(Number|parseFloat|parseInt)\([^\n]*\).*NaN|NaN.*(Number|parseFloat|parseIn
 // an empty result or substituting the current day for a missing authoritative as-of.
 const dataQualityCore = fs.readFileSync(path.join(srcDir, 'lib', 'data-quality-snapshot-core.ts'), 'utf8');
 for (const token of [
+  "function nonEmptyText(value: unknown): value is string",
+  "!nonEmptyText(snapshot.tenant_id)",
+  "!nonEmptyText(entity.name)",
+  "!nonEmptyText(issue.entity)",
+  "!nonEmptyText(issue.field)",
+  "!nonEmptyText(issue.issue)",
   "typeof entity.total !== 'number' || !Number.isInteger(entity.total)",
   "typeof entity.issues !== 'number' || !Number.isInteger(entity.issues)",
   "[\'users\', \'package\', \'warehouse\', \'receipt\'].includes(entity.icon)",
