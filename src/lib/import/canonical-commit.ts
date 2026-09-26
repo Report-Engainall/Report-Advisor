@@ -121,7 +121,7 @@ export async function commitImportBatch(
   const result = data as { committed?: unknown; ids?: unknown; idempotent_replay?: unknown };
   const committed = result.committed;
   const ids = result.ids;
-  const idempotentReplay = result.idempotent_replay === true;
+  const idempotentReplay = result.idempotent_replay;
   if (
     typeof committed !== 'number' ||
     !Number.isFinite(committed) ||
@@ -129,7 +129,9 @@ export async function commitImportBatch(
     committed !== rows.length ||
     !Array.isArray(ids) ||
     ids.length !== rows.length ||
-    ids.some((id) => typeof id !== 'string' || !id.trim())
+    ids.some((id) => typeof id !== 'string' || !id.trim()) ||
+    new Set(ids).size !== ids.length ||
+    typeof idempotentReplay !== 'boolean'
   ) {
     throw new Error('IMPORT_COMMIT_RESULT_MISMATCH');
   }
