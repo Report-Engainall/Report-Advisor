@@ -328,3 +328,24 @@
 - NEXT EXECUTABLE ACTION → inspect current post-merge main UI certification and any newly generated core Phase-F run; do not mutate production or legacy security surfaces without exact owner/invariant proof.
 - DO NOT REPEAT → no stale PASS transfer, no PR #635/#637/#640 evidence reuse, no production-SHA bypass, no blind legacy migration rehydration, no blanket SECURITY DEFINER revoke, no unsafe import-job mutation.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-138
+
+
+## Session checkpoint — 2026-09-27 — HEAD a121c3032deb4b4a708bed99b193a8e921ea453a
+
+### Closed in this checkpoint
+- `src/lib/queries.ts`: `updateImportRecord` now rejects malformed progress, malformed counters, counter overflow, and monotonic counter regression instead of clamping/coercing them.
+- Added `src/lib/import-progress.contract.test.ts` to lock the fail-closed import progress contract.
+- `src/pages/CanonicalImportPage.tsx`: missing understanding confidence renders «غير متاح»; unresolved persisted source specialty renders «غير مثبت».
+- Added `src/pages/CanonicalImportPage.truth.contract.test.ts` to lock those UI truth states.
+
+### Exact proof boundary
+- Main remains `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- PR #661 branch: `exec/20260926-continuous-ui-core-deep`.
+- Exact current branch HEAD: `a121c3032deb4b4a708bed99b193a8e921ea453a`.
+- The latest workflow fetch for this exact SHA has not returned a workflow run yet. The earlier `desktop-windows` success belonged to SHA `3a24c78c566532a8cdc19823ee859ccfb955f85d` and is stale for this checkpoint; no PASS transfer is allowed.
+- Vercel remains externally blocked by the free-plan build-rate limit; no SHA bypass and no production mutation performed.
+
+### Resume pointer
+1. Consume the first terminal exact-HEAD CI result for `a121c3032deb4b4a708bed99b193a8e921ea453a`.
+2. Repair only the first current-SHA defect if one appears.
+3. Continue an independent UI/core closure without repeating the closed Replay, Benchmark, Decision, Work Center, Trust, Reports, or Import truth closures.
