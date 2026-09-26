@@ -38,6 +38,8 @@ export function validateDataQualitySnapshot(data: unknown): DataQualitySnapshot 
     if (
       !entity ||
       typeof entity.name !== 'string' ||
+      entity.name.trim().length === 0 ||
+      !['users', 'package', 'warehouse', 'receipt'].includes(entity.icon) ||
       !Number.isFinite(entity.total) ||
       !Number.isFinite(entity.issues) ||
       !Number.isFinite(entity.score) ||
@@ -54,8 +56,11 @@ export function validateDataQualitySnapshot(data: unknown): DataQualitySnapshot 
     if (
       !issue ||
       typeof issue.entity !== 'string' ||
+      issue.entity.trim().length === 0 ||
       typeof issue.field !== 'string' ||
+      issue.field.trim().length === 0 ||
       typeof issue.issue !== 'string' ||
+      issue.issue.trim().length === 0 ||
       !Number.isFinite(issue.count) ||
       issue.count < 0 ||
       !['critical', 'warning', 'info'].includes(issue.severity)
