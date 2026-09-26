@@ -114,6 +114,25 @@ export function TrustEvidencePage() {
       </div>
     </section>
 
+    <section className="ag-evidence-passport rounded-[16px] border border-ink-200 bg-white shadow-card" aria-label="جواز الدليل">
+      <div className="flex flex-col gap-4 border-b border-ink-100 px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">EVIDENCE PASSPORT</div>
+          <h3 className="mt-1 text-base font-black text-ink-950">جواز الدليل للحالة الحالية</h3>
+          <p className="mt-1 text-[11px] leading-5 text-ink-500">ملخص ثابت لما يثبت في الـsnapshot الحالي، وما يمنع استخدامه في قرار تشغيلي.</p>
+        </div>
+        <span className={(status === 'OK' && criticalIssueTotal === 0 ? 'bg-success-50 text-success-700 ring-success-100' : status === 'EMPTY' ? 'bg-ink-50 text-ink-600 ring-ink-100' : 'bg-warning-50 text-warning-800 ring-warning-100') + ' inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-[9px] font-black ring-1 ring-inset'} role="status" aria-live="polite">
+          {status === 'OK' && criticalIssueTotal === 0 ? 'صالحة للفحص' : status === 'EMPTY' ? 'المصدر غير موجود' : 'تحتاج مراجعة'}
+        </span>
+      </div>
+      <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="ag-passport-cell"><span>STATUS</span><strong>{statusLabel}</strong><small>الحالة الكانونية الحالية</small></div>
+        <div className="ag-passport-cell"><span>TENANT</span><strong>السياق معزول</strong><small>{snapshot?.tenant_id ? 'معرّف شركة موجود دون عرضه للمستخدم' : 'غير مثبت'}</small></div>
+        <div className="ag-passport-cell"><span>RECORDS</span><strong>{totalRecords == null ? 'غير متاح' : totalRecords}</strong><small>إجمالي السجلات التي تم فحصها</small></div>
+        <div className="ag-passport-cell"><span>DECISION USE</span><strong>{criticalIssueTotal > 0 ? 'محجوب' : status === 'EMPTY' ? 'غير متاح' : 'يحتاج حدودًا معلنة'}</strong><small>{criticalIssueTotal > 0 ? 'أغلق المشكلات الحرجة أولًا' : 'لا ترفع الواجهة درجة الثقة تلقائيًا'}</small></div>
+      </div>
+    </section>
+
     <section className="ag-decision-strip" aria-label="ملخص الثقة">
       <div className="ag-decision-cell"><span className="ag-decision-label">الحالة الحالية</span><span className="ag-decision-value">{statusLabel}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">السجلات</span><span className="ag-decision-value">{totalRecords == null ? 'غير متاح' : totalRecords}</span></div>
