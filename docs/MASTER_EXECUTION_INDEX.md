@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 179
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE CANDIDATE: `69ed0e725f9a59061951f223ccde7483105ff063` on PR #661, `exec/20260926-continuous-ui-core-deep`.
+- UI LANE: centralized weighted Data Quality score; empty/no-record quality remains `غير متاح`; Trust & Evidence now exposes the same authoritative weighted score and preserves authoritative counts without zero coercion.
+- CORE LANE: shared weighted-score helper and facade export; contract coverage for weighted/empty truth and Trust & Evidence zero-fallback regression.
+- CORRECTION: the earlier checkpoint statement about API-side `recordKey` validation is superseded; that field is not part of `ReconciledCanonicalImportRow`, and generic record keys are derived in canonical-commit.
+- PROOF: PR #661 is mergeable; no workflow run is currently returned for exact head `69ed0e7`, so no current-head PASS is claimed. Device-dependent verification and Phase-F recovery remain NOT PROVEN; `PC01` remote device is offline.
+- NEXT: consume the first terminal exact-head PR #661 gate when available; repair only the first reproduced current-SHA failure; continue independent UI/core work.
+- DO NOT REPEAT: stale PASS, invalid `recordKey` requirement, prior #660 closures, duplicate paths, production bypass, blanket security changes.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 178
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
