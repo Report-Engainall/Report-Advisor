@@ -165,6 +165,10 @@ assert.ok(advisorSurface.includes('aria-label="إغلاق المستشار"'), '
 assert.ok(advisorSurface.includes("event.key === 'Escape'"), 'global Advisor must close on Escape');
 assert.ok(advisorSurface.includes("event.key === 'Tab'"), 'global Advisor must trap keyboard focus');
 assert.ok(advisorSurface.includes('document.body.style.overflow = \'hidden\''), 'global Advisor must lock background scroll while open');
+assert.ok(appShell.includes('const [alertLoadError, setAlertLoadError]'), 'App Shell must retain alert-load failures instead of collapsing them to an empty alert list');
+assert.ok(appShell.includes('setAlertLoadError(null)'), 'App Shell must clear the alert-load error only after starting a fresh read');
+assert.ok(appShell.includes('role="alert"'), 'App Shell must announce alert-load failures');
+assert.ok(appShell.includes('onClick={() => void loadAlerts()}'), 'App Shell must expose an in-place retry for alert-load failures');
 
 assert.ok(commandPalette.includes('restoreFocusRef'), 'command palette must restore focus to its opener');
 assert.ok(commandPalette.includes('document.body.style.overflow = \'hidden\''), 'command palette must lock background scroll while open');
