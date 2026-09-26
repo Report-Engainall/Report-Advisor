@@ -18,6 +18,16 @@ function readTree(dir) {
 
 const files = readTree(srcDir);
 const source = files.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
+
+for (const token of [
+  "typeof importId === 'string'",
+  "typeof sourceHash === 'string'",
+  "/^sha256:[0-9a-fA-F]{64}$/",
+  "typeof jobId === 'string'",
+  "CANONICAL_IMPORT_SERVER_EXECUTION_RESPONSE_INVALID",
+]) {
+  if (!source.includes(token)) throw new Error(\`Report truth contract missing canonical server-response invariant: \${token}\`);
+}
 const migrationFiles = fs.existsSync(migrationsDir)
   ? fs.readdirSync(migrationsDir).filter((f) => f.endsWith('.sql')).sort()
   : [];
