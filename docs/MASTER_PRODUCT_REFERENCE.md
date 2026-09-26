@@ -1,3 +1,6 @@
+## CURRENT UX RELIABILITY DETAIL — 2026-09-27
+
+- Secondary evidence surfaces must fail independently: a replay read failure cannot erase a valid command-center snapshot. The user sees REVIEW and a retry rather than a fabricated empty state.
 ## Decision and operating truth closure — 2026-09-27
 
 - Decision Experience now follows persisted lifecycle gates across evidence → decision → approval → work → outcome; downstream stages are not visually reachable as completed states without their prerequisite records.
