@@ -144,23 +144,34 @@ export function ReportsCenterPage() {
     </section>
 
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {reportCards.map((r) => <Link key={r.path} to={r.path} className="group">
-        <Card className="ag-report-card h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-xl">
-          <CardBody>
-            <div className="flex items-start gap-4">
-              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${r.iconClass}`}><r.icon size={20}/></div>
-              <div className="min-w-0 flex-1">
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <span className="rounded-full bg-ink-50 px-2.5 py-1 text-[10px] font-bold text-ink-500">{r.stage}</span>
-                  <span className="text-xs text-ink-400 group-hover:text-primary-600">فتح التقرير ←</span>
+      {reportCards.map((r) => {
+        const reportStatus =
+          r.path === '/reports/inventory' ? (kpis.inventoryValue == null ? 'INSUFFICIENT DATA' : truthLabel) :
+          r.path === '/reports/receivables' ? (kpis.totalReceivables == null ? 'INSUFFICIENT DATA' : truthLabel) :
+          (kpis.status === 'CONFIRMED' ? 'VERIFIED' : kpis.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA');
+        const statusTone = reportStatus === 'VERIFIED' ? 'badge-success' : reportStatus === 'CALCULATED' ? 'badge-primary' : 'badge-warning';
+        return <Link key={r.path} to={r.path} className="group">
+          <Card className="ag-report-card h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-xl">
+            <CardBody>
+              <div className="flex items-start gap-4">
+                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${r.iconClass}`}><r.icon size={20}/></div>
+                <div className="min-w-0 flex-1">
+                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                    <span className="rounded-full bg-ink-50 px-2.5 py-1 text-[10px] font-bold text-ink-500">{r.stage}</span>
+                    <span className={`badge ${statusTone}`}>{reportStatus}</span>
+                  </div>
+                  <h3 className="text-base font-bold text-ink-900">{r.title}</h3>
+                  <p className="mt-1 text-xs leading-6 text-ink-500">{r.desc}</p>
+                  <div className="mt-3 flex items-center justify-between gap-2 border-t border-ink-100 pt-2.5">
+                    <span className="text-[10px] font-semibold text-ink-400">{reportStatus === 'INSUFFICIENT DATA' ? 'لا تتخذ قرارًا قبل استكمال المصدر' : 'اللقطة الحالية قابلة للفحص'}</span>
+                    <span className="text-xs font-black text-primary-700 group-hover:translate-x-0.5 transition-transform">فتح التقرير ←</span>
+                  </div>
                 </div>
-                <h3 className="text-base font-bold text-ink-900">{r.title}</h3>
-                <p className="mt-1 text-xs leading-6 text-ink-500">{r.desc}</p>
               </div>
-            </div>
-          </CardBody>
-        </Card>
-      </Link>)}
+            </CardBody>
+          </Card>
+        </Link>;
+      })}
     </div>
 
     <section className="grid gap-4 lg:grid-cols-3">
