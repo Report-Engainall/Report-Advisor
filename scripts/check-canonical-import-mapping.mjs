@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 
 const source = readFileSync(new URL('../src/lib/file-engine/adapters.ts', import.meta.url), 'utf8');
+const serverBoundary = readFileSync(new URL('../api/canonical-import-execute.ts', import.meta.url), 'utf8');
 
 const required = [
   'materializeCanonicalFields',
@@ -22,3 +23,8 @@ if (!source.includes('if (!previous || column.mappingConfidence > previous.mappi
 }
 
 console.log('Canonical import mapping regression gate: PASS');
+
+
+for (const token of ['row_number_invalid', 'row_data_invalid', 'row_provenance_invalid', 'record_key_invalid', 'quality_approval_invalid']) {
+  if (!serverBoundary.includes(token)) throw new Error(`Canonical import server boundary missing: ${token}`);
+}
