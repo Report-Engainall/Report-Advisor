@@ -17,6 +17,29 @@ import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-p
 type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
+type SourceDomain = 'inventory-report' | 'sales-invoice' | 'customer-master' | 'product-master' | 'payment-report' | 'source-data';
+
+const SOURCE_DOMAIN_LABELS: Record<SourceDomain, string> = {
+  'inventory-report': 'تقرير مخزون',
+  'sales-invoice': 'فواتير مبيعات',
+  'customer-master': 'بيانات عملاء',
+  'product-master': 'بيانات أصناف',
+  'payment-report': 'تقرير تحصيل/مدفوعات',
+  'source-data': 'مصدر عام',
+};
+
+function inferSourceDomain(mappings: Array<{ mappedField: string | null }>): SourceDomain {
+  const fields = new Set(mappings.map(mapping => mapping.mappedField).filter((field): field is string => Boolean(field)));
+  const hasAny = (...names: string[]) => names.some(name => fields.has(name));
+  if (hasAny('stock_balance', 'received_quantity', 'posted_net_sales', 'unposted_net_sales', 'net_sales', 'warehouse')) return 'inventory-report';
+  if (hasAny('invoice_number', 'invoice_date') && hasAny('total', 'subtotal')) return 'sales-invoice';
+  if (hasAny('customer_name', 'customer_id', 'credit_limit', 'payment_terms_days') && hasAny('phone', 'email', 'segment')) return 'customer-master';
+  if (fields.has('sku') && fields.has('name') && hasAny('cost_price', 'selling_price', 'min_stock', 'reorder_point')) return 'product-master';
+  if (hasAny('paid_amount', 'payment_date', 'payment_method')) return 'payment-report';
+  return 'source-data';
+}
+
+
 function analyzeSourceUnderstanding(dataset: Dataset): { confidence: number; reason: string } {
   const columnCount = dataset.columns.length;
   const mappedCount = dataset.columns.filter(column => Boolean(column.mappedField)).length;
@@ -99,6 +122,7 @@ export function CanonicalImportPage() {
   const [qualityApproved, setQualityApproved] = useState(false);
   const [mappings, setMappings] = useState<Array<{ name: string; mappedField: string | null; confidence: number }>>([]);
   const [pdfTableReconstructed, setPdfTableReconstructed] = useState(false);
+  const [sourceDomain, setSourceDomain] = useState<SourceDomain>('source-data');
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [securityPassed, setSecurityPassed] = useState(false);
@@ -150,7 +174,9 @@ export function CanonicalImportPage() {
       const dataset = datasets[0];
       if (!dataset || dataset.rowCount === 0) throw new Error('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');
       setQuality(dataset.qualityScore);
-      setMappings(dataset.columns.map(c => ({ name: c.name, mappedField: c.mappedField, confidence: c.mappingConfidence })));
+      const nextMappings = dataset.columns.map(c => ({ name: c.name, mappedField: c.mappedField, confidence: c.mappingConfidence }));
+      setMappings(nextMappings);
+      setSourceDomain(inferSourceDomain(nextMappings));
       setPdfTableReconstructed(file.name.toLowerCase().endsWith('.pdf') && dataset.columns.some(column => column.qualityIssues.some(issue => issue.startsWith('PDF: أُعيد بناء الجدول'))));
       const hdrs = dataset.columns.map(c => c.name);
       setHeaders(hdrs);
@@ -207,7 +233,7 @@ export function CanonicalImportPage() {
 
       setProgress(30);
 
-      const entityType = 'generic:source-data';
+      const entityType = `generic:${sourceDomain}`;
       const rec = await createImportRecord({
         file_name: file.name,
         file_size: file.size,
@@ -312,11 +338,11 @@ export function CanonicalImportPage() {
     }
   }, [
     rows, file, fileHash, duplicate, securityPassed, quality,
-    qualityApproved, headers.length, mappings, warnings, understandingConfidence,
+    qualityApproved, headers.length, mappings, warnings, understandingConfidence, sourceDomain,
     understandingReason, loadHistory,
   ]);
 
-  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setPdfTableReconstructed(false); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); if (inputRef.current) inputRef.current.value = ''; };
+  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setPdfTableReconstructed(false); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); setSourceDomain('source-data'); if (inputRef.current) inputRef.current.value = ''; };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
@@ -366,7 +392,7 @@ export function CanonicalImportPage() {
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
               <div className="text-[10px] font-black tracking-[.08em] text-primary-700">SOURCE UNDERSTANDING</div>
-              <div className="mt-1 text-sm font-black text-ink-950">فهم المصدر وسياقه</div>
+              <div className="mt-1 text-sm font-black text-ink-950">فهم المصدر وسياقه</div><div className="mt-2 inline-flex items-center rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-[11px] font-black text-primary-800">التخصص المكتشف: {SOURCE_DOMAIN_LABELS[sourceDomain]}</div>
               <div className="mt-1 text-[11px] leading-5 text-ink-500">{understandingReason}</div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
