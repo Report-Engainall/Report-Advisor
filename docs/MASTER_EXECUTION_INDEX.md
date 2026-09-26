@@ -686,3 +686,10 @@
 - **UI IMPLEMENTATION:** `42ca66e327ce63fd5353de86d3f8753f12356b55`.
 - **UI CONTRACT:** `34b2038602f4899a78e6e183087cfe232c02faa8`.
 - **DONE:** decision alerts now send «فحص المصدر أولًا» to the existing Trust & Evidence route instead of returning to the same command screen.
+
+## Latest executable checkpoint — 2026-09-27 / HEAD a121c3032deb4b4a708bed99b193a8e921ea453a
+
+- PR #661 current head is `a121c3032deb4b4a708bed99b193a8e921ea453a`.
+- Closed: fail-closed import progress/counter validation and canonical-import missing-metadata truth states.
+- Exact-head CI is not yet observable for this SHA; do not reuse older green checks.
+- Resume action: first terminal exact-head CI result → first current-SHA defect only → parallel independent UI/core closure.
