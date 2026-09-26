@@ -1,3 +1,10 @@
+## DEEP-FINISH FOLLOW-THROUGH — 2026-09-26
+
+- TruthContextStrip now treats quality issue counts as valid only when they are finite non-negative integers; invalid values remain visibly unavailable and cannot unlock decision-ready language.
+- Chart surfaces expose explicit `ready` / `empty` state hooks and use component-unique SVG gradient IDs, preventing visual collisions when multiple TrendChart instances render together.
+- Chart tooltips and truth surfaces use the same executive emerald/brass visual hierarchy while preserving canonical truth semantics.
+- Shared surfaces remain mobile-safe and reduced-motion safe; visual transitions never alter eligibility or data values.
+
 ## DEEP-FINISH UI WAVE — 2026-09-26
 
 - The shared Aghbari shell now uses a restrained emerald/near-black/brass visual hierarchy with stronger surface depth, micro-motion, sticky data-table headers, touch-safe controls and low-bandwidth fallbacks.
