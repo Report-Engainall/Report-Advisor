@@ -55,7 +55,7 @@ export function DataQualitySnapshotPage() {
         <div className="mt-1 text-[11px] leading-5 text-primary-900/70">انتقل مباشرة إلى المسار الذي يعالج حالة الجودة الحالية.</div>
       </Link>
     </section>
-    <section className="ag-decision-strip" aria-label="ملخص جودة البيانات">
+    <section className="ag-decision-strip ag-quality-summary-strip" aria-label="ملخص جودة البيانات" data-summary-state={countsConsistent ? 'consistent' : 'unavailable'}>
       <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{snapshotStatus === 'EMPTY' ? 'EMPTY' : 'AVAILABLE'}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">السجلات</span><span className="ag-decision-value">{formatNumber(entities.reduce((s,e)=>s+e.total,0))}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">المشكلات</span><span className="ag-decision-value">{formatNumber(issues.reduce((s,i)=>s+i.count,0))}</span></div>
