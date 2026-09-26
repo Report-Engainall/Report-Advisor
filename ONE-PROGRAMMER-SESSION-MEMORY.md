@@ -502,3 +502,16 @@
 - CURRENT RESUME POINTER → `63efcfa7...` → consume first populated exact-head gate; repair only the first reproduced current-SHA failure; otherwise continue next independent UI/core closure.
 - DO NOT REPEAT → no local-preview substitution after commit, no fabricated authoritative metrics, no stale PASS transfer, no production-SHA bypass, no duplicate import workflow.
 
+
+## LATEST SESSION WRITE-BACK — 2026-09-26 / WAVE — LIQUIDITY + IMPORT SUCCESS CONTRACT REPAIR
+
+- CURRENT CODE HEAD → `8a5c8de603a794e53802c6348dae38ecce00b2b8` on PR #660.
+- UI TRUTH FIX → Liquidity next-action logic no longer treats missing overdue receivables or missing payables as zero; pressure actions require an actual finite value before routing.
+- IMPORT UI REPAIR → fixed a real regression where the success state still referenced the superseded `serverAcceptedRowCount`; success state now consistently uses `serverCommittedRowCount`.
+- IMPORT CONTRACT → UI guard now rejects the superseded metric name so the stale symbol cannot return silently.
+- GATES → current-head combined status currently exposes only Vercel failure at the known build-rate-limit target; no current-head CI/browser/certification PASS claimed.
+- PRIOR EXACT-HEAD EVIDENCE → Desktop Windows success and Netlify preview success were observed on earlier exact SHA `f0c2a5a7...`; they are not transferred to `8a5c8de6...`.
+- RELEASE BOUNDARY → device/browser remains unavailable, Phase-F live recovery/RPO/RTO/rollback remains NOT PROVEN, no production mutation.
+- CURRENT RESUME POINTER → `8a5c8de6...` → consume first populated current-head gate; repair only the first reproduced failure; continue independent UI/core closure.
+- DO NOT REPEAT → no missing-to-zero liquidity routing, no superseded import metric, no stale PASS transfer, no production-SHA bypass.
+
