@@ -116,7 +116,7 @@ export function Header({
           aria-label="فتح البحث ولوحة الأوامر"
         >
           <Search size={16} className="text-ink-500" />
-          <span className="flex-1 truncate">ابحث في المؤشرات أو المستندات أو التقارير…</span>
+          <span className="flex-1 truncate">ابحث في القرار أو الدليل أو البيانات أو التقارير…</span>
           <kbd className="hidden items-center rounded-md border border-ink-200 bg-white px-1.5 py-0.5 text-[9px] font-bold text-ink-400 sm:inline-flex">
             <Command size={10} /> K
           </kbd>
