@@ -1168,3 +1168,15 @@
 - RELEASE — Phase-F live recovery evidence NOT PROVEN; no production mutation.
 - NEXT EXECUTABLE ACTION — re-query exact-head workflows; first completed current-head failure is the only automatic repair target. If no failure is reproduced, continue independent UI/core closure and then refresh governance on the new SHA.
 - DO NOT REPEAT — no stale PASS transfer, no queued-as-PASS, no duplicate import finalization path, no production-SHA bypass.
+
+## SESSION EXIT HANDOFF — 2026-09-26
+
+- FINAL HEAD AFTER GOVERNANCE → c7d62cf0c3968d89d7af93b473f805ba54754fe3 on PR #660.
+- This SHA is the only resume anchor for a newly opened session.
+- First action in the next session: refresh PR #660 info and exact-head workflow/status evidence for this SHA before any code change.
+- Current visible exact-head status at handoff: Vercel failure / build-rate-limit only; this does not transfer the previous b414 workflow queue to c7d62c.
+- Previous gate snapshot immediately before governance: b414bfa4 had populated Actions, including Desktop Windows in_progress, Full Product Browser E2E queued, Final Certification Gate queued, and multiple truth/security suites queued or pending.
+- Device boundary: PC01 offline; no device/browser PASS.
+- Release boundary: Phase-F NOT PROVEN; no production mutation/certification.
+- Resume priority: consume current-head gate results first; fix only a reproduced current-SHA failure; otherwise continue independent UI + core closure.
+- Do-not-repeat: no stale PASS transfer, no queued-as-PASS, no production bypass, no duplicate workflow/RPC/import path.
