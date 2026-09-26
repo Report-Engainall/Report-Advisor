@@ -338,6 +338,9 @@ const commandCenter = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx'
 assert.ok(commandCenter.includes('Decision ROI'), 'command center must retain the Decision ROI surface');
 assert.ok(commandCenter.includes('لا يوجد denominator استثماري أو تكلفة موثقة'), 'Decision ROI must disclose the missing investment/cost denominator rather than inventing ROI');
 assert.ok(commandCenter.includes('فحص النتيجة المحفوظة'), 'Decision ROI must link to the governed outcome surface');
+assert.ok(decisionExperience.includes('const stageGate = useMemo<Record<Stage'), 'Decision Experience must gate lifecycle stages from persisted state');
+assert.ok(decisionExperience.includes("decisionContext?.decisionStatus === 'APPROVED'"), 'Decision Experience work stage must require a persisted approved decision');
+assert.ok(decisionExperience.includes("decisionContext?.workItemStatus === 'COMPLETED'"), 'Decision Experience outcome stage must require persisted work completion or outcome evidence');
 const commandUnavailable = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
 assert.ok(commandUnavailable.includes('DataUnavailableState'), 'executive command center must never fall through to a blank state when KPI truth is absent');
 const liquidityUnavailable = fs.readFileSync('src/pages/LiquidityPage.tsx', 'utf8');
