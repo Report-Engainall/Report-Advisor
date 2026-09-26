@@ -181,7 +181,7 @@ export function DecisionExperiencePage() {
           </div>
         </div>
         <div className="mt-5 grid grid-cols-6 gap-1" aria-label="مراحل القرار" role="progressbar" aria-valuemin={1} aria-valuemax={STAGES.length} aria-valuenow={currentStageIndex + 1} aria-valuetext={`${STAGES[currentStageIndex]?.label}: ${STAGES[currentStageIndex]?.description}`}>
-          {STAGES.map((item, index) => <button key={item.id} type="button" onClick={() => navigateStage(item.id)} aria-current={stage === item.id ? 'step' : undefined} className={'h-1.5 rounded-full transition-colors ' + (index <= currentStageIndex ? 'bg-primary-400' : 'bg-white/15')} title={item.label} aria-label={`${index + 1}. ${item.label}: ${item.description}`}/>)}
+          {STAGES.map((item, index) => <button key={item.id} type="button" onClick={() => navigateStage(item.id)} disabled={!canEnterStage(item.id)} aria-disabled={!canEnterStage(item.id) || undefined} aria-current={stage === item.id ? 'step' : undefined} className={'h-1.5 rounded-full transition-colors ' + (index <= currentStageIndex ? 'bg-primary-400' : 'bg-white/15')} title={item.label} aria-label={`${index + 1}. ${item.label}: ${item.description}`}/>)}
         </div>
       </section>
 
@@ -198,7 +198,7 @@ export function DecisionExperiencePage() {
         {STAGES.map((item, index) => (
           <button key={item.id} type="button" onClick={() => navigateStage(item.id)} disabled={!canEnterStage(item.id)} aria-disabled={!canEnterStage(item.id) || undefined} title={!canEnterStage(item.id) ? stageLockReason ?? undefined : item.label} className={'stage-pill ' + (stage === item.id ? 'stage-pill-active' : 'hover:border-ink-300 hover:bg-ink-50') + ' disabled:cursor-not-allowed disabled:opacity-60'} aria-current={stage === item.id ? 'step' : undefined}>
             <span className="block text-xs font-bold">{index + 1}. {item.label}</span>
-            <span className="mt-1 block text-[10px] text-ink-500">{item.description}</span>
+            <span className="mt-1 block text-[10px] text-ink-500">{!canEnterStage(item.id) ? stageLockReason : item.description}</span>
           </button>
         ))}
       </nav>
