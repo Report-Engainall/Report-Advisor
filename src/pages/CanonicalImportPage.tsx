@@ -251,14 +251,14 @@ export function CanonicalImportPage() {
 
       setProgress(88);
 
-      const serverAcceptedRowCountRaw = execution.serverAcceptedRowCount;
+      const serverCommittedRowCountRaw = execution.serverCommittedRowCount;
       if (
-        typeof serverAcceptedRowCountRaw !== 'number' ||
-        !Number.isFinite(serverAcceptedRowCountRaw) ||
-        !Number.isInteger(serverAcceptedRowCountRaw) ||
-        serverAcceptedRowCountRaw < 0
+        typeof serverCommittedRowCountRaw !== 'number' ||
+        !Number.isFinite(serverCommittedRowCountRaw) ||
+        !Number.isInteger(serverCommittedRowCountRaw) ||
+        serverCommittedRowCountRaw < 0
       ) {
-        throw new Error('CANONICAL_IMPORT_SERVER_ROW_COUNT_INVALID');
+        throw new Error('CANONICAL_IMPORT_SERVER_COMMITTED_ROW_COUNT_INVALID');
       }
       const serverValidatedQualityScoreRaw = execution.serverValidatedQualityScore;
       if (
@@ -269,15 +269,15 @@ export function CanonicalImportPage() {
       ) {
         throw new Error('CANONICAL_IMPORT_SERVER_QUALITY_INVALID');
       }
-      const serverAcceptedRowCount = serverAcceptedRowCountRaw;
+      const serverCommittedRowCount = serverCommittedRowCountRaw;
       const serverValidatedQualityScore = serverValidatedQualityScoreRaw;
       const snapshotId = typeof execution.snapshotId === 'string' ? execution.snapshotId : null;
       await finishImportJob(rec.id, 'completed', {
-        total: serverAcceptedRowCount,
-        valid: serverAcceptedRowCount,
+        total: serverCommittedRowCount,
+        valid: serverCommittedRowCount,
         invalid: 0,
         invalidRows: 0,
-        committed: serverAcceptedRowCount,
+        committed: serverCommittedRowCount,
         importId: rec.id,
         jobId: execution.jobId,
         file_name: file.name,
@@ -298,6 +298,7 @@ export function CanonicalImportPage() {
         jobId: execution.jobId,
         understandingConfidence,
         serverValidatedQualityScore,
+        serverIdempotentReplay: execution.serverIdempotentReplay === true,
       });
       setStep('done');
       await loadHistory();
