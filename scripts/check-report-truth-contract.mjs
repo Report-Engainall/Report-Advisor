@@ -162,6 +162,20 @@ for (const token of [
 }
 const querySource = fs.readFileSync(path.join(srcDir, 'lib', 'queries.ts'), 'utf8');
 for (const token of [
+  "function nonEmptyText(value: unknown): value is string",
+  "!nonEmptyText(value.id)",
+  "!nonEmptyText(value.company_id)",
+  "!nonEmptyText(value.entity_type)",
+  "!nonEmptyText(value.entity_name)",
+  "!nonEmptyText(value.metric)",
+  "!nonEmptyText(value.period)",
+  "!nonEmptyText(value.model_name)",
+  "!nonEmptyText(value.confidence)",
+]) {
+  if (!querySource.includes(token)) throw new Error('Report truth contract missing forecast identity invariant: ' + token);
+}
+
+for (const token of [
   "function importCountOrNull(value: unknown, field: string): number | null",
   "function importProgressOrNull(value: unknown): number | null",
   "IMPORT_DATA_INVALID: unsupported import status",
