@@ -195,3 +195,10 @@ Do not introduce Spark/streaming infrastructure only because it is architectural
 
 - Staging verification confirms RLS is enabled on report_execution_jobs, sales_invoices, and customers; tenant policies use company_id = current_company_id() for the inspected access paths.
 - get_receivables_report_page remains SECURITY DEFINER, but the observed body explicitly resolves current_company_id(), rejects null tenant context, and applies tenant filters to invoice and customer reads. No blind security-definer rewrite was performed without migration control.
+
+
+## Execution closure — 2026-09-27 / predecessor 04f19027b2dc7293d41436a9070de68cfad473fa
+
+- Dashboard snapshot validation now rejects response `months` values that differ from the requested `months` argument.
+- RFM, ABC, and Aging snapshot adapters now reject `CALCULATED` payloads with zero rows as malformed source state.
+- Focused contracts were added for dashboard period identity, analytics readiness, and calculated-empty snapshot consistency.
