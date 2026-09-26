@@ -100,6 +100,8 @@ function RecommendationCard({
       type="button"
       onClick={onClick}
       aria-pressed={active}
+      aria-label={'اختيار التوصية: ' + recommendation.title}
+      data-selected={active ? 'true' : 'false'}
       className={'w-full rounded-[14px] border p-4 text-right transition ' + (active ? 'border-primary-300 bg-primary-50/50 shadow-sm' : 'border-ink-200 bg-white hover:border-primary-200 hover:bg-primary-50/20')}
     >
       <div className="flex items-start gap-3">
