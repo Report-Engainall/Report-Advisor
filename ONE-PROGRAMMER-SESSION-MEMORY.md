@@ -1,3 +1,15 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-COMPREHENSIVE-6
+
+- DONE — CORE → data-quality snapshot rejects impossible entity issue totals where `issues > total`.
+- DONE — UI → Data Quality no longer clamps contradictory remaining-record counts; inconsistent summaries route visibly to review/trust.
+- DONE — CORE/UI → Work Center persisted progress must be finite and within `0..100`; out-of-range values now render as explicit unavailable state instead of being clipped.
+- DONE — CONTRACT → Product-WOW guards cover the Work Center numeric range and unavailable presentation.
+- VERIFIED SOURCE STATE → semantic edits re-read from GitHub after mutation.
+- NOT PROVEN → terminal latest-head application PASS, browser/device proof, production deployment identity, Phase-F live recovery/RPO/RTO/rollback.
+- EXTERNAL → Vercel Free build-rate-limit remains the known deployment blocker.
+- RESUME POINTER → latest PR #660 head after the governance write → consume exact-head CI → repair reproduced failure only → next independent 50/50 UI/Core boundary.
+- DO NOT REPEAT → stale PASS transfer, device-only verification, duplicate architecture/tests/routes, unsupported production certification.
+
 ## FINAL WAVE CHECKPOINT — 2026-09-26 / PR #660
 
 - HEAD OBSERVED BEFORE THIS WRITE → `c388b970e9863f28c604d115fb3cc7ccc55f718a`.
