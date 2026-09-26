@@ -166,6 +166,13 @@ for (const token of [
 
 const dashboardCanonicalSourceFull = fs.readFileSync(path.join(srcDir, 'lib', 'dashboard-canonical.ts'), 'utf8');
 for (const token of [
+  "function nonEmptyText(value: unknown): value is string",
+  "!nonEmptyText(value.month) || !nonEmptyText(value.label)",
+  "!nonEmptyText(value.id) || !nonEmptyText(value.name)",
+  "!nonEmptyText(value.bucket) || !Number.isInteger(value.count)",
+  "!nonEmptyText(value.customer_id) || !nonEmptyText(value.customer_name)",
+  "!nonEmptyText(value.product_id) || !nonEmptyText(value.product_name)",
+  "!nonEmptyText(value.name) || typeof value.amount !== 'number'",
   "function requiredArray<T>(value: unknown, field: string)",
   "function validateRFMRows(rows: unknown[]): RFMSnapshotRow[]",
   "function validateInventoryRows(rows: unknown[]): InventoryReportRow[]",
