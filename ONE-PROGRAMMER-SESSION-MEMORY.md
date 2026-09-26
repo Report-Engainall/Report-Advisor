@@ -484,3 +484,13 @@ Closed: Replay, Benchmark, Decision lifecycle gating, Trust, Reports, prior Impo
 
 ### CURRENT RESUME POINTER
 `current governance head → consume exact-head checks → repair only first reproduced current-SHA defect → continue next independent 50/50 UI+Core closure; keep Phase-F/device proof fail-closed.`
+
+
+## Session checkpoint — 2026-09-27 — predecessor 3324269dd2ba52563ee0311a39f68179490cb93f
+
+- UI closure: Customers and Products pagination now fail closed on unavailable counts; no synthetic zero totals or total-page counts are shown.
+- Added `src/pages/EntityPages.truth.contract.test.ts` covering null-count and bounded pagination behavior.
+- Exact-head check-runs for this candidate: 5 total = 3 queued, 1 in progress, 1 skipped, 0 failures, 0 successes; no PASS transfer.
+
+### CURRENT RESUME POINTER
+`current governance head → consume exact-head checks → first reproduced defect only → continue next independent UI/Core boundary; do not reopen closed surfaces.`
