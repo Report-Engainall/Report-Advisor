@@ -107,6 +107,7 @@ for (const token of [
   "unknownRows: nonNegativeIntegerOrNull(row.unknownRows, 'abc.unknownRows')",
   "unknownRows: nonNegativeIntegerOrNull(row.unknownRows, 'aging.unknownRows')",
   "function qualityCountOrNull(value: unknown, field: string): number|null",
+  "dashboard months is invalid",
   "const rawQuality = row.quality;",
   "throw new Error('REPORT_DATA_INVALID: quality must be an object when provided')",
   "badInvoiceRows:qualityCountOrNull(qualityRow.badInvoiceRows, 'quality.badInvoiceRows')",
