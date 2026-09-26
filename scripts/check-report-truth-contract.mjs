@@ -42,6 +42,7 @@ for (const token of [
   "Number.isInteger(serverCommittedRowCount)",
   "Array.isArray(serverCommittedIds)",
   "serverCommittedIds.length === serverCommittedRowCount",
+  "new Set(serverCommittedIds).size === serverCommittedIds.length",
   "serverCommittedRowCount === input.rows.length",
   "typeof serverQualityRaw === 'number'",
   "Number.isFinite(serverQualityRaw)",
