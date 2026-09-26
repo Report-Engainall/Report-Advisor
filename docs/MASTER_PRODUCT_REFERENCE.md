@@ -593,3 +593,10 @@ This is the target product tree. It defines how capabilities are presented; it d
 - Worker health exposes untrusted lease metadata as an operational state.
 - Receivables reporting now validates canonical metadata and row shape before presentation.
 - External File Analysis now presents source readiness and explicit next actions without creating a parallel import taxonomy.
+
+
+## Execution closure — 2026-09-27 / predecessor 04f19027b2dc7293d41436a9070de68cfad473fa
+
+- Analytics Center now reports live readiness for RFM, ABC, Aging, and executive exposure context instead of presenting static availability.
+- Analysis cards distinguish source-backed availability, insufficient data, read failure, and loading state, with a real refresh path and canonical next actions.
+- Dashboard period identity is strict: the response period must match the requested period before the snapshot is surfaced.
