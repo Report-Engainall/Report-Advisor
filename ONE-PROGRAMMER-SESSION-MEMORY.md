@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-163
+
+- HEAD OBSERVED BEFORE THIS WRITE → `ba7ff1d7324e52b94d5a5c967f8a9fba3c181a18` (latest functional code candidate).
+- PR #659 / branch `feat/deep-ui-core-closure-20260925`.
+- CORE DELIVERY → added forward-only migration `supabase/migrations/20260926140000_reconcile_branches_id_company_unique.sql` so logical restore establishes `branches(id,company_id)` uniqueness before the later `cash_accounts` composite foreign key migration. The migration explicitly fails closed if duplicate `(id,company_id)` rows exist.
+- STAGING PROOF → Supabase project `fnqbvfuwbdpwvhcgzksl` currently has `branches_id_company_unique=true`, `cash_accounts_branch_company_fkey=true`, and `cash_accounts_rows=0`; duplicate `(id,company_id)` probe returned no rows. No destructive mutation was required.
+- UI DELIVERY → Trust & Evidence now exposes source-reported top quality issues by severity/count, per-entity score progress with accessible progressbars, and an explicit interpretation panel. No fabricated snapshot/as-of data was introduced.
+- PRIOR UI FIXES RETAINED → Receivables hook-order repair and Inventory grouped/detail hook/type repair remain in the candidate lineage.
+- EXACT-HEAD WORKFLOWS → new candidate `ba7ff1d...` has 51 runs at observation: no terminal failures yet; 49 queued/in-progress, 2 skipped. Execution Enforcement and UI Route Completeness are running. No PASS claimed.
+- EXTERNAL / RELEASE BOUNDARY → Phase-F remains fail-closed; prior exact e39 evidence showed production SHA mismatch and logical-restore branch uniqueness failure. The repository now contains the missing prerequisite migration, but fresh exact-head Phase-F must prove it.
+- DO NOT REPEAT → no stale SHA evidence, no hook-order/type fixes already applied, no production mutation, no Phase-F gate weakening, no duplicate importer/RPC/runner.
+- NEXT EXECUTABLE ACTION → consume the first terminal failure on `ba7ff1d...`; if none is terminal, continue one independent UI/core closure while the gates run. Rebind governance candidate to the latest functional SHA before the next certification cycle.
+- CURRENT RESUME POINTER → `main c985deeb… → PR #659 → functional candidate ba7ff1d… → first terminal exact-head failure → independent UI+core closure → exact-green merge evidence`.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-162
 
 - HEAD OBSERVED BEFORE THIS WRITE → `87a660eb92ccd3efafcb6a637cfd9454bfdaf178` (functional code candidate).
