@@ -35,7 +35,7 @@ function MoneyMetric({
   icon: ReactNode;
 }) {
   return (
-    <div className="border-l border-ink-100 px-4 py-4 last:border-l-0">
+    <div className="ag-command-money-metric border-l border-ink-100 px-4 py-4 last:border-l-0" data-value-state={isFiniteNumber(value) ? 'available' : 'unavailable'}>
       <div className="flex items-center gap-2 text-[10px] font-black text-ink-400">
         <span className="text-primary-700">{icon}</span>{label}
       </div>
