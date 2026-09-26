@@ -1,3 +1,6 @@
+## CURRENT RESILIENCE DETAIL — 2026-09-27
+
+- Command Center isolates Business Replay read failure from the primary dashboard truth path. A failed replay read is shown as REVIEW with a retry action, not as INSUFFICIENT DATA and not as a command-center failure.
 ## Decision surface state closure — 2026-09-27
 
 - Decision Experience stage navigation is now state-gated from persisted decision/approval/work/outcome context; a URL cannot open a downstream stage merely by naming it.
