@@ -12,6 +12,10 @@ assert.ok(dataTable.includes('aria-rowcount={visibleRows.length + 1}') && dataTa
 assert.ok(dataTable.includes('role="navigation" aria-label="تنقّل الجدول"'), 'shared table pagination must expose navigation semantics');
 
 const queries = fs.readFileSync('src/lib/queries.ts', 'utf8');
+assert.ok(queries.includes('function validateReceivablesRows(rows: unknown[]): ReceivablesReportRow[]'), 'receivables rows must be validated before presentation');
+assert.ok(queries.includes('RECEIVABLES_DATA_INVALID: total_rows is invalid'), 'receivables totals must fail closed');
+assert.ok(!queries.includes('total_rows:Number(p.total_rows??0)'), 'receivables must not coerce missing totals to zero');
+
 assert.ok(queries.includes('function validateForecastRows(rows: unknown[]): Forecast[]'), 'forecast reads must validate row semantics');
 assert.ok(queries.includes('FORECAST_DATA_INVALID: row[' + index + '] bounds are inverted'), 'forecast bounds must fail closed when inverted');
 
