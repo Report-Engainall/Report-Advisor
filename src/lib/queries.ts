@@ -11,8 +11,51 @@ export async function fetchAgingBuckets(): Promise<AgingBucket[]> { return (awai
 export async function fetchRecommendations(): Promise<Recommendation[]> { return (await fetchDashboardIntelligence()).recommendations; }
 export async function fetchAlerts(): Promise<Alert[]> { return (await fetchDashboardIntelligence()).alerts; }
 export type ReceivablesReportRow = { id:string; invoice_number:string; invoice_date:string; due_date:string|null; total:number|null; paid_amount:number|null; balance:number; status:string|null; customer:{id:string|null;name:string|null}|null };
+function validateReceivablesRows(rows: unknown[]): ReceivablesReportRow[] {
+  rows.forEach((item, index) => {
+    if (!item || typeof item !== 'object') throw new Error('RECEIVABLES_DATA_INVALID: row[' + index + '] must be an object');
+    const value = item as Record<string, unknown>;
+    const nullableFinite = (field: string) => value[field] === null || (typeof value[field] === 'number' && Number.isFinite(value[field] as number));
+    if (
+      typeof value.id !== 'string' ||
+      typeof value.invoice_number !== 'string' ||
+      typeof value.invoice_date !== 'string' ||
+      (value.due_date !== null && typeof value.due_date !== 'string') ||
+      !nullableFinite('total') ||
+      !nullableFinite('paid_amount') ||
+      typeof value.balance !== 'number' || !Number.isFinite(value.balance) ||
+      (value.status !== null && typeof value.status !== 'string')
+    ) throw new Error('RECEIVABLES_DATA_INVALID: row[' + index + '] shape is invalid');
+
+    const customer = value.customer;
+    if (customer !== null && customer !== undefined) {
+      if (typeof customer !== 'object' || Array.isArray(customer)) throw new Error('RECEIVABLES_DATA_INVALID: row[' + index + '].customer is invalid');
+      const record = customer as Record<string, unknown>;
+      if ((record.id !== null && typeof record.id !== 'string') || (record.name !== null && typeof record.name !== 'string')) {
+        throw new Error('RECEIVABLES_DATA_INVALID: row[' + index + '].customer shape is invalid');
+      }
+    }
+  });
+  return rows as ReceivablesReportRow[];
+}
+
+
 export type ReceivablesReportPage = { status:'CALCULATED'|'NO_DATA'; page:number; page_size:number; total_rows:number; total_outstanding:number; rows:ReceivablesReportRow[] };
-export async function fetchReceivablesReportPage(page=0,pageSize=25):Promise<ReceivablesReportPage>{if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');if(!Number.isInteger(pageSize)||pageSize<1||pageSize>100)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');const {data,error}=await supabase.rpc('get_receivables_report_page',{p_page:page,p_page_size:pageSize});if(error)throw error;if(!data||typeof data!=='object')throw new Error('REPORT_DATA_UNAVAILABLE: receivables snapshot missing');const p=data as Record<string,unknown>;if(!Array.isArray(p.rows))throw new Error('REPORT_DATA_UNAVAILABLE: receivables rows missing');return{status:p.status==='NO_DATA'?'NO_DATA':'CALCULATED',page:Number(p.page??page),page_size:Number(p.page_size??pageSize),total_rows:Number(p.total_rows??0),total_outstanding:Number(p.total_outstanding??0),rows:p.rows as ReceivablesReportRow[]};}
+export async function fetchReceivablesReportPage(page=0,pageSize=25):Promise<ReceivablesReportPage>{
+  if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');
+  if(!Number.isInteger(pageSize)||pageSize<1||pageSize>100)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');
+  const {data,error}=await supabase.rpc('get_receivables_report_page',{p_page:page,p_page_size:pageSize});
+  if(error)throw error;
+  if(!data||typeof data!=='object')throw new Error('REPORT_DATA_UNAVAILABLE: receivables snapshot missing');
+  const p=data as Record<string,unknown>;
+  if(!Array.isArray(p.rows))throw new Error('REPORT_DATA_UNAVAILABLE: receivables rows missing');
+  if(p.status!=='CALCULATED'&&p.status!=='NO_DATA')throw new Error('RECEIVABLES_DATA_INVALID: status is invalid');
+  if(typeof p.page!=='number'||!Number.isInteger(p.page)||p.page<0)throw new Error('RECEIVABLES_DATA_INVALID: page is invalid');
+  if(typeof p.page_size!=='number'||!Number.isInteger(p.page_size)||p.page_size<1||p.page_size>100)throw new Error('RECEIVABLES_DATA_INVALID: page_size is invalid');
+  if(typeof p.total_rows!=='number'||!Number.isInteger(p.total_rows)||p.total_rows<0)throw new Error('RECEIVABLES_DATA_INVALID: total_rows is invalid');
+  if(typeof p.total_outstanding!=='number'||!Number.isFinite(p.total_outstanding))throw new Error('RECEIVABLES_DATA_INVALID: total_outstanding is invalid');
+  return{status:p.status,page:p.page,page_size:p.page_size,total_rows:p.total_rows,total_outstanding:p.total_outstanding,rows:validateReceivablesRows(p.rows)};
+}
 export type CanonicalExportRow = { [key:string]: string|number|null };
 export async function fetchReceivablesExportRows():Promise<CanonicalExportRow[]>{const companyId=await resolveCurrentCompanyId();if(!companyId)throw new Error('TENANT_REQUIRED');const {data,error}=await supabase.rpc('get_receivables_export_rows',{p_company_id:companyId,p_max_rows:10000});if(error)throw error;const payload=(data??{}) as Record<string,unknown>;if(!Array.isArray(payload.rows))throw new Error('REPORT_DATA_UNAVAILABLE: receivables export rows missing');return payload.rows as CanonicalExportRow[];}
 export async function fetchSalesInvoices(page=0,pageSize=20):Promise<{data:SalesInvoice[];count:number|null}>{if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');if(!Number.isInteger(pageSize)||pageSize<1||pageSize>500)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');const companyId=await resolveCurrentCompanyId();if(!companyId)throw new Error('TENANT_REQUIRED');const from=page*pageSize,to=from+pageSize-1,{data,count,error}=await supabase.from('sales_invoices').select('*, customer:customers(id,name)',{count:'exact'}).eq('company_id',companyId).order('invoice_date',{ascending:false}).order('created_at',{ascending:false}).order('id',{ascending:true}).range(from,to);if(error)throw error;return{data:(data??[]) as SalesInvoice[],count};}
