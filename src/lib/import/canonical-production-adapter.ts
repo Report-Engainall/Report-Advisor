@@ -3,7 +3,7 @@ import type { ReportExecutionStage } from '../report-execution/checkpoint';
 import { SupabaseReportExecutionStore } from '../report-execution/durable-worker-adapter';
 import { runDurableProductionLifecycle } from '../report-execution/durable-production-runner';
 import type { CanonicalImportEntityType, ReconciledCanonicalImportRow } from './canonical-truth-boundary';
-import { commitImportBatch } from './canonical-commit';
+import { commitImportBatch, type CanonicalCommitResult } from './canonical-commit';
 
 export interface DurableCanonicalImportInput {
   importId: string;
@@ -175,6 +175,7 @@ export async function runCanonicalImportThroughDurableRunner(
     value: row.value,
   }));
 
+  let canonicalCommit: CanonicalCommitResult | null = null;
   const result = await runDurableProductionLifecycle({
     jobId: job.id,
     workerId: `canonical-import-server:${crypto.randomUUID()}`,
@@ -221,11 +222,14 @@ export async function runCanonicalImportThroughDurableRunner(
       }
       if (stage === 'analyzed' && !currentRows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
       if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
-      if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId, importJobId: input.importId });
+      if (stage === 'committed') {
+        canonicalCommit = await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId, importJobId: input.importId });
+      }
     },
   }, store);
 
-  return { ...result, jobId: job.id, importId: input.importId };
+  if (!canonicalCommit) throw new Error('CANONICAL_COMMIT_RESULT_MISSING');
+  return { ...result, canonicalCommit, jobId: job.id, importId: input.importId };
 }
 
 export async function finalizeCanonicalImportSource(input: Pick<DurableCanonicalImportInput, 'importId' | 'fileName' | 'sourceHash' | 'entityType'>): Promise<{ importId: string; sourceHash: string }> {
