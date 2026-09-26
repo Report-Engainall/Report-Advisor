@@ -29,8 +29,10 @@ assert.ok(workCenter.includes('const zeroProgressActive = useMemo'), 'work cente
 assert.ok(workCenter.includes('تحقق من العمليات دون تقدم'), 'work center must route zero-progress work to a visible next action');
 assert.ok(workCenter.includes('نشطة بلا تقدم'), 'work center must expose zero-progress active count in the decision summary');
 assert.ok(workCenter.includes('بدون تقدم'), 'work center active rows must distinguish zero-progress processing from ordinary active work');
+assert.ok(workCenter.includes('function reviewRequired(row: ImportRecord): boolean'), 'work center review state must be explicit and fail closed');
+assert.ok(workCenter.includes('review: rows.filter(reviewRequired).length'), 'work center review count must not coerce missing exception counters to zero');
 assert.ok(workCenter.includes('role="progressbar"'), 'work center progress must expose a semantic progressbar');
-assert.ok(workCenter.includes('aria-valuenow={Math.max(0, Math.min(100, r.progress))}'), 'work center progress must expose the numeric progress value');
+assert.ok(workCenter.includes('aria-valuenow={finiteProgress(r.progress) ?? undefined}'), 'work center progress must expose only finite persisted progress');
 
 const assistant = fs.readFileSync('src/components/DeterministicIntelligenceAssistant.tsx', 'utf8');
 assert.ok(assistant.includes("type AssistantMode = 'LOADING' | 'READY' | 'INSUFFICIENT_DATA' | 'ERROR'"), 'assistant must distinguish loading from ready state');
