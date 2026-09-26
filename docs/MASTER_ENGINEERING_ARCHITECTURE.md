@@ -168,3 +168,10 @@ Input -> Normalize -> Map -> Transform -> Validate -> Output
 Small data uses direct deterministic SQL/local processing; medium data uses optimized SQL/batches; larger scale requires measured workload justification before introducing distributed systems.
 
 Do not introduce Spark/streaming infrastructure only because it is architecturally fashionable.
+
+
+## Execution closure — 2026-09-27 / HEAD a121c3032deb4b4a708bed99b193a8e921ea453a
+
+- `updateImportRecord` validates progress as finite numeric 0–100 and validates row counters as non-negative integers before invoking the governed progress RPC.
+- Progress/counter regressions are rejected explicitly; previous clamping/coercion paths are removed so corrupted caller state cannot be normalized into a plausible successful state.
+- A dedicated Vitest contract locks these source-level invariants in `src/lib/import-progress.contract.test.ts`.
