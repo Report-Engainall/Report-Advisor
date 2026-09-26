@@ -1,3 +1,19 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-147
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `6701676a72a4150495ea727ac6d98b61bc102d39` on PR #660.
+- UI LANE → dark Sidebar cascade fixed; live Header context rail; Dashboard KPI navigation; Truth Context quality disclosure; status-aware Reports Center; Decision readiness/evidence grid; ownership/status/deadline visibility; Trust severity triage; source-quality pressure now visible on Dashboard, Truth Context and Reports.
+- CORE LANE → canonical dashboard quality breakdown exposed from RPC payload; malformed arrays/state/as-of still fail closed; aging unknownRows remains unknown when missing; source quality counts are preserved without coercing missing to zero.
+- CONTRACTS → report-truth contract guards fail-closed dashboard parsing; Product WOW contract locks executive shell/evidence visual invariants.
+- LIVE SECURITY OBSERVATION → staging security advisor still reports 46 authenticated-callable SECURITY DEFINER warnings plus leaked-password protection warning. No blanket revocation. get_receivables_report_page remains intentionally governed after live tenant/search_path inspection.
+- EXACT CURRENT GATE → Vercel/Pending remains the only visible commit status on this candidate; no browser/device/production PASS claimed.
+- BLOCKED EXTERNAL → local device/browser unavailable; Vercel free-plan deployment boundary remains external.
+- VERIFIED → exact main base, current PR lineage, UI/core source changes, live staging security observation, and contract additions.
+- NOT PROVEN → current CI/build/browser, production deployment identity, Phase-F live recovery/RPO/RTO/rollback.
+- CURRENT RESUME POINTER → `PR #660 6701676... → consume exact-head gate → repair first reproduced failure only → merge only after required evidence; otherwise continue independent UI/core fronts`.
+- NEXT EXECUTABLE ACTION → consume first exact-head gate result when exposed; if clean, continue remaining canonical surface depth and independent core hardening without reopening merged work.
+- DO NOT REPEAT → no #657/#658 rework, no stale PASS transfer, no production SHA bypass, no blanket SECURITY DEFINER cleanup, no duplicate architecture, no device-dependent evidence claim.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-146
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
