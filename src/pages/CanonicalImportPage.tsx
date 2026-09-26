@@ -114,6 +114,7 @@ export function CanonicalImportPage() {
   const [history, setHistory] = useState<any[]>([]);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedFileRef = useRef<File | null>(null);
 
@@ -364,7 +365,40 @@ export function CanonicalImportPage() {
           </div>
         </div>
       </div>
-      <div onClick={() => inputRef.current?.click()} className="ag-import-dropzone border-2 border-dashed rounded-[18px] p-10 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/20 transition-colors"><input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} /><Upload className="mx-auto text-primary-500 mb-3" size={30}/><h3 className="font-semibold">اختر ملفًا أو اسحبه إلى هنا</h3><p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p><p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB</p></div>
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label="اختيار مصدر أو إسقاط ملف للاستيراد"
+        onClick={() => inputRef.current?.click()}
+        onKeyDown={event => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
+        onDragEnter={event => {
+          event.preventDefault();
+          setDragActive(true);
+        }}
+        onDragOver={event => event.preventDefault()}
+        onDragLeave={event => {
+          event.preventDefault();
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragActive(false);
+        }}
+        onDrop={event => {
+          event.preventDefault();
+          setDragActive(false);
+          const droppedFile = event.dataTransfer.files?.[0];
+          if (droppedFile) void handleFile(droppedFile);
+        }}
+        className={'ag-import-dropzone border-2 border-dashed rounded-[18px] p-10 text-center cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 ' + (dragActive ? 'border-primary-500 bg-primary-50/50 shadow-[0_0_0_4px_rgba(20,184,166,.10)]' : 'hover:border-primary-400 hover:bg-primary-50/20')}
+      >
+        <input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" aria-label="اختر ملف المصدر" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} />
+        <Upload className="mx-auto text-primary-500 mb-3" size={30}/>
+        <h3 className="font-semibold">{dragActive ? 'أفلت المصدر هنا' : 'اختر ملفًا أو اسحبه إلى هنا'}</h3>
+        <p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p>
+        <p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB · يمكنك استخدام لوحة المفاتيح للفتح</p>
+      </div>
       {error && <div className="mt-4 p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
     </CardBody></Card>}
 
