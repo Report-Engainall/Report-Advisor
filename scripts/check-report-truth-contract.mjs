@@ -94,6 +94,16 @@ for (const token of [
   "REPORT_DATA_INVALID: profitability.bad_sale_item_rows must be a non-negative integer or null",
   "REPORT_DATA_INVALID: profitability.currency_mismatch_rows must be a non-negative integer or null",
 ]) if (!profitabilityCanonical.includes(token)) throw new Error('Report truth contract missing profitability invariant: ' + token);
+const canonicalCommit = fs.readFileSync(path.join(srcDir, 'lib', 'import', 'canonical-commit.ts'), 'utf8');
+for (const token of [
+  "throw new Error('IMPORT_COMMIT_RESULT_INVALID')",
+  "typeof committed !== 'number'",
+  "!Number.isFinite(committed)",
+  "ids.some((id) => typeof id !== 'string' || !id.trim())",
+  "throw new Error('IMPORT_COMMIT_RESULT_MISMATCH')",
+]) {
+  if (!canonicalCommit.includes(token)) throw new Error(`Report truth contract missing canonical import commit invariant: ${token}`);
+}
 const querySource = fs.readFileSync(path.join(srcDir, 'lib', 'queries.ts'), 'utf8');
 for (const token of [
   "function importCountOrNull(value: unknown, field: string): number | null",
