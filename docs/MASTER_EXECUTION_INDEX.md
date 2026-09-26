@@ -752,3 +752,12 @@
 - Closed: Dashboard Intelligence transport-only retry boundary and malformed-payload fail-fast behavior.
 - Exact-head checks at functional predecessor: 50 total = 47 queued, 3 skipped, 0 failures, 0 successes.
 - Resume: current governance head → exact-head checks → first reproduced defect only → next independent UI/Core closure.
+
+
+## 2026-09-27 — Import End-to-End Execution Checkpoint
+- Code candidate observed before governance tail: ce23d1f72a84b5d4e4266f1f1ae6db194c177bd2.
+- Unified import is no longer read/preview-only for trusted sources: quality + understanding gates auto-advance into durable canonical execution.
+- Fully understood product/customer/sales sources promote into existing canonical targets; incomplete or unsupported domains remain generic evidence.
+- Canonical commit proof is retained and surfaced; lifecycle visibility now covers all durable stages through rendered result.
+- No new importer/RPC/runner was created.
+- Current exact-head PASS remains NOT PROVEN; Vercel is externally blocked by free-plan build-rate and Desktop Commander has no live connection.
