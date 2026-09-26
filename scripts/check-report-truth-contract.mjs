@@ -92,6 +92,9 @@ for (const token of [
   "throw new Error('REPORT_DATA_INVALID: quality must be an object when provided')",
   "badInvoiceRows:qualityCountOrNull(qualityRow.badInvoiceRows, 'quality.badInvoiceRows')",
   "badSaleItemRows:qualityCountOrNull(qualityRow.badSaleItemRows, 'quality.badSaleItemRows')",
+  "badPurchaseRows:qualityCountOrNull(qualityRow.badPurchaseRows, 'quality.badPurchaseRows')",
+  "badInventoryRows:qualityCountOrNull(qualityRow.badInventoryRows, 'quality.badInventoryRows')",
+  "salesCurrencyMismatchRows:qualityCountOrNull(qualityRow.salesCurrencyMismatchRows, 'quality.salesCurrencyMismatchRows')",
   "purchaseCurrencyMismatchRows:qualityCountOrNull(qualityRow.purchaseCurrencyMismatchRows, 'quality.purchaseCurrencyMismatchRows')",
 ]) {
   if (!dashboardCanonical.includes(token)) {
