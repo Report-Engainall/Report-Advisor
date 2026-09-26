@@ -1,3 +1,16 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-149
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `454df3d6739f172cb3de239eabb79f141c4a1e93` on PR #660.
+- UI LANE → Decision Experience readiness was made a typed terminal state (`READY | REVIEW | BLOCKED`) and its UI contract now guards all three states. Dashboard/Truth/Reports quality provenance remains active.
+- REPAIR CONSUMED → exact source inspection exposed a current-head defect: the hero code read `readiness.status` while the readiness function returned no typed status. Fixed immediately in `106d8a9bcd4bdfc02bd65e1a0e7d559f07a0f632`; contract strengthened in `454df3d6739f172cb3de239eabb79f141c4a1e93`.
+- CORE LANE → canonical dashboard parsing remains fail-closed for malformed arrays, invalid aging state, missing as-of and unknown quality values; no missing-to-zero conversion.
+- EXACT-HEAD GATES → fresh workflows are now exposed for candidate `106d8a9b...`; Quality, Final Certification, UI Route Completeness, Device-Independent Browser E2E, Full Product Browser E2E and Phase-F are queued; Commercial PWA E2E is in progress. No PASS transferred yet.
+- DEPLOYMENT → Vercel, Netlify preview and Vercel Deployments are pending; no production/browser PASS claimed from pending statuses.
+- SECURITY → 46 authenticated SECURITY DEFINER advisor warnings remain under governed review; no blanket revoke.
+- CURRENT RESUME POINTER → `PR #660 454df3d... → consume exact-head gate results → repair only the first reproduced current-head failure; otherwise continue deep UI/core closure and merge only after required evidence`.
+- DO NOT REPEAT → stale PASS, production SHA bypass, merged-PR rework, duplicate architecture/import paths, blanket security cleanup, device-dependent verification claims.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-148
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
