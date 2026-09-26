@@ -13,6 +13,9 @@ describe('benchmark network surface contract', () => {
 
   it('fails closed when no peer cohort exists', () => {
     expect(page).toContain('INSUFFICIENT_SAMPLE');
+    expect(page).toContain('BENCHMARK GATE');
+    expect(page).toContain('كيف ستظهر النتيجة عند اكتمال البوابة؟');
+    expect(page).toContain('NO FABRICATION');
     expect(page).toContain('لا توجد عينة نظيرة كافية للمقارنة');
     expect(page).toContain('لا يتم تصنيع أي percentile أو مقارنة');
   });
