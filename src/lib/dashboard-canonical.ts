@@ -10,7 +10,7 @@ export interface DashboardKPIs {
 export interface MonthlyTrend {month:string;label:string;sales:number|null;cost:number|null;profit:number|null;invoices:number;status:'CALCULATED'|'NO_DATA'|'INSUFFICIENT_DATA';}
 export interface TopEntity {id:string;name:string;value:number;secondary?:number;}
 export interface AgingBucket {bucket:string;amount:number|null;count:number;}
-export interface AgingDashboard {rows:AgingBucket[];totalAmount:number|null;unknownRows:number;status:'NO_DATA'|'CALCULATED'|'INSUFFICIENT_DATA';}
+export interface AgingDashboard {rows:AgingBucket[];totalAmount:number|null;unknownRows:number|null;status:'NO_DATA'|'CALCULATED'|'INSUFFICIENT_DATA';}
 export interface CategoryBreakdown {name:string|null;sales:number;profit:number;quantity:number;categoryStatus:'CALCULATED'|'UNKNOWN';}
 export interface ProfitabilitySnapshot {status:'CALCULATED'|'INSUFFICIENT_DATA';currency:string|null;currency_status:'CONSISTENT'|'INSUFFICIENT_DATA';revenue:number|null;cost:number|null;gross_profit:number|null;gross_margin:number|null;invoice_count:number|null;bad_invoice_rows:number|null;bad_sale_item_rows:number|null;currency_mismatch_rows:number|null;reasons:string[];as_of:string;}
 export interface InventoryReportRow {id:string;quantity:number|null;unit_cost:number|null;value:number|null;product?:{id:string;name:string|null;sku:string|null;reorder_point:number|null}|null;warehouse?:{id:string;name:string|null}|null;}
@@ -82,7 +82,7 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
     aging:{
       rows:requiredArray<AgingBucket>(agingRow.rows, 'aging.rows'),
       totalAmount:finiteOrNull(agingRow.totalAmount),
-      unknownRows:typeof agingRow.unknownRows==='number'?agingRow.unknownRows:0,
+      unknownRows:finiteOrNull(agingRow.unknownRows),
       status:agingRow.status==='CALCULATED'?'CALCULATED':agingRow.status==='NO_DATA'?'NO_DATA':'INSUFFICIENT_DATA'
     }
   };
