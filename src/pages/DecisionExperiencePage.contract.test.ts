@@ -26,6 +26,8 @@ describe('decision experience lifecycle contract', () => {
     expect(queries).toContain('WORK_EVIDENCE_SNAPSHOT_UNAVAILABLE');
     expect(queries).toContain('OUTCOME_EVIDENCE_SNAPSHOT_UNAVAILABLE');
     expect(page).toContain('لقطة الدليل');
+    expect(page).toContain('EVIDENCE AVAILABLE');
+    expect(page).toContain('لقطة دليل محفوظة ويمكن ربط القرار بها');
   });
 
   it('keeps self-approval controlled by the canonical database function', () => {
