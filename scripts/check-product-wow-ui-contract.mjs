@@ -369,7 +369,7 @@ assert.ok(masterDataHub.includes('to="/import"'), 'master data hub must expose t
 assert.ok(masterDataHub.includes('لا تُعرض كيانات غير مثبتة'), 'master data hub must preserve fail-closed reference semantics');
 assert.ok(masterDataHub.includes('min-h-11'), 'master data actions must meet touch-target sizing');
 
-const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
+
 assert.ok(executiveReport.includes('<LoadingState message="جارٍ بناء التقرير التنفيذي من المصادر المعتمدة..." />'), 'executive report must use the shared loading state');
 assert.ok(executiveReport.includes('<ErrorState message={error} onRetry={() => void load()} />'), 'executive report must use the shared error state with retry');
 assert.ok(executiveReport.includes('const nextAction ='), 'executive report must derive a governed next action');
