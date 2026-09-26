@@ -41,6 +41,18 @@ const STEPS: Array<{ key: Step; label: string }> = [
   { key: 'done', label: 'النتيجة' },
 ];
 
+const EXECUTION_LIFECYCLE: Array<{ key: string; label: string; at: number }> = [
+  { key: 'queued', label: 'انتظار التنفيذ', at: 10 },
+  { key: 'fingerprinted', label: 'تثبيت البصمة', at: 20 },
+  { key: 'extracted', label: 'استخراج المحتوى', at: 30 },
+  { key: 'canonicalized', label: 'تطبيع الحقيقة', at: 45 },
+  { key: 'validated', label: 'التحقق', at: 60 },
+  { key: 'analyzed', label: 'التحليل', at: 72 },
+  { key: 'decisioned', label: 'بناء سياق القرار', at: 82 },
+  { key: 'committed', label: 'الكتابة الكانونية', at: 92 },
+  { key: 'rendered', label: 'تجهيز النتيجة', at: 100 },
+];
+
 function icon(format: FileFormat) {
   if (['xlsx', 'xls', 'xlsm', 'csv', 'tsv', 'ods'].includes(format)) return <FileSpreadsheet size={18} />;
   if (['pdf', 'docx', 'doc', 'rtf'].includes(format)) return <FileText size={18} />;
@@ -438,7 +450,7 @@ export function CanonicalImportPage() {
       </div>}
     </div>}
 
-    {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم اعتماد المصدر عبر مسار الحقيقة الكانونية العامة مع بصمته وسياقه وجودته، ولا يُعلن نجاح الاعتماد إلا بعد إتمام مسار الكتابة الفعلي.</p></div></CardBody></Card>}
+    {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4" aria-busy="true" role="status"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ إكمال مسار المصدر بالكامل...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><div className="grid w-full max-w-3xl grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">{EXECUTION_LIFECYCLE.map((item, index) => { const previous = EXECUTION_LIFECYCLE[index - 1]?.at ?? 0; const active = progress >= previous && progress < item.at; const complete = progress >= item.at; return <div key={item.key} className={`rounded-xl border px-3 py-2 text-center text-[10px] font-bold ${complete ? 'border-success-200 bg-success-50 text-success-800' : active ? 'border-primary-200 bg-primary-50 text-primary-800' : 'border-ink-100 bg-ink-50 text-ink-400'}`} aria-current={active ? 'step' : undefined}>{complete ? '✓ ' : ''}{item.label}</div>; })}</div><p className="text-xs text-ink-400">هذه ليست قراءة فقط: يجري الفحص، التطبيع، التحقق، التحليل، سياق القرار، الكتابة الكانونية ثم تجهيز النتيجة. لا يُعلن النجاح قبل اكتمال الكتابة الفعلية.</p></div></CardBody></Card>}
 
     {step === 'done' && result && (() => { const action = postImportAction(result.canonicalEntityType, result.sourceDomain as SourceDomain); return <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">اكتمل مسار المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المعتمدة</div><b>{formatNumber(result.canonicalCommitted ?? result.valid)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence == null ? 'غير متاح' : `${result.understandingConfidence}%`}</b></div></div><div className="w-full max-w-lg rounded-lg border border-success-200 bg-success-50 px-4 py-3 text-sm text-success-900"><div className="font-black">هدف الكتابة: {result.canonicalEntityType === 'products' ? 'الأصناف' : result.canonicalEntityType === 'customers' ? 'العملاء' : result.canonicalEntityType === 'sales_invoices' ? 'فواتير المبيعات' : 'دليل المصدر العام'}</div><div className="mt-1 text-[11px]">تم إثبات نتيجة الكتابة الكانونية: {formatNumber(result.canonicalCommitted ?? 0)} سجل{result.canonicalIdempotentReplay ? ' — إعادة تشغيل idempotent' : ''}.</div></div><div className="rounded-lg border border-primary-100 bg-primary-50 px-4 py-3 text-sm font-black text-primary-900">التخصص المثبت: {SOURCE_DOMAIN_LABELS[result.sourceDomain as SourceDomain] ?? 'غير مثبت'}</div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><div className="w-full max-w-lg rounded-xl border border-ink-200 bg-white p-4"><div className="text-sm font-black text-ink-900">الآن ماذا؟</div><div className="mt-1 text-[11px] leading-5 text-ink-500">{action.detail}</div><Link to={action.to} className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary-700 px-4 py-2.5 text-xs font-black text-white hover:bg-primary-800">{action.label} <ArrowLeft size={14}/></Link></div><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">لم يتوقف المسار عند القراءة: تم فحص المصدر، فهمه، التحقق من الشروط، اعتماده وكتابة الحقيقة الكانونية ثم عرض الإجراء التالي.</p><button type="button" onClick={reset} className="btn-secondary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>; })()}
 
