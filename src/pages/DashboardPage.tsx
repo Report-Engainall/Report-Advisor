@@ -279,7 +279,7 @@ export function DashboardPage() {
         </div>
       </section>
 
-      <TruthContextStrip months={trendMonths} status={kpis.status} asOf={snapshotAsOf ?? 'غير متاح'} />
+      <TruthContextStrip months={trendMonths} status={kpis.status} asOf={snapshotAsOf ?? 'غير متاح'} qualityIssues={qualityIssueTotal} />
       
       <section className="grid gap-3 lg:grid-cols-[1.05fr_.95fr]">
         <Card>
