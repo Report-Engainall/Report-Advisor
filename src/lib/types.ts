@@ -197,6 +197,24 @@ export interface Recommendation {
   created_at: string;
 }
 
+export interface RecommendationOutcome {
+  id: string;
+  recommendation_key: string;
+  decision_id: string;
+  observed_at: string;
+  expected_impact: number | null;
+  actual_impact: number | null;
+  outcome_quality: number | null;
+  status: 'positive' | 'negative' | 'neutral' | 'insufficient';
+  evidence: Record<string, unknown>;
+}
+
+export interface DecisionEvidenceSnapshot {
+  id: string;
+  kind: 'business_state' | 'kpi' | 'import' | 'operational_health' | 'source_analysis';
+  observed_at: string;
+}
+
 export interface Alert {
   id: string;
   company_id: string;
