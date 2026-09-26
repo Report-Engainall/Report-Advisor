@@ -1,3 +1,16 @@
+## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-178
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `6737bb458a27666874337d57347e40f6497485d5` on PR #661, `exec/20260926-continuous-ui-core-deep`.
+- UI DELIVERY → External File Analysis upload now supports accessible keyboard/drag-drop entry and scoped table headers; Work Center exception filtering fails closed on unavailable counts; shared charts reject non-finite numeric values with an explicit source error state.
+- CORE DELIVERY → dashboard canonical row validation now checks trend/top-entity/category/aging semantics; dashboard intelligence validates recommendation/alert object shapes; canonical import server boundary enforces RECONCILED provenance, source hash/source document/file identity, duplicate row numbers, and tenant identity.
+- CORRECTION → removed the invalid server expectation that canonical rows contain `recordKey`; generic record keys are derived by canonical-commit from row number.
+- EXACT CHANGE SURFACE → existing UI/core files and contract families only; no duplicate importer/RPC/navigation path and no production mutation.
+- PROOF → current PR #661 head is mergeable=true / mergeable_state=unstable. Exact-head checks remain incomplete; device-dependent verification and Phase-F recovery remain NOT PROVEN. No PASS transferred.
+- CURRENT RESUME POINTER → `PR #661 exact head 6737bb458a27666874337d57347e40f6497485d5 → consume first terminal non-skipped gate → repair first reproduced current-SHA failure only → continue uncovered UI/core boundary; keep Phase-F fail-closed`.
+- NEXT EXECUTABLE ACTION → consume terminal PR #661 gates when available; otherwise continue the next independent UI/core closure without reopening completed work.
+- DO NOT REPEAT → stale evidence, prior #660 closures, production-SHA bypass, duplicate import/RPC/navigation paths, blanket security revokes, unsafe import-job mutation.
+
 ## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-177
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
