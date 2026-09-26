@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 187
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- PR #661 branch: `exec/20260926-continuous-ui-core-deep`.
+- LAST FUNCTIONAL WRITE: `185a4cc78c55b64cc662e13417b20d9808d243df3`.
+- Desktop Windows exact-lineage gate `36269041388` is SUCCESS; current later gates remain queued/pending.
+- Data Quality EMPTY presentation corrected so unavailable overall score displays `غير متاح`, not `null%`.
+- PDF + Arabic source understanding + multi-page import + source specialty persistence remain implemented and covered by regression work.
+- No current-head PASS transferred from older SHA. Vercel build-rate limit remains an external hosting blocker for a fresh preview; Netlify CI is reported successful but exact deployed SHA still needs confirmation.
+- NEXT: consume first terminal current-head gate, fix only reproduced defect, then continue the next uncovered UI/core boundary.
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 186
 
 - MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
