@@ -23,6 +23,15 @@ export async function fetchInventoryIntelligenceSource(): Promise<InventoryIntel
   ]);
   if (memberError || balanceError || productError) throw memberError || balanceError || productError;
 
+  for (const product of (products ?? []) as Product[]) {
+    if (
+      typeof product.id !== 'string' || !product.id.trim() ||
+      typeof product.sku !== 'string' || !product.sku.trim() ||
+      typeof product.name !== 'string' || !product.name.trim()
+    ) {
+      throw new Error('INVENTORY_DATA_INVALID: product identity is invalid');
+    }
+  }
   const productById = new Map((products ?? []).map((p: Product) => [p.id, p]));
   const demandByProduct = new Map(demand.map((item) => [item.productId, item]));
   const groups: InventoryIntelligenceSource['groups'] = {};
