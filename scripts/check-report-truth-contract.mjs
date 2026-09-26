@@ -199,6 +199,16 @@ for (const token of [
   if (!querySource.includes(token)) throw new Error(`Report truth contract missing import invariant: ${token}`);
 }
 
+const groupedReportTruth = fs.readFileSync(path.join(srcDir, 'lib', 'free-toolbox', 'grouped-report.ts'), 'utf8');
+for (const token of [
+  "GROUPED_REPORT_DATA_INVALID: row is not an object",
+  "GROUPED_REPORT_DATA_INVALID: row references a missing group",
+  "GROUPED_REPORT_DATA_INVALID: group identity is invalid",
+  "GROUPED_REPORT_DATA_INVALID: row identity is invalid",
+]) {
+  if (!groupedReportTruth.includes(token)) throw new Error('Report truth contract missing grouped-inventory identity invariant: ' + token);
+}
+
 const inventoryTruth = fs.readFileSync(path.join(srcDir, 'lib', 'free-toolbox', 'inventory-intelligence-canonical.ts'), 'utf8');
 if (!inventoryTruth.includes("INVENTORY_DATA_INVALID: product identity is invalid")) {
   throw new Error('Report truth contract missing inventory product-identity invariant');
