@@ -76,3 +76,39 @@
 @media (prefers-reduced-motion: reduce) {
   .ag-report-truth-bar { scroll-behavior: auto; }
 }
+
+
+.ag-operational-hero {
+  position: relative;
+  isolation: isolate;
+}
+.ag-operational-hero::before {
+  content: '';
+  position: absolute;
+  inset-inline-end: -12%;
+  inset-block-start: -45%;
+  width: 42%;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(13, 148, 136, .11), transparent 68%);
+  pointer-events: none;
+  z-index: -1;
+}
+.ag-operational-hero .card-subtle {
+  transition: border-color 160ms ease, transform 160ms ease, background-color 160ms ease;
+}
+.ag-operational-hero button:focus-visible,
+.ag-operational-hero .card-subtle:focus-visible {
+  outline: 2px solid rgba(13, 148, 136, .42);
+  outline-offset: 2px;
+}
+.ag-operational-hero button:hover .display-number {
+  transform: translateY(-1px);
+}
+@media (max-width: 640px) {
+  .ag-operational-hero::before { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ag-operational-hero .card-subtle,
+  .ag-operational-hero .display-number { transition: none; transform: none; }
+}
