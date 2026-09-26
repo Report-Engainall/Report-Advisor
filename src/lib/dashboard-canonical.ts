@@ -69,7 +69,7 @@ export function normalizeAgingDashboard(value: unknown): AgingDashboard {
   const countedAmounts = rows.filter((row) => row.count > 0).map((row) => row.amount);
   const totalAmount = countedAmounts.length > 0 && countedAmounts.every((amount) => amount !== null)
     ? countedAmounts.reduce((sum, amount) => sum + Number(amount), 0)
-    : countedAmounts.length === 0 ? null : null;
+    : null;
   return {
     rows,
     totalAmount,
