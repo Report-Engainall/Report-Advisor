@@ -88,7 +88,7 @@ export function ReportsCenterPage() {
   const qualityIssueTotal = qualityValues.every(value => value !== null) ? qualityValues.reduce((sum, value) => sum + (value ?? 0), 0) : null;
   const truthLabel = kpis.status === 'CONFIRMED' ? 'VERIFIED' : kpis.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA';
   const truthClass = kpis.status === 'CONFIRMED' ? 'badge-success' : kpis.status === 'CALCULATED' ? 'badge-primary' : 'badge-warning';
-  const reportEvidenceState = kpis.status === 'CONFIRMED' && qualityIssueTotal === 0 ? 'VERIFIED' : qualityIssueTotal === null ? 'REVIEW' : qualityIssueTotal > 0 ? 'REVIEW' : 'VERIFIED';
+  const reportEvidenceState = kpis.status === 'CONFIRMED' && qualityIssueTotal === 0 ? 'VERIFIED' : 'REVIEW';
   const reportEvidenceLabel = reportEvidenceState === 'VERIFIED' ? 'موثّق' : 'مراجعة مطلوبة';
 
   const nextPath = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' ? '/data-quality' : '/reports/executive';
