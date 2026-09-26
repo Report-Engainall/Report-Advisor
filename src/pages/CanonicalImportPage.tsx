@@ -251,35 +251,33 @@ export function CanonicalImportPage() {
 
       setProgress(88);
 
-      const authoritativeRowCountRaw = execution.authoritativeRowCount;
+      const serverAcceptedRowCountRaw = execution.serverAcceptedRowCount;
       if (
-        typeof authoritativeRowCountRaw !== 'number' ||
-        !Number.isFinite(authoritativeRowCountRaw) ||
-        !Number.isInteger(authoritativeRowCountRaw) ||
-        authoritativeRowCountRaw < 0
+        typeof serverAcceptedRowCountRaw !== 'number' ||
+        !Number.isFinite(serverAcceptedRowCountRaw) ||
+        !Number.isInteger(serverAcceptedRowCountRaw) ||
+        serverAcceptedRowCountRaw < 0
       ) {
-        throw new Error('CANONICAL_IMPORT_AUTHORITATIVE_ROW_COUNT_INVALID');
+        throw new Error('CANONICAL_IMPORT_SERVER_ROW_COUNT_INVALID');
       }
-      const authoritativeQualityScoreRaw = execution.authoritativeQualityScore;
+      const serverValidatedQualityScoreRaw = execution.serverValidatedQualityScore;
       if (
-        typeof authoritativeQualityScoreRaw !== 'number' ||
-        !Number.isFinite(authoritativeQualityScoreRaw) ||
-        authoritativeQualityScoreRaw < 0 ||
-        authoritativeQualityScoreRaw > 100
+        typeof serverValidatedQualityScoreRaw !== 'number' ||
+        !Number.isFinite(serverValidatedQualityScoreRaw) ||
+        serverValidatedQualityScoreRaw < 0 ||
+        serverValidatedQualityScoreRaw > 100
       ) {
-        throw new Error('CANONICAL_IMPORT_AUTHORITATIVE_QUALITY_INVALID');
+        throw new Error('CANONICAL_IMPORT_SERVER_QUALITY_INVALID');
       }
-      const authoritativeRowCount = authoritativeRowCountRaw;
-      const authoritativeQualityScore = authoritativeQualityScoreRaw;
-      const previewRows = Array.isArray(execution.authoritativePreview) ? execution.authoritativePreview : validRows.slice(0, 25).map((row) => row.data);
-      const authoritativeColumns = Array.isArray(execution.authoritativeColumns) ? execution.authoritativeColumns : mappings;
+      const serverAcceptedRowCount = serverAcceptedRowCountRaw;
+      const serverValidatedQualityScore = serverValidatedQualityScoreRaw;
       const snapshotId = typeof execution.snapshotId === 'string' ? execution.snapshotId : null;
       await finishImportJob(rec.id, 'completed', {
-        total: authoritativeRowCount,
-        valid: authoritativeRowCount,
+        total: serverAcceptedRowCount,
+        valid: serverAcceptedRowCount,
         invalid: 0,
         invalidRows: 0,
-        committed: authoritativeRowCount,
+        committed: serverAcceptedRowCount,
         importId: rec.id,
         jobId: execution.jobId,
         file_name: file.name,
@@ -292,14 +290,14 @@ export function CanonicalImportPage() {
       }
       setProgress(100);
       setResult({
-        total: authoritativeRowCount,
-        valid: authoritativeRowCount,
+        total: serverAcceptedRowCount,
+        valid: serverAcceptedRowCount,
         invalid: 0,
         snapshotId,
         importId: rec.id,
         jobId: execution.jobId,
         understandingConfidence,
-        authoritativeQualityScore,
+        serverValidatedQualityScore,
       });
       setStep('done');
       await loadHistory();
