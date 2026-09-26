@@ -65,7 +65,7 @@ export function CustomersPage() {
       setError(null);
       const result = await fetchCustomersPage(page, PAGE_SIZE, search);
       setCustomers(result.data);
-      setTotal(result.count ?? 0);
+      setTotal(result.count);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'تعذر تحميل العملاء');
     } finally {
@@ -147,7 +147,7 @@ export function ProductsPage() {
       setError(null);
       const result = await fetchProductsPage(page, PAGE_SIZE, search);
       setProducts(result.data);
-      setTotal(result.count ?? 0);
+      setTotal(result.count);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'تعذر تحميل المنتجات');
     } finally {
