@@ -126,6 +126,9 @@ assert.ok(!executiveReport.includes("kpis?.status !== 'CALCULATED' || kpis?.stat
 const commandCenter = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
 assert.ok(commandCenter.includes('qualityIssues={qualityIssueTotal}'), 'command center must bind quality truth into shared context');
 assert.ok(commandCenter.includes('مؤكد ويمكن استخدامه') && commandCenter.includes('محسوب — راجع الدليل'), 'command center must distinguish confirmed from calculated decision-use state');
+assert.ok(commandCenter.includes('function isFiniteNumber(value: number | null | undefined): value is number'), 'command center must centralize finite numeric truth checks');
+assert.ok(commandCenter.includes('fields.filter(isFiniteNumber)'), 'command center coverage must exclude non-finite metrics');
+assert.ok(commandCenter.includes('values.every(isFiniteNumber)'), 'command center quality counters must fail closed on non-finite metrics');
 const dashboardSurface = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 assert.ok(dashboardSurface.includes('const emptyAnalysisAction'), 'dashboard empty analysis states must derive a real next action');
 assert.ok(dashboardSurface.includes('الصورة مؤكدة المصدر') && dashboardSurface.includes('الصورة محسوبة من المصدر'), 'dashboard must distinguish confirmed from calculated source truth');
