@@ -63,10 +63,13 @@ export function ReportsCenterPage() {
   useEffect(() => { void load(); }, [load]);
 
   if (loading) {
-    return (
+      const reportEvidenceState = reportCount === 0 ? 'EMPTY' : reportHasUnverifiedData ? 'REVIEW' : 'VERIFIED';
+  const reportEvidenceLabel = reportEvidenceState === 'VERIFIED' ? 'موثّق' : reportEvidenceState === 'REVIEW' ? 'مراجعة مطلوبة' : 'لا توجد بيانات';
+
+return (
       <div dir="rtl" className="ag-reports-center-surface space-y-5 animate-fade-in pb-10">
         <PageHeader title="مركز التقارير" subtitle="لقطة موثقة من مسار التقارير التنفيذي." />
-        <section className="rounded-[18px] border border-ink-200 bg-white p-6 shadow-card">
+        <section aria-label="حالة دليل التقارير" className="rounded-[18px] border border-ink-200 bg-white p-6 shadow-card">
           <div className="text-sm font-bold text-ink-800">جارٍ تحميل اللقطة التجارية...</div>
           <div className="mt-2 text-[11px] text-ink-500">لا تُعرض أرقام تقديرية أثناء التحميل.</div>
         </section>
