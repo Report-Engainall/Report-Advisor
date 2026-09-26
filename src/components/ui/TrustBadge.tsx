@@ -12,12 +12,13 @@ const META: Record<TrustState, { label: string; className: string; icon: LucideI
 
 export function TrustBadge({ state, evidenceCount, compact = false }: { state: TrustState; evidenceCount?: number; compact?: boolean }) {
   const meta = META[state];
+  const safeEvidenceCount = typeof evidenceCount === 'number' && Number.isInteger(evidenceCount) && evidenceCount >= 0 ? evidenceCount : undefined;
   const Icon = meta.icon;
   return (
     <span className={'ag-trust ' + meta.className} title={meta.description} aria-label={meta.label + ' — ' + meta.description}>
       <Icon size={compact ? 11 : 12} aria-hidden="true" />
       <span>{meta.label}</span>
-      {evidenceCount !== undefined && <span className="ag-evidence-count" aria-label={'عدد الأدلة: ' + evidenceCount}>{evidenceCount} دليل</span>}
+      {safeEvidenceCount !== undefined && <span className="ag-evidence-count" aria-label={'عدد الأدلة: ' + safeEvidenceCount}>{safeEvidenceCount} دليل</span>}
     </span>
   );
 }
