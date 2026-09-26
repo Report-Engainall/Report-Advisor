@@ -189,6 +189,7 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
 
   const responseMonths = requiredInteger(row.months, 'months', 1);
   if (responseMonths > 24) throw new Error('REPORT_DATA_MALFORMED:months');
+  if (responseMonths !== months) throw new Error('REPORT_DATA_MALFORMED:months_mismatch');
   return {
     kpis,
     trend: requiredArray<unknown>(row.trend, 'trend', isMonthlyTrend).map(normalizeMonthlyTrend),
