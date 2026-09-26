@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -17,6 +18,12 @@ const tooltipStyle = {
 interface ChartProps {
   data: object[];
   height?: number;
+  emptyMessage?: string;
+}
+
+function ChartFrame({ data, height, emptyMessage, children, label }: ChartProps & { children: ReactNode; label: string }) {
+  if (data.length === 0) return <div role="img" aria-label={emptyMessage ?? 'لا توجد بيانات كافية لعرض الرسم'} className="flex items-center justify-center rounded-xl border border-dashed border-ink-200 bg-ink-50/60 px-4 text-center text-xs leading-5 text-ink-500" style={{ minHeight: height }}><span>{emptyMessage ?? 'لا توجد بيانات كافية لعرض الرسم. أضف أو راجع مصدرًا موثوقًا ثم أعد المحاولة.'}</span></div>;
+  return <div role="img" aria-label={label} style={{ height, width: '100%' }}>{children}</div>;
 }
 
 function formatValue(value: unknown): string {
@@ -27,8 +34,9 @@ function formatValue(value: unknown): string {
 
 const tooltipFormatter = (value: unknown): [string, string] => [formatValue(value), ''];
 
-export function TrendChart({ data, height = 280 }: ChartProps) {
+export function TrendChart({ data, height = 280, emptyMessage }: ChartProps) {
   return (
+    <ChartFrame data={data} height={height} emptyMessage={emptyMessage} label="رسم الاتجاه الشهري للمبيعات والربح">
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
         <defs>
@@ -43,11 +51,13 @@ export function TrendChart({ data, height = 280 }: ChartProps) {
         <Area type="monotone" dataKey="profit" stroke="#3a9a8d" strokeWidth={2} fill="url(#colorProfit)" name="الربح" />
       </AreaChart>
     </ResponsiveContainer>
+    </ChartFrame>
   );
 }
 
-export function SimpleBarChart({ data, height = 280, dataKey = 'value', nameKey = 'name' }: ChartProps & { dataKey?: string; nameKey?: string }) {
+export function SimpleBarChart({ data, height = 280, dataKey = 'value', nameKey = 'name', emptyMessage }: ChartProps & { dataKey?: string; nameKey?: string }) {
   return (
+    <ChartFrame data={data} height={height} emptyMessage={emptyMessage} label="رسم الأعمدة">
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e4efec" />
@@ -57,11 +67,13 @@ export function SimpleBarChart({ data, height = 280, dataKey = 'value', nameKey 
         <Bar dataKey={dataKey} fill="#147e74" radius={[6, 6, 0, 0]} name="القيمة" />
       </BarChart>
     </ResponsiveContainer>
+    </ChartFrame>
   );
 }
 
-export function HorizontalBarChart({ data, height = 280, dataKey = 'value', nameKey = 'name' }: ChartProps & { dataKey?: string; nameKey?: string }) {
+export function HorizontalBarChart({ data, height = 280, dataKey = 'value', nameKey = 'name', emptyMessage }: ChartProps & { dataKey?: string; nameKey?: string }) {
   return (
+    <ChartFrame data={data} height={height} emptyMessage={emptyMessage} label="رسم الأعمدة الأفقي">
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} layout="vertical" margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e4efec" horizontal={false} />
@@ -71,11 +83,13 @@ export function HorizontalBarChart({ data, height = 280, dataKey = 'value', name
         <Bar dataKey={dataKey} fill="#e0a21a" radius={[0, 6, 6, 0]} name="القيمة" />
       </BarChart>
     </ResponsiveContainer>
+    </ChartFrame>
   );
 }
 
-export function CategoryPieChart({ data, height = 280 }: ChartProps) {
+export function CategoryPieChart({ data, height = 280, emptyMessage }: ChartProps) {
   return (
+    <ChartFrame data={data} height={height} emptyMessage={emptyMessage} label="توزيع المبيعات حسب الفئة">
     <ResponsiveContainer width="100%" height={height}>
       <PieChart>
         <Pie data={data} dataKey="sales" nameKey="name" cx="50%" cy="50%" outerRadius={90} innerRadius={50} paddingAngle={2}>
@@ -85,11 +99,13 @@ export function CategoryPieChart({ data, height = 280 }: ChartProps) {
         <Legend wrapperStyle={{ fontSize: '11px', fontFamily: 'IBM Plex Sans Arabic' }} />
       </PieChart>
     </ResponsiveContainer>
+    </ChartFrame>
   );
 }
 
-export function ForecastChart({ data, height = 280 }: ChartProps) {
+export function ForecastChart({ data, height = 280, emptyMessage }: ChartProps) {
   return (
+    <ChartFrame data={data} height={height} emptyMessage={emptyMessage} label="رسم التنبؤ مع الحدود العليا والدنيا">
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e4efec" />
@@ -101,5 +117,6 @@ export function ForecastChart({ data, height = 280 }: ChartProps) {
         <Line type="monotone" dataKey="lower_bound" stroke="#c8870b" strokeWidth={1} strokeDasharray="5 5" name="الحد الأدنى" dot={false} />
       </LineChart>
     </ResponsiveContainer>
+    </ChartFrame>
   );
 }
