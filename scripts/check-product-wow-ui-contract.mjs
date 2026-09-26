@@ -101,6 +101,10 @@ assert.ok(reports.includes('NEXT ACTION'), 'reports center must expose a concret
 assert.ok(reports.includes('افحص جودة البيانات'), 'reports center must route insufficient truth to data quality');
 assert.ok(reports.includes('تحديث اللقطة'), 'reports center must support in-place refresh of the canonical snapshot');
 assert.ok(!reports.includes('generateSynthetic'), 'reports center must not invent business values');
+assert.ok(!reports.slice(reports.indexOf('if (loading)'), reports.indexOf('if (error)')).includes('reportEvidenceState'), 'reports loading state must not reference loaded snapshot evidence state');
+assert.ok(!reports.slice(reports.indexOf('if (loading)'), reports.indexOf('if (error)')).includes('qualityIssueTotal'), 'reports loading state must not reference loaded snapshot quality counters');
+assert.ok(reports.includes('ag-report-truth-bar'), 'reports center must expose a shared evidence hierarchy surface');
+
 const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
 assert.ok(trustEvidence.includes('EVIDENCE PASSPORT'), 'trust evidence must expose the evidence passport');
 assert.ok(trustEvidence.includes('جواز الدليل للحالة الحالية'), 'trust evidence passport must explain its purpose');
