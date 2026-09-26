@@ -124,6 +124,8 @@ assert.ok(dashboardSurface.includes('لا يتم تصنيع تركيب للفئ�
 assert.ok(dashboardSurface.includes('مراجعة جودة البيانات'), 'dashboard customer/product empties must route to data quality');
 assert.ok(dashboardSurface.includes("to: '/data-quality'"), 'dashboard must use the canonical data-quality route for insufficient truth');
 assert.ok(dashboardSurface.includes('const dashboardNextAction = useMemo'), 'dashboard must derive one next action from current truth and decision state');
+assert.ok(dashboardSurface.includes('qualityIssueTotal === null || qualityIssueTotal > 0'), 'dashboard next action must prioritize unresolved source-quality pressure');
+
 const dashboardActionIndex = dashboardSurface.indexOf('const dashboardNextAction = useMemo');
 const dashboardLoadingReturnIndex = dashboardSurface.indexOf('if (loading) return <LoadingState');
 assert.ok(dashboardActionIndex >= 0 && dashboardActionIndex < dashboardLoadingReturnIndex, 'dashboard next-action hook must remain unconditional before early returns');
