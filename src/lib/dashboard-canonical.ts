@@ -187,7 +187,7 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
     status,
   };
 
-  const agingRow=(row.aging&&typeof row.aging==='object'?row.aging:{}) as Record<string,unknown>;
+  if (requiredInteger(row.months, 'months', 1) > 24) throw new Error('REPORT_DATA_MALFORMED:months');
   return {
     kpis,
     trend: requiredArray<unknown>(row.trend, 'trend', isMonthlyTrend).map(normalizeMonthlyTrend),
