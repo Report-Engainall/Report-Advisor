@@ -1,3 +1,11 @@
+# CURRENT UI CLOSURE — 2026-09-27
+
+- Replay timeline contract: event type, lifecycle state, occurred-at timestamp, expected/actual impact where available, evidence presence, bounded-window disclosure, and learning status counts.
+- Benchmark readiness contract: explicit `INSUFFICIENT_SAMPLE`, four gate checks, non-fabrication explanation, and a preview of the real result shape without synthetic values.
+- Command Center Decision ROI surface now exposes the denominator gap and links to the governed outcome stage.
+- Report truth bars now expose a direct `فحص الدليل` action into `/trust`.
+- App Shell alert-read failures are preserved as an explicit retryable error instead of becoming a misleading empty alert list.
+
 # MASTER UI/UX REFERENCE — الأغبري / Report-Advisor
 Status: CANONICAL DOMAIN REFERENCE
 Owner: Product surface completeness
