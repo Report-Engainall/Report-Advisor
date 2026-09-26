@@ -1,3 +1,20 @@
+## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-181
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907` (still current main).
+- CURRENT EXACT HEAD → `8e455535e2274b3a25bd857c604a10f55b71fe2a` on PR #661, branch `exec/20260926-continuous-ui-core-deep`.
+- CORE CONTRACT RECONCILIATION → matched `dashboard-canonical.ts` to the latest canonical `get_dashboard_snapshot` payload actually defined in repo migrations: trend rows do not carry `status`, category rows do not carry `categoryStatus`, and dashboard aging is a direct bucket array. Pure normalizers now derive only deterministic status/summary semantics from those fields; no invented business values are added.
+- CORE INVENTORY CONTRACT → product/warehouse relation objects are allowed to carry null IDs because the canonical RPC explicitly returns relation objects even when the relationship is unavailable; malformed primary row identity still fails closed.
+- CORE ANALYTICS HARDENING → ABC class must be explicitly null/A/B/C; nonblank profitability currency is required when currency is present; dashboard months response is bounded to 1..24.
+- UI DECISION → Decision Experience stage guard now waits for loading to finish, then restores a valid deep-linked stage after the real recommendation context arrives; empty deep-links return to Command instead of losing the requested stage prematurely.
+- UI TRUTH → Analytics status strip now says `الصفوف المستلمة` instead of implying a source-total count; Data Quality score visualization omits the score arc entirely when the authoritative score is unavailable, so the visual cannot resemble a false 0%.
+- CONTRACT TESTS → dashboard snapshot contract covers current canonical payload normalization and inventory relation nullability; Data Quality contract covers unavailable-score presentation; Product UI contract covers decision-stage loading race and analytics row-count semantics.
+- LOCAL EXECUTION LIMIT → local `git clone` could not run because the execution environment cannot resolve `github.com`; no local test PASS claimed.
+- CI PROOF → exact-head GitHub reports 48 workflow runs: 2 completed/skipped, 41 queued, 5 pending, 0 failures, 0 completed successes. Current-head PASS is NOT PROVEN yet.
+- DEVICE / PHASE-F → PC01 remains offline; browser/device verification and Phase-F production recovery/certification remain NOT PROVEN. No production mutation claimed.
+- CURRENT RESUME POINTER → `PR #661 exact head 8e455535e2274b3a25bd857c604a10f55b71fe2a → consume first terminal non-skipped gate → repair first reproduced current-SHA failure only → continue next uncovered UI/core boundary; keep Phase-F fail-closed`.
+- NEXT EXECUTABLE ACTION → consume first terminal non-skipped current-head gate; if green, continue independent UI/core closure; if failed, repair only that exact failure.
+- DO NOT REPEAT → stale PASS, old #660 closures, invalid dashboard payload assumptions, invalid recordKey API expectation, duplicate RPC/import/navigation paths, production-SHA bypass, blanket security changes, unsafe import-job mutation.
+
 ## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-180
 
 - MAIN HEAD OBSERVED BEFORE THIS WAVE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
