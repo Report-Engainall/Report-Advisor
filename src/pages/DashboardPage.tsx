@@ -167,6 +167,12 @@ export function DashboardPage() {
     () => recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').slice(0, 3),
     [recommendations],
   );
+  const qualityIssueTotal = useMemo(() => {
+    if (!quality) return null;
+    const values = [quality.badInvoiceRows, quality.badSaleItemRows, quality.badPurchaseRows, quality.badInventoryRows, quality.salesCurrencyMismatchRows, quality.purchaseCurrencyMismatchRows];
+    return values.every((value) => value !== null) ? values.reduce((sum, value) => sum + (value ?? 0), 0) : null;
+  }, [quality]);
+
   const decisionAccountability = useMemo(() => {
     const actionable = recommendations.filter((item) => item.status === 'new' || item.status === 'accepted');
     const owned = actionable.filter((item) => item.owner?.trim()).length;
@@ -184,12 +190,14 @@ export function DashboardPage() {
   }, [recommendations]);
 
   const dashboardNextAction = useMemo(() => {
-    if (kpis?.status === 'INSUFFICIENT_DATA') {
+    if (kpis?.status === 'INSUFFICIENT_DATA' || qualityIssueTotal === null || qualityIssueTotal > 0) {
       return {
         to: '/data-quality',
         label: 'مراجعة جودة البيانات',
-        title: 'الصورة تحتاج مراجعة قبل اتخاذ القرار',
-        description: 'توجد مؤشرات غير متاحة أو غير مثبتة. أصلح مصدر الحقيقة أولًا بدل اتخاذ قرار من صورة ناقصة.',
+        title: qualityIssueTotal && qualityIssueTotal > 0 ? 'هناك ضغط جودة على المصدر الحالي' : 'الصورة تحتاج مراجعة قبل اتخاذ القرار',
+        description: qualityIssueTotal && qualityIssueTotal > 0
+          ? 'توجد صفوف أو تعارضات جودة مثبتة؛ افحص مصدر الحقيقة قبل تحويل الإشارة إلى قرار.'
+          : 'توجد مؤشرات غير متاحة أو غير مثبتة. أصلح مصدر الحقيقة أولًا بدل اتخاذ قرار من صورة ناقصة.',
       };
     }
     if (decisionAccountability.pending > 0) {
@@ -222,7 +230,7 @@ export function DashboardPage() {
       title: 'الصورة صالحة للمتابعة والتحليل',
       description: 'لا توجد إشارة عاجلة أو قرارات معلقة؛ انتقل إلى التحليل لاستخراج الفرص والقيم الداعمة للقرار.',
     };
-  }, [kpis?.status, decisionAccountability.pending, liveAlerts, trend]);
+  }, [kpis?.status, qualityIssueTotal, decisionAccountability.pending, liveAlerts, trend]);
 
   if (loading) return <LoadingState message="جارٍ بناء صورة الأعمال من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
@@ -239,11 +247,6 @@ export function DashboardPage() {
     kpis.collectionRate,
   ];
   const coverage = Math.round((evidenceMetrics.filter((value) => value !== null).length / evidenceMetrics.length) * 100);
-  const qualityValues = [quality.badInvoiceRows, quality.badSaleItemRows, quality.badPurchaseRows, quality.badInventoryRows, quality.salesCurrencyMismatchRows, quality.purchaseCurrencyMismatchRows];
-  const qualityIssueTotal = qualityValues.every(value => value !== null)
-    ? qualityValues.reduce((sum, value) => sum + (value ?? 0), 0)
-    : null;
-
   const emptyAnalysisAction = kpis.status === 'INSUFFICIENT_DATA'
     ? { to: '/data-quality', label: 'مراجعة جودة البيانات' }
     : { to: '/analytics', label: 'فتح التحليل' };
