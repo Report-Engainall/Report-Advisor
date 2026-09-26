@@ -1,3 +1,19 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / SHARED SURFACE + TRUST CENTER HARDENING
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- PRIOR CANDIDATE → `75bcec9b5a49077903d084cec89009aa50ea27d6`.
+- CURRENT CODE CANDIDATE → `e144924611960c2aef08bc3e7a8c052e8d7bc26a`.
+- UI DONE → shared DataTable keyboard/touch polish; TrustBadge count validation; Decision Experience focus/selection and blocked icon semantics; Trust Evidence inconsistent-severity fail-closed rendering.
+- CORE DONE → decision gate accepts `unknown` at runtime and rejects malformed objects/evidence, invalid severity/confidence, non-finite values, empty identifiers, and malformed optional metadata.
+- CONTRACT DONE → existing Product-WOW and decision-evidence regression contracts expanded; no duplicate test family.
+- CURRENT CI OBSERVATION → exact-head workflows remain predominantly queued/pending; no terminal application PASS consumed at this write. Vercel remains free-plan rate-limited.
+- PHASE-F → live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- DEVICE → local device/browser unavailable; no device proof claimed.
+- NEXT EXECUTABLE ACTION → `consume first terminal exact-head workflow result → repair only current-SHA reproduced failure → continue next uncovered UI/core boundary`.
+- DO NOT REPEAT → no stale PASS, no device-only execution, no duplicate architecture or workflow, no production mutation.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / TRUTH STRIP + DECISION EVIDENCE + CHART SURFACE WAVE
 
 > Exact-head evidence only. Historical PASS is not transferred.
