@@ -228,6 +228,35 @@ export async function completeRecommendationWork(workItemId: string, recommendat
   await updateRecommendationStatus(recommendationId, 'completed');
 }
 
+export type BusinessReplaySnapshot = {
+  snapshotCount: number;
+  outcomeCount: number;
+  workItemCount: number;
+  latestSnapshotAt: string | null;
+  latestOutcomeAt: string | null;
+};
+
+export async function fetchBusinessReplaySnapshot(): Promise<BusinessReplaySnapshot> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const [snapshots, outcomes, workItems] = await Promise.all([
+    supabase.from('business_state_snapshots').select('id,observed_at', { count: 'exact', head: false }).eq('company_id', companyId).order('observed_at', { ascending: false }).limit(500),
+    supabase.from('recommendation_outcomes').select('id,observed_at', { count: 'exact', head: false }).eq('company_id', companyId).order('observed_at', { ascending: false }).limit(500),
+    supabase.from('decision_work_items').select('id,completed_at', { count: 'exact', head: false }).eq('company_id', companyId).order('completed_at', { ascending: false }).limit(500),
+  ]);
+  if (snapshots.error) throw snapshots.error;
+  if (outcomes.error) throw outcomes.error;
+  if (workItems.error) throw workItems.error;
+  const latestSnapshotAt = typeof snapshots.data?.[0]?.observed_at === 'string' ? snapshots.data[0].observed_at : null;
+  const latestOutcomeAt = typeof outcomes.data?.[0]?.observed_at === 'string' ? outcomes.data[0].observed_at : null;
+  return {
+    snapshotCount: snapshots.count ?? snapshots.data?.length ?? 0,
+    outcomeCount: outcomes.count ?? outcomes.data?.length ?? 0,
+    workItemCount: workItems.count ?? workItems.data?.length ?? 0,
+    latestSnapshotAt,
+    latestOutcomeAt,
+  };
+}
 export async function fetchRecommendationOutcome(recommendationId: string): Promise<RecommendationOutcome | null> {
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
