@@ -48,7 +48,7 @@ export function DataQualitySnapshotPage() {
       <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{snapshotStatus === 'EMPTY' ? 'EMPTY' : 'AVAILABLE'}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">السجلات</span><span className="ag-decision-value">{formatNumber(entities.reduce((s,e)=>s+e.total,0))}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">المشكلات</span><span className="ag-decision-value">{formatNumber(issues.reduce((s,i)=>s+i.count,0))}</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">الدرجة</span><span className="ag-decision-value">{overallScore}%</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">الدرجة</span><span className="ag-decision-value">{overallScore == null ? 'غير متاح' : `${overallScore}%`}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">الخطوة التالية</span><span className="ag-decision-value">{nextAction.label}</span></div>
     </section>
 
