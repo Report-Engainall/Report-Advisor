@@ -63,9 +63,18 @@ assert.ok(appShell.includes('advisorCounts.recommendations'), 'global Advisor mu
 assert.ok(sidebar.includes("trust: { hint: 'إثبات، مصدر، وثقة', tag: 'TRUST' }"), 'Trust navigation section must have product metadata');
 assert.ok(sidebar.includes("outputs: { hint: 'تقارير ومخرجات القرار', tag: 'OUTPUT' }"), 'Outputs navigation section must have product metadata');
 assert.ok(!dashboard.includes('generateSynthetic'), 'decision brief must not invent synthetic business data');
+const dashboardCanonical = fs.readFileSync('src/lib/dashboard-canonical.ts', 'utf8');
+for (const token of [
+  'function validateDashboardIntelligence(row: Record<string, unknown>)',
+  "REPORT_DATA_INVALID: intelligence.recommendations[' + index + '] shape is invalid",
+  "REPORT_DATA_INVALID: intelligence.alerts[' + index + '] shape is invalid",
+]) assert.ok(dashboardCanonical.includes(token), `dashboard intelligence contract missing: ${token}`);
 const importSurface = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
 assert.ok(importSurface.includes('لم يُثبت مصدر سابق لهذا الحساب بعد'), 'canonical import history empty state must distinguish an empty history');
 assert.ok(importSurface.includes('اختيار مصدر'), 'canonical import history empty state must expose a real source-selection action');
+assert.ok(importSurface.includes('SOURCE PASSPORT'), 'canonical import must expose the source passport before approval');
+assert.ok(importSurface.includes('SHA-256 للمصدر'), 'source passport must expose source fingerprint context');
+
 assert.ok(importSurface.includes('onClick={reset}'), 'canonical import history empty state must use the existing reset/import path');
 assert.ok(importSurface.includes('const [historyError, setHistoryError]'), 'canonical import history must preserve fetch failures instead of mapping them to an empty list');
 assert.ok(importSurface.includes('historyError?<ErrorState'), 'canonical import history must distinguish backend errors from an empty history');
