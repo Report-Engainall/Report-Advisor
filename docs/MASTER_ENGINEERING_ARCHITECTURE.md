@@ -208,3 +208,10 @@ Do not introduce Spark/streaming infrastructure only because it is architectural
 
 - Added Data Quality UI regression coverage for invalid entity score presentation.
 - Dashboard/analytics truth hardening from the previous wave remains unchanged and closed; this wave only removes presentation-level masking at the entity score card.
+
+
+## Execution closure — 2026-09-27 / predecessor 2d20e2a191982abb33f50c3f0bf742ef3a05a99e
+
+- Dashboard Intelligence retry behavior now retries RPC/transport failure only; payload shape and semantic validation execute once after transport succeeds.
+- Malformed dashboard intelligence payloads fail immediately instead of consuming three retry cycles.
+- Added `src/lib/dashboard-intelligence-retry.contract.test.ts` to lock the retry/validation boundary.
