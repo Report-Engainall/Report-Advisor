@@ -97,10 +97,12 @@ assert.ok(importSurface.includes('اختيار مصدر'), 'canonical import his
 assert.ok(importSurface.includes('SOURCE PASSPORT'), 'canonical import must expose the source passport before approval');
 assert.ok(importSurface.includes('SHA-256 للمصدر'), 'source passport must expose source fingerprint context');
 assert.ok(importSurface.includes('جودة الخادم') && importSurface.includes('العملية'), 'canonical import success state must expose authoritative commit context');
-assert.ok(importSurface.includes('typeof authoritativeRowCountRaw !== 'number'') && importSurface.includes('CANONICAL_IMPORT_AUTHORITATIVE_ROW_COUNT_INVALID'), 'canonical import must fail closed when the authoritative committed row count is missing or non-finite');
-assert.ok(importSurface.includes('typeof authoritativeQualityScoreRaw !== 'number'') && importSurface.includes('CANONICAL_IMPORT_AUTHORITATIVE_QUALITY_INVALID'), 'canonical import must fail closed when the authoritative quality score is missing or non-finite');
-assert.ok(!importSurface.includes('execution.authoritativeRowCount ?? validRows.length'), 'canonical import must not fall back from authoritative row count to local preview rows');
-assert.ok(!importSurface.includes('execution.authoritativeQualityScore ?? quality'), 'canonical import must not fall back from authoritative quality to local parsed quality');
+assert.ok(importSurface.includes('typeof serverAcceptedRowCountRaw !== 'number'') && importSurface.includes('CANONICAL_IMPORT_SERVER_ROW_COUNT_INVALID'), 'canonical import must fail closed when the server-accepted committed row count is missing or non-finite');
+assert.ok(importSurface.includes('typeof serverValidatedQualityScoreRaw !== 'number'') && importSurface.includes('CANONICAL_IMPORT_SERVER_QUALITY_INVALID'), 'canonical import must fail closed when the server-validated quality score is missing or non-finite');
+assert.ok(!importSurface.includes('execution.authoritativeRowCount ?? validRows.length'), 'canonical import must not fall back from server row count to local preview rows');
+assert.ok(!importSurface.includes('execution.authoritativeQualityScore ?? quality'), 'canonical import must not fall back from server quality to local parsed quality');
+assert.ok(importSurface.includes('serverAcceptedRowCount'), 'canonical import success state must use the server-accepted row count');
+assert.ok(importSurface.includes('serverValidatedQualityScore'), 'canonical import success state must use the server-validated quality score');
 
 
 assert.ok(importSurface.includes('onClick={reset}'), 'canonical import history empty state must use the existing reset/import path');
@@ -108,6 +110,9 @@ assert.ok(importSurface.includes('const [historyError, setHistoryError]'), 'cano
 assert.ok(importSurface.includes('historyError?<ErrorState'), 'canonical import history must distinguish backend errors from an empty history');
 assert.ok(importSurface.includes('onRetry={() => void loadHistory()}'), 'canonical import history errors must retry in place');
 
+const canonicalImportEndpoint = fs.readFileSync('api/canonical-import-execute.ts', 'utf8');
+assert.ok(canonicalImportEndpoint.includes('serverAcceptedRowCount: input.rows.length'), 'canonical import endpoint must return the server-accepted row count');
+assert.ok(canonicalImportEndpoint.includes('serverValidatedQualityScore: input.qualityScore'), 'canonical import endpoint must return the server-validated quality score');
 const entitiesSurface = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
 assert.ok(entitiesSurface.includes('const inventoryQueueEmpty = snapshot.totalRows === 0'), 'inventory page must use authoritative totalRows for source-empty state');
 assert.ok(entitiesSurface.includes('const inventoryFilterEmpty = filter !== \'all\' && snapshot.filteredRows === 0'), 'inventory page must use an explicit filter plus authoritative filteredRows for filtered-empty state');
