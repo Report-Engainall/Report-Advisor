@@ -52,6 +52,14 @@ describe('source-domain classification contract', () => {
     ])).toBe('sales_invoices');
   });
 
+  it('detects customer masters even when contact fields are absent but identity and segment evidence exist', () => {
+    expect(inferSourceDomain([
+      { mappedField: 'customer_name' },
+      { mappedField: 'segment' },
+      { mappedField: 'credit_limit' },
+    ])).toBe('customer-master');
+  });
+
   it('promotes customer-name aliases when the remaining customer fields are complete', () => {
     expect(resolveCanonicalEntityType('customer-master', [
       { mappedField: 'customer_name' }, { mappedField: 'segment' }, { mappedField: 'credit_limit' }, { mappedField: 'payment_terms_days' },
