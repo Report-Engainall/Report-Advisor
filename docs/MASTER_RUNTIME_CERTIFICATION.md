@@ -76,3 +76,9 @@ Final certification is complete only when all release-critical gates are current
 - Exact functional candidate before this governance sequence: 2714f1b86220b5fc4066908e101477f73587b843.
 - Exact-head check-runs observed: 54 total; 46 queued, 5 in progress, 3 skipped, 0 failures, 0 completed successes. Therefore exact-head PASS remains NOT PROVEN.
 - Netlify and Cloudflare checks were materializing for the same SHA; no browser or production acceptance was inferred from in-progress checks.
+
+
+## Execution closure — 2026-09-27 / predecessor 2d20e2a191982abb33f50c3f0bf742ef3a05a99e
+
+- Runtime retry scope was narrowed to transport/RPC failure for dashboard intelligence; malformed successful payloads are not retried as if they were transient transport events.
+- Exact-head checks on this candidate: 49 total, counts {"completed/skipped":3,"queued/null":45,"in_progress/null":1}, with 0 known failures at checkpoint time. No PASS transfer.
