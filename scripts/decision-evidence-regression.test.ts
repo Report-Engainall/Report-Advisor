@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createDecision } from '../src/lib/free-toolbox/decision-log.ts';
-import { alternativeGroupDecisions, inventoryDecisions } from '../src/lib/intelligence/decisionEngine.ts';
+import { alternativeGroupDecisions, decisionIsUsable, inventoryDecisions } from '../src/lib/intelligence/decisionEngine.ts';
 
 assert.throws(() => createDecision({
   title: 'بدون دليل', reason: 'invalid', status: 'proposed', priority: 1, evidenceIds: [], action: 'HOLD',
@@ -51,20 +51,20 @@ const unusableCriticalInventory = inventoryDecisions([{
 assert.equal(unusableCriticalInventory, undefined);
 
 
-const invalidConfidenceDecision = alternativeGroupDecisions([{
-  id: 'g-confidence-invalid', name: 'قرار بثقة غير صالحة', stockoutRisk: 'critical',
-  normalizedStock: 10, normalizedDemand: 5, coverageDays: 2,
-  recommendedOrder: 4, trendPct: 3,
-}]).map((item) => ({ ...item, confidence: Number.POSITIVE_INFINITY } as never))[0];
-assert.equal(typeof invalidConfidenceDecision, 'object');
-
-const invalidEvidenceDecision = inventoryDecisions([{
-  sku: 'sku-evidence', avgDailySales: 1, stdDailySales: 0, demandDuringLeadTime: 1, safetyStock: 0,
+const validDecision = inventoryDecisions([{
+  sku: 'sku-valid', avgDailySales: 1, stdDailySales: 0, demandDuringLeadTime: 1, safetyStock: 0,
   reorderPoint: 1, minStock: 1, maxStock: 2, daysOfCover: 2, stockoutDate: null,
   recommendedOrder: 1, classification: 'frozen', priority: 'medium',
 }])[0];
-assert.ok(invalidEvidenceDecision);
-assert.ok(invalidEvidenceDecision.evidence.every((item) => Number.isFinite(item.value) && item.source.trim().length > 0 && item.metric.trim().length > 0));
+assert.ok(validDecision);
+assert.equal(decisionIsUsable(validDecision), true);
+
+assert.equal(decisionIsUsable({ ...validDecision, confidence: Number.POSITIVE_INFINITY }), false);
+assert.equal(decisionIsUsable({ ...validDecision, confidence: -0.01 }), false);
+assert.equal(decisionIsUsable({ ...validDecision, evidence: [] }), false);
+assert.equal(decisionIsUsable({ ...validDecision, evidence: [{ metric: '', value: 1, source: 'engine' }] }), false);
+assert.equal(decisionIsUsable({ ...validDecision, evidence: [{ metric: 'sales', value: Number.NaN, source: 'engine' }] }), false);
+assert.equal(decisionIsUsable({ ...validDecision, evidence: [{ metric: 'sales', value: 1, source: '' }] }), false);
 
 console.log('PASS: decision evidence stays finite, bounded, sourced, and fail-closed.');
 
