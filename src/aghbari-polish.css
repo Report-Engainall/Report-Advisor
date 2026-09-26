@@ -507,3 +507,41 @@
   .ag-topbar button[aria-label^="التنبيهات"],
   .ag-context-chip{transition:none!important}
 }
+
+
+/* Chart surfaces: explicit readiness without changing numeric semantics. */
+.ag-main .ag-chart-frame{
+  position:relative;
+  isolation:isolate;
+  background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(246,251,249,.94));
+  border-color:rgba(18,84,77,.12)!important;
+  box-shadow:0 14px 28px -28px rgba(6,48,44,.38),0 1px 0 rgba(255,255,255,.86) inset;
+}
+.ag-main .ag-chart-ready::before{
+  content:'';
+  position:absolute;
+  inset-inline:13%;
+  inset-block-start:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(17,155,136,.45),rgba(231,181,43,.34),transparent);
+  pointer-events:none;
+}
+.ag-main .ag-chart-ready .recharts-wrapper{padding:.35rem .15rem .05rem}
+.ag-main .ag-chart-empty{
+  min-height:180px;
+  background:
+    radial-gradient(circle at 50% 30%,rgba(17,155,136,.055),transparent 10rem),
+    linear-gradient(145deg,#fbfefd,#f2f8f6);
+}
+.ag-main .ag-chart-empty::before{
+  content:'';
+  position:absolute;
+  inset-inline:25%;
+  top:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(231,181,43,.38),transparent);
+}
+@media (max-width:640px){
+  .ag-main .ag-chart-ready .recharts-wrapper{padding:.15rem 0 0}
+  .ag-main .ag-chart-empty{min-height:156px}
+}
