@@ -44,7 +44,7 @@ function requiredArray<T>(value: unknown, field: string, predicate?: (item: unkn
   return value as T[];
 }
 function isNullableString(value: unknown): boolean { return value === null || value === undefined || isNonBlankString(value); }
-function isInventoryReportRow(value: unknown): boolean {
+export function isInventoryReportRow(value: unknown): boolean {
   if (!isRecord(value) || !isNonBlankString(value.id)) return false;
   if (![value.quantity, value.unit_cost, value.value].every(isFiniteNumberOrNull)) return false;
   const validProduct = value.product === undefined || value.product === null || (
