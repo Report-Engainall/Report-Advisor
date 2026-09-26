@@ -73,6 +73,7 @@ export function IntelligenceCenterPage() {
 
   useEffect(() => { void load(); }, [load]);
 
+  // Acceptance is intentionally routed into the governed decision flow; direct approved DML is forbidden by the canonical RPC.
   const newRecommendations = useMemo(
     () => recommendations.filter((item) => item.status === 'new'),
     [recommendations],
@@ -86,12 +87,12 @@ export function IntelligenceCenterPage() {
     [forecasts],
   );
 
-  const decideRecommendation = useCallback(async (recommendationId: string, status: 'accepted' | 'rejected') => {
+  const rejectRecommendation = useCallback(async (recommendationId: string) => {
     if (decisionId) return;
     try {
       setDecisionId(recommendationId);
       setError(null);
-      await updateRecommendationStatus(recommendationId, status);
+      await updateRecommendationStatus(recommendationId, 'rejected');
       await load(true);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحديث حالة التوصية.');
@@ -241,17 +242,15 @@ export function IntelligenceCenterPage() {
                         <div className="mt-2 text-[10px] font-bold text-success-700">الأثر المتوقع: {formatCurrency(recommendation.expected_impact)}</div>
                       )}
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => void decideRecommendation(recommendation.id, 'accepted')}
-                          disabled={decisionId !== null}
-                          className="btn-primary text-[11px] disabled:cursor-wait disabled:opacity-60"
+                        <Link
+                          to={`/decision-experience?stage=decision&recommendationId=${recommendation.id}`}
+                          className="btn-primary text-[11px]"
                         >
-                          <CheckCircle2 size={13} /> {decisionId === recommendation.id ? 'جارٍ الحفظ…' : 'قبول'}
-                        </button>
+                          <CheckCircle2 size={13} /> بدء مسار القرار
+                        </Link>
                         <button
                           type="button"
-                          onClick={() => void decideRecommendation(recommendation.id, 'rejected')}
+                          onClick={() => void rejectRecommendation(recommendation.id)}
                           disabled={decisionId !== null}
                           className="btn-secondary text-[11px] disabled:cursor-wait disabled:opacity-60"
                         >
