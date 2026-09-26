@@ -185,6 +185,43 @@ async function main(): Promise<void> {
     assert(tableDatasets[0].rows[1]?.['رقم الصنف'] === '10802002', 'positioned PDF must preserve the second item code');
     assert(tableDatasets[0].rows[0]?.الوارد === 58, 'positioned PDF must normalize Arabic report quantities through the canonical dataset path');
 
+    const inventoryReportDatasets = await parseFile(
+      pdfWithPositionedText([
+        { text: 'اسم الصنف', x: 610, y: 700 },
+        { text: 'رقم الصنف', x: 545, y: 700 },
+        { text: 'المخزن', x: 475, y: 700 },
+        { text: 'الوارد', x: 410, y: 700 },
+        { text: 'صافي مبيعات مرحل', x: 320, y: 700 },
+        { text: 'صافي مبيعات لم يرحل', x: 235, y: 700 },
+        { text: 'صافي المبيعات', x: 160, y: 700 },
+        { text: 'الرصيد', x: 95, y: 700 },
+        { text: 'الوحدة', x: 45, y: 700 },
+        { text: 'العبوه', x: 10, y: 700 },
+        { text: 'زيت شفاف الفخامة 4×5 لتر', x: 610, y: 680 },
+        { text: '10801001', x: 545, y: 680 },
+        { text: 'الرئيسي', x: 475, y: 680 },
+        { text: '58', x: 410, y: 680 },
+        { text: '50', x: 320, y: 680 },
+        { text: '2', x: 235, y: 680 },
+        { text: '52', x: 160, y: 680 },
+        { text: '56', x: 95, y: 680 },
+        { text: 'كرتون', x: 45, y: 680 },
+        { text: '4', x: 10, y: 680 },
+      ]),
+      'arabic-inventory-report.pdf',
+      'pdf',
+    );
+    assert(inventoryReportDatasets.length === 1, 'Arabic inventory report must produce one dataset');
+    const [inventoryReport] = inventoryReportDatasets;
+    assert(inventoryReport.rows.length === 1, 'Arabic inventory report must produce one business row');
+    assert(inventoryReport.qualityScore >= 75, `Arabic inventory report quality must meet review threshold, got ${inventoryReport.qualityScore}`);
+    assert(inventoryReport.rows[0]?.sku === '10801001', 'Arabic inventory report code must map to canonical sku');
+    assert(inventoryReport.rows[0]?.received_quantity === 58, 'Arabic inventory report incoming quantity must map canonically');
+    assert(inventoryReport.rows[0]?.posted_net_sales === 50, 'Arabic inventory report posted net sales must map canonically');
+    assert(inventoryReport.rows[0]?.unposted_net_sales === 2, 'Arabic inventory report unposted net sales must map canonically');
+    assert(inventoryReport.rows[0]?.net_sales === 52, 'Arabic inventory report net sales must map canonically');
+    assert(inventoryReport.rows[0]?.stock_balance === 56, 'Arabic inventory report balance must map canonically');
+
     const { extractPdfPageTable } = await vite.ssrLoadModule('/src/lib/file-engine/pdf-layout.ts') as {
       extractPdfPageTable: (items: Array<{ str: string; transform: number[]; width: number; height: number }>, existingLayout?: unknown) => {
         layout: { headers: string[]; centers: number[] };
