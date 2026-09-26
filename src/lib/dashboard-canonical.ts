@@ -186,22 +186,71 @@ export async function fetchProfitabilitySnapshot(): Promise<ProfitabilitySnapsho
   return { status: row.status, currency: typeof row.currency==='string'?row.currency:null, currency_status: row.currency_status==='CONSISTENT'?'CONSISTENT':'INSUFFICIENT_DATA', revenue:finiteOrNull(row.revenue), cost:finiteOrNull(row.cost), gross_profit:finiteOrNull(row.gross_profit), gross_margin:finiteOrNull(row.gross_margin), invoice_count:finiteOrNull(row.invoice_count), bad_invoice_rows:finiteOrNull(row.bad_invoice_rows), bad_sale_item_rows:finiteOrNull(row.bad_sale_item_rows), currency_mismatch_rows:finiteOrNull(row.currency_mismatch_rows), reasons:requiredArray<string>(row.reasons, 'profitability.reasons'), as_of:requiredAsOf(row.as_of, 'profitability') };
 }
 
+function validateRFMRows(rows: unknown[]): RFMSnapshotRow[] {
+  rows.forEach((item, index) => {
+    if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: rfm.rows[' + index + '] must be an object');
+    const value = item as Record<string, unknown>;
+    const finiteNumber = (field: string) => typeof value[field] === 'number' && Number.isFinite(value[field] as number);
+    if (
+      typeof value.customer_id !== 'string' ||
+      typeof value.customer_name !== 'string' ||
+      !finiteNumber('recency') ||
+      !finiteNumber('frequency') ||
+      !finiteNumber('monetary') ||
+      !finiteNumber('r_score') ||
+      !finiteNumber('f_score') ||
+      !finiteNumber('m_score') ||
+      typeof value.rfm_segment !== 'string'
+    ) throw new Error('REPORT_DATA_INVALID: rfm.rows[' + index + '] shape is invalid');
+  });
+  return rows as RFMSnapshotRow[];
+}
+
+function validateABCRows(rows: unknown[]): ABCSnapshotRow[] {
+  rows.forEach((item, index) => {
+    if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: abc.rows[' + index + '] must be an object');
+    const value = item as Record<string, unknown>;
+    if (
+      typeof value.product_id !== 'string' ||
+      typeof value.product_name !== 'string' ||
+      typeof value.revenue !== 'number' || !Number.isFinite(value.revenue) ||
+      typeof value.cumulative !== 'number' || !Number.isFinite(value.cumulative) ||
+      (value.cumulative_pct !== null && (typeof value.cumulative_pct !== 'number' || !Number.isFinite(value.cumulative_pct))) ||
+      (value.class !== null && value.class !== 'A' && value.class !== 'B' && value.class !== 'C')
+    ) throw new Error('REPORT_DATA_INVALID: abc.rows[' + index + '] shape is invalid');
+  });
+  return rows as ABCSnapshotRow[];
+}
+
+function validateAgingRows(rows: unknown[]): AgingSnapshotRow[] {
+  rows.forEach((item, index) => {
+    if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: aging.rows[' + index + '] must be an object');
+    const value = item as Record<string, unknown>;
+    if (
+      typeof value.name !== 'string' ||
+      typeof value.amount !== 'number' || !Number.isFinite(value.amount) ||
+      typeof value.count !== 'number' || !Number.isInteger(value.count) || value.count < 0
+    ) throw new Error('REPORT_DATA_INVALID: aging.rows[' + index + '] shape is invalid');
+  });
+  return rows as AgingSnapshotRow[];
+}
+
 export async function fetchRFMSnapshot(limit = 500): Promise<RFMSnapshot> {
   if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('REPORT_QUERY_INVALID_LIMIT');
   const { data, error } = await supabase.rpc('get_rfm_snapshot', { p_as_of: asOfDate(), p_limit: limit });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: RFM snapshot missing');
-  const row = data as Record<string, unknown>; return { rows: requiredArray<RFMSnapshotRow>(row.rows, 'rfm.rows'), asOf: requiredAsOf(row.asOf, 'rfm'), unknownRows: nonNegativeIntegerOrNull(row.unknownRows, 'rfm.unknownRows'), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' : (() => { throw new Error('REPORT_DATA_INVALID: rfm.status is invalid'); })() };
+  const row = data as Record<string, unknown>; return { rows: validateRFMRows(requiredArray<unknown>(row.rows, 'rfm.rows')), asOf: requiredAsOf(row.asOf, 'rfm'), unknownRows: nonNegativeIntegerOrNull(row.unknownRows, 'rfm.unknownRows'), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' : (() => { throw new Error('REPORT_DATA_INVALID: rfm.status is invalid'); })() };
 }
 export async function fetchABCSnapshot(limit = 500): Promise<ABCSnapshot> {
   if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('REPORT_QUERY_INVALID_LIMIT');
   const { data, error } = await supabase.rpc('get_abc_snapshot', { p_limit: limit });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: ABC snapshot missing');
-  const row = data as Record<string, unknown>; return { rows: requiredArray<ABCSnapshotRow>(row.rows, 'abc.rows'), totalRevenue: finiteOrNull(row.totalRevenue), unknownRows: nonNegativeIntegerOrNull(row.unknownRows, 'abc.unknownRows'), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' : (() => { throw new Error('REPORT_DATA_INVALID: abc.status is invalid'); })() };
+  const row = data as Record<string, unknown>; return { rows: validateABCRows(requiredArray<unknown>(row.rows, 'abc.rows')), totalRevenue: finiteOrNull(row.totalRevenue), unknownRows: nonNegativeIntegerOrNull(row.unknownRows, 'abc.unknownRows'), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' : (() => { throw new Error('REPORT_DATA_INVALID: abc.status is invalid'); })() };
 }
 export async function fetchAgingSnapshot(): Promise<AgingSnapshot> {
   const { data, error } = await supabase.rpc('get_aging_snapshot', { p_as_of: asOfDate() });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: aging snapshot missing');
-  const row = data as Record<string, unknown>; return { rows: requiredArray<AgingSnapshotRow>(row.rows, 'aging.rows'), asOf: requiredAsOf(row.asOf, 'aging'), unknownRows: nonNegativeIntegerOrNull(row.unknownRows, 'aging.unknownRows'), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'NO_DATA' ? 'NO_DATA' : row.status === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' : (() => { throw new Error('REPORT_DATA_INVALID: aging.status is invalid'); })() };
+  const row = data as Record<string, unknown>; return { rows: validateAgingRows(requiredArray<unknown>(row.rows, 'aging.rows')), asOf: requiredAsOf(row.asOf, 'aging'), unknownRows: nonNegativeIntegerOrNull(row.unknownRows, 'aging.unknownRows'), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'NO_DATA' ? 'NO_DATA' : row.status === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' : (() => { throw new Error('REPORT_DATA_INVALID: aging.status is invalid'); })() };
 }
 
 function validateDashboardIntelligence(row: Record<string, unknown>): { recommendations: Recommendation[]; alerts: Alert[] } {
