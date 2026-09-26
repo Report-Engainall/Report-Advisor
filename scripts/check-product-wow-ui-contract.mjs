@@ -339,6 +339,9 @@ assert.ok(executiveCommand.includes('مراجعة جودة البيانات'), '
 assert.ok(executiveCommand.includes('<Link to="/data-quality"'), 'executive command center empty states must use the canonical data-quality route');
 
 const dataQuality = fs.readFileSync('src/pages/DataQualitySnapshotPage.tsx', 'utf8');
+assert.ok(dataQuality.includes('المتبقي بعد مؤشرات المشكلات'), 'data quality must not label an issue-count-derived remainder as healthy records');
+assert.ok(dataQuality.includes('المؤشر التشخيصي'), 'data quality score must be presented as a diagnostic indicator rather than absolute truth');
+
 assert.ok(dataQuality.includes('const severityCounts = {'), 'data quality must derive severity pressure from the current snapshot');
 assert.ok(dataQuality.includes('const visibleIssues = severityFilter ==='), 'data quality issue filtering must remain local to the authoritative snapshot');
 assert.ok(dataQuality.includes('رادار شدة الجودة'), 'data quality must expose a visible severity radar');
