@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 154
+
+- MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CODE/TEST CANDIDATE BEFORE THIS GOVERNANCE WRITE: `e7b0fa82d81c91f1a2654e3f5aef2ec9d13cb863` (PR #660).
+- UI MICRO-CLOSURE: Decision Experience readiness now exposes `role="status"`, `aria-live="polite"` and machine-readable `data-readiness`; Product WOW contract guards the accessible state.
+- CORE CONTRACT CLOSURE: report-truth contract now explicitly guards all six dashboard quality counts, not only a subset.
+- PHASE-F: canonical tenant resolver repair + forward client_ui_settings reconciliation remain the latest runtime-boundary repair; fresh Phase-F evidence is still required.
+- HOSTING: Netlify exact preview remains the available current preview path; Vercel remains externally rate-limited.
+- NEXT: consume fresh exact-head gates for the latest code candidate; repair only the first reproduced current-head failure.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 153
 
 - MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
