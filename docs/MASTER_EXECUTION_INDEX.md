@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-159
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `82de615073eb05feb96baaac7ef0828677c34d88` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI → fixed the Reports Center loading boundary so loaded evidence variables are never referenced before a canonical snapshot exists; added a shared evidence-truth visual layer and deeper operational Work Center polish with focus/reduced-motion behavior.
+- CORE → dashboard snapshot now rejects malformed returned month metadata; worker-health counts fail closed when exact counts are unavailable; import operation records now validate status, non-negative counters, and 0–100 progress instead of coercing malformed values.
+- CONTRACTS → Product WOW and report-truth contracts now guard the new Reports loading, worker-health, dashboard-month and import-record invariants.
+- VERIFICATION → exact-head workflow runs are not exposed for `82de615...`; combined status shows only Vercel failure/pending contexts, with Vercel blocked by external build-rate-limit. No stale PASS transferred.
+- DEVICE → unavailable/offline; no device-dependent verification claimed.
+- PHASE-F → live recovery/RPO/RTO proof remains required; source-side tenant repair remains in place.
+- NO MERGE → PR #660 remains open; no production mutation or certification claim made.
+- RESUME POINTER → `PR #660 latest HEAD after this write → consume exact-head gates when exposed → repair first reproduced current-head failure → continue UI/core closure`.
+- DO NOT REPEAT → loaded-state variables in loading branches, missing-to-zero coercion, stale gate transfer, preview-to-production promotion, device-dependent claims, duplicate import/runtime architecture.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-158
 
 - CURRENT HEAD → `b936eccefe82c54d8e321db374de29f57c7dcd3e` on PR #660.
