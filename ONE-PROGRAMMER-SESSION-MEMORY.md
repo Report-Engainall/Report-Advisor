@@ -1,3 +1,17 @@
+# CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 188
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE PR: #661 / `exec/20260926-continuous-ui-core-deep`.
+- LAST FUNCTIONAL HEAD: `ea5c1008eeea4d06c2d7387a1a009fa468760a8e`.
+- IMPORT DOMAIN LANE: source specialty classification is centralized in `src/lib/file-engine/source-domain.ts`; Canonical Import and Work Center consume the same labels/classifier. No duplicate taxonomy remains.
+- IMPORT HISTORY: `ImportRecord` and `fetchImportRecords` retain `source_domain`; Canonical Import history and Work Center expose the detected specialty.
+- REGRESSION: `source-domain.contract.test.ts` covers inventory, Arabic sales invoices, customer masters, payments, generic fallback and label resolution.
+- UI TRUTH: Data Quality EMPTY score presentation was corrected from `null%` to `غير متاح`.
+- DESKTOP PROOF: `desktop-windows` run `36269041388` succeeded on the preceding exact lineage.
+- CURRENT PROOF: no terminal gate result yet for `ea5c100...`; PDF, quality, browser, certification and related checks still require terminal exact-head evidence. No stale PASS transfer.
+- HOSTING: Vercel branch deployment is externally rate-limited on the free plan. Netlify CI has reported success for the PR branch, but current exact deployed SHA still needs verification before visual acceptance.
+- NEXT: consume the first terminal current-head gate; repair only the first reproduced failure; then continue uncovered product boundaries and current-SHA deployment verification.
+- DO NOT REPEAT: duplicate source taxonomy, stale preview/PASS, naive PDF flattening, duplicate importer/RPC/navigation paths, production-SHA bypass, unsafe import mutation.
 # CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 187
 
 - MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
