@@ -16,7 +16,7 @@ function evidenceIsUsable(evidence:DecisionEvidence[]):boolean{
   );
 }
 
-function decisionIsUsable(decision:Decision):boolean{
+export function decisionIsUsable(decision:Decision):boolean{
   return typeof decision.id==='string' && decision.id.trim().length>0
     && typeof decision.title==='string' && decision.title.trim().length>0
     && typeof decision.action==='string' && decision.action.trim().length>0
