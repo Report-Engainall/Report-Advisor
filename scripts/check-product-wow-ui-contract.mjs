@@ -237,6 +237,9 @@ assert.ok(!trustEvidence.includes('aria-label={\\`'), 'trust evidence contract m
 const decisionExperience = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
 assert.ok(decisionExperience.includes("['rejected', 'cancelled', 'completed'].includes(recommendation.status)"), 'decision readiness must block terminal recommendation states');
 assert.ok(decisionExperience.includes("if (!recommendation.confidence?.trim())"), 'decision readiness must require explicit confidence');
+assert.ok(decisionExperience.includes("if (!recommendation.owner?.trim())"), 'decision readiness must reject blank owner values');
+assert.ok(decisionExperience.includes("if (!deadline)"), 'decision readiness must reject blank deadlines after trimming');
+assert.ok(decisionExperience.includes("Number.isNaN(deadlineDate.getTime())"), 'decision readiness must reject invalid deadline values');
 assert.ok(decisionExperience.includes('data-state={readiness.status.toLowerCase()}'), 'decision evidence card state must mirror the typed readiness status');
 
 assert.ok(decisionExperience.includes('recommendation.expected_impact == null'), 'decision readiness must treat zero expected impact as a valid value');
