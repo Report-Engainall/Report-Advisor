@@ -9,7 +9,7 @@ import { relativeTime } from '@/lib/format';
 import { supabase } from '@/lib/supabase';
 import { NAVIGATION_SECTIONS, resolveNavigationItem } from '@/lib/navigation-registry';
 
-type HealthState = 'checking' | 'healthy' | 'degraded' | 'offline';
+type HealthState = 'checking' | 'healthy' | 'degraded' | 'tenant-missing' | 'offline';
 
 export function Header({
   alerts,
@@ -91,7 +91,7 @@ export function Header({
         if (tenantError) {
           setHealth('degraded');
         } else {
-          setHealth(companyId ? 'healthy' : 'degraded');
+          setHealth(companyId ? 'healthy' : 'tenant-missing');
         }
       } catch {
         if (mounted) setHealth('offline');
@@ -109,6 +109,7 @@ export function Header({
   const healthLabel =
     health === 'healthy' ? 'متصل' :
     health === 'offline' ? 'غير متصل' :
+    health === 'tenant-missing' ? 'سياق الشركة غير مثبت' :
     health === 'degraded' ? 'متأثر' :
     'فحص';
 
