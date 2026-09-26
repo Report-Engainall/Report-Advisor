@@ -540,6 +540,7 @@ export type WorkerHealthSnapshot = {
   queued: number;
   active: number;
   expiredActive: number;
+  untrustedActive: number;
   activeReadComplete: boolean;
 };
 
@@ -568,16 +569,26 @@ export async function fetchWorkerHealthSnapshot(): Promise<WorkerHealthSnapshot>
 
   const activeRows = (activeResult.data ?? []) as Array<{ status: string; lease_expires_at: string | null }>;
   const activeTotal = activeResult.count ?? activeRows.length;
-  const expiredActive = activeRows.filter((row) => {
-    if (!row.lease_expires_at) return false;
+  let expiredActive = 0;
+  let untrustedActive = 0;
+  for (const row of activeRows) {
+    if (!row.lease_expires_at) {
+      untrustedActive += 1;
+      continue;
+    }
     const expiresAt = new Date(row.lease_expires_at);
-    return !Number.isNaN(expiresAt.getTime()) && expiresAt.getTime() <= now.getTime();
-  }).length;
+    if (Number.isNaN(expiresAt.getTime())) {
+      untrustedActive += 1;
+      continue;
+    }
+    if (expiresAt.getTime() <= now.getTime()) expiredActive += 1;
+  }
 
   return {
     queued: queuedResult.count ?? 0,
     active: activeTotal,
     expiredActive,
+    untrustedActive,
     activeReadComplete: activeTotal <= activeRows.length,
   };
 }
