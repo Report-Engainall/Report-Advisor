@@ -18,14 +18,14 @@ const iconMap: Record<EntityQuality['icon'], LucideIcon> = { users: Users, packa
 
 export function DataQualitySnapshotPage() {
   const [loading, setLoading] = useState(true); const [refreshing, setRefreshing] = useState(false); const [error, setError] = useState<string | null>(null); const [issues, setIssues] = useState<QualityIssue[]>([]); const [entities, setEntities] = useState<EntityQuality[]>([]); const [overallScore, setOverallScore] = useState<number | null>(null); const [snapshotStatus, setSnapshotStatus] = useState<'OK'|'EMPTY'>('EMPTY'); const [severityFilter, setSeverityFilter] = useState<'all'|'critical'|'warning'|'info'>('all');
-  const load = useCallback(async (silent = false) => { try { if (silent) setRefreshing(true); else setLoading(true); setError(null); const snapshot = await fetchDataQualitySnapshot(); setSnapshotStatus(snapshot.status); setEntities(snapshot.entities); setIssues(snapshot.issues.filter(i => i.count > 0).sort((a,b) => b.count-a.count)); const totalRecords = snapshot.entities.reduce((s,e)=>s+e.total,0); const totalIssues = snapshot.entities.reduce((s,e)=>s+e.issues,0); const countsConsistent = snapshot.entities.every((entity) => entity.issues >= 0 && entity.total >= 0 && entity.issues <= entity.total);
-      setOverallScore(snapshot.status === 'EMPTY' || totalRecords === 0 || !countsConsistent ? null : Math.round(((totalRecords - totalIssues) / totalRecords) * 100)); } catch (e: unknown) { setError(errorMessage(e)); } finally { setLoading(false); setRefreshing(false); } }, []);
+  const load = useCallback(async (silent = false) => { try { if (silent) setRefreshing(true); else setLoading(true); setError(null); const snapshot = await fetchDataQualitySnapshot(); setSnapshotStatus(snapshot.status); setEntities(snapshot.entities); setIssues(snapshot.issues.filter(i => i.count > 0).sort((a,b) => b.count-a.count)); const totalRecords = snapshot.entities.reduce((s,e)=>s+e.total,0); const totalIssues = snapshot.entities.reduce((s,e)=>s+e.issues,0); const derivedSummaryAvailable = snapshot.entities.every((entity) => entity.issues >= 0 && entity.total >= 0) && totalIssues <= totalRecords;
+      setOverallScore(snapshot.status === 'EMPTY' || totalRecords === 0 || !derivedSummaryAvailable ? null : Math.round(((totalRecords - totalIssues) / totalRecords) * 100)); } catch (e: unknown) { setError(errorMessage(e)); } finally { setLoading(false); setRefreshing(false); } }, []);
   useEffect(() => { void load(); }, [load]);
   if (loading) return <LoadingState message="جارٍ فحص جودة البيانات..." />;
   if (error) return <ErrorState message={error} onRetry={load} />;
   const totalRecords = entities.reduce((s,e)=>s+e.total,0); const totalIssues = entities.reduce((s,e)=>s+e.issues,0);
-  const countsConsistent = entities.every((entity) => entity.issues >= 0 && entity.total >= 0 && entity.issues <= entity.total);
-  const remainingRecords = countsConsistent ? totalRecords - totalIssues : null;
+  const derivedSummaryAvailable = entities.every((entity) => entity.issues >= 0 && entity.total >= 0) && totalIssues <= totalRecords;
+  const remainingRecords = derivedSummaryAvailable ? totalRecords - totalIssues : null;
   const severityCounts = {
     critical: issues.filter(i => i.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0),
     warning: issues.filter(i => i.severity === 'warning').reduce((sum, issue) => sum + issue.count, 0),
@@ -33,8 +33,8 @@ export function DataQualitySnapshotPage() {
   };
   const visibleIssues = severityFilter === 'all' ? issues : issues.filter(i => i.severity === severityFilter);
   const criticalIssueTotal = severityCounts.critical;
-  const nextAction = !countsConsistent
-    ? { label: 'راجع تناسق لقطة الجودة', description: 'التقاط الحالي يحتوي على عدادات لا يمكن إثبات اتساقها؛ لن يتم عرض متبقٍ أو درجة مشتقة كرقم.', to: '/trust' }
+  const nextAction = !derivedSummaryAvailable
+    ? { label: 'راجع معنى ملخص الجودة', description: 'عدد وقائع المشكلات يتجاوز عدد السجلات أو لا يمكن اشتقاق متبقٍ موثوق؛ لن يتم اختزال التداخل إلى درجة أو عدد سجلات متبقٍ.', to: '/trust' }
     : snapshotStatus === 'EMPTY'
     ? { label: 'استيراد مصدر', description: 'لا توجد سجلات تجارية مثبتة بعد؛ ابدأ بالمصدر الموحد حتى تتكوّن لقطة جودة قابلة للقراءة.', to: '/import' }
     : criticalIssueTotal > 0
@@ -55,7 +55,7 @@ export function DataQualitySnapshotPage() {
         <div className="mt-1 text-[11px] leading-5 text-primary-900/70">انتقل مباشرة إلى المسار الذي يعالج حالة الجودة الحالية.</div>
       </Link>
     </section>
-    <section className="ag-decision-strip ag-quality-summary-strip" aria-label="ملخص جودة البيانات" data-summary-state={countsConsistent ? 'consistent' : 'unavailable'}>
+    <section className="ag-decision-strip ag-quality-summary-strip" aria-label="ملخص جودة البيانات" data-summary-state={derivedSummaryAvailable ? 'consistent' : 'unavailable'}>
       <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{snapshotStatus === 'EMPTY' ? 'EMPTY' : 'AVAILABLE'}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">السجلات</span><span className="ag-decision-value">{formatNumber(entities.reduce((s,e)=>s+e.total,0))}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">المشكلات</span><span className="ag-decision-value">{formatNumber(issues.reduce((s,i)=>s+i.count,0))}</span></div>
