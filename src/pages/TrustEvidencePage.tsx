@@ -60,12 +60,14 @@ export function TrustEvidencePage() {
     [snapshot],
   );
   const criticalIssueTotal = useMemo(
-    () => snapshot?.issues?.filter((issue) => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0) ?? 0,
+    () => snapshot?.status === 'EMPTY'
+      ? null
+      : snapshot?.issues?.filter((issue) => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0) ?? null,
     [snapshot],
   );
   const nextStep = snapshot?.status === 'EMPTY'
     ? { label: 'ابدأ من المصدر', detail: 'أضف ملفًا أو مصدرًا حتى يمكن بناء حالة حقيقة وأدلة فعلية.', path: '/import' }
-    : criticalIssueTotal > 0
+    : criticalIssueTotal != null && criticalIssueTotal > 0
       ? { label: 'أغلق المشكلات الحرجة', detail: 'ابدأ من جودة البيانات قبل استخدام النتائج في قرار.', path: '/data-quality' }
       : issueTotal && issueTotal > 0
         ? { label: 'مراجعة جودة البيانات', detail: 'راجع الحالات التي تمنع الثقة الكاملة قبل الانتقال إلى القرار.', path: '/data-quality' }
@@ -101,7 +103,7 @@ export function TrustEvidencePage() {
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CURRENT STATUS</div><div className="mt-1 text-lg font-black">{statusLabel}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">RECORDS CHECKED</div><div className="mt-1 text-lg font-black">{totalRecords == null ? 'غير متاح' : totalRecords}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">ISSUES REPORTED</div><div className="mt-1 text-lg font-black">{issueTotal ?? 'غير متاح'}</div></div>
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CRITICAL</div><div className="mt-1 text-lg font-black">{criticalIssueTotal}</div></div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CRITICAL</div><div className="mt-1 text-lg font-black">{criticalIssueTotal == null ? 'غير متاح' : criticalIssueTotal}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">QUALITY SCORE</div><div className="mt-1 text-lg font-black">{weightedScore == null ? 'غير متاح' : `${Math.round(weightedScore)}%`}</div></div>
       </div>
     </section>
@@ -110,7 +112,7 @@ export function TrustEvidencePage() {
       <div className="ag-decision-cell"><span className="ag-decision-label">الحالة الحالية</span><span className="ag-decision-value">{statusLabel}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">السجلات</span><span className="ag-decision-value">{totalRecords == null ? 'غير متاح' : totalRecords}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">المشكلات</span><span className="ag-decision-value">{issueTotal ?? 'غير متاح'}</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">الحرجة</span><span className="ag-decision-value">{criticalIssueTotal}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">الحرجة</span><span className="ag-decision-value">{criticalIssueTotal == null ? 'غير متاح' : criticalIssueTotal}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">الخطوة التالية</span><span className="ag-decision-value">{nextStep.label}</span></div>
     </section>
 
