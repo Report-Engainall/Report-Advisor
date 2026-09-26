@@ -99,9 +99,9 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput, 
     mode === 'finalize-source' ||
     (typeof serverCommittedRowCount === 'number' &&
       Number.isInteger(serverCommittedRowCount) &&
-      serverCommittedRowCount >= 0 &&
+      serverCommittedRowCount === input.rows.length &&
       Array.isArray(serverCommittedIds) &&
-      serverCommittedIds.length === serverCommittedRowCount &&
+      serverCommittedIds.length === input.rows.length &&
       serverCommittedIds.every((id) => typeof id === 'string' && id.trim().length > 0));
   if (!importIdValid || !sourceHashValid || !jobIdValid || !committedResultValid) {
     throw new Error('CANONICAL_IMPORT_SERVER_EXECUTION_RESPONSE_INVALID');
