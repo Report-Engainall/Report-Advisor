@@ -375,7 +375,7 @@ export async function fetchRecommendationOutcome(recommendationId: string): Prom
 export type ReceivablesReportRow = { id:string; invoice_number:string; invoice_date:string; due_date:string|null; total:number|null; paid_amount:number|null; balance:number; status:string|null; customer:{id:string|null;name:string|null}|null };
 export type ReceivablesReportPage = { status:'CALCULATED'|'NO_DATA'; page:number; page_size:number; total_rows:number; total_outstanding:number; rows:ReceivablesReportRow[] };
 
-function isReceivablesReportRow(value: unknown): value is ReceivablesReportRow {
+export function isReceivablesReportRow(value: unknown): value is ReceivablesReportRow {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const row = value as Record<string, unknown>;
   if (
