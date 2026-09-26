@@ -30,6 +30,7 @@ function ReportTruthBar({ status, asOf, period, note }: { status: string; asOf?:
     {asOf && <span>As-of: {asOf}</span>}
     {note && <span className="text-current/70">{note}</span>}
     <span className="mr-auto font-semibold">القيم غير المتاحة تبقى غير متاحة ولا تُستبدل بتقديرات.</span>
+    <Link to="/trust" className="inline-flex items-center rounded-lg bg-white/70 px-2.5 py-1.5 font-black underline decoration-dotted underline-offset-2 hover:bg-white">فحص الدليل</Link>
   </section>;
 }
 
