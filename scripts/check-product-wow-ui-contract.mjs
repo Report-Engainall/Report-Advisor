@@ -29,6 +29,9 @@ assert.ok(assistant.includes("type AssistantMode = 'LOADING' | 'READY' | 'INSUFF
 assert.ok(assistant.includes("mode === 'LOADING'"), 'assistant must expose loading semantics while context is fetched');
 assert.ok(assistant.includes('إعادة تحميل سياق المؤشرات'), 'assistant must expose explicit recovery when the canonical snapshot is unavailable');
 
+const header = fs.readFileSync('src/components/Header.tsx', 'utf8');
+assert.ok(header.includes("type HealthState = 'checking' | 'healthy' | 'degraded' | 'tenant-missing' | 'offline'"), 'header health must distinguish missing tenant context');
+assert.ok(header.includes("health === 'tenant-missing' ? 'سياق الشركة غير مثبت'"), 'header must explain missing tenant context explicitly');
 const appShell = fs.readFileSync('src/App.tsx', 'utf8');
 const sidebar = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
 
