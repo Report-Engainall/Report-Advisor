@@ -25,6 +25,12 @@ for (const token of [
   "/^sha256:[0-9a-fA-F]{64}$/",
   "typeof jobId === 'string'",
   "CANONICAL_IMPORT_SERVER_EXECUTION_RESPONSE_INVALID",
+  "importId === input.importId",
+  "sourceHash === input.sourceHash",
+  "typeof serverCommittedRowCount === 'number'",
+  "Number.isInteger(serverCommittedRowCount)",
+  "Array.isArray(serverCommittedIds)",
+  "serverCommittedIds.length === serverCommittedRowCount",
 ]) {
   if (!source.includes(token)) throw new Error(\`Report truth contract missing canonical server-response invariant: \${token}\`);
 }
