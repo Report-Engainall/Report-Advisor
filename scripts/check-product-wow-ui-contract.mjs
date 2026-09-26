@@ -339,6 +339,12 @@ assert.ok(executiveCommand.includes('مراجعة جودة البيانات'), '
 assert.ok(executiveCommand.includes('<Link to="/data-quality"'), 'executive command center empty states must use the canonical data-quality route');
 
 const dataQuality = fs.readFileSync('src/pages/DataQualitySnapshotPage.tsx', 'utf8');
+assert.ok(dataQuality.includes('const severityCounts = useMemo'), 'data quality must derive severity pressure from the current snapshot');
+assert.ok(dataQuality.includes('const visibleIssues = useMemo'), 'data quality issue filtering must remain local to the authoritative snapshot');
+assert.ok(dataQuality.includes('رادار شدة الجودة'), 'data quality must expose a visible severity radar');
+assert.ok(dataQuality.includes('عرض كل الشدة'), 'data quality severity filtering must expose a local reset action');
+assert.ok(dataQuality.includes('aria-pressed={severityFilter===key}'), 'data quality severity filters must expose selected state accessibly');
+
 assert.ok(dataQuality.includes('criticalIssueTotal'), 'data quality must derive critical issue pressure from the current snapshot');
 assert.ok(dataQuality.includes('const nextAction = snapshotStatus === \'EMPTY\''), 'data quality must derive the next action from real snapshot state');
 assert.ok(dataQuality.includes('استيراد مصدر'), 'empty data quality must route to the canonical import entry');
