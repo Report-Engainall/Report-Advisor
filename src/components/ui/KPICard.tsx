@@ -28,7 +28,9 @@ export function KPICard({
   hint,
   evidenceCount,
 }: KPICardProps) {
-  const formatted = value === null
+  const safeValue = typeof value === 'number' && Number.isFinite(value) ? value : null;
+  const safeChange = typeof change === 'number' && Number.isFinite(change) ? change : undefined;
+  const formatted = safeValue === null
     ? '—'
     : format === 'currency'
       ? formatCurrency(value)
@@ -37,8 +39,8 @@ export function KPICard({
         : format === 'compact'
           ? formatCompact(value)
           : formatNumber(value);
-  const positive = change !== undefined && change > 0;
-  const negative = change !== undefined && change < 0;
+  const positive = safeChange !== undefined && safeChange > 0;
+  const negative = safeChange !== undefined && safeChange < 0;
   const trustState = trustStateFromDataStatus(status);
 
   return (
@@ -54,10 +56,10 @@ export function KPICard({
       </div>
       <div className="relative mt-4 ag-kpi-number" aria-label={label + ': ' + formatted}>{formatted}</div>
       <div className="relative mt-2 flex min-h-4 flex-wrap items-center gap-2">
-        {change !== undefined && (
+        {safeChange !== undefined && (
           <span className={'flex items-center gap-1 text-xs font-bold ' + (positive ? 'text-success-600' : negative ? 'text-danger-600' : 'text-ink-500')}>
             {positive ? <TrendingUp size={13}/> : negative ? <TrendingDown size={13}/> : <Minus size={13}/>}
-            {formatPercent(change)}
+{formatPercent(safeChange)}
           </span>
         )}
         {changeLabel && <span className="text-[10px] text-ink-500">{changeLabel}</span>}
