@@ -878,3 +878,18 @@
 - CURRENT RESUME POINTER → `8a5c8de6...` → consume first populated current-head gate; repair only the first reproduced failure; continue independent UI/core closure.
 - DO NOT REPEAT → no missing-to-zero liquidity routing, no superseded import metric, no stale PASS transfer, no production-SHA bypass.
 
+## LATEST SESSION WRITE-BACK — 2026-09-26 / WAVE — DEMAND TRUTH + IMPORT QUALITY POLISH
+
+- SOURCE HEAD OBSERVED BEFORE GOVERNANCE → f62b43394ebe0c2783d186dd3a3e2836f776faf0 on PR #660 / branch exec/20260926-deep-ui-core-polish.
+- CORE DELIVERY → src/lib/free-toolbox/sales-demand-series.ts now fails closed on missing/duplicate invoice identity, missing invoice linkage, missing product identity, and non-finite quantity/sales values. Malformed sale-item observations are no longer silently dropped.
+- CORE DELIVERY → src/lib/free-toolbox/inventory-intelligence-canonical.ts now rejects malformed product identity before assembling inventory intelligence.
+- UI DELIVERY → src/pages/CanonicalImportPage.tsx no longer clamps malformed source quality into 0–100. Invalid/non-finite quality now blocks preview progression with an explicit error.
+- UI DELIVERY → Canonical import source passport now exposes trusted / review / blocked quality-state styling through data-quality-state.
+- CONTRACT DELIVERY → check-report-truth-contract.mjs guards the demand and inventory truth boundaries; check-product-wow-ui-contract.mjs guards the canonical-import quality state/validation.
+- EXACT-HEAD GATES → current combined status exposes Vercel failure at the known free build-rate-limit target plus Vercel Deployments pending; GitHub workflow run list is currently empty for this SHA. No CI/browser/certification PASS is claimed.
+- DEVICE → Remote Desktop Commander shows PC01 offline; no device/browser verification claimed.
+- PRODUCTION → no production mutation or production certification claimed; Phase-F live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- CURRENT RESUME POINTER → refresh exact-head gates on the next SHA; repair only the first reproduced current-head failure; otherwise continue one independent UI lane and one independent core lane.
+- DO NOT REPEAT → no silent malformed-demand row skipping, no quality clamping, no stale PASS transfer, no device-dependent PASS, no production-SHA bypass, no duplicate import workflow.
+- UI LANE PROGRESS → import quality state is now visually semantic and bound to validated source truth.
+- CORE LANE PROGRESS → demand/inventory intelligence boundaries are stricter and fail closed on malformed authoritative observations.
