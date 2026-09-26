@@ -1,3 +1,14 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / DATA QUALITY + WORK CENTER CLOSURE
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- CORE → data-quality snapshot rejects impossible `entity.issues > entity.total` states.
+- UI → Data Quality refuses to clamp inconsistent derived remaining records; it exposes an unavailable summary/next action instead.
+- UI → Work Center refuses out-of-range persisted progress and renders a machine-addressable unavailable state.
+- CONTRACTS → existing report-truth and Product-WOW guards cover these boundaries.
+- NO DUPLICATION → existing validators, screens and contract families were extended only.
+- NEXT → consume terminal exact-head CI evidence; repair only a reproduced current-SHA defect; continue the next independent UI/core boundary.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / REPORT TEXT + COMMAND UI TRUTH
 
 > Exact-head evidence only. Historical PASS is not transferred.
