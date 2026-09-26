@@ -1,3 +1,15 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-164
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `29692e2b9af4d3c8e2b67a149b1292a20448d053` on PR #660.
+- UI → Sales Report now blocks XLSX export when canonical sales truth is INSUFFICIENT_DATA and exposes a direct Data Quality action; Product WOW contract guards this state.
+- CORE → previous report/inventory/receivables/profitability truth closures remain intact; no stale coercion or evidence elevation reintroduced.
+- EXACT-HEAD CHECK SUITES → CodeRabbit queued; Vercel queued; Supabase skipped; Cloudflare in progress; Netlify queued; two GitHub Actions queued. All are bound to `29692e2...`; no PASS inferred.
+- DEVICE → unavailable/offline; no device-dependent proof.
+- NO MERGE → PR #660 remains open.
+- CURRENT RESUME POINTER → `PR #660 latest HEAD → consume exact-head suites → repair first current-head failure → continue deep UI/core closure`.
+- DO NOT REPEAT → incomplete-report export, calculated-to-verified elevation, missing-to-zero coercion, stale SHA evidence, device-dependent proof.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-163
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
