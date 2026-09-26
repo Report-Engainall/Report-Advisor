@@ -1,6 +1,6 @@
 import { supabase, resolveCurrentCompanyId } from './supabase';
 import { fetchDashboardSnapshot, fetchDashboardIntelligence, type DashboardKPIs, type MonthlyTrend, type TopEntity, type AgingBucket, type CategoryBreakdown } from './dashboard-canonical';
-import type { Recommendation, Alert, SalesInvoice, PurchaseInvoice, ImportRecord, Customer, Forecast, Product } from './types';
+import type { Recommendation, RecommendationOutcome, DecisionEvidenceSnapshot, Alert, SalesInvoice, PurchaseInvoice, ImportRecord, Customer, Forecast, Product } from './types';
 export type { DashboardKPIs, MonthlyTrend, TopEntity, AgingBucket, CategoryBreakdown };
 export async function fetchDashboardKPIs(): Promise<DashboardKPIs> { return (await fetchDashboardSnapshot(6)).kpis; }
 export async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend[]> { return (await fetchDashboardSnapshot(months)).trend; }
@@ -10,6 +10,236 @@ export async function fetchCategoryBreakdown(): Promise<CategoryBreakdown[]> { r
 export async function fetchAgingBuckets(): Promise<AgingBucket[]> { return (await fetchDashboardSnapshot(6)).aging.rows; }
 export async function fetchRecommendations(): Promise<Recommendation[]> { return (await fetchDashboardIntelligence()).recommendations; }
 export async function fetchAlerts(): Promise<Alert[]> { return (await fetchDashboardIntelligence()).alerts; }
+
+async function requireCurrentUserId(): Promise<string> {
+  const { data, error } = await supabase.auth.getUser();
+  if (error) throw error;
+  const id = data.user?.id;
+  if (!id) throw new Error('AUTHENTICATED_USER_REQUIRED');
+  return id;
+}
+
+export type RecommendationDecisionContext = {
+  decisionId: string | null;
+  decisionStatus: string | null;
+  approvalId: string | null;
+  approvalStatus: string | null;
+  workItemId: string | null;
+  workItemStatus: string | null;
+};
+
+export async function fetchRecommendationDecisionContext(recommendationId: string): Promise<RecommendationDecisionContext> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const [{ data: decision, error: decisionError }, { data: recommendation, error: recommendationError }] = await Promise.all([
+    supabase.from('business_intelligence_decisions')
+      .select('id,status')
+      .eq('company_id', companyId)
+      .eq('recommendation_id', recommendationId)
+      .maybeSingle(),
+    supabase.from('recommendations')
+      .select('id')
+      .eq('company_id', companyId)
+      .eq('id', recommendationId)
+      .maybeSingle(),
+  ]);
+  if (decisionError) throw decisionError;
+  if (recommendationError) throw recommendationError;
+  if (!recommendation) throw new Error('RECOMMENDATION_NOT_FOUND_OR_FORBIDDEN');
+  if (!decision) return { decisionId: null, decisionStatus: null, approvalId: null, approvalStatus: null, workItemId: null, workItemStatus: null };
+
+  const [{ data: approval, error: approvalError }, { data: workItem, error: workError }] = await Promise.all([
+    supabase.from('decision_approvals')
+      .select('id,status')
+      .eq('company_id', companyId)
+      .eq('decision_id', decision.id)
+      .maybeSingle(),
+    supabase.from('decision_work_items')
+      .select('id,status')
+      .eq('company_id', companyId)
+      .eq('decision_id', decision.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+  if (approvalError) throw approvalError;
+  if (workError) throw workError;
+  return {
+    decisionId: decision.id,
+    decisionStatus: decision.status,
+    approvalId: approval?.id ?? null,
+    approvalStatus: approval?.status ?? null,
+    workItemId: workItem?.id ?? null,
+    workItemStatus: workItem?.status ?? null,
+  };
+}
+
+export async function fetchLatestDecisionEvidenceSnapshot(): Promise<DecisionEvidenceSnapshot | null> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const results = await Promise.all([
+    supabase.from('business_state_snapshots').select('id,observed_at,created_at').eq('company_id', companyId).order('observed_at', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('kpi_evidence_snapshots').select('id,observed_at').eq('company_id', companyId).order('observed_at', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('import_snapshots').select('id,created_at').eq('company_id', companyId).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('operational_health_snapshots').select('id,observed_at').eq('company_id', companyId).order('observed_at', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('source_analysis_snapshots').select('id,created_at').eq('company_id', companyId).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+  ]);
+
+  const normalized: DecisionEvidenceSnapshot[] = [];
+  const specs: Array<{ kind: DecisionEvidenceSnapshot['kind']; result: typeof results[number]; timeKey: 'observed_at' | 'created_at' }> = [
+    { kind: 'business_state', result: results[0], timeKey: 'observed_at' },
+    { kind: 'kpi', result: results[1], timeKey: 'observed_at' },
+    { kind: 'import', result: results[2], timeKey: 'created_at' },
+    { kind: 'operational_health', result: results[3], timeKey: 'observed_at' },
+    { kind: 'source_analysis', result: results[4], timeKey: 'created_at' },
+  ];
+  for (const spec of specs) {
+    if (spec.result.error) throw spec.result.error;
+    const row = spec.result.data as Record<string, unknown> | null;
+    if (!row || typeof row.id !== 'string') continue;
+    const observed = row[spec.timeKey];
+    if (typeof observed !== 'string' || !observed.trim()) continue;
+    normalized.push({ id: row.id, kind: spec.kind, observed_at: observed });
+  }
+  normalized.sort((a, b) => Date.parse(b.observed_at) - Date.parse(a.observed_at));
+  return normalized[0] ?? null;
+}
+
+function decisionConfidenceValue(confidence: string): number | null {
+  switch (confidence) {
+    case 'CONFIRMED': return 1;
+    case 'CALCULATED': return 0.8;
+    case 'ESTIMATED': return 0.6;
+    case 'FORECAST': return 0.5;
+    default: return null;
+  }
+}
+
+function workPriority(priority: string): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
+  switch (priority.toLowerCase()) {
+    case 'critical': return 'CRITICAL';
+    case 'high': return 'HIGH';
+    case 'medium': return 'MEDIUM';
+    default: return 'LOW';
+  }
+}
+
+export async function prepareRecommendationDecision(recommendation: Recommendation, evidence: DecisionEvidenceSnapshot): Promise<RecommendationDecisionContext> {
+  const existing = await fetchRecommendationDecisionContext(recommendation.id);
+  if (existing.decisionId) return existing;
+
+  const confidence = decisionConfidenceValue(recommendation.confidence);
+  if (confidence == null) throw new Error('DECISION_CONFIDENCE_UNAVAILABLE');
+  if (!recommendation.title.trim()) throw new Error('DECISION_TITLE_REQUIRED');
+
+  const { data: decisionId, error } = await supabase.rpc('create_runtime_decision', {
+    p_decision_key: `recommendation:${recommendation.id}`,
+    p_decision_type: 'recommendation',
+    p_confidence: confidence,
+    p_expected_impact: recommendation.expected_impact,
+    p_evidence: {
+      evidence_snapshot_id: evidence.id,
+      evidence_snapshot_kind: evidence.kind,
+      evidence_observed_at: evidence.observed_at,
+      recommendation_id: recommendation.id,
+      title: recommendation.title,
+      category: recommendation.category,
+      priority: recommendation.priority,
+    },
+  });
+  if (error) throw error;
+  if (typeof decisionId !== 'string') throw new Error('DECISION_CREATE_RESPONSE_INVALID');
+
+  await supabase.rpc('link_recommendation_to_decision', {
+    p_recommendation_id: recommendation.id,
+    p_decision_id: decisionId,
+  }).then(({ error: linkError }) => { if (linkError) throw linkError; });
+
+  await updateRecommendationStatus(recommendation.id, 'open');
+  return fetchRecommendationDecisionContext(recommendation.id);
+}
+
+export async function requestRecommendationApproval(decisionId: string, reason: string): Promise<string> {
+  const { data, error } = await supabase.rpc('request_decision_approval', {
+    p_decision_id: decisionId,
+    p_reason: reason.trim() || null,
+  });
+  if (error) throw error;
+  if (typeof data !== 'string') throw new Error('DECISION_APPROVAL_RESPONSE_INVALID');
+  return data;
+}
+
+export async function decideRecommendationApproval(approvalId: string, approve: boolean, reason: string): Promise<void> {
+  const { error } = await supabase.rpc('decide_approval', {
+    p_approval_id: approvalId,
+    p_approve: approve,
+    p_reason: reason.trim() || null,
+  });
+  if (error) throw error;
+}
+
+export async function createAndStartRecommendationWork(recommendation: Recommendation, context: RecommendationDecisionContext, evidence: DecisionEvidenceSnapshot): Promise<string> {
+  const decisionId = context.decisionId;
+  if (!decisionId) throw new Error('DECISION_REQUIRED_BEFORE_WORK');
+  if (context.decisionStatus !== 'APPROVED') throw new Error('DECISION_APPROVAL_REQUIRED_BEFORE_WORK');
+
+  if (context.workItemId) {
+    if (context.workItemStatus === 'OPEN') {
+      await supabase.rpc('start_decision_work_item', { p_work_item_id: context.workItemId }).then(({ error }) => { if (error) throw error; });
+    }
+    return context.workItemId;
+  }
+
+  const assigneeId = await requireCurrentUserId();
+  const { data: workItemId, error } = await supabase.rpc('create_decision_work_item', {
+    p_decision_id: decisionId,
+    p_recommendation_id: recommendation.id,
+    p_department: 'العمليات',
+    p_assignee_id: assigneeId,
+    p_assignee_label: recommendation.owner?.trim() || 'المسؤول الحالي',
+    p_title: recommendation.title,
+    p_description: recommendation.description?.trim() || 'تنفيذ الإجراء المعتمد وفق القرار الموثق.',
+    p_priority: workPriority(recommendation.priority),
+    p_due_at: recommendation.deadline,
+    p_expected_impact: recommendation.expected_impact,
+    p_evidence_refs: [{ id: evidence.id, kind: evidence.kind, observed_at: evidence.observed_at }],
+  });
+  if (error) throw error;
+  if (typeof workItemId !== 'string') throw new Error('WORK_ITEM_CREATE_RESPONSE_INVALID');
+  await supabase.rpc('start_decision_work_item', { p_work_item_id: workItemId }).then(({ error: startError }) => { if (startError) throw startError; });
+  await updateRecommendationStatus(recommendation.id, 'in_progress');
+  return workItemId;
+}
+
+export async function completeRecommendationWork(workItemId: string, recommendationId: string, actualImpact: number, evidence: DecisionEvidenceSnapshot): Promise<void> {
+  if (!Number.isFinite(actualImpact)) throw new Error('ACTUAL_IMPACT_INVALID');
+  const { error } = await supabase.rpc('complete_decision_work_item', {
+    p_work_item_id: workItemId,
+    p_actual_impact: actualImpact,
+    p_evidence: {
+      evidence_snapshot_id: evidence.id,
+      evidence_snapshot_kind: evidence.kind,
+      evidence_observed_at: evidence.observed_at,
+    },
+  });
+  if (error) throw error;
+  await updateRecommendationStatus(recommendationId, 'completed');
+}
+
+export async function fetchRecommendationOutcome(recommendationId: string): Promise<RecommendationOutcome | null> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase
+    .from('recommendation_outcomes')
+    .select('id,recommendation_key,decision_id,observed_at,expected_impact,actual_impact,outcome_quality,status,evidence')
+    .eq('company_id', companyId)
+    .eq('recommendation_key', recommendationId)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? data as RecommendationOutcome : null;
+}
 export type ReceivablesReportRow = { id:string; invoice_number:string; invoice_date:string; due_date:string|null; total:number|null; paid_amount:number|null; balance:number; status:string|null; customer:{id:string|null;name:string|null}|null };
 export type ReceivablesReportPage = { status:'CALCULATED'|'NO_DATA'; page:number; page_size:number; total_rows:number; total_outstanding:number; rows:ReceivablesReportRow[] };
 export async function fetchReceivablesReportPage(page=0,pageSize=25):Promise<ReceivablesReportPage>{if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');if(!Number.isInteger(pageSize)||pageSize<1||pageSize>100)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');const {data,error}=await supabase.rpc('get_receivables_report_page',{p_page:page,p_page_size:pageSize});if(error)throw error;if(!data||typeof data!=='object')throw new Error('REPORT_DATA_UNAVAILABLE: receivables snapshot missing');const p=data as Record<string,unknown>;if(!Array.isArray(p.rows))throw new Error('REPORT_DATA_UNAVAILABLE: receivables rows missing');return{status:p.status==='NO_DATA'?'NO_DATA':'CALCULATED',page:Number(p.page??page),page_size:Number(p.page_size??pageSize),total_rows:Number(p.total_rows??0),total_outstanding:Number(p.total_outstanding??0),rows:p.rows as ReceivablesReportRow[]};}
