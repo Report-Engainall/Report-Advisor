@@ -80,6 +80,8 @@ assert.ok(importSurface.includes('لم يُثبت مصدر سابق لهذا ا�
 assert.ok(importSurface.includes('اختيار مصدر'), 'canonical import history empty state must expose a real source-selection action');
 assert.ok(importSurface.includes('SOURCE PASSPORT'), 'canonical import must expose the source passport before approval');
 assert.ok(importSurface.includes('SHA-256 للمصدر'), 'source passport must expose source fingerprint context');
+assert.ok(importSurface.includes('جودة الخادم') && importSurface.includes('العملية'), 'canonical import success state must expose authoritative commit context');
+
 
 assert.ok(importSurface.includes('onClick={reset}'), 'canonical import history empty state must use the existing reset/import path');
 assert.ok(importSurface.includes('const [historyError, setHistoryError]'), 'canonical import history must preserve fetch failures instead of mapping them to an empty list');
