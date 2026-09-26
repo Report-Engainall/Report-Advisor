@@ -154,6 +154,9 @@ assert.ok(reports.includes('NEXT ACTION'), 'reports center must expose a concret
 assert.ok(reports.includes('افحص جودة البيانات'), 'reports center must route insufficient truth to data quality');
 assert.ok(reports.includes('تحديث اللقطة'), 'reports center must support in-place refresh of the canonical snapshot');
 assert.ok(reports.includes("const reportEvidenceState = kpis.status === 'CONFIRMED' && qualityIssueTotal === 0 ? 'VERIFIED' : 'REVIEW';"), 'reports center must not elevate CALCULATED truth to VERIFIED');
+assert.ok(reports.includes("aging.every((bucket)=>bucket.amount!==null)"), 'receivables report totals must remain unavailable when an aging component is unknown');
+assert.ok(!reports.includes("(b.amount??0)"), 'receivables report must not coerce missing aging amounts to zero');
+
 
 assert.ok(!reports.includes('generateSynthetic'), 'reports center must not invent business values');
 assert.ok(!reports.slice(reports.indexOf('if (loading)'), reports.indexOf('if (error)')).includes('reportEvidenceState'), 'reports loading state must not reference loaded snapshot evidence state');
