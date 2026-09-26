@@ -3,6 +3,11 @@ import fs from 'node:fs';
 
 const login = fs.readFileSync('src/pages/LoginPage.tsx', 'utf8');
 const dashboard = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
+const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
+assert.ok(executiveReport.includes('DataUnavailableState'), 'executive report must distinguish unavailable snapshots from empty source arrays');
+assert.ok(!executiveReport.includes('data?.alerts.length ?? 0'), 'executive report must not turn an unavailable alert snapshot into zero');
+assert.ok(!executiveReport.includes('data?.recommendations.length ?? 0'), 'executive report must not turn an unavailable recommendation snapshot into zero');
+assert.ok(executiveReport.includes("recordedOutcomeCount === null ? 'تعذر إثبات الأثر الفعلي'"), 'executive report must keep missing outcome truth explicit');
 const entities = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
 const dataTable = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
 assert.ok(dataTable.includes('role="status" aria-live="polite" aria-busy="true"'), 'shared table loading state must expose assistive status semantics');
