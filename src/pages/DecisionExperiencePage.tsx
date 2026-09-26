@@ -164,10 +164,9 @@ export function DecisionExperiencePage() {
 
   if (loading) return <LoadingState message="جارٍ تحميل سياق القرار..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  const readiness = decisionReadiness(selected);
   const decisionStatusLabel = readiness?.status === 'READY' ? 'جاهز للتنفيذ' : readiness?.status === 'BLOCKED' ? 'محجوب' : readiness?.status === 'REVIEW' ? 'يحتاج مراجعة' : 'غير مكتمل';
   const decisionStatusTone = readiness?.status === 'READY' ? 'border-success-200 bg-success-50 text-success-800' : readiness?.status === 'BLOCKED' ? 'border-danger-200 bg-danger-50 text-danger-800' : 'border-warning-200 bg-warning-50 text-warning-800';
-
-  const readiness = decisionReadiness(selected);
 
   return (
     <div dir="rtl" className="ag-decision-experience-surface space-y-5 animate-fade-in pb-10">
@@ -176,6 +175,10 @@ export function DecisionExperiencePage() {
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-[11px] font-black text-primary-300"><Workflow size={15}/> تجربة القرار</div>
             <h1 className="mt-2 text-[25px] font-black tracking-tight lg:text-[31px]">من الإشارة إلى النتيجة — دون فقدان الدليل</h1>
+            <div className={"mt-4 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-black " + decisionStatusTone} aria-label={"حالة القرار: " + decisionStatusLabel}>
+              <span className="h-1.5 w-1.5 rounded-full bg-current" />
+              {decisionStatusLabel}
+            </div>
             <p className="mt-2 text-[12px] leading-6 text-ink-300">المسار يحفظ السياق ويُظهر بوضوح ما هو موجود، وما يحتاج إثباتًا، وما لم يُنفذ بعد.</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
