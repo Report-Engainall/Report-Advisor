@@ -47,6 +47,12 @@ assert.ok(workCenter.includes('review: rows.filter(reviewRequired).length'), 'wo
 assert.ok(workCenter.includes('role="progressbar"'), 'work center progress must expose a semantic progressbar');
 assert.ok(workCenter.includes('aria-valuenow={finiteProgress(r.progress) ?? undefined}'), 'work center progress must expose only finite persisted progress');
 
+const decisionExperience = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
+assert.ok(decisionExperience.includes('data-selected={active ? \'true\' : \'false\'}'), 'decision recommendations must expose selected state');
+assert.ok(decisionExperience.includes('data-focusable-decision="true"'), 'decision recommendations must expose focusable semantics');
+assert.ok(decisionExperience.includes('<Ban size={17}/>'), 'blocked decision state must use a blocking icon');
+assert.ok(decisionExperience.includes('ag-recommendation-card'), 'decision recommendations must bind the shared deep-finish surface class');
+
 const assistant = fs.readFileSync('src/components/DeterministicIntelligenceAssistant.tsx', 'utf8');
 assert.ok(assistant.includes("type AssistantMode = 'LOADING' | 'READY' | 'INSUFFICIENT_DATA' | 'ERROR'"), 'assistant must distinguish loading from ready state');
 assert.ok(assistant.includes("mode === 'LOADING'"), 'assistant must expose loading semantics while context is fetched');
