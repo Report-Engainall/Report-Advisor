@@ -75,6 +75,8 @@ for (const token of [
   "REPORT_DATA_INVALID: intelligence.recommendations[' + index + '] shape is invalid",
   "REPORT_DATA_INVALID: intelligence.alerts[' + index + '] shape is invalid",
 ]) assert.ok(dashboardCanonical.includes(token), `dashboard intelligence contract missing: ${token}`);
+const demandTruth = fs.readFileSync('src/lib/free-toolbox/sales-demand-series.ts', 'utf8');
+assert.ok(demandTruth.includes("if (!Number.isInteger(days) || days < 1 || days > 3650)"), 'demand analysis must use a bounded integer day window');
 const inventoryTruth = fs.readFileSync('src/lib/free-toolbox/inventory-intelligence-canonical.ts', 'utf8');
 assert.ok(inventoryTruth.includes('INVENTORY_DATA_INVALID: inventory balance quantity is invalid'), 'inventory intelligence must fail closed on invalid balances');
 assert.ok(inventoryTruth.includes('INVENTORY_DATA_INVALID: inventory balance references a missing product'), 'inventory intelligence must surface orphaned balance rows');
