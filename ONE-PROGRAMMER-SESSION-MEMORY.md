@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-160
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `1b85c79c7fec61d75c886dc42a4d758827c89a75` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI → Canonical Import now exposes a SOURCE PASSPORT before approval (security, duplicate, quality, understanding, SHA-256) and a stronger canonical-commit confirmation; shared Truth Context exposes explicit decision-use state; Header distinguishes missing tenant context from degraded connectivity; Reports Center keeps CALCULATED below VERIFIED.
+- CORE → dashboard intelligence payloads validate recommendation/alert semantics and stop on malformed authoritative data; forecast rows validate deterministic numeric bounds, quality-score range, data-point counts and bound ordering.
+- CONTRACTS → Product WOW UI contract now protects Source Passport, shared decision-use state, tenant-health semantics, report evidence state, intelligence validation and forecast validation.
+- VERIFICATION → exact-head workflow runs are still not exposed for the current code head; combined status shows only Vercel failure/pending contexts, with failure tied to external build-rate-limit. No PASS transferred.
+- DEVICE → unavailable/offline; no device-dependent verification claimed.
+- PHASE-F → fresh live recovery/RPO/RTO proof remains required; canonical tenant repair remains in source.
+- NO MERGE → PR #660 remains open; no production mutation or release certification claimed.
+- RESUME POINTER → `PR #660 latest HEAD after this write → consume exact-head gates → repair first current-head failure → continue UI/core closure`.
+- DO NOT REPEAT → stale gates, calculated-to-verified elevation, malformed intelligence/forecast acceptance, tenant-context ambiguity, preview-to-production claims, device-dependent PASS.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-159
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
