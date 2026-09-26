@@ -417,7 +417,20 @@ export function DecisionExperiencePage() {
                     <div className="rounded-[12px] border border-ink-100 bg-white p-3"><div className="text-[10px] text-ink-400">الثقة</div><div className="mt-1"><ConfidenceBadge confidence={selected.confidence}/></div></div>
                     <div className="rounded-[12px] border border-ink-100 bg-white p-3"><div className="text-[10px] text-ink-400">الأثر المتوقع</div><div className="mt-1 text-[12px] font-black text-ink-900">{selected.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)}</div></div>
                   </div>
-                  <BlockedState title="الدليل التشغيلي غير مثبت هنا" detail="لا تُعرض بيانات مصدرية مصطنعة ولا يتم تحويل وصف التوصية إلى دليل. الانتقال إلى القرار يحافظ على حالة المراجعة بدل الادعاء بوجود إثبات غير متاح." />
+                  {decisionEvidence ? (
+                    <div className="rounded-[14px] border border-success-200 bg-success-50/60 p-4" role="status" aria-live="polite">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-success-100 text-success-700"><ShieldCheck size={17}/></div>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-success-100 px-2.5 py-1 text-[9px] font-black text-success-800">EVIDENCE AVAILABLE</span><span className="text-[10px] text-ink-400">{decisionEvidence.kind}</span></div>
+                          <div className="mt-2 text-[12px] font-black text-success-950">لقطة دليل محفوظة ويمكن ربط القرار بها</div>
+                          <div className="mt-1 text-[10px] leading-5 text-success-900/80">المعرّف: {decisionEvidence.id} · وقت الرصد: {new Date(decisionEvidence.observed_at).toLocaleString('ar-YE')}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <BlockedState title="الدليل التشغيلي غير مثبت هنا" detail="لا تُعرض بيانات مصدرية مصطنعة ولا يتم تحويل وصف التوصية إلى دليل. الانتقال إلى القرار يحافظ على حالة المراجعة بدل الادعاء بوجود إثبات غير متاح." />
+                  )}
                   <div className="flex flex-wrap gap-2"><button type="button" onClick={() => navigateStage('decision')} className="btn-primary text-[11px]">متابعة إلى القرار <ArrowUpLeft size={13}/></button><Link to="/metrics" className="btn-secondary text-[11px]">فحص تعريف المؤشر <FileSearch size={13}/></Link></div>
                 </div>
               ) : <EmptyState title="اختر توصية" message="اختر عنصرًا موجودًا لفحص سياق الدليل." action={<Link to="/command-center" className="btn-secondary text-[11px]">العودة إلى الإشارات</Link>}/>} 
