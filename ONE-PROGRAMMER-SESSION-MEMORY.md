@@ -1,3 +1,14 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-152
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `5024a77b30a34ee4617866c878f8f29183bf935c` on PR #660.
+- PHASE-F CORE REPAIR → `20260925184000_restore_client_ui_settings_schema_parity.sql` no longer depends on unavailable `current_customer_company_id()`; it uses canonical `public.current_company_id()`. Static Phase-F closure now guards this boundary in `5024a77b...`.
+- PREVIOUS PHASE-F EVIDENCE → exact-head/local/static/authenticated canary steps passed, but logical replay hit the missing resolver dependency and rollback-forward returned HTTP 503. This remains NOT CERTIFIED until fresh exact-head proof.
+- TRUTH CORE → malformed dashboard quality object/counts now fail closed; absent quality stays null/UNKNOWN.
+- UI → Decision Experience READY/REVIEW/BLOCKED and dashboard/truth/report quality disclosure remain intact.
+- CURRENT RESUME POINTER → `PR #660 5024a77... → consume fresh exact-head Quality/Final Certification/Phase-F/Browser gates → repair only first reproduced failure`.
+- DO NOT REPEAT → stale Phase-F evidence, unavailable legacy tenant resolver, stale certification SHA, missing-to-zero normalization, production bypass.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-151
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
