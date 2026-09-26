@@ -90,10 +90,20 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput, 
   const importId = payload?.importId;
   const sourceHash = payload?.sourceHash;
   const jobId = payload?.jobId;
-  const importIdValid = typeof importId === 'string' && importId.trim().length > 0;
-  const sourceHashValid = typeof sourceHash === 'string' && /^sha256:[0-9a-fA-F]{64}$/.test(sourceHash);
+  const serverCommittedRowCount = payload?.serverCommittedRowCount;
+  const serverCommittedIds = payload?.serverCommittedIds;
+  const importIdValid = typeof importId === 'string' && importId.trim().length > 0 && importId === input.importId;
+  const sourceHashValid = typeof sourceHash === 'string' && /^sha256:[0-9a-fA-F]{64}$/.test(sourceHash) && sourceHash === input.sourceHash;
   const jobIdValid = mode === 'finalize-source' || (typeof jobId === 'string' && jobId.trim().length > 0);
-  if (!importIdValid || !sourceHashValid || !jobIdValid) {
+  const committedResultValid =
+    mode === 'finalize-source' ||
+    (typeof serverCommittedRowCount === 'number' &&
+      Number.isInteger(serverCommittedRowCount) &&
+      serverCommittedRowCount >= 0 &&
+      Array.isArray(serverCommittedIds) &&
+      serverCommittedIds.length === serverCommittedRowCount &&
+      serverCommittedIds.every((id) => typeof id === 'string' && id.trim().length > 0));
+  if (!importIdValid || !sourceHashValid || !jobIdValid || !committedResultValid) {
     throw new Error('CANONICAL_IMPORT_SERVER_EXECUTION_RESPONSE_INVALID');
   }
   return payload;
