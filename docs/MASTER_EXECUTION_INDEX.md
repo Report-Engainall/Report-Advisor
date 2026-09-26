@@ -1,3 +1,21 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / QUALITY + IMPORT PASSPORT + TRANSPORT VALIDATION
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `6e5ee9333a331693b2cd7e257a29d9a3077c7c46`.
+- CURRENT CODE/TEST CANDIDATE → `f98595d23ac063451a749644aa6e4ab7c5a879dd`.
+- DONE — UI → EMPTY data-quality snapshot keeps diagnostic score unavailable; canonical import completion exposes a commit passport tied to server results.
+- DONE — CORE → canonical import response validation now covers request identity, exact committed cardinality, server quality range, and optional snapshot identity.
+- DONE — CONTRACTS → Product WOW and report-truth guards cover the latest UI/core boundaries.
+- PR STATE → OPEN / mergeable=true.
+- EXACT-HEAD GATES → 50 observed workflow runs on `f98595d...`: 44 queued, 4 pending, 2 in progress, 1 skipped. CodeRabbit SUCCESS; Vercel externally rate-limited; Vercel deployment pending. No application PASS claimed.
+- PHASE-F → backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- DEVICE → local device/browser unavailable; repository work continues independently.
+- NEXT ACTION → `consume terminal exact-head gates → repair first reproduced current-SHA failure only → continue independent UI/core closure where evidence shows a live gap`.
+- DO NOT REPEAT → stale PASS evidence, missing-to-zero coercion, duplicate routes/RPCs/workflows, unsupported production claims.
+- CURRENT RESUME POINTER → `PR #660 exact head f98595d... → terminal gate result / first current-head failure → next uncovered UI/core closure`.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / DECISION READINESS + IMPORT CARDINALITY CLOSURE
 
 > Exact-head evidence only. Historical PASS is not transferred.
