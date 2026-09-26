@@ -1,3 +1,16 @@
+# CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 189
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE PR #661 branch: `exec/20260926-continuous-ui-core-deep`.
+- CURRENT FUNCTIONAL HEAD: `b97e6c74207e8db8fb957c62bcd57de0d1feebab`.
+- DECISION LIFECYCLE: Decision Experience is now wired to existing governed RPCs for decision creation/linking, approval request/decision, work creation/start/completion, recommendation status transitions, and persisted outcome reading.
+- EVIDENCE GUARD: decision/work/outcome mutations require a current tenant-scoped evidence snapshot; UI blocks when none is available.
+- OUTCOME: completed work records actual impact through `complete_decision_work_item`, and Outcome reads `recommendation_outcomes`.
+- CONTRACT: `DecisionExperiencePage.contract.test.ts` locks the governed lifecycle and prevents direct table-insert DML paths from returning.
+- CURRENT CI: PDF regression, quality, browser, certification and decision DML gates are queued/pending on this head; no PASS transferred from older SHA.
+- PREVIOUS PROOF: desktop-windows run `36269041388` succeeded on the preceding exact lineage. Vercel remains blocked by free-plan build-rate; exact deployed-SHA visual proof is still unproven.
+- NEXT: consume first terminal current-head gate; repair only first reproduced defect, then continue uncovered product boundary.
+- DO NOT REPEAT: static decision placeholders, ad-hoc DML, missing evidence guards, stale PASS/preview, duplicate importer/RPC paths, production-SHA bypass.
 # CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 188
 
 - MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
