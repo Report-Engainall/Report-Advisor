@@ -508,3 +508,14 @@ Closed: Replay, Benchmark, Decision lifecycle gating, Trust, Reports, prior Impo
 
 ### CURRENT RESUME POINTER
 `current governance head → consume exact-head checks → repair only first reproduced current-SHA defect → continue next independent UI/Core closure; preserve fail-closed Phase-F and device proof.`
+
+
+## Session continuation checkpoint — 2026-09-27 — functional predecessor 47e75cfdf53bfd0ba65afbd099d66e37f16dc5be
+
+- UI closure: Data Quality entity score cards now preserve invalid scores as «غير موثوق» instead of clamping.
+- Regression contract added: `src/pages/DataQualitySnapshotPage.truth.contract.test.ts`.
+- The underlying data-quality validator already rejects invalid entity scores; this change closes the remaining presentation masking layer.
+- Exact-head checks at functional predecessor: 50 observed check-runs = 47 queued + 3 skipped + 0 failures + 0 successes; no PASS transfer.
+
+### CURRENT RESUME POINTER
+`current governance head → consume exact-head checks → repair only first reproduced current-SHA defect → continue next independent 50/50 UI/Core closure.`
