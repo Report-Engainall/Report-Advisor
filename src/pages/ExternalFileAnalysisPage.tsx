@@ -66,6 +66,7 @@ export function ExternalFileAnalysisPage() {
     review: dataset.columns.filter(c => c.requiresReview).length,
     issues: dataset.columns.reduce((n,c) => n + c.qualityIssues.length, 0),
   } : null, [dataset]);
+  const qualityScore = dataset && Number.isFinite(dataset.qualityScore) ? Math.round(dataset.qualityScore) : null;
 
   return <div className="ag-file-lab space-y-6" dir="rtl">
     <PageHeader title="مختبر الملفات والبيانات" subtitle="حلّل أي ملف خارجي دون إجباره على نموذج أعمال مسبق، مع إبقاء الحقول الأصلية متاحة للمراجعة." />
@@ -105,11 +106,11 @@ export function ExternalFileAnalysisPage() {
           </div>
         </div>
         <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-          {[["1","الفحص الأمني","تم اجتيازه",true],["2","كشف الصيغة","الصيغة معروفة",true],["3","الاستخراج","تم استخراج البيانات",true],["4","المطابقة","حقول mapped / unmapped",Boolean(summary)],["5","الجودة","",dataset.qualityScore >= 75 ? true : dataset.qualityScore >= 50 ? 'review' : false]].map(([step,label,detail,state]) => (
+          {[["1","الفحص الأمني","تم اجتيازه",true],["2","كشف الصيغة","الصيغة معروفة",true],["3","الاستخراج","تم استخراج البيانات",true],["4","المطابقة","حقول mapped / unmapped",Boolean(summary)],["5","الجودة","",qualityScore != null && qualityScore >= 75 ? true : qualityScore != null && qualityScore >= 50 ? 'review' : false]].map(([step,label,detail,state]) => (
             <div key={String(step)} className={'rounded-xl border px-3 py-3 ' + (state === true ? 'border-success-400/30 bg-success-400/10' : state === 'review' ? 'border-warning-300/30 bg-warning-300/10' : 'border-danger-300/30 bg-danger-300/10')}>
               <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-ink-300">{step}</span><span className="text-[9px] font-black">{state === true ? 'VERIFIED' : state === 'review' ? 'REVIEW' : 'BLOCKED'}</span></div>
               <div className="mt-2 text-[11px] font-black">{label}</div>
-              <div className="mt-1 text-[9px] text-ink-300">{label === 'الجودة' ? (dataset.qualityScore >= 75 ? '≥ 75% — صالح للاعتماد' : dataset.qualityScore >= 50 ? '50–74% — يحتاج موافقة جودة' : '< 50% — مرفوض') : detail}</div>
+              <div className="mt-1 text-[9px] text-ink-300">{label === 'الجودة' ? (qualityScore == null ? 'الدرجة غير متاحة' : qualityScore >= 75 ? '≥ 75% — صالح للاعتماد' : qualityScore >= 50 ? '50–74% — يحتاج موافقة جودة' : '< 50% — مرفوض') : detail}</div>
             </div>
           ))}
         </div>
@@ -123,12 +124,12 @@ export function ExternalFileAnalysisPage() {
         </div>
         <div className="rounded-2xl border border-ink-200 bg-white p-4">
           <div className="text-[9px] font-black tracking-[.12em] text-ink-400">QUALITY</div>
-          <div className="mt-2 text-lg font-black">{Math.round(dataset.qualityScore)}%</div>
-          <div className="mt-1 text-[10px] text-ink-500">{dataset.qualityScore >= 75 ? 'ثقة جودة مرتفعة' : dataset.qualityScore >= 50 ? 'مراجعة جودة مطلوبة' : 'الاعتماد محظور حاليًا'}</div>
+          <div className="mt-2 text-lg font-black">{{qualityScore == null ? 'غير متاح' : `${qualityScore}%`</div>
+          <div className="mt-1 text-[10px] text-ink-500">{qualityScore == null ? 'الدرجة غير متاحة من المصدر' : qualityScore >= 75 ? 'ثقة جودة مرتفعة' : qualityScore >= 50 ? 'مراجعة جودة مطلوبة' : 'الاعتماد محظور حاليًا'}</div>
         </div>
         <div className="rounded-2xl border border-ink-200 bg-white p-4">
           <div className="text-[9px] font-black tracking-[.12em] text-ink-400">NEXT ACTION</div>
-          <div className="mt-2 text-sm font-black text-ink-950">{dataset.qualityScore >= 75 ? 'اعتماد المصدر الكانوني' : dataset.qualityScore >= 50 ? 'مراجعة الجودة ثم الاعتماد' : 'تصحيح المصدر قبل الاعتماد'}</div>
+          <div className="mt-2 text-sm font-black text-ink-950">{qualityScore == null ? 'تحقق من الجودة قبل الاعتماد' : qualityScore >= 75 ? 'اعتماد المصدر الكانوني' : qualityScore >= 50 ? 'مراجعة الجودة ثم الاعتماد' : 'تصحيح المصدر قبل الاعتماد'}</div>
           <div className="mt-1 text-[10px] leading-5 text-ink-500">التحليل الخارجي لا يكتب بيانات الأعمال مباشرة.</div>
         </div>
       </section>
