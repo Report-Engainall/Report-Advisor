@@ -128,7 +128,7 @@ export default async function handler(req: any, res: any) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const status =
-      /required|invalid|tenant|hash|rows|quality|business|duplicate|already_completed|already_running|not_retryable/i.test(message) ? 400 : 502;
+      /required|invalid|tenant|hash|rows|row_|quality|business|duplicate|already_completed|already_running|not_retryable/i.test(message) ? 400 : 502;
     json(res, status, { status: 'failed', error: message.slice(0, 512) });
   }
 }
