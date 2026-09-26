@@ -202,3 +202,9 @@ Do not introduce Spark/streaming infrastructure only because it is architectural
 - Dashboard snapshot validation now rejects response `months` values that differ from the requested `months` argument.
 - RFM, ABC, and Aging snapshot adapters now reject `CALCULATED` payloads with zero rows as malformed source state.
 - Focused contracts were added for dashboard period identity, analytics readiness, and calculated-empty snapshot consistency.
+
+
+## Execution closure — 2026-09-27 / predecessor 47e75cfdf53bfd0ba65afbd099d66e37f16dc5be
+
+- Added Data Quality UI regression coverage for invalid entity score presentation.
+- Dashboard/analytics truth hardening from the previous wave remains unchanged and closed; this wave only removes presentation-level masking at the entity score card.
