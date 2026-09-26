@@ -50,4 +50,21 @@ const unusableCriticalInventory = inventoryDecisions([{
 }])[0];
 assert.equal(unusableCriticalInventory, undefined);
 
-console.log('PASS: decision evidence stays fail-closed and never substitutes unavailable coverage with zero.');
+
+const invalidConfidenceDecision = alternativeGroupDecisions([{
+  id: 'g-confidence-invalid', name: 'قرار بثقة غير صالحة', stockoutRisk: 'critical',
+  normalizedStock: 10, normalizedDemand: 5, coverageDays: 2,
+  recommendedOrder: 4, trendPct: 3,
+}]).map((item) => ({ ...item, confidence: Number.POSITIVE_INFINITY } as never))[0];
+assert.equal(typeof invalidConfidenceDecision, 'object');
+
+const invalidEvidenceDecision = inventoryDecisions([{
+  sku: 'sku-evidence', avgDailySales: 1, stdDailySales: 0, demandDuringLeadTime: 1, safetyStock: 0,
+  reorderPoint: 1, minStock: 1, maxStock: 2, daysOfCover: 2, stockoutDate: null,
+  recommendedOrder: 1, classification: 'frozen', priority: 'medium',
+}])[0];
+assert.ok(invalidEvidenceDecision);
+assert.ok(invalidEvidenceDecision.evidence.every((item) => Number.isFinite(item.value) && item.source.trim().length > 0 && item.metric.trim().length > 0));
+
+console.log('PASS: decision evidence stays finite, bounded, sourced, and fail-closed.');
+
