@@ -13,8 +13,13 @@ const dataTable = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
 assert.ok(dataTable.includes('role="status" aria-live="polite" aria-busy="true"'), 'shared table loading state must expose assistive status semantics');
 assert.ok(dataTable.includes('role="status" aria-live="polite"'), 'shared table empty state must expose assistive status semantics');
 assert.ok(dataTable.includes('scope="col"'), 'shared table headers must declare column scope');
-assert.ok(dataTable.includes('aria-rowcount={visibleRows.length + 1}') && dataTable.includes('aria-colcount={columns.length}'), 'shared table must expose row and column counts');
+assert.ok(dataTable.includes('aria-rowcount={data.length + 1}') && dataTable.includes('aria-colcount={columns.length}'), 'shared table must expose row and column counts');
 assert.ok(dataTable.includes('role="navigation" aria-label="تنقّل الجدول"'), 'shared table pagination must expose navigation semantics');
+assert.ok(dataTable.includes('tabIndex={0}') && dataTable.includes('focus-visible:ring-2'), 'shared table surface and interactive rows must expose keyboard focus visibility');
+assert.ok(dataTable.includes('min-h-10 min-w-10'), 'shared table pagination controls must remain touch-safe');
+const trustBadge = fs.readFileSync('src/components/ui/TrustBadge.tsx', 'utf8');
+assert.ok(trustBadge.includes('Number.isInteger(evidenceCount)') && trustBadge.includes('evidenceCount >= 0'), 'trust evidence counts must fail closed on invalid values');
+assert.ok(trustBadge.includes('safeEvidenceCount'), 'trust badge must render only validated evidence counts');
 
 const queries = fs.readFileSync('src/lib/queries.ts', 'utf8');
 assert.ok(queries.includes('function validateReceivablesRows(rows: unknown[]): ReceivablesReportRow[]'), 'receivables rows must be validated before presentation');
