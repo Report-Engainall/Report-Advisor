@@ -59,3 +59,9 @@ A commercially credible release should be:
 - mobile-capable
 - safe under uncertainty
 - demonstrable with real system state
+
+
+## 2026-09-27 — Import-to-value continuity
+- A successful source ingestion now exposes the concrete business handoff instead of ending at file recognition.
+- Trusted product/customer/sales sources can land in the existing business entities; the UI immediately points to the corresponding business surface.
+- Generic/unsupported domains remain evidence-first and route to Trust rather than implying unsupported downstream value.
