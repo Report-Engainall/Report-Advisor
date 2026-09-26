@@ -25,10 +25,34 @@ export function inferSourceDomain(mappings: Array<{ mappedField: string | null }
 
   if (hasAny('stock_balance', 'received_quantity', 'posted_net_sales', 'unposted_net_sales', 'net_sales', 'warehouse')) return 'inventory-report';
   if (hasAny('invoice_number', 'invoice_date') && hasAny('total', 'subtotal')) return 'sales-invoice';
-  if (hasAny('customer_name', 'customer_id', 'credit_limit', 'payment_terms_days') && hasAny('phone', 'email', 'segment')) return 'customer-master';
+  if (hasAny('customer_name', 'customer_id', 'credit_limit', 'payment_terms_days', 'customer_id') && hasAny('phone', 'email', 'segment')) return 'customer-master';
   if (fields.has('sku') && fields.has('name') && hasAny('cost_price', 'selling_price', 'min_stock', 'reorder_point')) return 'product-master';
   if (hasAny('paid_amount', 'payment_date', 'payment_method')) return 'payment-report';
   return 'source-data';
+}
+
+const CANONICAL_ENTITY_REQUIRED_FIELDS: Partial<Record<SourceDomain, readonly string[]>> = {
+  'product-master': ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active'],
+  'customer-master': ['name', 'code', 'segment', 'credit_limit', 'payment_terms_days'],
+  'sales-invoice': ['invoice_number', 'invoice_date', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'],
+};
+
+export function resolveCanonicalEntityType(
+  domain: SourceDomain,
+  mappings: Array<{ mappedField: string | null }>,
+): 'products' | 'customers' | 'sales_invoices' | `generic:${string}` {
+  const fields = new Set(
+    mappings
+      .map(mapping => mapping.mappedField)
+      .filter((field): field is string => Boolean(field)),
+  );
+  const required = CANONICAL_ENTITY_REQUIRED_FIELDS[domain];
+  if (required && required.every(field => fields.has(field))) {
+    if (domain === 'product-master') return 'products';
+    if (domain === 'customer-master') return 'customers';
+    if (domain === 'sales-invoice') return 'sales_invoices';
+  }
+  return `generic:${domain}`;
 }
 
 export function sourceDomainLabel(domain: string | null | undefined): string {
