@@ -177,8 +177,8 @@ export function DecisionExperiencePage() {
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-[11px] font-black text-primary-300"><Workflow size={15}/> تجربة القرار</div>
             <h1 className="mt-2 text-[25px] font-black tracking-tight lg:text-[31px]">من الإشارة إلى النتيجة — دون فقدان الدليل</h1>
-            <div className={"mt-4 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-black " + decisionStatusTone} aria-label={"حالة القرار: " + decisionStatusLabel}>
-              <span className="h-1.5 w-1.5 rounded-full bg-current" />
+            <div className={"mt-4 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-black " + decisionStatusTone} role="status" aria-live="polite" aria-label={"حالة القرار: " + decisionStatusLabel} data-readiness={readiness.status}>
+              <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
               {decisionStatusLabel}
             </div>
             <p className="mt-2 text-[12px] leading-6 text-ink-300">المسار يحفظ السياق ويُظهر بوضوح ما هو موجود، وما يحتاج إثباتًا، وما لم يُنفذ بعد.</p>
