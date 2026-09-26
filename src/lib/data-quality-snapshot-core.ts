@@ -46,7 +46,6 @@ export function validateDataQualitySnapshot(data: unknown): DataQualitySnapshot 
       !['users', 'package', 'warehouse', 'receipt'].includes(entity.icon) ||
       entity.total < 0 ||
       entity.issues < 0 ||
-      entity.issues > entity.total ||
       entity.score < 0 ||
       entity.score > 100
     ) {
