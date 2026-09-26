@@ -16,8 +16,9 @@ function evidenceIsUsable(evidence:DecisionEvidence[]):boolean{
   );
 }
 
-export function decisionIsUsable(decision:Decision):boolean{
-  return typeof decision.id==='string' && decision.id.trim().length>0
+export export function decisionIsUsable(decision:Decision):boolean{
+  return (decision.severity==='critical' || decision.severity==='high' || decision.severity==='medium' || decision.severity==='low')
+    && typeof decision.id==='string' && decision.id.trim().length>0
     && typeof decision.title==='string' && decision.title.trim().length>0
     && typeof decision.action==='string' && decision.action.trim().length>0
     && Number.isFinite(decision.confidence) && decision.confidence>=0 && decision.confidence<=1
