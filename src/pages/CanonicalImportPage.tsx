@@ -347,6 +347,26 @@ export function CanonicalImportPage() {
 
     {step === 'preview' && file && <div className="space-y-4">
       <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-4"><div className="flex items-center gap-3">{icon(file.format)}<div><b className="break-all">{file.name}</b><div className="text-xs text-ink-400 mt-1">{FORMAT_LABELS[file.format]} · {formatNumber(file.size)} بايت</div></div></div><div className="flex gap-2 flex-wrap"><Badge variant="success"><ShieldCheck size={12}/> أمان: ناجح</Badge><Badge variant={qualityVariant}>جودة: {quality}%</Badge><Badge variant="neutral">مطابقة: {mappingCoverage}%</Badge></div></div></CardBody></Card>
+      <section className="ag-import-passport rounded-[16px] border border-ink-200 bg-white shadow-card" aria-label="جواز المصدر قبل الاعتماد">
+        <div className="flex flex-col gap-3 border-b border-ink-100 px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.14em] text-primary-700">SOURCE PASSPORT</div>
+            <h3 className="mt-1 text-base font-black text-ink-950">جواز المصدر قبل الاعتماد</h3>
+            <p className="mt-1 text-[11px] leading-5 text-ink-500">لقطة واحدة لما تم إثباته قبل إرسال الاعتماد إلى مسار الحقيقة الكانونية.</p>
+          </div>
+          <span className={ready ? 'bg-success-50 text-success-700' : 'bg-warning-50 text-warning-800'} + " inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-[9px] font-black">
+            {ready ? 'جاهز للاعتماد' : 'المصدر يحتاج إكمال شروط الاعتماد'}
+          </span>
+        </div>
+        <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="ag-import-passport-cell"><span>SECURITY</span><strong>{securityPassed ? 'ناجح' : 'غير مثبت'}</strong><small>فحص الملف المحلي</small></div>
+          <div className="ag-import-passport-cell"><span>DUPLICATE</span><strong>{duplicate ? 'محظور' : 'غير مكرر'}</strong><small>بصمة المصدر داخل الحساب</small></div>
+          <div className="ag-import-passport-cell"><span>QUALITY</span><strong>{quality}%</strong><small>{quality >= 75 ? 'موثوق للمتابعة' : quality >= 50 ? 'مراجعة مطلوبة' : 'دون حد القبول'}</small></div>
+          <div className="ag-import-passport-cell"><span>UNDERSTANDING</span><strong>{understandingConfidence}%</strong><small>فهم البنية والمعنى</small></div>
+          <div className="ag-import-passport-cell"><span>FINGERPRINT</span><strong>{fileHash ? fileHash.slice(0, 16) + '…' : 'غير متاح'}</strong><small>SHA-256 للمصدر</small></div>
+        </div>
+      </section>
+
       <Card>
         <CardBody>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -388,7 +408,7 @@ export function CanonicalImportPage() {
 
     {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم اعتماد المصدر عبر مسار الحقيقة الكانونية العامة مع بصمته وسياقه وجودته، ولا يُعلن نجاح الاعتماد إلا بعد إتمام مسار الكتابة الفعلي.</p></div></CardBody></Card>}
 
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم اعتماد المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence ?? 0}%</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم اعتماد المصدر في طبقة البيانات الكانونية العامة مع بصمته وسياقه وجودته، دون فرض نوع سجل أو مسار استيراد متخصص.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
+    {step === 'done' && result && <Card><CardBody><div className="ag-import-success flex flex-col items-center py-10 gap-4"><div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-success-50 text-success-600"><CheckCircle2 size={30}/></div> className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم اعتماد المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence ?? 0}%</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم اعتماد المصدر في طبقة البيانات الكانونية العامة مع بصمته وسياقه وجودته، دون فرض نوع سجل أو مسار استيراد متخصص.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
 
     <Card><CardHeader title="سجل الاستيرادات" subtitle="أحدث 500 عملية مرتبطة بحسابك، مع 50 صفًا في كل صفحة لتبقى القراءة سريعة؛ العمليات الأقدم تبقى محفوظة" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={historyError} onRetry={() => void loadHistory()} />:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد عمليات سابقة" message="لم يُثبت مصدر سابق لهذا الحساب بعد؛ ابدأ الآن من مدخل الاستيراد الموحد." action={<button type="button" onClick={reset} className="btn-primary text-[11px]"><Upload size={13}/> اختيار مصدر</button>}/>:<DataTable columns={[{key:'file_name',label:'المصدر'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مراجعة',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} pageSize={50} emptyMessage="لا توجد عمليات سابقة"/>}</Card>
   </div>;
