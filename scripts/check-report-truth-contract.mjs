@@ -80,6 +80,7 @@ const dataQualityCore = fs.readFileSync(path.join(srcDir, 'lib', 'data-quality-s
 for (const token of [
   "typeof entity.total !== 'number' || !Number.isInteger(entity.total)",
   "typeof entity.issues !== 'number' || !Number.isInteger(entity.issues)",
+  "[\'users\', \'package\', \'warehouse\', \'receipt\'].includes(entity.icon)",
   "typeof issue.count !== 'number' || !Number.isInteger(issue.count)",
   "DATA_QUALITY_EMPTY_SNAPSHOT_INCONSISTENT",
 ]) {
