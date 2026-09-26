@@ -1,3 +1,14 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-148
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `e8659a4bd4baf87976fcd27557585a88a36bc4ae` on PR #660.
+- UI LANE → Decision Experience now exposes explicit readiness state in the hero; WOW contract locks that disclosure. Dashboard/Truth Context/Reports source-quality pressure remains wired to canonical quality data. No placeholder/coming-soon markers found in the four primary surfaces inspected.
+- CORE LANE → dashboard canonical quality provenance remains fail-closed and visible; malformed arrays, invalid state, missing as-of and unknown aging values are not silently normalized.
+- SECURITY → 46 authenticated SECURITY DEFINER advisor warnings remain under governed review; no blanket revoke.
+- GATE → Vercel build-rate-limit failure remains external; no browser/device/production PASS claimed.
+- CURRENT RESUME POINTER → `PR #660 e8659a4... → consume exact-head gate result → repair only reproduced current-head failure; otherwise continue deep UI/core closure and merge only after required evidence`.
+- DO NOT REPEAT → merged PR rework, stale PASS, production bypass, duplicate architecture, blanket security cleanup, device-dependent verification claims.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-147
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
