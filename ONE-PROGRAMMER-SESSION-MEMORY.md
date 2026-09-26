@@ -477,3 +477,14 @@
 - CURRENT RESUME POINTER → `6389f3ea...` → consume first populated exact-head gate; repair only the first reproduced current-SHA failure; otherwise continue the next safe UI/core closure batch, then refresh governance.
 - DO NOT REPEAT → no fallback of missing authoritative import metrics to local preview; no missing-progress-to-zero coercion; no stale PASS transfer; no device-dependent verification claim; no duplicate import/report workflow.
 
+
+## LATEST SESSION WRITE-BACK — 2026-09-26 / WAVE — CANONICAL COMMIT RESPONSE CLOSURE
+
+- CODE HEAD AT WRITE-BACK → `bb06d05f0f85c358afdc1d77422f66e7a9672786` on PR #660.
+- CORE DELIVERY → `canonical-commit.ts` now rejects malformed/non-object RPC responses; `committed` must be a finite integer matching the submitted row count, and every returned id must be a non-empty string.
+- CONTRACT DELIVERY → `check-report-truth-contract.mjs` now guards the canonical commit response boundary.
+- GATES → exact-head workflow runs for `bb06d05f...` are not yet populated; combined status currently exposes only Vercel failure at the known free-plan build-rate-limit target. No current-head CI/browser/certification PASS is claimed.
+- RELEASE BOUNDARY → device/browser unavailable; Phase-F live recovery remains NOT PROVEN; no production mutation.
+- CURRENT RESUME POINTER → `bb06d05f...` → consume first newly populated exact-head gate, repair only a reproduced failure, then continue the next safe UI/core closure.
+- DO NOT REPEAT → no coercion of canonical commit counters/IDs; no stale evidence transfer; no production-SHA bypass.
+
