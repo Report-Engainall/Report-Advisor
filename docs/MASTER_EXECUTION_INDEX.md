@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 182
+
+- MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE CODE/TEST CANDIDATE: `c4fd60dbe00217c3e5912b9a80fb3aadcb24df17` on PR #661.
+- CURRENT FAILURE CONSUMED: `desktop-windows` run `36266460340` failed during `npm run build` because the data-quality facade re-exported a score helper that the runtime layer did not export.
+- REPAIR: `data-quality-snapshot-runtime.ts` now re-exports the existing core `calculateWeightedQualityScore`; no duplicate backend path.
+- CORE: weighted score helper now returns unavailable (`null`) for malformed/non-finite/negative/out-of-range entity inputs instead of deriving a potentially misleading result.
+- UI: Trust & Evidence marks critical findings unavailable in `EMPTY` state instead of implying that zero critical findings were actually checked.
+- TESTS: contract coverage added for malformed weighted-score inputs and the empty trust critical-state presentation.
+- CURRENT PROOF: `c4fd60d...` has no materialized workflow runs yet. The consumed failure was on the preceding exact merge ref, so no PASS is claimed for the repaired SHA. PC01/browser/Phase-F remain NOT PROVEN.
+- NEXT: consume the first terminal non-skipped gate on the repaired candidate; fix only the first current-SHA failure, then continue the next uncovered UI/core boundary.
+- DO NOT REPEAT: stale evidence transfer, prior #660 closures, duplicate importer/RPC/navigation paths, production-SHA bypass, unsafe import-job mutation.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 181
 
 - MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907` (unchanged).
