@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { CheckCircle2, Save, UserCircle } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { PageHeader } from '@/components/ui/States';
+import { PageHeader, LoadingState } from '@/components/ui/States';
 import { supabase } from '@/lib/supabase';
 import { getAuthenticatedUser } from '@/lib/auth-session';
 
@@ -44,7 +44,7 @@ export function ProfileSettingsPage() {
     setMessage('تم حفظ اسم العرض بنجاح. سيظهر الاسم الجديد في واجهة النظام.');
   };
 
-  if (loading) return <div dir="rtl" className="py-20 text-center text-sm text-ink-500">جارٍ تحميل بيانات الحساب...</div>;
+  if (loading) return <div dir="rtl"><LoadingState message="جارٍ تحميل بيانات الحساب..." /></div>;
 
   return (
     <div dir="rtl" className="space-y-6 animate-fade-in">
@@ -70,18 +70,18 @@ export function ProfileSettingsPage() {
             onChange={event => setDisplayName(event.target.value)}
             maxLength={120}
             placeholder="اكتب الاسم الذي تريد ظهوره في النظام"
-            className="input w-full max-w-xl"
+            className="input min-h-11 w-full max-w-xl" aria-invalid={error ? 'true' : undefined}
             autoComplete="name"
           />
           <p className="mt-2 text-xs text-ink-400">يمكنك تغييره لاحقًا دون تعديل الكود.</p>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
-            <button type="button" disabled={saving || !user} onClick={() => void save()} className="btn-primary inline-flex items-center gap-2 disabled:opacity-50">
+            <button type="button" disabled={saving || !user} aria-busy={saving} onClick={() => void save()} className="btn-primary inline-flex min-h-11 items-center gap-2 disabled:opacity-50">
               <Save size={16} />
               {saving ? 'جارٍ الحفظ...' : 'حفظ اسم العرض'}
             </button>
-            {message && <span className="inline-flex items-center gap-1.5 text-sm text-success-600"><CheckCircle2 size={16} /> {message}</span>}
-            {error && <span role="alert" className="text-sm text-danger-600">{error}</span>}
+            {message && <span role="status" aria-live="polite" className="inline-flex items-center gap-1.5 text-sm text-success-600"><CheckCircle2 size={16} /> {message}</span>}
+            {error && <span role="alert" aria-live="assertive" className="text-sm text-danger-600">{error}</span>}
           </div>
         </CardBody>
       </Card>
