@@ -16,6 +16,7 @@ import { formatCurrency } from '@/lib/format';
 import type { Recommendation, Alert } from '@/lib/types';
 import type {
   DashboardKPIs,
+  DashboardQuality,
   MonthlyTrend,
   TopEntity,
   CategoryBreakdown,
@@ -98,6 +99,7 @@ export function DashboardPage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [aging, setAging] = useState<AgingDashboard | null>(null);
+  const [quality, setQuality] = useState<DashboardQuality | null>(null);
   const [trendMonths, setTrendMonths] = useState(6);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -118,6 +120,7 @@ export function DashboardPage() {
           topProducts: products,
           categories: nextCategories,
           aging: nextAging,
+          quality: nextQuality,
           asOf: nextAsOf,
         },
         intelligence,
@@ -133,6 +136,7 @@ export function DashboardPage() {
       setTopProducts(products.slice(0, 5));
       setCategories(nextCategories);
       setAging(nextAging);
+      setQuality(nextQuality);
       setRecommendations(intelligence.recommendations);
       setAlerts(intelligence.alerts);
     } catch (cause) {
@@ -222,7 +226,7 @@ export function DashboardPage() {
 
   if (loading) return <LoadingState message="جارٍ بناء صورة الأعمال من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
-  if (!kpis || !aging) return <DataUnavailableState title="صورة الأعمال غير مكتملة" message="تعذر بناء المؤشرات الأساسية كاملة من المصدر الحالي؛ لا نعرض لوحة فارغة ولا نصنع قيمًا بديلة." action={<Link to="/data-quality" className="btn-primary text-[11px]">مراجعة جودة البيانات</Link>} />;
+  if (!kpis || !aging || !quality) return <DataUnavailableState title="صورة الأعمال غير مكتملة" message="تعذر بناء المؤشرات الأساسية كاملة من المصدر الحالي؛ لا نعرض لوحة فارغة ولا نصنع قيمًا بديلة." action={<Link to="/data-quality" className="btn-primary text-[11px]">مراجعة جودة البيانات</Link>} />;
 
   const evidenceMetrics = [
     kpis.totalSales,
@@ -235,6 +239,11 @@ export function DashboardPage() {
     kpis.collectionRate,
   ];
   const coverage = Math.round((evidenceMetrics.filter((value) => value !== null).length / evidenceMetrics.length) * 100);
+  const qualityValues = [quality.badInvoiceRows, quality.badSaleItemRows, quality.badPurchaseRows, quality.badInventoryRows, quality.salesCurrencyMismatchRows, quality.purchaseCurrencyMismatchRows];
+  const qualityIssueTotal = qualityValues.every(value => value !== null)
+    ? qualityValues.reduce((sum, value) => sum + (value ?? 0), 0)
+    : null;
+
   const emptyAnalysisAction = kpis.status === 'INSUFFICIENT_DATA'
     ? { to: '/data-quality', label: 'مراجعة جودة البيانات' }
     : { to: '/analytics', label: 'فتح التحليل' };
@@ -310,7 +319,12 @@ export function DashboardPage() {
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-ink-100">
               <div className="h-full rounded-full bg-primary-600" style={{ width: coverage + '%' }} />
             </div>
-            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            <div className="mt-4 grid gap-2 sm:grid-cols-4">
+              <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-2.5">
+                <div className="text-[9px] font-black text-ink-400">ضغط جودة المصدر</div>
+                <div className={"mt-1 text-sm font-black " + (qualityIssueTotal === null ? "text-ink-800" : qualityIssueTotal > 0 ? "text-warning-800" : "text-success-700")}>{qualityIssueTotal === null ? 'غير متاح' : qualityIssueTotal}</div>
+                <div className="mt-0.5 text-[9px] text-ink-400">{qualityIssueTotal === null ? 'لا نحول المفقود إلى صفر' : qualityIssueTotal > 0 ? 'صفوف تحتاج فحصًا' : 'لا توجد حالات جودة مثبتة'}</div>
+              </div>
               <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-2.5">
                 <div className="text-[9px] font-black text-ink-400">مالك محدد</div>
                 <div className="mt-1 text-sm font-black text-ink-900">
