@@ -331,3 +331,15 @@ const canonicalProfitability = fs.readFileSync('src/pages/ProfitabilityReportCan
 assert.ok(canonicalProfitability.includes('DataUnavailableState'), 'canonical profitability must expose a governed unavailable-data state');
 assert.ok(canonicalProfitability.includes('<Link to="/import"'), 'canonical profitability unavailable state must use the unified import route');
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
+
+const externalAnalysis = fs.readFileSync('src/pages/ExternalFileAnalysisPage.tsx', 'utf8');
+assert.ok(externalAnalysis.includes('role="button"') && externalAnalysis.includes('onDrop='), 'external file analysis upload must support accessible drag/drop');
+assert.ok(externalAnalysis.includes("event.key === 'Enter' || event.key === ' '"), 'external file analysis upload must support keyboard activation');
+
+const charts = fs.readFileSync('src/components/ui/Charts.tsx', 'utf8');
+assert.ok(charts.includes('finiteData'), 'shared charts must reject non-finite numeric input');
+assert.ok(charts.includes('قيمة رقمية غير صالحة'), 'shared charts must surface invalid numeric source state');
+
+const workCenterSource = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
+assert.ok(workCenterSource.includes('function exceptionCount'), 'work center must centralize exception-count truth');
+assert.ok(workCenterSource.includes('exceptions === null'), 'work center must fail closed when exception counts are unavailable');
