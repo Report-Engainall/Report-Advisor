@@ -1,3 +1,20 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / DEEP UI + CORE TRANSPORT CLOSURE
+
+> Exact-head evidence only. No historical PASS is transferred.
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `102df6791ff75b9f84d8716459417dbdb127d247`.
+- CURRENT CODE/TEST CANDIDATE → `2e03d2e25588b14d008751e60bf4432554804c1f`.
+- DONE — UI → Trust Evidence issue-severity aggregation is fail-closed; Dashboard accountability preserves unknown totals; Executive Command Center has canonical truth badges and truth-aware Money Recovery action state; Aghbari decision/context/command styling was deepened.
+- DONE — CORE → canonical import transport validates exact request/response identity and committed result shape.
+- DONE — CONTRACTS → report-truth and Product WOW guards cover the new invariants.
+- EXACT-HEAD GATES → 51 observed workflow runs on `2e03d2e...`: 44 queued, 4 pending, 1 in progress, 2 skipped. No application PASS is claimed yet. CodeRabbit is successful; Vercel is externally rate-limited; Netlify is pending; Desktop Windows is in progress.
+- PHASE-F → live backup/restore/RPO/RTO/rollback remains NOT PROVEN and remains fail-closed.
+- DEVICE → local device/browser is unavailable; repository-only work continues through GitHub-hosted checks.
+- NEXT EXECUTABLE ACTION → `consume terminal exact-head quality/certification/browser results → repair first reproduced current-SHA failure only → continue independent UI/core closure`.
+- DO NOT REPEAT → stale evidence transfer, missing-to-zero coercion, duplicate routes/RPCs/workflows, production mutation outside the certified path.
+- CURRENT RESUME POINTER → `PR #660 exact head 2e03d2e... → terminal gate result / first current-head failure → next uncovered UI/core closure`.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / EXECUTIVE REPORT TRUTH CLOSURE
 
 > Exact-head evidence only. No historical PASS is transferred.
