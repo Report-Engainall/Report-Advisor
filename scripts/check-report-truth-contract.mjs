@@ -86,6 +86,16 @@ for (const token of [
   if (!dataQualityCore.includes(token)) throw new Error(`Report truth contract missing data-quality invariant: ${token}`);
 }
 
+const querySource = fs.readFileSync(path.join(srcDir, 'lib', 'queries.ts'), 'utf8');
+for (const token of [
+  "function importCountOrNull(value: unknown, field: string): number | null",
+  "function importProgressOrNull(value: unknown): number | null",
+  "IMPORT_DATA_INVALID: unsupported import status",
+  "IMPORT_DATA_INVALID: progress must be an integer from 0 to 100 or null",
+]) {
+  if (!querySource.includes(token)) throw new Error(`Report truth contract missing import invariant: ${token}`);
+}
+
 const dashboardCanonical = fs.readFileSync(path.join(srcDir, 'lib', 'dashboard-canonical.ts'), 'utf8');
 for (const token of [
   "function requiredArray<T>(value: unknown, field: string)",
