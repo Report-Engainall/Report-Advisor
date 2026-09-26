@@ -165,7 +165,7 @@ export function TrustEvidencePage() {
         <div key={item.label} className={'rounded-[14px] border p-4 shadow-sm ' + item.className}>
           <div className="flex items-center justify-between gap-3">
             <span className="text-[10px] font-black">{item.label}</span>
-            <span className="text-2xl font-black tabular-nums">{item.value}</span>
+            <span className="text-2xl font-black tabular-nums">{item.value === null ? 'غير متاح' : item.value}</span>
           </div>
           <div className="mt-2 text-[10px] leading-5 opacity-80">
             {item.value === null ? 'غير متاح من اللقطة الحالية.' : item.value === 0 ? 'لا توجد حالات مثبتة في هذه الفئة.' : 'تحتاج المعالجة وفق أثرها قبل الاعتماد على النتائج.'}
