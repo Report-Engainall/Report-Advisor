@@ -1,9 +1,10 @@
 import { useMemo, useRef, useState } from 'react';
-import { AlertCircle, BarChart3, CheckCircle2, Download, FileImage, FileSpreadsheet, FileText, Loader2, ShieldCheck, Sparkles, Upload } from 'lucide-react';
+import { AlertCircle, ArrowUpLeft, BarChart3, CheckCircle2, Download, FileImage, FileSpreadsheet, FileText, Loader2, ShieldCheck, Sparkles, Upload } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { DataTable } from '@/components/ui/DataTable';
 import { PageHeader } from '@/components/ui/States';
+import { Link } from 'react-router-dom';
 import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256 } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
@@ -91,6 +92,47 @@ export function ExternalFileAnalysisPage() {
     {file && <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{fileIcon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} · {file.size.toLocaleString()} بايت · بصمة SHA-256: {file.hash.slice(0,16)}…</div></div></div><Badge variant="success"><ShieldCheck size={13}/> اجتاز الفحص الأمني</Badge></div></CardBody></Card>}
     {datasets.length > 1 && <Card><CardBody><div className="flex gap-2 overflow-x-auto">{datasets.map((d,i)=><button key={`${d.id}-${i}`} type="button" aria-pressed={i===active} onClick={()=>setActive(i)} className={`whitespace-nowrap rounded-xl border px-4 py-2 text-xs font-semibold ${i===active?'border-primary-500 bg-primary-50 text-primary-700':'border-ink-200 bg-white text-ink-600'}`}>ورقة/مجموعة {i+1}: {d.name}</button>)}</div></CardBody></Card>}
     {dataset && <>
+      <section className="rounded-2xl border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-2 text-[10px] font-black tracking-[.14em] text-primary-300"><ShieldCheck size={14}/> SOURCE READINESS</div>
+            <h2 className="mt-2 text-xl font-black lg:text-2xl">المصدر مرّ عبر القراءة — والقرار التالي ما زال منفصلًا عن التحليل</h2>
+            <p className="mt-2 text-[11px] leading-6 text-ink-300">هذه المساحة تثبت ما تمكّن محرك الملفات من قراءته، ولا تعتبر التحليل وحده اعتمادًا لبيانات الأعمال. الاعتماد النهائي يمر عبر المدخل الكانوني الموحد.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/import" className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-2.5 text-[11px] font-black text-ink-950 hover:bg-ink-100">فتح الاعتماد الكانوني <ArrowUpLeft size={13}/></Link>
+            <Link to="/trust" className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15">فحص الثقة <ShieldCheck size={13}/></Link>
+          </div>
+        </div>
+        <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+          {[["1","الفحص الأمني","تم اجتيازه",true],["2","كشف الصيغة","الصيغة معروفة",true],["3","الاستخراج","تم استخراج البيانات",true],["4","المطابقة","حقول mapped / unmapped",Boolean(summary)],["5","الجودة","",dataset.qualityScore >= 75 ? true : dataset.qualityScore >= 50 ? 'review' : false]].map(([step,label,detail,state]) => (
+            <div key={String(step)} className={'rounded-xl border px-3 py-3 ' + (state === true ? 'border-success-400/30 bg-success-400/10' : state === 'review' ? 'border-warning-300/30 bg-warning-300/10' : 'border-danger-300/30 bg-danger-300/10')}>
+              <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-ink-300">{step}</span><span className="text-[9px] font-black">{state === true ? 'VERIFIED' : state === 'review' ? 'REVIEW' : 'BLOCKED'}</span></div>
+              <div className="mt-2 text-[11px] font-black">{label}</div>
+              <div className="mt-1 text-[9px] text-ink-300">{label === 'الجودة' ? (dataset.qualityScore >= 75 ? '≥ 75% — صالح للاعتماد' : dataset.qualityScore >= 50 ? '50–74% — يحتاج موافقة جودة' : '< 50% — مرفوض') : detail}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="grid gap-3 md:grid-cols-3" aria-label="قرار التحليل">
+        <div className="rounded-2xl border border-ink-200 bg-white p-4">
+          <div className="text-[9px] font-black tracking-[.12em] text-ink-400">MAPPING</div>
+          <div className="mt-2 text-lg font-black text-ink-950">{summary?.mapped ?? 0} / {dataset.columnCount}</div>
+          <div className="mt-1 text-[10px] text-ink-500">{summary?.unmapped ? 'حقول غير معيّنة محفوظة ولم تُحذف.' : 'كل الحقول لها مطابقة مكتشفة في القراءة الحالية.'}</div>
+        </div>
+        <div className="rounded-2xl border border-ink-200 bg-white p-4">
+          <div className="text-[9px] font-black tracking-[.12em] text-ink-400">QUALITY</div>
+          <div className="mt-2 text-lg font-black">{Math.round(dataset.qualityScore)}%</div>
+          <div className="mt-1 text-[10px] text-ink-500">{dataset.qualityScore >= 75 ? 'ثقة جودة مرتفعة' : dataset.qualityScore >= 50 ? 'مراجعة جودة مطلوبة' : 'الاعتماد محظور حاليًا'}</div>
+        </div>
+        <div className="rounded-2xl border border-ink-200 bg-white p-4">
+          <div className="text-[9px] font-black tracking-[.12em] text-ink-400">NEXT ACTION</div>
+          <div className="mt-2 text-sm font-black text-ink-950">{dataset.qualityScore >= 75 ? 'اعتماد المصدر الكانوني' : dataset.qualityScore >= 50 ? 'مراجعة الجودة ثم الاعتماد' : 'تصحيح المصدر قبل الاعتماد'}</div>
+          <div className="mt-1 text-[10px] leading-5 text-ink-500">التحليل الخارجي لا يكتب بيانات الأعمال مباشرة.</div>
+        </div>
+      </section>
+
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">{[['الصفوف',dataset.rowCount],['الأعمدة',dataset.columnCount],['المعيّنة',summary?.mapped??0],['غير المعيّنة',summary?.unmapped??0],['مشاكل الجودة',summary?.issues??0]].map(([label,value])=><Card key={String(label)}><CardBody><div className="text-xs text-ink-400">{label}</div><div className="mt-1 text-xl font-bold">{Number(value).toLocaleString()}</div></CardBody></Card>)}</div>
       <Card><CardHeader title="ذكاء المخطط" subtitle="كل حقل يحتفظ بهويته الأصلية ويُعامل كمرشح مستقل للمطابقة والتحليل" action={<button type="button" onClick={()=>downloadCsv(dataset)} className="btn-secondary text-xs inline-flex items-center gap-1"><Download size={14}/> تصدير البيانات المحللة</button>}/><CardBody><div className="overflow-x-auto"><table className="min-w-full text-sm"><thead><tr className="border-b border-ink-100"><th scope="col" className="p-2 text-right">الحقل الأصلي</th><th scope="col" className="p-2 text-right">الحقل القياسي</th><th scope="col" className="p-2 text-right">النوع</th><th scope="col" className="p-2 text-right">الثقة</th><th scope="col" className="p-2 text-right">الفرادة</th><th scope="col" className="p-2 text-right">القيم الفارغة</th></tr></thead><tbody>{dataset.columns.map(c=><tr key={c.name} className="border-b border-ink-50"><td className="p-2 font-medium">{c.name}</td><td className="p-2">{c.mappedField||<span className="text-ink-400">غير معين — محفوظ</span>}</td><td className="p-2">{c.dataType}</td><td className="p-2">{c.mappingConfidence}%</td><td className="p-2">{Math.round(c.uniqueRatio*100)}%</td><td className="p-2">{c.nullCount.toLocaleString()}</td></tr>)}</tbody></table></div></CardBody></Card>
       <Card><CardHeader title="المعاينة" subtitle={`عرض ${Math.min(dataset.preview.length, 50)} صفًا مع ${dataset.columnCount} عمودًا`}/><CardBody><div className="overflow-x-auto"><DataTable columns={dataset.columns.map(c=>({key:c.name,label:c.name,render:(r:any)=>String(r[c.name]??'')}))} data={dataset.preview.slice(0,50)} emptyMessage="لا توجد صفوف للعرض"/></div></CardBody></Card>
