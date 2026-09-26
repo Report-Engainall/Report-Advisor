@@ -1,3 +1,9 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-162
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `5fa19314b4e25a76e4d9adf594598abd5e1fe664` on PR #660 branch `exec/20260926-deep-ui-core-polish`; 151 commits ahead, 28 files changed relative to PR base.
+- UI → repaired calculated-vs-verified semantics in canonical Receivables, Reports Center, Executive Report, Command Center and Analytics; Reports legacy receivables totals now remain unavailable when any aging amount is unknown; profitability UI now requires consistent currency; dashboard/report next actions prioritize unresolved quality.
+- CORE → receivables canonical query now validates page metadata, totals and row/customer shapes without 
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-161
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
