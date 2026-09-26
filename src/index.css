@@ -928,3 +928,21 @@ button,input,textarea,select{font:inherit}
 @media (max-width: 767px) {
   .ag-main .ag-dashboard-header::after { display: none; }
 }
+
+/* AGHBARI DEEP POLISH — 2026-09-26 */
+@layer components {
+  .ag-topbar{background:radial-gradient(circle at 12% 0%,rgb(45 169 153 / 8%),transparent 18rem),linear-gradient(180deg,#fff 0%,#f8fbfa 100%)!important;box-shadow:0 8px 24px -24px rgb(5 46 43 / 55%)}
+  .ag-topbar::after{content:"";display:block;height:2px;background:linear-gradient(90deg,transparent,#e7b52b 22%,#2da999 58%,transparent);opacity:.72}
+  .ag-top-search{box-shadow:inset 0 1px 0 rgb(255 255 255 / 90%);transition:border-color .16s ease,box-shadow .16s ease,background-color .16s ease}
+  .ag-top-search:focus-within,.ag-top-search:hover{box-shadow:0 8px 22px -18px rgb(5 46 43 / 55%),inset 0 1px 0 rgb(255 255 255 / 95%)}
+  .ag-context-rail{display:flex;min-width:0;align-items:center;gap:8px;overflow-x:auto;border-top:1px solid rgb(122 157 147 / 15%);background:linear-gradient(180deg,rgb(247 251 250 / 96%),rgb(241 247 244 / 94%));padding:7px 14px;scrollbar-width:none}
+  .ag-context-rail::-webkit-scrollbar{display:none}
+  .ag-context-chip{display:inline-flex;min-height:28px;flex:0 0 auto;align-items:center;gap:6px;border:1px solid rgb(122 157 147 / 20%);border-radius:999px;background:rgb(255 255 255 / 82%);padding:4px 9px;font-size:10px;font-weight:800;color:#4a625a;white-space:nowrap}
+  .ag-context-chip strong{color:#173f38}.ag-context-chip[data-state="healthy"]{color:#176b4a;border-color:rgb(34 197 94 / 22%);background:#effaf3}.ag-context-chip[data-state="degraded"]{color:#8a6511;border-color:rgb(231 181 43 / 28%);background:#fff9e8}.ag-context-chip[data-state="offline"]{color:#9b2c2c;border-color:rgb(185 28 28 / 22%);background:#fff2f2}
+  .ag-main{min-height:calc(100vh - 92px)}.ag-main :is(button,a,input,select,textarea){-webkit-tap-highlight-color:transparent}
+  .ag-main .ag-state-surface{box-shadow:0 10px 26px -26px rgb(5 46 43 / 55%)}
+  .ag-main .data-table-shell,.ag-main table{border-color:#d4e0dc}.ag-main thead th{color:#466158;background:linear-gradient(180deg,#f7faf9,#f1f6f4);font-weight:850}.ag-main tbody tr{transition:background-color .12s ease}.ag-main tbody tr:hover{background:rgb(45 169 153 / 3.5%)}
+  .ag-main :is(.btn-primary,.btn-secondary,.btn-ghost){min-height:42px}
+}
+@media(max-width:767px){.ag-context-rail{padding-inline:10px}.ag-context-chip{min-height:32px;font-size:9px}.ag-main{min-height:calc(100vh - 104px)}}
+@media(prefers-reduced-motion:reduce){.ag-top-search,.ag-main tbody tr{transition:none!important}}
