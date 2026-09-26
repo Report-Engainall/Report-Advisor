@@ -554,7 +554,7 @@ for (const token of [
   'value >= 0 && value <= 100 ? value : null',
   'function exceptionCount(row: ImportRecord): number | null',
   "exceptions === null ? 'غير متاح' : formatNumber(exceptions)",
-  "progress === null ? 'غير متاح'",
+  "progress === null ? <span className=\"ag-progress-unavailable\" data-progress-state=\"unavailable\">غير متاح</span>",
 ]) {
   if (!workCenterSource.includes(token)) throw new Error('WOW UI contract missing work-center fail-closed state: ' + token);
 }
