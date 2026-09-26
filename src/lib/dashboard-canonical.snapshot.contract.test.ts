@@ -8,8 +8,8 @@ const adapter = fs.readFileSync(path.join(root, 'src/lib/dashboard-canonical.ts'
 describe('dashboard snapshot RPC contract', () => {
   it('uses the canonical snapshot for top entities instead of an unbound secondary RPC', () => {
     expect(adapter).toContain("supabase.rpc('get_dashboard_snapshot'");
-    expect(adapter).toContain("topCustomers: requiredArray<TopEntity>(row.topCustomers)");
-    expect(adapter).toContain("topProducts: requiredArray<TopEntity>(row.topProducts)");
+    expect(adapter).toContain("topCustomers: requiredArray<TopEntity>(row.topCustomers, 'topCustomers')");
+    expect(adapter).toContain("topProducts: requiredArray<TopEntity>(row.topProducts, 'topProducts')");
     expect(adapter).not.toContain("supabase.rpc('get_dashboard_top_entities'");
   });
 });
