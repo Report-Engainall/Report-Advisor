@@ -49,6 +49,9 @@ describe('data quality architecture contract', () => {
     ])).toBe(90);
     expect(calculateWeightedQualityScore([])).toBeNull();
     expect(calculateWeightedQualityScore([{ name: 'A', total: 0, issues: 0, score: 100, icon: 'users' }])).toBeNull();
+    expect(calculateWeightedQualityScore([{ name: 'A', total: -1, issues: 0, score: 100, icon: 'users' }])).toBeNull();
+    expect(calculateWeightedQualityScore([{ name: 'A', total: 1, issues: 0, score: 101, icon: 'users' }])).toBeNull();
+    expect(calculateWeightedQualityScore([{ name: 'A', total: Number.NaN, issues: 0, score: 100, icon: 'users' }])).toBeNull();
   });
 
   it('keeps the trust center fail-closed and exposes the authoritative score', () => {
@@ -58,6 +61,8 @@ describe('data quality architecture contract', () => {
     expect(trust).not.toContain('(entity.issues ?? 0)');
     expect(trust).not.toContain('(entity.total ?? 0)');
     expect(trust).toContain('QUALITY SCORE');
+    expect(trust).toContain("snapshot?.status === 'EMPTY'");
+    expect(trust).toContain("criticalIssueTotal == null ? 'غير متاح'");
   });
 
   it('behaviorally accepts a valid EMPTY snapshot', () => {
