@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 151
+
+- MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CODE/TEST CANDIDATE BEFORE THIS GOVERNANCE WRITE: `811ac710a60767da8bb575ca8b44a349f02fb659` (PR #660).
+- CORE REPAIR: dashboard quality payloads are now strict when present: the quality object must be an object, every quality count must be a non-negative integer or null, while genuinely absent quality remains UNKNOWN/null.
+- CONTRACT: `check-report-truth-contract.mjs` now guards the strict quality-count contract.
+- PRECEDING GATE FAILURE: lint duplicate-binding defect is already repaired; its certification candidate was rebound before this core tightening.
+- UI: typed Decision readiness READY/REVIEW/BLOCKED plus dashboard/report quality disclosure remains intact.
+- NEXT: consume fresh exact-head gates for this strict-truth candidate and repair only the first reproduced current-head failure.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 150
 
 - MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
