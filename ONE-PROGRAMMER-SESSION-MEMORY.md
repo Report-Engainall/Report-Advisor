@@ -1,3 +1,21 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-DEEP-FINISH
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `68cb878af498faace55ef93fda89125a32f6c192`.
+- CURRENT CODE/TEST CANDIDATE → PR #660 branch `exec/20260926-deep-ui-core-polish`; exact current commit is `68cb878af498faace55ef93fda89125a32f6c192` at this governance write.
+- DONE — UI → deep visual finish v2: emerald/near-black/brass hierarchy, surface depth, restrained micro-motion, trust-aware KPI accenting, explicit surface-state hooks, sticky table headers, stronger controls, mobile touch sizing and reduced-motion handling.
+- DONE — CORE → decision evidence is fail-closed: decisions require bounded finite confidence, non-empty evidence, finite values, and non-empty metric/source identifiers.
+- DONE — TEST CONTRACT → existing `scripts/decision-evidence-regression.test.ts` now covers confidence/evidence boundaries and is exposed as `test:decision-evidence-regression`.
+- FIXED DURING SESSION → an intermediate JSX mutation in `States.tsx` was detected and fully corrected before state was recorded; malformed markup is not the current code.
+- EXACT EVIDENCE → GitHub workflow runs were created for the current branch; at observation time quality/certification/browser/security/Phase-F families were queued, Desktop Windows was in progress, while Vercel reported the known free-plan build-rate-limit.
+- NOT PROVEN → exact-current-head CI completion, browser/device proof, production deployment identity, live Phase-F backup/restore/RPO/RTO/rollback.
+- BLOCKED — EXTERNAL → local device/browser unavailable by user context; Vercel free-plan build-rate-limit remains external.
+- UI LANE → materially advanced in this session; no navigation taxonomy was added and no prior closed shell closure was reopened.
+- CORE LANE → materially advanced through decision-evidence integrity hardening; Phase-F remains independent and fail-closed.
+- CURRENT RESUME POINTER → `PR #660 current head 68cb878af498faace55ef93fda89125a32f6c192 → consume first terminal current-head workflow failure → repair only reproduced defect → continue next independent UI/core closure`.
+- NEXT EXECUTABLE ACTION → consume current-head workflow evidence, then take the next uncovered high-value UI/core surface without reopening closed work.
+- DO NOT REPEAT → no stale evidence transfer, no device-only tasks, no duplicate importer/RPC/runner/test family, no production mutation, no unsupported PASS.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-183
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
