@@ -1,3 +1,16 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-166
+
+- HEAD OBSERVED BEFORE THIS WRITE → `e05e768056a20d2fe56960108864e6ca8f7b2fcb` (latest visual code candidate).
+- PR #659 / branch `feat/deep-ui-core-closure-20260925`.
+- UI DEEPENING → Dashboard now has a stronger Decision OS hero, LIVE TRUTH marker, three compact truth/decision/as-of signals, explicit canonical truth chips, and clearer executive action hierarchy.
+- UI DEEPENING → Decision Brief / Truth→Action cards now have dedicated visual treatment while preserving the same canonical data and fail-closed semantics.
+- RELEASE PREVIEW → Vercel created deployment `dpl_535t21bJwKoSyCd3jp93AxbiqBpT` for this exact SHA, branch `feat/deep-ui-core-closure-20260925`; current state observed: BUILDING. Preview hostname: `report-advisor-ln3hu037a-injaz2.vercel.app`; branch alias: `report-advisor-git-feat-deep-ui-core-closure-20260925-injaz2.vercel.app`.
+- EXACT-HEAD EVIDENCE → no terminal GitHub workflow result is available yet for `e05e768...`; no PASS claimed. The Vercel preview is a branch preview, not production proof.
+- ARCHITECTURE → UI-only/shared presentation changes; no importer/RPC/runner/persistence/business-truth path was added or changed.
+- DO NOT REPEAT → no production promotion, no preview-as-production claim, no stale SHA evidence transfer.
+- NEXT EXECUTABLE ACTION → consume first terminal exact-head CI result and the Vercel preview terminal state; repair only a reproduced failure, otherwise continue exact-green certification.
+- CURRENT RESUME POINTER → `main c985deeb… → PR #659 → e05e768… → terminal CI/preview evidence → targeted repair if reproduced → exact-green merge evidence`.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-165
 
 - HEAD OBSERVED BEFORE THIS WRITE → `5e3a76a4727928a2869c5edc6fa5885b3a18f123` (latest visual/UI code candidate before governance write-back).
