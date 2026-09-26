@@ -66,6 +66,8 @@ assert.equal(decisionIsUsable({ ...validDecision, evidence: [] }), false);
 assert.equal(decisionIsUsable({ ...validDecision, evidence: [{ metric: '', value: 1, source: 'engine' }] }), false);
 assert.equal(decisionIsUsable({ ...validDecision, evidence: [{ metric: 'sales', value: Number.NaN, source: 'engine' }] }), false);
 assert.equal(decisionIsUsable({ ...validDecision, evidence: [{ metric: 'sales', value: 1, source: '' }] }), false);
+assert.equal(decisionIsUsable({ ...validDecision, evidence: [{ metric: 'sales', value: 1, source: 'engine', unit: '' }] }), false);
+assert.equal(decisionIsUsable({ ...validDecision, evidence: [{ metric: 'sales', value: 1, source: 'engine', period: '' }] }), false);
 
 console.log('PASS: decision evidence stays finite, bounded, sourced, and fail-closed.');
 
