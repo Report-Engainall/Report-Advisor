@@ -1,3 +1,13 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / DATA QUALITY SCORE REBIND
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- CORE/SEMANTICS → quality issue counts are occurrence counts and may overlap records; no `issues <= total` invariant is used.
+- UI → overall Data Quality score now uses the authoritative per-entity scores weighted by entity record counts.
+- UI → “remaining records after issues” arithmetic has been removed from the customer-facing summary.
+- CONTRACT → Product-WOW now protects the weighted-score model.
+- NEXT → consume exact-head CI; repair only a reproduced failure; continue the next independent UI/Core boundary.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / QUALITY SEMANTICS CORRECTION + DASHBOARD EVIDENCE
 
 > Exact-head evidence only. Historical PASS is not transferred.
