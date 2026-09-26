@@ -1,3 +1,19 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / DEEP UI + DECISION EVIDENCE WAVE
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- MAIN HEAD OBSERVED BEFORE THIS WAVE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- PRIOR EXECUTABLE HEAD → `87c556adeaad765fd67bf6b9df73276c91593c68`.
+- CURRENT CODE CANDIDATE AT THIS WRITE → `3c34acd1327473cb132b1823283f90fbc434843c`.
+- UI DONE → additive Aghbari deep-finish layer, trust-aware KPI visual semantics, explicit shared state hooks, context/health polish, stronger table hierarchy, touch-safe mobile controls and reduced-motion behavior.
+- CORE DONE → decision output gate now rejects invalid confidence, empty evidence, invalid metric/source identifiers, and non-finite evidence values before decisions escape the engine.
+- REGRESSION CONTRACT → existing decision-evidence regression extended and exposed through `npm run test:decision-evidence-regression`; no duplicate test family added.
+- EXTERNAL LIMIT → Vercel deployment checks remain blocked/rate-limited on the free plan; no production certification claimed.
+- DEVICE → local device/browser unavailable; repository-only execution continued.
+- EXACT CURRENT GATES → GitHub workflow family was observed queued/in-progress after the code wave; no current-head application PASS transferred.
+- NEXT ACTION → `consume current-head workflow failures only → repair first reproduced defect → continue next independent UI/core closure; preserve Phase-F fail-closed boundary`.
+- DO NOT REPEAT → no stale PASS, no preview-as-production, no device-dependent work, no duplicate route/RPC/import/test family.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / IMPORT COMMITTED-ID UNIQUENESS
 
 > Exact-head evidence only. Historical PASS is not transferred.
