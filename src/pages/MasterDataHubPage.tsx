@@ -42,10 +42,10 @@ const semanticSurfaces = [
     </section>
 
     <section className="ag-decision-strip" aria-label="ملخص البيانات المرجعية">
-      <div className="ag-decision-cell"><span className="ag-decision-label">العملاء</span><span className="ag-decision-value">مسار حقيقي</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">المنتجات</span><span className="ag-decision-value">مسار حقيقي</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">المخزون</span><span className="ag-decision-value">مسار حقيقي</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">الموردون</span><span className="ag-decision-value">مسار حقيقي</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">الواجهات المرجعية</span><span className="ag-decision-value">{entityLinks.length}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">تتطلب مصدرًا</span><span className="ag-decision-value">2</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">الدليل قبل القرار</span><span className="ag-decision-value">مفروض</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">CRUD</span><span className="ag-decision-value">ليس هو المنتج</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">السياق الدلالي</span><span className="ag-decision-value">جزئي / معلن</span></div>
     </section>
 
