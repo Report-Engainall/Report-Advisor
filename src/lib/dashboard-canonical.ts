@@ -324,7 +324,7 @@ function validateDashboardIntelligence(row: Record<string, unknown>): { recommen
       typeof value.title !== 'string' ||
       typeof value.status !== 'string' ||
       typeof value.confidence !== 'string' ||
-      (value.expected_impact !== null && typeof value.expected_impact !== 'number' && value.expected_impact !== undefined) ||
+      (value.expected_impact !== null && value.expected_impact !== undefined && (typeof value.expected_impact !== 'number' || !Number.isFinite(value.expected_impact as number))) ||
       (value.owner !== null && typeof value.owner !== 'string' && value.owner !== undefined) ||
       (value.deadline !== null && typeof value.deadline !== 'string' && value.deadline !== undefined) ||
       (value.impact_result !== null && typeof value.impact_result !== 'string' && value.impact_result !== undefined) ||
@@ -345,8 +345,8 @@ function validateDashboardIntelligence(row: Record<string, unknown>): { recommen
       typeof value.title !== 'string' ||
       typeof value.is_read !== 'boolean' ||
       (value.description !== null && typeof value.description !== 'string' && value.description !== undefined) ||
-      (value.metric_value !== null && typeof value.metric_value !== 'number' && value.metric_value !== undefined) ||
-      (value.threshold !== null && typeof value.threshold !== 'number' && value.threshold !== undefined) ||
+      (value.metric_value !== null && value.metric_value !== undefined && (typeof value.metric_value !== 'number' || !Number.isFinite(value.metric_value as number))) ||
+      (value.threshold !== null && value.threshold !== undefined && (typeof value.threshold !== 'number' || !Number.isFinite(value.threshold as number))) ||
       typeof value.created_at !== 'string'
     ) {
       throw new Error('REPORT_DATA_INVALID: intelligence.alerts[' + index + '] shape is invalid');
