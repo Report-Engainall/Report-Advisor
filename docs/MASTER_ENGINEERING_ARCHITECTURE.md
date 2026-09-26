@@ -1,3 +1,10 @@
+## CURRENT ENGINEERING CLOSURE — 2026-09-27
+
+- Business Replay reads use tenant-scoped bounded windows (`windowLimit + 1`) instead of exact global counts, preventing large-history replay surfaces from depending on count-heavy reads while preserving `hasMoreHistory` semantics.
+- Replay aggregation consumes only existing canonical tables: `business_state_snapshots`, `recommendation_outcomes`, and `decision_work_items`. No new RPC, runner, importer, or alternate write path was introduced.
+- Replay UI is read-only and evidence-preserving; no source row is mutated by replay rendering.
+- App Shell retains the last known alert data when a fresh intelligence read fails and surfaces a retryable error; failed reads are no longer normalized to an empty authoritative result.
+
 # MASTER ENGINEERING ARCHITECTURE — الأغبري / Report-Advisor
 Status: CANONICAL DOMAIN REFERENCE
 
