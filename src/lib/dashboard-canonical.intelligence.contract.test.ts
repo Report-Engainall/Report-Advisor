@@ -23,3 +23,13 @@ describe('dashboard intelligence canonical tenant contract', () => {
     expect(migration).toContain('where company_id = v_company_id');
   });
 });
+
+
+describe('dashboard intelligence payload semantics', () => {
+  it('guards recommendation and alert object shapes before UI consumption', () => {
+    expect(adapter).toContain('isRecommendation');
+    expect(adapter).toContain('isAlert');
+    expect(adapter).toContain("requiredArray<Recommendation>(row.recommendations, 'recommendations', isRecommendation)");
+    expect(adapter).toContain("requiredArray<Alert>(row.alerts, 'alerts', isAlert)");
+  });
+});
