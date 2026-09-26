@@ -244,7 +244,7 @@ export function WorkCenterPage() {
               { key: 'status', label: 'الحالة', align: 'center', render: (r: ImportRecord) => <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass(r.status)}`}>{statusLabel(r.status)}</span> },
               { key: 'progress', label: 'التقدم', align: 'center', render: (r: ImportRecord) => {
                 const progress = finiteProgress(r.progress);
-                return progress === null ? 'غير متاح' : <div className="min-w-24" aria-label={'تقدم العملية ' + progress + '%'}><div className="text-xs font-bold">{progress}%</div><div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-100" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress} aria-label="نسبة اكتمال العملية"><div className="h-full rounded-full bg-primary-500" style={{ width: `${progress}%` }}/></div></div>;
+                return progress === null ? <span className="ag-progress-unavailable" data-progress-state="unavailable">غير متاح</span> : <div className="min-w-24" aria-label={'تقدم العملية ' + progress + '%'}><div className="text-xs font-bold">{progress}%</div><div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-100" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress} aria-label="نسبة اكتمال العملية"><div className="h-full rounded-full bg-primary-500" style={{ width: `${progress}%` }}/></div></div>;
               } },
               { key: 'valid', label: 'البيانات المقبولة', align: 'center', render: (r: ImportRecord) => r.valid_rows == null ? 'غير متاح' : formatNumber(r.valid_rows) },
               { key: 'exceptions', label: 'الاستثناءات', align: 'center', render: (r: ImportRecord) => {
