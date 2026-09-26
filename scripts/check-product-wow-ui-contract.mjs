@@ -75,6 +75,9 @@ for (const token of [
   "REPORT_DATA_INVALID: intelligence.recommendations[' + index + '] shape is invalid",
   "REPORT_DATA_INVALID: intelligence.alerts[' + index + '] shape is invalid",
 ]) assert.ok(dashboardCanonical.includes(token), `dashboard intelligence contract missing: ${token}`);
+const inventoryTruth = fs.readFileSync('src/lib/free-toolbox/inventory-intelligence-canonical.ts', 'utf8');
+assert.ok(inventoryTruth.includes('INVENTORY_DATA_INVALID: inventory balance quantity is invalid'), 'inventory intelligence must fail closed on invalid balances');
+assert.ok(inventoryTruth.includes('INVENTORY_DATA_INVALID: inventory balance references a missing product'), 'inventory intelligence must surface orphaned balance rows');
 const importSurface = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
 assert.ok(importSurface.includes('لم يُثبت مصدر سابق لهذا الحساب بعد'), 'canonical import history empty state must distinguish an empty history');
 assert.ok(importSurface.includes('اختيار مصدر'), 'canonical import history empty state must expose a real source-selection action');
