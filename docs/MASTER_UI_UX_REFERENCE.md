@@ -1,3 +1,9 @@
+## LIVE UI/CONTRACT CLOSURE — 2026-09-26
+
+- Data Quality now exposes snapshot-counter consistency as a first-class UI state and never clamps contradictory derived counts into zero.
+- Work Center now exposes persisted progress outside `0..100` as explicit unavailable state.
+- Product-WOW contract was structurally repaired so its bindings are unique and executable; the Data Quality assertion now tracks the fail-closed next-action contract.
+
 ## LIVE UI CLOSURE — 2026-09-26 / WORK CENTER TRUTH STATES
 
 - Work Center progress now treats persisted values outside the canonical `0..100` interval as unavailable rather than clipping them into a plausible range.
