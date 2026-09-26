@@ -160,3 +160,8 @@ Forecasting and benchmark outputs must expose minimum-data/sample limits.
 
 - Presentation cannot normalize an invalid quality score into an authoritative percentage; the state remains explicitly untrusted.
 - No data or schema mutation was required for this closure.
+
+
+## Execution closure — 2026-09-27 / predecessor 2d20e2a191982abb33f50c3f0bf742ef3a05a99e
+
+- Malformed dashboard intelligence payloads are now fail-closed immediately after a successful RPC response; retry logic cannot hide persistent source corruption behind repeated reads.
