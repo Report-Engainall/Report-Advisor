@@ -1,3 +1,19 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-174
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `9c33786b91759ba9cd60c584a51bfd6530ee0d04` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- CURRENT FUNCTIONAL CANDIDATE → `9c33786b91759ba9cd60c584a51bfd6530ee0d04`.
+- UI DELIVERY → shared chart/KPI components now fail closed on non-finite values; chart surfaces expose accessible source-empty states; reusable REVIEW/BLOCKED/INSUFFICIENT DATA states are live; external-file analysis has explicit failure/review surfaces and keyboard-accessible file selection; table headers are column-scoped.
+- CORE DELIVERY → dashboard intelligence rejects non-finite numeric evidence; data-quality entity icon discriminants are runtime-validated; customer/product reads verify tenant context on returned rows; bounded customer/product reads now require an authoritative exact count before accepting the 500-row cap.
+- CONTRACT DELIVERY → Report Truth, Product WOW UI, and Tenant Security guards were updated for the new invariants.
+- GATE SNAPSHOT → exact functional SHA `9c33786...` has 50 check-runs; all sampled required checks are queued except Cloudflare Pages, which is in progress; no exact-head PASS is claimed.
+- PR STATE → PR #660 remains OPEN and GitHub reports `mergeable=true`; production merge/promotion has not occurred.
+- DEVICE → unavailable/offline; no device-dependent proof claimed.
+- PHASE-F → live backup/restore/RPO/RTO/rollback certification remains NOT PROVEN.
+- EXTERNAL/INDEPENDENT SPLIT → device and Phase-F are independent blockers; implementation continues without them.
+- CURRENT RESUME POINTER → `PR #660 9c33786... → consume exact-head gate result → repair only first reproduced application failure → continue uncovered UI/core closure → merge only after release-critical evidence is green`.
+- DO NOT REPEAT → stale-SHA evidence; any missing/NaN/Infinity-to-zero rendering; tenant-context omission; exact-count substitution with zero; mouse-only file upload path; duplicate architecture; production certification without current-head evidence.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-173
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
