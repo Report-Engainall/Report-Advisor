@@ -226,6 +226,12 @@ export function Header({
           </div>
         </div>
       </div>
+      <div className="ag-context-rail" aria-label="سياق مساحة العمل">
+        <span className="ag-context-chip"><span aria-hidden="true">◆</span><strong>{currentSection}</strong><span>/</span>{currentLabel}</span>
+        <span className="ag-context-chip"><span>الحالة</span><span data-state={health} className={healthClass + " font-black"}>{healthLabel}</span></span>
+        <span className="ag-context-chip"><span>الانتباه</span><strong>{unreadAlerts.length}</strong><span>غير مقروء</span></span>
+        <span className="ag-context-chip hidden sm:inline-flex"><span>الاختصار</span><strong>Ctrl/⌘ K</strong></span>
+      </div>
     </header>
   );
 }
