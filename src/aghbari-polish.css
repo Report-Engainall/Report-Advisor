@@ -22,6 +22,9 @@
 .ag-decision-evidence-grid { align-items: stretch; }
 .ag-decision-evidence-card { transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
 .ag-decision-evidence-card:hover { transform: translateY(-2px); border-color: rgba(13, 148, 136, .28); box-shadow: 0 12px 30px rgba(15, 23, 42, .08); }
+.ag-decision-evidence-card[data-state="blocked"] { border-color: rgba(239, 68, 68, .22); background: rgba(254, 242, 242, .55); }
+.ag-decision-evidence-card[data-state="review"] { border-color: rgba(245, 158, 11, .22); }
+.ag-decision-evidence-card[data-state="ready"] { border-color: rgba(16, 185, 129, .24); }
 @media (max-width: 640px) {
   .ag-dashboard-header { border-radius: 16px; }
   .ag-dashboard-header::after { width: 55%; }
