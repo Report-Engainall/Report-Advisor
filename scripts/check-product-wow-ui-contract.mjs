@@ -98,6 +98,10 @@ assert.ok(entitiesSurface.includes('<Link to="/import"'), 'inventory source-empt
 
 const truthStrip = fs.readFileSync('src/components/TruthContextStrip.tsx', 'utf8');
 assert.ok(truthStrip.includes('الاستخدام: صالح للقرار') && truthStrip.includes('الاستخدام: راجع الدليل أولًا'), 'shared truth strip must disclose decision-use state');
+const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
+assert.ok(executiveReport.includes('qualityIssues={qualityIssueTotal}'), 'executive report must bind quality truth into shared context');
+assert.ok(executiveReport.includes("kpis?.status === 'CALCULATED'"), 'executive report must route calculated truth through evidence review');
+assert.ok(!executiveReport.includes("kpis?.status !== 'CALCULATED' || kpis?.status === 'INSUFFICIENT_DATA'"), 'executive report must not misroute confirmed truth to data quality');
 const commandCenter = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
 assert.ok(commandCenter.includes('qualityIssues={qualityIssueTotal}'), 'command center must bind quality truth into shared context');
 assert.ok(commandCenter.includes('مؤكد ويمكن استخدامه') && commandCenter.includes('محسوب — راجع الدليل'), 'command center must distinguish confirmed from calculated decision-use state');
