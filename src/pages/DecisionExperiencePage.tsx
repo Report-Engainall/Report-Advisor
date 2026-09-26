@@ -141,6 +141,9 @@ export function DecisionExperiencePage() {
   const currentStageIndex = Math.max(0, STAGES.findIndex((item) => item.id === stage));
   const canEnterStage = useCallback((next: Stage) => next === 'command' || selected !== null, [selected]);
   const stageLockReason = selected ? null : 'حدد توصية فعلية من المصدر أولًا حتى يمكن فتح هذه المرحلة دون اختلاق سياق قرار.';
+  useEffect(() => {
+    if (selected === null && stage !== 'command') setStage('command');
+  }, [selected, stage]);
   const activeAlerts = useMemo(() => alerts.filter((item) => !item.is_read).slice(0, 6), [alerts]);
   const selectedStatus = selected?.status ?? null;
 
