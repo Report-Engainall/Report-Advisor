@@ -103,7 +103,13 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput, 
       Array.isArray(serverCommittedIds) &&
       serverCommittedIds.length === input.rows.length &&
       serverCommittedIds.every((id) => typeof id === 'string' && id.trim().length > 0));
-  if (!importIdValid || !sourceHashValid || !jobIdValid || !committedResultValid) {
+  const serverQualityRaw = payload?.serverValidatedQualityScore;
+  const serverQualityValid =
+    mode === 'finalize-source' ||
+    (typeof serverQualityRaw === 'number' && Number.isFinite(serverQualityRaw) && serverQualityRaw >= 0 && serverQualityRaw <= 100);
+  const snapshotId = payload?.snapshotId;
+  const snapshotValid = snapshotId === undefined || snapshotId === null || (typeof snapshotId === 'string' && snapshotId.trim().length > 0);
+  if (!importIdValid || !sourceHashValid || !jobIdValid || !committedResultValid || !serverQualityValid || !snapshotValid) {
     throw new Error('CANONICAL_IMPORT_SERVER_EXECUTION_RESPONSE_INVALID');
   }
   return payload;
