@@ -389,12 +389,12 @@ export function RecommendationsPage() {
 
   const visibleItems = filter === 'all' ? items : items.filter((item) => item.status === filter);
 
-  const handleStatus = async (id: string, status: 'accepted' | 'rejected') => {
+  const handleReject = async (id: string) => {
     try {
       setPendingId(id);
       setError(null);
-      await updateRecommendationStatus(id, status);
-      setItems((current) => current.map((item) => item.id === id ? { ...item, status } : item));
+      await updateRecommendationStatus(id, 'rejected');
+      setItems((current) => current.map((item) => item.id === id ? { ...item, status: 'rejected' } : item));
     } catch (cause: unknown) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحديث حالة التوصية');
     } finally {
@@ -412,7 +412,7 @@ export function RecommendationsPage() {
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-[11px] font-black text-primary-300"><Brain size={16}/>الذكاء والقرار</div>
             <h1 className="mt-2 text-[24px] font-black tracking-tight lg:text-[30px]">التوصيات التي يمكن مراجعتها الآن</h1>
-            <p className="mt-2 text-[12px] leading-6 text-ink-300">كل توصية تبقى مرتبطة بحالتها وثقتها ومصدرها. قبولها أو رفضها يغيّر حالة السجل الحقيقي ولا ينشئ نتيجة تنفيذية من تلقاء نفسه.</p>
+            <p className="mt-2 text-[12px] leading-6 text-ink-300">كل توصية تبقى مرتبطة بحالتها وثقتها ومصدرها. بدء القرار يفتح المسار المحكوم بالمصدر والدليل والموافقة؛ الرفض فقط يغيّر حالة التوصية دون إنشاء نتيجة تنفيذية.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={() => void load()} className="inline-flex items-center gap-2 rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15"><RefreshCw size={14}/>تحديث</button>
@@ -469,8 +469,8 @@ export function RecommendationsPage() {
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center gap-2">
                       {item.status === 'new' && <>
-                        <button type="button" disabled={pendingId === item.id} onClick={() => void handleStatus(item.id, 'accepted')} className="btn-primary text-xs"><CheckCircle2 size={14}/>قبول</button>
-                        <button type="button" disabled={pendingId === item.id} onClick={() => void handleStatus(item.id, 'rejected')} className="btn-secondary text-xs"><XCircle size={14}/>رفض</button>
+                        <Link to={'/decision-experience?stage=decision&recommendationId=' + encodeURIComponent(item.id)} className="btn-primary inline-flex text-xs"><CheckCircle2 size={14}/>بدء مسار القرار</Link>
+                        <button type="button" disabled={pendingId === item.id} onClick={() => void handleReject(item.id)} className="btn-secondary text-xs"><XCircle size={14}/>{pendingId === item.id ? 'جارٍ الحفظ…' : 'رفض'}</button>
                       </>}
                       <Link to={'/decision-experience?stage=evidence&recommendationId=' + encodeURIComponent(item.id)} className="inline-flex items-center gap-1.5 rounded-xl border border-ink-200 px-3 py-2 text-xs font-semibold text-ink-700 hover:bg-ink-50">مساحة الدليل <ArrowLeft size={14}/></Link>
                     </div>
