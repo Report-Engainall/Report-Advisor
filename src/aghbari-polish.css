@@ -751,3 +751,12 @@
   font-weight:800;
   border:1px solid #ddd4b7;
 }
+
+
+/* Canonical import: make source-quality readiness visually explicit instead of decorative. */
+.ag-import-passport-cell[data-quality-state="trusted"]{border-color:rgba(13,148,136,.28);background:linear-gradient(180deg,rgba(236,253,245,.94),rgba(248,250,252,.78))}
+.ag-import-passport-cell[data-quality-state="review"]{border-color:rgba(217,119,6,.28);background:linear-gradient(180deg,rgba(255,251,235,.96),rgba(248,250,252,.78))}
+.ag-import-passport-cell[data-quality-state="blocked"]{border-color:rgba(185,28,28,.24);background:linear-gradient(180deg,rgba(254,242,242,.96),rgba(248,250,252,.78))}
+.ag-import-passport-cell[data-quality-state="trusted"] > strong{color:rgb(4 120 87)}
+.ag-import-passport-cell[data-quality-state="review"] > strong{color:rgb(161 98 7)}
+.ag-import-passport-cell[data-quality-state="blocked"] > strong{color:rgb(185 28 28)}
