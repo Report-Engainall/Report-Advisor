@@ -1,3 +1,15 @@
+## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-176
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `5cac32e2f73b0972b67370232626359c67b2321c` on PR #661 branch `exec/20260926-continuous-ui-core-deep`.
+- DONE / UI → Data Quality now computes the overall score from authoritative entity scores weighted by record counts; Work Center exposes missing/non-finite/out-of-range active progress as a distinct review signal; shared charts have a common explicit source-empty/accessibility frame; Canonical Import upload surface now supports drag/drop plus keyboard activation.
+- DONE / CORE → canonical-import HTTP boundary now validates row number, row data, provenance, record key, quality score and explicit quality approval before durable execution; existing canonical import mapping regression gate protects those server checks. Dashboard canonical snapshot now fails closed on malformed authoritative arrays and missing as-of instead of converting them to empty/current-date fallbacks.
+- EXACT SOURCE CHANGES → `src/pages/DataQualitySnapshotPage.tsx`, `src/pages/WorkCenterPage.tsx`, `src/components/ui/Charts.tsx`, `src/pages/CanonicalImportPage.tsx`, `api/canonical-import-execute.ts`, `src/lib/dashboard-canonical.ts`, and their existing contract guards.
+- PROOF STATE → PR #661 exact-head workflows are active/queued; current application PASS is NOT PROVEN on `5cac32e...`. Device-dependent verification is unavailable; Vercel free-plan deployment limitation remains external. No production mutation or production certification claimed.
+- OPEN FRONTS → consume exact-head PR #661 gates; repair only the first reproduced current-SHA failure; continue deeper independent UI/core closure while preserving Phase-F fail-closed.
+- CURRENT RESUME POINTER → `PR #661 current candidate 5cac32e... → consume exact-head gates → repair first reproduced failure only → continue 50/50 UI+core → Phase-F remains fail-closed`.
+- DO NOT REPEAT → prior #660 truth/UI closures, stale evidence, production-SHA bypass, duplicate importer/RPC/navigation paths, blanket security revokes, unsafe import-job mutation.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
