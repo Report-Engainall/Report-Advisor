@@ -335,11 +335,19 @@ export function DashboardPage() {
         </Card>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="الإيرادات" value={kpis.totalSales} icon={<TrendingUp size={16} />} status={metricStatus(kpis.totalSales, kpis.status)} detail="الفترة الحالية" /></CardBody></Card>
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="الربح الإجمالي" value={kpis.grossProfit} icon={<BarChart3 size={16} />} status={metricStatus(kpis.grossProfit, kpis.status)} detail={kpis.grossMargin === null ? 'الهامش غير متاح' : 'الهامش ' + kpis.grossMargin.toFixed(1) + '%'} /></CardBody></Card>
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="التحصيل والذمم" value={kpis.totalReceivables} icon={<WalletCards size={16} />} status={metricStatus(kpis.totalReceivables, kpis.status)} detail={kpis.collectionRate === null ? 'التحصيل غير متاح' : 'نسبة التحصيل ' + kpis.collectionRate.toFixed(1) + '%'} /></CardBody></Card>
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="قيمة المخزون" value={kpis.inventoryValue} icon={<Package size={16} />} status={metricStatus(kpis.inventoryValue, kpis.status)} detail={kpis.invoiceCount === null ? 'عدد الفواتير غير متاح' : 'الفواتير ' + kpis.invoiceCount.toLocaleString('en-US')} /></CardBody></Card>
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="المؤشرات الرئيسية القابلة للاستكشاف">
+        <Link to="/reports/sales" aria-label="فتح سياق المبيعات" className="group min-w-0">
+          <Card className="ag-dashboard-kpi h-full transition-[border-color,box-shadow,transform] group-hover:-translate-y-0.5 group-hover:border-primary-200 group-hover:shadow-card-hover"><CardBody><PulseMetric label="الإيرادات" value={kpis.totalSales} icon={<TrendingUp size={16} />} status={metricStatus(kpis.totalSales, kpis.status)} detail="الفترة الحالية · فتح سياق المبيعات" /></CardBody></Card>
+        </Link>
+        <Link to="/reports/profitability" aria-label="فتح سياق الربحية" className="group min-w-0">
+          <Card className="ag-dashboard-kpi h-full transition-[border-color,box-shadow,transform] group-hover:-translate-y-0.5 group-hover:border-primary-200 group-hover:shadow-card-hover"><CardBody><PulseMetric label="الربح الإجمالي" value={kpis.grossProfit} icon={<BarChart3 size={16} />} status={metricStatus(kpis.grossProfit, kpis.status)} detail={kpis.grossMargin === null ? 'الهامش غير متاح · فتح سياق الربحية' : 'الهامش ' + kpis.grossMargin.toFixed(1) + '% · فتح سياق الربحية'} /></CardBody></Card>
+        </Link>
+        <Link to="/reports/receivables" aria-label="فتح سياق التحصيل والذمم" className="group min-w-0">
+          <Card className="ag-dashboard-kpi h-full transition-[border-color,box-shadow,transform] group-hover:-translate-y-0.5 group-hover:border-primary-200 group-hover:shadow-card-hover"><CardBody><PulseMetric label="التحصيل والذمم" value={kpis.totalReceivables} icon={<WalletCards size={16} />} status={metricStatus(kpis.totalReceivables, kpis.status)} detail={kpis.collectionRate === null ? 'التحصيل غير متاح · فتح سياق التحصيل' : 'نسبة التحصيل ' + kpis.collectionRate.toFixed(1) + '% · فتح سياق التحصيل'} /></CardBody></Card>
+        </Link>
+        <Link to="/reports/inventory" aria-label="فتح سياق المخزون" className="group min-w-0">
+          <Card className="ag-dashboard-kpi h-full transition-[border-color,box-shadow,transform] group-hover:-translate-y-0.5 group-hover:border-primary-200 group-hover:shadow-card-hover"><CardBody><PulseMetric label="قيمة المخزون" value={kpis.inventoryValue} icon={<Package size={16} />} status={metricStatus(kpis.inventoryValue, kpis.status)} detail={kpis.invoiceCount === null ? 'عدد الفواتير غير متاح · فتح سياق المخزون' : 'الفواتير ' + kpis.invoiceCount.toLocaleString('en-US') + ' · فتح سياق المخزون'} /></CardBody></Card>
+        </Link>
       </section>
 
       <section className="space-y-3">
