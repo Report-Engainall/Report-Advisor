@@ -40,30 +40,31 @@ export function ExternalFileAnalysisPage() {
   const [errorState, setErrorState] = useState<'blocked'|'insufficient'|'error'|null>(null);
 
   async function analyze(selected: File) {
+    let failureState: 'blocked' | 'insufficient' | 'error' = 'error';
     setLoading(true); setError(null); setErrorState(null); setDatasets([]); setActive(0);
     try {
       if (selected.size > MAX_FILE_SIZE) throw new Error(`حجم الملف يتجاوز الحد الآمن (${Math.round(MAX_FILE_SIZE / 1024 / 1024)} MB)`);
       const buffer = await selected.arrayBuffer();
       const scan = securityScan(selected, buffer);
       if (!scan.passed) {
-        setErrorState('blocked');
+        failureState = 'blocked';
         throw new Error(scan.issues.join(' — '));
       }
       const detection = detectFormat(selected, buffer);
       if (detection.format === 'unknown') {
-        setErrorState('insufficient');
+        failureState = 'insufficient';
         throw new Error('تعذر تحديد صيغة الملف من المصدر الحالي');
       }
       const hash = await computeSHA256(buffer);
       const parsed = await parseFile(buffer, selected.name, detection.format);
       if (!parsed.length) {
-        setErrorState('insufficient');
+        failureState = 'insufficient';
         throw new Error('لم يتم العثور على بيانات قابلة للتحليل داخل الملف');
       }
       setFile({ name:selected.name, size:selected.size, format:detection.format, hash });
       setDatasets(parsed);
     } catch (e) {
-      if (!errorState) setErrorState('error');
+      setErrorState(failureState);
       setError(e instanceof Error ? e.message : 'فشل تحليل الملف');
     } finally { setLoading(false); }
   }
