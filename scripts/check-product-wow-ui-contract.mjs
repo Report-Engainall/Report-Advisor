@@ -13,6 +13,9 @@ assert.ok(dataTable.includes('role="navigation" aria-label="تنقّل الجد�
 
 const queries = fs.readFileSync('src/lib/queries.ts', 'utf8');
 assert.ok(queries.includes('function validateReceivablesRows(rows: unknown[]): ReceivablesReportRow[]'), 'receivables rows must be validated before presentation');
+const entityPages = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
+assert.ok(entityPages.includes('setTotal(result.count);'), 'entity list pagination must preserve authoritative exact counts');
+assert.ok(!entityPages.includes('setTotal(result.count ?? 0);'), 'entity list pagination must not convert unknown counts to zero');
 assert.ok(queries.includes('RECEIVABLES_DATA_INVALID: total_rows is invalid'), 'receivables totals must fail closed');
 assert.ok(!queries.includes('total_rows:Number(p.total_rows??0)'), 'receivables must not coerce missing totals to zero');
 
