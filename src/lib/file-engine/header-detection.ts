@@ -10,6 +10,7 @@ export type HeaderCandidate = {
 export const HEADER_HINTS = [
   'sku', 'code', 'item', 'product', 'name', 'price', 'quantity', 'qty',
   'رقم', 'كود', 'صنف', 'منتج', 'اسم', 'السعر', 'الكمية', 'العدد', 'التاريخ', 'date',
+  'المخزن', 'الوارد', 'الرصيد', 'الوحدة', 'العبوه', 'العبوة', 'مبيعات', 'المبيعات', 'صافي', 'الإجمالي', 'الاجمالي',
 ];
 
 function nonEmpty(values: unknown[]): string[] {
