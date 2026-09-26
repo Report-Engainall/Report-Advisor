@@ -21,6 +21,13 @@ function invalidProgress(value: number | null | undefined): boolean {
   return value !== null && value !== undefined && finiteProgress(value) === null;
 }
 
+function formatOperationalDate(value: string | null | undefined): string {
+  if (typeof value !== 'string' || !value.trim()) return 'غير متاح';
+  const timestamp = Date.parse(value);
+  if (!Number.isFinite(timestamp)) return 'غير متاح';
+  return new Date(timestamp).toLocaleString('ar-YE');
+}
+
 function exceptionCount(row: ImportRecord): number | null {
   const invalid = finiteCount(row.invalid_rows);
   const quarantined = finiteCount(row.quarantined_rows);
@@ -262,7 +269,7 @@ export function WorkCenterPage() {
                 const exceptions = exceptionCount(r);
                 return <span className={exceptions === null ? 'text-ink-400' : exceptions > 0 ? 'font-semibold text-warning-700' : 'text-ink-500'}>{exceptions === null ? 'غير متاح' : formatNumber(exceptions)}</span>;
               } },
-              { key: 'updated', label: 'آخر تحديث', align: 'center', render: (r: ImportRecord) => <span className="inline-flex items-center gap-1 text-xs text-ink-500"><Clock3 size={13}/>{new Date(r.completed_at ?? r.created_at).toLocaleString('ar-YE')}</span> },
+              { key: 'updated', label: 'آخر تحديث', align: 'center', render: (r: ImportRecord) => <span className="inline-flex items-center gap-1 text-xs text-ink-500"><Clock3 size={13}/>{formatOperationalDate(r.completed_at ?? r.created_at)}</span> },
             ]}
           />
         )}
