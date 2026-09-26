@@ -342,14 +342,14 @@ export function DashboardPage() {
                 <div className="mt-1 text-sm font-black text-ink-900">
                   {decisionAccountability.ownerCoverage === null ? 'لا توجد' : decisionAccountability.ownerCoverage + '%'}
                 </div>
-                <div className="mt-0.5 text-[9px] text-ink-400">{decisionAccountability.owned}/{decisionAccountability.total || 0}</div>
+                <div className="mt-0.5 text-[9px] text-ink-400">{decisionAccountability.total === null ? 'غير متاح' : decisionAccountability.owned + '/' + decisionAccountability.total}</div>
               </div>
               <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-2.5">
                 <div className="text-[9px] font-black text-ink-400">نتيجة أثر مسجلة</div>
                 <div className="mt-1 text-sm font-black text-ink-900">
                   {decisionAccountability.outcomeCoverage === null ? 'لا توجد' : decisionAccountability.outcomeCoverage + '%'}
                 </div>
-                <div className="mt-0.5 text-[9px] text-ink-400">{decisionAccountability.outcomes}/{decisionAccountability.total || 0}</div>
+                <div className="mt-0.5 text-[9px] text-ink-400">{decisionAccountability.total === null ? 'غير متاح' : decisionAccountability.outcomes + '/' + decisionAccountability.total}</div>
               </div>
               <Link to="/decision-experience?stage=decision" className="rounded-xl border border-primary-100 bg-primary-50/60 p-2.5 transition-colors hover:bg-primary-100">
                 <div className="text-[9px] font-black text-primary-700">تحتاج مراجعة</div>
