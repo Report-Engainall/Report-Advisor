@@ -326,4 +326,5 @@ assert.ok(/\.ag-app-shell \.ag-sidebar\{background:linear-gradient\(180deg,#052f
 assert.ok(styles.includes('.ag-context-rail') && styles.includes('.ag-context-chip'), 'Aghbari shell must expose the shared live workspace context rail');
 assert.ok(styles.includes('.ag-decision-evidence-grid') && styles.includes('.ag-decision-evidence-card'), 'Decision surface must retain the evidence-readiness visual contract');
 
+assert.ok(fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8').includes('حالة القرار:'), 'Decision Experience must expose explicit readiness state');
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
