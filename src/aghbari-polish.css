@@ -583,3 +583,32 @@
   .ag-main .ag-truth-quality,
   .ag-main .ag-truth-usage{transition:none!important;transform:none!important}
 }
+
+
+/* Shared table interaction: focus and touch feedback stay visible without motion dependence. */
+.ag-main .ag-data-table[tabindex="0"]{
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-inline:contain;
+  scrollbar-width:thin;
+}
+.ag-main .ag-data-table[tabindex="0"]:focus-visible{
+  outline:2px solid rgba(20,184,166,.58);
+  outline-offset:2px;
+}
+.ag-main .ag-data-table tbody tr[tabindex="0"]:focus-visible{
+  position:relative;
+  z-index:2;
+  background:#edf9f6!important;
+  box-shadow:inset 0 0 0 2px rgba(20,184,166,.42);
+}
+.ag-main .ag-data-table button{
+  min-height:40px;
+}
+@media(max-width:640px){
+  .ag-main .ag-data-table{
+    border-radius:14px;
+  }
+  .ag-main .ag-data-table table{
+    min-width:680px;
+  }
+}
