@@ -86,6 +86,14 @@ for (const token of [
   if (!dataQualityCore.includes(token)) throw new Error(`Report truth contract missing data-quality invariant: ${token}`);
 }
 
+const profitabilityCanonical = fs.readFileSync(path.join(srcDir, 'lib', 'dashboard-canonical.ts'), 'utf8');
+for (const token of [
+  'REPORT_DATA_INVALID: profitability.reasons must contain only strings',
+  "REPORT_DATA_INVALID: profitability.invoice_count must be a non-negative integer or null",
+  "REPORT_DATA_INVALID: profitability.bad_invoice_rows must be a non-negative integer or null",
+  "REPORT_DATA_INVALID: profitability.bad_sale_item_rows must be a non-negative integer or null",
+  "REPORT_DATA_INVALID: profitability.currency_mismatch_rows must be a non-negative integer or null",
+]) if (!profitabilityCanonical.includes(token)) throw new Error('Report truth contract missing profitability invariant: ' + token);
 const querySource = fs.readFileSync(path.join(srcDir, 'lib', 'queries.ts'), 'utf8');
 for (const token of [
   "function importCountOrNull(value: unknown, field: string): number | null",
