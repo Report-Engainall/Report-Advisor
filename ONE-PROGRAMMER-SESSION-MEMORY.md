@@ -447,3 +447,40 @@
 
 ### CURRENT RESUME POINTER
 `PR #661 exact head after governance synchronization → consume first terminal exact-head gate → repair only first reproduced current-SHA failure → continue another independent 50/50 UI+Core closure; keep Phase-F fail-closed and do not claim device-dependent proof.`
+
+
+## Final execution checkpoint — 2026-09-27 / predecessor b1afdd06158ed8b7015d55f9a068370044d5a840
+
+### SESSION-ID
+`EXEC-661-FINAL-2714`
+
+### HEAD observed before this write
+`b1afdd06158ed8b7015d55f9a068370044d5a840`
+
+### DONE
+- Device-independent 50/50 closure continued through import progress, worker lease truth, receivables payload/row validation, query bounds, governed recommendation acceptance, Work Center health state, and deep External File Analysis readiness UX.
+- Focused regression contracts were added/extended for all new boundaries.
+- Staging security readback completed: RLS enabled on report_execution_jobs, sales_invoices, customers; tenant policies bind to current_company_id().
+- Receivables SECURITY DEFINER body was inspected and confirmed tenant-scoped; no blind security-mode mutation performed.
+
+### VERIFIED
+- Main HEAD observed: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- PR #661 functional candidate before governance documentation: `2714f1b86220b5fc4066908e101477f73587b843`.
+- Exact-head check-runs on that functional candidate: 54 total = 46 queued + 5 in progress + 3 skipped + 0 failures + 0 successes.
+
+### FAILED
+- No external current-SHA functional failure reproduced in this wave.
+- One transient JSX edit typo was caught and corrected before the checkpoint.
+- Combined governance-tree write was blocked by tool safety; documentation was therefore committed sequentially through GitHub file updates without bypassing the safety boundary.
+
+### BLOCKED / NOT PROVEN
+- Exact-head PASS is not proven; no older PASS is transferred.
+- Device/browser visual acceptance remains unavailable because the user's device is offline.
+- Vercel free-plan build-rate remains external.
+- Phase-F production recovery/certification remains NOT PROVEN.
+
+### DO NOT REPEAT
+Closed: Replay, Benchmark, Decision lifecycle gating, Trust, Reports, prior Import truth, Work Center progress truth, and governed recommendation acceptance boundary.
+
+### CURRENT RESUME POINTER
+`current governance head → consume exact-head checks → repair only first reproduced current-SHA defect → continue next independent 50/50 UI+Core closure; keep Phase-F/device proof fail-closed.`
