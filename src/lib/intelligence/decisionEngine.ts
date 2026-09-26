@@ -16,7 +16,7 @@ function evidenceIsUsable(evidence:DecisionEvidence[]):boolean{
   );
 }
 
-export export function decisionIsUsable(decision:Decision):boolean{
+export function decisionIsUsable(decision:Decision):boolean{
   return (decision.severity==='critical' || decision.severity==='high' || decision.severity==='medium' || decision.severity==='low')
     && typeof decision.id==='string' && decision.id.trim().length>0
     && typeof decision.title==='string' && decision.title.trim().length>0
