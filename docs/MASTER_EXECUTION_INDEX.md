@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 190
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- PR #661 branch: `exec/20260926-continuous-ui-core-deep`.
+- CURRENT FUNCTIONAL HEAD BEFORE GOVERNANCE: `3d9820b5050d57a70b75a87bf56c2f1696bde496`.
+- Decision Experience uses existing governed decision/approval/work/outcome RPCs; Intelligence Center acceptance now routes into the decision stage.
+- Work-item ownership is bound to authenticated member identity.
+- Staging RLS verification covers all decision and evidence tables used by these read/write paths.
+- No decision-playbook database contract exists yet; the UI remains explicit rather than fabricating functionality.
+- Current-head CI is not terminal yet; no PASS transferred.
+- NEXT: consume first terminal gate, fix only reproduced current-SHA defect, then continue uncovered product boundaries.
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 189
 
 - MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
