@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-CORRECTION-9
+
+- HEAD OBSERVED BEFORE THIS WRITE → current PR #660 head before governance.
+- CORRECTED QUALITY MODEL → issue counts are overlapping occurrence counts; the earlier temporary `issues > total` rejection was removed.
+- UI REBIND → Data Quality overall diagnostic score is now a weighted average of canonical entity scores by entity record count; the misleading “remaining records after issues” metric is removed.
+- UI/CORE → Work Center invalid active progress is surfaced as a first-class operational review signal.
+- CORE → Dashboard `CONFIRMED` requires a non-empty object-shaped evidence payload.
+- CONTRACTS → Product-WOW and Report-Truth reflect the corrected quality and evidence semantics.
+- VERIFIED → latest semantic source files were reread from GitHub; no duplicate top-level bindings remain in the Product-WOW contract.
+- NOT PROVEN → current-head terminal application PASS, browser/device proof, production deployment identity, Phase-F backup/restore/RPO/RTO/rollback.
+- EXTERNAL → Vercel Free build-rate-limit remains the external deployment blocker.
+- RESUME POINTER → latest PR #660 head after this write → consume terminal CI evidence → repair only reproduced current-SHA defect → continue next independent UI/Core boundary.
+- DO NOT REPEAT → unique-record assumption for overlapping issue counts, stale PASS transfer, duplicate architecture/test families, unsupported production certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-CORRECTION-8
 
 - HEAD OBSERVED BEFORE THIS WRITE → `aa610a355099e012eec260b9b4eff132ec3fb736`.
