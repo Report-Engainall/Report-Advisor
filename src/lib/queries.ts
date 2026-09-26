@@ -11,12 +11,12 @@ export async function fetchAgingBuckets(): Promise<AgingBucket[]> { return (awai
 export async function fetchRecommendations(): Promise<Recommendation[]> { return (await fetchDashboardIntelligence()).recommendations; }
 export async function fetchAlerts(): Promise<Alert[]> { return (await fetchDashboardIntelligence()).alerts; }
 
-async function requireCurrentUserId(): Promise<string> {
+async function requireCurrentUserContext(): Promise<{ id: string; label: string }> {
   const { data, error } = await supabase.auth.getUser();
   if (error) throw error;
-  const id = data.user?.id;
-  if (!id) throw new Error('AUTHENTICATED_USER_REQUIRED');
-  return id;
+  const user = data.user;
+  if (!user?.id) throw new Error('AUTHENTICATED_USER_REQUIRED');
+  return { id: user.id, label: user.email?.trim() || user.id };
 }
 
 export type RecommendationDecisionContext = {
@@ -192,13 +192,13 @@ export async function createAndStartRecommendationWork(recommendation: Recommend
     return context.workItemId;
   }
 
-  const assigneeId = await requireCurrentUserId();
+  const assignee = await requireCurrentUserContext();
   const { data: workItemId, error } = await supabase.rpc('create_decision_work_item', {
     p_decision_id: decisionId,
     p_recommendation_id: recommendation.id,
     p_department: 'العمليات',
-    p_assignee_id: assigneeId,
-    p_assignee_label: recommendation.owner?.trim() || 'المسؤول الحالي',
+    p_assignee_id: assignee.id,
+    p_assignee_label: assignee.label,
     p_title: recommendation.title,
     p_description: recommendation.description?.trim() || 'تنفيذ الإجراء المعتمد وفق القرار الموثق.',
     p_priority: workPriority(recommendation.priority),
