@@ -1,3 +1,15 @@
+# CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 185
+
+- MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE PR: #661 / `exec/20260926-continuous-ui-core-deep`.
+- CURRENT FUNCTIONAL HEAD: `bc2071ea5e5204f644ddb0742b8f0f3affdd12da`.
+- PDF: geometry table reconstruction remains the canonical PDF path; Arabic inventory synonyms now cover warehouse, received quantity, posted/unposted net sales, net sales, stock balance and package size.
+- PDF TESTS: end-to-end positioned Arabic inventory coverage now includes multi-page reconstruction, repeated headers, summary-line rejection, canonical mapping and quality >= 75.
+- IMPORT UI: Canonical Import displays explicit PDF reconstruction proof and now deterministically infers a generic source specialty (`inventory-report`, `sales-invoice`, `customer-master`, `product-master`, `payment-report`, or `source-data`) from detected canonical fields before the canonical job is created.
+- CANONICAL SAFETY: specialized generic entity types still match the existing `generic:<slug>` contract and do not create new CRUD/RPC paths or bypass canonical provenance.
+- PROOF: no terminal PASS has been transferred to `bc2071ea...` yet. Latest known Vercel READY preview is old SHA `2c8eb6b...`; Netlify deploy for `753e157...` was canceled because the commit had no deploy content change. Current functional commits require a fresh exact-head build/deploy before visual claims.
+- NEXT EXECUTABLE ACTION: consume the first terminal exact-head PR #661 gate; if a defect appears, repair only that defect. Then continue the next uncovered UI/core boundary and verify current deployment identity.
+- DO NOT REPEAT: naive PDF flattening, old preview evidence, stale PASS transfer, generic-only source typing, duplicate importer/RPC/navigation paths, production-SHA bypass, unsafe import-job mutation.
 # CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 184
 
 - MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
