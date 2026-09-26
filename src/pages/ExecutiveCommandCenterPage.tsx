@@ -9,7 +9,7 @@ import { PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
 import { LoadingState, ErrorState, EmptyState, DataUnavailableState } from '@/components/ui/States';
 import { TrendChart } from '@/components/ui/Charts';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
-import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs } from '@/lib/dashboard-canonical';
+import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs, type DashboardQuality } from '@/lib/dashboard-canonical';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Alert, Recommendation } from '@/lib/types';
 
@@ -78,6 +78,7 @@ export function ExecutiveCommandCenterPage() {
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
   const [asOf, setAsOf] = useState<string | null>(null);
   const [trend, setTrend] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>['trend']>([]);
+  const [quality, setQuality] = useState<DashboardQuality | null>(null);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,6 +96,7 @@ export function ExecutiveCommandCenterPage() {
       setKpis(snapshot.kpis);
       setAsOf(snapshot.asOf);
       setTrend(snapshot.trend);
+      setQuality(snapshot.quality);
       setAlerts(intelligence.alerts.filter((item) => !item.is_read).slice(0, 5));
       setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').slice(0, 5));
     } catch (cause) {
@@ -112,6 +114,18 @@ export function ExecutiveCommandCenterPage() {
     const fields = [kpis.totalSales, kpis.grossProfit, kpis.totalReceivables, kpis.inventoryValue, kpis.collectionRate];
     return Math.round((fields.filter((value) => value !== null).length / fields.length) * 100);
   }, [kpis]);
+  const qualityIssueTotal = useMemo(() => {
+    if (!quality) return null;
+    const values = [
+      quality.badInvoiceRows,
+      quality.badSaleItemRows,
+      quality.badPurchaseRows,
+      quality.badInventoryRows,
+      quality.salesCurrencyMismatchRows,
+      quality.purchaseCurrencyMismatchRows,
+    ];
+    return values.every((value) => value !== null) ? values.reduce((sum, value) => sum + (value ?? 0), 0) : null;
+  }, [quality]);
 
   if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
@@ -135,11 +149,11 @@ export function ExecutiveCommandCenterPage() {
         </div>
       </section>
 
-      <TruthContextStrip months={months} status={kpis.status} asOf={asOf ?? 'غير متاح'} />
+      <TruthContextStrip months={months} status={kpis.status} asOf={asOf ?? 'غير متاح'} qualityIssues={qualityIssueTotal} />
       <div className="ag-decision-strip" aria-label="ملخص مركز القرار">
         <div className="ag-decision-cell">
           <span className="ag-decision-label">وضع الحقيقة</span>
-          <span className="ag-decision-value">{kpis.status === 'INSUFFICIENT_DATA' ? 'بيانات غير كافية' : 'الصورة قابلة للاستخدام'}</span>
+          <span className="ag-decision-value">{kpis.status === 'CONFIRMED' && qualityIssueTotal === 0 ? 'مؤكد ويمكن استخدامه' : kpis.status === 'CALCULATED' ? 'محسوب — راجع الدليل' : 'بيانات غير كافية'}</span>
         </div>
         <div className="ag-decision-cell"><span className="ag-decision-label">تغطية القياسات</span><span className="ag-decision-value">{coverage}%</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">إشارات مفتوحة</span><span className="ag-decision-value">{alerts.length}</span></div>
