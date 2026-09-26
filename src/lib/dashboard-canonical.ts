@@ -187,7 +187,8 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
     status,
   };
 
-  if (requiredInteger(row.months, 'months', 1) > 24) throw new Error('REPORT_DATA_MALFORMED:months');
+  const responseMonths = requiredInteger(row.months, 'months', 1);
+  if (responseMonths > 24) throw new Error('REPORT_DATA_MALFORMED:months');
   return {
     kpis,
     trend: requiredArray<unknown>(row.trend, 'trend', isMonthlyTrend).map(normalizeMonthlyTrend),
@@ -195,7 +196,7 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
     topProducts: requiredArray<TopEntity>(row.topProducts, 'topProducts', isTopEntity).slice(0,10),
     categories: requiredArray<unknown>(row.categories, 'categories', isCategoryBreakdown).map(normalizeCategoryBreakdown),
     asOf: requiredAsOf(row.asOf, 'asOf'),
-    months: requiredInteger(row.months, 'months', 1),
+    months: responseMonths,
     aging: normalizeAgingDashboard(row.aging),
   };
 }
