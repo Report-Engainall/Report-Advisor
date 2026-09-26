@@ -262,7 +262,7 @@ export async function fetchWorkerHealthSnapshot(): Promise<WorkerHealthSnapshot>
       .eq('status', 'queued'),
     supabase
       .from('report_execution_jobs')
-      .select('status,lease_expires_at', { count: 'exact' })
+      .select('company_id,status,lease_expires_at', { count: 'exact' })
       .eq('company_id', companyId)
       .in('status', ['leased', 'processing'])
       .order('lease_expires_at', { ascending: true })
@@ -272,9 +272,18 @@ export async function fetchWorkerHealthSnapshot(): Promise<WorkerHealthSnapshot>
   if (queuedResult.error) throw queuedResult.error;
   if (activeResult.error) throw activeResult.error;
 
-  const activeRows = (activeResult.data ?? []) as Array<{ status: string; lease_expires_at: string | null }>;
+  const activeRows = (activeResult.data ?? []) as Array<{ company_id: string; status: string; lease_expires_at: string | null }>;
   if (queuedResult.count === null || activeResult.count === null) {
     throw new Error('WORKER_HEALTH_COUNT_UNAVAILABLE: exact queue/active counts are required for an operational truth decision');
+  }
+  validateTenantRows(activeRows, companyId, 'report_execution_jobs');
+  for (const [index, row] of activeRows.entries()) {
+    if (row.status !== 'leased' && row.status !== 'processing') {
+      throw new Error('WORKER_HEALTH_DATA_INVALID: active row[' + index + '] has an unsupported status');
+    }
+    if (row.lease_expires_at !== null && typeof row.lease_expires_at !== 'string') {
+      throw new Error('WORKER_HEALTH_DATA_INVALID: active row[' + index + '] lease_expires_at is invalid');
+    }
   }
   const activeTotal = activeResult.count;
   const expiredActive = activeRows.filter((row) => {
