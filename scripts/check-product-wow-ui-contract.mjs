@@ -29,6 +29,10 @@ assert.ok(!entityPages.includes('setTotal(result.count ?? 0);'), 'entity list pa
 assert.ok(queries.includes('RECEIVABLES_DATA_INVALID: total_rows is invalid'), 'receivables totals must fail closed');
 assert.ok(!queries.includes('total_rows:Number(p.total_rows??0)'), 'receivables must not coerce missing totals to zero');
 
+assert.ok(queries.includes('function nonEmptyText(value: unknown): value is string'), 'forecast validation must expose a shared non-empty text predicate');
+assert.ok(queries.includes('!nonEmptyText(value.entity_name)'), 'forecast validation must reject blank entity names');
+assert.ok(queries.includes('!nonEmptyText(value.metric)'), 'forecast validation must reject blank metrics');
+assert.ok(queries.includes('!nonEmptyText(value.confidence)'), 'forecast validation must reject blank confidence labels');
 assert.ok(queries.includes('function validateForecastRows(rows: unknown[]): Forecast[]'), 'forecast reads must validate row semantics');
 assert.ok(queries.includes('FORECAST_DATA_INVALID: row[' + index + '] bounds are inverted'), 'forecast bounds must fail closed when inverted');
 
