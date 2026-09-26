@@ -158,6 +158,14 @@ assert.ok(reports.includes("aging.every((bucket)=>bucket.amount!==null)"), 'rece
 assert.ok(reports.includes("const salesBlocked=kpis.status==='INSUFFICIENT_DATA'"), 'sales report must expose an explicit blocked export state');
 assert.ok(reports.includes('disabled={salesBlocked}'), 'sales export must be disabled when source truth is incomplete');
 assert.ok(reports.includes('لا توجد صورة مبيعات مكتملة'), 'sales report must expose the next quality action when blocked');
+assert.ok(reports.includes('const purchasesBlocked='), 'purchase report must block export when purchase truth is incomplete');
+assert.ok(reports.includes('disabled={purchasesBlocked}'), 'purchase export must be disabled when source truth is incomplete');
+assert.ok(reports.includes('const inventoryBlocked='), 'inventory report must block export when valuation truth is incomplete');
+assert.ok(reports.includes('disabled={inventoryBlocked}'), 'inventory export must be disabled when valuation truth is incomplete');
+assert.ok(reports.includes('const receivablesBlocked='), 'receivables report must block export when aging truth is incomplete');
+assert.ok(reports.includes('disabled={receivablesBlocked}'), 'receivables export must be disabled when aging truth is incomplete');
+assert.ok(reports.includes('const profitabilityBlocked='), 'profitability report must block export when cost/profit truth is incomplete');
+assert.ok(reports.includes('disabled={profitabilityBlocked}'), 'profitability export must be disabled when cost/profit truth is incomplete');
 
 assert.ok(!reports.includes("(b.amount??0)"), 'receivables report must not coerce missing aging amounts to zero');
 
