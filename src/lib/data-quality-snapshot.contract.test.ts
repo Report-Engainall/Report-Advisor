@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { validateDataQualitySnapshot } from './data-quality-snapshot-core';
+import { calculateWeightedQualityScore, validateDataQualitySnapshot } from './data-quality-snapshot-core';
 
 describe('data quality architecture contract', () => {
   const migration = readFileSync(resolve(process.cwd(), 'supabase/migrations/20260830240000_fix_empty_quality_truth.sql'), 'utf8');
@@ -30,10 +30,19 @@ describe('data quality architecture contract', () => {
 
   it('consumes the validated adapter and never turns zero records into a false 100%', () => {
     expect(page).toContain("@/lib/data-quality-snapshot");
-    expect(page).toContain("weightedScore == null ? 0");
+    expect(page).toContain("setOverallScore(weightedScore == null ? null : Math.round(weightedScore))");
     expect(page).toContain('weightedScore');
     expect(page).toContain('Math.max(0, Math.min(100');
     expect(page).toContain("totalRecords===0?'لا توجد بيانات تجارية بعد؛ النتيجة EMPTY وليست نجاح جودة بيانات.'");
+  });
+
+  it('calculates weighted quality score from authoritative record weights', () => {
+    expect(calculateWeightedQualityScore([
+      { name: 'A', total: 9, issues: 0, score: 100, icon: 'users' },
+      { name: 'B', total: 1, issues: 0, score: 0, icon: 'package' },
+    ])).toBe(90);
+    expect(calculateWeightedQualityScore([])).toBeNull();
+    expect(calculateWeightedQualityScore([{ name: 'A', total: 0, issues: 0, score: 100, icon: 'users' }])).toBeNull();
   });
 
   it('behaviorally accepts a valid EMPTY snapshot', () => {
