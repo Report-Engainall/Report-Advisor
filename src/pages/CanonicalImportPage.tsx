@@ -354,7 +354,7 @@ export function CanonicalImportPage() {
             <h3 className="mt-1 text-base font-black text-ink-950">جواز المصدر قبل الاعتماد</h3>
             <p className="mt-1 text-[11px] leading-5 text-ink-500">لقطة واحدة لما تم إثباته قبل إرسال الاعتماد إلى مسار الحقيقة الكانونية.</p>
           </div>
-          <span className={ready ? 'bg-success-50 text-success-700' : 'bg-warning-50 text-warning-800'} + " inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-[9px] font-black">
+          <span className={(ready ? 'bg-success-50 text-success-700' : 'bg-warning-50 text-warning-800') + ' inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-[9px] font-black'}>
             {ready ? 'جاهز للاعتماد' : 'المصدر يحتاج إكمال شروط الاعتماد'}
           </span>
         </div>
