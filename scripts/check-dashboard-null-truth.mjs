@@ -15,8 +15,11 @@ for (const field of ['totalCustomers', 'totalProducts', 'invoiceCount']) {
 if (!canonical.includes("const valueOrNull = (value: unknown): number | null => status === 'INSUFFICIENT_DATA' ? null : finiteOrNull(value);")) {
   throw new Error('Dashboard canonical adapter must explicitly null all metrics when authoritative data is insufficient');
 }
-if (!canonical.includes("asOf: typeof row.asOf === 'string' ? row.asOf : asOfDate()")) {
-  throw new Error('Dashboard canonical adapter must expose authoritative as-of metadata');
+if (!canonical.includes("requiredAsOf(row.asOf, 'dashboard snapshot')")) {
+  throw new Error('Dashboard canonical adapter must require authoritative as-of metadata and fail closed when absent');
+}
+if (canonical.includes("asOf: typeof row.asOf === 'string' ? row.asOf : asOfDate()")) {
+  throw new Error('Dashboard canonical adapter must not fall back to the local browser date for as-of metadata');
 }
 if (!canonical.includes("rawStatus === 'CONFIRMED' && !hasEvidence")) {
   throw new Error('Dashboard canonical adapter must not claim CONFIRMED without evidence');
