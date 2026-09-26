@@ -33,7 +33,6 @@ export function inferSourceDomain(mappings: Array<{ mappedField: string | null }
 
 const CANONICAL_ENTITY_REQUIRED_FIELDS: Partial<Record<SourceDomain, readonly string[]>> = {
   'product-master': ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active'],
-  'customer-master': ['name', 'code', 'segment', 'credit_limit', 'payment_terms_days'],
   'sales-invoice': ['invoice_number', 'invoice_date', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'],
 };
 
@@ -49,9 +48,13 @@ export function resolveCanonicalEntityType(
   const required = CANONICAL_ENTITY_REQUIRED_FIELDS[domain];
   if (required && required.every(field => fields.has(field))) {
     if (domain === 'product-master') return 'products';
-    if (domain === 'customer-master') return 'customers';
     if (domain === 'sales-invoice') return 'sales_invoices';
   }
+  if (
+    domain === 'customer-master' &&
+    (fields.has('name') || fields.has('customer_name')) &&
+    ['segment', 'credit_limit', 'payment_terms_days'].every(field => fields.has(field))
+  ) return 'customers';
   return `generic:${domain}`;
 }
 
