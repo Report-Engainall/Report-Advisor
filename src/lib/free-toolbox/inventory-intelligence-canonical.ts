@@ -50,9 +50,11 @@ export async function fetchInventoryIntelligenceSource(): Promise<InventoryIntel
 
   const stockByProduct = new Map<string, number>();
   for (const balance of balanceRows) {
+    const productId = balance.product_id;
+    if (typeof productId !== 'string' || !productId.trim()) throw new Error('REPORT_DATA_UNAVAILABLE: inventory balance product reference invalid');
     const quantity = Number(balance.quantity);
     if (!Number.isFinite(quantity)) continue;
-    stockByProduct.set(balance.product_id, (stockByProduct.get(balance.product_id) ?? 0) + quantity);
+    stockByProduct.set(productId, (stockByProduct.get(productId) ?? 0) + quantity);
   }
 
   const rows: DetailReportRow[] = [];
