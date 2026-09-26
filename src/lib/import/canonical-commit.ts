@@ -57,7 +57,7 @@ function canonicalizeRow(entityType: CanonicalImportEntityType, row: CanonicalIm
   }
   if (entityType === 'customers') {
     return {
-      name: requiredText(d.name, 'name', row.rowNumber),
+      name: requiredText(d.name ?? d.customer_name, 'name', row.rowNumber),
       code: text(d.code),
       phone: text(d.phone),
       email: text(d.email),
