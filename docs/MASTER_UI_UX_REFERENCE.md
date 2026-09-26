@@ -321,3 +321,9 @@ A surface is complete only when the quality gate is satisfied, not merely when t
 - Invalid, non-finite or out-of-range source quality is rejected before the preview state instead of being normalized into a plausible value.
 - The source passport exposes the state through data-quality-state so visual regression guards can verify the trust meaning without coupling to color alone.
 - This remains consistent with the Import UX contract: evidence and quality gates determine readiness; visual polish does not create eligibility.
+
+## EXECUTIVE REPORT + LIQUIDITY STATE CLOSURE — 2026-09-26
+
+- Executive Report trend surfaces explicitly distinguish no plottable observation from a rendered zero; the empty state explains the missing evidence and points to Data Quality.
+- Liquidity money metrics expose `available` versus `unavailable` through a stable data attribute so visual treatment cannot blur financial truth semantics.
+- Both surfaces retain the established emerald/ink visual language and do not use styling to manufacture eligibility or numeric truth.
