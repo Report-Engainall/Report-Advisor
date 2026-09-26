@@ -327,6 +327,8 @@ assert.ok(styles.includes('.ag-decision-evidence-grid') && styles.includes('.ag-
 
 const decisionExperienceSource = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
 assert.ok(decisionExperienceSource.includes('حالة القرار:'), 'Decision Experience must expose explicit readiness state');
+assert.ok(decisionExperienceSource.includes('role="status" aria-live="polite"'), 'Decision Experience readiness changes must be announced accessibly');
+assert.ok(decisionExperienceSource.includes('data-readiness={readiness.status}'), 'Decision Experience readiness status must remain machine-addressable');
 assert.ok(decisionExperienceSource.includes("type DecisionReadiness = { status: 'READY' | 'REVIEW' | 'BLOCKED';"), 'Decision Experience readiness must expose a typed terminal status contract');
 assert.ok(decisionExperienceSource.includes('status: \'READY\''), 'Decision Experience must explicitly model ready decisions');
 assert.ok(decisionExperienceSource.includes('status: \'REVIEW\''), 'Decision Experience must explicitly model review decisions');
