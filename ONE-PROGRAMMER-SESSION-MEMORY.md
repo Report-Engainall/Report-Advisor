@@ -519,3 +519,13 @@ Closed: Replay, Benchmark, Decision lifecycle gating, Trust, Reports, prior Impo
 
 ### CURRENT RESUME POINTER
 `current governance head → consume exact-head checks → repair only first reproduced current-SHA defect → continue next independent 50/50 UI/Core closure.`
+
+
+## Session continuation checkpoint — 2026-09-27 — functional predecessor 2d20e2a191982abb33f50c3f0bf742ef3a05a99e
+
+- Core: Dashboard Intelligence retry boundary now retries RPC/transport failures only; malformed successful payloads fail immediately after validation.
+- Contract: `src/lib/dashboard-intelligence-retry.contract.test.ts`.
+- Exact-head checks at the functional predecessor: 50 total, 47 queued, 3 skipped, 0 failures, 0 successes; no PASS transfer.
+
+### CURRENT RESUME POINTER
+`current governance head → consume exact-head checks → repair first current-SHA defect only → next independent UI/Core closure; no stale PASS transfer.`
