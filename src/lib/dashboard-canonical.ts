@@ -238,7 +238,7 @@ export async function fetchProfitabilitySnapshot(): Promise<ProfitabilitySnapsho
   const row=data as Record<string,unknown>;
   return {
     status: requiredEnum(row.status, 'profitability.status', ['CALCULATED', 'INSUFFICIENT_DATA'] as const),
-    currency: typeof row.currency === 'string' ? row.currency : row.currency === null ? null : (() => { throw new Error('REPORT_DATA_MALFORMED:profitability.currency'); })(),
+    currency: typeof row.currency === 'string' && row.currency.trim() ? row.currency : row.currency === null ? null : (() => { throw new Error('REPORT_DATA_MALFORMED:profitability.currency'); })(),
     currency_status: requiredEnum(row.currency_status, 'profitability.currency_status', ['CONSISTENT', 'INSUFFICIENT_DATA'] as const),
     revenue: finiteOrNull(row.revenue),
     cost: finiteOrNull(row.cost),
@@ -271,7 +271,7 @@ export async function fetchABCSnapshot(limit = 500): Promise<ABCSnapshot> {
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: ABC snapshot missing');
   const row = data as Record<string, unknown>;
   return {
-    rows: requiredArray<ABCSnapshotRow>(row.rows, 'abc.rows', (item) => isRecord(item) && isNonBlankString(item.product_id) && isNonBlankString(item.product_name) && finiteOrNull(item.revenue) !== null && finiteOrNull(item.cumulative) !== null && isFiniteNumberOrNull(item.cumulative_pct) && (item.class === null || item.class === undefined || item.class === 'A' || item.class === 'B' || item.class === 'C')),
+    rows: requiredArray<ABCSnapshotRow>(row.rows, 'abc.rows', (item) => isRecord(item) && isNonBlankString(item.product_id) && isNonBlankString(item.product_name) && finiteOrNull(item.revenue) !== null && finiteOrNull(item.cumulative) !== null && isFiniteNumberOrNull(item.cumulative_pct) && (item.class === null || item.class === 'A' || item.class === 'B' || item.class === 'C')),
     totalRevenue: finiteOrNull(row.totalRevenue),
     unknownRows: row.unknownRows === null ? null : requiredInteger(row.unknownRows, 'abc.unknownRows'),
     status: requiredEnum(row.status, 'abc.status', ['CALCULATED', 'INSUFFICIENT_DATA'] as const),
