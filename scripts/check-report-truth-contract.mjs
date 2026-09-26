@@ -108,6 +108,10 @@ const dashboardCanonical = fs.readFileSync(path.join(srcDir, 'lib', 'dashboard-c
 for (const token of [
   "function requiredArray<T>(value: unknown, field: string)",
   "function validateRFMRows(rows: unknown[]): RFMSnapshotRow[]",
+  "function validateInventoryRows(rows: unknown[]): InventoryReportRow[]",
+  "REPORT_DATA_INVALID: inventory.rows[' + index + '] shape is invalid",
+  "REPORT_DATA_INVALID: inventory.pageSize is invalid",
+
   "function validateABCRows(rows: unknown[]): ABCSnapshotRow[]",
   "function validateAgingRows(rows: unknown[]): AgingSnapshotRow[]",
   "REPORT_DATA_INVALID: rfm.rows[' + index + '] shape is invalid",
