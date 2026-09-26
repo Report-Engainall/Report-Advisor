@@ -26,10 +26,39 @@ function finiteOrNull(value: unknown): number|null { return typeof value === 'nu
 function isRecord(value: unknown): value is Record<string, unknown> { return Boolean(value) && typeof value === 'object' && !Array.isArray(value); }
 function isNonBlankString(value: unknown): value is string { return typeof value === 'string' && value.trim().length > 0; }
 function isFiniteNumberOrNull(value: unknown): boolean { return value === null || finiteOrNull(value) !== null; }
+function requiredInteger(value: unknown, field: string, minimum = 0): number {
+  if (!Number.isInteger(value) || Number(value) < minimum) throw new Error(`REPORT_DATA_MALFORMED:${field}`);
+  return Number(value);
+}
+function requiredAsOf(value: unknown, field: string): string {
+  if (!isNonBlankString(value)) throw new Error(`REPORT_DATA_MALFORMED:${field}`);
+  return value;
+}
+function requiredEnum<T extends string>(value: unknown, field: string, allowed: readonly T[]): T {
+  if (typeof value !== 'string' || !allowed.includes(value as T)) throw new Error(`REPORT_DATA_MALFORMED:${field}`);
+  return value as T;
+}
 function requiredArray<T>(value: unknown, field: string, predicate?: (item: unknown) => boolean): T[] {
   if (!Array.isArray(value)) throw new Error(`REPORT_DATA_MALFORMED:${field}`);
   if (predicate && value.some((item) => !predicate(item))) throw new Error(`REPORT_DATA_MALFORMED:${field}`);
   return value as T[];
+}
+function isInventoryReportRow(value: unknown): boolean {
+  if (!isRecord(value) || !isNonBlankString(value.id)) return false;
+  if (![value.quantity, value.unit_cost, value.value].every(isFiniteNumberOrNull)) return false;
+  const validProduct = value.product === undefined || value.product === null || (
+    isRecord(value.product) &&
+    isNonBlankString(value.product.id) &&
+    (value.product.name === null || value.product.name === undefined || typeof value.product.name === 'string') &&
+    (value.product.sku === null || value.product.sku === undefined || typeof value.product.sku === 'string') &&
+    isFiniteNumberOrNull(value.product.reorder_point)
+  );
+  const validWarehouse = value.warehouse === undefined || value.warehouse === null || (
+    isRecord(value.warehouse) &&
+    isNonBlankString(value.warehouse.id) &&
+    (value.warehouse.name === null || value.warehouse.name === undefined || typeof value.warehouse.name === 'string')
+  );
+  return validProduct && validWarehouse;
 }
 function isMonthlyTrend(value: unknown): boolean {
   if (!isRecord(value) || !isNonBlankString(value.month) || !isNonBlankString(value.label)) return false;
@@ -117,13 +146,13 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
     topCustomers: requiredArray<TopEntity>(row.topCustomers, 'topCustomers', isTopEntity).slice(0,10),
     topProducts: requiredArray<TopEntity>(row.topProducts, 'topProducts', isTopEntity).slice(0,10),
     categories: requiredArray<CategoryBreakdown>(row.categories, 'categories', isCategoryBreakdown),
-    asOf: typeof row.asOf === 'string' && row.asOf.trim() ? row.asOf : (() => { throw new Error('REPORT_DATA_MALFORMED:asOf'); })(),
-    months: typeof row.months === 'number' && Number.isInteger(row.months) ? row.months : months,
+    asOf: requiredAsOf(row.asOf, 'asOf'),
+    months: requiredInteger(row.months, 'months', 1),
     aging:{
       rows:requiredArray<AgingBucket>(agingRow.rows, 'aging.rows', isAgingBucket),
       totalAmount:finiteOrNull(agingRow.totalAmount),
-      unknownRows:typeof agingRow.unknownRows==='number'?agingRow.unknownRows:0,
-      status:agingRow.status==='CALCULATED'?'CALCULATED':agingRow.status==='NO_DATA'?'NO_DATA':'INSUFFICIENT_DATA'
+      unknownRows:agingRow.unknownRows === null ? null : requiredInteger(agingRow.unknownRows, 'aging.unknownRows'),
+      status:requiredEnum(agingRow.status, 'aging.status', ['CALCULATED', 'NO_DATA', 'INSUFFICIENT_DATA'] as const)
     }
   };
 }
@@ -136,13 +165,25 @@ export async function fetchInventoryReportSnapshot(page = 0, pageSize = 25, filt
   if (error) throw error;
   if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: inventory snapshot missing');
   const row = data as Record<string, unknown>;
+  const responsePage = requiredInteger(row.page, 'inventory.page');
+  const responsePageSize = requiredInteger(row.pageSize, 'inventory.pageSize', 1);
+  if (responsePageSize > 100) throw new Error('REPORT_DATA_MALFORMED:inventory.pageSize');
+  const responseFilter = requiredEnum(row.filter, 'inventory.filter', ['all', 'low', 'out'] as const);
+  if (responseFilter !== filter) throw new Error('REPORT_DATA_MALFORMED:inventory.filter_mismatch');
+  const responseStatus = requiredEnum(row.dataStatus, 'inventory.dataStatus', ['CALCULATED', 'INSUFFICIENT_DATA', 'NO_DATA'] as const);
+  const integerOrNull = (value: unknown, field: string) => value === null ? null : requiredInteger(value, field);
   return {
-    rows: requiredArray<InventoryReportRow>(row.rows), page: typeof row.page === 'number' && Number.isInteger(row.page) ? row.page : page,
-    pageSize: typeof row.pageSize === 'number' && Number.isInteger(row.pageSize) ? row.pageSize : pageSize,
-    filter: row.filter === 'low' || row.filter === 'out' ? row.filter : 'all', totalRows: finiteOrNull(row.totalRows),
-    filteredRows: finiteOrNull(row.filteredRows), lowStock: finiteOrNull(row.lowStock), outOfStock: finiteOrNull(row.outOfStock),
-    unknownRows: finiteOrNull(row.unknownRows), totalValue: finiteOrNull(row.totalValue),
-    dataStatus: row.dataStatus === 'CALCULATED' ? 'CALCULATED' : row.dataStatus === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' : 'NO_DATA'
+    rows: requiredArray<InventoryReportRow>(row.rows, 'inventory.rows', isInventoryReportRow),
+    page: responsePage,
+    pageSize: responsePageSize,
+    filter: responseFilter,
+    totalRows: integerOrNull(row.totalRows, 'inventory.totalRows'),
+    filteredRows: integerOrNull(row.filteredRows, 'inventory.filteredRows'),
+    lowStock: integerOrNull(row.lowStock, 'inventory.lowStock'),
+    outOfStock: integerOrNull(row.outOfStock, 'inventory.outOfStock'),
+    unknownRows: integerOrNull(row.unknownRows, 'inventory.unknownRows'),
+    totalValue: finiteOrNull(row.totalValue),
+    dataStatus: responseStatus
   };
 }
 
@@ -151,25 +192,57 @@ export async function fetchProfitabilitySnapshot(): Promise<ProfitabilitySnapsho
   if (error) throw error;
   if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: profitability snapshot missing');
   const row=data as Record<string,unknown>;
-  return { status: row.status==='CALCULATED'?'CALCULATED':'INSUFFICIENT_DATA', currency: typeof row.currency==='string'?row.currency:null, currency_status: row.currency_status==='CONSISTENT'?'CONSISTENT':'INSUFFICIENT_DATA', revenue:finiteOrNull(row.revenue), cost:finiteOrNull(row.cost), gross_profit:finiteOrNull(row.gross_profit), gross_margin:finiteOrNull(row.gross_margin), invoice_count:finiteOrNull(row.invoice_count), bad_invoice_rows:finiteOrNull(row.bad_invoice_rows), bad_sale_item_rows:finiteOrNull(row.bad_sale_item_rows), currency_mismatch_rows:finiteOrNull(row.currency_mismatch_rows), reasons:requiredArray<string>(row.reasons, 'profitability.reasons', isNonBlankString), as_of:typeof row.as_of==='string'?row.as_of:asOfDate() };
+  return {
+    status: requiredEnum(row.status, 'profitability.status', ['CALCULATED', 'INSUFFICIENT_DATA'] as const),
+    currency: typeof row.currency === 'string' ? row.currency : row.currency === null ? null : (() => { throw new Error('REPORT_DATA_MALFORMED:profitability.currency'); })(),
+    currency_status: requiredEnum(row.currency_status, 'profitability.currency_status', ['CONSISTENT', 'INSUFFICIENT_DATA'] as const),
+    revenue: finiteOrNull(row.revenue),
+    cost: finiteOrNull(row.cost),
+    gross_profit: finiteOrNull(row.gross_profit),
+    gross_margin: finiteOrNull(row.gross_margin),
+    invoice_count: row.invoice_count === null ? null : requiredInteger(row.invoice_count, 'profitability.invoice_count'),
+    bad_invoice_rows: row.bad_invoice_rows === null ? null : requiredInteger(row.bad_invoice_rows, 'profitability.bad_invoice_rows'),
+    bad_sale_item_rows: row.bad_sale_item_rows === null ? null : requiredInteger(row.bad_sale_item_rows, 'profitability.bad_sale_item_rows'),
+    currency_mismatch_rows: row.currency_mismatch_rows === null ? null : requiredInteger(row.currency_mismatch_rows, 'profitability.currency_mismatch_rows'),
+    reasons: requiredArray<string>(row.reasons, 'profitability.reasons', isNonBlankString),
+    as_of: requiredAsOf(row.as_of, 'profitability.as_of'),
+  };
 }
 
 export async function fetchRFMSnapshot(limit = 500): Promise<RFMSnapshot> {
   if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('REPORT_QUERY_INVALID_LIMIT');
   const { data, error } = await supabase.rpc('get_rfm_snapshot', { p_as_of: asOfDate(), p_limit: limit });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: RFM snapshot missing');
-  const row = data as Record<string, unknown>; return { rows: requiredArray<RFMSnapshotRow>(row.rows, 'rfm.rows', (item) => isRecord(item) && isNonBlankString(item.customer_id) && isNonBlankString(item.customer_name) && [item.recency, item.frequency, item.monetary, item.r_score, item.f_score, item.m_score].every((value) => finiteOrNull(value) !== null) && isNonBlankString(item.rfm_segment)), asOf: typeof row.asOf==='string'?row.asOf:asOfDate(), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA' };
+  const row = data as Record<string, unknown>;
+  return {
+    rows: requiredArray<RFMSnapshotRow>(row.rows, 'rfm.rows', (item) => isRecord(item) && isNonBlankString(item.customer_id) && isNonBlankString(item.customer_name) && [item.recency, item.frequency, item.monetary, item.r_score, item.f_score, item.m_score].every((value) => finiteOrNull(value) !== null) && isNonBlankString(item.rfm_segment)),
+    asOf: requiredAsOf(row.asOf, 'rfm.asOf'),
+    unknownRows: row.unknownRows === null ? null : requiredInteger(row.unknownRows, 'rfm.unknownRows'),
+    status: requiredEnum(row.status, 'rfm.status', ['CALCULATED', 'INSUFFICIENT_DATA'] as const),
+  };
 }
 export async function fetchABCSnapshot(limit = 500): Promise<ABCSnapshot> {
   if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('REPORT_QUERY_INVALID_LIMIT');
   const { data, error } = await supabase.rpc('get_abc_snapshot', { p_limit: limit });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: ABC snapshot missing');
-  const row = data as Record<string, unknown>; return { rows: requiredArray<ABCSnapshotRow>(row.rows, 'abc.rows', (item) => isRecord(item) && isNonBlankString(item.product_id) && isNonBlankString(item.product_name) && finiteOrNull(item.revenue) !== null && finiteOrNull(item.cumulative) !== null && isFiniteNumberOrNull(item.cumulative_pct) && (item.class === null || item.class === undefined || item.class === 'A' || item.class === 'B' || item.class === 'C')), totalRevenue: finiteOrNull(row.totalRevenue), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA' };
+  const row = data as Record<string, unknown>;
+  return {
+    rows: requiredArray<ABCSnapshotRow>(row.rows, 'abc.rows', (item) => isRecord(item) && isNonBlankString(item.product_id) && isNonBlankString(item.product_name) && finiteOrNull(item.revenue) !== null && finiteOrNull(item.cumulative) !== null && isFiniteNumberOrNull(item.cumulative_pct) && (item.class === null || item.class === undefined || item.class === 'A' || item.class === 'B' || item.class === 'C')),
+    totalRevenue: finiteOrNull(row.totalRevenue),
+    unknownRows: row.unknownRows === null ? null : requiredInteger(row.unknownRows, 'abc.unknownRows'),
+    status: requiredEnum(row.status, 'abc.status', ['CALCULATED', 'INSUFFICIENT_DATA'] as const),
+  };
 }
 export async function fetchAgingSnapshot(): Promise<AgingSnapshot> {
   const { data, error } = await supabase.rpc('get_aging_snapshot', { p_as_of: asOfDate() });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: aging snapshot missing');
-  const row = data as Record<string, unknown>; return { rows: requiredArray<AgingSnapshotRow>(row.rows, 'aging.rows', (item) => isRecord(item) && isNonBlankString(item.name) && finiteOrNull(item.amount) !== null && typeof item.count === 'number' && Number.isInteger(item.count) && item.count >= 0), asOf: typeof row.asOf==='string'?row.asOf:asOfDate(), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'NO_DATA' ? 'NO_DATA' : 'INSUFFICIENT_DATA' };
+  const row = data as Record<string, unknown>;
+  return {
+    rows: requiredArray<AgingSnapshotRow>(row.rows, 'aging.rows', (item) => isRecord(item) && isNonBlankString(item.name) && finiteOrNull(item.amount) !== null && typeof item.count === 'number' && Number.isInteger(item.count) && item.count >= 0),
+    asOf: requiredAsOf(row.asOf, 'aging.asOf'),
+    unknownRows: row.unknownRows === null ? null : requiredInteger(row.unknownRows, 'aging.unknownRows'),
+    status: requiredEnum(row.status, 'aging.status', ['CALCULATED', 'NO_DATA', 'INSUFFICIENT_DATA'] as const),
+  };
 }
 
 export async function fetchDashboardIntelligence(): Promise<{recommendations: Recommendation[]; alerts: Alert[]}> {
