@@ -96,8 +96,8 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
   validateDashboardRows(row);
   const rawStatus = row.status;
   const evidence = row.evidence;
-  const hasEvidence = evidence !== null && evidence !== undefined;
-  const status: DashboardKPIs['status'] = rawStatus === 'CONFIRMED' && !hasEvidence
+  const validEvidence = evidence !== null && typeof evidence === 'object' && !Array.isArray(evidence) && Object.keys(evidence as Record<string, unknown>).length > 0;
+  const status: DashboardKPIs['status'] = rawStatus === 'CONFIRMED' && !validEvidence
     ? 'INSUFFICIENT_DATA'
     : rawStatus === 'CONFIRMED'
       ? 'CONFIRMED'
