@@ -1,3 +1,23 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-166
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `fbf9f3f70a5576e94e08bd0de42d40b00c02c64c` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI DELIVERY → Data Quality now has a severity radar (CRITICAL / WARNING / INFO), local severity filtering with accessible selected state and reset, explicit decision-use messaging, and clarified wording so the issue-derived score is presented as a diagnostic indicator rather than absolute truth.
+- UI SAFETY FIX → corrected a hook-order defect introduced during the Data Quality enhancement; all derived severity values are now unconditional plain computations, avoiding conditional-hook execution during loading/error branches.
+- CORE DELIVERY → prior decision-engine evidence closure remains on the current branch: unavailable alternative-group coverage no longer becomes numeric zero evidence, with a dedicated regression guard.
+- CONTRACT DELIVERY → Product WOW contract guards the Data Quality severity radar/filtering and diagnostic-score semantics plus the earlier Inventory Intelligence risk radar.
+- EXACT SOURCE PROOF → current branch code candidate `fbf9f3f70a5576e94e08bd0de42d40b00c02c64c`; Product WOW contract blob on this candidate is `a306a440e6db91354422c782dd5a1609e77a80fd`.
+- GATES → fresh exact-head gate results for this newest candidate are not yet available; GitHub will regenerate checks for the new head. No PASS inferred.
+- HOSTING → Vercel remains externally rate-limited (`Deployment rate limited — retry in 24 hours`); production certification is not claimed. Netlify preview remains only a preview surface.
+- DEVICE → unavailable/offline; no device-dependent proof.
+- PHASE-F → live recovery/RPO/RTO/rollback proof remains unproven and fail-closed.
+- NO MERGE → PR #660 remains open; no production mutation or release promotion performed.
+- CURRENT RESUME POINTER → `PR #660 latest HEAD → consume newest exact-head gate results → repair only the first reproduced current-head failure → continue remaining safe UI/core surfaces → merge only after required certification evidence is green`.
+- NEXT EXECUTABLE ACTION → take the first completed exact-head gate on `fbf9f3f`; if clean, move directly to the next uncovered canonical surface/core boundary.
+- UI LANE PROGRESS → Inventory Intelligence risk decision surface + Data Quality severity/decision-use surface.
+- CORE LANE PROGRESS → fail-closed decision evidence semantics with regression protection.
+- DO NOT REPEAT → conditional-hook defect, missing-to-zero coercion, stale SHA evidence, duplicate architecture, device-only proof, PR #659 overlap, and already-closed report truth semantics.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-165
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
