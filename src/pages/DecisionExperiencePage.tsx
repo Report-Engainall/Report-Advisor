@@ -45,7 +45,7 @@ function decisionReadiness(recommendation: Recommendation | null): DecisionReadi
   if (!recommendation.confidence?.trim()) return { status: 'REVIEW', label: 'الثقة غير متاحة', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية موجودة، لكن مستوى الثقة غير مثبت في السجل.' };
   if (!recommendation.owner) return { status: 'REVIEW', label: 'ينقص المسؤول', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية موجودة، لكن لا يظهر مسؤول فعلي مرتبط بها.' };
   if (!recommendation.deadline) return { status: 'REVIEW', label: 'ينقص الموعد', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية لها مسؤول، لكن الموعد غير مثبت بعد.' };
-  if (recommendation.expected_impact == null) return { status: 'REVIEW', label: 'الأثر غير متاح', tone: 'text-warning-700 bg-warning-50', detail: 'لا يوجد أثر متوقع قابل للعرض على هذه التوصية.' };
+  if (typeof recommendation.expected_impact !== 'number' || !Number.isFinite(recommendation.expected_impact)) return { status: 'REVIEW', label: 'الأثر غير متاح', tone: 'text-warning-700 bg-warning-50', detail: 'لا يوجد أثر متوقع رقمي صالح للاستخدام على هذه التوصية.' };
   return { status: 'READY', label: 'سياق القرار مكتمل', tone: 'text-success-700 bg-success-50', detail: 'المسؤول والموعد والأثر المتوقع متاحة في سجل التوصية.' };
 }
 
@@ -54,6 +54,10 @@ function formatDeadline(value: string | null): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleDateString('ar-YE', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function formatImpact(value: number | null | undefined): string {
+  return typeof value === 'number' && Number.isFinite(value) ? formatCurrency(value) : 'غير متاح';
 }
 
 function BlockedState({ title, detail }: { title: string; detail: string }) {
@@ -108,7 +112,7 @@ function RecommendationCard({
           {recommendation.description && <span className="mt-1 block text-[11px] leading-5 text-ink-500">{recommendation.description}</span>}
           <span className="mt-2 flex flex-wrap items-center gap-2">
             <ConfidenceBadge confidence={recommendation.confidence}/>
-            {recommendation.expected_impact !== undefined && recommendation.expected_impact !== null && <span className="text-[10px] font-bold text-success-700">أثر متوقع: {formatCurrency(recommendation.expected_impact)}</span>}
+            {recommendation.expected_impact !== undefined && <span className="text-[10px] font-bold text-success-700">أثر متوقع: {formatImpact(recommendation.expected_impact)}</span>}
             {recommendation.owner && <span className="text-[10px] font-semibold text-ink-400">المسؤول: {recommendation.owner}</span>}
             {recommendation.deadline && <span className="text-[10px] font-semibold text-ink-400">الموعد: {formatDeadline(recommendation.deadline)}</span>}
           </span>
@@ -227,7 +231,7 @@ export function DecisionExperiencePage() {
           <div className="ag-decision-evidence-kicker">ACCOUNTABILITY</div>
           <div className="ag-decision-evidence-value">{selected?.owner ?? 'مسؤول غير مثبت'}</div>
           <p>{selected?.deadline ? 'يوجد موعد مرتبط بسجل التوصية.' : 'الموعد غير مثبت؛ لا تعتبر الخطة جاهزة للتنفيذ.'}</p>
-          <span className="ag-decision-evidence-metric">{selected?.expected_impact == null ? 'الأثر: غير متاح' : 'الأثر: ' + formatCurrency(selected.expected_impact)}</span>
+          <span className="ag-decision-evidence-metric">{'الأثر: ' + formatImpact(selected?.expected_impact)}</span>
         </article>
       </section>
 
@@ -254,7 +258,7 @@ export function DecisionExperiencePage() {
             <div className="flex flex-wrap gap-2 text-[10px] font-bold text-ink-600">
               <span className="inline-flex items-center gap-1 rounded-xl bg-ink-50 px-2.5 py-2"><UserRound size={13}/> {selected?.owner ?? 'مسؤول غير مثبت'}</span>
               <span className="inline-flex items-center gap-1 rounded-xl bg-ink-50 px-2.5 py-2"><CalendarClock size={13}/> {formatDeadline(selected?.deadline ?? null)}</span>
-              <span className="inline-flex items-center gap-1 rounded-xl bg-ink-50 px-2.5 py-2">الأثر: {selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)}</span>
+              <span className="inline-flex items-center gap-1 rounded-xl bg-ink-50 px-2.5 py-2">الأثر: {formatImpact(selected?.expected_impact)}</span>
             </div>
           </div>
         </section>
@@ -392,7 +396,7 @@ export function DecisionExperiencePage() {
                   ['المسؤول الحالي', selected?.owner ?? 'غير مثبت'],
                   ['الموعد', formatDeadline(selected?.deadline ?? null)],
                   ['حالة التوصية', statusLabel(selectedStatus)],
-                  ['الأثر المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
+                  ['الأثر المتوقع', formatImpact(selected?.expected_impact)],
                   ['الأثر الفعلي', selected?.impact_result ?? 'غير متاح بعد'],
                   ['الإشارة التالية', selected?.impact_result ? 'الانتقال إلى النتيجة والتعلّم' : 'انتظار سجل تنفيذ موثق'],
                 ].map(([label, value]) => (
@@ -412,7 +416,7 @@ export function DecisionExperiencePage() {
             <CardBody>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {[
-                  ['المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
+                  ['المتوقع', formatImpact(selected?.expected_impact)],
                   ['الفعلي', 'غير متاح بعد'],
                   ['الفارق', 'لا يمكن حسابه بعد'],
                   ['جودة النتيجة', 'غير متاحة'],
