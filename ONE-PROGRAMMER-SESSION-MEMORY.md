@@ -494,3 +494,17 @@ Closed: Replay, Benchmark, Decision lifecycle gating, Trust, Reports, prior Impo
 
 ### CURRENT RESUME POINTER
 `current governance head → consume exact-head checks → first reproduced defect only → continue next independent UI/Core boundary; do not reopen closed surfaces.`
+
+
+## Session checkpoint — 2026-09-27 — functional predecessor 04f19027b2dc7293d41436a9070de68cfad473fa
+
+- UI: Analytics Center now reads live readiness for executive exposure, RFM, ABC, and Aging with isolated error states, refresh, and explicit next actions.
+- Core: dashboard response period must equal requested period; RFM/ABC/Aging cannot report CALCULATED with zero rows.
+- Contracts added: `src/lib/dashboard-canonical.period.contract.test.ts`, `src/pages/AnalyticsCenterPage.contract.test.ts`, `src/lib/analytics-snapshot-consistency.contract.test.ts`.
+- Functional candidate before documentation tail: `04f19027b2dc7293d41436a9070de68cfad473fa`.
+- Exact-head check state at that candidate: 4 observed check-runs, 2 queued, 1 in progress, 1 skipped, 0 failures, 0 successes; no PASS transferred.
+- GitHub PR #661 remained open and GitHub API reports mergeable=true with mergeable_state=unstable.
+- Device/browser certification remains unavailable; Vercel and Phase-F remain external/not proven.
+
+### CURRENT RESUME POINTER
+`current governance head → consume exact-head checks → repair only first reproduced current-SHA defect → continue next independent UI/Core closure; preserve fail-closed Phase-F and device proof.`
