@@ -28,5 +28,8 @@ describe('business replay contract', () => {
     expect(page).toContain('INSUFFICIENT_DATA');
     expect(page).toContain('لا توجد أحداث أو نتائج سابقة');
     expect(page).toContain('snapshotCount > 0 && snapshot.outcomeCount > 0');
+    expect(page).toContain('hasMoreHistory');
+    expect(page).toContain('نافذة القراءة الحالية');
+    expect(page).toContain('دليل مرتبط');
   });
 });
