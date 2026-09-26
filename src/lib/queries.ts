@@ -75,6 +75,9 @@ async function readImportJob(id: string, companyId: string): Promise<ImportJobSt
   if (error) throw error;
   if (!data) throw new Error('IMPORT_JOB_NOT_FOUND_OR_FORBIDDEN');
   validateTenantRows<typeof data>([data], companyId, 'import_jobs');
+  if (data.result_summary !== null && (typeof data.result_summary !== 'object' || Array.isArray(data.result_summary))) {
+    throw new Error('IMPORT_DATA_INVALID: state.result_summary must be an object or null');
+  }
   return {
     total_rows: importCountOrNull(data.total_rows, 'state.total_rows'),
     processed_rows: importCountOrNull(data.processed_rows, 'state.processed_rows'),
