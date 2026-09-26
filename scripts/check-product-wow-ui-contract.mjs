@@ -38,8 +38,12 @@ assert.ok(queries.includes("current.total_rows > 0 ? Math.round((current.process
 assert.ok(!queries.includes('current.progress ?? 0'), 'import state must not coerce missing persisted progress to zero');
 assert.ok(queries.includes('WORKER_HEALTH_COUNT_UNAVAILABLE'), 'worker health must fail closed when exact counts are unavailable');
 const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
+assert.ok(workCenter.includes('const invalidProgressActive = useMemo'), 'work center must expose an explicit invalid-progress active signal');
+assert.ok(workCenter.includes('function invalidProgress(value: number | null | undefined): boolean'), 'work center must classify out-of-range persisted progress separately from missing progress');
+assert.ok(workCenter.includes('راجع تقدمًا غير صالح'), 'work center must route invalid active progress to a visible next action');
 assert.ok(workCenter.includes('const zeroProgressActive = useMemo'), 'work center must expose an explicit zero-progress active signal');
 assert.ok(workCenter.includes('تحقق من العمليات دون تقدم'), 'work center must route zero-progress work to a visible next action');
+assert.ok(workCenter.includes('تقدم غير صالح'), 'work center must expose invalid-progress active count in the decision summary');
 assert.ok(workCenter.includes('نشطة بلا تقدم'), 'work center must expose zero-progress active count in the decision summary');
 assert.ok(workCenter.includes('بدون تقدم'), 'work center active rows must distinguish zero-progress processing from ordinary active work');
 assert.ok(workCenter.includes('function reviewRequired(row: ImportRecord): boolean'), 'work center review state must be explicit and fail closed');
