@@ -1,3 +1,15 @@
+# CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 191
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE PR #661 branch: `exec/20260926-continuous-ui-core-deep`.
+- CURRENT FUNCTIONAL HEAD: `6f9aa4145d058e7ea37d47b0698ddabfae2e928e`.
+- BENCHMARK NETWORK: `/benchmark` is now routed, discoverable in the intelligence navigation and command center, and explicitly fail-closed with `INSUFFICIENT_SAMPLE` because staging has no benchmark/peer cohort table.
+- DECISION FLOW: governed decision → approval → work → outcome path is operationally wired in UI/query layer; Intelligence acceptance now hands off to that governed path rather than direct approval.
+- EVIDENCE/SECURITY: decision/work/outcome mutations require tenant-scoped evidence snapshots; staging RLS was verified on decision, approval, work, outcome and evidence tables.
+- CONTRACTS: benchmark route/state, Intelligence handoff, and Decision Experience lifecycle are protected by source-level contract tests.
+- CURRENT PROOF: fresh exact-head gates are queued/pending; no current-head PASS transferred. Vercel free-plan build-rate remains external; Netlify production is old main SHA and is not current proof.
+- NEXT: consume first terminal current-head gate, repair only first reproduced defect, then continue remaining uncovered product contracts.
+- DO NOT REPEAT: fake benchmark percentiles, direct approved DML from intelligence queue, fake playbooks, stale PASS/preview, duplicate importer/RPC paths, production-SHA bypass.
 # CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 190
 
 - MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
