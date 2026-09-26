@@ -30,6 +30,8 @@ export interface ABCSnapshot {rows:ABCSnapshotRow[];totalRevenue:number|null;unk
 export interface AgingSnapshotRow {name:string;amount:number;count:number;}
 export interface AgingSnapshot {rows:AgingSnapshotRow[];asOf:string;unknownRows:number|null;status:'NO_DATA'|'INSUFFICIENT_DATA'|'CALCULATED';}
 interface Snapshot { kpis:DashboardKPIs; trend:MonthlyTrend[]; topCustomers:TopEntity[]; topProducts:TopEntity[]; categories:CategoryBreakdown[]; aging:AgingDashboard; quality:DashboardQuality; asOf:string; months:number; }
+
+export const DASHBOARD_INTELLIGENCE_LIMIT = 100;
 function finiteOrNull(value: unknown): number|null { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 function qualityCountOrNull(value: unknown, field: string): number|null {
   if (value === null || value === undefined) return null;
@@ -364,7 +366,7 @@ export async function fetchDashboardIntelligence(): Promise<{recommendations: Re
   let lastError: unknown = null;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
-      const { data, error } = await supabase.rpc('get_dashboard_intelligence', { p_limit: 100 });
+      const { data, error } = await supabase.rpc('get_dashboard_intelligence', { p_limit: DASHBOARD_INTELLIGENCE_LIMIT });
       if (error) throw error;
       if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: dashboard intelligence missing');
       const row = data as Record<string, unknown>;
