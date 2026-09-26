@@ -6,8 +6,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { PageHeader, LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
-import { fetchDataQualitySnapshot, type QualityIssue, type EntityQuality } from '@/lib/data-quality-snapshot';
-import { calculateWeightedQualityScore } from '@/lib/data-quality-snapshot-core';
+import { fetchDataQualitySnapshot, calculateWeightedQualityScore, type QualityIssue, type EntityQuality } from '@/lib/data-quality-snapshot';
 import { formatNumber } from '@/lib/format';
 
 function scoreColor(score: number): string { if (score >= 90) return 'text-success-600'; if (score >= 70) return 'text-warning-600'; return 'text-danger-600'; }
