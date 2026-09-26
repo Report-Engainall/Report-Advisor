@@ -1,3 +1,19 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / TRUTH STRIP + DECISION EVIDENCE + CHART SURFACE WAVE
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- PRIOR CANDIDATE → `c557675a940baa489c7fd50d4a8eaca27fa176f2`.
+- CURRENT CODE CANDIDATE → `9718c01d996dd2d5ea12268e7ed4278767aa0204`.
+- UI DONE → deep-finish visual layer, trust-aware KPIs, explicit shared surface states, unique chart rendering IDs, chart readiness states, TruthContextStrip fail-closed quality semantics, executive tooltip/visual hierarchy, mobile/reduced-motion behavior.
+- CORE DONE → decision boundary validates severity, confidence range, evidence presence, finite values, metric/source identity, and optional unit/period metadata.
+- CONTRACT DONE → decision-evidence regression and report-truth contract cover the new boundaries; no duplicate test family created.
+- EXACT CURRENT WORKFLOW OBSERVATION → 51 workflow runs on current head; most queued/pending, with no terminal application PASS consumed at this write. Production Vercel remains free-plan rate-limited.
+- PHASE-F → live backup/restore/RPO/RTO/rollback remains NOT PROVEN and fail-closed.
+- DEVICE → local device/browser unavailable; no device-dependent work claimed.
+- NEXT EXECUTABLE ACTION → `consume first terminal current-head workflow failure only → repair reproduced defect → then continue the next uncovered UI/core boundary`.
+- DO NOT REPEAT → no stale PASS, no preview-as-production, no device-only task, no duplicate route/RPC/import/test family.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / DEEP UI + DECISION EVIDENCE WAVE
 
 > Exact-head evidence only. Historical PASS is not transferred.
