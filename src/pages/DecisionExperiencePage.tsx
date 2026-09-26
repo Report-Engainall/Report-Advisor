@@ -96,11 +96,17 @@ function RecommendationCard({
           <Lightbulb size={17}/>
         </span>
         <span className="min-w-0 flex-1">
-          <span className="flex flex-wrap items-center gap-2"><span className="text-[13px] font-black text-ink-900">{recommendation.title}</span><PriorityBadge priority={recommendation.priority}/></span>
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="text-[13px] font-black text-ink-900">{recommendation.title}</span>
+            <PriorityBadge priority={recommendation.priority}/>
+            <span className="rounded-full bg-ink-50 px-2 py-1 text-[9px] font-black text-ink-500">{statusLabel(recommendation.status)}</span>
+          </span>
           {recommendation.description && <span className="mt-1 block text-[11px] leading-5 text-ink-500">{recommendation.description}</span>}
           <span className="mt-2 flex flex-wrap items-center gap-2">
             <ConfidenceBadge confidence={recommendation.confidence}/>
             {recommendation.expected_impact !== undefined && recommendation.expected_impact !== null && <span className="text-[10px] font-bold text-success-700">أثر متوقع: {formatCurrency(recommendation.expected_impact)}</span>}
+            {recommendation.owner && <span className="text-[10px] font-semibold text-ink-400">المسؤول: {recommendation.owner}</span>}
+            {recommendation.deadline && <span className="text-[10px] font-semibold text-ink-400">الموعد: {formatDeadline(recommendation.deadline)}</span>}
           </span>
         </span>
         <ChevronLeft size={16} className="mt-1 shrink-0 text-ink-300"/>
