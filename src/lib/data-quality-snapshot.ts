@@ -1,6 +1,7 @@
 export {
   fetchDataQualitySnapshot,
   validateDataQualitySnapshot,
+  calculateWeightedQualityScore,
   type DataQualitySnapshot,
   type EntityQuality,
   type QualityIssue,
