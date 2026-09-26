@@ -10,34 +10,13 @@ import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
+import { inferSourceDomain, SOURCE_DOMAIN_LABELS, type SourceDomain } from '@/lib/file-engine/source-domain';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
 import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
 import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
 
 type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
-
-type SourceDomain = 'inventory-report' | 'sales-invoice' | 'customer-master' | 'product-master' | 'payment-report' | 'source-data';
-
-const SOURCE_DOMAIN_LABELS: Record<SourceDomain, string> = {
-  'inventory-report': 'تقرير مخزون',
-  'sales-invoice': 'فواتير مبيعات',
-  'customer-master': 'بيانات عملاء',
-  'product-master': 'بيانات أصناف',
-  'payment-report': 'تقرير تحصيل/مدفوعات',
-  'source-data': 'مصدر عام',
-};
-
-function inferSourceDomain(mappings: Array<{ mappedField: string | null }>): SourceDomain {
-  const fields = new Set(mappings.map(mapping => mapping.mappedField).filter((field): field is string => Boolean(field)));
-  const hasAny = (...names: string[]) => names.some(name => fields.has(name));
-  if (hasAny('stock_balance', 'received_quantity', 'posted_net_sales', 'unposted_net_sales', 'net_sales', 'warehouse')) return 'inventory-report';
-  if (hasAny('invoice_number', 'invoice_date') && hasAny('total', 'subtotal')) return 'sales-invoice';
-  if (hasAny('customer_name', 'customer_id', 'credit_limit', 'payment_terms_days') && hasAny('phone', 'email', 'segment')) return 'customer-master';
-  if (fields.has('sku') && fields.has('name') && hasAny('cost_price', 'selling_price', 'min_stock', 'reorder_point')) return 'product-master';
-  if (hasAny('paid_amount', 'payment_date', 'payment_method')) return 'payment-report';
-  return 'source-data';
-}
 
 
 function analyzeSourceUnderstanding(dataset: Dataset): { confidence: number; reason: string } {
