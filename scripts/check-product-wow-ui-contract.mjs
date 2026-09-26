@@ -102,6 +102,10 @@ assert.ok(reports.includes('افحص جودة البيانات'), 'reports cente
 assert.ok(reports.includes('تحديث اللقطة'), 'reports center must support in-place refresh of the canonical snapshot');
 assert.ok(!reports.includes('generateSynthetic'), 'reports center must not invent business values');
 const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
+assert.ok(trustEvidence.includes('EVIDENCE PASSPORT'), 'trust evidence must expose the evidence passport');
+assert.ok(trustEvidence.includes('جواز الدليل للحالة الحالية'), 'trust evidence passport must explain its purpose');
+assert.ok(trustEvidence.includes('معرّف شركة موجود دون عرضه للمستخدم'), 'trust evidence passport must preserve tenant context without exposing the raw tenant id');
+
 assert.ok(trustEvidence.includes('const [refreshing, setRefreshing]'), 'trust evidence must refresh in-place instead of reloading the whole page');
 assert.ok(!trustEvidence.includes('window.location.reload()'), 'trust evidence refresh must not discard page context with a full reload');
 assert.ok(trustEvidence.includes('لا توجد بيانات مثبتة بعد'), 'empty trust state must explain the absence of evidence');
