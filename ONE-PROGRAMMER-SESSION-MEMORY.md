@@ -1,3 +1,15 @@
+# CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 187
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE PR: #661 / `exec/20260926-continuous-ui-core-deep`.
+- LAST FUNCTIONAL WRITE: `185a4cc78c55b64cc662e13417b20d9808d243df3` (connector-reported commit; branch content is readable, while direct commit lookup has not yet propagated).
+- EXACT BUILD PROOF: desktop-windows run `36269041388` completed SUCCESS on the preceding exact lineage; build, native watcher/runtime smoke, installer packaging and artifact upload all completed.
+- PDF/IMPORT LANE: geometry reconstruction, Arabic inventory mappings, multi-page regression, source specialty inference and source-domain persistence remain active.
+- UI LANE: Data Quality EMPTY state no longer renders `null%`; unavailable score is explicitly rendered as `غير متاح`.
+- CURRENT GATES: PDF regression, quality, browser, Final Certification and other current-head gates are still queued/pending; no PASS is transferred across SHAs.
+- DEPLOYMENT: Vercel current branch check is blocked by free-plan build-rate limit; Netlify status check is successful on the PR branch, but visual acceptance still requires exact deployed SHA verification.
+- NEXT: consume the first terminal current-head gate, repair only the first reproduced defect, then continue uncovered product surfaces and exact deployment verification.
+- DO NOT REPEAT: stale PASS/preview, naive PDF flattening, duplicate import/RPC/navigation paths, production-SHA bypass, unsafe import mutation.
 # CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 186
 
 - MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
