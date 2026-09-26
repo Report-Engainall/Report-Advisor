@@ -174,6 +174,7 @@ export interface ImportRecord {
   invalid_rows: number | null;
   quarantined_rows: number | null;
   entity_type: string | null;
+  source_domain?: string | null;
   progress: number | null;
   error_message: string | null;
   created_at: string;
