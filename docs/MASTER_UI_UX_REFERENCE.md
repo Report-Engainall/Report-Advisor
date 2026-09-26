@@ -285,3 +285,9 @@ A surface is complete only when the quality gate is satisfied, not merely when t
 - Recommendation acceptance is represented as «بدء مسار القرار» and routes to the governed decision surface instead of mutating recommendation status directly.
 - External File Analysis now has SOURCE READINESS, VERIFIED/REVIEW/BLOCKED states, mapping/quality decision cards, and explicit canonical Import/Trust actions.
 - Invalid or missing quality scores render «غير متاح» rather than NaN or a synthetic numeric result.
+
+
+## Execution closure — 2026-09-27 / predecessor 3324269dd2ba52563ee0311a39f68179490cb93f
+
+- Customers and Products now keep a missing server count as «إجمالي غير متاح» instead of coercing it to zero.
+- Pagination no longer renders a synthetic total-page count when the source count is unavailable; navigation uses current-page row count as the bounded fallback.
