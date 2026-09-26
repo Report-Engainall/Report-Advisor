@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 149
+
+- MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CODE/TEST CANDIDATE BEFORE THIS GOVERNANCE WRITE: `454df3d6739f172cb3de239eabb79f141c4a1e93` (PR #660).
+- REPAIRED CURRENT-HEAD DEFECT: Decision Experience consumed `readiness.status` without a typed status in the return contract. Fixed in `106d8a9bcd4bdfc02bd65e1a0e7d559f07a0f632`; UI contract strengthened in `454df3d6739f172cb3de239eabb79f141c4a1e93`.
+- UI: readiness is now explicitly typed as READY/REVIEW/BLOCKED and guarded by the Product WOW contract; dashboard/report quality provenance remains fail-closed.
+- CORE: canonical dashboard arrays/state/as-of/quality semantics remain fail-closed; unknown remains unknown.
+- EXACT-HEAD GATES: fresh candidate workflows are exposed; core quality/final-certification/browser/Phase-F gates are queued, while Commercial PWA E2E is in progress. No PASS claimed yet.
+- DEPLOYMENT: Vercel, Netlify preview and Vercel Deployments remain pending; no production PASS.
+- NEXT: consume exact-head gate results; repair only the first reproduced current-head failure; otherwise continue independent UI/core closure, then merge only after required evidence.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 148
 
 - MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
