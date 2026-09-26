@@ -1,3 +1,15 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-WAVE-10
+
+- DONE — CORE → Forecast rows reject blank identity/semantic labels instead of allowing empty prediction records through validation.
+- DONE — CORE → import job state rejects malformed `result_summary` payloads unless object-shaped or null.
+- DONE — UI → Trust Evidence severity counts render `غير متاح` explicitly when the breakdown cannot be proven.
+- DONE — UI/CORE → Work Center invalid active progress remains a distinct actionable state; Data Quality weighted score semantics remain canonical.
+- VERIFIED → semantic files and contracts were reread from the live branch after mutation.
+- NOT PROVEN → exact-head application PASS after the latest governance write; browser/device certification; production deployment identity; Phase-F backup/restore/RPO/RTO/rollback.
+- EXTERNAL → Vercel Free build-rate-limit remains the known hosting blocker.
+- RESUME POINTER → latest PR #660 head after governance → consume terminal workflow evidence → repair only reproduced current-SHA defect → continue next independent UI/Core boundary.
+- DO NOT REPEAT → blank forecast identities, malformed import summary shape, empty unavailable trust severity slot, overlapping-quality unique-record assumption, stale PASS transfer.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-CORRECTION-9
 
 - HEAD OBSERVED BEFORE THIS WRITE → current PR #660 head before governance.
