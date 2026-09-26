@@ -159,6 +159,8 @@ assert.ok(dashboardActionIndex >= 0 && dashboardActionIndex < dashboardLoadingRe
 assert.ok(dashboardSurface.includes('dashboardNextAction.to'), 'dashboard next action must use its derived canonical route');
 assert.ok(dashboardSurface.includes('dashboardNextAction.description'), 'dashboard next action must explain why the action is recommended');
 
+assert.ok(reports.includes('function ReportDecisionPath'), 'reports center must expose the source-to-action evidence path');
+assert.ok(reports.includes('data-next-action={actionPath}'), 'reports center evidence path must bind the current next-action route');
 const reports = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
 assert.ok(!reports.includes('window.location.reload()'), 'report pages must retry in place without a full browser reload');
 assert.ok(reports.includes('export function PurchasesReportPage()'), 'purchase report must remain guarded after retry refactor');
