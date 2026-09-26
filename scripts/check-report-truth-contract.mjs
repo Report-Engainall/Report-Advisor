@@ -79,6 +79,8 @@ if (/(Number|parseFloat|parseInt)\([^\n]*\).*NaN|NaN.*(Number|parseFloat|parseIn
 const dashboardCanonical = fs.readFileSync(path.join(srcDir, 'lib', 'dashboard-canonical.ts'), 'utf8');
 for (const token of [
   "function requiredArray<T>(value: unknown, field: string)",
+  "function validateDashboardRows(row: Record<string, unknown>): void",
+  "validateDashboardRows(row);",
   "function requiredAsOf(value: unknown, field: string)",
   "throw new Error('REPORT_DATA_INVALID: ' + field + ' as-of is missing')",
   "requiredArray<MonthlyTrend>(row.trend, 'trend')",
