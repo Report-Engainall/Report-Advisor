@@ -114,6 +114,8 @@ const decisionExperience = fs.readFileSync('src/pages/DecisionExperiencePage.tsx
 assert.ok(decisionExperience.includes('const canEnterStage'), 'decision stages must have an explicit entry guard');
 assert.ok(decisionExperience.includes("if (!canEnterStage(next)) return;"), 'decision navigation must fail closed when context is missing');
 assert.ok(decisionExperience.includes("disabled={!canEnterStage(item.id)}"), 'decision stage controls must expose the locked state');
+assert.ok(decisionExperience.includes('stageLockReason'), 'locked decision stages must explain why context is required');
+assert.ok(decisionExperience.includes('aria-disabled={!canEnterStage(item.id) || undefined}'), 'locked decision stages must expose disabled semantics');
 assert.ok(decisionExperience.includes("selected === null && stage !== 'command'"), 'deep-linked decision stages must return to command when no recommendation is selected');
 
 assert.ok(decisionExperience.includes('recommendation.expected_impact == null'), 'decision readiness must treat zero expected impact as a valid value');
