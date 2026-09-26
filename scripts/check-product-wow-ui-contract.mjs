@@ -286,6 +286,18 @@ assert.ok(!entities.includes('if (loading && customers.length === 0) return <Loa
 assert.ok(entities.includes('data={products} loading={loading}'), 'product table must own its loading state');
 assert.ok(entities.includes('data={customers} loading={loading}'), 'customer table must own its loading state');
 
+const quality = fs.readFileSync('src/pages/DataQualitySnapshotPage.tsx', 'utf8');
+assert.ok(quality.includes('weightedScore'), 'data quality must use authoritative weighted entity scores');
+assert.ok(quality.includes('متوسط جودة موزون'), 'data quality must not present overlapping issue subtraction as healthy records');
+
+const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
+assert.ok(workCenter.includes('invalidProgressActive'), 'work center must surface invalid active progress');
+assert.ok(workCenter.includes('تقدم غير موثوق'), 'work center must expose unavailable progress as an operational signal');
+
+const charts = fs.readFileSync('src/components/ui/Charts.tsx', 'utf8');
+assert.ok(charts.includes('ChartFrame'), 'shared charts must have a common empty/accessibility frame');
+assert.ok(charts.includes('لا توجد بيانات كافية لعرض الرسم'), 'shared charts must expose an explicit source-empty state');
+
 const receivablesTruth = fs.readFileSync('src/pages/ReceivablesReportCanonicalPage.tsx', 'utf8');
 assert.ok(receivablesTruth.includes("const truthStatus = snapshot.status === 'CALCULATED' ? 'VERIFIED' : 'INSUFFICIENT DATA'"), 'receivables must keep truth status fail-closed');
 assert.ok(receivablesTruth.includes('القيم غير المتاحة تبقى غير متاحة ولا تتحول إلى صفر'), 'receivables must not render missing financial truth as zero');
