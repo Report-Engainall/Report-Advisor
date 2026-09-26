@@ -1,4 +1,4 @@
-import { Database, ShieldCheck, Upload, ArrowUpLeft } from 'lucide-react';
+import { Database, ShieldCheck, Upload, ArrowUpLeft, CheckCircle2, Clock3, Fingerprint, Scale, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardBody } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/States';
@@ -23,17 +23,58 @@ export function BenchmarkNetworkPage() {
         <Card><CardBody><div className="text-[10px] text-ink-400">الرتبة/المئين</div><div className="mt-2 text-2xl font-black text-ink-900">غير متاح</div><div className="mt-1 text-[10px] text-ink-500">لن يتم حساب ترتيب من بيانات الشركة وحدها.</div></CardBody></Card>
         <Card><CardBody><div className="text-[10px] text-ink-400">حالة الدليل</div><div className="mt-2 text-2xl font-black text-warning-800">INSUFFICIENT_SAMPLE</div><div className="mt-1 text-[10px] text-ink-500">انتظر عينة نظيرة قابلة للمراجعة.</div></CardBody></Card>
       </section>
+      <section className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
+        <Card>
+          <CardBody>
+            <div className="flex items-start gap-3">
+              <Database className="mt-0.5 text-primary-700" size={19} />
+              <div className="min-w-0">
+                <div className="section-kicker">BENCHMARK GATE</div>
+                <h2 className="mt-1 text-lg font-black text-ink-950">بوابة المقارنة الخارجية</h2>
+                <p className="mt-1 text-[11px] leading-6 text-ink-500">المقارنة لا تصبح نتيجة قرار إلا بعد اكتمال مصدر النظائر، تعريف المقياس، الفترة، وصحة الدليل. غياب أي عنصر يبقي الحالة مغلقة بدل تخمين ترتيب.</p>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {[
+                { icon: Database, title: 'Peer cohort', detail: 'مجموعة نظيرة موثقة وقابلة للتدقيق.', ok: false },
+                { icon: Scale, title: 'تعريف القياس', detail: 'نفس تعريف KPI والصيغة والوحدة.', ok: false },
+                { icon: Clock3, title: 'الفترة', detail: 'نافذة زمنية متطابقة مع As Of.', ok: false },
+                { icon: Fingerprint, title: 'الدليل', detail: 'مصدر/نسخة/أثر يمكن تتبعه.', ok: false },
+              ].map(({ icon: Icon, title, detail, ok }) => <div key={title} className="rounded-xl border border-ink-100 bg-ink-50/60 p-3">
+                <div className="flex items-center justify-between gap-2"><span className="flex items-center gap-2 text-[11px] font-black text-ink-800"><Icon size={14} className="text-primary-700"/>{title}</span><span className={ok ? 'text-success-700' : 'text-warning-700'}>{ok ? <CheckCircle2 size={15}/> : <span className="text-[9px] font-black">ناقص</span>}</span></div>
+                <p className="mt-2 text-[10px] leading-5 text-ink-500">{detail}</p>
+              </div>)}
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link to="/import" className="btn-primary text-[11px]"><Upload size={13}/> إدخال المصدر</Link>
+              <Link to="/trust" className="btn-secondary text-[11px]">فحص الثقة <ArrowUpLeft size={13}/></Link>
+            </div>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody>
+            <div className="flex items-center gap-2 text-[10px] font-black text-primary-700"><TrendingUp size={15}/> كيف ستظهر النتيجة عند اكتمال البوابة؟</div>
+            <div className="mt-4 space-y-3">
+              {[
+                ['المقياس', 'Revenue / Margin / Collection أو KPI محدد'],
+                ['أداء الشركة', 'القيمة الموثقة ضمن نفس الفترة والوحدة'],
+                ['عينة النظائر', 'حجم cohort ومصدرها ونسخة الدليل'],
+                ['المقارنة', 'قيمة النظائر مع median/percentile فقط عند كفاية العينة'],
+                ['الثقة', 'حالة الدليل وAs Of والفترة والمصدر'],
+                ['الإجراء', 'رابط تحقيق/قرار مرتبط بالمقارنة دون إخفاء حدودها'],
+              ].map(([label, value]) => <div key={label} className="flex items-start justify-between gap-4 border-b border-ink-100 pb-3 last:border-0 last:pb-0"><span className="text-[10px] font-bold text-ink-500">{label}</span><span className="max-w-[70%] text-left text-[10px] font-black text-ink-800">{value}</span></div>)}
+            </div>
+          </CardBody>
+        </Card>
+      </section>
       <section className="rounded-[16px] border border-ink-200 bg-white p-5 shadow-card">
-        <div className="flex items-start gap-3">
-          <Database className="mt-0.5 text-primary-700" size={19} />
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-sm font-black text-ink-900">ما الذي ينقص لتفعيل المقارنة؟</h2>
-            <p className="mt-1 text-[11px] leading-6 text-ink-500">يحتاج المسار إلى مصدر benchmark/peer cohort موثق ونافذة زمنية وهوية قطاعية واضحة، ثم يمر عبر طبقة الثقة قبل استخدامه في القرار. لا يوجد جدول benchmark فعلي في مخطط الـstaging الحالي، لذلك لا يتم تصنيع أي percentile أو مقارنة.</p>
+            <div className="section-kicker">NO FABRICATION</div>
+            <h2 className="mt-1 text-sm font-black text-ink-900">الحالة الحالية ليست نتيجة سلبية</h2>
+            <p className="mt-1 text-[11px] leading-6 text-ink-500">لا يوجد جدول benchmark/peer cohort فعلي في مخطط staging الحالي. لذلك لا يعرض الأغبري percentile أو ترتيبًا خارجيًا، ولا يحول غياب العينة إلى صفر.</p>
           </div>
-        </div>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Link to="/import" className="btn-primary text-[11px]"><Upload size={13}/> إدخال مصدر</Link>
-          <Link to="/trust" className="btn-secondary text-[11px]">فحص الثقة <ArrowUpLeft size={13}/></Link>
+          <ShieldCheck className="shrink-0 text-warning-700" size={25}/>
         </div>
       </section>
     </div>
