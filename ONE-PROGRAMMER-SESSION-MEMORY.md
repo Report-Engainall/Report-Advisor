@@ -1,3 +1,15 @@
+## FINAL WAVE CHECKPOINT — 2026-09-26 / PR #660
+
+- HEAD OBSERVED BEFORE THIS WRITE → `c388b970e9863f28c604d115fb3cc7ccc55f718a`.
+- DONE — CORE → `dashboard-canonical.ts` now rejects blank trend labels, entity IDs/names, inventory identities, RFM identities/segments, ABC identities and aging names.
+- DONE — CORE → `data-quality-snapshot-core.ts` now rejects blank tenant/entity/issue identities while preserving existing numeric/range and EMPTY-snapshot invariants.
+- DONE — CONTRACT → existing report-truth guard covers the new canonical identity invariants; no new runner or test family.
+- DONE — UI → Executive Command Center NEXT ACTION and financial metric availability closures remain live and guarded.
+- EXACT-HEAD STATUS → latest head has no workflow snapshot yet; Vercel remains failure from external Free build-rate-limit. PR is OPEN; GitHub currently reports `mergeable=false` with no concrete conflict evidence exposed, so no forced rebase/merge was performed.
+- NOT PROVEN → terminal exact-head application PASS, browser/device certification, production deployment identity, Phase-F live backup/restore/RPO/RTO/rollback.
+- RESUME POINTER → `PR #660 current head c388b970e9863f28c604d115fb3cc7ccc55f718a → consume first terminal workflow result → repair only reproduced current-SHA failure → continue next independent UI/core boundary`.
+- DO NOT REPEAT → stale PASS transfer, device-only work, duplicate architecture, unsupported production certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-COMPREHENSIVE-5
 
 - HEAD OBSERVED BEFORE THIS WRITE → current PR #660 branch head immediately before governance.
