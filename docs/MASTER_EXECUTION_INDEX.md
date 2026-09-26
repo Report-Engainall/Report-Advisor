@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 150
+
+- MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CODE/TEST CANDIDATE BEFORE THIS GOVERNANCE WRITE: `6ae378310360ecadd02f7c6930cd3765e1a14c2a` (PR #660).
+- CURRENT-HEAD FAILURE CONSUMED: Quality failed only at lint because `scripts/check-product-wow-ui-contract.mjs` redeclared `appShell`; build and all later quality stages were otherwise not blocked by this lint defect. Final Certification failed on the stale indexed candidate `6701676a...`.
+- REPAIR: removed the duplicate binding in `6ae378310360ecadd02f7c6930cd3765e1a14c2a`; certification candidate now rebinds to this repaired code head through governance.
+- UI: Decision Experience typed readiness remains READY/REVIEW/BLOCKED; Dashboard/Truth/Reports quality provenance remains fail-closed.
+- CORE: malformed arrays, invalid canonical states, missing authoritative as-of, and unknown quality values remain fail-closed.
+- RUNTIME: UI Route Completeness, Full Product Browser E2E, Storage Tenant Runtime E2E succeeded on the preceding exact governance head; Device-Independent Browser E2E and Phase-F remain in progress. No production PASS.
+- NEXT: consume fresh Quality/Final Certification and current-head runtime gates after this rebind; repair only the first reproduced failure.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 149
 
 - MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
