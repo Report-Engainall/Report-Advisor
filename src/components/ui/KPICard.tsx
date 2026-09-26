@@ -33,12 +33,12 @@ export function KPICard({
   const formatted = safeValue === null
     ? '—'
     : format === 'currency'
-      ? formatCurrency(value)
+      ? formatCurrency(safeValue)
       : format === 'percent'
-        ? formatPercent(value)
+        ? formatPercent(safeValue)
         : format === 'compact'
-          ? formatCompact(value)
-          : formatNumber(value);
+          ? formatCompact(safeValue)
+          : formatNumber(safeValue);
   const positive = safeChange !== undefined && safeChange > 0;
   const negative = safeChange !== undefined && safeChange < 0;
   const trustState = trustStateFromDataStatus(status);
@@ -59,7 +59,7 @@ export function KPICard({
         {safeChange !== undefined && (
           <span className={'flex items-center gap-1 text-xs font-bold ' + (positive ? 'text-success-600' : negative ? 'text-danger-600' : 'text-ink-500')}>
             {positive ? <TrendingUp size={13}/> : negative ? <TrendingDown size={13}/> : <Minus size={13}/>}
-{formatPercent(safeChange)}
+            {formatPercent(safeChange)}
           </span>
         )}
         {changeLabel && <span className="text-[10px] text-ink-500">{changeLabel}</span>}
