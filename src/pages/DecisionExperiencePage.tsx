@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle, ArrowUpLeft, CalendarClock, CheckCircle2, ChevronLeft, FileSearch, Lightbulb,
-  ShieldCheck, Target, UserRound, Workflow, XCircle, LockKeyhole
+  ShieldCheck, Target, UserRound, Workflow, XCircle
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
@@ -193,7 +193,7 @@ export function DecisionExperiencePage() {
 
       <nav aria-label="مراحل القرار" className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
         {STAGES.map((item, index) => (
-          <button key={item.id} type="button" onClick={() => navigateStage(item.id)} disabled={!canEnterStage(item.id)} aria-disabled={!canEnterStage(item.id) || undefined} title={!canEnterStage(item.id) ? stageLockReason ?? undefined : item.label} className={'stage-pill ' + (stage === item.id ? 'stage-pill-active' : 'hover:border-ink-300 hover:bg-ink-50')} aria-current={stage === item.id ? 'step' : undefined}>
+          <button key={item.id} type="button" onClick={() => navigateStage(item.id)} disabled={!canEnterStage(item.id)} aria-disabled={!canEnterStage(item.id) || undefined} title={!canEnterStage(item.id) ? stageLockReason ?? undefined : item.label} className={'stage-pill ' + (stage === item.id ? 'stage-pill-active' : 'hover:border-ink-300 hover:bg-ink-50') + ' disabled:cursor-not-allowed disabled:opacity-60'} aria-current={stage === item.id ? 'step' : undefined}>
             <span className="block text-xs font-bold">{index + 1}. {item.label}</span>
             <span className="mt-1 block text-[10px] text-ink-500">{item.description}</span>
           </button>
