@@ -1,3 +1,12 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 191
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- PR #661 branch: `exec/20260926-continuous-ui-core-deep`.
+- CURRENT FUNCTIONAL HEAD BEFORE GOVERNANCE: `6f9aa4145d058e7ea37d47b0698ddabfae2e928e`.
+- Benchmark Network now has a routed, discoverable, truthful `INSUFFICIENT_SAMPLE` surface; no benchmark table exists in staging, so no percentile/ranking is fabricated.
+- Decision Experience and Intelligence Center are linked to the governed decision lifecycle; evidence, tenant and approval guards remain authoritative.
+- Fresh exact-head gates are queued/pending; no PASS transfer.
+- NEXT: consume first terminal exact-head gate, repair only reproduced defect, continue uncovered product contracts and current-SHA deployment verification.
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 190
 
 - MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
