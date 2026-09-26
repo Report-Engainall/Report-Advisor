@@ -776,3 +776,16 @@
 - NEXT ACTION → consume the first populated exact-head gate on the next available SHA; fix only a reproduced current-head failure; continue the next independent UI/core closure.
 - DO NOT REPEAT → no stale PASS transfer, no missing-to-zero coercion, no local-preview substitution for authoritative import results, no production mutation, no duplicate workflow/RPC/import path.
 
+
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / CANONICAL COMMIT RESPONSE CLOSURE
+
+> Exact-head evidence only. No historical PASS is transferred.
+
+- SOURCE CODE HEAD BEFORE GOVERNANCE → `bb06d05f0f85c358afdc1d77422f66e7a9672786`.
+- MEMORY WRITE → `2378b210b1c8b2117716abc9e41ff0049957e099`.
+- DONE — CORE → canonical import commit RPC responses now fail closed on malformed shape, non-finite/non-integer committed counts, and invalid returned IDs.
+- DONE — CONTRACT → report-truth gate now guards the canonical commit response boundary.
+- GATES → exact-head Actions for `bb06d05f...` are not yet exposed; current combined status contains Vercel failure at the known build-rate-limit target. No exact-head certification PASS claimed.
+- NEXT ACTION → consume the first populated current-head gate; fix only a reproduced failure; then continue independent UI/core closure.
+- DO NOT REPEAT → no RPC-result coercion, no stale PASS transfer, no production mutation, no duplicate import/commit path.
+
