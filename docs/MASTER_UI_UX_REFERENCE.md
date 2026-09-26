@@ -298,3 +298,9 @@ A surface is complete only when the quality gate is satisfied, not merely when t
 - Analytics Center gained live readiness badges and a decision strip showing available analyses, data shortages, read failures, and the next path.
 - Individual analysis failures no longer collapse the entire center because the readiness probe uses isolated settlement semantics.
 - The UI continues to avoid synthetic readiness claims and exposes «تحديث الجاهزية» as a recoverable action.
+
+
+## Execution closure — 2026-09-27 / predecessor 47e75cfdf53bfd0ba65afbd099d66e37f16dc5be
+
+- Data Quality entity score cards now expose invalid/non-finite/out-of-range scores as «غير موثوق» instead of clamping them into a plausible percentage.
+- The existing central validator already rejects malformed entity scores; the UI now preserves that truth state instead of hiding it.
