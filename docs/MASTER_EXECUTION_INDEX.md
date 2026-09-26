@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 178
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE CANDIDATE: `6737bb458a27666874337d57347e40f6497485d5` on PR #661.
+- UI: External File Analysis accessible upload; Work Center fail-closed exception filtering; non-finite chart rejection.
+- CORE: strict dashboard row/intelligence shape validation; canonical import provenance/tenant/source identity boundary.
+- PROOF: exact-head gates remain incomplete; no current-head PASS or production certification.
+- NEXT: consume first terminal PR #661 gate; repair only the first reproduced current-SHA defect; continue independent UI/core closure.
+- DO NOT REPEAT: stale evidence, prior #660 work, duplicate paths, production bypass, blanket security changes.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 177
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
