@@ -113,8 +113,9 @@ export default async function handler(req: any, res: any) {
 
     json(res, 200, {
       ...result,
-      serverAcceptedRowCount: input.rows.length,
+      serverCommittedRowCount: result.serverCommittedRowCount,
       serverValidatedQualityScore: input.qualityScore,
+      serverIdempotentReplay: result.serverIdempotentReplay,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
