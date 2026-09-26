@@ -339,6 +339,9 @@ const commandCenter = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx'
 assert.ok(commandCenter.includes('Decision ROI'), 'command center must retain the Decision ROI surface');
 assert.ok(commandCenter.includes('لا يوجد denominator استثماري أو تكلفة موثقة'), 'Decision ROI must disclose the missing investment/cost denominator rather than inventing ROI');
 assert.ok(commandCenter.includes('فحص النتيجة المحفوظة'), 'Decision ROI must link to the governed outcome surface');
+assert.ok(commandCenter.includes('replaySnapshot'), 'command center Business Replay must consume the canonical replay read surface');
+assert.ok(commandCenter.includes('AVAILABLE'), 'command center must surface replay availability from real persisted history');
+assert.ok(commandCenter.includes('latestSnapshotAt'), 'command center replay card must expose the latest persisted snapshot timestamp when available');
 assert.ok(decisionExperience.includes('const stageGate = useMemo<Record<Stage'), 'Decision Experience must gate lifecycle stages from persisted state');
 assert.ok(decisionExperience.includes("decisionContext?.decisionStatus === 'APPROVED'"), 'Decision Experience work stage must require a persisted approved decision');
 assert.ok(decisionExperience.includes("decisionContext?.workItemStatus === 'COMPLETED'"), 'Decision Experience outcome stage must require persisted work completion or outcome evidence');
