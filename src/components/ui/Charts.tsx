@@ -44,7 +44,7 @@ function ChartFrame({
       <div
         role="status"
         aria-live="polite"
-        className="flex items-center justify-center rounded-[14px] border border-dashed border-ink-200 bg-ink-50/55 px-5 text-center text-[11px] leading-5 text-ink-500"
+        className="ag-chart-frame ag-chart-empty flex items-center justify-center rounded-[14px] border border-dashed border-ink-200 bg-ink-50/55 px-5 text-center text-[11px] leading-5 text-ink-500" data-chart-state="empty"
         style={{ minHeight: height }}
       >
         {emptyMessage}
@@ -56,7 +56,7 @@ function ChartFrame({
     <div
       role="img"
       aria-label={ariaLabel}
-      className="overflow-hidden rounded-[14px] border border-ink-100 bg-white/80"
+      className="ag-chart-frame ag-chart-ready overflow-hidden rounded-[14px] border border-ink-100 bg-white/80" data-chart-state="ready"
       style={{ minHeight: height }}
     >
       <ResponsiveContainer width="100%" height={height}>
