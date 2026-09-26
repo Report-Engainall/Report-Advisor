@@ -1380,3 +1380,173 @@ button,input,textarea,select{font:inherit}
 @media (max-width: 1100px) {
   .ag-sidebar { width: 278px !important; }
 }
+
+@media screen {
+  .ag-dashboard-header {
+    position: relative;
+    overflow: hidden;
+    padding: 1.25rem;
+    border: 1px solid #cfdcd8;
+    border-radius: 22px;
+    background:
+      radial-gradient(circle at 96% 8%, rgba(16,185,129,.14), transparent 15rem),
+      radial-gradient(circle at 9% 92%, rgba(215,177,90,.12), transparent 17rem),
+      linear-gradient(135deg, #ffffff 0%, #f4faf7 58%, #fff9eb 100%);
+    box-shadow: 0 26px 54px -38px rgba(5,57,49,.34);
+  }
+  .ag-dashboard-header::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    width: 7rem;
+    height: 2px;
+    background: linear-gradient(90deg, #d7b15a, #10b981, transparent);
+    border-radius: 999px;
+  }
+  .ag-dashboard-header-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    position: relative;
+    z-index: 1;
+  }
+  .ag-dashboard-heading { min-width: 0; }
+  .ag-dashboard-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    color: #0a765f;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .08em;
+  }
+  .ag-dashboard-eyebrow-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #d7b15a;
+    box-shadow: 0 0 0 4px rgba(215,177,90,.13);
+  }
+  .ag-dashboard-live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .28rem .52rem;
+    border: 1px solid #b8dfd2;
+    border-radius: 999px;
+    background: rgba(236,252,246,.82);
+    color: #08735a;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .08em;
+  }
+  .ag-dashboard-live-badge span {
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: #10b981;
+    box-shadow: 0 0 0 3px rgba(16,185,129,.10);
+  }
+  .ag-dashboard-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+  .ag-dashboard-signal-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: .65rem;
+    margin-top: 1.1rem;
+  }
+  .ag-dashboard-signal {
+    min-width: 0;
+    padding: .75rem .85rem;
+    border: 1px solid rgba(193,211,205,.86);
+    border-radius: 14px;
+    background: rgba(255,255,255,.70);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.95);
+    backdrop-filter: blur(10px);
+  }
+  .ag-dashboard-signal-label {
+    display: block;
+    color: #6d877f;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .1em;
+  }
+  .ag-dashboard-signal strong {
+    display: block;
+    margin-top: .35rem;
+    color: #0a4a3f;
+    font-size: 1.15rem;
+    font-weight: 900;
+    letter-spacing: -.02em;
+  }
+  .ag-dashboard-signal > span:last-child {
+    display: block;
+    margin-top: .2rem;
+    color: #71827c;
+    font-size: 9px;
+    line-height: 1.55;
+  }
+  .ag-dashboard-truthbar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+    margin-top: .85rem;
+    padding-top: .8rem;
+    border-top: 1px solid rgba(205,220,215,.88);
+  }
+  .ag-dashboard-truth-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .34rem .55rem;
+    border: 1px solid #d5e2df;
+    border-radius: 999px;
+    background: rgba(255,255,255,.72);
+    color: #667a73;
+    font-size: 9px;
+    font-weight: 800;
+  }
+  .ag-card-decision-brief,
+  .ag-card-coverage {
+    position: relative;
+    overflow: hidden;
+  }
+  .ag-card-decision-brief::before,
+  .ag-card-coverage::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    width: 4px;
+    height: 3rem;
+    border-radius: 0 0 999px 999px;
+  }
+  .ag-card-decision-brief::before { background: linear-gradient(180deg,#0ea77f,#9ddccb); }
+  .ag-card-coverage::before { background: linear-gradient(180deg,#d7b15a,#f0d797); }
+  .ag-card-decision-brief .card-header,
+  .ag-card-coverage .card-header {
+    background: linear-gradient(180deg,rgba(249,252,251,.86),rgba(255,255,255,0));
+  }
+}
+
+@media (min-width: 1280px) {
+  .ag-dashboard-header { padding: 1.45rem 1.5rem 1.3rem; }
+  .ag-dashboard-header-main { flex-direction: row; align-items: flex-end; justify-content: space-between; }
+  .ag-dashboard-actions { justify-content: flex-end; }
+}
+
+@media (max-width: 720px) {
+  .ag-dashboard-signal-grid { grid-template-columns: 1fr; }
+  .ag-dashboard-header { border-radius: 18px; padding: 1rem; }
+  .ag-dashboard-truthbar { align-items: flex-start; }
+  .ag-dashboard-truthbar .mr-auto { margin-inline-start: 0; margin-inline-end: 0; }
+}
