@@ -183,7 +183,28 @@ export async function fetchProfitabilitySnapshot(): Promise<ProfitabilitySnapsho
   if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: profitability snapshot missing');
   const row=data as Record<string,unknown>;
   if (row.status !== 'CALCULATED' && row.status !== 'INSUFFICIENT_DATA') throw new Error('REPORT_DATA_INVALID: profitability.status is invalid');
-  return { status: row.status, currency: typeof row.currency==='string'?row.currency:null, currency_status: row.currency_status==='CONSISTENT'?'CONSISTENT':'INSUFFICIENT_DATA', revenue:finiteOrNull(row.revenue), cost:finiteOrNull(row.cost), gross_profit:finiteOrNull(row.gross_profit), gross_margin:finiteOrNull(row.gross_margin), invoice_count:finiteOrNull(row.invoice_count), bad_invoice_rows:finiteOrNull(row.bad_invoice_rows), bad_sale_item_rows:finiteOrNull(row.bad_sale_item_rows), currency_mismatch_rows:finiteOrNull(row.currency_mismatch_rows), reasons:requiredArray<string>(row.reasons, 'profitability.reasons'), as_of:requiredAsOf(row.as_of, 'profitability') };
+  const reasons = requiredArray<unknown>(row.reasons, 'profitability.reasons');
+  if (reasons.some((reason) => typeof reason !== 'string')) throw new Error('REPORT_DATA_INVALID: profitability.reasons must contain only strings');
+  const nonNegativeIntegerMetric = (value: unknown, field: string): number | null => {
+    if (value === null || value === undefined) return null;
+    if (typeof value === 'number' && Number.isInteger(value) && value >= 0) return value;
+    throw new Error('REPORT_DATA_INVALID: ' + field + ' must be a non-negative integer or null');
+  };
+  return {
+    status: row.status,
+    currency: typeof row.currency === 'string' ? row.currency : null,
+    currency_status: row.currency_status === 'CONSISTENT' ? 'CONSISTENT' : 'INSUFFICIENT_DATA',
+    revenue: finiteOrNull(row.revenue),
+    cost: finiteOrNull(row.cost),
+    gross_profit: finiteOrNull(row.gross_profit),
+    gross_margin: finiteOrNull(row.gross_margin),
+    invoice_count: nonNegativeIntegerMetric(row.invoice_count, 'profitability.invoice_count'),
+    bad_invoice_rows: nonNegativeIntegerMetric(row.bad_invoice_rows, 'profitability.bad_invoice_rows'),
+    bad_sale_item_rows: nonNegativeIntegerMetric(row.bad_sale_item_rows, 'profitability.bad_sale_item_rows'),
+    currency_mismatch_rows: nonNegativeIntegerMetric(row.currency_mismatch_rows, 'profitability.currency_mismatch_rows'),
+    reasons: reasons as string[],
+    as_of: requiredAsOf(row.as_of, 'profitability'),
+  };
 }
 
 function validateRFMRows(rows: unknown[]): RFMSnapshotRow[] {
