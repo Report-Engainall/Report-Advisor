@@ -34,6 +34,27 @@ const invalidTrendAlternativeGroup = alternativeGroupDecisions([{
 }])[0];
 assert.equal(invalidTrendAlternativeGroup, undefined);
 
+const negativeAlternativeGroup = alternativeGroupDecisions([{
+  id: 'g-negative', name: 'مجموعة بقيمة سالبة', stockoutRisk: 'critical',
+  normalizedStock: -1, normalizedDemand: 5, coverageDays: 3,
+  normalizedSales: 10, trendPct: 4, recommendedOrder: 10, memberSkus: [],
+}])[0];
+assert.equal(negativeAlternativeGroup, undefined);
+
+const negativeInventoryDecision = inventoryDecisions([{
+  sku: 'sku-negative', avgDailySales: -1, stdDailySales: 0, demandDuringLeadTime: 0, safetyStock: 0,
+  reorderPoint: 2, minStock: 0, maxStock: 10, daysOfCover: 4, stockoutDate: null,
+  recommendedOrder: 5, classification: 'frozen', priority: 'medium',
+}])[0];
+assert.equal(negativeInventoryDecision, undefined);
+
+const negativeCoverageInventory = inventoryDecisions([{
+  sku: 'sku-negative-cover', avgDailySales: 1, stdDailySales: 0, demandDuringLeadTime: 0, safetyStock: 0,
+  reorderPoint: 2, minStock: 0, maxStock: 10, daysOfCover: -1, stockoutDate: null,
+  recommendedOrder: 5, classification: 'frozen', priority: 'medium',
+}])[0];
+assert.equal(negativeCoverageInventory, undefined);
+
 const infiniteCoverageFrozen = inventoryDecisions([{
   sku: 'sku-frozen', avgDailySales: 0, stdDailySales: 0, demandDuringLeadTime: 0, safetyStock: 0,
   reorderPoint: 0, minStock: 0, maxStock: 10, daysOfCover: Number.POSITIVE_INFINITY, stockoutDate: null,
