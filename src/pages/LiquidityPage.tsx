@@ -44,10 +44,10 @@ export function LiquidityPage() {
     if (kpis?.status === 'INSUFFICIENT_DATA') {
       return { to: '/import', label: 'إضافة مصدر', title: 'ابدأ بإثبات المصدر' };
     }
-    if ((kpis?.overdueReceivables ?? 0) > 0) {
+    if (kpis?.overdueReceivables != null && kpis.overdueReceivables > 0) {
       return { to: '/reports/receivables', label: 'راجع المتأخرات', title: 'ابدأ بالتحصيل المتأخر' };
     }
-    if ((kpis?.totalPayables ?? 0) > 0) {
+    if (kpis?.totalPayables != null && kpis.totalPayables > 0) {
       return { to: '/reports/purchases', label: 'راجع المستحقات', title: 'راجع التزامات الموردين' };
     }
     return { to: '/trust', label: 'فحص الثقة', title: 'تحقق من المصدر قبل القرار' };
