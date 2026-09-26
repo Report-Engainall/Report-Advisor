@@ -257,6 +257,15 @@ function replayTimestamp(value: string | null | undefined): string | null {
   return typeof value === 'string' && !Number.isNaN(new Date(value).getTime()) ? value : null;
 }
 
+function replayEvidencePresent(value: unknown): boolean {
+  return Boolean(
+    value &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    Object.keys(value as Record<string, unknown>).length > 0,
+  );
+}
+
 export async function fetchBusinessReplaySnapshot(): Promise<BusinessReplaySnapshot> {
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
@@ -300,7 +309,7 @@ export async function fetchBusinessReplaySnapshot(): Promise<BusinessReplaySnaps
       actualImpact: null,
       qualityScore: typeof row.quality_score === 'number' && Number.isFinite(row.quality_score) ? row.quality_score : null,
       sourceVersion: typeof row.source_version === 'string' ? row.source_version : null,
-      evidencePresent: Boolean(row.evidence && typeof row.evidence === 'object'),
+      evidencePresent: replayEvidencePresent(row.evidence),
     })),
     ...outcomeRows.map((row) => ({
       id: String(row.id),
