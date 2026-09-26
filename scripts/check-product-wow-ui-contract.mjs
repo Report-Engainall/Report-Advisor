@@ -97,11 +97,11 @@ assert.ok(importSurface.includes('اختيار مصدر'), 'canonical import his
 assert.ok(importSurface.includes('SOURCE PASSPORT'), 'canonical import must expose the source passport before approval');
 assert.ok(importSurface.includes('SHA-256 للمصدر'), 'source passport must expose source fingerprint context');
 assert.ok(importSurface.includes('جودة الخادم') && importSurface.includes('العملية'), 'canonical import success state must expose authoritative commit context');
-assert.ok(importSurface.includes('typeof serverAcceptedRowCountRaw !== 'number'') && importSurface.includes('CANONICAL_IMPORT_SERVER_ROW_COUNT_INVALID'), 'canonical import must fail closed when the server-accepted committed row count is missing or non-finite');
+assert.ok(importSurface.includes('typeof serverCommittedRowCountRaw !== 'number'') && importSurface.includes('CANONICAL_IMPORT_SERVER_COMMITTED_ROW_COUNT_INVALID'), 'canonical import must fail closed when the canonical committed row count is missing or non-finite');
 assert.ok(importSurface.includes('typeof serverValidatedQualityScoreRaw !== 'number'') && importSurface.includes('CANONICAL_IMPORT_SERVER_QUALITY_INVALID'), 'canonical import must fail closed when the server-validated quality score is missing or non-finite');
 assert.ok(!importSurface.includes('execution.authoritativeRowCount ?? validRows.length'), 'canonical import must not fall back from server row count to local preview rows');
 assert.ok(!importSurface.includes('execution.authoritativeQualityScore ?? quality'), 'canonical import must not fall back from server quality to local parsed quality');
-assert.ok(importSurface.includes('serverAcceptedRowCount'), 'canonical import success state must use the server-accepted row count');
+assert.ok(importSurface.includes('serverCommittedRowCount'), 'canonical import success state must use the canonical committed row count');
 assert.ok(importSurface.includes('serverValidatedQualityScore'), 'canonical import success state must use the server-validated quality score');
 
 
@@ -110,8 +110,18 @@ assert.ok(importSurface.includes('const [historyError, setHistoryError]'), 'cano
 assert.ok(importSurface.includes('historyError?<ErrorState'), 'canonical import history must distinguish backend errors from an empty history');
 assert.ok(importSurface.includes('onRetry={() => void loadHistory()}'), 'canonical import history errors must retry in place');
 
+const canonicalImportAdapter = fs.readFileSync(path.join(srcDir, 'lib', 'import', 'canonical-production-adapter.ts'), 'utf8');
+for (const token of [
+  "let canonicalCommit: Awaited<ReturnType<typeof commitImportBatch>> | null = null;",
+  "canonicalCommit = await commitImportBatch",
+  "if (!canonicalCommit) throw new Error('CANONICAL_IMPORT_COMMIT_RESULT_MISSING')",
+  "serverCommittedRowCount: canonicalCommit.committed",
+  "serverCommittedIds: canonicalCommit.ids",
+]) {
+  if (!canonicalImportAdapter.includes(token)) throw new Error(`Report truth contract missing durable canonical commit result invariant: ${token}`);
+}
 const canonicalImportEndpoint = fs.readFileSync('api/canonical-import-execute.ts', 'utf8');
-assert.ok(canonicalImportEndpoint.includes('serverAcceptedRowCount: input.rows.length'), 'canonical import endpoint must return the server-accepted row count');
+assert.ok(canonicalImportEndpoint.includes('serverCommittedRowCount: result.serverCommittedRowCount'), 'canonical import endpoint must return the canonical committed row count from the durable commit result');
 assert.ok(canonicalImportEndpoint.includes('serverValidatedQualityScore: input.qualityScore'), 'canonical import endpoint must return the server-validated quality score');
 const entitiesSurface = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
 assert.ok(entitiesSurface.includes('const inventoryQueueEmpty = snapshot.totalRows === 0'), 'inventory page must use authoritative totalRows for source-empty state');
