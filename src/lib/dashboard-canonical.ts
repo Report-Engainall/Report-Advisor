@@ -159,6 +159,41 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
   };
 }
 
+function validateInventoryRows(rows: unknown[]): InventoryReportRow[] {
+  rows.forEach((item, index) => {
+    if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: inventory.rows[' + index + '] must be an object');
+    const value = item as Record<string, unknown>;
+    const nullableFinite = (field: string) => value[field] === null || (typeof value[field] === 'number' && Number.isFinite(value[field] as number));
+    if (
+      typeof value.id !== 'string' ||
+      !nullableFinite('quantity') ||
+      !nullableFinite('unit_cost') ||
+      !nullableFinite('value')
+    ) throw new Error('REPORT_DATA_INVALID: inventory.rows[' + index + '] shape is invalid');
+
+    for (const nestedField of ['product', 'warehouse']) {
+      const nested = value[nestedField];
+      if (nested === null || nested === undefined) continue;
+      if (typeof nested !== 'object' || Array.isArray(nested)) throw new Error('REPORT_DATA_INVALID: inventory.rows[' + index + '].' + nestedField + ' must be an object or null');
+      const record = nested as Record<string, unknown>;
+      if (typeof record.id !== 'string' || (record.name !== null && typeof record.name !== 'string')) {
+        throw new Error('REPORT_DATA_INVALID: inventory.rows[' + index + '].' + nestedField + ' shape is invalid');
+      }
+    }
+
+    const product = value.product as Record<string, unknown> | null | undefined;
+    if (product) {
+      for (const field of ['reorder_point']) {
+        if (product[field] !== null && (typeof product[field] !== 'number' || !Number.isFinite(product[field] as number))) {
+          throw new Error('REPORT_DATA_INVALID: inventory.rows[' + index + '].product.' + field + ' is invalid');
+        }
+      }
+      if (product.sku !== null && typeof product.sku !== 'string') throw new Error('REPORT_DATA_INVALID: inventory.rows[' + index + '].product.sku is invalid');
+    }
+  });
+  return rows as InventoryReportRow[];
+}
+
 export async function fetchInventoryReportSnapshot(page = 0, pageSize = 25, filter: 'all'|'low'|'out' = 'all'): Promise<InventoryReportSnapshot> {
   if (!Number.isInteger(page) || page < 0) throw new Error('REPORT_QUERY_INVALID_PAGE');
   if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');
@@ -168,8 +203,8 @@ export async function fetchInventoryReportSnapshot(page = 0, pageSize = 25, filt
   if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: inventory snapshot missing');
   const row = data as Record<string, unknown>;
   return {
-    rows: requiredArray<InventoryReportRow>(row.rows, 'inventory.rows'), page: typeof row.page === 'number' && Number.isInteger(row.page) ? row.page : (() => { throw new Error('REPORT_DATA_INVALID: inventory.page is missing'); })(),
-    pageSize: typeof row.pageSize === 'number' && Number.isInteger(row.pageSize) ? row.pageSize : (() => { throw new Error('REPORT_DATA_INVALID: inventory.pageSize is missing'); })(),
+    rows: validateInventoryRows(requiredArray<unknown>(row.rows, 'inventory.rows')), page: typeof row.page === 'number' && Number.isInteger(row.page) && row.page >= 0 ? row.page : (() => { throw new Error('REPORT_DATA_INVALID: inventory.page is invalid'); })(),
+    pageSize: typeof row.pageSize === 'number' && Number.isInteger(row.pageSize) && row.pageSize >= 1 && row.pageSize <= 100 ? row.pageSize : (() => { throw new Error('REPORT_DATA_INVALID: inventory.pageSize is invalid'); })(),
     filter: row.filter === 'all' || row.filter === 'low' || row.filter === 'out' ? row.filter : (() => { throw new Error('REPORT_DATA_INVALID: inventory.filter is invalid'); })(), totalRows: finiteOrNull(row.totalRows),
     filteredRows: nonNegativeIntegerOrNull(row.filteredRows, 'inventory.filteredRows'), lowStock: nonNegativeIntegerOrNull(row.lowStock, 'inventory.lowStock'), outOfStock: nonNegativeIntegerOrNull(row.outOfStock, 'inventory.outOfStock'),
     unknownRows: nonNegativeIntegerOrNull(row.unknownRows, 'inventory.unknownRows'), totalValue: finiteOrNull(row.totalValue),
