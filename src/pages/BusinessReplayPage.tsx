@@ -29,6 +29,9 @@ export function BusinessReplayPage() {
   const eventTone = (kind: BusinessReplaySnapshot['events'][number]['kind']) => kind === 'OUTCOME' ? 'bg-success-50 text-success-700' : kind === 'WORK' ? 'bg-primary-50 text-primary-700' : 'bg-ink-100 text-ink-600';
   const eventLabel = (kind: BusinessReplaySnapshot['events'][number]['kind']) => kind === 'OUTCOME' ? 'نتيجة' : kind === 'WORK' ? 'تنفيذ' : 'لقطة';
   const eventIcon = (kind: BusinessReplaySnapshot['events'][number]['kind']) => kind === 'OUTCOME' ? CheckCircle2 : kind === 'WORK' ? Clock3 : Layers3;
+  const outcomeStatusCounts = (snapshot?.events ?? [])
+    .filter((event) => event.kind === 'OUTCOME')
+    .reduce<Record<string, number>>((acc, event) => { const key = event.status ?? 'غير متاح'; acc[key] = (acc[key] ?? 0) + 1; return acc; }, {});
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in">
       <PageHeader title="Business Replay" subtitle="إعادة قراءة ما حدث فعليًا من snapshots ونتائج تنفيذ محفوظة، دون إعادة بناء تاريخ غير موجود." />
@@ -46,6 +49,14 @@ export function BusinessReplayPage() {
         <Card><CardBody><div className="flex items-center gap-2 text-[10px] text-ink-400"><Database size={14}/> snapshots — نافذة القراءة</div><div className="mt-2 text-2xl font-black text-ink-900">{formatNumber(snapshot?.snapshotCount ?? 0)}</div><div className="mt-1 text-[10px] text-ink-500">آخر لقطة: {snapshot?.latestSnapshotAt ?? 'غير متاح'}</div></CardBody></Card>
         <Card><CardBody><div className="flex items-center gap-2 text-[10px] text-ink-400"><Target size={14}/> outcomes — نافذة القراءة</div><div className="mt-2 text-2xl font-black text-ink-900">{formatNumber(snapshot?.outcomeCount ?? 0)}</div><div className="mt-1 text-[10px] text-ink-500">آخر نتيجة: {snapshot?.latestOutcomeAt ?? 'غير متاح'}</div></CardBody></Card>
         <Card><CardBody><div className="flex items-center gap-2 text-[10px] text-ink-400"><ShieldCheck size={14}/> عناصر العمل — نافذة القراءة</div><div className="mt-2 text-2xl font-black text-ink-900">{formatNumber(snapshot?.workItemCount ?? 0)}</div><div className="mt-1 text-[10px] text-ink-500">تُقرأ كدليل تنفيذ فقط، لا كتوقع.</div></CardBody></Card>
+      </section>
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="حالة التعلم من النتائج">
+        {[
+          ['positive', 'نتائج إيجابية', 'text-success-700 bg-success-50'],
+          ['neutral', 'نتائج محايدة', 'text-primary-700 bg-primary-50'],
+          ['negative', 'نتائج سلبية', 'text-danger-700 bg-danger-50'],
+          ['insufficient', 'دليل غير كافٍ', 'text-warning-800 bg-warning-50'],
+        ].map(([key, label, tone]) => <div key={key} className="rounded-[14px] border border-ink-100 bg-white p-4 shadow-sm"><div className={`inline-flex rounded-full px-2 py-1 text-[9px] font-black ${tone}`}>{label}</div><div className="mt-2 text-2xl font-black text-ink-950">{formatNumber(outcomeStatusCounts[key] ?? 0)}</div><div className="mt-1 text-[9px] text-ink-400">ضمن نافذة القراءة الحالية</div></div>)}
       </section>
       <section className="rounded-[16px] border border-ink-200 bg-white p-5 shadow-card">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
