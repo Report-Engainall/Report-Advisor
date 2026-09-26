@@ -124,7 +124,7 @@ export function ExternalFileAnalysisPage() {
         </div>
         <div className="rounded-2xl border border-ink-200 bg-white p-4">
           <div className="text-[9px] font-black tracking-[.12em] text-ink-400">QUALITY</div>
-          <div className="mt-2 text-lg font-black">{{qualityScore == null ? 'غير متاح' : `${qualityScore}%`</div>
+          <div className="mt-2 text-lg font-black">{qualityScore == null ? 'غير متاح' : `${qualityScore}%`}</div>
           <div className="mt-1 text-[10px] text-ink-500">{qualityScore == null ? 'الدرجة غير متاحة من المصدر' : qualityScore >= 75 ? 'ثقة جودة مرتفعة' : qualityScore >= 50 ? 'مراجعة جودة مطلوبة' : 'الاعتماد محظور حاليًا'}</div>
         </div>
         <div className="rounded-2xl border border-ink-200 bg-white p-4">
