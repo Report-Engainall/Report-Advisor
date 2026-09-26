@@ -59,7 +59,7 @@ function ReportDecisionPath({
     { key: 'ACTION', label: 'الإجراء', detail: actionLabel, state: 'NEXT ACTION' },
   ];
   return (
-    <section className="grid gap-2 md:grid-cols-4" aria-label="سلسلة التقرير من المصدر إلى الإجراء">
+    <section className="grid gap-2 md:grid-cols-4" aria-label="سلسلة التقرير من المصدر إلى الإجراء" data-next-action={actionPath}>
       {steps.map((step, index) => (
         <div key={step.key} className="relative rounded-[14px] border border-ink-200 bg-white p-3.5 shadow-sm">
           <div className="flex items-center gap-2">
