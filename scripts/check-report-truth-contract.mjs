@@ -84,6 +84,18 @@ if (!/WITH CHECK\s*\(\s*company_id\s*=\s*public\.current_company_id\(\)\s*\)/i.t
 
 // Inspect only application reporting surfaces. The guard itself is intentionally
 // outside this set so its own detection regexes cannot self-trigger.
+const truthContextStrip = fs.readFileSync(path.join(srcDir, 'components', 'TruthContextStrip.tsx'), 'utf8');
+for (const token of [
+  "const hasValidQualityIssues = typeof qualityIssues === 'number' && Number.isInteger(qualityIssues) && qualityIssues >= 0;",
+  "const decisionReady = status === 'CONFIRMED' && hasValidQualityIssues && qualityIssues === 0;",
+  "data-truth-state={status}",
+  "data-decision-ready={decisionReady ? 'true' : 'false'}",
+  "جودة المصدر: غير متاحة",
+  "الاستخدام: راجع الدليل أولًا",
+]) {
+  if (!truthContextStrip.includes(token)) throw new Error('Report truth contract missing fail-closed TruthContextStrip invariant: ' + token);
+}
+
 const reportFiles = files.filter((f) => /report|dashboard|analytics|summary/i.test(path.basename(f)));
 const reportSource = reportFiles.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
 
