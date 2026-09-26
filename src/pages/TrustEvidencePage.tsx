@@ -59,6 +59,19 @@ export function TrustEvidencePage() {
     () => snapshot?.issues?.filter((issue) => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0) ?? 0,
     [snapshot],
   );
+  const issueSeverityRows = useMemo(() => {
+    const issues = snapshot?.issues ?? [];
+    const total = issues.reduce((sum, issue) => sum + issue.count, 0);
+    const critical = issues.filter(issue => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0);
+    const warning = issues.filter(issue => issue.severity === 'warning').reduce((sum, issue) => sum + issue.count, 0);
+    const informational = Math.max(0, total - critical - warning);
+    return [
+      { label: 'حرجة', value: critical, className: 'text-danger-700 bg-danger-50 border-danger-200' },
+      { label: 'تحذير', value: warning, className: 'text-warning-800 bg-warning-50 border-warning-200' },
+      { label: 'معلوماتية / أخرى', value: informational, className: 'text-ink-700 bg-ink-50 border-ink-200' },
+    ];
+  }, [snapshot]);
+
   const nextStep = snapshot?.status === 'EMPTY'
     ? { label: 'ابدأ من المصدر', detail: 'أضف ملفًا أو مصدرًا حتى يمكن بناء حالة حقيقة وأدلة فعلية.', path: '/import' }
     : criticalIssueTotal > 0
@@ -114,6 +127,20 @@ export function TrustEvidencePage() {
         <div className="flex items-center justify-between gap-3"><span className={'rounded-full px-2.5 py-1 text-[9px] font-black '+tone}>{title}</span><Icon size={18} className="text-ink-400"/></div>
         <p className="mt-4 text-xs leading-6 text-ink-500">{text}</p>
       </CardBody></Card>)}
+    </section>
+
+    <section className="grid gap-3 md:grid-cols-3" aria-label="توزيع مشكلات الجودة حسب الشدة">
+      {issueSeverityRows.map(item => (
+        <div key={item.label} className={'rounded-[14px] border p-4 shadow-sm ' + item.className}>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-[10px] font-black">{item.label}</span>
+            <span className="text-2xl font-black tabular-nums">{item.value}</span>
+          </div>
+          <div className="mt-2 text-[10px] leading-5 opacity-80">
+            {item.value === 0 ? 'لا توجد حالات مثبتة في هذه الفئة.' : 'تحتاج المعالجة وفق أثرها قبل الاعتماد على النتائج.'}
+          </div>
+        </div>
+      ))}
     </section>
 
     <section className="grid gap-4 xl:grid-cols-[.9fr_1.1fr]">
