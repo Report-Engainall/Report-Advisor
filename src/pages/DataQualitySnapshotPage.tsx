@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { ArrowUpLeft, Upload } from 'lucide-react';
 import { Users, Package, Warehouse, CheckCircle2, AlertTriangle, Database, ShieldCheck, BarChart3, RefreshCw } from 'lucide-react';
@@ -23,12 +23,12 @@ export function DataQualitySnapshotPage() {
   if (loading) return <LoadingState message="جارٍ فحص جودة البيانات..." />;
   if (error) return <ErrorState message={error} onRetry={load} />;
   const totalRecords = entities.reduce((s,e)=>s+e.total,0); const totalIssues = entities.reduce((s,e)=>s+e.issues,0);
-  const severityCounts = useMemo(() => ({
+  const severityCounts = {
     critical: issues.filter(i => i.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0),
     warning: issues.filter(i => i.severity === 'warning').reduce((sum, issue) => sum + issue.count, 0),
     info: issues.filter(i => i.severity === 'info').reduce((sum, issue) => sum + issue.count, 0),
-  }), [issues]);
-  const visibleIssues = useMemo(() => severityFilter === 'all' ? issues : issues.filter(i => i.severity === severityFilter), [issues, severityFilter]);
+  };
+  const visibleIssues = severityFilter === 'all' ? issues : issues.filter(i => i.severity === severityFilter);
   const criticalIssueTotal = severityCounts.critical;
   const nextAction = snapshotStatus === 'EMPTY'
     ? { label: 'استيراد مصدر', description: 'لا توجد سجلات تجارية مثبتة بعد؛ ابدأ بالمصدر الموحد حتى تتكوّن لقطة جودة قابلة للقراءة.', to: '/import' }
