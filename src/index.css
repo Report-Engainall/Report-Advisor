@@ -946,3 +946,16 @@ button,input,textarea,select{font:inherit}
 }
 @media(max-width:767px){.ag-context-rail{padding-inline:10px}.ag-context-chip{min-height:32px;font-size:9px}.ag-main{min-height:calc(100vh - 104px)}}
 @media(prefers-reduced-motion:reduce){.ag-top-search,.ag-main tbody tr{transition:none!important}}
+
+@layer components {
+  .ag-decision-evidence-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .ag-decision-evidence-card{min-width:0;border:1px solid #d5e2de;border-radius:14px;background:linear-gradient(145deg,#fff,#f6faf8);padding:13px;box-shadow:0 10px 24px -26px rgb(5 46 43 / 55%)}
+  .ag-decision-evidence-card[data-state="review"]{border-color:rgb(217 119 6 / 24%);background:linear-gradient(145deg,#fff,#fff9ef)}
+  .ag-decision-evidence-kicker{font-size:9px;font-weight:900;letter-spacing:.13em;color:#7a9189}
+  .ag-decision-evidence-value{margin-top:5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:900;color:#173f38}
+  .ag-decision-evidence-card p{margin-top:5px;min-height:38px;font-size:10px;line-height:1.7;color:#5a7269}
+  .ag-decision-evidence-link{display:inline-flex;align-items:center;gap:5px;margin-top:7px;font-size:9px;font-weight:900;color:#0f766e}
+  .ag-decision-evidence-metric{display:inline-flex;margin-top:7px;border-radius:999px;background:#f1f7f4;padding:4px 8px;font-size:9px;font-weight:850;color:#4d6d64}
+  @media(max-width:1100px){.ag-decision-evidence-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:640px){.ag-decision-evidence-grid{grid-template-columns:1fr}.ag-decision-evidence-card p{min-height:0}}
+}
