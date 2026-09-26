@@ -41,6 +41,43 @@ const reportCards = [
   { path:'/reports/profitability', title:'الربحية', stage:'قرار', desc:'هوامش الربحية حسب المنتج والعميل والفئة.', icon:TrendingUp, iconClass:'bg-primary-50 text-primary-600' },
 ];
 
+function ReportDecisionPath({
+  sourceStatus,
+  evidenceStatus,
+  actionLabel,
+  actionPath,
+}: {
+  sourceStatus: string;
+  evidenceStatus: string;
+  actionLabel: string;
+  actionPath: string;
+}) {
+  const steps = [
+    { key: 'SOURCE', label: 'المصدر', detail: 'لقطة قانونية من طبقة البيانات', state: sourceStatus },
+    { key: 'TRUTH', label: 'الحقيقة', detail: 'الحالة كما أثبتتها اللقطة الحالية', state: sourceStatus },
+    { key: 'EVIDENCE', label: 'الدليل', detail: 'جودة وأعمار وقابلية الاستخدام', state: evidenceStatus },
+    { key: 'ACTION', label: 'الإجراء', detail: actionLabel, state: 'NEXT ACTION' },
+  ];
+  return (
+    <section className="grid gap-2 md:grid-cols-4" aria-label="سلسلة التقرير من المصدر إلى الإجراء">
+      {steps.map((step, index) => (
+        <div key={step.key} className="relative rounded-[14px] border border-ink-200 bg-white p-3.5 shadow-sm">
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-ink-950 text-[9px] font-black text-white">{String(index + 1).padStart(2, '0')}</span>
+            <div className="min-w-0">
+              <div className="text-[9px] font-black tracking-[.13em] text-primary-700">{step.key}</div>
+              <div className="text-[11px] font-black text-ink-950">{step.label}</div>
+            </div>
+          </div>
+          <div className="mt-2 text-[10px] leading-5 text-ink-500">{step.detail}</div>
+          <div className="mt-2 inline-flex rounded-full bg-ink-50 px-2 py-1 text-[9px] font-black text-ink-700">{step.state}</div>
+          {index < steps.length - 1 && <span className="pointer-events-none absolute -left-1.5 top-1/2 hidden h-px w-3 bg-ink-200 md:block" aria-hidden="true" />}
+        </div>
+      ))}
+    </section>
+  );
+}
+
 export function ReportsCenterPage() {
   const [snapshot, setSnapshot] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null>(null);
   const [loading, setLoading] = useState(true);
@@ -101,6 +138,12 @@ export function ReportsCenterPage() {
       actions={<div className="flex items-center gap-2"><span className={`badge ${truthClass}`}>{truthLabel}</span><button type="button" onClick={() => void load(true)} disabled={refreshing} className="btn-secondary inline-flex items-center gap-2 text-xs">{refreshing ? 'جارٍ التحديث' : 'تحديث اللقطة'}</button></div>}
     />
 
+    <ReportDecisionPath
+      sourceStatus={truthLabel}
+      evidenceStatus={reportEvidenceLabel}
+      actionLabel={nextLabel}
+      actionPath={nextPath}
+    />
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6" aria-label="اللقطة التنفيذية الحالية">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-stretch xl:justify-between">
         <div className="min-w-0 flex-1">
