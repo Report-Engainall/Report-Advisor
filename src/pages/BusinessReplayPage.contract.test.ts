@@ -13,6 +13,9 @@ describe('business replay contract', () => {
     expect(queries).toContain('fetchBusinessReplaySnapshot');
     expect(queries).toContain("from('business_state_snapshots')");
     expect(queries).toContain("from('recommendation_outcomes')");
+    expect(queries).toContain("from('decision_work_items')");
+    expect((queries.match(/\.eq\('company_id', companyId\)/g) ?? []).length).toBeGreaterThanOrEqual(3);
+    expect(queries).not.toContain('service_role');
   });
 
   it('fails closed when historical replay evidence is missing', () => {
