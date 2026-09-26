@@ -1,3 +1,20 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-145
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `fca786da50a8ef6791d89ac1d3642c063b303e8e` on PR #660; not merged and therefore no PASS transferred.
+- DONE — UI → merged #657 and #658 into current main; then built a new exact-main UI/core lane. Shared visual system received deeper topbar/context-rail/table/mobile/low-bandwidth polish. Header now exposes live section, current surface, health, unread attention and Command Palette shortcut.
+- DONE — CORE → dashboard canonical adapters now fail closed on malformed authoritative arrays and invalid state values; missing returned as-of no longer falls back to today's date. Inventory/profitability/RFM/ABC/aging state payloads reject invalid canonical shapes instead of silently downgrading.
+- EXACT SOURCE → branch head `fca786da50a8ef6791d89ac1d3642c063b303e8e`; PR #660 base is main `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT GATES → Vercel is pending/rate-limit boundary; GitHub workflow runs are not yet exposed for the candidate. No browser/device/production PASS claimed.
+- BLOCKED EXTERNAL → local device/browser unavailable; Vercel free-plan deployment path remains external. No production mutation.
+- VERIFIED → exact GitHub main HEAD, merged #657/#658, exact branch source commits, and source-level UI/core changes.
+- NOT PROVEN → PR #660 CI/build/browser, production deployment identity, Phase-F live backup/restore/RPO/RTO/rollback.
+- CURRENT RESUME POINTER → `main 46675643e32f6ea28b6c1d80a530b2eb134e7907 → consume PR #660 exact-head gates → repair first reproduced failure only → merge when required gates permit; keep Phase-F fail-closed and continue independent UI/core work`.
+- NEXT EXECUTABLE ACTION → consume PR #660 exact-head CI/build status when available; if a current-head failure appears, repair only that failure, otherwise merge #660 and immediately continue the next deep UI/core wave.
+- UI LANE PROGRESS → shared visual system/context rail/table hierarchy/mobile polish delivered on PR #660.
+- CORE LANE PROGRESS → fail-closed dashboard/report truth adapter hardening delivered on PR #660.
+- DO NOT REPEAT → no stale PASS transfer, no rework of merged #657/#658, no production-SHA bypass, no duplicate navigation/RPC/import path, no device-dependent verification claims.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
