@@ -290,8 +290,8 @@ export function CanonicalImportPage() {
       }
       setProgress(100);
       setResult({
-        total: serverAcceptedRowCount,
-        valid: serverAcceptedRowCount,
+        total: serverCommittedRowCount,
+        valid: serverCommittedRowCount,
         invalid: 0,
         snapshotId,
         importId: rec.id,
