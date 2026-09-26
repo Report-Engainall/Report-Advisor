@@ -301,18 +301,27 @@ export async function fetchAgingSnapshot(): Promise<AgingSnapshot> {
 
 export async function fetchDashboardIntelligence(): Promise<{recommendations: Recommendation[]; alerts: Alert[]}> {
   const maxAttempts = 3;
+  let payload: unknown = null;
   let lastError: unknown = null;
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     try {
       const { data, error } = await supabase.rpc('get_dashboard_intelligence', { p_limit: 100 });
       if (error) throw error;
-      if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: dashboard intelligence missing');
-      const row = data as Record<string, unknown>;
-      return { recommendations: requiredArray<Recommendation>(row.recommendations, 'recommendations', isRecommendation), alerts: requiredArray<Alert>(row.alerts, 'alerts', isAlert) };
+      payload = data;
+      break;
     } catch (error) {
       lastError = error;
       if (attempt < maxAttempts) await new Promise(resolve => setTimeout(resolve, 250 * attempt));
     }
   }
-  throw lastError instanceof Error ? lastError : new Error('REPORT_DATA_UNAVAILABLE: dashboard intelligence fetch failed');
+
+  if (payload === null) {
+    throw lastError instanceof Error ? lastError : new Error('REPORT_DATA_UNAVAILABLE: dashboard intelligence fetch failed');
+  }
+  if (typeof payload !== 'object' || Array.isArray(payload)) throw new Error('REPORT_DATA_UNAVAILABLE: dashboard intelligence malformed');
+  const row = payload as Record<string, unknown>;
+  return {
+    recommendations: requiredArray<Recommendation>(row.recommendations, 'recommendations', isRecommendation),
+    alerts: requiredArray<Alert>(row.alerts, 'alerts', isAlert),
+  };
 }
