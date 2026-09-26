@@ -22,3 +22,13 @@ describe('dashboard snapshot fail-closed truth', () => {
     expect(adapter).toContain('REPORT_DATA_MALFORMED:${field}');
   });
 });
+
+
+describe('dashboard canonical row-shape validation', () => {
+  it('guards trend/top-entity/category/aging row semantics', () => {
+    expect(adapter).toContain('isMonthlyTrend');
+    expect(adapter).toContain('isTopEntity');
+    expect(adapter).toContain('isCategoryBreakdown');
+    expect(adapter).toContain('isAgingBucket');
+  });
+});
