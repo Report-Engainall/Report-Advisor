@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle, ArrowUpLeft, CalendarClock, CheckCircle2, ChevronLeft, FileSearch, Lightbulb,
-  ShieldCheck, Target, UserRound, Workflow, XCircle
+  Ban, ShieldCheck, Target, UserRound, Workflow, XCircle
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
@@ -67,7 +67,7 @@ function BlockedState({ title, detail }: { title: string; detail: string }) {
   return (
     <div className="rounded-[14px] border border-warning-200 bg-warning-50/70 p-4" role="status">
       <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-100 text-warning-800"><ShieldCheck size={17}/></div>
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-100 text-warning-800"><Ban size={17}/></div>
         <div className="min-w-0">
           <div className="text-[12px] font-black text-warning-950">{title}</div>
           <p className="mt-1 text-[11px] leading-5 text-warning-900/80">{detail}</p>
@@ -101,8 +101,8 @@ function RecommendationCard({
       onClick={onClick}
       aria-pressed={active}
       aria-label={'اختيار التوصية: ' + recommendation.title}
-      data-selected={active ? 'true' : 'false'}
-      className={'w-full rounded-[14px] border p-4 text-right transition ' + (active ? 'border-primary-300 bg-primary-50/50 shadow-sm' : 'border-ink-200 bg-white hover:border-primary-200 hover:bg-primary-50/20')}
+      data-selected={active ? 'true' : 'false'} data-focusable-decision="true"
+      className={'ag-recommendation-card w-full rounded-[14px] border p-4 text-right transition ' + (active ? 'border-primary-300 bg-primary-50/50 shadow-sm' : 'border-ink-200 bg-white hover:border-primary-200 hover:bg-primary-50/20')}
     >
       <div className="flex items-start gap-3">
         <span className={'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ' + (active ? 'bg-primary-100 text-primary-700' : 'bg-ink-50 text-ink-500')}>
