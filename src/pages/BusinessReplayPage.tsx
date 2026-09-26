@@ -28,6 +28,22 @@ export function BusinessReplayPage() {
   const hasReplay = Boolean(snapshot && snapshot.snapshotCount > 0 && snapshot.outcomeCount > 0);
   const eventTone = (kind: BusinessReplaySnapshot['events'][number]['kind']) => kind === 'OUTCOME' ? 'bg-success-50 text-success-700' : kind === 'WORK' ? 'bg-primary-50 text-primary-700' : 'bg-ink-100 text-ink-600';
   const eventLabel = (kind: BusinessReplaySnapshot['events'][number]['kind']) => kind === 'OUTCOME' ? 'نتيجة' : kind === 'WORK' ? 'تنفيذ' : 'لقطة';
+  const readableStatus = (status: string | null) => {
+    if (!status) return null;
+    const labels: Record<string, string> = {
+      positive: 'إيجابية',
+      neutral: 'محايدة',
+      negative: 'سلبية',
+      insufficient: 'دليل غير كافٍ',
+      OPEN: 'مفتوح',
+      IN_PROGRESS: 'قيد التنفيذ',
+      COMPLETED: 'مكتمل',
+      BLOCKED: 'محجوب',
+      CANCELLED: 'ملغى',
+      CAPTURED: 'تم حفظ اللقطة',
+    };
+    return labels[status] ?? status;
+  };
   const eventIcon = (kind: BusinessReplaySnapshot['events'][number]['kind']) => kind === 'OUTCOME' ? CheckCircle2 : kind === 'WORK' ? Clock3 : Layers3;
   const outcomeStatusCounts = (snapshot?.events ?? [])
     .filter((event) => event.kind === 'OUTCOME')
@@ -78,7 +94,7 @@ export function BusinessReplayPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={`rounded-full px-2 py-1 text-[9px] font-black ${eventTone(event.kind)}`}>{eventLabel(event.kind)}</span>
-                      {event.status && <span className="rounded-full bg-white px-2 py-1 text-[9px] font-black text-ink-600">{event.status}</span>}
+                      {readableStatus(event.status) && <span className="rounded-full bg-white px-2 py-1 text-[9px] font-black text-ink-600">{readableStatus(event.status)}</span>}
                       {event.evidencePresent ? <span className="rounded-full bg-success-50 px-2 py-1 text-[9px] font-black text-success-700"><ShieldCheck size={11} className="inline-block ml-1"/>دليل مرتبط</span> : <span className="rounded-full bg-warning-50 px-2 py-1 text-[9px] font-black text-warning-800"><CircleAlert size={11} className="inline-block ml-1"/>دليل غير ظاهر</span>}
                       <time className="mr-auto text-[9px] text-ink-400" dateTime={event.occurredAt}>{new Date(event.occurredAt).toLocaleString('ar-YE')}</time>
                     </div>
