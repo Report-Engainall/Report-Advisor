@@ -1,3 +1,13 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTRACT INTEGRITY + OPERATIONAL UI
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- CLOSED — Product-WOW contract duplicate bindings were consolidated; current file has no duplicate top-level `const` names.
+- CLOSED — Data Quality contract now expects the consistency-first next-action model.
+- CLOSED — Work Center progress range and unavailable-state contract are aligned.
+- CI — the latest observed head is still broadly queued/pending with no current-head application PASS; Vercel remains externally rate-limited.
+- NEXT — consume terminal exact-head evidence; repair only reproduced current-SHA failure; then continue the next independent UI/core boundary.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / DATA QUALITY + WORK CENTER CLOSURE
 
 > Exact-head evidence only. Historical PASS is not transferred.
