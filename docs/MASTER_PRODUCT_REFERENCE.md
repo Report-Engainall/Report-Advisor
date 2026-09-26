@@ -1,3 +1,9 @@
+## Decision and operating truth closure — 2026-09-27
+
+- Decision Experience now follows persisted lifecycle gates across evidence → decision → approval → work → outcome; downstream stages are not visually reachable as completed states without their prerequisite records.
+- Work Center preserves malformed progress as unknown rather than converting it into a synthetic percentage.
+- Replay availability is now derived from the canonical replay read surface in the Command Center.
+
 ## CURRENT SURFACE CLOSURE — 2026-09-27
 
 - Business Replay is now a real product surface: tenant-scoped snapshots/outcomes/work-items are read through a bounded recent-history window, exposed as a chronological replay timeline, and surfaced with explicit learning outcome states. Missing history remains `INSUFFICIENT_DATA`.
