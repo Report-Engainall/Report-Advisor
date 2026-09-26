@@ -147,3 +147,10 @@ Forecasting and benchmark outputs must expose minimum-data/sample limits.
 
 - Entity list counts now preserve a null/unknown server count instead of converting it to a false zero, preventing a missing count from becoming false absence.
 - Customer/Product pagination treats unavailable totals as an unknown state rather than an invented finite page count.
+
+
+## Execution closure — 2026-09-27 / predecessor 04f19027b2dc7293d41436a9070de68cfad473fa
+
+- A requested reporting period can no longer be silently replaced by a different RPC period in the dashboard truth layer.
+- A `CALCULATED` analytics status without any result rows is treated as malformed source truth rather than a successful empty calculation.
+- Analytics Center preserves the distinction between unavailable data, source read failure, and calculated data.
