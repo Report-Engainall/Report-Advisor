@@ -1,15 +1,15 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 162
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 163
 
-- MAIN HEAD OBSERVED: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
-- CURRENT CODE/TEST CANDIDATE: `87a660eb92ccd3efafcb6a637cfd9454bfdaf178` (PR #659 branch `feat/deep-ui-core-closure-20260925`).
-- CORE RETAINED FROM e39: canonical dashboard and import fail-closed truth boundaries; inventory product-reference validation; cash_accounts reconciliation migration. No new core mutation in this checkpoint.
-- UI FIXES: Receivables report memo now obeys stable React hook order; Inventory Intelligence grouped/detail filtering is type-narrowed and its memo executes before loading/error early returns.
-- EXACT FAILURE BASIS: e39 exact-head typecheck reported Inventory union errors; device-independent browser reported React error #310 on `/reports/receivables`. Both were repaired in the new candidate. Prior certification/enforcement also resolved stale indexed candidate `cce7418...`; Phase-F still reported production SHA mismatch and logical restore's missing composite uniqueness on `branches`.
-- NEW CANDIDATE EVIDENCE: no workflow/status had appeared for `87a660e...` at initial verification. All new-head gates remain NOT PROVEN; no prior PASS transferred.
-- NOT PROVEN / BLOCKED: Phase-F live resilience, production exact-SHA identity/promotion, full new-head Quality/Certification/Browser/desktop gates.
-- NEXT EXECUTABLE ACTION: consume first terminal exact-head failure on `87a660e...`; repair only a reproduced defect, then continue independent UI + core work. Keep Phase-F fail-closed.
-- DO NOT REPEAT: hook-order/union defects fixed here, stale SHA evidence, preview-as-production, production bypass, duplicate importer/RPC/runner.
-- RESUME POINTER: `main c985deeb… → PR #659 → code candidate 87a660e… → first terminal exact-head failure → independent UI/core closure → exact-green merge evidence`.
+- HEAD OBSERVED BEFORE THIS INDEX WRITE: `18f288a80139e18502d3c98f4f99e0bf97c04204` (governance write).
+- CURRENT CODE/TEST CANDIDATE: `ba7ff1d7324e52b94d5a5c967f8a9fba3c181a18`.
+- PR #659 / branch `feat/deep-ui-core-closure-20260925`.
+- CORE: repository now contains the forward-only branch composite-uniqueness prerequisite before cash_accounts replay; staging independently proves both the branch unique constraint and cash_accounts composite FK.
+- UI: Trust & Evidence now exposes actionable quality diagnostics and accessible per-entity quality progress; prior Receivables and Inventory runtime/type fixes remain in the same functional lineage.
+- EXACT-HEAD EVIDENCE: ba7ff1d has 51 Actions runs at observation; no terminal failures yet, with most gates queued/in-progress. No PASS transferred.
+- RELEASE: Phase-F remains NOT PROVEN until fresh logical restore and production identity probes pass on the new candidate. Production promotion remains untouched.
+- NEXT EXECUTABLE ACTION: consume the first terminal exact-head failure on ba7ff1d; repair only a reproduced defect. Otherwise continue a non-overlapping UI/core closure and keep the candidate bound to ba7ff1d.
+- DO NOT REPEAT: stale candidate evidence, prior hook/type fixes, preview-as-production, production bypass, duplicate importer/RPC/runner.
+- RESUME POINTER: `main c985deeb… → PR #659 → ba7ff1d… → first terminal exact-head failure → independent UI/core closure → exact-green merge evidence`.
 
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 159
