@@ -8,23 +8,28 @@ function optionalNumericEvidence(metric:string,value:number|null|undefined,unit:
   return Number.isFinite(value)?[{metric,value:value as number,unit,source}]:[];
 }
 
-function evidenceIsUsable(evidence:DecisionEvidence[]):boolean{
-  return evidence.length>0 && evidence.every((item)=>
-    typeof item.metric==='string' && item.metric.trim().length>0 &&
-    typeof item.source==='string' && item.source.trim().length>0 &&
-    typeof item.value==='number' && Number.isFinite(item.value) &&
-    (item.unit === undefined || (typeof item.unit === 'string' && item.unit.trim().length > 0)) &&
-    (item.period === undefined || (typeof item.period === 'string' && item.period.trim().length > 0))
-  );
+function evidenceIsUsable(evidence:unknown): evidence is DecisionEvidence[]{
+  if(!Array.isArray(evidence) || evidence.length===0) return false;
+  return evidence.every((item) => {
+    if(!item || typeof item!=='object') return false;
+    const value=item as Record<string,unknown>;
+    return typeof value.metric==='string' && value.metric.trim().length>0
+      && typeof value.source==='string' && value.source.trim().length>0
+      && typeof value.value==='number' && Number.isFinite(value.value)
+      && (value.unit === undefined || (typeof value.unit === 'string' && value.unit.trim().length > 0))
+      && (value.period === undefined || (typeof value.period === 'string' && value.period.trim().length > 0));
+  });
 }
 
-export function decisionIsUsable(decision:Decision):boolean{
-  return (decision.severity==='critical' || decision.severity==='high' || decision.severity==='medium' || decision.severity==='low')
-    && typeof decision.id==='string' && decision.id.trim().length>0
-    && typeof decision.title==='string' && decision.title.trim().length>0
-    && typeof decision.action==='string' && decision.action.trim().length>0
-    && Number.isFinite(decision.confidence) && decision.confidence>=0 && decision.confidence<=1
-    && evidenceIsUsable(decision.evidence);
+export function decisionIsUsable(decision:unknown): decision is Decision{
+  if(!decision || typeof decision!=='object') return false;
+  const value=decision as Record<string,unknown>;
+  return (value.severity==='critical' || value.severity==='high' || value.severity==='medium' || value.severity==='low')
+    && typeof value.id==='string' && value.id.trim().length>0
+    && typeof value.title==='string' && value.title.trim().length>0
+    && typeof value.action==='string' && value.action.trim().length>0
+    && typeof value.confidence==='number' && Number.isFinite(value.confidence) && value.confidence>=0 && value.confidence<=1
+    && evidenceIsUsable(value.evidence);
 }
 
 function inventoryEvidenceIsUsable(item:InventoryDecision):boolean{
