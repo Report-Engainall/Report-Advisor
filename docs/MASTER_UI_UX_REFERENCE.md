@@ -314,3 +314,10 @@ Summary versus itemized presentation must be explicit for financial/operational 
 Hierarchy -> Density -> Evidence -> Action -> Accessibility -> Mobile -> Print -> Empty/Loading/Error
 
 A surface is complete only when the quality gate is satisfied, not merely when the populated screenshot looks polished.
+
+## IMPORT QUALITY TRUST SURFACE — 2026-09-26
+
+- Canonical Import quality is a semantic state, not decorative text: trusted for >=75, review for 50–74, blocked below 50.
+- Invalid, non-finite or out-of-range source quality is rejected before the preview state instead of being normalized into a plausible value.
+- The source passport exposes the state through data-quality-state so visual regression guards can verify the trust meaning without coupling to color alone.
+- This remains consistent with the Import UX contract: evidence and quality gates determine readiness; visual polish does not create eligibility.
