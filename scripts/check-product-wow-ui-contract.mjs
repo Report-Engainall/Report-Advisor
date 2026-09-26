@@ -11,6 +11,8 @@ assert.ok(dataTable.includes('scope="col"'), 'shared table headers must declare 
 assert.ok(dataTable.includes('aria-rowcount={visibleRows.length + 1}') && dataTable.includes('aria-colcount={columns.length}'), 'shared table must expose row and column counts');
 assert.ok(dataTable.includes('role="navigation" aria-label="تنقّل الجدول"'), 'shared table pagination must expose navigation semantics');
 
+const queries = fs.readFileSync('src/lib/queries.ts', 'utf8');
+assert.ok(queries.includes('WORKER_HEALTH_COUNT_UNAVAILABLE'), 'worker health must fail closed when exact counts are unavailable');
 const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
 assert.ok(workCenter.includes('const zeroProgressActive = useMemo'), 'work center must expose an explicit zero-progress active signal');
 assert.ok(workCenter.includes('تحقق من العمليات دون تقدم'), 'work center must route zero-progress work to a visible next action');
