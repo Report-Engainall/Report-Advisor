@@ -66,7 +66,7 @@ function AnalyticsStatusStrip({
   return (
     <section className="ag-decision-strip" aria-label={'حالة ' + label}>
       <div className="ag-decision-cell"><span className="ag-decision-label">حالة التحليل</span><span className="ag-decision-value">{insufficient ? 'بيانات غير كافية' : 'محسوب من المصدر'}</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">السجلات المستخدمة</span><span className="ag-decision-value">{formatNumber(rows)}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">الصفوف المستلمة</span><span className="ag-decision-value">{formatNumber(rows)}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">خارج الحساب</span><span className="ag-decision-value">{unknownRows == null ? 'غير متاح' : formatNumber(unknownRows)}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">القاعدة</span><span className="ag-decision-value">{insufficient ? 'لا يتم تصنيع قيم بديلة' : 'النتيجة مرتبطة بالمصدر الكانوني'}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">الإجراء</span><span className="ag-decision-value">{insufficient ? 'مراجعة المصدر / الثقة' : 'انقل النتيجة إلى القرار'}</span></div>
