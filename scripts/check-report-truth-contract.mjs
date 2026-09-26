@@ -160,6 +160,20 @@ for (const token of [
 ]) {
   if (!canonicalCommit.includes(token)) throw new Error(`Report truth contract missing canonical import commit invariant: ${token}`);
 }
+const demandTruth = fs.readFileSync(path.join(srcDir, 'lib', 'free-toolbox', 'sales-demand-series.ts'), 'utf8');
+for (const token of [
+  "DEMAND_DATA_INVALID: invoice id is missing",
+  "DEMAND_DATA_INVALID: duplicate invoice id in authoritative read",
+  "DEMAND_DATA_INVALID: sale item invoice_id is missing",
+  "DEMAND_DATA_INVALID: sale item product_id is missing",
+  "DEMAND_DATA_INVALID: sale item references an invoice outside the authoritative invoice read",
+  "DEMAND_DATA_INVALID: sale item product identity is missing",
+  "DEMAND_DATA_INVALID: sale item quantity or sales value is invalid",
+  "if (!Number.isFinite(quantity) || !Number.isFinite(sales))",
+]) {
+  if (!demandTruth.includes(token)) throw new Error('Report truth contract missing demand-data fail-closed invariant: ' + token);
+}
+
 const querySource = fs.readFileSync(path.join(srcDir, 'lib', 'queries.ts'), 'utf8');
 for (const token of [
   "function nonEmptyText(value: unknown): value is string",
