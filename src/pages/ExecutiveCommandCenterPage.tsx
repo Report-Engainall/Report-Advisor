@@ -131,6 +131,16 @@ export function ExecutiveCommandCenterPage() {
     return values.every(isFiniteNumber) ? values.reduce((sum, value) => sum + value, 0) : null;
   }, [quality]);
 
+  const executiveTruth = useMemo(() => {
+    if (kpis?.status === 'CONFIRMED' && qualityIssueTotal === 0) {
+      return { state: 'verified', label: 'الحقيقة مثبتة', detail: 'السياق الحالي قابل للاستخدام مع حالة دليل ظاهرة.' };
+    }
+    if (kpis?.status === 'CALCULATED') {
+      return { state: 'review', label: 'محسوب — يحتاج مراجعة', detail: 'النتيجة مشتقة لكنها ليست بديلًا عن التحقق من الدليل.' };
+    }
+    return { state: 'insufficient', label: 'بيانات غير كافية', detail: 'لا يتم تحويل النقص أو عدم اليقين إلى أرقام بديلة.' };
+  }, [kpis?.status, qualityIssueTotal]);
+
   if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   if (!kpis) return <DataUnavailableState title="مركز القيادة ينتظر الحقيقة" message="لا توجد مؤشرات أساسية موثوقة تكفي لبناء صورة تنفيذية. راجع جودة المصدر قبل اتخاذ القرار." action={<Link to="/data-quality" className="btn-primary text-[11px]">مراجعة جودة البيانات</Link>} />;
@@ -140,9 +150,12 @@ export function ExecutiveCommandCenterPage() {
       <section className="rounded-[18px] border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated lg:p-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
-            <div className="flex items-center gap-2 text-[11px] font-black text-primary-300"><WalletCards size={15}/> مركز القيادة</div>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2 text-[11px] font-black text-primary-300"><WalletCards size={15}/> مركز القيادة</div>
+              <span className={'ag-trust ag-trust-' + executiveTruth.state}>{executiveTruth.label}</span>
+            </div>
             <h1 className="mt-2 text-[25px] font-black tracking-tight lg:text-[31px]">ما يؤثر على المال والعمل الآن</h1>
-            <p className="mt-2 text-[12px] leading-6 text-ink-300">شاشة واحدة تجمع الصورة المالية، إشارات الانتباه، والقرارات المقترحة، مع بقاء المصدر وحالة الدليل ظاهرين.</p>
+            <p className="mt-2 text-[12px] leading-6 text-ink-300">{executiveTruth.detail} شاشة واحدة تجمع الصورة المالية، إشارات الانتباه، والقرارات المقترحة، مع بقاء المصدر وحالة الدليل ظاهرين.</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-1 rounded-[10px] bg-white/10 p-1">
@@ -157,7 +170,7 @@ export function ExecutiveCommandCenterPage() {
       <div className="ag-decision-strip" aria-label="ملخص مركز القرار">
         <div className="ag-decision-cell">
           <span className="ag-decision-label">وضع الحقيقة</span>
-          <span className="ag-decision-value">{kpis.status === 'CONFIRMED' && qualityIssueTotal === 0 ? 'مؤكد ويمكن استخدامه' : kpis.status === 'CALCULATED' ? 'محسوب — راجع الدليل' : 'بيانات غير كافية'}</span>
+          <span className="ag-decision-value">{executiveTruth.label}</span>
         </div>
         <div className="ag-decision-cell"><span className="ag-decision-label">تغطية القياسات</span><span className="ag-decision-value">{coverage}%</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">إشارات مفتوحة</span><span className="ag-decision-value">{alerts.length}</span></div>
@@ -173,8 +186,13 @@ export function ExecutiveCommandCenterPage() {
       </div>
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <Link to="/reports/receivables" className="card card-hover p-4">
-          <div className="flex items-center justify-between gap-3"><WalletCards size={18} className="text-primary-700"/><span className="rounded-full bg-success-50 px-2 py-1 text-[9px] font-black text-success-700">{kpis.totalReceivables === null ? 'INSUFFICIENT DATA' : 'بيانات الذمم متاحة'}</span></div>
+        <Link
+          to="/reports/receivables"
+          className="card card-hover p-4"
+          data-state={kpis.totalReceivables === null ? 'insufficient' : executiveTruth.state === 'verified' ? 'ready' : 'review'}
+          aria-label="فتح سياق الذمم والتحصيل"
+        >
+          <div className="flex items-center justify-between gap-3"><WalletCards size={18} className="text-primary-700"/><span className={'ag-trust ag-trust-' + (kpis.totalReceivables === null ? 'insufficient' : executiveTruth.state === 'verified' ? 'verified' : 'review')}>{kpis.totalReceivables === null ? 'INSUFFICIENT DATA' : executiveTruth.state === 'verified' ? 'سياق مثبت' : 'REVIEW'}</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Money Recovery</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">ابدأ من الذمم والتحصيل للتحقق من الأموال القابلة للاسترداد؛ لا يتم احتساب فرصة مالية إضافية هنا دون ledger موثّق.</p>
         </Link>
