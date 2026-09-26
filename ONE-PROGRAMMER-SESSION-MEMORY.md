@@ -1,3 +1,17 @@
+## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-180
+
+- MAIN HEAD OBSERVED BEFORE THIS WAVE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT EXACT CODE/TEST HEAD → `2ed72370ae00e175bda8dd1c1b97d49d1e4efb66` on PR #661, branch `exec/20260926-continuous-ui-core-deep`.
+- CORE LANE → Dashboard canonical metadata is now fail-closed for malformed `months`, aging status/counts, inventory pagination/filter/status/row semantics, profitability status/currency/as-of, RFM as-of/status, ABC status/counts, and aging as-of/status/counts. Silent current-date/zero/default coercions were removed from these authoritative payloads.
+- UI LANE → Decision Experience now blocks navigation into evidence/decision/approval/work/outcome when no real recommendation is selected; deep-linked empty stages redirect to the command stage; locked controls expose disabled semantics and explain the missing decision context inline.
+- TYPE/CONTRACT CORRECTION → `AgingDashboard.unknownRows` is now `number | null`, and DashboardPage only renders the UNKNOWN note when the authoritative count exists.
+- TEST LANE → dashboard snapshot contract expanded for strict metadata/enum/inventory truth; product UI contract expanded for decision-stage gating and locked-stage accessibility semantics.
+- EXACT CHANGE SURFACE → `src/lib/dashboard-canonical.ts`, `src/pages/DashboardPage.tsx`, `src/pages/DecisionExperiencePage.tsx`, `scripts/check-product-wow-ui-contract.mjs`, `src/lib/dashboard-canonical.snapshot.contract.test.ts`, plus prior data-quality truth files on this PR.
+- PROOF → PR #661 remains open/mergeable. Exact-head workflow evidence is not yet available for this head; current-head PASS is NOT PROVEN. Remote PC01 is offline. No production mutation/certification and no Phase-F PASS claimed.
+- CURRENT RESUME POINTER → `PR #661 exact head 2ed72370ae00e175bda8dd1c1b97d49d1e4efb66 → consume first terminal exact-head gate → repair only first reproduced current-SHA failure → continue next uncovered UI/core boundary; keep Phase-F fail-closed`.
+- NEXT EXECUTABLE ACTION → consume exact-head CI when materialized, then continue independent core/UI closures without reopening #660 work.
+- DO NOT REPEAT → stale PASS, prior #660 closures, malformed-payload fallbacks already closed, duplicate import/RPC/navigation paths, production-SHA bypass, blanket security changes, unsafe import-job mutation.
+
 ## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-179
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
