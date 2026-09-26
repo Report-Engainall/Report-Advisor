@@ -416,7 +416,7 @@ export function DecisionExperiencePage() {
             </CardBody>
           </Card>
           <div className="space-y-4">
-            <BlockedState title="القرار المحفوظ غير متاح من هذه الواجهة" detail="لا تتم كتابة حالة قرار محلية أو إنشاء موافقة اصطناعية. يتطلب الحفظ مسار الصلاحية والـDML المعتمدين." />
+            <BlockedState title={decisionContext?.decisionId ? "القرار محفوظ عبر المسار الكانوني" : "القرار غير موثق بعد"} detail={decisionContext?.decisionId ? "القرار مرتبط بالتوصية، ويمكن متابعة طلب الموافقة ضمن الصلاحيات الفعلية." : "ابدأ بتوثيق القرار من الزر أعلاه؛ لا يتم إنشاء حالة محلية أو نتيجة اصطناعية."} />
             <div className="grid gap-3">
               <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><CheckCircle2 size={15} className="text-success-700"/> التوصية</div><p className="mt-1 text-[10px] text-ink-400">موجودة في المصدر</p></div>
               <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><ShieldCheck size={15} className="text-warning-700"/> الموافقة</div><p className="mt-1 text-[10px] text-ink-400">تحتاج مسارًا تشغيليًا موثقًا</p></div>
@@ -440,7 +440,7 @@ export function DecisionExperiencePage() {
               </div>
             </CardBody>
           </Card>
-          <BlockedState title="الموافقة محجوبة عمدًا" detail="المنتج لا يختلق صاحب موافقة، توقيتًا، أو حالة اعتماد. عند توفر المسار التشغيلي الموثق، تبقى هذه المرحلة مكانًا واضحًا للمسؤولية قبل التنفيذ." />
+          <BlockedState title={decisionContext?.approvalStatus === "APPROVED" ? "تم اعتماد القرار" : decisionContext?.approvalStatus === "PENDING" ? "الموافقة بانتظار صاحب الصلاحية" : "لا يوجد طلب موافقة بعد"} detail={decisionContext?.approvalStatus === "APPROVED" ? "يمكن الانتقال إلى التنفيذ ضمن عنصر العمل الموثق." : decisionContext?.approvalStatus === "PENDING" ? "لا يمكن للمستخدم الذي طلب الموافقة اعتمادها بنفسه؛ الحماية مطبقة على مستوى قاعدة البيانات." : "أنشئ القرار واطلب الموافقة أولًا."} />
         </section>
       )}
 
@@ -463,7 +463,7 @@ export function DecisionExperiencePage() {
               </div>
             </CardBody>
           </Card>
-          <BlockedState title="لا يوجد سجل تنفيذ مُثبت" detail="لن يتم إنشاء مهمة أو حالة إنجاز من واجهة القرار. التنفيذ يجب أن يأتي من المسار التشغيلي المعتمد ويعود هنا كحالة persisted." />
+          <BlockedState title={decisionContext?.workItemStatus === "IN_PROGRESS" ? "عنصر العمل قيد التنفيذ" : decisionContext?.workItemStatus === "COMPLETED" ? "عنصر العمل مكتمل" : decisionContext?.decisionStatus === "APPROVED" ? "القرار جاهز للتنفيذ" : "ينتظر اعتماد القرار"} detail={decisionContext?.workItemStatus === "IN_PROGRESS" ? "أدخل الأثر الفعلي بعد إتمام العمل لتسجيل النتيجة في طبقة التعلّم." : decisionContext?.decisionStatus === "APPROVED" ? "إنشاء وبدء عنصر العمل يمر عبر دوال الصلاحية نفسها." : "لا يتم إنشاء عمل قبل اعتماد القرار."} />
         </section>
       )}
 
@@ -475,11 +475,11 @@ export function DecisionExperiencePage() {
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {[
                   ['المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
-                  ['الفعلي', 'غير متاح بعد'],
-                  ['الفارق', 'لا يمكن حسابه بعد'],
-                  ['جودة النتيجة', 'غير متاحة'],
-                  ['ملاحظات التنفيذ', 'غير متاحة'],
-                  ['إشارة التعلّم', 'غير مثبتة'],
+                  ['الفعلي', outcome?.actual_impact == null ? 'غير متاح بعد' : formatCurrency(outcome.actual_impact)],
+                  ['الفارق', outcome?.expected_impact == null || outcome.actual_impact == null ? 'لا يمكن حسابه بعد' : formatCurrency(outcome.actual_impact - outcome.expected_impact)],
+                  ['جودة النتيجة', outcome?.outcome_quality == null ? 'غير متاحة' : Math.round(outcome.outcome_quality * 100) + '%'],
+                  ['ملاحظات التنفيذ', outcome ? 'محفوظة في recommendation_outcomes' : 'غير متاحة'],
+                  ['إشارة التعلّم', outcome?.status ?? 'غير مثبتة'],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4">
                     <div className="text-[10px] text-ink-400">{label}</div>
@@ -489,7 +489,7 @@ export function DecisionExperiencePage() {
               </div>
             </CardBody>
           </Card>
-          <BlockedState title="النتيجة الفعلية غير موجودة بعد" detail="عدم توفر النتيجة ليس فشلًا في العرض؛ إنه حد حقيقي في الدليل. لن تُحوّل التوصية إلى نتيجة أو تعلّم تشغيلي قبل وجود سجل تنفيذ موثق." />
+          <BlockedState title={outcome ? "النتيجة محفوظة في سجل التعلّم" : "النتيجة الفعلية غير موجودة بعد"} detail={outcome ? "تمت قراءة النتيجة من recommendation_outcomes بعد إتمام العمل؛ لا توجد قيمة مصطنعة في الواجهة." : "يجب إتمام عنصر العمل وتسجيل الأثر الفعلي مع لقطة دليل صالحة قبل ظهور النتيجة."} />
         </section>
       )}
 
