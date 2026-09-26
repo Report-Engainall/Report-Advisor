@@ -8,14 +8,14 @@ const dataTable = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
 assert.ok(dataTable.includes('role="status" aria-live="polite" aria-busy="true"'), 'shared table loading state must expose assistive status semantics');
 assert.ok(dataTable.includes('role="status" aria-live="polite"'), 'shared table empty state must expose assistive status semantics');
 assert.ok(dataTable.includes('scope="col"'), 'shared table headers must declare column scope');
-assert.ok(dataTable.includes('aria-rowcount={visibleRows.length + 1}') && dataTable.includes('aria-colcount={columns.length}'), 'shared table must expose row and column counts');
+assert.ok(dataTable.includes('aria-rowcount={data.length + 1}') && dataTable.includes('aria-colcount={columns.length}'), 'shared table must expose absolute row and column counts');
 assert.ok(dataTable.includes('role="navigation" aria-label="تنقّل الجدول"'), 'shared table pagination must expose navigation semantics');
 
 const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
 assert.ok(workCenter.includes('const zeroProgressActive = useMemo'), 'work center must expose an explicit zero-progress active signal');
 assert.ok(workCenter.includes('تحقق من العمليات دون تقدم'), 'work center must route zero-progress work to a visible next action');
 assert.ok(workCenter.includes('نشطة بلا تقدم'), 'work center must expose zero-progress active count in the decision summary');
-assert.ok(workCenter.includes('بدون تقدم'), 'work center active rows must distinguish zero-progress processing from ordinary active work');
+assert.ok(workCenter.includes('بتقدم 0%'), 'work center active rows must distinguish zero-progress processing from ordinary active work');
 assert.ok(workCenter.includes('role="progressbar"'), 'work center progress must expose a semantic progressbar');
 assert.ok(workCenter.includes('aria-valuenow={Math.max(0, Math.min(100, r.progress))}'), 'work center progress must expose the numeric progress value');
 
@@ -133,15 +133,14 @@ assert.ok(canonicalImport.includes('role="list" aria-label="مراحل الاس�
 assert.ok(canonicalImport.includes('aria-current={active ? \'step\' : undefined}'), 'canonical import must expose the active step to assistive technology');
 
 const commandPalette = fs.readFileSync('src/components/CommandPalette.tsx', 'utf8');
-const appShell = fs.readFileSync('src/App.tsx', 'utf8');
 assert.ok(appShell.includes('mobileSidebarRef'), 'mobile navigation drawer must expose a focus boundary');
 assert.ok(appShell.includes('aria-modal="true" aria-label="القائمة الرئيسية"'), 'mobile navigation drawer must declare modal semantics');
-assert.ok(appShell.includes("event.key === 'Tab'"), 'mobile navigation drawer must trap keyboard focus');
+assert.ok(appShell.includes("event.key === 'Tab'") || appShell.includes("event.key !== 'Tab'"), 'mobile navigation drawer must trap keyboard focus');
 assert.ok(appShell.includes('document.body.style.overflow = \'hidden\''), 'mobile navigation drawer must lock background scroll');
 
 const header = fs.readFileSync('src/components/Header.tsx', 'utf8');
 assert.ok(header.includes('alertPanelRef'), 'alert drawer must expose a dialog focus boundary');
-assert.ok(header.includes("event.key === 'Tab'"), 'alert drawer must trap keyboard focus while open');
+assert.ok(header.includes("event.key === 'Tab'") || header.includes("event.key !== 'Tab'"), 'alert drawer must trap keyboard focus while open');
 assert.ok(header.includes('aria-label="إغلاق التنبيهات"'), 'alert drawer must expose an accessible close control');
 assert.ok(header.includes('document.body.style.overflow = \'hidden\''), 'alert drawer must lock background scroll while open');
 
@@ -152,12 +151,12 @@ assert.ok(advisorSurface.includes('role="dialog" aria-modal="true"'), 'global Ad
 assert.ok(advisorSurface.includes('aria-labelledby="ag-global-advisor-title"'), 'global Advisor must have an accessible title binding');
 assert.ok(advisorSurface.includes('aria-label="إغلاق المستشار"'), 'global Advisor must expose an accessible close control');
 assert.ok(advisorSurface.includes("event.key === 'Escape'"), 'global Advisor must close on Escape');
-assert.ok(advisorSurface.includes("event.key === 'Tab'"), 'global Advisor must trap keyboard focus');
+assert.ok(advisorSurface.includes("event.key === 'Tab'") || advisorSurface.includes("event.key !== 'Tab'"), 'global Advisor must trap keyboard focus');
 assert.ok(advisorSurface.includes('document.body.style.overflow = \'hidden\''), 'global Advisor must lock background scroll while open');
 
 assert.ok(commandPalette.includes('restoreFocusRef'), 'command palette must restore focus to its opener');
 assert.ok(commandPalette.includes('document.body.style.overflow = \'hidden\''), 'command palette must lock background scroll while open');
-assert.ok(commandPalette.includes("event.key === 'Tab'"), 'command palette must trap keyboard focus inside the dialog');
+assert.ok(commandPalette.includes("event.key === 'Tab'") || commandPalette.includes("event.key !== 'Tab'"), 'command palette must trap keyboard focus inside the dialog');
 assert.ok(commandPalette.includes('aria-label="إغلاق لوحة الأوامر"'), 'command palette must expose a keyboard-accessible close control');
 
 const inventoryIntelligence = fs.readFileSync('src/pages/InventoryIntelligencePage.tsx', 'utf8');
@@ -229,7 +228,7 @@ assert.ok(metricInspector.includes('aria-label="البحث في المؤشرات
 assert.ok(metricInspector.includes('statusFilter') && metricInspector.includes('freshnessFilter'), 'metric inspector must expose governance and freshness filters');
 assert.ok(metricInspector.includes('إعادة ضبط التصفية'), 'metric inspector filtering must expose a reset action');
 
-const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
+
 assert.ok(workCenter.includes('const queueEmptyState = rows.length === 0'), 'work center must distinguish an empty tenant from a filtered empty queue');
 assert.ok(workCenter.includes('إدخال مصدر من المسار الموحد'), 'work center empty tenant state must route to the canonical import entry');
 assert.ok(workCenter.includes('عرض كل العمليات'), 'work center filtered empty state must restore the full queue without a reload');

@@ -5,6 +5,7 @@ import { detectFormat } from '../../src/lib/file-engine/detector.ts';
 import { parseFile } from '../../src/lib/file-engine/adapters.ts';
 import { reconcileForCanonical } from '../../src/lib/import/canonical-truth-boundary.ts';
 import { runCanonicalImportThroughDurableRunner } from '../../src/lib/import/canonical-production-adapter.ts';
+import { understandCanonicalSource } from '../../src/lib/import/canonical-source-understanding.ts';
 
 function json(status: number, body: Record<string, unknown>): Response {
   return new Response(JSON.stringify(body), {
@@ -118,18 +119,22 @@ export default async (request: Request): Promise<Response> => {
     }
 
     const authoritativeDatasets = await parseFile(bytes.buffer, fileRecord.file_name || payload.fileName || 'import', detection.format);
-    const authoritativeDataset = authoritativeDatasets[0];
-    if (!authoritativeDataset || authoritativeDataset.rowCount === 0) throw new Error('AUTHORITATIVE_SOURCE_PARSE_EMPTY');
+    const sourceUnderstanding = understandCanonicalSource(authoritativeDatasets);
+    if (sourceUnderstanding.rowCount === 0) throw new Error('AUTHORITATIVE_SOURCE_PARSE_EMPTY');
 
-    const authoritativeQualityScore = Math.max(0, Math.min(100, Math.round(authoritativeDataset.qualityScore)));
+    const authoritativeEntityType = sourceUnderstanding.entityType;
+    const authoritativeQualityScore = Math.max(0, Math.min(100, Math.round(sourceUnderstanding.qualityScore)));
     if (authoritativeQualityScore < 50) throw new Error(`CANONICAL_IMPORT_QUALITY_REJECTED:${authoritativeQualityScore}`);
     if (authoritativeQualityScore < 75 && payload.qualityApproved !== true) {
       throw new Error(`CANONICAL_IMPORT_REVIEW_APPROVAL_REQUIRED:${authoritativeQualityScore}`);
     }
+    if (payload.entityType !== authoritativeEntityType && payload.entityType !== 'generic:source-data') {
+      throw new Error('CANONICAL_IMPORT_ENTITY_TYPE_MISMATCH');
+    }
 
-    const authoritativeRows = authoritativeDataset.rows.map((data, index) => ({ rowNumber: index + 1, data }));
+    const authoritativeRows = sourceUnderstanding.rows.map((data, index) => ({ rowNumber: index + 1, data }));
     const reconciled = reconcileForCanonical(
-      payload.entityType,
+      authoritativeEntityType,
       String(companyId),
       fileRecord.file_name || payload.fileName || 'import',
       sourceSha,
@@ -188,7 +193,7 @@ export default async (request: Request): Promise<Response> => {
         importId: job.id,
         fileName: fileRecord.file_name || payload.fileName || 'import',
         sourceHash: sourceSha,
-        entityType: payload.entityType,
+        entityType: authoritativeEntityType,
         rows: reconciled.rows,
         qualityScore: authoritativeQualityScore,
         qualityApproved: payload.qualityApproved === true,
@@ -216,17 +221,16 @@ export default async (request: Request): Promise<Response> => {
           entity_type: 'source-data',
           quality_score: authoritativeQualityScore,
           row_count: authoritativeRows.length,
-          column_count: Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns.length : 0,
-          datasets: [{
-            name: fileRecord.file_name || payload.fileName || 'import',
-            rowCount: authoritativeRows.length,
-            columnCount: Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns.length : 0,
-            columns: authoritativeDataset.columns,
-            preview: authoritativeDataset.preview.slice(0, 25),
-          }],
+          column_count: sourceUnderstanding.columnCount,
+          datasets: sourceUnderstanding.datasets.map((dataset) => ({
+            ...dataset,
+            sourceHash: sourceSha,
+          })),
           canonical_text: [
             `source=${fileRecord.file_name || payload.fileName || 'import'}`,
             `server_authoritative_quality=${authoritativeQualityScore}%`,
+            `source_specialty=${sourceUnderstanding.specialty}`,
+            `dataset_count=${sourceUnderstanding.datasetCount}`,
             `source_sha=${sourceSha}`,
           ].join(' | '),
           visual_assets: [],
@@ -239,6 +243,10 @@ export default async (request: Request): Promise<Response> => {
             committed: authoritativeRows.length,
             jobId: execution.jobId,
             sourceStoragePath: storagePath,
+            sourceSpecialty: sourceUnderstanding.specialty,
+            sourceSpecialtyConfidence: sourceUnderstanding.specialtyConfidence,
+            datasetCount: sourceUnderstanding.datasetCount,
+            datasetWarnings: sourceUnderstanding.warnings,
           },
         })
         .select('id')
@@ -255,8 +263,13 @@ export default async (request: Request): Promise<Response> => {
       snapshotId,
       authoritativeRowCount: authoritativeRows.length,
       authoritativeQualityScore,
-      authoritativeColumns: authoritativeDataset.columns,
-      authoritativePreview: authoritativeDataset.preview.slice(0, 25),
+      authoritativeColumns: sourceUnderstanding.columns,
+      authoritativePreview: sourceUnderstanding.rows.slice(0, 25),
+      sourceSpecialty: sourceUnderstanding.specialty,
+      sourceSpecialtyConfidence: sourceUnderstanding.specialtyConfidence,
+      datasetCount: sourceUnderstanding.datasetCount,
+      datasetSummaries: sourceUnderstanding.datasets,
+      sourceWarnings: sourceUnderstanding.warnings,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED';

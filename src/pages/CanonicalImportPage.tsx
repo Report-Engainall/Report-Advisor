@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, CheckCircle2, XCircle, AlertCircle, AlertTriangle, ShieldCheck, Loader2, ArrowLeft, LockKeyhole, FileCheck2, RefreshCw } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
@@ -10,25 +11,14 @@ import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
-import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
+import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat } from '@/lib/file-engine/types';
 import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
 import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
+import { understandCanonicalSource } from '@/lib/import/canonical-source-understanding';
 
 type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
-function analyzeSourceUnderstanding(dataset: Dataset): { confidence: number; reason: string } {
-  const columnCount = dataset.columns.length;
-  const mappedCount = dataset.columns.filter(column => Boolean(column.mappedField)).length;
-  const mappingCoverage = columnCount ? mappedCount / columnCount : 0;
-  const structuralScore = Math.min(100, Math.round(mappingCoverage * 100));
-  const qualityScore = Math.max(0, Math.min(100, Math.round(dataset.qualityScore)));
-  const rowSignal = dataset.rowCount > 0 ? 100 : 0;
-  const confidence = Math.min(99, Math.round((structuralScore * 0.5) + (qualityScore * 0.4) + (rowSignal * 0.1)));
-  if (confidence >= 75) return { confidence, reason: 'تم فهم بنية المصدر وحقوله بدرجة كافية لبناء سياقه العام دون فرض هوية أو نوع سجل مسبق.' };
-  if (confidence >= 50) return { confidence, reason: 'تمت قراءة المصدر وفهم جزء معتبر من بنيته؛ بعض الحقول تحتاج مراجعة قبل الاعتماد.' };
-  return { confidence, reason: 'تمت قراءة المصدر، لكن دقة الفهم البنيوي لا تزال محدودة ويجب مراجعة البيانات قبل الاعتماد.' };
-}
 const STEPS: Array<{ key: Step; label: string }> = [
   { key: 'upload', label: 'الملف' },
   { key: 'scanning', label: 'الفحص' },
@@ -91,6 +81,9 @@ export function CanonicalImportPage() {
   const [step, setStep] = useState<Step>('upload');
   const [understandingConfidence, setUnderstandingConfidence] = useState(0);
   const [understandingReason, setUnderstandingReason] = useState('لم يبدأ تحليل المصدر بعد.');
+  const [sourceSpecialty, setSourceSpecialty] = useState('other');
+  const [sourceEntityType, setSourceEntityType] = useState<'products' | 'customers' | 'sales_invoices' | 'generic:source-data'>('generic:source-data');
+  const [datasetCount, setDatasetCount] = useState(0);
   const [file, setFile] = useState<{ name: string; size: number; format: FileFormat; mime: string } | null>(null);
   const [fileHash, setFileHash] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
@@ -144,17 +137,29 @@ export function CanonicalImportPage() {
       const dup = await checkDuplicate(hash, companyId, supabase);
       setDuplicate(dup.isDuplicate);
       if (dup.isDuplicate) setWarnings(prev => [...prev, 'هذا المصدر موجود مسبقًا لهذا الحساب. لن يتم حفظ نسخة تحليل مكررة.']);
-      const datasets: Dataset[] = await parseFile(buffer, selected.name, detection.format);
-      const dataset = datasets[0];
-      if (!dataset || dataset.rowCount === 0) throw new Error('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');
-      setQuality(dataset.qualityScore);
-      setMappings(dataset.columns.map(c => ({ name: c.name, mappedField: c.mappedField, confidence: c.mappingConfidence })));
-      const hdrs = dataset.columns.map(c => c.name);
-      setHeaders(hdrs);
-      const understanding = analyzeSourceUnderstanding(dataset);
-      setUnderstandingConfidence(understanding.confidence);
-      setUnderstandingReason(understanding.reason);
-      setRows(dataset.rows.map((data, i) => ({ rowNumber: i + 1, data, valid: true })));
+      const datasets = await parseFile(buffer, selected.name, detection.format);
+      const understanding = understandCanonicalSource(datasets);
+      if (understanding.rowCount === 0) throw new Error('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');
+      const mappingCoverage = understanding.columns.length
+        ? Math.round((understanding.columns.filter(column => Boolean(column.mappedField)).length / understanding.columns.length) * 100)
+        : 0;
+      const confidence = Math.min(99, Math.round(
+        (understanding.specialtyConfidence * 0.35) + (understanding.qualityScore * 0.45) + (mappingCoverage * 0.2),
+      ));
+      setDatasetCount(understanding.datasetCount);
+      setSourceSpecialty(understanding.specialty);
+      setSourceEntityType(understanding.entityType);
+      setQuality(understanding.qualityScore);
+      setMappings(understanding.columns.map(c => ({ name: c.name, mappedField: c.mappedField, confidence: c.mappingConfidence })));
+      setHeaders(understanding.columns.map(c => c.name));
+      setUnderstandingConfidence(confidence);
+      setUnderstandingReason(
+        understanding.datasetCount > 1
+          ? `تم فهم ${understanding.datasetCount} مجموعات بيانات داخل المصدر، مع تصنيف تخصصي آلي قبل الاعتماد.`
+          : 'تم فهم بنية المصدر والحقول والجودة قبل إنشاء مسار الاعتماد.',
+      );
+      setWarnings([...detection.warnings, ...understanding.warnings]);
+      setRows(understanding.rows.map((data, i) => ({ rowNumber: i + 1, data, valid: true })));
       setStep('preview');
     } catch (e: any) {
       setError(e?.message || 'فشل قراءة الملف'); setStep('upload');
@@ -204,7 +209,7 @@ export function CanonicalImportPage() {
 
       setProgress(30);
 
-      const entityType = 'generic:source-data';
+      const entityType = sourceEntityType;
       const rec = await createImportRecord({
         file_name: file.name,
         file_size: file.size,
@@ -252,9 +257,6 @@ export function CanonicalImportPage() {
       setProgress(88);
 
       const authoritativeRowCount = Number(execution.authoritativeRowCount ?? validRows.length);
-      const authoritativeQualityScore = Number(execution.authoritativeQualityScore ?? quality);
-      const previewRows = Array.isArray(execution.authoritativePreview) ? execution.authoritativePreview : validRows.slice(0, 25).map((row) => row.data);
-      const authoritativeColumns = Array.isArray(execution.authoritativeColumns) ? execution.authoritativeColumns : mappings;
       const snapshotId = typeof execution.snapshotId === 'string' ? execution.snapshotId : null;
       await finishImportJob(rec.id, 'completed', {
         total: authoritativeRowCount,
@@ -266,6 +268,9 @@ export function CanonicalImportPage() {
         jobId: execution.jobId,
         file_name: file.name,
         semantic_understanding_confidence: understandingConfidence,
+        source_specialty: sourceSpecialty,
+        source_entity_type: sourceEntityType,
+        dataset_count: datasetCount,
         snapshot_id: snapshotId,
       });
 
@@ -282,6 +287,9 @@ export function CanonicalImportPage() {
         jobId: execution.jobId,
         understandingConfidence,
         authoritativeQualityScore: Number(execution.authoritativeQualityScore ?? quality),
+        sourceSpecialty,
+        sourceEntityType,
+        datasetCount,
       });
       setStep('done');
       await loadHistory();
@@ -296,6 +304,9 @@ export function CanonicalImportPage() {
             invalidRows: rows.length - validRows.length,
             importId: importJobId,
             semantic_understanding_confidence: understandingConfidence,
+            source_specialty: sourceSpecialty,
+            source_entity_type: sourceEntityType,
+            dataset_count: datasetCount,
           }, failureMessage);
         } catch (finishError) {
           setError(`فشل الاعتماد — وتعذر إغلاق سجل العملية بأمان: ${finishError instanceof Error ? finishError.message : 'IMPORT_FINISH_FAILED'}`);
@@ -309,11 +320,33 @@ export function CanonicalImportPage() {
     }
   }, [
     rows, file, fileHash, duplicate, securityPassed, quality,
-    qualityApproved, headers.length, mappings, warnings, understandingConfidence,
-    understandingReason, loadHistory,
+    qualityApproved, understandingConfidence,
+    sourceSpecialty, sourceEntityType, datasetCount, loadHistory,
   ]);
 
-  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); if (inputRef.current) inputRef.current.value = ''; };
+  const reset = () => {
+    selectedFileRef.current = null;
+    setStep('upload');
+    setFile(null);
+    setFileHash(null);
+    setRows([]);
+    setHeaders([]);
+    setQuality(0);
+    setQualityApproved(false);
+    setMappings([]);
+    setWarnings([]);
+    setError(null);
+    setDuplicate(false);
+    setSecurityPassed(false);
+    setResult(null);
+    setProgress(0);
+    setUnderstandingConfidence(0);
+    setUnderstandingReason('لم يبدأ تحليل المصدر بعد.');
+    setSourceSpecialty('other');
+    setSourceEntityType('generic:source-data');
+    setDatasetCount(0);
+    if (inputRef.current) inputRef.current.value = '';
+  };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
@@ -357,7 +390,8 @@ export function CanonicalImportPage() {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <span className={understandingConfidence >= 75 ? 'badge-success' : understandingConfidence >= 50 ? 'badge-warning' : 'badge-neutral'}>ثقة الفهم {understandingConfidence || 0}%</span>
-              <span className="badge-neutral">تحليل تلقائي</span>
+              <span className="badge-neutral">التخصص: {sourceSpecialty}</span>
+              <span className="badge-neutral">مجموعات البيانات: {datasetCount}</span>
             </div>
           </div>
         </CardBody>
@@ -388,7 +422,7 @@ export function CanonicalImportPage() {
 
     {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم اعتماد المصدر عبر مسار الحقيقة الكانونية العامة مع بصمته وسياقه وجودته، ولا يُعلن نجاح الاعتماد إلا بعد إتمام مسار الكتابة الفعلي.</p></div></CardBody></Card>}
 
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم اعتماد المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence ?? 0}%</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم اعتماد المصدر في طبقة البيانات الكانونية العامة مع بصمته وسياقه وجودته، دون فرض نوع سجل أو مسار استيراد متخصص.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
+    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم اعتماد المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-2xl text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف الكانونية</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة الفهم</div><b>{result.understandingConfidence ?? 0}%</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">التخصص المكتشف</div><b>{result.sourceSpecialty ?? 'other'}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">مجموعات البيانات</div><b>{result.datasetCount ?? 1}</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تمت المصادقة على المصدر، استخراج بياناته، توحيد مجموعاته، فحص الجودة، بناء الدليل، تشغيل دورة الحقيقة الكانونية، ثم تسجيل لقطة التحليل بعد الإتمام.</p><div className="flex flex-wrap justify-center gap-2"><Link to="/trust" className="btn-secondary">فحص الدليل والثقة</Link><Link to="/decision-experience" className="btn-primary">الانتقال إلى القرار</Link><button type="button" onClick={reset} className="btn-secondary"><Upload size={14}/> تحليل ملف آخر</button></div></div></CardBody></Card>}
 
     <Card><CardHeader title="سجل الاستيرادات" subtitle="أحدث 500 عملية مرتبطة بحسابك، مع 50 صفًا في كل صفحة لتبقى القراءة سريعة؛ العمليات الأقدم تبقى محفوظة" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={historyError} onRetry={() => void loadHistory()} />:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد عمليات سابقة" message="لم يُثبت مصدر سابق لهذا الحساب بعد؛ ابدأ الآن من مدخل الاستيراد الموحد." action={<button type="button" onClick={reset} className="btn-primary text-[11px]"><Upload size={13}/> اختيار مصدر</button>}/>:<DataTable columns={[{key:'file_name',label:'المصدر'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مراجعة',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} pageSize={50} emptyMessage="لا توجد عمليات سابقة"/>}</Card>
   </div>;
