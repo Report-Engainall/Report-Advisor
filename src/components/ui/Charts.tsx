@@ -22,7 +22,13 @@ interface ChartProps {
 }
 
 function ChartFrame({ data, height, emptyMessage, children, label }: ChartProps & { children: ReactNode; label: string }) {
-  if (data.length === 0) return <div role="img" aria-label={emptyMessage ?? 'لا توجد بيانات كافية لعرض الرسم'} className="flex items-center justify-center rounded-xl border border-dashed border-ink-200 bg-ink-50/60 px-4 text-center text-xs leading-5 text-ink-500" style={{ minHeight: height }}><span>{emptyMessage ?? 'لا توجد بيانات كافية لعرض الرسم. أضف أو راجع مصدرًا موثوقًا ثم أعد المحاولة.'}</span></div>;
+  const finiteData = data.every((row) => row && typeof row === 'object' && Object.values(row as Record<string, unknown>).every((value) => typeof value !== 'number' || Number.isFinite(value)));
+  if (data.length === 0 || !finiteData) {
+    const message = data.length === 0
+      ? (emptyMessage ?? 'لا توجد بيانات كافية لعرض الرسم. أضف أو راجع مصدرًا موثوقًا ثم أعد المحاولة.')
+      : 'تعذر عرض الرسم لأن المصدر أرجع قيمة رقمية غير صالحة؛ راجع المصدر قبل استخدام هذا الرسم.';
+    return <div role="img" aria-label={message} className="flex items-center justify-center rounded-xl border border-dashed border-ink-200 bg-ink-50/60 px-4 text-center text-xs leading-5 text-ink-500" style={{ minHeight: height }}><span>{message}</span></div>;
+  }
   return <div role="img" aria-label={label} style={{ height, width: '100%' }}>{children}</div>;
 }
 
