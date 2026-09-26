@@ -111,7 +111,11 @@ export default async function handler(req: any, res: any) {
       requestedBy: user.id,
     });
 
-    json(res, 200, result);
+    json(res, 200, {
+      ...result,
+      serverAcceptedRowCount: input.rows.length,
+      serverValidatedQualityScore: input.qualityScore,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const status =
