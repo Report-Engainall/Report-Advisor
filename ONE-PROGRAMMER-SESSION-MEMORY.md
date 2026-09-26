@@ -1,3 +1,19 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-169
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `f488a055daa50bde1aac4cb7097057e65f959e74` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI DELIVERY → Master Data Hub now explicitly distinguishes route existence from data truth, labels surfaces as SURFACE/EVIDENCE, exposes a reference-to-decision flow, and removes stale static “مسار حقيقي” claims from its summary.
+- UI DELIVERY → Connections proof-state filters/ladders remain on the same branch, with local reset and accessible selection semantics.
+- CORE DELIVERY → inventory decision evidence hardening prevents Infinity/NaN-derived decision evidence and withholds critical decisions when coverage is nonfinite; regression test covers both cases.
+- RUNTIME PROOF → Staging tenant-policy repair remains applied and verified through live readback; recorded staging migration `20260926153928_reconcile_client_ui_settings_tenant_resolver_phase_f`.
+- GATES → newest HEAD `f488a055...` has 5 check-runs visible: 3 queued, 1 in progress, 1 skipped; no completed failure/success yet. No PASS inferred. Vercel/production promotion is not claimed.
+- DEVICE → unavailable/offline; no device-dependent proof.
+- PHASE-F → live backup/restore/RPO/RTO/rollback remains NOT PROVEN; source and staging tenant-policy repair are proven independently.
+- NO MERGE → PR #660 remains open.
+- CURRENT RESUME POINTER → `PR #660 f488a055... → consume exact-head gate results → repair first reproduced failure → continue safe UI/core closure → merge only after release-critical evidence is green`.
+- NEXT EXECUTABLE ACTION → consume the first completed exact-head gate; if clean, immediately continue the next uncovered canonical surface/core boundary.
+- DO NOT REPEAT → stale “مسار حقيقي” UI claims, missing-to-zero coercion, Infinity/NaN evidence, stale SHA transfer, blanket SECURITY DEFINER cleanup, device-only proof, production mutation, PR #659 overlap.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-168
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
