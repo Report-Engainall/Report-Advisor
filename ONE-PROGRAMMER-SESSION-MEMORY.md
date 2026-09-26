@@ -1,3 +1,22 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-176
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `656e064a2afd4047b81be04ec263efb1e318020b` (execution-index governance checkpoint; functional code candidate remains `8749ddd51609444cd0303eabc16b5a878430f37`).
+- SESSION-ID → `20260926-AGHBARI-CONTINUOUS-EXECUTION-176`.
+- DONE — UI → Work Center review state is fail-closed; missing/invalid exception counters no longer become zero and are routed to REVIEW.
+- DONE — UI → Work Center progress semantics remain finite-safe and accessible.
+- DONE — UI → Customer/product paginated views preserve the authoritative exact count instead of `count ?? 0`.
+- DONE — CORE → customer/product/supplier paginated reads now fail closed when exact count is unavailable.
+- DONE — CORE → worker-health active rows now include tenant identity, are validated against canonical `current_company_id`, and reject invalid active-row status/lease shapes.
+- DONE — CONTRACTS → Product WOW and Tenant Security contracts were updated to guard these boundaries.
+- VERIFIED → PR #660 is OPEN and GitHub reports `mergeable=true` at the latest observed code head `8749ddd...`.
+- GATE STATE → exact-head application PASS is not claimed for `8749ddd...`; previous SHA evidence is not transferred. Vercel is externally rate-limited; device/browser local proof is unavailable.
+- BLOCKED → Phase-F live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- CURRENT CODE/TEST CANDIDATE → `8749ddd51609444cd0303eabc16b5a878430f37`.
+- PRECISE NEXT ACTION → `PR #660 8749ddd... → consume exact-head gates → repair first reproduced current-SHA failure only → continue next independent UI/core closure`.
+- DO NOT REPEAT → missing-to-zero coercion; tenant readback omissions; stale SHA PASS transfer; duplicate route/RPC/workflow architecture; production certification without current-head evidence.
+- CURRENT RESUME POINTER → `PR #660 exact code candidate 8749ddd... → exact-head gate result → first reproduced failure only → next uncovered UI/core closure`.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-175
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
