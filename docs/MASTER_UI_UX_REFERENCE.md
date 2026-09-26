@@ -1,3 +1,10 @@
+## LIVE UI CLOSURE — 2026-09-26 / DATA QUALITY SCORE SEMANTICS
+
+- Data Quality no longer derives a “remaining records” number by subtracting issue occurrences from record counts.
+- The displayed overall diagnostic score is a weighted score from the authoritative per-entity scores already present in the snapshot.
+- The UI keeps the diagnostic score distinct from absolute trust/evidence and preserves unavailable state when source scores are invalid.
+- This keeps overlapping issue occurrences from being misread as unique affected records.
+
 ## LIVE UI CLOSURE — 2026-09-26 / QUALITY OCCURRENCE SEMANTICS + OPERATIONS
 
 - Data Quality distinguishes issue-occurrence pressure from record counts; when subtraction would imply a misleading “remaining records” value, the derived score/remaining count is shown as unavailable.
