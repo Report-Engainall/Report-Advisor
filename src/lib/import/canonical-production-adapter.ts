@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ReportExecutionStage } from '../report-execution/checkpoint';
 import { SupabaseReportExecutionStore } from '../report-execution/durable-worker-adapter';
 import { runDurableProductionLifecycle } from '../report-execution/durable-production-runner';
-import type { CanonicalImportEntityType, ReconciledCanonicalImportRow } from './canonical-truth-boundary';
+import { assertCanonicalBoundary, type CanonicalImportEntityType, type ReconciledCanonicalImportRow } from './canonical-truth-boundary';
 import { commitImportBatch } from './canonical-commit';
 
 export interface DurableCanonicalImportInput {
@@ -59,6 +59,30 @@ function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: stri
   if (!/^sha256:[0-9a-fA-F]{64}$/.test(sourceHash)) throw new Error('IMPORT_SOURCE_HASH_INVALID');
   for (const row of rows) {
     if (row.provenance.sourceHash !== sourceHash) throw new Error(`CANONICAL_SOURCE_HASH_MISMATCH:${row.rowNumber}`);
+  }
+}
+
+function assertCanonicalInputBoundary(
+  rows: ReconciledCanonicalImportRow[],
+  sourceHash: string,
+  companyId: string,
+): void {
+  if (!rows.length) throw new Error('CANONICAL_IMPORT_REQUIRES_ROWS');
+  if (!companyId.trim()) throw new Error('TENANT_CONTEXT_REQUIRED');
+  for (const row of rows) {
+    if (!Number.isInteger(row.rowNumber) || row.rowNumber < 1) {
+      throw new Error(`CANONICAL_ROW_NUMBER_INVALID:${row.rowNumber}`);
+    }
+    if (!row.data || typeof row.data !== 'object' || Array.isArray(row.data)) {
+      throw new Error(`CANONICAL_ROW_DATA_INVALID:${row.rowNumber}`);
+    }
+    if (!row.provenance || typeof row.provenance !== 'object') {
+      throw new Error(`CANONICAL_PROVENANCE_INVALID:${row.rowNumber}`);
+    }
+    assertCanonicalBoundary(row, companyId);
+    if (row.provenance.sourceHash !== sourceHash) {
+      throw new Error(`CANONICAL_SOURCE_HASH_MISMATCH:${row.rowNumber}`);
+    }
   }
 }
 
@@ -145,6 +169,7 @@ export async function runCanonicalImportThroughDurableRunner(
   if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
 
   assertSourceHash(input.rows, input.sourceHash);
+  assertCanonicalInputBoundary(input.rows, input.sourceHash, companyId);
   assertUniqueBusinessKeys(input.entityType, input.rows);
 
   let requestedBy = options.requestedBy;
