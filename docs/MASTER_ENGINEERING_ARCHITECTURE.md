@@ -1,3 +1,6 @@
+## CURRENT READ-FAILURE ISOLATION — 2026-09-27
+
+- Command Center keeps the canonical dashboard/intelligence read path authoritative while isolating the optional Replay read in its own error boundary. Replay failure is represented as REVIEW; retry reuses the same canonical reader without introducing a fallback data source.
 ## CURRENT ENGINEERING CLOSURE — 2026-09-27
 
 - Business Replay reads use tenant-scoped bounded windows (`windowLimit + 1`) instead of exact global counts, preventing large-history replay surfaces from depending on count-heavy reads while preserving `hasMoreHistory` semantics.
