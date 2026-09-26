@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
+import { isReceivablesReportRow } from './queries';
 
 const source = fs.readFileSync(path.join(process.cwd(), 'src/lib/queries.ts'), 'utf8');
 const start = source.indexOf('export async function fetchReceivablesReportPage');
@@ -22,5 +23,43 @@ describe('receivables report truth contract', () => {
     expect(fn).not.toContain('page_size: Number(p.page_size ?? pageSize)');
     expect(fn).not.toContain('total_rows: Number(p.total_rows ?? 0)');
     expect(fn).not.toContain('total_outstanding: Number(p.total_outstanding ?? 0)');
+  });
+
+  it('behaviorally rejects malformed report rows', () => {
+    expect(isReceivablesReportRow({
+      id: 'r1',
+      invoice_number: 'INV-1',
+      invoice_date: '2026-09-27',
+      due_date: null,
+      total: 100,
+      paid_amount: 20,
+      balance: 80,
+      status: 'open',
+      customer: { id: 'c1', name: 'عميل' },
+    })).toBe(true);
+
+    expect(isReceivablesReportRow({
+      id: '',
+      invoice_number: 'INV-1',
+      invoice_date: '2026-09-27',
+      due_date: null,
+      total: 100,
+      paid_amount: 20,
+      balance: 80,
+      status: 'open',
+      customer: null,
+    })).toBe(false);
+
+    expect(isReceivablesReportRow({
+      id: 'r1',
+      invoice_number: 'INV-1',
+      invoice_date: '2026-09-27',
+      due_date: null,
+      total: '100',
+      paid_amount: 20,
+      balance: 80,
+      status: 'open',
+      customer: null,
+    })).toBe(false);
   });
 });
