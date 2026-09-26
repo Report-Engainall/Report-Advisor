@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-161
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `0b63e2ad4938d44cba631d95f8d0cc4f4b0260ed` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI → Executive Command Center now carries quality context and explicit CONFIRMED/CALCULATED decision-use semantics; Executive Report routes CALCULATED truth through evidence review; Analytics now says evidence-before-decision; Import/Reports/Trust surfaces share the evidence-first pattern.
+- CORE → RFM/ABC/Aging rows validate field semantics; Inventory Intelligence rejects invalid/orphan balance rows; demand windows are bounded integer days; forecast, intelligence, import and dashboard truth remain fail-closed.
+- CONTRACTS → Product WOW and Report Truth guards were extended for the new UI/core invariants.
+- VERIFICATION → current-head workflow runs remain unavailable; no PASS transferred. Vercel external rate-limit remains the known deployment blocker.
+- DEVICE → unavailable/offline; no device-dependent proof.
+- PHASE-F → fresh recovery/RPO/RTO evidence remains open; canonical tenant repair remains in source.
+- NO MERGE → PR #660 remains open.
+- RESUME POINTER → `PR #660 latest HEAD after this write → continue current-route UI/core closure → consume exact-head gates when exposed → repair first current-head failure → merge only after certification`.
+- DO NOT REPEAT → stale evidence, calculated-to-verified elevation, direct calculated-to-decision language, silent row loss, device-dependent claims, production bypass.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-160
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
