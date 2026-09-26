@@ -19,6 +19,10 @@ const PERIODS = [
   { value: 12, label: '12 شهرًا' },
 ] as const;
 
+function isFiniteNumber(value: number | null | undefined): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
 function MoneyMetric({
   label,
   value,
@@ -35,7 +39,7 @@ function MoneyMetric({
       <div className="flex items-center gap-2 text-[10px] font-black text-ink-400">
         <span className="text-primary-700">{icon}</span>{label}
       </div>
-      <div className="mt-2 text-[20px] font-black tabular-nums text-ink-950">{value === null ? 'غير متاح' : formatCurrency(value)}</div>
+      <div className="mt-2 text-[20px] font-black tabular-nums text-ink-950">{isFiniteNumber(value) ? formatCurrency(value) : 'غير متاح'}</div>
       {note && <div className="mt-1 text-[10px] text-ink-400">{note}</div>}
     </div>
   );
@@ -112,7 +116,7 @@ export function ExecutiveCommandCenterPage() {
   const coverage = useMemo(() => {
     if (!kpis) return 0;
     const fields = [kpis.totalSales, kpis.grossProfit, kpis.totalReceivables, kpis.inventoryValue, kpis.collectionRate];
-    return Math.round((fields.filter((value) => value !== null).length / fields.length) * 100);
+    return Math.round((fields.filter(isFiniteNumber).length / fields.length) * 100);
   }, [kpis]);
   const qualityIssueTotal = useMemo(() => {
     if (!quality) return null;
@@ -124,7 +128,7 @@ export function ExecutiveCommandCenterPage() {
       quality.salesCurrencyMismatchRows,
       quality.purchaseCurrencyMismatchRows,
     ];
-    return values.every((value) => value !== null) ? values.reduce((sum, value) => sum + (value ?? 0), 0) : null;
+    return values.every(isFiniteNumber) ? values.reduce((sum, value) => sum + value, 0) : null;
   }, [quality]);
 
   if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
