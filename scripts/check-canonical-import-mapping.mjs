@@ -25,6 +25,6 @@ if (!source.includes('if (!previous || column.mappingConfidence > previous.mappi
 console.log('Canonical import mapping regression gate: PASS');
 
 
-for (const token of ['row_number_invalid', 'row_data_invalid', 'row_provenance_invalid', 'record_key_invalid', 'quality_approval_invalid']) {
+for (const token of ['row_number_invalid', 'row_data_invalid', 'row_provenance_invalid', 'reconciliation_invalid', 'provenance_source_hash_mismatch', 'provenance_source_id_mismatch', 'provenance_document_mismatch', 'duplicate_row_number', 'CANONICAL_ROW_TENANT_MISMATCH', 'quality_approval_invalid']) {
   if (!serverBoundary.includes(token)) throw new Error(`Canonical import server boundary missing: ${token}`);
 }
