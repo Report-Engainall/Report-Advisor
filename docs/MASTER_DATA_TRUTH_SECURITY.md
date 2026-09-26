@@ -113,3 +113,10 @@ Profitability requires verified cost basis.
 Receivables data alone must not be represented as guaranteed recoverable money.
 
 Forecasting and benchmark outputs must expose minimum-data/sample limits.
+
+
+## Execution closure — 2026-09-27 / HEAD a121c3032deb4b4a708bed99b193a8e921ea453a
+
+- Import progress and row counters now fail closed at the browser adapter boundary before governed RPC mutation: invalid types, ranges, counter overflow, and regression are rejected.
+- Canonical Import does not convert absent understanding confidence or unresolved source specialty into authoritative values; the UI exposes the absence explicitly.
+- No Supabase schema or production data mutation was performed in this closure.
