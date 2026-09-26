@@ -1,3 +1,13 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / REPORT TEXT + COMMAND UI TRUTH
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- CORE → dashboard canonical report validators now reject blank textual identities for trend labels, top-entity IDs/names, aging buckets, inventory IDs/nested IDs, RFM identities/segments, ABC identities and aging snapshot names.
+- UI → Executive Command Center monetary metrics expose explicit availability state; unavailable values remain visually unavailable.
+- CONTRACTS → report-truth and Product-WOW guards cover the new canonical text and UI state boundaries.
+- NO NEW ARCHITECTURE → existing validators, contract files and shared visual layer were extended; no duplicate route/RPC/import/test family created.
+- NEXT → consume terminal exact-head workflow result for the latest SHA; repair only reproduced current-SHA failure, then continue the next independent UI/core boundary.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / COMPREHENSIVE UI + CORE CLOSURE
 
 > Exact-head evidence only. Historical PASS is not transferred.
