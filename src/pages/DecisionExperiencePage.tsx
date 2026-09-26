@@ -188,11 +188,9 @@ export function DecisionExperiencePage() {
       outcome: {
         allowed: Boolean(
           outcome ||
-          decisionContext?.workItemStatus === 'COMPLETED' ||
-          decisionContext?.workItemStatus === 'IN_PROGRESS' ||
-          decisionContext?.workItemId,
+          decisionContext?.workItemStatus === 'COMPLETED',
         ),
-        reason: 'يجب وجود عنصر عمل محفوظ أو نتيجة فعلية قبل فتح النتيجة.',
+        reason: 'يجب إتمام عنصر العمل أو وجود نتيجة محفوظة قبل فتح مرحلة النتيجة.',
       },
     };
   }, [decisionContext, outcome, selected]);
