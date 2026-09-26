@@ -179,12 +179,14 @@ export function ExecutiveCommandCenterPage() {
           </div>
           <Link to="/decision-experience?stage=outcome" className="mt-3 inline-flex text-[10px] font-black text-warning-900 underline decoration-dotted underline-offset-2">فحص النتيجة المحفوظة ←</Link>
         </div>
-        <Link to="/replay" className="card card-hover p-4">
-          <div className="flex items-center justify-between gap-3"><FileSearch size={18} className={replayError ? 'text-warning-700' : replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? 'text-success-700' : 'text-ink-500'}/><span className={'rounded-full px-2 py-1 text-[9px] font-black ' + (replayError ? 'bg-warning-50 text-warning-800' : replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? 'bg-success-50 text-success-700' : 'bg-warning-50 text-warning-800')}>{replayError ? 'REVIEW' : replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? 'AVAILABLE' : 'INSUFFICIENT DATA'}</span></div>
-          <div className="mt-3 text-sm font-black text-ink-900">Business Replay</div>
-          <p className="mt-1 text-[10px] leading-5 text-ink-500">{replayError ? 'تعذر قراءة سجل Replay الحالي؛ لم تُعتبر الحالة نقص بيانات حتى لا نخفي خطأ المصدر.' : replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? `آخر لقطة ${replaySnapshot.latestSnapshotAt ?? 'غير متاح'} · ${replaySnapshot.outcomeCount} نتيجة ضمن نافذة القراءة.` : 'قراءة تاريخية من snapshots وoutcomes فقط؛ لا يتم تصنيع أحداث سابقة عند غياب السجل.'}</p>
-          {replayError && <button type="button" onClick={(event) => { event.preventDefault(); void load(); }} className="mt-3 inline-flex rounded-lg border border-warning-300 bg-white px-2.5 py-1.5 text-[9px] font-black text-warning-900">إعادة المحاولة</button>}
-        </Link>
+        <div className="card card-hover p-4">
+          <Link to="/replay" className="block">
+            <div className="flex items-center justify-between gap-3"><FileSearch size={18} className={replayError ? 'text-warning-700' : replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? 'text-success-700' : 'text-ink-500'}/><span className={'rounded-full px-2 py-1 text-[9px] font-black ' + (replayError ? 'bg-warning-50 text-warning-800' : replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? 'bg-success-50 text-success-700' : 'bg-warning-50 text-warning-800')}>{replayError ? 'REVIEW' : replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? 'AVAILABLE' : 'INSUFFICIENT DATA'}</span></div>
+            <div className="mt-3 text-sm font-black text-ink-900">Business Replay</div>
+            <p className="mt-1 text-[10px] leading-5 text-ink-500">{replayError ? 'تعذر قراءة سجل Replay الحالي؛ لم تُعتبر الحالة نقص بيانات حتى لا نخفي خطأ المصدر.' : replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? `آخر لقطة ${replaySnapshot.latestSnapshotAt ?? 'غير متاح'} · ${replaySnapshot.outcomeCount} نتيجة ضمن نافذة القراءة.` : 'قراءة تاريخية من snapshots وoutcomes فقط؛ لا يتم تصنيع أحداث سابقة عند غياب السجل.'}</p>
+          </Link>
+          {replayError && <button type="button" onClick={() => void load()} className="mt-3 inline-flex rounded-lg border border-warning-300 bg-white px-2.5 py-1.5 text-[9px] font-black text-warning-900">إعادة المحاولة</button>}
+        </div>
         <Link to="/benchmark" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><BarChart3 size={18} className="text-warning-700"/><span className="rounded-full bg-warning-50 px-2 py-1 text-[9px] font-black text-warning-800">INSUFFICIENT SAMPLE</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Benchmark Network</div>
