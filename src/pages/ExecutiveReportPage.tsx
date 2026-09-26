@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ArrowLeft, FileText, Printer, RefreshCw, ShieldCheck, Target, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs, type MonthlyTrend } from '@/lib/dashboard-canonical';
+import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs, type DashboardQuality, type MonthlyTrend } from '@/lib/dashboard-canonical';
 import type { Alert, Recommendation } from '@/lib/types';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
@@ -50,6 +50,7 @@ function TrendStrip({ trend }: { trend: MonthlyTrend[] }) {
 export function ExecutiveReportPage() {
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
   const [trend, setTrend] = useState<MonthlyTrend[]>([]);
+  const [quality, setQuality] = useState<DashboardQuality | null>(null);
   const [asOf, setAsOf] = useState<string>('غير متاح');
   const [data, setData] = useState<{ alerts: Alert[]; recommendations: Recommendation[] } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -62,6 +63,7 @@ export function ExecutiveReportPage() {
       const [snapshot, intelligence] = await Promise.all([fetchDashboardSnapshot(6), fetchDashboardIntelligence()]);
       setKpis(snapshot.kpis);
       setTrend(snapshot.trend);
+      setQuality(snapshot.quality);
       setAsOf(snapshot.asOf);
       setData(intelligence);
     } catch (e) {
@@ -77,13 +79,24 @@ export function ExecutiveReportPage() {
   const activeDecisionCount = recommendations.filter((item) => ['pending', 'proposed', 'approved', 'in_progress'].includes(item.status)).length;
   const accountableDecisionCount = recommendations.filter((item) => Boolean(item.owner)).length;
   const recordedOutcomeCount = recommendations.filter((item) => Boolean(item.impact_result?.trim())).length;
-  const nextAction = kpis?.status !== 'CALCULATED' || kpis?.status === 'INSUFFICIENT_DATA'
-    ? { to: '/data-quality', label: 'مراجعة جودة البيانات', reason: 'الحقيقة المالية أو التشغيلية غير مكتملة بعد.' }
-    : data?.alerts.length
-      ? { to: '/decision-experience?stage=decision', label: 'فتح سياق القرار', reason: 'هناك تنبيهات مصدرية تحتاج إلى متابعة.' }
-      : recommendations.length
-        ? { to: '/decision-experience', label: 'مراجعة التوصيات', reason: 'هناك توصيات مصدرية جاهزة للمراجعة.' }
-        : { to: '/trust', label: 'فحص الدليل', reason: 'لا توجد عناصر قرار نشطة؛ راجع مصدر الحقيقة قبل الانتقال.' };
+  const qualityIssueTotal = quality
+    ? [quality.badInvoiceRows, quality.badSaleItemRows, quality.badPurchaseRows, quality.badInventoryRows, quality.salesCurrencyMismatchRows, quality.purchaseCurrencyMismatchRows]
+      .every((value) => value !== null)
+      ? [quality.badInvoiceRows, quality.badSaleItemRows, quality.badPurchaseRows, quality.badInventoryRows, quality.salesCurrencyMismatchRows, quality.purchaseCurrencyMismatchRows]
+        .reduce((sum, value) => sum + (value ?? 0), 0)
+      : null
+    : null;
+
+  const nextAction =
+    kpis?.status === 'INSUFFICIENT_DATA'
+      ? { to: '/data-quality', label: 'مراجعة جودة البيانات', reason: 'الحقيقة المالية أو التشغيلية غير مكتملة بعد.' }
+      : kpis?.status === 'CALCULATED'
+        ? { to: '/trust', label: 'فحص الدليل', reason: 'المؤشرات محسوبة من المصدر؛ افحص حدود الدليل قبل تحويلها إلى قرار.' }
+        : data?.alerts.length
+          ? { to: '/decision-experience?stage=decision', label: 'فتح سياق القرار', reason: 'هناك تنبيهات مصدرية تحتاج إلى متابعة.' }
+          : recommendations.length
+            ? { to: '/decision-experience', label: 'مراجعة التوصيات', reason: 'هناك توصيات مصدرية جاهزة للمراجعة.' }
+            : { to: '/trust', label: 'فحص الدليل', reason: 'لا توجد عناصر قرار نشطة؛ راجع مصدر الحقيقة قبل الانتقال.' };
 
   return <div dir="rtl" className="ag-executive-report report-page space-y-5 pb-10 print:space-y-3">
     <header className="ag-exec-hero overflow-hidden rounded-[14px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
@@ -112,7 +125,7 @@ export function ExecutiveReportPage() {
         <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{kpis?.status ?? 'INSUFFICIENT_DATA'}</span></div>
       </section>
 
-      <TruthContextStrip months={6} status={kpis?.status ?? 'INSUFFICIENT_DATA'} asOf={asOf} />
+      <TruthContextStrip months={6} status={kpis?.status ?? 'INSUFFICIENT_DATA'} asOf={asOf} qualityIssues={qualityIssueTotal} />
       <section className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm" aria-label="الخطوة التالية في التقرير التنفيذي">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div><div className="text-[10px] font-black uppercase tracking-[0.14em] text-primary-700">NEXT ACTION</div><p className="mt-1 text-sm font-black text-ink-900">{nextAction.label}</p><p className="mt-1 text-[11px] text-ink-500">{nextAction.reason}</p></div>
