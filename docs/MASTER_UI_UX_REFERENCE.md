@@ -1,3 +1,9 @@
+## LIVE UI CLOSURE — 2026-09-26 / WORK CENTER TRUTH STATES
+
+- Work Center progress now treats persisted values outside the canonical `0..100` interval as unavailable rather than clipping them into a plausible range.
+- The unavailable progress state is explicitly visible and machine-addressable, preserving the product rule that malformed operational state must remain visible as REVIEW/UNAVAILABLE rather than be normalized into false certainty.
+- Product-WOW regression guards both the numeric range and the unavailable presentation hook.
+
 ## LIVE UI CLOSURE — 2026-09-26 / COMMAND CENTER METRIC TRUTH
 
 - Executive Command Center money metrics now expose an explicit `available` / `unavailable` state hook.
