@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
+import { normalizeAgingDashboard, normalizeCategoryBreakdown, normalizeMonthlyTrend } from './dashboard-canonical';
 import path from 'node:path';
 
 const root = process.cwd();
@@ -46,5 +47,58 @@ describe('dashboard canonical row-shape validation', () => {
     expect(adapter).toContain("requiredArray<InventoryReportRow>(row.rows, 'inventory.rows', isInventoryReportRow)");
     expect(adapter).toContain("requiredEnum(row.dataStatus, 'inventory.dataStatus'");
     expect(adapter).toContain("requiredInteger(row.unknownRows, 'inventory.unknownRows')");
+  });
+});
+
+
+describe('dashboard canonical payload compatibility', () => {
+  it('normalizes the current canonical dashboard trend payload without inventing status', () => {
+    expect(normalizeMonthlyTrend({
+      month: '2026-09',
+      label: 'Sep',
+      sales: 100,
+      cost: 60,
+      profit: 40,
+      invoices: 2,
+    })).toEqual({
+      month: '2026-09',
+      label: 'Sep',
+      sales: 100,
+      cost: 60,
+      profit: 40,
+      invoices: 2,
+      status: 'CALCULATED',
+    });
+    expect(normalizeMonthlyTrend({
+      month: '2026-09',
+      label: 'Sep',
+      sales: null,
+      cost: null,
+      profit: null,
+      invoices: 0,
+    }).status).toBe('NO_DATA');
+  });
+
+  it('normalizes current category and aging payload shapes', () => {
+    expect(normalizeCategoryBreakdown({
+      name: null,
+      sales: 10,
+      profit: 4,
+      quantity: 2,
+    })).toMatchObject({ name: null, categoryStatus: 'UNKNOWN' });
+
+    expect(normalizeAgingDashboard([
+      { bucket: '0-30', amount: 100, count: 2 },
+      { bucket: 'UNKNOWN', amount: 30, count: 1 },
+      { bucket: '31-60', amount: null, count: 0 },
+    ])).toMatchObject({
+      unknownRows: 1,
+      status: 'INSUFFICIENT_DATA',
+      totalAmount: 130,
+    });
+
+    expect(normalizeAgingDashboard([
+      { bucket: '0-30', amount: null, count: 0 },
+    })).toMatchObject({ unknownRows: 0, status: 'NO_DATA', totalAmount: null });
   });
 });
