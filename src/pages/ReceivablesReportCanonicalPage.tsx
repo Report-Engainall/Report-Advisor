@@ -23,20 +23,20 @@ export function ReceivablesReportCanonicalPage() {
     finally { setLoading(false); }
   }, [page]);
   useEffect(() => { void load(); }, [load]);
-  if (loading && !snapshot) return <LoadingState />;
-  if (error && !snapshot) return <ErrorState message={error} onRetry={load} />;
-  if (!snapshot) return <DataUnavailableState title="تقرير الذمم ينتظر البيانات" message="لم تصل صورة موثوقة للذمم بعد. لا يتم تحويل غياب البيانات إلى صفر أو تقرير فارغ." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
-  const totalPages = Math.max(1, Math.ceil(snapshot.total_rows / pageSize));
   const visibleRows = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase('ar-YE');
-    return snapshot.rows.filter(row => {
+    return (snapshot?.rows ?? []).filter(row => {
       const status = (row.status ?? '').toLowerCase();
       const statusMatch = statusFilter === 'all' || (statusFilter === 'paid' ? status === 'paid' : status !== 'paid');
       if (!statusMatch) return false;
       if (!normalized) return true;
       return [row.invoice_number, row.customer?.name, row.status].filter(Boolean).join(' ').toLocaleLowerCase('ar-YE').includes(normalized);
     });
-  }, [snapshot.rows, query, statusFilter]);
+  }, [snapshot?.rows, query, statusFilter]);
+  if (loading && !snapshot) return <LoadingState />;
+  if (error && !snapshot) return <ErrorState message={error} onRetry={load} />;
+  if (!snapshot) return <DataUnavailableState title="تقرير الذمم ينتظر البيانات" message="لم تصل صورة موثوقة للذمم بعد. لا يتم تحويل غياب البيانات إلى صفر أو تقرير فارغ." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
+  const totalPages = Math.max(1, Math.ceil(snapshot.total_rows / pageSize));
   const exportRows = async () => {
     const rows = await fetchReceivablesExportRows();
     downloadReportArtifact('receivables-report', 'تقرير الذمم والتحصيل', ['رقم الفاتورة','العميل','تاريخ الفاتورة','تاريخ الاستحقاق','الإجمالي','المدفوع','المتبقي'], rows.map(r => ({ 'رقم الفاتورة': r.invoice_number, 'العميل': r.customer, 'تاريخ الفاتورة': r.invoice_date, 'تاريخ الاستحقاق': r.due_date, 'الإجمالي': r.total, 'المدفوع': r.paid_amount, 'المتبقي': r.balance })));
