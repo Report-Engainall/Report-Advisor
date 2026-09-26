@@ -177,6 +177,7 @@ for (const token of [
 
 for (const token of [
   "function importCountOrNull(value: unknown, field: string): number | null",
+  "state.result_summary must be an object or null",
   "function importProgressOrNull(value: unknown): number | null",
   "IMPORT_DATA_INVALID: unsupported import status",
   "IMPORT_DATA_INVALID: progress must be an integer from 0 to 100 or null",
