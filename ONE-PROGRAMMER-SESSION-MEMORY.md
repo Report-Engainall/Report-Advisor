@@ -1,3 +1,24 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-160
+
+- HEAD OBSERVED BEFORE THIS WRITE → e39ad6290a079579ddb2207207c63489a1586350.
+- PR #659 / branch feat/deep-ui-core-closure-20260925.
+- DONE / CORE → dashboard canonical object-array reads now use explicit generic validation without unsafe TypeScript casts; inventory balance product references fail closed when missing or malformed.
+- DONE / CORE → dashboard-null-truth contract now requires authoritative snapshot as-of metadata and rejects reintroduction of the local-date fallback.
+- DONE / CORE → canonical import no longer falls back from missing authoritative row count, quality score, preview, columns, or snapshot_id to local preview data; missing authoritative proof now fails the job closed.
+- DONE / CORE → added migration 20260926150000_reconcile_cash_accounts_schema.sql; staging schema now has the tracked cash_accounts contract with tenant FKs, currency/nonnegative constraints, index, RLS, and authenticated tenant SELECT policy. Applied successfully to Supabase staging project fnqbvfuwbdpwvhcgzksl.
+- DONE / UI → Inventory Intelligence closes the grouped/detail type boundary and keeps the blocked retry/evidence surface explicit.
+- DONE / UI → logout convergence is hardened with disabled/busy state and explicit post-signOut root navigation.
+- DONE / UI → source truth context now names the Canonical snapshot source explicitly.
+- DONE / UI → canonical import dropzone is keyboard accessible and accepts drag/drop; import proof UI exposes authoritative rows and quality after success; history copy now matches the actual 100-record read limit.
+- ARCHITECTURE → no duplicate importer/RPC/runner/persistence path introduced.
+- EXACT-HEAD WORKFLOW OBSERVATION → current e39ad62 head has new exact-head runs; UI route and data-quality-runtime are in progress, dashboard-null-truth/import-finish/device/quality/Phase-F remain queued or in progress, and Final Certification has not terminalized yet. No current-head application PASS is claimed.
+- VERCEL → preview deployments have been produced successfully for the branch, including READY deployments on earlier exact code heads; production alias remains bound to an older main deployment and therefore is not treated as current production proof.
+- NOT PROVEN → final current-head Quality/Certification/Browser/Phase-F terminal success, production deployment identity/promotion, and device-dependent visual certification.
+- BLOCKED / EXTERNAL → production exact-head proof still depends on authorized production promotion/deployment identity; do not bypass with preview evidence.
+- NEXT EXECUTABLE ACTION → consume only the first terminal failure on exact head e39ad629…; otherwise continue the next non-overlapping UI/core closure, then perform a governance-only write-back after code work is settled.
+- DO NOT REPEAT → old closed surfaces, stale PASS, preview-as-production, deployment-limit-as-code-failure, duplicate data paths, or device-dependent local work.
+- RESUME POINTER → main c985deeb… → PR #659 → exact code head e39ad629… → first terminal exact-head failure only → next independent UI/core closure → exact green merge evidence.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-159
 
 - CODE HEAD OBSERVED BEFORE THIS WRITE → 1c681d6bd12e173591ea6ebb8c78bbc5e3260eb2.
