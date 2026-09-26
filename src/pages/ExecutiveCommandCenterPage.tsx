@@ -143,6 +143,42 @@ export function ExecutiveCommandCenterPage() {
     }
     return { state: 'insufficient', label: 'بيانات غير كافية', detail: 'لا يتم تحويل النقص أو عدم اليقين إلى أرقام بديلة.' };
   }, [kpis?.status, qualityIssueTotal]);
+  const commandNextAction = useMemo(() => {
+    if (!kpis || kpis.status === 'INSUFFICIENT_DATA' || qualityIssueTotal === null || qualityIssueTotal > 0) {
+      return {
+        path: '/data-quality',
+        label: 'ثبّت جودة المصدر أولًا',
+        detail: qualityIssueTotal === null
+          ? 'عدادات الجودة غير مكتملة؛ لا يتم التعامل معها كصفر.'
+          : qualityIssueTotal > 0
+            ? 'توجد مشكلات مصدر مفتوحة تمنع تحويل اللقطة إلى مسار قرار مكتمل.'
+            : 'اللقطة الحالية غير كافية لبناء قرار مسؤول.',
+        state: 'review',
+      } as const;
+    }
+    if (alerts.length > 0) {
+      return {
+        path: '/intelligence',
+        label: 'افحص الإشارات المفتوحة',
+        detail: 'هناك إشارات غير مقروءة في اللقطة الحالية؛ ابدأ بالدليل ثم القرار.',
+        state: 'alert',
+      } as const;
+    }
+    if (recommendations.length > 0) {
+      return {
+        path: '/decision-experience?stage=decision',
+        label: 'راجع طابور القرار',
+        detail: 'توجد توصيات مرتبطة بالسياق الحالي وتحتاج مراجعة قبل أي تنفيذ.',
+        state: 'ready',
+      } as const;
+    }
+    return {
+      path: '/reports/executive',
+      label: 'افتح التقرير التنفيذي',
+      detail: 'لا توجد إشارة أو توصية مفتوحة؛ استعرض اللقطة التنفيذية المثبتة.',
+      state: 'ready',
+    } as const;
+  }, [alerts.length, kpis, qualityIssueTotal, recommendations.length]);
 
   if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
@@ -170,6 +206,19 @@ export function ExecutiveCommandCenterPage() {
       </section>
 
       <TruthContextStrip months={months} status={kpis.status} asOf={asOf ?? 'غير متاح'} qualityIssues={qualityIssueTotal} />
+      <section className="ag-command-next rounded-[16px] border border-ink-200 bg-white p-4 shadow-card" data-next-action={commandNextAction.path}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="ag-command-next-kicker">NEXT ACTION</span>
+              <span className={'ag-trust ag-trust-' + commandNextAction.state}>{commandNextAction.state === 'review' ? 'REVIEW' : commandNextAction.state === 'alert' ? 'ATTENTION' : 'READY'}</span>
+            </div>
+            <div className="mt-2 text-[15px] font-black text-ink-950">{commandNextAction.label}</div>
+            <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-500">{commandNextAction.detail}</p>
+          </div>
+          <Link to={commandNextAction.path} className="btn-primary shrink-0 text-[11px]">{commandNextAction.state === 'review' ? 'فتح الجودة' : commandNextAction.state === 'alert' ? 'فتح الإشارات' : 'فتح المسار'} <ArrowUpLeft size={13}/></Link>
+        </div>
+      </section>
       <div className="ag-decision-strip" aria-label="ملخص مركز القرار">
         <div className="ag-decision-cell">
           <span className="ag-decision-label">وضع الحقيقة</span>
