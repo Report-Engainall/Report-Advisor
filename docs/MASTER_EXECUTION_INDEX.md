@@ -1,3 +1,22 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / WORK CENTER + PAGINATION TRUTH CLOSURE
+
+> Exact-head evidence only. No historical PASS is transferred.
+
+- SOURCE CODE HEAD BEFORE GOVERNANCE → `8749ddd51609444cd0303eabc16b5a878430f37`.
+- MAIN BASE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- DONE — UI → Work Center review counting is now fail-closed: partial/unknown exception state routes to REVIEW instead of converting missing invalid/quarantined counters to zero.
+- DONE — UI → Work Center progress accessibility now exposes only finite persisted progress values.
+- DONE — UI → Customers/Products list pagination preserves the authoritative count instead of `count ?? 0`.
+- DONE — CORE → customer/product/supplier paginated reads now require an authoritative exact count before returning.
+- DONE — CORE → worker-health active rows now include `company_id`, are tenant-readback validated, and reject unsupported status/invalid lease shapes before expiry decisions are derived.
+- DONE — CONTRACT → Product WOW + Tenant Security contracts guard the new Work Center and pagination truth boundaries.
+- PR STATE → PR #660 OPEN; GitHub reports `mergeable=true` at this checkpoint.
+- GATES → the prior exact-head SHA exposed Cloudflare/Netlify success plus Vercel external rate-limit; the newly advanced SHA has no usable completed exact-head application PASS yet. Do not transfer prior PASS to `8749ddd...`.
+- BLOCKED → device/browser local proof unavailable; Phase-F live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- NEXT ACTION → `PR #660 8749ddd... → consume exact-head gates → repair first reproduced current-SHA failure only → continue next independent UI/core closure`.
+- DO NOT REPEAT → missing/NaN/Infinity-to-zero coercion; tenant readback omissions; stale SHA evidence; duplicate workflows/routes/RPCs; certification claims without exact-head proof.
+- CURRENT RESUME POINTER → `PR #660 exact code candidate 8749ddd... → exact-head gate result → first reproduced failure only → next uncovered UI/core closure`.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-175
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
