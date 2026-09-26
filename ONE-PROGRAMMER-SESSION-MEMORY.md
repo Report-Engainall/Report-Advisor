@@ -1,3 +1,15 @@
+# CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 190
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE PR #661 branch: `exec/20260926-continuous-ui-core-deep`.
+- CURRENT FUNCTIONAL HEAD: `3d9820b5050d57a70b75a87bf56c2f1696bde496`.
+- DECISION FLOW: existing governed RPCs are now surfaced through Decision Experience; Intelligence Center acceptance routes into that flow instead of attempting direct approval.
+- WORK ASSIGNMENT: work-item assignee_id is the authenticated member UUID and the displayed assignee label is the authenticated account identity, preventing text/UUID mismatch.
+- DATA SECURITY: staging confirms RLS is enabled and tenant-scoped for decisions, approvals, work items, outcomes, and evidence snapshot tables used by the new read paths.
+- PLAYBOOKS: no playbook table or public decision-playbook routine exists in the current staging schema; the UI remains explicit rather than fabricating playbooks.
+- CURRENT PROOF: latest current-head gates have not terminalized; no PASS transferred. Vercel free-plan build-rate remains external. No production mutation.
+- NEXT: consume the first terminal current-head gate, repair only the first reproduced defect, then continue the next uncovered product boundary.
+- DO NOT REPEAT: direct approved DML from Intelligence Center, fake playbooks, missing evidence gates, stale PASS/preview, duplicate import/RPC paths, production-SHA bypass.
 # CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 189
 
 - MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
