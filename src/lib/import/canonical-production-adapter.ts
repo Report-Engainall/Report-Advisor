@@ -102,7 +102,8 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput, 
       serverCommittedRowCount === input.rows.length &&
       Array.isArray(serverCommittedIds) &&
       serverCommittedIds.length === input.rows.length &&
-      serverCommittedIds.every((id) => typeof id === 'string' && id.trim().length > 0));
+      serverCommittedIds.every((id) => typeof id === 'string' && id.trim().length > 0) &&
+      new Set(serverCommittedIds).size === serverCommittedIds.length);
   const serverQualityRaw = payload?.serverValidatedQualityScore;
   const serverQualityValid =
     mode === 'finalize-source' ||
