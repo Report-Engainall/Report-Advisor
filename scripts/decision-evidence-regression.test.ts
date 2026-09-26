@@ -68,6 +68,9 @@ assert.equal(decisionIsUsable({ ...validDecision, evidence: [{ metric: 'sales', 
 assert.equal(decisionIsUsable({ ...validDecision, evidence: [{ metric: 'sales', value: 1, source: '' }] }), false);
 assert.equal(decisionIsUsable({ ...validDecision, evidence: [{ metric: 'sales', value: 1, source: 'engine', unit: '' }] }), false);
 assert.equal(decisionIsUsable({ ...validDecision, evidence: [{ metric: 'sales', value: 1, source: 'engine', period: '' }] }), false);
+assert.equal(decisionIsUsable(null), false);
+assert.equal(decisionIsUsable({ ...validDecision, evidence: null } as never), false);
+assert.equal(decisionIsUsable({ ...validDecision, evidence: [{ metric: 'sales', value: 1, source: 'engine', unit: 7 }] } as never), false);
 
 console.log('PASS: decision evidence stays finite, bounded, sourced, and fail-closed.');
 
