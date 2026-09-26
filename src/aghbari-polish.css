@@ -545,3 +545,41 @@
   .ag-main .ag-chart-ready .recharts-wrapper{padding:.15rem 0 0}
   .ag-main .ag-chart-empty{min-height:156px}
 }
+
+
+/* Truth strip: make decision eligibility legible without altering the contract. */
+.ag-main .ag-truth-strip{
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(17,155,136,.055),transparent 18rem),
+    linear-gradient(145deg,#ffffff,#f5faf8);
+}
+.ag-main .ag-truth-strip::before{
+  content:'';
+  position:absolute;
+  inset-inline-start:0;
+  inset-block:12px;
+  width:3px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#e7b52b,#149b88);
+}
+.ag-main .ag-truth-strip[data-truth-state="CONFIRMED"][data-decision-ready="true"]::before{
+  background:linear-gradient(180deg,#22a37f,#08786d);
+}
+.ag-main .ag-truth-strip[data-truth-state="INSUFFICIENT_DATA"]::before{
+  background:linear-gradient(180deg,#d29a24,#8c6f2e);
+}
+.ag-main .ag-truth-quality,
+.ag-main .ag-truth-usage{
+  transition:border-color .16s ease,box-shadow .16s ease,background-color .16s ease,transform .16s ease;
+}
+.ag-main .ag-truth-quality:hover,
+.ag-main .ag-truth-usage:hover{
+  transform:translateY(-1px);
+  box-shadow:0 8px 16px -15px rgba(5,46,43,.45);
+}
+@media (prefers-reduced-motion: reduce){
+  .ag-main .ag-truth-quality,
+  .ag-main .ag-truth-usage{transition:none!important;transform:none!important}
+}
