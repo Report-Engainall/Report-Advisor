@@ -1,3 +1,17 @@
+## FINAL LIVE CHECKPOINT — 2026-09-26 / PR #660
+
+- HEAD OBSERVED BEFORE THIS WRITE → `f7c3e6bc2554745ac7b56e41aa8a4f8ccb69dd09`.
+- PR #660 → OPEN / mergeable=true / 386 commits / 49 changed files.
+- UI LANE → Executive Command Center now exposes a data-driven NEXT ACTION; shared Aghbari visual treatment is applied without changing truth semantics.
+- CORE LANE → canonical import commit result rejects duplicate IDs and non-boolean replay flags; no malformed server result is silently normalized.
+- CONTRACT LANE → report-truth binding issue corrected; Product-WOW guard covers command-center next-action branches.
+- EXACT-HEAD CI → 51 runs observed: 45 queued, 4 pending, 2 skipped; no current-head application PASS consumed. Vercel is failure/pending only because of the external Free build-rate-limit.
+- PHASE-F → NOT PROVEN: live backup/restore/RPO/RTO/rollback evidence is still required.
+- DEVICE → unavailable; no browser/device certification claimed.
+- STOP POINT → implementation fronts in this wave are closed; only current-head terminal CI failures or a newly observed independent UI/core defect should trigger another repair.
+- NEXT ACTION → `consume terminal exact-head workflow evidence → repair only a reproduced current-SHA defect → otherwise continue the next independent UI/core boundary`.
+- DO NOT REPEAT → historical PASS, device-only work, duplicate test/route/RPC architecture, unsupported production certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-COMPREHENSIVE-4
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
