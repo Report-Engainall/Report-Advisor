@@ -1,3 +1,15 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / QUALITY SEMANTICS CORRECTION + DASHBOARD EVIDENCE
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- CORRECTION — quality issue counters are occurrence counts and may overlap records; the temporary `issues <= total` rejection was removed.
+- UI — derived Data Quality score/remaining-record arithmetic becomes unavailable when overlap makes the subtraction semantically ambiguous.
+- UI — Work Center surfaces invalid active progress as a distinct review signal.
+- CORE — Dashboard `CONFIRMED` now requires a non-empty object-shaped evidence payload.
+- CONTRACTS — Product-WOW and Report-Truth guards track the corrected semantics.
+- CI — latest current-head application PASS is not yet consumed; Vercel remains externally rate-limited.
+- NEXT — consume exact-head terminal evidence, repair only a reproduced defect, then continue the next independent UI/Core boundary.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTRACT INTEGRITY + OPERATIONAL UI
 
 > Exact-head evidence only. Historical PASS is not transferred.
