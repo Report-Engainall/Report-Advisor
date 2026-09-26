@@ -35,8 +35,8 @@ export function DataTable<T extends object>({ columns, data, loading, emptyMessa
   if (!data || data.length === 0) return <div className="ag-table-empty" role="status" aria-live="polite"><div className="ag-table-empty-icon" aria-hidden="true">⌁</div><div className="ag-table-empty-title">{emptyMessage}</div><div className="ag-table-empty-copy">تظهر هنا البيانات المتاحة فقط بعد اجتياز شروط المصدر والتحقق.</div></div>;
 
   return (
-    <div className="ag-data-table data-table-shell overflow-auto rounded-[12px]" role="region" aria-label="جدول البيانات">
-      <table className="w-full min-w-[760px] border-separate border-spacing-0" aria-rowcount={data.length + 1} aria-colcount={columns.length} aria-busy={loading === true}>
+    <div className="ag-data-table data-table-shell overflow-auto rounded-[12px]" role="region" aria-label="جدول البيانات" tabIndex={0}>
+      <table className="w-full min-w-[760px] border-separate border-spacing-0" style={{ borderCollapse: 'separate' }} aria-rowcount={data.length + 1} aria-colcount={columns.length} aria-busy={loading === true}>
         <thead>
           <tr>
             {columns.map(col => <th key={col.key} scope="col" className={'sticky top-0 z-10 border-b border-ink-200 bg-ink-50/95 px-4 py-2.5 text-[10px] font-black tracking-wide text-ink-500 backdrop-blur ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right')} style={{ width: col.width }}>{col.label}</th>)}
@@ -45,7 +45,7 @@ export function DataTable<T extends object>({ columns, data, loading, emptyMessa
         <tbody>
           {visibleRows.map((row, index) => {
             const record = row as Record<string, unknown>;
-            return <tr key={typeof record.id === 'string' || typeof record.id === 'number' ? String(record.id) : index} aria-rowindex={(effectivePageSize ? page * effectivePageSize : 0) + index + 2} onClick={() => onRowClick?.(row)} onKeyDown={onRowClick ? (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onRowClick(row); } } : undefined} tabIndex={onRowClick ? 0 : undefined} className={'group border-b border-ink-100/90 bg-white transition-colors last:border-b-0 ' + (onRowClick ? 'cursor-pointer hover:bg-primary-50/45 focus-within:bg-primary-50/45' : 'hover:bg-ink-50/55')}>
+            return <tr key={typeof record.id === 'string' || typeof record.id === 'number' ? String(record.id) : index} aria-rowindex={(effectivePageSize ? page * effectivePageSize : 0) + index + 2} onClick={() => onRowClick?.(row)} onKeyDown={onRowClick ? (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onRowClick(row); } } : undefined} tabIndex={onRowClick ? 0 : undefined} aria-label={onRowClick ? 'صف تفاعلي، اضغط Enter أو Space لفتح التفاصيل' : undefined} className={'group border-b border-ink-100/90 bg-white transition-colors last:border-b-0 ' + (onRowClick ? 'cursor-pointer hover:bg-primary-50/45 focus-visible:bg-primary-50/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-400' : 'hover:bg-ink-50/55') }>
               {columns.map(col => <td key={col.key} className={'border-b border-ink-100/80 px-4 py-3 text-xs font-medium text-ink-700 group-last:border-b-0 ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right') + ' ' + (col.className ?? '')}>{col.render ? col.render(row) : record[col.key] as ReactNode}</td>)}
             </tr>;
           })}
@@ -60,7 +60,7 @@ export function DataTable<T extends object>({ columns, data, loading, emptyMessa
               aria-label="الصفحة السابقة"
               disabled={page === 0}
               onClick={() => setPage(current => Math.max(0, current - 1))}
-              className="rounded-lg border border-ink-200 bg-white px-3 py-1.5 font-bold text-ink-700 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-white"
+              className="min-h-10 min-w-10 rounded-lg border border-ink-200 bg-white px-3 py-1.5 font-bold text-ink-700 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-white"
             >
               السابق
             </button>
