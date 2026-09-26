@@ -66,13 +66,12 @@ export function ReportsCenterPage() {
     return (
       <div dir="rtl" className="ag-reports-center-surface space-y-5 animate-fade-in pb-10">
         <PageHeader title="مركز التقارير" subtitle="لقطة موثقة من مسار التقارير التنفيذي." />
-        <div className="flex flex-wrap items-center gap-2 rounded-[12px] border border-ink-200 bg-white px-3 py-2 text-[10px] shadow-sm" aria-label="حالة دليل التقارير">
-          <span className={reportEvidenceState === 'VERIFIED' ? 'badge-success' : 'badge-warning'}>{reportEvidenceLabel}</span>
-          <span className="text-ink-500">حالة المصدر: {truthLabel}</span>
-          <span className="text-ink-500">مشكلات الجودة: {qualityIssueTotal === null ? 'غير متاحة' : qualityIssueTotal}</span>
-          <span className="mr-auto font-semibold text-ink-600">لا تُستخدم الأرقام قبل قراءة حالة الدليل.</span>
-        </div>
-        <section aria-label="حالة دليل التقارير" className="rounded-[18px] border border-ink-200 bg-white p-6 shadow-card">
+        <section aria-label="حالة دليل التقارير" className="ag-report-truth-bar rounded-[14px] border border-ink-200 bg-white px-4 py-3 shadow-sm">
+          <div className="h-2.5 w-24 animate-pulse rounded-full bg-ink-100" />
+          <div className="mt-2 h-2 w-56 animate-pulse rounded-full bg-ink-100" />
+          <div className="sr-only" role="status" aria-live="polite">جارٍ تحميل حالة الدليل؛ لا تُعرض أرقام تقديرية.</div>
+        </section>
+        <section aria-label="لقطة تحميل التقارير" className="rounded-[18px] border border-ink-200 bg-white p-6 shadow-card">
           <div className="text-sm font-bold text-ink-800">جارٍ تحميل اللقطة التجارية...</div>
           <div className="mt-2 text-[11px] text-ink-500">لا تُعرض أرقام تقديرية أثناء التحميل.</div>
         </section>
