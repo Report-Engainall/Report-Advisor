@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 146
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE: `c749eb2dbc7e71dc59482464de38227633a05670` (PR #660).
+- LINEAGE: 19 commits ahead, 0 behind main.
+- UI: deep shell/sidebar/theme/context-rail/actionability/decision/trust/report-surface polish.
+- CORE: fail-closed dashboard truth parsing, strict state validation, unknown-preservation for aging, report-truth contract guards.
+- LIVE SECURITY: 46 authenticated SECURITY DEFINER advisor warnings remain under governed review; no blanket revocation.
+- GATES: Vercel pending; no current browser/production/Phase-F PASS.
+- NEXT: consume first exact current-head gate result; repair only reproduced current-head failure; otherwise continue independent UI/core closure and merge only after required evidence.
+- DO NOT REPEAT: stale evidence, merged PR work, production bypass, duplicate architecture, blanket security cleanup.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 145
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
