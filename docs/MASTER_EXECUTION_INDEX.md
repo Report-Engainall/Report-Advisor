@@ -745,3 +745,10 @@
 - Closed: Data Quality invalid entity-score presentation masking.
 - Exact-head checks: 50 total, 47 queued, 3 skipped, 0 failures, 0 successes.
 - Resume: current governance head → exact-head checks → first reproduced defect only → next independent UI/Core closure.
+
+
+## Latest executable checkpoint — 2026-09-27 / functional predecessor 2d20e2a191982abb33f50c3f0bf742ef3a05a99e
+
+- Closed: Dashboard Intelligence transport-only retry boundary and malformed-payload fail-fast behavior.
+- Exact-head checks at functional predecessor: 50 total = 47 queued, 3 skipped, 0 failures, 0 successes.
+- Resume: current governance head → exact-head checks → first reproduced defect only → next independent UI/Core closure.
