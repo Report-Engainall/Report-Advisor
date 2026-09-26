@@ -120,6 +120,13 @@ assert.ok(groupedInventory.includes('x.stockUnits+=r.stockUnits'), 'grouped inve
 const inventoryTruth = fs.readFileSync('src/lib/free-toolbox/inventory-intelligence-canonical.ts', 'utf8');
 assert.ok(inventoryTruth.includes('INVENTORY_DATA_INVALID: inventory balance quantity is invalid'), 'inventory intelligence must fail closed on invalid balances');
 assert.ok(inventoryTruth.includes('INVENTORY_DATA_INVALID: inventory balance references a missing product'), 'inventory intelligence must surface orphaned balance rows');
+const canonicalImportSurface = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
+for (const token of [
+  "function canonicalQualityScore(value: unknown): number",
+  "SOURCE_QUALITY_INVALID: qualityScore must be a finite number from 0 to 100",
+  "data-quality-state={quality >= 75 ? 'trusted' : quality >= 50 ? 'review' : 'blocked'}",
+]) assert.ok(canonicalImportSurface.includes(token), 'canonical import must reject malformed source quality and expose its trust state');
+
 const importSurface = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
 assert.ok(importSurface.includes('لم يُثبت مصدر سابق لهذا الحساب بعد'), 'canonical import history empty state must distinguish an empty history');
 assert.ok(importSurface.includes('اختيار مصدر'), 'canonical import history empty state must expose a real source-selection action');
