@@ -16,6 +16,12 @@ describe('business replay contract', () => {
     expect(queries).toContain("from('decision_work_items')");
     expect((queries.match(/\.eq\('company_id', companyId\)/g) ?? []).length).toBeGreaterThanOrEqual(3);
     expect(queries).not.toContain('service_role');
+    expect(queries).toContain("snapshot_key,source_version,quality_score,evidence");
+    expect(queries).toContain("recommendation_key,status,expected_impact,actual_impact,outcome_quality,evidence");
+    expect(queries).toContain("title,status,priority,description,completed_at,updated_at,evidence_refs,expected_impact,actual_impact");
+    expect(queries).toContain('windowLimit + 1');
+    expect(page).toContain('REPLAY TIMELINE');
+    expect(page).toContain('المعروض ليس إجمالي التاريخ');
   });
 
   it('fails closed when historical replay evidence is missing', () => {
