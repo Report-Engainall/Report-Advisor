@@ -41,6 +41,7 @@ export function validateDataQualitySnapshot(data: unknown): DataQualitySnapshot 
       typeof entity.total !== 'number' || !Number.isInteger(entity.total) ||
       typeof entity.issues !== 'number' || !Number.isInteger(entity.issues) ||
       !Number.isFinite(entity.score) ||
+      !['users', 'package', 'warehouse', 'receipt'].includes(entity.icon) ||
       entity.total < 0 ||
       entity.issues < 0 ||
       entity.score < 0 ||
