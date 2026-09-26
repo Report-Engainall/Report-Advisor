@@ -1,3 +1,9 @@
+## LIVE UI CLOSURE — 2026-09-26 / QUALITY OCCURRENCE SEMANTICS + OPERATIONS
+
+- Data Quality distinguishes issue-occurrence pressure from record counts; when subtraction would imply a misleading “remaining records” value, the derived score/remaining count is shown as unavailable.
+- Work Center makes out-of-range persisted progress actionable as an invalid operational state.
+- Dashboard truth surfaces require actual non-empty evidence shape before displaying CONFIRMED semantics.
+
 ## LIVE UI/CONTRACT CLOSURE — 2026-09-26
 
 - Data Quality now exposes snapshot-counter consistency as a first-class UI state and never clamps contradictory derived counts into zero.
