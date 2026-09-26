@@ -31,6 +31,7 @@ for (const token of [
   "Number.isInteger(serverCommittedRowCount)",
   "Array.isArray(serverCommittedIds)",
   "serverCommittedIds.length === serverCommittedRowCount",
+  "serverCommittedRowCount === input.rows.length",
 ]) {
   if (!source.includes(token)) throw new Error(\`Report truth contract missing canonical server-response invariant: \${token}\`);
 }
