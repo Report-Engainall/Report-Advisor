@@ -1,3 +1,21 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / COMPREHENSIVE UI + CORE CLOSURE
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE GOVERNANCE → `ee326dbfa630429c36985b6827361f1a1e63b9bb`.
+- CURRENT FUNCTIONAL CANDIDATE → PR #660 / `exec/20260926-deep-ui-core-polish`.
+- CORE CLOSED IN THIS WAVE → canonical import commit result validation now requires unique IDs and a boolean `idempotent_replay`; malformed server replies fail closed.
+- CONTRACT CLOSED IN THIS WAVE → report-truth contract binding fixed; import result uniqueness/boolean invariants guarded; command-center next-action branches covered by Product-WOW contract.
+- UI CLOSED IN THIS WAVE → Executive Command Center exposes one derived NEXT ACTION with canonical routing based on quality, attention and decision state; visual rail uses the shared Aghbari design system.
+- CI OBSERVATION → current head has broad GitHub workflow coverage, but the sampled exact-head runs are queued/pending and no terminal application PASS has been consumed. Vercel is explicitly externally rate-limited by the Free build-rate-limit gate.
+- PR STATE → OPEN / mergeable=true at latest read.
+- PHASE-F → live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- DEVICE → local browser/device proof remains unavailable; repository-only execution continues.
+- NEXT EXECUTABLE ACTION → `consume first terminal exact-head result → repair only reproduced current-SHA defect → continue next uncovered UI/core boundary if a concrete gap remains`.
+- DO NOT REPEAT → no stale PASS transfer; no device-only task; no duplicate route/RPC/import/test architecture; no production certification without exact evidence.
+- CURRENT RESUME POINTER → `PR #660 exact head ee326dbfa630429c36985b6827361f1a1e63b9bb → terminal gate evidence / first reproduced failure → next independent UI/core closure`.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / SHARED SURFACE + TRUST CENTER HARDENING
 
 > Exact-head evidence only. Historical PASS is not transferred.
