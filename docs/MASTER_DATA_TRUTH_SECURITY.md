@@ -141,3 +141,9 @@ Forecasting and benchmark outputs must expose minimum-data/sample limits.
 - Security readback: report_execution_jobs, sales_invoices, and customers have RLS enabled in staging; tenant policies bind to current_company_id().
 - The receivables RPC is SECURITY DEFINER but its observed definition is tenant-bound and includes provenance for tenant, formula, as-of, freshness, and RPC/filter evidence.
 - No direct database mutation was performed during this device-independent wave because changing the function security mode requires controlled migration handling.
+
+
+## Execution closure — 2026-09-27 / predecessor 3324269dd2ba52563ee0311a39f68179490cb93f
+
+- Entity list counts now preserve a null/unknown server count instead of converting it to a false zero, preventing a missing count from becoming false absence.
+- Customer/Product pagination treats unavailable totals as an unknown state rather than an invented finite page count.
