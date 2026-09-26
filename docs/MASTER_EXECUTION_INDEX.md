@@ -1,3 +1,15 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-166
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `fbf9f3f70a5576e94e08bd0de42d40b00c02c64c` on PR #660.
+- UI → Data Quality severity radar + local filtering + diagnostic-score semantics are now explicit and contract-guarded; hook-order defect introduced during the wave was repaired before checkpointing.
+- CORE → decision evidence remains fail-closed for unavailable coverage; no unknown→zero substitution.
+- CONTRACTS → Product WOW covers the new Data Quality and Inventory Intelligence surface semantics.
+- GATE STATE → newest exact-head checks are not yet proven. Vercel remains externally rate-limited; device-dependent proof and Phase-F live resilience remain open.
+- RELEASE STATE → PR #660 remains open; no production mutation/certification/merge.
+- CURRENT RESUME POINTER → `PR #660 latest HEAD → consume newest exact-head gate results → repair first reproduced failure → continue safe UI/core closure → merge only after required certification evidence is green`.
+- DO NOT REPEAT → hook-order defect, missing-to-zero coercion, stale evidence, duplicate architecture, device-only proof, PR #659 overlap.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-165
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
