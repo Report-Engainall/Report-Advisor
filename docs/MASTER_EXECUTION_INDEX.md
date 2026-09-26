@@ -1153,3 +1153,18 @@
 - RELEASE BOUNDARY → Phase-F live backup/restore/RPO/RTO/rollback remains NOT PROVEN; no production mutation.
 - NEXT EXECUTABLE ACTION → consume newly populated exact-head gates; repair only the first reproduced current-SHA failure; otherwise continue the next independent UI/core closure and refresh governance on the resulting SHA.
 - DO NOT REPEAT → no silent demand-row dropping, no quality clamping, no stale PASS transfer, no device certification claim, no duplicate import/intelligence workflow.
+
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / GATE HANDOFF AFTER UI TRUTH WAVE
+
+> Exact-head evidence only. No historical PASS is transferred.
+
+- SOURCE CODE HEAD BEFORE GOVERNANCE WRITE → b414bfa4965f66ffe9a65277e6b2c60b50eabbd7.
+- DONE — UI → Executive Report trend has explicit empty/unavailable state with a data-quality next action.
+- DONE — UI → Liquidity monetary cards expose available/unavailable state without zero coercion.
+- DONE — CONTRACT → product-wow protects both new UI truth boundaries.
+- REVIEWED — CORE → finalizeCanonicalImportSource remains defined but was not expanded because no verified current use justified creating another execution path.
+- GATES — Vercel failure/build-rate-limit; Vercel Deployments pending; GitHub Actions populated with queued/pending runs, Desktop Windows in_progress, and PWA/Upwork skipped. No PASS inferred.
+- DEVICE — PC01 offline; browser/device NOT PROVEN.
+- RELEASE — Phase-F live recovery evidence NOT PROVEN; no production mutation.
+- NEXT EXECUTABLE ACTION — re-query exact-head workflows; first completed current-head failure is the only automatic repair target. If no failure is reproduced, continue independent UI/core closure and then refresh governance on the new SHA.
+- DO NOT REPEAT — no stale PASS transfer, no queued-as-PASS, no duplicate import finalization path, no production-SHA bypass.
