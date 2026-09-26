@@ -11,10 +11,18 @@ import { formatNumber } from '@/lib/format';
 type FilterKey = 'all' | 'active' | 'review' | 'completed' | 'failed';
 const statusLabel = (s: string | null) => ({ queued: 'بالانتظار', processing: 'قيد التنفيذ', completed: 'مكتمل', partial: 'مكتمل جزئيًا', failed: 'فشل', cancelled: 'ملغى' }[s ?? ''] ?? 'غير معروف');
 const statusClass = (s: string | null) => s === 'completed' ? 'bg-success-50 text-success-700' : s === 'failed' ? 'bg-danger-50 text-danger-700' : s === 'partial' ? 'bg-warning-50 text-warning-700' : s === 'processing' ? 'bg-primary-50 text-primary-700' : 'bg-ink-50 text-ink-600';
+function finiteNonNegative(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : null;
+}
+function exceptionCount(row: ImportRecord): number | null {
+  const invalid = finiteNonNegative(row.invalid_rows);
+  const quarantined = finiteNonNegative(row.quarantined_rows);
+  return invalid === null || quarantined === null ? null : invalid + quarantined;
+}
 function matches(row: ImportRecord, filter: FilterKey) {
   if (filter === 'all') return true;
   if (filter === 'active') return row.status === 'queued' || row.status === 'processing';
-  if (filter === 'review') return row.status === 'partial' || (row.invalid_rows ?? 0) > 0 || (row.quarantined_rows ?? 0) > 0;
+  if (filter === 'review') { const exceptions = exceptionCount(row); return row.status === 'partial' || exceptions === null || exceptions > 0; }
   if (filter === 'completed') return row.status === 'completed';
   return row.status === 'failed' || row.status === 'cancelled';
 }
@@ -48,7 +56,7 @@ export function WorkCenterPage() {
     : { title: 'لا توجد عمليات مطابقة', message: 'غيّر عامل التصفية أو اعرض السجل الكامل للوصول إلى العمليات المسجلة.' };
   const counts = useMemo(() => ({
     active: rows.filter(r => r.status === 'queued' || r.status === 'processing').length,
-    review: rows.filter(r => r.status === 'partial' || (r.invalid_rows ?? 0) > 0 || (r.quarantined_rows ?? 0) > 0).length,
+    review: rows.filter(r => { const exceptions = exceptionCount(r); return r.status === 'partial' || exceptions === null || exceptions > 0; }).length,
     completed: rows.filter(r => r.status === 'completed').length,
     failed: rows.filter(r => r.status === 'failed' || r.status === 'cancelled').length,
   }), [rows]);
