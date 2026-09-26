@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-170
+
+- EXACT HEAD OBSERVED → `0dc2ef2d8dd096a549990e9104e704e1f8b658ef` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- MAIN BASE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`; compare reports 195 commits ahead / 0 behind.
+- UI DELIVERY → Decision Experience now treats non-finite expected impact as REVIEW, centralizes impact rendering through a finite-safe formatter, and never presents NaN/Infinity as a usable financial effect.
+- CORE DELIVERY → alternative-group decision generation now fails closed when normalized stock/demand, recommended order, or trend evidence is non-finite; regression coverage added for Infinity and NaN paths.
+- CONTRACT DELIVERY → product-wow UI guard now protects the Decision Experience finite-impact boundary.
+- GATE SNAPSHOT → exact current HEAD currently exposes CodeRabbit success and Netlify preview success; Vercel remains a known external build-rate-limit failure; GitHub workflow/status listing for `0dc2ef2...` has not yet populated, so current-head test PASS is NOT claimed.
+- PR STATE → PR #660 remains open; GitHub currently reports mergeable=false while no review threads/reviews are present; do not infer a code failure from this transient state.
+- DEVICE → unavailable/offline; no device-dependent browser/desktop proof claimed.
+- PHASE-F → live backup/restore/RPO/RTO/rollback remains NOT PROVEN; staging tenant-policy repair remains separately proven.
+- DO-NOT-REPEAT → do not transfer prior SHA checks; do not treat missing/invalid financial values as zero; do not reopen PR #659; do not broaden SECURITY DEFINER cleanup without contract evidence.
+- CURRENT RESUME POINTER → `PR #660 0dc2ef2d... → consume first populated current-head gate result → repair the first reproduced failure only → continue one safe UI/core closure batch → merge only after release-critical evidence is green`.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-169
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
