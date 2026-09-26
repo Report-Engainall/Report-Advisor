@@ -492,6 +492,15 @@ const fileAnalysisSurface = fs.readFileSync(path.join(srcDir, 'pages', 'External
 for (const token of ['BlockedState', 'InsufficientDataState', 'ReviewState', 'الملف محجوب قبل التحليل', 'لم تتكوّن صورة قابلة للتحليل']) {
   if (!fileAnalysisSurface.includes(token)) throw new Error('WOW UI contract missing file-analysis state closure: ' + token);
 }
+const workCenterSource = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
+for (const token of [
+  'function finiteProgress(value: number | null | undefined): number | null',
+  'function exceptionCount(row: ImportRecord): number | null',
+  "exceptions === null ? 'غير متاح' : formatNumber(exceptions)",
+  "progress === null ? 'غير متاح'",
+]) {
+  if (!workCenterSource.includes(token)) throw new Error('WOW UI contract missing work-center fail-closed state: ' + token);
+}
 const sharedKpi = fs.readFileSync('src/components/ui/KPICard.tsx', 'utf8');
 assert.ok(sharedKpi.includes('Number.isFinite(value)'), 'shared KPI must reject non-finite values');
 assert.ok(sharedKpi.includes('Number.isFinite(change)'), 'shared KPI change must reject non-finite values');
