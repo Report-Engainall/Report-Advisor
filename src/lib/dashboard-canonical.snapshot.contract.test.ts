@@ -31,4 +31,20 @@ describe('dashboard canonical row-shape validation', () => {
     expect(adapter).toContain('isCategoryBreakdown');
     expect(adapter).toContain('isAgingBucket');
   });
+
+  it('fails closed on malformed snapshot metadata instead of defaulting to current input values', () => {
+    expect(adapter).toContain('function requiredInteger');
+    expect(adapter).toContain('function requiredAsOf');
+    expect(adapter).toContain('function requiredEnum');
+    expect(adapter).toContain('REPORT_DATA_MALFORMED:inventory.filter_mismatch');
+    expect(adapter).toContain("requiredAsOf(row.as_of, 'profitability.as_of')");
+    expect(adapter).toContain("requiredAsOf(row.asOf, 'rfm.asOf')");
+    expect(adapter).toContain("requiredAsOf(row.asOf, 'aging.asOf')");
+  });
+
+  it('does not silently coerce authoritative inventory rows or statuses', () => {
+    expect(adapter).toContain("requiredArray<InventoryReportRow>(row.rows, 'inventory.rows', isInventoryReportRow)");
+    expect(adapter).toContain("requiredEnum(row.dataStatus, 'inventory.dataStatus'");
+    expect(adapter).toContain("requiredInteger(row.unknownRows, 'inventory.unknownRows')");
+  });
 });
