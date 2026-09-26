@@ -381,19 +381,23 @@ export async function fetchReceivablesReportPage(page = 0, pageSize = 25): Promi
 
   const payload = data as Record<string, unknown>;
   if (payload.status !== 'NO_DATA' && payload.status !== 'CALCULATED') throw new Error('REPORT_DATA_MALFORMED: receivables.status');
-  if (!Number.isInteger(payload.page) || Number(payload.page) < 0) throw new Error('REPORT_DATA_MALFORMED: receivables.page');
-  if (!Number.isInteger(payload.page_size) || Number(payload.page_size) < 1 || Number(payload.page_size) > 100) throw new Error('REPORT_DATA_MALFORMED: receivables.page_size');
-  if (Number(payload.page) !== page || Number(payload.page_size) !== pageSize) throw new Error('REPORT_DATA_MALFORMED: receivables.pagination');
-  if (!Number.isInteger(payload.total_rows) || Number(payload.total_rows) < 0) throw new Error('REPORT_DATA_MALFORMED: receivables.total_rows');
-  if (typeof payload.total_outstanding !== 'number' || !Number.isFinite(payload.total_outstanding) || payload.total_outstanding < 0) throw new Error('REPORT_DATA_MALFORMED: receivables.total_outstanding');
+  const reportPage = Number(payload.page);
+  const reportPageSize = Number(payload.page_size);
+  const totalRows = Number(payload.total_rows);
+  const totalOutstanding = payload.total_outstanding;
+  if (!Number.isInteger(reportPage) || reportPage < 0) throw new Error('REPORT_DATA_MALFORMED: receivables.page');
+  if (!Number.isInteger(reportPageSize) || reportPageSize < 1 || reportPageSize > 100) throw new Error('REPORT_DATA_MALFORMED: receivables.page_size');
+  if (reportPage !== page || reportPageSize !== pageSize) throw new Error('REPORT_DATA_MALFORMED: receivables.pagination');
+  if (!Number.isInteger(totalRows) || totalRows < 0) throw new Error('REPORT_DATA_MALFORMED: receivables.total_rows');
+  if (typeof totalOutstanding !== 'number' || !Number.isFinite(totalOutstanding) || totalOutstanding < 0) throw new Error('REPORT_DATA_MALFORMED: receivables.total_outstanding');
   if (!Array.isArray(payload.rows)) throw new Error('REPORT_DATA_UNAVAILABLE: receivables rows missing');
 
   return {
     status: payload.status,
-    page: payload.page,
-    page_size: payload.page_size,
-    total_rows: payload.total_rows,
-    total_outstanding: payload.total_outstanding,
+    page: reportPage,
+    page_size: reportPageSize,
+    total_rows: totalRows,
+    total_outstanding: totalOutstanding,
     rows: payload.rows as ReceivablesReportRow[],
   };
 }
