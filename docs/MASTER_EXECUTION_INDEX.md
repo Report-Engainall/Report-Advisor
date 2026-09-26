@@ -1,3 +1,14 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-167
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `45f409e356dd30a2bae2737c7dda9d46e633969e` on PR #660.
+- UI → Inventory Intelligence + Data Quality received deeper evidence-first risk/severity surfaces, local filtering/reset, and type/accessibility hardening.
+- CORE → unavailable decision evidence remains omitted instead of coerced to zero.
+- GATES → new exact-head checks have only started; no success/failure yet. Vercel external rate-limit remains red. Device and Phase-F live proof remain unavailable/not proven.
+- RELEASE → PR #660 open; no production mutation or certification.
+- CURRENT RESUME POINTER → `PR #660 45f409e… → consume exact-head gates → repair first current-head failure → continue safe UI/core closure → merge only after release-critical evidence is green`.
+- DO NOT REPEAT → missing-to-zero, stale evidence, hook-order/type ambiguity, duplicate architecture, device-only proof, PR #659 overlap.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-166
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
