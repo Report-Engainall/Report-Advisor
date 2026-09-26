@@ -34,3 +34,10 @@
   .ag-dashboard-kpi, .ag-decision-evidence-card { transition: none; }
   .ag-decision-evidence-card:hover { transform: none; }
 }
+
+.ag-evidence-passport { position: relative; overflow: hidden; }
+.ag-evidence-passport::before { content: ''; position: absolute; inset-inline-start: 0; top: 0; width: 28%; height: 2px; background: linear-gradient(90deg, rgba(13, 148, 136, .75), transparent); }
+.ag-passport-cell { min-width: 0; border: 1px solid rgba(15, 23, 42, .08); border-radius: 14px; background: rgba(248, 250, 252, .72); padding: 14px; }
+.ag-passport-cell > span { display: block; font-size: 9px; font-weight: 900; letter-spacing: .12em; color: rgb(100 116 139); }
+.ag-passport-cell > strong { display: block; margin-top: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 900; color: rgb(15 23 42); }
+.ag-passport-cell > small { display: block; margin-top: 4px; font-size: 9px; line-height: 1.6; color: rgb(100 116 139); }
