@@ -1,3 +1,16 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-157
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT EXECUTION HEAD → `7b7d8df23d4619cb38e4c15d09ec8ffd9c4326e2` on PR #660; 73 commits ahead of main, 0 behind.
+- UI → strengthened Decision Experience readiness: terminal recommendation states are BLOCKED, explicit confidence is required, evidence cards mirror typed readiness, and Trust Center now exposes a real Evidence Passport built only from the current data-quality snapshot.
+- CORE → dashboard truth validation remains strict for real calendar `as-of` dates and non-negative integer/null unknown-row counters. Data Quality validation now requires integer non-negative record/issue counters. No missing-to-zero coercion.
+- CONTRACTS → report-truth contract updated to guard the strict dashboard/date/count invariants and Data Quality integer semantics; Product WOW contract now guards readiness terminal states, confidence, and Evidence Passport presence.
+- VERIFICATION → Netlify PR #660 preview endpoint successfully served the Arabic Aghbari application shell, Evidence-first product proof, RTL/PWA metadata and authentication boundary when inspected. This observation predates the latest commits and is not treated as exact-head proof for `7b7d8df...`.
+- GATES → current exact-head GitHub statuses/workflow runs were not yet exposed at the moment of the last read; Vercel remains externally rate-limited on the prior observed head. No PASS transferred. Device verification remains unavailable because the connected Desktop Commander device is offline.
+- PHASE-F → canonical `current_company_id()` repair and forward reconciliation remain in source; fresh live recovery/RPO/RTO evidence is still required.
+- CURRENT RESUME POINTER → `PR #660 7b7d8df... → consume exact-head gates when exposed → repair only first reproduced failure → continue UI/core closure → merge only after required evidence`.
+- DO NOT REPEAT → stale gate transfer, preview evidence from a different SHA, malformed truth acceptance, missing-to-zero normalization, legacy tenant resolver, production bypass, duplicate architecture, device-dependent PASS claims.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-156
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
