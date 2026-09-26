@@ -129,7 +129,14 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
     asOf: requiredAsOf(row.asOf, 'dashboard'),
     months: typeof row.months === 'number' && Number.isInteger(row.months) ? row.months : months,
     aging:{
-      rows:requiredArray<AgingBucket>(agingRow.rows, 'aging.rows'),
+      rows:requiredArray<AgingBucket>(agingRow.rows, 'aging.rows').map((item, index) => {
+        if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: aging.rows[' + index + '] must be an object');
+        const value = item as Record<string, unknown>;
+        if (typeof value.bucket !== 'string' || !Number.isInteger(value.count) || value.count < 0 || (value.amount !== null && (typeof value.amount !== 'number' || !Number.isFinite(value.amount as number)))) {
+          throw new Error('REPORT_DATA_INVALID: aging.rows[' + index + '] shape is invalid');
+        }
+        return value as AgingBucket;
+      }),
       totalAmount:finiteOrNull(agingRow.totalAmount),
       unknownRows:finiteOrNull(agingRow.unknownRows),
       status:agingRow.status==='CALCULATED'?'CALCULATED':agingRow.status==='NO_DATA'?'NO_DATA':agingRow.status==='INSUFFICIENT_DATA'?'INSUFFICIENT_DATA':(() => { throw new Error('REPORT_DATA_INVALID: aging.status is invalid'); })()
