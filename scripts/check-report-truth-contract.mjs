@@ -99,6 +99,13 @@ for (const token of [
 const dashboardCanonical = fs.readFileSync(path.join(srcDir, 'lib', 'dashboard-canonical.ts'), 'utf8');
 for (const token of [
   "function requiredArray<T>(value: unknown, field: string)",
+  "function validateRFMRows(rows: unknown[]): RFMSnapshotRow[]",
+  "function validateABCRows(rows: unknown[]): ABCSnapshotRow[]",
+  "function validateAgingRows(rows: unknown[]): AgingSnapshotRow[]",
+  "REPORT_DATA_INVALID: rfm.rows[' + index + '] shape is invalid",
+  "REPORT_DATA_INVALID: abc.rows[' + index + '] shape is invalid",
+  "REPORT_DATA_INVALID: aging.rows[' + index + '] shape is invalid",
+
   "function validateDashboardRows(row: Record<string, unknown>): void",
   "validateDashboardRows(row);",
   "function requiredAsOf(value: unknown, field: string)",
