@@ -1,3 +1,22 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-COMPREHENSIVE-4
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `ee326dbfa630429c36985b6827361f1a1e63b9bb`.
+- CURRENT CODE/TEST CANDIDATE BEFORE GOVERNANCE → PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- DONE — CORE → canonical import commit responses now fail closed unless committed count is an exact integer matching input rows, returned IDs are non-empty and unique, and `idempotent_replay` is explicitly boolean.
+- DONE — CONTRACT → report-truth guard now covers committed-ID uniqueness and boolean idempotent replay; its duplicate `dashboardCanonical` binding was also repaired so the guard can parse/execute as intended.
+- DONE — UI → Executive Command Center now derives a single canonical next action from source truth, quality completeness, open attention signals and reviewable recommendations; the action is visibly bound to its canonical route.
+- DONE — UI POLISH → new command-center next-action surface uses the Aghbari emerald/brass hierarchy, review/attention rails, mobile-safe spacing and reduced-motion-safe behavior.
+- DONE — CONTRACT → Product-WOW UI guard now protects the command-center next-action route and source-quality/attention branches.
+- VERIFIED SOURCE STATE → every semantic mutation was re-read from GitHub at the live branch; current branch writes are the only source of truth.
+- EXACT CURRENT CI OBSERVATION → head `ee326dbf...` currently has 46+ GitHub workflows queued/pending plus pending dashboard/recommendation checks; no current-head application PASS has been consumed. Vercel status remains `failure` because of the external free-plan build-rate-limit target.
+- PR STATE → PR #660 OPEN, `mergeable=true`, 383 commits, 49 changed files at the latest metadata read.
+- NOT PROVEN → terminal exact-head CI completion, browser/device proof, production deployment identity, live Phase-F backup/restore/RPO/RTO/rollback.
+- EXTERNAL BLOCKED → Vercel free-plan build-rate-limit; local device/browser unavailable.
+- CURRENT RESUME POINTER → `PR #660 current head ee326dbfa630429c36985b6827361f1a1e63b9bb → consume first terminal exact-head workflow result → repair only current-SHA reproduced failure → continue the next uncovered 50/50 UI/core boundary`.
+- NEXT EXECUTABLE ACTION → `consume terminal current-head gate evidence; if a concrete failure appears, repair only that failure; otherwise continue independent high-value UI/core closure without reopening closed work`.
+- DO NOT REPEAT → stale PASS transfer, device-only work, duplicate import/RPC/runner/test family, production mutation outside certified evidence.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-DEEP-FINISH-3
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
