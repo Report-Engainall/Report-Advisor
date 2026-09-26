@@ -17,12 +17,19 @@ import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-p
 type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
+function canonicalQualityScore(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 100) {
+    throw new Error('SOURCE_QUALITY_INVALID: qualityScore must be a finite number from 0 to 100');
+  }
+  return Math.round(value);
+}
+
 function analyzeSourceUnderstanding(dataset: Dataset): { confidence: number; reason: string } {
   const columnCount = dataset.columns.length;
   const mappedCount = dataset.columns.filter(column => Boolean(column.mappedField)).length;
   const mappingCoverage = columnCount ? mappedCount / columnCount : 0;
   const structuralScore = Math.min(100, Math.round(mappingCoverage * 100));
-  const qualityScore = Math.max(0, Math.min(100, Math.round(dataset.qualityScore)));
+  const qualityScore = canonicalQualityScore(dataset.qualityScore);
   const rowSignal = dataset.rowCount > 0 ? 100 : 0;
   const confidence = Math.min(99, Math.round((structuralScore * 0.5) + (qualityScore * 0.4) + (rowSignal * 0.1)));
   if (confidence >= 75) return { confidence, reason: 'تم فهم بنية المصدر وحقوله بدرجة كافية لبناء سياقه العام دون فرض هوية أو نوع سجل مسبق.' };
@@ -147,7 +154,8 @@ export function CanonicalImportPage() {
       const datasets: Dataset[] = await parseFile(buffer, selected.name, detection.format);
       const dataset = datasets[0];
       if (!dataset || dataset.rowCount === 0) throw new Error('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');
-      setQuality(dataset.qualityScore);
+      const validatedQuality = canonicalQualityScore(dataset.qualityScore);
+      setQuality(validatedQuality);
       setMappings(dataset.columns.map(c => ({ name: c.name, mappedField: c.mappedField, confidence: c.mappingConfidence })));
       const hdrs = dataset.columns.map(c => c.name);
       setHeaders(hdrs);
@@ -378,7 +386,7 @@ export function CanonicalImportPage() {
         <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-5">
           <div className="ag-import-passport-cell"><span>SECURITY</span><strong>{securityPassed ? 'ناجح' : 'غير مثبت'}</strong><small>فحص الملف المحلي</small></div>
           <div className="ag-import-passport-cell"><span>DUPLICATE</span><strong>{duplicate ? 'محظور' : 'غير مكرر'}</strong><small>بصمة المصدر داخل الحساب</small></div>
-          <div className="ag-import-passport-cell"><span>QUALITY</span><strong>{quality}%</strong><small>{quality >= 75 ? 'موثوق للمتابعة' : quality >= 50 ? 'مراجعة مطلوبة' : 'دون حد القبول'}</small></div>
+          <div className="ag-import-passport-cell" data-quality-state={quality >= 75 ? 'trusted' : quality >= 50 ? 'review' : 'blocked'}><span>QUALITY</span><strong>{quality}%</strong><small>{quality >= 75 ? 'موثوق للمتابعة' : quality >= 50 ? 'مراجعة مطلوبة' : 'دون حد القبول'}</small></div>
           <div className="ag-import-passport-cell"><span>UNDERSTANDING</span><strong>{understandingConfidence}%</strong><small>فهم البنية والمعنى</small></div>
           <div className="ag-import-passport-cell"><span>FINGERPRINT</span><strong>{fileHash ? fileHash.slice(0, 16) + '…' : 'غير متاح'}</strong><small>SHA-256 للمصدر</small></div>
         </div>
