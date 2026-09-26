@@ -29,6 +29,11 @@ describe('data quality architecture contract', () => {
     expect(adapter).not.toContain("from('inventory_balances')");
   });
 
+  it('keeps an unavailable quality score visually distinct from zero', () => {
+    expect(page).toContain('overallScore != null &&');
+    expect(page).toContain("overallScore == null ? 'غير متاح'");
+  });
+
   it('consumes the validated adapter and never turns zero records into a false 100%', () => {
     expect(page).toContain("@/lib/data-quality-snapshot");
     expect(page).toContain("setOverallScore(weightedScore == null ? null : Math.round(weightedScore))");
