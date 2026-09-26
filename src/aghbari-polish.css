@@ -485,3 +485,25 @@
   }
   .ag-main .skeleton { animation: none !important; }
 }
+
+
+/* Context-rail state polish: bind the actual health token emitted by Header. */
+.ag-context-chip span[data-state="healthy"]{color:#0e704f!important}
+.ag-context-chip span[data-state="checking"]{color:#64786f!important}
+.ag-context-chip span[data-state="degraded"]{color:#98691b!important}
+.ag-context-chip span[data-state="tenant-missing"]{color:#8c5d15!important}
+.ag-context-chip span[data-state="offline"]{color:#a42f2c!important}
+.ag-topbar .ag-health-pill:has([data-state="healthy"]){border-color:rgb(34 197 94 / 22%);background:#effaf3}
+.ag-topbar .ag-health-pill:has([data-state="offline"]){border-color:rgb(185 28 28 / 22%);background:#fff2f2}
+.ag-topbar .ag-health-pill:has([data-state="degraded"]),
+.ag-topbar .ag-health-pill:has([data-state="tenant-missing"]){border-color:rgb(231 181 43 / 28%);background:#fff9e8}
+.ag-topbar button[aria-label^="التنبيهات"]{transition:transform .16s ease,background-color .16s ease,color .16s ease,box-shadow .16s ease}
+.ag-topbar button[aria-label^="التنبيهات"]:hover{transform:translateY(-1px);box-shadow:0 8px 18px -16px rgba(5,46,43,.55)}
+@media (max-width: 640px){
+  .ag-context-rail{gap:6px}
+  .ag-context-chip{padding-inline:8px}
+}
+@media (prefers-reduced-motion: reduce){
+  .ag-topbar button[aria-label^="التنبيهات"],
+  .ag-context-chip{transition:none!important}
+}
