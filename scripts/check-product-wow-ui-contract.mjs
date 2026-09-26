@@ -357,6 +357,12 @@ assert.ok(dataQuality.includes('انتقل للتحليل'), 'clean data quality
 assert.ok(dataQuality.includes('to: \'/analytics\''), 'clean data quality action must use the canonical analytics route');
 
 const connections = fs.readFileSync('src/pages/ConnectionsPage.tsx', 'utf8');
+assert.ok(connections.includes("type ConnectorFilter = 'all' | ConnectorState"), 'connections must expose a typed connector proof filter');
+assert.ok(connections.includes('const visibleConnectors = useMemo'), 'connections must derive visible connector rows from the canonical registry');
+assert.ok(connections.includes('aria-pressed={filter===key}'), 'connector proof filters must expose selected state accessibly');
+assert.ok(connections.includes('عرض الكل'), 'connector filters must expose a local reset action');
+assert.ok(connections.includes('سلم الإثبات'), 'connections must expose a visible proof ladder');
+
 assert.ok(connections.includes('const availableCount = connectors.filter(connector => connector.state === \'available\').length'), 'connections summary must derive proven-path count from connector state');
 assert.ok(connections.includes('const boundedCount = connectors.filter(connector => connector.state === \'bounded\').length'), 'connections summary must derive bounded-path count from connector state');
 assert.ok(connections.includes('const adapterCount = connectors.filter(connector => connector.state === \'adapter\').length'), 'connections summary must derive adapter-path count from connector state');
