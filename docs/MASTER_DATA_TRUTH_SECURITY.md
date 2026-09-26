@@ -165,3 +165,11 @@ Forecasting and benchmark outputs must expose minimum-data/sample limits.
 ## Execution closure — 2026-09-27 / predecessor 2d20e2a191982abb33f50c3f0bf742ef3a05a99e
 
 - Malformed dashboard intelligence payloads are now fail-closed immediately after a successful RPC response; retry logic cannot hide persistent source corruption behind repeated reads.
+
+
+## 2026-09-27 — Import Truth Promotion Rule
+- Source specialty is descriptive until the required semantic fields are present.
+- Only complete product/customer/sales mappings are promoted to the corresponding existing canonical target.
+- Customer imports accept the canonicalized customer_name alias without weakening required business fields.
+- Unsupported or incomplete specialties remain generic:<domain> canonical evidence; they are not presented as typed business truth.
+- Canonical commit returns authoritative count/IDs/idempotent replay evidence to the execution layer.
