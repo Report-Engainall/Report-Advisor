@@ -17,7 +17,8 @@ assert.ok(workCenter.includes('تحقق من العمليات دون تقدم'),
 assert.ok(workCenter.includes('نشطة بلا تقدم'), 'work center must expose zero-progress active count in the decision summary');
 assert.ok(workCenter.includes('بدون تقدم'), 'work center active rows must distinguish zero-progress processing from ordinary active work');
 assert.ok(workCenter.includes('role="progressbar"'), 'work center progress must expose a semantic progressbar');
-assert.ok(workCenter.includes('aria-valuenow={Math.max(0, Math.min(100, r.progress))}'), 'work center progress must expose the numeric progress value');
+assert.ok(workCenter.includes('const validProgress = typeof r.progress === \'number\''), 'work center progress must validate numeric bounds before rendering');
+assert.ok(workCenter.includes('غير موثوق'), 'work center must not clamp invalid progress into a valid percentage');
 
 const assistant = fs.readFileSync('src/components/DeterministicIntelligenceAssistant.tsx', 'utf8');
 assert.ok(assistant.includes("type AssistantMode = 'LOADING' | 'READY' | 'INSUFFICIENT_DATA' | 'ERROR'"), 'assistant must distinguish loading from ready state');
