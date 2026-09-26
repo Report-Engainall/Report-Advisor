@@ -1,3 +1,16 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-150
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `6ae378310360ecadd02f7c6930cd3765e1a14c2a` on PR #660.
+- CURRENT FAILURE CONSUMED → Quality run `36247080291` failed at Lint because Product WOW contract redeclared `appShell`; Build itself succeeded. Final Certification run `36247080250` failed because its indexed candidate was stale at `6701676a...`.
+- REPAIR → duplicate `appShell` binding removed in `6ae378310360ecadd02f7c6930cd3765e1a14c2a`.
+- GOVERNANCE → Execution Index rebound to the repaired code candidate in `052db2f8ed0bada43ded342bcd53c7388d25825d`; this write is governance-only and should not invalidate the candidate boundary.
+- UI → typed Decision readiness `READY | REVIEW | BLOCKED`, dashboard quality/truth disclosure, report truth context remain active.
+- CORE → canonical dashboard validation remains fail-closed; no missing-to-zero conversion.
+- CURRENT RUNTIME GATES → UI Route Completeness, Full Product Browser E2E and Storage Tenant Runtime E2E succeeded on the prior exact governance head; Device-Independent Browser E2E and Phase-F remain active. No production PASS.
+- CURRENT RESUME POINTER → `PR #660 6ae3783... → consume fresh Quality/Final Certification/Browser/Phase-F results → repair only first reproduced failure`.
+- DO NOT REPEAT → stale certification SHA, duplicate UI contract bindings, stale PASS transfer, production bypass, merged-PR rework, blanket security cleanup.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-149
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
