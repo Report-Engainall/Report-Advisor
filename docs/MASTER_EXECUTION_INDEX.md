@@ -1,3 +1,19 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / EXECUTIVE REPORT TRUTH CLOSURE
+
+> Exact-head evidence only. No historical PASS is transferred.
+
+- SOURCE CODE HEAD BEFORE GOVERNANCE → `d3aad8c33c20d74dfa0c6fe9a2936eb74a442ede`.
+- DONE — UI → Executive Report preserves unavailable alert/recommendation snapshots as `غير متاح` and exposes a dedicated unavailable state rather than an empty-state claim.
+- DONE — UI → accountability / recorded-outcome summary no longer turns an unavailable recommendation snapshot into numeric zero.
+- DONE — CONTRACT → Product WOW guard now covers the Executive Report unavailable-snapshot boundary.
+- CORE RE-AUDIT → current `src/lib/queries.ts` contains no remaining `?? 0` / `|| 0` coercion at the query layer after the pagination/worker closures.
+- PR STATE → PR #660 OPEN; latest observed GitHub state is `mergeable=true`.
+- GATES → latest observed candidate has 49 active GitHub workflow runs; only skipped commercial checks are completed in that snapshot. No current-head application PASS is claimed. Vercel remains externally rate-limited on this PR line.
+- BLOCKED → device/browser local proof unavailable; Phase-F live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- NEXT ACTION → `PR #660 d3aad8c... → consume exact-head gates → repair first reproduced current-SHA failure only → continue next independent UI/core closure`.
+- DO NOT REPEAT → missing-to-zero coercion; stale SHA PASS transfer; tenant readback omissions; duplicate route/RPC/workflow architecture; certification without exact-head evidence.
+- CURRENT RESUME POINTER → `PR #660 exact code candidate d3aad8c... → exact-head gate result → first reproduced failure only → next uncovered UI/core closure`.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / WORK CENTER + PAGINATION TRUTH CLOSURE
 
 > Exact-head evidence only. No historical PASS is transferred.
