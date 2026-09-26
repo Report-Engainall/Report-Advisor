@@ -551,6 +551,7 @@ for (const token of ['BlockedState', 'InsufficientDataState', 'ReviewState', 'ا
 const workCenterSource = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
 for (const token of [
   'function finiteProgress(value: number | null | undefined): number | null',
+  'value >= 0 && value <= 100 ? value : null',
   'function exceptionCount(row: ImportRecord): number | null',
   "exceptions === null ? 'غير متاح' : formatNumber(exceptions)",
   "progress === null ? 'غير متاح'",
