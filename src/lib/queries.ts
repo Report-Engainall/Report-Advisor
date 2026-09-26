@@ -238,7 +238,7 @@ export async function fetchSuppliersPage(page=0,pageSize=50,search=''):Promise<S
   if(normalized)query=query.or(`name.ilike.%${normalized}%,code.ilike.%${normalized}%`);
   const {data,count,error}=await query.order('name',{ascending:true}).order('id',{ascending:true}).range(from,to);
   if(error)throw error;
-  return{data:(data??[]) as SupplierRow[],count,page,page_size:pageSize};
+  return{data:validateTenantRows<SupplierRow>(data??[],companyId,'suppliers'),count,page,page_size:pageSize};
 }
 
 export type WorkerHealthSnapshot = {
