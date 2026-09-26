@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 189
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- PR #661 branch: `exec/20260926-continuous-ui-core-deep`.
+- CURRENT FUNCTIONAL HEAD BEFORE GOVERNANCE: `b97e6c74207e8db8fb957c62bcd57de0d1feebab`.
+- Decision Experience is now connected to the canonical decision → approval → work → outcome RPC lifecycle.
+- Evidence snapshots are required before mutation; outcome data is read back from `recommendation_outcomes`.
+- New contract test protects the governed lifecycle and rejects direct table-insert DML paths.
+- Current-head gates are queued/pending; no exact-head PASS yet.
+- NEXT: consume first terminal gate, repair only the first reproduced defect, then continue the next uncovered UI/core boundary.
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 188
 
 - MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
