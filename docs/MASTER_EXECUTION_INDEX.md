@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 145
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE: `fca786da50a8ef6791d89ac1d3642c063b303e8e` (PR #660).
+- UI DELIVERY: deep shared visual polish, live workspace context rail, stronger table hierarchy, touch targets and low-bandwidth responsive treatment.
+- CORE DELIVERY: fail-closed dashboard/report truth payload parsing; malformed arrays and invalid states now reject rather than silently becoming empty/insufficient; missing returned as-of no longer becomes today's date.
+- CURRENT GATES: PR #660 Vercel status pending; GitHub workflow runs not yet exposed for the candidate. No browser or production PASS transferred.
+- EXTERNAL BOUNDARY: device/browser unavailable; Vercel free-plan deployment limitation remains external.
+- NEXT EXECUTABLE ACTION: consume PR #660 exact-head gates; repair only first current-head failure; merge only when required evidence is green; continue independent UI/core work in parallel.
+- DO NOT REPEAT: stale evidence, merged #657/#658 work, production SHA bypass, duplicate paths, or device-dependent claims.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 144
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `8eb5b4154e02a1320942e08a33e052e0a35ab238`.
