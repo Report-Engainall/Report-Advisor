@@ -135,6 +135,9 @@ export function ExecutiveCommandCenterPage() {
     if (kpis?.status === 'CONFIRMED' && qualityIssueTotal === 0) {
       return { state: 'verified', label: 'الحقيقة مثبتة', detail: 'السياق الحالي قابل للاستخدام مع حالة دليل ظاهرة.' };
     }
+    if (kpis?.status === 'CONFIRMED') {
+      return { state: 'review', label: 'مؤكد لكن يحتاج سياق جودة', detail: 'المؤشر موجود، لكن اكتمال سياق الجودة الحالي غير مثبت بالكامل.' };
+    }
     if (kpis?.status === 'CALCULATED') {
       return { state: 'review', label: 'محسوب — يحتاج مراجعة', detail: 'النتيجة مشتقة لكنها ليست بديلًا عن التحقق من الدليل.' };
     }
