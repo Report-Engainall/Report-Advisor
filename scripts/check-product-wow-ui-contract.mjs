@@ -279,6 +279,12 @@ assert.ok(profileSettings.includes('role="alert" aria-live="assertive"'), 'profi
 assert.ok(profileSettings.includes('min-h-11 w-full max-w-xl'), 'profile input must meet touch sizing');
 
 const masterDataHub = fs.readFileSync('src/pages/MasterDataHubPage.tsx', 'utf8');
+assert.ok(masterDataHub.includes('مرجع جزئي مع حدود معلنة'), 'master data must disclose partial-reference boundaries');
+assert.ok(masterDataHub.includes('وجود route لا يعني وجود بيانات'), 'master data must distinguish route existence from data truth');
+assert.ok(masterDataHub.includes('Reference → Decision'), 'master data must expose the reference-to-decision progression');
+assert.ok(masterDataHub.includes('EVIDENCE'), 'master data must visibly disclose evidence-first usage');
+assert.ok(masterDataHub.includes('CRUD'), 'master data hub must preserve domain-neutral product identity');
+
 assert.ok(masterDataHub.includes('to="/trust"'), 'master data hub must expose a direct evidence path');
 assert.ok(masterDataHub.includes('to="/import"'), 'master data hub must expose the unified import path');
 assert.ok(masterDataHub.includes('لا تُعرض كيانات غير مثبتة'), 'master data hub must preserve fail-closed reference semantics');
