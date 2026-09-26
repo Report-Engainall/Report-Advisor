@@ -77,6 +77,9 @@ for (const token of [
 ]) assert.ok(dashboardCanonical.includes(token), `dashboard intelligence contract missing: ${token}`);
 const demandTruth = fs.readFileSync('src/lib/free-toolbox/sales-demand-series.ts', 'utf8');
 assert.ok(demandTruth.includes("if (!Number.isInteger(days) || days < 1 || days > 3650)"), 'demand analysis must use a bounded integer day window');
+const groupedInventory = fs.readFileSync('src/lib/free-toolbox/grouped-report.ts', 'utf8');
+assert.ok(groupedInventory.includes('const missing=new Map<string,{stock:boolean;requested:boolean;sales:boolean;demand:boolean}>()'), 'grouped inventory must preserve missing stock state');
+assert.ok(groupedInventory.includes('x.stockUnits+=r.stockUnits'), 'grouped inventory must not clamp signed stock quantities to zero');
 const inventoryTruth = fs.readFileSync('src/lib/free-toolbox/inventory-intelligence-canonical.ts', 'utf8');
 assert.ok(inventoryTruth.includes('INVENTORY_DATA_INVALID: inventory balance quantity is invalid'), 'inventory intelligence must fail closed on invalid balances');
 assert.ok(inventoryTruth.includes('INVENTORY_DATA_INVALID: inventory balance references a missing product'), 'inventory intelligence must surface orphaned balance rows');
