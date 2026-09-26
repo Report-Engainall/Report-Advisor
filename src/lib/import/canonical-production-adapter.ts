@@ -87,7 +87,13 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput, 
     const detail = typeof payload?.detail === 'string' ? payload.detail : typeof payload?.error === 'string' ? payload.error : `HTTP_${response.status}`;
     throw new Error(`CANONICAL_IMPORT_SERVER_EXECUTION_FAILED:${detail.slice(0, 512)}`);
   }
-  if (!payload?.importId || !payload?.sourceHash || (mode === 'execute' && !payload?.jobId)) {
+  const importId = payload?.importId;
+  const sourceHash = payload?.sourceHash;
+  const jobId = payload?.jobId;
+  const importIdValid = typeof importId === 'string' && importId.trim().length > 0;
+  const sourceHashValid = typeof sourceHash === 'string' && /^sha256:[0-9a-fA-F]{64}$/.test(sourceHash);
+  const jobIdValid = mode === 'finalize-source' || (typeof jobId === 'string' && jobId.trim().length > 0);
+  if (!importIdValid || !sourceHashValid || !jobIdValid) {
     throw new Error('CANONICAL_IMPORT_SERVER_EXECUTION_RESPONSE_INVALID');
   }
   return payload;
