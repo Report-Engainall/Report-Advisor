@@ -50,6 +50,27 @@ function isAgingBucket(value: unknown): boolean {
   return isRecord(value) && isNonBlankString(value.bucket) && isFiniteNumberOrNull(value.amount) &&
     typeof value.count === 'number' && Number.isInteger(value.count) && value.count >= 0;
 }
+
+function isRecommendation(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return isNonBlankString(value.id) && isNonBlankString(value.company_id) && isNonBlankString(value.category) &&
+    isNonBlankString(value.priority) && isNonBlankString(value.title) &&
+    (value.description === null || value.description === undefined || typeof value.description === 'string') &&
+    isFiniteNumberOrNull(value.expected_impact) && isNonBlankString(value.confidence) &&
+    isNonBlankString(value.status) && (value.owner === null || value.owner === undefined || typeof value.owner === 'string') &&
+    (value.deadline === null || value.deadline === undefined || typeof value.deadline === 'string') &&
+    (value.impact_result === null || value.impact_result === undefined || typeof value.impact_result === 'string') &&
+    isNonBlankString(value.created_at);
+}
+
+function isAlert(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return isNonBlankString(value.id) && isNonBlankString(value.company_id) && isNonBlankString(value.severity) &&
+    isNonBlankString(value.category) && isNonBlankString(value.title) &&
+    (value.description === null || value.description === undefined || typeof value.description === 'string') &&
+    isFiniteNumberOrNull(value.metric_value) && isFiniteNumberOrNull(value.threshold) &&
+    typeof value.is_read === 'boolean' && isNonBlankString(value.created_at);
+}
 function asOfDate(): string { return new Date().toISOString().slice(0, 10); }
 
 export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
@@ -160,7 +181,7 @@ export async function fetchDashboardIntelligence(): Promise<{recommendations: Re
       if (error) throw error;
       if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: dashboard intelligence missing');
       const row = data as Record<string, unknown>;
-      return { recommendations: requiredArray<Recommendation>(row.recommendations), alerts: requiredArray<Alert>(row.alerts) };
+      return { recommendations: requiredArray<Recommendation>(row.recommendations, 'recommendations', isRecommendation), alerts: requiredArray<Alert>(row.alerts, 'alerts', isAlert) };
     } catch (error) {
       lastError = error;
       if (attempt < maxAttempts) await new Promise(resolve => setTimeout(resolve, 250 * attempt));
