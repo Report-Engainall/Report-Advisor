@@ -61,9 +61,9 @@ export function ConnectionsPage() {
       </section>
 
       <section className="ag-decision-strip" aria-label="ملخص المصادر">
-        <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "المسارات المثبتة" : "Proven paths"}</span><span className="ag-decision-value">{availableCount}</span></div>
-        <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "بحدود تشغيل" : "Bounded paths"}</span><span className="ag-decision-value">{boundedCount}</span></div>
-        <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "موصلات حسب المنصة" : "Adapter paths"}</span><span className="ag-decision-value">{adapterCount}</span></div>
+        <div className="ag-decision-cell" data-connector-summary="available"><span className="ag-decision-label">{ar ? "المسارات الجاهزة في المنتج" : "Product-ready paths"}</span><span className="ag-decision-value">{availableCount}</span></div>
+        <div className="ag-decision-cell" data-connector-summary="bounded"><span className="ag-decision-label">{ar ? "بحدود تشغيل" : "Bounded paths"}</span><span className="ag-decision-value">{boundedCount}</span></div>
+        <div className="ag-decision-cell" data-connector-summary="adapter"><span className="ag-decision-label">{ar ? "موصلات حسب المنصة" : "Adapter paths"}</span><span className="ag-decision-value">{adapterCount}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">Trust</span><span className="ag-decision-value">{ar ? "إثبات قبل الادعاء" : "Proof before claim"}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "الخطوة التالية" : "Next"}</span><span className="ag-decision-value">{nextLabel}</span></div>
       </section>
