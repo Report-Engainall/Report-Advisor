@@ -1,3 +1,9 @@
+## SHARED-SURFACE CLOSURE — 2026-09-26
+
+- Shared DataTable now exposes keyboard-focusable scroll context, explicit row focus visibility, touch-safe pagination, and mobile overflow behavior without changing its data contract.
+- TrustBadge renders evidence counts only when they are validated non-negative integers.
+- Decision Experience recommendations expose explicit selection/focus hooks; blocked decision messaging uses a blocking icon and the shared visual system.
+- Trust Evidence center rejects internally inconsistent severity totals rather than clamping the residual bucket to zero; unavailable breakdowns are visible as unavailable.
 ## DEEP-FINISH FOLLOW-THROUGH — 2026-09-26
 
 - TruthContextStrip now treats quality issue counts as valid only when they are finite non-negative integers; invalid values remain visibly unavailable and cannot unlock decision-ready language.
