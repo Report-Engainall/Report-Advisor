@@ -1,15 +1,15 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 163
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 164
 
-- HEAD OBSERVED BEFORE THIS INDEX WRITE: `18f288a80139e18502d3c98f4f99e0bf97c04204` (governance write).
-- CURRENT CODE/TEST CANDIDATE: `ba7ff1d7324e52b94d5a5c967f8a9fba3c181a18`.
+- HEAD OBSERVED BEFORE THIS INDEX WRITE: `aad049e655bfd20e9f9956de7a0a9ace28864732` (governance write).
+- CURRENT CODE/TEST CANDIDATE: `a9ad206c22b7c4447e8091146ab634eeff55351f`.
 - PR #659 / branch `feat/deep-ui-core-closure-20260925`.
-- CORE: repository now contains the forward-only branch composite-uniqueness prerequisite before cash_accounts replay; staging independently proves both the branch unique constraint and cash_accounts composite FK.
-- UI: Trust & Evidence now exposes actionable quality diagnostics and accessible per-entity quality progress; prior Receivables and Inventory runtime/type fixes remain in the same functional lineage.
-- EXACT-HEAD EVIDENCE: ba7ff1d has 51 Actions runs at observation; no terminal failures yet, with most gates queued/in-progress. No PASS transferred.
-- RELEASE: Phase-F remains NOT PROVEN until fresh logical restore and production identity probes pass on the new candidate. Production promotion remains untouched.
-- NEXT EXECUTABLE ACTION: consume the first terminal exact-head failure on ba7ff1d; repair only a reproduced defect. Otherwise continue a non-overlapping UI/core closure and keep the candidate bound to ba7ff1d.
-- DO NOT REPEAT: stale candidate evidence, prior hook/type fixes, preview-as-production, production bypass, duplicate importer/RPC/runner.
-- RESUME POINTER: `main c985deeb… → PR #659 → ba7ff1d… → first terminal exact-head failure → independent UI/core closure → exact-green merge evidence`.
+- CORE: Phase-F restore prerequisite now exactly matches the later cash_accounts FK order via `UNIQUE(company_id,id)`; duplicate-pair guard is fail-closed.
+- UI: Trust & Evidence diagnostics, Receivables hook stability, and Inventory grouped/detail typing/hook stability are retained in the candidate lineage.
+- STAGING: existing live branch and cash_accounts relationship was re-verified; this is not evidence that the new forward migration has replayed yet.
+- EXACT-HEAD EVIDENCE: corrected candidate requires fresh Actions/Phase-F proof. No stale PASS transferred.
+- NEXT EXECUTABLE ACTION: consume the first terminal exact-head failure for `a9ad206c…`; repair only that failure, otherwise continue another independent UI/core closure.
+- DO NOT REPEAT: wrong branch-key order, old hook/type defects, stale SHA evidence, preview-as-production, production/Phase-F bypass, duplicate importer/RPC/runner.
+- RESUME POINTER: `main c985deeb… → PR #659 → a9ad206c… → first terminal exact-head failure → independent UI/core closure → exact-green merge evidence`.
 
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 159
