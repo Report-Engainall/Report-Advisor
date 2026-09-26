@@ -59,6 +59,10 @@ const executiveReportSurface = fs.readFileSync('src/pages/ExecutiveReportPage.ts
 assert.ok(executiveReportSurface.includes('data-chart-state="empty"'), 'executive report trend must expose an explicit empty/unavailable chart state');
 assert.ok(executiveReportSurface.includes('لم تصل مبيعات شهرية قابلة للرسم'), 'executive report trend empty state must explain why no chart is shown');
 
+const connectionsSurface = fs.readFileSync('src/pages/ConnectionsPage.tsx', 'utf8');
+assert.ok(connectionsSurface.includes('data-connector-summary="available"'), 'connections must identify product-ready paths as a distinct state');
+assert.ok(connectionsSurface.includes('المسارات الجاهزة في المنتج'), 'connections must not label UI availability as runtime proof');
+
 const liquiditySurface = fs.readFileSync('src/pages/LiquidityPage.tsx', 'utf8');
 assert.ok(liquiditySurface.includes('data-value-state={state}'), 'liquidity money metrics must expose their availability state');
 assert.ok(liquiditySurface.includes("const state = value == null ? 'unavailable' : 'available'"), 'liquidity money metrics must distinguish unavailable from available');
