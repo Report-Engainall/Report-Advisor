@@ -165,18 +165,51 @@ export function DecisionExperiencePage() {
     });
   }, [refreshDecisionContext, selectedId]);  const selected = recommendations.find((item) => item.id === selectedId) ?? null;
   const currentStageIndex = Math.max(0, STAGES.findIndex((item) => item.id === stage));
-  const canEnterStage = useCallback((next: Stage) => next === 'command' || selected !== null, [selected]);
-  const stageLockReason = selected ? null : 'حدد توصية فعلية من المصدر أولًا حتى يمكن فتح هذه المرحلة دون اختلاق سياق قرار.';
+  const stageGate = useMemo<Record<Stage, { allowed: boolean; reason: string }>>(() => {
+    if (!selected) {
+      return {
+        command: { allowed: true, reason: '' },
+        evidence: { allowed: false, reason: 'حدد توصية فعلية أولًا لقراءة الدليل.' },
+        decision: { allowed: false, reason: 'حدد توصية فعلية أولًا لبناء القرار.' },
+        approval: { allowed: false, reason: 'لا يمكن فتح الموافقة قبل وجود قرار محفوظ.' },
+        work: { allowed: false, reason: 'لا يمكن فتح التنفيذ قبل اعتماد القرار أو وجود عنصر عمل محفوظ.' },
+        outcome: { allowed: false, reason: 'لا يمكن فتح النتيجة قبل وجود تنفيذ أو نتيجة محفوظة.' },
+      };
+    }
+    return {
+      command: { allowed: true, reason: '' },
+      evidence: { allowed: true, reason: '' },
+      decision: { allowed: true, reason: '' },
+      approval: { allowed: Boolean(decisionContext?.decisionId || decisionContext?.approvalId), reason: 'أنشئ القرار أولًا ثم افتح مرحلة الموافقة.' },
+      work: {
+        allowed: Boolean(decisionContext?.decisionStatus === 'APPROVED' || decisionContext?.workItemId),
+        reason: 'يجب اعتماد القرار أو وجود عنصر عمل محفوظ قبل فتح التنفيذ.',
+      },
+      outcome: {
+        allowed: Boolean(
+          outcome ||
+          decisionContext?.workItemStatus === 'COMPLETED' ||
+          decisionContext?.workItemStatus === 'IN_PROGRESS' ||
+          decisionContext?.workItemId,
+        ),
+        reason: 'يجب وجود عنصر عمل محفوظ أو نتيجة فعلية قبل فتح النتيجة.',
+      },
+    };
+  }, [decisionContext, outcome, selected]);
+  const canEnterStage = useCallback((next: Stage) => stageGate[next].allowed, [stageGate]);
+  const stageLockReason = (next: Stage) => stageGate[next].reason || undefined;
   useEffect(() => {
     if (loading) return;
     if (selected === null) {
       if (stage !== 'command') setStage('command');
       return;
     }
-    if (requestedStage && STAGES.some((item) => item.id === requestedStage)) {
+    if (requestedStage && STAGES.some((item) => item.id === requestedStage) && stageGate[requestedStage].allowed) {
       setStage(requestedStage);
+    } else if (!stageGate[stage].allowed) {
+      setStage(stage === 'outcome' ? 'work' : stage === 'work' ? 'approval' : stage === 'approval' ? 'decision' : 'evidence');
     }
-  }, [loading, requestedStage, selected, stage]);
+  }, [loading, requestedStage, selected, stage, stageGate]);
   useEffect(() => {
     if (selected === null && stage !== 'command') setStage('command');
   }, [selected, stage]);
@@ -295,9 +328,9 @@ export function DecisionExperiencePage() {
       </section>
       <nav aria-label="مراحل القرار" className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
         {STAGES.map((item, index) => (
-          <button key={item.id} type="button" onClick={() => navigateStage(item.id)} disabled={!canEnterStage(item.id)} aria-disabled={!canEnterStage(item.id) || undefined} title={!canEnterStage(item.id) ? stageLockReason ?? undefined : item.label} className={'stage-pill ' + (stage === item.id ? 'stage-pill-active' : 'hover:border-ink-300 hover:bg-ink-50') + ' disabled:cursor-not-allowed disabled:opacity-60'} aria-current={stage === item.id ? 'step' : undefined}>
+          <button key={item.id} type="button" onClick={() => navigateStage(item.id)} disabled={!canEnterStage(item.id)} aria-disabled={!canEnterStage(item.id) || undefined} title={!canEnterStage(item.id) ? stageLockReason(item.id) ?? undefined : item.label} className={'stage-pill ' + (stage === item.id ? 'stage-pill-active' : 'hover:border-ink-300 hover:bg-ink-50') + ' disabled:cursor-not-allowed disabled:opacity-60'} aria-current={stage === item.id ? 'step' : undefined}>
             <span className="block text-xs font-bold">{index + 1}. {item.label}</span>
-            <span className="mt-1 block text-[10px] text-ink-500">{!canEnterStage(item.id) ? stageLockReason : item.description}</span>
+            <span className="mt-1 block text-[10px] text-ink-500">{!canEnterStage(item.id) ? stageLockReason(item.id) : item.description}</span>
           </button>
         ))}
       </nav>
