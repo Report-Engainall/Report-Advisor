@@ -16,6 +16,10 @@ describe('canonical import result truth contract', () => {
     expect(page).toContain("void saveAnalysis()");
     expect(page).toContain("const entityType = canonicalEntityType");
     expect(page).toContain("result.canonicalCommitted");
+    expect(page).toContain("هذه ليست قراءة فقط");
+    expect(page).toContain("التحليل");
+    expect(page).toContain("الكتابة الكانونية");
+    expect(page).toContain("افتح الدليل والتحقق");
   });
 
   it('does not turn an unknown persisted specialty into a generic specialty claim', () => {
