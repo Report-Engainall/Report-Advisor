@@ -1,3 +1,18 @@
+## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-182
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT EXACT CODE/TEST HEAD → `c4fd60dbe00217c3e5912b9a80fb3aadcb24df17` on PR #661, branch `exec/20260926-continuous-ui-core-deep`.
+- CURRENT FAILURE CONSUMED → GitHub Actions `desktop-windows` run `36266460340` checked out PR #661 merge ref `03fd18d652438ff8ae6fc6e1c8caf7db68ea5c08`; build failed because `src/lib/data-quality-snapshot.ts` re-exported `calculateWeightedQualityScore` from runtime while runtime did not export it.
+- ROOT CAUSE REPAIR → `src/lib/data-quality-snapshot-runtime.ts` now imports and re-exports `calculateWeightedQualityScore` from the existing core helper. No RPC/import/navigation path was added.
+- CORE CLOSURE → `calculateWeightedQualityScore` itself now fails closed to `null` for malformed entity identity, non-finite totals/issues/scores, negative counts, or scores outside 0..100. Existing valid weighted calculation is unchanged.
+- UI CLOSURE → Trust & Evidence no longer presents `CRITICAL = 0` for an `EMPTY` snapshot; it now exposes `غير متاح` until there is an actual checked issue set.
+- CONTRACTS → Data Quality tests now cover malformed weighted-score inputs and the EMPTY critical-state presentation.
+- EXACT CHANGE COMMITS → export repair `2c8eb6b220db4bb404f730526c222788d028adf9`; core fail-closed `3c2af8815bd80239242c3e87f620d2fce01dcc49`; UI `01bce5b3209689ce1f97927c68c33df52d8de998`; contract `c4fd60dbe00217c3e5912b9a80fb3aadcb24df17`.
+- PROOF STATE → the failure is now addressed on newer SHA, but `c4fd60d...` currently has no materialized workflow runs yet. Therefore no current-head PASS is claimed. PC01 remains offline; browser/device and Phase-F production recovery remain NOT PROVEN.
+- CURRENT RESUME POINTER → `PR #661 exact head c4fd60dbe00217c3e5912b9a80fb3aadcb24df17 → consume first terminal non-skipped gate → repair only first reproduced current-SHA failure → continue next uncovered UI/core boundary; keep Phase-F fail-closed`.
+- NEXT EXECUTABLE ACTION → consume the first terminal current-SHA gate; if green, continue independent 50/50 UI+Core closure. If failed, fix only the exact reproduced failure.
+- DO NOT REPEAT → do not transfer the old `desktop-windows` failure to the new SHA; do not reopen prior #660 closures; do not create duplicate RPC/import/navigation paths; do not bypass production SHA/Phase-F evidence; do not mutate import jobs unsafely.
+
 ## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-181
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907` (still current main).
