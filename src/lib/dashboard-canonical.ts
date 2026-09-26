@@ -134,7 +134,7 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
     topProducts: requiredArray<TopEntity>(row.topProducts, 'topProducts').slice(0,10),
     categories: requiredArray<CategoryBreakdown>(row.categories, 'categories'),
     asOf: requiredAsOf(row.asOf, 'dashboard'),
-    months: typeof row.months === 'number' && Number.isInteger(row.months) ? row.months : months,
+    months: typeof row.months === 'number' && Number.isInteger(row.months) && row.months >= 1 && row.months <= 24 ? row.months : (() => { throw new Error('REPORT_DATA_INVALID: dashboard months is invalid'); })(),
     aging:{
       rows:requiredArray<AgingBucket>(agingRow.rows, 'aging.rows').map((item, index) => {
         if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: aging.rows[' + index + '] must be an object');
