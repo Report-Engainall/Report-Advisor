@@ -1,3 +1,11 @@
+## DEEP-FINISH UI WAVE — 2026-09-26
+
+- The shared Aghbari shell now uses a restrained emerald/near-black/brass visual hierarchy with stronger surface depth, micro-motion, sticky data-table headers, touch-safe controls and low-bandwidth fallbacks.
+- KPI surfaces expose the canonical trust state as a visual rail without converting missing values into zero or inventing confidence.
+- Shared loading, empty, unavailable, review, blocked, insufficient-data and error surfaces expose stable `data-surface-state` hooks so visual polish cannot alter business semantics.
+- Motion remains progressive-enhancement only: mobile reduces transforms and `prefers-reduced-motion` disables animation/transition effects.
+- Context-rail health styling must bind the emitted health state token from Header; no new navigation taxonomy was introduced.
+
 # MASTER UI/UX REFERENCE — الأغبري / Report-Advisor
 Status: CANONICAL DOMAIN REFERENCE
 Owner: Product surface completeness
