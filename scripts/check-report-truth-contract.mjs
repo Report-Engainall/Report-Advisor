@@ -199,6 +199,11 @@ for (const token of [
   if (!querySource.includes(token)) throw new Error(`Report truth contract missing import invariant: ${token}`);
 }
 
+const inventoryTruth = fs.readFileSync(path.join(srcDir, 'lib', 'free-toolbox', 'inventory-intelligence-canonical.ts'), 'utf8');
+if (!inventoryTruth.includes("INVENTORY_DATA_INVALID: product identity is invalid")) {
+  throw new Error('Report truth contract missing inventory product-identity invariant');
+}
+
 const dashboardCanonicalSourceFull = fs.readFileSync(path.join(srcDir, 'lib', 'dashboard-canonical.ts'), 'utf8');
 for (const token of [
   "function nonEmptyText(value: unknown): value is string",
