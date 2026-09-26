@@ -19,6 +19,10 @@ assert.ok(!queries.includes('total_rows:Number(p.total_rows??0)'), 'receivables 
 assert.ok(queries.includes('function validateForecastRows(rows: unknown[]): Forecast[]'), 'forecast reads must validate row semantics');
 assert.ok(queries.includes('FORECAST_DATA_INVALID: row[' + index + '] bounds are inverted'), 'forecast bounds must fail closed when inverted');
 
+assert.ok(queries.includes("importCountOrNull(data.total_rows, 'state.total_rows')"), 'import job counters must reject malformed or non-finite state values');
+assert.ok(queries.includes("importProgressOrNull(data.progress)"), 'import job progress must reject malformed or out-of-range state values');
+assert.ok(queries.includes("current.total_rows > 0 ? Math.round((current.processed_rows / current.total_rows) * 100) : 0"), 'import progress must be derived from validated counters instead of falling back from missing progress to zero');
+assert.ok(!queries.includes('current.progress ?? 0'), 'import state must not coerce missing persisted progress to zero');
 assert.ok(queries.includes('WORKER_HEALTH_COUNT_UNAVAILABLE'), 'worker health must fail closed when exact counts are unavailable');
 const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
 assert.ok(workCenter.includes('const zeroProgressActive = useMemo'), 'work center must expose an explicit zero-progress active signal');
