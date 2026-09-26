@@ -7,6 +7,8 @@ for (const marker of [
   "TENANT_ISOLATION_VIOLATION: ' + entity + '[' + index + '] company context mismatch",
   "validateTenantRows<Customer>(data??[],companyId,'customers')",
   "validateTenantRows<Product>(data??[],companyId,'products')",
+  "count===null)throw new Error('REPORT_QUERY_COUNT_UNAVAILABLE: customers require an authoritative exact count')",
+  "count===null)throw new Error('REPORT_QUERY_COUNT_UNAVAILABLE: products require an authoritative exact count')",
 ]) {
   if (!queriesSource.includes(marker)) throw new Error('Tenant security contract missing client-side entity tenant readback guard: ' + marker);
 }
