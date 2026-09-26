@@ -82,6 +82,7 @@ export function ExecutiveCommandCenterPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [replaySnapshot, setReplaySnapshot] = useState<BusinessReplaySnapshot | null>(null);
+  const [replayError, setReplayError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,17 +91,21 @@ export function ExecutiveCommandCenterPage() {
     try {
       if (silent) setRefreshing(true); else setLoading(true);
       setError(null);
-      const [snapshot, intelligence, replay] = await Promise.all([
+      const [snapshot, intelligence] = await Promise.all([
         fetchDashboardSnapshot(months),
         fetchDashboardIntelligence(),
-        fetchBusinessReplaySnapshot(),
       ]);
       setKpis(snapshot.kpis);
       setAsOf(snapshot.asOf);
       setTrend(snapshot.trend);
       setAlerts(intelligence.alerts.filter((item) => !item.is_read).slice(0, 5));
       setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').slice(0, 5));
-      setReplaySnapshot(replay);
+      try {
+        setReplayError(null);
+        setReplaySnapshot(await fetchBusinessReplaySnapshot());
+      } catch (cause) {
+        setReplayError(cause instanceof Error ? cause.message : 'تعذر قراءة سجل إعادة التشغيل');
+      }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل مركز القيادة');
     } finally {
@@ -175,9 +180,10 @@ export function ExecutiveCommandCenterPage() {
           <Link to="/decision-experience?stage=outcome" className="mt-3 inline-flex text-[10px] font-black text-warning-900 underline decoration-dotted underline-offset-2">فحص النتيجة المحفوظة ←</Link>
         </div>
         <Link to="/replay" className="card card-hover p-4">
-          <div className="flex items-center justify-between gap-3"><FileSearch size={18} className={replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? 'text-success-700' : 'text-ink-500'}/><span className={'rounded-full px-2 py-1 text-[9px] font-black ' + (replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? 'bg-success-50 text-success-700' : 'bg-warning-50 text-warning-800')}>{replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? 'AVAILABLE' : 'INSUFFICIENT DATA'}</span></div>
+          <div className="flex items-center justify-between gap-3"><FileSearch size={18} className={replayError ? 'text-warning-700' : replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? 'text-success-700' : 'text-ink-500'}/><span className={'rounded-full px-2 py-1 text-[9px] font-black ' + (replayError ? 'bg-warning-50 text-warning-800' : replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? 'bg-success-50 text-success-700' : 'bg-warning-50 text-warning-800')}>{replayError ? 'REVIEW' : replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? 'AVAILABLE' : 'INSUFFICIENT DATA'}</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Business Replay</div>
-          <p className="mt-1 text-[10px] leading-5 text-ink-500">{replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? `آخر لقطة ${replaySnapshot.latestSnapshotAt ?? 'غير متاح'} · ${replaySnapshot.outcomeCount} نتيجة ضمن نافذة القراءة.` : 'قراءة تاريخية من snapshots وoutcomes فقط؛ لا يتم تصنيع أحداث سابقة عند غياب السجل.'}</p>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">{replayError ? 'تعذر قراءة سجل Replay الحالي؛ لم تُعتبر الحالة نقص بيانات حتى لا نخفي خطأ المصدر.' : replaySnapshot?.snapshotCount && replaySnapshot.outcomeCount ? `آخر لقطة ${replaySnapshot.latestSnapshotAt ?? 'غير متاح'} · ${replaySnapshot.outcomeCount} نتيجة ضمن نافذة القراءة.` : 'قراءة تاريخية من snapshots وoutcomes فقط؛ لا يتم تصنيع أحداث سابقة عند غياب السجل.'}</p>
+          {replayError && <button type="button" onClick={(event) => { event.preventDefault(); void load(); }} className="mt-3 inline-flex rounded-lg border border-warning-300 bg-white px-2.5 py-1.5 text-[9px] font-black text-warning-900">إعادة المحاولة</button>}
         </Link>
         <Link to="/benchmark" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><BarChart3 size={18} className="text-warning-700"/><span className="rounded-full bg-warning-50 px-2 py-1 text-[9px] font-black text-warning-800">INSUFFICIENT SAMPLE</span></div>
