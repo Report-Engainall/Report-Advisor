@@ -715,3 +715,11 @@
 - This wave closed worker lease truth, receivables row+metadata validation, top-entity limit bounds, governed recommendation acceptance handoff, and deeper file-lab readiness UX.
 - Exact-head CI currently has no materialized run for `f7be708f34e96622f68a1f6b5c56c5f909b8dde0`; no PASS is transferred.
 - Resume remains: first terminal exact-head gate → first reproduced defect only → another independent UI/Core closure.
+
+
+## Latest executable checkpoint — 2026-09-27 / predecessor 33442bd291b2ee85a5d646a06006515d06af191f
+
+- Functional wave closed worker lease truth, receivables payload/row validation, top-entity query bounds, governed recommendation acceptance, and deeper file-lab readiness UX.
+- Security readback confirmed RLS-enabled tenant policies on the inspected source/worker tables.
+- Exact-head certification remains pending; do not transfer PASS from older SHA.
+- Resume: current governance head → exact-head checks → first reproduced defect only → next independent UI/Core closure.
