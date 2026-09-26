@@ -1,3 +1,9 @@
+## Current UI truth boundary — 2026-09-27
+
+- Decision stage navigation is constrained by persisted tenant-scoped lifecycle state; URL parameters cannot bypass prerequisite decision/approval/work records.
+- Invalid operational progress is not normalized into a plausible bounded value.
+- Replay availability is derived from tenant-scoped persisted snapshots/outcomes/work items; no synthetic history is introduced.
+
 ## CURRENT TRUTH/SECURITY CLOSURE — 2026-09-27
 
 - Business Replay reads are explicitly company-scoped across snapshots, outcomes and work items. The replay contract rejects any service-role path and treats missing evidence as missing truth.
