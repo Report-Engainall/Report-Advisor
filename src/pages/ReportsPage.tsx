@@ -24,7 +24,7 @@ function ReportTruthBar({ status, asOf, period, note }: { status: string; asOf?:
     : normalized === 'CALCULATED'
       ? 'border-primary-200 bg-primary-50 text-primary-800'
       : 'border-warning-200 bg-warning-50 text-warning-900';
-  return <section aria-label="سياق حقيقة التقرير" className={'flex flex-wrap items-center gap-2 rounded-[12px] border px-3 py-2.5 text-[10px] ' + tone}>
+  return <section aria-label="سياق حقيقة التقرير" className={'ag-report-truth-bar flex flex-wrap items-center gap-2 rounded-[12px] border px-3 py-2.5 text-[10px] ' + tone}>
     <span className="font-black">{normalized}</span>
     <span>الفترة: {period}</span>
     {asOf && <span>As-of: {asOf}</span>}
