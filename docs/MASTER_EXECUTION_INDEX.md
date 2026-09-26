@@ -1,3 +1,14 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-169
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `f488a055daa50bde1aac4cb7097057e65f959e74` on PR #660.
+- UI → Master Data Hub now distinguishes route existence from data truth and exposes the reference-to-decision progression; stale static truth claims were removed.
+- CORE → inventory decision evidence is finite-only; nonfinite coverage no longer produces decision evidence or critical decisions.
+- RUNTIME → Staging client_ui_settings tenant policy is live on canonical current_company_id() after the repository forward reconciliation.
+- GATES → newest HEAD has 3 queued, 1 in progress, 1 skipped; no new PASS. Device proof and Phase-F live resilience remain open; Vercel promotion remains externally blocked.
+- CURRENT RESUME POINTER → `PR #660 f488a055... → consume exact-head gates → repair first reproduced failure → continue safe UI/core closure → merge only after release-critical evidence is green`.
+- DO NOT REPEAT → stale truth labels, missing-to-zero, Infinity/NaN evidence, stale evidence transfer, blanket security cleanup, device-only proof, PR #659 overlap.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-168
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
