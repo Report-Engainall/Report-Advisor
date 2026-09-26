@@ -771,3 +771,108 @@
 .ag-connections-surface [data-connector-summary="available"] .ag-decision-value{color:rgb(4 120 87)}
 .ag-connections-surface [data-connector-summary="bounded"] .ag-decision-value{color:rgb(161 98 7)}
 .ag-connections-surface [data-connector-summary="adapter"] .ag-decision-value{color:rgb(71 85 105)}
+
+
+/* Deep decision/import finish — compact hierarchy, touch-safe focus, no truth fabrication. */
+.ag-decision-experience-surface .stage-pill{
+  position:relative;
+  min-height:68px;
+  border:1px solid rgba(18,84,77,.12);
+  border-radius:14px;
+  background:linear-gradient(145deg,#fff,#f7fbfa);
+  padding:.72rem .8rem;
+  text-align:right;
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,background-color .16s ease;
+}
+.ag-decision-experience-surface .stage-pill:hover,
+.ag-decision-experience-surface .stage-pill:focus-visible{
+  border-color:rgba(17,155,136,.28);
+  box-shadow:0 10px 22px -18px rgba(6,48,44,.44);
+  transform:translateY(-1px);
+}
+.ag-decision-experience-surface .stage-pill:focus-visible{
+  outline:2px solid rgba(20,184,166,.52);
+  outline-offset:2px;
+}
+.ag-decision-experience-surface .stage-pill-active{
+  border-color:rgba(17,155,136,.34);
+  background:linear-gradient(145deg,#eef9f6,#e8f5f1);
+  box-shadow:0 12px 26px -22px rgba(6,48,44,.55);
+}
+.ag-decision-experience-surface .stage-pill-active::before{
+  content:'';
+  position:absolute;
+  inset-inline-start:0;
+  inset-block:11px;
+  width:3px;
+  border-radius:99px;
+  background:linear-gradient(180deg,#e7b52b,#149b88);
+}
+.ag-command-next{
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(17,155,136,.055),transparent 16rem),
+    linear-gradient(145deg,#fff,#f6fbf9);
+}
+.ag-command-next::after{
+  content:'';
+  position:absolute;
+  inset-inline-end:8%;
+  inset-block-end:0;
+  width:26%;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(231,181,43,.44),transparent);
+  pointer-events:none;
+}
+.ag-command-next-kicker{
+  display:inline-flex;
+  align-items:center;
+  min-height:22px;
+  border:1px solid rgba(18,84,77,.12);
+  border-radius:999px;
+  background:#f2f8f6;
+  padding-inline:.48rem;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.12em;
+  color:#0c675c;
+}
+.ag-action-cluster{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+  padding:.2rem;
+}
+.ag-main .ag-import-dropzone{
+  min-height:220px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  border-color:rgba(18,84,77,.18);
+  background:
+    radial-gradient(circle at 50% 12%,rgba(17,155,136,.06),transparent 11rem),
+    linear-gradient(145deg,#fff,#f5faf8);
+  box-shadow:0 18px 34px -30px rgba(6,48,44,.38);
+}
+.ag-main .ag-import-dropzone:hover{
+  box-shadow:0 20px 38px -30px rgba(6,48,44,.46);
+}
+@media (max-width:640px){
+  .ag-decision-experience-surface .stage-pill{
+    min-height:62px;
+    padding:.65rem .7rem;
+  }
+  .ag-main .ag-import-dropzone{
+    min-height:185px;
+    padding:1.8rem 1rem;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  .ag-decision-experience-surface .stage-pill,
+  .ag-main .ag-import-dropzone{
+    transition:none!important;
+    transform:none!important;
+  }
+}
