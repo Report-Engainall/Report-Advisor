@@ -1,3 +1,12 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 188
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- PR #661 branch: `exec/20260926-continuous-ui-core-deep`.
+- LAST FUNCTIONAL HEAD BEFORE GOVERNANCE: `ea5c1008eeea4d06c2d7387a1a009fa468760a8e`.
+- Source-domain classification, labels, persistence, history display and Work Center display are now centralized and contract-tested.
+- Data Quality EMPTY score visual is fail-closed on unavailable data.
+- Current-head gates have not terminalized; no certification/pass transfer.
+- NEXT: consume first terminal exact-head gate, fix only reproduced current-SHA defect, then continue uncovered UI/core work and verify deployment identity.
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 187
 
 - MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
