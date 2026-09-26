@@ -342,6 +342,10 @@ assert.ok(commandCenter.includes('فحص النتيجة المحفوظة'), 'Dec
 assert.ok(commandCenter.includes('replaySnapshot'), 'command center Business Replay must consume the canonical replay read surface');
 assert.ok(commandCenter.includes('AVAILABLE'), 'command center must surface replay availability from real persisted history');
 assert.ok(commandCenter.includes('latestSnapshotAt'), 'command center replay card must expose the latest persisted snapshot timestamp when available');
+assert.ok(commandCenter.includes('replayError'), 'command center must retain replay-read failures as a distinct review state');
+assert.ok(commandCenter.includes("REVIEW"), 'command center must not map replay-read failures to insufficient data');
+assert.ok(commandCenter.includes('تعذر قراءة سجل Replay الحالي'), 'command center replay failure state must explain that the source read failed');
+assert.ok(commandCenter.includes('إعادة المحاولة'), 'command center replay failure state must expose an in-place retry');
 assert.ok(decisionExperience.includes('const stageGate = useMemo<Record<Stage'), 'Decision Experience must gate lifecycle stages from persisted state');
 assert.ok(decisionExperience.includes("decisionContext?.decisionStatus === 'APPROVED'"), 'Decision Experience work stage must require a persisted approved decision');
 assert.ok(decisionExperience.includes("decisionContext?.workItemStatus === 'COMPLETED'"), 'Decision Experience outcome stage must require persisted work completion or outcome evidence');
