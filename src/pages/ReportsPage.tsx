@@ -78,7 +78,9 @@ export function ReportsCenterPage() {
   }
   if (!snapshot) return <DataUnavailableState title="مركز التقارير ينتظر اللقطة" message="لم تصل اللقطة الكانونية الحالية؛ لا يتم عرض مركز فارغ أو أرقام غير مثبتة." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
 
-  const { kpis, aging, asOf, months } = snapshot;
+  const { kpis, aging, asOf, months, quality } = snapshot;
+  const qualityValues = [quality.badInvoiceRows, quality.badSaleItemRows, quality.badPurchaseRows, quality.badInventoryRows, quality.salesCurrencyMismatchRows, quality.purchaseCurrencyMismatchRows];
+  const qualityIssueTotal = qualityValues.every(value => value !== null) ? qualityValues.reduce((sum, value) => sum + (value ?? 0), 0) : null;
   const truthLabel = kpis.status === 'CONFIRMED' ? 'VERIFIED' : kpis.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA';
   const truthClass = kpis.status === 'CONFIRMED' ? 'badge-success' : kpis.status === 'CALCULATED' ? 'badge-primary' : 'badge-warning';
   const nextPath = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' ? '/data-quality' : '/reports/executive';
@@ -117,7 +119,8 @@ export function ReportsCenterPage() {
             <span>As of: {asOf}</span>
             <span>•</span>
             <span>أعمار الذمم: {aging.status === 'CALCULATED' ? 'قابلة للحساب' : aging.status === 'NO_DATA' ? 'لا توجد بيانات' : 'بيانات غير كافية'}</span>
-            {aging.unknownRows > 0 && <><span>•</span><span className="font-semibold text-warning-700">{formatNumber(aging.unknownRows)} صفوف خارج الحكم</span></>}
+            {aging.unknownRows != null && aging.unknownRows > 0 && <><span>•</span><span className="font-semibold text-warning-700">{formatNumber(aging.unknownRows)} صفوف خارج الحكم</span></>}
+            {qualityIssueTotal != null && <><span>•</span><span className={qualityIssueTotal > 0 ? 'font-semibold text-warning-700' : 'text-success-700'}>ضغط الجودة: {formatNumber(qualityIssueTotal)}</span></>}
           </div>
         </div>
         <div className="flex min-w-[220px] flex-col justify-between rounded-2xl bg-ink-950 p-4 text-white">
