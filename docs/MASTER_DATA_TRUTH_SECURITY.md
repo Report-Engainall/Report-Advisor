@@ -134,3 +134,10 @@ Forecasting and benchmark outputs must expose minimum-data/sample limits.
 - Recommendation acceptance cannot bypass evidence/approval/work lifecycle through a direct status mutation from the recommendations surface.
 - Top-entity query limits and receivables row/metadata payloads fail closed on malformed caller/source state.
 - File-lab quality state remains explicit when source quality is missing or non-finite.
+
+
+## Execution closure — 2026-09-27 / predecessor 2714f1b86220b5fc4066908e101477f73587b843
+
+- Security readback: report_execution_jobs, sales_invoices, and customers have RLS enabled in staging; tenant policies bind to current_company_id().
+- The receivables RPC is SECURITY DEFINER but its observed definition is tenant-bound and includes provenance for tenant, formula, as-of, freshness, and RPC/filter evidence.
+- No direct database mutation was performed during this device-independent wave because changing the function security mode requires controlled migration handling.
