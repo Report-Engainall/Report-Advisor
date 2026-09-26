@@ -241,29 +241,48 @@ export function DashboardPage() {
 
   return (
     <div dir="rtl" className="animate-fade-in space-y-5 pb-10">
-      <section className="ag-dashboard-header rounded-[18px] border border-ink-200 bg-white px-5 py-5 shadow-card lg:px-6 lg:py-6">
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 text-[11px] font-black text-primary-700">
-              <Sparkles size={15} />
-              لوحة ذكاء الأعمال · الأغبري
+      <section className="ag-dashboard-header">
+        <div className="ag-dashboard-header-main">
+          <div className="ag-dashboard-heading">
+            <div className="ag-dashboard-eyebrow"><span className="ag-dashboard-eyebrow-dot" /> Decision Operating System · الأغبري</div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <h1 className="text-[25px] font-black tracking-tight text-ink-950 lg:text-[32px]">نبض الأعمال</h1>
+              <span className="ag-dashboard-live-badge"><span /> LIVE TRUTH</span>
             </div>
-            <h1 className="mt-2 max-w-3xl text-[25px] font-black tracking-tight text-ink-950 lg:text-[31px]">نبض الأعمال</h1>
             <p className="mt-2 max-w-3xl text-[12px] leading-6 text-ink-500">
-              صورة تنفيذية موثقة لأداء العمل اليوم — من البيانات إلى التحليل ثم الإشارة والقرار. لا تعرض المنصة رقمًا غير مدعوم بمصدره وحالته.
+              من المصدر إلى الحقيقة ثم الإشارة والقرار. كل قيمة معروضة هنا تبقى مرتبطة بحالتها الزمنية ومصدرها الكانوني.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="ag-dashboard-actions">
             <Link to="/command-center" className="btn-primary text-[11px]"><Sparkles size={14} /> مركز القرار</Link>
             <Link to="/reports/executive" className="btn-secondary text-[11px]"><FileSearch size={13} /> التقرير التنفيذي</Link>
             <Link to="/import/analyze" className="btn-ghost text-[11px]">تحليل المستندات</Link>
           </div>
         </div>
-        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-ink-100 pt-4">
+
+        <div className="ag-dashboard-signal-grid">
+          <div className="ag-dashboard-signal">
+            <span className="ag-dashboard-signal-label">TRUTH COVERAGE</span>
+            <strong>{coverage}%</strong>
+            <span>من المؤشرات الحالية متاح أو مثبت</span>
+          </div>
+          <div className="ag-dashboard-signal">
+            <span className="ag-dashboard-signal-label">DECISION QUEUE</span>
+            <strong>{decisionAccountability.pending}</strong>
+            <span>توصيات جديدة تنتظر المراجعة</span>
+          </div>
+          <div className="ag-dashboard-signal">
+            <span className="ag-dashboard-signal-label">CANONICAL AS-OF</span>
+            <strong className="text-[14px]">{snapshotAsOf ?? 'غير متاح'}</strong>
+            <span>زمن اللقطة التي بُنيت عليها الصورة</span>
+          </div>
+        </div>
+
+        <div className="ag-dashboard-truthbar">
           <StatusLine status={kpis.status} text={kpis.status === 'INSUFFICIENT_DATA' ? 'الصورة تحتاج مراجعة' : 'الصورة صالحة للاستخدام'} />
-          <span className="rounded-full border border-ink-200 bg-ink-50 px-2.5 py-1 text-[10px] font-semibold text-ink-500">تغطية المؤشرات {coverage}%</span>
-          <span className="rounded-full border border-ink-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-ink-400">As-of: {snapshotAsOf ?? 'غير متاح'}</span>
-          <button type="button" onClick={() => void load(true)} disabled={refreshing} className="mr-auto inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-2.5 py-1 text-[10px] font-bold text-primary-800 hover:bg-primary-100 disabled:opacity-60">
+          <span className="ag-dashboard-truth-chip"><span className="h-1.5 w-1.5 rounded-full bg-primary-500" /> مصدر كانوني</span>
+          <span className="ag-dashboard-truth-chip">لا تصنيع للقيم</span>
+          <button type="button" onClick={() => void load(true)} disabled={refreshing} className="mr-auto inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-white px-3 py-1.5 text-[10px] font-bold text-ink-700 shadow-sm hover:border-primary-200 hover:text-primary-800 disabled:opacity-60">
             <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
             تحديث الصورة
           </button>
@@ -273,8 +292,8 @@ export function DashboardPage() {
       <TruthContextStrip months={trendMonths} status={kpis.status} asOf={snapshotAsOf ?? 'غير متاح'} />
       
       <section className="grid gap-3 lg:grid-cols-[1.05fr_.95fr]">
-        <Card>
-          <CardHeader title="ملخص القرار في دقيقة" subtitle="أهم إشارة ثم الخطوة التالية، من الحالة الحية الحالية." />
+        <Card className="ag-card-decision-brief">
+          <CardHeader kicker="DECISION BRIEF" title="ملخص القرار في دقيقة" subtitle="أهم إشارة ثم الخطوة التالية، من الحالة الحية الحالية." />
           <CardBody>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-[14px] border border-ink-200 bg-ink-50/55 p-4">
@@ -294,8 +313,8 @@ export function DashboardPage() {
             </div>
           </CardBody>
         </Card>
-        <Card>
-          <CardHeader title="تغطية الحقيقة والقرار" subtitle="اكتمال الصورة التنفيذية، ومدى جاهزية التوصيات للتنفيذ والمتابعة." />
+        <Card className="ag-card-coverage">
+          <CardHeader kicker="TRUTH → ACTION" title="تغطية الحقيقة والقرار" subtitle="اكتمال الصورة التنفيذية، ومدى جاهزية التوصيات للتنفيذ والمتابعة." />
           <CardBody>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
