@@ -1,3 +1,14 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-154
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `e7b0fa82d81c91f1a2654e3f5aef2ec9d13cb863` on PR #660.
+- UI → Decision Experience readiness is now announced as an accessible live status and exposed as machine-readable `data-readiness`; WOW contract protects it.
+- CORE → report-truth contract now guards all six dashboard quality counters; strict integer/null semantics remain fail-closed.
+- PHASE-F → canonical tenant resolver repair and forward client_ui_settings reconciliation remain the current runtime-boundary fixes; no new runtime PASS transferred.
+- DEPLOYMENT → Vercel remains rate-limited externally; Netlify preview remains available and exact to the PR line.
+- CURRENT RESUME POINTER → `PR #660 e7b0fa8... → consume latest exact-head Quality/Certification/Phase-F/Browser gates → repair only first reproduced failure`.
+- DO NOT REPEAT → stale Phase-F/certification evidence, legacy tenant resolver, production bypass, missing-to-zero normalization, duplicate contract bindings.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-153
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
