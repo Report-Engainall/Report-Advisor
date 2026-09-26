@@ -242,6 +242,13 @@ assert.ok(commandPalette.includes("event.key === 'Tab'"), 'command palette must 
 assert.ok(commandPalette.includes('aria-label="إغلاق لوحة الأوامر"'), 'command palette must expose a keyboard-accessible close control');
 
 const inventoryIntelligence = fs.readFileSync('src/pages/InventoryIntelligencePage.tsx', 'utf8');
+assert.ok(inventoryIntelligence.includes('const riskCounts='), 'inventory intelligence must derive live risk counts from current grouped truth');
+assert.ok(inventoryIntelligence.includes('const visibleRows='), 'inventory intelligence must filter existing rows without inventing records');
+assert.ok(inventoryIntelligence.includes('رادار الأولوية'), 'inventory intelligence must expose a visible decision-priority surface');
+assert.ok(inventoryIntelligence.includes('طلب غير مثبت'), 'inventory intelligence must preserve missing-demand state as an explicit boundary');
+assert.ok(inventoryIntelligence.includes('عرض كل الحالات'), 'inventory intelligence risk filtering must expose a local reset action');
+assert.ok(inventoryIntelligence.includes('aria-pressed={riskFilter==='all'}'), 'inventory intelligence risk filters must expose selected state accessibly');
+
 assert.ok(inventoryIntelligence.includes('سياق حقيقة ذكاء المخزون'), 'inventory intelligence must expose truth context');
 assert.ok(inventoryIntelligence.includes('آخر 180 يومًا'), 'inventory intelligence truth context must disclose its fixed demand window');
 assert.ok(inventoryIntelligence.includes('to="/trust"'), 'inventory intelligence must expose a direct evidence action');
