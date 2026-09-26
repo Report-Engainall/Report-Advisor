@@ -63,12 +63,15 @@ export function ReportsCenterPage() {
   useEffect(() => { void load(); }, [load]);
 
   if (loading) {
-      const reportEvidenceState = reportCount === 0 ? 'EMPTY' : reportHasUnverifiedData ? 'REVIEW' : 'VERIFIED';
-  const reportEvidenceLabel = reportEvidenceState === 'VERIFIED' ? 'موثّق' : reportEvidenceState === 'REVIEW' ? 'مراجعة مطلوبة' : 'لا توجد بيانات';
-
-return (
+    return (
       <div dir="rtl" className="ag-reports-center-surface space-y-5 animate-fade-in pb-10">
         <PageHeader title="مركز التقارير" subtitle="لقطة موثقة من مسار التقارير التنفيذي." />
+        <div className="flex flex-wrap items-center gap-2 rounded-[12px] border border-ink-200 bg-white px-3 py-2 text-[10px] shadow-sm" aria-label="حالة دليل التقارير">
+          <span className={reportEvidenceState === 'VERIFIED' ? 'badge-success' : 'badge-warning'}>{reportEvidenceLabel}</span>
+          <span className="text-ink-500">حالة المصدر: {truthLabel}</span>
+          <span className="text-ink-500">مشكلات الجودة: {qualityIssueTotal === null ? 'غير متاحة' : qualityIssueTotal}</span>
+          <span className="mr-auto font-semibold text-ink-600">لا تُستخدم الأرقام قبل قراءة حالة الدليل.</span>
+        </div>
         <section aria-label="حالة دليل التقارير" className="rounded-[18px] border border-ink-200 bg-white p-6 shadow-card">
           <div className="text-sm font-bold text-ink-800">جارٍ تحميل اللقطة التجارية...</div>
           <div className="mt-2 text-[11px] text-ink-500">لا تُعرض أرقام تقديرية أثناء التحميل.</div>
@@ -86,6 +89,9 @@ return (
   const qualityIssueTotal = qualityValues.every(value => value !== null) ? qualityValues.reduce((sum, value) => sum + (value ?? 0), 0) : null;
   const truthLabel = kpis.status === 'CONFIRMED' ? 'VERIFIED' : kpis.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA';
   const truthClass = kpis.status === 'CONFIRMED' ? 'badge-success' : kpis.status === 'CALCULATED' ? 'badge-primary' : 'badge-warning';
+  const reportEvidenceState = kpis.status === 'CONFIRMED' && qualityIssueTotal === 0 ? 'VERIFIED' : qualityIssueTotal === null ? 'REVIEW' : qualityIssueTotal > 0 ? 'REVIEW' : 'VERIFIED';
+  const reportEvidenceLabel = reportEvidenceState === 'VERIFIED' ? 'موثّق' : 'مراجعة مطلوبة';
+
   const nextPath = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' ? '/data-quality' : '/reports/executive';
   const nextLabel = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' ? 'افحص جودة البيانات' : 'افتح التقرير التنفيذي';
 
