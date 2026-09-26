@@ -318,4 +318,12 @@ assert.ok(inventoryUnavailable.includes('if (!snapshot) return <DataUnavailableS
 const canonicalProfitability = fs.readFileSync('src/pages/ProfitabilityReportCanonicalPage.tsx', 'utf8');
 assert.ok(canonicalProfitability.includes('DataUnavailableState'), 'canonical profitability must expose a governed unavailable-data state');
 assert.ok(canonicalProfitability.includes('<Link to="/import"'), 'canonical profitability unavailable state must use the unified import route');
+
+// Deep Aghbari visual invariants: retain the executive dark navigation,
+// live context rail, and decision evidence surface across future refactors.
+const styles = fs.readFileSync('src/index.css', 'utf8');
+assert.ok(/\.ag-app-shell \.ag-sidebar\{background:linear-gradient\(180deg,#052f2d 0%,#063b36 58%,#052825 100%\)!important/i.test(styles), 'Aghbari shell must retain the dark executive sidebar identity');
+assert.ok(styles.includes('.ag-context-rail') && styles.includes('.ag-context-chip'), 'Aghbari shell must expose the shared live workspace context rail');
+assert.ok(styles.includes('.ag-decision-evidence-grid') && styles.includes('.ag-decision-evidence-card'), 'Decision surface must retain the evidence-readiness visual contract');
+
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
