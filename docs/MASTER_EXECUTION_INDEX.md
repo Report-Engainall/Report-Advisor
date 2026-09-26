@@ -1,17 +1,17 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 144
-
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / FULL SOURCE IMPORT LIFECYCLE
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
-- CURRENT CODE/TEST CANDIDATE: worktree branch `exec/20260927-import-full-lifecycle`; exact candidate SHA is pending commit.
+- CURRENT CODE/TEST CANDIDATE: `d7bfe613430e59e5f937506ee4542db47ebc6a2b` (`feat: complete full-source canonical import lifecycle`); this write-back is its governance/documentation descendant.
 - UI LANE: Canonical Import now handles all parsed datasets, surfaces specialty/dataset count/understanding confidence, and routes successful completion to Trust/Evidence and Decision Experience. Product WOW contract and DataTable semantics are green.
 - CORE LANE: server authoritative import consumes all parsed datasets, derives entity type deterministically, aggregates rows conservatively, and persists every dataset summary plus specialty/provenance metadata into the source analysis snapshot.
 - EXACT LOCAL PROOF: typecheck PASS; canonical import mapping PASS; Product WOW UI PASS; Phase-3 data/import truth PASS; Document Intelligence contract/closure PASS; Decision Intelligence closure PASS; Knowledge Architecture PASS; multi-dataset runtime proof PASS; Vite production build PASS with 2800 modules.
 - BLOCKED / NOT PROVEN: local agent-browser daemon repeatedly returned EOF, so no browser PASS is claimed. Production identity and Phase-F restore/RPO/RTO/rollback remain unproven.
-- NEXT EXECUTABLE ACTION: commit and push the candidate, create/consume exact-head remote gates, repair only the first current-SHA failure, then merge only when required gates are green.
+- NEXT EXECUTABLE ACTION: push the exact-head branch, create/consume remote gates, repair only the first current-SHA failure, then merge only when required gates are green.
 - DO NOT REPEAT: first-dataset import shortcuts, duplicate import path, stale PASS transfer, browser PASS without evidence, production/Phase-F bypass.
 
 ---
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 144
+
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `8eb5b4154e02a1320942e08a33e052e0a35ab238`.
 - CURRENT CODE/TEST CANDIDATE A: `e76d7fb639da2e7a1a8b603156e82fc3ab27b0f9` (PR #657; current-main deep UI/core lane + Work Center zero-progress signal).
 - CURRENT CODE/TEST CANDIDATE B: `b324e023f1dbf603811f2cfe47bf58bfff6a0660` (PR #658; receivables truth closure).

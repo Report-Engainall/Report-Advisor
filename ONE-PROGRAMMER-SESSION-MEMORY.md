@@ -1,22 +1,22 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143
-
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / FULL SOURCE IMPORT LIFECYCLE
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
 - SESSION-ID → `2026-09-27-AGHBARI-FULL-SOURCE-LIFECYCLE-001`.
-- CURRENT CODE/TEST CANDIDATE → worktree branch `exec/20260927-import-full-lifecycle` on the exact observed main before the pending commit.
+- CURRENT CODE/TEST CANDIDATE → `d7bfe613430e59e5f937506ee4542db47ebc6a2b` (`feat: complete full-source canonical import lifecycle`); this write-back is the governance/documentation descendant.
 - DONE — CORE → canonical source understanding now consumes every parsed dataset, flattens rows across datasets, computes conservative quality, infers specialty/entity deterministically, and persists all dataset summaries in the authoritative import snapshot. Server and client no longer select only dataset zero.
 - DONE — UI → Canonical Import now exposes source specialty, dataset count, understanding confidence, and post-commit routes into Trust/Evidence and Decision Experience. The unified path remains source-agnostic.
 - DONE — REGRESSION/SHARED UI → fixed duplicate Product WOW contract declarations; aligned DataTable absolute row-count semantics; removed impossible ExecutiveReport status comparison; removed dead DataTable aria-busy comparison.
 - VERIFIED → typecheck PASS; canonical import mapping PASS; Product WOW UI PASS; Phase-3 data/import truth PASS; Document Intelligence contract/closure PASS; Decision Intelligence closure PASS; Knowledge Architecture PASS; production Vite build PASS (2800 modules); synthetic multi-dataset runtime proof returned datasetCount=2, rowCount=3, entityType=sales_invoices, specialty=sales, qualityScore=80; targeted lint finished with 0 errors and 8 warnings.
 - NOT PROVEN / BLOCKED → browser verification did not start because the local agent-browser daemon repeatedly returned EOF even after close; no browser PASS claimed. Whole-repo `npm run lint` did not terminalize and was stopped; targeted lint is the evidence used instead. Production deployment identity, Phase-F restore/RPO/RTO/rollback, and production promotion remain unproven and untouched.
-- EXACT EVIDENCE → device `PC01`; worktree `Report-Advisor-exec-20260927`; branch `exec/20260927-import-full-lifecycle`; main HEAD above; final candidate SHA will be recorded by the next write after commit.
+- EXACT EVIDENCE → device `PC01`; worktree `Report-Advisor-exec-20260927`; branch `exec/20260927-import-full-lifecycle`; main HEAD observed `46675643e32f6ea28b6c1d80a530b2eb134e7907`; code commit `d7bfe613430e59e5f937506ee4542db47ebc6a2b`; governance changes are documented in this descendant commit.
 - OPEN FRONT → commit and push this candidate, consume exact-head remote checks, repair only the first reproduced failure, and merge only when required exact-head evidence is green. Production/Phase-F remain fail-closed.
 - CURRENT RESUME POINTER → `main 46675643... → candidate commit → push exact-head → consume first remote failure only → merge only after required gates; do not bypass Production/Phase-F`.
-- NEXT EXECUTABLE ACTION → commit this verified candidate, push the branch, create/consume the exact-head PR gate, then update this memory with the generated commit SHA.
+- NEXT EXECUTABLE ACTION → push this exact-head branch, create/consume the remote PR gates on `d7bfe613...` and this governance descendant, repair only the first current-SHA failure, then merge only when required evidence is green.
 - UI LANE → unified import UX/data-state closure plus Product WOW and shared DataTable semantics verified locally.
 - CORE LANE → full-source canonical understanding, authoritative server aggregation, provenance snapshot metadata, deterministic entity inference, and compile/build closure verified locally.
 - DO NOT REPEAT → no `datasets[0]` source selection; no `authoritativeDatasets[0]`; no duplicate import path; no stale PASS transfer; no browser PASS without evidence; no production-SHA or Phase-F bypass.
+
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
 - SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143`.
