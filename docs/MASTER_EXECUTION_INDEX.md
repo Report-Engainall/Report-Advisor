@@ -723,3 +723,10 @@
 - Security readback confirmed RLS-enabled tenant policies on the inspected source/worker tables.
 - Exact-head certification remains pending; do not transfer PASS from older SHA.
 - Resume: current governance head → exact-head checks → first reproduced defect only → next independent UI/Core closure.
+
+
+## Latest executable checkpoint — 2026-09-27 / predecessor 3324269dd2ba52563ee0311a39f68179490cb93f
+
+- Closed this wave: entity count truth and pagination truth for Customers/Products.
+- Exact-head checks: 5 total, with 3 queued, 1 in progress, 1 skipped, 0 failures, 0 successes.
+- Resume: current governance head → exact-head checks → first reproduced defect only → next independent UI/Core closure.
