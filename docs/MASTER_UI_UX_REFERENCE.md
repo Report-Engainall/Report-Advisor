@@ -1,3 +1,9 @@
+## LIVE UI CLOSURE — 2026-09-26 / COMMAND CENTER METRIC TRUTH
+
+- Executive Command Center money metrics now expose an explicit `available` / `unavailable` state hook.
+- Unavailable financial values receive a distinct visual treatment while retaining the literal `غير متاح` semantic, so the UI cannot visually imply a numeric zero.
+- Product-WOW regression now guards both the canonical NEXT ACTION route and metric availability state.
+
 ## COMPREHENSIVE UI CLOSURE — 2026-09-26
 
 - Executive Command Center now has a canonical `NEXT ACTION` surface derived from real truth state: unresolved source quality routes to Data Quality, open attention routes to Intelligence, reviewable recommendations route to Decision Experience, and a quiet state routes to the Executive Report.
