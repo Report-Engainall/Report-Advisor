@@ -693,3 +693,10 @@
 - Closed: fail-closed import progress/counter validation and canonical-import missing-metadata truth states.
 - Exact-head CI is not yet observable for this SHA; do not reuse older green checks.
 - Resume action: first terminal exact-head CI result → first current-SHA defect only → parallel independent UI/core closure.
+
+
+## Governance synchronization — predecessor 84d2634c08bb10dbf0369785af16275003340091
+
+- This index is synchronized with `84d2634c08bb10dbf0369785af16275003340091` and the same-step memory update in one Git commit.
+- The executor records the resulting branch SHA externally after the ref move; the file intentionally avoids a self-referential hash claim.
+- Resume remains exact-SHA bound; any CI proof must match the resulting branch tip.
