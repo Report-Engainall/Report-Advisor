@@ -59,6 +59,8 @@ function validateInput(value: unknown): DurableCanonicalImportInput {
       if (typeof provenance[field] !== 'string' || !String(provenance[field]).trim()) throw new Error(`provenance_${field}_invalid:${index + 1}`);
     }
     if (provenance.sourceHash !== body.sourceHash) throw new Error(`provenance_source_hash_mismatch:${index + 1}`);
+    if (provenance.sourceId !== body.fileName) throw new Error(`provenance_source_id_mismatch:${index + 1}`);
+    if (provenance.sourceDocumentId !== body.importId) throw new Error(`provenance_document_mismatch:${index + 1}`);
   }
   if (typeof body.qualityScore !== 'number' || !Number.isFinite(body.qualityScore) || body.qualityScore < 0 || body.qualityScore > 100) throw new Error('quality_score_invalid');
   if (typeof body.qualityApproved !== 'boolean') throw new Error('quality_approval_invalid');
@@ -95,6 +97,9 @@ export default async function handler(req: any, res: any) {
     }
 
     const input = validateInput(await parseBody(req));
+    if (input.rows.some((row) => row.provenance.tenantId !== companyId)) {
+      throw new Error('CANONICAL_ROW_TENANT_MISMATCH');
+    }
     const dataClient = createClient(process.env.SUPABASE_URL!.trim(), process.env.VITE_SUPABASE_ANON_KEY!.trim(), {
       auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
       global: { headers: { Authorization: `Bearer ${token}` } },
