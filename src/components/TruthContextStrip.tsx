@@ -6,6 +6,7 @@ interface TruthContextStripProps {
   months: number;
   status: TruthState;
   asOf: string;
+  qualityIssues?: number | null;
 }
 
 const stateMeta: Record<TruthState, { label: string; className: string; icon: typeof CheckCircle2 }> = {
@@ -14,7 +15,7 @@ const stateMeta: Record<TruthState, { label: string; className: string; icon: ty
   INSUFFICIENT_DATA: { label: 'بيانات غير كافية', className: 'text-warning-700 bg-warning-50 ring-warning-100', icon: ShieldAlert },
 };
 
-export function TruthContextStrip({ months, status, asOf }: TruthContextStripProps) {
+export function TruthContextStrip({ months, status, asOf, qualityIssues }: TruthContextStripProps) {
   const meta = stateMeta[status];
   const StateIcon = meta.icon;
   return (
@@ -33,6 +34,7 @@ export function TruthContextStrip({ months, status, asOf }: TruthContextStripPro
           <span className={'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-bold ring-1 ring-inset ' + meta.className}><StateIcon size={13} aria-hidden="true" />{meta.label}</span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 font-semibold text-ink-600 ring-1 ring-inset ring-ink-100">المؤسسة الحالية · مسار مصدر معتمد</span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-2.5 py-1.5 font-bold text-primary-800 ring-1 ring-inset ring-primary-100">الدليل: لا يُعتمد الادعاء دون مصدر</span>
+          <span className={"inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-bold ring-1 ring-inset " + (qualityIssues === null || qualityIssues === undefined ? "bg-ink-50 text-ink-600 ring-ink-100" : qualityIssues > 0 ? "bg-warning-50 text-warning-800 ring-warning-100" : "bg-success-50 text-success-700 ring-success-100")}>{qualityIssues === null || qualityIssues === undefined ? "جودة المصدر: غير متاحة" : qualityIssues > 0 ? "مشكلات المصدر: " + qualityIssues : "مشكلات المصدر: 0"}</span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-50 px-2.5 py-1.5 font-bold text-warning-800 ring-1 ring-inset ring-warning-100">المفقود ≠ صفر</span>
         </div>
       </div>
