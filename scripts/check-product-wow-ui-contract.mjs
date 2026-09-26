@@ -414,6 +414,13 @@ assert.ok(dataQuality.includes('استيراد مصدر'), 'empty data quality m
 assert.ok(dataQuality.includes('أغلق المشكلات الحرجة'), 'critical data quality must route to the trust review path');
 assert.ok(dataQuality.includes('راجع مشكلات الجودة'), 'non-critical data quality issues must expose a review action');
 assert.ok(dataQuality.includes('انتقل للتحليل'), 'clean data quality must expose the analytics next step');
+assert.ok(dataQuality.includes('overallScore == null ? \'غير متاح\''), 'empty data quality must not render a zero score as if it were a measured quality result');
+assert.ok(dataQuality.includes("snapshot.status === 'EMPTY' || totalRecords === 0 ? null"), 'empty data quality must keep diagnostic score unavailable');
+const canonicalImport = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
+assert.ok(canonicalImport.includes('COMMIT PASSPORT'), 'canonical import completion must expose the server commit passport');
+assert.ok(canonicalImport.includes('كتابة كانونية مثبتة'), 'canonical import completion must distinguish a server-confirmed canonical write');
+assert.ok(canonicalImport.includes('serverValidatedQualityScore'), 'canonical import completion must expose server-validated quality');
+assert.ok(canonicalImport.includes('serverIdempotentReplay'), 'canonical import completion must expose idempotent replay state');
 assert.ok(dataQuality.includes('to: \'/analytics\''), 'clean data quality action must use the canonical analytics route');
 
 const connections = fs.readFileSync('src/pages/ConnectionsPage.tsx', 'utf8');
