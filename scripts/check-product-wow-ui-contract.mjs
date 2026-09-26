@@ -106,6 +106,8 @@ assert.ok(truthStrip.includes('الاستخدام: صالح للقرار') && tr
 const analytics = fs.readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
 assert.ok(analytics.includes('افحص الدليل ثم القرار'), 'analytics must gate calculated results behind evidence review');
 assert.ok(!analytics.includes('انقل النتيجة إلى القرار'), 'analytics must not route calculated results directly to decision without evidence review');
+const profitabilityReport = fs.readFileSync('src/pages/ProfitabilityReportCanonicalPage.tsx', 'utf8');
+assert.ok(profitabilityReport.includes("snapshot.currency_status === 'CONSISTENT'"), 'profitability display must require consistent currency');
 const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
 assert.ok(executiveReport.includes('qualityIssues={qualityIssueTotal}'), 'executive report must bind quality truth into shared context');
 assert.ok(executiveReport.includes("kpis?.status === 'CALCULATED'"), 'executive report must route calculated truth through evidence review');
