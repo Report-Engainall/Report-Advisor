@@ -1,3 +1,20 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-146
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `c749eb2dbc7e71dc59482464de38227633a05670` on PR #660.
+- DELIVERY SIZE → 19 commits ahead of main, 0 behind, exact compare against `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- UI LANE → deep shell polish; dark executive Sidebar cascade permanently resolved; live Header context rail; actionable Dashboard KPI links; stronger Truth Context disclosure; status-aware Reports Center; Decision Experience readiness/evidence grid; recommendation owner/deadline/status visibility; Trust Center severity triage.
+- CORE LANE → dashboard canonical adapter now rejects malformed arrays and invalid state values; missing authoritative as-of is fail-closed; inventory/profitability/RFM/ABC/aging payload validation tightened; aging unknownRows preserves UNKNOWN instead of defaulting to zero.
+- CONTRACTS → report-truth contract now guards fail-closed dashboard parsing; Product WOW contract locks dark Sidebar/context rail/decision evidence visual invariants.
+- LIVE SECURITY OBSERVATION → staging advisor currently reports 46 authenticated-callable SECURITY DEFINER warnings plus leaked-password protection warning. No blanket revoke/unsafe mutation performed. Source-backed get_receivables_report_page was inspected: SECURITY DEFINER, explicit search_path=public, tenant binding through current_company_id(), authenticated execution; remains governed rather than blindly revoked.
+- EXACT CURRENT GATE → Vercel and Vercel Deployments are PENDING for candidate c749eb2...; no browser/device/production PASS claimed.
+- BLOCKED EXTERNAL → local device/browser unavailable; Vercel free-plan boundary remains external.
+- VERIFIED → exact main base, exact 19-commit candidate lineage, current source changes, live staging security observation, and repository contract additions.
+- NOT PROVEN → current candidate CI/build/browser, production deployment identity, Phase-F live backup/restore/RPO/RTO/rollback.
+- CURRENT RESUME POINTER → PR #660 c749eb2... → consume first exact-head gate result → repair only current reproduced failure → merge only after required evidence; otherwise continue next independent UI/core wave.
+- NEXT EXECUTABLE ACTION → consume PR #660 exact-head gate result; if no current failure is surfaced, continue deep UI completion across remaining canonical surfaces and strengthen independent core contracts without reopening merged work.
+- DO NOT REPEAT → no merged #657/#658 rework; no stale PASS transfer; no production SHA bypass; no blanket SECURITY DEFINER revoke; no duplicate route/RPC/import path; no device-dependent claim.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-145
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
