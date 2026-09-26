@@ -76,6 +76,16 @@ if (/(Number|parseFloat|parseInt)\([^\n]*\).*NaN|NaN.*(Number|parseFloat|parseIn
 // Canonical dashboard adapter must fail closed on malformed authoritative payloads.
 // These guards prevent a future refactor from silently mapping a bad response to
 // an empty result or substituting the current day for a missing authoritative as-of.
+const dataQualityCore = fs.readFileSync(path.join(srcDir, 'lib', 'data-quality-snapshot-core.ts'), 'utf8');
+for (const token of [
+  "typeof entity.total !== 'number' || !Number.isInteger(entity.total)",
+  "typeof entity.issues !== 'number' || !Number.isInteger(entity.issues)",
+  "typeof issue.count !== 'number' || !Number.isInteger(issue.count)",
+  "DATA_QUALITY_EMPTY_SNAPSHOT_INCONSISTENT",
+]) {
+  if (!dataQualityCore.includes(token)) throw new Error(`Report truth contract missing data-quality invariant: ${token}`);
+}
+
 const dashboardCanonical = fs.readFileSync(path.join(srcDir, 'lib', 'dashboard-canonical.ts'), 'utf8');
 for (const token of [
   "function requiredArray<T>(value: unknown, field: string)",
