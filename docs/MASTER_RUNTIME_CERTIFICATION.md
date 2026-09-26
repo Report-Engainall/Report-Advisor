@@ -82,3 +82,11 @@ Final certification is complete only when all release-critical gates are current
 
 - Runtime retry scope was narrowed to transport/RPC failure for dashboard intelligence; malformed successful payloads are not retried as if they were transient transport events.
 - Exact-head checks on this candidate: 49 total, counts {"completed/skipped":3,"queued/null":45,"in_progress/null":1}, with 0 known failures at checkpoint time. No PASS transfer.
+
+
+## 2026-09-27 — Runtime proof boundary for import closure
+- The functional import candidate is ce23d1f72a84b5d4e4266f1f1ae6db194c177bd2 before the documentation tail.
+- Exact-head certification must still use a fresh run on the final branch head; older run evidence is not transferable.
+- Vercel remains an external free-plan build-rate blocker.
+- Desktop Commander device verification is also externally unavailable because the registered device has no live session.
+- No production PASS, deployment PASS, or browser business readback is claimed without exact-head evidence.
