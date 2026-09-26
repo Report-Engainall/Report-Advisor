@@ -760,3 +760,9 @@
 .ag-import-passport-cell[data-quality-state="trusted"] > strong{color:rgb(4 120 87)}
 .ag-import-passport-cell[data-quality-state="review"] > strong{color:rgb(161 98 7)}
 .ag-import-passport-cell[data-quality-state="blocked"] > strong{color:rgb(185 28 28)}
+
+
+/* Executive numeric surfaces keep unavailable truth visually distinct without implying zero. */
+[data-value-state="unavailable"] .tabular-nums{color:#75683f}
+.ag-executive-report [data-chart-state="empty"]{min-height:9rem;display:flex;flex-direction:column;justify-content:center}
+.ag-executive-report [data-chart-state="empty"] a{width:max-content}
