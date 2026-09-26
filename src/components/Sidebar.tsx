@@ -53,6 +53,7 @@ const iconFor: Record<NavigationIconKey, ReactNode> = {
   liquidity: <WalletCards size={16}/>,
   suppliers: <Truck size={16}/>,
   benchmark: <BarChart3 size={16}/>,
+  replay: <FileBarChart size={16}/>,
   onboarding: <ListChecks size={16}/>,
   settings: <Settings size={16}/>,
   profile: <UserCircle size={16}/>,
