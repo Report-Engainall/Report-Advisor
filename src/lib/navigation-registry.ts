@@ -79,6 +79,7 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
       { section: 'decision-center', path: '/', label: 'نبض الأعمال', enLabel: 'Business Pulse', description: 'الصورة التنفيذية اليومية في شاشة واحدة', keywords: ['dashboard', 'home', 'نبض', 'أعمال', 'رئيسية'], icon: 'dashboard' },
       { section: 'decision-center', path: '/command-center', label: 'مركز القرار', enLabel: 'Decision Command', description: 'الإشارات والأولويات التي تستحق الانتباه الآن', keywords: ['command', 'decision', 'قيادة', 'قرار', 'أولوية'], icon: 'command-center' },
       { section: 'decision-center', path: '/decision-experience', label: 'تجربة القرار', enLabel: 'Decision Experience', description: 'الدليل والسياق والموافقة والإجراء والنتيجة', keywords: ['decision', 'evidence', 'approval', 'قرار', 'دليل', 'نتيجة'], icon: 'decision' },
+      { section: 'decision-center', path: '/replay', label: 'إعادة تشغيل الأعمال', enLabel: 'Business Replay', description: 'إعادة قراءة snapshots ونتائج تنفيذ محفوظة', keywords: ['replay', 'business replay', 'learning', 'outcome', 'إعادة التشغيل'], icon: 'replay', minimumWorkspaceMode: 'advanced' },
     ],
   },
   {
@@ -122,7 +123,7 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
       { section: 'intelligence', path: '/intelligence/forecasts', label: 'التنبؤات', enLabel: 'Forecasts', description: 'استعراض التنبؤات المتاحة دون اختلاق نتيجة', keywords: ['forecast', 'forecasts', 'تنبؤات'], icon: 'forecasts', minimumWorkspaceMode: 'advanced' },
       { section: 'intelligence', path: '/intelligence/scenarios', label: 'السيناريوهات', enLabel: 'Scenarios', description: 'محاكاة محكومة منفصلة عن الحقيقة التشغيلية', keywords: ['scenarios', 'scenario', 'سيناريوهات'], icon: 'scenarios', minimumWorkspaceMode: 'advanced' },
       { section: 'intelligence', path: '/benchmark', label: 'شبكة المقارنة', enLabel: 'Benchmark Network', description: 'مقارنة خارجية لا تظهر دون عينة نظيرة موثقة', keywords: ['benchmark', 'peer', 'comparison', 'مقارنة', 'مئين'], icon: 'benchmark', minimumWorkspaceMode: 'advanced' },
-      { section: 'intelligence', path: '/replay', label: 'إعادة تشغيل الأعمال', enLabel: 'Business Replay', description: 'إعادة قراءة snapshots ونتائج تنفيذ محفوظة', keywords: ['replay', 'business replay', 'learning', 'outcome', 'إعادة التشغيل'], icon: 'replay', minimumWorkspaceMode: 'advanced' },
+
     ],
   },
   {
