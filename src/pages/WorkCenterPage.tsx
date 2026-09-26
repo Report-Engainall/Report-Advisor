@@ -75,7 +75,8 @@ export function WorkCenterPage() {
 
   const nextAction = invalidProgressActive > 0
     ? { kind: 'filter' as const, filter: 'active' as FilterKey, tone: 'danger' as const, title: 'بيانات التقدم غير موثوقة', message: `هناك ${invalidProgressActive} عملية نشطة بتقدم مفقود أو خارج النطاق؛ تُعرض للمراجعة ولا تُحوّل إلى نسبة افتراضية.`, label: 'مراجعة النشطة' }
-    ? { kind: 'refresh' as const, tone: 'danger' as const, title: 'بيانات العامل غير مكتملة', message: 'هناك leases نشطة بلا انتهاء صالح؛ لا تُعامل كحالة سليمة حتى تُعاد قراءتها.', label: 'إعادة فحص العامل' }
+    : (workerHealth?.untrustedActive ?? 0) > 0
+      ? { kind: 'refresh' as const, tone: 'danger' as const, title: 'بيانات العامل غير مكتملة', message: 'هناك leases نشطة بلا انتهاء صالح؛ لا تُعامل كحالة سليمة حتى تُعاد قراءتها.', label: 'إعادة فحص العامل' }
     : (workerHealth?.expiredActive ?? 0) > 0
     ? { kind: 'refresh' as const, tone: 'danger' as const, title: 'إعادة فحص العامل الآن', message: 'هناك leases منتهية مثبتة في القراءة الحالية؛ أعد قراءة الحالة بعد دورة recovery التشغيلية بدل اعتبار الطابور سليمًا.', label: 'إعادة فحص العامل' }
     : workerHealth && !workerHealth.activeReadComplete
