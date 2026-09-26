@@ -789,3 +789,19 @@
 - NEXT ACTION → consume the first populated current-head gate; fix only a reproduced failure; then continue independent UI/core closure.
 - DO NOT REPEAT → no RPC-result coercion, no stale PASS transfer, no production mutation, no duplicate import/commit path.
 
+
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / DURABLE CANONICAL COMMIT → UI PROOF
+
+> Exact-head evidence only. No historical PASS is transferred.
+
+- SOURCE CODE HEAD BEFORE GOVERNANCE → `63efcfa7ec79e3e283fd5d2a8b26a18106a2328f`.
+- MEMORY WRITE → `b6e383e593eb6df228c0a4b3e63e417103cbe9ae`.
+- DONE — CORE → actual `commitImportBatch` result is captured at the durable `committed` stage; successful completion now requires that result.
+- DONE — SERVER → endpoint exposes the canonical committed row count and server-validated quality context rather than deriving success from local preview state.
+- DONE — UI → canonical import success surface shows server-committed rows and idempotent replay state.
+- DONE — CONTRACT → product-wow guard covers durable result propagation and success surface.
+- GATES → no exact-head workflow/status evidence has populated on `63efcfa7...`; no certification PASS claimed.
+- RELEASE BOUNDARY → Vercel external build-rate-limit, device/browser unavailable, Phase-F live resilience still NOT PROVEN.
+- NEXT ACTION → consume first current-head populated gate; fix only a reproduced failure; then continue independent UI/core closure.
+- DO NOT REPEAT → no stale evidence, no local-preview-to-authoritative fallback, no production mutation, no duplicate import/commit path.
+
