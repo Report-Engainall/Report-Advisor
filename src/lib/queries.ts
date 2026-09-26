@@ -4,8 +4,14 @@ import type { Recommendation, RecommendationOutcome, DecisionEvidenceSnapshot, A
 export type { DashboardKPIs, MonthlyTrend, TopEntity, AgingBucket, CategoryBreakdown };
 export async function fetchDashboardKPIs(): Promise<DashboardKPIs> { return (await fetchDashboardSnapshot(6)).kpis; }
 export async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend[]> { return (await fetchDashboardSnapshot(months)).trend; }
-export async function fetchTopCustomers(limit = 5): Promise<TopEntity[]> { return (await fetchDashboardSnapshot(6)).topCustomers.slice(0, limit); }
-export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> { return (await fetchDashboardSnapshot(6)).topProducts.slice(0, limit); }
+export async function fetchTopCustomers(limit = 5): Promise<TopEntity[]> {
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error('REPORT_QUERY_INVALID_TOP_LIMIT');
+  return (await fetchDashboardSnapshot(6)).topCustomers.slice(0, limit);
+}
+export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> {
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error('REPORT_QUERY_INVALID_TOP_LIMIT');
+  return (await fetchDashboardSnapshot(6)).topProducts.slice(0, limit);
+}
 export async function fetchCategoryBreakdown(): Promise<CategoryBreakdown[]> { return (await fetchDashboardSnapshot(6)).categories; }
 export async function fetchAgingBuckets(): Promise<AgingBucket[]> { return (await fetchDashboardSnapshot(6)).aging.rows; }
 export async function fetchRecommendations(): Promise<Recommendation[]> { return (await fetchDashboardIntelligence()).recommendations; }
