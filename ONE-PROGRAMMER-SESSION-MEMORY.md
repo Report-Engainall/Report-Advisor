@@ -893,3 +893,18 @@
 - DO NOT REPEAT → no silent malformed-demand row skipping, no quality clamping, no stale PASS transfer, no device-dependent PASS, no production-SHA bypass, no duplicate import workflow.
 - UI LANE PROGRESS → import quality state is now visually semantic and bound to validated source truth.
 - CORE LANE PROGRESS → demand/inventory intelligence boundaries are stricter and fail closed on malformed authoritative observations.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26 / WAVE — EXECUTIVE EMPTY STATE + LIQUIDITY STATE + GATE HANDOFF
+
+- SOURCE HEAD OBSERVED BEFORE GOVERNANCE → b414bfa4965f66ffe9a65277e6b2c60b50eabbd7 on PR #660 / branch exec/20260926-deep-ui-core-polish.
+- UI DELIVERY → Executive Report trend rendering now exposes an explicit empty/unavailable chart state and routes to Data Quality instead of leaving a blank chart area.
+- UI DELIVERY → Liquidity money metrics now expose data-value-state available/unavailable, preserving the distinction between missing financial truth and numeric values.
+- CONTRACT DELIVERY → product-wow UI guard now protects the Executive Report trend state and Liquidity availability state.
+- CORE/BOUNDARY REVIEW → finalizeCanonicalImportSource was inspected through the PR patch; it is currently defined but no current evidence was found that it should be expanded into a new workflow. No speculative endpoint/RPC was added.
+- EXACT-HEAD GATES → Vercel failure at the known build-rate-limit target; Vercel Deployments pending. GitHub Actions are now populated: most required suites are queued/pending, PWA and Upwork are skipped, Desktop Windows is in_progress. Full Product Browser E2E and Final Certification Gate are queued. These are not PASS yet.
+- DEVICE → Remote Desktop Commander reports PC01 offline; device/browser proof remains NOT PROVEN.
+- PRODUCTION → no production mutation or certification claimed. Phase-F live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- NEXT SESSION FIRST ACTION → query workflow runs again for the exact latest HEAD before changing code; consume the first completed failure/result on that SHA, repair only a reproduced current-head defect, and retain all other queued/pending gates as open evidence.
+- DO NOT REPEAT → do not transfer PASS from older SHAs; do not treat queued/in_progress as PASS; do not resurrect finalize-source into a duplicate workflow without usage/dependency proof; do not claim production or device certification.
+- UI LANE → executive reporting and liquidity now expose explicit semantic unavailable states.
+- CORE LANE → demand/inventory/import truth boundaries remain fail-closed and are awaiting exact-head automated gate results.
