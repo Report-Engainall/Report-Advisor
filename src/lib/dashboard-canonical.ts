@@ -13,7 +13,7 @@ export interface AgingBucket {bucket:string;amount:number|null;count:number;}
 export interface AgingDashboard {rows:AgingBucket[];totalAmount:number|null;unknownRows:number|null;status:'NO_DATA'|'CALCULATED'|'INSUFFICIENT_DATA';}
 export interface CategoryBreakdown {name:string|null;sales:number;profit:number;quantity:number;categoryStatus:'CALCULATED'|'UNKNOWN';}
 export interface ProfitabilitySnapshot {status:'CALCULATED'|'INSUFFICIENT_DATA';currency:string|null;currency_status:'CONSISTENT'|'INSUFFICIENT_DATA';revenue:number|null;cost:number|null;gross_profit:number|null;gross_margin:number|null;invoice_count:number|null;bad_invoice_rows:number|null;bad_sale_item_rows:number|null;currency_mismatch_rows:number|null;reasons:string[];as_of:string;}
-export interface InventoryReportRow {id:string;quantity:number|null;unit_cost:number|null;value:number|null;product?:{id:string;name:string|null;sku:string|null;reorder_point:number|null}|null;warehouse?:{id:string;name:string|null}|null;}
+export interface InventoryReportRow {id:string;quantity:number|null;unit_cost:number|null;value:number|null;product?:{id:string|null;name:string|null;sku:string|null;reorder_point:number|null}|null;warehouse?:{id:string|null;name:string|null}|null;}
 export interface InventoryReportSnapshot {rows:InventoryReportRow[];page:number;pageSize:number;filter:'all'|'low'|'out';totalRows:number|null;filteredRows:number|null;lowStock:number|null;outOfStock:number|null;unknownRows:number|null;totalValue:number|null;dataStatus:'NO_DATA'|'INSUFFICIENT_DATA'|'CALCULATED';}
 export interface RFMSnapshotRow {customer_id:string;customer_name:string;recency:number;frequency:number;monetary:number;r_score:number;f_score:number;m_score:number;rfm_segment:string;}
 export interface RFMSnapshot {rows:RFMSnapshotRow[];asOf:string;unknownRows:number|null;status:'INSUFFICIENT_DATA'|'CALCULATED';}
@@ -43,28 +43,63 @@ function requiredArray<T>(value: unknown, field: string, predicate?: (item: unkn
   if (predicate && value.some((item) => !predicate(item))) throw new Error(`REPORT_DATA_MALFORMED:${field}`);
   return value as T[];
 }
+function isNullableString(value: unknown): boolean { return value === null || value === undefined || isNonBlankString(value); }
 function isInventoryReportRow(value: unknown): boolean {
   if (!isRecord(value) || !isNonBlankString(value.id)) return false;
   if (![value.quantity, value.unit_cost, value.value].every(isFiniteNumberOrNull)) return false;
   const validProduct = value.product === undefined || value.product === null || (
     isRecord(value.product) &&
-    isNonBlankString(value.product.id) &&
-    (value.product.name === null || value.product.name === undefined || typeof value.product.name === 'string') &&
-    (value.product.sku === null || value.product.sku === undefined || typeof value.product.sku === 'string') &&
+    isNullableString(value.product.id) &&
+    isNullableString(value.product.name) &&
+    isNullableString(value.product.sku) &&
     isFiniteNumberOrNull(value.product.reorder_point)
   );
   const validWarehouse = value.warehouse === undefined || value.warehouse === null || (
     isRecord(value.warehouse) &&
-    isNonBlankString(value.warehouse.id) &&
-    (value.warehouse.name === null || value.warehouse.name === undefined || typeof value.warehouse.name === 'string')
+    isNullableString(value.warehouse.id) &&
+    isNullableString(value.warehouse.name)
   );
   return validProduct && validWarehouse;
+}
+
+function normalizeAgingDashboard(value: unknown): AgingDashboard {
+  const rows = requiredArray<AgingBucket>(value, 'aging.rows', isAgingBucket);
+  const totalRows = rows.reduce((sum, row) => sum + row.count, 0);
+  const unknownRows = rows.filter((row) => row.bucket === 'UNKNOWN').reduce((sum, row) => sum + row.count, 0);
+  const countedAmounts = rows.filter((row) => row.count > 0).map((row) => row.amount);
+  const totalAmount = countedAmounts.length > 0 && countedAmounts.every((amount) => amount !== null)
+    ? countedAmounts.reduce((sum, amount) => sum + Number(amount), 0)
+    : countedAmounts.length === 0 ? null : null;
+  return {
+    rows,
+    totalAmount,
+    unknownRows,
+    status: totalRows === 0 ? 'NO_DATA' : unknownRows > 0 ? 'INSUFFICIENT_DATA' : 'CALCULATED',
+  };
 }
 function isMonthlyTrend(value: unknown): boolean {
   if (!isRecord(value) || !isNonBlankString(value.month) || !isNonBlankString(value.label)) return false;
   if (![value.sales, value.cost, value.profit].every(isFiniteNumberOrNull)) return false;
   if (typeof value.invoices !== 'number' || !Number.isInteger(value.invoices) || value.invoices < 0) return false;
-  return value.status === 'CALCULATED' || value.status === 'NO_DATA' || value.status === 'INSUFFICIENT_DATA';
+  return value.status === undefined || value.status === 'CALCULATED' || value.status === 'NO_DATA' || value.status === 'INSUFFICIENT_DATA';
+}
+function normalizeMonthlyTrend(value: unknown): MonthlyTrend {
+  if (!isMonthlyTrend(value)) throw new Error('REPORT_DATA_MALFORMED:trend');
+  const row = value as Record<string, unknown>;
+  const derivedStatus: MonthlyTrend['status'] = row.invoices === 0
+    ? 'NO_DATA'
+    : row.sales === null || row.cost === null || row.profit === null
+      ? 'INSUFFICIENT_DATA'
+      : 'CALCULATED';
+  return {
+    month: String(row.month),
+    label: String(row.label),
+    sales: row.sales as number | null,
+    cost: row.cost as number | null,
+    profit: row.profit as number | null,
+    invoices: Number(row.invoices),
+    status: row.status === undefined ? derivedStatus : row.status as MonthlyTrend['status'],
+  };
 }
 function isTopEntity(value: unknown): boolean {
   if (!isRecord(value) || !isNonBlankString(value.id) || !isNonBlankString(value.name) || finiteOrNull(value.value) === null) return false;
@@ -73,7 +108,20 @@ function isTopEntity(value: unknown): boolean {
 function isCategoryBreakdown(value: unknown): boolean {
   if (!isRecord(value) || (value.name !== null && !isNonBlankString(value.name))) return false;
   return finiteOrNull(value.sales) !== null && finiteOrNull(value.profit) !== null && finiteOrNull(value.quantity) !== null &&
-    (value.categoryStatus === 'CALCULATED' || value.categoryStatus === 'UNKNOWN');
+    (value.categoryStatus === undefined || value.categoryStatus === 'CALCULATED' || value.categoryStatus === 'UNKNOWN');
+}
+function normalizeCategoryBreakdown(value: unknown): CategoryBreakdown {
+  if (!isCategoryBreakdown(value)) throw new Error('REPORT_DATA_MALFORMED:categories');
+  const row = value as Record<string, unknown>;
+  return {
+    name: row.name === null ? null : String(row.name),
+    sales: Number(row.sales),
+    profit: Number(row.profit),
+    quantity: Number(row.quantity),
+    categoryStatus: row.categoryStatus === undefined
+      ? (row.name === null ? 'UNKNOWN' : 'CALCULATED')
+      : row.categoryStatus as CategoryBreakdown['categoryStatus'],
+  };
 }
 function isAgingBucket(value: unknown): boolean {
   return isRecord(value) && isNonBlankString(value.bucket) && isFiniteNumberOrNull(value.amount) &&
@@ -142,18 +190,13 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
   const agingRow=(row.aging&&typeof row.aging==='object'?row.aging:{}) as Record<string,unknown>;
   return {
     kpis,
-    trend: requiredArray<MonthlyTrend>(row.trend, 'trend', isMonthlyTrend),
+    trend: requiredArray<unknown>(row.trend, 'trend', isMonthlyTrend).map(normalizeMonthlyTrend),
     topCustomers: requiredArray<TopEntity>(row.topCustomers, 'topCustomers', isTopEntity).slice(0,10),
     topProducts: requiredArray<TopEntity>(row.topProducts, 'topProducts', isTopEntity).slice(0,10),
-    categories: requiredArray<CategoryBreakdown>(row.categories, 'categories', isCategoryBreakdown),
+    categories: requiredArray<unknown>(row.categories, 'categories', isCategoryBreakdown).map(normalizeCategoryBreakdown),
     asOf: requiredAsOf(row.asOf, 'asOf'),
     months: requiredInteger(row.months, 'months', 1),
-    aging:{
-      rows:requiredArray<AgingBucket>(agingRow.rows, 'aging.rows', isAgingBucket),
-      totalAmount:finiteOrNull(agingRow.totalAmount),
-      unknownRows:agingRow.unknownRows === null ? null : requiredInteger(agingRow.unknownRows, 'aging.unknownRows'),
-      status:requiredEnum(agingRow.status, 'aging.status', ['CALCULATED', 'NO_DATA', 'INSUFFICIENT_DATA'] as const)
-    }
+    aging: normalizeAgingDashboard(row.aging),
   };
 }
 
