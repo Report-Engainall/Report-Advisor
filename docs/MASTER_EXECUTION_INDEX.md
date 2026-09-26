@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 147
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE: `6701676a72a4150495ea727ac6d98b61bc102d39` (PR #660).
+- UI: shell/theme/context/actionability/decision/trust/report quality depth delivered.
+- CORE: dashboard quality provenance surfaced and fail-closed parsing hardened.
+- SECURITY: 46 authenticated SECURITY DEFINER advisories remain governed; no unsafe blanket changes.
+- GATES: Vercel pending; current browser/device/production/Phase-F evidence not proven.
+- NEXT: consume exact current-head Gate; repair only first reproduced defect; otherwise continue independent UI/core closure, then merge only after evidence.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 146
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
