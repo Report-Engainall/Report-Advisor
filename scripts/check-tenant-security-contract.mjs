@@ -18,6 +18,7 @@ for (const marker of [
   "select('company_id, total_rows, processed_rows, valid_rows, invalid_rows, duplicate_rows, quarantined_rows, progress, result_summary')",
   "count===null)throw new Error('REPORT_QUERY_COUNT_UNAVAILABLE: customers require an authoritative exact count')",
   "count===null)throw new Error('REPORT_QUERY_COUNT_UNAVAILABLE: products require an authoritative exact count')",
+  "count===null)throw new Error('REPORT_QUERY_COUNT_UNAVAILABLE: suppliers require an authoritative exact count')",
 ]) {
   if (!queriesSource.includes(marker)) throw new Error('Tenant security contract missing client-side entity tenant readback guard: ' + marker);
 }
