@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 183
+
+- MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE CANDIDATE: `355354ad6491531f91b5714dd393daf87fc8be57` on PR #661.
+- PDF ROOT CAUSE: PDF.js text items were flattened with `item.str` + spaces, discarding x/y geometry and collapsing report tables into column-wise text.
+- PDF CORE FIX: new pure geometry adapter `src/lib/file-engine/pdf-layout.ts` reconstructs header columns and rows from positioned text; continuation pages can reuse the detected layout; ordinary PDFs still use the canonical text fallback.
+- ADAPTER: `src/lib/file-engine/adapters.ts` now reconstructs PDF tables before text fallback and annotates provenance without inventing values.
+- HEADER: canonical shared header hints expanded for Arabic business-report terms; no second header taxonomy introduced.
+- TESTS: positioned Arabic-table geometry, continuation-page reuse, and full `parseFile(..., 'pdf')` regression with synthetic positioned PDF are covered in the existing PDF structured regression script.
+- PROOF: current repaired head has no materialized workflow runs yet. No PASS transferred from older SHA. Vercel READY preview remains on earlier `2c8eb6b...` and is not evidence for this PDF repair. PC01/browser/Phase-F remain NOT PROVEN.
+- NEXT: consume first terminal current-HEAD gate, repair only the first reproduced failure, then continue the next uncovered UI/core boundary.
+- DO NOT REPEAT: naive PDF string flattening, stale evidence, duplicate importer/RPC/navigation paths, production-SHA bypass, unsafe import-job mutation.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 182
 
 - MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
