@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 153
+
+- MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CODE/TEST CANDIDATE BEFORE THIS GOVERNANCE WRITE: `fefa4ae98f7deea58949807949c72992c297732d` (PR #660).
+- PHASE-F DATABASE CLOSURE: repaired the broken `client_ui_settings` tenant-policy dependency by binding both the schema-parity migration and a new forward reconciliation migration to canonical `public.current_company_id()`.
+- FORWARD SAFETY: the new migration `20260926153000_reconcile_client_ui_settings_tenant_resolver.sql` reconciles environments that already applied the earlier parity migration; no live policy is left dependent on the unavailable legacy resolver.
+- STATIC CONTRACT: Phase-F runtime closure now guards both the replay-safe policy and forward reconciliation.
+- TRUTH CORE: dashboard quality counts remain strict/fail-closed; absent quality remains UNKNOWN.
+- UI: typed decision readiness and source-quality disclosure remain unchanged.
+- NEXT: consume fresh exact-head Phase-F/Quality/Certification/Browser gates; repair only the first reproduced current-head failure.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 152
 
 - MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
