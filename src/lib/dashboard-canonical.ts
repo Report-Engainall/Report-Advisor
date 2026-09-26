@@ -40,6 +40,36 @@ function requiredArray<T>(value: unknown, field: string): T[] {
   if (!Array.isArray(value)) throw new Error('REPORT_DATA_INVALID: ' + field + ' must be an array');
   return value as T[];
 }
+function validateDashboardRows(row: Record<string, unknown>): void {
+  const trend = requiredArray<unknown>(row.trend, 'trend');
+  trend.forEach((item, index) => {
+    if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: trend[' + index + '] must be an object');
+    const value = item as Record<string, unknown>;
+    if (typeof value.month !== 'string' || typeof value.label !== 'string' || !Number.isInteger(value.invoices) || value.invoices < 0) throw new Error('REPORT_DATA_INVALID: trend[' + index + '] shape is invalid');
+    if (!['CALCULATED', 'NO_DATA', 'INSUFFICIENT_DATA'].includes(value.status as string)) throw new Error('REPORT_DATA_INVALID: trend[' + index + '].status is invalid');
+    for (const field of ['sales', 'cost', 'profit']) {
+      if (value[field] !== null && (typeof value[field] !== 'number' || !Number.isFinite(value[field] as number))) throw new Error('REPORT_DATA_INVALID: trend[' + index + '].' + field + ' is invalid');
+    }
+  });
+  for (const [field, max] of [['topCustomers', 10], ['topProducts', 10]] as const) {
+    const items = requiredArray<unknown>(row[field], field);
+    if (items.length > max) throw new Error('REPORT_DATA_INVALID: ' + field + ' exceeds canonical row limit');
+    items.forEach((item, index) => {
+      if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: ' + field + '[' + index + '] must be an object');
+      const value = item as Record<string, unknown>;
+      if (typeof value.id !== 'string' || typeof value.name !== 'string' || typeof value.value !== 'number' || !Number.isFinite(value.value as number)) throw new Error('REPORT_DATA_INVALID: ' + field + '[' + index + '] shape is invalid');
+      if (value.secondary !== undefined && (typeof value.secondary !== 'number' || !Number.isFinite(value.secondary as number))) throw new Error('REPORT_DATA_INVALID: ' + field + '[' + index + '].secondary is invalid');
+    });
+  }
+  const categories = requiredArray<unknown>(row.categories, 'categories');
+  categories.forEach((item, index) => {
+    if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: categories[' + index + '] must be an object');
+    const value = item as Record<string, unknown>;
+    if ((value.name !== null && typeof value.name !== 'string') || ['sales', 'profit', 'quantity'].some((field) => typeof value[field] !== 'number' || !Number.isFinite(value[field] as number)) || !['CALCULATED', 'UNKNOWN'].includes(value.categoryStatus as string)) {
+      throw new Error('REPORT_DATA_INVALID: categories[' + index + '] shape is invalid');
+    }
+  });
+}
 function requiredAsOf(value: unknown, field: string): string {
   if (typeof value !== 'string' || value.trim() === '') throw new Error('REPORT_DATA_INVALID: ' + field + ' as-of is missing');
   return value;
@@ -53,6 +83,7 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
   if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: dashboard snapshot missing');
   const row = data as Record<string, unknown>;
 
+  validateDashboardRows(row);
   const rawStatus = row.status;
   const evidence = row.evidence;
   const hasEvidence = evidence !== null && evidence !== undefined;
