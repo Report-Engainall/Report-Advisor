@@ -20,6 +20,8 @@ describe('business replay contract', () => {
     expect(queries).toContain("recommendation_key,status,expected_impact,actual_impact,outcome_quality,evidence");
     expect(queries).toContain("title,status,priority,description,completed_at,updated_at,evidence_refs,expected_impact,actual_impact");
     expect(queries).toContain('windowLimit + 1');
+    expect(queries).toContain('function replayEvidencePresent');
+    expect(queries).toContain('Object.keys(value as Record<string, unknown>).length > 0');
     expect(page).toContain('REPLAY TIMELINE');
     expect(page).toContain('المعروض ليس إجمالي التاريخ');
   });
