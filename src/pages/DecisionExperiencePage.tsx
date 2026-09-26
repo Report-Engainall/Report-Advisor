@@ -41,6 +41,8 @@ type DecisionReadiness = { status: 'READY' | 'REVIEW' | 'BLOCKED'; label: string
 
 function decisionReadiness(recommendation: Recommendation | null): DecisionReadiness {
   if (!recommendation) return { status: 'BLOCKED', label: 'لا توجد توصية', tone: 'text-ink-500 bg-ink-50', detail: 'لا يوجد عنصر حقيقي لبدء مسار القرار.' };
+  if (['rejected', 'cancelled', 'completed'].includes(recommendation.status)) return { status: 'BLOCKED', label: 'الحالة نهائية', tone: 'text-danger-700 bg-danger-50', detail: 'سجل التوصية في حالة نهائية؛ لا ينبغي فتح إجراء جديد عليه.' };
+  if (!recommendation.confidence?.trim()) return { status: 'REVIEW', label: 'الثقة غير متاحة', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية موجودة، لكن مستوى الثقة غير مثبت في السجل.' };
   if (!recommendation.owner) return { status: 'REVIEW', label: 'ينقص المسؤول', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية موجودة، لكن لا يظهر مسؤول فعلي مرتبط بها.' };
   if (!recommendation.deadline) return { status: 'REVIEW', label: 'ينقص الموعد', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية لها مسؤول، لكن الموعد غير مثبت بعد.' };
   if (recommendation.expected_impact == null) return { status: 'REVIEW', label: 'الأثر غير متاح', tone: 'text-warning-700 bg-warning-50', detail: 'لا يوجد أثر متوقع قابل للعرض على هذه التوصية.' };
@@ -211,11 +213,11 @@ export function DecisionExperiencePage() {
         </article>
         <article className="ag-decision-evidence-card">
           <div className="ag-decision-evidence-kicker">EVIDENCE</div>
-          <div className="ag-decision-evidence-value">{activeAlerts.length > 0 ? 'إشارة قابلة للفحص' : 'لا توجد إشارة نشطة'}</div>
-          <p>{activeAlerts.length > 0 ? 'افحص المصدر قبل اعتماد أي إجراء.' : 'لا توجد إشارة جديدة مثبتة في القراءة الحالية.'}</p>
+          <div className="ag-decision-evidence-value">{activeAlerts.length > 0 ? 'تنبيه يحتاج فحصًا' : 'لا توجد إشارات نشطة'}</div>
+          <p>{activeAlerts.length > 0 ? 'افحص التنبيه ومصدره قبل اعتماد أي إجراء.' : 'لا توجد إشارة غير مقروءة في القراءة الحالية.'}</p>
           <Link to="/trust" className="ag-decision-evidence-link">فتح مركز الأدلة <ArrowUpLeft size={12}/></Link>
         </article>
-        <article className="ag-decision-evidence-card" data-state={readiness.label === 'سياق القرار مكتمل' ? 'ready' : 'review'}>
+        <article className="ag-decision-evidence-card" data-state={readiness.status.toLowerCase()}>
           <div className="ag-decision-evidence-kicker">READINESS</div>
           <div className="ag-decision-evidence-value">{readiness.label}</div>
           <p>{readiness.detail}</p>
