@@ -1,3 +1,15 @@
+## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-177
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `4b2dde2577fcdbf929d2f6098ff39359e5c5d153` on PR #661, `exec/20260926-continuous-ui-core-deep`.
+- DONE / UI → Data Quality uses weighted authoritative entity scores; Work Center exposes invalid/missing/out-of-range active progress without coercion; shared charts have explicit empty/accessibility framing; Canonical Import supports drag/drop and keyboard activation.
+- DONE / CORE → canonical import server validation now rejects malformed row number/data/provenance/record key and missing quality approval; dashboard canonical snapshot rejects malformed authoritative arrays and missing as-of; Data Quality core rejects unknown entity icons and blank issue identity.
+- EXACT CHANGE SURFACE → 13-file PR #661 lane; no duplicate importer/RPC/navigation path and no production mutation.
+- PROOF → current-head checks are still queued/in progress with only skipped checks terminal so far; therefore current candidate is NOT PROVEN. Device-dependent verification unavailable; Phase-F recovery certification remains NOT PROVEN; Vercel free-plan deployment limit remains external.
+- CURRENT RESUME POINTER → `PR #661 exact head 4b2dde2577fcdbf929d2f6098ff39359e5c5d153 → consume terminal exact-head gates → repair first reproduced current-SHA failure only → continue next uncovered UI/core boundary; keep Phase-F fail-closed`.
+- NEXT EXECUTABLE ACTION → consume the first terminal non-skipped PR #661 gate; if a current-SHA defect appears, repair only that defect, otherwise continue the next independent UI/core closure.
+- DO NOT REPEAT → stale evidence, prior #660 closures, production-SHA bypass, duplicate import/RPC/navigation paths, blanket security revokes, unsafe import-job mutation.
+
 ## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-176
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
