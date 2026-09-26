@@ -12,7 +12,9 @@ function evidenceIsUsable(evidence:DecisionEvidence[]):boolean{
   return evidence.length>0 && evidence.every((item)=>
     typeof item.metric==='string' && item.metric.trim().length>0 &&
     typeof item.source==='string' && item.source.trim().length>0 &&
-    typeof item.value==='number' && Number.isFinite(item.value)
+    typeof item.value==='number' && Number.isFinite(item.value) &&
+    (item.unit === undefined || (typeof item.unit === 'string' && item.unit.trim().length > 0)) &&
+    (item.period === undefined || (typeof item.period === 'string' && item.period.trim().length > 0))
   );
 }
 
