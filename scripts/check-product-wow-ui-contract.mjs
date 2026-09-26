@@ -93,6 +93,10 @@ assert.ok(importSurface.includes('اختيار مصدر'), 'canonical import his
 assert.ok(importSurface.includes('SOURCE PASSPORT'), 'canonical import must expose the source passport before approval');
 assert.ok(importSurface.includes('SHA-256 للمصدر'), 'source passport must expose source fingerprint context');
 assert.ok(importSurface.includes('جودة الخادم') && importSurface.includes('العملية'), 'canonical import success state must expose authoritative commit context');
+assert.ok(importSurface.includes('typeof authoritativeRowCountRaw !== 'number'') && importSurface.includes('CANONICAL_IMPORT_AUTHORITATIVE_ROW_COUNT_INVALID'), 'canonical import must fail closed when the authoritative committed row count is missing or non-finite');
+assert.ok(importSurface.includes('typeof authoritativeQualityScoreRaw !== 'number'') && importSurface.includes('CANONICAL_IMPORT_AUTHORITATIVE_QUALITY_INVALID'), 'canonical import must fail closed when the authoritative quality score is missing or non-finite');
+assert.ok(!importSurface.includes('execution.authoritativeRowCount ?? validRows.length'), 'canonical import must not fall back from authoritative row count to local preview rows');
+assert.ok(!importSurface.includes('execution.authoritativeQualityScore ?? quality'), 'canonical import must not fall back from authoritative quality to local parsed quality');
 
 
 assert.ok(importSurface.includes('onClick={reset}'), 'canonical import history empty state must use the existing reset/import path');
