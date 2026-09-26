@@ -65,17 +65,18 @@ export function TrustEvidencePage() {
   const issueSeverityRows = useMemo(() => {
     const issues = snapshot?.issues ?? [];
     const countsAreValid = issues.every((issue) => typeof issue.count === 'number' && Number.isFinite(issue.count) && Number.isInteger(issue.count) && issue.count >= 0);
-    if (!countsAreValid) {
+    const total = countsAreValid ? issues.reduce((sum, issue) => sum + issue.count, 0) : null;
+    const critical = countsAreValid ? issues.filter(issue => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0) : null;
+    const warning = countsAreValid ? issues.filter(issue => issue.severity === 'warning').reduce((sum, issue) => sum + issue.count, 0) : null;
+    const knownBreakdown = total !== null && critical !== null && warning !== null && critical <= total && warning <= total && critical + warning <= total;
+    if (!knownBreakdown) {
       return [
         { label: 'حرجة', value: null, className: 'text-danger-700 bg-danger-50 border-danger-200' },
         { label: 'تحذير', value: null, className: 'text-warning-800 bg-warning-50 border-warning-200' },
         { label: 'معلوماتية / أخرى', value: null, className: 'text-ink-700 bg-ink-50 border-ink-200' },
       ];
     }
-    const total = issues.reduce((sum, issue) => sum + issue.count, 0);
-    const critical = issues.filter(issue => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0);
-    const warning = issues.filter(issue => issue.severity === 'warning').reduce((sum, issue) => sum + issue.count, 0);
-    const informational = Math.max(0, total - critical - warning);
+    const informational = total - critical - warning;
     return [
       { label: 'حرجة', value: criticalIssueTotal ?? critical, className: 'text-danger-700 bg-danger-50 border-danger-200' },
       { label: 'تحذير', value: warning, className: 'text-warning-800 bg-warning-50 border-warning-200' },
@@ -144,7 +145,7 @@ export function TrustEvidencePage() {
       </div>
     </section>
 
-    <section className="ag-decision-strip" aria-label="ملخص الثقة">
+    <section className="ag-decision-strip" aria-label="ملخص الثقة" data-severity-breakdown-state={issueSeverityRows.every((row) => row.value !== null) ? 'valid' : 'unavailable'}>
       <div className="ag-decision-cell"><span className="ag-decision-label">الحالة الحالية</span><span className="ag-decision-value">{statusLabel}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">السجلات</span><span className="ag-decision-value">{totalRecords == null ? 'غير متاح' : totalRecords}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">المشكلات</span><span className="ag-decision-value">{issueTotal ?? 'غير متاح'}</span></div>
