@@ -1,3 +1,15 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-153
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `fefa4ae98f7deea58949807949c72992c297732d` on PR #660.
+- PHASE-F DATABASE LANE → the fresh replay defect was a missing `current_customer_company_id()` dependency in `20260925184000_restore_client_ui_settings_schema_parity.sql`. The policy now uses canonical `public.current_company_id()`.
+- FORWARD RECONCILIATION → added `20260926153000_reconcile_client_ui_settings_tenant_resolver.sql` so already-applied environments receive the same canonical tenant policy.
+- CONTRACT → Phase-F runtime closure now guards both replay safety and the forward reconciliation migration.
+- PRIOR RUNTIME RESULT → exact-head/local/static/authenticated canary passed on the earlier candidate; logical restore was blocked at that dependency and rollback-forward returned HTTP 503. No RPO/RTO certification transferred.
+- UI/TRUTH → Decision readiness remains typed READY/REVIEW/BLOCKED; dashboard quality counts remain strict and fail-closed.
+- CURRENT RESUME POINTER → `PR #660 fefa4ae... → consume fresh exact-head Phase-F/Quality/Final Certification/Browser gates → repair only first reproduced failure`.
+- DO NOT REPEAT → stale Phase-F proof, legacy resolver dependency, stale certification SHA, production bypass, missing-to-zero normalization.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-152
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
