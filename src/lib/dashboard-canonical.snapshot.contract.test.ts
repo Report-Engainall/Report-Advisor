@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
-import { normalizeAgingDashboard, normalizeCategoryBreakdown, normalizeMonthlyTrend } from './dashboard-canonical';
+import { isInventoryReportRow, normalizeAgingDashboard, normalizeCategoryBreakdown, normalizeMonthlyTrend } from './dashboard-canonical';
 import path from 'node:path';
 
 const root = process.cwd();
@@ -100,5 +100,30 @@ describe('dashboard canonical payload compatibility', () => {
     expect(normalizeAgingDashboard([
       { bucket: '0-30', amount: null, count: 0 },
     })).toMatchObject({ unknownRows: 0, status: 'NO_DATA', totalAmount: null });
+  });
+});
+
+
+describe('inventory snapshot payload compatibility', () => {
+  it('accepts canonical rows whose product or warehouse relation is unavailable', () => {
+    expect(isInventoryReportRow({
+      id: 'inventory-1',
+      quantity: 5,
+      unit_cost: 10,
+      value: 50,
+      product: { id: null, name: null, sku: null, reorder_point: null },
+      warehouse: { id: null, name: null },
+    })).toBe(true);
+  });
+
+  it('rejects malformed inventory row identity', () => {
+    expect(isInventoryReportRow({
+      id: '',
+      quantity: 5,
+      unit_cost: 10,
+      value: 50,
+      product: { id: null, name: null, sku: null, reorder_point: null },
+      warehouse: { id: null, name: null },
+    })).toBe(false);
   });
 });
