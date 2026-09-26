@@ -1,3 +1,20 @@
+## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-183
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT PDF TABLE REPAIR HEAD → `355354ad6491531f91b5714dd393daf87fc8be57` on PR #661 branch `exec/20260926-continuous-ui-core-deep`.
+- ROOT CAUSE CONFIRMED → `parsePdfText()` previously discarded PDF.js item geometry by mapping only `item.str` and joining with spaces; this destroyed row/column boundaries and caused the Arabic inventory report to become a long column-wise text stream.
+- CORE PDF FIX → added `src/lib/file-engine/pdf-layout.ts` to group text items by baseline, detect Arabic/English report headers, recover column centers, assign cells by geometry, preserve row order, and reuse the detected layout on continuation pages.
+- ADAPTER FIX → `src/lib/file-engine/adapters.ts` now attempts geometry-based table reconstruction page-by-page before falling back to the canonical text path; multi-page table rows are merged into one Dataset and the fallback remains intact for ordinary PDFs.
+- HEADER GOVERNANCE → `HEADER_HINTS` is now exported from the existing header detector and expanded with Arabic report terms such as المخزن، الوارد، الرصيد، الوحدة، العبوه، المبيعات، صافي والإجمالي so table detection shares one canonical hint set.
+- PDF QUALITY → reconstructed table columns receive explicit provenance text in their quality issues; no fake values or LLM guesses are introduced.
+- TESTING → `scripts/check-pdf-structured-regression.ts` now covers pure Arabic PDF geometry, continuation-page layout reuse, and a synthetic positioned PDF that travels through the real `parseFile(..., 'pdf')` path and asserts two reconstructed business rows.
+- EXACT CHANGE COMMITS → geometry module `7f67184...`; shared header hints `3420d30...`; adapter integration `62f0131...`; geometry regression `a669bbd...`; full `parseFile` positioned-PDF regression `355354a...`.
+- PROOF STATE → current repaired head `355354ad...` has no materialized workflow runs yet. Previous failures were on earlier SHAs and are not transferred. No PASS claimed for this repair.
+- VERCEL → previous READY preview `report-advisor-55j0kl0p8-injaz2.vercel.app` was exact for `2c8eb6b...`; it is not evidence for the PDF repair head.
+- DEVICE / PHASE-F → PC01 remains offline; browser/device and production Phase-F recovery/certification remain NOT PROVEN.
+- CURRENT RESUME POINTER → `PR #661 exact head 355354ad6491531f91b5714dd393daf87fc8be57 → consume first terminal non-skipped gate → repair first reproduced current-SHA failure → continue next uncovered UI/core boundary; keep Phase-F fail-closed`.
+- DO NOT REPEAT → do not return to naive `item.str.join(' ')` PDF extraction, stale PASS transfer, old #660 closures, duplicate import/RPC/navigation paths, production-SHA bypass, or unsafe import-job mutation.
+
 ## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-182
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
