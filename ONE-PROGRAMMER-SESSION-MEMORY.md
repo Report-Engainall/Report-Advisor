@@ -1,3 +1,16 @@
+## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-179
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT EXACT HEAD → `69ed0e725f9a59061951f223ccde7483105ff063` on PR #661, branch `exec/20260926-continuous-ui-core-deep`.
+- UI DELIVERY → centralized authoritative weighted Data Quality scoring is now exposed through the data facade; empty/no-record quality stays `غير متاح` instead of presenting `0%`; Trust & Evidence exposes the same weighted score and no longer uses `?? 0` fallbacks for authoritative issue/record counts.
+- CORE DELIVERY → weighted score calculation is centralized in `data-quality-snapshot-core.ts`, reused by both quality and trust surfaces, with contract coverage for empty/zero-record and weighted cases.
+- CORRECTION / SOURCE TRUTH → the earlier checkpoint wording that claimed canonical HTTP input validates a `recordKey` field is superseded. `ReconciledCanonicalImportRow` has no `recordKey`; generic record keys are derived later by `canonical-commit`. No invalid recordKey requirement remains on the API boundary.
+- EXACT CHANGE SURFACE → `src/lib/data-quality-snapshot-core.ts`, `src/lib/data-quality-snapshot.ts`, `src/pages/DataQualitySnapshotPage.tsx`, `src/pages/TrustEvidencePage.tsx`, `src/lib/data-quality-snapshot.contract.test.ts`.
+- PROOF → PR #661 is open and mergeable; exact-head workflow lookup currently returns no runs for `69ed0e7`, so current-head application PASS is NOT PROVEN. Remote device `PC01` is offline. No production mutation or Phase-F certification claimed.
+- CURRENT RESUME POINTER → `PR #661 exact head 69ed0e725f9a59061951f223ccde7483105ff063 → consume first terminal non-skipped gate when available → repair only the first reproduced current-SHA failure → continue next uncovered UI/core boundary; keep Phase-F fail-closed`.
+- NEXT EXECUTABLE ACTION → consume exact-head PR #661 CI when it materializes; then continue independent UI/core closure without reopening prior #660 work.
+- DO NOT REPEAT → stale PASS transfer, invalid `recordKey` API expectation, prior #660 closures, duplicate import/RPC/navigation paths, production-SHA bypass, blanket security revokes, unsafe import-job mutation.
+
 ## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-178
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
