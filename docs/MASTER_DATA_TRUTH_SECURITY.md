@@ -120,3 +120,10 @@ Forecasting and benchmark outputs must expose minimum-data/sample limits.
 - Import progress and row counters now fail closed at the browser adapter boundary before governed RPC mutation: invalid types, ranges, counter overflow, and regression are rejected.
 - Canonical Import does not convert absent understanding confidence or unresolved source specialty into authoritative values; the UI exposes the absence explicitly.
 - No Supabase schema or production data mutation was performed in this closure.
+
+
+## Execution closure — 2026-09-27 / predecessor f34c16bac1df1cbbde0da9f08ac19fe0f1585057
+
+- Missing or malformed execution leases remain fail-closed as untrusted operational state.
+- Receivables RPC metadata is no longer coerced into request defaults or synthetic `CALCULATED`; only canonical `NO_DATA` / `CALCULATED` states are accepted.
+- External File Analysis explicitly separates analytical readiness from business-data approval and routes approval through canonical Import.

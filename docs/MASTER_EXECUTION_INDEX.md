@@ -700,3 +700,11 @@
 - This index is synchronized with `84d2634c08bb10dbf0369785af16275003340091` and the same-step memory update in one Git commit.
 - The executor records the resulting branch SHA externally after the ref move; the file intentionally avoids a self-referential hash claim.
 - Resume remains exact-SHA bound; any CI proof must match the resulting branch tip.
+
+
+## Latest executable checkpoint — 2026-09-27 / predecessor f34c16bac1df1cbbde0da9f08ac19fe0f1585057
+
+- Closed this wave: worker lease truth classification, receivables canonical payload validation, External File Analysis readiness UX, and focused contracts.
+- Exact-head CI for `f34c16bac1df1cbbde0da9f08ac19fe0f1585057` was not materialized at checkpoint time; no PASS transfer is permitted.
+- Resume: first terminal exact-head gate → first reproduced defect only → continue independent UI/Core closure.
+- Device-dependent browser/production certification remains outside this device-independent execution wave.

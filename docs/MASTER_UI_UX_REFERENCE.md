@@ -272,3 +272,9 @@ A surface is complete only when the quality gate is satisfied, not merely when t
 - Canonical Import completion state renders missing understanding confidence as «غير متاح» instead of a synthetic 0%.
 - Persisted specialty values that cannot be resolved to the canonical registry render «غير مثبت» instead of silently claiming the generic domain.
 - These states complement the existing fail-closed history, progress, evidence, and decision surfaces.
+
+
+## Execution closure — 2026-09-27 / predecessor f34c16bac1df1cbbde0da9f08ac19fe0f1585057
+
+- Work Center worker health now renders a dedicated «leases غير موثوقة» state and elevates it in the primary action badge and next-action logic.
+- External File Analysis gained a SOURCE READINESS surface, explicit VERIFIED / REVIEW / BLOCKED pipeline states, mapping-quality decision cards, and canonical next-action links without creating a second import taxonomy.

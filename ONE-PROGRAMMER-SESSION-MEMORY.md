@@ -356,3 +356,46 @@
 - Functional checkpoint already closed at 84d2634c08bb10dbf0369785af16275003340091; this synchronization commit keeps the live memory aligned with that exact predecessor while consolidating the memory/index checkpoint in one Git commit.
 - The definitive branch SHA produced by this synchronization commit is recorded by the executor after Git ref update; no self-referential SHA is written into the file.
 - No additional functional work is implicitly claimed by this governance-only commit.
+
+
+## Session checkpoint — 2026-09-27 — predecessor f34c16bac1df1cbbde0da9f08ac19fe0f1585057
+
+### SESSION-ID
+`EXEC-661-F34C16`
+
+### HEAD observed before governance write
+`f34c16bac1df1cbbde0da9f08ac19fe0f1585057`
+
+### DONE
+- Core: worker health classifies missing/malformed active lease expiry as `untrustedActive`; Work Center surfaces and prioritizes this state.
+- Core: receivables report RPC payload is fail-closed for status, pagination, row-count and total-outstanding metadata.
+- Core contracts: `src/lib/worker-health.contract.test.ts` and `src/lib/receivables-report.contract.test.ts` added.
+- UI: External File Analysis now has a SOURCE READINESS pipeline, quality-state interpretation, mapping decision, and canonical next-action links.
+- UI contract: `src/pages/ExternalFileAnalysisPage.contract.test.ts` added.
+
+### VERIFIED
+- All writes were committed directly to PR #661 branch `exec/20260926-continuous-ui-core-deep`.
+- Exact current functional candidate before this governance write: `f34c16bac1df1cbbde0da9f08ac19fe0f1585057`.
+- GitHub reports PR #661 still mergeable against main `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+
+### FAILED
+- None reproduced in this execution wave.
+
+### BLOCKED / NOT PROVEN
+- Exact-head CI has not materialized a workflow run for `f34c16bac1df1cbbde0da9f08ac19fe0f1585057`; no PASS is claimed.
+- Device/browser verification remains unavailable because the user's device is offline.
+- Vercel free-plan build-rate remains an external blocker; no production mutation or SHA bypass.
+
+### DO NOT REPEAT
+- Replay, Benchmark, Decision Experience, Trust, Reports, prior Import truth closures, and prior Work Center progress-clamp closure are already closed on this lineage.
+
+### UI lane progress
+- External File Analysis: readiness pipeline, quality states, mapping summary, canonical next actions.
+- Work Center: untrusted lease visibility and escalation.
+
+### Core lane progress
+- Worker lease truth classification.
+- Receivables canonical payload validation.
+
+### CURRENT RESUME POINTER
+`PR #661 exact head after this governance write → consume first terminal exact-head gate → repair only first reproduced current-SHA failure → continue next independent 50/50 UI+Core closure; keep Phase-F fail-closed.`

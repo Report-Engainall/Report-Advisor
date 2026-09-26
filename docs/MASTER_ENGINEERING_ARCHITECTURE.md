@@ -175,3 +175,10 @@ Do not introduce Spark/streaming infrastructure only because it is architectural
 - `updateImportRecord` validates progress as finite numeric 0–100 and validates row counters as non-negative integers before invoking the governed progress RPC.
 - Progress/counter regressions are rejected explicitly; previous clamping/coercion paths are removed so corrupted caller state cannot be normalized into a plausible successful state.
 - A dedicated Vitest contract locks these source-level invariants in `src/lib/import-progress.contract.test.ts`.
+
+
+## Execution closure — 2026-09-27 / predecessor f34c16bac1df1cbbde0da9f08ac19fe0f1585057
+
+- `fetchWorkerHealthSnapshot` now classifies missing and malformed `lease_expires_at` as `untrustedActive` and does not silently treat them as healthy.
+- `fetchReceivablesReportPage` now validates RPC status, pagination identity, non-negative row counts, finite outstanding totals, and required row payload shape before returning the typed contract.
+- Added focused source contracts for worker lease truth and receivables report metadata.

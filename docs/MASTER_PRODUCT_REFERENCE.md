@@ -578,3 +578,10 @@ This is the target product tree. It defines how capabilities are presented; it d
 - Import progress writes are fail-closed: malformed progress, non-integer counters, counter overflow, and monotonic regressions are rejected rather than clamped or coerced.
 - Canonical Import result metadata does not fabricate missing understanding confidence as 0% and does not relabel an unknown persisted specialty as the generic source-data domain.
 - The decision-system import boundary therefore preserves the distinction between missing metadata, verified metadata, and inferred metadata at the UI surface.
+
+
+## Execution closure — 2026-09-27 / predecessor f34c16bac1df1cbbde0da9f08ac19fe0f1585057
+
+- Work Center now distinguishes expired worker leases from active leases with missing or malformed expiry metadata; untrusted worker state is surfaced as an operational exception instead of being treated as healthy.
+- Receivables report reads now require canonical status, pagination, row-count, and outstanding-total metadata; malformed RPC payloads fail closed.
+- External File Analysis now exposes a complete source-readiness narrative from security and format detection through mapping and quality, with explicit next actions to the canonical Import and Trust surfaces.
