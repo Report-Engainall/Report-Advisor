@@ -111,6 +111,8 @@ assert.ok(profitabilityReport.includes("snapshot.currency_status === 'CONSISTENT
 const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
 assert.ok(executiveReport.includes('qualityIssues={qualityIssueTotal}'), 'executive report must bind quality truth into shared context');
 assert.ok(executiveReport.includes("kpis?.status === 'CALCULATED'"), 'executive report must route calculated truth through evidence review');
+assert.ok(executiveReport.includes('qualityIssueTotal === null || qualityIssueTotal > 0'), 'executive report next action must prioritize unresolved quality pressure');
+
 assert.ok(!executiveReport.includes("kpis?.status !== 'CALCULATED' || kpis?.status === 'INSUFFICIENT_DATA'"), 'executive report must not misroute confirmed truth to data quality');
 const commandCenter = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
 assert.ok(commandCenter.includes('qualityIssues={qualityIssueTotal}'), 'command center must bind quality truth into shared context');
