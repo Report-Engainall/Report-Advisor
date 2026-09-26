@@ -75,6 +75,7 @@ export function WorkCenterPage() {
 
   const nextAction = invalidProgressActive > 0
     ? { kind: 'filter' as const, filter: 'active' as FilterKey, tone: 'danger' as const, title: 'بيانات التقدم غير موثوقة', message: `هناك ${invalidProgressActive} عملية نشطة بتقدم مفقود أو خارج النطاق؛ تُعرض للمراجعة ولا تُحوّل إلى نسبة افتراضية.`, label: 'مراجعة النشطة' }
+    ? { kind: 'refresh' as const, tone: 'danger' as const, title: 'بيانات العامل غير مكتملة', message: 'هناك leases نشطة بلا انتهاء صالح؛ لا تُعامل كحالة سليمة حتى تُعاد قراءتها.', label: 'إعادة فحص العامل' }
     : (workerHealth?.expiredActive ?? 0) > 0
     ? { kind: 'refresh' as const, tone: 'danger' as const, title: 'إعادة فحص العامل الآن', message: 'هناك leases منتهية مثبتة في القراءة الحالية؛ أعد قراءة الحالة بعد دورة recovery التشغيلية بدل اعتبار الطابور سليمًا.', label: 'إعادة فحص العامل' }
     : workerHealth && !workerHealth.activeReadComplete
@@ -156,11 +157,11 @@ export function WorkCenterPage() {
       <Card>
         <CardHeader title="صحة العامل" subtitle="قراءة مباشرة من مسار التنفيذ durable؛ لا تُعلن الحالة سليمة إذا بقيت lease منتهية." action={workerHealth ? <span className={`badge ${workerHealth.expiredActive > 0 ? 'badge-danger' : workerHealth.activeReadComplete ? 'badge-success' : 'badge-warning'}`}>{(workerHealth.expiredActive ?? 0) > 0 ? 'تحتاج تدخل' : workerHealth.activeReadComplete ? 'لا توجد leases منتهية' : 'قراءة جزئية'}</span> : undefined}/>
         <CardBody>
-          {workerHealth ? <div className="grid gap-3 sm:grid-cols-3">
+          {workerHealth ? <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-2xl border border-ink-100 bg-ink-50 p-4"><div className="text-[10px] text-ink-400">بالانتظار</div><div className="mt-2 text-2xl font-black text-ink-950">{formatNumber(workerHealth.queued)}</div></div>
             <div className="rounded-2xl border border-ink-100 bg-ink-50 p-4"><div className="text-[10px] text-ink-400">قيد التنفيذ</div><div className="mt-2 text-2xl font-black text-ink-950">{formatNumber(workerHealth.active)}</div></div>
             <div className={`rounded-2xl border p-4 ${(workerHealth.expiredActive ?? 0) > 0 ? 'border-danger-200 bg-danger-50/60' : 'border-success-200 bg-success-50/60'}`}><div className="text-[10px] text-ink-500">leases منتهية</div><div className={`mt-2 text-2xl font-black ${(workerHealth.expiredActive ?? 0) > 0 ? 'text-danger-700' : 'text-success-700'}`}>{formatNumber(workerHealth.expiredActive)}</div></div>
-          </div> : <div className="text-xs text-ink-400">لم تتوفر قراءة العامل بعد.</div>}
+            <div className={`rounded-2xl border p-4 ${(workerHealth.untrustedActive ?? 0) > 0 ? 'border-warning-200 bg-warning-50/70' : 'border-ink-100 bg-ink-50'}`}><div className="text-[10px] text-ink-500">leases غير موثوقة</div><div className={`mt-2 text-2xl font-black ${(workerHealth.untrustedActive ?? 0) > 0 ? 'text-warning-700' : 'text-ink-900'}`}>{formatNumber(workerHealth.untrustedActive)}</div><div className="mt-1 text-[9px] leading-4 text-ink-400">انتهاء مفقود أو غير قابل للتحليل</div></div>          </div> : <div className="text-xs text-ink-400">لم تتوفر قراءة العامل بعد.</div>}
           {workerHealth && !workerHealth.activeReadComplete && <div className="mt-3 rounded-xl border border-warning-200 bg-warning-50/70 px-3 py-2 text-[10px] leading-5 text-warning-900">القراءة محدودة بـ500 lease نشطة؛ لا تُفسَّر كحكم كامل على العامل.</div>}
         </CardBody>
       </Card>
@@ -195,7 +196,9 @@ export function WorkCenterPage() {
       <div className="ag-decision-cell"><span className="ag-decision-label">تحتاج مراجعة</span><span className="ag-decision-value">{formatNumber(counts.review)}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">مكتملة</span><span className="ag-decision-value">{formatNumber(counts.completed)}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">فشل / إلغاء</span><span className="ag-decision-value">{formatNumber(counts.failed)}</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">نشطة بلا تقدم</span><span className="ag-decision-value">{formatNumber(zeroProgressActive)}</span></div><div className="ag-decision-cell"><span className="ag-decision-label">تقدم غير موثوق</span><span className="ag-decision-value">{formatNumber(invalidProgressActive)}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">نشطة بلا تقدم</span><span className="ag-decision-value">{formatNumber(zeroProgressActive)}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">تقدم غير موثوق</span><span className="ag-decision-value">{formatNumber(invalidProgressActive)}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">leases غير موثوقة</span><span className="ag-decision-value">{formatNumber(workerHealth?.untrustedActive ?? 0)}</span></div>
     </section>
 
     <Card>
