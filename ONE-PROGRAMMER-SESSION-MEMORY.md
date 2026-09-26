@@ -1,3 +1,21 @@
+# CURRENT EXECUTION CHECKPOINT — 2026-09-27 / CONTINUOUS EXECUTION 195
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE PR #661: `exec/20260926-continuous-ui-core-deep`.
+- CURRENT BRANCH HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `e9b2e14fdf3da53bd5fd13e0b20855d0a742c8ee`.
+- UI DELIVERY: Business Replay is a bounded, tenant-scoped replay timeline with learning/outcome status, meaningful evidence detection, localized lifecycle states and explicit history-window semantics. Trust & Evidence links directly to Replay and Benchmark. Reports link directly to Trust. Command Center Replay status is derived from the real replay reader and isolates replay failures as REVIEW with retry. Decision ROI exposes the missing investment/cost denominator rather than inventing ROI.
+- DECISION DELIVERY: Decision Experience stage navigation is gated by persisted decision/approval/work/outcome state. Evidence stage visibly renders a persisted evidence snapshot when present. Outcome stage requires a persisted outcome or COMPLETED work; IN_PROGRESS work is not presented as an outcome.
+- WORK CENTER DELIVERY: malformed progress no longer gets clamped into a plausible 0–100 value; it renders `غير موثوق`.
+- CORE DELIVERY: replay reads use bounded `windowLimit + 1` tenant-scoped reads over business_state_snapshots, recommendation_outcomes and decision_work_items; no new RPC, runner or importer. Staging confirms all three tables have RLS and company-scoped policies; current estimated rows are 0, so staging Replay remains INSUFFICIENT_DATA.
+- IA DELIVERY: Business Replay is now placed under Decision Center, matching the canonical product IA.
+- CANONICAL DOCS: Product, UI/UX and Data/Truth/Security masters contain the current outcome/replay/resilience closures; no competing master created.
+- EXACT CI: fresh workflows on the evolving current head remain queued/pending; no current-head PASS transferred. Vercel remains externally blocked by free-plan build-rate; local desktop/browser is unavailable in this session. No production mutation.
+- SUPABASE SECURITY: staging advisor still reports 46 authenticated-callable SECURITY DEFINER warnings; no blanket revokes. This remains an independent security-hardening backlog, not a reason to fabricate release proof.
+- CURRENT PRODUCT BOUNDARIES: Replay INSUFFICIENT_DATA with no history; Benchmark INSUFFICIENT_SAMPLE without peer cohort/metric/period/evidence; ROI unavailable without investment/cost denominator; malformed operational progress remains unknown.
+- NEXT EXECUTABLE ACTION: consume first terminal exact-head CI result when available; repair only the first reproduced current-SHA defect, then continue independent UI/core closure. Do not merge until mandatory current-head gates are attributable and green; keep Vercel/desktop blockers fail-closed.
+- DO NOT REPEAT: stale PASS transfer, preview-as-production, synthetic replay/benchmark/ROI, alert-error-to-empty fallback, permissive stage navigation, progress clamping, duplicate navigation/import/RPC/runner paths, blanket SECURITY DEFINER cleanup.
+- UI LANE PROGRESS: Replay/Benchmark/Trust/Reports/Command Center/Decision Experience/Work Center materially deepened.
+- CORE LANE PROGRESS: bounded replay reads, tenant/evidence contracts, decision lifecycle gating and current-state documentation strengthened.
 # CURRENT EXECUTION CHECKPOINT — 2026-09-27 / CONTINUOUS EXECUTION 194
 
 - MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
