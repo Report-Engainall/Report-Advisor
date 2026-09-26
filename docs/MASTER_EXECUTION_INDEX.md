@@ -1,3 +1,21 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / BOUNDED INTELLIGENCE + IMPORT TRUTH CLOSURE
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `3db41728181d705cb21973b042bd088eafd41d86`.
+- CURRENT CODE/TEST CANDIDATE → `151c5c5f892da9a5d841173606947345d64cf62a`.
+- DONE — UI → Dashboard accountability explicitly marks intelligence counts as bounded to the current read window; Data Quality EMPTY keeps score unavailable; Import completion exposes server-backed commit passport.
+- DONE — CORE → canonical import transport validates exact request identity, exact commit cardinality, server quality range, and optional snapshot identity.
+- DONE — CONTRACTS → Product WOW/report-truth guards cover the latest boundaries.
+- PR STATE → OPEN / mergeable=true.
+- EXACT-HEAD GATES → 51 observed workflow runs on `151c5c5...`: 45 queued, 4 pending, 1 in progress, 1 skipped. No application PASS claimed. Vercel external rate-limit remains; Netlify preview pending.
+- PHASE-F → live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- DEVICE → local device/browser unavailable; repository-only execution continues.
+- NEXT ACTION → `consume terminal exact-head gates → repair first reproduced current-SHA failure only → continue next independent UI/core closure where evidence shows a live gap`.
+- DO NOT REPEAT → stale PASS evidence, missing-to-zero coercion, duplicate routes/RPCs/workflows, unsupported production claims.
+- CURRENT RESUME POINTER → `PR #660 exact head 151c5c5... → terminal gate result / first current-head failure → next uncovered UI/core closure`.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / QUALITY + IMPORT PASSPORT + TRANSPORT VALIDATION
 
 > Exact-head evidence only. Historical PASS is not transferred.
