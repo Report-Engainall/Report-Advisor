@@ -160,10 +160,15 @@ export function ExecutiveCommandCenterPage() {
           <div className="mt-3 text-sm font-black text-ink-900">Money Recovery</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">ابدأ من الذمم والتحصيل للتحقق من الأموال القابلة للاسترداد؛ لا يتم احتساب فرصة مالية إضافية هنا دون ledger موثّق.</p>
         </Link>
-        <div className="card p-4">
+        <div className="card border-warning-200 bg-warning-50/25 p-4">
           <div className="flex items-center justify-between gap-3"><BarChart3 size={18} className="text-warning-700"/><span className="rounded-full bg-warning-50 px-2 py-1 text-[9px] font-black text-warning-800">INSUFFICIENT DATA</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Decision ROI</div>
-          <p className="mt-1 text-[10px] leading-5 text-ink-500">لا يوجد في هذا السطح سجل نتائج مالي موثّق يسمح بحساب عائد القرار دون اختلاق أثر.</p>
+          <p className="mt-1 text-[10px] leading-5 text-ink-600">نملك أثر القرار المتوقع/الفعلي عند توفر outcome، لكن لا يوجد denominator استثماري أو تكلفة موثقة تسمح بحساب ROI.</p>
+          <div className="mt-3 space-y-1.5">
+            <div className="flex items-center justify-between gap-3 rounded-lg bg-white/70 px-2.5 py-1.5 text-[9px]"><span className="text-ink-500">الأثر المتوقع/الفعلي</span><span className="font-black text-primary-700">مدعوم بعقد النتائج</span></div>
+            <div className="flex items-center justify-between gap-3 rounded-lg bg-white/70 px-2.5 py-1.5 text-[9px]"><span className="text-ink-500">تكلفة/استثمار القرار</span><span className="font-black text-warning-800">غير موثق</span></div>
+          </div>
+          <Link to="/decision-experience?stage=outcome" className="mt-3 inline-flex text-[10px] font-black text-warning-900 underline decoration-dotted underline-offset-2">فحص النتيجة المحفوظة ←</Link>
         </div>
         <Link to="/replay" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><FileSearch size={18} className="text-ink-500"/><span className="rounded-full bg-warning-50 px-2 py-1 text-[9px] font-black text-warning-800">INSUFFICIENT DATA</span></div>
