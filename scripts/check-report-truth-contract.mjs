@@ -72,4 +72,28 @@ if (/(Number|parseFloat|parseInt)\([^\n]*\).*NaN|NaN.*(Number|parseFloat|parseIn
   throw new Error('Report truth contract requires finite-number guarding');
 }
 
+
+// Canonical dashboard adapter must fail closed on malformed authoritative payloads.
+// These guards prevent a future refactor from silently mapping a bad response to
+// an empty result or substituting the current day for a missing authoritative as-of.
+const dashboardCanonical = fs.readFileSync(path.join(srcDir, 'lib', 'dashboard-canonical.ts'), 'utf8');
+for (const token of [
+  "function requiredArray<T>(value: unknown, field: string)",
+  "function requiredAsOf(value: unknown, field: string)",
+  "throw new Error('REPORT_DATA_INVALID: ' + field + ' as-of is missing')",
+  "requiredArray<MonthlyTrend>(row.trend, 'trend')",
+  "requiredArray<TopEntity>(row.topCustomers, 'topCustomers')",
+  "requiredArray<TopEntity>(row.topProducts, 'topProducts')",
+  "requiredArray<CategoryBreakdown>(row.categories, 'categories')",
+  "requiredArray<AgingBucket>(agingRow.rows, 'aging.rows')",
+  "unknownRows:finiteOrNull(agingRow.unknownRows)",
+]) {
+  if (!dashboardCanonical.includes(token)) {
+    throw new Error(`Report truth contract missing fail-closed dashboard invariant: ${token}`);
+  }
+}
+if (/asOf:\s*typeof row\.asOf\s*===\s*['"]string['"]\s*\?\s*row\.asOf\s*:\s*asOfDate\(\)/.test(dashboardCanonical)) {
+  throw new Error('Report truth contract forbids replacing missing authoritative asOf with today');
+}
+
 console.log(`Report truth contract: PASS (${reportFiles.length} report candidates, ${migrationFiles.length} migrations scanned)`);
