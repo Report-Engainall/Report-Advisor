@@ -1,3 +1,10 @@
+## CURRENT SURFACE CLOSURE — 2026-09-27
+
+- Business Replay is now a real product surface: tenant-scoped snapshots/outcomes/work-items are read through a bounded recent-history window, exposed as a chronological replay timeline, and surfaced with explicit learning outcome states. Missing history remains `INSUFFICIENT_DATA`.
+- Benchmark Network is now a real product surface even while unavailable: it shows the exact eligibility gate (peer cohort, metric definition, aligned period, evidence) and documents the result shape that will appear only after the gate is satisfied. No percentile/rank is fabricated.
+- Decision ROI now explains the missing investment/cost denominator rather than displaying an unsupported ratio; the user can inspect the governed outcome surface directly.
+- Reports truth context now links directly to Trust & Evidence, shortening the path from a reported number to its evidence context.
+
 ## IMPLEMENTATION UPDATE — 2026-09-25 / CURRENT GOVERNED STATE
 
 - Current code/test candidate: `ddd9382f347cc02eb401fee75a9df48beaae7f05` (restore-safe RLS qualification fix discovered by live Phase-F backup/restore).
