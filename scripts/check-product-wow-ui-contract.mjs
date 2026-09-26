@@ -438,7 +438,8 @@ assert.ok(dataQuality.includes('عرض كل الشدة'), 'data quality severity
 assert.ok(dataQuality.includes('aria-pressed={severityFilter===key}'), 'data quality severity filters must expose selected state accessibly');
 
 assert.ok(dataQuality.includes('criticalIssueTotal'), 'data quality must derive critical issue pressure from the current snapshot');
-assert.ok(dataQuality.includes('const nextAction = snapshotStatus === \'EMPTY\''), 'data quality must derive the next action from real snapshot state');
+assert.ok(dataQuality.includes('const nextAction = !countsConsistent'), 'data quality must derive the next action from a consistent snapshot state');
+assert.ok(dataQuality.includes('const nextAction = !countsConsistent') && dataQuality.includes("data-summary-state={countsConsistent ? 'consistent' : 'unavailable'}"), 'data quality must expose consistency as a first-class state');
 assert.ok(dataQuality.includes('استيراد مصدر'), 'empty data quality must route to the canonical import entry');
 assert.ok(dataQuality.includes('أغلق المشكلات الحرجة'), 'critical data quality must route to the trust review path');
 assert.ok(dataQuality.includes('راجع مشكلات الجودة'), 'non-critical data quality issues must expose a review action');
