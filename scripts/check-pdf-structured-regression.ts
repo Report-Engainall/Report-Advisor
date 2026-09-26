@@ -141,6 +141,78 @@ function pdfWithPositionedText(items: PositionedPdfText[]): ArrayBuffer {
   return new TextEncoder().encode(header + body + xref + trailer).buffer;
 }
 
+
+function pdfWithPositionedPages(pages: PositionedPdfText[][]): ArrayBuffer {
+  const uniqueUnits = [...new Set(pages.flatMap(items => items.flatMap(({ text }) => Array.from(text).map(char => char.charCodeAt(0)))))] ;
+  const cmap = [
+    '/CIDInit /ProcSet findresource begin',
+    '12 dict begin',
+    'begincmap',
+    '/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def',
+    '/CMapName /Adobe-Identity-UCS def',
+    '/CMapType 2 def',
+    '1 begincodespacerange',
+    '<0000> <FFFF>',
+    'endcodespacerange',
+    `${uniqueUnits.length} beginbfchar`,
+    ...uniqueUnits.map((unit) => `<${unit.toString(16).padStart(4, '0')}> <${unit.toString(16).padStart(4, '0')}>`),
+    'endbfchar',
+    'endcmap',
+    'CMapName currentdict /CMap defineresource pop',
+    'end',
+    'end',
+  ].join('\\n');
+
+  const contentStreams = pages.map(items => {
+    const positioned = items.map(({ text, x, y }) => {
+      const hex = Array.from(text).map((char) => char.charCodeAt(0).toString(16).padStart(4, '0')).join('');
+      return `1 0 0 1 ${x} ${y} Tm <${hex}> Tj`;
+    }).join(' ');
+    return `BT /F1 12 Tf ${positioned} ET`;
+  });
+
+  const pageCount = pages.length;
+  const firstPageObject = 3;
+  const firstContentObject = firstPageObject + pageCount;
+  const fontObject = firstContentObject + pageCount;
+  const descendantObject = fontObject + 1;
+  const descriptorObject = descendantObject + 1;
+  const cmapObject = descriptorObject + 1;
+  const pageRefs = pages.map((_, index) => `${firstPageObject + index} 0 R`).join(' ');
+  const pageObjects = pages.map((_, index) =>
+    `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 ${fontObject} 0 R >> >> /Contents ${firstContentObject + index} 0 R >>`,
+  );
+  const contentObjects = contentStreams.map(stream =>
+    `<< /Length ${Buffer.byteLength(stream, 'utf8')} >>\\nstream\\n${stream}\\nendstream`,
+  );
+
+  const objects = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    `<< /Type /Pages /Kids [${pageRefs}] /Count ${pageCount} >>`,
+    ...pageObjects,
+    ...contentObjects,
+    `<< /Type /Font /Subtype /Type0 /BaseFont /DejaVuSans /Encoding /Identity-H /DescendantFonts [${descendantObject} 0 R] /ToUnicode ${cmapObject} 0 R >>`,
+    `<< /Type /Font /Subtype /CIDFontType2 /BaseFont /DejaVuSans /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor ${descriptorObject} 0 R /DW 1000 >>`,
+    '<< /Type /FontDescriptor /FontName /DejaVuSans /Flags 4 /FontBBox [0 -200 1000 900] /ItalicAngle 0 /Ascent 800 /Descent -200 /CapHeight 700 /StemV 80 >>',
+    `<< /Length ${Buffer.byteLength(cmap, 'utf8')} >>\\nstream\\n${cmap}\\nendstream`,
+  ];
+
+  const header = '%PDF-1.4\\n';
+  let body = '';
+  const offsets: number[] = [0];
+  let position = Buffer.byteLength(header, 'utf8');
+  objects.forEach((object, index) => {
+    offsets.push(position);
+    const rendered = `${index + 1} 0 obj\\n${object}\\nendobj\\n`;
+    body += rendered;
+    position += Buffer.byteLength(rendered, 'utf8');
+  });
+  const xrefOffset = Buffer.byteLength(header + body, 'utf8');
+  const xref = `xref\\n0 ${objects.length + 1}\\n0000000000 65535 f \\n${offsets.slice(1).map((offset) => `${String(offset).padStart(10, '0')} 00000 n `).join('\\n')}\\n`;
+  const trailer = `trailer\\n<< /Size ${objects.length + 1} /Root 1 0 R >>\\nstartxref\\n${xrefOffset}\\n%%EOF\\n`;
+  return new TextEncoder().encode(header + body + xref + trailer).buffer;
+}
+
 async function main(): Promise<void> {
   if (!process.env.VITE_SUPABASE_URL || !process.env.VITE_SUPABASE_ANON_KEY) {
     throw new Error('PDF regression requires the real Supabase test configuration; no fake environment is accepted.');
@@ -221,6 +293,61 @@ async function main(): Promise<void> {
     assert(inventoryReport.rows[0]?.unposted_net_sales === 2, 'Arabic inventory report unposted net sales must map canonically');
     assert(inventoryReport.rows[0]?.net_sales === 52, 'Arabic inventory report net sales must map canonically');
     assert(inventoryReport.rows[0]?.stock_balance === 56, 'Arabic inventory report balance must map canonically');
+
+
+    const repeatedHeaders = [
+      { text: 'اسم الصنف', x: 610, y: 700 },
+      { text: 'رقم الصنف', x: 545, y: 700 },
+      { text: 'المخزن', x: 475, y: 700 },
+      { text: 'الوارد', x: 410, y: 700 },
+      { text: 'صافي مبيعات مرحل', x: 320, y: 700 },
+      { text: 'صافي مبيعات لم يرحل', x: 235, y: 700 },
+      { text: 'صافي المبيعات', x: 160, y: 700 },
+      { text: 'الرصيد', x: 95, y: 700 },
+      { text: 'الوحدة', x: 45, y: 700 },
+      { text: 'العبوه', x: 10, y: 700 },
+    ];
+    const multiPageDatasets = await parseFile(
+      pdfWithPositionedPages([
+        [
+          ...repeatedHeaders,
+          { text: 'زيت شفاف الفخامة 4×5 لتر', x: 610, y: 680 },
+          { text: '10801001', x: 545, y: 680 },
+          { text: 'الرئيسي', x: 475, y: 680 },
+          { text: '58', x: 410, y: 680 },
+          { text: '50', x: 320, y: 680 },
+          { text: '2', x: 235, y: 680 },
+          { text: '52', x: 160, y: 680 },
+          { text: '56', x: 95, y: 680 },
+          { text: 'كرتون', x: 45, y: 680 },
+          { text: '4', x: 10, y: 680 },
+          { text: 'الرصيد الافتتاحي', x: 350, y: 640 },
+        ],
+        [
+          ...repeatedHeaders,
+          { text: 'ارز السحاب 4×10 ك', x: 610, y: 680 },
+          { text: '10603010', x: 545, y: 680 },
+          { text: 'الرئيسي', x: 475, y: 680 },
+          { text: '10.125', x: 410, y: 680 },
+          { text: '9', x: 320, y: 680 },
+          { text: '1', x: 235, y: 680 },
+          { text: '10', x: 160, y: 680 },
+          { text: '2.25', x: 95, y: 680 },
+          { text: 'كيس', x: 45, y: 680 },
+          { text: '4', x: 10, y: 680 },
+          { text: 'تحويل غير مستلم', x: 350, y: 640 },
+        ],
+      ]),
+      'arabic-inventory-two-pages.pdf',
+      'pdf',
+    );
+    assert(multiPageDatasets.length === 1, 'multi-page Arabic inventory PDF must produce one dataset');
+    const [multiPageDataset] = multiPageDatasets;
+    assert(multiPageDataset.rows.length === 2, 'multi-page Arabic inventory PDF must keep business rows and reject summary lines');
+    assert(multiPageDataset.rows[0]?.sku === '10801001', 'multi-page PDF must preserve page-one code');
+    assert(multiPageDataset.rows[1]?.sku === '10603010', 'multi-page PDF must preserve continuation-page code');
+    assert(multiPageDataset.columns.some(column => column.qualityIssues.some(issue => issue.includes('جدول متعدد الصفحات'))), 'multi-page PDF must expose reconstruction provenance');
+    assert(multiPageDataset.qualityScore >= 75, `multi-page Arabic inventory PDF quality must meet review threshold, got ${multiPageDataset.qualityScore}`);
 
     const { extractPdfPageTable } = await vite.ssrLoadModule('/src/lib/file-engine/pdf-layout.ts') as {
       extractPdfPageTable: (items: Array<{ str: string; transform: number[]; width: number; height: number }>, existingLayout?: unknown) => {
