@@ -33,13 +33,20 @@ export function decisionIsUsable(decision:unknown): decision is Decision{
 }
 
 function inventoryEvidenceIsUsable(item:InventoryDecision):boolean{
- return Number.isFinite(item.avgDailySales)&&Number.isFinite(item.reorderPoint)&&Number.isFinite(item.recommendedOrder);
+ return typeof item.sku==='string' && item.sku.trim().length>0
+   && Number.isFinite(item.avgDailySales) && item.avgDailySales>=0
+   && Number.isFinite(item.reorderPoint) && item.reorderPoint>=0
+   && Number.isFinite(item.recommendedOrder) && item.recommendedOrder>=0
+   && (item.daysOfCover===null || item.daysOfCover===undefined || (Number.isFinite(item.daysOfCover) && item.daysOfCover>=0));
 }
 function alternativeGroupEvidenceIsUsable(group:AlternativeGroupDecision):boolean{
- return Number.isFinite(group.normalizedStock)
-   && Number.isFinite(group.normalizedDemand)
-   && Number.isFinite(group.recommendedOrder)
-   && Number.isFinite(group.trendPct);
+ return typeof group.id==='string' && group.id.trim().length>0
+   && typeof group.name==='string' && group.name.trim().length>0
+   && Number.isFinite(group.normalizedStock) && group.normalizedStock>=0
+   && Number.isFinite(group.normalizedDemand) && group.normalizedDemand>=0
+   && Number.isFinite(group.recommendedOrder) && group.recommendedOrder>=0
+   && Number.isFinite(group.trendPct)
+   && (group.coverageDays===null || group.coverageDays===undefined || (Number.isFinite(group.coverageDays) && group.coverageDays>=0));
 }
 
 function finalizeDecisions(decisions:Decision[]):Decision[]{
