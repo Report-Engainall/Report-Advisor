@@ -115,11 +115,22 @@ export async function commitImportBatch(
   });
   if (error) throw error;
 
-  const result = data as { committed?: unknown; ids?: unknown; idempotent_replay?: unknown } | null;
-  const committed = Number(result?.committed);
-  const ids = Array.isArray(result?.ids) ? result.ids.map(String) : [];
-  const idempotentReplay = result?.idempotent_replay === true;
-  if (!Number.isInteger(committed) || committed !== rows.length || ids.length !== rows.length) {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    throw new Error('IMPORT_COMMIT_RESULT_INVALID');
+  }
+  const result = data as { committed?: unknown; ids?: unknown; idempotent_replay?: unknown };
+  const committed = result.committed;
+  const ids = result.ids;
+  const idempotentReplay = result.idempotent_replay === true;
+  if (
+    typeof committed !== 'number' ||
+    !Number.isFinite(committed) ||
+    !Number.isInteger(committed) ||
+    committed !== rows.length ||
+    !Array.isArray(ids) ||
+    ids.length !== rows.length ||
+    ids.some((id) => typeof id !== 'string' || !id.trim())
+  ) {
     throw new Error('IMPORT_COMMIT_RESULT_MISMATCH');
   }
   return { committed, ids, idempotentReplay };
