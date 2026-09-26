@@ -571,3 +571,10 @@ This is the target product tree. It defines how capabilities are presented; it d
 │  ├─ Analytics Home
 │  ├─ Sales
 │  ├─ Purchases
+
+
+## Execution closure — 2026-09-27 / HEAD a121c3032deb4b4a708bed99b193a8e921ea453a
+
+- Import progress writes are fail-closed: malformed progress, non-integer counters, counter overflow, and monotonic regressions are rejected rather than clamped or coerced.
+- Canonical Import result metadata does not fabricate missing understanding confidence as 0% and does not relabel an unknown persisted specialty as the generic source-data domain.
+- The decision-system import boundary therefore preserves the distinction between missing metadata, verified metadata, and inferred metadata at the UI surface.
