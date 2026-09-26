@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 152
+
+- MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CODE/TEST CANDIDATE BEFORE THIS GOVERNANCE WRITE: `5024a77b30a34ee4617866c878f8f29183bf935c` (PR #660).
+- PHASE-F DEFECT CONSUMED: the live resilience run reached the migration replay and failed because `20260925184000_restore_client_ui_settings_schema_parity.sql` referenced unavailable `current_customer_company_id()`.
+- REPAIR: the migration now binds `client_ui_settings.organization_id` to canonical `public.current_company_id()`; Phase-F runtime closure contract explicitly rejects the unavailable legacy resolver.
+- UI: Decision Experience readiness remains typed READY/REVIEW/BLOCKED; dashboard/truth/report quality disclosure remains active.
+- TRUTH CORE: dashboard quality counts are strict when supplied; malformed objects/counts fail closed, absent quality remains UNKNOWN.
+- RUNTIME BOUNDARY: prior Phase-F also reported rollback-forward HTTP 503; that deployment/runtime portion remains external until a fresh exact-head probe proves it. No RPO/RTO PASS claimed.
+- NEXT: consume fresh exact-head Quality/Final Certification/Phase-F/Browser results after this DB dependency repair; repair only the first reproduced failure.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 151
 
 - MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
