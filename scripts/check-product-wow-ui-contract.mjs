@@ -77,6 +77,8 @@ assert.ok(entitiesSurface.includes('إضافة مصدر'), 'inventory source-emp
 assert.ok(entitiesSurface.includes('عرض كل المخزون'), 'inventory filter-empty state must restore the full result set');
 assert.ok(entitiesSurface.includes('<Link to="/import"'), 'inventory source-empty state must use the unified import route');
 
+const analyticsPage = fs.readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
+assert.ok(analyticsPage.includes('الصفوف المستلمة'), 'analytics truth strip must distinguish returned rows from source totals');
 const dashboardSurface = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 assert.ok(dashboardSurface.includes('const emptyAnalysisAction'), 'dashboard empty analysis states must derive a real next action');
 assert.ok(dashboardSurface.includes('تبقى الحالة غير مثبتة'), 'dashboard trend empty state must remain fail-closed');
