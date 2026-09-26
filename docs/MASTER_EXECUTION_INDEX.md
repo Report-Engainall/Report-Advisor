@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-175
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `01ce614aff3f2f21adc44deeb44a6445dc3c6cdc` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- CURRENT FUNCTIONAL CANDIDATE → `01ce614aff3f2f21adc44deeb44a6445dc3c6cdc`.
+- UI DELIVERY → Work Center now fails closed when progress or exception counters are unavailable/non-finite; missing values are shown as `غير متاح` and do not become zero operational evidence. Product WOW contract guards the new state.
+- CORE DELIVERY → customer/product/supplier reads, sales/purchase invoice reads, import-job list reads, and single import-job reads now validate returned tenant identity; bounded entity/invoice reads require authoritative exact counts where used as a bounded truth decision.
+- CONTRACT DELIVERY → Tenant Security contract expanded for supplier/invoice/import-job readback and exact-count invariants.
+- GATE SNAPSHOT → exact functional SHA currently has only the initial check set populated; Supabase Preview is skipped, remaining checks are not yet completed, so no current-head PASS is claimed.
+- PR STATE → PR #660 is OPEN and GitHub currently reports `mergeable=true`.
+- DEVICE → unavailable/offline; no device-dependent proof.
+- PHASE-F → live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- CURRENT RESUME POINTER → `PR #660 01ce614... → consume exact-head gates → repair only first reproduced application failure → continue uncovered UI/core closure → merge only after release-critical evidence is green`.
+- DO NOT REPEAT → missing-to-zero work-center metrics; tenant readback omission; prior-SHA PASS transfer; device-only verification; Phase-F certification without live evidence.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-174
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
