@@ -418,6 +418,7 @@ assert.ok(dataQuality.includes('استيراد مصدر'), 'empty data quality m
 assert.ok(dataQuality.includes('أغلق المشكلات الحرجة'), 'critical data quality must route to the trust review path');
 assert.ok(dataQuality.includes('راجع مشكلات الجودة'), 'non-critical data quality issues must expose a review action');
 assert.ok(dataQuality.includes('انتقل للتحليل'), 'clean data quality must expose the analytics next step');
+assert.ok(dataQuality.includes('لا توجد مشكلات مرصودة في مؤشرات الجودة التي غطتها اللقطة الحالية.'), 'clean data quality must not claim global data completeness from a bounded issue snapshot');
 assert.ok(dataQuality.includes('overallScore == null ? \'غير متاح\''), 'empty data quality must not render a zero score as if it were a measured quality result');
 assert.ok(dataQuality.includes("snapshot.status === 'EMPTY' || totalRecords === 0 ? null"), 'empty data quality must keep diagnostic score unavailable');
 const canonicalImport = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
