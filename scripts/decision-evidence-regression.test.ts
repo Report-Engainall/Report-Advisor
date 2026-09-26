@@ -11,6 +11,8 @@ const decision = createDecision({
   evidenceIds: [' evidence-1 ', 'evidence-1', 'evidence-2'], action: 'BUY_SOON',
 });
 assert.deepEqual(decision.evidenceIds, ['evidence-1', 'evidence-2']);
+const { inventoryDecisions } = await import('../src/lib/intelligence/decisionEngine.ts');
+
 const criticalWithoutCoverage = alternativeGroupDecisions([{
   id: 'g-null', name: 'مجموعة بلا تغطية', stockoutRisk: 'critical', normalizedStock: 10, normalizedDemand: 5,
   coverageDays: null, recommendedOrder: 20, trendPct: 4,
@@ -18,5 +20,21 @@ const criticalWithoutCoverage = alternativeGroupDecisions([{
 assert.ok(criticalWithoutCoverage);
 assert.equal(criticalWithoutCoverage.evidence.some((item) => item.metric === 'group_coverage'), false);
 assert.equal(criticalWithoutCoverage.evidence.some((item) => item.metric === 'group_coverage' && item.value === 0), false);
+
+const infiniteCoverageFrozen = inventoryDecisions([{
+  sku: 'sku-frozen', avgDailySales: 0, stdDailySales: 0, demandDuringLeadTime: 0, safetyStock: 0,
+  reorderPoint: 0, minStock: 0, maxStock: 10, daysOfCover: Number.POSITIVE_INFINITY, stockoutDate: null,
+  recommendedOrder: 0, classification: 'frozen', priority: 'medium',
+}])[0];
+assert.ok(infiniteCoverageFrozen);
+assert.equal(infiniteCoverageFrozen.evidence.some((item) => item.value === Number.POSITIVE_INFINITY), false);
+assert.equal(infiniteCoverageFrozen.evidence.some((item) => item.metric === 'avg_daily_sales' && item.value === 0), true);
+
+const unusableCriticalInventory = inventoryDecisions([{
+  sku: 'sku-invalid', avgDailySales: 0, stdDailySales: 0, demandDuringLeadTime: 0, safetyStock: 0,
+  reorderPoint: 0, minStock: 0, maxStock: 0, daysOfCover: Number.POSITIVE_INFINITY, stockoutDate: null,
+  recommendedOrder: 0, classification: 'at_risk', priority: 'critical',
+}])[0];
+assert.equal(unusableCriticalInventory, undefined);
 
 console.log('PASS: decision evidence stays fail-closed and never substitutes unavailable coverage with zero.');
