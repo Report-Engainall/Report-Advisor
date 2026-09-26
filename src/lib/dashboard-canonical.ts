@@ -97,7 +97,7 @@ export async function fetchInventoryReportSnapshot(page = 0, pageSize = 25, filt
   if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: inventory snapshot missing');
   const row = data as Record<string, unknown>;
   return {
-    rows: requiredArray<InventoryReportRow>(row.rows), page: typeof row.page === 'number' && Number.isInteger(row.page) ? row.page : page,
+    rows: requiredArray<InventoryReportRow>(row.rows, 'inventory.rows'), page: typeof row.page === 'number' && Number.isInteger(row.page) ? row.page : page,
     pageSize: typeof row.pageSize === 'number' && Number.isInteger(row.pageSize) ? row.pageSize : pageSize,
     filter: row.filter === 'low' || row.filter === 'out' ? row.filter : 'all', totalRows: finiteOrNull(row.totalRows),
     filteredRows: finiteOrNull(row.filteredRows), lowStock: finiteOrNull(row.lowStock), outOfStock: finiteOrNull(row.outOfStock),
@@ -118,7 +118,7 @@ export async function fetchRFMSnapshot(limit = 500): Promise<RFMSnapshot> {
   if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('REPORT_QUERY_INVALID_LIMIT');
   const { data, error } = await supabase.rpc('get_rfm_snapshot', { p_as_of: asOfDate(), p_limit: limit });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: RFM snapshot missing');
-  const row = data as Record<string, unknown>; return { rows: requiredArray<RFMSnapshotRow>(row.rows, 'rfm.rows'), asOf: requiredAsOf(row.asOf, 'rfm') unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA' };
+  const row = data as Record<string, unknown>; return { rows: requiredArray<RFMSnapshotRow>(row.rows, 'rfm.rows'), asOf: requiredAsOf(row.asOf, 'rfm'), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA' };
 }
 export async function fetchABCSnapshot(limit = 500): Promise<ABCSnapshot> {
   if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('REPORT_QUERY_INVALID_LIMIT');
@@ -129,7 +129,7 @@ export async function fetchABCSnapshot(limit = 500): Promise<ABCSnapshot> {
 export async function fetchAgingSnapshot(): Promise<AgingSnapshot> {
   const { data, error } = await supabase.rpc('get_aging_snapshot', { p_as_of: asOfDate() });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: aging snapshot missing');
-  const row = data as Record<string, unknown>; return { rows: requiredArray<AgingSnapshotRow>(row.rows, 'aging.rows'), asOf: requiredAsOf(row.asOf, 'aging') unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'NO_DATA' ? 'NO_DATA' : 'INSUFFICIENT_DATA' };
+  const row = data as Record<string, unknown>; return { rows: requiredArray<AgingSnapshotRow>(row.rows, 'aging.rows'), asOf: requiredAsOf(row.asOf, 'aging'), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'NO_DATA' ? 'NO_DATA' : 'INSUFFICIENT_DATA' };
 }
 
 export async function fetchDashboardIntelligence(): Promise<{recommendations: Recommendation[]; alerts: Alert[]}> {
