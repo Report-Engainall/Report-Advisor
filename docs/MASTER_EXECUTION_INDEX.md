@@ -1,3 +1,14 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-156
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT EXECUTION HEAD → `ba24cde16aaf618d52050a8d78f1709a749ca019` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI → added a dedicated additive `src/aghbari-polish.css` layer and loaded it from `src/main.tsx`; strengthened the executive dashboard hero, KPI focus states, report-card hierarchy, decision evidence hover/focus behavior, mobile behavior and reduced-motion handling without adding navigation or workflow taxonomy.
+- CORE → dashboard truth adapter now validates `as-of` as a real YYYY-MM-DD calendar date and enforces non-negative integer/null semantics for unknown-row counters across dashboard aging, inventory, RFM, ABC and aging snapshots. Missing remains null; no coercion to zero.
+- GATES → Vercel remains externally rate-limited; Netlify preview is the available deployment surface. Fresh exact-head GitHub workflows are expected to run for the new head; no PASS is transferred until exact-head results are observed.
+- PHASE-F → source repair remains in place, but fresh runtime recovery/RPO/RTO proof is still required; no certification claim.
+- RESUME POINTER → `PR #660 ba24cde... → consume fresh exact-head Quality/Certification/Browser/Phase-F gates → repair only the first reproduced current-head failure → continue UI/core closure`.
+- DO NOT REPEAT → stale gate transfer, malformed canonical values, missing-to-zero normalization, legacy tenant resolver, production bypass, duplicate architecture, device-dependent verification claims.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 155
 
 - MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
