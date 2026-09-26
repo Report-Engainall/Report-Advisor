@@ -33,6 +33,13 @@ describe('dashboard canonical row-shape validation', () => {
     expect(adapter).toContain('isAgingBucket');
   });
 
+  it('accepts the current RPC shape where trend/category status fields are derived locally', () => {
+    expect(adapter).toContain('normalizeMonthlyTrend');
+    expect(adapter).toContain('normalizeCategoryBreakdown');
+    expect(adapter).toContain('normalizeAgingDashboard');
+    expect(adapter).not.toContain('const agingRow=');
+  });
+
   it('fails closed on malformed snapshot metadata instead of defaulting to current input values', () => {
     expect(adapter).toContain('function requiredInteger');
     expect(adapter).toContain('function requiredAsOf');
