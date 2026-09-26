@@ -286,6 +286,12 @@ assert.ok(!entities.includes('if (loading && customers.length === 0) return <Loa
 assert.ok(entities.includes('data={products} loading={loading}'), 'product table must own its loading state');
 assert.ok(entities.includes('data={customers} loading={loading}'), 'customer table must own its loading state');
 
+const receivablesTruth = fs.readFileSync('src/pages/ReceivablesReportCanonicalPage.tsx', 'utf8');
+assert.ok(receivablesTruth.includes("const truthStatus = snapshot.status === 'CALCULATED' ? 'VERIFIED' : 'INSUFFICIENT DATA'"), 'receivables must keep truth status fail-closed');
+assert.ok(receivablesTruth.includes('القيم غير المتاحة تبقى غير متاحة ولا تتحول إلى صفر'), 'receivables must not render missing financial truth as zero');
+assert.ok(receivablesTruth.includes("if (snapshot.status === 'NO_DATA')"), 'receivables must separate source-empty state from calculated zero values');
+assert.ok(receivablesTruth.includes('حالة التقرير: {truthStatus}'), 'receivables must expose a visible truth context');
+
 const liquidity = fs.readFileSync('src/pages/LiquidityPage.tsx', 'utf8');
 assert.ok(liquidity.includes('const nextAction = useMemo'), 'liquidity must derive one next action from canonical KPI state');
 assert.ok(liquidity.includes("to: '/import'") && liquidity.includes('INSUFFICIENT_DATA'), 'liquidity insufficient truth must route to the unified import surface');
