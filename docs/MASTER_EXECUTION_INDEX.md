@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 155
+
+- MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CODE/TEST CANDIDATE BEFORE THIS GOVERNANCE WRITE: `50e6b06b07ba13eed5a8bc015e63e51ae1bbd2ab` (PR #660).
+- CORE HARDENING: canonical dashboard rows are now validated by content, not only array container shape: trend rows, top-customer/product rows, category rows and aging rows reject malformed values/statuses/counts.
+- CONTRACT: report-truth contract explicitly guards the new row-content validation.
+- UI: Decision Experience readiness remains accessible live state with READY/REVIEW/BLOCKED and machine-readable status.
+- PHASE-F: client_ui_settings tenant-policy dependency is corrected to canonical current_company_id() with forward reconciliation; fresh runtime proof still required.
+- GATES: no new workflow run is exposed yet for the latest code head; existing Netlify preview remains the practical current preview, while Vercel remains rate-limited.
+- NEXT: consume the next exact-head gate when exposed; repair only the first reproduced failure.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 154
 
 - MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
