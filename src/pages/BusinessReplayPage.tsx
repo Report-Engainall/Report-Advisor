@@ -34,7 +34,7 @@ export function BusinessReplayPage() {
           <div>
             <div className="flex flex-wrap items-center gap-2"><span className="section-kicker">BUSINESS REPLAY</span><Badge variant={hasReplay ? 'success' : 'warning'}>{hasReplay ? 'AVAILABLE' : 'INSUFFICIENT_DATA'}</Badge></div>
             <h1 className="mt-2 text-[24px] font-black text-ink-950">{hasReplay ? 'يوجد تاريخ تشغيلي قابل لإعادة القراءة' : 'لا يوجد تاريخ تشغيلي كافٍ لإعادة التشغيل'}</h1>
-            <p className="mt-2 max-w-3xl text-[12px] leading-6 text-ink-600">{hasReplay ? 'إعادة التشغيل تقرأ snapshots ونتائج outcome محفوظة فقط.' : 'لا تتم صناعة أحداث أو نتائج سابقة. غياب snapshots/outcomes حالة حقيقية وليست فشلًا مخفيًا.'}</p>
+            <p className="mt-2 max-w-3xl text-[12px] leading-6 text-ink-600">{hasReplay ? 'إعادة التشغيل تقرأ snapshots ونتائج outcome محفوظة فقط.' : 'لا توجد أحداث أو نتائج سابقة محفوظة لإعادة التشغيل. غياب snapshots/outcomes حالة حقيقية وليست فشلًا مخفيًا.'}</p>
           </div>
           <History className={hasReplay ? 'text-primary-700' : 'text-warning-700'} size={36} />
         </div>
