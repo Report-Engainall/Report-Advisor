@@ -196,7 +196,7 @@ export function DecisionExperiencePage() {
     } finally {
       setOperationLoading(false);
     }
-  }, [load, refreshDecisionContext, selectedId]);
+  }, [load, navigateStage, refreshDecisionContext, selectedId]);
 
   const handlePrepareDecision = useCallback(() => runGovernedOperation(async () => {
     if (!selected) throw new Error('RECOMMENDATION_REQUIRED');
@@ -229,7 +229,7 @@ export function DecisionExperiencePage() {
     await completeRecommendationWork(decisionContext.workItemId, selected.id, value, evidence);
     setActualImpact('');
   }, 'outcome'), [actualImpact, decisionContext?.workItemId, decisionEvidence, runGovernedOperation, selected]);
-  const navigateStage = (next: Stage, id = selectedId) => {
+  const navigateStage = useCallback((next: Stage, id = selectedId) => {
     if (!canEnterStage(next)) return;
     setStage(next);
     const nextParams = new URLSearchParams(params);
@@ -237,7 +237,7 @@ export function DecisionExperiencePage() {
     if (id) nextParams.set('recommendationId', id);
     else nextParams.delete('recommendationId');
     setParams(nextParams, { replace: true });
-  };
+  }, [canEnterStage, params, selectedId, setParams]);
 
   const selectRecommendation = (id: string, next: Stage = 'evidence') => {
     setSelectedId(id);
