@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-CORRECTION-8
+
+- HEAD OBSERVED BEFORE THIS WRITE → `aa610a355099e012eec260b9b4eff132ec3fb736`.
+- CORRECTION — CORE → `entity.issues > entity.total` is NOT an invalid snapshot condition because issue counts represent occurrences and can overlap within the same record. The earlier temporary guard was removed from `data-quality-snapshot-core.ts` and `check-report-truth-contract.mjs`.
+- CORRECTION — UI → Data Quality now treats the derived `remainingRecords` / overall score as unavailable when issue occurrences exceed total records, without rejecting the underlying snapshot.
+- DONE — UI/Core → Work Center now identifies active persisted progress outside `0..100` as an explicit invalid-progress signal and derives a review action.
+- DONE — CORE → Dashboard confirmed truth now requires a non-empty object-shaped `evidence`; malformed/empty evidence cannot unlock `CONFIRMED`.
+- DONE — CONTRACTS → Product-WOW guards Data Quality derived-summary eligibility and Work Center invalid-progress action; Report-Truth guards dashboard confirmed-evidence shape.
+- VERIFIED SOURCE STATE → latest semantic files were reread from the live branch; the corrected data-quality semantics are reflected in code and contracts.
+- PR STATE → PR #660 OPEN; latest exact GitHub head is `aa610a355099e012eec260b9b4eff132ec3fb736`; mergeability may be temporarily false during GitHub recomputation.
+- CI → current-head terminal application PASS is still not consumed; Vercel remains externally rate-limited. Historical PASS is not transferred.
+- NOT PROVEN → browser/device certification, production deployment identity, live Phase-F backup/restore/RPO/RTO/rollback.
+- RESUME POINTER → `PR #660 current head aa610a355099e012eec260b9b4eff132ec3fb736 → consume first terminal exact-head result → repair only reproduced current-SHA defect → continue next independent UI/core closure`.
+- DO NOT REPEAT → the removed `issues <= total` assumption, stale PASS transfer, device-only work, duplicate architecture/test families, unsupported production certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-COMPREHENSIVE-7
 
 - HEAD OBSERVED BEFORE THIS WRITE → current PR #660 head as verified from GitHub immediately before governance.
