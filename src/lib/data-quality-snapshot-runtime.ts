@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import {
+  calculateWeightedQualityScore,
   validateDataQualitySnapshot,
   type DataQualitySnapshot,
   type EntityQuality,
@@ -7,7 +8,7 @@ import {
 } from './data-quality-snapshot-core';
 
 export type { DataQualitySnapshot, EntityQuality, QualityIssue } from './data-quality-snapshot-core';
-export { validateDataQualitySnapshot } from './data-quality-snapshot-core';
+export { calculateWeightedQualityScore, validateDataQualitySnapshot } from './data-quality-snapshot-core';
 
 export async function fetchDataQualitySnapshot(): Promise<DataQualitySnapshot> {
   const { data, error } = await supabase.rpc('get_data_quality_snapshot');
