@@ -62,7 +62,7 @@ function isInventoryReportRow(value: unknown): boolean {
   return validProduct && validWarehouse;
 }
 
-function normalizeAgingDashboard(value: unknown): AgingDashboard {
+export function normalizeAgingDashboard(value: unknown): AgingDashboard {
   const rows = requiredArray<AgingBucket>(value, 'aging.rows', isAgingBucket);
   const totalRows = rows.reduce((sum, row) => sum + row.count, 0);
   const unknownRows = rows.filter((row) => row.bucket === 'UNKNOWN').reduce((sum, row) => sum + row.count, 0);
@@ -83,7 +83,7 @@ function isMonthlyTrend(value: unknown): boolean {
   if (typeof value.invoices !== 'number' || !Number.isInteger(value.invoices) || value.invoices < 0) return false;
   return value.status === undefined || value.status === 'CALCULATED' || value.status === 'NO_DATA' || value.status === 'INSUFFICIENT_DATA';
 }
-function normalizeMonthlyTrend(value: unknown): MonthlyTrend {
+export function normalizeMonthlyTrend(value: unknown): MonthlyTrend {
   if (!isMonthlyTrend(value)) throw new Error('REPORT_DATA_MALFORMED:trend');
   const row = value as Record<string, unknown>;
   const derivedStatus: MonthlyTrend['status'] = row.invoices === 0
@@ -110,7 +110,7 @@ function isCategoryBreakdown(value: unknown): boolean {
   return finiteOrNull(value.sales) !== null && finiteOrNull(value.profit) !== null && finiteOrNull(value.quantity) !== null &&
     (value.categoryStatus === undefined || value.categoryStatus === 'CALCULATED' || value.categoryStatus === 'UNKNOWN');
 }
-function normalizeCategoryBreakdown(value: unknown): CategoryBreakdown {
+export function normalizeCategoryBreakdown(value: unknown): CategoryBreakdown {
   if (!isCategoryBreakdown(value)) throw new Error('REPORT_DATA_MALFORMED:categories');
   const row = value as Record<string, unknown>;
   return {
