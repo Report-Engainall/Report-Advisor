@@ -4,6 +4,7 @@ import { normalizeRows, normalizeColumnName, normalizeArabicDigits, parseNumber 
 import { detectColumnDataType, cleanValue } from './data-types';
 import { mapColumns } from './synonyms';
 import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection';
+import { extractPdfPageTable, extractPdfReadingText, type PdfTableLayout, type PdfTextItemLike } from './pdf-layout';
 
 type Row = Record<string, unknown>;
 
@@ -280,8 +281,37 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     data: new Uint8Array(buffer),
     useSystemFonts: true,
   }).promise;
+
   const pages: string[] = [];
-  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
+  const tableRows: Row[] = [];
+  let tableLayout: PdfTableLayout | undefined;
+  let detectedTablePages = 0;
+
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+    const page = await pdf.getPage(pageNumber);
+    const content = await page.getTextContent();
+    const items = content.items.filter((item): item is PdfTextItemLike => 'str' in item && typeof item.str === 'string');
+
+    const pageTable = extractPdfPageTable(items, tableLayout);
+    if (pageTable) {
+      if (!tableLayout) tableLayout = pageTable.layout;
+      tableRows.push(...pageTable.rows);
+      detectedTablePages += 1;
+    }
+
+    const text = extractPdfReadingText(items);
+    if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`);
+  }
+
+  if (tableRows.length && tableLayout) {
+    const dataset = await buildDataset(tableRows, fileName, 'pdf');
+    for (const column of dataset.columns) {
+      column.qualityIssues.push('PDF: أُعيد بناء الجدول من مواقع الخلايا داخل الصفحة بدل تحويله إلى نص خطي');
+      if (detectedTablePages > 1) column.qualityIssues.push(`PDF: تم تجميع جدول متعدد الصفحات (${detectedTablePages} صفحات)`);
+    }
+    return [dataset];
+  }
+
   if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
   return parseScannedPdfWithOcr(pdf, fileName);
 }
