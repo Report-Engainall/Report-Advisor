@@ -1,8 +1,10 @@
 import { ArrowLeft, ArrowRight, CheckCircle2, Database, FileSpreadsheet, FolderSync, Globe2, KeyRound, Link2, LockKeyhole, PlugZap, ReceiptText, RefreshCw, ShieldCheck, Store, Workflow } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/lib/language';
 
 type ConnectorState = 'available' | 'bounded' | 'adapter';
+type ConnectorFilter = 'all' | ConnectorState;
 
 const connectors = [
   { id: 'files', title: { ar: 'Excel / CSV', en: 'Excel / CSV' }, description: { ar: 'رفع مضبوط، بصمة، تطبيع، تحقق، ثم إدخال كانوني.', en: 'Governed upload, fingerprinting, normalization, validation, then canonical ingestion.' }, icon: FileSpreadsheet, state: 'available' as ConnectorState, tag: { ar: 'متاح الآن', en: 'Available now' } },
@@ -23,9 +25,12 @@ const steps = [
 export function ConnectionsPage() {
   const { language } = useLanguage();
   const ar = language === 'ar';
+  const [filter, setFilter] = useState<ConnectorFilter>('all');
   const availableCount = connectors.filter(connector => connector.state === 'available').length;
   const boundedCount = connectors.filter(connector => connector.state === 'bounded').length;
   const adapterCount = connectors.filter(connector => connector.state === 'adapter').length;
+  const visibleConnectors = useMemo(() => filter === 'all' ? connectors : connectors.filter(connector => connector.state === filter), [filter]);
+  const visibleCount = visibleConnectors.length;
   const nextAvailableSource = connectors.find(connector => connector.state === 'available');
   const nextLabel = nextAvailableSource
     ? (ar ? `ابدأ من ${nextAvailableSource.title.ar}` : `Start with ${nextAvailableSource.title.en}`)
@@ -63,8 +68,29 @@ export function ConnectionsPage() {
         <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "الخطوة التالية" : "Next"}</span><span className="ag-decision-value">{nextLabel}</span></div>
       </section>
 
+      <section className="grid gap-4 xl:grid-cols-[1.25fr_.75fr]" aria-label={ar ? 'فلترة وحوكمة المصادر' : 'Connector filters and governance'}>
+        <div className="rounded-3xl border border-ink-200 bg-white p-5 shadow-card">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div><div className="text-[10px] font-black tracking-[.14em] text-primary-700">{ar ? 'PROOF FILTER' : 'PROOF FILTER'}</div><h2 className="mt-1 text-base font-black text-ink-950">{ar ? 'اعرض الموصلات بحسب حالة الإثبات' : 'Filter connectors by proof state'}</h2><p className="mt-1 text-[11px] leading-5 text-ink-500">{ar ? 'الفلاتر لا تغيّر الحقيقة؛ هي تعيد ترتيب نفس سجل الموصلات الحالي.' : 'Filters only change the view of the same canonical connector registry.'}</p></div>
+            <span className="rounded-full bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">{ar ? `${visibleCount} من ${connectors.length} ظاهر` : `${visibleCount} of ${connectors.length} shown`}</span>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2" role="toolbar" aria-label={ar ? 'تصفية الموصلات' : 'Connector state filters'}>
+            {([['all', ar ? 'الكل' : 'All'], ['available', ar ? 'مثبت' : 'Proven'], ['bounded', ar ? 'بحدود' : 'Bounded'], ['adapter', ar ? 'موصل' : 'Adapter']] as const).map(([key,label]) => <button key={key} type="button" onClick={()=>setFilter(key)} aria-pressed={filter===key} className={'filter-chip '+(filter===key?'filter-chip-active':'hover:bg-white')}>{label}</button>)}
+            {filter !== 'all' && <button type="button" onClick={()=>setFilter('all')} className="btn-secondary min-h-11 text-[10px]">{ar ? 'عرض الكل' : 'Show all'}</button>}
+          </div>
+        </div>
+        <div className="rounded-3xl border border-primary-200 bg-primary-50/60 p-5">
+          <div className="flex items-center gap-2 text-sm font-black text-primary-950"><ShieldCheck size={17}/>{ar ? 'سلم الإثبات' : 'Proof ladder'}</div>
+          <div className="mt-3 space-y-2 text-[10px] leading-5 text-primary-950/80">
+            <div className="rounded-xl border border-primary-100 bg-white/80 p-3"><b>{ar ? 'مثبت:' : 'Proven:'}</b> {ar ? 'مسار مرتبط بإجراء حقيقي داخل المنتج.' : 'backed by a real in-product path.'}</div>
+            <div className="rounded-xl border border-warning-100 bg-warning-50/60 p-3"><b>{ar ? 'بحدود:' : 'Bounded:'}</b> {ar ? 'المسار موجود لكن شرط التشغيل أو المصدر ما زال معلنًا كحد.' : 'the path exists with an explicit runtime/source boundary.'}</div>
+            <div className="rounded-xl border border-ink-100 bg-ink-50/70 p-3"><b>{ar ? 'موصل:' : 'Adapter:'}</b> {ar ? 'لا يوجد ادعاء اتصال حقيقي قبل إثبات التنفيذ والـtenant.' : 'no live connection claim before execution and tenant proof.'}</div>
+          </div>
+        </div>
+      </section>
+
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {connectors.map(({ id, title: labels, description, icon: Icon, state, tag }) => {
+        {visibleConnectors.length === 0 ? <div className="md:col-span-2 xl:col-span-3 rounded-3xl border border-ink-200 bg-ink-50/60 p-6 text-sm text-ink-600">{ar ? 'لا توجد موصلات ضمن هذا الفلتر.' : 'No connectors match this filter.'}</div> : visibleConnectors.map(({ id, title: labels, description, icon: Icon, state, tag }) => {
           const isAvailable = state === 'available';
           const isBounded = state === 'bounded';
           return (

@@ -1,3 +1,392 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-172
+
+- EXACT HEAD OBSERVED → `04edbe433ac1b8d91f5b97b2befb5e1ff7b0153f` on PR #660.
+- UI DELIVERY → Trust & Evidence counters now fail closed: missing/non-finite entity issues, record totals, and severity counts remain `غير متاح` instead of becoming zero; the UI explicitly communicates unavailable snapshot counts.
+- CONTRACT DELIVERY → product-wow UI contract now guards these Trust & Evidence boundaries in addition to Decision Experience and Executive Command Center numeric truth.
+- PR STATE → PR #660 remains open; current GitHub snapshot says mergeable=false.
+- GATE → current exact HEAD has only the known Vercel build-rate-limit failure; GitHub workflow runs have not populated. No PASS is claimed.
+- DEVICE → unavailable/offline; no browser/desktop proof.
+- PHASE-F → live recovery/RPO/RTO/rollback not proven.
+- RESUME → consume first populated gate on `04edbe43...`, fix only first reproduced failure, then continue the next safe UI/core closure batch.
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-171
+
+- EXACT HEAD OBSERVED → `23c4101d82addc35b45fcd16abb7206424c3cbbe` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI DELIVERY → Decision Experience now fails closed on non-finite expected impact and renders impact through a finite-safe formatter; Executive Command Center now excludes non-finite KPI/quality values from coverage and quality calculations.
+- CORE DELIVERY → alternative-group decision evidence now fails closed when normalized stock/demand, recommended order, or trend evidence is non-finite.
+- CONTRACT DELIVERY → product-wow UI guard now covers both Decision Experience and Command Center finite-number boundaries.
+- GATE SNAPSHOT → current HEAD reports only the known Vercel build-rate-limit failure; GitHub workflow runs/statuses for this newest SHA have not populated yet. No current-head PASS is claimed.
+- PR STATE → PR #660 is open; GitHub currently reports mergeable=false, with no review threads/reviews observed. This state is treated as not yet mergeable, not as a guessed code failure.
+- DEVICE → unavailable/offline; no device-dependent browser/desktop proof claimed.
+- STAGING → tenant policy repair remains verified independently; production remains untouched.
+- PHASE-F → live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- CURRENT RESUME POINTER → `PR #660 23c4101d... → consume first populated current-head gate → repair first reproduced failure only → continue safe closure → merge only after release-critical evidence is green`.
+- DO-NOT-REPEAT → no stale SHA PASS transfer; no missing/NaN/Infinity-to-zero coercion; no PR #659 overlap; no production certification; no broad SECURITY DEFINER cleanup without contract evidence.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-170
+
+- EXACT HEAD OBSERVED → `0dc2ef2d8dd096a549990e9104e704e1f8b658ef` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- MAIN BASE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`; compare reports 195 commits ahead / 0 behind.
+- UI DELIVERY → Decision Experience now treats non-finite expected impact as REVIEW, centralizes impact rendering through a finite-safe formatter, and never presents NaN/Infinity as a usable financial effect.
+- CORE DELIVERY → alternative-group decision generation now fails closed when normalized stock/demand, recommended order, or trend evidence is non-finite; regression coverage added for Infinity and NaN paths.
+- CONTRACT DELIVERY → product-wow UI guard now protects the Decision Experience finite-impact boundary.
+- GATE SNAPSHOT → exact current HEAD currently exposes CodeRabbit success and Netlify preview success; Vercel remains a known external build-rate-limit failure; GitHub workflow/status listing for `0dc2ef2...` has not yet populated, so current-head test PASS is NOT claimed.
+- PR STATE → PR #660 remains open; GitHub currently reports mergeable=false while no review threads/reviews are present; do not infer a code failure from this transient state.
+- DEVICE → unavailable/offline; no device-dependent browser/desktop proof claimed.
+- PHASE-F → live backup/restore/RPO/RTO/rollback remains NOT PROVEN; staging tenant-policy repair remains separately proven.
+- DO-NOT-REPEAT → do not transfer prior SHA checks; do not treat missing/invalid financial values as zero; do not reopen PR #659; do not broaden SECURITY DEFINER cleanup without contract evidence.
+- CURRENT RESUME POINTER → `PR #660 0dc2ef2d... → consume first populated current-head gate result → repair the first reproduced failure only → continue one safe UI/core closure batch → merge only after release-critical evidence is green`.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-169
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `f488a055daa50bde1aac4cb7097057e65f959e74` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI DELIVERY → Master Data Hub now explicitly distinguishes route existence from data truth, labels surfaces as SURFACE/EVIDENCE, exposes a reference-to-decision flow, and removes stale static “مسار حقيقي” claims from its summary.
+- UI DELIVERY → Connections proof-state filters/ladders remain on the same branch, with local reset and accessible selection semantics.
+- CORE DELIVERY → inventory decision evidence hardening prevents Infinity/NaN-derived decision evidence and withholds critical decisions when coverage is nonfinite; regression test covers both cases.
+- RUNTIME PROOF → Staging tenant-policy repair remains applied and verified through live readback; recorded staging migration `20260926153928_reconcile_client_ui_settings_tenant_resolver_phase_f`.
+- GATES → newest HEAD `f488a055...` has 5 check-runs visible: 3 queued, 1 in progress, 1 skipped; no completed failure/success yet. No PASS inferred. Vercel/production promotion is not claimed.
+- DEVICE → unavailable/offline; no device-dependent proof.
+- PHASE-F → live backup/restore/RPO/RTO/rollback remains NOT PROVEN; source and staging tenant-policy repair are proven independently.
+- NO MERGE → PR #660 remains open.
+- CURRENT RESUME POINTER → `PR #660 f488a055... → consume exact-head gate results → repair first reproduced failure → continue safe UI/core closure → merge only after release-critical evidence is green`.
+- NEXT EXECUTABLE ACTION → consume the first completed exact-head gate; if clean, immediately continue the next uncovered canonical surface/core boundary.
+- DO NOT REPEAT → stale “مسار حقيقي” UI claims, missing-to-zero coercion, Infinity/NaN evidence, stale SHA transfer, blanket SECURITY DEFINER cleanup, device-only proof, production mutation, PR #659 overlap.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-168
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `f9171cc876cd7ba8868d0b0f1802181eb6d6ee3d` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI DELIVERY → Connections / Sources now has proof-state filtering (PROVEN / BOUNDED / ADAPTER), local reset, live visible counts, and a visible proof ladder explaining what each state actually means.
+- CORE DELIVERY → inventory decision evidence is now fail-closed for nonfinite numeric inputs. Critical inventory decisions are not emitted when coverage is nonfinite; frozen-inventory decisions expose finite daily-demand/reorder evidence and only include coverage when finite.
+- REGRESSION → decision-evidence regression now explicitly verifies that +Infinity coverage never becomes decision evidence and that critical decisions with unusable coverage are withheld.
+- RUNTIME PROOF → Staging project `fnqbvfuwbdpwvhcgzksl` had the live `client_ui_settings` policy reconciled from legacy `current_customer_company_id()` to canonical `current_company_id()` using the repository's forward-only migration. The migration is recorded in staging as `20260926153928_reconcile_client_ui_settings_tenant_resolver_phase_f`; post-change readback confirmed the policy uses `current_company_id()`.
+- SECURITY BOUNDARY → Supabase Security Advisor still reports the known 46 authenticated-callable SECURITY DEFINER warnings plus leaked-password protection; no blanket revoke was performed. The targeted tenant-policy defect is closed on staging.
+- GATES → latest branch HEAD has fresh GitHub checks queued; Cloudflare Pages is in progress, no failed application check is available yet. Vercel remains externally rate-limited. No PASS inferred on the newest code.
+- DEVICE → unavailable/offline; no device-dependent verification claimed.
+- PHASE-F → fresh live recovery/RPO/RTO/rollback certification remains unproven; staging tenant-policy repair is now runtime-backed.
+- NO MERGE → PR #660 remains open; no production mutation or promotion.
+- CURRENT RESUME POINTER → `PR #660 latest HEAD → consume exact-head gate results → repair first reproduced failure → continue remaining safe UI/core surfaces → merge only after release-critical evidence is green`.
+- NEXT EXECUTABLE ACTION → consume the first completed non-skipped gate; if clean, continue the next uncovered canonical UI/core surface.
+- UI LANE PROGRESS → Connector proof-state surface + Inventory Intelligence + Data Quality deepening.
+- CORE LANE PROGRESS → inventory decision finite-evidence hardening + staging tenant resolver runtime proof.
+- DO NOT REPEAT → missing-to-zero coercion, Infinity/NaN evidence emission, stale SHA evidence, blanket SECURITY DEFINER cleanup, device-only proof, production mutation, PR #659 overlap.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-167
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `45f409e356dd30a2bae2737c7dda9d46e633969e` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI DELIVERY → Inventory Intelligence risk radar and Data Quality severity radar are both now deeper decision surfaces with explicit unknown-data states, local filters, reset actions, evidence/data-quality routing, and accessible selected-state semantics.
+- UI HARDENING → Data Quality hook order was corrected to keep derived calculations unconditional; Inventory Intelligence grouped/detail table rendering now uses explicit row-type narrowing to keep the TS contract deterministic.
+- CORE DELIVERY → unavailable alternative-group coverage remains omitted from decision evidence rather than becoming zero; regression coverage remains in the branch.
+- CONTRACT DELIVERY → Product WOW contract now protects the Inventory Intelligence and Data Quality UI semantics.
+- EXACT SOURCE → current application code candidate `45f409e356dd30a2bae2737c7dda9d46e633969e`; current Product WOW contract remains bound on the same branch line.
+- GATES → newest exact-head check set has only just started: 5 checks visible, 3 queued, 1 in progress, 1 skipped; no completed success/failure on the new candidate.
+- HOSTING → Vercel still reports external build-rate-limit failure; no production promotion/certification inferred. Netlify is preview-only.
+- DEVICE → unavailable/offline; no device proof claimed.
+- PHASE-F → live recovery/RPO/RTO/rollback remains NOT PROVEN and fail-closed.
+- NO MERGE → PR #660 remains open.
+- CURRENT RESUME POINTER → `PR #660 45f409e… → consume exact-head gates → repair first reproduced current-head failure → continue safe UI/core closure → merge only after release-critical evidence is green`.
+- NEXT EXECUTABLE ACTION → consume the first non-queued exact-head gate; if clean, take the next uncovered canonical product/core surface without reopening completed truth closures.
+- DO NOT REPEAT → missing-to-zero coercion, stale SHA transfer, conditional hooks, union-type UI ambiguity, duplicate architecture, device-only proof, PR #659 overlap.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-166
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `fbf9f3f70a5576e94e08bd0de42d40b00c02c64c` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI DELIVERY → Data Quality now has a severity radar (CRITICAL / WARNING / INFO), local severity filtering with accessible selected state and reset, explicit decision-use messaging, and clarified wording so the issue-derived score is presented as a diagnostic indicator rather than absolute truth.
+- UI SAFETY FIX → corrected a hook-order defect introduced during the Data Quality enhancement; all derived severity values are now unconditional plain computations, avoiding conditional-hook execution during loading/error branches.
+- CORE DELIVERY → prior decision-engine evidence closure remains on the current branch: unavailable alternative-group coverage no longer becomes numeric zero evidence, with a dedicated regression guard.
+- CONTRACT DELIVERY → Product WOW contract guards the Data Quality severity radar/filtering and diagnostic-score semantics plus the earlier Inventory Intelligence risk radar.
+- EXACT SOURCE PROOF → current branch code candidate `fbf9f3f70a5576e94e08bd0de42d40b00c02c64c`; Product WOW contract blob on this candidate is `a306a440e6db91354422c782dd5a1609e77a80fd`.
+- GATES → fresh exact-head gate results for this newest candidate are not yet available; GitHub will regenerate checks for the new head. No PASS inferred.
+- HOSTING → Vercel remains externally rate-limited (`Deployment rate limited — retry in 24 hours`); production certification is not claimed. Netlify preview remains only a preview surface.
+- DEVICE → unavailable/offline; no device-dependent proof.
+- PHASE-F → live recovery/RPO/RTO/rollback proof remains unproven and fail-closed.
+- NO MERGE → PR #660 remains open; no production mutation or release promotion performed.
+- CURRENT RESUME POINTER → `PR #660 latest HEAD → consume newest exact-head gate results → repair only the first reproduced current-head failure → continue remaining safe UI/core surfaces → merge only after required certification evidence is green`.
+- NEXT EXECUTABLE ACTION → take the first completed exact-head gate on `fbf9f3f`; if clean, move directly to the next uncovered canonical surface/core boundary.
+- UI LANE PROGRESS → Inventory Intelligence risk decision surface + Data Quality severity/decision-use surface.
+- CORE LANE PROGRESS → fail-closed decision evidence semantics with regression protection.
+- DO NOT REPEAT → conditional-hook defect, missing-to-zero coercion, stale SHA evidence, duplicate architecture, device-only proof, PR #659 overlap, and already-closed report truth semantics.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-165
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `2f6ddd28164134595cc202ada6c3631698f13254` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI DELIVERY → Inventory Intelligence now has a real priority radar derived only from canonical rows: URGENT (<7 days), WATCH (<14 days), and NO DEMAND/unknown coverage; live filters, visible counts, local reset, evidence/data-quality actions, and accessible selected-state semantics were added without new routes or import paths.
+- CORE DELIVERY → `src/lib/intelligence/decisionEngine.ts` no longer converts unavailable `coverageDays` into evidence value `0`; coverage evidence is emitted only when numeric. A regression test now locks this boundary.
+- CONTRACT DELIVERY → Product WOW UI contract now guards the inventory priority-radar, risk-filter, and missing-demand semantics.
+- EXACT SOURCE PROOF → the three code/test source heads are bound on the same PR line: Inventory Intelligence `6eea8480fbffd96f139f0e893d580944b8e0aa77`, decision engine `608e8ead9415c88f9f3f5977a84b94979d366cf4`, decision regression `07934ccea32ce743e62941200926d31249f0a586`; governance candidate before this write is `2f6ddd28164134595cc202ada6c3631698f13254`.
+- GATES → latest exact-head PR status remains unproven: 54 check-runs were observed with 46 queued and 5 in progress at the last read; no success/failure run was available for the new code commits yet.
+- HOSTING → Vercel status is externally FAILED with `Deployment rate limited — retry in 24 hours`; Vercel deployment context remains pending. Netlify preview is processing. This is a hosting-rate-limit blocker, not an application failure.
+- DEVICE → unavailable/offline by user instruction; no device-dependent/browser-desktop PASS claimed.
+- PHASE-F → fresh live recovery/RPO/RTO/rollback proof remains open and is not inferred from source or stale runs.
+- NO MERGE → PR #660 remains open; no production mutation or release certification was performed.
+- CURRENT RESUME POINTER → `PR #660 latest branch HEAD → consume current-head gate results when exposed → repair only the first reproduced current-head failure → continue independent UI/core closure → merge only after required certification evidence is green`.
+- NEXT EXECUTABLE ACTION → consume the first completed exact-head gate from PR #660; if clean, immediately continue the next safe UI/core surface rather than reopening closed fronts.
+- UI LANE PROGRESS → deeper Inventory Intelligence decision/risk surface closed on canonical data.
+- CORE LANE PROGRESS → unavailable numeric evidence fail-closed at decision-engine boundary, with regression protection.
+- DO NOT REPEAT → missing-to-zero coercion, stale SHA evidence transfer, duplicate import/RPC/runner architecture, device-dependent proof, PR #659 overlap, production bypass, and rework of already-closed Receivables/Reports/Command-Center truth semantics.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-164
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `29692e2b9af4d3c8e2b67a149b1292a20448d053` on PR #660.
+- UI → Sales Report now blocks XLSX export when canonical sales truth is INSUFFICIENT_DATA and exposes a direct Data Quality action; Product WOW contract guards this state.
+- CORE → previous report/inventory/receivables/profitability truth closures remain intact; no stale coercion or evidence elevation reintroduced.
+- EXACT-HEAD CHECK SUITES → CodeRabbit queued; Vercel queued; Supabase skipped; Cloudflare in progress; Netlify queued; two GitHub Actions queued. All are bound to `29692e2...`; no PASS inferred.
+- DEVICE → unavailable/offline; no device-dependent proof.
+- NO MERGE → PR #660 remains open.
+- CURRENT RESUME POINTER → `PR #660 latest HEAD → consume exact-head suites → repair first current-head failure → continue deep UI/core closure`.
+- DO NOT REPEAT → incomplete-report export, calculated-to-verified elevation, missing-to-zero coercion, stale SHA evidence, device-dependent proof.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-163
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `46bbd2b6255476e3c40df6612263ee11fee8bf79` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI/CORE → all work from checkpoint 162 remains on this exact line: evidence-state separation, quality-priority actions, source/row validation, inventory truth preservation, profitability currency guard, receivables truth closure.
+- EXACT-HEAD CHECK SUITES → CodeRabbit queued; Vercel queued; Supabase skipped; Cloudflare Workers/Pages in progress; Netlify queued; two GitHub Actions suites queued. These suites are bound to SHA `46bbd2b...`; no PASS inferred while queued/in-progress.
+- VERCEL → combined status still carries external build-rate-limit failure/pending deployment context; no production certification.
+- DEVICE → unavailable/offline; no device-dependent proof.
+- PHASE-F → fresh recovery/RPO/RTO proof remains required.
+- NO MERGE → PR #660 remains open.
+- CURRENT RESUME POINTER → `PR #660 latest HEAD after this write → consume current-head suites as they complete → repair first reproduced failure → continue remaining safe UI/core fronts`.
+- DO NOT REPEAT → stale gate transfer, calculated-to-verified elevation, missing-to-zero coercion, silent row loss, device-dependent proof, production bypass.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-162
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `c56278f0c2ef339eca300a9ddb65f7270a054d4b` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI → calculated-vs-verified semantics are now separated across Receivables, Reports, Executive Report, Command Center and Analytics; dashboard/report next actions prioritize unresolved quality; profitability presentation requires consistent currency; legacy receivables total no longer turns unknown aging amounts into zero.
+- CORE → receivables query validates authoritative page/totals/rows; inventory report and grouped inventory calculations preserve unknown/signed truth; profitability, RFM/ABC/Aging, intelligence, forecast and import boundaries remain strict.
+- CONTRACTS → Product WOW and Report Truth guards cover the current UI/core invariants.
+- VERIFICATION → current-head status shows Vercel failure from external build-rate-limit, Vercel deployment pending, Netlify deploy-preview pending. No PASS transferred.
+- DEVICE → unavailable/offline; no device-dependent verification.
+- PHASE-F → fresh live recovery/RPO/RTO evidence remains required.
+- NO MERGE → PR #660 remains open.
+- RESUME POINTER → `PR #660 latest HEAD after this write → continue remaining report/data surfaces → consume exact-head deployment/gate evidence → repair first current-head failure → merge only after certification`.
+- DO NOT REPEAT → calculated-to-verified elevation, missing-to-zero coercion, silent row loss, stale evidence, device-dependent proof, production bypass.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-161
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `0b63e2ad4938d44cba631d95f8d0cc4f4b0260ed` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI → Executive Command Center now carries quality context and explicit CONFIRMED/CALCULATED decision-use semantics; Executive Report routes CALCULATED truth through evidence review; Analytics now says evidence-before-decision; Import/Reports/Trust surfaces share the evidence-first pattern.
+- CORE → RFM/ABC/Aging rows validate field semantics; Inventory Intelligence rejects invalid/orphan balance rows; demand windows are bounded integer days; forecast, intelligence, import and dashboard truth remain fail-closed.
+- CONTRACTS → Product WOW and Report Truth guards were extended for the new UI/core invariants.
+- VERIFICATION → current-head workflow runs remain unavailable; no PASS transferred. Vercel external rate-limit remains the known deployment blocker.
+- DEVICE → unavailable/offline; no device-dependent proof.
+- PHASE-F → fresh recovery/RPO/RTO evidence remains open; canonical tenant repair remains in source.
+- NO MERGE → PR #660 remains open.
+- RESUME POINTER → `PR #660 latest HEAD after this write → continue current-route UI/core closure → consume exact-head gates when exposed → repair first current-head failure → merge only after certification`.
+- DO NOT REPEAT → stale evidence, calculated-to-verified elevation, direct calculated-to-decision language, silent row loss, device-dependent claims, production bypass.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-160
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `1b85c79c7fec61d75c886dc42a4d758827c89a75` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI → Canonical Import now exposes a SOURCE PASSPORT before approval (security, duplicate, quality, understanding, SHA-256) and a stronger canonical-commit confirmation; shared Truth Context exposes explicit decision-use state; Header distinguishes missing tenant context from degraded connectivity; Reports Center keeps CALCULATED below VERIFIED.
+- CORE → dashboard intelligence payloads validate recommendation/alert semantics and stop on malformed authoritative data; forecast rows validate deterministic numeric bounds, quality-score range, data-point counts and bound ordering.
+- CONTRACTS → Product WOW UI contract now protects Source Passport, shared decision-use state, tenant-health semantics, report evidence state, intelligence validation and forecast validation.
+- VERIFICATION → exact-head workflow runs are still not exposed for the current code head; combined status shows only Vercel failure/pending contexts, with failure tied to external build-rate-limit. No PASS transferred.
+- DEVICE → unavailable/offline; no device-dependent verification claimed.
+- PHASE-F → fresh live recovery/RPO/RTO proof remains required; canonical tenant repair remains in source.
+- NO MERGE → PR #660 remains open; no production mutation or release certification claimed.
+- RESUME POINTER → `PR #660 latest HEAD after this write → consume exact-head gates → repair first current-head failure → continue UI/core closure`.
+- DO NOT REPEAT → stale gates, calculated-to-verified elevation, malformed intelligence/forecast acceptance, tenant-context ambiguity, preview-to-production claims, device-dependent PASS.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-159
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `f57caffe580dd5edbe76651146afaa500312472c` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI → Reports Center loading boundary fixed so loaded evidence variables are never referenced before a canonical snapshot exists; shared evidence-truth visual treatment deepened; Work Center received a stronger operational hero and keyboard/reduced-motion polish.
+- CORE → dashboard snapshot now rejects malformed returned month metadata; worker-health counts fail closed when exact counts are unavailable; import operation records validate status, non-negative counters, and 0–100 progress instead of coercing malformed values.
+- CONTRACTS → Product WOW and report-truth contracts guard the Reports loading boundary, worker-health exact counts, dashboard-month metadata, and import-record invariants.
+- VERIFICATION → exact-head workflow runs are not exposed for the pre-write code head `82de615...`; combined status at that head showed Vercel failure/pending contexts, with Vercel blocked by external build-rate-limit. No stale PASS transferred.
+- DEVICE → unavailable/offline; no device-dependent verification claimed.
+- PHASE-F → live recovery/RPO/RTO proof remains required; canonical tenant repair remains in source.
+- NO MERGE → PR #660 remains open; no production mutation or certification claim made.
+- RESUME POINTER → `PR #660 latest HEAD after this write → consume exact-head gates when exposed → repair first reproduced current-head failure → continue UI/core closure`.
+- DO NOT REPEAT → loaded-state variables in loading branches, missing-to-zero coercion, stale gate transfer, preview-to-production promotion, device-dependent claims, duplicate import/runtime architecture.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-158
+
+- CURRENT HEAD → `b936eccefe82c54d8e321db374de29f57c7dcd3e` on PR #660.
+- UI → Reports Center now surfaces an explicit evidence-state bar from the loaded canonical snapshot: VERIFIED/REVIEW, source truth status, quality issue count, and a direct warning that metrics must be read with evidence context.
+- Contract → Product WOW UI contract now guards the Reports Center evidence-state surface.
+- Verification → exact-head GitHub Actions were re-triggered/created for the new SHA and are currently queued: Final Certification Gate and Execution Enforcement Contract. Vercel remains a failure because of external build-rate-limit; CodeRabbit and Netlify were previously successful on the preceding exact head and are not transferred as proof to this new SHA.
+- No PASS was invented or transferred. No merge performed.
+- Resume pointer → `PR #660 b936ec... → wait/consume exact-head gates → repair first reproduced failure → continue UI/core closure → merge only after certification evidence`.
+- Do not repeat → undefined UI state variables, stale gate transfer, preview evidence from another SHA, missing-to-zero normalization, production bypass, device-dependent claims.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-157
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT EXECUTION HEAD → `7b7d8df23d4619cb38e4c15d09ec8ffd9c4326e2` on PR #660; 73 commits ahead of main, 0 behind.
+- UI → strengthened Decision Experience readiness: terminal recommendation states are BLOCKED, explicit confidence is required, evidence cards mirror typed readiness, and Trust Center now exposes a real Evidence Passport built only from the current data-quality snapshot.
+- CORE → dashboard truth validation remains strict for real calendar `as-of` dates and non-negative integer/null unknown-row counters. Data Quality validation now requires integer non-negative record/issue counters. No missing-to-zero coercion.
+- CONTRACTS → report-truth contract updated to guard the strict dashboard/date/count invariants and Data Quality integer semantics; Product WOW contract now guards readiness terminal states, confidence, and Evidence Passport presence.
+- VERIFICATION → Netlify PR #660 preview endpoint successfully served the Arabic Aghbari application shell, Evidence-first product proof, RTL/PWA metadata and authentication boundary when inspected. This observation predates the latest commits and is not treated as exact-head proof for `7b7d8df...`.
+- GATES → current exact-head GitHub statuses/workflow runs were not yet exposed at the moment of the last read; Vercel remains externally rate-limited on the prior observed head. No PASS transferred. Device verification remains unavailable because the connected Desktop Commander device is offline.
+- PHASE-F → canonical `current_company_id()` repair and forward reconciliation remain in source; fresh live recovery/RPO/RTO evidence is still required.
+- CURRENT RESUME POINTER → `PR #660 7b7d8df... → consume exact-head gates when exposed → repair only first reproduced failure → continue UI/core closure → merge only after required evidence`.
+- DO NOT REPEAT → stale gate transfer, preview evidence from a different SHA, malformed truth acceptance, missing-to-zero normalization, legacy tenant resolver, production bypass, duplicate architecture, device-dependent PASS claims.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-156
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT EXECUTION HEAD → `ba24cde16aaf618d52050a8d78f1709a749ca019` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI → added a dedicated additive `src/aghbari-polish.css` layer and loaded it from `src/main.tsx`; strengthened the executive dashboard hero, KPI focus states, report-card hierarchy, decision evidence hover/focus behavior, mobile behavior and reduced-motion handling without adding navigation or workflow taxonomy.
+- CORE → dashboard truth adapter now validates `as-of` as a real YYYY-MM-DD calendar date and enforces non-negative integer/null semantics for unknown-row counters across dashboard aging, inventory, RFM, ABC and aging snapshots. Missing remains null; no coercion to zero.
+- GATES → Vercel remains externally rate-limited; Netlify preview is the available deployment surface. Fresh exact-head GitHub workflows are expected to run for the new head; no PASS is transferred until exact-head results are observed.
+- PHASE-F → source repair remains in place, but fresh runtime recovery/RPO/RTO proof is still required; no certification claim.
+- RESUME POINTER → `PR #660 ba24cde... → consume fresh exact-head Quality/Certification/Browser/Phase-F gates → repair only the first reproduced current-head failure → continue UI/core closure`.
+- DO NOT REPEAT → stale gate transfer, malformed canonical values, missing-to-zero normalization, legacy tenant resolver, production bypass, duplicate architecture, device-dependent verification claims.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-155
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `50e6b06b07ba13eed5a8bc015e63e51ae1bbd2ab` on PR #660.
+- CORE → canonical dashboard validation now inspects row content for trend, top customers/products, categories and aging, rejecting malformed values instead of silently propagating them.
+- CONTRACT → report-truth contract guards the new row-content validation.
+- UI → Decision readiness remains an accessible live status with typed READY/REVIEW/BLOCKED state; quality disclosure remains visible.
+- PHASE-F → client_ui_settings policy is canonicalized to current_company_id() with forward reconciliation; the earlier replay defect is fixed in source, but fresh runtime proof remains open.
+- CURRENT GATES → no workflow run exposed for latest code head yet; do not infer PASS. Vercel remains externally rate-limited; Netlify preview remains the current available preview.
+- CURRENT RESUME POINTER → `PR #660 50e6b06... → consume fresh exact-head gates when exposed → repair only first reproduced failure`.
+- DO NOT REPEAT → stale gate transfer, malformed canonical row acceptance, legacy tenant resolver, production bypass.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-154
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `e7b0fa82d81c91f1a2654e3f5aef2ec9d13cb863` on PR #660.
+- UI → Decision Experience readiness is now announced as an accessible live status and exposed as machine-readable `data-readiness`; WOW contract protects it.
+- CORE → report-truth contract now guards all six dashboard quality counters; strict integer/null semantics remain fail-closed.
+- PHASE-F → canonical tenant resolver repair and forward client_ui_settings reconciliation remain the current runtime-boundary fixes; no new runtime PASS transferred.
+- DEPLOYMENT → Vercel remains rate-limited externally; Netlify preview remains available and exact to the PR line.
+- CURRENT RESUME POINTER → `PR #660 e7b0fa8... → consume latest exact-head Quality/Certification/Phase-F/Browser gates → repair only first reproduced failure`.
+- DO NOT REPEAT → stale Phase-F/certification evidence, legacy tenant resolver, production bypass, missing-to-zero normalization, duplicate contract bindings.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-153
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `fefa4ae98f7deea58949807949c72992c297732d` on PR #660.
+- PHASE-F DATABASE LANE → the fresh replay defect was a missing `current_customer_company_id()` dependency in `20260925184000_restore_client_ui_settings_schema_parity.sql`. The policy now uses canonical `public.current_company_id()`.
+- FORWARD RECONCILIATION → added `20260926153000_reconcile_client_ui_settings_tenant_resolver.sql` so already-applied environments receive the same canonical tenant policy.
+- CONTRACT → Phase-F runtime closure now guards both replay safety and the forward reconciliation migration.
+- PRIOR RUNTIME RESULT → exact-head/local/static/authenticated canary passed on the earlier candidate; logical restore was blocked at that dependency and rollback-forward returned HTTP 503. No RPO/RTO certification transferred.
+- UI/TRUTH → Decision readiness remains typed READY/REVIEW/BLOCKED; dashboard quality counts remain strict and fail-closed.
+- CURRENT RESUME POINTER → `PR #660 fefa4ae... → consume fresh exact-head Phase-F/Quality/Final Certification/Browser gates → repair only first reproduced failure`.
+- DO NOT REPEAT → stale Phase-F proof, legacy resolver dependency, stale certification SHA, production bypass, missing-to-zero normalization.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-152
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `5024a77b30a34ee4617866c878f8f29183bf935c` on PR #660.
+- PHASE-F CORE REPAIR → `20260925184000_restore_client_ui_settings_schema_parity.sql` no longer depends on unavailable `current_customer_company_id()`; it uses canonical `public.current_company_id()`. Static Phase-F closure now guards this boundary in `5024a77b...`.
+- PREVIOUS PHASE-F EVIDENCE → exact-head/local/static/authenticated canary steps passed, but logical replay hit the missing resolver dependency and rollback-forward returned HTTP 503. This remains NOT CERTIFIED until fresh exact-head proof.
+- TRUTH CORE → malformed dashboard quality object/counts now fail closed; absent quality stays null/UNKNOWN.
+- UI → Decision Experience READY/REVIEW/BLOCKED and dashboard/truth/report quality disclosure remain intact.
+- CURRENT RESUME POINTER → `PR #660 5024a77... → consume fresh exact-head Quality/Final Certification/Phase-F/Browser gates → repair only first reproduced failure`.
+- DO NOT REPEAT → stale Phase-F evidence, unavailable legacy tenant resolver, stale certification SHA, missing-to-zero normalization, production bypass.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-151
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `811ac710a60767da8bb575ca8b44a349f02fb659` on PR #660.
+- CORE LANE → dashboard quality provenance is now strict when supplied: quality must be an object; each quality count must be a non-negative integer or null. Missing quality remains UNKNOWN rather than zero.
+- CONTRACT LANE → report-truth contract now guards `qualityCountOrNull`, malformed quality objects, and strict quality-count fields.
+- PREVIOUS FAILURE → lint duplicate `appShell` binding was consumed and repaired at `6ae378310360ecadd02f7c6930cd3765e1a14c2a`; certification candidate had been rebound before this stricter core wave.
+- UI LANE → Decision Experience remains typed READY/REVIEW/BLOCKED; Dashboard/Truth/Reports quality pressure remains visible from canonical values.
+- CURRENT RESUME POINTER → `PR #660 811ac710... → consume fresh exact-head gates → repair only first reproduced failure → continue UI/core closure`.
+- DO NOT REPEAT → stale certification SHA, missing-to-zero normalization, duplicate contract bindings, production bypass, merged-PR rework.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-150
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `6ae378310360ecadd02f7c6930cd3765e1a14c2a` on PR #660.
+- CURRENT FAILURE CONSUMED → Quality run `36247080291` failed at Lint because Product WOW contract redeclared `appShell`; Build itself succeeded. Final Certification run `36247080250` failed because its indexed candidate was stale at `6701676a...`.
+- REPAIR → duplicate `appShell` binding removed in `6ae378310360ecadd02f7c6930cd3765e1a14c2a`.
+- GOVERNANCE → Execution Index rebound to the repaired code candidate in `052db2f8ed0bada43ded342bcd53c7388d25825d`; this write is governance-only and should not invalidate the candidate boundary.
+- UI → typed Decision readiness `READY | REVIEW | BLOCKED`, dashboard quality/truth disclosure, report truth context remain active.
+- CORE → canonical dashboard validation remains fail-closed; no missing-to-zero conversion.
+- CURRENT RUNTIME GATES → UI Route Completeness, Full Product Browser E2E and Storage Tenant Runtime E2E succeeded on the prior exact governance head; Device-Independent Browser E2E and Phase-F remain active. No production PASS.
+- CURRENT RESUME POINTER → `PR #660 6ae3783... → consume fresh Quality/Final Certification/Browser/Phase-F results → repair only first reproduced failure`.
+- DO NOT REPEAT → stale certification SHA, duplicate UI contract bindings, stale PASS transfer, production bypass, merged-PR rework, blanket security cleanup.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-149
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `454df3d6739f172cb3de239eabb79f141c4a1e93` on PR #660.
+- UI LANE → Decision Experience readiness was made a typed terminal state (`READY | REVIEW | BLOCKED`) and its UI contract now guards all three states. Dashboard/Truth/Reports quality provenance remains active.
+- REPAIR CONSUMED → exact source inspection exposed a current-head defect: the hero code read `readiness.status` while the readiness function returned no typed status. Fixed immediately in `106d8a9bcd4bdfc02bd65e1a0e7d559f07a0f632`; contract strengthened in `454df3d6739f172cb3de239eabb79f141c4a1e93`.
+- CORE LANE → canonical dashboard parsing remains fail-closed for malformed arrays, invalid aging state, missing as-of and unknown quality values; no missing-to-zero conversion.
+- EXACT-HEAD GATES → fresh workflows are now exposed for candidate `106d8a9b...`; Quality, Final Certification, UI Route Completeness, Device-Independent Browser E2E, Full Product Browser E2E and Phase-F are queued; Commercial PWA E2E is in progress. No PASS transferred yet.
+- DEPLOYMENT → Vercel, Netlify preview and Vercel Deployments are pending; no production/browser PASS claimed from pending statuses.
+- SECURITY → 46 authenticated SECURITY DEFINER advisor warnings remain under governed review; no blanket revoke.
+- CURRENT RESUME POINTER → `PR #660 454df3d... → consume exact-head gate results → repair only the first reproduced current-head failure; otherwise continue deep UI/core closure and merge only after required evidence`.
+- DO NOT REPEAT → stale PASS, production SHA bypass, merged-PR rework, duplicate architecture/import paths, blanket security cleanup, device-dependent verification claims.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-148
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `e8659a4bd4baf87976fcd27557585a88a36bc4ae` on PR #660.
+- UI LANE → Decision Experience now exposes explicit readiness state in the hero; WOW contract locks that disclosure. Dashboard/Truth Context/Reports source-quality pressure remains wired to canonical quality data. No placeholder/coming-soon markers found in the four primary surfaces inspected.
+- CORE LANE → dashboard canonical quality provenance remains fail-closed and visible; malformed arrays, invalid state, missing as-of and unknown aging values are not silently normalized.
+- SECURITY → 46 authenticated SECURITY DEFINER advisor warnings remain under governed review; no blanket revoke.
+- GATE → Vercel build-rate-limit failure remains external; no browser/device/production PASS claimed.
+- CURRENT RESUME POINTER → `PR #660 e8659a4... → consume exact-head gate result → repair only reproduced current-head failure; otherwise continue deep UI/core closure and merge only after required evidence`.
+- DO NOT REPEAT → merged PR rework, stale PASS, production bypass, duplicate architecture, blanket security cleanup, device-dependent verification claims.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-147
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `6701676a72a4150495ea727ac6d98b61bc102d39` on PR #660.
+- UI LANE → dark Sidebar cascade fixed; live Header context rail; Dashboard KPI navigation; Truth Context quality disclosure; status-aware Reports Center; Decision readiness/evidence grid; ownership/status/deadline visibility; Trust severity triage; source-quality pressure now visible on Dashboard, Truth Context and Reports.
+- CORE LANE → canonical dashboard quality breakdown exposed from RPC payload; malformed arrays/state/as-of still fail closed; aging unknownRows remains unknown when missing; source quality counts are preserved without coercing missing to zero.
+- CONTRACTS → report-truth contract guards fail-closed dashboard parsing; Product WOW contract locks executive shell/evidence visual invariants.
+- LIVE SECURITY OBSERVATION → staging security advisor still reports 46 authenticated-callable SECURITY DEFINER warnings plus leaked-password protection warning. No blanket revocation. get_receivables_report_page remains intentionally governed after live tenant/search_path inspection.
+- EXACT CURRENT GATE → Vercel/Pending remains the only visible commit status on this candidate; no browser/device/production PASS claimed.
+- BLOCKED EXTERNAL → local device/browser unavailable; Vercel free-plan deployment boundary remains external.
+- VERIFIED → exact main base, current PR lineage, UI/core source changes, live staging security observation, and contract additions.
+- NOT PROVEN → current CI/build/browser, production deployment identity, Phase-F live recovery/RPO/RTO/rollback.
+- CURRENT RESUME POINTER → `PR #660 6701676... → consume exact-head gate → repair first reproduced failure only → merge only after required evidence; otherwise continue independent UI/core fronts`.
+- NEXT EXECUTABLE ACTION → consume first exact-head gate result when exposed; if clean, continue remaining canonical surface depth and independent core hardening without reopening merged work.
+- DO NOT REPEAT → no #657/#658 rework, no stale PASS transfer, no production SHA bypass, no blanket SECURITY DEFINER cleanup, no duplicate architecture, no device-dependent evidence claim.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-146
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `c749eb2dbc7e71dc59482464de38227633a05670` on PR #660.
+- DELIVERY SIZE → 19 commits ahead of main, 0 behind, exact compare against `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- UI LANE → deep shell polish; dark executive Sidebar cascade permanently resolved; live Header context rail; actionable Dashboard KPI links; stronger Truth Context disclosure; status-aware Reports Center; Decision Experience readiness/evidence grid; recommendation owner/deadline/status visibility; Trust Center severity triage.
+- CORE LANE → dashboard canonical adapter now rejects malformed arrays and invalid state values; missing authoritative as-of is fail-closed; inventory/profitability/RFM/ABC/aging payload validation tightened; aging unknownRows preserves UNKNOWN instead of defaulting to zero.
+- CONTRACTS → report-truth contract now guards fail-closed dashboard parsing; Product WOW contract locks dark Sidebar/context rail/decision evidence visual invariants.
+- LIVE SECURITY OBSERVATION → staging advisor currently reports 46 authenticated-callable SECURITY DEFINER warnings plus leaked-password protection warning. No blanket revoke/unsafe mutation performed. Source-backed get_receivables_report_page was inspected: SECURITY DEFINER, explicit search_path=public, tenant binding through current_company_id(), authenticated execution; remains governed rather than blindly revoked.
+- EXACT CURRENT GATE → Vercel and Vercel Deployments are PENDING for candidate c749eb2...; no browser/device/production PASS claimed.
+- BLOCKED EXTERNAL → local device/browser unavailable; Vercel free-plan boundary remains external.
+- VERIFIED → exact main base, exact 19-commit candidate lineage, current source changes, live staging security observation, and repository contract additions.
+- NOT PROVEN → current candidate CI/build/browser, production deployment identity, Phase-F live backup/restore/RPO/RTO/rollback.
+- CURRENT RESUME POINTER → PR #660 c749eb2... → consume first exact-head gate result → repair only current reproduced failure → merge only after required evidence; otherwise continue next independent UI/core wave.
+- NEXT EXECUTABLE ACTION → consume PR #660 exact-head gate result; if no current failure is surfaced, continue deep UI completion across remaining canonical surfaces and strengthen independent core contracts without reopening merged work.
+- DO NOT REPEAT → no merged #657/#658 rework; no stale PASS transfer; no production SHA bypass; no blanket SECURITY DEFINER revoke; no duplicate route/RPC/import path; no device-dependent claim.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-145
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `fca786da50a8ef6791d89ac1d3642c063b303e8e` on PR #660; not merged and therefore no PASS transferred.
+- DONE — UI → merged #657 and #658 into current main; then built a new exact-main UI/core lane. Shared visual system received deeper topbar/context-rail/table/mobile/low-bandwidth polish. Header now exposes live section, current surface, health, unread attention and Command Palette shortcut.
+- DONE — CORE → dashboard canonical adapters now fail closed on malformed authoritative arrays and invalid state values; missing returned as-of no longer falls back to today's date. Inventory/profitability/RFM/ABC/aging state payloads reject invalid canonical shapes instead of silently downgrading.
+- EXACT SOURCE → branch head `fca786da50a8ef6791d89ac1d3642c063b303e8e`; PR #660 base is main `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT GATES → Vercel is pending/rate-limit boundary; GitHub workflow runs are not yet exposed for the candidate. No browser/device/production PASS claimed.
+- BLOCKED EXTERNAL → local device/browser unavailable; Vercel free-plan deployment path remains external. No production mutation.
+- VERIFIED → exact GitHub main HEAD, merged #657/#658, exact branch source commits, and source-level UI/core changes.
+- NOT PROVEN → PR #660 CI/build/browser, production deployment identity, Phase-F live backup/restore/RPO/RTO/rollback.
+- CURRENT RESUME POINTER → `main 46675643e32f6ea28b6c1d80a530b2eb134e7907 → consume PR #660 exact-head gates → repair first reproduced failure only → merge when required gates permit; keep Phase-F fail-closed and continue independent UI/core work`.
+- NEXT EXECUTABLE ACTION → consume PR #660 exact-head CI/build status when available; if a current-head failure appears, repair only that failure, otherwise merge #660 and immediately continue the next deep UI/core wave.
+- UI LANE PROGRESS → shared visual system/context rail/table hierarchy/mobile polish delivered on PR #660.
+- CORE LANE PROGRESS → fail-closed dashboard/report truth adapter hardening delivered on PR #660.
+- DO NOT REPEAT → no stale PASS transfer, no rework of merged #657/#658, no production-SHA bypass, no duplicate navigation/RPC/import path, no device-dependent verification claims.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
@@ -58,3 +447,44 @@
 - NEXT EXECUTABLE ACTION → inspect current post-merge main UI certification and any newly generated core Phase-F run; do not mutate production or legacy security surfaces without exact owner/invariant proof.
 - DO NOT REPEAT → no stale PASS transfer, no PR #635/#637/#640 evidence reuse, no production-SHA bypass, no blind legacy migration rehydration, no blanket SECURITY DEFINER revoke, no unsafe import-job mutation.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-138
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-165
+
+- HEAD OBSERVED BEFORE THIS WRITE → `0d336ec9568a8a4899e4b2b902fb08546a17d9a1` on PR #660; base main remains `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- UI DELIVERY → `src/pages/ReportsPage.tsx` now blocks XLSX export independently for Purchases, Inventory, Receivables, and Profitability whenever the corresponding canonical truth is incomplete; each disabled action carries a concrete reason. Sales export blocking remains intact.
+- CONTRACT DELIVERY → `scripts/check-product-wow-ui-contract.mjs` now guards all five report export surfaces against incomplete truth, extending the existing sales/export contract without introducing a duplicate route or workflow.
+- EXACT-HEAD CHECKS → fresh suites were created for `0d336ec9568a8a4899e4b2b902fb08546a17d9a1`: CodeRabbit queued; Vercel queued; Supabase skipped; Cloudflare in progress; Netlify queued; GitHub Actions mostly queued/pending with some skipped. No PASS inferred.
+- DEVICE → unavailable/offline; no device-dependent proof claimed.
+- PRODUCTION → no production mutation and no production certification claimed; Vercel rate-limit/external deployment constraints remain a release boundary.
+- NO MERGE → PR #660 remains open.
+- CURRENT RESUME POINTER → consume exact-head suites for the new commit → repair the first completed current-head failure only → continue UI/core closure while checks run.
+- DO NOT REPEAT → no stale PASS transfer, no calculated-to-verified elevation, no missing-to-zero coercion, no export of incomplete report truth, no device-dependent certification.
+- UI LANE PROGRESS → report export boundaries are now aligned across Sales/Purchases/Inventory/Receivables/Profitability.
+- CORE LANE PROGRESS → canonical truth boundaries remain fail-closed; next independent closure should target any current-head failure or a remaining silent truth fallback discovered by targeted contract search.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26 / WAVE — IMPORT TRUTH + REPORT DECISION PATH
+
+- CODE HEAD AT WRITE-BACK → `6389f3eaef3b2b73f75b6e570ea7a8a6c9cbc2de` on PR #660 / branch `exec/20260926-deep-ui-core-polish`; base main remains `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CORE DELIVERY → Canonical Import no longer substitutes local preview values for missing authoritative committed row count or server quality; missing/non-finite authoritative metrics now fail closed with explicit errors.
+- CORE DELIVERY → `queries.ts` now validates persisted import counters/progress before arithmetic and derives missing progress from validated counters instead of coercing a missing persisted progress value to zero.
+- UI DELIVERY → Reports Center now exposes the visible `SOURCE → TRUTH → EVIDENCE → ACTION` path and binds the current next-action route as a machine-addressable surface.
+- CONTRACT DELIVERY → Product-wow UI guard covers the two new import truth boundaries and the Reports Center evidence-to-action surface. A guard-order regression was caught and repaired before write-back.
+- EXACT-HEAD GATES → no GitHub Actions workflow runs are yet exposed for `6389f3ea...`; therefore no current-head CI/browser/certification PASS is claimed.
+- EXTERNAL BOUNDARIES → device/browser remains unavailable; Vercel deployment/free-plan rate-limit remains an external release boundary; Phase-F live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- NO PRODUCTION MUTATION → none.
+- VERIFIED → source-level changes and guard corrections are committed on the exact PR #660 branch.
+- CURRENT RESUME POINTER → `6389f3ea...` → consume first populated exact-head gate; repair only the first reproduced current-SHA failure; otherwise continue the next safe UI/core closure batch, then refresh governance.
+- DO NOT REPEAT → no fallback of missing authoritative import metrics to local preview; no missing-progress-to-zero coercion; no stale PASS transfer; no device-dependent verification claim; no duplicate import/report workflow.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-26 / WAVE — CANONICAL COMMIT RESPONSE CLOSURE
+
+- CODE HEAD AT WRITE-BACK → `bb06d05f0f85c358afdc1d77422f66e7a9672786` on PR #660.
+- CORE DELIVERY → `canonical-commit.ts` now rejects malformed/non-object RPC responses; `committed` must be a finite integer matching the submitted row count, and every returned id must be a non-empty string.
+- CONTRACT DELIVERY → `check-report-truth-contract.mjs` now guards the canonical commit response boundary.
+- GATES → exact-head workflow runs for `bb06d05f...` are not yet populated; combined status currently exposes only Vercel failure at the known free-plan build-rate-limit target. No current-head CI/browser/certification PASS is claimed.
+- RELEASE BOUNDARY → device/browser unavailable; Phase-F live recovery remains NOT PROVEN; no production mutation.
+- CURRENT RESUME POINTER → `bb06d05f...` → consume first newly populated exact-head gate, repair only a reproduced failure, then continue the next safe UI/core closure.
+- DO NOT REPEAT → no coercion of canonical commit counters/IDs; no stale evidence transfer; no production-SHA bypass.
+

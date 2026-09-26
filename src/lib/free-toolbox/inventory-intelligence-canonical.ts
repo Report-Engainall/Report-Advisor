@@ -37,15 +37,22 @@ export async function fetchInventoryIntelligenceSource(): Promise<InventoryIntel
 
   const stockByProduct = new Map<string, number>();
   for (const balance of balances ?? []) {
+    if (typeof balance.product_id !== 'string' || !balance.product_id) {
+      throw new Error('INVENTORY_DATA_INVALID: inventory balance product_id is missing');
+    }
     const quantity = Number(balance.quantity);
-    if (!Number.isFinite(quantity)) continue;
+    if (!Number.isFinite(quantity)) {
+      throw new Error('INVENTORY_DATA_INVALID: inventory balance quantity is invalid');
+    }
     stockByProduct.set(balance.product_id, (stockByProduct.get(balance.product_id) ?? 0) + quantity);
   }
 
   const rows: DetailReportRow[] = [];
   for (const [productId, stock] of stockByProduct) {
     const product = productById.get(productId);
-    if (!product) continue;
+    if (!product) {
+      throw new Error('INVENTORY_DATA_INVALID: inventory balance references a missing product');
+    }
     const series = demandByProduct.get(productId);
     rows.push({
       sku: product.sku,

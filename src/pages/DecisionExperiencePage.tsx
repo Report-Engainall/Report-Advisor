@@ -37,12 +37,16 @@ function statusLabel(status: string | null): string {
   return labels[status] ?? status;
 }
 
-function decisionReadiness(recommendation: Recommendation | null): { label: string; tone: string; detail: string } {
-  if (!recommendation) return { label: 'لا توجد توصية', tone: 'text-ink-500 bg-ink-50', detail: 'لا يوجد عنصر حقيقي لبدء مسار القرار.' };
-  if (!recommendation.owner) return { label: 'ينقص المسؤول', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية موجودة، لكن لا يظهر مسؤول فعلي مرتبط بها.' };
-  if (!recommendation.deadline) return { label: 'ينقص الموعد', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية لها مسؤول، لكن الموعد غير مثبت بعد.' };
-  if (recommendation.expected_impact == null) return { label: 'الأثر غير متاح', tone: 'text-warning-700 bg-warning-50', detail: 'لا يوجد أثر متوقع قابل للعرض على هذه التوصية.' };
-  return { label: 'سياق القرار مكتمل', tone: 'text-success-700 bg-success-50', detail: 'المسؤول والموعد والأثر المتوقع متاحة في سجل التوصية.' };
+type DecisionReadiness = { status: 'READY' | 'REVIEW' | 'BLOCKED'; label: string; tone: string; detail: string };
+
+function decisionReadiness(recommendation: Recommendation | null): DecisionReadiness {
+  if (!recommendation) return { status: 'BLOCKED', label: 'لا توجد توصية', tone: 'text-ink-500 bg-ink-50', detail: 'لا يوجد عنصر حقيقي لبدء مسار القرار.' };
+  if (['rejected', 'cancelled', 'completed'].includes(recommendation.status)) return { status: 'BLOCKED', label: 'الحالة نهائية', tone: 'text-danger-700 bg-danger-50', detail: 'سجل التوصية في حالة نهائية؛ لا ينبغي فتح إجراء جديد عليه.' };
+  if (!recommendation.confidence?.trim()) return { status: 'REVIEW', label: 'الثقة غير متاحة', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية موجودة، لكن مستوى الثقة غير مثبت في السجل.' };
+  if (!recommendation.owner) return { status: 'REVIEW', label: 'ينقص المسؤول', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية موجودة، لكن لا يظهر مسؤول فعلي مرتبط بها.' };
+  if (!recommendation.deadline) return { status: 'REVIEW', label: 'ينقص الموعد', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية لها مسؤول، لكن الموعد غير مثبت بعد.' };
+  if (typeof recommendation.expected_impact !== 'number' || !Number.isFinite(recommendation.expected_impact)) return { status: 'REVIEW', label: 'الأثر غير متاح', tone: 'text-warning-700 bg-warning-50', detail: 'لا يوجد أثر متوقع رقمي صالح للاستخدام على هذه التوصية.' };
+  return { status: 'READY', label: 'سياق القرار مكتمل', tone: 'text-success-700 bg-success-50', detail: 'المسؤول والموعد والأثر المتوقع متاحة في سجل التوصية.' };
 }
 
 function formatDeadline(value: string | null): string {
@@ -50,6 +54,10 @@ function formatDeadline(value: string | null): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleDateString('ar-YE', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function formatImpact(value: number | null | undefined): string {
+  return typeof value === 'number' && Number.isFinite(value) ? formatCurrency(value) : 'غير متاح';
 }
 
 function BlockedState({ title, detail }: { title: string; detail: string }) {
@@ -96,11 +104,17 @@ function RecommendationCard({
           <Lightbulb size={17}/>
         </span>
         <span className="min-w-0 flex-1">
-          <span className="flex flex-wrap items-center gap-2"><span className="text-[13px] font-black text-ink-900">{recommendation.title}</span><PriorityBadge priority={recommendation.priority}/></span>
+          <span className="flex flex-wrap items-center gap-2">
+            <span className="text-[13px] font-black text-ink-900">{recommendation.title}</span>
+            <PriorityBadge priority={recommendation.priority}/>
+            <span className="rounded-full bg-ink-50 px-2 py-1 text-[9px] font-black text-ink-500">{statusLabel(recommendation.status)}</span>
+          </span>
           {recommendation.description && <span className="mt-1 block text-[11px] leading-5 text-ink-500">{recommendation.description}</span>}
           <span className="mt-2 flex flex-wrap items-center gap-2">
             <ConfidenceBadge confidence={recommendation.confidence}/>
-            {recommendation.expected_impact !== undefined && recommendation.expected_impact !== null && <span className="text-[10px] font-bold text-success-700">أثر متوقع: {formatCurrency(recommendation.expected_impact)}</span>}
+            {recommendation.expected_impact !== undefined && <span className="text-[10px] font-bold text-success-700">أثر متوقع: {formatImpact(recommendation.expected_impact)}</span>}
+            {recommendation.owner && <span className="text-[10px] font-semibold text-ink-400">المسؤول: {recommendation.owner}</span>}
+            {recommendation.deadline && <span className="text-[10px] font-semibold text-ink-400">الموعد: {formatDeadline(recommendation.deadline)}</span>}
           </span>
         </span>
         <ChevronLeft size={16} className="mt-1 shrink-0 text-ink-300"/>
@@ -159,6 +173,8 @@ export function DecisionExperiencePage() {
   if (loading) return <LoadingState message="جارٍ تحميل سياق القرار..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   const readiness = decisionReadiness(selected);
+  const decisionStatusLabel = readiness?.status === 'READY' ? 'جاهز للتنفيذ' : readiness?.status === 'BLOCKED' ? 'محجوب' : readiness?.status === 'REVIEW' ? 'يحتاج مراجعة' : 'غير مكتمل';
+  const decisionStatusTone = readiness?.status === 'READY' ? 'border-success-200 bg-success-50 text-success-800' : readiness?.status === 'BLOCKED' ? 'border-danger-200 bg-danger-50 text-danger-800' : 'border-warning-200 bg-warning-50 text-warning-800';
 
   return (
     <div dir="rtl" className="ag-decision-experience-surface space-y-5 animate-fade-in pb-10">
@@ -167,6 +183,10 @@ export function DecisionExperiencePage() {
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-[11px] font-black text-primary-300"><Workflow size={15}/> تجربة القرار</div>
             <h1 className="mt-2 text-[25px] font-black tracking-tight lg:text-[31px]">من الإشارة إلى النتيجة — دون فقدان الدليل</h1>
+            <div className={"mt-4 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-black " + decisionStatusTone} role="status" aria-live="polite" aria-label={"حالة القرار: " + decisionStatusLabel} data-readiness={readiness.status}>
+              <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+              {decisionStatusLabel}
+            </div>
             <p className="mt-2 text-[12px] leading-6 text-ink-300">المسار يحفظ السياق ويُظهر بوضوح ما هو موجود، وما يحتاج إثباتًا، وما لم يُنفذ بعد.</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -186,6 +206,33 @@ export function DecisionExperiencePage() {
         <div className="ag-decision-cell"><span className="ag-decision-label">المسؤول</span><span className="ag-decision-value">{selected?.owner ?? 'غير متاح'}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">الموعد</span><span className="ag-decision-value">{formatDeadline(selected?.deadline ?? null)}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">المرحلة</span><span className="ag-decision-value">{STAGES[currentStageIndex]?.label}</span></div>
+      </section>
+
+      <section className="ag-decision-evidence-grid" aria-label="بوابة جاهزية القرار">
+        <article className="ag-decision-evidence-card">
+          <div className="ag-decision-evidence-kicker">SOURCE</div>
+          <div className="ag-decision-evidence-value">الإشارة</div>
+          <p>التوصية الحالية محمّلة من سجل القرار؛ افحص الدليل المرتبط بها قبل الاعتماد.</p>
+          <span className="ag-trust ag-trust-trusted">سياق موجود</span>
+        </article>
+        <article className="ag-decision-evidence-card">
+          <div className="ag-decision-evidence-kicker">EVIDENCE</div>
+          <div className="ag-decision-evidence-value">{activeAlerts.length > 0 ? 'تنبيه يحتاج فحصًا' : 'لا توجد إشارات نشطة'}</div>
+          <p>{activeAlerts.length > 0 ? 'افحص التنبيه ومصدره قبل اعتماد أي إجراء.' : 'لا توجد إشارة غير مقروءة في القراءة الحالية.'}</p>
+          <Link to="/trust" className="ag-decision-evidence-link">فتح مركز الأدلة <ArrowUpLeft size={12}/></Link>
+        </article>
+        <article className="ag-decision-evidence-card" data-state={readiness.status.toLowerCase()}>
+          <div className="ag-decision-evidence-kicker">READINESS</div>
+          <div className="ag-decision-evidence-value">{readiness.label}</div>
+          <p>{readiness.detail}</p>
+          <span className={readiness.tone + ' inline-flex rounded-full px-2.5 py-1 text-[9px] font-black'}>{selected ? 'توصية محددة' : 'اختر توصية'}</span>
+        </article>
+        <article className="ag-decision-evidence-card">
+          <div className="ag-decision-evidence-kicker">ACCOUNTABILITY</div>
+          <div className="ag-decision-evidence-value">{selected?.owner ?? 'مسؤول غير مثبت'}</div>
+          <p>{selected?.deadline ? 'يوجد موعد مرتبط بسجل التوصية.' : 'الموعد غير مثبت؛ لا تعتبر الخطة جاهزة للتنفيذ.'}</p>
+          <span className="ag-decision-evidence-metric">{'الأثر: ' + formatImpact(selected?.expected_impact)}</span>
+        </article>
       </section>
 
       <nav aria-label="مراحل القرار" className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
@@ -211,7 +258,7 @@ export function DecisionExperiencePage() {
             <div className="flex flex-wrap gap-2 text-[10px] font-bold text-ink-600">
               <span className="inline-flex items-center gap-1 rounded-xl bg-ink-50 px-2.5 py-2"><UserRound size={13}/> {selected?.owner ?? 'مسؤول غير مثبت'}</span>
               <span className="inline-flex items-center gap-1 rounded-xl bg-ink-50 px-2.5 py-2"><CalendarClock size={13}/> {formatDeadline(selected?.deadline ?? null)}</span>
-              <span className="inline-flex items-center gap-1 rounded-xl bg-ink-50 px-2.5 py-2">الأثر: {selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)}</span>
+              <span className="inline-flex items-center gap-1 rounded-xl bg-ink-50 px-2.5 py-2">الأثر: {formatImpact(selected?.expected_impact)}</span>
             </div>
           </div>
         </section>
@@ -349,7 +396,7 @@ export function DecisionExperiencePage() {
                   ['المسؤول الحالي', selected?.owner ?? 'غير مثبت'],
                   ['الموعد', formatDeadline(selected?.deadline ?? null)],
                   ['حالة التوصية', statusLabel(selectedStatus)],
-                  ['الأثر المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
+                  ['الأثر المتوقع', formatImpact(selected?.expected_impact)],
                   ['الأثر الفعلي', selected?.impact_result ?? 'غير متاح بعد'],
                   ['الإشارة التالية', selected?.impact_result ? 'الانتقال إلى النتيجة والتعلّم' : 'انتظار سجل تنفيذ موثق'],
                 ].map(([label, value]) => (
@@ -369,7 +416,7 @@ export function DecisionExperiencePage() {
             <CardBody>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {[
-                  ['المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
+                  ['المتوقع', formatImpact(selected?.expected_impact)],
                   ['الفعلي', 'غير متاح بعد'],
                   ['الفارق', 'لا يمكن حسابه بعد'],
                   ['جودة النتيجة', 'غير متاحة'],

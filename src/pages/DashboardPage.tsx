@@ -16,6 +16,7 @@ import { formatCurrency } from '@/lib/format';
 import type { Recommendation, Alert } from '@/lib/types';
 import type {
   DashboardKPIs,
+  DashboardQuality,
   MonthlyTrend,
   TopEntity,
   CategoryBreakdown,
@@ -98,6 +99,7 @@ export function DashboardPage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [aging, setAging] = useState<AgingDashboard | null>(null);
+  const [quality, setQuality] = useState<DashboardQuality | null>(null);
   const [trendMonths, setTrendMonths] = useState(6);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -118,6 +120,7 @@ export function DashboardPage() {
           topProducts: products,
           categories: nextCategories,
           aging: nextAging,
+          quality: nextQuality,
           asOf: nextAsOf,
         },
         intelligence,
@@ -133,6 +136,7 @@ export function DashboardPage() {
       setTopProducts(products.slice(0, 5));
       setCategories(nextCategories);
       setAging(nextAging);
+      setQuality(nextQuality);
       setRecommendations(intelligence.recommendations);
       setAlerts(intelligence.alerts);
     } catch (cause) {
@@ -163,6 +167,12 @@ export function DashboardPage() {
     () => recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').slice(0, 3),
     [recommendations],
   );
+  const qualityIssueTotal = useMemo(() => {
+    if (!quality) return null;
+    const values = [quality.badInvoiceRows, quality.badSaleItemRows, quality.badPurchaseRows, quality.badInventoryRows, quality.salesCurrencyMismatchRows, quality.purchaseCurrencyMismatchRows];
+    return values.every((value) => value !== null) ? values.reduce((sum, value) => sum + (value ?? 0), 0) : null;
+  }, [quality]);
+
   const decisionAccountability = useMemo(() => {
     const actionable = recommendations.filter((item) => item.status === 'new' || item.status === 'accepted');
     const owned = actionable.filter((item) => item.owner?.trim()).length;
@@ -180,12 +190,14 @@ export function DashboardPage() {
   }, [recommendations]);
 
   const dashboardNextAction = useMemo(() => {
-    if (kpis?.status === 'INSUFFICIENT_DATA') {
+    if (kpis?.status === 'INSUFFICIENT_DATA' || qualityIssueTotal === null || qualityIssueTotal > 0) {
       return {
         to: '/data-quality',
         label: 'مراجعة جودة البيانات',
-        title: 'الصورة تحتاج مراجعة قبل اتخاذ القرار',
-        description: 'توجد مؤشرات غير متاحة أو غير مثبتة. أصلح مصدر الحقيقة أولًا بدل اتخاذ قرار من صورة ناقصة.',
+        title: qualityIssueTotal && qualityIssueTotal > 0 ? 'هناك ضغط جودة على المصدر الحالي' : 'الصورة تحتاج مراجعة قبل اتخاذ القرار',
+        description: qualityIssueTotal && qualityIssueTotal > 0
+          ? 'توجد صفوف أو تعارضات جودة مثبتة؛ افحص مصدر الحقيقة قبل تحويل الإشارة إلى قرار.'
+          : 'توجد مؤشرات غير متاحة أو غير مثبتة. أصلح مصدر الحقيقة أولًا بدل اتخاذ قرار من صورة ناقصة.',
       };
     }
     if (decisionAccountability.pending > 0) {
@@ -218,11 +230,11 @@ export function DashboardPage() {
       title: 'الصورة صالحة للمتابعة والتحليل',
       description: 'لا توجد إشارة عاجلة أو قرارات معلقة؛ انتقل إلى التحليل لاستخراج الفرص والقيم الداعمة للقرار.',
     };
-  }, [kpis?.status, decisionAccountability.pending, liveAlerts, trend]);
+  }, [kpis?.status, qualityIssueTotal, decisionAccountability.pending, liveAlerts, trend]);
 
   if (loading) return <LoadingState message="جارٍ بناء صورة الأعمال من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
-  if (!kpis || !aging) return <DataUnavailableState title="صورة الأعمال غير مكتملة" message="تعذر بناء المؤشرات الأساسية كاملة من المصدر الحالي؛ لا نعرض لوحة فارغة ولا نصنع قيمًا بديلة." action={<Link to="/data-quality" className="btn-primary text-[11px]">مراجعة جودة البيانات</Link>} />;
+  if (!kpis || !aging || !quality) return <DataUnavailableState title="صورة الأعمال غير مكتملة" message="تعذر بناء المؤشرات الأساسية كاملة من المصدر الحالي؛ لا نعرض لوحة فارغة ولا نصنع قيمًا بديلة." action={<Link to="/data-quality" className="btn-primary text-[11px]">مراجعة جودة البيانات</Link>} />;
 
   const evidenceMetrics = [
     kpis.totalSales,
@@ -260,7 +272,16 @@ export function DashboardPage() {
           </div>
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-ink-100 pt-4">
-          <StatusLine status={kpis.status} text={kpis.status === 'INSUFFICIENT_DATA' ? 'الصورة تحتاج مراجعة' : 'الصورة صالحة للاستخدام'} />
+          <StatusLine
+            status={kpis.status}
+            text={
+              kpis.status === 'CONFIRMED'
+                ? 'الصورة مؤكدة المصدر'
+                : kpis.status === 'CALCULATED'
+                  ? 'الصورة محسوبة من المصدر'
+                  : 'الصورة تحتاج مراجعة'
+            }
+          />
           <span className="rounded-full border border-ink-200 bg-ink-50 px-2.5 py-1 text-[10px] font-semibold text-ink-500">تغطية المؤشرات {coverage}%</span>
           <span className="rounded-full border border-ink-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-ink-400">As-of: {snapshotAsOf ?? 'غير متاح'}</span>
           <button type="button" onClick={() => void load(true)} disabled={refreshing} className="mr-auto inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-2.5 py-1 text-[10px] font-bold text-primary-800 hover:bg-primary-100 disabled:opacity-60">
@@ -270,7 +291,7 @@ export function DashboardPage() {
         </div>
       </section>
 
-      <TruthContextStrip months={trendMonths} status={kpis.status} asOf={snapshotAsOf ?? 'غير متاح'} />
+      <TruthContextStrip months={trendMonths} status={kpis.status} asOf={snapshotAsOf ?? 'غير متاح'} qualityIssues={qualityIssueTotal} />
       
       <section className="grid gap-3 lg:grid-cols-[1.05fr_.95fr]">
         <Card>
@@ -310,7 +331,12 @@ export function DashboardPage() {
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-ink-100">
               <div className="h-full rounded-full bg-primary-600" style={{ width: coverage + '%' }} />
             </div>
-            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            <div className="mt-4 grid gap-2 sm:grid-cols-4">
+              <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-2.5">
+                <div className="text-[9px] font-black text-ink-400">ضغط جودة المصدر</div>
+                <div className={"mt-1 text-sm font-black " + (qualityIssueTotal === null ? "text-ink-800" : qualityIssueTotal > 0 ? "text-warning-800" : "text-success-700")}>{qualityIssueTotal === null ? 'غير متاح' : qualityIssueTotal}</div>
+                <div className="mt-0.5 text-[9px] text-ink-400">{qualityIssueTotal === null ? 'لا نحول المفقود إلى صفر' : qualityIssueTotal > 0 ? 'صفوف تحتاج فحصًا' : 'لا توجد حالات جودة مثبتة'}</div>
+              </div>
               <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-2.5">
                 <div className="text-[9px] font-black text-ink-400">مالك محدد</div>
                 <div className="mt-1 text-sm font-black text-ink-900">
@@ -335,11 +361,19 @@ export function DashboardPage() {
         </Card>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="الإيرادات" value={kpis.totalSales} icon={<TrendingUp size={16} />} status={metricStatus(kpis.totalSales, kpis.status)} detail="الفترة الحالية" /></CardBody></Card>
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="الربح الإجمالي" value={kpis.grossProfit} icon={<BarChart3 size={16} />} status={metricStatus(kpis.grossProfit, kpis.status)} detail={kpis.grossMargin === null ? 'الهامش غير متاح' : 'الهامش ' + kpis.grossMargin.toFixed(1) + '%'} /></CardBody></Card>
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="التحصيل والذمم" value={kpis.totalReceivables} icon={<WalletCards size={16} />} status={metricStatus(kpis.totalReceivables, kpis.status)} detail={kpis.collectionRate === null ? 'التحصيل غير متاح' : 'نسبة التحصيل ' + kpis.collectionRate.toFixed(1) + '%'} /></CardBody></Card>
-        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="قيمة المخزون" value={kpis.inventoryValue} icon={<Package size={16} />} status={metricStatus(kpis.inventoryValue, kpis.status)} detail={kpis.invoiceCount === null ? 'عدد الفواتير غير متاح' : 'الفواتير ' + kpis.invoiceCount.toLocaleString('en-US')} /></CardBody></Card>
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="المؤشرات الرئيسية القابلة للاستكشاف">
+        <Link to="/reports/sales" aria-label="فتح سياق المبيعات" className="group min-w-0">
+          <Card className="ag-dashboard-kpi h-full transition-[border-color,box-shadow,transform] group-hover:-translate-y-0.5 group-hover:border-primary-200 group-hover:shadow-card-hover"><CardBody><PulseMetric label="الإيرادات" value={kpis.totalSales} icon={<TrendingUp size={16} />} status={metricStatus(kpis.totalSales, kpis.status)} detail="الفترة الحالية · فتح سياق المبيعات" /></CardBody></Card>
+        </Link>
+        <Link to="/reports/profitability" aria-label="فتح سياق الربحية" className="group min-w-0">
+          <Card className="ag-dashboard-kpi h-full transition-[border-color,box-shadow,transform] group-hover:-translate-y-0.5 group-hover:border-primary-200 group-hover:shadow-card-hover"><CardBody><PulseMetric label="الربح الإجمالي" value={kpis.grossProfit} icon={<BarChart3 size={16} />} status={metricStatus(kpis.grossProfit, kpis.status)} detail={kpis.grossMargin === null ? 'الهامش غير متاح · فتح سياق الربحية' : 'الهامش ' + kpis.grossMargin.toFixed(1) + '% · فتح سياق الربحية'} /></CardBody></Card>
+        </Link>
+        <Link to="/reports/receivables" aria-label="فتح سياق التحصيل والذمم" className="group min-w-0">
+          <Card className="ag-dashboard-kpi h-full transition-[border-color,box-shadow,transform] group-hover:-translate-y-0.5 group-hover:border-primary-200 group-hover:shadow-card-hover"><CardBody><PulseMetric label="التحصيل والذمم" value={kpis.totalReceivables} icon={<WalletCards size={16} />} status={metricStatus(kpis.totalReceivables, kpis.status)} detail={kpis.collectionRate === null ? 'التحصيل غير متاح · فتح سياق التحصيل' : 'نسبة التحصيل ' + kpis.collectionRate.toFixed(1) + '% · فتح سياق التحصيل'} /></CardBody></Card>
+        </Link>
+        <Link to="/reports/inventory" aria-label="فتح سياق المخزون" className="group min-w-0">
+          <Card className="ag-dashboard-kpi h-full transition-[border-color,box-shadow,transform] group-hover:-translate-y-0.5 group-hover:border-primary-200 group-hover:shadow-card-hover"><CardBody><PulseMetric label="قيمة المخزون" value={kpis.inventoryValue} icon={<Package size={16} />} status={metricStatus(kpis.inventoryValue, kpis.status)} detail={kpis.invoiceCount === null ? 'عدد الفواتير غير متاح · فتح سياق المخزون' : 'الفواتير ' + kpis.invoiceCount.toLocaleString('en-US') + ' · فتح سياق المخزون'} /></CardBody></Card>
+        </Link>
       </section>
 
       <section className="space-y-3">

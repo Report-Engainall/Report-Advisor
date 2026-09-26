@@ -47,21 +47,39 @@ export function TrustEvidencePage() {
 
   const status = snapshot?.status ?? 'INSUFFICIENT DATA';
   const statusLabel = status === 'OK' ? 'الحالة قابلة للاستخدام' : status === 'EMPTY' ? 'لا توجد بيانات مثبتة بعد' : status;
-  const issueTotal = useMemo(
-    () => snapshot?.entities?.reduce((sum, entity) => sum + (entity.issues ?? 0), 0) ?? null,
-    [snapshot],
-  );
-  const totalRecords = useMemo(
-    () => snapshot?.entities?.reduce((sum, entity) => sum + (entity.total ?? 0), 0) ?? null,
-    [snapshot],
-  );
-  const criticalIssueTotal = useMemo(
-    () => snapshot?.issues?.filter((issue) => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0) ?? 0,
-    [snapshot],
-  );
+  const issueTotal = useMemo(() => {
+    const entities = snapshot?.entities;
+    if (!entities?.length || entities.some((entity) => typeof entity.issues !== 'number' || !Number.isFinite(entity.issues))) return null;
+    return entities.reduce((sum, entity) => sum + entity.issues, 0);
+  }, [snapshot]);
+  const totalRecords = useMemo(() => {
+    const entities = snapshot?.entities;
+    if (!entities?.length || entities.some((entity) => typeof entity.total !== 'number' || !Number.isFinite(entity.total))) return null;
+    return entities.reduce((sum, entity) => sum + entity.total, 0);
+  }, [snapshot]);
+  const criticalIssueTotal = useMemo(() => {
+    const issues = snapshot?.issues;
+    if (!issues || issues.some((issue) => typeof issue.count !== 'number' || !Number.isFinite(issue.count))) return null;
+    return issues.filter((issue) => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0);
+  }, [snapshot]);
+  const issueSeverityRows = useMemo(() => {
+    const issues = snapshot?.issues ?? [];
+    const total = issues.every((issue) => typeof issue.count === 'number' && Number.isFinite(issue.count))
+      ? issues.reduce((sum, issue) => sum + issue.count, 0)
+      : null;
+    const critical = issues.filter(issue => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0);
+    const warning = issues.filter(issue => issue.severity === 'warning').reduce((sum, issue) => sum + issue.count, 0);
+    const informational = total == null ? null : Math.max(0, total - critical - warning);
+    return [
+      { label: 'حرجة', value: criticalIssueTotal ?? critical, className: 'text-danger-700 bg-danger-50 border-danger-200' },
+      { label: 'تحذير', value: warning, className: 'text-warning-800 bg-warning-50 border-warning-200' },
+      { label: 'معلوماتية / أخرى', value: informational, className: 'text-ink-700 bg-ink-50 border-ink-200' },
+    ];
+  }, [snapshot]);
+
   const nextStep = snapshot?.status === 'EMPTY'
     ? { label: 'ابدأ من المصدر', detail: 'أضف ملفًا أو مصدرًا حتى يمكن بناء حالة حقيقة وأدلة فعلية.', path: '/import' }
-    : criticalIssueTotal > 0
+    : criticalIssueTotal !== null && criticalIssueTotal > 0
       ? { label: 'أغلق المشكلات الحرجة', detail: 'ابدأ من جودة البيانات قبل استخدام النتائج في قرار.', path: '/data-quality' }
       : issueTotal && issueTotal > 0
         ? { label: 'مراجعة جودة البيانات', detail: 'راجع الحالات التي تمنع الثقة الكاملة قبل الانتقال إلى القرار.', path: '/data-quality' }
@@ -101,6 +119,25 @@ export function TrustEvidencePage() {
       </div>
     </section>
 
+    <section className="ag-evidence-passport rounded-[16px] border border-ink-200 bg-white shadow-card" aria-label="جواز الدليل">
+      <div className="flex flex-col gap-4 border-b border-ink-100 px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">EVIDENCE PASSPORT</div>
+          <h3 className="mt-1 text-base font-black text-ink-950">جواز الدليل للحالة الحالية</h3>
+          <p className="mt-1 text-[11px] leading-5 text-ink-500">ملخص ثابت لما يثبت في الـsnapshot الحالي، وما يمنع استخدامه في قرار تشغيلي.</p>
+        </div>
+        <span className={(status === 'OK' && criticalIssueTotal !== null && criticalIssueTotal === 0 ? 'bg-success-50 text-success-700 ring-success-100' : status === 'EMPTY' ? 'bg-ink-50 text-ink-600 ring-ink-100' : 'bg-warning-50 text-warning-800 ring-warning-100') + ' inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-[9px] font-black ring-1 ring-inset'} role="status" aria-live="polite">
+          {status === 'OK' && criticalIssueTotal !== null && criticalIssueTotal === 0 ? 'صالحة للفحص' : status === 'EMPTY' ? 'المصدر غير موجود' : 'تحتاج مراجعة'}
+        </span>
+      </div>
+      <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="ag-passport-cell"><span>STATUS</span><strong>{statusLabel}</strong><small>الحالة الكانونية الحالية</small></div>
+        <div className="ag-passport-cell"><span>TENANT</span><strong>السياق معزول</strong><small>{snapshot?.tenant_id ? 'معرّف شركة موجود دون عرضه للمستخدم' : 'غير مثبت'}</small></div>
+        <div className="ag-passport-cell"><span>RECORDS</span><strong>{totalRecords == null ? 'غير متاح' : totalRecords}</strong><small>إجمالي السجلات التي تم فحصها</small></div>
+        <div className="ag-passport-cell"><span>DECISION USE</span><strong>{criticalIssueTotal !== null && criticalIssueTotal > 0 ? 'محجوب' : status === 'EMPTY' ? 'غير متاح' : 'يحتاج حدودًا معلنة'}</strong><small>{criticalIssueTotal !== null && criticalIssueTotal > 0 ? 'أغلق المشكلات الحرجة أولًا' : 'لا ترفع الواجهة درجة الثقة تلقائيًا'}</small></div>
+      </div>
+    </section>
+
     <section className="ag-decision-strip" aria-label="ملخص الثقة">
       <div className="ag-decision-cell"><span className="ag-decision-label">الحالة الحالية</span><span className="ag-decision-value">{statusLabel}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">السجلات</span><span className="ag-decision-value">{totalRecords == null ? 'غير متاح' : totalRecords}</span></div>
@@ -114,6 +151,20 @@ export function TrustEvidencePage() {
         <div className="flex items-center justify-between gap-3"><span className={'rounded-full px-2.5 py-1 text-[9px] font-black '+tone}>{title}</span><Icon size={18} className="text-ink-400"/></div>
         <p className="mt-4 text-xs leading-6 text-ink-500">{text}</p>
       </CardBody></Card>)}
+    </section>
+
+    <section className="grid gap-3 md:grid-cols-3" aria-label="توزيع مشكلات الجودة حسب الشدة">
+      {issueSeverityRows.map(item => (
+        <div key={item.label} className={'rounded-[14px] border p-4 shadow-sm ' + item.className}>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-[10px] font-black">{item.label}</span>
+            <span className="text-2xl font-black tabular-nums">{item.value}</span>
+          </div>
+          <div className="mt-2 text-[10px] leading-5 opacity-80">
+            {item.value === null ? 'غير متاح من اللقطة الحالية.' : item.value === 0 ? 'لا توجد حالات مثبتة في هذه الفئة.' : 'تحتاج المعالجة وفق أثرها قبل الاعتماد على النتائج.'}
+          </div>
+        </div>
+      ))}
     </section>
 
     <section className="grid gap-4 xl:grid-cols-[.9fr_1.1fr]">

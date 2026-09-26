@@ -9,7 +9,7 @@ import { relativeTime } from '@/lib/format';
 import { supabase } from '@/lib/supabase';
 import { NAVIGATION_SECTIONS, resolveNavigationItem } from '@/lib/navigation-registry';
 
-type HealthState = 'checking' | 'healthy' | 'degraded' | 'offline';
+type HealthState = 'checking' | 'healthy' | 'degraded' | 'tenant-missing' | 'offline';
 
 export function Header({
   alerts,
@@ -91,7 +91,7 @@ export function Header({
         if (tenantError) {
           setHealth('degraded');
         } else {
-          setHealth(companyId ? 'healthy' : 'degraded');
+          setHealth(companyId ? 'healthy' : 'tenant-missing');
         }
       } catch {
         if (mounted) setHealth('offline');
@@ -109,6 +109,7 @@ export function Header({
   const healthLabel =
     health === 'healthy' ? 'متصل' :
     health === 'offline' ? 'غير متصل' :
+    health === 'tenant-missing' ? 'سياق الشركة غير مثبت' :
     health === 'degraded' ? 'متأثر' :
     'فحص';
 
@@ -225,6 +226,12 @@ export function Header({
             <span className="text-[11px] font-semibold text-ink-500">{healthLabel}</span>
           </div>
         </div>
+      </div>
+      <div className="ag-context-rail" aria-label="سياق مساحة العمل">
+        <span className="ag-context-chip"><span aria-hidden="true">◆</span><strong>{currentSection}</strong><span>/</span>{currentLabel}</span>
+        <span className="ag-context-chip"><span>الحالة</span><span data-state={health} className={healthClass + " font-black"}>{healthLabel}</span></span>
+        <span className="ag-context-chip"><span>الانتباه</span><strong>{unreadAlerts.length}</strong><span>غير مقروء</span></span>
+        <span className="ag-context-chip hidden sm:inline-flex"><span>الاختصار</span><strong>Ctrl/⌘ K</strong></span>
       </div>
     </header>
   );

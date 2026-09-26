@@ -38,8 +38,8 @@ export function validateDataQualitySnapshot(data: unknown): DataQualitySnapshot 
     if (
       !entity ||
       typeof entity.name !== 'string' ||
-      !Number.isFinite(entity.total) ||
-      !Number.isFinite(entity.issues) ||
+      typeof entity.total !== 'number' || !Number.isInteger(entity.total) ||
+      typeof entity.issues !== 'number' || !Number.isInteger(entity.issues) ||
       !Number.isFinite(entity.score) ||
       entity.total < 0 ||
       entity.issues < 0 ||
@@ -56,7 +56,7 @@ export function validateDataQualitySnapshot(data: unknown): DataQualitySnapshot 
       typeof issue.entity !== 'string' ||
       typeof issue.field !== 'string' ||
       typeof issue.issue !== 'string' ||
-      !Number.isFinite(issue.count) ||
+      typeof issue.count !== 'number' || !Number.isInteger(issue.count) ||
       issue.count < 0 ||
       !['critical', 'warning', 'info'].includes(issue.severity)
     ) {

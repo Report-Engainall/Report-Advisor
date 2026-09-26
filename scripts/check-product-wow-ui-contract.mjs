@@ -11,6 +11,19 @@ assert.ok(dataTable.includes('scope="col"'), 'shared table headers must declare 
 assert.ok(dataTable.includes('aria-rowcount={visibleRows.length + 1}') && dataTable.includes('aria-colcount={columns.length}'), 'shared table must expose row and column counts');
 assert.ok(dataTable.includes('role="navigation" aria-label="تنقّل الجدول"'), 'shared table pagination must expose navigation semantics');
 
+const queries = fs.readFileSync('src/lib/queries.ts', 'utf8');
+assert.ok(queries.includes('function validateReceivablesRows(rows: unknown[]): ReceivablesReportRow[]'), 'receivables rows must be validated before presentation');
+assert.ok(queries.includes('RECEIVABLES_DATA_INVALID: total_rows is invalid'), 'receivables totals must fail closed');
+assert.ok(!queries.includes('total_rows:Number(p.total_rows??0)'), 'receivables must not coerce missing totals to zero');
+
+assert.ok(queries.includes('function validateForecastRows(rows: unknown[]): Forecast[]'), 'forecast reads must validate row semantics');
+assert.ok(queries.includes('FORECAST_DATA_INVALID: row[' + index + '] bounds are inverted'), 'forecast bounds must fail closed when inverted');
+
+assert.ok(queries.includes("importCountOrNull(data.total_rows, 'state.total_rows')"), 'import job counters must reject malformed or non-finite state values');
+assert.ok(queries.includes("importProgressOrNull(data.progress)"), 'import job progress must reject malformed or out-of-range state values');
+assert.ok(queries.includes("current.total_rows > 0 ? Math.round((current.processed_rows / current.total_rows) * 100) : 0"), 'import progress must be derived from validated counters instead of falling back from missing progress to zero');
+assert.ok(!queries.includes('current.progress ?? 0'), 'import state must not coerce missing persisted progress to zero');
+assert.ok(queries.includes('WORKER_HEALTH_COUNT_UNAVAILABLE'), 'worker health must fail closed when exact counts are unavailable');
 const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
 assert.ok(workCenter.includes('const zeroProgressActive = useMemo'), 'work center must expose an explicit zero-progress active signal');
 assert.ok(workCenter.includes('تحقق من العمليات دون تقدم'), 'work center must route zero-progress work to a visible next action');
@@ -24,6 +37,9 @@ assert.ok(assistant.includes("type AssistantMode = 'LOADING' | 'READY' | 'INSUFF
 assert.ok(assistant.includes("mode === 'LOADING'"), 'assistant must expose loading semantics while context is fetched');
 assert.ok(assistant.includes('إعادة تحميل سياق المؤشرات'), 'assistant must expose explicit recovery when the canonical snapshot is unavailable');
 
+const header = fs.readFileSync('src/components/Header.tsx', 'utf8');
+assert.ok(header.includes("type HealthState = 'checking' | 'healthy' | 'degraded' | 'tenant-missing' | 'offline'"), 'header health must distinguish missing tenant context');
+assert.ok(header.includes("health === 'tenant-missing' ? 'سياق الشركة غير مثبت'"), 'header must explain missing tenant context explicitly');
 const appShell = fs.readFileSync('src/App.tsx', 'utf8');
 const sidebar = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
 
@@ -61,9 +77,32 @@ assert.ok(appShell.includes('advisorCounts.recommendations'), 'global Advisor mu
 assert.ok(sidebar.includes("trust: { hint: 'إثبات، مصدر، وثقة', tag: 'TRUST' }"), 'Trust navigation section must have product metadata');
 assert.ok(sidebar.includes("outputs: { hint: 'تقارير ومخرجات القرار', tag: 'OUTPUT' }"), 'Outputs navigation section must have product metadata');
 assert.ok(!dashboard.includes('generateSynthetic'), 'decision brief must not invent synthetic business data');
+const dashboardCanonical = fs.readFileSync('src/lib/dashboard-canonical.ts', 'utf8');
+for (const token of [
+  'function validateDashboardIntelligence(row: Record<string, unknown>)',
+  "REPORT_DATA_INVALID: intelligence.recommendations[' + index + '] shape is invalid",
+  "REPORT_DATA_INVALID: intelligence.alerts[' + index + '] shape is invalid",
+]) assert.ok(dashboardCanonical.includes(token), `dashboard intelligence contract missing: ${token}`);
+const demandTruth = fs.readFileSync('src/lib/free-toolbox/sales-demand-series.ts', 'utf8');
+assert.ok(demandTruth.includes("if (!Number.isInteger(days) || days < 1 || days > 3650)"), 'demand analysis must use a bounded integer day window');
+const groupedInventory = fs.readFileSync('src/lib/free-toolbox/grouped-report.ts', 'utf8');
+assert.ok(groupedInventory.includes('const missing=new Map<string,{stock:boolean;requested:boolean;sales:boolean;demand:boolean}>()'), 'grouped inventory must preserve missing stock state');
+assert.ok(groupedInventory.includes('x.stockUnits+=r.stockUnits'), 'grouped inventory must not clamp signed stock quantities to zero');
+const inventoryTruth = fs.readFileSync('src/lib/free-toolbox/inventory-intelligence-canonical.ts', 'utf8');
+assert.ok(inventoryTruth.includes('INVENTORY_DATA_INVALID: inventory balance quantity is invalid'), 'inventory intelligence must fail closed on invalid balances');
+assert.ok(inventoryTruth.includes('INVENTORY_DATA_INVALID: inventory balance references a missing product'), 'inventory intelligence must surface orphaned balance rows');
 const importSurface = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
 assert.ok(importSurface.includes('لم يُثبت مصدر سابق لهذا الحساب بعد'), 'canonical import history empty state must distinguish an empty history');
 assert.ok(importSurface.includes('اختيار مصدر'), 'canonical import history empty state must expose a real source-selection action');
+assert.ok(importSurface.includes('SOURCE PASSPORT'), 'canonical import must expose the source passport before approval');
+assert.ok(importSurface.includes('SHA-256 للمصدر'), 'source passport must expose source fingerprint context');
+assert.ok(importSurface.includes('جودة الخادم') && importSurface.includes('العملية'), 'canonical import success state must expose authoritative commit context');
+assert.ok(importSurface.includes('typeof authoritativeRowCountRaw !== 'number'') && importSurface.includes('CANONICAL_IMPORT_AUTHORITATIVE_ROW_COUNT_INVALID'), 'canonical import must fail closed when the authoritative committed row count is missing or non-finite');
+assert.ok(importSurface.includes('typeof authoritativeQualityScoreRaw !== 'number'') && importSurface.includes('CANONICAL_IMPORT_AUTHORITATIVE_QUALITY_INVALID'), 'canonical import must fail closed when the authoritative quality score is missing or non-finite');
+assert.ok(!importSurface.includes('execution.authoritativeRowCount ?? validRows.length'), 'canonical import must not fall back from authoritative row count to local preview rows');
+assert.ok(!importSurface.includes('execution.authoritativeQualityScore ?? quality'), 'canonical import must not fall back from authoritative quality to local parsed quality');
+
+
 assert.ok(importSurface.includes('onClick={reset}'), 'canonical import history empty state must use the existing reset/import path');
 assert.ok(importSurface.includes('const [historyError, setHistoryError]'), 'canonical import history must preserve fetch failures instead of mapping them to an empty list');
 assert.ok(importSurface.includes('historyError?<ErrorState'), 'canonical import history must distinguish backend errors from an empty history');
@@ -77,13 +116,43 @@ assert.ok(entitiesSurface.includes('إضافة مصدر'), 'inventory source-emp
 assert.ok(entitiesSurface.includes('عرض كل المخزون'), 'inventory filter-empty state must restore the full result set');
 assert.ok(entitiesSurface.includes('<Link to="/import"'), 'inventory source-empty state must use the unified import route');
 
+const truthStrip = fs.readFileSync('src/components/TruthContextStrip.tsx', 'utf8');
+assert.ok(truthStrip.includes('الاستخدام: صالح للقرار') && truthStrip.includes('الاستخدام: راجع الدليل أولًا'), 'shared truth strip must disclose decision-use state');
+const analytics = fs.readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
+assert.ok(analytics.includes('افحص الدليل ثم القرار'), 'analytics must gate calculated results behind evidence review');
+assert.ok(!analytics.includes('انقل النتيجة إلى القرار'), 'analytics must not route calculated results directly to decision without evidence review');
+const receivablesReport = fs.readFileSync('src/pages/ReceivablesReportCanonicalPage.tsx', 'utf8');
+assert.ok(receivablesReport.includes("const truthStatus = snapshot.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA';"), 'receivables report must not elevate calculated truth to verified');
+const profitabilityReport = fs.readFileSync('src/pages/ProfitabilityReportCanonicalPage.tsx', 'utf8');
+assert.ok(profitabilityReport.includes("snapshot.currency_status === 'CONSISTENT'"), 'profitability display must require consistent currency');
+const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
+assert.ok(executiveReport.includes('qualityIssues={qualityIssueTotal}'), 'executive report must bind quality truth into shared context');
+assert.ok(executiveReport.includes("kpis?.status === 'CALCULATED'"), 'executive report must route calculated truth through evidence review');
+assert.ok(executiveReport.includes('qualityIssueTotal === null || qualityIssueTotal > 0'), 'executive report next action must prioritize unresolved quality pressure');
+
+assert.ok(!executiveReport.includes("kpis?.status !== 'CALCULATED' || kpis?.status === 'INSUFFICIENT_DATA'"), 'executive report must not misroute confirmed truth to data quality');
+const commandCenter = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
+assert.ok(commandCenter.includes('qualityIssues={qualityIssueTotal}'), 'command center must bind quality truth into shared context');
+assert.ok(commandCenter.includes('مؤكد ويمكن استخدامه') && commandCenter.includes('محسوب — راجع الدليل'), 'command center must distinguish confirmed from calculated decision-use state');
+assert.ok(commandCenter.includes('function isFiniteNumber(value: number | null | undefined): value is number'), 'command center must centralize finite numeric truth checks');
+assert.ok(commandCenter.includes('fields.filter(isFiniteNumber)'), 'command center coverage must exclude non-finite metrics');
+assert.ok(commandCenter.includes('values.every(isFiniteNumber)'), 'command center quality counters must fail closed on non-finite metrics');
+const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
+assert.ok(trustEvidence.includes("entity.issues !== 'number' || !Number.isFinite(entity.issues)"), 'trust evidence issue totals must not coerce missing metrics to zero');
+assert.ok(trustEvidence.includes("entity.total !== 'number' || !Number.isFinite(entity.total)"), 'trust evidence record totals must fail closed on missing metrics');
+assert.ok(trustEvidence.includes("issue.count !== 'number' || !Number.isFinite(issue.count)"), 'trust evidence severity totals must fail closed on invalid counts');
+assert.ok(trustEvidence.includes("item.value === null ? 'غير متاح من اللقطة الحالية.'"), 'trust evidence UI must expose unavailable severity counts instead of zero');
 const dashboardSurface = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 assert.ok(dashboardSurface.includes('const emptyAnalysisAction'), 'dashboard empty analysis states must derive a real next action');
+assert.ok(dashboardSurface.includes('الصورة مؤكدة المصدر') && dashboardSurface.includes('الصورة محسوبة من المصدر'), 'dashboard must distinguish confirmed from calculated source truth');
+
 assert.ok(dashboardSurface.includes('تبقى الحالة غير مثبتة'), 'dashboard trend empty state must remain fail-closed');
 assert.ok(dashboardSurface.includes('لا يتم تصنيع تركيب للفئات'), 'dashboard category empty state must not fabricate composition');
 assert.ok(dashboardSurface.includes('مراجعة جودة البيانات'), 'dashboard customer/product empties must route to data quality');
 assert.ok(dashboardSurface.includes("to: '/data-quality'"), 'dashboard must use the canonical data-quality route for insufficient truth');
 assert.ok(dashboardSurface.includes('const dashboardNextAction = useMemo'), 'dashboard must derive one next action from current truth and decision state');
+assert.ok(dashboardSurface.includes('qualityIssueTotal === null || qualityIssueTotal > 0'), 'dashboard next action must prioritize unresolved source-quality pressure');
+
 const dashboardActionIndex = dashboardSurface.indexOf('const dashboardNextAction = useMemo');
 const dashboardLoadingReturnIndex = dashboardSurface.indexOf('if (loading) return <LoadingState');
 assert.ok(dashboardActionIndex >= 0 && dashboardActionIndex < dashboardLoadingReturnIndex, 'dashboard next-action hook must remain unconditional before early returns');
@@ -91,6 +160,8 @@ assert.ok(dashboardSurface.includes('dashboardNextAction.to'), 'dashboard next a
 assert.ok(dashboardSurface.includes('dashboardNextAction.description'), 'dashboard next action must explain why the action is recommended');
 
 const reports = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
+assert.ok(reports.includes('function ReportDecisionPath'), 'reports center must expose the source-to-action evidence path');
+assert.ok(reports.includes('data-next-action={actionPath}'), 'reports center evidence path must bind the current next-action route');
 assert.ok(!reports.includes('window.location.reload()'), 'report pages must retry in place without a full browser reload');
 assert.ok(reports.includes('export function PurchasesReportPage()'), 'purchase report must remain guarded after retry refactor');
 assert.ok(reports.includes('export function InventoryReportPage()'), 'inventory report must remain guarded after retry refactor');
@@ -100,8 +171,33 @@ assert.ok(reports.includes('لقطة تجارية موثقة'), 'reports center 
 assert.ok(reports.includes('NEXT ACTION'), 'reports center must expose a concrete next action');
 assert.ok(reports.includes('افحص جودة البيانات'), 'reports center must route insufficient truth to data quality');
 assert.ok(reports.includes('تحديث اللقطة'), 'reports center must support in-place refresh of the canonical snapshot');
+assert.ok(reports.includes("const reportEvidenceState = kpis.status === 'CONFIRMED' && qualityIssueTotal === 0 ? 'VERIFIED' : 'REVIEW';"), 'reports center must not elevate CALCULATED truth to VERIFIED');
+assert.ok(reports.includes("aging.every((bucket)=>bucket.amount!==null)"), 'receivables report totals must remain unavailable when an aging component is unknown');
+assert.ok(reports.includes("const salesBlocked=kpis.status==='INSUFFICIENT_DATA'"), 'sales report must expose an explicit blocked export state');
+assert.ok(reports.includes('disabled={salesBlocked}'), 'sales export must be disabled when source truth is incomplete');
+assert.ok(reports.includes('لا توجد صورة مبيعات مكتملة'), 'sales report must expose the next quality action when blocked');
+assert.ok(reports.includes('const purchasesBlocked='), 'purchase report must block export when purchase truth is incomplete');
+assert.ok(reports.includes('disabled={purchasesBlocked}'), 'purchase export must be disabled when source truth is incomplete');
+assert.ok(reports.includes('const inventoryBlocked='), 'inventory report must block export when valuation truth is incomplete');
+assert.ok(reports.includes('disabled={inventoryBlocked}'), 'inventory export must be disabled when valuation truth is incomplete');
+assert.ok(reports.includes('const receivablesBlocked='), 'receivables report must block export when aging truth is incomplete');
+assert.ok(reports.includes('disabled={receivablesBlocked}'), 'receivables export must be disabled when aging truth is incomplete');
+assert.ok(reports.includes('const profitabilityBlocked='), 'profitability report must block export when cost/profit truth is incomplete');
+assert.ok(reports.includes('disabled={profitabilityBlocked}'), 'profitability export must be disabled when cost/profit truth is incomplete');
+
+assert.ok(!reports.includes("(b.amount??0)"), 'receivables report must not coerce missing aging amounts to zero');
+
+
 assert.ok(!reports.includes('generateSynthetic'), 'reports center must not invent business values');
+assert.ok(!reports.slice(reports.indexOf('if (loading)'), reports.indexOf('if (error)')).includes('reportEvidenceState'), 'reports loading state must not reference loaded snapshot evidence state');
+assert.ok(!reports.slice(reports.indexOf('if (loading)'), reports.indexOf('if (error)')).includes('qualityIssueTotal'), 'reports loading state must not reference loaded snapshot quality counters');
+assert.ok(reports.includes('ag-report-truth-bar'), 'reports center must expose a shared evidence hierarchy surface');
+
 const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
+assert.ok(trustEvidence.includes('EVIDENCE PASSPORT'), 'trust evidence must expose the evidence passport');
+assert.ok(trustEvidence.includes('جواز الدليل للحالة الحالية'), 'trust evidence passport must explain its purpose');
+assert.ok(trustEvidence.includes('معرّف شركة موجود دون عرضه للمستخدم'), 'trust evidence passport must preserve tenant context without exposing the raw tenant id');
+
 assert.ok(trustEvidence.includes('const [refreshing, setRefreshing]'), 'trust evidence must refresh in-place instead of reloading the whole page');
 assert.ok(!trustEvidence.includes('window.location.reload()'), 'trust evidence refresh must not discard page context with a full reload');
 assert.ok(trustEvidence.includes('لا توجد بيانات مثبتة بعد'), 'empty trust state must explain the absence of evidence');
@@ -111,6 +207,10 @@ assert.ok(trustEvidence.includes('أغلق المشكلات الحرجة'), 'tru
 assert.ok(trustEvidence.includes("aria-label={'الخطوة التالية: ' + nextStep.label}"), 'trust evidence next-action link must use valid JSX');
 assert.ok(!trustEvidence.includes('aria-label={\\`'), 'trust evidence contract must reject escaped JSX template backticks');
 const decisionExperience = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
+assert.ok(decisionExperience.includes("['rejected', 'cancelled', 'completed'].includes(recommendation.status)"), 'decision readiness must block terminal recommendation states');
+assert.ok(decisionExperience.includes("if (!recommendation.confidence?.trim())"), 'decision readiness must require explicit confidence');
+assert.ok(decisionExperience.includes('data-state={readiness.status.toLowerCase()}'), 'decision evidence card state must mirror the typed readiness status');
+
 assert.ok(decisionExperience.includes('recommendation.expected_impact == null'), 'decision readiness must treat zero expected impact as a valid value');
 assert.ok(!decisionExperience.includes('if (!recommendation.expected_impact)'), 'decision readiness must not classify zero expected impact as missing');
 assert.ok(decisionExperience.includes('فحص الثقة'), 'decision experience must provide a trust action when no active alerts exist');
@@ -133,7 +233,6 @@ assert.ok(canonicalImport.includes('role="list" aria-label="مراحل الاس�
 assert.ok(canonicalImport.includes('aria-current={active ? \'step\' : undefined}'), 'canonical import must expose the active step to assistive technology');
 
 const commandPalette = fs.readFileSync('src/components/CommandPalette.tsx', 'utf8');
-const appShell = fs.readFileSync('src/App.tsx', 'utf8');
 assert.ok(appShell.includes('mobileSidebarRef'), 'mobile navigation drawer must expose a focus boundary');
 assert.ok(appShell.includes('aria-modal="true" aria-label="القائمة الرئيسية"'), 'mobile navigation drawer must declare modal semantics');
 assert.ok(appShell.includes("event.key === 'Tab'"), 'mobile navigation drawer must trap keyboard focus');
@@ -161,6 +260,13 @@ assert.ok(commandPalette.includes("event.key === 'Tab'"), 'command palette must 
 assert.ok(commandPalette.includes('aria-label="إغلاق لوحة الأوامر"'), 'command palette must expose a keyboard-accessible close control');
 
 const inventoryIntelligence = fs.readFileSync('src/pages/InventoryIntelligencePage.tsx', 'utf8');
+assert.ok(inventoryIntelligence.includes('const riskCounts='), 'inventory intelligence must derive live risk counts from current grouped truth');
+assert.ok(inventoryIntelligence.includes('const visibleRows='), 'inventory intelligence must filter existing rows without inventing records');
+assert.ok(inventoryIntelligence.includes('رادار الأولوية'), 'inventory intelligence must expose a visible decision-priority surface');
+assert.ok(inventoryIntelligence.includes('طلب غير مثبت'), 'inventory intelligence must preserve missing-demand state as an explicit boundary');
+assert.ok(inventoryIntelligence.includes('عرض كل الحالات'), 'inventory intelligence risk filtering must expose a local reset action');
+assert.ok(inventoryIntelligence.includes('aria-pressed={riskFilter==='all'}'), 'inventory intelligence risk filters must expose selected state accessibly');
+
 assert.ok(inventoryIntelligence.includes('سياق حقيقة ذكاء المخزون'), 'inventory intelligence must expose truth context');
 assert.ok(inventoryIntelligence.includes('آخر 180 يومًا'), 'inventory intelligence truth context must disclose its fixed demand window');
 assert.ok(inventoryIntelligence.includes('to="/trust"'), 'inventory intelligence must expose a direct evidence action');
@@ -191,6 +297,12 @@ assert.ok(profileSettings.includes('role="alert" aria-live="assertive"'), 'profi
 assert.ok(profileSettings.includes('min-h-11 w-full max-w-xl'), 'profile input must meet touch sizing');
 
 const masterDataHub = fs.readFileSync('src/pages/MasterDataHubPage.tsx', 'utf8');
+assert.ok(masterDataHub.includes('مرجع جزئي مع حدود معلنة'), 'master data must disclose partial-reference boundaries');
+assert.ok(masterDataHub.includes('وجود route لا يعني وجود بيانات'), 'master data must distinguish route existence from data truth');
+assert.ok(masterDataHub.includes('Reference → Decision'), 'master data must expose the reference-to-decision progression');
+assert.ok(masterDataHub.includes('EVIDENCE'), 'master data must visibly disclose evidence-first usage');
+assert.ok(masterDataHub.includes('CRUD'), 'master data hub must preserve domain-neutral product identity');
+
 assert.ok(masterDataHub.includes('to="/trust"'), 'master data hub must expose a direct evidence path');
 assert.ok(masterDataHub.includes('to="/import"'), 'master data hub must expose the unified import path');
 assert.ok(masterDataHub.includes('لا تُعرض كيانات غير مثبتة'), 'master data hub must preserve fail-closed reference semantics');
@@ -251,6 +363,15 @@ assert.ok(executiveCommand.includes('مراجعة جودة البيانات'), '
 assert.ok(executiveCommand.includes('<Link to="/data-quality"'), 'executive command center empty states must use the canonical data-quality route');
 
 const dataQuality = fs.readFileSync('src/pages/DataQualitySnapshotPage.tsx', 'utf8');
+assert.ok(dataQuality.includes('المتبقي بعد مؤشرات المشكلات'), 'data quality must not label an issue-count-derived remainder as healthy records');
+assert.ok(dataQuality.includes('المؤشر التشخيصي'), 'data quality score must be presented as a diagnostic indicator rather than absolute truth');
+
+assert.ok(dataQuality.includes('const severityCounts = {'), 'data quality must derive severity pressure from the current snapshot');
+assert.ok(dataQuality.includes('const visibleIssues = severityFilter ==='), 'data quality issue filtering must remain local to the authoritative snapshot');
+assert.ok(dataQuality.includes('رادار شدة الجودة'), 'data quality must expose a visible severity radar');
+assert.ok(dataQuality.includes('عرض كل الشدة'), 'data quality severity filtering must expose a local reset action');
+assert.ok(dataQuality.includes('aria-pressed={severityFilter===key}'), 'data quality severity filters must expose selected state accessibly');
+
 assert.ok(dataQuality.includes('criticalIssueTotal'), 'data quality must derive critical issue pressure from the current snapshot');
 assert.ok(dataQuality.includes('const nextAction = snapshotStatus === \'EMPTY\''), 'data quality must derive the next action from real snapshot state');
 assert.ok(dataQuality.includes('استيراد مصدر'), 'empty data quality must route to the canonical import entry');
@@ -260,6 +381,12 @@ assert.ok(dataQuality.includes('انتقل للتحليل'), 'clean data quality
 assert.ok(dataQuality.includes('to: \'/analytics\''), 'clean data quality action must use the canonical analytics route');
 
 const connections = fs.readFileSync('src/pages/ConnectionsPage.tsx', 'utf8');
+assert.ok(connections.includes("type ConnectorFilter = 'all' | ConnectorState"), 'connections must expose a typed connector proof filter');
+assert.ok(connections.includes('const visibleConnectors = useMemo'), 'connections must derive visible connector rows from the canonical registry');
+assert.ok(connections.includes('aria-pressed={filter===key}'), 'connector proof filters must expose selected state accessibly');
+assert.ok(connections.includes('عرض الكل'), 'connector filters must expose a local reset action');
+assert.ok(connections.includes('سلم الإثبات'), 'connections must expose a visible proof ladder');
+
 assert.ok(connections.includes('const availableCount = connectors.filter(connector => connector.state === \'available\').length'), 'connections summary must derive proven-path count from connector state');
 assert.ok(connections.includes('const boundedCount = connectors.filter(connector => connector.state === \'bounded\').length'), 'connections summary must derive bounded-path count from connector state');
 assert.ok(connections.includes('const adapterCount = connectors.filter(connector => connector.state === \'adapter\').length'), 'connections summary must derive adapter-path count from connector state');
@@ -318,4 +445,23 @@ assert.ok(inventoryUnavailable.includes('if (!snapshot) return <DataUnavailableS
 const canonicalProfitability = fs.readFileSync('src/pages/ProfitabilityReportCanonicalPage.tsx', 'utf8');
 assert.ok(canonicalProfitability.includes('DataUnavailableState'), 'canonical profitability must expose a governed unavailable-data state');
 assert.ok(canonicalProfitability.includes('<Link to="/import"'), 'canonical profitability unavailable state must use the unified import route');
+
+// Deep Aghbari visual invariants: retain the executive dark navigation,
+// live context rail, and decision evidence surface across future refactors.
+const styles = fs.readFileSync('src/index.css', 'utf8');
+assert.ok(/\.ag-app-shell \.ag-sidebar\{background:linear-gradient\(180deg,#052f2d 0%,#063b36 58%,#052825 100%\)!important/i.test(styles), 'Aghbari shell must retain the dark executive sidebar identity');
+assert.ok(styles.includes('.ag-context-rail') && styles.includes('.ag-context-chip'), 'Aghbari shell must expose the shared live workspace context rail');
+assert.ok(styles.includes('.ag-decision-evidence-grid') && styles.includes('.ag-decision-evidence-card'), 'Decision surface must retain the evidence-readiness visual contract');
+
+const decisionExperienceSource = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
+assert.ok(decisionExperienceSource.includes('حالة القرار:'), 'Decision Experience must expose explicit readiness state');
+assert.ok(decisionExperienceSource.includes('role="status" aria-live="polite"'), 'Decision Experience readiness changes must be announced accessibly');
+assert.ok(decisionExperienceSource.includes('data-readiness={readiness.status}'), 'Decision Experience readiness status must remain machine-addressable');
+assert.ok(decisionExperienceSource.includes("type DecisionReadiness = { status: 'READY' | 'REVIEW' | 'BLOCKED';"), 'Decision Experience readiness must expose a typed terminal status contract');
+assert.ok(decisionExperienceSource.includes('status: \'READY\''), 'Decision Experience must explicitly model ready decisions');
+assert.ok(decisionExperienceSource.includes('status: \'REVIEW\''), 'Decision Experience must explicitly model review decisions');
+assert.ok(decisionExperienceSource.includes('status: \'BLOCKED\''), 'Decision Experience must explicitly model blocked decisions');
+assert.ok(decisionExperienceSource.includes("typeof recommendation.expected_impact !== 'number' || !Number.isFinite(recommendation.expected_impact)"), 'Decision Experience must fail closed on non-finite expected impact');
+assert.ok(decisionExperienceSource.includes('function formatImpact(value: number | null | undefined): string'), 'Decision Experience must centralize safe impact rendering');
+assert.ok(decisionExperienceSource.includes("formatImpact(selected?.expected_impact)"), 'Decision Experience must never render unavailable impact as a numeric placeholder');
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');

@@ -23,7 +23,7 @@ export function ReceivablesReportCanonicalPage() {
   if (loading && !snapshot) return <LoadingState />;
   if (error && !snapshot) return <ErrorState message={error} onRetry={load} />;
   if (!snapshot) return <DataUnavailableState title="تقرير الذمم ينتظر البيانات" message="لم تصل صورة موثوقة للذمم بعد. لا يتم تحويل غياب البيانات إلى صفر أو تقرير فارغ." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
-  const truthStatus = snapshot.status === 'CALCULATED' ? 'VERIFIED' : 'INSUFFICIENT DATA';
+  const truthStatus = snapshot.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA';
   const truthMessage = snapshot.status === 'CALCULATED'
     ? 'الإجماليات والصفوف مشتقة من المسار المالي المعتمد.'
     : 'لا توجد سجلات ذمم مثبتة حاليًا؛ القيم غير المتاحة تبقى غير متاحة ولا تتحول إلى صفر.';

@@ -4,11 +4,11 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/States';
 
 const entityLinks = [
-  { path: '/customers', title: 'العملاء', desc: 'الكيانات والعملاء وسياقهم التجاري.', icon: Users },
-  { path: '/products', title: 'المنتجات', desc: 'الأصناف والهوية المرجعية ومفاتيح الأعمال.', icon: Package },
-  { path: '/inventory', title: 'المخزون', desc: 'مرجع المخزون والكميات المرتبطة بالمصدر.', icon: Boxes },
-  { path: '/suppliers', title: 'الموردون', desc: 'هوية الموردين وسياقهم المرجعي المرتبط بالمشتريات.', icon: Truck },
-  { path: '/alternative-groups', title: 'البدائل', desc: 'مجموعات الأصناف البديلة والتحقيق في الاستبدال.', icon: Tags },
+  { path: '/customers', title: 'العملاء', desc: 'الكيانات والعملاء وسياقهم التجاري.', icon: Users, status: 'SURFACE', statusLabel: 'واجهة موجودة' },
+  { path: '/products', title: 'المنتجات', desc: 'الأصناف والهوية المرجعية ومفاتيح الأعمال.', icon: Package, status: 'SURFACE', statusLabel: 'واجهة موجودة' },
+  { path: '/inventory', title: 'المخزون', desc: 'مرجع المخزون والكميات المرتبطة بالمصدر.', icon: Boxes, status: 'EVIDENCE', statusLabel: 'يعتمد على المصدر' },
+  { path: '/suppliers', title: 'الموردون', desc: 'هوية الموردين وسياقهم المرجعي المرتبط بالمشتريات.', icon: Truck, status: 'SURFACE', statusLabel: 'واجهة موجودة' },
+  { path: '/alternative-groups', title: 'البدائل', desc: 'مجموعات الأصناف البديلة والتحقيق في الاستبدال.', icon: Tags, status: 'EVIDENCE', statusLabel: 'يعتمد على الدليل' },
 ];
 
 const unavailableSurfaces = [
@@ -42,25 +42,36 @@ const semanticSurfaces = [
     </section>
 
     <section className="ag-decision-strip" aria-label="ملخص البيانات المرجعية">
-      <div className="ag-decision-cell"><span className="ag-decision-label">العملاء</span><span className="ag-decision-value">مسار حقيقي</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">المنتجات</span><span className="ag-decision-value">مسار حقيقي</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">المخزون</span><span className="ag-decision-value">مسار حقيقي</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">الموردون</span><span className="ag-decision-value">مسار حقيقي</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">الواجهات المرجعية</span><span className="ag-decision-value">{entityLinks.length}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">تتطلب مصدرًا</span><span className="ag-decision-value">2</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">الدليل قبل القرار</span><span className="ag-decision-value">مفروض</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">CRUD</span><span className="ag-decision-value">ليس هو المنتج</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">السياق الدلالي</span><span className="ag-decision-value">جزئي / معلن</span></div>
     </section>
 
     <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-      {entityLinks.map(({ path, title, desc, icon: Icon }) => <Link key={path} to={path} className="group">
+      {entityLinks.map(({ path, title, desc, icon: Icon, statusLabel }) => <Link key={path} to={path} className="group">
         <Card className="h-full transition hover:-translate-y-1 hover:border-primary-300">
           <CardBody>
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-50 text-primary-700"><Icon size={20}/></span>
+            <div className="flex items-start justify-between gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-50 text-primary-700"><Icon size={20}/></span><span className="rounded-full bg-ink-50 px-2.5 py-1 text-[9px] font-black text-ink-500">{statusLabel}</span></div>
             <h3 className="mt-4 text-base font-black text-ink-900">{title}</h3>
             <p className="mt-2 min-h-12 text-xs leading-6 text-ink-500">{desc}</p>
             <div className="mt-4 flex items-center justify-between border-t border-ink-100 pt-3 text-[10px] font-black text-primary-700"><span>فتح المسار</span><ArrowLeft size={14}/></div>
           </CardBody>
         </Card>
       </Link>)}
-    </section>    <section className="grid gap-4 xl:grid-cols-2">
+    </section>    <section className="grid gap-4 lg:grid-cols-[1.1fr_.9fr]" aria-label="حدود البيانات المرجعية">
+      <Card><CardHeader title="كيف تقرأ هذه الطبقة" subtitle="وجود route لا يعني وجود بيانات؛ الدليل هو الذي يحدد صلاحية الاستخدام."/><CardBody>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border border-ink-100 bg-ink-50/60 p-4"><div className="text-[9px] font-black text-ink-400">SURFACE</div><div className="mt-1 text-sm font-black text-ink-900">الواجهة موجودة</div><p className="mt-1 text-[10px] leading-5 text-ink-500">يمكن فتح المسار، لكن البيانات الحالية تبقى رهينة المصدر والحالة.</p></div>
+          <div className="rounded-2xl border border-warning-200 bg-warning-50/60 p-4"><div className="text-[9px] font-black text-warning-700">EVIDENCE</div><div className="mt-1 text-sm font-black text-warning-950">الدليل أولًا</div><p className="mt-1 text-[10px] leading-5 text-warning-900">لا تتحول الهوية المرجعية إلى حقيقة تنفيذية دون مصدر مثبت.</p></div>
+          <div className="rounded-2xl border border-primary-200 bg-primary-50/60 p-4"><div className="text-[9px] font-black text-primary-700">ACTION</div><div className="mt-1 text-sm font-black text-primary-950">المسار التالي</div><p className="mt-1 text-[10px] leading-5 text-primary-900/80">عند غياب المصدر، ارجع إلى الاستيراد الموحد بدل إنشاء سجل يدوي بديل.</p></div>
+        </div>
+      </CardBody></Card>
+      <div className="rounded-3xl border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated"><div className="text-[10px] font-black tracking-[.14em] text-primary-200">REFERENCE → DECISION</div><h3 className="mt-2 text-xl font-black">من الهوية إلى القرار دون قفزة ثقة.</h3><p className="mt-2 text-[11px] leading-6 text-ink-300">Source → Business Key → Entity → Semantic Context → Evidence → Analytics → Decision. كل طبقة تحافظ على حدود الطبقة السابقة بدل اختصارها.</p><div className="mt-4 flex flex-wrap gap-2"><Link to="/trust" className="btn-secondary border-white/10 bg-white/5 text-white hover:bg-white/10">فحص الدليل</Link><Link to="/import" className="btn-primary">إدخال مصدر</Link></div></div>
+    </section>
+
+<section className="grid gap-4 xl:grid-cols-2">
       <Card>
         <CardHeader title="كيانات مرجعية إضافية" subtitle="تُعرض كحالات صريحة عندما لا يملك التطبيق شاشة مستقلة مثبتة." />
         <CardBody className="grid gap-3 md:grid-cols-2">

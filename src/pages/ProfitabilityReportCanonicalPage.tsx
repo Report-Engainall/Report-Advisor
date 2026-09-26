@@ -11,7 +11,7 @@ export function ProfitabilityReportCanonicalPage() {
   const [snapshot, setSnapshot] = useState<ProfitabilitySnapshot | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState<string | null>(null);
   const load = useCallback(async () => { try { setLoading(true); setError(null); setSnapshot(await fetchProfitabilitySnapshot()); } catch (e: unknown) { setError(e instanceof Error ? e.message : 'تعذر تحميل الربحية'); } finally { setLoading(false); } }, []);
   useEffect(() => { void load(); }, [load]); if (loading) return <LoadingState />; if (error) return <ErrorState message={error} onRetry={load} />; if (!snapshot) return <DataUnavailableState title="تقرير الربحية ينتظر البيانات" message="لا توجد صورة مالية موثوقة تكفي لبناء تقرير الربحية؛ لا يتم تحويل غياب التكلفة أو الإيراد إلى صفر." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
-  const calculated = snapshot.status === 'CALCULATED' && snapshot.revenue != null && snapshot.cost != null && snapshot.gross_profit != null;
+  const calculated = snapshot.status === 'CALCULATED' && snapshot.currency_status === 'CONSISTENT' && snapshot.revenue != null && snapshot.cost != null && snapshot.gross_profit != null;
   return <div dir="rtl" className="report-page space-y-5 animate-fade-in">
     <PageHeader title="تقرير الأرباح والربحية" subtitle="Financial Truth Contract: لا يتحول نقص الدليل المالي إلى صفر." actions={<button type="button" onClick={() => window.print()} className="btn-primary print-hide text-xs">طباعة التقرير</button>} />
     <section className="hero-surface p-4">

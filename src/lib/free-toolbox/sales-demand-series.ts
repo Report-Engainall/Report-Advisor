@@ -24,7 +24,7 @@ function productDetails(product: DemandRow['product']): { sku: string; name: str
 }
 
 export async function fetchProductDemandSeries(days = 180): Promise<ProductDemandSeries[]> {
-  if (!Number.isFinite(days) || days <= 0) throw new Error('Invalid demand analysis window');
+  if (!Number.isInteger(days) || days < 1 || days > 3650) throw new Error('Invalid demand analysis window');
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('Tenant context is unavailable');
 

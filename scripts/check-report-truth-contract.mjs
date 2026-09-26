@@ -72,4 +72,96 @@ if (/(Number|parseFloat|parseInt)\([^\n]*\).*NaN|NaN.*(Number|parseFloat|parseIn
   throw new Error('Report truth contract requires finite-number guarding');
 }
 
+
+// Canonical dashboard adapter must fail closed on malformed authoritative payloads.
+// These guards prevent a future refactor from silently mapping a bad response to
+// an empty result or substituting the current day for a missing authoritative as-of.
+const dataQualityCore = fs.readFileSync(path.join(srcDir, 'lib', 'data-quality-snapshot-core.ts'), 'utf8');
+for (const token of [
+  "typeof entity.total !== 'number' || !Number.isInteger(entity.total)",
+  "typeof entity.issues !== 'number' || !Number.isInteger(entity.issues)",
+  "typeof issue.count !== 'number' || !Number.isInteger(issue.count)",
+  "DATA_QUALITY_EMPTY_SNAPSHOT_INCONSISTENT",
+]) {
+  if (!dataQualityCore.includes(token)) throw new Error(`Report truth contract missing data-quality invariant: ${token}`);
+}
+
+const profitabilityCanonical = fs.readFileSync(path.join(srcDir, 'lib', 'dashboard-canonical.ts'), 'utf8');
+for (const token of [
+  'REPORT_DATA_INVALID: profitability.reasons must contain only strings',
+  "REPORT_DATA_INVALID: profitability.invoice_count must be a non-negative integer or null",
+  "REPORT_DATA_INVALID: profitability.bad_invoice_rows must be a non-negative integer or null",
+  "REPORT_DATA_INVALID: profitability.bad_sale_item_rows must be a non-negative integer or null",
+  "REPORT_DATA_INVALID: profitability.currency_mismatch_rows must be a non-negative integer or null",
+]) if (!profitabilityCanonical.includes(token)) throw new Error('Report truth contract missing profitability invariant: ' + token);
+const canonicalCommit = fs.readFileSync(path.join(srcDir, 'lib', 'import', 'canonical-commit.ts'), 'utf8');
+for (const token of [
+  "throw new Error('IMPORT_COMMIT_RESULT_INVALID')",
+  "typeof committed !== 'number'",
+  "!Number.isFinite(committed)",
+  "ids.some((id) => typeof id !== 'string' || !id.trim())",
+  "throw new Error('IMPORT_COMMIT_RESULT_MISMATCH')",
+]) {
+  if (!canonicalCommit.includes(token)) throw new Error(`Report truth contract missing canonical import commit invariant: ${token}`);
+}
+const querySource = fs.readFileSync(path.join(srcDir, 'lib', 'queries.ts'), 'utf8');
+for (const token of [
+  "function importCountOrNull(value: unknown, field: string): number | null",
+  "function importProgressOrNull(value: unknown): number | null",
+  "IMPORT_DATA_INVALID: unsupported import status",
+  "IMPORT_DATA_INVALID: progress must be an integer from 0 to 100 or null",
+]) {
+  if (!querySource.includes(token)) throw new Error(`Report truth contract missing import invariant: ${token}`);
+}
+
+const dashboardCanonical = fs.readFileSync(path.join(srcDir, 'lib', 'dashboard-canonical.ts'), 'utf8');
+for (const token of [
+  "function requiredArray<T>(value: unknown, field: string)",
+  "function validateRFMRows(rows: unknown[]): RFMSnapshotRow[]",
+  "function validateInventoryRows(rows: unknown[]): InventoryReportRow[]",
+  "REPORT_DATA_INVALID: inventory.rows[' + index + '] shape is invalid",
+  "REPORT_DATA_INVALID: inventory.pageSize is invalid",
+
+  "function validateABCRows(rows: unknown[]): ABCSnapshotRow[]",
+  "function validateAgingRows(rows: unknown[]): AgingSnapshotRow[]",
+  "REPORT_DATA_INVALID: rfm.rows[' + index + '] shape is invalid",
+  "REPORT_DATA_INVALID: abc.rows[' + index + '] shape is invalid",
+  "REPORT_DATA_INVALID: aging.rows[' + index + '] shape is invalid",
+
+  "function validateDashboardRows(row: Record<string, unknown>): void",
+  "validateDashboardRows(row);",
+  "function requiredAsOf(value: unknown, field: string)",
+  "throw new Error('REPORT_DATA_INVALID: ' + field + ' as-of must be YYYY-MM-DD')",
+  "const parsed = new Date(value + 'T00:00:00.000Z')",
+  "function nonNegativeIntegerOrNull(value: unknown, field: string): number|null",
+  "requiredArray<MonthlyTrend>(row.trend, 'trend')",
+  "requiredArray<TopEntity>(row.topCustomers, 'topCustomers')",
+  "requiredArray<TopEntity>(row.topProducts, 'topProducts')",
+  "requiredArray<CategoryBreakdown>(row.categories, 'categories')",
+  "requiredArray<AgingBucket>(agingRow.rows, 'aging.rows')",
+  "REPORT_DATA_INVALID: aging.rows[' + index + '] shape is invalid",
+  "unknownRows:nonNegativeIntegerOrNull(agingRow.unknownRows, 'aging.unknownRows')",
+  "unknownRows: nonNegativeIntegerOrNull(row.unknownRows, 'inventory.unknownRows')",
+  "unknownRows: nonNegativeIntegerOrNull(row.unknownRows, 'rfm.unknownRows')",
+  "unknownRows: nonNegativeIntegerOrNull(row.unknownRows, 'abc.unknownRows')",
+  "unknownRows: nonNegativeIntegerOrNull(row.unknownRows, 'aging.unknownRows')",
+  "function qualityCountOrNull(value: unknown, field: string): number|null",
+  "dashboard months is invalid",
+  "const rawQuality = row.quality;",
+  "throw new Error('REPORT_DATA_INVALID: quality must be an object when provided')",
+  "badInvoiceRows:qualityCountOrNull(qualityRow.badInvoiceRows, 'quality.badInvoiceRows')",
+  "badSaleItemRows:qualityCountOrNull(qualityRow.badSaleItemRows, 'quality.badSaleItemRows')",
+  "badPurchaseRows:qualityCountOrNull(qualityRow.badPurchaseRows, 'quality.badPurchaseRows')",
+  "badInventoryRows:qualityCountOrNull(qualityRow.badInventoryRows, 'quality.badInventoryRows')",
+  "salesCurrencyMismatchRows:qualityCountOrNull(qualityRow.salesCurrencyMismatchRows, 'quality.salesCurrencyMismatchRows')",
+  "purchaseCurrencyMismatchRows:qualityCountOrNull(qualityRow.purchaseCurrencyMismatchRows, 'quality.purchaseCurrencyMismatchRows')",
+]) {
+  if (!dashboardCanonical.includes(token)) {
+    throw new Error(`Report truth contract missing fail-closed dashboard invariant: ${token}`);
+  }
+}
+if (/asOf:\s*typeof row\.asOf\s*===\s*['"]string['"]\s*\?\s*row\.asOf\s*:\s*asOfDate\(\)/.test(dashboardCanonical)) {
+  throw new Error('Report truth contract forbids replacing missing authoritative asOf with today');
+}
+
 console.log(`Report truth contract: PASS (${reportFiles.length} report candidates, ${migrationFiles.length} migrations scanned)`);
