@@ -88,6 +88,7 @@ for (const token of [
   "requiredArray<TopEntity>(row.topProducts, 'topProducts')",
   "requiredArray<CategoryBreakdown>(row.categories, 'categories')",
   "requiredArray<AgingBucket>(agingRow.rows, 'aging.rows')",
+  "REPORT_DATA_INVALID: aging.rows[' + index + '] shape is invalid",
   "unknownRows:finiteOrNull(agingRow.unknownRows)",
   "function qualityCountOrNull(value: unknown, field: string): number|null",
   "const rawQuality = row.quality;",
