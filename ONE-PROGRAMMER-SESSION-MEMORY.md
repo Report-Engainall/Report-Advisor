@@ -1,3 +1,19 @@
+# CURRENT EXECUTION CHECKPOINT — 2026-09-27 / CONTINUOUS EXECUTION 194
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE PR #661 branch: `exec/20260926-continuous-ui-core-deep`.
+- CURRENT BRANCH HEAD BEFORE THIS GOVERNANCE WRITE: `787e667c33feb8e6efdd2c1dc3d1da229396a922`.
+- UI DELIVERY: Business Replay now has a bounded evidence timeline, learning/outcome status strip, localized lifecycle states, and explicit bounded-window semantics. Benchmark Network now exposes the real readiness gate and future result shape without synthetic peer data. Reports expose a direct Trust & Evidence action from truth context. Executive Command Center Decision ROI now exposes the missing investment/cost denominator and links to the governed outcome surface. App Shell preserves intelligence-read failures as an explicit retryable state.
+- CORE DELIVERY: replay reads use tenant-scoped `windowLimit + 1` bounded queries across business_state_snapshots, recommendation_outcomes and decision_work_items; no exact global count dependency, no new RPC/runner/importer path. Replay and alert failure contracts were strengthened.
+- CANONICAL DOC SYNC: Product, UI/UX, Engineering, Data/Truth/Security and Commercial masters were updated with the current closure rules; no competing master was created.
+- EXACT CI STATUS: fresh workflows are now queued/pending on `787e667...`; Commercial Upwork Demo E2E is in progress. No PASS transferred from older SHA.
+- EXTERNAL BLOCKERS: Vercel free-plan build-rate limit remains external; local desktop/browser verification is unavailable in this session by explicit operating condition. No production mutation or SHA bypass.
+- SUPABASE POSTURE: staging security advisor still reports 46 authenticated-callable SECURITY DEFINER warnings; no blanket revoke was executed. Current replay target tables are RLS-enabled and tenant-keyed.
+- PRODUCT BOUNDARY: Replay remains `INSUFFICIENT_DATA` when snapshots/outcomes are absent; Benchmark remains `INSUFFICIENT_SAMPLE` until peer cohort + metric + period + evidence gates exist; Decision ROI remains unavailable without cost/investment denominator.
+- NEXT EXECUTABLE ACTION: continue independent UI/core closure while fresh exact-head CI runs; consume first terminal failure and repair only that current-SHA defect. When gates become terminal, rebind/record exact evidence and only then consider merge.
+- DO NOT REPEAT: stale PASS transfer, preview-as-production, fabricated benchmark/ROI/replay history, alert-error-to-empty fallback, duplicate navigation/import/RPC/runner paths, blanket SECURITY DEFINER cleanup.
+- UI LANE PROGRESS: Replay/Benchmark/Reports/Decision ROI deep surfaces materially advanced.
+- CORE LANE PROGRESS: bounded replay read path + tenant/evidence contracts strengthened; release certification remains open.
 # CURRENT EXECUTION CHECKPOINT — 2026-09-27 / CONTINUOUS EXECUTION 193
 
 - MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
