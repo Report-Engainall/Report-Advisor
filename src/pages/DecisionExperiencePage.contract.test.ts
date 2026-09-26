@@ -34,6 +34,13 @@ describe('decision experience lifecycle contract', () => {
     expect(page).toContain('اعتماد القرار');
   });
 
+  it('gates stage navigation by persisted lifecycle state', () => {
+    expect(page).toContain('const stageGate = useMemo<Record<Stage');
+    expect(page).toContain("decisionContext?.decisionStatus === 'APPROVED'");
+    expect(page).toContain('decisionContext?.workItemStatus === \'COMPLETED\'');
+    expect(page).toContain('stageLockReason');
+  });
+
   it('renders persisted outcome fields instead of inventing a result', () => {
     expect(queries).toContain('fetchRecommendationOutcome');
     expect(queries).toContain('recommendation_outcomes');
