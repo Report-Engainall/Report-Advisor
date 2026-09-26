@@ -191,6 +191,9 @@ for (const token of [
   "REPORT_DATA_INVALID: abc.rows[' + index + '] shape is invalid",
   "REPORT_DATA_INVALID: aging.rows[' + index + '] shape is invalid",
 
+  "const validEvidence = evidence !== null && typeof evidence === 'object' && !Array.isArray(evidence)",
+  "Object.keys(evidence as Record<string, unknown>).length > 0",
+  "rawStatus === 'CONFIRMED' && !validEvidence",
   "function validateDashboardRows(row: Record<string, unknown>): void",
   "validateDashboardRows(row);",
   "function requiredAsOf(value: unknown, field: string)",
