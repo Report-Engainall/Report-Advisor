@@ -1,3 +1,6 @@
+## CURRENT OUTCOME TRUTH GATE — 2026-09-27
+
+- An IN_PROGRESS work item is not treated as an outcome. The outcome surface requires a persisted result or a completed governed work item, preventing premature learning claims.
 ## Current UI truth boundary — 2026-09-27
 
 - Decision stage navigation is constrained by persisted tenant-scoped lifecycle state; URL parameters cannot bypass prerequisite decision/approval/work records.
