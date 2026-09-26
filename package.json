@@ -94,6 +94,8 @@
     "test:report-execution-coordinator-contract": "node scripts/check-report-execution-coordinator-contract.mjs",
     "test:automation-executor-contract": "node scripts/check-automation-executor-contract.mjs",
     "test:forecast-calibration-contract": "node scripts/check-forecast-calibration-contract.mjs",
+    "test:forecast-read-contract": "node scripts/check-forecast-read-contract.mjs",
+    "test:invoice-read-contract": "node scripts/check-invoice-read-contract.mjs",
     "test:entitlements-billing-contract": "node scripts/check-entitlements-billing-contract.mjs",
     "test:decision-intelligence-closure": "node scripts/check-decision-intelligence-closure.mjs",
     "test:production-saas-certification": "node scripts/check-production-saas-certification.mjs",
@@ -111,6 +113,7 @@
     "test:alternative-schema": "node scripts/check-alternative-group-schema.mjs",
     "test:decision-dashboard": "node scripts/check-decision-dashboard.mjs",
     "test:inventory-intelligence-ui": "node scripts/check-inventory-intelligence-ui.mjs",
+    "test:demand-series-contract": "node scripts/check-demand-series-contract.mjs",
     "test:demand-velocity": "node scripts/check-demand-velocity.mjs",
     "test:batch-decision": "node --experimental-strip-types scripts/check-batch-decision-engine.mjs",
     "test:safe-metrics": "node scripts/check-safe-metrics.mjs",
@@ -149,6 +152,11 @@
     "test:intelligence-product-contract": "node scripts/check-intelligence-product-contract.mjs",
     "test:product-wow-ui": "node scripts/check-product-wow-ui-contract.mjs",
     "test:connections-language-ui": "node scripts/check-connections-language-ui.mjs",
-    "test:knowledge-architecture": "node scripts/check-knowledge-architecture.mjs"
+    "test:knowledge-architecture": "node scripts/check-knowledge-architecture.mjs",
+    "test:deep-truth-ui": "node scripts/check-deep-truth-ui-contract.mjs",
+    "test:import-readback-fidelity": "node scripts/check-import-readback-fidelity.mjs",
+    "test:profitability-snapshot-contract": "node scripts/check-profitability-snapshot-contract.mjs",
+    "test:receivables-read-contract": "node scripts/check-receivables-read-contract.mjs",
+    "test:dashboard-snapshot-contract": "node scripts/check-dashboard-snapshot-contract.mjs"
   }
 }

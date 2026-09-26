@@ -1,9 +1,10 @@
-import { ArrowLeft, CheckCircle2, Eye, FileSearch, GitBranch, History, Landmark, RefreshCw, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Eye, FileSearch, GitBranch, History, Landmark, RefreshCw, ShieldCheck, UsersRound } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchDataQualitySnapshot } from '@/lib/data-quality-snapshot';
+import { TrustBadge } from '@/components/ui/TrustBadge';
 
 const states = [
   { title: 'VERIFIED', text: 'بيانات قابلة للإثبات من المسار الكانوني.', tone: 'bg-success-50 text-success-700', icon: CheckCircle2 },
@@ -12,6 +13,7 @@ const states = [
   { title: 'REVIEW', text: 'تحتاج مراجعة قبل استخدامها في قرار.', tone: 'bg-warning-50 text-warning-700', icon: FileSearch },
   { title: 'BLOCKED', text: 'محجوبة عن القرار حتى معالجة السبب.', tone: 'bg-danger-50 text-danger-700', icon: ShieldCheck },
   { title: 'INSUFFICIENT DATA', text: 'المصدر الحالي لا يملك ما يكفي لإصدار نتيجة موثوقة.', tone: 'bg-ink-100 text-ink-700', icon: Eye },
+  { title: 'INSUFFICIENT SAMPLE', text: 'العينة الحالية أصغر من الحد المطلوب للحكم أو المقارنة؛ لا تُعرض نتيجة مقارنة أو benchmark بديلة.', tone: 'bg-warning-50 text-warning-700', icon: UsersRound },
 ] as const;
 
 const evidenceSurfaces = [
@@ -47,6 +49,13 @@ export function TrustEvidencePage() {
 
   const status = snapshot?.status ?? 'INSUFFICIENT DATA';
   const statusLabel = status === 'OK' ? 'الحالة قابلة للاستخدام' : status === 'EMPTY' ? 'لا توجد بيانات مثبتة بعد' : status;
+  const trustState = status === 'OK'
+    ? 'VERIFIED'
+    : status === 'EMPTY' || status === 'INSUFFICIENT DATA'
+      ? 'INSUFFICIENT_DATA'
+      : status === 'INSUFFICIENT_SAMPLE'
+        ? 'INSUFFICIENT_SAMPLE'
+        : 'REVIEW';
   const issueTotal = useMemo(
     () => snapshot?.entities?.reduce((sum, entity) => sum + (entity.issues ?? 0), 0) ?? null,
     [snapshot],
@@ -57,6 +66,15 @@ export function TrustEvidencePage() {
   );
   const criticalIssueTotal = useMemo(
     () => snapshot?.issues?.filter((issue) => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0) ?? 0,
+    [snapshot],
+  );
+  const topIssues = useMemo(
+    () => [...(snapshot?.issues ?? [])]
+      .sort((a, b) => {
+        const severityRank = { critical: 0, warning: 1, info: 2 } as const;
+        return severityRank[a.severity] - severityRank[b.severity] || b.count - a.count;
+      })
+      .slice(0, 8),
     [snapshot],
   );
   const nextStep = snapshot?.status === 'EMPTY'
@@ -94,7 +112,13 @@ export function TrustEvidencePage() {
         <p className="mt-3 text-sm leading-7 text-slate-300">الواجهة لا ترفع درجة الثقة من تلقاء نفسها. كل حالة مرتبطة بجودة المصدر أو حدود البيانات الفعلية.</p>
       </div>
       <div className="mt-6 grid gap-3 sm:grid-cols-4" role="status" aria-live="polite">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CURRENT STATUS</div><div className="mt-1 text-lg font-black">{statusLabel}</div></div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div className="text-[9px] font-black text-ink-300">CURRENT STATUS</div>
+          <div className="mt-2 inline-flex rounded-full bg-white px-2 py-1">
+            <TrustBadge state={trustState} compact />
+          </div>
+          <div className="mt-1 text-[10px] font-semibold text-ink-300">{statusLabel}</div>
+        </div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">RECORDS CHECKED</div><div className="mt-1 text-lg font-black">{totalRecords == null ? 'غير متاح' : totalRecords}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">ISSUES REPORTED</div><div className="mt-1 text-lg font-black">{issueTotal ?? 'غير متاح'}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CRITICAL</div><div className="mt-1 text-lg font-black">{criticalIssueTotal}</div></div>
@@ -123,9 +147,24 @@ export function TrustEvidencePage() {
           {snapshot?.entities?.length ? (
             <div className="space-y-2.5">
               {snapshot.entities.slice(0, 8).map(entity => (
-                <div key={entity.name} className="flex items-center justify-between gap-3 rounded-xl border border-ink-100 bg-ink-50/40 px-3 py-3">
-                  <span className="min-w-0 text-xs font-bold text-ink-800">{entity.name}</span>
-                  <span className="shrink-0 text-xs font-black text-ink-500">{entity.issues ?? 'غير متاح'} مشكلة</span>
+                <div key={entity.name} className="rounded-xl border border-ink-100 bg-ink-50/40 px-3 py-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="min-w-0 text-xs font-black text-ink-800">{entity.name}</span>
+                    <span className="shrink-0 text-[10px] font-black text-ink-500">{entity.issues} مشكلة · {entity.total} سجل</span>
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <div
+                      className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink-200"
+                      role="progressbar"
+                      aria-label={'جودة ' + entity.name}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={entity.score}
+                    >
+                      <div className="h-full rounded-full bg-primary-600" style={{ width: entity.score + '%' }} />
+                    </div>
+                    <span className="w-10 text-left text-[10px] font-black tabular-nums text-ink-600">{entity.score}%</span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -150,6 +189,40 @@ export function TrustEvidencePage() {
             : <div key={surface.title} className="rounded-xl border border-warning-200 bg-warning-50/50 p-3">
                 <div className="flex items-start gap-3"><surface.icon size={15} className="mt-0.5 shrink-0 text-warning-700"/><div><div className="text-xs font-black text-ink-800">{surface.title}</div><div className="mt-1 text-[10px] leading-5 text-warning-900">{surface.detail}</div><span className="mt-2 inline-flex rounded-full bg-white px-2 py-1 text-[8px] font-black text-warning-800">غير مثبت</span></div></div>
               </div>)}
+        </CardBody>
+      </Card>
+    </section>
+
+    <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
+      <Card>
+        <CardHeader title="أسباب الحالة الحالية" subtitle="المشكلات الأكثر تأثيرًا كما وردت من المصدر، مرتبة حسب الشدة ثم العدد." />
+        <CardBody>
+          {topIssues.length ? (
+            <div className="space-y-2.5">
+              {topIssues.map((issue) => (
+                <div key={issue.entity + '::' + issue.field + '::' + issue.issue} className="rounded-xl border border-ink-100 bg-white px-3 py-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="min-w-0 text-xs font-black text-ink-800">{issue.entity} · {issue.field}</div>
+                    <span className={'rounded-full px-2 py-1 text-[8px] font-black ' + (issue.severity === 'critical' ? 'bg-danger-50 text-danger-700' : issue.severity === 'warning' ? 'bg-warning-50 text-warning-800' : 'bg-ink-100 text-ink-600')}>
+                      {issue.severity === 'critical' ? 'حرج' : issue.severity === 'warning' ? 'تحذير' : 'معلومة'}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-[10px] leading-5 text-ink-500">{issue.issue}</p>
+                  <div className="mt-2 text-[9px] font-black text-ink-400">عدد الحالات: {issue.count}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState title="لا توجد مشكلات مسجلة" message="المصدر الحالي لم يرجع مشكلات جودة قابلة للعرض." />
+          )}
+        </CardBody>
+      </Card>
+      <Card>
+        <CardHeader title="ما الذي تعنيه الجودة؟" subtitle="الجودة هنا إشارة مصدرية وليست حكمًا تجميليًا من الواجهة." />
+        <CardBody className="space-y-3">
+          <div className="rounded-xl border border-success-200 bg-success-50/60 p-3 text-[10px] leading-5 text-success-900">الدرجة الظاهرة مشتقة من سجل الجودة المعتمد، وتبقى كما وصلت من المصدر.</div>
+          <div className="rounded-xl border border-warning-200 bg-warning-50/60 p-3 text-[10px] leading-5 text-warning-900">وجود مشكلة لا يعني أن كل البيانات غير صالحة؛ القرار يعتمد على نطاق المشكلة وشدتها.</div>
+          <div className="rounded-xl border border-ink-200 bg-ink-50/60 p-3 text-[10px] leading-5 text-ink-700">الهوية والمصدر tenant-bound؛ لا تُعرض معرفات داخلية غير لازمة في واجهة العمل.</div>
         </CardBody>
       </Card>
     </section>

@@ -3,6 +3,8 @@ import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, Check
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
+import { TrustBadge } from '@/components/ui/TrustBadge';
+import type { TrustState } from '@/lib/trust-state';
 import { DataTable } from '@/components/ui/DataTable';
 import { fetchImportRecords, createImportRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
@@ -74,6 +76,25 @@ function describeImportFailure(message: string | null): { title: string; detail:
   };
 }
 
+function importTrustState({
+  step,
+  quality,
+  duplicate,
+  securityPassed,
+  snapshotId,
+}: {
+  step: Step;
+  quality: number;
+  duplicate: boolean;
+  securityPassed: boolean;
+  snapshotId?: string | null;
+}): TrustState {
+  if (step === 'done' && snapshotId) return 'VERIFIED';
+  if (duplicate || !securityPassed || quality < 50) return 'BLOCKED';
+  if (quality < 75) return 'REVIEW';
+  return 'TRUSTED';
+}
+
 function Stepper({ step }: { step: Step }) {
   const current = STEPS.findIndex(s => s.key === step);
   return <div className="grid grid-cols-5 gap-2 mb-5" role="list" aria-label="مراحل الاستيراد">
@@ -107,6 +128,7 @@ export function CanonicalImportPage() {
   const [history, setHistory] = useState<any[]>([]);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedFileRef = useRef<File | null>(null);
 
@@ -251,11 +273,26 @@ export function CanonicalImportPage() {
 
       setProgress(88);
 
-      const authoritativeRowCount = Number(execution.authoritativeRowCount ?? validRows.length);
-      const authoritativeQualityScore = Number(execution.authoritativeQualityScore ?? quality);
-      const previewRows = Array.isArray(execution.authoritativePreview) ? execution.authoritativePreview : validRows.slice(0, 25).map((row) => row.data);
-      const authoritativeColumns = Array.isArray(execution.authoritativeColumns) ? execution.authoritativeColumns : mappings;
-      const snapshotId = typeof execution.snapshotId === 'string' ? execution.snapshotId : null;
+      const authoritativeRowCount = Number(execution.authoritativeRowCount);
+      const authoritativeQualityScore = Number(execution.authoritativeQualityScore);
+      const authoritativePreview = execution.authoritativePreview;
+      const authoritativeColumns = execution.authoritativeColumns;
+      const snapshotId = typeof execution.snapshotId === 'string' && execution.snapshotId.trim() ? execution.snapshotId.trim() : null;
+      if (!Number.isInteger(authoritativeRowCount) || authoritativeRowCount < 0) {
+        throw new Error('CANONICAL_IMPORT_PROOF_MISSING:authoritative_row_count');
+      }
+      if (!Number.isFinite(authoritativeQualityScore) || authoritativeQualityScore < 0 || authoritativeQualityScore > 100) {
+        throw new Error('CANONICAL_IMPORT_PROOF_MISSING:authoritative_quality_score');
+      }
+      if (!Array.isArray(authoritativePreview)) {
+        throw new Error('CANONICAL_IMPORT_PROOF_MISSING:authoritative_preview');
+      }
+      if (!Array.isArray(authoritativeColumns)) {
+        throw new Error('CANONICAL_IMPORT_PROOF_MISSING:authoritative_columns');
+      }
+      if (!snapshotId) {
+        throw new Error('CANONICAL_IMPORT_PROOF_MISSING:snapshot_id');
+      }
       await finishImportJob(rec.id, 'completed', {
         total: authoritativeRowCount,
         valid: authoritativeRowCount,
@@ -274,14 +311,14 @@ export function CanonicalImportPage() {
       }
       setProgress(100);
       setResult({
-        total: rows.length,
-        valid: validRows.length,
-        invalid: rows.length - validRows.length,
+        total: authoritativeRowCount,
+        valid: authoritativeRowCount,
+        invalid: 0,
         snapshotId,
         importId: rec.id,
         jobId: execution.jobId,
         understandingConfidence,
-        authoritativeQualityScore: Number(execution.authoritativeQualityScore ?? quality),
+        authoritativeQualityScore,
       });
       setStep('done');
       await loadHistory();
@@ -320,10 +357,18 @@ export function CanonicalImportPage() {
   const qualityVariant = quality >= 75 ? 'success' : quality >= 50 ? 'warning' : 'danger';
   const ready = Boolean(file && fileHash && securityPassed && !duplicate && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
   const failurePresentation = describeImportFailure(error);
+  const trustState = importTrustState({ step, quality, duplicate, securityPassed, snapshotId: typeof result?.snapshotId === 'string' ? result.snapshotId : null });
 
   return <div className="space-y-5 animate-fade-in">
     <PageHeader title="مركز المصادر" subtitle="مسار موحد: فحص أمني → قراءة المحتوى → فهم دلالي → جودة → اعتماد → معرفة موثوقة" />
     <Stepper step={step} />
+    <section className="flex flex-col gap-2 rounded-[14px] border border-ink-200 bg-white p-3 shadow-card sm:flex-row sm:items-center sm:justify-between" aria-label="حالة ثقة المصدر">
+      <div className="min-w-0">
+        <div className="text-[10px] font-black text-ink-800">حالة المصدر قبل الاعتماد</div>
+        <p className="mt-0.5 text-[10px] leading-5 text-ink-400">الجودة تحدد الحاجة للمراجعة؛ الاعتماد النهائي يتطلب نجاح المسار السلطوي ووجود snapshot مثبت.</p>
+      </div>
+      <TrustBadge state={trustState} compact />
+    </section>
 
     {step === 'upload' && <Card><CardBody>
       <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
@@ -339,7 +384,24 @@ export function CanonicalImportPage() {
           </div>
         </div>
       </div>
-      <div onClick={() => inputRef.current?.click()} className="ag-import-dropzone border-2 border-dashed rounded-[18px] p-10 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/20 transition-colors"><input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} /><Upload className="mx-auto text-primary-500 mb-3" size={30}/><h3 className="font-semibold">اختر ملفًا أو اسحبه إلى هنا</h3><p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p><p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB</p></div>
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label="اختيار أو إسقاط مصدر للاستيراد"
+        onClick={() => inputRef.current?.click()}
+        onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); inputRef.current?.click(); } }}
+        onDragEnter={(event) => { event.preventDefault(); setDragging(true); }}
+        onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = 'copy'; setDragging(true); }}
+        onDragLeave={(event) => { if (event.currentTarget === event.target) setDragging(false); }}
+        onDrop={(event) => { event.preventDefault(); setDragging(false); const dropped = event.dataTransfer.files?.[0]; if (dropped) void handleFile(dropped); }}
+        className={'ag-import-dropzone rounded-[18px] border-2 border-dashed p-10 text-center cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ' + (dragging ? 'border-primary-500 bg-primary-50/40' : 'border-ink-200 hover:border-primary-400 hover:bg-primary-50/20')}
+      >
+        <input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} />
+        <Upload className="mx-auto text-primary-500 mb-3" size={30}/>
+        <h3 className="font-semibold">{dragging ? 'أفلت المصدر هنا' : 'اختر ملفًا أو اسحبه إلى هنا'}</h3>
+        <p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p>
+        <p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB · يعمل بالماوس ولوحة المفاتيح والسحب</p>
+      </div>
       {error && <div className="mt-4 p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
     </CardBody></Card>}
 
@@ -388,8 +450,12 @@ export function CanonicalImportPage() {
 
     {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم اعتماد المصدر عبر مسار الحقيقة الكانونية العامة مع بصمته وسياقه وجودته، ولا يُعلن نجاح الاعتماد إلا بعد إتمام مسار الكتابة الفعلي.</p></div></CardBody></Card>}
 
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم اعتماد المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence ?? 0}%</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم اعتماد المصدر في طبقة البيانات الكانونية العامة مع بصمته وسياقه وجودته، دون فرض نوع سجل أو مسار استيراد متخصص.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
+    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم اعتماد المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence ?? 0}%</b></div></div><div className="grid w-full max-w-lg grid-cols-2 gap-3 text-center">
+  <div className="rounded-lg bg-ink-50 p-3"><div className="text-xs text-ink-400">السجلات المعتمدة</div><b>{formatNumber(result.total)}</b></div>
+  <div className="rounded-lg bg-primary-50 p-3"><div className="text-xs text-primary-700">جودة المصدر السلطوية</div><b>{result.authoritativeQualityScore ?? 'غير متاح'}%</b></div>
+</div>
+<p className="max-w-xl break-all text-center font-mono text-[10px] text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم اعتماد المصدر في طبقة البيانات الكانونية العامة مع بصمته وسياقه وجودته، دون فرض نوع سجل أو مسار استيراد متخصص.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
 
-    <Card><CardHeader title="سجل الاستيرادات" subtitle="أحدث 500 عملية مرتبطة بحسابك، مع 50 صفًا في كل صفحة لتبقى القراءة سريعة؛ العمليات الأقدم تبقى محفوظة" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={historyError} onRetry={() => void loadHistory()} />:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد عمليات سابقة" message="لم يُثبت مصدر سابق لهذا الحساب بعد؛ ابدأ الآن من مدخل الاستيراد الموحد." action={<button type="button" onClick={reset} className="btn-primary text-[11px]"><Upload size={13}/> اختيار مصدر</button>}/>:<DataTable columns={[{key:'file_name',label:'المصدر'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مراجعة',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} pageSize={50} emptyMessage="لا توجد عمليات سابقة"/>}</Card>
+    <Card><CardHeader title="سجل الاستيرادات" subtitle="أحدث 100 عملية مرتبطة بحسابك، مع 50 صفًا في كل صفحة لتبقى القراءة سريعة؛ العمليات الأقدم تبقى محفوظة" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={historyError} onRetry={() => void loadHistory()} />:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد عمليات سابقة" message="لم يُثبت مصدر سابق لهذا الحساب بعد؛ ابدأ الآن من مدخل الاستيراد الموحد." action={<button type="button" onClick={reset} className="btn-primary text-[11px]"><Upload size={13}/> اختيار مصدر</button>}/>:<DataTable columns={[{key:'file_name',label:'المصدر'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مراجعة',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} pageSize={50} emptyMessage="لا توجد عمليات سابقة"/>}</Card>
   </div>;
 }

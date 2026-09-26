@@ -6,7 +6,7 @@ import {
 import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { ConfidenceBadge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
+import { EmptyState, ErrorState, LoadingState, BoundaryState } from '@/components/ui/States';
 import { fetchAlerts, fetchRecommendations } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Alert, Recommendation } from '@/lib/types';
@@ -52,19 +52,6 @@ function formatDeadline(value: string | null): string {
   return date.toLocaleDateString('ar-YE', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-function BlockedState({ title, detail }: { title: string; detail: string }) {
-  return (
-    <div className="rounded-[14px] border border-warning-200 bg-warning-50/70 p-4" role="status">
-      <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-100 text-warning-800"><ShieldCheck size={17}/></div>
-        <div className="min-w-0">
-          <div className="text-[12px] font-black text-warning-950">{title}</div>
-          <p className="mt-1 text-[11px] leading-5 text-warning-900/80">{detail}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function StageHeader({ label, description }: { label: string; description: string }) {
   return (
@@ -116,6 +103,9 @@ export function DecisionExperiencePage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(params.get('recommendationId'));
+  const [recommendationQuery, setRecommendationQuery] = useState('');
+  const [recommendationFilter, setRecommendationFilter] = useState<'all' | 'open' | 'accepted' | 'rejected'>('all');
+  const [alertFilter, setAlertFilter] = useState<'all' | 'critical' | 'high'>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -139,7 +129,18 @@ export function DecisionExperiencePage() {
 
   const selected = recommendations.find((item) => item.id === selectedId) ?? null;
   const currentStageIndex = Math.max(0, STAGES.findIndex((item) => item.id === stage));
-  const activeAlerts = useMemo(() => alerts.filter((item) => !item.is_read).slice(0, 6), [alerts]);
+  const activeAlerts = useMemo(() => alerts.filter((item) => !item.is_read && (alertFilter === 'all' || item.severity.toLowerCase() === alertFilter)).slice(0, 6), [alerts, alertFilter]);
+  const visibleRecommendations = useMemo(() => {
+    const normalized = recommendationQuery.trim().toLocaleLowerCase('ar-YE');
+    return recommendations.filter(item => {
+      const statusMatch = recommendationFilter === 'all'
+        || (recommendationFilter === 'open' && ['new', 'pending', 'proposed', 'in_progress'].includes(item.status))
+        || (recommendationFilter === 'accepted' && ['accepted', 'approved'].includes(item.status))
+        || (recommendationFilter === 'rejected' && ['rejected', 'cancelled'].includes(item.status));
+      const textMatch = !normalized || [item.title, item.description, item.category, item.owner].filter(Boolean).join(' ').toLocaleLowerCase('ar-YE').includes(normalized);
+      return statusMatch && textMatch;
+    });
+  }, [recommendations, recommendationFilter, recommendationQuery]);
   const selectedStatus = selected?.status ?? null;
 
   const navigateStage = (next: Stage, id = selectedId) => {
@@ -221,6 +222,7 @@ export function DecisionExperiencePage() {
             <CardHeader title="الإشارات التي تستدعي قرارًا" subtitle="اختر الإشارة التي تريد تحويلها إلى مسار قرار." />
             <CardBody>
               <div className="space-y-3">
+                <div className="flex flex-wrap gap-1.5" role="toolbar" aria-label="تصفية الإشارات"><button type="button" onClick={() => setAlertFilter('all')} aria-pressed={alertFilter === 'all'} className={alertFilter === 'all' ? 'rounded-full bg-ink-950 px-2.5 py-1 text-[9px] font-bold text-white' : 'rounded-full bg-ink-50 px-2.5 py-1 text-[9px] font-bold text-ink-600'}>كل التنبيهات</button><button type="button" onClick={() => setAlertFilter('critical')} aria-pressed={alertFilter === 'critical'} className={alertFilter === 'critical' ? 'rounded-full bg-danger-700 px-2.5 py-1 text-[9px] font-bold text-white' : 'rounded-full bg-danger-50 px-2.5 py-1 text-[9px] font-bold text-danger-700'}>حرجة</button><button type="button" onClick={() => setAlertFilter('high')} aria-pressed={alertFilter === 'high'} className={alertFilter === 'high' ? 'rounded-full bg-warning-700 px-2.5 py-1 text-[9px] font-bold text-white' : 'rounded-full bg-warning-50 px-2.5 py-1 text-[9px] font-bold text-warning-700'}>مرتفعة</button></div>
                 {activeAlerts.map((alert) => (
                   <article key={alert.id} className="rounded-[14px] border border-ink-200 bg-white p-4">
                     <div className="flex items-start gap-3">
@@ -240,10 +242,11 @@ export function DecisionExperiencePage() {
           </Card>
 
           <Card>
-            <CardHeader title="مرشحات القرار" subtitle="التوصية هي مرشح، وليست نتيجة تنفيذية محفوظة." />
+            <CardHeader title="مرشحات القرار" subtitle={`${visibleRecommendations.length} من ${recommendations.length} توصية — التوصية مرشح وليست نتيجة تنفيذية محفوظة.`} />
             <CardBody>
               <div className="space-y-3">
-                {recommendations.slice(0, 6).map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id)} />)}
+                <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]" role="toolbar" aria-label="بحث وتصفية التوصيات"><label className="relative"><span className="sr-only">بحث في التوصيات</span><input value={recommendationQuery} onChange={event => setRecommendationQuery(event.target.value)} className="input text-xs" placeholder="ابحث بالعنوان أو المسؤول أو الفئة..." aria-label="بحث في التوصيات" /></label><div className="flex flex-wrap gap-1.5">{(['all','open','accepted','rejected'] as const).map(value => <button key={value} type="button" onClick={() => setRecommendationFilter(value)} aria-pressed={recommendationFilter === value} className={recommendationFilter === value ? 'rounded-full bg-ink-950 px-2.5 py-1 text-[9px] font-bold text-white' : 'rounded-full bg-ink-50 px-2.5 py-1 text-[9px] font-bold text-ink-600'}>{value === 'all' ? 'الكل' : value === 'open' ? 'مفتوحة' : value === 'accepted' ? 'مقبولة' : 'مرفوضة'}</button>)}</div></div>
+                {visibleRecommendations.slice(0, 8).map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id)} />)}
                 {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يتم إنشاء توصية بديلة عند غياب بيانات المصدر." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
               </div>
             </CardBody>
@@ -279,7 +282,7 @@ export function DecisionExperiencePage() {
                     <div className="rounded-[12px] border border-ink-100 bg-white p-3"><div className="text-[10px] text-ink-400">الثقة</div><div className="mt-1"><ConfidenceBadge confidence={selected.confidence}/></div></div>
                     <div className="rounded-[12px] border border-ink-100 bg-white p-3"><div className="text-[10px] text-ink-400">الأثر المتوقع</div><div className="mt-1 text-[12px] font-black text-ink-900">{selected.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)}</div></div>
                   </div>
-                  <BlockedState title="الدليل التشغيلي غير مثبت هنا" detail="لا تُعرض بيانات مصدرية مصطنعة ولا يتم تحويل وصف التوصية إلى دليل. الانتقال إلى القرار يحافظ على حالة المراجعة بدل الادعاء بوجود إثبات غير متاح." />
+                  <BoundaryState variant="blocked" title="الدليل التشغيلي غير مثبت هنا" message="لا تُعرض بيانات مصدرية مصطنعة ولا يتم تحويل وصف التوصية إلى دليل. الانتقال إلى القرار يحافظ على حالة المراجعة بدل الادعاء بوجود إثبات غير متاح." />
                   <div className="flex flex-wrap gap-2"><button type="button" onClick={() => navigateStage('decision')} className="btn-primary text-[11px]">متابعة إلى القرار <ArrowUpLeft size={13}/></button><Link to="/metrics" className="btn-secondary text-[11px]">فحص تعريف المؤشر <FileSearch size={13}/></Link></div>
                 </div>
               ) : <EmptyState title="اختر توصية" message="اختر عنصرًا موجودًا لفحص سياق الدليل." action={<Link to="/command-center" className="btn-secondary text-[11px]">العودة إلى الإشارات</Link>}/>} 
@@ -311,7 +314,7 @@ export function DecisionExperiencePage() {
             </CardBody>
           </Card>
           <div className="space-y-4">
-            <BlockedState title="القرار المحفوظ غير متاح من هذه الواجهة" detail="لا تتم كتابة حالة قرار محلية أو إنشاء موافقة اصطناعية. يتطلب الحفظ مسار الصلاحية والـDML المعتمدين." />
+            <BoundaryState variant="blocked" title="القرار المحفوظ غير متاح من هذه الواجهة" message="لا تتم كتابة حالة قرار محلية أو إنشاء موافقة اصطناعية. يتطلب الحفظ مسار الصلاحية والـDML المعتمدين." />
             <div className="grid gap-3">
               <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><CheckCircle2 size={15} className="text-success-700"/> التوصية</div><p className="mt-1 text-[10px] text-ink-400">موجودة في المصدر</p></div>
               <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><ShieldCheck size={15} className="text-warning-700"/> الموافقة</div><p className="mt-1 text-[10px] text-ink-400">تحتاج مسارًا تشغيليًا موثقًا</p></div>
@@ -335,7 +338,7 @@ export function DecisionExperiencePage() {
               </div>
             </CardBody>
           </Card>
-          <BlockedState title="الموافقة محجوبة عمدًا" detail="المنتج لا يختلق صاحب موافقة، توقيتًا، أو حالة اعتماد. عند توفر المسار التشغيلي الموثق، تبقى هذه المرحلة مكانًا واضحًا للمسؤولية قبل التنفيذ." />
+          <BoundaryState variant="blocked" title="الموافقة محجوبة عمدًا" message="المنتج لا يختلق صاحب موافقة، توقيتًا، أو حالة اعتماد. عند توفر المسار التشغيلي الموثق، تبقى هذه المرحلة مكانًا واضحًا للمسؤولية قبل التنفيذ." />
         </section>
       )}
 
@@ -358,7 +361,7 @@ export function DecisionExperiencePage() {
               </div>
             </CardBody>
           </Card>
-          <BlockedState title="لا يوجد سجل تنفيذ مُثبت" detail="لن يتم إنشاء مهمة أو حالة إنجاز من واجهة القرار. التنفيذ يجب أن يأتي من المسار التشغيلي المعتمد ويعود هنا كحالة persisted." />
+          <BoundaryState variant="blocked" title="لا يوجد سجل تنفيذ مُثبت" message="لن يتم إنشاء مهمة أو حالة إنجاز من واجهة القرار. التنفيذ يجب أن يأتي من المسار التشغيلي المعتمد ويعود هنا كحالة persisted." />
         </section>
       )}
 
@@ -384,7 +387,7 @@ export function DecisionExperiencePage() {
               </div>
             </CardBody>
           </Card>
-          <BlockedState title="النتيجة الفعلية غير موجودة بعد" detail="عدم توفر النتيجة ليس فشلًا في العرض؛ إنه حد حقيقي في الدليل. لن تُحوّل التوصية إلى نتيجة أو تعلّم تشغيلي قبل وجود سجل تنفيذ موثق." />
+          <BoundaryState variant="blocked" title="النتيجة الفعلية غير موجودة بعد" message="عدم توفر النتيجة ليس فشلًا في العرض؛ إنه حد حقيقي في الدليل. لن تُحوّل التوصية إلى نتيجة أو تعلّم تشغيلي قبل وجود سجل تنفيذ موثق." />
         </section>
       )}
 

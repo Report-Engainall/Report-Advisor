@@ -53,6 +53,16 @@ function writeReport(status, reason, extra = {}) {
   console.log(`PHASE_F_REASON=${reason}`);
 }
 
+if (!/^[0-9a-f]{40}$/i.test(exactHead)) {
+  writeReport(
+    'BLOCKED EXTERNAL',
+    'EXACT_HEAD must be the full 40-character commit SHA.',
+    { policyViolation: 'EXACT_HEAD' },
+  );
+  console.error('FAIL-CLOSED: EXACT_HEAD must be the full 40-character commit SHA.');
+  process.exit(4);
+}
+
 if (missing.length) {
   writeReport(
     'BLOCKED EXTERNAL',
@@ -223,9 +233,12 @@ async function logicalBackupRestore() {
 
     runCommand('supabase', ['db', 'reset', '--debug', '--no-seed'], { cwd: workDir });
 
+    const snapshotRequestStartedAt = Date.now();
     const snapshotText = runDockerPsql(runnerSource, exactSnapshotSql);
+    const snapshotResponseReceivedAt = Date.now();
     const snapshotAt = Date.parse(snapshotText);
     if (!Number.isFinite(snapshotAt)) throw new Error('source_snapshot_timestamp_invalid');
+    const snapshotObservedAt = Math.round((snapshotRequestStartedAt + snapshotResponseReceivedAt) / 2);
 
     const generatedCountSql = runDockerPsql(runnerSource, countSql);
     const sourceCounts = parseTableCounts(runDockerPsql(runnerSource, generatedCountSql));
@@ -243,7 +256,7 @@ async function logicalBackupRestore() {
 
     const bytes = fs.statSync(backupPath).size;
     const sha256 = crypto.createHash('sha256').update(fs.readFileSync(backupPath)).digest('hex');
-    const rpoSeconds = Math.max(0, (backupCompletedAt - snapshotAt) / 1000);
+    const rpoSeconds = Math.max(0, (backupCompletedAt - snapshotObservedAt) / 1000);
     if (rpoSeconds > maxRpoSeconds) throw new Error(`rpo_budget_exceeded:${rpoSeconds}`);
 
     const restoreStartedAt = Date.now();
@@ -265,6 +278,9 @@ async function logicalBackupRestore() {
       rto_seconds: rtoSeconds,
       table_count: Object.keys(sourceCounts).length,
       source_snapshot_at: snapshotText,
+      snapshot_request_started_at: new Date(snapshotRequestStartedAt).toISOString(),
+      snapshot_response_received_at: new Date(snapshotResponseReceivedAt).toISOString(),
+      snapshot_observed_at: new Date(snapshotObservedAt).toISOString(),
       restore_verified: true,
       restore_target: 'ephemeral-local-supabase-postgres',
       backup_started_at: new Date(backupStartedAt).toISOString(),

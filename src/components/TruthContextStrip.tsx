@@ -1,6 +1,6 @@
 import { CalendarRange, CheckCircle2, Database, ShieldAlert } from 'lucide-react';
 
-type TruthState = 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA';
+type TruthState = 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA' | 'INSUFFICIENT_SAMPLE';
 
 interface TruthContextStripProps {
   months: number;
@@ -12,6 +12,7 @@ const stateMeta: Record<TruthState, { label: string; className: string; icon: ty
   CONFIRMED: { label: 'مصدر مؤكد', className: 'text-success-700 bg-success-50 ring-success-100', icon: CheckCircle2 },
   CALCULATED: { label: 'محسوب من المصدر', className: 'text-primary-700 bg-primary-50 ring-primary-100', icon: CheckCircle2 },
   INSUFFICIENT_DATA: { label: 'بيانات غير كافية', className: 'text-warning-700 bg-warning-50 ring-warning-100', icon: ShieldAlert },
+  INSUFFICIENT_SAMPLE: { label: 'عينة غير كافية', className: 'text-warning-700 bg-warning-50 ring-warning-100', icon: ShieldAlert },
 };
 
 export function TruthContextStrip({ months, status, asOf }: TruthContextStripProps) {
@@ -31,7 +32,7 @@ export function TruthContextStrip({ months, status, asOf }: TruthContextStripPro
           <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 font-semibold text-ink-600 ring-1 ring-inset ring-ink-100"><CalendarRange size={13} aria-hidden="true" />الفترة: آخر {months} {months === 1 ? 'شهر' : 'أشهر'}</span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 font-semibold text-ink-600 ring-1 ring-inset ring-ink-100">اللقطة: {asOf}</span>
           <span className={'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-bold ring-1 ring-inset ' + meta.className}><StateIcon size={13} aria-hidden="true" />{meta.label}</span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 font-semibold text-ink-600 ring-1 ring-inset ring-ink-100">المؤسسة الحالية · مسار مصدر معتمد</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 font-semibold text-ink-600 ring-1 ring-inset ring-ink-100">المصدر: لقطة Canonical معتمدة</span>
         </div>
       </div>
     </section>

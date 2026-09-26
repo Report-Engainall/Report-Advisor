@@ -9,6 +9,8 @@ import { PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
 import { LoadingState, ErrorState, EmptyState, DataUnavailableState } from '@/components/ui/States';
 import { TrendChart } from '@/components/ui/Charts';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
+import { TrustBadge } from '@/components/ui/TrustBadge';
+import { trustStateFromDataStatus } from '@/lib/trust-state';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs } from '@/lib/dashboard-canonical';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Alert, Recommendation } from '@/lib/types';
@@ -139,7 +141,7 @@ export function ExecutiveCommandCenterPage() {
       <div className="ag-decision-strip" aria-label="ملخص مركز القرار">
         <div className="ag-decision-cell">
           <span className="ag-decision-label">وضع الحقيقة</span>
-          <span className="ag-decision-value">{kpis.status === 'INSUFFICIENT_DATA' ? 'بيانات غير كافية' : 'الصورة قابلة للاستخدام'}</span>
+          <span className="ag-decision-value"><TrustBadge state={trustStateFromDataStatus(kpis.status)} compact /></span>
         </div>
         <div className="ag-decision-cell"><span className="ag-decision-label">تغطية القياسات</span><span className="ag-decision-value">{coverage}%</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">إشارات مفتوحة</span><span className="ag-decision-value">{alerts.length}</span></div>

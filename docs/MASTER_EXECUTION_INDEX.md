@@ -1,3 +1,221 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 167
+
+- CURRENT CODE/TEST CANDIDATE: `e05e768056a20d2fe56960108864e6ca8f7b2fcb`.
+- PR #659 / branch `feat/deep-ui-core-closure-20260925`.
+- VERCEL EXACT-HEAD: READY — `https://report-advisor-ln3hu037a-injaz2.vercel.app`.
+- NETLIFY DEPLOY-PREVIEW: success — `https://deploy-preview-659--aghbari-report-advisor.netlify.app`.
+- GITHUB: 51 PR-triggered workflow records observed; active application/certification matrix remains queued, so no final application PASS.
+- COMBINED STATUS: CodeRabbit success + Netlify preview success + Vercel exact-head success.
+- NOT PROVEN: final Quality/Certification/Browser/Phase-F terminal green, production promotion, device-dependent visual certification.
+- NEXT EXECUTABLE ACTION: consume first terminal application/certification result on `e05e768...`; targeted repair only if reproduced.
+- RESUME POINTER: `main c985deeb… → PR #659 → e05e768… → terminal certification result → targeted repair → exact-green merge evidence`.
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 166
+
+- HEAD OBSERVED BEFORE THIS INDEX WRITE: `e05e768056a20d2fe56960108864e6ca8f7b2fcb`.
+- CURRENT CODE/TEST CANDIDATE: `e05e768056a20d2fe56960108864e6ca8f7b2fcb`.
+- PR #659 / branch `feat/deep-ui-core-closure-20260925`.
+- UI: Dashboard visual hierarchy was materially upgraded with Decision OS hero, live-truth marker, truth/decision/as-of signal rail, canonical truth chips, and dedicated Decision Brief / Truth→Action card styling.
+- PREVIEW: Vercel exact-head deployment exists for `e05e768...`; observed state is BUILDING. Preview URL `https://report-advisor-ln3hu037a-injaz2.vercel.app`; branch alias `https://report-advisor-git-feat-deep-ui-core-closure-20260925-injaz2.vercel.app`.
+- EXACT-HEAD EVIDENCE: GitHub workflow runs/statuses have not terminalized for `e05e768...`; no PASS transferred or claimed.
+- NOT PROVEN: production promotion, Phase-F live resilience, terminal CI certification, device-dependent visual certification.
+- NEXT EXECUTABLE ACTION: consume terminal CI and preview result; fix only a reproduced defect, otherwise continue exact-green certification.
+- DO NOT REPEAT: stale PASS, preview-as-production, deployment-limit-as-code-failure, duplicate data paths.
+- RESUME POINTER: `main c985deeb… → PR #659 → e05e768… → terminal CI/preview evidence → targeted repair if reproduced → exact-green merge evidence`.
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 165
+
+- HEAD OBSERVED BEFORE THIS INDEX WRITE: `5e3a76a4727928a2869c5edc6fa5885b3a18f123` (latest visual/UI code candidate).
+- CURRENT CODE/TEST CANDIDATE: `5e3a76a4727928a2869c5edc6fa5885b3a18f123`.
+- PR #659 / branch `feat/deep-ui-core-closure-20260925`.
+- UI REDESIGN: Aghbari 2026 visual system applied across shared UI — Graphite/Obsidian navigation, Emerald actions, Champagne accent, improved surfaces/elevation, navigation states, journey strip, command search, KPIs, callouts, tables, and responsive shell styling.
+- ARCHITECTURE: visual-only shared-layer changes; no duplicate importer/RPC/runner/persistence path and no business-truth mutation.
+- EXACT-HEAD EVIDENCE: fresh checks for `5e3a76a...` are queued/pending with expected skipped commercial checks; no terminal application PASS.
+- NOT PROVEN: current-head Quality/Final Certification/Browser/Phase-F terminal success, production identity/promotion, and device-dependent visual certification.
+- NEXT EXECUTABLE ACTION: consume the first terminal exact-head result for `5e3a76a...`; repair only a reproduced failure, otherwise continue the next non-overlapping UI/core closure.
+- DO NOT REPEAT: stale PASS, preview-as-production, deployment-limit-as-code-failure, closed UI/core surfaces without a fresh failure, or duplicate data paths.
+- RESUME POINTER: `main c985deeb… → PR #659 → 5e3a76a… → first terminal exact-head result → targeted repair if reproduced → exact-green merge evidence`.
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 164
+
+- HEAD OBSERVED BEFORE THIS INDEX WRITE: `aad049e655bfd20e9f9956de7a0a9ace28864732` (governance write).
+- CURRENT CODE/TEST CANDIDATE: `a9ad206c22b7c4447e8091146ab634eeff55351f`.
+- PR #659 / branch `feat/deep-ui-core-closure-20260925`.
+- CORE: Phase-F restore prerequisite now exactly matches the later cash_accounts FK order via `UNIQUE(company_id,id)`; duplicate-pair guard is fail-closed.
+- UI: Trust & Evidence diagnostics, Receivables hook stability, and Inventory grouped/detail typing/hook stability are retained in the candidate lineage.
+- STAGING: existing live branch and cash_accounts relationship was re-verified; this is not evidence that the new forward migration has replayed yet.
+- EXACT-HEAD EVIDENCE: corrected candidate requires fresh Actions/Phase-F proof. No stale PASS transferred.
+- NEXT EXECUTABLE ACTION: consume the first terminal exact-head failure for `a9ad206c…`; repair only that failure, otherwise continue another independent UI/core closure.
+- DO NOT REPEAT: wrong branch-key order, old hook/type defects, stale SHA evidence, preview-as-production, production/Phase-F bypass, duplicate importer/RPC/runner.
+- RESUME POINTER: `main c985deeb… → PR #659 → a9ad206c… → first terminal exact-head failure → independent UI/core closure → exact-green merge evidence`.
+
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 159
+
+- HEAD OBSERVED BEFORE THIS INDEX WRITE: 1c681d6bd12e173591ea6ebb8c78bbc5e3260eb2.
+- CORE: sales/purchase invoice report reads now fail closed on missing or malformed rows and enforce tenant-aware identity/date/status/numeric invariants.
+- QUALITY: invoice read contract is registered and enforced by Quality.
+- CURRENT EVIDENCE: current-head workflows are still non-terminal; no application PASS transferred. Vercel capacity remains external.
+- NOT PROVEN: current-head Quality/Certification/Browser/Phase-F/production/device certification.
+- NEXT: first terminal exact-head failure only, then continue non-overlapping work.
+- RESUME POINTER: main c985deeb… → PR #659 → 1c681d6b… → first terminal failure only → exact green merge evidence.
+
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 158
+
+- CODE HEAD OBSERVED BEFORE THIS INDEX WRITE: cbbaced02eb9e093750192f5279021aa2361124d.
+- UI: Intelligence Center / Recommendations / Forecasts now share a blocked load boundary with retry and Trust & Evidence path.
+- QUALITY: intelligence product contract locks the shared failure boundary.
+- CURRENT EVIDENCE: exact-head checks have not produced a terminal application PASS; no stale evidence is transferred.
+- NOT PROVEN: current-head Quality/Certification/Browser/Phase-F/production/device certification.
+- NEXT: consume first terminal exact-head failure only; otherwise continue an independent UI/core closure.
+- RESUME POINTER: main c985deeb… → PR #659 → cbbaced0… → first terminal failure only → next independent UI/core closure → exact green merge evidence.
+
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 157
+
+- HEAD OBSERVED BEFORE THIS INDEX WRITE: d799fab7eb911450faa920770ce020bae99d5030.
+- PR #659 / branch feat/deep-ui-core-closure-20260925.
+- CORE: dashboard canonical readbacks now fail closed on malformed arrays and missing source as-of; forecast snapshot rows now pass strict structural validation before reaching UI.
+- QUALITY: dashboard contract strengthened; new forecast read contract is registered and enforced by Quality.
+- CURRENT EVIDENCE: exact-head workflows remain queued/pending; no current-head application PASS. Vercel is externally rate-limited and is not treated as code failure.
+- NOT PROVEN: current-head terminal Quality/Certification/Browser evidence, production identity/promotion, Phase-F live resilience, device-dependent visual verification.
+- NEXT: consume only the first terminal failure on the exact current head; otherwise continue an independent UI/core closure.
+- DO NOT REPEAT: closed prior surfaces, stale evidence, deployment-limit confusion, duplicate data/RPC paths, or production/Phase-F bypass.
+- RESUME POINTER: main c985deeb… → PR #659 → d799fab7… → first terminal failure only → next independent UI/core closure → exact green merge evidence.
+
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 156
+
+- CODE HEAD OBSERVED BEFORE THIS INDEX WRITE: `95371dbff307952972dd3d858926024f9294ea03`.
+- PR #659 / branch `feat/deep-ui-core-closure-20260925`.
+- CORE: Inventory Intelligence now rejects orphan balance→product references instead of silently dropping rows.
+- UI: blocked inventory truth now preserves Trust & Evidence and retry actions through the shared BoundaryState.
+- QUALITY: the inventory intelligence contract locks the orphan-reference fail-closed rule and removes the silent-discard pattern.
+- EXACT-HEAD EVIDENCE: no Actions run visible yet for `95371dbff307952972dd3d858926024f9294ea03`; Vercel reports the known free-plan deployment rate-limit failure only. No PASS transferred or claimed.
+- NOT PROVEN: current-head Quality/Certification/Browser evidence, production promotion/identity, Phase-F live resilience, and device-dependent visual evidence.
+- NEXT: consume current exact-head terminal evidence; first reproduced failure only; otherwise continue an independent UI/core closure.
+- DO NOT REPEAT: closed surfaces and stale evidence; do not interpret Vercel plan capacity as code failure; no production/Phase-F bypass.
+- RESUME POINTER: `main c985deeb… → PR #659 → exact head 95371db… → first terminal failure only → next independent UI/core closure → exact green merge evidence`.
+
+---
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 155
+
+- CODE HEAD OBSERVED BEFORE THIS INDEX WRITE: `74750363f5cf9b6f6050377d1d8a6d23ec8ee762`.
+- PR #659 / branch: `feat/deep-ui-core-closure-20260925`.
+- CORE CLOSURE: demand-series now rejects missing/blank `product_id` and invalid invoice references instead of silently producing partial product demand analysis.
+- UI CLOSURE: Demand Velocity now exposes Trust & Evidence directly, documents the source-reading boundary, and keeps no-data distinct from zero-demand presentation.
+- QUALITY CLOSURE: demand-series contract now guards product-id typing, invoice-reference membership, and relation fail-closed behavior.
+- CURRENT EXACT-HEAD EVIDENCE: no GitHub Actions run was visible yet for `74750363f5cf9b6f6050377d1d8a6d23ec8ee762`; combined status has Vercel FAILURE due the known free-plan deployment rate limit and a Vercel deployment PENDING. No PASS transferred or claimed.
+- NOT PROVEN: current-head Quality/Final Certification/Browser evidence, production promotion/identity, Phase-F live resilience, and device-dependent visual evidence.
+- NEXT EXECUTABLE ACTION: consume terminal evidence on exact head `74750363…`; repair only the first reproduced failure. If still queued/no-run, continue another non-overlapping UI/core closure.
+- DO NOT REPEAT: closed Work Center/Connections/Master Data/Import/Executive/Profitability/Receivables/Decision/Data Quality/Dashboard/Inventory closures; stale PASS; preview-as-production; Vercel rate-limit-as-code-failure; duplicate importer/RPC/runner; device-dependent work.
+- RESUME POINTER: `main c985deeb… → PR #659 → code head 74750363… → first terminal exact-head failure only → next independent UI/core closure → exact green merge evidence`.
+
+---
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 151
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT CODE/TEST CANDIDATE: `cce7418ab7e83db72939c724fc69ccf0cbfe2154` (PR #659).
+- UI CLOSURE: Decision Experience now has recommendation search/status filtering and active-alert severity triage, with no duplicate data source or route.
+- QUALITY CLOSURE: deep-truth UI contract now guards those controls and remains enforced by Quality.
+- CURRENT PR STATE: #659 OPEN; current GitHub evaluation is incomplete and reports mergeable=false at this moment. No merge/force action.
+- CURRENT GATES: no current-head terminal application PASS available in the latest observation. Vercel remains externally rate-limited.
+- NOT PROVEN: production promotion, Phase-F live evidence, current-head browser certification, device-dependent visual evidence.
+- NEXT EXECUTABLE ACTION: consume the first terminal #659 repository gate on exact head `cce7418ab7e83db72939c724fc69ccf0cbfe2154`; repair only its first reproduced failure, then continue the next uncovered UI/core surface.
+- DO NOT REPEAT: stale evidence, preview-as-production, deployment-limit confusion, reopened closures, duplicate importer/RPC/runner, unsafe import-job mutation.
+- RESUME POINTER: `main c985deeb6e9f… → first terminal #659 gate cce7418ab7e8… → first reproduced failure only → next uncovered UI/core closure → exact green merge evidence`.
+
+---
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 150
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT CODE/TEST CANDIDATE: `b9ee9b149835902789a73fd1d95fc82a3e4b2792` (PR #659).
+- UI CLOSURE: Profitability and Receivables surfaces now expose evidence/decision paths, explicit boundary states, and stronger in-surface search/filter interaction.
+- CORE CLOSURE: Profitability and Receivables RPC readbacks are now fail-closed on required numeric/shape invariants.
+- QUALITY CLOSURE: dedicated profitability and receivables contracts are registered and enforced by Quality.
+- CURRENT GATES: current-head GitHub workflows are not yet terminal; no PASS transferred or claimed. Vercel remains externally rate-limited.
+- NOT PROVEN: production promotion, Phase-F live evidence, current-head browser certification, device-dependent visual evidence.
+- NEXT EXECUTABLE ACTION: consume the first terminal #659 repository gate on exact head `b9ee9b149835902789a73fd1d95fc82a3e4b2792`; repair only its first reproducible failure, then continue the next uncovered UI/core surface.
+- DO NOT REPEAT: stale evidence, preview-as-production, deployment-limit confusion, reopened financial UI closures, duplicate importer/RPC/runner, unsafe import-job mutation.
+- RESUME POINTER: `main c985deeb6e9f… → first terminal #659 gate b9ee9b149835… → first reproduced failure only → next uncovered UI/core closure → exact green merge evidence`.
+
+---
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 149
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT CODE/TEST CANDIDATE: `9dcb06e82c44d0ac44862ccad55a4cac68f81ff6` (PR #659).
+- UI CLOSURE: Work Center, Sources & Connections, Master Data Hub, and Executive Report received operational depth, state/action coverage, accessibility improvements, and evidence-aware navigation without parallel routes.
+- CORE CLOSURE: import readback now preserves source metadata from result_summary with validated fallbacks and explicit tenant/focused-job scoping.
+- QUALITY CLOSURE: `test:import-readback-fidelity` is registered in package scripts and enforced by Quality after the deep truth UI contract.
+- CURRENT GATES: 45 exact-head workflows remain queued/pending; only Commercial PWA is terminal-skipped. No PASS transferred or claimed.
+- EXTERNAL BOUNDARY: Vercel remains blocked by the free-plan deployment rate limit; this is not application evidence.
+- NOT PROVEN: production promotion, Phase-F live evidence, current-head browser certification, and device-dependent visual evidence.
+- NEXT EXECUTABLE ACTION: consume the first terminal #659 repository gate on exact head `9dcb06e82c44d0ac44862ccad55a4cac68f81ff6`; repair only its first reproducible failure, then continue the next uncovered UI/core surface.
+- DO NOT REPEAT: stale evidence, preview-as-production, deployment-limit confusion, reopened UI closures, duplicate importer/RPC/runner, unsafe import-job mutation.
+- RESUME POINTER: `main c985deeb6e9f… → first terminal #659 gate 9dcb06e82c44… → first reproduced failure only → next uncovered UI/core closure → exact green merge evidence`.
+
+---
+---
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI + PHASE-F IDENTITY/RPO CLOSURE 148
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT CODE/TEST CANDIDATE: `65d3b172f6008bfc56f26a358eff68945c2ddb53` (PR #659).
+- UI CLOSURE: Canonical Import now exposes BLOCKED/REVIEW/TRUSTED before approval and VERIFIED only after an authoritative snapshot; Command Center and Analytics/Trust surfaces consume canonical TrustState.
+- UI ARCHITECTURE CLOSURE: Decision Experience uses shared BoundaryState instead of a page-local blocked-state duplicate.
+- CORE CLOSURE: Phase-F exact-head validation remains fail-closed; logical RPO uses runner-side snapshot midpoint timing and records the timing evidence.
+- QUALITY CLOSURE: new `test:deep-truth-ui` script is enforced by the Quality workflow.
+- CURRENT GATES: 46 exact-head checks observed; 43 remain pending and only expected skipped checks have terminalized. No PASS transferred from older SHAs.
+- NEXT EXECUTABLE ACTION: consume first terminal #659 repository gate; repair only current reproduced failure; then continue independent closure until required exact-head evidence is green.
+- DO NOT REPEAT: stale evidence, preview-as-production, cross-clock RPO calculation, duplicate boundary UI, production/Phase-F bypass.
+
+---
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI + PHASE-F IDENTITY CLOSURE 147
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT CODE/TEST CANDIDATE: `7792f857f7e7f56e5e131d6563882c492b45f907` (PR #659).
+- CORE CLOSURE: trust-state normalization is now canonical across casing and equivalent source statuses; `NO_DATA` remains `INSUFFICIENT DATA`, while `SAMPLE_TOO_SMALL` becomes `INSUFFICIENT SAMPLE`.
+- UI CLOSURE: analytics and evidence surfaces display the canonical trust distinction; no calculated result is synthesized for sample insufficiency.
+- PHASE-F CLOSURE: malformed exact-head identities are rejected before live probes and the closure contract checks that guard.
+- CURRENT GATES: latest #659 candidate has pending GitHub Actions checks; Vercel deployment remains externally rate-limited. No deployment PASS is inferred.
+- NEXT EXECUTABLE ACTION: consume the first terminal #659 repository gate; repair only a reproduced failure; otherwise continue non-overlapping UI/core closure and preserve fail-closed release boundaries.
+- DO NOT REPEAT: stale evidence, status fabrication, preview-as-production, production/Phase-F bypass, duplicate importer/RPC/runner.
+
+---
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI + PHASE-F IDENTITY CLOSURE 146
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT CODE/TEST CANDIDATE: `42de80a59c0c5fa40892e379f5d7a84c6a9bdbf3` (PR #659).
+- UI CLOSURE: analytics status strips now surface canonical trust state; `INSUFFICIENT SAMPLE` is separated from `INSUFFICIENT DATA` and never presented as a calculated result.
+- CORE CLOSURE: Phase-F rejects noncanonical exact-head identities before live probes, and the static Phase-F closure contract asserts this guard.
+- ACTIVE-LANE ISOLATION: #659 is based directly on current main and does not modify the active #657/#658 code paths.
+- CURRENT GATES: GitHub Actions on #659 have started; most of the 48 checks are still queued/pending. Vercel is externally rate-limited; Netlify preview for the latest pushed head was canceled. No deployment PASS is claimed.
+- #657/#658: desktop-windows exact-head runs are terminal success; broader required matrices remain incomplete/queued, so neither lane is merge-ready from the observed evidence.
+- NEXT EXECUTABLE ACTION: consume the first terminal #659 repository gate; repair only a reproduced failure; otherwise continue independent UI/core closure without reopening completed work.
+- DO NOT REPEAT: stale evidence, deployment-limit confusion, preview-as-production, duplicate importer/RPC/runner, production or Phase-F bypass.
+
+---
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI + PHASE-F IDENTITY CLOSURE 145
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT CODE/TEST CANDIDATE: `82afe9e4ad14d6430995321e6fc41473e8c9daff` (PR #659).
+- UI CLOSURE: TrustState now carries `INSUFFICIENT_SAMPLE` distinctly from `INSUFFICIENT_DATA`; shared TrustBadge / TruthContextStrip and TrustEvidence surface the distinction without inventing business values.
+- CORE CLOSURE: Phase-F runtime now fail-closes before live probes when `EXACT_HEAD` is not a full 40-character hexadecimal commit SHA; the closure contract asserts the same invariant.
+- PR ISOLATION: #659 touches six files only and is based directly on current main. It does not overlap the active #657/#658 code paths.
+- CURRENT EXTERNAL GATES: Vercel exact-head status is rate-limited by plan; Netlify preview is pending. No PASS is inferred from either state.
+- NEXT EXECUTABLE ACTION: consume the first terminal exact-head repository gate on #659; repair only a reproduced code failure; otherwise continue independent UI/core fronts and keep Phase-F/production fail-closed.
+- DO NOT REPEAT: no stale PASS transfer, no deployment-limit-as-code-failure, no preview-as-production, no duplicate path, no production mutation.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 144
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `8eb5b4154e02a1320942e08a33e052e0a35ab238`.
@@ -465,3 +683,30 @@
 - **UI IMPLEMENTATION:** `42ca66e327ce63fd5353de86d3f8753f12356b55`.
 - **UI CONTRACT:** `34b2038602f4899a78e6e183087cfe232c02faa8`.
 - **DONE:** decision alerts now send «فحص المصدر أولًا» to the existing Trust & Evidence route instead of returning to the same command screen.
+
+## Session 152 checkpoint
+
+- Branch: `feat/deep-ui-core-closure-20260925`
+- Head before this checkpoint write: `bf3b86de5d1a27d371c702fc3313c274b2e6bb09`
+- Added Data Quality issue triage controls and a fail-closed dashboard snapshot array validator.
+- Added/registered dashboard snapshot contract and enforced it in Quality workflow.
+- Evidence boundary unchanged: no browser/device certification, no production/Phase-F PASS, and external Vercel rate-limit remains a deployment-capacity blocker.
+- Resume: wait for exact-head terminal workflow evidence, repair only first reproduced failure, then continue next independent UI/core surface.
+
+
+## Session 153 checkpoint
+
+- Head before checkpoint write: `459f6d9e58236466247882cac1cff861e903a3ba`
+- Closed deeper Inventory Intelligence UI search/trust access and hardened its canonical source adapter with fail-closed row validation.
+- Quality workflow now enforces the inventory-intelligence contract in addition to deep-truth/dashboard/import/profitability/receivables contracts.
+- Browser/device, production, and Phase-F evidence remain unproven.
+- Resume: exact-head terminal Actions first failure only; otherwise continue the next independent uncovered UI/core surface.
+
+
+## Session 154 checkpoint
+
+- Head before index write: `5fd9d1b3d3e0e6b3e0cc7b375e5bfb5b043ef874`
+- Hardened canonical sales demand series against malformed invoice/item/product relation payloads.
+- Added and enforced the demand-series contract in Quality.
+- No duplicate source path introduced; Inventory Intelligence continues to consume the same canonical adapter chain.
+- Resume: exact-head terminal workflow evidence first; repair only the first reproduced failure.

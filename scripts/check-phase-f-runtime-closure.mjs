@@ -15,6 +15,7 @@ for (const script of ['test:operational-resilience','test:release-resilience-man
 const probe = fs.readFileSync(path.join(root,'scripts/phase-f-live-resilience-probes.mjs'),'utf8');
 for (const token of [
   'EXACT_HEAD',
+  'EXACT_HEAD must be the full 40-character commit SHA.',
   'deployment_sha',
   'deployment_id',
   'DEPLOYMENT_SHA_MISMATCH',
@@ -25,6 +26,9 @@ for (const token of [
   'artifact_sha256',
   'rpo_seconds',
   'rto_seconds',
+  'snapshot_request_started_at',
+  'snapshot_response_received_at',
+  'snapshot_observed_at',
   'logical-',
 ]) if (!probe.includes(token)) throw new Error(`Logical backup/restore runtime invariant missing: ${token}`);
 console.log('Phase F runtime closure contract: PASS');
