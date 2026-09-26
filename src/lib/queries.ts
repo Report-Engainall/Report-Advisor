@@ -368,7 +368,35 @@ export async function fetchRecommendationOutcome(recommendationId: string): Prom
 }
 export type ReceivablesReportRow = { id:string; invoice_number:string; invoice_date:string; due_date:string|null; total:number|null; paid_amount:number|null; balance:number; status:string|null; customer:{id:string|null;name:string|null}|null };
 export type ReceivablesReportPage = { status:'CALCULATED'|'NO_DATA'; page:number; page_size:number; total_rows:number; total_outstanding:number; rows:ReceivablesReportRow[] };
-export async function fetchReceivablesReportPage(page=0,pageSize=25):Promise<ReceivablesReportPage>{if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');if(!Number.isInteger(pageSize)||pageSize<1||pageSize>100)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');const {data,error}=await supabase.rpc('get_receivables_report_page',{p_page:page,p_page_size:pageSize});if(error)throw error;if(!data||typeof data!=='object')throw new Error('REPORT_DATA_UNAVAILABLE: receivables snapshot missing');const p=data as Record<string,unknown>;if(!Array.isArray(p.rows))throw new Error('REPORT_DATA_UNAVAILABLE: receivables rows missing');return{status:p.status==='NO_DATA'?'NO_DATA':'CALCULATED',page:Number(p.page??page),page_size:Number(p.page_size??pageSize),total_rows:Number(p.total_rows??0),total_outstanding:Number(p.total_outstanding??0),rows:p.rows as ReceivablesReportRow[]};}
+export async function fetchReceivablesReportPage(page = 0, pageSize = 25): Promise<ReceivablesReportPage> {
+  if (!Number.isInteger(page) || page < 0) throw new Error('REPORT_QUERY_INVALID_PAGE');
+  if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');
+
+  const { data, error } = await supabase.rpc('get_receivables_report_page', {
+    p_page: page,
+    p_page_size: pageSize,
+  });
+  if (error) throw error;
+  if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('REPORT_DATA_UNAVAILABLE: receivables snapshot missing');
+
+  const payload = data as Record<string, unknown>;
+  if (payload.status !== 'NO_DATA' && payload.status !== 'CALCULATED') throw new Error('REPORT_DATA_MALFORMED: receivables.status');
+  if (!Number.isInteger(payload.page) || Number(payload.page) < 0) throw new Error('REPORT_DATA_MALFORMED: receivables.page');
+  if (!Number.isInteger(payload.page_size) || Number(payload.page_size) < 1 || Number(payload.page_size) > 100) throw new Error('REPORT_DATA_MALFORMED: receivables.page_size');
+  if (Number(payload.page) !== page || Number(payload.page_size) !== pageSize) throw new Error('REPORT_DATA_MALFORMED: receivables.pagination');
+  if (!Number.isInteger(payload.total_rows) || Number(payload.total_rows) < 0) throw new Error('REPORT_DATA_MALFORMED: receivables.total_rows');
+  if (typeof payload.total_outstanding !== 'number' || !Number.isFinite(payload.total_outstanding) || payload.total_outstanding < 0) throw new Error('REPORT_DATA_MALFORMED: receivables.total_outstanding');
+  if (!Array.isArray(payload.rows)) throw new Error('REPORT_DATA_UNAVAILABLE: receivables rows missing');
+
+  return {
+    status: payload.status,
+    page: payload.page,
+    page_size: payload.page_size,
+    total_rows: payload.total_rows,
+    total_outstanding: payload.total_outstanding,
+    rows: payload.rows as ReceivablesReportRow[],
+  };
+}
 export type CanonicalExportRow = { [key:string]: string|number|null };
 export async function fetchReceivablesExportRows():Promise<CanonicalExportRow[]>{const companyId=await resolveCurrentCompanyId();if(!companyId)throw new Error('TENANT_REQUIRED');const {data,error}=await supabase.rpc('get_receivables_export_rows',{p_company_id:companyId,p_max_rows:10000});if(error)throw error;const payload=(data??{}) as Record<string,unknown>;if(!Array.isArray(payload.rows))throw new Error('REPORT_DATA_UNAVAILABLE: receivables export rows missing');return payload.rows as CanonicalExportRow[];}
 export async function fetchSalesInvoices(page=0,pageSize=20):Promise<{data:SalesInvoice[];count:number|null}>{if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');if(!Number.isInteger(pageSize)||pageSize<1||pageSize>500)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');const companyId=await resolveCurrentCompanyId();if(!companyId)throw new Error('TENANT_REQUIRED');const from=page*pageSize,to=from+pageSize-1,{data,count,error}=await supabase.from('sales_invoices').select('*, customer:customers(id,name)',{count:'exact'}).eq('company_id',companyId).order('invoice_date',{ascending:false}).order('created_at',{ascending:false}).order('id',{ascending:true}).range(from,to);if(error)throw error;return{data:(data??[]) as SalesInvoice[],count};}
