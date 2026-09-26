@@ -492,4 +492,9 @@ const fileAnalysisSurface = fs.readFileSync(path.join(srcDir, 'pages', 'External
 for (const token of ['BlockedState', 'InsufficientDataState', 'ReviewState', 'الملف محجوب قبل التحليل', 'لم تتكوّن صورة قابلة للتحليل']) {
   if (!fileAnalysisSurface.includes(token)) throw new Error('WOW UI contract missing file-analysis state closure: ' + token);
 }
+const sharedKpi = fs.readFileSync('src/components/ui/KPICard.tsx', 'utf8');
+assert.ok(sharedKpi.includes('Number.isFinite(value)'), 'shared KPI must reject non-finite values');
+assert.ok(sharedKpi.includes('Number.isFinite(change)'), 'shared KPI change must reject non-finite values');
+const sharedCharts = fs.readFileSync('src/components/ui/Charts.tsx', 'utf8');
+assert.ok(sharedCharts.includes("Number.isFinite(value) ? value.toLocaleString('en-US') : 'غير متاح'"), 'shared chart tooltip must fail closed on non-finite values');
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
