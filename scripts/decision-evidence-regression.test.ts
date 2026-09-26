@@ -60,6 +60,7 @@ assert.ok(validDecision);
 assert.equal(decisionIsUsable(validDecision), true);
 
 assert.equal(decisionIsUsable({ ...validDecision, confidence: Number.POSITIVE_INFINITY }), false);
+assert.equal(decisionIsUsable({ ...validDecision, severity: 'unknown' } as never), false);
 assert.equal(decisionIsUsable({ ...validDecision, confidence: -0.01 }), false);
 assert.equal(decisionIsUsable({ ...validDecision, evidence: [] }), false);
 assert.equal(decisionIsUsable({ ...validDecision, evidence: [{ metric: '', value: 1, source: 'engine' }] }), false);
