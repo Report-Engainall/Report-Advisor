@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 176
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE EXECUTION CANDIDATE: `5cac32e2f73b0972b67370232626359c67b2321c` on PR #661.
+- UI LANE: Data Quality weighted truth score; Work Center invalid-progress signal; shared chart empty/accessibility state; Canonical Import drag/drop + keyboard entry.
+- CORE LANE: canonical import HTTP boundary validation; strict dashboard canonical array/as-of truth.
+- PROOF: current-head workflows are queued/in progress; no current-head PASS transferred. Device-dependent verification and Phase-F recovery certification remain unproven; Vercel deployment limit remains external.
+- NEXT EXECUTABLE ACTION: consume PR #661 exact-head gates; repair only the first reproduced current-SHA failure; continue the next independent UI/core boundary.
+- DO NOT REPEAT: stale PASS, prior #660 closures, duplicate import/RPC/navigation paths, production promotion bypass, blanket security revokes.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 144
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `8eb5b4154e02a1320942e08a33e052e0a35ab238`.
