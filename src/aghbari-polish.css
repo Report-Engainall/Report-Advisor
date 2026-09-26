@@ -719,3 +719,21 @@
 @media (prefers-reduced-motion:reduce){
   .ag-command-next{transition:none!important}
 }
+
+/* Command-center KPI availability: unknown is visually distinct from zero. */
+.ag-command-money-metric{
+  position:relative;
+}
+.ag-command-money-metric[data-value-state="available"]::after,
+.ag-command-money-metric[data-value-state="unavailable"]::after{
+  content:'';
+  position:absolute;
+  inset-inline-start:.9rem;
+  inset-block-end:.45rem;
+  width:28px;
+  height:2px;
+  border-radius:999px;
+}
+.ag-command-money-metric[data-value-state="available"]::after{background:linear-gradient(90deg,rgba(17,155,136,.65),transparent)}
+.ag-command-money-metric[data-value-state="unavailable"]::after{background:linear-gradient(90deg,rgba(231,181,43,.7),transparent)}
+.ag-command-money-metric[data-value-state="unavailable"] .tabular-nums{color:#75683f}
