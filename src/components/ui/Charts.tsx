@@ -1,3 +1,4 @@
+import { type ReactNode } from 'react';
 import {
   BarChart, Bar, LineChart, Line, AreaChart, Area, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -17,6 +18,8 @@ const tooltipStyle = {
 interface ChartProps {
   data: object[];
   height?: number;
+  ariaLabel?: string;
+  emptyMessage?: string;
 }
 
 function formatValue(value: unknown): string {
@@ -27,9 +30,48 @@ function formatValue(value: unknown): string {
 
 const tooltipFormatter = (value: unknown): [string, string] => [formatValue(value), ''];
 
-export function TrendChart({ data, height = 280 }: ChartProps) {
+function ChartFrame({
+  data,
+  height,
+  ariaLabel,
+  emptyMessage = 'لا توجد بيانات كافية لبناء هذا الرسم من اللقطة الحالية.',
+  children,
+}: ChartProps & { children: ReactNode }) {
+  if (data.length === 0) {
+    return (
+      <div
+        role="status"
+        aria-live="polite"
+        className="flex items-center justify-center rounded-[14px] border border-dashed border-ink-200 bg-ink-50/55 px-5 text-center text-[11px] leading-5 text-ink-500"
+        style={{ minHeight: height }}
+      >
+        {emptyMessage}
+      </div>
+    );
+  }
+
   return (
-    <ResponsiveContainer width="100%" height={height}>
+    <div
+      role="img"
+      aria-label={ariaLabel}
+      className="overflow-hidden rounded-[14px] border border-ink-100 bg-white/80"
+      style={{ minHeight: height }}
+    >
+      <ResponsiveContainer width="100%" height={height}>
+        {children}
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+export function TrendChart({
+  data,
+  height = 280,
+  ariaLabel = 'اتجاه المبيعات والربح عبر الفترة الحالية',
+  emptyMessage,
+}: ChartProps) {
+  return (
+    <ChartFrame data={data} height={height} ariaLabel={ariaLabel} emptyMessage={emptyMessage}>
       <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#147e74" stopOpacity={0.15} /><stop offset="95%" stopColor="#147e74" stopOpacity={0} /></linearGradient>
@@ -42,13 +84,20 @@ export function TrendChart({ data, height = 280 }: ChartProps) {
         <Area type="monotone" dataKey="sales" stroke="#147e74" strokeWidth={2} fill="url(#colorSales)" name="المبيعات" />
         <Area type="monotone" dataKey="profit" stroke="#3a9a8d" strokeWidth={2} fill="url(#colorProfit)" name="الربح" />
       </AreaChart>
-    </ResponsiveContainer>
+    </ChartFrame>
   );
 }
 
-export function SimpleBarChart({ data, height = 280, dataKey = 'value', nameKey = 'name' }: ChartProps & { dataKey?: string; nameKey?: string }) {
+export function SimpleBarChart({
+  data,
+  height = 280,
+  dataKey = 'value',
+  nameKey = 'name',
+  ariaLabel = 'رسم أعمدة للمؤشر الحالي',
+  emptyMessage,
+}: ChartProps & { dataKey?: string; nameKey?: string }) {
   return (
-    <ResponsiveContainer width="100%" height={height}>
+    <ChartFrame data={data} height={height} ariaLabel={ariaLabel} emptyMessage={emptyMessage}>
       <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e4efec" />
         <XAxis dataKey={nameKey} tick={{ fontSize: 11, fill: '#6f918a' }} axisLine={false} tickLine={false} />
@@ -56,13 +105,20 @@ export function SimpleBarChart({ data, height = 280, dataKey = 'value', nameKey 
         <Tooltip contentStyle={tooltipStyle} formatter={tooltipFormatter} />
         <Bar dataKey={dataKey} fill="#147e74" radius={[6, 6, 0, 0]} name="القيمة" />
       </BarChart>
-    </ResponsiveContainer>
+    </ChartFrame>
   );
 }
 
-export function HorizontalBarChart({ data, height = 280, dataKey = 'value', nameKey = 'name' }: ChartProps & { dataKey?: string; nameKey?: string }) {
+export function HorizontalBarChart({
+  data,
+  height = 280,
+  dataKey = 'value',
+  nameKey = 'name',
+  ariaLabel = 'رسم أفقي لترتيب القيم الحالية',
+  emptyMessage,
+}: ChartProps & { dataKey?: string; nameKey?: string }) {
   return (
-    <ResponsiveContainer width="100%" height={height}>
+    <ChartFrame data={data} height={height} ariaLabel={ariaLabel} emptyMessage={emptyMessage}>
       <BarChart data={data} layout="vertical" margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e4efec" horizontal={false} />
         <XAxis type="number" tick={{ fontSize: 11, fill: '#6f918a' }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}K`} />
@@ -70,13 +126,18 @@ export function HorizontalBarChart({ data, height = 280, dataKey = 'value', name
         <Tooltip contentStyle={tooltipStyle} formatter={tooltipFormatter} />
         <Bar dataKey={dataKey} fill="#e0a21a" radius={[0, 6, 6, 0]} name="القيمة" />
       </BarChart>
-    </ResponsiveContainer>
+    </ChartFrame>
   );
 }
 
-export function CategoryPieChart({ data, height = 280 }: ChartProps) {
+export function CategoryPieChart({
+  data,
+  height = 280,
+  ariaLabel = 'توزيع الفئات في اللقطة الحالية',
+  emptyMessage,
+}: ChartProps) {
   return (
-    <ResponsiveContainer width="100%" height={height}>
+    <ChartFrame data={data} height={height} ariaLabel={ariaLabel} emptyMessage={emptyMessage}>
       <PieChart>
         <Pie data={data} dataKey="sales" nameKey="name" cx="50%" cy="50%" outerRadius={90} innerRadius={50} paddingAngle={2}>
           {data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
@@ -84,13 +145,18 @@ export function CategoryPieChart({ data, height = 280 }: ChartProps) {
         <Tooltip contentStyle={tooltipStyle} formatter={tooltipFormatter} />
         <Legend wrapperStyle={{ fontSize: '11px', fontFamily: 'IBM Plex Sans Arabic' }} />
       </PieChart>
-    </ResponsiveContainer>
+    </ChartFrame>
   );
 }
 
-export function ForecastChart({ data, height = 280 }: ChartProps) {
+export function ForecastChart({
+  data,
+  height = 280,
+  ariaLabel = 'التنبؤ مع الحدود العليا والدنيا للقيمة الحالية',
+  emptyMessage = 'لا يمكن عرض التنبؤ قبل توفر حد أدنى من البيانات المقبولة.',
+}: ChartProps) {
   return (
-    <ResponsiveContainer width="100%" height={height}>
+    <ChartFrame data={data} height={height} ariaLabel={ariaLabel} emptyMessage={emptyMessage}>
       <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e4efec" />
         <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#6f918a' }} axisLine={false} tickLine={false} />
@@ -100,6 +166,6 @@ export function ForecastChart({ data, height = 280 }: ChartProps) {
         <Line type="monotone" dataKey="upper_bound" stroke="#e0a21a" strokeWidth={1} strokeDasharray="5 5" name="الحد الأعلى" dot={false} />
         <Line type="monotone" dataKey="lower_bound" stroke="#c8870b" strokeWidth={1} strokeDasharray="5 5" name="الحد الأدنى" dot={false} />
       </LineChart>
-    </ResponsiveContainer>
+    </ChartFrame>
   );
 }
