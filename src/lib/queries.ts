@@ -68,12 +68,13 @@ export async function createImportRecord(input: ImportRecordInput): Promise<Impo
 async function readImportJob(id: string, companyId: string): Promise<ImportJobState> {
   const { data, error } = await supabase
     .from('import_jobs')
-    .select('total_rows, processed_rows, valid_rows, invalid_rows, duplicate_rows, quarantined_rows, progress, result_summary')
+    .select('company_id, total_rows, processed_rows, valid_rows, invalid_rows, duplicate_rows, quarantined_rows, progress, result_summary')
     .eq('id', id)
     .eq('company_id', companyId)
     .maybeSingle();
   if (error) throw error;
   if (!data) throw new Error('IMPORT_JOB_NOT_FOUND_OR_FORBIDDEN');
+  validateTenantRows<typeof data>([data], companyId, 'import_jobs');
   return {
     total_rows: importCountOrNull(data.total_rows, 'state.total_rows'),
     processed_rows: importCountOrNull(data.processed_rows, 'state.processed_rows'),
