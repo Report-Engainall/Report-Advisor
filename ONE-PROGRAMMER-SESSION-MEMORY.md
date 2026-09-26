@@ -1,3 +1,16 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-164
+
+- HEAD OBSERVED BEFORE THIS WRITE → `a9ad206c22b7c4447e8091146ab634eeff55351f` (latest functional code candidate).
+- PR #659 / branch `feat/deep-ui-core-closure-20260925`.
+- CORE CORRECTION → the restore prerequisite migration now creates `branches_company_id_id_unique UNIQUE(company_id,id)`, exactly matching `cash_accounts(company_id,branch_id) REFERENCES branches(company_id,id)`. The earlier `UNIQUE(id,company_id)` form was insufficient for that FK order and was corrected before treating the repair as valid.
+- STAGING EVIDENCE → current staging still has the existing `branches_id_company_unique UNIQUE(id,company_id)` and `cash_accounts_branch_company_fkey`; duplicate `(company_id,id)` probe returned no rows. The new migration is the forward replay guard and has not been falsely marked as applied to staging.
+- UI RETAINED → Trust & Evidence diagnostics deepening; Receivables stable hook order; Inventory typed grouped/detail state and hook order.
+- EXACT-HEAD PROOF → candidate changes have not yet produced terminal certification for this corrected SHA; no PASS transferred.
+- PHASE-F → still fail-closed. The repository repair specifically targets the observed restore failure `no unique constraint matching given keys for referenced table branches`; fresh exact-head replay is required.
+- DO NOT REPEAT → do not revert to the wrong unique-column order, do not claim staging proves the new migration itself, do not transfer old Phase-F evidence, do not alter production.
+- NEXT EXECUTABLE ACTION → consume first terminal result for `a9ad206c...`; then repair only a new reproduced failure and continue independent UI/core closure.
+- CURRENT RESUME POINTER → `main c985deeb… → PR #659 → functional candidate a9ad206c… → first terminal exact-head failure → independent UI/core closure → exact-green merge evidence`.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-163
 
 - HEAD OBSERVED BEFORE THIS WRITE → `ba7ff1d7324e52b94d5a5c967f8a9fba3c181a18` (latest functional code candidate).
