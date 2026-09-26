@@ -326,5 +326,10 @@ assert.ok(/\.ag-app-shell \.ag-sidebar\{background:linear-gradient\(180deg,#052f
 assert.ok(styles.includes('.ag-context-rail') && styles.includes('.ag-context-chip'), 'Aghbari shell must expose the shared live workspace context rail');
 assert.ok(styles.includes('.ag-decision-evidence-grid') && styles.includes('.ag-decision-evidence-card'), 'Decision surface must retain the evidence-readiness visual contract');
 
-assert.ok(fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8').includes('حالة القرار:'), 'Decision Experience must expose explicit readiness state');
+const decisionExperienceSource = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
+assert.ok(decisionExperienceSource.includes('حالة القرار:'), 'Decision Experience must expose explicit readiness state');
+assert.ok(decisionExperienceSource.includes("type DecisionReadiness = { status: 'READY' | 'REVIEW' | 'BLOCKED';"), 'Decision Experience readiness must expose a typed terminal status contract');
+assert.ok(decisionExperienceSource.includes('status: \'READY\''), 'Decision Experience must explicitly model ready decisions');
+assert.ok(decisionExperienceSource.includes('status: \'REVIEW\''), 'Decision Experience must explicitly model review decisions');
+assert.ok(decisionExperienceSource.includes('status: \'BLOCKED\''), 'Decision Experience must explicitly model blocked decisions');
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
