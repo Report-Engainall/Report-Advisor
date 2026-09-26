@@ -103,6 +103,8 @@ assert.ok(!importSurface.includes('execution.authoritativeRowCount ?? validRows.
 assert.ok(!importSurface.includes('execution.authoritativeQualityScore ?? quality'), 'canonical import must not fall back from server quality to local parsed quality');
 assert.ok(importSurface.includes('serverCommittedRowCount'), 'canonical import success state must use the canonical committed row count');
 assert.ok(importSurface.includes('serverValidatedQualityScore'), 'canonical import success state must use the server-validated quality score');
+assert.ok(importSurface.includes('الصفوف المعتمدة خادميًا'), 'canonical import success state must distinguish server-committed rows from local parsed rows');
+assert.ok(importSurface.includes('serverIdempotentReplay'), 'canonical import success state must expose durable idempotent replay context');
 
 
 assert.ok(importSurface.includes('onClick={reset}'), 'canonical import history empty state must use the existing reset/import path');
