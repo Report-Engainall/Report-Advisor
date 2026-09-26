@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 165
+
+- HEAD OBSERVED BEFORE THIS INDEX WRITE: `5e3a76a4727928a2869c5edc6fa5885b3a18f123` (latest visual/UI code candidate).
+- CURRENT CODE/TEST CANDIDATE: `5e3a76a4727928a2869c5edc6fa5885b3a18f123`.
+- PR #659 / branch `feat/deep-ui-core-closure-20260925`.
+- UI REDESIGN: Aghbari 2026 visual system applied across shared UI — Graphite/Obsidian navigation, Emerald actions, Champagne accent, improved surfaces/elevation, navigation states, journey strip, command search, KPIs, callouts, tables, and responsive shell styling.
+- ARCHITECTURE: visual-only shared-layer changes; no duplicate importer/RPC/runner/persistence path and no business-truth mutation.
+- EXACT-HEAD EVIDENCE: fresh checks for `5e3a76a...` are queued/pending with expected skipped commercial checks; no terminal application PASS.
+- NOT PROVEN: current-head Quality/Final Certification/Browser/Phase-F terminal success, production identity/promotion, and device-dependent visual certification.
+- NEXT EXECUTABLE ACTION: consume the first terminal exact-head result for `5e3a76a...`; repair only a reproduced failure, otherwise continue the next non-overlapping UI/core closure.
+- DO NOT REPEAT: stale PASS, preview-as-production, deployment-limit-as-code-failure, closed UI/core surfaces without a fresh failure, or duplicate data paths.
+- RESUME POINTER: `main c985deeb… → PR #659 → 5e3a76a… → first terminal exact-head result → targeted repair if reproduced → exact-green merge evidence`.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 164
 
 - HEAD OBSERVED BEFORE THIS INDEX WRITE: `aad049e655bfd20e9f9956de7a0a9ace28864732` (governance write).
