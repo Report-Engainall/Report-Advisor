@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 184
+
+- MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE PR: #661 / `exec/20260926-continuous-ui-core-deep`.
+- CURRENT HEAD: `f9591e3f70641d82f99df1575ccd0caf2bb0477a` before governance write; governance write becomes the current lineage until the next functional change.
+- PDF: geometry-based table reconstruction already exists and now has Arabic inventory semantic mappings for warehouse, received quantity, posted/unposted net sales, net sales, stock balance and package size.
+- UI: Canonical Import exposes a visible reconstruction-proof badge when PDF table provenance is present.
+- REGRESSION: full parseFile PDF regression now covers the Arabic inventory-report headings and requires quality >= 75 for the mapped structured dataset.
+- DEPLOYMENT FACT: Netlify exact-head deploy for `753e157...` was canceled as "no content change"; it is not proof. Vercel READY preview remains on older `2c8eb6b...`; no latest functional preview is claimed.
+- PROOF: no current-head terminal PASS yet; no stale PASS transferred.
+- NEXT: consume first terminal current-head gate, repair only first reproduced defect, then continue the next uncovered UI/core boundary and re-check deployment identity.
+- DO NOT REPEAT: naive PDF flattening, old preview evidence, duplicate paths, production SHA bypass, unsafe import mutation.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 183
 
 - MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
