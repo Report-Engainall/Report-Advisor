@@ -170,6 +170,11 @@ export function ExecutiveCommandCenterPage() {
           <div className="mt-3 text-sm font-black text-ink-900">Business Replay</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">إعادة التشغيل تحتاج snapshots وoutcomes تاريخية مثبتة؛ الواجهة لا تصنع سجلًا بديلًا.</p>
         </div>
+        <Link to="/benchmark" className="card card-hover p-4">
+          <div className="flex items-center justify-between gap-3"><BarChart3 size={18} className="text-warning-700"/><span className="rounded-full bg-warning-50 px-2 py-1 text-[9px] font-black text-warning-800">INSUFFICIENT SAMPLE</span></div>
+          <div className="mt-3 text-sm font-black text-ink-900">Benchmark Network</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">لا تُعرض مقارنة خارجية حتى تتوفر عينة نظيرة موثقة وقابلة للمراجعة.</p>
+        </Link>
         <Link to="/decision-experience?stage=outcome" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><CheckCircle2 size={18} className="text-primary-700"/><span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-black text-primary-700">مسار القرار</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Outcome follow-up</div>
