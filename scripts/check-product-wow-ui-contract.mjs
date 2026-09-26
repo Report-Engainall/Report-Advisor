@@ -98,6 +98,8 @@ const truthStrip = fs.readFileSync('src/components/TruthContextStrip.tsx', 'utf8
 assert.ok(truthStrip.includes('الاستخدام: صالح للقرار') && truthStrip.includes('الاستخدام: راجع الدليل أولًا'), 'shared truth strip must disclose decision-use state');
 const dashboardSurface = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 assert.ok(dashboardSurface.includes('const emptyAnalysisAction'), 'dashboard empty analysis states must derive a real next action');
+assert.ok(dashboardSurface.includes('الصورة مؤكدة المصدر') && dashboardSurface.includes('الصورة محسوبة من المصدر'), 'dashboard must distinguish confirmed from calculated source truth');
+
 assert.ok(dashboardSurface.includes('تبقى الحالة غير مثبتة'), 'dashboard trend empty state must remain fail-closed');
 assert.ok(dashboardSurface.includes('لا يتم تصنيع تركيب للفئات'), 'dashboard category empty state must not fabricate composition');
 assert.ok(dashboardSurface.includes('مراجعة جودة البيانات'), 'dashboard customer/product empties must route to data quality');
