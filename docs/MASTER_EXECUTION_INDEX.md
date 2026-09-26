@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 185
+
+- MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE PR: #661 / `exec/20260926-continuous-ui-core-deep`.
+- CURRENT FUNCTIONAL HEAD: `bc2071ea5e5204f644ddb0742b8f0f3affdd12da` before governance write.
+- PDF: positioned-table reconstruction + Arabic inventory semantic mappings + multi-page parseFile regression are now part of the same canonical import lane.
+- UI: reconstruction provenance is visible in Canonical Import; source specialty is inferred deterministically before generic canonical import execution.
+- SAFETY: source specialty only changes the existing `generic:<slug>` classification; no new write path or RPC is introduced.
+- PROOF: no current-head terminal PASS yet. Latest Vercel READY preview is old SHA `2c8eb6b...`; Netlify exact `753e157...` deploy was canceled for no content change. Do not claim visual verification from those artifacts.
+- NEXT: consume the first terminal exact-head PR #661 gate, repair only a reproduced current-SHA defect, then continue the next uncovered UI/core boundary and re-check deployment identity.
+- DO NOT REPEAT: naive PDF flattening, stale previews/PASS, duplicate import/RPC/navigation paths, production-SHA bypass, unsafe import mutation.
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 184
 
 - MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
