@@ -94,7 +94,10 @@ export async function fetchWorkerHealthSnapshot(): Promise<WorkerHealthSnapshot>
   if (activeResult.error) throw activeResult.error;
 
   const activeRows = (activeResult.data ?? []) as Array<{ status: string; lease_expires_at: string | null }>;
-  const activeTotal = activeResult.count ?? activeRows.length;
+  if (queuedResult.count === null || activeResult.count === null) {
+    throw new Error('WORKER_HEALTH_COUNT_UNAVAILABLE: exact queue/active counts are required for an operational truth decision');
+  }
+  const activeTotal = activeResult.count;
   const expiredActive = activeRows.filter((row) => {
     if (!row.lease_expires_at) return false;
     const expiresAt = new Date(row.lease_expires_at);
@@ -102,7 +105,7 @@ export async function fetchWorkerHealthSnapshot(): Promise<WorkerHealthSnapshot>
   }).length;
 
   return {
-    queued: queuedResult.count ?? 0,
+    queued: queuedResult.count,
     active: activeTotal,
     expiredActive,
     activeReadComplete: activeTotal <= activeRows.length,
