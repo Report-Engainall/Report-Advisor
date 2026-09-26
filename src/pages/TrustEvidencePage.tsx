@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchDataQualitySnapshot } from '@/lib/data-quality-snapshot';
+import { calculateWeightedQualityScore } from '@/lib/data-quality-snapshot-core';
 
 const states = [
   { title: 'VERIFIED', text: 'بيانات قابلة للإثبات من المسار الكانوني.', tone: 'bg-success-50 text-success-700', icon: CheckCircle2 },
@@ -48,11 +49,15 @@ export function TrustEvidencePage() {
   const status = snapshot?.status ?? 'INSUFFICIENT DATA';
   const statusLabel = status === 'OK' ? 'الحالة قابلة للاستخدام' : status === 'EMPTY' ? 'لا توجد بيانات مثبتة بعد' : status;
   const issueTotal = useMemo(
-    () => snapshot?.entities?.reduce((sum, entity) => sum + (entity.issues ?? 0), 0) ?? null,
+    () => snapshot?.entities?.reduce((sum, entity) => sum + entity.issues, 0) ?? null,
     [snapshot],
   );
   const totalRecords = useMemo(
-    () => snapshot?.entities?.reduce((sum, entity) => sum + (entity.total ?? 0), 0) ?? null,
+    () => snapshot?.entities?.reduce((sum, entity) => sum + entity.total, 0) ?? null,
+    [snapshot],
+  );
+  const weightedScore = useMemo(
+    () => snapshot ? calculateWeightedQualityScore(snapshot.entities) : null,
     [snapshot],
   );
   const criticalIssueTotal = useMemo(
@@ -93,11 +98,12 @@ export function TrustEvidencePage() {
         <h2 className="mt-3 text-2xl font-black lg:text-3xl">لا رقم بلا سياق، ولا قرار بلا دليل.</h2>
         <p className="mt-3 text-sm leading-7 text-slate-300">الواجهة لا ترفع درجة الثقة من تلقاء نفسها. كل حالة مرتبطة بجودة المصدر أو حدود البيانات الفعلية.</p>
       </div>
-      <div className="mt-6 grid gap-3 sm:grid-cols-4" role="status" aria-live="polite">
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5" role="status" aria-live="polite">
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CURRENT STATUS</div><div className="mt-1 text-lg font-black">{statusLabel}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">RECORDS CHECKED</div><div className="mt-1 text-lg font-black">{totalRecords == null ? 'غير متاح' : totalRecords}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">ISSUES REPORTED</div><div className="mt-1 text-lg font-black">{issueTotal ?? 'غير متاح'}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CRITICAL</div><div className="mt-1 text-lg font-black">{criticalIssueTotal}</div></div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">QUALITY SCORE</div><div className="mt-1 text-lg font-black">{weightedScore == null ? 'غير متاح' : `${Math.round(weightedScore)}%`}</div></div>
       </div>
     </section>
 
