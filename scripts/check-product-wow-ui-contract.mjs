@@ -155,6 +155,11 @@ assert.ok(entitiesSurface.includes('إضافة مصدر'), 'inventory source-emp
 assert.ok(entitiesSurface.includes('عرض كل المخزون'), 'inventory filter-empty state must restore the full result set');
 assert.ok(entitiesSurface.includes('<Link to="/import"'), 'inventory source-empty state must use the unified import route');
 
+const dataQualitySurface = fs.readFileSync('src/pages/DataQualitySnapshotPage.tsx', 'utf8');
+assert.ok(dataQualitySurface.includes('const countsConsistent = entities.every'), 'data quality must validate entity count consistency before derived metrics');
+assert.ok(dataQualitySurface.includes('remainingRecords = countsConsistent ? totalRecords - totalIssues : null'), 'data quality must not clamp inconsistent remaining counts to zero');
+assert.ok(dataQualitySurface.includes("data-summary-state={countsConsistent ? 'consistent' : 'unavailable'}"), 'data quality must expose summary availability state');
+assert.ok(dataQualitySurface.includes('راجع تناسق لقطة الجودة'), 'data quality must expose a next action for inconsistent snapshot counters');
 const truthStrip = fs.readFileSync('src/components/TruthContextStrip.tsx', 'utf8');
 assert.ok(truthStrip.includes('الاستخدام: صالح للقرار') && truthStrip.includes('الاستخدام: راجع الدليل أولًا'), 'shared truth strip must disclose decision-use state');
 const analytics = fs.readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
