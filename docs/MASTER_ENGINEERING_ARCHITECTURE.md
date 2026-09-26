@@ -215,3 +215,10 @@ Do not introduce Spark/streaming infrastructure only because it is architectural
 - Dashboard Intelligence retry behavior now retries RPC/transport failure only; payload shape and semantic validation execute once after transport succeeds.
 - Malformed dashboard intelligence payloads fail immediately instead of consuming three retry cycles.
 - Added `src/lib/dashboard-intelligence-retry.contract.test.ts` to lock the retry/validation boundary.
+
+
+## 2026-09-27 — Canonical Import Execution Closure
+- Reused the existing durable runner, canonical commit RPC, tenant boundary, and checkpoint lifecycle; no duplicate runner/RPC/write path introduced.
+- The import adapter now captures and requires the authoritative canonical commit result before success can be rendered.
+- The UI chooses the existing target entity only after deterministic source-domain completeness checks.
+- Trusted-source auto-advance is a UI orchestration layer over the existing governed write path; lower-quality sources retain the explicit review gate.
