@@ -1,3 +1,11 @@
+## LATEST GOVERNANCE CORRECTION — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-161
+
+- HEAD OBSERVED BEFORE THIS WRITE → 5a2cd97bfe5e8f1da4a29b172e1a225b6d924652.
+- CURRENT CODE/TEST CANDIDATE → e39ad6290a079579ddb2207207c63489a1586350.
+- FINDING → Execution Enforcement on the governance HEAD correctly exposed that the Master Index still resolved its candidate from an older historical "CURRENT CODE/TEST CANDIDATE" line.
+- ACTION → update the live Index candidate field to the exact code candidate e39ad629…; no product code changed.
+- DO NOT REPEAT → do not mistake HEAD-observed metadata for the certification candidate field consumed by check-certification-boundary-integrity.mjs.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-160
 
 - HEAD OBSERVED BEFORE THIS WRITE → e39ad6290a079579ddb2207207c63489a1586350.
