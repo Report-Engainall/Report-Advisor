@@ -22,6 +22,20 @@ export interface DataQualitySnapshot {
 }
 
 export function calculateWeightedQualityScore(entities: EntityQuality[]): number | null {
+  if (!Array.isArray(entities) || entities.some((entity) => (
+    !entity ||
+    typeof entity.name !== 'string' ||
+    entity.name.trim().length === 0 ||
+    !['users', 'package', 'warehouse', 'receipt'].includes(entity.icon) ||
+    !Number.isFinite(entity.total) ||
+    !Number.isFinite(entity.issues) ||
+    !Number.isFinite(entity.score) ||
+    entity.total < 0 ||
+    entity.issues < 0 ||
+    entity.score < 0 ||
+    entity.score > 100
+  ))) return null;
+
   const weightedBase = entities.reduce((sum, entity) => sum + entity.total, 0);
   if (!Number.isFinite(weightedBase) || weightedBase <= 0) return null;
   const weightedScore = entities.reduce((sum, entity) => sum + (entity.score * entity.total), 0) / weightedBase;
