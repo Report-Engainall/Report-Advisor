@@ -251,8 +251,26 @@ export function CanonicalImportPage() {
 
       setProgress(88);
 
-      const authoritativeRowCount = Number(execution.authoritativeRowCount ?? validRows.length);
-      const authoritativeQualityScore = Number(execution.authoritativeQualityScore ?? quality);
+      const authoritativeRowCountRaw = execution.authoritativeRowCount;
+      if (
+        typeof authoritativeRowCountRaw !== 'number' ||
+        !Number.isFinite(authoritativeRowCountRaw) ||
+        !Number.isInteger(authoritativeRowCountRaw) ||
+        authoritativeRowCountRaw < 0
+      ) {
+        throw new Error('CANONICAL_IMPORT_AUTHORITATIVE_ROW_COUNT_INVALID');
+      }
+      const authoritativeQualityScoreRaw = execution.authoritativeQualityScore;
+      if (
+        typeof authoritativeQualityScoreRaw !== 'number' ||
+        !Number.isFinite(authoritativeQualityScoreRaw) ||
+        authoritativeQualityScoreRaw < 0 ||
+        authoritativeQualityScoreRaw > 100
+      ) {
+        throw new Error('CANONICAL_IMPORT_AUTHORITATIVE_QUALITY_INVALID');
+      }
+      const authoritativeRowCount = authoritativeRowCountRaw;
+      const authoritativeQualityScore = authoritativeQualityScoreRaw;
       const previewRows = Array.isArray(execution.authoritativePreview) ? execution.authoritativePreview : validRows.slice(0, 25).map((row) => row.data);
       const authoritativeColumns = Array.isArray(execution.authoritativeColumns) ? execution.authoritativeColumns : mappings;
       const snapshotId = typeof execution.snapshotId === 'string' ? execution.snapshotId : null;
@@ -274,14 +292,14 @@ export function CanonicalImportPage() {
       }
       setProgress(100);
       setResult({
-        total: rows.length,
-        valid: validRows.length,
-        invalid: rows.length - validRows.length,
+        total: authoritativeRowCount,
+        valid: authoritativeRowCount,
+        invalid: 0,
         snapshotId,
         importId: rec.id,
         jobId: execution.jobId,
         understandingConfidence,
-        authoritativeQualityScore: Number(execution.authoritativeQualityScore ?? quality),
+        authoritativeQualityScore,
       });
       setStep('done');
       await loadHistory();
