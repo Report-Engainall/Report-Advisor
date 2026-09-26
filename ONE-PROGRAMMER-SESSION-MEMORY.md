@@ -1,3 +1,15 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-155
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `50e6b06b07ba13eed5a8bc015e63e51ae1bbd2ab` on PR #660.
+- CORE → canonical dashboard validation now inspects row content for trend, top customers/products, categories and aging, rejecting malformed values instead of silently propagating them.
+- CONTRACT → report-truth contract guards the new row-content validation.
+- UI → Decision readiness remains an accessible live status with typed READY/REVIEW/BLOCKED state; quality disclosure remains visible.
+- PHASE-F → client_ui_settings policy is canonicalized to current_company_id() with forward reconciliation; the earlier replay defect is fixed in source, but fresh runtime proof remains open.
+- CURRENT GATES → no workflow run exposed for latest code head yet; do not infer PASS. Vercel remains externally rate-limited; Netlify preview remains the current available preview.
+- CURRENT RESUME POINTER → `PR #660 50e6b06... → consume fresh exact-head gates when exposed → repair only first reproduced failure`.
+- DO NOT REPEAT → stale gate transfer, malformed canonical row acceptance, legacy tenant resolver, production bypass.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-154
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
