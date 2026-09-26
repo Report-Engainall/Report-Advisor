@@ -12,6 +12,9 @@ assert.ok(dataTable.includes('aria-rowcount={visibleRows.length + 1}') && dataTa
 assert.ok(dataTable.includes('role="navigation" aria-label="تنقّل الجدول"'), 'shared table pagination must expose navigation semantics');
 
 const queries = fs.readFileSync('src/lib/queries.ts', 'utf8');
+assert.ok(queries.includes('function validateForecastRows(rows: unknown[]): Forecast[]'), 'forecast reads must validate row semantics');
+assert.ok(queries.includes('FORECAST_DATA_INVALID: row[' + index + '] bounds are inverted'), 'forecast bounds must fail closed when inverted');
+
 assert.ok(queries.includes('WORKER_HEALTH_COUNT_UNAVAILABLE'), 'worker health must fail closed when exact counts are unavailable');
 const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
 assert.ok(workCenter.includes('const zeroProgressActive = useMemo'), 'work center must expose an explicit zero-progress active signal');
