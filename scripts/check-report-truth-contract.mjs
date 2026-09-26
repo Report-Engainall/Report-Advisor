@@ -18,6 +18,17 @@ function readTree(dir) {
 
 const files = readTree(srcDir);
 const source = files.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
+const dashboardCanonical = files.find((file) => file.endsWith('/dashboard-canonical.ts'));
+if (!dashboardCanonical) throw new Error('Report truth contract could not locate dashboard-canonical.ts');
+const dashboardCanonicalSource = fs.readFileSync(dashboardCanonical, 'utf8');
+if (!dashboardCanonicalSource.includes('export const DASHBOARD_INTELLIGENCE_LIMIT = 100;')) {
+  throw new Error('Report truth contract requires the canonical dashboard intelligence read limit');
+}
+if (!dashboardCanonicalSource.includes('p_limit: DASHBOARD_INTELLIGENCE_LIMIT')) {
+  throw new Error('Report truth contract requires dashboard intelligence to consume the canonical read limit');
+}
+
+
 
 for (const token of [
   "typeof importId === 'string'",
