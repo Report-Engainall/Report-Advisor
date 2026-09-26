@@ -1,3 +1,14 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-151
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT CODE/TEST CANDIDATE → `811ac710a60767da8bb575ca8b44a349f02fb659` on PR #660.
+- CORE LANE → dashboard quality provenance is now strict when supplied: quality must be an object; each quality count must be a non-negative integer or null. Missing quality remains UNKNOWN rather than zero.
+- CONTRACT LANE → report-truth contract now guards `qualityCountOrNull`, malformed quality objects, and strict quality-count fields.
+- PREVIOUS FAILURE → lint duplicate `appShell` binding was consumed and repaired at `6ae378310360ecadd02f7c6930cd3765e1a14c2a`; certification candidate had been rebound before this stricter core wave.
+- UI LANE → Decision Experience remains typed READY/REVIEW/BLOCKED; Dashboard/Truth/Reports quality pressure remains visible from canonical values.
+- CURRENT RESUME POINTER → `PR #660 811ac710... → consume fresh exact-head gates → repair only first reproduced failure → continue UI/core closure`.
+- DO NOT REPEAT → stale certification SHA, missing-to-zero normalization, duplicate contract bindings, production bypass, merged-PR rework.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-150
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
