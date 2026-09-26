@@ -1,6 +1,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+const queriesSource = fs.readFileSync(path.join(process.cwd(), 'src', 'lib', 'queries.ts'), 'utf8');
+for (const marker of [
+  'function validateTenantRows<T>(rows: unknown[], companyId: string, entity: string)',
+  "TENANT_ISOLATION_VIOLATION: ' + entity + '[' + index + '] company context mismatch",
+  "validateTenantRows<Customer>(data??[],companyId,'customers')",
+  "validateTenantRows<Product>(data??[],companyId,'products')",
+]) {
+  if (!queriesSource.includes(marker)) throw new Error('Tenant security contract missing client-side entity tenant readback guard: ' + marker);
+}
+
 const dir = path.join(process.cwd(), 'supabase', 'migrations');
 const files = fs.readdirSync(dir).filter((f) => f.endsWith('.sql')).sort();
 const migrations = files.map((file) => ({ file, text: fs.readFileSync(path.join(dir, file), 'utf8') }));
