@@ -1,7 +1,7 @@
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-159
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
-- HEAD OBSERVED BEFORE THIS WRITE → `f57caffe580dd5ed5e76651146afaa500312472c` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- HEAD OBSERVED BEFORE THIS WRITE → `f57caffe580dd5edbe76651146afaa500312472c` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
 - UI → Reports Center loading boundary fixed so loaded evidence variables are never referenced before a canonical snapshot exists; shared evidence-truth visual treatment deepened; Work Center received a stronger operational hero and keyboard/reduced-motion polish.
 - CORE → dashboard snapshot now rejects malformed returned month metadata; worker-health counts fail closed when exact counts are unavailable; import operation records validate status, non-negative counters, and 0–100 progress instead of coercing malformed values.
 - CONTRACTS → Product WOW and report-truth contracts guard the Reports loading boundary, worker-health exact counts, dashboard-month metadata, and import-record invariants.
