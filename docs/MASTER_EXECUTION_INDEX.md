@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 166
+
+- HEAD OBSERVED BEFORE THIS INDEX WRITE: `e05e768056a20d2fe56960108864e6ca8f7b2fcb`.
+- CURRENT CODE/TEST CANDIDATE: `e05e768056a20d2fe56960108864e6ca8f7b2fcb`.
+- PR #659 / branch `feat/deep-ui-core-closure-20260925`.
+- UI: Dashboard visual hierarchy was materially upgraded with Decision OS hero, live-truth marker, truth/decision/as-of signal rail, canonical truth chips, and dedicated Decision Brief / Truth→Action card styling.
+- PREVIEW: Vercel exact-head deployment exists for `e05e768...`; observed state is BUILDING. Preview URL `https://report-advisor-ln3hu037a-injaz2.vercel.app`; branch alias `https://report-advisor-git-feat-deep-ui-core-closure-20260925-injaz2.vercel.app`.
+- EXACT-HEAD EVIDENCE: GitHub workflow runs/statuses have not terminalized for `e05e768...`; no PASS transferred or claimed.
+- NOT PROVEN: production promotion, Phase-F live resilience, terminal CI certification, device-dependent visual certification.
+- NEXT EXECUTABLE ACTION: consume terminal CI and preview result; fix only a reproduced defect, otherwise continue exact-green certification.
+- DO NOT REPEAT: stale PASS, preview-as-production, deployment-limit-as-code-failure, duplicate data paths.
+- RESUME POINTER: `main c985deeb… → PR #659 → e05e768… → terminal CI/preview evidence → targeted repair if reproduced → exact-green merge evidence`.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 165
 
 - HEAD OBSERVED BEFORE THIS INDEX WRITE: `5e3a76a4727928a2869c5edc6fa5885b3a18f123` (latest visual/UI code candidate).
