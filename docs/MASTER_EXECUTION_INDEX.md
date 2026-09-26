@@ -1,3 +1,22 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / IMPORT COMMITTED-ID UNIQUENESS
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `7817a55033b90b62dcf24b5e9f58f89e4e0a74c3`.
+- CURRENT CODE/TEST CANDIDATE → `0ab19fcd446d25642b3917b754310440f1c37366`.
+- DONE — CORE → canonical import commit IDs must be unique and must exactly match the submitted row cardinality; request identity, server quality range, and optional snapshot identity remain enforced.
+- DONE — UI → bounded intelligence accounting, bounded clean-quality language, import commit passport, and decision selection accessibility remain closed.
+- DONE — CONTRACT → report-truth guard covers committed-ID uniqueness and the canonical intelligence limit.
+- PR STATE → OPEN / mergeable=true.
+- EXACT-HEAD GATES → 51 observed workflow runs on `0ab19fc...`: 44 queued, 4 pending, 1 in progress, 2 skipped. No application PASS claimed.
+- KNOWN EXTERNAL LIMIT → Vercel build-rate-limit remains outside repository execution control.
+- PHASE-F → live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- DEVICE → local device/browser unavailable; repository execution continues independently.
+- NEXT ACTION → `consume terminal exact-head gates → repair first reproduced current-SHA failure only → continue independent UI/core closure if evidence shows a live gap`.
+- DO NOT REPEAT → stale PASS evidence, missing-to-zero coercion, unbounded intelligence totals, duplicate routes/RPCs/workflows, unsupported production claims.
+- CURRENT RESUME POINTER → `PR #660 exact code head 0ab19fc... → terminal gate result / first current-head failure → next uncovered UI/core closure`.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / CANONICAL INTELLIGENCE LIMIT + QUALITY CLAIM BOUNDARY
 
 > Exact-head evidence only. Historical PASS is not transferred.
