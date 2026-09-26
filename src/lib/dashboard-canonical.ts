@@ -204,6 +204,56 @@ export async function fetchAgingSnapshot(): Promise<AgingSnapshot> {
   const row = data as Record<string, unknown>; return { rows: requiredArray<AgingSnapshotRow>(row.rows, 'aging.rows'), asOf: requiredAsOf(row.asOf, 'aging'), unknownRows: nonNegativeIntegerOrNull(row.unknownRows, 'aging.unknownRows'), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'NO_DATA' ? 'NO_DATA' : row.status === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' : (() => { throw new Error('REPORT_DATA_INVALID: aging.status is invalid'); })() };
 }
 
+function validateDashboardIntelligence(row: Record<string, unknown>): { recommendations: Recommendation[]; alerts: Alert[] } {
+  const recommendations = requiredArray<unknown>(row.recommendations, 'intelligence.recommendations');
+  const alerts = requiredArray<unknown>(row.alerts, 'intelligence.alerts');
+
+  recommendations.forEach((item, index) => {
+    if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: intelligence.recommendations[' + index + '] must be an object');
+    const value = item as Record<string, unknown>;
+    if (
+      typeof value.id !== 'string' ||
+      typeof value.company_id !== 'string' ||
+      typeof value.category !== 'string' ||
+      typeof value.priority !== 'string' ||
+      typeof value.title !== 'string' ||
+      typeof value.status !== 'string' ||
+      typeof value.confidence !== 'string' ||
+      (value.expected_impact !== null && typeof value.expected_impact !== 'number' && value.expected_impact !== undefined) ||
+      (value.owner !== null && typeof value.owner !== 'string' && value.owner !== undefined) ||
+      (value.deadline !== null && typeof value.deadline !== 'string' && value.deadline !== undefined) ||
+      (value.impact_result !== null && typeof value.impact_result !== 'string' && value.impact_result !== undefined) ||
+      typeof value.created_at !== 'string'
+    ) {
+      throw new Error('REPORT_DATA_INVALID: intelligence.recommendations[' + index + '] shape is invalid');
+    }
+  });
+
+  alerts.forEach((item, index) => {
+    if (!item || typeof item !== 'object') throw new Error('REPORT_DATA_INVALID: intelligence.alerts[' + index + '] must be an object');
+    const value = item as Record<string, unknown>;
+    if (
+      typeof value.id !== 'string' ||
+      typeof value.company_id !== 'string' ||
+      typeof value.severity !== 'string' ||
+      typeof value.category !== 'string' ||
+      typeof value.title !== 'string' ||
+      typeof value.is_read !== 'boolean' ||
+      (value.description !== null && typeof value.description !== 'string' && value.description !== undefined) ||
+      (value.metric_value !== null && typeof value.metric_value !== 'number' && value.metric_value !== undefined) ||
+      (value.threshold !== null && typeof value.threshold !== 'number' && value.threshold !== undefined) ||
+      typeof value.created_at !== 'string'
+    ) {
+      throw new Error('REPORT_DATA_INVALID: intelligence.alerts[' + index + '] shape is invalid');
+    }
+  });
+
+  return {
+    recommendations: recommendations as Recommendation[],
+    alerts: alerts as Alert[],
+  };
+}
+
 export async function fetchDashboardIntelligence(): Promise<{recommendations: Recommendation[]; alerts: Alert[]}> {
   const maxAttempts = 3;
   let lastError: unknown = null;
@@ -213,8 +263,9 @@ export async function fetchDashboardIntelligence(): Promise<{recommendations: Re
       if (error) throw error;
       if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: dashboard intelligence missing');
       const row = data as Record<string, unknown>;
-      return { recommendations: requiredArray<Recommendation>(row.recommendations, 'intelligence.recommendations'), alerts: requiredArray<Alert>(row.alerts, 'intelligence.alerts') };
+      return validateDashboardIntelligence(row);
     } catch (error) {
+      if (error instanceof Error && error.message.startsWith('REPORT_DATA_INVALID:')) throw error;
       lastError = error;
       if (attempt < maxAttempts) await new Promise(resolve => setTimeout(resolve, 250 * attempt));
     }
