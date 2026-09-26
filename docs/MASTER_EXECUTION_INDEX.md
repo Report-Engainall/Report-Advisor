@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 181
+
+- MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907` (unchanged).
+- ACTIVE CANDIDATE: `0a586ab61e8bdad5dd7e3a4b8807e01afb2aee1d` on PR #661.
+- CORE: reconciled Dashboard TypeScript adapters with the latest repo-defined canonical RPC payload: trend/category status normalization, direct aging bucket normalization, nullable inventory relation IDs, strict ABC class/currency identity, bounded dashboard months.
+- UI: decision deep-link guard now survives async recommendation loading; analytics count language distinguishes returned rows from source totals; unavailable Data Quality score has no zero-like visual arc.
+- TEST CONTRACTS: current dashboard payload normalization, inventory relation nullability, decision loading race, analytics row wording, and unavailable quality-score presentation are all covered by source-level contract guards.
+- PROOF: exact-head CI has 48 runs: 2 completed/skipped, 41 queued, 5 pending, 0 failures, 0 completed successes. No current-head PASS transferred. Local clone/testing was blocked by DNS/network in the execution environment. Device/browser proof and Phase-F remain NOT PROVEN.
+- NEXT: consume first terminal non-skipped current-head gate; repair only first reproduced failure; then continue next uncovered UI/core boundary.
+- DO NOT REPEAT: stale PASS, prior #660 closures, invalid dashboard payload assumptions, duplicate paths, production bypass, blanket security changes, unsafe import-job mutation.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 180
 
 - MAIN HEAD OBSERVED BEFORE THIS WAVE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
