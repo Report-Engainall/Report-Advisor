@@ -529,3 +529,29 @@ Closed: Replay, Benchmark, Decision lifecycle gating, Trust, Reports, prior Impo
 
 ### CURRENT RESUME POINTER
 `current governance head → consume exact-head checks → repair first current-SHA defect only → next independent UI/Core closure; no stale PASS transfer.`
+
+
+## 2026-09-27 — Unified Import End-to-End Closure Checkpoint
+
+- HEAD observed before this write: `ce23d1f72a84b5d4e4266f1f1ae6db194c177bd2`
+- CURRENT FUNCTIONAL CANDIDATE: `ce23d1f72a84b5d4e4266f1f1ae6db194c177bd2`
+- PR: #661 / `exec/20260926-continuous-ui-core-deep`
+- Scope closed in this wave:
+  - trusted import quality (`quality >= 75` + understanding confidence `>= 75`) now continues automatically from preview into the canonical save lifecycle instead of stopping after read/preview;
+  - actual drag/drop import entry remains keyboard-accessible;
+  - source specialization now resolves to real canonical targets only when required mapped fields are complete:
+    - product master → `products`
+    - customer master → `customers` (including `customer_name` alias)
+    - sales invoice → `sales_invoices`
+    - incomplete/specialized unsupported targets remain `generic:<domain>` evidence instead of false promotion;
+  - canonical commit result is captured as authoritative evidence (`committed`, `ids`, idempotent replay) and surfaced in the import result;
+  - saving UI now exposes the full visible lifecycle: queued → fingerprinted → extracted → canonicalized → validated → analyzed → decisioned → committed → rendered;
+  - successful import now exposes a concrete next action and does not end at “file was read”.
+- Core truth rule preserved: no specialized promotion when mandatory semantic fields are missing; unsupported domains remain in the generic canonical evidence lane.
+- Browser/device verification boundary: Desktop Commander PC01 was listed online but rejected execution with “no live connection”; no PASS is claimed from the device.
+- Exact-head verification boundary: current commit status exposes Vercel failure due free-plan build-rate and a pending Vercel deployment; GitHub Actions exact-head workflow materialization is not yet available for `ce23d1f...`; no older SHA evidence is transferred.
+- DONE: source-domain promotion, canonical commit proof, trusted auto-advance, import lifecycle UI, customer alias support, focused contracts.
+- VERIFIED: code-level structural contracts updated; exact runtime/build PASS remains NOT PROVEN until fresh exact-head checks exist.
+- BLOCKED: external Vercel free-plan build-rate; remote device live connection.
+- DO NOT REPEAT: prior PR #661 PDF parsing/specialty classification/Decision Experience/Replay/Benchmark/tenant truth closures.
+- CURRENT RESUME POINTER: `PR #661 current functional candidate ce23d1f → exact-head contract/build proof → then UI/browser business readback on trusted import`
