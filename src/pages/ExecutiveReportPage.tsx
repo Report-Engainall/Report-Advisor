@@ -88,8 +88,8 @@ export function ExecutiveReportPage() {
     : null;
 
   const nextAction =
-    kpis?.status === 'INSUFFICIENT_DATA'
-      ? { to: '/data-quality', label: 'مراجعة جودة البيانات', reason: 'الحقيقة المالية أو التشغيلية غير مكتملة بعد.' }
+    kpis?.status === 'INSUFFICIENT_DATA' || qualityIssueTotal === null || qualityIssueTotal > 0
+      ? { to: '/data-quality', label: 'مراجعة جودة البيانات', reason: qualityIssueTotal && qualityIssueTotal > 0 ? 'هناك ضغط جودة مثبت في المصدر؛ أصلحه قبل تحويل التقرير إلى قرار.' : 'الحقيقة المالية أو التشغيلية أو حدود الجودة غير مكتملة بعد.' }
       : kpis?.status === 'CALCULATED'
         ? { to: '/trust', label: 'فحص الدليل', reason: 'المؤشرات محسوبة من المصدر؛ افحص حدود الدليل قبل تحويلها إلى قرار.' }
         : data?.alerts.length
