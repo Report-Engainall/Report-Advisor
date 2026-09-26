@@ -23,7 +23,7 @@ interface ChartProps {
 }
 
 function formatValue(value: unknown): string {
-  if (typeof value === 'number') return value.toLocaleString('en-US');
+  if (typeof value === 'number') return Number.isFinite(value) ? value.toLocaleString('en-US') : 'غير متاح';
   if (typeof value === 'string') return value;
   return '';
 }
