@@ -188,6 +188,33 @@ export function DecisionExperiencePage() {
         <div className="ag-decision-cell"><span className="ag-decision-label">المرحلة</span><span className="ag-decision-value">{STAGES[currentStageIndex]?.label}</span></div>
       </section>
 
+      <section className="ag-decision-evidence-grid" aria-label="بوابة جاهزية القرار">
+        <article className="ag-decision-evidence-card">
+          <div className="ag-decision-evidence-kicker">SOURCE</div>
+          <div className="ag-decision-evidence-value">الإشارة</div>
+          <p>العنصر المحدد مرتبط بسجل حقيقي من مصدر القرار الحالي.</p>
+          <span className="ag-trust ag-trust-trusted">سياق موجود</span>
+        </article>
+        <article className="ag-decision-evidence-card">
+          <div className="ag-decision-evidence-kicker">EVIDENCE</div>
+          <div className="ag-decision-evidence-value">{activeAlerts.length > 0 ? 'إشارة قابلة للفحص' : 'لا توجد إشارة نشطة'}</div>
+          <p>{activeAlerts.length > 0 ? 'افحص المصدر قبل اعتماد أي إجراء.' : 'لا توجد إشارة جديدة مثبتة في القراءة الحالية.'}</p>
+          <Link to="/trust" className="ag-decision-evidence-link">فتح مركز الأدلة <ArrowUpLeft size={12}/></Link>
+        </article>
+        <article className="ag-decision-evidence-card" data-state={readiness.label === 'سياق القرار مكتمل' ? 'ready' : 'review'}>
+          <div className="ag-decision-evidence-kicker">READINESS</div>
+          <div className="ag-decision-evidence-value">{readiness.label}</div>
+          <p>{readiness.detail}</p>
+          <span className={readiness.tone + ' inline-flex rounded-full px-2.5 py-1 text-[9px] font-black'}>{selected ? 'توصية محددة' : 'اختر توصية'}</span>
+        </article>
+        <article className="ag-decision-evidence-card">
+          <div className="ag-decision-evidence-kicker">ACCOUNTABILITY</div>
+          <div className="ag-decision-evidence-value">{selected?.owner ?? 'مسؤول غير مثبت'}</div>
+          <p>{selected?.deadline ? 'يوجد موعد مرتبط بسجل التوصية.' : 'الموعد غير مثبت؛ لا تعتبر الخطة جاهزة للتنفيذ.'}</p>
+          <span className="ag-decision-evidence-metric">{selected?.expected_impact == null ? 'الأثر: غير متاح' : 'الأثر: ' + formatCurrency(selected.expected_impact)}</span>
+        </article>
+      </section>
+
       <nav aria-label="مراحل القرار" className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
         {STAGES.map((item, index) => (
           <button key={item.id} type="button" onClick={() => navigateStage(item.id)} className={'stage-pill ' + (stage === item.id ? 'stage-pill-active' : 'hover:border-ink-300 hover:bg-ink-50')} aria-current={stage === item.id ? 'step' : undefined}>
