@@ -1,3 +1,22 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-168
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `f9171cc876cd7ba8868d0b0f1802181eb6d6ee3d` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI DELIVERY → Connections / Sources now has proof-state filtering (PROVEN / BOUNDED / ADAPTER), local reset, live visible counts, and a visible proof ladder explaining what each state actually means.
+- CORE DELIVERY → inventory decision evidence is now fail-closed for nonfinite numeric inputs. Critical inventory decisions are not emitted when coverage is nonfinite; frozen-inventory decisions expose finite daily-demand/reorder evidence and only include coverage when finite.
+- REGRESSION → decision-evidence regression now explicitly verifies that +Infinity coverage never becomes decision evidence and that critical decisions with unusable coverage are withheld.
+- RUNTIME PROOF → Staging project `fnqbvfuwbdpwvhcgzksl` had the live `client_ui_settings` policy reconciled from legacy `current_customer_company_id()` to canonical `current_company_id()` using the repository's forward-only migration. The migration is recorded in staging as `20260926153928_reconcile_client_ui_settings_tenant_resolver_phase_f`; post-change readback confirmed the policy uses `current_company_id()`.
+- SECURITY BOUNDARY → Supabase Security Advisor still reports the known 46 authenticated-callable SECURITY DEFINER warnings plus leaked-password protection; no blanket revoke was performed. The targeted tenant-policy defect is closed on staging.
+- GATES → latest branch HEAD has fresh GitHub checks queued; Cloudflare Pages is in progress, no failed application check is available yet. Vercel remains externally rate-limited. No PASS inferred on the newest code.
+- DEVICE → unavailable/offline; no device-dependent verification claimed.
+- PHASE-F → fresh live recovery/RPO/RTO/rollback certification remains unproven; staging tenant-policy repair is now runtime-backed.
+- NO MERGE → PR #660 remains open; no production mutation or promotion.
+- CURRENT RESUME POINTER → `PR #660 latest HEAD → consume exact-head gate results → repair first reproduced failure → continue remaining safe UI/core surfaces → merge only after release-critical evidence is green`.
+- NEXT EXECUTABLE ACTION → consume the first completed non-skipped gate; if clean, continue the next uncovered canonical UI/core surface.
+- UI LANE PROGRESS → Connector proof-state surface + Inventory Intelligence + Data Quality deepening.
+- CORE LANE PROGRESS → inventory decision finite-evidence hardening + staging tenant resolver runtime proof.
+- DO NOT REPEAT → missing-to-zero coercion, Infinity/NaN evidence emission, stale SHA evidence, blanket SECURITY DEFINER cleanup, device-only proof, production mutation, PR #659 overlap.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-167
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
