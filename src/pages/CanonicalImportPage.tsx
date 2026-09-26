@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, CheckCircle2, XCircle, AlertCircle, AlertTriangle, ShieldCheck, Loader2, ArrowLeft, LockKeyhole, FileCheck2, RefreshCw } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
@@ -10,7 +11,8 @@ import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
-import { inferSourceDomain, SOURCE_DOMAIN_LABELS, type SourceDomain } from '@/lib/file-engine/source-domain';
+import { inferSourceDomain, resolveCanonicalEntityType, SOURCE_DOMAIN_LABELS, type SourceDomain } from '@/lib/file-engine/source-domain';
+import type { CanonicalImportEntityType } from '@/lib/import/canonical-truth-boundary';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
 import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
 import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
@@ -76,6 +78,16 @@ function describeImportFailure(message: string | null): { title: string; detail:
   };
 }
 
+function postImportAction(entityType: string, sourceDomain: SourceDomain): { to: string; label: string; detail: string } {
+  if (entityType === 'products') return { to: '/products', label: 'افتح الأصناف المثبتة', detail: 'انتقل مباشرة إلى السجلات التي تم تحديثها في الهدف الكانوني.' };
+  if (entityType === 'customers') return { to: '/customers', label: 'افتح العملاء المثبتين', detail: 'انتقل مباشرة إلى السجلات التي تم تحديثها في الهدف الكانوني.' };
+  if (entityType === 'sales_invoices') return { to: '/reports/sales', label: 'افتح مبيعات المصدر', detail: 'اقرأ النتائج التجارية المرتبطة بالفواتير التي تم اعتمادها.' };
+  if (sourceDomain === 'inventory-report' || sourceDomain === 'payment-report') {
+    return { to: '/trust', label: 'افتح الدليل والتحقق', detail: 'المصدر محفوظ كدليل عام لأن مخطط الهدف المتخصص الحالي لا يدعم كتابته ككيان تجاري مباشر.' };
+  }
+  return { to: '/trust', label: 'افتح الدليل والتحقق', detail: 'المصدر محفوظ في طبقة الحقيقة الكانونية العامة ويمكن مراجعته قبل أي قرار.' };
+}
+
 function Stepper({ step }: { step: Step }) {
   const current = STEPS.findIndex(s => s.key === step);
   return <div className="grid grid-cols-5 gap-2 mb-5" role="list" aria-label="مراحل الاستيراد">
@@ -102,6 +114,7 @@ export function CanonicalImportPage() {
   const [mappings, setMappings] = useState<Array<{ name: string; mappedField: string | null; confidence: number }>>([]);
   const [pdfTableReconstructed, setPdfTableReconstructed] = useState(false);
   const [sourceDomain, setSourceDomain] = useState<SourceDomain>('source-data');
+  const [canonicalEntityType, setCanonicalEntityType] = useState<CanonicalImportEntityType>('generic:source-data');
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [securityPassed, setSecurityPassed] = useState(false);
@@ -114,6 +127,7 @@ export function CanonicalImportPage() {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedFileRef = useRef<File | null>(null);
+  const autoRunStartedRef = useRef(false);
 
   const loadHistory = useCallback(async () => {
     setLoadingHistory(true);
@@ -131,7 +145,7 @@ export function CanonicalImportPage() {
   useEffect(() => { void loadHistory(); }, [loadHistory]);
 
   const handleFile = useCallback(async (selected: File) => {
-    setError(null); setWarnings([]); setDuplicate(false); setSecurityPassed(false); setQualityApproved(false); setStep('scanning');
+    setError(null); setWarnings([]); setDuplicate(false); setSecurityPassed(false); setQualityApproved(false); setStep('scanning'); autoRunStartedRef.current = false;
     try {
       const buffer = await selected.arrayBuffer();
       const scan = securityScan(selected, buffer);
@@ -155,8 +169,11 @@ export function CanonicalImportPage() {
       setQuality(dataset.qualityScore);
       const nextMappings = dataset.columns.map(c => ({ name: c.name, mappedField: c.mappedField, confidence: c.mappingConfidence }));
       setMappings(nextMappings);
-      setSourceDomain(inferSourceDomain(nextMappings));
-      setPdfTableReconstructed(file.name.toLowerCase().endsWith('.pdf') && dataset.columns.some(column => column.qualityIssues.some(issue => issue.startsWith('PDF: أُعيد بناء الجدول'))));
+      const nextSourceDomain = inferSourceDomain(nextMappings);
+      const nextCanonicalEntityType = resolveCanonicalEntityType(nextSourceDomain, nextMappings);
+      setSourceDomain(nextSourceDomain);
+      setCanonicalEntityType(nextCanonicalEntityType);
+      setPdfTableReconstructed(selected.name.toLowerCase().endsWith('.pdf') && dataset.columns.some(column => column.qualityIssues.some(issue => issue.startsWith('PDF: أُعيد بناء الجدول'))));
       const hdrs = dataset.columns.map(c => c.name);
       setHeaders(hdrs);
       const understanding = analyzeSourceUnderstanding(dataset);
@@ -212,7 +229,7 @@ export function CanonicalImportPage() {
 
       setProgress(30);
 
-      const entityType = `generic:${sourceDomain}`;
+      const entityType = canonicalEntityType;
       const rec = await createImportRecord({
         file_name: file.name,
         file_size: file.size,
@@ -276,6 +293,9 @@ export function CanonicalImportPage() {
         semantic_understanding_confidence: understandingConfidence,
         snapshot_id: snapshotId,
         source_domain: sourceDomain,
+        canonical_entity_type: entityType,
+        canonical_committed: Number(execution.canonicalCommit?.committed ?? authoritativeRowCount),
+        canonical_idempotent_replay: execution.canonicalCommit?.idempotentReplay === true,
       });
 
       if (typeof window !== 'undefined') {
@@ -292,6 +312,9 @@ export function CanonicalImportPage() {
         understandingConfidence,
         authoritativeQualityScore: Number(execution.authoritativeQualityScore ?? quality),
         sourceDomain,
+        canonicalEntityType: entityType,
+        canonicalCommitted: Number(execution.canonicalCommit?.committed ?? authoritativeRowCount),
+        canonicalIdempotentReplay: execution.canonicalCommit?.idempotentReplay === true,
       });
       setStep('done');
       await loadHistory();
@@ -320,16 +343,22 @@ export function CanonicalImportPage() {
     }
   }, [
     rows, file, fileHash, duplicate, securityPassed, quality,
-    qualityApproved, headers.length, mappings, warnings, understandingConfidence, sourceDomain,
+    qualityApproved, headers.length, mappings, warnings, understandingConfidence, sourceDomain, canonicalEntityType,
     understandingReason, loadHistory,
   ]);
 
-  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setPdfTableReconstructed(false); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); setSourceDomain('source-data'); if (inputRef.current) inputRef.current.value = ''; };
+  const reset = () => { selectedFileRef.current = null; autoRunStartedRef.current = false; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setPdfTableReconstructed(false); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); setSourceDomain('source-data'); if (inputRef.current) inputRef.current.value = ''; };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
   const qualityVariant = quality >= 75 ? 'success' : quality >= 50 ? 'warning' : 'danger';
   const ready = Boolean(file && fileHash && securityPassed && !duplicate && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
+  const trustedAutoRunReady = Boolean(ready && quality >= 75 && understandingConfidence >= 75);
+  useEffect(() => {
+    if (step !== 'preview' || !trustedAutoRunReady || autoRunStartedRef.current) return;
+    autoRunStartedRef.current = true;
+    void saveAnalysis();
+  }, [saveAnalysis, step, trustedAutoRunReady]);
   const failurePresentation = describeImportFailure(error);
 
   return <div className="space-y-5 animate-fade-in">
@@ -375,11 +404,11 @@ export function CanonicalImportPage() {
             <div className="min-w-0">
               <div className="text-[10px] font-black tracking-[.08em] text-primary-700">SOURCE UNDERSTANDING</div>
               <div className="mt-1 text-sm font-black text-ink-950">فهم المصدر وسياقه</div><div className="mt-2 inline-flex items-center rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-[11px] font-black text-primary-800">التخصص المكتشف: {SOURCE_DOMAIN_LABELS[sourceDomain]}</div>
-              <div className="mt-1 text-[11px] leading-5 text-ink-500">{understandingReason}</div>
+              <div className="mt-1 text-[11px] leading-5 text-ink-500">{understandingReason}</div><div className="mt-2 text-[10px] font-bold text-ink-500">الهدف الكانوني: <span className="text-ink-800">{canonicalEntityType === 'products' ? 'الأصناف' : canonicalEntityType === 'customers' ? 'العملاء' : canonicalEntityType === 'sales_invoices' ? 'فواتير المبيعات' : 'دليل مصدر عام'}</span></div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <span className={understandingConfidence >= 75 ? 'badge-success' : understandingConfidence >= 50 ? 'badge-warning' : 'badge-neutral'}>ثقة الفهم {understandingConfidence || 0}%</span>
-              <span className="badge-neutral">تحليل تلقائي</span>
+              <span className="badge-neutral">فهم تلقائي</span>
             </div>
           </div>
         </CardBody>
@@ -387,10 +416,11 @@ export function CanonicalImportPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3"><Card><CardBody><div className="text-xs text-ink-400">إجمالي الصفوف</div><div className="text-xl font-bold mt-1">{formatNumber(rows.length)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-400">جاهز للتحليل</div><div className="text-xl font-bold mt-1 text-success-600">{formatNumber(valid)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-400">تحتاج مراجعة</div><div className="text-xl font-bold mt-1 text-danger-600">{formatNumber(invalid)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-400">حالة التكرار</div><div className={`text-sm font-semibold mt-2 ${duplicate ? 'text-danger-600' : 'text-success-600'}`}>{duplicate ? 'مكرر — محظور' : 'لا يوجد تكرار'}</div></CardBody></Card></div>
       {warnings.length>0 && <div className="space-y-2">{warnings.map((w,i)=><div key={i} className="p-3 rounded-lg bg-warning-50 text-warning-700 text-sm flex gap-2"><AlertTriangle size={16}/>{w}</div>)}</div>}
       {duplicate && <div className="p-4 rounded-xl border border-danger-200 bg-danger-50 text-danger-700 text-sm flex items-start gap-3"><XCircle size={18}/><div><b>الكتابة متوقفة لحماية البيانات.</b><div className="mt-1">تم اكتشاف بصمة ملف مطابقة داخل حسابك. أعد تصدير الملف أو استخدم مصدرًا جديدًا بدل إنشاء نسخة مكررة.</div></div></div>}
+      {trustedAutoRunReady && <div role="status" className="p-4 rounded-xl border border-success-200 bg-success-50 text-success-800 text-sm flex items-start gap-3"><CheckCircle2 size={18}/><div><b>سيبدأ الاعتماد تلقائيًا.</b><div className="mt-1">الجودة وثقة الفهم مستوفيتان؛ لن تتوقف العملية عند القراءة، بل ستكمل الرفع، التحقق، الكتابة الكانونية وإغلاق سجل العملية.</div></div></div>}
       {quality >= 50 && quality < 75 && !duplicate && <label className="p-4 rounded-xl border border-warning-200 bg-warning-50 text-warning-800 text-sm flex items-start gap-3 cursor-pointer"><input type="checkbox" checked={qualityApproved} onChange={e => setQualityApproved(e.target.checked)} className="mt-1"/><span><b>موافقة جودة صريحة:</b> الجودة {quality}% تقع في نطاق المراجعة (50–74%) ويجب تأكيدك قبل الكتابة.</span></label>}
       {quality < 50 && <div className="p-4 rounded-xl border border-danger-200 bg-danger-50 text-danger-700 text-sm flex gap-2"><XCircle size={18}/> جودة البيانات أقل من 50% — الاستيراد مرفوض.</div>}
       {mappings.length>0&&<Card><CardHeader title="مطابقة الأعمدة" subtitle={`${mappingCoverage}% من أعمدة المصدر لها حقل مكتشف`}/><DataTable columns={[{key:'name',label:'عمود المصدر'},{key:'mappedField',label:'المعنى المكتشف',render:(r:any)=>r.mappedField||'غير معين'},{key:'confidence',label:'الثقة',align:'center',render:(r:any)=><Badge variant={r.confidence>=80?'success':r.confidence>=50?'warning':'danger'}>{r.mappedField?r.confidence+'%':'—'}</Badge>}]} data={mappings} emptyMessage="لا توجد أعمدة"/></Card>}
-      <Card><CardHeader title="مراجعة قبل الاعتماد" subtitle="تظهر أول 10 صفوف مع حالة كل صف" action={<div className="flex gap-2"><button type="button" onClick={reset} className="btn-secondary text-xs"><ArrowLeft size={13}/> اختيار ملف آخر</button><button type="button" onClick={() => void saveAnalysis()} className="btn-primary text-xs" aria-label="تأكيد الاستيراد" disabled={!ready}><FileCheck2 size={13}/> اعتماد المصدر — {formatNumber(valid)} صف</button></div>}/><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.slice(0,6).map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">مرفوض</Badge>}, {key:'error',label:'الملاحظة',render:(r:Row)=>r.error||'—'}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></Card>
+      <Card><CardHeader title="مراجعة قبل الاعتماد" subtitle="تظهر أول 10 صفوف مع حالة كل صف" action={<div className="flex gap-2"><button type="button" onClick={reset} className="btn-secondary text-xs"><ArrowLeft size={13}/> اختيار ملف آخر</button><button type="button" onClick={() => void saveAnalysis()} className="btn-primary text-xs" aria-label="تأكيد الاستيراد" disabled={!ready || step !== 'preview'}><FileCheck2 size={13}/> اعتماد المصدر — {formatNumber(valid)} صف</button></div>}/><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.slice(0,6).map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">مرفوض</Badge>}, {key:'error',label:'الملاحظة',render:(r:Row)=>r.error||'—'}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></Card>
       {!ready && <div className="p-3 rounded-lg bg-ink-50 text-ink-600 text-sm">الحفظ متوقف حتى تتوفر بيانات قابلة للقراءة، جودة لا تقل عن 75% أو موافقة صريحة ضمن 50–74%، وعدم وجود مصدر مكرر، مع نجاح الفحص الأمني.</div>}
       {failurePresentation && <div className="rounded-xl border border-danger-200 bg-danger-50 p-4 text-danger-800">
         <div className="flex items-start gap-3">
@@ -410,7 +440,7 @@ export function CanonicalImportPage() {
 
     {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم اعتماد المصدر عبر مسار الحقيقة الكانونية العامة مع بصمته وسياقه وجودته، ولا يُعلن نجاح الاعتماد إلا بعد إتمام مسار الكتابة الفعلي.</p></div></CardBody></Card>}
 
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم اعتماد المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence == null ? 'غير متاح' : `${result.understandingConfidence}%`}</b></div></div><div className="rounded-lg border border-primary-100 bg-primary-50 px-4 py-3 text-sm font-black text-primary-900">التخصص المثبت: {SOURCE_DOMAIN_LABELS[result.sourceDomain as SourceDomain] ?? 'غير مثبت'}</div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم اعتماد المصدر في طبقة البيانات الكانونية العامة مع بصمته وسياقه وجودته، دون فرض نوع سجل أو مسار استيراد متخصص.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
+    {step === 'done' && result && (() => { const action = postImportAction(result.canonicalEntityType, result.sourceDomain as SourceDomain); return <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">اكتمل مسار المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المعتمدة</div><b>{formatNumber(result.canonicalCommitted ?? result.valid)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence == null ? 'غير متاح' : `${result.understandingConfidence}%`}</b></div></div><div className="w-full max-w-lg rounded-lg border border-success-200 bg-success-50 px-4 py-3 text-sm text-success-900"><div className="font-black">هدف الكتابة: {result.canonicalEntityType === 'products' ? 'الأصناف' : result.canonicalEntityType === 'customers' ? 'العملاء' : result.canonicalEntityType === 'sales_invoices' ? 'فواتير المبيعات' : 'دليل المصدر العام'}</div><div className="mt-1 text-[11px]">تم إثبات نتيجة الكتابة الكانونية: {formatNumber(result.canonicalCommitted ?? 0)} سجل{result.canonicalIdempotentReplay ? ' — إعادة تشغيل idempotent' : ''}.</div></div><div className="rounded-lg border border-primary-100 bg-primary-50 px-4 py-3 text-sm font-black text-primary-900">التخصص المثبت: {SOURCE_DOMAIN_LABELS[result.sourceDomain as SourceDomain] ?? 'غير مثبت'}</div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><div className="w-full max-w-lg rounded-xl border border-ink-200 bg-white p-4"><div className="text-sm font-black text-ink-900">الآن ماذا؟</div><div className="mt-1 text-[11px] leading-5 text-ink-500">{action.detail}</div><Link to={action.to} className="mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary-700 px-4 py-2.5 text-xs font-black text-white hover:bg-primary-800">{action.label} <ArrowLeft size={14}/></Link></div><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">لم يتوقف المسار عند القراءة: تم فحص المصدر، فهمه، التحقق من الشروط، اعتماده وكتابة الحقيقة الكانونية ثم عرض الإجراء التالي.</p><button type="button" onClick={reset} className="btn-secondary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>; })()}
 
     <Card><CardHeader title="سجل الاستيرادات" subtitle="أحدث 500 عملية مرتبطة بحسابك، مع 50 صفًا في كل صفحة لتبقى القراءة سريعة؛ العمليات الأقدم تبقى محفوظة" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={historyError} onRetry={() => void loadHistory()} />:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد عمليات سابقة" message="لم يُثبت مصدر سابق لهذا الحساب بعد؛ ابدأ الآن من مدخل الاستيراد الموحد." action={<button type="button" onClick={reset} className="btn-primary text-[11px]"><Upload size={13}/> اختيار مصدر</button>}/>:<DataTable columns={[{key:'file_name',label:'المصدر'},{key:'source_domain',label:'التخصص',render:(r:any)=>SOURCE_DOMAIN_LABELS[r.source_domain as SourceDomain] ?? 'غير محدد'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مراجعة',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} pageSize={50} emptyMessage="لا توجد عمليات سابقة"/>}</Card>
   </div>;
