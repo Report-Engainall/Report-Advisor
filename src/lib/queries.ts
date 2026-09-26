@@ -374,6 +374,34 @@ export async function fetchRecommendationOutcome(recommendationId: string): Prom
 }
 export type ReceivablesReportRow = { id:string; invoice_number:string; invoice_date:string; due_date:string|null; total:number|null; paid_amount:number|null; balance:number; status:string|null; customer:{id:string|null;name:string|null}|null };
 export type ReceivablesReportPage = { status:'CALCULATED'|'NO_DATA'; page:number; page_size:number; total_rows:number; total_outstanding:number; rows:ReceivablesReportRow[] };
+
+function isReceivablesReportRow(value: unknown): value is ReceivablesReportRow {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const row = value as Record<string, unknown>;
+  if (
+    typeof row.id !== 'string' ||
+    !row.id.trim() ||
+    typeof row.invoice_number !== 'string' ||
+    !row.invoice_number.trim() ||
+    typeof row.invoice_date !== 'string' ||
+    !row.invoice_date.trim() ||
+    (row.due_date !== null && typeof row.due_date !== 'string') ||
+    (row.total !== null && (typeof row.total !== 'number' || !Number.isFinite(row.total))) ||
+    (row.paid_amount !== null && (typeof row.paid_amount !== 'number' || !Number.isFinite(row.paid_amount))) ||
+    typeof row.balance !== 'number' ||
+    !Number.isFinite(row.balance) ||
+    (row.status !== null && typeof row.status !== 'string')
+  ) return false;
+  if (row.customer !== null) {
+    if (!row.customer || typeof row.customer !== 'object' || Array.isArray(row.customer)) return false;
+    const customer = row.customer as Record<string, unknown>;
+    if (
+      (customer.id !== null && typeof customer.id !== 'string') ||
+      (customer.name !== null && typeof customer.name !== 'string')
+    ) return false;
+  }
+  return true;
+}
 export async function fetchReceivablesReportPage(page = 0, pageSize = 25): Promise<ReceivablesReportPage> {
   if (!Number.isInteger(page) || page < 0) throw new Error('REPORT_QUERY_INVALID_PAGE');
   if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 100) throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');
@@ -397,6 +425,7 @@ export async function fetchReceivablesReportPage(page = 0, pageSize = 25): Promi
   if (!Number.isInteger(totalRows) || totalRows < 0) throw new Error('REPORT_DATA_MALFORMED: receivables.total_rows');
   if (typeof totalOutstanding !== 'number' || !Number.isFinite(totalOutstanding) || totalOutstanding < 0) throw new Error('REPORT_DATA_MALFORMED: receivables.total_outstanding');
   if (!Array.isArray(payload.rows)) throw new Error('REPORT_DATA_UNAVAILABLE: receivables rows missing');
+  if (!payload.rows.every(isReceivablesReportRow)) throw new Error('REPORT_DATA_MALFORMED: receivables.rows');
 
   return {
     status: payload.status,
@@ -404,7 +433,7 @@ export async function fetchReceivablesReportPage(page = 0, pageSize = 25): Promi
     page_size: reportPageSize,
     total_rows: totalRows,
     total_outstanding: totalOutstanding,
-    rows: payload.rows as ReceivablesReportRow[],
+    rows: payload.rows,
   };
 }
 export type CanonicalExportRow = { [key:string]: string|number|null };
