@@ -21,6 +21,14 @@ export interface DataQualitySnapshot {
   issues: QualityIssue[];
 }
 
+export function calculateWeightedQualityScore(entities: EntityQuality[]): number | null {
+  const weightedBase = entities.reduce((sum, entity) => sum + entity.total, 0);
+  if (!Number.isFinite(weightedBase) || weightedBase <= 0) return null;
+  const weightedScore = entities.reduce((sum, entity) => sum + (entity.score * entity.total), 0) / weightedBase;
+  if (!Number.isFinite(weightedScore)) return null;
+  return Math.max(0, Math.min(100, weightedScore));
+}
+
 export function validateDataQualitySnapshot(data: unknown): DataQualitySnapshot {
   if (!data || typeof data !== 'object') throw new Error('DATA_QUALITY_SNAPSHOT_INVALID');
   const snapshot = data as Record<string, unknown>;
