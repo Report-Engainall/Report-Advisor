@@ -1,3 +1,21 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-182
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `2002c5d8389091f6c7a8b66da7e076ef8d6c0316`.
+- SESSION-ID → `20260926-AGHBARI-CONTINUOUS-EXECUTION-182`.
+- DONE — UI → Dashboard intelligence window now consumes the canonical `DASHBOARD_INTELLIGENCE_LIMIT` instead of duplicating the limit locally.
+- DONE — UI → Data Quality no longer claims global completeness from an issue snapshot; clean state is explicitly bounded to measured quality indicators.
+- DONE — UI → Decision Experience recommendation selection now exposes explicit accessible labels and machine-addressable selected state.
+- DONE — CORE → dashboard intelligence exposes one canonical read-limit constant and the RPC consumes it; report-truth contract guards the shared limit.
+- DONE — CONTRACTS → Product WOW/report-truth guards cover the latest dashboard, quality, and decision boundaries.
+- CURRENT CODE/TEST CANDIDATE → `2002c5d8389091f6c7a8b66da7e076ef8d6c0316`.
+- PR #660 → OPEN; GitHub currently reports `mergeable=false` on this just-updated head, with no terminal workflow/status result yet. Treat mergeability as pending GitHub recomputation; do not force merge/rebase without concrete evidence.
+- EXACT-HEAD GATES → no workflow snapshot yet for `2002c5d...`; previous head had queued/pending/in-progress runs and known external Vercel rate-limit. No PASS claimed for the new head.
+- BLOCKED → local device/browser unavailable; Phase-F live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- NEXT EXECUTABLE ACTION → `consume new-head workflow/status result → repair first reproduced current-SHA failure only → continue independent UI/core closure if a concrete live gap remains`.
+- DO NOT REPEAT → stale PASS evidence, missing-to-zero coercion, unbounded intelligence totals, duplicate architecture, unsupported production claims.
+- CURRENT RESUME POINTER → `PR #660 exact code head 2002c5d... → new-head gate result / first current-head failure → next uncovered UI/core closure`.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-181
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
