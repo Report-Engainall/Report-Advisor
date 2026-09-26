@@ -12,6 +12,8 @@ describe('external file analysis decision surface', () => {
     expect(page).toContain('المطابقة');
     expect(page).toContain('NEXT ACTION');
     expect(page).toContain('التحليل الخارجي لا يكتب بيانات الأعمال مباشرة.');
+    expect(page).toContain("qualityScore == null ? 'غير متاح'");
+    expect(page).toContain('Number.isFinite(dataset.qualityScore)');
   });
 
   it('routes the next action to canonical trust/import surfaces instead of inventing a new flow', () => {
