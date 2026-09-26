@@ -31,6 +31,11 @@ export interface AgingSnapshotRow {name:string;amount:number;count:number;}
 export interface AgingSnapshot {rows:AgingSnapshotRow[];asOf:string;unknownRows:number|null;status:'NO_DATA'|'INSUFFICIENT_DATA'|'CALCULATED';}
 interface Snapshot { kpis:DashboardKPIs; trend:MonthlyTrend[]; topCustomers:TopEntity[]; topProducts:TopEntity[]; categories:CategoryBreakdown[]; aging:AgingDashboard; quality:DashboardQuality; asOf:string; months:number; }
 function finiteOrNull(value: unknown): number|null { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
+function qualityCountOrNull(value: unknown, field: string): number|null {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'number' && Number.isInteger(value) && value >= 0) return value;
+  throw new Error('REPORT_DATA_INVALID: ' + field + ' must be a non-negative integer or null');
+}
 function requiredArray<T>(value: unknown, field: string): T[] {
   if (!Array.isArray(value)) throw new Error('REPORT_DATA_INVALID: ' + field + ' must be an array');
   return value as T[];
@@ -78,8 +83,12 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
     status,
   };
 
-  const agingRow=(row.aging&&typeof row.aging==='object'?row.aging:{}) as Record<string,unknown>;
-  const qualityRow=(row.quality&&typeof row.quality==='object'?row.quality:{}) as Record<string,unknown>;
+  const agingRow=(row.aging&&typeof row.aging==='object' && !Array.isArray(row.aging)?row.aging:{}) as Record<string,unknown>;
+  const rawQuality = row.quality;
+  if (rawQuality !== undefined && rawQuality !== null && (typeof rawQuality !== 'object' || Array.isArray(rawQuality))) {
+    throw new Error('REPORT_DATA_INVALID: quality must be an object when provided');
+  }
+  const qualityRow=(rawQuality && typeof rawQuality==='object'?rawQuality:{}) as Record<string,unknown>;
   return {
     kpis,
     trend: requiredArray<MonthlyTrend>(row.trend, 'trend'),
@@ -95,12 +104,12 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
       status:agingRow.status==='CALCULATED'?'CALCULATED':agingRow.status==='NO_DATA'?'NO_DATA':agingRow.status==='INSUFFICIENT_DATA'?'INSUFFICIENT_DATA':(() => { throw new Error('REPORT_DATA_INVALID: aging.status is invalid'); })()
     },
     quality:{
-      badInvoiceRows:finiteOrNull(qualityRow.badInvoiceRows),
-      badSaleItemRows:finiteOrNull(qualityRow.badSaleItemRows),
-      badPurchaseRows:finiteOrNull(qualityRow.badPurchaseRows),
-      badInventoryRows:finiteOrNull(qualityRow.badInventoryRows),
-      salesCurrencyMismatchRows:finiteOrNull(qualityRow.salesCurrencyMismatchRows),
-      purchaseCurrencyMismatchRows:finiteOrNull(qualityRow.purchaseCurrencyMismatchRows),
+      badInvoiceRows:qualityCountOrNull(qualityRow.badInvoiceRows, 'quality.badInvoiceRows'),
+      badSaleItemRows:qualityCountOrNull(qualityRow.badSaleItemRows, 'quality.badSaleItemRows'),
+      badPurchaseRows:qualityCountOrNull(qualityRow.badPurchaseRows, 'quality.badPurchaseRows'),
+      badInventoryRows:qualityCountOrNull(qualityRow.badInventoryRows, 'quality.badInventoryRows'),
+      salesCurrencyMismatchRows:qualityCountOrNull(qualityRow.salesCurrencyMismatchRows, 'quality.salesCurrencyMismatchRows'),
+      purchaseCurrencyMismatchRows:qualityCountOrNull(qualityRow.purchaseCurrencyMismatchRows, 'quality.purchaseCurrencyMismatchRows'),
     }
   };
 }
