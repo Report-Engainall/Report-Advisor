@@ -154,3 +154,9 @@ Forecasting and benchmark outputs must expose minimum-data/sample limits.
 - A requested reporting period can no longer be silently replaced by a different RPC period in the dashboard truth layer.
 - A `CALCULATED` analytics status without any result rows is treated as malformed source truth rather than a successful empty calculation.
 - Analytics Center preserves the distinction between unavailable data, source read failure, and calculated data.
+
+
+## Execution closure — 2026-09-27 / predecessor 47e75cfdf53bfd0ba65afbd099d66e37f16dc5be
+
+- Presentation cannot normalize an invalid quality score into an authoritative percentage; the state remains explicitly untrusted.
+- No data or schema mutation was required for this closure.
