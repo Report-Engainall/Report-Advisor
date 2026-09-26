@@ -6,9 +6,17 @@ export function toGroupedReport(rows:DetailReportRow[],groups:Record<string,{nam
  const out=new Map<string,GroupedReportRow>();
  const missing=new Map<string,{stock:boolean;requested:boolean;sales:boolean;demand:boolean}>();
  for(const r of rows){
-  if(!r.groupId)continue;
-  const g=groups[r.groupId];if(!g)continue;
-  const x=out.get(r.groupId)??{groupId:r.groupId,name:g.name,memberSkus:g.members,stockUnits:0,requestedUnits:0,netSalesUnits:0,dailyDemand:0,daysOfCover:Number.NaN};
+  if (!r || typeof r !== 'object') throw new Error('GROUPED_REPORT_DATA_INVALID: row is not an object');
+  if (!r.groupId) continue;
+  const g=groups[r.groupId];
+  if (!g) throw new Error('GROUPED_REPORT_DATA_INVALID: row references a missing group');
+  if (typeof g.name !== 'string' || !g.name.trim() || !Array.isArray(g.members)) {
+    throw new Error('GROUPED_REPORT_DATA_INVALID: group identity is invalid');
+  }
+  if (typeof r.sku !== 'string' || !r.sku.trim() || typeof r.name !== 'string' || !r.name.trim()) {
+    throw new Error('GROUPED_REPORT_DATA_INVALID: row identity is invalid');
+  }
+  const x=out.get(r.groupId)??{groupId:r.groupId,name:g.name.trim(),memberSkus:g.members,stockUnits:0,requestedUnits:0,netSalesUnits:0,dailyDemand:0,daysOfCover:Number.NaN};
   const state=missing.get(r.groupId)??{stock:false,requested:false,sales:false,demand:false};
   if(Number.isFinite(r.stockUnits))x.stockUnits+=r.stockUnits;else state.stock=true;
   if(Number.isFinite(r.requestedUnits))x.requestedUnits+=r.requestedUnits;else state.requested=true;
