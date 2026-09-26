@@ -1180,3 +1180,18 @@
 - Release boundary: Phase-F NOT PROVEN; no production mutation/certification.
 - Resume priority: consume current-head gate results first; fix only a reproduced current-SHA failure; otherwise continue independent UI + core closure.
 - Do-not-repeat: no stale PASS transfer, no queued-as-PASS, no production bypass, no duplicate workflow/RPC/import path.
+
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / GROUPED INVENTORY + CONNECTOR PROOF LANGUAGE
+
+> Exact-head evidence only. No historical PASS is transferred.
+
+- SOURCE CODE HEAD BEFORE GOVERNANCE WRITE → 10faaff343ca7438788d9d8d155dbb2c47d5d5c3.
+- DONE — CORE → grouped inventory identity boundary is fail-closed for malformed rows/groups/references.
+- DONE — UI → connector availability is explicitly distinguished from runtime proof.
+- DONE — CONTRACT → report-truth and product-wow guards protect both closures.
+- GATE → Vercel failure remains the known free-plan build-rate-limit boundary; latest workflow snapshot for 10faaff343ca7438788d9d8d155dbb2c47d5d5c3 was empty at inspection.
+- MERGE → compare main...10faaff343ca7438788d9d8d155dbb2c47d5d5c3 previously reported behind_by=0; current GitHub PR flag is mergeable=false without a reproduced conflict. Do not mutate merge state speculatively.
+- DEVICE → PC01 offline; browser/device NOT PROVEN.
+- RELEASE → Phase-F NOT PROVEN; no production mutation.
+- NEXT EXECUTABLE ACTION → refresh exact-head gates first, repair only a reproduced current-SHA failure, otherwise continue the next independent UI/core lane.
+- DO NOT REPEAT → no stale evidence, no queue-as-PASS, no speculative conflict fix, no duplicate workflow/RPC/import path.
