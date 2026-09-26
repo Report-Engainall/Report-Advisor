@@ -160,10 +160,10 @@ assert.ok(entitiesSurface.includes('عرض كل المخزون'), 'inventory fil
 assert.ok(entitiesSurface.includes('<Link to="/import"'), 'inventory source-empty state must use the unified import route');
 
 const dataQualitySurface = fs.readFileSync('src/pages/DataQualitySnapshotPage.tsx', 'utf8');
-assert.ok(dataQualitySurface.includes('const derivedSummaryAvailable = entities.every'), 'data quality must validate derived-summary eligibility before rendering derived metrics');
-assert.ok(dataQualitySurface.includes('remainingRecords = derivedSummaryAvailable ? totalRecords - totalIssues : null'), 'data quality must not render a derived remaining count when issue occurrences make the arithmetic ambiguous');
-assert.ok(dataQualitySurface.includes("data-summary-state={derivedSummaryAvailable ? 'consistent' : 'unavailable'}"), 'data quality must expose derived-summary availability state');
-assert.ok(dataQualitySurface.includes('راجع معنى ملخص الجودة'), 'data quality must expose a next action when the derived summary is unavailable');
+assert.ok(dataQualitySurface.includes('const weightedScore = snapshot.entities.reduce'), 'data quality must derive its overall diagnostic score from canonical entity scores');
+assert.ok(dataQualitySurface.includes('const scoresValid = snapshot.entities.every'), 'data quality must validate canonical entity score ranges before rendering the weighted score');
+assert.ok(dataQualitySurface.includes("data-summary-state={overallScore == null ? 'unavailable' : 'available'}"), 'data quality must expose summary score availability');
+assert.ok(dataQualitySurface.includes('الدرجة الموزونة للكيانات'), 'data quality must present the weighted entity score instead of an invented remaining-record count');
 const truthStrip = fs.readFileSync('src/components/TruthContextStrip.tsx', 'utf8');
 assert.ok(truthStrip.includes('الاستخدام: صالح للقرار') && truthStrip.includes('الاستخدام: راجع الدليل أولًا'), 'shared truth strip must disclose decision-use state');
 const analytics = fs.readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
@@ -442,8 +442,7 @@ assert.ok(dataQuality.includes('عرض كل الشدة'), 'data quality severity
 assert.ok(dataQuality.includes('aria-pressed={severityFilter===key}'), 'data quality severity filters must expose selected state accessibly');
 
 assert.ok(dataQuality.includes('criticalIssueTotal'), 'data quality must derive critical issue pressure from the current snapshot');
-assert.ok(dataQuality.includes('const nextAction = !derivedSummaryAvailable'), 'data quality must derive the next action from derived-summary eligibility');
-assert.ok(dataQuality.includes('const nextAction = !derivedSummaryAvailable') && dataQuality.includes("data-summary-state={derivedSummaryAvailable ? 'consistent' : 'unavailable'}"), 'data quality must expose derived-summary eligibility as a first-class state');
+assert.ok(dataQuality.includes('const nextAction = snapshotStatus === \'EMPTY\''), 'data quality must derive the next action from authoritative snapshot state');
 assert.ok(dataQuality.includes('استيراد مصدر'), 'empty data quality must route to the canonical import entry');
 assert.ok(dataQuality.includes('أغلق المشكلات الحرجة'), 'critical data quality must route to the trust review path');
 assert.ok(dataQuality.includes('راجع مشكلات الجودة'), 'non-critical data quality issues must expose a review action');
