@@ -385,7 +385,11 @@ assert.ok(workCenter.includes('aria-pressed={filter === k}'), 'work center filte
 assert.ok(workCenter.includes('aria-live="polite"'), 'work center next-action messaging must be announced without interrupting the user');
 
 const executiveCommand = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
-assert.ok(executiveCommand.includes('بيانات الذمم متاحة'), 'money recovery must describe receivables availability without claiming recoverable money');
+assert.ok(executiveCommand.includes('Money Recovery'), 'money recovery action surface must remain visible');
+assert.ok(executiveCommand.includes('ag-trust ag-trust-'), 'executive command center must expose the canonical trust badge on decision surfaces');
+assert.ok(executiveCommand.includes('data-state={kpis.totalReceivables === null ? \\'insufficient\\''), 'money recovery must encode unavailable state without fabricating financial opportunity');
+assert.ok(executiveCommand.includes('executiveTruth.state === \\'verified\\''), 'executive command center must derive decision-surface state from canonical truth');
+assert.ok(executiveCommand.includes('executiveTruth.detail'), 'executive command center must explain why the current truth state is actionable or blocked');
 assert.ok(executiveCommand.includes('فحص مساحة الإشارات'), 'executive command center alert-empty state must provide an intelligence action');
 assert.ok(executiveCommand.includes('مراجعة جودة البيانات'), 'executive command center recommendation/trend empty states must expose the data-quality next step');
 assert.ok(executiveCommand.includes('<Link to="/data-quality"'), 'executive command center empty states must use the canonical data-quality route');
