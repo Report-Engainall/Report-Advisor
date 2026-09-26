@@ -291,3 +291,10 @@ A surface is complete only when the quality gate is satisfied, not merely when t
 
 - Customers and Products now keep a missing server count as «إجمالي غير متاح» instead of coercing it to zero.
 - Pagination no longer renders a synthetic total-page count when the source count is unavailable; navigation uses current-page row count as the bounded fallback.
+
+
+## Execution closure — 2026-09-27 / predecessor 04f19027b2dc7293d41436a9070de68cfad473fa
+
+- Analytics Center gained live readiness badges and a decision strip showing available analyses, data shortages, read failures, and the next path.
+- Individual analysis failures no longer collapse the entire center because the readiness probe uses isolated settlement semantics.
+- The UI continues to avoid synthetic readiness claims and exposes «تحديث الجاهزية» as a recoverable action.
