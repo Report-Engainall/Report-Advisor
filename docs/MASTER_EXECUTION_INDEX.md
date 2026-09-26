@@ -1138,3 +1138,18 @@
 - NEXT ACTION → consume first populated current-head gate; fix only a reproduced failure; continue next safe UI/core closure.
 - DO NOT REPEAT → no zero substitution for missing liquidity pressure, no stale import metric, no stale PASS transfer, no production mutation.
 
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / DEMAND TRUTH + IMPORT QUALITY POLISH
+
+> Exact-head evidence only. No historical PASS is transferred.
+
+- SOURCE CODE HEAD BEFORE THIS GOVERNANCE WRITE → f62b43394ebe0c2783d186dd3a3e2836f776faf0.
+- DONE — CORE → demand-series assembly rejects malformed authoritative invoice/item/product observations instead of silently omitting them.
+- DONE — CORE → inventory intelligence rejects malformed product identity before business rows are assembled.
+- DONE — UI → canonical import quality is validated as finite 0–100; malformed values no longer get silently clamped.
+- DONE — UI → canonical import source passport exposes semantic quality-state styling (trusted / review / blocked).
+- DONE — CONTRACT → report-truth guards demand/inventory invariants; product-wow guards canonical-import quality validation/state.
+- CURRENT GATES → Vercel is failure with the known free-plan build-rate-limit target; Vercel Deployments is pending; no GitHub workflow run snapshot is exposed for this SHA.
+- DEVICE BOUNDARY → PC01 is offline; browser/device proof is NOT PROVEN.
+- RELEASE BOUNDARY → Phase-F live backup/restore/RPO/RTO/rollback remains NOT PROVEN; no production mutation.
+- NEXT EXECUTABLE ACTION → consume newly populated exact-head gates; repair only the first reproduced current-SHA failure; otherwise continue the next independent UI/core closure and refresh governance on the resulting SHA.
+- DO NOT REPEAT → no silent demand-row dropping, no quality clamping, no stale PASS transfer, no device certification claim, no duplicate import/intelligence workflow.
