@@ -52,6 +52,12 @@ describe('source-domain classification contract', () => {
     ])).toBe('sales_invoices');
   });
 
+  it('promotes customer-name aliases when the remaining customer fields are complete', () => {
+    expect(resolveCanonicalEntityType('customer-master', [
+      { mappedField: 'customer_name' }, { mappedField: 'segment' }, { mappedField: 'credit_limit' }, { mappedField: 'payment_terms_days' },
+    ])).toBe('customers');
+  });
+
   it('keeps specialized but incomplete sources in the generic canonical evidence lane', () => {
     expect(resolveCanonicalEntityType('product-master', [
       { mappedField: 'sku' }, { mappedField: 'name' }, { mappedField: 'unit' },
