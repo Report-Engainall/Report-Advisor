@@ -223,3 +223,11 @@ Do not start a deletion wave until:
 5. canonical owner is re-read at the resulting SHA;
 6. Manifest status is updated from ABSORBED to ARCHIVE-READY;
 7. only then may a separate deletion commit be created.
+
+
+## 2026-09-27 — Existing-owner synchronization
+- No new knowledge-owner class was introduced.
+- Deterministic source specialty and typed-target promotion remain owned by src/lib/file-engine/source-domain.ts.
+- Durable import commit evidence remains owned by src/lib/import/canonical-production-adapter.ts and src/lib/import/canonical-commit.ts.
+- Import presentation/lifecycle UX remains owned by src/pages/CanonicalImportPage.tsx and its focused contract.
+- These changes were integrated into existing owners; no duplicate master, importer, runner, or RPC was created.
