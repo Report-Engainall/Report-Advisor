@@ -197,6 +197,7 @@ const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8')
 assert.ok(trustEvidence.includes("entity.issues !== 'number' || !Number.isFinite(entity.issues)"), 'trust evidence issue totals must not coerce missing metrics to zero');
 assert.ok(trustEvidence.includes("entity.total !== 'number' || !Number.isFinite(entity.total)"), 'trust evidence record totals must fail closed on missing metrics');
 assert.ok(trustEvidence.includes("issue.count !== 'number' || !Number.isFinite(issue.count)"), 'trust evidence severity totals must fail closed on invalid counts');
+assert.ok(trustEvidence.includes("item.value === null ? 'غير متاح' : item.value"), 'trust evidence must render an unavailable severity number explicitly');
 assert.ok(trustEvidence.includes("item.value === null ? 'غير متاح من اللقطة الحالية.'"), 'trust evidence UI must expose unavailable severity counts instead of zero');
 assert.ok(trustEvidence.includes('const knownBreakdown ='), 'trust evidence severity totals must validate internal count consistency');
 assert.ok(trustEvidence.includes("data-severity-breakdown-state={issueSeverityRows.every((row) => row.value !== null) ? 'valid' : 'unavailable'}"), 'trust evidence must expose breakdown availability without coercing contradictions');
