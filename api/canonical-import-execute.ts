@@ -47,7 +47,16 @@ function validateInput(value: unknown): DurableCanonicalImportInput {
   if (typeof body.fileName !== 'string' || !body.fileName.trim() || body.fileName.length > 512) throw new Error('file_name_invalid');
   if (typeof body.sourceHash !== 'string' || !/^sha256:[0-9a-fA-F]{64}$/.test(body.sourceHash)) throw new Error('source_hash_invalid');
   if (!Array.isArray(body.rows) || body.rows.length < 1 || body.rows.length > 500000) throw new Error('rows_invalid');
+  for (const [index, row] of body.rows.entries()) {
+    if (!row || typeof row !== 'object' || Array.isArray(row)) throw new Error(`row_invalid:${index + 1}`);
+    const value = row as Record<string, unknown>;
+    if (!Number.isInteger(value.rowNumber) || Number(value.rowNumber) < 1) throw new Error(`row_number_invalid:${index + 1}`);
+    if (!value.data || typeof value.data !== 'object' || Array.isArray(value.data)) throw new Error(`row_data_invalid:${index + 1}`);
+    if (!value.provenance || typeof value.provenance !== 'object' || Array.isArray(value.provenance)) throw new Error(`row_provenance_invalid:${index + 1}`);
+    if (typeof value.recordKey !== 'string' || !value.recordKey.trim()) throw new Error(`record_key_invalid:${index + 1}`);
+  }
   if (typeof body.qualityScore !== 'number' || !Number.isFinite(body.qualityScore) || body.qualityScore < 0 || body.qualityScore > 100) throw new Error('quality_score_invalid');
+  if (typeof body.qualityApproved !== 'boolean') throw new Error('quality_approval_invalid');
   return body as unknown as DurableCanonicalImportInput;
 }
 
@@ -111,11 +120,16 @@ export default async function handler(req: any, res: any) {
       requestedBy: user.id,
     });
 
-    json(res, 200, result);
+    json(res, 200, {
+      ...result,
+      serverCommittedRowCount: result.serverCommittedRowCount,
+      serverValidatedQualityScore: input.qualityScore,
+      serverIdempotentReplay: result.serverIdempotentReplay,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const status =
-      /required|invalid|tenant|hash|rows|quality|business|duplicate|already_completed|already_running|not_retryable/i.test(message) ? 400 : 502;
+      /required|invalid|tenant|hash|rows|row_|quality|business|duplicate|already_completed|already_running|not_retryable/i.test(message) ? 400 : 502;
     json(res, status, { status: 'failed', error: message.slice(0, 512) });
   }
 }
