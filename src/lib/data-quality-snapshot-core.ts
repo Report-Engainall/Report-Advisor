@@ -21,6 +21,8 @@ export interface DataQualitySnapshot {
   issues: QualityIssue[];
 }
 
+function nonEmptyText(value: unknown): value is string { return typeof value === 'string' && value.trim().length > 0; }
+
 export function validateDataQualitySnapshot(data: unknown): DataQualitySnapshot {
   if (!data || typeof data !== 'object') throw new Error('DATA_QUALITY_SNAPSHOT_INVALID');
   const snapshot = data as Record<string, unknown>;
@@ -37,7 +39,7 @@ export function validateDataQualitySnapshot(data: unknown): DataQualitySnapshot 
   for (const entity of snapshot.entities as EntityQuality[]) {
     if (
       !entity ||
-      typeof entity.name !== 'string' ||
+      !nonEmptyText(entity.name) ||
       typeof entity.total !== 'number' || !Number.isInteger(entity.total) ||
       typeof entity.issues !== 'number' || !Number.isInteger(entity.issues) ||
       !Number.isFinite(entity.score) ||
@@ -54,9 +56,9 @@ export function validateDataQualitySnapshot(data: unknown): DataQualitySnapshot 
   for (const issue of snapshot.issues as QualityIssue[]) {
     if (
       !issue ||
-      typeof issue.entity !== 'string' ||
-      typeof issue.field !== 'string' ||
-      typeof issue.issue !== 'string' ||
+      !nonEmptyText(issue.entity) ||
+      !nonEmptyText(issue.field) ||
+      !nonEmptyText(issue.issue) ||
       typeof issue.count !== 'number' || !Number.isInteger(issue.count) ||
       issue.count < 0 ||
       !['critical', 'warning', 'info'].includes(issue.severity)
