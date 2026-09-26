@@ -1,3 +1,6 @@
+## CURRENT LIFECYCLE GATE — 2026-09-27
+
+- The user-visible decision chain now preserves the distinction between an in-progress action and a completed outcome; Outcome cannot be presented merely because a work item exists.
 ## CURRENT UX RELIABILITY DETAIL — 2026-09-27
 
 - Secondary evidence surfaces must fail independently: a replay read failure cannot erase a valid command-center snapshot. The user sees REVIEW and a retry rather than a fabricated empty state.
