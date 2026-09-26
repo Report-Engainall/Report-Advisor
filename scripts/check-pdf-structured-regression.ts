@@ -220,6 +220,24 @@ async function main(): Promise<void> {
 
   const vite: ViteDevServer = await createServer({ logLevel: 'error', server: { middlewareMode: true }, appType: 'custom' });
   try {
+    const { mapColumns } = await vite.ssrLoadModule('/src/lib/file-engine/synonyms.ts') as {
+      mapColumns: (columns: string[]) => Promise<Array<{ mappedField: string | null; confidence: number }>>;
+    };
+
+    const arabicBusinessMappings = await mapColumns([
+      'رقم الفاتورة',
+      'تاريخ الفاتورة',
+      'المبلغ المدفوع',
+      'تاريخ السداد',
+      'طريقة الدفع',
+      'المخزن',
+      'الوارد',
+      'صافي مبيعات مرحل',
+      'صافي مبيعات لم يرحل',
+      'الرصيد',
+    ]);
+    assert(arabicBusinessMappings.every(mapping => Boolean(mapping.mappedField) && mapping.confidence >= 96), 'Arabic sales/payment/inventory headings must map canonically');
+
     const { parseFile, classifyOcrConfidence } = await vite.ssrLoadModule('/src/lib/file-engine/adapters.ts') as {
       parseFile: (input: ArrayBuffer, fileName: string, format: 'pdf') => Promise<Array<{ rows: Array<Record<string, unknown>>; qualityScore: number }>>;
       classifyOcrConfidence: (score: number) => 'REJECT' | 'REVIEW' | 'TRUSTED';
