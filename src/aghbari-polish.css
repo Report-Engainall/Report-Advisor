@@ -612,3 +612,44 @@
     min-width:680px;
   }
 }
+
+
+/* Decision workspace: selected and keyboard-focused recommendation states are explicit. */
+.ag-decision-experience-surface .ag-recommendation-card{
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 12px 26px -24px rgba(5,46,43,.34);
+}
+.ag-decision-experience-surface .ag-recommendation-card::before{
+  content:'';
+  position:absolute;
+  inset-inline-start:0;
+  inset-block:12px;
+  width:3px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#e7b52b,#149b88);
+  opacity:0;
+  transition:opacity .16s ease;
+}
+.ag-decision-experience-surface .ag-recommendation-card[data-selected="true"]::before{
+  opacity:1;
+}
+.ag-decision-experience-surface .ag-recommendation-card[data-focusable-decision="true"]:focus-visible{
+  outline:2px solid rgba(20,184,166,.62);
+  outline-offset:3px;
+  border-color:#76bdb2;
+  box-shadow:0 16px 30px -24px rgba(5,46,43,.54);
+}
+.ag-decision-experience-surface .ag-recommendation-card[data-selected="true"]{
+  box-shadow:0 16px 32px -26px rgba(5,46,43,.48);
+}
+@media (max-width:640px){
+  .ag-decision-experience-surface .ag-recommendation-card{
+    min-height:88px;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  .ag-decision-experience-surface .ag-recommendation-card::before{
+    transition:none;
+  }
+}
