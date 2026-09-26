@@ -53,14 +53,20 @@ export function WorkCenterPage() {
     failed: rows.filter(r => r.status === 'failed' || r.status === 'cancelled').length,
   }), [rows]);
   const zeroProgressActive = useMemo(
-    () => rows.filter(r => (r.status === 'queued' || r.status === 'processing') && Number(r.progress ?? 0) === 0).length,
+    () => rows.filter(r => (r.status === 'queued' || r.status === 'processing') && typeof r.progress === 'number' && Number.isFinite(r.progress) && r.progress === 0).length,
+    [rows],
+  );
+  const invalidProgressActive = useMemo(
+    () => rows.filter(r => (r.status === 'queued' || r.status === 'processing') && (typeof r.progress !== 'number' || !Number.isFinite(r.progress) || r.progress < 0 || r.progress > 100)).length,
     [rows],
   );
   const historyWindowNotice = rows.length >= 500
     ? 'المعروض هو أحدث 500 عملية ضمن نافذة القراءة الحالية؛ لا يُستخدم كإجمالي تاريخي كامل.'
     : 'المعروض هو السجل الذي أعادته نافذة القراءة الحالية.';
 
-  const nextAction = (workerHealth?.expiredActive ?? 0) > 0
+  const nextAction = invalidProgressActive > 0
+    ? { kind: 'filter' as const, filter: 'active' as FilterKey, tone: 'danger' as const, title: 'بيانات التقدم غير موثوقة', message: `هناك ${invalidProgressActive} عملية نشطة بتقدم مفقود أو خارج النطاق؛ تُعرض للمراجعة ولا تُحوّل إلى نسبة افتراضية.`, label: 'مراجعة النشطة' }
+    : (workerHealth?.expiredActive ?? 0) > 0
     ? { kind: 'refresh' as const, tone: 'danger' as const, title: 'إعادة فحص العامل الآن', message: 'هناك leases منتهية مثبتة في القراءة الحالية؛ أعد قراءة الحالة بعد دورة recovery التشغيلية بدل اعتبار الطابور سليمًا.', label: 'إعادة فحص العامل' }
     : workerHealth && !workerHealth.activeReadComplete
       ? { kind: 'refresh' as const, tone: 'warning' as const, title: 'قراءة العامل جزئية', message: 'لم تُقرأ كل leases النشطة؛ لا يمكن تحويل القراءة الجزئية إلى حكم سلامة كامل. أعد الفحص عند الحاجة.', label: 'إعادة قراءة العامل' }
@@ -180,7 +186,7 @@ export function WorkCenterPage() {
       <div className="ag-decision-cell"><span className="ag-decision-label">تحتاج مراجعة</span><span className="ag-decision-value">{formatNumber(counts.review)}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">مكتملة</span><span className="ag-decision-value">{formatNumber(counts.completed)}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">فشل / إلغاء</span><span className="ag-decision-value">{formatNumber(counts.failed)}</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">نشطة بلا تقدم</span><span className="ag-decision-value">{formatNumber(zeroProgressActive)}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">نشطة بلا تقدم</span><span className="ag-decision-value">{formatNumber(zeroProgressActive)}</span></div><div className="ag-decision-cell"><span className="ag-decision-label">تقدم غير موثوق</span><span className="ag-decision-value">{formatNumber(invalidProgressActive)}</span></div>
     </section>
 
     <Card>
@@ -216,7 +222,7 @@ export function WorkCenterPage() {
               { key: 'status', label: 'الحالة', align: 'center', render: (r: ImportRecord) => <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass(r.status)}`}>{statusLabel(r.status)}</span> },
               { key: 'progress', label: 'التقدم', align: 'center', render: (r: ImportRecord) => r.progress == null ? '—' : <div className="min-w-24" aria-label={'تقدم العملية ' + Math.max(0, Math.min(100, r.progress)) + '%'}><div className="text-xs font-bold">{Math.max(0, Math.min(100, r.progress))}%</div><div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-100" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.max(0, Math.min(100, r.progress))} aria-label="نسبة اكتمال العملية"><div className="h-full rounded-full bg-primary-500" style={{ width: `${Math.max(0, Math.min(100, r.progress))}%` }}/></div></div> },
               { key: 'valid', label: 'البيانات المقبولة', align: 'center', render: (r: ImportRecord) => r.valid_rows == null ? 'غير متاح' : formatNumber(r.valid_rows) },
-              { key: 'exceptions', label: 'الاستثناءات', align: 'center', render: (r: ImportRecord) => <span className={(r.invalid_rows ?? 0) + (r.quarantined_rows ?? 0) > 0 ? 'font-semibold text-warning-700' : 'text-ink-500'}>{formatNumber((r.invalid_rows ?? 0) + (r.quarantined_rows ?? 0))}</span> },
+              { key: 'exceptions', label: 'الاستثناءات', align: 'center', render: (r: ImportRecord) => { const invalid = typeof r.invalid_rows === 'number' && Number.isFinite(r.invalid_rows) ? r.invalid_rows : null; const quarantined = typeof r.quarantined_rows === 'number' && Number.isFinite(r.quarantined_rows) ? r.quarantined_rows : null; const total = invalid != null && quarantined != null ? invalid + quarantined : null; return total == null ? <span className="font-semibold text-warning-700">غير متاح</span> : <span className={total > 0 ? 'font-semibold text-warning-700' : 'text-ink-500'}>{formatNumber(total)}</span>; } },
               { key: 'updated', label: 'آخر تحديث', align: 'center', render: (r: ImportRecord) => <span className="inline-flex items-center gap-1 text-xs text-ink-500"><Clock3 size={13}/>{new Date(r.completed_at ?? r.created_at).toLocaleString('ar-YE')}</span> },
             ]}
           />
