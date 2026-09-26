@@ -164,6 +164,9 @@ export function DecisionExperiencePage() {
 
   if (loading) return <LoadingState message="جارٍ تحميل سياق القرار..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  const decisionStatusLabel = readiness?.status === 'READY' ? 'جاهز للتنفيذ' : readiness?.status === 'BLOCKED' ? 'محجوب' : readiness?.status === 'REVIEW' ? 'يحتاج مراجعة' : 'غير مكتمل';
+  const decisionStatusTone = readiness?.status === 'READY' ? 'border-success-200 bg-success-50 text-success-800' : readiness?.status === 'BLOCKED' ? 'border-danger-200 bg-danger-50 text-danger-800' : 'border-warning-200 bg-warning-50 text-warning-800';
+
   const readiness = decisionReadiness(selected);
 
   return (
