@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-175
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `ddummy`.
+- SESSION-ID → `20260926-AGHBARI-CONTINUOUS-EXECUTION-175`.
+- DONE → Work Center fail-closed operational metrics; tenant readback guards for suppliers, sales invoices, purchase invoices, import-job lists and single import jobs; exact count requirements on bounded reads; contract updates.
+- VERIFIED → functional candidate before governance write is `01ce614aff3f2f21adc44deeb44a6445dc3c6cdc`; PR #660 remains OPEN and GitHub reports `mergeable=true`.
+- GATE STATE → exact functional SHA has only initial checks populated; Supabase Preview is skipped; no exact-head PASS is claimed.
+- BLOCKED → user's device unavailable; browser/desktop proof not performed. Phase-F recovery certification remains NOT PROVEN.
+- CURRENT CODE/TEST CANDIDATE → `01ce614aff3f2f21adc44deeb44a6445dc3c6cdc`.
+- PRECISE NEXT ACTION → `PR #660 01ce614... → consume exact-head gates → repair first reproduced application failure only → continue next uncovered UI/core closure`.
+- DO NOT REPEAT → missing-to-zero metrics; tenant readback omissions; stale SHA evidence; duplicate architecture; production certification without current-head proof.
+- CURRENT RESUME POINTER → `PR #660 exact candidate → exact-head gate result → first reproduced failure only → next uncovered UI/core closure`.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-174
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
