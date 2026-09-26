@@ -72,4 +72,8 @@ if (/(Number|parseFloat|parseInt)\([^\n]*\).*NaN|NaN.*(Number|parseFloat|parseIn
   throw new Error('Report truth contract requires finite-number guarding');
 }
 
+const reportsPage = fs.readFileSync(path.join(srcDir, 'pages', 'ReportsPage.tsx'), 'utf8');
+if (!reportsPage.includes('to="/trust"')) throw new Error('Report truth contract requires a canonical evidence link from report truth context');
+if (!reportsPage.includes('فحص الدليل')) throw new Error('Report truth contract requires explicit evidence action copy');
+
 console.log(`Report truth contract: PASS (${reportFiles.length} report candidates, ${migrationFiles.length} migrations scanned)`);
