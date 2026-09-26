@@ -57,7 +57,7 @@ export function CustomersPage() {
   const [search, setSearch] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
   const [page, setPage] = useState(0);
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -65,7 +65,7 @@ export function CustomersPage() {
       setError(null);
       const result = await fetchCustomersPage(page, PAGE_SIZE, search);
       setCustomers(result.data);
-      setTotal(result.count ?? 0);
+      setTotal(result.count);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'تعذر تحميل العملاء');
     } finally {
@@ -80,11 +80,11 @@ export function CustomersPage() {
     regular: { variant: 'primary', label: 'عادي' },
     occasional: { variant: 'neutral', label: 'عرضي' },
   };
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const totalPages = total == null ? null : Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="space-y-6 animate-fade-in" dir="rtl">
-      <PageHeader title="العملاء" subtitle={`${formatNumber(total)} عميل`} actions={<button type="button" onClick={() => setCreateOpen(true)} className="btn-primary text-xs"><Plus size={14} /> عميل جديد</button>} />
+      <PageHeader title="العملاء" subtitle={total == null ? "إجمالي غير متاح" : `${formatNumber(total)} عميل`} actions={<button type="button" onClick={() => setCreateOpen(true)} className="btn-primary text-xs"><Plus size={14} /> عميل جديد</button>} />
       {createOpen && <CustomerCreateDialog onClose={() => setCreateOpen(false)} onCreated={() => { void load(); }} />}
       <div className="ag-entity-toolbar grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div>
@@ -105,8 +105,8 @@ export function CustomersPage() {
         ]} data={customers} loading={loading} emptyMessage="لا يوجد عملاء" />
       </Card>
       <div className="flex items-center justify-between gap-3">
-        <span className="text-xs text-ink-500">عرض {customers.length} من {formatNumber(total)} عميل</span>
-        <div className="flex items-center gap-2"><button type="button" disabled={page===0} onClick={()=>setPage(p=>Math.max(0,p-1))} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">السابق</button><span className="text-xs text-ink-600">صفحة {page+1} / {totalPages}</span><button type="button" disabled={page+1>=totalPages} onClick={()=>setPage(p=>p+1)} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">التالي</button></div>
+        <span className="text-xs text-ink-500">{total == null ? `عرض ${customers.length} في الصفحة الحالية` : `عرض ${customers.length} من ${formatNumber(total)} عميل`}</span>
+        <div className="flex items-center gap-2"><button type="button" disabled={page===0} onClick={()=>setPage(p=>Math.max(0,p-1))} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">السابق</button><span className="text-xs text-ink-600">صفحة {page+1}{totalPages == null ? "" : ` / ${totalPages}`}</span><button type="button" disabled={total == null ? products.length < PAGE_SIZE : page+1>=totalPages} onClick={()=>setPage(p=>p+1)} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">التالي</button></div>
       </div>
       {selectedCustomer && <EntityContextDrawer
         title={selectedCustomer.name}
@@ -147,7 +147,7 @@ export function ProductsPage() {
       setError(null);
       const result = await fetchProductsPage(page, PAGE_SIZE, search);
       setProducts(result.data);
-      setTotal(result.count ?? 0);
+      setTotal(result.count);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'تعذر تحميل المنتجات');
     } finally {
@@ -160,7 +160,7 @@ export function ProductsPage() {
 
   return (
     <div className="ag-entity-page-surface space-y-6 animate-fade-in" dir="rtl">
-      <PageHeader title="المنتجات" subtitle={`${formatNumber(total)} منتج`} actions={<button type="button" onClick={() => setCreateOpen(true)} className="btn-primary text-xs"><Plus size={14} /> منتج جديد</button>} />
+      <PageHeader title="المنتجات" subtitle={total == null ? "إجمالي غير متاح" : `${formatNumber(total)} منتج`} actions={<button type="button" onClick={() => setCreateOpen(true)} className="btn-primary text-xs"><Plus size={14} /> منتج جديد</button>} />
       {createOpen && <ProductCreateDialog onClose={() => setCreateOpen(false)} onCreated={() => { void load(); }} />}
       <div className="ag-entity-toolbar grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div>
@@ -182,8 +182,8 @@ export function ProductsPage() {
         ]} data={products} loading={loading} emptyMessage="لا توجد منتجات" />
       </Card>
       <div className="flex items-center justify-between gap-3">
-        <span className="text-xs text-ink-500">عرض {products.length} من {formatNumber(total)} منتج</span>
-        <div className="flex items-center gap-2"><button type="button" disabled={page===0} onClick={()=>setPage(p=>Math.max(0,p-1))} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">السابق</button><span className="text-xs text-ink-600">صفحة {page+1} / {totalPages}</span><button type="button" disabled={page+1>=totalPages} onClick={()=>setPage(p=>p+1)} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">التالي</button></div>
+        <span className="text-xs text-ink-500">{total == null ? `عرض ${products.length} في الصفحة الحالية` : `عرض ${products.length} من ${formatNumber(total)} منتج`}</span>
+        <div className="flex items-center gap-2"><button type="button" disabled={page===0} onClick={()=>setPage(p=>Math.max(0,p-1))} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">السابق</button><span className="text-xs text-ink-600">صفحة {page+1}{totalPages == null ? "" : ` / ${totalPages}`}</span><button type="button" disabled={total == null ? products.length < PAGE_SIZE : page+1>=totalPages} onClick={()=>setPage(p=>p+1)} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">التالي</button></div>
       </div>
       {selectedProduct && <EntityContextDrawer
         title={selectedProduct.name}
