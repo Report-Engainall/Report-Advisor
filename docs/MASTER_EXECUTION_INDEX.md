@@ -1,3 +1,21 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / DECISION READINESS + IMPORT CARDINALITY CLOSURE
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `5da3292f59f78e578594a7023d5c0ed176491c9e`.
+- CURRENT CODE/TEST CANDIDATE → `ba36dabc173f0da8b8e464898da6efdca2c6321f`.
+- DONE — UI → Executive Command Center truth/action state, Work Center filter semantics, and Decision Experience readiness are deepened and fail-closed.
+- DONE — CORE → canonical import response identity and exact commit cardinality are enforced.
+- DONE — CONTRACTS → current Product WOW/report-truth checks include these invariants.
+- PR STATE → PR #660 remains OPEN and mergeable against exact main `46675643...`.
+- GATES → newest head has no terminal GitHub workflow result yet. Vercel remains externally rate-limited; Vercel deployment status is pending. No application PASS claimed.
+- PHASE-F → live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- DEVICE → local device/browser unavailable; repository work continues via GitHub-hosted execution.
+- NEXT ACTION → `consume terminal exact-head gates → repair first reproduced current-SHA failure only → continue any independent UI/core closure`.
+- DO NOT REPEAT → stale evidence transfer, null-to-zero coercion, duplicate routes/RPCs/workflows, unproven production certification.
+- CURRENT RESUME POINTER → `PR #660 exact head ba36dabc... → terminal gate result / first current-head failure → next uncovered UI/core closure`.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / DEEP UI + CORE TRANSPORT CLOSURE
 
 > Exact-head evidence only. No historical PASS is transferred.
