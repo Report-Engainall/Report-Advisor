@@ -155,6 +155,10 @@ assert.ok(reports.includes('افحص جودة البيانات'), 'reports cente
 assert.ok(reports.includes('تحديث اللقطة'), 'reports center must support in-place refresh of the canonical snapshot');
 assert.ok(reports.includes("const reportEvidenceState = kpis.status === 'CONFIRMED' && qualityIssueTotal === 0 ? 'VERIFIED' : 'REVIEW';"), 'reports center must not elevate CALCULATED truth to VERIFIED');
 assert.ok(reports.includes("aging.every((bucket)=>bucket.amount!==null)"), 'receivables report totals must remain unavailable when an aging component is unknown');
+assert.ok(reports.includes("const salesBlocked=kpis.status==='INSUFFICIENT_DATA'"), 'sales report must expose an explicit blocked export state');
+assert.ok(reports.includes('disabled={salesBlocked}'), 'sales export must be disabled when source truth is incomplete');
+assert.ok(reports.includes('لا توجد صورة مبيعات مكتملة'), 'sales report must expose the next quality action when blocked');
+
 assert.ok(!reports.includes("(b.amount??0)"), 'receivables report must not coerce missing aging amounts to zero');
 
 
