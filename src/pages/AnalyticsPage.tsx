@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { EmptyState, PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
 import { SimpleBarChart } from '@/components/ui/Charts';
-import { fetchRFMSnapshot, fetchABCSnapshot, fetchAgingSnapshot, type RFMSnapshotRow, type ABCSnapshotRow, type AgingSnapshotRow } from '@/lib/dashboard-canonical';
+import { fetchDashboardSnapshot, fetchRFMSnapshot, fetchABCSnapshot, fetchAgingSnapshot, type RFMSnapshotRow, type ABCSnapshotRow, type AgingSnapshotRow } from '@/lib/dashboard-canonical';
 import { formatCurrency, formatNumber } from '@/lib/format';
 
 const analyticsCards = [
@@ -23,12 +23,13 @@ const analyticsIconClasses: Record<string, string> = {
   warning: 'bg-warning-50 text-warning-700',
 };
 
-function AnalyticsActionBar() {
+function AnalyticsActionBar({ onRefresh, refreshing }: { onRefresh: () => void; refreshing: boolean }) {
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-ink-200 bg-white p-3 shadow-card">
       <div className="hidden items-center gap-2 text-[10px] font-black text-ink-500 sm:flex sm:mr-auto">
         <ShieldCheck size={14} className="text-primary-700" /> التحليل يقرأ المؤشرات الكانونية ولا يصنع أرقامًا بديلة
       </div>
+      <button type="button" onClick={onRefresh} disabled={refreshing} className="btn-secondary text-[10px]">{refreshing ? 'جارٍ التحديث' : 'تحديث الجاهزية'}</button>
       <Link to="/decision-experience" className="btn-secondary text-[10px]">تجربة القرار <ArrowUpLeft size={13} /></Link>
       <Link to="/trust" className="btn-ghost text-[10px]">فحص الثقة</Link>
       <Link to="/reports" className="btn-ghost text-[10px]">مركز التقارير</Link>
@@ -76,7 +77,48 @@ function AnalyticsStatusStrip({
 
 
 
+type AnalyticsReadiness = 'LOADING' | 'CALCULATED' | 'INSUFFICIENT_DATA' | 'ERROR';
+
+const analyticsReadinessLabel: Record<AnalyticsReadiness, string> = {
+  LOADING: 'جارٍ التحقق',
+  CALCULATED: 'متاح من المصدر',
+  INSUFFICIENT_DATA: 'بيانات غير كافية',
+  ERROR: 'فشل القراءة',
+};
+
 export function AnalyticsCenterPage() {
+  const [readiness, setReadiness] = useState<Record<string, AnalyticsReadiness>>({});
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const loadReadiness = useCallback(async () => {
+    setRefreshing(true);
+    setLoadError(null);
+    const results = await Promise.allSettled([
+      fetchDashboardSnapshot(1),
+      fetchRFMSnapshot(100),
+      fetchABCSnapshot(100),
+      fetchAgingSnapshot(),
+    ]);
+    const next: Record<string, AnalyticsReadiness> = {
+      '/analytics/liquidity': 'ERROR',
+      '/analytics/rfm': 'ERROR',
+      '/analytics/abc': 'ERROR',
+      '/analytics/aging': 'ERROR',
+    };
+    const [dashboard, rfm, abc, aging] = results;
+    if (dashboard.status === 'fulfilled') next['/analytics/liquidity'] = dashboard.value.kpis.status === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' : 'CALCULATED';
+    if (rfm.status === 'fulfilled') next['/analytics/rfm'] = rfm.value.status;
+    if (abc.status === 'fulfilled') next['/analytics/abc'] = abc.value.status;
+    if (aging.status === 'fulfilled') next['/analytics/aging'] = aging.value.status;
+    const failed = results.filter((result) => result.status === 'rejected').length;
+    if (failed === results.length) setLoadError('تعذر قراءة أي تحليل من المصدر الحالي.');
+    setReadiness(next);
+    setRefreshing(false);
+  }, []);
+
+  useEffect(() => { void loadReadiness(); }, [loadReadiness]);
+
   return (
     <div dir="rtl" className="ag-analytics-surface space-y-5 animate-fade-in pb-10">
       <PageHeader title="مركز التحليلات" subtitle="مساحة واحدة لاكتشاف الأنماط والاتجاهات ثم نقل النتيجة إلى سياق القرار والدليل." />
@@ -94,26 +136,36 @@ export function AnalyticsCenterPage() {
           </div>
         </div>
       </section>
-      <AnalyticsActionBar />
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <AnalyticsActionBar onRefresh={() => void loadReadiness()} refreshing={refreshing} />
+      {loadError && <div role="alert" className="rounded-2xl border border-danger-200 bg-danger-50 px-4 py-3 text-xs font-semibold text-danger-800">{loadError}</div>}
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4" aria-label="جاهزية التحليلات">
         {analyticsCards.map((item) => {
           const Icon = item.icon;
+          const state = readiness[item.path] ?? 'LOADING';
+          const stateTone = state === 'CALCULATED' ? 'bg-success-50 text-success-700 border-success-100' : state === 'INSUFFICIENT_DATA' ? 'bg-warning-50 text-warning-800 border-warning-100' : state === 'ERROR' ? 'bg-danger-50 text-danger-700 border-danger-100' : 'bg-ink-50 text-ink-500 border-ink-100';
           return (
             <Link key={item.path} to={item.path} className="group min-w-0">
               <Card hover className="h-full transition-transform duration-200 group-hover:-translate-y-0.5">
                 <CardBody className="h-full">
                   <div className="flex items-start justify-between gap-3">
                     <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${analyticsIconClasses[item.color] ?? analyticsIconClasses.primary}`}><Icon size={20} /></div>
-                    <span className="rounded-full border border-ink-100 bg-ink-50 px-2 py-1 text-[8px] font-black text-ink-500">{item.path === '/analytics/liquidity' ? 'التعرض التجاري' : item.path === '/analytics/aging' ? 'التحصيل' : item.path === '/analytics/rfm' ? 'سلوك العملاء' : 'تركيز القيمة'}</span>
+                    <span className={`rounded-full border px-2 py-1 text-[8px] font-black ${stateTone}`}>{analyticsReadinessLabel[state]}</span>
                   </div>
                   <h3 className="mt-4 text-sm font-black text-ink-900">{item.title}</h3>
                   <p className="mt-1 text-[10px] leading-5 text-ink-500">{item.desc}</p>
-                  <div className="mt-4 flex items-center justify-between border-t border-ink-100 pt-3 text-[9px] font-black text-primary-700"><span>فتح التحليل</span><ArrowUpLeft size={13} /></div>
+                  <div className="mt-4 flex items-center justify-between border-t border-ink-100 pt-3 text-[9px] font-black text-primary-700"><span>{state === 'CALCULATED' ? 'التحليل جاهز' : state === 'INSUFFICIENT_DATA' ? 'راجع المصدر' : state === 'ERROR' ? 'أعد المحاولة' : 'جارٍ القراءة'}</span><ArrowUpLeft size={13} /></div>
                 </CardBody>
               </Card>
             </Link>
           );
         })}
+      </section>
+      <section className="ag-decision-strip" aria-label="ملخص جاهزية التحليلات">
+        <div className="ag-decision-cell"><span className="ag-decision-label">التحاليل المتاحة</span><span className="ag-decision-value">{Object.values(readiness).filter((state) => state === 'CALCULATED').length} / 4</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">تحتاج بيانات</span><span className="ag-decision-value">{Object.values(readiness).filter((state) => state === 'INSUFFICIENT_DATA').length}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">قراءات فاشلة</span><span className="ag-decision-value">{Object.values(readiness).filter((state) => state === 'ERROR').length}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">القاعدة</span><span className="ag-decision-value">لا توجد أرقام اصطناعية</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">الإجراء</span><span className="ag-decision-value">راجع المصدر ثم انقل النتيجة للقرار</span></div>
       </section>
       <AnalyticsTruthBanner title="قاعدة الاستخدام" message="التحليل طبقة تفسير فوق الحقيقة الكانونية. لا يتم تعويض نقص البيانات بقيم افتراضية، وكل انتقال إلى قرار أو تقرير يظل مرتبطًا بالسياق المتاح." />
     </div>
