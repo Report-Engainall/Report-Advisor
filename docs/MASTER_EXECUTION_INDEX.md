@@ -1,3 +1,16 @@
+## CURRENT EXECUTION CHECKPOINT — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-145
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE BRANCH → `exec/20260926-deep-ui-core-polish`.
+- CURRENT CANDIDATE → `1c13a0a18f1c5efd85cb6e268d13d7f91c809e1c` (documentation checkpoint after UI/core delivery); branch remains 475 commits ahead / 0 behind main.
+- DELIVERED UI → canonical import drag/drop + keyboard entry; deeper decision-stage rail, next-action hierarchy, focus behavior, and mobile/touch styling.
+- DELIVERED CORE → decision evidence semantic guards; canonical import row/provenance/tenant/source-hash boundary revalidation immediately before durable execution.
+- PROOF STATE → targeted workflows observed on earlier exact commits but not all terminal; current candidate exact-head runtime certification remains NOT PROVEN. No Phase-F or production certification transferred.
+- BLOCKERS → device-dependent verification unavailable in this session; Vercel free-plan deployment limit remains external.
+- OPEN FRONTS → exact-head gate consumption; Phase-F live evidence; deeper independent UI/core closure.
+- CURRENT RESUME POINTER → `current candidate 1c13a0... → consume exact-head gate results → repair first new failure only → continue 50/50 UI+core independent fronts; preserve Phase-F fail-closed`.
+- DO NOT REPEAT → prior #660 UI/dashboard truth closures, stale evidence, production mutations, duplicate RPC/import/navigation paths, broad speculative cleanup.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / FORECAST + IMPORT STATE + TRUST UI
 
 > Exact-head evidence only. Historical PASS is not transferred.
