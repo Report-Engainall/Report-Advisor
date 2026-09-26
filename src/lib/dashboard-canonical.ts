@@ -7,6 +7,14 @@ export interface DashboardKPIs {
   totalCustomers:number|null; activeCustomers:number|null; totalProducts:number|null; invoiceCount:number|null;
   avgInvoiceValue:number|null; collectionRate:number|null; status:'CONFIRMED'|'CALCULATED'|'INSUFFICIENT_DATA';
 }
+export interface DashboardQuality {
+  badInvoiceRows:number|null;
+  badSaleItemRows:number|null;
+  badPurchaseRows:number|null;
+  badInventoryRows:number|null;
+  salesCurrencyMismatchRows:number|null;
+  purchaseCurrencyMismatchRows:number|null;
+}
 export interface MonthlyTrend {month:string;label:string;sales:number|null;cost:number|null;profit:number|null;invoices:number;status:'CALCULATED'|'NO_DATA'|'INSUFFICIENT_DATA';}
 export interface TopEntity {id:string;name:string;value:number;secondary?:number;}
 export interface AgingBucket {bucket:string;amount:number|null;count:number;}
@@ -21,7 +29,7 @@ export interface ABCSnapshotRow {product_id:string;product_name:string;revenue:n
 export interface ABCSnapshot {rows:ABCSnapshotRow[];totalRevenue:number|null;unknownRows:number|null;status:'INSUFFICIENT_DATA'|'CALCULATED';}
 export interface AgingSnapshotRow {name:string;amount:number;count:number;}
 export interface AgingSnapshot {rows:AgingSnapshotRow[];asOf:string;unknownRows:number|null;status:'NO_DATA'|'INSUFFICIENT_DATA'|'CALCULATED';}
-interface Snapshot { kpis:DashboardKPIs; trend:MonthlyTrend[]; topCustomers:TopEntity[]; topProducts:TopEntity[]; categories:CategoryBreakdown[]; aging:AgingDashboard; asOf:string; months:number; }
+interface Snapshot { kpis:DashboardKPIs; trend:MonthlyTrend[]; topCustomers:TopEntity[]; topProducts:TopEntity[]; categories:CategoryBreakdown[]; aging:AgingDashboard; quality:DashboardQuality; asOf:string; months:number; }
 function finiteOrNull(value: unknown): number|null { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 function requiredArray<T>(value: unknown, field: string): T[] {
   if (!Array.isArray(value)) throw new Error('REPORT_DATA_INVALID: ' + field + ' must be an array');
@@ -71,6 +79,7 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
   };
 
   const agingRow=(row.aging&&typeof row.aging==='object'?row.aging:{}) as Record<string,unknown>;
+  const qualityRow=(row.quality&&typeof row.quality==='object'?row.quality:{}) as Record<string,unknown>;
   return {
     kpis,
     trend: requiredArray<MonthlyTrend>(row.trend, 'trend'),
@@ -83,7 +92,15 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
       rows:requiredArray<AgingBucket>(agingRow.rows, 'aging.rows'),
       totalAmount:finiteOrNull(agingRow.totalAmount),
       unknownRows:finiteOrNull(agingRow.unknownRows),
-      status:agingRow.status==='CALCULATED'?'CALCULATED':agingRow.status==='NO_DATA'?'NO_DATA':'INSUFFICIENT_DATA'
+      status:agingRow.status==='CALCULATED'?'CALCULATED':agingRow.status==='NO_DATA'?'NO_DATA':agingRow.status==='INSUFFICIENT_DATA'?'INSUFFICIENT_DATA':(() => { throw new Error('REPORT_DATA_INVALID: aging.status is invalid'); })()
+    },
+    quality:{
+      badInvoiceRows:finiteOrNull(qualityRow.badInvoiceRows),
+      badSaleItemRows:finiteOrNull(qualityRow.badSaleItemRows),
+      badPurchaseRows:finiteOrNull(qualityRow.badPurchaseRows),
+      badInventoryRows:finiteOrNull(qualityRow.badInventoryRows),
+      salesCurrencyMismatchRows:finiteOrNull(qualityRow.salesCurrencyMismatchRows),
+      purchaseCurrencyMismatchRows:finiteOrNull(qualityRow.purchaseCurrencyMismatchRows),
     }
   };
 }
