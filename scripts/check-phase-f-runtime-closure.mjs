@@ -9,6 +9,9 @@ for (const token of ['ENABLE ROW LEVEL SECURITY','company_id = public.current_co
 const uiSettingsParity = fs.readFileSync(path.join(root,'supabase/migrations/20260925184000_restore_client_ui_settings_schema_parity.sql'),'utf8');
 if (!uiSettingsParity.includes('organization_id = public.current_company_id()')) throw new Error('Phase F schema-parity invariant missing canonical tenant resolver for client_ui_settings');
 if (uiSettingsParity.includes('current_customer_company_id()')) throw new Error('Phase F schema-parity migration must not depend on an unavailable legacy tenant resolver');
+const uiSettingsReconcile = fs.readFileSync(path.join(root,'supabase/migrations/20260926153000_reconcile_client_ui_settings_tenant_resolver.sql'),'utf8');
+if (!uiSettingsReconcile.includes('using (organization_id = public.current_company_id())')) throw new Error('Phase F forward reconciliation must bind client_ui_settings to the canonical tenant resolver');
+if (uiSettingsReconcile.includes('current_customer_company_id()')) throw new Error('Phase F forward reconciliation must not restore the unavailable legacy resolver');
 const workflow = fs.readFileSync(path.join(root,'.github/workflows/phase-f-live-resilience.yml'),'utf8');
 for (const token of ['phase-f-live-resilience','phase-f-live-resilience-probes.mjs','RESILIENCE_BACKUP_MODE','RESILIENCE_LOGICAL_SOURCE_DB_URL','RESILIENCE_MAX_RPO_SECONDS','supabase/setup-cli@v1']) if (!workflow.includes(token)) throw new Error(`Phase F workflow invariant missing: ${token}`);
 if (!workflow.includes('npm run test:operational-resilience') && !workflow.includes('check-operational-resilience-contract.mjs')) throw new Error('Phase F workflow must execute the operational resilience contract');
