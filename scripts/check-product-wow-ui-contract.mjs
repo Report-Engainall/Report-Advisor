@@ -55,6 +55,14 @@ assert.ok(workCenter.includes('review: rows.filter(reviewRequired).length'), 'wo
 assert.ok(workCenter.includes('role="progressbar"'), 'work center progress must expose a semantic progressbar');
 assert.ok(workCenter.includes('aria-valuenow={finiteProgress(r.progress) ?? undefined}'), 'work center progress must expose only finite persisted progress');
 
+const executiveReportSurface = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
+assert.ok(executiveReportSurface.includes('data-chart-state="empty"'), 'executive report trend must expose an explicit empty/unavailable chart state');
+assert.ok(executiveReportSurface.includes('لم تصل مبيعات شهرية قابلة للرسم'), 'executive report trend empty state must explain why no chart is shown');
+
+const liquiditySurface = fs.readFileSync('src/pages/LiquidityPage.tsx', 'utf8');
+assert.ok(liquiditySurface.includes('data-value-state={state}'), 'liquidity money metrics must expose their availability state');
+assert.ok(liquiditySurface.includes("const state = value == null ? 'unavailable' : 'available'"), 'liquidity money metrics must distinguish unavailable from available');
+
 const decisionExperience = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
 assert.ok(decisionExperience.includes('data-selected={active ? \'true\' : \'false\'}'), 'decision recommendations must expose selected state');
 assert.ok(decisionExperience.includes('data-focusable-decision="true"'), 'decision recommendations must expose focusable semantics');
