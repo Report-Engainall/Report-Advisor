@@ -26,7 +26,7 @@ function finiteOrNull(value: unknown): number|null { return typeof value === 'nu
 function requiredObjectArray<T>(value: unknown, label: string): T[] { if (!Array.isArray(value)) throw new Error('REPORT_DATA_UNAVAILABLE: ' + label + ' missing'); if (value.some((item) => item === null || typeof item !== 'object' || Array.isArray(item))) throw new Error('REPORT_DATA_UNAVAILABLE: ' + label + ' invalid'); return value as T[]; }
 function requiredStringArray(value: unknown, label: string): string[] { if (!Array.isArray(value)) throw new Error('REPORT_DATA_UNAVAILABLE: ' + label + ' missing'); if (value.some((item) => typeof item !== 'string' || !item.trim())) throw new Error('REPORT_DATA_UNAVAILABLE: ' + label + ' invalid'); return value as string[]; }
 function requiredAsOf(value: unknown, label: string): string { if (typeof value !== 'string' || !value.trim()) throw new Error('REPORT_DATA_UNAVAILABLE: ' + label + ' asOf missing'); return value.trim(); }
-function validatedObjectArray(value: unknown, label: string): Record<string, unknown>[] { if (!Array.isArray(value)) throw new Error('REPORT_DATA_UNAVAILABLE: dashboard ' + label + ' missing'); if (value.some((item) => item === null || typeof item !== 'object' || Array.isArray(item))) throw new Error('REPORT_DATA_UNAVAILABLE: dashboard ' + label + ' invalid'); return value as Record<string, unknown>[]; }
+function validatedObjectArray<T = Record<string, unknown>>(value: unknown, label: string): T[] { if (!Array.isArray(value)) throw new Error('REPORT_DATA_UNAVAILABLE: dashboard ' + label + ' missing'); if (value.some((item) => item === null || typeof item !== 'object' || Array.isArray(item))) throw new Error('REPORT_DATA_UNAVAILABLE: dashboard ' + label + ' invalid'); return value as unknown as T[]; }
 function asOfDate(): string { return new Date().toISOString().slice(0, 10); }
 
 export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
@@ -69,14 +69,14 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
   const agingRow=(row.aging&&typeof row.aging==='object'?row.aging:{}) as Record<string,unknown>;
   return {
     kpis,
-    trend: validatedObjectArray(row.trend, 'trend') as MonthlyTrend[],
-    topCustomers: validatedObjectArray(row.topCustomers, 'topCustomers').slice(0,10) as TopEntity[],
-    topProducts: validatedObjectArray(row.topProducts, 'topProducts').slice(0,10) as TopEntity[],
-    categories: validatedObjectArray(row.categories, 'categories') as CategoryBreakdown[],
+    trend: validatedObjectArray<MonthlyTrend>(row.trend, 'trend'),
+    topCustomers: validatedObjectArray<TopEntity>(row.topCustomers, 'topCustomers').slice(0,10),
+    topProducts: validatedObjectArray<TopEntity>(row.topProducts, 'topProducts').slice(0,10),
+    categories: validatedObjectArray<CategoryBreakdown>(row.categories, 'categories'),
     asOf: requiredAsOf(row.asOf, 'dashboard snapshot'),
     months: typeof row.months === 'number' && Number.isInteger(row.months) ? row.months : months,
     aging:{
-      rows:validatedObjectArray(agingRow.rows, 'aging rows') as AgingBucket[],
+      rows:validatedObjectArray<AgingBucket>(agingRow.rows, 'aging rows'),
       totalAmount:finiteOrNull(agingRow.totalAmount),
       unknownRows:typeof agingRow.unknownRows==='number'?agingRow.unknownRows:0,
       status:agingRow.status==='CALCULATED'?'CALCULATED':agingRow.status==='NO_DATA'?'NO_DATA':'INSUFFICIENT_DATA'
