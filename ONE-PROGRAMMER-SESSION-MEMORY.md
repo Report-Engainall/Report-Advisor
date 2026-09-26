@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-162
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `c56278f0c2ef339eca300a9ddb65f7270a054d4b` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI → calculated-vs-verified semantics are now separated across Receivables, Reports, Executive Report, Command Center and Analytics; dashboard/report next actions prioritize unresolved quality; profitability presentation requires consistent currency; legacy receivables total no longer turns unknown aging amounts into zero.
+- CORE → receivables query validates authoritative page/totals/rows; inventory report and grouped inventory calculations preserve unknown/signed truth; profitability, RFM/ABC/Aging, intelligence, forecast and import boundaries remain strict.
+- CONTRACTS → Product WOW and Report Truth guards cover the current UI/core invariants.
+- VERIFICATION → current-head status shows Vercel failure from external build-rate-limit, Vercel deployment pending, Netlify deploy-preview pending. No PASS transferred.
+- DEVICE → unavailable/offline; no device-dependent verification.
+- PHASE-F → fresh live recovery/RPO/RTO evidence remains required.
+- NO MERGE → PR #660 remains open.
+- RESUME POINTER → `PR #660 latest HEAD after this write → continue remaining report/data surfaces → consume exact-head deployment/gate evidence → repair first current-head failure → merge only after certification`.
+- DO NOT REPEAT → calculated-to-verified elevation, missing-to-zero coercion, silent row loss, stale evidence, device-dependent proof, production bypass.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-161
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
