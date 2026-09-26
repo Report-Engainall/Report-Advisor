@@ -1,3 +1,6 @@
+## CURRENT DECISION-OUTCOME GATE — 2026-09-27
+
+- Outcome stage is not a generic next screen: it opens only when a persisted outcome exists or the linked work item is actually completed.
 ## CURRENT RESILIENCE DETAIL — 2026-09-27
 
 - Command Center isolates Business Replay read failure from the primary dashboard truth path. A failed replay read is shown as REVIEW with a retry action, not as INSUFFICIENT DATA and not as a command-center failure.
