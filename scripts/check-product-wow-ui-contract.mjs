@@ -181,6 +181,10 @@ assert.ok(trustEvidence.includes("entity.issues !== 'number' || !Number.isFinite
 assert.ok(trustEvidence.includes("entity.total !== 'number' || !Number.isFinite(entity.total)"), 'trust evidence record totals must fail closed on missing metrics');
 assert.ok(trustEvidence.includes("issue.count !== 'number' || !Number.isFinite(issue.count)"), 'trust evidence severity totals must fail closed on invalid counts');
 assert.ok(trustEvidence.includes("item.value === null ? 'غير متاح من اللقطة الحالية.'"), 'trust evidence UI must expose unavailable severity counts instead of zero');
+assert.ok(trustEvidence.includes('const knownBreakdown ='), 'trust evidence severity totals must validate internal count consistency');
+assert.ok(trustEvidence.includes("data-severity-breakdown-state={issueSeverityRows.every((row) => row.value !== null) ? 'valid' : 'unavailable'}"), 'trust evidence must expose breakdown availability without coercing contradictions');
+assert.ok(!trustEvidence.includes('Math.max(0, total - critical - warning)'), 'trust evidence must not hide inconsistent severity totals by clamping to zero');
+
 const dashboardSurface = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 assert.ok(dashboardSurface.includes('windowBounded'), 'dashboard accountability must disclose bounded intelligence windows');
 assert.ok(dashboardSurface.includes('windowLimit'), 'dashboard accountability must expose the bounded intelligence read limit');
