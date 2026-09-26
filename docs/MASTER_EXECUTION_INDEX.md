@@ -738,3 +738,10 @@
 - Exact-head checks at the functional predecessor: 4 total = 2 queued, 1 in progress, 1 skipped, 0 failures, 0 successes.
 - No PASS transfer; current documentation commits are governance tail only.
 - Resume: current governance head → exact-head checks → first reproduced defect only → next independent UI/Core closure.
+
+
+## Latest executable checkpoint — 2026-09-27 / functional predecessor 47e75cfdf53bfd0ba65afbd099d66e37f16dc5be
+
+- Closed: Data Quality invalid entity-score presentation masking.
+- Exact-head checks: 50 total, 47 queued, 3 skipped, 0 failures, 0 successes.
+- Resume: current governance head → exact-head checks → first reproduced defect only → next independent UI/Core closure.
