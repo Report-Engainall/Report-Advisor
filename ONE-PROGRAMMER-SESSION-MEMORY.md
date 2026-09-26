@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-159
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `f57caffe580dd5ed5e76651146afaa500312472c` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI → Reports Center loading boundary fixed so loaded evidence variables are never referenced before a canonical snapshot exists; shared evidence-truth visual treatment deepened; Work Center received a stronger operational hero and keyboard/reduced-motion polish.
+- CORE → dashboard snapshot now rejects malformed returned month metadata; worker-health counts fail closed when exact counts are unavailable; import operation records validate status, non-negative counters, and 0–100 progress instead of coercing malformed values.
+- CONTRACTS → Product WOW and report-truth contracts guard the Reports loading boundary, worker-health exact counts, dashboard-month metadata, and import-record invariants.
+- VERIFICATION → exact-head workflow runs are not exposed for the pre-write code head `82de615...`; combined status at that head showed Vercel failure/pending contexts, with Vercel blocked by external build-rate-limit. No stale PASS transferred.
+- DEVICE → unavailable/offline; no device-dependent verification claimed.
+- PHASE-F → live recovery/RPO/RTO proof remains required; canonical tenant repair remains in source.
+- NO MERGE → PR #660 remains open; no production mutation or certification claim made.
+- RESUME POINTER → `PR #660 latest HEAD after this write → consume exact-head gates when exposed → repair first reproduced current-head failure → continue UI/core closure`.
+- DO NOT REPEAT → loaded-state variables in loading branches, missing-to-zero coercion, stale gate transfer, preview-to-production promotion, device-dependent claims, duplicate import/runtime architecture.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-158
 
 - CURRENT HEAD → `b936eccefe82c54d8e321db374de29f57c7dcd3e` on PR #660.
