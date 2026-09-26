@@ -1,3 +1,10 @@
+## CURRENT TRUTH/SECURITY CLOSURE — 2026-09-27
+
+- Business Replay reads are explicitly company-scoped across snapshots, outcomes and work items. The replay contract rejects any service-role path and treats missing evidence as missing truth.
+- Replay event evidence is displayed as a state (`دليل مرتبط` / `دليل غير ظاهر`) rather than upgrading an event into verified truth.
+- App Shell intelligence failures are preserved as an explicit error state; a failed authoritative read must not become an empty successful-looking state.
+- Decision ROI remains blocked until an investment/cost denominator is documented; expected/actual impact is not relabeled as ROI.
+
 # MASTER DATA / TRUTH / SECURITY REFERENCE — الأغبري
 Status: CANONICAL DOMAIN REFERENCE
 
