@@ -159,25 +159,26 @@ export async function fetchImportRecords(limit = MAX_IMPORT_RECORD_ROWS, focusJo
   }); }
 export async function markAlertRead(id: string): Promise<void> { if (!await resolveCurrentCompanyId()) throw new Error('TENANT_REQUIRED'); const { error } = await supabase.rpc('mark_alert_read', { p_alert_id: id }); if (error) throw error; }
 export async function updateRecommendationStatus(id: string, status: string): Promise<void> { if (!await resolveCurrentCompanyId()) throw new Error('TENANT_REQUIRED'); const { error } = await supabase.rpc('update_recommendation_status', { p_recommendation_id: id, p_status: status }); if (error) throw error; }
+function nonEmptyText(value: unknown): value is string { return typeof value === 'string' && value.trim().length > 0; }
 function validateForecastRows(rows: unknown[]): Forecast[] {
   rows.forEach((item, index) => {
     if (!item || typeof item !== 'object') throw new Error('FORECAST_DATA_INVALID: row[' + index + '] must be an object');
     const value = item as Record<string, unknown>;
     if (
-      typeof value.id !== 'string' ||
-      typeof value.company_id !== 'string' ||
-      typeof value.entity_type !== 'string' ||
-      (value.entity_id !== null && typeof value.entity_id !== 'string') ||
-      typeof value.entity_name !== 'string' ||
-      typeof value.metric !== 'string' ||
-      typeof value.period !== 'string' ||
+      !nonEmptyText(value.id) ||
+      !nonEmptyText(value.company_id) ||
+      !nonEmptyText(value.entity_type) ||
+      (value.entity_id !== null && !nonEmptyText(value.entity_id)) ||
+      !nonEmptyText(value.entity_name) ||
+      !nonEmptyText(value.metric) ||
+      !nonEmptyText(value.period) ||
       typeof value.forecast_value !== 'number' || !Number.isFinite(value.forecast_value) ||
       typeof value.lower_bound !== 'number' || !Number.isFinite(value.lower_bound) ||
       typeof value.upper_bound !== 'number' || !Number.isFinite(value.upper_bound) ||
-      typeof value.model_name !== 'string' ||
+      !nonEmptyText(value.model_name) ||
       (value.quality_score !== null && typeof value.quality_score !== 'number') ||
       (typeof value.quality_score === 'number' && (!Number.isFinite(value.quality_score) || value.quality_score < 0 || value.quality_score > 100)) ||
-      typeof value.confidence !== 'string' ||
+      !nonEmptyText(value.confidence) ||
       typeof value.data_points !== 'number' || !Number.isInteger(value.data_points) || value.data_points < 0
     ) {
       throw new Error('FORECAST_DATA_INVALID: row[' + index + '] shape is invalid');
