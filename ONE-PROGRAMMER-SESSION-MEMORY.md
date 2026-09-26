@@ -488,3 +488,17 @@
 - CURRENT RESUME POINTER → `bb06d05f...` → consume first newly populated exact-head gate, repair only a reproduced failure, then continue the next safe UI/core closure.
 - DO NOT REPEAT → no coercion of canonical commit counters/IDs; no stale evidence transfer; no production-SHA bypass.
 
+
+## LATEST SESSION WRITE-BACK — 2026-09-26 / WAVE — DURABLE CANONICAL COMMIT → UI PROOF
+
+- CODE HEAD → `63efcfa7ec79e3e283fd5d2a8b26a18106a2328f` on PR #660.
+- CORE DELIVERY → `canonical-production-adapter.ts` now captures the actual `commitImportBatch` result at the `committed` lifecycle stage and refuses to return success if the commit result is missing.
+- SERVER CONTRACT → `api/canonical-import-execute.ts` now returns `serverCommittedRowCount`, `serverValidatedQualityScore`, and idempotent replay context from the completed durable canonical path.
+- UI DELIVERY → Canonical Import now renders the RPC-confirmed committed row count and server-validated quality context; local preview values are not used as post-commit success truth.
+- UI DELIVERY → Success state also exposes whether the durable operation was an idempotent replay.
+- CONTRACT DELIVERY → product-wow UI guard now covers durable commit-result propagation and the final server-proof surface.
+- GATES → no workflow runs/statuses have populated yet for `63efcfa7...`; therefore no exact-head CI/browser/certification PASS is claimed.
+- EXTERNAL BOUNDARIES → Vercel rate-limit remains external; device/browser unavailable; Phase-F live recovery/RPO/RTO/rollback remains NOT PROVEN; no production mutation.
+- CURRENT RESUME POINTER → `63efcfa7...` → consume first populated exact-head gate; repair only the first reproduced current-SHA failure; otherwise continue next independent UI/core closure.
+- DO NOT REPEAT → no local-preview substitution after commit, no fabricated authoritative metrics, no stale PASS transfer, no production-SHA bypass, no duplicate import workflow.
+
