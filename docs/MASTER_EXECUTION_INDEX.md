@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 177
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE CODE/TEST CANDIDATE: `4b2dde2577fcdbf929d2f6098ff39359e5c5d153` on PR #661.
+- UI LANE: weighted Data Quality truth score; invalid-progress Work Center semantics; chart empty/accessibility frame; keyboard/drag-drop canonical import.
+- CORE LANE: canonical import server input hardening; strict dashboard snapshot arrays/as-of; data-quality discriminant validation.
+- PROOF: exact-head CI is still queued/in progress; no current-head application PASS. Device-dependent proof and Phase-F recovery remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION: consume the first terminal exact-head PR #661 gate; repair only a newly reproduced current-SHA failure; continue independent UI/core work.
+- DO NOT REPEAT: stale PASS transfer, prior #660 closures, duplicate import/RPC/navigation paths, production bypass, blanket security revokes.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 176
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
