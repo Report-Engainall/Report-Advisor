@@ -17,9 +17,11 @@ const dayKey = (value: string) => {
   return new Date(time).toISOString().slice(0, 10);
 };
 
-function productDetails(product: DemandRow['product']): { sku: string; name: string } | null {
+function productDetails(product: DemandRow['product']): { sku: string; name: string } {
   const value = Array.isArray(product) ? product[0] : product;
-  if (!value?.sku?.trim() || !value.name?.trim()) return null;
+  if (!value?.sku?.trim() || !value.name?.trim()) {
+    throw new Error('DEMAND_DATA_INVALID: sale item product identity is missing');
+  }
   return { sku: value.sku.trim(), name: value.name.trim() };
 }
 
@@ -39,8 +41,17 @@ export async function fetchProductDemandSeries(days = 180): Promise<ProductDeman
   if (invoiceError) throw invoiceError;
   if (!invoices?.length) return [];
 
-  const ids = invoices.map((invoice) => invoice.id);
-  const dateByInvoice = new Map(invoices.map((invoice) => [invoice.id, dayKey(invoice.invoice_date)]));
+  const dateByInvoice = new Map<string, string>();
+  for (const invoice of invoices) {
+    if (typeof invoice.id !== 'string' || !invoice.id.trim()) {
+      throw new Error('DEMAND_DATA_INVALID: invoice id is missing');
+    }
+    if (dateByInvoice.has(invoice.id)) {
+      throw new Error('DEMAND_DATA_INVALID: duplicate invoice id in authoritative read');
+    }
+    dateByInvoice.set(invoice.id, dayKey(invoice.invoice_date));
+  }
+  const ids = [...dateByInvoice.keys()];
   const { data: items, error: itemError } = await supabase
     .from('sale_items')
     .select('invoice_id,product_id,quantity,line_total,product:products(sku,name)')
@@ -49,12 +60,22 @@ export async function fetchProductDemandSeries(days = 180): Promise<ProductDeman
 
   const map = new Map<string, ProductDemandSeries>();
   for (const row of (items ?? []) as DemandRow[]) {
-    if (!row.product_id) continue;
+    if (typeof row.invoice_id !== 'string' || !row.invoice_id.trim()) {
+      throw new Error('DEMAND_DATA_INVALID: sale item invoice_id is missing');
+    }
+    if (typeof row.product_id !== 'string' || !row.product_id.trim()) {
+      throw new Error('DEMAND_DATA_INVALID: sale item product_id is missing');
+    }
     const date = dateByInvoice.get(row.invoice_id);
+    if (!date) {
+      throw new Error('DEMAND_DATA_INVALID: sale item references an invoice outside the authoritative invoice read');
+    }
     const product = productDetails(row.product);
     const quantity = Number(row.quantity);
     const sales = Number(row.line_total);
-    if (!date || !product || !Number.isFinite(quantity) || !Number.isFinite(sales)) continue;
+    if (!Number.isFinite(quantity) || !Number.isFinite(sales)) {
+      throw new Error('DEMAND_DATA_INVALID: sale item quantity or sales value is invalid');
+    }
 
     let entry = map.get(row.product_id);
     if (!entry) {
