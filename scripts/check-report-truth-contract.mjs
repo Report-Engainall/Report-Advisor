@@ -148,6 +148,8 @@ for (const token of [
   "typeof committed !== 'number'",
   "!Number.isFinite(committed)",
   "ids.some((id) => typeof id !== 'string' || !id.trim())",
+  "new Set(ids).size === ids.length",
+  "typeof idempotentReplay !== 'boolean'",
   "throw new Error('IMPORT_COMMIT_RESULT_MISMATCH')",
 ]) {
   if (!canonicalCommit.includes(token)) throw new Error(`Report truth contract missing canonical import commit invariant: ${token}`);
@@ -162,7 +164,7 @@ for (const token of [
   if (!querySource.includes(token)) throw new Error(`Report truth contract missing import invariant: ${token}`);
 }
 
-const dashboardCanonical = fs.readFileSync(path.join(srcDir, 'lib', 'dashboard-canonical.ts'), 'utf8');
+const dashboardCanonicalSourceFull = fs.readFileSync(path.join(srcDir, 'lib', 'dashboard-canonical.ts'), 'utf8');
 for (const token of [
   "function requiredArray<T>(value: unknown, field: string)",
   "function validateRFMRows(rows: unknown[]): RFMSnapshotRow[]",
@@ -207,11 +209,11 @@ for (const token of [
   "typeof value.metric_value !== 'number' || !Number.isFinite(value.metric_value as number)",
   "typeof value.threshold !== 'number' || !Number.isFinite(value.threshold as number)",
 ]) {
-  if (!dashboardCanonical.includes(token)) {
+  if (!dashboardCanonicalSourceFull.includes(token)) {
     throw new Error(`Report truth contract missing fail-closed dashboard invariant: ${token}`);
   }
 }
-if (/asOf:\s*typeof row\.asOf\s*===\s*['"]string['"]\s*\?\s*row\.asOf\s*:\s*asOfDate\(\)/.test(dashboardCanonical)) {
+if (/asOf:\s*typeof row\.asOf\s*===\s*['"]string['"]\s*\?\s*row\.asOf\s*:\s*asOfDate\(\)/.test(dashboardCanonicalSourceFull)) {
   throw new Error('Report truth contract forbids replacing missing authoritative asOf with today');
 }
 
