@@ -104,6 +104,40 @@ async function main(): Promise<void> {
     assert(classifyOcrConfidence(74.99) === 'REVIEW', 'OCR confidence below 75 must require review');
     assert(classifyOcrConfidence(75) === 'TRUSTED', 'OCR confidence 75 must be trusted');
     assert(classifyOcrConfidence(100) === 'TRUSTED', 'OCR confidence 100 must be trusted');
+    const { extractPdfPageTable } = await vite.ssrLoadModule('/src/lib/file-engine/pdf-layout.ts') as {
+      extractPdfPageTable: (items: Array<{ str: string; transform: number[]; width: number; height: number }>, existingLayout?: unknown) => {
+        layout: { headers: string[]; centers: number[] };
+        rows: Array<Record<string, string>>;
+        confidence: number;
+      } | null;
+    };
+
+    const pdfTablePage = extractPdfPageTable([
+      { str: 'اسم الصنف', transform: [1, 0, 0, 12, 560, 700], width: 60, height: 12 },
+      { str: 'رقم الصنف', transform: [1, 0, 0, 12, 470, 700], width: 60, height: 12 },
+      { str: 'المخزن', transform: [1, 0, 0, 12, 380, 700], width: 42, height: 12 },
+      { str: 'الوارد', transform: [1, 0, 0, 12, 290, 700], width: 36, height: 12 },
+      { str: 'الرصيد', transform: [1, 0, 0, 12, 200, 700], width: 36, height: 12 },
+      { str: 'زيت شفاف الفخامة 4×5 لتر', transform: [1, 0, 0, 12, 560, 680], width: 100, height: 12 },
+      { str: '10801001', transform: [1, 0, 0, 12, 470, 680], width: 55, height: 12 },
+      { str: 'الرئيسي', transform: [1, 0, 0, 12, 380, 680], width: 42, height: 12 },
+      { str: '58', transform: [1, 0, 0, 12, 290, 680], width: 14, height: 12 },
+      { str: '56', transform: [1, 0, 0, 12, 200, 680], width: 14, height: 12 },
+    ]);
+    assert(pdfTablePage && pdfTablePage.rows.length === 1, 'PDF geometry must reconstruct one table row');
+    assert(pdfTablePage?.rows[0]?.['اسم الصنف'] === 'زيت شفاف الفخامة 4×5 لتر', 'PDF table must preserve Arabic item text');
+    assert(pdfTablePage?.rows[0]?.['رقم الصنف'] === '10801001', 'PDF table must preserve item code');
+    assert(pdfTablePage?.rows[0]?.['الوارد'] === '58', 'PDF table must preserve numeric column alignment');
+
+    const continuation = extractPdfPageTable([
+      { str: 'ارز السحاب 4×10 ك', transform: [1, 0, 0, 12, 560, 690], width: 90, height: 12 },
+      { str: '10603010', transform: [1, 0, 0, 12, 470, 690], width: 55, height: 12 },
+      { str: 'الرئيسي', transform: [1, 0, 0, 12, 380, 690], width: 42, height: 12 },
+      { str: '10.125', transform: [1, 0, 0, 12, 290, 690], width: 35, height: 12 },
+      { str: '2.25', transform: [1, 0, 0, 12, 200, 690], width: 25, height: 12 },
+    ], pdfTablePage?.layout);
+    assert(continuation && continuation.rows[0]?.['رقم الصنف'] === '10603010', 'PDF continuation pages must reuse detected table geometry');
+
 
     async function assertStructuredPdf(text: string, expectedInvoiceNumber: string): Promise<void> {
       const datasets = await parseFile(pdfWithText(text), 'structured-regression.pdf', 'pdf');
