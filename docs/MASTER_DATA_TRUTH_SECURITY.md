@@ -127,3 +127,10 @@ Forecasting and benchmark outputs must expose minimum-data/sample limits.
 - Missing or malformed execution leases remain fail-closed as untrusted operational state.
 - Receivables RPC metadata is no longer coerced into request defaults or synthetic `CALCULATED`; only canonical `NO_DATA` / `CALCULATED` states are accepted.
 - External File Analysis explicitly separates analytical readiness from business-data approval and routes approval through canonical Import.
+
+
+## Execution closure — 2026-09-27 / predecessor f7be708f34e96622f68a1f6b5c56c5f909b8dde0
+
+- Recommendation acceptance cannot bypass evidence/approval/work lifecycle through a direct status mutation from the recommendations surface.
+- Top-entity query limits and receivables row/metadata payloads fail closed on malformed caller/source state.
+- File-lab quality state remains explicit when source quality is missing or non-finite.

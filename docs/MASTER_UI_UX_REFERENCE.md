@@ -278,3 +278,10 @@ A surface is complete only when the quality gate is satisfied, not merely when t
 
 - Work Center worker health now renders a dedicated «leases غير موثوقة» state and elevates it in the primary action badge and next-action logic.
 - External File Analysis gained a SOURCE READINESS surface, explicit VERIFIED / REVIEW / BLOCKED pipeline states, mapping-quality decision cards, and canonical next-action links without creating a second import taxonomy.
+
+
+## Execution closure — 2026-09-27 / predecessor f7be708f34e96622f68a1f6b5c56c5f909b8dde0
+
+- Recommendation acceptance is represented as «بدء مسار القرار» and routes to the governed decision surface instead of mutating recommendation status directly.
+- External File Analysis now has SOURCE READINESS, VERIFIED/REVIEW/BLOCKED states, mapping/quality decision cards, and explicit canonical Import/Trust actions.
+- Invalid or missing quality scores render «غير متاح» rather than NaN or a synthetic numeric result.

@@ -585,3 +585,11 @@ This is the target product tree. It defines how capabilities are presented; it d
 - Work Center now distinguishes expired worker leases from active leases with missing or malformed expiry metadata; untrusted worker state is surfaced as an operational exception instead of being treated as healthy.
 - Receivables report reads now require canonical status, pagination, row-count, and outstanding-total metadata; malformed RPC payloads fail closed.
 - External File Analysis now exposes a complete source-readiness narrative from security and format detection through mapping and quality, with explicit next actions to the canonical Import and Trust surfaces.
+
+
+## Execution closure — 2026-09-27 / predecessor f7be708f34e96622f68a1f6b5c56c5f909b8dde0
+
+- Recommendations UI no longer offers a direct acceptance DML path; acceptance now begins through the existing governed Decision Experience, while explicit rejection remains the only immediate terminal transition.
+- Worker health exposes untrusted lease metadata as an operational state.
+- Receivables reporting now validates canonical metadata and row shape before presentation.
+- External File Analysis now presents source readiness and explicit next actions without creating a parallel import taxonomy.

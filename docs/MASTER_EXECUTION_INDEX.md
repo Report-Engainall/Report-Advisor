@@ -708,3 +708,10 @@
 - Exact-head CI for `f34c16bac1df1cbbde0da9f08ac19fe0f1585057` was not materialized at checkpoint time; no PASS transfer is permitted.
 - Resume: first terminal exact-head gate → first reproduced defect only → continue independent UI/Core closure.
 - Device-dependent browser/production certification remains outside this device-independent execution wave.
+
+
+## Latest executable checkpoint — 2026-09-27 / predecessor f7be708f34e96622f68a1f6b5c56c5f909b8dde0
+
+- This wave closed worker lease truth, receivables row+metadata validation, top-entity limit bounds, governed recommendation acceptance handoff, and deeper file-lab readiness UX.
+- Exact-head CI currently has no materialized run for `f7be708f34e96622f68a1f6b5c56c5f909b8dde0`; no PASS is transferred.
+- Resume remains: first terminal exact-head gate → first reproduced defect only → another independent UI/Core closure.

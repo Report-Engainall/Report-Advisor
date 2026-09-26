@@ -182,3 +182,10 @@ Do not introduce Spark/streaming infrastructure only because it is architectural
 - `fetchWorkerHealthSnapshot` now classifies missing and malformed `lease_expires_at` as `untrustedActive` and does not silently treat them as healthy.
 - `fetchReceivablesReportPage` now validates RPC status, pagination identity, non-negative row counts, finite outstanding totals, and required row payload shape before returning the typed contract.
 - Added focused source contracts for worker lease truth and receivables report metadata.
+
+
+## Execution closure — 2026-09-27 / predecessor f7be708f34e96622f68a1f6b5c56c5f909b8dde0
+
+- Added strict top-entity query bounds for customer/product ranking helpers; invalid limits fail before JavaScript slicing semantics can alter meaning.
+- Receivables rows are runtime-validated through `isReceivablesReportRow` in addition to payload metadata validation.
+- Intelligence acceptance is now structurally constrained to the governed Decision Experience; source contracts reject direct accepted-status DML in the recommendations surface.

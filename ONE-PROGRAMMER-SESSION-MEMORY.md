@@ -399,3 +399,51 @@
 
 ### CURRENT RESUME POINTER
 `PR #661 exact head after this governance write → consume first terminal exact-head gate → repair only first reproduced current-SHA failure → continue next independent 50/50 UI+Core closure; keep Phase-F fail-closed.`
+
+
+## Session checkpoint — 2026-09-27 — predecessor f7be708f34e96622f68a1f6b5c56c5f909b8dde0
+
+### SESSION-ID
+`EXEC-661-F7BE70`
+
+### HEAD observed before governance write
+`f7be708f34e96622f68a1f6b5c56c5f909b8dde0`
+
+### DONE
+- Core: strict worker lease truth classification and operational escalation.
+- Core: strict receivables metadata and runtime row-shape validation.
+- Core: bounded top-customer/top-product query limits.
+- UI/core integration: Intelligence recommendations acceptance routes to governed Decision Experience; direct accepted DML removed from the recommendations page.
+- UI: External File Analysis SOURCE READINESS surface, quality-state interpretation, canonical next actions, and non-finite quality fail-closed presentation.
+- Contracts: worker health, receivables report, top-entity bounds, intelligence handoff, and external file-lab truth coverage updated/added.
+
+### VERIFIED
+- All code changes are on PR #661 branch `exec/20260926-continuous-ui-core-deep`.
+- Exact functional candidate before governance write: `f7be708f34e96622f68a1f6b5c56c5f909b8dde0`.
+- PR remains based directly on main `46675643e32f6ea28b6c1d80a530b2eb134e7907` and is currently reported mergeable.
+
+### FAILED
+- No external current-SHA test failure consumed in this wave.
+- One edit-time JSX typo in External File Analysis was detected by direct source inspection and corrected before this checkpoint; no intentionally broken commit was retained.
+
+### BLOCKED / NOT PROVEN
+- GitHub Actions returned 0 workflow runs for exact head `f7be708f34e96622f68a1f6b5c56c5f909b8dde0` at checkpoint time; no PASS transfer is allowed.
+- Device/browser visual verification remains unavailable because the user's device is offline.
+- Vercel free-plan build-rate remains an external blocker; no production mutation, SHA bypass, or stale deployment claim.
+
+### UI lane progress
+- External File Analysis source-readiness and decision UX.
+- Recommendation acceptance handoff into Decision Experience.
+- Work Center untrusted lease state.
+
+### Core lane progress
+- Worker lease metadata truth.
+- Receivables payload truth.
+- Ranking query bounds.
+- Governed recommendation acceptance boundary.
+
+### DO NOT REPEAT
+- Closed Replay, Benchmark, Decision lifecycle gating, Trust, Reports, previous Import truth closures, and the prior Work Center invalid-progress clamp closure.
+
+### CURRENT RESUME POINTER
+`PR #661 exact head after governance synchronization → consume first terminal exact-head gate → repair only first reproduced current-SHA failure → continue another independent 50/50 UI+Core closure; keep Phase-F fail-closed and do not claim device-dependent proof.`
