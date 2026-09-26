@@ -436,6 +436,8 @@ assert.ok(receivablesTruth.includes('القيم غير المتاحة تبقى �
 assert.ok(receivablesTruth.includes("if (snapshot.status === 'NO_DATA')"), 'receivables must separate source-empty state from calculated zero values');
 assert.ok(receivablesTruth.includes('حالة التقرير: {truthStatus}'), 'receivables must expose a visible truth context');
 
+assert.ok(liquidity.includes("kpis?.overdueReceivables != null && kpis.overdueReceivables > 0"), 'liquidity next action must not treat missing overdue receivables as zero');
+assert.ok(liquidity.includes("kpis?.totalPayables != null && kpis.totalPayables > 0"), 'liquidity next action must not treat missing payables as zero');
 const liquidity = fs.readFileSync('src/pages/LiquidityPage.tsx', 'utf8');
 assert.ok(liquidity.includes('const nextAction = useMemo'), 'liquidity must derive one next action from canonical KPI state');
 assert.ok(liquidity.includes("to: '/import'") && liquidity.includes('INSUFFICIENT_DATA'), 'liquidity insufficient truth must route to the unified import surface');
