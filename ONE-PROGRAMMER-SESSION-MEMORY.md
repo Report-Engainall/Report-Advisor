@@ -1,7 +1,7 @@
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-175
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
-- HEAD OBSERVED BEFORE THIS WRITE → `ddummy`.
+- HEAD OBSERVED BEFORE THIS WRITE → `b3f88450fb9e532f511d8926419b4c05ee5fb4d3` (execution-index checkpoint commit; functional candidate remains `01ce614aff3f2f21adc44deeb44a6445dc3c6cdc`).
 - SESSION-ID → `20260926-AGHBARI-CONTINUOUS-EXECUTION-175`.
 - DONE → Work Center fail-closed operational metrics; tenant readback guards for suppliers, sales invoices, purchase invoices, import-job lists and single import jobs; exact count requirements on bounded reads; contract updates.
 - VERIFIED → functional candidate before governance write is `01ce614aff3f2f21adc44deeb44a6445dc3c6cdc`; PR #660 remains OPEN and GitHub reports `mergeable=true`.
