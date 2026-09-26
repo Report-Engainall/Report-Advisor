@@ -109,6 +109,8 @@ assert.ok(!trustEvidence.includes('window.location.reload()'), 'trust evidence r
 assert.ok(trustEvidence.includes('لا توجد بيانات مثبتة بعد'), 'empty trust state must explain the absence of evidence');
 assert.ok(trustEvidence.includes('RECORDS CHECKED'), 'trust evidence must expose the source record count');
 assert.ok(trustEvidence.includes('criticalIssueTotal'), 'trust evidence must expose critical issue pressure from the authoritative snapshot');
+assert.ok(trustEvidence.includes("path: '/replay'"), 'trust evidence must expose Business Replay as a real evidence surface');
+assert.ok(trustEvidence.includes("path: '/benchmark'"), 'trust evidence must expose Benchmark Governance as a real evidence surface');
 assert.ok(trustEvidence.includes('أغلق المشكلات الحرجة'), 'trust evidence must route critical data-quality pressure to an actionable next step');
 assert.ok(trustEvidence.includes("aria-label={'الخطوة التالية: ' + nextStep.label}"), 'trust evidence next-action link must use valid JSX');
 assert.ok(!trustEvidence.includes('aria-label={\\`'), 'trust evidence contract must reject escaped JSX template backticks');
