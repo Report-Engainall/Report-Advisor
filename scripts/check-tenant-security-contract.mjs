@@ -7,6 +7,8 @@ for (const marker of [
   "TENANT_ISOLATION_VIOLATION: ' + entity + '[' + index + '] company context mismatch",
   "validateTenantRows<Customer>(data??[],companyId,'customers')",
   "validateTenantRows<Product>(data??[],companyId,'products')",
+  "validateTenantRows<NonNullable<typeof data>[number]>(data ?? [], companyId, 'import_jobs')",
+  "validateTenantRows<typeof focusedRow>([focusedRow], companyId, 'import_jobs').concat(rows)",
   "count===null)throw new Error('REPORT_QUERY_COUNT_UNAVAILABLE: customers require an authoritative exact count')",
   "count===null)throw new Error('REPORT_QUERY_COUNT_UNAVAILABLE: products require an authoritative exact count')",
 ]) {
