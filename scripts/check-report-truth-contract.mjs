@@ -131,6 +131,7 @@ for (const token of [
   "!nonEmptyText(issue.entity)",
   "!nonEmptyText(issue.field)",
   "!nonEmptyText(issue.issue)",
+  "entity.issues > entity.total",
   "typeof entity.total !== 'number' || !Number.isInteger(entity.total)",
   "typeof entity.issues !== 'number' || !Number.isInteger(entity.issues)",
   "[\'users\', \'package\', \'warehouse\', \'receipt\'].includes(entity.icon)",
