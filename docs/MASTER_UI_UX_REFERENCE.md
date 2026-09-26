@@ -1,3 +1,9 @@
+## LIVE UI CLOSURE — 2026-09-26 / TRUST EVIDENCE + WORK CENTER
+
+- Trust Evidence severity tiles now render malformed/unavailable counts explicitly as `غير متاح` rather than an empty numeric slot.
+- Work Center invalid active progress is visible and actionable rather than silently normalized.
+- Data Quality presents a weighted source-derived diagnostic score and no longer treats overlapping issue occurrences as unique affected records.
+
 ## LIVE UI CLOSURE — 2026-09-26 / DATA QUALITY SCORE SEMANTICS
 
 - Data Quality no longer derives a “remaining records” number by subtracting issue occurrences from record counts.
