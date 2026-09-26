@@ -317,3 +317,18 @@
 - NEXT EXECUTABLE ACTION → inspect current post-merge main UI certification and any newly generated core Phase-F run; do not mutate production or legacy security surfaces without exact owner/invariant proof.
 - DO NOT REPEAT → no stale PASS transfer, no PR #635/#637/#640 evidence reuse, no production-SHA bypass, no blind legacy migration rehydration, no blanket SECURITY DEFINER revoke, no unsafe import-job mutation.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-138
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-165
+
+- HEAD OBSERVED BEFORE THIS WRITE → `0d336ec9568a8a4899e4b2b902fb08546a17d9a1` on PR #660; base main remains `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- UI DELIVERY → `src/pages/ReportsPage.tsx` now blocks XLSX export independently for Purchases, Inventory, Receivables, and Profitability whenever the corresponding canonical truth is incomplete; each disabled action carries a concrete reason. Sales export blocking remains intact.
+- CONTRACT DELIVERY → `scripts/check-product-wow-ui-contract.mjs` now guards all five report export surfaces against incomplete truth, extending the existing sales/export contract without introducing a duplicate route or workflow.
+- EXACT-HEAD CHECKS → fresh suites were created for `0d336ec9568a8a4899e4b2b902fb08546a17d9a1`: CodeRabbit queued; Vercel queued; Supabase skipped; Cloudflare in progress; Netlify queued; GitHub Actions mostly queued/pending with some skipped. No PASS inferred.
+- DEVICE → unavailable/offline; no device-dependent proof claimed.
+- PRODUCTION → no production mutation and no production certification claimed; Vercel rate-limit/external deployment constraints remain a release boundary.
+- NO MERGE → PR #660 remains open.
+- CURRENT RESUME POINTER → consume exact-head suites for the new commit → repair the first completed current-head failure only → continue UI/core closure while checks run.
+- DO NOT REPEAT → no stale PASS transfer, no calculated-to-verified elevation, no missing-to-zero coercion, no export of incomplete report truth, no device-dependent certification.
+- UI LANE PROGRESS → report export boundaries are now aligned across Sales/Purchases/Inventory/Receivables/Profitability.
+- CORE LANE PROGRESS → canonical truth boundaries remain fail-closed; next independent closure should target any current-head failure or a remaining silent truth fallback discovered by targeted contract search.
