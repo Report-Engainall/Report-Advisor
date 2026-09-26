@@ -1,3 +1,14 @@
+# CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 186
+
+- MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE PR: #661 / `exec/20260926-continuous-ui-core-deep`.
+- CURRENT FUNCTIONAL HEAD: `41bfbac124bb4f1cea2dc73ab9bf95f591731cf5`.
+- PDF: geometry reconstruction, Arabic inventory semantic mapping, repeated-header continuation handling, summary-line rejection, and end-to-end multi-page regression are implemented.
+- IMPORT: source specialty is inferred deterministically into an allowed `generic:<slug>` domain; Canonical Import shows it and persists `source_domain` in the completed/failed import-job result summary and final UI result.
+- SAFETY: no new importer/RPC path, no direct production mutation, and generic canonical provenance remains unchanged.
+- PROOF: no terminal PASS has yet been transferred to `41bfbac...`; exact-head workflows are queued/pending. Old Vercel preview `2c8eb6b...` remains stale for this lineage. Netlify docs-only `753e157...` deployment was canceled as no-content-change.
+- NEXT EXECUTABLE ACTION: consume the first terminal current-head gate; repair only the first reproduced defect. Then continue uncovered UI/core boundaries and verify a current deployment SHA before visual acceptance.
+- DO NOT REPEAT: stale preview evidence, stale PASS transfer, naive PDF flattening, generic-only source typing, duplicate paths, production bypass, unsafe import mutation.
 # CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 185
 
 - MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
