@@ -106,7 +106,7 @@ export function CustomersPage() {
       </Card>
       <div className="flex items-center justify-between gap-3">
         <span className="text-xs text-ink-500">{total == null ? `عرض ${customers.length} في الصفحة الحالية` : `عرض ${customers.length} من ${formatNumber(total)} عميل`}</span>
-        <div className="flex items-center gap-2"><button type="button" disabled={page===0} onClick={()=>setPage(p=>Math.max(0,p-1))} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">السابق</button><span className="text-xs text-ink-600">صفحة {page+1}{totalPages == null ? "" : ` / ${totalPages}`}</span><button type="button" disabled={total == null ? products.length < PAGE_SIZE : page+1>=totalPages} onClick={()=>setPage(p=>p+1)} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">التالي</button></div>
+        <div className="flex items-center gap-2"><button type="button" disabled={page===0} onClick={()=>setPage(p=>Math.max(0,p-1))} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">السابق</button><span className="text-xs text-ink-600">صفحة {page+1}{totalPages == null ? "" : ` / ${totalPages}`}</span><button type="button" disabled={total == null ? customers.length < PAGE_SIZE : page+1>=totalPages} onClick={()=>setPage(p=>p+1)} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">التالي</button></div>
       </div>
       {selectedCustomer && <EntityContextDrawer
         title={selectedCustomer.name}
@@ -139,7 +139,7 @@ export function ProductsPage() {
   const [search, setSearch] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
   const [page, setPage] = useState(0);
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -156,7 +156,7 @@ export function ProductsPage() {
   }, [page, search]);
 
   useEffect(() => { void load(); }, [load]);
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const totalPages = total == null ? null : Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="ag-entity-page-surface space-y-6 animate-fade-in" dir="rtl">
