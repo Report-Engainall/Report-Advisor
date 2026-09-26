@@ -7,6 +7,12 @@ function optionalNumericEvidence(metric:string,value:number|null|undefined,unit:
 function inventoryEvidenceIsUsable(item:InventoryDecision):boolean{
  return Number.isFinite(item.avgDailySales)&&Number.isFinite(item.reorderPoint)&&Number.isFinite(item.recommendedOrder);
 }
+function alternativeGroupEvidenceIsUsable(group:AlternativeGroupDecision):boolean{
+ return Number.isFinite(group.normalizedStock)
+   && Number.isFinite(group.normalizedDemand)
+   && Number.isFinite(group.recommendedOrder)
+   && Number.isFinite(group.trendPct);
+}
 
 export function inventoryDecisions(items:InventoryDecision[]):Decision[]{return items.flatMap((item):Decision[]=>{
  if(!inventoryEvidenceIsUsable(item))return[];
@@ -18,4 +24,10 @@ export function inventoryDecisions(items:InventoryDecision[]):Decision[]{return 
  return[];
 });}
 
-export function alternativeGroupDecisions(groups:AlternativeGroupDecision[]):Decision[]{return groups.flatMap((group):Decision[]=>{if(group.stockoutRisk==='critical')return[{id:`alternative-group:${group.id}`,severity:'critical',title:`خطر نفاد على مستوى المجموعة ${group.name}`,action:`اطلب ما يقارب ${group.recommendedOrder} وحدة قياسية للمجموعة، مع فحص توفر البدائل قبل اعتماد الطلب.`,confidence:.97,evidence:[{metric:'group_stock',value:group.normalizedStock,unit:'units',source:'alternative_group_engine'},{metric:'group_daily_demand',value:group.normalizedDemand,unit:'units/day',source:'alternative_group_engine'},...optionalNumericEvidence('group_coverage',group.coverageDays,'days','alternative_group_engine')]}];if(group.stockoutRisk==='high')return[{id:`alternative-group:${group.id}`,severity:'high',title:`تغطية المجموعة ${group.name} تقترب من الخطر`,action:'راجع التوريد والبدائل داخل المجموعة قبل وصول الرصيد إلى نقطة الخطر.',confidence:.94,evidence:[...optionalNumericEvidence('group_coverage',group.coverageDays,'days','alternative_group_engine'),{metric:'trend_pct',value:group.trendPct,unit:'percent',source:'alternative_group_engine'}]}];if(group.trendPct>15)return[{id:`alternative-group-trend:${group.id}`,severity:'medium',title:`تسارع الطلب على ${group.name}`,action:'ارفع أولوية المراقبة والشراء مؤقتًا لأن حركة المجموعة تتسارع.',confidence:.88,evidence:[{metric:'trend_pct',value:group.trendPct,unit:'percent',source:'alternative_group_engine'}]}];return[];});}
+export function alternativeGroupDecisions(groups:AlternativeGroupDecision[]):Decision[]{return groups.flatMap((group):Decision[]=>{
+ if(!alternativeGroupEvidenceIsUsable(group))return[];
+ if(group.stockoutRisk==='critical')return[{id:`alternative-group:${group.id}`,severity:'critical',title:`خطر نفاد على مستوى المجموعة ${group.name}`,action:`اطلب ما يقارب ${group.recommendedOrder} وحدة قياسية للمجموعة، مع فحص توفر البدائل قبل اعتماد الطلب.`,confidence:.97,evidence:[{metric:'group_stock',value:group.normalizedStock,unit:'units',source:'alternative_group_engine'},{metric:'group_daily_demand',value:group.normalizedDemand,unit:'units/day',source:'alternative_group_engine'},...optionalNumericEvidence('group_coverage',group.coverageDays,'days','alternative_group_engine')]}];
+ if(group.stockoutRisk==='high')return[{id:`alternative-group:${group.id}`,severity:'high',title:`تغطية المجموعة ${group.name} تقترب من الخطر`,action:'راجع التوريد والبدائل داخل المجموعة قبل وصول الرصيد إلى نقطة الخطر.',confidence:.94,evidence:[...optionalNumericEvidence('group_coverage',group.coverageDays,'days','alternative_group_engine'),{metric:'trend_pct',value:group.trendPct,unit:'percent',source:'alternative_group_engine'}]}];
+ if(group.trendPct>15)return[{id:`alternative-group-trend:${group.id}`,severity:'medium',title:`تسارع الطلب على ${group.name}`,action:'ارفع أولوية المراقبة والشراء مؤقتًا لأن حركة المجموعة تتسارع.',confidence:.88,evidence:[{metric:'trend_pct',value:group.trendPct,unit:'percent',source:'alternative_group_engine'}]}];
+ return[];
+});}
