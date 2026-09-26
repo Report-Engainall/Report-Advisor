@@ -25,7 +25,7 @@ export function inferSourceDomain(mappings: Array<{ mappedField: string | null }
 
   if (hasAny('stock_balance', 'received_quantity', 'posted_net_sales', 'unposted_net_sales', 'net_sales', 'warehouse')) return 'inventory-report';
   if (hasAny('invoice_number', 'invoice_date') && hasAny('total', 'subtotal')) return 'sales-invoice';
-  if (hasAny('customer_name', 'customer_id', 'credit_limit', 'payment_terms_days', 'customer_id') && hasAny('phone', 'email', 'segment')) return 'customer-master';
+  if (hasAny('customer_name', 'customer_id') && hasAny('segment', 'credit_limit', 'payment_terms_days', 'phone', 'email')) return 'customer-master';
   if (fields.has('sku') && fields.has('name') && hasAny('cost_price', 'selling_price', 'min_stock', 'reorder_point')) return 'product-master';
   if (hasAny('paid_amount', 'payment_date', 'payment_method')) return 'payment-report';
   return 'source-data';
