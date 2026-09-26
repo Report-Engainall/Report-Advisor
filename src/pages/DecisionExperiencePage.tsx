@@ -7,9 +7,9 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { ConfidenceBadge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
-import { fetchAlerts, fetchRecommendations } from '@/lib/queries';
+import { decideRecommendationApproval, fetchAlerts, fetchLatestDecisionEvidenceSnapshot, fetchRecommendationDecisionContext, fetchRecommendationOutcome, fetchRecommendations, prepareRecommendationDecision, requestRecommendationApproval, createAndStartRecommendationWork, completeRecommendationWork, type RecommendationDecisionContext } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
-import type { Alert, Recommendation } from '@/lib/types';
+import type { Alert, DecisionEvidenceSnapshot, Recommendation, RecommendationOutcome } from '@/lib/types';
 
 type Stage = 'command' | 'evidence' | 'decision' | 'approval' | 'work' | 'outcome';
 
@@ -118,6 +118,12 @@ export function DecisionExperiencePage() {
   const [selectedId, setSelectedId] = useState<string | null>(params.get('recommendationId'));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [decisionContext, setDecisionContext] = useState<RecommendationDecisionContext | null>(null);
+  const [decisionEvidence, setDecisionEvidence] = useState<DecisionEvidenceSnapshot | null>(null);
+  const [outcome, setOutcome] = useState<RecommendationOutcome | null>(null);
+  const [operationLoading, setOperationLoading] = useState(false);
+  const [operationError, setOperationError] = useState<string | null>(null);
+  const [actualImpact, setActualImpact] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -135,7 +141,29 @@ export function DecisionExperiencePage() {
   }, []);
 
   useEffect(() => { void load(); }, [load]);
-  const selected = recommendations.find((item) => item.id === selectedId) ?? null;
+
+  const refreshDecisionContext = useCallback(async (recommendationId: string | null) => {
+    if (!recommendationId) {
+      setDecisionContext(null);
+      setDecisionEvidence(null);
+      setOutcome(null);
+      return;
+    }
+    const [context, evidence, nextOutcome] = await Promise.all([
+      fetchRecommendationDecisionContext(recommendationId),
+      fetchLatestDecisionEvidenceSnapshot(),
+      fetchRecommendationOutcome(recommendationId),
+    ]);
+    setDecisionContext(context);
+    setDecisionEvidence(evidence);
+    setOutcome(nextOutcome);
+  }, []);
+
+  useEffect(() => {
+    void refreshDecisionContext(selectedId).catch((cause) => {
+      setOperationError(cause instanceof Error ? cause.message : 'تعذر قراءة مسار القرار الحالي');
+    });
+  }, [refreshDecisionContext, selectedId]);  const selected = recommendations.find((item) => item.id === selectedId) ?? null;
   const currentStageIndex = Math.max(0, STAGES.findIndex((item) => item.id === stage));
   const canEnterStage = useCallback((next: Stage) => next === 'command' || selected !== null, [selected]);
   const stageLockReason = selected ? null : 'حدد توصية فعلية من المصدر أولًا حتى يمكن فتح هذه المرحلة دون اختلاق سياق قرار.';
@@ -155,6 +183,52 @@ export function DecisionExperiencePage() {
   const activeAlerts = useMemo(() => alerts.filter((item) => !item.is_read).slice(0, 6), [alerts]);
   const selectedStatus = selected?.status ?? null;
 
+  const runGovernedOperation = useCallback(async (operation: () => Promise<void>, nextStage?: Stage) => {
+    setOperationLoading(true);
+    setOperationError(null);
+    try {
+      await operation();
+      await refreshDecisionContext(selectedId);
+      await load();
+      if (nextStage) navigateStage(nextStage);
+    } catch (cause) {
+      setOperationError(cause instanceof Error ? cause.message : 'تعذر تنفيذ العملية');
+    } finally {
+      setOperationLoading(false);
+    }
+  }, [load, refreshDecisionContext, selectedId]);
+
+  const handlePrepareDecision = useCallback(() => runGovernedOperation(async () => {
+    if (!selected) throw new Error('RECOMMENDATION_REQUIRED');
+    const evidence = decisionEvidence ?? await fetchLatestDecisionEvidenceSnapshot();
+    if (!evidence) throw new Error('DECISION_EVIDENCE_SNAPSHOT_UNAVAILABLE');
+    const context = await prepareRecommendationDecision(selected, evidence);
+    if (context.decisionId && context.decisionStatus === 'PROPOSED' && !context.approvalId) {
+      await requestRecommendationApproval(context.decisionId, 'طلب موافقة على قرار موثق مرتبط بالتوصية والدليل الحالي.');
+    }
+  }, 'approval'), [decisionEvidence, runGovernedOperation, selected]);
+
+  const handleApproveDecision = useCallback(() => runGovernedOperation(async () => {
+    if (!decisionContext?.approvalId) throw new Error('DECISION_APPROVAL_REQUIRED');
+    await decideRecommendationApproval(decisionContext.approvalId, true, 'اعتماد القرار بعد مراجعة الدليل والسياق الحالي.');
+  }, 'work'), [decisionContext?.approvalId, runGovernedOperation]);
+
+  const handleStartWork = useCallback(() => runGovernedOperation(async () => {
+    if (!selected || !decisionContext) throw new Error('DECISION_CONTEXT_REQUIRED');
+    const evidence = decisionEvidence ?? await fetchLatestDecisionEvidenceSnapshot();
+    if (!evidence) throw new Error('WORK_EVIDENCE_SNAPSHOT_UNAVAILABLE');
+    await createAndStartRecommendationWork(selected, decisionContext, evidence);
+  }), [decisionContext, decisionEvidence, runGovernedOperation, selected]);
+
+  const handleCompleteWork = useCallback(() => runGovernedOperation(async () => {
+    if (!selected || !decisionContext?.workItemId) throw new Error('WORK_ITEM_REQUIRED');
+    const value = Number(actualImpact);
+    if (!Number.isFinite(value)) throw new Error('ACTUAL_IMPACT_INVALID');
+    const evidence = decisionEvidence ?? await fetchLatestDecisionEvidenceSnapshot();
+    if (!evidence) throw new Error('OUTCOME_EVIDENCE_SNAPSHOT_UNAVAILABLE');
+    await completeRecommendationWork(decisionContext.workItemId, selected.id, value, evidence);
+    setActualImpact('');
+  }, 'outcome'), [actualImpact, decisionContext?.workItemId, decisionEvidence, runGovernedOperation, selected]);
   const navigateStage = (next: Stage, id = selectedId) => {
     if (!canEnterStage(next)) return;
     setStage(next);
@@ -202,6 +276,23 @@ export function DecisionExperiencePage() {
         <div className="ag-decision-cell"><span className="ag-decision-label">المرحلة</span><span className="ag-decision-value">{STAGES[currentStageIndex]?.label}</span></div>
       </section>
 
+      <section className="rounded-[16px] border border-primary-100 bg-primary-50/40 p-4" aria-label="المسار التشغيلي الموثق">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="section-kicker">GOVERNED DECISION FLOW</div>
+            <div className="mt-1 text-sm font-black text-ink-950">الإجراء الموثق الحالي</div>
+            <div className="mt-1 text-[10px] leading-5 text-ink-500">قرار: {decisionContext?.decisionStatus ?? 'غير موجود'} · موافقة: {decisionContext?.approvalStatus ?? 'غير مطلوبة'} · عمل: {decisionContext?.workItemStatus ?? 'غير موجود'} · نتيجة: {outcome?.status ?? 'غير مثبتة'}</div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {stage === 'decision' && <button type="button" onClick={() => void handlePrepareDecision()} disabled={operationLoading || !selected} className="btn-primary text-[11px]">{operationLoading ? 'جارٍ التوثيق...' : decisionContext?.decisionId ? 'طلب الموافقة' : 'توثيق القرار وطلب الموافقة'} <ArrowUpLeft size={13}/></button>}
+            {stage === 'approval' && decisionContext?.approvalStatus === 'PENDING' && <button type="button" onClick={() => void handleApproveDecision()} disabled={operationLoading} className="btn-primary text-[11px]">{operationLoading ? 'جارٍ الاعتماد...' : 'اعتماد القرار'} <CheckCircle2 size={13}/></button>}
+            {stage === 'work' && decisionContext?.decisionStatus === 'APPROVED' && !decisionContext?.workItemId && <button type="button" onClick={() => void handleStartWork()} disabled={operationLoading} className="btn-primary text-[11px]">{operationLoading ? 'جارٍ إنشاء العمل...' : 'إنشاء وبدء التنفيذ'} <Workflow size={13}/></button>}
+          </div>
+        </div>
+        {stage === 'work' && decisionContext?.workItemStatus === 'IN_PROGRESS' && <div className="mt-3 flex flex-col gap-2 rounded-xl border border-primary-100 bg-white p-3 sm:flex-row sm:items-end"><label className="flex-1 text-[10px] font-black text-ink-700">الأثر الفعلي المسجل</label><input type="number" inputMode="decimal" value={actualImpact} onChange={(event) => setActualImpact(event.target.value)} className="rounded-lg border border-ink-200 px-3 py-2 text-sm" placeholder="أدخل القيمة الفعلية" /><button type="button" onClick={() => void handleCompleteWork()} disabled={operationLoading || !actualImpact.trim()} className="btn-secondary text-[11px]">إغلاق العمل وتسجيل الأثر <CheckCircle2 size={13}/></button></div>}
+        {decisionEvidence && <div className="mt-3 text-[10px] font-semibold text-primary-800">لقطة الدليل: {decisionEvidence.kind} · {decisionEvidence.observed_at}</div>}
+        {operationError && <div className="mt-3 rounded-xl border border-danger-200 bg-danger-50 px-3 py-2 text-[10px] font-bold text-danger-800">{operationError}</div>}
+      </section>
       <nav aria-label="مراحل القرار" className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
         {STAGES.map((item, index) => (
           <button key={item.id} type="button" onClick={() => navigateStage(item.id)} disabled={!canEnterStage(item.id)} aria-disabled={!canEnterStage(item.id) || undefined} title={!canEnterStage(item.id) ? stageLockReason ?? undefined : item.label} className={'stage-pill ' + (stage === item.id ? 'stage-pill-active' : 'hover:border-ink-300 hover:bg-ink-50') + ' disabled:cursor-not-allowed disabled:opacity-60'} aria-current={stage === item.id ? 'step' : undefined}>
