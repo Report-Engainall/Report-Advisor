@@ -44,7 +44,8 @@ export function KPICard({
   const trustState = trustStateFromDataStatus(status);
 
   return (
-    <div className="ag-kpi-card ag-card ag-card-kpi group relative overflow-hidden p-4">
+    <div className="ag-kpi-card ag-card ag-card-kpi group relative overflow-hidden p-4" data-trust={trustState}>
+      <span className="ag-kpi-accent" aria-hidden="true" />
       <div className="relative flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] border border-ink-200 bg-white text-ink-500 transition group-hover:border-primary-200 group-hover:bg-primary-50 group-hover:text-primary-700" aria-hidden="true">
@@ -54,7 +55,7 @@ export function KPICard({
         </div>
         <TrustBadge state={trustState} evidenceCount={evidenceCount} compact />
       </div>
-      <div className="relative mt-4 ag-kpi-number" aria-label={label + ': ' + formatted}>{formatted}</div>
+      <div className="relative mt-4 ag-kpi-number" aria-label={label + ': ' + formatted} data-value-state={safeValue === null ? 'missing' : 'available'}>{formatted}</div>
       <div className="relative mt-2 flex min-h-4 flex-wrap items-center gap-2">
         {safeChange !== undefined && (
           <span className={'flex items-center gap-1 text-xs font-bold ' + (positive ? 'text-success-600' : negative ? 'text-danger-600' : 'text-ink-500')}>
