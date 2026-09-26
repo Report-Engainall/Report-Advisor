@@ -32,6 +32,13 @@ function TrendStrip({ trend }: { trend: MonthlyTrend[] }) {
   const points = trend.slice(-6);
   const values = points.map((point) => typeof point.sales === 'number' && Number.isFinite(point.sales) ? point.sales : null);
   const finiteSales = values.filter((value): value is number => value !== null);
+  if (points.length === 0 || finiteSales.length === 0) {
+    return <div className="rounded-2xl border border-dashed border-ink-200 bg-ink-50/60 p-5" data-chart-state="empty" role="status" aria-live="polite">
+      <div className="text-sm font-black text-ink-800">الاتجاه غير متاح</div>
+      <p className="mt-1 text-[11px] leading-5 text-ink-500">لم تصل مبيعات شهرية قابلة للرسم من المصدر الحالي؛ لم يتم تحويل الغياب إلى خط أو قيمة صفرية.</p>
+      <Link to="/data-quality" className="mt-3 inline-flex min-h-10 items-center rounded-lg border border-ink-200 bg-white px-3 text-[11px] font-bold text-primary-700">مراجعة جودة المصدر <ArrowLeft size={13} className="mr-1"/></Link>
+    </div>;
+  }
   const max = Math.max(...finiteSales, 1);
   return <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
     {points.map((point, index) => {
