@@ -23,7 +23,33 @@ export interface AgingSnapshotRow {name:string;amount:number;count:number;}
 export interface AgingSnapshot {rows:AgingSnapshotRow[];asOf:string;unknownRows:number|null;status:'NO_DATA'|'INSUFFICIENT_DATA'|'CALCULATED';}
 interface Snapshot { kpis:DashboardKPIs; trend:MonthlyTrend[]; topCustomers:TopEntity[]; topProducts:TopEntity[]; categories:CategoryBreakdown[]; aging:AgingDashboard; asOf:string; months:number; }
 function finiteOrNull(value: unknown): number|null { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
-function requiredArray<T>(value: unknown, field: string): T[] { if (!Array.isArray(value)) throw new Error(`REPORT_DATA_MALFORMED:${field}`); return value as T[]; }
+function isRecord(value: unknown): value is Record<string, unknown> { return Boolean(value) && typeof value === 'object' && !Array.isArray(value); }
+function isNonBlankString(value: unknown): value is string { return typeof value === 'string' && value.trim().length > 0; }
+function isFiniteNumberOrNull(value: unknown): boolean { return value === null || finiteOrNull(value) !== null; }
+function requiredArray<T>(value: unknown, field: string, predicate?: (item: unknown) => boolean): T[] {
+  if (!Array.isArray(value)) throw new Error(`REPORT_DATA_MALFORMED:${field}`);
+  if (predicate && value.some((item) => !predicate(item))) throw new Error(`REPORT_DATA_MALFORMED:${field}`);
+  return value as T[];
+}
+function isMonthlyTrend(value: unknown): boolean {
+  if (!isRecord(value) || !isNonBlankString(value.month) || !isNonBlankString(value.label)) return false;
+  if (![value.sales, value.cost, value.profit].every(isFiniteNumberOrNull)) return false;
+  if (typeof value.invoices !== 'number' || !Number.isInteger(value.invoices) || value.invoices < 0) return false;
+  return value.status === 'CALCULATED' || value.status === 'NO_DATA' || value.status === 'INSUFFICIENT_DATA';
+}
+function isTopEntity(value: unknown): boolean {
+  if (!isRecord(value) || !isNonBlankString(value.id) || !isNonBlankString(value.name) || finiteOrNull(value.value) === null) return false;
+  return value.secondary === undefined || finiteOrNull(value.secondary) !== null;
+}
+function isCategoryBreakdown(value: unknown): boolean {
+  if (!isRecord(value) || (value.name !== null && !isNonBlankString(value.name))) return false;
+  return finiteOrNull(value.sales) !== null && finiteOrNull(value.profit) !== null && finiteOrNull(value.quantity) !== null &&
+    (value.categoryStatus === 'CALCULATED' || value.categoryStatus === 'UNKNOWN');
+}
+function isAgingBucket(value: unknown): boolean {
+  return isRecord(value) && isNonBlankString(value.bucket) && isFiniteNumberOrNull(value.amount) &&
+    typeof value.count === 'number' && Number.isInteger(value.count) && value.count >= 0;
+}
 function asOfDate(): string { return new Date().toISOString().slice(0, 10); }
 
 export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
@@ -66,14 +92,14 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
   const agingRow=(row.aging&&typeof row.aging==='object'?row.aging:{}) as Record<string,unknown>;
   return {
     kpis,
-    trend: requiredArray<MonthlyTrend>(row.trend, 'trend'),
-    topCustomers: requiredArray<TopEntity>(row.topCustomers, 'topCustomers').slice(0,10),
-    topProducts: requiredArray<TopEntity>(row.topProducts, 'topProducts').slice(0,10),
-    categories: requiredArray<CategoryBreakdown>(row.categories, 'categories'),
+    trend: requiredArray<MonthlyTrend>(row.trend, 'trend', isMonthlyTrend),
+    topCustomers: requiredArray<TopEntity>(row.topCustomers, 'topCustomers', isTopEntity).slice(0,10),
+    topProducts: requiredArray<TopEntity>(row.topProducts, 'topProducts', isTopEntity).slice(0,10),
+    categories: requiredArray<CategoryBreakdown>(row.categories, 'categories', isCategoryBreakdown),
     asOf: typeof row.asOf === 'string' && row.asOf.trim() ? row.asOf : (() => { throw new Error('REPORT_DATA_MALFORMED:asOf'); })(),
     months: typeof row.months === 'number' && Number.isInteger(row.months) ? row.months : months,
     aging:{
-      rows:requiredArray<AgingBucket>(agingRow.rows, 'aging.rows'),
+      rows:requiredArray<AgingBucket>(agingRow.rows, 'aging.rows', isAgingBucket),
       totalAmount:finiteOrNull(agingRow.totalAmount),
       unknownRows:typeof agingRow.unknownRows==='number'?agingRow.unknownRows:0,
       status:agingRow.status==='CALCULATED'?'CALCULATED':agingRow.status==='NO_DATA'?'NO_DATA':'INSUFFICIENT_DATA'
@@ -104,25 +130,25 @@ export async function fetchProfitabilitySnapshot(): Promise<ProfitabilitySnapsho
   if (error) throw error;
   if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: profitability snapshot missing');
   const row=data as Record<string,unknown>;
-  return { status: row.status==='CALCULATED'?'CALCULATED':'INSUFFICIENT_DATA', currency: typeof row.currency==='string'?row.currency:null, currency_status: row.currency_status==='CONSISTENT'?'CONSISTENT':'INSUFFICIENT_DATA', revenue:finiteOrNull(row.revenue), cost:finiteOrNull(row.cost), gross_profit:finiteOrNull(row.gross_profit), gross_margin:finiteOrNull(row.gross_margin), invoice_count:finiteOrNull(row.invoice_count), bad_invoice_rows:finiteOrNull(row.bad_invoice_rows), bad_sale_item_rows:finiteOrNull(row.bad_sale_item_rows), currency_mismatch_rows:finiteOrNull(row.currency_mismatch_rows), reasons:requiredArray<string>(row.reasons, 'profitability.reasons'), as_of:typeof row.as_of==='string'?row.as_of:asOfDate() };
+  return { status: row.status==='CALCULATED'?'CALCULATED':'INSUFFICIENT_DATA', currency: typeof row.currency==='string'?row.currency:null, currency_status: row.currency_status==='CONSISTENT'?'CONSISTENT':'INSUFFICIENT_DATA', revenue:finiteOrNull(row.revenue), cost:finiteOrNull(row.cost), gross_profit:finiteOrNull(row.gross_profit), gross_margin:finiteOrNull(row.gross_margin), invoice_count:finiteOrNull(row.invoice_count), bad_invoice_rows:finiteOrNull(row.bad_invoice_rows), bad_sale_item_rows:finiteOrNull(row.bad_sale_item_rows), currency_mismatch_rows:finiteOrNull(row.currency_mismatch_rows), reasons:requiredArray<string>(row.reasons, 'profitability.reasons', isNonBlankString), as_of:typeof row.as_of==='string'?row.as_of:asOfDate() };
 }
 
 export async function fetchRFMSnapshot(limit = 500): Promise<RFMSnapshot> {
   if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('REPORT_QUERY_INVALID_LIMIT');
   const { data, error } = await supabase.rpc('get_rfm_snapshot', { p_as_of: asOfDate(), p_limit: limit });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: RFM snapshot missing');
-  const row = data as Record<string, unknown>; return { rows: requiredArray<RFMSnapshotRow>(row.rows, 'rfm.rows'), asOf: typeof row.asOf==='string'?row.asOf:asOfDate(), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA' };
+  const row = data as Record<string, unknown>; return { rows: requiredArray<RFMSnapshotRow>(row.rows, 'rfm.rows', (item) => isRecord(item) && isNonBlankString(item.customer_id) && isNonBlankString(item.customer_name) && [item.recency, item.frequency, item.monetary, item.r_score, item.f_score, item.m_score].every((value) => finiteOrNull(value) !== null) && isNonBlankString(item.rfm_segment)), asOf: typeof row.asOf==='string'?row.asOf:asOfDate(), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA' };
 }
 export async function fetchABCSnapshot(limit = 500): Promise<ABCSnapshot> {
   if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('REPORT_QUERY_INVALID_LIMIT');
   const { data, error } = await supabase.rpc('get_abc_snapshot', { p_limit: limit });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: ABC snapshot missing');
-  const row = data as Record<string, unknown>; return { rows: requiredArray<ABCSnapshotRow>(row.rows, 'abc.rows'), totalRevenue: finiteOrNull(row.totalRevenue), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA' };
+  const row = data as Record<string, unknown>; return { rows: requiredArray<ABCSnapshotRow>(row.rows, 'abc.rows', (item) => isRecord(item) && isNonBlankString(item.product_id) && isNonBlankString(item.product_name) && finiteOrNull(item.revenue) !== null && finiteOrNull(item.cumulative) !== null && isFiniteNumberOrNull(item.cumulative_pct) && (item.class === null || item.class === undefined || item.class === 'A' || item.class === 'B' || item.class === 'C')), totalRevenue: finiteOrNull(row.totalRevenue), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA' };
 }
 export async function fetchAgingSnapshot(): Promise<AgingSnapshot> {
   const { data, error } = await supabase.rpc('get_aging_snapshot', { p_as_of: asOfDate() });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: aging snapshot missing');
-  const row = data as Record<string, unknown>; return { rows: requiredArray<AgingSnapshotRow>(row.rows, 'aging.rows'), asOf: typeof row.asOf==='string'?row.asOf:asOfDate(), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'NO_DATA' ? 'NO_DATA' : 'INSUFFICIENT_DATA' };
+  const row = data as Record<string, unknown>; return { rows: requiredArray<AgingSnapshotRow>(row.rows, 'aging.rows', (item) => isRecord(item) && isNonBlankString(item.name) && finiteOrNull(item.amount) !== null && typeof item.count === 'number' && Number.isInteger(item.count) && item.count >= 0), asOf: typeof row.asOf==='string'?row.asOf:asOfDate(), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'NO_DATA' ? 'NO_DATA' : 'INSUFFICIENT_DATA' };
 }
 
 export async function fetchDashboardIntelligence(): Promise<{recommendations: Recommendation[]; alerts: Alert[]}> {
