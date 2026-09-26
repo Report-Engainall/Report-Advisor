@@ -805,3 +805,16 @@
 - NEXT ACTION → consume first current-head populated gate; fix only a reproduced failure; then continue independent UI/core closure.
 - DO NOT REPEAT → no stale evidence, no local-preview-to-authoritative fallback, no production mutation, no duplicate import/commit path.
 
+
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / LIQUIDITY + IMPORT SUCCESS CONTRACT REPAIR
+
+> Exact-head evidence only. No historical PASS is transferred.
+
+- SOURCE CODE HEAD → `8a5c8de603a794e53802c6348dae38ecce00b2b8`.
+- DONE — UI → missing liquidity pressures no longer route through zero semantics.
+- DONE — UI → canonical import success state uses the actual canonical committed row count consistently; stale `serverAcceptedRowCount` is blocked by contract.
+- GATES → current-head status has Vercel failure / build-rate-limit only; no current-head CI/browser/certification PASS claimed.
+- STALE-EVIDENCE NOTE → Desktop Windows and Netlify success seen on `f0c2a5a7...` are not transferred to the current SHA.
+- NEXT ACTION → consume first populated current-head gate; fix only a reproduced failure; continue next safe UI/core closure.
+- DO NOT REPEAT → no zero substitution for missing liquidity pressure, no stale import metric, no stale PASS transfer, no production mutation.
+
