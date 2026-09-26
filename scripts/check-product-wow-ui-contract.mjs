@@ -172,6 +172,9 @@ assert.ok(executiveReport.includes('qualityIssueTotal === null || qualityIssueTo
 assert.ok(!executiveReport.includes("kpis?.status !== 'CALCULATED' || kpis?.status === 'INSUFFICIENT_DATA'"), 'executive report must not misroute confirmed truth to data quality');
 const commandCenter = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
 assert.ok(commandCenter.includes('qualityIssues={qualityIssueTotal}'), 'command center must bind quality truth into shared context');
+assert.ok(commandCenter.includes('const commandNextAction = useMemo'), 'command center must derive one canonical next action');
+assert.ok(commandCenter.includes('data-next-action={commandNextAction.path}'), 'command center must expose the canonical next action route');
+assert.ok(commandCenter.includes('ثبّت جودة المصدر أولًا') && commandCenter.includes('افحص الإشارات المفتوحة'), 'command center next action must respond to source quality and attention state');
 assert.ok(commandCenter.includes('مؤكد ويمكن استخدامه') && commandCenter.includes('محسوب — راجع الدليل'), 'command center must distinguish confirmed from calculated decision-use state');
 assert.ok(commandCenter.includes('function isFiniteNumber(value: number | null | undefined): value is number'), 'command center must centralize finite numeric truth checks');
 assert.ok(commandCenter.includes('fields.filter(isFiniteNumber)'), 'command center coverage must exclude non-finite metrics');
