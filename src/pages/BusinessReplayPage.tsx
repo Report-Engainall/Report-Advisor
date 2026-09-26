@@ -43,9 +43,9 @@ export function BusinessReplayPage() {
         </div>
       </section>
       <section className="grid gap-3 md:grid-cols-3">
-        <Card><CardBody><div className="flex items-center gap-2 text-[10px] text-ink-400"><Database size={14}/> snapshots</div><div className="mt-2 text-2xl font-black text-ink-900">{formatNumber(snapshot?.snapshotCount ?? 0)}</div><div className="mt-1 text-[10px] text-ink-500">آخر لقطة: {snapshot?.latestSnapshotAt ?? 'غير متاح'}</div></CardBody></Card>
-        <Card><CardBody><div className="flex items-center gap-2 text-[10px] text-ink-400"><Target size={14}/> outcomes</div><div className="mt-2 text-2xl font-black text-ink-900">{formatNumber(snapshot?.outcomeCount ?? 0)}</div><div className="mt-1 text-[10px] text-ink-500">آخر نتيجة: {snapshot?.latestOutcomeAt ?? 'غير متاح'}</div></CardBody></Card>
-        <Card><CardBody><div className="flex items-center gap-2 text-[10px] text-ink-400"><ShieldCheck size={14}/> عناصر العمل</div><div className="mt-2 text-2xl font-black text-ink-900">{formatNumber(snapshot?.workItemCount ?? 0)}</div><div className="mt-1 text-[10px] text-ink-500">تُقرأ كدليل تنفيذ فقط، لا كتوقع.</div></CardBody></Card>
+        <Card><CardBody><div className="flex items-center gap-2 text-[10px] text-ink-400"><Database size={14}/> snapshots — نافذة القراءة</div><div className="mt-2 text-2xl font-black text-ink-900">{formatNumber(snapshot?.snapshotCount ?? 0)}</div><div className="mt-1 text-[10px] text-ink-500">آخر لقطة: {snapshot?.latestSnapshotAt ?? 'غير متاح'}</div></CardBody></Card>
+        <Card><CardBody><div className="flex items-center gap-2 text-[10px] text-ink-400"><Target size={14}/> outcomes — نافذة القراءة</div><div className="mt-2 text-2xl font-black text-ink-900">{formatNumber(snapshot?.outcomeCount ?? 0)}</div><div className="mt-1 text-[10px] text-ink-500">آخر نتيجة: {snapshot?.latestOutcomeAt ?? 'غير متاح'}</div></CardBody></Card>
+        <Card><CardBody><div className="flex items-center gap-2 text-[10px] text-ink-400"><ShieldCheck size={14}/> عناصر العمل — نافذة القراءة</div><div className="mt-2 text-2xl font-black text-ink-900">{formatNumber(snapshot?.workItemCount ?? 0)}</div><div className="mt-1 text-[10px] text-ink-500">تُقرأ كدليل تنفيذ فقط، لا كتوقع.</div></CardBody></Card>
       </section>
       <section className="rounded-[16px] border border-ink-200 bg-white p-5 shadow-card">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
