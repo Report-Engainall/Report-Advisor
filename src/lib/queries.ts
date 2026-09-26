@@ -61,7 +61,44 @@ export async function fetchImportRecords(limit = MAX_IMPORT_RECORD_ROWS, focusJo
   }); }
 export async function markAlertRead(id: string): Promise<void> { if (!await resolveCurrentCompanyId()) throw new Error('TENANT_REQUIRED'); const { error } = await supabase.rpc('mark_alert_read', { p_alert_id: id }); if (error) throw error; }
 export async function updateRecommendationStatus(id: string, status: string): Promise<void> { if (!await resolveCurrentCompanyId()) throw new Error('TENANT_REQUIRED'); const { error } = await supabase.rpc('update_recommendation_status', { p_recommendation_id: id, p_status: status }); if (error) throw error; }
-export async function fetchForecasts(): Promise<Forecast[]> { const { data, error } = await supabase.rpc('get_forecast_snapshot', { p_limit: 500 }); if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: forecast snapshot missing'); const payload = data as Record<string, unknown>; if (!Array.isArray(payload.rows)) throw new Error('REPORT_DATA_UNAVAILABLE: forecast rows missing'); return payload.rows as Forecast[]; }
+function validateForecastRows(rows: unknown[]): Forecast[] {
+  rows.forEach((item, index) => {
+    if (!item || typeof item !== 'object') throw new Error('FORECAST_DATA_INVALID: row[' + index + '] must be an object');
+    const value = item as Record<string, unknown>;
+    if (
+      typeof value.id !== 'string' ||
+      typeof value.company_id !== 'string' ||
+      typeof value.entity_type !== 'string' ||
+      (value.entity_id !== null && typeof value.entity_id !== 'string') ||
+      typeof value.entity_name !== 'string' ||
+      typeof value.metric !== 'string' ||
+      typeof value.period !== 'string' ||
+      typeof value.forecast_value !== 'number' || !Number.isFinite(value.forecast_value) ||
+      typeof value.lower_bound !== 'number' || !Number.isFinite(value.lower_bound) ||
+      typeof value.upper_bound !== 'number' || !Number.isFinite(value.upper_bound) ||
+      typeof value.model_name !== 'string' ||
+      (value.quality_score !== null && typeof value.quality_score !== 'number') ||
+      (typeof value.quality_score === 'number' && (!Number.isFinite(value.quality_score) || value.quality_score < 0 || value.quality_score > 100)) ||
+      typeof value.confidence !== 'string' ||
+      typeof value.data_points !== 'number' || !Number.isInteger(value.data_points) || value.data_points < 0
+    ) {
+      throw new Error('FORECAST_DATA_INVALID: row[' + index + '] shape is invalid');
+    }
+    if (value.lower_bound > value.upper_bound) {
+      throw new Error('FORECAST_DATA_INVALID: row[' + index + '] bounds are inverted');
+    }
+  });
+  return rows as Forecast[];
+}
+
+export async function fetchForecasts(): Promise<Forecast[]> {
+  const { data, error } = await supabase.rpc('get_forecast_snapshot', { p_limit: 500 });
+  if (error) throw error;
+  if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: forecast snapshot missing');
+  const payload = data as Record<string, unknown>;
+  if (!Array.isArray(payload.rows)) throw new Error('REPORT_DATA_UNAVAILABLE: forecast rows missing');
+  return validateForecastRows(payload.rows);
+}
 export type CustomersPage = { data: Customer[]; count: number|null; page: number; page_size: number };
 export async function fetchCustomersPage(page=0,pageSize=50,search=''):Promise<CustomersPage>{if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');if(!Number.isInteger(pageSize)||pageSize<1||pageSize>100)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');const companyId=await resolveCurrentCompanyId();if(!companyId)throw new Error('TENANT_REQUIRED');const normalized=search.trim().replace(/[,%()\\]/g,' ');const from=page*pageSize,to=from+pageSize-1;let query=supabase.from('customers').select('*',{count:'exact'}).eq('company_id',companyId);if(normalized)query=query.or(`name.ilike.%${normalized}%,code.ilike.%${normalized}%`);const {data,count,error}=await query.order('name',{ascending:true}).order('id',{ascending:true}).range(from,to);if(error)throw error;return{data:(data??[]) as Customer[],count,page,page_size:pageSize};}
 export type ProductsPage = { data: Product[]; count: number|null; page: number; page_size: number };
