@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 186
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- PR #661 branch: `exec/20260926-continuous-ui-core-deep`.
+- CURRENT FUNCTIONAL HEAD BEFORE GOVERNANCE: `41bfbac124bb4f1cea2dc73ab9bf95f591731cf5`.
+- PDF lane: positioned geometry reconstruction + Arabic inventory mappings + multi-page end-to-end regression + summary-line exclusion.
+- Import lane: deterministic generic source-specialty classification; UI proof; `source_domain` persisted into the import result summary and final result state.
+- Current exact-head proof is not terminal yet; do not transfer PASS from older SHAs. Current visual proof also awaits a deployment built from this lineage.
+- NEXT: consume first terminal current-head gate; fix only the first reproduced defect; then continue the next uncovered UI/core boundary and deployment identity verification.
+- DO NOT REPEAT: old preview evidence, naive PDF flattening, stale PASS, duplicate importer/RPC/navigation paths, production-SHA bypass, unsafe import mutation.
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 185
 
 - MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
