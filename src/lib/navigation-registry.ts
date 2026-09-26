@@ -48,6 +48,7 @@ export type NavigationIconKey =
   | 'master-data'
   | 'liquidity'
   | 'suppliers'
+  | 'benchmark'
 ;
 
 export interface NavigationItem {
@@ -119,6 +120,7 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
       { section: 'intelligence', path: '/intelligence/recommendations', label: 'التوصيات', enLabel: 'Recommendations', description: 'إجراءات مقترحة مرتبطة بسياقها وأدلتها', keywords: ['recommendations', 'actions', 'توصيات'], icon: 'recommendations', minimumWorkspaceMode: 'advanced' },
       { section: 'intelligence', path: '/intelligence/forecasts', label: 'التنبؤات', enLabel: 'Forecasts', description: 'استعراض التنبؤات المتاحة دون اختلاق نتيجة', keywords: ['forecast', 'forecasts', 'تنبؤات'], icon: 'forecasts', minimumWorkspaceMode: 'advanced' },
       { section: 'intelligence', path: '/intelligence/scenarios', label: 'السيناريوهات', enLabel: 'Scenarios', description: 'محاكاة محكومة منفصلة عن الحقيقة التشغيلية', keywords: ['scenarios', 'scenario', 'سيناريوهات'], icon: 'scenarios', minimumWorkspaceMode: 'advanced' },
+      { section: 'intelligence', path: '/benchmark', label: 'شبكة المقارنة', enLabel: 'Benchmark Network', description: 'مقارنة خارجية لا تظهر دون عينة نظيرة موثقة', keywords: ['benchmark', 'peer', 'comparison', 'مقارنة', 'مئين'], icon: 'benchmark', minimumWorkspaceMode: 'advanced' },
     ],
   },
   {
