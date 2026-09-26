@@ -46,11 +46,12 @@ export function WorkCenterPage() {
   const [workerHealth, setWorkerHealth] = useState<WorkerHealthSnapshot | null>(null);
   const [filter, setFilter] = useState<FilterKey>('all');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
+      if (silent) setRefreshing(true); else setLoading(true);
       setError(null);
       const [imports, health] = await Promise.all([fetchImportRecords(), fetchWorkerHealthSnapshot()]);
       setRows(imports);
@@ -58,7 +59,7 @@ export function WorkCenterPage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : 'فشل تحميل مركز العمليات');
     } finally {
-      setLoading(false);
+      if (silent) setRefreshing(false); else setLoading(false);
     }
   }, []);
 
@@ -114,7 +115,7 @@ export function WorkCenterPage() {
     <PageHeader
       title="مركز العمل"
       subtitle="طابور العمل والاستثناءات: ما الذي ينتظر، ما الذي يحتاج مراجعة، وما الذي اكتمل فعليًا."
-      actions={<button type="button" onClick={() => void load()} className="btn-secondary inline-flex items-center gap-2"><RefreshCw size={16}/> تحديث</button>}
+      actions={<button type="button" onClick={() => void load(true)} disabled={refreshing} aria-busy={refreshing} className="btn-secondary inline-flex items-center gap-2 disabled:opacity-60"><RefreshCw size={16} className={refreshing ? 'animate-spin' : ''}/> {refreshing ? 'جارٍ التحديث' : 'تحديث'}</button>}
     />
 
     <section className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
@@ -197,7 +198,7 @@ export function WorkCenterPage() {
               <div aria-live="polite" className="mt-1 text-[11px] leading-5 text-ink-600">{nextAction.message}</div>
               <div className="mt-4">
                 {nextAction.kind === 'refresh' && (
-                  <button type="button" onClick={() => void load()} className="btn-secondary text-xs">{nextAction.label}</button>
+                  <button type="button" onClick={() => void load(true)} disabled={refreshing} aria-busy={refreshing} className="btn-secondary text-xs disabled:opacity-60">{refreshing ? 'جارٍ التحديث' : nextAction.label}</button>
                 )}
                 {nextAction.kind === 'filter' && (
                   <button type="button" onClick={() => setFilter(nextAction.filter)} className="btn-secondary text-xs">{nextAction.label}</button>
@@ -224,7 +225,7 @@ export function WorkCenterPage() {
     <Card>
       <CardHeader title="طابور العمل" subtitle="ابدأ من الاستثناءات والحالات النشطة، ثم استخدم نافذة العرض الحالية دون اعتبارها إجمالي التاريخ."/>
       <CardBody>
-        <div role="status" className="mb-4 rounded-xl border border-ink-200 bg-ink-50/70 px-3 py-2 text-[10px] leading-5 text-ink-500">
+        <div role="status" aria-live="polite" aria-busy={refreshing} className="mb-4 rounded-xl border border-ink-200 bg-ink-50/70 px-3 py-2 text-[10px] leading-5 text-ink-500">
           {historyWindowNotice}
         </div>
         <div className="mb-5 flex flex-wrap items-center gap-2" role="toolbar" aria-label="تصفية العمليات">
