@@ -87,6 +87,60 @@ function pdfWithText(text: string): ArrayBuffer {
   return new TextEncoder().encode(header + body + xref + trailer).buffer;
 }
 
+type PositionedPdfText = { text: string; x: number; y: number };
+
+function pdfWithPositionedText(items: PositionedPdfText[]): ArrayBuffer {
+  const uniqueUnits = [...new Set(items.flatMap(({ text }) => Array.from(text).flatMap((char) => [char.charCodeAt(0)])))];
+  const cmap = [
+    '/CIDInit /ProcSet findresource begin',
+    '12 dict begin',
+    'begincmap',
+    '/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def',
+    '/CMapName /Adobe-Identity-UCS def',
+    '/CMapType 2 def',
+    '1 begincodespacerange',
+    '<0000> <FFFF>',
+    'endcodespacerange',
+    `${uniqueUnits.length} beginbfchar`,
+    ...uniqueUnits.map((unit) => `<${unit.toString(16).padStart(4, '0')}> <${unit.toString(16).padStart(4, '0')}>`),
+    'endbfchar',
+    'endcmap',
+    'CMapName currentdict /CMap defineresource pop',
+    'end',
+    'end',
+  ].join('\\n');
+
+  const positioned = items.map(({ text, x, y }) => {
+    const hex = Array.from(text).map((char) => char.charCodeAt(0).toString(16).padStart(4, '0')).join('');
+    return `1 0 0 1 ${x} ${y} Tm <${hex}> Tj`;
+  }).join(' ');
+  const stream = `BT /F1 12 Tf ${positioned} ET`;
+  const objects = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+    '<< /Type /Font /Subtype /Type0 /BaseFont /DejaVuSans /Encoding /Identity-H /DescendantFonts [6 0 R] /ToUnicode 8 0 R >>',
+    `<< /Length ${Buffer.byteLength(stream, 'utf8')} >>\\nstream\\n${stream}\\nendstream`,
+    '<< /Type /Font /Subtype /CIDFontType2 /BaseFont /DejaVuSans /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor 7 0 R /DW 1000 >>',
+    '<< /Type /FontDescriptor /FontName /DejaVuSans /Flags 4 /FontBBox [0 -200 1000 900] /ItalicAngle 0 /Ascent 800 /Descent -200 /CapHeight 700 /StemV 80 >>',
+    `<< /Length ${Buffer.byteLength(cmap, 'utf8')} >>\\nstream\\n${cmap}\\nendstream`,
+  ];
+  const header = '%PDF-1.4\\n';
+  let body = '';
+  const offsets: number[] = [0];
+  let position = Buffer.byteLength(header, 'utf8');
+  objects.forEach((object, index) => {
+    offsets.push(position);
+    const rendered = `${index + 1} 0 obj\\n${object}\\nendobj\\n`;
+    body += rendered;
+    position += Buffer.byteLength(rendered, 'utf8');
+  });
+  const xrefOffset = Buffer.byteLength(header + body, 'utf8');
+  const xref = `xref\\n0 ${objects.length + 1}\\n0000000000 65535 f \\n${offsets.slice(1).map((offset) => `${String(offset).padStart(10, '0')} 00000 n `).join('\\n')}\\n`;
+  const trailer = `trailer\\n<< /Size ${objects.length + 1} /Root 1 0 R >>\\nstartxref\\n${xrefOffset}\\n%%EOF\\n`;
+  return new TextEncoder().encode(header + body + xref + trailer).buffer;
+}
+
 async function main(): Promise<void> {
   if (!process.env.VITE_SUPABASE_URL || !process.env.VITE_SUPABASE_ANON_KEY) {
     throw new Error('PDF regression requires the real Supabase test configuration; no fake environment is accepted.');
@@ -104,6 +158,33 @@ async function main(): Promise<void> {
     assert(classifyOcrConfidence(74.99) === 'REVIEW', 'OCR confidence below 75 must require review');
     assert(classifyOcrConfidence(75) === 'TRUSTED', 'OCR confidence 75 must be trusted');
     assert(classifyOcrConfidence(100) === 'TRUSTED', 'OCR confidence 100 must be trusted');
+    const tableDatasets = await parseFile(
+      pdfWithPositionedText([
+        { text: 'اسم الصنف', x: 560, y: 700 },
+        { text: 'رقم الصنف', x: 470, y: 700 },
+        { text: 'المخزن', x: 380, y: 700 },
+        { text: 'الوارد', x: 290, y: 700 },
+        { text: 'الرصيد', x: 200, y: 700 },
+        { text: 'زيت شفاف الفخامة 4×5 لتر', x: 560, y: 680 },
+        { text: '10801001', x: 470, y: 680 },
+        { text: 'الرئيسي', x: 380, y: 680 },
+        { text: '58', x: 290, y: 680 },
+        { text: '56', x: 200, y: 680 },
+        { text: 'تونة الفخامة صغير 48 علبة × 100 جم', x: 560, y: 660 },
+        { text: '10802002', x: 470, y: 660 },
+        { text: 'الرئيسي', x: 380, y: 660 },
+        { text: '77', x: 290, y: 660 },
+        { text: '56', x: 200, y: 660 },
+      ]),
+      'arabic-table-layout.pdf',
+      'pdf',
+    );
+    assert(tableDatasets.length === 1, 'positioned PDF must produce one dataset');
+    assert(tableDatasets[0].rows.length === 2, 'positioned PDF must produce two business rows');
+    assert(tableDatasets[0].rows[0]?.['اسم الصنف'] === 'زيت شفاف الفخامة 4×5 لتر', 'positioned PDF must preserve the first Arabic item');
+    assert(tableDatasets[0].rows[1]?.['رقم الصنف'] === '10802002', 'positioned PDF must preserve the second item code');
+    assert(tableDatasets[0].rows[0]?.الوارد === 58, 'positioned PDF must normalize Arabic report quantities through the canonical dataset path');
+
     const { extractPdfPageTable } = await vite.ssrLoadModule('/src/lib/file-engine/pdf-layout.ts') as {
       extractPdfPageTable: (items: Array<{ str: string; transform: number[]; width: number; height: number }>, existingLayout?: unknown) => {
         layout: { headers: string[]; centers: number[] };
