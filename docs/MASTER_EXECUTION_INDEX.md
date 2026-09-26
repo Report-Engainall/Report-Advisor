@@ -1,7 +1,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 160
 
 - HEAD OBSERVED BEFORE THIS INDEX WRITE: 929c908a197d5f887eba07f6ba3e93213407da94.
-- CURRENT CODE/TEST CANDIDATE: e39ad6290a079579ddb2207c63489a1586350.
+- CURRENT CODE/TEST CANDIDATE: e39ad6290a079579ddb2207207c63489a1586350.
 - PR #659 / branch feat/deep-ui-core-closure-20260925.
 - CORE: dashboard canonical arrays/type boundaries, inventory product-reference validation, dashboard authoritative as-of contract, and canonical-import authoritative proof are now fail-closed.
 - DB: cash_accounts schema drift is now reconciled through a tracked idempotent migration with tenant FKs/RLS; migration applied successfully to staging.
