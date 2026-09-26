@@ -8,6 +8,7 @@ describe('data quality architecture contract', () => {
   const adapter = readFileSync(resolve(process.cwd(), 'src/lib/data-quality-snapshot-runtime.ts'), 'utf8');
   const page = readFileSync(resolve(process.cwd(), 'src/pages/DataQualitySnapshotPage.tsx'), 'utf8');
   const app = readFileSync(resolve(process.cwd(), 'src/App.tsx'), 'utf8');
+  const trust = readFileSync(resolve(process.cwd(), 'src/pages/TrustEvidencePage.tsx'), 'utf8');
 
   it('uses a tenant-authoritative invoker RPC with no tenant parameter', () => {
     expect(migration).toContain('get_data_quality_snapshot()');
@@ -43,6 +44,15 @@ describe('data quality architecture contract', () => {
     ])).toBe(90);
     expect(calculateWeightedQualityScore([])).toBeNull();
     expect(calculateWeightedQualityScore([{ name: 'A', total: 0, issues: 0, score: 100, icon: 'users' }])).toBeNull();
+  });
+
+  it('keeps the trust center fail-closed and exposes the authoritative score', () => {
+    expect(trust).toContain('calculateWeightedQualityScore');
+    expect(trust).toContain("sum + entity.issues");
+    expect(trust).toContain("sum + entity.total");
+    expect(trust).not.toContain('(entity.issues ?? 0)');
+    expect(trust).not.toContain('(entity.total ?? 0)');
+    expect(trust).toContain('QUALITY SCORE');
   });
 
   it('behaviorally accepts a valid EMPTY snapshot', () => {
