@@ -555,3 +555,12 @@ Closed: Replay, Benchmark, Decision lifecycle gating, Trust, Reports, prior Impo
 - BLOCKED: external Vercel free-plan build-rate; remote device live connection.
 - DO NOT REPEAT: prior PR #661 PDF parsing/specialty classification/Decision Experience/Replay/Benchmark/tenant truth closures.
 - CURRENT RESUME POINTER: `PR #661 current functional candidate ce23d1f → exact-head contract/build proof → then UI/browser business readback on trusted import`
+
+
+## Final governance tail — 2026-09-27
+- HEAD observed before this write: 3ea27c1f91dddae5be212dfd63bb6613da25cc23
+- No functional code changed after functional candidate ce23d1f72a84b5d4e4266f1f1ae6db194c177bd2.
+- Execution Index, Product/UI/Data/Engineering/Runtime/Commercial masters, and Manifest were synchronized after the import completion wave.
+- Current combined status at the observed HEAD: Vercel = failure (free-plan build-rate limit); Vercel deployment status = pending. No exact-head PASS inferred.
+- Desktop Commander PC01 remains without a live connection; browser/device proof remains external.
+- FINAL RESUME POINTER: exact current branch head after this governance write → fresh exact-head knowledge/build/browser proof → then business readback on a real trusted import. Do not repeat the import promotion/lifecycle work already closed above.
