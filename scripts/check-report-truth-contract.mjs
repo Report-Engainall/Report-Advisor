@@ -32,6 +32,12 @@ for (const token of [
   "Array.isArray(serverCommittedIds)",
   "serverCommittedIds.length === serverCommittedRowCount",
   "serverCommittedRowCount === input.rows.length",
+  "typeof serverQualityRaw === 'number'",
+  "Number.isFinite(serverQualityRaw)",
+  "serverQualityRaw >= 0",
+  "serverQualityRaw <= 100",
+  "const snapshotId = payload?.snapshotId",
+  "snapshotId === undefined || snapshotId === null",
 ]) {
   if (!source.includes(token)) throw new Error(\`Report truth contract missing canonical server-response invariant: \${token}\`);
 }
