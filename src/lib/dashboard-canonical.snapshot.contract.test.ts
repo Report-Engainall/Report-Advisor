@@ -13,3 +13,12 @@ describe('dashboard snapshot RPC contract', () => {
     expect(adapter).not.toContain("supabase.rpc('get_dashboard_top_entities'");
   });
 });
+
+
+describe('dashboard snapshot fail-closed truth', () => {
+  it('rejects malformed authoritative arrays and missing as-of values', () => {
+    expect(adapter).toContain('function requiredArray<T>(value: unknown, field: string)');
+    expect(adapter).toContain('REPORT_DATA_MALFORMED:asOf');
+    expect(adapter).toContain('REPORT_DATA_MALFORMED:${field}');
+  });
+});
