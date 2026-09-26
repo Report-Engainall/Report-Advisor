@@ -1,3 +1,12 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 148
+
+- MAIN BASE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CANDIDATE: `e8659a4bd4baf87976fcd27557585a88a36bc4ae` (PR #660).
+- UI: decision readiness disclosure + quality/truth/report surface depth.
+- CORE: fail-closed canonical dashboard truth + quality provenance.
+- GATE: Vercel build-rate-limit external failure; no production/browser PASS.
+- NEXT: consume exact-head gate; repair only reproduced defect; continue independent UI/core work otherwise.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 147
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
