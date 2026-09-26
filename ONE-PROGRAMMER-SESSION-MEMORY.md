@@ -462,3 +462,18 @@
 - DO NOT REPEAT → no stale PASS transfer, no calculated-to-verified elevation, no missing-to-zero coercion, no export of incomplete report truth, no device-dependent certification.
 - UI LANE PROGRESS → report export boundaries are now aligned across Sales/Purchases/Inventory/Receivables/Profitability.
 - CORE LANE PROGRESS → canonical truth boundaries remain fail-closed; next independent closure should target any current-head failure or a remaining silent truth fallback discovered by targeted contract search.
+
+## LATEST SESSION WRITE-BACK — 2026-09-26 / WAVE — IMPORT TRUTH + REPORT DECISION PATH
+
+- CODE HEAD AT WRITE-BACK → `6389f3eaef3b2b73f75b6e570ea7a8a6c9cbc2de` on PR #660 / branch `exec/20260926-deep-ui-core-polish`; base main remains `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CORE DELIVERY → Canonical Import no longer substitutes local preview values for missing authoritative committed row count or server quality; missing/non-finite authoritative metrics now fail closed with explicit errors.
+- CORE DELIVERY → `queries.ts` now validates persisted import counters/progress before arithmetic and derives missing progress from validated counters instead of coercing a missing persisted progress value to zero.
+- UI DELIVERY → Reports Center now exposes the visible `SOURCE → TRUTH → EVIDENCE → ACTION` path and binds the current next-action route as a machine-addressable surface.
+- CONTRACT DELIVERY → Product-wow UI guard covers the two new import truth boundaries and the Reports Center evidence-to-action surface. A guard-order regression was caught and repaired before write-back.
+- EXACT-HEAD GATES → no GitHub Actions workflow runs are yet exposed for `6389f3ea...`; therefore no current-head CI/browser/certification PASS is claimed.
+- EXTERNAL BOUNDARIES → device/browser remains unavailable; Vercel deployment/free-plan rate-limit remains an external release boundary; Phase-F live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- NO PRODUCTION MUTATION → none.
+- VERIFIED → source-level changes and guard corrections are committed on the exact PR #660 branch.
+- CURRENT RESUME POINTER → `6389f3ea...` → consume first populated exact-head gate; repair only the first reproduced current-SHA failure; otherwise continue the next safe UI/core closure batch, then refresh governance.
+- DO NOT REPEAT → no fallback of missing authoritative import metrics to local preview; no missing-progress-to-zero coercion; no stale PASS transfer; no device-dependent verification claim; no duplicate import/report workflow.
+
