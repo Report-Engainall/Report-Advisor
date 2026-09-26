@@ -443,4 +443,7 @@ assert.ok(decisionExperienceSource.includes("type DecisionReadiness = { status: 
 assert.ok(decisionExperienceSource.includes('status: \'READY\''), 'Decision Experience must explicitly model ready decisions');
 assert.ok(decisionExperienceSource.includes('status: \'REVIEW\''), 'Decision Experience must explicitly model review decisions');
 assert.ok(decisionExperienceSource.includes('status: \'BLOCKED\''), 'Decision Experience must explicitly model blocked decisions');
+assert.ok(decisionExperienceSource.includes("typeof recommendation.expected_impact !== 'number' || !Number.isFinite(recommendation.expected_impact)"), 'Decision Experience must fail closed on non-finite expected impact');
+assert.ok(decisionExperienceSource.includes('function formatImpact(value: number | null | undefined): string'), 'Decision Experience must centralize safe impact rendering');
+assert.ok(decisionExperienceSource.includes("formatImpact(selected?.expected_impact)"), 'Decision Experience must never render unavailable impact as a numeric placeholder');
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
