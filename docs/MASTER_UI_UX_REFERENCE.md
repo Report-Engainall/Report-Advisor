@@ -265,3 +265,10 @@ Summary versus itemized presentation must be explicit for financial/operational 
 Hierarchy -> Density -> Evidence -> Action -> Accessibility -> Mobile -> Print -> Empty/Loading/Error
 
 A surface is complete only when the quality gate is satisfied, not merely when the populated screenshot looks polished.
+
+
+## Execution closure — 2026-09-27 / HEAD a121c3032deb4b4a708bed99b193a8e921ea453a
+
+- Canonical Import completion state renders missing understanding confidence as «غير متاح» instead of a synthetic 0%.
+- Persisted specialty values that cannot be resolved to the canonical registry render «غير مثبت» instead of silently claiming the generic domain.
+- These states complement the existing fail-closed history, progress, evidence, and decision surfaces.
