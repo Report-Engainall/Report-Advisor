@@ -64,18 +64,24 @@ export function TrustEvidencePage() {
   }, [snapshot]);
   const issueSeverityRows = useMemo(() => {
     const issues = snapshot?.issues ?? [];
-    const total = issues.every((issue) => typeof issue.count === 'number' && Number.isFinite(issue.count))
-      ? issues.reduce((sum, issue) => sum + issue.count, 0)
-      : null;
+    const countsAreValid = issues.every((issue) => typeof issue.count === 'number' && Number.isFinite(issue.count) && Number.isInteger(issue.count) && issue.count >= 0);
+    if (!countsAreValid) {
+      return [
+        { label: 'حرجة', value: null, className: 'text-danger-700 bg-danger-50 border-danger-200' },
+        { label: 'تحذير', value: null, className: 'text-warning-800 bg-warning-50 border-warning-200' },
+        { label: 'معلوماتية / أخرى', value: null, className: 'text-ink-700 bg-ink-50 border-ink-200' },
+      ];
+    }
+    const total = issues.reduce((sum, issue) => sum + issue.count, 0);
     const critical = issues.filter(issue => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0);
     const warning = issues.filter(issue => issue.severity === 'warning').reduce((sum, issue) => sum + issue.count, 0);
-    const informational = total == null ? null : Math.max(0, total - critical - warning);
+    const informational = Math.max(0, total - critical - warning);
     return [
       { label: 'حرجة', value: criticalIssueTotal ?? critical, className: 'text-danger-700 bg-danger-50 border-danger-200' },
       { label: 'تحذير', value: warning, className: 'text-warning-800 bg-warning-50 border-warning-200' },
       { label: 'معلوماتية / أخرى', value: informational, className: 'text-ink-700 bg-ink-50 border-ink-200' },
     ];
-  }, [snapshot]);
+  }, [snapshot, criticalIssueTotal]);
 
   const nextStep = snapshot?.status === 'EMPTY'
     ? { label: 'ابدأ من المصدر', detail: 'أضف ملفًا أو مصدرًا حتى يمكن بناء حالة حقيقة وأدلة فعلية.', path: '/import' }
