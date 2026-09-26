@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createDecision } from '../src/lib/free-toolbox/decision-log.ts';
-import { alternativeGroupDecisions } from '../src/lib/intelligence/decisionEngine.ts';
+import { alternativeGroupDecisions, inventoryDecisions } from '../src/lib/intelligence/decisionEngine.ts';
 
 assert.throws(() => createDecision({
   title: 'بدون دليل', reason: 'invalid', status: 'proposed', priority: 1, evidenceIds: [], action: 'HOLD',
@@ -11,8 +11,6 @@ const decision = createDecision({
   evidenceIds: [' evidence-1 ', 'evidence-1', 'evidence-2'], action: 'BUY_SOON',
 });
 assert.deepEqual(decision.evidenceIds, ['evidence-1', 'evidence-2']);
-const { inventoryDecisions } = await import('../src/lib/intelligence/decisionEngine.ts');
-
 const criticalWithoutCoverage = alternativeGroupDecisions([{
   id: 'g-null', name: 'مجموعة بلا تغطية', stockoutRisk: 'critical', normalizedStock: 10, normalizedDemand: 5,
   coverageDays: null, recommendedOrder: 20, trendPct: 4,
