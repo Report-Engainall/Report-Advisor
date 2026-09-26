@@ -135,12 +135,20 @@ export function DecisionExperiencePage() {
   }, []);
 
   useEffect(() => { void load(); }, [load]);
-  useEffect(() => { if (requestedStage && STAGES.some((item) => item.id === requestedStage)) setStage(requestedStage); }, [requestedStage]);
-
   const selected = recommendations.find((item) => item.id === selectedId) ?? null;
   const currentStageIndex = Math.max(0, STAGES.findIndex((item) => item.id === stage));
   const canEnterStage = useCallback((next: Stage) => next === 'command' || selected !== null, [selected]);
   const stageLockReason = selected ? null : 'حدد توصية فعلية من المصدر أولًا حتى يمكن فتح هذه المرحلة دون اختلاق سياق قرار.';
+  useEffect(() => {
+    if (loading) return;
+    if (selected === null) {
+      if (stage !== 'command') setStage('command');
+      return;
+    }
+    if (requestedStage && STAGES.some((item) => item.id === requestedStage)) {
+      setStage(requestedStage);
+    }
+  }, [loading, requestedStage, selected, stage]);
   useEffect(() => {
     if (selected === null && stage !== 'command') setStage('command');
   }, [selected, stage]);
