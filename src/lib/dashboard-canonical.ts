@@ -259,11 +259,14 @@ export async function fetchRFMSnapshot(limit = 500): Promise<RFMSnapshot> {
   const { data, error } = await supabase.rpc('get_rfm_snapshot', { p_as_of: asOfDate(), p_limit: limit });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: RFM snapshot missing');
   const row = data as Record<string, unknown>;
+  const status = requiredEnum(row.status, 'rfm.status', ['CALCULATED', 'INSUFFICIENT_DATA'] as const);
+  const rows = requiredArray<RFMSnapshotRow>(row.rows, 'rfm.rows', (item) => isRecord(item) && isNonBlankString(item.customer_id) && isNonBlankString(item.customer_name) && [item.recency, item.frequency, item.monetary, item.r_score, item.f_score, item.m_score].every((value) => finiteOrNull(value) !== null) && isNonBlankString(item.rfm_segment));
+  if (status === 'CALCULATED' && rows.length === 0) throw new Error('REPORT_DATA_MALFORMED:rfm.status_rows_mismatch');
   return {
-    rows: requiredArray<RFMSnapshotRow>(row.rows, 'rfm.rows', (item) => isRecord(item) && isNonBlankString(item.customer_id) && isNonBlankString(item.customer_name) && [item.recency, item.frequency, item.monetary, item.r_score, item.f_score, item.m_score].every((value) => finiteOrNull(value) !== null) && isNonBlankString(item.rfm_segment)),
+    rows,
     asOf: requiredAsOf(row.asOf, 'rfm.asOf'),
     unknownRows: row.unknownRows === null ? null : requiredInteger(row.unknownRows, 'rfm.unknownRows'),
-    status: requiredEnum(row.status, 'rfm.status', ['CALCULATED', 'INSUFFICIENT_DATA'] as const),
+    status,
   };
 }
 export async function fetchABCSnapshot(limit = 500): Promise<ABCSnapshot> {
@@ -271,22 +274,28 @@ export async function fetchABCSnapshot(limit = 500): Promise<ABCSnapshot> {
   const { data, error } = await supabase.rpc('get_abc_snapshot', { p_limit: limit });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: ABC snapshot missing');
   const row = data as Record<string, unknown>;
+  const status = requiredEnum(row.status, 'abc.status', ['CALCULATED', 'INSUFFICIENT_DATA'] as const);
+  const rows = requiredArray<ABCSnapshotRow>(row.rows, 'abc.rows', (item) => isRecord(item) && isNonBlankString(item.product_id) && isNonBlankString(item.product_name) && finiteOrNull(item.revenue) !== null && finiteOrNull(item.cumulative) !== null && isFiniteNumberOrNull(item.cumulative_pct) && (item.class === null || item.class === 'A' || item.class === 'B' || item.class === 'C'));
+  if (status === 'CALCULATED' && rows.length === 0) throw new Error('REPORT_DATA_MALFORMED:abc.status_rows_mismatch');
   return {
-    rows: requiredArray<ABCSnapshotRow>(row.rows, 'abc.rows', (item) => isRecord(item) && isNonBlankString(item.product_id) && isNonBlankString(item.product_name) && finiteOrNull(item.revenue) !== null && finiteOrNull(item.cumulative) !== null && isFiniteNumberOrNull(item.cumulative_pct) && (item.class === null || item.class === 'A' || item.class === 'B' || item.class === 'C')),
+    rows,
     totalRevenue: finiteOrNull(row.totalRevenue),
     unknownRows: row.unknownRows === null ? null : requiredInteger(row.unknownRows, 'abc.unknownRows'),
-    status: requiredEnum(row.status, 'abc.status', ['CALCULATED', 'INSUFFICIENT_DATA'] as const),
+    status,
   };
 }
 export async function fetchAgingSnapshot(): Promise<AgingSnapshot> {
   const { data, error } = await supabase.rpc('get_aging_snapshot', { p_as_of: asOfDate() });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: aging snapshot missing');
   const row = data as Record<string, unknown>;
+  const status = requiredEnum(row.status, 'aging.status', ['CALCULATED', 'NO_DATA', 'INSUFFICIENT_DATA'] as const);
+  const rows = requiredArray<AgingSnapshotRow>(row.rows, 'aging.rows', (item) => isRecord(item) && isNonBlankString(item.name) && finiteOrNull(item.amount) !== null && typeof item.count === 'number' && Number.isInteger(item.count) && item.count >= 0);
+  if (status === 'CALCULATED' && rows.length === 0) throw new Error('REPORT_DATA_MALFORMED:aging.status_rows_mismatch');
   return {
-    rows: requiredArray<AgingSnapshotRow>(row.rows, 'aging.rows', (item) => isRecord(item) && isNonBlankString(item.name) && finiteOrNull(item.amount) !== null && typeof item.count === 'number' && Number.isInteger(item.count) && item.count >= 0),
+    rows,
     asOf: requiredAsOf(row.asOf, 'aging.asOf'),
     unknownRows: row.unknownRows === null ? null : requiredInteger(row.unknownRows, 'aging.unknownRows'),
-    status: requiredEnum(row.status, 'aging.status', ['CALCULATED', 'NO_DATA', 'INSUFFICIENT_DATA'] as const),
+    status,
   };
 }
 
