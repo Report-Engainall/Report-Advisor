@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { inferSourceDomain, sourceDomainLabel } from './source-domain';
+import { inferSourceDomain, resolveCanonicalEntityType, sourceDomainLabel } from './source-domain';
 
 describe('source-domain classification contract', () => {
   it('classifies Arabic inventory reports from canonical inventory fields', () => {
@@ -36,6 +36,26 @@ describe('source-domain classification contract', () => {
       { mappedField: 'payment_date' },
       { mappedField: 'payment_method' },
     ])).toBe('payment-report');
+  });
+
+  it('promotes fully mapped products/customers/sales sources to real canonical targets', () => {
+    expect(resolveCanonicalEntityType('product-master', [
+      { mappedField: 'sku' }, { mappedField: 'name' }, { mappedField: 'unit' }, { mappedField: 'cost_price' },
+      { mappedField: 'selling_price' }, { mappedField: 'min_stock' }, { mappedField: 'reorder_point' }, { mappedField: 'is_active' },
+    ])).toBe('products');
+    expect(resolveCanonicalEntityType('customer-master', [
+      { mappedField: 'name' }, { mappedField: 'code' }, { mappedField: 'segment' }, { mappedField: 'credit_limit' }, { mappedField: 'payment_terms_days' },
+    ])).toBe('customers');
+    expect(resolveCanonicalEntityType('sales-invoice', [
+      { mappedField: 'invoice_number' }, { mappedField: 'invoice_date' }, { mappedField: 'subtotal' }, { mappedField: 'tax_amount' },
+      { mappedField: 'total' }, { mappedField: 'paid_amount' }, { mappedField: 'status' },
+    ])).toBe('sales_invoices');
+  });
+
+  it('keeps specialized but incomplete sources in the generic canonical evidence lane', () => {
+    expect(resolveCanonicalEntityType('product-master', [
+      { mappedField: 'sku' }, { mappedField: 'name' }, { mappedField: 'unit' },
+    ])).toBe('generic:product-master');
   });
 
   it('preserves unknown generic sources as a safe fallback', () => {
