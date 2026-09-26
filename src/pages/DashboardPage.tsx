@@ -11,7 +11,7 @@ import { LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/
 const TrendChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.TrendChart })));
 const CategoryPieChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.CategoryPieChart })));
 const HorizontalBarChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.HorizontalBarChart })));
-import { fetchDashboardSnapshot, fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
+import { fetchDashboardSnapshot, fetchDashboardIntelligence, DASHBOARD_INTELLIGENCE_LIMIT } from '@/lib/dashboard-canonical';
 import { formatCurrency } from '@/lib/format';
 import type { Recommendation, Alert } from '@/lib/types';
 import type {
@@ -179,7 +179,7 @@ export function DashboardPage() {
     const outcomes = actionable.filter((item) => item.impact_result?.trim()).length;
     const pending = recommendations.filter((item) => item.status === 'new').length;
 
-    const windowLimit = 100;
+    const windowLimit = DASHBOARD_INTELLIGENCE_LIMIT;
     const windowBounded = recommendations.length >= windowLimit;
     return {
       total: actionable.length,
