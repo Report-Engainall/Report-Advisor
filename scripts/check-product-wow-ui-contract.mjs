@@ -94,6 +94,8 @@ assert.ok(entitiesSurface.includes('إضافة مصدر'), 'inventory source-emp
 assert.ok(entitiesSurface.includes('عرض كل المخزون'), 'inventory filter-empty state must restore the full result set');
 assert.ok(entitiesSurface.includes('<Link to="/import"'), 'inventory source-empty state must use the unified import route');
 
+const truthStrip = fs.readFileSync('src/components/TruthContextStrip.tsx', 'utf8');
+assert.ok(truthStrip.includes('الاستخدام: صالح للقرار') && truthStrip.includes('الاستخدام: راجع الدليل أولًا'), 'shared truth strip must disclose decision-use state');
 const dashboardSurface = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 assert.ok(dashboardSurface.includes('const emptyAnalysisAction'), 'dashboard empty analysis states must derive a real next action');
 assert.ok(dashboardSurface.includes('تبقى الحالة غير مثبتة'), 'dashboard trend empty state must remain fail-closed');
