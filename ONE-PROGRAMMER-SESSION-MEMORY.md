@@ -1,3 +1,14 @@
+# CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 192
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE PR #661 branch: `exec/20260926-continuous-ui-core-deep`.
+- CURRENT FUNCTIONAL HEAD: `1b670d46f81011e3c50017f2cc82408a4380362c`.
+- BUSINESS REPLAY: `/replay` now reads tenant-scoped `business_state_snapshots`, `recommendation_outcomes`, and `decision_work_items`; when historical evidence is absent it reports `INSUFFICIENT_DATA` and never fabricates events.
+- BENCHMARK NETWORK: `/benchmark` is routed and discoverable in navigation/command center with `INSUFFICIENT_SAMPLE`; staging has no benchmark/peer cohort table.
+- DECISION ROI: the current outcome schema contains expected/actual impact but no investment/cost denominator, so the system keeps ROI `INSUFFICIENT_DATA` instead of relabeling an attainment ratio as ROI.
+- CURRENT PROOF: fresh exact-head gates are queued/pending; no PASS transferred. Vercel free-plan build-rate remains external; Netlify main deploy remains old main SHA.
+- NEXT: consume first terminal current-head gate, repair only first reproduced defect, then continue uncovered product contracts.
+- DO NOT REPEAT: fake ROI, fake replay history, fake benchmark ranking, stale PASS/preview, duplicate importer/RPC paths, production-SHA bypass.
 # CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 191
 
 - MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
