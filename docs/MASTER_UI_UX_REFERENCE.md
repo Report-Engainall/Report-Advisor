@@ -1,3 +1,15 @@
+## COMPREHENSIVE UI CLOSURE — 2026-09-26
+
+- Executive Command Center now has a canonical `NEXT ACTION` surface derived from real truth state: unresolved source quality routes to Data Quality, open attention routes to Intelligence, reviewable recommendations route to Decision Experience, and a quiet state routes to the Executive Report.
+- The next action is not decorative: `data-next-action` exposes the canonical route for regression checks and the visual rail changes by semantic state.
+- The surface follows the shared Aghbari visual constitution: emerald/near-black/brass hierarchy, restrained depth, explicit REVIEW/ATTENTION/READY state, mobile-safe controls and reduced-motion compatibility.
+- The UI contract now guards that the next-action logic exists and responds to quality/attention state rather than rendering a static CTA.
+
+## COMPREHENSIVE UI + CORE BOUNDARY — 2026-09-26
+
+- Canonical import result integrity is now reflected at the UI/decision boundary as a stronger trust contract: duplicate server IDs and malformed replay flags are treated as invalid rather than coerced.
+- No new navigation taxonomy or duplicate workflow was introduced.
+
 ## SHARED-SURFACE CLOSURE — 2026-09-26
 
 - Shared DataTable now exposes keyboard-focusable scroll context, explicit row focus visibility, touch-safe pagination, and mobile overflow behavior without changing its data contract.
