@@ -766,3 +766,8 @@
 [data-value-state="unavailable"] .tabular-nums{color:#75683f}
 .ag-executive-report [data-chart-state="empty"]{min-height:9rem;display:flex;flex-direction:column;justify-content:center}
 .ag-executive-report [data-chart-state="empty"] a{width:max-content}
+
+/* Connector proof states: visual semantics distinguish product availability from runtime evidence. */
+.ag-connections-surface [data-connector-summary="available"] .ag-decision-value{color:rgb(4 120 87)}
+.ag-connections-surface [data-connector-summary="bounded"] .ag-decision-value{color:rgb(161 98 7)}
+.ag-connections-surface [data-connector-summary="adapter"] .ag-decision-value{color:rgb(71 85 105)}
