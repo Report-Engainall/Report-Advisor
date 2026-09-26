@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
-import { fetchDataQualitySnapshot } from '@/lib/data-quality-snapshot';
-import { calculateWeightedQualityScore } from '@/lib/data-quality-snapshot-core';
+import { fetchDataQualitySnapshot, calculateWeightedQualityScore } from '@/lib/data-quality-snapshot';
 
 const states = [
   { title: 'VERIFIED', text: 'بيانات قابلة للإثبات من المسار الكانوني.', tone: 'bg-success-50 text-success-700', icon: CheckCircle2 },
