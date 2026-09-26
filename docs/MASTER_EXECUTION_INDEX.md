@@ -1,3 +1,21 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / CANONICAL INTELLIGENCE LIMIT + QUALITY CLAIM BOUNDARY
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `9e3281cc7aae0a31027a111f6d8d58e2cd9b7961`.
+- CURRENT CODE/TEST CANDIDATE → `2002c5d8389091f6c7a8b66da7e076ef8d6c0316`.
+- DONE — UI → Dashboard uses the canonical intelligence read-limit constant; Data Quality clean messaging is bounded to measured indicators; Decision Experience selection semantics are stronger and accessible.
+- DONE — CORE → dashboard intelligence limit is centralized in `DASHBOARD_INTELLIGENCE_LIMIT` and enforced by the report-truth contract.
+- DONE — CONTRACTS → Product WOW/report-truth guards cover the latest changes.
+- PR STATE → OPEN. GitHub currently reports `mergeable=false` immediately after the latest commit; no concrete conflict evidence is available yet, so merge/rebase is not forced.
+- EXACT-HEAD GATES → no terminal workflow/status result exists yet for `2002c5d...`; no PASS claimed. Known external Vercel free-plan build-rate-limit remains.
+- PHASE-F → live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- DEVICE → local device/browser unavailable; repository-only execution continues.
+- NEXT ACTION → `consume new-head workflow/status result → repair first reproduced current-SHA failure only → continue independent UI/core closure if evidence shows a live gap`.
+- DO NOT REPEAT → stale PASS evidence, missing-to-zero coercion, unbounded intelligence totals, duplicate routes/RPCs/workflows, unsupported production claims.
+- CURRENT RESUME POINTER → `PR #660 exact code head 2002c5d... → new-head gate result / first current-head failure → next uncovered UI/core closure`.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / BOUNDED INTELLIGENCE + IMPORT TRUTH CLOSURE
 
 > Exact-head evidence only. Historical PASS is not transferred.
