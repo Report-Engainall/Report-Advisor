@@ -304,3 +304,11 @@ A surface is complete only when the quality gate is satisfied, not merely when t
 
 - Data Quality entity score cards now expose invalid/non-finite/out-of-range scores as «غير موثوق» instead of clamping them into a plausible percentage.
 - The existing central validator already rejects malformed entity scores; the UI now preserves that truth state instead of hiding it.
+
+
+## 2026-09-27 — Import UX Closure
+- Trusted import is visibly continuous from source drop → security → understanding → quality → canonical lifecycle → result.
+- Drag/drop is first-class and keyboard accessible.
+- The saving surface exposes the durable lifecycle stages rather than a single opaque percentage.
+- Result state exposes the canonical write target, committed count/idempotent replay state, and one concrete next action.
+- Review band 50–74% remains explicit approval; <50% remains blocked.
