@@ -55,16 +55,19 @@ export function WorkCenterPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
 
   const load = useCallback(async (silent = false) => {
     try {
       if (silent) setRefreshing(true); else setLoading(true);
-      setError(null);
+      if (!silent) setError(null);
+      setRefreshError(null);
       const [imports, health] = await Promise.all([fetchImportRecords(), fetchWorkerHealthSnapshot()]);
       setRows(imports);
       setWorkerHealth(health);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'فشل تحميل مركز العمليات');
+      const message = e instanceof Error ? e.message : 'فشل تحميل مركز العمليات';
+      if (silent) setRefreshError(message); else setError(message);
     } finally {
       if (silent) setRefreshing(false); else setLoading(false);
     }
@@ -124,6 +127,11 @@ export function WorkCenterPage() {
       subtitle="طابور العمل والاستثناءات: ما الذي ينتظر، ما الذي يحتاج مراجعة، وما الذي اكتمل فعليًا."
       actions={<button type="button" onClick={() => void load(true)} disabled={refreshing} aria-busy={refreshing} className="btn-secondary inline-flex items-center gap-2 disabled:opacity-60"><RefreshCw size={16} className={refreshing ? 'animate-spin' : ''}/> {refreshing ? 'جارٍ التحديث' : 'تحديث'}</button>}
     />
+    {refreshError && (
+      <div role="alert" className="rounded-xl border border-warning-200 bg-warning-50/70 px-3 py-2 text-[10px] leading-5 text-warning-900">
+        تعذر تحديث القراءة الأخيرة: {refreshError} — ما زالت البيانات السابقة معروضة، ولم تُعتبر حالة جديدة.
+      </div>
+    )}
 
     <section className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
       <Card className="ag-operational-hero hero-surface overflow-hidden">
