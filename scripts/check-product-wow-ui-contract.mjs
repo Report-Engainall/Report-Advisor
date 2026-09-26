@@ -331,6 +331,11 @@ const stateSurface = fs.readFileSync('src/components/ui/States.tsx', 'utf8');
 assert.ok(stateSurface.includes('export function DataUnavailableState'), 'shared UI states must expose an explicit data-unavailable state');
 const dashboardUnavailable = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 assert.ok(dashboardUnavailable.includes('DataUnavailableState'), 'dashboard must never fall through to a blank state when its canonical snapshot is incomplete');
+
+const commandCenter = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
+assert.ok(commandCenter.includes('Decision ROI'), 'command center must retain the Decision ROI surface');
+assert.ok(commandCenter.includes('لا يوجد denominator استثماري أو تكلفة موثقة'), 'Decision ROI must disclose the missing investment/cost denominator rather than inventing ROI');
+assert.ok(commandCenter.includes('فحص النتيجة المحفوظة'), 'Decision ROI must link to the governed outcome surface');
 const commandUnavailable = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
 assert.ok(commandUnavailable.includes('DataUnavailableState'), 'executive command center must never fall through to a blank state when KPI truth is absent');
 const liquidityUnavailable = fs.readFileSync('src/pages/LiquidityPage.tsx', 'utf8');
