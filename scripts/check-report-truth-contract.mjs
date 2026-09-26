@@ -87,6 +87,10 @@ for (const token of [
   "requiredArray<CategoryBreakdown>(row.categories, 'categories')",
   "requiredArray<AgingBucket>(agingRow.rows, 'aging.rows')",
   "unknownRows:finiteOrNull(agingRow.unknownRows)",
+  "const qualityRow=(row.quality&&typeof row.quality==='object'?row.quality:{}) as Record<string,unknown>;",
+  "badInvoiceRows:finiteOrNull(qualityRow.badInvoiceRows)",
+  "badSaleItemRows:finiteOrNull(qualityRow.badSaleItemRows)",
+  "purchaseCurrencyMismatchRows:finiteOrNull(qualityRow.purchaseCurrencyMismatchRows)",
 ]) {
   if (!dashboardCanonical.includes(token)) {
     throw new Error(`Report truth contract missing fail-closed dashboard invariant: ${token}`);
