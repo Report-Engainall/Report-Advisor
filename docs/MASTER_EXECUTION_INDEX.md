@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 160
+
+- HEAD OBSERVED BEFORE THIS INDEX WRITE: e39ad6290a079579ddb2207207c63489a1586350.
+- PR #659 / branch feat/deep-ui-core-closure-20260925.
+- CORE: dashboard canonical arrays/type boundaries, inventory product-reference validation, dashboard authoritative as-of contract, and canonical-import authoritative proof are now fail-closed.
+- DB: cash_accounts schema drift is now reconciled through a tracked idempotent migration with tenant FKs/RLS; migration applied successfully to staging.
+- UI: Inventory Intelligence type/state boundary, logout convergence, canonical source labeling, and keyboard/drag-drop import UX were deepened without new data paths.
+- CURRENT EVIDENCE: exact-head workflows for e39ad62 have started; several are queued/in-progress and no final application PASS is available yet.
+- PRODUCTION BOUNDARY: Vercel branch previews exist, but production remains on an older main deployment; preview is not production proof.
+- NOT PROVEN: current-head Quality/Final Certification/Browser/Phase-F terminal success, production promotion/identity, and device-dependent visual certification.
+- NEXT EXECUTABLE ACTION: consume the first terminal exact-head failure only; if none is terminal, continue the next independent UI/core closure. After code work settles, make a governance-only write-back for this exact code candidate.
+- DO NOT REPEAT: stale PASS, old UI closures, preview-as-production, deployment-limit confusion, duplicate importer/RPC/runner, or device-dependent work.
+- RESUME POINTER: main c985deeb… → PR #659 → e39ad629… → first terminal exact-head failure only → next independent UI/core closure → exact green merge evidence.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 159
 
 - HEAD OBSERVED BEFORE THIS INDEX WRITE: 1c681d6bd12e173591ea6ebb8c78bbc5e3260eb2.
