@@ -1,3 +1,21 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-180
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `f98595d23ac063451a749644aa6e4ab7c5a879dd`.
+- SESSION-ID → `20260926-AGHBARI-CONTINUOUS-EXECUTION-180`.
+- DONE — UI → Data Quality keeps EMPTY/no-source score as `غير متاح` instead of `0%`.
+- DONE — UI → Canonical Import completion now exposes a COMMIT PASSPORT with committed rows, server quality, job, snapshot and idempotent replay state.
+- DONE — CORE → canonical import transport validates server-validated quality range and optional snapshot identity in addition to exact import/source identity and exact commit cardinality.
+- DONE — CONTRACTS → Product WOW and report-truth guards cover the latest UI/core invariants.
+- CURRENT HEAD → `f98595d23ac063451a749644aa6e4ab7c5a879dd`.
+- EXACT-HEAD GATES → 50 workflow runs observed: 44 queued, 4 pending, 2 in progress, 1 skipped. CodeRabbit SUCCESS. Vercel remains externally rate-limited; Vercel deployment pending. No application PASS claimed.
+- PR #660 → OPEN / mergeable=true.
+- BLOCKED → local device/browser unavailable; Phase-F live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- CURRENT CODE/TEST CANDIDATE → `f98595d23ac063451a749644aa6e4ab7c5a879dd`.
+- NEXT EXECUTABLE ACTION → `consume terminal exact-head gates → repair first reproduced current-SHA failure only → continue independent UI/core closure if available`.
+- DO NOT REPEAT → stale PASS evidence, missing-to-zero coercion, duplicate architecture, unsupported production claims.
+- CURRENT RESUME POINTER → `PR #660 exact head f98595d... → terminal gate result / first current-head failure → next uncovered UI/core closure`.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-179
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
