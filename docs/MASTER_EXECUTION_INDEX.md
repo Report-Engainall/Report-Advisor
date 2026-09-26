@@ -761,3 +761,18 @@
 - **UI IMPLEMENTATION:** `42ca66e327ce63fd5353de86d3f8753f12356b55`.
 - **UI CONTRACT:** `34b2038602f4899a78e6e183087cfe232c02faa8`.
 - **DONE:** decision alerts now send «فحص المصدر أولًا» to the existing Trust & Evidence route instead of returning to the same command screen.
+## CURRENT EXECUTION BOUNDARY — 2026-09-26 / PR #660 / IMPORT TRUTH + REPORT DECISION PATH
+
+> Exact-head evidence only. No historical PASS is transferred.
+
+- SOURCE CODE HEAD BEFORE GOVERNANCE WRITE → `6389f3eaef3b2b73f75b6e570ea7a8a6c9cbc2de`.
+- GOVERNANCE MEMORY WRITE → `acc3e5485a9b245d6ad7b1583fba3162227b4c35`.
+- DONE — CORE → Canonical Import authoritative row count / quality are validated and fail closed; local parsed values are no longer fallback truth after durable execution.
+- DONE — CORE → import job persisted counters/progress are validated before arithmetic; missing progress is derived from validated counters rather than mapped to zero.
+- DONE — UI → Reports Center now renders a visible SOURCE → TRUTH → EVIDENCE → ACTION chain bound to the current next-action route.
+- DONE — CONTRACT → product-wow UI guard covers the new import and report evidence boundaries; assertion-order defect was detected and fixed before governance checkpoint.
+- GATES → exact-head workflow set for `6389f3ea...` is not yet populated; no CI/browser/certification PASS claimed.
+- RELEASE BOUNDARY → device/browser unavailable; Vercel free-plan rate-limit remains external; Phase-F live backup/restore/RPO/RTO/rollback remains NOT PROVEN.
+- NEXT ACTION → consume the first populated exact-head gate on the next available SHA; fix only a reproduced current-head failure; continue the next independent UI/core closure.
+- DO NOT REPEAT → no stale PASS transfer, no missing-to-zero coercion, no local-preview substitution for authoritative import results, no production mutation, no duplicate workflow/RPC/import path.
+
