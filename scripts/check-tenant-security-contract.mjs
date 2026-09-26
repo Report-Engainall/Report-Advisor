@@ -9,6 +9,8 @@ for (const marker of [
   "validateTenantRows<Product>(data??[],companyId,'products')",
   "validateTenantRows<NonNullable<typeof data>[number]>(data ?? [], companyId, 'import_jobs')",
   "validateTenantRows<typeof focusedRow>([focusedRow], companyId, 'import_jobs').concat(rows)",
+  "validateTenantRows<typeof data>([data], companyId, 'import_jobs')",
+  "select('company_id, total_rows, processed_rows, valid_rows, invalid_rows, duplicate_rows, quarantined_rows, progress, result_summary')",
   "count===null)throw new Error('REPORT_QUERY_COUNT_UNAVAILABLE: customers require an authoritative exact count')",
   "count===null)throw new Error('REPORT_QUERY_COUNT_UNAVAILABLE: products require an authoritative exact count')",
 ]) {
