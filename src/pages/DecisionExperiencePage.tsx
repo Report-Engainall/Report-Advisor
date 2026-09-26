@@ -43,8 +43,11 @@ function decisionReadiness(recommendation: Recommendation | null): DecisionReadi
   if (!recommendation) return { status: 'BLOCKED', label: 'لا توجد توصية', tone: 'text-ink-500 bg-ink-50', detail: 'لا يوجد عنصر حقيقي لبدء مسار القرار.' };
   if (['rejected', 'cancelled', 'completed'].includes(recommendation.status)) return { status: 'BLOCKED', label: 'الحالة نهائية', tone: 'text-danger-700 bg-danger-50', detail: 'سجل التوصية في حالة نهائية؛ لا ينبغي فتح إجراء جديد عليه.' };
   if (!recommendation.confidence?.trim()) return { status: 'REVIEW', label: 'الثقة غير متاحة', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية موجودة، لكن مستوى الثقة غير مثبت في السجل.' };
-  if (!recommendation.owner) return { status: 'REVIEW', label: 'ينقص المسؤول', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية موجودة، لكن لا يظهر مسؤول فعلي مرتبط بها.' };
-  if (!recommendation.deadline) return { status: 'REVIEW', label: 'ينقص الموعد', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية لها مسؤول، لكن الموعد غير مثبت بعد.' };
+  if (!recommendation.owner?.trim()) return { status: 'REVIEW', label: 'ينقص المسؤول', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية موجودة، لكن لا يظهر مسؤول فعلي مرتبط بها.' };
+  const deadline = recommendation.deadline?.trim() ?? '';
+  if (!deadline) return { status: 'REVIEW', label: 'ينقص الموعد', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية لها مسؤول، لكن الموعد غير مثبت بعد.' };
+  const deadlineDate = new Date(deadline);
+  if (Number.isNaN(deadlineDate.getTime())) return { status: 'REVIEW', label: 'الموعد غير صالح', tone: 'text-warning-700 bg-warning-50', detail: 'الموعد موجود في السجل لكنه ليس تاريخًا صالحًا يمكن الاعتماد عليه.' };
   if (typeof recommendation.expected_impact !== 'number' || !Number.isFinite(recommendation.expected_impact)) return { status: 'REVIEW', label: 'الأثر غير متاح', tone: 'text-warning-700 bg-warning-50', detail: 'لا يوجد أثر متوقع رقمي صالح للاستخدام على هذه التوصية.' };
   return { status: 'READY', label: 'سياق القرار مكتمل', tone: 'text-success-700 bg-success-50', detail: 'المسؤول والموعد والأثر المتوقع متاحة في سجل التوصية.' };
 }
