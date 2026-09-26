@@ -228,35 +228,123 @@ export async function completeRecommendationWork(workItemId: string, recommendat
   await updateRecommendationStatus(recommendationId, 'completed');
 }
 
+export type BusinessReplayEvent = {
+  id: string;
+  occurredAt: string;
+  kind: 'SNAPSHOT' | 'OUTCOME' | 'WORK';
+  title: string;
+  status: string | null;
+  detail: string | null;
+  expectedImpact: number | null;
+  actualImpact: number | null;
+  qualityScore: number | null;
+  sourceVersion: string | null;
+  evidencePresent: boolean;
+};
+
 export type BusinessReplaySnapshot = {
   snapshotCount: number;
   outcomeCount: number;
   workItemCount: number;
   latestSnapshotAt: string | null;
   latestOutcomeAt: string | null;
+  windowLimit: number;
+  hasMoreHistory: boolean;
+  events: BusinessReplayEvent[];
 };
+
+function replayTimestamp(value: string | null | undefined): string | null {
+  return typeof value === 'string' && !Number.isNaN(new Date(value).getTime()) ? value : null;
+}
 
 export async function fetchBusinessReplaySnapshot(): Promise<BusinessReplaySnapshot> {
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const windowLimit = 100;
   const [snapshots, outcomes, workItems] = await Promise.all([
-    supabase.from('business_state_snapshots').select('id,observed_at', { count: 'exact', head: false }).eq('company_id', companyId).order('observed_at', { ascending: false }).limit(500),
-    supabase.from('recommendation_outcomes').select('id,observed_at', { count: 'exact', head: false }).eq('company_id', companyId).order('observed_at', { ascending: false }).limit(500),
-    supabase.from('decision_work_items').select('id,completed_at', { count: 'exact', head: false }).eq('company_id', companyId).order('completed_at', { ascending: false }).limit(500),
+    supabase.from('business_state_snapshots')
+      .select('id,observed_at,snapshot_key,source_version,quality_score,evidence')
+      .eq('company_id', companyId)
+      .order('observed_at', { ascending: false })
+      .limit(windowLimit + 1),
+    supabase.from('recommendation_outcomes')
+      .select('id,observed_at,recommendation_key,status,expected_impact,actual_impact,outcome_quality,evidence')
+      .eq('company_id', companyId)
+      .order('observed_at', { ascending: false })
+      .limit(windowLimit + 1),
+    supabase.from('decision_work_items')
+      .select('id,title,status,priority,description,completed_at,updated_at,evidence_refs,expected_impact,actual_impact')
+      .eq('company_id', companyId)
+      .order('updated_at', { ascending: false })
+      .limit(windowLimit + 1),
   ]);
+
   if (snapshots.error) throw snapshots.error;
   if (outcomes.error) throw outcomes.error;
   if (workItems.error) throw workItems.error;
-  const latestSnapshotAt = typeof snapshots.data?.[0]?.observed_at === 'string' ? snapshots.data[0].observed_at : null;
-  const latestOutcomeAt = typeof outcomes.data?.[0]?.observed_at === 'string' ? outcomes.data[0].observed_at : null;
+
+  const snapshotRows = (snapshots.data ?? []).slice(0, windowLimit);
+  const outcomeRows = (outcomes.data ?? []).slice(0, windowLimit);
+  const workRows = (workItems.data ?? []).slice(0, windowLimit);
+
+  const events: BusinessReplayEvent[] = [
+    ...snapshotRows.map((row) => ({
+      id: String(row.id),
+      occurredAt: replayTimestamp(row.observed_at) ?? new Date(0).toISOString(),
+      kind: 'SNAPSHOT' as const,
+      title: typeof row.snapshot_key === 'string' && row.snapshot_key.trim() ? row.snapshot_key : 'لقطة حالة تشغيلية',
+      status: 'CAPTURED',
+      detail: typeof row.source_version === 'string' && row.source_version.trim() ? `المصدر ${row.source_version}` : 'لقطة محفوظة من الحالة التجارية.',
+      expectedImpact: null,
+      actualImpact: null,
+      qualityScore: typeof row.quality_score === 'number' && Number.isFinite(row.quality_score) ? row.quality_score : null,
+      sourceVersion: typeof row.source_version === 'string' ? row.source_version : null,
+      evidencePresent: Boolean(row.evidence && typeof row.evidence === 'object'),
+    })),
+    ...outcomeRows.map((row) => ({
+      id: String(row.id),
+      occurredAt: replayTimestamp(row.observed_at) ?? new Date(0).toISOString(),
+      kind: 'OUTCOME' as const,
+      title: typeof row.recommendation_key === 'string' && row.recommendation_key.trim() ? `نتيجة: ${row.recommendation_key}` : 'نتيجة توصية',
+      status: typeof row.status === 'string' ? row.status : null,
+      detail: row.actual_impact == null ? 'الأثر الفعلي غير متاح؛ لا يتم تحويله إلى نجاح/فشل مالي.' : `الأثر الفعلي: ${String(row.actual_impact)}`,
+      expectedImpact: typeof row.expected_impact === 'number' && Number.isFinite(row.expected_impact) ? row.expected_impact : null,
+      actualImpact: typeof row.actual_impact === 'number' && Number.isFinite(row.actual_impact) ? row.actual_impact : null,
+      qualityScore: typeof row.outcome_quality === 'number' && Number.isFinite(row.outcome_quality) ? row.outcome_quality : null,
+      sourceVersion: null,
+      evidencePresent: Boolean(row.evidence && typeof row.evidence === 'object'),
+    })),
+    ...workRows.map((row) => ({
+      id: String(row.id),
+      occurredAt: replayTimestamp(row.completed_at ?? row.updated_at) ?? new Date(0).toISOString(),
+      kind: 'WORK' as const,
+      title: typeof row.title === 'string' && row.title.trim() ? row.title : 'عنصر عمل',
+      status: typeof row.status === 'string' ? row.status : null,
+      detail: typeof row.description === 'string' && row.description.trim() ? row.description : `الأولوية: ${typeof row.priority === 'string' ? row.priority : 'غير متاحة'}`,
+      expectedImpact: typeof row.expected_impact === 'number' && Number.isFinite(row.expected_impact) ? row.expected_impact : null,
+      actualImpact: typeof row.actual_impact === 'number' && Number.isFinite(row.actual_impact) ? row.actual_impact : null,
+      qualityScore: null,
+      sourceVersion: null,
+      evidencePresent: Array.isArray(row.evidence_refs) && row.evidence_refs.length > 0,
+    })),
+  ]
+    .filter((event) => event.occurredAt !== new Date(0).toISOString())
+    .sort((a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime())
+    .slice(0, windowLimit);
+
   return {
-    snapshotCount: snapshots.count ?? snapshots.data?.length ?? 0,
-    outcomeCount: outcomes.count ?? outcomes.data?.length ?? 0,
-    workItemCount: workItems.count ?? workItems.data?.length ?? 0,
-    latestSnapshotAt,
-    latestOutcomeAt,
+    snapshotCount: snapshotRows.length,
+    outcomeCount: outcomeRows.length,
+    workItemCount: workRows.length,
+    latestSnapshotAt: snapshotRows[0]?.observed_at ?? null,
+    latestOutcomeAt: outcomeRows[0]?.observed_at ?? null,
+    windowLimit,
+    hasMoreHistory: snapshots.data?.length === windowLimit + 1 || outcomes.data?.length === windowLimit + 1 || workItems.data?.length === windowLimit + 1,
+    events,
   };
 }
+
 export async function fetchRecommendationOutcome(recommendationId: string): Promise<RecommendationOutcome | null> {
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
