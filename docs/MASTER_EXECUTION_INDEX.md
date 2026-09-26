@@ -730,3 +730,11 @@
 - Closed this wave: entity count truth and pagination truth for Customers/Products.
 - Exact-head checks: 5 total, with 3 queued, 1 in progress, 1 skipped, 0 failures, 0 successes.
 - Resume: current governance head → exact-head checks → first reproduced defect only → next independent UI/Core closure.
+
+
+## Latest executable checkpoint — 2026-09-27 / functional predecessor 04f19027b2dc7293d41436a9070de68cfad473fa
+
+- Closed: Analytics Center live readiness/error isolation and dashboard period/snapshot consistency.
+- Exact-head checks at the functional predecessor: 4 total = 2 queued, 1 in progress, 1 skipped, 0 failures, 0 successes.
+- No PASS transfer; current documentation commits are governance tail only.
+- Resume: current governance head → exact-head checks → first reproduced defect only → next independent UI/Core closure.
