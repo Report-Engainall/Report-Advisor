@@ -1,3 +1,22 @@
+## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-165
+
+- MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- HEAD OBSERVED BEFORE THIS WRITE → `2f6ddd28164134595cc202ada6c3631698f13254` on PR #660 branch `exec/20260926-deep-ui-core-polish`.
+- UI DELIVERY → Inventory Intelligence now has a real priority radar derived only from canonical rows: URGENT (<7 days), WATCH (<14 days), and NO DEMAND/unknown coverage; live filters, visible counts, local reset, evidence/data-quality actions, and accessible selected-state semantics were added without new routes or import paths.
+- CORE DELIVERY → `src/lib/intelligence/decisionEngine.ts` no longer converts unavailable `coverageDays` into evidence value `0`; coverage evidence is emitted only when numeric. A regression test now locks this boundary.
+- CONTRACT DELIVERY → Product WOW UI contract now guards the inventory priority-radar, risk-filter, and missing-demand semantics.
+- EXACT SOURCE PROOF → the three code/test source heads are bound on the same PR line: Inventory Intelligence `6eea8480fbffd96f139f0e893d580944b8e0aa77`, decision engine `608e8ead9415c88f9f3f5977a84b94979d366cf4`, decision regression `07934ccea32ce743e62941200926d31249f0a586`; governance candidate before this write is `2f6ddd28164134595cc202ada6c3631698f13254`.
+- GATES → latest exact-head PR status remains unproven: 54 check-runs were observed with 46 queued and 5 in progress at the last read; no success/failure run was available for the new code commits yet.
+- HOSTING → Vercel status is externally FAILED with `Deployment rate limited — retry in 24 hours`; Vercel deployment context remains pending. Netlify preview is processing. This is a hosting-rate-limit blocker, not an application failure.
+- DEVICE → unavailable/offline by user instruction; no device-dependent/browser-desktop PASS claimed.
+- PHASE-F → fresh live recovery/RPO/RTO/rollback proof remains open and is not inferred from source or stale runs.
+- NO MERGE → PR #660 remains open; no production mutation or release certification was performed.
+- CURRENT RESUME POINTER → `PR #660 latest branch HEAD → consume current-head gate results when exposed → repair only the first reproduced current-head failure → continue independent UI/core closure → merge only after required certification evidence is green`.
+- NEXT EXECUTABLE ACTION → consume the first completed exact-head gate from PR #660; if clean, immediately continue the next safe UI/core surface rather than reopening closed fronts.
+- UI LANE PROGRESS → deeper Inventory Intelligence decision/risk surface closed on canonical data.
+- CORE LANE PROGRESS → unavailable numeric evidence fail-closed at decision-engine boundary, with regression protection.
+- DO NOT REPEAT → missing-to-zero coercion, stale SHA evidence transfer, duplicate import/RPC/runner architecture, device-dependent proof, PR #659 overlap, production bypass, and rework of already-closed Receivables/Reports/Command-Center truth semantics.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-164
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
