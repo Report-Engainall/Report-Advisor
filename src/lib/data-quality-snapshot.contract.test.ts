@@ -30,7 +30,8 @@ describe('data quality architecture contract', () => {
 
   it('consumes the validated adapter and never turns zero records into a false 100%', () => {
     expect(page).toContain("@/lib/data-quality-snapshot");
-    expect(page).toContain("totalRecords === 0 ? 0");
+    expect(page).toContain("weightedScore == null ? 0");
+    expect(page).toContain('weightedScore');
     expect(page).toContain('Math.max(0, Math.min(100');
     expect(page).toContain("totalRecords===0?'لا توجد بيانات تجارية بعد؛ النتيجة EMPTY وليست نجاح جودة بيانات.'");
   });
@@ -60,3 +61,8 @@ describe('data quality architecture contract', () => {
     expect(app).not.toContain("@/pages/EntityPages').then(m => ({ default: m.DataQualityPage }))");
   });
 });
+
+  it('behaviorally rejects unknown entity icons and blank issue identity', () => {
+    expect(() => validateDataQualitySnapshot({ status: 'OK', tenant_id: 'tenant-1', entities: [{ name: 'x', total: 1, issues: 0, score: 100, icon: 'unknown' as any }], issues: [] })).toThrow('DATA_QUALITY_ENTITY_INVALID');
+    expect(() => validateDataQualitySnapshot({ status: 'OK', tenant_id: 'tenant-1', entities: [], issues: [{ entity: '', field: 'x', issue: 'bad', count: 1, severity: 'warning' }] })).toThrow('DATA_QUALITY_ISSUE_INVALID');
+  });
