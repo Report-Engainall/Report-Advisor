@@ -17,6 +17,10 @@ function finiteProgress(value: number | null | undefined): number | null {
 function finiteCount(value: number | null | undefined): number | null {
   return typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : null;
 }
+function invalidProgress(value: number | null | undefined): boolean {
+  return value !== null && value !== undefined && finiteProgress(value) === null;
+}
+
 function exceptionCount(row: ImportRecord): number | null {
   const invalid = finiteCount(row.invalid_rows);
   const quarantined = finiteCount(row.quarantined_rows);
@@ -77,6 +81,10 @@ export function WorkCenterPage() {
     }).length,
     [rows],
   );
+  const invalidProgressActive = useMemo(
+    () => rows.filter(r => (r.status === 'queued' || r.status === 'processing') && invalidProgress(r.progress)).length,
+    [rows],
+  );
   const historyWindowNotice = rows.length >= 500
     ? 'المعروض هو أحدث 500 عملية ضمن نافذة القراءة الحالية؛ لا يُستخدم كإجمالي تاريخي كامل.'
     : 'المعروض هو السجل الذي أعادته نافذة القراءة الحالية.';
@@ -85,9 +93,11 @@ export function WorkCenterPage() {
     ? { kind: 'refresh' as const, tone: 'danger' as const, title: 'إعادة فحص العامل الآن', message: 'هناك leases منتهية مثبتة في القراءة الحالية؛ أعد قراءة الحالة بعد دورة recovery التشغيلية بدل اعتبار الطابور سليمًا.', label: 'إعادة فحص العامل' }
     : workerHealth && !workerHealth.activeReadComplete
       ? { kind: 'refresh' as const, tone: 'warning' as const, title: 'قراءة العامل جزئية', message: 'لم تُقرأ كل leases النشطة؛ لا يمكن تحويل القراءة الجزئية إلى حكم سلامة كامل. أعد الفحص عند الحاجة.', label: 'إعادة قراءة العامل' }
-      : zeroProgressActive > 0
-        ? { kind: 'filter' as const, filter: 'active' as FilterKey, tone: 'warning' as const, title: 'تحقق من العمليات دون تقدم', message: 'هناك عمليات نشطة بتقدم 0%. هذه إشارة تشغيلية للمراجعة وليست دليل نجاح أو فشل تلقائي.', label: 'عرض العمليات دون تقدم' }
-        : counts.review > 0
+      : invalidProgressActive > 0
+        ? { kind: 'filter' as const, filter: 'active' as FilterKey, tone: 'danger' as const, title: 'راجع تقدمًا غير صالح', message: 'هناك عمليات نشطة بقيمة تقدم محفوظة خارج المجال 0–100؛ لا يتم تحويلها إلى نسبة صحيحة أو حالة نجاح.', label: 'عرض العمليات' }
+        : zeroProgressActive > 0
+          ? { kind: 'filter' as const, filter: 'active' as FilterKey, tone: 'warning' as const, title: 'تحقق من العمليات دون تقدم', message: 'هناك عمليات نشطة بتقدم 0%. هذه إشارة تشغيلية للمراجعة وليست دليل نجاح أو فشل تلقائي.', label: 'عرض العمليات دون تقدم' }
+          : counts.review > 0
         ? { kind: 'filter' as const, filter: 'review' as FilterKey, tone: 'warning' as const, title: 'راجع الاستثناءات أولًا', message: 'هناك عمليات تحتوي على مراجعة أو صفوف غير صالحة/معزولة؛ ابدأ بها قبل اعتبار الطابور مستقرًا.', label: 'عرض المراجعة' }
         : counts.failed > 0
           ? { kind: 'filter' as const, filter: 'failed' as FilterKey, tone: 'danger' as const, title: 'راجع عمليات الفشل', message: 'هناك عمليات فاشلة أو ملغاة؛ افتحها قبل بدء دورة جديدة حتى لا يضيع سبب التعثر.', label: 'عرض الفشل' }
@@ -208,7 +218,7 @@ export function WorkCenterPage() {
       <div className="ag-decision-cell"><span className="ag-decision-label">تحتاج مراجعة</span><span className="ag-decision-value">{formatNumber(counts.review)}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">مكتملة</span><span className="ag-decision-value">{formatNumber(counts.completed)}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">فشل / إلغاء</span><span className="ag-decision-value">{formatNumber(counts.failed)}</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">نشطة بلا تقدم</span><span className="ag-decision-value">{formatNumber(zeroProgressActive)}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">تقدم غير صالح</span><span className="ag-decision-value">{formatNumber(invalidProgressActive)}</span></div><div className="ag-decision-cell"><span className="ag-decision-label">نشطة بلا تقدم</span><span className="ag-decision-value">{formatNumber(zeroProgressActive)}</span></div>
     </section>
 
     <Card>
