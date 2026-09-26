@@ -600,3 +600,10 @@ This is the target product tree. It defines how capabilities are presented; it d
 - Analytics Center now reports live readiness for RFM, ABC, Aging, and executive exposure context instead of presenting static availability.
 - Analysis cards distinguish source-backed availability, insufficient data, read failure, and loading state, with a real refresh path and canonical next actions.
 - Dashboard period identity is strict: the response period must match the requested period before the snapshot is surfaced.
+
+
+## 2026-09-27 — Product Closure: Import Now Completes the Business Handoff
+- The unified source experience is an execution surface, not a file reader.
+- Trusted sources continue automatically through validation, analysis, decision context, canonical commit, and result rendering.
+- Product/customer/sales sources enter their existing business entities only when the source mapping proves the required fields; otherwise the product preserves a generic evidence source rather than fabricating a typed record.
+- The completed state exposes the next business surface so the user is not left after “upload/read”.
