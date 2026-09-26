@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / CONTINUOUS EXECUTION 193
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE PR #661 branch: `exec/20260926-continuous-ui-core-deep`.
+- CURRENT BRANCH HEAD: `fac961ea6ddd790050ef91ab1c4eb57d42839970`.
+- UI FAIL-CLOSED CLOSURE: `src/App.tsx` no longer clears authoritative dashboard alerts to `[]` after a failed intelligence read; the App Shell retains `alertLoadError`, announces it, and exposes an in-place retry.
+- UI CONTRACT: `scripts/check-product-wow-ui-contract.mjs` now guards the alert-load error retention, announcement and retry semantics.
+- REPLAY SECURITY CONTRACT: `BusinessReplayPage.contract.test.ts` now explicitly guards all three replay reads as tenant-scoped and rejects any `service_role` path.
+- EXACT PROOF STATUS: current-head runs for the prior code commit `25dc38ee287eda0da88773f7e16a1d1c8ffa2758` were queued/pending; after the subsequent contract-only commit to `fac961e...`, no new workflow result is yet observable through the connector. No PASS is transferred.
+- DEPLOYMENT: Vercel remains externally blocked by the free-plan build-rate limit; no production mutation and no production-SHA bypass.
+- CURRENT CORE BOUNDARY: Benchmark remains `INSUFFICIENT_SAMPLE`; Replay remains `INSUFFICIENT_DATA` until real snapshots/outcomes exist; Decision ROI remains unavailable without a documented cost/investment denominator.
+- NEXT EXECUTABLE ACTION: obtain/consume fresh exact-head CI for `fac961e...`; repair only the first reproduced current-SHA failure. Independently continue one uncovered UI/core contract front; do not wait on the queued lane.
+- DO NOT REPEAT: stale PASS transfer, preview-as-production, synthetic replay/benchmark/ROI, alert-error-to-empty fallback, duplicate importer/RPC/runner/navigation path, production-SHA bypass.
 # CURRENT EXECUTION BOUNDARY — 2026-09-26 / CONTINUOUS EXECUTION CHECKPOINT 192
 
 - MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
