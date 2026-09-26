@@ -1,3 +1,16 @@
+# CURRENT EXECUTION CHECKPOINT — 2026-09-26 / CONTINUOUS EXECUTION 184
+
+- MAIN HEAD OBSERVED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE PR: #661 / branch `exec/20260926-continuous-ui-core-deep`.
+- CURRENT HEAD: `f9591e3f70641d82f99df1575ccd0caf2bb0477a`.
+- PDF USER-SYMPTOМ CONSUMED: old preview showed a PDF inventory report collapsed into page-sized `line_number/text` rows, with product codes, names and numeric columns concatenated; that preview is tied to old deployment SHA `2c8eb6b220db4bb404f730526c222788d028adf9`.
+- PDF CORE: geometry reconstruction exists in `src/lib/file-engine/pdf-layout.ts`; `parsePdfText()` rebuilds positioned table rows before generic text fallback and records explicit PDF reconstruction provenance.
+- PDF SEMANTIC CLOSURE: `src/lib/file-engine/synonyms.ts` now maps Arabic inventory-report fields: warehouse, received quantity, posted/unposted net sales, net sales, stock balance, package size, in addition to existing item/code/unit fields.
+- PDF/UI REGRESSION: `scripts/check-pdf-structured-regression.ts` now verifies end-to-end Arabic inventory headings, canonical field mapping, and quality >= 75; `CanonicalImportPage.tsx` surfaces a visible `جدول PDF أُعيد بناؤه` proof badge when reconstruction provenance is present.
+- CURRENT PROOF: latest HEAD currently has no materialized workflow run result yet. The current PR has queued gates on prior HEADs; no PASS is transferred to `f9591e3...`. Netlify deploy for `753e157...` was canceled by no-content-change; that preview is not proof of current functional code. Vercel latest ready preview remains on older `2c8eb6b...` and is not evidence for PDF repair.
+- NEXT EXECUTABLE ACTION: consume the first terminal current-HEAD PR #661 gate; repair only the first reproduced current-SHA failure. Once gates are green/terminal, continue the next independent UI/core closure and then re-check deploy identity.
+- DO NOT REPEAT: naive PDF text flattening, stale preview evidence, zero-quality inference from old build output, duplicate importer/RPC/navigation paths, production-SHA bypass, unsafe import-job mutation.
+
 ## CURRENT SESSION WRITE-BACK — 2026-09-26-AGHBARI-CONTINUOUS-EXECUTION-183
 
 - MAIN HEAD OBSERVED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
