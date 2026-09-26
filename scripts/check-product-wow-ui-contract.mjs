@@ -245,6 +245,8 @@ assert.ok(decisionExperience.includes("if (!recommendation.owner?.trim())"), 'de
 assert.ok(decisionExperience.includes("if (!deadline)"), 'decision readiness must reject blank deadlines after trimming');
 assert.ok(decisionExperience.includes("Number.isNaN(deadlineDate.getTime())"), 'decision readiness must reject invalid deadline values');
 assert.ok(decisionExperience.includes('data-state={readiness.status.toLowerCase()}'), 'decision evidence card state must mirror the typed readiness status');
+assert.ok(decisionExperience.includes("aria-label={'اختيار التوصية: ' + recommendation.title}"), 'decision recommendation selection must expose an explicit accessible label');
+assert.ok(decisionExperience.includes("data-selected={active ? 'true' : 'false'}"), 'decision recommendation selection must remain machine-addressable');
 
 assert.ok(decisionExperience.includes('recommendation.expected_impact == null'), 'decision readiness must treat zero expected impact as a valid value');
 assert.ok(!decisionExperience.includes('if (!recommendation.expected_impact)'), 'decision readiness must not classify zero expected impact as missing');
