@@ -206,7 +206,7 @@ export function DecisionExperiencePage() {
         <article className="ag-decision-evidence-card">
           <div className="ag-decision-evidence-kicker">SOURCE</div>
           <div className="ag-decision-evidence-value">الإشارة</div>
-          <p>العنصر المحدد مرتبط بسجل حقيقي من مصدر القرار الحالي.</p>
+          <p>التوصية الحالية محمّلة من سجل القرار؛ افحص الدليل المرتبط بها قبل الاعتماد.</p>
           <span className="ag-trust ag-trust-trusted">سياق موجود</span>
         </article>
         <article className="ag-decision-evidence-card">
