@@ -172,6 +172,8 @@ assert.ok(trustEvidence.includes("issue.count !== 'number' || !Number.isFinite(i
 assert.ok(trustEvidence.includes("item.value === null ? 'غير متاح من اللقطة الحالية.'"), 'trust evidence UI must expose unavailable severity counts instead of zero');
 const dashboardSurface = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 assert.ok(dashboardSurface.includes('windowBounded'), 'dashboard accountability must disclose bounded intelligence windows');
+assert.ok(dashboardSurface.includes('windowLimit'), 'dashboard accountability must expose the bounded intelligence read limit');
+assert.ok(dashboardSurface.includes('القراءة محدودة بحد أقصى'), 'dashboard must disclose the actual intelligence window limit');
 assert.ok(dashboardSurface.includes('ضمن نافذة القراءة الحالية'), 'dashboard accountability must not present a bounded intelligence window as the full system total');
 assert.ok(dashboardSurface.includes('const emptyAnalysisAction'), 'dashboard empty analysis states must derive a real next action');
 assert.ok(dashboardSurface.includes('الصورة مؤكدة المصدر') && dashboardSurface.includes('الصورة محسوبة من المصدر'), 'dashboard must distinguish confirmed from calculated source truth');
