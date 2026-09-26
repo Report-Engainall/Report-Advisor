@@ -134,3 +134,17 @@ describe('inventory snapshot payload compatibility', () => {
     })).toBe(false);
   });
 });
+
+
+describe('profitability and ABC identity guards', () => {
+  it('rejects an ABC row whose class field is missing', () => {
+    const source = fs.readFileSync(path.join(root, 'src/lib/dashboard-canonical.ts'), 'utf8');
+    expect(source).toContain("item.class === null || item.class === 'A' || item.class === 'B' || item.class === 'C'");
+    expect(source).not.toContain("item.class === undefined || item.class === 'A'");
+  });
+
+  it('requires a nonblank profitability currency when currency is present', () => {
+    const source = fs.readFileSync(path.join(root, 'src/lib/dashboard-canonical.ts'), 'utf8');
+    expect(source).toContain("typeof row.currency === 'string' && row.currency.trim()");
+  });
+});
