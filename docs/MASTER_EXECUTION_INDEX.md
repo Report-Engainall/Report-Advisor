@@ -1,3 +1,12 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / ROOT FIX ADVANCE
+
+- FUNCTIONAL HEAD → `01e870fe8dc2ca52627f7d6aabebc88da58eb814` (#662), fresh exact-head CI in progress.
+- GOVERNANCE HEAD → `43a29443477aeb5969b99d672bd2c6698e0f7106` (#663), boundary guard corrected for governance quality workflow.
+- ROOT FIX → current #662 typecheck failures in DataTable and ExecutiveReport were repaired; no stale PASS transferred.
+- NEXT → first terminal #662 gate, then #663; preserve fail-closed Phase-F and external browser/production blockers.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / LIVE RECONCILED STATE
 
 > Exact-head evidence only. This startup block supersedes older historical boundaries; history remains evidence.
