@@ -1,3 +1,20 @@
+# RESUME TOKEN — 2026-09-27 / IMPORT-FINISH LIVE-STAGING DRIFT RECONCILED
+
+- MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `6f1d818f60a700b07a13b0163ddfc20dce0f2a57`
+- CURRENT CODE/TEST CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `9aa6c8ccea82b20d949ae2e41fdad2f1b1126631`
+- ACTUAL CODE CHANGE → added `supabase/migrations/20260927235000_reconcile_import_finish_job_security_invoker.sql` to restore the repository security boundary for `import_finish_job(uuid,text,jsonb,text)`.
+- LIVE STAGING TARGET → Supabase `fnqbvfuwbdpwvhcgzksl` / `Report-Advisor-P0-2-Staging`.
+- ACTUAL LIVE EXECUTION → Supabase migration `20260927203948_reconcile_import_finish_job_security_invoker` applied successfully.
+- LIVE OBSERVED RESULT → `import_finish_job` now resolves without `SECURITY DEFINER`; `search_path` is `public,pg_catalog`; EXECUTE is present for authenticated/service_role and absent for public/anon.
+- IMPORT COMMIT BOUNDARY → six-argument `import_commit_batch` remains SECURITY DEFINER by canonical design, with authenticated/service_role execution and no public/anon execution; canonical import tables remain RLS-enabled.
+- STAGING SECURITY RESIDUAL → Supabase Security Advisor still reports 46 authenticated SECURITY DEFINER functions plus leaked-password protection warning. No blanket revoke performed; only the exact import-finish lineage drift was repaired.
+- HOSTED BOUNDARY → Netlify deploy `6ab97f10fb0f09000849973a` for exact candidate `9aa6c8c` is STATE=error because the build output had no content change; therefore NO hosted preview PASS. Vercel remains externally build-rate-limited.
+- DEVICE → PC01 offline; no device/browser/production PASS claimed.
+- CURRENT CI BOUNDARY → exact candidate `9aa6c8c` has no workflow runs yet at last read; Vercel status pending, Netlify status success-but-deploy-error, CodeRabbit success. No certification/browser PASS transferred.
+- NEXT EXECUTABLE ACTION → consume fresh exact-`9aa6c8c` CI terminal results; repair only a reproducible current-SHA failure; continue repository-safe static/security/UI/data fronts while device remains unavailable.
+
+---
+
 # RESUME TOKEN — 2026-09-27 / EXACT-CANDIDATE EVIDENCE BOUNDARY UPDATE
 
 - MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `924dc7c327d7c444bbe6ad6e436616014e58283d`
