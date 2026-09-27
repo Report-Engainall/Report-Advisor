@@ -34,7 +34,7 @@ export function ProductJourneyNav() {
           <span>مسار القرار</span>
         </div>
         {steps.map(({ path, label, description, icon: Icon, stage }, index) => {
-          const active = location.pathname === path && (!stage || currentParams.get('stage') === stage);
+          const active = location.pathname === path;
           return (
             <Link
               key={path + '-' + label}
