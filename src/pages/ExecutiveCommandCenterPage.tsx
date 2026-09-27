@@ -10,8 +10,10 @@ import { LoadingState, ErrorState, EmptyState, DataUnavailableState } from '@/co
 import { TrendChart } from '@/components/ui/Charts';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs } from '@/lib/dashboard-canonical';
+import { fetchBusinessReplaySnapshot } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Alert, Recommendation } from '@/lib/types';
+import { isActionableRecommendationStatus } from '@/lib/decision-status';
 
 const PERIODS = [
   { value: 3, label: '3 أشهر' },
@@ -50,7 +52,7 @@ function AlertRow({ alert }: { alert: Alert }) {
           <div className="flex flex-wrap items-center gap-2"><SeverityBadge severity={alert.severity}/><span className="text-[10px] text-ink-400">{relativeTime(alert.created_at)}</span></div>
           <div className="mt-2 text-[13px] font-black text-ink-900">{alert.title}</div>
           {alert.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{alert.description}</p>}
-          <div className="mt-3 flex gap-2"><Link to="/decision-experience" className="btn-secondary text-[11px]">افتح السياق <ArrowUpLeft size={13}/></Link><Link to="/metrics" className="btn-ghost text-[11px]">افحص القياس</Link></div>
+          <div className="mt-3 flex gap-2"><Link to="/decision-experience" className="btn-secondary min-h-11 text-[11px]">افتح السياق <ArrowUpLeft size={13}/></Link><Link to="/metrics" className="btn-ghost min-h-11 text-[11px]">افحص القياس</Link></div>
         </div>
       </div>
     </article>
@@ -66,7 +68,7 @@ function DecisionRow({ recommendation }: { recommendation: Recommendation }) {
           <div className="flex flex-wrap items-center gap-2"><span className="text-[10px] font-black text-primary-700">توصية</span><PriorityBadge priority={recommendation.priority}/></div>
           <div className="mt-2 text-[13px] font-black text-ink-900">{recommendation.title}</div>
           {recommendation.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{recommendation.description}</p>}
-          <div className="mt-3"><Link to="/decision-experience?stage=decision" className="btn-primary text-[11px]">فتح القرار <ArrowUpLeft size={13}/></Link></div>
+          <div className="mt-3"><Link to="/decision-experience?stage=decision" className="btn-primary min-h-11 text-[11px]">فتح القرار <ArrowUpLeft size={13}/></Link></div>
         </div>
       </div>
     </article>
@@ -80,6 +82,8 @@ export function ExecutiveCommandCenterPage() {
   const [trend, setTrend] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>['trend']>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [replaySnapshot, setReplaySnapshot] = useState<Awaited<ReturnType<typeof fetchBusinessReplaySnapshot>> | null>(null);
+  const [replayError, setReplayError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,15 +92,28 @@ export function ExecutiveCommandCenterPage() {
     try {
       if (silent) setRefreshing(true); else setLoading(true);
       setError(null);
-      const [snapshot, intelligence] = await Promise.all([
+      const [snapshotResult, intelligenceResult, replayResult] = await Promise.allSettled([
         fetchDashboardSnapshot(months),
         fetchDashboardIntelligence(),
+        fetchBusinessReplaySnapshot(1),
       ]);
+      if (snapshotResult.status === 'rejected') throw snapshotResult.reason;
+      if (intelligenceResult.status === 'rejected') throw intelligenceResult.reason;
+      const snapshot = snapshotResult.value;
+      const intelligence = intelligenceResult.value;
       setKpis(snapshot.kpis);
       setAsOf(snapshot.asOf);
       setTrend(snapshot.trend);
-      setAlerts(intelligence.alerts.filter((item) => !item.is_read).slice(0, 5));
-      setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').slice(0, 5));
+      setAlerts(intelligence.alerts.filter((item) => !item.is_read));
+      setRecommendations(intelligence.recommendations.filter((item) => isActionableRecommendationStatus(item.status)));
+      if (replayResult.status === 'fulfilled') {
+        setReplaySnapshot(replayResult.value);
+        setReplayError(false);
+      } else {
+        setReplaySnapshot(null);
+        setReplayError(true);
+        console.error('[ExecutiveCommandCenterPage] Replay snapshot unavailable', replayResult.reason);
+      }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل مركز القيادة');
     } finally {
@@ -113,6 +130,56 @@ export function ExecutiveCommandCenterPage() {
     return Math.round((fields.filter((value) => value !== null).length / fields.length) * 100);
   }, [kpis]);
 
+  const decisionAccountability = useMemo(() => {
+    const actionable = recommendations.filter((item) => isActionableRecommendationStatus(item.status));
+    const owned = actionable.filter((item) => item.owner?.trim()).length;
+    const outcomes = actionable.filter((item) => item.impact_result?.trim()).length;
+    return {
+      actionable: actionable.length,
+      ownerCoverage: actionable.length ? Math.round((owned / actionable.length) * 100) : null,
+      outcomeCoverage: actionable.length ? Math.round((outcomes / actionable.length) * 100) : null,
+    };
+  }, [recommendations]);
+
+  const replayAvailable = Boolean(replaySnapshot && replaySnapshot.snapshotCount > 0 && replaySnapshot.outcomeCount > 0);
+  const replayState = replayError ? 'REVIEW' : replayAvailable ? 'AVAILABLE' : 'INSUFFICIENT DATA';
+
+  const commandNextAction = useMemo(() => {
+    if (kpis.status === 'INSUFFICIENT_DATA') {
+      return {
+        to: '/data-quality',
+        label: 'مراجعة جودة البيانات',
+        reason: 'الحقيقة الأساسية غير مكتملة؛ أصلح المصدر قبل تحويل الإشارات إلى قرار.',
+      };
+    }
+    if (alerts.length > 0) {
+      return {
+        to: '/intelligence',
+        label: 'فحص الإشارات',
+        reason: 'هناك إشارات مفتوحة مثبتة في القراءة الحالية وتحتاج فحصًا قبل بدء قرار جديد.',
+      };
+    }
+    if (recommendations.length > 0) {
+      return {
+        to: '/decision-experience?stage=decision',
+        label: 'مراجعة القرارات',
+        reason: 'هناك توصيات قابلة للمراجعة مرتبطة بسياقها الحالي.',
+      };
+    }
+    if (decisionAccountability.outcomeCoverage !== null && decisionAccountability.outcomeCoverage < 100) {
+      return {
+        to: '/decision-experience?stage=outcome',
+        label: 'متابعة النتائج',
+        reason: 'القرارات القابلة للتنفيذ لا تزال تفتقد تغطية نتائج كاملة.',
+      };
+    }
+    return {
+      to: '/reports/executive',
+      label: 'مراجعة الصورة التنفيذية',
+      reason: 'لا توجد إشارة مفتوحة أو توصية معلقة في القراءة الحالية؛ راجع الصورة التنفيذية الحالية.',
+    };
+  }, [alerts.length, decisionAccountability.outcomeCoverage, kpis.status, recommendations.length]);
+
   if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   if (!kpis) return <DataUnavailableState title="مركز القيادة ينتظر الحقيقة" message="لا توجد مؤشرات أساسية موثوقة تكفي لبناء صورة تنفيذية. راجع جودة المصدر قبل اتخاذ القرار." action={<Link to="/data-quality" className="btn-primary text-[11px]">مراجعة جودة البيانات</Link>} />;
@@ -128,9 +195,9 @@ export function ExecutiveCommandCenterPage() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-1 rounded-[10px] bg-white/10 p-1">
-              {PERIODS.map((period) => <button key={period.value} type="button" onClick={() => setMonths(period.value)} className={'rounded-[8px] px-3 py-1.5 text-[10px] font-bold ' + (months === period.value ? 'bg-white text-ink-950' : 'text-ink-300 hover:bg-white/10')} aria-pressed={months === period.value}>{period.label}</button>)}
+              {PERIODS.map((period) => <button key={period.value} type="button" onClick={() => setMonths(period.value)} className={'min-h-11 rounded-[8px] px-3 py-1.5 text-[10px] font-bold ' + (months === period.value ? 'bg-white text-ink-950' : 'text-ink-300 hover:bg-white/10')} aria-pressed={months === period.value}>{period.label}</button>)}
             </div>
-            <button type="button" onClick={() => void load(true)} disabled={refreshing} className="inline-flex items-center gap-2 rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15 disabled:opacity-60"><RefreshCw size={14} className={refreshing ? 'animate-spin' : ''}/> تحديث</button>
+            <button type="button" onClick={() => void load(true)} disabled={refreshing} className="inline-flex min-h-11 items-center gap-2 rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15 disabled:opacity-60"><RefreshCw size={14} className={refreshing ? 'animate-spin' : ''}/> تحديث</button>
           </div>
         </div>
       </section>
@@ -146,29 +213,43 @@ export function ExecutiveCommandCenterPage() {
         <div className="ag-decision-cell"><span className="ag-decision-label">توصيات للمراجعة</span><span className="ag-decision-value">{recommendations.length}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">As-of</span><span className="ag-decision-value">{asOf ?? 'غير متاح'}</span></div>
       </div>
-      <div className="ag-action-cluster">
-        <Link to={alerts.length ? '/intelligence' : '/decision-experience?stage=decision'} className="btn-primary text-[11px]">
-          {alerts.length ? 'فحص الإشارات' : 'فتح مساحة القرار'} <ArrowUpLeft size={13}/>
-        </Link>
-        <Link to="/data-quality" className="btn-secondary text-[11px]">مراجعة جودة البيانات</Link>
-        <Link to="/reports/executive" className="btn-ghost text-[11px]">التقرير التنفيذي</Link>
-      </div>
+      <section className="rounded-[14px] border border-primary-200 bg-primary-50/60 p-4" aria-label="الإجراء التالي">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="section-kicker">NEXT ACTION</div>
+            <h2 className="mt-1 text-sm font-black text-ink-950">{commandNextAction.label}</h2>
+            <p className="mt-1 text-[10px] leading-5 text-ink-600">{commandNextAction.reason}</p>
+          </div>
+          <Link to={commandNextAction.to} className="btn-primary min-h-11 text-[11px]">تنفيذ المسار التالي <ArrowUpLeft size={13}/></Link>
+        </div>
+      </section>
 
-      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         <Link to="/reports/receivables" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><WalletCards size={18} className="text-primary-700"/><span className="rounded-full bg-success-50 px-2 py-1 text-[9px] font-black text-success-700">{kpis.totalReceivables === null ? 'INSUFFICIENT DATA' : 'بيانات الذمم متاحة'}</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Money Recovery</div>
-          <p className="mt-1 text-[10px] leading-5 text-ink-500">ابدأ من الذمم والتحصيل للتحقق من الأموال القابلة للاسترداد؛ لا يتم احتساب فرصة مالية إضافية هنا دون ledger موثّق.</p>
+          <div className="mt-2 text-[18px] font-black tabular-nums text-ink-950">{kpis.totalReceivables == null ? 'غير متاح' : formatCurrency(kpis.totalReceivables)}</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">{kpis.overdueReceivables == null ? 'الذمم غير متاحة في القراءة الحالية.' : 'المتأخر: ' + formatCurrency(kpis.overdueReceivables) + ' · ابدأ من التحصيل للتحقق من الأموال القابلة للاسترداد.'}</p>
+          <p className="mt-1 text-[9px] text-ink-400">لا تُحسب فرصة استرداد إضافية دون ledger موثّق.</p>
         </Link>
         <div className="card p-4">
           <div className="flex items-center justify-between gap-3"><BarChart3 size={18} className="text-warning-700"/><span className="rounded-full bg-warning-50 px-2 py-1 text-[9px] font-black text-warning-800">INSUFFICIENT DATA</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Decision ROI</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">لا يوجد في هذا السطح سجل نتائج مالي موثّق يسمح بحساب عائد القرار دون اختلاق أثر.</p>
         </div>
-        <div className="card p-4">
-          <div className="flex items-center justify-between gap-3"><FileSearch size={18} className="text-ink-500"/><span className="rounded-full bg-ink-100 px-2 py-1 text-[9px] font-black text-ink-600">NOT AVAILABLE</span></div>
+        <Link to="/replay" className="card card-hover p-4">
+          <div className="flex items-center justify-between gap-3"><FileSearch size={18} className={replayState === 'AVAILABLE' ? 'text-primary-700' : replayState === 'REVIEW' ? 'text-warning-700' : 'text-ink-500'}/><span className={'rounded-full px-2 py-1 text-[9px] font-black ' + (replayState === 'AVAILABLE' ? 'bg-success-50 text-success-700' : replayState === 'REVIEW' ? 'bg-warning-50 text-warning-800' : 'bg-ink-100 text-ink-600')}>{replayState}</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Business Replay</div>
-          <p className="mt-1 text-[10px] leading-5 text-ink-500">إعادة التشغيل تحتاج snapshots وoutcomes تاريخية مثبتة؛ الواجهة لا تصنع سجلًا بديلًا.</p>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">{replayState === 'AVAILABLE' ? 'يوجد تاريخ تشغيلي محفوظ يمكن قراءته داخل Replay.' : replayState === 'REVIEW' ? 'تعذر قراءة Replay في هذه اللحظة؛ افتح السجل لإعادة المحاولة.' : 'لا توجد snapshots وoutcomes كافية حاليًا؛ لا يتم تركيب سجل تاريخي بديل.'}</p>
+        </Link>
+        <div className="card p-4">
+          <div className="flex items-center justify-between gap-3"><CheckCircle2 size={18} className="text-primary-700"/><span className={'rounded-full px-2 py-1 text-[9px] font-black ' + (decisionAccountability.actionable === 0 ? 'bg-ink-100 text-ink-600' : 'bg-primary-50 text-primary-700')}>{decisionAccountability.actionable === 0 ? 'INSUFFICIENT DATA' : 'EVIDENCE-BASED'}</span></div>
+          <div className="mt-3 text-sm font-black text-ink-900">Decision Coverage</div>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <div className="rounded-lg bg-ink-50 p-2"><div className="text-[8px] text-ink-400">تغطية المالك</div><div className="mt-1 text-[13px] font-black text-ink-900">{decisionAccountability.ownerCoverage == null ? 'غير متاح' : decisionAccountability.ownerCoverage + '%'}</div></div>
+            <div className="rounded-lg bg-ink-50 p-2"><div className="text-[8px] text-ink-400">تغطية النتيجة</div><div className="mt-1 text-[13px] font-black text-ink-900">{decisionAccountability.outcomeCoverage == null ? 'غير متاح' : decisionAccountability.outcomeCoverage + '%'}</div></div>
+          </div>
+          <p className="mt-2 text-[9px] leading-4 text-ink-500">مقياسان منفصلان من توصيات قابلة للتنفيذ ضمن القراءة الحالية؛ لا يتم دمجهما في درجة مخترعة.</p>
         </div>
         <Link to="/decision-experience?stage=outcome" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><CheckCircle2 size={18} className="text-primary-700"/><span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-black text-primary-700">مسار القرار</span></div>
@@ -195,21 +276,23 @@ export function ExecutiveCommandCenterPage() {
 
       <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
         <Card>
-          <CardHeader title="مركز الانتباه" subtitle="الإشارات التي تستحق فحصًا أو تدخلاً." action={<Link to="/intelligence" className="btn-ghost text-[11px]">الذكاء <Brain size={13}/></Link>}/>
+          <CardHeader title="مركز الانتباه" subtitle="الإشارات التي تستحق فحصًا أو تدخلاً." action={<Link to="/intelligence" className="btn-ghost min-h-11 text-[11px]">الذكاء <Brain size={13}/></Link>}/>
           <CardBody>
             <div className="space-y-3">
-              {alerts.map((alert) => <AlertRow key={alert.id} alert={alert}/>)}
-              {alerts.length === 0 && <EmptyState title="لا توجد إشارات نشطة" message="لا يوجد تنبيه غير مقروء في المصدر الحالي." action={<Link to="/intelligence" className="btn-secondary text-[11px]">فحص مساحة الإشارات</Link>}/>} 
+              {alerts.slice(0, 5).map((alert) => <AlertRow key={alert.id} alert={alert}/>)}
+              {alerts.length > 5 && <div className="rounded-xl border border-ink-100 bg-ink-50/60 px-3 py-2 text-[10px] text-ink-500">يعرض مركز القيادة أحدث 5 إشارات فقط؛ العدد {alerts.length} هو إجمالي الإشارات المفتوحة في القراءة الحالية. <Link to="/intelligence" className="font-black text-primary-700 hover:underline">فتح الكل</Link></div>}
+              {alerts.length === 0 && <EmptyState title="لا توجد إشارات نشطة" message="لا يوجد تنبيه غير مقروء في المصدر الحالي." action={<Link to="/intelligence" className="btn-secondary min-h-11 text-[11px]">فحص مساحة الإشارات</Link>}/>} 
             </div>
           </CardBody>
         </Card>
 
         <Card>
-          <CardHeader title="طابور القرار" subtitle="ما يمكن تحويله إلى قرار الآن." action={<Link to="/decision-experience" className="btn-ghost text-[11px]">مساحة القرار <ArrowUpLeft size={13}/></Link>}/>
+          <CardHeader title="طابور القرار" subtitle="ما يمكن تحويله إلى قرار الآن." action={<Link to="/decision-experience" className="btn-ghost min-h-11 text-[11px]">مساحة القرار <ArrowUpLeft size={13}/></Link>}/>
           <CardBody>
             <div className="space-y-3">
-              {recommendations.map((recommendation) => <DecisionRow key={recommendation.id} recommendation={recommendation}/>)}
-              {recommendations.length === 0 && <EmptyState title="لا توجد توصيات قابلة للمراجعة" message="لن تتم صناعة بديل اصطناعي عند غياب الإشارة." action={<Link to="/data-quality" className="btn-secondary text-[11px]">مراجعة جودة البيانات</Link>}/>} 
+              {recommendations.slice(0, 5).map((recommendation) => <DecisionRow key={recommendation.id} recommendation={recommendation}/>)}
+              {recommendations.length > 5 && <div className="rounded-xl border border-ink-100 bg-ink-50/60 px-3 py-2 text-[10px] text-ink-500">يعرض مركز القيادة أحدث 5 توصيات قابلة للمراجعة؛ العدد {recommendations.length} هو الإجمالي الحالي. <Link to="/decision-experience?stage=decision" className="font-black text-primary-700 hover:underline">فتح الكل</Link></div>}
+              {recommendations.length === 0 && <EmptyState title="لا توجد توصيات قابلة للمراجعة" message="لن تتم صناعة بديل اصطناعي عند غياب الإشارة." action={<Link to="/data-quality" className="btn-secondary min-h-11 text-[11px]">مراجعة جودة البيانات</Link>}/>} 
             </div>
           </CardBody>
         </Card>
@@ -227,7 +310,7 @@ export function ExecutiveCommandCenterPage() {
             : <div className="rounded-[14px] border border-ink-100 bg-ink-50/60 py-10 text-center">
               <div className="text-sm font-black text-ink-700">لا توجد بيانات اتجاه قابلة للحساب.</div>
               <p className="mt-1 text-[10px] text-ink-400">راجع جودة المصدر قبل استخدام اتجاهات المبيعات والربح كإشارة قرار.</p>
-              <Link to="/data-quality" className="mt-3 inline-flex btn-secondary text-[11px]">مراجعة جودة البيانات <ArrowUpLeft size={13}/></Link>
+              <Link to="/data-quality" className="mt-3 inline-flex min-h-11 btn-secondary text-[11px]">مراجعة جودة البيانات <ArrowUpLeft size={13}/></Link>
             </div>}
         </CardBody>
       </Card>
@@ -249,9 +332,9 @@ export function ExecutiveCommandCenterPage() {
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div><div className="text-[12px] font-black text-ink-900">خط الحقيقة</div><div className="mt-1 text-[10px] text-ink-400">المصدر → الدليل → البيانات → الإشارة → القرار → الإجراء → النتيجة.</div></div>
           <div className="flex flex-wrap gap-2">
-            <Link to="/data-quality" className="btn-secondary text-[11px]">جودة البيانات <ArrowUpLeft size={13}/></Link>
-            <Link to="/reports/executive" className="btn-secondary text-[11px]">التقرير التنفيذي <FileSearch size={13}/></Link>
-            <Link to="/work-center" className="btn-primary text-[11px]">مركز العمل <ArrowUpLeft size={13}/></Link>
+            <Link to="/data-quality" className="btn-secondary min-h-11 text-[11px]">جودة البيانات <ArrowUpLeft size={13}/></Link>
+            <Link to="/reports/executive" className="btn-secondary min-h-11 text-[11px]">التقرير التنفيذي <FileSearch size={13}/></Link>
+            <Link to="/work-center" className="btn-primary min-h-11 text-[11px]">مركز العمل <ArrowUpLeft size={13}/></Link>
           </div>
         </div>
       </section>

@@ -1,34 +1,25 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, CheckCircle2, XCircle, AlertCircle, AlertTriangle, ShieldCheck, Loader2, ArrowLeft, LockKeyhole, FileCheck2, RefreshCw } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, CheckCircle2, XCircle, AlertCircle, AlertTriangle, ShieldCheck, Loader2, ArrowLeft, LockKeyhole, FileCheck2, RefreshCw, BrainCircuit, ClipboardCheck, BriefcaseBusiness, History } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
-import { fetchImportRecords, createImportRecord } from '@/lib/queries';
+import { fetchDashboardIntelligence, fetchImportRecords, fetchRecommendationsBoundToImport, createImportRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
-import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
-import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
+import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat } from '@/lib/file-engine/types';
+import { reconcileForCanonical, type CanonicalImportEntityType } from '@/lib/import/canonical-truth-boundary';
 import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
+import { understandCanonicalSource } from '@/lib/import/canonical-source-understanding';
+import { entityLabel, specialtyLabel } from '@/lib/import/canonical-labels';
 
 type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
-function analyzeSourceUnderstanding(dataset: Dataset): { confidence: number; reason: string } {
-  const columnCount = dataset.columns.length;
-  const mappedCount = dataset.columns.filter(column => Boolean(column.mappedField)).length;
-  const mappingCoverage = columnCount ? mappedCount / columnCount : 0;
-  const structuralScore = Math.min(100, Math.round(mappingCoverage * 100));
-  const qualityScore = Math.max(0, Math.min(100, Math.round(dataset.qualityScore)));
-  const rowSignal = dataset.rowCount > 0 ? 100 : 0;
-  const confidence = Math.min(99, Math.round((structuralScore * 0.5) + (qualityScore * 0.4) + (rowSignal * 0.1)));
-  if (confidence >= 75) return { confidence, reason: 'تم فهم بنية المصدر وحقوله بدرجة كافية لبناء سياقه العام دون فرض هوية أو نوع سجل مسبق.' };
-  if (confidence >= 50) return { confidence, reason: 'تمت قراءة المصدر وفهم جزء معتبر من بنيته؛ بعض الحقول تحتاج مراجعة قبل الاعتماد.' };
-  return { confidence, reason: 'تمت قراءة المصدر، لكن دقة الفهم البنيوي لا تزال محدودة ويجب مراجعة البيانات قبل الاعتماد.' };
-}
 const STEPS: Array<{ key: Step; label: string }> = [
   { key: 'upload', label: 'الملف' },
   { key: 'scanning', label: 'الفحص' },
@@ -36,6 +27,38 @@ const STEPS: Array<{ key: Step; label: string }> = [
   { key: 'saving', label: 'الاعتماد' },
   { key: 'done', label: 'النتيجة' },
 ];
+const CANONICAL_LIFECYCLE = [
+  ['01', 'Security', 'فحص أمني'],
+  ['02', 'Fingerprint', 'بصمة المصدر'],
+  ['03', 'Understand', 'فهم كل المجموعات'],
+  ['04', 'Normalize', 'تطبيع ومطابقة'],
+  ['05', 'Quality', 'جودة البيانات'],
+  ['06', 'Trust', 'ثقة وحدود الاعتماد'],
+  ['07', 'Evidence', 'بناء الدليل'],
+  ['08', 'Review', 'مراجعة قبل الاعتماد'],
+  ['09', 'Canonical Commit', 'اعتماد كانوني'],
+  ['10', 'Persistence', 'حفظ الحقيقة'],
+  ['11', 'Readback', 'قراءة بعد الحفظ'],
+  ['12', 'Business Understanding', 'فهم أعمال'],
+  ['13', 'Signals', 'إشارات'],
+  ['14', 'Decision', 'قرار / عمل'],
+  ['15', 'Outcome', 'نتيجة'],
+  ['16', 'Learning', 'تعلم وإعادة تشغيل'],
+] as const;
+
+function CanonicalLifecycle() {
+  return <section className="w-full max-w-3xl rounded-[16px] border border-primary-100 bg-primary-50/50 p-4 text-right" aria-label="المسار الكامل بعد سحب الملف">
+    <div className="text-[9px] font-black tracking-[.12em] text-primary-700">CANONICAL LIFECYCLE</div>
+    <div className="mt-1 text-sm font-black text-ink-950">ماذا يحدث بعد سحب الملف؟</div>
+    <div className="mt-1 text-[10px] leading-5 text-ink-600">القراءة أو المعاينة ليستا نهاية الاستيراد؛ هذه هي طبقات المسار الكانوني. الحالة النهائية والدليل يحددان ما تم إثباته فعليًا، ولا يُفترض النجاح من مجرد عبور الشاشة.</div>
+    <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+      {CANONICAL_LIFECYCLE.map(([n, key, label]) => <div key={key} className="rounded-xl border border-white/80 bg-white/85 p-2.5" aria-label={n + ' · ' + key + ' · ' + label}>
+        <div className="flex items-center gap-2"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ink-950 text-[8px] font-black text-white">{n}</span><div className="min-w-0"><div className="text-[8px] font-black text-primary-700">{key}</div><div className="truncate text-[10px] font-bold text-ink-900">{label}</div></div></div>
+        <div className="mt-2 text-[8px] font-semibold text-ink-500">طبقة من المسار الكانوني؛ إثباتها مرتبط بالحالة النهائية والدليل.</div>
+      </div>)}
+    </div>
+  </section>;
+}
 
 function icon(format: FileFormat) {
   if (['xlsx', 'xls', 'xlsm', 'csv', 'tsv', 'ods'].includes(format)) return <FileSpreadsheet size={18} />;
@@ -91,6 +114,9 @@ export function CanonicalImportPage() {
   const [step, setStep] = useState<Step>('upload');
   const [understandingConfidence, setUnderstandingConfidence] = useState(0);
   const [understandingReason, setUnderstandingReason] = useState('لم يبدأ تحليل المصدر بعد.');
+  const [sourceSpecialty, setSourceSpecialty] = useState('other');
+  const [sourceEntityType, setSourceEntityType] = useState<CanonicalImportEntityType>('generic:source-data');
+  const [datasetCount, setDatasetCount] = useState(0);
   const [file, setFile] = useState<{ name: string; size: number; format: FileFormat; mime: string } | null>(null);
   const [fileHash, setFileHash] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
@@ -115,7 +141,7 @@ export function CanonicalImportPage() {
     setHistoryError(null);
     try {
       const focusedJobId = typeof window !== 'undefined' ? window.sessionStorage.getItem('aghbari:last-import-job') : null;
-      setHistory(await fetchImportRecords(100, focusedJobId ?? undefined));
+      setHistory(await fetchImportRecords(500, focusedJobId ?? undefined));
     } catch (cause) {
       setHistory([]);
       setHistoryError(cause instanceof Error ? cause.message : 'تعذر تحميل سجل الاستيرادات');
@@ -144,17 +170,29 @@ export function CanonicalImportPage() {
       const dup = await checkDuplicate(hash, companyId, supabase);
       setDuplicate(dup.isDuplicate);
       if (dup.isDuplicate) setWarnings(prev => [...prev, 'هذا المصدر موجود مسبقًا لهذا الحساب. لن يتم حفظ نسخة تحليل مكررة.']);
-      const datasets: Dataset[] = await parseFile(buffer, selected.name, detection.format);
-      const dataset = datasets[0];
-      if (!dataset || dataset.rowCount === 0) throw new Error('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');
-      setQuality(dataset.qualityScore);
-      setMappings(dataset.columns.map(c => ({ name: c.name, mappedField: c.mappedField, confidence: c.mappingConfidence })));
-      const hdrs = dataset.columns.map(c => c.name);
-      setHeaders(hdrs);
-      const understanding = analyzeSourceUnderstanding(dataset);
-      setUnderstandingConfidence(understanding.confidence);
-      setUnderstandingReason(understanding.reason);
-      setRows(dataset.rows.map((data, i) => ({ rowNumber: i + 1, data, valid: true })));
+      const datasets = await parseFile(buffer, selected.name, detection.format);
+      const understanding = understandCanonicalSource(datasets);
+      if (understanding.rowCount === 0) throw new Error('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');
+      const mappingCoverage = understanding.columns.length
+        ? Math.round((understanding.columns.filter(column => Boolean(column.mappedField)).length / understanding.columns.length) * 100)
+        : 0;
+      const confidence = Math.min(99, Math.round(
+        (understanding.specialtyConfidence * 0.35) + (understanding.qualityScore * 0.45) + (mappingCoverage * 0.2),
+      ));
+      setDatasetCount(understanding.datasetCount);
+      setSourceSpecialty(understanding.specialty);
+      setSourceEntityType(understanding.entityType);
+      setQuality(understanding.qualityScore);
+      setMappings(understanding.columns.map(c => ({ name: c.name, mappedField: c.mappedField, confidence: c.mappingConfidence })));
+      setHeaders(understanding.columns.map(c => c.name));
+      setUnderstandingConfidence(confidence);
+      setUnderstandingReason(
+        understanding.datasetCount > 1
+          ? `تم فهم ${understanding.datasetCount} مجموعات بيانات داخل المصدر، مع تصنيف تخصصي آلي قبل الاعتماد.`
+          : 'تم فهم بنية المصدر والحقول والجودة قبل إنشاء مسار الاعتماد.',
+      );
+      setWarnings([...detection.warnings, ...understanding.warnings]);
+      setRows(understanding.rows.map((data, i) => ({ rowNumber: i + 1, data, valid: true })));
       setStep('preview');
     } catch (e: any) {
       setError(e?.message || 'فشل قراءة الملف'); setStep('upload');
@@ -204,7 +242,7 @@ export function CanonicalImportPage() {
 
       setProgress(30);
 
-      const entityType = 'generic:source-data';
+      const entityType = sourceEntityType;
       const rec = await createImportRecord({
         file_name: file.name,
         file_size: file.size,
@@ -251,12 +289,13 @@ export function CanonicalImportPage() {
 
       setProgress(88);
 
-      const authoritativeRowCount = Number(execution.authoritativeRowCount ?? validRows.length);
-      const authoritativeQualityScore = Number(execution.authoritativeQualityScore ?? quality);
-      const previewRows = Array.isArray(execution.authoritativePreview) ? execution.authoritativePreview : validRows.slice(0, 25).map((row) => row.data);
-      const authoritativeColumns = Array.isArray(execution.authoritativeColumns) ? execution.authoritativeColumns : mappings;
+      const authoritativeRowCount = Number(execution.authoritativeRowCount);
+      if (!Number.isInteger(authoritativeRowCount) || authoritativeRowCount < 0) {
+        throw new Error('CANONICAL_IMPORT_AUTHORITATIVE_ROW_COUNT_MISSING');
+      }
       const snapshotId = typeof execution.snapshotId === 'string' ? execution.snapshotId : null;
-      await finishImportJob(rec.id, 'completed', {
+      const evidenceStatus = execution.evidenceStatus === 'VERIFIED' ? 'VERIFIED' : 'PARTIAL';
+      await finishImportJob(rec.id, evidenceStatus === 'VERIFIED' ? 'completed' : 'partial', {
         total: authoritativeRowCount,
         valid: authoritativeRowCount,
         invalid: 0,
@@ -266,22 +305,59 @@ export function CanonicalImportPage() {
         jobId: execution.jobId,
         file_name: file.name,
         semantic_understanding_confidence: understandingConfidence,
+        source_specialty: sourceSpecialty,
+        source_entity_type: sourceEntityType,
+        dataset_count: datasetCount,
         snapshot_id: snapshotId,
+        evidence_status: evidenceStatus,
+        evidence_warning: typeof execution.evidenceWarning === 'string' ? execution.evidenceWarning : null,
+        reused_existing_commit: execution.reusedExistingCommit === true,
+        existing_commit_id: typeof execution.existingCommitId === 'string' ? execution.existingCommitId : null,
       });
 
       if (typeof window !== 'undefined') {
         window.sessionStorage.setItem('aghbari:last-import-job', rec.id);
       }
       setProgress(100);
+      let postImportSignals: { sourceRecommendations: number; companyAlerts: number } | null = null;
+      if (evidenceStatus === 'VERIFIED') {
+        try {
+          const [intelligence, sourceRecommendations] = await Promise.all([
+            fetchDashboardIntelligence(),
+            snapshotId
+              ? fetchRecommendationsBoundToImport({
+                  importJobId: rec.id,
+                  snapshotId,
+                  sourceHash: durableSourceHash,
+                })
+              : Promise.resolve([]),
+          ]);
+          postImportSignals = {
+            sourceRecommendations: sourceRecommendations.length,
+            companyAlerts: intelligence.alerts.filter((item) => !item.is_read).length,
+          };
+        } catch {
+          postImportSignals = null;
+        }
+      }
       setResult({
-        total: rows.length,
-        valid: validRows.length,
-        invalid: rows.length - validRows.length,
+        total: authoritativeRowCount,
+        valid: authoritativeRowCount,
+        invalid: 0,
         snapshotId,
         importId: rec.id,
         jobId: execution.jobId,
-        understandingConfidence,
+        understandingConfidence: Number(execution.sourceSpecialtyConfidence ?? understandingConfidence),
         authoritativeQualityScore: Number(execution.authoritativeQualityScore ?? quality),
+        sourceSpecialty: typeof execution.sourceSpecialty === 'string' ? execution.sourceSpecialty : sourceSpecialty,
+        sourceEntityType: typeof execution.authoritativeEntityType === 'string' ? execution.authoritativeEntityType : sourceEntityType,
+        datasetCount: Number(execution.datasetCount ?? datasetCount),
+        evidenceStatus,
+        evidenceWarning: typeof execution.evidenceWarning === 'string' ? execution.evidenceWarning : null,
+        reusedExistingCommit: execution.reusedExistingCommit === true,
+        existingCommitId: typeof execution.existingCommitId === 'string' ? execution.existingCommitId : null,
+        datasetSummaries: Array.isArray(execution.datasetSummaries) ? execution.datasetSummaries : [],
+        postImportSignals,
       });
       setStep('done');
       await loadHistory();
@@ -296,6 +372,9 @@ export function CanonicalImportPage() {
             invalidRows: rows.length - validRows.length,
             importId: importJobId,
             semantic_understanding_confidence: understandingConfidence,
+            source_specialty: sourceSpecialty,
+            source_entity_type: sourceEntityType,
+            dataset_count: datasetCount,
           }, failureMessage);
         } catch (finishError) {
           setError(`فشل الاعتماد — وتعذر إغلاق سجل العملية بأمان: ${finishError instanceof Error ? finishError.message : 'IMPORT_FINISH_FAILED'}`);
@@ -309,11 +388,33 @@ export function CanonicalImportPage() {
     }
   }, [
     rows, file, fileHash, duplicate, securityPassed, quality,
-    qualityApproved, headers.length, mappings, warnings, understandingConfidence,
-    understandingReason, loadHistory,
+    qualityApproved, understandingConfidence,
+    sourceSpecialty, sourceEntityType, datasetCount, loadHistory,
   ]);
 
-  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); if (inputRef.current) inputRef.current.value = ''; };
+  const reset = () => {
+    selectedFileRef.current = null;
+    setStep('upload');
+    setFile(null);
+    setFileHash(null);
+    setRows([]);
+    setHeaders([]);
+    setQuality(0);
+    setQualityApproved(false);
+    setMappings([]);
+    setWarnings([]);
+    setError(null);
+    setDuplicate(false);
+    setSecurityPassed(false);
+    setResult(null);
+    setProgress(0);
+    setUnderstandingConfidence(0);
+    setUnderstandingReason('لم يبدأ تحليل المصدر بعد.');
+    setSourceSpecialty('other');
+    setSourceEntityType('generic:source-data');
+    setDatasetCount(0);
+    if (inputRef.current) inputRef.current.value = '';
+  };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
@@ -343,7 +444,7 @@ export function CanonicalImportPage() {
       {error && <div className="mt-4 p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
     </CardBody></Card>}
 
-    {step === 'scanning' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><div className="text-center"><b>جارٍ فحص وتحليل الملف</b><p className="text-sm text-ink-500 mt-1">أمان الملف، الصيغة، البصمة، التكرار وجودة البيانات</p></div></div></CardBody></Card>}
+    {step === 'scanning' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4" role="status" aria-live="polite" aria-busy="true"><Loader2 className="animate-spin text-primary-500" size={34}/><div className="text-center"><b>جارٍ فحص وتحليل الملف</b><p className="text-sm text-ink-500 mt-1">أمان الملف، الصيغة، البصمة، التكرار وجودة البيانات</p></div></div></CardBody></Card>}
 
     {step === 'preview' && file && <div className="space-y-4">
       <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-4"><div className="flex items-center gap-3">{icon(file.format)}<div><b className="break-all">{file.name}</b><div className="text-xs text-ink-400 mt-1">{FORMAT_LABELS[file.format]} · {formatNumber(file.size)} بايت</div></div></div><div className="flex gap-2 flex-wrap"><Badge variant="success"><ShieldCheck size={12}/> أمان: ناجح</Badge><Badge variant={qualityVariant}>جودة: {quality}%</Badge><Badge variant="neutral">مطابقة: {mappingCoverage}%</Badge></div></div></CardBody></Card>
@@ -357,7 +458,8 @@ export function CanonicalImportPage() {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <span className={understandingConfidence >= 75 ? 'badge-success' : understandingConfidence >= 50 ? 'badge-warning' : 'badge-neutral'}>ثقة الفهم {understandingConfidence || 0}%</span>
-              <span className="badge-neutral">تحليل تلقائي</span>
+              <span className="badge-neutral">التخصص: {specialtyLabel(sourceSpecialty)}</span>
+              <span className="badge-neutral">مجموعات البيانات: {datasetCount}</span>
             </div>
           </div>
         </CardBody>
@@ -386,10 +488,94 @@ export function CanonicalImportPage() {
       </div>}
     </div>}
 
-    {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم اعتماد المصدر عبر مسار الحقيقة الكانونية العامة مع بصمته وسياقه وجودته، ولا يُعلن نجاح الاعتماد إلا بعد إتمام مسار الكتابة الفعلي.</p></div></CardBody></Card>}
+    {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden" role="progressbar" aria-label="تقدم اعتماد المصدر" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.max(0, Math.min(100, progress))}><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم اعتماد المصدر عبر مسار الحقيقة الكانونية العامة مع بصمته وسياقه وجودته، ولا يُعلن نجاح الاعتماد إلا بعد إتمام مسار الكتابة الفعلي.</p></div></CardBody></Card>}
 
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم اعتماد المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence ?? 0}%</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم اعتماد المصدر في طبقة البيانات الكانونية العامة مع بصمته وسياقه وجودته، دون فرض نوع سجل أو مسار استيراد متخصص.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
+    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4">{result.evidenceStatus === 'VERIFIED' ? <CheckCircle2 className="text-success-500" size={52}/> : <AlertTriangle className="text-warning-600" size={52}/>}<h3 className="text-xl font-semibold">{result.evidenceStatus === 'VERIFIED' ? 'تم اعتماد المصدر وإثبات دليله' : 'اكتمل التنفيذ لكن الدليل بقي PARTIAL'}</h3><div className="w-full max-w-3xl rounded-[16px] border border-ink-200 bg-ink-50/60 p-4 text-right"><div className="text-[9px] font-black tracking-[.12em] text-primary-700">CANONICAL RESULT</div><div className="mt-1 text-sm font-black text-ink-950">الحالة النهائية: {result.evidenceStatus === 'VERIFIED' ? 'VERIFIED' : 'PARTIAL / NOT PROVEN'}</div><div className="mt-1 text-[10px] leading-5 text-ink-500">{result.evidenceStatus === 'VERIFIED' ? 'تمت الكتابة الكانونية، ثم حفظ لقطة الدليل وإثباتها.' : 'تم تسجيل نتيجة التنفيذ، لكن لقطة الدليل لم تُثبت؛ لا تُعامل الدورة كحقيقة مثبتة.'}</div></div><div className="grid grid-cols-2 gap-3 w-full max-w-2xl text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف الكانونية</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة الفهم</div><b>{result.understandingConfidence == null ? 'غير متاح' : String(result.understandingConfidence) + '%'}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">جودة المصدر السلطوية</div><b>{result.authoritativeQualityScore == null ? 'غير متاح' : String(result.authoritativeQualityScore) + '%'}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">التخصص المكتشف</div><b>{specialtyLabel(result.sourceSpecialty)}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">مجموعات البيانات</div><b>{result.datasetCount == null ? 'غير متاح' : formatNumber(result.datasetCount)}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الكيان الكانوني</div><b>{entityLabel(result.sourceEntityType)}</b></div></div><div className="w-full max-w-3xl rounded-[16px] border border-primary-100 bg-primary-50/50 p-4 text-right"><div className="text-[9px] font-black tracking-[.12em] text-primary-700">SOURCE FLOW</div><div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{[['1','Security','فحص أمني'],['2','Understanding','فهم المصدر والمجموعات'],['3','Canonical Commit',result.evidenceStatus === 'VERIFIED' ? 'كتابة كانونية مثبتة' : 'تنفيذ كانوني مسجل'],['4','Evidence',result.evidenceStatus === 'VERIFIED' ? 'لقطة دليل مثبتة' : 'الدليل غير مثبت بالكامل']].map(([n,key,label]) => <div key={String(key)} className="rounded-xl border border-white/80 bg-white/80 p-3 text-right"><div className="text-[9px] font-black text-primary-700">{n} · {key}</div><div className="mt-1 text-[10px] font-bold text-ink-900">{label}</div></div>)}</div></div><CanonicalLifecycle />{(result.datasetSummaries?.length ?? 0) > 0 && <section className="w-full max-w-3xl rounded-[16px] border border-ink-200 bg-white p-4 text-right"><div className="text-[9px] font-black tracking-[.12em] text-primary-700">DATASET UNDERSTANDING</div><div className="mt-1 text-sm font-black text-ink-950">تفصيل ما فهمه النظام من كل مجموعة بيانات</div><div className="mt-3 space-y-2">{result.datasetSummaries.map((dataset: any, index: number) => <article key={String(dataset.name || 'dataset') + '-' + String(index)} className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="flex flex-wrap items-center justify-between gap-2"><div className="text-[11px] font-black text-ink-900">{dataset.name || 'مجموعة بيانات ' + String(index + 1)}</div><div className="flex flex-wrap gap-2 text-[9px] font-bold"><span className="badge-neutral">{specialtyLabel(dataset.specialty)}</span><span className={Number(dataset.specialtyConfidence) >= 75 ? 'badge-success' : Number(dataset.specialtyConfidence) >= 50 ? 'badge-warning' : 'badge-neutral'}>ثقة التخصص {dataset.specialtyConfidence == null ? 'غير متاح' : String(dataset.specialtyConfidence) + '%'}</span></div></div><div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3"><div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الصفوف</div><div className="mt-1 text-[10px] font-black">{dataset.rowCount == null ? 'غير متاح' : formatNumber(dataset.rowCount)}</div></div><div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الأعمدة</div><div className="mt-1 text-[10px] font-black">{dataset.columnCount == null ? 'غير متاح' : formatNumber(dataset.columnCount)}</div></div><div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الجودة</div><div className="mt-1 text-[10px] font-black">{dataset.qualityScore == null ? 'غير متاح' : String(dataset.qualityScore) + '%'}</div></div></div></article>)}</div></section>}<div className="flex flex-wrap items-center justify-center gap-2">
+  <Badge variant={result.evidenceStatus === 'VERIFIED' ? 'success' : 'warning'}>{result.evidenceStatus === 'VERIFIED' ? 'الدليل: مثبت' : 'الدليل: PARTIAL'}</Badge>
+  <span className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</span>
+</div><div className="max-w-xl text-center text-[11px] leading-5 text-ink-500">
+  {result.evidenceStatus === 'VERIFIED'
+    ? 'تمت المصادقة على المصدر، استخراج بياناته، توحيد مجموعاته، فحص الجودة، بناء الدليل، تشغيل دورة الحقيقة الكانونية، ثم تسجيل لقطة التحليل بعد الإتمام.'
+    : 'تم تنفيذ الاستيراد الكانوني وتسجيل النتيجة التشغيلية، لكن لقطة الدليل لم تُثبت. الحالة PARTIAL ولا يُعتبر الدليل مكتملًا حتى يثبت الحفظ.'
+  }
+  {result.evidenceWarning && <div className="mt-2 rounded-lg border border-warning-200 bg-warning-50 px-3 py-2 text-warning-800">{result.evidenceWarning}</div>}
+</div><section className="w-full max-w-3xl rounded-[16px] border border-ink-200 bg-white p-4 text-right">
+  <div className="text-[9px] font-black tracking-[.12em] text-primary-700">WHAT HAPPENS NEXT</div>
+  <div className="mt-1 text-sm font-black text-ink-950">من المصدر المثبت إلى إشارات العمل</div>
+  <div className="mt-1 text-[10px] leading-5 text-ink-500">تُفصل التوصيات المرتبطة بهذا المصدر عن التنبيهات العامة للشركة؛ لا تُنسب إشارة إلى الملف دون provenance.</div>
+  <div className="mt-3 grid gap-2 sm:grid-cols-3">
+    <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">Evidence Passport</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.evidenceStatus === 'VERIFIED' ? 'مثبت' : 'PARTIAL'}</div></div>
+    <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">توصيات مرتبطة بالمصدر</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.postImportSignals ? result.postImportSignals.sourceRecommendations : 'غير متاحة'}</div></div>
+    <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">تنبيهات عامة للشركة</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.postImportSignals ? result.postImportSignals.companyAlerts : 'غير متاحة'}</div></div>
+  </div>
+</section>
+<section id="post-import-journey" aria-label="رحلة ما بعد اعتماد المصدر" className="w-full max-w-5xl rounded-[18px] border border-ink-200 bg-white p-4 text-right shadow-sm">
+  <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <div className="text-[9px] font-black tracking-[.12em] text-primary-700">POST-IMPORT JOURNEY</div>
+      <h2 className="mt-1 text-base font-black text-ink-950">ماذا بعد سحب الملف؟</h2>
+      <p className="mt-1 max-w-3xl text-[10px] leading-5 text-ink-500">المصدر المعتمد لا ينتهي عند شاشة الاستيراد؛ ينتقل إلى الثقة، الإشارات، القرار، التنفيذ ثم التعلم. كل خطوة هنا تفتح المسار الكانوني نفسه ولا تنشئ نسخة ثانية من الحقيقة.</p>
+    </div>
+    <span className="inline-flex items-center gap-1 rounded-full bg-ink-50 px-2.5 py-1 text-[9px] font-black text-ink-500">SOURCE → DECISION → OUTCOME</span>
+  </div>
+  <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+    <Link to={result.importId ? "/trust?import=" + encodeURIComponent(result.importId) : "/trust"} className="group rounded-[14px] border border-primary-100 bg-primary-50/60 p-3 transition hover:border-primary-300 hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+      <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-primary-700">01 · EVIDENCE</span><ShieldCheck size={14} className="text-primary-700" /></div>
+      <div className="mt-2 text-[11px] font-black text-ink-900">الثقة والأدلة</div>
+      <div className="mt-1 text-[9px] leading-4 text-ink-500">{result.evidenceStatus === 'VERIFIED' ? 'الدليل مثبت ويمكن مراجعته.' : 'الدليل PARTIAL ويحتاج مراجعة قبل اعتبار النتيجة مثبتة.'}</div>
+      <div className="mt-2 text-[9px] font-black text-primary-700">فتح Evidence Passport ←</div>
+    </Link>
+    <Link to="/intelligence" className="group rounded-[14px] border border-ink-100 bg-ink-50/60 p-3 transition hover:border-primary-200 hover:bg-primary-50/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+      <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-ink-500">02 · SIGNALS</span><BrainCircuit size={14} className="text-primary-700" /></div>
+      <div className="mt-2 text-[11px] font-black text-ink-900">الإشارات والتوصيات</div>
+      <div className="mt-1 text-[9px] leading-4 text-ink-500">{result.postImportSignals ? "توصيات مرتبطة بالمصدر: " + formatNumber(result.postImportSignals.sourceRecommendations) : 'حالة الإشارات ستُقرأ من المصدر الكانوني.'}</div>
+      <div className="mt-2 text-[9px] font-black text-primary-700">افتح مركز الذكاء ←</div>
+    </Link>
+    <Link to={result.importId ? "/decision-experience?stage=evidence&import=" + encodeURIComponent(result.importId) : "/decision-experience?stage=evidence"} className="group rounded-[14px] border border-ink-100 bg-ink-50/60 p-3 transition hover:border-primary-200 hover:bg-primary-50/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+      <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-ink-500">03 · DECISION</span><ClipboardCheck size={14} className="text-primary-700" /></div>
+      <div className="mt-2 text-[11px] font-black text-ink-900">مساحة القرار</div>
+      <div className="mt-1 text-[9px] leading-4 text-ink-500">{result.evidenceStatus === 'VERIFIED' ? 'يمكن متابعة الدليل إلى الموافقة والإجراء.' : 'المراجعة تسبق أي اعتماد للقرار عندما يكون الدليل غير مكتمل.'}</div>
+      <div className="mt-2 text-[9px] font-black text-primary-700">متابعة إلى القرار ←</div>
+    </Link>
+    <Link to={result.importId ? "/work-center?import=" + encodeURIComponent(result.importId) : "/work-center"} className="group rounded-[14px] border border-ink-100 bg-ink-50/60 p-3 transition hover:border-primary-200 hover:bg-primary-50/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+      <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-ink-500">04 · WORK</span><BriefcaseBusiness size={14} className="text-primary-700" /></div>
+      <div className="mt-2 text-[11px] font-black text-ink-900">التنفيذ والمتابعة</div>
+      <div className="mt-1 text-[9px] leading-4 text-ink-500">العمل الفعلي يمر عبر مركز العمل؛ لا تُعتبر التوصية تنفيذًا قبل تسجيل الإجراء.</div>
+      <div className="mt-2 text-[9px] font-black text-primary-700">افتح مركز العمل ←</div>
+    </Link>
+    <Link to="/replay" className="group rounded-[14px] border border-ink-100 bg-ink-50/60 p-3 transition hover:border-primary-200 hover:bg-primary-50/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+      <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-ink-500">05 · OUTCOME</span><History size={14} className="text-primary-700" /></div>
+      <div className="mt-2 text-[11px] font-black text-ink-900">النتيجة والتعلّم</div>
+      <div className="mt-1 text-[9px] leading-4 text-ink-500">يظهر Replay فقط من snapshots وoutcomes المحفوظة؛ غيابها يبقى INSUFFICIENT DATA.</div>
+      <div className="mt-2 text-[9px] font-black text-primary-700">راجع Business Replay ←</div>
+    </Link>
+  </div>
+</section>
+<div className="flex flex-wrap justify-center gap-2">{result.evidenceStatus === 'VERIFIED' ? (
+  <>
+    <Link to={result.importId ? "/trust?import=" + encodeURIComponent(result.importId) : "/trust"} className="btn-secondary">فتح Evidence Passport</Link>
+    <Link to={result.importId ? "/work-center?import=" + encodeURIComponent(result.importId) : "/work-center"} className="btn-secondary">متابعة مركز العمل</Link>
+    <Link to="/replay" className="btn-secondary">مراجعة سجل التعلم</Link>
+        <Link to="/data-quality" className="btn-secondary">فحص جودة البيانات</Link>
+    <Link to={result.importId ? "/decision-experience?stage=evidence&import=" + encodeURIComponent(result.importId) : "/decision-experience?stage=evidence"} className="btn-primary">متابعة إلى مسار القرار</Link>
+  </>
+) : (
+  <Link to={result.importId ? "/trust?import=" + encodeURIComponent(result.importId) : "/trust"} className="btn-secondary">مراجعة الدليل قبل القرار</Link>
+)}
+<button type="button" onClick={reset} className="btn-secondary"><Upload size={14}/> تحليل ملف آخر</button></div></div></CardBody></Card>}
 
-    <Card><CardHeader title="سجل الاستيرادات" subtitle="أحدث 500 عملية مرتبطة بحسابك، مع 50 صفًا في كل صفحة لتبقى القراءة سريعة؛ العمليات الأقدم تبقى محفوظة" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={historyError} onRetry={() => void loadHistory()} />:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد عمليات سابقة" message="لم يُثبت مصدر سابق لهذا الحساب بعد؛ ابدأ الآن من مدخل الاستيراد الموحد." action={<button type="button" onClick={reset} className="btn-primary text-[11px]"><Upload size={13}/> اختيار مصدر</button>}/>:<DataTable columns={[{key:'file_name',label:'المصدر'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مراجعة',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} pageSize={50} emptyMessage="لا توجد عمليات سابقة"/>}</Card>
+    <Card><CardHeader title="سجل الاستيرادات" subtitle="أحدث 500 عملية مرتبطة بحسابك، مع 50 صفًا في كل صفحة لتبقى القراءة سريعة؛ العمليات الأقدم تبقى محفوظة" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={historyError} onRetry={() => void loadHistory()} />:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد عمليات سابقة" message="لم يُثبت مصدر سابق لهذا الحساب بعد؛ ابدأ الآن من مدخل الاستيراد الموحد." action={<button type="button" onClick={reset} className="btn-primary text-[11px]"><Upload size={13}/> اختيار مصدر</button>}/>:<DataTable columns={[
+      {key:'file_name',label:'المصدر'},
+      {key:'total_rows',label:'الصفوف',align:'center'},
+      {key:'valid_rows',label:'صالح',align:'center'},
+      {key:'invalid_rows',label:'مراجعة',align:'center'},
+      {key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},
+      {key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)},
+      {key:'actions',label:'المتابعة',align:'center',render:(r:any)=><div className="flex flex-wrap justify-center gap-1">
+        <Link to={"/trust?import=" + encodeURIComponent(r.id)} className="btn-ghost text-[9px]">Evidence</Link>
+        <Link to={"/work-center?import=" + encodeURIComponent(r.id)} className="btn-ghost text-[9px]">التشغيل</Link>
+        {r.status === 'completed' && <Link to={"/decision-experience?stage=evidence&import=" + encodeURIComponent(r.id)} className="btn-primary text-[9px]">القرار</Link>}
+      </div>}
+    ]} data={history} pageSize={50} emptyMessage="لا توجد عمليات سابقة"/>}</Card>
   </div>;
 }

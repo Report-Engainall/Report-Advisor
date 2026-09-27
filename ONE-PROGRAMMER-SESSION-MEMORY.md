@@ -1,59 +1,147 @@
-# RESUME TOKEN — 2026-09-28 / CLIENT UI POLICY PARITY REPAIRED + LIVE VERIFIED
+# RESUME TOKEN — 2026-09-28 / STABLE REANCHOR AFTER CANONICAL CONTROL UPDATE
 
-- MAIN CONTROL HEAD BEFORE THIS WRITE → `b39d585803f7bca021cb68bb75a522c8bce115d6`.
-- FUNCTIONAL BRANCH CURRENT BEFORE THIS WRITE → PR #672 / `9a0660b408476fea8aa641a388a02aa0bc89c51f`.
-- ACTUAL SAFE REPAIR → added `supabase/migrations/20260928200000_reconcile_client_ui_settings_tenant_policy.sql` so clean restore recreates the live `client_ui_settings` policy with `organization_id = current_company_id()`.
-- LIVE EXECUTION → Supabase Staging migration `reconcile_client_ui_settings_tenant_policy` applied successfully; migration ledger records version `20260927212822`.
-- LIVE READBACK → policy is `ui_settings_customer_select` for authenticated SELECT using `current_company_id()`; grants remain authenticated SELECT/INSERT/UPDATE, service_role full, anon revoked.
-- CUSTOMER PORTAL RESOLVER → `current_customer_company_id()` remains a separate customer-portal boundary and was intentionally untouched.
-- EXACT CI → prior `desktop-windows` SUCCESS is tied to `0a48b4e`; all subsequent SHA changes require fresh evidence. Current branch after repair has no terminal CI result yet.
-- HOSTING → latest Netlify exact-head deploy `6ab98a8b33abe600081d5974` is ERROR because Netlify reports no content change; Vercel build-rate limit remains external.
+- CURRENT MAIN BEFORE REANCHOR → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- PRIOR FUNCTIONAL HEAD → `9a0660b408476fea8aa641a388a02aa0bc89c51f`.
+- RESULT → canonical import-to-decision implementation plus client-ui tenant-policy parity repair reconstructed as a direct child of the latest main control plane.
+- LIVE REPAIR VERIFIED → Staging migration `reconcile_client_ui_settings_tenant_policy` applied successfully; policy readback matches `current_company_id()`.
+- EVIDENCE LAW → prior CI PASS remains historical to its exact SHA; fresh proof is required on this resulting SHA.
+- DEVICE → PC01 offline; no browser/device/production evidence.
+- NEXT → consume fresh CI, first-failure repair only, then stable persist/rescan.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / CLIENT UI TENANT POLICY PARITY CLOSED
+
+- FUNCTIONAL BRANCH HEAD BEFORE THIS WRITE → `7cc24af022362ec7fd61d278ac935c2b86429e0e`.
+- ACTUAL CODE CHANGE → added `supabase/migrations/20260928200000_reconcile_client_ui_settings_tenant_policy.sql`.
+- ROOT CAUSE → clean-restore migration created `client_ui_settings` SELECT policy against `current_customer_company_id()`, while live Staging policy uses canonical `current_company_id()`; this was a restore-parity drift.
+- LIVE EXECUTION → migration `reconcile_client_ui_settings_tenant_policy` applied successfully to Staging.
+- LIVE READBACK → `ui_settings_customer_select` now explicitly binds `organization_id = current_company_id()`; authenticated grants remain SELECT/INSERT/UPDATE, service_role full, anon revoked, matching the live boundary.
+- CUSTOMER PORTAL BOUNDARY → `current_customer_company_id()` remains intentionally separate and continues to serve customer-portal RLS policies; it was not altered.
+- EVIDENCE → exact live database readback completed after migration; no production/browser/device PASS inferred.
+- NEXT → fresh CI on the updated branch; first terminal failure only, then persist main control state when the functional front stabilizes.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / THIRD REANCHOR — CUSTOMER TENANT BOUNDARY CLASSIFIED
+
+- CURRENT MAIN BEFORE REANCHOR → `b39d585803f7bca021cb68bb75a522c8bce115d6`.
+- PRIOR FUNCTIONAL HEAD → `1c658d5efc9cc21061be858db3b9352263ec49b5`.
+- RESULT → same canonical import-to-decision implementation reconstructed as a direct child of latest main; main control-plane memory is preserved.
+- CUSTOMER TENANT RESOLVER → distinct staff/company and customer-portal boundaries confirmed; no merge mutation.
+- FRESH PROOF LAW → prior `desktop-windows` SUCCESS remains tied to `0a48b4e`; fresh result required for resulting SHA.
 - DEVICE → PC01 offline; no browser/device/production PASS.
-- NEXT → re-anchor current functional front onto the resulting main, then consume fresh exact-head CI and repair only the first reproducible failure.
 
 ---
 
-# RESUME TOKEN — 2026-09-28 / CUSTOMER TENANT RESOLVER DRIFT CLASSIFIED
+# RESUME TOKEN — 2026-09-28 / SECOND RE-ANCHOR AFTER CONTROL-PLANE WRITE
 
-- LIVE STAGING MIGRATION LEDGER → 336 applied migrations reported. Several applied records use execution-time versions that do not equal source filename timestamps; exact filename matching is therefore not a valid drift test by itself.
-- CUSTOMER RESOLVER READBACK → `current_customer_company_id()` is SECURITY DEFINER and reads `profiles.organization_id`; it remains consumed by customer-portal RLS policies for carts, customer credit/ledger/price tiers, orders and order templates.
-- CLIENT UI SETTINGS → the live `client_ui_settings` SELECT policy currently uses canonical `current_company_id()`, not `current_customer_company_id()`.
-- CLASSIFICATION → these are intentionally distinct tenant-resolution boundaries for staff/company surfaces versus customer-portal surfaces. No resolver merge or mutation was performed.
-- EXACT FUNCTIONAL FRONT → PR #672 / branch `exec/20260927-current-main-import-ui-rebased`; prior exact head `1c658d5efc9cc21061be858db3b9352263ec49b5`, direct child of current main at last reanchor.
-- CI → prior `desktop-windows` SUCCESS was proven on `0a48b4e`; fresh run on the newer head remains active/queued. No stale PASS transferred.
-- SECURITY → documents storage policies are tenant-prefix constrained; import lifecycle RPCs remain INVOKER; six-argument `import_commit_batch` remains deliberate SECURITY DEFINER write boundary.
-- NEXT → preserve the resolver split; consume fresh exact-head CI and repair only reproducible failures.
-
----
-
-# RESUME TOKEN — 2026-09-28 / RE-ANCHORED CI + STORAGE TENANT READBACK
-
-- EXACT MAIN CONTROL HEAD BEFORE THIS WRITE → `517d01af74e72f8d7325bfca9ebfc4cb13eee5b6`.
-- RE-ANCHORED FUNCTIONAL HEAD → PR #672 / `0a48b4e19edf221d68e5d5c3d7497260b08352da`; relation is exactly 1 ahead / 0 behind main.
-- FRESH EXACT-HEAD CI → `desktop-windows` run `36351392998` SUCCESS on the re-anchored SHA. Web build, native watcher contract, native runtime smoke, diagnostics and installer packaging completed successfully.
-- CURRENT CI BOUNDARY → 43 runs queued, 3 pending, no terminal failure observed on this SHA; only PWA/demo workflows are skipped. Do not infer certification PASS before required gates terminalize.
-- LIVE STORAGE SECURITY READBACK → `storage.objects` documents bucket policies enforce authenticated tenant prefix `current_company_id()/imports...`; insert additionally binds `owner_id=auth.uid()`; select/update/delete remain tenant/owner scoped. No cross-tenant storage relaxation was found.
-- LIVE IMPORT RPC READBACK → `import_create_job`, `import_update_job_progress`, `import_finish_job` remain SECURITY INVOKER, safe search_path, authenticated/service_role EXECUTE, anon denied.
-- HOSTING → Netlify exact-head deploy `6ab988b61516190008e5d5fd` is ERROR due `Canceled build due to no content change`; Vercel remains pending/rate-limited externally. No hosted PASS inferred.
-- DEVICE → PC01 offline; no device/browser/production PASS claimed.
-- NEXT EXECUTABLE ACTION → consume the first terminal exact-head CI result/failure on `0a48b4e`; repair only reproduced current-SHA failures, then update canonical memory and rescan all independent fronts.
+- CURRENT MAIN CONTROL HEAD BEFORE REANCHOR → `b6357e6e0686c6d7835cc9043ba7e023781a3955`.
+- PRIOR FUNCTIONAL HEAD → `0a48b4e19edf221d68e5d5c3d7497260b08352da`.
+- REANCHOR → same functional implementation tree reconstructed as a direct child of the latest main; current main control-plane documentation is preserved.
+- EXACT CI EVIDENCE RETAINED → `desktop-windows` run `36351392998` SUCCESS on prior functional SHA; fresh proof is required on this resulting SHA.
+- STORAGE SECURITY → documents bucket authenticated tenant-prefix policies verified live; owner binding on inserts; no cross-tenant relaxation found.
+- DEVICE → PC01 offline; no device/browser/production PASS.
+- NEXT → consume fresh exact-head CI for this resulting SHA and repair only first reproducible failure.
 
 ---
 
-# RESUME TOKEN — 2026-09-28 / DEVICE-OFFLINE SAFE EXECUTION + LIVE SECURITY READBACK
+# RESUME TOKEN — 2026-09-28 / RE-ANCHORED IMPORT FRONT
 
-- EXACT GITHUB MAIN HEAD AT START → `9e35c768c7548ab87174e3ffa9426dc4605489d3`.
-- CURRENT FUNCTIONAL CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `cf0d30c4015642313d899d9d8262bc7159abb220`.
-- RECONCILIATION → #672 is diverged from current main: candidate is 24 commits ahead and 8 behind; merge base `132e40f023e564dba9e7f84c63d543bab1b7fc71`. Do NOT treat candidate evidence as main evidence and do NOT merge without re-anchoring.
-- FRESH LIVE STAGING READBACK → `fnqbvfuwbdpwvhcgzksl` / Report-Advisor-P0-2-Staging is ACTIVE_HEALTHY.
-- LIVE SECURITY RESULT → `import_create_job`, `import_update_job_progress`, `import_finish_job`, `get_receivables_report_page`, `get_cash_account_balances`, and `get_staff_receivables` are SECURITY INVOKER with `search_path=public, pg_catalog`; authenticated/service_role EXECUTE present; anon absent.
-- IMPORT COMMIT BOUNDARY → five-argument `import_commit_batch` has authenticated EXECUTE absent; six-argument `import_commit_batch` is SECURITY DEFINER with authenticated/service_role EXECUTE and anon absent. This remains a deliberate canonical write boundary; do not downgrade without source/RLS proof.
-- LIVE RLS RESULT → `import_jobs`, `file_records`, `canonical_import_commits`, and `import_job_rows` all have RLS enabled.
-- SECURITY ADVISOR → 40 authenticated SECURITY DEFINER findings remain plus 1 leaked-password-protection warning. No blanket revoke or speculative Auth mutation performed. `compute_control_plane_health` remains SECURITY DEFINER by documented design.
-- CURRENT CI/RELEASE BOUNDARY → candidate `cf0d30c` has Vercel failure `build-rate-limit`, Vercel deployment pending, Netlify status success, CodeRabbit success; no fresh CI workflow PASS was inferred. Certification/browser/device/production remain NOT PROVEN.
-- DEVICE → PC01 offline; no device/browser/production evidence fabricated.
-- SAFE EXECUTION DECISION → no reproducible current-main code defect was established by repository/static/live read-only evidence in this pass. No speculative code mutation was made. The blocked candidate rebase/CI path remains isolated.
-- NEXT EXECUTABLE ACTION → re-anchor PR #672 onto exact current main when repository write path permits; consume fresh exact-head CI; repair only the first reproducible failure. Meanwhile continue independent repository-safe UI/core/security/data/cleanup fronts; never transfer candidate evidence to main.
+- CURRENT MAIN BEFORE REANCHOR → `517d01af74e72f8d7325bfca9ebfc4cb13eee5b6`.
+- PR #672 SOURCE CANDIDATE → `cf0d30c4015642313d899d9d8262bc7159abb220`.
+- REANCHOR RESULT → candidate implementation tree reconstructed as a direct child of current main; main-only control-plane updates are preserved and candidate implementation changes are overlaid.
+- EVIDENCE RULE → prior candidate PASS remains candidate-only until fresh exact-head CI executes on the resulting SHA.
+- DEVICE → PC01 offline; no device/browser/production proof claimed.
+- NEXT → consume fresh exact-head CI for the re-anchored branch; repair only first reproducible failure; then global UI/core/security/data rescan.
+
+---
+
+# RESUME TOKEN — 2026-09-27 / READ RPC INVOKER SAFETY VERIFIED
+
+- CURRENT MAIN CONTROL HEAD → `9e35c768c7548ab87174e3ffa9426dc4605489d3`.
+- CURRENT PR #672 / branch `exec/20260927-current-main-import-ui-rebased`.
+- CURRENT CODE CANDIDATE BEFORE THIS MEMORY WRITE → `6a485896dd92d648385c59eb374204158406ae50`.
+- READ-RPC SAFETY PROOF → `get_receivables_report_page`, `get_cash_account_balances`, and `get_staff_receivables` are INVOKER; their source tables have authenticated tenant SELECT RLS; `cash_accounts` is company-scoped; `sales_invoices` and `customers` are company-scoped.
+- ROLE-GATE PROOF → `get_cash_account_balances` and `get_staff_receivables` retain explicit `auth.uid()` + active company membership role checks. `company_memberships` SELECT RLS permits only the current user's own membership, which is sufficient for those predicates under INVOKER.
+- `compute_control_plane_health` remains SECURITY DEFINER because its five source tables have no authenticated SELECT RLS policies. This is intentionally NOT downgraded.
+- LIVE SECURITY ADVISOR → authenticated SECURITY DEFINER warnings = 40.
+- STATIC CONTRACT → six safe import/report RPCs are now locked to INVOKER and critical invariant tokens.
+- NEXT → current exact-head CI remains unavailable; no PASS inferred. Consume the next exact SHA checks, or select another proof-backed safe front only.
+
+---
+# RESUME TOKEN — 2026-09-27 / READ-ONLY RPC SECURITY BATCH CLOSED
+
+- CURRENT MAIN CONTROL HEAD → `9e35c768c7548ab87174e3ffa9426dc4605489d3`.
+- CURRENT PR #672 / branch `exec/20260927-current-main-import-ui-rebased`.
+- CURRENT CODE CANDIDATE BEFORE THIS MEMORY WRITE → `6a485896dd92d648385c59eb374204158406ae50`.
+- LIVE SECURITY BATCH EXECUTED → `import_create_job`, `import_update_job_progress`, `import_finish_job`, `get_receivables_report_page`, `get_cash_account_balances`, `get_staff_receivables` are now SECURITY INVOKER in Staging with authenticated/postgres/service_role execution and no public/anon execution.
+- ROOT-CAUSE CLASS → migration-lineage drift, not business-logic failure. Repository replay migrations preserve existing live validation/role predicates and restore the narrower invoker/RLS boundary.
+- SUPABASE SECURITY ADVISOR → authenticated SECURITY DEFINER warning count is now 40. The session removed five previously exposed functions from this warning class by proof-backed reconciliation; 40 remain separate and intentionally untouched.
+- SAFETY STOP → `compute_control_plane_health` remains SECURITY DEFINER because its five source tables currently expose no authenticated SELECT RLS policies. Downgrading it without another access-control design would remove an actual security boundary.
+- STATIC REGRESSION LOCK → `scripts/check-security-definer-exposure-contract.mjs` now locks the six reconciled import/receivables read RPCs to INVOKER and their critical tenant/role/query invariants.
+- UI STATIC AUDIT → navigation remains Decision Center / Data Operations / Business Analytics / Intelligence & Decision / Trust & Evidence / Reports & Outputs / Reference / Admin. Product Journey explicitly shows Source → Evidence → Signals → Decision → Work → Learning → Outputs. No legacy external-import route reappeared.
+- HOSTING → Vercel build-rate limit still blocks exact-head deployment; Netlify exact-head records remain no-content-change ERROR. No hosted/browser/production PASS.
+- DEVICE → PC01 offline. No device/browser PASS.
+- CI → exact current code SHA has no GitHub Actions workflow runs exposed yet; PR workflows exist and remain the authoritative next gate. NOT PROVEN is retained.
+- LOCAL EXECUTION → container clone failed because outbound DNS is unavailable; no false local-test PASS was recorded.
+- NEXT EXECUTABLE ACTION → consume fresh exact-current CI; if a current-SHA failure appears, repair only that failure. Otherwise continue only with separately proven security/data/UI fronts and persist again.
+
+---
+# RESUME TOKEN — 2026-09-27 / IMPORT JOB RPC INVOKER RECONCILIATION
+
+- CURRENT MAIN CONTROL HEAD → `9e35c768c7548ab87174e3ffa9426dc4605489d3`.
+- CURRENT PR #672 / branch `exec/20260927-current-main-import-ui-rebased`.
+- CURRENT CODE CANDIDATE BEFORE THIS MEMORY WRITE → `fe17a85130291295fb23f9c0a1088f0c46876982`.
+- LIVE ROOT CAUSE #2 → Staging `import_create_job` and `import_update_job_progress` had drifted to SECURITY DEFINER through later migration lineage even though the canonical repository lifecycle RPC migration defines them as SECURITY INVOKER and authenticated RLS already provides the data boundary.
+- ACTUAL REPAIR → added `supabase/migrations/20260927243000_reconcile_import_job_rpc_invoker_boundary.sql`, preserving the live source-metadata validation and progress monotonicity/state checks while restoring SECURITY INVOKER, safe search_path, explicit authenticated/service_role execution, and public/anon revocation.
+- ACTUAL LIVE EXECUTION → Supabase staging `fnqbvfuwbdpwvhcgzksl` applied `reconcile_import_job_rpc_invoker_boundary` successfully.
+- LIVE READBACK → `import_create_job`, `import_update_job_progress`, and `import_finish_job` are all SECURITY INVOKER; EXECUTE is only authenticated/postgres/service_role; public/anon absent.
+- SECURITY ADVISOR → authenticated SECURITY DEFINER warning count dropped from 45 to 43 after the two import-job RPC repairs. Remaining 43 are separate functions and were not blanket-revoked.
+- STATIC REGRESSION LOCK → `scripts/check-security-definer-exposure-contract.mjs` now explicitly asserts all three canonical import lifecycle RPCs remain INVOKER and retain their tenant/completion/progress invariants.
+- CI STATUS → exact current SHA has not received GitHub Actions workflow runs yet; `quality`, `security-definer-exposure-contract`, and `import-finish-lifecycle-security` are configured for pull requests, so NOT PROVEN remains the correct state.
+- HOSTING → Vercel remains rate-limited; Netlify exact-head preview records are authoritative STATE=error due no-content-change cancellation. No hosted/browser/production PASS.
+- DEVICE → PC01 remains offline. No device/browser PASS.
+- WORKAROUND TEST → local container cannot clone GitHub because outbound DNS/network is unavailable; no local test claim was fabricated.
+- NEXT EXECUTABLE ACTION → consume exact-`fe17a851...` CI if it appears; otherwise continue repository/static/live-safe fronts without creating duplicate architecture. Do not transfer any older SHA evidence.
+
+---
+# RESUME TOKEN — 2026-09-27 / IMPORT TERMINALIZER CONTRACT LOCKED
+
+- CURRENT MAIN CONTROL HEAD → `9e35c768c7548ab87174e3ffa9426dc4605489d3`.
+- CURRENT PR #672 / branch `exec/20260927-current-main-import-ui-rebased`.
+- CURRENT CODE CANDIDATE BEFORE THIS MEMORY WRITE → `3c5c8ae5b3cfd7b3a15bac06a6dc9a7b49ee0f57`.
+- LIVE REPAIR COMPLETE → staging `fnqbvfuwbdpwvhcgzksl` has `import_finish_job` as SECURITY INVOKER with tenant binding, terminal-state guard, completion-summary/all-rows guards, and authenticated/postgres/service_role EXECUTE only.
+- REPOSITORY REPLAY COMPLETE → `supabase/migrations/20260927240000_reconcile_import_finish_job_body_parity.sql` reproduces the live terminalizer body/security boundary.
+- STATIC REGRESSION LOCK → `scripts/check-security-definer-exposure-contract.mjs` now asserts `import_finish_job` remains INVOKER, has safe search_path, required completion guards, authenticated execution, and no anon execution.
+- IMPORT RPC AUDIT → `import_create_job` and `import_update_job_progress` remain SECURITY DEFINER but are tenant/state/counter-bound and not public/anon executable; no speculative downgrade.
+- UI CLEANUP PROOF → deleted legacy `CanonicalScenarioPage.tsx` and `ExternalFileAnalysisPage.tsx` have no remaining GitHub search references; `/import` is the single actual import entry and `/import/analyze` redirects to it.
+- HOSTING → current exact candidate has no Vercel deployment because of the free-plan build-rate gate; Netlify exact-head deploys are authoritative STATE=error due no-content-change cancellation. No hosted PASS.
+- DEVICE → PC01 offline; no device/browser/production PASS.
+- CI → the last fully observed pre-memory exact code SHA `089a386...` had Windows build, native watcher, native runtime smoke, and packaging PASS before the memory-only SHA moved forward; that evidence is stale and is NOT transferred. Current final candidate must re-run exact-current CI.
+- CURRENT STOP POINT → `f8c...` (this memory commit) is the final checkpoint for this session. Do not modify code unless a fresh exact-current CI result exposes a reproducible failure.
+- NEXT ACTION → on resume, read canonical state, confirm exact HEAD, consume current PR #672 CI/security/browser/resilience results, repair only the first exact-SHA failure, then rescan and persist again.
+- DO NOT REPEAT → no stale evidence transfer, no TinyFish-only browser dependency, no broad SECURITY DEFINER revoke, no legacy route/file recreation.
+
+---
+
+# RESUME TOKEN — 2026-09-27 / IMPORT-FINISH BODY + SECURITY PARITY RECONCILED
+
+- CURRENT MAIN CONTROL HEAD → `9e35c768c7548ab87174e3ffa9426dc4605489d3`.
+- CURRENT PR → #672 / `exec/20260927-current-main-import-ui-rebased`.
+- PREVIOUS CODE CANDIDATE → `9aa6c8ccea82b20d949ae2e41fdad2f1b1126631`.
+- CURRENT CODE CANDIDATE BEFORE THIS MEMORY WRITE → `089a386160b643c02a7a022cb64b7746095a0964`.
+- LIVE ROOT CAUSE → Staging `import_finish_job(uuid,text,jsonb,text)` contained completion-summary/progress invariants introduced by applied migration `20260919220623_allow_import_job_rpc_writes_via_definer`, absent from repository lineage, while the repository canonical migration expected SECURITY INVOKER.
+- ACTUAL IMPLEMENTATION → `supabase/migrations/20260927240000_reconcile_import_finish_job_body_parity.sql` adds the live body invariants and explicitly restores SECURITY INVOKER, safe search_path, and authenticated/service_role execution only.
+- ACTUAL LIVE EXECUTION → Supabase staging `fnqbvfuwbdpwvhcgzksl` successfully applied migration `reconcile_import_finish_job_body_parity` after the earlier security-boundary reconciliation.
+- LIVE OBSERVED RESULT → `information_schema.routines.security_type=INVOKER`; routine body contains tenant binding, terminal-state guard, completion-summary mismatch protection, all-rows-processed protection, counter/progress updates, and current-company terminal update; EXECUTE grants are authenticated/postgres/service_role only.
+- IMPORT RPC BOUNDARY AUDIT → `import_create_job` and `import_update_job_progress` remain SECURITY DEFINER with tenant-scoped checks; no anonymous/public EXECUTE. They remain separate intentional-design audit fronts; no speculative downgrade was applied.
+- UI CLEANUP → `src/pages/CanonicalScenarioPage.tsx` and `src/pages/ExternalFileAnalysisPage.tsx` are deleted on the candidate and GitHub search returns no remaining references. `/import` → `ImportPage` → `CanonicalImportPage`; `/import/analyze` redirects to `/import`.
+- HOSTING → exact-head Netlify deploy for `089a386` is STATE=error because Netlify canceled a no-content-change build; no preview PASS. Vercel has no deployment for `089a386`; Vercel status remains free-plan build-rate failure. No hosted PASS.
+- DEVICE → PC01 offline. Device/browser/production PASS remains unclaimed. GitHub Actions Device-Independent Browser and Full Product Browser E2E are the current non-device paths.
+- CI → current `089a386` critical gates were queued while Windows job `36349337929` progressed through web build, native watcher, native runtime smoke, packaging successfully and was uploading the installer. No current-SHA terminal failures observed at this checkpoint.
+- DO NOT REPEAT → do not transfer Vercel READY evidence from `9aa6c8c`; do not count Netlify GitHub status success as deploy PASS; do not blanket-revoke the 45 remaining historical SECURITY DEFINER advisor findings; do not invent browser/device/production evidence.
+- NEXT EXECUTABLE ACTION → continue exact-current-SHA CI polling; consume the first terminal failure, if any; repair only that reproducible failure; otherwise complete certification and then update canonical main state.
 
 ---
 

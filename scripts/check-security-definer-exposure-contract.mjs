@@ -11,12 +11,40 @@ const intendedAuthenticatedSecurityDefiners = [
   'link_recommendation_to_decision', 'mark_alert_read', 'notify_decision_work_item',
   'record_decision_outcome', 'record_recommendation_outcome', 'request_decision_approval',
   'clear_cart', 'get_cart', 'remove_cart_item', 'set_cart_item',
+  'import_commit_batch',
 ];
 
 // Live-only functions are not asserted as repository definitions here. Their
 // existence in Staging is a migration-parity concern, not a reason to make a
 // static repository contract invent a source definition.
 const liveOnlyExpectedSecurityDefiners = ['capture_kpi_evidence_snapshot'];
+
+const canonicalInvokerFunctions = [
+  {
+    name: 'import_create_job',
+    requiredTokens: [/current_company_id\s*\(\)/i, /auth\.uid\s*\(\)/i, /INSERT\s+INTO\s+public\.file_records/i, /INSERT\s+INTO\s+public\.import_jobs/i],
+  },
+  {
+    name: 'import_update_job_progress',
+    requiredTokens: [/current_company_id\s*\(\)/i, /IMPORT_PROGRESS_COUNTER_OUT_OF_RANGE/i, /IMPORT_PROGRESS_COUNTER_INCONSISTENT/i, /UPDATE\s+public\.import_jobs/i],
+  },
+  {
+    name: 'import_finish_job',
+    requiredTokens: [/current_company_id\s*\(\)/i, /IMPORT_COMPLETION_SUMMARY_MISMATCH/i, /IMPORT_COMPLETION_REQUIRES_ALL_ROWS_PROCESSED/i, /UPDATE\s+public\.import_jobs/i],
+  },
+  {
+    name: 'get_receivables_report_page',
+    requiredTokens: [/current_company_id\s*\(\)/i, /FROM\s+public\.sales_invoices/i, /public\.customers/i, /total_outstanding/i],
+  },
+  {
+    name: 'get_cash_account_balances',
+    requiredTokens: [/current_company_id\s*\(\)/i, /auth\.uid\s*\(\)/i, /company_memberships/i, /cash_accounts/i],
+  },
+  {
+    name: 'get_staff_receivables',
+    requiredTokens: [/current_company_id\s*\(\)/i, /auth\.uid\s*\(\)/i, /company_memberships/i, /sales/i],
+  },
+];
 
 const criticalOperationalSecurityDefiners = [
   { name: 'current_company_id', requiredTokens: [/auth\.uid\s*\(\)/i, /company_memberships/i, /is_active\s*=\s*true/i, /is_default\s*=\s*true/i], searchPath: 'EMPTY_OR_SAFE' },
@@ -66,6 +94,15 @@ for (const name of intendedAuthenticatedSecurityDefiners) {
   if (name !== 'current_company_id' && !/(auth\.uid\s*\(\)|current_company_id\s*\(\))/i.test(window)) failures.push(`${name}: caller/tenant binding missing in latest repository definition`);
   if (name === 'current_company_id' && !/auth\.uid\s*\(\)/i.test(window)) failures.push('current_company_id: auth.uid() binding missing in latest repository definition');
   assertAuthenticatedOnly(name);
+}
+
+for (const check of canonicalInvokerFunctions) {
+  const window = getFunctionWindow(check.name);
+  if (!window) { failures.push(`${check.name}: canonical invoker definition not found`); continue; }
+  if (/SECURITY\s+DEFINER/i.test(window)) failures.push(`${check.name}: canonical terminalizer must remain SECURITY INVOKER`);
+  if (!hasSafeSearchPath(window, 'EMPTY_OR_SAFE')) failures.push(`${check.name}: explicit safe search_path missing in canonical invoker`);
+  for (const token of check.requiredTokens) if (!token.test(window)) failures.push(`${check.name}: required canonical invoker invariant missing: ${token}`);
+  assertAuthenticatedOnly(check.name);
 }
 
 for (const check of criticalOperationalSecurityDefiners) {

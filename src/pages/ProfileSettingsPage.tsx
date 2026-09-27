@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { CheckCircle2, Save, UserCircle } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { PageHeader, LoadingState } from '@/components/ui/States';
+import { ErrorState, PageHeader, LoadingState } from '@/components/ui/States';
 import { supabase } from '@/lib/supabase';
 import { getAuthenticatedUser } from '@/lib/auth-session';
 
@@ -14,17 +14,24 @@ export function ProfileSettingsPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let mounted = true;
-    void getAuthenticatedUser().then(currentUser => {
-      if (!mounted) return;
-      if (!currentUser) setError('تعذر قراءة جلسة المصادقة الحالية.');
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const currentUser = await getAuthenticatedUser();
+      if (!currentUser) throw new Error('تعذر قراءة جلسة المصادقة الحالية.');
       setUser(currentUser);
-      setDisplayName(typeof currentUser?.user_metadata?.full_name === 'string' ? currentUser.user_metadata.full_name : '');
+      setDisplayName(typeof currentUser.user_metadata?.full_name === 'string' ? currentUser.user_metadata.full_name : '');
+    } catch (cause) {
+      setUser(null);
+      setDisplayName('');
+      setError(cause instanceof Error ? cause.message : 'تعذر تحميل بيانات الحساب.');
+    } finally {
       setLoading(false);
-    });
-    return () => { mounted = false; };
+    }
   }, []);
+
+  useEffect(() => { void load(); }, [load]);
 
   const save = async () => {
     if (!user) return;
@@ -45,6 +52,7 @@ export function ProfileSettingsPage() {
   };
 
   if (loading) return <div dir="rtl"><LoadingState message="جارٍ تحميل بيانات الحساب..." /></div>;
+  if (error && !user) return <div dir="rtl"><ErrorState message={error} onRetry={() => void load()} /></div>;
 
   return (
     <div dir="rtl" className="space-y-6 animate-fade-in">

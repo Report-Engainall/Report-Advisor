@@ -6,6 +6,7 @@ import type { Alert, Recommendation } from '@/lib/types';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
+import { isActionableRecommendationStatus } from '@/lib/decision-status';
 
 function Metric({ label, value, hint }: { label: string; value: string; hint: string }) {
   return <div className="rounded-2xl border border-ink-100 bg-ink-50/70 p-4">
@@ -17,13 +18,17 @@ function Metric({ label, value, hint }: { label: string; value: string; hint: st
 
 function recommendationStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    pending: 'قيد المراجعة',
-    proposed: 'مقترح',
-    approved: 'معتمد',
+    new: 'جديدة',
+    OPEN: 'جاهزة للقرار',
+    accepted: 'مقبولة',
+    approved: 'معتمدة',
     in_progress: 'قيد التنفيذ',
-    completed: 'مكتمل',
-    rejected: 'مرفوض',
-    cancelled: 'ملغى',
+    completed: 'مكتملة',
+    rejected: 'مرفوضة',
+    dismissed: 'مستبعدة',
+    cancelled: 'ملغاة',
+    pending: 'قيد المراجعة',
+    proposed: 'مقترحة',
   };
   return labels[status] ?? status;
 }
@@ -74,10 +79,13 @@ export function ExecutiveReportPage() {
   useEffect(() => { void load(); }, [load]);
 
   const recommendations = data?.recommendations ?? [];
-  const activeDecisionCount = recommendations.filter((item) => ['pending', 'proposed', 'approved', 'in_progress'].includes(item.status)).length;
-  const accountableDecisionCount = recommendations.filter((item) => Boolean(item.owner)).length;
-  const recordedOutcomeCount = recommendations.filter((item) => Boolean(item.impact_result?.trim())).length;
-  const nextAction = kpis?.status !== 'CALCULATED' || kpis?.status === 'INSUFFICIENT_DATA'
+  const actionableRecommendations = recommendations.filter((item) => isActionableRecommendationStatus(item.status));
+  const activeDecisionCount = actionableRecommendations.length;
+  const accountableDecisionCount = actionableRecommendations.filter((item) => Boolean(item.owner?.trim())).length;
+  const recordedOutcomeCount = actionableRecommendations.filter((item) => Boolean(item.impact_result?.trim())).length;
+  const ownerCoverage = activeDecisionCount ? Math.round((accountableDecisionCount / activeDecisionCount) * 100) : null;
+  const outcomeCoverage = activeDecisionCount ? Math.round((recordedOutcomeCount / activeDecisionCount) * 100) : null;
+  const nextAction = kpis?.status === 'INSUFFICIENT_DATA'
     ? { to: '/data-quality', label: 'مراجعة جودة البيانات', reason: 'الحقيقة المالية أو التشغيلية غير مكتملة بعد.' }
     : data?.alerts.length
       ? { to: '/decision-experience?stage=decision', label: 'فتح سياق القرار', reason: 'هناك تنبيهات مصدرية تحتاج إلى متابعة.' }
@@ -138,7 +146,7 @@ export function ExecutiveReportPage() {
       <section className="grid gap-5 lg:grid-cols-2">
         <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-danger-600">الانتباه</p><h2 className="mt-1 text-lg font-black">أهم التنبيهات</h2></div><span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700">{formatNumber(data?.alerts.length ?? 0)}</span></div>
-          <div className="mt-4 space-y-3">{(data?.alerts ?? []).slice(0, 6).map((alert) => <article key={alert.id} className="rounded-xl border border-ink-100 p-4"><p className="font-bold text-ink-900">{alert.title}</p><Link to="/decision-experience?stage=decision" className="mt-2 inline-flex min-h-11 items-center gap-1 text-xs font-bold text-primary-700">فتح سياق القرار <ArrowLeft size={13} /></Link></article>)}{!(data?.alerts?.length) && <EmptyState title="لا توجد تنبيهات مصدرية حاليًا" message="لا يتم تصنيع تنبيه عند غياب الإشارة المثبتة." action={<Link to="/trust" className="btn-secondary min-h-11">فحص الدليل</Link>} />}</div>
+          <div className="mt-4 space-y-3">{(data?.alerts ?? []).slice(0, 6).map((alert) => <article key={alert.id} className="rounded-xl border border-ink-100 p-4"><p className="font-bold text-ink-900">{alert.title}</p><Link to="/decision-experience?stage=decision" className="mt-2 inline-flex min-h-11 items-center gap-1 text-xs font-bold text-primary-700">فتح سياق القرار <ArrowLeft size={13} /></Link></article>)}{!(data?.alerts?.length) && <EmptyState title="لا توجد تنبيهات مصدرية حاليًا." message="لا يتم تصنيع تنبيه عند غياب الإشارة المثبتة." action={<Link to="/trust" className="btn-secondary min-h-11">فحص الدليل</Link>} />}</div>
         </div>
         <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-primary-600">الإجراء</p><h2 className="mt-1 text-lg font-black">التوصيات النشطة</h2></div><span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-bold text-primary-700">{formatNumber(data?.recommendations.length ?? 0)}</span></div>
@@ -147,7 +155,7 @@ export function ExecutiveReportPage() {
             <p className="mt-2 font-bold text-ink-900">{rec.title}</p>
             <div className="mt-2 flex flex-wrap gap-3 text-[10px] text-ink-500"><span>الأثر المتوقع: {rec.expected_impact == null ? 'غير متاح' : formatCurrency(rec.expected_impact)}</span><span>الأثر الفعلي: {rec.impact_result ?? 'غير مسجل'}</span></div>
             <Link to="/decision-experience" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-primary-700">فتح مساحة القرار <ArrowLeft size={13} /></Link>
-          </article>)}{!(data?.recommendations?.length) && <EmptyState title="لا توجد توصيات مصدرية حاليًا" message="لا تُنتج توصية بديلة عند غياب الإشارة المثبتة." action={<Link to="/trust" className="btn-secondary min-h-11">فحص الدليل</Link>} />}</div>
+          </article>)}{!(data?.recommendations?.length) && <EmptyState title="لا توجد توصيات مصدرية حاليًا." message="لا تُنتج توصية بديلة عند غياب الإشارة المثبتة." action={<Link to="/trust" className="btn-secondary min-h-11">فحص الدليل</Link>} />}</div>
         </div>
       </section>
 
@@ -158,9 +166,11 @@ export function ExecutiveReportPage() {
 
       <section className="ag-exec-panel rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-center gap-2"><ShieldCheck size={18} className="text-primary-600" /><h2 className="text-lg font-black">القرار والمساءلة والنتيجة</h2></div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Decision</p><p className="mt-1 text-lg font-black">{activeDecisionCount}</p><p className="mt-1 text-[10px] text-ink-500">{accountableDecisionCount} منها لها مسؤول مسجل</p></div>
-          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Actual Outcome</p><p className="mt-1 text-lg font-black">{recordedOutcomeCount}</p><p className="mt-1 text-[10px] text-ink-500">توصية لديها أثر فعلي مسجل</p></div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Decision</p><p className="mt-1 text-lg font-black">{activeDecisionCount}</p><p className="mt-1 text-[10px] text-ink-500">توصيات ضمن القراءة الحالية</p></div>
+          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Owner Coverage</p><p className="mt-1 text-lg font-black">{ownerCoverage == null ? 'غير متاح' : ownerCoverage + '%'}</p><p className="mt-1 text-[10px] text-ink-500">{accountableDecisionCount} لها مسؤول مسجل</p></div>
+          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Outcome Coverage</p><p className="mt-1 text-lg font-black">{outcomeCoverage == null ? 'غير متاح' : outcomeCoverage + '%'}</p><p className="mt-1 text-[10px] text-ink-500">{recordedOutcomeCount} لها أثر فعلي مسجل</p></div>
+          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Actual Outcome</p><p className="mt-1 text-lg font-black">{recordedOutcomeCount}</p><p className="mt-1 text-[10px] text-ink-500">لا يتحول غياب الأثر إلى نجاح</p></div>
           <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Learning</p><p className="mt-1 font-bold">{recordedOutcomeCount ? 'يوجد أثر يحتاج مراجعة' : 'لا يوجد أثر فعلي مثبت بعد'}</p><p className="mt-1 text-[10px] text-ink-500">لا تُستنتج نتيجة من غياب السجل</p></div>
         </div>
         <Link to="/decision-experience" className="mt-4 inline-flex rounded-xl bg-ink-950 px-4 py-2.5 text-xs font-bold text-white">فتح مساحة القرار</Link>

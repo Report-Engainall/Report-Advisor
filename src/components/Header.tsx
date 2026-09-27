@@ -13,11 +13,15 @@ type HealthState = 'checking' | 'healthy' | 'degraded' | 'offline';
 
 export function Header({
   alerts,
+  alertsUnavailable = false,
+  onRefreshAlerts,
   onMarkAlertRead,
   onMenuClick,
   onOpenCommandPalette,
 }: {
   alerts: Alert[];
+  alertsUnavailable?: boolean;
+  onRefreshAlerts?: () => void;
   onMarkAlertRead: (id: string) => void;
   onMenuClick: () => void;
   onOpenCommandPalette: () => void;
@@ -162,7 +166,7 @@ export function Header({
               type="button"
               onClick={() => setShowAlerts((value) => !value)}
               className="relative flex min-h-11 min-w-11 items-center justify-center rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 hover:text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
-              aria-label={'التنبيهات، ' + unreadAlerts.length + ' غير مقروء'}
+              aria-label={alertsUnavailable ? 'التنبيهات، الحالة غير متاحة حاليًا' : 'التنبيهات، ' + unreadAlerts.length + ' غير مقروء'}
               aria-expanded={showAlerts}
               aria-controls="ag-alert-panel"
               aria-haspopup="dialog"
@@ -182,20 +186,29 @@ export function Header({
                   <div className="ag-alert-head flex items-center justify-between border-b border-ink-100 px-4 py-3">
                     <div className="min-w-0">
                       <span className="block text-sm font-black text-ink-900">الانتباه</span>
-                      <span className="mt-0.5 block text-[10px] text-ink-400">{unreadAlerts.length} غير مقروء</span>
+                      <span className={'mt-0.5 block text-[10px] ' + (alertsUnavailable ? 'text-warning-700 font-bold' : 'text-ink-400')}>{alertsUnavailable ? 'الحالة غير متاحة — لم يتم اعتبارها صفرًا' : unreadAlerts.length + ' غير مقروء'}</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => setShowAlerts(false)}
-                      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-400 hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                      className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-ink-400 hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
                       aria-label="إغلاق التنبيهات"
                     >
                       <X size={16} aria-hidden="true" />
                     </button>
                   </div>
 
-                  {alerts.length === 0 ? (
-                    <div className="p-6 text-center text-sm text-ink-400">لا توجد تنبيهات</div>
+                  {alertsUnavailable ? (
+                    <div className="p-5">
+                      <div className="rounded-xl border border-warning-200 bg-warning-50/70 p-4 text-center">
+                        <AlertTriangle size={18} className="mx-auto text-warning-700" />
+                        <div className="mt-2 text-sm font-black text-ink-900">حالة التنبيهات غير متاحة</div>
+                        <p className="mt-1 text-[11px] leading-5 text-ink-600">تعذر تحديث مصدر التنبيهات. لا نعرض الحالة كأنها «لا توجد تنبيهات».</p>
+                        {onRefreshAlerts && <button type="button" onClick={onRefreshAlerts} className="btn-secondary mt-3 min-h-11 text-xs">إعادة الفحص</button>}
+                      </div>
+                    </div>
+                  ) : alerts.length === 0 ? (
+                    <div className="p-6 text-center text-sm text-ink-400">لا توجد تنبيهات مثبتة حاليًا</div>
                   ) : (
                     <div className="max-h-96 divide-y divide-ink-100 overflow-y-auto">
                       {alerts.slice(0, 10).map((alert) => (

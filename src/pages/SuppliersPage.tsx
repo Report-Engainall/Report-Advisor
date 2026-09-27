@@ -143,9 +143,9 @@ export function SuppliersPage() {
             >
               <div className="relative flex-1">
                 <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-300" />
-                <input value={search} onChange={(event) => setSearch(event.target.value)} className="input pr-9 text-[11px]" placeholder="ابحث بالاسم أو الرمز" aria-label="البحث عن مورد" />
+                <input value={search} onChange={(event) => setSearch(event.target.value)} className="input min-h-11 pr-9 text-[11px]" placeholder="ابحث بالاسم أو الرمز" aria-label="البحث عن مورد" />
               </div>
-              <button type="submit" className="btn-primary shrink-0 text-[11px]">بحث</button>
+              <button type="submit" className="btn-primary min-h-11 shrink-0 text-[11px]">بحث</button>
             </form>
           }
         />
@@ -164,7 +164,7 @@ export function SuppliersPage() {
             <p className="mt-1 text-[10px] leading-5 text-ink-400">لرؤية الفواتير والإنفاق وشروط السداد، انتقل إلى مسار المشتريات الكانوني بدل تكرار بياناتها هنا.</p>
           </div>
         </div>
-        <Link to="/reports/purchases" className="btn-secondary text-[11px]">فتح المشتريات</Link>
+        <Link to="/reports/purchases" className="btn-secondary min-h-11 text-[11px]">فتح المشتريات</Link>
       </div>
     </div>
   );

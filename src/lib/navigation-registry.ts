@@ -48,6 +48,8 @@ export type NavigationIconKey =
   | 'master-data'
   | 'liquidity'
   | 'suppliers'
+  | 'benchmark'
+  | 'replay'
 ;
 
 export interface NavigationItem {
@@ -77,6 +79,7 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
       { section: 'decision-center', path: '/', label: 'نبض الأعمال', enLabel: 'Business Pulse', description: 'الصورة التنفيذية اليومية في شاشة واحدة', keywords: ['dashboard', 'home', 'نبض', 'أعمال', 'رئيسية'], icon: 'dashboard' },
       { section: 'decision-center', path: '/command-center', label: 'مركز القرار', enLabel: 'Decision Command', description: 'الإشارات والأولويات التي تستحق الانتباه الآن', keywords: ['command', 'decision', 'قيادة', 'قرار', 'أولوية'], icon: 'command-center' },
       { section: 'decision-center', path: '/decision-experience', label: 'تجربة القرار', enLabel: 'Decision Experience', description: 'الدليل والسياق والموافقة والإجراء والنتيجة', keywords: ['decision', 'evidence', 'approval', 'قرار', 'دليل', 'نتيجة'], icon: 'decision' },
+      { section: 'decision-center', path: '/replay', label: 'إعادة تشغيل الأعمال', enLabel: 'Business Replay', description: 'إعادة قراءة snapshots ونتائج تنفيذ محفوظة', keywords: ['replay', 'business replay', 'learning', 'outcome', 'إعادة التشغيل'], icon: 'replay', minimumWorkspaceMode: 'advanced' },
     ],
   },
   {
@@ -86,7 +89,6 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
     items: [
       { section: 'data-operations', path: '/work-center', label: 'مركز العمل', enLabel: 'Work Center', description: 'صف التنفيذ والاستثناءات ودورات العمل', keywords: ['work center', 'jobs', 'عمليات', 'تشغيل', 'استثناء'], icon: 'work-center' },
       { section: 'data-operations', path: '/import', label: 'إدخال البيانات', enLabel: 'Data Import', description: 'رفع ومعاينة واعتماد المصادر دون تجاوز مسار الحقيقة', keywords: ['import', 'upload', 'excel', 'csv', 'pdf', 'استيراد', 'رفع'], icon: 'import' },
-      { section: 'data-operations', path: '/import/analyze', label: 'تحليل المستندات', enLabel: 'Document Analysis', description: 'استخراج المستندات وإثبات الحقول والثقة', keywords: ['document', 'ocr', 'extract', 'تحليل', 'مستند'], icon: 'document' },
       { section: 'data-operations', path: '/data-quality', label: 'جودة البيانات', enLabel: 'Data Quality', description: 'التغطية والفجوات والأخطاء والثقة', keywords: ['quality', 'dq', 'جودة', 'بيانات', 'ثقة'], icon: 'quality' },
       { section: 'data-operations', path: '/connections', label: 'مصادر البيانات', enLabel: 'Data Sources', description: 'اتصالات ومصادر النظام وحالتها', keywords: ['connections', 'sources', 'integrations', 'مصادر', 'اتصالات'], icon: 'connections' },
     ],
@@ -119,6 +121,7 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
       { section: 'intelligence', path: '/intelligence/recommendations', label: 'التوصيات', enLabel: 'Recommendations', description: 'إجراءات مقترحة مرتبطة بسياقها وأدلتها', keywords: ['recommendations', 'actions', 'توصيات'], icon: 'recommendations', minimumWorkspaceMode: 'advanced' },
       { section: 'intelligence', path: '/intelligence/forecasts', label: 'التنبؤات', enLabel: 'Forecasts', description: 'استعراض التنبؤات المتاحة دون اختلاق نتيجة', keywords: ['forecast', 'forecasts', 'تنبؤات'], icon: 'forecasts', minimumWorkspaceMode: 'advanced' },
       { section: 'intelligence', path: '/intelligence/scenarios', label: 'السيناريوهات', enLabel: 'Scenarios', description: 'محاكاة محكومة منفصلة عن الحقيقة التشغيلية', keywords: ['scenarios', 'scenario', 'سيناريوهات'], icon: 'scenarios', minimumWorkspaceMode: 'advanced' },
+      { section: 'intelligence', path: '/benchmark', label: 'شبكة المقارنة', enLabel: 'Benchmark Network', description: 'مقارنة خارجية لا تظهر دون عينة نظيرة موثقة', keywords: ['benchmark', 'peer', 'comparison', 'مقارنة', 'مئين'], icon: 'benchmark', minimumWorkspaceMode: 'advanced' },
     ],
   },
   {

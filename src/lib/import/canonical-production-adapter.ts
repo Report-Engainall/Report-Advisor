@@ -40,7 +40,25 @@ function rowKey(entityType: DurableCanonicalImportInput['entityType'], row: Reco
     ? row.data.sku
     : entityType === 'sales_invoices'
       ? row.data.invoice_number
-      : (row.data.code ?? row.data.name);
+      : entityType === 'purchase_invoices'
+        ? (
+            row.data.product_id != null ||
+            row.data.sku != null ||
+            row.data.product_name != null ||
+            row.data.quantity != null ||
+            row.data.unit_price != null ||
+            row.data.line_total != null ||
+            row.data.description != null
+              ? [row.data.invoice_number, row.data.product_id ?? row.data.sku ?? row.data.product_name ?? row.rowNumber, row.rowNumber].join(':')
+              : row.data.invoice_number
+          )
+      : entityType === 'suppliers'
+        ? (row.data.code ?? row.data.name)
+        : entityType === 'inventory_balances'
+          ? [row.data.warehouse_id ?? row.data.warehouse, row.data.product_id ?? row.data.sku ?? row.data.product_name].join(':')
+          : entityType === 'payments'
+            ? (row.data.payment_id ?? [row.data.reference, row.data.direction, row.data.payment_date])
+            : (row.data.code ?? row.data.name);
   const key = String(value ?? '').trim();
   if (!key) throw new Error(`IMPORT_ROW_BUSINESS_KEY_REQUIRED:${row.rowNumber}`);
   return `${entityType}:${key.toLowerCase()}`;
@@ -87,7 +105,12 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput, 
     const detail = typeof payload?.detail === 'string' ? payload.detail : typeof payload?.error === 'string' ? payload.error : `HTTP_${response.status}`;
     throw new Error(`CANONICAL_IMPORT_SERVER_EXECUTION_FAILED:${detail.slice(0, 512)}`);
   }
-  if (!payload?.importId || !payload?.sourceHash || (mode === 'execute' && !payload?.jobId)) {
+  if (
+    !payload?.importId ||
+    !payload?.sourceHash ||
+    (mode === 'execute' && !payload?.jobId) ||
+    (mode === 'execute' && !Number.isInteger(Number(payload?.authoritativeRowCount)))
+  ) {
     throw new Error('CANONICAL_IMPORT_SERVER_EXECUTION_RESPONSE_INVALID');
   }
   return payload;
@@ -97,17 +120,24 @@ export async function runCanonicalImportThroughDurableRunner(
   input: DurableCanonicalImportInput,
   options: CanonicalImportExecutionOptions = {},
 ) {
-  if (!input.rows.length) throw new Error('CANONICAL_IMPORT_REQUIRES_ROWS');
-  if (typeof input.qualityApproved !== 'boolean') throw new Error('CANONICAL_IMPORT_QUALITY_APPROVAL_REQUIRED');
+  const isBrowserServerBoundary = typeof window !== 'undefined' && !options.serverExecution;
+
+  // The browser is a transport/orchestration client only. Source truth, quality, reconciliation,
+  // duplicate detection, tenant binding, and canonical commit are authoritative on the server.
+  // Do not reject a source locally before the authoritative boundary receives it.
   if (!input.importId.trim()) throw new Error('CANONICAL_IMPORT_REQUIRES_IMPORT_ID');
   if (!input.fileName.trim()) throw new Error('CANONICAL_IMPORT_REQUIRES_SOURCE_PATH');
+  if (!/^sha256:[0-9a-fA-F]{64}$/.test(input.sourceHash)) throw new Error('IMPORT_SOURCE_HASH_INVALID');
+  if (typeof input.qualityApproved !== 'boolean') throw new Error('CANONICAL_IMPORT_QUALITY_APPROVAL_REQUIRED');
+
+  if (isBrowserServerBoundary) {
+    return executeThroughServerBoundary(input);
+  }
+
+  if (!input.rows.length) throw new Error('CANONICAL_IMPORT_REQUIRES_ROWS');
   if (!Number.isFinite(input.qualityScore) || input.qualityScore < 0 || input.qualityScore > 100) throw new Error('CANONICAL_IMPORT_INVALID_QUALITY');
   if (input.qualityScore < 50) throw new Error('CANONICAL_IMPORT_QUALITY_REJECTED');
   if (input.qualityScore < 75 && !input.qualityApproved) throw new Error('CANONICAL_IMPORT_REVIEW_APPROVAL_REQUIRED');
-
-  if (typeof window !== 'undefined' && !options.serverExecution) {
-    return executeThroughServerBoundary(input);
-  }
 
   let workerClient = options.workerClient;
   let dataClient = options.dataClient;

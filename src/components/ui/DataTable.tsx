@@ -20,7 +20,7 @@ interface DataTableProps<T> {
 
 export function DataTable<T extends object>({ columns, data, loading, emptyMessage = 'لا توجد بيانات', onRowClick, pageSize }: DataTableProps<T>) {
   const [page, setPage] = useState(0);
-  const effectivePageSize = Number.isInteger(pageSize) && (pageSize ?? 0) > 0 ? pageSize! : 0;
+  const effectivePageSize = typeof pageSize === 'number' && Number.isInteger(pageSize) && pageSize > 0 ? pageSize : 0;
   const pageCount = effectivePageSize ? Math.max(1, Math.ceil(data.length / effectivePageSize)) : 1;
   const visibleRows = useMemo(
     () => effectivePageSize ? data.slice(page * effectivePageSize, (page + 1) * effectivePageSize) : data,
@@ -31,12 +31,29 @@ export function DataTable<T extends object>({ columns, data, loading, emptyMessa
     setPage((current) => Math.min(current, Math.max(0, pageCount - 1)));
   }, [pageCount]);
 
-  if (loading) return <div className="space-y-2 p-5" role="status" aria-live="polite" aria-busy="true" aria-label="جارٍ تحميل جدول البيانات">{Array.from({ length: 5 }).map((_, i) => <div key={i} aria-hidden="true" className="skeleton h-12 w-full"/>)}</div>;
+  if (loading) return (
+    <div className="data-table-shell overflow-hidden rounded-[12px]" role="status" aria-live="polite" aria-busy="true" aria-label="جارٍ تحميل جدول البيانات">
+      <div className="flex items-center justify-between gap-3 border-b border-ink-100 bg-ink-50/70 px-4 py-2.5">
+        <span className="text-[10px] font-black tracking-wide text-ink-500">بيانات المصدر</span>
+        <span className="text-[10px] font-semibold text-ink-400">جارٍ تجهيز الصفوف والحقول</span>
+      </div>
+      <div className="overflow-hidden">
+        <div className="min-w-[760px]" aria-hidden="true">
+          <div className="grid" style={{ gridTemplateColumns: `repeat(${Math.max(columns.length, 1)}, minmax(0, 1fr))` }}>
+            {columns.map(column => <div key={column.key} className="border-b border-ink-100 bg-white px-4 py-2.5 text-[10px] font-black text-ink-400">{column.label}</div>)}
+            {Array.from({ length: 5 }).flatMap((_, rowIndex) =>
+              columns.map(column => <div key={`${rowIndex}-${column.key}`} className="border-b border-ink-100/80 bg-white px-4 py-3"><div className="skeleton h-3 w-full max-w-[8rem]"/></div>),
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
   if (!data || data.length === 0) return <div className="ag-table-empty" role="status" aria-live="polite"><div className="ag-table-empty-icon" aria-hidden="true">⌁</div><div className="ag-table-empty-title">{emptyMessage}</div><div className="ag-table-empty-copy">تظهر هنا البيانات المتاحة فقط بعد اجتياز شروط المصدر والتحقق.</div></div>;
 
   return (
     <div className="ag-data-table data-table-shell overflow-auto rounded-[12px]" role="region" aria-label="جدول البيانات">
-      <table className="w-full min-w-[760px] border-separate border-spacing-0" aria-rowcount={data.length + 1} aria-colcount={columns.length} aria-busy={loading === true}>
+      <table className="w-full min-w-[760px] border-separate border-spacing-0" aria-rowcount={data.length + 1} aria-colcount={columns.length}>
         <thead>
           <tr>
             {columns.map(col => <th key={col.key} scope="col" className={'sticky top-0 z-10 border-b border-ink-200 bg-ink-50/95 px-4 py-2.5 text-[10px] font-black tracking-wide text-ink-500 backdrop-blur ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right')} style={{ width: col.width }}>{col.label}</th>)}

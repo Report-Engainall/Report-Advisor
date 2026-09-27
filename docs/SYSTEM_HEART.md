@@ -30,6 +30,7 @@ When two sources disagree: verify the exact repository state, then resolve the c
 | Runtime/certification | docs/MASTER_RUNTIME_CERTIFICATION.md | CI, deployment, E2E, certification, resilience, recovery |
 | Commercial | docs/MASTER_COMMERCIAL_REFERENCE.md | commercial moat, value proof, packaging, demo/proposal logic |
 | Knowledge map | docs/PROJECT_KNOWLEDGE_MANIFEST.md | all legacy-source mapping, merge status, deletion gates |
+| Execution operator | docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md | execution loop, tool routing, fallbacks, proof, persistence, continuation |
 
 No new competing master may be created without deliberately amending this table.
 
@@ -37,11 +38,14 @@ No new competing master may be created without deliberately amending this table.
 A. Read SYSTEM_HEART.
 B. Read the first/current block of ONE-PROGRAMMER-SESSION-MEMORY.
 C. Read MASTER_EXECUTION_INDEX current boundary.
-D. Read only the domain masters required by the current work fronts.
-E. Verify GitHub main exact HEAD directly.
-F. Reconcile memory/index SHA against GitHub.
-G. Derive NEXT EXECUTABLE ACTION from the newest state, not from an old checklist.
-H. Start two execution lanes immediately.
+D. Read PROJECT_KNOWLEDGE_MANIFEST and resolve the relevant source families/dependencies.
+E. Read PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.
+F. Read only the domain masters required by the current work fronts.
+G. Verify GitHub exact HEAD directly.
+H. Reconcile memory/index SHA against GitHub.
+I. Check available execution tooling and apply the protocol's fallback router; device absence is local to device-dependent proof.
+J. Derive NEXT EXECUTABLE ACTION from the newest state, not from an old checklist.
+K. Start safe independent execution lanes immediately.
 
 A session is invalid if it starts from an old task list without reconciling the live Git state.
 
@@ -238,3 +242,15 @@ Never:
 
 ### Documentation is implementation
 Every meaningful execution batch records exact SHA, change, rationale, evidence/run IDs, resulting state, blockers, and next executable work. Historical evidence is preserved when auditability requires it.
+
+
+## 16. Boot-kernel rule
+
+The chat boot message is deliberately minimal. It only activates this control plane.
+
+Detailed execution behavior MUST be loaded from:
+`PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL`
+
+The Manifest remains the knowledge/dependency map; the Execution Index remains the active frontier; Session Memory remains the live resume pointer; GitHub exact SHA remains technical truth.
+
+The programmer MUST never require a second chat-specific playbook to operate correctly.

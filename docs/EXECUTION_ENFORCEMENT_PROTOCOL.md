@@ -1,4 +1,4 @@
-# Autonomous Execution Enforcement Protocol — v3.2 + v4.0 Governance
+# Autonomous Execution Enforcement Protocol — v4.2 Continuous Resume / Throughput Governance
 
 This contract is Layer 1 of the execution system. It strengthens `docs/MASTER_EXECUTION_INDEX.md` without deleting or rewriting historical ledger entries. Layer 3 strategy governance is defined separately in `docs/ADAPTIVE_EXECUTION_GOVERNANCE.md`.
 
@@ -108,3 +108,26 @@ No Production binding, database, authentication, authorization/RLS, migration, r
 
 ### Protocol-first execution order
 Before any Audit, Mutation, Certification, or execution decision, the agent MUST read the canonical Layer 1 protocol, the current Layer 2 Master Execution Index, and the Layer 3 Adaptive Execution Governance; then `READ CURRENT STATE → AUDIT → CLASSIFY → EXECUTE → TEST → BYPASS SEARCH → REGRESSION → VERIFY → EVIDENCE → UPDATE CANONICAL RECORD → COMMIT`. A conversation instruction MUST NOT override a higher-precedence repository protocol rule.
+
+
+### E-20 — Read-to-Act Budget
+Repository reading is not a closure phase. A read is valid only when it yields an executable target, dependency, reproducible failure, proof of already-closed work, blocker classification, or next action. Repeated full-file/repository/history reads without a new decision are prohibited.
+
+### E-21 — Single Resume Token
+ONE-PROGRAMMER-SESSION-MEMORY MUST expose one current RESUME TOKEN at the top. It MUST bind the latest known repository HEAD, current code/test candidate, active fronts, scoped blockers, first failure to consume, next executable action, independent work, and do-not-repeat rules. Historical entries MUST NOT outrank the top token.
+
+### E-22 — Work-Claim Lock / Anti-Rework
+Before implementation, identify the smallest executable unit as DOMAIN + FILE/FUNCTION/ROUTE + EXPECTED PROOF. A closed or claimed unit MUST NOT be re-opened unless a current-SHA regression, dependency/environment change, evidence invalidation, or requirement change is demonstrated. Equivalent behavior MUST reuse the canonical path.
+
+### E-23 — First-Failure Consumption
+When several checks fail on the same exact SHA, classify them by dependency order and repair the first reproducible root cause first. Cascading failures MUST NOT be treated as independent product defects until reproduced after the root cause repair.
+
+### E-24 — Context and Storage Economy
+CONTEXT/STORAGE ECONOMY: execution MUST prefer bounded reads and compact canonical state without removing required audit evidence.
+The execution system MUST prefer bounded reads, compact canonical state, references to immutable evidence, and one implementation with provenance over copied artifacts. Context size, tool calls, repository space, CI/build quota, and external verification quota are execution resources. Storage optimization MUST NOT remove required audit evidence.
+
+### E-25 — Coverage Without Artificial 50/50
+UI/surface, product-heart, proof/certification, and governance fronts MUST remain covered, but no fixed 50/50 time quota is mandatory. Scheduling MUST maximize safe independent throughput and downstream unblock value while preventing any actionable front from being starved.
+
+### E-26 — Checkpoint Transaction
+After every meaningful closure batch, refresh the canonical Resume Token with HEAD, ACTION, RESULT, EVIDENCE, BLOCKER, NEXT. End-of-session or interruption write-back is mandatory and MUST be sufficient to resume without chat history.

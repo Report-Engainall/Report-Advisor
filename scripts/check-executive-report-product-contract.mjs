@@ -12,6 +12,16 @@ const required = [
   'window.print()',
   'لا توجد تنبيهات مصدرية حاليًا.',
   'لا توجد توصيات مصدرية حاليًا.',
+  'ownerCoverage',
+  'outcomeCoverage',
+  'Owner Coverage',
+  'Outcome Coverage',
+  'جاهزة للقرار',
+  'قيد التنفيذ',
+
+  'actionableRecommendations',
+  "const activeDecisionCount = actionableRecommendations.length",
+
 ];
 const missing = required.filter(token => !source.includes(token));
 if (missing.length) {
