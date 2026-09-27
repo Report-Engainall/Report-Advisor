@@ -1,9 +1,23 @@
+# RESUME TOKEN — 2026-09-27 / PR #662 CURRENT VERIFIED STATE
+
+- CURRENT REPOSITORY HEAD → 46675643e32f6ea28b6c1d80a530b2eb134e7907
+- CURRENT CODE/TEST CANDIDATE → b66ff4a6b7c8ece5e90501794e3c6837e1e68550
+- ACTIVE PR / BRANCH → PR #662 / exec/20260927-import-full-lifecycle
+- FRONT-ID → IMPORT-FULL-SOURCE-LIFECYCLE
+- ACTUAL FUNCTIONAL RESULT → full-source canonical import lifecycle closed locally; all parsed datasets are consumed and persisted through the existing canonical path; no dataset-zero truncation remains in runtime.
+- EXACT PROOF → Desktop Windows 36285659130 SUCCESS on b66; Netlify/CodeRabbit success; quality success; browser authenticated E2E and Phase-F remain separate current-head boundaries.
+- FIRST FAILURE → certification boundary integrity was stale-index binding (`d7bfe613…`) and is being rebound to exact b66.
+- NEXT EXECUTABLE ACTION → verify fresh exact-head certification after the rebind; then repair only the first new current-SHA failure.
+- OPEN BLOCKERS → Vercel free-plan build-rate; browser/agent automation external availability; Phase-F/production exact-SHA/restore/RPO/RTO/rollback remain unproven; 151 processing import_jobs untouched.
+- DO NOT REPEAT → stale PASS transfer, browser PASS from HTTP-only preview, production/Phase-F bypass, unsafe legacy-job terminalization, duplicate import path/RPC/runner.
+- RESUME STATUS → ACTIVE / FUNCTIONAL FRONT COMPLETE / CERTIFICATION REBIND APPLIED / FRESH PROOF REQUIRED
+
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / CONTINUATION + LIVE PROOF RECONCILIATION
 
 - SESSION-ID → `2026-09-27-AGHBARI-FULL-SOURCE-LIFECYCLE-002`.
 - MAIN HEAD VERIFIED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
 - CURRENT PR / BRANCH → PR #662 / `exec/20260927-import-full-lifecycle`.
-- CURRENT VERIFIED SHA → `4ba2d1d2ed263235147739f0accc079c992e844d`.
+- CURRENT VERIFIED SHA → `b66ff4a6b7c8ece5e90501794e3c6837e1e68550`.
 - FRONT-ID → `IMPORT-FULL-SOURCE-LIFECYCLE`.
 - CLOSED FUNCTIONAL BOUNDARY → canonical understanding consumes all parsed datasets; server persists dataset summaries/provenance; UI exposes specialty, dataset count, understanding confidence, Trust/Evidence and Decision follow-through; no runtime first-dataset selection.
 - EXACT CURRENT-SHA LOCAL PROOF → typecheck PASS; canonical-import mapping PASS; Product WOW UI PASS; Phase-3 data/import truth PASS; Document Intelligence contract/closure PASS; Decision Intelligence closure PASS; Knowledge Architecture PASS; Vite production build PASS (2800 modules); import runtime governance/state/transaction/business-key/classifier/direct-write/tenant-context contracts PASS; golden dataset and golden E2E corpus PASS; targeted ESLint 0 errors / 8 warnings.
@@ -13,7 +27,7 @@
 - BROWSER STATUS → NOT PROVEN. `agent-browser` is not installed on PC01. TinyFish automation is externally blocked because wallet balance is `-$0.072`. No Browser PASS is claimed.
 - LIVE STAGING OBSERVATION → Supabase project `Report-Advisor-P0-2-Staging` is ACTIVE_HEALTHY. `public.import_jobs`: 151 rows remain `processing`; 150 are at progress 0; oldest processing row started `2026-09-14 12:53:22.689946+00`. No mutation or unsafe terminalization performed.
 - CURRENT ROOT/EXTERNAL BLOCKERS → remote certification queues; browser automation unavailable; Phase-F live backup/restore/RPO/RTO/rollback and production exact-SHA identity unproven; Vercel/TinyFish external authority/plan limits remain outside repository control.
-- FIRST CURRENT FAILURE → none reproduced on `4ba2d1d`; one earlier read-only SQL probe referenced nonexistent `updated_at`, was corrected by schema introspection, and is not a product failure.
+- FIRST CURRENT FAILURE → stale certification-boundary candidate binding was reproduced on earlier governance descendant; no functional import failure was reproduced on the current b66 code head; one earlier read-only SQL probe referenced nonexistent `updated_at`, was corrected by schema introspection, and is not a product failure.
 - CURRENT EXECUTION LEASE → target remote exact-head gates and live certification boundaries only; do not create overlapping import paths or alter legacy processing rows without a governed recovery contract.
 - NEXT EXECUTABLE ACTION → consume the first terminal/non-queued exact-head gate for PR #662; if a failure appears, repair only that failure on `4ba2d1d` descendant. In parallel, continue independent certification/runtime-safe work and reconcile the 151 legacy processing jobs only through an existing recovery contract.
 - NEXT INDEPENDENT ACTIONS → inspect PR #663 governance gates without transferring #662 evidence; inspect current certification/Phase-F contracts for a non-production actionable gap; preserve staging processing rows untouched.
@@ -24,7 +38,7 @@
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
 - SESSION-ID → `2026-09-27-AGHBARI-FULL-SOURCE-LIFECYCLE-001`.
-- CURRENT CODE/TEST CANDIDATE → `d7bfe613430e59e5f937506ee4542db47ebc6a2b` (`feat: complete full-source canonical import lifecycle`); this write-back is the governance/documentation descendant.
+- CURRENT CODE/TEST CANDIDATE → `b66ff4a6b7c8ece5e90501794e3c6837e1e68550` (`feat: complete full-source canonical import lifecycle`).
 - DONE — CORE → canonical source understanding now consumes every parsed dataset, flattens rows across datasets, computes conservative quality, infers specialty/entity deterministically, and persists all dataset summaries in the authoritative import snapshot. Server and client no longer select only dataset zero.
 - DONE — UI → Canonical Import now exposes source specialty, dataset count, understanding confidence, and post-commit routes into Trust/Evidence and Decision Experience. The unified path remains source-agnostic.
 - DONE — REGRESSION/SHARED UI → fixed duplicate Product WOW contract declarations; aligned DataTable absolute row-count semantics; removed impossible ExecutiveReport status comparison; removed dead DataTable aria-busy comparison.
