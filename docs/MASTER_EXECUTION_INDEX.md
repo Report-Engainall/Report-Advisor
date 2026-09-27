@@ -3,17 +3,15 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `7ce0ead82c8a46cfdba12b5673749e269e11a08c`
+- CURRENT BRANCH HEAD → `ffee65dbf12831c093c0018ce38a854327eb653a`
 - CURRENT CODE/TEST CANDIDATE → `ce1991161561d3b6eadebe29dda004d975006cef`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - IMPORT CONTINUITY → Import → Trust/Evidence → Signals → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- CORE CLOSURE → all seven typed server entity boundaries accepted; purchase-line identity preserves multi-line invoices; security grant blocks anon execution on the authoritative 6-arg import RPC.
-- UI CLOSURE → Evidence Passport/Decision/Replay expose AS OF; post-import continuity is explicit and evidence-neutral; specialty/entity labels are customer-facing.
-- STAGING PARITY → specialty migration + grant hardening applied on `fnqbvfuwbdpwvhcgzksl`; exact runtime grant and entity-constraint queries verified.
-- CURRENT PROOF → no terminal PR failure on current head; Vercel remains external build-rate-limit; production/browser/Phase-F remains not proven.
-- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback remains environment evidence.
-- NEXT → consume first terminal current-HEAD workflow; fix only root; then route/contract rescan and cleanup gates.
+- CORE → seven typed server entity boundaries + purchase-line identity protection.
+- UI → post-import continuity + Evidence/Decision/Replay AS OF + localized specialty/entity labels.
+- STAGING → specialty migration + RPC grant hardening applied; 6-arg authenticated/service_role only, legacy 5-arg service_role only.
+- PROOF → current runtime grants verified; no terminal CI failure on current head; Vercel remains external rate-limit; Production/Browser/Phase-F not proven.
+- NEXT → consume first terminal current-head workflow; repair only root, then final route/contract/deletion-gate rescan.
 ---
 
 
