@@ -130,12 +130,12 @@ export function WorkCenterPage() {
           </div>
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {([
-              ['النشطة', counts.active, Activity, 'primary'],
-              ['المراجعة', counts.review, AlertTriangle, 'warning'],
-              ['المكتملة', counts.completed, CheckCircle2, 'success'],
-              ['الفشل / الإلغاء', counts.failed, XCircle, 'danger'],
-            ] as const).map(([label, value, Icon]) => (
-              <button key={label} type="button" onClick={() => setFilter(label === 'النشطة' ? 'active' : label === 'المراجعة' ? 'review' : label === 'المكتملة' ? 'completed' : 'failed')} className="card-subtle p-3 text-right transition-colors hover:border-ink-300 hover:bg-white">
+              ['النشطة', counts.active, Activity, 'active'],
+              ['المراجعة', counts.review, AlertTriangle, 'review'],
+              ['المكتملة', counts.completed, CheckCircle2, 'completed'],
+              ['الفشل / الإلغاء', counts.failed, XCircle, 'failed'],
+            ] as const).map(([label, value, Icon, targetFilter]) => (
+              <button key={label} type="button" aria-pressed={filter === targetFilter} onClick={() => setFilter(targetFilter)} className="card-subtle min-h-11 p-3 text-right transition-colors hover:border-ink-300 hover:bg-white">
                 <Icon size={16} className="mb-2 text-primary-600"/>
                 <div className="display-number text-[1.45rem]">{formatNumber(value)}</div>
                 <div className="mt-1 text-[11px] font-semibold text-ink-500">{label}</div>
