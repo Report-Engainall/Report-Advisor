@@ -440,6 +440,7 @@ assert.ok(executiveCommand.includes('بيانات الذمم متاحة'), 'mone
 assert.ok(executiveCommand.includes('فحص مساحة الإشارات'), 'executive command center alert-empty state must provide an intelligence action');
 assert.ok(executiveCommand.includes('مراجعة جودة البيانات'), 'executive command center recommendation/trend empty states must expose the data-quality next step');
 assert.ok(executiveCommand.includes('<Link to="/data-quality"'), 'executive command center empty states must use the canonical data-quality route');
+assert.ok((executiveCommand.match(/min-h-11/g) || []).length >= 10, 'executive command operational actions must meet touch-target sizing');
 
 const dataQuality = fs.readFileSync('src/pages/DataQualitySnapshotPage.tsx', 'utf8');
 assert.ok(dataQuality.includes('criticalIssueTotal'), 'data quality must derive critical issue pressure from the current snapshot');
