@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / FIRST-CURRENT-FAILURE REPAIR
+
+- BRANCH → `exec/20260927-import-full-lifecycle`.
+- CURRENT EXECUTION CANDIDATE → `dcae591025b86696e8b53e386fc5b8437317d969`.
+- ROOT FAILURE → Trust Evidence JSX container/fragment mismatch in Windows build.
+- FIX → restored the missing closing container and added a contract guard.
+- PROOF → exact failure observed in Actions logs; new-head PASS not yet proven.
+- NEXT → consume fresh exact-head build/quality result; then continue independent fronts.
+- DO NOT REPEAT → stale evidence, duplicate UI paths, weak build assumptions.
+-
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / MULTI-DATASET RESULT SURFACE
 
 - BRANCH → `exec/20260927-import-full-lifecycle`.
