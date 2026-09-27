@@ -142,7 +142,12 @@ export function DecisionExperiencePage() {
   }, [importJobId]);
 
   useEffect(() => { void load(); }, [load]);
-  useEffect(() => { if (requestedStage && STAGES.some((item) => item.id === requestedStage)) setStage(requestedStage); }, [requestedStage]);
+  useEffect(() => {
+    if (!requestedStage || !STAGES.some((item) => item.id === requestedStage)) return;
+    const sourceBlocked = Boolean(importJobId && !sourceSnapshot);
+    const safeRequestedStage = sourceBlocked && ['decision', 'approval', 'work', 'outcome'].includes(requestedStage) ? 'evidence' : requestedStage;
+    setStage(safeRequestedStage);
+  }, [requestedStage, importJobId, sourceSnapshot]);
 
   const selected = recommendations.find((item) => item.id === selectedId) ?? null;
   const currentStageIndex = Math.max(0, STAGES.findIndex((item) => item.id === stage));
