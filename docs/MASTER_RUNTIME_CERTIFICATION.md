@@ -1,3 +1,16 @@
+## CURRENT LIVE BOUNDARY — 2026-09-27 / IMPORT-FINISH SECURITY RECONCILIATION
+
+- CURRENT CODE CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact SHA `9aa6c8ccea82b20d949ae2e41fdad2f1b1126631`.
+- LIVE TARGET → Supabase staging `fnqbvfuwbdpwvhcgzksl` / `Report-Advisor-P0-2-Staging`.
+- ROOT CAUSE → live `import_finish_job(uuid,text,jsonb,text)` had drifted to SECURITY DEFINER because an applied historical migration was absent from the candidate repository lineage.
+- ACTUAL REPAIR → repository migration `20260927235000_reconcile_import_finish_job_security_invoker.sql` restores SECURITY INVOKER, `search_path = public, pg_catalog`, and explicit authenticated/service_role execution.
+- ACTUAL LIVE EXECUTION → Supabase migration `20260927203948_reconcile_import_finish_job_security_invoker` applied successfully.
+- LIVE READBACK → function definition now has no SECURITY DEFINER clause; EXECUTE is present for authenticated/postgres/service_role and absent for public/anon.
+- EVIDENCE CLASS → live database/security boundary only. This does NOT prove browser, hosted preview, production, device, or Phase-F certification.
+- HOSTING/DEVICE → exact candidate Netlify deploy `6ab97f10fb0f09000849973a` is STATE=error because the build had no content change; Vercel remains build-rate-limited; PC01 is offline.
+- NEXT → fresh exact-`9aa6c8c` CI/certification results remain the authoritative gate; repair only the first reproducible current-SHA failure.
+
+
 # MASTER RUNTIME / CERTIFICATION REFERENCE — الأغبري
 Status: CANONICAL DOMAIN REFERENCE
 
