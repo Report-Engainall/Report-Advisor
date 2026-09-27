@@ -1,20 +1,21 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
-- CURRENT VERIFIED MAIN SHA → `fd9229c45ab9c7214ac62767284be928d62bf697`
-- CURRENT EXECUTION/CANDIDATE SHA → `ad632d3d39aa7847c9df0fe362f2c9a67346e3f4`
+- CURRENT VERIFIED MAIN SHA → `a76f19a7da58071dce9a08874eae2b666827aa11`
+- CURRENT EXECUTION/CANDIDATE SHA → `d6e1d13931250c9ee298bc933a2be8c7ccda7899`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize` / PR #667
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning; Benchmark remains fail-closed until a real peer cohort exists.
-- ACTUAL RESULT → post-import canonical UI/runtime delta is on the single functional front; duplicate PR #668 is closed. Phase-9 exact-head ref verification was repaired without weakening exact-SHA equality.
-- EVIDENCE → old `2cdd7128…` failed before Phase-9 contract execution at remote-ref verification. Fresh proof is required on `ad632d3d…`. Vercel remains external build-rate-limit.
-- FIRST FAILURE → closed on the active source path by replacing brittle `git ls-remote` assertion with explicit branch-ref fetch plus exact SHA comparison.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; authenticated production/browser/Phase-F evidence remains NOT PROVEN; device PC01 unavailable.
-- NEXT EXECUTABLE ACTION → consume first terminal #667 workflow gate on the current SHA; repair only the first reproducible current-SHA root.
-- NEXT INDEPENDENT ACTIONS → continue safe superseded-front cleanup and canonical-state reconciliation; no duplicate importer/RPC/runner.
-- DO NOT REPEAT → PR #668 duplicate front; stale #664/#665 evidence; preview-as-production; source/read/preview treated as completion; unsafe production mutation.
-- RESUME STATUS → ACTIVE / MAIN RECONCILED / SINGLE FUNCTIONAL FRONT #667 / EXACT-HEAD PROOF IN FLIGHT
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
+- ACTUAL RESULT → single functional front retained; duplicate PR #668 and stale UI PRs #594/#596/#603 closed. `/benchmark` and `/replay` are now canonical registry routes backed by existing page/Sidebar implementations.
+- EVIDENCE → `2cdd7128…` phase9 failure was exact-head ref verification before contract execution; ref verifier repaired. `8c4097fa…` had CodeRabbit PASS + Netlify deploy-preview PASS, Vercel external rate-limit.
+- FIRST FAILURE → closed at CI harness layer without changing acceptance criteria.
+- OPEN BLOCKERS → GitHub gates still in flight on new candidate; Vercel free-plan build-rate limit; authenticated production/browser/Phase-F evidence NOT PROVEN; device unavailable.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow result on candidate `d6e1d139…`; fix only the first reproducible current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue safe cleanup of clearly superseded fronts; reconcile canonical memory/index after each code candidate.
+- DO NOT REPEAT → duplicate fronts, stale PASS transfer, preview-as-production, route without registry, or import completion at parse/preview only.
+- RESUME STATUS → ACTIVE / SINGLE FUNCTIONAL FRONT #667 / EXACT-HEAD PROOF IN FLIGHT
 
 ---
+
 
 
 # RESUME TOKEN — 2026-09-27 / CURRENT LIVE CHECKPOINT
