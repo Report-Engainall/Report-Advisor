@@ -3,38 +3,19 @@
 - SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
 - CURRENT VERIFIED REPOSITORY HEAD → `DOC-STATE-COMMIT`
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE SHA → `e35e17606b1dd5f6de66093fee402e9dcaa07d1c`
+- CURRENT CODE/TEST CANDIDATE SHA → `ff1d2bc7abed87133ba8b1d81ae9c12c060733b6`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH`
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize/Reconcile → Quality/Trust → Evidence → Review → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
-- ACTUAL RESULT → Shared DataTable loading mirrors table geometry; unavailable-data state is announced semantically; shell has keyboard skip-link and route-aware document titles; alert retrieval fails closed and never converts an unavailable source to zero. Stale governance PR #543 is closed after canonical absorption.
-- EVIDENCE → Last application mutation is exact `e35e17606b1dd5f6de66093fee402e9dcaa07d1c`. Current candidate workflow checks are queued/non-terminal. Older deployment evidence remains historical and is not transferred.
-- FIRST FAILURE → No current-SHA code failure reproduced. External Vercel deployment remains rate-limited; authenticated browser/device proof and Phase-F live resilience remain unavailable.
+- ACTUAL RESULT → Shared DataTable loading mirrors table geometry; DataUnavailableState is announced semantically; shell has keyboard skip-link and route-aware titles; alert retrieval preserves last known data and explicitly reports unavailability; redundant unused CanonicalScenarioPage was removed after dependency proof; UI contract now asserts the new protections.
+- EVIDENCE → Last application/test mutation exact SHA: `ff1d2bc7abed87133ba8b1d81ae9c12c060733b6`. No runtime PASS transferred from older heads. Current PR CI must be read against the final repository head after the state-doc checkpoint.
+- FIRST FAILURE → No reproducible code failure in the present batch. External Vercel deployment remains rate-limited; authenticated browser/device proof and Phase-F live resilience remain unavailable.
 - OPEN BLOCKERS → Fresh deployment, authenticated browser/device evidence, Phase-F live resilience. Repository-side work remains executable.
-- NEXT EXECUTABLE ACTION → Consume terminal CI for `e35e17606b1dd5f6de66093fee402e9dcaa07d1c`; fix the first reproducible failure, then continue targeted canonical UI/core closure.
-- NEXT INDEPENDENT ACTIONS → Finish remaining state/accessibility/value-first checks; clean only proven-stale fronts; preserve exact-SHA evidence.
-- DO NOT REPEAT → Historical evidence from earlier SHAs, unauthenticated preview as authenticated UX proof, stale PR implementations already absorbed, or device-bound work.
+- NEXT EXECUTABLE ACTION → Consume terminal CI at the final PR head; fix first reproducible current-head failure, then continue remaining independent canonical UI/core closure.
+- NEXT INDEPENDENT ACTIONS → Reconcile any CI failure by root cause; otherwise perform safe stale-front cleanup and inspect remaining value/state/a11y gaps.
+- DO NOT REPEAT → Historical PASS on earlier SHAs, unauthenticated preview as authenticated UI proof, superseded page implementations, or device-bound work.
 - RESUME STATUS → ACTIVE / NOT CLOSED / SAFE WORK REMAINS.
 
-
-# RESUME TOKEN — 2026-09-27 / NON-DEVICE DEEP CLOSURE CHECKPOINT
-
-- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `b262c87ac0cb52e01523c95e99f876f6286eb77e`
-- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- CURRENT BOUNDARY → non-device product closure + UI capability guards + exact-head proof consumption.
-- ACTUAL RESULT → canonical post-import journey is live in source; Forecasts now expose an explicit fail-closed Backtest Gate instead of implying a fabricated accuracy result; Product WOW contract now enforces the eight canonical navigation zones, 38/38 registry-to-App route parity, Decision ROI, Money Recovery, Decision Coverage, Decision Playbooks state, Report Builder/print, Evidence Passport/snapshots, and post-import continuity.
-- CLEANUP → legacy `src/pages/ExternalFileAnalysisPage.tsx` deletion remains proven by PR #671. No speculative file deletion was performed.
-- PROOF → source/contract readback is exact at `b262c87a…`; current GitHub workflow materialization has not produced terminal results for this head. Vercel remains externally blocked by free-plan deployment-rate limit.
-- FIRST FAILURE → backtest card placement was initially inserted into the intelligence overview instead of Forecasts; fixed on the same branch. No acceptance criteria changed.
-- OPEN BLOCKERS → Vercel rate limit; device unavailable; authenticated production/browser/Phase-F evidence NOT PROVEN; local clone unavailable.
-- NEXT EXECUTABLE ACTION → consume first terminal current-head workflow gate; repair only first reproducible current-SHA root.
-- NEXT INDEPENDENT ACTIONS → continue only bounded source/reference cleanup and product-contract hardening with concrete evidence.
-- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, speculative ROI/backtest formulas, speculative deletion.
-- RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE DEEP CLOSURE / EXACT-HEAD PROOF IN FLIGHT
-
----
 
 # RESUME TOKEN — 2026-09-27 / FINAL CURRENT-SHA CHECKPOINT
 

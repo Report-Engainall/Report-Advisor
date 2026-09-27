@@ -1,18 +1,19 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT — UPDATED
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `e35e17606b1dd5f6de66093fee402e9dcaa07d1c`
-- REPOSITORY STATE → documentation checkpoint follows the application candidate and does not alter the application code boundary.
-- FUNCTIONAL FRONT → PR #671 / `e35e17606b1dd5f6de66093fee402e9dcaa07d1c`
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH`
+- CURRENT CODE/TEST CANDIDATE → `ff1d2bc7abed87133ba8b1d81ae9c12c060733b6`
+- REPOSITORY STATE → one documentation checkpoint follows the application/test head and does not change application behavior.
+- FUNCTIONAL FRONT → PR #671 / `ff1d2bc7abed87133ba8b1d81ae9c12c060733b6`
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT DATA until a real peer cohort exists.
-- ROOT FIXES → canonical import/decision continuity is on current main; shared table loading, governed unavailable state, keyboard skip navigation, route titles, and alert truth handling are tightened without duplicate architecture.
-- EXACT EVIDENCE → Fresh proof is required on `e35e17606b1dd5f6de66093fee402e9dcaa07d1c`; current PR checks are queued/non-terminal. Older deployment PASS records remain historical.
+- ROOT FIXES → post-import continuum is wired through Evidence, Signals, Decision, Work, Outcome/Replay; shared table/state surfaces, keyboard navigation, route titles, and alert truth handling are fail-closed; superseded unused scenario page removed.
+- EXACT EVIDENCE → current application/test head is `ff1d2bc7abed87133ba8b1d81ae9c12c060733b6`; fresh CI/deployment evidence on the resulting PR head is still required. Historical deployment evidence remains historical.
 - EXTERNAL → Vercel free-plan deployment rate limit; authenticated browser/device proof unavailable; Phase-F live resilience remains environment-bound.
-- CLEANUP → stale governance PR #543 closed after canonical absorption; no new Master/Memory/Index family created.
-- NEXT → consume terminal exact-head CI, fix the first reproducible current-SHA failure, then continue targeted UI/a11y/value-first closure and safe stale-front cleanup.
+- CLEANUP → PR #543 closed after canonical absorption; `CanonicalScenarioPage.tsx` removed after route/import/code-search dependency proof. No new Master/Memory/Index family created.
+- NEXT → consume terminal exact-head CI, fix the first reproducible failure, then continue targeted UI/a11y/value-first closure.
 
 ---
+
 
 
 
