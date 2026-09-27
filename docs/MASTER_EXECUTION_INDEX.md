@@ -3,15 +3,15 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `527eaf673b654abf436e59757914fbc1959cf97d4`
-- FUNCTIONAL FRONT → PR #670 / `527eaf673b654abf436e59757914fbc1959cf97d4`
+- CURRENT CODE/TEST CANDIDATE → `10d0755c624ea9ee71b58655b0e734f63d8c4bee`
+- FUNCTIONAL FRONT → PR #670 / `10d0755c624ea9ee71b58655b0e734f63d8c4bee`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- ROOT FIXES → certification candidate binding parser repaired; canonical E-20..E-26 execution rules restored; Decision Experience approval state now exposes persisted actors/timestamps/reason.
-- EXACT PROOF → failure on `7cb988fb…` was exact-head execution-enforcement root; fresh proof is required on `527eaf67…`.
+- ROOT FIXES → certification candidate parser fixed; E-20..E-26 enforcement restored; approval UI persistence details fixed and protected by the existing Product WOW UI contract.
+- EXACT PROOF → earlier `7cb988fb…` enforcement failure was reproduced and fixed; current `10d0755c…` requires fresh exact-head proof.
 - PHASE-F → NOT CERTIFIED; live backup/restore/RPO/RTO/rollback evidence remains required.
 - EXTERNAL → Vercel build-rate-limit; device/browser/production proof unavailable.
-- NEXT → consume first terminal `527eaf67…` gate; repair only current-SHA root and re-prove.
+- NEXT → consume first terminal `10d0755c…` gate; repair only current-SHA root and re-prove.
 
 ---
 
