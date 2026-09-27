@@ -9,6 +9,7 @@ fs.mkdirSync(path.dirname(checker), { recursive: true });
 const sourceChecker = fs.readFileSync(path.join(process.cwd(), 'scripts/check-tenant-legacy-consumers.mjs'), 'utf8');
 fs.writeFileSync(checker, sourceChecker);
 fs.mkdirSync(path.join(root, 'src/pages'), { recursive: true });
+fs.mkdirSync(path.join(root, 'src/server'), { recursive: true });
 
 const canonical = `
 import { resolveCurrentCompanyId } from '@/lib/supabase';
