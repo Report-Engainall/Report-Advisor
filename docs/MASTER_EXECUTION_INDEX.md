@@ -3,16 +3,16 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CODE CANDIDATE → `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`
-- FUNCTIONAL FRONT → PR #671 / `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`
+- CURRENT EXECUTION/CODE CANDIDATE → `4644a9b2306b70bcf3283c29c0913719ac599e7c`
+- FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- UI AFTER IMPORT → canonical Import → Trust/Evidence → Signals → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE until a real peer cohort exists.
-- NEW UI DELIVERY → Evidence Passport exposes the stored Snapshot AS OF timestamp; post-import decision-continuity remains explicitly evidence-neutral.
-- EXACT CURRENT SOURCE → UI `b990a7830375336d2651a3668d69f8914a7a0943`; guard `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`.
-- PROOF STATE → fresh exact-head workflows must be consumed; no historical PASS transfer.
+- UI AFTER IMPORT → Import → Trust/Evidence → Signals → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
+- NEW UI DELIVERY → Evidence Passport AS OF context plus Business Replay refresh + AS OF snapshot/outcome + bounded read-window disclosure.
+- EXACT MUTATIONS → Trust `b990a783…`, Trust contract `da8c2cce…`, Replay `4cd74e811…`, Replay contract `4644a9b2…`.
+- PROOF STATE → no terminal failure on the current candidate yet; fresh workflows are expected from the latest branch head.
 - PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback remains external/runtime evidence.
 - EXTERNAL → Vercel free-plan build-rate limit; device/browser/production certification remains environment-bound.
-- NEXT → consume first terminal `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f` workflow; repair only current-SHA root and rescan UI/core fronts.
+- NEXT → consume first terminal current-SHA workflow; fix only the first reproducible root, then rescan route/contract and stale-front boundaries.
 ---
 
 
