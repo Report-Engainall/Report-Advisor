@@ -155,8 +155,8 @@ export function TrustEvidencePage() {
                     <div className="mt-1 text-[9px] text-ink-400">{String(dataset.specialty ?? 'other')} · {String(dataset.columnCount ?? 0)} أعمدة</div>
                   </div>
                   <div className="flex flex-wrap gap-2 text-[9px] font-bold text-ink-600">
-                    <span className="rounded-full bg-white px-2 py-1">الصفوف {String(dataset.rowCount ?? 0)}</span>
-                    <span className="rounded-full bg-white px-2 py-1">ثقة {String(dataset.specialtyConfidence ?? 0)}%</span>
+                    <span className="rounded-full bg-white px-2 py-1">الصفوف {dataset.rowCount == null ? 'غير متاح' : String(dataset.rowCount)}</span>
+                    <span className="rounded-full bg-white px-2 py-1">ثقة {dataset.specialtyConfidence == null ? 'غير متاح' : String(dataset.specialtyConfidence) + '%'}</span>
                     <span className="rounded-full bg-white px-2 py-1">الجودة {String(dataset.qualityScore ?? 'غير متاحة')}</span>
                   </div>
                 </div>
