@@ -123,8 +123,9 @@ export function understandCanonicalSource(datasets: Dataset[]): CanonicalSourceU
     ? Math.min(99, Math.round((aggregateRanked[0][1] / totalSignal) * 100))
     : 0;
   const warnings: string[] = [];
+  const mixedSpecialtySource = new Set(summaries.map((summary) => summary.specialty)).size > 1;
   if (datasets.length > 1) warnings.push('MULTI_DATASET_SOURCE:' + datasets.length);
-  if (summaries.some((summary) => summary.specialty !== specialty)) {
+  if (mixedSpecialtySource) {
     warnings.push('MULTI_SPECIALTY_SOURCE_REQUIRES_GENERIC_CANONICAL_BOUNDARY');
   }
   if (qualityScore < 75) warnings.push('SOURCE_REVIEW_REQUIRED:' + qualityScore);
@@ -135,7 +136,7 @@ export function understandCanonicalSource(datasets: Dataset[]): CanonicalSourceU
     qualityScore,
     specialty,
     specialtyConfidence,
-    entityType: inferEntityType(specialty, datasets),
+    entityType: mixedSpecialtySource ? 'generic:source-data' : inferEntityType(specialty, datasets),
     columns,
     rows,
     datasets: summaries,
