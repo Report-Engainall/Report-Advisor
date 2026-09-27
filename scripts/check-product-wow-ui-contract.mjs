@@ -62,6 +62,11 @@ assert.ok(appShell.includes('advisorCounts.recommendations'), 'global Advisor mu
 assert.ok(sidebar.includes("trust: { hint: 'إثبات، مصدر، وثقة', tag: 'TRUST' }"), 'Trust navigation section must have product metadata');
 assert.ok(sidebar.includes("outputs: { hint: 'تقارير ومخرجات القرار', tag: 'OUTPUT' }"), 'Outputs navigation section must have product metadata');
 assert.ok(!dashboard.includes('generateSynthetic'), 'decision brief must not invent synthetic business data');
+const importEntry = fs.readFileSync('src/pages/ImportPage.tsx', 'utf8');
+assert.ok(importEntry.includes("import { CanonicalImportPage } from '@/pages/CanonicalImportPage';"), 'import entry must wrap the canonical import implementation');
+assert.ok((importEntry.match(/<CanonicalImportPage \/>/g) ?? []).length === 1, 'import entry must mount exactly one canonical import implementation');
+assert.ok(!importEntry.includes('createImportRecord(') && !importEntry.includes('runCanonicalImportThroughDurableRunner('), 'import entry must not implement a second import execution path');
+
 const importSurface = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
 assert.ok(importSurface.includes('لم يُثبت مصدر سابق لهذا الحساب بعد'), 'canonical import history empty state must distinguish an empty history');
 assert.ok(importSurface.includes('اختيار مصدر'), 'canonical import history empty state must expose a real source-selection action');
