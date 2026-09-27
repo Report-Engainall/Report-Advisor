@@ -1,21 +1,21 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `519bb7356e9b8516b560b45ab46e20e4f40f012`
-- CURRENT CODE ROOT CANDIDATE → `7011596a003982b1ff9c2bcfc1e0c7dab8a9f04`
-- CURRENT CONTRACT CANDIDATE → `5d35be5deb4fce8b8f39cefc77fe482fc5a5c480`
+- CURRENT BRANCH HEAD → `7b45491b0f0f8f99caa4ba2dda6a9d359f020530`
+- CURRENT CODE CANDIDATES → `7011596a003982b1ff9c2cbc1e0c7dab8a9f04`, `8c2ded7d4e268e029df10ed988d392039e8a5bce`, `2f9f4dc4653c38945cb739d1284c61fff992d4c7`
+- CURRENT CONTRACT CANDIDATE → `7b45491b0f0f8f99caa4ba2dda6a9d359f020530`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- ROOT FAILURE → recommendation cohort semantics were inconsistent: staging/DecisionExperience canonical status is `OPEN`, while Intelligence/Command Center/ExecutiveReport used incompatible filters. Resolved through shared `src/lib/decision-status.ts` and adopted by all three surfaces.
-- ACTUAL RESULT → `OPEN → approved → in_progress → completed` recommendation lifecycle now drives Intelligence, Decision Coverage, and Executive Report consistently; legacy `accepted` remains compatibility-only.
-- OTHER CLOSED WORK → Evidence/Decision/Replay AS OF; bounded Replay read; command-center truth-derived Next Action; purchase multi-line row identity; all-seven typed server import boundaries; staging import RPC security grant hardening; unified import redirect; no duplicate importer.
-- STAGING PROOF → 6-arg import_commit_batch anon=false/authenticated=true/service_role=true; legacy 5-arg anon=false/authenticated=false/service_role=true; anonymous Security Advisor finding removed; recommendation status query observed `OPEN`.
-- CURRENT CI → latest head currently has only Vercel free-plan rate-limit failure; fresh workflow terminalization after latest decision commits has not arrived. No PASS transferred from older SHA.
-- OPEN BLOCKERS → Vercel build-rate-limit; production/browser/Phase-F exact evidence environment-bound; device unavailable; local GitHub/DNS execution unavailable.
-- FIRST FAILURE → fixed at UI semantic cohort root; fresh exact-head proof still pending.
-- NEXT EXECUTABLE ACTION → consume first terminal workflow on latest branch head; repair only current-SHA root if any.
-- NEXT INDEPENDENT ACTIONS → final decision/status rescan, route/contract rescan, safe cleanup gates.
-- DO NOT REPEAT → stale PASS transfer, incompatible status filters, display-window KPI calculations, duplicate importer/RPC/runner, speculative ROI formula, preview-as-production.
+- ROOT FAILURE CLOSED → actual recommendation lifecycle uses `OPEN` as the canonical ready-for-decision state. Intelligence, Command Center, and Executive Report previously used incompatible cohorts; all now share `isActionableRecommendationStatus`.
+- ACTUAL RESULT → recommendation queues, Decision Coverage, and Executive Report now surface OPEN/approved/in_progress consistently; Intelligence filters and labels reflect the canonical lifecycle while retaining legacy rows only through the shared resolver.
+- OTHER CLOSED WORK → import continuation, Evidence/Decision/Replay AS OF, bounded replay reads, truth-derived Next Action, purchase multi-line identity, seven typed import entities, staging import RPC hardening, unified `/import/analyze`, no duplicate importer.
+- STAGING PROOF → recommendations query observed `OPEN`; `update_recommendation_status` RPC defines `new→OPEN→approved→in_progress→completed` and terminal rejected/dismissed states. Import RPC grants remain hardened and tenant bound.
+- CURRENT CI → no fresh terminal workflow yet on latest exact head; Vercel remains external free-plan build-rate-limit.
+- OPEN BLOCKERS → Vercel rate-limit; production/browser/Phase-F exact evidence environment-bound; device unavailable; local GitHub/DNS execution unavailable.
+- FIRST FAILURE → recommendation cohort semantics, now repaired and contract-guarded.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow on `7b45491b0f0f8f99caa4ba2dda6a9d359f020530`; repair only the first current-SHA root.
+- NEXT INDEPENDENT ACTIONS → final route/contract rescan and safe deletion-gate cleanup.
+- DO NOT REPEAT → stale PASS transfer, incompatible recommendation status filters, display-window KPI calculations, duplicate importer/RPC/runner, speculative ROI formula, preview-as-production.
 - RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD PROOF IN FLIGHT
 ---
 
