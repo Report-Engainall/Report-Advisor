@@ -173,7 +173,10 @@ for (const token of [
   'commandNextAction.reason',
   'لا يتم دمجهما في درجة مخترعة',
 ]) assert.ok(commandCenter.includes(token), 'command center decision coverage/next-action guard missing: ' + token);assert.ok(commandCenter.includes('fetchBusinessReplaySnapshot'), 'command center replay state must use the canonical replay snapshot query');
-assert.ok(commandCenter.includes('const replayAvailable'), 'command center replay availability must be derived from canonical snapshot truth');
+assert.ok(commandCenter.includes('const replayAvailable'), 'command center replay availability must be derived from canonical snapshot truth');assert.ok(commandCenter.includes('Promise.allSettled'), 'command center must isolate auxiliary replay read failures from core command-center failure');
+assert.ok(commandCenter.includes('setReplayError(true)'), 'command center must expose an explicit replay-read review state');
+assert.ok(commandCenter.includes("const replayState = replayError ? 'REVIEW'"), 'command center replay state must distinguish source read failure from insufficient history');
+
 assert.ok(commandCenter.includes('to="/replay"'), 'command center replay action must route to the canonical replay surface');
 
 
