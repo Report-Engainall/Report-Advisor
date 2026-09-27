@@ -53,6 +53,8 @@ if (!sourceUnderstanding.includes("entityType: mixedSpecialtySource ? 'generic:s
 for (const token of [
   'CANONICAL_WRITE_FIELDS',
   'missingCanonicalWriteFields',
+  'for (const dataset of datasets)',
+  'dataset.columns.map((column) => column.mappedField)',
   "if (missing.length > 0) return 'generic:source-data'",
   "CANONICAL_ENTITY_REQUIREMENTS_UNMET:"
 ]) {
