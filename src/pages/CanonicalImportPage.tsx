@@ -289,7 +289,10 @@ export function CanonicalImportPage() {
 
       setProgress(88);
 
-      const authoritativeRowCount = Number(execution.authoritativeRowCount ?? validRows.length);
+      const authoritativeRowCount = Number(execution.authoritativeRowCount);
+      if (!Number.isInteger(authoritativeRowCount) || authoritativeRowCount < 0) {
+        throw new Error('CANONICAL_IMPORT_AUTHORITATIVE_ROW_COUNT_MISSING');
+      }
       const snapshotId = typeof execution.snapshotId === 'string' ? execution.snapshotId : null;
       const evidenceStatus = execution.evidenceStatus === 'VERIFIED' ? 'VERIFIED' : 'PARTIAL';
       await finishImportJob(rec.id, evidenceStatus === 'VERIFIED' ? 'completed' : 'partial', {
