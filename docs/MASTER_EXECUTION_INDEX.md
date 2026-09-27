@@ -2,19 +2,19 @@
 
 > This top block is the only startup boundary.
 
-- MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `af8d192275a1aee0306844b4258a67ab9068b42c`
+- MAIN HEAD → `ae88b0b5cb4fe9ec0aafab5f4aab061e6be30a8`
+- CURRENT CODE/TEST CANDIDATE → `af28f39ae643cfd23618bbe1d62cdc5e6870e2b6`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - PRODUCT CHAIN → Any Source → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
-- UI COVERAGE → 8 canonical zones; 38/38 registry routes; eight-stage Product Journey; full 16-stage import lifecycle; post-import continuation; dynamic Master Data truth; source-bound Report Builder; shell/mobile contract coverage.
-- MASTER DATA → tenant-scoped entity counts + source analysis + canonical dataset + field lineage counts; explicit loading/error/refresh; empty source routes to unified import; no duplicate warehouse/branch surface.
-- REPORT BUILDER → `/reports?builder=1`; session-scoped, source-bound, current-snapshot-only; canonical export and isolated print; no saved-template persistence claim.
-- CAPABILITY GATES → Playbooks, Benchmark, Decision ROI and Forecast Backtest remain fail-closed without their governed contracts/minimum evidence.
-- CURRENT PROOF → `af8d1922…` has not materialized workflow results yet. Prior `65bc3432…` web build step was SUCCESS on exact SHA while desktop native dependency installation was still in progress. Prior `e7eb1074…` desktop-windows PASS remains SHA-bound and not transferred.
-- STAGING → all 10 tables used by the Master Data/evidence surface verified present with RLS enabled.
+- UI COVERAGE → 8 canonical zones; 38/38 registry routes; eight-stage Product Journey; full import lifecycle; post-import continuation; tenant-scoped Master Data + semantic evidence; source-bound Report Builder; shell/mobile contracts.
+- MASTER DATA → explicit mapping from semantic keys to canonical table names; entity rows and evidence/lineage rows are displayed separately; empty source routes to unified import.
+- REPORT BUILDER → `/reports?builder=1`; canonical snapshot only; canonical export + isolated print; no saved-template persistence claim.
+- CAPABILITY GATES → Playbooks, Benchmark, Decision ROI, Forecast Backtest remain fail-closed without governed contracts/minimum evidence.
+- PROOF → current candidate `af28f39a…` has no workflow materialization yet. Prior `65bc3432…` web build step SUCCESS is exact-SHA only; prior `e7eb1074…` desktop-windows PASS remains exact-SHA only.
+- STAGING → all 10 Master Data/evidence tables verified present with RLS enabled.
 - EXTERNAL → Vercel free-plan deployment-rate limit; device unavailable; authenticated browser/Production/Phase-F proof NOT PROVEN.
-- NEXT → consume first terminal result for `af8d1922…`; repair only the first reproducible root, then continue the next safe independent front.
+- NEXT → consume first terminal result for `af28f39a…`; repair only first reproducible root, then continue the next safe front.
 ---
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / NON-DEVICE DEEP CLOSURE
