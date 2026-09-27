@@ -19,8 +19,8 @@ CREATE FUNCTION public.import_commit_batch(
   p_company_id uuid,
   p_entity_type text,
   p_rows jsonb,
-  p_null_policy text DEFAULT 'preserve',
-  p_source_hash text DEFAULT NULL,
+  p_null_policy text,
+  p_source_hash text,
   p_import_job_id uuid
 )
 RETURNS jsonb
