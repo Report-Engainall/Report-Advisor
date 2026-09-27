@@ -185,6 +185,7 @@ assert.ok(commandCenter.includes("setRecommendations(intelligence.recommendation
 assert.ok(commandCenter.includes('alerts.slice(0, 5)'), 'command center may limit display to a bounded alert window only after full-state derivation');
 assert.ok(commandCenter.includes('recommendations.slice(0, 5)'), 'command center may limit display to a bounded recommendation window only after full-state derivation');
 
+assert.ok(commandCenter.includes('ضمن القراءة الحالية؛ لا يتم دمجهما في درجة مخترعة'), 'decision coverage card must disclose its read-window scope');
 const commandPalette = fs.readFileSync('src/components/CommandPalette.tsx', 'utf8');
 assert.ok(appShell.includes('mobileSidebarRef'), 'mobile navigation drawer must expose a focus boundary');
 assert.ok(appShell.includes('aria-modal="true" aria-label="القائمة الرئيسية"'), 'mobile navigation drawer must declare modal semantics');
