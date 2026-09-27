@@ -1,12 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT UI LIFECYCLE EVIDENCE-NEUTRAL ADVANCE
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT UI ROOT FIX CONSUMED
 
-- MAIN HEAD VERIFIED → current main reconciliation remains the canonical documentation owner; the latest index state is being updated from this batch.
-- FUNCTIONAL CANDIDATE → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `31bbf8e64787c49f04b7a427d552407ef9b81ede`.
-- UI DELIVERY → existing `CanonicalImportPage` now visibly exposes the 16-layer canonical post-upload lifecycle without creating another route/importer/RPC/runner. The lifecycle strip is intentionally evidence-neutral: stage visibility is not treated as proof of VERIFIED status.
-- CURRENT EXACT-SHA PROOF → fresh browser-e2e, certification-contracts and enforcement-contract checks are queued; Cloudflare is in progress. No PASS is claimed on `31bbf8e` yet.
-- RELEASE/EXTERNAL → Vercel free-plan rate limit remains external; PC01 is offline; authenticated browser, production exact-SHA, rollback/restore/RPO/RTO and Phase-F remain NOT PROVEN.
-- NEXT → consume terminal exact-head checks for #662; repair only the first current-SHA failure. Then consume #663 and reconcile exact-head compatibility.
-- CLEANUP → no deletion in this batch; no candidate is delete-safe without current reference/dependency evidence and affected checks.
+- FUNCTIONAL CANDIDATE → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `4c51dbc164f3dc9c661d22e96e0d20cb96eb4829`.
+- FIRST CURRENT ROOT FAILURE CONSUMED → Netlify deploy `6ab9252993a9a50008659642` failed because `CanonicalImportPage.tsx:518` had an extra closing `</div>` introduced by the lifecycle insertion, producing JSX/CardBody/Card mismatch and unterminated-regex parser errors.
+- ROOT FIX → removed only the extra wrapper close; no acceptance criteria, route, importer, RPC, runner, or evidence boundary changed.
+- CURRENT PROOF → fresh exact-head Netlify/Cloudflare deployment checks are in progress on `4c51dbc`; browser-e2e, certification-contracts, and enforcement-contract are queued. No PASS claimed yet.
+- VERCEL → free-plan deployment rate limit remains an external status failure and is not treated as a code failure.
+- GOVERNANCE #663 → exact head `43a29443477aeb5969b99d672bd2c6698e0f7106` has Cloudflare SUCCESS and certification/enforcement still queued; no new failure observed.
+- UI BOUNDARY → existing import result surface now explicitly shows the full canonical post-upload lifecycle, evidence-neutral, with existing Trust/Work/Decision/Replay continuation links.
+- NEXT → consume first terminal `4c51dbc` check; repair only a newly reproduced current-SHA root failure. Then consume #663 terminal gates and reconcile.
+- EXTERNAL → PC01 offline; authenticated browser, production exact-SHA, rollback/restore/RPO/RTO and Phase-F remain NOT PROVEN.
 
 
 ---
