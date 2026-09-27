@@ -1,19 +1,19 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT NON-DEVICE UI + IMPORT / REPORT BUILDER CONTINUITY
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `6b6b3a10568bb0821f2c2a9a5ef03d18d429a5be`
+- CURRENT CODE/TEST CANDIDATE → `a8227b8f2f2b8bf478aa2f12c2715fff53f0c55e`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize → Quality/Trust → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
-- ACTUAL RESULT → 38/38 canonical navigation routes resolve to App routes; Product Journey exposes eight visible stages; canonical import exposes the 16-stage lifecycle plus five post-import continuation cards. The executive shell is dark/RTL and guarded against light CSS regression. Mobile primary navigation localizes from the canonical registry. Master Data is tenant-scoped and source-bound with loading/error/refresh and real counts. Reports Center now contains a source-bound session-scoped Report Builder using the existing snapshot and export/print paths.
-- EXACT SOURCE EVIDENCE → candidate `6b6b3a10…` contains the Master Data implementation + guard and the Report Builder implementation + guard. No runtime/build PASS is transferred to this candidate.
-- CURRENT CI → 43 queued, 3 pending, 1 in-progress, 1 skipped at latest observation; no terminal failure and no terminal success on this candidate yet. Earlier desktop-windows SUCCESS on `e7eb1074…` remains SHA-bound and is not transferred.
-- FIRST FAILURE → no terminal failure on current candidate. Source construction defects during this batch were corrected before proof consumption; acceptance criteria were unchanged.
+- ACTUAL RESULT → canonical import lifecycle and post-import journey remain intact; Master Data now reads tenant-scoped canonical counts with loading/error/refresh and truthful empty-source routing; Reports Center now has a source-bound session-scoped Report Builder with selectable snapshot sections, print isolation, and reuse of the canonical export artifact path. No duplicate route/RPC/runner/schema was added.
+- EXACT SOURCE EVIDENCE → candidate `a8227b8f…` contains the latest Report Builder print guard and all prior UI/core changes. Workflow materialization for this exact candidate has not appeared yet; no PASS claimed.
+- PRIOR EXACT EVIDENCE → e7eb1074 had desktop-windows SUCCESS on the exact code candidate, with build, native watcher, native runtime smoke, Windows packaging and installer upload all successful. That evidence remains bound to e7eb1074 and is not transferred.
+- FIRST FAILURE → none terminalized on the latest candidate. Temporary source-construction defects in this session were corrected before proof; acceptance criteria unchanged.
 - OPEN BLOCKERS → Vercel free-plan deployment-rate limit; device unavailable; authenticated browser/Production/Phase-F proof NOT PROVEN.
-- NEXT EXECUTABLE ACTION → consume first terminal result for `6b6b3a10…`; repair only the first reproducible current-SHA root.
-- NEXT INDEPENDENT ACTIONS → continue dependency-proven UI/core hardening; retain Playbooks/Benchmark/ROI/Backtest as fail-closed until their real contracts/data exist; no duplicate schemas/routes.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow result for `a8227b8f…`; repair only the first reproducible current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue bounded UI/core hardening only where existing canonical paths can satisfy the requirement; keep Playbooks/Benchmark/ROI/Backtest fail-closed until their governed contracts/data exist.
 - DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, speculative playbook/backtest/ROI/benchmark schemas, speculative deletion.
-- RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE DEEP CLOSURE / EXACT-HEAD PROOF IN FLIGHT
+- RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE DEEP CLOSURE / EXACT-HEAD PROOF NEW CANDIDATE
 ---
 
 # RESUME TOKEN — 2026-09-27 / NON-DEVICE DEEP CLOSURE CHECKPOINT
