@@ -137,6 +137,7 @@ export function TrustEvidencePage() {
           </div>
         </div>
         {sourceSnapshot ? (
+          <>
           <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-5">
             <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">المصدر</div><div className="mt-1 break-all text-[11px] font-black text-ink-900">{String(sourceSnapshot.metadata.fileName ?? sourceSnapshot.source_path)}</div></div>
             <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">الجودة</div><div className="mt-1 text-[15px] font-black text-ink-900">{sourceSnapshot.quality_score == null ? 'غير متاح' : sourceSnapshot.quality_score + '%'}</div></div>
@@ -162,7 +163,8 @@ export function TrustEvidencePage() {
               )) : <div className="rounded-xl border border-warning-200 bg-warning-50 p-3 text-[10px] text-warning-900">لا توجد ملخصات Dataset مثبتة.</div>}
             </div>
             {!!sourceSnapshot.warnings.length && <div className="mt-3 rounded-xl border border-warning-200 bg-warning-50/70 p-3 text-[10px] leading-5 text-warning-900"><strong>تحذيرات المصدر:</strong> {sourceSnapshot.warnings.join(' · ')}</div>}
-          </div>        ) : (
+          </>
+        ) : (
           <div className="p-4">
             <div className="rounded-xl border border-warning-200 bg-warning-50/70 p-4 text-[11px] leading-6 text-warning-900">
               تم تمرير العملية إلى المسار التشغيلي، لكن Snapshot الدليل المرتبط بهذا الاستيراد غير مثبت. لن تُرفع الثقة ولن تُعتبر هذه العملية دليلًا مكتملًا.
