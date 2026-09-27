@@ -1,3 +1,22 @@
+# RESUME TOKEN — 2026-09-27 / FINAL NON-DEVICE CHECKPOINT
+
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT BRANCH HEAD → `643a17c149bf0b6a2be6149652892905c17ab58c`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- CURRENT BOUNDARY → non-device closure complete for current actionable front; exact-head CI proof pending.
+- ACTUAL RESULT → post-import journey, fail-closed Backtest Gate, route/capability contract hardening, canonical import server-boundary hardening, and bounded legacy cleanup are implemented. No duplicate importer/RPC/runner/schema was created.
+- STAGING TRUTH → forecasts=0; decision_outcomes=1; decision_work_items=0; operational_task_proposals=0; control_plane_drift_events=0; recommendations=1; business_intelligence_decisions=2; canonical_import_commits=3224; source_analysis_snapshots=119. No dedicated playbooks/backtests/source-schema-drift table exists.
+- EXACT PROOF → source/docs are reconciled at `643a17c1…`; PR is open and mergeable. Current GitHub Actions: 45 queued, 1 in-progress, 2 pending, 1 skipped; no terminal current-head failure/pass. Vercel rate-limit remains external.
+- FIRST FAILURE → Netlify/API error-contract mismatch was repaired and guarded; backtest UI placement issue was repaired before checkpoint.
+- OPEN BLOCKERS → Vercel free-plan deployment-rate limit; unavailable device; authenticated browser/Production/Phase-F proof NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume first terminal current-head workflow result; fix only first reproducible root.
+- NEXT INDEPENDENT ACTIONS → only dependency-proven cleanup or current-SHA regression work.
+- DO NOT REPEAT → speculative playbook/backtest/schema-drift schemas, stale PASS transfer, preview-as-production, duplicate paths, speculative deletion.
+- RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE WORK EXHAUSTED FOR THIS ACTIONABLE FRONT / EXACT-HEAD PROOF IN FLIGHT
+
+---
+
 # RESUME TOKEN — 2026-09-27 / STAGING CAPABILITY TRUTH CHECKPOINT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
