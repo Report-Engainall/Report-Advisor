@@ -146,6 +146,11 @@ assert.ok(dashboardActionIndex >= 0 && dashboardActionIndex < dashboardLoadingRe
 assert.ok(dashboardSurface.includes('dashboardNextAction.to'), 'dashboard next action must use its derived canonical route');
 assert.ok(dashboardSurface.includes('dashboardNextAction.description'), 'dashboard next action must explain why the action is recommended');
 
+assert.ok(reports.includes("builder: '1'"), 'reports center must expose the source-bound Report Builder state without creating a second route');
+assert.ok(reports.includes('ReportBuilder'), 'reports center must mount the canonical source-bound builder');
+assert.ok(reports.includes('downloadReportArtifact'), 'report builder must reuse the canonical report export path');
+assert.ok(reports.includes('SOURCE-BOUND DRAFT'), 'report builder must disclose session-scoped source binding rather than imply saved-template persistence');
+assert.ok(reports.includes('window.print()'), 'report builder must preserve print output');
 const reports = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
 assert.ok(!reports.includes('window.location.reload()'), 'report pages must retry in place without a full browser reload');
 assert.ok(reports.includes('export function PurchasesReportPage()'), 'purchase report must remain guarded after retry refactor');
