@@ -14,6 +14,9 @@ type MasterDataCounts = {
   warehouses: number;
   branches: number;
   categories: number;
+  analysisSnapshots: number;
+  canonicalDatasets: number;
+  fieldMappings: number;
 };
 
 const entityLinks = [
@@ -61,9 +64,12 @@ export function MasterDataHubPage() {
         countFor('warehouses'),
         countFor('branches'),
         countFor('categories'),
+        countFor('source_analysis_snapshots'),
+        countFor('canonical_dataset_records'),
+        countFor('import_field_lineage'),
       ]);
 
-      setCounts({ customers, products, inventory, suppliers, warehouses, branches, categories });
+      setCounts({ customers, products, inventory, suppliers, warehouses, branches, categories, analysisSnapshots, canonicalDatasets, fieldMappings });
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل حالة البيانات المرجعية');
     } finally {
@@ -76,7 +82,7 @@ export function MasterDataHubPage() {
 
   const summary = useMemo(() => {
     if (!counts) return null;
-    const domains = [counts.customers, counts.products, counts.inventory, counts.suppliers, counts.warehouses, counts.branches, counts.categories];
+    const domains = [counts.customers, counts.products, counts.inventory, counts.suppliers, counts.warehouses, counts.branches, counts.categories, counts.analysisSnapshots, counts.canonicalDatasets, counts.fieldMappings];
     return {
       populatedDomains: domains.filter(value => value > 0).length,
       totalRows: domains.reduce((total, value) => total + value, 0),
@@ -165,6 +171,11 @@ export function MasterDataHubPage() {
             </div>)}
             <div className="rounded-xl border border-ink-100 bg-white p-3 text-[10px] leading-5 text-ink-600">
               <span className="font-black text-ink-900">الفئات المثبتة:</span> {formatNumber(counts.categories)} — تستخدم كمرجع تصنيفي، ولا تتحول تلقائيًا إلى قرار أو KPI.
+            </div>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <div className="rounded-xl border border-ink-100 bg-white p-3"><div className="text-[8px] font-black text-ink-400">SOURCE ANALYSIS</div><div className="mt-1 text-sm font-black text-ink-950">{formatNumber(counts.analysisSnapshots)}</div><div className="mt-1 text-[9px] text-ink-500">لقطات فهم مصدر مثبتة.</div></div>
+              <div className="rounded-xl border border-ink-100 bg-white p-3"><div className="text-[8px] font-black text-ink-400">CANONICAL DATASETS</div><div className="mt-1 text-sm font-black text-ink-950">{formatNumber(counts.canonicalDatasets)}</div><div className="mt-1 text-[9px] text-ink-500">سجلات مصدرية canonical.</div></div>
+              <div className="rounded-xl border border-ink-100 bg-white p-3"><div className="text-[8px] font-black text-ink-400">FIELD LINEAGE</div><div className="mt-1 text-sm font-black text-ink-950">{formatNumber(counts.fieldMappings)}</div><div className="mt-1 text-[9px] text-ink-500">آثار mapping وحوكمة الحقول.</div></div>
             </div>
           </CardBody>
         </Card>
