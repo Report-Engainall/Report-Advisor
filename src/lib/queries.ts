@@ -310,6 +310,44 @@ export async function startDecisionWorkItem(workItemId: string): Promise<void> {
   });
   if (error) throw error;
 }
+
+export type RecommendationOutcomeRecord = {
+  id: string;
+  recommendation_key: string;
+  decision_id: string | null;
+  observed_at: string;
+  expected_impact: number | null;
+  actual_impact: number | null;
+  outcome_quality: number | null;
+  status: string;
+  evidence: Record<string, unknown>;
+};
+
+export async function fetchRecommendationOutcome(decisionId: string): Promise<RecommendationOutcomeRecord | null> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase
+    .from('recommendation_outcomes')
+    .select('id, recommendation_key, decision_id, observed_at, expected_impact, actual_impact, outcome_quality, status, evidence')
+    .eq('company_id', companyId)
+    .eq('decision_id', decisionId)
+    .order('observed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  return {
+    id: String(data.id),
+    recommendation_key: String(data.recommendation_key),
+    decision_id: data.decision_id ? String(data.decision_id) : null,
+    observed_at: String(data.observed_at),
+    expected_impact: data.expected_impact == null ? null : Number(data.expected_impact),
+    actual_impact: data.actual_impact == null ? null : Number(data.actual_impact),
+    outcome_quality: data.outcome_quality == null ? null : Number(data.outcome_quality),
+    status: String(data.status),
+    evidence: data.evidence && typeof data.evidence === 'object' ? data.evidence as Record<string, unknown> : {},
+  };
+}
 export type ReceivablesReportRow = { id:string; invoice_number:string; invoice_date:string; due_date:string|null; total:number|null; paid_amount:number|null; balance:number; status:string|null; customer:{id:string|null;name:string|null}|null };
 export type ReceivablesReportPage = { status:'CALCULATED'|'NO_DATA'; page:number; page_size:number; total_rows:number; total_outstanding:number; rows:ReceivablesReportRow[] };
 export async function fetchReceivablesReportPage(page=0,pageSize=25):Promise<ReceivablesReportPage>{if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');if(!Number.isInteger(pageSize)||pageSize<1||pageSize>100)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');const {data,error}=await supabase.rpc('get_receivables_report_page',{p_page:page,p_page_size:pageSize});if(error)throw error;if(!data||typeof data!=='object')throw new Error('REPORT_DATA_UNAVAILABLE: receivables snapshot missing');const p=data as Record<string,unknown>;if(!Array.isArray(p.rows))throw new Error('REPORT_DATA_UNAVAILABLE: receivables rows missing');return{status:p.status==='NO_DATA'?'NO_DATA':'CALCULATED',page:Number(p.page??page),page_size:Number(p.page_size??pageSize),total_rows:Number(p.total_rows??0),total_outstanding:Number(p.total_outstanding??0),rows:p.rows as ReceivablesReportRow[]};}
