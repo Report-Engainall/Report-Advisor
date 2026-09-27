@@ -52,3 +52,7 @@ A commercially credible release should be:
 - mobile-capable
 - safe under uncertainty
 - demonstrable with real system state
+
+
+## Report Builder — 2026-09-27
+The Reports Center now exposes a source-bound, session-scoped Report Builder at /reports?builder=1. It composes selected sections from the current canonical dashboard snapshot, preserves As Of/truth semantics, supports print and the existing report export artifact path, and explicitly does not claim saved-template persistence. Persistent playbooks, benchmark cohorts, ROI formulas, and backtest history remain governed by their existing availability gates rather than being simulated in the UI.
