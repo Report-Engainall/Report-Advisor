@@ -1,20 +1,20 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
-- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CANDIDATE SHA → `7dcceb5b70ba4fe5056a0bb1317257a5b977fc85`
+- CURRENT REPOSITORY HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT VERIFIED SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT CODE/TEST CANDIDATE → `957b7e6a800c644ff3a4cda6e3da87e0506e9894`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- FRONT-ID → IMPORT-TO-DECISION-CONTINUITY
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- ACTUAL RESULT → server canonical import now accepts all seven typed entity boundaries already emitted by source understanding; the contract guard now protects all seven. Purchase-line identity, Evidence AS OF, Replay truth context/refresh, Decision AS OF, and localized typed labels remain integrated on the same canonical path.
-- CORE ROOT FIX → `3d5cb96f4a20f0c007a6a6817ee31655c3ae86a4` expanded server request validation to purchase_invoices/suppliers/inventory_balances/payments in addition to products/customers/sales_invoices/generic.
-- TEST GUARD → `7dcceb5b70ba4fe5056a0bb1317257a5b977fc85` protects every typed server entity boundary.
-- PROOF → exact source verified on current branch. Fresh CI is queued/pending; no terminal current-SHA failure. Vercel remains an external free-plan build-rate-limit failure.
-- OPEN BLOCKERS → Vercel build-rate-limit; authenticated production/browser/Phase-F remains environment-bound; device unavailable; local GitHub/DNS execution unavailable.
-- FIRST FAILURE → none terminalized on current candidate.
-- NEXT EXECUTABLE ACTION → consume first terminal workflow result on `7dcceb5b70ba4fe5056a0bb1317257a5b977fc85`; repair only current-SHA root.
-- NEXT INDEPENDENT ACTIONS → final route/contract rescan; reconcile PR body and current head; safe legacy cleanup only where deletion gates are proven.
-- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, preview-as-production, or treating preview/navigation as downstream proof.
-- RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD PROOF IN FLIGHT
+- ACTUAL RESULT → typed purchases/suppliers/inventory/payments commit through the existing authoritative 6-argument RPC; purchase lines persist in purchase_items; inventory may remain warehouse-less when the source/table truth permits; payment identity matches the DB fallback key; Import + Evidence use the shared canonical labels; server executor accepts the same canonical entity type.
+- LIVE PROOF → staging exercised suppliers, purchase_invoices + multiple purchase_items on one invoice, warehouse-less inventory, payments with repeated reference on different dates, idempotent replay, tenant mismatch, NaN/Infinity guards, and rollback cleanliness. No persistent staging mutation remains.
+- ROOT FAILURES CONSUMED → payment_id duplicate-key bug; purchase-line syntax; schema field/union drift; UI helper import drift; server entity allowlist drift; payment identity mismatch; multi-line reconciliation identity drift. All repaired with existing contracts and no acceptance weakening.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; authenticated production/Phase-F/browser final proof remains environment-bound; latest PR #671 gates queued/in flight.
+- NEXT EXECUTABLE ACTION → consume the first terminal failure on exact candidate 957b7e6a800c644ff3a4cda6e3da87e0506e9894; repair only that root and re-prove.
+- NEXT INDEPENDENT ACTIONS → continue final post-import truth/readback audit and safe stale-front cleanup only where overlap is proven.
+- DO NOT REPEAT → duplicate importer/RPC/runner, generic fallback for typed specialties, static business truth, preview-as-production, stale PR #670 evidence.
+- RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD FUNCTIONAL FRONT / CI IN FLIGHT
+
 ---
 
 
