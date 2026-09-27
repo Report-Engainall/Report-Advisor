@@ -40,7 +40,8 @@ for (const token of [
   "label: 'التعلّم'",
   "path: '/replay'",
 ]) assert.ok(journey.includes(token), 'product journey must expose the canonical stage: ' + token);
-assert.ok((journey.match(/const steps: JourneyStep\[\] = \[//)?.length ?? 0) === 1, 'product journey must keep one canonical step definition');
+assert.ok((journey.match(/const steps: JourneyStep\[\] = \[/)?.length ?? 0) === 1, 'product journey must keep one canonical step definition');
+assert.equal((journey.match(/label: '/g) ?? []).length, 8, 'product journey must expose exactly eight canonical visible stages');
 const appShell = fs.readFileSync('src/App.tsx', 'utf8');
 const sidebar = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
 const navigationRegistry = fs.readFileSync('src/lib/navigation-registry.ts', 'utf8');
