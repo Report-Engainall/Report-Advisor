@@ -140,7 +140,7 @@ export function CanonicalImportPage() {
     setHistoryError(null);
     try {
       const focusedJobId = typeof window !== 'undefined' ? window.sessionStorage.getItem('aghbari:last-import-job') : null;
-      setHistory(await fetchImportRecords(100, focusedJobId ?? undefined));
+      setHistory(await fetchImportRecords(500, focusedJobId ?? undefined));
     } catch (cause) {
       setHistory([]);
       setHistoryError(cause instanceof Error ? cause.message : 'تعذر تحميل سجل الاستيرادات');
