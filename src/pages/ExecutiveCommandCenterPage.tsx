@@ -94,7 +94,7 @@ export function ExecutiveCommandCenterPage() {
       const [snapshotResult, intelligenceResult, replayResult] = await Promise.allSettled([
         fetchDashboardSnapshot(months),
         fetchDashboardIntelligence(),
-        fetchBusinessReplaySnapshot(),
+        fetchBusinessReplaySnapshot(1),
       ]);
       if (snapshotResult.status === 'rejected') throw snapshotResult.reason;
       if (intelligenceResult.status === 'rejected') throw intelligenceResult.reason;
