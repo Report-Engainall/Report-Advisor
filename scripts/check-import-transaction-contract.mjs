@@ -96,9 +96,15 @@ if (!/qualityApproved: boolean/.test(adapter) || !/qualityApproved/.test(adapter
   throw new Error('Canonical durable adapter must carry explicit quality approval state');
 }
 
+const serverCorePath = path.join(root, 'src', 'server', 'canonical-import-executor.ts');
+if (!fs.existsSync(serverCorePath)) throw new Error('Canonical durable import server execution core is missing');
+const serverAdapter = fs.readFileSync(serverCorePath, 'utf8');
 const serverAdapterPath = path.join(root, 'netlify', 'functions', 'canonical-import-execute.mts');
-if (!fs.existsSync(serverAdapterPath)) throw new Error('Canonical durable import server boundary is missing');
-const serverAdapter = fs.readFileSync(serverAdapterPath, 'utf8');
+if (!fs.existsSync(serverAdapterPath)) throw new Error('Canonical durable import deployment wrapper is missing');
+const serverWrapper = fs.readFileSync(serverAdapterPath, 'utf8');
+const apiWrapperPath = path.join(root, 'api', 'canonical-import-execute.ts');
+if (!fs.existsSync(apiWrapperPath)) throw new Error('Canonical API deployment wrapper is missing');
+const apiWrapper = fs.readFileSync(apiWrapperPath, 'utf8');
 if (!/parseFile\(bytes\.buffer, fileRecord\.file_name/.test(serverAdapter)) {
   throw new Error('Canonical server boundary must re-extract rows from the authoritative source bytes');
 }
@@ -125,11 +131,8 @@ if (authoritativeParseIndex < 0 || sourceReadyWriteIndex < 0 || verifiedMetadata
 }
 
 for (const token of [
-  "request.method !== 'POST'",
-  "env('SUPABASE_SERVICE_ROLE_KEY')",
   "Authorization",
   "userClient.rpc('current_company_id')",
-  "SUPABASE_SERVICE_ROLE_KEY",
   "serverExecution: true",
   "workerClient: serviceClient",
   "dataClient: userClient",
@@ -139,6 +142,30 @@ for (const token of [
   "mode === 'finalize-source'",
 ]) {
   if (!serverAdapter.includes(token)) throw new Error(`Canonical server execution boundary missing: ${token}`);
+}
+
+if (!/request\.method\s*!==\s*['"]POST['"]/.test(serverWrapper)) {
+  throw new Error('Netlify canonical deployment wrapper must enforce POST');
+}
+if (!/env\(['"]VITE_SUPABASE_URL['"]\)/.test(serverWrapper) ||
+    !/env\(['"]VITE_SUPABASE_ANON_KEY['"]\)/.test(serverWrapper) ||
+    !/env\(['"]SUPABASE_SERVICE_ROLE_KEY['"]\)/.test(serverWrapper)) {
+  throw new Error('Netlify canonical deployment wrapper must bind all required Supabase server credentials');
+}
+if (!/request\.headers\.get\(['"]authorization['"]\)/i.test(serverWrapper) ||
+    !/executeCanonicalImport/.test(serverWrapper)) {
+  throw new Error('Netlify canonical deployment wrapper must forward authenticated requests to the shared server execution core');
+}
+if (!/requireMethod\(req, res, ['"]POST['"]\)/.test(apiWrapper)) {
+  throw new Error('API canonical deployment wrapper must enforce POST');
+}
+if (!/SUPABASE_SERVICE_ROLE_KEY/.test(apiWrapper) ||
+    !/VITE_SUPABASE_ANON_KEY/.test(apiWrapper) ||
+    !/executeCanonicalImport/.test(apiWrapper)) {
+  throw new Error('API canonical deployment wrapper must bind required Supabase configuration and delegate to the shared server execution core');
+}
+if (!/authorization/i.test(apiWrapper) || !/bearerToken/.test(apiWrapper) || !/const token\s*=\s*bearerToken\(req\)/.test(apiWrapper)) {
+  throw new Error('API canonical deployment wrapper must require an authenticated bearer token');
 }
 if (/grant execute on function public\\.(claim|heartbeat|advance|complete|fail|retry)_report_execution_job[^\\n]*to authenticated/i.test(serverAdapter)) {
   throw new Error('Canonical server boundary must not add authenticated worker RPC grants');
@@ -208,3 +235,12 @@ for (const dir of sourceDirs) {
 }
 
 console.log('Import transaction contract: PASS');
+
+for (const [name, wrapper] of [
+  ['Netlify', serverWrapper],
+  ['API', apiWrapper],
+]) {
+  if (!wrapper.includes('executeCanonicalImport') || wrapper.includes('authoritativeDatasets') || wrapper.includes('reconcileForCanonical')) {
+    throw new Error(`${name} canonical deployment wrapper must delegate to the shared server execution core without duplicating source semantics`);
+  }
+}
