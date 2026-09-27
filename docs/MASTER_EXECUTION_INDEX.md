@@ -3,15 +3,16 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE: `03eb9c35658cf6798b0e8d4ca45fa625898ef8de`
-- FUNCTIONAL FRONT → PR #670 / `03eb9c35658cf6798b0e8d4ca45fa625898ef8de`
+- CURRENT CODE/TEST CANDIDATE: `2fe8b9c14801eece26966dca651e9082129752f0`
+- FUNCTIONAL FRONT → PR #670 / `2fe8b9c14801eece26966dca651e9082129752f0`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- SPECIALTY CLOSURE → purchases→purchase_invoices, suppliers→suppliers, inventory→inventory_balances, payments→payments on the existing authoritative 6-arg RPC; no new importer/RPC.
+- SPECIALTY CLOSURE → purchases→purchase_invoices, suppliers→suppliers, inventory→inventory_balances, payments→payments on the existing authoritative 6-arg RPC; no new RPC.
 - UI AFTER IMPORT → canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- EXACT PROOF → current migration executed inside Supabase staging transaction, function definition inspected for new specialty branches, then rolled back. No persistent staging mutation.
+- EXACT LIVE PROOF → real staging tenant executed all four specialty branches twice inside transaction; second replay was idempotent; cross-tenant call failed closed; rollback cleanliness verified.
+- ROOT FIX → payment_id-aware lookup repaired a duplicate primary-key failure discovered by live transaction testing.
 - PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback remains external/runtime evidence.
 - EXTERNAL → Vercel build-rate-limit; device/browser/production certification remains environment-bound.
-- NEXT → consume first terminal `03eb9c35658cf6798b0e8d4ca45fa625898ef8de` workflow; fix only current-SHA root and re-prove.
+- NEXT → consume first terminal `2fe8b9c14801eece26966dca651e9082129752f0` workflow; fix only current-SHA root and re-prove.
 
 ---
 
