@@ -1,3 +1,21 @@
+# RESUME TOKEN — 2026-09-27 / POST-IMPORT UI CONTINUITY
+
+- SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-10`
+- CURRENT VERIFIED SHA → `46675643e32f6ea28b6c1d80a530b2eb134e7907` (main)
+- CURRENT EXECUTION/CANDIDATE SHA → `57bd03db438e2a2ac399c1f3a09a72e24da348a6` (PR #662 / `exec/20260927-import-full-lifecycle` code+UI+contract batch)
+- BRANCH / PR → `exec/20260927-import-full-lifecycle` / #662
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT`
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Readback → Business Understanding → Signals → Decision/Work → Replay/Learning; Benchmark remains fail-closed until a real peer cohort exists.
+- ACTUAL RESULT → added tenant-scoped Business Replay query and page, added evidence-safe Benchmark surface, registered `/replay` and `/benchmark` in routes/navigation, and linked the completed canonical import flow to Replay. Added contract tests for both surfaces.
+- EVIDENCE → source code from #661 was transplanted only for independent surfaces; Replay query uses existing `business_state_snapshots`, `recommendation_outcomes`, and `decision_work_items` with `company_id` isolation and bounded read window; Benchmark has no fabricated cohort/percentile.
+- FIRST THREE ROOT FAILURES CLOSED → extra brace `7f7ee…`; missing `fetchDashboardIntelligence` export `e3c86…`; accidental partial `queries.ts` truncation restored at `87f73…`.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan build-rate limit; Phase-F/production exact-SHA resilience remains unproven.
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-head #662 gate on candidate `57bd03db438e2a2ac399c1f3a09a72e24da348a6`; fix only the first current-SHA failure.
+- NEXT INDEPENDENT ACTIONS → consume route completeness/browser/full-product proof for `/replay` and `/benchmark`; then reconcile remaining #661-only dashboard/data-quality closures without overlapping wholesale merge.
+- DO NOT REPEAT → partial-file writes from bounded reads, stale candidate binding, stale PASS transfer, duplicate importer/RPC/runner/query path, unknown-to-zero coercion, unsafe legacy import-job terminalization, preview-as-production/browser PASS.
+- RESUME STATUS → ACTIVE / UI CONTINUITY IMPLEMENTED / EXACT-HEAD PROOF QUEUED.
+
+---
 # RESUME TOKEN — 2026-09-27 / CANONICAL QUERY MODULE RESTORED
 
 - SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-09`
