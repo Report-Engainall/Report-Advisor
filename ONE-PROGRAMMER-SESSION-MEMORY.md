@@ -1,20 +1,20 @@
-# RESUME TOKEN — 2026-09-27 / CURRENT NON-DEVICE UI + IMPORT / REPORT BUILDER / MASTER-DATA CONTINUITY
+# RESUME TOKEN — 2026-09-27 / CURRENT NON-DEVICE UI + IMPORT / REPORT BUILDER / SETTINGS CONTINUITY
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `af28f39ae643cfd23618bbe1d62cdc5e6870e2b6`
+- CURRENT CODE/TEST CANDIDATE → `d8bb295c276cdd3630c09b74c23dbc22552c11c0`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize → Quality/Trust → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
-- ACTUAL RESULT → full import lifecycle/post-import journey, 38/38 navigation parity, eight-stage Product Journey, dark RTL shell, mobile language semantics, tenant-scoped Master Data, semantic evidence counts, and source-bound Report Builder are implemented and guarded. Master Data now uses an explicit canonical table-name map for every semantic count key.
-- ROOT REPAIRS → `171b3d87…` fixed undefined Master Data evidence destructuring and mixed entity/evidence totals; `22c9b848…` fixed runtime mapping of semantic keys to `source_analysis_snapshots`, `canonical_dataset_records`, and `import_field_lineage`; `af28f39a…` added regression guards for those mappings.
-- STAGING EVIDENCE → all 10 Master Data/evidence tables exist with RLS enabled; direct aggregate queries and schema inspection were executed on staging. No production mutation.
-- CURRENT CI → latest code candidate `af28f39a…` has no workflow materialization yet. Prior candidate `65bc3432…` had `Build web application` SUCCESS on the exact SHA while native desktop dependency installation was still in progress; no terminal PASS transferred.
+- ACTUAL RESULT → import lifecycle/post-import, 38/38 navigation, eight-stage Product Journey, dark RTL shell, mobile language semantics, tenant-scoped Master Data + semantic evidence, source-bound Report Builder, and Profile Settings fail-closed load/retry are implemented and guarded.
+- ROOT REPAIRS → `171b3d87…` fixed Master Data destructuring/summary; `22c9b848…` fixed semantic table mapping; `af28f39a…` guarded canonical mappings; `bb65a8af…` fixed Profile Settings initial-load error semantics; `d8bb295c…` guards that contract.
+- STAGING EVIDENCE → 10 Master Data/evidence tables exist with RLS enabled; aggregate and schema queries executed against staging. No production mutation.
+- CURRENT CI → newest candidate `d8bb295c…` has no workflow materialization yet. Earlier `65bc3432…` web build step succeeded on exact SHA while desktop native install was in progress; no terminal PASS transferred.
 - PRIOR EXACT EVIDENCE → `e7eb1074…` desktop-windows terminal SUCCESS; not transferable.
-- FIRST FAILURE → Master Data evidence binding/mapping defects found by exact source inspection and corrected before current candidate terminalization; acceptance criteria unchanged.
+- FIRST FAILURE → latest exact-source failures were corrected at root before current candidate terminalization; acceptance criteria unchanged.
 - OPEN BLOCKERS → Vercel free-plan deployment-rate limit; device unavailable; authenticated browser/Production/Phase-F proof NOT PROVEN.
-- NEXT EXECUTABLE ACTION → consume first terminal workflow result for `af28f39a…`; repair only the first reproducible current-SHA root.
-- NEXT INDEPENDENT ACTIONS → continue dependency-proven UI/core closure; keep Playbooks/Benchmark/Decision ROI/Backtest fail-closed until real contracts/data exist.
-- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, speculative playbook/backtest/ROI/benchmark schemas, speculative deletion.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow result for `d8bb295c…`; repair only the first reproducible current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue dependency-proven UI/core closure; keep Playbooks/Benchmark/Decision ROI/Backtest fail-closed until governed contracts/data exist.
+- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, speculative capability schemas, speculative deletion.
 - RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE DEEP CLOSURE / CURRENT CANDIDATE PROOF PENDING
 ---
 
