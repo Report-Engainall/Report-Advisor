@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-27 / TRUST DATASET TRUTH CLOSURE
+
+- SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-06`.
+- CURRENT EXECUTION CANDIDATE → `c235d58c88ffce1501dee660e8f4114774aa8084`.
+- FRONT-ID → `UI-TRUST-EVIDENCE-BUILD`.
+- ACTUAL RESULT → Trust & Evidence Dataset cards no longer coerce missing row counts or specialty-confidence values to zero; unknown remains `غير متاح`.
+- CONTRACT → Product WOW UI contract now guards both unknown-value semantics and the repaired dataset-container JSX closure.
+- ROOT FAILURE HISTORY → previous exact Windows build failure was the missing closing div in TrustEvidencePage; fixed before this semantic repair.
+- PROOF → exact repository mutations verified. Fresh post-fix workflow result is not yet materialized; no PASS claimed.
+- OPEN BLOCKERS → PC01 offline; browser/local proof unavailable; Vercel free-plan rate-limit remains external.
+- NEXT EXECUTABLE ACTION → consume the next exact-head desktop/quality result; repair only the first new current-SHA failure, otherwise move to the next independent product/core surface.
+- DO NOT REPEAT → stale PASS, unknown-to-zero coercion, duplicate import path, reopening closed import work.
+- RESUME STATUS → ACTIVE / NOT PROVEN.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / FIRST-CURRENT-FAILURE REPAIR
 
 - SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-05`.
