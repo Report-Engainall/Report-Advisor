@@ -2,18 +2,18 @@
 
 - CURRENT REPOSITORY HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
 - CURRENT VERIFIED SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `2fe8b9c14801eece26966dca651e9082129752f0`
-- ACTIVE EXECUTION FRONT → PR #670 / `exec/20260927-current-main-import-ui-finalize-rebased` / single current-main import-to-decision front.
+- CURRENT CODE/TEST CANDIDATE → `ec3b9b513aea4db1ed875b816c67de852340145c`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
+- FRONT-ID → IMPORT-TO-DECISION-CONTINUITY
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- ACTUAL RESULT → all seven typed import entities are mapped and committed through the existing authoritative 6-argument RPC; specialty UI labels are customer-facing; no duplicate importer/RPC was introduced.
-- LIVE PROOF → on Supabase staging, with a real tenant claim, the current migration executed inside a transaction and successfully exercised suppliers, purchase_invoices, inventory_balances, and payments. Each branch was called twice; the second calls returned idempotent_replay=true. A wrong-company call returned TENANT_CONTEXT_MISMATCH. All changes were rolled back.
-- ROOT FAILURE CONSUMED → payment branch ignored an existing payment_id during lookup and attempted duplicate INSERT. Current fix introduces v_requested_payment_id lookup before reference fallback; transaction proof now succeeds and idempotently replays.
-- ROLLBACK CLEANLINESS → temporary warehouse row absent afterward; import job type restored to products; specialty canonical commit count for the test source remains zero.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; authenticated production/Phase-F/browser final certification remains environment-bound; fresh exact-head CI is queued/in flight.
-- NEXT EXECUTABLE ACTION → consume the first terminal workflow result on `2fe8b9c14801eece26966dca651e9082129752f0`; repair only the first current-SHA root.
-- NEXT INDEPENDENT ACTIONS → final truth/readback UI checks, contract rescan, safe historical-front cleanup only where overlap is proven.
-- DO NOT REPEAT → stale PASS transfer, duplicate RPC/importer, generic typed-specialty fallback, legacy import/analyze surface, static business truth, unproven production claims.
-- RESUME STATUS → ACTIVE / PR #670 / SPECIALTY IMPORT CLOSURE + LIVE TRANSACTION PROOF / EXACT-SHA CI PENDING
+- ACTUAL RESULT → typed purchases/suppliers/inventory/payments now commit through the existing authoritative 6-argument RPC; purchase lines persist in purchase_items; shared specialty/entity labels are reused by Import + Evidence UI; /import/analyze is compatibility-only and the duplicate page is deleted.
+- LIVE PROOF → staging tenant transaction exercised suppliers, purchase_invoices + purchase_items, inventory_balances, and payments. Each typed branch replayed idempotently; tenant mismatch failed closed; NaN/Infinity guards fired for purchase discount and inventory unit cost. All test writes rolled back.
+- ROOT FAILURES CONSUMED → payment_id duplicate-key bug; purchase-line migration syntax bug; shared-label import regression; all repaired and re-tested. No acceptance criteria weakened.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; authenticated production/Phase-F/browser final proof remains environment-bound; current PR #671 gates are queued/in flight.
+- NEXT EXECUTABLE ACTION → consume the first terminal failure on exact candidate ec3b9b513aea4db1ed875b816c67de852340145c; repair only that root and re-prove.
+- NEXT INDEPENDENT ACTIONS → continue post-import truth/readback UI depth, route/contract rescan, and safe stale-front cleanup only where overlap is proven.
+- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, generic fallback for typed specialties, static business truth, preview-as-production, or stale PR #670 evidence.
+- RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD FUNCTIONAL FRONT / PROOF IN FLIGHT
 
 ---
 
