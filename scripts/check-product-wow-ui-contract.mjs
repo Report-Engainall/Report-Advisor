@@ -155,6 +155,12 @@ assert.ok(canonicalImport.includes('Normalize') && canonicalImport.includes('Qua
 assert.ok(canonicalImport.includes('Canonical Commit') && canonicalImport.includes('Persistence') && canonicalImport.includes('Readback'), 'canonical import lifecycle must expose canonical commit, persistence and readback stages');
 assert.ok(canonicalImport.includes('Business Understanding') && canonicalImport.includes('Signals') && canonicalImport.includes('Decision'), 'canonical import lifecycle must expose business understanding, signals and decision stages');
 assert.ok(canonicalImport.includes('Outcome') && canonicalImport.includes('Learning'), 'canonical import lifecycle must expose outcome and learning stages');
+assert.ok(canonicalImport.includes('AFTER IMPORT · DECISION CONTINUITY'), 'canonical import result must expose an explicit post-import decision-continuity surface');
+assert.ok(canonicalImport.includes('ما الذي أصبح متاحًا الآن؟'), 'post-import surface must explain the current boundary instead of implying full downstream completion');
+assert.ok(canonicalImport.includes('SOURCE VERIFIED') && canonicalImport.includes('SOURCE PARTIAL'), 'post-import surface must preserve source truth state');
+assert.ok(canonicalImport.includes('توصيات مرتبطة بالمصدر'), 'post-import surface must expose source-bound recommendation count');
+assert.ok(canonicalImport.includes('تنبيهات عامة للشركة'), 'post-import surface must distinguish company-wide alerts from source-bound recommendations');
+assert.ok(canonicalImport.includes('لا تُرفع حالة أي مرحلة لمجرد وجود رابط لها'), 'post-import surface must remain evidence-neutral about downstream stages');
 assert.ok(canonicalImport.includes('إثباتها مرتبط بالحالة النهائية والدليل'), 'canonical import lifecycle must remain evidence-neutral rather than claiming VERIFIED per visible stage');
 assert.ok(!canonicalImport.includes('تم عبور هذه الطبقة ضمن التنفيذ الكانوني'), 'canonical import lifecycle must not imply VERIFIED proof merely from stage visibility');
 
