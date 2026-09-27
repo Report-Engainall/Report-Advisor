@@ -159,20 +159,6 @@ export function IntelligenceCenterPage() {
         forecastsCount={forecasts.length}
       />
 
-      <section aria-label="بوابة الاختبار الرجعي" className="rounded-[16px] border border-ink-200 bg-white p-4 shadow-card">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-start gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-50 text-warning-700"><History size={17}/></div>
-            <div>
-              <div className="text-[9px] font-black tracking-[.12em] text-warning-700">BACKTEST GATE</div>
-              <h2 className="mt-1 text-sm font-black text-ink-950">الاختبار الرجعي غير متاح حاليًا</h2>
-              <p className="mt-1 max-w-3xl text-[10px] leading-5 text-ink-500">لا توجد سلسلة تنبؤ تاريخية مرتبطة بنتائج فعلية محفوظة تسمح بقياس دقة التنبؤ دون تخمين. لذلك تبقى الحالة مغلقة بدل عرض نسبة دقة مصطنعة.</p>
-            </div>
-          </div>
-          <Link to="/replay" className="btn-secondary text-[11px]"><History size={13}/> مراجعة النتائج المحفوظة</Link>
-        </div>
-      </section>
-
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Link to="/command-center" className="card card-hover p-4">
           <div className="flex items-center justify-between"><CircleAlert size={17} className="text-danger-700"/><span className="badge-danger">EARLY WARNING</span></div>
@@ -569,6 +555,20 @@ export function ForecastsPage() {
         {label:'مع درجة جودة',value:qualityBounded,note:'حالة جودة مصدرية مسجلة'},
         {label:'آخر فترة',value:latestPeriod,note:'أحدث فترة في السجل'},
       ]}/>
+
+      <section aria-label="بوابة الاختبار الرجعي" className="rounded-[16px] border border-ink-200 bg-white p-4 shadow-card">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-50 text-warning-700"><History size={17}/></div>
+            <div>
+              <div className="text-[9px] font-black tracking-[.12em] text-warning-700">BACKTEST GATE</div>
+              <h2 className="mt-1 text-sm font-black text-ink-950">الاختبار الرجعي غير متاح حاليًا</h2>
+              <p className="mt-1 max-w-3xl text-[10px] leading-5 text-ink-500">لا توجد سلسلة تنبؤ تاريخية مرتبطة بنتائج فعلية محفوظة تسمح بقياس دقة التنبؤ دون تخمين. لذلك تبقى الحالة مغلقة بدل عرض نسبة دقة مصطنعة.</p>
+            </div>
+          </div>
+          <Link to="/replay" className="btn-secondary text-[11px]"><History size={13}/> مراجعة النتائج المحفوظة</Link>
+        </div>
+      </section>
 
       <section className="rounded-[16px] border border-warning-200 bg-warning-50/70 p-4">
         <div className="flex items-start gap-3">
