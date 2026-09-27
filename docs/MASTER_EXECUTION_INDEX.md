@@ -3,14 +3,15 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `12743bf7087efafc9563799b37483fdd3df1d74b`
+- CURRENT CODE/TEST CANDIDATE → `527eaf673b654abf436e59757914fbc1959cf97d4`
+- FUNCTIONAL FRONT → PR #670 / `527eaf673b654abf436e59757914fbc1959cf97d4`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains fail-closed until a real peer cohort exists.
-- PORT RESULT → 36 functional/contract files reconstructed directly onto current main; canonical control-plane documents remain owned by current main and are not overwritten by the candidate.
-- EXACT PROOF → no current-SHA workflow PASS claimed yet; candidate status currently has Vercel external build-rate-limit failure.
+- UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
+- ROOT FIXES → certification candidate binding parser repaired; canonical E-20..E-26 execution rules restored; Decision Experience approval state now exposes persisted actors/timestamps/reason.
+- EXACT PROOF → failure on `7cb988fb…` was exact-head execution-enforcement root; fresh proof is required on `527eaf67…`.
 - PHASE-F → NOT CERTIFIED; live backup/restore/RPO/RTO/rollback evidence remains required.
-- EXTERNAL → device/browser/production proof unavailable in this session.
-- NEXT → consume first terminal PR #670 gate; repair only the first reproducible current-SHA root, then re-prove.
+- EXTERNAL → Vercel build-rate-limit; device/browser/production proof unavailable.
+- NEXT → consume first terminal `527eaf67…` gate; repair only current-SHA root and re-prove.
 
 ---
 
