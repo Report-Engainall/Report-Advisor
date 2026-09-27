@@ -303,6 +303,11 @@ BEGIN
       ORDER BY id
       LIMIT 1;
 
+      IF (nullif(btrim(v_row->>'warehouse_id'),'') IS NOT NULL OR nullif(btrim(v_row->>'warehouse'),'') IS NOT NULL)
+         AND v_warehouse_id IS NULL THEN
+        RAISE EXCEPTION 'INVENTORY_WAREHOUSE_NOT_FOUND';
+      END IF;
+
       SELECT id INTO v_id
       FROM public.inventory_balances
       WHERE company_id=v_company_id
