@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 const root = process.cwd();
-const requiredFiles = ['scripts/phase-f-live-resilience-probes.mjs','scripts/check-operational-resilience-contract.mjs','scripts/check-release-resilience-manifest.mjs','scripts/check-continuous-trust-contract.mjs','.github/workflows/phase-f-live-resilience.yml','supabase/migrations/20260825050000_operational_resilience_trust.sql','supabase/migrations/20260825090000_continuous_trust_autonomous_ops.sql','supabase/migrations/20260925170000_reconcile_current_customer_company_id.sql'];
+const requiredFiles = ['scripts/phase-f-live-resilience-probes.mjs','scripts/check-operational-resilience-contract.mjs','scripts/check-release-resilience-manifest.mjs','scripts/check-continuous-trust-contract.mjs','.github/workflows/phase-f-live-resilience.yml','supabase/migrations/20260825050000_operational_resilience_trust.sql','supabase/migrations/20260825090000_continuous_trust_autonomous_ops.sql','supabase/migrations/20260925170000_reconcile_current_customer_company_id.sql','supabase/migrations/20260927182000_restore_customer_credit_accounts_schema_parity.sql'];
 const missing = requiredFiles.filter((file) => !fs.existsSync(path.join(root, file)));
 if (missing.length) throw new Error(`Phase F runtime closure blockers:\n${missing.join('\n')}`);
 const migration = fs.readFileSync(path.join(root,'supabase/migrations/20260825050000_operational_resilience_trust.sql'),'utf8');
