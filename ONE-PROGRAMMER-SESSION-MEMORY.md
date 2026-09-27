@@ -1,3 +1,16 @@
+# RESUME TOKEN — 2026-09-27 / EXACT-CURRENT-MAIN IMPORT-TO-DECISION CHECKPOINT
+
+- CURRENT VERIFIED MAIN SHA → `7fe9c7ef3772c64bce93068aa5a4e5dc3dd7e0b8`
+- CURRENT FUNCTIONAL CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `68228b8809ea21b7cb392e0cbc490168fd525da8`
+- ACTUAL REBASE ACTION → reused PR #671's final repository tree, anchored it to current main as parent, and restored the latest main versions of `ONE-PROGRAMMER-SESSION-MEMORY.md` and `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
+- SOURCE DELTA → exact compare shows 77 changed files and one new commit above main.
+- LANE A — UI → canonical import-to-decision continuity, Decision status flow, Evidence/Signals/Decision/Work/Outcome/Replay surfaces, bounded replay, typed import understanding, and shared UI contract changes are included in the candidate snapshot. No current-SHA browser PASS is claimed.
+- LANE B — CORE → canonical import execute/commit paths, source understanding, transaction/security contracts, staging grant hardening, migrations, and CI/workflow changes from #671 are included in the candidate snapshot. No current-SHA runtime/certification PASS is claimed.
+- CURRENT PROOF → only snapshot construction and exact Git lineage are proven on `68228b8`; CI terminal proof is not yet materialized.
+- EXTERNAL BLOCKERS → Vercel free-plan build-rate limit; PC01/device offline; authenticated production/browser/Phase-F evidence unavailable. These block only their dependent fronts.
+- CLEANUP → #671 closed as superseded; #672 is the single active functional front. No stale evidence transferred.
+- NEXT EXECUTABLE ACTION → consume the first terminal #672 gate; fix only a reproducible `68228b8` root, then rescan and continue.
+
 # RESUME TOKEN — 2026-09-27 / BOOT-KERNEL HARDENING CHECKPOINT
 
 - CURRENT MAIN SHA AT CHECKPOINT → `e441fc95bc58d34b14fb8874cb3bf151a1318e6e`
