@@ -1,41 +1,20 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT — UPDATED
 
 - SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
-- CURRENT VERIFIED REPOSITORY HEAD → `DOC-STATE-COMMIT`
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE SHA → `ff1d2bc7abed87133ba8b1d81ae9c12c060733b6`
+- CURRENT CODE/TEST CANDIDATE SHA → `91e89f967bbfc5a86f62bec03a768a00d187bde0`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize/Reconcile → Quality/Trust → Evidence → Review → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
-- ACTUAL RESULT → Shared DataTable loading mirrors table geometry; DataUnavailableState is announced semantically; shell has keyboard skip-link and route-aware titles; alert retrieval preserves last known data and explicitly reports unavailability; redundant unused CanonicalScenarioPage was removed after dependency proof; UI contract now asserts the new protections.
-- EVIDENCE → Last application/test mutation exact SHA: `ff1d2bc7abed87133ba8b1d81ae9c12c060733b6`. No runtime PASS transferred from older heads. Current PR CI must be read against the final repository head after the state-doc checkpoint.
-- FIRST FAILURE → No reproducible code failure in the present batch. External Vercel deployment remains rate-limited; authenticated browser/device proof and Phase-F live resilience remain unavailable.
-- OPEN BLOCKERS → Fresh deployment, authenticated browser/device evidence, Phase-F live resilience. Repository-side work remains executable.
-- NEXT EXECUTABLE ACTION → Consume terminal CI at the final PR head; fix first reproducible current-head failure, then continue remaining independent canonical UI/core closure.
-- NEXT INDEPENDENT ACTIONS → Reconcile any CI failure by root cause; otherwise perform safe stale-front cleanup and inspect remaining value/state/a11y gaps.
-- DO NOT REPEAT → Historical PASS on earlier SHAs, unauthenticated preview as authenticated UI proof, superseded page implementations, or device-bound work.
+- ACTUAL RESULT → Shared DataTable loading mirrors table geometry; DataUnavailableState is announced semantically; shell has keyboard skip-link and route-aware titles; alert retrieval is fail-closed; redundant CanonicalScenarioPage removed; AlternativeGroupsPage now matches shared interaction standards for loading/error announcements, busy actions, and touch targets; UI contract protects all these changes.
+- EVIDENCE → Application/test candidate is exact `91e89f967bbfc5a86f62bec03a768a00d187bde0`. GitHub Actions are running/queued against this lineage; no runtime PASS is transferred from an earlier SHA. Vercel remains externally rate-limited.
+- FIRST FAILURE → No reproducible current-SHA code failure in this batch. Local container execution was attempted but external GitHub DNS was unavailable; this is not treated as code evidence.
+- OPEN BLOCKERS → Fresh deployment, authenticated browser/device proof, Phase-F live resilience. These do not block repository-side UI/core work.
+- NEXT EXECUTABLE ACTION → Consume terminal CI on the current exact head; fix first reproducible failure, then continue remaining independent UI/value/state closure.
+- NEXT INDEPENDENT ACTIONS → Continue targeted small-surface UI/accessibility hardening and prove stale legacy branches before closure.
+- DO NOT REPEAT → Historical PASS on older SHAs, unauthenticated preview as authenticated proof, duplicate architecture, or device-bound work.
 - RESUME STATUS → ACTIVE / NOT CLOSED / SAFE WORK REMAINS.
 
-
-# RESUME TOKEN — 2026-09-27 / FINAL CURRENT-SHA CHECKPOINT
-
-- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT PROOF TARGET / BRANCH HEAD BEFORE THIS CHECKPOINT → `e414ba9013b517ba912cfc9ec1e98b103e011621`
-- CODE MUTATION SHA → `bb86b9fb667f0f1aef1b28f97dcce9d189b5a717`
-- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- CURRENT BOUNDARY → source import result → Evidence → Signals → Decision → Work → Outcome/Learning, with route/contract/cleanup reconciliation completed on the current branch.
-- ACTUAL RESULT → canonical post-import journey added to the import result surface; 38/38 navigation registry items resolve to real App routes; legacy `ExternalFileAnalysisPage.tsx` is deleted by PR #671 and its removal is proven by the exact PR patch.
-- EXACT SOURCE EVIDENCE → current branch reads confirm the five-stage journey, UI contract guard, UI master contract, memory/index reconciliation, and route completeness. No runtime/build PASS is claimed for this exact proof target.
-- CURRENT REMOTE GATES → GitHub Actions: 44 queued, 3 pending, 2 skipped, 0 terminal pass/fail at observation. Combined status: Vercel FAILURE = free-plan deployment-rate limit; Vercel Deployments pending; Netlify current-head preview pending.
-- FIRST FAILURE → the only new code failure discovered in this batch was missing icon imports; corrected on the same branch before proof consumption.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; device unavailable; authenticated production/browser/Phase-F proof NOT PROVEN; local clone unavailable because github.com DNS does not resolve in the execution environment.
-- NEXT EXECUTABLE ACTION → consume first terminal GitHub gate on `e414ba90…`; repair only the first reproducible current-SHA root, if any.
-- NEXT INDEPENDENT ACTIONS → continue only bounded reference/duplicate cleanup where absence of dependencies is provable; otherwise retain files.
-- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, direct recommendation approval bypass, local row-count truth, speculative ROI formulas, speculative deletion.
-- RESUME STATUS → ACTIVE / PR #671 / CURRENT BRANCH RECONCILED / EXACT-HEAD PROOF IN FLIGHT
-
----
 
 # RESUME TOKEN — 2026-09-27 / CURRENT BRANCH RECONCILED
 

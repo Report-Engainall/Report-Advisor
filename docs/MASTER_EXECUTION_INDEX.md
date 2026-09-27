@@ -1,18 +1,17 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT — UPDATED
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `ff1d2bc7abed87133ba8b1d81ae9c12c060733b6`
-- REPOSITORY STATE → one documentation checkpoint follows the application/test head and does not change application behavior.
-- FUNCTIONAL FRONT → PR #671 / `ff1d2bc7abed87133ba8b1d81ae9c12c060733b6`
+- CURRENT CODE/TEST CANDIDATE → `91e89f967bbfc5a86f62bec03a768a00d187bde0`
+- FUNCTIONAL FRONT → PR #671 / `91e89f967bbfc5a86f62bec03a768a00d187bde0`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT DATA until a real peer cohort exists.
-- ROOT FIXES → post-import continuum is wired through Evidence, Signals, Decision, Work, Outcome/Replay; shared table/state surfaces, keyboard navigation, route titles, and alert truth handling are fail-closed; superseded unused scenario page removed.
-- EXACT EVIDENCE → current application/test head is `ff1d2bc7abed87133ba8b1d81ae9c12c060733b6`; fresh CI/deployment evidence on the resulting PR head is still required. Historical deployment evidence remains historical.
-- EXTERNAL → Vercel free-plan deployment rate limit; authenticated browser/device proof unavailable; Phase-F live resilience remains environment-bound.
-- CLEANUP → PR #543 closed after canonical absorption; `CanonicalScenarioPage.tsx` removed after route/import/code-search dependency proof. No new Master/Memory/Index family created.
-- NEXT → consume terminal exact-head CI, fix the first reproducible failure, then continue targeted UI/a11y/value-first closure.
+- ROOT FIXES → shared table loading, governed unavailable states, global keyboard navigation, route titles, alert truth handling, superseded page cleanup, and AlternativeGroups interaction hardening are now part of the current candidate.
+- EXACT EVIDENCE → current code/test head is `91e89f967bbfc5a86f62bec03a768a00d187bde0`; Actions are not terminal yet. Older deployment evidence remains historical. Vercel remains rate-limited.
+- CLEANUP → PR #543 closed after canonical absorption; CanonicalScenarioPage removed after route/import/code-search dependency proof.
+- NEXT → consume terminal exact-head CI, repair first reproducible current-head failure, then continue targeted UI/a11y/value-first closure.
 
 ---
+
 
 
 
