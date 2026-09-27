@@ -57,7 +57,7 @@ function rowIdentity(entityType: CanonicalImportEntityType, row: Record<string, 
         : entityType === 'inventory_balances'
           ? [row.warehouse_id ?? row.warehouse, row.product_id ?? row.sku ?? row.product_name]
           : entityType === 'payments'
-            ? (row.payment_id ?? row.reference ?? [row.direction, row.payment_date, row.payment_amount, row.customer_id ?? row.supplier_id ?? row.invoice_id])
+            ? (row.payment_id ?? [row.reference, row.direction, row.payment_date])
             : entityType === 'purchase_invoices'
               ? (
                   row.product_id != null ||
