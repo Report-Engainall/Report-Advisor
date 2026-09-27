@@ -193,3 +193,19 @@
 - NEXT INDEPENDENT ACTIONS → continue targeted UI truth/UX and evidence audits only where they do not duplicate closed work.
 - DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate import/navigation/RPC/runner; unsafe `import_jobs` mutation; blanket security cleanup.
 - RESUME STATUS → ACTIVE / UI LIFECYCLE + CONTRACT HARDENING ADVANCED / EXACT-HEAD PROOF RUNNING.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-150
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-150`.
+- CURRENT DOCUMENTATION SHA → `531f44591feee27f8c413c71de4755da09ca11fb`.
+- CURRENT FUNCTIONAL HEAD → PR #662 / `exec/20260927-import-full-lifecycle` / `334c80ec51d304041071eae5908f125016f520d4`.
+- EXACT CODE BUILD PROOF → exact repair SHA `4c51dbc164f3dc9c661d22e96e0d20cb96eb4829` has Cloudflare Pages SUCCESS and Netlify deploy-preview SUCCESS (`6ab92571cea89200085beeaf`). This evidence remains bound to `4c51dbc` only.
+- CURRENT HEAD CHANGE → `334c80e` is contract-only after the code repair and extends the existing Product Wow UI contract with 16-stage lifecycle/evidence-neutral assertions. No duplicate test file.
+- CURRENT EXACT-SHA GATES → Cloudflare in progress; certification-contracts queued; enforcement-contract queued; Supabase Preview skipped; Vercel Preview Comments success. No overall PASS claimed on `334c80e`.
+- FIRST ROOT FAILURE → closed: Netlify JSX/CardBody parser failure from the lifecycle insertion was isolated and fixed; subsequent exact repair SHA built successfully.
+- OPEN BLOCKERS → Vercel free-plan rate limit; PC01 offline; authenticated browser, production exact-SHA, rollback/restore/RPO/RTO and Phase-F proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume terminal mandatory gates on `334c80e`; repair only the first new current-SHA root failure; then consume #663 and reconcile.
+- NEXT INDEPENDENT ACTIONS → none required before the current mandatory checks terminalize; preserve the canonical import surface and no-op duplicate paths.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; blanket security cleanup.
+- RESUME STATUS → ACTIVE / UI LIFECYCLE DELIVERED / ROOT FIX PROVEN ON REPAIR SHA / CONTRACT HEAD IN CURRENT PROOF.
