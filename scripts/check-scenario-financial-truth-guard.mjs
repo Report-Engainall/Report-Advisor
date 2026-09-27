@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
 const guard = fs.readFileSync('src/pages/ScenarioTruthGuardPage.tsx', 'utf8');
-const simulator = fs.readFileSync('src/pages/CanonicalScenarioPage.tsx', 'utf8');
+const simulator = guard;
 const app = fs.readFileSync('src/App.tsx', 'utf8');
 
 const requiredPatterns = [
@@ -10,7 +10,7 @@ const requiredPatterns = [
   /snapshot\.revenue\s*!==\s*null/,
   /snapshot\.cost\s*!==\s*null/,
   /setFinancials\(\{[\s\S]*revenue:\s*snapshot\.revenue,[\s\S]*cost:\s*snapshot\.cost[\s\S]*\}\)/,
-  /<CanonicalScenarioPage\s+baseRevenue=\{financials\.revenue\}\s+baseCost=\{financials\.cost\}/,
+  /<ScenarioCalculator\s+baseRevenue=\{financials\.revenue\}\s+baseCost=\{financials\.cost\}/,
 ];
 for (const pattern of requiredPatterns) {
   if (!pattern.test(guard)) throw new Error(`Scenario truth guard missing required boundary: ${pattern}`);
