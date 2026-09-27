@@ -207,6 +207,9 @@ const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'ut
 assert.ok(intelligence.includes('isActionableRecommendationStatus(item.status)'), 'intelligence queue must use canonical recommendation status semantics');
 assert.ok(intelligence.includes('const actionableRecommendations = useMemo('), 'intelligence must derive one canonical actionable recommendation cohort');
 assert.ok(intelligence.includes('isActionableRecommendationStatus(item.status)'), 'intelligence actionable cohort must use the canonical status resolver');
+assert.ok(intelligence.includes("const persistedStatus = status === 'accepted' ? 'approved' : status"), 'recommendation acceptance readback must reflect the canonical RPC transition to approved');
+assert.ok(intelligence.includes("setFilter] = useState<'all' | 'actionable' | 'approved' | 'in_progress' | 'rejected'>"), 'recommendation filters must expose canonical lifecycle states');
+
 assert.ok(executiveReport.includes('isActionableRecommendationStatus(item.status)'), 'executive report coverage must use canonical recommendation status semantics');
 assert.ok(!executiveReport.includes("['pending', 'proposed', 'approved', 'in_progress'].includes(item.status)"), 'executive report must not use an incompatible status cohort');
 const commandPalette = fs.readFileSync('src/components/CommandPalette.tsx', 'utf8');
