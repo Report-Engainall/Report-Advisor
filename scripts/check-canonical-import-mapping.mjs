@@ -7,6 +7,7 @@ const sourceUnderstanding = readFileSync(new URL('../src/lib/import/canonical-so
 const queriesSource = readFileSync(new URL('../src/lib/queries.ts', import.meta.url), 'utf8');
 const trustEvidencePage = readFileSync(new URL('../src/pages/TrustEvidencePage.tsx', import.meta.url), 'utf8');
 const decisionExperiencePage = readFileSync(new URL('../src/pages/DecisionExperiencePage.tsx', import.meta.url), 'utf8');
+const canonicalProductionAdapter = readFileSync(new URL('../src/lib/import/canonical-production-adapter.ts', import.meta.url), 'utf8');
 
 const required = [
   'materializeCanonicalFields',
@@ -183,4 +184,13 @@ for (const wrapper of [vercelCanonicalImport, netlifyCanonicalImport]) {
 }
 if (!canonicalServerCore.includes('if (existingCommit)') || !canonicalServerCore.includes('jobId: job.id')) {
   throw new Error('Canonical idempotent reuse must return the authoritative import job id');
+}
+
+const browserBoundary = canonicalProductionAdapter.indexOf('if (isBrowserServerBoundary)');
+const strictRowsValidation = canonicalProductionAdapter.indexOf("if (!input.rows.length) throw new Error('CANONICAL_IMPORT_REQUIRES_ROWS')");
+if (browserBoundary < 0 || strictRowsValidation < 0 || browserBoundary > strictRowsValidation) {
+  throw new Error('Canonical browser import must cross the authoritative server boundary before server-only row/quality validation');
+}
+if (!canonicalProductionAdapter.includes('const isBrowserServerBoundary = typeof window !== \'undefined\' && !options.serverExecution;')) {
+  throw new Error('Canonical production adapter missing explicit browser/server-boundary classification');
 }
