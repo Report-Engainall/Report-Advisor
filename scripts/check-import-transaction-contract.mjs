@@ -149,6 +149,17 @@ if (!/qualityApproved/.test(serverAdapter)) {
 if (!/authoritativeRowCount/.test(serverAdapter) || !/authoritativePreview/.test(serverAdapter)) {
   throw new Error('Canonical server boundary must return authoritative parse evidence for persistence');
 }
+if (!/Number\.isInteger\(Number\(payload\?\.authoritativeRowCount\)\)/.test(adapter)) {
+  throw new Error('Canonical browser boundary must reject a durable execution response without an authoritative row count');
+}
+if (page) {
+  if (/execution\.authoritativeRowCount\s*\?\?\s*validRows\.length/.test(page)) {
+    throw new Error('Canonical import UI must not fall back from missing authoritative row count to local preview rows');
+  }
+  if (!/Number\.isInteger\(authoritativeRowCount\) || authoritativeRowCount < 0/.test(page)) {
+    throw new Error('Canonical import UI must fail closed when authoritative row count is missing or invalid');
+  }
+}
 if (!/const dbBlock =/i.test('noop')) {
   // marker kept intentionally unreachable; avoids accidental future broad replacements
 }
