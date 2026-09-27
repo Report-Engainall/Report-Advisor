@@ -191,6 +191,8 @@ assert.ok(reports.includes('افحص جودة البيانات'), 'reports cente
 assert.ok(reports.includes('تحديث اللقطة'), 'reports center must support in-place refresh of the canonical snapshot');
 assert.ok(!reports.includes('generateSynthetic'), 'reports center must not invent business values');
 const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
+assert.ok(!trustEvidence.includes("String(dataset.columnCount ?? 0)"), 'Evidence Passport must not convert missing dataset column count into zero');
+assert.ok(trustEvidence.includes("dataset.columnCount == null ? 'غير متاح' : String(dataset.columnCount)"), 'Evidence Passport must render missing dataset column count as unavailable');
 assert.ok(trustEvidence.includes('const [refreshing, setRefreshing]'), 'trust evidence must refresh in-place instead of reloading the whole page');
 assert.ok(trustEvidence.includes("path: '/trust'"), 'Evidence Passport must use the canonical trust route');
 assert.ok(!trustEvidence.includes('window.location.reload()'), 'trust evidence refresh must not discard page context with a full reload');
