@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-27 / EXACT-CANDIDATE EVIDENCE BOUNDARY UPDATE
+
+- MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `924dc7c327d7c444bbe6ad6e436616014e58283d`
+- CURRENT CODE/TEST CANDIDATE → PR #672 / `ecfff32aa5ce1ec737663a71b1d9080ffe69e7eb`
+- FRESH BUILD EVIDENCE → Windows desktop job `36348110511` completed SUCCESS on the exact candidate SHA: web build, native watcher, native runtime smoke, installer packaging and artifact upload all completed.
+- FRESH QUALITY/CERTIFICATION/BROWSER GATES → quality `36348110541`, enforcement `36348110823`, final certification `36348110593`, device-independent browser `36348110591`, full product browser `36348110595` remain queued at last observation.
+- VERCEL → commit status failure remains the free-plan `build-rate-limit` blocker; no production proof.
+- NETLIFY → commit status was `success`, but actual deploy `6ab97c3d6fa5b900087ac057` is STATE=error with `Canceled build due to no content change`. Therefore there is NO hosted preview PASS.
+- DEVICE → PC01 offline; no device/browser/production PASS claimed.
+- LIVE STAGING → six-argument import_commit_batch grant boundary and RLS are verified read-only; import_finish_job remains SECURITY DEFINER from applied migration lineage not present in the candidate tree. Treat as migration/environment drift, not a mutation target until caller/source reconciliation.
+- EVIDENCE LAW → no stale PASS from older SHAs; current exact candidate evidence must bind to `ecfff32...`.
+- NEXT → consume first terminal exact candidate quality/certification/browser result; repair only the first reproducible current-SHA failure, then rescan.
+
+---
+
 # RESUME TOKEN — 2026-09-27 / CURRENT-CANDIDATE + LIVE-STAGING BOUNDARY
 
 - CURRENT MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `c246071b6200f1652f7f8f272c18c2dcc2eaf2d1`

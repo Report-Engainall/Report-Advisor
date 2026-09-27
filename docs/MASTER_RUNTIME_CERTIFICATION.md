@@ -73,3 +73,7 @@ Final certification is complete only when all release-critical gates are current
 
 ## 11. Live staging migration-lineage boundary — 2026-09-27
 Read-only inspection of `fnqbvfuwbdpwvhcgzksl` confirms the six-argument `import_commit_batch` grant boundary and RLS on the canonical import tables. The live `import_finish_job(uuid,text,jsonb,text)` currently resolves as SECURITY DEFINER and is executable by authenticated/service_role, while the canonical repository migration `20260830210000_harden_import_finish_lifecycle.sql` declares SECURITY INVOKER. Staging also records applied migration `20260919220623_allow_import_job_rpc_writes_via_definer`, which is not present in the current candidate tree. This is an environment/migration-lineage drift boundary, not a license for an unreviewed live mutation; caller, grant, and canonical ownership must be reconciled before any change.
+
+
+## 12. Preview/deployment evidence correction — 2026-09-27
+For candidate `ecfff32aa5ce1ec737663a71b1d9080ffe69e7eb`, GitHub commit status `netlify/aghbari-report-advisor/deploy-preview` reported success, but authoritative Netlify deployment record `6ab97c3d6fa5b900087ac057` is STATE=error with `Canceled build due to no content change`. The deployment URL is therefore not a proof surface. Vercel remains externally blocked by the free-plan build-rate limit.
