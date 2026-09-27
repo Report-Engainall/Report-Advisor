@@ -1,7 +1,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CONTINUATION + LIVE PROOF RECONCILIATION
 
 - MAIN HEAD VERIFIED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
-- CURRENT CODE/TEST CANDIDATE: PR #662 / `exec/20260927-import-full-lifecycle` / exact head `dad8aa87bca0d6da204adf23d08cf4cc4e944724`.
+- CURRENT CODE/TEST CANDIDATE: `dad8aa87bca0d6da204adf23d08cf4cc4e944724` (PR #662 / `exec/20260927-import-full-lifecycle`).
 - FUNCTIONAL STATUS: local full-source import implementation is closed on the exact current SHA; all targeted import/core/UI contracts and production build re-ran successfully on `4ba2d1d`.
 - REMOTE STATUS: Desktop Windows exact-head run `36280991955` is SUCCESS; CodeRabbit, Vercel integration, Vercel Deployments and Netlify preview contexts are SUCCESS; the larger certification set remains QUEUED, therefore no overall certification PASS is claimed.
 - RUNTIME STATUS: Netlify preview for PR #662 returns HTTP 200 and serves Arabic RTL/Vite/IBM Plex Sans Arabic application HTML. This is preview evidence only.
