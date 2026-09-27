@@ -1,7 +1,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CONTINUOUS POST-IMPORT EXECUTION
 
 - MAIN HEAD VERIFIED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
-- CURRENT CODE/TEST CANDIDATE: `6455b02a743aaec5cc2d1b8a9de2b62e06177fe3` (PR #662 / `exec/20260927-import-full-lifecycle`; provenance-scoped recommendations + full post-import journey).
+- CURRENT CODE/TEST CANDIDATE: `f91ed7f9e1d34f0451cc49958af56605cd089ced` (PR #662 / `exec/20260927-import-full-lifecycle`; source-bound recommendation guard + signal provenance polish).
 - UI LANE: imported source now carries one identity through Evidence Passport, Data Quality, Signals, persisted Decision/Approval, persisted Work Item, and Work Center.
 - CORE LANE: server-authoritative import remains the sole canonical writer; evidence snapshot persistence is VERIFIED/PARTIAL and never silently promoted.
 - PROOF STATUS: previous Windows JSX root was fixed; fresh exact-head proof is required on the provenance-scoped candidate.
