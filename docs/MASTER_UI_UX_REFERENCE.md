@@ -269,3 +269,7 @@ The unified import result must expose the continuous customer path `Evidence →
 
 ## 12. Shell implementation invariant — 2026-09-27
 The authenticated Aghbari shell uses a dark executive topbar and dark right-aligned sidebar in Arabic RTL, with teal/emerald analytical accents and restrained warm-gold emphasis. Later CSS overrides must not reintroduce a light navigation tree or light topbar that contradicts the visual constitution. The shared Product WOW contract guards this invariant alongside route, journey, accessibility, evidence, and fail-closed state coverage.
+
+
+## 13. Master Data hub truth binding — 2026-09-27
+The Master Data surface is no longer a static navigation theater. It reads tenant-scoped counts from the canonical customer/product/inventory/supplier/warehouse/branch/category tables through the existing authenticated Supabase client, exposes loading/error/refresh states, and routes empty source states back to unified import. It must not fabricate entity counts or create duplicate warehouse/branch screens; those remain contextualized through the canonical inventory path.
