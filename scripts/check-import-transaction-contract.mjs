@@ -96,9 +96,12 @@ if (!/qualityApproved: boolean/.test(adapter) || !/qualityApproved/.test(adapter
   throw new Error('Canonical durable adapter must carry explicit quality approval state');
 }
 
+const serverCorePath = path.join(root, 'src', 'server', 'canonical-import-executor.ts');
+if (!fs.existsSync(serverCorePath)) throw new Error('Canonical durable import server execution core is missing');
+const serverAdapter = fs.readFileSync(serverCorePath, 'utf8');
 const serverAdapterPath = path.join(root, 'netlify', 'functions', 'canonical-import-execute.mts');
-if (!fs.existsSync(serverAdapterPath)) throw new Error('Canonical durable import server boundary is missing');
-const serverAdapter = fs.readFileSync(serverAdapterPath, 'utf8');
+if (!fs.existsSync(serverAdapterPath)) throw new Error('Canonical durable import deployment wrapper is missing');
+const serverWrapper = fs.readFileSync(serverAdapterPath, 'utf8');
 if (!/parseFile\(bytes\.buffer, fileRecord\.file_name/.test(serverAdapter)) {
   throw new Error('Canonical server boundary must re-extract rows from the authoritative source bytes');
 }
@@ -208,3 +211,7 @@ for (const dir of sourceDirs) {
 }
 
 console.log('Import transaction contract: PASS');
+
+if (!serverWrapper.includes('executeCanonicalImport') || serverWrapper.includes('authoritativeDatasets') || serverWrapper.includes('reconcileForCanonical')) {
+  throw new Error('Canonical deployment wrapper must delegate to the shared server execution core without duplicating source semantics');
+}
