@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-27 / IMPORT HISTORY ACTIONABILITY
+
+- SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-03`.
+- CURRENT EXECUTION CANDIDATE → `2bd4991ea6719c24f60c55316e4b53de3c58f0d8`.
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT`.
+- ACTUAL RESULT → import history rows now expose direct continuity actions to Evidence Passport and Work Center, plus Decision Experience for completed imports.
+- CORE/UIs RETAINED → server-authoritative post-import values, PARTIAL fail-closed rendering, dataset understanding, and import-context Work Center focus remain intact.
+- PROOF → exact repository mutations verified on executable branch. Current-head GitHub workflow runs still not materialized; no PASS claimed. Vercel reports the external free-plan build-rate-limit status.
+- FIRST FAILURE → none reproduced on current code.
+- OPEN BLOCKERS → PC01 offline; browser/local runtime proof unavailable; Vercel build-rate limit is external.
+- NEXT EXECUTABLE ACTION → consume any exact-head CI result when materialized; otherwise continue the next independent surface/contract closure without reopening completed import work.
+- DO NOT REPEAT → stale evidence, duplicate import path, silent history rows, UI-only state mistaken for persisted state, unknown-to-zero coercion.
+- RESUME STATUS → ACTIVE / NOT PROVEN.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / IMPORT → WORK CENTER CONTINUITY
 
 - SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-02`.
