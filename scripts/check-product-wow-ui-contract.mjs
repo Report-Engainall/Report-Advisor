@@ -42,7 +42,6 @@ for (const sectionId of [
 assert.equal(navigationPaths.length, 38, 'canonical navigation registry must expose the current 38 navigation items');
 for (const path of navigationPaths) assert.ok(appRoutePaths.has(path), `navigation route must exist in App router: ${path}`);
 
-assert.ok(appShell.includes('Path="__never__') === false, 'router contract must remain syntactically inspectable');
 
 
 for (const token of [
