@@ -1,18 +1,18 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT — UPDATED
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `a7bdc4da7efe6add96f7935f289fe86b9775d2fb`
-- FUNCTIONAL FRONT → PR #671 / `a7bdc4da7efe6add96f7935f289fe86b9775d2fb`
+- CURRENT CODE/TEST CANDIDATE → `3ff67afcffca33b1843c9ccc277f97a62b804919`
+- FUNCTIONAL FRONT → PR #671 / `3ff67afcffca33b1843c9ccc277f97a62b804919`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT DATA until a real peer cohort exists.
-- ROOT FIX → deleted scenario page was consolidated into its governed consumer; shared UI contracts and touch/accessibility polish continue from the same architecture.
-- EXACT EVIDENCE → `4e9486d…` passed the web-build step in Windows CI after the root fix. Final candidate `a7bdc4da7efe6add96f7935f289fe86b9775d2fb` requires fresh terminal proof. No evidence is promoted across SHAs.
-- UI POLISH → Metric Inspector, Suppliers, AlternativeGroups, shared Product Journey, DataTable, shell and alert-state truth handling.
-- EXTERNAL → Vercel deployment rate limit; authenticated browser/device proof unavailable; Phase-F live resilience remains environment-bound.
-- CLEANUP → PR #543 closed; CanonicalScenarioPage removed after dependency proof and implementation consolidated.
-- NEXT → terminal CI on `a7bdc4da7efe6add96f7935f289fe86b9775d2fb`, then root-fix any new failure and continue safe targeted closure.
+- ROOT FIX → stale scenario import removed by consolidation into the governed consumer.
+- UI POLISH → shell/table/alert truth, AlternativeGroups, Metric Inspector, Suppliers, Product Journey 44px/nested route activation.
+- EXACT EVIDENCE → `4e9486d…` web build step passed; `3ff67afcffca33b1843c9ccc277f97a62b804919` fresh checks required; Vercel rate limit remains external.
+- CLEANUP → PR #543 closed; CanonicalScenarioPage removed and fully consolidated.
+- NEXT → terminal exact-head CI, first-current-head root fix, then safe targeted closure.
 
 ---
+
 
 
 
