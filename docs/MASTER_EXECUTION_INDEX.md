@@ -3,16 +3,17 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CODE CANDIDATE → `7dcceb5b70ba4fe5056a0bb1317257a5b977fc85`
-- FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- IMPORT CONTINUITY → Import → Trust/Evidence → Signals → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- CORE CLOSURE → server request validation now accepts products/customers/sales_invoices/purchase_invoices/suppliers/inventory_balances/payments + generic entities; shared canonical runner remains authoritative.
-- CONTRACT CLOSURE → check-canonical-import-mapping now guards all seven typed server entities.
-- UI CLOSURE → purchase-line identity, Evidence AS OF, Replay AS OF/read-window/refresh, Decision AS OF, customer-facing specialty/entity labels.
-- CURRENT PROOF → no terminal current-SHA CI failure; Vercel external build-rate-limit remains separate; local DNS execution unavailable.
-- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback remains environment evidence.
-- NEXT → consume first terminal current-SHA workflow; fix only current-SHA root; then final route/contract rescan and cleanup gates.
+- CURRENT CODE/TEST CANDIDATE: `957b7e6a800c644ff3a4cda6e3da87e0506e9894`
+- FUNCTIONAL FRONT → PR #671 / `957b7e6a800c644ff3a4cda6e3da87e0506e9894`
+- FRONT-ID → IMPORT-TO-DECISION-CONTINUITY
+- SPECIALTY CLOSURE → purchases→purchase_invoices + purchase_items, suppliers→suppliers, inventory→inventory_balances, payments→payments on the existing authoritative 6-arg RPC.
+- UI AFTER IMPORT → canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
+- EXACT LIVE PROOF → multi-line purchase persistence, warehouse-less inventory persistence, payment reference/date identity, idempotent replay, cross-tenant guard, finite-number guards, and rollback cleanliness all observed in staging transactions.
+- EXACT CURRENT CI → PR #671 head 957b7e6a800c644ff3a4cda6e3da87e0506e9894; desktop-windows is in progress; other gates are queued; no broad PASS claim.
+- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback remains external/runtime evidence.
+- EXTERNAL → Vercel build-rate-limit; device/browser/production certification remains environment-bound.
+- NEXT → consume first terminal PR #671 result; fix only current-SHA root and re-prove.
+
 ---
 
 
