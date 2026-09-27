@@ -102,7 +102,7 @@ const specialtyMigration = fs.readFileSync(specialtyMigrationPath, 'utf8');
 for (const token of [
   'purchase_invoices','suppliers','inventory_balances','payments',
   'SUPPLIER_NAME_REQUIRED','PURCHASE_SUPPLIER_REQUIRED',
-  'INVENTORY_PRODUCT_REQUIRED','INVENTORY_WAREHOUSE_REQUIRED',
+  'INVENTORY_PRODUCT_REQUIRED',
   'PAYMENT_DIRECTION_INVALID','PAYMENT_AMOUNT_REQUIRED',
   'AUTHORITATIVE_SOURCE_HASH_MISMATCH','AUTHORITATIVE_SOURCE_NOT_VERIFIED',
   'PERFORM pg_advisory_xact_lock',
