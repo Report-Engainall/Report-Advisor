@@ -271,7 +271,7 @@ export async function createDecisionWorkItem(input: {
   decisionId: string;
   recommendationId: string | null;
   department: string;
-  assigneeId: string;
+  assigneeId?: string;
   assigneeLabel: string;
   title: string;
   description: string | null;
@@ -280,7 +280,8 @@ export async function createDecisionWorkItem(input: {
   expectedImpact: number | null;
   evidenceRefs: Array<Record<string, unknown>>;
 }): Promise<string> {
-  if (!input.assigneeId.trim()) throw new Error('WORK_ITEM_ASSIGNEE_REQUIRED');
+  const assigneeId = input.assigneeId?.trim() || (await supabase.auth.getUser()).data.user?.id || '';
+  if (!assigneeId) throw new Error('WORK_ITEM_ASSIGNEE_REQUIRED');
   if (!input.assigneeLabel.trim()) throw new Error('WORK_ITEM_OWNER_LABEL_REQUIRED');
   if (!input.title.trim()) throw new Error('WORK_ITEM_TITLE_REQUIRED');
   if (!input.department.trim()) throw new Error('WORK_ITEM_DEPARTMENT_REQUIRED');
@@ -289,7 +290,7 @@ export async function createDecisionWorkItem(input: {
     p_decision_id: input.decisionId,
     p_recommendation_id: input.recommendationId,
     p_department: input.department,
-    p_assignee_id: input.assigneeId,
+    p_assignee_id: assigneeId,
     p_assignee_label: input.assigneeLabel,
     p_title: input.title,
     p_description: input.description,
