@@ -26,7 +26,7 @@ export interface CanonicalSourceUnderstanding {
   columnCount: number;
   qualityScore: number;  specialty: CanonicalImportSpecialty;
   specialtyConfidence: number;
-  entityType: 'products' | 'customers' | 'sales_invoices' | 'generic:source-data';
+  entityType: 'products' | 'customers' | 'sales_invoices' | 'purchase_invoices' | 'suppliers' | 'inventory_balances' | 'payments' | 'generic:source-data';
   columns: ColumnProfile[];
   rows: Record<string, unknown>[];
   datasets: CanonicalDatasetSummary[];
@@ -72,13 +72,18 @@ function scoreDataset(dataset: Dataset): { specialty: CanonicalImportSpecialty; 
   return { specialty: top[0], confidence, scores };
 }
 
-type CanonicalWriteFields = Record<Exclude<CanonicalImportSpecialty, 'inventory' | 'suppliers' | 'payments' | 'other'>, string[]>;
+type CanonicalRequiredField = string | string[];
+type CanonicalWriteFields = Record<CanonicalImportSpecialty, CanonicalRequiredField[]>;
 
 const CANONICAL_WRITE_FIELDS: CanonicalWriteFields = {
   sales: ['invoice_number', 'invoice_date', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'],
-  purchases: ['invoice_number', 'invoice_date', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'],
+  purchases: ['invoice_number', 'invoice_date', ['supplier_id', 'supplier_name', 'supplier_code'], 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'],
   customers: ['name', 'segment', 'credit_limit', 'payment_terms_days'],
   products: ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active'],
+  inventory: [['product_id', 'sku', 'product_name'], ['warehouse_id', 'warehouse'], 'quantity'],
+  suppliers: ['name'],
+  payments: [['payment_id', 'reference'], 'payment_date', 'payment_amount', 'direction'],
+  other: [],
 };
 
 function missingCanonicalWriteFields(
@@ -93,7 +98,8 @@ function missingCanonicalWriteFields(
       dataset.columns.map((column) => column.mappedField).filter(Boolean) as string[],
     );
     for (const field of required) {
-      if (!datasetFields.has(field)) missing.add(field);
+      const alternatives = Array.isArray(field) ? field : [field];
+      if (!alternatives.some((candidate) => datasetFields.has(candidate))) missing.add(alternatives.join('|'));
     }
   }
   return [...missing];
@@ -105,6 +111,10 @@ function inferEntityType(specialty: CanonicalImportSpecialty, datasets: Dataset[
   if (specialty === 'products') return 'products';
   if (specialty === 'customers') return 'customers';
   if (specialty === 'sales') return 'sales_invoices';
+  if (specialty === 'purchases') return 'purchase_invoices';
+  if (specialty === 'suppliers') return 'suppliers';
+  if (specialty === 'inventory') return 'inventory_balances';
+  if (specialty === 'payments') return 'payments';
   return 'generic:source-data';
 }
 
