@@ -5,6 +5,7 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchDataQualitySnapshot } from '@/lib/data-quality-snapshot';
 import { fetchImportEvidenceSnapshot, type ImportEvidenceSnapshot } from '@/lib/queries';
+import { specialtyLabel } from '@/lib/import/canonical-labels';
 
 const states = [
   { title: 'VERIFIED', text: 'بيانات قابلة للإثبات من المسار الكانوني.', tone: 'bg-success-50 text-success-700', icon: CheckCircle2 },
