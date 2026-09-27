@@ -16,6 +16,9 @@ const required = [
   'outcomeCoverage',
   'Owner Coverage',
   'Outcome Coverage',
+  'جاهزة للقرار',
+  'قيد التنفيذ',
+
   'actionableRecommendations',
   "const activeDecisionCount = actionableRecommendations.length",
 
