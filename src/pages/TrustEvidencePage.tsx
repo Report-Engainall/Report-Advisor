@@ -19,7 +19,7 @@ const states = [
 const evidenceSurfaces = [
   { title: 'Evidence Passport', detail: 'هوية الدليل ومصدره وسياقه عند توفر السجل.', path: '/trust', available: true, icon: Landmark },
   { title: 'Provenance / Lineage', detail: 'تتبع انتقال الحقيقة من المصدر إلى التحليل.', path: '/data-quality', available: true, icon: GitBranch },
-  { title: 'Snapshots / As-of', detail: 'السجل الزمني المعتمد ليس شاشة مستقلة مثبتة حاليًا.', path: '', available: false, icon: History },
+  { title: 'Snapshots / As-of', detail: 'سياق As Of ظاهر داخل Evidence Passport؛ لا يوجد مستكشف snapshots مستقل حتى الآن.', path: '/trust', available: true, icon: History },
   { title: 'Decision Evidence', detail: 'الدليل المرتبط بمساحة القرار الحالية.', path: '/decision-experience?stage=evidence', available: true, icon: ShieldCheck },
   { title: 'Benchmark Governance', detail: 'يتطلب سجل مقارنة وعينة كافية؛ لا تُعرض نتيجة مختلقة.', path: '', available: false, icon: FileSearch },
   { title: 'Metric Inspector', detail: 'فحص المؤشر وحدود الحساب ومصدره.', path: '/metrics', available: true, icon: Eye },
