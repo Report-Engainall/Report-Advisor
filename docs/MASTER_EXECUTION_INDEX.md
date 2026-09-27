@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / EXACT-HEAD PROOF UPDATE
+
+- MAIN HEAD BEFORE THIS DOCS COMMIT → `6219eb5a68aff19a3ef77a23537d5fb2db2d5a38`
+- FUNCTIONAL CANDIDATE → PR #664 / `361db8af5e58dcb122b2b6623acf9a804e6a3fdb`
+- GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
+- EXACT PROOF → #664 desktop-windows SUCCESS on exact head; 44 other workflows queued, 2 skipped, 0 failures at latest scan. #665 has 37 queued and 1 in progress.
+- RELEASE BOUNDARY → Vercel free-plan build-rate remains external; browser/production/Phase-F remain NOT PROVEN.
+- UI CONTINUITY → canonical post-import path remains Import → Trust/Evidence → Decision/Work → Outcome/Learning → Replay; Benchmark remains fail-closed.
+- NEXT → consume first terminal new gate/failure; repair current-SHA root only; do not transfer stale evidence.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / EXACT CURRENT-MAIN CHECKPOINT
 
 > Exact-head evidence only. This startup block supersedes older historical boundaries.

@@ -1,3 +1,14 @@
+# RESUME TOKEN — 2026-09-27 / EXACT-HEAD PROOF UPDATE
+
+- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `6219eb5a68aff19a3ef77a23537d5fb2db2d5a38`
+- FUNCTIONAL CANDIDATE → PR #664 / `361db8af5e58dcb122b2b6623acf9a804e6a3fdb`
+- GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
+- NEW EXACT-SHA PROOF → #664 `desktop-windows` run completed SUCCESS on `361db8a…`. No failure runs are present for #664 at this observation.
+- CURRENT GATES → #664: 47 workflows = 1 success, 2 skipped, 44 queued, 0 failures. #665: 38 workflows = 37 queued, 1 in-progress, 0 terminal successes/failures.
+- CURRENT EXTERNAL → Netlify + CodeRabbit SUCCESS on both PR heads; Vercel remains FAILURE due external free-plan build-rate limit.
+- RESUME → keep consuming terminal gates; no PASS transfer to other SHAs; no production/browser/Phase-F certification without exact proof.
+- NEXT → first terminal non-success gate only; while queues run, continue safe repository/UI cleanup without creating duplicate surfaces.
+
 # RESUME TOKEN — 2026-09-27 / CURRENT EXECUTION CHECKPOINT
 
 - CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `5bb08044bcb3800d9c5561af0edc945cf0defea6`
