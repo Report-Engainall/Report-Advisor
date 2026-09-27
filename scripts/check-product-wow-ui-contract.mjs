@@ -148,6 +148,8 @@ const canonicalImport = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'ut
 assert.ok(canonicalImport.includes('role="list" aria-label="مراحل الاستيراد"'), 'canonical import stepper must expose a semantic list boundary');
 assert.ok(canonicalImport.includes('aria-current={active ? \'step\' : undefined}'), 'canonical import must expose the active step to assistive technology');
 assert.ok(canonicalImport.includes('CANONICAL_LIFECYCLE'), 'canonical import result must expose the full post-upload lifecycle surface');
+assert.ok(canonicalImport.includes('specialtyLabel'), 'canonical import must present typed business specialties with customer-facing labels');
+assert.ok(canonicalImport.includes('entityLabel'), 'canonical import must present canonical entity types with customer-facing labels');
 assert.ok(canonicalImport.includes('Security') && canonicalImport.includes('Fingerprint'), 'canonical import lifecycle must expose source security and fingerprint stages');
 assert.ok(canonicalImport.includes('Normalize') && canonicalImport.includes('Quality') && canonicalImport.includes('Trust'), 'canonical import lifecycle must expose normalize, quality and trust stages');
 assert.ok(canonicalImport.includes('Canonical Commit') && canonicalImport.includes('Persistence') && canonicalImport.includes('Readback'), 'canonical import lifecycle must expose canonical commit, persistence and readback stages');
