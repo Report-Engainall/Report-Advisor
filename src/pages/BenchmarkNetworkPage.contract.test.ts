@@ -5,10 +5,12 @@ import { resolve } from 'node:path';
 describe('benchmark network surface contract', () => {
   const app = readFileSync(resolve(process.cwd(), 'src/App.tsx'), 'utf8');
   const page = readFileSync(resolve(process.cwd(), 'src/pages/BenchmarkNetworkPage.tsx'), 'utf8');
+  const sidebar = readFileSync(resolve(process.cwd(), 'src/components/Sidebar.tsx'), 'utf8');
 
   it('is reachable through the canonical application route', () => {
     expect(app).toContain("path=\"/benchmark\"");
     expect(app).toContain('BenchmarkNetworkPage');
+    expect(sidebar).toContain("benchmark: <Scale size={16}/>");
   });
 
   it('fails closed when no peer cohort exists', () => {
