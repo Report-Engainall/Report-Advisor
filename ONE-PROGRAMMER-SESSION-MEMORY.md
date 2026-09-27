@@ -1,40 +1,21 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT — UPDATED
 
 - SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
+- CURRENT VERIFIED REPOSITORY HEAD → `DOC-STATE-COMMIT`
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CANDIDATE SHA → `2510590af4e738e3a0dd2703d67e296e2215d8c5`
+- CURRENT CODE/TEST CANDIDATE SHA → `e35e17606b1dd5f6de66093fee402e9dcaa07d1c`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize/Reconcile → Quality/Trust → Evidence → Review → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
-- ACTUAL RESULT → Added table-shaped loading fidelity to the shared DataTable and semantic announcements to governed DataUnavailableState. Rebound the canonical memory and execution index to the exact candidate head. Closed stale governance PR #543 after canonical absorption.
-- EVIDENCE → PR #671 exact head is `2510590af4e738e3a0dd2703d67e296e2215d8c5`, mergeable=true. Current new-SHA CI is still non-terminal; Vercel is explicitly rate-limited. Prior deployment evidence remains historical and is not transferred.
-- FIRST FAILURE → No reproducible current-SHA code failure yet. External Vercel free-plan build-rate limit remains the visible current failure; device and authenticated browser proof are unavailable.
-- OPEN BLOCKERS → Fresh deployment, authenticated browser/device proof, Phase-F live resilience. Repository-side work remains executable.
-- NEXT EXECUTABLE ACTION → Inspect the first terminal result on `2510590a…`; fix the first reproducible failure, then continue the next independent UI/core surface.
-- NEXT INDEPENDENT ACTIONS → Continue targeted canonical page state/accessibility/value checks; clean only proven-stale legacy fronts; keep evidence exact-SHA.
-- DO NOT REPEAT → Evidence from older SHAs, unauthenticated preview as authenticated UX proof, stale PR implementation, or device-bound work.
+- ACTUAL RESULT → Shared DataTable loading mirrors table geometry; unavailable-data state is announced semantically; shell has keyboard skip-link and route-aware document titles; alert retrieval fails closed and never converts an unavailable source to zero. Stale governance PR #543 is closed after canonical absorption.
+- EVIDENCE → Last application mutation is exact `e35e17606b1dd5f6de66093fee402e9dcaa07d1c`. Current candidate workflow checks are queued/non-terminal. Older deployment evidence remains historical and is not transferred.
+- FIRST FAILURE → No current-SHA code failure reproduced. External Vercel deployment remains rate-limited; authenticated browser/device proof and Phase-F live resilience remain unavailable.
+- OPEN BLOCKERS → Fresh deployment, authenticated browser/device evidence, Phase-F live resilience. Repository-side work remains executable.
+- NEXT EXECUTABLE ACTION → Consume terminal CI for `e35e17606b1dd5f6de66093fee402e9dcaa07d1c`; fix the first reproducible failure, then continue targeted canonical UI/core closure.
+- NEXT INDEPENDENT ACTIONS → Finish remaining state/accessibility/value-first checks; clean only proven-stale fronts; preserve exact-SHA evidence.
+- DO NOT REPEAT → Historical evidence from earlier SHAs, unauthenticated preview as authenticated UX proof, stale PR implementations already absorbed, or device-bound work.
 - RESUME STATUS → ACTIVE / NOT CLOSED / SAFE WORK REMAINS.
 
-
-# RESUME TOKEN — 2026-09-27 / CURRENT NON-DEVICE VERIFIED FRONT
-
-- CURRENT VERIFIED MAIN SHA → ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8
-- CURRENT CODE/TEST CANDIDATE → be9607828756d67a2f9f25561e5e2a95af0c7b17
-- LAST NETLIFY-PROVEN CODE SHA → d8646e8c93793c9c51efdc7a3e6e3c09b67617e0
-- BRANCH / PR → exec/20260927-current-main-import-ui-finalize-head / PR #671
-- FRONT-ID → IMPORT-TO-DECISION-CONTINUITY
-- CURRENT BOUNDARY → unified import truth → evidence → signals → decision → work → outcome/replay + executive shell/navigation/accessibility + trust-state hardening, excluding unavailable device authority.
-- ACTUAL RESULT → Command Palette category contract and source integrity hardened; dark shell controls and touch targets normalized; decision journey active across sub-stages; import progress exposes semantic busy/live/progressbar state; authoritative server row count is mandatory end-to-end; Evidence Passport no longer converts missing dataset column count to zero.
-- EXACT PROOF → d8646e8… Netlify preview READY/SUCCESS with canonical-import-execute deployed; CodeRabbit SUCCESS. This PASS is SHA-bound and is not transferred to be960782… .
-- CURRENT CANDIDATE STATUS → be960782… has Vercel build-rate-limit failure/pending deployment context; GitHub Actions 43 queued, 1 in progress, 3 pending, 2 skipped, 0 terminal success/failure. Netlify result for be960782… not yet materialized.
-- ROOT HISTORY → partial CommandPalette write at 6b156ef4… caused exact Netlify EOF; full 270-line source restored at 98aa51af…; d8646e8… later independently built READY.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; device unavailable; authenticated browser/production/Phase-F proof NOT PROVEN; TinyFish interactive browser audit blocked by insufficient wallet.
-- NEXT EXECUTABLE ACTION → consume first terminal result for be960782…; repair only first reproducible current-SHA root. If remote queues remain non-terminal, continue only concrete non-device gaps.
-- NEXT INDEPENDENT ACTIONS → targeted Trust/Decision/Report state audits; proven reference/deletion checks only.
-- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, local-row fallback, speculative deletion/formulas, partial-file writes.
-- RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE DEEP CLOSURE / CURRENT CANDIDATE PROOF PENDING
-
----
 
 # RESUME TOKEN — 2026-09-27 / NON-DEVICE DEEP CLOSURE CHECKPOINT
 

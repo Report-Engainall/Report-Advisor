@@ -1,17 +1,19 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT — UPDATED
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `21f4e2d9179e1a00b8b0bf714d264963d3cdc3cf`
-- FUNCTIONAL FRONT → PR #671 / `21f4e2d9179e1a00b8b0bf714d264963d3cdc3cf`
+- CURRENT CODE/TEST CANDIDATE → `e35e17606b1dd5f6de66093fee402e9dcaa07d1c`
+- REPOSITORY STATE → documentation checkpoint follows the application candidate and does not alter the application code boundary.
+- FUNCTIONAL FRONT → PR #671 / `e35e17606b1dd5f6de66093fee402e9dcaa07d1c`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT DATA until a real peer cohort exists.
-- ROOT FIXES → canonical import/decision continuity is on the exact current-main branch; shared DataTable loading now mirrors table structure, and governed unavailable-data states are announced semantically.
-- EXACT EVIDENCE → fresh proof is required on `21f4e2d9…`; no evidence is transferred from older SHAs. Current GitHub workflow runs are not yet terminal for the new candidate.
-- EXTERNAL → Vercel free-plan build-rate limit; interactive browser/device proof unavailable; Phase-F live resilience remains environment-bound.
-- CLEANUP → stale governance PR #543 closed after canonical absorption; no new master/memory/index file created.
-- NEXT → consume terminal exact-head CI for #671, fix the first reproducible current-SHA failure, then continue targeted UI/a11y/value-first closure and safe stale-front cleanup.
+- ROOT FIXES → canonical import/decision continuity is on current main; shared table loading, governed unavailable state, keyboard skip navigation, route titles, and alert truth handling are tightened without duplicate architecture.
+- EXACT EVIDENCE → Fresh proof is required on `e35e17606b1dd5f6de66093fee402e9dcaa07d1c`; current PR checks are queued/non-terminal. Older deployment PASS records remain historical.
+- EXTERNAL → Vercel free-plan deployment rate limit; authenticated browser/device proof unavailable; Phase-F live resilience remains environment-bound.
+- CLEANUP → stale governance PR #543 closed after canonical absorption; no new Master/Memory/Index family created.
+- NEXT → consume terminal exact-head CI, fix the first reproducible current-SHA failure, then continue targeted UI/a11y/value-first closure and safe stale-front cleanup.
 
 ---
+
 
 
 
