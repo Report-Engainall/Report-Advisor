@@ -108,6 +108,7 @@ for (const token of [
   'PERFORM pg_advisory_xact_lock',
   'v_requested_payment_id := nullif(v_row->>\'payment_id\',\'\')::uuid', 'WHERE id=v_requested_payment_id', 'coalesce(v_requested_payment_id, gen_random_uuid())',
   'INSERT INTO public.purchase_items(', 'purchase_items_line_total_nonnegative', 'PURCHASE_ITEM_PRODUCT_TENANT_MISMATCH',
+  'INVENTORY_UNIT_COST_INVALID',
   'RETURN public.import_commit_batch(',
   'DROP FUNCTION IF EXISTS public.import_commit_batch(uuid,text,jsonb,text,text,uuid)',
   'CREATE FUNCTION public.import_commit_batch(',
