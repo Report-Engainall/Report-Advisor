@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / DEVICE-OFFLINE SAFE EXECUTION
+
+- MAIN HEAD AT CHECKPOINT → `9e428325543a8198c16e2ecca9d0ebb0d5154111` (memory checkpoint only).
+- PRIOR EXACT MAIN CODE/CONTROL HEAD → `9e35c768c7548ab87174e3ffa9426dc4605489d3`.
+- FUNCTIONAL CANDIDATE → PR #672 / `cf0d30c4015642313d899d9d8262bc7159abb220`; candidate is 24 ahead / 8 behind current main and therefore NOT an exact-main proof source.
+- LIVE STAGING SECURITY → import lifecycle RPCs are INVOKER with authenticated/service_role access and anon denied; six-argument `import_commit_batch` remains the intentional SECURITY DEFINER write boundary; canonical import tables RLS=true.
+- SECURITY RESIDUAL → 40 authenticated SECURITY DEFINER advisor findings + leaked-password protection warning remain; no blanket revoke/speculative mutation.
+- RELEASE → Vercel build-rate limit remains external; candidate has no fresh CI PASS; device/browser/production certification NOT PROVEN.
+- DEVICE → PC01 offline. Independent repository/live read-only fronts continue.
+- NEXT → re-anchor #672 to exact current main, then consume fresh exact-head CI and repair only reproduced failures.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT-FINISH STAGING DRIFT RECONCILED
 
 - CANONICAL MAIN HEAD BEFORE THIS WRITE → `6f1d818f60a700b07a13b0163ddfc20dce0f2a57`
