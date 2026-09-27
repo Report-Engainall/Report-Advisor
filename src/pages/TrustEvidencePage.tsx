@@ -135,8 +135,14 @@ export function TrustEvidencePage() {
               <h2 className="mt-1 text-lg font-black text-ink-950">دليل المصدر المستورد</h2>
               <p className="mt-1 text-[11px] text-ink-600">هذه المساحة مرتبطة مباشرة بعملية الاستيراد الحالية، وليست قراءة عامة من مصدر آخر.</p>
             </div>
-            <span className={sourceEvidenceStatus === 'VERIFIED' ? 'rounded-full bg-success-50 px-2.5 py-1 text-[9px] font-black text-success-700' : 'rounded-full bg-warning-50 px-2.5 py-1 text-[9px] font-black text-warning-800'}>
-              {sourceEvidenceStatus === 'VERIFIED' ? 'VERIFIED' : sourceSnapshot ? 'PARTIAL / NOT PROVEN' : 'PARTIAL / NOT PROVEN'}
+            <span className={
+              sourceEvidenceStatus === 'VERIFIED'
+                ? 'rounded-full bg-success-50 px-2.5 py-1 text-[9px] font-black text-success-700'
+                : sourceEvidenceStatus === 'REVIEW'
+                  ? 'rounded-full bg-warning-50 px-2.5 py-1 text-[9px] font-black text-warning-800'
+                  : 'rounded-full bg-ink-100 px-2.5 py-1 text-[9px] font-black text-ink-700'
+            }>
+              {sourceEvidenceStatus}
             </span>
           </div>
         </div>
