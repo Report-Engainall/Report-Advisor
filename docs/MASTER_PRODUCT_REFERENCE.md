@@ -560,3 +560,6 @@ Decision ROI is a required product surface, but the repository currently has no 
 
 ### Recommendation status semantics — 2026-09-27
 The canonical recommendation workflow currently exposes `new → OPEN → approved → in_progress → completed`, with `rejected/dismissed` terminal states. UI queues and coverage calculations must use the shared `isActionableRecommendationStatus` resolver; they must not independently filter on legacy `new/accepted` or incompatible `pending/proposed` cohorts.
+
+## 2026-09-27 current implementation closure
+The current functional import/decision front keeps the product chain visible after source approval: `Evidence → Signals → Decision → Work → Outcome/Learning`. The Forecasts surface explicitly exposes a fail-closed Backtest Gate; without historical paired forecast/outcome evidence, accuracy or backtest performance is not fabricated. Decision Center currently exposes Decision ROI, Money Recovery and Decision Coverage as truth-bound states, while Decision Playbooks remain explicitly unavailable until a governed execution-record path exists. These are product-state constraints, not permission to substitute mock business results.
