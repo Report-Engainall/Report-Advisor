@@ -88,9 +88,11 @@ const queriesContractTokens = [
   'fetchDecisionWorkItem',
   'fetchDecisionWorkItems',
   'startDecisionWorkItem',
+  'fetchRecommendationOutcome',
   "create_decision_work_item",
   "start_decision_work_item",
 ];
+
 for (const token of queriesContractTokens) {
   if (!queriesSource.includes(token)) throw new Error(`Decision work query contract missing: ${token}`);
 }
