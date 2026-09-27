@@ -102,6 +102,7 @@ for (const token of ['purchase_invoices','suppliers','inventory_balances','payme
   if (!canonicalTruthBoundary.includes(token)) throw new Error('Specialty canonical identity boundary missing: ' + token);
 }
 const specialtyMigration = readFileSync(new URL('../supabase/migrations/20260927213000_expand_canonical_import_specialties.sql', import.meta.url), 'utf8');
+const inventoryWarehouseGuardMigration = readFileSync(new URL('../supabase/migrations/20260928021010_guard_inventory_import_warehouse_resolution.sql', import.meta.url), 'utf8');
 const coreSchema = readFileSync(new URL('../supabase/migrations/20260817182847_01_core_schema.sql', import.meta.url), 'utf8');
 if (!coreSchema.includes('warehouse_id uuid REFERENCES warehouses(id) ON DELETE SET NULL')) {
   throw new Error('Inventory schema contract drift: warehouse_id must remain nullable');
@@ -111,7 +112,7 @@ for (const token of [
   'canonical_import_commits_entity_type_check',
   "IMPORT_ENTITY_TYPE_UNSUPPORTED",
   'SUPPLIER_NAME_REQUIRED','PURCHASE_SUPPLIER_REQUIRED','INVENTORY_PRODUCT_REQUIRED',
-  'INVENTORY_WAREHOUSE_NOT_FOUND','PAYMENT_DIRECTION_INVALID','PAYMENT_AMOUNT_REQUIRED',
+  'PAYMENT_DIRECTION_INVALID','PAYMENT_AMOUNT_REQUIRED',
   'AUTHORITATIVE_SOURCE_HASH_MISMATCH','AUTHORITATIVE_SOURCE_NOT_VERIFIED',
   'CREATE FUNCTION public.import_commit_batch',
   'p_import_job_id uuid',
@@ -120,8 +121,10 @@ for (const token of [
 ]) {
   if (!specialtyMigration.includes(token)) throw new Error('Specialty canonical migration contract missing: ' + token);
 }
-if (!specialtyMigration.includes("warehouse_id IS NOT DISTINCT FROM v_warehouse_id")) {
-  throw new Error('Inventory canonical write must preserve nullable warehouse identity when no warehouse is supplied');
+for (const token of ['INVENTORY_WAREHOUSE_NOT_FOUND', 'warehouse_id IS NOT DISTINCT FROM v_warehouse_id']) {
+  if (!inventoryWarehouseGuardMigration.includes(token)) {
+    throw new Error('Inventory warehouse guard migration missing: ' + token);
+  }
 }
 if (!/canonical_import_commits[\s\S]*purchase_invoices[\s\S]*payments/.test(specialtyMigration)) {
   throw new Error('Specialty canonical commit allowlist must include all business entity types');
