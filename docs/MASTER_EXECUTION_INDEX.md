@@ -3,16 +3,15 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CODE CANDIDATE → `4644a9b2306b70bcf3283c29c0913719ac599e7c`
+- CURRENT EXECUTION/CODE CANDIDATE → `26eb3db449536a9b57e5eee39c99ed8a222343d3`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - UI AFTER IMPORT → Import → Trust/Evidence → Signals → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- NEW UI DELIVERY → Evidence Passport AS OF context plus Business Replay refresh + AS OF snapshot/outcome + bounded read-window disclosure.
-- EXACT MUTATIONS → Trust `b990a783…`, Trust contract `da8c2cce…`, Replay `4cd74e811…`, Replay contract `4644a9b2…`.
-- PROOF STATE → no terminal failure on the current candidate yet; fresh workflows are expected from the latest branch head.
-- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback remains external/runtime evidence.
-- EXTERNAL → Vercel free-plan build-rate limit; device/browser/production certification remains environment-bound.
-- NEXT → consume first terminal current-SHA workflow; fix only the first reproducible root, then rescan route/contract and stale-front boundaries.
+- CORE CLOSURE → purchase-line SchemaField now explicitly includes unit_price, line_total, description; typed specialty writes remain on the existing authoritative RPC.
+- UI CLOSURE → Evidence Passport AS OF + Business Replay AS OF/read-window/refresh + localized customer-facing specialty/entity labels.
+- EXACT CURRENT STATUS → no terminal CI failure on current head; fresh gates queued/pending. Vercel external build-rate-limit remains separate.
+- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback requires environment evidence.
+- NEXT → consume first terminal current-SHA workflow; fix only current-SHA root, then rescan route/contracts and stale fronts.
 ---
 
 
