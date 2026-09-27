@@ -247,7 +247,7 @@ assert.ok(metricInspector.includes('aria-label="البحث في المؤشرات
 assert.ok(metricInspector.includes('statusFilter') && metricInspector.includes('freshnessFilter'), 'metric inspector must expose governance and freshness filters');
 assert.ok(metricInspector.includes('إعادة ضبط التصفية'), 'metric inspector filtering must expose a reset action');
 
-const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
+
 assert.ok(workCenter.includes('const queueEmptyState = rows.length === 0'), 'work center must distinguish an empty tenant from a filtered empty queue');
 assert.ok(workCenter.includes('إدخال مصدر من المسار الموحد'), 'work center empty tenant state must route to the canonical import entry');
 assert.ok(workCenter.includes('عرض كل العمليات'), 'work center filtered empty state must restore the full queue without a reload');
@@ -308,7 +308,7 @@ const quality = fs.readFileSync('src/pages/DataQualitySnapshotPage.tsx', 'utf8')
 assert.ok(quality.includes('weightedScore'), 'data quality must use authoritative weighted entity scores');
 assert.ok(quality.includes('متوسط جودة موزون'), 'data quality must not present overlapping issue subtraction as healthy records');
 
-const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
+
 assert.ok(workCenter.includes('invalidProgressActive'), 'work center must surface invalid active progress');
 assert.ok(workCenter.includes('تقدم غير موثوق'), 'work center must expose unavailable progress as an operational signal');
 
@@ -370,7 +370,7 @@ const externalAnalysis = fs.readFileSync('src/pages/ExternalFileAnalysisPage.tsx
 assert.ok(externalAnalysis.includes('role="button"') && externalAnalysis.includes('onDrop='), 'external file analysis upload must support accessible drag/drop');
 assert.ok(externalAnalysis.includes("event.key === 'Enter' || event.key === ' '"), 'external file analysis upload must support keyboard activation');
 
-const charts = fs.readFileSync('src/components/ui/Charts.tsx', 'utf8');
+
 assert.ok(charts.includes('finiteData'), 'shared charts must reject non-finite numeric input');
 assert.ok(charts.includes('قيمة رقمية غير صالحة'), 'shared charts must surface invalid numeric source state');
 
