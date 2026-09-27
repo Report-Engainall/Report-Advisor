@@ -106,6 +106,7 @@ for (const token of [
   'PAYMENT_DIRECTION_INVALID','PAYMENT_AMOUNT_REQUIRED',
   'AUTHORITATIVE_SOURCE_HASH_MISMATCH','AUTHORITATIVE_SOURCE_NOT_VERIFIED',
   'PERFORM pg_advisory_xact_lock',
+  'v_requested_payment_id := nullif(v_row->>\'payment_id\',\'\')::uuid', 'WHERE id=v_requested_payment_id', 'coalesce(v_requested_payment_id, gen_random_uuid())',
   'RETURN public.import_commit_batch(',
   'DROP FUNCTION IF EXISTS public.import_commit_batch(uuid,text,jsonb,text,text,uuid)',
   'CREATE FUNCTION public.import_commit_batch(',
