@@ -112,6 +112,8 @@ assert.ok(trustEvidence.includes("aria-label={'الخطوة التالية: ' + 
 const trustDatasetSection = trustEvidence.indexOf('DATASET UNDERSTANDING');
 assert.ok(trustDatasetSection >= 0, 'trust evidence must expose dataset understanding');
 assert.ok(trustEvidence.slice(trustDatasetSection).includes('</div>\\n          </>'), 'trust evidence dataset container must close before conditional fragment termination');
+assert.ok(trustEvidence.includes("dataset.rowCount == null ? 'غير متاح' : String(dataset.rowCount)"), 'trust evidence must not coerce missing dataset row count to zero');
+assert.ok(trustEvidence.includes("dataset.specialtyConfidence == null ? 'غير متاح' : String(dataset.specialtyConfidence) + '%'"), 'trust evidence must not coerce missing dataset confidence to zero');
 assert.ok(!trustEvidence.includes('aria-label={\\`'), 'trust evidence contract must reject escaped JSX template backticks');
 const decisionExperience = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
 assert.ok(decisionExperience.includes('recommendation.expected_impact == null'), 'decision readiness must treat zero expected impact as a valid value');
