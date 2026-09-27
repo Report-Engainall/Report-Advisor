@@ -1,3 +1,20 @@
+# RESUME TOKEN — 2026-09-27 / CURRENT SESSION — CURRENT-MAIN INTEGRATION
+
+- CURRENT REPOSITORY HEAD → `a00234fed504915fd54704cac55ea5a47ae511eb`
+- ACTIVE FUNCTIONAL FRONT → PR #664 / `exec/20260927-current-main-import-integration` / exact head `361db8af5e58dcb122b2b6623acf9a804e6a3fdb`
+- ACTIVE GOVERNANCE FRONT → PR #665 / `control/20260927-current-main-governance` / exact head `da99f6a873144b2ee56f73ad759f25456c2d9755`
+- FUNCTIONAL RESULT → canonical full-source import lifecycle, all-dataset understanding, deterministic typed specialty inference, Business Replay, Benchmark fail-closed surface, and post-import decision/outcome continuity ported onto current main without overwriting newer memory/index content.
+- GOVERNANCE RESULT → continuous-resume E-20..E-26 rules, single Resume Token enforcement, first-failure scoping, context/storage economy, certification-boundary governance, and Quality workflow enforcement ported as a separate PR.
+- EXACT PROOF → no new test PASS is claimed yet. PR #664 and #665 currently expose Vercel failure due external free-plan build-rate limit; workflow run materialization is not yet visible. Netlify/CodeRabbit evidence from source PRs is not transferred.
+- DEVICE / LOCAL → PC01 is unavailable as instructed. Direct local clone from this execution environment failed on DNS; no local PASS inferred.
+- EXTERNAL BLOCKERS → Vercel free-plan build-rate limit; device/browser/production/Phase-F runtime proof remain dependent on unavailable external authority. Independent repository work continues.
+- FIRST FAILURE → none reproduced on current integration SHA because exact workflow run has not materialized.
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-head #664/#665 check when available; repair only the first reproduced current-SHA root failure.
+- NEXT INDEPENDENT ACTIONS → continue targeted UI truth/completeness audit and safe cleanup/consolidation without reopening closed import paths.
+- DO NOT REPEAT → stale PASS transfer; porting old memory/index over newer main; duplicate importer/RPC/runner; preview-as-production; browser/production claims without exact proof; broad historical rescans.
+- RESUME STATUS → ACTIVE / CURRENT-MAIN RECONCILED / FUNCTIONAL + GOVERNANCE PRs IN EXACT-HEAD PROOF.
+- CHECKPOINT RULE → HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT.
+
 ## LIVE EXECUTION UPDATE — 2026-09-27 / ROOT FIX CONSUMED
 
 - ACTIVE FUNCTIONAL HEAD → PR #662 advanced from `a8ef795c...` to `01e870fe8dc2ca52627f7d6aabebc88da58eb814` after fixing the first reproducible current-SHA typecheck root failures in `DataTable.tsx` and `ExecutiveReportPage.tsx`.
