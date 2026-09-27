@@ -1,3 +1,16 @@
+# RESUME TOKEN — 2026-09-28 / CUSTOMER TENANT RESOLVER DRIFT CLASSIFIED
+
+- LIVE STAGING MIGRATION LEDGER → 336 applied migrations reported. Several applied records use execution-time versions that do not equal source filename timestamps; exact filename matching is therefore not a valid drift test by itself.
+- CUSTOMER RESOLVER READBACK → `current_customer_company_id()` is SECURITY DEFINER and reads `profiles.organization_id`; it remains consumed by customer-portal RLS policies for carts, customer credit/ledger/price tiers, orders and order templates.
+- CLIENT UI SETTINGS → the live `client_ui_settings` SELECT policy currently uses canonical `current_company_id()`, not `current_customer_company_id()`.
+- CLASSIFICATION → these are intentionally distinct tenant-resolution boundaries for staff/company surfaces versus customer-portal surfaces. No resolver merge or mutation was performed.
+- EXACT FUNCTIONAL FRONT → PR #672 / branch `exec/20260927-current-main-import-ui-rebased`; prior exact head `1c658d5efc9cc21061be858db3b9352263ec49b5`, direct child of current main at last reanchor.
+- CI → prior `desktop-windows` SUCCESS was proven on `0a48b4e`; fresh run on the newer head remains active/queued. No stale PASS transferred.
+- SECURITY → documents storage policies are tenant-prefix constrained; import lifecycle RPCs remain INVOKER; six-argument `import_commit_batch` remains deliberate SECURITY DEFINER write boundary.
+- NEXT → preserve the resolver split; consume fresh exact-head CI and repair only reproducible failures.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / RE-ANCHORED CI + STORAGE TENANT READBACK
 
 - EXACT MAIN CONTROL HEAD BEFORE THIS WRITE → `517d01af74e72f8d7325bfca9ebfc4cb13eee5b6`.
