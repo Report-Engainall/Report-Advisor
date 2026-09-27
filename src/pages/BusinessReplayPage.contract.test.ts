@@ -25,6 +25,11 @@ describe('business replay contract', () => {
     expect(queries).toContain('Object.keys(value as Record<string, unknown>).length > 0');
     expect(page).toContain('REPLAY TIMELINE');
     expect(page).toContain('المعروض ليس إجمالي التاريخ');
+    expect(page).toContain('aria-label="سياق حقيقة إعادة التشغيل"');
+    expect(page).toContain('AS OF · SNAPSHOT');
+    expect(page).toContain('AS OF · OUTCOME');
+    expect(page).toContain('READ WINDOW');
+    expect(page).toContain('إعادة القراءة');
   });
 
   it('fails closed when historical replay evidence is missing', () => {
