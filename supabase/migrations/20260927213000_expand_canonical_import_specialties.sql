@@ -160,10 +160,10 @@ BEGIN
     ELSIF p_entity_type = 'purchase_invoices' THEN
       IF nullif(btrim(v_row->>'invoice_number'),'') IS NULL THEN RAISE EXCEPTION 'PURCHASE_INVOICE_NUMBER_REQUIRED'; END IF;
       IF nullif(btrim(v_row->>'invoice_date'),'') IS NULL THEN RAISE EXCEPTION 'PURCHASE_INVOICE_DATE_REQUIRED'; END IF;
-      IF nullif(v_row->>'subtotal','') IS NULL OR (v_row->>'subtotal')::numeric < 0 THEN RAISE EXCEPTION 'PURCHASE_SUBTOTAL_REQUIRED'; END IF;
-      IF nullif(v_row->>'tax_amount','') IS NULL OR (v_row->>'tax_amount')::numeric < 0 THEN RAISE EXCEPTION 'PURCHASE_TAX_AMOUNT_REQUIRED'; END IF;
-      IF nullif(v_row->>'total','') IS NULL OR (v_row->>'total')::numeric < 0 THEN RAISE EXCEPTION 'PURCHASE_TOTAL_REQUIRED'; END IF;
-      IF nullif(v_row->>'paid_amount','') IS NULL OR (v_row->>'paid_amount')::numeric < 0 THEN RAISE EXCEPTION 'PURCHASE_PAID_AMOUNT_REQUIRED'; END IF;
+      IF nullif(v_row->>'subtotal','') IS NULL OR (v_row->>'subtotal') IN ('NaN','Infinity','-Infinity') OR (v_row->>'subtotal')::numeric < 0 THEN RAISE EXCEPTION 'PURCHASE_SUBTOTAL_REQUIRED'; END IF;
+      IF nullif(v_row->>'tax_amount','') IS NULL OR (v_row->>'tax_amount') IN ('NaN','Infinity','-Infinity') OR (v_row->>'tax_amount')::numeric < 0 THEN RAISE EXCEPTION 'PURCHASE_TAX_AMOUNT_REQUIRED'; END IF;
+      IF nullif(v_row->>'total','') IS NULL OR (v_row->>'total') IN ('NaN','Infinity','-Infinity') OR (v_row->>'total')::numeric < 0 THEN RAISE EXCEPTION 'PURCHASE_TOTAL_REQUIRED'; END IF;
+      IF nullif(v_row->>'paid_amount','') IS NULL OR (v_row->>'paid_amount') IN ('NaN','Infinity','-Infinity') OR (v_row->>'paid_amount')::numeric < 0 THEN RAISE EXCEPTION 'PURCHASE_PAID_AMOUNT_REQUIRED'; END IF;
       IF nullif(btrim(v_row->>'status'),'') IS NULL THEN RAISE EXCEPTION 'PURCHASE_STATUS_REQUIRED'; END IF;
 
       SELECT id INTO v_supplier_id
@@ -206,7 +206,7 @@ BEGIN
           (v_row->>'tax_amount')::numeric,
           (v_row->>'total')::numeric,
           (v_row->>'paid_amount')::numeric,
-          coalesce(nullif(upper(btrim(v_row->>'currency')), ''), upper(v_company_currency)),
+          nullif(upper(btrim(v_row->>'currency')), ''),
           nullif(btrim(v_row->>'notes'),'')
         )
         RETURNING id INTO v_id;
@@ -228,7 +228,7 @@ BEGIN
       END IF;
 
     ELSIF p_entity_type = 'inventory_balances' THEN
-      IF nullif(v_row->>'quantity','') IS NULL OR (v_row->>'quantity')::numeric < 0 THEN RAISE EXCEPTION 'INVENTORY_QUANTITY_REQUIRED'; END IF;
+      IF nullif(v_row->>'quantity','') IS NULL OR (v_row->>'quantity') IN ('NaN','Infinity','-Infinity') OR (v_row->>'quantity')::numeric < 0 THEN RAISE EXCEPTION 'INVENTORY_QUANTITY_REQUIRED'; END IF;
 
       SELECT id INTO v_product_id
       FROM public.products
@@ -290,7 +290,7 @@ BEGIN
       IF nullif(btrim(v_row->>'reference'),'') IS NULL THEN RAISE EXCEPTION 'PAYMENT_REFERENCE_REQUIRED'; END IF;
       IF v_row->>'direction' NOT IN ('in','out') THEN RAISE EXCEPTION 'PAYMENT_DIRECTION_INVALID'; END IF;
       IF nullif(v_row->>'payment_date','') IS NULL THEN RAISE EXCEPTION 'PAYMENT_DATE_REQUIRED'; END IF;
-      IF nullif(v_row->>'payment_amount','') IS NULL OR (v_row->>'payment_amount')::numeric <= 0 THEN RAISE EXCEPTION 'PAYMENT_AMOUNT_REQUIRED'; END IF;
+      IF nullif(v_row->>'payment_amount','') IS NULL OR (v_row->>'payment_amount') IN ('NaN','Infinity','-Infinity') OR (v_row->>'payment_amount')::numeric <= 0 THEN RAISE EXCEPTION 'PAYMENT_AMOUNT_REQUIRED'; END IF;
 
       v_customer_id := nullif(v_row->>'customer_id','')::uuid;
       v_supplier_id := nullif(v_row->>'supplier_id','')::uuid;
