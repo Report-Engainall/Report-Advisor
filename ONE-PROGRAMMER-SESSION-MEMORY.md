@@ -1,16 +1,16 @@
 # RESUME TOKEN — 2026-09-27 / PR #662 CURRENT VERIFIED STATE
 
 - CURRENT REPOSITORY HEAD → 46675643e32f6ea28b6c1d80a530b2eb134e7907
-- CURRENT CODE/TEST CANDIDATE → dad8aa87bca0d6da204adf23d08cf4cc4e944724
+- CURRENT CODE/TEST CANDIDATE → c2d30711f623caaac07afd73fbaddb9ec8754e02
 - ACTIVE PR / BRANCH → PR #662 / exec/20260927-import-full-lifecycle
 - FRONT-ID → IMPORT-FULL-SOURCE-LIFECYCLE
 - ACTUAL FUNCTIONAL RESULT → full-source canonical import lifecycle closed locally; all parsed datasets are consumed and persisted through the existing canonical path; no dataset-zero truncation remains in runtime.
 - EXACT PROOF → Desktop Windows 36285659130 SUCCESS on b66; Netlify/CodeRabbit success; quality success; browser authenticated E2E and Phase-F remain separate current-head boundaries.
-- FIRST FAILURE → stale certification-boundary parser binding was fixed; fresh proof is now running against governance descendant `74f4d5c...` with functional candidate `dad8aa...`.
-- NEXT EXECUTABLE ACTION → consume first terminal exact-head gate on `74f4d5c...`; repair only a new current-SHA failure.
+- FIRST FAILURE → stale certification-boundary parser binding was fixed; evidence snapshot truth gap was then closed with explicit VERIFIED/PARTIAL semantics on the durable import result.
+- NEXT EXECUTABLE ACTION → consume first terminal exact-head gate on `9bbfa4e...`; repair only a new current-SHA failure.
 - OPEN BLOCKERS → Vercel free-plan build-rate; browser/agent automation external availability; Phase-F/production exact-SHA/restore/RPO/RTO/rollback remain unproven; 151 processing import_jobs untouched.
 - DO NOT REPEAT → stale PASS transfer, browser PASS from HTTP-only preview, production/Phase-F bypass, unsafe legacy-job terminalization, duplicate import path/RPC/runner.
-- RESUME STATUS → ACTIVE / FUNCTIONAL FRONT COMPLETE / CERTIFICATION REBIND + PARSER FIX APPLIED / FRESH PROOF RUNNING
+- RESUME STATUS → ACTIVE / FUNCTIONAL FRONT COMPLETE / EVIDENCE-TRUTH GAP CLOSED / FRESH CERTIFICATION RUN REQUIRED
 
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / CONTINUATION + LIVE PROOF RECONCILIATION
 
