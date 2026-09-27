@@ -1,3 +1,19 @@
+# CURRENT EXECUTION CHECKPOINT — 2026-09-27 / CONTINUOUS EXECUTION 196
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE PR #661: `exec/20260926-continuous-ui-core-deep`.
+- CURRENT VERIFIED FUNCTIONAL SHA: `5cfe31d21279360d6185021ba8147c56cea5ba9d`.
+- GOVERNANCE STATUS: functional lane complete locally; this checkpoint is a documentation-only synchronization after the last functional commit.
+- ACTUAL LOCAL PROOF ON 5cfe31d2: `typecheck` PASS; `build` PASS; Product WOW UI contract PASS; Executive Report product contract PASS; UI route/sidebar parity PASS; Decision Intelligence closure PASS; Canonical Import mapping PASS; Phase-3 data import truth closure PASS; Document Intelligence closure PASS; Import transaction contract PASS; Import runtime governance PASS; file-engine regressions/contract/capability contracts PASS; import business-key PASS; report-truth PASS; knowledge-architecture PASS.
+- ROOT FIXES CLOSED THIS WAVE: PDF.js item typing; Analytics NO_DATA + refresh wiring; canonical import execution-result typing; Decision Experience navigation declaration order; nullable master-data pagination; Executive Report null/condition/type cleanup; Reports unknown-row null guard; Work Center verified-progress narrowing; shared UI/product contract drift; canonical commit-stage contract regex drift.
+- PRODUCT/UI EFFECT: Work Center now keeps unknown progress as `غير موثوق`; Analytics exposes explicit `NO_DATA`; Executive Report exposes truthful empty alert/recommendation states; canonical import result exposes typed durable commit metadata without inventing values.
+- CI EXACT-HEAD STATUS: on `5cfe31d2`, Netlify preview and CodeRabbit are successful; Vercel status is failed because of the external free-plan build-rate limit; Vercel Deployments status is pending; Actions are mostly queued/pending, with desktop-windows currently in progress. No current-head CI PASS is transferred from an older SHA.
+- BROWSER PROOF: local agent-browser daemon refused connection, so browser visual proof remains NOT PROVEN. This is an external tooling/runtime blocker, not an application PASS.
+- EXTERNAL BLOCKERS: Vercel free-plan build-rate limit; local agent-browser daemon unavailable. No production mutation and no preview-as-production claim.
+- SECURITY BACKLOG: staging advisor warnings about authenticated-callable SECURITY DEFINER remain independent; no blanket revoke executed.
+- NEXT EXECUTABLE ACTION: consume the first terminal current-head #661 gate when it materializes, while independently consume #662 full-source import evidence and repair only the first reproduced defect on each exact SHA. Do not merge until mandatory exact-head certification gates are attributable and green.
+- DO NOT REPEAT: stale PASS transfer, preview-as-production, fake benchmark/ROI/replay history, progress clamping, duplicate importer/RPC/runner/navigation paths, blanket SECURITY DEFINER cleanup, test weakening to force PASS.
+
 # CURRENT EXECUTION CHECKPOINT — 2026-09-27 / CONTINUOUS EXECUTION 195
 
 - MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
