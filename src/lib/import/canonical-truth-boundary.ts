@@ -78,7 +78,7 @@ function criticalPayload(entityType: CanonicalImportEntityType, row: Record<stri
           : entityType === 'payments'
             ? ['payment_id', 'reference', 'direction', 'customer_id', 'supplier_id', 'invoice_id', 'payment_date', 'payment_amount', 'payment_method', 'currency']
             : entityType === 'purchase_invoices'
-              ? ['invoice_number', 'invoice_date', 'supplier_id', 'supplier_name', 'supplier_code', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status', 'due_date', 'currency', 'discount_amount']
+              ? ['invoice_number', 'invoice_date', 'supplier_id', 'supplier_name', 'supplier_code', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status', 'due_date', 'currency', 'discount_amount', 'product_id', 'quantity', 'unit_price', 'line_total', 'description']
               : ['invoice_number', 'invoice_date', 'customer_id', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'];
   return JSON.stringify(fields.map((field) => [field, row[field] ?? null]));
 }
