@@ -1,5 +1,20 @@
 # RESUME TOKEN — 2026-09-27 / EXACT-CURRENT-MAIN IMPORT-TO-DECISION CHECKPOINT
 
+- MAIN HEAD BEFORE THIS DOCS WRITE → `ae7fe0559aad8d0582f5564b705b0701169152a2`
+- CURRENT FUNCTIONAL CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact head `044de934621b6a535e238541b9233287ada83aa6`
+- ACTUAL EXECUTION → exact candidate tree was rebased as one direct-child commit of current main after each control-plane write; no alternate architecture created.
+- CURRENT GIT RESULT → 1 commit ahead / 0 behind / 76 files changed.
+- ACTIONS EXACT-HEAD → 47 queued + 1 in progress + 2 skipped/completed, no terminal failure observed. `desktop-windows` run `36347110715` exact SHA: Web Build SUCCESS, desktop deps SUCCESS, native watcher SUCCESS, native runtime smoke SUCCESS, installer packaging IN_PROGRESS.
+- SECURITY/DB EXECUTION → 6-arg `import_commit_batch` revoked from PUBLIC/anon and granted to authenticated/service_role; source hash, storage, fingerprint, file status/security status, company binding, and job binding are enforced. `import_finish_job` is SECURITY INVOKER, tenant-bound, terminal-only, and blocks terminal resurrection.
+- ROUTE/UX STATIC EXECUTION → 37 nav paths map to 40 actual routes; no missing or duplicate nav paths. Canonical import surface has all 16 lifecycle stages. Benchmark is fail-closed INSUFFICIENT_SAMPLE; Business Replay is fail-closed on insufficient history.
+- FREE-TOOLBOX AUDIT → duplicate basenames are not content-identical; no direct GitHub-default-branch references to sampled free-toolbox modules were found. This is insufficient for safe deletion, so nothing was deleted.
+- DECISION AUDIT → Intelligence has no direct approve/accept mutation button. OPEN/new exposes rejection; approval is through governed Decision Experience/RPC. Legacy `accepted` remains explicitly backward-compatible.
+- CURRENT PROOF BOUNDARY → exact candidate CI is running/queued; previous preview evidence is not transferred. Vercel free-plan limit remains external. Production/browser/Phase-F/device proof is NOT PROVEN.
+- STOP POINT → no current-SHA failure requiring code repair.
+- NEXT → consume the first terminal gate on `044de934`; if failed, repair only the first reproducible root; otherwise continue safe non-device-dependent verification.
+
+# RESUME TOKEN — 2026-09-27 / EXACT-CURRENT-MAIN IMPORT-TO-DECISION CHECKPOINT
+
 - MAIN HEAD BEFORE THIS DOCS WRITE → `5c4ed5dc243242f072b6942c9006de4fa7acc282`
 - CURRENT FUNCTIONAL CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact head `da48af37572f441c01a23a0830ccf1466b0032b2`
 - ACTUAL EXECUTION → rebuilt the final PR #671 tree as one direct-child commit of current main, preserving current-main memory/index control-plane content.
