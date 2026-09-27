@@ -109,6 +109,9 @@ assert.ok(trustEvidence.includes('RECORDS CHECKED'), 'trust evidence must expose
 assert.ok(trustEvidence.includes('criticalIssueTotal'), 'trust evidence must expose critical issue pressure from the authoritative snapshot');
 assert.ok(trustEvidence.includes('أغلق المشكلات الحرجة'), 'trust evidence must route critical data-quality pressure to an actionable next step');
 assert.ok(trustEvidence.includes("aria-label={'الخطوة التالية: ' + nextStep.label}"), 'trust evidence next-action link must use valid JSX');
+const trustDatasetSection = trustEvidence.indexOf('DATASET UNDERSTANDING');
+assert.ok(trustDatasetSection >= 0, 'trust evidence must expose dataset understanding');
+assert.ok(trustEvidence.slice(trustDatasetSection).includes('</div>\\n          </>'), 'trust evidence dataset container must close before conditional fragment termination');
 assert.ok(!trustEvidence.includes('aria-label={\\`'), 'trust evidence contract must reject escaped JSX template backticks');
 const decisionExperience = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
 assert.ok(decisionExperience.includes('recommendation.expected_impact == null'), 'decision readiness must treat zero expected impact as a valid value');
