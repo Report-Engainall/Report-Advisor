@@ -158,3 +158,6 @@ Input -> Normalize -> Map -> Transform -> Validate -> Output
 Small data uses direct deterministic SQL/local processing; medium data uses optimized SQL/batches; larger scale requires measured workload justification before introducing distributed systems.
 
 Do not introduce Spark/streaming infrastructure only because it is architecturally fashionable.
+
+## 2026-09-27 canonical import server-boundary hardening
+The API and Netlify adapters must delegate to the same `executeCanonicalImport` core and preserve one error contract: 401 for missing/invalid user bearer, 400 for request/tenant/source/quality validation failures, 503 for missing server configuration, and 502 for unexpected server execution failures. Error bodies remain `{ status: 'failed', error }` so clients do not depend on deployment-provider-specific response shapes.
