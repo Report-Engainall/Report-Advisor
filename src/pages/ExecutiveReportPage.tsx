@@ -77,7 +77,7 @@ export function ExecutiveReportPage() {
   const activeDecisionCount = recommendations.filter((item) => ['pending', 'proposed', 'approved', 'in_progress'].includes(item.status)).length;
   const accountableDecisionCount = recommendations.filter((item) => Boolean(item.owner)).length;
   const recordedOutcomeCount = recommendations.filter((item) => Boolean(item.impact_result?.trim())).length;
-  const nextAction = kpis?.status !== 'CALCULATED'
+  const nextAction = kpis?.status === 'INSUFFICIENT_DATA'
     ? { to: '/data-quality', label: 'مراجعة جودة البيانات', reason: 'الحقيقة المالية أو التشغيلية غير مكتملة بعد.' }
     : data?.alerts.length
       ? { to: '/decision-experience?stage=decision', label: 'فتح سياق القرار', reason: 'هناك تنبيهات مصدرية تحتاج إلى متابعة.' }
