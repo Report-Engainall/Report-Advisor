@@ -3,17 +3,17 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE: `957b7e6a800c644ff3a4cda6e3da87e0506e9894`
-- FUNCTIONAL FRONT → PR #671 / `957b7e6a800c644ff3a4cda6e3da87e0506e9894`
-- FRONT-ID → IMPORT-TO-DECISION-CONTINUITY
-- SPECIALTY CLOSURE → purchases→purchase_invoices + purchase_items, suppliers→suppliers, inventory→inventory_balances, payments→payments on the existing authoritative 6-arg RPC.
-- UI AFTER IMPORT → canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- EXACT LIVE PROOF → multi-line purchase persistence, warehouse-less inventory persistence, payment reference/date identity, idempotent replay, cross-tenant guard, finite-number guards, and rollback cleanliness all observed in staging transactions.
-- EXACT CURRENT CI → PR #671 head 957b7e6a800c644ff3a4cda6e3da87e0506e9894; desktop-windows is in progress; other gates are queued; no broad PASS claim.
-- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback remains external/runtime evidence.
-- EXTERNAL → Vercel build-rate-limit; device/browser/production certification remains environment-bound.
-- NEXT → consume first terminal PR #671 result; fix only current-SHA root and re-prove.
-
+- CURRENT BRANCH HEAD → `7ce0ead82c8a46cfdba12b5673749e269e11a08c`
+- CURRENT CODE/TEST CANDIDATE → `ce1991161561d3b6eadebe29dda004d975006cef`
+- FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- IMPORT CONTINUITY → Import → Trust/Evidence → Signals → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
+- CORE CLOSURE → all seven typed server entity boundaries accepted; purchase-line identity preserves multi-line invoices; security grant blocks anon execution on the authoritative 6-arg import RPC.
+- UI CLOSURE → Evidence Passport/Decision/Replay expose AS OF; post-import continuity is explicit and evidence-neutral; specialty/entity labels are customer-facing.
+- STAGING PARITY → specialty migration + grant hardening applied on `fnqbvfuwbdpwvhcgzksl`; exact runtime grant and entity-constraint queries verified.
+- CURRENT PROOF → no terminal PR failure on current head; Vercel remains external build-rate-limit; production/browser/Phase-F remains not proven.
+- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback remains environment evidence.
+- NEXT → consume first terminal current-HEAD workflow; fix only root; then route/contract rescan and cleanup gates.
 ---
 
 
