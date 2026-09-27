@@ -432,6 +432,7 @@ assert.ok(workCenter.includes('historyWindowNotice'), 'work center must disclose
 assert.ok(workCenter.includes('أحدث 500'), 'work center must not label a bounded 500-row window as a full historical total');
 assert.ok(workCenter.includes('aria-pressed={filter === k}'), 'work center filters must expose selected state to assistive technology');
 assert.ok(workCenter.includes('aria-live="polite"'), 'work center next-action messaging must be announced without interrupting the user');
+assert.ok((workCenter.match(/min-h-11/g) || []).length >= 10, 'work center primary execution/review actions must meet touch-target sizing');
 
 const executiveCommand = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
 assert.ok(executiveCommand.includes('بيانات الذمم متاحة'), 'money recovery must describe receivables availability without claiming recoverable money');
