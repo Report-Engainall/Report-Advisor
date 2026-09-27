@@ -332,8 +332,13 @@ function MarginIcon() {
 
 function recommendationStatusLabel(status: string): string {
   if (status === 'new') return 'جديدة';
+  if (status === 'OPEN') return 'جاهزة للقرار';
   if (status === 'accepted') return 'مقبولة';
+  if (status === 'approved') return 'معتمدة';
+  if (status === 'in_progress') return 'قيد التنفيذ';
+  if (status === 'completed') return 'مكتملة';
   if (status === 'rejected') return 'مرفوضة';
+  if (status === 'dismissed') return 'مستبعدة';
   return status;
 }
 
@@ -383,8 +388,7 @@ export function RecommendationsPage() {
 
   const counts = useMemo(() => ({
     all: items.length,
-    new: items.filter((item) => item.status === 'new').length,
-    accepted: items.filter((item) => item.status === 'accepted').length,
+    actionable: items.filter((item) => isActionableRecommendationStatus(item.status)).length,
     rejected: items.filter((item) => item.status === 'rejected').length,
     withImpact: items.filter((item) => item.expected_impact !== null || item.impact_result !== null).length,
   }), [items]);
