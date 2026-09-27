@@ -77,6 +77,18 @@ for (const token of [
 if (!canonicalImportPage.includes('Evidence Passport') || !canonicalImportPage.includes('/trust?import=') || !canonicalImportPage.includes('/data-quality') || !canonicalImportPage.includes('/decision-experience?stage=evidence&import=')) {
   throw new Error('Post-import UI must carry the import identity through Evidence Passport, Data Quality, and Decision Experience');
 }
+for (const token of [
+  'CANONICAL RESULT',
+  'PARTIAL / NOT PROVEN',
+  'SOURCE FLOW',
+  'authoritativeQualityScore',
+  'datasetSummaries',
+  'DATASET UNDERSTANDING',
+  "result.understandingConfidence == null ? 'غير متاح'",
+  "result.evidenceStatus === 'VERIFIED' ? <CheckCircle2",
+]) {
+  if (!canonicalImportPage.includes(token)) throw new Error('Post-import truth UI closure missing: ' + token);
+}
 for (const token of ['postImportSignals', 'fetchDashboardIntelligence', 'WHAT HAPPENS NEXT']) {
   if (!canonicalImportPage.includes(token)) throw new Error(`Post-import signal surface contract missing: ${token}`);
 }
