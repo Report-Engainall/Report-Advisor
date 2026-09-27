@@ -1,20 +1,19 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
-- CURRENT REPOSITORY HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT VERIFIED SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `2fe8b9c14801eece26966dca651e9082129752f0`
-- ACTIVE EXECUTION FRONT → PR #670 / `exec/20260927-current-main-import-ui-finalize-rebased` / single current-main import-to-decision front.
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT EXECUTION/CANDIDATE SHA → `a91306bc90de7d213ee4aa9dd6d7996eab99a910`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-rebased` / PR #670
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- ACTUAL RESULT → all seven typed import entities are mapped and committed through the existing authoritative 6-argument RPC; specialty UI labels are customer-facing; no duplicate importer/RPC was introduced.
-- LIVE PROOF → on Supabase staging, with a real tenant claim, the current migration executed inside a transaction and successfully exercised suppliers, purchase_invoices, inventory_balances, and payments. Each branch was called twice; the second calls returned idempotent_replay=true. A wrong-company call returned TENANT_CONTEXT_MISMATCH. All changes were rolled back.
-- ROOT FAILURE CONSUMED → payment branch ignored an existing payment_id during lookup and attempted duplicate INSERT. Current fix introduces v_requested_payment_id lookup before reference fallback; transaction proof now succeeds and idempotently replays.
-- ROLLBACK CLEANLINESS → temporary warehouse row absent afterward; import job type restored to products; specialty canonical commit count for the test source remains zero.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; authenticated production/Phase-F/browser final certification remains environment-bound; fresh exact-head CI is queued/in flight.
-- NEXT EXECUTABLE ACTION → consume the first terminal workflow result on `2fe8b9c14801eece26966dca651e9082129752f0`; repair only the first current-SHA root.
-- NEXT INDEPENDENT ACTIONS → final truth/readback UI checks, contract rescan, safe historical-front cleanup only where overlap is proven.
-- DO NOT REPEAT → stale PASS transfer, duplicate RPC/importer, generic typed-specialty fallback, legacy import/analyze surface, static business truth, unproven production claims.
-- RESUME STATUS → ACTIVE / PR #670 / SPECIALTY IMPORT CLOSURE + LIVE TRANSACTION PROOF / EXACT-SHA CI PENDING
-
+- ACTUAL RESULT → post-import decision continuity surface strengthened in the canonical Import result: Evidence → Signals → Decision → Work → Replay are now presented as distinct truth states with source-bound recommendation counts and explicit evidence-neutral wording. Existing canonical routes are reused; no new importer/RPC/runner/path was created.
+- CODE MUTATION → `7aad5228a7c73f6ff6ded4307178af0d6520aa03` UI; `a91306bc90de7d213ee4aa9dd6d7996eab99a910` contract guard.
+- PROOF → source/contract changes committed on the exact current candidate; fresh CI is required on `a91306bc90de7d213ee4aa9dd6d7996eab99a910`. No stale PASS transferred.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; authenticated production/browser/Phase-F certification remains environment-bound; device unavailable.
+- FIRST FAILURE → none terminalized on the new candidate at this checkpoint; queued workflow evidence must be consumed before closure.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow result for `a91306bc90de7d213ee4aa9dd6d7996eab99a910`; repair only the first current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue targeted UI truth/readback audit, safe consolidation only after manifest/reference gates, and exact-head evidence reconciliation.
+- DO NOT REPEAT → stale PASS transfer, duplicate import/RPC/runner, preview-as-production, parse/preview as import completion, or claims that downstream stages are VERIFIED merely because navigation exists.
+- RESUME STATUS → ACTIVE / PR #670 / EXACT-HEAD PROOF IN FLIGHT
 ---
 
 
