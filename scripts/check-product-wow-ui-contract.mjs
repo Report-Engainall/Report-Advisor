@@ -26,6 +26,8 @@ for (const token of [
   "fieldMappings",
 ]) assert.ok(masterData.includes(token), 'Master Data hub truth binding missing: ' + token);
 assert.ok(masterData.includes("count === 0 ? '/import' : path"), 'Master Data empty entities must route to unified import');
+assert.ok(masterData.includes("const [customers, products, inventory, suppliers, warehouses, branches, categories, analysisSnapshots, canonicalDatasets, fieldMappings]"), 'Master Data hub must bind every canonical count result without undefined destructuring');
+assert.ok(masterData.includes('const evidenceRows = counts.analysisSnapshots + counts.canonicalDatasets + counts.fieldMappings'), 'Master Data hub must keep evidence/lineage rows separate from entity row totals');
 const entities = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
 const dataTable = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
 assert.ok(dataTable.includes('role="status" aria-live="polite" aria-busy="true"'), 'shared table loading state must expose assistive status semantics');
