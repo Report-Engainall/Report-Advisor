@@ -80,7 +80,7 @@ const CANONICAL_WRITE_FIELDS: CanonicalWriteFields = {
   purchases: ['invoice_number', 'invoice_date', ['supplier_id', 'supplier_name', 'supplier_code'], 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'],
   customers: ['name', 'segment', 'credit_limit', 'payment_terms_days'],
   products: ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active'],
-  inventory: [['product_id', 'sku', 'product_name'], ['warehouse_id', 'warehouse'], 'quantity'],
+  inventory: [['product_id', 'sku', 'product_name'], 'quantity'],
   suppliers: ['name'],
   payments: [['payment_id', 'reference'], 'payment_date', 'payment_amount', 'direction'],
   other: [],
