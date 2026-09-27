@@ -74,8 +74,8 @@ for (const token of [
 ]) {
   if (!decisionExperiencePage.includes(token)) throw new Error(`Decision source-context gate missing: ${token}`);
 }
-if (!canonicalImportPage.includes('Evidence Passport') || !canonicalImportPage.includes('/trust?import=') || !canonicalImportPage.includes('/decision-experience?stage=evidence&import=')) {
-  throw new Error('Post-import UI must carry the import identity into Evidence Passport and Decision Experience');
+if (!canonicalImportPage.includes('Evidence Passport') || !canonicalImportPage.includes('/trust?import=') || !canonicalImportPage.includes('/data-quality') || !canonicalImportPage.includes('/decision-experience?stage=evidence&import=')) {
+  throw new Error('Post-import UI must carry the import identity through Evidence Passport, Data Quality, and Decision Experience');
 }
 
 console.log('Canonical import mapping regression gate: PASS (canonical fields + full-source understanding + post-import evidence/decision continuity)');
