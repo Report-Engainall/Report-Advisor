@@ -2,6 +2,23 @@
 
 - SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT CODE/TEST CANDIDATE SHA → `ab4f5865f679e89e55ce3bbe6db8091f0348d112`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE`
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize/Reconcile → Quality/Trust → Evidence → Review → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
+- ACTUAL RESULT → Fixed the stale scenario import exposed by current-head Windows CI by moving the deterministic scenario calculator into `ScenarioTruthGuardPage.tsx`; no deleted duplicate was restored. Hardened Metric Inspector and Suppliers touch targets/error semantics and extended the UI contract. Shared shell/table/alert truth protections remain in place.
+- EVIDENCE → Exact CI root failure was observed at merge SHA `d4925a376ee888777ed699355fb23aa5698f813f`; `npm ci` succeeded and `npm run build` failed only because `ScenarioTruthGuardPage.tsx` imported the intentionally removed `CanonicalScenarioPage`. On the fixed candidate `4e9486d…`, the Windows job reached and passed `Build web application`. Final candidate is `ab4f5865f679e89e55ce3bbe6db8091f0348d112`; fresh checks for this exact head are required. Vercel remains externally rate-limited.
+- FIRST FAILURE → CLOSED at code level: deleted-page import. No new current-head code failure observed yet.
+- OPEN BLOCKERS → Fresh deployment evidence, authenticated browser/device proof, Phase-F live resilience. Repository-side work remains executable.
+- NEXT EXECUTABLE ACTION → Consume terminal checks on `ab4f5865f679e89e55ce3bbe6db8091f0348d112`; fix the first new reproducible failure, then continue remaining safe UI/core closure.
+- NEXT INDEPENDENT ACTIONS → Review terminal CI, continue exact-SHA evidence, and close only proven-stale fronts.
+- DO NOT REPEAT → Do not resurrect `CanonicalScenarioPage`, do not transfer pre-fix PASS, do not use device-bound proof, do not close unresolved legacy PRs without absorption evidence.
+- RESUME STATUS → ACTIVE / NOT CLOSED / SAFE WORK REMAINS.
+
+# RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT — UPDATED
+
+- SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
 - CURRENT CODE/TEST CANDIDATE SHA → `4e9486d4e93a7bb18007f8d53d6a33935890a630`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE`
