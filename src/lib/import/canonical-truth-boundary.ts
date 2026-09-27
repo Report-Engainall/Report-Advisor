@@ -58,7 +58,9 @@ function rowIdentity(entityType: CanonicalImportEntityType, row: Record<string, 
           ? [row.warehouse_id ?? row.warehouse, row.product_id ?? row.sku ?? row.product_name]
           : entityType === 'payments'
             ? (row.payment_id ?? row.reference ?? [row.direction, row.payment_date, row.payment_amount, row.customer_id ?? row.supplier_id ?? row.invoice_id])
-            : row.invoice_number;
+            : entityType === 'purchase_invoices'
+              ? [row.invoice_number, row.rowNumber]
+              : row.invoice_number;
   const normalizedKey = Array.isArray(rawKey) ? rawKey.map(normalizeImportKey) : normalizeImportKey(rawKey);
   return `${entityType}:${stableValue(normalizedKey)}`;
 }
