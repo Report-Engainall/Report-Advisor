@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs';
 
 const source = readFileSync(new URL('../src/lib/file-engine/adapters.ts', import.meta.url), 'utf8');
 const canonicalImportPage = readFileSync(new URL('../src/pages/CanonicalImportPage.tsx', import.meta.url), 'utf8');
-const canonicalImportServer = readFileSync(new URL('../netlify/functions/canonical-import-execute.mts', import.meta.url), 'utf8');
+const canonicalImportServerWrapper = readFileSync(new URL('../netlify/functions/canonical-import-execute.mts', import.meta.url), 'utf8');
+const canonicalImportServer = readFileSync(new URL('../src/server/canonical-import-executor.ts', import.meta.url), 'utf8');
 const sourceUnderstanding = readFileSync(new URL('../src/lib/import/canonical-source-understanding.ts', import.meta.url), 'utf8');
 const queriesSource = readFileSync(new URL('../src/lib/queries.ts', import.meta.url), 'utf8');
 const trustEvidencePage = readFileSync(new URL('../src/pages/TrustEvidencePage.tsx', import.meta.url), 'utf8');
@@ -135,6 +136,9 @@ for (const token of ['postImportSignals', 'fetchDashboardIntelligence', 'WHAT HA
 }
 for (const token of ['canonical_import_commits', 'reusedExistingCommit', 'CANONICAL_EXISTING_COMMIT_COUNT_MISMATCH']) {
   if (!canonicalImportServer.includes(token)) throw new Error(`Existing canonical commit recovery contract missing: ${token}`);
+}
+if (!canonicalImportServerWrapper.includes('executeCanonicalImport') || canonicalImportServerWrapper.includes('authoritativeDatasets') || canonicalImportServerWrapper.includes('reconcileForCanonical')) {
+  throw new Error('Deployment wrapper must remain a thin adapter over the canonical server executor');
 }
 const queriesContractTokens = [
   'createDecisionWorkItem',
