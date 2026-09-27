@@ -9,6 +9,44 @@ export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> { return
 export async function fetchCategoryBreakdown(): Promise<CategoryBreakdown[]> { return (await fetchDashboardSnapshot(6)).categories; }
 export async function fetchAgingBuckets(): Promise<AgingBucket[]> { return (await fetchDashboardSnapshot(6)).aging.rows; }
 export async function fetchRecommendations(): Promise<Recommendation[]> { return (await fetchDashboardIntelligence()).recommendations; }
+export async function fetchRecommendationsBoundToImport(input: {
+  importJobId: string;
+  snapshotId: string;
+  sourceHash: string;
+}): Promise<Recommendation[]> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase
+    .from('recommendations')
+    .select('id, company_id, category, priority, title, description, expected_impact, confidence, status, owner, deadline, impact_result, created_at, evidence')
+    .eq('company_id', companyId)
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (error) throw error;
+  return (data ?? []).filter((row) => {
+    const evidence = row.evidence && typeof row.evidence === 'object' && !Array.isArray(row.evidence)
+      ? row.evidence as Record<string, unknown>
+      : {};
+    return String(evidence.import_job_id ?? '') === input.importJobId
+      || String(evidence.evidence_snapshot_id ?? '') === input.snapshotId
+      || String(evidence.source_hash ?? '') === input.sourceHash;
+  }).map((row) => ({
+    id: String(row.id),
+    company_id: String(row.company_id),
+    category: String(row.category),
+    priority: String(row.priority),
+    title: String(row.title),
+    description: row.description ? String(row.description) : null,
+    expected_impact: row.expected_impact == null ? null : Number(row.expected_impact),
+    confidence: String(row.confidence),
+    status: String(row.status),
+    owner: row.owner ? String(row.owner) : null,
+    deadline: row.deadline ? String(row.deadline) : null,
+    impact_result: row.impact_result ? String(row.impact_result) : null,
+    created_at: String(row.created_at),
+  }));
+}
+
 export async function fetchAlerts(): Promise<Alert[]> { return (await fetchDashboardIntelligence()).alerts; }
 export type ImportEvidenceSnapshot = {
   id: string;
