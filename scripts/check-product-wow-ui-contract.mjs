@@ -411,6 +411,9 @@ assert.ok(metricInspector.includes('const filteredItems = useMemo'), 'metric ins
 assert.ok(metricInspector.includes('aria-label="البحث في المؤشرات"'), 'metric inspector search must be accessible');
 assert.ok(metricInspector.includes('statusFilter') && metricInspector.includes('freshnessFilter'), 'metric inspector must expose governance and freshness filters');
 assert.ok(metricInspector.includes('إعادة ضبط التصفية'), 'metric inspector filtering must expose a reset action');
+assert.ok((metricInspector.match(/min-h-11/g) || []).length >= 5, 'metric inspector primary filters/actions must meet touch-target sizing');
+assert.ok(metricInspector.includes('aria-live="assertive"'), 'metric inspector capture errors must be announced immediately');
+
 
 
 assert.ok(workCenter.includes('const queueEmptyState = rows.length === 0'), 'work center must distinguish an empty tenant from a filtered empty queue');
