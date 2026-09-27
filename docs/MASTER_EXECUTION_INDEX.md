@@ -3,15 +3,15 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE: `c6f5071afe84639dffaa8d2be5272bcefa39f5ad`
-- FUNCTIONAL FRONT → PR #670 / `c6f5071afe84639dffaa8d2be5272bcefa39f5ad`
+- CURRENT CODE/TEST CANDIDATE: `03eb9c35658cf6798b0e8d4ca45fa625898ef8de`
+- FUNCTIONAL FRONT → PR #670 / `03eb9c35658cf6798b0e8d4ca45fa625898ef8de`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- SPECIALTY CLOSURE → purchase_invoices / suppliers / inventory_balances / payments now share the existing authoritative 6-arg import_commit_batch path; no duplicate RPC.
-- UI AFTER IMPORT → canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- EXACT PROOF → staging transaction DDL + function-definition inspection succeeded and rolled back on candidate lineage; fresh CI is required on exact head.
-- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback proof remains external/runtime evidence.
+- SPECIALTY CLOSURE → purchases→purchase_invoices, suppliers→suppliers, inventory→inventory_balances, payments→payments on the existing authoritative 6-arg RPC; no new importer/RPC.
+- UI AFTER IMPORT → canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
+- EXACT PROOF → current migration executed inside Supabase staging transaction, function definition inspected for new specialty branches, then rolled back. No persistent staging mutation.
+- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback remains external/runtime evidence.
 - EXTERNAL → Vercel build-rate-limit; device/browser/production certification remains environment-bound.
-- NEXT → consume first terminal `c6f5071afe84639dffaa8d2be5272bcefa39f5ad` workflow; fix only current-SHA root and re-prove.
+- NEXT → consume first terminal `03eb9c35658cf6798b0e8d4ca45fa625898ef8de` workflow; fix only current-SHA root and re-prove.
 
 ---
 
