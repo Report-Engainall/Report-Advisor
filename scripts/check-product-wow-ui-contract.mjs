@@ -109,6 +109,8 @@ assert.ok(trustEvidence.includes("path: '/trust'"), 'Evidence Passport must use 
 assert.ok(!trustEvidence.includes('window.location.reload()'), 'trust evidence refresh must not discard page context with a full reload');
 assert.ok(trustEvidence.includes('لا توجد بيانات مثبتة بعد'), 'empty trust state must explain the absence of evidence');
 assert.ok(trustEvidence.includes('RECORDS CHECKED'), 'trust evidence must expose the source record count');
+assert.ok(trustEvidence.includes('AS OF'), 'trust evidence must expose the evidence snapshot as-of label');
+assert.ok(trustEvidence.includes('وقت إنشاء Snapshot الدليل'), 'trust evidence as-of value must disclose that it is the snapshot creation time');
 assert.ok(trustEvidence.includes('criticalIssueTotal'), 'trust evidence must expose critical issue pressure from the authoritative snapshot');
 assert.ok(trustEvidence.includes("String(sourceSnapshot.analysis_status).toLowerCase() !== 'analyzed'"), 'trust evidence must not promote an un-analyzed source snapshot to VERIFIED');
 assert.ok(trustEvidence.includes("sourceEvidenceStatus === 'PARTIAL'"), 'trust evidence must gate the next action when the source analysis state is partial');
