@@ -3,16 +3,16 @@
 > This top block is the only startup boundary.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `81266e2dbcb13f7af8f84923a6ef5b8acbf4f94d`
-- CURRENT CODE/TEST CANDIDATE → `13dcf329555e6857bc705434d2967a428d61ddd3`
+- CURRENT BRANCH HEAD → `2c725d91e5fca08bf5ead343abfa6d8cbef46f35`
+- CURRENT CODE/TEST CANDIDATE → `e7eb1074033295f059eb65975b158171965df5f7`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - PRODUCT CHAIN → Any Source → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
-- UI COVERAGE → eight canonical zones; 38/38 registry routes resolve in App; Product Journey exposes eight explicit visible stages; shared Product WOW contract covers shell, journey, states, evidence, and navigation.
-- SHELL → dark executive topbar + right-aligned dark RTL sidebar; superseded light navigation override removed and guarded by the UI contract.
-- SOURCE AUDIT → all 32 TSX page surfaces scanned at exact code candidate for synthetic/reload/TODO/Coming-Soon markers; no remediation-required hits. Proposal Demo’s “Mockup” mention is explanatory non-fabrication copy.
-- PROOF → current code candidate has no terminal CI result yet; latest materialized workflow state observed before documentation-only commits was 44 queued, 3 pending, 2 skipped, no terminal success/failure. Vercel free-plan rate-limit is external. No production/browser/Phase-F/device certification claimed.
-- NEXT → consume first terminal result for code candidate `13dcf329…`; repair only first reproducible root; then rescan route/state/duplicate/cleanup boundaries.
+- UI COVERAGE → 8 canonical zones; 38/38 registry routes resolve in App; Product Journey exposes 8 visible stages; shared Product WOW contract covers shell, journey, states, evidence, navigation, and mobile language behavior.
+- SHELL → dark executive topbar + right-aligned dark RTL sidebar; superseded light navigation override removed and guarded. Mobile primary navigation now resolves Arabic/English labels from the canonical registry.
+- SOURCE AUDIT → all 32 TSX page surfaces plus 7 shared shell/state components scanned at exact code candidate for synthetic/reload/TODO/Coming-Soon markers; no remediation-required hits. Proposal Demo’s “Mockup” mention is explanatory non-fabrication copy. No deletion was made without dependency proof; unresolved candidate files remain retained.
+- PROOF → current code candidate `e7eb1074…` has 43 queued, 1 in-progress, 3 cancelled, 2 skipped workflow runs; no terminal success/failure. Vercel free-plan rate-limit remains external. No production/browser/Phase-F/device certification claimed.
+- NEXT → consume first terminal result for `e7eb1074…`; repair only first reproducible current-SHA root; continue bounded dependency-proven cleanup if available.
 ---
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / SECURITY BOUNDARY CLOSURE
