@@ -123,6 +123,17 @@ Every canonical surface must contain:
 
 A page is not complete because the default populated state looks good.
 
+### 5.1 Post-import continuation contract
+After canonical import completion, the result surface MUST expose one continuous customer path:
+`Evidence → Signals → Decision → Work → Outcome/Learning`.
+Each stage must reuse an existing canonical route and must remain truth-bound:
+- Evidence: inspect the source passport/status for the specific import.
+- Signals: open the canonical intelligence surface; source-scoped recommendation counts may be shown only when available.
+- Decision: route through governed Decision Experience; do not bypass approval with direct status mutation.
+- Work: route to the existing Work Center; viewing a recommendation is not equivalent to execution.
+- Outcome/Learning: route to Business Replay, which may remain `INSUFFICIENT DATA` until persisted snapshots/outcomes exist.
+The post-import path must not create a second importer, evidence store, decision runner, or replay implementation.
+
 ## 5. Import UX contract
 One user-facing ingestion entry:
 Any Source -> Read -> Understand -> Structure & Meaning -> Quality -> Evidence -> Review -> Canonical Approval/Commit -> Business Understanding
