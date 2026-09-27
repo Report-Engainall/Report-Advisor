@@ -1,3 +1,17 @@
+# RESUME TOKEN — 2026-09-28 / RE-ANCHORED CI + STORAGE TENANT READBACK
+
+- EXACT MAIN CONTROL HEAD BEFORE THIS WRITE → `517d01af74e72f8d7325bfca9ebfc4cb13eee5b6`.
+- RE-ANCHORED FUNCTIONAL HEAD → PR #672 / `0a48b4e19edf221d68e5d5c3d7497260b08352da`; relation is exactly 1 ahead / 0 behind main.
+- FRESH EXACT-HEAD CI → `desktop-windows` run `36351392998` SUCCESS on the re-anchored SHA. Web build, native watcher contract, native runtime smoke, diagnostics and installer packaging completed successfully.
+- CURRENT CI BOUNDARY → 43 runs queued, 3 pending, no terminal failure observed on this SHA; only PWA/demo workflows are skipped. Do not infer certification PASS before required gates terminalize.
+- LIVE STORAGE SECURITY READBACK → `storage.objects` documents bucket policies enforce authenticated tenant prefix `current_company_id()/imports...`; insert additionally binds `owner_id=auth.uid()`; select/update/delete remain tenant/owner scoped. No cross-tenant storage relaxation was found.
+- LIVE IMPORT RPC READBACK → `import_create_job`, `import_update_job_progress`, `import_finish_job` remain SECURITY INVOKER, safe search_path, authenticated/service_role EXECUTE, anon denied.
+- HOSTING → Netlify exact-head deploy `6ab988b61516190008e5d5fd` is ERROR due `Canceled build due to no content change`; Vercel remains pending/rate-limited externally. No hosted PASS inferred.
+- DEVICE → PC01 offline; no device/browser/production PASS claimed.
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-head CI result/failure on `0a48b4e`; repair only reproduced current-SHA failures, then update canonical memory and rescan all independent fronts.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / DEVICE-OFFLINE SAFE EXECUTION + LIVE SECURITY READBACK
 
 - EXACT GITHUB MAIN HEAD AT START → `9e35c768c7548ab87174e3ffa9426dc4605489d3`.
