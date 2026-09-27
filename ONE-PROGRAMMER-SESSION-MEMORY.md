@@ -1,16 +1,16 @@
 # RESUME TOKEN — 2026-09-27 / PR #662 CURRENT VERIFIED STATE
 
 - CURRENT REPOSITORY HEAD → 46675643e32f6ea28b6c1d80a530b2eb134e7907
-- CURRENT CODE/TEST CANDIDATE → e1fe338512fcd410c91832832bf6bf3ce85e23ce
+- CURRENT CODE/TEST CANDIDATE → 6f788c6b832c029665d3a29eca8be5d421dc2b63
 - ACTIVE PR / BRANCH → PR #662 / exec/20260927-import-full-lifecycle
 - FRONT-ID → IMPORT-FULL-SOURCE-LIFECYCLE
-- ACTUAL FUNCTIONAL RESULT → imported source continuity now spans Evidence Passport → Data Quality → Signals → persisted Decision/Approval → persisted Work Item → Work Center; start remains a governed user action.
+- ACTUAL FUNCTIONAL RESULT → imported source continuity now spans Evidence Passport → Data Quality → Signals → persisted Decision/Approval → Work Item → Work Center → Outcome readback; execution start is user-triggered and evidence-gated.
 - EXACT PROOF → Desktop Windows 36285659130 SUCCESS on b66; Netlify/CodeRabbit success; quality success; browser authenticated E2E and Phase-F remain separate current-head boundaries.
 - FIRST FAILURE → Windows build on `5b88c5d...` failed in `TrustEvidencePage.tsx` because Dataset Passport siblings were not wrapped in a JSX fragment; fixed on `e1fe338...`.
-- NEXT EXECUTABLE ACTION → consume fresh exact-head Windows/Quality/Final Certification on `e1fe338...`; repair only the first new current-SHA failure.
+- NEXT EXECUTABLE ACTION → consume fresh exact-head CI on `6f788c6...`; repair only the first current-SHA failure, then close proof or open the next independent safe boundary.
 - OPEN BLOCKERS → Vercel free-plan build-rate; browser/agent automation external availability; Phase-F/production exact-SHA/restore/RPO/RTO/rollback remain unproven; 151 processing import_jobs untouched.
 - DO NOT REPEAT → stale PASS transfer, browser PASS from HTTP-only preview, production/Phase-F bypass, unsafe legacy-job terminalization, duplicate import path/RPC/runner.
-- RESUME STATUS → ACTIVE / ROOT BUILD FAILURE FIXED / FRESH EXACT-HEAD PROOF REQUIRED
+- RESUME STATUS → ACTIVE / FULL POST-IMPORT DECISION-WORK-OUTCOME UI CONNECTED / FRESH EXACT-HEAD PROOF REQUIRED
 
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / CONTINUATION + LIVE PROOF RECONCILIATION
 
