@@ -1,3 +1,21 @@
+# RESUME TOKEN — 2026-09-27 / POST-IMPORT JOURNEY UI CLOSURE
+
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT EXECUTION/CANDIDATE SHA → `bb86b9fb667f0f1aef1b28f97dcce9d189b5a717`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- CURRENT BOUNDARY → post-upload source journey from canonical import result into Evidence → Signals → Decision → Work → Outcome/Learning.
+- ACTUAL RESULT → added a single canonical post-import journey to `CanonicalImportPage.tsx` with five actionable stages and reused existing registry routes only; no duplicate importer, route, RPC, runner, or persistence path.
+- EVIDENCE → source verified on exact candidate `bb86b9fb…`; contract guard added in `check-product-wow-ui-contract.mjs`. Runtime/build proof for this exact candidate is NOT YET PROVEN. Prior exact-head Netlify proof exists only for `f188f491…` and is not transferred.
+- FIRST FAILURE → missing icon imports introduced by the UI mutation; corrected immediately on the same branch. No acceptance criteria changed.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; device unavailable; authenticated production/browser/Phase-F exact evidence remains NOT PROVEN; local execution environment cannot be used as a replacement for the missing device proof.
+- NEXT EXECUTABLE ACTION → consume first terminal exact-head gate for `bb86b9fb…`; repair only the first reproducible current-SHA root if any.
+- NEXT INDEPENDENT ACTIONS → reconcile UI master/index (done in this batch), then perform bounded route/duplicate cleanup and inspect any newly exposed current-SHA UI/test failures without reopening closed work.
+- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate import/evidence paths, direct recommendation approval bypass, local row-count truth, speculative ROI formulas.
+- RESUME STATUS → ACTIVE / PR #671 / POST-IMPORT JOURNEY ADDED / EXACT-HEAD PROOF PENDING
+
+---
+
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
