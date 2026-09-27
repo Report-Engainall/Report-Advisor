@@ -177,3 +177,19 @@
 - NEXT INDEPENDENT ACTIONS → continue targeted UI truth/UX inspection and evidence reconciliation while CI runs; do not create duplicate import/navigation/RPC/runner paths.
 - DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer, unsafe `import_jobs` mutation, blanket security cleanup.
 - RESUME STATUS → ACTIVE / ROOT FAILURE FIXED / EXACT-HEAD PROOF RUNNING.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-149
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-149`.
+- CURRENT DOCUMENTATION SHA → `8c5cc61256401021b96225aec59e44bcd585f542`.
+- CURRENT FUNCTIONAL CANDIDATE → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `334c80ec51d304041071eae5908f125016f520d4`.
+- ROOT FIX LINEAGE → the first current-SHA Netlify parser failure was isolated and fixed on `4c51dbc`; the subsequent existing UI contract was extended on `334c80e`.
+- CONTRACT RESULT → `scripts/check-product-wow-ui-contract.mjs` now guards the 16-stage post-upload lifecycle and explicitly rejects wording that implies VERIFIED proof merely from stage visibility. No duplicate test file created.
+- CURRENT EXACT-SHA PROOF → `certification-contracts` queued, `enforcement-contract` queued, Cloudflare Pages in progress; Supabase Preview skipped. No PASS claimed on `334c80e`.
+- GOVERNANCE → PR #663 exact head `43a29443477aeb5969b99d672bd2c6698e0f7106` remains clean apart from queued certification/enforcement.
+- OPEN BLOCKERS → Vercel free-plan deployment rate limit; PC01 offline; authenticated browser, production exact-SHA, rollback/restore/RPO/RTO and Phase-F proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume first terminal `334c80e` check; repair only the first reproducible current-SHA root failure, then rescan #663.
+- NEXT INDEPENDENT ACTIONS → continue targeted UI truth/UX and evidence audits only where they do not duplicate closed work.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate import/navigation/RPC/runner; unsafe `import_jobs` mutation; blanket security cleanup.
+- RESUME STATUS → ACTIVE / UI LIFECYCLE + CONTRACT HARDENING ADVANCED / EXACT-HEAD PROOF RUNNING.
