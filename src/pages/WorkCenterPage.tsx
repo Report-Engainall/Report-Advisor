@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Activity, AlertTriangle, CheckCircle2, Clock3, Filter, RefreshCw, ShieldCheck, XCircle } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { DataTable } from '@/components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchDecisionWorkItems, fetchImportRecords, fetchWorkerHealthSnapshot, startDecisionWorkItem, type DecisionWorkItemRecord, type WorkerHealthSnapshot } from '@/lib/queries';
@@ -27,6 +27,8 @@ export function WorkCenterPage() {
   const [filter, setFilter] = useState<FilterKey>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const focusedImportId = searchParams.get('import');
 
   const load = useCallback(async () => {
     try {
@@ -62,7 +64,11 @@ export function WorkCenterPage() {
 
   useEffect(() => { void load(); }, [load]);
 
-  const filtered = useMemo(() => rows.filter(r => matches(r, filter)), [rows, filter]);
+  const focusedImport = useMemo(() => focusedImportId ? rows.find(row => row.id === focusedImportId) ?? null : null, [focusedImportId, rows]);
+  const filtered = useMemo(() => {
+    const scoped = focusedImportId ? rows.filter(row => row.id === focusedImportId) : rows;
+    return scoped.filter(r => matches(r, filter));
+  }, [focusedImportId, rows, filter]);
   const queueEmptyState = rows.length === 0
     ? { title: 'لا توجد عمليات تشغيل مثبتة', message: 'لا توجد عمليات استيراد مسجلة لهذا المستأجر حتى الآن؛ ابدأ بالمصدر الموحد لبناء أول دورة تشغيل قابلة للتتبع.' }
     : { title: 'لا توجد عمليات مطابقة', message: 'غيّر عامل التصفية أو اعرض السجل الكامل للوصول إلى العمليات المسجلة.' };
@@ -100,6 +106,8 @@ export function WorkCenterPage() {
   if (error) return <ErrorState message={error} onRetry={load} />;
 
   return <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
+    {focusedImportId && <section className="rounded-[14px] border border-primary-200 bg-primary-50/60 px-4 py-3" role="status" aria-live="polite"><div className="flex flex-wrap items-center justify-between gap-3"><div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">IMPORT CONTEXT</div><div className="mt-1 text-sm font-black text-ink-950">متابعة عملية الاستيراد الحالية</div><div className="mt-1 text-[10px] text-ink-600">{focusedImport ? focusedImport.file_name + " · " + statusLabel(focusedImport.status) : "لم تعد العملية ضمن نافذة القراءة الحالية؛ لا تُعرض حالة بديلة."}</div></div><Link to="/work-center" className="btn-secondary text-[10px]">عرض كل العمليات</Link></div></section>}
+
     <PageHeader
       title="مركز العمل"
       subtitle="طابور العمل والاستثناءات: ما الذي ينتظر، ما الذي يحتاج مراجعة، وما الذي اكتمل فعليًا."
