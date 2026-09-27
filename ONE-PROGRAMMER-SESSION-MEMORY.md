@@ -1,97 +1,22 @@
-# RESUME TOKEN — 2026-09-27 / CURRENT LIVE CHECKPOINT
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / ACTIVE FUNCTIONAL FRONT
 
-- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `f1444f7c7277fdc7662052a28629171063ab7d17`
-- CURRENT CODE/TEST CANDIDATE → `c5b193116e16b7ce46fd88d6d6edde268820ef52`
-- ACTIVE FUNCTIONAL FRONT → PR #664 / head `9218274998a82b0613d8ec8b6b0820bad173ad0b`
-- ACTIVE GOVERNANCE FRONT → PR #666 / head `9aec629f5573830ef5d8d5bbc1e303ce41470ba3`
-- LAST CURRENT-SHA ROOT FIX → Product WOW UI contract fixed to match the actual TrustEvidence JSX newline structure. Earlier TypeScript and canonical-import mapping roots remain closed.
-- CURRENT PROOF → new #664 head has no terminal workflow results yet; Vercel combined status is external build-rate-limit. No stale PASS transfer.
-- PHASE-F → NOT CERTIFIED / fail-closed because restore-target migration path lacks current_customer_company_id(); rollback-forward returns 503.
-- CLEANUP → #660/#661 and #665 closed as superseded; #664/#666 are the only active reconstructed fronts.
-- NEXT → consume first terminal #664/#666 gate; repair only the first reproducible current-SHA root; preserve external blockers separately.
-# RESUME TOKEN — 2026-09-27 / CURRENT LIVE CHECKPOINT
+> Exact-head startup boundary. Historical entries below are evidence only and cannot override this block.
 
-- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `d5be7220b048a3e7bd798a9b2d9fea677b200183`
-- CURRENT CODE/TEST CANDIDATE → `c5b193116e16b7ce46fd88d6d6edde268820ef52`
-- ACTIVE FUNCTIONAL FRONT → PR #664 / head `22bdfb19f234a38640961e3851c3e5eef786cbad` (latest documentation/index tail; code candidate remains c5b1931…)
-- ACTIVE GOVERNANCE FRONT → PR #666 / head `9aec629f5573830ef5d8d5bbc1e303ce41470ba3`
-- EXACT PROOF → #664: 47 workflows, 3 success, 2 skipped, 3 in-progress, 39 queued, 0 failures at latest scan. #666: 38 workflows, 3 in-progress, 1 pending, 34 queued, 0 failures.
-- NEW VALIDATED ROOT FIXES → TypeScript source roots closed; canonical-import mapping syntax root closed; mixed-specialty contract aligned with the actual canonical implementation; certification candidate field restored to the parser's canonical form.
-- PHASE-F → NOT CERTIFIED / fail-closed. Live restore parity fails because current_customer_company_id() is absent in the restore target migration path; rollback-forward consequently returns 503. No production mutation.
-- EXTERNAL → Vercel free-plan build-rate limit; PC01/device/browser/production proof unavailable.
-- CLEANUP → duplicate PRs #660/#661 closed as superseded; #665 closed and replaced by current-main governance #666. Historical commits retained.
-- NEXT → consume first terminal new gate; repair only current-SHA root; merge only after mandatory exact-head evidence.
-# RESUME TOKEN — 2026-09-27 / MIXED-SPECIALTY CONTRACT ROOT CLOSED
-
-- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `16bfd89ac25f55dbc776871b5bc4cbc538320fc0`
-- CURRENT CODE/TEST CANDIDATE → PR #664 / `c5b193116e16b7ce46fd88d6d6edde268820ef52`
-- GOVERNANCE FRONT → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
-- ROOT CLOSED → TypeScript source errors and canonical-import mapping syntax/mixed-specialty contract roots repaired on the functional lane.
-- PROOF → fresh exact-head gates for `c5b193116e16b7ce46fd88d6d6edde268820ef52` are required; all older failures/pass states remain SHA-bound.
-- NEXT → consume first terminal current-SHA failure; otherwise consume certification/runtime gates.
-- BLOCKERS → Vercel free-plan rate limit; device/browser/production/Phase-F external proof remains unavailable.
-
-# RESUME TOKEN — 2026-09-27 / CURRENT CODE ROOT REPAIR
-
-- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `75cc34765b9c2a18d7f0f06e5fdc2dd101aec2c0`
-- CURRENT CODE/TEST CANDIDATE → PR #664 / `2f0dcbb2f27345631f05558a6e7898af8148de42`
-- ACTIVE GOVERNANCE FRONT → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
-- ROOT FIX → TypeScript source errors in DataTable, Canonical source understanding, Decision Experience, and Work Center were corrected; canonical-import mapping contract syntax error was corrected.
-- NEXT PROOF → fresh exact-head CI on `2f0dcbb2f27345631f05558a6e7898af8148de42`; no PASS transferred from `361db8a…`.
-- VERCEL → external free-plan build-rate limit remains the only known hosting failure.
-- DEVICE → PC01 unavailable; no device/browser/production/Phase-F PASS claimed.
-- NEXT → consume first terminal exact-head failure; if clean, consume remaining certification/runtime gates.
-
-# RESUME TOKEN — 2026-09-27 / EXACT-HEAD PROOF UPDATE
-
-- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `75cc34765b9c2a18d7f0f06e5fdc2dd101aec2c0`
-- FUNCTIONAL CANDIDATE → PR #664 / `2f0dcbb2f27345631f05558a6e7898af8148de42`
-- GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
-- NEW EXACT-SHA PROOF → #664 `desktop-windows` run completed SUCCESS on `361db8a…`. No failure runs are present for #664 at this observation.
-- CURRENT GATES → #664: 47 workflows = 1 success, 2 skipped, 44 queued, 0 failures. #665: 38 workflows = 37 queued, 1 in-progress, 0 terminal successes/failures.
-- CURRENT EXTERNAL → Netlify + CodeRabbit SUCCESS on both PR heads; Vercel remains FAILURE due external free-plan build-rate limit.
-- RESUME → keep consuming terminal gates; no PASS transfer to other SHAs; no production/browser/Phase-F certification without exact proof.
-- NEXT → first terminal non-success gate only; while queues run, continue safe repository/UI cleanup without creating duplicate surfaces.
-
-# RESUME TOKEN — 2026-09-27 / CURRENT EXECUTION CHECKPOINT
-
-- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `5bb08044bcb3800d9c5561af0edc945cf0defea6`
-- ACTIVE FUNCTIONAL FRONT → PR #664 / `361db8af5e58dcb122b2b6623acf9a804e6a3fdb`
-- ACTIVE GOVERNANCE FRONT → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
-- EXACT REMOTE EVIDENCE → #664: CodeRabbit SUCCESS, Netlify preview SUCCESS, Vercel failure (external free-plan build-rate limit); GitHub Actions are materialized with 49 queued, 1 in progress, 2 skipped, 0 failures, 0 successes at observation time. #665: CodeRabbit SUCCESS, Netlify preview SUCCESS, Vercel same external failure; Actions are materialized with queued gates and desktop-windows in progress.
-- STATIC SOURCE VERIFICATION → #664 exact SHA contains the canonical import lifecycle, replay/benchmark surfaces, full-dataset understanding, typed canonical inference, persisted dataset summaries/source-analysis snapshot, and truth-state UI wiring. This is source evidence, not runtime PASS.
-- SUPERSEDED CLEANUP → PR #662 and #663 closed as superseded by #664/#665; historical evidence retained and no SHA evidence transferred.
-- OPEN BLOCKERS → Vercel free-plan deployment-rate limit; PC01/device/browser/production/Phase-F runtime proof unavailable. Local clone from execution environment failed DNS; no local PASS inferred.
-- FIRST FAILURE → none on current exact candidates; no current-SHA workflow failure has terminalized yet.
-- NEXT EXECUTABLE ACTION → consume first terminal exact-head #664/#665 gate; repair only the first reproducible current-SHA root failure. Continue independent repository/UI work while gates run.
-- DO NOT REPEAT → stale PASS transfer, old-memory overwrite, duplicate importer/RPC/runner, preview-as-production, unsafe legacy import_jobs mutation, broad historical rescans.
-- RESUME STATUS → ACTIVE / CURRENT-MAIN RECONCILED / FUNCTIONAL + GOVERNANCE EXACT-HEAD PROOF IN FLIGHT.
-
-# RESUME TOKEN — 2026-09-27 / CURRENT SESSION — CURRENT-MAIN INTEGRATION
-
-- CURRENT REPOSITORY HEAD → `75cc34765b9c2a18d7f0f06e5fdc2dd101aec2c0`
-- ACTIVE FUNCTIONAL FRONT → PR #664 / `exec/20260927-current-main-import-integration` / exact head `361db8af5e58dcb122b2b6623acf9a804e6a3fdb`
-- ACTIVE GOVERNANCE FRONT → PR #665 / `control/20260927-current-main-governance` / exact head `da99f6a873144b2ee56f73ad759f25456c2d9755`
-- FUNCTIONAL RESULT → canonical full-source import lifecycle, all-dataset understanding, deterministic typed specialty inference, Business Replay, Benchmark fail-closed surface, and post-import decision/outcome continuity ported onto current main without overwriting newer memory/index content.
-- GOVERNANCE RESULT → continuous-resume E-20..E-26 rules, single Resume Token enforcement, first-failure scoping, context/storage economy, certification-boundary governance, and Quality workflow enforcement ported as a separate PR.
-- EXACT PROOF → no new test PASS is claimed yet. PR #664 and #665 currently expose Vercel failure due external free-plan build-rate limit; workflow run materialization is not yet visible. Netlify/CodeRabbit evidence from source PRs is not transferred.
-- DEVICE / LOCAL → PC01 is unavailable as instructed. Direct local clone from this execution environment failed on DNS; no local PASS inferred.
-- EXTERNAL BLOCKERS → Vercel free-plan build-rate limit; device/browser/production/Phase-F runtime proof remain dependent on unavailable external authority. Independent repository work continues.
-- FIRST FAILURE → none reproduced on current integration SHA because exact workflow run has not materialized.
-- NEXT EXECUTABLE ACTION → consume the first terminal exact-head #664/#665 check when available; repair only the first reproduced current-SHA root failure.
-- NEXT INDEPENDENT ACTIONS → continue targeted UI truth/completeness audit and safe cleanup/consolidation without reopening closed import paths.
-- DO NOT REPEAT → stale PASS transfer; porting old memory/index over newer main; duplicate importer/RPC/runner; preview-as-production; browser/production claims without exact proof; broad historical rescans.
-- RESUME STATUS → ACTIVE / CURRENT-MAIN RECONCILED / FUNCTIONAL + GOVERNANCE PRs IN EXACT-HEAD PROOF.
-- CHECKPOINT RULE → HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT.
-
-## LIVE EXECUTION UPDATE — 2026-09-27 / ROOT FIX CONSUMED
-
-- ACTIVE FUNCTIONAL HEAD → PR #662 advanced from `a8ef795c...` to `01e870fe8dc2ca52627f7d6aabebc88da58eb814` after fixing the first reproducible current-SHA typecheck root failures in `DataTable.tsx` and `ExecutiveReportPage.tsx`.
-- FIXES → DataTable pagination narrowing now uses a directly narrowed positive integer; Executive Report next-action routing now treats only `INSUFFICIENT_DATA` as the data-gap branch, preserving calculated states.
-- NEW PROOF → fresh exact-head CI is running on `01e870fe...`; no PASS transferred from `a8ef795c...`.
-- GOVERNANCE → PR #663 advanced from the earlier certification-boundary failure by explicitly classifying `.github/workflows/quality.yml` as governance-only. Its prior boundary failure was therefore a guard-contract mismatch, not a product runtime failure.
-- NEXT → consume the first terminal #662 gate on `01e870fe...`; then consume #663 terminal gates. If a new failure appears, repair only that root.
-- UI CONTINUITY → no duplicate post-import surface created; #662 remains the canonical import → evidence → work → decision → outcome/replay path.
+- SESSION-ID → `20260927-EXEC-667`
+- CURRENT REPOSITORY HEAD → `0b4f19fe7de377b57b2df7e70507bc32727568cc`
+- CURRENT CODE/TEST CANDIDATE → `8054f35f722fa7f1560d75f83c47e214d8b91308`
+- ACTIVE EXECUTION FRONTS → FUNCTIONAL #667 / `8054f35f722fa7f1560d75f83c47e214d8b91308` | GOVERNANCE RECONCILIATION | EXACT-HEAD PROOF
+- FRONT-ID → `IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI`
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay; Benchmark remains INSUFFICIENT_SAMPLE.
+- ACTUAL RESULT → functional implementation reconstructed directly from current main; 21 files changed across canonical backend, evidence, decision, work, replay, benchmark and UI contract surfaces.
+- EVIDENCE → exact current candidate `8054f35f722fa7f1560d75f83c47e214d8b91308`; PR #667; current Actions run set created for this SHA.
+- LAST PROVEN → current main ref `0b4f19fe7de377b57b2df7e70507bc32727568cc` resolved directly from GitHub; no application PASS transferred.
+- LAST FAILED / FIRST FAILURE TO CONSUME → run `36328482705` / Execution Enforcement Contract at exact SHA `8054f35f722fa7f1560d75f83c47e214d8b91308`: certification boundary failed because the Master Index candidate did not identify the current code/test head.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; Phase-F restore target still lacks `current_customer_company_id()`; PC01/device/browser/production proof unavailable and intentionally not required for repository-only work.
+- NEXT EXECUTABLE ACTION → bind Index + live Resume Token to exact candidate, rerun current-SHA certification/enforcement gates, then consume the first new terminal failure.
+- NEXT INDEPENDENT ACTIONS → continue UI completeness/state audit; reconcile stale superseded PRs; consume exact-head proof while external blockers remain isolated.
+- DO NOT REPEAT → stale PASS transfer; stale candidate binding; duplicate import/RPC/runner/route; preview-as-production; reopening closed import roots without current-SHA regression.
+- RESUME STATUS → ACTIVE / CURRENT-MAIN RECONCILED / PR #667 EXACT-HEAD PROOF IN FLIGHT.
 
 ---
 
