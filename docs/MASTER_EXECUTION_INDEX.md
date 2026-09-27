@@ -2,17 +2,18 @@
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
 - CURRENT CODE/TEST CANDIDATE → `3b30fc08ce1f4c68b474bbc2ae842f43c23bffdd`
-- FUNCTIONAL FRONT → PR #671 / `3b30fc08ce1f4c68b474bbc2ae842f43c23bffdd`
+- FUNCTIONAL FRONT → PR #671 / `3b30fc08…`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE + WORK-CENTER + SOURCE-ENTRY`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay.
 - ROOT FIX → stale scenario import consolidated into the governed scenario route.
-- UI POLISH → shell/table/alert; AlternativeGroups; Metric Inspector; Suppliers; Product Journey 44px + nested active; Work Center; Executive Command Center; Connections.
-- EXACT EVIDENCE → `4e9486d…` web-build passed after root fix; `3b30fc08ce1f4c68b474bbc2ae842f43c23bffdd` still needs terminal current-head proof.
-- EXTERNAL → Vercel deployment rate-limit; authenticated browser/device proof unavailable; Phase-F live resilience environment-bound.
-- CLEANUP → PR #543 closed; CanonicalScenarioPage removed after dependency proof and consolidated.
-- NEXT → terminal exact-head CI, root-fix if needed, then targeted safe closure.
+- UI POLISH → shell/table/alert; AlternativeGroups; Metric Inspector; Suppliers; Product Journey; Work Center; Executive Command Center; Connections.
+- EXACT EVIDENCE → `4e9486d…` web-build passed after root fix; `3b30fc08…` fresh CI pending.
+- CLEANUP → PR #543 and #454 closed after canonical absorption evidence; CanonicalScenarioPage removed and consolidated.
+- EXTERNAL → Vercel rate-limit; authenticated browser/device/Phase-F live proof unavailable.
+- NEXT → terminal exact-head CI, first current-head root fix, then targeted safe closure.
 
 ---
+
 
 
 

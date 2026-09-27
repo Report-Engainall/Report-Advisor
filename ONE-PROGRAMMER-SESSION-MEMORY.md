@@ -6,6 +6,23 @@
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE + WORK-CENTER + SOURCE-ENTRY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize/Reconcile → Quality/Trust → Evidence → Review → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
+- ACTUAL RESULT → Fixed the exact CI build root around the removed scenario page; consolidated its calculator into `ScenarioTruthGuardPage`; hardened shared shell/table/alert truth; polished AlternativeGroups, Metric Inspector, Suppliers, Product Journey, Work Center, Executive Command Center, and Connections; closed stale PR #454 and #543 after canonical-absorption evidence.
+- EVIDENCE → Exact root failure `d4925a376ee888777ed699355fb23aa5698f813f` failed `npm run build` because `ScenarioTruthGuardPage.tsx` imported the intentionally removed `CanonicalScenarioPage`. Exact fix candidate `4e9486d…` passed the Windows web-build step. Current candidate `3b30fc08…` has fresh queued CI; no PASS transferred.
+- FIRST FAILURE → CLOSED: stale scenario import.
+- OPEN BLOCKERS → Vercel deployment rate-limit; authenticated browser/device proof; Phase-F live resilience.
+- NEXT EXECUTABLE ACTION → Consume terminal CI on `3b30fc08…`; fix first current-head failure only, then continue safe closure.
+- NEXT INDEPENDENT ACTIONS → Exact-SHA evidence and proven-stale cleanup only.
+- DO NOT REPEAT → No scenario-page resurrection, no old PASS transfer, no device-bound proof.
+- RESUME STATUS → ACTIVE / NOT CLOSED / SAFE WORK REMAINS.
+
+# RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT — UPDATED
+
+- SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT CODE/TEST CANDIDATE SHA → `3b30fc08ce1f4c68b474bbc2ae842f43c23bffdd`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE + WORK-CENTER + SOURCE-ENTRY`
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize/Reconcile → Quality/Trust → Evidence → Review → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
 - ACTUAL RESULT → Scenario dependency fixed and consolidated; shared shell/table/alert truth hardened; AlternativeGroups, Metric Inspector, Suppliers, Product Journey, Work Center, Executive Command Center, and Connections CTA/state/accessibility surfaces polished and contract-locked.
 - EVIDENCE → Exact root failure `d4925a3…` was stale import of deleted scenario page. Exact fix `4e9486d…` passed Windows web-build. Current candidate `3b30fc08ce1f4c68b474bbc2ae842f43c23bffdd` has fresh checks pending; no PASS transferred.
 - FIRST FAILURE → CLOSED: deleted scenario import.
