@@ -30,7 +30,7 @@ assert.throws(() => validateCertificationBoundary({ index, head: child, parent: 
 console.log('PASS certification-boundary Test-of-Test: exact candidate, governed-only ancestry, source mutation rejection, and ancestry spoof rejection are covered.');
 
 const liveMasterIndex = fs.readFileSync('docs/MASTER_EXECUTION_INDEX.md', 'utf8');
-const liveCandidate = liveMasterIndex.match(/CURRENT CODE\/TEST CANDIDATE\s*:\s*`([0-9a-f]{40})`/i)?.[1];
+const liveCandidate = liveMasterIndex.match(/CURRENT CODE\/TEST CANDIDATE\s*(?::|→)\s*`([0-9a-f]{40})`/i)?.[1];
 assert.ok(liveCandidate, 'live Master Execution Index must expose a parser-compatible current code/test candidate');
 const currentHead = child;
 const parentHead = candidate;
