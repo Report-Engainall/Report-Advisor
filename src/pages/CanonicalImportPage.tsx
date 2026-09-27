@@ -275,6 +275,8 @@ export function CanonicalImportPage() {
         snapshot_id: snapshotId,
         evidence_status: evidenceStatus,
         evidence_warning: typeof execution.evidenceWarning === 'string' ? execution.evidenceWarning : null,
+        reused_existing_commit: execution.reusedExistingCommit === true,
+        existing_commit_id: typeof execution.existingCommitId === 'string' ? execution.existingCommitId : null,
       });
 
       if (typeof window !== 'undefined') {
@@ -307,6 +309,8 @@ export function CanonicalImportPage() {
         datasetCount,
         evidenceStatus,
         evidenceWarning: typeof execution.evidenceWarning === 'string' ? execution.evidenceWarning : null,
+        reusedExistingCommit: execution.reusedExistingCommit === true,
+        existingCommitId: typeof execution.existingCommitId === 'string' ? execution.existingCommitId : null,
         postImportSignals,
       });
       setStep('done');
