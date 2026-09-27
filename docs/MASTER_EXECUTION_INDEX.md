@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / EXACT-CURRENT-MAIN + CODE-CANDIDATE CHECKPOINT
+
+- MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `132e40f023e564dba9e7f84c63d543bab1b7fc71`
+- CURRENT CODE/TEST CANDIDATE → PR #672 / `2ab23aec8747c4a39081a7b6b8ccef7115406c20`
+- CODE/MAIN RELATION → candidate is 1 commit ahead / 0 behind the main SHA used for its build; 76 files changed.
+- RECONCILIATION → candidate functional tree is preserved as a direct child of current main; this checkpoint is documentation-only.
+- FRESH EXACT-HEAD CI ON CODE CANDIDATE → quality `36347828523` queued; enforcement `36347828519` queued; Final Certification `36347828427` queued; Device-Independent Browser `36347828437` queued; Full Product Browser `36347828521` queued; desktop-windows `36347828455` in progress.
+- OBSERVED TERMINAL RESULT → Commercial PWA `36347828353` skipped; no terminal failure observed yet on the listed required fresh gates.
+- DEVICE → PC01 offline; no device/browser/production PASS claimed.
+- HOSTING → Vercel free-plan build-rate blocker remains external; no production mutation.
+- EVIDENCE BOUNDARY → prior `f42d6f2` evidence is not transferred; current proof must bind to `2ab23aec` (or a fresh resulting SHA).
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-head gate; repair only a reproducible current-SHA root, continue independent repository-safe fronts, then persist and rescan.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT
 
 > This top block is the only startup boundary.
