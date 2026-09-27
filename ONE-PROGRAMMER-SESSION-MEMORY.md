@@ -1,18 +1,19 @@
-# RESUME TOKEN — 2026-09-27 / CURRENT NON-DEVICE UI + IMPORT CONTINUITY
+# RESUME TOKEN — 2026-09-27 / CURRENT NON-DEVICE UI + IMPORT / REPORT BUILDER CONTINUITY
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `e7eb1074033295f059eb65975b158171965df5f7`
+- CURRENT CODE/TEST CANDIDATE → `6b6b3a10568bb0821f2c2a9a5ef03d18d429a5be`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize → Quality/Trust → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
-- ACTUAL RESULT → 38/38 canonical navigation routes resolve to App routes; the visible Product Journey is eight-stage and explicitly exposes Evidence, Signals, Decision, Work, Learning/Replay, and Executive Output. Dark executive topbar/sidebar CSS conflict was removed and guarded. Mobile primary navigation now localizes labels from the canonical registry. A 32-page TSX surface audit plus 7 shared shell/state component audit found no synthetic-data/reload/TODO/Coming-Soon markers requiring remediation.
-- EXACT SOURCE EVIDENCE → code candidate `e7eb1074…` and related UI contract/source readback are current. Workflow materialization for this code candidate is 42 queued, 1 in-progress, 4 cancelled, 2 skipped; no terminal success/failure. This is NOT a PASS.
-- FIRST FAILURE → no current-head terminal failure. Temporary test-source construction defects during this batch were corrected before proof execution; acceptance criteria were unchanged.
+- ACTUAL RESULT → 38/38 canonical navigation routes resolve to App routes; Product Journey exposes eight visible stages; canonical import exposes the 16-stage lifecycle plus five post-import continuation cards. The executive shell is dark/RTL and guarded against light CSS regression. Mobile primary navigation localizes from the canonical registry. Master Data is tenant-scoped and source-bound with loading/error/refresh and real counts. Reports Center now contains a source-bound session-scoped Report Builder using the existing snapshot and export/print paths.
+- EXACT SOURCE EVIDENCE → candidate `6b6b3a10…` contains the Master Data implementation + guard and the Report Builder implementation + guard. No runtime/build PASS is transferred to this candidate.
+- CURRENT CI → 43 queued, 3 pending, 1 in-progress, 1 skipped at latest observation; no terminal failure and no terminal success on this candidate yet. Earlier desktop-windows SUCCESS on `e7eb1074…` remains SHA-bound and is not transferred.
+- FIRST FAILURE → no terminal failure on current candidate. Source construction defects during this batch were corrected before proof consumption; acceptance criteria were unchanged.
 - OPEN BLOCKERS → Vercel free-plan deployment-rate limit; device unavailable; authenticated browser/Production/Phase-F proof NOT PROVEN.
-- NEXT EXECUTABLE ACTION → consume the first terminal result for `e7eb1074…`; repair only the first reproducible current-SHA root, then rescan UI/import/evidence continuity.
-- NEXT INDEPENDENT ACTIONS → only dependency-proven cleanup, route/state contract hardening, and evidence reconciliation; no speculative schemas or duplicate capabilities.
-- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate import/RPC/runner, speculative ROI/backtest/playbook/schema-drift creation, speculative deletion.
-- RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE UI + IMPORT CONTINUITY / EXACT-HEAD PROOF IN FLIGHT
+- NEXT EXECUTABLE ACTION → consume first terminal result for `6b6b3a10…`; repair only the first reproducible current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue dependency-proven UI/core hardening; retain Playbooks/Benchmark/ROI/Backtest as fail-closed until their real contracts/data exist; no duplicate schemas/routes.
+- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, speculative playbook/backtest/ROI/benchmark schemas, speculative deletion.
+- RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE DEEP CLOSURE / EXACT-HEAD PROOF IN FLIGHT
 ---
 
 # RESUME TOKEN — 2026-09-27 / NON-DEVICE DEEP CLOSURE CHECKPOINT
