@@ -1,3 +1,16 @@
+## LATEST SESSION WRITE-BACK — 2026-09-27 / AUTHORITATIVE POST-IMPORT RESULT BINDING
+
+- SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-01`.
+- CURRENT EXECUTION CANDIDATE → `9f67875cddf3546f56ac31d0edc2972a74232c6f` (test-guard commit); preceding implementation commits `f066c3317e4f7cef5c74de7f7f30d7a4751bfded` and `682198722c29066b3879b26d95a9a9aed0936b6e`.
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT`.
+- ACTUAL RESULT → done-state UI now reads understanding confidence, specialty, entity type, quality and dataset count from server-authoritative execution output; the server now returns authoritative entity type.
+- PROOF → source mutations and contract guard exist on the executable branch. Exact-head GitHub workflow runs have not yet materialized for the newest SHA; no PASS claimed.
+- FIRST FAILURE → none reproduced on current SHA.
+- OPEN BLOCKERS → PC01 offline; browser/local runtime proof unavailable. Vercel status is not application correctness proof.
+- NEXT EXECUTABLE ACTION → consume exact-head workflow result for the current branch head; if green, continue the next independent post-import surface. If failed, repair only the first current-SHA root failure.
+- DO NOT REPEAT → stale evidence, local-value truth overriding server authority, duplicate import path, unknown-to-zero coercion.
+- RESUME STATUS → ACTIVE / NOT PROVEN.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / POST-IMPORT UI TRUTH CLOSURE
 
 - VERIFIED EXECUTION CANDIDATE → `27d87b49fb91ccdc570d9148ac726057f2d5dc98` on `exec/20260927-import-full-lifecycle`.
