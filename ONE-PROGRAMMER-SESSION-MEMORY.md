@@ -1,18 +1,18 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CANDIDATE SHA → `527eaf673b654abf436e59757914fbc1959cf97d4`
+- CURRENT EXECUTION/CANDIDATE SHA → `10d0755c624ea9ee71b58655b0e734f63d8c4bee`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-rebased` / PR #670
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- ACTUAL RESULT → current-main reconstruction remains single functional front; canonical E-20..E-26 execution rules restored from the superseded functional lineage because the exact-head enforcement contract required them; Decision Experience approval UI now reads persisted approver/requester/timestamps/reason instead of static unavailable values.
-- EVIDENCE → exact current head is 0 commits behind main; earlier exact-head failure on `7cb988fb…` was the enforcement contract's missing E-20..E-26 root and has been repaired. Fresh proof on `527eaf67…` is pending.
-- FIRST FAILURE → previous current-head root: execution enforcement protocol missing E-20..E-26. Fixed at source; acceptance criteria unchanged.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; device/browser/production/Phase-F runtime proof unavailable; fresh CI for `527eaf67…` not yet materialized at checkpoint.
-- NEXT EXECUTABLE ACTION → consume first terminal workflow result for `527eaf67…`; fix only the first reproducible current-SHA root.
-- NEXT INDEPENDENT ACTIONS → continue route/surface completeness audit and safe cleanup while CI runs; do not create duplicate import/evidence/decision paths.
-- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, static UI business truth, overwriting current governance with stale history.
-- RESUME STATUS → ACTIVE / PR #670 / CURRENT-MAIN REBASED FUNCTIONAL FRONT / EXACT-HEAD PROOF PENDING
+- ACTUAL RESULT → single current-main functional front; canonical E-20..E-26 enforcement restored; Decision Experience approval UI exposes persisted requester/approver/timestamps/reason; existing UI contract now guards these fields.
+- EVIDENCE → main remains exact `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`; candidate is ahead without lag. Prior exact-head enforcement failure on `7cb988fb…` is source-fixed; fresh proof is required on `10d0755c…`.
+- FIRST FAILURE → execution enforcement protocol missing E-20..E-26. Fixed without weakening the contract.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; device/browser/production/Phase-F runtime proof unavailable; latest SHA workflow runs pending/queued at checkpoint.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow result for `10d0755c…`; repair only the first current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue safe route/surface coverage and stale-front cleanup only where integration is provable.
+- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate import/evidence/decision path, static business truth, or overwriting canonical control state with stale history.
+- RESUME STATUS → ACTIVE / PR #670 / CURRENT-MAIN FUNCTIONAL FRONT / EXACT-HEAD PROOF PENDING
 - CHECKPOINT RULE → HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT
 
 ---
