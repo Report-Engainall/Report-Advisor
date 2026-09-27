@@ -1,6 +1,19 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / DEVICE RECONNECTED + EXACT DESKTOP PROOF
 
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / 8e5dd2fe CONTRACT + TYPECHECK RECONCILIATION
+
 - MAIN CONTROL HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- FUNCTIONAL FRONT → PR #672 / branch `exec/20260927-current-main-import-ui-rebased` / exact code SHA `8e5dd2fe6b238df7d8393b0544359fb6ac677bcd`.
+- CLOSED ROOTS → import financial-invariant contract owner; Windows CRLF-sensitive UI contract; stale recommendation/master-data assertions; compatibility import route parity; null-unsafe executive KPI access; duplicate ScenarioTruthGuard imports.
+- EXACT LOCAL EVIDENCE → typecheck PASS; build PASS; lint PASS (0 errors, 62 warnings); import transaction contract PASS; product WOW UI contract PASS; UI route/sidebar parity PASS.
+- CI → fresh exact-head workflows are running/queued; no terminal non-skipped quality/browser/final-certification PASS yet.
+- DEVICE → PC01 ONLINE; exact PR checkout is now available locally.
+- NEXT → consume the first terminal exact-head CI result, repair only its reproduced root cause, then persist/rescan and continue independent UI/core/security/cleanup fronts.
+
+---
+
+- MAIN CONTROL HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+
 - FUNCTIONAL FRONT → PR #672 / branch `exec/20260927-current-main-import-ui-rebased`.
 - FUNCTIONAL HEAD BEFORE THIS INDEX PERSIST → `c8dca7badd8115739cbb69aaac564d60ff04dcfe`.
 - EXACT DESKTOP PROOF → GitHub workflow `desktop-windows` run `36355133611` completed SUCCESS on this exact SHA; build, native watcher contract, runtime smoke, Windows installer packaging, and artifact upload all succeeded.

@@ -1,6 +1,21 @@
 # RESUME TOKEN — 2026-09-28 / FINAL CURRENT FRONT CHECKPOINT
 
+# CURRENT RESUME POINTER — 2026-09-28 / CURRENT-SHA CONTRACT + TYPECHECK RECONCILIATION
+
 - MAIN CONTROL HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- FUNCTIONAL PR → #672 / `exec/20260927-current-main-import-ui-rebased` / exact code SHA `8e5dd2fe6b238df7d8393b0544359fb6ac677bcd`.
+- ROOT CAUSES CLOSED ON THIS CODE SHA → cross-platform Evidence Passport contract parsing; financial invariant ownership in the canonical invariant migration; stale import-contract placement checks; stale recommendation-status UI contract; compatibility-route parity; null-unsafe KPI access; duplicate ScenarioTruthGuard imports.
+- EXACT LOCAL PROOF ON `8e5dd2fe` → `typecheck` PASS; `build` PASS; `lint` PASS with 0 errors / 62 warnings; import transaction contract PASS; product WOW UI contract PASS; UI route/sidebar parity PASS.
+- KNOWLEDGE STATE → this memory remains the only live session state; the execution index remains the progress/boundary owner; no new shadow memory/master was created.
+- DEVICE → PC01 ONLINE; the local checkout now tracks the exact PR branch/head and is suitable for further execution evidence.
+- CI GATE → fresh workflows for `8e5dd2fe` are spawned; desktop-windows is in progress, broad quality/browser/final-certification workflows are queued/pending. No terminal non-skipped release PASS yet.
+- DO NOT REPEAT → do not transfer older CI/hosted/device evidence to `8e5dd2fe`; do not treat Vercel/Netlify pending states as product PASS; do not reopen the closed contract roots without a new exact-SHA failure.
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-head quality/browser/certification result; repair only a reproducible current-head failure, then persist/rescan again.
+
+---
+
+- MAIN CONTROL HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+
 - FUNCTIONAL/CURRENT BRANCH HEAD BEFORE THIS MEMORY PERSIST → `5ab1d090a5f4c76b11da130d2b31ab6bdfcdd8f8`; the latest commit is documentation-only.
 - FUNCTIONAL CODE PROOF → exact functional SHA `c8dca7badd8115739cbb69aaac564d60ff04dcfe` passed `desktop-windows` run `36355133611` with web build, native watcher/runtime smoke, Windows packaging and artifact upload all successful.
 - UI ROOT FIX → navigation contract now binds to canonical `NAVIGATION_SECTIONS` and has a valid `node:assert/strict` import; old Sidebar-regex proof is explicitly invalidated.
