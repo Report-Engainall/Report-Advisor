@@ -10,6 +10,7 @@ assert.ok(commandPalette.includes('const COMMAND_CATEGORY_LABELS: Record<Navigat
 assert.ok(commandPalette.includes("trust: 'الثقة والأدلة'"), 'command palette must use the canonical Arabic Trust category');
 assert.ok(commandPalette.includes("outputs: 'التقارير والمخرجات'"), 'command palette must use the canonical Arabic Outputs category');
 assert.ok(commandPalette.includes('return COMMAND_CATEGORY_LABELS[section];'), 'command palette must resolve categories directly from the canonical section map');
+assert.ok(commandPalette.includes('Enter للفتح') && commandPalette.trim().endsWith('}'), 'command palette source must retain its executable footer and terminal closure');
 const languageToggle = fs.readFileSync('src/components/LanguageToggle.tsx', 'utf8');
 assert.ok(languageToggle.includes('ag-language-toggle'), 'language toggle must expose the executive-shell styling hook');
 assert.ok(languageToggle.includes('min-h-11 min-w-11'), 'language toggle must preserve the shared touch-target minimum');
