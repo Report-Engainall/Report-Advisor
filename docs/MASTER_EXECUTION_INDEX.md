@@ -1,16 +1,18 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT — UPDATED
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `91e89f967bbfc5a86f62bec03a768a00d187bde0`
-- FUNCTIONAL FRONT → PR #671 / `91e89f967bbfc5a86f62bec03a768a00d187bde0`
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y`
+- CURRENT CODE/TEST CANDIDATE → `4e9486d4e93a7bb18007f8d53d6a33935890a630`
+- FUNCTIONAL FRONT → PR #671 / `4e9486d4e93a7bb18007f8d53d6a33935890a630`
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT DATA until a real peer cohort exists.
-- ROOT FIXES → shared table loading, governed unavailable states, global keyboard navigation, route titles, alert truth handling, superseded page cleanup, and AlternativeGroups interaction hardening are now part of the current candidate.
-- EXACT EVIDENCE → current code/test head is `91e89f967bbfc5a86f62bec03a768a00d187bde0`; Actions are not terminal yet. Older deployment evidence remains historical. Vercel remains rate-limited.
-- CLEANUP → PR #543 closed after canonical absorption; CanonicalScenarioPage removed after route/import/code-search dependency proof.
-- NEXT → consume terminal exact-head CI, repair first reproducible current-head failure, then continue targeted UI/a11y/value-first closure.
+- ROOT FIX → Exact current CI found a build break caused by a stale import to the deliberately removed `CanonicalScenarioPage`. The scenario calculator is now inline in the governed `ScenarioTruthGuardPage` route.
+- EXACT EVIDENCE → Root failure was observed on exact PR merge SHA `d4925a376ee888777ed699355fb23aa5698f813f`; fix candidate is `4e9486d4e93a7bb18007f8d53d6a33935890a630`. Fresh CI is required on the fixed candidate.
+- EXTERNAL → Vercel free-plan deployment rate limit; authenticated browser/device proof unavailable; Phase-F live resilience remains environment-bound.
+- CLEANUP → PR #543 closed; `CanonicalScenarioPage.tsx` removed only after route/import/code-search proof and now fully consolidated into its governed consumer.
+- NEXT → consume terminal exact-head CI on #671, repair first reproducible failure, then continue targeted UI/a11y/value-first closure.
 
 ---
+
 
 
 

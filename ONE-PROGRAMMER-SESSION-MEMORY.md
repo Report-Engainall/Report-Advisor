@@ -2,6 +2,23 @@
 
 - SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT CODE/TEST CANDIDATE SHA → `4e9486d4e93a7bb18007f8d53d6a33935890a630`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE`
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize/Reconcile → Quality/Trust → Evidence → Review → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
+- ACTUAL RESULT → Fixed the first reproducible CI root failure: Windows build could not resolve a deleted `CanonicalScenarioPage`. The deterministic scenario calculator is now owned by `ScenarioTruthGuardPage.tsx`; no duplicate page was restored. The UI contract now asserts this ownership and the absence of the deleted dependency. AlternativeGroups, shared loading/unavailable state, keyboard navigation, route titles, and alert truth handling remain hardened.
+- EVIDENCE → Root failure reproduced on exact PR merge SHA `d4925a376ee888777ed699355fb23aa5698f813f`: `npm run build` failed with ENOENT importing `src/pages/CanonicalScenarioPage`; dependency installation succeeded. Fix landed in `4e9486d4e93a7bb18007f8d53d6a33935890a630`. New exact-head Actions are queued; no PASS transferred.
+- FIRST FAILURE → Closed: deleted-page import was the first reproducible current-head failure and is now removed by consolidation.
+- OPEN BLOCKERS → Fresh deployment evidence (Vercel rate limit), authenticated browser/device proof, Phase-F live resilience. None blocks repository-side code/UI work.
+- NEXT EXECUTABLE ACTION → Consume the first terminal workflow on `4e9486d4e93a7bb18007f8d53d6a33935890a630`; if a new failure appears, fix that root only. Otherwise continue independent surface hardening and cleanup.
+- NEXT INDEPENDENT ACTIONS → Target remaining low-risk UI/accessibility/value polish; inspect newly terminal CI for regressions; verify stale PRs only when unique work can be proven absorbed.
+- DO NOT REPEAT → Do not restore deleted scenario page; do not transfer old PASS; do not rerun old-SHA failures as current evidence.
+- RESUME STATUS → ACTIVE / NOT CLOSED / SAFE WORK REMAINS.
+
+# RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT — UPDATED
+
+- SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
 - CURRENT CODE/TEST CANDIDATE SHA → `91e89f967bbfc5a86f62bec03a768a00d187bde0`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y`
