@@ -1,3 +1,12 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT HISTORY ACTIONABILITY
+
+- BRANCH → `exec/20260927-import-full-lifecycle`.
+- CODE/TEST CANDIDATE → `2bd4991ea6719c24f60c55316e4b53de3c58f0d8`.
+- DONE → saved import history now links to evidence, operational follow-up, and decision continuity using the existing import record ID.
+- PROOF → contract mutation verified on exact branch; CI/browser proof remains pending.
+- NEXT → consume exact-head evidence when available, then continue independent UI/core closure.
+- DO NOT REPEAT → stale evidence, duplicate import path, silent history rows.
+-
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT → WORK CENTER CONTINUITY
 
 - BRANCH → `exec/20260927-import-full-lifecycle`.
