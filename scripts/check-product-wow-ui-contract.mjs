@@ -164,6 +164,10 @@ assert.ok(canonicalImport.includes('إثباتها مرتبط بالحالة ا�
 assert.ok(!canonicalImport.includes('تم عبور هذه الطبقة ضمن التنفيذ الكانوني'), 'canonical import lifecycle must not imply VERIFIED proof merely from stage visibility');
 
 const commandCenter = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
+assert.ok(commandCenter.includes('kpis.totalReceivables'), 'money recovery surface must use authoritative receivables truth');
+assert.ok(commandCenter.includes('kpis.overdueReceivables'), 'money recovery surface must expose overdue receivables truth when available');
+assert.ok(commandCenter.includes('لا تُحسب فرصة استرداد إضافية دون ledger موثّق'), 'money recovery surface must remain fail-closed about actual recovery');
+
 for (const token of [
   'Decision Coverage',
   'decisionAccountability.ownerCoverage',
