@@ -2,17 +2,17 @@
 
 - CURRENT REPOSITORY HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
 - CURRENT VERIFIED SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `c6f5071afe84639dffaa8d2be5272bcefa39f5ad`
+- CURRENT CODE/TEST CANDIDATE → `03eb9c35658cf6798b0e8d4ca45fa625898ef8de`
 - ACTIVE EXECUTION FRONT → PR #670 / `exec/20260927-current-main-import-ui-finalize-rebased` / single current-main import-to-decision front.
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- ACTUAL RESULT → deep specialty import closure implemented without a parallel RPC/importer: purchases → purchase_invoices, suppliers → suppliers, inventory → inventory_balances, payments → payments. Schema inference, canonical identity, reconciliation payloads, durable adapter keys, commit migration, and CI contracts expanded.
-- PROOF → Supabase staging rollback transaction on this migration successfully executed the DDL and inspected the newly created authoritative 6-argument RPC; its live transaction definition contained purchase_invoices/inventory_balances/payments. Transaction rolled back, so no staging mutation persisted.
-- FIRST FAILURE → prior parser failures (illegal default ordering and unsafe 5-arg RPC replacement path) were consumed and fixed; final migration now leaves the legacy 5-arg RPC untouched and extends only the existing authoritative 6-arg boundary.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; live authenticated production/Phase-F evidence remains environment-bound; current exact-head CI still queued/in flight.
-- NEXT EXECUTABLE ACTION → consume the first terminal workflow result on `c6f5071afe84639dffaa8d2be5272bcefa39f5ad`; repair only the first current-SHA root.
-- NEXT INDEPENDENT ACTIONS → continue readback/evidence UI depth, specialty-specific truth presentation, and safe historical-front cleanup only where overlap is proven.
-- DO NOT REPEAT → duplicate importer/RPC/runner, legacy /import/analyze surface, generic fallback where a typed canonical contract is available, static business truth, stale PASS transfer.
-- RESUME STATUS → ACTIVE / PR #670 / SPECIALTY IMPORT CLOSURE WAVE / EXACT-SHA PROOF PENDING
+- ACTUAL RESULT → specialty import closure + customer-facing typed specialty UI + regression guards. Existing authoritative 6-arg import_commit_batch now owns purchase/supplier/inventory/payment writes; legacy 5-arg remains untouched.
+- PROOF → Supabase staging rollback transaction on the current migration created the expanded entity check and authoritative 6-arg function; pg_get_functiondef inside the transaction confirmed purchase_invoices/inventory_balances/payments branches; transaction rolled back.
+- FIRST FAILURE → illegal default ordering in the 6-arg signature; fixed to exact live signature. Earlier 5-arg replacement strategy was rejected by rollback proof and removed rather than weakening the canonical RPC path.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; live authenticated production/Phase-F evidence remains environment-bound; latest exact-head CI is queued/in flight.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow result on `03eb9c35658cf6798b0e8d4ca45fa625898ef8de`; repair only first current-SHA root.
+- NEXT INDEPENDENT ACTIONS → evidence/readback UI depth, route truth, business specialty regression, safe cleanup of proven redundant fronts.
+- DO NOT REPEAT → duplicate RPC/importer/runner, generic fallback where typed contract exists, legacy import/analyze path, static business truth, stale PASS.
+- RESUME STATUS → ACTIVE / PR #670 / SPECIALTY IMPORT + UI WAVE / EXACT-SHA PROOF PENDING
 
 ---
 
