@@ -7,7 +7,7 @@ export function LanguageToggle() {
     <button
       type="button"
       onClick={toggleLanguage}
-      className="inline-flex items-center gap-1.5 rounded-xl border border-ink-200 bg-white px-2.5 py-2 text-[11px] font-black text-ink-600 shadow-sm transition hover:border-primary-300 hover:text-primary-700"
+      className="ag-language-toggle inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-xl border border-ink-200 bg-white px-2.5 py-2 text-[11px] font-black text-ink-600 shadow-sm transition hover:border-primary-300 hover:text-primary-700"
       aria-label={language === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
       title={language === 'ar' ? 'English' : 'العربية'}
     >
