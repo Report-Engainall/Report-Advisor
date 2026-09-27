@@ -16,35 +16,38 @@ export async function fetchRecommendationsBoundToImport(input: {
 }): Promise<Recommendation[]> {
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
-  const { data, error } = await supabase
-    .from('recommendations')
-    .select('id, company_id, category, priority, title, description, expected_impact, confidence, status, owner, deadline, impact_result, created_at, evidence')
-    .eq('company_id', companyId)
-    .order('created_at', { ascending: false })
-    .limit(200);
-  if (error) throw error;
-  return (data ?? []).filter((row) => {
-    const evidence = row.evidence && typeof row.evidence === 'object' && !Array.isArray(row.evidence)
-      ? row.evidence as Record<string, unknown>
-      : {};
-    return String(evidence.import_job_id ?? '') === input.importJobId
-      || String(evidence.evidence_snapshot_id ?? '') === input.snapshotId
-      || String(evidence.source_hash ?? '') === input.sourceHash;
-  }).map((row) => ({
-    id: String(row.id),
-    company_id: String(row.company_id),
-    category: String(row.category),
-    priority: String(row.priority),
-    title: String(row.title),
-    description: row.description ? String(row.description) : null,
-    expected_impact: row.expected_impact == null ? null : Number(row.expected_impact),
-    confidence: String(row.confidence),
-    status: String(row.status),
-    owner: row.owner ? String(row.owner) : null,
-    deadline: row.deadline ? String(row.deadline) : null,
-    impact_result: row.impact_result ? String(row.impact_result) : null,
-    created_at: String(row.created_at),
-  }));
+
+  const columns = 'id, company_id, category, priority, title, description, expected_impact, confidence, status, owner, deadline, impact_result, created_at, evidence';
+  const [byImport, bySnapshot, bySource] = await Promise.all([
+    supabase.from('recommendations').select(columns).eq('company_id', companyId).eq('evidence->>import_job_id', input.importJobId),
+    supabase.from('recommendations').select(columns).eq('company_id', companyId).eq('evidence->>evidence_snapshot_id', input.snapshotId),
+    supabase.from('recommendations').select(columns).eq('company_id', companyId).eq('evidence->>source_hash', input.sourceHash),
+  ]);
+  for (const result of [byImport, bySnapshot, bySource]) if (result.error) throw result.error;
+
+  const unique = new Map<string, Record<string, unknown>>();
+  for (const result of [byImport, bySnapshot, bySource]) {
+    for (const row of result.data ?? []) unique.set(String(row.id), row as Record<string, unknown>);
+  }
+
+  return [...unique.values()]
+    .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))
+    .map((row) => ({
+      id: String(row.id),
+      company_id: String(row.company_id),
+      category: String(row.category),
+      priority: String(row.priority),
+      title: String(row.title),
+      description: row.description ? String(row.description) : null,
+      expected_impact: row.expected_impact == null ? null : Number(row.expected_impact),
+      confidence: String(row.confidence),
+      status: String(row.status),
+      owner: row.owner ? String(row.owner) : null,
+      deadline: row.deadline ? String(row.deadline) : null,
+      impact_result: row.impact_result ? String(row.impact_result) : null,
+      created_at: String(row.created_at),
+    }));
+}
 }
 
 export async function fetchAlerts(): Promise<Alert[]> { return (await fetchDashboardIntelligence()).alerts; }
