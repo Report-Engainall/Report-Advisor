@@ -1,6 +1,6 @@
 import { normalizeColumnName, parseNumber } from './normalizer.ts';
 
-export type SchemaField = 'sku' | 'barcode' | 'product_name' | 'customer_id' | 'customer_name' | 'supplier_id' | 'supplier_name' | 'supplier_code' | 'invoice_number' | 'invoice_date' | 'price' | 'quantity' | 'date' | 'unit' | 'warehouse' | 'warehouse_id' | 'purchase_amount' | 'subtotal' | 'tax_amount' | 'total' | 'paid_amount' | 'discount_amount' | 'status' | 'due_date' | 'currency' | 'payment_id' | 'payment_date' | 'payment_amount' | 'payment_method' | 'reference' | 'direction' | 'product_id' | 'unit_cost' | 'last_movement_date' | 'segment' | 'credit_limit' | 'payment_terms_days' | 'min_stock' | 'reorder_point' | 'is_active' | 'unknown';
+export type SchemaField = 'sku' | 'barcode' | 'product_name' | 'customer_id' | 'customer_name' | 'supplier_id' | 'supplier_name' | 'supplier_code' | 'invoice_number' | 'invoice_date' | 'price' | 'quantity' | 'date' | 'unit' | 'warehouse' | 'warehouse_id' | 'purchase_amount' | 'unit_price' | 'line_total' | 'description' | 'subtotal' | 'tax_amount' | 'total' | 'paid_amount' | 'discount_amount' | 'status' | 'due_date' | 'currency' | 'payment_id' | 'payment_date' | 'payment_amount' | 'payment_method' | 'reference' | 'direction' | 'product_id' | 'unit_cost' | 'last_movement_date' | 'segment' | 'credit_limit' | 'payment_terms_days' | 'min_stock' | 'reorder_point' | 'is_active' | 'unknown';
 
 export type SchemaEvidence = {
   field: SchemaField;
