@@ -13,6 +13,7 @@ import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs 
 import { fetchBusinessReplaySnapshot } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Alert, Recommendation } from '@/lib/types';
+import { isActionableRecommendationStatus } from '@/lib/decision-status';
 
 const PERIODS = [
   { value: 3, label: '3 أشهر' },
@@ -130,7 +131,7 @@ export function ExecutiveCommandCenterPage() {
   }, [kpis]);
 
   const decisionAccountability = useMemo(() => {
-    const actionable = recommendations.filter((item) => item.status === 'new' || item.status === 'accepted');
+    const actionable = recommendations.filter((item) => isActionableRecommendationStatus(item.status));
     const owned = actionable.filter((item) => item.owner?.trim()).length;
     const outcomes = actionable.filter((item) => item.impact_result?.trim()).length;
     return {
