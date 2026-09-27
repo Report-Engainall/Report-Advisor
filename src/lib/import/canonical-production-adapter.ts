@@ -62,9 +62,9 @@ function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: stri
   }
 }
 
-interface CanonicalServerExecutionResult { jobId?: string; importId: string; sourceHash: string; [key: string]: unknown }
+export interface CanonicalImportExecutionResult { jobId?: string; importId: string; sourceHash: string; authoritativeRowCount?: unknown; authoritativeQualityScore?: unknown; authoritativeColumns?: unknown; authoritativePreview?: unknown; snapshotId?: unknown; canonicalCommit?: CanonicalCommitResult | null; [key: string]: unknown }
 
-async function executeThroughServerBoundary(input: DurableCanonicalImportInput, mode: 'execute' | 'finalize-source' = 'execute'): Promise<CanonicalServerExecutionResult> {
+async function executeThroughServerBoundary(input: DurableCanonicalImportInput, mode: 'execute' | 'finalize-source' = 'execute'): Promise<CanonicalImportExecutionResult> {
   const { supabase } = await import('../supabase');
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   const accessToken = sessionData.session?.access_token;
