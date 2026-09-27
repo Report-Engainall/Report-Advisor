@@ -390,6 +390,9 @@ assert.ok(scenarioGuard.includes('const load = useCallback(async () =>'), 'scena
 assert.ok(scenarioGuard.includes('إعادة فحص الحقيقة المالية'), 'scenario truth gate must expose an explicit retry action');
 assert.ok(scenarioGuard.includes('min-h-11'), 'scenario truth retry/action controls must meet touch-target sizing');
 assert.ok(scenarioGuard.includes('setState(\'blocked\')'), 'scenario truth gate must remain fail-closed after unavailable truth');
+assert.ok(!scenarioGuard.includes('CanonicalScenarioPage'), 'scenario truth gate must not depend on the removed superseded page');
+assert.ok(scenarioGuard.includes('function ScenarioCalculator'), 'scenario truth gate must own the canonical deterministic scenario calculator');
+
 
 const onboarding = fs.readFileSync('src/pages/OnboardingPage.tsx', 'utf8');
 assert.ok(onboarding.includes('role="list" aria-label="خطوات التجهيز"'), 'onboarding steps must expose a semantic list');
