@@ -47,7 +47,19 @@ export function MasterDataHubPage() {
       if (!companyId) throw new Error('TENANT_REQUIRED');
 
       const countFor = async (table: keyof MasterDataCounts) => {
-        const sourceTable = table === 'inventory' ? 'inventory_balances' : table;
+        const sourceTableMap: Record<keyof MasterDataCounts, string> = {
+          customers: 'customers',
+          products: 'products',
+          inventory: 'inventory_balances',
+          suppliers: 'suppliers',
+          warehouses: 'warehouses',
+          branches: 'branches',
+          categories: 'categories',
+          analysisSnapshots: 'source_analysis_snapshots',
+          canonicalDatasets: 'canonical_dataset_records',
+          fieldMappings: 'import_field_lineage',
+        };
+        const sourceTable = sourceTableMap[table];
         const { count, error: queryError } = await supabase
           .from(sourceTable)
           .select('id', { count: 'exact', head: true })
