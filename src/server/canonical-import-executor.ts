@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { securityScan } from '../lib/file-engine/security';
 import { detectFormat } from '../lib/file-engine/detector';
 import { parseFile } from '../lib/file-engine/adapters';
-import { reconcileForCanonical } from '../lib/import/canonical-truth-boundary';
+import { reconcileForCanonical, type CanonicalImportEntityType } from '../lib/import/canonical-truth-boundary';
 import { runCanonicalImportThroughDurableRunner } from '../lib/import/canonical-production-adapter';
 import { understandCanonicalSource } from '../lib/import/canonical-source-understanding';
 
@@ -17,7 +17,7 @@ type CanonicalImportRequest = {
   importId?: string;
   fileName?: string;
   sourceHash?: string;
-  entityType?: 'products' | 'customers' | 'sales_invoices' | 'purchase_invoices' | 'suppliers' | 'inventory_balances' | 'payments' | `generic:${string}`;
+  entityType?: CanonicalImportEntityType;
   rows?: unknown[];
   qualityScore?: number;
   qualityApproved?: boolean;
