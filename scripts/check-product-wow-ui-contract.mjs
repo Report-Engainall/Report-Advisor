@@ -415,3 +415,7 @@ const canonicalProfitability = fs.readFileSync('src/pages/ProfitabilityReportCan
 assert.ok(canonicalProfitability.includes('DataUnavailableState'), 'canonical profitability must expose a governed unavailable-data state');
 assert.ok(canonicalProfitability.includes('<Link to="/import"'), 'canonical profitability unavailable state must use the unified import route');
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
+
+assert.ok(intelligence.includes('بوابة الاختبار الرجعي'), 'forecast surface must expose an explicit backtest gate');
+assert.ok(intelligence.includes('الاختبار الرجعي غير متاح حاليًا'), 'backtest must remain fail-closed when historical paired forecast/outcome evidence is unavailable');
+assert.ok(intelligence.includes('نسبة دقة مصطنعة'), 'backtest empty state must forbid fabricated accuracy');
