@@ -1,6 +1,22 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / DEVICE RECONNECTED + EXACT DESKTOP PROOF
 
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / 8e5dd2fe CONTRACT + TYPECHECK RECONCILIATION
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / 56483d33 FULL LOCAL CERTIFICATION + STAGING WAREHOUSE GUARD
+
+- FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact code SHA `56483d33b2d043d054c87dcc6eb933bc1a1bbdcf`.
+- MAIN BASELINE → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- CLOSED ROOTS → import contract ownership; UI CRLF parsing; Intelligence stale token; stale recommendation/master-data assertions; import compatibility route parity; executive KPI null safety; ScenarioTruthGuard duplicate imports; nullable inventory warehouse semantics with fail-closed explicit mismatch.
+- LIVE STAGING → migration `guard_inventory_import_warehouse_resolution` applied as `20260927231203`; RPC readback contains `INVENTORY_WAREHOUSE_NOT_FOUND`; `inventory_balances.warehouse_id` remains nullable.
+- EXACT LOCAL EVIDENCE ON `56483d33` → full chained certification/test command exited 0, including typecheck, lint, build, knowledge/architecture, import truth/runtime/security, UI/product contracts, golden E2E, Phase11, production coordinator/gate, and Phase F/K/L/M.
+- WARNINGS, NOT FAILURES → lint has 62 warnings; build emits Browserslist and Bluebird eval warnings; knowledge scan identifies 9 legacy-looking master docs requiring Manifest absorption proof before deletion.
+- HOSTED/CI → Netlify exact-head deploy is ERROR from no-content-change cancellation; Vercel pending; browser/final-certification GitHub workflows queued/pending; no terminal exact-head browser/final PASS yet.
+- SECURITY OPEN FRONT → broad Supabase advisor warnings remain (authenticated SECURITY DEFINER and unused indexes); they are pre-existing/independent and require evidence-backed hardening, not blanket revoke.
+- DEVICE → PC01 online. Untracked `artifacts/` is not canonical and remains uncommitted.
+- NEXT → consume terminal exact-`56483d33` CI results; first reproducible failure only; then persist/rescan and continue independent security/cleanup fronts.
+
+---
+
+- FUNCTIONAL CODE HEAD → `56483d33b2d043d054c87dcc6eb933bc1a1bbdcf`.
+
 
 - MAIN CONTROL HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
 - FUNCTIONAL FRONT → PR #672 / branch `exec/20260927-current-main-import-ui-rebased` / exact code SHA `8e5dd2fe6b238df7d8393b0544359fb6ac677bcd`.

@@ -1,6 +1,23 @@
 # RESUME TOKEN — 2026-09-28 / FINAL CURRENT FRONT CHECKPOINT
 
-# CURRENT RESUME POINTER — 2026-09-28 / CURRENT-SHA CONTRACT + TYPECHECK RECONCILIATION
+# CURRENT RESUME POINTER — 2026-09-28 / 56483d33 FULL LOCAL CERTIFICATION + STAGING WAREHOUSE GUARD
+
+- FUNCTIONAL CODE HEAD → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact code SHA `56483d33b2d043d054c87dcc6eb933bc1a1bbdcf`.
+- MAIN CONTROL HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49` remains the main baseline; this PR is the active functional front.
+- ROOT CAUSES CLOSED → import-contract ownership drift; Windows CRLF UI contract parsing; stale Intelligence UI contract token; stale recommendation/master-data assertions; /import/analyze compatibility parity; null-unsafe KPI access; duplicate ScenarioTruthGuard imports; nullable inventory warehouse semantics with fail-closed explicit mismatch.
+- PRODUCTION DB CHANGE → staging project `fnqbvfuwbdpwvhcgzksl` applied `guard_inventory_import_warehouse_resolution` as server migration `20260927231203`; readback proves `INVENTORY_WAREHOUSE_NOT_FOUND` is present in live `import_commit_batch`, while `inventory_balances.warehouse_id` remains nullable (YES).
+- EXACT LOCAL PROOF ON CODE SHA `56483d33` → typecheck PASS; lint PASS (0 errors / 62 warnings); production build PASS (2802 modules); knowledge architecture PASS; architecture/contract suite PASS; Intelligence/Connections/Master Requirements PASS; canonical import/transaction/Phase-3/state/runtime/tenant/RLS PASS; production certification/evidence/SaaS PASS; decision-intelligence PASS; UI route/product/dashboard/report/inventory/document/file-engine/file-security PASS; golden E2E + Phase11 adversarial/performance PASS; production coordinator/gate runtime PASS; Phase F/K/L/M PASS; full chained command exited 0.
+- DEVICE → PC01 ONLINE and branch clean except ignored/untracked `artifacts/`; no product source change exists there.
+- HOSTED EXACT-HEAD → Netlify deploy `6ab9a446dda1f60008391252` is ERROR because Netlify canceled for “no content change”; this is not product failure and is NOT deployment PASS. Vercel checks for `56483d33` are pending. GitHub browser workflows are queued/pending; no terminal non-skipped browser/final-certification result yet.
+- SECURITY RESIDUAL → Supabase advisor still reports broad pre-existing authenticated SECURITY DEFINER warnings (including `import_commit_batch`) and unused-index warnings. They remain an independent hardening front; no speculative blanket revoke was made.
+- KNOWLEDGE STATE → canonical Memory + Execution Index remain the only live session-control files; no new shadow state was created.
+- DO NOT REPEAT → do not transfer evidence from `8e5dd2fe`, `8bf3458c`, `9999c155`, or any older SHA; do not count Netlify “success” status as a deployment PASS; do not claim authenticated browser E2E until a terminal exact-head browser gate proves it.
+- NEXT EXECUTABLE ACTION → consume terminal GitHub exact-`56483d33` quality/browser/certification results; repair only a reproducible current-head failure; then update this memory again. In parallel, continue only independent security/cleanup/documentation fronts that have real executable proof.
+
+---
+
+- FUNCTIONAL CODE HEAD → `56483d33b2d043d054c87dcc6eb933bc1a1bbdcf`.
+
 
 - MAIN CONTROL HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
 - FUNCTIONAL PR → #672 / `exec/20260927-current-main-import-ui-rebased` / exact code SHA `8e5dd2fe6b238df7d8393b0544359fb6ac677bcd`.
