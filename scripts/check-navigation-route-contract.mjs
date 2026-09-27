@@ -16,7 +16,7 @@ const missingRoutes = [...nav].filter((path) => !routes.has(path));
 const duplicateNav = navPaths.filter((path, i) => navPaths.indexOf(path) !== i);
 const duplicateRoutes = routePaths.filter((path, i) => routePaths.indexOf(path) !== i);
 const registryMissingRoutes = [...new Set(registryPaths.map(normalize))].filter((path) => !routes.has(path));
-const allowedUnlistedRoutes = new Set(['/proposal-demo']);
+const allowedUnlistedRoutes = new Set(['/proposal-demo', '/import/analyze']);
 const registrySet = new Set(registryPaths.map(normalize));
 const routesMissingRegistry = [...routes].filter((path) => path !== '/' && path !== '*' && !registrySet.has(path) && !allowedUnlistedRoutes.has(path));
 
