@@ -97,3 +97,7 @@ Profitability requires verified cost basis.
 Receivables data alone must not be represented as guaranteed recoverable money.
 
 Forecasting and benchmark outputs must expose minimum-data/sample limits.
+
+
+## 10. Canonical import RPC security boundary — 2026-09-27
+The authoritative six-argument `public.import_commit_batch` RPC is callable by `authenticated` and `service_role` only. `PUBLIC/anon` execution is explicitly revoked by migration `20260927220000_harden_canonical_import_execute_grant.sql`. The browser import path remains server-bound; the server executor supplies the authenticated user client for the authoritative commit and keeps service-role authority for controlled source/storage operations.
