@@ -288,6 +288,9 @@ A claimed or closed unit must not be reworked by another front unless:
 
 Duplicate implementation is prohibited for equivalent behavior. Reuse the canonical path or supersede it deliberately.
 
+### Reference-asset de-duplication
+Reference screenshots, visual assets, examples, fixtures, and equivalent UI references are evidence, not automatic implementation counts. Exact duplicates or visually equivalent references must map to one primary implementation with provenance. Distinct implementations are justified only by real differences such as state, viewport, data, permission, or behavior.
+
 ## 19. First-failure consumption
 When multiple checks fail, do not repair all visible failures as a batch.
 Order failures by dependency:
