@@ -3,15 +3,15 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CODE CANDIDATE → `26eb3db449536a9b57e5eee39c99ed8a222343d3`
+- CURRENT EXECUTION/CODE CANDIDATE → `3283f03e28c6a5fde9576c3a29b2b56444762b74`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- UI AFTER IMPORT → Import → Trust/Evidence → Signals → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- CORE CLOSURE → purchase-line SchemaField now explicitly includes unit_price, line_total, description; typed specialty writes remain on the existing authoritative RPC.
-- UI CLOSURE → Evidence Passport AS OF + Business Replay AS OF/read-window/refresh + localized customer-facing specialty/entity labels.
-- EXACT CURRENT STATUS → no terminal CI failure on current head; fresh gates queued/pending. Vercel external build-rate-limit remains separate.
-- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback requires environment evidence.
-- NEXT → consume first terminal current-SHA workflow; fix only current-SHA root, then rescan route/contracts and stale fronts.
+- IMPORT CONTINUITY → Import → Trust/Evidence → Signals → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
+- PURCHASE LINE ROOT → purchase identity is invoice + physical row identity, allowing multiple invoice lines while preserving duplicate-header semantics.
+- TEST COVERAGE → existing canonical-truth-boundary test now covers multi-line acceptance, duplicate-header rejection, and repeated-row conflict.
+- CURRENT PROOF STATE → no terminal current-SHA failure; exact-head CI pending. Vercel remains external rate-limit failure.
+- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback remains environment evidence.
+- NEXT → consume first terminal current-SHA workflow, fix only current-SHA root, then rescan UI/route/contracts.
 ---
 
 
