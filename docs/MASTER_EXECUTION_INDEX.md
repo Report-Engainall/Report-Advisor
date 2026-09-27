@@ -3,15 +3,15 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CODE CANDIDATE → `3283f03e28c6a5fde9576c3a29b2b56444762b74`
+- CURRENT EXECUTION/CODE CANDIDATE → `e44118c8bc25f47ac485a88b3abe9ec15617c5c1`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - IMPORT CONTINUITY → Import → Trust/Evidence → Signals → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- PURCHASE LINE ROOT → purchase identity is invoice + physical row identity, allowing multiple invoice lines while preserving duplicate-header semantics.
-- TEST COVERAGE → existing canonical-truth-boundary test now covers multi-line acceptance, duplicate-header rejection, and repeated-row conflict.
-- CURRENT PROOF STATE → no terminal current-SHA failure; exact-head CI pending. Vercel remains external rate-limit failure.
+- CORE CLOSURE → purchase invoice multi-line identity now uses physical row identity and is protected by regression tests.
+- UI CLOSURE → Evidence Passport AS OF; Replay AS OF/read-window/refresh; Decision imported-source AS OF; localized specialty/entity labels.
+- CURRENT PROOF → no terminal current-SHA CI failure; fresh checks not terminalized. Vercel remains external build-rate-limit.
 - PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback remains environment evidence.
-- NEXT → consume first terminal current-SHA workflow, fix only current-SHA root, then rescan UI/route/contracts.
+- NEXT → consume first terminal current-SHA workflow; fix only root; then rescan route/contracts and stale fronts.
 ---
 
 
