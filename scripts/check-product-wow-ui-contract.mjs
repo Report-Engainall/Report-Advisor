@@ -208,6 +208,10 @@ assert.ok(intelligence.includes('isActionableRecommendationStatus(item.status)')
 assert.ok(intelligence.includes('const actionableRecommendations = useMemo('), 'intelligence must derive one canonical actionable recommendation cohort');
 assert.ok(intelligence.includes('isActionableRecommendationStatus(item.status)'), 'intelligence actionable cohort must use the canonical status resolver');
 assert.ok(intelligence.includes("const persistedStatus = status === 'accepted' ? 'approved' : status"), 'recommendation acceptance readback must reflect the canonical RPC transition to approved');
+assert.ok(!intelligence.includes("updateRecommendationStatus(id, 'accepted')"), 'recommendation list must not bypass the governed decision/approval flow with a direct accepted mutation');
+assert.ok(intelligence.includes("'/decision-experience?stage=decision&recommendationId='"), 'OPEN recommendations must enter the governed decision experience');
+assert.ok(intelligence.includes("updateRecommendationStatus(id, 'rejected')"), 'OPEN/new recommendations may still use the valid terminal rejection transition');
+
 assert.ok(intelligence.includes("setFilter] = useState<'all' | 'actionable' | 'approved' | 'in_progress' | 'rejected'>"), 'recommendation filters must expose canonical lifecycle states');
 
 assert.ok(executiveReport.includes('isActionableRecommendationStatus(item.status)'), 'executive report coverage must use canonical recommendation status semantics');
