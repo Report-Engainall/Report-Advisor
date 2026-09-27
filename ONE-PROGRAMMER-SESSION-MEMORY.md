@@ -1,3 +1,15 @@
+# RESUME TOKEN — 2026-09-27 / BOOT-KERNEL HARDENING CHECKPOINT
+
+- CURRENT MAIN SHA AT CHECKPOINT → `e441fc95bc58d34b14fb8874cb3bf151a1318e6e`
+- PERMANENT PROTOCOL → `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`
+- PROTOCOL CHANGE → Added mandatory product-completion, full post-import continuity, global UI completeness, design-system-first improvement, production-grade polish, device-unavailable execution, free-tool fallback, workspace hygiene, global rescan, and full completion-gate rules.
+- EVIDENCE → protocol fetched after write and contains the new Section 20 at current main.
+- UI/IMPORT DIRECTIVE → no stop at Upload/Parse/Preview; no screen considered complete from populated state alone.
+- DEVICE STATE → device unavailable; all non-device-dependent work remains executable; no device/browser/production PASS may be fabricated.
+- NEXT → resume from the current canonical execution boundary in `docs/MASTER_EXECUTION_INDEX.md`; obey the permanent protocol; continue independent fronts automatically.
+
+---
+
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
 - CURRENT VERIFIED MAIN SHA → `a76f19a7da58071dce9a08874eae2b666827aa11`
