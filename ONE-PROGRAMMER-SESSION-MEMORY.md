@@ -1,3 +1,21 @@
+# RESUME TOKEN — 2026-09-27 / STAGING CAPABILITY TRUTH CHECKPOINT
+
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT BRANCH HEAD → `8ec77fce12382b8ebe041cabdffafb508adb04fb`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- ACTUAL RESULT → non-device UI, route, contract, import-server boundary, and cleanup work is implemented; current product guardrails remain source-driven and fail-closed.
+- STAGING CAPABILITY TRUTH → on `Report-Advisor-P0-2-Staging` (`fnqbvfuwbdpwvhcgzksl`), read-only schema inspection shows `forecasts=0`, `decision_outcomes=1`, `decision_work_items=0`, `operational_task_proposals=0`, `control_plane_drift_events=0`, `recommendations=1`, `business_intelligence_decisions=2`, `canonical_import_commits=3224`, `source_analysis_snapshots=119`. No dedicated `playbooks`, `backtests`, or `schema-drift` table exists. Do not invent a new parallel schema in this front.
+- UI RESPONSE → Forecast Backtest remains explicitly NOT AVAILABLE / fail-closed because no paired historical forecast/outcome evidence exists. Decision Playbooks remain unavailable until a governed template/execution contract exists.
+- EXACT SOURCE PROOF → current branch source is reconciled through `8ec77fce…`; CI terminal proof is still pending. Vercel remains external rate-limited; device/browser/Production/Phase-F proof is NOT PROVEN.
+- OPEN BLOCKERS → external hosting rate limit; unavailable device; authenticated runtime/Production/Phase-F evidence.
+- NEXT EXECUTABLE ACTION → consume first terminal current-head CI gate; repair only the first reproducible root.
+- NEXT INDEPENDENT ACTIONS → safe reference/dependency cleanup only where exact absence is provable.
+- DO NOT REPEAT → speculative playbook/backtest/schema-drift schema creation; stale PASS transfer; preview-as-production; duplicate import/RPC/runner; speculative deletion.
+- RESUME STATUS → ACTIVE / PR #671 / STAGING TRUTH RECONCILED / EXACT-HEAD PROOF IN FLIGHT
+
+---
+
 # RESUME TOKEN — 2026-09-27 / SECURITY BOUNDARY CLOSURE
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
