@@ -13,7 +13,7 @@
 # RESUME TOKEN — 2026-09-27 / continuous execution
 
 - CURRENT REPOSITORY HEAD → 46675643e32f6ea28b6c1d80a530b2eb134e7907
-- CURRENT CODE/TEST CANDIDATE → bdbf101f20c0c160527e994b49061747c4f16267 (PR #663; governance candidate; docs checkpoint descendant).
+- CURRENT CODE/TEST CANDIDATE → 20179f6964e13abf4550bec236d0a0620a02b153 (PR #663; governance candidate; exact documented checkpoint).
 - ACTIVE EXECUTION FRONTS → SURFACE: PR #662 full-source import; HEART: import/runtime truth; PROOF: exact-head PR #662/#663 gates; GOVERNANCE: continuous-resume enforcement.
 - OPEN BLOCKERS (SCOPED) → Vercel free-plan build-rate limit; browser automation unavailable; Phase-F/production certification remains unproven. These blockers isolate only their dependent proof fronts.
 - LAST PROVEN → PR #663 exact-head execution-enforcement + adversarial + knowledge/report-execution contracts PASS on a262f26b042569837b826ecf679e0c465f06ef8d; NO PASS is transferred to bdbf101f20c0c160527e994b49061747c4f16267. PR #662 exact-head local certification contracts remain historical evidence only.
