@@ -211,6 +211,10 @@ const intelligence = fs.readFileSync('src/pages/IntelligencePage.tsx', 'utf8');
 const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
 assert.ok(intelligence.includes('isActionableRecommendationStatus(item.status)'), 'intelligence queue must use canonical recommendation status semantics');
 assert.ok(intelligence.includes('const actionableRecommendations = useMemo('), 'intelligence must derive one canonical actionable recommendation cohort');
+assert.ok(intelligence.includes("in_progress: items.filter((item) => item.status === 'in_progress').length"), 'intelligence recommendation counts must use the canonical in_progress key');
+assert.ok(intelligence.includes('counts.in_progress'), 'intelligence summary must consume the canonical in_progress count key');
+assert.ok(!intelligence.includes('counts.inProgress'), 'intelligence must not regress to a camelCase count key that diverges from status filters');
+
 assert.ok(intelligence.includes('isActionableRecommendationStatus(item.status)'), 'intelligence actionable cohort must use the canonical status resolver');
 assert.ok(intelligence.includes("const persistedStatus = status === 'accepted' ? 'approved' : status"), 'recommendation acceptance readback must reflect the canonical RPC transition to approved');
 assert.ok(!intelligence.includes("updateRecommendationStatus(id, 'accepted')"), 'recommendation list must not bypass the governed decision/approval flow with a direct accepted mutation');
