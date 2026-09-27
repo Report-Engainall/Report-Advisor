@@ -1,18 +1,19 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT — UPDATED
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `ab4f5865f679e89e55ce3bbe6db8091f0348d112`
-- FUNCTIONAL FRONT → PR #671 / `ab4f5865f679e89e55ce3bbe6db8091f0348d112`
+- CURRENT CODE/TEST CANDIDATE → `a7bdc4da7efe6add96f7935f289fe86b9775d2fb`
+- FUNCTIONAL FRONT → PR #671 / `a7bdc4da7efe6add96f7935f289fe86b9775d2fb`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT DATA until a real peer cohort exists.
-- ROOT FIX → Current CI root was the deleted `CanonicalScenarioPage` import from the governed scenario page. The calculator is now owned by the single live route, and the deletion remains intact.
-- EXACT EVIDENCE → Fixed candidate `4e9486d…` passed the web-build step inside the Windows job; final UI-contract candidate is `ab4f5865f679e89e55ce3bbe6db8091f0348d112`. Fresh exact-head terminal evidence is still required.
-- UI POLISH → Metric Inspector and Suppliers touch/announcement hardening; AlternativeGroups interaction hardening; shared shell/table/alert truth protections.
-- EXTERNAL → Vercel free-plan deployment rate limit; authenticated browser/device proof unavailable; Phase-F live resilience remains environment-bound.
-- CLEANUP → PR #543 closed; CanonicalScenarioPage removed only after route/import/code-search proof, then its implementation was consolidated into the governed consumer.
-- NEXT → consume terminal exact-head CI, repair first new failure, then continue safe targeted UI/value/a11y closure.
+- ROOT FIX → deleted scenario page was consolidated into its governed consumer; shared UI contracts and touch/accessibility polish continue from the same architecture.
+- EXACT EVIDENCE → `4e9486d…` passed the web-build step in Windows CI after the root fix. Final candidate `a7bdc4da7efe6add96f7935f289fe86b9775d2fb` requires fresh terminal proof. No evidence is promoted across SHAs.
+- UI POLISH → Metric Inspector, Suppliers, AlternativeGroups, shared Product Journey, DataTable, shell and alert-state truth handling.
+- EXTERNAL → Vercel deployment rate limit; authenticated browser/device proof unavailable; Phase-F live resilience remains environment-bound.
+- CLEANUP → PR #543 closed; CanonicalScenarioPage removed after dependency proof and implementation consolidated.
+- NEXT → terminal CI on `a7bdc4da7efe6add96f7935f289fe86b9775d2fb`, then root-fix any new failure and continue safe targeted closure.
 
 ---
+
 
 
 

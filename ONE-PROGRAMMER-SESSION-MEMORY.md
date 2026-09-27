@@ -2,6 +2,23 @@
 
 - SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT CODE/TEST CANDIDATE SHA → `a7bdc4da7efe6add96f7935f289fe86b9775d2fb`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE`
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize/Reconcile → Quality/Trust → Evidence → Review → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
+- ACTUAL RESULT → Fixed the stale scenario import exposed by Windows CI, consolidated the deterministic calculator into `ScenarioTruthGuardPage`, hardened Metric Inspector/Suppliers/AlternativeGroups, tightened global shell/table/alert truth behavior, and raised the shared Product Journey touch target to 44px while removing unused route state.
+- EVIDENCE → Exact root failure: merge SHA `d4925a376ee888777ed699355fb23aa5698f813f` failed `npm run build` because `ScenarioTruthGuardPage.tsx` imported the intentionally removed `CanonicalScenarioPage`; after consolidation, exact candidate `4e9486d…` reached a successful Windows `Build web application` step. Final code/test candidate is `a7bdc4da7efe6add96f7935f289fe86b9775d2fb`; its CI is fresh and not terminal yet.
+- FIRST FAILURE → CLOSED: deleted-page import. No newer reproducible code failure observed.
+- OPEN BLOCKERS → Fresh deployment (Vercel rate limited), authenticated browser/device proof, Phase-F live resilience.
+- NEXT EXECUTABLE ACTION → Consume terminal checks on `a7bdc4da7efe6add96f7935f289fe86b9775d2fb`; fix the first new current-head failure, then continue any independent safe UI/core closure.
+- NEXT INDEPENDENT ACTIONS → Keep exact-SHA evidence, audit only proven-stale fronts, preserve the single canonical post-import chain.
+- DO NOT REPEAT → Do not resurrect `CanonicalScenarioPage`, transfer old PASS, or use device-dependent proof.
+- RESUME STATUS → ACTIVE / NOT CLOSED / SAFE WORK REMAINS.
+
+# RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT — UPDATED
+
+- SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
 - CURRENT CODE/TEST CANDIDATE SHA → `ab4f5865f679e89e55ce3bbe6db8091f0348d112`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE`
