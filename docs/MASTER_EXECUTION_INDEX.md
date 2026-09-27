@@ -2,21 +2,19 @@
 
 > This top block is the only startup boundary.
 
-- MAIN HEAD BEFORE THIS DOCS WRITE → `ae7fe0559aad8d0582f5564b705b0701169152a2`
-- CURRENT CODE/TEST CANDIDATE → `044de934621b6a535e238541b9233287ada83aa6`
-- FUNCTIONAL FRONT → PR #672 / `044de934621b6a535e238541b9233287ada83aa6`
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- EXACT GIT RECONCILIATION → candidate is 1 commit ahead / 0 behind current main; 76 files differ.
-- EXACT-HEAD ACTIONS → current scan: 47 queued + 1 in progress + 2 completed/skipped, 0 completed failures. `desktop-windows` run `36347110715` is in progress; build + native watcher + native runtime smoke steps are SUCCESS and installer packaging is in progress.
-- EXACT-HEAD EXTERNAL → Vercel is `failure / build-rate-limit`; no production promotion or SHA bypass.
-- DEVICE → PC01 offline. Device-bound browser/production evidence remains NOT PROVEN; all non-device-dependent fronts continue.
-- SOURCE AUDIT → canonical import executor remains authenticated/tenant-bound; 6-arg `import_commit_batch` is public/anon revoked and authenticated/service_role granted. `import_finish_job` rejects tenant mismatch and terminal resurrection.
-- ROUTE AUDIT → 37 unique navigation paths, 40 actual routes, 0 navigation duplicates, 0 nav paths missing from App routing on the exact candidate.
-- STRUCTURE AUDIT → `free-toolbox` and `product-intelligence` files are not identical; no safe deletion proven. No deletion performed.
-- DECISION AUDIT → direct Intelligence mutation is limited to rejection for OPEN/new; approval occurs through governed Decision Experience. Legacy `accepted` state remains explicitly backward-compatible.
-- PHASE-F → NOT CERTIFIED. Restore/RPO/RTO/rollback/live production exact-SHA evidence remains open.
-- CLEANUP → PR #671 closed as superseded; PR #672 remains the single active functional front.
-- NEXT → consume the first terminal exact-head gate; if failure appears, repair only the first reproducible current-SHA root; otherwise continue independent safe audits.
+- MAIN HEAD BEFORE THIS DOCS WRITE → `3215c601f68aea214c8455f52d5f5c519074d7f1`
+- CURRENT FUNCTIONAL CANDIDATE → PR #672 / `f42d6f2b22004eb5213d2a4460975ce1a4c11c60`
+- FUNCTIONAL FRONT → `IMPORT-TO-DECISION-CONTINUITY`
+- EXACT GIT RELATION → functional candidate is 1 commit ahead / 0 behind the main head used for its current build; 76 files changed. This checkpoint is documentation-only and must be reconciled with the next main SHA before merging.
+- EXACT-HEAD STATUS AT LAST FUNCTIONAL HEAD → GitHub Actions showed 47 queued + 2 skipped/completed and 0 terminal failures; Vercel remained `failure / build-rate-limit`.
+- PLAYWRIGHT LAYER → repository already contains the canonical Playwright browser-proof layer in `.github/workflows/full-product-browser-e2e.yml` and `scripts/run-full-product-browser-e2e.mjs`; it checks exact checkout SHA, builds exact head, installs Chromium, captures screenshots/artifacts, checks console/network/HTTP errors, authenticated tenant, A/B isolation, route coverage, workspace persistence, refresh, and logout.
+- PWA LAYER → `.github/workflows/commercial-pwa-e2e.yml` already covers service-worker/cache/offline app-shell and authenticated E2E contracts.
+- LOCAL BROWSER FALLBACK → system Chromium exists, but container Playwright navigation to the Netlify preview was blocked with `net::ERR_BLOCKED_BY_ADMINISTRATOR`; PC01 is also offline. No browser PASS was fabricated.
+- NETLIFY EXACT-HEAD → status check was green, but deployment `6ab97914b5d4da000892e4b3` reported `Canceled build due to no content change`; therefore the preview alias is not accepted as exact-head deployment proof for `f42d6f2`.
+- SOURCE/ROUTE/SECURITY AUDITS → 37 canonical nav paths map to 40 actual routes with no missing/duplicate nav paths; canonical import RPC and `import_finish_job` tenant/security contracts verified; no safe free-toolbox deletion proven.
+- PHASE-F → NOT CERTIFIED; production/browser/device/restore/RPO/RTO/rollback exact-SHA evidence remains open.
+- CLEANUP → #671 remains superseded/closed; #672 is the single functional front.
+- NEXT → reconcile #672 onto the newest main SHA, then consume terminal Playwright/quality/enforcement/certification evidence; repair only the first current-SHA failure.
 
 ---
 
