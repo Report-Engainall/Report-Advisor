@@ -3,15 +3,16 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `ffee65dbf12831c093c0018ce38a854327eb653a`
-- CURRENT CODE/TEST CANDIDATE → `ce1991161561d3b6eadebe29dda004d975006cef`
+- CURRENT BRANCH HEAD → `66de66d2d66e0257973586c8058c832fa260603f`
+- CURRENT CODE CANDIDATE → `e5bbe131e5253e4fea90fa244b4b0aa36bd5e468`
+- CURRENT CONTRACT CANDIDATE → `e90aeba7458d77ab768a1d07cff395b958d68834`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
 - IMPORT CONTINUITY → Import → Trust/Evidence → Signals → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- CORE → seven typed server entity boundaries + purchase-line identity protection.
-- UI → post-import continuity + Evidence/Decision/Replay AS OF + localized specialty/entity labels.
-- STAGING → specialty migration + RPC grant hardening applied; 6-arg authenticated/service_role only, legacy 5-arg service_role only.
-- PROOF → current runtime grants verified; no terminal CI failure on current head; Vercel remains external rate-limit; Production/Browser/Phase-F not proven.
-- NEXT → consume first terminal current-head workflow; repair only root, then final route/contract/deletion-gate rescan.
+- DECISION CENTER → Decision Coverage uses independent owner/outcome coverage; NEXT ACTION is truth-derived; Business Replay state reads canonical snapshot and auxiliary replay failure becomes REVIEW instead of collapsing the page.
+- CORE → seven typed server entity boundaries; purchase-line physical row identity; staging canonical specialty migration + RPC grant hardening.
+- CURRENT PROOF → CodeRabbit + Netlify PASS on current head; desktop-windows IN_PROGRESS; Vercel external rate-limit failure; no terminal current-head CI failure yet.
+- PHASE-F → NOT CERTIFIED; production/browser/restore/RPO/RTO/rollback remain environment evidence.
+- NEXT → consume first terminal workflow, repair only current-SHA root, then final route/contract/cleanup rescan.
 ---
 
 
