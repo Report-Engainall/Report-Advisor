@@ -461,6 +461,7 @@ assert.ok(connections.includes('{adapterCount}'), 'connections summary must rend
 assert.ok(connections.includes('{nextLabel}'), 'connections summary must derive the next action from the available connector state');
 assert.ok(connections.includes("id === 'documents' ? '/import' : '/trust'"), 'document connector must route into the unified import path rather than a disconnected connector workflow');
 assert.ok(connections.includes("id === 'documents' ? (ar ? 'ابدأ الاستيراد الموحد' : 'Start unified import')"), 'document connector CTA must explicitly expose the unified import path');
+assert.ok((connections.match(/min-h-11/g) || []).length >= 4, 'connections primary source CTAs must meet touch-target sizing');
 
 const analytics = fs.readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
 assert.ok(analytics.includes('function AnalyticsStatusStrip'), 'analytics must expose one shared truth/status strip');
