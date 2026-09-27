@@ -8,16 +8,19 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { ConfidenceBadge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
 import {
+  createDecisionWorkItem,
   createRuntimeDecision,
   decideApproval,
   fetchAlerts,
   fetchDecisionApproval,
+  fetchDecisionWorkItem,
   fetchImportEvidenceSnapshot,
   fetchRecommendations,
   fetchRuntimeDecisionForRecommendation,
   linkRecommendationToDecision,
   requestDecisionApproval,
   type DecisionApprovalRecord,
+  type DecisionWorkItemRecord,
   type ImportEvidenceSnapshot,
   type RuntimeDecisionRecord,
 } from '@/lib/queries';
@@ -133,6 +136,7 @@ export function DecisionExperiencePage() {
   const [sourceSnapshot, setSourceSnapshot] = useState<ImportEvidenceSnapshot | null>(null);
   const [runtimeDecision, setRuntimeDecision] = useState<RuntimeDecisionRecord | null>(null);
   const [approval, setApproval] = useState<DecisionApprovalRecord | null>(null);
+  const [workItem, setWorkItem] = useState<DecisionWorkItemRecord | null>(null);
   const [decisionMutationBusy, setDecisionMutationBusy] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(params.get('recommendationId'));
   const [loading, setLoading] = useState(true);
@@ -169,7 +173,17 @@ export function DecisionExperiencePage() {
     try {
       const nextDecision = await fetchRuntimeDecisionForRecommendation(selectedId);
       setRuntimeDecision(nextDecision);
-      setApproval(nextDecision ? await fetchDecisionApproval(nextDecision.id) : null);
+      if (!nextDecision) {
+        setApproval(null);
+        setWorkItem(null);
+        return;
+      }
+      const [nextApproval, nextWorkItem] = await Promise.all([
+        fetchDecisionApproval(nextDecision.id),
+        fetchDecisionWorkItem(nextDecision.id),
+      ]);
+      setApproval(nextApproval);
+      setWorkItem(nextWorkItem);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر قراءة حالة القرار المحفوظ');
     }
@@ -238,6 +252,45 @@ export function DecisionExperiencePage() {
       setDecisionMutationBusy(false);
     }
   }, [approval, refreshRuntimeDecision]);
+
+  const ensureWorkItem = useCallback(async () => {
+    if (!runtimeDecision || runtimeDecision.status !== 'APPROVED' || approval?.status !== 'APPROVED' || !selected || !sourceSnapshot) {
+      throw new Error('WORK_ITEM_APPROVAL_REQUIRED');
+    }
+    if (workItem) return;
+    const normalizedPriority = String(selected.priority ?? '').toUpperCase();
+    if (!['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].includes(normalizedPriority)) {
+      throw new Error('WORK_ITEM_PRIORITY_UNSUPPORTED');
+    }
+    setDecisionMutationBusy(true);
+    setError(null);
+    try {
+      await createDecisionWorkItem({
+        decisionId: runtimeDecision.id,
+        recommendationId: selected.id,
+        department: String(selected.category || 'general').trim() || 'general',
+        assigneeLabel: 'المستخدم الحالي',
+        title: selected.title,
+        description: selected.description,
+        priority: normalizedPriority as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL',
+        dueAt: selected.deadline && !Number.isNaN(Date.parse(selected.deadline + 'T00:00:00Z'))
+          ? new Date(selected.deadline + 'T00:00:00Z').toISOString()
+          : null,
+        expectedImpact: selected.expected_impact,
+        evidenceRefs: [{ evidence_snapshot_id: sourceSnapshot.id, import_job_id: importJobId, source_hash: sourceSnapshot.source_hash }],
+      });
+      await refreshRuntimeDecision();
+      setStage('work');
+      const nextParams = new URLSearchParams(params);
+      nextParams.set('stage', 'work');
+      nextParams.set('recommendationId', selected.id);
+      setParams(nextParams, { replace: true });
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'تعذر إنشاء مهمة التنفيذ');
+    } finally {
+      setDecisionMutationBusy(false);
+    }
+  }, [runtimeDecision, approval, selected, sourceSnapshot, workItem, importJobId, refreshRuntimeDecision, params, setParams]);
 
   useEffect(() => {
     if (!requestedStage || !STAGES.some((item) => item.id === requestedStage)) return;
@@ -490,7 +543,21 @@ export function DecisionExperiencePage() {
                   <button type="button" onClick={() => void decideCurrentApproval(false)} disabled={decisionMutationBusy} className="btn-secondary text-[11px] disabled:opacity-60">رفض</button>
                 </div>
               )}
-              {approval.status === 'APPROVED' && <div className="rounded-lg bg-success-50 p-3 text-[10px] font-black text-success-800">تم اعتماد القرار. التنفيذ يحتاج بعد ذلك إلى Work Item ومسؤول تنفيذي مثبت.</div>}
+              {approval.status === 'APPROVED' && (
+                <div className="rounded-lg border border-success-200 bg-success-50 p-3 text-[10px] font-black text-success-800">
+                  <div>تم اعتماد القرار.</div>
+                  {workItem ? (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 font-normal text-ink-700">
+                      <span>Work Item: {workItem.status}</span>
+                      <Link to="/work-center" className="btn-secondary text-[10px]">فتح مركز العمل</Link>
+                    </div>
+                  ) : (
+                    <button type="button" onClick={() => void ensureWorkItem()} disabled={decisionMutationBusy} className="mt-2 btn-primary text-[10px] disabled:opacity-60">
+                      {decisionMutationBusy ? 'جارٍ إنشاء مهمة التنفيذ...' : 'إنشاء مهمة تنفيذ للمستخدم الحالي'}
+                    </button>
+                  )}
+                </div>
+              )}
               {approval.status === 'REJECTED' && <div className="rounded-lg bg-danger-50 p-3 text-[10px] font-black text-danger-800">القرار مرفوض؛ لا يتم إنشاء تنفيذ أو نتيجة تلقائيًا.</div>}
             </div>
           ) : (
@@ -502,23 +569,27 @@ export function DecisionExperiencePage() {
       {stage === 'work' && (
         <section className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
           <Card>
-            <CardHeader title="التنفيذ والمتابعة" subtitle="ما تم فعليًا، وليس ما تتمنى المنظومة حدوثه." />
+            <CardHeader title="التنفيذ والمتابعة" subtitle="المهمة نفسها من قاعدة البيانات، دون إنشاء حالة محلية بديلة." />
             <CardBody>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {[
-                  ['المسؤول الحالي', selected?.owner ?? 'غير مثبت'],
-                  ['الموعد', formatDeadline(selected?.deadline ?? null)],
-                  ['حالة التوصية', statusLabel(selectedStatus)],
-                  ['الأثر المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
-                  ['الأثر الفعلي', selected?.impact_result ?? 'غير متاح بعد'],
-                  ['الإشارة التالية', selected?.impact_result ? 'الانتقال إلى النتيجة والتعلّم' : 'انتظار سجل تنفيذ موثق'],
-                ].map(([label, value]) => (
-                  <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">{label}</div><div className="mt-2 text-[12px] font-black text-ink-900">{value}</div></div>
-                ))}
-              </div>
+              {workItem ? (
+                <div className="space-y-3">
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">المهمة</div><div className="mt-2 text-[12px] font-black text-ink-900">{workItem.title}</div></div>
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الحالة</div><div className="mt-2 text-[12px] font-black text-ink-900">{statusLabel(workItem.status)}</div></div>
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">المسؤول</div><div className="mt-2 text-[12px] font-black text-ink-900">{workItem.assignee_label ?? 'غير مثبت'}</div></div>
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الموعد</div><div className="mt-2 text-[12px] font-black text-ink-900">{formatDeadline(workItem.due_at)}</div></div>
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الأثر المتوقع</div><div className="mt-2 text-[12px] font-black text-ink-900">{workItem.expected_impact == null ? 'غير متاح' : formatCurrency(workItem.expected_impact)}</div></div>
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الأثر الفعلي</div><div className="mt-2 text-[12px] font-black text-ink-900">{workItem.actual_impact == null ? 'غير متاح بعد' : formatCurrency(workItem.actual_impact)}</div></div>
+                  </div>
+                  {workItem.description && <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3 text-[11px] leading-5 text-ink-600">{workItem.description}</div>}
+                  <Link to="/work-center" className="btn-primary text-[11px]">فتح المهمة في مركز العمل <ArrowUpLeft size={13}/></Link>
+                </div>
+              ) : (
+                <BlockedState title="لا توجد مهمة تنفيذ محفوظة" detail="أنشئ Work Item من مرحلة الموافقة بعد اعتماد القرار؛ لا يتم افتراض التنفيذ من مجرد وجود التوصية." />
+              )}
             </CardBody>
           </Card>
-          <BlockedState title="لا يوجد سجل تنفيذ مُثبت" detail="لن يتم إنشاء مهمة أو حالة إنجاز من واجهة القرار. التنفيذ يجب أن يأتي من المسار التشغيلي المعتمد ويعود هنا كحالة persisted." />
+          <BlockedState title="بدء التنفيذ يحتاج فعلًا تشغيليًا" detail="لا يبدأ العمل تلقائيًا عند اعتماد القرار. يبدأ من مركز العمل عندما يملك المستخدم صلاحية التنفيذ وتكون المهمة OPEN." />
         </section>
       )}
 
