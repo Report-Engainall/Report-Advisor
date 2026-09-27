@@ -476,6 +476,7 @@ export function CanonicalImportPage() {
   <>
     <Link to={result.importId ? "/trust?import=" + encodeURIComponent(result.importId) : "/trust"} className="btn-secondary">فتح Evidence Passport</Link>
     <Link to={result.importId ? "/work-center?import=" + encodeURIComponent(result.importId) : "/work-center"} className="btn-secondary">متابعة مركز العمل</Link>
+    <Link to="/replay" className="btn-secondary">مراجعة سجل التعلم</Link>
         <Link to="/data-quality" className="btn-secondary">فحص جودة البيانات</Link>
     <Link to={result.importId ? "/decision-experience?stage=evidence&import=" + encodeURIComponent(result.importId) : "/decision-experience?stage=evidence"} className="btn-primary">متابعة إلى مسار القرار</Link>
   </>
