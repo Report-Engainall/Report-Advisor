@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / LIVE POLICY PARITY CLOSED
+
+- MAIN CONTROL HEAD AT CHECKPOINT → memory/index updates are the only main changes in this batch.
+- FUNCTIONAL FRONT → PR #672 remains the single canonical import-to-decision front; client UI tenant-policy parity repair is included on the branch.
+- LIVE PROOF → Staging policy/grant readback matches the repaired migration; migration application succeeded.
+- EXACT-HEAD EVIDENCE → no PASS transferred from older branch SHAs after the repair. Fresh CI remains the release gate.
+- RELEASE → Vercel build-rate external; Netlify exact-head preview cancellation; device offline.
+- NEXT → stable re-anchor + fresh CI consumption, then first-failure repair only.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / RE-ANCHORED CI ADVANCE
 
 - MAIN CONTROL HEAD AFTER MEMORY WRITE → `ac6bad42b2fcc0d4610fd4faba3a139585386027`.
