@@ -3,7 +3,7 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → PR #670 / `12743bf7087efafc9563799b37483fdd3df1d74b`
+- CURRENT CODE/TEST CANDIDATE → `12743bf7087efafc9563799b37483fdd3df1d74b`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains fail-closed until a real peer cohort exists.
 - PORT RESULT → 36 functional/contract files reconstructed directly onto current main; canonical control-plane documents remain owned by current main and are not overwritten by the candidate.
