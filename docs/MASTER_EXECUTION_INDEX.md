@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / SECURITY BOUNDARY CLOSURE
+
+> This top block is the only startup boundary.
+
+- MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT BRANCH HEAD → `10a173b606697c56dbb167b9ec27911cfbcefb27`
+- FUNCTIONAL FRONT → PR #671
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- PRODUCT PATH → Any Source → Security → Fingerprint → Understand → Normalize → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Signals → Decision → Work → Outcome/Learning.
+- UI COVERAGE → 38/38 navigation routes + 8 canonical zones; post-import journey + forecast backtest gate + capability guards.
+- SECURITY → shared canonical import server core enforces authenticated tenant/source binding; Netlify/API response contracts aligned; RPC grants remain fail-closed.
+- PROOF → exact source readback is current; workflows not terminalized; Vercel external rate limit.
+- NEXT → first terminal current-head CI result, then root fix only; continue independent cleanup if provable.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / NON-DEVICE DEEP CLOSURE
 
 > This top block is the only startup boundary.
