@@ -180,6 +180,11 @@ assert.ok(commandCenter.includes("const replayState = replayError ? 'REVIEW'"), 
 assert.ok(commandCenter.includes('to="/replay"'), 'command center replay action must route to the canonical replay surface');
 
 
+assert.ok(commandCenter.includes("setAlerts(intelligence.alerts.filter((item) => !item.is_read));"), 'command center open-alert count must use the full canonical set');
+assert.ok(commandCenter.includes("setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted'));"), 'command center decision coverage must use the full actionable recommendation set');
+assert.ok(commandCenter.includes('alerts.slice(0, 5)'), 'command center may limit display to a bounded alert window only after full-state derivation');
+assert.ok(commandCenter.includes('recommendations.slice(0, 5)'), 'command center may limit display to a bounded recommendation window only after full-state derivation');
+
 const commandPalette = fs.readFileSync('src/components/CommandPalette.tsx', 'utf8');
 assert.ok(appShell.includes('mobileSidebarRef'), 'mobile navigation drawer must expose a focus boundary');
 assert.ok(appShell.includes('aria-modal="true" aria-label="القائمة الرئيسية"'), 'mobile navigation drawer must declare modal semantics');
