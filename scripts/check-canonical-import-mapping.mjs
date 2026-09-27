@@ -171,3 +171,16 @@ for (const token of ['fetchRecommendationOutcome', 'المتوقع مقابل ا
 }
 
 console.log('Canonical import mapping regression gate: PASS (canonical fields + full-source understanding + post-import evidence/decision continuity)');
+const canonicalServerCore = readFileSync(new URL('../src/server/canonical-import-executor.ts', import.meta.url), 'utf8');
+const vercelCanonicalImport = readFileSync(new URL('../api/canonical-import-execute.ts', import.meta.url), 'utf8');
+const netlifyCanonicalImport = readFileSync(new URL('../netlify/functions/canonical-import-execute.mts', import.meta.url), 'utf8');
+for (const token of ['executeCanonicalImport', 'CanonicalImportServerEnv', 'reusedExistingCommit: true', 'jobId: job.id']) {
+  if (!canonicalServerCore.includes(token)) throw new Error('Canonical server execution core missing: ' + token);
+}
+for (const wrapper of [vercelCanonicalImport, netlifyCanonicalImport]) {
+  if (!wrapper.includes('executeCanonicalImport')) throw new Error('Canonical import deployment wrapper must call the shared server executor');
+  if (wrapper.includes('reconcileForCanonical') || wrapper.includes('runCanonicalImportThroughDurableRunner')) throw new Error('Canonical import wrappers must not duplicate server execution semantics');
+}
+if (!canonicalServerCore.includes('if (existingCommit)') || !canonicalServerCore.includes('jobId: job.id')) {
+  throw new Error('Canonical idempotent reuse must return the authoritative import job id');
+}
