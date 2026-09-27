@@ -49,6 +49,26 @@ describe('canonical import identity normalization', () => {
     ]);
   });
 
+  it('rejects duplicate purchase headers when no line identity is present', () => {
+    const result = reconcileForCanonical(
+      'purchase_invoices',
+      provenance.tenantId,
+      provenance.sourceId,
+      provenance.sourceHash,
+      provenance.sourceDocumentId,
+      (_data, rowNumber) => `evidence-${rowNumber}`,
+      [
+        { rowNumber: 1, data: { invoice_number: 'PUR-001' } },
+        { rowNumber: 2, data: { invoice_number: 'PUR-001' } },
+      ],
+    );
+
+    expect(result.rows).toHaveLength(1);
+    expect(result.rejected).toEqual([
+      { rowNumber: 2, reason: 'CONFLICTING_EVIDENCE_FOR_SAME_CANONICAL_IDENTITY' },
+    ]);
+  });
+
   it('accepts multiple purchase lines sharing one invoice number', () => {
     const result = reconcileForCanonical(
       'purchase_invoices',
