@@ -303,12 +303,10 @@ BEGIN
       ORDER BY id
       LIMIT 1;
 
-      IF v_warehouse_id IS NULL THEN RAISE EXCEPTION 'INVENTORY_WAREHOUSE_REQUIRED'; END IF;
-
       SELECT id INTO v_id
       FROM public.inventory_balances
       WHERE company_id=v_company_id
-        AND warehouse_id=v_warehouse_id
+        AND warehouse_id IS NOT DISTINCT FROM v_warehouse_id
         AND product_id=v_product_id
       LIMIT 1
       FOR UPDATE;
