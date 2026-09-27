@@ -7,13 +7,14 @@ assert.ok(!app.includes('ExternalFileAnalysisPage'), 'retired external file anal
 
 const registry = fs.readFileSync('src/lib/navigation-registry.ts', 'utf8');
 
+assert.ok(sidebar.includes("@/lib/navigation-registry") && sidebar.includes('NAVIGATION_SECTIONS') && sidebar.includes('section.items.map'), 'Sidebar must render the canonical navigation registry rather than maintain a second local route list');
+
 const routePaths = [...app.matchAll(/<Route\s+path=["']([^"']+)["']/g)].map((m) => m[1]);
-const navPaths = [...sidebar.matchAll(/path:\s*["']([^"']+)["']/g)].map((m) => m[1]);
 const registryPaths = [...registry.matchAll(/path:\s*'([^']+)'/g)].map((m) => m[1]);
 
 const normalize = (path) => path.replace(/\/$/, '') || '/';
 const routes = new Set(routePaths.map(normalize));
-const nav = new Set(navPaths.map(normalize));
+const nav = new Set(registryPaths.map(normalize));
 
 const missingRoutes = [...nav].filter((path) => !routes.has(path));
 const duplicateNav = navPaths.filter((path, i) => navPaths.indexOf(path) !== i);
@@ -33,4 +34,4 @@ if (missingRoutes.length || duplicateNav.length || duplicateRoutes.length || reg
   process.exit(1);
 }
 
-console.log(`PASS: ${nav.size} sidebar paths + ${new Set(registryPaths).size} canonical registry paths resolve to ${routes.size} declared routes; unlisted internal routes=${[...routes].filter((path) => path !== '/' && path !== '*' && !new Set(registryPaths.map(normalize)).has(path)).filter((path) => allowedUnlistedRoutes.has(path)).join(', ') || 'none'}.`);
+console.log(`PASS: canonical navigation registry ${nav.size} paths resolve to ${routes.size} declared routes; Sidebar is bound directly to NAVIGATION_SECTIONS; unlisted internal routes=${[...routes].filter((path) => path !== '/' && path !== '*' && !new Set(registryPaths.map(normalize)).has(path)).filter((path) => allowedUnlistedRoutes.has(path)).join(', ') || 'none'}.`);
