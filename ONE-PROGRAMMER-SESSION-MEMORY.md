@@ -1,53 +1,18 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT NON-DEVICE UI + IMPORT CONTINUITY
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `5242f030c51090d7499b1e17524113388627c6c8`
-- CURRENT CODE/TEST CANDIDATE → `e7eb1074033295f059eb65975b158171965df5f7
+- CURRENT CODE/TEST CANDIDATE → `e7eb1074033295f059eb65975b158171965df5f7`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize → Quality/Trust → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
-- ACTUAL RESULT → 38/38 canonical navigation routes resolve to App routes; the visible Product Journey is now eight-stage and explicitly exposes Evidence, Signals, Decision, Work, Learning/Replay, and Executive Output. Dark executive topbar/sidebar CSS conflict was removed and the visual contract now guards both surfaces. A 32-page TSX source audit found no synthetic-data/reload/TODO/Coming-Soon markers requiring remediation; the single “Mockup” occurrence is explanatory copy stating that the screen is not a mockup.
-- EXACT SOURCE EVIDENCE → current code candidate reconciled at `e7eb1074…`; documentation/test tail follows the same branch after the code candidate; current workflow materialization is 44 queued, 3 pending, 2 skipped, with no terminal success/failure. This is NOT a PASS.
-- FIRST FAILURE → no current-head terminal failure observed. The temporary journey-contract regex construction defect was corrected before CI execution; acceptance criteria were unchanged.
+- ACTUAL RESULT → 38/38 canonical navigation routes resolve to App routes; the visible Product Journey is eight-stage and explicitly exposes Evidence, Signals, Decision, Work, Learning/Replay, and Executive Output. Dark executive topbar/sidebar CSS conflict was removed and guarded. Mobile primary navigation now localizes labels from the canonical registry. A 32-page TSX surface audit plus 7 shared shell/state component audit found no synthetic-data/reload/TODO/Coming-Soon markers requiring remediation.
+- EXACT SOURCE EVIDENCE → code candidate `e7eb1074…` and related UI contract/source readback are current. Workflow materialization for this code candidate is 42 queued, 1 in-progress, 4 cancelled, 2 skipped; no terminal success/failure. This is NOT a PASS.
+- FIRST FAILURE → no current-head terminal failure. Temporary test-source construction defects during this batch were corrected before proof execution; acceptance criteria were unchanged.
 - OPEN BLOCKERS → Vercel free-plan deployment-rate limit; device unavailable; authenticated browser/Production/Phase-F proof NOT PROVEN.
-- NEXT EXECUTABLE ACTION → consume the first terminal current-head CI result; repair only the first reproducible current-SHA root, then rescan the UI/import/evidence continuity boundary.
+- NEXT EXECUTABLE ACTION → consume the first terminal result for `e7eb1074…`; repair only the first reproducible current-SHA root, then rescan UI/import/evidence continuity.
 - NEXT INDEPENDENT ACTIONS → only dependency-proven cleanup, route/state contract hardening, and evidence reconciliation; no speculative schemas or duplicate capabilities.
 - DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate import/RPC/runner, speculative ROI/backtest/playbook/schema-drift creation, speculative deletion.
-- RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE UI + IMPORT CONTINUITY / EXACT-HEAD PROOF IN FLIGHT---
-
-# RESUME TOKEN — 2026-09-27 / STAGING CAPABILITY TRUTH CHECKPOINT
-
-- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `8ec77fce12382b8ebe041cabdffafb508adb04fb`
-- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- ACTUAL RESULT → non-device UI, route, contract, import-server boundary, and cleanup work is implemented; current product guardrails remain source-driven and fail-closed.
-- STAGING CAPABILITY TRUTH → on `Report-Advisor-P0-2-Staging` (`fnqbvfuwbdpwvhcgzksl`), read-only schema inspection shows `forecasts=0`, `decision_outcomes=1`, `decision_work_items=0`, `operational_task_proposals=0`, `control_plane_drift_events=0`, `recommendations=1`, `business_intelligence_decisions=2`, `canonical_import_commits=3224`, `source_analysis_snapshots=119`. No dedicated `playbooks`, `backtests`, or `schema-drift` table exists. Do not invent a new parallel schema in this front.
-- UI RESPONSE → Forecast Backtest remains explicitly NOT AVAILABLE / fail-closed because no paired historical forecast/outcome evidence exists. Decision Playbooks remain unavailable until a governed template/execution contract exists.
-- EXACT SOURCE PROOF → current branch source is reconciled through `8ec77fce…`; CI terminal proof is still pending. Vercel remains external rate-limited; device/browser/Production/Phase-F proof is NOT PROVEN.
-- OPEN BLOCKERS → external hosting rate limit; unavailable device; authenticated runtime/Production/Phase-F evidence.
-- NEXT EXECUTABLE ACTION → consume first terminal current-head CI gate; repair only the first reproducible root.
-- NEXT INDEPENDENT ACTIONS → safe reference/dependency cleanup only where exact absence is provable.
-- DO NOT REPEAT → speculative playbook/backtest/schema-drift schema creation; stale PASS transfer; preview-as-production; duplicate import/RPC/runner; speculative deletion.
-- RESUME STATUS → ACTIVE / PR #671 / STAGING TRUTH RECONCILED / EXACT-HEAD PROOF IN FLIGHT---
-
-# RESUME TOKEN — 2026-09-27 / SECURITY BOUNDARY CLOSURE
-
-- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `10a173b606697c56dbb167b9ec27911cfbcefb27`
-- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- CURRENT BOUNDARY → canonical import UI + server execution boundary + proof.
-- ACTUAL RESULT → post-import journey and Backtest Gate UI are contract-guarded; route/capability parity is guarded; canonical server import boundary was audited; Netlify error semantics now match API semantics (authenticated 401, client validation 400, environment/config 503, server execution 502, stable `status: failed / error` body).
-- SECURITY SOURCE CHECK → server executor proves authenticated bearer, current_company_id, company-scoped import/file lookup, company-bound storage path, server SHA-256 verification, server-side security/format scan, quality gates, source-bound durable commit. Canonical 6-arg RPC remains authenticated/service_role only; anon/public execution is revoked.
-- EXACT PROOF → source verified on `10a173b6…`; current GitHub workflows: 43 queued, 3 pending, 1 in-progress, 2 skipped; no terminal current-head failure/pass yet. Vercel remains externally rate-limited.
-- FIRST FAILURE → Netlify/API response-shape inconsistency; fixed without changing data, tenant, RPC, or acceptance semantics.
-- OPEN BLOCKERS → Vercel free-plan rate limit; device unavailable; authenticated production/browser/Phase-F proof NOT PROVEN; local clone unavailable.
-- NEXT EXECUTABLE ACTION → consume first terminal `10a173b6…` workflow gate; repair only first reproducible current-SHA root.
-- NEXT INDEPENDENT ACTIONS → bounded cleanup/reference audit only where dependency absence is provable.
-- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, speculative security revokes, speculative deletion.
-- RESUME STATUS → ACTIVE / PR #671 / SECURITY BOUNDARY HARDENED / EXACT-HEAD PROOF IN FLIGHT
-
+- RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE UI + IMPORT CONTINUITY / EXACT-HEAD PROOF IN FLIGHT
 ---
 
 # RESUME TOKEN — 2026-09-27 / NON-DEVICE DEEP CLOSURE CHECKPOINT
