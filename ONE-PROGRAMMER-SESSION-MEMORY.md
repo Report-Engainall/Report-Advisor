@@ -1,20 +1,21 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `c8dab055e5132cd3326559ffa2079bd1f4357eaf`
-- CURRENT CODE CANDIDATE → `c83338f831aa9c02e38efa119875043150b52157` + `9839b17f0f062b708d2e5410d545cb04190ff591`
-- CURRENT CONTRACT CANDIDATE → `c8dab055e5132cd3326559ffa2079bd1f4357eaf`
+- CURRENT BRANCH HEAD → `519bb7356e9b8516b560b45ab46e20e4f40f012`
+- CURRENT CODE ROOT CANDIDATE → `7011596a003982b1ff9c2bcfc1e0c7dab8a9f04`
+- CURRENT CONTRACT CANDIDATE → `5d35be5deb4fce8b8f39cefc77fe482fc5a5c480`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- ACTUAL RESULT → unified import continuity; Evidence/Decision/Replay AS OF; Decision Coverage full-state semantics with bounded presentation; truth-derived Next Action; Replay state/failure isolation and bounded Command Center read window; unified `/import/analyze`; retired analysis page unwired.
-- CORE → seven typed server entities; purchase-line physical row identity; staging specialty migration + import_commit_batch grant hardening; tenant/source-hash guards.
-- STAGING PROOF → 6-arg RPC anon=false/authenticated=true/service_role=true; legacy 5-arg anon=false/authenticated=false/service_role=true; anonymous Security Advisor finding removed; tenant binding verified via current_company_id + p_company_id mismatch guard.
-- CURRENT CI → Vercel external build-rate-limit failure; latest head awaits fresh workflow terminalization. Earlier Netlify/CodeRabbit PASS remains exact-head-bound and not transferred to later SHAs.
+- ROOT FAILURE → recommendation cohort semantics were inconsistent: staging/DecisionExperience canonical status is `OPEN`, while Intelligence/Command Center/ExecutiveReport used incompatible filters. Resolved through shared `src/lib/decision-status.ts` and adopted by all three surfaces.
+- ACTUAL RESULT → `OPEN → approved → in_progress → completed` recommendation lifecycle now drives Intelligence, Decision Coverage, and Executive Report consistently; legacy `accepted` remains compatibility-only.
+- OTHER CLOSED WORK → Evidence/Decision/Replay AS OF; bounded Replay read; command-center truth-derived Next Action; purchase multi-line row identity; all-seven typed server import boundaries; staging import RPC security grant hardening; unified import redirect; no duplicate importer.
+- STAGING PROOF → 6-arg import_commit_batch anon=false/authenticated=true/service_role=true; legacy 5-arg anon=false/authenticated=false/service_role=true; anonymous Security Advisor finding removed; recommendation status query observed `OPEN`.
+- CURRENT CI → latest head currently has only Vercel free-plan rate-limit failure; fresh workflow terminalization after latest decision commits has not arrived. No PASS transferred from older SHA.
 - OPEN BLOCKERS → Vercel build-rate-limit; production/browser/Phase-F exact evidence environment-bound; device unavailable; local GitHub/DNS execution unavailable.
-- FIRST FAILURE → none terminalized on current branch head.
-- NEXT EXECUTABLE ACTION → consume first terminal current-head workflow; repair only the first reproducible root.
-- NEXT INDEPENDENT ACTIONS → final route/contract rescan, safe deletion only after Manifest/reference/dependency gate, continued UI/core hardening.
-- DO NOT REPEAT → stale PASS transfer, display-window KPI math, duplicate importer/RPC/runner, speculative ROI formula, preview-as-production, retired page reintroduction.
+- FIRST FAILURE → fixed at UI semantic cohort root; fresh exact-head proof still pending.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow on latest branch head; repair only current-SHA root if any.
+- NEXT INDEPENDENT ACTIONS → final decision/status rescan, route/contract rescan, safe cleanup gates.
+- DO NOT REPEAT → stale PASS transfer, incompatible status filters, display-window KPI calculations, duplicate importer/RPC/runner, speculative ROI formula, preview-as-production.
 - RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD PROOF IN FLIGHT
 ---
 
