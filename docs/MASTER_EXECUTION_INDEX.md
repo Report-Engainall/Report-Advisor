@@ -1,7 +1,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CONTINUOUS POST-IMPORT EXECUTION
 
 - MAIN HEAD VERIFIED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
-- CURRENT CODE/TEST CANDIDATE: `07e1ccc3dc2cd6beae6eb2236b180056e6f1215c` (PR #662 / `exec/20260927-import-full-lifecycle`; post-import Evidence → Quality → Signals → Decision → Approval → Work → Outcome readback).
+- CURRENT CODE/TEST CANDIDATE: `13bce84d9843dd04486669b5c9f53ae50d01beda` (PR #662 / `exec/20260927-import-full-lifecycle`; final persisted status rendering polish).
 - UI LANE: imported source now carries one identity through Evidence Passport, Data Quality, Signals, persisted Decision/Approval, persisted Work Item, and Work Center.
 - CORE LANE: server-authoritative import remains the sole canonical writer; evidence snapshot persistence is VERIFIED/PARTIAL and never silently promoted.
 - PROOF STATUS: desktop Windows exposed a real JSX build failure on `5b88c5d...`; root fixed in `e1fe338...`; fresh exact-head proof is required again.
