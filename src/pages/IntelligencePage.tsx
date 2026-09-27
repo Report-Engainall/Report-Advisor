@@ -17,6 +17,7 @@ import {
 } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Recommendation, Alert, Forecast } from '@/lib/types';
+import { isActionableRecommendationStatus } from '@/lib/decision-status';
 
 function MetricStrip({
   label,
@@ -74,7 +75,7 @@ export function IntelligenceCenterPage() {
   useEffect(() => { void load(); }, [load]);
 
   const newRecommendations = useMemo(
-    () => recommendations.filter((item) => item.status === 'new'),
+    () => recommendations.filter((item) => isActionableRecommendationStatus(item.status)),
     [recommendations],
   );
   const activeAlerts = useMemo(
