@@ -3,15 +3,15 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE: `10d0755c624ea9ee71b58655b0e734f63d8c4bee`
-- FUNCTIONAL FRONT → PR #670 / `10d0755c624ea9ee71b58655b0e734f63d8c4bee`
+- CURRENT CODE/TEST CANDIDATE: `db0e78855dd0ed0fa5ce56923769b33464560e8b`
+- FUNCTIONAL FRONT → PR #670 / `db0e78855dd0ed0fa5ce56923769b33464560e8b`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- ROOT FIXES → certification candidate parser fixed; E-20..E-26 enforcement restored; approval UI persistence details fixed and protected by the existing Product WOW UI contract.
-- EXACT PROOF → earlier `7cb988fb…` enforcement failure was reproduced and fixed; current `10d0755c…` requires fresh exact-head proof.
-- PHASE-F → NOT CERTIFIED; live backup/restore/RPO/RTO/rollback evidence remains required.
-- EXTERNAL → Vercel build-rate-limit; device/browser/production proof unavailable.
-- NEXT → consume first terminal `10d0755c…` gate; repair only current-SHA root and re-prove.
+- CURRENT PRODUCT FIXES → approval provenance fields exposed; import history aligned to 500-row contract; legacy /import/analyze is compatibility-only redirect; standalone legacy analysis page removed; duplicate Phase-F PR #655 and overlapping historical import/UI fronts closed after source overlap checks.
+- EXACT PROOF → current candidate gates are queued/in flight; no new PASS claimed yet.
+- PHASE-F → NOT CERTIFIED; repository source parity exists, but live restore/RPO/RTO/rollback proof remains external/runtime evidence.
+- EXTERNAL → Vercel build-rate-limit; device/browser/production certification remains environment-bound.
+- NEXT → consume first terminal `db0e78855dd0ed0fa5ce56923769b33464560e8b` gate; fix only current-SHA root and re-prove.
 
 ---
 
