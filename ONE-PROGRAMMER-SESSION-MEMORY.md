@@ -161,3 +161,19 @@
 - NEXT INDEPENDENT ACTIONS → continue targeted UI truth/UX audits and evidence reconciliation while checks run; preserve the canonical import/result surface.
 - DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; blanket security cleanup.
 - RESUME STATUS → ACTIVE / UI LIFECYCLE ADVANCED / EXACT-HEAD PROOF IN PROGRESS.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-148
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-148`.
+- CURRENT DOCUMENTATION SHA → `e832638f19c40a88d9afc5397b276035584ad459`.
+- CURRENT FUNCTIONAL CANDIDATE → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `4c51dbc164f3dc9c661d22e96e0d20cb96eb4829`.
+- FIRST ROOT FAILURE CONSUMED → Netlify deploy `6ab9252993a9a50008659642` failed at `CanonicalImportPage.tsx:518` with JSX nesting/parser errors caused by the extra closing wrapper inserted around the new lifecycle strip.
+- ROOT FIX → removed the single extra closing wrapper on the same canonical result surface. No route, backend contract, import path, or acceptance criterion was changed.
+- CURRENT EXACT-SHA PROOF → fresh Netlify/Cloudflare checks are in progress; browser-e2e, certification-contracts, enforcement-contract queued. No PASS claimed on `4c51dbc`.
+- GOVERNANCE → PR #663 exact head `43a29443477aeb5969b99d672bd2c6698e0f7106`: Cloudflare SUCCESS; certification/enforcement queued; no new code failure observed.
+- OPEN BLOCKERS → Vercel free-plan deployment rate limit; PC01 offline; authenticated browser, production exact-SHA, and Phase-F resilience proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume first terminal check on `4c51dbc`; repair only the first new current-SHA root failure, then consume #663 terminal gates and reconcile.
+- NEXT INDEPENDENT ACTIONS → continue targeted UI truth/UX inspection and evidence reconciliation while CI runs; do not create duplicate import/navigation/RPC/runner paths.
+- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer, unsafe `import_jobs` mutation, blanket security cleanup.
+- RESUME STATUS → ACTIVE / ROOT FAILURE FIXED / EXACT-HEAD PROOF RUNNING.
