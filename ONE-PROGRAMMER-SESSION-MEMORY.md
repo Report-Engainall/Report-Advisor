@@ -1,3 +1,16 @@
+## LATEST SESSION WRITE-BACK — 2026-09-27 / IMPORT → WORK CENTER CONTINUITY
+
+- SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-02`.
+- CURRENT EXECUTION CANDIDATE → `7fc9c0370728b312b337cdbc247e5cc984448304`.
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT`.
+- ACTUAL RESULT → Canonical Import now links the persisted import identity into Work Center; Work Center supports `?import=` focus using the existing import record and explicitly reports when that record is outside the current read window.
+- CONTRACT → mapping regression guard now protects import-to-work-center continuity.
+- PROOF → exact repository mutation verified on branch. No exact-head workflow/browser PASS yet.
+- OPEN BLOCKERS → PC01 offline; local/browser execution unavailable; CI evidence for the newest head still pending.
+- NEXT EXECUTABLE ACTION → consume exact-head checks for the current branch. If green, continue the next independent post-import surface; if failed, repair first current-SHA root failure only.
+- DO NOT REPEAT → no stale PASS transfer, no duplicate import path, no fabricated operation state, no query-param UI without backend record binding.
+- RESUME STATUS → ACTIVE / NOT PROVEN.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / AUTHORITATIVE POST-IMPORT RESULT BINDING
 
 - SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-01`.
