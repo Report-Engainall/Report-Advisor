@@ -17,7 +17,6 @@ const duplicateNav = navPaths.filter((path, i) => navPaths.indexOf(path) !== i);
 const duplicateRoutes = routePaths.filter((path, i) => routePaths.indexOf(path) !== i);
 const registryMissingRoutes = [...new Set(registryPaths.map(normalize))].filter((path) => !routes.has(path));
 const allowedUnlistedRoutes = new Set(['/proposal-demo']);
-const routesMissingRegistry = [...routes].filter((path) => path !== '/' && path !== '*' && !registry.has(path));
 
 if (missingRoutes.length || duplicateNav.length || duplicateRoutes.length || registryMissingRoutes.length) {
   console.error('Navigation/route contract failed.');
