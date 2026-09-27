@@ -40,5 +40,11 @@ if (canonicalImportPage.includes('const dataset = datasets[0]') || canonicalImpo
 if (!canonicalImportServer.includes('authoritativeDatasets') || !canonicalImportServer.includes('sourceUnderstanding.datasets.map')) {
   throw new Error('Server canonical import must persist and return all authoritative dataset summaries');
 }
+if (!sourceUnderstanding.includes('const mixedSpecialtySource = new Set(summaries.map((summary) => summary.specialty)).size > 1')) {
+  throw new Error('Mixed-specialty sources must be detected explicitly before canonical entity selection');
+}
+if (!sourceUnderstanding.includes("entityType: mixedSpecialtySource ? 'generic:source-data' : inferEntityType(specialty, datasets)")) {
+  throw new Error('Mixed-specialty sources must fail closed to the generic canonical boundary');
+}
 
 console.log('Canonical import mapping regression gate: PASS (canonical fields + full-source understanding)');
