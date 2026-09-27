@@ -115,6 +115,9 @@ assert.ok(!trustEvidence.includes('window.location.reload()'), 'trust evidence r
 assert.ok(trustEvidence.includes('لا توجد بيانات مثبتة بعد'), 'empty trust state must explain the absence of evidence');
 assert.ok(trustEvidence.includes('RECORDS CHECKED'), 'trust evidence must expose the source record count');
 assert.ok(trustEvidence.includes('AS OF'), 'trust evidence must expose the evidence snapshot as-of label');
+assert.ok(trustEvidence.includes("title: 'Snapshots / As-of'"), 'trust evidence must keep the snapshots as-of surface visible');
+assert.ok(trustEvidence.includes("path: '/trust', available: true, icon: History"), 'snapshots as-of surface must point to the canonical Evidence Passport rather than a dead route');
+
 assert.ok(trustEvidence.includes('وقت إنشاء Snapshot الدليل'), 'trust evidence as-of value must disclose that it is the snapshot creation time');
 assert.ok(trustEvidence.includes('criticalIssueTotal'), 'trust evidence must expose critical issue pressure from the authoritative snapshot');
 assert.ok(trustEvidence.includes("String(sourceSnapshot.analysis_status).toLowerCase() !== 'analyzed'"), 'trust evidence must not promote an un-analyzed source snapshot to VERIFIED');
