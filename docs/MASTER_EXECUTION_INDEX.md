@@ -1,7 +1,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CONTINUATION + LIVE PROOF RECONCILIATION
 
 - MAIN HEAD VERIFIED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
-- CURRENT CODE/TEST CANDIDATE: PR #662 / `exec/20260927-import-full-lifecycle` / exact head `4ba2d1d2ed263235147739f0accc079c992e844d`.
+- CURRENT CODE/TEST CANDIDATE: PR #662 / `exec/20260927-import-full-lifecycle` / exact head `b66ff4a6b7c8ece5e90501794e3c6837e1e68550`.
 - FUNCTIONAL STATUS: local full-source import implementation is closed on the exact current SHA; all targeted import/core/UI contracts and production build re-ran successfully on `4ba2d1d`.
 - REMOTE STATUS: Desktop Windows exact-head run `36280991955` is SUCCESS; CodeRabbit, Vercel integration, Vercel Deployments and Netlify preview contexts are SUCCESS; the larger certification set remains QUEUED, therefore no overall certification PASS is claimed.
 - RUNTIME STATUS: Netlify preview for PR #662 returns HTTP 200 and serves Arabic RTL/Vite/IBM Plex Sans Arabic application HTML. This is preview evidence only.
@@ -16,7 +16,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / FULL SOURCE IMPORT LIFECYCLE
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
-- CURRENT CODE/TEST CANDIDATE: `d7bfe613430e59e5f937506ee4542db47ebc6a2b` (`feat: complete full-source canonical import lifecycle`); this write-back is its governance/documentation descendant.
+- CURRENT CODE/TEST CANDIDATE: `b66ff4a6b7c8ece5e90501794e3c6837e1e68550` (`feat: complete full-source canonical import lifecycle`); current exact-head certification must remain bound here.
 - UI LANE: Canonical Import now handles all parsed datasets, surfaces specialty/dataset count/understanding confidence, and routes successful completion to Trust/Evidence and Decision Experience. Product WOW contract and DataTable semantics are green.
 - CORE LANE: server authoritative import consumes all parsed datasets, derives entity type deterministically, aggregates rows conservatively, and persists every dataset summary plus specialty/provenance metadata into the source analysis snapshot.
 - EXACT LOCAL PROOF: typecheck PASS; canonical import mapping PASS; Product WOW UI PASS; Phase-3 data/import truth PASS; Document Intelligence contract/closure PASS; Decision Intelligence closure PASS; Knowledge Architecture PASS; multi-dataset runtime proof PASS; Vite production build PASS with 2800 modules.
