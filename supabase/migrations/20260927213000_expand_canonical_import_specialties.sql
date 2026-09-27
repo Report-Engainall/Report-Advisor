@@ -11,7 +11,9 @@ ALTER TABLE public.canonical_import_commits
     OR entity_type ~ '^generic:[a-z][a-z0-9_-]{0,63}$'
   );
 
-CREATE OR REPLACE FUNCTION public.import_commit_batch(
+DROP FUNCTION IF EXISTS public.import_commit_batch(uuid,text,jsonb,text,text);
+
+CREATE FUNCTION public.import_commit_batch(
   p_company_id uuid,
   p_entity_type text,
   p_rows jsonb,
