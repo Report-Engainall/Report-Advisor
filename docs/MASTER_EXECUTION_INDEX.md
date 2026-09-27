@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / EXACT-CURRENT-CODE-CANDIDATE CONTRACT-CLOSURE
+
+- MAIN DOCUMENTATION HEAD → `8141294dd436aa96b91debc1ca9a5706ad6b358f`
+- CURRENT CODE/TEST CANDIDATE → PR #672 / `ecfff32aa5ce1ec737663a71b1d9080ffe69e7eb`
+- CODE RELATION → candidate remains based directly on main code base `132e40f023e564dba9e7f84c63d543bab1b7fc71`; the current main docs tail is intentionally separate and does not invalidate code SHA evidence.
+- REAL FIX — UI CONTRACT → repaired declaration order, duplicate shared bindings, and a malformed literal newline in `scripts/check-product-wow-ui-contract.mjs`; local compile-style syntax check now passes after imports are stripped.
+- REAL FIX — IMPORT CONTRACT → repaired a missing token-list comma, added an explicit canonical import-page binding, and resolved a duplicate page-path binding in `scripts/check-import-transaction-contract.mjs`; same syntax check now passes.
+- FRESH EXACT-HEAD CI → quality `36348110541` queued; enforcement `36348110823` queued; Final Certification `36348110593` queued; Device-Independent Browser `36348110591` queued; Full Product Browser `36348110595` queued; desktop-windows `36348110511` queued.
+- OBSERVED TERMINAL RESULT → Commercial PWA `36348110613` skipped; no fresh terminal failure on required gates yet.
+- DEVICE → PC01 offline; no device/browser/production PASS claimed.
+- HOSTING → Vercel free-plan deployment-rate blocker remains external; no production mutation.
+- EVIDENCE LAW → evidence from `2ab23aec...` and older SHAs is not transferred; current candidate must terminalize on `ecfff32...`.
+- NEXT EXECUTABLE ACTION → consume the first terminal current-SHA result. If failed, repair only its current-SHA root; otherwise continue independent security/data/UI fronts and rescan.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / EXACT-CURRENT-MAIN + CODE-CANDIDATE CHECKPOINT
 
 - MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `132e40f023e564dba9e7f84c63d543bab1b7fc71`
