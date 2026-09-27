@@ -1,36 +1,19 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT + UI ROOT RECONCILED
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / NON-DEVICE UI + IMPORT HARDENING
 
 > Single startup boundary for the active non-device front.
 
 - MAIN HEAD → ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8
-- CURRENT REPOSITORY/BRANCH HEAD → 4268e1981ea592bc0662992d29a9f6db6201c040
-- CURRENT CODE/TEST CANDIDATE → 98aa51af023fe70ec5f9326d6d946d47566102c6
+- LAST CODE/TEST CANDIDATE → d8646e8c93793c9c51efdc7a3e6e3c09b67617e0
 - FUNCTIONAL FRONT → PR #671 / exec/20260927-current-main-import-ui-finalize-head
 - FRONT-ID → IMPORT-TO-DECISION-CONTINUITY
 - PRODUCT CHAIN → Any Source → Security → Fingerprint → Understand → Normalize → Quality/Trust → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
-- UI STATE → 38/38 navigation parity; eight-stage Product Journey; post-import five-stage continuation; dark RTL executive shell; accessibility/touch-target closure; source-bound Report Builder; fail-closed Benchmark/Decision ROI/Forecast Backtest.
-- CORE STATE → authoritative server re-extraction, tenant binding, canonical commit, evidence snapshot, and durable import lifecycle remain canonical; UI no longer falls back to local preview row counts.
-- EXACT ROOT CLOSED → Netlify exposed a truncated CommandPalette.tsx write at 6b156ef4…; the full file was restored from its pre-mutation SHA and re-applied as 98aa51af… .
-- EXACT SOURCE EVIDENCE → 98aa51af… readback passes the targeted route/accessibility/import guards. No runtime/build PASS is claimed for this current candidate.
-- REMOTE BLOCKERS → Vercel free-plan deployment-rate limit; device unavailable; authenticated browser/production/Phase-F evidence not proven.
-- NEXT → consume first terminal GitHub gate for 98aa51af…; repair only the first reproducible current-SHA root; then continue independent non-device fronts.
+- UI STATE → 38/38 navigation parity; eight-stage Product Journey; post-import five-stage continuation; dark RTL executive shell; touch-target/accessibility closure; source-bound Report Builder; fail-closed Benchmark/ROI/Backtest.
+- CORE STATE → server-authoritative import re-extraction, tenant binding, canonical commit, evidence snapshot, durable lifecycle; browser/client result now rejects missing authoritative row count.
+- NEW UI CLOSURES → decision journey stays active across decision sub-stages; canonical import saving state exposes progressbar + busy/live semantics; sidebar quick-access links meet shared touch-target minimum.
+- EXACT ROOT HISTORY → 6b156ef4… Netlify exposed a truncated CommandPalette write; 98aa51af… restored the full file and Netlify reached READY on that exact SHA. d8646e8c… is a later code/test candidate and carries no transferred runtime PASS.
+- REMOTE BLOCKERS → Vercel free-plan deployment-rate limit; device unavailable; browser/production/Phase-F proof not proven; metered TinyFish visual automation unavailable due empty wallet.
+- NEXT → consume the first terminal GitHub gate for d8646e8c…; repair only the first reproducible current-SHA root, then continue independent non-device fronts.
 - DO NOT REPEAT → partial-file writes, stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, local row fallback, speculative deletion/formulas.
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / FINAL CURRENT-SHA CHECKPOINT
-
-> This top block is the only startup boundary.
-
-- MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT PROOF TARGET → `e414ba9013b517ba912cfc9ec1e98b103e011621`
-- FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- UI AFTER IMPORT → Evidence → Signals → Decision → Work → Outcome/Learning using existing canonical routes only.
-- ROUTE AUDIT → 38/38 registry items resolve to App routes; only `/proposal-demo` and intentional `/import/analyze` redirect sit outside registry.
-- CLEANUP → duplicate external-file analyzer `src/pages/ExternalFileAnalysisPage.tsx` deleted and proven by exact PR patch.
-- EXACT PROOF → current branch source and contracts reconciled. GitHub Actions: 44 queued, 3 pending, 2 skipped, no terminal pass/fail yet. Vercel rate-limit remains external.
-- NEXT → consume first terminal current-head gate; repair current-SHA root only; keep cleanup bounded by dependency proof.
-
----
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT BRANCH RECONCILED
 
@@ -97,7 +80,3 @@
 
 ---
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / LIVE CHECKPOINT
-
-> Exact-head evidence only. Code candidate and documentation tail are tracked separately.
-
-- MAIN HEAD BEFORE THIS DOCS COMMIT → `d5be7220b048a3e7bd798a9b2d9fea677b200183`
