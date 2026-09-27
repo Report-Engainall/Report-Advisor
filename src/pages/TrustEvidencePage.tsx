@@ -66,9 +66,13 @@ export function TrustEvidencePage() {
     () => snapshot?.issues?.filter((issue) => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0) ?? 0,
     [snapshot],
   );
-  const effectiveStatus = importJobId
-    ? (!sourceSnapshot ? 'PARTIAL' : criticalIssueTotal > 0 ? 'REVIEW' : 'VERIFIED')
-    : status;
+  const sourceEvidenceStatus = useMemo(() => {
+    if (!sourceSnapshot) return 'PARTIAL' as const;
+    if (String(sourceSnapshot.analysis_status).toLowerCase() !== 'analyzed') return 'PARTIAL' as const;
+    if (criticalIssueTotal > 0) return 'REVIEW' as const;
+    return 'VERIFIED' as const;
+  }, [sourceSnapshot, criticalIssueTotal]);
+  const effectiveStatus = importJobId ? sourceEvidenceStatus : status;
   const statusLabel = effectiveStatus === 'OK'
     ? 'الحالة قابلة للاستخدام'
     : effectiveStatus === 'EMPTY'
@@ -131,8 +135,8 @@ export function TrustEvidencePage() {
               <h2 className="mt-1 text-lg font-black text-ink-950">دليل المصدر المستورد</h2>
               <p className="mt-1 text-[11px] text-ink-600">هذه المساحة مرتبطة مباشرة بعملية الاستيراد الحالية، وليست قراءة عامة من مصدر آخر.</p>
             </div>
-            <span className={sourceSnapshot ? 'rounded-full bg-success-50 px-2.5 py-1 text-[9px] font-black text-success-700' : 'rounded-full bg-warning-50 px-2.5 py-1 text-[9px] font-black text-warning-800'}>
-              {sourceSnapshot ? 'VERIFIED' : 'PARTIAL / NOT PROVEN'}
+            <span className={sourceEvidenceStatus === 'VERIFIED' ? 'rounded-full bg-success-50 px-2.5 py-1 text-[9px] font-black text-success-700' : 'rounded-full bg-warning-50 px-2.5 py-1 text-[9px] font-black text-warning-800'}>
+              {sourceEvidenceStatus === 'VERIFIED' ? 'VERIFIED' : sourceSnapshot ? 'PARTIAL / NOT PROVEN' : 'PARTIAL / NOT PROVEN'}
             </span>
           </div>
         </div>
@@ -142,6 +146,7 @@ export function TrustEvidencePage() {
             <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">المصدر</div><div className="mt-1 break-all text-[11px] font-black text-ink-900">{String(sourceSnapshot.metadata.fileName ?? sourceSnapshot.source_path)}</div></div>
             <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">الجودة</div><div className="mt-1 text-[15px] font-black text-ink-900">{sourceSnapshot.quality_score == null ? 'غير متاح' : sourceSnapshot.quality_score + '%'}</div></div>
             <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">الصفوف</div><div className="mt-1 text-[15px] font-black text-ink-900">{sourceSnapshot.row_count}</div></div>
+            <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">حالة التحليل</div><div className="mt-1 text-[11px] font-black text-ink-900">{sourceSnapshot.analysis_status || 'غير متاح'}</div></div>
             <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">مجموعات البيانات</div><div className="mt-1 text-[15px] font-black text-ink-900">{sourceSnapshot.datasets.length}</div></div>
             <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">البصمة</div><div className="mt-1 break-all font-mono text-[9px] text-ink-700">{sourceSnapshot.source_hash}</div></div>
           </div>
