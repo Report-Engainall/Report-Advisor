@@ -1,16 +1,16 @@
 # RESUME TOKEN — 2026-09-27 / PR #662 CURRENT VERIFIED STATE
 
 - CURRENT REPOSITORY HEAD → 46675643e32f6ea28b6c1d80a530b2eb134e7907
-- CURRENT CODE/TEST CANDIDATE → 5b88c5d7bfeebc6e163655c789cd29708b8aaf32
+- CURRENT CODE/TEST CANDIDATE → e1fe338512fcd410c91832832bf6bf3ce85e23ce
 - ACTIVE PR / BRANCH → PR #662 / exec/20260927-import-full-lifecycle
 - FRONT-ID → IMPORT-FULL-SOURCE-LIFECYCLE
 - ACTUAL FUNCTIONAL RESULT → imported source continuity now spans Evidence Passport → Data Quality → Signals → persisted Decision/Approval → persisted Work Item → Work Center; start remains a governed user action.
 - EXACT PROOF → Desktop Windows 36285659130 SUCCESS on b66; Netlify/CodeRabbit success; quality success; browser authenticated E2E and Phase-F remain separate current-head boundaries.
-- FIRST FAILURE → stale certification-boundary parser binding was fixed; evidence snapshot truth gap was then closed with explicit VERIFIED/PARTIAL semantics on the durable import result.
-- NEXT EXECUTABLE ACTION → consume fresh exact-head CI on `5b88c5d...`; repair only the first current-SHA failure, then add the next safe outcome/readback boundary.
+- FIRST FAILURE → Windows build on `5b88c5d...` failed in `TrustEvidencePage.tsx` because Dataset Passport siblings were not wrapped in a JSX fragment; fixed on `e1fe338...`.
+- NEXT EXECUTABLE ACTION → consume fresh exact-head Windows/Quality/Final Certification on `e1fe338...`; repair only the first new current-SHA failure.
 - OPEN BLOCKERS → Vercel free-plan build-rate; browser/agent automation external availability; Phase-F/production exact-SHA/restore/RPO/RTO/rollback remain unproven; 151 processing import_jobs untouched.
 - DO NOT REPEAT → stale PASS transfer, browser PASS from HTTP-only preview, production/Phase-F bypass, unsafe legacy-job terminalization, duplicate import path/RPC/runner.
-- RESUME STATUS → ACTIVE / DECISION-TO-WORK CONTINUITY IMPLEMENTED / FRESH PROOF REQUIRED
+- RESUME STATUS → ACTIVE / ROOT BUILD FAILURE FIXED / FRESH EXACT-HEAD PROOF REQUIRED
 
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / CONTINUATION + LIVE PROOF RECONCILIATION
 
