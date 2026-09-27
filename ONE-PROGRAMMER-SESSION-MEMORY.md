@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-28 / CLIENT UI POLICY PARITY REPAIRED + LIVE VERIFIED
+
+- MAIN CONTROL HEAD BEFORE THIS WRITE → `b39d585803f7bca021cb68bb75a522c8bce115d6`.
+- FUNCTIONAL BRANCH CURRENT BEFORE THIS WRITE → PR #672 / `9a0660b408476fea8aa641a388a02aa0bc89c51f`.
+- ACTUAL SAFE REPAIR → added `supabase/migrations/20260928200000_reconcile_client_ui_settings_tenant_policy.sql` so clean restore recreates the live `client_ui_settings` policy with `organization_id = current_company_id()`.
+- LIVE EXECUTION → Supabase Staging migration `reconcile_client_ui_settings_tenant_policy` applied successfully; migration ledger records version `20260927212822`.
+- LIVE READBACK → policy is `ui_settings_customer_select` for authenticated SELECT using `current_company_id()`; grants remain authenticated SELECT/INSERT/UPDATE, service_role full, anon revoked.
+- CUSTOMER PORTAL RESOLVER → `current_customer_company_id()` remains a separate customer-portal boundary and was intentionally untouched.
+- EXACT CI → prior `desktop-windows` SUCCESS is tied to `0a48b4e`; all subsequent SHA changes require fresh evidence. Current branch after repair has no terminal CI result yet.
+- HOSTING → latest Netlify exact-head deploy `6ab98a8b33abe600081d5974` is ERROR because Netlify reports no content change; Vercel build-rate limit remains external.
+- DEVICE → PC01 offline; no browser/device/production PASS.
+- NEXT → re-anchor current functional front onto the resulting main, then consume fresh exact-head CI and repair only the first reproducible failure.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / CUSTOMER TENANT RESOLVER DRIFT CLASSIFIED
 
 - LIVE STAGING MIGRATION LEDGER → 336 applied migrations reported. Several applied records use execution-time versions that do not equal source filename timestamps; exact filename matching is therefore not a valid drift test by itself.
