@@ -538,3 +538,14 @@
 - GOVERNANCE → PR #663 exact head `43a29443477aeb5969b99d672bd2c6698e0f7106`; governance jobs remain queued.
 - NEXT → consume the first terminal mandatory gate on `b081c3f`; repair only reproduced current-SHA failure; otherwise continue independent safe fronts and reconcile governance.
 - DO NOT REPEAT → stale evidence, preview-as-production, duplicate import/navigation/RPC/runner, unsafe import-job mutation, speculative replay filtering.
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / FRESH EXACT-HEAD DEPLOYMENT READBACK
+
+- FUNCTIONAL CURRENT HEAD → PR #662 / `exec/20260927-import-full-lifecycle` / `b081c3f5d8c7ca4879c41f16cada76f0c5c66f00`.
+- NETLIFY EXACT-HEAD → deploy-preview SUCCESS; `https://deploy-preview-662--aghbari-report-advisor.netlify.app`.
+- CLOUDFLARE EXACT-HEAD → SUCCESS; `https://3a4e8985.report-advisor.pages.dev`.
+- READBACK → exact Netlify preview renders the real Arabic الأغبري identity/company isolation gate, Evidence-first product positioning, and explicitly no demo workspace. Deployment/readback proof only; authenticated browser E2E remains unproven.
+- MANDATORY CI → certification-contracts `36326239773` / job `108639438409` and enforcement-contract `36326239775` / job `108639438487` remain QUEUED.
+- VERCEL → exact-head failure / build-rate-limit; external hosting blocker.
+- CORE → per-dataset typed canonical inference hardening is on the current functional branch and protected by the existing import contract.
+- NEXT → consume the first terminal mandatory gate; do not transfer this deployment proof to production or to another SHA.
