@@ -28,6 +28,19 @@ assert.ok(assistant.includes("type AssistantMode = 'LOADING' | 'READY' | 'INSUFF
 assert.ok(assistant.includes("mode === 'LOADING'"), 'assistant must expose loading semantics while context is fetched');
 assert.ok(assistant.includes('إعادة تحميل سياق المؤشرات'), 'assistant must expose explicit recovery when the canonical snapshot is unavailable');
 
+const journey = fs.readFileSync('src/components/ProductJourneyNav.tsx', 'utf8');
+for (const token of [
+  "label: 'الدليل'",
+  "path: '/trust'",
+  "label: 'الإشارات'",
+  "path: '/intelligence'",
+  "label: 'القرار'",
+  "label: 'العمل'",
+  "path: '/work-center'",
+  "label: 'التعلّم'",
+  "path: '/replay'",
+]) assert.ok(journey.includes(token), 'product journey must expose the canonical stage: ' + token);
+assert.ok((journey.match(/const steps: JourneyStep\\[\\] = \\[/)?.length ?? 0) === 1, 'product journey must keep one canonical step definition');
 const appShell = fs.readFileSync('src/App.tsx', 'utf8');
 const sidebar = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
 const navigationRegistry = fs.readFileSync('src/lib/navigation-registry.ts', 'utf8');
