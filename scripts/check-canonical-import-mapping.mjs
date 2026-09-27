@@ -51,6 +51,38 @@ if (!sourceUnderstanding.includes("entityType: mixedSpecialtySource ? 'generic:s
 }
 
 for (const token of [
+  'CANONICAL_WRITE_FIELDS',
+  'missingCanonicalWriteFields',
+  "if (missing.length > 0) return 'generic:source-data'",
+  "CANONICAL_ENTITY_REQUIREMENTS_UNMET:"
+]) {
+  if (!sourceUnderstanding.includes(token)) {
+    throw new Error('Typed canonical inference must fail closed when canonical write requirements are incomplete: ' + token);
+  }
+}
+
+for (const requiredField of [
+  'invoice_date',
+  'subtotal',
+  'tax_amount',
+  'paid_amount',
+  'status',
+  'segment',
+  'credit_limit',
+  'payment_terms_days',
+  'unit',
+  'cost_price',
+  'selling_price',
+  'min_stock',
+  'reorder_point',
+  'is_active',
+]) {
+  if (!sourceUnderstanding.includes("'" + requiredField + "'")) {
+    throw new Error('Canonical write requirement missing from source-understanding guard: ' + requiredField);
+  }
+}
+
+for (const token of [
   'fetchImportEvidenceSnapshot',
   ".from('source_analysis_snapshots')",
   "import_job_id",
