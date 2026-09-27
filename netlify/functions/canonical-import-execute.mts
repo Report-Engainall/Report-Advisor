@@ -208,6 +208,8 @@ export default async (request: Request): Promise<Response> => {
     );
 
     let snapshotId: string | null = null;
+    let evidenceStatus: 'VERIFIED' | 'PARTIAL' = 'PARTIAL';
+    let evidenceWarning = 'تم تنفيذ الاستيراد الكانوني، لكن لقطة الدليل لم تُثبت؛ الحالة بقيت PARTIAL ولم يتم الادعاء باكتمال الدليل.';
     try {
       const { data: snapshot, error: snapshotError } = await serviceClient
         .from('source_analysis_snapshots')
@@ -251,9 +253,13 @@ export default async (request: Request): Promise<Response> => {
         })
         .select('id')
         .single();
-      if (!snapshotError) snapshotId = snapshot?.id ?? null;
+      if (snapshotError) throw snapshotError;
+      snapshotId = snapshot?.id ?? null;
+      if (!snapshotId) throw new Error('SOURCE_EVIDENCE_SNAPSHOT_ID_MISSING');
+      evidenceStatus = 'VERIFIED';
+      evidenceWarning = '';
     } catch (snapshotError) {
-      console.error('[canonical-import-execute] non-fatal snapshot persistence failure', snapshotError);
+      console.error('[canonical-import-execute] evidence snapshot persistence failed after durable commit', snapshotError);
     }
 
     return json(200, {
@@ -270,6 +276,8 @@ export default async (request: Request): Promise<Response> => {
       datasetCount: sourceUnderstanding.datasetCount,
       datasetSummaries: sourceUnderstanding.datasets,
       sourceWarnings: sourceUnderstanding.warnings,
+      evidenceStatus,
+      evidenceWarning: evidenceWarning || undefined,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED';
