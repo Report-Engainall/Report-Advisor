@@ -77,6 +77,8 @@ export function ExecutiveReportPage() {
   const activeDecisionCount = recommendations.filter((item) => ['pending', 'proposed', 'approved', 'in_progress'].includes(item.status)).length;
   const accountableDecisionCount = recommendations.filter((item) => Boolean(item.owner)).length;
   const recordedOutcomeCount = recommendations.filter((item) => Boolean(item.impact_result?.trim())).length;
+  const ownerCoverage = activeDecisionCount ? Math.round((accountableDecisionCount / activeDecisionCount) * 100) : null;
+  const outcomeCoverage = activeDecisionCount ? Math.round((recordedOutcomeCount / activeDecisionCount) * 100) : null;
   const nextAction = kpis?.status === 'INSUFFICIENT_DATA'
     ? { to: '/data-quality', label: 'مراجعة جودة البيانات', reason: 'الحقيقة المالية أو التشغيلية غير مكتملة بعد.' }
     : data?.alerts.length
@@ -158,9 +160,11 @@ export function ExecutiveReportPage() {
 
       <section className="ag-exec-panel rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-center gap-2"><ShieldCheck size={18} className="text-primary-600" /><h2 className="text-lg font-black">القرار والمساءلة والنتيجة</h2></div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Decision</p><p className="mt-1 text-lg font-black">{activeDecisionCount}</p><p className="mt-1 text-[10px] text-ink-500">{accountableDecisionCount} منها لها مسؤول مسجل</p></div>
-          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Actual Outcome</p><p className="mt-1 text-lg font-black">{recordedOutcomeCount}</p><p className="mt-1 text-[10px] text-ink-500">توصية لديها أثر فعلي مسجل</p></div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Decision</p><p className="mt-1 text-lg font-black">{activeDecisionCount}</p><p className="mt-1 text-[10px] text-ink-500">توصيات ضمن القراءة الحالية</p></div>
+          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Owner Coverage</p><p className="mt-1 text-lg font-black">{ownerCoverage == null ? 'غير متاح' : ownerCoverage + '%'}</p><p className="mt-1 text-[10px] text-ink-500">{accountableDecisionCount} لها مسؤول مسجل</p></div>
+          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Outcome Coverage</p><p className="mt-1 text-lg font-black">{outcomeCoverage == null ? 'غير متاح' : outcomeCoverage + '%'}</p><p className="mt-1 text-[10px] text-ink-500">{recordedOutcomeCount} لها أثر فعلي مسجل</p></div>
+          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Actual Outcome</p><p className="mt-1 text-lg font-black">{recordedOutcomeCount}</p><p className="mt-1 text-[10px] text-ink-500">لا يتحول غياب الأثر إلى نجاح</p></div>
           <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Learning</p><p className="mt-1 font-bold">{recordedOutcomeCount ? 'يوجد أثر يحتاج مراجعة' : 'لا يوجد أثر فعلي مثبت بعد'}</p><p className="mt-1 text-[10px] text-ink-500">لا تُستنتج نتيجة من غياب السجل</p></div>
         </div>
         <Link to="/decision-experience" className="mt-4 inline-flex rounded-xl bg-ink-950 px-4 py-2.5 text-xs font-bold text-white">فتح مساحة القرار</Link>
