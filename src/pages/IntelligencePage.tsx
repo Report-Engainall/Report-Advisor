@@ -437,7 +437,7 @@ export function RecommendationsPage() {
         { label: 'إجمالي التوصيات', value: counts.all, note: 'السجل المتاح حاليًا' },
         { label: 'جاهزة للقرار', value: counts.open, note: 'OPEN من المصدر الكانوني' },
         { label: 'معتمدة', value: counts.approved, note: 'بعد مسار القرار' },
-        { label: 'قيد التنفيذ', value: counts.inProgress, note: 'بعد اعتماد القرار' },
+        { label: 'قيد التنفيذ', value: counts.in_progress, note: 'بعد اعتماد القرار' },
         { label: 'مرتبطة بأثر', value: counts.withImpact, note: 'أثر متوقع أو نتيجة مسجلة' },
       ]}/>
 
