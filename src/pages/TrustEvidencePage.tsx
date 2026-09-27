@@ -169,7 +169,7 @@ export function TrustEvidencePage() {
                 <div key={index} className="flex flex-col gap-2 rounded-xl border border-ink-100 bg-ink-50/35 p-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <div className="truncate text-[11px] font-black text-ink-900">{String(dataset.name ?? dataset.sheet ?? ('Dataset ' + (index + 1)))}</div>
-                    <div className="mt-1 text-[9px] text-ink-400">{String(dataset.specialty ?? 'other')} · {String(dataset.columnCount ?? 0)} أعمدة</div>
+                    <div className="mt-1 text-[9px] text-ink-400">{String(dataset.specialty ?? 'other')} · {dataset.columnCount == null ? 'غير متاح' : String(dataset.columnCount)} أعمدة</div>
                   </div>
                   <div className="flex flex-wrap gap-2 text-[9px] font-bold text-ink-600">
                     <span className="rounded-full bg-white px-2 py-1">الصفوف {dataset.rowCount == null ? 'غير متاح' : String(dataset.rowCount)}</span>
