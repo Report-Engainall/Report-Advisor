@@ -3,17 +3,16 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE: `ec3b9b513aea4db1ed875b816c67de852340145c`
-- FUNCTIONAL FRONT → PR #671 / `ec3b9b513aea4db1ed875b816c67de852340145c`
-- FRONT-ID → IMPORT-TO-DECISION-CONTINUITY
-- SPECIALTY CLOSURE → purchases→purchase_invoices + purchase_items, suppliers→suppliers, inventory→inventory_balances, payments→payments on the existing authoritative 6-arg RPC.
-- UI AFTER IMPORT → canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- EXACT LIVE PROOF → all four specialty branches exercised on staging with real tenant claims, idempotent replay, line-item persistence, cross-tenant guard, finite-number guards, and rollback cleanliness.
-- EXACT CURRENT CI → PR #671 head ec3b9b513aea4db1ed875b816c67de852340145c; desktop-windows SUCCESS is observed on current lineage; other gates are queued/in flight; no broad PASS claim.
+- CURRENT EXECUTION/CODE CANDIDATE → `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`
+- FUNCTIONAL FRONT → PR #671 / `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- UI AFTER IMPORT → canonical Import → Trust/Evidence → Signals → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE until a real peer cohort exists.
+- NEW UI DELIVERY → Evidence Passport exposes the stored Snapshot AS OF timestamp; post-import decision-continuity remains explicitly evidence-neutral.
+- EXACT CURRENT SOURCE → UI `b990a7830375336d2651a3668d69f8914a7a0943`; guard `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`.
+- PROOF STATE → fresh exact-head workflows must be consumed; no historical PASS transfer.
 - PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback remains external/runtime evidence.
-- EXTERNAL → Vercel build-rate-limit; device/browser/production certification remains environment-bound.
-- NEXT → consume first terminal PR #671 failure; fix only current-SHA root and re-prove.
-
+- EXTERNAL → Vercel free-plan build-rate limit; device/browser/production certification remains environment-bound.
+- NEXT → consume first terminal `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f` workflow; repair only current-SHA root and rescan UI/core fronts.
 ---
 
 
