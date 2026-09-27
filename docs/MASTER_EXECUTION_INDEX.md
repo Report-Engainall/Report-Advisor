@@ -12,8 +12,7 @@
 - SHELL → dark executive topbar + right-aligned dark RTL sidebar; superseded light navigation override removed and guarded. Mobile primary navigation now resolves Arabic/English labels from the canonical registry.
 - SOURCE AUDIT → all 32 TSX page surfaces plus 7 shared shell/state components scanned at exact code candidate for synthetic/reload/TODO/Coming-Soon markers; no remediation-required hits. Proposal Demo’s “Mockup” mention is explanatory non-fabrication copy. No deletion was made without dependency proof; unresolved candidate files remain retained.
 - PROOF → current code candidate `e7eb1074…` has 43 queued, 1 in-progress, 3 cancelled, 2 skipped workflow runs; no terminal success/failure. Vercel free-plan rate-limit remains external. No production/browser/Phase-F/device certification claimed.
-- NEXT → consume first terminal result for `e7eb1074…`; repair only first reproducible current-SHA root; continue bounded dependency-proven cleanup if available.
----
+- NEXT → consume first terminal result for `e7eb1074…`; repair only first reproducible current-SHA root; continue bounded dependency-proven cleanup if available.---
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / SECURITY BOUNDARY CLOSURE
 
