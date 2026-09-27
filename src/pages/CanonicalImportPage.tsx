@@ -505,7 +505,50 @@ export function CanonicalImportPage() {
     <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">توصيات مرتبطة بالمصدر</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.postImportSignals ? result.postImportSignals.sourceRecommendations : 'غير متاحة'}</div></div>
     <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">تنبيهات عامة للشركة</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.postImportSignals ? result.postImportSignals.companyAlerts : 'غير متاحة'}</div></div>
   </div>
-</section><div className="flex flex-wrap justify-center gap-2">{result.evidenceStatus === 'VERIFIED' ? (
+</section>
+<section id="post-import-journey" aria-label="رحلة ما بعد اعتماد المصدر" className="w-full max-w-5xl rounded-[18px] border border-ink-200 bg-white p-4 text-right shadow-sm">
+  <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <div className="text-[9px] font-black tracking-[.12em] text-primary-700">POST-IMPORT JOURNEY</div>
+      <h2 className="mt-1 text-base font-black text-ink-950">ماذا بعد سحب الملف؟</h2>
+      <p className="mt-1 max-w-3xl text-[10px] leading-5 text-ink-500">المصدر المعتمد لا ينتهي عند شاشة الاستيراد؛ ينتقل إلى الثقة، الإشارات، القرار، التنفيذ ثم التعلم. كل خطوة هنا تفتح المسار الكانوني نفسه ولا تنشئ نسخة ثانية من الحقيقة.</p>
+    </div>
+    <span className="inline-flex items-center gap-1 rounded-full bg-ink-50 px-2.5 py-1 text-[9px] font-black text-ink-500">SOURCE → DECISION → OUTCOME</span>
+  </div>
+  <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+    <Link to={result.importId ? "/trust?import=" + encodeURIComponent(result.importId) : "/trust"} className="group rounded-[14px] border border-primary-100 bg-primary-50/60 p-3 transition hover:border-primary-300 hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+      <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-primary-700">01 · EVIDENCE</span><ShieldCheck size={14} className="text-primary-700" /></div>
+      <div className="mt-2 text-[11px] font-black text-ink-900">الثقة والأدلة</div>
+      <div className="mt-1 text-[9px] leading-4 text-ink-500">{result.evidenceStatus === 'VERIFIED' ? 'الدليل مثبت ويمكن مراجعته.' : 'الدليل PARTIAL ويحتاج مراجعة قبل اعتبار النتيجة مثبتة.'}</div>
+      <div className="mt-2 text-[9px] font-black text-primary-700">فتح Evidence Passport ←</div>
+    </Link>
+    <Link to="/intelligence" className="group rounded-[14px] border border-ink-100 bg-ink-50/60 p-3 transition hover:border-primary-200 hover:bg-primary-50/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+      <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-ink-500">02 · SIGNALS</span><BrainCircuit size={14} className="text-primary-700" /></div>
+      <div className="mt-2 text-[11px] font-black text-ink-900">الإشارات والتوصيات</div>
+      <div className="mt-1 text-[9px] leading-4 text-ink-500">{result.postImportSignals ? "توصيات مرتبطة بالمصدر: " + formatNumber(result.postImportSignals.sourceRecommendations) : 'حالة الإشارات ستُقرأ من المصدر الكانوني.'}</div>
+      <div className="mt-2 text-[9px] font-black text-primary-700">افتح مركز الذكاء ←</div>
+    </Link>
+    <Link to={result.importId ? "/decision-experience?stage=evidence&import=" + encodeURIComponent(result.importId) : "/decision-experience?stage=evidence"} className="group rounded-[14px] border border-ink-100 bg-ink-50/60 p-3 transition hover:border-primary-200 hover:bg-primary-50/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+      <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-ink-500">03 · DECISION</span><ClipboardCheck size={14} className="text-primary-700" /></div>
+      <div className="mt-2 text-[11px] font-black text-ink-900">مساحة القرار</div>
+      <div className="mt-1 text-[9px] leading-4 text-ink-500">{result.evidenceStatus === 'VERIFIED' ? 'يمكن متابعة الدليل إلى الموافقة والإجراء.' : 'المراجعة تسبق أي اعتماد للقرار عندما يكون الدليل غير مكتمل.'}</div>
+      <div className="mt-2 text-[9px] font-black text-primary-700">متابعة إلى القرار ←</div>
+    </Link>
+    <Link to={result.importId ? "/work-center?import=" + encodeURIComponent(result.importId) : "/work-center"} className="group rounded-[14px] border border-ink-100 bg-ink-50/60 p-3 transition hover:border-primary-200 hover:bg-primary-50/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+      <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-ink-500">04 · WORK</span><BriefcaseBusiness size={14} className="text-primary-700" /></div>
+      <div className="mt-2 text-[11px] font-black text-ink-900">التنفيذ والمتابعة</div>
+      <div className="mt-1 text-[9px] leading-4 text-ink-500">العمل الفعلي يمر عبر مركز العمل؛ لا تُعتبر التوصية تنفيذًا قبل تسجيل الإجراء.</div>
+      <div className="mt-2 text-[9px] font-black text-primary-700">افتح مركز العمل ←</div>
+    </Link>
+    <Link to="/replay" className="group rounded-[14px] border border-ink-100 bg-ink-50/60 p-3 transition hover:border-primary-200 hover:bg-primary-50/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+      <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-ink-500">05 · OUTCOME</span><History size={14} className="text-primary-700" /></div>
+      <div className="mt-2 text-[11px] font-black text-ink-900">النتيجة والتعلّم</div>
+      <div className="mt-1 text-[9px] leading-4 text-ink-500">يظهر Replay فقط من snapshots وoutcomes المحفوظة؛ غيابها يبقى INSUFFICIENT DATA.</div>
+      <div className="mt-2 text-[9px] font-black text-primary-700">راجع Business Replay ←</div>
+    </Link>
+  </div>
+</section>
+<div className="flex flex-wrap justify-center gap-2">{result.evidenceStatus === 'VERIFIED' ? (
   <>
     <Link to={result.importId ? "/trust?import=" + encodeURIComponent(result.importId) : "/trust"} className="btn-secondary">فتح Evidence Passport</Link>
     <Link to={result.importId ? "/work-center?import=" + encodeURIComponent(result.importId) : "/work-center"} className="btn-secondary">متابعة مركز العمل</Link>
