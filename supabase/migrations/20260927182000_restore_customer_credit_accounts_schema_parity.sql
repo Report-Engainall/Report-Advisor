@@ -5,7 +5,7 @@ create table if not exists public.customer_credit_accounts (
   id uuid primary key default gen_random_uuid(),
   company_id uuid not null,
   customer_id uuid not null,
-  currency text not null default 'SAR',
+  currency text not null default 'SAR'::text,
   credit_limit numeric not null default 0,
   outstanding_balance numeric not null default 0,
   available_credit numeric,
