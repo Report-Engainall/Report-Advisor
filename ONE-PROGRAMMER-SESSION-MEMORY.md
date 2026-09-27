@@ -1,13 +1,13 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT NON-DEVICE UI + IMPORT CONTINUITY
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `6463ba5543935328f49e71a355a04d611c2fb1aa`
-- CURRENT CODE/TEST CANDIDATE → `13dcf329555e6857bc705434d2967a428d61ddd3`
+- CURRENT BRANCH HEAD → `5242f030c51090d7499b1e17524113388627c6c8`
+- CURRENT CODE/TEST CANDIDATE → `e7eb1074033295f059eb65975b158171965df5f7
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize → Quality/Trust → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
 - ACTUAL RESULT → 38/38 canonical navigation routes resolve to App routes; the visible Product Journey is now eight-stage and explicitly exposes Evidence, Signals, Decision, Work, Learning/Replay, and Executive Output. Dark executive topbar/sidebar CSS conflict was removed and the visual contract now guards both surfaces. A 32-page TSX source audit found no synthetic-data/reload/TODO/Coming-Soon markers requiring remediation; the single “Mockup” occurrence is explanatory copy stating that the screen is not a mockup.
-- EXACT SOURCE EVIDENCE → current code candidate reconciled at `13dcf329…`; documentation/index tail is at branch HEAD `6463ba55…`; current workflow materialization is 44 queued, 3 pending, 2 skipped, with no terminal success/failure. This is NOT a PASS.
+- EXACT SOURCE EVIDENCE → current code candidate reconciled at `e7eb1074…`; documentation/test tail is at branch HEAD `5242f030…`; current workflow materialization is 44 queued, 3 pending, 2 skipped, with no terminal success/failure. This is NOT a PASS.
 - FIRST FAILURE → no current-head terminal failure observed. The temporary journey-contract regex construction defect was corrected before CI execution; acceptance criteria were unchanged.
 - OPEN BLOCKERS → Vercel free-plan deployment-rate limit; device unavailable; authenticated browser/Production/Phase-F proof NOT PROVEN.
 - NEXT EXECUTABLE ACTION → consume the first terminal current-head CI result; repair only the first reproducible current-SHA root, then rescan the UI/import/evidence continuity boundary.
@@ -30,7 +30,6 @@
 - NEXT INDEPENDENT ACTIONS → safe reference/dependency cleanup only where exact absence is provable.
 - DO NOT REPEAT → speculative playbook/backtest/schema-drift schema creation; stale PASS transfer; preview-as-production; duplicate import/RPC/runner; speculative deletion.
 - RESUME STATUS → ACTIVE / PR #671 / STAGING TRUTH RECONCILED / EXACT-HEAD PROOF IN FLIGHT
-
 ---
 
 # RESUME TOKEN — 2026-09-27 / SECURITY BOUNDARY CLOSURE
