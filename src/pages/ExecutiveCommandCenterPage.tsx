@@ -52,7 +52,7 @@ function AlertRow({ alert }: { alert: Alert }) {
           <div className="flex flex-wrap items-center gap-2"><SeverityBadge severity={alert.severity}/><span className="text-[10px] text-ink-400">{relativeTime(alert.created_at)}</span></div>
           <div className="mt-2 text-[13px] font-black text-ink-900">{alert.title}</div>
           {alert.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{alert.description}</p>}
-          <div className="mt-3 flex gap-2"><Link to="/decision-experience" className="btn-secondary text-[11px]">افتح السياق <ArrowUpLeft size={13}/></Link><Link to="/metrics" className="btn-ghost text-[11px]">افحص القياس</Link></div>
+          <div className="mt-3 flex gap-2"><Link to="/decision-experience" className="btn-secondary min-h-11 text-[11px]">افتح السياق <ArrowUpLeft size={13}/></Link><Link to="/metrics" className="btn-ghost min-h-11 text-[11px]">افحص القياس</Link></div>
         </div>
       </div>
     </article>
@@ -68,7 +68,7 @@ function DecisionRow({ recommendation }: { recommendation: Recommendation }) {
           <div className="flex flex-wrap items-center gap-2"><span className="text-[10px] font-black text-primary-700">توصية</span><PriorityBadge priority={recommendation.priority}/></div>
           <div className="mt-2 text-[13px] font-black text-ink-900">{recommendation.title}</div>
           {recommendation.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{recommendation.description}</p>}
-          <div className="mt-3"><Link to="/decision-experience?stage=decision" className="btn-primary text-[11px]">فتح القرار <ArrowUpLeft size={13}/></Link></div>
+          <div className="mt-3"><Link to="/decision-experience?stage=decision" className="btn-primary min-h-11 text-[11px]">فتح القرار <ArrowUpLeft size={13}/></Link></div>
         </div>
       </div>
     </article>
@@ -195,9 +195,9 @@ export function ExecutiveCommandCenterPage() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center gap-1 rounded-[10px] bg-white/10 p-1">
-              {PERIODS.map((period) => <button key={period.value} type="button" onClick={() => setMonths(period.value)} className={'rounded-[8px] px-3 py-1.5 text-[10px] font-bold ' + (months === period.value ? 'bg-white text-ink-950' : 'text-ink-300 hover:bg-white/10')} aria-pressed={months === period.value}>{period.label}</button>)}
+              {PERIODS.map((period) => <button key={period.value} type="button" onClick={() => setMonths(period.value)} className={'min-h-11 rounded-[8px] px-3 py-1.5 text-[10px] font-bold ' + (months === period.value ? 'bg-white text-ink-950' : 'text-ink-300 hover:bg-white/10')} aria-pressed={months === period.value}>{period.label}</button>)}
             </div>
-            <button type="button" onClick={() => void load(true)} disabled={refreshing} className="inline-flex items-center gap-2 rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15 disabled:opacity-60"><RefreshCw size={14} className={refreshing ? 'animate-spin' : ''}/> تحديث</button>
+            <button type="button" onClick={() => void load(true)} disabled={refreshing} className="inline-flex min-h-11 items-center gap-2 rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15 disabled:opacity-60"><RefreshCw size={14} className={refreshing ? 'animate-spin' : ''}/> تحديث</button>
           </div>
         </div>
       </section>
@@ -220,7 +220,7 @@ export function ExecutiveCommandCenterPage() {
             <h2 className="mt-1 text-sm font-black text-ink-950">{commandNextAction.label}</h2>
             <p className="mt-1 text-[10px] leading-5 text-ink-600">{commandNextAction.reason}</p>
           </div>
-          <Link to={commandNextAction.to} className="btn-primary text-[11px]">تنفيذ المسار التالي <ArrowUpLeft size={13}/></Link>
+          <Link to={commandNextAction.to} className="btn-primary min-h-11 text-[11px]">تنفيذ المسار التالي <ArrowUpLeft size={13}/></Link>
         </div>
       </section>
 
@@ -276,23 +276,23 @@ export function ExecutiveCommandCenterPage() {
 
       <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
         <Card>
-          <CardHeader title="مركز الانتباه" subtitle="الإشارات التي تستحق فحصًا أو تدخلاً." action={<Link to="/intelligence" className="btn-ghost text-[11px]">الذكاء <Brain size={13}/></Link>}/>
+          <CardHeader title="مركز الانتباه" subtitle="الإشارات التي تستحق فحصًا أو تدخلاً." action={<Link to="/intelligence" className="btn-ghost min-h-11 text-[11px]">الذكاء <Brain size={13}/></Link>}/>
           <CardBody>
             <div className="space-y-3">
               {alerts.slice(0, 5).map((alert) => <AlertRow key={alert.id} alert={alert}/>)}
               {alerts.length > 5 && <div className="rounded-xl border border-ink-100 bg-ink-50/60 px-3 py-2 text-[10px] text-ink-500">يعرض مركز القيادة أحدث 5 إشارات فقط؛ العدد {alerts.length} هو إجمالي الإشارات المفتوحة في القراءة الحالية. <Link to="/intelligence" className="font-black text-primary-700 hover:underline">فتح الكل</Link></div>}
-              {alerts.length === 0 && <EmptyState title="لا توجد إشارات نشطة" message="لا يوجد تنبيه غير مقروء في المصدر الحالي." action={<Link to="/intelligence" className="btn-secondary text-[11px]">فحص مساحة الإشارات</Link>}/>} 
+              {alerts.length === 0 && <EmptyState title="لا توجد إشارات نشطة" message="لا يوجد تنبيه غير مقروء في المصدر الحالي." action={<Link to="/intelligence" className="btn-secondary min-h-11 text-[11px]">فحص مساحة الإشارات</Link>}/>} 
             </div>
           </CardBody>
         </Card>
 
         <Card>
-          <CardHeader title="طابور القرار" subtitle="ما يمكن تحويله إلى قرار الآن." action={<Link to="/decision-experience" className="btn-ghost text-[11px]">مساحة القرار <ArrowUpLeft size={13}/></Link>}/>
+          <CardHeader title="طابور القرار" subtitle="ما يمكن تحويله إلى قرار الآن." action={<Link to="/decision-experience" className="btn-ghost min-h-11 text-[11px]">مساحة القرار <ArrowUpLeft size={13}/></Link>}/>
           <CardBody>
             <div className="space-y-3">
               {recommendations.slice(0, 5).map((recommendation) => <DecisionRow key={recommendation.id} recommendation={recommendation}/>)}
               {recommendations.length > 5 && <div className="rounded-xl border border-ink-100 bg-ink-50/60 px-3 py-2 text-[10px] text-ink-500">يعرض مركز القيادة أحدث 5 توصيات قابلة للمراجعة؛ العدد {recommendations.length} هو الإجمالي الحالي. <Link to="/decision-experience?stage=decision" className="font-black text-primary-700 hover:underline">فتح الكل</Link></div>}
-              {recommendations.length === 0 && <EmptyState title="لا توجد توصيات قابلة للمراجعة" message="لن تتم صناعة بديل اصطناعي عند غياب الإشارة." action={<Link to="/data-quality" className="btn-secondary text-[11px]">مراجعة جودة البيانات</Link>}/>} 
+              {recommendations.length === 0 && <EmptyState title="لا توجد توصيات قابلة للمراجعة" message="لن تتم صناعة بديل اصطناعي عند غياب الإشارة." action={<Link to="/data-quality" className="btn-secondary min-h-11 text-[11px]">مراجعة جودة البيانات</Link>}/>} 
             </div>
           </CardBody>
         </Card>
@@ -310,7 +310,7 @@ export function ExecutiveCommandCenterPage() {
             : <div className="rounded-[14px] border border-ink-100 bg-ink-50/60 py-10 text-center">
               <div className="text-sm font-black text-ink-700">لا توجد بيانات اتجاه قابلة للحساب.</div>
               <p className="mt-1 text-[10px] text-ink-400">راجع جودة المصدر قبل استخدام اتجاهات المبيعات والربح كإشارة قرار.</p>
-              <Link to="/data-quality" className="mt-3 inline-flex btn-secondary text-[11px]">مراجعة جودة البيانات <ArrowUpLeft size={13}/></Link>
+              <Link to="/data-quality" className="mt-3 inline-flex min-h-11 btn-secondary text-[11px]">مراجعة جودة البيانات <ArrowUpLeft size={13}/></Link>
             </div>}
         </CardBody>
       </Card>
@@ -332,9 +332,9 @@ export function ExecutiveCommandCenterPage() {
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div><div className="text-[12px] font-black text-ink-900">خط الحقيقة</div><div className="mt-1 text-[10px] text-ink-400">المصدر → الدليل → البيانات → الإشارة → القرار → الإجراء → النتيجة.</div></div>
           <div className="flex flex-wrap gap-2">
-            <Link to="/data-quality" className="btn-secondary text-[11px]">جودة البيانات <ArrowUpLeft size={13}/></Link>
-            <Link to="/reports/executive" className="btn-secondary text-[11px]">التقرير التنفيذي <FileSearch size={13}/></Link>
-            <Link to="/work-center" className="btn-primary text-[11px]">مركز العمل <ArrowUpLeft size={13}/></Link>
+            <Link to="/data-quality" className="btn-secondary min-h-11 text-[11px]">جودة البيانات <ArrowUpLeft size={13}/></Link>
+            <Link to="/reports/executive" className="btn-secondary min-h-11 text-[11px]">التقرير التنفيذي <FileSearch size={13}/></Link>
+            <Link to="/work-center" className="btn-primary min-h-11 text-[11px]">مركز العمل <ArrowUpLeft size={13}/></Link>
           </div>
         </div>
       </section>
