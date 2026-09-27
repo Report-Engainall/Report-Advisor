@@ -50,7 +50,11 @@ export function BusinessReplayPage() {
     .reduce<Record<string, number>>((acc, event) => { const key = event.status ?? 'غير متاح'; acc[key] = (acc[key] ?? 0) + 1; return acc; }, {});
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in">
-      <PageHeader title="Business Replay" subtitle="إعادة قراءة ما حدث فعليًا من snapshots ونتائج تنفيذ محفوظة، دون إعادة بناء تاريخ غير موجود." />
+      <PageHeader
+        title="Business Replay"
+        subtitle="إعادة قراءة ما حدث فعليًا من snapshots ونتائج تنفيذ محفوظة، دون إعادة بناء تاريخ غير موجود."
+        actions={<button type="button" onClick={() => void load()} disabled={loading} className="btn-secondary inline-flex items-center gap-2 disabled:cursor-wait disabled:opacity-60" aria-label="إعادة قراءة سجل الأعمال"><History size={15}/> إعادة القراءة</button>}
+      />
       <section className="rounded-[20px] border border-primary-100 bg-primary-50/50 p-5 shadow-card">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -60,6 +64,11 @@ export function BusinessReplayPage() {
           </div>
           <History className={hasReplay ? 'text-primary-700' : 'text-warning-700'} size={36} />
         </div>
+      </section>
+      <section className="grid gap-3 rounded-[16px] border border-ink-200 bg-white p-4 shadow-sm sm:grid-cols-3" aria-label="سياق حقيقة إعادة التشغيل">
+        <div><div className="text-[9px] font-black tracking-[.12em] text-ink-400">AS OF · SNAPSHOT</div><div className="mt-1 text-[11px] font-black text-ink-900">{snapshot?.latestSnapshotAt ? new Date(snapshot.latestSnapshotAt).toLocaleString('ar-YE') : 'غير متاح'}</div><div className="mt-1 text-[9px] text-ink-500">آخر لقطة تشغيلية محفوظة ضمن نافذة القراءة.</div></div>
+        <div><div className="text-[9px] font-black tracking-[.12em] text-ink-400">AS OF · OUTCOME</div><div className="mt-1 text-[11px] font-black text-ink-900">{snapshot?.latestOutcomeAt ? new Date(snapshot.latestOutcomeAt).toLocaleString('ar-YE') : 'غير متاح'}</div><div className="mt-1 text-[9px] text-ink-500">آخر نتيجة محفوظة؛ لا تُعامل كزمن حالي إن لم توجد نتيجة.</div></div>
+        <div><div className="text-[9px] font-black tracking-[.12em] text-ink-400">READ WINDOW</div><div className="mt-1 text-[11px] font-black text-ink-900">أحدث {formatNumber(snapshot?.windowLimit ?? 0)}</div><div className="mt-1 text-[9px] text-ink-500">نافذة القراءة الحالية وليست إجمالي تاريخ الشركة.</div></div>
       </section>
       <section className="grid gap-3 md:grid-cols-3">
         <Card><CardBody><div className="flex items-center gap-2 text-[10px] text-ink-400"><Database size={14}/> snapshots — نافذة القراءة</div><div className="mt-2 text-2xl font-black text-ink-900">{formatNumber(snapshot?.snapshotCount ?? 0)}</div><div className="mt-1 text-[10px] text-ink-500">آخر لقطة: {snapshot?.latestSnapshotAt ?? 'غير متاح'}</div></CardBody></Card>
