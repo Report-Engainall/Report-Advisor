@@ -104,6 +104,8 @@ for (const token of [
   'AUTHORITATIVE_SOURCE_HASH_MISMATCH','AUTHORITATIVE_SOURCE_NOT_VERIFIED',
   'CREATE FUNCTION public.import_commit_batch',
   'p_import_job_id uuid',
+  'PURCHASE_ITEM_QUANTITY_REQUIRED','PURCHASE_ITEM_UNIT_PRICE_REQUIRED','PURCHASE_ITEM_LINE_TOTAL_INVALID','PURCHASE_ITEM_PRODUCT_TENANT_MISMATCH',
+  'INSERT INTO public.purchase_items(',
 ]) {
   if (!specialtyMigration.includes(token)) throw new Error('Specialty canonical migration contract missing: ' + token);
 }
