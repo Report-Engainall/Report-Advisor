@@ -1,3 +1,12 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / MULTI-DATASET RESULT SURFACE
+
+- BRANCH → `exec/20260927-import-full-lifecycle`.
+- CODE/TEST CANDIDATE → `211171ab8bb57de877ef4a183f37ef90921328b3`.
+- DONE → post-import page shows the server-persisted dataset understanding details and preserves explicit unknown states.
+- PROOF → contract guard already covers the surface; browser/CI proof remains pending.
+- NEXT → consume exact-head evidence, then move to the next independent surface/core front.
+- DO NOT REPEAT → stale evidence, duplicate import path, silent dataset truncation.
+-
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT HISTORY ACTIONABILITY
 
 - BRANCH → `exec/20260927-import-full-lifecycle`.
