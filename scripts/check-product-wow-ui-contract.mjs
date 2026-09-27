@@ -78,6 +78,8 @@ for (const token of [
 ]) assert.ok(journey.includes(token), 'product journey must expose the canonical stage: ' + token);
 assert.ok((journey.match(/const steps: JourneyStep\[\] = \[/)?.length ?? 0) === 1, 'product journey must keep one canonical step definition');
 assert.equal((journey.match(/label: '/g) ?? []).length, 8, 'product journey must expose exactly eight canonical visible stages');
+const journeyCss = fs.readFileSync('src/index.css', 'utf8');
+assert.ok(journeyCss.includes('min-height:44px'), 'product journey links must meet the shared 44px touch-target baseline');
 const appShell = fs.readFileSync('src/App.tsx', 'utf8');
 const sidebar = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
 assert.ok(sidebar.includes('flex min-h-11 items-center gap-1.5 rounded-[8px]'), 'sidebar quick-access links must preserve the shared touch-target minimum');
