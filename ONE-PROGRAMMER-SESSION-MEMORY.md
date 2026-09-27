@@ -209,3 +209,18 @@
 - NEXT INDEPENDENT ACTIONS → none required before the current mandatory checks terminalize; preserve the canonical import surface and no-op duplicate paths.
 - DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; blanket security cleanup.
 - RESUME STATUS → ACTIVE / UI LIFECYCLE DELIVERED / ROOT FIX PROVEN ON REPAIR SHA / CONTRACT HEAD IN CURRENT PROOF.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-151
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-151`.
+- CURRENT DOCUMENTATION SHA → `c2ec2519b75867135ceafee7b99cffc3eb32c46c`.
+- CURRENT FUNCTIONAL HEAD → PR #662 / `exec/20260927-import-full-lifecycle` / `334c80ec51d304041071eae5908f125016f520d4`.
+- EXACT DEPLOYMENT READBACK → Cloudflare exact-head deployment is SUCCESS and the deployed `/import` surface resolves to the real Arabic الأغبري identity/company isolation gate. No demo workspace or fake business truth is exposed. This is deployment/readback evidence only, not authenticated browser E2E.
+- CURRENT MANDATORY GATES → `certification-contracts` and `enforcement-contract` remain queued. No new root code failure is available to repair.
+- PHASE-F REVIEW → current probe implementation is correctly fail-closed on missing live resilience secrets/targets and exact deployment identity. Source-side inspection found no safe mutation justified by the known external blocker.
+- OPEN BLOCKERS → Vercel free-plan deployment rate limit; PC01 offline; authenticated browser, production exact-SHA, rollback/restore/RPO/RTO and Phase-F resilience proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume terminal #662 certification/enforcement results; then consume #663 terminal results. If queues persist, continue only independent repository-safe fronts.
+- NEXT INDEPENDENT ACTIONS → preserve canonical import/UI surface; no duplicate import path; continue evidence reconciliation only where new exact-SHA evidence exists.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; blanket security cleanup.
+- RESUME STATUS → ACTIVE / DEPLOYMENT READBACK PROVEN / MANDATORY CONTRACT GATES QUEUED.
