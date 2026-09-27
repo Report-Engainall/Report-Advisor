@@ -220,3 +220,51 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                       </span>
                     </button>
                   );
+                })}
+              </div>
+            </div>
+          )}
+
+          {!query.trim() && (
+            <div className="px-3 pb-2 pt-2 text-[10px] font-bold uppercase tracking-wide text-ink-400">مرتبط بما تعمل عليه الآن</div>
+          )}
+
+          {filtered.length === 0 ? (
+            <div className="px-4 py-10 text-center text-sm text-ink-400" role="status">لا توجد نتائج مطابقة</div>
+          ) : (
+            filtered.map((item, index) => {
+              const isCurrent = contextScore(item.path) >= 45;
+              return (
+                <button
+                  key={item.path}
+                  id={`command-option-${index}`}
+                  role="option"
+                  aria-selected={index === active}
+                  type="button"
+                  onMouseEnter={() => setActive(index)}
+                  onClick={() => openCommand(item)}
+                  className={`ag-command-result flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition ${index === active ? 'ag-command-result-active bg-primary-50 text-primary-900' : 'hover:bg-ink-50'}`}
+                >
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${index === active ? 'bg-primary-100 text-primary-700' : 'bg-ink-100 text-ink-500'}`}><Command size={17}/></span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="block min-w-0 truncate text-sm font-semibold">{item.label}</span>
+                      <span className="shrink-0 rounded-full bg-ink-100 px-2 py-0.5 text-[9px] font-bold text-ink-500">{commandCategory(item.section)}</span>
+                      {!query.trim() && isCurrent && <span className="shrink-0 rounded-full bg-primary-50 px-2 py-0.5 text-[9px] font-bold text-primary-700">في هذه المساحة</span>}
+                    </span>
+                    <span className="block truncate text-xs text-ink-400">{item.description}</span>
+                  </span>
+                  {index === active && <ArrowRight size={16} className="shrink-0 text-primary-500" />}
+                </button>
+              );
+            })
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 border-t border-ink-100 bg-ink-50/70 px-4 py-2 text-[11px] text-ink-400">
+          <span>↑↓ للتنقل</span><span>Enter للفتح</span><span>Esc للإغلاق</span>
+        </div>
+      </div>
+    </div>
+  );
+}
