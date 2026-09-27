@@ -1,19 +1,18 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CANDIDATE SHA → `26eb3db449536a9b57e5eee39c99ed8a222343d3`
+- CURRENT EXECUTION/CANDIDATE SHA → `3283f03e28c6a5fde9576c3a29b2b56444762b74`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- ACTUAL RESULT → Import-to-decision continuity, Evidence Passport AS OF, Business Replay truth context/refresh, localized specialty/entity labels, and purchase-line SchemaField coverage are present. Existing canonical importer/RPC/runner routes remain authoritative.
-- LATEST CORE MUTATION → `26eb3db449536a9b57e5eee39c99ed8a222343d3` adds `unit_price`, `line_total`, and `description` to the canonical SchemaField union for purchase-line inference.
-- PRIOR UI MUTATIONS → specialty localization `8d0137f6…`; Trust AS OF `b990a783…`; Replay truth context `4cd74e811…`.
-- PROOF → current exact head source-verified; fresh workflows are queued/pending with no terminal failure. Vercel remains an external free-plan rate-limit failure.
-- OPEN BLOCKERS → Vercel build-rate-limit; authenticated production/browser/Phase-F certification remains environment-bound; device unavailable.
-- FIRST FAILURE → none terminalized on current candidate.
-- NEXT EXECUTABLE ACTION → consume first terminal workflow on `26eb3db449536a9b57e5eee39c99ed8a222343d3`; repair only the first reproducible current-SHA root.
-- NEXT INDEPENDENT ACTIONS → continue contract/route regression audit and safe stale-front reconciliation while CI is queued.
-- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, preview-as-production, raw technical labels in customer-facing import result, or downstream VERIFIED from navigation alone.
+- ACTUAL RESULT → purchase-line reconciliation now preserves multi-line invoices while retaining duplicate-header protection; import UI also has Evidence AS OF, Replay truth context/refresh, and customer-facing specialty/entity labels.
+- CORE ROOT FIX → `ae00750f…` changed purchase identity away from invoice-only; `0dd24b9a…` bound the line identity to the canonical row number; `3283f03e…` added header + multi-line regression tests.
+- PROOF → exact source verified; current CI has no terminal failure yet. Local execution is externally blocked because this environment cannot resolve github.com, so no local PASS is claimed.
+- OPEN BLOCKERS → Vercel free-plan build-rate-limit; device/browser/production/Phase-F certification remains environment-bound; current exact-head CI pending.
+- FIRST FAILURE → none terminalized on `3283f03e…`.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow result on `3283f03e28c6a5fde9576c3a29b2b56444762b74`; repair only current-SHA root.
+- NEXT INDEPENDENT ACTIONS → route/contract regression audit and evidence reconciliation while CI runs.
+- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, preview-as-production, or treating import preview/navigation as downstream proof.
 - RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD PROOF IN FLIGHT
 ---
 
