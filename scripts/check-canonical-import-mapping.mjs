@@ -102,5 +102,8 @@ const workCenterPage = readFileSync(new URL('../src/pages/WorkCenterPage.tsx', i
 for (const token of ['fetchDecisionWorkItems', 'startDecisionWorkItem', 'DECISION WORK', 'بدء التنفيذ']) {
   if (!workCenterPage.includes(token)) throw new Error(`Work Center action contract missing: ${token}`);
 }
+for (const token of ['fetchRecommendationOutcome', 'المتوقع مقابل الفعلي', 'لم تُثبت نتيجة تنفيذ']) {
+  if (!decisionExperiencePage.includes(token)) throw new Error(`Decision outcome readback contract missing: ${token}`);
+}
 
 console.log('Canonical import mapping regression gate: PASS (canonical fields + full-source understanding + post-import evidence/decision continuity)');
