@@ -74,7 +74,7 @@ export function IntelligenceCenterPage() {
 
   useEffect(() => { void load(); }, [load]);
 
-  const newRecommendations = useMemo(
+  const actionableRecommendations = useMemo(
     () => recommendations.filter((item) => isActionableRecommendationStatus(item.status)),
     [recommendations],
   );
@@ -149,12 +149,12 @@ export function IntelligenceCenterPage() {
 
       <section className="grid gap-3 md:grid-cols-3">
         <MetricStrip label="إشارات نشطة" value={activeAlerts.length} note="تحتاج انتباهًا غير مقروء" icon={<AlertTriangle size={15} />} />
-        <MetricStrip label="قرارات مقترحة" value={newRecommendations.length} note="بانتظار المراجعة" icon={<Lightbulb size={15} />} />
+        <MetricStrip label="قرارات مقترحة" value={actionableRecommendations.length} note="بانتظار المراجعة" icon={<Lightbulb size={15} />} />
         <MetricStrip label="تنبؤات مصدرية" value={forecasts.length} note="المتاح من المصدر الحالي" icon={<TrendingUp size={15} />} />
       </section>
 
       <DeterministicIntelligenceAssistant
-        recommendationsCount={recommendations.length}
+        recommendationsCount={actionableRecommendations.length}
         activeAlertsCount={activeAlerts.length}
         forecastsCount={forecasts.length}
       />
@@ -225,7 +225,7 @@ export function IntelligenceCenterPage() {
           />
           <CardBody>
             <div className="space-y-3">
-              {newRecommendations.slice(0, 5).map((recommendation) => (
+              {actionableRecommendations.slice(0, 5).map((recommendation) => (
                 <article key={recommendation.id} className="rounded-[14px] border border-primary-100 bg-primary-50/25 p-4">
                   <div className="flex items-start gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-100 text-primary-700">
@@ -264,7 +264,7 @@ export function IntelligenceCenterPage() {
                   </div>
                 </article>
               ))}
-              {newRecommendations.length === 0 && <EmptyState title="لا توجد توصيات جديدة" message="لن يتم تصنيع توصية بديلة عند غياب إشارة مصدرية." />}
+              {actionableRecommendations.length === 0 && <EmptyState title="لا توجد توصيات جديدة" message="لن يتم تصنيع توصية بديلة عند غياب إشارة مصدرية." />}
             </div>
           </CardBody>
         </Card>
