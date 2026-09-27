@@ -1,9 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / ROOT FIX ADVANCE
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT UI LIFECYCLE ADVANCE
 
-- FUNCTIONAL HEAD → `01e870fe8dc2ca52627f7d6aabebc88da58eb814` (#662), fresh exact-head CI in progress.
-- GOVERNANCE HEAD → `43a29443477aeb5969b99d672bd2c6698e0f7106` (#663), boundary guard corrected for governance quality workflow.
-- ROOT FIX → current #662 typecheck failures in DataTable and ExecutiveReport were repaired; no stale PASS transferred.
-- NEXT → first terminal #662 gate, then #663; preserve fail-closed Phase-F and external browser/production blockers.
+- MAIN HEAD VERIFIED → `c71872f8f91e894b365773c0bf08a64b87db9576`.
+- FUNCTIONAL CANDIDATE → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `0c80f0f21027ff9e5451cde297e6f28cbad94334`.
+- UI DELIVERY → `src/pages/CanonicalImportPage.tsx` now exposes the complete post-upload canonical lifecycle in the existing result surface: Security → Fingerprint → Understand → Normalize → Quality → Trust → Evidence → Review → Canonical Commit → Persistence → Readback → Business Understanding → Signals → Decision → Outcome → Learning. No new route, importer, RPC, or backend path was created.
+- CURRENT EXACT-SHA PROOF → the new head has fresh checks triggered: browser-e2e, certification-contracts, enforcement-contract queued; Cloudflare/Netlify checks in progress; Supabase Preview skipped; Vercel remains rate-limited. No PASS claimed on `0c80f0f` yet.
+- PRODUCT BOUNDARY → import is not treated as read/parse/preview completion; the UI now makes the continuation beyond file selection explicit while preserving evidence/status boundaries.
+- EXTERNAL → PC01 remains offline; production/browser/Phase-F exact-SHA proof remains NOT PROVEN. Vercel free-plan deployment rate limit remains external.
+- NEXT → consume terminal exact-head checks for #662, repair only the first current-SHA failure, then consume #663; do not create parallel import/navigation paths.
+- CLEANUP → no deletion performed in this batch; no safe deletion candidate was proven by current reference/dependency evidence.
+
 
 ---
 
