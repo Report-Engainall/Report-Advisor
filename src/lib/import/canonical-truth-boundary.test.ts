@@ -49,6 +49,45 @@ describe('canonical import identity normalization', () => {
     ]);
   });
 
+  it('accepts multiple purchase lines sharing one invoice number', () => {
+    const result = reconcileForCanonical(
+      'purchase_invoices',
+      provenance.tenantId,
+      provenance.sourceId,
+      provenance.sourceHash,
+      provenance.sourceDocumentId,
+      (_data, rowNumber) => `evidence-${rowNumber}`,
+      [
+        { rowNumber: 1, data: { invoice_number: 'PUR-001', product_id: 'P-1', quantity: 2, unit_price: 10, line_total: 20, description: 'Line A' } },
+        { rowNumber: 2, data: { invoice_number: 'PUR-001', product_id: 'P-2', quantity: 3, unit_price: 5, line_total: 15, description: 'Line B' } },
+      ],
+    );
+
+    expect(result.rejected).toEqual([]);
+    expect(result.rows).toHaveLength(2);
+    expect(result.rows.map(row => row.rowNumber)).toEqual([1, 2]);
+  });
+
+  it('rejects conflicting purchase rows only when the same physical row identity repeats', () => {
+    const result = reconcileForCanonical(
+      'purchase_invoices',
+      provenance.tenantId,
+      provenance.sourceId,
+      provenance.sourceHash,
+      provenance.sourceDocumentId,
+      (_data, rowNumber) => `evidence-${rowNumber}`,
+      [
+        { rowNumber: 4, data: { invoice_number: 'PUR-001', product_id: 'P-1', line_total: 20 } },
+        { rowNumber: 4, data: { invoice_number: 'PUR-001', product_id: 'P-2', line_total: 15 } },
+      ],
+    );
+
+    expect(result.rows).toHaveLength(1);
+    expect(result.rejected).toEqual([
+      { rowNumber: 4, reason: 'CONFLICTING_EVIDENCE_FOR_SAME_CANONICAL_IDENTITY' },
+    ]);
+  });
+
   it('accepts a domain-neutral generic dataset with deterministic row identity', () => {
     const result = reconcileForCanonical(
       'generic:customer-balances',
