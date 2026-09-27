@@ -258,7 +258,8 @@ export function CanonicalImportPage() {
 
       const authoritativeRowCount = Number(execution.authoritativeRowCount ?? validRows.length);
       const snapshotId = typeof execution.snapshotId === 'string' ? execution.snapshotId : null;
-      await finishImportJob(rec.id, 'completed', {
+      const evidenceStatus = execution.evidenceStatus === 'VERIFIED' ? 'VERIFIED' : 'PARTIAL';
+      await finishImportJob(rec.id, evidenceStatus === 'VERIFIED' ? 'completed' : 'partial', {
         total: authoritativeRowCount,
         valid: authoritativeRowCount,
         invalid: 0,
@@ -272,6 +273,8 @@ export function CanonicalImportPage() {
         source_entity_type: sourceEntityType,
         dataset_count: datasetCount,
         snapshot_id: snapshotId,
+        evidence_status: evidenceStatus,
+        evidence_warning: typeof execution.evidenceWarning === 'string' ? execution.evidenceWarning : null,
       });
 
       if (typeof window !== 'undefined') {
@@ -290,6 +293,8 @@ export function CanonicalImportPage() {
         sourceSpecialty,
         sourceEntityType,
         datasetCount,
+        evidenceStatus,
+        evidenceWarning: typeof execution.evidenceWarning === 'string' ? execution.evidenceWarning : null,
       });
       setStep('done');
       await loadHistory();
@@ -422,7 +427,16 @@ export function CanonicalImportPage() {
 
     {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم اعتماد المصدر عبر مسار الحقيقة الكانونية العامة مع بصمته وسياقه وجودته، ولا يُعلن نجاح الاعتماد إلا بعد إتمام مسار الكتابة الفعلي.</p></div></CardBody></Card>}
 
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم اعتماد المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-2xl text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف الكانونية</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة الفهم</div><b>{result.understandingConfidence ?? 0}%</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">التخصص المكتشف</div><b>{result.sourceSpecialty ?? 'other'}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">مجموعات البيانات</div><b>{result.datasetCount ?? 1}</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تمت المصادقة على المصدر، استخراج بياناته، توحيد مجموعاته، فحص الجودة، بناء الدليل، تشغيل دورة الحقيقة الكانونية، ثم تسجيل لقطة التحليل بعد الإتمام.</p><div className="flex flex-wrap justify-center gap-2"><Link to="/trust" className="btn-secondary">فحص الدليل والثقة</Link><Link to="/decision-experience" className="btn-primary">الانتقال إلى القرار</Link><button type="button" onClick={reset} className="btn-secondary"><Upload size={14}/> تحليل ملف آخر</button></div></div></CardBody></Card>}
+    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم اعتماد المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-2xl text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف الكانونية</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة الفهم</div><b>{result.understandingConfidence ?? 0}%</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">التخصص المكتشف</div><b>{result.sourceSpecialty ?? 'other'}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">مجموعات البيانات</div><b>{result.datasetCount ?? 1}</b></div></div><div className="flex flex-wrap items-center justify-center gap-2">
+  <Badge variant={result.evidenceStatus === 'VERIFIED' ? 'success' : 'warning'}>{result.evidenceStatus === 'VERIFIED' ? 'الدليل: مثبت' : 'الدليل: PARTIAL'}</Badge>
+  <span className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</span>
+</div><div className="max-w-xl text-center text-[11px] leading-5 text-ink-500">
+  {result.evidenceStatus === 'VERIFIED'
+    ? 'تمت المصادقة على المصدر، استخراج بياناته، توحيد مجموعاته، فحص الجودة، بناء الدليل، تشغيل دورة الحقيقة الكانونية، ثم تسجيل لقطة التحليل بعد الإتمام.'
+    : 'تم تنفيذ الاستيراد الكانوني وتسجيل النتيجة التشغيلية، لكن لقطة الدليل لم تُثبت. الحالة PARTIAL ولا يُعتبر الدليل مكتملًا حتى يثبت الحفظ.'
+  }
+  {result.evidenceWarning && <div className="mt-2 rounded-lg border border-warning-200 bg-warning-50 px-3 py-2 text-warning-800">{result.evidenceWarning}</div>}
+</div><div className="flex flex-wrap justify-center gap-2"><Link to="/trust" className="btn-secondary">فحص الدليل والثقة</Link><Link to="/decision-experience" className="btn-primary">الانتقال إلى القرار</Link><button type="button" onClick={reset} className="btn-secondary"><Upload size={14}/> تحليل ملف آخر</button></div></div></CardBody></Card>}
 
     <Card><CardHeader title="سجل الاستيرادات" subtitle="أحدث 500 عملية مرتبطة بحسابك، مع 50 صفًا في كل صفحة لتبقى القراءة سريعة؛ العمليات الأقدم تبقى محفوظة" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={historyError} onRetry={() => void loadHistory()} />:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد عمليات سابقة" message="لم يُثبت مصدر سابق لهذا الحساب بعد؛ ابدأ الآن من مدخل الاستيراد الموحد." action={<button type="button" onClick={reset} className="btn-primary text-[11px]"><Upload size={13}/> اختيار مصدر</button>}/>:<DataTable columns={[{key:'file_name',label:'المصدر'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مراجعة',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} pageSize={50} emptyMessage="لا توجد عمليات سابقة"/>}</Card>
   </div>;
