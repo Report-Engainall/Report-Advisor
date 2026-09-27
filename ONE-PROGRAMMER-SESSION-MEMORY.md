@@ -1,19 +1,17 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
-- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CANDIDATE SHA → `10d0755c624ea9ee71b58655b0e734f63d8c4bee`
-- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-rebased` / PR #670
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- CURRENT REPOSITORY HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT VERIFIED SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT CODE/TEST CANDIDATE → `10d0755c624ea9ee71b58655b0e734f63d8c4bee`
+- ACTIVE EXECUTION FRONTS → PR #670 (`exec/20260927-current-main-import-ui-finalize-rebased`) = single import-to-decision functional front.
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- ACTUAL RESULT → single current-main functional front; canonical E-20..E-26 enforcement restored; Decision Experience approval UI exposes persisted requester/approver/timestamps/reason; existing UI contract now guards these fields.
-- EVIDENCE → main remains exact `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`; candidate is ahead without lag. Prior exact-head enforcement failure on `7cb988fb…` is source-fixed; fresh proof is required on `10d0755c…`.
-- FIRST FAILURE → execution enforcement protocol missing E-20..E-26. Fixed without weakening the contract.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; device/browser/production/Phase-F runtime proof unavailable; latest SHA workflow runs pending/queued at checkpoint.
-- NEXT EXECUTABLE ACTION → consume first terminal workflow result for `10d0755c…`; repair only the first current-SHA root.
-- NEXT INDEPENDENT ACTIONS → continue safe route/surface coverage and stale-front cleanup only where integration is provable.
-- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate import/evidence/decision path, static business truth, or overwriting canonical control state with stale history.
-- RESUME STATUS → ACTIVE / PR #670 / CURRENT-MAIN FUNCTIONAL FRONT / EXACT-HEAD PROOF PENDING
-- CHECKPOINT RULE → HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT
+- LAST PROVEN → exact current-head gates on the prior checkpoint: canonical truth, storage tenant runtime, Full Product Browser E2E, UI route completeness, desktop-windows, production-chain guard, and broad security/data contracts. These remain SHA-bound and are not transferred as PASS to newer heads.
+- LAST FAILED → Execution Enforcement Contract on `cbc7f67f4084de23294aecefaea900c787625e3e`: resume token missing required anchors; Final Certification Gate on the same SHA: live certification fixture rejected the current candidate tail. Both are current-SHA harness roots requiring fresh proof after repair.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; device/browser/production/Phase-F live proof remains externally constrained.
+- NEXT EXECUTABLE ACTION → consume the first terminal workflow on the next candidate head; repair only the first reproducible current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue UI surface completeness, route/contract integrity, evidence/readback continuity, and safe superseded-front cleanup.
+- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, static business truth, or treating documentation synchronization as capability closure.
+- RESUME STATUS → ACTIVE / PR #670 / SINGLE CURRENT-MAIN FUNCTIONAL FRONT / EXACT-SHA PROOF PENDING
 
 ---
 
