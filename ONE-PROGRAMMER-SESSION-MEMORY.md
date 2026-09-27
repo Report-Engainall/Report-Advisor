@@ -112,3 +112,19 @@
 - NEXT EXECUTABLE ACTION → inspect current post-merge main UI certification and any newly generated core Phase-F run; do not mutate production or legacy security surfaces without exact owner/invariant proof.
 - DO NOT REPEAT → no stale PASS transfer, no PR #635/#637/#640 evidence reuse, no production-SHA bypass, no blind legacy migration rehydration, no blanket SECURITY DEFINER revoke, no unsafe import-job mutation.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-138
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-RESUME
+
+- MAIN HEAD VERIFIED → `c71872f8f91e894b365773c0bf08a64b87db9576` (current default branch ref).
+- FUNCTIONAL CANDIDATE VERIFIED → PR #662 `exec/20260927-import-full-lifecycle` exact HEAD `01e870fe8dc2ca52627f7d6aabebc88da58eb814`.
+- HEART FIXES → current-head TypeScript root failures in `src/components/ui/DataTable.tsx` and `src/pages/ExecutiveReportPage.tsx` were corrected on PR #662; no historical PASS was transferred.
+- IMPORT/SURFACE → PR #662 contains the canonical full-source lifecycle and post-import continuity: understanding all datasets, normalization/reconciliation, quality/trust, evidence, canonical commit/readback, business understanding/signals/decision, outcome/replay/learning, tenant-scoped Business Replay, and evidence-safe Benchmark with `INSUFFICIENT_SAMPLE`.
+- LIVE PREVIEW PROOF → exact-head Netlify deploy preview for PR #662 is SUCCESS and resolves at `https://deploy-preview-662--aghbari-report-advisor.netlify.app/import`. The live page identifies the product as Arabic Evidence-first Business & Decision Intelligence and, when unauthenticated, correctly stops at the real identity/company isolation gate; it does not fabricate a demo workspace.
+- CURRENT CI STATUS → exact-head legacy status currently has Vercel FAILURE solely because of the documented free-plan deployment rate limit; Vercel Deployments–Injaz remains pending. Netlify preview is SUCCESS. CodeRabbit is SUCCESS with manual-review-required wording. Exact-head required GitHub checks remain to be consumed; no overall PASS is claimed.
+- DEVICE/BROWSER → PC01 is still reported OFFLINE; therefore local authenticated browser verification remains NOT PROVEN. Do not mark browser E2E as complete from preview HTML alone.
+- RELEASE BOUNDARY → Phase-F / production exact-SHA resilience, rollback/restore/RPO/RTO, and production promotion remain NOT PROVEN. No production mutation or bypass was performed.
+- EXTERNAL BLOCKER → Vercel free-plan build/deployment rate limit is an external blocker, not a source-code failure. Netlify remains preview evidence only.
+- NEXT EXECUTABLE ACTION → consume fresh exact-head GitHub check results for PR #662/PR #663; fix only the first current failure if any. In parallel, keep the canonical UI/import lane intact and avoid duplicate import/navigation/RPC/runner paths.
+- DO NOT REPEAT → no stale PASS transfer, no preview-as-production, no production-SHA bypass, no duplicate import path, no unsafe `import_jobs` terminalization, no blanket security cleanup.
+- RESUME STATUS → ACTIVE / CONTINUE.
