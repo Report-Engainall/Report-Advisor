@@ -3,8 +3,8 @@
 > This top block is the only startup boundary.
 
 - MAIN HEAD → `2465da09eb08ae63dae921d7ecfcb88beb9ecdf0`
-- CURRENT CODE/TEST CANDIDATE → `d6e1d13931250c9ee298bc933a2be8c7ccda7899`
-- FUNCTIONAL FRONT → PR #667 / `d6e1d13931250c9ee298bc933a2be8c7ccda7899`
+- CURRENT CODE/TEST CANDIDATE → `4de3c95ff3a741463d49a2b52baf86f66ce62fad`
+- FUNCTIONAL FRONT → PR #667 / `4de3c95ff3a741463d49a2b52baf86f66ce62fad`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT DATA until a real peer cohort exists.
 - ROOT FIXES → phase9 exact-head ref verification repaired; `/benchmark` and `/replay` now registered in the canonical navigation registry using existing Sidebar icon infrastructure.
