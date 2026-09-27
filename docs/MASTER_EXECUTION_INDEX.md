@@ -3,18 +3,16 @@
 > This top block is the only startup boundary.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `6b6b3a10568bb0821f2c2a9a5ef03d18d429a5be`
+- CURRENT CODE/TEST CANDIDATE → `a8227b8f2f2b8bf478aa2f12c2715fff53f0c55e`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - PRODUCT CHAIN → Any Source → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
-- UI COVERAGE → 8 canonical zones; 38/38 registry routes resolve; eight-stage Product Journey; full canonical import lifecycle; post-import continuation; dynamic Master Data truth; source-bound Report Builder; shell/mobile contract coverage.
-- MASTER DATA → existing tenant-scoped customers/products/inventory/suppliers/warehouses/branches/categories tables are read through the authenticated client with explicit loading/error/refresh behavior. Empty entity states route to unified import; no warehouse/branch duplicate surface was created.
-- REPORTS → Report Builder is available at /reports?builder=1 as a source-bound session draft. It composes existing snapshot sections, preserves As Of/truth semantics, reuses the canonical export and print paths, and does not claim persistent saved templates.
-- CAPABILITY GATES → Decision Playbooks, Benchmark Network, Decision ROI and Forecast Backtest remain fail-closed where their governed contract or minimum-data evidence is absent; no speculative schema was created.
-- SOURCE AUDIT → 32 page surfaces plus 7 shared shell/state components were checked for synthetic/reload/TODO/Coming-Soon markers requiring remediation; none found.
-- PROOF → current code candidate `6b6b3a10…` latest observed workflow state: 43 queued, 3 pending, 1 in-progress, 1 skipped; no terminal pass/failure. Earlier desktop-windows SUCCESS on `e7eb1074…` remains exact-SHA evidence only.
-- EXTERNAL → Vercel free-plan deployment-rate limit; device unavailable; production/browser/Phase-F proof not proven.
-- NEXT → consume first terminal current-candidate result, repair only the first reproducible root, then continue the next independent safe front.
+- UI COVERAGE → 8 canonical zones; 38/38 registry routes; eight-stage Product Journey; full canonical import lifecycle; post-import continuation; dynamic Master Data truth; source-bound Report Builder; shell/mobile contract coverage.
+- MASTER DATA → tenant-scoped canonical counts for customers/products/inventory/suppliers/warehouses/branches/categories, with loading/error/refresh and empty-source routing to unified import. No duplicate warehouse/branch route.
+- REPORT BUILDER → /reports?builder=1; session-scoped source-bound draft composed from the canonical snapshot; print isolation; existing report export path; no saved-template persistence claim.
+- CAPABILITY GATES → Playbooks, Benchmark, Decision ROI and Forecast Backtest remain fail-closed where governed contracts or minimum-data evidence are absent. No speculative backend schema was added.
+- PROOF → current code candidate `a8227b8f…` has no materialized workflow result yet. Earlier desktop-windows SUCCESS on e7eb1074 remains exact-SHA evidence only. Vercel free-plan deployment-rate limit remains external.
+- NEXT → consume the first terminal result for `a8227b8f…`; repair only the first reproducible root, then continue the next safe independent front.
 ---
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / NON-DEVICE DEEP CLOSURE
