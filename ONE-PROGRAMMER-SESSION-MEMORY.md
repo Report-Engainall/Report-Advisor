@@ -1,5 +1,20 @@
 # RESUME TOKEN — 2026-09-27 / EXACT-CURRENT-MAIN IMPORT-TO-DECISION CHECKPOINT
 
+- MAIN HEAD BEFORE THIS DOCS WRITE → `3215c601f68aea214c8455f52d5f5c519074d7f1`
+- CURRENT FUNCTIONAL CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact head `f42d6f2b22004eb5213d2a4460975ce1a4c11c60`
+- EXECUTION RESULT → no duplicate Browser framework added because Playwright proof already exists in-repo and is exact-SHA-bound.
+- PLAYWRIGHT PROOF CONTRACT → exact checkout verification, Chromium install, exact-head build, Vite preview, full browser route sweep, screenshots, console/page/network/HTTP error capture, authenticated tenant resolution, A/B isolation, workspace persistence/reset, refresh persistence, logout, and artifact upload are already implemented.
+- PWA PROOF CONTRACT → existing PWA workflow proves service worker control, static cache, offline app-shell, and authenticated contract boundary.
+- LOCAL FALLBACK RESULT → Remote Desktop PC01 status is offline. Container system Chromium is installed, but local Playwright navigation to the public Netlify preview returned `net::ERR_BLOCKED_BY_ADMINISTRATOR`; no local browser result was counted.
+- DEPLOYMENT RESULT → Netlify check for `f42d6f2` is green at the status layer, but the associated deploy reported `Canceled build due to no content change`; this is not accepted as exact-head deployment proof.
+- EXACT FUNCTIONAL CI → last observed on `f42d6f2`: 47 queued, 2 skipped/completed, no terminal failures; current Vercel blocker remains external.
+- SOURCE/ROUTE RESULT → canonical import/security/tenant/decision audits found no reproducible current-SHA root failure; 37 nav paths map to 40 routes with no missing/duplicate navigation paths.
+- FREE-TOOLBOX RESULT → sampled duplicate basenames were not identical and no safe deletion was proven; nothing was deleted.
+- PRECISE STOP POINT → do not create another browser framework or speculate about free-toolbox cleanup. Reconcile #672 onto the newest main control-plane SHA, then consume the first terminal exact-head quality/enforcement/certification/browser result.
+- DO NOT REPEAT → TinyFish as the primary browser path when repository/CI/Remote Desktop tools are available; preview-as-production; stale PASS transfer; duplicate browser architecture; unproven deletion.
+
+# RESUME TOKEN — 2026-09-27 / EXACT-CURRENT-MAIN IMPORT-TO-DECISION CHECKPOINT
+
 - MAIN HEAD BEFORE THIS DOCS WRITE → `ae7fe0559aad8d0582f5564b705b0701169152a2`
 - CURRENT FUNCTIONAL CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact head `044de934621b6a535e238541b9233287ada83aa6`
 - ACTUAL EXECUTION → exact candidate tree was rebased as one direct-child commit of current main after each control-plane write; no alternate architecture created.
