@@ -516,4 +516,24 @@ assert.ok(reportsSurface.includes('طباعة'), 'reports must preserve a visibl
 assert.ok(trustEvidence.includes('Evidence Passport'), 'trust surface must expose the Evidence Passport capability');
 assert.ok(trustEvidence.includes('Snapshots / As-of'), 'trust surface must expose snapshot/as-of evidence semantics');
 assert.ok(canonicalImport.includes('01 · EVIDENCE') && canonicalImport.includes('05 · OUTCOME'), 'canonical import must expose the full post-import decision continuum');
+
+const appShell = fs.readFileSync('src/App.tsx', 'utf8');
+assert.ok(appShell.includes('href="#main-content"'), 'global shell must expose a keyboard skip link to the primary content');
+assert.ok(appShell.includes('id="main-content"'), 'global shell must expose a stable main-content target');
+assert.ok(appShell.includes('document.title ='), 'global shell must bind the browser title to canonical route context');
+assert.ok(appShell.includes('alertsUnavailable'), 'global shell must represent alert-source unavailability explicitly');
+assert.ok(appShell.includes('setAlertsUnavailable(true)'), 'alert retrieval failure must not be coerced into an empty alert list');
+
+const headerSurface = fs.readFileSync('src/components/Header.tsx', 'utf8');
+assert.ok(headerSurface.includes('alertsUnavailable ?'), 'header alert surface must distinguish unavailable data from an empty alert set');
+assert.ok(headerSurface.includes('لم يتم اعتبارها صفرًا'), 'header alert state must explicitly preserve fail-closed semantics');
+assert.ok(headerSurface.includes('إعادة الفحص'), 'header alert unavailability must expose a retry action');
+
+const dataTableSurface = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
+assert.ok(dataTableSurface.includes('gridTemplateColumns'), 'shared table loading must preserve column geometry');
+assert.ok(dataTableSurface.includes('تجهيز الصفوف والحقول'), 'shared table loading must expose an explicit loading context');
+
+const sharedStates = fs.readFileSync('src/components/ui/States.tsx', 'utf8');
+assert.ok(sharedStates.includes('role="status" aria-live="polite" className="ag-state ag-state-empty'), 'governed data-unavailable state must be announced to assistive technology');
+
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
