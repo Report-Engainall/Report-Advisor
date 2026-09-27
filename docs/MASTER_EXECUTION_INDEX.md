@@ -7,7 +7,7 @@
 - CURRENT VERIFIED SHA: `0b4f19fe7de377b57b2df7e70507bc32727568cc`
 - CURRENT EXECUTION/CANDIDATE SHA: `0e1bc7411217c642c18fdb49e50080dac931e80d`
 - BRANCH / PR: `exec/20260927-current-main-import-ui-finalize` / #667
-- CURRENT REPOSITORY HEAD: `0e1bc7411217c642c18fdb49e50080dac931e80d`
+- CURRENT REPOSITORY HEAD: `4a86e58a42451bdc55efd40e445f445b8f34b672`
 - CURRENT CODE/TEST CANDIDATE: `0e1bc7411217c642c18fdb49e50080dac931e80d`
 - ACTIVE EXECUTION FRONTS: FUNCTIONAL #667 | EXACT-HEAD PROOF | UI CONTINUITY | GOVERNANCE
 - FRONT-ID: `IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI`
@@ -19,7 +19,8 @@
 - OPEN BLOCKERS: Vercel free-plan build-rate limit; Phase-F restore target lacks `current_customer_company_id()`; device/production proof is unavailable because PC01 is offline. These do not block repository-only work.
 - REMAINING-WORK REGISTER: backup/restore and rollback/recovery runtime proof remains open until fresh exact-head Phase-F evidence is produced; repository contracts are source-level closed but live restore/RPO/RTO are not claimed.
 - NEXT EXECUTABLE ACTION: consume the first terminal gate on `0e1bc7411217c642c18fdb49e50080dac931e80d`; repair only the first reproducible current-SHA root.
-- CURRENT RESUME POINTER: 0e1bc7411217c642c18fdb49e50080dac931e80d → FRONT-ID IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI → NEXT EXECUTABLE ACTION: consume the first terminal gate on `0e1bc7411217c642c18fdb49e50080dac931e80d`; repair only the first reproducible current-SHA root.- NEXT INDEPENDENT ACTIONS: if CI remains running, continue safe cleanup/audit only where ownership and deletion lineage are proven; preserve the single canonical import/server/route paths.
+- CURRENT RESUME POINTER: 0e1bc7411217c642c18fdb49e50080dac931e80d → FRONT-ID IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI → NEXT EXECUTABLE ACTION: consume the first terminal gate on `0e1bc7411217c642c18fdb49e50080dac931e80d`; repair only the first reproducible current-SHA root.
+- NEXT INDEPENDENT ACTIONS: if CI remains running, continue safe cleanup/audit only where ownership and deletion lineage are proven; preserve the single canonical import/server/route paths.
 - DO NOT REPEAT: stale PASS transfer; stale candidate binding; duplicate importer/RPC/runner/route; client-side authority for server truth; preview-as-production; reopening closed roots without current-SHA evidence.
 - RESUME STATUS: ACTIVE / CURRENT-MAIN RECONCILED / EXACT-HEAD PROOF IN FLIGHT.
 - CHECKPOINT RULE: HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT.
