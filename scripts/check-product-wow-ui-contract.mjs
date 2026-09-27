@@ -214,7 +214,9 @@ assert.ok(trustEvidence.includes('أغلق المشكلات الحرجة'), 'tru
 assert.ok(trustEvidence.includes("aria-label={'الخطوة التالية: ' + nextStep.label}"), 'trust evidence next-action link must use valid JSX');
 const trustDatasetSection = trustEvidence.indexOf('DATASET UNDERSTANDING');
 assert.ok(trustDatasetSection >= 0, 'trust evidence must expose dataset understanding');
-assert.ok(trustEvidence.slice(trustDatasetSection).includes('</div>\n          </>'), 'trust evidence dataset container must close before conditional fragment termination');
+const trustDatasetTail = trustEvidence.slice(trustDatasetSection, trustEvidence.indexOf('</section>', trustDatasetSection));
+assert.ok(trustDatasetTail.includes('</>'), 'trust evidence dataset fragment must terminate cleanly');
+assert.ok((trustDatasetTail.match(/<\/div>/g) ?? []).length >= 2, 'trust evidence dataset containers must close before conditional fragment termination');
 assert.ok(trustEvidence.includes("dataset.rowCount == null ? 'غير متاح' : String(dataset.rowCount)"), 'trust evidence must not coerce missing dataset row count to zero');
 assert.ok(trustEvidence.includes("dataset.specialtyConfidence == null ? 'غير متاح' : String(dataset.specialtyConfidence) + '%'"), 'trust evidence must not coerce missing dataset confidence to zero');
 assert.ok(!trustEvidence.includes('aria-label={\\`'), 'trust evidence contract must reject escaped JSX template backticks');

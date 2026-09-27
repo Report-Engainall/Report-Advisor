@@ -1,15 +1,18 @@
-# CURRENT EXECUTION CHECKPOINT — 2026-09-28 / LIVE IMPORT BOUNDARY RECONCILIATION
+# RESUME TOKEN — 2026-09-28 / CURRENT EXACT-HEAD EXECUTION
 
-- FUNCTIONAL CODE SHA REMAINS → `a0a73ac2fb8f0221cd0c9e04054b44a7e5817b5b`.
-- CURRENT DOCUMENTATION HEAD → `b62942593271f19d96e6d4ea4e896a600ae3c4d2`.
-- STAGING PROJECT → `Report-Advisor-P0-2-Staging` / `fnqbvfuwbdpwvhcgzksl`.
-- LIVE IMPORT BOUNDARY READBACK → `import_finish_job(uuid,text,jsonb,text)` is SECURITY INVOKER, authenticated EXECUTE=true, anon=false; it enforces tenant match, terminal-state immutability, processed-row/completion consistency and guarded update.
-- LIVE CANONICAL COMMIT BOUNDARY → six-argument `import_commit_batch(..., p_import_job_id uuid)` is SECURITY DEFINER with `search_path=pg_catalog`, authenticated EXECUTE=true, anon=false; it checks `current_company_id`, tenant match, import-job binding, authoritative source hash, file security status, storage binding, source fingerprint, entity-type alignment, and idempotent commit locking.
-- LEGACY FIVE-ARG IMPORT COMMIT → SECURITY DEFINER but authenticated EXECUTE=false and anon=false; it is therefore not the client entry point.
-- LIVE RLS RESCAN → all inspected public import/business/evidence/decision tables remain RLS-enabled.
-- SECURITY ADVISOR → 40 authenticated SECURITY DEFINER warnings remain in staging; this is a broad historical/legacy surface and no blanket revoke is performed. Canonical import/tenant boundaries are handled separately.
-- DO NOT REPEAT → do not treat Advisor warnings as proof of a specific vulnerability without source/grant reconciliation; do not mutate broad SECURITY DEFINER surface; do not transfer staging readback into production certification.
-- NEXT → consume fresh exact-head CI/certification/browser results; any new failure must be repaired against its exact SHA only.
+- CURRENT REPOSITORY HEAD → `ebc60e9be6ef7605a4469e6e6b150659edf927f8`
+- CURRENT CODE/TEST CANDIDATE → `ebc60e9be6ef7605a4469e6e6b150659edf927f8`
+- FUNCTIONAL CODE FRONT → `c8dca7badd8115739cbb69aaac564d60ff04dcfe`
+- MAIN CONTROL HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`
+- ACTIVE EXECUTION FRONTS → browser/certification exact-head evidence; import/decision regression; security/data rescan; cleanup/deletion-gate audit.
+- OPEN BLOCKERS → Vercel free-plan deployment-rate limit; authenticated hosted/browser certification remains unproven until an exact-head terminal browser/certification gate succeeds.
+- LAST PROVEN → execution-enforcement + adversarial governance PASS; knowledge-architecture PASS; import-transaction + canonical-import-mapping PASS; product-wow-ui PASS; typecheck PASS; production build PASS (2802 modules) on the current local branch head.
+- LAST FAILED → stale/brittle product-wow UI contract assertion; live memory lacked mandatory resume anchors. Both roots are now repaired locally.
+- NEXT EXECUTABLE ACTION → commit the repaired contracts/memory, re-run the targeted proof on the resulting SHA, then execute the repository's existing Playwright browser proof and consume fresh exact-head CI.
+- NEXT INDEPENDENT ACTIONS → route/state/UI rescan; import/runtime regression; security/RLS readback; cleanup/deletion-gate scan.
+- DO NOT REPEAT → stale SHA evidence; duplicate browser frameworks; preview-as-production; broad SECURITY DEFINER revokes without a reproduced boundary defect; deletion without Manifest/reference proof.
+- STABLE LIVE IMPORT BOUNDARY → `import_finish_job(uuid,text,jsonb,text)` remains SECURITY INVOKER; six-argument `import_commit_batch(..., p_import_job_id uuid)` remains the deliberate SECURITY DEFINER commit boundary with tenant/source/storage checks.
+- RESUME POINTER → continue from this exact block; do not restart historical phases.
 
 ---
 # CURRENT EXECUTION CHECKPOINT — 2026-09-28 / CURRENT-SHA SCENARIO GATE CLOSURE
