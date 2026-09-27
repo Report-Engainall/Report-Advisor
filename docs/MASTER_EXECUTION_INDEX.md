@@ -3,15 +3,16 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CODE CANDIDATE → `e44118c8bc25f47ac485a88b3abe9ec15617c5c1`
+- CURRENT EXECUTION/CODE CANDIDATE → `7dcceb5b70ba4fe5056a0bb1317257a5b977fc85`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - IMPORT CONTINUITY → Import → Trust/Evidence → Signals → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- CORE CLOSURE → purchase invoice multi-line identity now uses physical row identity and is protected by regression tests.
-- UI CLOSURE → Evidence Passport AS OF; Replay AS OF/read-window/refresh; Decision imported-source AS OF; localized specialty/entity labels.
-- CURRENT PROOF → no terminal current-SHA CI failure; fresh checks not terminalized. Vercel remains external build-rate-limit.
+- CORE CLOSURE → server request validation now accepts products/customers/sales_invoices/purchase_invoices/suppliers/inventory_balances/payments + generic entities; shared canonical runner remains authoritative.
+- CONTRACT CLOSURE → check-canonical-import-mapping now guards all seven typed server entities.
+- UI CLOSURE → purchase-line identity, Evidence AS OF, Replay AS OF/read-window/refresh, Decision AS OF, customer-facing specialty/entity labels.
+- CURRENT PROOF → no terminal current-SHA CI failure; Vercel external build-rate-limit remains separate; local DNS execution unavailable.
 - PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback remains environment evidence.
-- NEXT → consume first terminal current-SHA workflow; fix only root; then rescan route/contracts and stale fronts.
+- NEXT → consume first terminal current-SHA workflow; fix only current-SHA root; then final route/contract rescan and cleanup gates.
 ---
 
 
