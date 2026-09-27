@@ -321,7 +321,6 @@ export function DecisionExperiencePage() {
     setStage(safeRequestedStage);
   }, [requestedStage, importJobId, sourceSnapshot]);
 
-  const selected = recommendations.find((item) => item.id === selectedId) ?? null;
   const currentStageIndex = Math.max(0, STAGES.findIndex((item) => item.id === stage));
   const activeAlerts = useMemo(() => alerts.filter((item) => !item.is_read).slice(0, 6), [alerts]);
   const selectedStatus = selected?.status ?? null;

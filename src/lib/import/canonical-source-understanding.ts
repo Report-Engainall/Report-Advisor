@@ -76,6 +76,7 @@ type CanonicalWriteFields = Record<Exclude<CanonicalImportSpecialty, 'inventory'
 
 const CANONICAL_WRITE_FIELDS: CanonicalWriteFields = {
   sales: ['invoice_number', 'invoice_date', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'],
+  purchases: ['invoice_number', 'invoice_date', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'],
   customers: ['name', 'segment', 'credit_limit', 'payment_terms_days'],
   products: ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active'],
 };

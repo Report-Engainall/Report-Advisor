@@ -199,7 +199,7 @@ export function WorkCenterPage() {
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Link to={"/decision-experience?stage=work&recommendationId=" + encodeURIComponent(item.recommendation_id ?? '')} className="btn-ghost text-[10px]">فتح السياق</Link>
-                  {item.evidence_refs[0]?.import_job_id && <Link to={"/trust?import=" + encodeURIComponent(String(item.evidence_refs[0].import_job_id))} className="btn-ghost text-[10px]">فتح Evidence Passport</Link>}
+                  {typeof item.evidence_refs[0]?.import_job_id === 'string' && <Link to={"/trust?import=" + encodeURIComponent(item.evidence_refs[0].import_job_id)} className="btn-ghost text-[10px]">فتح Evidence Passport</Link>}
                   {item.status === 'OPEN' && <button type="button" onClick={() => void startWorkItem(item.id)} disabled={startingWorkItemId === item.id} className="btn-primary text-[10px] disabled:opacity-60">{startingWorkItemId === item.id ? 'جارٍ البدء...' : 'بدء التنفيذ'}</button>}
                   {item.status === 'IN_PROGRESS' && <span className="inline-flex items-center rounded-xl bg-primary-50 px-3 py-2 text-[10px] font-black text-primary-700">قيد التنفيذ</span>}
                   {item.status === 'COMPLETED' && <span className="inline-flex items-center rounded-xl bg-success-50 px-3 py-2 text-[10px] font-black text-success-700">مكتمل</span>}
