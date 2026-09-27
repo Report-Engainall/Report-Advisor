@@ -1,3 +1,20 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT-FINISH STAGING DRIFT RECONCILED
+
+- CANONICAL MAIN HEAD BEFORE THIS WRITE → `6f1d818f60a700b07a13b0163ddfc20dce0f2a57`
+- CURRENT CODE/TEST CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `9aa6c8ccea82b20d949ae2e41fdad2f1b1126631`
+- FRONT → IMPORT-TO-DECISION-CONTINUITY / SECURITY-RUNTIME-RECONCILIATION
+- ROOT CAUSE → live staging had `import_finish_job(uuid,text,jsonb,text)` as SECURITY DEFINER because an applied historical migration was absent from the candidate repository lineage.
+- IMPLEMENTED → candidate adds `20260927235000_reconcile_import_finish_job_security_invoker.sql` which preserves the function body and restores SECURITY INVOKER, safe search_path, and explicit authenticated/service_role EXECUTE.
+- LIVE PROOF → Supabase staging `fnqbvfuwbdpwvhcgzksl` applied migration `20260927203948_reconcile_import_finish_job_security_invoker` successfully; readback shows no SECURITY DEFINER clause and EXECUTE only for authenticated/postgres/service_role.
+- RELATED PROOF → canonical six-argument `import_commit_batch` remains SECURITY DEFINER with source/tenant checks; authenticated/service_role execution is present and public/anon execution is absent. Canonical import tables are RLS-enabled.
+- SECURITY RESCAN → 46 historical authenticated SECURITY DEFINER advisor warnings remain outside this exact import boundary; no blanket or speculative revoke.
+- HOSTING/DEVICE → exact candidate Netlify deploy `6ab97f10fb0f09000849973a` is STATE=error (no content change); Vercel is externally rate-limited; PC01 remains offline. No hosted/browser/device PASS.
+- GATE STATE → fresh workflows for `9aa6c8c` have not appeared yet; current Vercel status is pending, Netlify commit status success but authoritative deploy error, CodeRabbit success. Certification remains NOT PROVEN.
+- DO NOT REPEAT → do not mutate broad Security Advisor findings; do not count Netlify status as deployment PASS; do not transfer old candidate evidence.
+- NEXT EXECUTABLE ACTION → consume fresh exact-`9aa6c8c` gates, repair only the first current-SHA reproducible failure, then rescan UI/core/security/cleanup fronts.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / EXACT-CANDIDATE EVIDENCE BOUNDARY UPDATE
 
 - MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `924dc7c327d7c444bbe6ad6e436616014e58283d`
