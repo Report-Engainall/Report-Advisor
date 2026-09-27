@@ -87,12 +87,12 @@ export function IntelligenceCenterPage() {
     [forecasts],
   );
 
-  const decideRecommendation = useCallback(async (recommendationId: string, status: 'accepted' | 'rejected') => {
+  const rejectRecommendation = useCallback(async (recommendationId: string) => {
     if (decisionId) return;
     try {
       setDecisionId(recommendationId);
       setError(null);
-      await updateRecommendationStatus(recommendationId, status);
+      await updateRecommendationStatus(recommendationId, 'rejected');
       await load(true);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحديث حالة التوصية.');
@@ -242,23 +242,22 @@ export function IntelligenceCenterPage() {
                         <div className="mt-2 text-[10px] font-bold text-success-700">الأثر المتوقع: {formatCurrency(recommendation.expected_impact)}</div>
                       )}
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => void decideRecommendation(recommendation.id, 'accepted')}
-                          disabled={decisionId !== null}
-                          className="btn-primary text-[11px] disabled:cursor-wait disabled:opacity-60"
+                        <Link
+                          to={"/decision-experience?stage=decision&recommendationId=" + encodeURIComponent(recommendation.id)}
+                          className="btn-primary text-[11px]"
                         >
-                          <CheckCircle2 size={13} /> {decisionId === recommendation.id ? 'جارٍ الحفظ…' : 'قبول'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => void decideRecommendation(recommendation.id, 'rejected')}
-                          disabled={decisionId !== null}
-                          className="btn-secondary text-[11px] disabled:cursor-wait disabled:opacity-60"
-                        >
-                          <XCircle size={13} /> {decisionId === recommendation.id ? 'جارٍ الحفظ…' : 'رفض'}
-                        </button>
-                        <Link to="/decision-experience?stage=decision" className="btn-ghost text-[11px]">فتح القرار</Link>
+                          <CheckCircle2 size={13} /> فتح مسار القرار
+                        </Link>
+                        {(recommendation.status === 'OPEN' || recommendation.status === 'new') && (
+                          <button
+                            type="button"
+                            onClick={() => void rejectRecommendation(recommendation.id)}
+                            disabled={decisionId !== null}
+                            className="btn-secondary text-[11px] disabled:cursor-wait disabled:opacity-60"
+                          >
+                            <XCircle size={13} /> {decisionId === recommendation.id ? 'جارٍ الرفض…' : 'رفض'}
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
