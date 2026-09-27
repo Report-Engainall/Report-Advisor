@@ -301,6 +301,7 @@ export default async (request: Request): Promise<Response> => {
       authoritativePreview: sourceUnderstanding.rows.slice(0, 25),
       sourceSpecialty: sourceUnderstanding.specialty,
       sourceSpecialtyConfidence: sourceUnderstanding.specialtyConfidence,
+      authoritativeEntityType,
       datasetCount: sourceUnderstanding.datasetCount,
       datasetSummaries: sourceUnderstanding.datasets,
       sourceWarnings: sourceUnderstanding.warnings,
