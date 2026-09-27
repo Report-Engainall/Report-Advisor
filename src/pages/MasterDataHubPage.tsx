@@ -122,7 +122,7 @@ export function MasterDataHubPage() {
           const count = countKey ? counts[countKey] : null;
           const hasData = count !== null && count > 0;
           return (
-            <Link key={path} to={path} className="group">
+            <Link key={path} to={count === 0 ? '/import' : path} className="group">
               <Card className="h-full transition hover:-translate-y-1 hover:border-primary-300">
                 <CardBody>
                   <div className="flex items-start justify-between gap-3">
@@ -150,7 +150,7 @@ export function MasterDataHubPage() {
               <div key={title} className="rounded-2xl border border-ink-100 bg-ink-50/45 p-4">
                 <div className="flex items-center justify-between gap-3"><div className="flex items-center gap-2"><Icon size={18} className="text-primary-700"/><span className="text-sm font-black text-ink-900">{title}</span></div><span className={value > 0 ? 'rounded-full bg-success-50 px-2.5 py-1 text-[9px] font-black text-success-700' : 'rounded-full bg-warning-50 px-2.5 py-1 text-[9px] font-black text-warning-800'}>{value > 0 ? 'VERIFIED' : 'INSUFFICIENT DATA'}</span></div>
                 <p className="mt-2 text-[11px] leading-5 text-ink-600">{detail}</p>
-                <Link to="/inventory" className="mt-3 inline-flex min-h-11 items-center gap-1.5 text-[10px] font-black text-primary-700">{value > 0 ? 'عرض سياق المخزون' : 'ابدأ من الاستيراد'} <ArrowLeft size={13}/></Link>
+                <Link to={value > 0 ? '/inventory' : '/import'} className="mt-3 inline-flex min-h-11 items-center gap-1.5 text-[10px] font-black text-primary-700">{value > 0 ? 'عرض سياق المخزون' : 'ابدأ من الاستيراد'} <ArrowLeft size={13}/></Link>
               </div>
             ))}
           </CardBody>
