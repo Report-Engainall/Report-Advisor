@@ -1,19 +1,19 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CANDIDATE SHA → `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`
+- CURRENT EXECUTION/CANDIDATE SHA → `4644a9b2306b70bcf3283c29c0913719ac599e7c`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- ACTUAL RESULT → explicit post-import Evidence → Signals → Decision → Work → Replay continuity is present; Evidence Passport now also exposes the stored Snapshot AS OF timestamp with its provenance meaning. Existing routes/components are reused.
-- CODE MUTATION → UI `b990a7830375336d2651a3668d69f8914a7a0943`; contract guard `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`.
-- PROOF → current exact head is source-verified; fresh CI is required on `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`. No stale PASS transferred.
+- ACTUAL RESULT → post-import continuity and Evidence Passport As-Of disclosure are complete; Business Replay now exposes explicit refresh plus AS-OF snapshot/outcome and read-window context. No new importer/RPC/runner was introduced.
+- CODE / CONTRACT MUTATIONS → Trust UI `b990a7830375336d2651a3668d69f8914a7a0943`; Trust contract `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`; Replay UI `4cd74e8118bc490b551e2cee2f8c413cf65d37fa4`; Replay contract `4644a9b2306b70bcf3283c29c0913719ac599e7c`.
+- PROOF → current branch head is source-verified; fresh CI for `4644a9b2…` has not terminalized yet. No PASS transfer.
 - OPEN BLOCKERS → Vercel free-plan build-rate limit; authenticated production/browser/Phase-F certification remains environment-bound; device unavailable.
-- FIRST FAILURE → none terminalized at this exact candidate checkpoint.
-- NEXT EXECUTABLE ACTION → consume first terminal workflow result for `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`; repair only the first current-SHA root.
-- NEXT INDEPENDENT ACTIONS → continue targeted post-import truth/readback UI hardening and safe stale-front cleanup only after overlap/reference proof.
-- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, preview-as-production, parse/preview as completion, or downstream VERIFIED claims from navigation alone.
-- RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD UI+CORE PROOF IN FLIGHT
+- FIRST FAILURE → none terminalized at this exact candidate.
+- NEXT EXECUTABLE ACTION → consume the first terminal workflow result on `4644a9b2306b70bcf3283c29c0913719ac599e7c`; repair only that current-SHA root.
+- NEXT INDEPENDENT ACTIONS → route/contract rescan and safe stale-front reconciliation while CI runs.
+- DO NOT REPEAT → stale SHA evidence, duplicate importer/RPC/runner, preview-as-production, or downstream VERIFIED claims from links alone.
+- RESUME STATUS → ACTIVE / PR #671 / UI + CORE EXACT-HEAD PROOF IN FLIGHT
 ---
 
 
