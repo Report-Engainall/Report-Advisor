@@ -389,11 +389,18 @@ export function RecommendationsPage() {
   const counts = useMemo(() => ({
     all: items.length,
     actionable: items.filter((item) => isActionableRecommendationStatus(item.status)).length,
+    open: items.filter((item) => item.status === 'OPEN').length,
+    approved: items.filter((item) => item.status === 'approved' || item.status === 'accepted').length,
+    inProgress: items.filter((item) => item.status === 'in_progress').length,
     rejected: items.filter((item) => item.status === 'rejected').length,
     withImpact: items.filter((item) => item.expected_impact !== null || item.impact_result !== null).length,
   }), [items]);
 
-  const visibleItems = filter === 'all' ? items : items.filter((item) => item.status === filter);
+  const visibleItems = filter === 'all'
+    ? items
+    : filter === 'actionable'
+      ? items.filter((item) => isActionableRecommendationStatus(item.status))
+      : items.filter((item) => item.status === filter);
 
   const handleStatus = async (id: string, status: 'accepted' | 'rejected') => {
     try {
@@ -429,8 +436,9 @@ export function RecommendationsPage() {
 
       <SummaryStrip cells={[
         { label: 'إجمالي التوصيات', value: counts.all, note: 'السجل المتاح حاليًا' },
-        { label: 'بانتظار المراجعة', value: counts.new, note: 'حالة جديدة' },
-        { label: 'مقبولة', value: counts.accepted, note: 'قرار مراجعة مسجل' },
+        { label: 'جاهزة للقرار', value: counts.open, note: 'OPEN من المصدر الكانوني' },
+        { label: 'معتمدة', value: counts.approved, note: 'بعد مسار القرار' },
+        { label: 'قيد التنفيذ', value: counts.inProgress, note: 'بعد اعتماد القرار' },
         { label: 'مرتبطة بأثر', value: counts.withImpact, note: 'أثر متوقع أو نتيجة مسجلة' },
       ]}/>
 
@@ -440,7 +448,7 @@ export function RecommendationsPage() {
           subtitle={visibleItems.length + ' من ' + items.length + ' توصية'}
           action={
             <div className="flex flex-wrap gap-1.5">
-              {([['all','الكل'],['new','الجديدة'],['accepted','المقبولة'],['rejected','المرفوضة']] as const).map(([key, label]) => (
+              {([['all','الكل'],['actionable','قابلة للقرار'],['approved','معتمدة'],['in_progress','قيد التنفيذ'],['rejected','المرفوضة']] as const).map(([key, label]) => (
                 <button key={key} type="button" onClick={() => setFilter(key)} className={filter === key ? 'rounded-full bg-ink-950 px-3 py-1.5 text-[10px] font-bold text-white' : 'rounded-full bg-ink-50 px-3 py-1.5 text-[10px] font-bold text-ink-600 hover:bg-ink-100'}>
                   {label} ({counts[key]})
                 </button>
@@ -462,7 +470,7 @@ export function RecommendationsPage() {
                         <h2 className="text-[14px] font-black text-ink-900">{item.title}</h2>
                         <ConfidenceBadge confidence={item.confidence}/>
                         <span className="rounded-full bg-ink-50 px-2.5 py-1 text-[10px] font-bold text-ink-600">{priorityLabel(item.priority)}</span>
-                        <span className={item.status === 'new' ? 'rounded-full bg-warning-50 px-2.5 py-1 text-[10px] font-bold text-warning-800' : item.status === 'accepted' ? 'rounded-full bg-success-50 px-2.5 py-1 text-[10px] font-bold text-success-700' : 'rounded-full bg-ink-50 px-2.5 py-1 text-[10px] font-bold text-ink-500'}>
+                        <span className={item.status === 'OPEN' || item.status === 'new' ? 'rounded-full bg-warning-50 px-2.5 py-1 text-[10px] font-bold text-warning-800' : item.status === 'approved' || item.status === 'accepted' ? 'rounded-full bg-success-50 px-2.5 py-1 text-[10px] font-bold text-success-700' : item.status === 'in_progress' ? 'rounded-full bg-primary-50 px-2.5 py-1 text-[10px] font-bold text-primary-700' : 'rounded-full bg-ink-50 px-2.5 py-1 text-[10px] font-bold text-ink-500'}>
                           {recommendationStatusLabel(item.status)}
                         </span>
                       </div>
