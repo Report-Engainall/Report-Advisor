@@ -549,3 +549,13 @@
 - VERCEL → exact-head failure / build-rate-limit; external hosting blocker.
 - CORE → per-dataset typed canonical inference hardening is on the current functional branch and protected by the existing import contract.
 - NEXT → consume the first terminal mandatory gate; do not transfer this deployment proof to production or to another SHA.
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / PRODUCTION SHA MISMATCH READBACK
+
+- FUNCTIONAL CANDIDATE → PR #662 / `b081c3f5d8c7ca4879c41f16cada76f0c5c66f00`.
+- EXACT PREVIEW PROOF → Netlify SUCCESS + Cloudflare SUCCESS on `b081c3f`.
+- VERCEL PRODUCTION → READY deployment `dpl_2mYGpzpzdgQdJsEJFy6FzKHaWFja` aliases `report-advisor.vercel.app` but is bound to main SHA `47502385cd999d1151360e30f47855360659b055`, not `b081c3f`.
+- RELEASE IMPLICATION → functional production exact-SHA identity is NOT PROVEN. Do not use the current READY production deployment as evidence for the functional candidate.
+- MANDATORY CI → certification `36326239773` / job `108639438409` and enforcement `36326239775` / job `108639438487` remain queued.
+- GOVERNANCE → broad-push coverage remains intentional per `check-ci-execution-topology.mjs`; no queue-clearing trigger weakening was introduced.
+- NEXT → first terminal mandatory gate on `b081c3f`, then authorized release identity/Phase-F path. No production SHA bypass.
