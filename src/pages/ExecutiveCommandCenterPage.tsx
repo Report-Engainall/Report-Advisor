@@ -246,7 +246,7 @@ export function ExecutiveCommandCenterPage() {
             <div className="rounded-lg bg-ink-50 p-2"><div className="text-[8px] text-ink-400">تغطية المالك</div><div className="mt-1 text-[13px] font-black text-ink-900">{decisionAccountability.ownerCoverage == null ? 'غير متاح' : decisionAccountability.ownerCoverage + '%'}</div></div>
             <div className="rounded-lg bg-ink-50 p-2"><div className="text-[8px] text-ink-400">تغطية النتيجة</div><div className="mt-1 text-[13px] font-black text-ink-900">{decisionAccountability.outcomeCoverage == null ? 'غير متاح' : decisionAccountability.outcomeCoverage + '%'}</div></div>
           </div>
-          <p className="mt-2 text-[9px] leading-4 text-ink-500">مقياسان منفصلان من توصيات قابلة للتنفيذ؛ لا يتم دمجهما في درجة مخترعة.</p>
+          <p className="mt-2 text-[9px] leading-4 text-ink-500">مقياسان منفصلان من توصيات قابلة للتنفيذ ضمن القراءة الحالية؛ لا يتم دمجهما في درجة مخترعة.</p>
         </div>
         <Link to="/decision-experience?stage=outcome" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><CheckCircle2 size={18} className="text-primary-700"/><span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-black text-primary-700">مسار القرار</span></div>
