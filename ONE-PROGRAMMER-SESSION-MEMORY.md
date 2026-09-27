@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-27 / MULTI-DATASET RESULT SURFACE
+
+- SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-04`.
+- CURRENT EXECUTION CANDIDATE → `211171ab8bb57de877ef4a183f37ef90921328b3`.
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT`.
+- ACTUAL RESULT → post-import result now renders the server-persisted dataset summaries with specialty, specialty confidence, row count, column count, and quality; missing values remain explicit `غير متاح`.
+- RETAINED CONTINUITY → Evidence, Work Center, Data Quality, Decision, and actionable import history remain connected by the same persisted import ID.
+- PROOF → exact repository mutation verified. Contract already contains the dataset-understanding guard. No current-head CI/browser PASS.
+- FIRST FAILURE → none reproduced.
+- OPEN BLOCKERS → PC01 offline; exact browser/local runtime proof unavailable; Vercel build-rate-limit is external.
+- NEXT EXECUTABLE ACTION → consume exact-head CI when materialized; then continue the next independent surface/core front without reopening this closure.
+- DO NOT REPEAT → stale PASS transfer, duplicate import path, silent multi-dataset handling, unknown-to-zero coercion.
+- RESUME STATUS → ACTIVE / NOT PROVEN.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / IMPORT HISTORY ACTIONABILITY
 
 - SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-03`.
