@@ -1,6 +1,7 @@
-﻿name: Full Product Browser E2E
+name: Full Product Browser E2E
 
-# Exact-head browser discovery gate. Push and PR triggers remain narrowly scoped to E2E/runtime surfaces.
+# Exact-head browser discovery and proof gate.
+# Uses the repository's existing Playwright runner; no duplicate browser framework is introduced.
 on:
   push:
     paths:
@@ -8,7 +9,6 @@ on:
       - 'scripts/real-business-e2e.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
-      - 'src/pages/**'
       - 'src/pages/**'
       - 'src/lib/dashboard-canonical.ts'
       - 'src/lib/kpi-evidence.ts'
@@ -31,6 +31,7 @@ on:
       - 'scripts/real-business-e2e.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
+      - 'src/pages/**'
       - 'src/lib/dashboard-canonical.ts'
       - 'src/lib/kpi-evidence.ts'
       - 'src/lib/semantic-metric-service.ts'
@@ -62,6 +63,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+
       - name: Verify exact checkout
         shell: bash
         run: |
@@ -70,3 +72,97 @@ jobs:
           expected="${EXACT_HEAD}"
           test "$actual" = "$expected"
           test -z "$(git status --porcelain)"
+          echo "EXACT_HEAD=$actual"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install repository dependencies
+        run: npm ci
+
+      - name: Install Playwright runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save --package-lock=false playwright
+          npx playwright install --with-deps chromium
+
+      - name: Build web application
+        run: npm run build
+
+      - name: Start Vite preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/report-advisor-vite.log 2>&1 &
+          echo $! > /tmp/report-advisor-vite.pid
+
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error http://127.0.0.1:4173/ >/dev/null; then
+              echo "Vite preview is ready on 127.0.0.1:4173"
+              exit 0
+            fi
+            sleep 2
+          done
+
+          cat /tmp/report-advisor-vite.log
+          exit 1
+
+      - name: Run repository Playwright browser proof
+        id: browser-proof
+        shell: bash
+        env:
+          E2E_BASE_URL: http://127.0.0.1:4173
+          E2E_REPORT_DIR: artifacts/e2e
+          TEST_USER_A_EMAIL: ${{ secrets.TEST_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.TEST_USER_A_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.TEST_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.TEST_USER_B_PASSWORD }}
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          EXACT_HEAD: ${{ env.EXACT_HEAD }}
+        run: |
+          set +e
+          mkdir -p artifacts/e2e
+          node scripts/run-full-product-browser-e2e.mjs
+          status=$?
+          echo "PLAYWRIGHT_EXIT_CODE=$status" | tee artifacts/e2e/exit-code.txt
+
+          case "$status" in
+            0)
+              echo "Playwright browser proof completed with PASS."
+              exit 0
+              ;;
+            2)
+              echo "Playwright browser proof reached the runner but authenticated evidence is BLOCKED by missing runtime access/secrets."
+              exit 0
+              ;;
+            *)
+              echo "Playwright browser proof found a reproducible test/harness failure."
+              exit "$status"
+              ;;
+          esac
+
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-advisor-browser-evidence-${{ github.run_id }}
+          path: |
+            artifacts/e2e
+            /tmp/report-advisor-vite.log
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Stop Vite preview
+        if: always()
+        shell: bash
+        run: |
+          if [ -f /tmp/report-advisor-vite.pid ]; then
+            kill "$(cat /tmp/report-advisor-vite.pid)" 2>/dev/null || true
+          fi
