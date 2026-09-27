@@ -158,7 +158,10 @@ assert.ok(reportsSurface.includes('القيم غير المتاحة تبقى غ�
 const canonicalImport = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
 assert.ok(canonicalImport.includes('role="list" aria-label="مراحل الاستيراد"'), 'canonical import stepper must expose a semantic list boundary');
 assert.ok(canonicalImport.includes('aria-current={active ? \'step\' : undefined}'), 'canonical import must expose the active step to assistive technology');
-assert.ok(canonicalImport.includes('CANONICAL_LIFECYCLE'), 'canonical import result must expose the full post-upload lifecycle surface');assert.ok(canonicalImport.includes('total: authoritativeRowCount'), 'canonical import result must render authoritative server row count');
+assert.ok(canonicalImport.includes('CANONICAL_LIFECYCLE'), 'canonical import result must expose the full post-upload lifecycle surface');
+assert.ok(canonicalImport.includes('id="post-import-journey"'), 'canonical import result must expose the post-import journey after file approval');
+assert.ok(canonicalImport.includes('01 · EVIDENCE') && canonicalImport.includes('02 · SIGNALS') && canonicalImport.includes('03 · DECISION') && canonicalImport.includes('04 · WORK') && canonicalImport.includes('05 · OUTCOME'), 'post-import journey must expose evidence → signals → decision → work → outcome sequence');
+assert.ok(canonicalImport.includes('ماذا بعد سحب الملف؟'), 'post-import journey must answer the next-step question explicitly');assert.ok(canonicalImport.includes('total: authoritativeRowCount'), 'canonical import result must render authoritative server row count');
 
 assert.ok(canonicalImport.includes('specialtyLabel'), 'canonical import must present typed business specialties with customer-facing labels');
 assert.ok(canonicalImport.includes('entityLabel'), 'canonical import must present canonical entity types with customer-facing labels');
