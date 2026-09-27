@@ -2,6 +2,9 @@ import fs from 'node:fs';
 
 const app = fs.readFileSync('src/App.tsx', 'utf8');
 const sidebar = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
+assert.ok(app.includes('<Route path="/import/analyze" element={<Navigate to="/import" replace />} />'), 'document analysis entry must resolve to the unified import surface rather than a duplicate importer');
+assert.ok(!app.includes('ExternalFileAnalysisPage'), 'retired external file analysis page must not remain wired into the application shell');
+
 const registry = fs.readFileSync('src/lib/navigation-registry.ts', 'utf8');
 
 const routePaths = [...app.matchAll(/<Route\s+path=["']([^"']+)["']/g)].map((m) => m[1]);
