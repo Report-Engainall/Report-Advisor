@@ -1,6 +1,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / ACTIVE FUNCTIONAL FRONT
 
 > Exact-head startup boundary. Historical entries below are evidence only and cannot override this block.
+> This top block is the only startup boundary. Entries below are historical evidence and MUST NOT override it.
 
 - SESSION-ID: `20260927-EXEC-667`
 - CURRENT VERIFIED SHA: `0b4f19fe7de377b57b2df7e70507bc32727568cc`

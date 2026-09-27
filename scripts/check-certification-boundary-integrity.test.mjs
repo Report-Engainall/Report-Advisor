@@ -27,3 +27,10 @@ assert.throws(() => validateCertificationBoundary({ index, head: child, parent: 
 assert.throws(() => validateCertificationBoundary({ index, head: child, parent: '0'.repeat(40), changedFiles: ['.github/workflows/final-certification-gate.yml'] }), /not an ancestor/);
 
 console.log('PASS certification-boundary Test-of-Test: exact candidate, governed-only ancestry, source mutation rejection, and ancestry spoof rejection are covered.');
+
+const liveMasterIndex = fs.readFileSync('docs/MASTER_EXECUTION_INDEX.md', 'utf8');
+const liveCandidate = liveMasterIndex.match(/CURRENT CODE\/TEST CANDIDATE\s*:\s*`([0-9a-f]{40})`/i)?.[1];
+assert.ok(liveCandidate, 'live Master Execution Index must expose a parser-compatible current code/test candidate');
+const liveChangedFiles = execFileSync('git', ['diff', '--name-only', liveCandidate, currentHead], { encoding: 'utf8' }).trim().split('\\n').filter(Boolean);
+assert.doesNotThrow(() => validateCertificationBoundary({ index: liveMasterIndex, head: currentHead, parent: parentHead, changedFiles: liveChangedFiles }));
+console.log('PASS certification-boundary live-index fixture: startup marker, exact candidate parsing, ancestry and governance allowlist are wired to the repository state.');
