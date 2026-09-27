@@ -276,3 +276,18 @@
 - NEXT EXECUTABLE ACTION → consume the first terminal mandatory gate. If queues persist, continue only independently provable repository-safe work and keep all runtime claims exact-SHA-bound.
 - DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; speculative production/Phase-F bypass.
 - RESUME STATUS → ACTIVE / DEPLOYMENT PROOF REFRESHED / IMPORT CORE + UI HARDENED / MANDATORY CI QUEUED.
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-155
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-155`.
+- CURRENT DOCUMENTATION SHA BEFORE WRITE → `496c51b6b642b24cbf1eac4763aa41d39e77a032`.
+- CURRENT FUNCTIONAL HEAD → PR #662 / `exec/20260927-import-full-lifecycle` / `b081c3f5d8c7ca4879c41f16cada76f0c5c66f00`.
+- CURRENT PROOF → exact functional HEAD has Netlify deploy-preview SUCCESS and Cloudflare Pages SUCCESS; public readback of Netlify preview confirms real الأغبري identity/company isolation gate and Evidence-first positioning.
+- PRODUCTION IDENTITY READBACK → Vercel production deployment `dpl_2mYGpzpzdgQdJsEJFy6FzKHaWFja` is READY and aliases `report-advisor.vercel.app`, but its GitHub SHA is `47502385cd999d1151360e30f47855360659b055`, not the functional HEAD `b081c3f5d8c7ca4879c41f16cada76f0c5c66f00`. Therefore production exact-SHA proof for the functional candidate is NOT PROVEN.
+- CURRENT VERCEL FUNCTIONAL STATUS → the functional candidate still reports `failure / build-rate-limit`; a READY production deployment exists only for the newer documentation-only main descendant. This does not close the functional release boundary.
+- MANDATORY CI → `certification-contracts` run `36326239773` / job `108639438409` and `enforcement-contract` run `36326239775` / job `108639438487` remain QUEUED with no logs or terminal conclusion.
+- GOVERNANCE → CI topology contract intentionally requires the two governance workflows to retain broad push coverage; no trigger weakening was applied merely to reduce queue pressure.
+- OPEN BLOCKERS → queued GitHub runners; Vercel functional deployment rate limit; PC01 offline; authenticated browser E2E, production exact-SHA resilience, rollback/restore/RPO/RTO, and Phase-F remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume the first terminal mandatory gate on `b081c3f`; then reconcile the governance lane. Do not promote the current production docs-only deployment as functional proof.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; production SHA bypass; duplicate importer/navigation/RPC/runner; broad-push workflow weakening solely to clear queue pressure.
+- RESUME STATUS → ACTIVE / IMPORT CORE HARDENED / EXACT-HEAD DEPLOYMENT PROVEN / RELEASE IDENTITY STILL OPEN.
