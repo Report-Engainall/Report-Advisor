@@ -5,7 +5,7 @@ import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
-import { fetchDashboardIntelligence, fetchImportRecords, createImportRecord } from '@/lib/queries';
+import { fetchDashboardIntelligence, fetchImportRecords, fetchRecommendationsBoundToImport, createImportRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
@@ -283,13 +283,22 @@ export function CanonicalImportPage() {
         window.sessionStorage.setItem('aghbari:last-import-job', rec.id);
       }
       setProgress(100);
-      let postImportSignals: { alerts: number; recommendations: number } | null = null;
+      let postImportSignals: { sourceRecommendations: number; companyAlerts: number } | null = null;
       if (evidenceStatus === 'VERIFIED') {
         try {
-          const intelligence = await fetchDashboardIntelligence();
+          const [intelligence, sourceRecommendations] = await Promise.all([
+            fetchDashboardIntelligence(),
+            snapshotId
+              ? fetchRecommendationsBoundToImport({
+                  importJobId: rec.id,
+                  snapshotId,
+                  sourceHash: durableSourceHash,
+                })
+              : Promise.resolve([]),
+          ]);
           postImportSignals = {
-            alerts: intelligence.alerts.filter((item) => !item.is_read).length,
-            recommendations: intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').length,
+            sourceRecommendations: sourceRecommendations.length,
+            companyAlerts: intelligence.alerts.filter((item) => !item.is_read).length,
           };
         } catch {
           postImportSignals = null;
@@ -456,11 +465,11 @@ export function CanonicalImportPage() {
 </div><section className="w-full max-w-3xl rounded-[16px] border border-ink-200 bg-white p-4 text-right">
   <div className="text-[9px] font-black tracking-[.12em] text-primary-700">WHAT HAPPENS NEXT</div>
   <div className="mt-1 text-sm font-black text-ink-950">من المصدر المثبت إلى إشارات العمل</div>
-  <div className="mt-1 text-[10px] leading-5 text-ink-500">هذه حالة المسارات التي أصبحت قابلة للقراءة بعد الاعتماد؛ لا يتم اختلاق إشارة عند غياب الدليل.</div>
+  <div className="mt-1 text-[10px] leading-5 text-ink-500">تُفصل التوصيات المرتبطة بهذا المصدر عن التنبيهات العامة للشركة؛ لا تُنسب إشارة إلى الملف دون provenance.</div>
   <div className="mt-3 grid gap-2 sm:grid-cols-3">
     <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">Evidence Passport</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.evidenceStatus === 'VERIFIED' ? 'مثبت' : 'PARTIAL'}</div></div>
-    <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">الإشارات الحالية</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.postImportSignals ? result.postImportSignals.alerts + ' تنبيه · ' + result.postImportSignals.recommendations + ' توصية' : 'غير متاحة'}</div></div>
-    <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">الخطوة التالية</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.evidenceStatus === 'VERIFIED' ? 'الدليل ثم القرار' : 'إثبات الدليل أولًا'}</div></div>
+    <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">توصيات مرتبطة بالمصدر</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.postImportSignals ? result.postImportSignals.sourceRecommendations : 'غير متاحة'}</div></div>
+    <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">تنبيهات عامة للشركة</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.postImportSignals ? result.postImportSignals.companyAlerts : 'غير متاحة'}</div></div>
   </div>
 </section><div className="flex flex-wrap justify-center gap-2">{result.evidenceStatus === 'VERIFIED' ? (
   <>
