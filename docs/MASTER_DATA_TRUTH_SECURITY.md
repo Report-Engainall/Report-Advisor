@@ -101,3 +101,6 @@ Forecasting and benchmark outputs must expose minimum-data/sample limits.
 
 ## 10. Canonical import RPC security boundary — 2026-09-27
 The authoritative six-argument `public.import_commit_batch` RPC is callable by `authenticated` and `service_role` only. `PUBLIC/anon` execution is explicitly revoked by migration `20260927220000_harden_canonical_import_execute_grant.sql`. The browser import path remains server-bound; the server executor supplies the authenticated user client for the authoritative commit and keeps service-role authority for controlled source/storage operations.
+
+## 2026-09-27 staging capability boundary
+Read-only inspection of `Report-Advisor-P0-2-Staging` (`fnqbvfuwbdpwvhcgzksl`) found current counts: forecasts=0, decision_outcomes=1, decision_work_items=0, operational_task_proposals=0, control_plane_drift_events=0, recommendations=1, business_intelligence_decisions=2, canonical_import_commits=3224, source_analysis_snapshots=119. No dedicated playbook, backtest, or source-schema-drift table exists. This is evidence for fail-closed UI behavior; it is not authorization to create a duplicate schema without a canonical product/data contract.
