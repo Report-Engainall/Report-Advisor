@@ -77,7 +77,9 @@ export function TrustEvidencePage() {
     ? 'الحالة قابلة للاستخدام'
     : effectiveStatus === 'EMPTY'
       ? 'لا توجد بيانات مثبتة بعد'
-      : effectiveStatus;
+      : effectiveStatus === 'PARTIAL'
+        ? 'PARTIAL / NOT PROVEN'
+        : effectiveStatus;
   const nextStep = !importJobId
     ? snapshot?.status === 'EMPTY'
       ? { label: 'ابدأ من المصدر', detail: 'أضف ملفًا أو مصدرًا حتى يمكن بناء حالة حقيقة وأدلة فعلية.', path: '/import' }
