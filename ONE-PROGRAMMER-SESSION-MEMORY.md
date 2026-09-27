@@ -1,19 +1,19 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CANDIDATE SHA → `e44118c8bc25f47ac485a88b3abe9ec15617c5c1`
+- CURRENT EXECUTION/CANDIDATE SHA → `7dcceb5b70ba4fe5056a0bb1317257a5b977fc85`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- ACTUAL RESULT → purchase-line identity closure + regression tests; Evidence Passport AS OF; Business Replay AS OF/read-window/refresh; Decision Experience now also discloses source Evidence Snapshot AS OF.
-- LATEST UI MUTATIONS → Decision source-context AS OF `4c8652adfaca32005f7daecd12b92f0d3ee72fd4`; Product WOW guard `e44118c8bc25f47ac485a88b3abe9ec15617c5c1`.
-- CORE ROOT → purchase_invoices multi-line rows preserve physical line identity while duplicate header semantics remain protected.
-- PROOF → exact source verified. Current head has no terminal CI result yet; Vercel remains external build-rate-limit. Local GitHub execution remains unavailable due DNS.
-- OPEN BLOCKERS → Vercel free-plan build-rate-limit; authenticated production/browser/Phase-F remains environment-bound; device unavailable.
+- ACTUAL RESULT → server canonical import now accepts all seven typed entity boundaries already emitted by source understanding; the contract guard now protects all seven. Purchase-line identity, Evidence AS OF, Replay truth context/refresh, Decision AS OF, and localized typed labels remain integrated on the same canonical path.
+- CORE ROOT FIX → `3d5cb96f4a20f0c007a6a6817ee31655c3ae86a4` expanded server request validation to purchase_invoices/suppliers/inventory_balances/payments in addition to products/customers/sales_invoices/generic.
+- TEST GUARD → `7dcceb5b70ba4fe5056a0bb1317257a5b977fc85` protects every typed server entity boundary.
+- PROOF → exact source verified on current branch. Fresh CI is queued/pending; no terminal current-SHA failure. Vercel remains an external free-plan build-rate-limit failure.
+- OPEN BLOCKERS → Vercel build-rate-limit; authenticated production/browser/Phase-F remains environment-bound; device unavailable; local GitHub/DNS execution unavailable.
 - FIRST FAILURE → none terminalized on current candidate.
-- NEXT EXECUTABLE ACTION → consume first terminal workflow result on `e44118c8bc25f47ac485a88b3abe9ec15617c5c1`; repair only current-SHA root.
-- NEXT INDEPENDENT ACTIONS → final contract/route rescan and stale-front reconciliation while CI is pending.
-- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, preview-as-production, raw technical labels, or downstream VERIFIED from navigation alone.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow result on `7dcceb5b70ba4fe5056a0bb1317257a5b977fc85`; repair only current-SHA root.
+- NEXT INDEPENDENT ACTIONS → final route/contract rescan; reconcile PR body and current head; safe legacy cleanup only where deletion gates are proven.
+- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, preview-as-production, or treating preview/navigation as downstream proof.
 - RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD PROOF IN FLIGHT
 ---
 
