@@ -5,19 +5,19 @@
 
 - SESSION-ID: `20260927-EXEC-667`
 - CURRENT VERIFIED SHA: `0b4f19fe7de377b57b2df7e70507bc32727568cc`
-- CURRENT EXECUTION/CANDIDATE SHA: `de665c3723d30ba68358f2e1c747da8d406dc5e9`
+- CURRENT EXECUTION/CANDIDATE SHA: `e29f0435b8971c6a515f144c3b7f0072c4abce6b`
 - BRANCH / PR: `exec/20260927-current-main-import-ui-finalize` / #667
-- CURRENT REPOSITORY HEAD: `de665c3723d30ba68358f2e1c747da8d406dc5e9`
-- CURRENT CODE/TEST CANDIDATE: `de665c3723d30ba68358f2e1c747da8d406dc5e9`
+- CURRENT REPOSITORY HEAD: `e29f0435b8971c6a515f144c3b7f0072c4abce6b`
+- CURRENT CODE/TEST CANDIDATE: `e29f0435b8971c6a515f144c3b7f0072c4abce6b`
 - ACTIVE EXECUTION FRONTS: FUNCTIONAL #667 | EXACT-HEAD PROOF | UI CONTINUITY | GOVERNANCE
 - FRONT-ID: `IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI`
 - CURRENT BOUNDARY: Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- ACTUAL RESULT: shared canonical server execution contract is now the assertion owner for authoritative re-extraction, reconciliation, quality gates, and durable import. Deployment wrappers are thin.
-- EVIDENCE: exact current candidate `de665c3723d30ba68358f2e1c747da8d406dc5e9`; prior 36-check success set belonged to the previous candidate and is not transferred.
+- ACTUAL RESULT: canonical server execution remains the assertion owner; the first current-SHA import-transaction contract failure was traced to stale wrapper assertions and repaired without duplicating server semantics.
+- EVIDENCE: exact current candidate `e29f0435b8971c6a515f144c3b7f0072c4abce6b`; fresh proof is in flight and no PASS is transferred from an earlier SHA.
 - LAST PROVEN: exact-SHA certification-boundary parser, execution-enforcement contract, enforcement adversarial suite, and certification boundary test-of-test all passed at `9fab59c4ec7a8a299a9d93a5c9c98da69249653e`; later mutations are not covered by that PASS.
-- LAST FAILED / FIRST FAILURE CONSUMED: `485d939…` exposed stale import-transaction assertions against the Netlify wrapper; mapping already passed. Rebound the transaction contract to `src/server/canonical-import-executor.ts` at `de665c…`.
+- LAST FAILED / FIRST FAILURE CONSUMED: the current import-transaction contract expected wrapper-only HTTP/configuration tokens inside the shared server core; assertions were rebound to the API/Netlify wrappers. Certification then exposed a stale candidate binding, now reconciled to this SHA.
 - OPEN BLOCKERS: Vercel free-plan build-rate limit; Phase-F restore target lacks `current_customer_company_id()`; device/production proof is unavailable because PC01 is offline. These do not block repository-only work.
-- NEXT EXECUTABLE ACTION: consume the first terminal gate on `de665c…`; repair only the first reproducible current-SHA root.
+- NEXT EXECUTABLE ACTION: consume the first terminal gate on `e29f0435b8971c6a515f144c3b7f0072c4abce6b`; repair only the first reproducible current-SHA root.
 - NEXT INDEPENDENT ACTIONS: if CI remains running, continue safe cleanup/audit only where ownership and deletion lineage are proven; preserve the single canonical import/server/route paths.
 - DO NOT REPEAT: stale PASS transfer; stale candidate binding; duplicate importer/RPC/runner/route; client-side authority for server truth; preview-as-production; reopening closed roots without current-SHA evidence.
 - RESUME STATUS: ACTIVE / CURRENT-MAIN RECONCILED / EXACT-HEAD PROOF IN FLIGHT.
