@@ -1,3 +1,14 @@
+## LATEST SESSION WRITE-BACK — 2026-09-27 / EXACT WINDOWS PROOF CONSUMED
+
+- MAIN HEAD VERIFIED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE FUNCTIONAL FRONT: PR #662 / `exec/20260927-import-full-lifecycle` / exact head `b66ff4a6b7c8ece5e90501794e3c6837e1e68550`.
+- EXACT CURRENT-SHA REMOTE PROOF: Desktop Windows run `36285659130` completed `success` on `b66ff4a6...`; web build, native watcher contract, native runtime smoke, installer packaging, installer upload, and cleanup all completed successfully.
+- CURRENT REMOTE CERTIFICATION BOUNDARY: Netlify deploy-preview SUCCESS and CodeRabbit SUCCESS on exact b66; Vercel integration remains FAILURE because of the external free-plan deployment-rate limit; Vercel Deployments remains PENDING; the larger certification/browser/Phase-F workflows are still queued.
+- BROWSER / PRODUCTION: no browser PASS, production exact-SHA identity, or Phase-F live resilience PASS is claimed.
+- LIVE STAGING: `public.import_jobs` remains 151 processing / 150 at progress 0; no mutation performed.
+- NEXT ACTION: consume the first terminal exact-head certification gate for b66; repair only a newly reproduced current-SHA failure.
+- DO NOT REPEAT: no stale PASS transfer, no preview-as-browser PASS, no production/Phase-F bypass, no unsafe import-job terminalization.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / MIXED-SPECIALTY CANONICAL BOUNDARY REPAIR
 
 - MAIN HEAD VERIFIED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
