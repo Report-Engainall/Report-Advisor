@@ -1,16 +1,16 @@
 # RESUME TOKEN — 2026-09-27 / PR #662 CURRENT VERIFIED STATE
 
 - CURRENT REPOSITORY HEAD → 46675643e32f6ea28b6c1d80a530b2eb134e7907
-- CURRENT CODE/TEST CANDIDATE → f7a7ee4060c1fff1cb0d53487340a8020f8171c2
+- CURRENT CODE/TEST CANDIDATE → 1ed0ea749bfc0182eab74eda55f06308f6686d02
 - ACTIVE PR / BRANCH → PR #662 / exec/20260927-import-full-lifecycle
 - FRONT-ID → IMPORT-FULL-SOURCE-LIFECYCLE
-- ACTUAL FUNCTIONAL RESULT → import now continues through Evidence Passport, Data Quality, current signals, and evidence-gated Decision Experience; dataset-level source understanding is visible and persisted.
+- ACTUAL FUNCTIONAL RESULT → import continues through Evidence Passport, Data Quality, current signals and evidence-gated Decision Experience; existing canonical commits can now recover missing evidence without duplicate writes.
 - EXACT PROOF → Desktop Windows 36285659130 SUCCESS on b66; Netlify/CodeRabbit success; quality success; browser authenticated E2E and Phase-F remain separate current-head boundaries.
 - FIRST FAILURE → stale certification-boundary parser binding was fixed; evidence snapshot truth gap was then closed with explicit VERIFIED/PARTIAL semantics on the durable import result.
-- NEXT EXECUTABLE ACTION → consume fresh exact-head CI on `f7a7ee4...`; repair only the first new current-SHA failure, then continue the next independent UI/core boundary.
+- NEXT EXECUTABLE ACTION → consume fresh exact-head CI on `1ed0ea7...`; repair only the first new current-SHA failure, then continue the next independent UI/core boundary.
 - OPEN BLOCKERS → Vercel free-plan build-rate; browser/agent automation external availability; Phase-F/production exact-SHA/restore/RPO/RTO/rollback remain unproven; 151 processing import_jobs untouched.
 - DO NOT REPEAT → stale PASS transfer, browser PASS from HTTP-only preview, production/Phase-F bypass, unsafe legacy-job terminalization, duplicate import path/RPC/runner.
-- RESUME STATUS → ACTIVE / POST-IMPORT CONTINUITY IMPLEMENTED / FRESH PROOF REQUIRED
+- RESUME STATUS → ACTIVE / POST-IMPORT CONTINUITY + EXISTING-COMMIT RECOVERY IMPLEMENTED / FRESH PROOF REQUIRED
 
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / CONTINUATION + LIVE PROOF RECONCILIATION
 
