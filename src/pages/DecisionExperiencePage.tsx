@@ -24,6 +24,7 @@ import {
   type DecisionApprovalRecord,
   type DecisionWorkItemRecord,
   type ImportEvidenceSnapshot,
+  type RecommendationOutcomeRecord,
   type RuntimeDecisionRecord,
 } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
@@ -154,6 +155,8 @@ export function DecisionExperiencePage() {
   const [selectedId, setSelectedId] = useState<string | null>(params.get('recommendationId'));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const selected = recommendations.find((item) => item.id === selectedId) ?? null;
 
   const load = useCallback(async () => {
     try {
