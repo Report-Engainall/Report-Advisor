@@ -3,16 +3,16 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE: `2fe8b9c14801eece26966dca651e9082129752f0`
-- FUNCTIONAL FRONT → PR #670 / `2fe8b9c14801eece26966dca651e9082129752f0`
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- SPECIALTY CLOSURE → purchases→purchase_invoices, suppliers→suppliers, inventory→inventory_balances, payments→payments on the existing authoritative 6-arg RPC; no new RPC.
+- CURRENT CODE/TEST CANDIDATE: `ec3b9b513aea4db1ed875b816c67de852340145c`
+- FUNCTIONAL FRONT → PR #671 / `ec3b9b513aea4db1ed875b816c67de852340145c`
+- FRONT-ID → IMPORT-TO-DECISION-CONTINUITY
+- SPECIALTY CLOSURE → purchases→purchase_invoices + purchase_items, suppliers→suppliers, inventory→inventory_balances, payments→payments on the existing authoritative 6-arg RPC.
 - UI AFTER IMPORT → canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- EXACT LIVE PROOF → real staging tenant executed all four specialty branches twice inside transaction; second replay was idempotent; cross-tenant call failed closed; rollback cleanliness verified.
-- ROOT FIX → payment_id-aware lookup repaired a duplicate primary-key failure discovered by live transaction testing.
+- EXACT LIVE PROOF → all four specialty branches exercised on staging with real tenant claims, idempotent replay, line-item persistence, cross-tenant guard, finite-number guards, and rollback cleanliness.
+- EXACT CURRENT CI → PR #671 head ec3b9b513aea4db1ed875b816c67de852340145c; desktop-windows SUCCESS is observed on current lineage; other gates are queued/in flight; no broad PASS claim.
 - PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback remains external/runtime evidence.
 - EXTERNAL → Vercel build-rate-limit; device/browser/production certification remains environment-bound.
-- NEXT → consume first terminal `2fe8b9c14801eece26966dca651e9082129752f0` workflow; fix only current-SHA root and re-prove.
+- NEXT → consume first terminal PR #671 failure; fix only current-SHA root and re-prove.
 
 ---
 
