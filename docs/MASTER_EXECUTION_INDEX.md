@@ -2,17 +2,17 @@
 
 > This top block is the only startup boundary.
 
-- MAIN HEAD → `7b26ef2e93ea2309f087f587fc4ea9175a7e32f6`
-- CURRENT CODE/TEST CANDIDATE → `d6e1d13931250c9ee298bc933a2be8c7ccda7899`
-- FUNCTIONAL FRONT → PR #667 / `d6e1d13931250c9ee298bc933a2be8c7ccda7899`
+- MAIN HEAD → `2465da09eb08ae63dae921d7ecfcb88beb9ecdf0`
+- CURRENT CODE/TEST CANDIDATE → `4de3c95ff3a741463d49a2b52baf86f66ce62fad`
+- FUNCTIONAL FRONT → PR #667 / `4de3c95ff3a741463d49a2b52baf86f66ce62fad`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT DATA until a real peer cohort exists.
-- ROOT FIXES → phase9 exact-head ref verification repaired; `/benchmark` and `/replay` registered in the canonical navigation registry.
-- EXACT EVIDENCE → `2cdd7128…` failed before Phase 9 execution; fresh proof required on `d6e1d139…`.
-- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback evidence remains required.
+- ROOT FIXES → phase9 exact-head ref verification repaired; `/benchmark` and `/replay` now registered in the canonical navigation registry using existing Sidebar icon infrastructure.
+- EXACT EVIDENCE → old `2cdd7128…` failed before Phase 9 execution. Fresh proof is required on `d6e1d139…`.
+- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback evidence remains required. Repository-side restore parity exists on the candidate.
 - EXTERNAL → Vercel free-plan build-rate limit; device/browser/production proof not yet proven.
-- CLEANUP → duplicate PR #668 and stale UI #594/#596/#603 closed; history retained.
-- NEXT → consume first terminal #667 gate; repair only the first reproducible current-SHA root.
+- CLEANUP → duplicate PR #668, stale UI #594/#596/#603 closed; branches/history retained.
+- NEXT → consume first terminal #667 exact-head gate; repair only the first current-SHA reproducible root.
 
 ---
 
