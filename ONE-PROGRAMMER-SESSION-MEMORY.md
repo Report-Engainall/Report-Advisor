@@ -1,3 +1,24 @@
+## RESUME TOKEN — 2026-09-27 / CONTINUOUS EXECUTION LIVE STATE
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-145`
+- CURRENT VERIFIED SHA → `46675643e32f6ea28b6c1d80a530b2eb134e7907` (main exact HEAD; verified directly from refs/heads/main).
+- ACTIVE FUNCTIONAL FRONT → PR #662 / `exec/20260927-import-full-lifecycle` / exact head `a8ef795c290b035023e3b5781488c7e650ab6866`.
+- ACTIVE GOVERNANCE FRONT → PR #663 / `control/continuous-resume-20260927` / exact head `13432b118aa8db00d3a498332803d2c1324a9291`.
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT + CONTINUOUS-RESUME-GOVERNANCE`.
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning; Benchmark remains fail-closed until a real peer cohort exists.
+- ACTUAL RESULT → main is now `4667564`; PR #658 is merged into it. PR #662 contains the full-source canonical import lifecycle plus post-import Business Replay/Benchmark/Outcome-Learning UI continuity. Its current head has exact Windows build PASS and Cloudflare Pages deploy PASS; remaining gates are queued. PR #663 contains the continuous-resume governance contract and is not product behavior.
+- CURRENT EXACT PROOF → PR #662 head `a8ef795c...`: Cloudflare Pages PASS and Windows build PASS; remaining security/browser/contract/certification/data gates are queued. No browser/production/Phase-F PASS is claimed.
+- FIRST CURRENT ROOT FAILURE OBSERVED ON GOVERNANCE MERGE REF → typecheck exposed two pre-existing main defects in `DataTable.tsx` and `ExecutiveReportPage.tsx`; these are already represented in the functional #662 lane and must not be duplicated in #663.
+- PHASE-F ROOT BOUNDARY → certification run reproduced missing runtime configuration for rollback-forward drill (`VERCEL_TOKEN`, rollback drill variables) and a local migration dependency on `current_customer_company_id()`; Phase-F remains fail-closed/not certified. No production mutation performed.
+- EXTERNAL BLOCKERS → PC01 Desktop Commander is currently offline; Vercel free-plan deployment-rate limit remains external; browser/production exact-SHA and Phase-F resilience proof remain unproven. These block only dependent proof fronts.
+- NEXT EXECUTABLE ACTION → consume the first terminal #662 gate on `a8ef795c...`; repair only a newly reproduced current-SHA root failure. In parallel consume #663 governance gates and reconcile only after #662's functional head is proven/merged.
+- NEXT INDEPENDENT ACTIONS → continue safe source/contract/documentation consolidation and targeted UI truth checks without touching closed import paths; do not mutate legacy `import_jobs` rows.
+- DO NOT REPEAT → stale PASS transfer; duplicate importer/RPC/runner/query; blind import-job terminalization; preview-as-production/browser PASS; staging evidence as production evidence; broad historical rescans; duplicate UI surfaces.
+- RESUME STATUS → ACTIVE / MAIN RECONCILED / FUNCTIONAL IMPORT FRONT IN EXACT-HEAD PROOF / GOVERNANCE FRONT IN EXACT-HEAD PROOF.
+- CHECKPOINT RULE → HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT.
+
+---
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
