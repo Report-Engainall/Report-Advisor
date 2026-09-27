@@ -48,7 +48,6 @@ export async function fetchRecommendationsBoundToImport(input: {
       created_at: String(row.created_at),
     }));
 }
-}
 
 export async function fetchAlerts(): Promise<Alert[]> { return (await fetchDashboardIntelligence()).alerts; }
 export type ImportEvidenceSnapshot = {
