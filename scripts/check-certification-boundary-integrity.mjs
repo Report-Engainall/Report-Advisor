@@ -3,7 +3,16 @@ import { execFileSync } from 'node:child_process';
 
 // Governance-only trigger: runtime certification remains fail-closed and exact-SHA bound.
 const normalize = value => String(value ?? '').replaceAll('\r\n', '\n').trim();
-const candidateFromIndex = index => normalize(index).match(/(?:CURRENT CODE\/TEST CANDIDATE|CURRENT_CODE_TEST_CANDIDATE|Current code\/test candidate|Current Code\/Test Candidate|Exact code\/test head entering this sweep)\s*:\s*`([0-9a-f]{40})`/i)?.[1]?.toLowerCase();
+const candidatePattern = /(?:CURRENT CODE\/TEST CANDIDATE|CURRENT_CODE_TEST_CANDIDATE|Current code\/test candidate|Current Code\/Test Candidate|Exact code\/test head entering this sweep)\s*(?::|→)\s*\`([0-9a-f]{40})\`/i;
+const candidateFromIndex = index => {
+  const normalized = normalize(index);
+  const anchor = '> This top block is the only startup boundary.';
+  const anchorIndex = normalized.lastIndexOf(anchor);
+  const scoped = anchorIndex >= 0 ? normalized.slice(anchorIndex) : normalized;
+  const end = scoped.indexOf('\n---');
+  const boundary = end >= 0 ? scoped.slice(0, end) : scoped;
+  return boundary.match(candidatePattern)?.[1]?.toLowerCase();
+};
 
 export function validateCertificationBoundary({ index, head, parent, changedFiles }) {
   const indexed = candidateFromIndex(index);
@@ -43,6 +52,9 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     'scripts/check-unified-evidence-action-learning.mjs',
     'scripts/real-business-e2e.mjs',
     'scripts/run-full-product-browser-e2e.mjs',
+    'docs/SYSTEM_HEART.md',
+    'docs/EXECUTION_ENFORCEMENT_PROTOCOL.md',
+    '.github/workflows/quality.yml',
     '.github/workflows/execution-enforcement-contract.yml',
     '.github/workflows/final-certification-gate.yml',
     '.github/workflows/full-product-browser-e2e.yml',

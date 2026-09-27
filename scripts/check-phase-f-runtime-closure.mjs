@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 const root = process.cwd();
-const requiredFiles = ['scripts/phase-f-live-resilience-probes.mjs','scripts/check-operational-resilience-contract.mjs','scripts/check-release-resilience-manifest.mjs','scripts/check-continuous-trust-contract.mjs','.github/workflows/phase-f-live-resilience.yml','supabase/migrations/20260825050000_operational_resilience_trust.sql','supabase/migrations/20260825090000_continuous_trust_autonomous_ops.sql'];
+const requiredFiles = ['scripts/phase-f-live-resilience-probes.mjs','scripts/check-operational-resilience-contract.mjs','scripts/check-release-resilience-manifest.mjs','scripts/check-continuous-trust-contract.mjs','.github/workflows/phase-f-live-resilience.yml','supabase/migrations/20260825050000_operational_resilience_trust.sql','supabase/migrations/20260825090000_continuous_trust_autonomous_ops.sql','supabase/migrations/20260925170000_reconcile_current_customer_company_id.sql','supabase/migrations/20260927182000_restore_customer_credit_accounts_schema_parity.sql'];
 const missing = requiredFiles.filter((file) => !fs.existsSync(path.join(root, file)));
 if (missing.length) throw new Error(`Phase F runtime closure blockers:\n${missing.join('\n')}`);
 const migration = fs.readFileSync(path.join(root,'supabase/migrations/20260825050000_operational_resilience_trust.sql'),'utf8');
@@ -10,6 +10,12 @@ const workflow = fs.readFileSync(path.join(root,'.github/workflows/phase-f-live-
 for (const token of ['phase-f-live-resilience','phase-f-live-resilience-probes.mjs','RESILIENCE_BACKUP_MODE','RESILIENCE_LOGICAL_SOURCE_DB_URL','RESILIENCE_MAX_RPO_SECONDS','supabase/setup-cli@v1']) if (!workflow.includes(token)) throw new Error(`Phase F workflow invariant missing: ${token}`);
 if (!workflow.includes('npm run test:operational-resilience') && !workflow.includes('check-operational-resilience-contract.mjs')) throw new Error('Phase F workflow must execute the operational resilience contract');
 if (!workflow.includes('workflow_dispatch')) throw new Error('Phase F live resilience must remain explicitly dispatchable');
+const resolver = fs.readFileSync(path.join(root,'supabase/migrations/20260925170000_reconcile_current_customer_company_id.sql'),'utf8');
+for (const token of [
+  'create or replace function public.current_customer_company_id()',
+  'select public.current_company_id()',
+  'grant execute on function public.current_customer_company_id() to authenticated, service_role',
+]) if (!resolver.includes(token)) throw new Error(`Phase F restore-parity resolver invariant missing: ${token}`);
 const pkg = JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
 for (const script of ['test:operational-resilience','test:release-resilience-manifest','test:continuous-trust']) if (!pkg.scripts?.[script]) throw new Error(`Package gate missing: ${script}`);
 const probe = fs.readFileSync(path.join(root,'scripts/phase-f-live-resilience-probes.mjs'),'utf8');
