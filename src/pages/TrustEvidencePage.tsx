@@ -163,6 +163,7 @@ export function TrustEvidencePage() {
               )) : <div className="rounded-xl border border-warning-200 bg-warning-50 p-3 text-[10px] text-warning-900">لا توجد ملخصات Dataset مثبتة.</div>}
             </div>
             {!!sourceSnapshot.warnings.length && <div className="mt-3 rounded-xl border border-warning-200 bg-warning-50/70 p-3 text-[10px] leading-5 text-warning-900"><strong>تحذيرات المصدر:</strong> {sourceSnapshot.warnings.join(' · ')}</div>}
+          </div>
           </>
         ) : (
           <div className="p-4">
