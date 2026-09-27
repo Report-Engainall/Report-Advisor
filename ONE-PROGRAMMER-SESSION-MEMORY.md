@@ -1,3 +1,25 @@
+## LATEST SESSION WRITE-BACK — 2026-09-27 / CONTINUATION + LIVE PROOF RECONCILIATION
+
+- SESSION-ID → `2026-09-27-AGHBARI-FULL-SOURCE-LIFECYCLE-002`.
+- MAIN HEAD VERIFIED → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- CURRENT PR / BRANCH → PR #662 / `exec/20260927-import-full-lifecycle`.
+- CURRENT VERIFIED SHA → `4ba2d1d2ed263235147739f0accc079c992e844d`.
+- FRONT-ID → `IMPORT-FULL-SOURCE-LIFECYCLE`.
+- CLOSED FUNCTIONAL BOUNDARY → canonical understanding consumes all parsed datasets; server persists dataset summaries/provenance; UI exposes specialty, dataset count, understanding confidence, Trust/Evidence and Decision follow-through; no runtime first-dataset selection.
+- EXACT CURRENT-SHA LOCAL PROOF → typecheck PASS; canonical-import mapping PASS; Product WOW UI PASS; Phase-3 data/import truth PASS; Document Intelligence contract/closure PASS; Decision Intelligence closure PASS; Knowledge Architecture PASS; Vite production build PASS (2800 modules); import runtime governance/state/transaction/business-key/classifier/direct-write/tenant-context contracts PASS; golden dataset and golden E2E corpus PASS; targeted ESLint 0 errors / 8 warnings.
+- EXACT CURRENT-SHA SOURCE RESCAN → runtime source contains no `datasets[0]` or `authoritativeDatasets[0]`; the only remaining literal is the regression guard that rejects their reintroduction. No active legacy product/customer/invoice import entrypoint was found in the scanned runtime/script surface.
+- EXACT CURRENT-SHA REMOTE PROOF → Desktop Windows run `36280991955` SUCCESS. PR contexts currently report CodeRabbit SUCCESS, Vercel integration SUCCESS, Vercel Deployments context SUCCESS, and Netlify deploy-preview SUCCESS. Most certification workflows remain QUEUED; no overall certification PASS is claimed.
+- EXACT CURRENT-SHA RUNTIME PROOF → Netlify preview `https://deploy-preview-662--aghbari-report-advisor.netlify.app/import` returned HTTP 200 from PC01; served HTML is Arabic RTL and references the generated Vite assets and IBM Plex Sans Arabic. This is preview/runtime evidence only, not production certification.
+- BROWSER STATUS → NOT PROVEN. `agent-browser` is not installed on PC01. TinyFish automation is externally blocked because wallet balance is `-$0.072`. No Browser PASS is claimed.
+- LIVE STAGING OBSERVATION → Supabase project `Report-Advisor-P0-2-Staging` is ACTIVE_HEALTHY. `public.import_jobs`: 151 rows remain `processing`; 150 are at progress 0; oldest processing row started `2026-09-14 12:53:22.689946+00`. No mutation or unsafe terminalization performed.
+- CURRENT ROOT/EXTERNAL BLOCKERS → remote certification queues; browser automation unavailable; Phase-F live backup/restore/RPO/RTO/rollback and production exact-SHA identity unproven; Vercel/TinyFish external authority/plan limits remain outside repository control.
+- FIRST CURRENT FAILURE → none reproduced on `4ba2d1d`; one earlier read-only SQL probe referenced nonexistent `updated_at`, was corrected by schema introspection, and is not a product failure.
+- CURRENT EXECUTION LEASE → target remote exact-head gates and live certification boundaries only; do not create overlapping import paths or alter legacy processing rows without a governed recovery contract.
+- NEXT EXECUTABLE ACTION → consume the first terminal/non-queued exact-head gate for PR #662; if a failure appears, repair only that failure on `4ba2d1d` descendant. In parallel, continue independent certification/runtime-safe work and reconcile the 151 legacy processing jobs only through an existing recovery contract.
+- NEXT INDEPENDENT ACTIONS → inspect PR #663 governance gates without transferring #662 evidence; inspect current certification/Phase-F contracts for a non-production actionable gap; preserve staging processing rows untouched.
+- DO NOT REPEAT → no stale SHA PASS transfer; no browser PASS from HTTP-only preview; no production/Phase-F bypass; no blind import-job terminalization; no duplicate importer/RPC/runner/route; no reopening closed full-source implementation.
+- RESUME STATUS → FUNCTIONAL IMPORT FRONT CLOSED LOCALLY / REMOTE CERTIFICATION PENDING / BROWSER NOT PROVEN / PHASE-F NOT PROVEN / LIVE LEGACY JOBS BLOCKED FOR RECOVERY AUTHORITY.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / FULL SOURCE IMPORT LIFECYCLE
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
