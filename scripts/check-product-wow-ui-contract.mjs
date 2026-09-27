@@ -26,6 +26,24 @@ assert.ok(assistant.includes('إعادة تحميل سياق المؤشرات'),
 
 const appShell = fs.readFileSync('src/App.tsx', 'utf8');
 const sidebar = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
+const navigationRegistry = fs.readFileSync('src/lib/navigation-registry.ts', 'utf8');
+const navigationPaths = [...navigationRegistry.matchAll(/path:\s*'([^']+)'/g)].map((match) => match[1]);
+const appRoutePaths = new Set([...appShell.matchAll(/<Route path="([^"]+)"/g)].map((match) => match[1]));
+for (const sectionId of [
+  'decision-center',
+  'data-operations',
+  'analytics',
+  'intelligence',
+  'trust',
+  'outputs',
+  'reference',
+  'admin',
+]) assert.ok(navigationRegistry.includes(`id: '${sectionId}'`), `canonical navigation section missing: ${sectionId}`);
+assert.equal(navigationPaths.length, 38, 'canonical navigation registry must expose the current 38 navigation items');
+for (const path of navigationPaths) assert.ok(appRoutePaths.has(path), `navigation route must exist in App router: ${path}`);
+
+assert.ok(appShell.includes('Path="__never__') === false, 'router contract must remain syntactically inspectable');
+
 
 for (const token of [
   'competitiveProofLanes',
@@ -414,8 +432,18 @@ assert.ok(inventoryUnavailable.includes('if (!snapshot) return <DataUnavailableS
 const canonicalProfitability = fs.readFileSync('src/pages/ProfitabilityReportCanonicalPage.tsx', 'utf8');
 assert.ok(canonicalProfitability.includes('DataUnavailableState'), 'canonical profitability must expose a governed unavailable-data state');
 assert.ok(canonicalProfitability.includes('<Link to="/import"'), 'canonical profitability unavailable state must use the unified import route');
-console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
-
 assert.ok(intelligence.includes('بوابة الاختبار الرجعي'), 'forecast surface must expose an explicit backtest gate');
 assert.ok(intelligence.includes('الاختبار الرجعي غير متاح حاليًا'), 'backtest must remain fail-closed when historical paired forecast/outcome evidence is unavailable');
 assert.ok(intelligence.includes('نسبة دقة مصطنعة'), 'backtest empty state must forbid fabricated accuracy');
+
+
+assert.ok(executiveCommand.includes('Decision ROI'), 'decision center must expose Decision ROI state');
+assert.ok(executiveCommand.includes('Money Recovery'), 'decision center must expose Money Recovery state');
+assert.ok(executiveCommand.includes('Decision Coverage'), 'decision center must expose Decision Coverage state');
+assert.ok(intelligence.includes('Decision Playbooks'), 'intelligence must expose the governed Decision Playbooks capability state');
+assert.ok(reportsSurface.includes('Report Builder'), 'reports must expose the report-builder capability');
+assert.ok(reportsSurface.includes('طباعة'), 'reports must preserve a visible print capability');
+assert.ok(trustEvidence.includes('Evidence Passport'), 'trust surface must expose the Evidence Passport capability');
+assert.ok(trustEvidence.includes('Snapshots / As-of'), 'trust surface must expose snapshot/as-of evidence semantics');
+assert.ok(canonicalImport.includes('01 · EVIDENCE') && canonicalImport.includes('05 · OUTCOME'), 'canonical import must expose the full post-import decision continuum');
+console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
