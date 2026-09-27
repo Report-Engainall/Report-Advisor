@@ -1,14 +1,14 @@
 # RESUME TOKEN — 2026-09-28 / CURRENT EXACT-HEAD EXECUTION
 
-- CURRENT REPOSITORY HEAD → `ebc60e9be6ef7605a4469e6e6b150659edf927f8`
-- CURRENT CODE/TEST CANDIDATE → `ebc60e9be6ef7605a4469e6e6b150659edf927f8`
+- CURRENT REPOSITORY HEAD → `e0d33a2d9e5a3996e9fb650dfc29ec5b0820cabd`
+- CURRENT CODE/TEST CANDIDATE → `e0d33a2d9e5a3996e9fb650dfc29ec5b0820cabd`
 - FUNCTIONAL CODE FRONT → `c8dca7badd8115739cbb69aaac564d60ff04dcfe`
 - MAIN CONTROL HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`
 - ACTIVE EXECUTION FRONTS → browser/certification exact-head evidence; import/decision regression; security/data rescan; cleanup/deletion-gate audit.
 - OPEN BLOCKERS → Vercel free-plan deployment-rate limit; authenticated hosted/browser certification remains unproven until an exact-head terminal browser/certification gate succeeds.
-- LAST PROVEN → execution-enforcement + adversarial governance PASS; knowledge-architecture PASS; import-transaction + canonical-import-mapping PASS; product-wow-ui PASS; typecheck PASS; production build PASS (2802 modules) on the current local branch head.
+- LAST PROVEN → on `e0d33a2d9e5a3996e9fb650dfc29ec5b0820cabd`, execution-enforcement + adversarial governance PASS; product-wow-ui PASS; import-transaction + canonical-import-mapping PASS; typecheck PASS; production build PASS (2802 modules).
 - LAST FAILED → stale/brittle product-wow UI contract assertion; live memory lacked mandatory resume anchors. Both roots are now repaired locally.
-- NEXT EXECUTABLE ACTION → commit the repaired contracts/memory, re-run the targeted proof on the resulting SHA, then execute the repository's existing Playwright browser proof and consume fresh exact-head CI.
+- NEXT EXECUTABLE ACTION → keep browser proof on the canonical runner; consume terminal exact-head CI/certification, then repair only the first reproduced failure. After this documentation update, re-run the enforcement gate on the resulting SHA.
 - NEXT INDEPENDENT ACTIONS → route/state/UI rescan; import/runtime regression; security/RLS readback; cleanup/deletion-gate scan.
 - DO NOT REPEAT → stale SHA evidence; duplicate browser frameworks; preview-as-production; broad SECURITY DEFINER revokes without a reproduced boundary defect; deletion without Manifest/reference proof.
 - STABLE LIVE IMPORT BOUNDARY → `import_finish_job(uuid,text,jsonb,text)` remains SECURITY INVOKER; six-argument `import_commit_batch(..., p_import_job_id uuid)` remains the deliberate SECURITY DEFINER commit boundary with tenant/source/storage checks.
