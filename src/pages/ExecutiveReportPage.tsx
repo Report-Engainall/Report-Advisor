@@ -74,9 +74,10 @@ export function ExecutiveReportPage() {
   useEffect(() => { void load(); }, [load]);
 
   const recommendations = data?.recommendations ?? [];
-  const activeDecisionCount = recommendations.filter((item) => ['pending', 'proposed', 'approved', 'in_progress'].includes(item.status)).length;
-  const accountableDecisionCount = recommendations.filter((item) => Boolean(item.owner)).length;
-  const recordedOutcomeCount = recommendations.filter((item) => Boolean(item.impact_result?.trim())).length;
+  const actionableRecommendations = recommendations.filter((item) => ['pending', 'proposed', 'approved', 'in_progress'].includes(item.status));
+  const activeDecisionCount = actionableRecommendations.length;
+  const accountableDecisionCount = actionableRecommendations.filter((item) => Boolean(item.owner?.trim())).length;
+  const recordedOutcomeCount = actionableRecommendations.filter((item) => Boolean(item.impact_result?.trim())).length;
   const ownerCoverage = activeDecisionCount ? Math.round((accountableDecisionCount / activeDecisionCount) * 100) : null;
   const outcomeCoverage = activeDecisionCount ? Math.round((recordedOutcomeCount / activeDecisionCount) * 100) : null;
   const nextAction = kpis?.status === 'INSUFFICIENT_DATA'
