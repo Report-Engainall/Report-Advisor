@@ -96,6 +96,33 @@ if (!/qualityApproved: boolean/.test(adapter) || !/qualityApproved/.test(adapter
   throw new Error('Canonical durable adapter must carry explicit quality approval state');
 }
 
+const specialtyMigrationPath = path.join(migrationDir, '20260927213000_expand_canonical_import_specialties.sql');
+if (!fs.existsSync(specialtyMigrationPath)) throw new Error('Canonical specialty import migration is missing');
+const specialtyMigration = fs.readFileSync(specialtyMigrationPath, 'utf8');
+for (const token of [
+  'purchase_invoices','suppliers','inventory_balances','payments',
+  'SUPPLIER_NAME_REQUIRED','PURCHASE_SUPPLIER_REQUIRED',
+  'INVENTORY_PRODUCT_REQUIRED','INVENTORY_WAREHOUSE_REQUIRED',
+  'PAYMENT_DIRECTION_INVALID','PAYMENT_AMOUNT_REQUIRED',
+  'AUTHORITATIVE_SOURCE_HASH_MISMATCH','AUTHORITATIVE_SOURCE_NOT_VERIFIED',
+  'PERFORM pg_advisory_xact_lock',
+  'RETURN public.import_commit_batch(',
+  'DROP FUNCTION IF EXISTS public.import_commit_batch(uuid,text,jsonb,text,text,uuid)',
+  'CREATE FUNCTION public.import_commit_batch(',
+  'p_import_job_id uuid',
+]) {
+  if (!specialtyMigration.includes(token)) throw new Error('Specialty import transaction contract missing: ' + token);
+}
+if (/CREATE OR REPLACE FUNCTION public\.import_commit_batch\(/.test(specialtyMigration)) {
+  throw new Error('Specialty migration must not replace the legacy 5-argument RPC implementation');
+}
+if (!/p_null_policy text,\s+p_source_hash text,\s+p_import_job_id uuid/.test(specialtyMigration)) {
+  throw new Error('Authoritative six-argument RPC signature must have no illegal defaults before p_import_job_id');
+}
+if (!/entity_type IN \('products','customers','sales_invoices','purchase_invoices','suppliers','inventory_balances','payments'\)/.test(specialtyMigration)) {
+  throw new Error('Canonical import entity-type boundary must enumerate all typed specialties');
+}
+
 const serverCorePath = path.join(root, 'src', 'server', 'canonical-import-executor.ts');
 if (!fs.existsSync(serverCorePath)) throw new Error('Canonical durable import server execution core is missing');
 const serverAdapter = fs.readFileSync(serverCorePath, 'utf8');
