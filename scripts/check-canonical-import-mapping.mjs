@@ -125,6 +125,9 @@ for (const token of ['useSearchParams', 'focusedImportId', 'IMPORT CONTEXT', 'م
 if (!canonicalImportPage.includes('work-center?import=') || !canonicalImportPage.includes('متابعة مركز العمل')) {
   throw new Error('Canonical Import must carry the imported source into Work Center');
 }
+for (const token of ['key:\'actions\'', 'Evidence', 'التشغيل', 'decision-experience?stage=evidence&import=']) {
+  if (!canonicalImportPage.includes(token)) throw new Error('Import history continuity contract missing: ' + token);
+}
 for (const token of ['fetchRecommendationOutcome', 'المتوقع مقابل الفعلي', 'لم تُثبت نتيجة تنفيذ']) {
   if (!decisionExperiencePage.includes(token)) throw new Error(`Decision outcome readback contract missing: ${token}`);
 }
