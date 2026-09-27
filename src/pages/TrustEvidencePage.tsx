@@ -1,9 +1,10 @@
 import { ArrowLeft, CheckCircle2, Eye, FileSearch, GitBranch, History, Landmark, RefreshCw, ShieldCheck } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchDataQualitySnapshot } from '@/lib/data-quality-snapshot';
+import { fetchImportEvidenceSnapshot, type ImportEvidenceSnapshot } from '@/lib/queries';
 
 const states = [
   { title: 'VERIFIED', text: 'بيانات قابلة للإثبات من المسار الكانوني.', tone: 'bg-success-50 text-success-700', icon: CheckCircle2 },
@@ -24,7 +25,10 @@ const evidenceSurfaces = [
 ];
 
 export function TrustEvidencePage() {
+  const [params] = useSearchParams();
+  const importJobId = params.get('import');
   const [snapshot, setSnapshot] = useState<Awaited<ReturnType<typeof fetchDataQualitySnapshot>> | null>(null);
+  const [sourceSnapshot, setSourceSnapshot] = useState<ImportEvidenceSnapshot | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -32,14 +36,18 @@ export function TrustEvidencePage() {
     try {
       setRefreshing(true);
       setError(null);
-      const next = await fetchDataQualitySnapshot();
+      const [next, source] = await Promise.all([
+        fetchDataQualitySnapshot(),
+        importJobId ? fetchImportEvidenceSnapshot(importJobId) : Promise.resolve(null),
+      ]);
       setSnapshot(next);
+      setSourceSnapshot(source);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر قراءة حالة الثقة');
     } finally {
       setRefreshing(false);
     }
-  }, []);
+  }, [importJobId]);
 
   useEffect(() => {
     void loadSnapshot();
@@ -100,6 +108,38 @@ export function TrustEvidencePage() {
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CRITICAL</div><div className="mt-1 text-lg font-black">{criticalIssueTotal}</div></div>
       </div>
     </section>
+
+    {importJobId && (
+      <section className="overflow-hidden rounded-[16px] border border-primary-200 bg-white shadow-card">
+        <div className="border-b border-primary-100 bg-primary-50/60 p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className="text-[9px] font-black tracking-[.12em] text-primary-700">EVIDENCE PASSPORT</div>
+              <h2 className="mt-1 text-lg font-black text-ink-950">دليل المصدر المستورد</h2>
+              <p className="mt-1 text-[11px] text-ink-600">هذه المساحة مرتبطة مباشرة بعملية الاستيراد الحالية، وليست قراءة عامة من مصدر آخر.</p>
+            </div>
+            <span className={sourceSnapshot ? 'rounded-full bg-success-50 px-2.5 py-1 text-[9px] font-black text-success-700' : 'rounded-full bg-warning-50 px-2.5 py-1 text-[9px] font-black text-warning-800'}>
+              {sourceSnapshot ? 'VERIFIED' : 'PARTIAL / NOT PROVEN'}
+            </span>
+          </div>
+        </div>
+        {sourceSnapshot ? (
+          <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-5">
+            <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">المصدر</div><div className="mt-1 break-all text-[11px] font-black text-ink-900">{String(sourceSnapshot.metadata.fileName ?? sourceSnapshot.source_path)}</div></div>
+            <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">الجودة</div><div className="mt-1 text-[15px] font-black text-ink-900">{sourceSnapshot.quality_score == null ? 'غير متاح' : sourceSnapshot.quality_score + '%'}</div></div>
+            <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">الصفوف</div><div className="mt-1 text-[15px] font-black text-ink-900">{sourceSnapshot.row_count}</div></div>
+            <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">مجموعات البيانات</div><div className="mt-1 text-[15px] font-black text-ink-900">{sourceSnapshot.datasets.length}</div></div>
+            <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">البصمة</div><div className="mt-1 break-all font-mono text-[9px] text-ink-700">{sourceSnapshot.source_hash}</div></div>
+          </div>
+        ) : (
+          <div className="p-4">
+            <div className="rounded-xl border border-warning-200 bg-warning-50/70 p-4 text-[11px] leading-6 text-warning-900">
+              تم تمرير العملية إلى المسار التشغيلي، لكن Snapshot الدليل المرتبط بهذا الاستيراد غير مثبت. لن تُرفع الثقة ولن تُعتبر هذه العملية دليلًا مكتملًا.
+            </div>
+          </div>
+        )}
+      </section>
+    )}
 
     <section className="ag-decision-strip" aria-label="ملخص الثقة">
       <div className="ag-decision-cell"><span className="ag-decision-label">الحالة الحالية</span><span className="ag-decision-value">{statusLabel}</span></div>
