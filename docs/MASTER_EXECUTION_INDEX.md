@@ -1,3 +1,15 @@
+## LATEST SESSION WRITE-BACK — 2026-09-27 / MIXED-SPECIALTY CANONICAL BOUNDARY REPAIR
+
+- MAIN HEAD VERIFIED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE FUNCTIONAL FRONT: PR #662 / `exec/20260927-import-full-lifecycle` / exact head `b66ff4a6b7c8ece5e90501794e3c6837e1e68550`.
+- ROOT GAP CLOSED: mixed-specialty multi-dataset sources previously emitted a generic-boundary warning but could still select the dominant specialty as a conventional entity. The canonical understanding layer now detects distinct dataset specialties explicitly and fails closed to `generic:source-data` for mixed-specialty sources.
+- REGRESSION GUARD ADDED: `test:canonical-import-mapping` now asserts both explicit mixed-specialty detection and the generic-boundary selection expression.
+- PROOF STATUS: exact-head GitHub commit exists; remote Actions had not yet started at the observation boundary. No PASS is transferred from `4ba2d1d2...` to `b66ff4a6...`.
+- EXTERNAL STATUS: Vercel reports the known free-plan deployment-rate limit; browser automation remains unavailable; no production or Phase-F bypass.
+- STAGING SAFETY: the 151 legacy `import_jobs` processing rows remain untouched because no governed import recovery contract exists.
+- NEXT ACTION: consume the first terminal/non-queued exact-head #662 gate; repair only a newly reproduced failure, then certify the resulting exact SHA.
+- DO NOT REPEAT: no dominant-specialty coercion for mixed sources, no stale PASS transfer, no duplicate importer/RPC/runner, no unsafe legacy-job terminalization.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CONTINUOUS RESUME CONTROL
 
 > This top block is the only startup boundary. Entries below are historical evidence and MUST NOT override it.
