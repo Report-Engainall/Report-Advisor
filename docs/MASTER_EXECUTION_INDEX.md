@@ -3,31 +3,16 @@
 > This top block is the only startup boundary.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `2c725d91e5fca08bf5ead343abfa6d8cbef46f35`
 - CURRENT CODE/TEST CANDIDATE → `e7eb1074033295f059eb65975b158171965df5f7`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - PRODUCT CHAIN → Any Source → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
-- UI COVERAGE → 8 canonical zones; 38/38 registry routes resolve in App; Product Journey exposes 8 visible stages; shared Product WOW contract covers shell, journey, states, evidence, navigation, and mobile language behavior.
+- UI COVERAGE → 8 canonical zones; 38/38 registry routes resolve in App; Product Journey exposes 8 visible stages; Product WOW contract covers shell, journey, states, evidence, navigation, and mobile language behavior.
 - SHELL → dark executive topbar + right-aligned dark RTL sidebar; superseded light navigation override removed and guarded. Mobile primary navigation now resolves Arabic/English labels from the canonical registry.
-- SOURCE AUDIT → all 32 TSX page surfaces plus 7 shared shell/state components scanned at exact code candidate for synthetic/reload/TODO/Coming-Soon markers; no remediation-required hits. Proposal Demo’s “Mockup” mention is explanatory non-fabrication copy. No deletion was made without dependency proof; unresolved candidate files remain retained.
-- PROOF → current code candidate `e7eb1074…` has 43 queued, 1 in-progress, 3 cancelled, 2 skipped workflow runs; no terminal success/failure. Vercel free-plan rate-limit remains external. No production/browser/Phase-F/device certification claimed.
-- NEXT → consume first terminal result for `e7eb1074…`; repair only first reproducible current-SHA root; continue bounded dependency-proven cleanup if available.---
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / SECURITY BOUNDARY CLOSURE
-
-> This top block is the only startup boundary.
-
-- MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `10a173b606697c56dbb167b9ec27911cfbcefb27`
-- FUNCTIONAL FRONT → PR #671
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- PRODUCT PATH → Any Source → Security → Fingerprint → Understand → Normalize → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Signals → Decision → Work → Outcome/Learning.
-- UI COVERAGE → 38/38 navigation routes + 8 canonical zones; post-import journey + forecast backtest gate + capability guards.
-- SECURITY → shared canonical import server core enforces authenticated tenant/source binding; Netlify/API response contracts aligned; RPC grants remain fail-closed.
-- PROOF → exact source readback is current; workflows not terminalized; Vercel external rate limit.
-- NEXT → first terminal current-head CI result, then root fix only; continue independent cleanup if provable.
-
+- SOURCE AUDIT → all 32 TSX page surfaces plus 7 shared shell/state components scanned at exact code candidate; no remediation-required synthetic/reload/TODO/Coming-Soon markers. Proposal Demo's “Mockup” mention is explanatory non-fabrication copy. No deletion was made without dependency proof.
+- IMPORT UI → full 16-stage lifecycle is visible in the canonical import surface from Security/Fingerprint through Canonical Commit/Persistence/Readback/Business Understanding, then Evidence/Signals/Decision/Work/Outcome/Learning; post-import cards link to existing canonical routes only.
+- PROOF → current code candidate `e7eb1074…` has 42 queued, 1 in-progress, 4 cancelled, 2 skipped workflow runs; no terminal success/failure. Vercel free-plan rate-limit remains external. No production/browser/Phase-F/device certification claimed.
+- NEXT → consume first terminal result for `e7eb1074…`; repair only first reproducible current-SHA root; continue bounded dependency-proven cleanup if available.
 ---
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / NON-DEVICE DEEP CLOSURE
