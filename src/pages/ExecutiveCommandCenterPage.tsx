@@ -103,8 +103,8 @@ export function ExecutiveCommandCenterPage() {
       setKpis(snapshot.kpis);
       setAsOf(snapshot.asOf);
       setTrend(snapshot.trend);
-      setAlerts(intelligence.alerts.filter((item) => !item.is_read).slice(0, 5));
-      setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').slice(0, 5));
+      setAlerts(intelligence.alerts.filter((item) => !item.is_read));
+      setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted'));
       if (replayResult.status === 'fulfilled') {
         setReplaySnapshot(replayResult.value);
         setReplayError(false);
@@ -276,7 +276,8 @@ export function ExecutiveCommandCenterPage() {
           <CardHeader title="مركز الانتباه" subtitle="الإشارات التي تستحق فحصًا أو تدخلاً." action={<Link to="/intelligence" className="btn-ghost text-[11px]">الذكاء <Brain size={13}/></Link>}/>
           <CardBody>
             <div className="space-y-3">
-              {alerts.map((alert) => <AlertRow key={alert.id} alert={alert}/>)}
+              {alerts.slice(0, 5).map((alert) => <AlertRow key={alert.id} alert={alert}/>)}
+              {alerts.length > 5 && <div className="rounded-xl border border-ink-100 bg-ink-50/60 px-3 py-2 text-[10px] text-ink-500">يعرض مركز القيادة أحدث 5 إشارات فقط؛ العدد {alerts.length} هو إجمالي الإشارات المفتوحة في القراءة الحالية. <Link to="/intelligence" className="font-black text-primary-700 hover:underline">فتح الكل</Link></div>}
               {alerts.length === 0 && <EmptyState title="لا توجد إشارات نشطة" message="لا يوجد تنبيه غير مقروء في المصدر الحالي." action={<Link to="/intelligence" className="btn-secondary text-[11px]">فحص مساحة الإشارات</Link>}/>} 
             </div>
           </CardBody>
@@ -286,7 +287,8 @@ export function ExecutiveCommandCenterPage() {
           <CardHeader title="طابور القرار" subtitle="ما يمكن تحويله إلى قرار الآن." action={<Link to="/decision-experience" className="btn-ghost text-[11px]">مساحة القرار <ArrowUpLeft size={13}/></Link>}/>
           <CardBody>
             <div className="space-y-3">
-              {recommendations.map((recommendation) => <DecisionRow key={recommendation.id} recommendation={recommendation}/>)}
+              {recommendations.slice(0, 5).map((recommendation) => <DecisionRow key={recommendation.id} recommendation={recommendation}/>)}
+              {recommendations.length > 5 && <div className="rounded-xl border border-ink-100 bg-ink-50/60 px-3 py-2 text-[10px] text-ink-500">يعرض مركز القيادة أحدث 5 توصيات قابلة للمراجعة؛ العدد {recommendations.length} هو الإجمالي الحالي. <Link to="/decision-experience?stage=decision" className="font-black text-primary-700 hover:underline">فتح الكل</Link></div>}
               {recommendations.length === 0 && <EmptyState title="لا توجد توصيات قابلة للمراجعة" message="لن تتم صناعة بديل اصطناعي عند غياب الإشارة." action={<Link to="/data-quality" className="btn-secondary text-[11px]">مراجعة جودة البيانات</Link>}/>} 
             </div>
           </CardBody>
