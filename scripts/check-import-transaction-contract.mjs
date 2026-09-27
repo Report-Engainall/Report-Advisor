@@ -164,7 +164,7 @@ if (!/SUPABASE_SERVICE_ROLE_KEY/.test(apiWrapper) ||
     !/executeCanonicalImport/.test(apiWrapper)) {
   throw new Error('API canonical deployment wrapper must bind required Supabase configuration and delegate to the shared server execution core');
 }
-if (!/Authorization/.test(apiWrapper) || !/bearerToken\(req\)/.test(apiWrapper)) {
+if (!/authorization/i.test(apiWrapper) || !/bearerToken/.test(apiWrapper) || !/const token\s*=\s*bearerToken\(req\)/.test(apiWrapper)) {
   throw new Error('API canonical deployment wrapper must require an authenticated bearer token');
 }
 if (/grant execute on function public\\.(claim|heartbeat|advance|complete|fail|retry)_report_execution_job[^\\n]*to authenticated/i.test(serverAdapter)) {
