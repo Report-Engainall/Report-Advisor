@@ -9,6 +9,8 @@ const index = `## CURRENT PROJECT STATE\n- Current code/test candidate: \`${cand
 assert.doesNotThrow(() => validateCertificationBoundary({ index, head: candidate, parent: '', changedFiles: [] }));
 const controlPlaneIndex = '# CURRENT CONTROL-PLANE BOUNDARY\n- CURRENT CODE/TEST CANDIDATE: `' + candidate + '`';
 assert.doesNotThrow(() => validateCertificationBoundary({ index: controlPlaneIndex, head: candidate, parent: '', changedFiles: [] }));
+const arrowIndex = '# CURRENT EXECUTION BOUNDARY\n- CURRENT CODE/TEST CANDIDATE → `' + candidate + '`';
+assert.doesNotThrow(() => validateCertificationBoundary({ index: arrowIndex, head: candidate, parent: '', changedFiles: [] }));
 const historicalBeforeStartupBoundary = [
   '# LATEST SESSION WRITE-BACK',
   '- CURRENT CODE/TEST CANDIDATE: `0000000000000000000000000000000000000000`.',
