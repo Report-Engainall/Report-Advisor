@@ -1,3 +1,35 @@
+# CURRENT EXECUTION CHECKPOINT — 2026-09-28 / LIVE IMPORT BOUNDARY RECONCILIATION
+
+- FUNCTIONAL CODE SHA REMAINS → `a0a73ac2fb8f0221cd0c9e04054b44a7e5817b5b`.
+- CURRENT DOCUMENTATION HEAD → `b62942593271f19d96e6d4ea4e896a600ae3c4d2`.
+- STAGING PROJECT → `Report-Advisor-P0-2-Staging` / `fnqbvfuwbdpwvhcgzksl`.
+- LIVE IMPORT BOUNDARY READBACK → `import_finish_job(uuid,text,jsonb,text)` is SECURITY INVOKER, authenticated EXECUTE=true, anon=false; it enforces tenant match, terminal-state immutability, processed-row/completion consistency and guarded update.
+- LIVE CANONICAL COMMIT BOUNDARY → six-argument `import_commit_batch(..., p_import_job_id uuid)` is SECURITY DEFINER with `search_path=pg_catalog`, authenticated EXECUTE=true, anon=false; it checks `current_company_id`, tenant match, import-job binding, authoritative source hash, file security status, storage binding, source fingerprint, entity-type alignment, and idempotent commit locking.
+- LEGACY FIVE-ARG IMPORT COMMIT → SECURITY DEFINER but authenticated EXECUTE=false and anon=false; it is therefore not the client entry point.
+- LIVE RLS RESCAN → all inspected public import/business/evidence/decision tables remain RLS-enabled.
+- SECURITY ADVISOR → 40 authenticated SECURITY DEFINER warnings remain in staging; this is a broad historical/legacy surface and no blanket revoke is performed. Canonical import/tenant boundaries are handled separately.
+- DO NOT REPEAT → do not treat Advisor warnings as proof of a specific vulnerability without source/grant reconciliation; do not mutate broad SECURITY DEFINER surface; do not transfer staging readback into production certification.
+- NEXT → consume fresh exact-head CI/certification/browser results; any new failure must be repaired against its exact SHA only.
+
+---
+# CURRENT EXECUTION CHECKPOINT — 2026-09-28 / CURRENT-SHA SCENARIO GATE CLOSURE
+
+- MAIN HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- FUNCTIONAL PROOF SHA → `a0a73ac2fb8f0221cd0c9e04054b44a7e5817b5b`.
+- PR → `#672` / `exec/20260927-current-main-import-ui-rebased`.
+- ROOT CAUSE CLOSED → `scripts/check-scenario-financial-truth-guard.mjs` referenced removed `src/pages/CanonicalScenarioPage.tsx`; the canonical scenario surface is `src/pages/ScenarioTruthGuardPage.tsx`, which owns the calculator.
+- FIX COMMITTED → `a0a73ac2fb8f0221cd0c9e04054b44a7e5817b5b` (`fix(ci): align scenario truth gate with canonical page`).
+- WORKFLOW FIX → `.github/workflows/scenario-financial-truth-guard.yml` now watches the canonical page and no longer watches the removed path.
+- EXACT LOCAL PROOF ON `a0a73ac2` → scenario financial-truth gate PASS; typecheck PASS; production build PASS (2802 modules); quality-workflow contract PASS (33 npm commands / 10 mandatory stage groups); knowledge-architecture PASS.
+- SAME-TREE PRIOR LOCAL PROOF → canonical import mapping/transaction/runtime, Phase-3 data import truth, decision intelligence, document intelligence, file security, tenant security, report truth, production-certification runtime/contract/evidence-integrity, import direct-write/tenant-context/business-key/state, report E2E contract, golden corpus, and incremental import ledger all passed before this docs checkpoint. These results remain bound to their exact execution SHA and are not transferred.
+- DEVICE → PC01 online; candidate tree is checked out locally.
+- BROWSER → Vite dev server reached READY on `127.0.0.1:4173`; `agent-browser` is not installed on PC01, so authenticated/browser E2E remains NOT PROVEN.
+- HOSTED/CI → fresh exact-head GitHub gates are queued/pending; `desktop-windows` was in progress at last observation. Vercel is pending; Netlify status success is not treated as product PASS.
+- STALE SCENARIO SEARCH → the only remaining `CanonicalScenarioPage` match is the deliberate negative assertion that forbids use of the removed superseded page.
+- DO NOT REPEAT → stale scenario gate path, stale PASS transfer, preview-as-production, browser claims without execution, duplicate import/RPC/runner paths, blanket SECURITY DEFINER cleanup.
+- NEXT EXECUTABLE ACTION → consume terminal exact-head certification/browser/runtime results when available; repair only a new reproducible current-SHA failure while continuing independent repository-safe closure.
+
+---
 # CURRENT RESUME POINTER — 2026-09-28 / eed9917e SECURITY CONTRACT REPAIR
 
 - IMPLEMENTATION SHA → `eed9917e348e9fa2fed0be4af5bdd24d70152aea`; current branch has since advanced to `ff0298cfacb6e40abf848397548b0ac67207ff28` by a docs-only cleanup/security-rescan checkpoint.
