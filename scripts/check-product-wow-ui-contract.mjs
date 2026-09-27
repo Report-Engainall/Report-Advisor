@@ -199,6 +199,15 @@ assert.ok(commandCenter.includes('alerts.slice(0, 5)'), 'command center may limi
 assert.ok(commandCenter.includes('recommendations.slice(0, 5)'), 'command center may limit display to a bounded recommendation window only after full-state derivation');
 
 assert.ok(commandCenter.includes('ضمن القراءة الحالية؛ لا يتم دمجهما في درجة مخترعة'), 'decision coverage card must disclose its read-window scope');
+const decisionStatus = fs.readFileSync('src/lib/decision-status.ts', 'utf8');
+assert.ok(decisionStatus.includes("'OPEN'"), 'canonical decision status resolver must include OPEN');
+assert.ok(decisionStatus.includes("isActionableRecommendationStatus"), 'canonical decision status resolver must expose an actionable predicate');
+const intelligence = fs.readFileSync('src/pages/IntelligencePage.tsx', 'utf8');
+const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
+assert.ok(intelligence.includes('isActionableRecommendationStatus(item.status)'), 'intelligence queue must use canonical recommendation status semantics');
+assert.ok(!intelligence.includes("item.status === 'new'"), 'intelligence queue must not regress to new-only recommendation filtering');
+assert.ok(executiveReport.includes('isActionableRecommendationStatus(item.status)'), 'executive report coverage must use canonical recommendation status semantics');
+assert.ok(!executiveReport.includes("['pending', 'proposed', 'approved', 'in_progress'].includes(item.status)"), 'executive report must not use an incompatible status cohort');
 const commandPalette = fs.readFileSync('src/components/CommandPalette.tsx', 'utf8');
 assert.ok(appShell.includes('mobileSidebarRef'), 'mobile navigation drawer must expose a focus boundary');
 assert.ok(appShell.includes('aria-modal="true" aria-label="القائمة الرئيسية"'), 'mobile navigation drawer must declare modal semantics');
