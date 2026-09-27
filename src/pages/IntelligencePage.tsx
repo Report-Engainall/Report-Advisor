@@ -407,7 +407,8 @@ export function RecommendationsPage() {
       setPendingId(id);
       setError(null);
       await updateRecommendationStatus(id, status);
-      setItems((current) => current.map((item) => item.id === id ? { ...item, status } : item));
+      const persistedStatus = status === 'accepted' ? 'approved' : status;
+      setItems((current) => current.map((item) => item.id === id ? { ...item, status: persistedStatus } : item));
     } catch (cause: unknown) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحديث حالة التوصية');
     } finally {
