@@ -1,3 +1,20 @@
+# RESUME TOKEN — 2026-09-28 / DEVICE-OFFLINE SAFE EXECUTION + LIVE SECURITY READBACK
+
+- EXACT GITHUB MAIN HEAD AT START → `9e35c768c7548ab87174e3ffa9426dc4605489d3`.
+- CURRENT FUNCTIONAL CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `cf0d30c4015642313d899d9d8262bc7159abb220`.
+- RECONCILIATION → #672 is diverged from current main: candidate is 24 commits ahead and 8 behind; merge base `132e40f023e564dba9e7f84c63d543bab1b7fc71`. Do NOT treat candidate evidence as main evidence and do NOT merge without re-anchoring.
+- FRESH LIVE STAGING READBACK → `fnqbvfuwbdpwvhcgzksl` / Report-Advisor-P0-2-Staging is ACTIVE_HEALTHY.
+- LIVE SECURITY RESULT → `import_create_job`, `import_update_job_progress`, `import_finish_job`, `get_receivables_report_page`, `get_cash_account_balances`, and `get_staff_receivables` are SECURITY INVOKER with `search_path=public, pg_catalog`; authenticated/service_role EXECUTE present; anon absent.
+- IMPORT COMMIT BOUNDARY → five-argument `import_commit_batch` has authenticated EXECUTE absent; six-argument `import_commit_batch` is SECURITY DEFINER with authenticated/service_role EXECUTE and anon absent. This remains a deliberate canonical write boundary; do not downgrade without source/RLS proof.
+- LIVE RLS RESULT → `import_jobs`, `file_records`, `canonical_import_commits`, and `import_job_rows` all have RLS enabled.
+- SECURITY ADVISOR → 40 authenticated SECURITY DEFINER findings remain plus 1 leaked-password-protection warning. No blanket revoke or speculative Auth mutation performed. `compute_control_plane_health` remains SECURITY DEFINER by documented design.
+- CURRENT CI/RELEASE BOUNDARY → candidate `cf0d30c` has Vercel failure `build-rate-limit`, Vercel deployment pending, Netlify status success, CodeRabbit success; no fresh CI workflow PASS was inferred. Certification/browser/device/production remain NOT PROVEN.
+- DEVICE → PC01 offline; no device/browser/production evidence fabricated.
+- SAFE EXECUTION DECISION → no reproducible current-main code defect was established by repository/static/live read-only evidence in this pass. No speculative code mutation was made. The blocked candidate rebase/CI path remains isolated.
+- NEXT EXECUTABLE ACTION → re-anchor PR #672 onto exact current main when repository write path permits; consume fresh exact-head CI; repair only the first reproducible failure. Meanwhile continue independent repository-safe UI/core/security/data/cleanup fronts; never transfer candidate evidence to main.
+
+---
+
 # RESUME TOKEN — 2026-09-27 / IMPORT-FINISH LIVE-STAGING DRIFT RECONCILED
 
 - MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `6f1d818f60a700b07a13b0163ddfc20dce0f2a57`
