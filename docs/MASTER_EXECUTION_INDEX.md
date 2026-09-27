@@ -3,14 +3,14 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `7b45491b0f0f8f99caa4ba2dda6a9d359f020530`
-- CURRENT CODE CANDIDATES → `7011596a003982b1ff9c2bcfc1e0c7dab8a9f04`, `8c2ded7d4e268e029df10ed988d392039e8a5bce`, `2f9f4dc4653c38945cb739d1284c61fff992d4c7`
-- CURRENT CONTRACT CANDIDATE → `7b45491b0f0f8f99caa4ba2dda6a9d359f020530`
+- CURRENT BRANCH HEAD → `79c1c1d7b7d5d33fe2e0b1d2cb1ddf7be1e6c19d`
+- CURRENT CODE CANDIDATES → `ad43ddaa020f4fa5994f10b26db1766c8accef82`, `fdebbda9713990cf6356dd891348dc56512466b9`, `086bed9989381ca13e27b170bde415af9d6741cf`
+- CURRENT CONTRACT CANDIDATE → `d4cbf3522b80d34c8045f4f99e9461c2334c8a87`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
-- DECISION STATUS → canonical recommendation lifecycle `new → OPEN → approved → in_progress → completed`; rejected/dismissed terminal; shared resolver adopted across Intelligence, Command Center, Executive Report.
-- IMPORT/UI → unified import-to-decision continuity, AS OF evidence, bounded Replay, truth-derived Next Action, multi-line purchase identity, seven typed server entities, staging import RPC hardening.
-- CURRENT PROOF → no terminal workflow result on latest head yet; Vercel external rate-limit persists.
-- PHASE-F → NOT CERTIFIED; production/browser/resilience evidence remains environment-bound.
+- DECISION → shared status resolver, governed approval flow, OPEN/new rejection-only mutation, Decision Coverage + Executive Report cohort consistency.
+- IMPORT → authoritative canonical count, multi-line purchase identity, seven typed server entities, staging grant/security closure.
+- UI → AS OF evidence, bounded Replay, truth-derived Next Action, fail-closed Money Recovery and ROI.
+- CURRENT PROOF → latest current-head workflows not terminalized; Vercel external rate-limit; production/browser/Phase-F remains not proven.
 - NEXT → consume first terminal workflow, fix only root, then final route/contract/cleanup rescan.
 ---
 
