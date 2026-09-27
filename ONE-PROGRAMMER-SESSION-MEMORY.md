@@ -4,7 +4,8 @@
 
 - SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `50df0ee9a252d5b19af66e91d43bcf9b6f00f53a`
+- CURRENT CODE/TEST CANDIDATE SHA → `372a03095900f6397f7179ec80eaaea1bc1aba8f`
+- MEMORY CHECKPOINT PARENT → `2881c57df7515ad93e66a3ff46f426450b9ce1da` (docs-only checkpoint; current branch ref may advance when memory is persisted)
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + BROWSER-PROOF`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize/Reconcile → Quality/Trust → Evidence → Review → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
@@ -33,7 +34,7 @@
 ## Current proof boundary
 
 - VERIFIED NOW → The workflow file at exact commit `372a03095900f6397f7179ec80eaaea1bc1aba8f` contains the complete Playwright execution path.
-- NOT YET VERIFIED → A terminal GitHub Actions run for exact PR head `50df0ee9a252d5b19af66e91d43bcf9b6f00f53a`. The workflow-run lookup currently returned no run for the browser activation commit `372a03095900f6397f7179ec80eaaea1bc1aba8f` or the current head. The GitHub workflow-run lookup currently returned no run for this commit.
+- NOT YET VERIFIED → A terminal GitHub Actions run consuming code candidate `372a03095900f6397f7179ec80eaaea1bc1aba8f` or the later docs-only PR head. The workflow-run lookup currently returned no run for the browser activation commit `372a03095900f6397f7179ec80eaaea1bc1aba8f` or the current head. The GitHub workflow-run lookup currently returned no terminal run for the browser activation commit or its current PR head.
 - NOT CLAIMED → No browser PASS, no authenticated tenant PASS, and no deployment PASS is transferred from any older SHA.
 - DEVICE → User device is unavailable; no device-dependent proof is being used.
 - EXTERNAL BLOCKERS → Vercel deployment-rate limit; live Phase-F resilience proof; authenticated runtime proof when required secrets/environment are unavailable.
@@ -41,7 +42,7 @@
 
 ## Immediate continuation
 
-- NEXT EXECUTABLE ACTION → Consume the first terminal GitHub Actions result for exact PR head `50df0ee9a252d5b19af66e91d43bcf9b6f00f53a`; the browser workflow itself was activated in parent commit `372a03095900f6397f7179ec80eaaea1bc1aba8f`. If a current-head failure appears, fix only the first reproducible root and rerun on a new exact SHA.
+- NEXT EXECUTABLE ACTION → Consume the first terminal GitHub Actions result that executes code candidate `372a03095900f6397f7179ec80eaaea1bc1aba8f`; fix only the first reproducible current-head root and rerun on a new exact SHA. If a current-head failure appears, fix only the first reproducible root and rerun on a new exact SHA.
 - NEXT INDEPENDENT ACTION → Continue only safe repository-side UI/core closure and proven-stale cleanup while runtime/device fronts remain blocked.
 - DO NOT REPEAT → Do not restore `CanonicalScenarioPage`; do not transfer historical PASS across SHAs; do not create another browser framework; do not use unauthenticated preview as authenticated proof; do not close unresolved legacy PRs without absorption evidence.
 
