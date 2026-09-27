@@ -13,7 +13,7 @@ for (const token of [
   'PriorityBadge',
   'ConfidenceBadge',
   'activeAlerts',
-  'newRecommendations',
+  'actionableRecommendations',
   'companyForecasts',
   'مساحة القرار',
   'FORECAST',
@@ -24,7 +24,7 @@ for (const token of [
 for (const token of [
   /<Card>/,
   /activeAlerts\.slice/,
-  /newRecommendations\.slice/,
+  /actionableRecommendations\.slice/,
   /forecastChartData/,
   /updateRecommendationStatus/,
   /EmptyState/,
