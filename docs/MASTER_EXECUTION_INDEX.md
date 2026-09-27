@@ -3,15 +3,15 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `987941d06083984e1d6ba16cdbf602ad18b9eb74`
-- CURRENT CODE CANDIDATE → `e18a4e448e29556925142f8566642bbb42e876fd`
-- CURRENT CONTRACT CANDIDATE → `987941d06083984e1d6ba16cdbf602ad18b9eb74`
+- CURRENT BRANCH HEAD → `c8dab055e5132cd3326559ffa2079bd1f4357eaf`
+- CURRENT CODE CANDIDATES → `c83338f831aa9c02e38efa119875043150b52157`, `9839b17f0f062b708d2e5410d545cb04190ff591`
+- CURRENT CONTRACT CANDIDATE → `c8dab055e5132cd3326559ffa2079bd1f4357eaf`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
-- UI → Decision Coverage full-state semantics + bounded display, Next Action derived from truth, canonical Replay state/failure isolation, unified `/import/analyze` redirect, no retired external analysis page wiring.
-- CORE → typed entity server boundary + purchase-line physical row identity + staging RPC grant/security closure.
-- PROOF → staging grants exact and anonymous Security Advisor finding closed; CI for latest head still not terminalized; Vercel external rate-limit remains separate.
-- PHASE-F → NOT CERTIFIED; production/browser/resilience evidence remains environment-bound.
-- NEXT → consume first terminal workflow on current head, fix only root, then final route/contract/cleanup rescan.
+- UI → full-state Decision Coverage + bounded display, Next Action, Replay AS OF/failure isolation/bounded command-center read, unified import analysis redirect.
+- CORE → typed canonical import boundaries, purchase-line identity, staging runtime grant/security closure.
+- CURRENT PROOF → no terminal current-head CI failure yet; Vercel remains external rate-limit.
+- PHASE-F → NOT CERTIFIED; production/browser/resilience proof remains environment-bound.
+- NEXT → consume first terminal workflow, fix only root, then final route/contract/cleanup rescan.
 ---
 
 
