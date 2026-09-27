@@ -1,20 +1,19 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `7ce0ead82c8a46cfdba12b5673749e269e11a08c`
+- CURRENT BRANCH HEAD → `ffee65dbf12831c093c0018ce38a854327eb653a`
 - CURRENT CODE/TEST CANDIDATE → `ce1991161561d3b6eadebe29dda004d975006cef`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- ACTUAL RESULT → typed specialty server boundary + all-seven contract guard; purchase-line multi-row identity; Evidence/Decision/Replay AS OF; localized specialty/entity labels; staging canonical-specialty migration and RPC grant hardening applied and verified.
-- RUNTIME PROOF → staging `fnqbvfuwbdpwvhcgzksl`: 20260927213000 and 20260927220000 are applied; 6-arg and legacy 5-arg import_commit_batch exist; entity constraint lists all seven typed specialties + generic; anon execution=false, authenticated=true, service_role=true; Security Advisor no longer reports anonymous execution for import_commit_batch.
-- CODE / SECURITY MUTATIONS → server allowlist `3d5cb96f…`; typed server contract `7dcceb5b…`; grant migration `bb8d57d239b214ff65a53204720bac970cb5b230`; security contract `ce1991161561d3b6eadebe29dda004d975006cef`.
-- PROOF STATE → current branch source verified; fresh PR gates have not terminalized. Vercel remains external free-plan build-rate limit. Local GitHub/DNS execution remains unavailable.
-- OPEN BLOCKERS → Vercel build-rate-limit; authenticated production/browser/Phase-F certification remains environment-bound; device unavailable; local execution DNS blocked.
-- FIRST FAILURE → none terminalized on current candidate after latest security/runtime closure.
-- NEXT EXECUTABLE ACTION → consume first terminal workflow result on current PR head; repair only current-SHA root, then re-prove staging if the root touches runtime.
-- NEXT INDEPENDENT ACTIONS → final route/contract rescan and legacy deletion gates only where references/dependencies are proven absent.
-- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, preview-as-production, static business truth, or treating historical staging evidence as current without exact verification.
+- ACTUAL RESULT → typed server boundary + all-seven contract guard; multi-line purchase identity; Evidence/Decision/Replay AS OF; localized labels; staging specialty migration + RPC grant hardening applied and verified.
+- RUNTIME GRANTS — STAGING → 6-arg import_commit_batch: anon=false/authenticated=true/service_role=true; legacy 5-arg import_commit_batch: anon=false/authenticated=false/service_role=true.
+- SECURITY → Security Advisor no longer reports anonymous execution for import_commit_batch; remaining authenticated SECURITY DEFINER findings are broader pre-existing posture, not blanket-revoked.
+- PROOF → exact runtime schema/grants verified on `fnqbvfuwbdpwvhcgzksl`; fresh PR CI has no terminal failure yet; Vercel rate-limit remains external.
+- OPEN BLOCKERS → Vercel build-rate-limit; authenticated production/browser/Phase-F certification environment-bound; device unavailable; local GitHub/DNS unavailable.
+- FIRST FAILURE → none terminalized on current candidate.
+- NEXT EXECUTABLE ACTION → consume first terminal PR #671 workflow; fix only current-SHA root and re-prove.
+- NEXT INDEPENDENT ACTIONS → final route/contract rescan and cleanup only where deletion gates are proven.
+- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, preview-as-production, static business truth, historical staging proof without exact runtime verification.
 - RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD PROOF IN FLIGHT
 ---
 
