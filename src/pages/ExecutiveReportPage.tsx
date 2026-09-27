@@ -6,6 +6,7 @@ import type { Alert, Recommendation } from '@/lib/types';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
+import { isActionableRecommendationStatus } from '@/lib/decision-status';
 
 function Metric({ label, value, hint }: { label: string; value: string; hint: string }) {
   return <div className="rounded-2xl border border-ink-100 bg-ink-50/70 p-4">
@@ -74,7 +75,7 @@ export function ExecutiveReportPage() {
   useEffect(() => { void load(); }, [load]);
 
   const recommendations = data?.recommendations ?? [];
-  const actionableRecommendations = recommendations.filter((item) => ['pending', 'proposed', 'approved', 'in_progress'].includes(item.status));
+  const actionableRecommendations = recommendations.filter((item) => isActionableRecommendationStatus(item.status));
   const activeDecisionCount = actionableRecommendations.length;
   const accountableDecisionCount = actionableRecommendations.filter((item) => Boolean(item.owner?.trim())).length;
   const recordedOutcomeCount = actionableRecommendations.filter((item) => Boolean(item.impact_result?.trim())).length;
