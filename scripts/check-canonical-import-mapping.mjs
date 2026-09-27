@@ -80,6 +80,13 @@ const specialtySchemaTokens = [
 for (const token of specialtySchemaTokens) {
   if (!schemaIntelligence.includes(token)) throw new Error('Specialty schema mapping missing: ' + token);
 }
+const serverExecutor = readFileSync(new URL('../src/server/canonical-import-executor.ts', import.meta.url), 'utf8');
+for (const token of [
+  "purchase_invoices","suppliers","inventory_balances","payments",
+  "CANONICAL_IMPORT_ENTITY_TYPE_INVALID",
+]) {
+  if (!serverExecutor.includes(token)) throw new Error('Server canonical entity boundary missing: ' + token);
+}
 const specialtySourceUnderstandingTokens = [
   "purchase_invoices","suppliers","inventory_balances","payments",
   "if (specialty === 'purchases') return 'purchase_invoices'",
