@@ -5,7 +5,7 @@ import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
-import { fetchImportRecords, createImportRecord } from '@/lib/queries';
+import { fetchDashboardIntelligence, fetchImportRecords, createImportRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
@@ -281,6 +281,18 @@ export function CanonicalImportPage() {
         window.sessionStorage.setItem('aghbari:last-import-job', rec.id);
       }
       setProgress(100);
+      let postImportSignals: { alerts: number; recommendations: number } | null = null;
+      if (evidenceStatus === 'VERIFIED') {
+        try {
+          const intelligence = await fetchDashboardIntelligence();
+          postImportSignals = {
+            alerts: intelligence.alerts.filter((item) => !item.is_read).length,
+            recommendations: intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').length,
+          };
+        } catch {
+          postImportSignals = null;
+        }
+      }
       setResult({
         total: rows.length,
         valid: validRows.length,
@@ -295,6 +307,7 @@ export function CanonicalImportPage() {
         datasetCount,
         evidenceStatus,
         evidenceWarning: typeof execution.evidenceWarning === 'string' ? execution.evidenceWarning : null,
+        postImportSignals,
       });
       setStep('done');
       await loadHistory();
@@ -436,7 +449,16 @@ export function CanonicalImportPage() {
     : 'تم تنفيذ الاستيراد الكانوني وتسجيل النتيجة التشغيلية، لكن لقطة الدليل لم تُثبت. الحالة PARTIAL ولا يُعتبر الدليل مكتملًا حتى يثبت الحفظ.'
   }
   {result.evidenceWarning && <div className="mt-2 rounded-lg border border-warning-200 bg-warning-50 px-3 py-2 text-warning-800">{result.evidenceWarning}</div>}
-</div><div className="flex flex-wrap justify-center gap-2">{result.evidenceStatus === 'VERIFIED' ? (
+</div><section className="w-full max-w-3xl rounded-[16px] border border-ink-200 bg-white p-4 text-right">
+  <div className="text-[9px] font-black tracking-[.12em] text-primary-700">WHAT HAPPENS NEXT</div>
+  <div className="mt-1 text-sm font-black text-ink-950">من المصدر المثبت إلى إشارات العمل</div>
+  <div className="mt-1 text-[10px] leading-5 text-ink-500">هذه حالة المسارات التي أصبحت قابلة للقراءة بعد الاعتماد؛ لا يتم اختلاق إشارة عند غياب الدليل.</div>
+  <div className="mt-3 grid gap-2 sm:grid-cols-3">
+    <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">Evidence Passport</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.evidenceStatus === 'VERIFIED' ? 'مثبت' : 'PARTIAL'}</div></div>
+    <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">الإشارات الحالية</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.postImportSignals ? result.postImportSignals.alerts + ' تنبيه · ' + result.postImportSignals.recommendations + ' توصية' : 'غير متاحة'}</div></div>
+    <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">الخطوة التالية</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.evidenceStatus === 'VERIFIED' ? 'الدليل ثم القرار' : 'إثبات الدليل أولًا'}</div></div>
+  </div>
+</section><div className="flex flex-wrap justify-center gap-2">{result.evidenceStatus === 'VERIFIED' ? (
   <>
     <Link to={result.importId ? "/trust?import=" + encodeURIComponent(result.importId) : "/trust"} className="btn-secondary">فتح Evidence Passport</Link>
     <Link to="/data-quality" className="btn-secondary">فحص جودة البيانات</Link>
