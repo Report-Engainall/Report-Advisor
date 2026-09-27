@@ -273,20 +273,6 @@ button,input,textarea,select{font:inherit}
 @media(prefers-reduced-motion:reduce){.skeleton::after,.ag-state-loading .ag-state-icon::after{animation:none}}
 
 @layer components{
-  /* AGHBARI VISUAL REFINEMENT — visible separators + stronger RTL navigation tree */
-  .ag-sidebar{border-color:#cfe2dd!important;box-shadow:inset -1px 0 0 rgba(12,98,89,.05),12px 0 32px -30px rgba(5,46,43,.42)}
-  .ag-sidebar .border-ink-100{border-color:#dfeae6!important}
-  .ag-sidebar .border-ink-200{border-color:#cfe2dd!important}
-  .ag-sidebar .text-ink-300{color:#8aa19a!important}
-  .ag-sidebar .text-ink-400{color:#667d75!important}
-  .ag-nav-sublist{position:relative;margin-inline-start:12px!important;padding-inline-start:12px!important;border-inline-start:1.5px solid #8fc8be!important}
-  .ag-nav-sublist .ag-nav-item{position:relative;min-height:38px;border:1px solid transparent;border-radius:10px;color:#506c64;padding-inline:10px!important;transition:background-color .15s ease,border-color .15s ease,color .15s ease,transform .15s ease,box-shadow .15s ease}
-  .ag-nav-sublist .ag-nav-item::before{content:"";position:absolute;inset-inline-start:-13px;top:50%;width:11px;border-top:1.5px solid #8fc8be;transform:translateY(-50%)}
-  .ag-nav-sublist .ag-nav-item:hover{color:#123f39;border-color:#d3e7e2;background:#f2f9f7;transform:translateX(-1px)}
-  .ag-nav-sublist .ag-nav-item-active{color:#073b37!important;border-color:#8fc5bb!important;background:linear-gradient(135deg,#e9f7f3,#fffdf5)!important;box-shadow:inset 3px 0 0 #e7b52b,0 8px 18px -16px rgba(5,46,43,.48);font-weight:900}
-  .ag-nav-sublist .ag-nav-item-active::before{border-top-color:#e7b52b}
-}
-@layer components{
   /* MAIN SURFACES — better contrast without changing business semantics */
   .ag-main .border-ink-100{border-color:#dfeae6!important}
   .ag-main .border-ink-200{border-color:#cfe2dd!important}
@@ -927,4 +913,27 @@ button,input,textarea,select{font:inherit}
 }
 @media (max-width: 767px) {
   .ag-main .ag-dashboard-header::after { display: none; }
+}
+
+@layer components{
+  /* FINAL SHELL SURFACE — keep the executive shell aligned with the Aghbari dark visual constitution. */
+  .ag-topbar{
+    color:#f4fffc!important;
+    background:linear-gradient(135deg,#052f2d 0%,#063b36 58%,#052825 100%)!important;
+    border-color:rgba(191,235,226,.18)!important;
+    box-shadow:0 16px 34px -28px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.05)!important;
+  }
+  .ag-topbar .ag-top-section{border-color:rgba(191,235,226,.14)!important;background:rgba(255,255,255,.05)!important;color:#a8cec7!important}
+  .ag-topbar .ag-top-search{border-color:rgba(191,235,226,.20)!important;background:rgba(255,255,255,.08)!important;color:#d9ece8!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)!important}
+  .ag-topbar .ag-top-search:hover{border-color:rgba(98,205,188,.38)!important;background:rgba(255,255,255,.12)!important}
+  .ag-topbar .ag-top-search kbd{border-color:rgba(191,235,226,.16)!important;background:rgba(255,255,255,.06)!important;color:#9fc1bb!important}
+  .ag-topbar button,.ag-topbar a{color:#d9ece8}
+  .ag-topbar button:hover,.ag-topbar a:hover{color:#fff}
+  .ag-topbar .ag-top-search span{color:#b9d6d0}
+  .ag-topbar .ag-health-pill{border-color:rgba(191,235,226,.14)!important;background:rgba(255,255,255,.045)!important;color:#cfe5e1}
+  .ag-topbar .ag-health-pill .text-ink-500{color:#b9d6d0!important}
+  .ag-topbar > div > button:first-child{color:#d9ece8}
+  .ag-topbar .ag-alert-panel{color:#17211c}
+  .ag-topbar .ag-alert-panel button{color:inherit}
+  .ag-topbar .ag-alert-panel a{color:inherit}
 }
