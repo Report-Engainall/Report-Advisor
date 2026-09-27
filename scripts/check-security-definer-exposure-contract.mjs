@@ -75,15 +75,22 @@ function normalizeSearchPath(window) {
 function hasSafeSearchPath(window, mode) {
   const normalized = normalizeSearchPath(window);
   if (!normalized) return false;
-  if (mode === 'EMPTY_OR_SAFE') return normalized === '' || normalized === 'public' || normalized === 'public,pg_catalog';
-  return normalized === 'public' || normalized === 'public,pg_catalog';
+  if (mode === 'EMPTY_OR_SAFE') return normalized === '' || normalized === 'pg_catalog' || normalized === 'public' || normalized === 'public,pg_catalog' || normalized === 'pg_catalog,public';
+  return normalized === 'public' || normalized === 'public,pg_catalog' || normalized === 'pg_catalog,public';
 }
 
 function assertAuthenticatedOnly(name) {
-  const authenticatedGrant = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${name}\\s*\\([^;]*?\\)\\s+TO\\s+authenticated\\s*;`, 'i');
-  if (!authenticatedGrant.test(sql)) failures.push(`${name}: authenticated EXECUTE grant not found`);
-  const anonGrant = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${name}\\s*\\([^;]*?\\)\\s+TO\\s+anon\\s*;`, 'i');
-  if (anonGrant.test(sql)) failures.push(`${name}: SECURITY DEFINER function must not be executable by anon`);
+  const grantPattern = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${name}\\s*\\([^;]*?\\)\\s+TO\\s+([^;]+);`, 'ig');
+  let authenticated = false;
+  let anon = false;
+  let match;
+  while ((match = grantPattern.exec(sql)) !== null) {
+    const roles = match[1].split(',').map(role => role.trim().toLowerCase()).filter(Boolean);
+    authenticated ||= roles.includes('authenticated');
+    anon ||= roles.includes('anon');
+  }
+  if (!authenticated) failures.push(`${name}: authenticated EXECUTE grant not found`);
+  if (anon) failures.push(`${name}: SECURITY DEFINER function must not be executable by anon`);
 }
 
 for (const name of intendedAuthenticatedSecurityDefiners) {
