@@ -150,6 +150,9 @@ assert.ok(canonicalImport.includes('aria-current={active ? \'step\' : undefined}
 assert.ok(canonicalImport.includes('CANONICAL_LIFECYCLE'), 'canonical import result must expose the full post-upload lifecycle surface');
 assert.ok(canonicalImport.includes('specialtyLabel'), 'canonical import must present typed business specialties with customer-facing labels');
 assert.ok(canonicalImport.includes('entityLabel'), 'canonical import must present canonical entity types with customer-facing labels');
+assert.ok(canonicalImport.includes("from '@/lib/import/canonical-labels'"), 'canonical import must reuse the shared canonical label helper');
+const trustEvidenceSharedLabels = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
+assert.ok(trustEvidenceSharedLabels.includes("from '@/lib/import/canonical-labels'"), 'Evidence Passport must reuse the shared canonical specialty label helper');
 assert.ok(canonicalImport.includes('Security') && canonicalImport.includes('Fingerprint'), 'canonical import lifecycle must expose source security and fingerprint stages');
 assert.ok(canonicalImport.includes('Normalize') && canonicalImport.includes('Quality') && canonicalImport.includes('Trust'), 'canonical import lifecycle must expose normalize, quality and trust stages');
 assert.ok(canonicalImport.includes('Canonical Commit') && canonicalImport.includes('Persistence') && canonicalImport.includes('Readback'), 'canonical import lifecycle must expose canonical commit, persistence and readback stages');
