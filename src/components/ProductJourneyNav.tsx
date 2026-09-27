@@ -16,8 +16,6 @@ const steps: JourneyStep[] = [
 
 export function ProductJourneyNav() {
   const location = useLocation();
-  const currentParams = new URLSearchParams(location.search);
-
   const hrefFor = (path: string, stage?: string) => {
     if (path !== '/decision-experience') return path;
     const query = new URLSearchParams(location.search);
