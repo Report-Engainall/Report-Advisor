@@ -517,14 +517,34 @@ export function CanonicalImportPage() {
     : 'تم تنفيذ الاستيراد الكانوني وتسجيل النتيجة التشغيلية، لكن لقطة الدليل لم تُثبت. الحالة PARTIAL ولا يُعتبر الدليل مكتملًا حتى يثبت الحفظ.'
   }
   {result.evidenceWarning && <div className="mt-2 rounded-lg border border-warning-200 bg-warning-50 px-3 py-2 text-warning-800">{result.evidenceWarning}</div>}
-</div><section className="w-full max-w-3xl rounded-[16px] border border-ink-200 bg-white p-4 text-right">
-  <div className="text-[9px] font-black tracking-[.12em] text-primary-700">WHAT HAPPENS NEXT</div>
-  <div className="mt-1 text-sm font-black text-ink-950">من المصدر المثبت إلى إشارات العمل</div>
-  <div className="mt-1 text-[10px] leading-5 text-ink-500">تُفصل التوصيات المرتبطة بهذا المصدر عن التنبيهات العامة للشركة؛ لا تُنسب إشارة إلى الملف دون provenance.</div>
-  <div className="mt-3 grid gap-2 sm:grid-cols-3">
-    <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">Evidence Passport</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.evidenceStatus === 'VERIFIED' ? 'مثبت' : 'PARTIAL'}</div></div>
-    <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">توصيات مرتبطة بالمصدر</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.postImportSignals ? result.postImportSignals.sourceRecommendations : 'غير متاحة'}</div></div>
-    <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">تنبيهات عامة للشركة</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.postImportSignals ? result.postImportSignals.companyAlerts : 'غير متاحة'}</div></div>
+</div><section className="w-full max-w-3xl rounded-[16px] border border-primary-200 bg-white p-4 text-right shadow-sm" aria-label="استمرارية ما بعد الاستيراد">
+  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <div className="text-[9px] font-black tracking-[.12em] text-primary-700">AFTER IMPORT · DECISION CONTINUITY</div>
+      <div className="mt-1 text-sm font-black text-ink-950">ما الذي أصبح متاحًا الآن؟</div>
+      <div className="mt-1 text-[10px] leading-5 text-ink-500">هذه الواجهة تفصل بين ما أثبته الاستيراد فعلًا وما يحتاج دورة لاحقة. لا تُرفع حالة أي مرحلة لمجرد وجود رابط لها.</div>
+    </div>
+    <Badge variant={result.evidenceStatus === 'VERIFIED' ? 'success' : 'warning'}>{result.evidenceStatus === 'VERIFIED' ? 'SOURCE VERIFIED' : 'SOURCE PARTIAL'}</Badge>
+  </div>
+  <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+    {[
+      ['01','الدليل','Evidence Passport',result.evidenceStatus === 'VERIFIED' ? 'مثبت' : 'PARTIAL','/trust'],
+      ['02','الإشارات','Signals',result.postImportSignals ? String(result.postImportSignals.sourceRecommendations) + ' توصية مرتبطة' : 'غير متاحة',result.postImportSignals ? '/intelligence/recommendations' : '/trust'],
+      ['03','القرار','Decision',result.evidenceStatus === 'VERIFIED' ? 'جاهز للفحص' : 'محجوب حتى يكتمل الدليل','/decision-experience?stage=evidence'],
+      ['04','العمل','Work',result.evidenceStatus === 'VERIFIED' ? 'متابعة التنفيذ' : 'غير متاح','/work-center'],
+      ['05','التعلم','Replay',result.evidenceStatus === 'VERIFIED' ? 'راجع النتائج المحفوظة' : 'غير مثبت','/replay'],
+    ].map(([number,label,key,state,path]) => (
+      <Link key={key} to={result.importId && (key === 'Evidence Passport' || key === 'Work') ? path + (path.includes('?') ? '&' : '?') + 'import=' + encodeURIComponent(result.importId) : path} className="group rounded-xl border border-ink-100 bg-ink-50/60 p-3 transition hover:border-primary-200 hover:bg-primary-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+        <div className="flex items-center justify-between gap-2"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-ink-950 text-[8px] font-black text-white">{number}</span><span className="text-[8px] font-black text-primary-700">{label}</span></div>
+        <div className="mt-2 text-[10px] font-black text-ink-900">{key}</div>
+        <div className="mt-1 min-h-8 text-[9px] leading-4 text-ink-500">{state}</div>
+        <div className="mt-2 text-[8px] font-black text-primary-700 group-hover:underline">فتح المسار ←</div>
+      </Link>
+    ))}
+  </div>
+  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+    <div className="rounded-xl border border-primary-100 bg-primary-50/50 p-3"><div className="text-[9px] text-primary-700">توصيات مرتبطة بالمصدر</div><div className="mt-1 text-[12px] font-black text-ink-900">{result.postImportSignals ? result.postImportSignals.sourceRecommendations : 'غير متاحة'}</div></div>
+    <div className="rounded-xl border border-ink-100 bg-ink-50/60 p-3"><div className="text-[9px] text-ink-400">تنبيهات عامة للشركة</div><div className="mt-1 text-[12px] font-black text-ink-900">{result.postImportSignals ? result.postImportSignals.companyAlerts : 'غير متاحة'}</div></div>
   </div>
 </section><div className="flex flex-wrap justify-center gap-2">{result.evidenceStatus === 'VERIFIED' ? (
   <>
