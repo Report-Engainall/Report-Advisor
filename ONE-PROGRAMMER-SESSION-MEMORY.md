@@ -224,3 +224,19 @@
 - NEXT INDEPENDENT ACTIONS → preserve canonical import/UI surface; no duplicate import path; continue evidence reconciliation only where new exact-SHA evidence exists.
 - DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; blanket security cleanup.
 - RESUME STATUS → ACTIVE / DEPLOYMENT READBACK PROVEN / MANDATORY CONTRACT GATES QUEUED.
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-152
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-152`.
+- CURRENT MAIN DOCUMENTATION SHA BEFORE WRITE → `32c82c006112a91898c9a74b47a0d1d4cad77a59`.
+- CURRENT FUNCTIONAL HEAD → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `3a03d4e3e1a6967b0b590253d8ca54d8e720d9d9`.
+- ROOT ISSUE FOUND AND FIXED → typed canonical entity inference previously accepted a partial `sku` / customer / invoice signal and could later fail at the strict canonical write boundary because required fields were missing. The source-understanding layer now requires the exact canonical write-field contract before selecting `products`, `customers`, or `sales_invoices`; otherwise it fails closed to `generic:source-data` and emits `CANONICAL_ENTITY_REQUIREMENTS_UNMET:<specialty>:<missing fields>`.
+- CONTRACT PROTECTION → the existing `scripts/check-canonical-import-mapping.mjs` was extended to guard the typed-entity fallback and the required canonical write fields. No duplicate test file or new import path was created.
+- EXACT CURRENT CI → GitHub launched fresh `enforcement-contract` and `certification-contracts` runs for `3a03d4e`; current job status is still `queued` with no failure log. New run IDs: enforcement `36326147877` / job `108639175656`; certification `36326147880` / job `108639175638`.
+- CURRENT VERCEL STATUS → exact functional head reports `failure` with `build-rate-limit`; this remains an external hosting constraint and is not a code failure.
+- CURRENT PROOF BOUNDARY → no current-head browser/authenticated production/Phase-F PASS is claimed. Prior Cloudflare/Netlify PASS is bound to earlier SHAs only.
+- GOVERNANCE → PR #663 / `control/continuous-resume-20260927` / exact head remains `43a29443477aeb5969b99d672bd2c6698e0f7106`.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan build-rate limit; certification/enforcement runners still queued; authenticated browser and production exact-SHA resilience proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume the first terminal `certification-contracts` or `enforcement-contract` result on `3a03d4e`; repair only a reproducible current-SHA root failure. If both remain queued, continue only independent repository-safe fronts.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; speculative changes to Phase-F while the live blocker is external.
+- RESUME STATUS → ACTIVE / IMPORT CORE SAFETY HARDENED / EXACT-HEAD PROOF RUNNING.
