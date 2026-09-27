@@ -4,10 +4,10 @@
 - CURRENT CODE/TEST CANDIDATE: `bb2f1d625ab33bf5a86ac3402b7de76f85303625` (PR #662 / `exec/20260927-import-full-lifecycle`; final source-bound recommendation readback).
 - UI LANE: imported source now carries one identity through Evidence Passport, Data Quality, Signals, persisted Decision/Approval, persisted Work Item, and Work Center.
 - CORE LANE: server-authoritative import remains the sole canonical writer; evidence snapshot persistence is VERIFIED/PARTIAL and never silently promoted.
-- PROOF STATUS: previous Windows JSX root was fixed; fresh exact-head proof is required on the provenance-scoped candidate.
+- PROOF STATUS: Windows JSX root on `5b88c5d...` was fixed at `e1fe338...`; current `bb2f1d6...` has Netlify deploy-preview build exit 2 and Vercel build-rate-limit, so no current-SHA PASS is claimed.
 - RUNTIME STATUS: staging remains protected; legacy processing import_jobs remain untouched.
 - BLOCKERS: browser automation/PC01 availability and Phase-F/production exact-SHA resilience proof remain external; they block only their dependent certification fronts.
-- NEXT EXECUTABLE ACTION: consume the first terminal exact-head gate on `f7a7ee4060c1fff1cb0d53487340a8020f8171c2`; repair only the first current-SHA failure, then continue the next independent UI/core boundary.
+- NEXT EXECUTABLE ACTION: consume the first terminal exact-head gate on `bb2f1d625ab33bf5a86ac3402b7de76f85303625`; repair only the first current-SHA failure, then close proof.
 - DO NOT REPEAT: stale PASS transfer, preview-as-production/browser PASS, duplicate import path, unsafe legacy-job terminalization, or reopening closed full-source implementation.
 
 ---
