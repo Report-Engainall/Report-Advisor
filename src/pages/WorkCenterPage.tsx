@@ -4,7 +4,7 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Link } from 'react-router-dom';
 import { DataTable } from '@/components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
-import { fetchImportRecords, fetchWorkerHealthSnapshot, type WorkerHealthSnapshot } from '@/lib/queries';
+import { fetchDecisionWorkItems, fetchImportRecords, fetchWorkerHealthSnapshot, startDecisionWorkItem, type DecisionWorkItemRecord, type WorkerHealthSnapshot } from '@/lib/queries';
 import type { ImportRecord } from '@/lib/types';
 import { formatNumber } from '@/lib/format';
 
@@ -22,6 +22,8 @@ function matches(row: ImportRecord, filter: FilterKey) {
 export function WorkCenterPage() {
   const [rows, setRows] = useState<ImportRecord[]>([]);
   const [workerHealth, setWorkerHealth] = useState<WorkerHealthSnapshot | null>(null);
+  const [decisionWorkItems, setDecisionWorkItems] = useState<DecisionWorkItemRecord[]>([]);
+  const [startingWorkItemId, setStartingWorkItemId] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterKey>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,15 +32,33 @@ export function WorkCenterPage() {
     try {
       setLoading(true);
       setError(null);
-      const [imports, health] = await Promise.all([fetchImportRecords(), fetchWorkerHealthSnapshot()]);
+      const [imports, health, workItems] = await Promise.all([
+        fetchImportRecords(),
+        fetchWorkerHealthSnapshot(),
+        fetchDecisionWorkItems(),
+      ]);
       setRows(imports);
       setWorkerHealth(health);
+      setDecisionWorkItems(workItems);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'فشل تحميل مركز العمليات');
     } finally {
       setLoading(false);
     }
   }, []);
+
+  const startWorkItem = useCallback(async (workItemId: string) => {
+    setStartingWorkItemId(workItemId);
+    setError(null);
+    try {
+      await startDecisionWorkItem(workItemId);
+      await load();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'تعذر بدء التنفيذ');
+    } finally {
+      setStartingWorkItemId(null);
+    }
+  }, [load]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -137,6 +157,50 @@ export function WorkCenterPage() {
       </Card>
     </section>
 
+    <section className="rounded-[16px] border border-primary-200 bg-white shadow-card overflow-hidden">
+      <div className="border-b border-primary-100 bg-primary-50/50 px-4 py-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">DECISION WORK</div>
+            <h2 className="mt-1 text-sm font-black text-ink-950">مهام التنفيذ المحكومة</h2>
+            <p className="mt-1 text-[10px] leading-5 text-ink-500">هذه المهام تأتي من قرار معتمد، وتحمل دليلها معها. لا يبدأ التنفيذ تلقائيًا.</p>
+          </div>
+          <Link to="/decision-experience?stage=decision" className="btn-secondary text-[10px]">العودة إلى مساحة القرار</Link>
+        </div>
+      </div>
+      <div className="p-4">
+        {decisionWorkItems.length === 0 ? (
+          <EmptyState title="لا توجد مهام قرار محفوظة" message="لن تُنشأ مهمة تنفيذ قبل وجود قرار معتمد ومسؤول تنفيذ ودليل مرتبط." action={<Link to="/decision-experience" className="btn-secondary text-[11px]">فتح مساحة القرار</Link>} />
+        ) : (
+          <div className="grid gap-3 lg:grid-cols-2">
+            {decisionWorkItems.map((item) => (
+              <article key={item.id} className="rounded-[14px] border border-ink-200 bg-white p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-[12px] font-black text-ink-900">{item.title}</div>
+                    <div className="mt-1 text-[10px] text-ink-400">{item.department} · أولوية {item.priority}</div>
+                  </div>
+                  <span className={"rounded-full px-2.5 py-1 text-[9px] font-black " + (item.status === 'IN_PROGRESS' ? 'bg-primary-50 text-primary-700' : item.status === 'COMPLETED' ? 'bg-success-50 text-success-700' : 'bg-ink-100 text-ink-700')}>{item.status}</span>
+                </div>
+                {item.description && <p className="mt-3 text-[10px] leading-5 text-ink-500">{item.description}</p>}
+                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <div className="rounded-lg bg-ink-50 p-2"><div className="text-[8px] text-ink-400">المسؤول</div><div className="mt-1 text-[10px] font-black text-ink-800">{item.assignee_label ?? 'غير مثبت'}</div></div>
+                  <div className="rounded-lg bg-ink-50 p-2"><div className="text-[8px] text-ink-400">الموعد</div><div className="mt-1 text-[10px] font-black text-ink-800">{item.due_at ? new Date(item.due_at).toLocaleDateString('ar-YE') : 'غير متاح'}</div></div>
+                  <div className="rounded-lg bg-ink-50 p-2"><div className="text-[8px] text-ink-400">المتوقع</div><div className="mt-1 text-[10px] font-black text-ink-800">{item.expected_impact == null ? 'غير متاح' : formatNumber(item.expected_impact)}</div></div>
+                  <div className="rounded-lg bg-ink-50 p-2"><div className="text-[8px] text-ink-400">الدليل</div><div className="mt-1 text-[10px] font-black text-ink-800">{item.evidence_refs.length ? 'مرتبط' : 'غير مثبت'}</div></div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link to={"/decision-experience?stage=work&recommendationId=" + encodeURIComponent(item.recommendation_id ?? '')} className="btn-ghost text-[10px]">فتح السياق</Link>
+                  {item.status === 'OPEN' && <button type="button" onClick={() => void startWorkItem(item.id)} disabled={startingWorkItemId === item.id} className="btn-primary text-[10px] disabled:opacity-60">{startingWorkItemId === item.id ? 'جارٍ البدء...' : 'بدء التنفيذ'}</button>}
+                  {item.status === 'IN_PROGRESS' && <span className="inline-flex items-center rounded-xl bg-primary-50 px-3 py-2 text-[10px] font-black text-primary-700">قيد التنفيذ</span>}
+                  {item.status === 'COMPLETED' && <span className="inline-flex items-center rounded-xl bg-success-50 px-3 py-2 text-[10px] font-black text-success-700">مكتمل</span>}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
     <section className="grid gap-4 lg:grid-cols-[1.15fr_.85fr]">
       <Card>
         <CardHeader title="صحة العامل" subtitle="قراءة مباشرة من مسار التنفيذ durable؛ لا تُعلن الحالة سليمة إذا بقيت lease منتهية." action={workerHealth ? <span className={`badge ${workerHealth.expiredActive > 0 ? 'badge-danger' : workerHealth.activeReadComplete ? 'badge-success' : 'badge-warning'}`}>{(workerHealth.expiredActive ?? 0) > 0 ? 'تحتاج تدخل' : workerHealth.activeReadComplete ? 'لا توجد leases منتهية' : 'قراءة جزئية'}</span> : undefined}/>
