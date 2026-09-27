@@ -563,3 +563,6 @@ The canonical recommendation workflow currently exposes `new → OPEN → approv
 
 ## 2026-09-27 current implementation closure
 The current functional import/decision front keeps the product chain visible after source approval: `Evidence → Signals → Decision → Work → Outcome/Learning`. The Forecasts surface explicitly exposes a fail-closed Backtest Gate; without historical paired forecast/outcome evidence, accuracy or backtest performance is not fabricated. Decision Center currently exposes Decision ROI, Money Recovery and Decision Coverage as truth-bound states, while Decision Playbooks remain explicitly unavailable until a governed execution-record path exists. These are product-state constraints, not permission to substitute mock business results.
+
+## 2026-09-27 capability availability boundary
+Decision Playbooks and Backtests remain explicit availability states rather than synthetic features. Staging currently has no dedicated playbook/backtest records or schema and has zero forecast rows, so the UI must remain fail-closed until a governed canonical contract exists. Existing Decision Work Items, Operational Task Proposals, Decision Outcomes, and Forecasts are the reusable canonical data surfaces.
