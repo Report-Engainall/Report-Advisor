@@ -172,7 +172,10 @@ for (const token of [
   'commandNextAction.to',
   'commandNextAction.reason',
   'لا يتم دمجهما في درجة مخترعة',
-]) assert.ok(commandCenter.includes(token), 'command center decision coverage/next-action guard missing: ' + token);
+]) assert.ok(commandCenter.includes(token), 'command center decision coverage/next-action guard missing: ' + token);assert.ok(commandCenter.includes('fetchBusinessReplaySnapshot'), 'command center replay state must use the canonical replay snapshot query');
+assert.ok(commandCenter.includes('const replayAvailable'), 'command center replay availability must be derived from canonical snapshot truth');
+assert.ok(commandCenter.includes('to="/replay"'), 'command center replay action must route to the canonical replay surface');
+
 
 const commandPalette = fs.readFileSync('src/components/CommandPalette.tsx', 'utf8');
 assert.ok(appShell.includes('mobileSidebarRef'), 'mobile navigation drawer must expose a focus boundary');
