@@ -1,15 +1,16 @@
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, BookOpen, FileSearch, FileInput, Lightbulb, Route, ShieldCheck, Target } from 'lucide-react';
+import { ArrowLeft, BookOpen, FileSearch, FileInput, Lightbulb, Route, ShieldCheck, Target, Workflow } from 'lucide-react';
 
 type JourneyStep = { path: string; label: string; description: string; icon: typeof Lightbulb; stage?: string };
 
 const steps: JourneyStep[] = [
   { path: '/command-center', label: 'الصورة', description: 'حالة النشاط والأولوية', icon: Lightbulb },
   { path: '/import', label: 'المصدر', description: 'مستند → استخراج', icon: FileInput },
-  { path: '/decision-experience', label: 'الدليل', description: 'Evidence → Recommendation', icon: FileSearch, stage: 'evidence' },
-  { path: '/decision-experience', label: 'الموافقة', description: 'قرار موثق', icon: ShieldCheck, stage: 'approval' },
-  { path: '/decision-experience', label: 'الإجراء', description: 'Work → Next Action', icon: Target, stage: 'work' },
-  { path: '/decision-experience', label: 'التعلّم', description: 'Expected → Actual', icon: BookOpen, stage: 'outcome' },
+  { path: '/trust', label: 'الدليل', description: 'Evidence → As Of → Trust', icon: FileSearch },
+  { path: '/intelligence', label: 'الإشارات', description: 'Signal → Exception → Recommendation', icon: Workflow },
+  { path: '/decision-experience', label: 'القرار', description: 'Approval → Governed Decision', icon: ShieldCheck, stage: 'approval' },
+  { path: '/work-center', label: 'العمل', description: 'Work → Next Action', icon: Target },
+  { path: '/replay', label: 'التعلّم', description: 'Outcome → Replay → Learning', icon: BookOpen },
   { path: '/reports/executive', label: 'المخرجات', description: 'Executive report', icon: Route },
 ];
 
