@@ -90,11 +90,10 @@ function replayEvidencePresent(value: unknown): boolean {
   );
 }
 
-export async function fetchBusinessReplaySnapshot(): Promise<BusinessReplaySnapshot> {
+export async function fetchBusinessReplaySnapshot(windowLimit = 100): Promise<BusinessReplaySnapshot> {
+  if (!Number.isInteger(windowLimit) || windowLimit < 1 || windowLimit > 500) throw new Error('REPLAY_QUERY_INVALID_WINDOW');
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
-
-  const windowLimit = 100;
   const [snapshots, outcomes, workItems] = await Promise.all([
     supabase.from('business_state_snapshots')
       .select('id,observed_at,snapshot_key,source_version,quality_score,evidence')
