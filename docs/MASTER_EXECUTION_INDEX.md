@@ -1,4 +1,4 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / NON-DEVICE UI + IMPORT HARDENING
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT VERIFIED NON-DEVICE FRONT
 
 > Single startup boundary for the active non-device front.
 
@@ -7,30 +7,13 @@
 - FUNCTIONAL FRONT → PR #671 / exec/20260927-current-main-import-ui-finalize-head
 - FRONT-ID → IMPORT-TO-DECISION-CONTINUITY
 - PRODUCT CHAIN → Any Source → Security → Fingerprint → Understand → Normalize → Quality/Trust → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
-- UI STATE → 38/38 navigation parity; eight-stage Product Journey; post-import five-stage continuation; dark RTL executive shell; touch-target/accessibility closure; source-bound Report Builder; fail-closed Benchmark/ROI/Backtest.
-- CORE STATE → server-authoritative import re-extraction, tenant binding, canonical commit, evidence snapshot, durable lifecycle; browser/client result now rejects missing authoritative row count.
-- NEW UI CLOSURES → decision journey stays active across decision sub-stages; canonical import saving state exposes progressbar + busy/live semantics; sidebar quick-access links meet shared touch-target minimum.
-- EXACT ROOT HISTORY → 6b156ef4… Netlify exposed a truncated CommandPalette write; 98aa51af… restored the full file and Netlify reached READY on that exact SHA. d8646e8c… is a later code/test candidate and carries no transferred runtime PASS.
-- REMOTE BLOCKERS → Vercel free-plan deployment-rate limit; device unavailable; browser/production/Phase-F proof not proven; metered TinyFish visual automation unavailable due empty wallet.
-- NEXT → consume the first terminal GitHub gate for d8646e8c…; repair only the first reproducible current-SHA root, then continue independent non-device fronts.
+- UI STATE → 38/38 navigation parity; eight-stage Product Journey; post-import five-stage continuation; dark RTL executive shell; accessibility/touch-target closure; source-bound Report Builder; fail-closed Benchmark/ROI/Backtest.
+- CORE STATE → authoritative server re-extraction, tenant binding, canonical commit, evidence snapshot and durable import lifecycle; browser result rejects missing authoritative row count.
+- CURRENT-SHA PROOF → Netlify exact d8646e8c… deploy-preview is READY/SUCCESS with `canonical-import-execute` deployed; CodeRabbit SUCCESS. GitHub Actions: 42 queued, 1 in progress, 4 cancelled, 2 skipped, 0 terminal PASS/FAIL.
+- HOSTING/DEVICE → Vercel remains external `build-rate-limit` failure; device unavailable; production/browser/Phase-F exact proof not proven; interactive TinyFish browser audit is wallet-blocked.
+- ROOT HISTORY → 6b156ef4… truncated CommandPalette write was fixed by full reconstruction; 98aa51af… then built successfully; d8646e8c… is separately Netlify-successful.
+- NEXT → consume first terminal GitHub gate for d8646e8c…; repair only first reproducible current-SHA root, then continue independent non-device fronts.
 - DO NOT REPEAT → partial-file writes, stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, local row fallback, speculative deletion/formulas.
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT BRANCH RECONCILED
-
-> This top block is the only startup boundary.
-
-- MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `eb4cfac7cd5bcb2573196f9af1ad44549ff2ff06`
-- CURRENT CODE/TEST CANDIDATE → `bb86b9fb667f0f1aef1b28f97dcce9d189b5a717`
-- FUNCTIONAL FRONT → PR #671
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- UI AFTER IMPORT → Evidence → Signals → Decision → Work → Outcome/Learning through existing routes `/trust`, `/intelligence`, `/decision-experience`, `/work-center`, `/replay`.
-- ROUTE AUDIT → 38/38 navigation registry items resolve to App routes. Extra routes are `/proposal-demo` and the intentional `/import/analyze` redirect.
-- CLEANUP → legacy `ExternalFileAnalysisPage.tsx` deletion proven by exact PR #671 patch; duplicate analyzer is not being recreated.
-- PROOF → exact branch source is reconciled; current branch runtime/build proof remains pending. Vercel is externally rate-limited.
-- NEXT → consume first terminal current-branch gate; repair current-SHA root only; continue independent cleanup where dependencies are provable.
-
----
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / POST-IMPORT JOURNEY UI CLOSURE
 
