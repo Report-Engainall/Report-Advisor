@@ -188,24 +188,50 @@ export default async (request: Request): Promise<Response> => {
       .eq('company_id', companyId);
     if (jobUpdateError) throw jobUpdateError;
 
-    const execution = await runCanonicalImportThroughDurableRunner(
-      {
+    const { data: existingCommit, error: existingCommitError } = await serviceClient
+      .from('canonical_import_commits')
+      .select('id, entity_type, source_hash, committed_count, committed_at')
+      .eq('company_id', companyId)
+      .eq('entity_type', authoritativeEntityType)
+      .eq('source_hash', sourceSha)
+      .order('committed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (existingCommitError) throw existingCommitError;
+
+    let execution: Record<string, unknown>;
+    if (existingCommit) {
+      if (Number(existingCommit.committed_count) !== authoritativeRows.length) {
+        throw new Error('CANONICAL_EXISTING_COMMIT_COUNT_MISMATCH');
+      }
+      execution = {
         importId: job.id,
-        fileName: fileRecord.file_name || payload.fileName || 'import',
         sourceHash: sourceSha,
-        entityType: authoritativeEntityType,
-        rows: reconciled.rows,
-        qualityScore: authoritativeQualityScore,
-        qualityApproved: payload.qualityApproved === true,
-      },
-      {
-        serverExecution: true,
-        workerClient: serviceClient,
-        dataClient: userClient,
-        companyId: String(companyId),
-        requestedBy: userData.user.id,
-      },
-    );
+        jobId: null,
+        reusedExistingCommit: true,
+        existingCommitId: String(existingCommit.id),
+        existingCommitAt: existingCommit.committed_at,
+      };
+    } else {
+      execution = await runCanonicalImportThroughDurableRunner(
+        {
+          importId: job.id,
+          fileName: fileRecord.file_name || payload.fileName || 'import',
+          sourceHash: sourceSha,
+          entityType: authoritativeEntityType,
+          rows: reconciled.rows,
+          qualityScore: authoritativeQualityScore,
+          qualityApproved: payload.qualityApproved === true,
+        },
+        {
+          serverExecution: true,
+          workerClient: serviceClient,
+          dataClient: userClient,
+          companyId: String(companyId),
+          requestedBy: userData.user.id,
+        },
+      );
+    }
 
     let snapshotId: string | null = null;
     let evidenceStatus: 'VERIFIED' | 'PARTIAL' = 'PARTIAL';
@@ -243,7 +269,9 @@ export default async (request: Request): Promise<Response> => {
             serverAuthoritativeSource: true,
             serverAuthoritativeQualityScore: authoritativeQualityScore,
             committed: authoritativeRows.length,
-            jobId: execution.jobId,
+            reusedExistingCommit: execution.reusedExistingCommit === true,
+            existingCommitId: typeof execution.existingCommitId === 'string' ? execution.existingCommitId : null,
+            jobId: typeof execution.jobId === 'string' ? execution.jobId : null,
             sourceStoragePath: storagePath,
             sourceSpecialty: sourceUnderstanding.specialty,
             sourceSpecialtyConfidence: sourceUnderstanding.specialtyConfidence,
