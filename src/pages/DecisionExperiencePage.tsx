@@ -7,7 +7,20 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { ConfidenceBadge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
-import { fetchAlerts, fetchImportEvidenceSnapshot, fetchRecommendations, type ImportEvidenceSnapshot } from '@/lib/queries';
+import {
+  createRuntimeDecision,
+  decideApproval,
+  fetchAlerts,
+  fetchDecisionApproval,
+  fetchImportEvidenceSnapshot,
+  fetchRecommendations,
+  fetchRuntimeDecisionForRecommendation,
+  linkRecommendationToDecision,
+  requestDecisionApproval,
+  type DecisionApprovalRecord,
+  type ImportEvidenceSnapshot,
+  type RuntimeDecisionRecord,
+} from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Alert, Recommendation } from '@/lib/types';
 
@@ -31,6 +44,7 @@ function statusLabel(status: string | null): string {
     approved: 'معتمد',
     in_progress: 'قيد التنفيذ',
     completed: 'مكتمل',
+    executed: 'منفذ',
     rejected: 'مرفوض',
     cancelled: 'ملغى',
   };
@@ -117,6 +131,9 @@ export function DecisionExperiencePage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [sourceSnapshot, setSourceSnapshot] = useState<ImportEvidenceSnapshot | null>(null);
+  const [runtimeDecision, setRuntimeDecision] = useState<RuntimeDecisionRecord | null>(null);
+  const [approval, setApproval] = useState<DecisionApprovalRecord | null>(null);
+  const [decisionMutationBusy, setDecisionMutationBusy] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(params.get('recommendationId'));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -142,6 +159,86 @@ export function DecisionExperiencePage() {
   }, [importJobId]);
 
   useEffect(() => { void load(); }, [load]);
+
+  const refreshRuntimeDecision = useCallback(async () => {
+    if (!selectedId) {
+      setRuntimeDecision(null);
+      setApproval(null);
+      return;
+    }
+    try {
+      const nextDecision = await fetchRuntimeDecisionForRecommendation(selectedId);
+      setRuntimeDecision(nextDecision);
+      setApproval(nextDecision ? await fetchDecisionApproval(nextDecision.id) : null);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'تعذر قراءة حالة القرار المحفوظ');
+    }
+  }, [selectedId]);
+
+  useEffect(() => { void refreshRuntimeDecision(); }, [refreshRuntimeDecision]);
+
+  const ensureDecisionAndApproval = useCallback(async () => {
+    if (!selected || !sourceSnapshot || !importJobId) throw new Error('DECISION_SOURCE_EVIDENCE_REQUIRED');
+    setDecisionMutationBusy(true);
+    setError(null);
+    try {
+      let decision = runtimeDecision;
+      if (!decision) {
+        const evidenceConfidence = sourceSnapshot.quality_score == null ? null : Math.max(0, Math.min(1, sourceSnapshot.quality_score / 100));
+        if (evidenceConfidence == null) throw new Error('DECISION_EVIDENCE_CONFIDENCE_UNAVAILABLE');
+        const decisionId = await createRuntimeDecision({
+          decisionKey: 'import:' + importJobId + ':recommendation:' + selected.id,
+          decisionType: 'recommendation:' + (selected.category || 'general'),
+          confidence: evidenceConfidence,
+          expectedImpact: selected.expected_impact,
+          evidence: {
+            evidence_snapshot_id: sourceSnapshot.id,
+            import_job_id: importJobId,
+            source_hash: sourceSnapshot.source_hash,
+            source_quality_score: sourceSnapshot.quality_score,
+            source_specialty: sourceSnapshot.metadata.sourceSpecialty ?? null,
+            source_specialty_confidence: sourceSnapshot.metadata.sourceSpecialtyConfidence ?? null,
+            recommendation_id: selected.id,
+            confidence_basis: 'source_quality_bound',
+          },
+        });
+        await linkRecommendationToDecision(selected.id, decisionId);
+        decision = await fetchRuntimeDecisionForRecommendation(selected.id);
+      }
+      if (!decision) throw new Error('DECISION_CREATE_READBACK_FAILED');
+      setRuntimeDecision(decision);
+      let currentApproval = await fetchDecisionApproval(decision.id);
+      if (!currentApproval && decision.status === 'PROPOSED') {
+        await requestDecisionApproval(decision.id, 'طلب اعتماد توصية بعد إثبات المصدر ودليلها الكانوني.');
+        currentApproval = await fetchDecisionApproval(decision.id);
+      }
+      setApproval(currentApproval);
+      setStage('approval');
+      const nextParams = new URLSearchParams(params);
+      nextParams.set('stage', 'approval');
+      if (selected.id) nextParams.set('recommendationId', selected.id);
+      setParams(nextParams, { replace: true });
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'تعذر إنشاء مسار القرار');
+    } finally {
+      setDecisionMutationBusy(false);
+    }
+  }, [selected, sourceSnapshot, importJobId, runtimeDecision, params, setParams]);
+
+  const decideCurrentApproval = useCallback(async (approve: boolean) => {
+    if (!approval) return;
+    setDecisionMutationBusy(true);
+    setError(null);
+    try {
+      await decideApproval(approval.id, approve, approve ? 'اعتماد القرار بعد مراجعة الدليل.' : 'رفض القرار بعد مراجعة الدليل.');
+      await refreshRuntimeDecision();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'تعذر تنفيذ قرار الموافقة');
+    } finally {
+      setDecisionMutationBusy(false);
+    }
+  }, [approval, refreshRuntimeDecision]);
+
   useEffect(() => {
     if (!requestedStage || !STAGES.some((item) => item.id === requestedStage)) return;
     const sourceBlocked = Boolean(importJobId && !sourceSnapshot);
@@ -337,13 +434,35 @@ export function DecisionExperiencePage() {
             </CardBody>
           </Card>
           <div className="space-y-4">
-            <BlockedState title="القرار المحفوظ غير متاح من هذه الواجهة" detail="لا تتم كتابة حالة قرار محلية أو إنشاء موافقة اصطناعية. يتطلب الحفظ مسار الصلاحية والـDML المعتمدين." />
+            {!importJobId || !sourceSnapshot ? (
+              <BlockedState title="الدليل المصدر غير مثبت" detail="لا يمكن إنشاء قرار محفوظ قبل وجود Evidence Snapshot مرتبط بالمصدر الحالي." />
+            ) : runtimeDecision ? (
+              <>
+                <div className="rounded-[14px] border border-success-200 bg-success-50/70 p-4">
+                  <div className="flex flex-wrap items-center gap-2"><CheckCircle2 size={16} className="text-success-700"/><span className="text-[11px] font-black text-success-900">القرار محفوظ فعليًا</span><span className="rounded-full bg-white px-2 py-1 text-[9px] font-black text-ink-700">{statusLabel(runtimeDecision.status)}</span></div>
+                  <div className="mt-2 text-[10px] leading-5 text-success-900">Decision ID: {runtimeDecision.id}</div>
+                  <div className="mt-2 text-[10px] leading-5 text-success-900">الدليل: {sourceSnapshot.id} · أساس الثقة: جودة المصدر {sourceSnapshot.quality_score == null ? 'غير متاحة' : sourceSnapshot.quality_score + '%'}</div>
+                </div>
+                <div className="rounded-[12px] border border-ink-200 bg-white p-4">
+                  <div className="text-[10px] font-black text-ink-700">الموافقة الحالية</div>
+                  <div className="mt-2 text-sm font-black text-ink-950">{approval?.status ?? 'لم تُطلب بعد'}</div>
+                  <div className="mt-1 text-[10px] text-ink-400">{approval ? 'تُحكم الصلاحية من RPC قاعدة البيانات.' : 'يمكن طلب الموافقة من نفس المسار دون إنشاء حالة محلية.'}</div>
+                </div>
+              </>
+            ) : (
+              <div className="rounded-[14px] border border-primary-200 bg-primary-50/60 p-4">
+                <div className="text-sm font-black text-ink-950">إنشاء قرار حقيقي من هذه التوصية</div>
+                <p className="mt-1 text-[11px] leading-5 text-ink-600">سيُسجل القرار في قاعدة البيانات، ويربط بالتوصية وبـEvidence Snapshot نفسها، ثم يرسل طلب الموافقة عبر المسار المحكوم.</p>
+                <button type="button" onClick={() => void ensureDecisionAndApproval()} disabled={decisionMutationBusy} className="mt-4 btn-primary text-[11px] disabled:opacity-60">
+                  {decisionMutationBusy ? 'جارٍ إنشاء القرار...' : 'إنشاء القرار وطلب الموافقة'}
+                </button>
+              </div>
+            )}
             <div className="grid gap-3">
               <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><CheckCircle2 size={15} className="text-success-700"/> التوصية</div><p className="mt-1 text-[10px] text-ink-400">موجودة في المصدر</p></div>
-              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><ShieldCheck size={15} className="text-warning-700"/> الموافقة</div><p className="mt-1 text-[10px] text-ink-400">تحتاج مسارًا تشغيليًا موثقًا</p></div>
-              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><XCircle size={15} className="text-ink-400"/> النتيجة</div><p className="mt-1 text-[10px] text-ink-400">ليست مثبتة بعد</p></div>
+              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><ShieldCheck size={15} className="text-warning-700"/> الموافقة</div><p className="mt-1 text-[10px] text-ink-400">{approval?.status ?? 'لم تُطلب بعد'}</p></div>
+              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><XCircle size={15} className="text-ink-400"/> النتيجة</div><p className="mt-1 text-[10px] text-ink-400">لا تُسجل قبل التنفيذ الفعلي.</p></div>
             </div>
-            <button type="button" onClick={() => navigateStage('approval')} className="btn-secondary w-full justify-center text-[11px]">عرض مرحلة الموافقة <ArrowUpLeft size={13}/></button>
           </div>
         </section>
       )}
@@ -361,7 +480,22 @@ export function DecisionExperiencePage() {
               </div>
             </CardBody>
           </Card>
-          <BlockedState title="الموافقة محجوبة عمدًا" detail="المنتج لا يختلق صاحب موافقة، توقيتًا، أو حالة اعتماد. عند توفر المسار التشغيلي الموثق، تبقى هذه المرحلة مكانًا واضحًا للمسؤولية قبل التنفيذ." />
+          {runtimeDecision && approval ? (
+            <div className="rounded-[14px] border border-ink-200 bg-white p-4 space-y-3">
+              <div className="flex flex-wrap items-center gap-2"><span className="text-[10px] font-black text-ink-600">حالة الموافقة</span><span className="rounded-full bg-primary-50 px-2.5 py-1 text-[9px] font-black text-primary-800">{approval.status}</span></div>
+              <div className="text-[10px] leading-5 text-ink-500">القرار: {runtimeDecision.id} · الدليل: {sourceSnapshot?.id ?? 'غير متاح'}</div>
+              {approval.status === 'PENDING' && (
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" onClick={() => void decideCurrentApproval(true)} disabled={decisionMutationBusy} className="btn-primary text-[11px] disabled:opacity-60">اعتماد</button>
+                  <button type="button" onClick={() => void decideCurrentApproval(false)} disabled={decisionMutationBusy} className="btn-secondary text-[11px] disabled:opacity-60">رفض</button>
+                </div>
+              )}
+              {approval.status === 'APPROVED' && <div className="rounded-lg bg-success-50 p-3 text-[10px] font-black text-success-800">تم اعتماد القرار. التنفيذ يحتاج بعد ذلك إلى Work Item ومسؤول تنفيذي مثبت.</div>}
+              {approval.status === 'REJECTED' && <div className="rounded-lg bg-danger-50 p-3 text-[10px] font-black text-danger-800">القرار مرفوض؛ لا يتم إنشاء تنفيذ أو نتيجة تلقائيًا.</div>}
+            </div>
+          ) : (
+            <BlockedState title="لا توجد موافقة محفوظة بعد" detail="أنشئ القرار من مرحلة القرار أولًا، ثم يطلب النظام الموافقة عبر RPC المحكوم." />
+          )}
         </section>
       )}
 
