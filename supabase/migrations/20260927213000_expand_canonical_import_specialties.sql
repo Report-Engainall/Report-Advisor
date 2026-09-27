@@ -255,7 +255,7 @@ begin
           or (nullif(v_row->>'supplier_name','') is not null and public.normalize_import_key(name)=public.normalize_import_key(v_row->>'supplier_name'))
         ) order by id limit 1 for update;
         if v_id is null then raise exception 'PURCHASE_SUPPLIER_REQUIRED'; end if;
-        select public.currency into v_company_currency from public.companies public where public.id=v_company_id;
+        select currency into v_company_currency from public.companies where id=v_company_id;
         select id into v_id from public.purchase_invoices
         where company_id=v_company_id and public.normalize_import_key(invoice_number)=public.normalize_import_key(v_row->>'invoice_number')
         limit 1 for update;
@@ -306,7 +306,7 @@ begin
         if v_row->>'direction' not in ('in','out') then raise exception 'PAYMENT_DIRECTION_INVALID'; end if;
         if nullif(v_row->>'payment_date','') is null then raise exception 'PAYMENT_DATE_REQUIRED'; end if;
         if nullif(v_row->>'payment_amount','') is null or (v_row->>'payment_amount')::numeric <= 0 then raise exception 'PAYMENT_AMOUNT_REQUIRED'; end if;
-        select public.currency into v_company_currency from public.companies public where public.id=v_company_id;
+        select currency into v_company_currency from public.companies where id=v_company_id;
         v_customer_id := nullif(v_row->>'customer_id','')::uuid;
         v_supplier_id := nullif(v_row->>'supplier_id','')::uuid;
         if v_customer_id is null and nullif(v_row->>'customer_name','') is not null then select id into v_customer_id from public.customers where company_id=v_company_id and public.normalize_import_key(name)=public.normalize_import_key(v_row->>'customer_name') order by id limit 1; end if;
