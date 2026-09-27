@@ -144,7 +144,25 @@ export function TrustEvidencePage() {
             <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">مجموعات البيانات</div><div className="mt-1 text-[15px] font-black text-ink-900">{sourceSnapshot.datasets.length}</div></div>
             <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">البصمة</div><div className="mt-1 break-all font-mono text-[9px] text-ink-700">{sourceSnapshot.source_hash}</div></div>
           </div>
-        ) : (
+          <div className="border-t border-primary-100 p-4">
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">DATASET UNDERSTANDING</div>
+            <div className="mt-2 space-y-2">
+              {sourceSnapshot.datasets.length ? sourceSnapshot.datasets.slice(0, 8).map((dataset, index) => (
+                <div key={index} className="flex flex-col gap-2 rounded-xl border border-ink-100 bg-ink-50/35 p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="truncate text-[11px] font-black text-ink-900">{String(dataset.name ?? dataset.sheet ?? ('Dataset ' + (index + 1)))}</div>
+                    <div className="mt-1 text-[9px] text-ink-400">{String(dataset.specialty ?? 'other')} · {String(dataset.columnCount ?? 0)} أعمدة</div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-[9px] font-bold text-ink-600">
+                    <span className="rounded-full bg-white px-2 py-1">الصفوف {String(dataset.rowCount ?? 0)}</span>
+                    <span className="rounded-full bg-white px-2 py-1">ثقة {String(dataset.specialtyConfidence ?? 0)}%</span>
+                    <span className="rounded-full bg-white px-2 py-1">الجودة {String(dataset.qualityScore ?? 'غير متاحة')}</span>
+                  </div>
+                </div>
+              )) : <div className="rounded-xl border border-warning-200 bg-warning-50 p-3 text-[10px] text-warning-900">لا توجد ملخصات Dataset مثبتة.</div>}
+            </div>
+            {!!sourceSnapshot.warnings.length && <div className="mt-3 rounded-xl border border-warning-200 bg-warning-50/70 p-3 text-[10px] leading-5 text-warning-900"><strong>تحذيرات المصدر:</strong> {sourceSnapshot.warnings.join(' · ')}</div>}
+          </div>        ) : (
           <div className="p-4">
             <div className="rounded-xl border border-warning-200 bg-warning-50/70 p-4 text-[11px] leading-6 text-warning-900">
               تم تمرير العملية إلى المسار التشغيلي، لكن Snapshot الدليل المرتبط بهذا الاستيراد غير مثبت. لن تُرفع الثقة ولن تُعتبر هذه العملية دليلًا مكتملًا.
