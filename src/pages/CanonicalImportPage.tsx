@@ -439,6 +439,7 @@ export function CanonicalImportPage() {
 </div><div className="flex flex-wrap justify-center gap-2">{result.evidenceStatus === 'VERIFIED' ? (
   <>
     <Link to={result.importId ? "/trust?import=" + encodeURIComponent(result.importId) : "/trust"} className="btn-secondary">فتح Evidence Passport</Link>
+    <Link to="/data-quality" className="btn-secondary">فحص جودة البيانات</Link>
     <Link to={result.importId ? "/decision-experience?stage=evidence&import=" + encodeURIComponent(result.importId) : "/decision-experience?stage=evidence"} className="btn-primary">متابعة إلى مسار القرار</Link>
   </>
 ) : (
