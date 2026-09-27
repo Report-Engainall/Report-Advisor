@@ -44,13 +44,23 @@ function statusLabel(status: string | null): string {
   if (!status) return 'غير متاح';
   const labels: Record<string, string> = {
     pending: 'قيد المراجعة',
+    PENDING: 'قيد المراجعة',
     proposed: 'مقترح',
+    PROPOSED: 'مقترح',
     approved: 'معتمد',
+    APPROVED: 'معتمد',
+    open: 'جاهز للتنفيذ',
+    OPEN: 'جاهز للتنفيذ',
     in_progress: 'قيد التنفيذ',
+    IN_PROGRESS: 'قيد التنفيذ',
     completed: 'مكتمل',
+    COMPLETED: 'مكتمل',
     executed: 'منفذ',
+    EXECUTED: 'منفذ',
     rejected: 'مرفوض',
+    REJECTED: 'مرفوض',
     cancelled: 'ملغى',
+    CANCELLED: 'ملغى',
   };
   return labels[status] ?? status;
 }
