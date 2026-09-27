@@ -5,6 +5,7 @@ import { detectFormat } from '../../src/lib/file-engine/detector.ts';
 import { parseFile } from '../../src/lib/file-engine/adapters.ts';
 import { reconcileForCanonical } from '../../src/lib/import/canonical-truth-boundary.ts';
 import { runCanonicalImportThroughDurableRunner } from '../../src/lib/import/canonical-production-adapter.ts';
+import { understandCanonicalSource } from '../../src/lib/import/canonical-source-understanding.ts';
 
 function json(status: number, body: Record<string, unknown>): Response {
   return new Response(JSON.stringify(body), {
@@ -118,18 +119,22 @@ export default async (request: Request): Promise<Response> => {
     }
 
     const authoritativeDatasets = await parseFile(bytes.buffer, fileRecord.file_name || payload.fileName || 'import', detection.format);
-    const authoritativeDataset = authoritativeDatasets[0];
-    if (!authoritativeDataset || authoritativeDataset.rowCount === 0) throw new Error('AUTHORITATIVE_SOURCE_PARSE_EMPTY');
+    const sourceUnderstanding = understandCanonicalSource(authoritativeDatasets);
+    if (sourceUnderstanding.rowCount === 0) throw new Error('AUTHORITATIVE_SOURCE_PARSE_EMPTY');
 
-    const authoritativeQualityScore = Math.max(0, Math.min(100, Math.round(authoritativeDataset.qualityScore)));
+    const authoritativeEntityType = sourceUnderstanding.entityType;
+    const authoritativeQualityScore = Math.max(0, Math.min(100, Math.round(sourceUnderstanding.qualityScore)));
     if (authoritativeQualityScore < 50) throw new Error(`CANONICAL_IMPORT_QUALITY_REJECTED:${authoritativeQualityScore}`);
     if (authoritativeQualityScore < 75 && payload.qualityApproved !== true) {
       throw new Error(`CANONICAL_IMPORT_REVIEW_APPROVAL_REQUIRED:${authoritativeQualityScore}`);
     }
+    if (payload.entityType !== authoritativeEntityType && payload.entityType !== 'generic:source-data') {
+      throw new Error('CANONICAL_IMPORT_ENTITY_TYPE_MISMATCH');
+    }
 
-    const authoritativeRows = authoritativeDataset.rows.map((data, index) => ({ rowNumber: index + 1, data }));
+    const authoritativeRows = sourceUnderstanding.rows.map((data, index) => ({ rowNumber: index + 1, data }));
     const reconciled = reconcileForCanonical(
-      payload.entityType,
+      authoritativeEntityType,
       String(companyId),
       fileRecord.file_name || payload.fileName || 'import',
       sourceSha,
@@ -183,26 +188,54 @@ export default async (request: Request): Promise<Response> => {
       .eq('company_id', companyId);
     if (jobUpdateError) throw jobUpdateError;
 
-    const execution = await runCanonicalImportThroughDurableRunner(
-      {
+    const { data: existingCommit, error: existingCommitError } = await serviceClient
+      .from('canonical_import_commits')
+      .select('id, entity_type, source_hash, committed_count, committed_at')
+      .eq('company_id', companyId)
+      .eq('entity_type', authoritativeEntityType)
+      .eq('source_hash', sourceSha)
+      .order('committed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (existingCommitError) throw existingCommitError;
+
+    let execution: Record<string, unknown>;
+    if (existingCommit) {
+      if (Number(existingCommit.committed_count) !== authoritativeRows.length) {
+        throw new Error('CANONICAL_EXISTING_COMMIT_COUNT_MISMATCH');
+      }
+      execution = {
         importId: job.id,
-        fileName: fileRecord.file_name || payload.fileName || 'import',
         sourceHash: sourceSha,
-        entityType: payload.entityType,
-        rows: reconciled.rows,
-        qualityScore: authoritativeQualityScore,
-        qualityApproved: payload.qualityApproved === true,
-      },
-      {
-        serverExecution: true,
-        workerClient: serviceClient,
-        dataClient: userClient,
-        companyId: String(companyId),
-        requestedBy: userData.user.id,
-      },
-    );
+        jobId: null,
+        reusedExistingCommit: true,
+        existingCommitId: String(existingCommit.id),
+        existingCommitAt: existingCommit.committed_at,
+      };
+    } else {
+      execution = await runCanonicalImportThroughDurableRunner(
+        {
+          importId: job.id,
+          fileName: fileRecord.file_name || payload.fileName || 'import',
+          sourceHash: sourceSha,
+          entityType: authoritativeEntityType,
+          rows: reconciled.rows,
+          qualityScore: authoritativeQualityScore,
+          qualityApproved: payload.qualityApproved === true,
+        },
+        {
+          serverExecution: true,
+          workerClient: serviceClient,
+          dataClient: userClient,
+          companyId: String(companyId),
+          requestedBy: userData.user.id,
+        },
+      );
+    }
 
     let snapshotId: string | null = null;
+    let evidenceStatus: 'VERIFIED' | 'PARTIAL' = 'PARTIAL';
+    let evidenceWarning = 'تم تنفيذ الاستيراد الكانوني، لكن لقطة الدليل لم تُثبت؛ الحالة بقيت PARTIAL ولم يتم الادعاء باكتمال الدليل.';
     try {
       const { data: snapshot, error: snapshotError } = await serviceClient
         .from('source_analysis_snapshots')
@@ -216,17 +249,16 @@ export default async (request: Request): Promise<Response> => {
           entity_type: 'source-data',
           quality_score: authoritativeQualityScore,
           row_count: authoritativeRows.length,
-          column_count: Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns.length : 0,
-          datasets: [{
-            name: fileRecord.file_name || payload.fileName || 'import',
-            rowCount: authoritativeRows.length,
-            columnCount: Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns.length : 0,
-            columns: authoritativeDataset.columns,
-            preview: authoritativeDataset.preview.slice(0, 25),
-          }],
+          column_count: sourceUnderstanding.columnCount,
+          datasets: sourceUnderstanding.datasets.map((dataset) => ({
+            ...dataset,
+            sourceHash: sourceSha,
+          })),
           canonical_text: [
             `source=${fileRecord.file_name || payload.fileName || 'import'}`,
             `server_authoritative_quality=${authoritativeQualityScore}%`,
+            `source_specialty=${sourceUnderstanding.specialty}`,
+            `dataset_count=${sourceUnderstanding.datasetCount}`,
             `source_sha=${sourceSha}`,
           ].join(' | '),
           visual_assets: [],
@@ -237,15 +269,25 @@ export default async (request: Request): Promise<Response> => {
             serverAuthoritativeSource: true,
             serverAuthoritativeQualityScore: authoritativeQualityScore,
             committed: authoritativeRows.length,
-            jobId: execution.jobId,
+            reusedExistingCommit: execution.reusedExistingCommit === true,
+            existingCommitId: typeof execution.existingCommitId === 'string' ? execution.existingCommitId : null,
+            jobId: typeof execution.jobId === 'string' ? execution.jobId : null,
             sourceStoragePath: storagePath,
+            sourceSpecialty: sourceUnderstanding.specialty,
+            sourceSpecialtyConfidence: sourceUnderstanding.specialtyConfidence,
+            datasetCount: sourceUnderstanding.datasetCount,
+            datasetWarnings: sourceUnderstanding.warnings,
           },
         })
         .select('id')
         .single();
-      if (!snapshotError) snapshotId = snapshot?.id ?? null;
+      if (snapshotError) throw snapshotError;
+      snapshotId = snapshot?.id ?? null;
+      if (!snapshotId) throw new Error('SOURCE_EVIDENCE_SNAPSHOT_ID_MISSING');
+      evidenceStatus = 'VERIFIED';
+      evidenceWarning = '';
     } catch (snapshotError) {
-      console.error('[canonical-import-execute] non-fatal snapshot persistence failure', snapshotError);
+      console.error('[canonical-import-execute] evidence snapshot persistence failed after durable commit', snapshotError);
     }
 
     return json(200, {
@@ -255,8 +297,16 @@ export default async (request: Request): Promise<Response> => {
       snapshotId,
       authoritativeRowCount: authoritativeRows.length,
       authoritativeQualityScore,
-      authoritativeColumns: authoritativeDataset.columns,
-      authoritativePreview: authoritativeDataset.preview.slice(0, 25),
+      authoritativeColumns: sourceUnderstanding.columns,
+      authoritativePreview: sourceUnderstanding.rows.slice(0, 25),
+      sourceSpecialty: sourceUnderstanding.specialty,
+      sourceSpecialtyConfidence: sourceUnderstanding.specialtyConfidence,
+      authoritativeEntityType,
+      datasetCount: sourceUnderstanding.datasetCount,
+      datasetSummaries: sourceUnderstanding.datasets,
+      sourceWarnings: sourceUnderstanding.warnings,
+      evidenceStatus,
+      evidenceWarning: evidenceWarning || undefined,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED';
