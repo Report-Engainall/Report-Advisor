@@ -373,7 +373,7 @@ export function DecisionExperiencePage() {
             <div>
               <div className={"text-[9px] font-black tracking-[.12em] " + (sourceSnapshot ? "text-success-700" : "text-warning-800")}>IMPORTED SOURCE CONTEXT</div>
               <div className="mt-1 text-sm font-black text-ink-950">{sourceSnapshot ? 'الدليل المرتبط بالمصدر مثبت — يمكن متابعة مسار القرار.' : 'الدليل المرتبط بالمصدر غير مثبت — القرار محجوب مؤقتًا.'}</div>
-              <p className="mt-1 text-[10px] leading-5 text-ink-600">{sourceSnapshot ? ('المصدر: ' + String(sourceSnapshot.metadata.fileName ?? sourceSnapshot.source_path) + ' · ' + sourceSnapshot.row_count + ' صف · جودة ' + (sourceSnapshot.quality_score == null ? 'غير متاحة' : sourceSnapshot.quality_score + '%')) : 'الاستيراد قد يكون مرّ في المسار التشغيلي، لكن لا توجد Snapshot دليل قابلة للقراءة في هذه الجلسة.'}</p>
+              <p className="mt-1 text-[10px] leading-5 text-ink-600">{sourceSnapshot ? ('المصدر: ' + String(sourceSnapshot.metadata.fileName ?? sourceSnapshot.source_path) + ' · ' + sourceSnapshot.row_count + ' صف · جودة ' + (sourceSnapshot.quality_score == null ? 'غير متاحة' : sourceSnapshot.quality_score + '%') + ' · As Of ' + (sourceSnapshot.created_at ? new Date(sourceSnapshot.created_at).toLocaleString('ar-YE') : 'غير متاح')) : 'الاستيراد قد يكون مرّ في المسار التشغيلي، لكن لا توجد Snapshot دليل قابلة للقراءة في هذه الجلسة.'}</p>
             </div>
             {!sourceSnapshot && <Link to={"/trust?import=" + encodeURIComponent(importJobId)} className="btn-secondary text-[11px]">فتح Evidence Passport</Link>}
           </div>
