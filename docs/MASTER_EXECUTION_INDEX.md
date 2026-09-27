@@ -1,3 +1,12 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT → WORK CENTER CONTINUITY
+
+- BRANCH → `exec/20260927-import-full-lifecycle`.
+- CODE/TEST CANDIDATE → `7fc9c0370728b312b337cdbc247e5cc984448304`.
+- DONE → import result now carries the same persisted import identity into Work Center; Work Center can focus on it without inventing another operation state.
+- PROOF → repository contract written; exact-head CI/browser proof pending.
+- NEXT → consume exact-head checks, then proceed to next independent surface.
+- DO NOT REPEAT → stale evidence, duplicate import path, fabricated queue state.
+-
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / AUTHORITATIVE POST-IMPORT RESULT BINDING
 
 - BRANCH → `exec/20260927-import-full-lifecycle`.
