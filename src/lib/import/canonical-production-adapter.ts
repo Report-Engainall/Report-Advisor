@@ -38,8 +38,20 @@ function rowKey(entityType: DurableCanonicalImportInput['entityType'], row: Reco
   }
   const value = entityType === 'products'
     ? row.data.sku
-    : entityType === 'sales_invoices' || entityType === 'purchase_invoices'
+    : entityType === 'sales_invoices'
       ? row.data.invoice_number
+      : entityType === 'purchase_invoices'
+        ? (
+            row.data.product_id != null ||
+            row.data.sku != null ||
+            row.data.product_name != null ||
+            row.data.quantity != null ||
+            row.data.unit_price != null ||
+            row.data.line_total != null ||
+            row.data.description != null
+              ? [row.data.invoice_number, row.data.product_id ?? row.data.sku ?? row.data.product_name ?? row.rowNumber, row.rowNumber].join(':')
+              : row.data.invoice_number
+          )
       : entityType === 'suppliers'
         ? (row.data.code ?? row.data.name)
         : entityType === 'inventory_balances'
