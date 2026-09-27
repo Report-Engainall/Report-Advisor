@@ -89,6 +89,7 @@ const queriesContractTokens = [
   'fetchDecisionWorkItems',
   'startDecisionWorkItem',
   'fetchRecommendationOutcome',
+  'fetchRecommendationsBoundToImport',
   "create_decision_work_item",
   "start_decision_work_item",
 ];
@@ -97,8 +98,8 @@ for (const token of queriesContractTokens) {
   if (!queriesSource.includes(token)) throw new Error(`Decision work query contract missing: ${token}`);
 }
 const decisionWorkUi = decisionExperiencePage;
-for (const token of ['Work Item', 'createDecisionWorkItem', 'fetchDecisionWorkItem', 'المستخدم الحالي']) {
-  if (!decisionWorkUi.includes(token)) throw new Error(`Decision → Work Item UI contract missing: ${token}`);
+for (const token of ['Work Item', 'createDecisionWorkItem', 'fetchDecisionWorkItem', 'المستخدم الحالي', 'fetchRecommendationsBoundToImport']) {
+  if (!decisionWorkUi.includes(token)) throw new Error(`Decision → Work Item/provenance UI contract missing: ${token}`);
 }
 const workCenterPage = readFileSync(new URL('../src/pages/WorkCenterPage.tsx', import.meta.url), 'utf8');
 for (const token of ['fetchDecisionWorkItems', 'startDecisionWorkItem', 'DECISION WORK', 'بدء التنفيذ']) {
