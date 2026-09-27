@@ -1,19 +1,17 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / FINAL NON-DEVICE CHECKPOINT
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT NON-DEVICE UI + IMPORT CONTINUITY
 
 > This top block is the only startup boundary.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `10a173b606697c56dbb167b9ec27911cfbcefb27`
-- FUNCTIONAL FRONT → PR #671
+- CURRENT CODE/TEST CANDIDATE → `9bcfb80020ac2952ee45b64123e4c15bc8b891e0`
+- FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- PRODUCT CHAIN → Import → Evidence → Signals → Decision → Work → Outcome/Learning.
-- COVERAGE → 8 canonical navigation zones; 38/38 registry routes; Decision ROI/Money Recovery/Decision Coverage; Playbooks availability gate; Report Builder/print; Evidence Passport/snapshots; Forecast Backtest gate.
-- SERVER → shared API/Netlify canonical import executor with tenant/source/hash/security/quality binding and aligned error contract; 6-arg RPC remains authenticated/service_role only.
-- CLEANUP → legacy ExternalFileAnalysisPage removed and proven.
-- STAGING → no dedicated playbook/backtest/source-schema-drift schema; current counts recorded in live memory/data/product masters.
-- PROOF → exact source current; code/test candidate `10a173b6…`; GitHub workflows: 43 queued / 3 in-progress / 3 pending; Vercel external rate-limit; Netlify current-head preview success.
-- NEXT → terminal current-head CI result, then first-root repair only.
-
+- PRODUCT CHAIN → Any Source → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
+- UI COVERAGE → eight canonical zones; 38/38 registry routes resolve in App; Product Journey exposes eight explicit visible stages; shared Product WOW contract covers shell, journey, states, evidence, and navigation.
+- SHELL → dark executive topbar + right-aligned dark RTL sidebar; superseded light navigation override removed and guarded by the UI contract.
+- SOURCE AUDIT → all 32 TSX page surfaces scanned at exact candidate for synthetic/reload/TODO/Coming-Soon markers; no remediation-required hits. Proposal Demo’s “Mockup” mention is explanatory non-fabrication copy.
+- PROOF → current head has 44 queued, 3 pending, 2 skipped workflows and no terminal success/failure. Vercel free-plan rate-limit is external. No production/browser/Phase-F/device certification claimed.
+- NEXT → consume first terminal current-head result; repair only first reproducible root; then rescan route/state/duplicate/cleanup boundaries.
 ---
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / SECURITY BOUNDARY CLOSURE
