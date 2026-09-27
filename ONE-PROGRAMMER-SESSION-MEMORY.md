@@ -128,3 +128,21 @@
 - NEXT EXECUTABLE ACTION → consume fresh exact-head GitHub check results for PR #662/PR #663; fix only the first current failure if any. In parallel, keep the canonical UI/import lane intact and avoid duplicate import/navigation/RPC/runner paths.
 - DO NOT REPEAT → no stale PASS transfer, no preview-as-production, no production-SHA bypass, no duplicate import path, no unsafe `import_jobs` terminalization, no blanket security cleanup.
 - RESUME STATUS → ACTIVE / CONTINUE.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-146
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-146`.
+- CURRENT VERIFIED MAIN SHA → `d2a9be95aa809c4e8fb5659f74492c473ff69810` (Execution Index reconciliation committed on main after UI-lifecycle update).
+- CURRENT FUNCTIONAL CANDIDATE → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `0c80f0f21027ff9e5451cde297e6f28cbad94334`.
+- FRONT-ID → `IMPORT-SURFACE-AFTER-UPLOAD + EXACT-HEAD-PROOF`.
+- CURRENT BOUNDARY → canonical import UI from upload through Security → Fingerprint → Understand → Normalize → Quality → Trust → Evidence → Review → Canonical Commit → Persistence → Readback → Business Understanding → Signals → Decision → Outcome → Learning.
+- ACTUAL RESULT → existing `CanonicalImportPage` was extended with a visible 16-stage canonical lifecycle inside the existing post-import result surface. No duplicate route/importer/RPC/runner was added. Existing Evidence/Decision/Replay/Data Quality actions remain the continuation points.
+- EXACT-SHA EVIDENCE → on `0c80f0f`, fresh checks are executing: browser-e2e queued, certification-contracts queued, enforcement-contract queued, Cloudflare in progress, Netlify checks in progress; Supabase Preview skipped. No new PASS claimed yet.
+- EXISTING PREVIEW EVIDENCE → prior exact-head Netlify/Cloudflare proofs remain bound to their own older SHAs and are not transferred to `0c80f0f`.
+- FIRST FAILURE → none on `0c80f0f` yet; only Vercel external rate-limit status is immediately failed, with required deployment context pending. No code failure is inferred from that external blocker.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan deployment-rate limit; authenticated browser, production exact-SHA, and Phase-F resilience proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume terminal #662 checks on `0c80f0f`; repair only the first reproducible current-SHA root failure. Then consume #663 gates and reconcile exact-head compatibility.
+- NEXT INDEPENDENT ACTIONS → continue targeted UI truth-state audits and safe documentation/evidence reconciliation while checks run; no production mutation.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate import/navigation/RPC/runner; unsafe `import_jobs` terminalization; blanket security cleanup.
+- RESUME STATUS → ACTIVE / IMPORT UI LIFECYCLE ADVANCED / EXACT-HEAD PROOF RUNNING.
