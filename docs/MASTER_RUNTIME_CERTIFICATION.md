@@ -69,3 +69,7 @@ Do not terminalize unresolved processing jobs merely to make dashboards green.
 
 ## 9. Certification completion
 Final certification is complete only when all release-critical gates are current, exact, attributable, reproducible or artifact-backed, and consistent with current code/test lineage.
+
+
+## 10. Staging exact parity closure — 2026-09-27
+Staging project `fnqbvfuwbdpwvhcgzksl` was reconciled to the current canonical specialty-import migration and grant hardening. Exact runtime evidence: migration history contains `20260927213000_expand_canonical_import_specialties` and `20260927220000_harden_canonical_import_execute_grant`; the six-argument `import_commit_batch` exists alongside the legacy five-argument RPC; the canonical entity constraint enumerates all seven typed specialties plus generic entities; `anon` execution is false while `authenticated` and `service_role` execution are true. This is staging evidence only and does not certify Production or Phase-F.
