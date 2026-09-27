@@ -151,6 +151,7 @@ assert.ok(reports.includes('ReportBuilder'), 'reports center must mount the cano
 assert.ok(reports.includes('downloadReportArtifact'), 'report builder must reuse the canonical report export path');
 assert.ok(reports.includes('SOURCE-BOUND DRAFT'), 'report builder must disclose session-scoped source binding rather than imply saved-template persistence');
 assert.ok(reports.includes('window.print()'), 'report builder must preserve print output');
+assert.ok(reports.includes('print:hidden space-y-5'), 'report builder print mode must isolate the builder from the reports-center shell');
 const reports = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
 assert.ok(!reports.includes('window.location.reload()'), 'report pages must retry in place without a full browser reload');
 assert.ok(reports.includes('export function PurchasesReportPage()'), 'purchase report must remain guarded after retry refactor');
