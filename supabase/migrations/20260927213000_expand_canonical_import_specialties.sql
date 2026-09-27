@@ -165,6 +165,7 @@ BEGIN
       IF nullif(v_row->>'tax_amount','') IS NULL OR (v_row->>'tax_amount') IN ('NaN','Infinity','-Infinity') OR (v_row->>'tax_amount')::numeric < 0 THEN RAISE EXCEPTION 'PURCHASE_TAX_AMOUNT_REQUIRED'; END IF;
       IF nullif(v_row->>'total','') IS NULL OR (v_row->>'total') IN ('NaN','Infinity','-Infinity') OR (v_row->>'total')::numeric < 0 THEN RAISE EXCEPTION 'PURCHASE_TOTAL_REQUIRED'; END IF;
       IF nullif(v_row->>'paid_amount','') IS NULL OR (v_row->>'paid_amount') IN ('NaN','Infinity','-Infinity') OR (v_row->>'paid_amount')::numeric < 0 THEN RAISE EXCEPTION 'PURCHASE_PAID_AMOUNT_REQUIRED'; END IF;
+      IF nullif(v_row->>'discount_amount','') IN ('NaN','Infinity','-Infinity') OR coalesce((v_row->>'discount_amount')::numeric,0) < 0 THEN RAISE EXCEPTION 'PURCHASE_DISCOUNT_INVALID'; END IF;
       IF nullif(btrim(v_row->>'status'),'') IS NULL THEN RAISE EXCEPTION 'PURCHASE_STATUS_REQUIRED'; END IF;
 
       SELECT id INTO v_supplier_id
@@ -226,6 +227,49 @@ BEGIN
             notes = CASE WHEN p_null_policy='preserve' AND v_row->>'notes' IS NULL THEN notes ELSE coalesce(nullif(btrim(v_row->>'notes'),''), notes) END
         WHERE id = v_invoice_id AND company_id = v_company_id;
         v_id := v_invoice_id;
+      END IF;
+
+      IF nullif(v_row->>'quantity','') IS NOT NULL OR nullif(v_row->>'unit_price','') IS NOT NULL OR nullif(v_row->>'line_total','') IS NOT NULL OR nullif(v_row->>'product_id','') IS NOT NULL OR nullif(v_row->>'sku','') IS NOT NULL OR nullif(v_row->>'product_name','') IS NOT NULL OR nullif(v_row->>'description','') IS NOT NULL THEN
+        IF nullif(v_row->>'quantity','') IS NULL OR (v_row->>'quantity') IN ('NaN','Infinity','-Infinity') OR (v_row->>'quantity')::numeric < 0 THEN RAISE EXCEPTION 'PURCHASE_ITEM_QUANTITY_REQUIRED'; END IF;
+        IF nullif(v_row->>'unit_price','') IS NULL OR (v_row->>'unit_price') IN ('NaN','Infinity','-Infinity') OR (v_row->>'unit_price')::numeric < 0 THEN RAISE EXCEPTION 'PURCHASE_ITEM_UNIT_PRICE_REQUIRED'; END IF;
+        IF nullif(v_row->>'discount_amount','') IN ('NaN','Infinity','-Infinity') OR coalesce((v_row->>'discount_amount')::numeric,0) < 0 THEN RAISE EXCEPTION 'PURCHASE_ITEM_DISCOUNT_INVALID'; END IF;
+        IF nullif(v_row->>'tax_amount','') IN ('NaN','Infinity','-Infinity') OR coalesce((v_row->>'tax_amount')::numeric,0) < 0 THEN RAISE EXCEPTION 'PURCHASE_ITEM_TAX_INVALID'; END IF;
+        IF nullif(v_row->>'line_total','') IS NOT NULL AND ((v_row->>'line_total') IN ('NaN','Infinity','-Infinity') OR (v_row->>'line_total')::numeric < 0) THEN RAISE EXCEPTION 'PURCHASE_ITEM_LINE_TOTAL_INVALID'; END IF;
+
+        v_product_id := nullif(v_row->>'product_id','')::uuid;
+        IF v_product_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM public.products WHERE id=v_product_id AND company_id=v_company_id) THEN
+          RAISE EXCEPTION 'PURCHASE_ITEM_PRODUCT_TENANT_MISMATCH';
+        END IF;
+        IF v_product_id IS NULL THEN
+          SELECT id INTO v_product_id
+          FROM public.products
+          WHERE company_id=v_company_id
+            AND (
+              (nullif(v_row->>'sku','') IS NOT NULL AND public.normalize_import_key(sku)=public.normalize_import_key(v_row->>'sku'))
+              OR
+              (nullif(v_row->>'product_name','') IS NOT NULL AND public.normalize_import_key(name)=public.normalize_import_key(v_row->>'product_name'))
+            )
+          ORDER BY id
+          LIMIT 1;
+        END IF;
+
+        INSERT INTO public.purchase_items(
+          invoice_id,product_id,description,quantity,unit_price,discount_amount,tax_amount,line_total,company_id
+        )
+        VALUES(
+          v_id,
+          v_product_id,
+          nullif(btrim(v_row->>'description'),''),
+          (v_row->>'quantity')::numeric,
+          (v_row->>'unit_price')::numeric,
+          coalesce(nullif(v_row->>'discount_amount','')::numeric,0),
+          coalesce(nullif(v_row->>'tax_amount','')::numeric,0),
+          coalesce(nullif(v_row->>'line_total','')::numeric,
+                   ((v_row->>'quantity')::numeric * (v_row->>'unit_price')::numeric)
+                    - coalesce(nullif(v_row->>'discount_amount','')::numeric,0)
+                    + coalesce(nullif(v_row->>'tax_amount')::numeric,0)),
+          v_company_id
+        );
       END IF;
 
     ELSIF p_entity_type = 'inventory_balances' THEN
