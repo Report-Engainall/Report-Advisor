@@ -1,3 +1,19 @@
+# RESUME TOKEN — 2026-09-27 / CURRENT VERIFIED STATE
+
+- CURRENT REPOSITORY HEAD → 46675643e32f6ea28b6c1d80a530b2eb134e7907
+- CURRENT CODE/TEST CANDIDATE → 46675643e32f6ea28b6c1d80a530b2eb134e7907 (main certification baseline)
+- GOVERNANCE CANDIDATE → 7911eefd082835f95a4356e5a156c3108670a496 (PR #663 / control/continuous-resume-20260927)
+- ACTIVE FUNCTIONAL FRONT → b66ff4a6b7c8ece5e90501794e3c6837e1e68550 (PR #662 / exec/20260927-import-full-lifecycle)
+- ACTIVE EXECUTION FRONTS → SURFACE: PR #662 full-source import; HEART: import/runtime truth; PROOF: exact-head #662/#663 gates; GOVERNANCE: certification-boundary/index reconciliation.
+- OPEN BLOCKERS (SCOPED) → Vercel free-plan build-rate limit; local PC01 offline; Phase-F/production promotion proof remains external/not proven. These blockers isolate only dependent fronts.
+- LAST PROVEN → PR #663 governance contracts except certification-boundary index binding; exact Windows/Netlify/CodeRabbit success on b66 remains SHA-bound and does not transfer.
+- FIRST FAILURE → certification boundary integrity: indexed candidate was stale (6d4c849… on #663, d7bfe613… on #662), causing exact-head rejection before downstream certification tests.
+- NEXT EXECUTABLE ACTION → verify the repaired #663 index binding on fresh exact-head gates; then consume the first remaining current-SHA failure only. In parallel consume #662 certification failures.
+- NEXT INDEPENDENT ACTIONS → preserve untouched 151 staging import_jobs; continue independent proof/contract consumption; no production mutation or unsafe job recovery.
+- DO NOT REPEAT → stale candidate binding; stale PASS transfer; duplicate importer/RPC/runner; blind import-job terminalization; preview-as-production/browser PASS; documentation-only closure.
+- RESUME STATUS → ACTIVE / ROOT FAILURE IDENTIFIED / FIX APPLIED / FRESH PROOF REQUIRED
+- CHECKPOINT RULE → HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT
+
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / EXACT WINDOWS PROOF CONSUMED
 
 - MAIN HEAD VERIFIED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
@@ -24,12 +40,12 @@
 # RESUME TOKEN — 2026-09-27 / continuous execution
 
 - CURRENT REPOSITORY HEAD → 46675643e32f6ea28b6c1d80a530b2eb134e7907
-- CURRENT CODE/TEST CANDIDATE → 20179f6964e13abf4550bec236d0a0620a02b153 (PR #663; governance candidate; exact documented checkpoint).
+- CURRENT CODE/TEST CANDIDATE → 46675643e32f6ea28b6c1d80a530b2eb134e7907 (main certification baseline; PR #663 is governance-only descendant).
 - ACTIVE EXECUTION FRONTS → SURFACE: PR #662 full-source import; HEART: import/runtime truth; PROOF: exact-head PR #662/#663 gates; GOVERNANCE: continuous-resume enforcement.
 - OPEN BLOCKERS (SCOPED) → Vercel free-plan build-rate limit; browser automation unavailable; Phase-F/production certification remains unproven. These blockers isolate only their dependent proof fronts.
 - LAST PROVEN → PR #663 exact-head execution-enforcement + adversarial + knowledge/report-execution contracts PASS on a262f26b042569837b826ecf679e0c465f06ef8d; NO PASS is transferred to bdbf101f20c0c160527e994b49061747c4f16267. PR #662 exact-head local certification contracts remain historical evidence only.
 - LAST FAILED / FIRST FAILURE TO CONSUME → closed: Resume Token parser-format drift fixed. Remaining typecheck failure is pre-existing main code in DataTable/ExecutiveReport and is covered by PR #662; do not duplicate that product fix in governance PR #663.
-- NEXT EXECUTABLE ACTION → consume fresh PR #663 remote gates and PR #662 remote certification gates; repair only a new current-SHA failure. Vercel build-rate limit remains external; browser/Phase-F remain fail-closed.
+- NEXT EXECUTABLE ACTION → consume fresh PR #663 remote gates after index rebinding and PR #662 remote certification gates; repair only a new current-SHA failure. Vercel build-rate limit remains external; browser/Phase-F remain fail-closed.
 - NEXT INDEPENDENT ACTIONS → preserve 151 staging processing rows; no canonical import recovery worker exists in current source surface; consume remote gates and inspect recovery only if a governed import recovery contract is added.
 - DO NOT REPEAT → stale PASS transfer; duplicate import/RPC/runner; blind import-job terminalization; production/Phase-F bypass; documentation-only closure.
 - CHECKPOINT RULE → after every meaningful closure batch update this token as HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT. The next session must start here, not from chat history.
