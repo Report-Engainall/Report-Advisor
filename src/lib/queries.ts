@@ -191,6 +191,124 @@ export async function decideApproval(approvalId: string, approve: boolean, reaso
   });
   if (error) throw error;
 }
+
+export type DecisionWorkItemRecord = {
+  id: string;
+  company_id: string;
+  decision_id: string;
+  recommendation_id: string | null;
+  department: string;
+  assignee_id: string | null;
+  assignee_label: string | null;
+  title: string;
+  description: string | null;
+  priority: string;
+  status: string;
+  due_at: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  evidence_refs: Array<Record<string, unknown>>;
+  expected_impact: number | null;
+  actual_impact: number | null;
+  created_at: string;
+  updated_at: string;
+};
+
+function mapDecisionWorkItem(row: Record<string, unknown>): DecisionWorkItemRecord {
+  return {
+    id: String(row.id),
+    company_id: String(row.company_id),
+    decision_id: String(row.decision_id),
+    recommendation_id: row.recommendation_id ? String(row.recommendation_id) : null,
+    department: String(row.department),
+    assignee_id: row.assignee_id ? String(row.assignee_id) : null,
+    assignee_label: row.assignee_label ? String(row.assignee_label) : null,
+    title: String(row.title),
+    description: row.description ? String(row.description) : null,
+    priority: String(row.priority),
+    status: String(row.status),
+    due_at: row.due_at ? String(row.due_at) : null,
+    started_at: row.started_at ? String(row.started_at) : null,
+    completed_at: row.completed_at ? String(row.completed_at) : null,
+    evidence_refs: Array.isArray(row.evidence_refs) ? row.evidence_refs as Array<Record<string, unknown>> : [],
+    expected_impact: row.expected_impact == null ? null : Number(row.expected_impact),
+    actual_impact: row.actual_impact == null ? null : Number(row.actual_impact),
+    created_at: String(row.created_at),
+    updated_at: String(row.updated_at),
+  };
+}
+
+export async function fetchDecisionWorkItem(decisionId: string): Promise<DecisionWorkItemRecord | null> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase
+    .from('decision_work_items')
+    .select('id, company_id, decision_id, recommendation_id, department, assignee_id, assignee_label, title, description, priority, status, due_at, started_at, completed_at, evidence_refs, expected_impact, actual_impact, created_at, updated_at')
+    .eq('company_id', companyId)
+    .eq('decision_id', decisionId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? mapDecisionWorkItem(data as Record<string, unknown>) : null;
+}
+
+export async function fetchDecisionWorkItems(limit = 100): Promise<DecisionWorkItemRecord[]> {
+  if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('WORK_ITEM_QUERY_INVALID_LIMIT');
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase
+    .from('decision_work_items')
+    .select('id, company_id, decision_id, recommendation_id, department, assignee_id, assignee_label, title, description, priority, status, due_at, started_at, completed_at, evidence_refs, expected_impact, actual_impact, created_at, updated_at')
+    .eq('company_id', companyId)
+    .order('created_at', { ascending: false })
+    .range(0, limit - 1);
+  if (error) throw error;
+  return (data ?? []).map((row) => mapDecisionWorkItem(row as Record<string, unknown>));
+}
+
+export async function createDecisionWorkItem(input: {
+  decisionId: string;
+  recommendationId: string | null;
+  department: string;
+  assigneeId: string;
+  assigneeLabel: string;
+  title: string;
+  description: string | null;
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  dueAt: string | null;
+  expectedImpact: number | null;
+  evidenceRefs: Array<Record<string, unknown>>;
+}): Promise<string> {
+  if (!input.assigneeId.trim()) throw new Error('WORK_ITEM_ASSIGNEE_REQUIRED');
+  if (!input.assigneeLabel.trim()) throw new Error('WORK_ITEM_OWNER_LABEL_REQUIRED');
+  if (!input.title.trim()) throw new Error('WORK_ITEM_TITLE_REQUIRED');
+  if (!input.department.trim()) throw new Error('WORK_ITEM_DEPARTMENT_REQUIRED');
+  if (!input.evidenceRefs.length) throw new Error('WORK_ITEM_EVIDENCE_REQUIRED');
+  const { data, error } = await supabase.rpc('create_decision_work_item', {
+    p_decision_id: input.decisionId,
+    p_recommendation_id: input.recommendationId,
+    p_department: input.department,
+    p_assignee_id: input.assigneeId,
+    p_assignee_label: input.assigneeLabel,
+    p_title: input.title,
+    p_description: input.description,
+    p_priority: input.priority,
+    p_due_at: input.dueAt,
+    p_expected_impact: input.expectedImpact,
+    p_evidence_refs: input.evidenceRefs,
+  });
+  if (error) throw error;
+  if (!data) throw new Error('WORK_ITEM_CREATE_EMPTY');
+  return String(data);
+}
+
+export async function startDecisionWorkItem(workItemId: string): Promise<void> {
+  const { error } = await supabase.rpc('start_decision_work_item', {
+    p_work_item_id: workItemId,
+  });
+  if (error) throw error;
+}
 export type ReceivablesReportRow = { id:string; invoice_number:string; invoice_date:string; due_date:string|null; total:number|null; paid_amount:number|null; balance:number; status:string|null; customer:{id:string|null;name:string|null}|null };
 export type ReceivablesReportPage = { status:'CALCULATED'|'NO_DATA'; page:number; page_size:number; total_rows:number; total_outstanding:number; rows:ReceivablesReportRow[] };
 export async function fetchReceivablesReportPage(page=0,pageSize=25):Promise<ReceivablesReportPage>{if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');if(!Number.isInteger(pageSize)||pageSize<1||pageSize>100)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');const {data,error}=await supabase.rpc('get_receivables_report_page',{p_page:page,p_page_size:pageSize});if(error)throw error;if(!data||typeof data!=='object')throw new Error('REPORT_DATA_UNAVAILABLE: receivables snapshot missing');const p=data as Record<string,unknown>;if(!Array.isArray(p.rows))throw new Error('REPORT_DATA_UNAVAILABLE: receivables rows missing');return{status:p.status==='NO_DATA'?'NO_DATA':'CALCULATED',page:Number(p.page??page),page_size:Number(p.page_size??pageSize),total_rows:Number(p.total_rows??0),total_outstanding:Number(p.total_outstanding??0),rows:p.rows as ReceivablesReportRow[]};}
