@@ -390,7 +390,7 @@ export function RecommendationsPage() {
     actionable: items.filter((item) => isActionableRecommendationStatus(item.status)).length,
     open: items.filter((item) => item.status === 'OPEN').length,
     approved: items.filter((item) => item.status === 'approved' || item.status === 'accepted').length,
-    inProgress: items.filter((item) => item.status === 'in_progress').length,
+    in_progress: items.filter((item) => item.status === 'in_progress').length,
     rejected: items.filter((item) => item.status === 'rejected').length,
     withImpact: items.filter((item) => item.expected_impact !== null || item.impact_result !== null).length,
   }), [items]);
