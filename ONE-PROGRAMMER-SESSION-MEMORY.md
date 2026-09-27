@@ -1,18 +1,16 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
-- CURRENT VERIFIED MAIN SHA → `a76f19a7da58071dce9a08874eae2b666827aa11`
-- CURRENT EXECUTION/CANDIDATE SHA → `4de3c95ff3a741463d49a2b52baf86f66ce62fad`
-- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize` / PR #667
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- CURRENT REPOSITORY HEAD → `ae76413faed892047acebf76b6b8e103af8f6782`
+- CURRENT CODE/TEST CANDIDATE → `4de3c95ff3a741463d49a2b52baf86f66ce62fad`
+- ACTIVE EXECUTION FRONTS → PR #667 (`exec/20260927-current-main-import-ui-finalize`) = single functional import-to-decision front; PR #655 = Phase-F schema/runtime dependency.
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
-- ACTUAL RESULT → single functional front retained; duplicate PR #668 and stale UI PRs #594/#596/#603 closed. `/benchmark` and `/replay` are now canonical registry routes backed by existing page/Sidebar implementations.
-- EVIDENCE → `2cdd7128…` phase9 failure was exact-head ref verification before contract execution; ref verifier repaired. `8c4097fa…` had CodeRabbit PASS + Netlify deploy-preview PASS, Vercel external rate-limit.
-- FIRST FAILURE → closed at CI harness layer without changing acceptance criteria.
-- OPEN BLOCKERS → GitHub gates still in flight on new candidate; Vercel free-plan build-rate limit; authenticated production/browser/Phase-F evidence NOT PROVEN; device unavailable.
-- NEXT EXECUTABLE ACTION → consume first terminal workflow result on candidate `d6e1d139…`; fix only the first reproducible current-SHA root.
-- NEXT INDEPENDENT ACTIONS → continue safe cleanup of clearly superseded fronts; reconcile canonical memory/index after each code candidate.
-- DO NOT REPEAT → duplicate fronts, stale PASS transfer, preview-as-production, route without registry, or import completion at parse/preview only.
-- RESUME STATUS → ACTIVE / SINGLE FUNCTIONAL FRONT #667 / EXACT-HEAD PROOF IN FLIGHT
+- LAST PROVEN → certification boundary exact-head PASS on `ae76413f…` with indexed candidate `4de3c95f…`; Windows build/native watcher/runtime/package gates PASS on `ae76413f…` ancestry; CodeRabbit/Netlify PASS observed on prior exact branch head.
+- LAST FAILED → `Execution Enforcement Contract` run `36333332339` on `ae76413f…`: certification-boundary PASS, then resume-token validation failed because required anchors were missing.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; production/browser/Phase-F live proof NOT PROVEN; current GitHub workflow fan-out still in flight.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow on the new memory-fix SHA; repair only the first reproducible current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue safe superseded-front cleanup and canonical state reconciliation; no duplicate importer/RPC/runner.
+- DO NOT REPEAT → duplicate PR/front creation; stale PASS transfer; preview-as-production; route without registry; parse/preview treated as import completion; memory without enforcement anchors.
+- RESUME STATUS → ACTIVE / SINGLE FUNCTIONAL FRONT #667 / EXACT-SHA PROOF IN FLIGHT
 
 ---
 
