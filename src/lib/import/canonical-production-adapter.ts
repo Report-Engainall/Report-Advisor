@@ -38,9 +38,15 @@ function rowKey(entityType: DurableCanonicalImportInput['entityType'], row: Reco
   }
   const value = entityType === 'products'
     ? row.data.sku
-    : entityType === 'sales_invoices'
+    : entityType === 'sales_invoices' || entityType === 'purchase_invoices'
       ? row.data.invoice_number
-      : (row.data.code ?? row.data.name);
+      : entityType === 'suppliers'
+        ? (row.data.code ?? row.data.name)
+        : entityType === 'inventory_balances'
+          ? [row.data.warehouse_id ?? row.data.warehouse, row.data.product_id ?? row.data.sku ?? row.data.product_name].join(':')
+          : entityType === 'payments'
+            ? (row.data.payment_id ?? row.data.reference)
+            : (row.data.code ?? row.data.name);
   const key = String(value ?? '').trim();
   if (!key) throw new Error(`IMPORT_ROW_BUSINESS_KEY_REQUIRED:${row.rowNumber}`);
   return `${entityType}:${key.toLowerCase()}`;
