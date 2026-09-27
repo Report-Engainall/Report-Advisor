@@ -119,6 +119,12 @@ const workCenterPage = readFileSync(new URL('../src/pages/WorkCenterPage.tsx', i
 for (const token of ['fetchDecisionWorkItems', 'startDecisionWorkItem', 'DECISION WORK', 'بدء التنفيذ']) {
   if (!workCenterPage.includes(token)) throw new Error(`Work Center action contract missing: ${token}`);
 }
+for (const token of ['useSearchParams', 'focusedImportId', 'IMPORT CONTEXT', 'متابعة عملية الاستيراد الحالية']) {
+  if (!workCenterPage.includes(token)) throw new Error('Work Center import-focus contract missing: ' + token);
+}
+if (!canonicalImportPage.includes('work-center?import=') || !canonicalImportPage.includes('متابعة مركز العمل')) {
+  throw new Error('Canonical Import must carry the imported source into Work Center');
+}
 for (const token of ['fetchRecommendationOutcome', 'المتوقع مقابل الفعلي', 'لم تُثبت نتيجة تنفيذ']) {
   if (!decisionExperiencePage.includes(token)) throw new Error(`Decision outcome readback contract missing: ${token}`);
 }
