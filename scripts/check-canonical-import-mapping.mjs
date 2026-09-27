@@ -82,6 +82,8 @@ for (const token of [
   'PARTIAL / NOT PROVEN',
   'SOURCE FLOW',
   'authoritativeQualityScore',
+  'authoritativeEntityType',
+  'sourceSpecialty: typeof execution.sourceSpecialty === 'string'',
   'datasetSummaries',
   'DATASET UNDERSTANDING',
   "result.understandingConfidence == null ? 'غير متاح'",
