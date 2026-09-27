@@ -1,17 +1,19 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT — UPDATED
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `3ff67afcffca33b1843c9ccc277f97a62b804919`
-- FUNCTIONAL FRONT → PR #671 / `3ff67afcffca33b1843c9ccc277f97a62b804919`
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE`
-- UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT DATA until a real peer cohort exists.
-- ROOT FIX → stale scenario import removed by consolidation into the governed consumer.
-- UI POLISH → shell/table/alert truth, AlternativeGroups, Metric Inspector, Suppliers, Product Journey 44px/nested route activation.
-- EXACT EVIDENCE → `4e9486d…` web build step passed; `3ff67afcffca33b1843c9ccc277f97a62b804919` fresh checks required; Vercel rate limit remains external.
-- CLEANUP → PR #543 closed; CanonicalScenarioPage removed and fully consolidated.
-- NEXT → terminal exact-head CI, first-current-head root fix, then safe targeted closure.
+- CURRENT CODE/TEST CANDIDATE → `35c0d04e3adae849d99acd548d534200ab276931`
+- FUNCTIONAL FRONT → PR #671 / `35c0d04e3adae849d99acd548d534200ab276931`
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE + WORK-CENTER`
+- UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay.
+- ROOT FIX → stale scenario dependency consolidated into the governed scenario page.
+- UI POLISH → AlternativeGroups, Metric Inspector, Suppliers, Product Journey (44px + nested route active), Work Center action surface.
+- EXACT EVIDENCE → `4e9486d…` web-build passed; `35c0d04e3adae849d99acd548d534200ab276931` is current and needs fresh terminal evidence.
+- EXTERNAL → Vercel deployment rate limit; authenticated browser/device proof unavailable; Phase-F live resilience environment-bound.
+- CLEANUP → PR #543 closed; CanonicalScenarioPage removed after proof and implementation consolidation.
+- NEXT → terminal exact-head CI, first current-head root fix, then safe targeted closure.
 
 ---
+
 
 
 

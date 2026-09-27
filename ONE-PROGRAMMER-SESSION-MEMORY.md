@@ -2,6 +2,23 @@
 
 - SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT CODE/TEST CANDIDATE SHA → `35c0d04e3adae849d99acd548d534200ab276931`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE + WORK-CENTER`
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize/Reconcile → Quality/Trust → Evidence → Review → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
+- ACTUAL RESULT → Scenario build dependency fixed and calculator consolidated into its governed page; shell/table/alert truth hardened; AlternativeGroups, Metric Inspector, Suppliers, Product Journey, and Work Center action targets/state announcements polished and contract-locked.
+- EVIDENCE → Exact root failure on `d4925a3…`: stale import of removed `CanonicalScenarioPage`; exact fix candidate `4e9486d…` passed Windows web-build step. Current candidate `35c0d04e3adae849d99acd548d534200ab276931` is fresh and not terminally proven.
+- FIRST FAILURE → CLOSED: deleted-page import.
+- OPEN BLOCKERS → Vercel rate limit; authenticated browser/device proof; Phase-F live resilience.
+- NEXT EXECUTABLE ACTION → Consume terminal CI on `35c0d04e3adae849d99acd548d534200ab276931`; fix first new reproducible failure only.
+- NEXT INDEPENDENT ACTIONS → Continue safe small-surface UI/value/accessibility hardening and proven-stale cleanup.
+- DO NOT REPEAT → No scenario page resurrection, no stale PASS transfer, no device-dependent proof.
+- RESUME STATUS → ACTIVE / NOT CLOSED / SAFE WORK REMAINS.
+
+# RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT — UPDATED
+
+- SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
 - CURRENT CODE/TEST CANDIDATE SHA → `3ff67afcffca33b1843c9ccc277f97a62b804919`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE`
