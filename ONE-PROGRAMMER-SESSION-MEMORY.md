@@ -1,19 +1,20 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CANDIDATE SHA → `4644a9b2306b70bcf3283c29c0913719ac599e7c`
+- CURRENT EXECUTION/CANDIDATE SHA → `26eb3db449536a9b57e5eee39c99ed8a222343d3`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- ACTUAL RESULT → post-import continuity and Evidence Passport As-Of disclosure are complete; Business Replay now exposes explicit refresh plus AS-OF snapshot/outcome and read-window context. No new importer/RPC/runner was introduced.
-- CODE / CONTRACT MUTATIONS → Trust UI `b990a7830375336d2651a3668d69f8914a7a0943`; Trust contract `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`; Replay UI `4cd74e8118bc490b551e2cee2f8c413cf65d37fa4`; Replay contract `4644a9b2306b70bcf3283c29c0913719ac599e7c`.
-- PROOF → current branch head is source-verified; fresh CI for `4644a9b2…` has not terminalized yet. No PASS transfer.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; authenticated production/browser/Phase-F certification remains environment-bound; device unavailable.
-- FIRST FAILURE → none terminalized at this exact candidate.
-- NEXT EXECUTABLE ACTION → consume the first terminal workflow result on `4644a9b2306b70bcf3283c29c0913719ac599e7c`; repair only that current-SHA root.
-- NEXT INDEPENDENT ACTIONS → route/contract rescan and safe stale-front reconciliation while CI runs.
-- DO NOT REPEAT → stale SHA evidence, duplicate importer/RPC/runner, preview-as-production, or downstream VERIFIED claims from links alone.
-- RESUME STATUS → ACTIVE / PR #671 / UI + CORE EXACT-HEAD PROOF IN FLIGHT
+- ACTUAL RESULT → Import-to-decision continuity, Evidence Passport AS OF, Business Replay truth context/refresh, localized specialty/entity labels, and purchase-line SchemaField coverage are present. Existing canonical importer/RPC/runner routes remain authoritative.
+- LATEST CORE MUTATION → `26eb3db449536a9b57e5eee39c99ed8a222343d3` adds `unit_price`, `line_total`, and `description` to the canonical SchemaField union for purchase-line inference.
+- PRIOR UI MUTATIONS → specialty localization `8d0137f6…`; Trust AS OF `b990a783…`; Replay truth context `4cd74e811…`.
+- PROOF → current exact head source-verified; fresh workflows are queued/pending with no terminal failure. Vercel remains an external free-plan rate-limit failure.
+- OPEN BLOCKERS → Vercel build-rate-limit; authenticated production/browser/Phase-F certification remains environment-bound; device unavailable.
+- FIRST FAILURE → none terminalized on current candidate.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow on `26eb3db449536a9b57e5eee39c99ed8a222343d3`; repair only the first reproducible current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue contract/route regression audit and safe stale-front reconciliation while CI is queued.
+- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, preview-as-production, raw technical labels in customer-facing import result, or downstream VERIFIED from navigation alone.
+- RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD PROOF IN FLIGHT
 ---
 
 
