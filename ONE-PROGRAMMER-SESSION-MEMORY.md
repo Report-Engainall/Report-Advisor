@@ -1,21 +1,21 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT NON-DEVICE UI + IMPORT / REPORT BUILDER / MASTER-DATA CONTINUITY
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `af8d192275a1aee0306844b4258a67ab9068b42c`
+- CURRENT CODE/TEST CANDIDATE → `af28f39ae643cfd23618bbe1d62cdc5e6870e2b6`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize → Quality/Trust → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
-- ACTUAL RESULT → 38/38 canonical registry routes resolve in App; Product Journey exposes eight stages; canonical import exposes 16 lifecycle stages and five post-import actions; shell/mobile language semantics are guarded; Master Data is tenant-scoped with entity counts plus source-analysis/canonical-dataset/field-lineage evidence; Reports Center has a source-bound Report Builder with canonical export and isolated print output.
-- ROOT REPAIR → Master Data evidence-count binding had undefined destructuring plus mixed entity/evidence totals. Corrected on `171b3d87…`; semantic contract guard added on `af8d1922…`.
-- STAGING EVIDENCE → all 10 Master Data/evidence tables exist and have RLS enabled. Aggregate staging counts were directly queried; no production mutation.
-- EXACT SOURCE/CI → candidate `af8d1922…` has no workflow materialization yet. Prior current candidate `65bc3432…` had web build SUCCESS in the active `desktop-windows` job, while native desktop dependency install was still in progress at observation. No terminal PASS is claimed for the new candidate.
-- PRIOR EXACT EVIDENCE → `e7eb1074…` had terminal desktop-windows SUCCESS with web build, native watcher, native runtime smoke, Windows packaging and installer upload successful. Not transferable to newer SHAs.
-- FIRST FAILURE → Master Data destructuring/summary semantics, found by exact source inspection before current candidate terminalization; fixed at root without changing acceptance criteria.
+- ACTUAL RESULT → full import lifecycle/post-import journey, 38/38 navigation parity, eight-stage Product Journey, dark RTL shell, mobile language semantics, tenant-scoped Master Data, semantic evidence counts, and source-bound Report Builder are implemented and guarded. Master Data now uses an explicit canonical table-name map for every semantic count key.
+- ROOT REPAIRS → `171b3d87…` fixed undefined Master Data evidence destructuring and mixed entity/evidence totals; `22c9b848…` fixed runtime mapping of semantic keys to `source_analysis_snapshots`, `canonical_dataset_records`, and `import_field_lineage`; `af28f39a…` added regression guards for those mappings.
+- STAGING EVIDENCE → all 10 Master Data/evidence tables exist with RLS enabled; direct aggregate queries and schema inspection were executed on staging. No production mutation.
+- CURRENT CI → latest code candidate `af28f39a…` has no workflow materialization yet. Prior candidate `65bc3432…` had `Build web application` SUCCESS on the exact SHA while native desktop dependency installation was still in progress; no terminal PASS transferred.
+- PRIOR EXACT EVIDENCE → `e7eb1074…` desktop-windows terminal SUCCESS; not transferable.
+- FIRST FAILURE → Master Data evidence binding/mapping defects found by exact source inspection and corrected before current candidate terminalization; acceptance criteria unchanged.
 - OPEN BLOCKERS → Vercel free-plan deployment-rate limit; device unavailable; authenticated browser/Production/Phase-F proof NOT PROVEN.
-- NEXT EXECUTABLE ACTION → consume first terminal workflow result for `af8d1922…`; repair only the first reproducible current-SHA root.
-- NEXT INDEPENDENT ACTIONS → continue dependency-proven UI/core closure; keep Playbooks/Benchmark/Decision ROI/Backtest fail-closed until real contracts/data exist; no duplicate schema/route/RPC/runner.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow result for `af28f39a…`; repair only the first reproducible current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue dependency-proven UI/core closure; keep Playbooks/Benchmark/Decision ROI/Backtest fail-closed until real contracts/data exist.
 - DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, speculative playbook/backtest/ROI/benchmark schemas, speculative deletion.
-- RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE DEEP CLOSURE / NEW CODE CANDIDATE PROOF PENDING
+- RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE DEEP CLOSURE / CURRENT CANDIDATE PROOF PENDING
 ---
 
 # RESUME TOKEN — 2026-09-27 / NON-DEVICE DEEP CLOSURE CHECKPOINT
