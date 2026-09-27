@@ -273,3 +273,7 @@ The authenticated Aghbari shell uses a dark executive topbar and dark right-alig
 
 ## 13. Master Data hub truth binding — 2026-09-27
 The Master Data surface is no longer a static navigation theater. It reads tenant-scoped counts from the canonical customer/product/inventory/supplier/warehouse/branch/category tables through the existing authenticated Supabase client, exposes loading/error/refresh states, and routes empty source states back to unified import. It must not fabricate entity counts or create duplicate warehouse/branch screens; those remain contextualized through the canonical inventory path.
+
+
+## Report Builder source-bound closure — 2026-09-27
+The Reports Center provides a source-bound session builder at `/reports?builder=1`. It composes only sections from the current canonical snapshot, preserves As Of and truth state, reuses the canonical export artifact and print paths, isolates builder print output from the reports shell, and explicitly does not claim saved-template persistence. The Builder is a surface capability over existing report truth, not a second reporting engine.
