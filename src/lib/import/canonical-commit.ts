@@ -66,6 +66,62 @@ function canonicalizeRow(entityType: CanonicalImportEntityType, row: CanonicalIm
       payment_terms_days: Math.trunc(requiredNumber(d.payment_terms_days, 'payment_terms_days', row.rowNumber)),
     };
   }
+  if (entityType === 'suppliers') {
+    return {
+      name: requiredText(d.name, 'name', row.rowNumber),
+      code: text(d.code),
+      phone: text(d.phone),
+      email: text(d.email),
+      address: text(d.address),
+      tax_id: text(d.tax_id),
+      payment_terms_days: d.payment_terms_days == null || d.payment_terms_days === '' ? null : Math.trunc(requiredNumber(d.payment_terms_days, 'payment_terms_days', row.rowNumber)),
+    };
+  }
+  if (entityType === 'inventory_balances') {
+    return {
+      warehouse_id: text(d.warehouse_id),
+      warehouse: text(d.warehouse),
+      product_id: text(d.product_id),
+      sku: text(d.sku),
+      product_name: text(d.product_name),
+      quantity: requiredNumber(d.quantity, 'quantity', row.rowNumber),
+      unit_cost: d.unit_cost == null || d.unit_cost === '' ? null : requiredNumber(d.unit_cost, 'unit_cost', row.rowNumber),
+      last_movement_date: text(d.last_movement_date),
+    };
+  }
+  if (entityType === 'payments') {
+    return {
+      payment_id: text(d.payment_id),
+      reference: requiredText(d.reference, 'reference', row.rowNumber),
+      direction: requiredText(d.direction, 'direction', row.rowNumber),
+      customer_id: text(d.customer_id),
+      supplier_id: text(d.supplier_id),
+      invoice_id: text(d.invoice_id),
+      payment_date: requiredText(d.payment_date, 'payment_date', row.rowNumber),
+      payment_amount: requiredNumber(d.payment_amount, 'payment_amount', row.rowNumber),
+      payment_method: text(d.payment_method),
+      currency: text(d.currency),
+      notes: text(d.notes),
+    };
+  }
+  if (entityType === 'purchase_invoices') {
+    return {
+      invoice_number: requiredText(d.invoice_number, 'invoice_number', row.rowNumber),
+      invoice_date: requiredText(d.invoice_date, 'invoice_date', row.rowNumber),
+      supplier_id: text(d.supplier_id),
+      supplier_name: text(d.supplier_name),
+      supplier_code: text(d.supplier_code),
+      due_date: text(d.due_date),
+      subtotal: requiredNumber(d.subtotal, 'subtotal', row.rowNumber),
+      discount_amount: d.discount_amount == null || d.discount_amount === '' ? null : requiredNumber(d.discount_amount, 'discount_amount', row.rowNumber),
+      tax_amount: requiredNumber(d.tax_amount, 'tax_amount', row.rowNumber),
+      total: requiredNumber(d.total, 'total', row.rowNumber),
+      paid_amount: requiredNumber(d.paid_amount, 'paid_amount', row.rowNumber),
+      status: requiredText(d.status, 'status', row.rowNumber),
+      currency: text(d.currency),
+      notes: text(d.notes),
+    };
+  }
   return {
     invoice_number: requiredText(d.invoice_number, 'invoice_number', row.rowNumber),
     invoice_date: requiredText(d.invoice_date, 'invoice_date', row.rowNumber),
