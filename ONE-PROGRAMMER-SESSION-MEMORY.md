@@ -5,26 +5,25 @@
 
 - SESSION-ID: `20260927-EXEC-667`
 - CURRENT VERIFIED SHA: `0b4f19fe7de377b57b2df7e70507bc32727568cc`
-- CURRENT EXECUTION/CANDIDATE SHA: `8d881052fcc02b7f17eb983d2353ba0739ae0951`
+- CURRENT EXECUTION/CANDIDATE SHA: `367c5ecedb49cf9c703143c2c5dff66d6c2724a7`
 - BRANCH / PR: `exec/20260927-current-main-import-ui-finalize` / #667
-- CURRENT REPOSITORY HEAD: `8d881052fcc02b7f17eb983d2353ba0739ae0951`
-- CURRENT CODE/TEST CANDIDATE: `8d881052fcc02b7f17eb983d2353ba0739ae0951`
-- ACTIVE EXECUTION FRONTS: FUNCTIONAL #667 | EXACT-HEAD PROOF | UI CONTINUITY | GOVERNANCE
+- CURRENT REPOSITORY HEAD: `367c5ecedb49cf9c703143c2c5dff66d6c2724a7`
+- CURRENT CODE/TEST CANDIDATE: `367c5ecedb49cf9c703143c2c5dff66d6c2724a7`
+- ACTIVE EXECUTION FRONTS: FUNCTIONAL #667 | EXACT-HEAD PROOF | UI CONTINUITY | GOVERNANCE | SAFE CLEANUP
 - FRONT-ID: `IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI`
 - CURRENT BOUNDARY: Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- ACTUAL RESULT: tenant-authority and certification harness roots are closed; Phase-F exposed a restore-only missing compatibility resolver, now repaired forward-only before the client_ui_settings parity migration.
-- EVIDENCE: exact candidate `24ba3d2531356667bf7969866d792e685f3c1787` adds only the restore-parity compatibility resolver; fresh Phase-F and certification evidence is required on this SHA.
-- LAST PROVEN: exact-SHA certification-boundary parser, execution-enforcement contract, enforcement adversarial suite, and certification boundary test-of-test all passed at `9fab59c4ec7a8a299a9d93a5c9c98da69249653e`; later mutations are not covered by that PASS.
-- LAST FAILED / FIRST FAILURE CONSUMED: Phase-F live restore failed while applying client_ui_settings parity because `public.current_customer_company_id()` was absent; forward baseline returned HTTP 502/rollback-forward 503. Added a timestamped wrapper delegating to canonical `current_company_id()` before the parity migration.
-- OPEN BLOCKERS: live Phase-F exact-head proof and current certification wave are active on `8d881052fcc02b7f17eb983d2353ba0739ae0951`; Vercel Hobby build-rate limit remains external; user device remains offline.
-- REMAINING-WORK REGISTER: re-run exact-head Phase-F backup/restore/RPO/RTO/rollback/recovery and final certification on `8d881052fcc02b7f17eb983d2353ba0739ae0951`; if green, reconcile release evidence and merge boundary. No production promotion claimed.
-- NEXT EXECUTABLE ACTION: consume the first terminal Phase-F/certification gate on `8d881052fcc02b7f17eb983d2353ba0739ae0951`; repair only the first reproducible current-SHA root.
-- CURRENT RESUME POINTER: 8d881052fcc02b7f17eb983d2353ba0739ae0951 → FRONT-ID IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI → NEXT EXECUTABLE ACTION: consume the first terminal Phase-F/certification gate on `8d881052fcc02b7f17eb983d2353ba0739ae0951`; repair only the first reproducible current-SHA root.
-- NEXT INDEPENDENT ACTIONS: if CI remains running, continue safe cleanup/audit only where ownership and deletion lineage are proven; preserve the single canonical import/server/route paths.
+- ACTUAL RESULT: CI root fix committed at `8d881052fcc02b7f17eb983d2353ba0739ae0951` by changing quality checkout depth from 1 to 2 so the enforcement adversarial test can resolve `HEAD^`; current UI follow-through at `367c5ecedb49cf9c703143c2c5dff66d6c2724a7` now keeps un-analyzed Evidence Snapshots PARTIAL and blocks post-evidence navigation until the source analysis state is `analyzed`.
+- EVIDENCE: exact failing quality run at `bc9e0331d2564a16f91e3e7e2930379361c7c1c5` reproduced `git rev-parse HEAD^` failure under depth-1 checkout; fix exists at `8d881052fcc02b7f17eb983d2353ba0739ae0951`. UI guard and contract exist at `367c5ecedb49cf9c703143c2c5dff66d6c2724a7`; fresh terminal proof on this latest SHA is NOT YET PROVEN.
+- LAST PROVEN: exact execution-enforcement protocol, adversarial governance, certification-boundary test-of-test and the prior main baseline evidence remain bound to their historical SHAs; no later PASS is transferred to `367c5ecedb49cf9c703143c2c5dff66d6c2724a7`.
+- LAST FAILED / FIRST FAILURE CONSUMED: quality workflow on `bc9e0331d2564a16f91e3e7e2930379361c7c1c5` failed because shallow checkout depth 1 made `HEAD^` unavailable inside `scripts/execution-enforcement-adversarial-governance.test.mjs`; the dependency was repaired forward-only in the workflow at `8d881052fcc02b7f17eb983d2353ba0739ae0951`.
+- OPEN BLOCKERS: current exact-head CI/certification waves are still running or not terminal on `367c5ecedb49cf9c703143c2c5dff66d6c2724a7`; Phase-F live resilience proof is still in progress; Vercel Hobby build-rate limitation remains external; user device/browser-dependent local verification remains unavailable.
+- REMAINING-WORK REGISTER: consume the first terminal failure/proof on `367c5ecedb49cf9c703143c2c5dff66d6c2724a7`; repair only the first reproducible current-SHA root; then reconcile exact evidence, certification boundary, and merge state. Continue safe cleanup only where ownership/deletion lineage is proven.
+- NEXT EXECUTABLE ACTION: consume the first terminal quality / Phase-F / certification result on `367c5ecedb49cf9c703143c2c5dff66d6c2724a7`; if failure, repair only its root and rerun targeted proof.
+- CURRENT RESUME POINTER: `367c5ecedb49cf9c703143c2c5dff66d6c2724a7` → FRONT-ID `IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI` → NEXT EXECUTABLE ACTION: consume the first terminal exact-head gate and repair only the current-SHA root.
+- NEXT INDEPENDENT ACTIONS: audit safe duplicates/dead files against canonical ownership; verify route/component/RPC continuity; inspect Phase-F evidence artifacts and current staging read-only parity; no production mutation while device/external gates are unavailable.
 - DO NOT REPEAT: stale PASS transfer; stale candidate binding; duplicate importer/RPC/runner/route; client-side authority for server truth; preview-as-production; reopening closed roots without current-SHA evidence.
-- RESUME STATUS: ACTIVE / EXACT-HEAD RECONCILED / CERTIFICATION WAVES IN FLIGHT.
+- RESUME STATUS: ACTIVE / EXACT-HEAD RECONCILED / UI TRUTH GUARD CLOSED IN CODE / CERTIFICATION WAVES IN FLIGHT.
 - CHECKPOINT RULE: HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT.
-
 ---
 
 ## RESUME TOKEN — 2026-09-27 / CONTINUOUS EXECUTION LIVE STATE — RECONCILED
