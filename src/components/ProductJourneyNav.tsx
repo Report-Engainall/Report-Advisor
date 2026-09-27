@@ -32,7 +32,11 @@ export function ProductJourneyNav() {
           <span>مسار القرار</span>
         </div>
         {steps.map(({ path, label, description, icon: Icon, stage }, index) => {
-          const active = location.pathname === path;
+          const active = path === '/intelligence'
+            ? location.pathname === '/intelligence' || location.pathname.startsWith('/intelligence/')
+            : path === '/reports/executive'
+              ? location.pathname === '/reports' || location.pathname.startsWith('/reports/')
+              : location.pathname === path;
           return (
             <Link
               key={path + '-' + label}
