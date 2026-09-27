@@ -1,15 +1,15 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
-- CURRENT REPOSITORY HEAD → `ae76413faed892047acebf76b6b8e103af8f6782`
-- CURRENT CODE/TEST CANDIDATE → `4de3c95ff3a741463d49a2b52baf86f66ce62fad`
+- CURRENT REPOSITORY HEAD → `869aa45a3398575ea1087ab42ec33adf6446702f`
+- CURRENT CODE/TEST CANDIDATE → `869aa45a3398575ea1087ab42ec33adf6446702f`
 - ACTIVE EXECUTION FRONTS → PR #667 (`exec/20260927-current-main-import-ui-finalize`) = single functional import-to-decision front; PR #655 = Phase-F schema/runtime dependency.
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
-- LAST PROVEN → certification boundary exact-head PASS on `ae76413f…` with indexed candidate `4de3c95f…`; Windows build/native watcher/runtime/package gates PASS on `ae76413f…` ancestry; CodeRabbit/Netlify PASS observed on prior exact branch head.
-- LAST FAILED → `Execution Enforcement Contract` run `36333332339` on `ae76413f…`: certification-boundary PASS, then resume-token validation failed because required anchors were missing.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; production/browser/Phase-F live proof NOT PROVEN; current GitHub workflow fan-out still in flight.
-- NEXT EXECUTABLE ACTION → consume first terminal workflow on the new memory-fix SHA; repair only the first reproducible current-SHA root.
-- NEXT INDEPENDENT ACTIONS → continue safe superseded-front cleanup and canonical state reconciliation; no duplicate importer/RPC/runner.
-- DO NOT REPEAT → duplicate PR/front creation; stale PASS transfer; preview-as-production; route without registry; parse/preview treated as import completion; memory without enforcement anchors.
+- LAST PROVEN → Execution Enforcement passed on `7eee86b…`; Full Product Browser E2E passed on `7eee86b…`; prior 20-stage release-readiness and broad contract set passed inside Final Certification before the canonical import mapping failure.
+- LAST FAILED → Final Certification Gate run `36333757294` on `7eee86b…`: `check-canonical-import-mapping.mjs` rejected missing `PARTIAL / NOT PROVEN` in TrustEvidencePage.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; production/browser/Phase-F live proof remains NOT PROVEN; current candidate requires fresh exact-head CI after the evidence-state UI fix.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow on candidate `869aa45a…`; repair only the first reproducible current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue exact-head UI/contract hardening and safe superseded-front cleanup; no duplicate importer/RPC/runner.
+- DO NOT REPEAT → stale PASS transfer, route without registry, preview-as-production, parse/preview as completion, or changing a contract to hide a real UI truth-state gap.
 - RESUME STATUS → ACTIVE / SINGLE FUNCTIONAL FRONT #667 / EXACT-SHA PROOF IN FLIGHT
 
 ---
