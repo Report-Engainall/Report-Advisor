@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-27 / POST-IMPORT UI TRUTH CLOSURE
+
+- VERIFIED EXECUTION CANDIDATE → `27d87b49fb91ccdc570d9148ac726057f2d5dc98` on `exec/20260927-import-full-lifecycle`.
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT`.
+- CURRENT BOUNDARY → same canonical import path after authoritative execution, evidence persistence, and result rendering.
+- REPOSITORY MUTATION → Canonical Import done-state now distinguishes VERIFIED from PARTIAL / NOT PROVEN, exposes authoritative quality without coercing missing values to zero, and exposes the canonical source flow.
+- UI DELIVERY → post-import surface now carries source entity/specialty, canonical row count, authoritative quality, understanding confidence, dataset flow, and explicit canonical-result state.
+- CONTRACT DELIVERY → `scripts/check-canonical-import-mapping.mjs` now guards the post-import truth UI tokens and dataset-understanding closure.
+- EVIDENCE → GitHub exact commit content is present on the executable branch. GitHub workflow runs for the new SHA have not materialized yet; therefore no CI PASS is claimed.
+- EXTERNAL / ENVIRONMENT → PC01 is offline. Local/browser execution cannot be claimed from this session.
+- NEXT EXECUTABLE ACTION → consume exact-head workflow evidence for `27d87b49fb91ccdc570d9148ac726057f2d5dc98`; if green, continue the next independent post-import surface; if failed, repair only the first current-SHA root failure.
+- DO NOT REPEAT → no stale browser PASS, no stale CI PASS, no duplicate import path, no coercion of unknown truth to zero, no replacement of real persistence with UI state.
+- RESUME STATUS → ACTIVE / NOT PROVEN.
+-
 # RESUME TOKEN — 2026-09-27 / PR #662 CURRENT VERIFIED STATE
 
 - CURRENT REPOSITORY HEAD → 46675643e32f6ea28b6c1d80a530b2eb134e7907
