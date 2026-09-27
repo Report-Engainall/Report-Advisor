@@ -5,7 +5,7 @@
 - MAIN HEAD OBSERVED BEFORE THIS CONTROL-PLANE WRITE: 46675643e32f6ea28b6c1d80a530b2eb134e7907
 - ACTIVE CODE/TEST CANDIDATE: 4f64bbef2f735e98e43abc677bbe81653be4020e (PR #663 governance candidate).
 - CURRENT EXECUTION MODE: dependency-aware maximum-safe parallelism across SURFACE / HEART / PROOF / GOVERNANCE; fixed 50/50 time allocation is retired.
-- FIRST CONSUMABLE: PR #663 execution-enforcement root cause, then recompute the failure set; in parallel consume PR #662 exact-head gates.
+- FIRST CONSUMABLE: PR #663 fresh remote gate result; in parallel consume PR #662 exact-head gates.
 - PARALLEL WORK: while asynchronous checks run, execute independent ready work; do not wait idle.
 - OPEN PROOF BOUNDARY: PR #662 certification gates and PR #663 enforcement gates remain pending; Vercel build-rate limit and browser/Phase-F proof are separate external boundaries.
 - CLOSED-WORK PROTECTION: do not reopen already-proven work without a current regression, dependency/environment change, evidence invalidation, or requirement change.

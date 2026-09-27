@@ -1,13 +1,13 @@
 # RESUME TOKEN — 2026-09-27 / continuous execution
 
 - CURRENT REPOSITORY HEAD → 46675643e32f6ea28b6c1d80a530b2eb134e7907
-- CURRENT CODE/TEST CANDIDATE → 4f64bbef2f735e98e43abc677bbe81653be4020e (PR #663; governance candidate).
+- CURRENT CODE/TEST CANDIDATE → a8c0fe40e29139dee02c100f5706ff514bc29bc8 (PR #663; governance candidate).
 - ACTIVE EXECUTION FRONTS → SURFACE: PR #662 full-source import; HEART: import/runtime truth; PROOF: exact-head PR #662/#663 gates; GOVERNANCE: continuous-resume enforcement.
 - OPEN BLOCKERS (SCOPED) → Vercel free-plan build-rate limit; browser automation unavailable; Phase-F/production certification remains unproven. These blockers isolate only their dependent proof fronts.
-- LAST PROVEN → exact local PR #662 import/core proof; PR #663 preview availability; execution-enforcement source contract before the current Resume Token formatting failure.
-- LAST FAILED / FIRST FAILURE TO CONSUME → PR #663 execution-enforcement failed because the Resume Token CURRENT REPOSITORY HEAD format did not match the parser contract; repair this contract drift first.
-- NEXT EXECUTABLE ACTION → finish the PR #663 governance-token/index correction, rerun execution-enforcement + adversarial + knowledge + typecheck, then push and consume fresh exact-head gates.
-- NEXT INDEPENDENT ACTIONS → consume PR #662 certification gates; preserve staging processing rows; inspect only the first newly reproduced runtime/certification failure.
+- LAST PROVEN → PR #663 exact-head execution-enforcement PASS; adversarial test-of-test PASS; knowledge-architecture PASS; report execution foundation/coordinator/E2E contracts PASS on local candidate.
+- LAST FAILED / FIRST FAILURE TO CONSUME → closed: Resume Token parser-format drift fixed. Remaining typecheck failure is pre-existing main code in DataTable/ExecutiveReport and is covered by PR #662; do not duplicate that product fix in governance PR #663.
+- NEXT EXECUTABLE ACTION → consume fresh PR #663 remote gates; consume PR #662 exact-head certification; repair only a new current-SHA failure. Keep Vercel rate-limit and browser/Phase-F boundaries fail-closed.
+- NEXT INDEPENDENT ACTIONS → inspect live import-job consumer/recovery contract before any staging mutation; keep 151 processing rows untouched; continue PR #662 proof consumption.
 - DO NOT REPEAT → stale PASS transfer; duplicate import/RPC/runner; blind import-job terminalization; production/Phase-F bypass; documentation-only closure.
 - CHECKPOINT RULE → after every meaningful closure batch update this token as HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT. The next session must start here, not from chat history.
 
