@@ -105,7 +105,7 @@ export function ExecutiveCommandCenterPage() {
       setAsOf(snapshot.asOf);
       setTrend(snapshot.trend);
       setAlerts(intelligence.alerts.filter((item) => !item.is_read));
-      setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted'));
+      setRecommendations(intelligence.recommendations.filter((item) => isActionableRecommendationStatus(item.status)));
       if (replayResult.status === 'fulfilled') {
         setReplaySnapshot(replayResult.value);
         setReplayError(false);
