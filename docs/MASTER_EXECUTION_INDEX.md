@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / NON-DEVICE DEEP CLOSURE
+
+> This top block is the only startup boundary.
+
+- MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT BRANCH HEAD → `b262c87ac0cb52e01523c95e99f876f6286eb77e`
+- FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- UI CONTINUITY → Import → Evidence → Signals → Decision → Work → Outcome/Learning.
+- CAPABILITY COVERAGE → eight canonical navigation sections; 38/38 registry routes resolve in App; Forecast Backtest explicitly fail-closed; Decision ROI/Money Recovery/Decision Coverage/Playbooks/Report Builder/print/Evidence Passport/snapshots guarded.
+- CLEANUP → ExternalFileAnalysisPage removed and proven; no speculative cleanup.
+- EXACT PROOF → current source/contract head `b262c87a…`; workflows not terminalized yet; Vercel external rate limit.
+- NEXT → consume first terminal exact-head gate; repair root only; continue bounded non-device cleanup.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / FINAL CURRENT-SHA CHECKPOINT
 
 > This top block is the only startup boundary.
