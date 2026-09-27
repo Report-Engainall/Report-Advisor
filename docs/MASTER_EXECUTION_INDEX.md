@@ -3,17 +3,16 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE: `2fe8b9c14801eece26966dca651e9082129752f0`
-- FUNCTIONAL FRONT → PR #670 / `2fe8b9c14801eece26966dca651e9082129752f0`
+- CURRENT EXECUTION/CODE CANDIDATE → `a91306bc90de7d213ee4aa9dd6d7996eab99a910`
+- FUNCTIONAL FRONT → PR #670 / `exec/20260927-current-main-import-ui-finalize-rebased`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- SPECIALTY CLOSURE → purchases→purchase_invoices, suppliers→suppliers, inventory→inventory_balances, payments→payments on the existing authoritative 6-arg RPC; no new RPC.
-- UI AFTER IMPORT → canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- EXACT LIVE PROOF → real staging tenant executed all four specialty branches twice inside transaction; second replay was idempotent; cross-tenant call failed closed; rollback cleanliness verified.
-- ROOT FIX → payment_id-aware lookup repaired a duplicate primary-key failure discovered by live transaction testing.
+- UI AFTER IMPORT → canonical Import → Trust/Evidence → Signals → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE until a real peer cohort exists.
+- NEW UI DELIVERY → post-import result now exposes a five-stage decision-continuity surface with explicit source truth, source-bound recommendation count, company-wide alert count, and evidence-neutral downstream states.
+- EXACT CODE COMMITS → UI `7aad5228a7c73f6ff6ded4307178af0d6520aa03`; contract guard `a91306bc90de7d2133ee4aa9dd6d7996eab99a910`.
+- PROOF STATE → fresh exact-head workflows are queued/pending; no PASS transferred from earlier SHAs.
 - PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback remains external/runtime evidence.
-- EXTERNAL → Vercel build-rate-limit; device/browser/production certification remains environment-bound.
-- NEXT → consume first terminal `2fe8b9c14801eece26966dca651e9082129752f0` workflow; fix only current-SHA root and re-prove.
-
+- EXTERNAL → Vercel free-plan build-rate limit; device/browser/production certification remains environment-bound.
+- NEXT → consume first terminal `a91306bc90de7d213ee4aa9dd6d7996eab99a910` workflow; repair only the first current-SHA root, then rescan UI/core fronts.
 ---
 
 
