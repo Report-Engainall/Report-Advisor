@@ -1,19 +1,21 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT
 
-> Exact-head evidence only; code candidate remains separate from documentation-main SHA.
+> This top block is the only startup boundary.
 
-- MAIN HEAD → `a3ac93a98e0c953d885c86cb139d73f32fddfdc4` (memory-state reconciliation descendant)
-- CURRENT FUNCTIONAL CANDIDATE → PR #667 / `7d3d2954920f52bc14fd1af369293e6b19a8197d`
-- FRONT → `IMPORT-TO-DECISION-CONTINUITY` on `exec/20260927-current-main-import-ui-finalize`
-- UI AFTER IMPORT → canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT DATA / fail-closed until a real peer cohort exists.
-- PRODUCT DELTA → server-authoritative all-dataset understanding, deterministic specialty/entity inference, evidence continuity/reuse, Decision/Work/Outcome surfaces, Replay, Benchmark, and corresponding route/import/tenant/certification guards.
-- CURRENT ROOT FIX → phase9-windows-contract exact-head ref verification changed from direct ls-remote assertion to explicit branch-ref fetch + exact SHA comparison; no acceptance criteria were weakened.
-- EXACT EVIDENCE → old candidate `2cdd7128…` had phase9 failure before contract execution; new candidate `7d3d2954…` awaits fresh terminal proof. Vercel remains external build-rate-limit.
-- PHASE-F → still NOT CERTIFIED until current-head live restore/RPO/RTO/rollback evidence exists; repository-side restore parity now includes current_customer_company_id resolver and customer credit account schema parity on the candidate.
-- CLEANUP → duplicate PR #668 closed; historical code/evidence retained. No canonical source deletion performed.
-- NEXT → consume first terminal #667 exact-head gate; then close/clean only independently proven superseded fronts.
+- MAIN HEAD → `716f36638c47edf615d276c300c84fbdba3b4186`
+- CURRENT CODE/TEST CANDIDATE → `7d3d2954920f52bc14fd1af369293e6b19a8197d`
+- FUNCTIONAL FRONT → PR #667 / `7d3d2954920f52bc14fd1af369293e6b19a8197d`
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT DATA until a real peer cohort exists.
+- ROOT FIX → phase9-windows-contract now fetches the PR branch ref explicitly and compares it to the event SHA; no acceptance criterion was weakened.
+- EXACT EVIDENCE → old SHA `2cdd7128…` failed before Phase 9 contract execution at the remote-ref check. Fresh proof is required on `7d3d2954…`.
+- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback evidence remains required. Candidate carries repository-side restore-parity fixes for current_customer_company_id and customer credit account schema.
+- EXTERNAL → Vercel free-plan build-rate limit; device/browser/production proof not yet proven.
+- CLEANUP → duplicate PR #668 closed; historical evidence retained.
+- NEXT → consume first terminal #667 exact-head gate; repair only the first reproducible current-SHA root.
 
 ---
+
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / LIVE CHECKPOINT
 
