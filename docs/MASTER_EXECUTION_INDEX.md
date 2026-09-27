@@ -5,19 +5,19 @@
 
 - SESSION-ID: `20260927-EXEC-667`
 - CURRENT VERIFIED SHA: `0b4f19fe7de377b57b2df7e70507bc32727568cc`
-- CURRENT EXECUTION/CANDIDATE SHA: `dccc5184e0b899dc1300ff67dc541974cd39ab3e`
+- CURRENT EXECUTION/CANDIDATE SHA: `3e3ab66ad089de530df66f789347a73a64c9d9c7`
 - BRANCH / PR: `exec/20260927-current-main-import-ui-finalize` / #667
-- CURRENT REPOSITORY HEAD: `dccc5184e0b899dc1300ff67dc541974cd39ab3e`
-- CURRENT CODE/TEST CANDIDATE: `dccc5184e0b899dc1300ff67dc541974cd39ab3e`
+- CURRENT REPOSITORY HEAD: `3e3ab66ad089de530df66f789347a73a64c9d9c7`
+- CURRENT CODE/TEST CANDIDATE: `3e3ab66ad089de530df66f789347a73a64c9d9c7`
 - ACTIVE EXECUTION FRONTS: FUNCTIONAL #667 | EXACT-HEAD PROOF | UI CONTINUITY | GOVERNANCE
 - FRONT-ID: `IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI`
 - CURRENT BOUNDARY: Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- ACTUAL RESULT: canonical import lifecycle reconstructed directly on current main; API and Netlify import wrappers unified onto one authoritative server executor; browser adapter delegates source/quality authority to the server; Import → Trust/Evidence → Decision/Work → Outcome/Learning → Replay UI continuity wired; navigation registry is now contract-checked against declared routes; continuous resume/execution governance v4.2 is integrated.
-- EVIDENCE: exact current candidate `dccc5184e0b899dc1300ff67dc541974cd39ab3e`; CodeRabbit passed earlier on this front; latest GitHub Actions scan on this exact SHA has 0 completed failures and 3 active checks; Vercel reports free-plan build-rate-limit externally.
+- ACTUAL RESULT: canonical import mapping checker now targets the shared server executor; stale wrapper semantics were removed from the assertion boundary; readiness and certification failures are being recomputed on the new exact head.
+- EVIDENCE: exact current candidate `3e3ab66ad089de530df66f789347a73a64c9d9c7`; GitHub previously had 11 successful checks and no failures before the next enforcement pass began.
 - LAST PROVEN: exact-SHA certification-boundary parser, execution-enforcement contract, enforcement adversarial suite, and certification boundary test-of-test all passed at `9fab59c4ec7a8a299a9d93a5c9c98da69249653e`; later mutations are not covered by that PASS.
-- LAST FAILED / FIRST FAILURE CONSUMED: `9858d1470531d5aa8f0e37157dbc15e95fa9d2f0` failed with live-index fixture scope error; fixed at `e1ea9320618368bc0dc380443c1819651c6257cf`. Browser/server authority ordering was then fixed at `4cee9ae3eafc1807a544648dff9521f8ac187270`; navigation guard defects were fixed through `3d7790f49be60de61808e9173a09e7103084ae63` and `dccc5184e0b899dc1300ff67dc541974cd39ab3e`.
+- LAST FAILED / FIRST FAILURE CONSUMED: `1126bbf…` failed because the canonical import mapping checker still asserted full-source semantics against the deployment wrapper. Fixed at `3e3ab66…`. `3e3ab66…` then hit exact-head index drift only because the checkpoint had not yet been persisted.
 - OPEN BLOCKERS: Vercel free-plan build-rate limit; Phase-F restore target lacks `current_customer_company_id()`; device/production proof is unavailable because PC01 is offline. These do not block repository-only work.
-- NEXT EXECUTABLE ACTION: consume the first terminal GitHub Actions result on `dccc5184e0b899dc1300ff67dc541974cd39ab3e`; fix only its first reproducible root; then rescan. Do not call the front closed from queued checks.
+- NEXT EXECUTABLE ACTION: consume the first terminal gate on the reconciled exact head after this checkpoint; repair only its first reproducible root.
 - NEXT INDEPENDENT ACTIONS: if CI remains running, continue safe cleanup/audit only where ownership and deletion lineage are proven; preserve the single canonical import/server/route paths.
 - DO NOT REPEAT: stale PASS transfer; stale candidate binding; duplicate importer/RPC/runner/route; client-side authority for server truth; preview-as-production; reopening closed roots without current-SHA evidence.
 - RESUME STATUS: ACTIVE / CURRENT-MAIN RECONCILED / EXACT-HEAD PROOF IN FLIGHT.
