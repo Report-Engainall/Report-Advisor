@@ -1,3 +1,23 @@
+# RESUME TOKEN — 2026-09-27 / CURRENT BRANCH RECONCILED
+
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT BRANCH HEAD → `eb4cfac7cd5bcb2573196f9af1ad44549ff2ff06`
+- CURRENT CODE/TEST CANDIDATE → `bb86b9fb667f0f1aef1b28f97dcce9d189b5a717`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- CURRENT BOUNDARY → canonical post-import continuation + UI route completeness + proof consumption; no duplicate importer/evidence/decision/replay implementation.
+- ACTUAL RESULT → `CanonicalImportPage` now exposes five post-import stages: Evidence → Signals → Decision → Work → Outcome/Learning. Existing canonical routes are reused. Route audit: 38/38 navigation items resolve to concrete App routes; only `/proposal-demo` and `/import/analyze` are extra App routes, with the latter intentionally redirecting to canonical Import.
+- CLEANUP RESULT → legacy `src/pages/ExternalFileAnalysisPage.tsx` is deleted on PR #671; exact PR patch proves removal of the 90-line duplicate external-file analyzer. No new duplicate path was introduced.
+- SOURCE EVIDENCE → contract guard and UI master were updated for the post-import journey; exact branch readback is current. Runtime/build proof for branch HEAD is NOT YET PROVEN.
+- FIRST FAILURE → missing icon imports after UI insertion, repaired immediately on same branch; acceptance criteria unchanged.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; device unavailable; authenticated production/browser/Phase-F evidence remains NOT PROVEN; local GitHub clone is unavailable because the execution environment cannot resolve github.com.
+- NEXT EXECUTABLE ACTION → consume terminal GitHub Actions result on current branch HEAD; repair only first reproducible current-SHA root if any.
+- NEXT INDEPENDENT ACTIONS → continue bounded duplicate/reference audit only where exact references can be proven; otherwise preserve files and avoid speculative deletion.
+- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, direct recommendation approval bypass, local row-count truth, speculative ROI formulas.
+- RESUME STATUS → ACTIVE / PR #671 / UI + CORE FRONT RECONCILED / EXACT-HEAD PROOF IN FLIGHT
+
+---
+
 # RESUME TOKEN — 2026-09-27 / POST-IMPORT JOURNEY UI CLOSURE
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
