@@ -1,18 +1,16 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT
 
-> This top block is the only startup boundary.
+> Exact-head evidence only. This block supersedes historical checkpoints below.
 
-- MAIN HEAD → `2465da09eb08ae63dae921d7ecfcb88beb9ecdf0`
-- CURRENT CODE/TEST CANDIDATE → `4de3c95ff3a741463d49a2b52baf86f66ce62fad`
-- FUNCTIONAL FRONT → PR #667 / `4de3c95ff3a741463d49a2b52baf86f66ce62fad`
+- MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT CODE/TEST CANDIDATE → PR #670 / `12743bf7087efafc9563799b37483fdd3df1d74b`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT DATA until a real peer cohort exists.
-- ROOT FIXES → phase9 exact-head ref verification repaired; `/benchmark` and `/replay` now registered in the canonical navigation registry using existing Sidebar icon infrastructure.
-- EXACT EVIDENCE → old `2cdd7128…` failed before Phase 9 execution. Fresh proof is required on `d6e1d139…`.
-- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback evidence remains required. Repository-side restore parity exists on the candidate.
-- EXTERNAL → Vercel free-plan build-rate limit; device/browser/production proof not yet proven.
-- CLEANUP → duplicate PR #668, stale UI #594/#596/#603 closed; branches/history retained.
-- NEXT → consume first terminal #667 exact-head gate; repair only the first current-SHA reproducible root.
+- UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains fail-closed until a real peer cohort exists.
+- PORT RESULT → 36 functional/contract files reconstructed directly onto current main; canonical control-plane documents remain owned by current main and are not overwritten by the candidate.
+- EXACT PROOF → no current-SHA workflow PASS claimed yet; candidate status currently has Vercel external build-rate-limit failure.
+- PHASE-F → NOT CERTIFIED; live backup/restore/RPO/RTO/rollback evidence remains required.
+- EXTERNAL → device/browser/production proof unavailable in this session.
+- NEXT → consume first terminal PR #670 gate; repair only the first reproducible current-SHA root, then re-prove.
 
 ---
 
