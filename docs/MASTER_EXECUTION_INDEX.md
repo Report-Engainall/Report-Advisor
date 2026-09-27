@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / RE-ANCHORED CI ADVANCE
+
+- MAIN CONTROL HEAD AFTER MEMORY WRITE → `ac6bad42b2fcc0d4610fd4faba3a139585386027`.
+- FUNCTIONAL FRONT → PR #672 / `0a48b4e19edf221d68e5d5c3d7497260b08352da`, exactly 1 ahead / 0 behind main at its base `517d01af...`.
+- EXACT CI → `desktop-windows` run `36351392998` SUCCESS; remaining exact-head gates are still queued/pending with no terminal failure observed.
+- STORAGE → authenticated documents bucket policy is tenant-prefix constrained; inserts bind owner to auth.uid; no cross-tenant storage relaxation detected.
+- RELEASE/DEVICE → Netlify exact-head deploy is ERROR from no-content-change cancellation; Vercel external/pending; PC01 offline; browser/production/device certification remains NOT PROVEN.
+- NEXT → consume the first terminal exact-head failure/result; repair only that root; persist and rescan.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / DEVICE-OFFLINE SAFE EXECUTION
 
 - MAIN HEAD AT CHECKPOINT → `9e428325543a8198c16e2ecca9d0ebb0d5154111` (memory checkpoint only).
