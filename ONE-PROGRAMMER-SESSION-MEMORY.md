@@ -5,24 +5,24 @@
 
 - SESSION-ID: `20260927-EXEC-667`
 - CURRENT VERIFIED SHA: `0b4f19fe7de377b57b2df7e70507bc32727568cc`
-- CURRENT EXECUTION/CANDIDATE SHA: `2422bbf94e545e1aa2319d14f1757c3f80030bc9`
+- CURRENT EXECUTION/CANDIDATE SHA: `fbfc3d91c60a9de174f456888d7cc82f76802f55`
 - BRANCH / PR: `exec/20260927-current-main-import-ui-finalize` / #667
-- CURRENT REPOSITORY HEAD: `2422bbf94e545e1aa2319d14f1757c3f80030bc9`
-- CURRENT CODE/TEST CANDIDATE: `2422bbf94e545e1aa2319d14f1757c3f80030bc9`
+- CURRENT REPOSITORY HEAD: `fbfc3d91c60a9de174f456888d7cc82f76802f55`
+- CURRENT CODE/TEST CANDIDATE: `fbfc3d91c60a9de174f456888d7cc82f76802f55`
 - ACTIVE EXECUTION FRONTS: FUNCTIONAL #667 | EXACT-HEAD PROOF | UI CONTINUITY | GOVERNANCE | SAFE CLEANUP
 - FRONT-ID: `IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI`
 - CURRENT BOUNDARY: Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- ACTUAL RESULT: CI root fix committed at `8d881052fcc02b7f17eb983d2353ba0739ae0951` by changing quality checkout depth from 1 to 2 so the enforcement adversarial test can resolve `HEAD^`; current UI follow-through at `367c5ecedb49cf9c703143c2c5dff66d6c2724a7` now keeps un-analyzed Evidence Snapshots PARTIAL and blocks post-evidence navigation until the source analysis state is `analyzed`.
-- EVIDENCE: exact failing quality run at `bc9e0331d2564a16f91e3e7e2930379361c7c1c5` reproduced `git rev-parse HEAD^` failure under depth-1 checkout; fix exists at `8d881052fcc02b7f17eb983d2353ba0739ae0951`. UI guard and contract exist at `367c5ecedb49cf9c703143c2c5dff66d6c2724a7`; fresh terminal proof on this latest SHA is NOT YET PROVEN.
-- LAST PROVEN: exact execution-enforcement protocol, adversarial governance, certification-boundary test-of-test and the prior main baseline evidence remain bound to their historical SHAs; no later PASS is transferred to `367c5ecedb49cf9c703143c2c5dff66d6c2724a7`.
-- LAST FAILED / FIRST FAILURE CONSUMED: quality failed because PR exact-head diagnostics raced the moving branch via `git ls-remote`; the proof now compares the merge ref's second parent directly to `pull_request.head.sha`. Earlier Phase-F restore failure remains repaired by the forward compatibility resolver.
-- OPEN BLOCKERS: exact-head certification is active on `2422bbf94e545e1aa2319d14f1757c3f80030bc9`; Vercel Hobby build-rate limit remains external; user device remains offline.
-- REMAINING-WORK REGISTER: exact-head quality + Phase-F backup/restore/RPO/RTO/rollback/recovery + final certification on `2422bbf94e545e1aa2319d14f1757c3f80030bc9`; if green, reconcile release evidence and merge boundary. No production promotion claimed.
-- NEXT EXECUTABLE ACTION: consume the first terminal quality/Phase-F/certification gate on `2422bbf94e545e1aa2319d14f1757c3f80030bc9`; repair only the first reproducible current-SHA root.
-- CURRENT RESUME POINTER: 2422bbf94e545e1aa2319d14f1757c3f80030bc9 → FRONT-ID IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI → NEXT EXECUTABLE ACTION: consume the first terminal quality/Phase-F/certification gate on `2422bbf94e545e1aa2319d14f1757c3f80030bc9`; repair only the first reproducible current-SHA root.
-- NEXT INDEPENDENT ACTIONS: audit safe duplicates/dead files against canonical ownership; verify route/component/RPC continuity; inspect Phase-F evidence artifacts and current staging read-only parity; no production mutation while device/external gates are unavailable.
-- DO NOT REPEAT: stale PASS transfer; stale candidate binding; duplicate importer/RPC/runner/route; client-side authority for server truth; preview-as-production; reopening closed roots without current-SHA evidence.
-- RESUME STATUS: ACTIVE / EXACT-HEAD RECONCILED / UI TRUTH GUARD CLOSED IN CODE / CERTIFICATION WAVES IN FLIGHT.
+- ACTUAL RESULT: canonical import + post-import UI is implemented; Evidence Passport now stays fail-closed on un-analyzed snapshots; its navigation points to canonical `/trust`; Phase-F runtime closure now explicitly checks the restore tenant resolver migration and its delegation to `current_company_id()`.
+- EVIDENCE: quality root at `bc9e0331d2564a16f91e3e7e2930379361c7c1c5` reproduced shallow `HEAD^` failure; workflow repair at `8d881052fcc02b7f17eb983d2353ba0739ae0951`; exact-head diagnostics were subsequently repaired on the moving PR merge ref; current UI + Phase-F contract mutations are on `fbfc3d91c60a9de174f456888d7cc82f76802f55`. Fresh terminal proof for this latest SHA is NOT YET PROVEN.
+- LAST PROVEN: historical exact-SHA passes remain bound to their original commits. No historical PASS is transferred to `fbfc3d91c60a9de174f456888d7cc82f76802f55`.
+- LAST FAILED / FIRST FAILURE CONSUMED: current quality history first exposed shallow checkout then a moving-merge-ref diagnostics race; both were repaired forward-only. Phase-F restore dependency is repaired in the repository, but live exact-head certification remains pending.
+- OPEN BLOCKERS: exact-head quality / Phase-F / certification waves on `fbfc3d91c60a9de174f456888d7cc82f76802f55`; Vercel Hobby build-rate limitation remains external; user device/browser-dependent local proof remains unavailable.
+- REMAINING-WORK REGISTER: consume first terminal current-SHA gate; repair only its root; then reconcile evidence and merge boundary; continue safe duplicate/dead-file audit without deleting anything lacking ownership proof.
+- NEXT EXECUTABLE ACTION: consume the first terminal quality / Phase-F / certification result on `fbfc3d91c60a9de174f456888d7cc82f76802f55`; fix only the first reproducible current-SHA root.
+- CURRENT RESUME POINTER: `fbfc3d91c60a9de174f456888d7cc82f76802f55` → `IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI` → consume the first terminal exact-head gate.
+- NEXT INDEPENDENT ACTIONS: route/component/RPC continuity audit; current Phase-F artifact inspection; staging read-only parity checks; safe cleanup only after canonical owner + dependency confirmation.
+- DO NOT REPEAT: stale PASS transfer; stale candidate binding; duplicate importer/RPC/runner/route; client authority for server truth; preview-as-production; reopening closed roots without current-SHA evidence.
+- RESUME STATUS: ACTIVE / EXACT-HEAD RECONCILED / UI TRUTH + PHASE-F CONTRACTS CLOSED IN CODE / CERTIFICATION WAVES IN FLIGHT.
 - CHECKPOINT RULE: HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT.
 ---
 
