@@ -3,15 +3,16 @@
 > This top block is the only startup boundary.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `9bcfb80020ac2952ee45b64123e4c15bc8b891e0`
+- CURRENT BRANCH HEAD → `81266e2dbcb13f7af8f84923a6ef5b8acbf4f94d`
+- CURRENT CODE/TEST CANDIDATE → `13dcf329555e6857bc705434d2967a428d61ddd3`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - PRODUCT CHAIN → Any Source → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
 - UI COVERAGE → eight canonical zones; 38/38 registry routes resolve in App; Product Journey exposes eight explicit visible stages; shared Product WOW contract covers shell, journey, states, evidence, and navigation.
 - SHELL → dark executive topbar + right-aligned dark RTL sidebar; superseded light navigation override removed and guarded by the UI contract.
-- SOURCE AUDIT → all 32 TSX page surfaces scanned at exact candidate for synthetic/reload/TODO/Coming-Soon markers; no remediation-required hits. Proposal Demo’s “Mockup” mention is explanatory non-fabrication copy.
-- PROOF → current head has 44 queued, 3 pending, 2 skipped workflows and no terminal success/failure. Vercel free-plan rate-limit is external. No production/browser/Phase-F/device certification claimed.
-- NEXT → consume first terminal current-head result; repair only first reproducible root; then rescan route/state/duplicate/cleanup boundaries.
+- SOURCE AUDIT → all 32 TSX page surfaces scanned at exact code candidate for synthetic/reload/TODO/Coming-Soon markers; no remediation-required hits. Proposal Demo’s “Mockup” mention is explanatory non-fabrication copy.
+- PROOF → current code candidate has no terminal CI result yet; latest materialized workflow state observed before documentation-only commits was 44 queued, 3 pending, 2 skipped, no terminal success/failure. Vercel free-plan rate-limit is external. No production/browser/Phase-F/device certification claimed.
+- NEXT → consume first terminal result for code candidate `13dcf329…`; repair only first reproducible root; then rescan route/state/duplicate/cleanup boundaries.
 ---
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / SECURITY BOUNDARY CLOSURE
