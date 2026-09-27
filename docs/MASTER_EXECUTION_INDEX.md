@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / MIXED-SPECIALTY CONTRACT ROOT CLOSED
+
+> Exact-head evidence only. This startup block supersedes older historical boundaries.
+
+- MAIN HEAD BEFORE THIS DOCS COMMIT → `16bfd89ac25f55dbc776871b5bc4cbc538320fc0`
+- FUNCTIONAL CANDIDATE → PR #664 / `c5b193116e16b7ce46fd88d6d6edde268820ef52`
+- GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
+- ROOT CLOSED → TypeScript + canonical-import mapping roots fixed; fresh proof required on `c5b193116e16b7ce46fd88d6d6edde268820ef52`.
+- UI CONTINUITY → single canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Replay path; Benchmark fail-closed.
+- NEXT → first terminal current-SHA failure only; merge only after required exact-head evidence.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT CODE ROOT REPAIR
 
 > Exact-head evidence only. This startup block supersedes older historical boundaries.

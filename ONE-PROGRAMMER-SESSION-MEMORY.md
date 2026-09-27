@@ -1,3 +1,13 @@
+# RESUME TOKEN — 2026-09-27 / MIXED-SPECIALTY CONTRACT ROOT CLOSED
+
+- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `16bfd89ac25f55dbc776871b5bc4cbc538320fc0`
+- CURRENT CODE/TEST CANDIDATE → PR #664 / `c5b193116e16b7ce46fd88d6d6edde268820ef52`
+- GOVERNANCE FRONT → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
+- ROOT CLOSED → TypeScript source errors and canonical-import mapping syntax/mixed-specialty contract roots repaired on the functional lane.
+- PROOF → fresh exact-head gates for `c5b193116e16b7ce46fd88d6d6edde268820ef52` are required; all older failures/pass states remain SHA-bound.
+- NEXT → consume first terminal current-SHA failure; otherwise consume certification/runtime gates.
+- BLOCKERS → Vercel free-plan rate limit; device/browser/production/Phase-F external proof remains unavailable.
+
 # RESUME TOKEN — 2026-09-27 / CURRENT CODE ROOT REPAIR
 
 - CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `75cc34765b9c2a18d7f0f06e5fdc2dd101aec2c0`
