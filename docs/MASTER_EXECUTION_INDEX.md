@@ -525,3 +525,16 @@
 - GOVERNANCE → PR #663 remains exact head `43a29443477aeb5969b99d672bd2c6698e0f7106`; do not mix its lane with product behavior.
 - NEXT → consume the first terminal mandatory gate on `3a03d4e`; if the queues persist, continue only independent repository-safe work, then consume #663.
 - DO NOT REPEAT → stale evidence, preview-as-production, duplicate import/navigation/RPC/runner, unsafe import-job mutations, speculative Phase-F changes without new live evidence.
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT PER-DATASET TYPED-ENTITY HARDENING
+
+- FUNCTIONAL CURRENT HEAD → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `b081c3f5d8c7ca4879c41f16cada76f0c5c66f00`.
+- ROOT FIX → typed canonical inference now requires all canonical write fields on **every dataset**; complementary sheets can no longer collectively satisfy a strict entity contract while individual datasets remain incomplete.
+- CONTRACT → existing `scripts/check-canonical-import-mapping.mjs` guards the per-dataset condition. No duplicate test/import/RPC/runner path.
+- EXACT-HEAD CI → certification run `36326239773` / job `108639438487` and enforcement run `36326239775` / job `108639438409` are both `queued`; no terminal failure is available.
+- VERCEL → exact-head status remains `failure` / `build-rate-limit`; external constraint only.
+- DEPLOYMENT/PRODUCTION → no fresh exact-head browser or production/Phase-F PASS; prior deployment evidence remains bound to earlier SHAs.
+- UI → canonical import post-upload lifecycle remains complete and existing; Business Replay import-scoping was reviewed and left unchanged because no existing import-filter contract was found.
+- GOVERNANCE → PR #663 exact head `43a29443477aeb5969b99d672bd2c6698e0f7106`; governance jobs remain queued.
+- NEXT → consume the first terminal mandatory gate on `b081c3f`; repair only reproduced current-SHA failure; otherwise continue independent safe fronts and reconcile governance.
+- DO NOT REPEAT → stale evidence, preview-as-production, duplicate import/navigation/RPC/runner, unsafe import-job mutation, speculative replay filtering.
