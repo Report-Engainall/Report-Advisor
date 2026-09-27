@@ -1,15 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / CONTINUATION + LIVE PROOF RECONCILIATION
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / CONTINUOUS POST-IMPORT EXECUTION
 
 - MAIN HEAD VERIFIED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
-- CURRENT CODE/TEST CANDIDATE: `5aeffc4b631d4c9f518bdf05926c4bdd4f4d392a` (PR #662 / `exec/20260927-import-full-lifecycle`; post-import Evidence Passport + Decision continuity front).
-- FUNCTIONAL STATUS: local full-source import implementation is closed on the exact current SHA; all targeted import/core/UI contracts and production build re-ran successfully on `4ba2d1d`.
-- REMOTE STATUS: Desktop Windows exact-head run `36280991955` is SUCCESS; CodeRabbit, Vercel integration, Vercel Deployments and Netlify preview contexts are SUCCESS; the larger certification set remains QUEUED, therefore no overall certification PASS is claimed.
-- RUNTIME STATUS: Netlify preview for PR #662 returns HTTP 200 and serves Arabic RTL/Vite/IBM Plex Sans Arabic application HTML. This is preview evidence only.
-- BROWSER STATUS: NOT PROVEN because agent-browser is absent on PC01 and TinyFish automation is blocked by a negative wallet balance.
-- LIVE STAGING STATUS: Report-Advisor-P0-2-Staging is ACTIVE_HEALTHY; 151 `import_jobs` remain `processing`, 150 at progress 0, oldest started 2026-09-14 12:53:22Z. No recovery mutation performed.
-- PHASE-F / PRODUCTION: exact deployment identity, authenticated browser/business persistence, backup/restore, measured RPO/RTO, rollback and production promotion remain NOT PROVEN/BLOCKED.
-- NEXT EXECUTABLE ACTION: consume first terminal/non-queued PR #662 exact-head result; repair only a current-SHA failure. Continue independent certification/governance work without creating overlapping import paths or mutating legacy processing rows.
-- DO NOT REPEAT: stale evidence transfer, browser PASS from HTTP 200 alone, production/Phase-F bypass, unsafe import-job terminalization, duplicate import/RPC/runner/route, reopening closed full-source implementation.
+- CURRENT CODE/TEST CANDIDATE: `f7a7ee4060c1fff1cb0d53487340a8020f8171c2` (PR #662 / `exec/20260927-import-full-lifecycle`; post-import Evidence → Quality → Signals → Decision continuity).
+- UI LANE: after canonical commit, the user now reaches a source-specific Evidence Passport, Data Quality checkpoint, current-signal readout, and an evidence-gated Decision Experience carrying the same import identity.
+- CORE LANE: server-authoritative import remains the sole canonical writer; evidence snapshot persistence is VERIFIED/PARTIAL and never silently promoted.
+- PROOF STATUS: fresh exact-head remote gates are required on `f7a7ee4060c1fff1cb0d53487340a8020f8171c2`; no prior PASS is transferred across the latest UI/core mutations.
+- RUNTIME STATUS: staging remains protected; legacy processing import_jobs remain untouched.
+- BLOCKERS: browser automation/PC01 availability and Phase-F/production exact-SHA resilience proof remain external; they block only their dependent certification fronts.
+- NEXT EXECUTABLE ACTION: consume the first terminal exact-head gate on `f7a7ee4060c1fff1cb0d53487340a8020f8171c2`; repair only the first current-SHA failure, then continue the next independent UI/core boundary.
+- DO NOT REPEAT: stale PASS transfer, preview-as-production/browser PASS, duplicate import path, unsafe legacy-job terminalization, or reopening closed full-source implementation.
 
 ---
 
