@@ -8,12 +8,16 @@ const navigationPaths = [...navigationRegistry.matchAll(/path:\s*'([^']+)'/g)].m
 
 const routeSet = new Set(routePaths);
 const navigationSet = new Set(navigationPaths);
-const intentionallyHiddenRoutes = new Set(['/proposal-demo']);
+const intentionallyHiddenRoutes = new Set(['/proposal-demo', '/import/analyze']);
 const missingFromApp = navigationPaths.filter((path) => !routeSet.has(path));
 const missingFromSidebar = routePaths.filter((path) => path !== '*' && !navigationSet.has(path) && !intentionallyHiddenRoutes.has(path));
 
-const requiredRoutes = ['/import/analyze', '/decision-experience', '/metrics', '/reports/executive', '/analytics/liquidity', '/suppliers'];
+const requiredRoutes = ['/decision-experience', '/metrics', '/reports/executive', '/analytics/liquidity', '/suppliers'];
 const missingRequired = requiredRoutes.filter((path) => !routeSet.has(path) || !navigationSet.has(path));
+if (!app.includes('<Route path="/import/analyze" element={<Navigate to="/import" replace />} />')) {
+  console.error('FAIL: /import/analyze compatibility route must redirect to the canonical /import entry.');
+  process.exit(1);
+}
 
 if (missingFromApp.length || missingFromSidebar.length || missingRequired.length) {
   console.error(JSON.stringify({ missingFromApp, missingFromSidebar, missingRequired }, null, 2));

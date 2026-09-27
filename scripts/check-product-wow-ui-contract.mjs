@@ -194,7 +194,7 @@ assert.ok(reports.includes('NEXT ACTION'), 'reports center must expose a concret
 assert.ok(reports.includes('افحص جودة البيانات'), 'reports center must route insufficient truth to data quality');
 assert.ok(reports.includes('تحديث اللقطة'), 'reports center must support in-place refresh of the canonical snapshot');
 assert.ok(!reports.includes('generateSynthetic'), 'reports center must not invent business values');
-const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
+const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8').replace(/\r\n/g, '\n');
 assert.ok(!trustEvidence.includes("String(dataset.columnCount ?? 0)"), 'Evidence Passport must not convert missing dataset column count into zero');
 assert.ok(trustEvidence.includes("dataset.columnCount == null ? 'غير متاح' : String(dataset.columnCount)"), 'Evidence Passport must render missing dataset column count as unavailable');
 assert.ok(trustEvidence.includes('const [refreshing, setRefreshing]'), 'trust evidence must refresh in-place instead of reloading the whole page');
@@ -264,6 +264,7 @@ assert.ok(canonicalImport.includes('إثباتها مرتبط بالحالة ا�
 assert.ok(!canonicalImport.includes('تم عبور هذه الطبقة ضمن التنفيذ الكانوني'), 'canonical import lifecycle must not imply VERIFIED proof merely from stage visibility');
 
 const commandCenter = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
+const intelligence = fs.readFileSync('src/pages/IntelligencePage.tsx', 'utf8');
 assert.ok(commandCenter.includes('kpis.totalReceivables'), 'money recovery surface must use authoritative receivables truth');
 assert.ok(commandCenter.includes('kpis.overdueReceivables'), 'money recovery surface must expose overdue receivables truth when available');
 assert.ok(intelligence.includes('const rejectRecommendation = useCallback'), 'intelligence center must route rejection through one governed mutation path');
@@ -300,7 +301,6 @@ assert.ok(commandCenter.includes('ضمن القراءة الحالية؛ لا ي
 const decisionStatus = fs.readFileSync('src/lib/decision-status.ts', 'utf8');
 assert.ok(decisionStatus.includes("'OPEN'"), 'canonical decision status resolver must include OPEN');
 assert.ok(decisionStatus.includes("isActionableRecommendationStatus"), 'canonical decision status resolver must expose an actionable predicate');
-const intelligence = fs.readFileSync('src/pages/IntelligencePage.tsx', 'utf8');
 const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
 assert.ok(intelligence.includes('isActionableRecommendationStatus(item.status)'), 'intelligence queue must use canonical recommendation status semantics');
 assert.ok(intelligence.includes('const actionableRecommendations = useMemo('), 'intelligence must derive one canonical actionable recommendation cohort');
@@ -309,7 +309,7 @@ assert.ok(intelligence.includes('counts.in_progress'), 'intelligence summary mus
 assert.ok(!intelligence.includes('counts.inProgress'), 'intelligence must not regress to a camelCase count key that diverges from status filters');
 
 assert.ok(intelligence.includes('isActionableRecommendationStatus(item.status)'), 'intelligence actionable cohort must use the canonical status resolver');
-assert.ok(intelligence.includes("const persistedStatus = status === 'accepted' ? 'approved' : status"), 'recommendation acceptance readback must reflect the canonical RPC transition to approved');
+assert.ok(intelligence.includes("if (status === 'accepted') return 'مقبولة';") && intelligence.includes("if (status === 'approved') return 'معتمدة';"), 'recommendation readback must expose both legacy accepted and canonical approved states');
 assert.ok(!intelligence.includes("updateRecommendationStatus(id, 'accepted')"), 'recommendation list must not bypass the governed decision/approval flow with a direct accepted mutation');
 assert.ok(intelligence.includes("'/decision-experience?stage=decision&recommendationId='"), 'OPEN recommendations must enter the governed decision experience');
 assert.ok(intelligence.includes("updateRecommendationStatus(id, 'rejected')"), 'OPEN/new recommendations may still use the valid terminal rejection transition');
@@ -377,7 +377,7 @@ assert.ok(profileSettings.includes('min-h-11 w-full max-w-xl'), 'profile input m
 const masterDataHub = fs.readFileSync('src/pages/MasterDataHubPage.tsx', 'utf8');
 assert.ok(masterDataHub.includes('to="/trust"'), 'master data hub must expose a direct evidence path');
 assert.ok(masterDataHub.includes('to="/import"'), 'master data hub must expose the unified import path');
-assert.ok(masterDataHub.includes('لا تُعرض كيانات غير مثبتة'), 'master data hub must preserve fail-closed reference semantics');
+assert.ok(masterDataHub.includes('غياب البيانات يبقى حالة حقيقية ولا يتحول إلى سجل افتراضي'), 'master data hub must preserve fail-closed reference semantics');
 assert.ok(masterDataHub.includes('min-h-11'), 'master data actions must meet touch-target sizing');
 
 assert.ok(executiveReport.includes('<LoadingState message="جارٍ بناء التقرير التنفيذي من المصادر المعتمدة..." />'), 'executive report must use the shared loading state');

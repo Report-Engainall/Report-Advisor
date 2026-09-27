@@ -6,13 +6,6 @@ import { LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchProfitabilitySnapshot } from '@/lib/dashboard-canonical';
 import { formatCurrency } from '@/lib/format';
 
-import { useMemo, useState } from 'react';
-import { ArrowUpLeft, Info, RefreshCcw, ShieldCheck, SlidersHorizontal, TrendingDown, TrendingUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { PageHeader } from '@/components/ui/States';
-import { formatCurrency } from '@/lib/format';
-
 type ScenarioCalculatorProps = {
   baseRevenue: number;
   baseCost: number;

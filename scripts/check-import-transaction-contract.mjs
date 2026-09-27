@@ -99,6 +99,12 @@ if (!/qualityApproved: boolean/.test(adapter) || !/qualityApproved/.test(adapter
 const specialtyMigrationPath = path.join(migrationDir, '20260927213000_expand_canonical_import_specialties.sql');
 if (!fs.existsSync(specialtyMigrationPath)) throw new Error('Canonical specialty import migration is missing');
 const specialtyMigration = fs.readFileSync(specialtyMigrationPath, 'utf8');
+const financialInvariantMigrationPath = path.join(migrationDir, '20260830040000_reconcile_live_financial_decision_invariants.sql');
+if (!fs.existsSync(financialInvariantMigrationPath)) throw new Error('Canonical financial invariant migration is missing');
+const financialInvariantMigration = fs.readFileSync(financialInvariantMigrationPath, 'utf8');
+if (!financialInvariantMigration.includes('purchase_items_line_total_nonnegative')) {
+  throw new Error('Canonical financial invariant missing: purchase_items_line_total_nonnegative');
+}
 for (const token of [
   'purchase_invoices','suppliers','inventory_balances','payments',
   'SUPPLIER_NAME_REQUIRED','PURCHASE_SUPPLIER_REQUIRED',
@@ -107,7 +113,7 @@ for (const token of [
   'AUTHORITATIVE_SOURCE_HASH_MISMATCH','AUTHORITATIVE_SOURCE_NOT_VERIFIED',
   'PERFORM pg_advisory_xact_lock',
   'v_requested_payment_id := nullif(v_row->>\'payment_id\',\'\')::uuid', 'WHERE id=v_requested_payment_id', 'coalesce(v_requested_payment_id, gen_random_uuid())',
-  'INSERT INTO public.purchase_items(', 'purchase_items_line_total_nonnegative', 'PURCHASE_ITEM_PRODUCT_TENANT_MISMATCH', 'row.data.quantity != null','row.data.unit_price != null','row.data.line_total != null','row.data.description != null','row.rowNumber', 'entityType === \'purchase_invoices\'', 'CONFLICTING_EVIDENCE_FOR_SAME_CANONICAL_IDENTITY',
+  'INSERT INTO public.purchase_items(', 'PURCHASE_ITEM_PRODUCT_TENANT_MISMATCH',
   'RETURN public.import_commit_batch(',
   'DROP FUNCTION IF EXISTS public.import_commit_batch(uuid,text,jsonb,text,text,uuid)',
   'CREATE FUNCTION public.import_commit_batch(',

@@ -145,7 +145,7 @@ export function ExecutiveCommandCenterPage() {
   const replayState = replayError ? 'REVIEW' : replayAvailable ? 'AVAILABLE' : 'INSUFFICIENT DATA';
 
   const commandNextAction = useMemo(() => {
-    if (kpis.status === 'INSUFFICIENT_DATA') {
+    if (kpis?.status === 'INSUFFICIENT_DATA') {
       return {
         to: '/data-quality',
         label: 'مراجعة جودة البيانات',
@@ -178,7 +178,7 @@ export function ExecutiveCommandCenterPage() {
       label: 'مراجعة الصورة التنفيذية',
       reason: 'لا توجد إشارة مفتوحة أو توصية معلقة في القراءة الحالية؛ راجع الصورة التنفيذية الحالية.',
     };
-  }, [alerts.length, decisionAccountability.outcomeCoverage, kpis.status, recommendations.length]);
+  }, [alerts.length, decisionAccountability.outcomeCoverage, kpis?.status, recommendations.length]);
 
   if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
