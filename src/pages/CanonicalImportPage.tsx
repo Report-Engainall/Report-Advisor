@@ -484,6 +484,18 @@ export function CanonicalImportPage() {
 )}
 <button type="button" onClick={reset} className="btn-secondary"><Upload size={14}/> تحليل ملف آخر</button></div></div></CardBody></Card>}
 
-    <Card><CardHeader title="سجل الاستيرادات" subtitle="أحدث 500 عملية مرتبطة بحسابك، مع 50 صفًا في كل صفحة لتبقى القراءة سريعة؛ العمليات الأقدم تبقى محفوظة" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={historyError} onRetry={() => void loadHistory()} />:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد عمليات سابقة" message="لم يُثبت مصدر سابق لهذا الحساب بعد؛ ابدأ الآن من مدخل الاستيراد الموحد." action={<button type="button" onClick={reset} className="btn-primary text-[11px]"><Upload size={13}/> اختيار مصدر</button>}/>:<DataTable columns={[{key:'file_name',label:'المصدر'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مراجعة',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} pageSize={50} emptyMessage="لا توجد عمليات سابقة"/>}</Card>
+    <Card><CardHeader title="سجل الاستيرادات" subtitle="أحدث 500 عملية مرتبطة بحسابك، مع 50 صفًا في كل صفحة لتبقى القراءة سريعة؛ العمليات الأقدم تبقى محفوظة" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={historyError} onRetry={() => void loadHistory()} />:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد عمليات سابقة" message="لم يُثبت مصدر سابق لهذا الحساب بعد؛ ابدأ الآن من مدخل الاستيراد الموحد." action={<button type="button" onClick={reset} className="btn-primary text-[11px]"><Upload size={13}/> اختيار مصدر</button>}/>:<DataTable columns={[
+      {key:'file_name',label:'المصدر'},
+      {key:'total_rows',label:'الصفوف',align:'center'},
+      {key:'valid_rows',label:'صالح',align:'center'},
+      {key:'invalid_rows',label:'مراجعة',align:'center'},
+      {key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},
+      {key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)},
+      {key:'actions',label:'المتابعة',align:'center',render:(r:any)=><div className="flex flex-wrap justify-center gap-1">
+        <Link to={"/trust?import=" + encodeURIComponent(r.id)} className="btn-ghost text-[9px]">Evidence</Link>
+        <Link to={"/work-center?import=" + encodeURIComponent(r.id)} className="btn-ghost text-[9px]">التشغيل</Link>
+        {r.status === 'completed' && <Link to={"/decision-experience?stage=evidence&import=" + encodeURIComponent(r.id)} className="btn-primary text-[9px]">القرار</Link>}
+      </div>}
+    ]} data={history} pageSize={50} emptyMessage="لا توجد عمليات سابقة"/>}</Card>
   </div>;
 }
