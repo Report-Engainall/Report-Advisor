@@ -2,14 +2,14 @@
 
 > This top block is the only startup boundary. Entries below are historical evidence and MUST NOT override it.
 
-- CURRENT CODE/TEST CANDIDATE: `7f7ee185fb18bf9b06f0c3cf9dc839ee4d5a3c3c` (PR #662 / `exec/20260927-import-full-lifecycle`).
+- CURRENT CODE/TEST CANDIDATE: `e3c86d4e67bd1d8f83644669d8a67f5f66c738e4` (PR #662 / `exec/20260927-import-full-lifecycle`).
 - MAIN HEAD VERIFIED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
 - FRONT-ID: `IMPORT-SURFACE-AFTER-COMMIT`.
 - CURRENT BOUNDARY: Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Readback → Business Understanding → Signals → Decision/Work follow-through.
 - CORE RESULT: server-authoritative canonical import now re-reads the stored source and consumes every parsed dataset; no first-dataset truncation is allowed.
 - UI RESULT: Canonical Import exposes specialty, dataset count, understanding confidence, quality/trust, persisted history continuity, Evidence/Trust follow-through, and Decision/Work follow-through.
-- FIRST FAILURE CLOSED: Windows build on the prior #662 head failed at `src/lib/queries.ts:51` with an extra `}`; fixed by commit `7f7ee185fb18bf9b06f0c3cf9dc839ee4d5a3c3c`.
-- EXACT PROOF STATUS: prior local #662 claims are not remote PASS; current 7f7 head has fresh Actions queued/in progress. No PASS transferred.
+- FIRST FAILURE CLOSED: Windows build on the prior #662 head failed at `src/lib/queries.ts:51` with an extra `}`; fixed by commit `7f7ee185fb18bf9b06f0c3cf9dc839ee4d5a3c3c`. SECOND FAILURE CLOSED: `CanonicalImportPage.tsx` imported `fetchDashboardIntelligence` through `queries-compat.ts`, but `queries.ts` did not re-export that canonical query; fixed by commit `e3c86d4e67bd1d8f83644669d8a67f5f66c738e4` without creating a duplicate query path.
+- EXACT PROOF STATUS: prior local #662 claims are not remote PASS; current e3c86 head requires fresh Actions. No PASS transferred.
 - OPEN BLOCKERS: PC01 offline for local browser execution; Vercel free-plan deployment rate limit; Phase-F/production exact-SHA resilience proof remains unproven.
 - NEXT EXECUTABLE ACTION: consume the first terminal exact-head #662 gate on `7f7ee185fb18bf9b06f0c3cf9dc839ee4d5a3c3c`; repair only the first reproducible current-SHA failure.
 - NEXT INDEPENDENT ACTIONS: continue UI/core truth surfaces that do not mutate the import path; inspect #661 only for independently required closures and do not merge overlapping stale code wholesale.
