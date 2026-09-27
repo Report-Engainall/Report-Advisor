@@ -1,7 +1,7 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
 - CURRENT VERIFIED MAIN SHA → `a76f19a7da58071dce9a08874eae2b666827aa11`
-- CURRENT EXECUTION/CANDIDATE SHA → `d6e1d13931250c9ee298bc933a2be8c7ccda7899`
+- CURRENT EXECUTION/CANDIDATE SHA → `4de3c95ff3a741463d49a2b52baf86f66ce62fad`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize` / PR #667
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
