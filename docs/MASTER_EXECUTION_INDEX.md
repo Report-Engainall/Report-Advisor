@@ -1,7 +1,21 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT CODE ROOT REPAIR
+
+> Exact-head evidence only. This startup block supersedes older historical boundaries.
+
+- MAIN HEAD BEFORE THIS DOCS COMMIT → `75cc34765b9c2a18d7f0f06e5fdc2dd101aec2c0`
+- FUNCTIONAL CANDIDATE → PR #664 / `2f0dcbb2f27345631f05558a6e7898af8148de42`
+- GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
+- ROOT FIX → current exact-head TypeScript + canonical-import mapping roots repaired on #664.
+- PROOF → fresh workflows for the repaired candidate must be consumed; historical failures on `361db8a…` are closed evidence.
+- UI → canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Replay remains the single post-import path.
+- RELEASE → Vercel free-plan build-rate; browser/production/Phase-F remain external/not proven.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / EXACT-HEAD PROOF UPDATE
 
 - MAIN HEAD BEFORE THIS DOCS COMMIT → `6219eb5a68aff19a3ef77a23537d5fb2db2d5a38`
-- FUNCTIONAL CANDIDATE → PR #664 / `361db8af5e58dcb122b2b6623acf9a804e6a3fdb`
+- FUNCTIONAL CANDIDATE → PR #664 / `2f0dcbb2f27345631f05558a6e7898af8148de42`
 - GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
 - EXACT PROOF → #664 desktop-windows SUCCESS on exact head; 44 other workflows queued, 2 skipped, 0 failures at latest scan. #665 has 37 queued and 1 in progress.
 - RELEASE BOUNDARY → Vercel free-plan build-rate remains external; browser/production/Phase-F remain NOT PROVEN.

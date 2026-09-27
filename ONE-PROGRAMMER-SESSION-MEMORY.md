@@ -1,7 +1,18 @@
+# RESUME TOKEN — 2026-09-27 / CURRENT CODE ROOT REPAIR
+
+- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `75cc34765b9c2a18d7f0f06e5fdc2dd101aec2c0`
+- CURRENT CODE/TEST CANDIDATE → PR #664 / `2f0dcbb2f27345631f05558a6e7898af8148de42`
+- ACTIVE GOVERNANCE FRONT → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
+- ROOT FIX → TypeScript source errors in DataTable, Canonical source understanding, Decision Experience, and Work Center were corrected; canonical-import mapping contract syntax error was corrected.
+- NEXT PROOF → fresh exact-head CI on `2f0dcbb2f27345631f05558a6e7898af8148de42`; no PASS transferred from `361db8a…`.
+- VERCEL → external free-plan build-rate limit remains the only known hosting failure.
+- DEVICE → PC01 unavailable; no device/browser/production/Phase-F PASS claimed.
+- NEXT → consume first terminal exact-head failure; if clean, consume remaining certification/runtime gates.
+
 # RESUME TOKEN — 2026-09-27 / EXACT-HEAD PROOF UPDATE
 
-- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `6219eb5a68aff19a3ef77a23537d5fb2db2d5a38`
-- FUNCTIONAL CANDIDATE → PR #664 / `361db8af5e58dcb122b2b6623acf9a804e6a3fdb`
+- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `75cc34765b9c2a18d7f0f06e5fdc2dd101aec2c0`
+- FUNCTIONAL CANDIDATE → PR #664 / `2f0dcbb2f27345631f05558a6e7898af8148de42`
 - GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
 - NEW EXACT-SHA PROOF → #664 `desktop-windows` run completed SUCCESS on `361db8a…`. No failure runs are present for #664 at this observation.
 - CURRENT GATES → #664: 47 workflows = 1 success, 2 skipped, 44 queued, 0 failures. #665: 38 workflows = 37 queued, 1 in-progress, 0 terminal successes/failures.
@@ -25,7 +36,7 @@
 
 # RESUME TOKEN — 2026-09-27 / CURRENT SESSION — CURRENT-MAIN INTEGRATION
 
-- CURRENT REPOSITORY HEAD → `a00234fed504915fd54704cac55ea5a47ae511eb`
+- CURRENT REPOSITORY HEAD → `75cc34765b9c2a18d7f0f06e5fdc2dd101aec2c0`
 - ACTIVE FUNCTIONAL FRONT → PR #664 / `exec/20260927-current-main-import-integration` / exact head `361db8af5e58dcb122b2b6623acf9a804e6a3fdb`
 - ACTIVE GOVERNANCE FRONT → PR #665 / `control/20260927-current-main-governance` / exact head `da99f6a873144b2ee56f73ad759f25456c2d9755`
 - FUNCTIONAL RESULT → canonical full-source import lifecycle, all-dataset understanding, deterministic typed specialty inference, Business Replay, Benchmark fail-closed surface, and post-import decision/outcome continuity ported onto current main without overwriting newer memory/index content.
