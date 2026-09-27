@@ -54,14 +54,6 @@ export function TrustEvidencePage() {
   }, [loadSnapshot]);
 
   const status = snapshot?.status ?? 'INSUFFICIENT DATA';
-  const effectiveStatus = importJobId
-    ? (!sourceSnapshot ? 'PARTIAL' : criticalIssueTotal > 0 ? 'REVIEW' : 'VERIFIED')
-    : status;
-  const statusLabel = effectiveStatus === 'OK'
-    ? 'الحالة قابلة للاستخدام'
-    : effectiveStatus === 'EMPTY'
-      ? 'لا توجد بيانات مثبتة بعد'
-      : effectiveStatus;
   const issueTotal = useMemo(
     () => snapshot?.entities?.reduce((sum, entity) => sum + (entity.issues ?? 0), 0) ?? null,
     [snapshot],
@@ -74,19 +66,27 @@ export function TrustEvidencePage() {
     () => snapshot?.issues?.filter((issue) => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0) ?? 0,
     [snapshot],
   );
+  const effectiveStatus = importJobId
+    ? (!sourceSnapshot ? 'PARTIAL' : criticalIssueTotal > 0 ? 'REVIEW' : 'VERIFIED')
+    : status;
+  const statusLabel = effectiveStatus === 'OK'
+    ? 'الحالة قابلة للاستخدام'
+    : effectiveStatus === 'EMPTY'
+      ? 'لا توجد بيانات مثبتة بعد'
+      : effectiveStatus;
   const nextStep = importJobId && !sourceSnapshot
     ? { label: 'إثبات Snapshot المصدر', detail: 'هذا الاستيراد لا يملك Evidence Passport مثبتًا بعد؛ ابقَ في حالة PARTIAL حتى يظهر الدليل.', path: '/trust?import=' + encodeURIComponent(importJobId) }
-    : criticalIssueTotal > 0
+    : importJobId && criticalIssueTotal > 0
       ? { label: 'مراجعة جودة البيانات', detail: 'الدليل موجود، لكن توجد مشكلات حرجة تمنع الانتقال الآمن إلى القرار.', path: '/data-quality' }
       : importJobId && sourceSnapshot
         ? { label: 'متابعة إلى القرار', detail: 'الدليل المرتبط بالمصدر مثبت والجودة الحالية لا تعرض حرجًا يمنع القرار.', path: '/decision-experience?stage=evidence&import=' + encodeURIComponent(importJobId) }
         : snapshot?.status === 'EMPTY'
-        ? { label: 'ابدأ من المصدر', detail: 'أضف ملفًا أو مصدرًا حتى يمكن بناء حالة حقيقة وأدلة فعلية.', path: '/import' }
-        : criticalIssueTotal > 0
-          ? { label: 'أغلق المشكلات الحرجة', detail: 'ابدأ من جودة البيانات قبل استخدام النتائج في قرار.', path: '/data-quality' }
-          : issueTotal && issueTotal > 0
-            ? { label: 'مراجعة جودة البيانات', detail: 'راجع الحالات التي تمنع الثقة الكاملة قبل الانتقال إلى القرار.', path: '/data-quality' }
-            : { label: 'فحص مصدر الدليل', detail: 'راجع المصدر وسياقه قبل الانتقال إلى القرار.', path: '/import/analyze' };
+          ? { label: 'ابدأ من المصدر', detail: 'أضف ملفًا أو مصدرًا حتى يمكن بناء حالة حقيقة وأدلة فعلية.', path: '/import' }
+          : criticalIssueTotal > 0
+            ? { label: 'أغلق المشكلات الحرجة', detail: 'ابدأ من جودة البيانات قبل استخدام النتائج في قرار.', path: '/data-quality' }
+            : issueTotal && issueTotal > 0
+              ? { label: 'مراجعة جودة البيانات', detail: 'راجع الحالات التي تمنع الثقة الكاملة قبل الانتقال إلى القرار.', path: '/data-quality' }
+              : { label: 'فحص مصدر الدليل', detail: 'راجع المصدر وسياقه قبل الانتقال إلى القرار.', path: '/import/analyze' };
 
   if (!snapshot && !error) return <LoadingState message="جارٍ قراءة حالة الثقة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void loadSnapshot()} />;
