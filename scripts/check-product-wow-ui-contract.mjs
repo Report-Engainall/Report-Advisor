@@ -174,6 +174,11 @@ assert.ok(!canonicalImport.includes('تم عبور هذه الطبقة ضمن ا
 const commandCenter = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
 assert.ok(commandCenter.includes('kpis.totalReceivables'), 'money recovery surface must use authoritative receivables truth');
 assert.ok(commandCenter.includes('kpis.overdueReceivables'), 'money recovery surface must expose overdue receivables truth when available');
+assert.ok(intelligence.includes('const rejectRecommendation = useCallback'), 'intelligence center must route rejection through one governed mutation path');
+assert.ok(!intelligence.includes("updateRecommendationStatus(recommendation.id, 'accepted')"), 'intelligence center must not bypass governed approval with direct accepted mutation');
+assert.ok(intelligence.includes('/decision-experience?stage=decision&recommendationId='), 'intelligence center decision CTA must carry the recommendation context');
+assert.ok(intelligence.includes("recommendation.status === 'OPEN' || recommendation.status === 'new'"), 'intelligence center rejection control must remain limited to valid pre-approval states');
+
 assert.ok(commandCenter.includes('لا تُحسب فرصة استرداد إضافية دون ledger موثّق'), 'money recovery surface must remain fail-closed about actual recovery');
 
 for (const token of [
