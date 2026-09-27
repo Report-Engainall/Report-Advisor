@@ -1,18 +1,19 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CANDIDATE SHA → `3283f03e28c6a5fde9576c3a29b2b56444762b74`
+- CURRENT EXECUTION/CANDIDATE SHA → `e44118c8bc25f47ac485a88b3abe9ec15617c5c1`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- ACTUAL RESULT → purchase-line reconciliation now preserves multi-line invoices while retaining duplicate-header protection; import UI also has Evidence AS OF, Replay truth context/refresh, and customer-facing specialty/entity labels.
-- CORE ROOT FIX → `ae00750f…` changed purchase identity away from invoice-only; `0dd24b9a…` bound the line identity to the canonical row number; `3283f03e…` added header + multi-line regression tests.
-- PROOF → exact source verified; current CI has no terminal failure yet. Local execution is externally blocked because this environment cannot resolve github.com, so no local PASS is claimed.
-- OPEN BLOCKERS → Vercel free-plan build-rate-limit; device/browser/production/Phase-F certification remains environment-bound; current exact-head CI pending.
-- FIRST FAILURE → none terminalized on `3283f03e…`.
-- NEXT EXECUTABLE ACTION → consume first terminal workflow result on `3283f03e28c6a5fde9576c3a29b2b56444762b74`; repair only current-SHA root.
-- NEXT INDEPENDENT ACTIONS → route/contract regression audit and evidence reconciliation while CI runs.
-- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, preview-as-production, or treating import preview/navigation as downstream proof.
+- ACTUAL RESULT → purchase-line identity closure + regression tests; Evidence Passport AS OF; Business Replay AS OF/read-window/refresh; Decision Experience now also discloses source Evidence Snapshot AS OF.
+- LATEST UI MUTATIONS → Decision source-context AS OF `4c8652adfaca32005f7daecd12b92f0d3ee72fd4`; Product WOW guard `e44118c8bc25f47ac485a88b3abe9ec15617c5c1`.
+- CORE ROOT → purchase_invoices multi-line rows preserve physical line identity while duplicate header semantics remain protected.
+- PROOF → exact source verified. Current head has no terminal CI result yet; Vercel remains external build-rate-limit. Local GitHub execution remains unavailable due DNS.
+- OPEN BLOCKERS → Vercel free-plan build-rate-limit; authenticated production/browser/Phase-F remains environment-bound; device unavailable.
+- FIRST FAILURE → none terminalized on current candidate.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow result on `e44118c8bc25f47ac485a88b3abe9ec15617c5c1`; repair only current-SHA root.
+- NEXT INDEPENDENT ACTIONS → final contract/route rescan and stale-front reconciliation while CI is pending.
+- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, preview-as-production, raw technical labels, or downstream VERIFIED from navigation alone.
 - RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD PROOF IN FLIGHT
 ---
 
