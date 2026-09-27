@@ -240,3 +240,22 @@
 - NEXT EXECUTABLE ACTION → consume the first terminal `certification-contracts` or `enforcement-contract` result on `3a03d4e`; repair only a reproducible current-SHA root failure. If both remain queued, continue only independent repository-safe fronts.
 - DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; speculative changes to Phase-F while the live blocker is external.
 - RESUME STATUS → ACTIVE / IMPORT CORE SAFETY HARDENED / EXACT-HEAD PROOF RUNNING.
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-153
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-153`.
+- CURRENT DOCUMENTATION SHA BEFORE WRITE → `3633f24c05a4d7a9b94b6608cd2a4f0a64347ecf`.
+- CURRENT FUNCTIONAL HEAD → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `b081c3f5d8c7ca4879c41f16cada76f0c5c66f00`.
+- ROOT HARDENING #1 → typed canonical entity inference now requires the exact canonical write-field contract; incomplete typed sources fail closed to `generic:source-data` with `CANONICAL_ENTITY_REQUIREMENTS_UNMET`.
+- ROOT HARDENING #2 → the required typed-field contract is now checked **per dataset**, not as a union across sheets. This prevents multi-sheet sources with complementary columns from being incorrectly promoted into a strict typed writer while individual rows/datasets remain incomplete.
+- CONTRACT PROTECTION → existing `scripts/check-canonical-import-mapping.mjs` now guards the per-dataset condition. No duplicate import path/RPC/runner/test surface was created.
+- EXACT CURRENT CI → latest certification run `36326239773` / job `108639438487` and enforcement run `36326239775` / job `108639438409` are present for `b081c3f`; both are still `queued`, with no failure log or terminal conclusion.
+- CURRENT VERCEL STATUS → exact functional head has `Vercel = failure` with target `build-rate-limit`. This remains an external hosting limitation, not a code failure.
+- CURRENT DEPLOYMENT BOUNDARY → no fresh build/browser/production/Phase-F PASS exists for `b081c3f`; older Cloudflare/Netlify evidence remains SHA-bound and is not transferred.
+- GOVERNANCE → PR #663 remains exact head `43a29443477aeb5969b99d672bd2c6698e0f7106`; its mandatory contract jobs are also queued and have not produced a terminal failure.
+- IMPORT UI → post-upload surface remains complete and canonical: full 16-stage lifecycle, dataset-level understanding, evidence status, snapshot identity, signal separation, Evidence/Work Center/Data Quality/Decision continuation.
+- INDEPENDENT AUDIT RESULT → Business Replay remains a tenant-wide replay surface because the existing query has no import-key filter for snapshots/outcomes/work items; no speculative route/query was added.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan rate limit; certification/enforcement runners queued; authenticated browser, production exact-SHA, rollback/restore/RPO/RTO, and Phase-F resilience proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume the first terminal mandatory gate on `b081c3f`; repair only a reproduced current-SHA root failure. If queues persist, continue only repository-safe independent work and then reconcile PR #663.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; speculative Business Replay import-filtering without an existing supported data contract.
+- RESUME STATUS → ACTIVE / IMPORT CORE + UI HARDENED / EXACT-HEAD PROOF WAITING ON RUNNER.
