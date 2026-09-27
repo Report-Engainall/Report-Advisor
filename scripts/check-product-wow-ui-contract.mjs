@@ -7,6 +7,19 @@ assert.ok(indexCss.includes('.ag-topbar{') && indexCss.includes('background:line
 assert.ok(!indexCss.includes('AGHBARI VISUAL REFINEMENT — visible separators + stronger RTL navigation tree'), 'superseded light navigation override must not remain after dark-shell reconciliation');
 const login = fs.readFileSync('src/pages/LoginPage.tsx', 'utf8');
 const dashboard = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
+const masterData = fs.readFileSync('src/pages/MasterDataHubPage.tsx', 'utf8');
+for (const token of [
+  "resolveCurrentCompanyId",
+  "count: 'exact', head: true",
+  "inventory_balances",
+  "setCounts",
+  "إعادة قراءة الحقيقة",
+  "TENANT_REQUIRED",
+  "LoadingState",
+  "ErrorState",
+  "to={value > 0 ? '/inventory' : '/import'}",
+]) assert.ok(masterData.includes(token), 'Master Data hub truth binding missing: ' + token);
+assert.ok(masterData.includes("count === 0 ? '/import' : path"), 'Master Data empty entities must route to unified import');
 const entities = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
 const dataTable = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
 assert.ok(dataTable.includes('role="status" aria-live="polite" aria-busy="true"'), 'shared table loading state must expose assistive status semantics');
