@@ -3,15 +3,15 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `519bb7356e9b8516b560b45ab46e20e4f40f012`
-- CURRENT CODE ROOT CANDIDATE → `7011596a003982b1ff9c2bcfc1e0c7dab8a9f04`
-- CURRENT CONTRACT CANDIDATE → `5d35be5deb4fce8b8f39cefc77fe482fc5a5c480`
+- CURRENT BRANCH HEAD → `7b45491b0f0f8f99caa4ba2dda6a9d359f020530`
+- CURRENT CODE CANDIDATES → `7011596a003982b1ff9c2bcfc1e0c7dab8a9f04`, `8c2ded7d4e268e029df10ed988d392039e8a5bce`, `2f9f4dc4653c38945cb739d1284c61fff992d4c7`
+- CURRENT CONTRACT CANDIDATE → `7b45491b0f0f8f99caa4ba2dda6a9d359f020530`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
-- DECISION STATUS → canonical lifecycle is `new → OPEN → approved → in_progress → completed`, with `rejected/dismissed` terminal; shared resolver now used by Intelligence, Command Center, Executive Report.
-- IMPORT/UI → unified import continuity, Evidence/Decision/Replay AS OF, bounded Replay, truth-derived Next Action, multi-line purchase identity, typed server entities, staging RPC grant hardening, `/import/analyze` canonical redirect.
-- CURRENT PROOF → no terminal current-head workflow failure yet; Vercel external rate-limit persists.
+- DECISION STATUS → canonical recommendation lifecycle `new → OPEN → approved → in_progress → completed`; rejected/dismissed terminal; shared resolver adopted across Intelligence, Command Center, Executive Report.
+- IMPORT/UI → unified import-to-decision continuity, AS OF evidence, bounded Replay, truth-derived Next Action, multi-line purchase identity, seven typed server entities, staging import RPC hardening.
+- CURRENT PROOF → no terminal workflow result on latest head yet; Vercel external rate-limit persists.
 - PHASE-F → NOT CERTIFIED; production/browser/resilience evidence remains environment-bound.
-- NEXT → consume first terminal current-head workflow, fix only root, then final route/contract/cleanup rescan.
+- NEXT → consume first terminal workflow, fix only root, then final route/contract/cleanup rescan.
 ---
 
 
