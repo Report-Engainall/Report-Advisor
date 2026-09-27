@@ -552,3 +552,7 @@ This is the target product tree. It defines how capabilities are presented; it d
 │  ├─ Analytics Home
 │  ├─ Sales
 │  ├─ Purchases
+
+
+### Decision ROI governance — 2026-09-27
+Decision ROI is a required product surface, but the repository currently has no canonical metric formula/contract defining its denominator, numerator, cohort, period, or evidence semantics. Until that metric contract exists, the UI must remain `INSUFFICIENT DATA`/unavailable and may not invent an ROI calculation from expected/actual fields or presentation counts.
