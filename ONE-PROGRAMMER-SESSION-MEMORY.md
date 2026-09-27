@@ -1,3 +1,21 @@
+# RESUME TOKEN — 2026-09-27 / DECISION → OUTCOME → LEARNING
+
+- SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-13`
+- CURRENT VERIFIED SHA → `46675643e32f6ea28b6c1d80a530b2eb134e7907` (main)
+- CURRENT EXECUTION/CANDIDATE SHA → `653b6d1a233ed5ccafc92a5e4e41ce50be95baf7` (PR #662 / `exec/20260927-import-full-lifecycle`)
+- BRANCH / PR → `exec/20260927-import-full-lifecycle` / #662
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT`
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning; Benchmark remains fail-closed until a real peer cohort exists.
+- ACTUAL RESULT → Decision Experience recorded Outcome state now links directly to Business Replay. The unified import UI and decision UI both expose the Learning continuation.
+- EVIDENCE → current code candidate includes tenant-scoped Replay, evidence-safe Benchmark, route/navigation/sidebar wiring, import learning continuation, and outcome-to-replay continuity.
+- FIRST THREE ROOT FAILURES CLOSED → extra brace `7f7ee…`; missing `fetchDashboardIntelligence` export `e3c86…`; accidental partial `queries.ts` truncation restored at `87f73…`.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan build-rate limit; Phase-F/production exact-SHA resilience remains unproven.
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-head #662 gate on candidate `653b6d1a233ed5ccafc92a5e4e41ce50be95baf7`; repair only the first reproducible current-SHA failure.
+- NEXT INDEPENDENT ACTIONS → consume route completeness, desktop build, full-product browser, data-quality/import truth, and security/tenant gates; then reconcile remaining #661-only closures without wholesale merge.
+- DO NOT REPEAT → partial-file writes from bounded reads, stale candidate binding, stale PASS transfer, duplicate importer/RPC/runner/query path, unknown-to-zero coercion, unsafe import-job terminalization, preview-as-production/browser PASS.
+- RESUME STATUS → ACTIVE / DECISION-TO-LEARNING CONTINUITY IMPLEMENTED / EXACT-HEAD PROOF QUEUED.
+
+---
 # RESUME TOKEN — 2026-09-27 / UNIFIED IMPORT → LEARNING
 
 - SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-12`
