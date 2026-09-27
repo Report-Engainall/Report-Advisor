@@ -7,10 +7,10 @@
 - ACTUAL FUNCTIONAL RESULT → full-source canonical import lifecycle closed locally; all parsed datasets are consumed and persisted through the existing canonical path; no dataset-zero truncation remains in runtime.
 - EXACT PROOF → Desktop Windows 36285659130 SUCCESS on b66; Netlify/CodeRabbit success; quality success; browser authenticated E2E and Phase-F remain separate current-head boundaries.
 - FIRST FAILURE → stale certification-boundary parser binding was fixed; evidence snapshot truth gap was then closed with explicit VERIFIED/PARTIAL semantics on the durable import result.
-- NEXT EXECUTABLE ACTION → consume first terminal exact-head gate on `9bbfa4e...`; repair only a new current-SHA failure.
+- NEXT EXECUTABLE ACTION → consume first terminal exact-head gate on `ead36ba4f9c7420bcd48ba3e8c8b70a3471a0d80`; repair only a new current-SHA failure.nly a new current-SHA failure.
 - OPEN BLOCKERS → Vercel free-plan build-rate; browser/agent automation external availability; Phase-F/production exact-SHA/restore/RPO/RTO/rollback remain unproven; 151 processing import_jobs untouched.
 - DO NOT REPEAT → stale PASS transfer, browser PASS from HTTP-only preview, production/Phase-F bypass, unsafe legacy-job terminalization, duplicate import path/RPC/runner.
-- RESUME STATUS → ACTIVE / FUNCTIONAL FRONT COMPLETE / EVIDENCE-TRUTH GAP CLOSED / FRESH CERTIFICATION RUN REQUIRED
+- RESUME STATUS → ACTIVE / CURRENT HEAD RECORDED / EVIDENCE-TRUTH GAP CLOSED / CERTIFICATION PROOF QUEUED
 
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / CONTINUATION + LIVE PROOF RECONCILIATION
 
