@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
+const indexCss = fs.readFileSync('src/index.css', 'utf8');
+assert.ok(indexCss.includes('.ag-sidebar{background:linear-gradient(180deg,#052f2d 0%,#063b36 58%,#052825 100%)!important'), 'executive shell sidebar must retain the canonical dark surface');
+assert.ok(indexCss.includes('.ag-topbar{') && indexCss.includes('background:linear-gradient(135deg,#052f2d 0%,#063b36 58%,#052825 100%)!important'), 'executive shell topbar must retain the canonical dark surface');
+assert.ok(!indexCss.includes('AGHBARI VISUAL REFINEMENT — visible separators + stronger RTL navigation tree'), 'superseded light navigation override must not remain after dark-shell reconciliation');
 const login = fs.readFileSync('src/pages/LoginPage.tsx', 'utf8');
 const dashboard = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 const entities = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
