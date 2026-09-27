@@ -1,3 +1,14 @@
+## CURRENT LIVE SECURITY RECONCILIATION — 2026-09-27
+
+- CURRENT CODE CANDIDATE → PR #672 / `9aa6c8ccea82b20d949ae2e41fdad2f1b1126631`.
+- The live migration-lineage drift for `import_finish_job(uuid,text,jsonb,text)` was identified and repaired on staging without changing its business lifecycle body.
+- LIVE RESULT → SECURITY INVOKER; `search_path = public, pg_catalog`; EXECUTE only for authenticated/service_role plus postgres owner; no public/anon EXECUTE.
+- The canonical six-argument `import_commit_batch` remains SECURITY DEFINER by design, but its source-hash, storage, fingerprint, file-status, tenant/company, job-binding, and idempotency checks remain authoritative; public/anon EXECUTE is revoked and authenticated/service_role execution is granted.
+- RLS remains enabled on `import_jobs`, `file_records`, `canonical_import_commits`, and `import_job_rows`.
+- SECURITY ADVISOR still reports 46 historical authenticated SECURITY DEFINER findings plus the leaked-password-protection warning. No blanket revoke is authorized; these remain separate audit fronts until canonical ownership and callers are proven.
+- This live proof is environment-specific and does not become browser/production PASS or transfer to another SHA.
+
+
 # MASTER DATA / TRUTH / SECURITY REFERENCE — الأغبري
 Status: CANONICAL DOMAIN REFERENCE
 
