@@ -80,5 +80,8 @@ if (!canonicalImportPage.includes('Evidence Passport') || !canonicalImportPage.i
 for (const token of ['postImportSignals', 'fetchDashboardIntelligence', 'WHAT HAPPENS NEXT']) {
   if (!canonicalImportPage.includes(token)) throw new Error(`Post-import signal surface contract missing: ${token}`);
 }
+for (const token of ['canonical_import_commits', 'reusedExistingCommit', 'CANONICAL_EXISTING_COMMIT_COUNT_MISMATCH']) {
+  if (!canonicalImportServer.includes(token)) throw new Error(`Existing canonical commit recovery contract missing: ${token}`);
+}
 
 console.log('Canonical import mapping regression gate: PASS (canonical fields + full-source understanding + post-import evidence/decision continuity)');
