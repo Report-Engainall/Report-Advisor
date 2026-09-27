@@ -83,5 +83,24 @@ for (const token of ['postImportSignals', 'fetchDashboardIntelligence', 'WHAT HA
 for (const token of ['canonical_import_commits', 'reusedExistingCommit', 'CANONICAL_EXISTING_COMMIT_COUNT_MISMATCH']) {
   if (!canonicalImportServer.includes(token)) throw new Error(`Existing canonical commit recovery contract missing: ${token}`);
 }
+const queriesContractTokens = [
+  'createDecisionWorkItem',
+  'fetchDecisionWorkItem',
+  'fetchDecisionWorkItems',
+  'startDecisionWorkItem',
+  "create_decision_work_item",
+  "start_decision_work_item",
+];
+for (const token of queriesContractTokens) {
+  if (!queriesSource.includes(token)) throw new Error(`Decision work query contract missing: ${token}`);
+}
+const decisionWorkUi = decisionExperiencePage;
+for (const token of ['Work Item', 'createDecisionWorkItem', 'fetchDecisionWorkItem', 'المستخدم الحالي']) {
+  if (!decisionWorkUi.includes(token)) throw new Error(`Decision → Work Item UI contract missing: ${token}`);
+}
+const workCenterPage = readFileSync(new URL('../src/pages/WorkCenterPage.tsx', import.meta.url), 'utf8');
+for (const token of ['fetchDecisionWorkItems', 'startDecisionWorkItem', 'DECISION WORK', 'بدء التنفيذ']) {
+  if (!workCenterPage.includes(token)) throw new Error(`Work Center action contract missing: ${token}`);
+}
 
 console.log('Canonical import mapping regression gate: PASS (canonical fields + full-source understanding + post-import evidence/decision continuity)');
