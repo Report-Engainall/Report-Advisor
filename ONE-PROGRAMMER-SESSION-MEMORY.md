@@ -2,16 +2,16 @@
 
 - CURRENT REPOSITORY HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
 - CURRENT VERIFIED SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `10d0755c624ea9ee71b58655b0e734f63d8c4bee`
-- ACTIVE EXECUTION FRONTS → PR #670 (`exec/20260927-current-main-import-ui-finalize-rebased`) = single import-to-decision functional front.
+- CURRENT CODE/TEST CANDIDATE → `db0e78855dd0ed0fa5ce56923769b33464560e8b`
+- ACTIVE EXECUTION FRONTS → PR #670 (`exec/20260927-current-main-import-ui-finalize-rebased`) = single current-main import-to-decision functional front.
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- LAST PROVEN → exact current-head gates on the prior checkpoint: canonical truth, storage tenant runtime, Full Product Browser E2E, UI route completeness, desktop-windows, production-chain guard, and broad security/data contracts. These remain SHA-bound and are not transferred as PASS to newer heads.
-- LAST FAILED → Execution Enforcement Contract on `cbc7f67f4084de23294aecefaea900c787625e3e`: resume token missing required anchors; Final Certification Gate on the same SHA: live certification fixture rejected the current candidate tail. Both are current-SHA harness roots requiring fresh proof after repair.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; device/browser/production/Phase-F live proof remains externally constrained.
-- NEXT EXECUTABLE ACTION → consume the first terminal workflow on the next candidate head; repair only the first reproducible current-SHA root.
-- NEXT INDEPENDENT ACTIONS → continue UI surface completeness, route/contract integrity, evidence/readback continuity, and safe superseded-front cleanup.
-- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, static business truth, or treating documentation synchronization as capability closure.
-- RESUME STATUS → ACTIVE / PR #670 / SINGLE CURRENT-MAIN FUNCTIONAL FRONT / EXACT-SHA PROOF PENDING
+- LAST PROVEN → On the prior exact-head cycle, broad canonical/security/storage/tenant/UI/runtime gates reached SUCCESS on the then-current candidate; evidence is SHA-bound and not transferred. Current candidate requires fresh exact-head proof.
+- LAST FAILED → `7cb988fb…` execution-enforcement E-20..E-26 root; `cbc7f67…` resume-token/certification-fixture roots. Both were repaired in-source. Latest candidate also closes the duplicate import/analyze route and history-window mismatch.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; authenticated production/Phase-F live proof remains externally constrained; current exact-head gates are queued/in flight.
+- NEXT EXECUTABLE ACTION → consume the first terminal workflow result on `db0e78855dd0ed0fa5ce56923769b33464560e8b`; repair only the first reproducible current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue safe route/surface truth audits, post-import evidence/decision continuity, and redundant historical-front cleanup only where overlap is proven.
+- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, standalone import/analyze path, static business truth, or documentation synchronization as capability closure.
+- RESUME STATUS → ACTIVE / PR #670 / SINGLE CURRENT-MAIN FUNCTIONAL FRONT / EXACT-SHA PROOF IN FLIGHT
 
 ---
 
