@@ -60,6 +60,137 @@ export async function fetchImportEvidenceSnapshot(importJobId?: string): Promise
     created_at: String(data.created_at),
   };
 }
+
+export type RuntimeDecisionRecord = {
+  id: string;
+  company_id: string;
+  decision_key: string;
+  decision_type: string;
+  status: string;
+  confidence: number | null;
+  expected_impact: number | null;
+  evidence: Record<string, unknown>;
+  created_at: string;
+  executed_at: string | null;
+  recommendation_id: string | null;
+  approved_by: string | null;
+  approved_at: string | null;
+  rejection_reason: string | null;
+};
+
+export type DecisionApprovalRecord = {
+  id: string;
+  decision_id: string;
+  status: string;
+  requested_by: string | null;
+  decided_by: string | null;
+  requested_at: string;
+  decided_at: string | null;
+  reason: string | null;
+};
+
+export async function fetchRuntimeDecisionForRecommendation(recommendationId: string): Promise<RuntimeDecisionRecord | null> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase
+    .from('business_intelligence_decisions')
+    .select('id, company_id, decision_key, decision_type, status, confidence, expected_impact, evidence, created_at, executed_at, recommendation_id, approved_by, approved_at, rejection_reason')
+    .eq('company_id', companyId)
+    .eq('recommendation_id', recommendationId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  return {
+    id: String(data.id),
+    company_id: String(data.company_id),
+    decision_key: String(data.decision_key),
+    decision_type: String(data.decision_type),
+    status: String(data.status),
+    confidence: data.confidence == null ? null : Number(data.confidence),
+    expected_impact: data.expected_impact == null ? null : Number(data.expected_impact),
+    evidence: data.evidence && typeof data.evidence === 'object' ? data.evidence as Record<string, unknown> : {},
+    created_at: String(data.created_at),
+    executed_at: data.executed_at ? String(data.executed_at) : null,
+    recommendation_id: data.recommendation_id ? String(data.recommendation_id) : null,
+    approved_by: data.approved_by ? String(data.approved_by) : null,
+    approved_at: data.approved_at ? String(data.approved_at) : null,
+    rejection_reason: data.rejection_reason ? String(data.rejection_reason) : null,
+  };
+}
+
+export async function fetchDecisionApproval(decisionId: string): Promise<DecisionApprovalRecord | null> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase
+    .from('decision_approvals')
+    .select('id, decision_id, status, requested_by, decided_by, requested_at, decided_at, reason')
+    .eq('company_id', companyId)
+    .eq('decision_id', decisionId)
+    .order('requested_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  return {
+    id: String(data.id),
+    decision_id: String(data.decision_id),
+    status: String(data.status),
+    requested_by: data.requested_by ? String(data.requested_by) : null,
+    decided_by: data.decided_by ? String(data.decided_by) : null,
+    requested_at: String(data.requested_at),
+    decided_at: data.decided_at ? String(data.decided_at) : null,
+    reason: data.reason ? String(data.reason) : null,
+  };
+}
+
+export async function createRuntimeDecision(input: {
+  decisionKey: string;
+  decisionType: string;
+  confidence: number;
+  expectedImpact: number | null;
+  evidence: Record<string, unknown>;
+}): Promise<string> {
+  if (!Number.isFinite(input.confidence) || input.confidence < 0 || input.confidence > 1) throw new Error('DECISION_CONFIDENCE_OUT_OF_RANGE');
+  const { data, error } = await supabase.rpc('create_runtime_decision', {
+    p_decision_key: input.decisionKey,
+    p_decision_type: input.decisionType,
+    p_confidence: input.confidence,
+    p_expected_impact: input.expectedImpact,
+    p_evidence: input.evidence,
+  });
+  if (error) throw error;
+  if (!data) throw new Error('DECISION_CREATE_EMPTY');
+  return String(data);
+}
+
+export async function linkRecommendationToDecision(recommendationId: string, decisionId: string): Promise<void> {
+  const { error } = await supabase.rpc('link_recommendation_to_decision', {
+    p_recommendation_id: recommendationId,
+    p_decision_id: decisionId,
+  });
+  if (error) throw error;
+}
+
+export async function requestDecisionApproval(decisionId: string, reason?: string | null): Promise<string> {
+  const { data, error } = await supabase.rpc('request_decision_approval', {
+    p_decision_id: decisionId,
+    p_reason: reason ?? null,
+  });
+  if (error) throw error;
+  if (!data) throw new Error('DECISION_APPROVAL_REQUEST_EMPTY');
+  return String(data);
+}
+
+export async function decideApproval(approvalId: string, approve: boolean, reason?: string | null): Promise<void> {
+  const { error } = await supabase.rpc('decide_approval', {
+    p_approval_id: approvalId,
+    p_approve: approve,
+    p_reason: reason ?? null,
+  });
+  if (error) throw error;
+}
 export type ReceivablesReportRow = { id:string; invoice_number:string; invoice_date:string; due_date:string|null; total:number|null; paid_amount:number|null; balance:number; status:string|null; customer:{id:string|null;name:string|null}|null };
 export type ReceivablesReportPage = { status:'CALCULATED'|'NO_DATA'; page:number; page_size:number; total_rows:number; total_outstanding:number; rows:ReceivablesReportRow[] };
 export async function fetchReceivablesReportPage(page=0,pageSize=25):Promise<ReceivablesReportPage>{if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');if(!Number.isInteger(pageSize)||pageSize<1||pageSize>100)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');const {data,error}=await supabase.rpc('get_receivables_report_page',{p_page:page,p_page_size:pageSize});if(error)throw error;if(!data||typeof data!=='object')throw new Error('REPORT_DATA_UNAVAILABLE: receivables snapshot missing');const p=data as Record<string,unknown>;if(!Array.isArray(p.rows))throw new Error('REPORT_DATA_UNAVAILABLE: receivables rows missing');return{status:p.status==='NO_DATA'?'NO_DATA':'CALCULATED',page:Number(p.page??page),page_size:Number(p.page_size??pageSize),total_rows:Number(p.total_rows??0),total_outstanding:Number(p.total_outstanding??0),rows:p.rows as ReceivablesReportRow[]};}
