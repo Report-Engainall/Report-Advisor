@@ -2,20 +2,18 @@
 
 - SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT EXECUTION/CANDIDATE SHA → `21f4e2d9179e1a00b8b0bf714d264963d3cdc3cf`
+- CURRENT EXECUTION/CANDIDATE SHA → `2510590af4e738e3a0dd2703d67e296e2215d8c5`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize/Reconcile → Quality/Trust → Evidence → Review → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
-- ACTUAL RESULT → Added a high-fidelity loading skeleton to the canonical shared DataTable and made governed DataUnavailableState explicitly announced to assistive technology. Closed stale governance PR #543 after confirming its operating-control content is already canonical; no duplicate product implementation was retained.
-- EVIDENCE → Exact candidate head verified on PR #671 as `21f4e2d9179e1a00b8b0bf714d264963d3cdc3cf`. Current candidate has not yet received terminal CI on this new SHA. Prior exact `9718654…` preview/deployment results are historical and are not transferred to the new SHA.
-- FIRST FAILURE → No new code failure reproduced in this batch. External Vercel status remains free-plan deployment-rate limited; interactive browser audit tooling is unavailable because its wallet is out of funds. Device remains unavailable.
-- OPEN BLOCKERS → Fresh deployment evidence, authenticated browser/device evidence, Phase-F live resilience evidence. These do not block repository-side UI/core work.
-- NEXT EXECUTABLE ACTION → Consume terminal CI results on `21f4e2d…`; inspect any first current-SHA failure, fix root, then continue independent surface polish and safe cleanup.
-- NEXT INDEPENDENT ACTIONS → Continue targeted UI state/a11y/value-first audit across remaining canonical pages; reconcile execution index; avoid legacy PR reactivation unless exact dependency evidence shows unique unabsorbed work.
-- DO NOT REPEAT → Historical PASS claims from pre-`21f4e2d…` SHAs, unauthenticated preview as authenticated UI proof, stale PR work already represented on current main, or device-dependent Phase-F tasks.
+- ACTUAL RESULT → Added table-shaped loading fidelity to the shared DataTable and semantic announcements to governed DataUnavailableState. Rebound the canonical memory and execution index to the exact candidate head. Closed stale governance PR #543 after canonical absorption.
+- EVIDENCE → PR #671 exact head is `2510590af4e738e3a0dd2703d67e296e2215d8c5`, mergeable=true. Current new-SHA CI is still non-terminal; Vercel is explicitly rate-limited. Prior deployment evidence remains historical and is not transferred.
+- FIRST FAILURE → No reproducible current-SHA code failure yet. External Vercel free-plan build-rate limit remains the visible current failure; device and authenticated browser proof are unavailable.
+- OPEN BLOCKERS → Fresh deployment, authenticated browser/device proof, Phase-F live resilience. Repository-side work remains executable.
+- NEXT EXECUTABLE ACTION → Inspect the first terminal result on `2510590a…`; fix the first reproducible failure, then continue the next independent UI/core surface.
+- NEXT INDEPENDENT ACTIONS → Continue targeted canonical page state/accessibility/value checks; clean only proven-stale legacy fronts; keep evidence exact-SHA.
+- DO NOT REPEAT → Evidence from older SHAs, unauthenticated preview as authenticated UX proof, stale PR implementation, or device-bound work.
 - RESUME STATUS → ACTIVE / NOT CLOSED / SAFE WORK REMAINS.
-
----
 
 
 # RESUME TOKEN — 2026-09-27 / CURRENT NON-DEVICE VERIFIED FRONT
