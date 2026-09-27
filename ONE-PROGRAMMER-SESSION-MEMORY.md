@@ -1,3 +1,21 @@
+# RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
+
+- CURRENT VERIFIED MAIN SHA → `0b4f19fe7de377b57b2df7e70507bc32727568cc`
+- CURRENT EXECUTION/CANDIDATE SHA → `7d3d2954920f52bc14fd1af369293e6b19a8197d`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize` / PR #667
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning; Benchmark remains fail-closed until a real peer cohort exists.
+- ACTUAL RESULT → canonical post-import UI/runtime delta is on the single active functional front; duplicate PR #668 was closed and its evidence/history retained. Phase-9 exact-head CI root was identified as ref verification, not application execution, and repaired on `7d3d2954…`.
+- EVIDENCE → On prior exact SHA `2cdd7128…`, certification-evidence-boundary + multiple DML/security gates passed; phase9-windows-contract failed before its contract due remote-head verification. On `7d3d2954…`, workflow materialization was not yet visible at last scan. Vercel is external build-rate-limit.
+- FIRST FAILURE → resolved for the new candidate path: `phase9-windows-contract` exact-head ref check used `git ls-remote` and failed before test execution; replaced with explicit shallow fetch of the PR branch ref then exact SHA comparison.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; authenticated production/browser/Phase-F evidence remains not proven. Device PC01 unavailable.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow gate on `7d3d2954…`; repair only the first current-SHA reproducible root, then re-evaluate Phase-F and merge gates.
+- NEXT INDEPENDENT ACTIONS → safe cleanup of superseded open PRs/branches after reference checks; canonical memory/index reconciliation after each boundary change; no new importer/RPC/runner.
+- DO NOT REPEAT → PR #668 duplicate front; stale #664/#665 evidence; preview-as-production; source/read/preview treated as import completion; production mutation without target/authorization proof.
+- RESUME STATUS → ACTIVE / MAIN RECONCILED / SINGLE FUNCTIONAL FRONT #667 / EXACT-HEAD PROOF IN FLIGHT
+
+---
+
 # RESUME TOKEN — 2026-09-27 / CURRENT LIVE CHECKPOINT
 
 - CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `f1444f7c7277fdc7662052a28629171063ab7d17`
