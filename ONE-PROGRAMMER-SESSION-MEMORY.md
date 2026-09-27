@@ -1,5 +1,20 @@
 # RESUME TOKEN — 2026-09-27 / EXACT-CURRENT-MAIN IMPORT-TO-DECISION CHECKPOINT
 
+- MAIN HEAD BEFORE THIS DOCS WRITE → `5c4ed5dc243242f072b6942c9006de4fa7acc282`
+- CURRENT FUNCTIONAL CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact head `da48af37572f441c01a23a0830ccf1466b0032b2`
+- ACTUAL EXECUTION → rebuilt the final PR #671 tree as one direct-child commit of current main, preserving current-main memory/index control-plane content.
+- CURRENT GIT RESULT → 1 commit ahead / 0 behind / 76 files changed.
+- EXACT ACTIONS → 47 queued, 1 in progress, 1 completed-skip at current head scan; named critical gates are all current-head-bound with no terminal failure yet.
+- CRITICAL RUNS → quality `36346982734` queued; enforcement `36346982821` queued; certification `36346982963` and `36346980251` queued; browser `36346983061` and `36346980246` queued; desktop-windows `36346982836` in progress.
+- EXACT CODE AUDIT → canonical import executor enforces authenticated identity, `current_company_id()`, company-scoped import job/file lookup, source-hash/security/storage/fingerprint checks, and canonical durable commit. Import RPC migration revokes PUBLIC/anon and grants authenticated/service_role on the 6-arg RPC.
+- EXACT UI AUDIT → post-import lifecycle remains on the canonical import result surface; Decision Experience requires source evidence before decision creation; Business Replay and Benchmark are fail-closed for missing history/sample. Intelligence has no direct approval/accept mutation; only OPEN/new rejection is exposed. `accepted` is retained in the canonical actionable set explicitly as backward-compatible legacy state.
+- EVIDENCE BOUNDARY → preview/readback from prior exact SHA is not transferred; current `da48af3` has no exact-head deployment/browser PASS yet.
+- EXTERNAL BLOCKERS → Vercel free-plan build-rate limit; PC01 offline; production/Phase-F/device/browser proof remains open.
+- STOP POINT → current exact-head CI is still queued/in progress; no code mutation justified by a terminal failure.
+- NEXT → consume terminal current-head gate; if failure appears, repair the first reproducible root only; otherwise continue non-device-dependent source/contract/security verification.
+
+# RESUME TOKEN — 2026-09-27 / EXACT-CURRENT-MAIN IMPORT-TO-DECISION CHECKPOINT
+
 - CURRENT VERIFIED MAIN SHA → `7fe9c7ef3772c64bce93068aa5a4e5dc3dd7e0b8`
 - CURRENT FUNCTIONAL CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `68228b8809ea21b7cb392e0cbc490168fd525da8`
 - ACTUAL REBASE ACTION → reused PR #671's final repository tree, anchored it to current main as parent, and restored the latest main versions of `ONE-PROGRAMMER-SESSION-MEMORY.md` and `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
