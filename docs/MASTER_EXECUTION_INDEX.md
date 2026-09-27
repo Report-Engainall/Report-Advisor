@@ -3,15 +3,15 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE: `db0e78855dd0ed0fa5ce56923769b33464560e8b`
-- FUNCTIONAL FRONT → PR #670 / `db0e78855dd0ed0fa5ce56923769b33464560e8b`
+- CURRENT CODE/TEST CANDIDATE: `c6f5071afe84639dffaa8d2be5272bcefa39f5ad`
+- FUNCTIONAL FRONT → PR #670 / `c6f5071afe84639dffaa8d2be5272bcefa39f5ad`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- CURRENT PRODUCT FIXES → approval provenance fields exposed; import history aligned to 500-row contract; legacy /import/analyze is compatibility-only redirect; standalone legacy analysis page removed; duplicate Phase-F PR #655 and overlapping historical import/UI fronts closed after source overlap checks.
-- EXACT PROOF → current candidate gates are queued/in flight; no new PASS claimed yet.
-- PHASE-F → NOT CERTIFIED; repository source parity exists, but live restore/RPO/RTO/rollback proof remains external/runtime evidence.
+- SPECIALTY CLOSURE → purchase_invoices / suppliers / inventory_balances / payments now share the existing authoritative 6-arg import_commit_batch path; no duplicate RPC.
+- UI AFTER IMPORT → canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Replay; Benchmark remains INSUFFICIENT_SAMPLE.
+- EXACT PROOF → staging transaction DDL + function-definition inspection succeeded and rolled back on candidate lineage; fresh CI is required on exact head.
+- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback proof remains external/runtime evidence.
 - EXTERNAL → Vercel build-rate-limit; device/browser/production certification remains environment-bound.
-- NEXT → consume first terminal `db0e78855dd0ed0fa5ce56923769b33464560e8b` gate; fix only current-SHA root and re-prove.
+- NEXT → consume first terminal `c6f5071afe84639dffaa8d2be5272bcefa39f5ad` workflow; fix only current-SHA root and re-prove.
 
 ---
 
