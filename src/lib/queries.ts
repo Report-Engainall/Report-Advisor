@@ -10,6 +10,56 @@ export async function fetchCategoryBreakdown(): Promise<CategoryBreakdown[]> { r
 export async function fetchAgingBuckets(): Promise<AgingBucket[]> { return (await fetchDashboardSnapshot(6)).aging.rows; }
 export async function fetchRecommendations(): Promise<Recommendation[]> { return (await fetchDashboardIntelligence()).recommendations; }
 export async function fetchAlerts(): Promise<Alert[]> { return (await fetchDashboardIntelligence()).alerts; }
+export type ImportEvidenceSnapshot = {
+  id: string;
+  import_job_id: string | null;
+  source_hash: string;
+  source_path: string;
+  source_format: string;
+  analysis_status: string;
+  entity_type: string;
+  quality_score: number | null;
+  row_count: number;
+  column_count: number;
+  datasets: Array<Record<string, unknown>>;
+  canonical_text: string;
+  warnings: string[];
+  metadata: Record<string, unknown>;
+  created_at: string;
+};
+
+export async function fetchImportEvidenceSnapshot(importJobId?: string): Promise<ImportEvidenceSnapshot | null> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  let query = supabase
+    .from('source_analysis_snapshots')
+    .select('id, import_job_id, source_hash, source_path, source_format, analysis_status, entity_type, quality_score, row_count, column_count, datasets, canonical_text, warnings, metadata, created_at')
+    .eq('company_id', companyId)
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: true })
+    .limit(1);
+  if (importJobId) query = query.eq('import_job_id', importJobId);
+  const { data, error } = await query.maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  return {
+    id: String(data.id),
+    import_job_id: data.import_job_id ? String(data.import_job_id) : null,
+    source_hash: String(data.source_hash),
+    source_path: String(data.source_path),
+    source_format: String(data.source_format),
+    analysis_status: String(data.analysis_status),
+    entity_type: String(data.entity_type),
+    quality_score: data.quality_score == null ? null : Number(data.quality_score),
+    row_count: Number(data.row_count ?? 0),
+    column_count: Number(data.column_count ?? 0),
+    datasets: Array.isArray(data.datasets) ? data.datasets as Array<Record<string, unknown>> : [],
+    canonical_text: String(data.canonical_text ?? ''),
+    warnings: Array.isArray(data.warnings) ? data.warnings.map(String) : [],
+    metadata: data.metadata && typeof data.metadata === 'object' ? data.metadata as Record<string, unknown> : {},
+    created_at: String(data.created_at),
+  };
+}
 export type ReceivablesReportRow = { id:string; invoice_number:string; invoice_date:string; due_date:string|null; total:number|null; paid_amount:number|null; balance:number; status:string|null; customer:{id:string|null;name:string|null}|null };
 export type ReceivablesReportPage = { status:'CALCULATED'|'NO_DATA'; page:number; page_size:number; total_rows:number; total_outstanding:number; rows:ReceivablesReportRow[] };
 export async function fetchReceivablesReportPage(page=0,pageSize=25):Promise<ReceivablesReportPage>{if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');if(!Number.isInteger(pageSize)||pageSize<1||pageSize>100)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');const {data,error}=await supabase.rpc('get_receivables_report_page',{p_page:page,p_page_size:pageSize});if(error)throw error;if(!data||typeof data!=='object')throw new Error('REPORT_DATA_UNAVAILABLE: receivables snapshot missing');const p=data as Record<string,unknown>;if(!Array.isArray(p.rows))throw new Error('REPORT_DATA_UNAVAILABLE: receivables rows missing');return{status:p.status==='NO_DATA'?'NO_DATA':'CALCULATED',page:Number(p.page??page),page_size:Number(p.page_size??pageSize),total_rows:Number(p.total_rows??0),total_outstanding:Number(p.total_outstanding??0),rows:p.rows as ReceivablesReportRow[]};}
