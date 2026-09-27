@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / POST-IMPORT UI TRUTH CLOSURE
+
+- BRANCH → `exec/20260927-import-full-lifecycle`.
+- CODE/TEST CANDIDATE → `27d87b49fb91ccdc570d9148ac726057f2d5dc98`.
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT`.
+- DONE → post-import result truth semantics and dataset-understanding UI closure; regression contract added.
+- PROOF → exact repository mutation verified on branch; no current-head workflow result yet.
+- NEXT → consume exact-head workflow evidence; then continue independent canonical import/work-center/trust/decision surface closure.
+- DO NOT REPEAT → stale evidence transfer, duplicate import path, fake zero/unknown conversion.
+-
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CONTINUOUS POST-IMPORT EXECUTION
 
 - MAIN HEAD VERIFIED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
