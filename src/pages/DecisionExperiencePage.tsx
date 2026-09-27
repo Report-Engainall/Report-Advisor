@@ -7,7 +7,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { ConfidenceBadge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
-import { fetchAlerts, fetchRecommendations } from '@/lib/queries';
+import { fetchAlerts, fetchImportEvidenceSnapshot, fetchRecommendations, type ImportEvidenceSnapshot } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Alert, Recommendation } from '@/lib/types';
 
@@ -112,9 +112,11 @@ function RecommendationCard({
 export function DecisionExperiencePage() {
   const [params, setParams] = useSearchParams();
   const requestedStage = params.get('stage') as Stage | null;
+  const importJobId = params.get('import');
   const [stage, setStage] = useState<Stage>(STAGES.some((item) => item.id === requestedStage) ? requestedStage! : 'command');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [sourceSnapshot, setSourceSnapshot] = useState<ImportEvidenceSnapshot | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(params.get('recommendationId'));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -123,16 +125,21 @@ export function DecisionExperiencePage() {
     try {
       setLoading(true);
       setError(null);
-      const [nextRecommendations, nextAlerts] = await Promise.all([fetchRecommendations(), fetchAlerts()]);
+      const [nextRecommendations, nextAlerts, nextSourceSnapshot] = await Promise.all([
+        fetchRecommendations(),
+        fetchAlerts(),
+        importJobId ? fetchImportEvidenceSnapshot(importJobId) : Promise.resolve(null),
+      ]);
       setRecommendations(nextRecommendations);
       setAlerts(nextAlerts);
+      setSourceSnapshot(nextSourceSnapshot);
       setSelectedId((current) => current && nextRecommendations.some((item) => item.id === current) ? current : nextRecommendations[0]?.id ?? null);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل سياق القرار');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [importJobId]);
 
   useEffect(() => { void load(); }, [load]);
   useEffect(() => { if (requestedStage && STAGES.some((item) => item.id === requestedStage)) setStage(requestedStage); }, [requestedStage]);
@@ -143,9 +150,11 @@ export function DecisionExperiencePage() {
   const selectedStatus = selected?.status ?? null;
 
   const navigateStage = (next: Stage, id = selectedId) => {
-    setStage(next);
+    const sourceBlocked = Boolean(importJobId && !sourceSnapshot);
+    const safeNext = sourceBlocked && ['decision', 'approval', 'work', 'outcome'].includes(next) ? 'evidence' : next;
+    setStage(safeNext);
     const nextParams = new URLSearchParams(params);
-    nextParams.set('stage', next);
+    nextParams.set('stage', safeNext);
     if (id) nextParams.set('recommendationId', id);
     else nextParams.delete('recommendationId');
     setParams(nextParams, { replace: true });
@@ -179,6 +188,18 @@ export function DecisionExperiencePage() {
         </div>
       </section>
 
+      {importJobId && (
+        <section className={"rounded-[16px] border p-4 " + (sourceSnapshot ? "border-success-200 bg-success-50/60" : "border-warning-200 bg-warning-50/70")} role="status">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className={"text-[9px] font-black tracking-[.12em] " + (sourceSnapshot ? "text-success-700" : "text-warning-800")}>IMPORTED SOURCE CONTEXT</div>
+              <div className="mt-1 text-sm font-black text-ink-950">{sourceSnapshot ? 'الدليل المرتبط بالمصدر مثبت — يمكن متابعة مسار القرار.' : 'الدليل المرتبط بالمصدر غير مثبت — القرار محجوب مؤقتًا.'}</div>
+              <p className="mt-1 text-[10px] leading-5 text-ink-600">{sourceSnapshot ? ('المصدر: ' + String(sourceSnapshot.metadata.fileName ?? sourceSnapshot.source_path) + ' · ' + sourceSnapshot.row_count + ' صف · جودة ' + (sourceSnapshot.quality_score == null ? 'غير متاحة' : sourceSnapshot.quality_score + '%')) : 'الاستيراد قد يكون مرّ في المسار التشغيلي، لكن لا توجد Snapshot دليل قابلة للقراءة في هذه الجلسة.'}</p>
+            </div>
+            {!sourceSnapshot && <Link to={"/trust?import=" + encodeURIComponent(importJobId)} className="btn-secondary text-[11px]">فتح Evidence Passport</Link>}
+          </div>
+        </section>
+      )}
       <section className="ag-decision-strip" aria-label="ملخص القرار">
         <div className="ag-decision-cell"><span className="ag-decision-label">التوصية المحددة</span><span className="ag-decision-value">{selected?.title ?? 'لم تُحدد بعد'}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">الثقة</span><span className="ag-decision-value">{selected?.confidence ?? 'غير متاح'}</span></div>
