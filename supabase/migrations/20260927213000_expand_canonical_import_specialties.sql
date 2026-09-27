@@ -267,7 +267,7 @@ BEGIN
           coalesce(nullif(v_row->>'line_total','')::numeric,
                    ((v_row->>'quantity')::numeric * (v_row->>'unit_price')::numeric)
                     - coalesce(nullif(v_row->>'discount_amount','')::numeric,0)
-                    + coalesce(nullif(v_row->>'tax_amount')::numeric,0)),
+                    + coalesce(nullif(v_row->>'tax_amount','')::numeric,0)),
           v_company_id
         );
       END IF;
