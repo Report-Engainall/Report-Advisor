@@ -69,3 +69,7 @@ Do not terminalize unresolved processing jobs merely to make dashboards green.
 
 ## 9. Certification completion
 Final certification is complete only when all release-critical gates are current, exact, attributable, reproducible or artifact-backed, and consistent with current code/test lineage.
+
+
+## 11. Live staging migration-lineage boundary — 2026-09-27
+Read-only inspection of `fnqbvfuwbdpwvhcgzksl` confirms the six-argument `import_commit_batch` grant boundary and RLS on the canonical import tables. The live `import_finish_job(uuid,text,jsonb,text)` currently resolves as SECURITY DEFINER and is executable by authenticated/service_role, while the canonical repository migration `20260830210000_harden_import_finish_lifecycle.sql` declares SECURITY INVOKER. Staging also records applied migration `20260919220623_allow_import_job_rpc_writes_via_definer`, which is not present in the current candidate tree. This is an environment/migration-lineage drift boundary, not a license for an unreviewed live mutation; caller, grant, and canonical ownership must be reconciled before any change.

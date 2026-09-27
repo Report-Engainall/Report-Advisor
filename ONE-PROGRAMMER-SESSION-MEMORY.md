@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-27 / CURRENT-CANDIDATE + LIVE-STAGING BOUNDARY
+
+- CURRENT MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `c246071b6200f1652f7f8f272c18c2dcc2eaf2d1`
+- CURRENT CODE/TEST CANDIDATE → PR #672 / `ecfff32aa5ce1ec737663a71b1d9080ffe69e7eb`
+- CODE/TEST REPAIRS ACTUAL → UI contract and import transaction contract harnesses repaired and compile-style syntax verified.
+- FRESH EXACT-HEAD CI → quality `36348110541` queued; enforcement `36348110823` queued; Final Certification `36348110593` queued; Device-Independent Browser `36348110591` queued; Full Product Browser `36348110595` queued; desktop-windows `36348110511` in progress/queued.
+- DEVICE → PC01 offline; no device/browser/production PASS claimed.
+- LIVE STAGING → `fnqbvfuwbdpwvhcgzksl` is healthy and has the current specialty/grant migrations. Six-argument `import_commit_batch` is SECURITY DEFINER with EXECUTE for authenticated/service_role and no PUBLIC/anon grant. RLS is enabled on import_jobs, file_records, canonical_import_commits and import_job_rows.
+- LIVE STAGING DRIFT → `import_finish_job(uuid,text,jsonb,text)` is currently SECURITY DEFINER and executable by authenticated/service_role. The canonical repository chain migration `20260830210000_harden_import_finish_lifecycle.sql` declares SECURITY INVOKER, while staging also contains applied historical migration `20260919220623_allow_import_job_rpc_writes_via_definer`, which is not present in the current candidate tree. Treat this as migration-lineage/environment drift; DO NOT mutate until caller, grant, and canonical ownership are reconciled.
+- SECURITY ADVISOR → staging has broad historical authenticated SECURITY DEFINER warnings (62 findings); no blanket revoke is authorized. Current action is limited to exact canonical import boundaries.
+- EVIDENCE LAW → all current proof remains bound to the exact SHA/target; no transfer from `2ab...` or older.
+- NEXT EXECUTABLE ACTION → consume first terminal `ecfff32...` CI result; independently continue safe repository fronts. Revisit staging finish-RPC drift only with exact migration source/owner reconciliation.
+
+---
+
 # RESUME TOKEN — 2026-09-27 / EXACT-CURRENT-CODE-CANDIDATE CONTRACT-CLOSURE
 
 - MAIN DOCUMENTATION HEAD → `8141294dd436aa96b91debc1ca9a5706ad6b358f`
