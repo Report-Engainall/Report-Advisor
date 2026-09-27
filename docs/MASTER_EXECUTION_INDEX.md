@@ -1,3 +1,20 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / LIVE RECONCILED STATE
+
+> Exact-head evidence only. This block supersedes older historical boundaries for startup; history remains immutable evidence.
+
+- MAIN HEAD → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- FUNCTIONAL CANDIDATE → PR #662 / `a8ef795c290b035023e3b5781488c7e650ab6866`.
+- GOVERNANCE CANDIDATE → PR #663 / `13432b118aa8db00d3a498332803d2c1324a9291`.
+- FUNCTIONAL PROOF → #662 Windows build PASS + Cloudflare Pages PASS; remaining exact-head gates are queued. No browser/production/Phase-F certification claimed.
+- GOVERNANCE PROOF → #663 current head has successful basic verify/authenticated-e2e checks but certification/verify failures were observed against its merge ref; the known typecheck defects belong to the functional lane and must not be duplicated in governance.
+- PHASE-F → NOT CERTIFIED: live rollback-forward drill is blocked by missing runtime configuration; local migration test also exposed dependency on `current_customer_company_id()` in restore-parity migration. Keep fail-closed.
+- EXTERNAL → PC01 offline; Vercel free-plan rate limit; production/browser/Phase-F exact-SHA proof unavailable.
+- NEXT → consume first terminal #662 gate; repair only first reproducible current-SHA failure; concurrently consume #663 governance gates; then reconcile/merge only after exact-head compatibility proof.
+- UI AFTER IMPORT → #662 already implements full-source understanding, persisted dataset summaries/provenance, Trust/Evidence and Decision continuation, Outcome/Learning continuation, tenant-scoped Business Replay, and evidence-safe Benchmark. Do not create another post-import surface/path.
+- CLEANUP → no deletion in this batch; deletion remains gated by Manifest reference/caller checks and tests. Preserve historical evidence.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 144
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `8eb5b4154e02a1320942e08a33e052e0a35ab238`.
