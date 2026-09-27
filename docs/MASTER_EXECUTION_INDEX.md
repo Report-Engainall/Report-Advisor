@@ -3,16 +3,15 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `66de66d2d66e0257973586c8058c832fa260603f`
-- CURRENT CODE CANDIDATE → `e5bbe131e5253e4fea90fa244b4b0aa36bd5e468`
-- CURRENT CONTRACT CANDIDATE → `e90aeba7458d77ab768a1d07cff395b958d68834`
+- CURRENT BRANCH HEAD → `987941d06083984e1d6ba16cdbf602ad18b9eb74`
+- CURRENT CODE CANDIDATE → `e18a4e448e29556925142f8566642bbb42e876fd`
+- CURRENT CONTRACT CANDIDATE → `987941d06083984e1d6ba16cdbf602ad18b9eb74`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
-- IMPORT CONTINUITY → Import → Trust/Evidence → Signals → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- DECISION CENTER → Decision Coverage uses independent owner/outcome coverage; NEXT ACTION is truth-derived; Business Replay state reads canonical snapshot and auxiliary replay failure becomes REVIEW instead of collapsing the page.
-- CORE → seven typed server entity boundaries; purchase-line physical row identity; staging canonical specialty migration + RPC grant hardening.
-- CURRENT PROOF → CodeRabbit + Netlify PASS on current head; desktop-windows IN_PROGRESS; Vercel external rate-limit failure; no terminal current-head CI failure yet.
-- PHASE-F → NOT CERTIFIED; production/browser/restore/RPO/RTO/rollback remain environment evidence.
-- NEXT → consume first terminal workflow, repair only current-SHA root, then final route/contract/cleanup rescan.
+- UI → Decision Coverage full-state semantics + bounded display, Next Action derived from truth, canonical Replay state/failure isolation, unified `/import/analyze` redirect, no retired external analysis page wiring.
+- CORE → typed entity server boundary + purchase-line physical row identity + staging RPC grant/security closure.
+- PROOF → staging grants exact and anonymous Security Advisor finding closed; CI for latest head still not terminalized; Vercel external rate-limit remains separate.
+- PHASE-F → NOT CERTIFIED; production/browser/resilience evidence remains environment-bound.
+- NEXT → consume first terminal workflow on current head, fix only root, then final route/contract/cleanup rescan.
 ---
 
 
