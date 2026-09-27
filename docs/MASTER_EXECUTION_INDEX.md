@@ -1,3 +1,12 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / AUTHORITATIVE POST-IMPORT RESULT BINDING
+
+- BRANCH → `exec/20260927-import-full-lifecycle`.
+- IMPLEMENTATION/TEST LINEAGE → `f066c3317e4f7cef5c74de7f7f30d7a4751bfded` → `682198722c29066b3879b26d95a9a9aed0936b6e` → `9f67875cddf3546f56ac31d0edc2972a74232c6f`.
+- DONE → post-import UI now uses server-authoritative source understanding; server returns authoritative entity type; regression contract enforces the binding.
+- PROOF → repository exact content verified; no current-head CI/browser PASS yet.
+- NEXT → exact-head CI consumption, then next independent surface closure.
+- DO NOT REPEAT → stale PASS transfer, duplicated import path, local truth overriding authoritative source.
+-
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / POST-IMPORT UI TRUTH CLOSURE
 
 - BRANCH → `exec/20260927-import-full-lifecycle`.
