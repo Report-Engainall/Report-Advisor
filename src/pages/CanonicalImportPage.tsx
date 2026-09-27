@@ -15,6 +15,7 @@ import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat } from '@/lib/file-engine
 import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
 import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
 import { understandCanonicalSource } from '@/lib/import/canonical-source-understanding';
+import { entityLabel, specialtyLabel } from '@/lib/import/canonical-labels';
 
 type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
