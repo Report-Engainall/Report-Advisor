@@ -9,6 +9,16 @@ const index = `## CURRENT PROJECT STATE\n- Current code/test candidate: \`${cand
 assert.doesNotThrow(() => validateCertificationBoundary({ index, head: candidate, parent: '', changedFiles: [] }));
 const controlPlaneIndex = '# CURRENT CONTROL-PLANE BOUNDARY\n- CURRENT CODE/TEST CANDIDATE: `' + candidate + '`';
 assert.doesNotThrow(() => validateCertificationBoundary({ index: controlPlaneIndex, head: candidate, parent: '', changedFiles: [] }));
+const historicalBeforeStartupBoundary = [
+  '# LATEST SESSION WRITE-BACK',
+  '- CURRENT CODE/TEST CANDIDATE: `0000000000000000000000000000000000000000`.',
+  '',
+  '# CURRENT EXECUTION BOUNDARY — CURRENT',
+  '> This top block is the only startup boundary. Entries below are historical evidence and MUST NOT override it.',
+  '- CURRENT CODE/TEST CANDIDATE: `' + candidate + '`.',
+  '---',
+].join('\n');
+assert.doesNotThrow(() => validateCertificationBoundary({ index: historicalBeforeStartupBoundary, head: candidate, parent: '', changedFiles: [] }));
 assert.doesNotThrow(() => validateCertificationBoundary({ index, head: child, parent: candidate, changedFiles: ['.github/workflows/final-certification-gate.yml'] }));
 assert.doesNotThrow(() => validateCertificationBoundary({ index, head: child, parent: candidate, changedFiles: ['.github/workflows/full-product-browser-e2e.yml'] }));
 assert.throws(() => validateCertificationBoundary({ index, head: child, parent: candidate, changedFiles: ['src/app.tsx'] }), /non-governance changes/);
