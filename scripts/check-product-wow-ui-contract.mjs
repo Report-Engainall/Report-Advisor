@@ -138,6 +138,9 @@ assert.ok((importEntry.match(/<CanonicalImportPage \/>/g) ?? []).length === 1, '
 assert.ok(!importEntry.includes('createImportRecord(') && !importEntry.includes('runCanonicalImportThroughDurableRunner('), 'import entry must not implement a second import execution path');
 
 const importSurface = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
+assert.ok(importSurface.includes('role="progressbar"'), 'canonical import saving state must expose a semantic progressbar');
+assert.ok(importSurface.includes('aria-valuenow={Math.max(0, Math.min(100, progress))}'), 'canonical import progressbar must expose bounded numeric progress');
+assert.ok(importSurface.includes('aria-live="polite" aria-busy="true"'), 'canonical import saving state must expose live/busy semantics');
 assert.ok(importSurface.includes('لم يُثبت مصدر سابق لهذا الحساب بعد'), 'canonical import history empty state must distinguish an empty history');
 assert.ok(importSurface.includes('اختيار مصدر'), 'canonical import history empty state must expose a real source-selection action');
 assert.ok(importSurface.includes('onClick={reset}'), 'canonical import history empty state must use the existing reset/import path');
