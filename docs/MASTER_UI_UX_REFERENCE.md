@@ -244,3 +244,10 @@ Summary versus itemized presentation must be explicit for financial/operational 
 Hierarchy -> Density -> Evidence -> Action -> Accessibility -> Mobile -> Print -> Empty/Loading/Error
 
 A surface is complete only when the quality gate is satisfied, not merely when the populated screenshot looks polished.
+
+
+## 11. Decision Center truth surfaces — 2026-09-27
+Decision Coverage is presented as two independent evidence-backed dimensions when actionable recommendations exist:
+- Owner Coverage — percentage of actionable recommendations with an explicit owner.
+- Outcome Coverage — percentage of actionable recommendations with a recorded impact result.
+Do not collapse these into a composite score unless a canonical metric contract defines the formula. Auxiliary surfaces such as Business Replay must not block the parent Decision Center when their read fails; show `REVIEW` and preserve an explicit retry path.
