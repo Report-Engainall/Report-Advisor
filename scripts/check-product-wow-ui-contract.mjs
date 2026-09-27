@@ -107,6 +107,8 @@ assert.ok(!trustEvidence.includes('window.location.reload()'), 'trust evidence r
 assert.ok(trustEvidence.includes('لا توجد بيانات مثبتة بعد'), 'empty trust state must explain the absence of evidence');
 assert.ok(trustEvidence.includes('RECORDS CHECKED'), 'trust evidence must expose the source record count');
 assert.ok(trustEvidence.includes('criticalIssueTotal'), 'trust evidence must expose critical issue pressure from the authoritative snapshot');
+assert.ok(trustEvidence.includes("String(sourceSnapshot.analysis_status).toLowerCase() !== 'analyzed'"), 'trust evidence must not promote an un-analyzed source snapshot to VERIFIED');
+assert.ok(trustEvidence.includes("sourceEvidenceStatus === 'PARTIAL'"), 'trust evidence must gate the next action when the source analysis state is partial');
 assert.ok(trustEvidence.includes('أغلق المشكلات الحرجة'), 'trust evidence must route critical data-quality pressure to an actionable next step');
 assert.ok(trustEvidence.includes("aria-label={'الخطوة التالية: ' + nextStep.label}"), 'trust evidence next-action link must use valid JSX');
 const trustDatasetSection = trustEvidence.indexOf('DATASET UNDERSTANDING');
