@@ -6,6 +6,7 @@ describe('business replay contract', () => {
   const app = readFileSync(resolve(process.cwd(), 'src/App.tsx'), 'utf8');
   const page = readFileSync(resolve(process.cwd(), 'src/pages/BusinessReplayPage.tsx'), 'utf8');
   const queries = readFileSync(resolve(process.cwd(), 'src/lib/queries.ts'), 'utf8');
+  const sidebar = readFileSync(resolve(process.cwd(), 'src/components/Sidebar.tsx'), 'utf8');
 
   it('exposes a routed replay surface and tenant-scoped snapshot query', () => {
     expect(app).toContain("path=\"/replay\"");
