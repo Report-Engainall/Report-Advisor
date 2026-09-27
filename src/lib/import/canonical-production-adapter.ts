@@ -97,17 +97,24 @@ export async function runCanonicalImportThroughDurableRunner(
   input: DurableCanonicalImportInput,
   options: CanonicalImportExecutionOptions = {},
 ) {
-  if (!input.rows.length) throw new Error('CANONICAL_IMPORT_REQUIRES_ROWS');
-  if (typeof input.qualityApproved !== 'boolean') throw new Error('CANONICAL_IMPORT_QUALITY_APPROVAL_REQUIRED');
+  const isBrowserServerBoundary = typeof window !== 'undefined' && !options.serverExecution;
+
+  // The browser is a transport/orchestration client only. Source truth, quality, reconciliation,
+  // duplicate detection, tenant binding, and canonical commit are authoritative on the server.
+  // Do not reject a source locally before the authoritative boundary receives it.
   if (!input.importId.trim()) throw new Error('CANONICAL_IMPORT_REQUIRES_IMPORT_ID');
   if (!input.fileName.trim()) throw new Error('CANONICAL_IMPORT_REQUIRES_SOURCE_PATH');
+  if (!/^sha256:[0-9a-fA-F]{64}$/.test(input.sourceHash)) throw new Error('IMPORT_SOURCE_HASH_INVALID');
+  if (typeof input.qualityApproved !== 'boolean') throw new Error('CANONICAL_IMPORT_QUALITY_APPROVAL_REQUIRED');
+
+  if (isBrowserServerBoundary) {
+    return executeThroughServerBoundary(input);
+  }
+
+  if (!input.rows.length) throw new Error('CANONICAL_IMPORT_REQUIRES_ROWS');
   if (!Number.isFinite(input.qualityScore) || input.qualityScore < 0 || input.qualityScore > 100) throw new Error('CANONICAL_IMPORT_INVALID_QUALITY');
   if (input.qualityScore < 50) throw new Error('CANONICAL_IMPORT_QUALITY_REJECTED');
   if (input.qualityScore < 75 && !input.qualityApproved) throw new Error('CANONICAL_IMPORT_REVIEW_APPROVAL_REQUIRED');
-
-  if (typeof window !== 'undefined' && !options.serverExecution) {
-    return executeThroughServerBoundary(input);
-  }
 
   let workerClient = options.workerClient;
   let dataClient = options.dataClient;
