@@ -17,13 +17,16 @@ const duplicateNav = navPaths.filter((path, i) => navPaths.indexOf(path) !== i);
 const duplicateRoutes = routePaths.filter((path, i) => routePaths.indexOf(path) !== i);
 const registryMissingRoutes = [...new Set(registryPaths.map(normalize))].filter((path) => !routes.has(path));
 const allowedUnlistedRoutes = new Set(['/proposal-demo']);
+const registrySet = new Set(registryPaths.map(normalize));
+const routesMissingRegistry = [...routes].filter((path) => path !== '/' && path !== '*' && !registrySet.has(path) && !allowedUnlistedRoutes.has(path));
 
-if (missingRoutes.length || duplicateNav.length || duplicateRoutes.length || registryMissingRoutes.length) {
+if (missingRoutes.length || duplicateNav.length || duplicateRoutes.length || registryMissingRoutes.length || routesMissingRegistry.length) {
   console.error('Navigation/route contract failed.');
   if (missingRoutes.length) console.error(`Navigation targets without routes: ${missingRoutes.join(', ')}`);
   if (duplicateNav.length) console.error(`Duplicate navigation paths: ${[...new Set(duplicateNav)].join(', ')}`);
   if (duplicateRoutes.length) console.error(`Duplicate route paths: ${[...new Set(duplicateRoutes)].join(', ')}`);
   if (registryMissingRoutes.length) console.error(`Canonical navigation registry targets without routes: ${registryMissingRoutes.join(', ')}`);
+  if (routesMissingRegistry.length) console.error(`Declared routes without canonical navigation entries: ${routesMissingRegistry.join(', ')}`);
   process.exit(1);
 }
 
