@@ -80,19 +80,22 @@ const CANONICAL_WRITE_FIELDS: CanonicalWriteFields = {
   products: ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active'],
 };
 
-function allMappedFields(datasets: Dataset[]): Set<string> {
-  return new Set(
-    datasets.flatMap((dataset) => dataset.columns.map((column) => column.mappedField).filter(Boolean) as string[]),
-  );
-}
-
 function missingCanonicalWriteFields(
   specialty: CanonicalImportSpecialty,
   datasets: Dataset[],
 ): string[] {
   if (!(specialty in CANONICAL_WRITE_FIELDS)) return [];
-  const fields = allMappedFields(datasets);
-  return CANONICAL_WRITE_FIELDS[specialty as keyof CanonicalWriteFields].filter((field) => !fields.has(field));
+  const required = CANONICAL_WRITE_FIELDS[specialty as keyof CanonicalWriteFields];
+  const missing = new Set<string>();
+  for (const dataset of datasets) {
+    const datasetFields = new Set(
+      dataset.columns.map((column) => column.mappedField).filter(Boolean) as string[],
+    );
+    for (const field of required) {
+      if (!datasetFields.has(field)) missing.add(field);
+    }
+  }
+  return [...missing];
 }
 
 function inferEntityType(specialty: CanonicalImportSpecialty, datasets: Dataset[]): CanonicalSourceUnderstanding['entityType'] {
