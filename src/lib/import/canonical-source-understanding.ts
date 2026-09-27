@@ -72,12 +72,35 @@ function scoreDataset(dataset: Dataset): { specialty: CanonicalImportSpecialty; 
   return { specialty: top[0], confidence, scores };
 }
 
-function inferEntityType(specialty: CanonicalImportSpecialty, datasets: Dataset[]): CanonicalSourceUnderstanding['entityType'] {
-  const allFields = new Set(
+type CanonicalWriteFields = Record<Exclude<CanonicalImportSpecialty, 'inventory' | 'suppliers' | 'payments' | 'other'>, string[]>;
+
+const CANONICAL_WRITE_FIELDS: CanonicalWriteFields = {
+  sales: ['invoice_number', 'invoice_date', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'],
+  customers: ['name', 'segment', 'credit_limit', 'payment_terms_days'],
+  products: ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active'],
+};
+
+function allMappedFields(datasets: Dataset[]): Set<string> {
+  return new Set(
     datasets.flatMap((dataset) => dataset.columns.map((column) => column.mappedField).filter(Boolean) as string[]),
   );
-  if (specialty === 'products' && allFields.has('sku')) return 'products';
-  if (specialty === 'customers' && (allFields.has('customer_id') || allFields.has('customer_name'))) return 'customers';  if (specialty === 'sales' && allFields.has('invoice_number')) return 'sales_invoices';
+}
+
+function missingCanonicalWriteFields(
+  specialty: CanonicalImportSpecialty,
+  datasets: Dataset[],
+): string[] {
+  if (!(specialty in CANONICAL_WRITE_FIELDS)) return [];
+  const fields = allMappedFields(datasets);
+  return CANONICAL_WRITE_FIELDS[specialty as keyof CanonicalWriteFields].filter((field) => !fields.has(field));
+}
+
+function inferEntityType(specialty: CanonicalImportSpecialty, datasets: Dataset[]): CanonicalSourceUnderstanding['entityType'] {
+  const missing = missingCanonicalWriteFields(specialty, datasets);
+  if (missing.length > 0) return 'generic:source-data';
+  if (specialty === 'products') return 'products';
+  if (specialty === 'customers') return 'customers';
+  if (specialty === 'sales') return 'sales_invoices';
   return 'generic:source-data';
 }
 
@@ -124,9 +147,14 @@ export function understandCanonicalSource(datasets: Dataset[]): CanonicalSourceU
     : 0;
   const warnings: string[] = [];
   const mixedSpecialtySource = new Set(summaries.map((summary) => summary.specialty)).size > 1;
+  const entityType = mixedSpecialtySource ? 'generic:source-data' : inferEntityType(specialty, datasets);
+  const missingCanonicalFields = missingCanonicalWriteFields(specialty, datasets);
   if (datasets.length > 1) warnings.push('MULTI_DATASET_SOURCE:' + datasets.length);
   if (mixedSpecialtySource) {
     warnings.push('MULTI_SPECIALTY_SOURCE_REQUIRES_GENERIC_CANONICAL_BOUNDARY');
+  }
+  if (entityType === 'generic:source-data' && missingCanonicalFields.length > 0) {
+    warnings.push('CANONICAL_ENTITY_REQUIREMENTS_UNMET:' + specialty + ':' + missingCanonicalFields.join(','));
   }
   if (qualityScore < 75) warnings.push('SOURCE_REVIEW_REQUIRED:' + qualityScore);
   return {
@@ -136,7 +164,7 @@ export function understandCanonicalSource(datasets: Dataset[]): CanonicalSourceU
     qualityScore,
     specialty,
     specialtyConfidence,
-    entityType: mixedSpecialtySource ? 'generic:source-data' : inferEntityType(specialty, datasets),
+    entityType,
     columns,
     rows,
     datasets: summaries,
