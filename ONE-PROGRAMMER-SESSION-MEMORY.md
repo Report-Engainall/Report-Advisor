@@ -1,3 +1,23 @@
+# RESUME TOKEN — 2026-09-27 / CANONICAL QUERY MODULE RESTORED
+
+- SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-09`
+- CURRENT VERIFIED SHA → `46675643e32f6ea28b6c1d80a530b2eb134e7907` (main)
+- CURRENT EXECUTION/CANDIDATE SHA → `87f73a6ced716a324274eb89c40f0b6a33c948fb` (PR #662 / `exec/20260927-import-full-lifecycle`)
+- BRANCH / PR → `exec/20260927-import-full-lifecycle` / #662
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT`
+- CURRENT BOUNDARY → full-source canonical import + post-import UI follow-through, with compatibility-boundary exports intact and exact-SHA proof required.
+- ACTUAL RESULT → restored the full `src/lib/queries.ts` after a partial-file write accidentally truncated it; retained the required canonical `fetchDashboardIntelligence` re-export. Verified 34,995 characters, required exports present, and prior extra-brace pattern absent.
+- EVIDENCE → Windows build `36323560840` on merge ref `47e5d72…` exposed the truncated module as missing `fetchMonthlyTrend`; restoration commit `87f73a6ced716a324274eb89c40f0b6a33c948fb` fixes the file against the exact merge-ref source.
+- FIRST FAILURE → prior extra brace fixed at `7f7ee…`.
+- SECOND FAILURE → missing `fetchDashboardIntelligence` export fixed at `e3c86…`.
+- THIRD FAILURE → accidental partial-file overwrite fixed at `87f73…`.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan build-rate limit; Phase-F/production exact-SHA resilience unproven.
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-head build/gate result for `87f73…` and repair only the first current-SHA failure.
+- NEXT INDEPENDENT ACTIONS → after exact build proof, consume browser/route/truth gates; then reconcile remaining Benchmark/Replay/dashboard/data-quality UI work from #661 against the proven #662 head rather than merging overlapping stale code.
+- DO NOT REPEAT → partial-file writes from bounded reads, stale candidate binding, stale PASS transfer, duplicate query/import/RPC/runner paths, unknown-to-zero coercion, unsafe legacy import-job terminalization.
+- RESUME STATUS → ACTIVE / RESTORED / NOT PROVEN.
+
+---
 # RESUME TOKEN — 2026-09-27 / QUERY-BOUNDARY ROOT FIX
 
 - SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-08`
