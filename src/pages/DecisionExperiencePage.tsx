@@ -550,8 +550,8 @@ export function DecisionExperiencePage() {
             <CardHeader title="الموافقة والمسؤولية" subtitle="من يعتمد؟ وعلى أي دليل؟" />
             <CardBody>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">المسؤول المعتمد</div><div className="mt-2 text-[12px] font-black text-ink-900">غير متاح</div></div>
-                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">وقت الاعتماد</div><div className="mt-2 text-[12px] font-black text-ink-900">غير متاح</div></div>
+                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">المسؤول المعتمد</div><div className="mt-2 text-[12px] font-black text-ink-900">{approval?.decided_by ?? 'لم يعتمد بعد'}</div></div>
+                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">وقت الاعتماد</div><div className="mt-2 text-[12px] font-black text-ink-900">{approval?.decided_at ? new Date(approval.decided_at).toLocaleString('ar-YE') : 'لم يعتمد بعد'}</div></div>
                 <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الصلاحية</div><div className="mt-2 text-[12px] font-black text-ink-900">يتطلب جلسة موثقة</div></div>
                 <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الدليل</div><div className="mt-2 text-[12px] font-black text-ink-900">يحتاج إثباتًا حيًا</div></div>
               </div>
@@ -560,6 +560,12 @@ export function DecisionExperiencePage() {
           {runtimeDecision && approval ? (
             <div className="rounded-[14px] border border-ink-200 bg-white p-4 space-y-3">
               <div className="flex flex-wrap items-center gap-2"><span className="text-[10px] font-black text-ink-600">حالة الموافقة</span><span className="rounded-full bg-primary-50 px-2.5 py-1 text-[9px] font-black text-primary-800">{approval.status}</span></div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="rounded-lg bg-ink-50/70 px-3 py-2"><div className="text-[9px] text-ink-400">صاحب الطلب</div><div className="mt-1 text-[10px] font-bold text-ink-700">{approval.requested_by ?? 'غير متاح'}</div></div>
+                <div className="rounded-lg bg-ink-50/70 px-3 py-2"><div className="text-[9px] text-ink-400">وقت الطلب</div><div className="mt-1 text-[10px] font-bold text-ink-700">{approval.requested_at ? new Date(approval.requested_at).toLocaleString('ar-YE') : 'غير متاح'}</div></div>
+              </div>
+              {approval.decided_at && <div className="rounded-lg border border-success-200 bg-success-50 px-3 py-2 text-[10px] text-success-900"><span className="font-black">تم القرار بواسطة:</span> {approval.decided_by ?? 'غير متاح'} · {new Date(approval.decided_at).toLocaleString('ar-YE')}</div>}
+              {approval.reason && <div className="rounded-lg border border-ink-100 bg-white px-3 py-2 text-[10px] leading-5 text-ink-600"><span className="font-black text-ink-700">السبب:</span> {approval.reason}</div>}
               <div className="text-[10px] leading-5 text-ink-500">القرار: {runtimeDecision.id} · الدليل: {sourceSnapshot?.id ?? 'غير متاح'}</div>
               {approval.status === 'PENDING' && (
                 <div className="flex flex-wrap gap-2">
