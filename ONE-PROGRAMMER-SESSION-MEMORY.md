@@ -1,3 +1,25 @@
+## RESUME TOKEN — 2026-09-27 / CONTINUOUS EXECUTION LIVE STATE — RECONCILED
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-145`
+- CURRENT REPOSITORY HEAD OBSERVED → `eb162ea5ce043c020122b5923468cd12898c8b10` (docs-only reconciliation descendant of code baseline).
+- CURRENT CODE/TEST BASELINE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE FUNCTIONAL FRONT → PR #662 / `exec/20260927-import-full-lifecycle` / exact head `a8ef795c290b035023e3b5781488c7e650ab6866`.
+- ACTIVE GOVERNANCE FRONT → PR #663 / `control/continuous-resume-20260927` / exact head `13432b118aa8db00d3a498332803d2c1324a9291`.
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT + CONTINUOUS-RESUME-GOVERNANCE`.
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning; Benchmark remains fail-closed until a real peer cohort exists.
+- ACTUAL RESULT → PR #662 contains the full-source canonical import lifecycle and post-import Business Replay/Benchmark/Outcome-Learning UI continuity. Its current head has exact Windows build PASS and Cloudflare Pages PASS; remaining gates are queued. PR #663 contains governance enforcement only.
+- CURRENT EXACT PROOF → #662 `a8ef795c...`: Windows build PASS + Cloudflare Pages PASS; remaining security/browser/contract/certification/data gates queued. No browser/production/Phase-F PASS claimed.
+- FIRST ROOT FAILURE CONSUMED → governance merge-ref typecheck exposed DataTable/ExecutiveReport type defects; the functional #662 lane is already the correct owner. No duplicate fix in governance.
+- PHASE-F → NOT CERTIFIED: rollback-forward drill is blocked by missing runtime configuration; local restore-parity migration also exposed dependency on `current_customer_company_id()`. Fail-closed; no production mutation.
+- EXTERNAL BLOCKERS → PC01 offline; Vercel free-plan deployment-rate limit; browser/production/Phase-F exact-SHA proof unproven. Blocked fronts remain local.
+- NEXT EXECUTABLE ACTION → consume the first terminal #662 gate on `a8ef795c...`; repair only a newly reproduced current-SHA root failure. In parallel consume #663 governance gates; reconcile after functional proof.
+- NEXT INDEPENDENT ACTIONS → safe contract/documentation consolidation and targeted UI truth checks; no mutation of legacy `import_jobs` rows.
+- DO NOT REPEAT → stale PASS transfer; duplicate importer/RPC/runner/query; blind import-job terminalization; preview-as-production/browser PASS; staging evidence as production evidence; broad historical rescans; duplicate UI surfaces.
+- RESUME STATUS → ACTIVE / RECONCILED / FUNCTIONAL IMPORT FRONT IN EXACT-HEAD PROOF / GOVERNANCE FRONT IN EXACT-HEAD PROOF.
+- CHECKPOINT RULE → HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT.
+
+---
+
 ## RESUME TOKEN — 2026-09-27 / CONTINUOUS EXECUTION LIVE STATE
 
 - SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-145`
