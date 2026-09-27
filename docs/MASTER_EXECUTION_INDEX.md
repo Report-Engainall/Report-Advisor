@@ -3,15 +3,15 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `c8dab055e5132cd3326559ffa2079bd1f4357eaf`
-- CURRENT CODE CANDIDATES → `c83338f831aa9c02e38efa119875043150b52157`, `9839b17f0f062b708d2e5410d545cb04190ff591`
-- CURRENT CONTRACT CANDIDATE → `c8dab055e5132cd3326559ffa2079bd1f4357eaf`
+- CURRENT BRANCH HEAD → `519bb7356e9b8516b560b45ab46e20e4f40f012`
+- CURRENT CODE ROOT CANDIDATE → `7011596a003982b1ff9c2bcfc1e0c7dab8a9f04`
+- CURRENT CONTRACT CANDIDATE → `5d35be5deb4fce8b8f39cefc77fe482fc5a5c480`
 - FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
-- UI → full-state Decision Coverage + bounded display, Next Action, Replay AS OF/failure isolation/bounded command-center read, unified import analysis redirect.
-- CORE → typed canonical import boundaries, purchase-line identity, staging runtime grant/security closure.
-- CURRENT PROOF → no terminal current-head CI failure yet; Vercel remains external rate-limit.
-- PHASE-F → NOT CERTIFIED; production/browser/resilience proof remains environment-bound.
-- NEXT → consume first terminal workflow, fix only root, then final route/contract/cleanup rescan.
+- DECISION STATUS → canonical lifecycle is `new → OPEN → approved → in_progress → completed`, with `rejected/dismissed` terminal; shared resolver now used by Intelligence, Command Center, Executive Report.
+- IMPORT/UI → unified import continuity, Evidence/Decision/Replay AS OF, bounded Replay, truth-derived Next Action, multi-line purchase identity, typed server entities, staging RPC grant hardening, `/import/analyze` canonical redirect.
+- CURRENT PROOF → no terminal current-head workflow failure yet; Vercel external rate-limit persists.
+- PHASE-F → NOT CERTIFIED; production/browser/resilience evidence remains environment-bound.
+- NEXT → consume first terminal current-head workflow, fix only root, then final route/contract/cleanup rescan.
 ---
 
 
