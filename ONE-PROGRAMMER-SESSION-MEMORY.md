@@ -18,7 +18,7 @@
 - LAST FAILED / FIRST FAILURE CONSUMED: the first current-SHA transaction assertion was over-broad; wrapper-specific HTTP/configuration and bearer requirements are now asserted against their actual wrappers. Prior candidate/index mismatch is reconciled.
 - OPEN BLOCKERS: Vercel free-plan build-rate limit; Phase-F restore target lacks `current_customer_company_id()`; device/production proof is unavailable because PC01 is offline. These do not block repository-only work.
 - NEXT EXECUTABLE ACTION: consume the first terminal gate on `0e1bc7411217c642c18fdb49e50080dac931e80d`; repair only the first reproducible current-SHA root.
-- NEXT INDEPENDENT ACTIONS: if CI remains running, continue safe cleanup/audit only where ownership and deletion lineage are proven; preserve the single canonical import/server/route paths.
+- CURRENT RESUME POINTER: 0e1bc7411217c642c18fdb49e50080dac931e80d → FRONT-ID IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI → NEXT EXECUTABLE ACTION: consume the first terminal gate on `0e1bc7411217c642c18fdb49e50080dac931e80d`; repair only the first reproducible current-SHA root.- NEXT INDEPENDENT ACTIONS: if CI remains running, continue safe cleanup/audit only where ownership and deletion lineage are proven; preserve the single canonical import/server/route paths.
 - DO NOT REPEAT: stale PASS transfer; stale candidate binding; duplicate importer/RPC/runner/route; client-side authority for server truth; preview-as-production; reopening closed roots without current-SHA evidence.
 - RESUME STATUS: ACTIVE / CURRENT-MAIN RECONCILED / EXACT-HEAD PROOF IN FLIGHT.
 - CHECKPOINT RULE: HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT.
