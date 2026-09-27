@@ -15,6 +15,7 @@ import {
   fetchDecisionApproval,
   fetchDecisionWorkItem,
   fetchImportEvidenceSnapshot,
+  fetchRecommendationOutcome,
   fetchRecommendations,
   fetchRuntimeDecisionForRecommendation,
   linkRecommendationToDecision,
@@ -137,6 +138,7 @@ export function DecisionExperiencePage() {
   const [runtimeDecision, setRuntimeDecision] = useState<RuntimeDecisionRecord | null>(null);
   const [approval, setApproval] = useState<DecisionApprovalRecord | null>(null);
   const [workItem, setWorkItem] = useState<DecisionWorkItemRecord | null>(null);
+  const [outcome, setOutcome] = useState<RecommendationOutcomeRecord | null>(null);
   const [decisionMutationBusy, setDecisionMutationBusy] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(params.get('recommendationId'));
   const [loading, setLoading] = useState(true);
@@ -176,14 +178,17 @@ export function DecisionExperiencePage() {
       if (!nextDecision) {
         setApproval(null);
         setWorkItem(null);
+        setOutcome(null);
         return;
       }
-      const [nextApproval, nextWorkItem] = await Promise.all([
+      const [nextApproval, nextWorkItem, nextOutcome] = await Promise.all([
         fetchDecisionApproval(nextDecision.id),
         fetchDecisionWorkItem(nextDecision.id),
+        fetchRecommendationOutcome(nextDecision.id),
       ]);
       setApproval(nextApproval);
       setWorkItem(nextWorkItem);
+      setOutcome(nextOutcome);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر قراءة حالة القرار المحفوظ');
     }
@@ -596,26 +601,32 @@ export function DecisionExperiencePage() {
       {stage === 'outcome' && (
         <section className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
           <Card>
-            <CardHeader title="النتيجة والتعلّم" subtitle="المتوقع مقابل الفعلي لا يظهر إلا بعد وجود نتيجة حقيقية." />
+            <CardHeader title="النتيجة والتعلّم" subtitle="المتوقع مقابل الفعلي يظهر فقط من سجل outcome محفوظ." />
             <CardBody>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {[
-                  ['المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
-                  ['الفعلي', 'غير متاح بعد'],
-                  ['الفارق', 'لا يمكن حسابه بعد'],
-                  ['جودة النتيجة', 'غير متاحة'],
-                  ['ملاحظات التنفيذ', 'غير متاحة'],
-                  ['إشارة التعلّم', 'غير مثبتة'],
-                ].map(([label, value]) => (
-                  <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4">
-                    <div className="text-[10px] text-ink-400">{label}</div>
-                    <div className="mt-2 text-[12px] font-black text-ink-900">{value}</div>
-                  </div>
-                ))}
-              </div>
+              {outcome ? (
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {[
+                    ['المتوقع', outcome.expected_impact == null ? 'غير متاح' : formatCurrency(outcome.expected_impact)],
+                    ['الفعلي', outcome.actual_impact == null ? 'غير متاح' : formatCurrency(outcome.actual_impact)],
+                    ['الفارق', outcome.actual_impact == null || outcome.expected_impact == null ? 'لا يمكن حسابه' : formatCurrency(outcome.actual_impact - outcome.expected_impact)],
+                    ['جودة النتيجة', outcome.outcome_quality == null ? 'غير متاحة' : outcome.outcome_quality + '%'],
+                    ['الحالة', outcome.status],
+                    ['وقت الرصد', new Date(outcome.observed_at).toLocaleString('ar-YE')],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4">
+                      <div className="text-[10px] text-ink-400">{label}</div>
+                      <div className="mt-2 text-[12px] font-black text-ink-900">{value}</div>
+                    </div>
+                  ))}
+                  <div className="sm:col-span-2 lg:col-span-3 rounded-xl border border-primary-100 bg-primary-50/40 p-3 text-[10px] leading-5 text-ink-600">Outcome ID: {outcome.id} · Evidence: {String(outcome.evidence.evidence_snapshot_id ?? 'غير متاح')}</div>
+                </div>
+              ) : (
+                <div className="rounded-[14px] border border-warning-200 bg-warning-50/70 p-4 text-[11px] leading-6 text-warning-900">لم تُثبت نتيجة تنفيذ لهذا القرار بعد. لا يتم تحويل التوصية إلى أثر أو تعلّم تلقائيًا.</div>
+              )}
             </CardBody>
           </Card>
-          <BlockedState title="النتيجة الفعلية غير موجودة بعد" detail="عدم توفر النتيجة ليس فشلًا في العرض؛ إنه حد حقيقي في الدليل. لن تُحوّل التوصية إلى نتيجة أو تعلّم تشغيلي قبل وجود سجل تنفيذ موثق." />
+          {!outcome && <BlockedState title="النتيجة الفعلية غير موجودة بعد" detail="أكمل Work Item فعليًا وأرفق Evidence Snapshot مناسبًا؛ بعدها ستظهر النتيجة هنا تلقائيًا من السجل." />}
+          {outcome && <Link to="/work-center" className="inline-flex h-fit items-center gap-2 rounded-xl border border-ink-200 bg-white px-4 py-3 text-[11px] font-black text-ink-700">مراجعة المهمة والأدلة <ArrowUpLeft size={13}/></Link>}
         </section>
       )}
 
