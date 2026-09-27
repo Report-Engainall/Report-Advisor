@@ -259,3 +259,20 @@
 - NEXT EXECUTABLE ACTION → consume the first terminal mandatory gate on `b081c3f`; repair only a reproduced current-SHA root failure. If queues persist, continue only repository-safe independent work and then reconcile PR #663.
 - DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; speculative Business Replay import-filtering without an existing supported data contract.
 - RESUME STATUS → ACTIVE / IMPORT CORE + UI HARDENED / EXACT-HEAD PROOF WAITING ON RUNNER.
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-154
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-154`.
+- CURRENT DOCUMENTATION SHA BEFORE WRITE → `47502385cd999d1151360e30f47855360659b055`.
+- CURRENT FUNCTIONAL HEAD → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `b081c3f5d8c7ca4879c41f16cada76f0c5c66f00`.
+- FRESH DEPLOYMENT PROOF → Netlify deploy-preview is SUCCESS for the exact functional HEAD; preview URL `https://deploy-preview-662--aghbari-report-advisor.netlify.app`.
+- FRESH DEPLOYMENT READBACK → unauthenticated fetch of that exact preview returns title `الأغبري | منصة ذكاء الأعمال والقرار`, Arabic Evidence-first product copy, and the real identity/company-isolation gate; it explicitly states no demo workspace is used. This remains deployment/readback evidence, not authenticated browser E2E.
+- FRESH CLOUDFLARE PROOF → Cloudflare exact-head check is SUCCESS; preview URL `https://3a4e8985.report-advisor.pages.dev`.
+- CURRENT MANDATORY GATES → latest `certification-contracts` run `36326239773` / job `108639438409` and latest `enforcement-contract` run `36326239775` / job `108639438487` remain QUEUED; no terminal failure exists.
+- CURRENT VERCEL → `failure / build-rate-limit` plus deployment context `pending`; external hosting limit only.
+- IMPORT CORE → typed canonical inference is now fail-closed both for incomplete fields and per-dataset completeness; the existing contract guard protects the behavior.
+- IMPORT UI → full 16-stage post-upload lifecycle remains on the existing canonical result surface; no duplicate route/path was introduced.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan rate limit; certification/enforcement runners queued; authenticated browser, production exact-SHA, rollback/restore/RPO/RTO, and Phase-F resilience proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume the first terminal mandatory gate. If queues persist, continue only independently provable repository-safe work and keep all runtime claims exact-SHA-bound.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; speculative production/Phase-F bypass.
+- RESUME STATUS → ACTIVE / DEPLOYMENT PROOF REFRESHED / IMPORT CORE + UI HARDENED / MANDATORY CI QUEUED.
