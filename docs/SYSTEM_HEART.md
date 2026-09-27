@@ -238,3 +238,104 @@ Never:
 
 ### Documentation is implementation
 Every meaningful execution batch records exact SHA, change, rationale, evidence/run IDs, resulting state, blockers, and next executable work. Historical evidence is preserved when auditability requires it.
+
+## 16. Read-to-Act law — search is not a work phase
+Reading is justified only when it changes an execution decision. Every read pass must produce at least one of:
+- exact target file/function/contract
+- dependency or ownership fact
+- reproducible failure
+- closed-work proof
+- next executable action
+- blocker classification
+
+If a read pass produces none of these, stop reading and execute. Do not re-read whole repositories, repeated historical reports, or duplicate evidence when the canonical live record already contains the required fact.
+
+### Startup read budget
+A new session reads only:
+1. SYSTEM_HEART
+2. the top/current block of ONE-PROGRAMMER-SESSION-MEMORY
+3. the current boundary of MASTER_EXECUTION_INDEX
+4. the minimum domain master(s) named by the current work
+5. exact current Git HEAD
+6. only the first referenced evidence/target needed to start
+
+Historical entries are cold storage, not startup input.
+
+## 17. Single Resume Token
+ONE-PROGRAMMER-SESSION-MEMORY MUST keep one compact machine-readable startup block at the top named RESUME TOKEN. It is the authoritative session handoff and MUST contain:
+- CURRENT REPOSITORY HEAD
+- CURRENT CODE/TEST CANDIDATE
+- ACTIVE EXECUTION FRONTS
+- OPEN BLOCKERS with scope
+- LAST PROVEN
+- LAST FAILED / FIRST FAILURE TO CONSUME
+- NEXT EXECUTABLE ACTION
+- NEXT INDEPENDENT ACTIONS
+- DO NOT REPEAT
+
+Older session entries remain evidence/history and must never override the top Resume Token.
+
+## 18. Work-claim and anti-rework lock
+Before changing code, claim the smallest concrete executable unit:
+domain -> file/function/route -> expected proof -> owner front.
+
+A claimed or closed unit must not be reworked by another front unless:
+- a new current-SHA regression exists;
+- its dependency changed;
+- its environment changed;
+- its evidence was invalidated;
+- the requirement changed.
+
+Duplicate implementation is prohibited for equivalent behavior. Reuse the canonical path or supersede it deliberately.
+
+## 19. First-failure consumption
+When multiple checks fail, do not repair all visible failures as a batch.
+Order failures by dependency:
+1. checkout/build/bootstrap failures;
+2. contract/source failures;
+3. runtime/API/RPC failures;
+4. persistence/readback failures;
+5. browser/E2E failures;
+6. release/certification failures.
+
+Repair and re-run the first reproducible current-SHA failure. Recompute the remaining failure set after the repair. Cascading failures are not separate root causes until reproduced.
+
+## 20. Async wait windows
+An active CI/build/deploy/browser/API operation is not a reason to wait.
+While it runs, execute independent READY work. Consume its result immediately when it completes.
+
+A session is under-utilized when actionable independent work exists but no execution occurs during an async wait.
+
+## 21. Checkpoint transaction
+After every meaningful closure batch — not only at session end — update the Resume Token with:
+HEAD -> ACTION -> RESULT -> EVIDENCE -> BLOCKER -> NEXT.
+
+At session end or interruption, update:
+- actual repository HEAD
+- code/test candidate
+- active PRs/branches
+- exact evidence
+- unresolved blockers
+- first failure
+- next executable action
+- do-not-repeat set
+
+A session is not complete until the next session can resume from this block without reading the chat transcript.
+
+## 22. Context/storage economy
+Treat repository size, CI/build quota, tool calls, message/context size and duplicated artifacts as finite execution resources.
+
+Prefer:
+- one canonical state record over repeated reports;
+- bounded reads over full-file dumps;
+- exact ranges over whole documents;
+- references to immutable evidence over copied logs/screens;
+- one implementation plus aliases/provenance over duplicates.
+
+Never delete evidence merely to save space. Compress/compact only when lineage remains reconstructable.
+
+## 23. Protocol evolution
+When a recurring under-execution pattern is observed:
+OBSERVE -> RCA -> NEW RULE -> ENFORCEMENT -> TEST -> ADVERSARIAL TEST -> APPLY.
+
+Repeated manual reminders are a signal that the rule belongs in machine-checkable enforcement, not only in the prompt.
