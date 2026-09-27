@@ -1,3 +1,22 @@
+# RESUME TOKEN — 2026-09-27 / CURRENT EXECUTION LEASE
+
+- SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-07`
+- CURRENT VERIFIED SHA → `46675643e32f6ea28b6c1d80a530b2eb134e7907` (main)
+- CURRENT EXECUTION/CANDIDATE SHA → `7f7ee185fb18bf9b06f0c3cf9dc839ee4d5a3c3c` (PR #662 / `exec/20260927-import-full-lifecycle`)
+- BRANCH / PR → `exec/20260927-import-full-lifecycle` / #662
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT`
+- CURRENT BOUNDARY → full-source canonical import through authoritative server execution, persisted evidence/readback, business-understanding follow-through, and UI truth states.
+- ACTUAL RESULT → removed the first reproduced #662 Windows build defect (extra `}` in `src/lib/queries.ts:51`); re-bound the execution index to the exact functional candidate; no new import path/RPC/runner introduced.
+- EVIDENCE → GitHub Actions Windows failure on prior exact #662 merge ref identified the parser error; fix commit `7f7ee185fb18bf9b06f0c3cf9dc839ee4d5a3c3c`; fresh exact-head Actions are now queued/in progress.
+- FIRST FAILURE → closed: `src/lib/queries.ts:51` unexpected extra `}`.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan build-rate limit; Phase-F/production exact-SHA resilience remains unproven. These block only dependent proof fronts.
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-head #662 gate on `7f7ee185fb18bf9b06f0c3cf9dc839ee4d5a3c3c`; fix only the first current-SHA failure.
+- NEXT INDEPENDENT ACTIONS → continue non-conflicting UI truth/accessibility and import follow-through closure; keep #661 separate until #662 is proven because both edit shared canonical surfaces.
+- DO NOT REPEAT → stale candidate binding, stale PASS transfer, duplicate importer/RPC/runner, unknown-to-zero coercion, unsafe import-job terminalization, preview-as-production/browser PASS.
+- RESUME STATUS → ACTIVE / EXACT-HEAD PROOF QUEUED.
+
+---
+
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / TRUST DATASET TRUTH CLOSURE
 
 - SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-06`.
