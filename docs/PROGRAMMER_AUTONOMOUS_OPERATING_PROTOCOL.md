@@ -368,3 +368,159 @@ A Library-sync blocker MUST NOT become an owner question, a session-stopping con
 
 ---
 **Governance:** This document is repository-resident operational policy. Changes to it must be intentional, auditable, and committed to GitHub.
+
+
+## 17. Boot Contract — repository-resident execution engine
+
+This file is the execution operator referenced by the control plane. It does not replace SYSTEM_HEART, the domain masters, the Manifest, the Execution Index, or live memory.
+
+At every session start the programmer MUST execute this chain:
+
+`SYSTEM_HEART → SESSION_MEMORY → MASTER_EXECUTION_INDEX → PROJECT_KNOWLEDGE_MANIFEST → PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL → required DOMAIN MASTERS → EXACT GITHUB HEAD → RECONCILE → EXECUTE`
+
+The programmer MUST treat the repository as an executable control plane, not as a passive document archive.
+
+### Control-plane roles
+
+- `SYSTEM_HEART` = authority/router.
+- `ONE-PROGRAMMER-SESSION-MEMORY` = live resume state.
+- `MASTER_EXECUTION_INDEX` = active frontier and progress boundary.
+- `PROJECT_KNOWLEDGE_MANIFEST` = knowledge/dependency map and deletion gate.
+- `PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL` = execution law, tool routing, fallback, proof, persistence, and continuation.
+- Domain masters = domain truth.
+- GitHub exact SHA = technical source of truth.
+
+No additional boot, handoff, memory, master, shadow-state, or orchestration document may be created merely to duplicate these roles.
+
+## 18. Complete-Graph Execution — no important file may be silently dropped
+
+The programmer MUST use the Manifest and canonical control-plane map to account for every relevant source family.
+
+“Parallel” means parallel **fronts**, not reckless simultaneous edits.
+
+For every session:
+
+1. identify all open/relevant fronts from the Execution Index, current code, tests, Manifest, and blockers;
+2. map each front to its canonical owner and executable sources;
+3. execute all independent safe fronts concurrently where tooling permits;
+4. serialize conflicting edits to the same canonical file;
+5. after each meaningful batch, rescan the dependency graph;
+6. never mark a front complete merely because a parent file was edited.
+
+A legacy file may be ignored only when the Manifest/reference scan proves it is outside the active boundary or already absorbed. Otherwise it remains part of the audit surface.
+
+The objective is **coverage of the dependency graph**, not “read every file blindly.”
+
+## 19. Runtime Tool Router — automatic capability selection
+
+Select the lowest-cost tool that can actually prove the required property, then escalate only when necessary:
+
+`Repository source / existing script`
+→ `static contract / unit / typecheck / build`
+→ `API / RPC / DB proof`
+→ `Playwright + Chromium`
+→ `agent-browser / interactive browser`
+→ `Browser Use / Skyvern / Stagehand`
+→ `remote/device browser`
+
+Rules:
+
+- Reuse an existing canonical runner before creating a new runner.
+- The repository's existing Playwright browser proof is the default device-independent UI proof path.
+- Use `agent-browser` or equivalent interactive automation when a live browser/device is available and the task requires interactive inspection.
+- Use an agentic browser only for dynamic multi-step tasks where deterministic automation is insufficient.
+- Use API/DB proof instead of browser automation when the property is backend truth.
+- A tool is considered available only after an actual capability check or successful call.
+- Never make TinyFish, Vercel, one browser provider, or one connector a mandatory single point of failure.
+- Prefer free/open-source execution where it satisfies the proof requirement, while explicitly recognizing that compute/model/hosted-browser cost may still exist.
+- Do not add a new tool, runner, workflow, RPC, or service if an existing canonical capability already proves the requirement.
+
+## 20. Device-Agnostic Continuation Contract
+
+When the user device is unavailable:
+
+`DEVICE_UNAVAILABLE` means **device-specific proof is blocked; repository execution is not blocked**.
+
+Immediately pivot to:
+
+`CI + Playwright/Chromium + Vite/Preview + API/RPC + DB/contract tests + static analysis + security tests + build/typecheck/lint + artifact evidence`
+
+Complete every independent non-device front.
+
+Only mark a front `BLOCKED` when:
+1. the specific capability truly requires the device;
+2. repository/CI/headless/remote/API alternatives were evaluated;
+3. the dependency is recorded exactly;
+4. other fronts continue.
+
+When the device becomes available, automatically add a higher-fidelity real-device/interactivity pass; do not discard the previously valid CI evidence.
+
+## 21. Tool Failure / Fallback Contract
+
+For any unavailable or failing tool:
+
+`FAIL → IDENTIFY REQUIRED CAPABILITY → CHECK EXISTING ALTERNATIVES → SELECT BEST AVAILABLE SUBSTITUTE → EXECUTE → VERIFY → RECORD`
+
+Never stop at:
+
+`TOOL_UNAVAILABLE`
+
+unless the required capability itself is proven unavailable.
+
+A provider outage or quota limit is a local blocker, not a session-wide stop condition.
+
+## 22. Session Checkpoint Contract
+
+After every meaningful mutation batch, persist into `ONE-PROGRAMMER-SESSION-MEMORY.md`:
+
+- current verified main SHA;
+- current branch head;
+- current code/test candidate SHA;
+- branch / PR;
+- front-id;
+- current boundary;
+- actual result;
+- exact evidence;
+- first failure;
+- open blockers;
+- tools used;
+- device state;
+- next executable action;
+- next independent actions;
+- do-not-repeat;
+- resume pointer.
+
+Keep **code/test candidate SHA** separate from later documentation-only checkpoint SHAs.
+
+If a session is interrupted, recover from:
+
+`Git HEAD + memory + execution index + workflow/artifacts + PR history`
+
+and continue from the last proven stop point.
+
+## 23. Autonomous Stop Condition
+
+The programmer does not stop because:
+- one front passed;
+- one tool failed;
+- the device is absent;
+- Vercel is rate-limited;
+- one workflow is waiting;
+- one external dependency is blocked.
+
+The programmer stops only when:
+
+`NO SAFE ACTIONABLE FRONT REMAINS`
+
+or every remaining front requires explicit owner authority / an unavailable irreversible external prerequisite.
+
+Before stopping, perform one final repository rescan and persist the resume pointer.
+
+## 24. Minimal-boot principle
+
+Chat startup text is intentionally small.
+
+The chat message must only activate the repository control plane. All detailed operational law belongs here and in the canonical files already mapped by SYSTEM_HEART and the Manifest.
+
+If the chat message conflicts with repository truth, repository truth wins unless the message explicitly requests a safe, authorized change to that contract; in that case update the canonical repository file first, then execute under the new recorded SHA.
+
