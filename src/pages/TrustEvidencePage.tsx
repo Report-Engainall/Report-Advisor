@@ -16,7 +16,7 @@ const states = [
 ] as const;
 
 const evidenceSurfaces = [
-  { title: 'Evidence Passport', detail: 'هوية الدليل ومصدره وسياقه عند توفر السجل.', path: '/import/analyze', available: true, icon: Landmark },
+  { title: 'Evidence Passport', detail: 'هوية الدليل ومصدره وسياقه عند توفر السجل.', path: '/trust', available: true, icon: Landmark },
   { title: 'Provenance / Lineage', detail: 'تتبع انتقال الحقيقة من المصدر إلى التحليل.', path: '/data-quality', available: true, icon: GitBranch },
   { title: 'Snapshots / As-of', detail: 'السجل الزمني المعتمد ليس شاشة مستقلة مثبتة حاليًا.', path: '', available: false, icon: History },
   { title: 'Decision Evidence', detail: 'الدليل المرتبط بمساحة القرار الحالية.', path: '/decision-experience?stage=evidence', available: true, icon: ShieldCheck },
