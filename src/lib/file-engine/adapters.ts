@@ -290,7 +290,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
     const page = await pdf.getPage(pageNumber);
     const content = await page.getTextContent();
-    const items = content.items.filter((item): item is PdfTextItemLike => 'str' in item && typeof item.str === 'string');
+    const items = content.items.filter((item) => 'str' in item && typeof item.str === 'string').map((item) => item as PdfTextItemLike);
 
     const pageTable = extractPdfPageTable(items, tableLayout);
     if (pageTable) {
