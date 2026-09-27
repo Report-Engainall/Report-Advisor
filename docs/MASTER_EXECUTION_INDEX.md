@@ -1,3 +1,20 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT BRANCH RECONCILED
+
+> This top block is the only startup boundary.
+
+- MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT BRANCH HEAD → `eb4cfac7cd5bcb2573196f9af1ad44549ff2ff06`
+- CURRENT CODE/TEST CANDIDATE → `bb86b9fb667f0f1aef1b28f97dcce9d189b5a717`
+- FUNCTIONAL FRONT → PR #671
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- UI AFTER IMPORT → Evidence → Signals → Decision → Work → Outcome/Learning through existing routes `/trust`, `/intelligence`, `/decision-experience`, `/work-center`, `/replay`.
+- ROUTE AUDIT → 38/38 navigation registry items resolve to App routes. Extra routes are `/proposal-demo` and the intentional `/import/analyze` redirect.
+- CLEANUP → legacy `ExternalFileAnalysisPage.tsx` deletion proven by exact PR #671 patch; duplicate analyzer is not being recreated.
+- PROOF → exact branch source is reconciled; current branch runtime/build proof remains pending. Vercel is externally rate-limited.
+- NEXT → consume first terminal current-branch gate; repair current-SHA root only; continue independent cleanup where dependencies are provable.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / POST-IMPORT JOURNEY UI CLOSURE
 
 > This top block is the only startup boundary.
