@@ -20,7 +20,7 @@ interface DataTableProps<T> {
 
 export function DataTable<T extends object>({ columns, data, loading, emptyMessage = 'لا توجد بيانات', onRowClick, pageSize }: DataTableProps<T>) {
   const [page, setPage] = useState(0);
-  const effectivePageSize = Number.isInteger(pageSize) && (pageSize ?? 0) > 0 ? pageSize! : 0;
+  const effectivePageSize = Number.isInteger(pageSize) && pageSize > 0 ? pageSize : 0;
   const pageCount = effectivePageSize ? Math.max(1, Math.ceil(data.length / effectivePageSize)) : 1;
   const visibleRows = useMemo(
     () => effectivePageSize ? data.slice(page * effectivePageSize, (page + 1) * effectivePageSize) : data,
