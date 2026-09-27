@@ -57,7 +57,7 @@ function rowKey(entityType: DurableCanonicalImportInput['entityType'], row: Reco
         : entityType === 'inventory_balances'
           ? [row.data.warehouse_id ?? row.data.warehouse, row.data.product_id ?? row.data.sku ?? row.data.product_name].join(':')
           : entityType === 'payments'
-            ? (row.data.payment_id ?? row.data.reference)
+            ? (row.data.payment_id ?? [row.data.reference, row.data.direction, row.data.payment_date])
             : (row.data.code ?? row.data.name);
   const key = String(value ?? '').trim();
   if (!key) throw new Error(`IMPORT_ROW_BUSINESS_KEY_REQUIRED:${row.rowNumber}`);
