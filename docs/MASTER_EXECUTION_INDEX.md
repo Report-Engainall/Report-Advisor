@@ -1,3 +1,12 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / TRUST DATASET TRUTH CLOSURE
+
+- BRANCH → `exec/20260927-import-full-lifecycle`.
+- CURRENT EXECUTION CANDIDATE → `c235d58c88ffce1501dee660e8f4114774aa8084`.
+- DONE → Trust Evidence unknown dataset values remain explicit `غير متاح`; JSX closure guard retained.
+- PROOF → exact source mutation + contract guard present; current-head CI not yet proven.
+- NEXT → consume fresh exact-head evidence and continue next independent front.
+- DO NOT REPEAT → stale evidence, unknown-to-zero coercion, duplicate import path.
+-
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / FIRST-CURRENT-FAILURE REPAIR
 
 - BRANCH → `exec/20260927-import-full-lifecycle`.
