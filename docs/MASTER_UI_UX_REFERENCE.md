@@ -265,3 +265,7 @@ Do not collapse these into a composite score unless a canonical metric contract 
 
 ## Post-import and forecasting truth gates — 2026-09-27
 The unified import result must expose the continuous customer path `Evidence → Signals → Decision → Work → Outcome/Learning`. The Forecasts surface must expose an explicit Backtest Gate; without historical paired forecast/outcome evidence, the UI must remain fail-closed and must not display synthetic accuracy or performance figures. Navigation coverage is contract-guarded: all 38 registry items must resolve to real App routes, and the eight canonical product zones must remain intact.
+
+
+## 12. Shell implementation invariant — 2026-09-27
+The authenticated Aghbari shell uses a dark executive topbar and dark right-aligned sidebar in Arabic RTL, with teal/emerald analytical accents and restrained warm-gold emphasis. Later CSS overrides must not reintroduce a light navigation tree or light topbar that contradicts the visual constitution. The shared Product WOW contract guards this invariant alongside route, journey, accessibility, evidence, and fail-closed state coverage.
