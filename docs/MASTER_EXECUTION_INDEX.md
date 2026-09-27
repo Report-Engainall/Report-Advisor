@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / SECURITY CONTRACT REPAIR REPROVED
+
+- CURRENT DOCUMENTATION HEAD → `6be77394707e70973d22b4156775c4049989b6d2` after the security-contract checkpoint; functional code parent is `eed9917e348e9fa2fed0be4af5bdd24d70152aea`.
+- MAIN BASELINE → `4ec779a0a1573fc3e0e395862f6761a70f775d49`; PR #672 remains the active import-to-decision front.
+- ROOT CAUSE CLOSED → static SECURITY DEFINER exposure contract rejected intentional `pg_catalog` hardening and combined authenticated/service_role grants.
+- IMPLEMENTATION → `scripts/check-security-definer-exposure-contract.mjs` now models the actual hardened repository contract and still fails closed on anon exposure.
+- PROOF → exact local `eed9917e` run passed security exposure/helper, tenant/RLS/import context, typecheck, route parity, decision closure, canonical import mapping/runtime, knowledge architecture, and production build (2802 modules).
+- CLEANUP → concurrent `ff0298cf` rescan established all 9 legacy-looking master docs are referenced by the Manifest; deletion is not justified yet.
+- CI/BROWSER → new exact-head GitHub gates remain the release proof boundary; no authenticated Browser E2E/final-certification PASS is transferred from older SHAs. Local agent-browser and TinyFish are externally blocked, so no browser evidence is fabricated.
+- NEXT → consume terminal exact-head CI/browser/certification result on the current branch; first reproducible failure only, then final release/rescan decision.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / DEVICE RECONNECTED + EXACT DESKTOP PROOF
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / 56483d33 FULL LOCAL CERTIFICATION + STAGING WAREHOUSE GUARD
