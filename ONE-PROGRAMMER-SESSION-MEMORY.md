@@ -1,3 +1,15 @@
+# RESUME TOKEN — 2026-09-27 / CURRENT LIVE CHECKPOINT
+
+- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `d5be7220b048a3e7bd798a9b2d9fea677b200183`
+- CURRENT CODE/TEST CANDIDATE → `c5b193116e16b7ce46fd88d6d6edde268820ef52`
+- ACTIVE FUNCTIONAL FRONT → PR #664 / head `22bdfb19f234a38640961e3851c3e5eef786cbad` (latest documentation/index tail; code candidate remains c5b1931…)
+- ACTIVE GOVERNANCE FRONT → PR #666 / head `9aec629f5573830ef5d8d5bbc1e303ce41470ba3`
+- EXACT PROOF → #664: 47 workflows, 3 success, 2 skipped, 3 in-progress, 39 queued, 0 failures at latest scan. #666: 38 workflows, 3 in-progress, 1 pending, 34 queued, 0 failures.
+- NEW VALIDATED ROOT FIXES → TypeScript source roots closed; canonical-import mapping syntax root closed; mixed-specialty contract aligned with the actual canonical implementation; certification candidate field restored to the parser's canonical form.
+- PHASE-F → NOT CERTIFIED / fail-closed. Live restore parity fails because current_customer_company_id() is absent in the restore target migration path; rollback-forward consequently returns 503. No production mutation.
+- EXTERNAL → Vercel free-plan build-rate limit; PC01/device/browser/production proof unavailable.
+- CLEANUP → duplicate PRs #660/#661 closed as superseded; #665 closed and replaced by current-main governance #666. Historical commits retained.
+- NEXT → consume first terminal new gate; repair only current-SHA root; merge only after mandatory exact-head evidence.
 # RESUME TOKEN — 2026-09-27 / MIXED-SPECIALTY CONTRACT ROOT CLOSED
 
 - CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `16bfd89ac25f55dbc776871b5bc4cbc538320fc0`

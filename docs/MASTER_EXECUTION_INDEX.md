@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / LIVE CHECKPOINT
+
+> Exact-head evidence only. Code candidate and documentation tail are tracked separately.
+
+- MAIN HEAD BEFORE THIS DOCS COMMIT → `d5be7220b048a3e7bd798a9b2d9fea677b200183`
+- CURRENT CODE/TEST CANDIDATE → `c5b193116e16b7ce46fd88d6d6edde268820ef52`
+- FUNCTIONAL FRONT → PR #664 / `22bdfb19f234a38640961e3851c3e5eef786cbad`
+- GOVERNANCE FRONT → PR #666 / `9aec629f5573830ef5d8d5bbc1e303ce41470ba3`
+- PROOF → #664 3 success / 3 in-progress / 39 queued / 0 failure; #666 3 in-progress / 1 pending / 34 queued / 0 failure.
+- UI AFTER IMPORT → one canonical path: Import → Trust/Evidence → Decision/Work → Outcome/Learning → Replay; Benchmark remains INSUFFICIENT_SAMPLE.
+- PHASE-F → fail-closed due restore-target migration dependency on current_customer_company_id() and downstream 503 rollback-forward.
+- EXTERNAL → Vercel free-plan rate limit; browser/device/production proof remains not proven.
+
+---
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / MIXED-SPECIALTY CONTRACT ROOT CLOSED
 
 > Exact-head evidence only. This startup block supersedes older historical boundaries.
