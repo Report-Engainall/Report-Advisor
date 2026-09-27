@@ -34,6 +34,6 @@ const liveCandidate = liveMasterIndex.match(/CURRENT CODE\/TEST CANDIDATE\s*(?::
 assert.ok(liveCandidate, 'live Master Execution Index must expose a parser-compatible current code/test candidate');
 const currentHead = child;
 const parentHead = candidate;
-const liveChangedFiles = execFileSync('git', ['diff', '--name-only', liveCandidate, currentHead], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+const liveChangedFiles = execFileSync('git', ['diff', '--name-only', liveCandidate, currentHead], { encoding: 'utf8' }).trim().split('\n').map((file) => file.trim()).filter(Boolean);
 assert.doesNotThrow(() => validateCertificationBoundary({ index: liveMasterIndex, head: currentHead, parent: parentHead, changedFiles: liveChangedFiles }));
 console.log('PASS certification-boundary live-index fixture: startup marker, exact candidate parsing, ancestry and governance allowlist are wired to the repository state.');
