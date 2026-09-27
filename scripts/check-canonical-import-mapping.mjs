@@ -4,6 +4,9 @@ const source = readFileSync(new URL('../src/lib/file-engine/adapters.ts', import
 const canonicalImportPage = readFileSync(new URL('../src/pages/CanonicalImportPage.tsx', import.meta.url), 'utf8');
 const canonicalImportServer = readFileSync(new URL('../netlify/functions/canonical-import-execute.mts', import.meta.url), 'utf8');
 const sourceUnderstanding = readFileSync(new URL('../src/lib/import/canonical-source-understanding.ts', import.meta.url), 'utf8');
+const queriesSource = readFileSync(new URL('../src/lib/queries.ts', import.meta.url), 'utf8');
+const trustEvidencePage = readFileSync(new URL('../src/pages/TrustEvidencePage.tsx', import.meta.url), 'utf8');
+const decisionExperiencePage = readFileSync(new URL('../src/pages/DecisionExperiencePage.tsx', import.meta.url), 'utf8');
 
 const required = [
   'materializeCanonicalFields',
@@ -47,4 +50,32 @@ if (!sourceUnderstanding.includes("entityType: mixedSpecialtySource ? 'generic:s
   throw new Error('Mixed-specialty sources must fail closed to the generic canonical boundary');
 }
 
-console.log('Canonical import mapping regression gate: PASS (canonical fields + full-source understanding)');
+for (const token of [
+  'fetchImportEvidenceSnapshot',
+  ".from('source_analysis_snapshots')",
+  "import_job_id",
+]) {
+  if (!queriesSource.includes(token)) throw new Error(`Imported source evidence query contract missing: ${token}`);
+}
+for (const token of [
+  'EVIDENCE PASSPORT',
+  'sourceSnapshot',
+  "PARTIAL / NOT PROVEN",
+  'fetchImportEvidenceSnapshot(importJobId)',
+]) {
+  if (!trustEvidencePage.includes(token)) throw new Error(`Evidence Passport UI contract missing: ${token}`);
+}
+for (const token of [
+  'importJobId',
+  'sourceSnapshot',
+  'IMPORTED SOURCE CONTEXT',
+  'safeNext',
+  'fetchImportEvidenceSnapshot(importJobId)',
+]) {
+  if (!decisionExperiencePage.includes(token)) throw new Error(`Decision source-context gate missing: ${token}`);
+}
+if (!canonicalImportPage.includes('Evidence Passport') || !canonicalImportPage.includes('/trust?import=') || !canonicalImportPage.includes('/decision-experience?stage=evidence&import=')) {
+  throw new Error('Post-import UI must carry the import identity into Evidence Passport and Decision Experience');
+}
+
+console.log('Canonical import mapping regression gate: PASS (canonical fields + full-source understanding + post-import evidence/decision continuity)');
