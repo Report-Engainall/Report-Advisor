@@ -18,13 +18,17 @@ function Metric({ label, value, hint }: { label: string; value: string; hint: st
 
 function recommendationStatusLabel(status: string): string {
   const labels: Record<string, string> = {
-    pending: 'قيد المراجعة',
-    proposed: 'مقترح',
-    approved: 'معتمد',
+    new: 'جديدة',
+    OPEN: 'جاهزة للقرار',
+    accepted: 'مقبولة',
+    approved: 'معتمدة',
     in_progress: 'قيد التنفيذ',
-    completed: 'مكتمل',
-    rejected: 'مرفوض',
-    cancelled: 'ملغى',
+    completed: 'مكتملة',
+    rejected: 'مرفوضة',
+    dismissed: 'مستبعدة',
+    cancelled: 'ملغاة',
+    pending: 'قيد المراجعة',
+    proposed: 'مقترحة',
   };
   return labels[status] ?? status;
 }
