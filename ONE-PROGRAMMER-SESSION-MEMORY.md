@@ -1,19 +1,20 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `66de66d2d66e0257973586c8058c832fa260603f`
-- CURRENT CODE CANDIDATE → `e5bbe131e5253e4fea90fa244b4b0aa36bd5e468`
-- CURRENT CONTRACT CANDIDATE → `e90aeba7458d77ab768a1d07cff395b958d68834`
+- CURRENT BRANCH HEAD → `987941d06083984e1d6ba16cdbf602ad18b9eb74`
+- CURRENT CODE CANDIDATE → `e18a4e448e29556925142f8566642bbb42e876fd`
+- CURRENT CONTRACT CANDIDATE → `987941d06083984e1d6ba16cdbf602ad18b9eb74`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- ACTUAL RESULT → canonical Import→Evidence→Signals→Decision→Work→Outcome→Replay continuity; Evidence/Decision/Replay AS OF; Decision Coverage with independent owner/outcome dimensions; derived NEXT ACTION; Replay state is canonical and failure-isolated in Command Center; all seven typed server entity boundaries; purchase-line multi-row identity; staging RPC grant hardening.
-- STAGING RUNTIME PROOF → 6-arg import_commit_batch anon=false/authenticated=true/service_role=true; legacy 5-arg anon=false/authenticated=false/service_role=true; specialty migration and grant hardening applied; anonymous Security Advisor finding removed.
-- CURRENT CI → current head has CodeRabbit PASS, Netlify preview PASS, Vercel external rate-limit FAILURE, desktop-windows IN_PROGRESS; remaining gates queued/pending. No broad PASS claim.
-- OPEN BLOCKERS → Vercel build-rate-limit; production/browser/Phase-F exact evidence remains environment-bound; device unavailable; local GitHub/DNS execution unavailable.
-- FIRST FAILURE → none terminalized on current head.
-- NEXT EXECUTABLE ACTION → consume first terminal current-head workflow result; repair only that root and re-prove.
-- NEXT INDEPENDENT ACTIONS → route/contract rescan, safe legacy cleanup only after deletion gates, and continued UI/core hardening.
-- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, preview-as-production, composite Decision Coverage without a metric contract, or Replay read failure blocking parent Decision Center.
+- ACTUAL RESULT → unified import continuity; Evidence/Decision/Replay AS OF; Decision Coverage uses full actionable recommendation state while display stays bounded; Next Action is truth-derived; Replay auxiliary failures isolate as REVIEW; `/import/analyze` resolves to canonical `/import`; retired ExternalFileAnalysisPage remains unwired.
+- CORE → seven typed server entity boundaries; purchase-line row identity; staging specialty migration + 6-arg RPC grant hardening.
+- STAGING PROOF → 6-arg import_commit_batch anon=false/authenticated=true/service_role=true; legacy 5-arg anon=false/authenticated=false/service_role=true; Security Advisor anonymous-execution finding removed.
+- CURRENT CI → current branch head has Vercel external build-rate-limit failure; after latest contract commits CI is awaiting new terminal results. Earlier Netlify/CodeRabbit success belongs to prior exact head and is not transferred.
+- OPEN BLOCKERS → Vercel build-rate-limit; production/browser/Phase-F exact evidence environment-bound; device unavailable; local GitHub/DNS execution unavailable.
+- FIRST FAILURE → none terminalized on current branch head.
+- NEXT EXECUTABLE ACTION → consume first terminal current-head workflow; repair only the first reproducible root.
+- NEXT INDEPENDENT ACTIONS → final route/contract rescan; safe cleanup only where manifest/reference/dependency gates prove removal safe.
+- DO NOT REPEAT → stale PASS transfer, display-window KPI calculation, duplicate importer/RPC/runner, preview-as-production, or retired file reintroduction.
 - RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD PROOF IN FLIGHT
 ---
 
