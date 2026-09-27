@@ -19,8 +19,19 @@ function bearer(request: Request): string {
   return value.slice(7).trim();
 }
 
+function failureStatus(error: unknown, message: string): number {
+  if (message.startsWith('NETLIFY_ENV_MISSING')) return 503;
+  if (message === 'AUTHENTICATED_USER_REQUIRED') return 401;
+  if (error instanceof SyntaxError) return 400;
+  return /required|invalid|tenant|hash|quality|business|duplicate|already_|not_retryable|forbidden|mismatch|rejected/i.test(message) ? 400 : 502;
+}
+
+function failureBody(message: string): Record<string, unknown> {
+  return { status: 'failed', error: message.slice(0, 512) };
+}
+
 export default async (request: Request): Promise<Response> => {
-  if (request.method !== 'POST') return json(405, { error: 'METHOD_NOT_ALLOWED' });
+  if (request.method !== 'POST') return json(405, { status: 'failed', error: 'METHOD_NOT_ALLOWED' });
 
   try {
     const authorization = bearer(request);
@@ -34,8 +45,7 @@ export default async (request: Request): Promise<Response> => {
     return json(200, result);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED';
-    const status = message.startsWith('NETLIFY_ENV_MISSING') ? 503 : 400;
-    return json(status, { error: 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED', detail: message.slice(0, 512) });
+    return json(failureStatus(error, message), failureBody(message));
   }
 };
 
