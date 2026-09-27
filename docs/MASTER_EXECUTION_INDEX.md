@@ -1,18 +1,19 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT — UPDATED
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `49305072ef7d44ad78dc5359ef2acecd513ecd0c`
-- FUNCTIONAL FRONT → PR #671 / `49305072ef7d44ad78dc5359ef2acecd513ecd0c`
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE + WORK-CENTER`
+- CURRENT CODE/TEST CANDIDATE → `3b30fc08ce1f4c68b474bbc2ae842f43c23bffdd`
+- FUNCTIONAL FRONT → PR #671 / `3b30fc08ce1f4c68b474bbc2ae842f43c23bffdd`
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE + WORK-CENTER + SOURCE-ENTRY`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay.
-- ROOT FIX → stale scenario import consolidated into the live governed consumer.
-- UI POLISH → shared shell/table/alert semantics; AlternativeGroups; Metric Inspector; Suppliers; Product Journey 44px/nested active; Work Center action and selected-filter semantics.
-- EXACT EVIDENCE → `4e9486d…` web build passed after root fix; `49305072ef7d44ad78dc5359ef2acecd513ecd0c` requires fresh terminal evidence.
-- EXTERNAL → Vercel rate limit; device/authenticated browser/Phase-F live evidence unavailable.
-- CLEANUP → PR #543 closed; CanonicalScenarioPage removed after dependency proof and implementation consolidation.
-- NEXT → terminal exact-head CI, first new root fix, then targeted safe closure.
+- ROOT FIX → stale scenario import consolidated into the governed scenario route.
+- UI POLISH → shell/table/alert; AlternativeGroups; Metric Inspector; Suppliers; Product Journey 44px + nested active; Work Center; Executive Command Center; Connections.
+- EXACT EVIDENCE → `4e9486d…` web-build passed after root fix; `3b30fc08ce1f4c68b474bbc2ae842f43c23bffdd` still needs terminal current-head proof.
+- EXTERNAL → Vercel deployment rate-limit; authenticated browser/device proof unavailable; Phase-F live resilience environment-bound.
+- CLEANUP → PR #543 closed; CanonicalScenarioPage removed after dependency proof and consolidated.
+- NEXT → terminal exact-head CI, root-fix if needed, then targeted safe closure.
 
 ---
+
 
 
 

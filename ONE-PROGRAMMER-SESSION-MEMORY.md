@@ -2,6 +2,23 @@
 
 - SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT CODE/TEST CANDIDATE SHA → `3b30fc08ce1f4c68b474bbc2ae842f43c23bffdd`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE + WORK-CENTER + SOURCE-ENTRY`
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize/Reconcile → Quality/Trust → Evidence → Review → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
+- ACTUAL RESULT → Scenario dependency fixed and consolidated; shared shell/table/alert truth hardened; AlternativeGroups, Metric Inspector, Suppliers, Product Journey, Work Center, Executive Command Center, and Connections CTA/state/accessibility surfaces polished and contract-locked.
+- EVIDENCE → Exact root failure `d4925a3…` was stale import of deleted scenario page. Exact fix `4e9486d…` passed Windows web-build. Current candidate `3b30fc08ce1f4c68b474bbc2ae842f43c23bffdd` has fresh checks pending; no PASS transferred.
+- FIRST FAILURE → CLOSED: deleted scenario import.
+- OPEN BLOCKERS → Vercel rate-limit; authenticated browser/device proof; Phase-F live resilience.
+- NEXT EXECUTABLE ACTION → Capture terminal CI for `3b30fc08ce1f4c68b474bbc2ae842f43c23bffdd`; fix first new current-head failure only.
+- NEXT INDEPENDENT ACTIONS → Safe UI/core closure and proven-stale cleanup only; preserve exact-SHA lineage.
+- DO NOT REPEAT → No scenario-page resurrection; no stale PASS; no device-only evidence.
+- RESUME STATUS → ACTIVE / NOT CLOSED / SAFE WORK REMAINS.
+
+# RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT — UPDATED
+
+- SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
 - CURRENT CODE/TEST CANDIDATE SHA → `49305072ef7d44ad78dc5359ef2acecd513ecd0c`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE + WORK-CENTER`
