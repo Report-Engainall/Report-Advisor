@@ -1,3 +1,17 @@
+# RESUME TOKEN — 2026-09-27 / CURRENT EXECUTION CHECKPOINT
+
+- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `5bb08044bcb3800d9c5561af0edc945cf0defea6`
+- ACTIVE FUNCTIONAL FRONT → PR #664 / `361db8af5e58dcb122b2b6623acf9a804e6a3fdb`
+- ACTIVE GOVERNANCE FRONT → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
+- EXACT REMOTE EVIDENCE → #664: CodeRabbit SUCCESS, Netlify preview SUCCESS, Vercel failure (external free-plan build-rate limit); GitHub Actions are materialized with 49 queued, 1 in progress, 2 skipped, 0 failures, 0 successes at observation time. #665: CodeRabbit SUCCESS, Netlify preview SUCCESS, Vercel same external failure; Actions are materialized with queued gates and desktop-windows in progress.
+- STATIC SOURCE VERIFICATION → #664 exact SHA contains the canonical import lifecycle, replay/benchmark surfaces, full-dataset understanding, typed canonical inference, persisted dataset summaries/source-analysis snapshot, and truth-state UI wiring. This is source evidence, not runtime PASS.
+- SUPERSEDED CLEANUP → PR #662 and #663 closed as superseded by #664/#665; historical evidence retained and no SHA evidence transferred.
+- OPEN BLOCKERS → Vercel free-plan deployment-rate limit; PC01/device/browser/production/Phase-F runtime proof unavailable. Local clone from execution environment failed DNS; no local PASS inferred.
+- FIRST FAILURE → none on current exact candidates; no current-SHA workflow failure has terminalized yet.
+- NEXT EXECUTABLE ACTION → consume first terminal exact-head #664/#665 gate; repair only the first reproducible current-SHA root failure. Continue independent repository/UI work while gates run.
+- DO NOT REPEAT → stale PASS transfer, old-memory overwrite, duplicate importer/RPC/runner, preview-as-production, unsafe legacy import_jobs mutation, broad historical rescans.
+- RESUME STATUS → ACTIVE / CURRENT-MAIN RECONCILED / FUNCTIONAL + GOVERNANCE EXACT-HEAD PROOF IN FLIGHT.
+
 # RESUME TOKEN — 2026-09-27 / CURRENT SESSION — CURRENT-MAIN INTEGRATION
 
 - CURRENT REPOSITORY HEAD → `a00234fed504915fd54704cac55ea5a47ae511eb`

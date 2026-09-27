@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / EXACT CURRENT-MAIN CHECKPOINT
+
+> Exact-head evidence only. This startup block supersedes older historical boundaries.
+
+- MAIN HEAD BEFORE THIS DOCS COMMIT → `5bb08044bcb3800d9c5561af0edc945cf0defea6`
+- FUNCTIONAL CANDIDATE → PR #664 / `361db8af5e58dcb122b2b6623acf9a804e6a3fdb`
+- GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
+- REMOTE PROOF → #664 Netlify + CodeRabbit SUCCESS, Vercel external build-rate failure, GitHub Actions queued/in-progress; #665 same Vercel boundary with governance gates queued/in-progress.
+- UI CONTINUITY → #664 is the canonical existing post-import path: Import → Trust/Evidence → Decision/Work → Outcome/Learning → Replay; Benchmark remains `INSUFFICIENT_SAMPLE`.
+- CLEANUP → #662/#663 closed as superseded; history retained.
+- EXTERNAL → PC01 offline; browser/production/Phase-F remains NOT PROVEN.
+- NEXT → consume terminal exact-head gates, repair only first current-SHA root failure, then merge only after required evidence.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT-MAIN INTEGRATION
 
 > Exact-head evidence only. This startup block supersedes older historical boundaries.
