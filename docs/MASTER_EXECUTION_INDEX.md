@@ -2,19 +2,20 @@
 
 > This top block is the only startup boundary.
 
-- MAIN HEAD → `716f36638c47edf615d276c300c84fbdba3b4186`
-- CURRENT CODE/TEST CANDIDATE → `7d3d2954920f52bc14fd1af369293e6b19a8197d`
-- FUNCTIONAL FRONT → PR #667 / `7d3d2954920f52bc14fd1af369293e6b19a8197d`
+- MAIN HEAD → `2465da09eb08ae63dae921d7ecfcb88beb9ecdf0`
+- CURRENT CODE/TEST CANDIDATE → `d6e1d13931250c9ee298bc933a2be8c7ccda7899`
+- FUNCTIONAL FRONT → PR #667 / `d6e1d13931250c9ee298bc933a2be8c7ccda7899`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT DATA until a real peer cohort exists.
-- ROOT FIX → phase9-windows-contract now fetches the PR branch ref explicitly and compares it to the event SHA; no acceptance criterion was weakened.
-- EXACT EVIDENCE → old SHA `2cdd7128…` failed before Phase 9 contract execution at the remote-ref check. Fresh proof is required on `7d3d2954…`.
-- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback evidence remains required. Candidate carries repository-side restore-parity fixes for current_customer_company_id and customer credit account schema.
+- ROOT FIXES → phase9 exact-head ref verification repaired; `/benchmark` and `/replay` now registered in the canonical navigation registry using existing Sidebar icon infrastructure.
+- EXACT EVIDENCE → old `2cdd7128…` failed before Phase 9 execution. Fresh proof is required on `d6e1d139…`.
+- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback evidence remains required. Repository-side restore parity exists on the candidate.
 - EXTERNAL → Vercel free-plan build-rate limit; device/browser/production proof not yet proven.
-- CLEANUP → duplicate PR #668 closed; historical evidence retained.
-- NEXT → consume first terminal #667 exact-head gate; repair only the first reproducible current-SHA root.
+- CLEANUP → duplicate PR #668, stale UI #594/#596/#603 closed; branches/history retained.
+- NEXT → consume first terminal #667 exact-head gate; repair only the first current-SHA reproducible root.
 
 ---
+
 
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / LIVE CHECKPOINT
