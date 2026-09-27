@@ -77,12 +77,13 @@ function AnalyticsStatusStrip({
 
 
 
-type AnalyticsReadiness = 'LOADING' | 'CALCULATED' | 'INSUFFICIENT_DATA' | 'ERROR';
+type AnalyticsReadiness = 'LOADING' | 'CALCULATED' | 'INSUFFICIENT_DATA' | 'NO_DATA' | 'ERROR';
 
 const analyticsReadinessLabel: Record<AnalyticsReadiness, string> = {
   LOADING: 'جارٍ التحقق',
   CALCULATED: 'متاح من المصدر',
   INSUFFICIENT_DATA: 'بيانات غير كافية',
+  NO_DATA: 'لا توجد بيانات',
   ERROR: 'فشل القراءة',
 };
 
@@ -142,7 +143,7 @@ export function AnalyticsCenterPage() {
         {analyticsCards.map((item) => {
           const Icon = item.icon;
           const state = readiness[item.path] ?? 'LOADING';
-          const stateTone = state === 'CALCULATED' ? 'bg-success-50 text-success-700 border-success-100' : state === 'INSUFFICIENT_DATA' ? 'bg-warning-50 text-warning-800 border-warning-100' : state === 'ERROR' ? 'bg-danger-50 text-danger-700 border-danger-100' : 'bg-ink-50 text-ink-500 border-ink-100';
+          const stateTone = state === 'CALCULATED' ? 'bg-success-50 text-success-700 border-success-100' : state === 'INSUFFICIENT_DATA' || state === 'NO_DATA' ? 'bg-warning-50 text-warning-800 border-warning-100' : state === 'ERROR' ? 'bg-danger-50 text-danger-700 border-danger-100' : 'bg-ink-50 text-ink-500 border-ink-100';
           return (
             <Link key={item.path} to={item.path} className="group min-w-0">
               <Card hover className="h-full transition-transform duration-200 group-hover:-translate-y-0.5">
@@ -153,7 +154,7 @@ export function AnalyticsCenterPage() {
                   </div>
                   <h3 className="mt-4 text-sm font-black text-ink-900">{item.title}</h3>
                   <p className="mt-1 text-[10px] leading-5 text-ink-500">{item.desc}</p>
-                  <div className="mt-4 flex items-center justify-between border-t border-ink-100 pt-3 text-[9px] font-black text-primary-700"><span>{state === 'CALCULATED' ? 'التحليل جاهز' : state === 'INSUFFICIENT_DATA' ? 'راجع المصدر' : state === 'ERROR' ? 'أعد المحاولة' : 'جارٍ القراءة'}</span><ArrowUpLeft size={13} /></div>
+                  <div className="mt-4 flex items-center justify-between border-t border-ink-100 pt-3 text-[9px] font-black text-primary-700"><span>{state === 'CALCULATED' ? 'التحليل جاهز' : state === 'INSUFFICIENT_DATA' || state === 'NO_DATA' ? 'راجع المصدر' : state === 'ERROR' ? 'أعد المحاولة' : 'جارٍ القراءة'}</span><ArrowUpLeft size={13} /></div>
                 </CardBody>
               </Card>
             </Link>
@@ -179,7 +180,7 @@ export function RFMAnalysisPage() {
   const load=useCallback(async()=>{try{setLoading(true);setError(null);const snapshot=await fetchRFMSnapshot(500);setData(snapshot.rows);setStatus(snapshot.status);setUnknownRows(snapshot.unknownRows);}catch(e:unknown){setError(e instanceof Error?e.message:'فشل تحميل تحليل RFM');}finally{setLoading(false);}},[]);
   useEffect(()=>{void load();},[load]); if(loading)return <LoadingState/>; if(error)return <ErrorState message={error} onRetry={load}/>;
   const counts=new Map<string,number>(); data.forEach(r=>counts.set(r.rfm_segment,(counts.get(r.rfm_segment)||0)+1)); const segmentData=Array.from(counts.entries()).map(([name,value])=>({name,value}));
-  return <div className="ag-analytics-surface space-y-6 animate-fade-in"><PageHeader title="تحليل RFM" subtitle="تصنيف العملاء من المصدر التحليلي المعتمد، دون تحميل سجل المعاملات كاملًا إلى المتصفح"/>{status==='INSUFFICIENT_DATA'&&<AnalyticsTruthBanner warning title="البيانات غير كافية لإصدار RFM كامل" message={`السجلات غير الصالحة أو الناقصة: ${unknownRows==null?'غير متاح':formatNumber(unknownRows)}. لا يتم تصنيع درجات بديلة.`}/>}<AnalyticsActionBar/><AnalyticsStatusStrip status={status} rows={data.length} unknownRows={unknownRows} label="تحليل RFM"/><div className="grid grid-cols-1 lg:grid-cols-3 gap-4"><Card><CardHeader title="توزيع الشرائح"/><CardBody>{segmentData.length?<SimpleBarChart data={segmentData} dataKey="value" nameKey="name" height={250}/>:<EmptyState title="لا توجد شرائح قابلة للاعتماد" message="راجع المصدر وجودة البيانات قبل استخدام RFM في قرار، أو ابدأ باستيراد مصدر جديد." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>}</CardBody></Card><Card className="lg:col-span-2"><CardHeader title="تفاصيل العملاء"/><DataTable columns={[{key:'customer_name',label:'العميل'},{key:'recency',label:'الحداثة (يوم)',align:'center',render:(r:RFMSnapshotRow)=>formatNumber(r.recency)},{key:'frequency',label:'التكرار',align:'center',render:(r:RFMSnapshotRow)=>formatNumber(r.frequency)},{key:'monetary',label:'القيمة',align:'right',render:(r:RFMSnapshotRow)=>formatCurrency(r.monetary)},{key:'rfm_segment',label:'الشريحة',align:'center',render:(r:RFMSnapshotRow)=><Badge variant={RFM_VARIANTS[r.rfm_segment]??'neutral'}>{r.rfm_segment}</Badge>}] } data={data.slice(0,20)}/></Card></div></div>;
+  return <div className="ag-analytics-surface space-y-6 animate-fade-in"><PageHeader title="تحليل RFM" subtitle="تصنيف العملاء من المصدر التحليلي المعتمد، دون تحميل سجل المعاملات كاملًا إلى المتصفح"/>{status==='INSUFFICIENT_DATA'&&<AnalyticsTruthBanner warning title="البيانات غير كافية لإصدار RFM كامل" message={`السجلات غير الصالحة أو الناقصة: ${unknownRows==null?'غير متاح':formatNumber(unknownRows)}. لا يتم تصنيع درجات بديلة.`}/>}<AnalyticsActionBar onRefresh={() => void load()} refreshing={loading}/><AnalyticsStatusStrip status={status} rows={data.length} unknownRows={unknownRows} label="تحليل RFM"/><div className="grid grid-cols-1 lg:grid-cols-3 gap-4"><Card><CardHeader title="توزيع الشرائح"/><CardBody>{segmentData.length?<SimpleBarChart data={segmentData} dataKey="value" nameKey="name" height={250}/>:<EmptyState title="لا توجد شرائح قابلة للاعتماد" message="راجع المصدر وجودة البيانات قبل استخدام RFM في قرار، أو ابدأ باستيراد مصدر جديد." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>}</CardBody></Card><Card className="lg:col-span-2"><CardHeader title="تفاصيل العملاء"/><DataTable columns={[{key:'customer_name',label:'العميل'},{key:'recency',label:'الحداثة (يوم)',align:'center',render:(r:RFMSnapshotRow)=>formatNumber(r.recency)},{key:'frequency',label:'التكرار',align:'center',render:(r:RFMSnapshotRow)=>formatNumber(r.frequency)},{key:'monetary',label:'القيمة',align:'right',render:(r:RFMSnapshotRow)=>formatCurrency(r.monetary)},{key:'rfm_segment',label:'الشريحة',align:'center',render:(r:RFMSnapshotRow)=><Badge variant={RFM_VARIANTS[r.rfm_segment]??'neutral'}>{r.rfm_segment}</Badge>}] } data={data.slice(0,20)}/></Card></div></div>;
 }
 
 export function ABCAnalysisPage(){
