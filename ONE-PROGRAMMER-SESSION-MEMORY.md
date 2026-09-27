@@ -2,16 +2,16 @@
 
 - CURRENT REPOSITORY HEAD → 46675643e32f6ea28b6c1d80a530b2eb134e7907
 - CURRENT CODE/TEST CANDIDATE → 46675643e32f6ea28b6c1d80a530b2eb134e7907 (main certification baseline)
-- GOVERNANCE CANDIDATE → bb0b09d0504ea9c54c93b2a01f258c0779f6fdb7 (PR #663 / control/continuous-resume-20260927)
+- GOVERNANCE CANDIDATE → cc393a0f2d84eee03544f9431607a8f454113c48 (PR #663 / control/continuous-resume-20260927)
 - ACTIVE FUNCTIONAL FRONT → b66ff4a6b7c8ece5e90501794e3c6837e1e68550 (PR #662 / exec/20260927-import-full-lifecycle)
 - ACTIVE EXECUTION FRONTS → SURFACE: PR #662 full-source import; HEART: import/runtime truth; PROOF: exact-head #662/#663 gates; GOVERNANCE: certification-boundary/index reconciliation.
 - OPEN BLOCKERS (SCOPED) → Vercel free-plan build-rate limit; local PC01 offline; Phase-F/production promotion proof remains external/not proven. These blockers isolate only dependent fronts.
 - LAST PROVEN → PR #663 governance contracts except certification-boundary index binding; exact Windows/Netlify/CodeRabbit success on b66 remains SHA-bound and does not transfer.
 - FIRST FAILURE → certification candidate parser read historical index entries; scoped parser + historical-entry regression guard are now committed.
-- NEXT EXECUTABLE ACTION → consume first terminal #663 exact-head enforcement gate on `bb0b09...`; consume #662 certification independently.
+- NEXT EXECUTABLE ACTION → consume first terminal #663 exact-head enforcement gate on `cc393a0f2d84eee03544f9431607a8f454113c48`; consume #662 independently.nsume #662 certification independently.
 - NEXT INDEPENDENT ACTIONS → preserve untouched 151 staging import_jobs; continue independent proof/contract consumption; no production mutation or unsafe job recovery.
 - DO NOT REPEAT → stale candidate binding; stale PASS transfer; duplicate importer/RPC/runner; blind import-job terminalization; preview-as-production/browser PASS; documentation-only closure.
-- RESUME STATUS → ACTIVE / PARSER ROOT FIX CLOSED / FRESH EXACT-HEAD PROOF RUNNING
+- RESUME STATUS → ACTIVE / PARSER ROOT FIX CLOSED / CURRENT GOVERNANCE HEAD RECORDED / EXACT-HEAD PROOF QUEUED
 - CHECKPOINT RULE → HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT
 
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / EXACT WINDOWS PROOF CONSUMED
