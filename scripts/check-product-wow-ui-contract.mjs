@@ -533,6 +533,13 @@ const dataTableSurface = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf
 assert.ok(dataTableSurface.includes('gridTemplateColumns'), 'shared table loading must preserve column geometry');
 assert.ok(dataTableSurface.includes('تجهيز الصفوف والحقول'), 'shared table loading must expose an explicit loading context');
 
+
+const alternativeGroups = fs.readFileSync('src/pages/AlternativeGroupsPage.tsx', 'utf8');
+assert.ok(alternativeGroups.includes('role="alert" aria-live="assertive"'), 'alternative groups must announce mutation/load failures');
+assert.ok(alternativeGroups.includes('role="status" aria-live="polite"'), 'alternative groups loading must be announced without interruption');
+assert.ok(alternativeGroups.includes('aria-busy={saving}'), 'alternative group writes must expose their busy state');
+assert.ok(alternativeGroups.includes('min-h-11 min-w-11'), 'alternative group destructive actions must meet touch-target sizing');
+
 const sharedStates = fs.readFileSync('src/components/ui/States.tsx', 'utf8');
 assert.ok(sharedStates.includes('role="status" aria-live="polite" className="ag-state ag-state-empty'), 'governed data-unavailable state must be announced to assistive technology');
 
