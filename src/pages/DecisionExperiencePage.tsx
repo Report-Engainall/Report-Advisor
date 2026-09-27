@@ -214,6 +214,16 @@ export function DecisionExperiencePage() {
   const activeAlerts = useMemo(() => alerts.filter((item) => !item.is_read).slice(0, 6), [alerts]);
   const selectedStatus = selected?.status ?? null;
 
+  const navigateStage = useCallback((next: Stage, id = selectedId) => {
+    if (!canEnterStage(next)) return;
+    setStage(next);
+    const nextParams = new URLSearchParams(params);
+    nextParams.set('stage', next);
+    if (id) nextParams.set('recommendationId', id);
+    else nextParams.delete('recommendationId');
+    setParams(nextParams, { replace: true });
+  }, [canEnterStage, params, selectedId, setParams]);
+
   const runGovernedOperation = useCallback(async (operation: () => Promise<void>, nextStage?: Stage) => {
     setOperationLoading(true);
     setOperationError(null);
