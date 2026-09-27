@@ -402,13 +402,12 @@ export function RecommendationsPage() {
       ? items.filter((item) => isActionableRecommendationStatus(item.status))
       : items.filter((item) => item.status === filter);
 
-  const handleStatus = async (id: string, status: 'accepted' | 'rejected') => {
+  const handleReject = async (id: string) => {
     try {
       setPendingId(id);
       setError(null);
-      await updateRecommendationStatus(id, status);
-      const persistedStatus = status === 'accepted' ? 'approved' : status;
-      setItems((current) => current.map((item) => item.id === id ? { ...item, status: persistedStatus } : item));
+      await updateRecommendationStatus(id, 'rejected');
+      setItems((current) => current.map((item) => item.id === id ? { ...item, status: 'rejected' } : item));
     } catch (cause: unknown) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحديث حالة التوصية');
     } finally {
@@ -483,9 +482,9 @@ export function RecommendationsPage() {
                       </div>
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center gap-2">
-                      {item.status === 'new' && <>
-                        <button type="button" disabled={pendingId === item.id} onClick={() => void handleStatus(item.id, 'accepted')} className="btn-primary text-xs"><CheckCircle2 size={14}/>قبول</button>
-                        <button type="button" disabled={pendingId === item.id} onClick={() => void handleStatus(item.id, 'rejected')} className="btn-secondary text-xs"><XCircle size={14}/>رفض</button>
+                      {(item.status === 'OPEN' || item.status === 'new') && <>
+                        <Link to={'/decision-experience?stage=decision&recommendationId=' + encodeURIComponent(item.id)} className="btn-primary text-xs"><CheckCircle2 size={14}/>فتح مسار القرار</Link>
+                        <button type="button" disabled={pendingId === item.id} onClick={() => void handleReject(item.id)} className="btn-secondary text-xs"><XCircle size={14}/>رفض</button>
                       </>}
                       <Link to={'/decision-experience?stage=evidence&recommendationId=' + encodeURIComponent(item.id)} className="inline-flex items-center gap-1.5 rounded-xl border border-ink-200 px-3 py-2 text-xs font-semibold text-ink-700 hover:bg-ink-50">مساحة الدليل <ArrowLeft size={14}/></Link>
                     </div>
