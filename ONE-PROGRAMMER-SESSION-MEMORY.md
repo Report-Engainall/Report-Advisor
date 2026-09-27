@@ -4,10 +4,10 @@
 - CURRENT CODE/TEST CANDIDATE → a8c0fe40e29139dee02c100f5706ff514bc29bc8 (PR #663; governance candidate).
 - ACTIVE EXECUTION FRONTS → SURFACE: PR #662 full-source import; HEART: import/runtime truth; PROOF: exact-head PR #662/#663 gates; GOVERNANCE: continuous-resume enforcement.
 - OPEN BLOCKERS (SCOPED) → Vercel free-plan build-rate limit; browser automation unavailable; Phase-F/production certification remains unproven. These blockers isolate only their dependent proof fronts.
-- LAST PROVEN → PR #663 exact-head execution-enforcement PASS; adversarial test-of-test PASS; knowledge-architecture PASS; report execution foundation/coordinator/E2E contracts PASS on local candidate.
+- LAST PROVEN → PR #663 exact-head execution-enforcement + adversarial + knowledge/report-execution contracts PASS; PR #662 exact-head local certification contracts PASS across resilience, production certification, tenant/file security and release readiness.
 - LAST FAILED / FIRST FAILURE TO CONSUME → closed: Resume Token parser-format drift fixed. Remaining typecheck failure is pre-existing main code in DataTable/ExecutiveReport and is covered by PR #662; do not duplicate that product fix in governance PR #663.
-- NEXT EXECUTABLE ACTION → consume fresh PR #663 remote gates; consume PR #662 exact-head certification; repair only a new current-SHA failure. Keep Vercel rate-limit and browser/Phase-F boundaries fail-closed.
-- NEXT INDEPENDENT ACTIONS → inspect live import-job consumer/recovery contract before any staging mutation; keep 151 processing rows untouched; continue PR #662 proof consumption.
+- NEXT EXECUTABLE ACTION → consume fresh PR #663 remote gates and PR #662 remote certification gates; repair only a new current-SHA failure. Vercel build-rate limit remains external; browser/Phase-F remain fail-closed.
+- NEXT INDEPENDENT ACTIONS → preserve 151 staging processing rows; no canonical import recovery worker exists in current source surface; consume remote gates and inspect recovery only if a governed import recovery contract is added.
 - DO NOT REPEAT → stale PASS transfer; duplicate import/RPC/runner; blind import-job terminalization; production/Phase-F bypass; documentation-only closure.
 - CHECKPOINT RULE → after every meaningful closure batch update this token as HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT. The next session must start here, not from chat history.
 
