@@ -18,6 +18,12 @@ for (const token of [
   "LoadingState",
   "ErrorState",
   "to={value > 0 ? '/inventory' : '/import'}",
+"source_analysis_snapshots",
+  "canonical_dataset_records",
+  "import_field_lineage",
+  "analysisSnapshots",
+  "canonicalDatasets",
+  "fieldMappings",
 ]) assert.ok(masterData.includes(token), 'Master Data hub truth binding missing: ' + token);
 assert.ok(masterData.includes("count === 0 ? '/import' : path"), 'Master Data empty entities must route to unified import');
 const entities = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
