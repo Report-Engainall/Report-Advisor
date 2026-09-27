@@ -119,6 +119,11 @@ function canonicalizeRow(entityType: CanonicalImportEntityType, row: CanonicalIm
       paid_amount: requiredNumber(d.paid_amount, 'paid_amount', row.rowNumber),
       status: requiredText(d.status, 'status', row.rowNumber),
       currency: text(d.currency),
+      product_id: text(d.product_id),
+      quantity: d.quantity == null || d.quantity === '' ? null : requiredNumber(d.quantity, 'quantity', row.rowNumber),
+      unit_price: d.unit_price == null || d.unit_price === '' ? null : requiredNumber(d.unit_price, 'unit_price', row.rowNumber),
+      line_total: d.line_total == null || d.line_total === '' ? null : requiredNumber(d.line_total, 'line_total', row.rowNumber),
+      description: text(d.description),
       notes: text(d.notes),
     };
   }
