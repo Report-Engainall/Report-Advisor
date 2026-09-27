@@ -1,3 +1,17 @@
+# RESUME TOKEN — 2026-09-27 / continuous execution
+
+- CURRENT REPOSITORY HEAD (last main HEAD observed before this control-plane write) → 46675643e32f6ea28b6c1d80a530b2eb134e7907
+- CURRENT CODE/TEST CANDIDATE → c2dc39c931f108ee5262790ad0035a11a0dbecc7 (PR #660; base main 46675643...)
+- ACTIVE EXECUTION FRONTS → SURFACE: PR #660 UI polish; HEART: PR #660 dashboard fail-closed truth + remaining import/core closure; PROOF: exact-head PR #660 gates; GOVERNANCE: control-plane/resume enforcement.
+- OPEN BLOCKERS (SCOPED) → PR #660 has multiple failed checks; do not treat them as independent defects until first-failure triage. Device-dependent verification and production certification remain separate proof boundaries.
+- LAST PROVEN → PR #660 desktop-windows SUCCESS; UI route completeness SUCCESS; security-definer helper contract SUCCESS; canonical-truth boundary SUCCESS on exact head c2dc39c...
+- LAST FAILED / FIRST FAILURE TO CONSUME → first actionable current-SHA failure in dependency order from PR #660; repair only that root cause, then refresh the failure set.
+- NEXT EXECUTABLE ACTION → consume PR #660 exact-head failures in dependency order; execute the first reproducible root cause immediately.
+- NEXT INDEPENDENT ACTIONS → while CI/verification runs, continue any independent unified-import, UI-state, evidence, security, data-quality or cleanup front whose dependencies are ready; do not wait idle.
+- DO NOT REPEAT → no full-repository re-read; no old session replay; no stale PASS transfer; no duplicate importer/RPC/runner; no blind mass-fixing of cascaded CI failures; no rigid 50/50 quota; no documentation-only closure.
+- CHECKPOINT RULE → after every meaningful closure batch update this token as HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT. The next session must start here, not from chat history.
+
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
