@@ -3,6 +3,7 @@
 > Exact-head evidence only. This startup block supersedes older historical boundaries.
 
 - MAIN HEAD BEFORE THIS DOCS COMMIT → `16bfd89ac25f55dbc776871b5bc4cbc538320fc0`
+- CURRENT CODE/TEST CANDIDATE: `c5b193116e16b7ce46fd88d6d6edde268820ef52`
 - FUNCTIONAL CANDIDATE → PR #664 / `c5b193116e16b7ce46fd88d6d6edde268820ef52`
 - GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
 - ROOT CLOSED → TypeScript + canonical-import mapping roots fixed; fresh proof required on `c5b193116e16b7ce46fd88d6d6edde268820ef52`.
