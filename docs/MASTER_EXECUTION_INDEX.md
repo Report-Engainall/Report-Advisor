@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / POST-IMPORT JOURNEY UI CLOSURE
+
+> This top block is the only startup boundary.
+
+- MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT CODE/TEST CANDIDATE → `bb86b9fb667f0f1aef1b28f97dcce9d189b5a717`
+- FUNCTIONAL FRONT → PR #671 / `bb86b9fb667f0f1aef1b28f97dcce9d189b5a717`
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- UI AFTER IMPORT → one canonical visible path: Evidence → Signals → Decision → Work → Outcome/Learning; existing `/trust`, `/intelligence`, `/decision-experience`, `/work-center`, `/replay` routes are reused.
+- NEW REPOSITORY MUTATION → `CanonicalImportPage.tsx` now answers “ماذا بعد سحب الملف؟” with five linked, evidence-aware stages; `check-product-wow-ui-contract.mjs` guards the sequence.
+- EXACT EVIDENCE → exact-source readback at candidate `bb86b9fb…`; runtime/build evidence for this candidate is pending.
+- EXTERNAL → Vercel free-plan rate limit remains external; device/browser/production/Phase-F proof unavailable.
+- NEXT → consume the first terminal current-SHA gate; repair only the first reproducible root, then rescan route/duplicate/cleanup front without re-opening closed work.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT
 
 > Exact-head evidence only. This block supersedes historical checkpoints below.
