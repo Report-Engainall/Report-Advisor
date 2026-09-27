@@ -194,7 +194,7 @@ No canonical document may redefine the product into generic BI, CRUD, ERP, chatb
 - update execution index when the execution boundary changes;
 - update affected domain master when canonical knowledge changes;
 - update the Manifest when consolidation status changes;
-- record both 50% UI and 50% core outcomes;
+- record actual delivery by SURFACE / HEART / PROOF / GOVERNANCE; do not fabricate a 50/50 ratio;
 - leave one clear resume pointer;
 - leave one next executable action set.
 
