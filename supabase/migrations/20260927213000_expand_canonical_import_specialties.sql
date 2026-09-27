@@ -33,6 +33,11 @@ declare
   v_existing public.canonical_import_commits%rowtype;
   v_coded_ids jsonb := '[]'::jsonb;
   v_null_ids jsonb := '[]'::jsonb;
+  v_company_currency text;
+  v_customer_id uuid;
+  v_supplier_id uuid;
+  v_product_id uuid;
+  v_warehouse_id uuid;
 begin
   if v_company_id is null then raise exception 'TENANT_CONTEXT_REQUIRED'; end if;
   if p_company_id is distinct from v_company_id then raise exception 'TENANT_CONTEXT_MISMATCH'; end if;
@@ -279,15 +284,15 @@ begin
         where company_id=v_company_id and ((nullif(v_row->>'product_id','') is not null and id=nullif(v_row->>'product_id','')::uuid) or (nullif(v_row->>'sku','') is not null and public.normalize_import_key(sku)=public.normalize_import_key(v_row->>'sku')))
         order by id limit 1;
         if v_id is null then raise exception 'INVENTORY_PRODUCT_REQUIRED'; end if;
-        v_supplier_id := v_id;
+        v_product_id := v_id;
         select id into v_warehouse_id from public.warehouses
         where company_id=v_company_id and ((nullif(v_row->>'warehouse_id','') is not null and id=nullif(v_row->>'warehouse_id','')::uuid) or (nullif(v_row->>'warehouse','') is not null and (public.normalize_import_key(code)=public.normalize_import_key(v_row->>'warehouse') or public.normalize_import_key(name)=public.normalize_import_key(v_row->>'warehouse'))))
         order by id limit 1;
         if v_warehouse_id is null then raise exception 'INVENTORY_WAREHOUSE_REQUIRED'; end if;
-        select id into v_id from public.inventory_balances where company_id=v_company_id and warehouse_id=v_warehouse_id and product_id=v_supplier_id limit 1 for update;
+        select id into v_id from public.inventory_balances where company_id=v_company_id and warehouse_id=v_warehouse_id and product_id=v_product_id limit 1 for update;
         if v_id is null then
           insert into public.inventory_balances(company_id,warehouse_id,product_id,quantity,unit_cost,last_movement_date)
-          values(v_company_id,v_warehouse_id,v_supplier_id,(v_row->>'quantity')::numeric,nullif(v_row->>'unit_cost','')::numeric,nullif(v_row->>'last_movement_date','')::date)
+          values(v_company_id,v_warehouse_id,v_product_id,(v_row->>'quantity')::numeric,nullif(v_row->>'unit_cost','')::numeric,nullif(v_row->>'last_movement_date','')::date)
           returning id into v_id;
         else
           update public.inventory_balances
@@ -340,14 +345,15 @@ end;
 $function$;
 
 
-CREATE OR REPLACE FUNCTION public.import_commit_batch(
+DROP FUNCTION IF EXISTS public.import_commit_batch(uuid,text,jsonb,text,text,uuid);
+
+CREATE FUNCTION public.import_commit_batch(
   p_company_id uuid,
   p_entity_type text,
   p_rows jsonb,
   p_null_policy text DEFAULT 'preserve'::text,
   p_source_hash text DEFAULT NULL::text,
-  p_import_job_id uuid
-)
+  p_import_job_id uuid)
 RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
