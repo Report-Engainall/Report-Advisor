@@ -643,7 +643,7 @@ export function DecisionExperiencePage() {
             </CardBody>
           </Card>
           {!outcome && <BlockedState title="النتيجة الفعلية غير موجودة بعد" detail="أكمل Work Item فعليًا وأرفق Evidence Snapshot مناسبًا؛ بعدها ستظهر النتيجة هنا تلقائيًا من السجل." />}
-          {outcome && <Link to="/work-center" className="inline-flex h-fit items-center gap-2 rounded-xl border border-ink-200 bg-white px-4 py-3 text-[11px] font-black text-ink-700">مراجعة المهمة والأدلة <ArrowUpLeft size={13}/></Link>}
+          {outcome && <div className="flex h-fit flex-wrap gap-2"><Link to="/work-center" className="inline-flex items-center gap-2 rounded-xl border border-ink-200 bg-white px-4 py-3 text-[11px] font-black text-ink-700">مراجعة المهمة والأدلة <ArrowUpLeft size={13}/></Link><Link to="/replay" className="inline-flex items-center gap-2 rounded-xl border border-primary-200 bg-primary-50 px-4 py-3 text-[11px] font-black text-primary-800">فتح سجل Business Replay <ArrowUpLeft size={13}/></Link></div>}
         </section>
       )}
 
