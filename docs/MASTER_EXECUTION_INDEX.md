@@ -1,3 +1,17 @@
+# BOOT CONTROL PLANE — 2026-09-27 / CANONICAL ROUTER
+
+- CONTROL PLANE → `SYSTEM_HEART`
+- LIVE STATE → `ONE-PROGRAMMER-SESSION-MEMORY.md`
+- EXECUTION FRONTIER → `docs/MASTER_EXECUTION_INDEX.md`
+- KNOWLEDGE / DEPENDENCY MAP → `docs/PROJECT_KNOWLEDGE_MANIFEST.md`
+- EXECUTION OPERATOR → `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`
+- DOMAIN TRUTH → Canonical Domain Masters selected by the Manifest
+- TECHNICAL TRUTH → GitHub exact SHA
+- TOOL RULE → Use repository-native proof first; Playwright is the default device-independent browser proof; interactive/device tools are escalation layers, never single points of failure.
+- DEVICE RULE → Device unavailable blocks only device-specific proof. Continue all independent CI/headless/API/repository work.
+- SESSION RULE → Persist exact candidate SHA + evidence + blockers + next action after every meaningful batch.
+- STOP RULE → Stop only when no safe actionable front remains or all remaining fronts require explicit owner authority / unavailable external prerequisite.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT — UPDATED
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
