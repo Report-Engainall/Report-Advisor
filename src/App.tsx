@@ -57,6 +57,7 @@ const BusinessReplayPage = lazy(() => import('@/pages/BusinessReplayPage').then(
 const MasterDataHubPage = lazy(() => import('@/pages/MasterDataHubPage').then(m => ({ default: m.MasterDataHubPage })));
 class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> { state = { hasError: false }; static getDerivedStateFromError(): { hasError: boolean } { return { hasError: true }; } componentDidCatch(error: Error, info: ErrorInfo) { console.error('[AppErrorBoundary]', error, info); } handleRetry = () => { this.setState({ hasError: false }); }; render() { if (!this.state.hasError) return this.props.children; return <div dir="rtl" className="min-h-screen bg-ink-50 flex items-center justify-center p-6"><div className="w-full max-w-lg rounded-2xl border border-ink-100 bg-white p-8 shadow-sm text-center"><div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-600"><AlertTriangle size={24} /></div><h1 className="text-xl font-bold text-ink-900">حدث خطأ غير متوقع</h1><p className="mt-2 text-sm leading-6 text-ink-500">تعذر عرض هذه الشاشة. يمكنك المحاولة مرة أخرى أو العودة إلى لوحة القيادة.</p><div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center"><button type="button" onClick={this.handleRetry} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-700"><RefreshCw size={16} /> المحاولة مرة أخرى</button><Link to="/" className="inline-flex items-center justify-center gap-2 rounded-xl border border-ink-200 px-4 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50"><Home size={16} /> لوحة القيادة</Link></div></div></div>; } }
 function MobileActionBar({ onOpenCommandPalette, onOpenAdvisor, advisorOpen }: { onOpenCommandPalette: () => void; onOpenAdvisor: () => void; advisorOpen: boolean }) {
+  const { language } = useLanguage();
   const location = useLocation();
   const items = [
     { path: '/', icon: Home },
@@ -68,7 +69,8 @@ function MobileActionBar({ onOpenCommandPalette, onOpenAdvisor, advisorOpen }: {
     <nav aria-label="إجراءات الهاتف الرئيسية" className="ag-mobile-bar fixed inset-x-3 bottom-3 z-40 rounded-[16px] border border-ink-200/90 bg-white/95 p-1.5 shadow-elevated backdrop-blur xl:hidden" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 6px)' }}>
       <div className="grid grid-cols-6 gap-1">
         {items.map(({ path, icon: Icon }) => {
-          const label = resolveNavigationItem(path)?.label ?? path;
+          const navigationItem = resolveNavigationItem(path);
+          const label = navigationItem ? (language === 'ar' ? navigationItem.label : navigationItem.enLabel) : path;
           const active = location.pathname === path || (path !== '/' && location.pathname.startsWith(path + '/'));
           return (
             <Link
