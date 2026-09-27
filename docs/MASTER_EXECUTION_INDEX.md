@@ -1,35 +1,21 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT VERIFIED NON-DEVICE FRONT
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / TRUST FAIL-CLOSED HARDENING
 
 > Single startup boundary for the active non-device front.
 
 - MAIN HEAD → ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8
-- LAST CODE/TEST CANDIDATE → d8646e8c93793c9c51efdc7a3e6e3c09b67617e0
+- CURRENT CODE/TEST CANDIDATE → be9607828756d67a2f9f25561e5e2a95af0c7b17
+- LAST NETLIFY-PROVEN CODE SHA → d8646e8c93793c9c51efdc7a3e6e3c09b67617e0
 - FUNCTIONAL FRONT → PR #671 / exec/20260927-current-main-import-ui-finalize-head
 - FRONT-ID → IMPORT-TO-DECISION-CONTINUITY
 - PRODUCT CHAIN → Any Source → Security → Fingerprint → Understand → Normalize → Quality/Trust → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
 - UI STATE → 38/38 navigation parity; eight-stage Product Journey; post-import five-stage continuation; dark RTL executive shell; accessibility/touch-target closure; source-bound Report Builder; fail-closed Benchmark/ROI/Backtest.
 - CORE STATE → authoritative server re-extraction, tenant binding, canonical commit, evidence snapshot and durable import lifecycle; browser result rejects missing authoritative row count.
-- CURRENT-SHA PROOF → Netlify exact d8646e8c… deploy-preview is READY/SUCCESS with `canonical-import-execute` deployed; CodeRabbit SUCCESS. GitHub Actions: 42 queued, 1 in progress, 4 cancelled, 2 skipped, 0 terminal PASS/FAIL.
-- HOSTING/DEVICE → Vercel remains external `build-rate-limit` failure; device unavailable; production/browser/Phase-F exact proof not proven; interactive TinyFish browser audit is wallet-blocked.
-- ROOT HISTORY → 6b156ef4… truncated CommandPalette write was fixed by full reconstruction; 98aa51af… then built successfully; d8646e8c… is separately Netlify-successful.
-- NEXT → consume first terminal GitHub gate for d8646e8c…; repair only first reproducible current-SHA root, then continue independent non-device fronts.
-- DO NOT REPEAT → partial-file writes, stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, local row fallback, speculative deletion/formulas.
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / POST-IMPORT JOURNEY UI CLOSURE
-
-> This top block is the only startup boundary.
-
-- MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `bb86b9fb667f0f1aef1b28f97dcce9d189b5a717`
-- FUNCTIONAL FRONT → PR #671 / `bb86b9fb667f0f1aef1b28f97dcce9d189b5a717`
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- UI AFTER IMPORT → one canonical visible path: Evidence → Signals → Decision → Work → Outcome/Learning; existing `/trust`, `/intelligence`, `/decision-experience`, `/work-center`, `/replay` routes are reused.
-- NEW REPOSITORY MUTATION → `CanonicalImportPage.tsx` now answers “ماذا بعد سحب الملف؟” with five linked, evidence-aware stages; `check-product-wow-ui-contract.mjs` guards the sequence.
-- EXACT EVIDENCE → exact-source readback at candidate `bb86b9fb…`; runtime/build evidence for this candidate is pending.
-- EXTERNAL → Vercel free-plan rate limit remains external; device/browser/production/Phase-F proof unavailable.
-- NEXT → consume the first terminal current-SHA gate; repair only the first reproducible root, then rescan route/duplicate/cleanup front without re-opening closed work.
-
----
+- NEW TRUST CLOSURE → Evidence Passport renders missing dataset column count as `غير متاح` rather than coercing it to zero; Product WOW contract guards the invariant.
+- EXACT PROOF → d8646e8… Netlify deploy-preview READY/SUCCESS with canonical-import-execute deployed; CodeRabbit SUCCESS. This evidence is SHA-bound and not transferable to be960782… .
+- CURRENT CANDIDATE STATUS → be960782… has Vercel build-rate-limit failure/pending deployment context; GitHub Actions 43 queued, 1 in progress, 3 pending, 2 skipped, 0 terminal PASS/FAIL; exact Netlify result for be960782… not materialized yet.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; device unavailable; authenticated browser/production/Phase-F exact proof not proven; interactive TinyFish browser audit wallet-blocked.
+- NEXT → consume first terminal result for be960782…; repair only first reproducible current-SHA root, then continue independent non-device fronts.
+- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, local-row fallback, speculative deletion/formulas, partial-file writes.
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT
 
