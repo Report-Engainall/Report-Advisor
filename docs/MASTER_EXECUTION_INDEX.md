@@ -26,7 +26,7 @@
 > This top block is the only startup boundary. Entries below are historical evidence and MUST NOT override it.
 
 - MAIN HEAD OBSERVED BEFORE THIS CONTROL-PLANE WRITE: 46675643e32f6ea28b6c1d80a530b2eb134e7907
-- ACTIVE CODE/TEST CANDIDATE: 46675643e32f6ea28b6c1d80a530b2eb134e7907 (current main certification baseline; PR #663 is governance-only descendant).
+- CURRENT CODE/TEST CANDIDATE: 46675643e32f6ea28b6c1d80a530b2eb134e7907 (current main certification baseline; PR #663 is governance-only descendant).
 - CURRENT EXECUTION MODE: dependency-aware maximum-safe parallelism across SURFACE / HEART / PROOF / GOVERNANCE; fixed 50/50 time allocation is retired.
 - FIRST CONSUMABLE: after this governance repair, consume fresh PR #663 gates for the governance descendant; in parallel consume PR #662 exact-head gates for b66ff4a6b7c8ece5e90501794e3c6837e1e68550.
 - PARALLEL WORK: while asynchronous checks run, execute independent ready work; do not wait idle.
