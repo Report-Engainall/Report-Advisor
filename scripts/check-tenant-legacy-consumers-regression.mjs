@@ -20,6 +20,12 @@ export async function save() {
 `;
 fs.writeFileSync(path.join(root, 'src/pages/CanonicalRpc.tsx'), canonical);
 
+fs.writeFileSync(path.join(root, 'src/server/CanonicalImport.ts'), `
+const { data: companyId, error: companyError } = await userClient.rpc('current_company_id');
+if (companyError || !companyId) throw new Error('tenant required');
+return supabase.from('import_jobs').select('id').eq('company_id', companyId);
+`);
+
 let result = spawnSync(process.execPath, [checker], { cwd: root, encoding: 'utf8' });
 if (result.status !== 0) {
   console.error('FAIL: canonical tenant-authoritative RPC payload was rejected.');
