@@ -1,3 +1,23 @@
+# RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT — UPDATED
+
+- SESSION-ID → `20260927-IMPORT-UI-FINALIZE-02`
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT EXECUTION/CANDIDATE SHA → `21f4e2d9179e1a00b8b0bf714d264963d3cdc3cf`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH`
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize/Reconcile → Quality/Trust → Evidence → Review → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
+- ACTUAL RESULT → Added a high-fidelity loading skeleton to the canonical shared DataTable and made governed DataUnavailableState explicitly announced to assistive technology. Closed stale governance PR #543 after confirming its operating-control content is already canonical; no duplicate product implementation was retained.
+- EVIDENCE → Exact candidate head verified on PR #671 as `21f4e2d9179e1a00b8b0bf714d264963d3cdc3cf`. Current candidate has not yet received terminal CI on this new SHA. Prior exact `9718654…` preview/deployment results are historical and are not transferred to the new SHA.
+- FIRST FAILURE → No new code failure reproduced in this batch. External Vercel status remains free-plan deployment-rate limited; interactive browser audit tooling is unavailable because its wallet is out of funds. Device remains unavailable.
+- OPEN BLOCKERS → Fresh deployment evidence, authenticated browser/device evidence, Phase-F live resilience evidence. These do not block repository-side UI/core work.
+- NEXT EXECUTABLE ACTION → Consume terminal CI results on `21f4e2d…`; inspect any first current-SHA failure, fix root, then continue independent surface polish and safe cleanup.
+- NEXT INDEPENDENT ACTIONS → Continue targeted UI state/a11y/value-first audit across remaining canonical pages; reconcile execution index; avoid legacy PR reactivation unless exact dependency evidence shows unique unabsorbed work.
+- DO NOT REPEAT → Historical PASS claims from pre-`21f4e2d…` SHAs, unauthenticated preview as authenticated UI proof, stale PR work already represented on current main, or device-dependent Phase-F tasks.
+- RESUME STATUS → ACTIVE / NOT CLOSED / SAFE WORK REMAINS.
+
+---
+
+
 # RESUME TOKEN — 2026-09-27 / CURRENT NON-DEVICE VERIFIED FRONT
 
 - CURRENT VERIFIED MAIN SHA → ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8
