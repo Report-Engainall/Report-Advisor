@@ -56,7 +56,7 @@ export function MasterDataHubPage() {
         return count ?? 0;
       };
 
-      const [customers, products, inventory, suppliers, warehouses, branches, categories] = await Promise.all([
+      const [customers, products, inventory, suppliers, warehouses, branches, categories, analysisSnapshots, canonicalDatasets, fieldMappings] = await Promise.all([
         countFor('customers'),
         countFor('products'),
         countFor('inventory'),
@@ -64,9 +64,9 @@ export function MasterDataHubPage() {
         countFor('warehouses'),
         countFor('branches'),
         countFor('categories'),
-        countFor('source_analysis_snapshots'),
-        countFor('canonical_dataset_records'),
-        countFor('import_field_lineage'),
+        countFor('analysisSnapshots'),
+        countFor('canonicalDatasets'),
+        countFor('fieldMappings'),
       ]);
 
       setCounts({ customers, products, inventory, suppliers, warehouses, branches, categories, analysisSnapshots, canonicalDatasets, fieldMappings });
@@ -82,10 +82,12 @@ export function MasterDataHubPage() {
 
   const summary = useMemo(() => {
     if (!counts) return null;
-    const domains = [counts.customers, counts.products, counts.inventory, counts.suppliers, counts.warehouses, counts.branches, counts.categories, counts.analysisSnapshots, counts.canonicalDatasets, counts.fieldMappings];
+    const entityDomains = [counts.customers, counts.products, counts.inventory, counts.suppliers, counts.warehouses, counts.branches, counts.categories];
+    const evidenceRows = counts.analysisSnapshots + counts.canonicalDatasets + counts.fieldMappings;
     return {
-      populatedDomains: domains.filter(value => value > 0).length,
-      totalRows: domains.reduce((total, value) => total + value, 0),
+      populatedEntityDomains: entityDomains.filter(value => value > 0).length,
+      entityRows: entityDomains.reduce((total, value) => total + value, 0),
+      evidenceRows,
     };
   }, [counts]);
 
@@ -109,8 +111,8 @@ export function MasterDataHubPage() {
           </div>
           <div className="rounded-2xl border border-primary-100 bg-white/80 p-4">
             <div className="text-[10px] font-black text-ink-400">الحالة الحالية</div>
-            <div className="mt-1 text-sm font-black text-ink-900">{formatNumber(summary.populatedDomains)} من 7 طبقات مرجعية تحتوي بيانات مثبتة</div>
-            <div className="mt-1 text-[11px] leading-5 text-ink-500">{formatNumber(summary.totalRows)} سجلًا مرجعيًا ضمن النطاق المقروء حاليًا.</div>
+            <div className="mt-1 text-sm font-black text-ink-900">{formatNumber(summary.populatedEntityDomains)} من 7 طبقات مرجعية تحتوي بيانات مثبتة</div>
+            <div className="mt-1 text-[11px] leading-5 text-ink-500">{formatNumber(summary.entityRows)} سجلًا مرجعيًا ضمن النطاق المقروء حاليًا، مع {formatNumber(summary.evidenceRows)} سجل دليل/lineage.</div>
           </div>
         </div>
       </section>
