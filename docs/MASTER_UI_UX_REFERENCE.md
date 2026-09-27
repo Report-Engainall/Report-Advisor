@@ -262,3 +262,6 @@ Decision Coverage is presented as two independent evidence-backed dimensions whe
 - Owner Coverage — percentage of actionable recommendations with an explicit owner.
 - Outcome Coverage — percentage of actionable recommendations with a recorded impact result.
 Do not collapse these into a composite score unless a canonical metric contract defines the formula. Auxiliary surfaces such as Business Replay must not block the parent Decision Center when their read fails; show `REVIEW` and preserve an explicit retry path.
+
+## Post-import and forecasting truth gates — 2026-09-27
+The unified import result must expose the continuous customer path `Evidence → Signals → Decision → Work → Outcome/Learning`. The Forecasts surface must expose an explicit Backtest Gate; without historical paired forecast/outcome evidence, the UI must remain fail-closed and must not display synthetic accuracy or performance figures. Navigation coverage is contract-guarded: all 38 registry items must resolve to real App routes, and the eight canonical product zones must remain intact.
