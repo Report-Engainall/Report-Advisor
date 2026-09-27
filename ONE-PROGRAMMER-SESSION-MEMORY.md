@@ -1,20 +1,19 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
-- CURRENT REPOSITORY HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT VERIFIED SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `ec3b9b513aea4db1ed875b816c67de852340145c`
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT EXECUTION/CANDIDATE SHA → `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
-- FRONT-ID → IMPORT-TO-DECISION-CONTINUITY
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- ACTUAL RESULT → typed purchases/suppliers/inventory/payments now commit through the existing authoritative 6-argument RPC; purchase lines persist in purchase_items; shared specialty/entity labels are reused by Import + Evidence UI; /import/analyze is compatibility-only and the duplicate page is deleted.
-- LIVE PROOF → staging tenant transaction exercised suppliers, purchase_invoices + purchase_items, inventory_balances, and payments. Each typed branch replayed idempotently; tenant mismatch failed closed; NaN/Infinity guards fired for purchase discount and inventory unit cost. All test writes rolled back.
-- ROOT FAILURES CONSUMED → payment_id duplicate-key bug; purchase-line migration syntax bug; shared-label import regression; all repaired and re-tested. No acceptance criteria weakened.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; authenticated production/Phase-F/browser final proof remains environment-bound; current PR #671 gates are queued/in flight.
-- NEXT EXECUTABLE ACTION → consume the first terminal failure on exact candidate ec3b9b513aea4db1ed875b816c67de852340145c; repair only that root and re-prove.
-- NEXT INDEPENDENT ACTIONS → continue post-import truth/readback UI depth, route/contract rescan, and safe stale-front cleanup only where overlap is proven.
-- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, generic fallback for typed specialties, static business truth, preview-as-production, or stale PR #670 evidence.
-- RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD FUNCTIONAL FRONT / PROOF IN FLIGHT
-
+- ACTUAL RESULT → explicit post-import Evidence → Signals → Decision → Work → Replay continuity is present; Evidence Passport now also exposes the stored Snapshot AS OF timestamp with its provenance meaning. Existing routes/components are reused.
+- CODE MUTATION → UI `b990a7830375336d2651a3668d69f8914a7a0943`; contract guard `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`.
+- PROOF → current exact head is source-verified; fresh CI is required on `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`. No stale PASS transferred.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; authenticated production/browser/Phase-F certification remains environment-bound; device unavailable.
+- FIRST FAILURE → none terminalized at this exact candidate checkpoint.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow result for `da8c2cce3cd6763bffc9e095a8c442e6e3e2772f`; repair only the first current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue targeted post-import truth/readback UI hardening and safe stale-front cleanup only after overlap/reference proof.
+- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, preview-as-production, parse/preview as completion, or downstream VERIFIED claims from navigation alone.
+- RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD UI+CORE PROOF IN FLIGHT
 ---
 
 
