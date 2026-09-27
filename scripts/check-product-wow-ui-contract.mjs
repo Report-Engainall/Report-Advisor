@@ -130,6 +130,7 @@ assert.ok(decisionExperience.includes('إضافة مصدر'), 'decision experien
 assert.ok(decisionExperience.includes('<Link to="/import"'), 'decision experience recommendation-empty state must use the unified import route');
 assert.ok(decisionExperience.includes('العودة إلى الإشارات'), 'decision evidence empty-selection state must provide a return action');
 assert.ok(decisionExperience.includes('<Link to="/trust"'), 'decision alerts must route source inspection to the trust/evidence surface');
+assert.ok(decisionExperience.includes('As Of '), 'decision experience must disclose the evidence snapshot as-of context when an imported source is bound');
 assert.ok(decisionExperience.includes('approval?.decided_by'), 'approval UI must expose the persisted approver when available');
 assert.ok(decisionExperience.includes('approval?.decided_at'), 'approval UI must expose the persisted decision timestamp when available');
 assert.ok(decisionExperience.includes('approval.requested_by'), 'approval UI must expose the persisted requester when available');
