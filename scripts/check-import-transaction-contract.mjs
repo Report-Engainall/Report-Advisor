@@ -185,6 +185,14 @@ if (!/request\.headers\.get\(['"]authorization['"]\)/i.test(serverWrapper) ||
     !/executeCanonicalImport/.test(serverWrapper)) {
   throw new Error('Netlify canonical deployment wrapper must forward authenticated requests to the shared server execution core');
 }
+if (!/status:\s*'failed'/.test(serverWrapper) || !/error:\s*['"]METHOD_NOT_ALLOWED['"]/.test(serverWrapper)) {
+  throw new Error('Netlify canonical deployment wrapper must use the shared failure response shape');
+}
+if (!/function failureStatus\(error: unknown, message: string\)/.test(serverWrapper) ||
+    !/AUTHENTICATED_USER_REQUIRED/.test(serverWrapper) ||
+    !/return \/required\|invalid\|tenant\|hash\|quality\|business\|duplicate\|already_\|not_retryable\|forbidden\|mismatch\|rejected\/i\.test\(message\) \? 400 : 502/.test(serverWrapper)) {
+  throw new Error('Netlify canonical deployment wrapper must distinguish client validation/auth failures from server failures');
+}
 if (!/requireMethod\(req, res, ['"]POST['"]\)/.test(apiWrapper)) {
   throw new Error('API canonical deployment wrapper must enforce POST');
 }
