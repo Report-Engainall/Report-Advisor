@@ -44,6 +44,7 @@ assert.ok((journey.match(/const steps: JourneyStep\[\] = \[/)?.length ?? 0) === 
 assert.equal((journey.match(/label: '/g) ?? []).length, 8, 'product journey must expose exactly eight canonical visible stages');
 const appShell = fs.readFileSync('src/App.tsx', 'utf8');
 const sidebar = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
+assert.ok(appShell.includes("language === 'ar' ? navigationItem.label : navigationItem.enLabel"), 'mobile primary navigation must respect the active language');
 const navigationRegistry = fs.readFileSync('src/lib/navigation-registry.ts', 'utf8');
 const navigationPaths = [...navigationRegistry.matchAll(/path:\s*'([^']+)'/g)].map((match) => match[1]);
 const appRoutePaths = new Set([...appShell.matchAll(/<Route path="([^"]+)"/g)].map((match) => match[1]));
