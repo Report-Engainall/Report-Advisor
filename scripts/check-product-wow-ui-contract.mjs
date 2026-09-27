@@ -546,6 +546,9 @@ assert.ok(alternativeGroups.includes('role="status" aria-live="polite"'), 'alter
 assert.ok(alternativeGroups.includes('aria-busy={saving}'), 'alternative group writes must expose their busy state');
 assert.ok(alternativeGroups.includes('min-h-11 min-w-11'), 'alternative group destructive actions must meet touch-target sizing');
 
+const suppliers = fs.readFileSync('src/pages/SuppliersPage.tsx', 'utf8');
+assert.ok((suppliers.match(/min-h-11/g) || []).length >= 3, 'supplier search/navigation controls must meet touch-target sizing');
+
 const sharedStates = fs.readFileSync('src/components/ui/States.tsx', 'utf8');
 assert.ok(sharedStates.includes('role="status" aria-live="polite" className="ag-state ag-state-empty'), 'governed data-unavailable state must be announced to assistive technology');
 
