@@ -12,7 +12,7 @@ import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat } from '@/lib/file-engine/types';
-import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
+import { reconcileForCanonical, type CanonicalImportEntityType } from '@/lib/import/canonical-truth-boundary';
 import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
 import { understandCanonicalSource } from '@/lib/import/canonical-source-understanding';
 
@@ -136,7 +136,7 @@ export function CanonicalImportPage() {
   const [understandingConfidence, setUnderstandingConfidence] = useState(0);
   const [understandingReason, setUnderstandingReason] = useState('لم يبدأ تحليل المصدر بعد.');
   const [sourceSpecialty, setSourceSpecialty] = useState('other');
-  const [sourceEntityType, setSourceEntityType] = useState<'products' | 'customers' | 'sales_invoices' | 'generic:source-data'>('generic:source-data');
+  const [sourceEntityType, setSourceEntityType] = useState<CanonicalImportEntityType>('generic:source-data');
   const [datasetCount, setDatasetCount] = useState(0);
   const [file, setFile] = useState<{ name: string; size: number; format: FileFormat; mime: string } | null>(null);
   const [fileHash, setFileHash] = useState<string | null>(null);
