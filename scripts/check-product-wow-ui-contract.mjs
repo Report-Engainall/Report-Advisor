@@ -8,7 +8,7 @@ const dataTable = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
 assert.ok(dataTable.includes('role="status" aria-live="polite" aria-busy="true"'), 'shared table loading state must expose assistive status semantics');
 assert.ok(dataTable.includes('role="status" aria-live="polite"'), 'shared table empty state must expose assistive status semantics');
 assert.ok(dataTable.includes('scope="col"'), 'shared table headers must declare column scope');
-assert.ok(dataTable.includes('aria-rowcount={visibleRows.length + 1}') && dataTable.includes('aria-colcount={columns.length}'), 'shared table must expose row and column counts');
+assert.ok(dataTable.includes('aria-rowcount={data.length + 1}') && dataTable.includes('aria-colcount={columns.length}'), 'shared table must expose row and column counts');
 assert.ok(dataTable.includes('role="navigation" aria-label="تنقّل الجدول"'), 'shared table pagination must expose navigation semantics');
 
 const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
