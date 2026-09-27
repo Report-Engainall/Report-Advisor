@@ -274,6 +274,7 @@ BEGIN
 
     ELSIF p_entity_type = 'inventory_balances' THEN
       IF nullif(v_row->>'quantity','') IS NULL OR (v_row->>'quantity') IN ('NaN','Infinity','-Infinity') OR (v_row->>'quantity')::numeric < 0 THEN RAISE EXCEPTION 'INVENTORY_QUANTITY_REQUIRED'; END IF;
+      IF nullif(v_row->>'unit_cost','') IN ('NaN','Infinity','-Infinity') OR coalesce((v_row->>'unit_cost')::numeric,0) < 0 THEN RAISE EXCEPTION 'INVENTORY_UNIT_COST_INVALID'; END IF;
 
       SELECT id INTO v_product_id
       FROM public.products
