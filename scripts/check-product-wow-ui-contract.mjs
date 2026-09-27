@@ -28,6 +28,9 @@ for (const token of [
 assert.ok(masterData.includes("count === 0 ? '/import' : path"), 'Master Data empty entities must route to unified import');
 assert.ok(masterData.includes("const [customers, products, inventory, suppliers, warehouses, branches, categories, analysisSnapshots, canonicalDatasets, fieldMappings]"), 'Master Data hub must bind every canonical count result without undefined destructuring');
 assert.ok(masterData.includes('const evidenceRows = counts.analysisSnapshots + counts.canonicalDatasets + counts.fieldMappings'), 'Master Data hub must keep evidence/lineage rows separate from entity row totals');
+assert.ok(masterData.includes("analysisSnapshots: 'source_analysis_snapshots'"), 'Master Data semantic analysis key must map to the canonical source-analysis table');
+assert.ok(masterData.includes("canonicalDatasets: 'canonical_dataset_records'"), 'Master Data canonical-dataset key must map to the canonical dataset table');
+assert.ok(masterData.includes("fieldMappings: 'import_field_lineage'"), 'Master Data field-lineage key must map to the canonical lineage table');
 const entities = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
 const dataTable = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
 assert.ok(dataTable.includes('role="status" aria-live="polite" aria-busy="true"'), 'shared table loading state must expose assistive status semantics');
