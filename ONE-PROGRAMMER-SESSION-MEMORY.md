@@ -2,17 +2,18 @@
 
 - CURRENT REPOSITORY HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
 - CURRENT VERIFIED SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `03eb9c35658cf6798b0e8d4ca45fa625898ef8de`
+- CURRENT CODE/TEST CANDIDATE → `2fe8b9c14801eece26966dca651e9082129752f0`
 - ACTIVE EXECUTION FRONT → PR #670 / `exec/20260927-current-main-import-ui-finalize-rebased` / single current-main import-to-decision front.
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- ACTUAL RESULT → specialty import closure + customer-facing typed specialty UI + regression guards. Existing authoritative 6-arg import_commit_batch now owns purchase/supplier/inventory/payment writes; legacy 5-arg remains untouched.
-- PROOF → Supabase staging rollback transaction on the current migration created the expanded entity check and authoritative 6-arg function; pg_get_functiondef inside the transaction confirmed purchase_invoices/inventory_balances/payments branches; transaction rolled back.
-- FIRST FAILURE → illegal default ordering in the 6-arg signature; fixed to exact live signature. Earlier 5-arg replacement strategy was rejected by rollback proof and removed rather than weakening the canonical RPC path.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; live authenticated production/Phase-F evidence remains environment-bound; latest exact-head CI is queued/in flight.
-- NEXT EXECUTABLE ACTION → consume first terminal workflow result on `03eb9c35658cf6798b0e8d4ca45fa625898ef8de`; repair only first current-SHA root.
-- NEXT INDEPENDENT ACTIONS → evidence/readback UI depth, route truth, business specialty regression, safe cleanup of proven redundant fronts.
-- DO NOT REPEAT → duplicate RPC/importer/runner, generic fallback where typed contract exists, legacy import/analyze path, static business truth, stale PASS.
-- RESUME STATUS → ACTIVE / PR #670 / SPECIALTY IMPORT + UI WAVE / EXACT-SHA PROOF PENDING
+- ACTUAL RESULT → all seven typed import entities are mapped and committed through the existing authoritative 6-argument RPC; specialty UI labels are customer-facing; no duplicate importer/RPC was introduced.
+- LIVE PROOF → on Supabase staging, with a real tenant claim, the current migration executed inside a transaction and successfully exercised suppliers, purchase_invoices, inventory_balances, and payments. Each branch was called twice; the second calls returned idempotent_replay=true. A wrong-company call returned TENANT_CONTEXT_MISMATCH. All changes were rolled back.
+- ROOT FAILURE CONSUMED → payment branch ignored an existing payment_id during lookup and attempted duplicate INSERT. Current fix introduces v_requested_payment_id lookup before reference fallback; transaction proof now succeeds and idempotently replays.
+- ROLLBACK CLEANLINESS → temporary warehouse row absent afterward; import job type restored to products; specialty canonical commit count for the test source remains zero.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; authenticated production/Phase-F/browser final certification remains environment-bound; fresh exact-head CI is queued/in flight.
+- NEXT EXECUTABLE ACTION → consume the first terminal workflow result on `2fe8b9c14801eece26966dca651e9082129752f0`; repair only the first current-SHA root.
+- NEXT INDEPENDENT ACTIONS → final truth/readback UI checks, contract rescan, safe historical-front cleanup only where overlap is proven.
+- DO NOT REPEAT → stale PASS transfer, duplicate RPC/importer, generic typed-specialty fallback, legacy import/analyze surface, static business truth, unproven production claims.
+- RESUME STATUS → ACTIVE / PR #670 / SPECIALTY IMPORT CLOSURE + LIVE TRANSACTION PROOF / EXACT-SHA CI PENDING
 
 ---
 
