@@ -2,10 +2,13 @@
 
 > Exact-head startup boundary. Historical entries below are evidence only and cannot override this block.
 
-- SESSION-ID → `20260927-EXEC-667`
+- SESSION-ID: `20260927-EXEC-667`
+- CURRENT VERIFIED SHA: `0b4f19fe7de377b57b2df7e70507bc32727568cc`
+- CURRENT EXECUTION/CANDIDATE SHA: `f31308915acfde26d45fb3d69a55c3e62308f18d`
+- BRANCH / PR: `exec/20260927-current-main-import-ui-finalize` / #667
 - CURRENT REPOSITORY HEAD: `0b4f19fe7de377b57b2df7e70507bc32727568cc`
-- CURRENT CODE/TEST CANDIDATE: `8054f35f722fa7f1560d75f83c47e214d8b91308`
-- ACTIVE EXECUTION FRONTS: FUNCTIONAL #667 / `8054f35f722fa7f1560d75f83c47e214d8b91308` | GOVERNANCE RECONCILIATION | EXACT-HEAD PROOF
+- CURRENT CODE/TEST CANDIDATE: `f31308915acfde26d45fb3d69a55c3e62308f18d`
+- ACTIVE EXECUTION FRONTS: FUNCTIONAL #667 / `f31308915acfde26d45fb3d69a55c3e62308f18d` | GOVERNANCE RECONCILIATION | EXACT-HEAD PROOF
 - FRONT-ID: `IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI`
 - CURRENT BOUNDARY: Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay; Benchmark remains INSUFFICIENT_SAMPLE.
 - ACTUAL RESULT: functional implementation reconstructed directly from current main; 21 files changed across canonical backend, evidence, decision, work, replay, benchmark and UI contract surfaces.
