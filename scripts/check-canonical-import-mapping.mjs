@@ -69,6 +69,51 @@ for (const token of [
   }
 }
 
+const schemaIntelligence = readFileSync(new URL('../src/lib/file-engine/schema-intelligence.ts', import.meta.url), 'utf8');
+const specialtySchemaTokens = [
+  'supplier_id','supplier_name','supplier_code','invoice_date','warehouse_id',
+  'purchase_amount','subtotal','tax_amount','total','paid_amount','discount_amount',
+  'due_date','currency','payment_id','payment_date','payment_amount','payment_method',
+  'reference','direction','product_id','unit_cost','last_movement_date','segment',
+  'credit_limit','payment_terms_days','min_stock','reorder_point','is_active',
+];
+for (const token of specialtySchemaTokens) {
+  if (!schemaIntelligence.includes(token)) throw new Error('Specialty schema mapping missing: ' + token);
+}
+const specialtySourceUnderstandingTokens = [
+  "purchase_invoices","suppliers","inventory_balances","payments",
+  "if (specialty === 'purchases') return 'purchase_invoices'",
+  "if (specialty === 'suppliers') return 'suppliers'",
+  "if (specialty === 'inventory') return 'inventory_balances'",
+  "if (specialty === 'payments') return 'payments'",
+];
+for (const token of specialtySourceUnderstandingTokens) {
+  if (!sourceUnderstanding.includes(token)) throw new Error('Specialty canonical entity inference missing: ' + token);
+}
+const canonicalTruthBoundary = readFileSync(new URL('../src/lib/import/canonical-truth-boundary.ts', import.meta.url), 'utf8');
+for (const token of ['purchase_invoices','suppliers','inventory_balances','payments','CONFLICTING_EVIDENCE_FOR_SAME_CANONICAL_IDENTITY']) {
+  if (!canonicalTruthBoundary.includes(token)) throw new Error('Specialty canonical identity boundary missing: ' + token);
+}
+const specialtyMigration = readFileSync(new URL('../supabase/migrations/20260927213000_expand_canonical_import_specialties.sql', import.meta.url), 'utf8');
+for (const token of [
+  'purchase_invoices','suppliers','inventory_balances','payments',
+  'canonical_import_commits_entity_type_check',
+  "IMPORT_ENTITY_TYPE_UNSUPPORTED",
+  'SUPPLIER_NAME_REQUIRED','PURCHASE_SUPPLIER_REQUIRED','INVENTORY_PRODUCT_REQUIRED',
+  'INVENTORY_WAREHOUSE_REQUIRED','PAYMENT_DIRECTION_INVALID','PAYMENT_AMOUNT_REQUIRED',
+  'AUTHORITATIVE_SOURCE_HASH_MISMATCH','AUTHORITATIVE_SOURCE_NOT_VERIFIED',
+  'CREATE FUNCTION public.import_commit_batch',
+  'p_import_job_id uuid',
+]) {
+  if (!specialtyMigration.includes(token)) throw new Error('Specialty canonical migration contract missing: ' + token);
+}
+if (!/canonical_import_commits[\s\S]*purchase_invoices[\s\S]*payments/.test(specialtyMigration)) {
+  throw new Error('Specialty canonical commit allowlist must include all business entity types');
+}
+if (!/drop constraint if exists canonical_import_commits_entity_type_check/i.test(specialtyMigration)) {
+  throw new Error('Specialty migration must reconcile the existing canonical entity-type check');
+}
+
 for (const requiredField of [
   'invoice_date',
   'subtotal',
