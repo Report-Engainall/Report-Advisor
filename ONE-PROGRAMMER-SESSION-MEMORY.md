@@ -1,3 +1,20 @@
+# RESUME TOKEN — 2026-09-28 / FINAL CURRENT FRONT CHECKPOINT
+
+- MAIN CONTROL HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- FUNCTIONAL/CURRENT BRANCH HEAD BEFORE THIS MEMORY PERSIST → `5ab1d090a5f4c76b11da130d2b31ab6bdfcdd8f8`; the latest commit is documentation-only.
+- FUNCTIONAL CODE PROOF → exact functional SHA `c8dca7badd8115739cbb69aaac564d60ff04dcfe` passed `desktop-windows` run `36355133611` with web build, native watcher/runtime smoke, Windows packaging and artifact upload all successful.
+- UI ROOT FIX → navigation contract now binds to canonical `NAVIGATION_SECTIONS` and has a valid `node:assert/strict` import; old Sidebar-regex proof is explicitly invalidated.
+- HOSTED PROOF → exact functional SHA `aacd3662f3289251feccc46c239269b0f87397db` Vercel deployment was READY and rendered the RTL Arabic landing/login surface. This remains SHA-bound historical proof; authenticated product Browser E2E is NOT PROVEN.
+- LIVE SECURITY READBACK → `client_ui_settings` policy uses `current_company_id()`; import_jobs/file_records/canonical_import_commits/import_job_rows/client_ui_settings all have RLS; `import_finish_job` is INVOKER; only the deliberate tenant resolver/import-commit functions are SECURITY DEFINER in the reviewed changed migrations.
+- CAPABILITY RESCAN → Benchmark is explicitly `INSUFFICIENT_SAMPLE`; Business Replay is `AVAILABLE/INSUFFICIENT_DATA`; Decision Experience blocks decision/approval/work/outcome when the required persisted evidence is absent.
+- RELEASE → Vercel free-plan build-rate remains external on docs-only HEAD; Netlify canceled `c8d...` because of no content change. These are blockers/non-proof, not product failures.
+- DEVICE → PC01 ONLINE. Exact candidate local checkout is still unavailable; do not claim local candidate source PASS.
+- CURRENT GATE → no terminal non-skipped quality/browser/final-certification failure has been observed on the functional code front; desktop is already exact-head SUCCESS.
+- DO NOT REPEAT → do not re-run closed navigation root cause; do not transfer evidence across SHAs; do not treat hosted READY/login render as authenticated E2E; do not mutate broad historical Security Advisor findings without a reproduced boundary defect.
+- NEXT EXECUTABLE ACTION → when a new functional SHA exists, consume its first terminal quality/browser/certification result and repair only a reproducible failure; otherwise the repository is at a safe evidence boundary with no demonstrated additional code defect from the current independent scans.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / NAVIGATION EVIDENCE CONTRACT + EXACT-HEAD HOSTED PROOF
 
 - MAIN CONTROL HEAD AT FRONT → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
@@ -43,54 +60,3 @@
 
 - CURRENT MAIN BEFORE REANCHOR → `b39d585803f7bca021cb68bb75a522c8bce115d6`.
 - PRIOR FUNCTIONAL HEAD → `1c658d5efc9cc21061be858db3b9352263ec49b5`.
-- RESULT → same canonical import-to-decision implementation reconstructed as a direct child of latest main; main control-plane memory is preserved.
-- CUSTOMER TENANT RESOLVER → distinct staff/company and customer-portal boundaries confirmed; no merge mutation.
-- FRESH PROOF LAW → prior `desktop-windows` SUCCESS remains tied to `0a48b4e`; fresh result required for resulting SHA.
-- DEVICE → PC01 offline; no browser/device/production PASS.
-
----
-
-# RESUME TOKEN — 2026-09-28 / SECOND RE-ANCHOR AFTER CONTROL-PLANE WRITE
-
-- CURRENT MAIN CONTROL HEAD BEFORE REANCHOR → `b6357e6e0686c6d7835cc9043ba7e023781a3955`.
-- PRIOR FUNCTIONAL HEAD → `0a48b4e19edf221d68e5d5c3d7497260b08352da`.
-- REANCHOR → same functional implementation tree reconstructed as a direct child of the latest main; current main control-plane documentation is preserved.
-- EXACT CI EVIDENCE RETAINED → `desktop-windows` run `36351392998` SUCCESS on prior functional SHA; fresh proof is required on this resulting SHA.
-- STORAGE SECURITY → documents bucket authenticated tenant-prefix policies verified live; owner binding on inserts; no cross-tenant relaxation found.
-- DEVICE → PC01 offline; no device/browser/production PASS.
-- NEXT → consume fresh exact-head CI for this resulting SHA and repair only first reproducible failure.
-
----
-
-# RESUME TOKEN — 2026-09-28 / RE-ANCHORED IMPORT FRONT
-
-- CURRENT MAIN BEFORE REANCHOR → `517d01af74e72f8d7325bfca9ebfc4cb13eee5b6`.
-- PR #672 SOURCE CANDIDATE → `cf0d30c4015642313d899d9d8262bc7159abb220`.
-- REANCHOR RESULT → candidate implementation tree reconstructed as a direct child of current main; main-only control-plane updates are preserved and candidate implementation changes are overlaid.
-- EVIDENCE RULE → prior candidate PASS remains candidate-only until fresh exact-head CI executes on the resulting SHA.
-- DEVICE → PC01 offline; no device/browser/production proof claimed.
-- NEXT → consume fresh exact-head CI for the re-anchored branch; repair only first reproducible failure; then global UI/core/security/data rescan.
-
----
-
-# RESUME TOKEN — 2026-09-27 / READ RPC INVOKER SAFETY VERIFIED
-
-- CURRENT MAIN CONTROL HEAD → `9e35c768c7548ab87174e3ffa9426dc4605489d3`.
-- CURRENT PR #672 / branch `exec/20260927-current-main-import-ui-rebased`.
-- CURRENT CODE CANDIDATE BEFORE THIS MEMORY WRITE → `6a485896dd92d648385c59eb374204158406ae50`.
-- READ-RPC SAFETY PROOF → `get_receivables_report_page`, `get_cash_account_balances`, and `get_staff_receivables` are INVOKER; their source tables have authenticated tenant SELECT RLS; `cash_accounts` is company-scoped; `sales_invoices` and `customers` are company-scoped.
-- ROLE-GATE PROOF → `get_cash_account_balances` and `get_staff_receivables` retain explicit `auth.uid()` + active company membership role checks. `company_memberships` SELECT RLS permits only the current user's own membership, which is sufficient for those predicates under INVOKER.
-- `compute_control_plane_health` remains SECURITY DEFINER because its five source tables have no authenticated SELECT RLS policies. This is intentionally NOT downgraded.
-- LIVE SECURITY ADVISOR → authenticated SECURITY DEFINER warnings = 40.
-- STATIC CONTRACT → six safe import/report RPCs are now locked to INVOKER and critical invariant tokens.
-- NEXT → current exact-head CI remains unavailable; no PASS inferred. Consume the next exact SHA checks, or select another proof-backed safe front only.
-
----
-# RESUME TOKEN — 2026-09-27 / READ-ONLY RPC SECURITY BATCH CLOSED
-
-- CURRENT MAIN CONTROL HEAD → `9e35c768c7548ab87174e3ffa9426dc4605489d3`.
-- CURRENT PR #672 / branch `exec/20260927-current-main-import-ui-rebased`.
-- CURRENT CODE CANDIDATE BEFORE THIS MEMORY WRITE → `6a485896dd92d648385c59eb374204158406ae50`.
-- LIVE SECURITY BATCH EXECUTED → `import_create_job`, `import_update_job_progress`, `import_finish_job`, `get_receivables_report_page`, `get_cash_account_balances`, `get_staff_receivables` are now SECURITY INVOKER in Staging with authenticated/postgres/service_role execution and no public/anon execution.
-- ROOT-CAUSE CLASS → migration-lineage drift, not business-logic failure. Repository replay migrations preserve existing live validation/role predicates and restore the narrower invoker/RLS boundary.
-- SUPABASE SECURITY ADVISOR → authenticated SECURITY DEFINER warning count is now 40. The session removed five previously exposed functions from this warning class by proof-backed reconciliation; 40 remain separate and intentionally untouched.
