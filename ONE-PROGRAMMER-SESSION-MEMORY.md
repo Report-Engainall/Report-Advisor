@@ -1,3 +1,17 @@
+# CURRENT RESUME POINTER — 2026-09-28 / eed9917e SECURITY CONTRACT REPAIR
+
+- IMPLEMENTATION SHA → `eed9917e348e9fa2fed0be4af5bdd24d70152aea`; current branch has since advanced to `ff0298cfacb6e40abf848397548b0ac67207ff28` by a docs-only cleanup/security-rescan checkpoint.
+- ROOT CAUSE → `scripts/check-security-definer-exposure-contract.mjs` falsely rejected the hardened `import_commit_batch` definition because it only allowed public-oriented search paths, while the migration intentionally uses `pg_catalog`; it also failed to recognize `TO authenticated, service_role` as containing the authenticated role.
+- IMPLEMENTED → the static security contract now accepts the hardened `pg_catalog`/safe variants and parses role lists explicitly, while still rejecting `anon`. Database grants and SECURITY DEFINER boundaries were not weakened.
+- EXACT LOCAL PROOF ON `eed9917e` → security-definer exposure PASS; helper execution PASS; tenant security PASS; global tenant RLS PASS; import RPC tenant context PASS; typecheck PASS; UI route/sidebar parity PASS; decision-intelligence closure PASS; canonical import mapping PASS; import runtime governance PASS; knowledge architecture PASS; production build PASS (2802 modules).
+- CURRENT CI BOUNDARY AFTER BRANCH ADVANCE → fresh PR workflows for the resulting branch are queued/pending with desktop-windows active; older cancelled runs are not counted as failures of this static repair. No terminal authenticated Browser E2E/final-certification PASS is claimed.
+- CLEANUP RESCAN → the concurrent `ff0298cf` checkpoint recorded that all 9 legacy-looking master documents are referenced by the Project Knowledge Manifest, so no deletion/merge was justified.
+- BROWSER BOUNDARY → local agent-browser invocation is blocked by tool security; TinyFish automation cannot start with the current negative wallet balance. No browser PASS is fabricated.
+- DO NOT REPEAT → do not transfer any PASS across `eed9917e`/previous SHAs; do not reopen closed UI/import/Decision roots without a new failure; do not call queued/cancelled CI a PASS.
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-head quality/browser/final-certification result on the current branch; repair only a reproducible failure, then perform the final release/rescan boundary.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / FINAL CURRENT FRONT CHECKPOINT
 
 # CURRENT RESUME POINTER — 2026-09-28 / 56483d33 FULL LOCAL CERTIFICATION + STAGING WAREHOUSE GUARD
