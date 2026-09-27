@@ -16,6 +16,9 @@ const required = [
   'outcomeCoverage',
   'Owner Coverage',
   'Outcome Coverage',
+  'actionableRecommendations',
+  "const activeDecisionCount = actionableRecommendations.length",
+
 ];
 const missing = required.filter(token => !source.includes(token));
 if (missing.length) {
