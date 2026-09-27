@@ -338,9 +338,9 @@ export function CanonicalImportPage() {
         }
       }
       setResult({
-        total: rows.length,
-        valid: validRows.length,
-        invalid: rows.length - validRows.length,
+        total: authoritativeRowCount,
+        valid: authoritativeRowCount,
+        invalid: 0,
         snapshotId,
         importId: rec.id,
         jobId: execution.jobId,
