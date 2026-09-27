@@ -2,28 +2,23 @@
 
 > This top block is the only startup boundary.
 
-- MAIN HEAD BEFORE THIS DOCS WRITE → `5c4ed5dc243242f072b6942c9006de4fa7acc282`
-- CURRENT CODE/TEST CANDIDATE → `da48af37572f441c01a23a0830ccf1466b0032b2`
-- FUNCTIONAL FRONT → PR #672 / `da48af37572f441c01a23a0830ccf1466b0032b2`
+- MAIN HEAD BEFORE THIS DOCS WRITE → `ae7fe0559aad8d0582f5564b705b0701169152a2`
+- CURRENT CODE/TEST CANDIDATE → `044de934621b6a535e238541b9233287ada83aa6`
+- FUNCTIONAL FRONT → PR #672 / `044de934621b6a535e238541b9233287ada83aa6`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- EXACT GIT RECONCILIATION → candidate is 1 commit ahead / 0 behind current main; 76 files differ. Main control-plane memory/index content is preserved in the candidate.
-- EXACT-HEAD ACTIONS → `quality` queued; `Execution Enforcement Contract` queued; `Final Certification Gate` queued; `Full Product Browser E2E` queued; `desktop-windows` in progress; no terminal failure observed on this head.
-- EXACT-HEAD EXTERNAL → Vercel reports `failure / build-rate-limit`; no production promotion or SHA bypass.
+- EXACT GIT RECONCILIATION → candidate is 1 commit ahead / 0 behind current main; 76 files differ.
+- EXACT-HEAD ACTIONS → current scan: 47 queued + 1 in progress + 2 completed/skipped, 0 completed failures. `desktop-windows` run `36347110715` is in progress; build + native watcher + native runtime smoke steps are SUCCESS and installer packaging is in progress.
+- EXACT-HEAD EXTERNAL → Vercel is `failure / build-rate-limit`; no production promotion or SHA bypass.
 - DEVICE → PC01 offline. Device-bound browser/production evidence remains NOT PROVEN; all non-device-dependent fronts continue.
-- PREVIEW → deployment readback previously verified the identity gate on PR #672 preview before the rebase; it is not transferred to `da48af3` until a new exact-head deployment exists.
-- SOURCE AUDIT → canonical import executor remains authenticated/tenant-bound; 6-arg `import_commit_batch` is public/anon revoked and authenticated/service_role granted; typed inference fails closed on unmet required fields and mixed datasets.
-- DECISION AUDIT → Intelligence opens the governed Decision Experience and only exposes direct rejection for OPEN/new recommendations; approval occurs through the governed decision/approval path. Legacy `accepted` client state is explicitly retained only for backward-compatible rows.
+- SOURCE AUDIT → canonical import executor remains authenticated/tenant-bound; 6-arg `import_commit_batch` is public/anon revoked and authenticated/service_role granted. `import_finish_job` rejects tenant mismatch and terminal resurrection.
+- ROUTE AUDIT → 37 unique navigation paths, 40 actual routes, 0 navigation duplicates, 0 nav paths missing from App routing on the exact candidate.
+- STRUCTURE AUDIT → `free-toolbox` and `product-intelligence` files are not identical; no safe deletion proven. No deletion performed.
+- DECISION AUDIT → direct Intelligence mutation is limited to rejection for OPEN/new; approval occurs through governed Decision Experience. Legacy `accepted` state remains explicitly backward-compatible.
 - PHASE-F → NOT CERTIFIED. Restore/RPO/RTO/rollback/live production exact-SHA evidence remains open.
-- CLEANUP → PR #671 closed as superseded; PR #672 is the single active functional front; no duplicate architecture introduced.
-- NEXT → consume the first terminal exact-head gate on #672; repair only the first reproducible current-SHA failure; continue independent safe fronts.
+- CLEANUP → PR #671 closed as superseded; PR #672 remains the single active functional front.
+- NEXT → consume the first terminal exact-head gate; if failure appears, repair only the first reproducible current-SHA root; otherwise continue independent safe audits.
 
 ---
-
-
-
-
-
-
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / LIVE CHECKPOINT
 
