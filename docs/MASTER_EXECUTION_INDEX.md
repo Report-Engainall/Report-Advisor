@@ -2,20 +2,24 @@
 
 > This top block is the only startup boundary.
 
-- MAIN HEAD → `7fe9c7ef3772c64bce93068aa5a4e5dc3dd7e0b8`
-- CURRENT CODE/TEST CANDIDATE → `68228b8809ea21b7cb392e0cbc490168fd525da8`
-- FUNCTIONAL FRONT → PR #672 / `68228b8809ea21b7cb392e0cbc490168fd525da8`
+- MAIN HEAD BEFORE THIS DOCS WRITE → `5c4ed5dc243242f072b6942c9006de4fa7acc282`
+- CURRENT CODE/TEST CANDIDATE → `da48af37572f441c01a23a0830ccf1466b0032b2`
+- FUNCTIONAL FRONT → PR #672 / `da48af37572f441c01a23a0830ccf1466b0032b2`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- REBASE RESULT → PR #671 final repository tree was replayed as a one-commit snapshot on exact current main; the current-main `SESSION_MEMORY` and `PROGRAMMER_PROTOCOL` were preserved rather than overwritten.
-- SOURCE DELTA → 77 files differ from current main; the change is one functional snapshot commit, not a second implementation path.
-- EXACT PROOF → snapshot commit/tree/parent were verified. No terminal GitHub Actions result is materialized yet for `68228b8`; no PASS is claimed.
-- PREVIEW EVIDENCE → prior Netlify/CodeRabbit SUCCESS on `d93813ee` remains bound to that SHA and is not transferred.
-- PHASE-F → NOT CERTIFIED; production/browser/restore/RPO/RTO/rollback proof remains unproven.
-- EXTERNAL → Vercel free-plan build-rate limit; PC01/device offline; current `68228b8` Actions evidence not yet materialized.
-- CLEANUP → PR #671 closed as superseded; PR #672 is the single active functional front. Historical commits remain retained.
-- NEXT → consume the first terminal #672 exact-head gate; repair only the first reproducible current-SHA root; continue independent safe fronts.
+- EXACT GIT RECONCILIATION → candidate is 1 commit ahead / 0 behind current main; 76 files differ. Main control-plane memory/index content is preserved in the candidate.
+- EXACT-HEAD ACTIONS → `quality` queued; `Execution Enforcement Contract` queued; `Final Certification Gate` queued; `Full Product Browser E2E` queued; `desktop-windows` in progress; no terminal failure observed on this head.
+- EXACT-HEAD EXTERNAL → Vercel reports `failure / build-rate-limit`; no production promotion or SHA bypass.
+- DEVICE → PC01 offline. Device-bound browser/production evidence remains NOT PROVEN; all non-device-dependent fronts continue.
+- PREVIEW → deployment readback previously verified the identity gate on PR #672 preview before the rebase; it is not transferred to `da48af3` until a new exact-head deployment exists.
+- SOURCE AUDIT → canonical import executor remains authenticated/tenant-bound; 6-arg `import_commit_batch` is public/anon revoked and authenticated/service_role granted; typed inference fails closed on unmet required fields and mixed datasets.
+- DECISION AUDIT → Intelligence opens the governed Decision Experience and only exposes direct rejection for OPEN/new recommendations; approval occurs through the governed decision/approval path. Legacy `accepted` client state is explicitly retained only for backward-compatible rows.
+- PHASE-F → NOT CERTIFIED. Restore/RPO/RTO/rollback/live production exact-SHA evidence remains open.
+- CLEANUP → PR #671 closed as superseded; PR #672 is the single active functional front; no duplicate architecture introduced.
+- NEXT → consume the first terminal exact-head gate on #672; repair only the first reproducible current-SHA failure; continue independent safe fronts.
 
 ---
+
+
 
 
 
