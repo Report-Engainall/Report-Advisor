@@ -1,4 +1,18 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 144
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / CONTINUOUS RESUME CONTROL
+
+> This top block is the only startup boundary. Entries below are historical evidence and MUST NOT override it.
+
+- MAIN HEAD OBSERVED BEFORE THIS CONTROL-PLANE WRITE: 46675643e32f6ea28b6c1d80a530b2eb134e7907
+- ACTIVE CODE/TEST CANDIDATE: c2dc39c931f108ee5262790ad0035a11a0dbecc7 (PR #660; base main 46675643...)
+- CURRENT EXECUTION MODE: dependency-aware maximum-safe parallelism across SURFACE / HEART / PROOF / GOVERNANCE; fixed 50/50 time allocation is retired.
+- FIRST CONSUMABLE: PR #660 exact-head failures, ordered by dependency; repair only the first reproducible current-SHA root cause, then recompute.
+- PARALLEL WORK: while asynchronous checks run, execute independent ready work; do not wait idle.
+- OPEN PROOF BOUNDARY: Final Certification / production-regression / data-quality / inventory-intelligence / Phase-3 import / batch-integrity / enforcement failures on PR #660 require first-failure triage; their visible count is not their root-cause count.
+- CLOSED-WORK PROTECTION: do not reopen already-proven work without a current regression, dependency/environment change, evidence invalidation, or requirement change.
+- KNOWLEDGE CONTROL: compact canonical records only; historical entries remain evidence, not startup input.
+- NEXT SESSION START: SYSTEM_HEART → RESUME TOKEN → this boundary → exact target/evidence for first action → execute.
+- DO NOT REPEAT: broad repository rescans, replaying old reports, stale PASS transfer, duplicate importer/RPC/runner, blind cascade fixes, documentation-only closure.
+
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `8eb5b4154e02a1320942e08a33e052e0a35ab238`.
 - CURRENT CODE/TEST CANDIDATE A: `e76d7fb639da2e7a1a8b603156e82fc3ab27b0f9` (PR #657; current-main deep UI/core lane + Work Center zero-progress signal).
