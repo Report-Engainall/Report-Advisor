@@ -12,6 +12,10 @@ const required = [
   'window.print()',
   'لا توجد تنبيهات مصدرية حاليًا.',
   'لا توجد توصيات مصدرية حاليًا.',
+  'ownerCoverage',
+  'outcomeCoverage',
+  'Owner Coverage',
+  'Outcome Coverage',
 ];
 const missing = required.filter(token => !source.includes(token));
 if (missing.length) {
