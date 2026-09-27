@@ -367,7 +367,7 @@ function SummaryStrip({ cells }: { cells: Array<{ label: string; value: string |
 
 export function RecommendationsPage() {
   const [items, setItems] = useState<Recommendation[]>([]);
-  const [filter, setFilter] = useState<'all' | 'new' | 'accepted' | 'rejected'>('all');
+  const [filter, setFilter] = useState<'all' | 'actionable' | 'approved' | 'in_progress' | 'rejected'>('all');
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -463,7 +463,7 @@ export function RecommendationsPage() {
                 <article key={item.id} className="rounded-[15px] border border-ink-200 bg-white p-4 transition hover:border-primary-200 hover:shadow-card">
                   <div className="flex flex-col gap-4 xl:flex-row xl:items-start">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
-                      {item.status === 'new' ? <Lightbulb size={18}/> : item.status === 'accepted' ? <CheckCircle2 size={18}/> : <CircleAlert size={18}/>}
+                      {item.status === 'OPEN' || item.status === 'new' ? <Lightbulb size={18}/> : item.status === 'approved' || item.status === 'accepted' ? <CheckCircle2 size={18}/> : item.status === 'in_progress' ? <Zap size={18}/> : <CircleAlert size={18}/>} 
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
