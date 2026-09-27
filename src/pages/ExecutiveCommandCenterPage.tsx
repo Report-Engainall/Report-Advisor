@@ -82,6 +82,7 @@ export function ExecutiveCommandCenterPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [replaySnapshot, setReplaySnapshot] = useState<Awaited<ReturnType<typeof fetchBusinessReplaySnapshot>> | null>(null);
+  const [replayError, setReplayError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,17 +91,28 @@ export function ExecutiveCommandCenterPage() {
     try {
       if (silent) setRefreshing(true); else setLoading(true);
       setError(null);
-      const [snapshot, intelligence, replay] = await Promise.all([
+      const [snapshotResult, intelligenceResult, replayResult] = await Promise.allSettled([
         fetchDashboardSnapshot(months),
         fetchDashboardIntelligence(),
         fetchBusinessReplaySnapshot(),
       ]);
+      if (snapshotResult.status === 'rejected') throw snapshotResult.reason;
+      if (intelligenceResult.status === 'rejected') throw intelligenceResult.reason;
+      const snapshot = snapshotResult.value;
+      const intelligence = intelligenceResult.value;
       setKpis(snapshot.kpis);
       setAsOf(snapshot.asOf);
       setTrend(snapshot.trend);
       setAlerts(intelligence.alerts.filter((item) => !item.is_read).slice(0, 5));
       setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').slice(0, 5));
-      setReplaySnapshot(replay);
+      if (replayResult.status === 'fulfilled') {
+        setReplaySnapshot(replayResult.value);
+        setReplayError(false);
+      } else {
+        setReplaySnapshot(null);
+        setReplayError(true);
+        console.error('[ExecutiveCommandCenterPage] Replay snapshot unavailable', replayResult.reason);
+      }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل مركز القيادة');
     } finally {
@@ -129,6 +141,7 @@ export function ExecutiveCommandCenterPage() {
   }, [recommendations]);
 
   const replayAvailable = Boolean(replaySnapshot && replaySnapshot.snapshotCount > 0 && replaySnapshot.outcomeCount > 0);
+  const replayState = replayError ? 'REVIEW' : replayAvailable ? 'AVAILABLE' : 'INSUFFICIENT DATA';
 
   const commandNextAction = useMemo(() => {
     if (kpis.status === 'INSUFFICIENT_DATA') {
@@ -222,9 +235,9 @@ export function ExecutiveCommandCenterPage() {
           <p className="mt-1 text-[10px] leading-5 text-ink-500">لا يوجد في هذا السطح سجل نتائج مالي موثّق يسمح بحساب عائد القرار دون اختلاق أثر.</p>
         </div>
         <Link to="/replay" className="card card-hover p-4">
-          <div className="flex items-center justify-between gap-3"><FileSearch size={18} className={replayAvailable ? 'text-primary-700' : 'text-ink-500'}/><span className={'rounded-full px-2 py-1 text-[9px] font-black ' + (replayAvailable ? 'bg-success-50 text-success-700' : 'bg-ink-100 text-ink-600')}>{replayAvailable ? 'AVAILABLE' : 'INSUFFICIENT DATA'}</span></div>
+          <div className="flex items-center justify-between gap-3"><FileSearch size={18} className={replayState === 'AVAILABLE' ? 'text-primary-700' : replayState === 'REVIEW' ? 'text-warning-700' : 'text-ink-500'}/><span className={'rounded-full px-2 py-1 text-[9px] font-black ' + (replayState === 'AVAILABLE' ? 'bg-success-50 text-success-700' : replayState === 'REVIEW' ? 'bg-warning-50 text-warning-800' : 'bg-ink-100 text-ink-600')}>{replayState}</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Business Replay</div>
-          <p className="mt-1 text-[10px] leading-5 text-ink-500">{replayAvailable ? 'يوجد تاريخ تشغيلي محفوظ يمكن قراءته داخل Replay.' : 'لا توجد snapshots وoutcomes كافية حاليًا؛ لا يتم تركيب سجل تاريخي بديل.'}</p>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">{replayState === 'AVAILABLE' ? 'يوجد تاريخ تشغيلي محفوظ يمكن قراءته داخل Replay.' : replayState === 'REVIEW' ? 'تعذر قراءة Replay في هذه اللحظة؛ افتح السجل لإعادة المحاولة.' : 'لا توجد snapshots وoutcomes كافية حاليًا؛ لا يتم تركيب سجل تاريخي بديل.'}</p>
         </Link>
         <div className="card p-4">
           <div className="flex items-center justify-between gap-3"><CheckCircle2 size={18} className="text-primary-700"/><span className={'rounded-full px-2 py-1 text-[9px] font-black ' + (decisionAccountability.actionable === 0 ? 'bg-ink-100 text-ink-600' : 'bg-primary-50 text-primary-700')}>{decisionAccountability.actionable === 0 ? 'INSUFFICIENT DATA' : 'EVIDENCE-BASED'}</span></div>
