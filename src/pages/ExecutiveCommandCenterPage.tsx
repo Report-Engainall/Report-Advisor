@@ -113,6 +113,53 @@ export function ExecutiveCommandCenterPage() {
     return Math.round((fields.filter((value) => value !== null).length / fields.length) * 100);
   }, [kpis]);
 
+  const decisionAccountability = useMemo(() => {
+    const actionable = recommendations.filter((item) => item.status === 'new' || item.status === 'accepted');
+    const owned = actionable.filter((item) => item.owner?.trim()).length;
+    const outcomes = actionable.filter((item) => item.impact_result?.trim()).length;
+    return {
+      actionable: actionable.length,
+      ownerCoverage: actionable.length ? Math.round((owned / actionable.length) * 100) : null,
+      outcomeCoverage: actionable.length ? Math.round((outcomes / actionable.length) * 100) : null,
+    };
+  }, [recommendations]);
+
+  const commandNextAction = useMemo(() => {
+    if (kpis.status === 'INSUFFICIENT_DATA') {
+      return {
+        to: '/data-quality',
+        label: 'مراجعة جودة البيانات',
+        reason: 'الحقيقة الأساسية غير مكتملة؛ أصلح المصدر قبل تحويل الإشارات إلى قرار.',
+      };
+    }
+    if (alerts.length > 0) {
+      return {
+        to: '/intelligence',
+        label: 'فحص الإشارات',
+        reason: 'هناك إشارات مفتوحة مثبتة في القراءة الحالية وتحتاج فحصًا قبل بدء قرار جديد.',
+      };
+    }
+    if (recommendations.length > 0) {
+      return {
+        to: '/decision-experience?stage=decision',
+        label: 'مراجعة القرارات',
+        reason: 'هناك توصيات قابلة للمراجعة مرتبطة بسياقها الحالي.',
+      };
+    }
+    if (decisionAccountability.outcomeCoverage !== null && decisionAccountability.outcomeCoverage < 100) {
+      return {
+        to: '/decision-experience?stage=outcome',
+        label: 'متابعة النتائج',
+        reason: 'القرارات القابلة للتنفيذ لا تزال تفتقد تغطية نتائج كاملة.',
+      };
+    }
+    return {
+      to: '/reports/executive',
+      label: 'مراجعة الصورة التنفيذية',
+      reason: 'لا توجد إشارة مفتوحة أو توصية معلقة في القراءة الحالية؛ راجع الصورة التنفيذية الحالية.',
+    };
+  }, [alerts.length, decisionAccountability.outcomeCoverage, kpis.status, recommendations.length]);
+
   if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   if (!kpis) return <DataUnavailableState title="مركز القيادة ينتظر الحقيقة" message="لا توجد مؤشرات أساسية موثوقة تكفي لبناء صورة تنفيذية. راجع جودة المصدر قبل اتخاذ القرار." action={<Link to="/data-quality" className="btn-primary text-[11px]">مراجعة جودة البيانات</Link>} />;
@@ -146,15 +193,18 @@ export function ExecutiveCommandCenterPage() {
         <div className="ag-decision-cell"><span className="ag-decision-label">توصيات للمراجعة</span><span className="ag-decision-value">{recommendations.length}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">As-of</span><span className="ag-decision-value">{asOf ?? 'غير متاح'}</span></div>
       </div>
-      <div className="ag-action-cluster">
-        <Link to={alerts.length ? '/intelligence' : '/decision-experience?stage=decision'} className="btn-primary text-[11px]">
-          {alerts.length ? 'فحص الإشارات' : 'فتح مساحة القرار'} <ArrowUpLeft size={13}/>
-        </Link>
-        <Link to="/data-quality" className="btn-secondary text-[11px]">مراجعة جودة البيانات</Link>
-        <Link to="/reports/executive" className="btn-ghost text-[11px]">التقرير التنفيذي</Link>
-      </div>
+      <section className="rounded-[14px] border border-primary-200 bg-primary-50/60 p-4" aria-label="الإجراء التالي">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="section-kicker">NEXT ACTION</div>
+            <h2 className="mt-1 text-sm font-black text-ink-950">{commandNextAction.label}</h2>
+            <p className="mt-1 text-[10px] leading-5 text-ink-600">{commandNextAction.reason}</p>
+          </div>
+          <Link to={commandNextAction.to} className="btn-primary text-[11px]">تنفيذ المسار التالي <ArrowUpLeft size={13}/></Link>
+        </div>
+      </section>
 
-      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
         <Link to="/reports/receivables" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><WalletCards size={18} className="text-primary-700"/><span className="rounded-full bg-success-50 px-2 py-1 text-[9px] font-black text-success-700">{kpis.totalReceivables === null ? 'INSUFFICIENT DATA' : 'بيانات الذمم متاحة'}</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Money Recovery</div>
@@ -169,6 +219,15 @@ export function ExecutiveCommandCenterPage() {
           <div className="flex items-center justify-between gap-3"><FileSearch size={18} className="text-ink-500"/><span className="rounded-full bg-ink-100 px-2 py-1 text-[9px] font-black text-ink-600">NOT AVAILABLE</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Business Replay</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">إعادة التشغيل تحتاج snapshots وoutcomes تاريخية مثبتة؛ الواجهة لا تصنع سجلًا بديلًا.</p>
+        </div>
+        <div className="card p-4">
+          <div className="flex items-center justify-between gap-3"><CheckCircle2 size={18} className="text-primary-700"/><span className={'rounded-full px-2 py-1 text-[9px] font-black ' + (decisionAccountability.actionable === 0 ? 'bg-ink-100 text-ink-600' : 'bg-primary-50 text-primary-700')}>{decisionAccountability.actionable === 0 ? 'INSUFFICIENT DATA' : 'EVIDENCE-BASED'}</span></div>
+          <div className="mt-3 text-sm font-black text-ink-900">Decision Coverage</div>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <div className="rounded-lg bg-ink-50 p-2"><div className="text-[8px] text-ink-400">تغطية المالك</div><div className="mt-1 text-[13px] font-black text-ink-900">{decisionAccountability.ownerCoverage == null ? 'غير متاح' : decisionAccountability.ownerCoverage + '%'}</div></div>
+            <div className="rounded-lg bg-ink-50 p-2"><div className="text-[8px] text-ink-400">تغطية النتيجة</div><div className="mt-1 text-[13px] font-black text-ink-900">{decisionAccountability.outcomeCoverage == null ? 'غير متاح' : decisionAccountability.outcomeCoverage + '%'}</div></div>
+          </div>
+          <p className="mt-2 text-[9px] leading-4 text-ink-500">مقياسان منفصلان من توصيات قابلة للتنفيذ؛ لا يتم دمجهما في درجة مخترعة.</p>
         </div>
         <Link to="/decision-experience?stage=outcome" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><CheckCircle2 size={18} className="text-primary-700"/><span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-black text-primary-700">مسار القرار</span></div>
