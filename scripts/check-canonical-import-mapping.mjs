@@ -1,6 +1,12 @@
 import { readFileSync } from 'node:fs';
 
 const source = readFileSync(new URL('../src/lib/file-engine/adapters.ts', import.meta.url), 'utf8');
+const canonicalImportPage = readFileSync(new URL('../src/pages/CanonicalImportPage.tsx', import.meta.url), 'utf8');
+const canonicalImportServer = readFileSync(new URL('../netlify/functions/canonical-import-execute.mts', import.meta.url), 'utf8');
+const sourceUnderstanding = readFileSync(new URL('../src/lib/import/canonical-source-understanding.ts', import.meta.url), 'utf8');
+const queriesSource = readFileSync(new URL('../src/lib/queries.ts', import.meta.url), 'utf8');
+const trustEvidencePage = readFileSync(new URL('../src/pages/TrustEvidencePage.tsx', import.meta.url), 'utf8');
+const decisionExperiencePage = readFileSync(new URL('../src/pages/DecisionExperiencePage.tsx', import.meta.url), 'utf8');
 
 const required = [
   'materializeCanonicalFields',
@@ -21,4 +27,143 @@ if (!source.includes('if (!previous || column.mappingConfidence > previous.mappi
   throw new Error('Duplicate canonical mappings must resolve deterministically by confidence');
 }
 
-console.log('Canonical import mapping regression gate: PASS');
+const multiSourceRequired = [
+  'understandCanonicalSource',
+  'datasetCount',
+  'specialty',
+  'entityType',
+  'const rows = datasets.flatMap((dataset) => dataset.rows)',
+];
+for (const token of multiSourceRequired) {
+  if (!sourceUnderstanding.includes(token)) throw new Error(`Canonical source understanding contract missing: ${token}`);
+}
+if (canonicalImportPage.includes('const dataset = datasets[0]') || canonicalImportServer.includes('const authoritativeDataset = authoritativeDatasets[0]')) {
+  throw new Error('Canonical import must not silently discard datasets after selecting only the first dataset');
+}
+if (!canonicalImportServer.includes('authoritativeDatasets') || !canonicalImportServer.includes('sourceUnderstanding.datasets.map')) {
+  throw new Error('Server canonical import must persist and return all authoritative dataset summaries');
+}
+if (!sourceUnderstanding.includes('const mixedSpecialtySource = new Set(summaries.map((summary) => summary.specialty)).size > 1')) {
+  throw new Error('Mixed-specialty sources must be detected explicitly before canonical entity selection');
+}
+if (!sourceUnderstanding.includes("entityType: mixedSpecialtySource ? 'generic:source-data' : inferEntityType(specialty, datasets)")) {
+  throw new Error('Mixed-specialty sources must fail closed to the generic canonical boundary');
+}
+
+for (const token of [
+  'CANONICAL_WRITE_FIELDS',
+  'missingCanonicalWriteFields',
+  'for (const dataset of datasets)',
+  'dataset.columns.map((column) => column.mappedField)',
+  "if (missing.length > 0) return 'generic:source-data'",
+  "CANONICAL_ENTITY_REQUIREMENTS_UNMET:"
+]) {
+  if (!sourceUnderstanding.includes(token)) {
+    throw new Error('Typed canonical inference must fail closed when canonical write requirements are incomplete: ' + token);
+  }
+}
+
+for (const requiredField of [
+  'invoice_date',
+  'subtotal',
+  'tax_amount',
+  'paid_amount',
+  'status',
+  'segment',
+  'credit_limit',
+  'payment_terms_days',
+  'unit',
+  'cost_price',
+  'selling_price',
+  'min_stock',
+  'reorder_point',
+  'is_active',
+]) {
+  if (!sourceUnderstanding.includes("'" + requiredField + "'")) {
+    throw new Error('Canonical write requirement missing from source-understanding guard: ' + requiredField);
+  }
+}
+
+for (const token of [
+  'fetchImportEvidenceSnapshot',
+  ".from('source_analysis_snapshots')",
+  "import_job_id",
+]) {
+  if (!queriesSource.includes(token)) throw new Error(`Imported source evidence query contract missing: ${token}`);
+}
+for (const token of [
+  'EVIDENCE PASSPORT',
+  'sourceSnapshot',
+  "PARTIAL / NOT PROVEN",
+  'fetchImportEvidenceSnapshot(importJobId)',
+]) {
+  if (!trustEvidencePage.includes(token)) throw new Error(`Evidence Passport UI contract missing: ${token}`);
+}
+for (const token of [
+  'importJobId',
+  'sourceSnapshot',
+  'IMPORTED SOURCE CONTEXT',
+  'safeNext',
+  'fetchImportEvidenceSnapshot(importJobId)',
+]) {
+  if (!decisionExperiencePage.includes(token)) throw new Error(`Decision source-context gate missing: ${token}`);
+}
+if (!canonicalImportPage.includes('Evidence Passport') || !canonicalImportPage.includes('/trust?import=') || !canonicalImportPage.includes('/data-quality') || !canonicalImportPage.includes('/decision-experience?stage=evidence&import=')) {
+  throw new Error('Post-import UI must carry the import identity through Evidence Passport, Data Quality, and Decision Experience');
+}
+for (const token of [
+  'CANONICAL RESULT',
+  'PARTIAL / NOT PROVEN',
+  'SOURCE FLOW',
+  'authoritativeQualityScore',
+  'authoritativeEntityType',
+  'sourceSpecialty: typeof execution.sourceSpecialty === 'string'',
+  'datasetSummaries',
+  'DATASET UNDERSTANDING',
+  "result.understandingConfidence == null ? 'غير متاح'",
+  "result.evidenceStatus === 'VERIFIED' ? <CheckCircle2",
+]) {
+  if (!canonicalImportPage.includes(token)) throw new Error('Post-import truth UI closure missing: ' + token);
+}
+for (const token of ['postImportSignals', 'fetchDashboardIntelligence', 'WHAT HAPPENS NEXT']) {
+  if (!canonicalImportPage.includes(token)) throw new Error(`Post-import signal surface contract missing: ${token}`);
+}
+for (const token of ['canonical_import_commits', 'reusedExistingCommit', 'CANONICAL_EXISTING_COMMIT_COUNT_MISMATCH']) {
+  if (!canonicalImportServer.includes(token)) throw new Error(`Existing canonical commit recovery contract missing: ${token}`);
+}
+const queriesContractTokens = [
+  'createDecisionWorkItem',
+  'fetchDecisionWorkItem',
+  'fetchDecisionWorkItems',
+  'startDecisionWorkItem',
+  'fetchRecommendationOutcome',
+  'fetchRecommendationsBoundToImport',
+  "create_decision_work_item",
+  "start_decision_work_item",
+];
+
+for (const token of queriesContractTokens) {
+  if (!queriesSource.includes(token)) throw new Error(`Decision work query contract missing: ${token}`);
+}
+const decisionWorkUi = decisionExperiencePage;
+for (const token of ['Work Item', 'createDecisionWorkItem', 'fetchDecisionWorkItem', 'المستخدم الحالي', 'fetchRecommendationsBoundToImport']) {
+  if (!decisionWorkUi.includes(token)) throw new Error(`Decision → Work Item/provenance UI contract missing: ${token}`);
+}
+const workCenterPage = readFileSync(new URL('../src/pages/WorkCenterPage.tsx', import.meta.url), 'utf8');
+for (const token of ['fetchDecisionWorkItems', 'startDecisionWorkItem', 'DECISION WORK', 'بدء التنفيذ']) {
+  if (!workCenterPage.includes(token)) throw new Error(`Work Center action contract missing: ${token}`);
+}
+for (const token of ['useSearchParams', 'focusedImportId', 'IMPORT CONTEXT', 'متابعة عملية الاستيراد الحالية']) {
+  if (!workCenterPage.includes(token)) throw new Error('Work Center import-focus contract missing: ' + token);
+}
+if (!canonicalImportPage.includes('work-center?import=') || !canonicalImportPage.includes('متابعة مركز العمل')) {
+  throw new Error('Canonical Import must carry the imported source into Work Center');
+}
+for (const token of ['key:\'actions\'', 'Evidence', 'التشغيل', 'decision-experience?stage=evidence&import=']) {
+  if (!canonicalImportPage.includes(token)) throw new Error('Import history continuity contract missing: ' + token);
+}
+for (const token of ['fetchRecommendationOutcome', 'المتوقع مقابل الفعلي', 'لم تُثبت نتيجة تنفيذ']) {
+  if (!decisionExperiencePage.includes(token)) throw new Error(`Decision outcome readback contract missing: ${token}`);
+}
+
+console.log('Canonical import mapping regression gate: PASS (canonical fields + full-source understanding + post-import evidence/decision continuity)');
