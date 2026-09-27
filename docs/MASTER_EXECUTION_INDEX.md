@@ -3,7 +3,7 @@
 > Exact-head evidence only. This block supersedes historical checkpoints below.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `10d0755c624ea9ee71b58655b0e734f63d8c4bee`
+- CURRENT CODE/TEST CANDIDATE: `10d0755c624ea9ee71b58655b0e734f63d8c4bee`
 - FUNCTIONAL FRONT → PR #670 / `10d0755c624ea9ee71b58655b0e734f63d8c4bee`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT_SAMPLE.
