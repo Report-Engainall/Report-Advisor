@@ -77,6 +77,8 @@ jobs:
         run: npm run test:master-requirements
       - name: Knowledge architecture
         run: npm run test:knowledge-architecture
+      - name: Continuous execution enforcement and resume contract
+        run: npm run test:execution-enforcement && npm run test:execution-enforcement-adversarial
       - name: Quality workflow contract
         run: npm run test:quality-workflow-contract
       - name: Core contracts
