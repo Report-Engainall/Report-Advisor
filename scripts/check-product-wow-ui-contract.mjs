@@ -66,6 +66,7 @@ assert.ok(importSurface.includes('لم يُثبت مصدر سابق لهذا ا�
 assert.ok(importSurface.includes('اختيار مصدر'), 'canonical import history empty state must expose a real source-selection action');
 assert.ok(importSurface.includes('onClick={reset}'), 'canonical import history empty state must use the existing reset/import path');
 assert.ok(importSurface.includes('const [historyError, setHistoryError]'), 'canonical import history must preserve fetch failures instead of mapping them to an empty list');
+assert.ok(importSurface.includes('fetchImportRecords(500, focusedJobId ?? undefined)'), 'canonical import history must read the declared 500-row window');
 assert.ok(importSurface.includes('historyError?<ErrorState'), 'canonical import history must distinguish backend errors from an empty history');
 assert.ok(importSurface.includes('onRetry={() => void loadHistory()}'), 'canonical import history errors must retry in place');
 
