@@ -3,20 +3,20 @@
 > Exact-head startup boundary. Historical entries below are evidence only and cannot override this block.
 
 - SESSION-ID → `20260927-EXEC-667`
-- CURRENT REPOSITORY HEAD → `0b4f19fe7de377b57b2df7e70507bc32727568cc`
-- CURRENT CODE/TEST CANDIDATE → `8054f35f722fa7f1560d75f83c47e214d8b91308`
-- ACTIVE EXECUTION FRONTS → FUNCTIONAL #667 / `8054f35f722fa7f1560d75f83c47e214d8b91308` | GOVERNANCE RECONCILIATION | EXACT-HEAD PROOF
-- FRONT-ID → `IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI`
-- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- ACTUAL RESULT → functional implementation reconstructed directly from current main; 21 files changed across canonical backend, evidence, decision, work, replay, benchmark and UI contract surfaces.
-- EVIDENCE → exact current candidate `8054f35f722fa7f1560d75f83c47e214d8b91308`; PR #667; current Actions run set created for this SHA.
-- LAST PROVEN → current main ref `0b4f19fe7de377b57b2df7e70507bc32727568cc` resolved directly from GitHub; no application PASS transferred.
-- LAST FAILED / FIRST FAILURE TO CONSUME → run `36328482705` / Execution Enforcement Contract at exact SHA `8054f35f722fa7f1560d75f83c47e214d8b91308`: certification boundary failed because the Master Index candidate did not identify the current code/test head.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; Phase-F restore target still lacks `current_customer_company_id()`; PC01/device/browser/production proof unavailable and intentionally not required for repository-only work.
-- NEXT EXECUTABLE ACTION → bind Index + live Resume Token to exact candidate, rerun current-SHA certification/enforcement gates, then consume the first new terminal failure.
-- NEXT INDEPENDENT ACTIONS → continue UI completeness/state audit; reconcile stale superseded PRs; consume exact-head proof while external blockers remain isolated.
-- DO NOT REPEAT → stale PASS transfer; stale candidate binding; duplicate import/RPC/runner/route; preview-as-production; reopening closed import roots without current-SHA regression.
-- RESUME STATUS → ACTIVE / CURRENT-MAIN RECONCILED / PR #667 EXACT-HEAD PROOF IN FLIGHT.
+- CURRENT REPOSITORY HEAD: `0b4f19fe7de377b57b2df7e70507bc32727568cc`
+- CURRENT CODE/TEST CANDIDATE: `8054f35f722fa7f1560d75f83c47e214d8b91308`
+- ACTIVE EXECUTION FRONTS: FUNCTIONAL #667 / `8054f35f722fa7f1560d75f83c47e214d8b91308` | GOVERNANCE RECONCILIATION | EXACT-HEAD PROOF
+- FRONT-ID: `IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI`
+- CURRENT BOUNDARY: Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay; Benchmark remains INSUFFICIENT_SAMPLE.
+- ACTUAL RESULT: functional implementation reconstructed directly from current main; 21 files changed across canonical backend, evidence, decision, work, replay, benchmark and UI contract surfaces.
+- EVIDENCE: exact current candidate `8054f35f722fa7f1560d75f83c47e214d8b91308`; PR #667; current Actions run set created for this SHA.
+- LAST PROVEN: current main ref `0b4f19fe7de377b57b2df7e70507bc32727568cc` resolved directly from GitHub; no application PASS transferred.
+- LAST FAILED / FIRST FAILURE TO CONSUME: run `36328482705` / Execution Enforcement Contract at exact SHA `8054f35f722fa7f1560d75f83c47e214d8b91308`: certification boundary failed because the Master Index candidate did not identify the current code/test head.
+- OPEN BLOCKERS: Vercel free-plan build-rate limit; Phase-F restore target still lacks `current_customer_company_id()`; PC01/device/browser/production proof unavailable and intentionally not required for repository-only work.
+- NEXT EXECUTABLE ACTION: bind Index + live Resume Token to exact candidate, rerun current-SHA certification/enforcement gates, then consume the first new terminal failure.
+- NEXT INDEPENDENT ACTIONS: continue UI completeness/state audit; reconcile stale superseded PRs; consume exact-head proof while external blockers remain isolated.
+- DO NOT REPEAT: stale PASS transfer; stale candidate binding; duplicate import/RPC/runner/route; preview-as-production; reopening closed import roots without current-SHA regression.
+- RESUME STATUS: ACTIVE / CURRENT-MAIN RECONCILED / PR #667 EXACT-HEAD PROOF IN FLIGHT.
 
 ---
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / LIVE CHECKPOINT
