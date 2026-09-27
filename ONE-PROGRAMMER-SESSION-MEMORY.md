@@ -1,21 +1,20 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `7b45491b0f0f8f99caa4ba2dda6a9d359f020530`
-- CURRENT CODE CANDIDATES → `7011596a003982b1ff9c2cbc1e0c7dab8a9f04`, `8c2ded7d4e268e029df10ed988d392039e8a5bce`, `2f9f4dc4653c38945cb739d1284c61fff992d4c7`
-- CURRENT CONTRACT CANDIDATE → `7b45491b0f0f8f99caa4ba2dda6a9d359f020530`
+- CURRENT BRANCH HEAD → `79c1c1d7b7d5d33fe2e0b1d2cb1ddf7be1e6c19d`
+- CURRENT CODE CANDIDATES → `ad43ddaa020f4fa5994f10b26db1766c8accef82`, `fdebbda9713990cf6356dd891348dc56512466b9`, `086bed9989381ca13e27b170bde415af9d6741cf`
+- CURRENT CONTRACT CANDIDATE → `d4cbf3522b80d34c8045f4f99e9461c2334c8a87`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- ROOT FAILURE CLOSED → actual recommendation lifecycle uses `OPEN` as the canonical ready-for-decision state. Intelligence, Command Center, and Executive Report previously used incompatible cohorts; all now share `isActionableRecommendationStatus`.
-- ACTUAL RESULT → recommendation queues, Decision Coverage, and Executive Report now surface OPEN/approved/in_progress consistently; Intelligence filters and labels reflect the canonical lifecycle while retaining legacy rows only through the shared resolver.
-- OTHER CLOSED WORK → import continuation, Evidence/Decision/Replay AS OF, bounded replay reads, truth-derived Next Action, purchase multi-line identity, seven typed import entities, staging import RPC hardening, unified `/import/analyze`, no duplicate importer.
-- STAGING PROOF → recommendations query observed `OPEN`; `update_recommendation_status` RPC defines `new→OPEN→approved→in_progress→completed` and terminal rejected/dismissed states. Import RPC grants remain hardened and tenant bound.
-- CURRENT CI → no fresh terminal workflow yet on latest exact head; Vercel remains external free-plan build-rate-limit.
+- ROOTS CLOSED → canonical recommendation lifecycle `new → OPEN → approved → in_progress → completed`; direct acceptance bypass removed from Intelligence/Recommendations; OPEN/new now route into governed Decision Experience; rejection remains the only direct mutation allowed before approval.
+- UI TRUTH → canonical import result uses authoritative server row count; Decision Coverage uses canonical recommendation cohort; Executive Report localizes OPEN; Intelligence filters/icons/optimistic readback match canonical statuses.
+- CORE/UI CONTINUITY → Import → Evidence → Signals → Decision → Work → Outcome → Replay, Evidence/Decision/Replay AS OF, bounded Replay, truth-derived Next Action, seven typed import entities, purchase multi-line identity, staging import RPC grant hardening.
+- CURRENT PROOF → CodeRabbit/Netlify PASS from earlier exact heads is not transferred; latest head has no terminal workflow results yet. Vercel is external free-plan build-rate-limit.
 - OPEN BLOCKERS → Vercel rate-limit; production/browser/Phase-F exact evidence environment-bound; device unavailable; local GitHub/DNS execution unavailable.
-- FIRST FAILURE → recommendation cohort semantics, now repaired and contract-guarded.
-- NEXT EXECUTABLE ACTION → consume first terminal workflow on `7b45491b0f0f8f99caa4ba2dda6a9d359f020530`; repair only the first current-SHA root.
-- NEXT INDEPENDENT ACTIONS → final route/contract rescan and safe deletion-gate cleanup.
-- DO NOT REPEAT → stale PASS transfer, incompatible recommendation status filters, display-window KPI calculations, duplicate importer/RPC/runner, speculative ROI formula, preview-as-production.
+- FIRST FAILURE → recommendation approval bypass + cohort semantics + authoritative import count presentation, all repaired in source and contract guarded.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow on latest exact head; repair only current-SHA root if any.
+- NEXT INDEPENDENT ACTIONS → final route/contract rescan and deletion-gate cleanup only where references/dependencies are proven absent.
+- DO NOT REPEAT → stale PASS transfer, direct accepted mutation, incompatible status filters, local row count as canonical truth, display-window KPI math, duplicate importer/RPC/runner, speculative ROI formula.
 - RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD PROOF IN FLIGHT
 ---
 
