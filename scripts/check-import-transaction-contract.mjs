@@ -65,7 +65,7 @@ const adapter = fs.readFileSync(adapterPath, 'utf8');
 if (!/runDurableProductionLifecycle/.test(adapter) || !/SupabaseReportExecutionStore/.test(adapter)) {
   throw new Error('Canonical import must use the existing durable production runner/store');
 }
-if (!/stage === 'committed'\)\s*await commitImportBatch/.test(adapter)) {
+if (!/if\s*\(stage === 'committed'\)\s*\{[\s\S]{0,400}?await commitImportBatch\(/.test(adapter)) {
   throw new Error('Canonical commit must execute only at the durable committed lifecycle stage');
 }
 if (/batchSize|for \(let i = 0; i < reconciled\.rows\.length/.test(adapter)) {
