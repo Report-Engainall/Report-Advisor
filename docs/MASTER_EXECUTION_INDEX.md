@@ -1,5 +1,18 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / LIVE CHECKPOINT
 
+> Exact-head evidence only. Current code candidate is kept separate from documentation/test-harness tails.
+
+- MAIN HEAD BEFORE THIS DOCS COMMIT → `f1444f7c7277fdc7662052a28629171063ab7d17`
+- CURRENT CODE/TEST CANDIDATE → `c5b193116e16b7ce46fd88d6d6edde268820ef52`
+- FUNCTIONAL FRONT → PR #664 / `9218274998a82b0613d8ec8b6b0820bad173ad0b`
+- GOVERNANCE FRONT → PR #666 / `9aec629f5573830ef5d8d5bbc1e303ce41470ba3`
+- UI AFTER IMPORT → single canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Replay path; Benchmark remains INSUFFICIENT_SAMPLE.
+- PHASE-F → fail-closed external/runtime boundary: restore target missing current_customer_company_id(), downstream rollback-forward 503.
+- VERCEL → free-plan build-rate limit remains external.
+
+---
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / LIVE CHECKPOINT
+
 > Exact-head evidence only. Code candidate and documentation tail are tracked separately.
 
 - MAIN HEAD BEFORE THIS DOCS COMMIT → `d5be7220b048a3e7bd798a9b2d9fea677b200183`

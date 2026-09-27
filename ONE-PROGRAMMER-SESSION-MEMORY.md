@@ -1,5 +1,16 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT LIVE CHECKPOINT
 
+- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `f1444f7c7277fdc7662052a28629171063ab7d17`
+- CURRENT CODE/TEST CANDIDATE → `c5b193116e16b7ce46fd88d6d6edde268820ef52`
+- ACTIVE FUNCTIONAL FRONT → PR #664 / head `9218274998a82b0613d8ec8b6b0820bad173ad0b`
+- ACTIVE GOVERNANCE FRONT → PR #666 / head `9aec629f5573830ef5d8d5bbc1e303ce41470ba3`
+- LAST CURRENT-SHA ROOT FIX → Product WOW UI contract fixed to match the actual TrustEvidence JSX newline structure. Earlier TypeScript and canonical-import mapping roots remain closed.
+- CURRENT PROOF → new #664 head has no terminal workflow results yet; Vercel combined status is external build-rate-limit. No stale PASS transfer.
+- PHASE-F → NOT CERTIFIED / fail-closed because restore-target migration path lacks current_customer_company_id(); rollback-forward returns 503.
+- CLEANUP → #660/#661 and #665 closed as superseded; #664/#666 are the only active reconstructed fronts.
+- NEXT → consume first terminal #664/#666 gate; repair only the first reproducible current-SHA root; preserve external blockers separately.
+# RESUME TOKEN — 2026-09-27 / CURRENT LIVE CHECKPOINT
+
 - CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `d5be7220b048a3e7bd798a9b2d9fea677b200183`
 - CURRENT CODE/TEST CANDIDATE → `c5b193116e16b7ce46fd88d6d6edde268820ef52`
 - ACTIVE FUNCTIONAL FRONT → PR #664 / head `22bdfb19f234a38640961e3851c3e5eef786cbad` (latest documentation/index tail; code candidate remains c5b1931…)
