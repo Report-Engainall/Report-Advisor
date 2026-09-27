@@ -1,3 +1,21 @@
+# RESUME TOKEN — 2026-09-27 / POST-IMPORT UI CONTINUITY PROVEN-CANDIDATE
+
+- SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-11`
+- CURRENT VERIFIED SHA → `46675643e32f6ea28b6c1d80a530b2eb134e7907` (main)
+- CURRENT EXECUTION/CANDIDATE SHA → `3aca114ec002721ed0a9b02dde73d2027e9d747c` (PR #662 / `exec/20260927-import-full-lifecycle` code+UI+contract batch)
+- BRANCH / PR → `exec/20260927-import-full-lifecycle` / #662
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT`
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Readback → Business Understanding → Signals → Decision/Work → Replay/Learning; Benchmark remains fail-closed until a real peer cohort exists.
+- ACTUAL RESULT → added Business Replay query/page, evidence-safe Benchmark page, routes/navigation, Sidebar icon mappings, canonical-import continuation link to Replay, and contract guards for both surfaces plus their navigation wiring.
+- EVIDENCE → `src/lib/queries.ts` now carries a bounded tenant-scoped replay read across `business_state_snapshots`, `recommendation_outcomes`, and `decision_work_items`; route registry/App/Sidebar all include `/replay` and `/benchmark`; contract tests assert the wiring and no-fabrication state.
+- FIRST THREE ROOT FAILURES CLOSED → extra brace `7f7ee…`; missing `fetchDashboardIntelligence` export `e3c86…`; accidental partial `queries.ts` truncation restored at `87f73…`.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan build-rate limit; Phase-F/production exact-SHA resilience remains unproven.
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-head #662 gate on candidate `3aca114ec002721ed0a9b02dde73d2027e9d747c`; repair only the first reproducible current-SHA failure.
+- NEXT INDEPENDENT ACTIONS → consume route completeness, desktop build, full-product browser, and data-quality/import truth gates; then reconcile remaining #661-only closures without wholesale merge.
+- DO NOT REPEAT → partial-file writes from bounded reads, stale candidate binding, stale PASS transfer, duplicate importer/RPC/runner/query path, unknown-to-zero coercion, unsafe import-job terminalization, preview-as-production/browser PASS.
+- RESUME STATUS → ACTIVE / UI CONTINUITY COMPLETE-CODE CANDIDATE / EXACT-HEAD PROOF QUEUED.
+
+---
 # RESUME TOKEN — 2026-09-27 / POST-IMPORT UI CONTINUITY
 
 - SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-10`
