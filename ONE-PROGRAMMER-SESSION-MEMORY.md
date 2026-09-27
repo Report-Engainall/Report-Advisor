@@ -1,3 +1,22 @@
+# RESUME TOKEN — 2026-09-27 / SECURITY BOUNDARY CLOSURE
+
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT BRANCH HEAD → `10a173b606697c56dbb167b9ec27911cfbcefb27`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- CURRENT BOUNDARY → canonical import UI + server execution boundary + proof.
+- ACTUAL RESULT → post-import journey and Backtest Gate UI are contract-guarded; route/capability parity is guarded; canonical server import boundary was audited; Netlify error semantics now match API semantics (authenticated 401, client validation 400, environment/config 503, server execution 502, stable `status: failed / error` body).
+- SECURITY SOURCE CHECK → server executor proves authenticated bearer, current_company_id, company-scoped import/file lookup, company-bound storage path, server SHA-256 verification, server-side security/format scan, quality gates, source-bound durable commit. Canonical 6-arg RPC remains authenticated/service_role only; anon/public execution is revoked.
+- EXACT PROOF → source verified on `10a173b6…`; current GitHub workflows: 43 queued, 3 pending, 1 in-progress, 2 skipped; no terminal current-head failure/pass yet. Vercel remains externally rate-limited.
+- FIRST FAILURE → Netlify/API response-shape inconsistency; fixed without changing data, tenant, RPC, or acceptance semantics.
+- OPEN BLOCKERS → Vercel free-plan rate limit; device unavailable; authenticated production/browser/Phase-F proof NOT PROVEN; local clone unavailable.
+- NEXT EXECUTABLE ACTION → consume first terminal `10a173b6…` workflow gate; repair only first reproducible current-SHA root.
+- NEXT INDEPENDENT ACTIONS → bounded cleanup/reference audit only where dependency absence is provable.
+- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, speculative security revokes, speculative deletion.
+- RESUME STATUS → ACTIVE / PR #671 / SECURITY BOUNDARY HARDENED / EXACT-HEAD PROOF IN FLIGHT
+
+---
+
 # RESUME TOKEN — 2026-09-27 / NON-DEVICE DEEP CLOSURE CHECKPOINT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
