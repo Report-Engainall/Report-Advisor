@@ -1,5 +1,5 @@
 export type ReconciliationState = 'RECONCILED' | 'CONFLICT' | 'INSUFFICIENT_DATA';
-export type CanonicalImportEntityType = 'products' | 'customers' | 'sales_invoices' | `generic:${string}`;
+export type CanonicalImportEntityType = 'products' | 'customers' | 'sales_invoices' | 'purchase_invoices' | 'suppliers' | 'inventory_balances' | 'payments' | `generic:${string}`;
 
 function isGenericEntityType(entityType: CanonicalImportEntityType): entityType is `generic:${string}` {
   return /^generic:[a-z][a-z0-9_-]{0,63}$/.test(entityType);
@@ -52,8 +52,14 @@ function rowIdentity(entityType: CanonicalImportEntityType, row: Record<string, 
     ? row.sku
     : entityType === 'customers'
       ? (row.code ?? row.name)
-      : row.invoice_number;
-  const normalizedKey = normalizeImportKey(rawKey);
+      : entityType === 'suppliers'
+        ? (row.code ?? row.name)
+        : entityType === 'inventory_balances'
+          ? [row.warehouse_id ?? row.warehouse, row.product_id ?? row.sku ?? row.product_name]
+          : entityType === 'payments'
+            ? (row.payment_id ?? row.reference ?? [row.direction, row.payment_date, row.payment_amount, row.customer_id ?? row.supplier_id ?? row.invoice_id])
+            : row.invoice_number;
+  const normalizedKey = Array.isArray(rawKey) ? rawKey.map(normalizeImportKey) : normalizeImportKey(rawKey);
   return `${entityType}:${stableValue(normalizedKey)}`;
 }
 
@@ -65,7 +71,15 @@ function criticalPayload(entityType: CanonicalImportEntityType, row: Record<stri
     ? ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active']
     : entityType === 'customers'
       ? ['code', 'name', 'segment', 'credit_limit', 'payment_terms_days']
-      : ['invoice_number', 'invoice_date', 'customer_id', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'];
+      : entityType === 'suppliers'
+        ? ['code', 'name', 'phone', 'email', 'address', 'tax_id', 'payment_terms_days']
+        : entityType === 'inventory_balances'
+          ? ['warehouse_id', 'warehouse', 'product_id', 'sku', 'product_name', 'quantity', 'unit_cost', 'last_movement_date']
+          : entityType === 'payments'
+            ? ['payment_id', 'reference', 'direction', 'customer_id', 'supplier_id', 'invoice_id', 'payment_date', 'payment_amount', 'payment_method', 'currency']
+            : entityType === 'purchase_invoices'
+              ? ['invoice_number', 'invoice_date', 'supplier_id', 'supplier_name', 'supplier_code', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status', 'due_date', 'currency', 'discount_amount']
+              : ['invoice_number', 'invoice_date', 'customer_id', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'];
   return JSON.stringify(fields.map((field) => [field, row[field] ?? null]));
 }
 
