@@ -1,14 +1,13 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT UI ROOT FIX CONSUMED
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT UI LIFECYCLE CONTRACT ADVANCE
 
-- FUNCTIONAL CANDIDATE → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `4c51dbc164f3dc9c661d22e96e0d20cb96eb4829`.
-- FIRST CURRENT ROOT FAILURE CONSUMED → Netlify deploy `6ab9252993a9a50008659642` failed because `CanonicalImportPage.tsx:518` had an extra closing `</div>` introduced by the lifecycle insertion, producing JSX/CardBody/Card mismatch and unterminated-regex parser errors.
-- ROOT FIX → removed only the extra wrapper close; no acceptance criteria, route, importer, RPC, runner, or evidence boundary changed.
-- CURRENT PROOF → fresh exact-head Netlify/Cloudflare deployment checks are in progress on `4c51dbc`; browser-e2e, certification-contracts, and enforcement-contract are queued. No PASS claimed yet.
-- VERCEL → free-plan deployment rate limit remains an external status failure and is not treated as a code failure.
-- GOVERNANCE #663 → exact head `43a29443477aeb5969b99d672bd2c6698e0f7106` has Cloudflare SUCCESS and certification/enforcement still queued; no new failure observed.
-- UI BOUNDARY → existing import result surface now explicitly shows the full canonical post-upload lifecycle, evidence-neutral, with existing Trust/Work/Decision/Replay continuation links.
-- NEXT → consume first terminal `4c51dbc` check; repair only a newly reproduced current-SHA root failure. Then consume #663 terminal gates and reconcile.
-- EXTERNAL → PC01 offline; authenticated browser, production exact-SHA, rollback/restore/RPO/RTO and Phase-F remain NOT PROVEN.
+- FUNCTIONAL CANDIDATE → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `334c80ec51d304041071eae5908f125016f520d4`.
+- ROOT FIX LINEAGE → Netlify build failure on `6ab9252993a9a50008659642` was fixed on `4c51dbc` by removing one extra JSX wrapper close in `CanonicalImportPage.tsx`.
+- CONTRACT HARDENING → the existing `check-product-wow-ui-contract.mjs` was extended to assert the 16-stage canonical post-upload lifecycle and the evidence-neutral wording; no new test file created.
+- CURRENT EXACT-SHA PROOF → `certification-contracts` and `enforcement-contract` queued; Cloudflare Pages in progress; Supabase Preview skipped. No PASS claimed on `334c80e`.
+- GOVERNANCE #663 → `43a29443477aeb5969b99d672bd2c6698e0f7106` remains in exact-head proof with certification/enforcement queued and no new failure observed.
+- EXTERNAL → Vercel free-plan deployment rate limit; PC01 offline; production/browser/Phase-F proof not established.
+- NEXT → consume first terminal check on `334c80e`; fix only the first reproducible current-SHA failure, then rescan #663 and reconcile.
+- CLEANUP → no deletion performed; no safe deletion target proven.
 
 
 ---
