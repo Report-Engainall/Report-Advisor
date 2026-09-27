@@ -3,7 +3,7 @@
 > This top block is the only startup boundary.
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `643a17c149bf0b6a2be6149652892905c17ab58c`
+- CURRENT BRANCH HEAD → `88a929945f973dbac77cf79ea8ea851acee8157c`
 - FUNCTIONAL FRONT → PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - PRODUCT CHAIN → Import → Evidence → Signals → Decision → Work → Outcome/Learning.
@@ -11,7 +11,7 @@
 - SERVER → shared API/Netlify canonical import executor with tenant/source/hash/security/quality binding and aligned error contract; 6-arg RPC remains authenticated/service_role only.
 - CLEANUP → legacy ExternalFileAnalysisPage removed and proven.
 - STAGING → no dedicated playbook/backtest/source-schema-drift schema; current counts recorded in live memory/data/product masters.
-- PROOF → exact source current; GitHub workflows 45 queued / 1 in-progress / 2 pending / 1 skipped; Vercel external rate-limit.
+- PROOF → exact source current; GitHub workflows: 43 queued / 3 in-progress / 3 pending; Vercel external rate-limit; Netlify current-head preview success.
 - NEXT → terminal current-head CI result, then first-root repair only.
 
 ---
