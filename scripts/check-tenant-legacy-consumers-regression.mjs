@@ -9,6 +9,7 @@ fs.mkdirSync(path.dirname(checker), { recursive: true });
 const sourceChecker = fs.readFileSync(path.join(process.cwd(), 'scripts/check-tenant-legacy-consumers.mjs'), 'utf8');
 fs.writeFileSync(checker, sourceChecker);
 fs.mkdirSync(path.join(root, 'src/pages'), { recursive: true });
+fs.mkdirSync(path.join(root, 'src/server'), { recursive: true });
 
 const canonical = `
 import { resolveCurrentCompanyId } from '@/lib/supabase';
@@ -19,6 +20,12 @@ export async function save() {
 }
 `;
 fs.writeFileSync(path.join(root, 'src/pages/CanonicalRpc.tsx'), canonical);
+
+fs.writeFileSync(path.join(root, 'src/server/CanonicalImport.ts'), `
+const { data: companyId, error: companyError } = await userClient.rpc('current_company_id');
+if (companyError || !companyId) throw new Error('tenant required');
+return supabase.from('import_jobs').select('id').eq('company_id', companyId);
+`);
 
 let result = spawnSync(process.execPath, [checker], { cwd: root, encoding: 'utf8' });
 if (result.status !== 0) {
