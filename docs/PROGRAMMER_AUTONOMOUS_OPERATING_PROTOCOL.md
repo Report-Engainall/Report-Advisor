@@ -366,5 +366,119 @@ A Library-sync blocker MUST NOT become an owner question, a session-stopping con
 
 
 
+
+
+## 20. Product Completion + UI Surface Excellence — MANDATORY
+
+This section is a permanent execution requirement. It supplements the domain masters and does not create a competing source of truth.
+
+### 20.1 Complete the product, not isolated screens
+Treat Report-Advisor / الأغبري as one integrated Business Decision Operating System.
+
+Target chain:
+
+`Any Source → Truth → Evidence → Signal → Decision → Approval → Action → Outcome → Learning → Benchmark`
+
+A capability is incomplete when backend, persistence, evidence, business semantics, and UI are disconnected.
+
+For every meaningful capability verify:
+
+**contract → implementation → persistence → readback → business meaning → evidence → UI → action → regression**
+
+Do not stop at endpoint/component/file-upload success.
+
+### 20.2 Post-import completion is mandatory
+For unified import, do not stop at upload, parse, or preview.
+
+Where the source/data permits, continue through:
+
+`Upload → Security → Fingerprint → Extract → Understand → Classify → Map → Normalize/Reconcile → Quality → Trust → Evidence → Review → Canonical Commit → Persistence → Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark`
+
+Never visually claim a downstream state before its authoritative prerequisite exists. If evidence or sample size is insufficient, use the canonical fail-closed state.
+
+### 20.3 Global UI completeness audit
+Do not review UI one page at a time and stop. At every significant UI wave, audit the whole canonical surface map.
+
+Check, where applicable:
+- routes/navigation branches;
+- shell, RTL, responsive/mobile/PWA;
+- real data binding;
+- loading, empty, error, review, blocked, insufficient-data, success, partial states;
+- search/filter/sort/pagination/window semantics;
+- drawers/dialogs/detail/contextual actions;
+- keyboard/focus/accessibility;
+- evidence/trust/provenance;
+- primary next action and downstream navigation;
+- notifications/feedback;
+- print/report behavior;
+- performance/low bandwidth;
+- no mock metrics/static business claims;
+- shared-component/design-system consistency.
+
+A screen is complete only when its relevant states, actions, data, evidence, and responsive behavior are complete—not merely when the default state looks polished.
+
+### 20.4 Design-system-first improvement
+When multiple screens share a defect, inconsistency, weak hierarchy, or interaction problem:
+
+`Detect Pattern → Fix Shared Layer → Propagate → Re-test`
+
+Prefer shared tokens, primitives, layouts, components, state patterns, contracts, utilities, and domain services over page-local patches.
+
+### 20.5 Production-grade visual standard
+Continuously raise the product through:
+
+`Works → Correct → Consistent → Robust → Fast → Clear → Polished → Production-grade`
+
+Use modern proven patterns where they add measurable value: progressive disclosure, contextual actions, command/search navigation, evidence-adjacent claims, strong empty/error states, explicit next actions, responsive density, accessible interaction, and low-friction workflows.
+
+Extract useful patterns from leading products by category; do not copy vendor UI or add decorative complexity without customer value.
+
+### 20.6 Capability-completeness rescan
+At every rescan, look for missing or underdeveloped capabilities across:
+Decision Center; Data Operations; Business Analytics; Intelligence & Decision; Trust & Evidence; Reports & Outputs; Master Data; Settings/operations/security.
+
+This is an audit of existing canonical paths, not permission to create duplicates.
+
+### 20.7 Device-unavailable execution rule
+When the user's physical device/browser/desktop is unavailable:
+1. Complete 100% of safe work that does not require it.
+2. Never stop the whole session for one device-dependent front.
+3. Verify repository, CI, remote runtime, hosted preview, API, connector, or other safe proof paths before declaring a task device-dependent.
+4. Exhaust practical alternatives before marking BLOCKED.
+5. Record the exact dependency and resume point.
+6. Continue all independent core, UI, contracts, security, cleanup, documentation, evidence, and deployment-preparation work.
+
+`DEVICE BLOCKED ≠ PROJECT BLOCKED`
+
+Never fabricate browser, authenticated production, or physical-device evidence.
+
+### 20.8 Free-tool and fallback policy
+When a required capability is missing or a tool is unavailable:
+
+`Search Alternatives → Compare Limits → Select Best Safe Free Option → Use/Integrate → Verify`
+
+Do not make TinyFish, a browser tool, a connector, or any single tool a single point of failure. Do not install tools without a demonstrated throughput/proof benefit.
+
+### 20.9 Storage and workspace hygiene
+Clean transient/build/disposable outputs as soon as no longer needed, but never remove repository knowledge blindly.
+
+Before deletion/collapse:
+
+`Name → Content/References → Dependencies → Canonical Owner → Reuse/Extend/Supersede/Archive/Delete`
+
+Retain historical evidence when auditability requires it.
+
+### 20.10 Global rescan
+After each meaningful implementation/fix, rescan beyond the changed file for regressions, stale routes/navigation, duplicate paths, missing UI states, broken post-import continuity, evidence/provenance gaps, security/tenant gaps, stale documentation, safe cleanup, and the next highest-value independent front.
+
+### 20.11 Completion gate
+A product front is CLOSED only when:
+
+**FUNCTIONALITY + DATA/PERSISTENCE + EVIDENCE + UI/UX + STATES + SECURITY + TEST/PROOF + DOCUMENTATION**
+
+are satisfied to the extent required by the front.
+
+A beautiful screen without truth/persistence is incomplete. A working backend without usable product surface is incomplete. A passing unit test without boundary proof is incomplete. A blocked external runtime gate does not excuse independent incomplete product work.
+
 ---
 **Governance:** This document is repository-resident operational policy. Changes to it must be intentional, auditable, and committed to GitHub.
