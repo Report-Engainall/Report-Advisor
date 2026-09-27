@@ -227,7 +227,9 @@ export function ExecutiveCommandCenterPage() {
         <Link to="/reports/receivables" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><WalletCards size={18} className="text-primary-700"/><span className="rounded-full bg-success-50 px-2 py-1 text-[9px] font-black text-success-700">{kpis.totalReceivables === null ? 'INSUFFICIENT DATA' : 'بيانات الذمم متاحة'}</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Money Recovery</div>
-          <p className="mt-1 text-[10px] leading-5 text-ink-500">ابدأ من الذمم والتحصيل للتحقق من الأموال القابلة للاسترداد؛ لا يتم احتساب فرصة مالية إضافية هنا دون ledger موثّق.</p>
+          <div className="mt-2 text-[18px] font-black tabular-nums text-ink-950">{kpis.totalReceivables == null ? 'غير متاح' : formatCurrency(kpis.totalReceivables)}</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">{kpis.overdueReceivables == null ? 'الذمم غير متاحة في القراءة الحالية.' : 'المتأخر: ' + formatCurrency(kpis.overdueReceivables) + ' · ابدأ من التحصيل للتحقق من الأموال القابلة للاسترداد.'}</p>
+          <p className="mt-1 text-[9px] text-ink-400">لا تُحسب فرصة استرداد إضافية دون ledger موثّق.</p>
         </Link>
         <div className="card p-4">
           <div className="flex items-center justify-between gap-3"><BarChart3 size={18} className="text-warning-700"/><span className="rounded-full bg-warning-50 px-2 py-1 text-[9px] font-black text-warning-800">INSUFFICIENT DATA</span></div>
