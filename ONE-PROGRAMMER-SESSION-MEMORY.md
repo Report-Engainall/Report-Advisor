@@ -5,10 +5,10 @@
 - ACTIVE PR / BRANCH → PR #662 / exec/20260927-import-full-lifecycle
 - FRONT-ID → IMPORT-FULL-SOURCE-LIFECYCLE
 - ACTUAL FUNCTIONAL RESULT → post-import signal UI now distinguishes source-bound recommendations from company-wide alerts; provenance never inferred from co-occurrence.
-- EXACT PROOF → Desktop Windows 36285659130 SUCCESS on b66; Netlify/CodeRabbit success; quality success; browser authenticated E2E and Phase-F remain separate current-head boundaries.
+- EXACT CURRENT-SHA PROOF → no current-SHA certification PASS. CodeRabbit was SUCCESS on prior exact heads; `bb2f1d6...` has Netlify deploy-preview build exit 2 and Vercel build-rate-limit; fresh Windows/Quality/Final Certification remain queued/in progress.
 - FIRST FAILURE → Windows build on `5b88c5d...` failed in `TrustEvidencePage.tsx` because Dataset Passport siblings were not wrapped in a JSX fragment; fixed on `e1fe338...`.
 - NEXT EXECUTABLE ACTION → consume fresh exact-head CI on `bb2f1d6...`; repair only the first current-SHA failure, then close proof.
-- OPEN BLOCKERS → Vercel free-plan build-rate; browser/agent automation external availability; Phase-F/production exact-SHA/restore/RPO/RTO/rollback remain unproven; 151 processing import_jobs untouched.
+- OPEN BLOCKERS → current Netlify build exit 2 needs cross-check against Windows build; Vercel free-plan build-rate; browser/agent automation; Phase-F/production exact-SHA/restore/RPO/RTO/rollback remain unproven; 151 processing import_jobs untouched.
 - DO NOT REPEAT → stale PASS transfer, browser PASS from HTTP-only preview, production/Phase-F bypass, unsafe legacy-job terminalization, duplicate import path/RPC/runner.
 - RESUME STATUS → ACTIVE / SOURCE-BOUND POST-IMPORT JOURNEY COMPLETE IN CODE / FRESH EXACT-HEAD PROOF REQUIRED
 
