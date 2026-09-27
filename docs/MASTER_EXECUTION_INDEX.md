@@ -2,14 +2,14 @@
 
 > This top block is the only startup boundary. Entries below are historical evidence and MUST NOT override it.
 
-- CURRENT CODE/TEST CANDIDATE: `57bd03db438e2a2ac399c1f3a09a72e24da348a6` (PR #662 / `exec/20260927-import-full-lifecycle`).
+- CURRENT CODE/TEST CANDIDATE: `3aca114ec002721ed0a9b02dde73d2027e9d747c` (PR #662 / `exec/20260927-import-full-lifecycle`).
 - MAIN HEAD VERIFIED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
 - FRONT-ID: `IMPORT-SURFACE-AFTER-COMMIT`.
 - CURRENT BOUNDARY: Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Readback → Business Understanding → Signals → Decision/Work follow-through.
 - CORE RESULT: server-authoritative canonical import now re-reads the stored source and consumes every parsed dataset; no first-dataset truncation is allowed.
-- UI RESULT: Canonical Import exposes specialty, dataset count, understanding confidence, quality/trust, persisted history continuity, Evidence/Trust follow-through, Decision/Work follow-through, and a truthful Business Replay continuation. New independent UI surfaces `/replay` (tenant-scoped snapshots/outcomes/work replay) and `/benchmark` (INSUFFICIENT_SAMPLE fail-closed until a real peer cohort exists) are routed and registered in navigation.
+- UI RESULT: Canonical Import exposes specialty, dataset count, understanding confidence, quality/trust, persisted history continuity, Evidence/Trust follow-through, Decision/Work follow-through, and a truthful Business Replay continuation. New independent UI surfaces `/replay` (tenant-scoped snapshots/outcomes/work replay) and `/benchmark` (INSUFFICIENT_SAMPLE fail-closed until a real peer cohort exists) are routed, registered in navigation, and mapped to Sidebar icons with contract guards.
 - FIRST FAILURE CLOSED: Windows build on the prior #662 head failed at `src/lib/queries.ts:51` with an extra `}`; fixed by commit `7f7ee185fb18bf9b06f0c3cf9dc839ee4d5a3c3c`. SECOND FAILURE CLOSED: `CanonicalImportPage.tsx` imported `fetchDashboardIntelligence` through `queries-compat.ts`, but `queries.ts` did not re-export that canonical query; the export was added in `e3c86d4e67bd1d8f83644669d8a67f5f66c738e4`. THIRD FAILURE CLOSED: partial-file update accidentally truncated `src/lib/queries.ts`; full 34,995-character canonical file was restored from the exact merge-ref and the intended export retained in `87f73a6ced716a324274eb89c40f0b6a33c948fb`.
-- EXACT PROOF STATUS: prior local #662 claims are not remote PASS; candidate `57bd03db438e2a2ac399c1f3a09a72e24da348a6` requires fresh exact-head Actions. No PASS transferred.
+- EXACT PROOF STATUS: prior local #662 claims are not remote PASS; candidate `3aca114ec002721ed0a9b02dde73d2027e9d747c` requires fresh exact-head Actions. No PASS transferred.
 - OPEN BLOCKERS: PC01 offline for local browser execution; Vercel free-plan deployment rate limit; Phase-F/production exact-SHA resilience proof remains unproven.
 - NEXT EXECUTABLE ACTION: consume the first terminal exact-head #662 gate on `7f7ee185fb18bf9b06f0c3cf9dc839ee4d5a3c3c`; repair only the first reproducible current-SHA failure.
 - NEXT INDEPENDENT ACTIONS: consume UI route/browser evidence for `/replay` and `/benchmark`; after proof, reconcile any remaining #661-only dashboard/data-quality closures without wholesale overlapping merge.
