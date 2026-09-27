@@ -17,7 +17,7 @@ type CanonicalImportRequest = {
   importId?: string;
   fileName?: string;
   sourceHash?: string;
-  entityType?: 'products' | 'customers' | 'sales_invoices' | `generic:${string}`;
+  entityType?: 'products' | 'customers' | 'sales_invoices' | 'purchase_invoices' | 'suppliers' | 'inventory_balances' | 'payments' | `generic:${string}`;
   rows?: unknown[];
   qualityScore?: number;
   qualityApproved?: boolean;
@@ -28,7 +28,7 @@ function assertRequest(value: unknown): CanonicalImportRequest {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('CANONICAL_IMPORT_REQUEST_INVALID');
   const body = value as CanonicalImportRequest;
   const genericEntity = typeof body.entityType === 'string' && /^generic:[a-z][a-z0-9_-]{0,63}$/.test(body.entityType);
-  if (body.entityType !== 'products' && body.entityType !== 'customers' && body.entityType !== 'sales_invoices' && !genericEntity) {
+  if (body.entityType !== 'products' && body.entityType !== 'customers' && body.entityType !== 'sales_invoices' && body.entityType !== 'purchase_invoices' && body.entityType !== 'suppliers' && body.entityType !== 'inventory_balances' && body.entityType !== 'payments' && !genericEntity) {
     throw new Error('CANONICAL_IMPORT_ENTITY_TYPE_INVALID');
   }
   if (!body.importId || !body.importId.trim()) throw new Error('CANONICAL_IMPORT_IMPORT_ID_INVALID');
