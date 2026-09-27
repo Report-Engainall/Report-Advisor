@@ -1,3 +1,22 @@
+# RESUME TOKEN — 2026-09-27 / NON-DEVICE DEEP CLOSURE CHECKPOINT
+
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT BRANCH HEAD → `b262c87ac0cb52e01523c95e99f876f6286eb77e`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- CURRENT BOUNDARY → non-device product closure + UI capability guards + exact-head proof consumption.
+- ACTUAL RESULT → canonical post-import journey is live in source; Forecasts now expose an explicit fail-closed Backtest Gate instead of implying a fabricated accuracy result; Product WOW contract now enforces the eight canonical navigation zones, 38/38 registry-to-App route parity, Decision ROI, Money Recovery, Decision Coverage, Decision Playbooks state, Report Builder/print, Evidence Passport/snapshots, and post-import continuity.
+- CLEANUP → legacy `src/pages/ExternalFileAnalysisPage.tsx` deletion remains proven by PR #671. No speculative file deletion was performed.
+- PROOF → source/contract readback is exact at `b262c87a…`; current GitHub workflow materialization has not produced terminal results for this head. Vercel remains externally blocked by free-plan deployment-rate limit.
+- FIRST FAILURE → backtest card placement was initially inserted into the intelligence overview instead of Forecasts; fixed on the same branch. No acceptance criteria changed.
+- OPEN BLOCKERS → Vercel rate limit; device unavailable; authenticated production/browser/Phase-F evidence NOT PROVEN; local clone unavailable.
+- NEXT EXECUTABLE ACTION → consume first terminal current-head workflow gate; repair only first reproducible current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue only bounded source/reference cleanup and product-contract hardening with concrete evidence.
+- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, speculative ROI/backtest formulas, speculative deletion.
+- RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE DEEP CLOSURE / EXACT-HEAD PROOF IN FLIGHT
+
+---
+
 # RESUME TOKEN — 2026-09-27 / FINAL CURRENT-SHA CHECKPOINT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
