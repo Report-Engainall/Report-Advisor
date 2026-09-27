@@ -1,12 +1,12 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / EXACT BUILD PROOF + CONTRACT HEAD
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT-HEAD DEPLOYMENT READBACK
 
 - FUNCTIONAL CURRENT HEAD → PR #662 / `334c80ec51d304041071eae5908f125016f520d4`.
-- EXACT CODE BUILD PROOF → preceding exact code head `4c51dbc164f3dc9c661d22e96e0d20cb96eb4829` received Cloudflare Pages SUCCESS and Netlify deploy-preview SUCCESS (deploy `6ab92571cea89200085beeaf`). This evidence is bound only to `4c51dbc`, not transferred to `334c80e`.
-- CURRENT CONTRACT HEAD → `334c80e` adds assertions to the existing UI contract for the 16-stage lifecycle and evidence-neutral semantics; fresh certification/enforcement gates are still queued.
-- CURRENT CHECKS → on `334c80e`: Cloudflare in progress; certification-contracts queued; enforcement-contract queued; Supabase Preview skipped; Vercel Preview Comments success. No overall PASS claimed.
-- ROOT FAILURE STATUS → Netlify JSX/CardBody parser failure at `6ab9252993a9a50008659642` is fixed and independently reproduced as build-success on the exact repair SHA.
-- NEXT → consume terminal `334c80e` mandatory gates; if a new failure appears, fix only its first current-SHA root. Then consume #663 and reconcile.
-- EXTERNAL → Vercel free-plan rate limit; PC01 offline; authenticated browser/production/Phase-F exact-SHA proof not established.
+- DEPLOYMENT READBACK → Cloudflare exact-head check for `334c80e` is SUCCESS; the deployed import URL resolves to the Arabic الأغبري identity gate and does not fabricate an authenticated workspace. This is deployment/readback evidence only, not authenticated browser E2E proof.
+- CURRENT MANDATORY GATES → `certification-contracts` and `enforcement-contract` remain queued; no new code failure is available to repair.
+- UI DELIVERY → the full 16-stage post-upload lifecycle is present in the existing canonical import result surface and protected by the existing UI contract; evidence wording remains fail-closed.
+- PHASE-F → source-side review found no new safe code mutation to remove the remaining live-proof blocker: the current Phase-F script requires live runtime secrets/targets and exact deployment identity. Keep fail-closed; do not synthesize production proof.
+- EXTERNAL → PC01 offline; Vercel free-plan deployment-rate limit; authenticated browser and production/Phase-F resilience proof remain NOT PROVEN.
+- NEXT → consume terminal mandatory gates on `334c80e`; then consume #663. If queues persist, continue only independent repository-safe fronts.
 
 
 ---
