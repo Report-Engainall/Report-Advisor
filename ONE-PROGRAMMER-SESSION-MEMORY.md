@@ -12,7 +12,10 @@
 - SECURITY RESIDUAL → Supabase advisor still reports broad pre-existing authenticated SECURITY DEFINER warnings (including `import_commit_batch`) and unused-index warnings. They remain an independent hardening front; no speculative blanket revoke was made.
 - KNOWLEDGE STATE → canonical Memory + Execution Index remain the only live session-control files; no new shadow state was created.
 - DO NOT REPEAT → do not transfer evidence from `8e5dd2fe`, `8bf3458c`, `9999c155`, or any older SHA; do not count Netlify “success” status as a deployment PASS; do not claim authenticated browser E2E until a terminal exact-head browser gate proves it.
-- NEXT EXECUTABLE ACTION → consume terminal GitHub exact-`56483d33` quality/browser/certification results; repair only a reproducible current-head failure; then update this memory again. In parallel, continue only independent security/cleanup/documentation fronts that have real executable proof.
+- CLEANUP RESCAN → the 9 legacy-looking master documents reported by knowledge architecture are all explicitly referenced by the Project Knowledge Manifest; no safe delete/merge owner proof exists yet, so none were removed.
+- SECURITY READBACK → staging read-only enumeration shows SECURITY DEFINER RPCs execute for authenticated only; no anon/public grant appeared in the queried set. Broad Supabase Advisor SECURITY DEFINER warnings remain a separate hardening front; no blanket revoke was performed.
+- CURRENT PROOF BOUNDARY → exact functional code `56483d33` is locally certified and has a READY Vercel deployment; authenticated Browser E2E/final certification remains unproven while GitHub browser/final workflows are queued and local agent-browser is unavailable.
+- NEXT EXECUTABLE ACTION → consume terminal GitHub exact-`56483d33` quality/browser/certification results; repair only a reproducible current-head failure; otherwise leave the stable functional front unchanged and open the independent security-hardening front only with a concrete reproduced exploit/boundary defect.
 
 ---
 

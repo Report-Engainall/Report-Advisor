@@ -11,7 +11,10 @@
 - HOSTED/CI → Netlify exact-head deploy is ERROR from no-content-change cancellation; Vercel pending; browser/final-certification GitHub workflows queued/pending; no terminal exact-head browser/final PASS yet.
 - SECURITY OPEN FRONT → broad Supabase advisor warnings remain (authenticated SECURITY DEFINER and unused indexes); they are pre-existing/independent and require evidence-backed hardening, not blanket revoke.
 - DEVICE → PC01 online. Untracked `artifacts/` is not canonical and remains uncommitted.
-- NEXT → consume terminal exact-`56483d33` CI results; first reproducible failure only; then persist/rescan and continue independent security/cleanup fronts.
+- CLEANUP → all 9 legacy-looking master docs are referenced by the Project Knowledge Manifest; no deletion was justified by current owner/dependency evidence.
+- SECURITY READBACK → authenticated-only execution was observed for the queried SECURITY DEFINER RPCs; no anon/public grant appeared; Advisor warnings remain a separate hardening front.
+- HOSTED → exact functional SHA `56483d33` has READY Vercel deployment and HTTP 200 root; authenticated Browser E2E/final certification remains NOT PROVEN.
+- NEXT → consume terminal exact-`56483d33` CI results; first reproducible failure only; otherwise keep the stable functional front and work only independent evidence-backed security/cleanup fronts.
 
 ---
 
