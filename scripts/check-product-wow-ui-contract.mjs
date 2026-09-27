@@ -462,6 +462,10 @@ assert.ok(liquidity.includes("to: '/reports/purchases'") && liquidity.includes('
 assert.ok(liquidity.includes("to: '/trust'"), 'liquidity fallback must retain a trust action');
 assert.ok(liquidity.includes('aria-label={\'الخطوة التالية: \' + nextAction.title}'), 'liquidity next action must expose an accessible reason');
 
+const profileSettings = fs.readFileSync('src/pages/ProfileSettingsPage.tsx', 'utf8');
+assert.ok(profileSettings.includes('const load = useCallback(async () =>'), 'profile settings must expose a reusable initial-load/retry path');
+assert.ok(profileSettings.includes('<ErrorState message={error} onRetry={() => void load()} />'), 'profile settings must fail closed when initial auth data cannot be loaded');
+assert.ok(profileSettings.includes('setDisplayName'), 'profile settings must preserve the editable display-name control');
 const stateSurface = fs.readFileSync('src/components/ui/States.tsx', 'utf8');
 assert.ok(stateSurface.includes('export function DataUnavailableState'), 'shared UI states must expose an explicit data-unavailable state');
 const dashboardUnavailable = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
