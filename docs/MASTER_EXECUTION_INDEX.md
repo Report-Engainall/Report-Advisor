@@ -3,11 +3,11 @@
 > This top block is the only startup boundary. Entries below are historical evidence and MUST NOT override it.
 
 - MAIN HEAD OBSERVED BEFORE THIS CONTROL-PLANE WRITE: 46675643e32f6ea28b6c1d80a530b2eb134e7907
-- ACTIVE CODE/TEST CANDIDATE: c2dc39c931f108ee5262790ad0035a11a0dbecc7 (PR #660; base main 46675643...)
+- ACTIVE CODE/TEST CANDIDATE: 4f64bbef2f735e98e43abc677bbe81653be4020e (PR #663 governance candidate).
 - CURRENT EXECUTION MODE: dependency-aware maximum-safe parallelism across SURFACE / HEART / PROOF / GOVERNANCE; fixed 50/50 time allocation is retired.
-- FIRST CONSUMABLE: PR #660 exact-head failures, ordered by dependency; repair only the first reproducible current-SHA root cause, then recompute.
+- FIRST CONSUMABLE: PR #663 execution-enforcement root cause, then recompute the failure set; in parallel consume PR #662 exact-head gates.
 - PARALLEL WORK: while asynchronous checks run, execute independent ready work; do not wait idle.
-- OPEN PROOF BOUNDARY: Final Certification / production-regression / data-quality / inventory-intelligence / Phase-3 import / batch-integrity / enforcement failures on PR #660 require first-failure triage; their visible count is not their root-cause count.
+- OPEN PROOF BOUNDARY: PR #662 certification gates and PR #663 enforcement gates remain pending; Vercel build-rate limit and browser/Phase-F proof are separate external boundaries.
 - CLOSED-WORK PROTECTION: do not reopen already-proven work without a current regression, dependency/environment change, evidence invalidation, or requirement change.
 - KNOWLEDGE CONTROL: compact canonical records only; historical entries remain evidence, not startup input.
 - NEXT SESSION START: SYSTEM_HEART → RESUME TOKEN → this boundary → exact target/evidence for first action → execute.

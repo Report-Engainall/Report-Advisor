@@ -1,14 +1,14 @@
 # RESUME TOKEN — 2026-09-27 / continuous execution
 
-- CURRENT REPOSITORY HEAD (last main HEAD observed before this control-plane write) → 46675643e32f6ea28b6c1d80a530b2eb134e7907
-- CURRENT CODE/TEST CANDIDATE → c2dc39c931f108ee5262790ad0035a11a0dbecc7 (PR #660; base main 46675643...)
-- ACTIVE EXECUTION FRONTS → SURFACE: PR #660 UI polish; HEART: PR #660 dashboard fail-closed truth + remaining import/core closure; PROOF: exact-head PR #660 gates; GOVERNANCE: control-plane/resume enforcement.
-- OPEN BLOCKERS (SCOPED) → PR #660 has multiple failed checks; do not treat them as independent defects until first-failure triage. Device-dependent verification and production certification remain separate proof boundaries.
-- LAST PROVEN → PR #660 desktop-windows SUCCESS; UI route completeness SUCCESS; security-definer helper contract SUCCESS; canonical-truth boundary SUCCESS on exact head c2dc39c...
-- LAST FAILED / FIRST FAILURE TO CONSUME → first actionable current-SHA failure in dependency order from PR #660; repair only that root cause, then refresh the failure set.
-- NEXT EXECUTABLE ACTION → consume PR #660 exact-head failures in dependency order; execute the first reproducible root cause immediately.
-- NEXT INDEPENDENT ACTIONS → while CI/verification runs, continue any independent unified-import, UI-state, evidence, security, data-quality or cleanup front whose dependencies are ready; do not wait idle.
-- DO NOT REPEAT → no full-repository re-read; no old session replay; no stale PASS transfer; no duplicate importer/RPC/runner; no blind mass-fixing of cascaded CI failures; no rigid 50/50 quota; no documentation-only closure.
+- CURRENT REPOSITORY HEAD → 46675643e32f6ea28b6c1d80a530b2eb134e7907
+- CURRENT CODE/TEST CANDIDATE → 4f64bbef2f735e98e43abc677bbe81653be4020e (PR #663; governance candidate).
+- ACTIVE EXECUTION FRONTS → SURFACE: PR #662 full-source import; HEART: import/runtime truth; PROOF: exact-head PR #662/#663 gates; GOVERNANCE: continuous-resume enforcement.
+- OPEN BLOCKERS (SCOPED) → Vercel free-plan build-rate limit; browser automation unavailable; Phase-F/production certification remains unproven. These blockers isolate only their dependent proof fronts.
+- LAST PROVEN → exact local PR #662 import/core proof; PR #663 preview availability; execution-enforcement source contract before the current Resume Token formatting failure.
+- LAST FAILED / FIRST FAILURE TO CONSUME → PR #663 execution-enforcement failed because the Resume Token CURRENT REPOSITORY HEAD format did not match the parser contract; repair this contract drift first.
+- NEXT EXECUTABLE ACTION → finish the PR #663 governance-token/index correction, rerun execution-enforcement + adversarial + knowledge + typecheck, then push and consume fresh exact-head gates.
+- NEXT INDEPENDENT ACTIONS → consume PR #662 certification gates; preserve staging processing rows; inspect only the first newly reproduced runtime/certification failure.
+- DO NOT REPEAT → stale PASS transfer; duplicate import/RPC/runner; blind import-job terminalization; production/Phase-F bypass; documentation-only closure.
 - CHECKPOINT RULE → after every meaningful closure batch update this token as HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT. The next session must start here, not from chat history.
 
 

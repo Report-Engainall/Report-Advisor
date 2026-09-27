@@ -123,6 +123,7 @@ Before implementation, identify the smallest executable unit as DOMAIN + FILE/FU
 When several checks fail on the same exact SHA, classify them by dependency order and repair the first reproducible root cause first. Cascading failures MUST NOT be treated as independent product defects until reproduced after the root cause repair.
 
 ### E-24 — Context and Storage Economy
+CONTEXT/STORAGE ECONOMY: execution MUST prefer bounded reads and compact canonical state without removing required audit evidence.
 The execution system MUST prefer bounded reads, compact canonical state, references to immutable evidence, and one implementation with provenance over copied artifacts. Context size, tool calls, repository space, CI/build quota, and external verification quota are execution resources. Storage optimization MUST NOT remove required audit evidence.
 
 ### E-25 — Coverage Without Artificial 50/50
