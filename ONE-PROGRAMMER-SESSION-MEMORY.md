@@ -7,7 +7,7 @@
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize → Quality/Trust → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
 - ACTUAL RESULT → 38/38 canonical navigation routes resolve to App routes; the visible Product Journey is now eight-stage and explicitly exposes Evidence, Signals, Decision, Work, Learning/Replay, and Executive Output. Dark executive topbar/sidebar CSS conflict was removed and the visual contract now guards both surfaces. A 32-page TSX source audit found no synthetic-data/reload/TODO/Coming-Soon markers requiring remediation; the single “Mockup” occurrence is explanatory copy stating that the screen is not a mockup.
-- EXACT SOURCE EVIDENCE → current code candidate reconciled at `e7eb1074…`; documentation/test tail is at branch HEAD `5242f030…`; current workflow materialization is 44 queued, 3 pending, 2 skipped, with no terminal success/failure. This is NOT a PASS.
+- EXACT SOURCE EVIDENCE → current code candidate reconciled at `e7eb1074…`; documentation/test tail follows the same branch after the code candidate; current workflow materialization is 44 queued, 3 pending, 2 skipped, with no terminal success/failure. This is NOT a PASS.
 - FIRST FAILURE → no current-head terminal failure observed. The temporary journey-contract regex construction defect was corrected before CI execution; acceptance criteria were unchanged.
 - OPEN BLOCKERS → Vercel free-plan deployment-rate limit; device unavailable; authenticated browser/Production/Phase-F proof NOT PROVEN.
 - NEXT EXECUTABLE ACTION → consume the first terminal current-head CI result; repair only the first reproducible current-SHA root, then rescan the UI/import/evidence continuity boundary.
@@ -29,8 +29,7 @@
 - NEXT EXECUTABLE ACTION → consume first terminal current-head CI gate; repair only the first reproducible root.
 - NEXT INDEPENDENT ACTIONS → safe reference/dependency cleanup only where exact absence is provable.
 - DO NOT REPEAT → speculative playbook/backtest/schema-drift schema creation; stale PASS transfer; preview-as-production; duplicate import/RPC/runner; speculative deletion.
-- RESUME STATUS → ACTIVE / PR #671 / STAGING TRUTH RECONCILED / EXACT-HEAD PROOF IN FLIGHT
----
+- RESUME STATUS → ACTIVE / PR #671 / STAGING TRUTH RECONCILED / EXACT-HEAD PROOF IN FLIGHT---
 
 # RESUME TOKEN — 2026-09-27 / SECURITY BOUNDARY CLOSURE
 
