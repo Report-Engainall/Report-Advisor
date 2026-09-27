@@ -1,19 +1,20 @@
-# RESUME TOKEN — 2026-09-27 / CURRENT VERIFIED NON-DEVICE FRONT
+# RESUME TOKEN — 2026-09-27 / CURRENT NON-DEVICE VERIFIED FRONT
 
 - CURRENT VERIFIED MAIN SHA → ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8
-- CURRENT CODE/TEST CANDIDATE → d8646e8c93793c9c51efdc7a3e6e3c09b67617e0
+- CURRENT CODE/TEST CANDIDATE → be9607828756d67a2f9f25561e5e2a95af0c7b17
+- LAST NETLIFY-PROVEN CODE SHA → d8646e8c93793c9c51efdc7a3e6e3c09b67617e0
 - BRANCH / PR → exec/20260927-current-main-import-ui-finalize-head / PR #671
 - FRONT-ID → IMPORT-TO-DECISION-CONTINUITY
-- CURRENT BOUNDARY → unified import truth → evidence → signals → decision → work → outcome/replay + executive shell/navigation/accessibility polish, excluding unavailable device authority.
-- ACTUAL RESULT → Command Palette fully restored and type-reconciled across all 8 canonical sections; dark executive shell language control, alert close, mobile sidebar close, and sidebar quick-access targets normalized; Decision Journey stays active across decision sub-stages; canonical import saving progress is semantic/live/busy; authoritative server row count is required end-to-end; no local preview fallback.
-- EXACT CURRENT-SHA PROOF → Netlify deploy-preview for d8646e8c… is READY/SUCCESS, build uses Vite, and the canonical-import-execute function is deployed. CodeRabbit is SUCCESS. GitHub Actions currently have 42 queued, 1 in progress, 4 cancelled and 2 skipped, with no terminal PASS/FAIL run yet.
-- EXACT ROOT FAILURE CLOSED → 6b156ef4… failed because an earlier partial fetch/write truncated CommandPalette.tsx at 220 lines; full 270-line file was reconstructed from the pre-mutation source and re-applied at 98aa51af…, which also reached Netlify READY. The later d8646e8c… candidate remains exact and independently Netlify-successful.
-- SOURCE EVIDENCE → d8646e8c… readback confirms 38/38 canonical navigation parity, route/state/accessibility guards, authoritative-count guards, and no current reference to deleted ExternalFileAnalysisPage.tsx.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; device unavailable; authenticated browser/production/Phase-F proof NOT PROVEN; interactive TinyFish browser audit blocked by insufficient wallet.
-- NEXT EXECUTABLE ACTION → consume the first terminal GitHub Actions result on d8646e8c…; repair only the first reproducible current-SHA root. If queues remain non-terminal, continue only high-value independent non-device hardening.
-- NEXT INDEPENDENT ACTIONS → targeted Decision/Report/Trust state polish and proven reference/deletion audit; no speculative schemas or deletions.
-- DO NOT REPEAT → partial-file writes, stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, local row-count fallback, speculative formulas/deletion.
-- RESUME STATUS → ACTIVE / PR #671 / CURRENT CODE SHA PROVEN ON NETLIFY / GITHUB WORKFLOW PROOF PENDING / DEVICE BLOCKED
+- CURRENT BOUNDARY → unified import truth → evidence → signals → decision → work → outcome/replay + executive shell/navigation/accessibility + trust-state hardening, excluding unavailable device authority.
+- ACTUAL RESULT → Command Palette category contract and source integrity hardened; dark shell controls and touch targets normalized; decision journey active across sub-stages; import progress exposes semantic busy/live/progressbar state; authoritative server row count is mandatory end-to-end; Evidence Passport no longer converts missing dataset column count to zero.
+- EXACT PROOF → d8646e8… Netlify preview READY/SUCCESS with canonical-import-execute deployed; CodeRabbit SUCCESS. This PASS is SHA-bound and is not transferred to be960782… .
+- CURRENT CANDIDATE STATUS → be960782… has Vercel build-rate-limit failure/pending deployment context; GitHub Actions 43 queued, 1 in progress, 3 pending, 2 skipped, 0 terminal success/failure. Netlify result for be960782… not yet materialized.
+- ROOT HISTORY → partial CommandPalette write at 6b156ef4… caused exact Netlify EOF; full 270-line source restored at 98aa51af…; d8646e8… later independently built READY.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; device unavailable; authenticated browser/production/Phase-F proof NOT PROVEN; TinyFish interactive browser audit blocked by insufficient wallet.
+- NEXT EXECUTABLE ACTION → consume first terminal result for be960782…; repair only first reproducible current-SHA root. If remote queues remain non-terminal, continue only concrete non-device gaps.
+- NEXT INDEPENDENT ACTIONS → targeted Trust/Decision/Report state audits; proven reference/deletion checks only.
+- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, local-row fallback, speculative deletion/formulas, partial-file writes.
+- RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE DEEP CLOSURE / CURRENT CANDIDATE PROOF PENDING
 
 ---
 
