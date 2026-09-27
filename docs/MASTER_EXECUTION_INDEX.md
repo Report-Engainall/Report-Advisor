@@ -1,18 +1,19 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT — UPDATED
 
 - MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `35c0d04e3adae849d99acd548d534200ab276931`
-- FUNCTIONAL FRONT → PR #671 / `35c0d04e3adae849d99acd548d534200ab276931`
+- CURRENT CODE/TEST CANDIDATE → `49305072ef7d44ad78dc5359ef2acecd513ecd0c`
+- FUNCTIONAL FRONT → PR #671 / `49305072ef7d44ad78dc5359ef2acecd513ecd0c`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE + WORK-CENTER`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay.
-- ROOT FIX → stale scenario dependency consolidated into the governed scenario page.
-- UI POLISH → AlternativeGroups, Metric Inspector, Suppliers, Product Journey (44px + nested route active), Work Center action surface.
-- EXACT EVIDENCE → `4e9486d…` web-build passed; `35c0d04e3adae849d99acd548d534200ab276931` is current and needs fresh terminal evidence.
-- EXTERNAL → Vercel deployment rate limit; authenticated browser/device proof unavailable; Phase-F live resilience environment-bound.
-- CLEANUP → PR #543 closed; CanonicalScenarioPage removed after proof and implementation consolidation.
-- NEXT → terminal exact-head CI, first current-head root fix, then safe targeted closure.
+- ROOT FIX → stale scenario import consolidated into the live governed consumer.
+- UI POLISH → shared shell/table/alert semantics; AlternativeGroups; Metric Inspector; Suppliers; Product Journey 44px/nested active; Work Center action and selected-filter semantics.
+- EXACT EVIDENCE → `4e9486d…` web build passed after root fix; `49305072ef7d44ad78dc5359ef2acecd513ecd0c` requires fresh terminal evidence.
+- EXTERNAL → Vercel rate limit; device/authenticated browser/Phase-F live evidence unavailable.
+- CLEANUP → PR #543 closed; CanonicalScenarioPage removed after dependency proof and implementation consolidation.
+- NEXT → terminal exact-head CI, first new root fix, then targeted safe closure.
 
 ---
+
 
 
 
