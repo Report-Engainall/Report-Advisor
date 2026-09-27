@@ -2,19 +2,22 @@
 
 > This top block is the only startup boundary.
 
-- MAIN HEAD → `2465da09eb08ae63dae921d7ecfcb88beb9ecdf0`
-- CURRENT CODE/TEST CANDIDATE → `4de3c95ff3a741463d49a2b52baf86f66ce62fad`
-- FUNCTIONAL FRONT → PR #667 / `4de3c95ff3a741463d49a2b52baf86f66ce62fad`
+- MAIN HEAD → `7fe9c7ef3772c64bce93068aa5a4e5dc3dd7e0b8`
+- CURRENT CODE/TEST CANDIDATE → `68228b8809ea21b7cb392e0cbc490168fd525da8`
+- FUNCTIONAL FRONT → PR #672 / `68228b8809ea21b7cb392e0cbc490168fd525da8`
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay; Benchmark remains INSUFFICIENT DATA until a real peer cohort exists.
-- ROOT FIXES → phase9 exact-head ref verification repaired; `/benchmark` and `/replay` now registered in the canonical navigation registry using existing Sidebar icon infrastructure.
-- EXACT EVIDENCE → old `2cdd7128…` failed before Phase 9 execution. Fresh proof is required on `d6e1d139…`.
-- PHASE-F → NOT CERTIFIED; live restore/RPO/RTO/rollback evidence remains required. Repository-side restore parity exists on the candidate.
-- EXTERNAL → Vercel free-plan build-rate limit; device/browser/production proof not yet proven.
-- CLEANUP → duplicate PR #668, stale UI #594/#596/#603 closed; branches/history retained.
-- NEXT → consume first terminal #667 exact-head gate; repair only the first current-SHA reproducible root.
+- REBASE RESULT → PR #671 final repository tree was replayed as a one-commit snapshot on exact current main; the current-main `SESSION_MEMORY` and `PROGRAMMER_PROTOCOL` were preserved rather than overwritten.
+- SOURCE DELTA → 77 files differ from current main; the change is one functional snapshot commit, not a second implementation path.
+- EXACT PROOF → snapshot commit/tree/parent were verified. No terminal GitHub Actions result is materialized yet for `68228b8`; no PASS is claimed.
+- PREVIEW EVIDENCE → prior Netlify/CodeRabbit SUCCESS on `d93813ee` remains bound to that SHA and is not transferred.
+- PHASE-F → NOT CERTIFIED; production/browser/restore/RPO/RTO/rollback proof remains unproven.
+- EXTERNAL → Vercel free-plan build-rate limit; PC01/device offline; current `68228b8` Actions evidence not yet materialized.
+- CLEANUP → PR #671 closed as superseded; PR #672 is the single active functional front. Historical commits remain retained.
+- NEXT → consume the first terminal #672 exact-head gate; repair only the first reproducible current-SHA root; continue independent safe fronts.
 
 ---
+
+
 
 
 
