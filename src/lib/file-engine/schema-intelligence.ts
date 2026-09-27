@@ -72,7 +72,7 @@ function scoreByHeader(header: string, field: Exclude<SchemaField, 'unknown'>): 
 function valueEvidence(values: unknown[], field: Exclude<SchemaField, 'unknown'>): number {
   const sample = values.filter(v => v !== null && v !== undefined && String(v).trim() !== '').slice(0, 200);
   if (!sample.length) return 0;
-  const numericFields: SchemaField[] = ['price','quantity','purchase_amount','subtotal','tax_amount','total','paid_amount','discount_amount','payment_amount','unit_cost','credit_limit','payment_terms_days','min_stock','reorder_point'];
+  const numericFields: SchemaField[] = ['price','quantity','purchase_amount','unit_price','line_total','subtotal','tax_amount','total','paid_amount','discount_amount','payment_amount','unit_cost','credit_limit','payment_terms_days','min_stock','reorder_point'];
   if (numericFields.includes(field)) return sample.filter(v => parseNumber(v) !== null).length / sample.length * 20;
   if (field === 'barcode') return sample.filter(v => /^\d{6,18}$/.test(String(v).replace(/\s/g, ''))).length / sample.length * 25;
   if (field === 'sku') return sample.filter(v => /^[A-Za-z0-9._/-]{2,40}$/.test(String(v).trim())).length / sample.length * 15;
