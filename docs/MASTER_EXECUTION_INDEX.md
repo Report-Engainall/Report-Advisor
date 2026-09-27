@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / CONTINUOUS EXECUTION 196
+
+- MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- PR #661: `exec/20260926-continuous-ui-core-deep`.
+- FUNCTIONAL VERIFIED SHA: `5cfe31d21279360d6185021ba8147c56cea5ba9d`.
+- CLOSED IN THIS BATCH: current #661 typecheck regressions and baseline type failures; Product WOW harness drift; Executive Report empty-state contract mismatch; canonical import transaction-contract regex drift.
+- EXACT LOCAL PROOF: typecheck/build + UI/decision/import/document/file-engine/report/knowledge contracts all PASS on the functional SHA above.
+- CURRENT CI BOUNDARY: no current-head Actions PASS yet; desktop-windows is in progress, many certification/security/runtime gates remain queued/pending. Vercel is externally rate-limited on free plan; Netlify preview and CodeRabbit are successful.
+- NEXT: consume the first terminal #661 gate and repair only its first reproducible current-SHA defect; independently consume #662 full-source import evidence without transferring SHA-bound PASS.
+- MERGE GATE: mandatory exact-head certification, security, storage/tenant, browser and production-chain gates must become attributable and green before merge.
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CONTINUOUS EXECUTION 195
 
 - MAIN HEAD: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
