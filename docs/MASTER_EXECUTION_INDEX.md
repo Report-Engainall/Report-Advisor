@@ -14,9 +14,11 @@
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CANONICAL LIVE FRONT — UPDATED
 
-- MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `3b30fc08ce1f4c68b474bbc2ae842f43c23bffdd`
-- FUNCTIONAL FRONT → PR #671 / `3b30fc08…`
+- VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT CODE/TEST CANDIDATE → `372a03095900f6397f7179ec80eaaea1bc1aba8f`
+- LATEST CONTROL-PLANE CHECKPOINT → `6e75c34a7136d74ea923fb873ecc9a75c4dc9688`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
+- FUNCTIONAL FRONT → PR #671 / code candidate `372a0309…`, with later documentation-only checkpoints
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY + UI-POLISH + TRUTH/A11Y + SCENARIO-CLOSURE + WORK-CENTER + SOURCE-ENTRY`
 - UI AFTER IMPORT → Import → Trust/Evidence → Decision/Work → Outcome/Learning → Business Replay.
 - ROOT FIX → stale scenario import consolidated into the governed scenario route.
@@ -24,7 +26,7 @@
 - EXACT EVIDENCE → `4e9486d…` web-build passed after root fix; `3b30fc08…` fresh CI pending.
 - CLEANUP → PR #543 and #454 closed after canonical absorption evidence; CanonicalScenarioPage removed and consolidated.
 - EXTERNAL → Vercel rate-limit; authenticated browser/device/Phase-F live proof unavailable.
-- NEXT → terminal exact-head CI, first current-head root fix, then targeted safe closure.
+- NEXT → consume terminal exact-head browser/CI result for `372a0309…`; fix the first current-head root only; then continue targeted safe closure and device-independent fronts.
 
 ---
 
