@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / FINAL CURRENT-SHA CHECKPOINT
+
+> This top block is the only startup boundary.
+
+- MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT PROOF TARGET → `e414ba9013b517ba912cfc9ec1e98b103e011621`
+- FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- UI AFTER IMPORT → Evidence → Signals → Decision → Work → Outcome/Learning using existing canonical routes only.
+- ROUTE AUDIT → 38/38 registry items resolve to App routes; only `/proposal-demo` and intentional `/import/analyze` redirect sit outside registry.
+- CLEANUP → duplicate external-file analyzer `src/pages/ExternalFileAnalysisPage.tsx` deleted and proven by exact PR patch.
+- EXACT PROOF → current branch source and contracts reconciled. GitHub Actions: 44 queued, 3 pending, 2 skipped, no terminal pass/fail yet. Vercel rate-limit remains external.
+- NEXT → consume first terminal current-head gate; repair current-SHA root only; keep cleanup bounded by dependency proof.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT BRANCH RECONCILED
 
 > This top block is the only startup boundary.
