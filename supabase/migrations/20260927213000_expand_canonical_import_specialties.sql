@@ -44,7 +44,7 @@ begin
   if p_source_hash is null or btrim(p_source_hash) = '' then raise exception 'IMPORT_SOURCE_HASH_REQUIRED'; end if;
   if p_source_hash !~ '^sha256:[0-9a-fA-F]{64}$' then raise exception 'IMPORT_SOURCE_HASH_INVALID'; end if;
   if p_entity_type !~ '^generic:[A-Za-z][A-Za-z0-9_-]{0,63}$'
-     and p_entity_type not in ('products','customers','sales_invoices') then
+     and p_entity_type not in ('products','customers','sales_invoices','purchase_invoices','suppliers','inventory_balances','payments') then
     raise exception 'IMPORT_ENTITY_TYPE_UNSUPPORTED';
   end if;
   if jsonb_typeof(p_rows) is distinct from 'array' then raise exception 'IMPORT_ROWS_MUST_BE_ARRAY'; end if;
