@@ -194,7 +194,7 @@ assert.ok(commandCenter.includes('to="/replay"'), 'command center replay action 
 
 
 assert.ok(commandCenter.includes("setAlerts(intelligence.alerts.filter((item) => !item.is_read));"), 'command center open-alert count must use the full canonical set');
-assert.ok(commandCenter.includes("setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted'));"), 'command center decision coverage must use the full actionable recommendation set');
+assert.ok(commandCenter.includes('setRecommendations(intelligence.recommendations.filter((item) => isActionableRecommendationStatus(item.status)));'), 'command center recommendation loading must use canonical recommendation status semantics');
 assert.ok(commandCenter.includes('alerts.slice(0, 5)'), 'command center may limit display to a bounded alert window only after full-state derivation');
 assert.ok(commandCenter.includes('recommendations.slice(0, 5)'), 'command center may limit display to a bounded recommendation window only after full-state derivation');
 
@@ -205,7 +205,8 @@ assert.ok(decisionStatus.includes("isActionableRecommendationStatus"), 'canonica
 const intelligence = fs.readFileSync('src/pages/IntelligencePage.tsx', 'utf8');
 const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
 assert.ok(intelligence.includes('isActionableRecommendationStatus(item.status)'), 'intelligence queue must use canonical recommendation status semantics');
-assert.ok(!intelligence.includes("item.status === 'new'"), 'intelligence queue must not regress to new-only recommendation filtering');
+assert.ok(intelligence.includes('const actionableRecommendations = useMemo('), 'intelligence must derive one canonical actionable recommendation cohort');
+assert.ok(intelligence.includes('isActionableRecommendationStatus(item.status)'), 'intelligence actionable cohort must use the canonical status resolver');
 assert.ok(executiveReport.includes('isActionableRecommendationStatus(item.status)'), 'executive report coverage must use canonical recommendation status semantics');
 assert.ok(!executiveReport.includes("['pending', 'proposed', 'approved', 'in_progress'].includes(item.status)"), 'executive report must not use an incompatible status cohort');
 const commandPalette = fs.readFileSync('src/components/CommandPalette.tsx', 'utf8');
