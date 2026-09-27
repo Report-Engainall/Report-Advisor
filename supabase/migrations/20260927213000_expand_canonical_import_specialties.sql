@@ -49,6 +49,7 @@ DECLARE
   v_product_id uuid;
   v_warehouse_id uuid;
   v_invoice_id uuid;
+  v_requested_payment_id uuid;
 BEGIN
   IF v_company_id IS NULL THEN RAISE EXCEPTION 'TENANT_CONTEXT_REQUIRED'; END IF;
   IF p_company_id IS DISTINCT FROM v_company_id THEN RAISE EXCEPTION 'TENANT_CONTEXT_MISMATCH'; END IF;
@@ -312,21 +313,34 @@ BEGIN
         RAISE EXCEPTION 'PAYMENT_INVOICE_TENANT_MISMATCH';
       END IF;
 
-      SELECT id INTO v_id
-      FROM public.payments
-      WHERE company_id=v_company_id
-        AND public.normalize_import_key(reference)=public.normalize_import_key(v_row->>'reference')
-        AND direction=v_row->>'direction'
-        AND payment_date=(v_row->>'payment_date')::date
-      LIMIT 1
-      FOR UPDATE;
+      v_requested_payment_id := nullif(v_row->>'payment_id','')::uuid;
+      v_id := v_requested_payment_id;
+      IF v_id IS NOT NULL THEN
+        SELECT id INTO v_id
+        FROM public.payments
+        WHERE id=v_requested_payment_id
+          AND company_id=v_company_id
+        LIMIT 1
+        FOR UPDATE;
+      END IF;
+
+      IF v_id IS NULL THEN
+        SELECT id INTO v_id
+        FROM public.payments
+        WHERE company_id=v_company_id
+          AND public.normalize_import_key(reference)=public.normalize_import_key(v_row->>'reference')
+          AND direction=v_row->>'direction'
+          AND payment_date=(v_row->>'payment_date')::date
+        LIMIT 1
+        FOR UPDATE;
+      END IF;
 
       IF v_id IS NULL THEN
         INSERT INTO public.payments(
           id,company_id,direction,customer_id,supplier_id,invoice_id,amount,payment_date,method,reference,currency,notes
         )
         VALUES(
-          coalesce(nullif(v_row->>'payment_id','')::uuid, gen_random_uuid()),
+          coalesce(v_requested_payment_id, gen_random_uuid()),
           v_company_id,
           v_row->>'direction',
           v_customer_id,
