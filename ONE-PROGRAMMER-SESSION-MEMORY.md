@@ -1,20 +1,18 @@
-# RESUME TOKEN — 2026-09-27 / FINAL NON-DEVICE CHECKPOINT
+# RESUME TOKEN — 2026-09-27 / CURRENT NON-DEVICE UI + IMPORT CONTINUITY
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `10a173b606697c56dbb167b9ec27911cfbcefb27`
+- CURRENT CODE/TEST CANDIDATE → `f5b4640fcbb7be2bcfad2f9c4197c605e76b994c`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- CURRENT BOUNDARY → non-device closure complete for current actionable front; exact-head CI proof pending.
-- ACTUAL RESULT → post-import journey, fail-closed Backtest Gate, route/capability contract hardening, canonical import server-boundary hardening, and bounded legacy cleanup are implemented. No duplicate importer/RPC/runner/schema was created.
-- STAGING TRUTH → forecasts=0; decision_outcomes=1; decision_work_items=0; operational_task_proposals=0; control_plane_drift_events=0; recommendations=1; business_intelligence_decisions=2; canonical_import_commits=3224; source_analysis_snapshots=119. No dedicated playbooks/backtests/source-schema-drift table exists.
-- EXACT PROOF → source/docs are reconciled; code/test candidate remains `10a173b6…`; PR is open and mergeable. Current GitHub Actions: 43 queued, 3 in-progress, 3 pending; no terminal current-head failure/pass. Vercel rate-limit remains external. Netlify preview status is success for the current head.
-- FIRST FAILURE → Netlify/API error-contract mismatch was repaired and guarded; backtest UI placement issue was repaired before checkpoint.
-- OPEN BLOCKERS → Vercel free-plan deployment-rate limit; unavailable device; authenticated browser/Production/Phase-F proof NOT PROVEN.
-- NEXT EXECUTABLE ACTION → consume first terminal current-head workflow result; fix only first reproducible root.
-- NEXT INDEPENDENT ACTIONS → only dependency-proven cleanup or current-SHA regression work.
-- DO NOT REPEAT → speculative playbook/backtest/schema-drift schemas, stale PASS transfer, preview-as-production, duplicate paths, speculative deletion.
-- RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE WORK EXHAUSTED FOR THIS ACTIONABLE FRONT / EXACT-HEAD PROOF IN FLIGHT
-
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand → Normalize → Quality/Trust → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
+- ACTUAL RESULT → 38/38 canonical navigation routes resolve to App routes; the visible Product Journey is now eight-stage and explicitly exposes Evidence, Signals, Decision, Work, Learning/Replay, and Executive Output. Dark executive topbar/sidebar CSS conflict was removed and the visual contract now guards both surfaces. A 32-page TSX source audit found no synthetic-data/reload/TODO/Coming-Soon markers requiring remediation; the single “Mockup” occurrence is explanatory copy stating that the screen is not a mockup.
+- EXACT SOURCE EVIDENCE → current candidate reconciled at `f5b4640f…`; current workflow materialization is 44 queued, 3 pending, 2 skipped, with no terminal success/failure. This is NOT a PASS.
+- FIRST FAILURE → no current-head terminal failure observed. The temporary journey-contract regex construction defect was corrected before CI execution; acceptance criteria were unchanged.
+- OPEN BLOCKERS → Vercel free-plan deployment-rate limit; device unavailable; authenticated browser/Production/Phase-F proof NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume the first terminal current-head CI result; repair only the first reproducible current-SHA root, then rescan the UI/import/evidence continuity boundary.
+- NEXT INDEPENDENT ACTIONS → only dependency-proven cleanup, route/state contract hardening, and evidence reconciliation; no speculative schemas or duplicate capabilities.
+- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate import/RPC/runner, speculative ROI/backtest/playbook/schema-drift creation, speculative deletion.
+- RESUME STATUS → ACTIVE / PR #671 / NON-DEVICE UI + IMPORT CONTINUITY / EXACT-HEAD PROOF IN FLIGHT
 ---
 
 # RESUME TOKEN — 2026-09-27 / STAGING CAPABILITY TRUTH CHECKPOINT
