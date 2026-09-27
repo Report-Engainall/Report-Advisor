@@ -17,6 +17,7 @@ import {
   fetchImportEvidenceSnapshot,
   fetchRecommendationOutcome,
   fetchRecommendations,
+  fetchRecommendationsBoundToImport,
   fetchRuntimeDecisionForRecommendation,
   linkRecommendationToDecision,
   requestDecisionApproval,
@@ -158,11 +159,17 @@ export function DecisionExperiencePage() {
     try {
       setLoading(true);
       setError(null);
-      const [nextRecommendations, nextAlerts, nextSourceSnapshot] = await Promise.all([
-        fetchRecommendations(),
-        fetchAlerts(),
-        importJobId ? fetchImportEvidenceSnapshot(importJobId) : Promise.resolve(null),
-      ]);
+      const nextSourceSnapshot = importJobId ? await fetchImportEvidenceSnapshot(importJobId) : null;
+      const nextRecommendations = importJobId
+        ? (nextSourceSnapshot
+            ? await fetchRecommendationsBoundToImport({
+                importJobId,
+                snapshotId: nextSourceSnapshot.id,
+                sourceHash: nextSourceSnapshot.source_hash,
+              })
+            : [])
+        : await fetchRecommendations();
+      const nextAlerts = await fetchAlerts();
       setRecommendations(nextRecommendations);
       setAlerts(nextAlerts);
       setSourceSnapshot(nextSourceSnapshot);
@@ -435,7 +442,7 @@ export function DecisionExperiencePage() {
             <CardBody>
               <div className="space-y-3">
                 {recommendations.slice(0, 6).map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id)} />)}
-                {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يتم إنشاء توصية بديلة عند غياب بيانات المصدر." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
+                {!recommendations.length && <EmptyState title={importJobId ? 'لا توجد توصيات مرتبطة بهذا المصدر' : 'لا توجد توصيات'} message={importJobId ? 'لن يتم ربط توصية عامة بملف مستورد دون provenance يثبت علاقتها بالمصدر.' : 'لا يتم إنشاء توصية بديلة عند غياب بيانات المصدر.'} action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
               </div>
             </CardBody>
           </Card>
@@ -450,7 +457,7 @@ export function DecisionExperiencePage() {
             <CardBody>
               <div className="space-y-2">
                 {recommendations.map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id, 'evidence')} />)}
-                {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يمكن فحص دليل لعنصر غير موجود." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
+                {!recommendations.length && <EmptyState title={importJobId ? 'لا توجد توصيات موثقة لهذا المصدر' : 'لا توجد توصيات'} message={importJobId ? 'الدليل موجود، لكن لا توجد توصية مرتبطة به في المصدر الكانوني؛ لا يمكن القفز إلى قرار.' : 'لا يمكن فحص دليل لعنصر غير موجود.'} action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
               </div>
             </CardBody>
           </Card>
