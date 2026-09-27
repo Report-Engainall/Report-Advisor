@@ -513,3 +513,15 @@
 - **UI IMPLEMENTATION:** `42ca66e327ce63fd5353de86d3f8753f12356b55`.
 - **UI CONTRACT:** `34b2038602f4899a78e6e183087cfe232c02faa8`.
 - **DONE:** decision alerts now send «فحص المصدر أولًا» to the existing Trust & Evidence route instead of returning to the same command screen.
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT TYPED-ENTITY FAIL-CLOSED HARDENING
+
+- FUNCTIONAL CURRENT HEAD → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `3a03d4e3e1a6967b0b590253d8ca54d8e720d9d9`.
+- ROOT FIX → `src/lib/import/canonical-source-understanding.ts` no longer selects typed canonical entities from a single weak signal. It now requires the exact canonical write-field contract for products/customers/sales; incomplete sources remain `generic:source-data` with a machine-readable missing-fields warning.
+- CONTRACT → existing `scripts/check-canonical-import-mapping.mjs` now guards both the fail-closed inference and the required write-field set. No duplicate importer/test/RPC/runner created.
+- EXACT-HEAD CI → certification run `36326147880` job `108639175638` and enforcement run `36326147877` job `108639175656` are present for this SHA and currently `queued`; no failure is available yet, so no repair is inferred.
+- CURRENT VERCEL → exact-head status remains `failure` / `build-rate-limit`; external blocker only.
+- CURRENT DEPLOYMENT PROOF → earlier Cloudflare/Netlify successes remain bound to their exact SHAs and are not transferred to `3a03d4e`.
+- GOVERNANCE → PR #663 remains exact head `43a29443477aeb5969b99d672bd2c6698e0f7106`; do not mix its lane with product behavior.
+- NEXT → consume the first terminal mandatory gate on `3a03d4e`; if the queues persist, continue only independent repository-safe work, then consume #663.
+- DO NOT REPEAT → stale evidence, preview-as-production, duplicate import/navigation/RPC/runner, unsafe import-job mutations, speculative Phase-F changes without new live evidence.
