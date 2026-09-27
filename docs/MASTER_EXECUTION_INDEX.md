@@ -1,37 +1,20 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT NON-DEVICE IMPORT + UI FRONT
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT + UI ROOT RECONCILED
 
-> This top block is the only startup boundary.
+> Single startup boundary for the active non-device front.
 
-- MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT REPOSITORY/BRANCH HEAD → `7d64d7e54e848fad4b3737f4dc9b8b36d1a37f51` (memory checkpoint descendant)
-- CURRENT CODE/TEST CANDIDATE → `6b156ef4261019ad241ad6c61f45451903dee5ac`
-- FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- MAIN HEAD → ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8
+- CURRENT REPOSITORY/BRANCH HEAD → 4268e1981ea592bc0662992d29a9f6db6201c040
+- CURRENT CODE/TEST CANDIDATE → 98aa51af023fe70ec5f9326d6d946d47566102c6
+- FUNCTIONAL FRONT → PR #671 / exec/20260927-current-main-import-ui-finalize-head
+- FRONT-ID → IMPORT-TO-DECISION-CONTINUITY
 - PRODUCT CHAIN → Any Source → Security → Fingerprint → Understand → Normalize → Quality/Trust → Evidence → Signals → Decision → Work → Outcome/Learning → Replay/Report.
-- UI/CAPABILITY STATE → 38/38 navigation registry routes; eight-stage Product Journey; canonical post-import five-stage continuation; dark RTL executive shell; mobile/accessibility control closure; Master Data/evidence truth binding; source-bound Report Builder; fail-closed Benchmark/Decision ROI/Forecast Backtest.
-- NEW CURRENT ROOT CLOSURES → Command Palette category map is exhaustive over canonical navigation sections; language/alert/sidebar close controls meet shell/accessibility semantics; canonical import transport and UI require authoritative server row count without local preview fallback.
-- EXACT SOURCE EVIDENCE → current candidate source readback verified on `6b156ef4…`; no current-head runtime/build PASS is claimed.
-- REMOTE STATUS → Vercel failure remains external `build-rate-limit`; workflow runs for `6b156ef4…` were not yet materialized at last scan.
-- PHASE-F / DEVICE → NOT CERTIFIED / NOT PROVEN; device unavailable, production/browser/resilience evidence remain environment-bound.
-- NEXT → consume the first terminal GitHub gate for the current code candidate; repair only the first reproducible current-SHA root, then continue independent safe fronts.
-- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, local-row fallback as canonical truth, speculative formulas, speculative deletion.
-
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / NON-DEVICE DEEP CLOSURE
-
-> This top block is the only startup boundary.
-
-- MAIN HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `b262c87ac0cb52e01523c95e99f876f6286eb77e`
-- FUNCTIONAL FRONT → PR #671 / `exec/20260927-current-main-import-ui-finalize-head`
-- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
-- UI CONTINUITY → Import → Evidence → Signals → Decision → Work → Outcome/Learning.
-- CAPABILITY COVERAGE → eight canonical navigation sections; 38/38 registry routes resolve in App; Forecast Backtest explicitly fail-closed; Decision ROI/Money Recovery/Decision Coverage/Playbooks/Report Builder/print/Evidence Passport/snapshots guarded.
-- CLEANUP → ExternalFileAnalysisPage removed and proven; no speculative cleanup.
-- EXACT PROOF → current source/contract head `b262c87a…`; workflows not terminalized yet; Vercel external rate limit.
-- NEXT → consume first terminal exact-head gate; repair root only; continue bounded non-device cleanup.
-
----
+- UI STATE → 38/38 navigation parity; eight-stage Product Journey; post-import five-stage continuation; dark RTL executive shell; accessibility/touch-target closure; source-bound Report Builder; fail-closed Benchmark/Decision ROI/Forecast Backtest.
+- CORE STATE → authoritative server re-extraction, tenant binding, canonical commit, evidence snapshot, and durable import lifecycle remain canonical; UI no longer falls back to local preview row counts.
+- EXACT ROOT CLOSED → Netlify exposed a truncated CommandPalette.tsx write at 6b156ef4…; the full file was restored from its pre-mutation SHA and re-applied as 98aa51af… .
+- EXACT SOURCE EVIDENCE → 98aa51af… readback passes the targeted route/accessibility/import guards. No runtime/build PASS is claimed for this current candidate.
+- REMOTE BLOCKERS → Vercel free-plan deployment-rate limit; device unavailable; authenticated browser/production/Phase-F evidence not proven.
+- NEXT → consume first terminal GitHub gate for 98aa51af…; repair only the first reproducible current-SHA root; then continue independent non-device fronts.
+- DO NOT REPEAT → partial-file writes, stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, local row fallback, speculative deletion/formulas.
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / FINAL CURRENT-SHA CHECKPOINT
 
@@ -118,62 +101,3 @@
 > Exact-head evidence only. Code candidate and documentation tail are tracked separately.
 
 - MAIN HEAD BEFORE THIS DOCS COMMIT → `d5be7220b048a3e7bd798a9b2d9fea677b200183`
-- CURRENT CODE/TEST CANDIDATE → `c5b193116e16b7ce46fd88d6d6edde268820ef52`
-- FUNCTIONAL FRONT → PR #664 / `22bdfb19f234a38640961e3851c3e5eef786cbad`
-- GOVERNANCE FRONT → PR #666 / `9aec629f5573830ef5d8d5bbc1e303ce41470ba3`
-- PROOF → #664 3 success / 3 in-progress / 39 queued / 0 failure; #666 3 in-progress / 1 pending / 34 queued / 0 failure.
-- UI AFTER IMPORT → one canonical path: Import → Trust/Evidence → Decision/Work → Outcome/Learning → Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- PHASE-F → fail-closed due restore-target migration dependency on current_customer_company_id() and downstream 503 rollback-forward.
-- EXTERNAL → Vercel free-plan rate limit; browser/device/production proof remains not proven.
-
----
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / MIXED-SPECIALTY CONTRACT ROOT CLOSED
-
-> Exact-head evidence only. This startup block supersedes older historical boundaries.
-
-- MAIN HEAD BEFORE THIS DOCS COMMIT → `16bfd89ac25f55dbc776871b5bc4cbc538320fc0`
-- CURRENT CODE/TEST CANDIDATE: `c5b193116e16b7ce46fd88d6d6edde268820ef52`
-- FUNCTIONAL CANDIDATE → PR #664 / `c5b193116e16b7ce46fd88d6d6edde268820ef52`
-- GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
-- ROOT CLOSED → TypeScript + canonical-import mapping roots fixed; fresh proof required on `c5b193116e16b7ce46fd88d6d6edde268820ef52`.
-- UI CONTINUITY → single canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Replay path; Benchmark fail-closed.
-- NEXT → first terminal current-SHA failure only; merge only after required exact-head evidence.
-
----
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT CODE ROOT REPAIR
-
-> Exact-head evidence only. This startup block supersedes older historical boundaries.
-
-- MAIN HEAD BEFORE THIS DOCS COMMIT → `75cc34765b9c2a18d7f0f06e5fdc2dd101aec2c0`
-- FUNCTIONAL CANDIDATE → PR #664 / `2f0dcbb2f27345631f05558a6e7898af8148de42`
-- GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
-- ROOT FIX → current exact-head TypeScript + canonical-import mapping roots repaired on #664.
-- PROOF → fresh workflows for the repaired candidate must be consumed; historical failures on `361db8a…` are closed evidence.
-- UI → canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Replay remains the single post-import path.
-- RELEASE → Vercel free-plan build-rate; browser/production/Phase-F remain external/not proven.
-
----
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / EXACT-HEAD PROOF UPDATE
-
-- MAIN HEAD BEFORE THIS DOCS COMMIT → `6219eb5a68aff19a3ef77a23537d5fb2db2d5a38`
-- FUNCTIONAL CANDIDATE → PR #664 / `2f0dcbb2f27345631f05558a6e7898af8148de42`
-- GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
-- EXACT PROOF → #664 desktop-windows SUCCESS on exact head; 44 other workflows queued, 2 skipped, 0 failures at latest scan. #665 has 37 queued and 1 in progress.
-- RELEASE BOUNDARY → Vercel free-plan build-rate remains external; browser/production/Phase-F remain NOT PROVEN.
-- UI CONTINUITY → canonical post-import path remains Import → Trust/Evidence → Decision/Work → Outcome/Learning → Replay; Benchmark remains fail-closed.
-- NEXT → consume first terminal new gate/failure; repair current-SHA root only; do not transfer stale evidence.
-
----
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-27 / EXACT CURRENT-MAIN CHECKPOINT
-
-> Exact-head evidence only. This startup block supersedes older historical boundaries.
-
-- MAIN HEAD BEFORE THIS DOCS COMMIT → `5bb08044bcb3800d9c5561af0edc945cf0defea6`
-- FUNCTIONAL CANDIDATE → PR #664 / `361db8af5e58dcb122b2b6623acf9a804e6a3fdb`
-- GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
-- REMOTE PROOF → #664 Netlify + CodeRabbit SUCCESS, Vercel external build-rate failure, GitHub Actions queued/in-progress; #665 same Vercel boundary with governance gates queued/in-progress.
-- UI CONTINUITY → #664 is the canonical existing post-import path: Import → Trust/Evidence → Decision/Work → Outcome/Learning → Replay; Benchmark remains `INSUFFICIENT_SAMPLE`.
-- CLEANUP → #662/#663 closed as superseded; history retained.
