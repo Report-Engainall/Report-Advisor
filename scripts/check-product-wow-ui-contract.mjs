@@ -15,7 +15,7 @@ const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
 assert.ok(workCenter.includes('const zeroProgressActive = useMemo'), 'work center must expose an explicit zero-progress active signal');
 assert.ok(workCenter.includes('تحقق من العمليات دون تقدم'), 'work center must route zero-progress work to a visible next action');
 assert.ok(workCenter.includes('نشطة بلا تقدم'), 'work center must expose zero-progress active count in the decision summary');
-assert.ok(workCenter.includes('بدون تقدم'), 'work center active rows must distinguish zero-progress processing from ordinary active work');
+assert.ok(workCenter.includes('بتقدم 0%'), 'work center active rows must distinguish zero-progress processing from ordinary active work');
 assert.ok(workCenter.includes('role="progressbar"'), 'work center progress must expose a semantic progressbar');
 assert.ok(workCenter.includes('const validProgress = typeof r.progress === \'number\''), 'work center progress must validate numeric bounds before rendering');
 assert.ok(workCenter.includes('غير موثوق'), 'work center must not clamp invalid progress into a valid percentage');
