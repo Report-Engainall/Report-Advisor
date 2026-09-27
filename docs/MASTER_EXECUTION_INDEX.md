@@ -1,5 +1,23 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / LIVE RECONCILED STATE
 
+> Exact-head evidence only. This startup block supersedes older historical boundaries; history remains evidence.
+
+- CURRENT REPOSITORY HEAD OBSERVED → `a47532a1c6887ad233705f99b5b726f6d88dcfea` (docs-only reconciliation descendant).
+- CURRENT CODE/TEST BASELINE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- FUNCTIONAL CANDIDATE → PR #662 / `a8ef795c290b035023e3b5781488c7e650ab6866`.
+- GOVERNANCE CANDIDATE → PR #663 / `13432b118aa8db00d3a498332803d2c1324a9291`.
+- FUNCTIONAL PROOF → #662 Windows build PASS + Cloudflare Pages PASS; remaining exact-head security/browser/contract/certification/data gates queued. No browser/production/Phase-F PASS claimed.
+- GOVERNANCE → continuous-resume enforcement is isolated from product behavior; its earlier merge-ref failures exposed defects owned by the functional lane, not a second implementation target.
+- PHASE-F → NOT CERTIFIED: rollback-forward probe lacks required runtime configuration; local restore-parity migration exposed `current_customer_company_id()` dependency. Keep fail-closed.
+- EXTERNAL → PC01 offline; Vercel free-plan rate limit; production/browser/Phase-F exact-SHA proof unavailable.
+- NEXT → consume first terminal #662 gate; repair only first reproducible current-SHA failure; concurrently consume #663 governance gates; reconcile/merge only after exact-head compatibility proof.
+- UI AFTER IMPORT → #662 already covers full-source understanding, persisted dataset summaries/provenance, Trust/Evidence → Decision → Outcome/Learning continuity, tenant-scoped Business Replay, and evidence-safe Benchmark. Do not create another post-import path.
+- CLEANUP → no deletion in this batch. Legacy removal remains gated by Manifest reference/caller checks and tests; historical evidence retained.
+
+---
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / LIVE RECONCILED STATE
+
 > Exact-head evidence only. This block supersedes older historical boundaries for startup; history remains immutable evidence.
 
 - MAIN HEAD → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
