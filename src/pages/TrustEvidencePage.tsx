@@ -152,8 +152,9 @@ export function TrustEvidencePage() {
         </div>
         {sourceSnapshot ? (
           <>
-          <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-6">
             <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">المصدر</div><div className="mt-1 break-all text-[11px] font-black text-ink-900">{String(sourceSnapshot.metadata.fileName ?? sourceSnapshot.source_path)}</div></div>
+            <div className="rounded-xl border border-primary-100 bg-primary-50/40 p-3"><div className="text-[9px] text-primary-700">AS OF</div><time dateTime={sourceSnapshot.created_at} className="mt-1 block text-[11px] font-black text-ink-900">{sourceSnapshot.created_at ? new Date(sourceSnapshot.created_at).toLocaleString('ar-YE') : 'غير متاح'}</time><div className="mt-1 text-[8px] text-ink-400">وقت إنشاء Snapshot الدليل</div></div>
             <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">الجودة</div><div className="mt-1 text-[15px] font-black text-ink-900">{sourceSnapshot.quality_score == null ? 'غير متاح' : sourceSnapshot.quality_score + '%'}</div></div>
             <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">الصفوف</div><div className="mt-1 text-[15px] font-black text-ink-900">{sourceSnapshot.row_count}</div></div>
             <div className="rounded-xl border border-ink-100 bg-ink-50/40 p-3"><div className="text-[9px] text-ink-400">حالة التحليل</div><div className="mt-1 text-[11px] font-black text-ink-900">{sourceSnapshot.analysis_status || 'غير متاح'}</div></div>
