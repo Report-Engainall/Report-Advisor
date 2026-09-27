@@ -1,13 +1,13 @@
 # RESUME TOKEN — 2026-09-27 / FINAL NON-DEVICE CHECKPOINT
 
 - CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT BRANCH HEAD → `7f1d0ba49dd240195392c4da4638f05b59542aa7`
+- CURRENT CODE/TEST CANDIDATE → `10a173b606697c56dbb167b9ec27911cfbcefb27`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
 - FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → non-device closure complete for current actionable front; exact-head CI proof pending.
 - ACTUAL RESULT → post-import journey, fail-closed Backtest Gate, route/capability contract hardening, canonical import server-boundary hardening, and bounded legacy cleanup are implemented. No duplicate importer/RPC/runner/schema was created.
 - STAGING TRUTH → forecasts=0; decision_outcomes=1; decision_work_items=0; operational_task_proposals=0; control_plane_drift_events=0; recommendations=1; business_intelligence_decisions=2; canonical_import_commits=3224; source_analysis_snapshots=119. No dedicated playbooks/backtests/source-schema-drift table exists.
-- EXACT PROOF → source/docs are reconciled at `7f1d0ba…`; PR is open and mergeable. Current GitHub Actions: 43 queued, 3 in-progress, 3 pending; no terminal current-head failure/pass. Vercel rate-limit remains external. Netlify preview status is success for the current head.
+- EXACT PROOF → source/docs are reconciled; code/test candidate remains `10a173b6…`; PR is open and mergeable. Current GitHub Actions: 43 queued, 3 in-progress, 3 pending; no terminal current-head failure/pass. Vercel rate-limit remains external. Netlify preview status is success for the current head.
 - FIRST FAILURE → Netlify/API error-contract mismatch was repaired and guarded; backtest UI placement issue was repaired before checkpoint.
 - OPEN BLOCKERS → Vercel free-plan deployment-rate limit; unavailable device; authenticated browser/Production/Phase-F proof NOT PROVEN.
 - NEXT EXECUTABLE ACTION → consume first terminal current-head workflow result; fix only first reproducible root.
