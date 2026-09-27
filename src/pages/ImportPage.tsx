@@ -35,6 +35,7 @@ export function ImportPage() {
                 ['05', 'نثبت Evidence Passport', 'المصدر، البصمة، الفهم، والمجموعات تصبح قابلة للفحص.'],
                 ['06', 'نراجع الجودة والإشارات', 'لا تُخفى الفجوات، ولا تتحول البيانات الناقصة إلى أصفار.'],
                 ['07', 'ننتقل إلى القرار', 'الدليل المثبت فقط يعبر إلى مساحة القرار.'],
+                ['08', 'نتابع النتيجة ونتعلم', 'Business Replay يعرض snapshots والنتائج المحفوظة فقط دون تركيب تاريخ مفقود.'],
               ].map(([n, title, text]) => (
                 <div key={n} className="flex gap-2.5">
                   <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-ink-200 bg-ink-50 text-[9px] font-black text-ink-600">{n}</div>
