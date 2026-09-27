@@ -163,6 +163,17 @@ assert.ok(canonicalImport.includes('Outcome') && canonicalImport.includes('Learn
 assert.ok(canonicalImport.includes('إثباتها مرتبط بالحالة النهائية والدليل'), 'canonical import lifecycle must remain evidence-neutral rather than claiming VERIFIED per visible stage');
 assert.ok(!canonicalImport.includes('تم عبور هذه الطبقة ضمن التنفيذ الكانوني'), 'canonical import lifecycle must not imply VERIFIED proof merely from stage visibility');
 
+const commandCenter = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
+for (const token of [
+  'Decision Coverage',
+  'decisionAccountability.ownerCoverage',
+  'decisionAccountability.outcomeCoverage',
+  'aria-label="الإجراء التالي"',
+  'commandNextAction.to',
+  'commandNextAction.reason',
+  'لا يتم دمجهما في درجة مخترعة',
+]) assert.ok(commandCenter.includes(token), 'command center decision coverage/next-action guard missing: ' + token);
+
 const commandPalette = fs.readFileSync('src/components/CommandPalette.tsx', 'utf8');
 assert.ok(appShell.includes('mobileSidebarRef'), 'mobile navigation drawer must expose a focus boundary');
 assert.ok(appShell.includes('aria-modal="true" aria-label="القائمة الرئيسية"'), 'mobile navigation drawer must declare modal semantics');
