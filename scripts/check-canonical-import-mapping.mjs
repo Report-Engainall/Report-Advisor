@@ -77,5 +77,8 @@ for (const token of [
 if (!canonicalImportPage.includes('Evidence Passport') || !canonicalImportPage.includes('/trust?import=') || !canonicalImportPage.includes('/data-quality') || !canonicalImportPage.includes('/decision-experience?stage=evidence&import=')) {
   throw new Error('Post-import UI must carry the import identity through Evidence Passport, Data Quality, and Decision Experience');
 }
+for (const token of ['postImportSignals', 'fetchDashboardIntelligence', 'WHAT HAPPENS NEXT']) {
+  if (!canonicalImportPage.includes(token)) throw new Error(`Post-import signal surface contract missing: ${token}`);
+}
 
 console.log('Canonical import mapping regression gate: PASS (canonical fields + full-source understanding + post-import evidence/decision continuity)');
