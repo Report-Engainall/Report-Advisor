@@ -64,7 +64,8 @@ assert.ok(assistant.includes("mode === 'LOADING'"), 'assistant must expose loadi
 assert.ok(assistant.includes('إعادة تحميل سياق المؤشرات'), 'assistant must expose explicit recovery when the canonical snapshot is unavailable');
 
 const journey = fs.readFileSync('src/components/ProductJourneyNav.tsx', 'utf8');
-assert.ok(journey.includes('const active = location.pathname === path;'), 'product journey must keep a canonical stage active across its valid route sub-states');
+assert.ok(journey.includes("path === '/intelligence'"), 'product journey must activate the intelligence stage for nested intelligence routes');
+assert.ok(journey.includes("path === '/reports/executive'"), 'product journey must activate the outputs stage across nested report routes');
 for (const token of [
   "label: 'الدليل'",
   "path: '/trust'",
