@@ -1,3 +1,23 @@
+# RESUME TOKEN — 2026-09-27 / REPLAY SCHEMA VERIFIED
+
+- SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-14`
+- CURRENT VERIFIED SHA → `46675643e32f6ea28b6c1d80a530b2eb134e7907` (main)
+- CURRENT EXECUTION/CANDIDATE SHA → `653b6d1a233ed5ccafc92a5e4e41ce50be95baf7` (PR #662 / `exec/20260927-import-full-lifecycle` code/test candidate)
+- CURRENT BRANCH HEAD → `30219413a90c9a17afbd4774ecc952e162ab3778` plus governance checkpoint descendants as they advance.
+- BRANCH / PR → `exec/20260927-import-full-lifecycle` / #662
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT`
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning; Benchmark remains fail-closed until a real peer cohort exists.
+- ACTUAL RESULT → unified import, Decision Experience, and Business Replay continuity are implemented. Replay is backed by existing canonical tables and tenant-scoped queries.
+- EXTERNAL PROOF → Supabase `Report-Advisor-P0-2-Staging` contains `business_state_snapshots`, `recommendation_outcomes`, and `decision_work_items`. All three tables have RLS enabled with authenticated tenant policies bound to `company_id = current_company_id()`; `decision_work_items` additionally requires an APPROVED parent decision on write.
+- IMPORTANT ENVIRONMENT NOTE → `aghbari-commerce` currently has none of these three tables; do not infer production parity from staging. Browser/production exact-SHA proof remains separate and unproven.
+- FIRST THREE ROOT FAILURES CLOSED → extra brace `7f7ee…`; missing `fetchDashboardIntelligence` export `e3c86…`; accidental partial `queries.ts` truncation restored at `87f73…`.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan deployment-rate limit; Phase-F/production exact-SHA resilience remains unproven.
+- NEXT EXECUTABLE ACTION → consume terminal exact-head #662 build/route/security/data gates; fix only the first reproducible current-SHA failure.
+- NEXT INDEPENDENT ACTIONS → continue non-conflicting UI/core truth closure while CI runs; keep staging-vs-production distinction explicit.
+- DO NOT REPEAT → partial-file writes from bounded reads, stale candidate binding, stale PASS transfer, duplicate importer/RPC/runner/query path, unknown-to-zero coercion, unsafe import-job terminalization, preview-as-production/browser PASS, staging evidence treated as production evidence.
+- RESUME STATUS → ACTIVE / REPLAY SCHEMA + TENANT BOUNDARY VERIFIED / CURRENT-CODE PROOF STILL QUEUED.
+
+---
 # RESUME TOKEN — 2026-09-27 / DECISION → OUTCOME → LEARNING
 
 - SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-13`
