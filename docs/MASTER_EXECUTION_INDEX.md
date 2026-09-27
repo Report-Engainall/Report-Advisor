@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT-MAIN INTEGRATION
+
+> Exact-head evidence only. This startup block supersedes older historical boundaries.
+
+- MAIN HEAD → `9fbb842f754f04ada2f09af3a6d21d15ff1c6382` (canonical memory checkpoint added on current main).
+- FUNCTIONAL CANDIDATE → PR #664 / `361db8af5e58dcb122b2b6623acf9a804e6a3fdb`.
+- GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`.
+- FUNCTIONAL BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning; Benchmark remains fail-closed until a real peer cohort exists.
+- UI AFTER IMPORT → #664 contains the existing canonical post-import surface; no duplicate post-import route/path is permitted.
+- PROOF → no new exact-head PASS claimed for #664/#665. Their current combined statuses expose the known Vercel free-plan rate-limit failure; workflow-run results are not yet materialized.
+- EXTERNAL → PC01 offline; local execution environment cannot resolve github.com for a local clone; browser/production/Phase-F runtime proof remains NOT PROVEN.
+- NEXT → consume the first terminal exact-head gate on #664/#665; repair only the first current-SHA reproducible root; continue independent UI/cleanup work without changing closed contracts.
+- DO NOT REPEAT → stale PASS transfer; old-main memory overwrite; duplicate importer/RPC/runner; preview-as-production; unsafe legacy import_jobs mutation.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT-HEAD DEPLOYMENT READBACK
 
 - FUNCTIONAL CURRENT HEAD → PR #662 / `334c80ec51d304041071eae5908f125016f520d4`.
