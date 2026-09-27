@@ -1,16 +1,16 @@
 # RESUME TOKEN — 2026-09-27 / PR #662 CURRENT VERIFIED STATE
 
 - CURRENT REPOSITORY HEAD → 46675643e32f6ea28b6c1d80a530b2eb134e7907
-- CURRENT CODE/TEST CANDIDATE → f91ed7f9e1d34f0451cc49958af56605cd089ced
+- CURRENT CODE/TEST CANDIDATE → bb2f1d625ab33bf5a86ac3402b7de76f85303625
 - ACTIVE PR / BRANCH → PR #662 / exec/20260927-import-full-lifecycle
 - FRONT-ID → IMPORT-FULL-SOURCE-LIFECYCLE
 - ACTUAL FUNCTIONAL RESULT → post-import signal UI now distinguishes source-bound recommendations from company-wide alerts; provenance never inferred from co-occurrence.
 - EXACT PROOF → Desktop Windows 36285659130 SUCCESS on b66; Netlify/CodeRabbit success; quality success; browser authenticated E2E and Phase-F remain separate current-head boundaries.
 - FIRST FAILURE → Windows build on `5b88c5d...` failed in `TrustEvidencePage.tsx` because Dataset Passport siblings were not wrapped in a JSX fragment; fixed on `e1fe338...`.
-- NEXT EXECUTABLE ACTION → consume fresh exact-head CI on `f91ed7f...`; repair only the first current-SHA failure, then certify the completed import journey.
+- NEXT EXECUTABLE ACTION → consume fresh exact-head CI on `bb2f1d6...`; repair only the first current-SHA failure, then close proof.
 - OPEN BLOCKERS → Vercel free-plan build-rate; browser/agent automation external availability; Phase-F/production exact-SHA/restore/RPO/RTO/rollback remain unproven; 151 processing import_jobs untouched.
 - DO NOT REPEAT → stale PASS transfer, browser PASS from HTTP-only preview, production/Phase-F bypass, unsafe legacy-job terminalization, duplicate import path/RPC/runner.
-- RESUME STATUS → ACTIVE / PROVENANCE-SCOPED IMPORT JOURNEY COMPLETE IN CODE / FRESH EXACT-HEAD PROOF REQUIRED
+- RESUME STATUS → ACTIVE / SOURCE-BOUND POST-IMPORT JOURNEY COMPLETE IN CODE / FRESH EXACT-HEAD PROOF REQUIRED
 
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / CONTINUATION + LIVE PROOF RECONCILIATION
 
