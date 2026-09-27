@@ -1,3 +1,22 @@
+# RESUME TOKEN — 2026-09-27 / QUERY-BOUNDARY ROOT FIX
+
+- SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-08`
+- CURRENT VERIFIED SHA → `46675643e32f6ea28b6c1d80a530b2eb134e7907` (main)
+- CURRENT EXECUTION/CANDIDATE SHA → `e3c86d4e67bd1d8f83644669d8a67f5f66c738e4` (PR #662 / `exec/20260927-import-full-lifecycle`)
+- BRANCH / PR → `exec/20260927-import-full-lifecycle` / #662
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT`
+- CURRENT BOUNDARY → canonical import and post-import UI using the canonical query boundary, with authoritative server truth, evidence persistence/readback, and business follow-through.
+- ACTUAL RESULT → closed the next reproduced Windows build failure: `CanonicalImportPage.tsx` imports `fetchDashboardIntelligence` through `queries-compat.ts`, so `queries.ts` now explicitly re-exports the existing canonical query; no duplicate implementation created.
+- EVIDENCE → GitHub Actions Windows run `36323455186` failed on merge ref `47e5d72…` with Rollup: `fetchDashboardIntelligence` not exported by `src/lib/queries-compat.ts`. Exact fix commit: `e3c86d4e67bd1d8f83644669d8a67f5f66c738e4`. Fresh exact-head CI is required.
+- FIRST FAILURE → closed: extra brace at `src/lib/queries.ts:51` in prior candidate `7f7ee…`.
+- SECOND FAILURE → closed: missing canonical query export through compatibility boundary.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan build-rate limit; Phase-F/production exact-SHA resilience remains unproven.
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-head #662 gate for `e3c86d4e67bd1d8f83644669d8a67f5f66c738e4`; fix only the first current-SHA failure.
+- NEXT INDEPENDENT ACTIONS → keep #661 separate because it shares canonical files; after #662 proof, rebase/reconcile remaining UI surfaces (Benchmark/Replay and any dashboard/data-quality closures) against the proven head.
+- DO NOT REPEAT → stale candidate binding, stale PASS transfer, duplicate importer/RPC/runner/query path, unknown-to-zero coercion, unsafe import-job terminalization, preview-as-production/browser PASS.
+- RESUME STATUS → ACTIVE / EXACT-HEAD PROOF QUEUED.
+
+---
 # RESUME TOKEN — 2026-09-27 / CURRENT EXECUTION LEASE
 
 - SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-07`
