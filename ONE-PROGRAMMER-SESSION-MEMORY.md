@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-27 / FIRST-CURRENT-FAILURE REPAIR
+
+- SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-05`.
+- CURRENT EXECUTION CANDIDATE → `dcae591025b86696e8b53e386fc5b8437317d969`.
+- FRONT-ID → `UI-TRUST-EVIDENCE-BUILD`.
+- FIRST CURRENT-SHA FAILURE → Windows desktop build `36322735607` on exact PR #662 merge ref `caded531...` failed in `src/pages/TrustEvidencePage.tsx` with JSX fragment/container mismatch at lines 166–175.
+- ROOT FIX → restored the missing closing `</div>` for the DATASET UNDERSTANDING container before the fragment termination.
+- REGRESSION GUARD → `scripts/check-product-wow-ui-contract.mjs` now guards the Evidence Passport dataset-container closure pattern.
+- EVIDENCE → failure is exact and reproduced from GitHub Actions logs; the fix is committed on the executable branch. A new current-head build result is not yet materialized.
+- OPEN BLOCKERS → PC01 remains offline; browser/local proof unavailable; Vercel free-plan build-rate-limit remains external.
+- NEXT EXECUTABLE ACTION → consume the next exact-head desktop/quality build result. Repair only the first reproduced current-SHA failure; otherwise continue the next independent UI/core front.
+- DO NOT REPEAT → no stale PASS transfer; do not reopen import lifecycle closure; do not weaken JSX/build contracts.
+- RESUME STATUS → ACTIVE / NOT PROVEN.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / MULTI-DATASET RESULT SURFACE
 
 - SESSION-ID → `2026-09-27-AGHBARI-IMPORT-SURFACE-AUTHORITY-04`.
