@@ -187,7 +187,7 @@ export function Header({
                     <button
                       type="button"
                       onClick={() => setShowAlerts(false)}
-                      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-400 hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                      className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-ink-400 hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
                       aria-label="إغلاق التنبيهات"
                     >
                       <X size={16} aria-hidden="true" />
