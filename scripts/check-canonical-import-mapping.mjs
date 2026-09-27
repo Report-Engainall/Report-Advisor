@@ -46,7 +46,11 @@ if (!canonicalImportServer.includes('authoritativeDatasets') || !canonicalImport
 if (!sourceUnderstanding.includes('const mixedSpecialtySource = new Set(summaries.map((summary) => summary.specialty)).size > 1')) {
   throw new Error('Mixed-specialty sources must be detected explicitly before canonical entity selection');
 }
-if (!sourceUnderstanding.includes("entityType: mixedSpecialtySource ? 'generic:source-data' : inferEntityType(specialty, datasets)")) {
+const mixedSpecialtyEntityBoundaryTokens = [
+  "const entityType = mixedSpecialtySource ? 'generic:source-data' : inferEntityType(specialty, datasets);",
+  "entityType: mixedSpecialtySource ? 'generic:source-data' : inferEntityType(specialty, datasets)",
+];
+if (!mixedSpecialtyEntityBoundaryTokens.some((token) => sourceUnderstanding.includes(token))) {
   throw new Error('Mixed-specialty sources must fail closed to the generic canonical boundary');
 }
 
