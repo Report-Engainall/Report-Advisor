@@ -1,10 +1,10 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CONTINUOUS POST-IMPORT EXECUTION
 
 - MAIN HEAD VERIFIED: `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
-- CURRENT CODE/TEST CANDIDATE: `5b88c5d7bfeebc6e163655c789cd29708b8aaf32` (PR #662 / `exec/20260927-import-full-lifecycle`; post-import Evidence → Quality → Signals → Decision → Work continuity).
+- CURRENT CODE/TEST CANDIDATE: `e1fe338512fcd410c91832832bf6bf3ce85e23ce` (PR #662 / `exec/20260927-import-full-lifecycle`; post-import continuity + decision/work/outcome UI + JSX repair).
 - UI LANE: imported source now carries one identity through Evidence Passport, Data Quality, Signals, persisted Decision/Approval, persisted Work Item, and Work Center.
 - CORE LANE: server-authoritative import remains the sole canonical writer; evidence snapshot persistence is VERIFIED/PARTIAL and never silently promoted.
-- PROOF STATUS: fresh exact-head remote gates are required on `5b88c5d7bfeebc6e163655c789cd29708b8aaf32`; no prior PASS transfers across decision/work mutations.
+- PROOF STATUS: desktop Windows exposed a real JSX build failure on `5b88c5d...`; root fixed in `e1fe338...`; fresh exact-head proof is required again.
 - RUNTIME STATUS: staging remains protected; legacy processing import_jobs remain untouched.
 - BLOCKERS: browser automation/PC01 availability and Phase-F/production exact-SHA resilience proof remain external; they block only their dependent certification fronts.
 - NEXT EXECUTABLE ACTION: consume the first terminal exact-head gate on `f7a7ee4060c1fff1cb0d53487340a8020f8171c2`; repair only the first current-SHA failure, then continue the next independent UI/core boundary.
