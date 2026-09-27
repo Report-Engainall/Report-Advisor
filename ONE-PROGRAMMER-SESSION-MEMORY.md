@@ -1,16 +1,16 @@
 # RESUME TOKEN — 2026-09-27 / PR #662 CURRENT VERIFIED STATE
 
 - CURRENT REPOSITORY HEAD → 46675643e32f6ea28b6c1d80a530b2eb134e7907
-- CURRENT CODE/TEST CANDIDATE → 5aeffc4b631d4c9f518bdf05926c4bdd4f4d392a
+- CURRENT CODE/TEST CANDIDATE → f7a7ee4060c1fff1cb0d53487340a8020f8171c2
 - ACTIVE PR / BRANCH → PR #662 / exec/20260927-import-full-lifecycle
 - FRONT-ID → IMPORT-FULL-SOURCE-LIFECYCLE
-- ACTUAL FUNCTIONAL RESULT → full-source canonical import lifecycle closed locally; all parsed datasets are consumed and persisted through the existing canonical path; no dataset-zero truncation remains in runtime.
+- ACTUAL FUNCTIONAL RESULT → import now continues through Evidence Passport, Data Quality, current signals, and evidence-gated Decision Experience; dataset-level source understanding is visible and persisted.
 - EXACT PROOF → Desktop Windows 36285659130 SUCCESS on b66; Netlify/CodeRabbit success; quality success; browser authenticated E2E and Phase-F remain separate current-head boundaries.
 - FIRST FAILURE → stale certification-boundary parser binding was fixed; evidence snapshot truth gap was then closed with explicit VERIFIED/PARTIAL semantics on the durable import result.
-- NEXT EXECUTABLE ACTION → consume fresh exact-head CI on `5aeffc4b...`; then open the next UI/core gap after imported Evidence Passport and Decision continuity.
+- NEXT EXECUTABLE ACTION → consume fresh exact-head CI on `f7a7ee4...`; repair only the first new current-SHA failure, then continue the next independent UI/core boundary.
 - OPEN BLOCKERS → Vercel free-plan build-rate; browser/agent automation external availability; Phase-F/production exact-SHA/restore/RPO/RTO/rollback remain unproven; 151 processing import_jobs untouched.
 - DO NOT REPEAT → stale PASS transfer, browser PASS from HTTP-only preview, production/Phase-F bypass, unsafe legacy-job terminalization, duplicate import path/RPC/runner.
-- RESUME STATUS → ACTIVE / IMPORT-TO-EVIDENCE-TO-DECISION CONTINUITY IMPLEMENTED / FRESH PROOF REQUIRED
+- RESUME STATUS → ACTIVE / POST-IMPORT CONTINUITY IMPLEMENTED / FRESH PROOF REQUIRED
 
 ## LATEST SESSION WRITE-BACK — 2026-09-27 / CONTINUATION + LIVE PROOF RECONCILIATION
 
