@@ -5,22 +5,23 @@
 
 - SESSION-ID: `20260927-EXEC-667`
 - CURRENT VERIFIED SHA: `0b4f19fe7de377b57b2df7e70507bc32727568cc`
-- CURRENT EXECUTION/CANDIDATE SHA: `f31308915acfde26d45fb3d69a55c3e62308f18d`
+- CURRENT EXECUTION/CANDIDATE SHA: `a179b660340d47107be6caef5b3af85057a9266d`
 - BRANCH / PR: `exec/20260927-current-main-import-ui-finalize` / #667
-- CURRENT REPOSITORY HEAD: `0b4f19fe7de377b57b2df7e70507bc32727568cc`
-- CURRENT CODE/TEST CANDIDATE: `f31308915acfde26d45fb3d69a55c3e62308f18d`
-- ACTIVE EXECUTION FRONTS: FUNCTIONAL #667 / `f31308915acfde26d45fb3d69a55c3e62308f18d` | GOVERNANCE RECONCILIATION | EXACT-HEAD PROOF
+- CURRENT REPOSITORY HEAD: `a179b660340d47107be6caef5b3af85057a9266d`
+- CURRENT CODE/TEST CANDIDATE: `a179b660340d47107be6caef5b3af85057a9266d`
+- ACTIVE EXECUTION FRONTS: FUNCTIONAL #667 | EXACT-HEAD PROOF | UI CONTINUITY | GOVERNANCE
 - FRONT-ID: `IMPORT-CANONICAL-FULL-SOURCE-AND-POST-IMPORT-UI`
 - CURRENT BOUNDARY: Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay; Benchmark remains INSUFFICIENT_SAMPLE.
-- ACTUAL RESULT: functional implementation reconstructed directly from current main; 21 files changed across canonical backend, evidence, decision, work, replay, benchmark and UI contract surfaces.
-- EVIDENCE: exact current candidate `8054f35f722fa7f1560d75f83c47e214d8b91308`; PR #667; current Actions run set created for this SHA.
-- LAST PROVEN: current main ref `0b4f19fe7de377b57b2df7e70507bc32727568cc` resolved directly from GitHub; no application PASS transferred.
-- LAST FAILED / FIRST FAILURE TO CONSUME: run `36328482705` / Execution Enforcement Contract at exact SHA `8054f35f722fa7f1560d75f83c47e214d8b91308`: certification boundary failed because the Master Index candidate did not identify the current code/test head.
-- OPEN BLOCKERS: Vercel free-plan build-rate limit; Phase-F restore target still lacks `current_customer_company_id()`; PC01/device/browser/production proof unavailable and intentionally not required for repository-only work.
-- NEXT EXECUTABLE ACTION: bind Index + live Resume Token to exact candidate, rerun current-SHA certification/enforcement gates, then consume the first new terminal failure.
-- NEXT INDEPENDENT ACTIONS: continue UI completeness/state audit; reconcile stale superseded PRs; consume exact-head proof while external blockers remain isolated.
-- DO NOT REPEAT: stale PASS transfer; stale candidate binding; duplicate import/RPC/runner/route; preview-as-production; reopening closed import roots without current-SHA regression.
-- RESUME STATUS: ACTIVE / CURRENT-MAIN RECONCILED / PR #667 EXACT-HEAD PROOF IN FLIGHT.
+- ACTUAL RESULT: canonical import lifecycle reconstructed on current main; deployment wrappers unified onto shared authoritative server executor; browser adapter now delegates to server authority before server-only row/quality checks; post-import Trust/Evidence → Decision/Work → Outcome/Learning → Replay surfaces are wired; governance v4.2 and exact-SHA resume enforcement are integrated.
+- EVIDENCE: exact current candidate `a179b660340d47107be6caef5b3af85057a9266d`; CodeRabbit SUCCESS; current GitHub Actions set has no terminal failure at last scan; Vercel build-rate limit remains external.
+- LAST PROVEN: certification-boundary parser, execution-enforcement contract, enforcement adversarial test, and certification boundary test-of-test all passed on exact SHA `9fab59c4ec7a8a299a9d93a5c9c98da69249653e` before the live-index fixture root was repaired.
+- LAST FAILED / FIRST FAILURE CONSUMED: exact SHA `9858d1470531d5aa8f0e37157dbc15e95fa9d2f0` failed only because the live-index certification fixture referenced `currentHead` outside its scope; fixed on `e1ea9320618368bc0dc380443c1819651c6257cf`. The subsequent browser/server-boundary defect was corrected on `4cee9ae3eafc1807a544648dff9521f8ac187270` and guarded on `a179b660340d47107be6caef5b3af85057a9266d`.
+- OPEN BLOCKERS: Vercel free-plan build-rate limit; Phase-F restore target lacks `current_customer_company_id()`; device/production proof is unavailable because PC01 is offline. These do not block repository-only execution.
+- NEXT EXECUTABLE ACTION: consume the first terminal GitHub Actions gate on exact SHA `a179b660340d47107be6caef5b3af85057a9266d`; repair only the first reproducible current-SHA root; then rescan all remaining gates.
+- NEXT INDEPENDENT ACTIONS: finish UI route/state proof and safe duplicate/storage audit while CI runs; preserve only canonical implementations and immutable evidence.
+- DO NOT REPEAT: stale PASS transfer; stale candidate binding; duplicate import/RPC/runner/route; client-side authority for server-truth import; preview-as-production; reopening closed roots without current-SHA regression.
+- RESUME STATUS: ACTIVE / CURRENT-MAIN RECONCILED / EXACT-HEAD PROOF IN FLIGHT.
+- CHECKPOINT RULE: HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT.
 
 ---
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / LIVE CHECKPOINT
