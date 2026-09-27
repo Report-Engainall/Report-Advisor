@@ -1,20 +1,21 @@
 # RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
 
-- CURRENT REPOSITORY HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT VERIFIED SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `957b7e6a800c644ff3a4cda6e3da87e0506e9894`
+- CURRENT VERIFIED MAIN SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
+- CURRENT BRANCH HEAD → `7ce0ead82c8a46cfdba12b5673749e269e11a08c`
+- CURRENT CODE/TEST CANDIDATE → `ce1991161561d3b6eadebe29dda004d975006cef`
 - BRANCH / PR → `exec/20260927-current-main-import-ui-finalize-head` / PR #671
-- FRONT-ID → IMPORT-TO-DECISION-CONTINUITY
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- ACTUAL RESULT → typed purchases/suppliers/inventory/payments commit through the existing authoritative 6-argument RPC; purchase lines persist in purchase_items; inventory may remain warehouse-less when the source/table truth permits; payment identity matches the DB fallback key; Import + Evidence use the shared canonical labels; server executor accepts the same canonical entity type.
-- LIVE PROOF → staging exercised suppliers, purchase_invoices + multiple purchase_items on one invoice, warehouse-less inventory, payments with repeated reference on different dates, idempotent replay, tenant mismatch, NaN/Infinity guards, and rollback cleanliness. No persistent staging mutation remains.
-- ROOT FAILURES CONSUMED → payment_id duplicate-key bug; purchase-line syntax; schema field/union drift; UI helper import drift; server entity allowlist drift; payment identity mismatch; multi-line reconciliation identity drift. All repaired with existing contracts and no acceptance weakening.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; authenticated production/Phase-F/browser final proof remains environment-bound; latest PR #671 gates queued/in flight.
-- NEXT EXECUTABLE ACTION → consume the first terminal failure on exact candidate 957b7e6a800c644ff3a4cda6e3da87e0506e9894; repair only that root and re-prove.
-- NEXT INDEPENDENT ACTIONS → continue final post-import truth/readback audit and safe stale-front cleanup only where overlap is proven.
-- DO NOT REPEAT → duplicate importer/RPC/runner, generic fallback for typed specialties, static business truth, preview-as-production, stale PR #670 evidence.
-- RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD FUNCTIONAL FRONT / CI IN FLIGHT
-
+- ACTUAL RESULT → typed specialty server boundary + all-seven contract guard; purchase-line multi-row identity; Evidence/Decision/Replay AS OF; localized specialty/entity labels; staging canonical-specialty migration and RPC grant hardening applied and verified.
+- RUNTIME PROOF → staging `fnqbvfuwbdpwvhcgzksl`: 20260927213000 and 20260927220000 are applied; 6-arg and legacy 5-arg import_commit_batch exist; entity constraint lists all seven typed specialties + generic; anon execution=false, authenticated=true, service_role=true; Security Advisor no longer reports anonymous execution for import_commit_batch.
+- CODE / SECURITY MUTATIONS → server allowlist `3d5cb96f…`; typed server contract `7dcceb5b…`; grant migration `bb8d57d239b214ff65a53204720bac970cb5b230`; security contract `ce1991161561d3b6eadebe29dda004d975006cef`.
+- PROOF STATE → current branch source verified; fresh PR gates have not terminalized. Vercel remains external free-plan build-rate limit. Local GitHub/DNS execution remains unavailable.
+- OPEN BLOCKERS → Vercel build-rate-limit; authenticated production/browser/Phase-F certification remains environment-bound; device unavailable; local execution DNS blocked.
+- FIRST FAILURE → none terminalized on current candidate after latest security/runtime closure.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow result on current PR head; repair only current-SHA root, then re-prove staging if the root touches runtime.
+- NEXT INDEPENDENT ACTIONS → final route/contract rescan and legacy deletion gates only where references/dependencies are proven absent.
+- DO NOT REPEAT → stale PASS transfer, duplicate importer/RPC/runner, preview-as-production, static business truth, or treating historical staging evidence as current without exact verification.
+- RESUME STATUS → ACTIVE / PR #671 / EXACT-CURRENT-HEAD PROOF IN FLIGHT
 ---
 
 
