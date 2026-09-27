@@ -132,6 +132,7 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
     items: [
       { section: 'trust', path: '/trust', label: 'مركز الثقة والأدلة', enLabel: 'Trust & Evidence', description: 'حالة الحقيقة ومسارات الإثبات من المصدر إلى القرار', keywords: ['trust', 'evidence', 'truth', 'ثقة', 'أدلة'], icon: 'trust' },
       { section: 'trust', path: '/metrics', label: 'تفسير المؤشرات', enLabel: 'Metric Inspector', description: 'هوية المؤشر وصيغة الحساب ومصدره وحالته', keywords: ['metrics', 'kpi', 'evidence'], icon: 'metrics', minimumWorkspaceMode: 'advanced' },
+      { section: 'trust', path: '/benchmark', label: 'شبكة المقارنة', enLabel: 'Benchmark Network', description: 'مقارنة نظيرة fail-closed لا تظهر قبل كفاية العينة والدليل', keywords: ['benchmark', 'peer', 'comparison', 'مقارنة', 'نظائر'], icon: 'benchmark', minimumWorkspaceMode: 'advanced' },
     ],
   },
   {
@@ -141,6 +142,7 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
     items: [
       { section: 'outputs', path: '/reports', label: 'مركز التقارير', enLabel: 'Reports Center', description: 'التقارير التنفيذية والتفصيلية ومخرجات الأداء', keywords: ['reports', 'تقارير'], icon: 'reports' },
       { section: 'outputs', path: '/reports/executive', label: 'التقرير التنفيذي', enLabel: 'Executive Report', description: 'قصة الأداء والقرارات للإدارة', keywords: ['executive report', 'management'], icon: 'executive-report' },
+      { section: 'outputs', path: '/replay', label: 'إعادة تشغيل الأعمال', enLabel: 'Business Replay', description: 'إعادة قراءة snapshots ونتائج التنفيذ المحفوظة فقط', keywords: ['replay', 'business replay', 'outcome', 'تعلم', 'نتائج'], icon: 'replay', minimumWorkspaceMode: 'advanced' },
     ],
   },
   {
