@@ -25,6 +25,8 @@
 
 > This top block is the only startup boundary. Entries below are historical evidence and MUST NOT override it.
 
+- CURRENT CODE/TEST CANDIDATE: 46675643e32f6ea28b6c1d80a530b2eb134e7907 (main certification baseline; PR #663 is governance-only descendant).
+
 - MAIN HEAD OBSERVED BEFORE THIS CONTROL-PLANE WRITE: 46675643e32f6ea28b6c1d80a530b2eb134e7907
 - CURRENT CODE/TEST CANDIDATE: 46675643e32f6ea28b6c1d80a530b2eb134e7907 (current main certification baseline; PR #663 is governance-only descendant).
 - CURRENT EXECUTION MODE: dependency-aware maximum-safe parallelism across SURFACE / HEART / PROOF / GOVERNANCE; fixed 50/50 time allocation is retired.
