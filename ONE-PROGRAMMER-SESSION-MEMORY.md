@@ -2,16 +2,17 @@
 
 - CURRENT REPOSITORY HEAD → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
 - CURRENT VERIFIED SHA → `ae88b0b5cb4fe9ec0a0afab5f4aab061e6be30a8`
-- CURRENT CODE/TEST CANDIDATE → `db0e78855dd0ed0fa5ce56923769b33464560e8b`
-- ACTIVE EXECUTION FRONTS → PR #670 (`exec/20260927-current-main-import-ui-finalize-rebased`) = single current-main import-to-decision functional front.
+- CURRENT CODE/TEST CANDIDATE → `c6f5071afe84639dffaa8d2be5272bcefa39f5ad`
+- ACTIVE EXECUTION FRONT → PR #670 / `exec/20260927-current-main-import-ui-finalize-rebased` / single current-main import-to-decision front.
 - CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome/Learning → Replay/Benchmark.
-- LAST PROVEN → On the prior exact-head cycle, broad canonical/security/storage/tenant/UI/runtime gates reached SUCCESS on the then-current candidate; evidence is SHA-bound and not transferred. Current candidate requires fresh exact-head proof.
-- LAST FAILED → `7cb988fb…` execution-enforcement E-20..E-26 root; `cbc7f67…` resume-token/certification-fixture roots. Both were repaired in-source. Latest candidate also closes the duplicate import/analyze route and history-window mismatch.
-- OPEN BLOCKERS → Vercel free-plan build-rate limit; authenticated production/Phase-F live proof remains externally constrained; current exact-head gates are queued/in flight.
-- NEXT EXECUTABLE ACTION → consume the first terminal workflow result on `db0e78855dd0ed0fa5ce56923769b33464560e8b`; repair only the first reproducible current-SHA root.
-- NEXT INDEPENDENT ACTIONS → continue safe route/surface truth audits, post-import evidence/decision continuity, and redundant historical-front cleanup only where overlap is proven.
-- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer/RPC/runner, standalone import/analyze path, static business truth, or documentation synchronization as capability closure.
-- RESUME STATUS → ACTIVE / PR #670 / SINGLE CURRENT-MAIN FUNCTIONAL FRONT / EXACT-SHA PROOF IN FLIGHT
+- ACTUAL RESULT → deep specialty import closure implemented without a parallel RPC/importer: purchases → purchase_invoices, suppliers → suppliers, inventory → inventory_balances, payments → payments. Schema inference, canonical identity, reconciliation payloads, durable adapter keys, commit migration, and CI contracts expanded.
+- PROOF → Supabase staging rollback transaction on this migration successfully executed the DDL and inspected the newly created authoritative 6-argument RPC; its live transaction definition contained purchase_invoices/inventory_balances/payments. Transaction rolled back, so no staging mutation persisted.
+- FIRST FAILURE → prior parser failures (illegal default ordering and unsafe 5-arg RPC replacement path) were consumed and fixed; final migration now leaves the legacy 5-arg RPC untouched and extends only the existing authoritative 6-arg boundary.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit; live authenticated production/Phase-F evidence remains environment-bound; current exact-head CI still queued/in flight.
+- NEXT EXECUTABLE ACTION → consume the first terminal workflow result on `c6f5071afe84639dffaa8d2be5272bcefa39f5ad`; repair only the first current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue readback/evidence UI depth, specialty-specific truth presentation, and safe historical-front cleanup only where overlap is proven.
+- DO NOT REPEAT → duplicate importer/RPC/runner, legacy /import/analyze surface, generic fallback where a typed canonical contract is available, static business truth, stale PASS transfer.
+- RESUME STATUS → ACTIVE / PR #670 / SPECIALTY IMPORT CLOSURE WAVE / EXACT-SHA PROOF PENDING
 
 ---
 
