@@ -1358,3 +1358,13 @@
 - CI EXACT SHA → Execution Enforcement Contract `36473701629` and Final Certification Gate `36473701544` are queued on this exact SHA; no terminal PASS/FAIL transferred.
 - DO NOT REPEAT → do not reintroduce page-local query implementations or compatibility-only imports when canonical query exports exist; use the repository-wide guard for future changes.
 - RESUME POINT → continue the next concrete non-device certification/cleanup front while leaving benchmark fail-closed and hosted/device blockers isolated.
+
+# RESUME TOKEN — 2026-09-28 / REPLAY LEARNING EVIDENCE-ID HARDENING
+
+- CURRENT CODE/TEST HEAD → `c3241c9e9768ccb13295f129ac36f4bd2eddfcba`.
+- CLOSED → Business Replay Learning now excludes outcomes without a non-empty `evidence_snapshot_id`; unbound outcomes cannot contribute to accuracy/coverage/impact learning.
+- CLOSED → Outcome timeline evidence badge now requires a non-empty evidence object plus an explicit `evidence_snapshot_id`, not merely any JSONB payload.
+- PROOF → exact current HEAD re-read: 7/7 focused assertions PASS; query export count 73; duplicate query exports 0; missing query imports 0 across Decision/Replay/Reports/Executive/Work.
+- CI EXACT SHA → Final Certification Gate `36473883486` and Execution Enforcement Contract `36473883350` are queued on this exact SHA; no terminal PASS/FAIL transferred.
+- DO NOT REPEAT → do not let an outcome without evidence identity enter Learning; do not treat non-empty arbitrary JSON as a valid Evidence link.
+- RESUME POINT → continue the next concrete non-device certification/cleanup front while preserving this evidence identity gate.
