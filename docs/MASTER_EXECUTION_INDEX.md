@@ -1,4 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXECUTIVE REPORT TRUTH CONTEXT CLOSURE — FUNCTIONAL CANDIDATE 9ed3053
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / TRUTH CONTEXT PROPAGATION CLOSURE — FUNCTIONAL CANDIDATE 14dc825
+
+- FUNCTIONAL/UI CANDIDATE → `14dc825e371d26888a7ca8475db23dce6cbada47`.
+- CLOSED → full canonical truth vocabulary in shared context; Trust & Evidence and Decision Experience now carry explicit truth state.
+- CLOSED → Decision Experience preserves source-evidence gating before durable decision creation.
+- CONTRACT → UI route completeness guards both surfaces and existing evidence gate.
+- SOURCE PROOF → static checks all pass.
+- CI/EXTERNAL → Vercel free-plan rate-limit failure remains external; PC01 offline; unauthenticated Cloudflare preview stops at login, so no protected-surface browser PASS is claimed.
+- NEXT → exact-head terminal gates when available, else next safe non-device surface.
+
+
 
 - FUNCTIONAL/UI CANDIDATE → `9ed30537a98cc55c52bbddc33bb12d8f0494539d`.
 - CLOSED → Executive Report company/period/currency/As Of/truth context via shared ReportSurfaceContext.
