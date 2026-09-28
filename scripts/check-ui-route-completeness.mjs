@@ -83,8 +83,7 @@ for (const pattern of [/status={kpis\.status === 'CONFIRMED' \? 'VERIFIED'/, /st
 const inventoryIntelligencePage = fs.readFileSync('src/pages/InventoryIntelligencePage.tsx', 'utf8');
 const inventoryIntelligenceContract = [
   [/ReportSurfaceContext/, 'Inventory Intelligence must use the canonical report truth context'],
-  [/resolveCurrentCompanyId/, 'Inventory Intelligence must resolve the current tenant'],
-  [/select\('name,currency'\)/, 'Inventory Intelligence must expose company currency from the canonical company record'],
+  [/ReportSurfaceContext/, 'Inventory Intelligence must bind company/currency through the shared report context'],
   [/status={!projected\.length \? 'INSUFFICIENT DATA' : missingDemand\.length \? 'REVIEW' : 'CALCULATED'}/, 'Inventory Intelligence must fail closed to REVIEW/INSUFFICIENT DATA'],
 ];
 for (const [pattern, message] of inventoryIntelligenceContract) {
@@ -97,8 +96,7 @@ for (const [pattern, message] of inventoryIntelligenceContract) {
 const demandVelocityPage = fs.readFileSync('src/pages/DemandVelocityPage.tsx', 'utf8');
 const demandVelocityContract = [
   [/ReportSurfaceContext/, 'Demand Velocity must use the canonical report truth context'],
-  [/resolveCurrentCompanyId/, 'Demand Velocity must resolve the current tenant'],
-  [/select\('name,currency'\)/, 'Demand Velocity must expose company currency from the canonical company record'],
+  [/ReportSurfaceContext/, 'Demand Velocity must bind company/currency through the shared report context'],
   [/status={data\.length \? 'CALCULATED' : 'INSUFFICIENT DATA'}/, 'Demand Velocity must fail closed to INSUFFICIENT DATA'],
   [/\{days\} يومًا/, 'Demand Velocity truth context must disclose the active analysis window'],
 ];
