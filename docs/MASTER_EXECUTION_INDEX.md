@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPLAY EVIDENCE FAIL-CLOSED HARDENING
+
+- FUNCTIONAL CODE/TEST HEAD → `7cb9bc346b7dfd790922a3b9b6d5030665c9a96e`.
+- MEMORY DESCENDANT → `88e32693f85de6d083bc38bda3bd916ba94ff18f` before this Index write-back.
+- CLOSED → Business Replay evidence badges are now fail-closed on empty JSONB evidence; an empty object no longer appears as linked evidence.
+- PROOF → 8/8 focused assertions PASS on the exact current HEAD; query export count is 73 and zero query imports are missing across the five critical pages.
+- CI EXACT SHA → Final Certification Gate `36473329852` and Execution Enforcement Contract `36473329970` are queued; no terminal PASS/FAIL claim.
+- BENCHMARK → remains intentionally `INSUFFICIENT_SAMPLE` because no peer cohort exists in the current staging model.
+- OPEN → browser/device E2E, hosted exact-head acceptance, Vercel free-plan rate limit, tenant-bound live canary.
+- DO NOT REPEAT → do not equate non-null JSON with real evidence; do not fabricate benchmark cohorts.
+- NEXT EXACT ACTION → inspect the next safe non-device cleanup/certification gap while maintaining fail-closed business truth.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / OUTCOME→LEARNING SURFACE CLOSURE
 
 - FUNCTIONAL CODE/TEST HEAD → `1f190e8874f0095ff30e58192f9f7099ffe93dda`.
