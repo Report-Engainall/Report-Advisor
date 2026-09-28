@@ -1,3 +1,15 @@
+# RESUME TOKEN — 2026-09-28 / Aghbari SALES-REPORT READINESS CHECKPOINT
+
+- CURRENT REPOSITORY HEAD → `5be55cb8401f0e06068731ee3dd89c7f1d00942c`.
+- CURRENT CODE/TEST CANDIDATE → `5be55cb8401f0e06068731ee3dd89c7f1d00942c`.
+- ACTIVE EXECUTION FRONTS → exact sales-report header regression; canonical import save-blocker diagnostics; import/PDF extraction; source understanding and quality; canonical commit/readback; authenticated browser; certification/enforcement; Phase-F resilience; tenant/security/data truth; migration provenance; cleanup.
+- OPEN BLOCKERS → Phase-F live deployment SHA mismatch + backup/restore image pull failure + rollback-forward 503; PC01 offline; hosted production certification remains fail-closed.
+- LAST PROVEN → prior exact candidate `2f41eaff8c0bfde9abb48607354e9c2c1e5f7ea3`: PDF structured parser regression PASS, data-quality-runtime PASS, production-regression-evidence PASS, certification-boundary PASS and storage/security/import contracts PASS where terminal. These results are historical and are not transferred to `5be55cb...`.
+- LAST FAILED → Execution Enforcement Contract on the pre-`9f9c11...` governance state failed because the explicit resume-token schema was absent; this was repaired by `9f9c11f1fc50f89c7796c781693031d56b78fa89`.
+- NEXT EXECUTABLE ACTION → consume fresh exact-`5be55cb...` CI/certification/browser results; first terminal current-SHA failure only.
+- NEXT INDEPENDENT ACTIONS → keep executing Supabase/security/data/readback, authenticated import/browser, report durable execution, migration replay/provenance, and cleanup independently.
+- DO NOT REPEAT → stale evidence transfer; duplicate importers/RPCs/runners; generic save messages when a concrete blocker can be shown; weakening fail-closed quality/duplicate/security gates; waiting on device or external deployment evidence.
+
 # RESUME TOKEN — 2026-09-28 / EXACT IMPORT RECOVERY GOVERNANCE CHECKPOINT
 
 - CURRENT REPOSITORY HEAD → `ae0ab8ce8d3036e2e0beb95b67951359e0788c2e` (active branch checkpoint before this persistence write).
