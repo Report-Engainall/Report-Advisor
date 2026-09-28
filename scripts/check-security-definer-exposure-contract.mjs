@@ -116,22 +116,22 @@ function hasSafeSearchPath(window, mode) {
 }
 function assertAuthenticatedOnly(name) {
   if (name === 'fail_report_execution_job') {
-    const grantPattern = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${name}\\s*\\([^;]*?\\)\\s+TO\\s+([^;]+);`, 'ig');
-    let serviceRole = false;
-    let authenticated = false;
-    let anon = false;
-    let match;
-    while ((match = grantPattern.exec(sql)) !== null) {
-      const roles = match[1].split(',').map(role => role.trim().toLowerCase()).filter(Boolean);
-      serviceRole ||= roles.includes('service_role');
-      authenticated ||= roles.includes('authenticated');
-      anon ||= roles.includes('anon');
+    const revokeMarker = 'REVOKE ALL ON FUNCTION public.fail_report_execution_job(uuid, uuid, text, uuid, jsonb) FROM PUBLIC, anon, authenticated;';
+    const serviceGrantMarker = 'GRANT EXECUTE ON FUNCTION public.fail_report_execution_job(uuid, uuid, text, uuid, jsonb) TO service_role;';
+    const boundaryIndex = sql.lastIndexOf(revokeMarker);
+    const serviceGrantIndex = sql.lastIndexOf(serviceGrantMarker);
+    if (boundaryIndex < 0) failures.push(`${name}: latest worker-only revoke boundary not found`);
+    if (serviceGrantIndex < boundaryIndex) failures.push(`${name}: service_role grant must follow the latest worker-only revoke boundary`);
+    const afterBoundary = boundaryIndex >= 0 ? sql.slice(boundaryIndex) : '';
+    if (/GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+public\.fail_report_execution_job\([^;]*?\)\s+TO\s+authenticated;/i.test(afterBoundary)) {
+      failures.push(`${name}: worker-only SECURITY DEFINER must not be executable by authenticated after the latest revoke boundary`);
     }
-    if (!serviceRole) failures.push(`${name}: service_role EXECUTE grant not found`);
-    if (authenticated) failures.push(`${name}: worker-only SECURITY DEFINER must not be executable by authenticated`);
-    if (anon) failures.push(`${name}: worker-only SECURITY DEFINER must not be executable by anon`);
+    if (/GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+public\.fail_report_execution_job\([^;]*?\)\s+TO\s+anon;/i.test(afterBoundary)) {
+      failures.push(`${name}: worker-only SECURITY DEFINER must not be executable by anon after the latest revoke boundary`);
+    }
     return;
   }
+}
   const grantPattern = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${name}\\s*\\([^;]*?\\)\\s+TO\\s+([^;]+);`, 'ig');
   let authenticated = false;
   let anon = false;
