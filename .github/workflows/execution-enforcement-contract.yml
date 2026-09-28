@@ -24,5 +24,7 @@ jobs:
         run: node scripts/check-execution-enforcement-protocol.mjs
       - name: Run enforcement adversarial test-of-test suite
         run: node scripts/execution-enforcement-adversarial.test.mjs
+      - name: Verify repository-wide query export coverage
+        run: node scripts/check-query-export-coverage.mjs
       - name: Run certification boundary test-of-test suite
         run: node scripts/check-certification-boundary-integrity.test.mjs
