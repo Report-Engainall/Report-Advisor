@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / DEEP REPORT-TRUTH + IMPORT-CONTEXT CLOSURE
+
+- EXACT BRANCH HEAD → `df1b23dd3cb6b1ae40119a01a7aa4aa652222846`.
+- CLOSED → generic/uncommitted canonical sources fail closed to Executive Report rather than specialty reports.
+- CLOSED → rendered report manifests require durable Job status `completed`.
+- CLOSED → Reports Center and Executive Report reuse the shared SourceBoundReportContext; duplicate rendered/source state removed.
+- CLOSED → all ten import-capable report/analytics outputs expose source-bound context.
+- CLOSED → Analytics, Demand Velocity, Liquidity and Inventory Intelligence preserve `import=` through next-action navigation.
+- CLOSED → synthetic current-date As Of claims were removed where report contracts do not provide authoritative cutoff values; RFM/Aging/Profitability use actual snapshot as-of fields.
+- PROOF → 27-check exact GitHub-content deep regression PASS.
+- LIVE DB → Staging confirms enqueue creates nine ordered tasks and terminal completion requires rendered checkpoint and persists evidence; no staging task rows were fabricated.
+- HOSTED → CodeRabbit SUCCESS; Vercel remains blocked by free-plan build-rate-limit; Vercel deployment pending; Netlify preview remains BUILD EXIT CODE 2 without exposed compiler detail.
+- DEVICE → PC01 remains OFFLINE; browser/device proof remains isolated.
+- DO NOT REPEAT → no duplicate source-bound context, no generic→specialty report routing, no synthetic As Of, no dropped import context.
+- NEXT EXACT ACTION → only concrete remaining non-device work is hosted/build blocker recovery if actionable; otherwise the remaining proof boundary is device/hosted external certification.
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / CANONICAL REPORT OUTPUT ROUTING + UI JOURNEY ORDER
 
 - FUNCTIONAL CHECKPOINT → `d6d059fb6a31f2aa61a436d939ec451d60d6b6ee`.
