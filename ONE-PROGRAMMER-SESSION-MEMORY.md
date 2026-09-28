@@ -1,5 +1,23 @@
 # RESUME TOKEN — 2026-09-28 / WORKER RPC CONTRACT RECONCILIATION PROVEN
 
+# RESUME TOKEN — 2026-09-29 / POST-IMPORT REPORT CONTINUITY CLOSED
+
+- CODE COMMIT EXACT SHA → `03cadf8fd033a77ad4efa3567f98be39c504162b`.
+- REMOTE BRANCH → `exec/20260929-post-import-report-continuity`.
+- FRONT CLOSED → upload result → specialty detection → canonical entity selection → durable lifecycle → source-bound report → executive/trust/decision/work outputs.
+- ACTUAL IMPLEMENTATION → removed forced `generic:source-data` selection; specialty detector now maps supported product/customer/sales contracts and generic specialty fallbacks; import result persists specialty, confidence, evidence, canonical entity and source hash.
+- REPORT DELIVERY → `/reports/source/:importId` reads the tenant-scoped `import_jobs` result plus `canonical_dataset_records`, exposes truth state, lifecycle, as-of, provenance, row sample and downstream outputs.
+- UI DELIVERY → completed import screen now exposes the nine durable stages, specialty result, quality/trust context, report destination and fail-closed benchmark `INSUFFICIENT SAMPLE`; import history now links completed jobs back to their source report.
+- WORK CENTER → active zero-progress jobs now carry a visible `بدون تقدم` state.
+- TEST CONTRACT DELIVERY → product-wow UI contract now guards post-import report continuity, specialty selection, durable lifecycle, source route and explicit React runtime entrypoint imports; executive report contract wording aligned to the actual empty-state UI.
+- FRESH TEST PROOF ON CODE SHA → typecheck PASS; production build PASS; canonical import mapping PASS; file-engine contract PASS; report truth PASS; report execution E2E contract PASS; executive report product contract PASS; product wow UI contract PASS.
+- BROWSER RUNTIME PROOF → production preview with temporary Netlify Supabase public envs mounted successfully; runtime JavaScript errors = none; unauthenticated `/import` renders the real Aghbari login surface. Authenticated upload/report E2E was not claimed because the connected Chrome profiles contained no valid project session.
+- DEVICE → PC01 online; Vite dev watcher exposed a Windows path/watcher failure under the Arabic user path, isolated by using `vite preview` for browser proof. This is an environment-only dev-server issue, not a product build failure.
+- EXTERNAL → no production mutation; no user credentials created; no secret committed. Netlify env values were used only for the local build process.
+- DO NOT REPEAT → do not force every import into `generic:source-data`; do not mark benchmark eligibility from one source; do not claim authenticated browser E2E without a real authenticated session; do not transfer pre-`03cadf8` PASS evidence to this SHA.
+- RESUME POINT → fetch fresh CI/PR status for `03cadf8`; consume only terminal current-SHA evidence; if green, merge/re-anchor and repeat the final exact-head proof. If a current-SHA failure appears, repair only the first reproducible root cause.
+
+---
 - MAIN EXACT HEAD AT CHECKPOINT → `3f7963db851d87fadd57462482385452ca2536f5`.
 - FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`.
 - CURRENT FUNCTIONAL HEAD → `ee0cba1e220fc2c96e2fa4c77aa7fa96192abe68`.

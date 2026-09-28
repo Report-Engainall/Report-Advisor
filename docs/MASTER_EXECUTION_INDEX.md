@@ -1,5 +1,19 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / WORKER RPC TEST CONTRACT RECONCILED
 
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / POST-IMPORT REPORT CONTINUITY CLOSED
+
+- CODE EXACT SHA → `03cadf8fd033a77ad4efa3567f98be39c504162b`.
+- BRANCH → `exec/20260929-post-import-report-continuity` (pushed to GitHub).
+- IMPLEMENTED → specialty detection before canonical commit; persisted specialty metadata; source-bound report route; canonical report query; import-history report links; nine-stage rendered continuity; zero-progress Work Center state.
+- TRUTH GUARDS → report page is tenant-scoped; generic rows are read from `canonical_dataset_records`; specialized entities link to existing domain surfaces; benchmark remains `INSUFFICIENT SAMPLE`.
+- FRESH TESTS → typecheck PASS; build PASS; canonical import mapping PASS; file-engine contract PASS; report truth PASS; report execution E2E contract PASS; executive report contract PASS; product-wow UI contract PASS.
+- BROWSER → preview runtime has no JavaScript errors and renders the actual login gate. Authenticated report/import E2E remains unproven because no valid project session was available in the connected browser profiles.
+- ENVIRONMENT → Vite dev watcher failed under the Windows Arabic user path; `vite preview` against the production build was used successfully instead. No source or deployment evidence is inferred from the watcher failure.
+- PERSISTENCE → code commit pushed to origin. Memory/index update is being recorded against the code SHA and will be followed by a fresh exact final SHA proof.
+- NEXT EXECUTABLE ACTION → open/inspect the GitHub PR for this branch and consume fresh CI; do not transfer old SHA evidence.
+
+---
+
 - MAIN EXACT CONTROL HEAD BEFORE THIS WRITE → `42f1e861cf0a68279e446045b16100a94b9a3143`.
 - FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `ee0cba1e220fc2c96e2fa4c77aa7fa96192abe68`.
 - SECURITY CLOSURE → `fail_report_execution_job` is service_role-only in Staging and source.
