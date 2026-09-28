@@ -1,3 +1,21 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXACT FUNCTIONAL HEAD VERIFIED
+
+> This top block is the only startup boundary.
+
+- MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- FUNCTIONAL FRONT → PR #672 / branch `exec/20260927-current-main-import-ui-rebased` / exact code candidate `fb93663b19bbdaa3ab161f0068a47fbd07161ce7`.
+- CODE RELATION → candidate is based directly on current main; no rebase gap remains.
+- EXACT LOCAL PROOF ON `fb93663b19bbdaa3ab161f0068a47fbd07161ce7` → `npm run typecheck` PASS; `npm run build` PASS (2802 modules); UI route/sidebar parity PASS (41 routes / 38 canonical links); Phase-3 data-import truth PASS; Phase-F runtime closure PASS; execution-enforcement PASS (33 mandatory rules); SECURITY DEFINER exposure contract PASS.
+- EXACT CI PROOF → `desktop-windows` run `36362650146` SUCCESS on `fb93663b19bbdaa3ab161f0068a47fbd07161ce7`, including web build, native watcher/runtime smoke, Windows installer packaging and artifact upload.
+- CURRENT CI BOUNDARY → remaining required workflows for `fb93663b19bbdaa3ab161f0068a47fbd07161ce7` are queued/pending at the latest observation; no terminal required-gate failure has yet been observed on this SHA.
+- CURRENT CERTIFICATION GAP → the certification-boundary guard was failing because the Master Index startup boundary did not identify the exact current candidate. This is a governance/evidence-boundary defect, not a product-runtime defect; it is being corrected in this checkpoint.
+- RELEASE → Vercel remains externally blocked by the free-plan build-rate limit. Netlify reports a success status for the exact branch, but deployment readiness is not counted as product certification until authoritative exact-head deployment/runtime proof exists.
+- DEVICE → PC01 is ONLINE and the exact PR worktree is available locally.
+- QUALITY → lint currently has 62 warnings and 0 errors; build warnings are non-blocking (Browserslist/Bluebird).
+- NEXT → re-run the certification-boundary and current-SHA certification contracts after this checkpoint; then consume the first terminal current-SHA CI/browser/final-certification failure only. Do not transfer older SHA evidence.
+
+---
+
 # CURRENT EXECUTION CHECKPOINT — 2026-09-28 / LIVE IMPORT BOUNDARY RECONCILIATION
 
 - FUNCTIONAL CODE SHA REMAINS → `a0a73ac2fb8f0221cd0c9e04054b44a7e5817b5b`.

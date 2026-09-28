@@ -1,3 +1,19 @@
+# RESUME TOKEN — 2026-09-28 / EXACT FUNCTIONAL HEAD `fb93663b19bb` / CERTIFICATION BOUNDARY REPAIR
+
+- EXACT GITHUB MAIN HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- ACTIVE FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact code SHA `fb93663b19bbdaa3ab161f0068a47fbd07161ce7`; PR base is exactly current main.
+- DEVICE → PC01 ONLINE; exact PR worktree is available.
+- VERIFIED LOCAL ON THIS EXACT CODE SHA → typecheck PASS; production build PASS (2802 modules); UI route/sidebar parity PASS; Phase-3 data-import truth PASS; Phase-F runtime closure PASS; Execution Enforcement PASS; SECURITY DEFINER exposure contract PASS.
+- EXACT CI → desktop-windows run `36362650146` SUCCESS on `fb93663b19bbdaa3ab161f0068a47fbd07161ce7`.
+- CURRENT PROOF GAP → certification-boundary integrity is the only explicit repository-governance failure found at this checkpoint: the Master Index startup boundary was not anchored to the exact functional candidate. Fix is being persisted now; no stale certification PASS is transferred.
+- CI/RELEASE → other current-SHA workflows are queued/pending; Vercel free-plan build-rate remains external; Netlify status alone is not product certification.
+- QUALITY → lint has 62 warnings and 0 errors; these are cleanup candidates, not a release failure.
+- LIVE SECURITY/DATA → prior current-staging readback remains the canonical boundary: client UI settings tenant policy uses current_company_id(); import lifecycle RPCs are INVOKER except the deliberate six-argument import_commit_batch SECURITY DEFINER write boundary; import tables remain RLS-enabled. Broad historical Security Advisor findings remain an independent hardening front and are not subject to blanket revoke.
+- NEXT EXECUTABLE ACTION → re-run the certification boundary and affected current-SHA certification contracts after this checkpoint, then consume fresh terminal CI/browser/final-certification results; repair only the first reproduced current-SHA failure.
+- DO NOT REPEAT → stale SHA evidence, preview-as-production, duplicate browser frameworks/import RPCs/runners, blanket Security Advisor cleanup, historical “device offline” state.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / CURRENT EXACT-HEAD EXECUTION
 
 - CURRENT REPOSITORY HEAD → `960da0bda395192846ba537891c2d519e2f94faa`
