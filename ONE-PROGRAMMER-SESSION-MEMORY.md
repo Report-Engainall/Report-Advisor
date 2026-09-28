@@ -1,4 +1,17 @@
-# RESUME TOKEN — 2026-09-28 / REPORT OUTPUT CONTEXT + EXPORT CLOSURE — FUNCTIONAL CANDIDATE be36ca1
+# RESUME TOKEN — 2026-09-28 / ADVANCED REPORT ACTIONS CLOSED — FUNCTIONAL CANDIDATE be36ca1
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `be36ca1557748c00d426f8f6b3b7a3e6f11029cc`.
+- CLOSED → canonical report truth context across Reports Center + Sales + Purchases + Inventory + Receivables + Profitability.
+- CLOSED → Inventory Intelligence + Demand Velocity centralized company/currency resolution through `ReportSurfaceContext` and removed duplicated local tenant context state.
+- CLOSED → Inventory Intelligence + Demand Velocity expose print + canonical XLSX export actions; export scopes follow the currently selected report view/window.
+- CLOSED → Inventory snapshot preserves optional source `asOf` metadata from the canonical snapshot response.
+- CLOSED CONTRACT → `scripts/check-ui-route-completeness.mjs` guards report context, fail-closed truth states, print and export presence.
+- PROOF → static source assertions after the final implementation are all green; export implementation is compatible with existing `downloadReportArtifact(..., ReportRow[])` contract.
+- CI STATUS → no current-head terminal PASS is claimed. Combined status reports the known Vercel free-plan build-rate-limit failure plus a pending branch deployment; this is external hosting evidence, not a code-pass/fail verdict.
+- DEVICE → PC01 remains offline; browser/device proof remains isolated.
+- NEXT EXACT ACTION → consume terminal exact-head repository gates if they become available; otherwise continue the next non-device product surface. Do not reopen closed report/import fronts.
+- DO NOT REPEAT → no stale PASS across SHA; no duplicate report engine; no report surface without company/period/currency/As Of/truth context.
+
 
 - FUNCTIONAL/UI CANDIDATE → `be36ca1557748c00d426f8f6b3b7a3e6f11029cc`.
 - CLOSED FRONT → Reports Center, Sales, Purchases, Inventory, Receivables and Profitability now use the shared `ReportSurfaceContext` contract for company, period, currency, As Of, truth state and Trust navigation.
