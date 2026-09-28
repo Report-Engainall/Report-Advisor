@@ -32,5 +32,8 @@ for (const token of ['const withImportContext = (path: string)','const activeAle
 for (const token of ['const scopedDecisionWorkItems = useMemo(() => focusedImportId','item.evidence_refs.some((ref) => ref.import_job_id === focusedImportId)','withImportContext("/decision-experience?stage=work&recommendationId=']) assert.ok(workUi.includes(token), `missing work-center import scoping invariant: ${token}`);
 for (const token of ['SourceBoundReportContext']) assert.ok(analyticsUi.includes(token), `missing analytics source context: ${token}`);
 for (const token of ['SourceBoundReportContext']) assert.ok(inventoryIntelligenceUi.includes(token), `missing inventory intelligence source context: ${token}`);
+for (const token of ['createRuntimeDecision','linkRecommendationToDecision','requestDecisionApproval','decideApproval','createDecisionWorkItem','fetchRuntimeDecisionForRecommendation','fetchDecisionApproval','fetchDecisionWorkItem','fetchDecisionWorkItems','fetchRecommendationOutcome','fetchBusinessReplaySnapshot','fetchPurchaseSummary','fetchSalesExportRows','fetchPurchaseExportRows','fetchInventoryExportRows']) assert.ok(queries.includes(token), `missing canonical query/runtime contract: ${token}`);
+for (const token of ['const activeAlerts = useMemo(() => importJobId ? [] :','withImportContext("/work-center")','withImportContext("/replay")']) assert.ok(decisionUi.includes(token), `missing decision downstream provenance invariant: ${token}`);
+
 console.log('Report execution task ledger contract: PASS');
 for (const token of ["path + (path.includes('?') ? '&' : '?') + 'import=' + encodeURIComponent(result.importId)"]) assert.ok(canonicalImportUi.includes(token), `missing canonical import propagation: ${token}`);
