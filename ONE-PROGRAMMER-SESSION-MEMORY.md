@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-28 / UI ROUTE ROOT CLOSED / EXACT CANDIDATE `1de5cb174add`
+
+- EXACT MAIN HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- ACTIVE FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact candidate `1de5cb174add3ec00f26e3036eb118d58ab444df`.
+- ROOT CLOSED → `/import/analyze` is a registered internal redirect/progressive-disclosure route; the route-completeness guard now models it explicitly instead of requiring a sidebar link.
+- EXACT LOCAL PROOF ON `1de5cb174add3ec00f26e3036eb118d58ab444df` → UI route/navigation completeness PASS; UI route/sidebar parity PASS; typecheck PASS; production build PASS (2802 modules).
+- CURRENT CI → 49 runs observed: 43 queued, 3 pending, 1 in progress (desktop-windows), 2 skipped; no terminal required-gate failure on this SHA at last observation.
+- CERTIFICATION BOUNDARY → parser/index anchoring is corrected; current candidate must remain exactly `1de5cb174add3ec00f26e3036eb118d58ab444df` until a new functional root is found. Do not transfer prior SHA browser/desktop/final-certification evidence.
+- DEVICE → PC01 ONLINE and exact PR tree is checked out.
+- RELEASE → Vercel free-plan build-rate remains external; Netlify status green is not product certification.
+- QUALITY → lint has 62 warnings / 0 errors; build warnings are non-blocking. Cleanup is a separate hardening front.
+- NEXT EXECUTABLE ACTION → run current-SHA certification contracts, consume the first terminal CI/browser/final-certification result, repair only that root, persist, rescan.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / EXACT FUNCTIONAL HEAD `fb93663b19bb` / CERTIFICATION BOUNDARY REPAIR
 
 - EXACT GITHUB MAIN HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
