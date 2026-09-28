@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / QUERY-LAYER RESTORATION + DECISION/REPLAY CONTRACT CLOSURE
+
+- FUNCTIONAL CODE/TEST HEAD → `980054ad593587971ecb516fb255d89006fae3e5`.
+- MEMORY DESCENDANT → `160f96458a2457387bc8dcaa81fe4643c5fc44e1` before this Index write-back.
+- CLOSED → query-layer contracts required by Decision, Work, Reports, Executive and Business Replay are now exported and tenant-bound; no missing query imports remain.
+- CLOSED → report exports and purchase summary now call existing Supabase RPCs; decision writes route through the canonical vertical-slice runtime; reads come from canonical decision/approval/work/outcome tables; Business Replay reads persisted snapshots/work/outcomes.
+- CLOSED → nullable expected impact + structured evidence refs are accepted by the canonical runtime types; no duplicate runner/runtime was created.
+- PROOF → 14/14 focused assertions PASS; import/export parser reports zero missing query symbols in the five affected pages.
+- DB CONTRACT → required decision/work/outcome RPCs and table schemas verified directly in Supabase.
+- CI EXACT SHA → Final Certification Gate `36472897283` and Execution Enforcement Contract `36472896991` are queued; no terminal PASS/FAIL claim.
+- OPEN → browser/device E2E on PC01, hosted exact-head acceptance, Vercel free-plan build-rate limit; tenant-bound canary remains unavailable from current SQL session without company context.
+- DO NOT REPEAT → no page-specific decision runtime, no duplicate query contracts, no fabricated replay events, no stale query import assumptions.
+- NEXT EXACT ACTION → after CI terminal state, finish the next non-device Outcome → Learning → Benchmark eligibility gap or repair the first concrete failing gate.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / DECISION + WORK IMPORT SCOPING FAIL-CLOSED
 
 - FUNCTIONAL CODE/TEST HEAD → `4e6262d0309667e6d98820ce7884eb71c8de3eec`.
