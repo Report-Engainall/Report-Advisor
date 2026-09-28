@@ -1,3 +1,16 @@
+# RESUME TOKEN — 2026-09-28 / REPORT-EXECUTION RETRY SECURITY + CI ROOT REPAIR
+
+- CURRENT CODE HEAD BEFORE THIS GOVERNANCE WRITE-BACK → `77f27f1dd561fa9abc6f2b59f756f091355b976b`.
+- ROOT FAILURE CONSUMED → exact-head `security-definer-exposure-contract` failed because `retry_report_execution_job` lacked source-visible `auth.uid()` and `current_company_id()` invariants.
+- ROOT FAILURE CONSUMED → exact-head Final Certification Gate failed in `check-report-execution-worker-current-main-contract` because the contract expected an inline `checkpoint(following)` call while the runner correctly builds `const checkpoint` and persists that tenant-bound checkpoint.
+- FIXED → forward-only migration `20260928235900_harden_report_execution_retry_worker_rpc.sql` now restores the live retry function with auth/tenant defense-in-depth and preserves worker-only `service_role` execution.
+- FIXED → security contract requires `auth.uid()` + `current_company_id()` for the worker-only retry function and verifies its final revoke/service-role boundary.
+- FIXED → worker contract now validates the actual tenant-bound checkpoint variable flow instead of an obsolete inline expression.
+- EXACT-HEAD PROOF BOUNDARY → fresh CI has not yet registered a terminal run for `77f27f1...`; no PASS is claimed. Vercel remains externally blocked by free-plan `build-rate-limit`.
+- LIVE STAGING READBACK → `retry_report_execution_job(uuid,uuid)` is SECURITY DEFINER and currently service_role-only; its live body predates the new defense-in-depth source reconciliation, so the new migration remains the forward source-of-truth change.
+- DEVICE → PC01 remains offline; browser/device proof is not touched by this repair.
+- NEXT → consume the first terminal current-head certification/security gate; repair only a reproducible current-head failure; then persist exact SHA and rescan.
+
 # RESUME TOKEN — 2026-09-28 / POST-IMPORT REPORT UX + FIXTURE DISCOVERY REANCHORED
 
 - LATEST FUNCTIONAL CHECKPOINT SHA (before this documentation write-back) → `2b60a72021d969550055e6682e7f36ab4a43d60e`.
