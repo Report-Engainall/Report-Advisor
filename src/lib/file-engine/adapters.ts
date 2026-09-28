@@ -245,6 +245,98 @@ const PDF_OCR_SCALE = 1.5;
 type PromiseConstructorWithTry = PromiseConstructor & { try?: (fn: (...args: unknown[]) => unknown, ...args: unknown[]) => Promise<unknown> };
 type Uint8ArrayWithToHex = Uint8Array & { toHex?: () => string };
 
+type PdfTextItem = { str: string; transform: number[]; width?: number };
+export type PdfTableColumn = { key: string; label: string; x: number };
+const PDF_TABLE_HEADER_ALIASES: Array<{ key: string; aliases: string[] }> = [
+  { key: 'invoice_number', aliases: ['رقم الفاتورة', 'رقم فاتورة', 'invoice number', 'invoice no'] },
+  { key: 'invoice_date', aliases: ['تاريخ الفاتورة', 'التاريخ', 'invoice date', 'date'] },
+  { key: 'customer_name', aliases: ['اسم العميل', 'العميل', 'customer name', 'customer'] },
+  { key: 'invoice_type', aliases: ['نوع الفاتورة', 'invoice type', 'type'] },
+  { key: 'currency', aliases: ['العملة', 'currency'] },
+  { key: 'net_amount', aliases: ['مبلغ الصافي بالمحلي', 'الصافي بالمحلي', 'net amount'] },
+  { key: 'invoice_amount', aliases: ['مبلغ الفاتورة', 'invoice amount'] },
+  { key: 'discount', aliases: ['الخصم', 'discount'] },
+  { key: 'charges', aliases: ['الأعباء', 'الاعباء', 'charges'] },
+  { key: 'tax_amount', aliases: ['الضريبة', 'ضريبة', 'tax amount', 'tax'] },
+  { key: 'total', aliases: ['اجمالي الفاتورة', 'إجمالي الفاتورة', 'الإجمالي', 'الاجمالي', 'total'] },
+];
+function compactPdfHeader(value: string): string {
+  return normalizeColumnName(value).replace(/[._:/\\-]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function pdfHeaderMatch(value: string): { key: string; label: string } | null {
+  const normalized = compactPdfHeader(value);
+  if (!normalized) return null;
+  let best: { key: string; label: string; score: number } | null = null;
+  for (const entry of PDF_TABLE_HEADER_ALIASES) for (const alias of entry.aliases) {
+    const compact = compactPdfHeader(alias);
+    if (!compact) continue;
+    if (normalized === compact) { if (!best || compact.length > best.score) best = { key: entry.key, label: value.trim(), score: compact.length }; }
+  }
+  return best ? { key: best.key, label: best.label } : null;
+}
+function groupPdfTextLines(items: PdfTextItem[], yTolerance = 2.5): PdfTextItem[][] {
+  const usable = items.filter((item) => item.str.trim() && Array.isArray(item.transform) && item.transform.length >= 6)
+    .map((item) => ({ ...item, str: item.str.replace(/\s+/g, ' ').trim() }))
+    .sort((a, b) => Number(b.transform[5]) - Number(a.transform[5]) || Number(a.transform[4]) - Number(b.transform[4]));
+  const lines: PdfTextItem[][] = [];
+  for (const item of usable) {
+    const y = Number(item.transform[5]);
+    const last = lines[lines.length - 1];
+    if (!last || Math.abs(Number(last[0].transform[5]) - y) > yTolerance) lines.push([item]);
+    else last.push(item);
+  }
+  return lines.map((line) => line.slice().sort((a, b) => Number(a.transform[4]) - Number(b.transform[4])));
+}
+function headerWindow(line: PdfTextItem[], index: number): { key: string; label: string; size: number } | null {
+  for (const size of [3, 2, 1]) for (const direction of [1, -1]) {
+    const indexes = Array.from({ length: size }, (_, offset) => index + offset * direction);
+    if (indexes.some((value) => value < 0 || value >= line.length)) continue;
+    const parts = indexes.map((value) => line[value].str);
+    const candidates = [parts.join(' '), [...parts].reverse().join(' ')];
+    for (const candidate of candidates) { const match = pdfHeaderMatch(candidate); if (match) return { ...match, size }; }
+  }
+  return null;
+}
+export function inferPdfTableColumns(items: PdfTextItem[]): PdfTableColumn[] {
+  let best: PdfTableColumn[] = [];
+  for (const line of groupPdfTextLines(items)) {
+    const found: PdfTableColumn[] = [];
+    for (let index = 0; index < line.length;) {
+      const match = headerWindow(line, index);
+      if (!match) { index += 1; continue; }
+      const group = line.slice(index, index + match.size);
+      const x = group.reduce((sum, item) => sum + Number(item.transform[4]) + Number(item.width ?? 0) / 2, 0) / group.length;
+      if (!found.some((column) => column.key === match.key)) found.push({ key: match.key, label: match.label, x });
+      index += match.size;
+    }
+    if (found.length > best.length && found.length >= 3) best = found.sort((a, b) => a.x - b.x);
+  }
+  return best;
+}
+export function reconstructPdfTabularRows(items: PdfTextItem[], columns: PdfTableColumn[], yTolerance = 2.5): Row[] {
+  if (columns.length < 3) return [];
+  const rows: Row[] = [];
+  const lines = groupPdfTextLines(items, yTolerance);
+  for (const line of lines) {
+    const lineText = compactPdfHeader(line.map((item) => item.str).join(' '));
+    const headerHits = columns.filter((column) => lineText.includes(compactPdfHeader(column.label))).length;
+    if (headerHits >= 2) continue;
+    const cells = new Map<number, string[]>();
+    for (const item of line) {
+      const x = Number(item.transform[4]) + Number(item.width ?? 0) / 2;
+      let nearest = 0; let distance = Number.POSITIVE_INFINITY;
+      columns.forEach((column, index) => { const next = Math.abs(column.x - x); if (next < distance) { distance = next; nearest = index; } });
+      const values = cells.get(nearest) ?? []; values.push(item.str.trim()); cells.set(nearest, values);
+    }
+    if ([...cells.values()].filter((values) => values.join(' ').trim()).length < 3) continue;
+    const row: Row = {};
+    columns.forEach((column, index) => { const value = (cells.get(index) ?? []).join(' ').replace(/\s+/g, ' ').trim(); if (value) row[column.key] = value; });
+    if (!['invoice_number', 'invoice_date', 'customer_name', 'total'].some((key) => row[key] !== undefined && row[key] !== '')) continue;
+    rows.push(row);
+  }
+  return rows;
+}
+
 function ensurePdfJsRuntimeCompatibility(): void {
   const uint8ArrayPrototype = Uint8Array.prototype as Uint8ArrayWithToHex;
   if (typeof uint8ArrayPrototype.toHex !== 'function') {
@@ -276,16 +368,27 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   if (typeof window !== 'undefined') {
     pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   }
-  const pdf: PdfDocument = await pdfjs.getDocument({
-    data: new Uint8Array(buffer),
-    useSystemFonts: true,
-  }).promise;
+  const pdf: PdfDocument = await pdfjs.getDocument({ data: new Uint8Array(buffer), useSystemFonts: true }).promise;
   const pages: string[] = [];
-  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
+  const tabularRows: Row[] = [];
+  let referenceColumns: PdfTableColumn[] = [];
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+    const page = await pdf.getPage(pageNumber);
+    const content = await page.getTextContent();
+    const items: PdfTextItem[] = content.items
+      .filter((item): item is typeof item & { str: string; transform: number[] } => 'str' in item && typeof item.str === 'string' && Array.isArray((item as { transform?: unknown }).transform))
+      .map((item) => ({ str: item.str, transform: (item as { transform: number[] }).transform, width: typeof (item as { width?: unknown }).width === 'number' ? (item as { width: number }).width : undefined }));
+    const pageText = items.map((item) => item.str).filter(Boolean).join(' ');
+    if (pageText.trim()) pages.push('PAGE ' + pageNumber + '\n' + pageText);
+    const detectedColumns = inferPdfTableColumns(items);
+    if (detectedColumns.length >= 3) referenceColumns = detectedColumns;
+    const activeColumns = detectedColumns.length >= 3 ? detectedColumns : referenceColumns;
+    if (activeColumns.length >= 3) tabularRows.push(...reconstructPdfTabularRows(items, activeColumns));
+  }
+  if (tabularRows.length >= 2) return [await buildDataset(tabularRows, fileName, 'pdf-table')];
   if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
   return parseScannedPdfWithOcr(pdf, fileName);
 }
-
 async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promise<Dataset[]> {
   if (typeof document === 'undefined') throw new Error('PDF_SCANNED_IMAGE_ONLY_SERVER_AUTHORITY_UNAVAILABLE: scanned-PDF OCR requires an authoritative OCR-capable runtime; no business data was fabricated.');
   if (pdf.numPages > PDF_OCR_MAX_PAGES) throw new Error(`PDF_OCR_PAGE_LIMIT_EXCEEDED: ${pdf.numPages} pages exceeds the safe OCR limit of ${PDF_OCR_MAX_PAGES}. Split the document before analysis.`);
