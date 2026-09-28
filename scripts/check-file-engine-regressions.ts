@@ -9,6 +9,7 @@ import {
 } from '../src/lib/file-engine/normalizer.ts';
 import { cleanValue, detectColumnDataType } from '../src/lib/file-engine/data-types.ts';
 import { extractPdfTableRowsFromTextItems } from '../src/lib/file-engine/adapters.ts';
+import { mapColumns } from '../src/lib/file-engine/synonyms.ts';
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`File-engine regression failed: ${message}`);
@@ -35,6 +36,49 @@ assert(detectColumnDataType(['١٬٢٥٠ ريال', '٢٬٥٠٠ ريال'], 'ا�
 assert(cleanValue('١٬٢٥٠ ريال', 'currency') === 1250, 'currency cleaning must use canonical parser');
 assert(cleanValue('١٢٫٥', 'decimal') === 12.5, 'decimal cleaning must preserve Arabic decimal separator');
 assert(cleanValue('١٢٣', 'integer') === 123, 'integer cleaning must normalize Arabic digits');
+
+const aghbariSalesReportHeaders = [
+  'رقم الفاتورة',
+  'التاريخ',
+  'نوع الفاتورة',
+  'اسم العميل',
+  'مبلغ الفاتورة',
+  'الخصم',
+  'اﻷعباء',
+  'الضريبة',
+  'اجمالي الفاتورة',
+  'مبلغ الصافي بالمحلي',
+  'العملة',
+];
+const aghbariSalesReportMappings = await mapColumns(aghbariSalesReportHeaders);
+const expectedAghbariSalesMappings = [
+  ['invoice_number', 98],
+  ['date', 96],
+  ['invoice_type', 94],
+  ['customer_name', 98],
+  ['invoice_amount', 94],
+  ['discount', 94],
+  ['charges', 90],
+  ['tax_amount', 98],
+  ['total', 98],
+  ['net_local_amount', 92],
+  ['currency', 96],
+];
+assert(
+  aghbariSalesReportMappings.length === expectedAghbariSalesMappings.length,
+  'Aghbari sales report header count',
+);
+expectedAghbariSalesMappings.forEach(([expectedField, expectedConfidence], index) => {
+  const actual = aghbariSalesReportMappings[index];
+  assert(actual?.mappedField === expectedField, `Aghbari sales header #${index + 1} canonical mapping`);
+  assert(actual?.confidence === expectedConfidence, `Aghbari sales header #${index + 1} confidence`);
+  assert(actual?.requiresReview === false, `Aghbari sales header #${index + 1} must not require review`);
+});
+assert(
+  aghbariSalesReportMappings.find((mapping) => mapping.sourceColumn === 'التاريخ')?.mappedField === 'date',
+  'generic report date must remain date until semantic source understanding proves invoice_date',
+);
+console.log('Aghbari Arabic sales-report header regression: PASS');
 
 const syntheticPdfItems = [
   { str: 'رقم الفاتورة', x: 20, y: 700, width: 60 },
