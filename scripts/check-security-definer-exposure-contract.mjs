@@ -87,14 +87,15 @@ const criticalOperationalSecurityDefiners = [
 const failures = [];
 
 function getFunctionWindow(name) {
-  const definitionPattern = new RegExp(\`CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\s+(?:public\\.)?\${name}\\s*\\(\`, 'gi');
+  const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const definitionPattern = new RegExp('CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\s+(?:public\\.)?' + escapedName + '\\s*\\(', 'gi');
   let lastWindow = null;
   let match;
   while ((match = definitionPattern.exec(sql)) !== null) {
     const candidate = sql.slice(match.index);
     const bodyTag = candidate.match(/\bAS\s+(\$[A-Za-z_][A-Za-z0-9_]*\$|\$\$)/i)?.[1];
     if (!bodyTag) continue;
-    const bodyEnd = candidate.indexOf(\`\${bodyTag};\`);
+    const bodyEnd = candidate.indexOf(bodyTag + ';');
     if (bodyEnd < 0) continue;
     lastWindow = candidate.slice(0, bodyEnd + bodyTag.length + 1);
   }
@@ -113,7 +114,6 @@ function hasSafeSearchPath(window, mode) {
   if (mode === 'EMPTY_OR_SAFE') return normalized === '' || normalized === 'pg_catalog' || normalized === 'public' || normalized === 'public,pg_catalog' || normalized === 'pg_catalog,public';
   return normalized === 'public' || normalized === 'public,pg_catalog' || normalized === 'pg_catalog,public';
 }
-
 function assertAuthenticatedOnly(name) {
   const grantPattern = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${name}\\s*\\([^;]*?\\)\\s+TO\\s+([^;]+);`, 'ig');
   let authenticated = false;
