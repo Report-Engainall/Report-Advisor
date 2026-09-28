@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / PR #672 RE-ANCHORED ON CURRENT MAIN
+
+- MAIN EXACT REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`.
+- FUNCTIONAL HEAD AT REANCHOR → `6e562e2200ac6b3d4862bc223dd957c3a5c1b42c`.
+- RELATION → PR #672 is ahead=136, behind=0, mergeable=true.
+- CURRENT DIFF → 110 files; the two main control docs were preserved at their latest main blobs during the reanchor.
+- FRESH CI → 50 pull_request runs exist for the reanchored SHA; certification/browser/security/data gates are queued or in progress. No terminal PASS claimed.
+- HOSTING → Vercel build-rate remains an external failure; Netlify preview pending.
+- DEVICE → PC01 offline.
+- SECURITY → `fail_report_execution_job` worker-only boundary live on Staging and protected in source/tests.
+- NEXT → repair only the first terminal exact-head failure; keep main control docs untouched until merge to preserve 0-behind relation.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / WORKER RPC TEST CONTRACT RECONCILED
 
 - MAIN EXACT CONTROL HEAD BEFORE THIS WRITE → `42f1e861cf0a68279e446045b16100a94b9a3143`.
