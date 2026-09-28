@@ -46,6 +46,14 @@ export function ReportSurfaceContext({ companyName, period, currency, asOf, stat
   }, [companyName, currency]);
 
   const meta = statusMeta[status];
+  const freshness = (() => {
+    const timestamp = new Date(asOf).getTime();
+    if (!Number.isFinite(timestamp)) return 'غير متاح';
+    const ageDays = Math.max(0, Math.floor((Date.now() - timestamp) / 86400000));
+    if (ageDays === 0) return 'حديثة اليوم';
+    if (ageDays === 1) return 'قبل يوم';
+    return `قبل ${ageDays} يومًا`;
+  })();
   return (
     <section aria-label="سياق التقرير والحقيقة" className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -58,11 +66,12 @@ export function ReportSurfaceContext({ companyName, period, currency, asOf, stat
           فحص الدليل
         </Link>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2 text-[10px] sm:grid-cols-3 xl:grid-cols-5">
+      <div className="mt-3 grid grid-cols-2 gap-2 text-[10px] sm:grid-cols-3 xl:grid-cols-6">
         <div className="rounded-xl bg-ink-50 px-3 py-2"><div className="text-ink-400">الشركة</div><div className="mt-1 truncate font-bold text-ink-800">{resolvedCompanyName || (contextError ? 'غير مثبت' : 'جارٍ التحقق')}</div></div>
         <div className="rounded-xl bg-ink-50 px-3 py-2"><div className="text-ink-400">الفترة</div><div className="mt-1 font-bold text-ink-800">{period}</div></div>
         <div className="rounded-xl bg-ink-50 px-3 py-2"><div className="text-ink-400">العملة</div><div className="mt-1 font-bold text-ink-800">{resolvedCurrency || (contextError ? 'غير مثبتة' : 'جارٍ التحقق')}</div></div>
         <div className="rounded-xl bg-ink-50 px-3 py-2"><div className="text-ink-400">As Of</div><div className="mt-1 font-bold text-ink-800">{asOf}</div></div>
+        <div className="rounded-xl bg-ink-50 px-3 py-2"><div className="text-ink-400">Freshness</div><div className="mt-1 font-bold text-ink-800">{freshness}</div></div>
         <div className={'rounded-xl border px-3 py-2 font-bold ' + meta.className}><div className="opacity-70">حالة الحقيقة</div><div className="mt-1">{meta.label}</div></div>
       </div>
     </section>
