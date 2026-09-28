@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { resolveCurrentCompanyId, supabase } from '@/lib/supabase';
 
-export type ReportTruthStatus = 'CALCULATED' | 'INSUFFICIENT DATA' | 'REVIEW';
+export type ReportTruthStatus = 'VERIFIED' | 'CALCULATED' | 'INSUFFICIENT DATA' | 'REVIEW';
 
 interface ReportSurfaceContextProps {
   companyName?: string;
@@ -14,6 +14,7 @@ interface ReportSurfaceContextProps {
 }
 
 const statusMeta: Record<ReportTruthStatus, { label: string; className: string }> = {
+  VERIFIED: { label: 'VERIFIED · مصدر موثق', className: 'border-success-200 bg-success-50 text-success-800' },
   CALCULATED: { label: 'CALCULATED · محسوب من المصدر', className: 'border-success-200 bg-success-50 text-success-800' },
   'INSUFFICIENT DATA': { label: 'INSUFFICIENT DATA · بيانات غير كافية', className: 'border-warning-200 bg-warning-50 text-warning-900' },
   REVIEW: { label: 'REVIEW · يحتاج مراجعة', className: 'border-warning-200 bg-warning-50 text-warning-900' },
