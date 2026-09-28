@@ -112,6 +112,19 @@ for (const [pattern, message] of demandVelocityContract) {
   }
 }
 
+const decisionExperiencePage = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
+const decisionTruthContract = [
+  [/ReportSurfaceContext/, 'Decision Experience must expose the canonical truth context'],
+  [/decisionTruthStatus/, 'Decision Experience must derive its truth state explicitly'],
+  [/DECISION_SOURCE_EVIDENCE_REQUIRED/, 'Decision Experience must keep source evidence gating'],
+];
+for (const [pattern, message] of decisionTruthContract) {
+  if (!pattern.test(decisionExperiencePage)) {
+    console.error(`FAIL decision experience truth context: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
 const trustEvidencePage = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
 const trustEvidenceContract = [
   [/ReportSurfaceContext/, 'Trust & Evidence must expose the canonical truth context'],
