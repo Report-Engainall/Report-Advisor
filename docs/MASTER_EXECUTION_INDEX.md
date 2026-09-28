@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPOSITORY-WIDE QUERY EXPORT COVERAGE GUARD
+
+- FUNCTIONAL CODE/TEST HEAD → `1544fa6af51d7b21e78b5305c2cf4d51f1cc57da`.
+- MEMORY DESCENDANT → `2cc9f6774720281b2b427d79a3af9b81175d2d00` before this Index write-back.
+- CLOSED → repository-wide query export guard walks `src/`, checks canonical `@/lib/queries` exports including type-only imports, and fails closed on missing symbols.
+- CLOSED → package script registered as `test:query-export-coverage`; final contract test anchors its existence and semantics.
+- PROOF → 5/5 guard assertions PASS; query export count 73; zero missing query imports in critical pages.
+- CI EXACT SHA → Execution Enforcement Contract `36473701629` and Final Certification Gate `36473701544` are queued; no terminal PASS/FAIL claim.
+- BENCHMARK → remains `INSUFFICIENT_SAMPLE`; no peer cohort source exists in current staging model.
+- OPEN → hosted exact-head runtime acceptance, PC01 browser/device proof, Vercel free-plan rate limit, tenant-bound live canary.
+- DO NOT REPEAT → no parallel query implementation, no stale compatibility truth, no type-only import blind spot.
+- NEXT EXACT ACTION → inspect next concrete non-device certification/cleanup gap while preserving current fail-closed business truth.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPLAY EVIDENCE FAIL-CLOSED HARDENING
 
 - FUNCTIONAL CODE/TEST HEAD → `7cb9bc346b7dfd790922a3b9b6d5030665c9a96e`.
