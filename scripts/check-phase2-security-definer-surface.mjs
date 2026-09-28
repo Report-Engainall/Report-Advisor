@@ -23,6 +23,16 @@ const hasServiceRoleOnlyGrant = (sql, fn) => {
   return revoke.test(sql) && grant.test(sql);
 };
 
+const hasLaterServiceRoleOnlyGrant = (file, fn) => {
+  const fileIndex = migrationFiles.indexOf(file);
+  if (fileIndex < 0) return false;
+  for (const laterFile of migrationFiles.slice(fileIndex + 1)) {
+    const laterSql = stripSqlComments(readFileSync(laterFile, 'utf8'));
+    if (hasServiceRoleOnlyGrant(laterSql, fn)) return true;
+  }
+  return false;
+};
+
 const failures = [];
 for (const file of migrationFiles) {
   const sql = stripSqlComments(readFileSync(file, 'utf8'));
@@ -42,7 +52,7 @@ for (const file of migrationFiles) {
 
     if (/current_company_id\s*\(\)|auth\.uid\s*\(\)/i.test(block)) continue;
 
-    if (!hasServiceRoleOnlyGrant(sql, fn)) {
+    if (!hasServiceRoleOnlyGrant(sql, fn) && !hasLaterServiceRoleOnlyGrant(file, fn)) {
       failures.push(`${file}: ${fn} missing authenticated tenant/user binding or explicit service_role-only boundary`);
     }
   }
