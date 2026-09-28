@@ -7,7 +7,7 @@ import { formatCurrency, formatNumber } from '@/lib/format';
 import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
 import { isActionableRecommendationStatus } from '@/lib/decision-status';
-import { fetchImportEvidenceSnapshot, fetchImportRecords, fetchRecommendationsBoundToImport, type ImportEvidenceSnapshot } from '@/lib/queries';
+import { fetchImportEvidenceSnapshot, fetchImportRecords, fetchRecommendationsBoundToImport, fetchReportExecutionJob, getBoundRenderedReportManifest, type ImportEvidenceSnapshot, type RenderedReportManifest } from '@/lib/queries';
 
 function Metric({ label, value, hint }: { label: string; value: string; hint: string }) {
   return <div className="rounded-2xl border border-ink-100 bg-ink-50/70 p-4">
@@ -61,6 +61,7 @@ export function ExecutiveReportPage() {
   const [asOf, setAsOf] = useState<string>('غير متاح');
   const [data, setData] = useState<{ alerts: Alert[]; recommendations: Recommendation[] } | null>(null);
   const [importContext, setImportContext] = useState<{ record: ImportRecord | null; snapshot: ImportEvidenceSnapshot | null } | null>(null);
+  const [renderedManifest, setRenderedManifest] = useState<RenderedReportManifest | null>(null);
   const [importRecommendations, setImportRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -86,8 +87,16 @@ export function ExecutiveReportPage() {
         } catch {
           setImportRecommendations([]);
         }
+        try {
+          const jobId = typeof evidenceSnapshot.metadata?.jobId === 'string' ? evidenceSnapshot.metadata.jobId : null;
+          const job = jobId ? await fetchReportExecutionJob(jobId) : null;
+          setRenderedManifest(getBoundRenderedReportManifest(job, importId, evidenceSnapshot.source_hash));
+        } catch {
+          setRenderedManifest(null);
+        }
       } else {
         setImportRecommendations([]);
+        setRenderedManifest(null);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'تعذر تحميل التقرير التنفيذي.');
@@ -141,6 +150,31 @@ export function ExecutiveReportPage() {
       </section>
 
       <ReportSurfaceContext period="آخر 6 أشهر" asOf={asOf} status={kpis?.status === 'CONFIRMED' ? 'VERIFIED' : kpis?.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA'} sourceLabel="التقرير التنفيذي مبني على اللقطة الكانونية للشركة الحالية؛ مؤشرات الشركة لا تُنسب إلى الملف المستورد إلا عند إثبات الربط المصدرّي." />
+      {importId && <section className="rounded-2xl border border-success-200 bg-success-50/35 p-4 shadow-sm" aria-label="مخرجات التقرير المثبتة للمصدر">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="text-[9px] font-black tracking-[.14em] text-success-700">RENDERED REPORT OUTPUTS</div>
+            <h2 className="mt-1 text-base font-black text-ink-950">مخرجات التقرير المثبتة لهذا المصدر</h2>
+            <p className="mt-1 text-[10px] leading-5 text-ink-600">هذه المخرجات لا تُعتبر مربوطة بالمصدر إلا عند تطابق Job evidence مع Import ID وبصمة المصدر. مؤشرات التقرير التنفيذي نفسها تبقى من الحقيقة الكانونية للشركة.</p>
+          </div>
+          <span className={renderedManifest ? 'badge-success' : 'badge-warning'}>{renderedManifest ? 'SOURCE-BOUND / RENDERED' : 'REVIEW / NOT PROVEN'}</span>
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[8px] text-ink-400">الكيان</div><div className="mt-1 text-[10px] font-black text-ink-900">{renderedManifest?.entityType ?? 'غير مثبت'}</div></div>
+          <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[8px] text-ink-400">التخصص</div><div className="mt-1 text-[10px] font-black text-ink-900">{renderedManifest?.sourceSpecialty ?? 'غير مثبت'}</div></div>
+          <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[8px] text-ink-400">الصفوف</div><div className="mt-1 text-[10px] font-black text-ink-900">{renderedManifest ? formatNumber(renderedManifest.rowCount) : 'غير مثبت'}</div></div>
+          <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[8px] text-ink-400">المخرجات</div><div className="mt-1 text-[10px] font-black text-ink-900">{renderedManifest ? formatNumber(renderedManifest.outputs.length) : 'غير مثبت'}</div></div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {renderedManifest
+            ? renderedManifest.outputs.map((output) => {
+                const href = output.path === '/reports/executive' ? output.path + '?import=' + encodeURIComponent(importId) : output.path;
+                return <Link key={output.key} to={href} className="inline-flex min-h-10 items-center rounded-xl border border-success-200 bg-white px-3 text-[9px] font-black text-success-800 hover:border-success-400">{output.label} ←</Link>;
+              })
+            : <span className="rounded-xl border border-warning-200 bg-warning-50 px-3 py-2 text-[9px] font-bold text-warning-900">لم يثبت Job مخرجًا مربوطًا بهذا المصدر بعد.</span>}
+        </div>
+      </section>}
+
       {importId && <section className="rounded-2xl border border-primary-200 bg-primary-50/45 p-4 shadow-sm" aria-label="سياق المصدر المستورد">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
