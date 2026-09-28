@@ -10,7 +10,6 @@ const intendedAuthenticatedSecurityDefiners = [
   'autonomy_runtime_gate',
   'can_enter_phase_l_autonomy',
   'can_run_phase_l_autonomy',
-  'capture_kpi_evidence_snapshot',
   'clear_cart',
   'complete_decision_work_item',
   'compute_control_plane_health',
