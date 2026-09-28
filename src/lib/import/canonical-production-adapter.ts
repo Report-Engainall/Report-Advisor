@@ -4,6 +4,7 @@ import { SupabaseReportExecutionStore } from '../report-execution/durable-worker
 import { runDurableProductionLifecycle } from '../report-execution/durable-production-runner';
 import type { CanonicalImportEntityType, ReconciledCanonicalImportRow } from './canonical-truth-boundary';
 import { commitImportBatch } from './canonical-commit';
+import { resolveCanonicalReportOutputs } from './canonical-report-outputs';
 
 export interface DurableCanonicalImportInput {
   importId: string;
@@ -77,19 +78,7 @@ function assertUniqueBusinessKeys(entityType: DurableCanonicalImportInput['entit
 }
 
 function buildRenderedReportOutput(input: DurableCanonicalImportInput): Record<string, unknown> {
-  const routesByEntity: Record<string, Array<{ key: string; path: string; label: string }>> = {
-    sales_invoices: [{ key: 'sales', path: '/reports/sales', label: 'تقرير المبيعات' }],
-    purchase_invoices: [{ key: 'purchases', path: '/reports/purchases', label: 'تقرير المشتريات' }],
-    inventory_balances: [
-      { key: 'inventory', path: '/reports/inventory', label: 'تقرير المخزون' },
-      { key: 'inventory-intelligence', path: '/reports/inventory-intelligence', label: 'ذكاء المخزون' },
-    ],
-    products: [{ key: 'analytics', path: '/analytics', label: 'التحليلات المتخصصة' }],
-    customers: [{ key: 'analytics', path: '/analytics', label: 'التحليلات المتخصصة' }],
-    suppliers: [{ key: 'analytics', path: '/analytics', label: 'التحليلات المتخصصة' }],
-    payments: [{ key: 'analytics', path: '/analytics', label: 'التحليلات المتخصصة' }],
-  };
-  const outputs = routesByEntity[input.entityType] ?? [{ key: 'executive', path: '/reports/executive', label: 'التقرير التنفيذي' }];
+  const outputs = resolveCanonicalReportOutputs(input.sourceSpecialty, input.entityType);
   return {
     contractVersion: '2026-09-28',
     renderedAt: new Date().toISOString(),
@@ -110,7 +99,6 @@ function buildRenderedReportOutput(input: DurableCanonicalImportInput): Record<s
     })),
   };
 }
-
 function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: string): void {
   if (!/^sha256:[0-9a-fA-F]{64}$/.test(sourceHash)) throw new Error('IMPORT_SOURCE_HASH_INVALID');
   for (const row of rows) {
