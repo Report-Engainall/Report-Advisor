@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / ESM FILE-ENGINE CONTRACT REPAIR
+
+- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
+- CURRENT CODE/TEST CANDIDATE → 7c2bb2771f3d94639522a2220f2f24165a5a9dcd.
+- ROOT CAUSE CLOSED → exact-SHA PDF regression imported the canonical PDF adapter under the ESM runner and exposed extensionless local module imports that Node could not resolve.
+- IMPLEMENTATION → all local file-engine imports in 7c2bb2771f3d94639522a2220f2f24165a5a9dcd now use explicit .ts extensions; previous PDF Dataset[] contract and multi-page fallback regression remain in the same candidate lineage.
+- EXACT RESULTS FROM PREVIOUS CANDIDATE 24982d5… → data-quality-runtime PASS; Device-Independent Browser E2E PASS; desktop-windows PASS. These results remain SHA-bound and are not transferred as evidence for 7c2bb27….
+- FIRST CURRENT FAILURE CONSUMED → PDF structured parser regression / production-regression-evidence failed before parser assertions with ERR_MODULE_NOT_FOUND on src/lib/file-engine/normalizer; fixed in the current candidate.
+- CERTIFICATION SEQUENCING → certification failure on 24982d5… was due the intentionally two-phase candidate marker still pointing to b37 on that code commit. The current candidate is re-anchored after governance persistence; final-cert push is expected to certify the governance descendant against 7c2bb27… without stale evidence.
+- NEXT → consume terminal current-candidate PDF/import/quality/certification results; repair only reproduced failures. Browser and data-quality successes are already independently observed on the prior code candidate.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / HOSTED IMPORT RUNTIME READBACK
 
 - MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
