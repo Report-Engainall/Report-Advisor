@@ -19,7 +19,9 @@ const required = [
   'جاهزة للقرار',
   'قيد التنفيذ',
 
-  'actionableRecommendations',
+    'actionableRecommendations',
+  "SourceBoundReportContext",
+
   "const activeDecisionCount = actionableRecommendations.length",
 
 ];
@@ -33,4 +35,10 @@ if (source.includes('Math.random()') || source.includes('fake') || source.includ
   console.error('Executive report product contract: FAIL — synthetic data marker detected');
   process.exit(1);
 }
+
+if (source.includes('renderedManifest') || source.includes('getBoundRenderedReportManifest')) {
+  console.error('Executive report product contract: FAIL — duplicate rendered-manifest UI logic detected');
+  process.exit(1);
+}
+
 console.log('Executive report product contract: PASS');
