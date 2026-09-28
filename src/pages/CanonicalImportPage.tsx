@@ -107,6 +107,7 @@ export function CanonicalImportPage() {
   const [history, setHistory] = useState<any[]>([]);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedFileRef = useRef<File | null>(null);
 
@@ -313,7 +314,7 @@ export function CanonicalImportPage() {
     understandingReason, loadHistory,
   ]);
 
-  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); if (inputRef.current) inputRef.current.value = ''; };
+  const reset = () => { setIsDragging(false); selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); if (inputRef.current) inputRef.current.value = ''; };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
@@ -339,7 +340,39 @@ export function CanonicalImportPage() {
           </div>
         </div>
       </div>
-      <div onClick={() => inputRef.current?.click()} className="ag-import-dropzone border-2 border-dashed rounded-[18px] p-10 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/20 transition-colors"><input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} /><Upload className="mx-auto text-primary-500 mb-3" size={30}/><h3 className="font-semibold">اختر ملفًا أو اسحبه إلى هنا</h3><p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p><p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB</p></div>
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label="اختيار أو سحب ملف للاستيراد"
+        onClick={() => inputRef.current?.click()}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inputRef.current?.click(); } }}
+        onDragOver={e => { e.preventDefault(); if (e.dataTransfer.types.includes('Files')) setIsDragging(true); }}
+        onDragLeave={e => { e.preventDefault(); if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setIsDragging(false); }}
+        onDrop={e => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragging(false);
+          const droppedFiles = Array.from(e.dataTransfer.files ?? []);
+          if (droppedFiles.length === 0) {
+            setError('لم يصل ملف قابل للقراءة من عملية السحب. أعد السحب أو اختر ملفًا من الجهاز.');
+            setStep('upload');
+            return;
+          }
+          if (droppedFiles.length > 1) {
+            setError('يمكن اعتماد ملف واحد فقط في كل عملية. أعد السحب بملف واحد.');
+            setStep('upload');
+            return;
+          }
+          void handleFile(droppedFiles[0]);
+        }}
+        className={`ag-import-dropzone border-2 border-dashed rounded-[18px] p-10 text-center cursor-pointer transition-colors ${isDragging ? 'border-primary-500 bg-primary-50/60 ring-2 ring-primary-200' : 'hover:border-primary-400 hover:bg-primary-50/20'}`}
+      >
+        <input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} />
+        <Upload className="mx-auto text-primary-500 mb-3" size={30}/>
+        <h3 className="font-semibold">{isDragging ? 'أفلت الملف هنا لبدء الفحص' : 'اختر ملفًا أو اسحبه إلى هنا'}</h3>
+        <p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p>
+        <p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB</p>
+      </div>
       {error && <div className="mt-4 p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
     </CardBody></Card>}
 
