@@ -141,6 +141,19 @@ for (const [pattern, message] of intelligenceTruthContract) {
   }
 }
 
+const executiveCommandCenterPage = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
+const commandCenterTruthContract = [
+  [/ReportSurfaceContext/, 'Command Center must expose the canonical truth context'],
+  [/kpis\.status === 'CONFIRMED' \? 'VERIFIED'/, 'Command Center must preserve VERIFIED state'],
+  [/commandNextAction/, 'Command Center must retain a truth-derived next action'],
+];
+for (const [pattern, message] of commandCenterTruthContract) {
+  if (!pattern.test(executiveCommandCenterPage)) {
+    console.error(`FAIL command center truth context: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
 const scenarioTruthGuardPage = fs.readFileSync('src/pages/ScenarioTruthGuardPage.tsx', 'utf8');
 const scenarioTruthContract = [
   [/ReportSurfaceContext/, 'Scenario Truth Guard must expose the canonical truth context'],
