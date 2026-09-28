@@ -56,6 +56,7 @@ function TrendStrip({ trend }: { trend: MonthlyTrend[] }) {
 export function ExecutiveReportPage() {
   const [searchParams] = useSearchParams();
   const importId = searchParams.get('import')?.trim() || null;
+  const withImportContext = (path: string) => importId ? path + (path.includes('?') ? '&' : '?') + 'import=' + encodeURIComponent(importId) : path;
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
   const [trend, setTrend] = useState<MonthlyTrend[]>([]);
   const [asOf, setAsOf] = useState<string>('غير متاح');
@@ -168,7 +169,7 @@ export function ExecutiveReportPage() {
         <div className="mt-3 flex flex-wrap gap-2">
           {renderedManifest
             ? renderedManifest.outputs.map((output) => {
-                const href = output.path === '/reports/executive' ? output.path + '?import=' + encodeURIComponent(importId) : output.path;
+                const href = withImportContext(output.path);
                 return <Link key={output.key} to={href} className="inline-flex min-h-10 items-center rounded-xl border border-success-200 bg-white px-3 text-[9px] font-black text-success-800 hover:border-success-400">{output.label} ←</Link>;
               })
             : <span className="rounded-xl border border-warning-200 bg-warning-50 px-3 py-2 text-[9px] font-bold text-warning-900">لم يثبت Job مخرجًا مربوطًا بهذا المصدر بعد.</span>}
@@ -200,7 +201,7 @@ export function ExecutiveReportPage() {
       <section className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm" aria-label="الخطوة التالية في التقرير التنفيذي">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div><div className="text-[10px] font-black uppercase tracking-[0.14em] text-primary-700">NEXT ACTION</div><p className="mt-1 text-sm font-black text-ink-900">{nextAction.label}</p><p className="mt-1 text-[11px] text-ink-500">{nextAction.reason}</p></div>
-          <Link to={nextAction.to} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-ink-950 px-4 text-xs font-bold text-white hover:bg-ink-800">متابعة الإجراء <ArrowLeft size={13} className="mr-1" /></Link>
+          <Link to={withImportContext(nextAction.to)} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-ink-950 px-4 text-xs font-bold text-white hover:bg-ink-800">متابعة الإجراء <ArrowLeft size={13} className="mr-1" /></Link>
         </div>
       </section>
 
@@ -263,7 +264,7 @@ export function ExecutiveReportPage() {
       <section className="grid gap-5 lg:grid-cols-2">
         <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-danger-600">الانتباه</p><h2 className="mt-1 text-lg font-black">أهم التنبيهات</h2></div><span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700">{formatNumber(data?.alerts.length ?? 0)}</span></div>
-          <div className="mt-4 space-y-3">{(data?.alerts ?? []).slice(0, 6).map((alert) => <article key={alert.id} className="rounded-xl border border-ink-100 p-4"><p className="font-bold text-ink-900">{alert.title}</p><Link to="/decision-experience?stage=decision" className="mt-2 inline-flex min-h-11 items-center gap-1 text-xs font-bold text-primary-700">فتح سياق القرار <ArrowLeft size={13} /></Link></article>)}{!(data?.alerts?.length) && <EmptyState title="لا توجد تنبيهات مصدرية حاليًا." message="لا يتم تصنيع تنبيه عند غياب الإشارة المثبتة." action={<Link to="/trust" className="btn-secondary min-h-11">فحص الدليل</Link>} />}</div>
+          <div className="mt-4 space-y-3">{(data?.alerts ?? []).slice(0, 6).map((alert) => <article key={alert.id} className="rounded-xl border border-ink-100 p-4"><p className="font-bold text-ink-900">{alert.title}</p><Link to={withImportContext("/decision-experience?stage=decision")} className="mt-2 inline-flex min-h-11 items-center gap-1 text-xs font-bold text-primary-700">فتح سياق القرار <ArrowLeft size={13} /></Link></article>)}{!(data?.alerts?.length) && <EmptyState title="لا توجد تنبيهات مصدرية حاليًا." message="لا يتم تصنيع تنبيه عند غياب الإشارة المثبتة." action={<Link to={withImportContext("/trust")} className="btn-secondary min-h-11">فحص الدليل</Link>} />}</div>
         </div>
         <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-primary-600">الإجراء</p><h2 className="mt-1 text-lg font-black">{importId ? 'التوصيات المرتبطة بالمصدر' : 'التوصيات النشطة'}</h2><p className="mt-1 text-[10px] text-ink-500">{importId ? 'لا تُنسب التوصية إلى الملف إلا عبر Job / Snapshot / Source Hash مثبت.' : 'توصيات الشركة ضمن القراءة الحالية.'}</p></div><span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-bold text-primary-700">{formatNumber(recommendations.length)}</span></div>
