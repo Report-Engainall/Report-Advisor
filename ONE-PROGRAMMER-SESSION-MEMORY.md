@@ -1426,3 +1426,13 @@
 - PROOF → exact GitHub-content regression harness PASS for completed-job gating, rendered-output links, and all truth statuses.
 - DO NOT REPEAT → never treat Manifest presence alone as completed/rendered proof; do not add page-local truth-state styling outside the shared ReportSurfaceContext.
 - NEXT EXACT ACTION → rescan report surfaces for remaining source-bound/As-of/freshness gaps, then consume any exact-head hosted build evidence when available.
+
+# RESUME TOKEN — 2026-09-28 / REPORT SURFACE CONSOLIDATION RESCAN
+
+- FUNCTIONAL CHECKPOINT → `af6345f5ee64f82e5155bcae080f993930bb4b34`.
+- CLOSED → Reports Center no longer owns duplicate source-bound state, evidence lookup, or rendered-manifest resolution; it reuses `SourceBoundReportContext`.
+- CLOSED → Executive Report no longer owns duplicate rendered-manifest state or source-bound output rendering; it reuses the same canonical context while retaining source-bound recommendation reads.
+- CLOSED → Shared SourceBoundReportContext now renders the actual source-bound outputs as links with Import context.
+- PROOF → exact GitHub-content regression harness PASS for Reports Center reuse, Executive Report reuse, duplicate-state removal, output-link rendering and completed-job manifest gating.
+- DO NOT REPEAT → do not reintroduce report-page-local source-bound context or rendered-manifest resolution; extend the shared component/queries instead.
+- RESUME POINT → continue rescan into remaining report subpages/canonical report surfaces for duplicated truth/context logic, then persist the next completed front.
