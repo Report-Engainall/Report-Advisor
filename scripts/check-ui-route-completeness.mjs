@@ -112,6 +112,19 @@ for (const [pattern, message] of demandVelocityContract) {
   }
 }
 
+const workCenterPage = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
+const workCenterTruthContract = [
+  [/ReportSurfaceContext/, 'Work Center must expose the canonical truth context'],
+  [/workTruthStatus/, 'Work Center must derive an explicit truth state'],
+  [/expiredActive/, 'Work Center truth state must remain tied to operational lease health'],
+];
+for (const [pattern, message] of workCenterTruthContract) {
+  if (!pattern.test(workCenterPage)) {
+    console.error(`FAIL work center truth context: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
 const decisionExperiencePage = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
 const decisionTruthContract = [
   [/ReportSurfaceContext/, 'Decision Experience must expose the canonical truth context'],
