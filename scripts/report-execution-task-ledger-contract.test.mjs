@@ -13,6 +13,8 @@ const reportsUi = readFileSync('src/pages/ReportsPage.tsx', 'utf8');
 const executiveUi = readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
 const sourceBoundContextUi = readFileSync('src/components/SourceBoundReportContext.tsx', 'utf8');
 const inventoryIntelligenceUi = readFileSync('src/pages/InventoryIntelligencePage.tsx', 'utf8');
+const decisionUi = readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
+const workUi = readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
 const analyticsUi = readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
 const productionAdapter = readFileSync('src/lib/import/canonical-production-adapter.ts', 'utf8');
 for (const token of ['create table if not exists public.report_execution_tasks','report_execution_tasks_tenant_select','start_report_execution_task','complete_report_execution_task','fail_report_execution_task','Execution task ordering violation','grant execute on function public.start_report_execution_task','stage = ANY (ARRAY[\'queued\'::text,\'fingerprinted\'::text,\'extracted\'::text,\'canonicalized\'::text,\'validated\'::text,\'analyzed\'::text,\'decisioned\'::text,\'committed\'::text,\'rendered\'::text])']) assert.ok(migration.includes(token), `missing task-ledger invariant: ${token}`);
@@ -26,6 +28,8 @@ for (const token of ['LIVE EXECUTION REPORT','تفكيك التنفيذ الفع
 for (const token of ['SOURCE → REPORT HANDOFF','مخرجات التقرير مرتبطة بمصدر مستورد مثبت','getBoundRenderedReportManifest','source_hash','NOT PROVEN / UNBOUND','SourceBoundReportContext','withImportContext','nextParams.set(\'builder\', \'1\')','export function ReportsCenterPage','export function SalesReportPage']) assert.ok(reportsUi.includes(token), `missing report-center source/provenance navigation invariant: ${token}`);
 for (const token of ['RENDERED REPORT OUTPUTS','مخرجات التقرير المثبتة لهذا المصدر','getBoundRenderedReportManifest','SOURCE-BOUND / RENDERED','REVIEW / NOT PROVEN','const withImportContext = (path: string)','const href = withImportContext(output.path);','to={withImportContext(nextAction.to)}']) assert.ok(executiveUi.includes(token), `missing executive provenance navigation invariant: ${token}`);
 for (const token of ['SOURCE-BOUND REPORT CONTEXT','fetchImportEvidenceSnapshot','fetchReportExecutionJob','getBoundRenderedReportManifest','REVIEW / NOT PROVEN']) assert.ok(sourceBoundContextUi.includes(token), `missing shared source-bound report context invariant: ${token}`);
+for (const token of ['const withImportContext = (path: string)','const activeAlerts = useMemo(() => importJobId ? [] :','لا توجد إشارات مصدرية مربوطة بهذه العملية','DECISION_SOURCE_EVIDENCE_REQUIRED']) assert.ok(decisionUi.includes(token), `missing decision fail-closed source context invariant: ${token}`);
+for (const token of ['const scopedDecisionWorkItems = useMemo(() => focusedImportId','item.evidence_refs.some((ref) => ref.import_job_id === focusedImportId)','withImportContext("/decision-experience?stage=work&recommendationId=']) assert.ok(workUi.includes(token), `missing work-center import scoping invariant: ${token}`);
 for (const token of ['SourceBoundReportContext']) assert.ok(analyticsUi.includes(token), `missing analytics source context: ${token}`);
 for (const token of ['SourceBoundReportContext']) assert.ok(inventoryIntelligenceUi.includes(token), `missing inventory intelligence source context: ${token}`);
 console.log('Report execution task ledger contract: PASS');
