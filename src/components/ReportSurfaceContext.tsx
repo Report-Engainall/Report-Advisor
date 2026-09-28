@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { resolveCurrentCompanyId, supabase } from '@/lib/supabase';
 
-export type ReportTruthStatus = 'VERIFIED' | 'CALCULATED' | 'INSUFFICIENT DATA' | 'REVIEW';
+export type ReportTruthStatus = 'VERIFIED' | 'TRUSTED' | 'PARTIAL' | 'REVIEW' | 'BLOCKED' | 'INSUFFICIENT DATA' | 'CALCULATED';
 
 interface ReportSurfaceContextProps {
   companyName?: string;
