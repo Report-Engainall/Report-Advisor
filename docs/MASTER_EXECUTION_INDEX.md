@@ -1,3 +1,22 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / REPORT-FIRST + EXACT-HEAD CHECKPOINT
+
+- CONTROL HEAD AFTER MEMORY CHECKPOINT: `80fd8c4008ec24c6f248dfa31b20f2fd155f6955`.
+- FUNCTIONAL CODE SHA: `5e1133153fbbb7d5f3284bfa6d7085ce7ce9e2d5`.
+- BRANCH: `exec/20260929-post-import-report-continuity`.
+- REPORT-FIRST GATE: blocked before any report job because the canonical corpus contains only `README.md`; supported ACTUAL=0; declared=9; minimum=20.
+- FRESH DEVICE PROOF: `npm run test:report-corpus-gate` returned `DECLARED=9 ACTUAL=1 MINIMUM=20` with all nine declared report files missing.
+- FINAL CERTIFICATION EXACT-HEAD: run `36498034370` failed at the corpus gate; no report-level PASS is valid.
+- PHASE-F EXACT-HEAD: run `36498034541` failed 3 of 4 live probes — stale deployment SHA, logical restore schema-lineage failure on `public.customer_credit_accounts`, and rollback deployment lookup 404; tenant canary passed.
+- LIVE STAGING: `fnqbvfuwbdpwvhcgzksl` contains the live-only `customer_credit_accounts` table with 2 rows across 2 companies; no corresponding current-repository migration/reference exists.
+- VERCEL: recent READY deployments exist for later SHAs, but the current functional SHA has no returned READY deployment in the inspected recent set; exact-head runtime proof is therefore NOT PROVEN.
+- CANONICAL REPORT STATE: no report is CLOSED; no report job exists; no fixture importer or duplicate report ledger was created.
+- REAL BLOCKERS: missing report corpus input; exact-current deploy target absent/stale; live schema/migration lineage drift affecting logical restore.
+- DO-NOT-REPEAT: do not fabricate fixtures, weaken corpus/Phase-F gates, transfer stale SHA proof, or add duplicate import/report ledger paths.
+- RESUME POINT: corpus gate first; after real files arrive, register deterministically and execute REPORT_001 through the existing canonical import path.
+- NEXT EXACT ACTION: restore the actual declared report files into `tests/fixtures/realistic-reports/` and rerun `npm run test:report-corpus-gate`.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / POST-IMPORT REPORT ROUTE COMPLETENESS CLOSED
 - CURRENT_CODE_TEST_CANDIDATE: `72f72aaf4b2d2702e7a80a0b723fb6ebb33ff750`.
 
