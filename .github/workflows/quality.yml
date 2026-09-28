@@ -121,6 +121,8 @@ jobs:
         run: node scripts/check-work-item-assignment-integrity.mjs && node scripts/check-work-item-assignment-integrity-regression.mjs
       - name: A0 intelligence hardening
         run: node scripts/check-intelligence-hardening.mjs && node scripts/check-golden-intelligence-gates.mjs
+      - name: Product WOW UI contract
+        run: npm run test:product-wow-ui
       - name: Typecheck
         run: npm run typecheck
       - name: Behavioral regressions
