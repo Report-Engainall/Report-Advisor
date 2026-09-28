@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Download, FileBarChart, Package, Printer, Receipt, ShoppingCart, SlidersHorizontal, TrendingUp } from 'lucide-react';
+import { Download, FileBarChart, Package, Printer, Receipt, ShoppingCart, SlidersHorizontal, TrendingUp, ShieldCheck, GitBranch, Target } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/States';
@@ -34,11 +34,14 @@ function ReportTruthBar({ status, asOf, period, note }: { status: string; asOf?:
 }
 
 const reportCards = [
-  { path:'/reports/sales', title:'المبيعات', stage:'قياس', desc:'حركة المبيعات والفواتير والعملاء والمنتجات.', icon:ShoppingCart, iconClass:'bg-primary-50 text-primary-600' },
-  { path:'/reports/purchases', title:'المشتريات', stage:'مصدر', desc:'المشتريات والموردون والتدفقات الداخلة.', icon:FileBarChart, iconClass:'bg-accent-50 text-accent-600' },
-  { path:'/reports/inventory', title:'المخزون', stage:'دليل', desc:'الكمية والتكلفة والقيمة والحالات غير المكتملة.', icon:Package, iconClass:'bg-success-50 text-success-600' },
-  { path:'/reports/receivables', title:'الذمم والتحصيل', stage:'قرار', desc:'الذمم وأعمار الاستحقاق ومتابعة التحصيل.', icon:Receipt, iconClass:'bg-warning-50 text-warning-600' },
-  { path:'/reports/profitability', title:'الربحية', stage:'قرار', desc:'هوامش الربحية حسب المنتج والعميل والفئة.', icon:TrendingUp, iconClass:'bg-primary-50 text-primary-600' },
+  { path:'/reports/executive', title:'التقرير التنفيذي', stage:'Decision Output', desc:'الحالة التجارية الحالية، حدود الدليل، القرارات، الإجراء التالي ومسار النتيجة.', icon:Target, iconClass:'bg-ink-950 text-white' },
+  { path:'/reports/sales', title:'المبيعات', stage:'Domain Output', desc:'حركة المبيعات والفواتير والعملاء والمنتجات من اللقطة الكانونية.', icon:ShoppingCart, iconClass:'bg-primary-50 text-primary-600' },
+  { path:'/reports/purchases', title:'المشتريات', stage:'Domain Output', desc:'المشتريات والموردون والمتوسطات والتدفقات الداخلة مع سياق As Of.', icon:FileBarChart, iconClass:'bg-accent-50 text-accent-600' },
+  { path:'/reports/inventory', title:'المخزون', stage:'Domain Output', desc:'الكمية والتكلفة والقيمة ونقص البيانات وحالات المخزون.', icon:Package, iconClass:'bg-success-50 text-success-600' },
+  { path:'/reports/inventory-intelligence', title:'ذكاء المخزون', stage:'Intelligence Output', desc:'قراءة المخاطر والحركة والأولوية التشغيلية عبر المسار التجاري الحالي.', icon:ShieldCheck, iconClass:'bg-success-50 text-success-600' },
+  { path:'/reports/demand-velocity', title:'سرعة الطلب', stage:'Analytical Output', desc:'حركة الطلب والسرعة والاتجاهات عندما تمر بوابات الحقيقة المناسبة.', icon:GitBranch, iconClass:'bg-primary-50 text-primary-600' },
+  { path:'/reports/receivables', title:'الذمم والتحصيل', stage:'Decision Output', desc:'الذمم وأعمار الاستحقاق ومتابعة التحصيل دون ادعاء قابلية الاسترداد تلقائيًا.', icon:Receipt, iconClass:'bg-warning-50 text-warning-600' },
+  { path:'/reports/profitability', title:'الربحية', stage:'Decision Output', desc:'الربحية حسب الفئة مع حجب النتيجة عند غياب تكلفة مثبتة أو اتساق عملة.', icon:TrendingUp, iconClass:'bg-primary-50 text-primary-600' },
 ];
 
 
@@ -249,6 +252,26 @@ export function ReportsCenterPage() {
         </Card>
       </Link>)}
     </div>
+
+    <section className="rounded-[20px] border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated" aria-label="سلسلة مخرجات القرار في التقارير">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-200">DECISION OUTPUT CHAIN</div>
+          <h2 className="mt-1 text-xl font-black">التقرير من الحقيقة إلى النتيجة، وليس مجرد جدول أرقام</h2>
+          <p className="mt-2 max-w-4xl text-[10px] leading-5 text-ink-300">كل مرحلة تعود إلى مساحة canonical مختلفة. عند نقص الدليل أو العينة تبقى الحالة معلنة بدل تحويلها إلى نجاح.</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
+          {[
+            { label:'Evidence', path:'/trust' },
+            { label:'Signals', path:'/intelligence' },
+            { label:'Decision', path:'/decision-experience' },
+            { label:'Work', path:'/work-center' },
+            { label:'Outcome / Learning', path:'/replay' },
+            { label:'Benchmark', path:'/benchmark' },
+          ].map((stage) => <Link key={stage.label} to={stage.path} className="rounded-xl border border-white/10 bg-white/5 p-3 text-center text-[9px] font-black text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400">{stage.label}<span className="mt-1 block text-[8px] font-normal text-ink-300">فتح السياق ←</span></Link>)}
+        </div>
+      </div>
+    </section>
 
     <section className="grid gap-4 lg:grid-cols-3">
       <Link to="/reports/executive" className="card card-hover p-4">
