@@ -1,6 +1,8 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import crypto from 'node:crypto';
+import path from 'node:path';
 
 const baseURL = (process.env.E2E_BASE_URL || 'http://127.0.0.1:4173').replace(/\/$/, '');
 const supabaseURL = (process.env.REPORT_ADVISOR_SUPABASE_URL || '').replace(/\/$/, '');
@@ -11,6 +13,14 @@ const emailB = process.env.TEST_USER_B_EMAIL?.trim();
 const passwordB = process.env.TEST_USER_B_PASSWORD;
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e-business';
+let realReportPath = process.env.REPORT_CORPUS_FILE?.trim() || '';
+const reportCorpusRoot = process.env.REPORT_CORPUS_ROOT?.trim() || '';
+if (!realReportPath && reportCorpusRoot) {
+  const entries = await fs.readdir(reportCorpusRoot, { withFileTypes: true });
+  const candidates = entries.filter(entry => entry.isFile() && entry.name !== 'README.md' && /\.(pdf|xlsx|xls|xlsm|csv|tsv|ods|docx|doc|json|jsonl|xml|txt|md)$/i.test(entry.name)).map(entry => entry.name).sort();
+  if (!candidates.length) throw new Error('REPORT_CORPUS_EMPTY');
+  realReportPath = path.resolve(reportCorpusRoot, candidates[0]);
+}
 for (const [name, value] of Object.entries({ supabaseURL, anonKey, emailA, passwordA, emailB, passwordB })) if (!value) throw new Error(`BUSINESS_E2E_ENV_MISSING:${name}`);
 await fs.mkdir(reportDir, { recursive: true });
 const evidence = { exactHead, baseURL, browser: 'Chromium', startedAt: new Date().toISOString(), status: 'NOT_PROVEN', tenantA: null, tenantB: null, persisted: {}, steps: [], failures: [] };
@@ -211,53 +221,129 @@ async function importOne(page, label, fields, marker) {
   return { job, canonical: canonicalRows[0] };
 }
 
+async function importRealReportOne(page) {
+  const filePath = path.resolve(realReportPath);
+  const fileName = path.basename(filePath);
+  const rawBytes = await fs.readFile(filePath);
+  const sourceHash = crypto.createHash('sha256').update(rawBytes).digest('hex');
+  evidence.steps.push({ step: 'real-report-selected', status: 'PASS', fileName, sourceHash, bytes: rawBytes.length });
+
+  await openImportSource(page);
+  await page.locator('input[type=file]').first().setInputFiles(filePath);
+  await page.getByText('المراجعة', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  const qualityApproval = page.getByRole('checkbox', { name: /موافقة جودة صريحة/ });
+  if (await qualityApproval.count() === 1 && await qualityApproval.isVisible()) {
+    await qualityApproval.check();
+    evidence.steps.push({ step: 'real-report-quality-approval', status: 'PASS' });
+  }
+
+  const commit = page.getByRole('button', { name: /تأكيد الاستيراد/ });
+  assert.equal(await commit.isEnabled(), true, 'real report import must be enabled after review');
+  const executionResponsePromise = page.waitForResponse(response => response.request().method() === 'POST' && (response.url().includes('/api/canonical-import-execute') || response.url().includes('/.netlify/functions/canonical-import-execute')), { timeout: 30000 });
+  await commit.click();
+  const executionResponse = await executionResponsePromise;
+  const executionBody = await executionResponse.json().catch(() => ({}));
+  assert.equal(executionResponse.ok(), true, 'canonical-import-execute HTTP ' + executionResponse.status() + ': ' + JSON.stringify(executionBody).slice(0, 2000));
+  const importId = String(executionBody?.importId || '').trim();
+  const executionJobId = String(executionBody?.jobId || '').trim();
+  assert.ok(importId, 'canonical import response must return importId');
+  assert.ok(executionJobId, 'canonical import response must return durable execution jobId');
+  evidence.steps.push({ step: 'real-report-canonical-import-response', status: 'PASS', importId, executionJobId, sourceHash: executionBody?.sourceHash });
+
+  const companyId = evidence.tenantA ?? await currentTenant(page);
+  const deadline = Date.now() + 180000;
+  let job = null;
+  while (Date.now() < deadline) {
+    const rows = await restSelect(page, 'import_jobs', { company_id: companyId, id: importId }, 'id,status,job_type,progress,processed_rows,valid_rows,invalid_rows,error_message,result_summary,source_fingerprint,created_at');
+    job = rows[0] ?? null;
+    if (job?.status === 'failed' || job?.status === 'cancelled') throw new Error('REAL_REPORT_IMPORT_TERMINAL_FAILURE:' + JSON.stringify(job));
+    if (job?.status === 'completed') break;
+    await page.waitForTimeout(2000);
+  }
+  assert.equal(job?.status, 'completed', 'real report import did not complete: ' + JSON.stringify(job));
+  assert.equal(String(job?.source_fingerprint || '').toLowerCase(), sourceHash, 'import job fingerprint must equal raw source SHA-256');
+  evidence.steps.push({ step: 'real-report-import-job-complete', status: 'PASS', importId, sourceHash, progress: job.progress, validRows: job.valid_rows, invalidRows: job.invalid_rows });
+
+  const canonicalRows = await restSelect(page, 'canonical_dataset_records', { company_id: companyId, import_job_id: importId }, 'id,company_id,import_job_id,source_hash,semantic_domain,row_number,record_key,data,provenance', { limit: 200 });
+  assert.ok(canonicalRows.length > 0, 'real report must persist canonical dataset rows');
+  assert.ok(canonicalRows.every(row => row.company_id === companyId), 'canonical rows must be tenant-bound');
+  assert.ok(canonicalRows.every(row => row.import_job_id === importId), 'canonical rows must bind to import job');
+  assert.ok(canonicalRows.every(row => String(row.source_hash || '').toLowerCase() === sourceHash), 'canonical row provenance must retain source SHA-256');
+  evidence.steps.push({ step: 'real-report-canonical-readback', status: 'PASS', canonicalRowSample: canonicalRows.length });
+
+  const tasks = await restSelect(page, 'report_execution_tasks', { company_id: companyId, report_execution_job_id: executionJobId }, 'id,report_execution_job_id,stage,ordinal,status,completed_at,evidence', { order: 'ordinal.asc', limit: 20 });
+  const expectedStages = ['queued', 'fingerprinted', 'extracted', 'canonicalized', 'validated', 'analyzed', 'decisioned', 'committed', 'rendered'];
+  assert.equal(tasks.length, expectedStages.length, 'real report must emit exactly nine durable execution tasks');
+  tasks.forEach((task, index) => {
+    assert.equal(task.ordinal, index + 1);
+    assert.equal(task.stage, expectedStages[index]);
+    assert.equal(task.status, 'completed');
+    assert.ok(task.completed_at, 'stage ' + task.stage + ' must have completed_at');
+  });
+  evidence.steps.push({ step: 'real-report-nine-stage-execution-readback', status: 'PASS', executionJobId, stages: tasks.map(task => task.stage) });
+
+  await page.goto(baseURL + '/reports/source/' + importId, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.getByRole('heading', { name: fileName, exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  assert.equal((await page.getByText('VERIFIED', { exact: true }).count()) > 0, true, 'source report must be VERIFIED only after rendered execution');
+  assert.equal((await page.getByText(sourceHash, { exact: true }).count()) > 0, true, 'source report must expose source hash provenance');
+  assert.equal((await page.getByText('Benchmark: INSUFFICIENT SAMPLE', { exact: true }).count()) > 0, true, 'single-source benchmark must fail closed');
+  evidence.persisted.REPORT_001 = { job, executionJobId, sourceHash, fileName, canonicalSample: canonicalRows.slice(0, 5), tasks, reportRoute: '/reports/source/' + importId };
+  await page.screenshot({ path: reportDir + '/report-001.png', fullPage: true });
+  evidence.steps.push({ step: 'real-report-source-surface-rendered', status: 'PASS', reportRoute: '/reports/source/' + importId });
+}
+
 async function uiSearch(page, route, placeholder, value, step) { await page.goto(`${baseURL}${route}`, { waitUntil: 'networkidle', timeout: 30000 }); const input = page.getByPlaceholder(placeholder); await input.fill(value); await page.waitForTimeout(300); await page.getByText(value, { exact: true }).first().waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step, status: 'PASS', value }); }
 try {
   await login(pageA, emailA, passwordA);
   evidence.tenantA = await currentTenant(pageA);
   evidence.steps.push({ step: 'tenant-A-resolution', status: 'PASS', tenantId: evidence.tenantA });
 
-  const suffix = `${Date.now()}-${process.pid}`;
-  const customerName = `E2E عميل ${suffix}`;
-  const customerNumber = `E2E-CUST-${suffix}`;
-  const customerPhone = `+967770${String(Date.now()).slice(-6)}`;
-  const customerEmail = `e2e-${suffix}@example.invalid`;
-  const sku = `E2E-SKU-${suffix}`;
-  const productName = `E2E منتج ${suffix}`;
-  const invoiceNumber = `E2E-INV-${suffix}`;
-  const invoiceDate = new Date().toISOString().slice(0, 10);
-
-  await importOne(pageA, 'customer-source', {
-    name: customerName,
-    code: customerNumber,
-    phone: customerPhone,
-    email: customerEmail,
-    segment: 'retail',
-    credit_limit: 0,
-    payment_terms_days: 0,
-  }, `customer-${suffix}`);
-
-  await importOne(pageA, 'product-source', {
-    sku,
-    name: productName,
-    unit: 'قطعة',
-    cost_price: 10,
-    selling_price: 15,
-    min_stock: 0,
-    reorder_point: 0,
-    is_active: true,
-  }, `product-${suffix}`);
-
-  await importOne(pageA, 'sales-source', {
-    invoice_number: invoiceNumber,
-    invoice_date: invoiceDate,
-    customer_name: customerName,
-    subtotal: 15,
-    tax_amount: 0,
-    total: 15,
-    paid_amount: 15,
-    status: 'posted',
-  }, `invoice-${suffix}`);
+  if (realReportPath) {
+    await importRealReportOne(pageA);
+  } else {
+    const suffix = `${Date.now()}-${process.pid}`;
+    const customerName = `E2E عميل ${suffix}`;
+    const customerNumber = `E2E-CUST-${suffix}`;
+    const customerPhone = `+967770${String(Date.now()).slice(-6)}`;
+    const customerEmail = `e2e-${suffix}@example.invalid`;
+    const sku = `E2E-SKU-${suffix}`;
+    const productName = `E2E منتج ${suffix}`;
+    const invoiceNumber = `E2E-INV-${suffix}`;
+    const invoiceDate = new Date().toISOString().slice(0, 10);
+  
+    await importOne(pageA, 'customer-source', {
+      name: customerName,
+      code: customerNumber,
+      phone: customerPhone,
+      email: customerEmail,
+      segment: 'retail',
+      credit_limit: 0,
+      payment_terms_days: 0,
+    }, `customer-${suffix}`);
+  
+    await importOne(pageA, 'product-source', {
+      sku,
+      name: productName,
+      unit: 'قطعة',
+      cost_price: 10,
+      selling_price: 15,
+      min_stock: 0,
+      reorder_point: 0,
+      is_active: true,
+    }, `product-${suffix}`);
+  
+    await importOne(pageA, 'sales-source', {
+      invoice_number: invoiceNumber,
+      invoice_date: invoiceDate,
+      customer_name: customerName,
+      subtotal: 15,
+      tax_amount: 0,
+      total: 15,
+      paid_amount: 15,
+      status: 'posted',
+    }, `invoice-${suffix}`);
+  
+    }
 
   const tenantBeforeRefresh = await currentTenant(pageA);
   await pageA.reload({ waitUntil: 'networkidle', timeout: 30000 });
