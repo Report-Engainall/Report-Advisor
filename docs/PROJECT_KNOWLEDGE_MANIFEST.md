@@ -64,6 +64,7 @@ Target: MASTER_DATA_TRUTH_SECURITY
 
 ### Import / document intelligence
 Target: MASTER_ENGINEERING_ARCHITECTURE + MASTER_UI_UX_REFERENCE
+- src/lib/import/canonical-report-outputs.ts — canonical specialty/entity → report-output routing contract; consumed by durable import rendering and protected by import transaction contract checks.
 - docs/DOCUMENT_INGESTION_ACCURACY.md
 - docs/DOCUMENT_INTELLIGENCE_ENGINE_REQUIREMENTS.md
 - docs/OPEN_SOURCE_AI_DOCUMENT_STACK.md
