@@ -39,5 +39,6 @@ for (const token of ['const activeAlerts = useMemo(() => importJobId ? [] :','wi
 console.log('Report execution task ledger contract: PASS');
 for (const token of ["path + (path.includes('?') ? '&' : '?') + 'import=' + encodeURIComponent(result.importId)"]) assert.ok(canonicalImportUi.includes(token), `missing canonical import propagation: ${token}`);
 for (const token of ['WORK_ITEM_EVIDENCE_REQUIRED','complete_decision_work_item','recommendation_outcomes','DECISION_STATE_CHANGED']) assert.ok(!decisionUi.includes(token) || queries.includes('completeDecisionWorkItem'), `completion chain guard missing: ${token}`);
+for (const token of ["evidenceSnapshotId:typeof evidence.evidence_snapshot_id==='string'?evidence.evidence_snapshot_id:''",'filter(row=>Boolean(row.evidenceSnapshotId))','evidence_snapshot_id===\'string\'']) assert.ok(queries.includes(token), `missing replay evidence identity fail-closed invariant: ${token}`);
 const queryExportGuard = readFileSync('scripts/check-query-export-coverage.mjs', 'utf8');
 for (const token of ['walk(srcRoot)','import\\s+(?:type\\s+)?','duplicateExports','process.exit(1)','query export coverage: PASS']) assert.ok(queryExportGuard.includes(token), `missing repository-wide query export coverage guard invariant: ${token}`);
