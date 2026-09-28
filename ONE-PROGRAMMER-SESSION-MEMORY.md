@@ -1,3 +1,15 @@
+# RESUME TOKEN — 2026-09-28 / CURRENT PR HEAD LOCAL CERTIFICATION COMPLETE
+
+- MAIN EXACT → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- PR #672 → `exec/20260927-current-main-import-ui-rebased`; current PR HEAD `bcbb348497e9cf588291587853c9077d1926a4d9`; functional candidate `63b86b421a9ef48fca5850821b97bf3ce832e3b3`.
+- CURRENT LOCAL PROOF → boundary/provenance PASS; UI route/navigation PASS; UI/sidebar parity PASS; import-finish lifecycle 4/4 PASS; typecheck PASS; lint 0 errors/62 warnings; production build PASS 2802 modules; release-evidence freshness PASS; artifact-migration provenance PASS.
+- CI EXACT HEAD → desktop-windows run `36363582543` SUCCESS. Other current-head release/browser/quality gates remain queued/pending.
+- HOSTED → Netlify preview status SUCCESS; Vercel free-plan build-rate external blocker.
+- REMAINING → consume terminal current-head CI/browser/final-certification evidence; resolve only reproducible current-head failures; complete release/runtime proof and merge/closure. Do not transfer older SHA evidence.
+- DEVICE → PC01 ONLINE.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / IMPORT LIFECYCLE TEST ROOT CLOSED / CANDIDATE `63b86b421a9e`
 
 - EXACT MAIN → `4ec779a0a1573fc3e0e395862f6761a70f775d49`; ACTIVE PR #672 → `exec/20260927-current-main-import-ui-rebased`; current functional candidate → `63b86b421a9ef48fca5850821b97bf3ce832e3b3`.
