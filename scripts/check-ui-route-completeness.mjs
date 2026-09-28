@@ -129,6 +129,7 @@ const trustEvidencePage = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'ut
 const trustEvidenceContract = [
   [/ReportSurfaceContext/, 'Trust & Evidence must expose the canonical truth context'],
   [/effectiveStatus/, 'Trust & Evidence truth context must follow the effective evidence state'],
+  [/truthContextStatus/, 'Trust & Evidence must map internal OK/EMPTY states to canonical truth states'],
   [/Evidence Passport/, 'Trust & Evidence must retain the evidence passport surface'],
 ];
 for (const [pattern, message] of trustEvidenceContract) {
