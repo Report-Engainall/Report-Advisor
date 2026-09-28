@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / Aghbari SALES-REPORT READINESS + EXACT SAVE-BLOCKER DIAGNOSTICS
+
+- MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- CURRENT REPOSITORY / CODE-TEST CHECKPOINT → `5be55cb8401f0e06068731ee3dd89c7f1d00942c`.
+- ACTIVE PR → #672 / `exec/20260927-current-main-import-ui-rebased`.
+- IMPLEMENTED → the canonical file-engine regression now covers the exact 11 Arabic headers from the supplied sales report; each expected synonym mapping and confidence is asserted, while `التاريخ` remains generic `date` until semantic source-understanding proves `invoice_date`.
+- IMPLEMENTED → Canonical Import now renders the precise save blockers (security, fingerprint, duplicate, readable-row count, quality threshold, explicit 50–74 approval) and exposes same-source retry where a readable retry is actionable. Save logic itself remains fail-closed.
+- NO DUPLICATE → no second importer, parser, RPC, or browser path introduced; both changes stay inside the existing canonical file-engine/import surface.
+- PROOF STATUS → implementation is exact-SHA bound but remains UNPROVEN until fresh CI executes on this checkpoint; previous PASS evidence from `2f41eaff...` is not transferred.
+- EXTERNAL BLOCKERS → Phase-F live deployment SHA mismatch, backup/restore image-pull failure and rollback-forward 503 remain isolated; PC01 is offline; these do not stop repository/GitHub/Supabase/security/data fronts.
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-`5be55cb...` CI failure/result, then repair only that reproduced failure and persist/rescan again.
+- NEXT INDEPENDENT ACTIONS → continue Supabase security/data reconciliation, authenticated browser/import readback, report execution lifecycle, migration replay/provenance, and cleanup without waiting for Phase-F or PC01.
+- DO NOT REPEAT → do not transfer older-SHA PASS; do not loosen the 50%/75% quality gate; do not auto-approve 50–74%; do not infer invoice semantics from a generic `التاريخ`; do not create a new import route.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / CURRENT EXACT IMPORT-RECOVERY CANDIDATE
 
 - MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
