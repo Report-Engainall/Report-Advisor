@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / IMPORT BENCHMARK TRUTH CLAIM REPAIRED
+
+- ACTIVE FUNCTIONAL HEAD → `e261364b6fbc720a47b9e2510885b378523300c9`.
+- MAIN REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`; reanchor remains 0-behind.
+- UI CLOSED → Benchmark is visible as a post-import continuity step but no longer emits an unobserved `INSUFFICIENT_SAMPLE` claim; the surface is fail-closed instead.
+- CONTRACT CLOSED → Import transaction test now detects hardcoded benchmark-status claims and protects the route/continuity contract.
+- SECURITY CLOSED → worker failure RPC service_role-only, live verified; 40 authenticated SECURITY DEFINER advisor findings remain.
+- RELEASE → fresh CI evidence pending on this exact head; Vercel/PC01 remain external blockers.
+- NEXT → first terminal exact-head failure only; do not transfer prior PASS across this SHA.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-REANCHOR CURRENT HEAD
 
 - MAIN REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`.

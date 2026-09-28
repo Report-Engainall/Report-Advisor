@@ -1,3 +1,16 @@
+# RESUME TOKEN — 2026-09-28 / IMPORT BENCHMARK TRUTH CLAIM REPAIRED
+
+- CURRENT FUNCTIONAL HEAD BEFORE THIS CHECKPOINT → `e261364b6fbc720a47b9e2510885b378523300c9`.
+- MAIN REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`; PR #672 remains 0-behind after the earlier reanchor.
+- UI TRUTH FIX → `CanonicalImportPage.tsx` no longer hardcodes `INSUFFICIENT_SAMPLE`; Benchmark step now says eligibility is determined from peer sample + persisted evidence and no ranking is shown before those conditions are verified.
+- UI CONTRACT FIX → `scripts/check-import-transaction-contract.mjs` now guards the fail-closed wording and the Benchmark route without asserting an unobserved benchmark status.
+- SECURITY → `fail_report_execution_job` remains service_role-only live/source; Advisor authenticated SECURITY DEFINER count 40.
+- CI → exact current head will require fresh workflows; no terminal PASS claimed for this UI truth repair yet.
+- HOSTING/DEVICE → Vercel free-plan rate limit external; Netlify pending/preview boundary; PC01 offline.
+- NEXT → consume the first terminal exact-`e261364b...` CI failure if any; repair only its reproducible root.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / POST-REANCHOR CURRENT-HEAD CHECKPOINT
 
 - MAIN REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`.
