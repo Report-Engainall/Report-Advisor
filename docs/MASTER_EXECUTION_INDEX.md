@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXACT-HEAD CERTIFICATION REANCHORED
+
+- FUNCTIONAL EXECUTION HEAD → `5ee193ff1a6a8169cc1e24ebe2a1b61cd91f1b53`
+- ACTIVE EXECUTION FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- THIS BATCH → governance push coverage restored; customer-profile migration parity restored before resolver; Unified Import accessibility improved.
+- CERTIFICATION ROOT FOUND → boundary guard rejected stale indexed candidate `40323c32da359c04f6328dd4d6273bbfc92b4a4a` while HEAD `5ee193ff1a6a8169cc1e24ebe2a1b61cd91f1b53` contained non-governance code changes; this is now being reanchored to the current functional head.
+- PHASE-F ROOT REPAIR → `public.profiles` is now restored in repository migration order before `20260925170000_reconcile_current_customer_company_id.sql`.
+- OPEN → fresh exact-head CI; Vercel build-rate external; Supabase Auth leaked-password protection external; PC01 device-only.
+- NEXT → consume exact-head certification + Phase-F + quality, then close the next terminal executable root.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / CERTIFICATION STARTUP-PARSER ROOT CLOSED
 
 - CURRENT REPOSITORY HEAD → `40323c32da359c04f6328dd4d6273bbfc92b4a4a`

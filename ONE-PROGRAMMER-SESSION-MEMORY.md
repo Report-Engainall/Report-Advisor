@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-28 / BATCH CLOSED FOR CODE HANDOFF, EXACT-HEAD CERTIFICATION REANCHORED
+
+- FUNCTIONAL EXECUTION HEAD → `5ee193ff1a6a8169cc1e24ebe2a1b61cd91f1b53`
+- ACTIVE FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- COMPLETED IN THIS BATCH → restored broad-push coverage for Execution Enforcement + Final Certification governance; restored repository migration parity for `public.profiles` before `current_customer_company_id()`; improved Unified Import lifecycle accessibility semantics.
+- EXACT PROOF AVAILABLE → Execution Enforcement Contract passed on `bdfd1457757b74c850140cbee81b5726f8c2ad36` (run `36450870953`); fresh exact-head browser/device-independent/product runs are being consumed on `5ee193ff1a6a8169cc1e24ebe2a1b61cd91f1b53`.
+- LATEST CERTIFICATION FAILURE ROOT → indexed candidate remained stale at `40323c32da359c04f6328dd4d6273bbfc92b4a4a`; no application test was consumed because the certification boundary intentionally failed closed.
+- PHASE-F ROOT REPAIR → migration `20260925160000_restore_customer_profile_schema_parity.sql` adds the authoritative live `public.profiles` boundary before the resolver migration; fresh Phase-F on `5ee193ff1a6a8169cc1e24ebe2a1b61cd91f1b53` is still in progress.
+- OPEN NON-DEVICE BLOCKERS → Vercel free-plan build-rate limitation; Supabase Auth leaked-password protection external; fresh exact-head certification/Phase-F evidence still pending.
+- DEVICE STATUS → PC01/browser remains device-dependent only; Device-Independent Browser E2E is separately executable and must remain the evidence source for non-device UI claims.
+- DO NOT REPEAT → stale certification candidate, stale PASS transfer across SHAs, duplicate import/evidence paths, blanket SECURITY DEFINER revokes.
+- NEXT EXACT ACTION → re-anchor certification index to this head, then consume fresh Final Certification + Phase-F + quality results; repair the first terminal non-governance failure only.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / CERTIFICATION STARTUP-PARSER ROOT CLOSED
 
 - CURRENT REPOSITORY HEAD → `40323c32da359c04f6328dd4d6273bbfc92b4a4a`
