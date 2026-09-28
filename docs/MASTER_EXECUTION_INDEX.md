@@ -1,33 +1,19 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / FIRST CURRENT-SHA UI ROOT CLOSED
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / IMPORT + UI CONTRACT ROOTS CLOSED
 
 > This top block is the only startup boundary.
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- CURRENT CODE/TEST CANDIDATE → `1de5cb174add3ec00f26e3036eb118d58ab444df` (PR #672 / `exec/20260927-current-main-import-ui-rebased`).
-- CODE CHANGE → UI route completeness contract now classifies `/import/analyze` as an internal progressive-disclosure redirect to `/import`; no sidebar item was added.
-- EXACT LOCAL PROOF ON `1de5cb174add3ec00f26e3036eb118d58ab444df` → UI route/navigation completeness PASS (41 routes / 38 canonical links); UI route/sidebar parity PASS; typecheck PASS; production build PASS (2802 modules).
-- CURRENT CI → 49 workflow runs observed for `1de5cb174add3ec00f26e3036eb118d58ab444df`: 43 queued, 3 pending, 1 in progress (`desktop-windows`), 2 skipped; no terminal required-gate failure observed yet.
-- CERTIFICATION → the exact candidate parser boundary was repaired and passed on the preceding documentation checkpoint; after this code root, the candidate is re-anchored to `1de5cb174add3ec00f26e3036eb118d58ab444df` and fresh certification must be consumed on this exact code SHA.
-- RELEASE → Vercel remains externally blocked by free-plan build-rate limit. Netlify reports a green deploy-preview status, but this is not treated as production/certification evidence without authoritative exact-head runtime proof.
-- DEVICE → PC01 ONLINE; exact PR worktree is active locally.
-- QUALITY → lint has 62 warnings and 0 errors; build has non-blocking Browserslist/Bluebird warnings.
-- NEXT → persist this exact candidate in the canonical memory/index, run current-SHA certification contracts, then consume the first terminal CI/browser/final-certification result. Repair only a reproduced current-SHA failure.
+- CURRENT CODE/TEST CANDIDATE → `63b86b421a9ef48fca5850821b97bf3ce832e3b3` (PR #672 / `exec/20260927-current-main-import-ui-rebased`).
+- ROOT 1 CLOSED → `/import/analyze` is explicitly classified as internal progressive disclosure; route/navigation completeness now PASSes without adding an erroneous sidebar entry.
+- ROOT 2 CLOSED → import-finish lifecycle contract fixture normalizes CRLF→LF before negative-case mutation; current Windows execution now passes all 4 contract tests.
+- EXACT LOCAL PROOF ON `63b86b421a9ef48fca5850821b97bf3ce832e3b3` → UI route/navigation completeness PASS (41 routes / 38 canonical links); UI route/sidebar parity PASS; import-finish lifecycle 4/4 PASS; typecheck PASS; prior production build and UI proof remain valid only up to the immediately preceding functional SHA and must be revalidated on this exact candidate.
+- CURRENT CI → fresh workflows are executing for `63b86b421a9ef48fca5850821b97bf3ce832e3b3`; exact-head terminal evidence is not yet complete.
+- CERTIFICATION → candidate anchoring is now required to `63b86b421a9ef48fca5850821b97bf3ce832e3b3`; no older code/browser/desktop PASS is transferred.
+- RELEASE → Vercel free-plan build-rate remains external; Netlify green status is not product certification.
+- DEVICE → PC01 ONLINE; exact PR worktree is available.
+- QUALITY → lint baseline remains 62 warnings / 0 errors; build warnings are non-blocking.
+- NEXT → consume the first terminal current-SHA CI/browser/final-certification failure; then repair only that reproduced root, persist, and rescan.
 
-
-# CURRENT EXECUTION CHECKPOINT — 2026-09-28 / LIVE IMPORT BOUNDARY RECONCILIATION
-
-- FUNCTIONAL CODE SHA REMAINS → `a0a73ac2fb8f0221cd0c9e04054b44a7e5817b5b`.
-- CURRENT DOCUMENTATION HEAD → `b62942593271f19d96e6d4ea4e896a600ae3c4d2`.
-- STAGING PROJECT → `Report-Advisor-P0-2-Staging` / `fnqbvfuwbdpwvhcgzksl`.
-- LIVE IMPORT BOUNDARY READBACK → `import_finish_job(uuid,text,jsonb,text)` is SECURITY INVOKER, authenticated EXECUTE=true, anon=false; it enforces tenant match, terminal-state immutability, processed-row/completion consistency and guarded update.
-- LIVE CANONICAL COMMIT BOUNDARY → six-argument `import_commit_batch(..., p_import_job_id uuid)` is SECURITY DEFINER with `search_path=pg_catalog`, authenticated EXECUTE=true, anon=false; it checks `current_company_id`, tenant match, import-job binding, authoritative source hash, file security status, storage binding, source fingerprint, entity-type alignment, and idempotent commit locking.
-- LEGACY FIVE-ARG IMPORT COMMIT → SECURITY DEFINER but authenticated EXECUTE=false and anon=false; it is therefore not the client entry point.
-- LIVE RLS RESCAN → all inspected public import/business/evidence/decision tables remain RLS-enabled.
-- SECURITY ADVISOR → 40 authenticated SECURITY DEFINER warnings remain in staging; this is a broad historical/legacy surface and no blanket revoke is performed. Canonical import/tenant boundaries are handled separately.
-- DO NOT REPEAT → do not treat Advisor warnings as proof of a specific vulnerability without source/grant reconciliation; do not mutate broad SECURITY DEFINER surface; do not transfer staging readback into production certification.
-- NEXT → consume fresh exact-head CI/certification/browser results; any new failure must be repaired against its exact SHA only.
-
----
 # CURRENT EXECUTION CHECKPOINT — 2026-09-28 / CURRENT-SHA SCENARIO GATE CLOSURE
 
 - MAIN HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
