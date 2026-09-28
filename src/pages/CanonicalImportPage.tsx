@@ -96,11 +96,11 @@ function PostImportReportOutputs({ result }: { result: any }) {
     <div className="flex flex-wrap items-start justify-between gap-2">
       <div>
         <div className="text-[9px] font-black tracking-[.12em] text-success-700">RENDERED REPORT OUTPUTS</div>
-        <div className="mt-1 text-sm font-black text-ink-950">التقارير التي أنشأها مسار التنفيذ فعليًا</div>
-        <p className="mt-1 text-[10px] leading-5 text-ink-600">هذه القائمة تُقرأ من Evidence المحفوظ داخل Job نفسه عند مرحلة rendered؛ وليست قائمة روابط ثابتة في الواجهة. كل سطح يبقى مرتبطًا ببصمة المصدر والـImport Job.</p>
+        <div className="mt-1 text-sm font-black text-ink-950">مسارات التقارير الناتجة عن التنفيذ</div>
+        <p className="mt-1 text-[10px] leading-5 text-ink-600">هذه القائمة تُقرأ من Evidence المحفوظ داخل Job نفسه عند مسار العرض؛ وهي مسارات تقارير مرتبطة ببصمة المصدر وImport Job. محتوى كل تقرير يبقى محكومًا بالحقيقة الكانونية وحالة الدليل داخل صفحة التقرير نفسها.</p>
       </div>
       <Badge variant={reportRendered && evidenceVerified ? 'success' : 'warning'}>
-        {reportRendered ? (evidenceVerified ? 'التقرير مُنشأ والدليل مثبت' : 'التقرير مُنشأ — الدليل يحتاج مراجعة') : 'مخرجات التقرير غير مثبتة'}
+        {reportRendered ? (evidenceVerified ? 'مسار التقرير مثبت' : 'مسار التقرير مسجل — الدليل يحتاج مراجعة') : 'مخرجات التقرير غير مثبتة'}
       </Badge>
     </div>
     <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -116,7 +116,7 @@ function PostImportReportOutputs({ result }: { result: any }) {
         >
           <div className="flex items-center justify-between gap-2">
             <span className="text-[9px] font-black text-success-700">RENDERED · {String(output.key ?? 'report')}</span>
-            <span className="text-[9px] font-black text-ink-400">{canOpen ? 'فتح التقرير' : 'مراجعة الدليل'}</span>
+            <span className="text-[9px] font-black text-ink-400">{canOpen ? 'فتح سطح التقرير' : 'مراجعة الدليل'}</span>
           </div>
           <div className="mt-2 text-[11px] font-black text-ink-900">{title}</div>
           <div className="mt-1 text-[9px] leading-4 text-ink-500">source-bound · {String(renderedOutput?.entityType ?? result.sourceEntityType)} · {String(renderedOutput?.sourceHash ?? 'SHA غير متاح')}</div>
