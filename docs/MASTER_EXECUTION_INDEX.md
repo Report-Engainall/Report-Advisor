@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / PDF ESM TRANSITIVE IMPORT CLOSURE
+
+- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
+- CURRENT CODE/TEST CANDIDATE → 85ab92a3fc13eac11edcc5bde2aa1ebba42d58a3.
+- ROOT CAUSE CLOSED → PDF regression under the ESM runner first exposed extensionless local imports in adapters.ts, then the transitive synonyms.ts dependency; both are now explicit .ts imports.
+- IMPLEMENTATION → candidate 85ab92a3fc13eac11edcc5bde2aa1ebba42d58a3 contains the adapter import repair plus the transitive synonyms import repair; no second parser/importer was introduced.
+- PRIOR EXACT RESULTS → data-quality-runtime, Device-Independent Browser E2E and desktop-windows passed on 24982d5… only. They remain historical and are not transferred.
+- CURRENT EXTERNAL STATE → Phase-F on the prior code candidate was fail-closed: tenant-canary PASS, production deployment SHA mismatch, logical backup restore blocked by Supabase image pull, rollback-forward 503/deployment_lookup_failed:404.
+- NEXT → consume the fresh PDF/import/quality/certification results for this candidate; then continue only with the first reproduced failure. Hosted production remains blocked by external deployment identity/runtime evidence.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / ESM FILE-ENGINE CONTRACT REPAIR
 
 - MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
