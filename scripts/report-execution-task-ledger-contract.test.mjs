@@ -10,6 +10,9 @@ const queries = readFileSync('src/lib/queries.ts', 'utf8');
 const ui = readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
 const reportsUi = readFileSync('src/pages/ReportsPage.tsx', 'utf8');
 const executiveUi = readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
+const sourceBoundContextUi = readFileSync('src/components/SourceBoundReportContext.tsx', 'utf8');
+const inventoryIntelligenceUi = readFileSync('src/pages/InventoryIntelligencePage.tsx', 'utf8');
+const analyticsUi = readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
 const productionAdapter = readFileSync('src/lib/import/canonical-production-adapter.ts', 'utf8');
 for (const token of ['create table if not exists public.report_execution_tasks','report_execution_tasks_tenant_select','start_report_execution_task','complete_report_execution_task','fail_report_execution_task','Execution task ordering violation','grant execute on function public.start_report_execution_task','stage = ANY (ARRAY[\'queued\'::text,\'fingerprinted\'::text,\'extracted\'::text,\'canonicalized\'::text,\'validated\'::text,\'analyzed\'::text,\'decisioned\'::text,\'committed\'::text,\'rendered\'::text])']) assert.ok(migration.includes(token), `missing task-ledger invariant: ${token}`);
 for (const token of ["from('report_execution_tasks')","rpc('start_report_execution_task'","rpc('complete_report_execution_task'","rpc('fail_report_execution_task'","if (queuedTask?.status === 'queued')","startTask(jobId, workerId, job.leaseToken, 'queued'","completeTask(jobId, workerId, job.leaseToken, 'queued'"]) assert.ok(adapter.includes(token), `missing worker task RPC/claim invariant: ${token}`);
@@ -21,4 +24,7 @@ for (const token of ['ReportExecutionTaskRecord','fetchReportExecutionTasks','Re
 for (const token of ['LIVE EXECUTION REPORT','تفكيك التنفيذ الفعلي إلى 9 مهام بعد السحب','التنفيذ الحالي متسلسل تحت Worker مؤجر','EXECUTION REPORT','تقرير ما حدث فعليًا بعد السحب','fetchReportExecutionTasks','fetchReportExecutionJob','RENDERED REPORT OUTPUTS','التقارير التي أنشأها مسار التنفيذ فعليًا','stage rendered','executionReport','enqueueCanonicalImportForExecution']) assert.ok(ui.includes(token), `missing visible post-upload execution report/semantics: ${token}`);
 for (const token of ['SOURCE → REPORT HANDOFF','مخرجات التقرير مرتبطة بمصدر مستورد مثبت','getBoundRenderedReportManifest','source_hash','NOT PROVEN / UNBOUND','export function ReportsCenterPage','export function SalesReportPage']) assert.ok(reportsUi.includes(token), `missing report-center source handoff invariant: ${token}`);
 for (const token of ['RENDERED REPORT OUTPUTS','مخرجات التقرير المثبتة لهذا المصدر','getBoundRenderedReportManifest','SOURCE-BOUND / RENDERED','REVIEW / NOT PROVEN']) assert.ok(executiveUi.includes(token), `missing executive rendered-output surface invariant: ${token}`);
+for (const token of ['SOURCE-BOUND REPORT CONTEXT','fetchImportEvidenceSnapshot','fetchReportExecutionJob','getBoundRenderedReportManifest','REVIEW / NOT PROVEN']) assert.ok(sourceBoundContextUi.includes(token), `missing shared source-bound report context invariant: ${token}`);
+for (const token of ['SourceBoundReportContext']) assert.ok(analyticsUi.includes(token), `missing analytics source context: ${token}`);
+for (const token of ['SourceBoundReportContext']) assert.ok(inventoryIntelligenceUi.includes(token), `missing inventory intelligence source context: ${token}`);
 console.log('Report execution task ledger contract: PASS');
