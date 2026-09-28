@@ -36,6 +36,7 @@ export function ImportPage() {
                 ['06', 'نراجع الجودة والإشارات', 'لا تُخفى الفجوات، ولا تتحول البيانات الناقصة إلى أصفار.'],
                 ['07', 'ننتقل إلى القرار', 'الدليل المثبت فقط يعبر إلى مساحة القرار.'],
                 ['08', 'نتابع النتيجة ونتعلم', 'Business Replay يعرض snapshots والنتائج المحفوظة فقط دون تركيب تاريخ مفقود.'],
+                ['09', 'نُخرج التقرير المناسب', 'بعد التحقق يُفتح التقرير التنفيذي والسطح التخصصي المناسب للمصدر.'],
               ].map(([n, title, text]) => (
                 <div key={n} className="flex gap-2.5">
                   <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-ink-200 bg-ink-50 text-[9px] font-black text-ink-600">{n}</div>
