@@ -131,7 +131,6 @@ function assertAuthenticatedOnly(name) {
     }
     return;
   }
-}
   const grantPattern = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${name}\\s*\\([^;]*?\\)\\s+TO\\s+([^;]+);`, 'ig');
   let authenticated = false;
   let anon = false;
