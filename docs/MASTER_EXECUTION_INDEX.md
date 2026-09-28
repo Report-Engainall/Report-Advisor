@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / BUSINESS REPLAY SCOPE CLARITY
+
+- FUNCTIONAL CODE/TEST HEAD → `6bdaa0470aeb927a8fa02e3a6d5e2ff72aee5947`.
+- MEMORY DESCENDANT → `bb8bc88e5c3a60d3cb9c0c8f52a9da71e62eb0c9` before this Index write-back.
+- CLOSED → Business Replay explicitly declares company-level scope when reached from an imported report and routes back to the source-bound Executive Report.
+- CLOSED → Learning remains evidence-identity gated; Work completion remains canonical-RPC driven; query export coverage is guarded repository-wide and wired into Enforcement CI.
+- PROOF → 10/10 focused assertions PASS; query exports 73 unique, duplicate exports 0, missing imports 0 across critical pages.
+- CI EXACT SHA → Final Certification Gate `36474075789` and Execution Enforcement Contract `36474075669` are queued; no terminal PASS/FAIL claim.
+- BENCHMARK → `INSUFFICIENT_SAMPLE`; no peer cohort source is present in current staging model.
+- OPEN → hosted exact-head runtime, PC01 device/browser proof, Vercel free-plan rate limit, tenant-bound live canary.
+- DO NOT REPEAT → no fake source-scoped replay, no learning from evidence-unbound outcomes, no duplicate query guard.
+- NEXT EXACT ACTION → continue the next concrete non-device certification/cleanup gap.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / QUERY EXPORT GUARD WIRED INTO ENFORCEMENT CI
 
 - CURRENT FUNCTIONAL/CI HEAD → `3500c1b017fe58f057748520d584bbd7b0fb4909`.
