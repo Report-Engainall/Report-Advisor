@@ -1,4 +1,13 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / TRUTH CONTEXT PROPAGATION CLOSURE — FUNCTIONAL CANDIDATE 14dc825
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / TRUTH STATUS MAPPING REPAIR — FUNCTIONAL CANDIDATE 6da5e55
+
+- FUNCTIONAL/UI CANDIDATE → `6da5e5501aa0bd78b7d1be36f269cdf2ee92c502`.
+- REPAIRED → Trust & Evidence internal status (`OK/EMPTY`) now maps explicitly to canonical `VERIFIED/INSUFFICIENT DATA` and other truth states.
+- CONTRACT → UI route completeness guards the mapping and the existing Decision evidence gate.
+- SOURCE PROOF → static checks pass.
+- EXTERNAL → Vercel free-plan rate-limit and PC01 offline remain isolated.
+- NEXT → next safe non-device surface.
+
+
 
 - FUNCTIONAL/UI CANDIDATE → `14dc825e371d26888a7ca8475db23dce6cbada47`.
 - CLOSED → full canonical truth vocabulary in shared context; Trust & Evidence and Decision Experience now carry explicit truth state.
