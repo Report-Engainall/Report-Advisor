@@ -3,11 +3,18 @@ import { Link } from 'react-router-dom';
 import { Card, CardBody } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/States';
 import { Badge } from '@/components/ui/Badge';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 
 export function BenchmarkNetworkPage() {
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in">
       <PageHeader title="شبكة المقارنة" subtitle="Benchmark Network — مقارنة خارجية لا تظهر إلا عندما تتوفر عينة نظيرة ودليل مصدر قابل للمراجعة." />
+      <ReportSurfaceContext
+        period="نافذة المقارنة الحالية"
+        asOf={new Date().toISOString().slice(0, 10)}
+        status="INSUFFICIENT DATA"
+        sourceLabel="شبكة المقارنة مغلقة حاليًا لعدم وجود cohort نظير موثق؛ لا يتم تحويل نقص العينة إلى صفر أو ترتيب."
+      />
       <section className="rounded-[20px] border border-warning-200 bg-warning-50/70 p-5 shadow-card">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
