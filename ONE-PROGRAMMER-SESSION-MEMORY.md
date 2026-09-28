@@ -1,10 +1,10 @@
-# RESUME TOKEN — 2026-09-29 / EXACT CURRENT CHECKPOINT — RESTORE DEPENDENCY FIXED
+# RESUME TOKEN — 2026-09-29 / EXACT CURRENT CHECKPOINT — RESTORE + PHASE10 CONTRACT RECONCILED
 
-- EXACT HEAD SHA: `a7ee5b8aa7f7deed6b7a3ceedea327f96b0efee1`.
+- EXACT HEAD SHA: `88764e8f13b0cbbd696eec280cea757981b00b90`.
 - CURRENT BRANCH: `exec/20260929-post-import-report-continuity`.
 - WORKTREE STATE: CLEAN; HEAD matches origin branch.
-- CURRENT CODE/TEST CANDIDATE: `9a9e50c7e84db3d88fabae1a6c5b0cd83bee7a88`.
-- CURRENT FRONT: report post-import continuity + clean-restore migration dependency + exact-SHA certification.
+- CURRENT CODE/TEST CANDIDATE: `72f72aaf4b2d2702e7a80a0b723fb6ebb33ff750`.
+- CURRENT FRONT: report post-import continuity + clean-restore migration dependency + Phase-10 restore contract + exact-SHA certification.
 - CURRENT REPORT: NONE — no eligible real report input discovered; corpus gate is blocked.
 - REPORTS TOTAL: `0` supported actual inputs; declared contract files=`9`; minimum required=`20`; directory contains `README.md` only.
 - COMPLETED: `0` reports.
@@ -12,16 +12,16 @@
 - FAILED: `0` reports.
 - BLOCKED: `CORPUS_GATE` — DECLARED=9, ACTUAL=1 (`README.md` only), MINIMUM=20; nine declared report files are absent.
 - REMAINING: no processable report files until real corpus is restored; corpus minimum gap=`19+` supported files.
-- LAST COMPLETED STAGE: clean-restore migration dependency root-cause correction and exact-SHA candidate re-anchoring.
-- WHAT WAS ACTUALLY EXECUTED: traced prior Phase-F backup/restore failure to migration `20260925184000_restore_client_ui_settings_schema_parity.sql` invoking `current_customer_company_id()` before its definition in `20260925200000_restore_carts_schema_parity.sql`; changed that policy to canonical `current_company_id()`, which is defined earlier in `20260822200000_canonical_tenant_membership.sql`; ran migration schema audit, migration dependency analysis, and operational-resilience contracts; committed `9a9e50c7`; re-anchored the certification candidate to `9a9e50c7` via `a7ee5b8a`.
-- ACTUAL RESULT: migration schema audit PASS (258 migrations, 0 findings); migration dependency analysis executed successfully; operational resilience contract PASS; backup/restore evidence integrity contract PASS (13 invariants); certification boundary PASS on `a7ee5b8a`; execution enforcement PASS. Local full clean restore could not run because Supabase CLI and Docker are not installed on PC01.
-- TEST / PROOF: exact code fix `9a9e50c7` is persisted to GitHub; exact candidate `9a9e50c7` is recorded in Master Index; current HEAD `a7ee5b8a` is governance-only re-anchor. Fresh CI runs are queued for Final Certification `36497543174`, Execution Enforcement `36497543214`, Phase-F `36497543235`, Browser `36497543161`, Device-Independent Browser `36497543286`, Quality `36497543115`, Desktop `36497543159`.
-- WHAT CLOSED: broken migration-time tenant resolver dependency in client UI settings restore; stale certification/enforcement candidate placement/allowlist defects remain closed.
+- LAST COMPLETED STAGE: clean-restore migration dependency correction + Phase-10 contract alignment + exact-SHA candidate re-anchoring.
+- WHAT WAS ACTUALLY EXECUTED: traced prior Phase-F backup/restore failure to migration `20260925184000_restore_client_ui_settings_schema_parity.sql` invoking `current_customer_company_id()` before its definition in `20260925200000_restore_carts_schema_parity.sql`; changed that policy to canonical `current_company_id()`, which is defined earlier in `20260822200000_canonical_tenant_membership.sql`; ran migration schema audit, migration dependency analysis, and operational-resilience contracts; committed `9a9e50c7`; updated `check-phase10-backup-restore-contract.mjs` to require `CURRENT_COMPANY_ID()`; committed `72f72aaf`; re-anchored the certification candidate via `88764e8f`.
+- ACTUAL RESULT: migration schema audit PASS (258 migrations, 0 findings); migration dependency analysis executed successfully; Phase-10 backup/restore contract PASS; operational resilience contract PASS; backup/restore evidence integrity PASS (13 invariants); certification boundary and execution enforcement PASS on `88764e8f`; exact local typecheck/build/report-truth/report-E2E/post-import/UI/security/import contracts PASS. Local full clean restore could not run because Supabase CLI and Docker are not installed on PC01.
+- TEST / PROOF: `9a9e50c7` migration fix persisted; `72f72aaf` Phase-10 contract fix persisted; current `88764e8f` Master Index re-anchor PASS. Fresh exact-current runs are queued: Final Certification `36497935487`, Execution Enforcement `36497935781`, Phase-F `36497935520`, Full Product Browser E2E `36497935613`, Device-Independent Browser E2E `36497935512`, Storage Tenant Runtime E2E `36497935623`, Desktop Windows `36497935625`.
+- WHAT CLOSED: migration-time tenant resolver dependency; stale Phase-10 contract invariant; stale certification/enforcement candidate placement/allowlist defects.
 - WHAT REMAINS: real report corpus restoration; current-SHA CI/final certification/Phase-F/hosted results; authenticated report-import browser proof only if a valid session and real corpus are available.
 - REAL BLOCKER: missing real report corpus under `tests/fixtures/realistic-reports/`; local clean-restore runtime is additionally blocked by missing Supabase CLI/Docker.
 - DO-NOT-REPEAT: do not fabricate or substitute report files; do not duplicate importer/report pipeline; do not transfer PASS across SHAs; do not force-push; do not treat Netlify/Vercel status alone as product certification.
 - RESUME POINT: PR #676 remains open and mergeable; exact `a7ee5b8a` fresh CI is queued.
-- NEXT EXACT ACTION: poll GitHub Actions run `36497543235` (Phase-F live resilience) for the first terminal exact-`a7ee5b8a` result; if it fails, inspect only the first failed Phase-F step and repair its reproducible root cause.
+- NEXT EXACT ACTION: poll GitHub Actions run `36497935520` (Phase-F live resilience) for the first terminal exact-`88764e8f` result; if it fails, repair only its first reproducible root cause.
 
 ---
 
