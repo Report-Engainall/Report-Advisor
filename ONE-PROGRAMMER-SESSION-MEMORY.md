@@ -1,15 +1,15 @@
-# RESUME TOKEN — 2026-09-28 / PHASE-2 SECURITY HARDENING CANDIDATE
+# RESUME TOKEN — 2026-09-28 / CURRENT EXECUTION STATE
 
-- CURRENT REPOSITORY HEAD → `4ff2104cc3d6e5d06a1d443ca0ba05d45d24fda4`
+- CURRENT REPOSITORY HEAD → `277e62b6a9467b10dae69696f1a203deb1e9a67d`
 - CURRENT CODE/TEST CANDIDATE → `4ff2104cc3d6e5d06a1d443ca0ba05d45d24fda4`
-- ACTIVE FRONT → exact-head certification, Phase-2 security surface, task ledger, quality/browser/Phase-F.
-- LAST IMPLEMENTED → append-only aware SECURITY DEFINER surface checker; a later migration is accepted only when it explicitly revokes PUBLIC/anon/authenticated and grants service_role.
-- LAST LIVE SECURITY PROOF → durable enqueue RPC is service_role-only in Staging.
-- LAST CODE FAILURE → Phase-2 checker rejected the historical task-ledger migration because its later hardening migration was not considered; fixed in current checker.
-- OPEN EXTERNAL → Vercel build-rate limit, hosted Phase-F production drift, PC01 offline.
-- NEXT EXACT ACTION → consume current-head Phase-2 security, Final Certification, Task Ledger, Quality, Browser and Phase-F gates.
+- ACTIVE EXECUTION FRONTS → Phase-2 security surface, durable post-upload Task Ledger, exact-head certification, Quality, Browser, Phase-F.
+- OPEN BLOCKERS → Vercel build-rate limit; hosted Phase-F production deployment drift; PC01 offline/device path.
+- LAST PROVEN → Supabase 9-task ledger creation and ordered task execution with worker/attempt/evidence; enqueue RPC service_role-only; append-only-aware security-definer checker implementation.
+- LAST FAILED → previous Phase-2 security checker rejected the historical task-ledger migration because later hardening was not recognized; current checker now recognizes later explicit service_role-only hardening.
+- NEXT EXECUTABLE ACTION → consume current-head Phase-2 security, Final Certification, Task Ledger, Quality, Browser and Phase-F results; repair first terminal repository failure only.
 - NEXT INDEPENDENT ACTIONS → after repository gates pass, isolate hosted Phase-F deployment drift and device-only PC01 work without blocking independent fronts.
-- DO NOT REPEAT → stale candidate evidence, direct tenant selectors, modifying applied migrations for historical parity, duplicate runners.
+- DO NOT REPEAT → stale evidence across SHAs, direct tenant selectors, modifying applied migrations for historical parity, exposed SECURITY DEFINER enqueue, duplicate runners.
+
 
 ---
 
