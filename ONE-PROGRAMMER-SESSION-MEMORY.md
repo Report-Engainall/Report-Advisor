@@ -1,3 +1,19 @@
+# RESUME TOKEN — 2026-09-28 / WORKER FAILURE RPC SECURITY BOUNDARY CLOSED
+
+- MAIN EXACT HEAD AT CHECKPOINT → `a98dc4451b79544fde40f60680f8d52edd60e209`.
+- FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`.
+- NEW FUNCTIONAL HEAD → `be0a64b01217ff16a53ef5d196e5613fb175cfa7`.
+- SECURITY ROOT → Staging showed `fail_report_execution_job` was the only durable report-execution worker RPC still executable by `authenticated`; all sibling worker RPCs were already service_role-only.
+- IMPLEMENTED → new migration `supabase/migrations/20260928230000_restrict_report_execution_failure_worker_rpc.sql` revokes PUBLIC/anon/authenticated and grants only service_role for `fail_report_execution_job`.
+- LIVE PROOF → Staging migration `restrict_report_execution_failure_worker_rpc` applied successfully; readback: SECURITY DEFINER=true, authenticated_execute=false, anon_execute=false, service_role_execute=true.
+- ADVISOR PROOF → authenticated SECURITY DEFINER finding count dropped from 41 to 40; leaked-password protection remains an external Auth setting.
+- SOURCE PROOF → exact branch migration contains the revoke/grant contract; static security-boundary assertion PASS.
+- CI → fresh runs for new SHA were not yet registered at last exact-head poll; no runtime PASS claimed.
+- DEVICE → PC01 remains offline; browser/device/production certification not proven.
+- NEXT → wait-free path: continue independent repository/data/security fronts; once fresh exact-`be0a64...` CI exists, consume first terminal result and repair only a reproducible defect.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / CI DUPLICATION CLOSED + BENCHMARK UI CONTINUITY ADDED
 
 - EXACT MAIN HEAD AT START → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
