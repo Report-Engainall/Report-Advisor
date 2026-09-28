@@ -1,3 +1,20 @@
+# RESUME TOKEN — 2026-09-28 / SOURCE INTAKE + PDF TABLE + EVIDENCE GATE BATCH
+
+- EXACT MAIN BASE → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- FUNCTIONAL BRANCH HEAD BEFORE THIS PERSIST → `fa0ca227226764da6867ffdbe9dd68da3453a618`.
+- ROOT CAUSE CLOSED → canonical import and external file-analysis surfaces advertised drag/drop but only supported click/input. Real drag enter/over/leave/drop paths now feed the existing security → detection → hash → tenant → parse pipeline.
+- USER-SAMPLE ROOT CAUSE CLOSED IN SOURCE → multi-page native PDF tabular reports were previously flattened into one text stream; the file engine now detects repeated table headers by PDF coordinates, reconstructs rows page-by-page, reuses reference columns on continuation pages, and maps Arabic sales-report columns.
+- SOURCE UNDERSTANDING CLOSED → deterministic specialty inference now recognizes sales/purchases/inventory/products/customers/payments from mapped canonical fields + sample evidence. This is explicitly inference only; canonical entity target remains `generic:source-data`.
+- EVIDENCE GATE CLOSED IN UI → completion records `snapshot_available` + `evidence_state`; Decision navigation is hidden/blocked when `snapshotId` is absent. Trust/Evidence remains the first next action.
+- PROOF CONSOLIDATION → existing Product WOW UI and File Engine contracts were extended; no duplicate upload test path remains. Quality workflow runs Product WOW UI on exact head.
+- LIVE STAGING RESCAN → 4,563 import jobs; 151 still `processing`, of which 150 are `processing + progress=0`. 125 of those have no `file_record_id`, total_rows=1, empty result_summary, and dates 2026-09-14 through 2026-09-20; they are legacy/orphan-shaped jobs, not current-session work. The remaining 25 have file records and require separate causal analysis. No unsafe terminalization was performed.
+- DEVICE → PC01 offline; no physical-browser PASS claimed.
+- HOSTING → exact-head Vercel/Netlify runtime evidence remains external/pending; no hosted PASS inferred.
+- CI → latest exact-head workflows for the current functional branch are queued; no terminal PASS/FAIL has been transferred from older SHAs.
+- NEXT → consume only terminal current-SHA CI; repair first reproducible current-SHA failure; then re-scan the 25 file-backed stuck jobs and Phase-F/runtime/security fronts.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / CANONICAL IMPORT DROPZONE + POST-IMPORT CONTINUITY REPAIRED
 
 - EXACT MAIN BASE VERIFIED BEFORE MUTATION → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
