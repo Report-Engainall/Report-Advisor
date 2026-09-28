@@ -97,6 +97,13 @@ const specialtySourceUnderstandingTokens = [
 for (const token of specialtySourceUnderstandingTokens) {
   if (!sourceUnderstanding.includes(token)) throw new Error('Specialty canonical entity inference missing: ' + token);
 }
+const canonicalReportOutputs = readFileSync(new URL('../src/lib/import/canonical-report-outputs.ts', import.meta.url), 'utf8');
+for (const token of ["normalizedEntity.startsWith('generic:')", "resolved = normalizedEntity.startsWith('generic:')", "path: '/reports/executive'"]) {
+  if (!canonicalReportOutputs.includes(token)) throw new Error('Canonical generic-source report routing guard missing: ' + token);
+}
+if (/generic:[\\s\\S]{0,240}sales|sales[\\s\\S]{0,240}generic:/i.test(canonicalReportOutputs) && !canonicalReportOutputs.includes("normalizedEntity.startsWith('generic:')")) {
+  throw new Error('Generic canonical sources must not directly route to specialty report outputs');
+}
 const canonicalTruthBoundary = readFileSync(new URL('../src/lib/import/canonical-truth-boundary.ts', import.meta.url), 'utf8');
 for (const token of ['purchase_invoices','suppliers','inventory_balances','payments','CONFLICTING_EVIDENCE_FOR_SAME_CANONICAL_IDENTITY']) {
   if (!canonicalTruthBoundary.includes(token)) throw new Error('Specialty canonical identity boundary missing: ' + token);
