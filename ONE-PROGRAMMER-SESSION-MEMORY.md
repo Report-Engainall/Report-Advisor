@@ -652,3 +652,72 @@
 - NEXT EXECUTABLE ACTION → consume the first terminal mandatory gate on `b081c3f`; then reconcile the governance lane. Do not promote the current production docs-only deployment as functional proof.
 - DO NOT REPEAT → stale PASS transfer; preview-as-production; production SHA bypass; duplicate importer/navigation/RPC/runner; broad-push workflow weakening solely to clear queue pressure.
 - RESUME STATUS → ACTIVE / IMPORT CORE HARDENED / EXACT-HEAD DEPLOYMENT PROVEN / RELEASE IDENTITY STILL OPEN.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-28-AGHBARI-POST-UPLOAD-REPORT-CLOSURE-156
+
+- SESSION-ID → `2026-09-28-AGHBARI-POST-UPLOAD-REPORT-CLOSURE-156`.
+- CONTROL BASE → exact main HEAD at session start: `1b0d25a7834c779198f9ad19039c87e1262c4cd3`.
+- CURRENT EXECUTION BRANCH → `exec/20260928-post-import-report-closure`.
+- CURRENT EXACT HEAD AFTER IMPLEMENTATION → `0e0d55c7185f2f781c22fb6da0cfca105b34ebdf`.
+- PR → #675, `feat(import): complete post-upload execution and report outputs`.
+- POST-UPLOAD CORE DELIVERED → canonical source understanding/specialty detection, typed canonical commit support for sales/purchases/inventory/customers/suppliers/products/payments, durable nine-stage task ledger, sequential leased-worker lifecycle hooks, persisted rendered report-surface manifest bound to `importId + sourceHash`, and fail-closed result UI.
+- UI DELIVERED → canonical import drag/drop + live nine-stage execution proof + source/specialty result context + source-bound report surfaces + Executive Report / specialty report / Evidence / Decision / Work Center / Business Replay / Benchmark journey. Broken `/replay` and `/benchmark` post-import links were closed by adding real routes/pages and navigation entries.
+- REPORT TRUTH FIX → UI wording no longer claims a report is canonical truth merely because `rendered` completed. The result surface is explicitly a source-bound report route; report content remains governed by canonical truth/evidence.
+- ACTUAL NETLIFY ROOT FAILURE FOUND → exact branch head `f9bd7103bfaaffe5d9482f89c9dd29c731cfbf6c` failed build because `src/pages/ReportsPage.tsx` imported missing `src/components/ReportSurfaceContext`. This was reproduced in the Netlify deploy-preview log and fixed on current branch by adding `src/components/ReportSurfaceContext.tsx` at `0e0d55c7185f2f781c22fb6da0cfca105b34ebdf`.
+- CURRENT HOSTING PROOF BOUNDARY → the previous Netlify failure is closed at code level but NO fresh successful preview has yet been recorded for `0e0d55c`. Vercel status is `failure / build-rate-limit` (external free-plan blocker). Do not transfer older preview PASS.
+- SUPABASE STAGING PROOF → project `Report-Advisor-P0-2-Staging` (`fnqbvfuwbdpwvhcgzksl`) already has the post-upload task ledger migration applied (`20260928164633 / post_upload_execution_task_ledger`). Live schema query confirmed `public.report_execution_tasks` exists with the exact nine-stage constraint, tenant FKs and RLS.
+- STAGING EXECUTION CONTRACT PROOF → executed `enqueue_report_execution_job` for proof job `6cc12ccd-1e39-4ca2-aff0-9a428911cfda` and observed exactly 9 persisted tasks in order: queued, fingerprinted, extracted, canonicalized, validated, analyzed, decisioned, committed, rendered. This proves task distribution into a durable ordered ledger; it is NOT proof of multi-worker parallel execution.
+- STAGING AUTH BOUNDARY → direct SQL call to `claim_report_execution_job` was rejected with `AUTHENTICATED_USER_REQUIRED`. This is a positive fail-closed security result. No auth bypass was applied. Full live worker execution through authenticated claim remains NOT PROVEN.
+- CURRENT CI → fresh workflows for `0e0d55c` have not yet appeared in the Actions API readback at write time; no terminal PASS is claimed.
+- OPEN BLOCKERS → PC01/device offline; Vercel free-plan build-rate limit; authenticated live worker claim/browser/device E2E; fresh exact-head Netlify successful build; mandatory CI terminal results; production exact-SHA/resilience proof.
+- CLOSED IN THIS BATCH → post-upload task ledger/report-output wiring; specialty report routing; broken post-import routes; report truth context build blocker.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/RPC/runner; claim security bypass; report route without source-bound truth context.
+- RESUME POINT → current HEAD `0e0d55c7185f2f781c22fb6da0cfca105b34ebdf`.
+- NEXT EXACT ACTION → consume fresh exact-head build/CI results; repair only the first reproducible current-SHA failure. Then execute the remaining repository-safe front, with live authenticated/device work isolated as external blockers.
+- RESUME STATUS → ACTIVE / POST-UPLOAD EXECUTION + REPORT SURFACES IMPLEMENTED / LIVE AUTHENTICATED WORKER AND FRESH HOSTED PROOF STILL OPEN.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-28-AGHBARI-POST-UPLOAD-REPORT-CLOSURE-157
+
+- SESSION-ID → `2026-09-28-AGHBARI-POST-UPLOAD-REPORT-CLOSURE-157`.
+- EXACT FUNCTIONAL CHECKPOINT BEFORE THIS WRITE-BACK → `0265ae7a043f5aa38d4118573bccbd984171086b`.
+- PR → #675 / `exec/20260928-post-import-report-closure`.
+- NEW ROOT FAILURE PROVEN → exact current Netlify preview build for `db49670f...` failed on missing `src/components/SourceBoundReportContext` imported by `src/pages/ReportsPage.tsx`.
+- ROOT FIX EXECUTED → restored `src/components/SourceBoundReportContext.tsx` from the previously proven canonical implementation; no new report pipeline/duplicate was created.
+- CURRENT HOSTED STATUS → Netlify preview for `0265ae7...` is currently pending; Vercel remains `failure / build-rate-limit` with deployment pending. No new hosted PASS claimed yet.
+- CURRENT REPOSITORY CHECK → `ReportsPage.tsx` imports were rescanned against exact branch tree and all alias-resolvable local modules exist, including both report truth context components.
+- UI/OUTPUT STATUS → post-upload report routes, Business Replay, Benchmark, source-bound report context, report truth context, and navigation are implemented and wired.
+- SUPABASE PROOF RETAINED → staging enqueue created the nine ordered durable task records and cleanup confirmed the proof job was removed. Authenticated worker claim remains blocked by the intended `AUTHENTICATED_USER_REQUIRED` guard when called from unauthenticated SQL.
+- OPEN → fresh Netlify build terminal result for `0265ae7...`; mandatory GitHub CI terminal results; authenticated runtime/browser/device E2E; Vercel rate-limit; production exact-SHA/resilience.
+- NEXT EXACT ACTION → consume the current Netlify/GitHub terminal results on `0265ae7...`; repair only the first reproducible root failure, otherwise continue the next repository-safe front.
+- DO NOT REPEAT → stale preview PASS, production-SHA bypass, direct worker auth bypass, duplicate report/import runners.
+- RESUME STATUS → ACTIVE / ROOT BUILD FAILURES BEING CLOSED ONE-BY-ONE / POST-UPLOAD REPORT SURFACE IMPLEMENTED.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-28-AGHBARI-POST-UPLOAD-REPORT-CLOSURE-158
+
+- SESSION-ID → `2026-09-28-AGHBARI-POST-UPLOAD-REPORT-CLOSURE-158`.
+- EXACT CURRENT CODE HEAD → `a6bf8da6a49f20c8a24d3605bebb40c3e6d029d6`.
+- BUILD ROOTS CLOSED THIS CONTINUATION → restored `src/lib/decision-status.ts`; fixed `CanonicalImportPage` to read `fetchDashboardIntelligence` from canonical `dashboard-canonical.ts` instead of the `queries-compat` adapter; preserved import context when opening Business Replay; removed the unused duplicate `SPECIALTY_REPORT_OUTPUTS/resolvePostImportReports` map from the UI so rendered-output routing has one canonical source.
+- STATIC CURRENT-SURFACE CHECK → exact branch tree confirms all local alias imports used by `CanonicalImportPage`, `ExecutiveReportPage`, `BusinessReplayPage`, `BenchmarkPage`, `ReportSurfaceContext`, and `SourceBoundReportContext` resolve to real files.
+- PREVIOUS EXACT NETLIFY ROOTS → missing `ReportSurfaceContext`, missing `SourceBoundReportContext`, missing `decision-status`, and `fetchDashboardIntelligence` incorrectly imported from `queries-compat` were all reproduced from current deploy logs and fixed sequentially. The newest Netlify build after the latest fixes is not yet terminalized, so no PASS is claimed.
+- SERVER SECURITY PATH VERIFIED IN CODE → browser calls the canonical server boundary with the user's bearer token; server authenticates the user with the anon client, resolves tenant, downloads source through the service client, recomputes SHA, parses/understands/reconciles authoritatively, then passes a service-role client as `workerClient` to the durable runner. The worker claim therefore is designed to execute server-side with service authority while tenant checks remain explicit. Direct unauthenticated SQL claim remains blocked with `AUTHENTICATED_USER_REQUIRED`.
+- OPEN → fresh exact-head Netlify terminal result; queued GitHub CI terminal results; authenticated endpoint/browser E2E; device-only PC01 (offline); Vercel free-plan build-rate-limit; production exact-SHA/resilience proof.
+- NEXT EXACT ACTION → consume the fresh Netlify/CI terminal result for the latest branch HEAD; repair only the first new root failure if one appears. Then continue with any repository-safe independent front.
+- DO NOT REPEAT → stale PASS transfer; duplicate report-route maps; direct worker auth bypass; treating rendered routing as canonical business truth.
+- RESUME STATUS → ACTIVE / POST-UPLOAD REPORT FLOW HARDENED / BUILD ROOTS BEING CLOSED CURRENT-SHA FIRST.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-28-AGHBARI-POST-UPLOAD-REPORT-CLOSURE-159
+
+- SESSION-ID → `2026-09-28-AGHBARI-POST-UPLOAD-REPORT-CLOSURE-159`.
+- EXACT FUNCTIONAL HEAD → `0e8d8a3c2b94e797a0e58c8c95d8bb49034fa6a1` before this memory write-back.
+- NEW CONTRACT PROTECTION → extended the existing `scripts/check-canonical-import-mapping.mjs` rather than creating another test. It now guards source-bound report route mapping (sales/purchases/inventory/executive), verifies actual App routes including Business Replay and Benchmark, and guards the actionable recommendation status helper.
+- UI ROUTE RESCAN → 39 navigation entries compared against 41 App routes; zero navigation paths are currently missing.
+- CURRENT REPORT FLOW → canonical importer remains the sole import entry; rendered report routing is generated by the durable execution adapter, not by a second UI map. Business Replay now preserves `importId` context when opened from Executive Report.
+- CURRENT BUILD BOUNDARY → latest terminal Netlify root was `fetchDashboardIntelligence` missing from `queries-compat`; fixed by direct canonical import from `dashboard-canonical.ts`. No newer terminal build result was available yet when this checkpoint was written.
+- OPEN → exact-head Netlify build result, GitHub CI terminal results, authenticated endpoint/browser E2E, PC01 device, Vercel free-plan build rate limit, production exact-SHA and resilience proof.
+- NEXT EXACT ACTION → consume current exact-head hosted/CI results; repair only the first reproducible root failure. Then continue repository-safe independent work.
+- DO NOT REPEAT → duplicate report maps, stale PASS transfer, preview-as-production, direct worker auth bypass, report links without source/evidence gating.
+- RESUME STATUS → ACTIVE / POST-UPLOAD REPORT ROUTING + UI CONTRACT HARDENED / BUILD VERIFICATION STILL OPEN.

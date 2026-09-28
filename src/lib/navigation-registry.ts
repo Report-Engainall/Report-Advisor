@@ -47,6 +47,8 @@ export type NavigationIconKey =
   | 'profile'
   | 'master-data'
   | 'liquidity'
+  | 'replay'
+  | 'benchmark'
   | 'suppliers'
 ;
 
@@ -137,6 +139,8 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
     items: [
       { section: 'outputs', path: '/reports', label: 'مركز التقارير', enLabel: 'Reports Center', description: 'التقارير التنفيذية والتفصيلية ومخرجات الأداء', keywords: ['reports', 'تقارير'], icon: 'reports' },
       { section: 'outputs', path: '/reports/executive', label: 'التقرير التنفيذي', enLabel: 'Executive Report', description: 'قصة الأداء والقرارات للإدارة', keywords: ['executive report', 'management'], icon: 'executive-report' },
+      { section: 'outputs', path: '/replay', label: 'Business Replay', enLabel: 'Business Replay', description: 'النتائج الفعلية والتعلّم بعد القرار', keywords: ['replay', 'outcome', 'learning', 'نتائج', 'تعلّم'], icon: 'replay', minimumWorkspaceMode: 'advanced' },
+      { section: 'outputs', path: '/benchmark', label: 'شبكة المقارنة', enLabel: 'Benchmark Network', description: 'أهلية المقارنة والنظراء دون اختلاق ترتيب', keywords: ['benchmark', 'peer', 'comparison', 'مقارنة'], icon: 'benchmark', minimumWorkspaceMode: 'advanced' },
     ],
   },
   {

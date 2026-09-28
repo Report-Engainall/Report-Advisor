@@ -22,3 +22,34 @@ if (!source.includes('if (!previous || column.mappingConfidence > previous.mappi
 }
 
 console.log('Canonical import mapping regression gate: PASS');
+
+
+const executionSource = readFileSync(new URL('../src/lib/import/canonical-production-adapter.ts', import.meta.url), 'utf8');
+const requiredReportRoutes = [
+  "sales_invoices",
+  "/reports/sales",
+  "purchase_invoices",
+  "/reports/purchases",
+  "inventory_balances",
+  "/reports/inventory",
+  "/reports/inventory-intelligence",
+  "/reports/executive",
+  "sourceBound: true",
+  "sourceHash: input.sourceHash",
+  "importId: input.importId",
+];
+for (const token of requiredReportRoutes) {
+  if (!executionSource.includes(token)) throw new Error(`Post-upload report routing contract missing: ${token}`);
+}
+
+const routeSource = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
+for (const route of ['/reports/sales', '/reports/purchases', '/reports/inventory', '/reports/inventory-intelligence', '/reports/executive', '/replay', '/benchmark']) {
+  if (!routeSource.includes(`path="${route}"`)) throw new Error(`Canonical output route missing from App: ${route}`);
+}
+
+const decisionStatusSource = readFileSync(new URL('../src/lib/decision-status.ts', import.meta.url), 'utf8');
+for (const token of ["'open'", "'accepted'", "'approved'", "'in_progress'", "ACTIONABLE_RECOMMENDATION_STATUSES"]) {
+  if (!decisionStatusSource.includes(token)) throw new Error(`Decision actionability contract missing: ${token}`);
+}
+
+console.log('Post-upload report routing + decision status contract: PASS');
