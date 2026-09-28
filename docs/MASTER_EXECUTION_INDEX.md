@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXECUTIVE REPORT IMPORT PROVENANCE — FUNCTIONAL CANDIDATE acf52b6
+
+- FUNCTIONAL / UI-TEST CANDIDATE → `acf52b6dcc1c3a09d9e4be77ca5185f9ca773c1a`.
+- CLOSED IMPLEMENTATION → Executive Report now consumes `?import=` context through existing tenant-bound `fetchImportRecords` + `fetchImportEvidenceSnapshot`, exposing source/status/evidence/snapshot/quality/shape context without inventing file-only KPIs.
+- FAIL-CLOSED → invalid/unproven import context is rendered as `REVIEW / NOT PROVEN`; company-level executive metrics retain their canonical company scope.
+- UI CONTRACT → `scripts/check-ui-route-completeness.mjs` now guards the import provenance contract.
+- CURRENT CI → exact-head workflows for the functional candidate are queued/in progress; no terminal PASS is yet claimed.
+- POST-UPLOAD EXECUTION MODEL → upload → authoritative verification → durable Job → nine persisted ordered Tasks → single leased worker execution → canonical commit → evidence snapshot → source-bound signals/decision/work/replay/benchmark → Executive Report.
+- OPEN → current-head CI/certification/report-execution/browser results; hosted Phase-F drift and PC01 remain external/device fronts.
+- NEXT EXACT ACTION → consume terminal current-head gates; fix the first reproducible non-external failure; then persist/rescan.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-UPLOAD WORKER CONTRACT REPAIRS — FUNCTIONAL CANDIDATE c9577a7
 
 - FUNCTIONAL / CODE-TEST CANDIDATE → `c9577a75f95d08b20cf5645e00e56c8490c1c071`.
