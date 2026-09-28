@@ -376,6 +376,26 @@ for (const [pattern, message] of [
 ]) {
   if (!pattern.test(canonicalImportUiSource)) throw new Error('Post-import output contract missing: ' + message);
 }
+const journeyStart = canonicalImportUiSource.indexOf('id="post-import-journey"');
+const journeyEnd = journeyStart >= 0 ? canonicalImportUiSource.indexOf('\n</section>', journeyStart) : -1;
+if (journeyStart < 0 || journeyEnd < 0) throw new Error('Post-import journey surface is missing');
+const journeySource = canonicalImportUiSource.slice(journeyStart, journeyEnd);
+const journeyOrder = [
+  ['01 · EVIDENCE', '02 · SIGNALS'],
+  ['02 · SIGNALS', '03 · DECISION'],
+  ['03 · DECISION', '04 · WORK'],
+  ['04 · WORK', '05 · OUTCOME'],
+  ['05 · OUTCOME', '06 · BENCHMARK'],
+  ['06 · BENCHMARK', '07 · REPORTS'],
+];
+for (const [before, after] of journeyOrder) {
+  if (journeySource.indexOf(before) < 0 || journeySource.indexOf(after) < 0 || journeySource.indexOf(before) >= journeySource.indexOf(after)) {
+    throw new Error('Post-import journey ordering is invalid: ' + before + ' -> ' + after);
+  }
+}
+if ((journeySource.match(/06 · BENCHMARK/g) ?? []).length !== 1) throw new Error('Benchmark journey card must be present exactly once');
+if ((journeySource.match(/07 · REPORTS/g) ?? []).length !== 1) throw new Error('Reports journey card must be present exactly once');
+
 
 console.log('Import transaction contract: PASS');
 
