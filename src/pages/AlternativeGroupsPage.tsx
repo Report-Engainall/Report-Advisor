@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus, Save, Trash2, UsersRound, RefreshCw, AlertTriangle } from 'lucide-react';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { PageHeader, Spinner } from '@/components/ui/States';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 import { validateAlternativeGroupIsolation, type TenantScopedMember } from '@/lib/free-toolbox/alternative-group-security';
 
 type Group={id:string;name:string;description:string|null;base_unit:string;is_active:boolean;created_at:string};
