@@ -1,4 +1,19 @@
-# RESUME TOKEN — 2026-09-28 / REPORT SURFACE CONTEXT CLOSURE — FUNCTIONAL CANDIDATE 573304a
+# RESUME TOKEN — 2026-09-28 / REPORT OUTPUT CONTEXT + EXPORT CLOSURE — FUNCTIONAL CANDIDATE be36ca1
+
+- FUNCTIONAL/UI CANDIDATE → `be36ca1557748c00d426f8f6b3b7a3e6f11029cc`.
+- CLOSED FRONT → Reports Center, Sales, Purchases, Inventory, Receivables and Profitability now use the shared `ReportSurfaceContext` contract for company, period, currency, As Of, truth state and Trust navigation.
+- ADVANCED REPORTS → Inventory Intelligence and Demand Velocity now use the same centralized context resolver, eliminating duplicate company/currency state and query logic.
+- ACTIONABILITY → Inventory Intelligence and Demand Velocity now expose canonical export actions through `downloadReportArtifact` plus print actions; exports remain scoped to the currently rendered report window/mode.
+- INVENTORY AS-OF → `InventoryReportSnapshot` preserves source `asOf` metadata when the RPC returns it; the UI falls back to the query date only when the snapshot does not expose an As Of value.
+- VERIFIED SEMANTICS → shared report context preserves `VERIFIED`, `CALCULATED`, `REVIEW`, and `INSUFFICIENT DATA` rather than flattening confirmed evidence into a calculated state.
+- CONTRACT → `scripts/check-ui-route-completeness.mjs` guards shared report context, advanced-report fail-closed states, and print/export availability.
+- SOURCE PROOF → current static assertions are all green for shared context, five report surfaces, advanced exports, no duplicate advanced company resolver state, inventory As Of metadata, and route guards.
+- EXACT DIFF → the latest implementation batch after `0489cd0...` changed only report/UI/contract surfaces; no new backend RPC or duplicate reporting engine was introduced.
+- CI → current combined status is not certification evidence: Vercel reports a free-plan build-rate-limit failure and an associated deployment is pending. No PASS is claimed from this signal.
+- DEVICE → PC01 remains offline; browser proof remains isolated from completed repository work.
+- NEXT EXACT ACTION → consume terminal exact-head CI when available; if no terminal gate is exposed, continue the next non-device canonical surface without reopening closed import/report-context work.
+- DO NOT REPEAT → do not transfer historical CI/runtime PASS across SHA; do not label file/company scopes interchangeably; do not introduce another report engine or evidence path.
+
 
 - FUNCTIONAL/UI CANDIDATE → `573304a90dcf7d5672bb04ded788e2b0c90bd549`.
 - CLOSED UI FRONT → `src/components/ReportSurfaceContext.tsx` is now the shared report-context surface for company, period, currency, As Of, truth state, source description, and Trust & Evidence navigation.
