@@ -6,7 +6,7 @@ const normalize = value => String(value ?? '').replaceAll('\r\n', '\n').trim();
 const candidatePattern = /(?:CURRENT CODE\/TEST CANDIDATE|CURRENT_CODE_TEST_CANDIDATE|Current code\/test candidate|Current Code\/Test Candidate|Exact code\/test head entering this sweep|CURRENT REPOSITORY \/ CODE-TEST CHECKPOINT|CURRENT REPOSITORY \/ CODE\/TEST CHECKPOINT)\s*(?::|→)\s*\`([0-9a-f]{40})\`/i;
 const candidateFromIndex = index => {
   const normalized = normalize(index);
-  const currentBoundary = normalized.match(/^# CURRENT EXECUTION BOUNDARY[^\n]*\n([\s\S]*?)(?=\n# CURRENT EXECUTION BOUNDARY|\n---|$)/m);
+  const currentBoundary = normalized.match(/(?:^|\n)# CURRENT EXECUTION BOUNDARY[^\n]*\n([\s\S]*?)(?=\n# CURRENT EXECUTION BOUNDARY|\n---|(?![\s\S]))/);
   const scoped = currentBoundary?.[1] ?? normalized;
   return scoped.match(candidatePattern)?.[1]?.toLowerCase();
 };
