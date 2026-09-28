@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-28 / EXACT-HEAD PROVEN / PHASE-F EXTERNAL
+
+- CURRENT REPOSITORY HEAD (functional code/test head) → `b5b5ac2d56477aa3da9029fd709ae895a649199e`
+- CURRENT CODE/TEST CANDIDATE → `b5b5ac2d56477aa3da9029fd709ae895a649199e`
+- ACTIVE EXECUTION FRONTS → exact-head governance verification; Phase-F hosted resilience remains externally blocked.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit causing stale production alias; Supabase Auth leaked-password protection external; PC01 device/browser path.
+- LAST PROVEN → Final Certification Gate run `36451230363` SUCCESS; Quality run `36451230469` SUCCESS; Full Product Browser E2E run `36451230478` SUCCESS; Device-Independent Browser E2E run `36451230142` SUCCESS.
+- LAST FAILED → Phase-F run `36451230367` on candidate `b5b5ac2d56477aa3da9029fd709ae895a649199e`: operational-health 200 with stale deployment SHA `22a5d3123fb576603de363c4c81fd830dfd53547`; tenant-canary PASS; backup-restore `deployment_lookup_failed:404`; rollback drill HTTP 503; `PHASE_F_STATUS=NOT READY`, 1/4.
+- NEXT EXECUTABLE ACTION → consume fresh exact-head governance gates after this memory repair; repair only the first terminal repository failure. Do not alter Phase-F into a fake PASS.
+- NEXT INDEPENDENT ACTIONS → preserve certification/quality/browser proof, isolate hosted-production drift, continue any safe repository-only front that does not conflict with the active checkpoint.
+- DO NOT REPEAT → stale PASS across SHAs, malformed resume anchors, stale production deployment as code failure, duplicate import/evidence paths, blanket SECURITY DEFINER revokes.
+- RESUME POINT → candidate `b5b5...` is the last proven functional head; later docs-only governance checkpoints must remain ancestry-bound.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / BATCH PROVEN / PHASE-F EXTERNAL BLOCKER
 
 - CURRENT CODE/TEST CANDIDATE → `b5b5ac2d56477aa3da9029fd709ae895a649199e`
