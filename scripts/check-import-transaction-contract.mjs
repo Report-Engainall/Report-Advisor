@@ -188,8 +188,8 @@ if (!/dropped\.length > 1/.test(canonicalImportPage)) {
 if (!canonicalImportPage.includes('to="/benchmark"')) {
   throw new Error('Canonical import post-import journey must expose the benchmark gate');
 }
-if (!canonicalImportPage.includes('INSUFFICIENT_SAMPLE')) {
-  throw new Error('Canonical import benchmark UI must remain fail-closed when peer sample is insufficient');
+if (!canonicalImportPage.includes('لا يظهر ترتيب هنا قبل تحقق الشروط')) {
+  throw new Error('Canonical import benchmark UI must remain fail-closed without hardcoding an unobserved benchmark status');
 }
 if (!/const dbBlock =/i.test('noop')) {
   // marker kept intentionally unreachable; avoids accidental future broad replacements
