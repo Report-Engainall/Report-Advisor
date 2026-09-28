@@ -310,7 +310,7 @@ export function CanonicalImportPage() {
         snapshot_id: snapshotId,
         snapshot_available: Boolean(snapshotId),
         evidence_state: snapshotId ? 'VERIFIED' : 'INSUFFICIENT DATA',
-        source_specialty: sourceSpecialty,
+        source_specialty_inferred: sourceSpecialty,
       });
 
       if (typeof window !== 'undefined') {
@@ -355,7 +355,7 @@ export function CanonicalImportPage() {
     }
   }, [
     rows, file, fileHash, duplicate, securityPassed, quality, handleDrop,
-    qualityApproved, headers.length, mappings, warnings, understandingConfidence,
+    qualityApproved, headers.length, mappings, warnings, understandingConfidence, sourceSpecialty,
     understandingReason, loadHistory,
   ]);
 
