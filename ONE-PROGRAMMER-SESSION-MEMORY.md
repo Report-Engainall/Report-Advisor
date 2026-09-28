@@ -1389,3 +1389,18 @@
 - CI EXACT SHA → Execution Enforcement Contract `36474075669` and Final Certification Gate `36474075789` are queued on this exact SHA; no terminal PASS/FAIL transferred.
 - DO NOT REPEAT → do not imply Business Replay is source-bound merely because a source id is in the URL; preserve company-level scope until the data contract changes.
 - RESUME POINT → continue the next concrete non-device certification/cleanup gap; preserve Benchmark as INSUFFICIENT_SAMPLE and hosted/device blockers separately.
+
+# RESUME TOKEN — 2026-09-28 / CANONICAL REPORT OUTPUT ROUTING + POST-IMPORT UI ORDER
+
+- FUNCTIONAL CHECKPOINT SHA → `d6d059fb6a31f2aa61a436d939ec451d60d6b6ee`.
+- CLOSED → canonical report-output routing is now owned by `src/lib/import/canonical-report-outputs.ts`; specialty/entity mapping covers sales, purchases, inventory, customers, suppliers, products, payments and generic sources with governed report/analytics destinations.
+- CLOSED → durable import adapter `canonical-production-adapter.ts` consumes the shared resolver instead of maintaining a second `routesByEntity` map.
+- CLOSED → Canonical Import UI no longer carries a duplicate local report-output map; rendered report cards are driven from the persisted source-bound Job Manifest.
+- CLOSED → post-import visual journey order is now exact: Evidence 01 → Signals 02 → Decision 03 → Work 04 → Outcome 05 → Benchmark 06 → Reports 07; duplicate Benchmark card removed.
+- CLOSED → `scripts/check-import-transaction-contract.mjs` now guards the single canonical output contract and exact post-import journey ordering/card uniqueness.
+- DUPLICATE CONTROL → an attempted new imported-report context component was detected as duplicate because Executive Report already has source-bound context; it was deleted immediately. Do not recreate it.
+- PROOF STATE → exact-source assertions for this batch are encoded in the import transaction contract; no terminal GitHub Actions PASS is currently surfaced for this exact HEAD, so no CI PASS is claimed.
+- HOSTED STATUS → CodeRabbit remains SUCCESS; Netlify deploy-preview remains BUILD FAILURE on the current branch family; Vercel remains limited by the documented free-plan deployment rate limit.
+- DEVICE → PC01 remains offline; browser/device certification stays isolated.
+- DO NOT REPEAT → do not add page-local report mappings, duplicate source-context components, or source-scoped KPI claims that are not backed by the canonical report/evidence contract.
+- RESUME POINT → obtain a fresh exact-head build/test result, repair the first reproducible build failure if source-fixable, then continue the next safe non-device reporting/runtime front.
