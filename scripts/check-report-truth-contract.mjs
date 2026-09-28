@@ -71,5 +71,23 @@ for (const match of reportSource.matchAll(missingMetricFallback)) {
 if (/(Number|parseFloat|parseInt)\([^\n]*\).*NaN|NaN.*(Number|parseFloat|parseInt)\(/s.test(reportSource) && !/Number\.isFinite/.test(reportSource)) {
   throw new Error('Report truth contract requires finite-number guarding');
 }
+const reportSurfaceContext = fs.readFileSync(path.join(root, 'src', 'components', 'ReportSurfaceContext.tsx'), 'utf8');
+for (const status of ['VERIFIED', 'TRUSTED', 'PARTIAL', 'REVIEW', 'BLOCKED', 'INSUFFICIENT DATA', 'CALCULATED']) {
+  if (!reportSurfaceContext.includes(status)) {
+    throw new Error('Report truth UI is missing status coverage: ' + status);
+  }
+}
+const sourceBoundContext = fs.readFileSync(path.join(root, 'src', 'components', 'SourceBoundReportContext.tsx'), 'utf8');
+if (!sourceBoundContext.includes('manifest.outputs.map')) {
+  throw new Error('Source-bound report context must expose rendered output links');
+}
+if (!sourceBoundContext.includes('SOURCE-BOUND / RENDERED')) {
+  throw new Error('Source-bound report context must distinguish rendered evidence');
+}
+const queryLayer = fs.readFileSync(path.join(root, 'src', 'lib', 'queries.ts'), 'utf8');
+if (!queryLayer.includes("job.status !== 'completed'")) {
+  throw new Error('Rendered report manifest must fail closed unless the execution job is completed');
+}
+
 
 console.log(`Report truth contract: PASS (${reportFiles.length} report candidates, ${migrationFiles.length} migrations scanned)`);
