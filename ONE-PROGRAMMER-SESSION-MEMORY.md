@@ -1436,3 +1436,23 @@
 - PROOF → exact GitHub-content regression harness PASS for Reports Center reuse, Executive Report reuse, duplicate-state removal, output-link rendering and completed-job manifest gating.
 - DO NOT REPEAT → do not reintroduce report-page-local source-bound context or rendered-manifest resolution; extend the shared component/queries instead.
 - RESUME POINT → continue rescan into remaining report subpages/canonical report surfaces for duplicated truth/context logic, then persist the next completed front.
+
+# RESUME TOKEN — 2026-09-28 / ALL IMPORT-CAPABLE REPORT OUTPUTS SOURCE-BOUND
+
+- FUNCTIONAL CHECKPOINT → `a78028548cba8de6f17788f6070734b951d6edcb`.
+- CLOSED → every report/analytics surface declared by the canonical import-output resolver now exposes the shared `SourceBoundReportContext`:
+  - Sales
+  - Purchases
+  - Inventory
+  - Inventory Intelligence
+  - Demand Velocity
+  - Receivables
+  - Profitability
+  - RFM
+  - ABC
+  - Liquidity
+- CLOSED → RFM and ABC now show source context when opened from an import-bound route; Liquidity, Demand Velocity, canonical Receivables and canonical Profitability are likewise source-bound.
+- CLOSED → a dedicated product UI contract now fails closed if an import-capable report surface drops the shared source-context component.
+- PROOF → exact GitHub-content regression harness PASS across all ten import-capable outputs.
+- DO NOT REPEAT → no page-specific replacement for SourceBoundReportContext; no output surface may silently become source-unbound after an import handoff.
+- RESUME POINT → rescan remaining report/analytics pages outside the canonical import-output list for accidental KPI/source ambiguity, then persist the next concrete closure.
