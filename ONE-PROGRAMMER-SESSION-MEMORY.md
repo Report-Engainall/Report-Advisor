@@ -1478,3 +1478,14 @@
 - PROOF → exact GitHub-content regression PASS for As Of semantics across the affected surfaces.
 - DO NOT REPEAT → do not use `new Date()` as a substitute for source freshness unless the underlying report contract explicitly defines that cutoff.
 - RESUME POINT → continue the next concrete non-device data-truth/reporting gap, then re-run the deep regression harness and persist again.
+
+# RESUME TOKEN — 2026-09-28 / REPORT NAVIGATION CONTEXT CONTINUITY
+
+- FUNCTIONAL CHECKPOINT → `abeb0871bc1a6f9ab3b9e60c20af16424e62135c`.
+- CLOSED → Analytics action navigation preserves the focused `import=` context across Decision, Trust and Reports.
+- CLOSED → Demand Velocity and Liquidity next actions preserve the focused import context instead of dropping provenance scope.
+- CLOSED → Inventory Intelligence next action preserves import context and no longer fabricates a browser-date As Of.
+- CLOSED → Product/WOW UI certification now guards import-context continuity for these paths.
+- PROOF → exact-source regression PASS for Analytics/Demand/Liquidity context continuity; Inventory Intelligence changes are encoded in the same contract.
+- DO NOT REPEAT → never allow a report action launched inside an imported-source context to silently switch to tenant-wide scope without an explicit scope change.
+- RESUME POINT → perform the final exact-head deep regression, inspect current hosted statuses, and persist the latest execution boundary.
