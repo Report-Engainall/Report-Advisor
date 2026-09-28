@@ -383,6 +383,58 @@ export type RuntimeDecisionRecord = { id:string; decision_key:string; decision_t
 export type DecisionApprovalRecord = { id:string; decision_id:string; status:string; requested_by:string|null; decided_by:string|null; requested_at:string; decided_at:string|null; reason:string|null; evidence:Record<string,unknown> };
 export type DecisionWorkItemRecord = { id:string; decision_id:string; recommendation_id:string|null; department:string; assignee_id:string|null; assignee_label:string|null; title:string; description:string|null; priority:string; status:string; due_at:string|null; started_at:string|null; completed_at:string|null; evidence_refs:Array<Record<string,unknown>>; expected_impact:number|null; actual_impact:number|null; created_at:string; updated_at:string };
 export type RecommendationOutcomeRecord = { id:string; company_id:string; recommendation_key:string; decision_id:string|null; observed_at:string; expected_impact:number|null; actual_impact:number|null; outcome_quality:number|null; status:string; evidence:Record<string,unknown> };
+
+export type DecisionImpactSummary = {
+  outcomeCount: number;
+  expectedImpact: number | null;
+  actualImpact: number | null;
+  delta: number | null;
+  positiveCount: number;
+  negativeCount: number;
+  evidenceBackedCount: number;
+  roiStatus: 'NOT_AVAILABLE_NO_CANONICAL_CONTRACT';
+  recoveryStatus: 'NOT_AVAILABLE_NO_CANONICAL_CONTRACT';
+};
+
+export async function fetchDecisionImpactSummary(evidenceSnapshotId?: string | null): Promise<DecisionImpactSummary> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase.from('recommendation_outcomes')
+    .select('expected_impact,actual_impact,status,evidence')
+    .eq('company_id', companyId)
+    .order('observed_at', { ascending: false })
+    .range(0, 499);
+  if (error) throw error;
+  const scoped = (data ?? []).filter((row) => {
+    if (!evidenceSnapshotId) return true;
+    const evidence = row.evidence && typeof row.evidence === 'object' && !Array.isArray(row.evidence)
+      ? row.evidence as Record<string, unknown>
+      : {};
+    return evidence.evidence_snapshot_id === evidenceSnapshotId;
+  });
+  const expectedValues = scoped.map((row) => row.expected_impact == null ? null : Number(row.expected_impact)).filter((v): v is number => Number.isFinite(v));
+  const actualValues = scoped.map((row) => row.actual_impact == null ? null : Number(row.actual_impact)).filter((v): v is number => Number.isFinite(v));
+  const evidenceBackedCount = scoped.filter((row) => {
+    const evidence = row.evidence && typeof row.evidence === 'object' && !Array.isArray(row.evidence)
+      ? row.evidence as Record<string, unknown>
+      : {};
+    return typeof evidence.evidence_snapshot_id === 'string' && evidence.evidence_snapshot_id.trim().length > 0;
+  }).length;
+  const expectedImpact = expectedValues.length ? expectedValues.reduce((sum, value) => sum + value, 0) : null;
+  const actualImpact = actualValues.length ? actualValues.reduce((sum, value) => sum + value, 0) : null;
+  return {
+    outcomeCount: scoped.length,
+    expectedImpact,
+    actualImpact,
+    delta: expectedImpact != null && actualImpact != null ? actualImpact - expectedImpact : null,
+    positiveCount: scoped.filter((row) => row.status === 'positive').length,
+    negativeCount: scoped.filter((row) => row.status === 'negative').length,
+    evidenceBackedCount,
+    roiStatus: 'NOT_AVAILABLE_NO_CANONICAL_CONTRACT',
+    recoveryStatus: 'NOT_AVAILABLE_NO_CANONICAL_CONTRACT',
+  };
+}
+
 export type BusinessReplayEvent = { kind:'SNAPSHOT'|'WORK'|'OUTCOME'; id:string; occurredAt:string; status:string|null; title:string; detail:string|null; evidencePresent:boolean; expectedImpact:number|null; actualImpact:number|null; qualityScore:number|null };
 export type BusinessReplayLearning = { count:number; accuracy:number|null; coverage:number|null; impact:number|null };
 export type BusinessReplaySnapshot = { snapshotCount:number; outcomeCount:number; workItemCount:number; latestSnapshotAt:string|null; latestOutcomeAt:string|null; windowLimit:number; hasMoreHistory:boolean; learning:BusinessReplayLearning; events:BusinessReplayEvent[] };
