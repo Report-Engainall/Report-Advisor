@@ -1,3 +1,19 @@
+# RESUME TOKEN — 2026-09-28 / POST-IMPORT REPORT UX + FIXTURE DISCOVERY REANCHORED
+
+- LATEST FUNCTIONAL CHECKPOINT SHA (before this documentation write-back) → `2b60a72021d969550055e6682e7f36ab4a43d60e`.
+- ACTUAL UI DELIVERY → `ImportPage.tsx` now explicitly exposes the post-import report stage; `CanonicalImportPage.tsx` maps the detected specialty/entity to governed report outputs.
+- REPORT OUTPUT MAPPING → sales → Sales Report; purchases → Purchases Report; inventory → Inventory + Inventory Intelligence; customers/suppliers/products/payments → specialized Analytics; other → Executive Report.
+- EXECUTION PROOF → final import result exposes the persisted nine durable task statuses, completion count, worker/attempt metadata and completed timestamps.
+- EXECUTION WORDING → UI explicitly states that the nine tasks are created and advanced sequentially by a leased worker; no parallel multi-worker processing is claimed.
+- CONTRACT → `scripts/check-import-transaction-contract.mjs` guards report mapping, report-output rendering, final execution proof, nine-stage wording, non-parallel wording, and visible post-import report stage.
+- FIXTURE DISCOVERY → canonical fixture path is `tests/fixtures/realistic-reports/`; `docs/SYSTEM_HEART.md` now requires startup inspection of fixture directories and defines the post-import acceptance chain.
+- STATIC SOURCE PROOF → 11/11 targeted source assertions PASS on the functional checkpoint: fixture README, fixture doctrine, import report-stage disclosure, specialty map/resolver, report-output UI, final execution proof, nine-stage semantics, and contract guards.
+- CI → no workflow run registered yet for checkpoint `2b60a720...`; no runtime/CI PASS is claimed.
+- DEVICE → PC01 remains offline; browser/device proof remains isolated.
+- EXTERNAL → Vercel free-plan deployment rate limit remains external.
+- NEXT EXACT ACTION → once files exist in the fixture directory, execute the canonical import acceptance flow against the real fixtures and verify the resulting report outputs/evidence; continue independent non-device UI/core fronts without waiting for device or CI.
+- WRITEBACK NOTE → the commits that update this Memory/Index are documentation descendants of `2b60a720...`; do not mistake the checkpoint SHA for the final branch HEAD after this write-back.
+
 # RESUME TOKEN — 2026-09-28 / FIXTURE INTAKE + POST-IMPORT REPORT OUTPUTS CLOSED
 
 - CURRENT BRANCH EXACT HEAD → `55a3ff5b12774678bbc68ee612610a28a273790f`.
