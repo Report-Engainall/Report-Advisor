@@ -8,7 +8,7 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
 import { LoadingState, ErrorState, EmptyState, DataUnavailableState } from '@/components/ui/States';
 import { TrendChart } from '@/components/ui/Charts';
-import { TruthContextStrip } from '@/components/TruthContextStrip';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs } from '@/lib/dashboard-canonical';
 import { fetchBusinessReplaySnapshot } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
@@ -202,7 +202,12 @@ export function ExecutiveCommandCenterPage() {
         </div>
       </section>
 
-      <TruthContextStrip months={months} status={kpis.status} asOf={asOf ?? 'غير متاح'} />
+      <ReportSurfaceContext
+        period={`آخر ${months} أشهر`}
+        asOf={asOf ?? new Date().toISOString().slice(0, 10)}
+        status={kpis.status === 'CONFIRMED' ? 'VERIFIED' : kpis.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA'}
+        sourceLabel="مركز القيادة يجمع الصورة المالية والإشارات والقرارات من المصادر الكانونية نفسها؛ القيم غير المتاحة لا تتحول إلى صفر أو فرصة وهمية."
+      />
       <div className="ag-decision-strip" aria-label="ملخص مركز القرار">
         <div className="ag-decision-cell">
           <span className="ag-decision-label">وضع الحقيقة</span>
