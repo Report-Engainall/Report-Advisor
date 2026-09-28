@@ -1,3 +1,17 @@
+# RESUME TOKEN — 2026-09-28 / REPORT OUTPUT UI SPEC CLOSURE — FUNCTIONAL CANDIDATE 994bbc4
+
+- CURRENT UI/FUNCTIONAL CANDIDATE → `994bbc4517e9ec350f787f01841b637b2202354c`.
+- REPORT CENTER UPGRADE → `src/pages/ReportsPage.tsx` now exposes the canonical Executive Report plus sales, purchases, inventory, inventory intelligence, demand velocity, receivables, and profitability outputs as a decision-oriented report catalog.
+- DECISION OUTPUT CHAIN UI → Reports Center now exposes direct canonical links for Evidence → Signals → Decision → Work → Outcome/Learning → Benchmark. No new report engine or alternate evidence path was created.
+- REPORT BUILDER UPGRADE → truth/evidence is a first-class block, exported and printed with status/As Of/aging state; the default package includes Truth + KPIs + Decision.
+- EXECUTIVE REPORT UPGRADE → source-bound Executive Report now exposes Evidence → Signals → Decision → Work → Outcome/Learning → Benchmark with explicit wording when signals are general and not source-bound.
+- CONTRACT GUARDS → existing `scripts/check-ui-route-completeness.mjs` now guards Reports Center output coverage, decision-output chain, Executive Report provenance/decision chain, and Builder truth/evidence/default selection.
+- EXACT SOURCE PROOF → current branch head is `994bbc4517e9ec350f787f01841b637b2202354c`; exact source re-read confirms the new UI sections and guards.
+- CI STATE → current-head workflows were triggered/queued after the reporting UI batch; no PASS claimed until terminal exact-head evidence.
+- DEVICE → PC01 remains offline; device/browser-only proof stays isolated.
+- NEXT EXACT ACTION → consume current-head UI/quality/report-execution/enforcement/final-cert/browser results; repair first reproducible non-external terminal failure; otherwise continue next non-device front.
+- DO NOT REPEAT → do not call report catalog completion when source/evidence/action links are missing; do not let Builder default omit truth state; do not attribute general signals to an import source without binding; do not transfer PASS across SHA.
+
 # RESUME TOKEN — 2026-09-28 / TASK LEDGER CONTRACT HARDENED — FUNCTIONAL CANDIDATE 162881e
 
 - CURRENT FUNCTIONAL/TEST CANDIDATE → `162881eaa84dcb23ea79d6fbae9777e459880b19`.
