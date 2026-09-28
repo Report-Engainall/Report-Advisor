@@ -5,7 +5,7 @@ import path from 'node:path';
 const migration = fs.readFileSync(
   path.join(process.cwd(), 'supabase/migrations/20260830210000_harden_import_finish_lifecycle.sql'),
   'utf8',
-);
+).replace(/\r\n/g, '\n');
 
 const assertLifecycleContract = (source: string) => {
   for (const token of [
