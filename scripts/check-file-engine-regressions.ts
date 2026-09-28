@@ -35,4 +35,31 @@ assert(cleanValue('١٬٢٥٠ ريال', 'currency') === 1250, 'currency cleanin
 assert(cleanValue('١٢٫٥', 'decimal') === 12.5, 'decimal cleaning must preserve Arabic decimal separator');
 assert(cleanValue('١٢٣', 'integer') === 123, 'integer cleaning must normalize Arabic digits');
 
+const syntheticPdfItems = [
+  { str: 'رقم الفاتورة', x: 20, y: 700, width: 60 },
+  { str: 'التاريخ', x: 100, y: 700, width: 40 },
+  { str: 'نوع الفاتورة', x: 160, y: 700, width: 65 },
+  { str: 'اسم العميل', x: 240, y: 700, width: 65 },
+  { str: 'الضريبة', x: 320, y: 700, width: 45 },
+  { str: 'اجمالي الفاتورة', x: 380, y: 700, width: 80 },
+  { str: '191', x: 30, y: 680, width: 20 },
+  { str: '02/06/2026', x: 100, y: 680, width: 55 },
+  { str: 'آجل', x: 175, y: 680, width: 20 },
+  { str: 'امين ابو طالب', x: 240, y: 680, width: 70 },
+  { str: '100', x: 330, y: 680, width: 20 },
+  { str: '2,270,000.00', x: 390, y: 680, width: 60 },
+  { str: '192', x: 30, y: 660, width: 20 },
+  { str: '03/06/2026', x: 100, y: 660, width: 55 },
+  { str: 'نقد', x: 175, y: 660, width: 20 },
+  { str: 'علي عبدﷲ', x: 240, y: 660, width: 65 },
+  { str: '200', x: 330, y: 660, width: 20 },
+  { str: '465,000.00', x: 390, y: 660, width: 60 },
+];
+const pdfTableRegression = extractPdfTableRowsFromTextItems(syntheticPdfItems);
+assert(pdfTableRegression.header?.anchors.length === 6, 'PDF native table header detection');
+assert(pdfTableRegression.rows.length === 2, 'PDF native table row reconstruction');
+assert(pdfTableRegression.rows[0]?.['رقم الفاتورة'] === '191', 'PDF invoice number column reconstruction');
+assert(pdfTableRegression.rows[0]?.['اجمالي الفاتورة'] === '2,270,000.00', 'PDF monetary column reconstruction');
+assert(pdfTableRegression.rows[1]?.['اسم العميل'] === 'علي عبدﷲ', 'PDF customer column reconstruction');
+
 console.log('File-engine behavioral regressions: PASS');
