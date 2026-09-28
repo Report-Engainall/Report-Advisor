@@ -81,6 +81,12 @@ assert.ok(importSurface.includes('فحص الثقة والأدلة'), 'canonical
 assert.ok(importSurface.includes('متابعة مسار القرار'), 'canonical import completion must expose the decision next action');
 assert.ok(importSurface.includes('القرار محجوب: الدليل غير مثبت بعد'), 'canonical import must fail closed before decision when the evidence snapshot is missing');
 assert.ok(importSurface.includes("evidence_state: snapshotId ? 'VERIFIED' : 'INSUFFICIENT DATA'"), 'canonical import must persist explicit evidence state in the completion summary');
+const fileLabSurface = fs.readFileSync('src/pages/ExternalFileAnalysisPage.tsx', 'utf8');
+assert.ok(fileLabSurface.includes('const [dragActive, setDragActive]'), 'file analysis lab must expose active drag state');
+assert.ok(fileLabSurface.includes('const handleDrop = useCallback((event: DragEvent<HTMLDivElement>)'), 'file analysis lab must implement a real drop handler');
+assert.ok(fileLabSurface.includes('onDrop={handleDrop}'), 'file analysis lab dropzone must bind the drop handler');
+assert.ok(fileLabSurface.includes('event.dataTransfer.files?.[0]'), 'file analysis lab must consume the dropped file');
+
 
 
 const entitiesSurface = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
