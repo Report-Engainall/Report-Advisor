@@ -1,16 +1,26 @@
-# RESUME TOKEN — 2026-09-29 / REPORT BOOT KERNEL HARDENED + CERTIFICATION BOUNDARY FIXED
+# RESUME TOKEN — 2026-09-29 / EXACT CURRENT CHECKPOINT — GOVERNANCE BOUNDARY FIXED
 
-- CURRENT REPOSITORY HEAD: `9ab1f902aefb67ba155b221a8ab980c538082e83`.
-- FUNCTIONAL CODE CANDIDATE REMAINS: `797a9aa1325d70847b6541f442e5af8f01d081ef`.
-- BOOT KERNEL CLOSED: `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md` now mandates the real report corpus gate, per-file canonical processing through the full lifecycle, nine actual durable execution stages, persisted evidence, fail-closed behavior, and one canonical importer/report pipeline. No fixture substitution or static-success claim is allowed.
-- CERTIFICATION ROOT CAUSE FIXED: `docs/MASTER_EXECUTION_INDEX.md` now starts with an explicit `CURRENT_CODE_TEST_CANDIDATE` bound to the actual functional SHA, so certification/enforcement no longer parse a stale historical candidate.
-- EXACT CURRENT-SHA CI OBSERVATION: prior HEAD `ef549458...` had enforcement and certification failures caused by the stale index candidate `c5b19311...`; the observed error was `CERTIFICATION BOUNDARY FAIL: HEAD ef549... differs from indexed candidate c5b... with non-governance changes`. This was a governance/index parsing defect, not a product runtime defect.
-- FRESH HOSTED STATE AFTER FIX: Netlify deploy-preview and CodeRabbit are SUCCESS on the newer branch head; Vercel is/was BUILDING for the current docs-only head. Do not claim final hosted PASS until the current head has terminal success.
-- LOCAL EXACT-FUNCTIONAL PROOF ALREADY CLOSED: `npm run test:20-stage-readiness` = TOTAL 20 / PASS 20 / FAIL 0 on functional SHA `797a9aa1...`; typecheck, build, post-import guard, report execution E2E contract, product WOW UI, and diff check also passed on that functional tree.
-- CORPUS: `npm run test:report-corpus-gate` = BLOCKED, exit 2, DECLARED=9 / ACTUAL=1 / MINIMUM=20; all 9 declared report examples are absent. This remains the only concrete input blocker for processing the 20+ real reports.
-- DEVICE: PC01 online; authenticated browser proof is not claimed because agent-browser is not installed and no valid project session was available. Do not fabricate browser success.
-- DO NOT REPEAT: do not transfer any PASS from `797a`/older SHAs to the current docs heads without exact-head evidence; do not merge an unstable PR; do not claim 20+ reports processed while corpus gate is BLOCKED.
-- NEXT EXACT ACTION: when the real 20+ report files exist under `tests/fixtures/realistic-reports/`, run the corpus gate, enumerate every file, process every report through the single canonical importer, require all nine actual execution tasks to complete, and collect per-report evidence/UI output. In parallel, consume current terminal CI/deployment results and repair only the first exact-head failure.
+- EXACT HEAD SHA: `a8ff789b90fc8fc4e1b1040624b2732b9e2ddb5f`.
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`.
+- WORKTREE STATE: CLEAN; HEAD matches origin branch.
+- CURRENT FRONT: post-import report continuity + certification/enforcement governance boundary.
+- CURRENT REPORT: NONE — no eligible real report input discovered; corpus gate is blocked.
+- REPORTS TOTAL: `0` supported actual inputs; declared contract files=`9`; minimum required=`20`; directory contains `README.md` only.
+- COMPLETED: `0` reports.
+- REVIEW: `0` reports.
+- FAILED: `0` reports.
+- BLOCKED: `CORPUS_GATE` — DECLARED=9, ACTUAL=1 (`README.md` only), MINIMUM=20; nine declared report files are absent.
+- REMAINING: no processable report files until real corpus is restored; corpus minimum gap=`19+` supported files.
+- LAST COMPLETED STAGE: exact-head certification boundary reconciliation; report pipeline remains blocked before first report job.
+- WHAT WAS ACTUALLY EXECUTED: restored branch state; ran `npm run test:report-corpus-gate`; reproduced the corpus BLOCKED result; reproduced exact-`ef549458` certification/enforcement failures; traced root cause to stale certification candidate parsing; reconciled the Index on remote (`9f137d92`), then found and fixed the missing governance-file allowlist entry for `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md` in `scripts/check-certification-boundary-integrity.mjs`; pushed `a8ff789b`.
+- ACTUAL RESULT: certification boundary now passes on exact `a8ff789b` with indexed candidate `797a9aa1...` and four governance-only changed files; certification boundary test-of-test passes; corpus gate remains correctly BLOCKED.
+- TEST / PROOF: local exact-head `a8ff789b` — certification boundary PASS; certification-boundary test-of-test PASS; corpus gate BLOCKED with exact missing filenames; Git worktree clean.
+- WHAT CLOSED: stale certification/enforcement candidate parsing defect; governance-file allowlist gap.
+- WHAT REMAINS: real report corpus restoration; current-SHA CI/final certification/Phase-F/hosted results; authenticated report-import browser proof only if a valid session and real corpus are available.
+- REAL BLOCKER: missing real report corpus under `tests/fixtures/realistic-reports/`.
+- DO-NOT-REPEAT: do not fabricate or substitute report files; do not duplicate importer/report pipeline; do not transfer PASS across SHAs; do not force-push; do not treat Netlify/Vercel status alone as product certification.
+- RESUME POINT: current exact `a8ff789b` branch with fresh GitHub Actions runs in progress; PR #676 remains open and mergeable.
+- NEXT EXACT ACTION: poll GitHub Actions run `36497082848` (Execution Enforcement Contract) and consume its terminal exact-`a8ff789b` result; if it fails, repair only its first reproducible current-SHA root cause.
 
 ---
 
