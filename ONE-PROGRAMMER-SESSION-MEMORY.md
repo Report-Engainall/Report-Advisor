@@ -1325,3 +1325,15 @@
 - NO FALSE RUNTIME PASS → browser/device proof remains open; current SQL session still lacks tenant context for a real canary.
 - DO NOT REPEAT → do not create a client-side outcome record; do not complete work without Evidence Snapshot; do not duplicate the completion RPC.
 - RESUME POINT → consume CI terminal state, then continue Outcome → Learning → Benchmark. Benchmark remains fail-closed on INSUFFICIENT_SAMPLE until a real peer cohort exists.
+
+# RESUME TOKEN — 2026-09-28 / OUTCOME→LEARNING SURFACE CLOSURE
+
+- CURRENT CODE/TEST HEAD → `1f190e8874f0095ff30e58192f9f7099ffe93dda`.
+- CLOSED → Business Replay now exposes a canonical Learning summary derived through `summarizeOutcomes()`: outcome count, accuracy, coverage and cumulative impact. No client-side reimplementation of learning math was added.
+- CLOSED → replay reads persisted business snapshots, work items and recommendation outcomes, so completed Work Items now feed the Learning surface through the existing persistence chain.
+- CLOSED → Work completion remains evidence-gated and canonical; decision terminal state remains controlled by the database RPC.
+- PROOF → 8/8 focused assertions PASS on `1f190e887...` for learning read/write chain, replay UI, work completion, decision fail-closed and query contracts.
+- CI EXACT SHA → Execution Enforcement Contract `36473253145` and Final Certification Gate `36473253108` are queued on this exact SHA; no terminal PASS/FAIL transferred.
+- NO FALSE RUNTIME PASS → tenant-bound browser/runtime canary remains external; PC01 offline and Vercel rate-limit blocker remain open.
+- DO NOT REPEAT → do not recompute learning metrics independently in pages; do not present replay history without persisted source records; do not bypass Evidence Snapshot for completion.
+- RESUME POINT → consume terminal CI result, then close the remaining Benchmark gate only when the repository/runtime provides a real peer cohort; otherwise preserve the documented INSUFFICIENT_SAMPLE state and finish other executable non-device gaps.
