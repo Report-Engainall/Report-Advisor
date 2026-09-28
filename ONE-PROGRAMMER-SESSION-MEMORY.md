@@ -1,3 +1,14 @@
+# RESUME TOKEN — 2026-09-28 / REPORT ROUTE SMOKE CLOSURE
+
+- CODE/DEPLOYMENT PROOF BASE → `efc6b0706d0010524cd74a617fa66f08346cf3ab`.
+- ROUTE SMOKE → all 10 import-capable report/analytics URLs responded with the Aghbari SPA entry on the successful Netlify preview; no route-level 404/server error observed. The single `/reports/profitability` timeout succeeded on retry.
+- ROUTES COVERED → Reports Center, Sales, Purchases, Inventory, Inventory Intelligence, RFM, ABC, Liquidity, Receivables, Profitability.
+- INTERPRETATION → this proves SPA fallback/route availability, not authenticated data rendering; authenticated browser/device proof remains separate.
+- CURRENT PR HEAD → `ff62658c3a0eb1e30957ea13d526c1984d9680e7`; only governance docs differ from the functional deployed SHA `efc6b070...`.
+- HOSTED → exact functional Netlify deploy `6abad31037aff10008696bef` is READY. Documentation-only later deploys were correctly canceled by Netlify as no-content-change.
+- VERCEL → remains blocked by free-plan build-rate-limit; no Vercel PASS transferred.
+- DEVICE → PC01 remains offline.
+- NEXT → no new source-level UI/report fix is justified by current evidence; next proof boundary is authenticated CI/device/runtime certification.
 # RESUME TOKEN — 2026-09-28 / NETLIFY EXACT-HEAD BUILD REPAIR CLOSED
 
 - CODE HEAD BEFORE THIS DOCUMENTATION WRITE-BACK → `efc6b0706d0010524cd74a617fa66f08346cf3ab`.
