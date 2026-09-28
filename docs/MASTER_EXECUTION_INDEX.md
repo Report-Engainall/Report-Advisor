@@ -1,10 +1,10 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXACT PR HEAD `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / FUNCTIONAL CANDIDATE `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`
 
 > This top block is the only startup boundary. It is the source the programmer must resume from after reconciling GitHub exact state.
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
 - ACTIVE PR → `#672` / `exec/20260927-current-main-import-ui-rebased`.
-- CURRENT REPOSITORY HEAD → `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`.
+- CURRENT FUNCTIONAL / EXECUTION CANDIDATE → `b37adb8dfcad45d6fed2c688cb341034a3c4e25a` (GitHub exact HEAD MUST be reconciled before execution).
 - CURRENT CODE/TEST CANDIDATE: `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`.
 - ACTIVE EXECUTION FRONTS → Resume-token governance repair; Phase-F live resilience; authenticated browser/business runtime; Tenant A/B isolation proof; real report-generation durable-execution trigger; worker crash/retry/DLQ/idempotency proof; authenticated import/OCR golden corpus; migration replay/schema parity; UI runtime completeness; security hardening; final certification/merge closure.
 - OPEN BLOCKERS → Phase-F live resilience remains NOT READY (deployment SHA mismatch, backup/restore failure, rollback-forward 503); fresh browser proof for the Replay `REVIEW` fix is pending; Vercel free-plan build-rate remains external. PC01 is OFFLINE; device-only proof is isolated, not a global blocker.
