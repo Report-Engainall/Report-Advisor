@@ -1,6 +1,6 @@
 # RESUME TOKEN — 2026-09-28 / EXACT-HEAD PROVEN / PHASE-F EXTERNAL
 
-- CURRENT REPOSITORY HEAD (functional code/test head) → `b5b5ac2d56477aa3da9029fd709ae895a649199e`
+- CURRENT REPOSITORY HEAD → `b5b5ac2d56477aa3da9029fd709ae895a649199e`
 - CURRENT CODE/TEST CANDIDATE → `b5b5ac2d56477aa3da9029fd709ae895a649199e`
 - ACTIVE EXECUTION FRONTS → exact-head governance verification; Phase-F hosted resilience remains externally blocked.
 - OPEN BLOCKERS → Vercel free-plan build-rate limit causing stale production alias; Supabase Auth leaked-password protection external; PC01 device/browser path.
