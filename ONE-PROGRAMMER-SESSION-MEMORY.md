@@ -1466,3 +1466,15 @@
 - PROOF → 19-check exact GitHub-content deep regression PASS covering generic routing, completed-job render proof, shared source context, duplicate removal, all ten import-capable output surfaces, and the full post-import journey.
 - DO NOT REPEAT → never route generic/uncommitted canonical data into a specialty report; use Executive Report + REVIEW/EVIDENCE_REQUIRED semantics.
 - RESUME POINT → continue the next concrete non-device gap after the import/report truth chain; hosted/device blockers remain isolated.
+
+# RESUME TOKEN — 2026-09-28 / REPORT AS-OF TRUTH HARDENING
+
+- FUNCTIONAL CHECKPOINT → `3dcb8085b54ab9c689fe0e8532ae4ccd82b08c26`.
+- CLOSED → RFM and Aging use their authoritative RPC-returned `asOf` values in ReportSurfaceContext.
+- CLOSED → ABC, Demand Velocity and canonical Receivables no longer present the current browser date as though it were source freshness; they explicitly use `غير مثبت` when the report contract does not expose an authoritative cutoff.
+- CLOSED → shared ReportSurfaceContext now labels invalid/unknown freshness as `غير مثبت`, not `غير متاح`.
+- CLOSED → report-truth contract guards against synthetic current-date As Of claims on affected report surfaces.
+- LIVE DB PROOF → Staging RPC definitions confirm RFM/Aging return `asOf`; ABC currently exposes no authoritative `asOf` field, so it remains explicitly unverified at the UI layer.
+- PROOF → exact GitHub-content regression PASS for As Of semantics across the affected surfaces.
+- DO NOT REPEAT → do not use `new Date()` as a substitute for source freshness unless the underlying report contract explicitly defines that cutoff.
+- RESUME POINT → continue the next concrete non-device data-truth/reporting gap, then re-run the deep regression harness and persist again.
