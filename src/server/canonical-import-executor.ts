@@ -228,6 +228,7 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
         fileName: fileRecord.file_name || payload.fileName || 'import',
         sourceHash: sourceSha,
         entityType: authoritativeEntityType,
+        sourceSpecialty: sourceUnderstanding.specialty,
         rows: reconciled.rows,
         qualityScore: authoritativeQualityScore,
         qualityApproved: payload.qualityApproved === true,
