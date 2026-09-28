@@ -157,6 +157,41 @@ for (const [pattern, message] of intelligenceTruthContract) {
   }
 }
 
+const extendedCanonicalPages = [
+  ['DashboardPage.tsx', 'Dashboard must expose the canonical truth context'],
+  ['ReceivablesReportCanonicalPage.tsx', 'Canonical receivables report must expose the canonical truth context'],
+  ['ProfitabilityReportCanonicalPage.tsx', 'Canonical profitability report must expose the canonical truth context'],
+  ['SuppliersPage.tsx', 'Suppliers must expose the canonical truth context'],
+  ['AlternativeGroupsPage.tsx', 'Alternative Groups must expose the canonical truth context'],
+];
+for (const [file, message] of extendedCanonicalPages) {
+  const source = fs.readFileSync(`src/pages/${file}`, 'utf8');
+  if (!/ReportSurfaceContext/.test(source)) {
+    console.error(`FAIL extended canonical surface: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
+const dashboardPageContract = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
+if (/TruthContextStrip/.test(dashboardPageContract)) {
+  console.error('FAIL dashboard truth context: legacy TruthContextStrip remains after shared-context migration');
+  process.exitCode = 1;
+}
+
+const canonicalReportTruthContract = [
+  [/snapshot\.status === 'CALCULATED' \? 'VERIFIED'/, 'Canonical receivables report must preserve verified state'],
+  [/calculated \? 'VERIFIED' : 'REVIEW'/, 'Canonical profitability report must fail closed on financial truth'],
+];
+const receivablesSource = fs.readFileSync('src/pages/ReceivablesReportCanonicalPage.tsx', 'utf8');
+const profitabilitySource = fs.readFileSync('src/pages/ProfitabilityReportCanonicalPage.tsx', 'utf8');
+for (const [pattern, message] of canonicalReportTruthContract) {
+  const source = message.includes('receivables') ? receivablesSource : profitabilitySource;
+  if (!pattern.test(source)) {
+    console.error(`FAIL canonical report truth mapping: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
 const specializedAnalyticsPage = fs.readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
 const specializedAnalyticsTruthContract = [
   [/export function RFMAnalysisPage/, 'RFM must remain a canonical analytics surface'],
