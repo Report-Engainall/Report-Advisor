@@ -1,3 +1,15 @@
+# RESUME TOKEN — 2026-09-28 / EXECUTIVE REPORT SOURCE-BOUND DECISIONS — FUNCTIONAL CANDIDATE 70b448e
+
+- CURRENT FUNCTIONAL / UI-TEST CANDIDATE → `70b448ed3e4d5298d0f6b5ef8c5943cdbe6a451e`.
+- FINAL FRONT IMPLEMENTED → an import-bound Executive Report now reads `?import=`, resolves the tenant-bound import Job and evidence Snapshot, uses the existing canonical recommendation-binding query, and preserves the same import context into Decision Experience.
+- REPORT TRUTH → company-level KPIs remain company-level; source-bound recommendations are shown only when a verified Job/Snapshot/Source Hash binding exists. Missing binding does not fall back to a generic recommendation while claiming it came from the file.
+- FAIL-CLOSED → invalid/unproven import context stays `REVIEW / NOT PROVEN`; absent source-bound recommendations remain an explicit empty state.
+- UI CONTRACT → `scripts/check-ui-route-completeness.mjs` guards query context, tenant-bound import/evidence reads, source-bound recommendations, context-selected rendering and fail-closed provenance.
+- EXACT SOURCE PROOF → current branch source contains all required bindings at candidate `70b448e...`; terminal CI for this candidate is still pending/queued and no PASS is transferred from earlier SHAs.
+- POST-UPLOAD SEMANTICS → nine durable tasks are persisted and observable; current runner executes them sequentially under one leased worker. The UI's "distribution" is durable task distribution/claiming, not parallel worker execution.
+- NEXT EXACT ACTION → consume terminal current-head UI/quality/report-execution/enforcement/certification/browser gates. Repair only the first reproducible non-external failure.
+- DO NOT REPEAT → no generic company recommendation may be labeled file-generated; no stale PASS across SHAs; no claim of parallel workers; no upload-only completion.
+
 # RESUME TOKEN — 2026-09-28 / EXECUTIVE REPORT IMPORT PROVENANCE — FUNCTIONAL CANDIDATE acf52b6
 
 - CURRENT FUNCTIONAL / UI-TEST CANDIDATE → `acf52b6dcc1c3a09d9e4be77ca5185f9ca773c1a`.
