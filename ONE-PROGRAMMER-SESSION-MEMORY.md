@@ -1,9 +1,10 @@
-# RESUME TOKEN — 2026-09-29 / EXACT CURRENT CHECKPOINT — ENFORCEMENT BOUNDARY RECONCILED
+# RESUME TOKEN — 2026-09-29 / EXACT CURRENT CHECKPOINT — RESTORE DEPENDENCY FIXED
 
-- EXACT HEAD SHA: `06e22cfae634cbc7a2cabd8fb4745f1112a8d748`.
+- EXACT HEAD SHA: `a7ee5b8aa7f7deed6b7a3ceedea327f96b0efee1`.
 - CURRENT BRANCH: `exec/20260929-post-import-report-continuity`.
 - WORKTREE STATE: CLEAN; HEAD matches origin branch.
-- CURRENT FRONT: post-import report continuity + exact-SHA certification/enforcement governance.
+- CURRENT CODE/TEST CANDIDATE: `9a9e50c7e84db3d88fabae1a6c5b0cd83bee7a88`.
+- CURRENT FRONT: report post-import continuity + clean-restore migration dependency + exact-SHA certification.
 - CURRENT REPORT: NONE — no eligible real report input discovered; corpus gate is blocked.
 - REPORTS TOTAL: `0` supported actual inputs; declared contract files=`9`; minimum required=`20`; directory contains `README.md` only.
 - COMPLETED: `0` reports.
@@ -11,16 +12,16 @@
 - FAILED: `0` reports.
 - BLOCKED: `CORPUS_GATE` — DECLARED=9, ACTUAL=1 (`README.md` only), MINIMUM=20; nine declared report files are absent.
 - REMAINING: no processable report files until real corpus is restored; corpus minimum gap=`19+` supported files.
-- LAST COMPLETED STAGE: certification boundary + execution enforcement contract reconciliation; report pipeline remains blocked before first report job.
-- WHAT WAS ACTUALLY EXECUTED: reproduced the exact-`ef549458` certification/enforcement failure; reconciled the certification candidate; fixed the certification governance allowlist; fixed the Index candidate placement so Enforcement can read the canonical candidate inside the current execution boundary; pushed `06e22cfa`; reran certification boundary, enforcement contract, adversarial test-of-test suites, and corpus gate on exact `06e22cfa`.
-- ACTUAL RESULT: certification boundary PASS; execution enforcement PASS; adversarial enforcement suites PASS; corpus gate correctly BLOCKED with the nine exact missing declared files.
-- TEST / PROOF: exact-`06e22cfa` local proof — certification boundary PASS; execution enforcement PASS (26 mandatory rules); all enforcement governance/exact-SHA adversarial suites PASS; corpus gate BLOCKED.
-- WHAT CLOSED: stale certification-candidate parsing; missing governance-file allowlist; enforcement candidate visibility defect.
+- LAST COMPLETED STAGE: clean-restore migration dependency root-cause correction and exact-SHA candidate re-anchoring.
+- WHAT WAS ACTUALLY EXECUTED: traced prior Phase-F backup/restore failure to migration `20260925184000_restore_client_ui_settings_schema_parity.sql` invoking `current_customer_company_id()` before its definition in `20260925200000_restore_carts_schema_parity.sql`; changed that policy to canonical `current_company_id()`, which is defined earlier in `20260822200000_canonical_tenant_membership.sql`; ran migration schema audit, migration dependency analysis, and operational-resilience contracts; committed `9a9e50c7`; re-anchored the certification candidate to `9a9e50c7` via `a7ee5b8a`.
+- ACTUAL RESULT: migration schema audit PASS (258 migrations, 0 findings); migration dependency analysis executed successfully; operational resilience contract PASS; backup/restore evidence integrity contract PASS (13 invariants); certification boundary PASS on `a7ee5b8a`; execution enforcement PASS. Local full clean restore could not run because Supabase CLI and Docker are not installed on PC01.
+- TEST / PROOF: exact code fix `9a9e50c7` is persisted to GitHub; exact candidate `9a9e50c7` is recorded in Master Index; current HEAD `a7ee5b8a` is governance-only re-anchor. Fresh CI runs are queued for Final Certification `36497543174`, Execution Enforcement `36497543214`, Phase-F `36497543235`, Browser `36497543161`, Device-Independent Browser `36497543286`, Quality `36497543115`, Desktop `36497543159`.
+- WHAT CLOSED: broken migration-time tenant resolver dependency in client UI settings restore; stale certification/enforcement candidate placement/allowlist defects remain closed.
 - WHAT REMAINS: real report corpus restoration; current-SHA CI/final certification/Phase-F/hosted results; authenticated report-import browser proof only if a valid session and real corpus are available.
-- REAL BLOCKER: missing real report corpus under `tests/fixtures/realistic-reports/`.
+- REAL BLOCKER: missing real report corpus under `tests/fixtures/realistic-reports/`; local clean-restore runtime is additionally blocked by missing Supabase CLI/Docker.
 - DO-NOT-REPEAT: do not fabricate or substitute report files; do not duplicate importer/report pipeline; do not transfer PASS across SHAs; do not force-push; do not treat Netlify/Vercel status alone as product certification.
-- RESUME POINT: PR #676 remains open and mergeable; fresh exact-`06e22cfa` runs are queued: Execution Enforcement `36497191960`, Final Certification `36497192009`, Phase-F `36497191653`, Browser `36497191740`, Device-Independent Browser `36497191703`.
-- NEXT EXACT ACTION: poll GitHub Actions run `36497191960` (Execution Enforcement Contract) for the first terminal exact-`06e22cfa` result; if it fails, repair only its first reproducible current-SHA root cause.
+- RESUME POINT: PR #676 remains open and mergeable; exact `a7ee5b8a` fresh CI is queued.
+- NEXT EXACT ACTION: poll GitHub Actions run `36497543235` (Phase-F live resilience) for the first terminal exact-`a7ee5b8a` result; if it fails, inspect only the first failed Phase-F step and repair its reproducible root cause.
 
 ---
 
