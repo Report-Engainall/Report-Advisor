@@ -1,4 +1,5 @@
 name: Final Certification Gate
+# Certification boundary parser re-anchored to current execution block.
 
 on:
   push:
