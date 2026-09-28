@@ -337,7 +337,13 @@ function detectPdfTableHeader(line: PdfTextPlacement[]): PdfTableHeader | null {
     let match: { end: number; alias: string } | null = null;
     for (let span = Math.min(3, sorted.length - i); span >= 1; span -= 1) {
       const candidate = sorted.slice(i, i + span).map(item => item.str).join(' ');
-      const alias = pdfHeaderMatch(candidate);
+      const normalizedCandidate = normalizeColumnName(candidate);
+      const aliases = [...PDF_TABLE_HEADER_ALIASES].sort(
+        (a, b) => normalizeColumnName(b).length - normalizeColumnName(a).length,
+      );
+      const exactAlias = aliases.find(alias => normalizedCandidate === normalizeColumnName(alias));
+      const singleItemAlias = span === 1 ? pdfHeaderMatch(candidate) : null;
+      const alias = exactAlias ?? singleItemAlias;
       if (alias) {
         match = { end: i + span - 1, alias };
         break;

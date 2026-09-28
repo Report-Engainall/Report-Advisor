@@ -58,6 +58,11 @@ const syntheticPdfItems = [
 ];
 const pdfTableRegression = extractPdfTableRowsFromTextItems(syntheticPdfItems);
 assert(pdfTableRegression.header?.anchors.length === 6, 'PDF native table header detection');
+assert(
+  pdfTableRegression.header?.anchors.map(anchor => anchor.header).join('|') === 'رقم الفاتورة|التاريخ|نوع الفاتورة|اسم العميل|اﻷعباء|اجمالي الفاتورة',
+  'PDF header anchors must preserve adjacent columns without span overmatching',
+);
+
 assert(pdfTableRegression.rows.length === 2, 'PDF native table row reconstruction');
 assert(pdfTableRegression.rows[0]?.['رقم الفاتورة'] === '191', 'PDF invoice number column reconstruction');
 assert(pdfTableRegression.rows[0]?.['اجمالي الفاتورة'] === '2,270,000.00', 'PDF monetary column reconstruction');
