@@ -6,12 +6,45 @@ const files = fs.readdirSync(root).filter(name => name.endsWith('.sql')).sort().
 const sql = files.map(file => fs.readFileSync(file, 'utf8')).join('\n');
 
 const intendedAuthenticatedSecurityDefiners = [
-  'complete_decision_work_item', 'create_decision_work_item', 'create_runtime_decision',
-  'create_runtime_recommendation', 'current_company_id', 'decide_approval',
-  'link_recommendation_to_decision', 'mark_alert_read', 'notify_decision_work_item',
-  'record_decision_outcome', 'record_recommendation_outcome', 'request_decision_approval',
-  'clear_cart', 'get_cart', 'remove_cart_item', 'set_cart_item',
+  'accept_customer_invitation',
+  'autonomy_runtime_gate',
+  'can_enter_phase_l_autonomy',
+  'can_run_phase_l_autonomy',
+  'capture_kpi_evidence_snapshot',
+  'clear_cart',
+  'complete_decision_work_item',
+  'compute_control_plane_health',
+  'convert_operational_task_proposal',
+  'create_cash_account',
+  'create_customer_invitation',
+  'create_decision_action_receipt',
+  'create_decision_work_item',
+  'create_invoice_from_order',
+  'create_order',
+  'create_runtime_decision',
+  'create_runtime_recommendation',
+  'current_company_id',
+  'current_customer_company_id',
+  'current_customer_id',
+  'decide_approval',
+  'finalize_runtime_decision',
+  'get_cart',
   'import_commit_batch',
+  'link_recommendation_to_decision',
+  'mark_alert_read',
+  'notify_decision_work_item',
+  'phase_l_production_autonomy_health',
+  'record_decision_outcome',
+  'record_payment',
+  'record_recommendation_outcome',
+  'record_sales_payment',
+  'remove_cart_item',
+  'request_decision_approval',
+  'revoke_customer_invitation',
+  'set_cart_item',
+  'start_decision_work_item',
+  'transition_order',
+  'update_recommendation_status',
 ];
 
 // Live-only functions are not asserted as repository definitions here. Their
@@ -127,6 +160,6 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Security-definer exposure contract: PASS (${intendedAuthenticatedSecurityDefiners.length} intentional authenticated repository functions + ${criticalOperationalSecurityDefiners.length} critical operational repository functions)`);
+console.log(`Security-definer exposure contract: PASS (${intendedAuthenticatedSecurityDefiners.length} classified authenticated SECURITY DEFINER function names + ${criticalOperationalSecurityDefiners.length} critical operational repository functions)`);
 console.log(`LIVE_ONLY_SECURITY_DEFINER_NOT_ASSERTED=${liveOnlyExpectedSecurityDefiners.join(',')}`);
 console.log('Migration parity for any live-only function remains a separate fail-closed gate.');
