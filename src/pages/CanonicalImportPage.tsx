@@ -5,7 +5,7 @@ import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
-import { fetchDashboardIntelligence, fetchImportRecords, fetchRecommendationsBoundToImport, createImportRecord, fetchReportExecutionTasks, fetchReportExecutionJob, type ReportExecutionTaskRecord } from '@/lib/queries';
+import { fetchDashboardIntelligence, fetchImportRecords, fetchRecommendationsBoundToImport, createImportRecord, fetchReportExecutionTasks, fetchReportExecutionJob, getBoundRenderedReportManifest, type ReportExecutionTaskRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
@@ -503,12 +503,16 @@ export function CanonicalImportPage() {
           throw new Error('EXECUTION_TASKS_NOT_COMPLETED');
         }
         executionReport = await fetchReportExecutionJob(durableJobId);
-        const renderedOutput = executionReport?.evidence?.renderedOutput;
-        if (executionReport?.status !== 'completed' || !renderedOutput || typeof renderedOutput !== 'object' || !Array.isArray((renderedOutput as Record<string, unknown>).outputs) || ((renderedOutput as Record<string, unknown>).outputs as unknown[]).length === 0) {
-          throw new Error('EXECUTION_RENDER_OUTPUT_MISSING');
+        const renderedOutput = getBoundRenderedReportManifest(executionReport, rec.id, durableSourceHash);
+        if (executionReport?.status !== 'completed' || !renderedOutput) {
+          throw new Error('EXECUTION_RENDER_OUTPUT_MISSING_OR_UNBOUND');
         }
+        executionReport = {
+          ...executionReport,
+          evidence: { ...executionReport.evidence, renderedOutput },
+        };
       } catch (cause) {
-        if (cause instanceof Error && (cause.message.startsWith('EXECUTION_TASKS_') || cause.message === 'EXECUTION_RENDER_OUTPUT_MISSING')) throw cause;
+        if (cause instanceof Error && (cause.message.startsWith('EXECUTION_TASKS_') || cause.message === 'EXECUTION_RENDER_OUTPUT_MISSING_OR_UNBOUND')) throw cause;
         setExecutionTaskError(cause instanceof Error ? cause.message : 'تعذر إكمال تقرير مهام التنفيذ');
       }
 
@@ -525,6 +529,7 @@ export function CanonicalImportPage() {
         invalidRows: 0,
         committed: authoritativeRowCount,
         importId: rec.id,
+        sourceHash: durableSourceHash,
         jobId: execution.jobId,
         file_name: file.name,
         semantic_understanding_confidence: understandingConfidence,
