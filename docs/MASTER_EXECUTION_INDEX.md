@@ -1,4 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / INTELLIGENCE + FINANCIAL SURFACE DEPTH CLOSURE — FUNCTIONAL CANDIDATE e26536d
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / CANONICAL SURFACE COMPLETENESS DEEPENED — FUNCTIONAL CANDIDATE 3b419ba
+
+- FUNCTIONAL/UI CANDIDATE → `3b419ba0b772a2556d6d37b157eda29928d95150`.
+- CLOSED → truth context/freshness across the major dashboard, intelligence, evidence, decision, work, outcome, benchmark, analytics, report, master-data and governance surfaces.
+- CLOSED SAFETY → invalid timestamp handling, source As Of propagation, evidence-status normalization, financial scenario BLOCKED state.
+- CONTRACT → UI route completeness now protects the expanded surface set.
+- CI → exact-head terminal code PASS still unavailable; 51 workflows remain pending/queued, CodeRabbit status is success, Vercel rate-limit remains external.
+- DEVICE → PC01 offline.
+- NEXT → continue only on remaining concrete non-device completeness gaps; then consume exact-head terminal gates without transferring old evidence.
+
+
 
 - FUNCTIONAL/UI CANDIDATE → `e26536df4a224b9d68a1aae749a6dce8032b5619`.
 - CLOSED → shared truth context + freshness across Intelligence, Forecasts, Recommendations, Scenarios, Command Center, Liquidity, Data Quality, RFM, ABC and Aging.
