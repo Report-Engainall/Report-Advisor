@@ -65,6 +65,12 @@ const adapter = fs.readFileSync(adapterPath, 'utf8');
 if (!/runDurableProductionLifecycle/.test(adapter) || !/SupabaseReportExecutionStore/.test(adapter)) {
   throw new Error('Canonical import must use the existing durable production runner/store');
 }
+if (!/parseNativePdfTable/.test(adapter) || !/groupNativePdfTextItems/.test(adapter) || !/transform\[4\]/.test(adapter) || !/transform\[5\]/.test(adapter)) {
+  throw new Error('Native PDF ingestion must retain layout geometry for table reconstruction');
+}
+if (!/const nativeTable = await parseNativePdfTable/.test(adapter) || !/if \(nativeTable\) return nativeTable/.test(adapter)) {
+  throw new Error('Native PDF ingestion must prefer reconstructed tables before raw-text fallback');
+}
 if (!/stage === 'committed'\)\s*await commitImportBatch/.test(adapter)) {
   throw new Error('Canonical commit must execute only at the durable committed lifecycle stage');
 }
@@ -161,6 +167,15 @@ if (fs.existsSync(pagePath)) {
   }
   if (!/quality < 50/.test(page) || !/quality < 75 && !qualityApproved/.test(page)) {
     throw new Error('Canonical import UI must enforce the 50% rejection and 50–74% explicit approval gates');
+  }
+  if (!/onDragOver=\{/.test(page) || !/onDrop=\{/.test(page) || !/dataTransfer\.files/.test(page)) {
+    throw new Error('Canonical import UI must implement a real drag-and-drop file entry path');
+  }
+  if (!/setIsDragging\(true\)/.test(page) || !/setIsDragging\(false\)/.test(page)) {
+    throw new Error('Canonical import drag-and-drop UI must expose and clear its active-drop state');
+  }
+  if (!/droppedFiles\.length > 1/.test(page)) {
+    throw new Error('Canonical import drag-and-drop UI must fail closed on multiple dropped files');
   }
 }
 

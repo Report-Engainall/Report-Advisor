@@ -270,6 +270,179 @@ function ensurePdfJsRuntimeCompatibility(): void {
   }
 }
 
+type NativePdfTextItem = {
+  str: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+type NativePdfLine = {
+  y: number;
+  cells: Array<{ text: string; x: number; width: number }>;
+  text: string;
+};
+
+type NativePdfColumn = {
+  header: string;
+  x: number;
+  width: number;
+};
+
+const PDF_TABLE_HEADER_PATTERNS = [
+  /رقم\s*(?:الفاتورة|فاتورة)|invoice\s*(?:number|no\.?)?/i,
+  /التاريخ|date/i,
+  /نوع\s*(?:الفاتورة|المستند|الحركة)|type/i,
+  /اسم\s*العميل|العميل|customer/i,
+  /العملة|currency/i,
+  /الإجمالي|الاجمالي|total/i,
+  /الخصم|discount/i,
+  /الضريبة|tax/i,
+];
+
+function groupNativePdfTextItems(items: NativePdfTextItem[]): NativePdfLine[] {
+  if (!items.length) return [];
+  const heights = items.map((item) => item.height).filter((height) => Number.isFinite(height) && height > 0);
+  const sortedHeights = [...heights].sort((a, b) => a - b);
+  const medianHeight = sortedHeights.length ? sortedHeights[Math.floor(sortedHeights.length / 2)] : 8;
+  const lineTolerance = Math.max(2, medianHeight * 0.65);
+  const ordered = [...items].sort((a, b) => {
+    const yDelta = b.y - a.y;
+    if (Math.abs(yDelta) > lineTolerance) return yDelta;
+    return a.x - b.x;
+  });
+  const lines: NativePdfLine[] = [];
+  for (const item of ordered) {
+    const current = lines[lines.length - 1];
+    if (!current || Math.abs(current.y - item.y) > lineTolerance) {
+      lines.push({
+        y: item.y,
+        cells: [{ text: item.str.trim(), x: item.x, width: Math.max(item.width, 0) }],
+        text: item.str.trim(),
+      });
+      continue;
+    }
+    const previous = current.cells[current.cells.length - 1];
+    if (previous && item.x <= previous.x + previous.width + Math.max(6, medianHeight * 0.75)) {
+      previous.text = `${previous.text} ${item.str.trim()}`.trim();
+      previous.width = Math.max(previous.width, (item.x + item.width) - previous.x);
+    } else {
+      current.cells.push({ text: item.str.trim(), x: item.x, width: Math.max(item.width, 0) });
+    }
+    current.text = current.cells.map((cell) => cell.text).join(' ').trim();
+  }
+  return lines.filter((line) => line.cells.some((cell) => cell.text));
+}
+
+function isNativePdfTableHeader(line: NativePdfLine): boolean {
+  const matches = PDF_TABLE_HEADER_PATTERNS.filter((pattern) => pattern.test(line.text)).length;
+  return matches >= 3 && line.cells.length >= 3;
+}
+
+function isNativePdfDataLine(line: NativePdfLine): boolean {
+  const hasDate = /\b\d{1,2}\s*[/-]\s*\d{1,2}\s*[/-]\s*\d{4}\b/.test(line.text);
+  const hasNumber = /(?:^|\s)\d[\d٠-٩]*(?:[.,][\d٠-٩]+)?(?:\s|$)/.test(line.text);
+  return hasDate && hasNumber && line.cells.length >= 2;
+}
+
+function findNearestNativePdfColumn(x: number, columns: NativePdfColumn[]): NativePdfColumn | null {
+  if (!columns.length) return null;
+  return columns.reduce((nearest, candidate) => {
+    const nearestDistance = Math.abs((nearest.x + nearest.width / 2) - x);
+    const candidateDistance = Math.abs((candidate.x + candidate.width / 2) - x);
+    return candidateDistance < nearestDistance ? candidate : nearest;
+  });
+}
+
+function buildNativePdfRows(lines: NativePdfLine[], columns: NativePdfColumn[]): Row[] {
+  const rows: Row[] = [];
+  for (const line of lines) {
+    if (!isNativePdfDataLine(line)) continue;
+    const row: Row = {};
+    for (const cell of line.cells) {
+      const column = findNearestNativePdfColumn(cell.x + cell.width / 2, columns);
+      if (!column || !column.header) continue;
+      const current = row[column.header];
+      row[column.header] = current ? `${current} ${cell.text}`.trim() : cell.text;
+    }
+    const populated = Object.values(row).filter((value) => value !== null && value !== undefined && value !== '').length;
+    if (populated >= Math.min(2, columns.length)) rows.push(row);
+  }
+  return rows;
+}
+
+async function parseNativePdfTable(pdf: PdfDocument, fileName: string): Promise<Dataset[] | null> {
+  const pages: Array<{ lines: NativePdfLine[] }> = [];
+  let canonicalColumns: NativePdfColumn[] = [];
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+    const page = await pdf.getPage(pageNumber);
+    const content = await page.getTextContent();
+    const items: NativePdfTextItem[] = content.items
+      .filter((item): item is typeof item & { str: string; transform: number[] } =>
+        typeof (item as { str?: unknown }).str === 'string' &&
+        Array.isArray((item as { transform?: unknown }).transform) &&
+        (item as { transform: unknown[] }).transform.length >= 6,
+      )
+      .map((item) => {
+        const transform = item.transform as number[];
+        return {
+          str: item.str.trim(),
+          x: Number(transform[4] ?? 0),
+          y: Number(transform[5] ?? 0),
+          width: Number(item.width ?? 0),
+          height: Number(item.height ?? 0),
+        };
+      })
+      .filter((item) => item.str && Number.isFinite(item.x) && Number.isFinite(item.y));
+    const lines = groupNativePdfTextItems(items);
+    const header = lines
+      .filter(isNativePdfTableHeader)
+      .sort((a, b) => b.cells.length - a.cells.length)[0];
+    if (header && canonicalColumns.length === 0) {
+      canonicalColumns = header.cells.map((cell) => ({
+        header: cell.text.trim() || `column_${canonicalColumns.length + 1}`,
+        x: cell.x,
+        width: cell.width,
+      }));
+    }
+    pages.push({ lines });
+    if (pageNumber % 20 === 0) await Promise.resolve();
+  }
+  if (canonicalColumns.length < 3) return null;
+
+  const rows: Row[] = [];
+  for (const { lines } of pages) {
+    const pageHeader = lines
+      .filter(isNativePdfTableHeader)
+      .sort((a, b) => b.cells.length - a.cells.length)[0];
+    const activeColumns = pageHeader
+      ? pageHeader.cells.map((cell) => ({ header: cell.text.trim(), x: cell.x, width: cell.width }))
+      : canonicalColumns;
+    const pageRows = buildNativePdfRows(lines, activeColumns);
+    if (!pageRows.length) continue;
+    for (const pageRow of pageRows) {
+      const normalizedRow: Row = {};
+      for (const canonical of canonicalColumns) {
+        const active = activeColumns.find((column) => column.header === canonical.header)
+          ?? activeColumns.reduce((nearest, column) => {
+            const nearestDistance = Math.abs((nearest.x + nearest.width / 2) - (canonical.x + canonical.width / 2));
+            const candidateDistance = Math.abs((column.x + column.width / 2) - (canonical.x + canonical.width / 2));
+            return candidateDistance < nearestDistance ? column : nearest;
+          }, activeColumns[0]);
+        if (!active) continue;
+        const value = pageRow[active.header];
+        if (value !== undefined) normalizedRow[canonical.header] = value;
+      }
+      if (Object.keys(normalizedRow).length >= 2) rows.push(normalizedRow);
+    }
+  }
+
+  if (!rows.length) return null;
+  const dataset = await buildDataset(rows, fileName, 'pdf-table');
+  return dataset.rowCount > 0 ? [dataset] : null;
+}
+
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   ensurePdfJsRuntimeCompatibility();
   const pdfjs = await import('pdfjs-dist');
@@ -280,6 +453,8 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     data: new Uint8Array(buffer),
     useSystemFonts: true,
   }).promise;
+  const nativeTable = await parseNativePdfTable(pdf, fileName);
+  if (nativeTable) return nativeTable;
   const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
   if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
