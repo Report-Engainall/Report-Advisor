@@ -14,12 +14,13 @@ const passwordB = process.env.TEST_USER_B_PASSWORD;
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e-business';
 let realReportPath = process.env.REPORT_CORPUS_FILE?.trim() || '';
+let realReportCandidates = realReportPath ? [path.resolve(realReportPath)] : [];
 const reportCorpusRoot = process.env.REPORT_CORPUS_ROOT?.trim() || '';
 if (!realReportPath && reportCorpusRoot) {
   const entries = await fs.readdir(reportCorpusRoot, { withFileTypes: true });
   const candidates = entries.filter(entry => entry.isFile() && entry.name !== 'README.md' && /\.(pdf|xlsx|xls|xlsm|csv|tsv|ods|docx|doc|json|jsonl|xml|txt|md)$/i.test(entry.name)).map(entry => entry.name).sort();
   if (!candidates.length) throw new Error('REPORT_CORPUS_EMPTY');
-  realReportPath = path.resolve(reportCorpusRoot, candidates[0]);
+  realReportCandidates = candidates.map(name => path.resolve(reportCorpusRoot, name));
 }
 for (const [name, value] of Object.entries({ supabaseURL, anonKey, emailA, passwordA, emailB, passwordB })) if (!value) throw new Error(`BUSINESS_E2E_ENV_MISSING:${name}`);
 await fs.mkdir(reportDir, { recursive: true });
@@ -221,6 +222,29 @@ async function importOne(page, label, fields, marker) {
   return { job, canonical: canonicalRows[0] };
 }
 
+async function selectNextRealReport(page) {
+  const companyId = evidence.tenantA ?? await currentTenant(page);
+  for (const candidatePath of realReportCandidates) {
+    const rawBytes = await fs.readFile(candidatePath);
+    const sourceHash = crypto.createHash('sha256').update(rawBytes).digest('hex');
+    const existing = await restSelect(
+      page,
+      'import_jobs',
+      { company_id: companyId, source_fingerprint: sourceHash },
+      'id,status,source_fingerprint,created_at,result_summary',
+      { order: 'created_at.desc', limit: 20 },
+    );
+    const completed = existing.find(row => row?.status === 'completed');
+    if (completed) {
+      evidence.steps.push({ step: 'real-report-existing-completed-skip', status: 'PASS', fileName: path.basename(candidatePath), sourceHash, importJobId: completed.id });
+      continue;
+    }
+    realReportPath = candidatePath;
+    evidence.steps.push({ step: 'real-report-next-open-selected', status: 'PASS', fileName: path.basename(candidatePath), sourceHash });
+    return { companyId, sourceHash, filePath: candidatePath };
+  }
+  throw new Error('NO_OPEN_REAL_REPORTS');
+}
 async function importRealReportOne(page) {
   const filePath = path.resolve(realReportPath);
   const fileName = path.basename(filePath);
@@ -298,7 +322,8 @@ try {
   evidence.tenantA = await currentTenant(pageA);
   evidence.steps.push({ step: 'tenant-A-resolution', status: 'PASS', tenantId: evidence.tenantA });
 
-  if (realReportPath) {
+  if (realReportCandidates.length) {
+    await selectNextRealReport(pageA);
     await importRealReportOne(pageA);
   } else {
     const suffix = `${Date.now()}-${process.pid}`;
