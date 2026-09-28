@@ -63,7 +63,50 @@ export class SupabaseReportExecutionStore {
     if (!data || typeof data !== 'object') throw new Error('Report execution job could not be claimed');
     const job = await this.require(jobId);
     if (job.tenantId !== tenantId) throw new Error('Claimed durable job tenant does not match request tenant');
+    if (!job.leaseToken) throw new Error('Claimed durable job lease token is missing');
+    const { data: queuedTask, error: queuedTaskError } = await this.client
+      .from('report_execution_tasks')
+      .select('status')
+      .eq('company_id', tenantId)
+      .eq('report_execution_job_id', jobId)
+      .eq('stage', 'queued')
+      .maybeSingle();
+    if (queuedTaskError) throw queuedTaskError;
+    if (queuedTask?.status === 'queued') {
+      await this.startTask(jobId, workerId, job.leaseToken, 'queued', tenantId);
+      await this.completeTask(jobId, workerId, job.leaseToken, 'queued', { claimedAt: new Date().toISOString() }, tenantId);
+    }
     return job;
+  }
+
+  async startTask(jobId: string, workerId: string, leaseToken: string, stage: string, tenantId: string): Promise<void> {
+    const job = await this.require(jobId);
+    if (job.tenantId !== tenantId) throw new Error('Worker tenant context does not match the durable job tenant');
+    const { data, error } = await this.client.rpc('start_report_execution_task', {
+      p_job_id: jobId, p_company_id: tenantId, p_worker_id: workerId, p_lease_token: leaseToken, p_stage: stage,
+    });
+    if (error) throw error;
+    if (data !== true) throw new Error('Execution task start rejected for ' + stage);
+  }
+
+  async completeTask(jobId: string, workerId: string, leaseToken: string, stage: string, evidence: Record<string, unknown> = {}, tenantId: string): Promise<void> {
+    const job = await this.require(jobId);
+    if (job.tenantId !== tenantId) throw new Error('Worker tenant context does not match the durable job tenant');
+    const { data, error } = await this.client.rpc('complete_report_execution_task', {
+      p_job_id: jobId, p_company_id: tenantId, p_worker_id: workerId, p_lease_token: leaseToken, p_stage: stage, p_evidence: evidence,
+    });
+    if (error) throw error;
+    if (data !== true) throw new Error('Execution task completion rejected for ' + stage);
+  }
+
+  async failTask(jobId: string, workerId: string, leaseToken: string, stage: string, errorPayload: Record<string, unknown>, tenantId: string): Promise<void> {
+    const job = await this.require(jobId);
+    if (job.tenantId !== tenantId) throw new Error('Worker tenant context does not match the durable job tenant');
+    const { data, error } = await this.client.rpc('fail_report_execution_task', {
+      p_job_id: jobId, p_company_id: tenantId, p_worker_id: workerId, p_lease_token: leaseToken, p_stage: stage, p_error: errorPayload,
+    });
+    if (error) throw error;
+    if (data !== true) throw new Error('Execution task failure update rejected for ' + stage);
   }
 
   async heartbeat(jobId: string, workerId: string, leaseSeconds = 300, tenantId: string): Promise<void> {

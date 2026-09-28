@@ -50,19 +50,27 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
     const sourceRows = source.rows;
 
     let heartbeatFailure: unknown = null;
+    let activeTask: ReportExecutionStage | null = null;
     heartbeatTimer = setInterval(() => {
       void store.heartbeat(input.jobId, input.workerId, leaseSeconds, tenantId).catch((error) => { heartbeatFailure ??= error; });
     }, heartbeatIntervalMs);
 
-    const checkpoint = (stage: ReportExecutionStage): ReportExecutionCheckpoint => ({ ...job.checkpoint, sourceHash: input.sourceHash, stage, updatedAt: Date.now() });
+    const checkpoint = (nextStage: ReportExecutionStage): ReportExecutionCheckpoint => ({ ...job.checkpoint, sourceHash: input.sourceHash, stage: nextStage, updatedAt: Date.now() });
     let stage = job.checkpoint.stage;
     while (stage !== 'rendered') {
       if (heartbeatFailure) throw heartbeatFailure;
       const following = next(stage);
       if (!following) throw new Error(`Cannot advance production lifecycle from ${stage}`);
+      activeTask = following;
+      await store.startTask(input.jobId, input.workerId, job.leaseToken!, following, tenantId);
       if (input.executeStage) await input.executeStage(following, { request: input.request, rows: sourceRows });
       if (heartbeatFailure) throw heartbeatFailure;
-      await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId, tenantId);
+      const nextCheckpoint = checkpoint(following);
+      await store.saveCheckpoint(input.jobId, nextCheckpoint, input.workerId, tenantId);
+      await store.completeTask(input.jobId, input.workerId, job.leaseToken!, following, {
+        stage: following, checkpoint: nextCheckpoint, rowCount: sourceRows.length, observedAt: new Date().toISOString(),
+      }, tenantId);
+      activeTask = null;
       stage = following;
     }
 
@@ -85,8 +93,12 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
     }, tenantId);
     return lifecycle;
   } catch (error) {
+    const failure = { message: error instanceof Error ? error.message : String(error), stage: activeTask };
     try {
-      await store.fail(input.jobId, input.workerId, { message: error instanceof Error ? error.message : String(error) }, tenantId);
+      if (activeTask && job.leaseToken) {
+        await store.failTask(input.jobId, input.workerId, job.leaseToken, activeTask, failure, tenantId);
+      }
+      await store.fail(input.jobId, input.workerId, failure, tenantId);
       if (job.attempt < job.maxAttempts) await store.retry(input.jobId, tenantId);
     } catch (failureError) {
       throw new AggregateError([error, failureError], 'Durable execution failed and failure/recovery state could not be persisted');

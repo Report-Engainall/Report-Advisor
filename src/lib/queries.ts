@@ -567,12 +567,40 @@ export async function fetchSuppliersPage(page=0,pageSize=50,search=''):Promise<S
   return{data:(data??[]) as SupplierRow[],count,page,page_size:pageSize};
 }
 
-export type WorkerHealthSnapshot = {
-  queued: number;
-  active: number;
-  expiredActive: number;
-  activeReadComplete: boolean;
+export type ReportExecutionTaskRecord = {
+  id: string;
+  report_execution_job_id: string;
+  task_key: string;
+  stage: string;
+  ordinal: number;
+  label: string;
+  status: 'queued' | 'running' | 'completed' | 'failed';
+  worker_id: string | null;
+  attempt: number;
+  started_at: string | null;
+  completed_at: string | null;
+  last_error: Record<string, unknown>;
+  evidence: Record<string, unknown>;
 };
+
+export async function fetchReportExecutionTasks(jobId: string): Promise<ReportExecutionTaskRecord[]> {
+  if (!jobId.trim()) throw new Error('REPORT_EXECUTION_JOB_ID_REQUIRED');
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase.from('report_execution_tasks')
+    .select('id,report_execution_job_id,task_key,stage,ordinal,label,status,worker_id,attempt,started_at,completed_at,last_error,evidence')
+    .eq('company_id', companyId).eq('report_execution_job_id', jobId).order('ordinal', { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map((row) => ({
+    id: String(row.id), report_execution_job_id: String(row.report_execution_job_id), task_key: String(row.task_key),
+    stage: String(row.stage), ordinal: Number(row.ordinal), label: String(row.label),
+    status: row.status as ReportExecutionTaskRecord['status'], worker_id: row.worker_id ? String(row.worker_id) : null,
+    attempt: Number(row.attempt ?? 0), started_at: row.started_at ? String(row.started_at) : null,
+    completed_at: row.completed_at ? String(row.completed_at) : null,
+    last_error: row.last_error && typeof row.last_error === 'object' ? row.last_error as Record<string, unknown> : {},
+    evidence: row.evidence && typeof row.evidence === 'object' ? row.evidence as Record<string, unknown> : {},
+  }));
+}
 
 export async function fetchWorkerHealthSnapshot(): Promise<WorkerHealthSnapshot> {
   const companyId = await resolveCurrentCompanyId();

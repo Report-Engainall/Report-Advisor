@@ -21,7 +21,8 @@ type CanonicalImportRequest = {
   rows?: unknown[];
   qualityScore?: number;
   qualityApproved?: boolean;
-  mode?: 'execute' | 'finalize-source';
+  durableJobId?: string;
+  mode?: 'execute' | 'enqueue' | 'finalize-source';
 };
 
 function assertRequest(value: unknown): CanonicalImportRequest {
@@ -35,6 +36,7 @@ function assertRequest(value: unknown): CanonicalImportRequest {
   if (body.fileName !== undefined && (typeof body.fileName !== 'string' || body.fileName.length > 512)) throw new Error('CANONICAL_IMPORT_FILE_NAME_INVALID');
   if (body.sourceHash !== undefined && (!/^sha256:[0-9a-fA-F]{64}$/.test(body.sourceHash))) throw new Error('CANONICAL_IMPORT_SOURCE_HASH_INVALID');
   if (body.qualityApproved !== undefined && typeof body.qualityApproved !== 'boolean') throw new Error('CANONICAL_IMPORT_QUALITY_APPROVAL_INVALID');
+  if (body.durableJobId !== undefined && (typeof body.durableJobId !== 'string' || !body.durableJobId.trim())) throw new Error('CANONICAL_IMPORT_DURABLE_JOB_ID_INVALID');
   return body;
 }
 
@@ -167,6 +169,34 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
   }).eq('id', job.id).eq('company_id', companyId);
   if (jobUpdateError) throw jobUpdateError;
 
+  const durableJobKey = `canonical-import:${authoritativeEntityType}:${sourceSha}`;
+  if (mode === 'enqueue') {
+    const { data: queuedJob, error: queueError } = await serviceClient.rpc('enqueue_report_execution_job', {
+      p_company_id: companyId,
+      p_job_key: durableJobKey,
+      p_source_path: fileRecord.file_name || payload.fileName || 'import',
+      p_source_hash: sourceSha,
+      p_evidence_keys: [`source:${sourceSha}`, `import:${job.id}`, `entity:${authoritativeEntityType}`, `rows:${authoritativeRows.length}`],
+      p_max_attempts: 3,
+    });
+    if (queueError) throw queueError;
+    if (!queuedJob || typeof queuedJob !== 'object' || typeof queuedJob.id !== 'string') throw new Error('REPORT_EXECUTION_JOB_ENQUEUE_EMPTY');
+    return { importId: job.id, sourceHash: sourceSha, jobId: String(queuedJob.id), queued: true,
+      authoritativeRowCount: authoritativeRows.length, authoritativeQualityScore,
+      sourceSpecialty: sourceUnderstanding.specialty, sourceSpecialtyConfidence: sourceUnderstanding.specialtyConfidence,
+      authoritativeEntityType, datasetCount: sourceUnderstanding.datasetCount, datasetSummaries: sourceUnderstanding.datasets,
+      sourceWarnings: sourceUnderstanding.warnings };
+  }
+
+  if (mode === 'execute' && payload.durableJobId) {
+    const { data: durableJob, error: durableJobError } = await serviceClient
+      .from('report_execution_jobs').select('id,company_id,status,source_hash')
+      .eq('id', payload.durableJobId).eq('company_id', companyId).maybeSingle();
+    if (durableJobError) throw durableJobError;
+    if (!durableJob) throw new Error('REPORT_EXECUTION_JOB_NOT_FOUND_OR_FORBIDDEN');
+    if (durableJob.source_hash !== sourceSha) throw new Error('REPORT_EXECUTION_JOB_SOURCE_HASH_MISMATCH');
+  }
+
   const { data: existingCommit, error: existingCommitError } = await serviceClient
     .from('canonical_import_commits')
     .select('id, entity_type, source_hash, committed_count, committed_at')
@@ -201,6 +231,7 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
         rows: reconciled.rows,
         qualityScore: authoritativeQualityScore,
         qualityApproved: payload.qualityApproved === true,
+        durableJobId: payload.durableJobId,
       },
       {
         serverExecution: true,
@@ -208,6 +239,7 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
         dataClient: userClient,
         companyId: String(companyId),
         requestedBy: userData.user.id,
+        durableJobId: payload.durableJobId,
       },
     );
   }

@@ -13,6 +13,7 @@ export interface DurableCanonicalImportInput {
   rows: ReconciledCanonicalImportRow[];
   qualityScore: number;
   qualityApproved: boolean;
+  durableJobId?: string;
 }
 
 export interface CanonicalImportExecutionOptions {
@@ -21,6 +22,7 @@ export interface CanonicalImportExecutionOptions {
   dataClient?: SupabaseClient;
   companyId?: string;
   requestedBy?: string;
+  durableJobId?: string;
 }
 
 interface EnqueuedJob {
@@ -82,7 +84,10 @@ function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: stri
 
 interface CanonicalServerExecutionResult { jobId?: string; importId: string; sourceHash: string; [key: string]: unknown }
 
-async function executeThroughServerBoundary(input: DurableCanonicalImportInput, mode: 'execute' | 'finalize-source' = 'execute'): Promise<CanonicalServerExecutionResult> {
+async function executeThroughServerBoundary(
+  input: DurableCanonicalImportInput,
+  mode: 'execute' | 'enqueue' | 'finalize-source' = 'execute',
+): Promise<CanonicalServerExecutionResult> {
   const { supabase } = await import('../supabase');
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   const accessToken = sessionData.session?.access_token;
@@ -108,7 +113,7 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput, 
   if (
     !payload?.importId ||
     !payload?.sourceHash ||
-    (mode === 'execute' && !payload?.jobId) ||
+    ((mode === 'execute' || mode === 'enqueue') && !payload?.jobId) ||
     (mode === 'execute' && !Number.isInteger(Number(payload?.authoritativeRowCount)))
   ) {
     throw new Error('CANONICAL_IMPORT_SERVER_EXECUTION_RESPONSE_INVALID');
@@ -166,23 +171,35 @@ export async function runCanonicalImportThroughDurableRunner(
   const activeWorkerClient = workerClient;
   const activeDataClient = dataClient;
   if (!activeWorkerClient || !activeDataClient) throw new Error('SUPABASE_CLIENTS_REQUIRED');
-  const { data: enqueueData, error: enqueueError } = await activeWorkerClient.rpc('enqueue_report_execution_job', {
-    p_company_id: companyId,
-    p_job_key: jobKey,
-    p_source_path: input.fileName,
-    p_source_hash: input.sourceHash,
-    p_evidence_keys: [
-      `source:${input.sourceHash}`,
-      `import:${input.importId}`,
-      `entity:${input.entityType}`,
-      `rows:${input.rows.length}`,
-    ],
-    p_max_attempts: 3,
-  });
-  if (enqueueError) throw enqueueError;
-  if (!enqueueData || typeof enqueueData !== 'object') throw new Error('REPORT_EXECUTION_JOB_ENQUEUE_EMPTY');
-
-  const job = enqueueData as EnqueuedJob;
+  let job: EnqueuedJob;
+  if (options.durableJobId) {
+    const { data: existing, error: existingError } = await activeWorkerClient
+      .from('report_execution_jobs')
+      .select('id,company_id,status,checkpoint,attempt,max_attempts')
+      .eq('id', options.durableJobId)
+      .eq('company_id', companyId)
+      .maybeSingle();
+    if (existingError) throw existingError;
+    if (!existing) throw new Error('REPORT_EXECUTION_JOB_NOT_FOUND_OR_FORBIDDEN');
+    job = existing as EnqueuedJob;
+  } else {
+    const { data: enqueueData, error: enqueueError } = await activeWorkerClient.rpc('enqueue_report_execution_job', {
+      p_company_id: companyId,
+      p_job_key: jobKey,
+      p_source_path: input.fileName,
+      p_source_hash: input.sourceHash,
+      p_evidence_keys: [
+        `source:${input.sourceHash}`,
+        `import:${input.importId}`,
+        `entity:${input.entityType}`,
+        `rows:${input.rows.length}`,
+      ],
+      p_max_attempts: 3,
+    });
+    if (enqueueError) throw enqueueError;
+    if (!enqueueData || typeof enqueueData !== 'object') throw new Error('REPORT_EXECUTION_JOB_ENQUEUE_EMPTY');
+    job = enqueueData as EnqueuedJob;
+  }
   if (!job.id || job.company_id !== companyId) throw new Error('REPORT_EXECUTION_JOB_TENANT_MISMATCH');
   if (job.status === 'succeeded' || job.status === 'completed') throw new Error('IMPORT_ALREADY_COMPLETED_FOR_SOURCE');
   if (job.status === 'cancelled' || job.status === 'dead_letter') throw new Error('IMPORT_DURABLE_JOB_NOT_RETRYABLE');
@@ -256,6 +273,10 @@ export async function runCanonicalImportThroughDurableRunner(
   }, store);
 
   return { ...result, jobId: job.id, importId: input.importId };
+}
+
+export async function enqueueCanonicalImportForExecution(input: DurableCanonicalImportInput): Promise<CanonicalServerExecutionResult> {
+  return executeThroughServerBoundary(input, 'enqueue');
 }
 
 export async function finalizeCanonicalImportSource(input: Pick<DurableCanonicalImportInput, 'importId' | 'fileName' | 'sourceHash' | 'entityType'>): Promise<{ importId: string; sourceHash: string }> {
