@@ -693,3 +693,17 @@
 - NEXT EXACT ACTION → consume the current Netlify/GitHub terminal results on `0265ae7...`; repair only the first reproducible root failure, otherwise continue the next repository-safe front.
 - DO NOT REPEAT → stale preview PASS, production-SHA bypass, direct worker auth bypass, duplicate report/import runners.
 - RESUME STATUS → ACTIVE / ROOT BUILD FAILURES BEING CLOSED ONE-BY-ONE / POST-UPLOAD REPORT SURFACE IMPLEMENTED.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-28-AGHBARI-POST-UPLOAD-REPORT-CLOSURE-158
+
+- SESSION-ID → `2026-09-28-AGHBARI-POST-UPLOAD-REPORT-CLOSURE-158`.
+- EXACT CURRENT CODE HEAD → `a6bf8da6a49f20c8a24d3605bebb40c3e6d029d6`.
+- BUILD ROOTS CLOSED THIS CONTINUATION → restored `src/lib/decision-status.ts`; fixed `CanonicalImportPage` to read `fetchDashboardIntelligence` from canonical `dashboard-canonical.ts` instead of the `queries-compat` adapter; preserved import context when opening Business Replay; removed the unused duplicate `SPECIALTY_REPORT_OUTPUTS/resolvePostImportReports` map from the UI so rendered-output routing has one canonical source.
+- STATIC CURRENT-SURFACE CHECK → exact branch tree confirms all local alias imports used by `CanonicalImportPage`, `ExecutiveReportPage`, `BusinessReplayPage`, `BenchmarkPage`, `ReportSurfaceContext`, and `SourceBoundReportContext` resolve to real files.
+- PREVIOUS EXACT NETLIFY ROOTS → missing `ReportSurfaceContext`, missing `SourceBoundReportContext`, missing `decision-status`, and `fetchDashboardIntelligence` incorrectly imported from `queries-compat` were all reproduced from current deploy logs and fixed sequentially. The newest Netlify build after the latest fixes is not yet terminalized, so no PASS is claimed.
+- SERVER SECURITY PATH VERIFIED IN CODE → browser calls the canonical server boundary with the user's bearer token; server authenticates the user with the anon client, resolves tenant, downloads source through the service client, recomputes SHA, parses/understands/reconciles authoritatively, then passes a service-role client as `workerClient` to the durable runner. The worker claim therefore is designed to execute server-side with service authority while tenant checks remain explicit. Direct unauthenticated SQL claim remains blocked with `AUTHENTICATED_USER_REQUIRED`.
+- OPEN → fresh exact-head Netlify terminal result; queued GitHub CI terminal results; authenticated endpoint/browser E2E; device-only PC01 (offline); Vercel free-plan build-rate-limit; production exact-SHA/resilience proof.
+- NEXT EXACT ACTION → consume the fresh Netlify/CI terminal result for the latest branch HEAD; repair only the first new root failure if one appears. Then continue with any repository-safe independent front.
+- DO NOT REPEAT → stale PASS transfer; duplicate report-route maps; direct worker auth bypass; treating rendered routing as canonical business truth.
+- RESUME STATUS → ACTIVE / POST-UPLOAD REPORT FLOW HARDENED / BUILD ROOTS BEING CLOSED CURRENT-SHA FIRST.
