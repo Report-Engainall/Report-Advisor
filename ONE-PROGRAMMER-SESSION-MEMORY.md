@@ -676,3 +676,20 @@
 - RESUME POINT → current HEAD `0e0d55c7185f2f781c22fb6da0cfca105b34ebdf`.
 - NEXT EXACT ACTION → consume fresh exact-head build/CI results; repair only the first reproducible current-SHA failure. Then execute the remaining repository-safe front, with live authenticated/device work isolated as external blockers.
 - RESUME STATUS → ACTIVE / POST-UPLOAD EXECUTION + REPORT SURFACES IMPLEMENTED / LIVE AUTHENTICATED WORKER AND FRESH HOSTED PROOF STILL OPEN.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-28-AGHBARI-POST-UPLOAD-REPORT-CLOSURE-157
+
+- SESSION-ID → `2026-09-28-AGHBARI-POST-UPLOAD-REPORT-CLOSURE-157`.
+- EXACT FUNCTIONAL CHECKPOINT BEFORE THIS WRITE-BACK → `0265ae7a043f5aa38d4118573bccbd984171086b`.
+- PR → #675 / `exec/20260928-post-import-report-closure`.
+- NEW ROOT FAILURE PROVEN → exact current Netlify preview build for `db49670f...` failed on missing `src/components/SourceBoundReportContext` imported by `src/pages/ReportsPage.tsx`.
+- ROOT FIX EXECUTED → restored `src/components/SourceBoundReportContext.tsx` from the previously proven canonical implementation; no new report pipeline/duplicate was created.
+- CURRENT HOSTED STATUS → Netlify preview for `0265ae7...` is currently pending; Vercel remains `failure / build-rate-limit` with deployment pending. No new hosted PASS claimed yet.
+- CURRENT REPOSITORY CHECK → `ReportsPage.tsx` imports were rescanned against exact branch tree and all alias-resolvable local modules exist, including both report truth context components.
+- UI/OUTPUT STATUS → post-upload report routes, Business Replay, Benchmark, source-bound report context, report truth context, and navigation are implemented and wired.
+- SUPABASE PROOF RETAINED → staging enqueue created the nine ordered durable task records and cleanup confirmed the proof job was removed. Authenticated worker claim remains blocked by the intended `AUTHENTICATED_USER_REQUIRED` guard when called from unauthenticated SQL.
+- OPEN → fresh Netlify build terminal result for `0265ae7...`; mandatory GitHub CI terminal results; authenticated runtime/browser/device E2E; Vercel rate-limit; production exact-SHA/resilience.
+- NEXT EXACT ACTION → consume the current Netlify/GitHub terminal results on `0265ae7...`; repair only the first reproducible root failure, otherwise continue the next repository-safe front.
+- DO NOT REPEAT → stale preview PASS, production-SHA bypass, direct worker auth bypass, duplicate report/import runners.
+- RESUME STATUS → ACTIVE / ROOT BUILD FAILURES BEING CLOSED ONE-BY-ONE / POST-UPLOAD REPORT SURFACE IMPLEMENTED.
