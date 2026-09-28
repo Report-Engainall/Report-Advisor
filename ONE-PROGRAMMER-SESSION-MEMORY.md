@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / CURRENT EXACT IMPORT-RECOVERY CANDIDATE
+
+- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
+- CURRENT CODE/TEST CANDIDATE → 2f41eaff8c0bfde9abb48607354e9c2c1e5f7ea3.
+- EXACT PROOF — PDF/file-engine regression: PASS on this SHA; existing file-engine regressions PASS and structured PDF/OCR regression PASS.
+- EXACT PROOF — Vite/Cloudflare compatibility: PASS on this SHA; exact checkout, npm ci, Vite build, and compatibility validation all PASS.
+- EXACT PROOF — data-quality-runtime: PASS on this SHA; empty-quality contract, behavioral regression, and typecheck all completed successfully.
+- EXACT PROOF — import-finish-lifecycle-security: PASS on this SHA; terminal lifecycle contract and typecheck completed successfully.
+- EXACT PROOF — production-regression-evidence: executable evidence production and release-decision validation steps PASS on this SHA; final job remained in progress at last observation.
+- EXACT PROOF — storage/security/import contracts already observed PASS on this SHA where terminal; no stale evidence is transferred.
+- FAILURE CONSUMED — Execution Enforcement Contract on this SHA failed only because the Master Index still named the older candidate `eccb8ec...`; no non-governance code failure was observed in that run.
+- GOVERNANCE ACTION — this commit changes only MASTER_EXECUTION_INDEX and ONE-PROGRAMMER-SESSION-MEMORY to bind the current boundary to the exact tested code SHA.
+- EXTERNAL/DEVICE — production Phase-F remains fail-closed for deployment identity/backup/rollback runtime evidence; PC01 remains offline; hosted preview providers are evidence-only until terminal current-SHA build state is proven.
+- NEXT — final certification/enforcement must rerun against this governance descendant; then consume first terminal current-SHA failure. No production PASS until deployment/runtime evidence matches the same certified code line.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / FAILED-IMPORT RECOVERY CLOSURE
 
 - MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
