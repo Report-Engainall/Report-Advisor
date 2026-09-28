@@ -5,7 +5,7 @@ import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
-import { fetchDashboardIntelligence, fetchImportRecords, fetchRecommendationsBoundToImport, createImportRecord } from '@/lib/queries';
+import { fetchDashboardIntelligence, fetchImportRecords, fetchRecommendationsBoundToImport, createImportRecord, fetchReportExecutionTasks, type ReportExecutionTaskRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
@@ -13,7 +13,7 @@ import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/s
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat } from '@/lib/file-engine/types';
 import { reconcileForCanonical, type CanonicalImportEntityType } from '@/lib/import/canonical-truth-boundary';
-import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
+import { enqueueCanonicalImportForExecution, runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
 import { understandCanonicalSource } from '@/lib/import/canonical-source-understanding';
 import { entityLabel, specialtyLabel } from '@/lib/import/canonical-labels';
 
@@ -27,6 +27,25 @@ const STEPS: Array<{ key: Step; label: string }> = [
   { key: 'saving', label: 'الاعتماد' },
   { key: 'done', label: 'النتيجة' },
 ];
+const EXECUTION_TASK_STAGES = [
+  ['queued', 'استلام العملية'],
+  ['fingerprinted', 'إثبات بصمة المصدر'],
+  ['extracted', 'استخراج المحتوى'],
+  ['canonicalized', 'التوحيد والمطابقة'],
+  ['validated', 'التحقق والجودة'],
+  ['analyzed', 'التحليل وفهم الأعمال'],
+  ['decisioned', 'بناء إشارة القرار'],
+  ['committed', 'تثبيت الحقيقة الكانونية'],
+  ['rendered', 'إخراج التقرير ونتائج التشغيل'],
+] as const;
+
+function executionTaskBadge(status: ReportExecutionTaskRecord['status']): { label: string; className: string } {
+  if (status === 'completed') return { label: 'مكتملة', className: 'text-success-700 bg-success-50 border-success-200' };
+  if (status === 'running') return { label: 'قيد التنفيذ', className: 'text-primary-700 bg-primary-50 border-primary-200' };
+  if (status === 'failed') return { label: 'فشلت', className: 'text-danger-700 bg-danger-50 border-danger-200' };
+  return { label: 'انتظار', className: 'text-ink-500 bg-ink-50 border-ink-200' };
+}
+
 const CANONICAL_LIFECYCLE = [
   ['01', 'Security', 'فحص أمني'],
   ['02', 'Fingerprint', 'بصمة المصدر'],
@@ -134,6 +153,9 @@ export function CanonicalImportPage() {
   const [history, setHistory] = useState<any[]>([]);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [executionTasks, setExecutionTasks] = useState<ReportExecutionTaskRecord[]>([]);
+  const [executionJobId, setExecutionJobId] = useState<string | null>(null);
+  const [executionTaskError, setExecutionTaskError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedFileRef = useRef<File | null>(null);
 
@@ -198,6 +220,38 @@ export function CanonicalImportPage() {
     } catch (e: any) {
       setError(e?.message || 'فشل قراءة الملف'); setStep('upload');
     }
+  }, []);
+
+  const executeWithTaskMonitor = useCallback(async (
+    executionInput: Parameters<typeof runCanonicalImportThroughDurableRunner>[0],
+    jobId: string,
+  ) => {
+    let finished = false;
+    let executionResult: any = null;
+    let executionError: unknown = null;
+    const executionPromise = runCanonicalImportThroughDurableRunner(executionInput)
+      .then((value) => { executionResult = value; finished = true; })
+      .catch((cause) => { executionError = cause; finished = true; });
+    const startedAt = Date.now();
+    while (!finished && Date.now() - startedAt < 240_000) {
+      try {
+        const tasks = await fetchReportExecutionTasks(jobId);
+        setExecutionTasks(tasks);
+        const completed = tasks.filter((task) => task.status === 'completed').length;
+        if (tasks.length) setProgress(Math.max(50, Math.min(97, 50 + Math.round((completed / tasks.length) * 47))));
+      } catch (cause) {
+        setExecutionTaskError(cause instanceof Error ? cause.message : 'تعذر قراءة تقرير مهام التنفيذ');
+      }
+      if (!finished) await new Promise((resolve) => window.setTimeout(resolve, 750));
+    }
+    await executionPromise;
+    if (executionError) throw executionError;
+    try {
+      setExecutionTasks(await fetchReportExecutionTasks(jobId));
+    } catch (cause) {
+      setExecutionTaskError(cause instanceof Error ? cause.message : 'تعذر قراءة تقرير مهام التنفيذ النهائي');
+    }
+    return executionResult;
   }, []);
 
   const retryCurrentFile = useCallback(() => {
@@ -300,7 +354,7 @@ export function CanonicalImportPage() {
 
       setProgress(60);
 
-      const execution = await runCanonicalImportThroughDurableRunner({
+      const executionInput = {
         importId: rec.id,
         fileName: file.name,
         sourceHash: durableSourceHash,
@@ -308,9 +362,35 @@ export function CanonicalImportPage() {
         rows: reconciled.rows,
         qualityScore: quality,
         qualityApproved,
-      });
+      };
+      const queuedExecution = await enqueueCanonicalImportForExecution(executionInput);
+      const durableJobId = typeof queuedExecution.jobId === 'string' ? queuedExecution.jobId : null;
+      if (!durableJobId) throw new Error('CANONICAL_IMPORT_DURABLE_JOB_ID_MISSING');
+      setExecutionJobId(durableJobId);
+      setExecutionTaskError(null);
+      let finalExecutionTasks: ReportExecutionTaskRecord[] = [];
+      try {
+        finalExecutionTasks = await fetchReportExecutionTasks(durableJobId);
+        setExecutionTasks(finalExecutionTasks);
+      } catch (cause) {
+        setExecutionTaskError(cause instanceof Error ? cause.message : 'تعذر قراءة قائمة مهام التنفيذ');
+      }
 
-      setProgress(88);
+      const execution = await executeWithTaskMonitor({ ...executionInput, durableJobId }, durableJobId);
+      setProgress(98);
+
+      try {
+        finalExecutionTasks = await fetchReportExecutionTasks(durableJobId);
+        setExecutionTasks(finalExecutionTasks);
+        const failedTasks = finalExecutionTasks.filter((task) => task.status === 'failed');
+        if (failedTasks.length > 0) throw new Error(`EXECUTION_TASKS_FAILED:${failedTasks.map((task) => task.stage).join(',')}`);
+        if (finalExecutionTasks.length < EXECUTION_TASK_STAGES.length || finalExecutionTasks.some((task) => task.status !== 'completed')) {
+          throw new Error('EXECUTION_TASKS_NOT_COMPLETED');
+        }
+      } catch (cause) {
+        if (cause instanceof Error && cause.message.startsWith('EXECUTION_TASKS_')) throw cause;
+        setExecutionTaskError(cause instanceof Error ? cause.message : 'تعذر إكمال تقرير مهام التنفيذ');
+      }
 
       const authoritativeRowCount = Number(execution.authoritativeRowCount);
       if (!Number.isInteger(authoritativeRowCount) || authoritativeRowCount < 0) {
@@ -336,6 +416,9 @@ export function CanonicalImportPage() {
         evidence_warning: typeof execution.evidenceWarning === 'string' ? execution.evidenceWarning : null,
         reused_existing_commit: execution.reusedExistingCommit === true,
         existing_commit_id: typeof execution.existingCommitId === 'string' ? execution.existingCommitId : null,
+        execution_job_id: durableJobId,
+        execution_task_count: finalExecutionTasks.length,
+        execution_tasks_failed: finalExecutionTasks.filter((task) => task.status === 'failed').map((task) => task.stage),
       });
 
       if (typeof window !== 'undefined') {
@@ -381,6 +464,9 @@ export function CanonicalImportPage() {
         existingCommitId: typeof execution.existingCommitId === 'string' ? execution.existingCommitId : null,
         datasetSummaries: Array.isArray(execution.datasetSummaries) ? execution.datasetSummaries : [],
         postImportSignals,
+        executionJobId: durableJobId,
+        executionTasks: finalExecutionTasks,
+        executionTaskError,
       });
       setStep('done');
       await loadHistory();
@@ -412,7 +498,7 @@ export function CanonicalImportPage() {
   }, [
     rows, file, fileHash, duplicate, securityPassed, quality,
     qualityApproved, understandingConfidence,
-    sourceSpecialty, sourceEntityType, datasetCount, loadHistory,
+    sourceSpecialty, sourceEntityType, datasetCount, loadHistory, executeWithTaskMonitor,
   ]);
 
   const reset = () => {
@@ -430,6 +516,9 @@ export function CanonicalImportPage() {
     setDuplicate(false);
     setSecurityPassed(false);
     setResult(null);
+    setExecutionTasks([]);
+    setExecutionJobId(null);
+    setExecutionTaskError(null);
     setProgress(0);
     setUnderstandingConfidence(0);
     setUnderstandingReason('لم يبدأ تحليل المصدر بعد.');
@@ -569,7 +658,33 @@ export function CanonicalImportPage() {
       </div>}
     </div>}
 
-    {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden" role="progressbar" aria-label="تقدم اعتماد المصدر" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.max(0, Math.min(100, progress))}><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم اعتماد المصدر عبر مسار الحقيقة الكانونية العامة مع بصمته وسياقه وجودته، ولا يُعلن نجاح الاعتماد إلا بعد إتمام مسار الكتابة الفعلي.</p></div></CardBody></Card>}
+    {step === 'saving' && <Card><CardBody>
+      <div className="flex flex-col items-center py-8 gap-3" role="status" aria-live="polite" aria-busy="true">
+        <Loader2 className="animate-spin text-primary-500" size={34}/>
+        <b>جارٍ تشغيل العملية الكانونية وتوزيع مهام التنفيذ...</b>
+        <span className="text-lg font-semibold">{progress}%</span>
+        <div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden" role="progressbar" aria-label="تقدم تنفيذ المصدر" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.max(0, Math.min(100, progress))}><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div>
+        <p className="text-xs text-ink-400">كل مرحلة لها Job/Task حقيقي وحالة محفوظة في قاعدة البيانات؛ لا تعتمد الواجهة على شريط تقدم وهمي.</p>
+      </div>
+      <section className="mt-4 w-full rounded-[16px] border border-ink-200 bg-white p-4 text-right">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">LIVE EXECUTION REPORT</div><div className="mt-1 text-sm font-black text-ink-950">توزيع المهام الفعلي بعد السحب</div></div>
+          <span className="text-[9px] font-mono text-ink-400">Job: {executionJobId ?? 'جارٍ الإنشاء'}</span>
+        </div>
+        {executionTaskError && <div className="mt-3 rounded-lg border border-warning-200 bg-warning-50 px-3 py-2 text-[10px] text-warning-800">{executionTaskError}</div>}
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {(executionTasks.length ? executionTasks : EXECUTION_TASK_STAGES.map(([stage,label], index) => ({ id: stage, report_execution_job_id: '', task_key: stage, stage, ordinal: index + 1, label, status: 'queued' as const, worker_id: null, attempt: 0, started_at: null, completed_at: null, last_error: {}, evidence: {} }))).map((task) => {
+            const badge = executionTaskBadge(task.status);
+            return <article key={task.id} className="rounded-xl border border-ink-100 bg-ink-50/50 p-3">
+              <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-primary-700">{String(task.ordinal).padStart(2,'0')} · {task.stage}</span><span className={`rounded-full border px-2 py-0.5 text-[9px] font-black ${badge.className}`}>{badge.label}</span></div>
+              <div className="mt-2 text-[11px] font-black text-ink-900">{task.label}</div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-[8px] text-ink-500"><span>العامل: {task.worker_id ?? 'بانتظار claim'}</span><span>المحاولة: {task.attempt}</span></div>
+              {task.last_error && Object.keys(task.last_error).length > 0 && <div className="mt-2 rounded-lg border border-danger-200 bg-danger-50 px-2 py-1.5 text-[9px] text-danger-700">{String(task.last_error.message ?? 'تعذر تنفيذ المهمة')}</div>}
+            </article>;
+          })}
+        </div>
+      </section>
+    </CardBody></Card>
 
     {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4">{result.evidenceStatus === 'VERIFIED' ? <CheckCircle2 className="text-success-500" size={52}/> : <AlertTriangle className="text-warning-600" size={52}/>}<h3 className="text-xl font-semibold">{result.evidenceStatus === 'VERIFIED' ? 'تم اعتماد المصدر وإثبات دليله' : 'اكتمل التنفيذ لكن الدليل بقي PARTIAL'}</h3><div className="w-full max-w-3xl rounded-[16px] border border-ink-200 bg-ink-50/60 p-4 text-right"><div className="text-[9px] font-black tracking-[.12em] text-primary-700">CANONICAL RESULT</div><div className="mt-1 text-sm font-black text-ink-950" role="status" aria-live="polite" aria-atomic="true">الحالة النهائية: {result.evidenceStatus === 'VERIFIED' ? 'VERIFIED' : 'PARTIAL / NOT PROVEN'}</div><div className="mt-1 text-[10px] leading-5 text-ink-500">{result.evidenceStatus === 'VERIFIED' ? 'تمت الكتابة الكانونية، ثم حفظ لقطة الدليل وإثباتها.' : 'تم تسجيل نتيجة التنفيذ، لكن لقطة الدليل لم تُثبت؛ لا تُعامل الدورة كحقيقة مثبتة.'}</div></div><div className="grid grid-cols-2 gap-3 w-full max-w-2xl text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف الكانونية</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة الفهم</div><b>{result.understandingConfidence == null ? 'غير متاح' : String(result.understandingConfidence) + '%'}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">جودة المصدر السلطوية</div><b>{result.authoritativeQualityScore == null ? 'غير متاح' : String(result.authoritativeQualityScore) + '%'}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">التخصص المكتشف</div><b>{specialtyLabel(result.sourceSpecialty)}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">مجموعات البيانات</div><b>{result.datasetCount == null ? 'غير متاح' : formatNumber(result.datasetCount)}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الكيان الكانوني</div><b>{entityLabel(result.sourceEntityType)}</b></div></div><div className="w-full max-w-3xl rounded-[16px] border border-primary-100 bg-primary-50/50 p-4 text-right"><div className="text-[9px] font-black tracking-[.12em] text-primary-700">SOURCE FLOW</div><div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{[['1','Security','فحص أمني'],['2','Understanding','فهم المصدر والمجموعات'],['3','Canonical Commit',result.evidenceStatus === 'VERIFIED' ? 'كتابة كانونية مثبتة' : 'تنفيذ كانوني مسجل'],['4','Evidence',result.evidenceStatus === 'VERIFIED' ? 'لقطة دليل مثبتة' : 'الدليل غير مثبت بالكامل']].map(([n,key,label]) => <div key={String(key)} className="rounded-xl border border-white/80 bg-white/80 p-3 text-right"><div className="text-[9px] font-black text-primary-700">{n} · {key}</div><div className="mt-1 text-[10px] font-bold text-ink-900">{label}</div></div>)}</div></div><CanonicalLifecycle />{(result.datasetSummaries?.length ?? 0) > 0 && <section className="w-full max-w-3xl rounded-[16px] border border-ink-200 bg-white p-4 text-right"><div className="text-[9px] font-black tracking-[.12em] text-primary-700">DATASET UNDERSTANDING</div><div className="mt-1 text-sm font-black text-ink-950">تفصيل ما فهمه النظام من كل مجموعة بيانات</div><div className="mt-3 space-y-2">{result.datasetSummaries.map((dataset: any, index: number) => <article key={String(dataset.name || 'dataset') + '-' + String(index)} className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="flex flex-wrap items-center justify-between gap-2"><div className="text-[11px] font-black text-ink-900">{dataset.name || 'مجموعة بيانات ' + String(index + 1)}</div><div className="flex flex-wrap gap-2 text-[9px] font-bold"><span className="badge-neutral">{specialtyLabel(dataset.specialty)}</span><span className={Number(dataset.specialtyConfidence) >= 75 ? 'badge-success' : Number(dataset.specialtyConfidence) >= 50 ? 'badge-warning' : 'badge-neutral'}>ثقة التخصص {dataset.specialtyConfidence == null ? 'غير متاح' : String(dataset.specialtyConfidence) + '%'}</span></div></div><div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3"><div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الصفوف</div><div className="mt-1 text-[10px] font-black">{dataset.rowCount == null ? 'غير متاح' : formatNumber(dataset.rowCount)}</div></div><div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الأعمدة</div><div className="mt-1 text-[10px] font-black">{dataset.columnCount == null ? 'غير متاح' : formatNumber(dataset.columnCount)}</div></div><div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الجودة</div><div className="mt-1 text-[10px] font-black">{dataset.qualityScore == null ? 'غير متاح' : String(dataset.qualityScore) + '%'}</div></div></div></article>)}</div></section>}<div className="flex flex-wrap items-center justify-center gap-2">
   <Badge variant={result.evidenceStatus === 'VERIFIED' ? 'success' : 'warning'}>{result.evidenceStatus === 'VERIFIED' ? 'الدليل: مثبت' : 'الدليل: PARTIAL'}</Badge>
