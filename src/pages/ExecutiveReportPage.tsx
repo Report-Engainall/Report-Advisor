@@ -7,7 +7,7 @@ import { formatCurrency, formatNumber } from '@/lib/format';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
 import { isActionableRecommendationStatus } from '@/lib/decision-status';
-import { fetchImportEvidenceSnapshot, fetchImportRecords, type ImportEvidenceSnapshot } from '@/lib/queries';
+import { fetchImportEvidenceSnapshot, fetchImportRecords, fetchRecommendationsBoundToImport, type ImportEvidenceSnapshot } from '@/lib/queries';
 
 function Metric({ label, value, hint }: { label: string; value: string; hint: string }) {
   return <div className="rounded-2xl border border-ink-100 bg-ink-50/70 p-4">
@@ -61,6 +61,7 @@ export function ExecutiveReportPage() {
   const [asOf, setAsOf] = useState<string>('غير متاح');
   const [data, setData] = useState<{ alerts: Alert[]; recommendations: Recommendation[] } | null>(null);
   const [importContext, setImportContext] = useState<{ record: ImportRecord | null; snapshot: ImportEvidenceSnapshot | null } | null>(null);
+  const [importRecommendations, setImportRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,6 +80,15 @@ export function ExecutiveReportPage() {
       setAsOf(snapshot.asOf);
       setData(intelligence);
       setImportContext(importId ? { record: focusedImports[0] ?? null, snapshot: evidenceSnapshot } : null);
+      if (importId && evidenceSnapshot) {
+        try {
+          setImportRecommendations(await fetchRecommendationsBoundToImport({ importJobId: importId, snapshotId: evidenceSnapshot.id, sourceHash: evidenceSnapshot.source_hash }));
+        } catch {
+          setImportRecommendations([]);
+        }
+      } else {
+        setImportRecommendations([]);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'تعذر تحميل التقرير التنفيذي.');
     } finally {
@@ -88,7 +98,7 @@ export function ExecutiveReportPage() {
 
   useEffect(() => { void load(); }, [load]);
 
-  const recommendations = data?.recommendations ?? [];
+  const recommendations = importId && importContext?.snapshot ? importRecommendations : (data?.recommendations ?? []);
   const actionableRecommendations = recommendations.filter((item) => isActionableRecommendationStatus(item.status));
   const activeDecisionCount = actionableRecommendations.length;
   const accountableDecisionCount = actionableRecommendations.filter((item) => Boolean(item.owner?.trim())).length;
@@ -181,13 +191,13 @@ export function ExecutiveReportPage() {
           <div className="mt-4 space-y-3">{(data?.alerts ?? []).slice(0, 6).map((alert) => <article key={alert.id} className="rounded-xl border border-ink-100 p-4"><p className="font-bold text-ink-900">{alert.title}</p><Link to="/decision-experience?stage=decision" className="mt-2 inline-flex min-h-11 items-center gap-1 text-xs font-bold text-primary-700">فتح سياق القرار <ArrowLeft size={13} /></Link></article>)}{!(data?.alerts?.length) && <EmptyState title="لا توجد تنبيهات مصدرية حاليًا." message="لا يتم تصنيع تنبيه عند غياب الإشارة المثبتة." action={<Link to="/trust" className="btn-secondary min-h-11">فحص الدليل</Link>} />}</div>
         </div>
         <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-primary-600">الإجراء</p><h2 className="mt-1 text-lg font-black">التوصيات النشطة</h2></div><span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-bold text-primary-700">{formatNumber(data?.recommendations.length ?? 0)}</span></div>
+          <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-primary-600">الإجراء</p><h2 className="mt-1 text-lg font-black">{importId ? 'التوصيات المرتبطة بالمصدر' : 'التوصيات النشطة'}</h2><p className="mt-1 text-[10px] text-ink-500">{importId ? 'لا تُنسب التوصية إلى الملف إلا عبر Job / Snapshot / Source Hash مثبت.' : 'توصيات الشركة ضمن القراءة الحالية.'}</p></div><span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-bold text-primary-700">{formatNumber(recommendations.length)}</span></div>
           <div className="mt-4 space-y-3">{(data?.recommendations ?? []).slice(0, 6).map((rec, index) => <article key={rec.id ?? index} className="rounded-xl border border-ink-100 p-4">
             <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-black text-primary-700">{recommendationStatusLabel(rec.status)}</span>{rec.owner && <span className="rounded-full bg-ink-50 px-2 py-1 text-[9px] font-bold text-ink-500">المسؤول: {rec.owner}</span>}</div>
             <p className="mt-2 font-bold text-ink-900">{rec.title}</p>
             <div className="mt-2 flex flex-wrap gap-3 text-[10px] text-ink-500"><span>الأثر المتوقع: {rec.expected_impact == null ? 'غير متاح' : formatCurrency(rec.expected_impact)}</span><span>الأثر الفعلي: {rec.impact_result ?? 'غير مسجل'}</span></div>
             <Link to="/decision-experience" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-primary-700">فتح مساحة القرار <ArrowLeft size={13} /></Link>
-          </article>)}{!(data?.recommendations?.length) && <EmptyState title="لا توجد توصيات مصدرية حاليًا." message="لا تُنتج توصية بديلة عند غياب الإشارة المثبتة." action={<Link to="/trust" className="btn-secondary min-h-11">فحص الدليل</Link>} />}</div>
+          </article>)}{!recommendations.length && <EmptyState title={importId ? 'لا توجد توصيات مثبتة مرتبطة بهذا المصدر.' : 'لا توجد توصيات مصدرية حاليًا.'} message={importId ? 'لا يُعرض بديل عام على أنه ناتج عن الملف.' : 'لا تُنتج توصية بديلة عند غياب الإشارة المثبتة.'} action={<Link to={importId ? `/trust?import=${encodeURIComponent(importId)}` : '/trust'} className="btn-secondary min-h-11">فحص الدليل</Link>} />}</div>
         </div>
       </section>
 
