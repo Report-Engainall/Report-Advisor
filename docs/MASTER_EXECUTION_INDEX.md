@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-UPLOAD EXECUTION LEDGER IMPLEMENTED
+
+- CURRENT CODE/TEST CANDIDATE → `578bf217609de50fca4180b7ff5f6c7ed27988b5`
+- CURRENT REPOSITORY HEAD → `578bf217609de50fca4180b7ff5f6c7ed27988b5`
+- ACTIVE FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- CLOSED IN THIS BATCH → authoritative durable Task Ledger (9 stages), lease-fenced task start/complete/fail RPCs, server enqueue boundary, worker task lifecycle, tenant readback, live execution report, final execution report.
+- FRESH IMPLEMENTATION PROOF → Supabase staging Transaction tests on the new ledger passed: 9 task creation, ordering guard, then ordered queued/fingerprinted completion with worker/attempt/evidence.
+- LAST CODE FAILURE → `6ff00d...` lint/build syntax error in CanonicalImportPage line 689; fixed by closing saving conditional before this candidate.
+- OPEN → exact-head CI, hosted deployment refresh, Phase-F external probe; no stale PASS.
+- NEXT → consume current-head terminal gate results, then persist fresh evidence.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / BATCH PROVEN / PHASE-F EXTERNAL
 
 - CURRENT CODE/TEST CANDIDATE → `b5b5ac2d56477aa3da9029fd709ae895a649199e`

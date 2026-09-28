@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-28 / POST-UPLOAD EXECUTION LEDGER IMPLEMENTED
+
+- CURRENT REPOSITORY HEAD → `578bf217609de50fca4180b7ff5f6c7ed27988b5`
+- CURRENT CODE/TEST CANDIDATE → `578bf217609de50fca4180b7ff5f6c7ed27988b5`
+- ACTIVE EXECUTION FRONTS → post-upload durable task ledger + live/final execution reports; exact-head CI certification.
+- LAST PROVEN → Supabase staging: enqueue created 9 durable tasks; ordering guard correctly rejected starting `fingerprinted` before `queued`; ordered test completed `queued` then `fingerprinted` with worker/attempt/evidence inside a rollback transaction.
+- LAST FAILED → Quality on prior `6ff00d...`: `CanonicalImportPage.tsx:689` missing JSX `}`; fixed in `578bf217609de50fca4180b7ff5f6c7ed27988b5`. Earlier report-execution-gate failure on `934a...` was the missing final Arabic report text; fixed and final report added.
+- OPEN BLOCKERS → hosted Vercel build-rate limit; current Netlify deploy must re-run after syntax fix; Phase-F hosted production drift remains external until current exact-head live probe proves otherwise; PC01 is offline/device-dependent.
+- NEXT EXECUTABLE ACTION → consume fresh `report-execution-gate`, Quality, Final Certification, Browser, Device-Independent and Phase-F results on `578bf217609de50fca4180b7ff5f6c7ed27988b5`; repair the first terminal repository failure only.
+- NEXT INDEPENDENT ACTIONS → preserve exact-head proof, verify Netlify build after `578bf217609de50fca4180b7ff5f6c7ed27988b5`, then close task-ledger front without stale evidence.
+- DO NOT REPEAT → old SHA PASS transfer, UI-only progress claims, stale Netlify/Vercel deployments, duplicate runners, duplicate import paths.
+- RESUME POINT → `578bf217609de50fca4180b7ff5f6c7ed27988b5`; do not claim closure until current-head gates pass or only external/device blockers remain.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / EXACT-HEAD PROVEN / PHASE-F EXTERNAL
 
 - CURRENT REPOSITORY HEAD → `b5b5ac2d56477aa3da9029fd709ae895a649199e`
