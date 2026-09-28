@@ -503,6 +503,7 @@ export function CanonicalImportPage() {
           </div>
         </div>
       )}
+    </CardBody></Card>}
     {step === 'scanning' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4" role="status" aria-live="polite" aria-busy="true"><Loader2 className="animate-spin text-primary-500" size={34}/><div className="text-center"><b>جارٍ فحص وتحليل الملف</b><p className="text-sm text-ink-500 mt-1">أمان الملف، الصيغة، البصمة، التكرار وجودة البيانات</p></div></div></CardBody></Card>}
 
     {step === 'preview' && file && <div className="space-y-4">
