@@ -1,15 +1,20 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / CUSTOMER TENANT RESOLVER SOURCE PARITY
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / CUSTOMER TENANT RESOLVER REGRESSION GUARD
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
 - CURRENT CODE/TEST CANDIDATE → `7353309309b5ba8ff37254e68f2bc047b710a931`.
-- CURRENT REPOSITORY HEAD → this boundary persistence is a governance descendant of the code candidate.
-- EXTERNAL CODE CHANGE CONSUMED → `supabase/migrations/20260925170000_reconcile_current_customer_company_id.sql` now defines `current_customer_company_id()` from `profiles.organization_id` for `auth.uid()`, keeping customer-portal tenant resolution distinct from staff/company `current_company_id()`.
-- LIVE READBACK → Staging `current_customer_company_id()` is SECURITY DEFINER, authenticated EXECUTE=true, anon=false, and its live body resolves `profiles.organization_id` exactly as the current repository source.
-- SECURITY BOUNDARY → no new RPC name; existing security-definer classification already includes `current_customer_company_id`.
-- PREVIOUSLY CLOSED THIS BATCH → security-definer parser; explicit empty search_path classification; source parity for 12 live SECURITY DEFINER names / 13 overload definitions; `fail_report_execution_job`; parser regression guard; Staging applications/readbacks.
-- PHASE-F / VERCEL / AUTH / MIGRATION PROVENANCE remain fail-closed external or provenance blockers as recorded below.
-- NEXT EXECUTABLE ACTION → consume terminal CI for current code candidate `7353309…`; fix only the first reproducible non-external failure.
-- DO NOT REPEAT → stale SHA evidence, destructive migration history cleanup, blanket SECURITY DEFINER revokes, speculative index deletion, or device polling.
+- CURRENT REPOSITORY HEAD → `d83b13c873e583dace4a644ba40ab8a41b8a90a7` (governance/test descendants only).
+- ROOT CAUSE CLOSED → `20260925170000_reconcile_current_customer_company_id.sql` now preserves the distinct customer-portal resolver semantics: `profiles.organization_id` for `auth.uid()`; it no longer delegates to `current_company_id()`.
+- REGRESSION GUARD ADDED → existing `company-context-contract` workflow now executes assertions for customer resolver parity; certification boundary explicitly classifies this guard as governance/test-only.
+- LIVE READBACK → Staging function body and `customer_credit_accounts.credit_customer_select` RLS match the intended boundary.
+- IMPORT POST-DROP PROOF → canonical import performs source security, hash/fingerprint, format detection, parse/understanding, quality/review gate, tenant-bound reconciliation, canonical commit, evidence snapshot, durable lifecycle stages, lineage/scenario/portfolio/autonomy computation. It does not automatically create/approve/execute business work items or actual outcomes merely because a file was uploaded.
+- LIVE IMPORT BACKLOG → 151 legacy `import_jobs` remain `processing` (130 customers, 16 sales_invoices, 5 products), all older than 30 minutes; no governed safe recovery path was found, so no bulk mutation was performed. Durable report jobs have 3223 completed, 564 queued, 10 failed, 7 dead_letter; no active leased/processing durable jobs.
+- PRODUCTION → `https://report-advisor.vercel.app/api/tenant-canary` still returns HTTP 503 `operational_token_not_configured`; READY Vercel previews observed are on older SHAs and are not current-head certification.
+- CI → current-head Actions remain queued/no terminal proof; no PASS transferred from older SHAs.
+- OPEN NON-DEVICE → current-head CI proof; production token/deployment alignment; Phase-F resilience; migration lineage proof; Auth leaked-password control; governed recovery/worker availability for stale import backlog.
+- OPEN DEVICE-ONLY → PC01/offline authenticated desktop/browser evidence.
+- NEXT → consume only the first terminal current-head CI failure when available; otherwise continue independent GitHub/Supabase/provenance/security work without weakening fail-closed boundaries.
+- DO NOT REPEAT → stale evidence transfer, duplicate worker/importer/RPC, speculative migration cleanup, blanket security-definer revokes, stale-import bulk terminalization, or preview-as-production claims.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / Aghbari SALES-REPORT READINESS + EXACT SAVE-BLOCKER DIAGNOSTICS
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
