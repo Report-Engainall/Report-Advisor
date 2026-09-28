@@ -18,7 +18,7 @@ export interface RuntimeDecisionInput {
   decisionKey: string;
   decisionType: string;
   confidence: number;
-  expectedImpact: number;
+  expectedImpact: number | null;
   evidence: Record<string, unknown>;
 }
 
@@ -30,8 +30,8 @@ export interface RuntimeWorkItemInput {
   description?: string;
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
   dueAt?: string;
-  expectedImpact: number;
-  evidenceRefs: string[];
+  expectedImpact: number | null;
+  evidenceRefs: unknown[];
 }
 
 async function companyIdOrThrow(): Promise<string> {
