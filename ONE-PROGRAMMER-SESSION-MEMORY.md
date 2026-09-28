@@ -1,4 +1,17 @@
-# RESUME TOKEN — 2026-09-28 / INTELLIGENCE + FINANCIAL SURFACE DEPTH CLOSURE — FUNCTIONAL CANDIDATE e26536d
+# RESUME TOKEN — 2026-09-28 / CANONICAL SURFACE COMPLETENESS DEEPENED — FUNCTIONAL CANDIDATE 3b419ba
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `3b419ba0b772a2556d6d37b157eda29928d95150`.
+- BROAD SURFACE CLOSURE → shared truth context now covers Dashboard, Executive Command Center, Intelligence/Recommendations/Forecasts, Trust & Evidence, Decision Experience, Work Center, Business Replay, Benchmark, Liquidity, Data Quality, RFM/ABC/Aging, canonical Receivables/Profitability reports, Suppliers, Alternative Groups, Customers/Products/Inventory entity surfaces, Master Data Hub, and Metric Inspector.
+- SHARED CONTEXT → company, period, currency, As Of, Freshness, and canonical truth states are centralized in `ReportSurfaceContext`.
+- DATA-BEARING MASTER DATA → Customers, Products, Inventory, Suppliers, Alternative Groups, and Master Data Hub now surface the same truth contract without creating a second data model.
+- GOVERNANCE → Metric Inspector now maps certification status into canonical truth states while preserving its existing freshness filters and evidence-capture behavior.
+- SAFETY REPAIRS → Intelligence As Of derivation hardened against invalid timestamps; Trust & Evidence status mapping normalized through explicit uppercase conversion; Scenario carries source `as_of` and remains BLOCKED before financial truth is ready.
+- CONTRACT → `scripts/check-ui-route-completeness.mjs` guards the newly standardized surfaces plus shared freshness and existing decision/evidence invariants.
+- STATIC PROOF → latest targeted checks pass; no duplicate ReportSurfaceContext imports were found in the latest Master Data/Governance pages.
+- CI EXACT HEAD → only skipped terminal runs observed so far; 51 workflows remain pending/queued. Combined status shows CodeRabbit success, Vercel free-plan rate-limit failure, and a pending Vercel deployment. No terminal code PASS claimed.
+- DEVICE → PC01 remains offline. Protected browser workspace remains unauthenticated/device-bound.
+- NEXT EXACT ACTION → continue the remaining non-device surface scan only where a concrete completeness gap remains; then consume terminal exact-head CI when available. Do not reopen closed import/report/decision/replay/benchmark work without regression evidence.
+
 
 - CURRENT FUNCTIONAL/UI CANDIDATE → `e26536df4a224b9d68a1aae749a6dce8032b5619`.
 - CLOSED → canonical truth context expanded into Intelligence Center, Recommendations, Forecasts, Scenario Truth Guard, Executive Command Center, Liquidity, Data Quality, and specialized RFM/ABC/Aging analytics.
