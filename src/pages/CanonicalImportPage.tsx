@@ -705,6 +705,32 @@ export function CanonicalImportPage() {
     <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="text-[9px] text-ink-400">تنبيهات عامة للشركة</div><div className="mt-1 text-[11px] font-black text-ink-900">{result.postImportSignals ? result.postImportSignals.companyAlerts : 'غير متاحة'}</div></div>
   </div>
 </section>
+<section className="w-full max-w-5xl rounded-[18px] border border-primary-200 bg-primary-50/40 p-4 text-right" aria-label="تقرير التنفيذ النهائي">
+  <div className="flex flex-wrap items-center justify-between gap-2">
+    <div>
+      <div className="text-[9px] font-black tracking-[.12em] text-primary-700">FINAL EXECUTION REPORT</div>
+      <div className="mt-1 text-base font-black text-ink-950">تقرير ما حدث فعليًا بعد السحب</div>
+      <div className="mt-1 text-[10px] leading-5 text-ink-600">هذا التقرير مبني من سجل المهام المحفوظ في قاعدة البيانات، وليس من شريط تقدم الواجهة.</div>
+    </div>
+    <div className="text-[9px] font-mono text-ink-500">Job: {result.executionJobId ?? result.jobId ?? 'غير متاح'}</div>
+  </div>
+  {result.executionTaskError && <div className="mt-3 rounded-lg border border-warning-200 bg-warning-50 px-3 py-2 text-[10px] text-warning-800">{result.executionTaskError}</div>}
+  <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+    {(result.executionTasks ?? executionTasks).map((task: ReportExecutionTaskRecord) => {
+      const badge = executionTaskBadge(task.status);
+      return <article key={task.id} className="rounded-xl border border-white bg-white p-3">
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[9px] font-black text-primary-700">{String(task.ordinal).padStart(2,'0')} · {task.stage}</span>
+          <span className={`rounded-full border px-2 py-0.5 text-[9px] font-black ${badge.className}`}>{badge.label}</span>
+        </div>
+        <div className="mt-2 text-[11px] font-black text-ink-900">{task.label}</div>
+        <div className="mt-2 text-[8px] text-ink-500">العامل: {task.worker_id ?? 'غير متاح'} · المحاولة: {task.attempt}</div>
+        <div className="mt-1 text-[8px] text-ink-400">{task.completed_at ? `اكتملت ${formatDateTime(task.completed_at)}` : task.started_at ? `بدأت ${formatDateTime(task.started_at)}` : 'لم تبدأ'}</div>
+        {task.last_error && Object.keys(task.last_error).length > 0 && <div className="mt-2 rounded-lg border border-danger-200 bg-danger-50 px-2 py-1.5 text-[9px] text-danger-700">{String(task.last_error.message ?? 'تعذر تنفيذ المهمة')}</div>}
+      </article>;
+    })}
+  </div>
+</section>
 <section id="post-import-journey" aria-label="رحلة ما بعد اعتماد المصدر" className="w-full max-w-5xl rounded-[18px] border border-ink-200 bg-white p-4 text-right shadow-sm">
   <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
     <div>
