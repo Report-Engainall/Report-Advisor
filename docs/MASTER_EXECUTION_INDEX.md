@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / WORK→OUTCOME→EXECUTED COMPLETION LOOP
+
+- FUNCTIONAL CODE/TEST HEAD → `5c52d30295ebd0b018269785ee42ab55d7182e4e`.
+- MEMORY DESCENDANT → `07a4f79be02e3b5e25a794759dbdee1d81d48977` before this Index write-back.
+- CLOSED → Work Center captures actual impact and closes an approved/in-progress Work Item through the canonical completion RPC with Evidence Snapshot required.
+- CLOSED → completion atomically writes recommendation outcome persistence and transitions Decision APPROVED → EXECUTED; no client-side truth or duplicate outcome engine.
+- CLOSED → Business Replay consumes the persisted snapshots/work/outcomes produced by the existing model.
+- PROOF → 8/8 focused assertions PASS and zero missing query imports across Decision/Work/Reports/Executive/Replay.
+- LIVE DB RPC PROOF → completion RPC definition directly verified for tenant/user gate, evidence gate, IN_PROGRESS guard, outcome persistence, and decision terminal transition.
+- CI EXACT SHA → Final Certification Gate `36473087801` and Execution Enforcement Contract `36473087858` are queued; no terminal PASS/FAIL claim.
+- OPEN → browser/device E2E, hosted exact-head acceptance, Vercel free-plan limit, tenant-bound live canary.
+- DO NOT REPEAT → no client outcome writes, no completion without evidence, no duplicate completion RPC.
+- NEXT EXACT ACTION → consume CI terminal state, then finish the next concrete Outcome → Learning → Benchmark eligibility gap.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / QUERY-LAYER RESTORATION + DECISION/REPLAY CONTRACT CLOSURE
 
 - FUNCTIONAL CODE/TEST HEAD → `980054ad593587971ecb516fb255d89006fae3e5`.
