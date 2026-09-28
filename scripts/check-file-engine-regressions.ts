@@ -8,6 +8,7 @@ import {
   parseNumber,
 } from '../src/lib/file-engine/normalizer.ts';
 import { cleanValue, detectColumnDataType } from '../src/lib/file-engine/data-types.ts';
+import { extractPdfTableRowsFromTextItems } from '../src/lib/file-engine/adapters.ts';
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`File-engine regression failed: ${message}`);
@@ -61,5 +62,13 @@ assert(pdfTableRegression.rows.length === 2, 'PDF native table row reconstructio
 assert(pdfTableRegression.rows[0]?.['رقم الفاتورة'] === '191', 'PDF invoice number column reconstruction');
 assert(pdfTableRegression.rows[0]?.['اجمالي الفاتورة'] === '2,270,000.00', 'PDF monetary column reconstruction');
 assert(pdfTableRegression.rows[1]?.['اسم العميل'] === 'علي عبدﷲ', 'PDF customer column reconstruction');
+
+const secondPageItems = syntheticPdfItems
+  .filter((item) => item.y < 700)
+  .map((item) => ({ ...item, y: item.y - 300 }));
+const pdfSecondPageRegression = extractPdfTableRowsFromTextItems(secondPageItems, pdfTableRegression.header);
+assert(pdfSecondPageRegression.rows.length === 2, 'PDF fallback header must reconstruct subsequent pages');
+assert(pdfSecondPageRegression.rows[0]?.['رقم الفاتورة'] === '191', 'PDF subsequent-page invoice reconstruction');
+assert(pdfSecondPageRegression.rows[1]?.['اجمالي الفاتورة'] === '465,000.00', 'PDF subsequent-page monetary reconstruction');
 
 console.log('File-engine behavioral regressions: PASS');

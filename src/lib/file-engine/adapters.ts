@@ -473,7 +473,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     const text = placements.map(item => item.str).filter(Boolean).join(' ');
     if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`);
   }
-  if (tableRows.length >= 2 && tablePageCount >= 1) return buildDataset(tableRows, fileName, 'pdf-table');
+  if (tableRows.length >= 2 && tablePageCount >= 1) return [await buildDataset(tableRows, fileName, 'pdf-table')];
   if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
   return parseScannedPdfWithOcr(pdf, fileName);
 }
