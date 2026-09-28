@@ -96,9 +96,50 @@ if (!/qualityApproved: boolean/.test(adapter) || !/qualityApproved/.test(adapter
   throw new Error('Canonical durable adapter must carry explicit quality approval state');
 }
 
+const specialtyMigrationPath = path.join(migrationDir, '20260927213000_expand_canonical_import_specialties.sql');
+if (!fs.existsSync(specialtyMigrationPath)) throw new Error('Canonical specialty import migration is missing');
+const specialtyMigration = fs.readFileSync(specialtyMigrationPath, 'utf8');
+const financialInvariantMigrationPath = path.join(migrationDir, '20260830040000_reconcile_live_financial_decision_invariants.sql');
+if (!fs.existsSync(financialInvariantMigrationPath)) throw new Error('Canonical financial invariant migration is missing');
+const financialInvariantMigration = fs.readFileSync(financialInvariantMigrationPath, 'utf8');
+if (!financialInvariantMigration.includes('purchase_items_line_total_nonnegative')) {
+  throw new Error('Canonical financial invariant missing: purchase_items_line_total_nonnegative');
+}
+for (const token of [
+  'purchase_invoices','suppliers','inventory_balances','payments',
+  'SUPPLIER_NAME_REQUIRED','PURCHASE_SUPPLIER_REQUIRED',
+  'INVENTORY_PRODUCT_REQUIRED',
+  'PAYMENT_DIRECTION_INVALID','PAYMENT_AMOUNT_REQUIRED',
+  'AUTHORITATIVE_SOURCE_HASH_MISMATCH','AUTHORITATIVE_SOURCE_NOT_VERIFIED',
+  'PERFORM pg_advisory_xact_lock',
+  'v_requested_payment_id := nullif(v_row->>\'payment_id\',\'\')::uuid', 'WHERE id=v_requested_payment_id', 'coalesce(v_requested_payment_id, gen_random_uuid())',
+  'INSERT INTO public.purchase_items(', 'PURCHASE_ITEM_PRODUCT_TENANT_MISMATCH',
+  'RETURN public.import_commit_batch(',
+  'DROP FUNCTION IF EXISTS public.import_commit_batch(uuid,text,jsonb,text,text,uuid)',
+  'CREATE FUNCTION public.import_commit_batch(',
+  'p_import_job_id uuid',
+]) {
+  if (!specialtyMigration.includes(token)) throw new Error('Specialty import transaction contract missing: ' + token);
+}
+if (/CREATE OR REPLACE FUNCTION public\.import_commit_batch\(/.test(specialtyMigration)) {
+  throw new Error('Specialty migration must not replace the legacy 5-argument RPC implementation');
+}
+if (!/p_null_policy text,\s+p_source_hash text,\s+p_import_job_id uuid/.test(specialtyMigration)) {
+  throw new Error('Authoritative six-argument RPC signature must have no illegal defaults before p_import_job_id');
+}
+if (!/entity_type IN \('products','customers','sales_invoices','purchase_invoices','suppliers','inventory_balances','payments'\)/.test(specialtyMigration)) {
+  throw new Error('Canonical import entity-type boundary must enumerate all typed specialties');
+}
+
+const serverCorePath = path.join(root, 'src', 'server', 'canonical-import-executor.ts');
+if (!fs.existsSync(serverCorePath)) throw new Error('Canonical durable import server execution core is missing');
+const serverAdapter = fs.readFileSync(serverCorePath, 'utf8');
 const serverAdapterPath = path.join(root, 'netlify', 'functions', 'canonical-import-execute.mts');
-if (!fs.existsSync(serverAdapterPath)) throw new Error('Canonical durable import server boundary is missing');
-const serverAdapter = fs.readFileSync(serverAdapterPath, 'utf8');
+if (!fs.existsSync(serverAdapterPath)) throw new Error('Canonical durable import deployment wrapper is missing');
+const serverWrapper = fs.readFileSync(serverAdapterPath, 'utf8');
+const apiWrapperPath = path.join(root, 'api', 'canonical-import-execute.ts');
+if (!fs.existsSync(apiWrapperPath)) throw new Error('Canonical API deployment wrapper is missing');
+const apiWrapper = fs.readFileSync(apiWrapperPath, 'utf8');
 if (!/parseFile\(bytes\.buffer, fileRecord\.file_name/.test(serverAdapter)) {
   throw new Error('Canonical server boundary must re-extract rows from the authoritative source bytes');
 }
@@ -114,6 +155,42 @@ if (!/qualityApproved/.test(serverAdapter)) {
 if (!/authoritativeRowCount/.test(serverAdapter) || !/authoritativePreview/.test(serverAdapter)) {
   throw new Error('Canonical server boundary must return authoritative parse evidence for persistence');
 }
+const canonicalImportPagePath = path.join(root, 'src', 'pages', 'CanonicalImportPage.tsx');
+if (!fs.existsSync(canonicalImportPagePath)) throw new Error('Canonical import UI page is missing');
+const canonicalImportPage = fs.readFileSync(canonicalImportPagePath, 'utf8');
+if (!/Number\.isInteger\(Number\(payload\?\.authoritativeRowCount\)\)/.test(adapter)) {
+  throw new Error('Canonical browser boundary must reject a durable execution response without an authoritative row count');
+}
+if (canonicalImportPage) {
+  if (/execution\.authoritativeRowCount\s*\?\?\s*validRows\.length/.test(canonicalImportPage)) {
+    throw new Error('Canonical import UI must not fall back from missing authoritative row count to local preview rows');
+  }
+  if (!/Number\.isInteger\(authoritativeRowCount\) || authoritativeRowCount < 0/.test(canonicalImportPage)) {
+    throw new Error('Canonical import UI must fail closed when authoritative row count is missing or invalid');
+  }
+}
+const dropzoneTokens = [
+  'data-dropzone="canonical-import"',
+  'onDragEnter=',
+  'onDragOver=',
+  'onDragLeave=',
+  'onDrop=',
+  'dataTransfer.files',
+  'preventDefault()',
+  'handleDroppedFiles',
+];
+for (const token of dropzoneTokens) {
+  if (!canonicalImportPage.includes(token)) throw new Error(`Canonical import drag/drop contract missing: ${token}`);
+}
+if (!/dropped\.length > 1/.test(canonicalImportPage)) {
+  throw new Error('Canonical import drag/drop must reject ambiguous multi-file drops');
+}
+if (!canonicalImportPage.includes('to="/benchmark"')) {
+  throw new Error('Canonical import post-import journey must expose the benchmark gate');
+}
+if (!canonicalImportPage.includes('لا يظهر ترتيب هنا قبل تحقق الشروط')) {
+  throw new Error('Canonical import benchmark UI must remain fail-closed without hardcoding an unobserved benchmark status');
+}
 if (!/const dbBlock =/i.test('noop')) {
   // marker kept intentionally unreachable; avoids accidental future broad replacements
 }
@@ -125,11 +202,8 @@ if (authoritativeParseIndex < 0 || sourceReadyWriteIndex < 0 || verifiedMetadata
 }
 
 for (const token of [
-  "request.method !== 'POST'",
-  "env('SUPABASE_SERVICE_ROLE_KEY')",
   "Authorization",
   "userClient.rpc('current_company_id')",
-  "SUPABASE_SERVICE_ROLE_KEY",
   "serverExecution: true",
   "workerClient: serviceClient",
   "dataClient: userClient",
@@ -139,6 +213,38 @@ for (const token of [
   "mode === 'finalize-source'",
 ]) {
   if (!serverAdapter.includes(token)) throw new Error(`Canonical server execution boundary missing: ${token}`);
+}
+
+if (!/request\.method\s*!==\s*['"]POST['"]/.test(serverWrapper)) {
+  throw new Error('Netlify canonical deployment wrapper must enforce POST');
+}
+if (!/env\(['"]VITE_SUPABASE_URL['"]\)/.test(serverWrapper) ||
+    !/env\(['"]VITE_SUPABASE_ANON_KEY['"]\)/.test(serverWrapper) ||
+    !/env\(['"]SUPABASE_SERVICE_ROLE_KEY['"]\)/.test(serverWrapper)) {
+  throw new Error('Netlify canonical deployment wrapper must bind all required Supabase server credentials');
+}
+if (!/request\.headers\.get\(['"]authorization['"]\)/i.test(serverWrapper) ||
+    !/executeCanonicalImport/.test(serverWrapper)) {
+  throw new Error('Netlify canonical deployment wrapper must forward authenticated requests to the shared server execution core');
+}
+if (!/status:\s*'failed'/.test(serverWrapper) || !/error:\s*['"]METHOD_NOT_ALLOWED['"]/.test(serverWrapper)) {
+  throw new Error('Netlify canonical deployment wrapper must use the shared failure response shape');
+}
+if (!/function failureStatus\(error: unknown, message: string\)/.test(serverWrapper) ||
+    !/AUTHENTICATED_USER_REQUIRED/.test(serverWrapper) ||
+    !/return \/required\|invalid\|tenant\|hash\|quality\|business\|duplicate\|already_\|not_retryable\|forbidden\|mismatch\|rejected\/i\.test\(message\) \? 400 : 502/.test(serverWrapper)) {
+  throw new Error('Netlify canonical deployment wrapper must distinguish client validation/auth failures from server failures');
+}
+if (!/requireMethod\(req, res, ['"]POST['"]\)/.test(apiWrapper)) {
+  throw new Error('API canonical deployment wrapper must enforce POST');
+}
+if (!/SUPABASE_SERVICE_ROLE_KEY/.test(apiWrapper) ||
+    !/VITE_SUPABASE_ANON_KEY/.test(apiWrapper) ||
+    !/executeCanonicalImport/.test(apiWrapper)) {
+  throw new Error('API canonical deployment wrapper must bind required Supabase configuration and delegate to the shared server execution core');
+}
+if (!/authorization/i.test(apiWrapper) || !/bearerToken/.test(apiWrapper) || !/const token\s*=\s*bearerToken\(req\)/.test(apiWrapper)) {
+  throw new Error('API canonical deployment wrapper must require an authenticated bearer token');
 }
 if (/grant execute on function public\\.(claim|heartbeat|advance|complete|fail|retry)_report_execution_job[^\\n]*to authenticated/i.test(serverAdapter)) {
   throw new Error('Canonical server boundary must not add authenticated worker RPC grants');
@@ -207,4 +313,55 @@ for (const dir of sourceDirs) {
   }
 }
 
+const importMimeMigrationPath = 'supabase/migrations/20260928141500_reconcile_import_job_mime_allowlist.sql';
+if (!fs.existsSync(importMimeMigrationPath)) throw new Error('MIME allowlist parity migration is missing');
+const importMimeMigration = fs.readFileSync(importMimeMigrationPath, 'utf8');
+const canonicalClientMimes = [
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-excel',
+  'application/vnd.ms-excel.sheet.macroEnabled.12',
+  'application/vnd.oasis.opendocument.spreadsheet',
+  'text/csv',
+  'text/tab-separated-values',
+  'application/json',
+  'application/x-ndjson',
+  'text/plain',
+  'text/markdown',
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'image/jpeg',
+  'image/png',
+  'image/tiff',
+  'image/webp',
+  'image/bmp',
+];
+for (const mime of canonicalClientMimes) {
+  if (!importMimeMigration.includes("'"+mime+"'")) throw new Error(`MIME allowlist parity missing: ${mime}`);
+}
+if (/accept="[^"]*\.xml/.test(canonicalImportPage)) {
+  throw new Error('Canonical import UI must not advertise XML while the canonical parser rejects XML');
+}
+const postImportOutputContract = [
+  [/نُخرج التقرير المناسب/, 'Import shell must disclose the post-import report output stage'],
+  [/SPECIALTY_REPORT_OUTPUTS/, 'Canonical import UI must map detected specialty into governed report outputs'],
+  [/resolvePostImportReports/, 'Canonical import UI must resolve report outputs from specialty/entity'],
+  [/PostImportReportOutputs/, 'Canonical import UI must render source-derived report output links'],
+  [/FinalExecutionProof/, 'Canonical import UI must render final execution proof for durable tasks'],
+  [/مهام التنفيذ التسع/, 'Canonical import UI must describe the nine durable tasks accurately'],
+  [/ليست معالجة متوازية متعددة العمال/, 'Canonical import UI must not claim parallel multi-worker execution'],
+];
+const canonicalImportUiSource = fs.readFileSync(path.join(root, 'src', 'pages', 'CanonicalImportPage.tsx'), 'utf8');
+for (const [pattern, message] of postImportOutputContract) {
+  if (!pattern.test(canonicalImportUiSource)) throw new Error(`Post-import output contract missing: ${message}`);
+}
+
 console.log('Import transaction contract: PASS');
+
+for (const [name, wrapper] of [
+  ['Netlify', serverWrapper],
+  ['API', apiWrapper],
+]) {
+  if (!wrapper.includes('executeCanonicalImport') || wrapper.includes('authoritativeDatasets') || wrapper.includes('reconcileForCanonical')) {
+    throw new Error(`${name} canonical deployment wrapper must delegate to the shared server execution core without duplicating source semantics`);
+  }
+}
