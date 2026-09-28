@@ -170,6 +170,47 @@ export function ExecutiveReportPage() {
         </div>
       </section>
 
+      <section className="rounded-2xl border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated" aria-label="سلسلة الأدلة والقرار والنتيجة">
+        <div className="flex flex-col gap-4">
+          <div>
+            <div className="text-[9px] font-black tracking-[.14em] text-primary-200">EVIDENCE → DECISION → OUTCOME</div>
+            <h2 className="mt-1 text-xl font-black">ما الذي يثبت هذه الصفحة وما الذي لم يُثبت بعد؟</h2>
+            <p className="mt-2 max-w-4xl text-[10px] leading-5 text-ink-300">التقرير يفصل بين حقيقة المصدر، الإشارة، القرار، التنفيذ، النتيجة والتعلّم. لا تنتقل الحالة تلقائيًا من مرحلة إلى التالية لمجرد فتح التقرير.</p>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            <Link to={importId ? "/trust?import=" + encodeURIComponent(importId) : "/trust"} className="rounded-xl border border-white/10 bg-white/5 p-3 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400">
+              <span className="text-[9px] font-black text-primary-200">01 · EVIDENCE</span>
+              <span className="mt-1 block text-[11px] font-black">الدليل</span>
+              <span className="mt-1 block text-[8px] text-ink-300">{importContext?.snapshot ? (importContext.snapshot.analysis_status || 'REVIEW') : 'REVIEW / NOT PROVEN'}</span>
+            </Link>
+            <Link to="/intelligence" className="rounded-xl border border-white/10 bg-white/5 p-3 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400">
+              <span className="text-[9px] font-black text-primary-200">02 · SIGNALS</span>
+              <span className="mt-1 block text-[11px] font-black">الإشارات</span>
+              <span className="mt-1 block text-[8px] text-ink-300">{importId ? 'قراءة عامة · غير مربوطة بالمصدر' : (formatNumber(data?.alerts.length ?? 0) + ' تنبيه حالي')}</span>
+            </Link>
+            <Link to={importId ? "/decision-experience?stage=evidence&import=" + encodeURIComponent(importId) : "/decision-experience"} className="rounded-xl border border-white/10 bg-white/5 p-3 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400">
+              <span className="text-[9px] font-black text-primary-200">03 · DECISION</span>
+              <span className="mt-1 block text-[11px] font-black">القرار</span>
+              <span className="mt-1 block text-[8px] text-ink-300">{activeDecisionCount ? (formatNumber(activeDecisionCount) + ' عنصر قرار') : 'لا يوجد قرار مصدرّي مثبت'}</span>
+            </Link>
+            <Link to={importId ? "/work-center?import=" + encodeURIComponent(importId) : "/work-center"} className="rounded-xl border border-white/10 bg-white/5 p-3 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400">
+              <span className="text-[9px] font-black text-primary-200">04 · WORK</span>
+              <span className="mt-1 block text-[11px] font-black">التشغيل</span>
+              <span className="mt-1 block text-[8px] text-ink-300">المشاهدة لا تعني أن الإجراء نُفذ</span>
+            </Link>
+            <Link to="/replay" className="rounded-xl border border-white/10 bg-white/5 p-3 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400">
+              <span className="text-[9px] font-black text-primary-200">05 · OUTCOME</span>
+              <span className="mt-1 block text-[11px] font-black">النتيجة / التعلّم</span>
+              <span className="mt-1 block text-[8px] text-ink-300">{recordedOutcomeCount ? (formatNumber(recordedOutcomeCount) + ' أثر مسجل') : 'INSUFFICIENT DATA'}</span>
+            </Link>
+            <Link to="/benchmark" className="rounded-xl border border-white/10 bg-white/5 p-3 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400">
+              <span className="text-[9px] font-black text-primary-200">06 · BENCHMARK</span>
+              <span className="mt-1 block text-[11px] font-black">المقارنة</span>
+              <span className="mt-1 block text-[8px] text-ink-300">بوابة العينة والحكم قبل أي مقارنة</span>
+            </Link>
+          </div>
+        </div>
+      </section>
       <section className="ag-exec-panel rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold tracking-wider text-primary-600">الملخص التنفيذي</p><h2 className="mt-1 text-lg font-black">لقطة الإدارة الحالية</h2></div><span className="rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-[11px] font-bold text-primary-700">المصدر: بيانات قانونية</span></div>
         <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
