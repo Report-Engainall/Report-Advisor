@@ -1,3 +1,17 @@
+# RESUME TOKEN — 2026-09-28 / POST-REANCHOR CURRENT-HEAD CHECKPOINT
+
+- MAIN REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`.
+- ACTIVE FUNCTIONAL HEAD BEFORE THIS CHECKPOINT → `12c095d94fa526b577c52f300c1e0ffdf208b225`.
+- REANCHOR COMMIT → `6e562e2200ac6b3d4862bc223dd957c3a5c1b42c`; PR #672 relation remains behind=0 against main.
+- ACTIVE TREE → 110-file functional diff, with main's latest control-plane memory/index blobs preserved during reanchor.
+- CI ON REANCHORED HEAD → fresh pull_request suite registered; quality is in_progress, Security Definer Exposure/Phase 3/Certification/Browser gates are queued or in progress. No terminal PASS transferred.
+- SECURITY LIVE PROOF → `fail_report_execution_job` remains SECURITY DEFINER but is authenticated=false, anon=false, service_role=true; Security Advisor authenticated SECURITY DEFINER count is 40.
+- SOURCE TEST PROOF → worker-only grant contract syntax PASS; targeted harness accepts pre-revoke historical grants and rejects any authenticated grant after the latest revoke boundary.
+- HOSTING/DEVICE → Vercel free-plan rate limit external; Netlify pending; PC01 offline.
+- NEXT → consume first terminal exact-`12c095d9...` failure and repair only that reproducible root; avoid further control-doc commits unless new evidence requires them.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / PR #672 RE-ANCHORED ON CURRENT MAIN
 
 - MAIN REFERENCE USED FOR REANCHOR → `650b74ee83095752f44a1a1b0df3cf496fc73f71`.

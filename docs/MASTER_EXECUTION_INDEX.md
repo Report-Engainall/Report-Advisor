@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-REANCHOR CURRENT HEAD
+
+- MAIN REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`.
+- ACTIVE FUNCTIONAL HEAD → `12c095d94fa526b577c52f300c1e0ffdf208b225`.
+- REANCHOR → PR #672 is 0-behind main; mergeable=true at reanchor; functional tree remains 110 files ahead.
+- FRESH CI → current head has pull_request workflows registered; quality in_progress, certification/browser/security/data gates queued/in_progress; no terminal PASS claimed.
+- SECURITY → worker failure RPC is service_role-only live/source and guarded by the updated security-definer contract.
+- HOSTING → Vercel build-rate external failure; Netlify pending. DEVICE → PC01 offline.
+- NEXT → first terminal exact-head failure only; repair then persist once, otherwise leave current control-plane checkpoint stable.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / PR #672 RE-ANCHORED ON CURRENT MAIN
 
 - MAIN EXACT REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`.
