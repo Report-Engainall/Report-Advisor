@@ -112,6 +112,19 @@ for (const [pattern, message] of demandVelocityContract) {
   }
 }
 
+const trustEvidencePage = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
+const trustEvidenceContract = [
+  [/ReportSurfaceContext/, 'Trust & Evidence must expose the canonical truth context'],
+  [/effectiveStatus/, 'Trust & Evidence truth context must follow the effective evidence state'],
+  [/Evidence Passport/, 'Trust & Evidence must retain the evidence passport surface'],
+];
+for (const [pattern, message] of trustEvidenceContract) {
+  if (!pattern.test(trustEvidencePage)) {
+    console.error(`FAIL trust evidence truth context: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
 const pageSourceByFile = new Map();
 for (const page of pages) {
   pageSourceByFile.set(page, fs.readFileSync(`src/pages/${page}`, 'utf8'));
