@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-UPLOAD SECURITY CLOSED
+
+- CURRENT CODE/TEST CANDIDATE → `0ab7b14324f16ac19a7e5e20ffdc00db7f259047`
+- CURRENT REPOSITORY HEAD → `0ab7b14324f16ac19a7e5e20ffdc00db7f259047`
+- ACTIVE FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- CLOSED → durable 9-stage task ledger; lease-fenced lifecycle; authoritative enqueue/execute boundary; live/final execution reports; type-safe worker/UI contracts; enqueue RPC service-role-only.
+- STAGING PROOF → 9 tasks and ordered task completion proven; enqueue RPC privileges service_role-only.
+- LAST CODE FAILURE → certification security-definer surface flagged enqueue RPC; new hardening migration fixes it.
+- NEXT → current-head certification and all release/browser/Phase-F gates.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / FINAL POST-UPLOAD EXECUTION FRONT CANDIDATE
 
 - CURRENT CODE/TEST CANDIDATE → `ea7ff0067324bc48f86bc2c601bfeb5eb11a6144`

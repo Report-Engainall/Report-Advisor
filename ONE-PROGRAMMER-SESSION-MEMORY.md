@@ -1,3 +1,17 @@
+# RESUME TOKEN — 2026-09-28 / POST-UPLOAD SECURITY CLOSED
+
+- CURRENT REPOSITORY HEAD → `0ab7b14324f16ac19a7e5e20ffdc00db7f259047`
+- CURRENT CODE/TEST CANDIDATE → `0ab7b14324f16ac19a7e5e20ffdc00db7f259047`
+- ACTIVE EXECUTION FRONTS → exact-head security/certification + post-upload task ledger gates; Phase-F hosted runtime.
+- LAST PROVEN → Supabase task ledger and ordered task execution tests; durable enqueue RPC is now service_role-only in Staging.
+- LAST SECURITY PROOF → `enqueue_report_execution_job` privileges now show only `service_role` plus owner `postgres`; authenticated/anon/public EXECUTE removed.
+- LAST FAILED → Certification Phase2 security-definer surface caught the exposed enqueue RPC; fixed in the new migration `20260928234500_harden_post_upload_enqueue_rpc.sql`.
+- OPEN → fresh exact-head CI, Vercel rate-limit/hosted deployment, Phase-F production drift, PC01 offline.
+- NEXT EXACT ACTION → consume `0ab7b14324f16ac19a7e5e20ffdc00db7f259047` security/certification/task-ledger/quality/browser/Phase-F gates; repair only first terminal repository failure.
+- DO NOT REPEAT → stale candidate evidence, direct client RPC writes, exposed SECURITY DEFINER enqueue, duplicate runners.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / FINAL POST-UPLOAD EXECUTION FRONT CANDIDATE
 
 - CURRENT REPOSITORY HEAD → `ea7ff0067324bc48f86bc2c601bfeb5eb11a6144`
