@@ -19,6 +19,7 @@ const reportsCenterPageImportContract = [
   [/demand-velocity/, 'Reports Center must expose demand velocity output'],
   [/سلسلة مخرجات القرار في التقارير/, 'Reports Center must expose the decision-output chain'],
   [/Report Builder/, 'Reports Center must expose the governed session builder'],
+  [/truth-evidence block to report builder|01 · TRUTH \/ EVIDENCE/, 'Report Builder must expose truth/evidence state as a first-class section'],
 ];
 for (const [pattern, message] of reportsCenterPageImportContract) {
   if (!pattern.test(reportsCenterPage)) {
