@@ -1,15 +1,14 @@
-# RESUME TOKEN — 2026-09-28 / SECURITY SOURCE PARITY + ENFORCEMENT REPAIR
+# RESUME TOKEN — 2026-09-28 / SECURITY + REPORT-EXECUTION SOURCE PARITY
 
-- CURRENT REPOSITORY HEAD → `787f0d89b756af43ebaa0305e0e7063fcedca31e` (code/test checkpoint before this governance persistence commit).
-- CURRENT CODE/TEST CANDIDATE → `787f0d89b756af43ebaa0305e0e7063fcedca31e`.
-- ACTIVE EXECUTION FRONTS → current-SHA CI/certification; migration provenance; Supabase security/data truth; import/PDF; authenticated browser; Phase-F; cleanup.
-- CLOSED THIS LAUNCH → malformed enforcement adversarial fixture; missing repository SECURITY DEFINER source parity for 12 live names/13 overload definitions; staging source-parity apply and live privilege/search_path readback.
-- OPEN BLOCKERS → PC01 offline; Phase-F deployment SHA/backup/rollback external evidence; Supabase Auth leaked-password protection platform setting not exposed by current mutation surface; full live migration lineage still requires non-destructive proof.
-- LAST PROVEN LIVE → restored 13 definitions are SECURITY DEFINER with authenticated/service_role execute and zero anon execute; source-parity migration applied successfully.
-- LAST FAILED / FIRST FAILURE CONSUMED → quality/execution-enforcement/final-certification on the prior SHA were blocked by the same malformed enforcement fixture and missing security source; both root causes are now repaired in the code checkpoint.
-- NEXT EXECUTABLE ACTION → consume terminal CI on the current code checkpoint; fix only the first reproducible failure, then persist and rescan.
-- NEXT INDEPENDENT ACTIONS → migration lineage reconciliation, Supabase advisor/readback, hosted/runtime evidence, import/PDF contracts, cleanup, without waiting for device.
-- DO NOT REPEAT → stale evidence, broad revokes, destructive migration cleanup, duplicate RPC/import paths, or device-dependent work while PC01 is offline.
+- CURRENT CODE/TEST CANDIDATE → `3b0f754f528bfc5a932fd794d06bcf666d744492`.
+- CURRENT REPOSITORY HEAD → governance descendant after this persistence commit; candidate remains `3b0…`.
+- CLOSED THIS BATCH → malformed execution fixture; security parser escaping; explicit-empty search_path classification; missing `fail_report_execution_job` source parity; Staging application and live readback.
+- PROVEN LIVE → `fail_report_execution_job` SECURITY DEFINER, authenticated/service_role execute, anon denied, `public, pg_catalog` search_path.
+- OPEN NON-DEVICE → terminal CI proof on current candidate; full live migration lineage proof; Vercel production operational token/deployment alignment; Phase-F backup/restore and rollback runtime.
+- OPEN DEVICE-ONLY → authenticated desktop/device browser actions on PC01 while it remains unavailable.
+- SECURITY ADVISOR → 40 unique authenticated SECURITY DEFINER findings remain intentional/classified; `capture_kpi_evidence_snapshot` is live-only; no blanket revocation.
+- PERFORMANCE ADVISOR → 80 unused-index INFO findings; no literal duplicate indexes were found, so no speculative drops performed.
+- NEXT ACTION → consume current candidate CI first failure, then proceed to remaining independent hosted/database fronts.
 # RESUME TOKEN — 2026-09-28 / Aghbari SALES-REPORT READINESS CHECKPOINT
 
 - CURRENT REPOSITORY HEAD → `5be55cb8401f0e06068731ee3dd89c7f1d00942c`.
