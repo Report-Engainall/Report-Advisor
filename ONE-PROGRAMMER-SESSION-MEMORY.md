@@ -1297,3 +1297,17 @@
 - NO FALSE RUNTIME PASS → this remains source-contract proof only; no browser/device claim made.
 - DO NOT REPEAT → do not display tenant-wide alerts as source-specific evidence; do not show unrelated work items in a focused import context; do not create a parallel decision/work scoping service.
 - RESUME POINT → inspect the next concrete chain gap after Decision/Work, specifically Outcome/learning persistence and Benchmark eligibility, then execute the first safe non-device repair.
+
+# RESUME TOKEN — 2026-09-28 / QUERY-LAYER RESTORATION + DECISION/REPLAY CONTRACT CLOSURE
+
+- CURRENT CODE/TEST HEAD → `980054ad593587971ecb516fb255d89006fae3e5`.
+- ROOT GAP FOUND → multiple active pages imported decision/outcome/replay/report query symbols that were not exported by the branch's `queries.ts`; this was a real contract break hidden by source-only checks.
+- CLOSED → `queries.ts` now exposes the canonical report query functions (purchase summary + sales/purchase/inventory exports), canonical runtime write aliases to `vertical-slice-runtime.ts`, tenant-bound decision/approval/work-item/outcome read models, and Business Replay aggregation from `business_state_snapshots`, `decision_work_items`, and `recommendation_outcomes`.
+- CLOSED → canonical runtime types accept nullable expected impact and structured JSON evidence refs without creating a second runtime.
+- CLOSED → all query imports from Decision Experience, Work Center, Reports Center, Executive Report, and Business Replay resolve against actual exports; no missing query imports remain.
+- PROOF → 14/14 focused assertions PASS on `980054ad...`; import/export parser reports zero missing query symbols across the five affected pages.
+- DB CONTRACT PROOF → canonical RPCs verified in Supabase for create runtime decision, link recommendation, request/decide approval, create/start/complete work item, and record recommendation outcome; table schemas verified for decisions, approvals, work items, outcomes and business state snapshots.
+- CI EXACT SHA → Final Certification Gate `36472897283` and Execution Enforcement Contract `36472896991` are queued on this exact SHA; no terminal PASS/FAIL transferred.
+- NO FALSE RUNTIME PASS → no tenant-bound browser E2E executed in this batch because the current SQL session has no company context and PC01 remains offline.
+- DO NOT REPEAT → do not leave page imports depending on non-exported query symbols; do not duplicate decision runtime writes when canonical vertical-slice RPC wrappers exist; do not fabricate replay history when snapshot/outcome tables are empty.
+- RESUME POINT → after terminal CI, continue the next concrete non-device gap in Outcome → Learning → Benchmark; Business Replay is now backed by real persistence reads and Benchmark remains fail-closed on INSUFFICIENT_SAMPLE.
