@@ -1,3 +1,24 @@
+# RESUME TOKEN — 2026-09-28 / FIXTURE INTAKE + POST-IMPORT REPORT OUTPUTS CLOSED
+
+- CURRENT BRANCH EXACT HEAD → `55a3ff5b12774678bbc68ee612610a28a273790f`.
+- FIXTURE INPUT CONTRACT → `tests/fixtures/realistic-reports/` is now the canonical reusable fixture intake location; the branch contains its README and `docs/SYSTEM_HEART.md` now requires every startup to inspect fixture directories on the exact HEAD.
+- POST-IMPORT UI → `src/pages/CanonicalImportPage.tsx` now maps the detected specialty/entity to the applicable report output surface after canonical completion:
+  - sales → Sales Report
+  - purchases → Purchases Report
+  - inventory → Inventory Report + Inventory Intelligence
+  - customers/suppliers/products/payments → specialized Analytics
+  - other → Executive Report
+- EXECUTION PROOF UI → final result now renders the persisted nine durable task statuses with completion count, attempt, worker and completed-at metadata.
+- EXECUTION SEMANTICS → UI wording now states the real contract: nine tasks are created and advanced sequentially by the leased worker; no parallel multi-worker claim is made.
+- SOURCE CONTRACT → `scripts/check-import-transaction-contract.mjs` now guards specialty-to-report mapping, post-import report output rendering, final execution proof, and accurate nine-stage execution wording.
+- SOURCE STATIC PROOF → current branch source assertions for specialty mapping, report-output surface, final execution proof, nine-task wording, non-parallel wording, fixture README presence, and System Heart fixture doctrine all PASS.
+- CI → no workflow run is registered yet for exact head `55a3ff5b12774678bbc68ee612610a28a273790f`; therefore no CI/runtime PASS is claimed.
+- DEVICE → PC01 remains offline; browser/device certification remains isolated.
+- EXTERNAL → Vercel free-plan deployment rate limit remains external; no production mutation performed.
+- DO NOT REPEAT → do not reopen the closed canonical import/report/decision/replay/benchmark contracts without a current-SHA regression.
+- NEXT EXACT ACTION → when fixture files are present, run the canonical import acceptance flow against them and verify the real report outputs/evidence; independently continue the next concrete non-device UI/core front without waiting for device/CI.
+- PROOF COMMITS → UI `724a72fcce130f2e0baea3df50958ebed7328b6e`; import contract `4f47bd58ee380829e2c82abbc788421a074c57f6`; control doctrine `55a3ff5b12774678bbc68ee612610a28a273790f`.
+
 # RESUME TOKEN — 2026-09-28 / EXACT-HEAD CI OBSERVATION FOR FUNCTIONAL CANDIDATE 3b419ba
 
 - FUNCTIONAL CANDIDATE → `3b419ba0b772a2556d6d37b157eda29928d95150`.
