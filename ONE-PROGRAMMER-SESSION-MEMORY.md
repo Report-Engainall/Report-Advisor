@@ -1,9 +1,9 @@
-# RESUME TOKEN — 2026-09-29 / EXACT CURRENT CHECKPOINT — GOVERNANCE BOUNDARY FIXED
+# RESUME TOKEN — 2026-09-29 / EXACT CURRENT CHECKPOINT — ENFORCEMENT BOUNDARY RECONCILED
 
-- EXACT HEAD SHA: `a8ff789b90fc8fc4e1b1040624b2732b9e2ddb5f`.
+- EXACT HEAD SHA: `06e22cfae634cbc7a2cabd8fb4745f1112a8d748`.
 - CURRENT BRANCH: `exec/20260929-post-import-report-continuity`.
 - WORKTREE STATE: CLEAN; HEAD matches origin branch.
-- CURRENT FRONT: post-import report continuity + certification/enforcement governance boundary.
+- CURRENT FRONT: post-import report continuity + exact-SHA certification/enforcement governance.
 - CURRENT REPORT: NONE — no eligible real report input discovered; corpus gate is blocked.
 - REPORTS TOTAL: `0` supported actual inputs; declared contract files=`9`; minimum required=`20`; directory contains `README.md` only.
 - COMPLETED: `0` reports.
@@ -11,16 +11,16 @@
 - FAILED: `0` reports.
 - BLOCKED: `CORPUS_GATE` — DECLARED=9, ACTUAL=1 (`README.md` only), MINIMUM=20; nine declared report files are absent.
 - REMAINING: no processable report files until real corpus is restored; corpus minimum gap=`19+` supported files.
-- LAST COMPLETED STAGE: exact-head certification boundary reconciliation; report pipeline remains blocked before first report job.
-- WHAT WAS ACTUALLY EXECUTED: restored branch state; ran `npm run test:report-corpus-gate`; reproduced the corpus BLOCKED result; reproduced exact-`ef549458` certification/enforcement failures; traced root cause to stale certification candidate parsing; reconciled the Index on remote (`9f137d92`), then found and fixed the missing governance-file allowlist entry for `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md` in `scripts/check-certification-boundary-integrity.mjs`; pushed `a8ff789b`.
-- ACTUAL RESULT: certification boundary now passes on exact `a8ff789b` with indexed candidate `797a9aa1...` and four governance-only changed files; certification boundary test-of-test passes; corpus gate remains correctly BLOCKED.
-- TEST / PROOF: local exact-head `a8ff789b` — certification boundary PASS; certification-boundary test-of-test PASS; corpus gate BLOCKED with exact missing filenames; Git worktree clean.
-- WHAT CLOSED: stale certification/enforcement candidate parsing defect; governance-file allowlist gap.
+- LAST COMPLETED STAGE: certification boundary + execution enforcement contract reconciliation; report pipeline remains blocked before first report job.
+- WHAT WAS ACTUALLY EXECUTED: reproduced the exact-`ef549458` certification/enforcement failure; reconciled the certification candidate; fixed the certification governance allowlist; fixed the Index candidate placement so Enforcement can read the canonical candidate inside the current execution boundary; pushed `06e22cfa`; reran certification boundary, enforcement contract, adversarial test-of-test suites, and corpus gate on exact `06e22cfa`.
+- ACTUAL RESULT: certification boundary PASS; execution enforcement PASS; adversarial enforcement suites PASS; corpus gate correctly BLOCKED with the nine exact missing declared files.
+- TEST / PROOF: exact-`06e22cfa` local proof — certification boundary PASS; execution enforcement PASS (26 mandatory rules); all enforcement governance/exact-SHA adversarial suites PASS; corpus gate BLOCKED.
+- WHAT CLOSED: stale certification-candidate parsing; missing governance-file allowlist; enforcement candidate visibility defect.
 - WHAT REMAINS: real report corpus restoration; current-SHA CI/final certification/Phase-F/hosted results; authenticated report-import browser proof only if a valid session and real corpus are available.
 - REAL BLOCKER: missing real report corpus under `tests/fixtures/realistic-reports/`.
 - DO-NOT-REPEAT: do not fabricate or substitute report files; do not duplicate importer/report pipeline; do not transfer PASS across SHAs; do not force-push; do not treat Netlify/Vercel status alone as product certification.
-- RESUME POINT: current exact `a8ff789b` branch with fresh GitHub Actions runs in progress; PR #676 remains open and mergeable.
-- NEXT EXACT ACTION: poll GitHub Actions run `36497082848` (Execution Enforcement Contract) and consume its terminal exact-`a8ff789b` result; if it fails, repair only its first reproducible current-SHA root cause.
+- RESUME POINT: PR #676 remains open and mergeable; fresh exact-`06e22cfa` runs are queued: Execution Enforcement `36497191960`, Final Certification `36497192009`, Phase-F `36497191653`, Browser `36497191740`, Device-Independent Browser `36497191703`.
+- NEXT EXACT ACTION: poll GitHub Actions run `36497191960` (Execution Enforcement Contract) for the first terminal exact-`06e22cfa` result; if it fails, repair only its first reproducible current-SHA root cause.
 
 ---
 
