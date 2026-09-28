@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / IMPORT UX CONTINUITY REPAIRED
+
+- EXACT MAIN BASE → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- FUNCTIONAL FRONT → `fix/20260928-canonical-import-dropzone`; canonical import UI root repaired for real drag/drop and post-import next actions.
+- IMPLEMENTED → `CanonicalImportPage.tsx` now consumes dropped files through the existing security/detection/hash/tenant/parse pipeline.
+- IMPLEMENTED → successful canonical import exposes Trust/Evidence and Decision/Evidence next actions without claiming unsupported downstream business results.
+- CONTRACT → existing product-wow UI contract owns the regression; no duplicate upload-contract path remains.
+- CI → quality workflow now runs `npm run test:product-wow-ui` on exact head.
+- RELEASE/DEVICE → browser/device/production remain NOT PROVEN until current-SHA gates terminalize; PC01 offline; hosting external/pending.
+- NEXT → consume terminal exact-head result, repair first reproducible failure, then rescan import/data/evidence/decision/security fronts.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / LIVE POLICY PARITY CLOSED
 
 - MAIN CONTROL HEAD AT CHECKPOINT → memory/index updates are the only main changes in this batch.
