@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXECUTIVE REPORT SOURCE-BOUND DECISIONS — FUNCTIONAL CANDIDATE 70b448e
+
+- FUNCTIONAL / UI-TEST CANDIDATE → `70b448ed3e4d5298d0f6b5ef8c5943cdbe6a451e`.
+- CLOSED FRONT → Executive Report import context, tenant-bound evidence lookup, source-bound recommendation lookup, fail-closed provenance state, and import-preserving Decision link.
+- EXACT CONTRACT → `scripts/check-ui-route-completeness.mjs` guards the above invariants.
+- CURRENT TEST STATE → fresh exact-head workflows have been triggered/queued after this front; no PASS is claimed until terminal results exist for the candidate lineage.
+- POST-UPLOAD FLOW → upload → authoritative verification → durable Job → 9 ordered Tasks → single leased worker → canonical commit → evidence snapshot → source-bound signals/recommendations → decision/work/replay/benchmark → Executive Report.
+- OPEN → current-head certification/report-execution/quality/browser gates; Phase-F hosted drift and PC01 device proof remain separate external/device fronts.
+- NEXT EXACT ACTION → consume terminal current-head gates; repair first reproducible non-external failure; persist/rescan.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXECUTIVE REPORT IMPORT PROVENANCE — FUNCTIONAL CANDIDATE acf52b6
 
 - FUNCTIONAL / UI-TEST CANDIDATE → `acf52b6dcc1c3a09d9e4be77ca5185f9ca773c1a`.
