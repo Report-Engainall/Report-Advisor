@@ -1,4 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPORT SURFACE CONTEXT CLOSURE — FUNCTIONAL CANDIDATE 573304a
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPORT OUTPUT CONTEXT + EXPORT CLOSURE — FUNCTIONAL CANDIDATE be36ca1
+
+- FUNCTIONAL/UI CANDIDATE → `be36ca1557748c00d426f8f6b3b7a3e6f11029cc`.
+- CLOSED → shared report context across Reports Center and domain reports; company/period/currency/As Of/truth state are exposed consistently.
+- CLOSED → Inventory Intelligence and Demand Velocity now use the centralized context resolver and provide print/export actions.
+- CLOSED CONTRACT → route completeness protects the report context, fail-closed states, and print/export actions.
+- SOURCE PROOF → static assertions pass for the front; exact-head CI is not yet terminal-certification evidence.
+- EXTERNAL STATUS → Vercel free-plan build-rate limit remains a failure/pending deployment constraint; PC01 browser proof remains offline/device-bound.
+- NEXT → exact-head terminal gates, then next safe non-device front.
+
+
 
 - FUNCTIONAL/UI CANDIDATE → `573304a90dcf7d5672bb04ded788e2b0c90bd549`.
 - CLOSED → shared report truth context for company, period, currency, As Of, truth state, source description and Trust & Evidence link; applied to Inventory Intelligence and Demand Velocity.
