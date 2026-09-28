@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / FAILED-IMPORT RECOVERY CLOSURE
+
+- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
+- CURRENT CODE CANDIDATE → eccb8ecbf4bd52335a36cc76d3c021ec6c157107.
+- USER-VISIBLE ROOT CAUSE/UX GAP CLOSED → after a failed drag/drop or parse attempt, the selected File object is now retained from the start of the read pipeline and the upload state exposes a direct retry of that same source, an explicit alternate-source action, and history refresh.
+- IMPLEMENTATION → `CanonicalImportPage.tsx`: preserve `selectedFileRef.current` before security/format parsing; add `retryCurrentFile`; add explicit failure recovery controls. `scripts/check-canonical-import-recovery.mjs` asserts the single canonical drop path and recovery controls. No second importer was introduced.
+- EXISTING GATES PRESERVED → save remains fail-closed on unreadable data, quality <50, quality 50–74 without explicit approval, duplicate source, or failed security scan.
+- EXISTING POST-IMPORT PATH → VERIFIED result continues to Evidence → Signals → Decision → Work → Outcome/Replay; PARTIAL remains review-first.
+- PREVIOUS EXACT RESULTS NOT TRANSFERRED → data-quality/browser/desktop successes from older SHA remain historical. Fresh CI for this candidate is required.
+- EXTERNAL RELEASE BLOCKERS → Vercel build-rate limit/current production alias mismatch; Phase-F deployment SHA mismatch + backup image pull failure + rollback 404; PC01 offline. No production PASS claimed.
+- NEXT → consume fresh exact candidate CI and repair only the first reproducible failure; preserve all evidence by SHA.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / PDF ESM TRANSITIVE IMPORT CLOSURE
 
 - MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
