@@ -94,6 +94,7 @@ export function SuppliersPage() {
         actions={<span className="rounded-full bg-primary-50 px-2.5 py-1 text-[9px] font-black text-primary-800">{count == null ? 'غير متاح' : String(count) + ' سجل'}</span>}
       />
 
+      <ReportSurfaceContext period="السجل المرجعي الحالي" asOf={new Date().toISOString().slice(0, 10)} status={rows.length ? 'CALCULATED' : 'INSUFFICIENT DATA'} sourceLabel="الموردون جزء من البيانات المرجعية للشركة الحالية؛ الصفحة لا تستنتج إنفاقًا أو أرصدة غير موجودة في المصدر." />
       <section className="ag-operational-hero overflow-hidden rounded-[1.75rem] border border-primary-100 p-6 lg:p-8">
         <div className="grid gap-6 lg:grid-cols-[1.25fr_.75fr] lg:items-end">
           <div>
