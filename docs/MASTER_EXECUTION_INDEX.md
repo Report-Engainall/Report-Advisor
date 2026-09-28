@@ -1,4 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / ADVANCED REPORT ACTIONS CLOSED — FUNCTIONAL CANDIDATE be36ca1
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXECUTIVE REPORT TRUTH CONTEXT CLOSURE — FUNCTIONAL CANDIDATE 9ed3053
+
+- FUNCTIONAL/UI CANDIDATE → `9ed30537a98cc55c52bbddc33bb12d8f0494539d`.
+- CLOSED → Executive Report company/period/currency/As Of/truth context via shared ReportSurfaceContext.
+- CLOSED CONTRACT → report-output context threshold raised to six surfaces; Executive Report shared-context requirement is explicit.
+- PRESERVED → source-bound import provenance and company-level KPI semantics remain fail-closed and separated.
+- CURRENT CI → Vercel rate-limit failure / pending deployment; no terminal code PASS claimed.
+- DEVICE → PC01 offline.
+- NEXT → next non-device intelligence/report surface, after exact-head gate consumption where available.
+
+
 
 - FUNCTIONAL/UI CANDIDATE → `be36ca1557748c00d426f8f6b3b7a3e6f11029cc`.
 - CLOSED → report truth context, domain report metadata, centralized advanced-report context resolution, print/export actions, and inventory As Of preservation.
