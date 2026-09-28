@@ -1,3 +1,11 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-UPLOAD TASK SEMANTICS CLARIFIED — FUNCTIONAL CANDIDATE 449697a
+
+- FUNCTIONAL/UI CANDIDATE → `449697a8f63089d66ac4ae2ccbcc52d6211bc1b0`.
+- CLOSED UI SEMANTIC GAP → Canonical Import now states the real 9-task decomposition and sequential single-worker execution instead of implying parallel worker distribution.
+- CLOSED REPORT FRONT → source-bound Executive Report reads import Job/Snapshot and uses canonical source-bound recommendations; invalid context remains REVIEW / NOT PROVEN.
+- CURRENT TEST STATE → fresh exact-head gates for this lineage are pending/queued; no PASS is transferred.
+- NEXT → terminal current-head gates, first reproducible non-external failure, then bounded rescan.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXECUTIVE REPORT SOURCE-BOUND DECISIONS — FUNCTIONAL CANDIDATE 70b448e
 
 - FUNCTIONAL / UI-TEST CANDIDATE → `70b448ed3e4d5298d0f6b5ef8c5943cdbe6a451e`.
