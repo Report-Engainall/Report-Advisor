@@ -3,6 +3,7 @@ name: Final Certification Gate
 
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
     inputs:
