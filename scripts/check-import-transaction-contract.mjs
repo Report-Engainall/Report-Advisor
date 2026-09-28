@@ -169,6 +169,22 @@ if (canonicalImportPage) {
     throw new Error('Canonical import UI must fail closed when authoritative row count is missing or invalid');
   }
 }
+const dropzoneTokens = [
+  'data-dropzone="canonical-import"',
+  'onDragEnter=',
+  'onDragOver=',
+  'onDragLeave=',
+  'onDrop=',
+  'dataTransfer.files',
+  'preventDefault()',
+  'handleDroppedFiles',
+];
+for (const token of dropzoneTokens) {
+  if (!canonicalImportPage.includes(token)) throw new Error(`Canonical import drag/drop contract missing: ${token}`);
+}
+if (!/dropped\.length > 1/.test(canonicalImportPage)) {
+  throw new Error('Canonical import drag/drop must reject ambiguous multi-file drops');
+}
 if (!/const dbBlock =/i.test('noop')) {
   // marker kept intentionally unreachable; avoids accidental future broad replacements
 }
