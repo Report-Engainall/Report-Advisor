@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-28 / EVIDENCE-BEFORE-COMMIT HARDENING
+
+- EXACT MAIN BASE → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- CURRENT BRANCH HEAD BEFORE THIS DOC PERSIST → `331c85e7d2389ab11afe70e4e680e3efd1df972c`.
+- CORE HARDENING → `netlify/functions/canonical-import-execute.mts` now persists the authoritative `source_analysis_snapshots` row before invoking `runCanonicalImportThroughDurableRunner`; evidence persistence is mandatory and fail-closed.
+- FAILURE HANDLING → canonical import server now terminalizes the active `import_job` to `failed` on execution errors, preventing new orphan `processing/0` jobs.
+- TEST GUARD → `scripts/check-import-evidence-contract.mjs` enforces evidence-before-commit ordering and fail-closed evidence persistence.
+- PDF FRONT → long Arabic header windows now support up to 5 text items; regression covers split `مبلغ الصافي بالمحلي`.
+- LIVE LEGACY DEBT → staging still shows 150 `processing/0` jobs: 125 no-file legacy jobs with empty summaries and 25 file-backed jobs. No destructive data mutation performed. New failures are now fail-closed in source.
+- HOSTING/DEVICE → Vercel current SHA is externally build-rate limited; PC01 offline. No hosted/device PASS claimed.
+- CI → current exact SHA gates remain queued/in progress; stale evidence is not reused.
+- NEXT → consume terminal current-SHA quality/PDF/import/security/certification results; repair first current-SHA failure only; then reassess the 25 file-backed legacy jobs under the hardened runtime.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / SOURCE INTAKE + PDF TABLE + EVIDENCE GATE BATCH
 
 - EXACT MAIN BASE → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
