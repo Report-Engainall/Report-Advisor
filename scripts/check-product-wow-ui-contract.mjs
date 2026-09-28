@@ -237,6 +237,10 @@ assert.ok(decisionExperience.includes('approval.reason'), 'approval UI must expo
 
 
 const reportsSurface = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
+assert.ok(reportsSurface.includes('<SourceBoundReportContext />'), 'reports center must reuse the canonical source-bound report context');
+assert.ok(!reportsSurface.includes('sourceContext'), 'reports center must not maintain a duplicate source-bound context state');
+assert.ok(!reportsSurface.includes('getBoundRenderedReportManifest'), 'reports center must not duplicate rendered-manifest resolution');
+
 assert.ok(reportsSurface.includes('setSnapshot(snap)'), 'purchases report must read the canonical dashboard snapshot alongside purchase rows');
 assert.ok(reportsSurface.includes("status={snapshot?.kpis.status ?? (summary.total == null ? 'INSUFFICIENT_DATA' : 'CALCULATED')}"), 'purchases report must preserve fail-closed truth status');
 assert.ok(reportsSurface.includes('المشتريات تعرض أرقامها من سجلات الشراء'), 'purchases report must expose its evidence context to the user');
