@@ -1,14 +1,14 @@
 # RESUME TOKEN — 2026-09-28 / CURRENT EXACT-HEAD EXECUTION
 
-- CURRENT REPOSITORY HEAD → `e0d33a2d9e5a3996e9fb650dfc29ec5b0820cabd`
-- CURRENT CODE/TEST CANDIDATE → `e0d33a2d9e5a3996e9fb650dfc29ec5b0820cabd`
+- CURRENT REPOSITORY HEAD → `960da0bda395192846ba537891c2d519e2f94faa`
+- CURRENT CODE/TEST CANDIDATE → `960da0bda395192846ba537891c2d519e2f94faa`
 - FUNCTIONAL CODE FRONT → `c8dca7badd8115739cbb69aaac564d60ff04dcfe`
 - MAIN CONTROL HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`
 - ACTIVE EXECUTION FRONTS → browser/certification exact-head evidence; import/decision regression; security/data rescan; cleanup/deletion-gate audit.
-- OPEN BLOCKERS → Vercel free-plan deployment-rate limit; authenticated hosted/browser certification remains unproven until an exact-head terminal browser/certification gate succeeds.
-- LAST PROVEN → on `e0d33a2d9e5a3996e9fb650dfc29ec5b0820cabd`, execution-enforcement + adversarial governance PASS; product-wow-ui PASS; import-transaction + canonical-import-mapping PASS; typecheck PASS; production build PASS (2802 modules).
+- OPEN BLOCKERS → Vercel free-plan deployment-rate limit; authenticated hosted/browser certification remains unproven until an exact-head terminal browser/certification gate succeeds; `xlsx@0.18.5` still has one high-severity advisory with no upstream fix.
+- LAST PROVEN → on `960da0bda395192846ba537891c2d519e2f94faa`, security dependency hardening passed typecheck/build, Document Intelligence 20/20, File Intelligence security, File-engine contract, and canonical import mapping; preceding exact-head governance/UI/import/type/build gates were green before the dependency-only commit.
 - LAST FAILED → stale/brittle product-wow UI contract assertion; live memory lacked mandatory resume anchors. Both roots are now repaired locally.
-- NEXT EXECUTABLE ACTION → keep browser proof on the canonical runner; consume terminal exact-head CI/certification, then repair only the first reproduced failure. After this documentation update, re-run the enforcement gate on the resulting SHA.
+- NEXT EXECUTABLE ACTION → run the canonical browser/final-certification gates on the exact head, consume terminal CI, and repair only the first reproducible failure. Then rebind this token to the final post-proof SHA.
 - NEXT INDEPENDENT ACTIONS → route/state/UI rescan; import/runtime regression; security/RLS readback; cleanup/deletion-gate scan.
 - DO NOT REPEAT → stale SHA evidence; duplicate browser frameworks; preview-as-production; broad SECURITY DEFINER revokes without a reproduced boundary defect; deletion without Manifest/reference proof.
 - STABLE LIVE IMPORT BOUNDARY → `import_finish_job(uuid,text,jsonb,text)` remains SECURITY INVOKER; six-argument `import_commit_batch(..., p_import_job_id uuid)` remains the deliberate SECURITY DEFINER commit boundary with tenant/source/storage checks.
