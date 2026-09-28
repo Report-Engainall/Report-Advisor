@@ -270,7 +270,12 @@ export function DashboardPage() {
         </div>
       </section>
 
-      <TruthContextStrip months={trendMonths} status={kpis.status} asOf={snapshotAsOf ?? 'غير متاح'} />
+      <ReportSurfaceContext
+        period={`آخر ${trendMonths} أشهر`}
+        asOf={snapshotAsOf ?? new Date().toISOString().slice(0, 10)}
+        status={kpis.status === 'CONFIRMED' ? 'VERIFIED' : kpis.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA'}
+        sourceLabel="لوحة الأعمال تقرأ اللقطة الكانونية الحالية وتربط المؤشرات بإشاراتها وقراراتها دون تصنيع قيم بديلة."
+      />
       
       <section className="grid gap-3 lg:grid-cols-[1.05fr_.95fr]">
         <Card>
