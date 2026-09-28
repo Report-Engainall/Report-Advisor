@@ -443,6 +443,18 @@ export function CanonicalImportPage() {
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
   const qualityVariant = quality >= 75 ? 'success' : quality >= 50 ? 'warning' : 'danger';
   const ready = Boolean(file && fileHash && securityPassed && !duplicate && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
+  const readinessBlockers = useMemo(() => {
+    const blockers: string[] = [];
+    if (!file) blockers.push('لم يصل المصدر إلى مرحلة القراءة بعد.');
+    if (!fileHash) blockers.push('لم تُثبت بصمة المصدر.');
+    if (!securityPassed) blockers.push('الفحص الأمني لم يكتمل بنجاح.');
+    if (duplicate) blockers.push('المصدر مكرر داخل الحساب، والكتابة محظورة لمنع إنشاء نسخة ثانية.');
+    if (valid <= 0) blockers.push('لا توجد صفوف قابلة للقراءة والاعتماد بعد.');
+    if (quality < 50) blockers.push(`جودة البيانات ${quality}% أقل من الحد الأدنى 50%.`);
+    if (quality >= 50 && quality < 75 && !qualityApproved) blockers.push(`جودة البيانات ${quality}% تقع في نطاق المراجعة وتحتاج موافقة صريحة.`);
+    return blockers;
+  }, [file, fileHash, securityPassed, duplicate, valid, quality, qualityApproved]);
+
   const failurePresentation = describeImportFailure(error);
 
   return <div className="space-y-5 animate-fade-in">
@@ -531,7 +543,16 @@ export function CanonicalImportPage() {
       {quality < 50 && <div className="p-4 rounded-xl border border-danger-200 bg-danger-50 text-danger-700 text-sm flex gap-2"><XCircle size={18}/> جودة البيانات أقل من 50% — الاستيراد مرفوض.</div>}
       {mappings.length>0&&<Card><CardHeader title="مطابقة الأعمدة" subtitle={`${mappingCoverage}% من أعمدة المصدر لها حقل مكتشف`}/><DataTable columns={[{key:'name',label:'عمود المصدر'},{key:'mappedField',label:'المعنى المكتشف',render:(r:any)=>r.mappedField||'غير معين'},{key:'confidence',label:'الثقة',align:'center',render:(r:any)=><Badge variant={r.confidence>=80?'success':r.confidence>=50?'warning':'danger'}>{r.mappedField?r.confidence+'%':'—'}</Badge>}]} data={mappings} emptyMessage="لا توجد أعمدة"/></Card>}
       <Card><CardHeader title="مراجعة قبل الاعتماد" subtitle="تظهر أول 10 صفوف مع حالة كل صف" action={<div className="flex gap-2"><button type="button" onClick={reset} className="btn-secondary text-xs"><ArrowLeft size={13}/> اختيار ملف آخر</button><button type="button" onClick={() => void saveAnalysis()} className="btn-primary text-xs" aria-label="تأكيد الاستيراد" disabled={!ready}><FileCheck2 size={13}/> اعتماد المصدر — {formatNumber(valid)} صف</button></div>}/><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.slice(0,6).map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">مرفوض</Badge>}, {key:'error',label:'الملاحظة',render:(r:Row)=>r.error||'—'}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></Card>
-      {!ready && <div className="p-3 rounded-lg bg-ink-50 text-ink-600 text-sm">الحفظ متوقف حتى تتوفر بيانات قابلة للقراءة، جودة لا تقل عن 75% أو موافقة صريحة ضمن 50–74%، وعدم وجود مصدر مكرر، مع نجاح الفحص الأمني.</div>}
+      {!ready && <div role="status" className="rounded-xl border border-ink-200 bg-ink-50 p-4 text-sm text-ink-700">
+        <div className="font-black text-ink-900">الاعتماد متوقف حاليًا لأسباب محددة:</div>
+        <ul className="mt-2 space-y-1.5 list-disc pr-5">
+          {readinessBlockers.map((blocker) => <li key={blocker}>{blocker}</li>)}
+        </ul>
+        {(valid <= 0 || !fileHash) && selectedFileRef.current && <button type="button" onClick={retryCurrentFile} className="btn-primary mt-3 text-xs"><RefreshCw size={13}/> إعادة قراءة المصدر الحالي</button>}
+        {duplicate && <div className="mt-3 text-xs font-semibold text-danger-700">الإجراء التالي: اختر مصدرًا جديدًا أو أعد تصدير المصدر بدل تجاوز حماية التكرار.</div>}
+        {quality >= 50 && quality < 75 && !qualityApproved && !duplicate && <div className="mt-3 text-xs font-semibold text-warning-800">الإجراء التالي: راجع البيانات ثم فعّل «موافقة جودة صريحة» بالأعلى إذا كانت النتيجة مقبولة لديك.</div>}
+        {quality < 50 && <div className="mt-3 text-xs font-semibold text-danger-700">الإجراء التالي: أعد القراءة أو حسّن المصدر؛ لا يتم تجاوز حد 50% تلقائيًا.</div>}
+      </div>}
       {failurePresentation && <div className="rounded-xl border border-danger-200 bg-danger-50 p-4 text-danger-800">
         <div className="flex items-start gap-3">
           <AlertCircle size={18} className="mt-0.5 shrink-0" />
