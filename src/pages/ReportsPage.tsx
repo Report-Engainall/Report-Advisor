@@ -62,7 +62,7 @@ function ReportBuilder({ snapshot, nextLabel, nextPath }: {
   nextLabel: string;
   nextPath: string;
 }) {
-  const [selected, setSelected] = useState<ReportBuilderBlockId[]>(['kpis', 'decision']);
+  const [selected, setSelected] = useState<ReportBuilderBlockId[]>(['truth', 'kpis', 'decision']);
   const toggle = (id: ReportBuilderBlockId) => setSelected(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
   const exportBuilder = () => {
     const rows: Array<Record<string, string | number | null>> = [];
