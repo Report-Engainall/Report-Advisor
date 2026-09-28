@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / SOURCE-BOUND RENDERED REPORT HARDENING + REPORTS PAGE RESTORE
+
+- CURRENT CODE/TEST CANDIDATE → `b865bda42f89553e75bd03f6ba0e61cd3dddc1ec`.
+- CURRENT GOVERNANCE HEAD AFTER MEMORY WRITE-BACK → `a65922eae9cce80532be0ae3897f6583b73f6cf4`; this Index write-back will create the next documentation descendant.
+- ROOT FIX → rendered report manifests are now accepted only when Job evidence matches the Import ID + exact source SHA and every rendered output repeats the same binding.
+- CLOSED → one canonical `getBoundRenderedReportManifest()` contract now gates Canonical Import, Reports Center, and Executive Report output display; no duplicate provenance helper/path.
+- REPAIR → an intermediate Reports Center whole-file update had truncated the page; the full implementation was restored from pre-truncation commit `5b7f5e5a6a78b7d4d781b2701014bf2cdbfd9246` and re-applied with source-binding validation. Current file is 49,789 characters and retains Reports Center + Sales/Purchases/Inventory/Receivables/Profitability implementations.
+- UI CLOSED → Canonical Import fails closed on missing/unbound rendered evidence; Reports Center and Executive Report show only source-bound rendered outputs and retain canonical company KPI scope.
+- STATIC PROOF → 37 exact-source assertions PASS on code/test candidate `b865bda...`.
+- CI EXACT SHA → Final Certification Gate `36470795514` and Execution Enforcement Contract `36470795615` are queued on the exact code SHA; no terminal PASS/FAIL is claimed.
+- OPEN EXTERNAL/DEVICE → hosted exact-head build/runtime acceptance, Vercel free-plan build-rate limit, and offline PC01 browser proof.
+- DO NOT REPEAT → do not whole-file update from a truncated read; do not treat rendered routes as proof without exact binding; do not create parallel reporting/provenance paths.
+- NEXT EXACT ACTION → consume the first terminal exact-head gate; repair only reproducible non-external failures, then rescan the next safe non-device front.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / RENDERED REPORT OUTPUT CLOSURE + REPORT-CENTER HANDOFF
 
 - CURRENT EXECUTION HEAD → `26b92ab6304996630f7616269db63de0b53c4ad5` after mandatory Session Memory write-back; product/code checkpoint remains `a8785ff73d71c9eb7f57c6095c0eeb67284c7f8e`.
