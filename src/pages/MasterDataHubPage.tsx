@@ -5,6 +5,7 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { resolveCurrentCompanyId, supabase } from '@/lib/supabase';
 import { formatNumber } from '@/lib/format';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 
 type MasterDataCounts = {
   customers: number;
@@ -114,6 +115,12 @@ export function MasterDataHubPage() {
         actions={<button type="button" onClick={() => void load(true)} disabled={refreshing} className="btn-secondary inline-flex items-center gap-2" aria-busy={refreshing}><RefreshCw size={14} className={refreshing ? 'animate-spin' : ''}/> إعادة قراءة الحقيقة</button>}
       />
 
+      <ReportSurfaceContext
+        period="السجل المرجعي الحالي"
+        asOf={new Date().toISOString().slice(0, 10)}
+        status={summary.entityRows > 0 ? 'CALCULATED' : 'INSUFFICIENT DATA'}
+        sourceLabel="Master Data Hub يقرأ الكيانات المرجعية وأثر المصدر داخل مساحة الشركة الحالية؛ غياب السجل يبقى واضحًا ولا يُصنع بديل."
+      />
       <section className="ag-operational-hero overflow-hidden rounded-[1.75rem] border border-primary-100 p-6 lg:p-8">
         <div className="grid gap-6 lg:grid-cols-[1.35fr_.65fr] lg:items-end">
           <div>
