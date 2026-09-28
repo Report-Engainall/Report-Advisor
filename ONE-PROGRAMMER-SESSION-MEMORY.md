@@ -1,4 +1,14 @@
-# RESUME TOKEN — 2026-09-28 / TRUTH CONTEXT PROPAGATION CLOSURE — FUNCTIONAL CANDIDATE 14dc825
+# RESUME TOKEN — 2026-09-28 / TRUTH STATUS MAPPING REPAIR — FUNCTIONAL CANDIDATE 6da5e55
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `6da5e5501aa0bd78b7d1be36f269cdf2ee92c502`.
+- REPAIR → Trust & Evidence now maps its internal `OK/EMPTY` statuses explicitly into the canonical truth vocabulary instead of coercing them through a direct cast.
+- RESULT → `OK` is rendered as `VERIFIED`; unsupported/empty states remain fail-closed as `INSUFFICIENT DATA`; PARTIAL/REVIEW/BLOCKED/TRUSTED remain explicit.
+- DECISION EXPERIENCE → truth context propagation remains source-gated and `DECISION_SOURCE_EVIDENCE_REQUIRED` remains intact.
+- CONTRACT → route completeness now guards the internal-to-canonical status mapping.
+- STATIC PROOF → truth vocabulary, OK mapping, Trust guard, Decision context, and Decision evidence gate all pass at source level.
+- CI/RUNTIME → no terminal exact-head PASS claimed; Vercel rate-limit remains external, PC01 offline.
+- NEXT EXACT ACTION → continue next non-device canonical surface after this repair; do not reopen report/import fronts without regression evidence.
+
 
 - CURRENT FUNCTIONAL/UI CANDIDATE → `14dc825e371d26888a7ca8475db23dce6cbada47`.
 - CLOSED → the shared report context now preserves the full canonical truth vocabulary: VERIFIED, TRUSTED, PARTIAL, REVIEW, BLOCKED, INSUFFICIENT DATA, CALCULATED.
