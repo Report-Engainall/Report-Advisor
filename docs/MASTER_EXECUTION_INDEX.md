@@ -173,3 +173,18 @@
 - SECURITY → RLS, tenant policies, import RPC security, and canonical security-definer contracts verified; broad Supabase Advisor warnings remain independent audit surface.
 - CLEANUP → no duplicate state/control-plane/browser framework introduced; untracked artifacts remain evidence-only.
 - RELEASE STATE → product core and public UI shell are proven on 9fbc; final authenticated/operational certification remains open and is not labeled PASS.
+
+## CURRENT LIVE RESCAN — 2026-09-28
+
+- OBSERVED BRANCH HEAD → `791c1195e944112b9933277f27e93d4fadca38ff`.
+- FUNCTIONAL CODE CANDIDATE → `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`; later branch changes in this checkpoint are governance/documentation only.
+- Current production → Vercel deployment `dpl_4qDbGd4BpKYW8b1ZXYQWhtxdy6Uj` on `57127e0cfd19dce3f94ed963a74542c534e9f50d`; exact current branch preview on `7ae3d26deaa915d54c43bd52d0a5e403af0221fa` was READY. Production SHA mismatch remains OPEN.
+- Current exact live runtime proof → authenticated browser evidence is PASS only on `1cfbaee82cc79a411c8b6824eb7242f65e08799b`; it is not transferred to `791c1195e944112b9933277f27e93d4fadca38ff`.
+- Phase-F → NOT READY: tenant canary PASS; operational-health SHA mismatch; backup/restore failed during local Supabase image pull; rollback-forward returned 503 `deployment_lookup_failed:404`; no production mutation observed.
+- Durable Report → OPEN: `report_execution_jobs` has 0 `report:%` jobs and 3790 canonical-import jobs; current report UI still performs browser-local Blob export; no verified production worker/output lifecycle.
+- Migration lineage → OPEN: 338 applied live entries vs 269 repository release-manifest migrations; fresh disposable replay and provenance parity not proven.
+- Supabase security → report worker SECURITY DEFINER functions have authenticated EXECUTE disabled; 40 authenticated SECURITY DEFINER warnings remain for non-worker functions and require per-function review; leaked-password protection remains disabled.
+- Observability → Vercel runtime-error query last 7d returned no errors, but backup/artifact/incident/SLO certification evidence tables remain empty.
+- Performance → staging single-sample read observations exist only; P95/P99/production-like load certification remains OPEN.
+- STOP/RESUME → no final certification or production promotion until Durable Report live lifecycle, Phase-F resilience, migration replay/provenance, security setting, and exact-SHA current evidence are closed.
+
