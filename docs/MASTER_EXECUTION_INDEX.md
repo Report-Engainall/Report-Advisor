@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-UPLOAD WORKER CONTRACT REPAIRS — FUNCTIONAL CANDIDATE c9577a7
+
+- FUNCTIONAL / CODE-TEST CANDIDATE → `c9577a75f95d08b20cf5645e00e56c8490c1c071`.
+- FUNCTIONAL BRANCH → `exec/20260927-current-main-import-ui-rebased`.
+- THIS BATCH → corrected the security-definer exposure checker classification for worker-only `retry_report_execution_job`; corrected the durable worker checkpoint contract test to match the canonical runner.
+- FRESH EXACT-HEAD PROOF → file-intelligence-security `36460664348` SUCCESS; Phase-2 security `36460664287` SUCCESS; decision-DML boundary `36460664241` SUCCESS.
+- TERMINAL FAILURE FOUND → Execution Enforcement `36460664556` stopped at certification-boundary integrity because the index still referenced stale candidate `43fcb31567c1ff00973a3f87ccabc554df08858f` while HEAD `c9577a75...` contained non-governance changes.
+- GOVERNANCE REPAIR → Session Memory and this Index are re-anchored to `c9577a75...`; the following commits are documentation-only until fresh gates prove otherwise.
+- POST-UPLOAD CONTRACT → Upload proceeds through authoritative verification → durable Job → 9 ordered Tasks → lease-fenced execution → canonical commit → evidence snapshot → source-bound signals/decision/work/replay/benchmark → Executive Report.
+- DISTRIBUTION SEMANTICS → tasks are durably decomposed and individually observable; current runner executes the 9 stages sequentially under a single leased worker, not as parallel workers.
+- OPEN NON-DEVICE → fresh exact-head certification/execution gates; hosted Phase-F deployment drift remains external. Device/browser proof remains PC01-dependent.
+- NEXT EXACT ACTION → consume the fresh governance-boundary gates after this index update; repair only the first terminal non-external failure; then rescan UI/core.
+- EVIDENCE LAW → no PASS crosses SHA; no upload-only success; no fake reports/recommendations; no stale candidate claim.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / CERTIFICATION CANDIDATE REANCHORED
 
 - CURRENT CODE/TEST CANDIDATE → `43fcb31567c1ff00973a3f87ccabc554df08858f`.
