@@ -33,7 +33,7 @@ const missing = [];
 for (const file of walk(srcRoot)) {
   if (path.resolve(file) === path.resolve(queryFile)) continue;
   const source = fs.readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\s)\/\/.*$/gm, '$1');
-  for (const match of source.matchAll(/import\\s+(?:type\\s+)?\\{([\\s\\S]*?)\\}\\s*from\s*['"]@\/lib\/queries['"]/g)) {
+  for (const match of source.matchAll(/import\s+(?:type\s+)?\{([\s\S]*?)\}\s*from\s*['"]@\/lib\/queries['"]/g)) {
     for (const part of match[1].split(',')) {
       const name = part.trim().replace(/^type\s+/, '').split(/\s+as\s+/)[0];
       if (name && !exports.has(name)) {
