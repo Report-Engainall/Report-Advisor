@@ -1,20 +1,18 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXACT FUNCTIONAL HEAD VERIFIED
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / FIRST CURRENT-SHA UI ROOT CLOSED
 
 > This top block is the only startup boundary.
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- CURRENT CODE/TEST CANDIDATE → `fb93663b19bbdaa3ab161f0068a47fbd07161ce7` (PR #672 / branch `exec/20260927-current-main-import-ui-rebased`).
-- CODE RELATION → candidate is based directly on current main; no rebase gap remains.
-- EXACT LOCAL PROOF ON `fb93663b19bbdaa3ab161f0068a47fbd07161ce7` → `npm run typecheck` PASS; `npm run build` PASS (2802 modules); UI route/sidebar parity PASS (41 routes / 38 canonical links); Phase-3 data-import truth PASS; Phase-F runtime closure PASS; execution-enforcement PASS (33 mandatory rules); SECURITY DEFINER exposure contract PASS.
-- EXACT CI PROOF → `desktop-windows` run `36362650146` SUCCESS on `fb93663b19bbdaa3ab161f0068a47fbd07161ce7`, including web build, native watcher/runtime smoke, Windows installer packaging and artifact upload.
-- CURRENT CI BOUNDARY → remaining required workflows for `fb93663b19bbdaa3ab161f0068a47fbd07161ce7` are queued/pending at the latest observation; no terminal required-gate failure has yet been observed on this SHA.
-- CURRENT CERTIFICATION GAP → the certification-boundary guard was failing because the Master Index startup boundary did not identify the exact current candidate. This is a governance/evidence-boundary defect, not a product-runtime defect; it is being corrected in this checkpoint.
-- RELEASE → Vercel remains externally blocked by the free-plan build-rate limit. Netlify reports a success status for the exact branch, but deployment readiness is not counted as product certification until authoritative exact-head deployment/runtime proof exists.
-- DEVICE → PC01 is ONLINE and the exact PR worktree is available locally.
-- QUALITY → lint currently has 62 warnings and 0 errors; build warnings are non-blocking (Browserslist/Bluebird).
-- NEXT → re-run the certification-boundary and current-SHA certification contracts after this checkpoint; then consume the first terminal current-SHA CI/browser/final-certification failure only. Do not transfer older SHA evidence.
+- CURRENT CODE/TEST CANDIDATE → `1de5cb174add3ec00f26e3036eb118d58ab444df` (PR #672 / `exec/20260927-current-main-import-ui-rebased`).
+- CODE CHANGE → UI route completeness contract now classifies `/import/analyze` as an internal progressive-disclosure redirect to `/import`; no sidebar item was added.
+- EXACT LOCAL PROOF ON `1de5cb174add3ec00f26e3036eb118d58ab444df` → UI route/navigation completeness PASS (41 routes / 38 canonical links); UI route/sidebar parity PASS; typecheck PASS; production build PASS (2802 modules).
+- CURRENT CI → 49 workflow runs observed for `1de5cb174add3ec00f26e3036eb118d58ab444df`: 43 queued, 3 pending, 1 in progress (`desktop-windows`), 2 skipped; no terminal required-gate failure observed yet.
+- CERTIFICATION → the exact candidate parser boundary was repaired and passed on the preceding documentation checkpoint; after this code root, the candidate is re-anchored to `1de5cb174add3ec00f26e3036eb118d58ab444df` and fresh certification must be consumed on this exact code SHA.
+- RELEASE → Vercel remains externally blocked by free-plan build-rate limit. Netlify reports a green deploy-preview status, but this is not treated as production/certification evidence without authoritative exact-head runtime proof.
+- DEVICE → PC01 ONLINE; exact PR worktree is active locally.
+- QUALITY → lint has 62 warnings and 0 errors; build has non-blocking Browserslist/Bluebird warnings.
+- NEXT → persist this exact candidate in the canonical memory/index, run current-SHA certification contracts, then consume the first terminal CI/browser/final-certification result. Repair only a reproduced current-SHA failure.
 
----
 
 # CURRENT EXECUTION CHECKPOINT — 2026-09-28 / LIVE IMPORT BOUNDARY RECONCILIATION
 
