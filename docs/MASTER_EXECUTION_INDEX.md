@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-UPLOAD TENANT AUTHORITY CANDIDATE
+
+- CURRENT CODE/TEST CANDIDATE → `248df251ae243e84a2003adb143a0602765aa27a`
+- CURRENT REPOSITORY HEAD → `248df251ae243e84a2003adb143a0602765aa27a`
+- ACTIVE FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- IMPLEMENTED → durable 9-stage Task Ledger, lease-fenced task execution, canonical enqueue/execute, tenant-authoritative task readback, live/final execution reports, service-role-only enqueue RPC, tenant-safe canonical Job lookup.
+- STAGING PROOF → 9-task creation, ordering guard, ordered execution with worker/attempt/evidence, enqueue privilege closure.
+- NEXT → consume exact-head current CI and isolate Phase-F hosted failure if it remains.
+- NO STALE PASS → all current claims must use `248df251ae243e84a2003adb143a0602765aa27a` or the current run SHA.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-UPLOAD EXECUTION + SECURITY CANDIDATE
 
 - CURRENT CODE/TEST CANDIDATE → `ccd1694dda934bdf19eb1b3a7079c7d02532bf8d`
