@@ -1,3 +1,12 @@
+# RESUME TOKEN — 2026-09-28 / TASK LEDGER CONTRACT HARDENED — FUNCTIONAL CANDIDATE 162881e
+
+- CURRENT FUNCTIONAL/TEST CANDIDATE → `162881eaa84dcb23ea79d6fbae9777e459880b19`.
+- TEST HARDENING → `report-execution-task-ledger-contract.test.mjs` now guards the exact 9-stage enum, auto-completion of initial `queued` task during worker claim, sequential runner order through `rendered`, and the clarified post-upload UI semantics.
+- RUNTIME DB CANARY → on Staging, transactional enqueue created a real synthetic Job with exactly 9 ordered Tasks; the transaction was rolled back; readback confirms `canary_jobs=0`, `canary_tasks=0`, `recent_task_rows=0`. This proves the enqueue/task decomposition without leaving test data.
+- LIMITATION → a direct transactional start/complete stage canary was blocked by the Supabase tool security boundary before execution; no claim is made for that part.
+- CURRENT TEST STATE → exact-head workflows for `162881e...` are pending/queued; no PASS transferred from earlier SHAs.
+- NEXT → consume report-execution-gate, UI route, quality, enforcement, final certification and browser runs for this exact candidate; repair first reproducible non-external failure.
+
 # RESUME TOKEN — 2026-09-28 / POST-UPLOAD TASK SEMANTICS CLARIFIED — FUNCTIONAL CANDIDATE 449697a
 
 - CURRENT FUNCTIONAL/UI CANDIDATE → `449697a8f63089d66ac4ae2ccbcc52d6211bc1b0`.
