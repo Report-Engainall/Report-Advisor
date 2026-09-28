@@ -1,3 +1,15 @@
+# RESUME TOKEN — 2026-09-28 / EXECUTIVE REPORT IMPORT PROVENANCE — FUNCTIONAL CANDIDATE acf52b6
+
+- CURRENT FUNCTIONAL / UI-TEST CANDIDATE → `acf52b6dcc1c3a09d9e4be77ca5185f9ca773c1a`.
+- THIS BATCH IMPLEMENTED → `ExecutiveReportPage` now reads the `?import=` route context, resolves the tenant-bound import job and evidence snapshot through existing canonical query functions, and renders source/status/evidence/snapshot/quality/row/column context.
+- TRUTH BOUNDARY → dashboard KPIs remain company-level canonical metrics; the import identifier is presented as provenance context and is not used to imply file-only KPI filtering that the metric service does not prove.
+- FAIL-CLOSED UI → when the import/job/snapshot cannot be proven, the report shows `REVIEW / NOT PROVEN` instead of a successful file-specific report claim.
+- TEST GUARD ADDED → `scripts/check-ui-route-completeness.mjs` now protects the import-query, tenant-bound import/evidence reads, provenance surface and fail-closed behavior. The matcher was corrected before CI; no PASS is claimed yet for the current head.
+- FRESH CI STATE → current-head UI/certification/report workflows are queued/in progress for this branch; no stale PASS is transferred from earlier SHAs.
+- PRODUCT FLOW FACT → post-upload work is durably decomposed into 9 persisted stages; current runner executes them sequentially under one leased worker, with live/final reports sourced from `report_execution_tasks`.
+- NEXT EXACT ACTION → consume current-head UI route/quality/report-execution/certification/browser results; repair the first reproducible non-external failure only; then reanchor governance if the functional head changes.
+- DO NOT REPEAT → do not present company-level KPIs as file-only, do not claim parallel workers when the current runner is sequential, do not claim CI PASS before terminal exact-head evidence.
+
 # RESUME TOKEN — 2026-09-28 / POST-UPLOAD WORKER CONTRACT REPAIRS — FUNCTIONAL CANDIDATE c9577a7
 
 - CURRENT FUNCTIONAL / CODE-TEST CANDIDATE → `c9577a75f95d08b20cf5645e00e56c8490c1c071`.
