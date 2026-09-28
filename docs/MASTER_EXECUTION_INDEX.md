@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / HOSTED IMPORT RUNTIME READBACK
+
+- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
+- CURRENT PR/BRANCH HEAD → e2628c833dc08d2a86da551b9a01f058b9c027a1 / exec/20260927-current-main-import-ui-rebased.
+- CURRENT CODE/TEST CANDIDATE → 24982d5fd49158db2df5a15ee3b6927e1c19003d.
+- GOVERNANCE DESCENDANTS → 39f24a0fa6b3f877bc711f583befb1d8a75edb9e, then e2628c833dc08d2a86da551b9a01f058b9c027a1.
+- CURRENT HOSTED READBACK → Vercel deployment `dpl_FzNJiNJbQYHLrKVUHdhEQYi2Hd9r` is READY and bound to exact GitHub SHA e2628c833dc08d2a86da551b9a01f058b9c027a1; `/import` returned HTTP 200 with Arabic RTL application shell.
+- CURRENT HOSTED RUNTIME → no Vercel runtime error clusters observed in the last 2 hours.
+- STAGING DATA/TRUST READBACK → `documents` bucket remains private, 100 MB, canonical MIME allowlist; tenant/owner storage policies remain enforced; `import_create_job` is SECURITY INVOKER with the same 100 MB/MIME contract.
+- CURRENT CI → exact code candidate 24982d5… has critical import/PDF/quality/certification/browser runs queued; desktop-windows is SUCCESS on 24982d5…; no PASS is transferred to the governance descendants.
+- DEVICE → PC01 remains OFFLINE; device-dependent proof isolated.
+- ACTIVE EXTERNAL BLOCKER → Phase-F live resilience previously failed on deployment lookup/rollback-forward probe; must remain fail-closed until a fresh exact runtime result.
+- NEXT → consume first terminal 24982d5… CI failure/result; repair only reproduced current-SHA defects; then persist/rescan. No stale evidence transfer.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / PDF REGRESSION CONTRACT REPAIR
 
 - MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
