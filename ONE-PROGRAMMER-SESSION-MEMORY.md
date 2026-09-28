@@ -652,3 +652,27 @@
 - NEXT EXECUTABLE ACTION → consume the first terminal mandatory gate on `b081c3f`; then reconcile the governance lane. Do not promote the current production docs-only deployment as functional proof.
 - DO NOT REPEAT → stale PASS transfer; preview-as-production; production SHA bypass; duplicate importer/navigation/RPC/runner; broad-push workflow weakening solely to clear queue pressure.
 - RESUME STATUS → ACTIVE / IMPORT CORE HARDENED / EXACT-HEAD DEPLOYMENT PROVEN / RELEASE IDENTITY STILL OPEN.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-28-AGHBARI-POST-UPLOAD-REPORT-CLOSURE-156
+
+- SESSION-ID → `2026-09-28-AGHBARI-POST-UPLOAD-REPORT-CLOSURE-156`.
+- CONTROL BASE → exact main HEAD at session start: `1b0d25a7834c779198f9ad19039c87e1262c4cd3`.
+- CURRENT EXECUTION BRANCH → `exec/20260928-post-import-report-closure`.
+- CURRENT EXACT HEAD AFTER IMPLEMENTATION → `0e0d55c7185f2f781c22fb6da0cfca105b34ebdf`.
+- PR → #675, `feat(import): complete post-upload execution and report outputs`.
+- POST-UPLOAD CORE DELIVERED → canonical source understanding/specialty detection, typed canonical commit support for sales/purchases/inventory/customers/suppliers/products/payments, durable nine-stage task ledger, sequential leased-worker lifecycle hooks, persisted rendered report-surface manifest bound to `importId + sourceHash`, and fail-closed result UI.
+- UI DELIVERED → canonical import drag/drop + live nine-stage execution proof + source/specialty result context + source-bound report surfaces + Executive Report / specialty report / Evidence / Decision / Work Center / Business Replay / Benchmark journey. Broken `/replay` and `/benchmark` post-import links were closed by adding real routes/pages and navigation entries.
+- REPORT TRUTH FIX → UI wording no longer claims a report is canonical truth merely because `rendered` completed. The result surface is explicitly a source-bound report route; report content remains governed by canonical truth/evidence.
+- ACTUAL NETLIFY ROOT FAILURE FOUND → exact branch head `f9bd7103bfaaffe5d9482f89c9dd29c731cfbf6c` failed build because `src/pages/ReportsPage.tsx` imported missing `src/components/ReportSurfaceContext`. This was reproduced in the Netlify deploy-preview log and fixed on current branch by adding `src/components/ReportSurfaceContext.tsx` at `0e0d55c7185f2f781c22fb6da0cfca105b34ebdf`.
+- CURRENT HOSTING PROOF BOUNDARY → the previous Netlify failure is closed at code level but NO fresh successful preview has yet been recorded for `0e0d55c`. Vercel status is `failure / build-rate-limit` (external free-plan blocker). Do not transfer older preview PASS.
+- SUPABASE STAGING PROOF → project `Report-Advisor-P0-2-Staging` (`fnqbvfuwbdpwvhcgzksl`) already has the post-upload task ledger migration applied (`20260928164633 / post_upload_execution_task_ledger`). Live schema query confirmed `public.report_execution_tasks` exists with the exact nine-stage constraint, tenant FKs and RLS.
+- STAGING EXECUTION CONTRACT PROOF → executed `enqueue_report_execution_job` for proof job `6cc12ccd-1e39-4ca2-aff0-9a428911cfda` and observed exactly 9 persisted tasks in order: queued, fingerprinted, extracted, canonicalized, validated, analyzed, decisioned, committed, rendered. This proves task distribution into a durable ordered ledger; it is NOT proof of multi-worker parallel execution.
+- STAGING AUTH BOUNDARY → direct SQL call to `claim_report_execution_job` was rejected with `AUTHENTICATED_USER_REQUIRED`. This is a positive fail-closed security result. No auth bypass was applied. Full live worker execution through authenticated claim remains NOT PROVEN.
+- CURRENT CI → fresh workflows for `0e0d55c` have not yet appeared in the Actions API readback at write time; no terminal PASS is claimed.
+- OPEN BLOCKERS → PC01/device offline; Vercel free-plan build-rate limit; authenticated live worker claim/browser/device E2E; fresh exact-head Netlify successful build; mandatory CI terminal results; production exact-SHA/resilience proof.
+- CLOSED IN THIS BATCH → post-upload task ledger/report-output wiring; specialty report routing; broken post-import routes; report truth context build blocker.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/RPC/runner; claim security bypass; report route without source-bound truth context.
+- RESUME POINT → current HEAD `0e0d55c7185f2f781c22fb6da0cfca105b34ebdf`.
+- NEXT EXACT ACTION → consume fresh exact-head build/CI results; repair only the first reproducible current-SHA failure. Then execute the remaining repository-safe front, with live authenticated/device work isolated as external blockers.
+- RESUME STATUS → ACTIVE / POST-UPLOAD EXECUTION + REPORT SURFACES IMPLEMENTED / LIVE AUTHENTICATED WORKER AND FRESH HOSTED PROOF STILL OPEN.
