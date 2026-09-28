@@ -1,3 +1,17 @@
+# RESUME TOKEN — 2026-09-28 / FINAL POST-UPLOAD EXECUTION FRONT CANDIDATE
+
+- CURRENT REPOSITORY HEAD → `ea7ff0067324bc48f86bc2c601bfeb5eb11a6144`
+- CURRENT CODE/TEST CANDIDATE → `ea7ff0067324bc48f86bc2c601bfeb5eb11a6144`
+- ACTIVE EXECUTION FRONTS → exact-head CI for durable post-upload task ledger, quality, certification, browser and Phase-F.
+- LAST IMPLEMENTED → authoritative 9-task post-upload ledger; lease-fenced task lifecycle; server enqueue/execute boundary; tenant task readback; live execution report; final execution report; TypeScript/type-safety repair.
+- LAST PROVEN LIVE DB → 9-task creation; ordering guard; queued/fingerprinted ordered completion with worker/attempt/evidence under transaction rollback.
+- LAST FAILED CODE → prior typecheck errors in queries/runner/UI were corrected in `ea7ff0067324bc48f86bc2c601bfeb5eb11a6144`. Prior stale-candidate governance failures are not code failures.
+- OPEN EXTERNAL → Vercel build-rate limit; Netlify deployment must rebuild on the corrected head; Phase-F production deployment drift; PC01 offline.
+- NEXT EXACT ACTION → consume current-head CI results on `ea7ff0067324bc48f86bc2c601bfeb5eb11a6144`; repair first terminal repository failure only.
+- DO NOT REPEAT → stale evidence across SHAs, repeated candidate drift, direct UI-only success claims, duplicate execution runners.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / POST-UPLOAD EXECUTION LEDGER + TYPE SAFETY
 
 - CURRENT REPOSITORY HEAD → `b225b76f9d72c4a8e7cf4e0aeae9a47834f4eb39`

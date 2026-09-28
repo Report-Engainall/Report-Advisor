@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / FINAL POST-UPLOAD EXECUTION FRONT CANDIDATE
+
+- CURRENT CODE/TEST CANDIDATE → `ea7ff0067324bc48f86bc2c601bfeb5eb11a6144`
+- CURRENT REPOSITORY HEAD → `ea7ff0067324bc48f86bc2c601bfeb5eb11a6144`
+- ACTIVE FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- IMPLEMENTED → durable post-upload 9-stage task ledger; lease-fenced worker lifecycle; canonical enqueue/execute boundary; tenant readback; live execution report; final execution report.
+- STAGING PROOF → task ledger created nine tasks and enforced ordered execution with persisted worker/attempt/evidence.
+- LAST CODE REPAIR → TypeScript/typecheck fixes and checkpoint naming contract repair committed at `ea7ff0067324bc48f86bc2c601bfeb5eb11a6144`.
+- OPEN → fresh exact-head CI and hosted Phase-F/deployment blockers only.
+- NEXT → consume current exact-head gates; no further candidate changes unless a real terminal code failure appears.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-UPLOAD EXECUTION LEDGER + TYPE SAFETY
 
 - CURRENT CODE/TEST CANDIDATE → `b225b76f9d72c4a8e7cf4e0aeae9a47834f4eb39`
