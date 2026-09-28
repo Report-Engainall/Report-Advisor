@@ -18,6 +18,7 @@ import {
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Recommendation, Alert, Forecast } from '@/lib/types';
 import { isActionableRecommendationStatus } from '@/lib/decision-status';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 
 function MetricStrip({
   label,
@@ -87,6 +88,15 @@ export function IntelligenceCenterPage() {
     [forecasts],
   );
 
+  const intelligenceAsOf = useMemo(() => {
+    const dates = [
+      ...alerts.map((item) => item.created_at),
+      ...recommendations.map((item) => item.created_at),
+      ...forecasts.map((item) => item.period),
+    ].filter(Boolean).map(value => new Date(value).getTime()).filter(Number.isFinite);
+    return dates.length ? new Date(Math.max(...dates)).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
+  }, [alerts, recommendations, forecasts]);
+
   const rejectRecommendation = useCallback(async (recommendationId: string) => {
     if (decisionId) return;
     try {
@@ -146,6 +156,13 @@ export function IntelligenceCenterPage() {
           <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold text-ink-200">لا قرار دون مسار قابل للمراجعة</span>
         </div>
       </section>
+
+      <ReportSurfaceContext
+        period="الحالة الحالية"
+        asOf={intelligenceAsOf}
+        status="CALCULATED"
+        sourceLabel="مركز الذكاء يقرأ الإشارات والتوصيات والتنبؤات من السجلات الكانونية؛ التنبؤ يبقى موسومًا كتنبؤ ولا يتحول إلى حقيقة تنفيذية."
+      />
 
       <section className="grid gap-3 md:grid-cols-3">
         <MetricStrip label="إشارات نشطة" value={activeAlerts.length} note="تحتاج انتباهًا غير مقروء" icon={<AlertTriangle size={15} />} />
