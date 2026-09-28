@@ -1,3 +1,15 @@
+# RESUME TOKEN — 2026-09-28 / IMPORT RECOVERY CHECKPOINT
+
+- CURRENT REPOSITORY HEAD: `ae0ab8ce8d3036e2e0beb95b67951359e0788c2e` (last proven repository checkpoint before this memory write).
+- CURRENT CODE/TEST CANDIDATE: `2f41eaff8c0bfde9abb48607354e9c2c1e5f7ea3`.
+- ACTIVE EXECUTION FRONTS: PDF parser/header; canonical import failure recovery; Vite/Cloudflare build; data-quality runtime; import-finish lifecycle/security; production-regression evidence; certification boundary/enforcement; browser E2E; Phase-F resilience; storage tenant isolation; hosted deployment.
+- OPEN BLOCKERS: Vercel build-rate-limit; production alias/deployment identity mismatch; Phase-F backup image pull and rollback runtime evidence; PC01 offline. These isolate dependent hosted/device fronts only.
+- LAST PROVEN: PDF regression PASS on `2f41eaff8c0bfde9abb48607354e9c2c1e5f7ea3`; Vite/Cloudflare compatibility PASS on the same SHA; data-quality-runtime PASS on the same SHA; import-finish-lifecycle-security PASS on the same SHA; certification boundary PASS on `ae0ab8ce8d3036e2e0beb95b67951359e0788c2e`; Netlify preview success is current-head evidence only.
+- LAST FAILED: Execution Enforcement Contract on `ae0ab8ce8d3036e2e0beb95b67951359e0788c2e` failed only because the resume-token anchors were missing after the certification-boundary parser was fixed.
+- NEXT EXECUTABLE ACTION: consume the new execution-enforcement and final-certification runs after this memory checkpoint; repair only the first terminal current-SHA failure.
+- NEXT INDEPENDENT ACTIONS: consume Cloudflare/PDF/browser/data-quality/import-finish/production-regression/Phase-F terminal results in parallel; maintain fail-closed production/runtime status; continue storage/security/cleanup only where independently actionable.
+- DO NOT REPEAT: do not redo the closed PDF Dataset[] contract, ESM import-extension repair, PDF adjacent-column header matcher repair, or failed-import retry UI; do not transfer PASS evidence across SHA; do not wait on PC01 or Vercel provider limits to execute independent GitHub/Supabase fronts.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / CURRENT EXACT IMPORT-RECOVERY CANDIDATE
 
 - MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
