@@ -7,7 +7,7 @@ import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/co
 import { DataTable } from '@/components/ui/DataTable';
 import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
-import { fetchCanonicalSourceReport, fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
+import { fetchCanonicalSourceReport, fetchImportRecords, fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate, formatDateTime } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 import type { SalesInvoice, PurchaseInvoice } from '@/lib/types';
@@ -43,6 +43,7 @@ const reportCards = [
 
 export function ReportsCenterPage() {
   const [snapshot, setSnapshot] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null>(null);
+  const [recentImports, setRecentImports] = useState<Awaited<ReturnType<typeof fetchImportRecords>>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -51,7 +52,9 @@ export function ReportsCenterPage() {
     try {
       if (silent) setRefreshing(true); else setLoading(true);
       setError(null);
-      setSnapshot(await fetchDashboardSnapshot(6));
+      const [nextSnapshot, nextImports] = await Promise.all([fetchDashboardSnapshot(6), fetchImportRecords(8)]);
+      setSnapshot(nextSnapshot);
+      setRecentImports(nextImports);
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -162,6 +165,29 @@ export function ReportsCenterPage() {
         </Card>
       </Link>)}
     </div>
+
+    <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="section-kicker">SOURCE REPORTS · آخر المصادر</div>
+          <h2 className="mt-1 text-lg font-black text-ink-950">التقارير الناتجة من الاستيراد</h2>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">كل مصدر مكتمل يظهر هنا كرابط إلى تقريره المربوط بالـimport job والدليل الكانوني. المصادر غير المكتملة لا تحصل على رابط تقرير نهائي.</p>
+        </div>
+        <Link to="/import" className="btn-secondary text-[11px]">إضافة مصدر</Link>
+      </div>
+      <div className="mt-4 divide-y divide-ink-100 rounded-[14px] border border-ink-100">
+        {recentImports.filter(row => row.status === 'completed').slice(0, 6).map(row => (
+          <div key={row.id} className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <div className="truncate text-[12px] font-black text-ink-900">{row.file_name}</div>
+              <div className="mt-1 flex flex-wrap gap-2 text-[9px] text-ink-400"><span>{row.total_rows == null ? 'عدد الصفوف غير متاح' : formatNumber(row.total_rows) + ' صف'}</span><span>·</span><span>{row.completed_at ? formatDateTime(row.completed_at) : 'اكتمل دون توقيت مسجل'}</span></div>
+            </div>
+            <Link to={`/reports/source/${row.id}`} className="inline-flex shrink-0 items-center justify-center gap-1 rounded-[9px] border border-primary-200 bg-primary-50 px-3 py-2 text-[10px] font-black text-primary-800 hover:bg-primary-100">فتح تقرير المصدر <ArrowUpLeft size={13}/></Link>
+          </div>
+        ))}
+        {recentImports.filter(row => row.status === 'completed').length === 0 && <div className="flex flex-col items-start gap-3 p-5 text-[11px] text-ink-500 sm:flex-row sm:items-center"><FileSearch size={18} className="text-ink-400"/><div><div className="font-black text-ink-800">لا توجد تقارير مصدرية مكتملة حتى الآن</div><div className="mt-1">ارفع ملفًا واعتمده حتى يتحول إلى تقرير مرتبط بدل إنشاء تقرير يدوي منفصل.</div></div><Link to="/import" className="btn-primary text-[11px]">اختيار مصدر</Link></div>}
+      </div>
+    </section>
 
     <section className="grid gap-4 lg:grid-cols-3">
       <Link to="/reports/executive" className="card card-hover p-4">

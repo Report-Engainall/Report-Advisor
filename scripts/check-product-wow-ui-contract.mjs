@@ -105,6 +105,9 @@ assert.ok(reports.includes('لقطة تجارية موثقة'), 'reports center 
 assert.ok(reports.includes('NEXT ACTION'), 'reports center must expose a concrete next action');
 assert.ok(reports.includes('افحص جودة البيانات'), 'reports center must route insufficient truth to data quality');
 assert.ok(reports.includes('تحديث اللقطة'), 'reports center must support in-place refresh of the canonical snapshot');
+assert.ok(reports.includes('fetchImportRecords'), 'reports center must read recent import jobs for source-report continuity');
+assert.ok(reports.includes('التقارير الناتجة من الاستيراد'), 'reports center must expose completed source reports');
+assert.ok(reports.includes('/reports/source/'), 'reports center must link completed imports to source-bound reports');
 assert.ok(!reports.includes('generateSynthetic'), 'reports center must not invent business values');
 const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
 assert.ok(trustEvidence.includes('const [refreshing, setRefreshing]'), 'trust evidence must refresh in-place instead of reloading the whole page');
