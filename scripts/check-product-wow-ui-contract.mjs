@@ -530,6 +530,19 @@ assert.ok(executiveCommand.includes('Money Recovery'), 'decision center must exp
 assert.ok(executiveCommand.includes('Decision Coverage'), 'decision center must expose Decision Coverage state');
 assert.ok(intelligence.includes('Decision Playbooks'), 'intelligence must expose the governed Decision Playbooks capability state');
 assert.ok(reportsSurface.includes('Report Builder'), 'reports must expose the report-builder capability');
+const reportOutputSurfaces = {
+  demand: fs.readFileSync('src/pages/DemandVelocityPage.tsx', 'utf8'),
+  receivables: fs.readFileSync('src/pages/ReceivablesReportCanonicalPage.tsx', 'utf8'),
+  profitability: fs.readFileSync('src/pages/ProfitabilityReportCanonicalPage.tsx', 'utf8'),
+  liquidity: fs.readFileSync('src/pages/LiquidityPage.tsx', 'utf8'),
+  analytics: fs.readFileSync('src/pages/AnalyticsPage.tsx', 'utf8'),
+};
+for (const [name, surface] of Object.entries(reportOutputSurfaces)) {
+  if (!surface.includes('SourceBoundReportContext')) {
+    throw new Error(`import-capable report output surface missing canonical source context: ${name}`);
+  }
+}
+
 assert.ok(reportsSurface.includes('طباعة'), 'reports must preserve a visible print capability');
 assert.ok(trustEvidence.includes('Evidence Passport'), 'trust surface must expose the Evidence Passport capability');
 assert.ok(trustEvidence.includes('Snapshots / As-of'), 'trust surface must expose snapshot/as-of evidence semantics');
