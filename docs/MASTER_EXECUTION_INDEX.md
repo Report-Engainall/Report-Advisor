@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXACT-HEAD BUILD REPAIR CLOSED
+
+- EXACT CODE HEAD → `efc6b0706d0010524cd74a617fa66f08346cf3ab`.
+- CLOSED → Netlify build failure caused by missing `fetchDashboardIntelligence` export through the canonical query boundary.
+- CLOSED → `src/lib/queries.ts` now exports the canonical dashboard-intelligence query; `CanonicalImportPage.tsx` keeps its existing consumer path.
+- PROOF → Netlify exact-head deploy `6abad31037aff10008696bef` is `ready`; one function and the generated assets were deployed successfully.
+- CLOSED → live Staging retry worker RPC now has auth/tenant defense-in-depth and remains service_role-only.
+- PROOF BOUNDARY → current-head GitHub Actions terminal certification is still not registered; no current-head CI PASS is claimed.
+- HOSTED BLOCKER → Vercel free-plan build-rate-limit remains external; Netlify exact-head deployment is healthy.
+- DEVICE BLOCKER → PC01 remains offline; browser/authenticated desktop proof remains external.
+- DO NOT REPEAT → stale SHA CI results, synthetic Vercel proof, the repaired query export, or the previous Netlify Rollup error.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPORT-EXECUTION RETRY SECURITY + CI ROOT REPAIR
 
 - EXACT CODE HEAD BEFORE THIS GOVERNANCE WRITE-BACK → `77f27f1dd561fa9abc6f2b59f756f091355b976b`.
