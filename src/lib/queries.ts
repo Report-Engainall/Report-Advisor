@@ -194,7 +194,7 @@ export function getBoundRenderedReportManifest(
   expectedImportId: string,
   expectedSourceHash: string,
 ): RenderedReportManifest | null {
-  if (!job || !expectedImportId.trim() || !expectedSourceHash.trim()) return null;
+  if (!job || job.status !== 'completed' || !expectedImportId.trim() || !expectedSourceHash.trim()) return null;
   const raw = job.evidence?.renderedOutput;
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
   const manifest = raw as Record<string, unknown>;
