@@ -1,6 +1,6 @@
 # RESUME TOKEN — 2026-09-28 / POST-UPLOAD TENANT AUTHORITY CANDIDATE
 
-- CURRENT REPOSITORY HEAD → `248df251ae243e84a2003adb143a0602765aa27a`
+- CURRENT REPOSITORY HEAD → `08e83ddce76797222797b18c2eb1b2027d1c4407`
 - CURRENT CODE/TEST CANDIDATE → `248df251ae243e84a2003adb143a0602765aa27a`
 - ACTIVE FRONT → exact-head Quality, Task Ledger gate, Certification, Browser and Phase-F.
 - LAST IMPLEMENTED → canonical durable post-upload execution flow with 9 persisted tasks and tenant-safe readback.
@@ -8,6 +8,7 @@
 - LAST PROVEN → Task Ledger gate PASS before this latest tenant-authority correction; Supabase ordering/evidence/privilege proofs remain valid.
 - OPEN EXTERNAL → Vercel build-rate limit, hosted Phase-F production drift, PC01 offline.
 - NEXT EXACT ACTION → consume fresh current-head gates on `248df251ae243e84a2003adb143a0602765aa27a`; first terminal repository failure only.
+- NEXT INDEPENDENT ACTIONS → after repository gates pass, isolate hosted Phase-F deployment drift and device-only PC01 work without blocking independent fronts.
 - DO NOT REPEAT → stale candidate, direct tenant selector in consumers, exposed SECURITY DEFINER enqueue, duplicate runners.
 
 ---
