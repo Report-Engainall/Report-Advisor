@@ -36,8 +36,8 @@ for (const file of migrationFiles) {
     if (!/SECURITY\s+DEFINER/i.test(block)) continue;
 
     const fn = block.match(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)\s*\(/i)?.[1] ?? '<unknown>';
-    if (!/SET\s+search_path\s*(?:=|TO)\s*'?(?:public|pg_catalog)'?/i.test(block)) {
-      failures.push(`${file}: ${fn} missing fixed search_path (public or pg_catalog)`);
+    if (!/SET\s+search_path\s*(?:=|TO)\s*(?:''|'?(?:public|pg_catalog)'?)/i.test(block)) {
+      failures.push(`${file}: ${fn} missing fixed search_path (explicit empty, public, or pg_catalog)`);
     }
 
     if (/current_company_id\s*\(\)|auth\.uid\s*\(\)/i.test(block)) continue;
