@@ -77,6 +77,18 @@ for (const status of ['VERIFIED', 'TRUSTED', 'PARTIAL', 'REVIEW', 'BLOCKED', 'IN
     throw new Error('Report truth UI is missing status coverage: ' + status);
   }
 }
+const asOfGuardFiles = [
+  'src/pages/AnalyticsPage.tsx',
+  'src/pages/DemandVelocityPage.tsx',
+  'src/pages/ReceivablesReportCanonicalPage.tsx',
+  'src/pages/ProfitabilityReportCanonicalPage.tsx',
+];
+for (const file of asOfGuardFiles) {
+  const body = fs.readFileSync(path.join(root, file), 'utf8');
+  if (/asOf=\{new Date\(\)\.toISOString\(\)\.slice/.test(body)) {
+    throw new Error('Report truth contract forbids synthetic current-date As Of in ' + file);
+  }
+}
 const sourceBoundContext = fs.readFileSync(path.join(root, 'src', 'components', 'SourceBoundReportContext.tsx'), 'utf8');
 if (!sourceBoundContext.includes('manifest.outputs.map')) {
   throw new Error('Source-bound report context must expose rendered output links');
