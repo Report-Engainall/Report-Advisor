@@ -1,4 +1,13 @@
-# RESUME TOKEN — 2026-09-28 / TRUTH STATUS MAPPING REPAIR — FUNCTIONAL CANDIDATE 6da5e55
+# RESUME TOKEN — 2026-09-28 / WORK CENTER TRUTH CONTEXT CLOSURE — FUNCTIONAL CANDIDATE 5cfbc39
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `5cfbc39b3e1f4ab93a5d2783243ed2e8a91daf48`.
+- CLOSED → Work Center now exposes the shared truth context with company/period/currency/As Of plus explicit operational truth state.
+- STATE LOGIC → empty operational history = INSUFFICIENT DATA; expired leases/review/failure rows = REVIEW; otherwise CALCULATED. Lease health remains tied to the existing worker-health read, with no change to execution semantics.
+- CONTRACT → `scripts/check-ui-route-completeness.mjs` guards Work Center context, truth-state derivation, and lease-health binding.
+- STATIC PROOF → Work Center context, state derivation, lease-health binding, guard coverage, and full truth vocabulary all pass.
+- CI/RUNTIME → no terminal exact-head PASS claimed; Vercel rate-limit remains external; PC01 offline.
+- NEXT EXACT ACTION → continue the next safe non-device canonical surface; do not reopen closed report/import/decision context fronts unless a regression proves it.
+
 
 - CURRENT FUNCTIONAL/UI CANDIDATE → `6da5e5501aa0bd78b7d1be36f269cdf2ee92c502`.
 - REPAIR → Trust & Evidence now maps its internal `OK/EMPTY` statuses explicitly into the canonical truth vocabulary instead of coercing them through a direct cast.
