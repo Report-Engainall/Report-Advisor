@@ -45,9 +45,10 @@ const reportCards = [
 ];
 
 
-type ReportBuilderBlockId = 'kpis' | 'trend' | 'aging' | 'customers' | 'products' | 'decision';
+type ReportBuilderBlockId = 'truth' | 'kpis' | 'trend' | 'aging' | 'customers' | 'products' | 'decision';
 
 const REPORT_BUILDER_BLOCKS: Array<{ id: ReportBuilderBlockId; label: string; description: string }> = [
+  { id: 'truth', label: 'حقيقة التقرير', description: 'حالة الدليل وAs Of والفترة قبل قراءة أي KPI.' },
   { id: 'kpis', label: 'ملخص المؤشرات', description: 'المبيعات والذمم والمخزون والفواتير من اللقطة نفسها.' },
   { id: 'trend', label: 'الاتجاه', description: 'اتجاه المبيعات للفترة الحالية من المصدر الكانوني.' },
   { id: 'aging', label: 'أعمار الذمم', description: 'الأعمار فقط عندما تكون حالة المصدر CALCULATED.' },
@@ -65,6 +66,13 @@ function ReportBuilder({ snapshot, nextLabel, nextPath }: {
   const toggle = (id: ReportBuilderBlockId) => setSelected(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
   const exportBuilder = () => {
     const rows: Array<Record<string, string | number | null>> = [];
+    if (selected.includes('truth')) {
+      rows.push(
+        { section: 'TRUTH', metric: 'الحالة', value: snapshot.kpis.status, as_of: snapshot.asOf },
+        { section: 'TRUTH', metric: 'الفترة', value: `آخر ${snapshot.months} أشهر`, as_of: snapshot.asOf },
+        { section: 'TRUTH', metric: 'أعمار الذمم', value: snapshot.aging.status, as_of: snapshot.asOf },
+      );
+    }
     if (selected.includes('kpis')) {
       rows.push(
         { section: 'KPIs', metric: 'المبيعات', value: snapshot.kpis.totalSales, as_of: snapshot.asOf },
@@ -113,6 +121,7 @@ function ReportBuilder({ snapshot, nextLabel, nextPath }: {
           <div className="rounded-xl border border-warning-200 bg-warning-50/60 p-3 text-[9px] leading-5 text-warning-900">النتيجة مربوطة بـ As Of: {snapshot.asOf}. البيانات غير المتاحة لا تتحول إلى صفر أو تقدير.</div>
         </div>
         <div className="min-w-0 space-y-3">
+          {selected.includes('truth') && <div className="rounded-xl border border-primary-200 bg-primary-50/40 p-4"><div className="section-kicker text-primary-800">01 · TRUTH / EVIDENCE</div><div className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-3"><div className="rounded-lg bg-white p-3"><div className="text-[9px] text-ink-400">الحالة</div><div className="mt-1 text-sm font-black text-ink-950">{snapshot.kpis.status}</div></div><div className="rounded-lg bg-white p-3"><div className="text-[9px] text-ink-400">As Of</div><div className="mt-1 text-sm font-black text-ink-950">{snapshot.asOf}</div></div><div className="rounded-lg bg-white p-3"><div className="text-[9px] text-ink-400">أعمار الذمم</div><div className="mt-1 text-sm font-black text-ink-950">{snapshot.aging.status}</div></div></div><Link to="/trust" className="mt-3 inline-flex min-h-10 items-center justify-center rounded-xl bg-ink-950 px-3 text-[10px] font-black text-white">فتح مركز الأدلة ←</Link></div>}
           {selected.includes('kpis') && <div className="rounded-xl border border-ink-100 bg-white p-4"><div className="section-kicker">01 · KPIs</div><div className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-4">{[['المبيعات', snapshot.kpis.totalSales == null ? 'غير متاح' : formatCurrency(snapshot.kpis.totalSales)], ['الذمم', snapshot.kpis.totalReceivables == null ? 'غير متاح' : formatCurrency(snapshot.kpis.totalReceivables)], ['المخزون', snapshot.kpis.inventoryValue == null ? 'غير متاح' : formatCurrency(snapshot.kpis.inventoryValue)], ['الفواتير', snapshot.kpis.invoiceCount == null ? 'غير متاح' : formatNumber(snapshot.kpis.invoiceCount)]].map(([label, value]) => <div key={String(label)} className="rounded-lg bg-ink-50 p-3"><div className="text-[9px] text-ink-400">{String(label)}</div><div className="mt-1 text-sm font-black text-ink-950">{String(value)}</div></div>)}</div></div>}
           {selected.includes('trend') && <div className="rounded-xl border border-ink-100 bg-white p-4"><div className="section-kicker">02 · TREND</div><div className="mt-3 min-h-[220px]"><TrendChart data={snapshot.trend}/></div></div>}
           {selected.includes('aging') && <div className="rounded-xl border border-ink-100 bg-white p-4"><div className="section-kicker">03 · AGING</div><div className="mt-3 space-y-2">{snapshot.aging.status === 'CALCULATED' ? snapshot.aging.rows.slice(0, 6).map(bucket => <div key={bucket.bucket} className="flex items-center justify-between rounded-lg bg-ink-50 p-3 text-[10px]"><span>{bucket.bucket}</span><span className="font-black">{formatCurrency(bucket.amount)} · {formatNumber(bucket.count)} فاتورة</span></div>) : <div className="rounded-lg border border-warning-200 bg-warning-50 p-3 text-[10px] text-warning-900">أعمار الذمم غير متاحة للحساب من اللقطة الحالية.</div>}</div></div>}
