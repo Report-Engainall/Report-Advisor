@@ -88,29 +88,31 @@ const failures = [];
 
 function getFunctionWindow(name) {
   const definitionPattern = new RegExp(`CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\s+(?:public\\.)?${name}\\s*\\(`, 'gi');
-  let lastIndex = -1;
+  let lastWindow = null;
   let match;
-  while ((match = definitionPattern.exec(sql)) !== null) lastIndex = match.index;
-  if (lastIndex < 0) return null;
-  const nextFunction = /CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?:public\.)?/gi;
-  nextFunction.lastIndex = lastIndex + 1;
-  const next = nextFunction.exec(sql);
-  return sql.slice(lastIndex, next ? next.index : sql.length);
+  while ((match = definitionPattern.exec(sql)) !== null) {
+    const candidate = sql.slice(match.index);
+    const bodyTag = candidate.match(/\\bAS\\s+(\\$[A-Za-z_][A-Za-z0-9_]*\\$|\\$\\$)/i)?.[1];
+    if (!bodyTag) continue;
+    const bodyEnd = candidate.indexOf(`${bodyTag};`);
+    if (bodyEnd < 0) continue;
+    lastWindow = candidate.slice(0, bodyEnd + bodyTag.length + 1);
+  }
+  return lastWindow;
 }
 
 function normalizeSearchPath(window) {
-  const raw = window.match(/SET\s+search_path\s+(?:TO|=)\s*([^\n;]+)/i)?.[1];
-  if (!raw) return null;
-  return raw.trim().toLowerCase().replaceAll('"', '').replaceAll("'", '').replace(/\s+/g, '');
+  const raw = window.match(/SET\\s+search_path\\s+(?:TO|=)\\s*([^\\n;]+)/i)?.[1];
+  if (raw === undefined) return null;
+  return raw.trim().toLowerCase().replaceAll('"', '').replaceAll("'", '').replace(/\\s+/g, '');
 }
 
 function hasSafeSearchPath(window, mode) {
   const normalized = normalizeSearchPath(window);
-  if (!normalized) return false;
+  if (normalized === null) return false;
   if (mode === 'EMPTY_OR_SAFE') return normalized === '' || normalized === 'pg_catalog' || normalized === 'public' || normalized === 'public,pg_catalog' || normalized === 'pg_catalog,public';
   return normalized === 'public' || normalized === 'public,pg_catalog' || normalized === 'pg_catalog,public';
 }
-
 function assertAuthenticatedOnly(name) {
   const grantPattern = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${name}\\s*\\([^;]*?\\)\\s+TO\\s+([^;]+);`, 'ig');
   let authenticated = false;
