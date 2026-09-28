@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / WORKER RPC TEST CONTRACT RECONCILED
+
+- MAIN EXACT CONTROL HEAD BEFORE THIS WRITE → `42f1e861cf0a68279e446045b16100a94b9a3143`.
+- FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `ee0cba1e220fc2c96e2fa4c77aa7fa96192abe68`.
+- SECURITY CLOSURE → `fail_report_execution_job` is service_role-only in Staging and source.
+- TEST CLOSURE → security-definer contract now verifies the latest worker-only REVOKE/GRANT boundary and rejects any later authenticated/anon grant.
+- LIVE EVIDENCE → advisor authenticated SECURITY DEFINER count is 40 after this closure; no broad speculative revocations performed.
+- FRESH TEST EVIDENCE → targeted contract harness passes: historical authenticated grant followed by revoke is accepted; authenticated grant after revoke is rejected. Syntax parse passes.
+- CI → no exact-head Actions run registered at last poll for the latest functional SHA; no runtime PASS claimed.
+- DEVICE/EXTERNAL → PC01 offline; Auth leaked-password protection and Vercel free-plan limit remain external blockers.
+- NEXT → if no independent safe front can be proven without device, the only live certification gap is fresh exact-head CI plus device/external runtime evidence; do not transfer historical PASS.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / WORKER FAILURE RPC SECURITY BOUNDARY CLOSED
 
 - MAIN EXACT CONTROL HEAD BEFORE THIS WRITE → `a98dc4451b79544fde40f60680f8d52edd60e209`.
