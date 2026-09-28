@@ -1,5 +1,6 @@
-# RESUME TOKEN — 2026-09-28 / POST-RESCAN EXACT PRODUCT BATCH
+# RESUME TOKEN — 2026-09-28 / CERTIFICATION CANDIDATE REANCHORED
 
+- CURRENT CODE/TEST CANDIDATE → `43fcb31567c1ff00973a3f87ccabc554df08858f`.
 - LAST EXECUTED PRODUCT/UI FIX SHA → `d272feaceefed188c8ef9ad5365d4d3c541ddb96`.
 - FIXED → post-import journey numbering collision; Executive Report is now `07 · REPORTS`, Benchmark remains `06 · BENCHMARK`.
 - KNOWLEDGE STATE → canonical Session Memory and Master Execution Index were restored from the full 956/1082-line state and retained; no historical section was deleted.
