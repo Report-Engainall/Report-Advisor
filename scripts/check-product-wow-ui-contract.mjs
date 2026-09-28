@@ -68,6 +68,29 @@ assert.ok(importSurface.includes('onClick={reset}'), 'canonical import history e
 assert.ok(importSurface.includes('const [historyError, setHistoryError]'), 'canonical import history must preserve fetch failures instead of mapping them to an empty list');
 assert.ok(importSurface.includes('historyError?<ErrorState'), 'canonical import history must distinguish backend errors from an empty history');
 assert.ok(importSurface.includes('onRetry={() => void loadHistory()}'), 'canonical import history errors must retry in place');
+assert.ok(importSurface.includes('const [dragActive, setDragActive]'), 'canonical import must expose an active drag state');
+assert.ok(importSurface.includes('const handleDrop = useCallback((event: DragEvent<HTMLDivElement>)'), 'canonical import must implement a real drop handler');
+assert.ok(importSurface.includes('event.dataTransfer.files?.[0]'), 'canonical import drop handler must consume the dropped file');
+assert.ok(importSurface.includes('onDragEnter={'), 'canonical import dropzone must handle drag enter');
+assert.ok(importSurface.includes('onDragOver={'), 'canonical import dropzone must handle drag over');
+assert.ok(importSurface.includes('onDragLeave={'), 'canonical import dropzone must handle drag leave');
+assert.ok(importSurface.includes('onDrop={handleDrop}'), 'canonical import dropzone must bind the drop handler');
+assert.ok(importSurface.includes('role="button"') && importSurface.includes('tabIndex={0}'), 'canonical import dropzone must remain keyboard accessible');
+assert.ok(importSurface.includes('onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ')'), 'canonical import dropzone must support keyboard activation');
+assert.ok(importSurface.includes('فحص الثقة والأدلة'), 'canonical import completion must expose the trust/evidence next action');
+assert.ok(importSurface.includes('متابعة مسار القرار'), 'canonical import completion must expose the decision next action');
+assert.ok(importSurface.includes('القرار محجوب: الدليل غير مثبت بعد'), 'canonical import must fail closed before decision when the evidence snapshot is missing');
+assert.ok(importSurface.includes("evidence_state: snapshotId ? 'VERIFIED' : 'INSUFFICIENT DATA'"), 'canonical import must persist explicit evidence state in the completion summary');
+assert.ok(importSurface.includes('function detectSourceSpecialty(dataset: Dataset)'), 'canonical import must deterministically inspect source specialty');
+assert.ok(importSurface.includes('مبيعات|بيع|sales|sale'), 'source specialty detector must recognize sales evidence');
+assert.ok(importSurface.includes('اكتشاف تلقائي: {sourceSpecialty}'), 'canonical import must expose inferred source specialty in the review state');
+const fileLabSurface = fs.readFileSync('src/pages/ExternalFileAnalysisPage.tsx', 'utf8');
+assert.ok(fileLabSurface.includes('const [dragActive, setDragActive]'), 'file analysis lab must expose active drag state');
+assert.ok(fileLabSurface.includes('const handleDrop = useCallback((event: DragEvent<HTMLDivElement>)'), 'file analysis lab must implement a real drop handler');
+assert.ok(fileLabSurface.includes('onDrop={handleDrop}'), 'file analysis lab dropzone must bind the drop handler');
+assert.ok(fileLabSurface.includes('event.dataTransfer.files?.[0]'), 'file analysis lab must consume the dropped file');
+
+
 
 const entitiesSurface = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
 assert.ok(entitiesSurface.includes('const inventoryQueueEmpty = snapshot.totalRows === 0'), 'inventory page must use authoritative totalRows for source-empty state');

@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type DragEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, CheckCircle2, XCircle, AlertCircle, AlertTriangle, ShieldCheck, Loader2, ArrowLeft, LockKeyhole, FileCheck2, RefreshCw } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
@@ -17,17 +18,46 @@ import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-p
 type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
-function analyzeSourceUnderstanding(dataset: Dataset): { confidence: number; reason: string } {
+type SourceUnderstanding = {
+  confidence: number;
+  reason: string;
+  specialtyKey: 'sales' | 'purchases' | 'inventory' | 'customers' | 'products' | 'payments' | 'other';
+  specialtyLabel: string;
+};
+
+function detectSourceSpecialty(dataset: Dataset): { key: SourceUnderstanding['specialtyKey']; label: string; confidence: number } {
+  const fields = new Set(dataset.columns.map(column => column.mappedField).filter(Boolean));
+  const sampleText = dataset.rows.slice(0, 200).map(row => String(row.invoice_type ?? row['نوع الفاتورة'] ?? '')).join(' ');
+  const hasInvoiceCore = fields.has('invoice_number') && Boolean(fields.has('total') || fields.has('invoice_amount') || fields.has('net_amount'));
+  const hasParty = Boolean(fields.has('customer_name') || fields.has('customer_id'));
+  const salesWords = /(مبيعات|بيع|sales|sale)/i.test(sampleText);
+  const purchaseWords = /(مشتريات|شراء|purchases|purchase)/i.test(sampleText);
+
+  if (hasInvoiceCore && hasParty && salesWords) return { key: 'sales', label: 'تقرير مبيعات', confidence: 96 };
+  if (hasInvoiceCore && hasParty && purchaseWords) return { key: 'purchases', label: 'تقرير مشتريات', confidence: 96 };
+  if (hasInvoiceCore && hasParty) return { key: 'sales', label: 'تدفق فواتير/مبيعات', confidence: 84 };
+  if (fields.has('sku') && fields.has('quantity')) return { key: 'inventory', label: 'بيانات مخزون', confidence: 92 };
+  if ((fields.has('sku') || fields.has('product_name')) && (fields.has('price') || fields.has('cost_price'))) return { key: 'products', label: 'بيانات أصناف', confidence: 88 };
+  if (fields.has('customer_name') && (fields.has('phone') || fields.has('email') || fields.has('code'))) return { key: 'customers', label: 'بيانات عملاء', confidence: 90 };
+  if (fields.has('date') && (fields.has('amount') || fields.has('total'))) return { key: 'payments', label: 'حركة مالية', confidence: 72 };
+  return { key: 'other', label: 'مصدر عام', confidence: 55 };
+}
+
+function analyzeSourceUnderstanding(dataset: Dataset): SourceUnderstanding {
   const columnCount = dataset.columns.length;
   const mappedCount = dataset.columns.filter(column => Boolean(column.mappedField)).length;
   const mappingCoverage = columnCount ? mappedCount / columnCount : 0;
   const structuralScore = Math.min(100, Math.round(mappingCoverage * 100));
   const qualityScore = Math.max(0, Math.min(100, Math.round(dataset.qualityScore)));
   const rowSignal = dataset.rowCount > 0 ? 100 : 0;
-  const confidence = Math.min(99, Math.round((structuralScore * 0.5) + (qualityScore * 0.4) + (rowSignal * 0.1)));
-  if (confidence >= 75) return { confidence, reason: 'تم فهم بنية المصدر وحقوله بدرجة كافية لبناء سياقه العام دون فرض هوية أو نوع سجل مسبق.' };
-  if (confidence >= 50) return { confidence, reason: 'تمت قراءة المصدر وفهم جزء معتبر من بنيته؛ بعض الحقول تحتاج مراجعة قبل الاعتماد.' };
-  return { confidence, reason: 'تمت قراءة المصدر، لكن دقة الفهم البنيوي لا تزال محدودة ويجب مراجعة البيانات قبل الاعتماد.' };
+  const specialty = detectSourceSpecialty(dataset);
+  const confidence = Math.min(99, Math.round((structuralScore * 0.45) + (qualityScore * 0.35) + (rowSignal * 0.10) + (specialty.confidence * 0.10)));
+  const reason = confidence >= 75
+    ? `تم فهم بنية المصدر؛ الاكتشاف الدلالي يشير إلى «${specialty.label}» دون تحويل هذا الاكتشاف إلى هدف كتابة مسبق.`
+    : confidence >= 50
+      ? `تمت قراءة المصدر وفهم جزء معتبر من بنيته؛ الاكتشاف الدلالي الحالي: «${specialty.label}»، مع حاجة بعض الحقول إلى مراجعة.`
+      : `تمت قراءة المصدر، لكن الفهم البنيوي محدود؛ الاكتشاف الحالي «${specialty.label}» إشارة تحليلية فقط وليست اعتمادًا.`;
+  return { confidence, reason, specialtyKey: specialty.key, specialtyLabel: specialty.label };
 }
 const STEPS: Array<{ key: Step; label: string }> = [
   { key: 'upload', label: 'الملف' },
@@ -91,6 +121,7 @@ export function CanonicalImportPage() {
   const [step, setStep] = useState<Step>('upload');
   const [understandingConfidence, setUnderstandingConfidence] = useState(0);
   const [understandingReason, setUnderstandingReason] = useState('لم يبدأ تحليل المصدر بعد.');
+  const [sourceSpecialty, setSourceSpecialty] = useState('مصدر عام');
   const [file, setFile] = useState<{ name: string; size: number; format: FileFormat; mime: string } | null>(null);
   const [fileHash, setFileHash] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
@@ -107,6 +138,7 @@ export function CanonicalImportPage() {
   const [history, setHistory] = useState<any[]>([]);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedFileRef = useRef<File | null>(null);
 
@@ -126,7 +158,7 @@ export function CanonicalImportPage() {
   useEffect(() => { void loadHistory(); }, [loadHistory]);
 
   const handleFile = useCallback(async (selected: File) => {
-    setError(null); setWarnings([]); setDuplicate(false); setSecurityPassed(false); setQualityApproved(false); setStep('scanning');
+    setError(null); setWarnings([]); setDuplicate(false); setSecurityPassed(false); setQualityApproved(false); setSourceSpecialty('مصدر عام'); setStep('scanning');
     try {
       const buffer = await selected.arrayBuffer();
       const scan = securityScan(selected, buffer);
@@ -154,12 +186,21 @@ export function CanonicalImportPage() {
       const understanding = analyzeSourceUnderstanding(dataset);
       setUnderstandingConfidence(understanding.confidence);
       setUnderstandingReason(understanding.reason);
+      setSourceSpecialty(understanding.specialtyLabel);
       setRows(dataset.rows.map((data, i) => ({ rowNumber: i + 1, data, valid: true })));
       setStep('preview');
     } catch (e: any) {
       setError(e?.message || 'فشل قراءة الملف'); setStep('upload');
     }
   }, []);
+
+  const handleDrop = useCallback((event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragActive(false);
+    const droppedFile = event.dataTransfer.files?.[0];
+    if (droppedFile) void handleFile(droppedFile);
+  }, [handleFile]);
 
   const finishImportJob = async (
     importJobId: string,
@@ -267,6 +308,9 @@ export function CanonicalImportPage() {
         file_name: file.name,
         semantic_understanding_confidence: understandingConfidence,
         snapshot_id: snapshotId,
+        snapshot_available: Boolean(snapshotId),
+        evidence_state: snapshotId ? 'VERIFIED' : 'INSUFFICIENT DATA',
+        source_specialty_inferred: sourceSpecialty,
       });
 
       if (typeof window !== 'undefined') {
@@ -282,6 +326,8 @@ export function CanonicalImportPage() {
         jobId: execution.jobId,
         understandingConfidence,
         authoritativeQualityScore: Number(execution.authoritativeQualityScore ?? quality),
+        evidenceReady: Boolean(snapshotId),
+        sourceSpecialty,
       });
       setStep('done');
       await loadHistory();
@@ -308,12 +354,12 @@ export function CanonicalImportPage() {
       setStep('preview');
     }
   }, [
-    rows, file, fileHash, duplicate, securityPassed, quality,
-    qualityApproved, headers.length, mappings, warnings, understandingConfidence,
+    rows, file, fileHash, duplicate, securityPassed, quality, handleDrop,
+    qualityApproved, headers.length, mappings, warnings, understandingConfidence, sourceSpecialty,
     understandingReason, loadHistory,
   ]);
 
-  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); if (inputRef.current) inputRef.current.value = ''; };
+  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); setSourceSpecialty('مصدر عام'); if (inputRef.current) inputRef.current.value = ''; };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
@@ -339,7 +385,18 @@ export function CanonicalImportPage() {
           </div>
         </div>
       </div>
-      <div onClick={() => inputRef.current?.click()} className="ag-import-dropzone border-2 border-dashed rounded-[18px] p-10 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/20 transition-colors"><input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} /><Upload className="mx-auto text-primary-500 mb-3" size={30}/><h3 className="font-semibold">اختر ملفًا أو اسحبه إلى هنا</h3><p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p><p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB</p></div>
+      <div
+        onClick={() => inputRef.current?.click()}
+        onDragEnter={(event) => { event.preventDefault(); setDragActive(true); }}
+        onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = 'copy'; setDragActive(true); }}
+        onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragActive(false); }}
+        onDrop={handleDrop}
+        onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); inputRef.current?.click(); } }}
+        role="button"
+        tabIndex={0}
+        aria-label="رفع مصدر أو سحب ملف إلى هنا"
+        className={`ag-import-dropzone border-2 border-dashed rounded-[18px] p-10 text-center cursor-pointer transition-colors ${dragActive ? 'border-primary-500 bg-primary-50/40 ring-2 ring-primary-200' : 'hover:border-primary-400 hover:bg-primary-50/20'}`}
+      ><input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} /><Upload className="mx-auto text-primary-500 mb-3" size={30}/><h3 className="font-semibold">{dragActive ? 'أفلت الملف هنا للمتابعة' : 'اختر ملفًا أو اسحبه إلى هنا'}</h3><p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p><p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB</p></div>
       {error && <div className="mt-4 p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
     </CardBody></Card>}
 
@@ -357,7 +414,7 @@ export function CanonicalImportPage() {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <span className={understandingConfidence >= 75 ? 'badge-success' : understandingConfidence >= 50 ? 'badge-warning' : 'badge-neutral'}>ثقة الفهم {understandingConfidence || 0}%</span>
-              <span className="badge-neutral">تحليل تلقائي</span>
+              <span className="badge-neutral">اكتشاف تلقائي: {sourceSpecialty}</span>
             </div>
           </div>
         </CardBody>
@@ -388,7 +445,7 @@ export function CanonicalImportPage() {
 
     {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم اعتماد المصدر عبر مسار الحقيقة الكانونية العامة مع بصمته وسياقه وجودته، ولا يُعلن نجاح الاعتماد إلا بعد إتمام مسار الكتابة الفعلي.</p></div></CardBody></Card>}
 
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم اعتماد المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence ?? 0}%</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم اعتماد المصدر في طبقة البيانات الكانونية العامة مع بصمته وسياقه وجودته، دون فرض نوع سجل أو مسار استيراد متخصص.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
+    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم اعتماد المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence ?? 0}%</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم اعتماد المصدر في طبقة البيانات الكانونية العامة مع بصمته وسياقه وجودته، ولا تُعلن أي نتيجة قرار إضافية قبل وجود دليلها.</p><div className="w-full max-w-lg rounded-2xl border border-primary-100 bg-primary-50/50 p-4"><div className="text-[10px] font-black tracking-[.1em] text-primary-700">NEXT VERIFIED STEP</div><div className="mt-1 text-sm font-black text-ink-950">المصدر الآن يدخل مسار الأدلة أولًا؛ الانتقال للقرار لا يظهر إلا بعد إثبات الدليل.</div><div className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap"><Link to="/trust" className="btn-primary inline-flex items-center justify-center gap-2 text-xs">فحص الثقة والأدلة</Link>{snapshotId ? <Link to="/decision-experience?stage=evidence" className="btn-secondary inline-flex items-center justify-center gap-2 text-xs">متابعة مسار القرار</Link> : <span className="inline-flex items-center justify-center gap-2 rounded-xl border border-warning-200 bg-warning-50 px-3 py-2 text-[10px] font-black text-warning-800">القرار محجوب: الدليل غير مثبت بعد</span>}<button type="button" onClick={reset} className="btn-secondary inline-flex items-center justify-center gap-2 text-xs"><Upload size={14}/> تحليل ملف آخر</button></div></div></div></CardBody></Card>}
 
     <Card><CardHeader title="سجل الاستيرادات" subtitle="أحدث 500 عملية مرتبطة بحسابك، مع 50 صفًا في كل صفحة لتبقى القراءة سريعة؛ العمليات الأقدم تبقى محفوظة" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={historyError} onRetry={() => void loadHistory()} />:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد عمليات سابقة" message="لم يُثبت مصدر سابق لهذا الحساب بعد؛ ابدأ الآن من مدخل الاستيراد الموحد." action={<button type="button" onClick={reset} className="btn-primary text-[11px]"><Upload size={13}/> اختيار مصدر</button>}/>:<DataTable columns={[{key:'file_name',label:'المصدر'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مراجعة',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} pageSize={50} emptyMessage="لا توجد عمليات سابقة"/>}</Card>
   </div>;

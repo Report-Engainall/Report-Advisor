@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
 const STAGES = ['IMPORTED','VALIDATED','NORMALIZED','EVIDENCED','CANONICAL'];
@@ -24,5 +25,14 @@ assert.throws(() => advance({ ...r, stage:'IMPORTED' }, 'VALIDATED', { valid:fal
 assert.throws(() => advance({ ...r, stage:'NORMALIZED' }, 'EVIDENCED', { source_ref:'x' }), /EVIDENCE_PROVENANCE_REQUIRED/);
 assert.throws(() => advance({ ...r, stage:'EVIDENCED' }, 'CANONICAL', {}), /LINEAGE_REQUIRED/);
 assert.throws(() => advance({ id:'x', stage:'IMPORTED' }, 'VALIDATED', { valid:true }), /IDENTITY_REQUIRED/);
+
+const serverSurface = fs.readFileSync('netlify/functions/canonical-import-execute.mts', 'utf8');
+const evidenceInsertIndex = serverSurface.indexOf(".from('source_analysis_snapshots')");
+const canonicalCommitIndex = serverSurface.indexOf('runCanonicalImportThroughDurableRunner(');
+assert.ok(evidenceInsertIndex >= 0, 'canonical import server must persist an authoritative evidence snapshot');
+assert.ok(canonicalCommitIndex >= 0, 'canonical import server must run the durable canonical commit path');
+assert.ok(evidenceInsertIndex < canonicalCommitIndex, 'evidence snapshot must be persisted before canonical commit');
+assert.ok(serverSurface.includes('AUTHORITATIVE_EVIDENCE_PERSISTENCE_FAILED'), 'evidence persistence failure must fail closed');
+assert.ok(serverSurface.includes("status: 'failed'"), 'canonical import server must terminalize failed import jobs');
 
 console.log('import evidence contract: PASS');

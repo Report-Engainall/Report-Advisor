@@ -1,3 +1,39 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / EVIDENCE-BEFORE-COMMIT HARDENING
+
+- EXACT MAIN BASE → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- ACTIVE FRONT → `fix/20260928-canonical-import-dropzone`.
+- DONE IN SOURCE → real drag/drop intake; PDF multi-page tabular reconstruction; Arabic report-column mapping; deterministic source specialty inference; evidence-before-canonical-commit; fail-closed import-job terminalization.
+- LIVE STAGING → 150 processing/0 remain as historical debt; 125 have no file/source metadata; 25 have file-backed sources. No unsafe bulk mutation.
+- RELEASE BOUNDARY → Vercel current-head build-rate limit external; PC01 offline; no browser/production/device PASS transferred.
+- NEXT → terminal exact-head CI on the latest branch, then first current-SHA failure repair and legacy file-backed job causality review.
+
+---
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / SOURCE INTAKE + PDF TABLE + EVIDENCE GATE
+
+- EXACT MAIN BASE → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- CURRENT FUNCTIONAL FRONT → `fix/20260928-canonical-import-dropzone`; this branch is the sole active import UX/data front in this batch.
+- IMPLEMENTED → real drag/drop on Canonical Import and External File Analysis; PDF multi-page table reconstruction; Arabic sales-report header mapping; deterministic source-specialty inference; evidence-gated decision navigation.
+- SECURITY/TRUTH → no raw-data fabrication, no typed canonical write target inferred from weak evidence, provenance remains tenant/source/hash/document/evidence/lineage.
+- LIVE STAGING → 150 zero-progress processing jobs remain; 125 have no file record and empty summaries, aged 2026-09-14..2026-09-20. No destructive cleanup performed; 25 file-backed jobs remain for causal rescan.
+- CI/DEVICE/HOSTING → current branch gates queued; PC01 offline; hosted runtime not proven at current SHA.
+- NEXT → terminal exact-head CI result, then file-backed stuck-job causality, then Phase-F/runtime/security certification. Do not reuse stale evidence.
+
+---
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / IMPORT UX CONTINUITY REPAIRED
+
+- EXACT MAIN BASE → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- FUNCTIONAL FRONT → `fix/20260928-canonical-import-dropzone`; canonical import UI root repaired for real drag/drop and post-import next actions.
+- IMPLEMENTED → `CanonicalImportPage.tsx` now consumes dropped files through the existing security/detection/hash/tenant/parse pipeline.
+- IMPLEMENTED → successful canonical import exposes Trust/Evidence and Decision/Evidence next actions without claiming unsupported downstream business results.
+- CONTRACT → existing product-wow UI contract owns the regression; no duplicate upload-contract path remains.
+- CI → quality workflow now runs `npm run test:product-wow-ui` on exact head.
+- RELEASE/DEVICE → browser/device/production remain NOT PROVEN until current-SHA gates terminalize; PC01 offline; hosting external/pending.
+- NEXT → consume terminal exact-head result, repair first reproducible failure, then rescan import/data/evidence/decision/security fronts.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / LIVE POLICY PARITY CLOSED
 
 - MAIN CONTROL HEAD AT CHECKPOINT → memory/index updates are the only main changes in this batch.
