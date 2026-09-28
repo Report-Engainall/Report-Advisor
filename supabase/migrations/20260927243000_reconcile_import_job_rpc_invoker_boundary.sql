@@ -37,7 +37,7 @@ BEGIN
     IF p_file_name IS NULL OR btrim(p_file_name) = '' OR length(p_file_name) > 512 THEN
       RAISE EXCEPTION 'IMPORT_FILE_NAME_INVALID';
     END IF;
-    IF p_file_size IS NULL OR p_file_size <= 0 OR p_file_size > 104857600 THEN
+    IF p_file_size IS NULL OR p_file_size <= 0 OR p_file_size > 52428800 THEN
       RAISE EXCEPTION 'IMPORT_FILE_SIZE_INVALID';
     END IF;
     IF p_file_mime IS NULL OR p_file_mime NOT IN (
