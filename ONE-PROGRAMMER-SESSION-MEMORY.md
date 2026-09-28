@@ -1,3 +1,23 @@
+# RESUME TOKEN — 2026-09-29 / CORPUS RESTORED + REPORT_001 READY FOR CANONICAL IMPORT
+
+- EXACT HEAD BEFORE GOVERNANCE CHECKPOINT: `e58f0d7709e3d4707cf596cfc2ca1f42a37d1dad`.
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`.
+- CURRENT FRONT: REPORT-FIRST / REAL CORPUS EXECUTION.
+- REPORT CORPUS: 47 real report files restored from the repository's own historical canonical corpus commit `c8f2e55a13cf0effc5d9d9bcfa93575b0cab832c`; README is now an inventory of those actual files.
+- CORPUS PROOF: local exact-tree equivalent commit `d77ad0b2ce728d9217da9ced52a2d20362829178` executed `npm run test:report-corpus-gate` with `DECLARED=47 ACTUAL=48 MINIMUM=20` and PASS (48 includes README; 47 are report inputs). The same 47 historical blob objects are now on GitHub under `e58f0d...`.
+- CURRENT REPORT: REPORT_001 = deterministic first report by normalized path: `اعمار الديون للعملا.pdf`.
+- REPORT_001 RAW FINGERPRINT: SHA-256 `9996F169AAE09E31F909712CA4BE5ACE238C7A4F123B370D436A5F1A115EA099`; 275,288 bytes; PDF; 1 page.
+- REPORT_001 UNDERSTANDING: visible title `أعمار الديون للعملاء`; receivables/aging report; period `01/01/2026–30/06/2026`; report date `27/07/2026`; currency YER; aging buckets include 0–30, 31–60, 61–90, 91–120, >120; customer/account rows are present.
+- LAST COMPLETED STAGE: `UNDERSTAND` for the real source file. No canonical import, DB commit, decision or final UI success is claimed yet.
+- CANONICAL PATH: existing `/api/canonical-import-execute` + `runCanonicalImportThroughDurableRunner`; no fixture-specific importer/runner/RPC created.
+- REPORT RESULT SURFACE: existing `fetchCanonicalSourceReport` + `fetchReportExecutionTasks` + `SourceReportPage` already expose source hash, specialty, canonical rows and the nine durable stages; no parallel report surface needed.
+- REAL BLOCKERS STILL OPEN: authenticated canonical browser import has not yet been proven on REPORT_001; exact-current hosted/Phase-F runtime remains separate and must not be conflated with local authenticated E2E.
+- DO-NOT-REPEAT: do not re-run corpus discovery; do not recreate the 47 fixtures; do not inject report rows directly into DB; do not use synthetic CSV/fixtures in place of REPORT_001; do not claim CLOSED until canonical commit + nine tasks + rendered source report + proof.
+- RESUME POINT: authenticate against the dedicated Staging test user in the existing browser E2E environment, choose REPORT_001, upload the actual file, approve only after the UI's real quality/trust gate, then verify import_job → canonical rows/provenance → nine report_execution_tasks → source report.
+- NEXT EXACT ACTION: add a dedicated report-corpus browser E2E runner/workflow that uses the existing authenticated Staging secrets and processes exactly REPORT_001 through the existing canonical import UI path, then emits machine-readable proof and stops after this one report.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / EXACT CURRENT CHECKPOINT — REPORT CORPUS + PHASE-F BLOCKERS PROVEN
 
 - CHECKPOINT BEFORE WRITE SHA: `5e1133153fbbb7d5f3284bfa6d7085ce7ce9e2d5`.
