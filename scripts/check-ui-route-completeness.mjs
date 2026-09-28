@@ -157,6 +157,18 @@ for (const [pattern, message] of intelligenceTruthContract) {
   }
 }
 
+const entityPagesSource = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
+const entitySurfaceContract = [
+  [/export function CustomersPage/, 'Customers page must remain available'],
+  [/export function ProductsPage/, 'Products page must remain available'],
+  [/export function InventoryPage/, 'Inventory page must remain available'],
+  [/ReportSurfaceContext/g, 'Entity data-bearing surfaces must use canonical truth context'],
+];
+if (!entityPagesSource.includes('<ReportSurfaceContext')) {
+  console.error('FAIL entity pages truth context: shared ReportSurfaceContext is missing');
+  process.exitCode = 1;
+}
+
 const extendedCanonicalPages = [
   ['DashboardPage.tsx', 'Dashboard must expose the canonical truth context'],
   ['ReceivablesReportCanonicalPage.tsx', 'Canonical receivables report must expose the canonical truth context'],
