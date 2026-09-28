@@ -21,6 +21,9 @@ const executiveReportImportContract = [
   [/recommendations\.slice\(0, 6\)/, 'Executive report must render the context-selected recommendation set'],
   [/aria-label="سياق المصدر المستورد"/, 'Executive report must expose an import provenance/context surface'],
   [/REVIEW \/ NOT PROVEN/, 'Executive report must fail closed when the import context cannot be proven'],
+  [/سلسلة الأدلة والقرار والنتيجة/, 'Executive report must expose the evidence-to-outcome chain'],
+  [/EVIDENCE → DECISION → OUTCOME/, 'Executive report must expose the governed decision-output chain'],
+  [/قراءة عامة · غير مربوطة بالمصدر/, 'Import-bound report must not mislabel general signals as source-bound'],
 ];
 for (const [pattern, message] of executiveReportImportContract) {
   if (!pattern.test(executiveReportPage)) {
