@@ -68,7 +68,7 @@ for (const [pattern, message] of reportSurfaceContract) {
 }
 
 const domainReportsCount = (reportsCenterPage.match(/<ReportSurfaceContext/g) ?? []).length;
-if (domainReportsCount < 5) {
+if (domainReportsCount < 6) {
   console.error('FAIL reports center report-context contract: domain reports and Reports Center must expose the shared report truth context');
   process.exitCode = 1;
 }
