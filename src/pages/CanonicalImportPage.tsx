@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, CheckCircle2, XCircle, AlertCircle, AlertTriangle, ShieldCheck, Loader2, ArrowLeft, LockKeyhole, FileCheck2, RefreshCw, BrainCircuit, ClipboardCheck, BriefcaseBusiness, History } from 'lucide-react';
+import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, CheckCircle2, XCircle, AlertCircle, AlertTriangle, ShieldCheck, Loader2, ArrowLeft, LockKeyhole, FileCheck2, RefreshCw, BrainCircuit, ClipboardCheck, BriefcaseBusiness, History, Scale } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
@@ -599,7 +599,7 @@ export function CanonicalImportPage() {
     </div>
     <span className="inline-flex items-center gap-1 rounded-full bg-ink-50 px-2.5 py-1 text-[9px] font-black text-ink-500">SOURCE → DECISION → OUTCOME</span>
   </div>
-  <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+  <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
     <Link to={result.importId ? "/trust?import=" + encodeURIComponent(result.importId) : "/trust"} className="group rounded-[14px] border border-primary-100 bg-primary-50/60 p-3 transition hover:border-primary-300 hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
       <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-primary-700">01 · EVIDENCE</span><ShieldCheck size={14} className="text-primary-700" /></div>
       <div className="mt-2 text-[11px] font-black text-ink-900">الثقة والأدلة</div>
@@ -629,6 +629,12 @@ export function CanonicalImportPage() {
       <div className="mt-2 text-[11px] font-black text-ink-900">النتيجة والتعلّم</div>
       <div className="mt-1 text-[9px] leading-4 text-ink-500">يظهر Replay فقط من snapshots وoutcomes المحفوظة؛ غيابها يبقى INSUFFICIENT DATA.</div>
       <div className="mt-2 text-[9px] font-black text-primary-700">راجع Business Replay ←</div>
+    </Link>
+    <Link to="/benchmark" className="group rounded-[14px] border border-warning-100 bg-warning-50/55 p-3 transition hover:border-warning-300 hover:bg-warning-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+      <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-warning-800">06 · BENCHMARK</span><Scale size={14} className="text-warning-700" /></div>
+      <div className="mt-2 text-[11px] font-black text-ink-900">شبكة المقارنة</div>
+      <div className="mt-1 text-[9px] leading-4 text-ink-500">لا تُعرض مقارنة أو ترتيب دون عينة نظيرة ودليل كافٍ؛ الحالة الحالية INSUFFICIENT_SAMPLE وليست نتيجة.</div>
+      <div className="mt-2 text-[9px] font-black text-warning-800">عرض حالة المقارنة ←</div>
     </Link>
   </div>
 </section>
