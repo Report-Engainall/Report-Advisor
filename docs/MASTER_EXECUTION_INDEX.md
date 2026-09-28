@@ -1,18 +1,19 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / SECURITY + REPORT-EXECUTION SOURCE PARITY
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / SECURITY SOURCE PARITY + PHASE-F ISOLATION
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- CURRENT CODE/TEST CANDIDATE → `3b0f754f528bfc5a932fd794d06bcf666d744492`.
-- CURRENT REPOSITORY HEAD → this governance checkpoint will be a descendant of the exact code candidate; only governance changes follow.
-- SECURITY PARSER → `scripts/check-security-definer-exposure-contract.mjs` now uses a syntax-safe function-body parser, explicit empty/public/pg_catalog search-path recognition, and escaped function-name matching.
-- SECURITY SOURCE PARITY → `20260928213000_reconcile_live_security_definer_source_parity.sql` restores 13 verified Staging SECURITY DEFINER definitions across 12 names; applied successfully to Staging.
-- REPORT-EXECUTION SOURCE PARITY → `20260928220000_restore_report_execution_failure_rpc_source_parity.sql` restores the verified `fail_report_execution_job(uuid,uuid,text,uuid,jsonb)` source; applied successfully to Staging.
-- LIVE READBACK → `fail_report_execution_job` is SECURITY DEFINER with authenticated=true, service_role=true, anon=false, and fixed `public, pg_catalog` search_path.
-- PHASE-2 SECURITY SURFACE → the checker now treats an explicit empty `search_path` as fixed/safe because PostgreSQL resolves no implicit non-system schemas; public/pg_catalog remain accepted.
-- MIGRATION PROVENANCE → live history is 343 entries vs 274 repository migration files. Normalized name matching resolves only a partial subset; version IDs are not filename prefixes in many cases. No destructive reconciliation is permitted without exact lineage/source proof.
-- VERCEL/PHASE-F → production `https://report-advisor.vercel.app/api/tenant-canary` currently returns HTTP 503 `operational_token_not_configured`; current Vercel connector exposes deployment inspection but not environment-variable mutation, so this remains an external platform blocker, not a device blocker.
-- DEVICE → PC01 remains isolated; no device-dependent work was used to justify any repository claim.
-- NEXT EXECUTABLE ACTION → consume terminal CI for `3b0…`; if the code contracts pass, persist only a governance descendant and rescan. Phase-F remains fail-closed until production/runtime prerequisites are actually restored.
-- DO NOT REPEAT → stale candidate hashes, blanket index drops, migration deletion/squash, blanket SECURITY DEFINER revokes, or device polling.
+- CURRENT CODE/TEST CANDIDATE → `068ea6b2339be6e643041d33ca7c11903f55108a`.
+- CURRENT REPOSITORY HEAD → `068ea6b2339be6e643041d33c7c11903f55108a`.
+- CLOSED IN THIS EXECUTION BATCH → security-definer parser root-cause repair; explicit empty-search_path classification; `fail_report_execution_job` source parity restoration; Staging applications and live privilege/readback; parser regression guard wired into the Security DEFINER workflow.
+- LIVE SECURITY PROOF → 40 unique authenticated SECURITY DEFINER advisor findings are classified; restored `fail_report_execution_job` is SECURITY DEFINER, authenticated/service_role execute=true, anon=false, fixed `public, pg_catalog` search_path.
+- PHASE-2 CONTRACT → accepts explicit empty/public/pg_catalog search paths. This is an intentional static-contract clarification, not a privilege relaxation.
+- MIGRATION PROVENANCE → live history 343 vs repo 274; normalized matching is partial and version values are not filename prefixes. No destructive cleanup is authorized without exact lineage proof.
+- PERFORMANCE CLEANUP → 80 unused-index INFO findings remain; an exact duplicate-index query returned zero duplicate definitions. No speculative drops.
+- AUTH → leaked-password protection remains a platform Auth setting; Supabase docs state it is available on Pro+ and the connected mutation surface exposes no Auth-setting write.
+- PHASE-F → repo-side logical restore currently depends on `supabase start` + `db reset`; current Supabase docs state `db reset` requires the full local stack. Therefore the prior image-pull failure cannot be truthfully removed by changing only the command to `db start`. Remaining failures are deployment/runtime prerequisites.
+- VERCEL → production `/api/tenant-canary` currently returned HTTP 503 `operational_token_not_configured`; latest Vercel project inspection also shows PR branch deployments blocked by the free-plan build-rate-limit status. No connected environment-variable/promote mutation is exposed.
+- DEVICE → PC01 remains unavailable; no non-device closure relies on it.
+- NEXT EXECUTABLE ACTION → consume terminal CI for current code candidate `068ea…`; only fix reproducible failures. After terminal proof, persist a governance-only descendant if needed.
+- DO NOT REPEAT → stale PASS transfer, blanket SECURITY DEFINER revokes, destructive migration history cleanup, speculative index drops, or device polling.
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / Aghbari SALES-REPORT READINESS + EXACT SAVE-BLOCKER DIAGNOSTICS
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
