@@ -542,6 +542,16 @@ for (const [name, surface] of Object.entries(reportOutputSurfaces)) {
     throw new Error(`import-capable report output surface missing canonical source context: ${name}`);
   }
 }
+const analyticsPage = fs.readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
+if (!analyticsPage.includes('withImportContext') || !analyticsPage.includes("'/decision-experience'") || !analyticsPage.includes("'/trust'") || !analyticsPage.includes("'/reports'")) {
+  throw new Error('Analytics action bar must preserve import context across Decision/Trust/Reports navigation');
+}
+if (!reportOutputSurfaces.demand.includes('withImportContext(nextAction.to)')) {
+  throw new Error('Demand Velocity next action must preserve import context');
+}
+if (!reportOutputSurfaces.liquidity.includes('withImportContext(nextAction.to)')) {
+  throw new Error('Liquidity next action must preserve import context');
+}
 
 assert.ok(reportsSurface.includes('طباعة'), 'reports must preserve a visible print capability');
 assert.ok(trustEvidence.includes('Evidence Passport'), 'trust surface must expose the Evidence Passport capability');
