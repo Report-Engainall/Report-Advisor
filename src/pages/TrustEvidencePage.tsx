@@ -75,6 +75,18 @@ export function TrustEvidencePage() {
     return 'VERIFIED' as const;
   }, [sourceSnapshot, criticalIssueTotal]);
   const effectiveStatus = importJobId ? sourceEvidenceStatus : status;
+  const truthContextStatus: ReportTruthStatus =
+    effectiveStatus === 'OK' || effectiveStatus === 'VERIFIED'
+      ? 'VERIFIED'
+      : effectiveStatus === 'TRUSTED'
+        ? 'TRUSTED'
+        : effectiveStatus === 'PARTIAL'
+          ? 'PARTIAL'
+          : effectiveStatus === 'REVIEW'
+            ? 'REVIEW'
+            : effectiveStatus === 'BLOCKED'
+              ? 'BLOCKED'
+              : 'INSUFFICIENT DATA';
   const statusLabel = effectiveStatus === 'OK'
     ? 'الحالة قابلة للاستخدام'
     : effectiveStatus === 'EMPTY'
@@ -105,7 +117,7 @@ export function TrustEvidencePage() {
     <ReportSurfaceContext
       period="الحالة الحالية"
       asOf={new Date().toISOString().slice(0, 10)}
-      status={((effectiveStatus === 'VERIFIED' || effectiveStatus === 'TRUSTED' || effectiveStatus === 'PARTIAL' || effectiveStatus === 'REVIEW' || effectiveStatus === 'BLOCKED' || effectiveStatus === 'INSUFFICIENT DATA') ? effectiveStatus : 'INSUFFICIENT DATA') as ReportTruthStatus}
+      status={truthContextStatus}
       sourceLabel={importJobId ? 'سياق الثقة مرتبط بعملية الاستيراد المحددة؛ لا يتم تحويل غياب Evidence Passport إلى نجاح.' : 'حالة الثقة تقرأ من المصدر الحالي للمستأجر، مع إبقاء الفجوات والحالات المحجوبة صريحة.'}
     />
     <PageHeader
