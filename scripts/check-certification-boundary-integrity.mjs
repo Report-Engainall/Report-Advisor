@@ -53,6 +53,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     'scripts/real-business-e2e.mjs',
     'scripts/run-full-product-browser-e2e.mjs',
     'docs/SYSTEM_HEART.md',
+    'docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md',
     'docs/EXECUTION_ENFORCEMENT_PROTOCOL.md',
     '.github/workflows/quality.yml',
     '.github/workflows/execution-enforcement-contract.yml',
