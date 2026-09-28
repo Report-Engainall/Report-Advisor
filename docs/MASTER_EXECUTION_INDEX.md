@@ -1,4 +1,13 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / WORK CENTER TRUTH CONTEXT CLOSURE — FUNCTIONAL CANDIDATE 5cfbc39
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / OUTCOME + BENCHMARK TRUTH CONTEXT CLOSURE — FUNCTIONAL CANDIDATE 1ddc45c
+
+- FUNCTIONAL/UI CANDIDATE → `1ddc45ca95d166345b78f60f4961f23fa92f8eeb`.
+- CLOSED → Business Replay truth context + persisted-outcome gate; Benchmark truth context + peer-sample gate.
+- CONTRACT → route completeness guards both surfaces and full truth vocabulary.
+- SOURCE PROOF → static assertions pass.
+- EXTERNAL/DEVICE → Vercel rate-limit and PC01 offline remain isolated; public preview auth boundary prevents authenticated browser certification.
+- NEXT → exact-head terminal gates when available; otherwise next safe non-device surface.
+
+
 
 - FUNCTIONAL/UI CANDIDATE → `5cfbc39b3e1f4ab93a5d2783243ed2e8a91daf48`.
 - CLOSED → Work Center shared truth context, explicit operational truth state, and lease-health binding.
