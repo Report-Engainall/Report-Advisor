@@ -1,3 +1,15 @@
+# RESUME TOKEN — 2026-09-28 / EXACT IMPORT RECOVERY GOVERNANCE CHECKPOINT
+
+- CURRENT REPOSITORY HEAD → `ae0ab8ce8d3036e2e0beb95b67951359e0788c2e` (active branch checkpoint before this persistence write).
+- CURRENT CODE/TEST CANDIDATE → `2f41eaff8c0bfde9abb48607354e9c2c1e5f7ea3`.
+- ACTIVE EXECUTION FRONTS → import drop/recovery; native PDF table extraction; canonical source understanding and quality; import commit/readback; authenticated browser; certification/enforcement; Phase-F resilience; tenant/security/data truth; cleanup.
+- OPEN BLOCKERS → Phase-F live deployment SHA mismatch + backup/restore image pull failure + rollback-forward 503; PC01 is offline; hosted production certification remains fail-closed. No blocker stops independent repository/GitHub/Supabase/security/data work.
+- LAST PROVEN → exact code/test candidate `2f41eaff8c0bfde9abb48607354e9c2c1e5f7ea3`: PDF structured parser regression PASS; data-quality-runtime PASS; production-regression-evidence PASS; certification boundary PASS; storage/security/import contracts PASS where terminal.
+- LAST FAILED → Execution Enforcement Contract failed only on the resume-token schema; Quality/Final Certification/Phase-F runs on the prior governance state were either blocked by the same boundary or by the external Phase-F runtime probes. No new product-code defect has been reproduced after the governance repair.
+- NEXT EXECUTABLE ACTION → rerun exact-head enforcement/quality/final-certification against the current governance descendant; consume only the first terminal current-head failure.
+- NEXT INDEPENDENT ACTIONS → continue Phase-F isolation, Supabase security/data readback, authenticated import/browser evidence, report execution lifecycle, migration replay/provenance, and cleanup without waiting for device or hosted production.
+- DO NOT REPEAT → stale-SHA evidence; duplicate importers/RPCs/runners; repeated unchanged CI polling; preview-as-production claims; broad SECURITY DEFINER revokes; cleanup deletion without Manifest/dependency proof.
+
 # RESUME TOKEN — 2026-09-28 / IMPORT RECOVERY CHECKPOINT
 
 - CURRENT REPOSITORY HEAD: `ae0ab8ce8d3036e2e0beb95b67951359e0788c2e` (last proven repository checkpoint before this memory write).
