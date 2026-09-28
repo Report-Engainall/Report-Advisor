@@ -3,7 +3,7 @@
 > This top block is the only startup boundary.
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- FUNCTIONAL FRONT → PR #672 / branch `exec/20260927-current-main-import-ui-rebased` / exact code candidate `fb93663b19bbdaa3ab161f0068a47fbd07161ce7`.
+- CURRENT CODE/TEST CANDIDATE → `fb93663b19bbdaa3ab161f0068a47fbd07161ce7` (PR #672 / branch `exec/20260927-current-main-import-ui-rebased`).
 - CODE RELATION → candidate is based directly on current main; no rebase gap remains.
 - EXACT LOCAL PROOF ON `fb93663b19bbdaa3ab161f0068a47fbd07161ce7` → `npm run typecheck` PASS; `npm run build` PASS (2802 modules); UI route/sidebar parity PASS (41 routes / 38 canonical links); Phase-3 data-import truth PASS; Phase-F runtime closure PASS; execution-enforcement PASS (33 mandatory rules); SECURITY DEFINER exposure contract PASS.
 - EXACT CI PROOF → `desktop-windows` run `36362650146` SUCCESS on `fb93663b19bbdaa3ab161f0068a47fbd07161ce7`, including web build, native watcher/runtime smoke, Windows installer packaging and artifact upload.
