@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / WORKER FAILURE RPC SECURITY BOUNDARY CLOSED
+
+- MAIN EXACT CONTROL HEAD BEFORE THIS WRITE → `a98dc4451b79544fde40f60680f8d52edd60e209`.
+- FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `be0a64b01217ff16a53ef5d196e5613fb175cfa7`.
+- SECURITY IMPLEMENTATION → restricted `fail_report_execution_job` to service_role only via `20260928230000_restrict_report_execution_failure_worker_rpc.sql`.
+- LIVE PROOF → Staging applied the migration; readback confirms authenticated=false, anon=false, service_role=true while the function remains SECURITY DEFINER.
+- ADVISOR PROOF → authenticated SECURITY DEFINER warnings reduced 41 → 40. Remaining 40 are not blanket-removal targets without caller/contract proof. Leaked-password protection remains an external Auth setting.
+- SOURCE PROOF → exact branch migration contract PASS.
+- CI → new SHA had not yet produced a registered Actions run at last poll; no runtime PASS transferred or claimed.
+- DEVICE/RELEASE → PC01 offline; Vercel build-rate limit external; hosted/browser/device certification remains NOT PROVEN.
+- NEXT EXECUTABLE ACTION → continue independent safe fronts; consume first terminal exact-`be0a64...` CI result when present, repair only the first current-SHA reproducible failure, then persist/rescan.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / CI DUPLICATION CLOSED + BENCHMARK UI CONTINUITY
 
 - EXACT MAIN CONTROL HEAD AT START → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
