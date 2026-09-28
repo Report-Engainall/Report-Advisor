@@ -1,3 +1,19 @@
+# RESUME TOKEN — 2026-09-28 / CERTIFICATION PARSER + PHASE-F CONTRACT ROOTS CLOSED
+
+- CURRENT REPOSITORY HEAD → `fda2a8eae8e2a85810ae39afc850fe339ef31b5f`
+- CURRENT CODE/TEST CANDIDATE → `fda2a8eae8e2a85810ae39afc850fe339ef31b5f`
+- ACTIVE EXECUTION FRONTS → Security Definer Exposure, Execution Enforcement, Final Certification, Quality/Lint, Phase-F resilience, UI/Import truth.
+- OPEN BLOCKERS → fresh exact-SHA CI; Vercel free-plan build-rate limit; PC01 offline; Supabase Auth leaked-password protection external.
+- LAST PROVEN → Execution Enforcement main contract and adversarial suites passed on `a5409154...`; Full Product Browser E2E and Device-Independent Browser E2E passed on prior candidate; desktop/tenant/data gates passed.
+- LAST FAILED ROOTS CLOSED → malformed enforcement test literal; certification startup-boundary parser regression; Phase-F customer-resolver contract incorrectly requiring staff resolver reuse; worker RPC privilege ordering.
+- LIVE SECURITY PROOF → `fail_report_execution_job` authenticated=false, anon=false, service_role=true in Staging.
+- NEXT EXECUTABLE ACTION → consume first terminal `fda2a8ea...` CI failure; repair only current-SHA reproducible root.
+- NEXT INDEPENDENT ACTIONS → continue repository-safe UI/data/security work independent of device/hosting.
+- DO NOT REPEAT → stale evidence transfer, duplicate import paths, blanket SECURITY DEFINER revokes, production/device claims.
+- MAIN REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`; PR #672 remains 0-behind from the reanchor.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / ENFORCEMENT TEST PARSE ROOT CLOSED
 
 - CURRENT REPOSITORY HEAD → `a540915475ac9423ded85099f54cf8600078c805`
