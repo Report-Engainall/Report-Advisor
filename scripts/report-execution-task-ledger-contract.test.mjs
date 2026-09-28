@@ -14,5 +14,5 @@ for (const token of ['activeTask','store.startTask','store.completeTask','store.
 for (const token of ["mode === 'enqueue'",'enqueue_report_execution_job','payload.durableJobId','REPORT_EXECUTION_JOB_SOURCE_HASH_MISMATCH']) assert.ok(server.includes(token), `missing authoritative queue boundary: ${token}`);
 for (const token of ['enqueueCanonicalImportForExecution',"mode === 'enqueue'",'durableJobId?: string']) assert.ok(adapterBoundary.includes(token), `missing browser orchestration boundary: ${token}`);
 for (const token of ['ReportExecutionTaskRecord','fetchReportExecutionTasks']) assert.ok(queries.includes(token), `missing task readback contract: ${token}`);
-for (const token of ['LIVE EXECUTION REPORT','توزيع المهام الفعلي بعد السحب','EXECUTION REPORT','تقرير ما حدث فعليًا بعد السحب','fetchReportExecutionTasks','enqueueCanonicalImportForExecution']) assert.ok(ui.includes(token), `missing visible post-upload execution report: ${token}`);
+for (const token of ['LIVE EXECUTION REPORT','تفكيك التنفيذ الفعلي إلى 9 مهام بعد السحب','EXECUTION REPORT','تقرير ما حدث فعليًا بعد السحب','fetchReportExecutionTasks','enqueueCanonicalImportForExecution']) assert.ok(ui.includes(token), `missing visible post-upload execution report: ${token}`);
 console.log('Report execution task ledger contract: PASS');
