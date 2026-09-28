@@ -108,3 +108,73 @@ export async function fetchWorkerHealthSnapshot(): Promise<WorkerHealthSnapshot>
     activeReadComplete: activeTotal <= activeRows.length,
   };
 }
+export type CanonicalSourceReportRow = {
+  id:string;
+  source_hash:string;
+  semantic_domain:string;
+  row_number:number;
+  record_key:string;
+  data:Record<string,unknown>;
+  provenance:Record<string,unknown>;
+};
+export type CanonicalSourceReport = {
+  importId:string;
+  companyId:string;
+  fileName:string;
+  status:string;
+  entityType:string;
+  specialty:string;
+  specialtyLabel:string;
+  specialtyConfidence:number|null;
+  specialtyEvidence:string[];
+  sourceHash:string|null;
+  totalRows:number|null;
+  validRows:number|null;
+  invalidRows:number|null;
+  committedRows:number|null;
+  createdAt:string|null;
+  completedAt:string|null;
+  canonicalRows:CanonicalSourceReportRow[];
+  canonicalRowsTotal:number;
+};
+
+export async function fetchCanonicalSourceReport(importJobId:string):Promise<CanonicalSourceReport>{
+  if(!importJobId.trim()) throw new Error('IMPORT_JOB_ID_REQUIRED');
+  const companyId=await resolveCurrentCompanyId();
+  if(!companyId) throw new Error('TENANT_REQUIRED');
+  const {data:job,error:jobError}=await supabase
+    .from('import_jobs')
+    .select('id,company_id,job_type,status,total_rows,valid_rows,invalid_rows,result_summary,created_at,completed_at')
+    .eq('id',importJobId).eq('company_id',companyId).maybeSingle();
+  if(jobError) throw jobError;
+  if(!job) throw new Error('IMPORT_JOB_NOT_FOUND_OR_FORBIDDEN');
+  const summary=(job.result_summary??{}) as Record<string,unknown>;
+  const entityType=String(summary.canonical_entity_type??job.job_type??'generic:source-data');
+  const {data:rows,count,error:rowsError}=await supabase
+    .from('canonical_dataset_records')
+    .select('id,source_hash,semantic_domain,row_number,record_key,data,provenance',{count:'exact'})
+    .eq('company_id',companyId).eq('import_job_id',importJobId)
+    .order('row_number',{ascending:true}).range(0,49);
+  if(rowsError) throw rowsError;
+  const canonicalRows=((rows??[]) as CanonicalSourceReportRow[]);
+  return {
+    importId:job.id,
+    companyId,
+    fileName:String(summary.file_name??entityType),
+    status:String(job.status??'unknown'),
+    entityType,
+    specialty:String(summary.specialty??'other'),
+    specialtyLabel:String(summary.specialty_label??'مصدر عام'),
+    specialtyConfidence:summary.specialty_confidence==null?null:Number(summary.specialty_confidence),
+    specialtyEvidence:Array.isArray(summary.specialty_evidence)?summary.specialty_evidence.map(String):[],
+    sourceHash:typeof summary.source_hash==='string'?summary.source_hash:(canonicalRows[0]?.source_hash??null),
+    totalRows:job.total_rows==null?null:Number(job.total_rows),
+    validRows:job.valid_rows==null?null:Number(job.valid_rows),
+    invalidRows:job.invalid_rows==null?null:Number(job.invalid_rows),
+    committedRows:summary.committed==null?null:Number(summary.committed),
+    createdAt:job.created_at??null,
+    completedAt:job.completed_at??null,
+    canonicalRows,
+    canonicalRowsTotal:count??canonicalRows.length,
+  };
+}

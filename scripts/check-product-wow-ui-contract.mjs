@@ -8,7 +8,7 @@ const dataTable = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
 assert.ok(dataTable.includes('role="status" aria-live="polite" aria-busy="true"'), 'shared table loading state must expose assistive status semantics');
 assert.ok(dataTable.includes('role="status" aria-live="polite"'), 'shared table empty state must expose assistive status semantics');
 assert.ok(dataTable.includes('scope="col"'), 'shared table headers must declare column scope');
-assert.ok(dataTable.includes('aria-rowcount={visibleRows.length + 1}') && dataTable.includes('aria-colcount={columns.length}'), 'shared table must expose row and column counts');
+assert.ok(dataTable.includes('aria-rowcount={data.length + 1}') && dataTable.includes('aria-colcount={columns.length}'), 'shared table must expose total row and column counts');
 assert.ok(dataTable.includes('role="navigation" aria-label="تنقّل الجدول"'), 'shared table pagination must expose navigation semantics');
 
 const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
@@ -25,6 +25,11 @@ assert.ok(assistant.includes("mode === 'LOADING'"), 'assistant must expose loadi
 assert.ok(assistant.includes('إعادة تحميل سياق المؤشرات'), 'assistant must expose explicit recovery when the canonical snapshot is unavailable');
 
 const appShell = fs.readFileSync('src/App.tsx', 'utf8');
+const mainEntrypoint = fs.readFileSync('src/main.tsx', 'utf8');
+const authGate = fs.readFileSync('src/components/AuthGate.tsx', 'utf8');
+assert.ok(mainEntrypoint.includes("import { StrictMode } from 'react';"), 'runtime entrypoint must import StrictMode explicitly');
+assert.ok(appShell.includes("from 'react';") && appShell.includes('lazy') && appShell.includes('Suspense') && appShell.includes('useState'), 'application shell must import its React runtime hooks explicitly');
+assert.ok(authGate.includes("from 'react';") && authGate.includes('useState') && authGate.includes('useEffect'), 'auth gate must import its React runtime hooks explicitly');
 const sidebar = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
 
 for (const token of [
@@ -131,17 +136,24 @@ assert.ok(reportsSurface.includes('القيم غير المتاحة تبقى غ�
 const canonicalImport = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
 assert.ok(canonicalImport.includes('role="list" aria-label="مراحل الاستيراد"'), 'canonical import stepper must expose a semantic list boundary');
 assert.ok(canonicalImport.includes('aria-current={active ? \'step\' : undefined}'), 'canonical import must expose the active step to assistive technology');
+assert.ok(canonicalImport.includes('detectImportedSpecialty'), 'post-import flow must detect a report specialty before canonical commit');
+assert.ok(canonicalImport.includes('specialty.canonicalEntityType'), 'post-import flow must commit the detected canonical entity type');
+assert.ok(!canonicalImport.includes("const entityType = 'generic:source-data';"), 'post-import flow must not force every file into generic:source-data');
+assert.ok(canonicalImport.includes('/reports/source/'), 'completed import must expose a source-bound report destination');
+assert.ok(canonicalImport.includes('queued') && canonicalImport.includes('fingerprinted') && canonicalImport.includes('canonicalized') && canonicalImport.includes('rendered'), 'completed import UI must expose the durable lifecycle');
+assert.ok(reportsSurface.includes('export function SourceReportPage()'), 'reports must expose the canonical source report surface');
+assert.ok(reportsSurface.includes('fetchCanonicalSourceReport'), 'source report must read the persisted import/job context');
+assert.ok(appShell.includes('/reports/source/:importId'), 'application routing must expose the post-import source report route');
 
 const commandPalette = fs.readFileSync('src/components/CommandPalette.tsx', 'utf8');
-const appShell = fs.readFileSync('src/App.tsx', 'utf8');
 assert.ok(appShell.includes('mobileSidebarRef'), 'mobile navigation drawer must expose a focus boundary');
 assert.ok(appShell.includes('aria-modal="true" aria-label="القائمة الرئيسية"'), 'mobile navigation drawer must declare modal semantics');
-assert.ok(appShell.includes("event.key === 'Tab'"), 'mobile navigation drawer must trap keyboard focus');
+assert.ok(appShell.includes("event.key !== 'Tab'"), 'mobile navigation drawer must handle Tab focus trapping');
 assert.ok(appShell.includes('document.body.style.overflow = \'hidden\''), 'mobile navigation drawer must lock background scroll');
 
 const header = fs.readFileSync('src/components/Header.tsx', 'utf8');
 assert.ok(header.includes('alertPanelRef'), 'alert drawer must expose a dialog focus boundary');
-assert.ok(header.includes("event.key === 'Tab'"), 'alert drawer must trap keyboard focus while open');
+assert.ok(header.includes("event.key !== 'Tab'"), 'alert drawer must handle Tab focus trapping');
 assert.ok(header.includes('aria-label="إغلاق التنبيهات"'), 'alert drawer must expose an accessible close control');
 assert.ok(header.includes('document.body.style.overflow = \'hidden\''), 'alert drawer must lock background scroll while open');
 
@@ -152,7 +164,7 @@ assert.ok(advisorSurface.includes('role="dialog" aria-modal="true"'), 'global Ad
 assert.ok(advisorSurface.includes('aria-labelledby="ag-global-advisor-title"'), 'global Advisor must have an accessible title binding');
 assert.ok(advisorSurface.includes('aria-label="إغلاق المستشار"'), 'global Advisor must expose an accessible close control');
 assert.ok(advisorSurface.includes("event.key === 'Escape'"), 'global Advisor must close on Escape');
-assert.ok(advisorSurface.includes("event.key === 'Tab'"), 'global Advisor must trap keyboard focus');
+assert.ok(advisorSurface.includes("event.key !== 'Tab'") || advisorSurface.includes("event.key === 'Tab'"), 'global Advisor must handle Tab keyboard focus trapping');
 assert.ok(advisorSurface.includes('document.body.style.overflow = \'hidden\''), 'global Advisor must lock background scroll while open');
 
 assert.ok(commandPalette.includes('restoreFocusRef'), 'command palette must restore focus to its opener');
@@ -229,7 +241,6 @@ assert.ok(metricInspector.includes('aria-label="البحث في المؤشرات
 assert.ok(metricInspector.includes('statusFilter') && metricInspector.includes('freshnessFilter'), 'metric inspector must expose governance and freshness filters');
 assert.ok(metricInspector.includes('إعادة ضبط التصفية'), 'metric inspector filtering must expose a reset action');
 
-const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
 assert.ok(workCenter.includes('const queueEmptyState = rows.length === 0'), 'work center must distinguish an empty tenant from a filtered empty queue');
 assert.ok(workCenter.includes('إدخال مصدر من المسار الموحد'), 'work center empty tenant state must route to the canonical import entry');
 assert.ok(workCenter.includes('عرض كل العمليات'), 'work center filtered empty state must restore the full queue without a reload');

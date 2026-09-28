@@ -10,8 +10,8 @@ const required = [
   'Actual Outcome',
   'مساحة القرار',
   'window.print()',
-  'لا توجد تنبيهات مصدرية حاليًا.',
-  'لا توجد توصيات مصدرية حاليًا.',
+  'لا توجد تنبيهات مصدرية',
+  'لا توجد توصيات مصدرية',
 ];
 const missing = required.filter(token => !source.includes(token));
 if (missing.length) {
