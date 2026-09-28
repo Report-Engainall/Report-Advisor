@@ -1,5 +1,7 @@
 name: report-execution-gate
 on:
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -19,5 +21,7 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Report execution foundation
         run: npm run test:report-execution-foundation
+      - name: Durable post-upload task ledger
+        run: npm run test:report-execution-task-ledger
       - name: Typecheck
         run: npm run typecheck
