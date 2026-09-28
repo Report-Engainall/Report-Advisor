@@ -141,6 +141,20 @@ for (const [pattern, message] of intelligenceTruthContract) {
   }
 }
 
+const scenarioTruthGuardPage = fs.readFileSync('src/pages/ScenarioTruthGuardPage.tsx', 'utf8');
+const scenarioTruthContract = [
+  [/ReportSurfaceContext/, 'Scenario Truth Guard must expose the canonical truth context'],
+  [/status="BLOCKED"/, 'Scenario Truth Guard must preserve the blocked state before financial truth is ready'],
+  [/asOf={financials\.asOf}/, 'Scenario calculator must carry the source snapshot As Of'],
+  [/FINANCIAL_TRUTH_INSUFFICIENT_DATA/, 'Scenario Truth Guard must preserve the financial truth fail-closed error'],
+];
+for (const [pattern, message] of scenarioTruthContract) {
+  if (!pattern.test(scenarioTruthGuardPage)) {
+    console.error(`FAIL scenario truth context: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
 const businessReplayPage = fs.readFileSync('src/pages/BusinessReplayPage.tsx', 'utf8');
 const businessReplayTruthContract = [
   [/ReportSurfaceContext/, 'Business Replay must expose the canonical truth context'],
