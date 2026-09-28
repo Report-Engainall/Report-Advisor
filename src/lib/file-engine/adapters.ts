@@ -288,7 +288,7 @@ function groupPdfTextLines(items: PdfTextItem[], yTolerance = 2.5): PdfTextItem[
   return lines.map((line) => line.slice().sort((a, b) => Number(a.transform[4]) - Number(b.transform[4])));
 }
 function headerWindow(line: PdfTextItem[], index: number): { key: string; label: string; size: number } | null {
-  for (const size of [3, 2, 1]) for (const direction of [1, -1]) {
+  for (const size of [5, 4, 3, 2, 1]) for (const direction of [1, -1]) {
     const indexes = Array.from({ length: size }, (_, offset) => index + offset * direction);
     if (indexes.some((value) => value < 0 || value >= line.length)) continue;
     const parts = indexes.map((value) => line[value].str);
