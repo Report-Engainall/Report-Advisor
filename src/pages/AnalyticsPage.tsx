@@ -9,6 +9,7 @@ import { SimpleBarChart } from '@/components/ui/Charts';
 import { fetchRFMSnapshot, fetchABCSnapshot, fetchAgingSnapshot, type RFMSnapshotRow, type ABCSnapshotRow, type AgingSnapshotRow } from '@/lib/dashboard-canonical';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
+import { SourceBoundReportContext } from '@/components/SourceBoundReportContext';
 
 const analyticsCards = [
   { path: '/analytics/rfm', title: 'تحليل RFM للعملاء', desc: 'تصنيف العملاء حسب الحداثة والتكرار والقيمة', icon: Users, color: 'primary' },
@@ -95,7 +96,7 @@ export function AnalyticsCenterPage() {
           </div>
         </div>
       </section>
-      <AnalyticsActionBar />
+      <SourceBoundReportContext /><AnalyticsActionBar />
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {analyticsCards.map((item) => {
           const Icon = item.icon;
