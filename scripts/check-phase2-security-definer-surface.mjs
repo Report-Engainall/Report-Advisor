@@ -1,9 +1,12 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
+const allMigrationFiles = execFileSync('git', ['ls-files', 'supabase/migrations/*.sql'], { encoding: 'utf8' })
+  .split('\n')
+  .filter(Boolean);
 const grep = execFileSync('git', ['grep', '-l', '-i', 'SECURITY DEFINER', '--', 'supabase/migrations'], { encoding: 'utf8' });
-const migrationFiles = grep.split('\n').filter(Boolean);
-if (migrationFiles.length === 0) throw new Error('No migration surface found for SECURITY DEFINER audit');
+const securityDefinerMigrationFiles = grep.split('\n').filter(Boolean);
+if (securityDefinerMigrationFiles.length === 0) throw new Error('No migration surface found for SECURITY DEFINER audit');
 
 const stripSqlComments = (value) => value
   .replace(/\/\*[\s\S]*?\*\//g, '')
@@ -24,9 +27,9 @@ const hasServiceRoleOnlyGrant = (sql, fn) => {
 };
 
 const hasLaterServiceRoleOnlyGrant = (file, fn) => {
-  const fileIndex = migrationFiles.indexOf(file);
+  const fileIndex = allMigrationFiles.indexOf(file);
   if (fileIndex < 0) return false;
-  for (const laterFile of migrationFiles.slice(fileIndex + 1)) {
+  for (const laterFile of allMigrationFiles.slice(fileIndex + 1)) {
     const laterSql = stripSqlComments(readFileSync(laterFile, 'utf8'));
     if (hasServiceRoleOnlyGrant(laterSql, fn)) return true;
   }
@@ -34,7 +37,7 @@ const hasLaterServiceRoleOnlyGrant = (file, fn) => {
 };
 
 const failures = [];
-for (const file of migrationFiles) {
+for (const file of securityDefinerMigrationFiles) {
   const sql = stripSqlComments(readFileSync(file, 'utf8'));
   const starts = [...sql.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)\s*\([^)]*\)/gi)]
     .map((match) => match.index ?? 0);
@@ -64,4 +67,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`PHASE2_SECURITY_DEFINER_SURFACE_PASS (${migrationFiles.length} migration files scanned)`);
+console.log(`PHASE2_SECURITY_DEFINER_SURFACE_PASS (${securityDefinerMigrationFiles.length} security-definer migrations scanned)`);
