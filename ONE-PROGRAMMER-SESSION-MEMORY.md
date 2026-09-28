@@ -1,456 +1,654 @@
-# RESUME TOKEN — 2026-09-28 / CUSTOMER TENANT RESOLVER REGRESSION GUARD
+# RESUME TOKEN — 2026-09-28 / WORKER RPC CONTRACT RECONCILIATION PROVEN
 
-- CURRENT CODE/TEST CANDIDATE → `7353309309b5ba8ff37254e68f2bc047b710a931`.
-- CURRENT REPOSITORY HEAD → `dad3418241d025a9c1b35214c9b7901783677e57` after governance/test-boundary persistence.
-- IMPLEMENTED → `scripts/check-company-default-context-contract.mjs` now asserts customer-portal `current_customer_company_id()` resolves from `profiles.organization_id` by `auth.uid()`, keeps explicit authenticated/service_role grants, and must not delegate to staff `current_company_id()`.
-- IMPLEMENTED → `scripts/check-certification-boundary-integrity.mjs` allowlists this existing tenant-context contract guard as governance-only; no duplicate workflow was created.
-- EXISTING WORKFLOW REUSE → the existing `company-context-contract` workflow executes the guard.
-- LIVE PROOF → Staging `current_customer_company_id()` is SECURITY DEFINER, authenticated EXECUTE=true, anon=false, and reads `profiles.organization_id` for `auth.uid()`; `customer_credit_accounts.credit_customer_select` binds both customer and tenant.
-- CURRENT CI → no terminal run is available yet for `7353309...`/governance descendants; no PASS is claimed from this batch.
-- OPEN NON-DEVICE → current-head CI proof; Vercel production operational-token/deployment alignment; Phase-F resilience; full migration lineage proof; Auth leaked-password protection platform setting; 151 stale processing imports pending a governed recovery path.
-- OPEN DEVICE-ONLY → PC01/offline desktop/authenticated browser proof.
-- NEXT → consume the first terminal current-head CI failure; fix only the reproduced non-external defect, then persist/rescan. Keep production and stale import recovery fail-closed.
-- DO NOT REPEAT → collapsing customer/staff tenant resolvers, stale-SHA PASS transfer, blanket SECURITY DEFINER revokes, speculative migration cleanup, bulk-terminalizing stale import jobs, or treating older Vercel READY previews as current-head proof.
-
-# RESUME TOKEN — 2026-09-28 / Aghbari SALES-REPORT READINESS CHECKPOINT
-
-- CURRENT REPOSITORY HEAD → `5be55cb8401f0e06068731ee3dd89c7f1d00942c`.
-- CURRENT CODE/TEST CANDIDATE → `5be55cb8401f0e06068731ee3dd89c7f1d00942c`.
-- ACTIVE EXECUTION FRONTS → exact sales-report header regression; canonical import save-blocker diagnostics; import/PDF extraction; source understanding and quality; canonical commit/readback; authenticated browser; certification/enforcement; Phase-F resilience; tenant/security/data truth; migration provenance; cleanup.
-- OPEN BLOCKERS → Phase-F live deployment SHA mismatch + backup/restore image pull failure + rollback-forward 503; PC01 offline; hosted production certification remains fail-closed.
-- LAST PROVEN → prior exact candidate `2f41eaff8c0bfde9abb48607354e9c2c1e5f7ea3`: PDF structured parser regression PASS, data-quality-runtime PASS, production-regression-evidence PASS, certification-boundary PASS and storage/security/import contracts PASS where terminal. These results are historical and are not transferred to `5be55cb...`.
-- LAST FAILED → Execution Enforcement Contract on the pre-`9f9c11...` governance state failed because the explicit resume-token schema was absent; this was repaired by `9f9c11f1fc50f89c7796c781693031d56b78fa89`.
-- NEXT EXECUTABLE ACTION → consume fresh exact-`5be55cb...` CI/certification/browser results; first terminal current-SHA failure only.
-- NEXT INDEPENDENT ACTIONS → keep executing Supabase/security/data/readback, authenticated import/browser, report durable execution, migration replay/provenance, and cleanup independently.
-- DO NOT REPEAT → stale evidence transfer; duplicate importers/RPCs/runners; generic save messages when a concrete blocker can be shown; weakening fail-closed quality/duplicate/security gates; waiting on device or external deployment evidence.
-
-# RESUME TOKEN — 2026-09-28 / EXACT IMPORT RECOVERY GOVERNANCE CHECKPOINT
-
-- CURRENT REPOSITORY HEAD → `ae0ab8ce8d3036e2e0beb95b67951359e0788c2e` (active branch checkpoint before this persistence write).
-- CURRENT CODE/TEST CANDIDATE → `2f41eaff8c0bfde9abb48607354e9c2c1e5f7ea3`.
-- ACTIVE EXECUTION FRONTS → import drop/recovery; native PDF table extraction; canonical source understanding and quality; import commit/readback; authenticated browser; certification/enforcement; Phase-F resilience; tenant/security/data truth; cleanup.
-- OPEN BLOCKERS → Phase-F live deployment SHA mismatch + backup/restore image pull failure + rollback-forward 503; PC01 is offline; hosted production certification remains fail-closed. No blocker stops independent repository/GitHub/Supabase/security/data work.
-- LAST PROVEN → exact code/test candidate `2f41eaff8c0bfde9abb48607354e9c2c1e5f7ea3`: PDF structured parser regression PASS; data-quality-runtime PASS; production-regression-evidence PASS; certification boundary PASS; storage/security/import contracts PASS where terminal.
-- LAST FAILED → Execution Enforcement Contract failed only on the resume-token schema; Quality/Final Certification/Phase-F runs on the prior governance state were either blocked by the same boundary or by the external Phase-F runtime probes. No new product-code defect has been reproduced after the governance repair.
-- NEXT EXECUTABLE ACTION → rerun exact-head enforcement/quality/final-certification against the current governance descendant; consume only the first terminal current-head failure.
-- NEXT INDEPENDENT ACTIONS → continue Phase-F isolation, Supabase security/data readback, authenticated import/browser evidence, report execution lifecycle, migration replay/provenance, and cleanup without waiting for device or hosted production.
-- DO NOT REPEAT → stale-SHA evidence; duplicate importers/RPCs/runners; repeated unchanged CI polling; preview-as-production claims; broad SECURITY DEFINER revokes; cleanup deletion without Manifest/dependency proof.
-
-# RESUME TOKEN — 2026-09-28 / IMPORT RECOVERY CHECKPOINT
-
-- CURRENT REPOSITORY HEAD: `ae0ab8ce8d3036e2e0beb95b67951359e0788c2e` (last proven repository checkpoint before this memory write).
-- CURRENT CODE/TEST CANDIDATE: `2f41eaff8c0bfde9abb48607354e9c2c1e5f7ea3`.
-- ACTIVE EXECUTION FRONTS: PDF parser/header; canonical import failure recovery; Vite/Cloudflare build; data-quality runtime; import-finish lifecycle/security; production-regression evidence; certification boundary/enforcement; browser E2E; Phase-F resilience; storage tenant isolation; hosted deployment.
-- OPEN BLOCKERS: Vercel build-rate-limit; production alias/deployment identity mismatch; Phase-F backup image pull and rollback runtime evidence; PC01 offline. These isolate dependent hosted/device fronts only.
-- LAST PROVEN: PDF regression PASS on `2f41eaff8c0bfde9abb48607354e9c2c1e5f7ea3`; Vite/Cloudflare compatibility PASS on the same SHA; data-quality-runtime PASS on the same SHA; import-finish-lifecycle-security PASS on the same SHA; certification boundary PASS on `ae0ab8ce8d3036e2e0beb95b67951359e0788c2e`; Netlify preview success is current-head evidence only.
-- LAST FAILED: Execution Enforcement Contract on `ae0ab8ce8d3036e2e0beb95b67951359e0788c2e` failed only because the resume-token anchors were missing after the certification-boundary parser was fixed.
-- NEXT EXECUTABLE ACTION: consume the new execution-enforcement and final-certification runs after this memory checkpoint; repair only the first terminal current-SHA failure.
-- NEXT INDEPENDENT ACTIONS: consume Cloudflare/PDF/browser/data-quality/import-finish/production-regression/Phase-F terminal results in parallel; maintain fail-closed production/runtime status; continue storage/security/cleanup only where independently actionable.
-- DO NOT REPEAT: do not redo the closed PDF Dataset[] contract, ESM import-extension repair, PDF adjacent-column header matcher repair, or failed-import retry UI; do not transfer PASS evidence across SHA; do not wait on PC01 or Vercel provider limits to execute independent GitHub/Supabase fronts.
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / CURRENT EXACT IMPORT-RECOVERY CANDIDATE
-
-- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
-- CURRENT CODE/TEST CANDIDATE → `2f41eaff8c0bfde9abb48607354e9c2c1e5f7ea3`.
-- EXACT PROOF — PDF/file-engine regression: PASS on this SHA; existing file-engine regressions PASS and structured PDF/OCR regression PASS.
-- EXACT PROOF — Vite/Cloudflare compatibility: PASS on this SHA; exact checkout, npm ci, Vite build, and compatibility validation all PASS.
-- EXACT PROOF — data-quality-runtime: PASS on this SHA; empty-quality contract, behavioral regression, and typecheck all completed successfully.
-- EXACT PROOF — import-finish-lifecycle-security: PASS on this SHA; terminal lifecycle contract and typecheck completed successfully.
-- EXACT PROOF — production-regression-evidence: executable evidence production and release-decision validation steps PASS on this SHA; final job remained in progress at last observation.
-- EXACT PROOF — storage/security/import contracts already observed PASS on this SHA where terminal; no stale evidence is transferred.
-- FAILURE CONSUMED — Execution Enforcement Contract on this SHA failed only because the Master Index still named the older candidate `eccb8ec...`; no non-governance code failure was observed in that run.
-- GOVERNANCE ACTION — this commit changes only MASTER_EXECUTION_INDEX and ONE-PROGRAMMER-SESSION-MEMORY to bind the current boundary to the exact tested code SHA.
-- EXTERNAL/DEVICE — production Phase-F remains fail-closed for deployment identity/backup/rollback runtime evidence; PC01 remains offline; hosted preview providers are evidence-only until terminal current-SHA build state is proven.
-- NEXT — final certification/enforcement must rerun against this governance descendant; then consume first terminal current-SHA failure. No production PASS until deployment/runtime evidence matches the same certified code line.
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / FAILED-IMPORT RECOVERY CLOSURE
-
-- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
-- CURRENT CODE CANDIDATE → eccb8ecbf4bd52335a36cc76d3c021ec6c157107.
-- USER-VISIBLE ROOT CAUSE/UX GAP CLOSED → after a failed drag/drop or parse attempt, the selected File object is now retained from the start of the read pipeline and the upload state exposes a direct retry of that same source, an explicit alternate-source action, and history refresh.
-- IMPLEMENTATION → `CanonicalImportPage.tsx`: preserve `selectedFileRef.current` before security/format parsing; add `retryCurrentFile`; add explicit failure recovery controls. `scripts/check-canonical-import-recovery.mjs` asserts the single canonical drop path and recovery controls. No second importer was introduced.
-- EXISTING GATES PRESERVED → save remains fail-closed on unreadable data, quality <50, quality 50–74 without explicit approval, duplicate source, or failed security scan.
-- EXISTING POST-IMPORT PATH → VERIFIED result continues to Evidence → Signals → Decision → Work → Outcome/Replay; PARTIAL remains review-first.
-- PREVIOUS EXACT RESULTS NOT TRANSFERRED → data-quality/browser/desktop successes from older SHA remain historical. Fresh CI for this candidate is required.
-- EXTERNAL RELEASE BLOCKERS → Vercel build-rate limit/current production alias mismatch; Phase-F deployment SHA mismatch + backup image pull failure + rollback 404; PC01 offline. No production PASS claimed.
-- NEXT → consume fresh exact candidate CI and repair only the first reproducible failure; preserve all evidence by SHA.
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / PDF ESM TRANSITIVE IMPORT CLOSURE
-
-- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
-- CURRENT CODE/TEST CANDIDATE → 85ab92a3fc13eac11edcc5bde2aa1ebba42d58a3.
-- ROOT CAUSE CLOSED → PDF regression under the ESM runner first exposed extensionless local imports in adapters.ts, then the transitive synonyms.ts dependency; both are now explicit .ts imports.
-- IMPLEMENTATION → candidate 85ab92a3fc13eac11edcc5bde2aa1ebba42d58a3 contains the adapter import repair plus the transitive synonyms import repair; no second parser/importer was introduced.
-- PRIOR EXACT RESULTS → data-quality-runtime, Device-Independent Browser E2E and desktop-windows passed on 24982d5… only. They remain historical and are not transferred.
-- CURRENT EXTERNAL STATE → Phase-F on the prior code candidate was fail-closed: tenant-canary PASS, production deployment SHA mismatch, logical backup restore blocked by Supabase image pull, rollback-forward 503/deployment_lookup_failed:404.
-- NEXT → consume the fresh PDF/import/quality/certification results for this candidate; then continue only with the first reproduced failure. Hosted production remains blocked by external deployment identity/runtime evidence.
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / ESM FILE-ENGINE CONTRACT REPAIR
-
-- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
-- CURRENT CODE/TEST CANDIDATE → 7c2bb2771f3d94639522a2220f2f24165a5a9dcd.
-- ROOT CAUSE CLOSED → exact-SHA PDF regression imported the canonical PDF adapter under the ESM runner and exposed extensionless local module imports that Node could not resolve.
-- IMPLEMENTATION → all local file-engine imports in 7c2bb2771f3d94639522a2220f2f24165a5a9dcd now use explicit .ts extensions; previous PDF Dataset[] contract and multi-page fallback regression remain in the same candidate lineage.
-- EXACT RESULTS FROM PREVIOUS CANDIDATE 24982d5… → data-quality-runtime PASS; Device-Independent Browser E2E PASS; desktop-windows PASS. These results remain SHA-bound and are not transferred as evidence for 7c2bb27….
-- FIRST CURRENT FAILURE CONSUMED → PDF structured parser regression / production-regression-evidence failed before parser assertions with ERR_MODULE_NOT_FOUND on src/lib/file-engine/normalizer; fixed in the current candidate.
-- CERTIFICATION SEQUENCING → certification failure on 24982d5… was due the intentionally two-phase candidate marker still pointing to b37 on that code commit. The current candidate is re-anchored after governance persistence; final-cert push is expected to certify the governance descendant against 7c2bb27… without stale evidence.
-- NEXT → consume terminal current-candidate PDF/import/quality/certification results; repair only reproduced failures. Browser and data-quality successes are already independently observed on the prior code candidate.
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / HOSTED IMPORT RUNTIME READBACK
-
-- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
-- CURRENT PR/BRANCH HEAD → e2628c833dc08d2a86da551b9a01f058b9c027a1 / exec/20260927-current-main-import-ui-rebased.
-- CURRENT CODE/TEST CANDIDATE → 24982d5fd49158db2df5a15ee3b6927e1c19003d.
-- GOVERNANCE DESCENDANTS → 39f24a0fa6b3f877bc711f583befb1d8a75edb9e, then e2628c833dc08d2a86da551b9a01f058b9c027a1.
-- CURRENT HOSTED READBACK → Vercel deployment `dpl_FzNJiNJbQYHLrKVUHdhEQYi2Hd9r` is READY and bound to exact GitHub SHA e2628c833dc08d2a86da551b9a01f058b9c027a1; `/import` returned HTTP 200 with Arabic RTL application shell.
-- CURRENT HOSTED RUNTIME → no Vercel runtime error clusters observed in the last 2 hours.
-- STAGING DATA/TRUST READBACK → `documents` bucket remains private, 100 MB, canonical MIME allowlist; tenant/owner storage policies remain enforced; `import_create_job` is SECURITY INVOKER with the same 100 MB/MIME contract.
-- CURRENT CI → exact code candidate 24982d5… has critical import/PDF/quality/certification/browser runs queued; desktop-windows is SUCCESS on 24982d5…; no PASS is transferred to the governance descendants.
-- DEVICE → PC01 remains OFFLINE; device-dependent proof isolated.
-- ACTIVE EXTERNAL BLOCKER → Phase-F live resilience previously failed on deployment lookup/rollback-forward probe; must remain fail-closed until a fresh exact runtime result.
-- NEXT → consume first terminal 24982d5… CI failure/result; repair only reproduced current-SHA defects; then persist/rescan. No stale evidence transfer.
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / PDF REGRESSION CONTRACT REPAIR
-
-- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
-- ACTIVE PR → #672 / exec/20260927-current-main-import-ui-rebased.
-- CURRENT CODE/TEST CANDIDATE → 24982d5fd49158db2df5a15ee3b6927e1c19003d.
-- ROOT CAUSE CLOSED → exact-head CI exposed a TypeScript contract defect in the native PDF path: parsePdfText returned Dataset where parseFile requires Dataset[], and the PDF regression script called extractPdfTableRowsFromTextItems without importing it.
-- IMPLEMENTATION → PDF table path now returns [await buildDataset(...)]; regression harness imports the same canonical helper and verifies both the first page and a subsequent page using the persisted fallback header.
-- PROOF STATUS → implementation committed exactly at 24982d5fd49158db2df5a15ee3b6927e1c19003d; fresh current-SHA CI is required before PASS. No previous-SHA evidence transferred.
-- NEXT → consume this SHA's PDF/file-engine, typecheck, certification and production-regression results; repair only the first reproducible failure.
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / UPLOAD STORAGE RUNTIME CLOSURE / EXACT SHA c87451168f610a5e569c7fc3bace4a83b44c05a6
-
-- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
-- ACTIVE PR → #672 / exec/20260927-current-main-import-ui-rebased / exact HEAD c87451168f610a5e569c7fc3bace4a83b44c05a6.
-- ROOT CAUSE CLOSED → Supabase `documents` bucket was still capped at 50 MB and exposed only the old MIME allowlist, so real uploads could fail even after the RPC was fixed.
-- IMPLEMENTATION → additive migration `20260928143000_reconcile_documents_bucket_limits.sql` updates only the existing private `documents` bucket to 100 MB and the canonical parseable MIME set. Historical migrations remain unchanged.
-- STAGING EXECUTION → migration applied successfully on `fnqbvfuwbdpwvhcgzksl`.
-- STAGING READBACK → `documents` is private, `file_size_limit=104857600`, and the expanded MIME set is present.
-- STORAGE SECURITY READBACK → authenticated INSERT requires `bucket_id='documents'`, first path segment = `current_company_id()`, and `owner_id=auth.uid()`; SELECT is tenant-scoped to the same company. DELETE/UPDATE are owner-scoped.
-- EXACT SOURCE → migration blob `152446dd88685bb7c9f90ff9ecb945a3a5e0d87d`.
-- PROOF GAP → authenticated real-file browser execution remains NOT PROVEN; PC01 is offline and current hosted Vercel deployment for c87451168f610a5e569c7fc3bace4a83b44c05a6 is queued. No production PASS is claimed.
-- NEXT EXECUTABLE → consume terminal exact-head CI/browser/PDF regression when available; otherwise continue independent Phase-F/security/data/certification fronts without transferring stale evidence.
-- DO NOT REPEAT → 50 MB storage state; old MIME allowlist; historical migration mutation; stale browser/runtime PASS.
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / MIME PARITY + LIVE STAGING READBACK / EXACT SHA b0726bcfe64f1769c768a18d8993be4c270a6f15
-
-- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
-- ACTIVE PR → #672 / exec/20260927-current-main-import-ui-rebased.
-- ROOT CAUSE CLOSED → file-engine/UI accepted xls, xlsm, tsv, ods, json, jsonl, markdown, bmp and related source MIME types, while live import_create_job rejected most of them at the commit boundary.
-- IMPLEMENTATION → additive migration 20260928141500_reconcile_import_job_mime_allowlist.sql expands the existing canonical import_create_job allowlist without creating a duplicate RPC or modifying historical migrations.
-- STAGING EXECUTION → migration applied successfully to fnqbvfuwbdpwvhcgzksl. Function readback contains the added Excel/ODS/TSV/JSON/JSONL/XML/Markdown/BMP MIME types.
-- SECURITY READBACK → import_create_job remains SECURITY INVOKER after the upgrade.
-- EXACT SOURCE → migration blob 24767ae1dc42b2078e276053a78e88eaf7dca922; code HEAD is exactly b0726bcfe64f1769c768a18d8993be4c270a6f15.
-- REMAINING PROOF GAP → real authenticated drop→parse→storage→canonical commit→readback against a real 67-page PDF remains NOT PROVEN because PC01 is offline and current exact-SHA browser/PDF workflows are still queued.
-- NEXT → consume current exact-SHA terminal workflow results; run real hosted/device import proof when that lane is available; continue independent certification/security/Phase-F fronts without transferring older SHA evidence.
-- DO NOT REPEAT → historical migration mutation; stale MIME/runtime PASS; duplicate import RPCs; preview-as-production.
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / STAGING UPLOAD-SIZE RUNTIME CLOSURE / EXACT SHA 60ae24fbf256b7ed2fa6c7c60a6ace883ae233e0
-
-- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
-- ACTIVE PR → #672 / exec/20260927-current-main-import-ui-rebased / exact code SHA 60ae24fbf256b7ed2fa6c7c60a6ace883ae233e0.
-- CODE CORRECTION → historical migration 20260927243000 was restored byte-for-byte to its original 50 MB state; additive migration 20260928134009_reconcile_import_job_file_size_100mb now owns the 100 MB upgrade.
-- STAGING EXECUTION → migration name reconcile_import_job_file_size_100mb applied successfully on fnqbvfuwbdpwvhcgzksl; schema_migrations records version 20260928134009.
-- STAGING READBACK → public.import_create_job(uuid,text,integer,text,text,bigint,text) is SECURITY INVOKER and its function body contains the 104857600-byte limit.
-- EXACT SOURCE PROOF → current branch preserves the historical migration SHA 459c31efac1dc01469f09f642d970168d9e24073 and contains the new 100 MB migration blob eafc7190895b842c08bd3a76dc58b8aced0fda2d.
-- RUNTIME PROOF GAP → end-to-end import of a real 67-page PDF is still not executed; device PC01 is offline and current GitHub browser/file-engine workflows are queued/in progress.
-- NEXT EXECUTABLE → consume first terminal exact-SHA PDF/file-engine result; then run the real hosted/import/browser proof when the platform lane becomes available, while continuing independent certification/security/Phase-F fronts.
-- DO NOT REPEAT → mutate historical migrations; old-SHA runtime evidence; preview-as-production; duplicate import paths.
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / NATIVE PDF TABLE ROOT CLOSED / EXACT SHA 7064dff5e6e68794622ed29f24dbb02b1407e6d4
-
-- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
-- ACTIVE PR → #672 / exec/20260927-current-main-import-ui-rebased / exact code SHA 7064dff5e6e68794622ed29f24dbb02b1407e6d4.
-- ROOT CAUSE CLOSED → native PDF parsing previously flattened each page into an unstructured text dataset, losing repeated headers and row/column geometry from multi-page accounting reports.
-- IMPLEMENTATION → the existing PDF adapter now reconstructs table rows from pdf.js text-item coordinates, detects repeated Arabic/English financial headers, carries table anchors across pages, preserves raw header names, and feeds reconstructed rows into the existing canonical Dataset/buildDataset path. No duplicate parser/importer was added.
-- MAPPING HARDENING → added exact Arabic sales-report header synonyms for invoice number/date, customer, currency, invoice amount, discount, charges, tax, total, and net-local amount.
-- EXACT SOURCE PROOF → commit changes are exactly four file-engine files: adapter, synonyms, behavioral regressions, and architecture contract. No UI/DB duplicate path created.
-- RUNTIME PROOF → fresh exact-SHA workflow set is currently running/queued; PDF structured parser regression is queued and file-intelligence-security is in progress. No runtime PASS is claimed yet.
-- NEXT EXECUTABLE → consume first terminal PDF/file-engine result; repair only a reproduced failure. Then run/consume full exact-head browser/final-certification gates and continue Phase-F/security/data fronts independently.
-- DO NOT REPEAT → text-flattening PDF behavior; stale PDF parser PASS; duplicate document parser; old-SHA certification evidence.
-
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / IMPORT DROP ROOT CLOSED / EXACT SHA `86c168b77edeca9d32391664202cf812c6880f81`
-
-- MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- ACTIVE PR → #672 / `exec/20260927-current-main-import-ui-rebased` / exact code SHA `86c168b77edeca9d32391664202cf812c6880f81`.
-- ROOT CAUSE CLOSED → the canonical import dropzone advertised “اختر ملفًا أو اسحبه” but had no `onDrop/onDragOver` event path; dragged files therefore never entered `handleFile`.
-- IMPLEMENTATION → added explicit drag-enter/over/leave/drop handlers, keyboard activation, single-file fail-closed handling, visible drag state, and exact contract assertions; aligned the server import-job file-size boundary from 50 MB to the repository's 100 MB UI/security limit.
-- EXACT SOURCE PROOF → branch readback on `86c168b…`: dropzone marker, four drag handlers, `event.dataTransfer.files`, `handleDroppedFiles`, multi-file rejection, contract guards, and 100 MB migration cap all observed.
-- CI → exact-SHA runs `36429491585` (ci-bootstrap-smoke) and `36429491633` (Full Product Browser E2E) are queued; no terminal PASS is claimed.
-- DEVICE/RELEASE → PC01 remains offline in the canonical session state; hosted/browser evidence is not inferred from queued CI.
-- NEXT EXECUTABLE → consume the first terminal exact-SHA result; independently harden the native-PDF tabular extraction path for repeated-header multi-page Arabic reports, then persist/rescan.
-- DO NOT REPEAT → prior-SHA PASS; browser claims from old SHAs; duplicate import/drop runners; force-pushing over newer branch work.
-
-# RESUME TOKEN — 2026-09-28 / EXACT CURRENT EXECUTION HEAD
-
-- CURRENT REPOSITORY HEAD → `0314093836cd40e93f5009e97ae5569fe355b86d` (checkpoint parent for this persistence commit).
-
-- CURRENT FUNCTIONAL / EXECUTION CANDIDATE → `b37adb8dfcad45d6fed2c688cb341034a3c4e25a` (Git repository HEAD MUST be reconciled directly at every startup).
-- CURRENT CODE/TEST CANDIDATE → `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`.
-- MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- ACTIVE PR → `#672` / `exec/20260927-current-main-import-ui-rebased`.
-- ACTIVE EXECUTION FRONTS → Resume-token governance; Phase-F resilience; authenticated browser/business runtime; Tenant A/B isolation; durable report-generation trigger; worker recovery/retry/DLQ/idempotency; authenticated import/OCR corpus; migration replay/schema parity; full UI runtime states; security hardening; final certification/merge.
-- OPEN BLOCKERS → Phase-F live resilience is NOT READY (production deployment SHA mismatch, backup/restore failure, rollback-forward 503); Device-Independent authenticated browser E2E has one reproducible Replay-console failure now repaired on `b37adb8…`, requiring fresh exact-SHA browser proof; Vercel free-plan build-rate remains external. PC01 is OFFLINE for this session and is not a stop condition.
-- LAST PROVEN → on `b2547f28…`, quality PASS, Final Certification Gate PASS, Execution Enforcement PASS, UI route completeness PASS, canonical import/data/security contract set PASS, and desktop-windows PASS. These proofs remain bound to `b2547f28…`.
-- LAST FAILED → Phase-F remains 1/4; Device-Independent authenticated E2E failed only on `ExecutiveCommandCenterPage` replay-unavailable console error; the code now classifies that optional path as `REVIEW` with `console.warn`, so fresh proof is required on `b37adb8…`.
-- NEXT INDEPENDENT ACTIONS → (1) consume fresh exact-`b37adb8…` browser/quality/final-certification results; (2) continue Supabase/data/security/recovery/report-trigger/migration/UI-contract fronts independent of PC01; (3) isolate Phase-F deployment identity/restore/rollback without weakening gates; (4) update the canonical resume state after each meaningful batch.
-- NEXT EXECUTABLE ACTION → run the fresh exact-SHA CI/browser gates triggered by `b37adb8…`; repair only the first current-SHA failure, then persist and rescan.
-- DO NOT REPEAT → stale SHA PASS; unchanged CI polling; duplicate browser frameworks/RPCs/runners; preview-as-production; blanket security-definer revokes; unproven production claims; deletion without Manifest proof.
-- DEVICE → PC01 OFFLINE; skip only device-dependent proof and continue every safe non-device front.
-- EXECUTION WINDOW → when the device remains available, use the full available sprint for implementation/proof; no planned idle period.
+- MAIN EXACT HEAD AT CHECKPOINT → `3f7963db851d87fadd57462482385452ca2536f5`.
+- FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`.
+- CURRENT FUNCTIONAL HEAD → `ee0cba1e220fc2c96e2fa4c77aa7fa96192abe68`.
+- SECURITY SOURCE → `20260928230000_restrict_report_execution_failure_worker_rpc.sql` is the canonical worker-only privilege boundary for `fail_report_execution_job`.
+- SECURITY LIVE PROOF → Staging confirms SECURITY DEFINER=true, authenticated=false, anon=false, service_role=true; advisor authenticated SECURITY DEFINER count 41 → 40.
+- TEST CONTRACT → `scripts/check-security-definer-exposure-contract.mjs` now treats `fail_report_execution_job` as worker-only and evaluates the latest REVOKE/GRANT boundary instead of stale historical grants.
+- TEST PROOF → syntax PASS after stripping imports for parse-only validation; targeted harness PASS for old-auth-grant-before-revoke and FAIL detection for any auth grant after the latest revoke.
+- CI → no Actions run registered for the latest head at last poll; therefore no runtime PASS claimed.
+- DEVICE → PC01 offline; browser/desktop/production proof remains isolated.
+- EXTERNAL → leaked-password protection remains a Supabase Auth platform setting; Vercel free-plan rate limit remains external.
+- NEXT → continue independent safe repository/security/data fronts; when fresh CI appears, consume terminal exact-head evidence only.
 
 ---
 
-# RESUME TOKEN — 2026-09-28 / IMPORT LIFECYCLE TEST ROOT CLOSED / CANDIDATE `63b86b421a9e`
+# RESUME TOKEN — 2026-09-28 / WORKER FAILURE RPC SECURITY BOUNDARY CLOSED
 
-- EXACT MAIN → `4ec779a0a1573fc3e0e395862f6761a70f775d49`; ACTIVE PR #672 → `exec/20260927-current-main-import-ui-rebased`; current functional candidate → `63b86b421a9ef48fca5850821b97bf3ce832e3b3`.
-- CLOSED ROOTS → (1) `/import/analyze` internal redirect classified correctly by UI route completeness contract; (2) import-finish lifecycle negative-case fixture made newline-stable for Windows/CRLF.
-- EXACT PROOF ON CANDIDATE → UI route completeness PASS; UI/sidebar parity PASS; import-finish lifecycle 4/4 PASS; typecheck PASS.
-- CURRENT CERTIFICATION → exact candidate remains `63b86b421a9ef48fca5850821b97bf3ce832e3b3`; previous SHA evidence is not carried forward.
-- CI/RELEASE → current-SHA workflows executing; Vercel build-rate external; Netlify status not certification.
-- DEVICE → PC01 ONLINE.
-- NEXT → run/consume full current-SHA certification and browser gates; first reproducible failure only.
-
----
-
-# RESUME TOKEN — 2026-09-28 / UI ROUTE ROOT CLOSED / EXACT CANDIDATE `1de5cb174add`
-
-- EXACT MAIN HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- ACTIVE FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact candidate `1de5cb174add3ec00f26e3036eb118d58ab444df`.
-- ROOT CLOSED → `/import/analyze` is a registered internal redirect/progressive-disclosure route; the route-completeness guard now models it explicitly instead of requiring a sidebar link.
-- EXACT LOCAL PROOF ON `1de5cb174add3ec00f26e3036eb118d58ab444df` → UI route/navigation completeness PASS; UI route/sidebar parity PASS; typecheck PASS; production build PASS (2802 modules).
-- CURRENT CI → 49 runs observed: 43 queued, 3 pending, 1 in progress (desktop-windows), 2 skipped; no terminal required-gate failure on this SHA at last observation.
-- CERTIFICATION BOUNDARY → parser/index anchoring is corrected; current candidate must remain exactly `1de5cb174add3ec00f26e3036eb118d58ab444df` until a new functional root is found. Do not transfer prior SHA browser/desktop/final-certification evidence.
-- DEVICE → PC01 ONLINE and exact PR tree is checked out.
-- RELEASE → Vercel free-plan build-rate remains external; Netlify status green is not product certification.
-- QUALITY → lint has 62 warnings / 0 errors; build warnings are non-blocking. Cleanup is a separate hardening front.
-- NEXT EXECUTABLE ACTION → run current-SHA certification contracts, consume the first terminal CI/browser/final-certification result, repair only that root, persist, rescan.
+- MAIN EXACT HEAD AT CHECKPOINT → `a98dc4451b79544fde40f60680f8d52edd60e209`.
+- FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`.
+- NEW FUNCTIONAL HEAD → `be0a64b01217ff16a53ef5d196e5613fb175cfa7`.
+- SECURITY ROOT → Staging showed `fail_report_execution_job` was the only durable report-execution worker RPC still executable by `authenticated`; all sibling worker RPCs were already service_role-only.
+- IMPLEMENTED → new migration `supabase/migrations/20260928230000_restrict_report_execution_failure_worker_rpc.sql` revokes PUBLIC/anon/authenticated and grants only service_role for `fail_report_execution_job`.
+- LIVE PROOF → Staging migration `restrict_report_execution_failure_worker_rpc` applied successfully; readback: SECURITY DEFINER=true, authenticated_execute=false, anon_execute=false, service_role_execute=true.
+- ADVISOR PROOF → authenticated SECURITY DEFINER finding count dropped from 41 to 40; leaked-password protection remains an external Auth setting.
+- SOURCE PROOF → exact branch migration contains the revoke/grant contract; static security-boundary assertion PASS.
+- CI → fresh runs for new SHA were not yet registered at last exact-head poll; no runtime PASS claimed.
+- DEVICE → PC01 remains offline; browser/device/production certification not proven.
+- NEXT → wait-free path: continue independent repository/data/security fronts; once fresh exact-`be0a64...` CI exists, consume first terminal result and repair only a reproducible defect.
 
 ---
 
-# RESUME TOKEN — 2026-09-28 / EXACT FUNCTIONAL HEAD `fb93663b19bb` / CERTIFICATION BOUNDARY REPAIR
+# RESUME TOKEN — 2026-09-28 / CI DUPLICATION CLOSED + BENCHMARK UI CONTINUITY ADDED
 
-- EXACT GITHUB MAIN HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- ACTIVE FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact code SHA `fb93663b19bbdaa3ab161f0068a47fbd07161ce7`; PR base is exactly current main.
-- DEVICE → PC01 ONLINE; exact PR worktree is available.
-- VERIFIED LOCAL ON THIS EXACT CODE SHA → typecheck PASS; production build PASS (2802 modules); UI route/sidebar parity PASS; Phase-3 data-import truth PASS; Phase-F runtime closure PASS; Execution Enforcement PASS; SECURITY DEFINER exposure contract PASS.
-- EXACT CI → desktop-windows run `36362650146` SUCCESS on `fb93663b19bbdaa3ab161f0068a47fbd07161ce7`.
-- CURRENT PROOF GAP → certification-boundary integrity is the only explicit repository-governance failure found at this checkpoint: the Master Index startup boundary was not anchored to the exact functional candidate. Fix is being persisted now; no stale certification PASS is transferred.
-- CI/RELEASE → other current-SHA workflows are queued/pending; Vercel free-plan build-rate remains external; Netlify status alone is not product certification.
-- QUALITY → lint has 62 warnings and 0 errors; these are cleanup candidates, not a release failure.
-- LIVE SECURITY/DATA → prior current-staging readback remains the canonical boundary: client UI settings tenant policy uses current_company_id(); import lifecycle RPCs are INVOKER except the deliberate six-argument import_commit_batch SECURITY DEFINER write boundary; import tables remain RLS-enabled. Broad historical Security Advisor findings remain an independent hardening front and are not subject to blanket revoke.
-- NEXT EXECUTABLE ACTION → re-run the certification boundary and affected current-SHA certification contracts after this checkpoint, then consume fresh terminal CI/browser/final-certification results; repair only the first reproduced current-SHA failure.
-- DO NOT REPEAT → stale SHA evidence, preview-as-production, duplicate browser frameworks/import RPCs/runners, blanket Security Advisor cleanup, historical “device offline” state.
-
----
-
-# RESUME TOKEN — 2026-09-28 / CURRENT EXACT-HEAD EXECUTION
-
-- CURRENT REPOSITORY HEAD → `960da0bda395192846ba537891c2d519e2f94faa`
-- CURRENT CODE/TEST CANDIDATE → `960da0bda395192846ba537891c2d519e2f94faa`
-- FUNCTIONAL CODE FRONT → `c8dca7badd8115739cbb69aaac564d60ff04dcfe`
-- MAIN CONTROL HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`
-- ACTIVE EXECUTION FRONTS → browser/certification exact-head evidence; import/decision regression; security/data rescan; cleanup/deletion-gate audit.
-- OPEN BLOCKERS → Vercel free-plan deployment-rate limit; authenticated hosted/browser certification remains unproven until an exact-head terminal browser/certification gate succeeds; `xlsx@0.18.5` still has one high-severity advisory with no upstream fix.
-- LAST PROVEN → on `960da0bda395192846ba537891c2d519e2f94faa`, security dependency hardening passed typecheck/build, Document Intelligence 20/20, File Intelligence security, File-engine contract, and canonical import mapping; preceding exact-head governance/UI/import/type/build gates were green before the dependency-only commit.
-- LAST FAILED → stale/brittle product-wow UI contract assertion; live memory lacked mandatory resume anchors. Both roots are now repaired locally.
-- NEXT EXECUTABLE ACTION → run the canonical browser/final-certification gates on the exact head, consume terminal CI, and repair only the first reproducible failure. Then rebind this token to the final post-proof SHA.
-- NEXT INDEPENDENT ACTIONS → route/state/UI rescan; import/runtime regression; security/RLS readback; cleanup/deletion-gate scan.
-- DO NOT REPEAT → stale SHA evidence; duplicate browser frameworks; preview-as-production; broad SECURITY DEFINER revokes without a reproduced boundary defect; deletion without Manifest/reference proof.
-- STABLE LIVE IMPORT BOUNDARY → `import_finish_job(uuid,text,jsonb,text)` remains SECURITY INVOKER; six-argument `import_commit_batch(..., p_import_job_id uuid)` remains the deliberate SECURITY DEFINER commit boundary with tenant/source/storage checks.
-- RESUME POINTER → continue from this exact block; do not restart historical phases.
-
----
-# CURRENT EXECUTION CHECKPOINT — 2026-09-28 / CURRENT-SHA SCENARIO GATE CLOSURE
-
-- MAIN HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- FUNCTIONAL PROOF SHA → `a0a73ac2fb8f0221cd0c9e04054b44a7e5817b5b`.
-- PR → `#672` / `exec/20260927-current-main-import-ui-rebased`.
-- ROOT CAUSE CLOSED → `scripts/check-scenario-financial-truth-guard.mjs` referenced removed `src/pages/CanonicalScenarioPage.tsx`; the canonical scenario surface is `src/pages/ScenarioTruthGuardPage.tsx`, which owns the calculator.
-- FIX COMMITTED → `a0a73ac2fb8f0221cd0c9e04054b44a7e5817b5b` (`fix(ci): align scenario truth gate with canonical page`).
-- WORKFLOW FIX → `.github/workflows/scenario-financial-truth-guard.yml` now watches the canonical page and no longer watches the removed path.
-- EXACT LOCAL PROOF ON `a0a73ac2` → scenario financial-truth gate PASS; typecheck PASS; production build PASS (2802 modules); quality-workflow contract PASS (33 npm commands / 10 mandatory stage groups); knowledge-architecture PASS.
-- SAME-TREE PRIOR LOCAL PROOF → canonical import mapping/transaction/runtime, Phase-3 data import truth, decision intelligence, document intelligence, file security, tenant security, report truth, production-certification runtime/contract/evidence-integrity, import direct-write/tenant-context/business-key/state, report E2E contract, golden corpus, and incremental import ledger all passed before this docs checkpoint. These results remain bound to their exact execution SHA and are not transferred.
-- DEVICE → PC01 online; candidate tree is checked out locally.
-- BROWSER → Vite dev server reached READY on `127.0.0.1:4173`; `agent-browser` is not installed on PC01, so authenticated/browser E2E remains NOT PROVEN.
-- HOSTED/CI → fresh exact-head GitHub gates are queued/pending; `desktop-windows` was in progress at last observation. Vercel is pending; Netlify status success is not treated as product PASS.
-- STALE SCENARIO SEARCH → the only remaining `CanonicalScenarioPage` match is the deliberate negative assertion that forbids use of the removed superseded page.
-- DO NOT REPEAT → stale scenario gate path, stale PASS transfer, preview-as-production, browser claims without execution, duplicate import/RPC/runner paths, blanket SECURITY DEFINER cleanup.
-- NEXT EXECUTABLE ACTION → consume terminal exact-head certification/browser/runtime results when available; repair only a new reproducible current-SHA failure while continuing independent repository-safe closure.
-
----
-# CURRENT RESUME POINTER — 2026-09-28 / eed9917e SECURITY CONTRACT REPAIR
-
-- IMPLEMENTATION SHA → `eed9917e348e9fa2fed0be4af5bdd24d70152aea`; current branch has since advanced to `ff0298cfacb6e40abf848397548b0ac67207ff28` by a docs-only cleanup/security-rescan checkpoint.
-- ROOT CAUSE → `scripts/check-security-definer-exposure-contract.mjs` falsely rejected the hardened `import_commit_batch` definition because it only allowed public-oriented search paths, while the migration intentionally uses `pg_catalog`; it also failed to recognize `TO authenticated, service_role` as containing the authenticated role.
-- IMPLEMENTED → the static security contract now accepts the hardened `pg_catalog`/safe variants and parses role lists explicitly, while still rejecting `anon`. Database grants and SECURITY DEFINER boundaries were not weakened.
-- EXACT LOCAL PROOF ON `eed9917e` → security-definer exposure PASS; helper execution PASS; tenant security PASS; global tenant RLS PASS; import RPC tenant context PASS; typecheck PASS; UI route/sidebar parity PASS; decision-intelligence closure PASS; canonical import mapping PASS; import runtime governance PASS; knowledge architecture PASS; production build PASS (2802 modules).
-- CURRENT CI BOUNDARY AFTER BRANCH ADVANCE → fresh PR workflows for the resulting branch are queued/pending with desktop-windows active; older cancelled runs are not counted as failures of this static repair. No terminal authenticated Browser E2E/final-certification PASS is claimed.
-- CLEANUP RESCAN → the concurrent `ff0298cf` checkpoint recorded that all 9 legacy-looking master documents are referenced by the Project Knowledge Manifest, so no deletion/merge was justified.
-- BROWSER BOUNDARY → local agent-browser invocation is blocked by tool security; TinyFish automation cannot start with the current negative wallet balance. No browser PASS is fabricated.
-- DO NOT REPEAT → do not transfer any PASS across `eed9917e`/previous SHAs; do not reopen closed UI/import/Decision roots without a new failure; do not call queued/cancelled CI a PASS.
-- NEXT EXECUTABLE ACTION → consume the first terminal exact-head quality/browser/final-certification result on the current branch; repair only a reproducible failure, then perform the final release/rescan boundary.
+- EXACT MAIN HEAD AT START → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`.
+- EXACT RESULTING FUNCTIONAL HEAD → `fdb59e8f4fa08cfb8778006ffc71a1e63088fb21`.
+- ACTUAL UI CHANGE → `CanonicalImportPage.tsx` now exposes a sixth post-import Benchmark step linked to `/benchmark`; it explicitly remains `INSUFFICIENT_SAMPLE` until a peer sample and evidence exist.
+- ACTUAL UI CONTRACT → `scripts/check-import-transaction-contract.mjs` now guards the Benchmark link and fail-closed `INSUFFICIENT_SAMPLE` state.
+- ACTUAL CI CHANGE → Browser E2E, Final Certification, and Execution Enforcement now run `push` only on `main`; PR validation remains on `pull_request`. This removes duplicate PR push+PR executions without removing the PR gate.
+- STATIC TEST EXECUTION → exact branch source assertions PASS for all five changed files/conditions.
+- FRESH EXACT-HEAD CI → latest branch runs are pull_request-only for the affected Browser/Certification/Enforcement/Quality fronts; no terminal PASS/FAIL yet.
+- DEVICE → PC01 offline; no browser/device proof claimed.
+- EXTERNAL → Vercel free-plan rate limit remains external; no production mutation performed.
+- NEXT → consume first terminal exact-`fdb59e8f` CI result; repair only a reproducible current-SHA failure, then persist/rescan UI/core/security fronts.
 
 ---
 
-# RESUME TOKEN — 2026-09-28 / FINAL CURRENT FRONT CHECKPOINT
+# RESUME TOKEN — 2026-09-28 / CLIENT UI POLICY PARITY REPAIRED + LIVE VERIFIED
 
-# CURRENT RESUME POINTER — 2026-09-28 / 56483d33 FULL LOCAL CERTIFICATION + STAGING WAREHOUSE GUARD
-
-- FUNCTIONAL CODE HEAD → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact code SHA `56483d33b2d043d054c87dcc6eb933bc1a1bbdcf`.
-- MAIN CONTROL HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49` remains the main baseline; this PR is the active functional front.
-- ROOT CAUSES CLOSED → import-contract ownership drift; Windows CRLF UI contract parsing; stale Intelligence UI contract token; stale recommendation/master-data assertions; /import/analyze compatibility parity; null-unsafe KPI access; duplicate ScenarioTruthGuard imports; nullable inventory warehouse semantics with fail-closed explicit mismatch.
-- PRODUCTION DB CHANGE → staging project `fnqbvfuwbdpwvhcgzksl` applied `guard_inventory_import_warehouse_resolution` as server migration `20260927231203`; readback proves `INVENTORY_WAREHOUSE_NOT_FOUND` is present in live `import_commit_batch`, while `inventory_balances.warehouse_id` remains nullable (YES).
-- EXACT LOCAL PROOF ON CODE SHA `56483d33` → typecheck PASS; lint PASS (0 errors / 62 warnings); production build PASS (2802 modules); knowledge architecture PASS; architecture/contract suite PASS; Intelligence/Connections/Master Requirements PASS; canonical import/transaction/Phase-3/state/runtime/tenant/RLS PASS; production certification/evidence/SaaS PASS; decision-intelligence PASS; UI route/product/dashboard/report/inventory/document/file-engine/file-security PASS; golden E2E + Phase11 adversarial/performance PASS; production coordinator/gate runtime PASS; Phase F/K/L/M PASS; full chained command exited 0.
-- DEVICE → PC01 ONLINE and branch clean except ignored/untracked `artifacts/`; no product source change exists there.
-- HOSTED EXACT-HEAD → Netlify deploy `6ab9a446dda1f60008391252` is ERROR because Netlify canceled for “no content change”; this is not product failure and is NOT deployment PASS. Vercel checks for `56483d33` are pending. GitHub browser workflows are queued/pending; no terminal non-skipped browser/final-certification result yet.
-- SECURITY RESIDUAL → Supabase advisor still reports broad pre-existing authenticated SECURITY DEFINER warnings (including `import_commit_batch`) and unused-index warnings. They remain an independent hardening front; no speculative blanket revoke was made.
-- KNOWLEDGE STATE → canonical Memory + Execution Index remain the only live session-control files; no new shadow state was created.
-- DO NOT REPEAT → do not transfer evidence from `8e5dd2fe`, `8bf3458c`, `9999c155`, or any older SHA; do not count Netlify “success” status as a deployment PASS; do not claim authenticated browser E2E until a terminal exact-head browser gate proves it.
-- CLEANUP RESCAN → the 9 legacy-looking master documents reported by knowledge architecture are all explicitly referenced by the Project Knowledge Manifest; no safe delete/merge owner proof exists yet, so none were removed.
-- SECURITY READBACK → staging read-only enumeration shows SECURITY DEFINER RPCs execute for authenticated only; no anon/public grant appeared in the queried set. Broad Supabase Advisor SECURITY DEFINER warnings remain a separate hardening front; no blanket revoke was performed.
-- CURRENT PROOF BOUNDARY → exact functional code `56483d33` is locally certified and has a READY Vercel deployment; authenticated Browser E2E/final certification remains unproven while GitHub browser/final workflows are queued and local agent-browser is unavailable.
-- NEXT EXECUTABLE ACTION → consume terminal GitHub exact-`56483d33` quality/browser/certification results; repair only a reproducible current-head failure; otherwise leave the stable functional front unchanged and open the independent security-hardening front only with a concrete reproduced exploit/boundary defect.
+- MAIN CONTROL HEAD BEFORE THIS WRITE → `b39d585803f7bca021cb68bb75a522c8bce115d6`.
+- FUNCTIONAL BRANCH CURRENT BEFORE THIS WRITE → PR #672 / `9a0660b408476fea8aa641a388a02aa0bc89c51f`.
+- ACTUAL SAFE REPAIR → added `supabase/migrations/20260928200000_reconcile_client_ui_settings_tenant_policy.sql` so clean restore recreates the live `client_ui_settings` policy with `organization_id = current_company_id()`.
+- LIVE EXECUTION → Supabase Staging migration `reconcile_client_ui_settings_tenant_policy` applied successfully; migration ledger records version `20260927212822`.
+- LIVE READBACK → policy is `ui_settings_customer_select` for authenticated SELECT using `current_company_id()`; grants remain authenticated SELECT/INSERT/UPDATE, service_role full, anon revoked.
+- CUSTOMER PORTAL RESOLVER → `current_customer_company_id()` remains a separate customer-portal boundary and was intentionally untouched.
+- EXACT CI → prior `desktop-windows` SUCCESS is tied to `0a48b4e`; all subsequent SHA changes require fresh evidence. Current branch after repair has no terminal CI result yet.
+- HOSTING → latest Netlify exact-head deploy `6ab98a8b33abe600081d5974` is ERROR because Netlify reports no content change; Vercel build-rate limit remains external.
+- DEVICE → PC01 offline; no browser/device/production PASS.
+- NEXT → re-anchor current functional front onto the resulting main, then consume fresh exact-head CI and repair only the first reproducible failure.
 
 ---
 
-- FUNCTIONAL CODE HEAD → `56483d33b2d043d054c87dcc6eb933bc1a1bbdcf`.
+# RESUME TOKEN — 2026-09-28 / CUSTOMER TENANT RESOLVER DRIFT CLASSIFIED
 
-
-- MAIN CONTROL HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- FUNCTIONAL PR → #672 / `exec/20260927-current-main-import-ui-rebased` / exact code SHA `8e5dd2fe6b238df7d8393b0544359fb6ac677bcd`.
-- ROOT CAUSES CLOSED ON THIS CODE SHA → cross-platform Evidence Passport contract parsing; financial invariant ownership in the canonical invariant migration; stale import-contract placement checks; stale recommendation-status UI contract; compatibility-route parity; null-unsafe KPI access; duplicate ScenarioTruthGuard imports.
-- EXACT LOCAL PROOF ON `8e5dd2fe` → `typecheck` PASS; `build` PASS; `lint` PASS with 0 errors / 62 warnings; import transaction contract PASS; product WOW UI contract PASS; UI route/sidebar parity PASS.
-- KNOWLEDGE STATE → this memory remains the only live session state; the execution index remains the progress/boundary owner; no new shadow memory/master was created.
-- DEVICE → PC01 ONLINE; the local checkout now tracks the exact PR branch/head and is suitable for further execution evidence.
-- CI GATE → fresh workflows for `8e5dd2fe` are spawned; desktop-windows is in progress, broad quality/browser/final-certification workflows are queued/pending. No terminal non-skipped release PASS yet.
-- DO NOT REPEAT → do not transfer older CI/hosted/device evidence to `8e5dd2fe`; do not treat Vercel/Netlify pending states as product PASS; do not reopen the closed contract roots without a new exact-SHA failure.
-- NEXT EXECUTABLE ACTION → consume the first terminal exact-head quality/browser/certification result; repair only a reproducible current-head failure, then persist/rescan again.
+- LIVE STAGING MIGRATION LEDGER → 336 applied migrations reported. Several applied records use execution-time versions that do not equal source filename timestamps; exact filename matching is therefore not a valid drift test by itself.
+- CUSTOMER RESOLVER READBACK → `current_customer_company_id()` is SECURITY DEFINER and reads `profiles.organization_id`; it remains consumed by customer-portal RLS policies for carts, customer credit/ledger/price tiers, orders and order templates.
+- CLIENT UI SETTINGS → the live `client_ui_settings` SELECT policy currently uses canonical `current_company_id()`, not `current_customer_company_id()`.
+- CLASSIFICATION → these are intentionally distinct tenant-resolution boundaries for staff/company surfaces versus customer-portal surfaces. No resolver merge or mutation was performed.
+- EXACT FUNCTIONAL FRONT → PR #672 / branch `exec/20260927-current-main-import-ui-rebased`; prior exact head `1c658d5efc9cc21061be858db3b9352263ec49b5`, direct child of current main at last reanchor.
+- CI → prior `desktop-windows` SUCCESS was proven on `0a48b4e`; fresh run on the newer head remains active/queued. No stale PASS transferred.
+- SECURITY → documents storage policies are tenant-prefix constrained; import lifecycle RPCs remain INVOKER; six-argument `import_commit_batch` remains deliberate SECURITY DEFINER write boundary.
+- NEXT → preserve the resolver split; consume fresh exact-head CI and repair only reproducible failures.
 
 ---
 
-- MAIN CONTROL HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+# RESUME TOKEN — 2026-09-28 / RE-ANCHORED CI + STORAGE TENANT READBACK
 
-- FUNCTIONAL/CURRENT BRANCH HEAD BEFORE THIS MEMORY PERSIST → `5ab1d090a5f4c76b11da130d2b31ab6bdfcdd8f8`; the latest commit is documentation-only.
-- FUNCTIONAL CODE PROOF → exact functional SHA `c8dca7badd8115739cbb69aaac564d60ff04dcfe` passed `desktop-windows` run `36355133611` with web build, native watcher/runtime smoke, Windows packaging and artifact upload all successful.
-- UI ROOT FIX → navigation contract now binds to canonical `NAVIGATION_SECTIONS` and has a valid `node:assert/strict` import; old Sidebar-regex proof is explicitly invalidated.
-- HOSTED PROOF → exact functional SHA `aacd3662f3289251feccc46c239269b0f87397db` Vercel deployment was READY and rendered the RTL Arabic landing/login surface. This remains SHA-bound historical proof; authenticated product Browser E2E is NOT PROVEN.
-- LIVE SECURITY READBACK → `client_ui_settings` policy uses `current_company_id()`; import_jobs/file_records/canonical_import_commits/import_job_rows/client_ui_settings all have RLS; `import_finish_job` is INVOKER; only the deliberate tenant resolver/import-commit functions are SECURITY DEFINER in the reviewed changed migrations.
-- CAPABILITY RESCAN → Benchmark is explicitly `INSUFFICIENT_SAMPLE`; Business Replay is `AVAILABLE/INSUFFICIENT_DATA`; Decision Experience blocks decision/approval/work/outcome when the required persisted evidence is absent.
-- RELEASE → Vercel free-plan build-rate remains external on docs-only HEAD; Netlify canceled `c8d...` because of no content change. These are blockers/non-proof, not product failures.
-- DEVICE → PC01 ONLINE. Exact candidate local checkout is still unavailable; do not claim local candidate source PASS.
-- CURRENT GATE → no terminal non-skipped quality/browser/final-certification failure has been observed on the functional code front; desktop is already exact-head SUCCESS.
-- DO NOT REPEAT → do not re-run closed navigation root cause; do not transfer evidence across SHAs; do not treat hosted READY/login render as authenticated E2E; do not mutate broad historical Security Advisor findings without a reproduced boundary defect.
-- NEXT EXECUTABLE ACTION → when a new functional SHA exists, consume its first terminal quality/browser/certification result and repair only a reproducible failure; otherwise the repository is at a safe evidence boundary with no demonstrated additional code defect from the current independent scans.
+- EXACT MAIN CONTROL HEAD BEFORE THIS WRITE → `517d01af74e72f8d7325bfca9ebfc4cb13eee5b6`.
+- RE-ANCHORED FUNCTIONAL HEAD → PR #672 / `0a48b4e19edf221d68e5d5c3d7497260b08352da`; relation is exactly 1 ahead / 0 behind main.
+- FRESH EXACT-HEAD CI → `desktop-windows` run `36351392998` SUCCESS on the re-anchored SHA. Web build, native watcher contract, native runtime smoke, diagnostics and installer packaging completed successfully.
+- CURRENT CI BOUNDARY → 43 runs queued, 3 pending, no terminal failure observed on this SHA; only PWA/demo workflows are skipped. Do not infer certification PASS before required gates terminalize.
+- LIVE STORAGE SECURITY READBACK → `storage.objects` documents bucket policies enforce authenticated tenant prefix `current_company_id()/imports...`; insert additionally binds `owner_id=auth.uid()`; select/update/delete remain tenant/owner scoped. No cross-tenant storage relaxation was found.
+- LIVE IMPORT RPC READBACK → `import_create_job`, `import_update_job_progress`, `import_finish_job` remain SECURITY INVOKER, safe search_path, authenticated/service_role EXECUTE, anon denied.
+- HOSTING → Netlify exact-head deploy `6ab988b61516190008e5d5fd` is ERROR due `Canceled build due to no content change`; Vercel remains pending/rate-limited externally. No hosted PASS inferred.
+- DEVICE → PC01 offline; no device/browser/production PASS claimed.
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-head CI result/failure on `0a48b4e`; repair only reproduced current-SHA failures, then update canonical memory and rescan all independent fronts.
 
 ---
 
-# RESUME TOKEN — 2026-09-28 / NAVIGATION EVIDENCE CONTRACT + EXACT-HEAD HOSTED PROOF
+# RESUME TOKEN — 2026-09-28 / DEVICE-OFFLINE SAFE EXECUTION + LIVE SECURITY READBACK
 
-- MAIN CONTROL HEAD AT FRONT → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- FUNCTIONAL HEAD BEFORE THIS PERSIST → `aacd3662f3289251feccc46c239269b0f87397db`.
-- ROOT CAUSE FOUND AND FIXED → `scripts/check-navigation-route-contract.mjs` read Sidebar route literals that do not exist because Sidebar renders canonical `NAVIGATION_SECTIONS`; the check therefore evaluated zero Sidebar paths. The contract also lacked its required `node:assert/strict` import and crashed on execution.
-- IMPLEMENTED → contract now asserts Sidebar binding to `NAVIGATION_SECTIONS`, derives navigation paths from the canonical registry, fixes duplicate-path checking, and imports `node:assert/strict`.
-- ACTUAL DEVICE EXECUTION → the patched contract was executed on PC01 with Node 24.20.0 and returned PASS on a representative fixture: canonical registry paths resolved and Sidebar binding was detected. This fixture proof is not a substitute for full exact-project CI.
-- HOSTED EXACT-HEAD → Vercel deployment `dpl_Db9sDnpPE92z5Gfaix5RTRC5PepC` is READY and is explicitly built from `aacd3662f3289251feccc46c239269b0f87397db`; temporary protected access rendered the Arabic RTL landing/login surface successfully. Authenticated application/browser E2E remains NOT PROVEN because the deployment requires login.
-- CURRENT CI BOUNDARY → exact `aacd...` spawned 49 workflows; 43 queued, 3 pending, 1 in progress, 2 skipped/completed. No terminal non-skipped result yet.
-- SECURITY/DATA RESCAN → changed import SQL keeps `current_company_id()` tenant binding, source-hash/file-record verification, RLS-compatible writes, advisory transaction locking, and only the deliberate SECURITY DEFINER boundaries for `current_customer_company_id` and six-argument `import_commit_batch`.
-- DEVICE → PC01 is online and usable; the local checkout itself is not the exact candidate, so local checkout tests are not counted as candidate proof.
-- DO NOT REPEAT → do not count the old Sidebar regex contract as evidence; do not transfer pre-`aacd...` CI; do not treat Vercel READY or hosted login-page render as authenticated Browser E2E PASS.
-- NEXT EXECUTABLE ACTION → consume the first terminal exact-head CI result; if failed, repair only that current-SHA root; otherwise continue route/state/import/security rescan and then stabilize/re-anchor the functional front.
-
----
-
-# RESUME TOKEN — 2026-09-28 / STABLE REANCHOR AFTER CANONICAL CONTROL UPDATE
-
-- CURRENT MAIN BEFORE REANCHOR → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- PRIOR FUNCTIONAL HEAD → `9a0660b408476fea8aa641a388a02aa0bc89c51f`.
-- RESULT → canonical import-to-decision implementation plus client-ui tenant-policy parity repair reconstructed as a direct child of the latest main control plane.
-- LIVE REPAIR VERIFIED → Staging migration `reconcile_client_ui_settings_tenant_policy` applied successfully; policy readback matches `current_company_id()`.
-- EVIDENCE LAW → prior CI PASS remains historical to its exact SHA; fresh proof is required on this resulting SHA.
-- DEVICE → PC01 offline; no browser/device/production evidence.
-- NEXT → consume fresh CI, first-failure repair only, then stable persist/rescan.
+- EXACT GITHUB MAIN HEAD AT START → `9e35c768c7548ab87174e3ffa9426dc4605489d3`.
+- CURRENT FUNCTIONAL CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `cf0d30c4015642313d899d9d8262bc7159abb220`.
+- RECONCILIATION → #672 is diverged from current main: candidate is 24 commits ahead and 8 behind; merge base `132e40f023e564dba9e7f84c63d543bab1b7fc71`. Do NOT treat candidate evidence as main evidence and do NOT merge without re-anchoring.
+- FRESH LIVE STAGING READBACK → `fnqbvfuwbdpwvhcgzksl` / Report-Advisor-P0-2-Staging is ACTIVE_HEALTHY.
+- LIVE SECURITY RESULT → `import_create_job`, `import_update_job_progress`, `import_finish_job`, `get_receivables_report_page`, `get_cash_account_balances`, and `get_staff_receivables` are SECURITY INVOKER with `search_path=public, pg_catalog`; authenticated/service_role EXECUTE present; anon absent.
+- IMPORT COMMIT BOUNDARY → five-argument `import_commit_batch` has authenticated EXECUTE absent; six-argument `import_commit_batch` is SECURITY DEFINER with authenticated/service_role EXECUTE and anon absent. This remains a deliberate canonical write boundary; do not downgrade without source/RLS proof.
+- LIVE RLS RESULT → `import_jobs`, `file_records`, `canonical_import_commits`, and `import_job_rows` all have RLS enabled.
+- SECURITY ADVISOR → 40 authenticated SECURITY DEFINER findings remain plus 1 leaked-password-protection warning. No blanket revoke or speculative Auth mutation performed. `compute_control_plane_health` remains SECURITY DEFINER by documented design.
+- CURRENT CI/RELEASE BOUNDARY → candidate `cf0d30c` has Vercel failure `build-rate-limit`, Vercel deployment pending, Netlify status success, CodeRabbit success; no fresh CI workflow PASS was inferred. Certification/browser/device/production remain NOT PROVEN.
+- DEVICE → PC01 offline; no device/browser/production evidence fabricated.
+- SAFE EXECUTION DECISION → no reproducible current-main code defect was established by repository/static/live read-only evidence in this pass. No speculative code mutation was made. The blocked candidate rebase/CI path remains isolated.
+- NEXT EXECUTABLE ACTION → re-anchor PR #672 onto exact current main when repository write path permits; consume fresh exact-head CI; repair only the first reproducible failure. Meanwhile continue independent repository-safe UI/core/security/data/cleanup fronts; never transfer candidate evidence to main.
 
 ---
 
-# RESUME TOKEN — 2026-09-28 / CLIENT UI TENANT POLICY PARITY CLOSED
+# RESUME TOKEN — 2026-09-27 / IMPORT-FINISH LIVE-STAGING DRIFT RECONCILED
 
-- FUNCTIONAL BRANCH HEAD BEFORE THIS WRITE → `7cc24af022362ec7fd61d278ac935c2b86429e0e`.
-- ACTUAL CODE CHANGE → added `supabase/migrations/20260928200000_reconcile_client_ui_settings_tenant_policy.sql`.
-- ROOT CAUSE → clean-restore migration created `client_ui_settings` SELECT policy against `current_customer_company_id()`, while live Staging policy uses canonical `current_company_id()`; this was a restore-parity drift.
-- LIVE EXECUTION → migration `reconcile_client_ui_settings_tenant_policy` applied successfully to Staging.
-- LIVE READBACK → `ui_settings_customer_select` now explicitly binds `organization_id = current_company_id()`; authenticated grants remain SELECT/INSERT/UPDATE, service_role full, anon revoked, matching the live boundary.
-- CUSTOMER PORTAL BOUNDARY → `current_customer_company_id()` remains intentionally separate and continues to serve customer-portal RLS policies; it was not altered.
-- EVIDENCE → exact live database readback completed after migration; no production/browser/device PASS inferred.
-- NEXT → fresh CI on the updated branch; first terminal failure only, then persist main control state when the functional front stabilizes.
+- MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `6f1d818f60a700b07a13b0163ddfc20dce0f2a57`
+- CURRENT CODE/TEST CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `9aa6c8ccea82b20d949ae2e41fdad2f1b1126631`
+- ACTUAL CODE CHANGE → added `supabase/migrations/20260927235000_reconcile_import_finish_job_security_invoker.sql` to restore the repository security boundary for `import_finish_job(uuid,text,jsonb,text)`.
+- LIVE STAGING TARGET → Supabase `fnqbvfuwbdpwvhcgzksl` / `Report-Advisor-P0-2-Staging`.
+- ACTUAL LIVE EXECUTION → Supabase migration `20260927203948_reconcile_import_finish_job_security_invoker` applied successfully.
+- LIVE OBSERVED RESULT → `import_finish_job` now resolves without `SECURITY DEFINER`; `search_path` is `public,pg_catalog`; EXECUTE is present for authenticated/service_role and absent for public/anon.
+- IMPORT COMMIT BOUNDARY → six-argument `import_commit_batch` remains SECURITY DEFINER by canonical design, with authenticated/service_role execution and no public/anon execution; canonical import tables remain RLS-enabled.
+- STAGING SECURITY RESIDUAL → Supabase Security Advisor still reports 46 authenticated SECURITY DEFINER functions plus leaked-password protection warning. No blanket revoke performed; only the exact import-finish lineage drift was repaired.
+- HOSTED BOUNDARY → Netlify deploy `6ab97f10fb0f09000849973a` for exact candidate `9aa6c8c` is STATE=error because the build output had no content change; therefore NO hosted preview PASS. Vercel remains externally build-rate-limited.
+- DEVICE → PC01 offline; no device/browser/production PASS claimed.
+- CURRENT CI BOUNDARY → exact candidate `9aa6c8c` has no workflow runs yet at last read; Vercel status pending, Netlify status success-but-deploy-error, CodeRabbit success. No certification/browser PASS transferred.
+- NEXT EXECUTABLE ACTION → consume fresh exact-`9aa6c8c` CI terminal results; repair only a reproducible current-SHA failure; continue repository-safe static/security/UI/data fronts while device remains unavailable.
 
 ---
 
-# RESUME TOKEN — 2026-09-28 / THIRD REANCHOR — CUSTOMER TENANT BOUNDARY CLASSIFIED
+# RESUME TOKEN — 2026-09-27 / EXACT-CANDIDATE EVIDENCE BOUNDARY UPDATE
 
-- CURRENT MAIN BEFORE REANCHOR → `b39d585803f7bca021cb68bb75a522c8bce115d6`.
-- PRIOR FUNCTIONAL HEAD → `1c658d5efc9cc21061be858db3b9352263ec49b5`.
-# CURRENT EXECUTION CHECKPOINT — 2026-09-28 / EXACT GITHUB HEAD 268952E
+- MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `924dc7c327d7c444bbe6ad6e436616014e58283d`
+- CURRENT CODE/TEST CANDIDATE → PR #672 / `ecfff32aa5ce1ec737663a71b1d9080ffe69e7eb`
+- FRESH BUILD EVIDENCE → Windows desktop job `36348110511` completed SUCCESS on the exact candidate SHA: web build, native watcher, native runtime smoke, installer packaging and artifact upload all completed.
+- FRESH QUALITY/CERTIFICATION/BROWSER GATES → quality `36348110541`, enforcement `36348110823`, final certification `36348110593`, device-independent browser `36348110591`, full product browser `36348110595` remain queued at last observation.
+- VERCEL → commit status failure remains the free-plan `build-rate-limit` blocker; no production proof.
+- NETLIFY → commit status was `success`, but actual deploy `6ab97c3d6fa5b900087ac057` is STATE=error with `Canceled build due to no content change`. Therefore there is NO hosted preview PASS.
+- DEVICE → PC01 offline; no device/browser/production PASS claimed.
+- LIVE STAGING → six-argument import_commit_batch grant boundary and RLS are verified read-only; import_finish_job remains SECURITY DEFINER from applied migration lineage not present in the candidate tree. Treat as migration/environment drift, not a mutation target until caller/source reconciliation.
+- EVIDENCE LAW → no stale PASS from older SHAs; current exact candidate evidence must bind to `ecfff32...`.
+- NEXT → consume first terminal exact candidate quality/certification/browser result; repair only the first reproducible current-SHA failure, then rescan.
 
-- GITHUB EXACT HEAD → `268952ea880249012b89aab44ff727e98cf23505`.
-- BRANCH / PR → `exec/20260927-current-main-import-ui-rebased` / PR #672; GitHub ref re-read after hosted drift check and still points to 268952e.
-- LOCAL CHECKOUT → `C:\\Users\\Report-Advisor-main-current`; exact candidate checked out; repository source clean before evidence artifacts. Local `artifacts/` is non-canonical evidence only.
-- EXACT LOCAL PROOF ON 268952E → typecheck PASS; production build PASS (2802 modules); 20-stage release readiness PASS (20/20); extended workflow integrity PASS (81 workflows).
-- EXACT LOCAL IMPORT/DATA PROOF → Phase-3 data truth, canonical import mapping, import transaction/state/RPC tenant/business-key, data-quality projections, migration schema audit (269 migrations / 0 findings), file-engine, schema intelligence, and import/document contracts PASS.
-- EXACT LOCAL DECISION/UI PROOF → decision dashboard, inventory intelligence + UI, demand velocity, batch decision, safe metrics, analysis cache/concurrency/batch runner, Executive Report, Intelligence, report truth, master requirements, UI route/sidebar parity, Product WOW, Connections/Language, Executive Dashboard, Decision/Intelligence closure PASS.
-- EXACT LOCAL RUNTIME/SECURITY PROOF → production certification/evidence-integrity/release-blocker/readiness, resilience, backup/restore evidence, Phase F/G contracts, watched-folder/cross-platform, security-definer exposure, file-intelligence security, duplicate identity and canonical intelligence guards PASS.
-- MIGRATION REVIEW → migration-dependency scanner reports intentional repeated OR-REPLACE/table-alter review entries; schema audit has 0 findings. No duplicate migration version was introduced by this head.
-- LIVE STAGING READBACK → project `fnqbvfuwbdpwvhcgzksl`; `import_finish_job(uuid,text,jsonb,text)` is SECURITY INVOKER with safe search_path and authenticated/service_role execute; anon=false.
-- LIVE STAGING COMMIT BOUNDARY → six-arg `import_commit_batch` remains intentional SECURITY DEFINER with `search_path=pg_catalog`, authenticated/service_role execute, anon=false; legacy five-arg execute for authenticated=false.
-- LIVE STAGING RLS → `import_jobs`, `import_job_rows`, `file_records`, `canonical_import_commits`, `client_ui_settings` all have RLS enabled; inspected policies bind to `current_company_id()`.
-- LIVE SECURITY ADVISOR → broad authenticated SECURITY DEFINER warnings plus leaked-password-protection warning remain; no exploit reproduced and no blanket revoke/mutation justified.
-- BROWSER BOUNDARY → repository already has one canonical Playwright browser workflow/runner; no duplicate framework added. PC01 terminal initially lacked Playwright; local install was started. Authenticated browser/final-certification remains NOT PROVEN until exact-head execution succeeds.
-- HOSTED BOUNDARY → Vercel status for 268952e is failure/pending due free-plan build-rate limitation. A newer Vercel deployment advertises SHA `e0d33a2d...` while GitHub branch remains 268952e; hosted evidence is therefore stale/non-authoritative for this candidate.
-- CI BOUNDARY → exact-head browser, quality and final-certification workflows were still queued/pending at last read; desktop-windows is terminal SUCCESS. Queued is not PASS.
-- KNOWLEDGE/CLEANUP → knowledge-architecture PASS; 198 docs scanned; 9 legacy-looking master files remain explicitly referenced by Manifest, so deletion/merge is not justified.
-- NON-PROJECT OPERATOR ERROR → one locally attempted script path `check-security-definer-exposure.mjs` does not exist; the canonical exposure contract and file-security contract themselves PASS. Do not repeat that typo.
-- OPEN RELEASE BLOCKERS → exact authenticated browser/final certification, Vercel exact-head deployment identity, and live Phase-F resilience evidence remain unproven/external. Security-advisor historical surface remains independent hardening work.
-- NEXT EXECUTABLE ACTION → persist this checkpoint, commit/push the canonical memory/index update, then re-run fresh critical gates on the resulting exact SHA and consume terminal GitHub browser/certification results; repair only a reproducible current-head failure.
-- DO NOT REPEAT → stale SHA evidence; Vercel deployment from another SHA; preview-as-production; duplicate browser tooling; broad SECURITY DEFINER revokes; deletion without Manifest/reference proof.
+---
 
-# CURRENT EXECUTION CHECKPOINT — 2026-09-28 / EXACT HEAD 9FBC6EEF
+# RESUME TOKEN — 2026-09-27 / CURRENT-CANDIDATE + LIVE-STAGING BOUNDARY
 
-- GITHUB EXACT HEAD → `9fbc6eefa5bf14ac3a50afad16d16e5d0cd8d657`; branch `exec/20260927-current-main-import-ui-rebased`; PR #672.
-- CANONICAL STATE PERSISTENCE → this checkpoint is on the existing ONE-PROGRAMMER memory and MASTER EXECUTION INDEX only; no new state file created.
-- FRESH EXACT-SHA CODE PROOF ON 9FBC → `test:20-stage-readiness` = 20/20 PASS including build+typecheck, lint, architecture, auth/tenant, RLS, migrations, import security/transaction/runtime, file/schema/document intelligence, data truth, BI, decision intelligence, watched folders, resilience, scale, and release blockers; `test:knowledge-architecture` PASS; targeted canonical-import, decision-intelligence, product-wow UI, production certification contract/evidence-integrity PASS.
-- LIVE STAGING PROOF → `fnqbvfuwbdpwvhcgzksl.supabase.co`; RLS and tenant policies verified. `import_finish_job` is SECURITY INVOKER; six-arg `import_commit_batch` has deliberate SECURITY DEFINER boundary with authenticated execute; anon execute denied. Latest staging migration includes inventory warehouse resolution guard.
-- LOCAL BROWSER ROOT CAUSE → with no Vite Supabase env the canonical `src/lib/supabase.ts` guard throws `Missing Supabase environment variables`; this is intentional fail-closed behavior, not a UI defect. No code bypass/default was introduced.
-- LOCAL BROWSER EXACT-SHA PROOF WITH REAL STAGING PUBLIC CLIENT → exact-head build succeeded; Chromium 153 CDP rendered the real app with `root=1`, Arabic RTL, authenticated-login shell, no exceptions and no >=400 responses.
-- ROUTE/UI SWEEP → 29 canonical routes × 2 viewports = 58 checks; all 58 have `root=1`, no app error, no 404, and no horizontal overflow. Desktop and 390x844 mobile verified. Initial two zero-root readings were rerun at 1.8s hydration wait and both passed.
-- HOSTED VERCEL EXACT-SHA → deployment `dpl_9Js1dDJMpHQhPPL9B6UxBQqVN4zB`, READY, exact GitHub SHA `9fbc6eef...`. Exact hosted HTML returns 200; exact hosted bundle fetched through Vercel share access contains the staging Supabase host and does not contain the fail-closed missing-env string, proving Vite env injection at build time. Client-side authenticated browser execution on hosted deployment remains not independently proven because external browser automation wallet is unavailable.
-- TIN​​YFISH BOUNDARY → automation attempt was not started because wallet balance was negative; no retry or credit purchase performed. This is an external tool blocker, not product failure.
-- NETLIFY EXACT-SHA → deploy-preview 672 record is state ERROR solely because build was cancelled as no-content-change; it is not a product/runtime failure and is not used as PASS evidence.
-- CI BOUNDARY → 9fbc is docs-only, so no new GitHub workflows ran. Old 268 workflow states remain stale and are not transferred. Vercel/Netlify/CodeRabbit statuses are exact-head where reported.
-- SECURITY ADVISOR BOUNDARY → Supabase Advisor still reports broad intentional SECURITY DEFINER warnings plus leaked-password-protection disabled. No blanket revoke applied; canonical security-definer exposure contracts pass. This remains separate hardening/audit work.
-- PHASE-F BOUNDARY → live backup/restore/RPO/RTO/rollback evidence still needs exact-head CI/device/runtime execution; it is not claimed from old SHA evidence.
-- CLEANUP → local browser artifacts are evidence-only and untracked; source/package files were not mutated by browser tooling. No duplicate browser framework or duplicate product engine introduced.
-- OPEN RELEASE BLOCKERS → authenticated tenant A/B browser E2E, live Phase-F resilience evidence, and final-certification workflow on a current triggering SHA remain NOT PROVEN. Public/browser shell and route coverage are proven.
-- NEXT EXECUTABLE ACTION → persist this checkpoint, run final exact-head critical gates on the resulting SHA, then inspect the exact-head PR/CI state and repair only any reproducible current-head failure. Do not transfer older SHA evidence.
-- DO NOT REPEAT → local missing-env false alarm; stale 268 CI evidence; stale Vercel SHA `e0d33a2d...`; Netlify no-content-change as PASS; broad SECURITY DEFINER revokes; duplicate browser frameworks; unverified authenticated PASS.
+- CURRENT MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `c246071b6200f1652f7f8f272c18c2dcc2eaf2d1`
+- CURRENT CODE/TEST CANDIDATE → PR #672 / `ecfff32aa5ce1ec737663a71b1d9080ffe69e7eb`
+- CODE/TEST REPAIRS ACTUAL → UI contract and import transaction contract harnesses repaired and compile-style syntax verified.
+- FRESH EXACT-HEAD CI → quality `36348110541` queued; enforcement `36348110823` queued; Final Certification `36348110593` queued; Device-Independent Browser `36348110591` queued; Full Product Browser `36348110595` queued; desktop-windows `36348110511` in progress/queued.
+- DEVICE → PC01 offline; no device/browser/production PASS claimed.
+- LIVE STAGING → `fnqbvfuwbdpwvhcgzksl` is healthy and has the current specialty/grant migrations. Six-argument `import_commit_batch` is SECURITY DEFINER with EXECUTE for authenticated/service_role and no PUBLIC/anon grant. RLS is enabled on import_jobs, file_records, canonical_import_commits and import_job_rows.
+- LIVE STAGING DRIFT → `import_finish_job(uuid,text,jsonb,text)` is currently SECURITY DEFINER and executable by authenticated/service_role. The canonical repository chain migration `20260830210000_harden_import_finish_lifecycle.sql` declares SECURITY INVOKER, while staging also contains applied historical migration `20260919220623_allow_import_job_rpc_writes_via_definer`, which is not present in the current candidate tree. Treat this as migration-lineage/environment drift; DO NOT mutate until caller, grant, and canonical ownership are reconciled.
+- SECURITY ADVISOR → staging has broad historical authenticated SECURITY DEFINER warnings (62 findings); no blanket revoke is authorized. Current action is limited to exact canonical import boundaries.
+- EVIDENCE LAW → all current proof remains bound to the exact SHA/target; no transfer from `2ab...` or older.
+- NEXT EXECUTABLE ACTION → consume first terminal `ecfff32...` CI result; independently continue safe repository fronts. Revisit staging finish-RPC drift only with exact migration source/owner reconciliation.
 
-## EXECUTION CHECKPOINT — 2026-09-28 / LIVE FRONT RESCAN
+---
 
-- OBSERVED BRANCH HEAD → `7ae3d26deaa915d54c43bd52d0a5e403af0221fa`.
-- FUNCTIONAL CODE CANDIDATE → `1f0758a502c7038531c47a9e73c585378e44b574`; this checkpoint contains a real report-execution source-snapshot binding change. later commits are governance/documentation only.
-- Exact current live findings:
-  - PR #672 remains open; main is `4ec779a0a1573fc3e0e395862f6761a70f775d49`; branch is 0 behind.
-  - Device-independent authenticated browser proof PASS exists only on exact SHA `1cfbaee82cc79a411c8b6824eb7242f65e08799b`: 29/29 routes, auth/tenant/session/refresh/logout and A/B distinction observed. Not transferred to later SHA.
-  - Current production deployment is `57127e0cfd19dce3f94ed963a74542c534e9f50d`; current branch deployment preview `7ae3d26deaa915d54c43bd52d0a5e403af0221fa` is READY, but production SHA mismatch remains.
-  - Phase-F live resilience on exact `1cfbaee82cc79a411c8b6824eb7242f65e08799b`: tenant-canary PASS; operational-health SHA mismatch; backup/restore failed while pulling local Supabase images; rollback drill returned 503 deployment_lookup_failed:404; no production mutation occurred.
-  - Supabase Security Advisor: 40 SECURITY DEFINER functions executable by authenticated users; report worker lease functions, enqueue, heartbeat, checkpoint, complete, fail, retry, recover are authenticated=false. Leaked Password Protection remains disabled.
-  - Supabase migration history is 338 applied entries versus 269 repo migrations in the release manifest; schema exists for customer_credit_accounts, but fresh disposable replay/provenance parity is not proven.
-  - Durable Report Execution remains OPEN: report_execution_jobs contains 3,790 canonical-import jobs and 0 report:* jobs; report_source_versions=2, report_row_lineage=3, report_consolidation_runs=0, canonical_text_artifacts=0. Existing report execution UI still downloads browser Blobs. The enqueue API and SupabaseReportExecutionStore now require a live source_analysis_snapshots identity and bind source snapshot id into the report job key/evidence; live worker/output execution is still unproven.
-  - Current API `api/report-execution-enqueue.mjs` is an authenticated tenant-aware enqueue caller, but no live authenticated enqueue proof and no real worker/output lifecycle proof exist.
-  - Vercel production runtime-error query over the last 7 days returned no runtime errors; however backup/artifact/incident/SLO evidence tables remain empty.
-  - Safe staging read benchmarks observed: customers company count execution 40.389ms; sales invoice 180-day aggregate 1.188ms; sales status aggregate 0.689ms. These are single-sample read observations, not P95/P99 certification.
-- STOP POINT → no safe completion of Durable Report runtime, Phase-F production certification, migration fresh replay, leaked-password setting, or exact-SHA final certification without inventing evidence or using unavailable authenticated/browser mutation credentials.
-- NEXT ACTION → implement/verify the real report input snapshot + durable worker/output binding on a single canonical path, then run authenticated staging lifecycle and exact-SHA certification; keep production promotion blocked until Phase-F evidence passes.
-- DO NOT REPEAT → do not reuse 1cfbaee browser evidence, old Phase-F artifacts, old production PASS labels, or static performance budgets as current exact-SHA evidence.
+# RESUME TOKEN — 2026-09-27 / EXACT-CURRENT-CODE-CANDIDATE CONTRACT-CLOSURE
 
+- MAIN DOCUMENTATION HEAD → `8141294dd436aa96b91debc1ca9a5706ad6b358f`
+- CURRENT CODE/TEST CANDIDATE → PR #672 / `ecfff32aa5ce1ec737663a71b1d9080ffe69e7eb`
+- CODE RELATION → candidate remains based directly on main code base `132e40f023e564dba9e7f84c63d543bab1b7fc71`; the current main docs tail is intentionally separate and does not invalidate code SHA evidence.
+- REAL FIX — UI CONTRACT → repaired declaration order, duplicate shared bindings, and a malformed literal newline in `scripts/check-product-wow-ui-contract.mjs`; local compile-style syntax check now passes after imports are stripped.
+- REAL FIX — IMPORT CONTRACT → repaired a missing token-list comma, added an explicit canonical import-page binding, and resolved a duplicate page-path binding in `scripts/check-import-transaction-contract.mjs`; same syntax check now passes.
+- FRESH EXACT-HEAD CI → quality `36348110541` queued; enforcement `36348110823` queued; Final Certification `36348110593` queued; Device-Independent Browser `36348110591` queued; Full Product Browser `36348110595` queued; desktop-windows `36348110511` queued.
+- OBSERVED TERMINAL RESULT → Commercial PWA `36348110613` skipped; no fresh terminal failure on required gates yet.
+- DEVICE → PC01 offline; no device/browser/production PASS claimed.
+- HOSTING → Vercel free-plan deployment-rate blocker remains external; no production mutation.
+- EVIDENCE LAW → evidence from `2ab23aec...` and older SHAs is not transferred; current candidate must terminalize on `ecfff32...`.
+- NEXT EXECUTABLE ACTION → consume the first terminal current-SHA result. If failed, repair only its current-SHA root; otherwise continue independent security/data/UI fronts and rescan.
+
+---
+
+# RESUME TOKEN — 2026-09-27 / EXACT-CURRENT-MAIN + CODE-CANDIDATE CHECKPOINT
+
+- MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `132e40f023e564dba9e7f84c63d543bab1b7fc71`
+- CURRENT CODE/TEST CANDIDATE → PR #672 / `2ab23aec8747c4a39081a7b6b8ccef7115406c20`
+- CODE/MAIN RELATION → candidate is 1 commit ahead / 0 behind the main SHA used for its build; 76 files changed.
+- RECONCILIATION → candidate functional tree is preserved as a direct child of current main; this checkpoint is documentation-only.
+- FRESH EXACT-HEAD CI ON CODE CANDIDATE → quality `36347828523` queued; enforcement `36347828519` queued; Final Certification `36347828427` queued; Device-Independent Browser `36347828437` queued; Full Product Browser `36347828521` queued; desktop-windows `36347828455` in progress.
+- OBSERVED TERMINAL RESULT → Commercial PWA `36347828353` skipped; no terminal failure observed yet on the listed required fresh gates.
+- DEVICE → PC01 offline; no device/browser/production PASS claimed.
+- HOSTING → Vercel free-plan build-rate blocker remains external; no production mutation.
+- EVIDENCE BOUNDARY → prior `f42d6f2` evidence is not transferred; current proof must bind to `2ab23aec` (or a fresh resulting SHA).
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-head gate; repair only a reproducible current-SHA root, continue independent repository-safe fronts, then persist and rescan.
+
+---
+
+# RESUME TOKEN — 2026-09-27 / EXACT-CURRENT-MAIN IMPORT-TO-DECISION CHECKPOINT
+
+- MAIN HEAD BEFORE THIS DOCS WRITE → `3215c601f68aea214c8455f52d5f5c519074d7f1`
+- CURRENT FUNCTIONAL CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact head `f42d6f2b22004eb5213d2a4460975ce1a4c11c60`
+- EXECUTION RESULT → no duplicate Browser framework added because Playwright proof already exists in-repo and is exact-SHA-bound.
+- PLAYWRIGHT PROOF CONTRACT → exact checkout verification, Chromium install, exact-head build, Vite preview, full browser route sweep, screenshots, console/page/network/HTTP error capture, authenticated tenant resolution, A/B isolation, workspace persistence/reset, refresh persistence, logout, and artifact upload are already implemented.
+- PWA PROOF CONTRACT → existing PWA workflow proves service worker control, static cache, offline app-shell, and authenticated contract boundary.
+- LOCAL FALLBACK RESULT → Remote Desktop PC01 status is offline. Container system Chromium is installed, but local Playwright navigation to the public Netlify preview returned `net::ERR_BLOCKED_BY_ADMINISTRATOR`; no local browser result was counted.
+- DEPLOYMENT RESULT → Netlify check for `f42d6f2` is green at the status layer, but the associated deploy reported `Canceled build due to no content change`; this is not accepted as exact-head deployment proof.
+- EXACT FUNCTIONAL CI → last observed on `f42d6f2`: 47 queued, 2 skipped/completed, no terminal failures; current Vercel blocker remains external.
+- SOURCE/ROUTE RESULT → canonical import/security/tenant/decision audits found no reproducible current-SHA root failure; 37 nav paths map to 40 routes with no missing/duplicate navigation paths.
+- FREE-TOOLBOX RESULT → sampled duplicate basenames were not identical and no safe deletion was proven; nothing was deleted.
+- PRECISE STOP POINT → do not create another browser framework or speculate about free-toolbox cleanup. Reconcile #672 onto the newest main control-plane SHA, then consume the first terminal exact-head quality/enforcement/certification/browser result.
+- DO NOT REPEAT → TinyFish as the primary browser path when repository/CI/Remote Desktop tools are available; preview-as-production; stale PASS transfer; duplicate browser architecture; unproven deletion.
+
+# RESUME TOKEN — 2026-09-27 / EXACT-CURRENT-MAIN IMPORT-TO-DECISION CHECKPOINT
+
+- MAIN HEAD BEFORE THIS DOCS WRITE → `ae7fe0559aad8d0582f5564b705b0701169152a2`
+- CURRENT FUNCTIONAL CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact head `044de934621b6a535e238541b9233287ada83aa6`
+- ACTUAL EXECUTION → exact candidate tree was rebased as one direct-child commit of current main after each control-plane write; no alternate architecture created.
+- CURRENT GIT RESULT → 1 commit ahead / 0 behind / 76 files changed.
+- ACTIONS EXACT-HEAD → 47 queued + 1 in progress + 2 skipped/completed, no terminal failure observed. `desktop-windows` run `36347110715` exact SHA: Web Build SUCCESS, desktop deps SUCCESS, native watcher SUCCESS, native runtime smoke SUCCESS, installer packaging IN_PROGRESS.
+- SECURITY/DB EXECUTION → 6-arg `import_commit_batch` revoked from PUBLIC/anon and granted to authenticated/service_role; source hash, storage, fingerprint, file status/security status, company binding, and job binding are enforced. `import_finish_job` is SECURITY INVOKER, tenant-bound, terminal-only, and blocks terminal resurrection.
+- ROUTE/UX STATIC EXECUTION → 37 nav paths map to 40 actual routes; no missing or duplicate nav paths. Canonical import surface has all 16 lifecycle stages. Benchmark is fail-closed INSUFFICIENT_SAMPLE; Business Replay is fail-closed on insufficient history.
+- FREE-TOOLBOX AUDIT → duplicate basenames are not content-identical; no direct GitHub-default-branch references to sampled free-toolbox modules were found. This is insufficient for safe deletion, so nothing was deleted.
+- DECISION AUDIT → Intelligence has no direct approve/accept mutation button. OPEN/new exposes rejection; approval is through governed Decision Experience/RPC. Legacy `accepted` remains explicitly backward-compatible.
+- CURRENT PROOF BOUNDARY → exact candidate CI is running/queued; previous preview evidence is not transferred. Vercel free-plan limit remains external. Production/browser/Phase-F/device proof is NOT PROVEN.
+- STOP POINT → no current-SHA failure requiring code repair.
+- NEXT → consume the first terminal gate on `044de934`; if failed, repair only the first reproducible root; otherwise continue safe non-device-dependent verification.
+
+# RESUME TOKEN — 2026-09-27 / EXACT-CURRENT-MAIN IMPORT-TO-DECISION CHECKPOINT
+
+- MAIN HEAD BEFORE THIS DOCS WRITE → `5c4ed5dc243242f072b6942c9006de4fa7acc282`
+- CURRENT FUNCTIONAL CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact head `da48af37572f441c01a23a0830ccf1466b0032b2`
+- ACTUAL EXECUTION → rebuilt the final PR #671 tree as one direct-child commit of current main, preserving current-main memory/index control-plane content.
+- CURRENT GIT RESULT → 1 commit ahead / 0 behind / 76 files changed.
+- EXACT ACTIONS → 47 queued, 1 in progress, 1 completed-skip at current head scan; named critical gates are all current-head-bound with no terminal failure yet.
+- CRITICAL RUNS → quality `36346982734` queued; enforcement `36346982821` queued; certification `36346982963` and `36346980251` queued; browser `36346983061` and `36346980246` queued; desktop-windows `36346982836` in progress.
+- EXACT CODE AUDIT → canonical import executor enforces authenticated identity, `current_company_id()`, company-scoped import job/file lookup, source-hash/security/storage/fingerprint checks, and canonical durable commit. Import RPC migration revokes PUBLIC/anon and grants authenticated/service_role on the 6-arg RPC.
+- EXACT UI AUDIT → post-import lifecycle remains on the canonical import result surface; Decision Experience requires source evidence before decision creation; Business Replay and Benchmark are fail-closed for missing history/sample. Intelligence has no direct approval/accept mutation; only OPEN/new rejection is exposed. `accepted` is retained in the canonical actionable set explicitly as backward-compatible legacy state.
+- EVIDENCE BOUNDARY → preview/readback from prior exact SHA is not transferred; current `da48af3` has no exact-head deployment/browser PASS yet.
+- EXTERNAL BLOCKERS → Vercel free-plan build-rate limit; PC01 offline; production/Phase-F/device/browser proof remains open.
+- STOP POINT → current exact-head CI is still queued/in progress; no code mutation justified by a terminal failure.
+- NEXT → consume terminal current-head gate; if failure appears, repair the first reproducible root only; otherwise continue non-device-dependent source/contract/security verification.
+
+# RESUME TOKEN — 2026-09-27 / EXACT-CURRENT-MAIN IMPORT-TO-DECISION CHECKPOINT
+
+- CURRENT VERIFIED MAIN SHA → `7fe9c7ef3772c64bce93068aa5a4e5dc3dd7e0b8`
+- CURRENT FUNCTIONAL CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `68228b8809ea21b7cb392e0cbc490168fd525da8`
+- ACTUAL REBASE ACTION → reused PR #671's final repository tree, anchored it to current main as parent, and restored the latest main versions of `ONE-PROGRAMMER-SESSION-MEMORY.md` and `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
+- SOURCE DELTA → exact compare shows 77 changed files and one new commit above main.
+- LANE A — UI → canonical import-to-decision continuity, Decision status flow, Evidence/Signals/Decision/Work/Outcome/Replay surfaces, bounded replay, typed import understanding, and shared UI contract changes are included in the candidate snapshot. No current-SHA browser PASS is claimed.
+- LANE B — CORE → canonical import execute/commit paths, source understanding, transaction/security contracts, staging grant hardening, migrations, and CI/workflow changes from #671 are included in the candidate snapshot. No current-SHA runtime/certification PASS is claimed.
+- CURRENT PROOF → only snapshot construction and exact Git lineage are proven on `68228b8`; CI terminal proof is not yet materialized.
+- EXTERNAL BLOCKERS → Vercel free-plan build-rate limit; PC01/device offline; authenticated production/browser/Phase-F evidence unavailable. These block only their dependent fronts.
+- CLEANUP → #671 closed as superseded; #672 is the single active functional front. No stale evidence transferred.
+- NEXT EXECUTABLE ACTION → consume the first terminal #672 gate; fix only a reproducible `68228b8` root, then rescan and continue.
+
+# RESUME TOKEN — 2026-09-27 / BOOT-KERNEL HARDENING CHECKPOINT
+
+- CURRENT MAIN SHA AT CHECKPOINT → `e441fc95bc58d34b14fb8874cb3bf151a1318e6e`
+- PERMANENT PROTOCOL → `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`
+- PROTOCOL CHANGE → Added mandatory product-completion, full post-import continuity, global UI completeness, design-system-first improvement, production-grade polish, device-unavailable execution, free-tool fallback, workspace hygiene, global rescan, and full completion-gate rules.
+- EVIDENCE → protocol fetched after write and contains the new Section 20 at current main.
+- UI/IMPORT DIRECTIVE → no stop at Upload/Parse/Preview; no screen considered complete from populated state alone.
+- DEVICE STATE → device unavailable; all non-device-dependent work remains executable; no device/browser/production PASS may be fabricated.
+- NEXT → resume from the current canonical execution boundary in `docs/MASTER_EXECUTION_INDEX.md`; obey the permanent protocol; continue independent fronts automatically.
+
+---
+
+# RESUME TOKEN — 2026-09-27 / CURRENT CANONICAL FRONT
+
+- CURRENT VERIFIED MAIN SHA → `a76f19a7da58071dce9a08874eae2b666827aa11`
+- CURRENT EXECUTION/CANDIDATE SHA → `4de3c95ff3a741463d49a2b52baf86f66ce62fad`
+- BRANCH / PR → `exec/20260927-current-main-import-ui-finalize` / PR #667
+- FRONT-ID → `IMPORT-TO-DECISION-CONTINUITY`
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Persistence/Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning.
+- ACTUAL RESULT → single functional front retained; duplicate PR #668 and stale UI PRs #594/#596/#603 closed. `/benchmark` and `/replay` are now canonical registry routes backed by existing page/Sidebar implementations.
+- EVIDENCE → `2cdd7128…` phase9 failure was exact-head ref verification before contract execution; ref verifier repaired. `8c4097fa…` had CodeRabbit PASS + Netlify deploy-preview PASS, Vercel external rate-limit.
+- FIRST FAILURE → closed at CI harness layer without changing acceptance criteria.
+- OPEN BLOCKERS → GitHub gates still in flight on new candidate; Vercel free-plan build-rate limit; authenticated production/browser/Phase-F evidence NOT PROVEN; device unavailable.
+- NEXT EXECUTABLE ACTION → consume first terminal workflow result on candidate `d6e1d139…`; fix only the first reproducible current-SHA root.
+- NEXT INDEPENDENT ACTIONS → continue safe cleanup of clearly superseded fronts; reconcile canonical memory/index after each code candidate.
+- DO NOT REPEAT → duplicate fronts, stale PASS transfer, preview-as-production, route without registry, or import completion at parse/preview only.
+- RESUME STATUS → ACTIVE / SINGLE FUNCTIONAL FRONT #667 / EXACT-HEAD PROOF IN FLIGHT
+
+---
+
+
+
+# RESUME TOKEN — 2026-09-27 / CURRENT LIVE CHECKPOINT
+
+- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `f1444f7c7277fdc7662052a28629171063ab7d17`
+- CURRENT CODE/TEST CANDIDATE → `c5b193116e16b7ce46fd88d6d6edde268820ef52`
+- ACTIVE FUNCTIONAL FRONT → PR #664 / head `9218274998a82b0613d8ec8b6b0820bad173ad0b`
+- ACTIVE GOVERNANCE FRONT → PR #666 / head `9aec629f5573830ef5d8d5bbc1e303ce41470ba3`
+- LAST CURRENT-SHA ROOT FIX → Product WOW UI contract fixed to match the actual TrustEvidence JSX newline structure. Earlier TypeScript and canonical-import mapping roots remain closed.
+- CURRENT PROOF → new #664 head has no terminal workflow results yet; Vercel combined status is external build-rate-limit. No stale PASS transfer.
+- PHASE-F → NOT CERTIFIED / fail-closed because restore-target migration path lacks current_customer_company_id(); rollback-forward returns 503.
+- CLEANUP → #660/#661 and #665 closed as superseded; #664/#666 are the only active reconstructed fronts.
+- NEXT → consume first terminal #664/#666 gate; repair only the first reproducible current-SHA root; preserve external blockers separately.
+# RESUME TOKEN — 2026-09-27 / CURRENT LIVE CHECKPOINT
+
+- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `d5be7220b048a3e7bd798a9b2d9fea677b200183`
+- CURRENT CODE/TEST CANDIDATE → `c5b193116e16b7ce46fd88d6d6edde268820ef52`
+- ACTIVE FUNCTIONAL FRONT → PR #664 / head `22bdfb19f234a38640961e3851c3e5eef786cbad` (latest documentation/index tail; code candidate remains c5b1931…)
+- ACTIVE GOVERNANCE FRONT → PR #666 / head `9aec629f5573830ef5d8d5bbc1e303ce41470ba3`
+- EXACT PROOF → #664: 47 workflows, 3 success, 2 skipped, 3 in-progress, 39 queued, 0 failures at latest scan. #666: 38 workflows, 3 in-progress, 1 pending, 34 queued, 0 failures.
+- NEW VALIDATED ROOT FIXES → TypeScript source roots closed; canonical-import mapping syntax root closed; mixed-specialty contract aligned with the actual canonical implementation; certification candidate field restored to the parser's canonical form.
+- PHASE-F → NOT CERTIFIED / fail-closed. Live restore parity fails because current_customer_company_id() is absent in the restore target migration path; rollback-forward consequently returns 503. No production mutation.
+- EXTERNAL → Vercel free-plan build-rate limit; PC01/device/browser/production proof unavailable.
+- CLEANUP → duplicate PRs #660/#661 closed as superseded; #665 closed and replaced by current-main governance #666. Historical commits retained.
+- NEXT → consume first terminal new gate; repair only current-SHA root; merge only after mandatory exact-head evidence.
+# RESUME TOKEN — 2026-09-27 / MIXED-SPECIALTY CONTRACT ROOT CLOSED
+
+- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `16bfd89ac25f55dbc776871b5bc4cbc538320fc0`
+- CURRENT CODE/TEST CANDIDATE → PR #664 / `c5b193116e16b7ce46fd88d6d6edde268820ef52`
+- GOVERNANCE FRONT → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
+- ROOT CLOSED → TypeScript source errors and canonical-import mapping syntax/mixed-specialty contract roots repaired on the functional lane.
+- PROOF → fresh exact-head gates for `c5b193116e16b7ce46fd88d6d6edde268820ef52` are required; all older failures/pass states remain SHA-bound.
+- NEXT → consume first terminal current-SHA failure; otherwise consume certification/runtime gates.
+- BLOCKERS → Vercel free-plan rate limit; device/browser/production/Phase-F external proof remains unavailable.
+
+# RESUME TOKEN — 2026-09-27 / CURRENT CODE ROOT REPAIR
+
+- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `75cc34765b9c2a18d7f0f06e5fdc2dd101aec2c0`
+- CURRENT CODE/TEST CANDIDATE → PR #664 / `2f0dcbb2f27345631f05558a6e7898af8148de42`
+- ACTIVE GOVERNANCE FRONT → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
+- ROOT FIX → TypeScript source errors in DataTable, Canonical source understanding, Decision Experience, and Work Center were corrected; canonical-import mapping contract syntax error was corrected.
+- NEXT PROOF → fresh exact-head CI on `2f0dcbb2f27345631f05558a6e7898af8148de42`; no PASS transferred from `361db8a…`.
+- VERCEL → external free-plan build-rate limit remains the only known hosting failure.
+- DEVICE → PC01 unavailable; no device/browser/production/Phase-F PASS claimed.
+- NEXT → consume first terminal exact-head failure; if clean, consume remaining certification/runtime gates.
+
+# RESUME TOKEN — 2026-09-27 / EXACT-HEAD PROOF UPDATE
+
+- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `75cc34765b9c2a18d7f0f06e5fdc2dd101aec2c0`
+- FUNCTIONAL CANDIDATE → PR #664 / `2f0dcbb2f27345631f05558a6e7898af8148de42`
+- GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
+- NEW EXACT-SHA PROOF → #664 `desktop-windows` run completed SUCCESS on `361db8a…`. No failure runs are present for #664 at this observation.
+- CURRENT GATES → #664: 47 workflows = 1 success, 2 skipped, 44 queued, 0 failures. #665: 38 workflows = 37 queued, 1 in-progress, 0 terminal successes/failures.
+- CURRENT EXTERNAL → Netlify + CodeRabbit SUCCESS on both PR heads; Vercel remains FAILURE due external free-plan build-rate limit.
+- RESUME → keep consuming terminal gates; no PASS transfer to other SHAs; no production/browser/Phase-F certification without exact proof.
+- NEXT → first terminal non-success gate only; while queues run, continue safe repository/UI cleanup without creating duplicate surfaces.
+
+# RESUME TOKEN — 2026-09-27 / CURRENT EXECUTION CHECKPOINT
+
+- CURRENT MAIN HEAD BEFORE THIS DOCS COMMIT → `5bb08044bcb3800d9c5561af0edc945cf0defea6`
+- ACTIVE FUNCTIONAL FRONT → PR #664 / `361db8af5e58dcb122b2b6623acf9a804e6a3fdb`
+- ACTIVE GOVERNANCE FRONT → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
+- EXACT REMOTE EVIDENCE → #664: CodeRabbit SUCCESS, Netlify preview SUCCESS, Vercel failure (external free-plan build-rate limit); GitHub Actions are materialized with 49 queued, 1 in progress, 2 skipped, 0 failures, 0 successes at observation time. #665: CodeRabbit SUCCESS, Netlify preview SUCCESS, Vercel same external failure; Actions are materialized with queued gates and desktop-windows in progress.
+- STATIC SOURCE VERIFICATION → #664 exact SHA contains the canonical import lifecycle, replay/benchmark surfaces, full-dataset understanding, typed canonical inference, persisted dataset summaries/source-analysis snapshot, and truth-state UI wiring. This is source evidence, not runtime PASS.
+- SUPERSEDED CLEANUP → PR #662 and #663 closed as superseded by #664/#665; historical evidence retained and no SHA evidence transferred.
+- OPEN BLOCKERS → Vercel free-plan deployment-rate limit; PC01/device/browser/production/Phase-F runtime proof unavailable. Local clone from execution environment failed DNS; no local PASS inferred.
+- FIRST FAILURE → none on current exact candidates; no current-SHA workflow failure has terminalized yet.
+- NEXT EXECUTABLE ACTION → consume first terminal exact-head #664/#665 gate; repair only the first reproducible current-SHA root failure. Continue independent repository/UI work while gates run.
+- DO NOT REPEAT → stale PASS transfer, old-memory overwrite, duplicate importer/RPC/runner, preview-as-production, unsafe legacy import_jobs mutation, broad historical rescans.
+- RESUME STATUS → ACTIVE / CURRENT-MAIN RECONCILED / FUNCTIONAL + GOVERNANCE EXACT-HEAD PROOF IN FLIGHT.
+
+# RESUME TOKEN — 2026-09-27 / CURRENT SESSION — CURRENT-MAIN INTEGRATION
+
+- CURRENT REPOSITORY HEAD → `75cc34765b9c2a18d7f0f06e5fdc2dd101aec2c0`
+- ACTIVE FUNCTIONAL FRONT → PR #664 / `exec/20260927-current-main-import-integration` / exact head `361db8af5e58dcb122b2b6623acf9a804e6a3fdb`
+- ACTIVE GOVERNANCE FRONT → PR #665 / `control/20260927-current-main-governance` / exact head `da99f6a873144b2ee56f73ad759f25456c2d9755`
+- FUNCTIONAL RESULT → canonical full-source import lifecycle, all-dataset understanding, deterministic typed specialty inference, Business Replay, Benchmark fail-closed surface, and post-import decision/outcome continuity ported onto current main without overwriting newer memory/index content.
+- GOVERNANCE RESULT → continuous-resume E-20..E-26 rules, single Resume Token enforcement, first-failure scoping, context/storage economy, certification-boundary governance, and Quality workflow enforcement ported as a separate PR.
+- EXACT PROOF → no new test PASS is claimed yet. PR #664 and #665 currently expose Vercel failure due external free-plan build-rate limit; workflow run materialization is not yet visible. Netlify/CodeRabbit evidence from source PRs is not transferred.
+- DEVICE / LOCAL → PC01 is unavailable as instructed. Direct local clone from this execution environment failed on DNS; no local PASS inferred.
+- EXTERNAL BLOCKERS → Vercel free-plan build-rate limit; device/browser/production/Phase-F runtime proof remain dependent on unavailable external authority. Independent repository work continues.
+- FIRST FAILURE → none reproduced on current integration SHA because exact workflow run has not materialized.
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-head #664/#665 check when available; repair only the first reproduced current-SHA root failure.
+- NEXT INDEPENDENT ACTIONS → continue targeted UI truth/completeness audit and safe cleanup/consolidation without reopening closed import paths.
+- DO NOT REPEAT → stale PASS transfer; porting old memory/index over newer main; duplicate importer/RPC/runner; preview-as-production; browser/production claims without exact proof; broad historical rescans.
+- RESUME STATUS → ACTIVE / CURRENT-MAIN RECONCILED / FUNCTIONAL + GOVERNANCE PRs IN EXACT-HEAD PROOF.
+- CHECKPOINT RULE → HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT.
+
+## LIVE EXECUTION UPDATE — 2026-09-27 / ROOT FIX CONSUMED
+
+- ACTIVE FUNCTIONAL HEAD → PR #662 advanced from `a8ef795c...` to `01e870fe8dc2ca52627f7d6aabebc88da58eb814` after fixing the first reproducible current-SHA typecheck root failures in `DataTable.tsx` and `ExecutiveReportPage.tsx`.
+- FIXES → DataTable pagination narrowing now uses a directly narrowed positive integer; Executive Report next-action routing now treats only `INSUFFICIENT_DATA` as the data-gap branch, preserving calculated states.
+- NEW PROOF → fresh exact-head CI is running on `01e870fe...`; no PASS transferred from `a8ef795c...`.
+- GOVERNANCE → PR #663 advanced from the earlier certification-boundary failure by explicitly classifying `.github/workflows/quality.yml` as governance-only. Its prior boundary failure was therefore a guard-contract mismatch, not a product runtime failure.
+- NEXT → consume the first terminal #662 gate on `01e870fe...`; then consume #663 terminal gates. If a new failure appears, repair only that root.
+- UI CONTINUITY → no duplicate post-import surface created; #662 remains the canonical import → evidence → work → decision → outcome/replay path.
+
+---
+
+## RESUME TOKEN — 2026-09-27 / CONTINUOUS EXECUTION LIVE STATE — RECONCILED
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-145`
+- CURRENT REPOSITORY HEAD OBSERVED → `eb162ea5ce043c020122b5923468cd12898c8b10` (docs-only reconciliation descendant of code baseline).
+- CURRENT CODE/TEST BASELINE → `46675643e32f6ea28b6c1d80a530b2eb134e7907`.
+- ACTIVE FUNCTIONAL FRONT → PR #662 / `exec/20260927-import-full-lifecycle` / exact head `a8ef795c290b035023e3b5781488c7e650ab6866`.
+- ACTIVE GOVERNANCE FRONT → PR #663 / `control/continuous-resume-20260927` / exact head `13432b118aa8db00d3a498332803d2c1324a9291`.
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT + CONTINUOUS-RESUME-GOVERNANCE`.
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning; Benchmark remains fail-closed until a real peer cohort exists.
+- ACTUAL RESULT → PR #662 contains the full-source canonical import lifecycle and post-import Business Replay/Benchmark/Outcome-Learning UI continuity. Its current head has exact Windows build PASS and Cloudflare Pages PASS; remaining gates are queued. PR #663 contains governance enforcement only.
+- CURRENT EXACT PROOF → #662 `a8ef795c...`: Windows build PASS + Cloudflare Pages PASS; remaining security/browser/contract/certification/data gates queued. No browser/production/Phase-F PASS claimed.
+- FIRST ROOT FAILURE CONSUMED → governance merge-ref typecheck exposed DataTable/ExecutiveReport type defects; the functional #662 lane is already the correct owner. No duplicate fix in governance.
+- PHASE-F → NOT CERTIFIED: rollback-forward drill is blocked by missing runtime configuration; local restore-parity migration also exposed dependency on `current_customer_company_id()`. Fail-closed; no production mutation.
+- EXTERNAL BLOCKERS → PC01 offline; Vercel free-plan deployment-rate limit; browser/production/Phase-F exact-SHA proof unproven. Blocked fronts remain local.
+- NEXT EXECUTABLE ACTION → consume the first terminal #662 gate on `a8ef795c...`; repair only a newly reproduced current-SHA root failure. In parallel consume #663 governance gates; reconcile after functional proof.
+- NEXT INDEPENDENT ACTIONS → safe contract/documentation consolidation and targeted UI truth checks; no mutation of legacy `import_jobs` rows.
+- DO NOT REPEAT → stale PASS transfer; duplicate importer/RPC/runner/query; blind import-job terminalization; preview-as-production/browser PASS; staging evidence as production evidence; broad historical rescans; duplicate UI surfaces.
+- RESUME STATUS → ACTIVE / RECONCILED / FUNCTIONAL IMPORT FRONT IN EXACT-HEAD PROOF / GOVERNANCE FRONT IN EXACT-HEAD PROOF.
+- CHECKPOINT RULE → HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT.
+
+---
+
+## RESUME TOKEN — 2026-09-27 / CONTINUOUS EXECUTION LIVE STATE
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-145`
+- CURRENT VERIFIED SHA → `46675643e32f6ea28b6c1d80a530b2eb134e7907` (main exact HEAD; verified directly from refs/heads/main).
+- ACTIVE FUNCTIONAL FRONT → PR #662 / `exec/20260927-import-full-lifecycle` / exact head `a8ef795c290b035023e3b5781488c7e650ab6866`.
+- ACTIVE GOVERNANCE FRONT → PR #663 / `control/continuous-resume-20260927` / exact head `13432b118aa8db00d3a498332803d2c1324a9291`.
+- FRONT-ID → `IMPORT-SURFACE-AFTER-COMMIT + CONTINUOUS-RESUME-GOVERNANCE`.
+- CURRENT BOUNDARY → Any Source → Security → Fingerprint → Understand all datasets → Normalize/Reconcile → Quality/Trust → Evidence → Canonical Commit → Readback → Business Understanding → Signals → Decision/Work → Outcome → Replay/Learning; Benchmark remains fail-closed until a real peer cohort exists.
+- ACTUAL RESULT → main is now `4667564`; PR #658 is merged into it. PR #662 contains the full-source canonical import lifecycle plus post-import Business Replay/Benchmark/Outcome-Learning UI continuity. Its current head has exact Windows build PASS and Cloudflare Pages deploy PASS; remaining gates are queued. PR #663 contains the continuous-resume governance contract and is not product behavior.
+- CURRENT EXACT PROOF → PR #662 head `a8ef795c...`: Cloudflare Pages PASS and Windows build PASS; remaining security/browser/contract/certification/data gates are queued. No browser/production/Phase-F PASS is claimed.
+- FIRST CURRENT ROOT FAILURE OBSERVED ON GOVERNANCE MERGE REF → typecheck exposed two pre-existing main defects in `DataTable.tsx` and `ExecutiveReportPage.tsx`; these are already represented in the functional #662 lane and must not be duplicated in #663.
+- PHASE-F ROOT BOUNDARY → certification run reproduced missing runtime configuration for rollback-forward drill (`VERCEL_TOKEN`, rollback drill variables) and a local migration dependency on `current_customer_company_id()`; Phase-F remains fail-closed/not certified. No production mutation performed.
+- EXTERNAL BLOCKERS → PC01 Desktop Commander is currently offline; Vercel free-plan deployment-rate limit remains external; browser/production exact-SHA and Phase-F resilience proof remain unproven. These block only dependent proof fronts.
+- NEXT EXECUTABLE ACTION → consume the first terminal #662 gate on `a8ef795c...`; repair only a newly reproduced current-SHA root failure. In parallel consume #663 governance gates and reconcile only after #662's functional head is proven/merged.
+- NEXT INDEPENDENT ACTIONS → continue safe source/contract/documentation consolidation and targeted UI truth checks without touching closed import paths; do not mutate legacy `import_jobs` rows.
+- DO NOT REPEAT → stale PASS transfer; duplicate importer/RPC/runner/query; blind import-job terminalization; preview-as-production/browser PASS; staging evidence as production evidence; broad historical rescans; duplicate UI surfaces.
+- RESUME STATUS → ACTIVE / MAIN RECONCILED / FUNCTIONAL IMPORT FRONT IN EXACT-HEAD PROOF / GOVERNANCE FRONT IN EXACT-HEAD PROOF.
+- CHECKPOINT RULE → HEAD → ACTION → RESULT → EVIDENCE → BLOCKER → NEXT.
+
+---
+
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143`.
+- CURRENT CODE/TEST CANDIDATES → PR #657 exact head `124eec1cb322e06a59fde8dbd9de84e86803cec6`; PR #658 exact head `b324e023f1dbf603811f2cfe47bf58bfff6a0660`. Neither is merged; no PASS transferred.
+- UI DELIVERY → #657 integrates the current-main deep UI lane: DataTable absolute pagination semantics, Work Center progress semantics, deterministic Advisor loading/recovery, mobile/shell/Command Palette/Header accessibility and focus containment, multiple report/settings surfaces, and purchase-report canonical truth context. #658 independently closes the real receivables NO_DATA zero-substitution defect with explicit VERIFIED / INSUFFICIENT DATA context and recovery action.
+- CORE DELIVERY → #657 integrates targeted legacy cart SECURITY DEFINER hardening plus source-backed client_ui_settings/carts restore-parity migrations and Phase-F backup/restore contract coverage. No duplicate RPC, runner, importer, or production mutation was introduced.
+- EXACT EVIDENCE → #657 Netlify preview `6ab6cd09b738c40008610649` is READY and maps exactly to `124eec1cb322e06a59fde8dbd9de84e86803cec6`; Desktop Windows run `36180631328` is SUCCESS on that exact head. Other required #657 workflows are still queued/in progress. #658 Netlify preview `6ab6cda4b81e210008e2da84` is still BUILDING; no browser PASS claimed.
+- LIVE STAGING → direct Supabase checks confirm client_ui_settings schema/constraints/RLS/grants/Realtime parity and all four hardened cart functions use `search_path=public, pg_catalog` with authenticated/service_role execution only. `151` import_jobs remain processing, `150` at progress 0; no mutation performed.
+- SECURITY → Supabase advisor still reports 46 authenticated-callable SECURITY DEFINER warnings plus leaked-password protection WARN. No blanket revoke/cleanup was performed; the cart lane remains targeted to the source-backed unsafe pattern.
+- FRONT CLEANUP → superseded source PRs #647/#651/#653/#654 were closed without merge. Their history remains preserved; #657/#658 are the active executable lanes.
+- EXTERNAL BLOCKED → Vercel remains free-plan rate-limited for deployment; TinyFish browser verification could not start because its wallet balance is below zero. This is an external verification blocker, not an application failure and not a reason to stop independent work.
+- VERIFIED → current GitHub HEAD reconciliation, source integration commit `124eec1cb322e06a59fde8dbd9de84e86803cec6`, receivables fix commit `b324e023f1dbf603811f2cfe47bf58bfff6a0660`, Netlify exact preview for #657, Desktop Windows exact-head success, direct staging schema/security observations, and superseded-PR cleanup.
+- NOT PROVEN → full exact-head certification set for #657, #658 browser evidence, production deployment identity, live Phase-F restore/RPO/RTO/rollback, and production promotion.
+- CURRENT RESUME POINTER → `main 66809d148fe106acd16ceffcbd78f0ab17549fe1 → consume #657 exact-head gate results / first failure only → consume #658 build/gates → merge only when required exact-head evidence is green; keep Phase-F fail-closed and continue independent UI/core work in parallel`.
+- NEXT EXECUTABLE ACTION → inspect the first non-queued #657 gate result; repair only a newly reproduced failure. In parallel, consume #658 build/gates; if both are clean, merge the current-head executable lanes before opening another overlapping PR.
+- UI LANE PROGRESS → deep shell/report/settings/accessibility work integrated into #657; receivables truth closure in #658.
+- CORE LANE PROGRESS → targeted cart security + restore parity integrated into #657; Phase-F runtime certification remains the release boundary.
+- DO NOT REPEAT → no rework of already merged shell closures; no stale PASS transfer; no production-SHA bypass; no blanket SECURITY DEFINER cleanup; no blind import-job terminalization; no duplicate navigation/RPC/import path.
+
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-141
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → 874b30cc04e9d30141989216463dd846881f2d3a.
+- SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-141.
+- CURRENT CODE/TEST CANDIDATE → 874b30cc04e9d30141989216463dd846881f2d3a governance descendant of merged functional head 317f560eae727dd660e1d3adc80c2ce26cc13805.
+- MERGED CORE+UI DELIVERY → PR #644 merged successfully at functional merge SHA 317f560eae727dd660e1d3adc80c2ce26cc13805. The merge contained Metric Inspector semantic filters/search, shared state accessibility semantics, Decision Experience progress accessibility, report truth context, Canonical Import step semantics, Phase-10 security-definer contract hardening, and Phase-F governance/exact-head provenance assertions.
+- EXACT PRE-MERGE VERIFIED GATES → Quality run 36173306930 SUCCESS; Final Certification 36173306852 SUCCESS; UI Route Completeness 36173306908 SUCCESS; Full Product Browser 36173307013 SUCCESS; Desktop Windows 36173306970 SUCCESS; Metric Governance RLS 36173307044 SUCCESS on exact pre-merge head lineage 2eb7c69.
+- EXACT PRE-MERGE PHASE-F → run 36173306548 reached Live resilience probes after exact-head, local runtime, static contracts, authenticated canary, and Supabase CLI setup all succeeded. The run had not terminated when consumed and therefore is NOT a Phase-F PASS. Its evidence must not be transferred to 317f560.
+- POST-MERGE GOVERNANCE → Execution Index synchronized first in 874b30cc. No post-merge Phase-F workflow was observed for 317f560 at time of write.
+- UI FOLLOW-UP → PR #646 adds purchase-report truth-context closure. Netlify preview for its first commit failed during build due a real JSX defect; root cause was isolated and corrected in 68e34f5c15db9ec17cad0c7731b01894d99cb0f4. Fresh exact-head evidence is still required; no PASS claimed.
+- EXTERNAL DEPLOYMENT → Vercel reports the known free-plan build-rate-limit failure. Netlify is preview evidence only. No production mutation/promotion was performed.
+- FAILED / NON-BLOCKING → stale quality run 36172963810 was rejected because it ran the old PR merge-ref after the PR head advanced; its missing-install cascade is not a current code failure.
+- BLOCKED / NOT PROVEN → current-head Phase-F runtime identity, backup/restore, measured RPO/RTO, rollback, and production promotion remain unproven on 317f560; local device/browser is unavailable.
+- VERIFIED → GitHub exact-head merge, post-merge Execution Index write, pre-merge exact Quality/Certification/UI/Browser/Desktop evidence, and purchase-report JSX defect isolation/fix.
+- OPEN FRONTS → fresh main-head certification/Phase-F; PR #646 exact-head quality/browser/desktop/route/certification; production deployment identity and Vercel promotion path; later purchase report cleanup after current gates.
+- CURRENT RESUME POINTER → 874b30cc04e9d30141989216463dd846881f2d3a → establish fresh exact-head main certification + Phase-F for functional 317f560 → inspect first live failure only → in parallel consume PR #646 fresh gates → merge only after exact-head proof.
+- NEXT EXECUTABLE ACTION → verify current main HEAD and fresh workflow runs; do not mutate production, do not transfer pre-merge Phase-F evidence, and do not re-open completed UI closure.
+- DO NOT REPEAT → no stale PASS transfer, no production SHA bypass, no preview-as-production, no duplicate navigation/RPC/runner/import path, no blanket SECURITY DEFINER/index cleanup, no unsafe import-job terminalization.
+- UI LANE PROGRESS → merged deep UI closure is on main; purchase truth-context follow-up is open and independently corrected.
+- CORE LANE PROGRESS → merged proof-boundary hardening is on main; Phase-F live certification remains the release boundary.
+- GOVERNANCE HEAD BEFORE THIS WRITE → 874b30cc04e9d30141989216463dd846881f2d3a.
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-139
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `fedb08b904d5d27d738f625585f357146bd2deab`.
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-139`.
+- UI DELIVERY → PR #638 shell accessibility closure was merged at `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda`; PR #639 then merged the App Shell micro-accessibility closure at `7edc3cc210e4b81cf18d11fd995296de7a37df87`: 44px mobile menu close target + visible focus and corrected mobile search hover contrast. No business/data semantics changed.
+- UI GATES → current UI candidate family has successful Quality, Enforcement, Full Product Browser E2E, UI Route Completeness, Storage Tenant Runtime E2E and device-independent browser gates; long-running Desktop/Device/Final gates were not transferred as stale evidence. Post-merge main gates are executing against `7edc3cc...`.
+- CORE DELIVERY → carts/profiles/cart_items parity wave is implemented on PR #641 exact head `0de70deea30484895b56ce0a9b98cac144604f8d`, with carts/cart_items RLS, tenant FKs, quantity bounds, indexes and Phase-10 contract guards. Exact pre-repair core gates were green.
+- CORE PHASE-F FACT → run `36170355037` on `09c2386...` failed closed: tenant canary passed; production served deployment SHA `886c3e11...` instead of tested candidate; logical restore reached `public.carts` then failed at missing `public.cart_items`; rollback-forward-fix returned HTTP 503; artifact `10880200125`.
+- CORE PHASE-F CURRENT → fresh pull_request execution is still not available on core candidate despite new certification PR attempts; Vercel has no deployment matching `0de70de...`, so production exact-SHA certification remains blocked and is not bypassed.
+- UI PHASE-F NOTE → a fresh phase-f run exists for UI micro branch but is not evidence for the core candidate; its purpose was CI propagation only.
+- LIVE STAGING → direct SQL confirmed `profiles`, `carts`, and `cart_items` constraints/indexes/RLS. Cart-related legacy SECURITY DEFINER functions (`set_cart_item`, `clear_cart`, `get_cart`, `remove_cart_item`, order/payment legacy RPCs) show zero recorded calls in `pg_stat_user_functions`; no destructive cleanup performed.
+- MIGRATION INVENTORY → staging has 327 migration-history entries while repo contains 256 migration files; raw filename/version comparison is not semantically 1:1 because staging `version` and migration source filename timestamps differ. The live `reconcile_live_cart_schema` migration was a concrete source gap and is covered by the new parity migration. No bulk historical migration re-import was attempted.
+- SECURITY OBSERVATION → 46 authenticated-callable SECURITY DEFINER functions were inspected. No blanket revoke performed. Several legacy functions with empty search_path were found dormant (zero recorded calls); they remain review/cleanup candidates pending canonical-source ownership.
+- LIVE IMPORT OBSERVATION → 151 `import_jobs` processing, 150 at progress 0, oldest 2026-09-14 12:53:22Z. No unsafe terminalization.
+- BLOCKED / NOT PROVEN → Phase-F production exact-SHA identity, logical restore completion/RPO/RTO, rollback, and core deployment are unproven. Local device/browser is unavailable. Vercel free-plan build-rate limit remains external.
+- CURRENT RESUME POINTER → `fedb08b904d5d27d738f625585f357146bd2deab` → consume post-merge main gates → consume/obtain fresh exact-head core Phase-F on `0de70de...` with matching deployment → first current failure only.
+- NEXT EXECUTABLE ACTION → inspect current post-merge main UI certification and any newly generated core Phase-F run; do not mutate production or legacy security surfaces without exact owner/invariant proof.
+- DO NOT REPEAT → no stale PASS transfer, no PR #635/#637/#640 evidence reuse, no production-SHA bypass, no blind legacy migration rehydration, no blanket SECURITY DEFINER revoke, no unsafe import-job mutation.
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-138
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-RESUME
+
+- MAIN HEAD VERIFIED → `c71872f8f91e894b365773c0bf08a64b87db9576` (current default branch ref).
+- FUNCTIONAL CANDIDATE VERIFIED → PR #662 `exec/20260927-import-full-lifecycle` exact HEAD `01e870fe8dc2ca52627f7d6aabebc88da58eb814`.
+- HEART FIXES → current-head TypeScript root failures in `src/components/ui/DataTable.tsx` and `src/pages/ExecutiveReportPage.tsx` were corrected on PR #662; no historical PASS was transferred.
+- IMPORT/SURFACE → PR #662 contains the canonical full-source lifecycle and post-import continuity: understanding all datasets, normalization/reconciliation, quality/trust, evidence, canonical commit/readback, business understanding/signals/decision, outcome/replay/learning, tenant-scoped Business Replay, and evidence-safe Benchmark with `INSUFFICIENT_SAMPLE`.
+- LIVE PREVIEW PROOF → exact-head Netlify deploy preview for PR #662 is SUCCESS and resolves at `https://deploy-preview-662--aghbari-report-advisor.netlify.app/import`. The live page identifies the product as Arabic Evidence-first Business & Decision Intelligence and, when unauthenticated, correctly stops at the real identity/company isolation gate; it does not fabricate a demo workspace.
+- CURRENT CI STATUS → exact-head legacy status currently has Vercel FAILURE solely because of the documented free-plan deployment rate limit; Vercel Deployments–Injaz remains pending. Netlify preview is SUCCESS. CodeRabbit is SUCCESS with manual-review-required wording. Exact-head required GitHub checks remain to be consumed; no overall PASS is claimed.
+- DEVICE/BROWSER → PC01 is still reported OFFLINE; therefore local authenticated browser verification remains NOT PROVEN. Do not mark browser E2E as complete from preview HTML alone.
+- RELEASE BOUNDARY → Phase-F / production exact-SHA resilience, rollback/restore/RPO/RTO, and production promotion remain NOT PROVEN. No production mutation or bypass was performed.
+- EXTERNAL BLOCKER → Vercel free-plan build/deployment rate limit is an external blocker, not a source-code failure. Netlify remains preview evidence only.
+- NEXT EXECUTABLE ACTION → consume fresh exact-head GitHub check results for PR #662/PR #663; fix only the first current failure if any. In parallel, keep the canonical UI/import lane intact and avoid duplicate import/navigation/RPC/runner paths.
+- DO NOT REPEAT → no stale PASS transfer, no preview-as-production, no production-SHA bypass, no duplicate import path, no unsafe `import_jobs` terminalization, no blanket security cleanup.
+- RESUME STATUS → ACTIVE / CONTINUE.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-146
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-146`.
+- CURRENT VERIFIED MAIN SHA → `d2a9be95aa809c4e8fb5659f74492c473ff69810` (Execution Index reconciliation committed on main after UI-lifecycle update).
+- CURRENT FUNCTIONAL CANDIDATE → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `0c80f0f21027ff9e5451cde297e6f28cbad94334`.
+- FRONT-ID → `IMPORT-SURFACE-AFTER-UPLOAD + EXACT-HEAD-PROOF`.
+- CURRENT BOUNDARY → canonical import UI from upload through Security → Fingerprint → Understand → Normalize → Quality → Trust → Evidence → Review → Canonical Commit → Persistence → Readback → Business Understanding → Signals → Decision → Outcome → Learning.
+- ACTUAL RESULT → existing `CanonicalImportPage` was extended with a visible 16-stage canonical lifecycle inside the existing post-import result surface. No duplicate route/importer/RPC/runner was added. Existing Evidence/Decision/Replay/Data Quality actions remain the continuation points.
+- EXACT-SHA EVIDENCE → on `0c80f0f`, fresh checks are executing: browser-e2e queued, certification-contracts queued, enforcement-contract queued, Cloudflare in progress, Netlify checks in progress; Supabase Preview skipped. No new PASS claimed yet.
+- EXISTING PREVIEW EVIDENCE → prior exact-head Netlify/Cloudflare proofs remain bound to their own older SHAs and are not transferred to `0c80f0f`.
+- FIRST FAILURE → none on `0c80f0f` yet; only Vercel external rate-limit status is immediately failed, with required deployment context pending. No code failure is inferred from that external blocker.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan deployment-rate limit; authenticated browser, production exact-SHA, and Phase-F resilience proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume terminal #662 checks on `0c80f0f`; repair only the first reproducible current-SHA root failure. Then consume #663 gates and reconcile exact-head compatibility.
+- NEXT INDEPENDENT ACTIONS → continue targeted UI truth-state audits and safe documentation/evidence reconciliation while checks run; no production mutation.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate import/navigation/RPC/runner; unsafe `import_jobs` terminalization; blanket security cleanup.
+- RESUME STATUS → ACTIVE / IMPORT UI LIFECYCLE ADVANCED / EXACT-HEAD PROOF RUNNING.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-147
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-147`.
+- CURRENT DOCUMENTATION SHA → `4bf8388cd29a702b9bd894058516bd6dbfe78418`.
+- CURRENT FUNCTIONAL CANDIDATE → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `31bbf8e64787c49f04b7a427d552407ef9b81ede`.
+- ACTUAL UI RESULT → existing `CanonicalImportPage` now exposes the full 16-layer post-upload canonical lifecycle; the stage strip is deliberately evidence-neutral and does not imply VERIFIED truth by visibility alone.
+- EXACT-SHA PROOF → `browser-e2e`, `certification-contracts`, and `enforcement-contract` are queued; Cloudflare Pages is in progress on `31bbf8e`. No PASS transferred from prior SHAs.
+- FIRST FAILURE → no current code-check failure observed on `31bbf8e`; Vercel rate-limit remains an external deployment blocker.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan deployment rate limit; authenticated browser, production exact-SHA, and Phase-F resilience proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume the first terminal check on `31bbf8e`; repair only the first reproducible current-SHA root failure, then rescan #663.
+- NEXT INDEPENDENT ACTIONS → continue targeted UI truth/UX audits and evidence reconciliation while checks run; preserve the canonical import/result surface.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; blanket security cleanup.
+- RESUME STATUS → ACTIVE / UI LIFECYCLE ADVANCED / EXACT-HEAD PROOF IN PROGRESS.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-148
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-148`.
+- CURRENT DOCUMENTATION SHA → `e832638f19c40a88d9afc5397b276035584ad459`.
+- CURRENT FUNCTIONAL CANDIDATE → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `4c51dbc164f3dc9c661d22e96e0d20cb96eb4829`.
+- FIRST ROOT FAILURE CONSUMED → Netlify deploy `6ab9252993a9a50008659642` failed at `CanonicalImportPage.tsx:518` with JSX nesting/parser errors caused by the extra closing wrapper inserted around the new lifecycle strip.
+- ROOT FIX → removed the single extra closing wrapper on the same canonical result surface. No route, backend contract, import path, or acceptance criterion was changed.
+- CURRENT EXACT-SHA PROOF → fresh Netlify/Cloudflare checks are in progress; browser-e2e, certification-contracts, enforcement-contract queued. No PASS claimed on `4c51dbc`.
+- GOVERNANCE → PR #663 exact head `43a29443477aeb5969b99d672bd2c6698e0f7106`: Cloudflare SUCCESS; certification/enforcement queued; no new code failure observed.
+- OPEN BLOCKERS → Vercel free-plan deployment rate limit; PC01 offline; authenticated browser, production exact-SHA, and Phase-F resilience proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume first terminal check on `4c51dbc`; repair only the first new current-SHA root failure, then consume #663 terminal gates and reconcile.
+- NEXT INDEPENDENT ACTIONS → continue targeted UI truth/UX inspection and evidence reconciliation while CI runs; do not create duplicate import/navigation/RPC/runner paths.
+- DO NOT REPEAT → stale PASS transfer, preview-as-production, duplicate importer, unsafe `import_jobs` mutation, blanket security cleanup.
+- RESUME STATUS → ACTIVE / ROOT FAILURE FIXED / EXACT-HEAD PROOF RUNNING.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-149
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-149`.
+- CURRENT DOCUMENTATION SHA → `8c5cc61256401021b96225aec59e44bcd585f542`.
+- CURRENT FUNCTIONAL CANDIDATE → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `334c80ec51d304041071eae5908f125016f520d4`.
+- ROOT FIX LINEAGE → the first current-SHA Netlify parser failure was isolated and fixed on `4c51dbc`; the subsequent existing UI contract was extended on `334c80e`.
+- CONTRACT RESULT → `scripts/check-product-wow-ui-contract.mjs` now guards the 16-stage post-upload lifecycle and explicitly rejects wording that implies VERIFIED proof merely from stage visibility. No duplicate test file created.
+- CURRENT EXACT-SHA PROOF → `certification-contracts` queued, `enforcement-contract` queued, Cloudflare Pages in progress; Supabase Preview skipped. No PASS claimed on `334c80e`.
+- GOVERNANCE → PR #663 exact head `43a29443477aeb5969b99d672bd2c6698e0f7106` remains clean apart from queued certification/enforcement.
+- OPEN BLOCKERS → Vercel free-plan deployment rate limit; PC01 offline; authenticated browser, production exact-SHA, rollback/restore/RPO/RTO and Phase-F proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume first terminal `334c80e` check; repair only the first reproducible current-SHA root failure, then rescan #663.
+- NEXT INDEPENDENT ACTIONS → continue targeted UI truth/UX and evidence audits only where they do not duplicate closed work.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate import/navigation/RPC/runner; unsafe `import_jobs` mutation; blanket security cleanup.
+- RESUME STATUS → ACTIVE / UI LIFECYCLE + CONTRACT HARDENING ADVANCED / EXACT-HEAD PROOF RUNNING.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-150
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-150`.
+- CURRENT DOCUMENTATION SHA → `531f44591feee27f8c413c71de4755da09ca11fb`.
+- CURRENT FUNCTIONAL HEAD → PR #662 / `exec/20260927-import-full-lifecycle` / `334c80ec51d304041071eae5908f125016f520d4`.
+- EXACT CODE BUILD PROOF → exact repair SHA `4c51dbc164f3dc9c661d22e96e0d20cb96eb4829` has Cloudflare Pages SUCCESS and Netlify deploy-preview SUCCESS (`6ab92571cea89200085beeaf`). This evidence remains bound to `4c51dbc` only.
+- CURRENT HEAD CHANGE → `334c80e` is contract-only after the code repair and extends the existing Product Wow UI contract with 16-stage lifecycle/evidence-neutral assertions. No duplicate test file.
+- CURRENT EXACT-SHA GATES → Cloudflare in progress; certification-contracts queued; enforcement-contract queued; Supabase Preview skipped; Vercel Preview Comments success. No overall PASS claimed on `334c80e`.
+- FIRST ROOT FAILURE → closed: Netlify JSX/CardBody parser failure from the lifecycle insertion was isolated and fixed; subsequent exact repair SHA built successfully.
+- OPEN BLOCKERS → Vercel free-plan rate limit; PC01 offline; authenticated browser, production exact-SHA, rollback/restore/RPO/RTO and Phase-F proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume terminal mandatory gates on `334c80e`; repair only the first new current-SHA root failure; then consume #663 and reconcile.
+- NEXT INDEPENDENT ACTIONS → none required before the current mandatory checks terminalize; preserve the canonical import surface and no-op duplicate paths.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; blanket security cleanup.
+- RESUME STATUS → ACTIVE / UI LIFECYCLE DELIVERED / ROOT FIX PROVEN ON REPAIR SHA / CONTRACT HEAD IN CURRENT PROOF.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-151
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-151`.
+- CURRENT DOCUMENTATION SHA → `c2ec2519b75867135ceafee7b99cffc3eb32c46c`.
+- CURRENT FUNCTIONAL HEAD → PR #662 / `exec/20260927-import-full-lifecycle` / `334c80ec51d304041071eae5908f125016f520d4`.
+- EXACT DEPLOYMENT READBACK → Cloudflare exact-head deployment is SUCCESS and the deployed `/import` surface resolves to the real Arabic الأغبري identity/company isolation gate. No demo workspace or fake business truth is exposed. This is deployment/readback evidence only, not authenticated browser E2E.
+- CURRENT MANDATORY GATES → `certification-contracts` and `enforcement-contract` remain queued. No new root code failure is available to repair.
+- PHASE-F REVIEW → current probe implementation is correctly fail-closed on missing live resilience secrets/targets and exact deployment identity. Source-side inspection found no safe mutation justified by the known external blocker.
+- OPEN BLOCKERS → Vercel free-plan deployment rate limit; PC01 offline; authenticated browser, production exact-SHA, rollback/restore/RPO/RTO and Phase-F resilience proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume terminal #662 certification/enforcement results; then consume #663 terminal results. If queues persist, continue only independent repository-safe fronts.
+- NEXT INDEPENDENT ACTIONS → preserve canonical import/UI surface; no duplicate import path; continue evidence reconciliation only where new exact-SHA evidence exists.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; blanket security cleanup.
+- RESUME STATUS → ACTIVE / DEPLOYMENT READBACK PROVEN / MANDATORY CONTRACT GATES QUEUED.
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-152
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-152`.
+- CURRENT MAIN DOCUMENTATION SHA BEFORE WRITE → `32c82c006112a91898c9a74b47a0d1d4cad77a59`.
+- CURRENT FUNCTIONAL HEAD → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `3a03d4e3e1a6967b0b590253d8ca54d8e720d9d9`.
+- ROOT ISSUE FOUND AND FIXED → typed canonical entity inference previously accepted a partial `sku` / customer / invoice signal and could later fail at the strict canonical write boundary because required fields were missing. The source-understanding layer now requires the exact canonical write-field contract before selecting `products`, `customers`, or `sales_invoices`; otherwise it fails closed to `generic:source-data` and emits `CANONICAL_ENTITY_REQUIREMENTS_UNMET:<specialty>:<missing fields>`.
+- CONTRACT PROTECTION → the existing `scripts/check-canonical-import-mapping.mjs` was extended to guard the typed-entity fallback and the required canonical write fields. No duplicate test file or new import path was created.
+- EXACT CURRENT CI → GitHub launched fresh `enforcement-contract` and `certification-contracts` runs for `3a03d4e`; current job status is still `queued` with no failure log. New run IDs: enforcement `36326147877` / job `108639175656`; certification `36326147880` / job `108639175638`.
+- CURRENT VERCEL STATUS → exact functional head reports `failure` with `build-rate-limit`; this remains an external hosting constraint and is not a code failure.
+- CURRENT PROOF BOUNDARY → no current-head browser/authenticated production/Phase-F PASS is claimed. Prior Cloudflare/Netlify PASS is bound to earlier SHAs only.
+- GOVERNANCE → PR #663 / `control/continuous-resume-20260927` / exact head remains `43a29443477aeb5969b99d672bd2c6698e0f7106`.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan build-rate limit; certification/enforcement runners still queued; authenticated browser and production exact-SHA resilience proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume the first terminal `certification-contracts` or `enforcement-contract` result on `3a03d4e`; repair only a reproducible current-SHA root failure. If both remain queued, continue only independent repository-safe fronts.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; speculative changes to Phase-F while the live blocker is external.
+- RESUME STATUS → ACTIVE / IMPORT CORE SAFETY HARDENED / EXACT-HEAD PROOF RUNNING.
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-153
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-153`.
+- CURRENT DOCUMENTATION SHA BEFORE WRITE → `3633f24c05a4d7a9b94b6608cd2a4f0a64347ecf`.
+- CURRENT FUNCTIONAL HEAD → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `b081c3f5d8c7ca4879c41f16cada76f0c5c66f00`.
+- ROOT HARDENING #1 → typed canonical entity inference now requires the exact canonical write-field contract; incomplete typed sources fail closed to `generic:source-data` with `CANONICAL_ENTITY_REQUIREMENTS_UNMET`.
+- ROOT HARDENING #2 → the required typed-field contract is now checked **per dataset**, not as a union across sheets. This prevents multi-sheet sources with complementary columns from being incorrectly promoted into a strict typed writer while individual rows/datasets remain incomplete.
+- CONTRACT PROTECTION → existing `scripts/check-canonical-import-mapping.mjs` now guards the per-dataset condition. No duplicate import path/RPC/runner/test surface was created.
+- EXACT CURRENT CI → latest certification run `36326239773` / job `108639438487` and enforcement run `36326239775` / job `108639438409` are present for `b081c3f`; both are still `queued`, with no failure log or terminal conclusion.
+- CURRENT VERCEL STATUS → exact functional head has `Vercel = failure` with target `build-rate-limit`. This remains an external hosting limitation, not a code failure.
+- CURRENT DEPLOYMENT BOUNDARY → no fresh build/browser/production/Phase-F PASS exists for `b081c3f`; older Cloudflare/Netlify evidence remains SHA-bound and is not transferred.
+- GOVERNANCE → PR #663 remains exact head `43a29443477aeb5969b99d672bd2c6698e0f7106`; its mandatory contract jobs are also queued and have not produced a terminal failure.
+- IMPORT UI → post-upload surface remains complete and canonical: full 16-stage lifecycle, dataset-level understanding, evidence status, snapshot identity, signal separation, Evidence/Work Center/Data Quality/Decision continuation.
+- INDEPENDENT AUDIT RESULT → Business Replay remains a tenant-wide replay surface because the existing query has no import-key filter for snapshots/outcomes/work items; no speculative route/query was added.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan rate limit; certification/enforcement runners queued; authenticated browser, production exact-SHA, rollback/restore/RPO/RTO, and Phase-F resilience proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume the first terminal mandatory gate on `b081c3f`; repair only a reproduced current-SHA root failure. If queues persist, continue only repository-safe independent work and then reconcile PR #663.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; speculative Business Replay import-filtering without an existing supported data contract.
+- RESUME STATUS → ACTIVE / IMPORT CORE + UI HARDENED / EXACT-HEAD PROOF WAITING ON RUNNER.
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-154
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-154`.
+- CURRENT DOCUMENTATION SHA BEFORE WRITE → `47502385cd999d1151360e30f47855360659b055`.
+- CURRENT FUNCTIONAL HEAD → PR #662 / `exec/20260927-import-full-lifecycle` / exact HEAD `b081c3f5d8c7ca4879c41f16cada76f0c5c66f00`.
+- FRESH DEPLOYMENT PROOF → Netlify deploy-preview is SUCCESS for the exact functional HEAD; preview URL `https://deploy-preview-662--aghbari-report-advisor.netlify.app`.
+- FRESH DEPLOYMENT READBACK → unauthenticated fetch of that exact preview returns title `الأغبري | منصة ذكاء الأعمال والقرار`, Arabic Evidence-first product copy, and the real identity/company-isolation gate; it explicitly states no demo workspace is used. This remains deployment/readback evidence, not authenticated browser E2E.
+- FRESH CLOUDFLARE PROOF → Cloudflare exact-head check is SUCCESS; preview URL `https://3a4e8985.report-advisor.pages.dev`.
+- CURRENT MANDATORY GATES → latest `certification-contracts` run `36326239773` / job `108639438409` and latest `enforcement-contract` run `36326239775` / job `108639438487` remain QUEUED; no terminal failure exists.
+- CURRENT VERCEL → `failure / build-rate-limit` plus deployment context `pending`; external hosting limit only.
+- IMPORT CORE → typed canonical inference is now fail-closed both for incomplete fields and per-dataset completeness; the existing contract guard protects the behavior.
+- IMPORT UI → full 16-stage post-upload lifecycle remains on the existing canonical result surface; no duplicate route/path was introduced.
+- OPEN BLOCKERS → PC01 offline; Vercel free-plan rate limit; certification/enforcement runners queued; authenticated browser, production exact-SHA, rollback/restore/RPO/RTO, and Phase-F resilience proof remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume the first terminal mandatory gate. If queues persist, continue only independently provable repository-safe work and keep all runtime claims exact-SHA-bound.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; duplicate importer/navigation/RPC/runner; unsafe `import_jobs` mutation; speculative production/Phase-F bypass.
+- RESUME STATUS → ACTIVE / DEPLOYMENT PROOF REFRESHED / IMPORT CORE + UI HARDENED / MANDATORY CI QUEUED.
+
+## LATEST SESSION WRITE-BACK — 2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-155
+
+- SESSION-ID → `2026-09-27-AGHBARI-CONTINUOUS-EXECUTION-IMPORT-UI-155`.
+- CURRENT DOCUMENTATION SHA BEFORE WRITE → `496c51b6b642b24cbf1eac4763aa41d39e77a032`.
+- CURRENT FUNCTIONAL HEAD → PR #662 / `exec/20260927-import-full-lifecycle` / `b081c3f5d8c7ca4879c41f16cada76f0c5c66f00`.
+- CURRENT PROOF → exact functional HEAD has Netlify deploy-preview SUCCESS and Cloudflare Pages SUCCESS; public readback of Netlify preview confirms real الأغبري identity/company isolation gate and Evidence-first positioning.
+- PRODUCTION IDENTITY READBACK → Vercel production deployment `dpl_2mYGpzpzdgQdJsEJFy6FzKHaWFja` is READY and aliases `report-advisor.vercel.app`, but its GitHub SHA is `47502385cd999d1151360e30f47855360659b055`, not the functional HEAD `b081c3f5d8c7ca4879c41f16cada76f0c5c66f00`. Therefore production exact-SHA proof for the functional candidate is NOT PROVEN.
+- CURRENT VERCEL FUNCTIONAL STATUS → the functional candidate still reports `failure / build-rate-limit`; a READY production deployment exists only for the newer documentation-only main descendant. This does not close the functional release boundary.
+- MANDATORY CI → `certification-contracts` run `36326239773` / job `108639438409` and `enforcement-contract` run `36326239775` / job `108639438487` remain QUEUED with no logs or terminal conclusion.
+- GOVERNANCE → CI topology contract intentionally requires the two governance workflows to retain broad push coverage; no trigger weakening was applied merely to reduce queue pressure.
+- OPEN BLOCKERS → queued GitHub runners; Vercel functional deployment rate limit; PC01 offline; authenticated browser E2E, production exact-SHA resilience, rollback/restore/RPO/RTO, and Phase-F remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume the first terminal mandatory gate on `b081c3f`; then reconcile the governance lane. Do not promote the current production docs-only deployment as functional proof.
+- DO NOT REPEAT → stale PASS transfer; preview-as-production; production SHA bypass; duplicate importer/navigation/RPC/runner; broad-push workflow weakening solely to clear queue pressure.
+- RESUME STATUS → ACTIVE / IMPORT CORE HARDENED / EXACT-HEAD DEPLOYMENT PROVEN / RELEASE IDENTITY STILL OPEN.
