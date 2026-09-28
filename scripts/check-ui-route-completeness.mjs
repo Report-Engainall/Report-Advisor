@@ -125,6 +125,22 @@ for (const [pattern, message] of benchmarkTruthContract) {
   }
 }
 
+const intelligencePage = fs.readFileSync('src/pages/IntelligencePage.tsx', 'utf8');
+const intelligenceTruthContract = [
+  [/export function IntelligenceCenterPage/, 'Intelligence center must remain the canonical intelligence surface'],
+  [/ReportSurfaceContext/, 'Intelligence surfaces must expose the canonical truth context'],
+  [/const intelligenceAsOf/, 'Intelligence center must disclose a deterministic As Of'],
+  [/export function RecommendationsPage/, 'Recommendations must remain inside the canonical intelligence page'],
+  [/export function ForecastsPage/, 'Forecasts must remain inside the canonical intelligence page'],
+  [/FORECAST/, 'Forecast UI must preserve its predictive nature'],
+];
+for (const [pattern, message] of intelligenceTruthContract) {
+  if (!pattern.test(intelligencePage)) {
+    console.error(`FAIL intelligence truth context: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
 const businessReplayPage = fs.readFileSync('src/pages/BusinessReplayPage.tsx', 'utf8');
 const businessReplayTruthContract = [
   [/ReportSurfaceContext/, 'Business Replay must expose the canonical truth context'],
