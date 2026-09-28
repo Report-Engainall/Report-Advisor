@@ -346,6 +346,13 @@ if (!fs.existsSync(reportOutputContractPath)) {
   throw new Error('Canonical report output contract is missing');
 }
 const reportOutputContract = fs.readFileSync(reportOutputContractPath, 'utf8');
+const reportResolverSource = reportOutputContract;
+if (!reportResolverSource.includes("normalizedEntity.startsWith('generic:')")) {
+  throw new Error('Generic/uncommitted canonical sources must fail closed to non-specialty report output');
+}
+if (!reportResolverSource.includes("resolved = normalizedEntity.startsWith('generic:')")) {
+  throw new Error('Canonical report resolver must guard generic entity types before specialty fallback');
+}
 for (const [token, message] of [
   ['CANONICAL_REPORT_OUTPUTS', 'Canonical report output map missing'],
   ['resolveCanonicalReportOutputs', 'Canonical report output resolver missing'],
