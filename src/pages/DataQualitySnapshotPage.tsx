@@ -8,6 +8,7 @@ import { PageHeader, LoadingState, ErrorState, EmptyState } from '@/components/u
 import { DataTable } from '@/components/ui/DataTable';
 import { fetchDataQualitySnapshot, type QualityIssue, type EntityQuality } from '@/lib/data-quality-snapshot';
 import { formatNumber } from '@/lib/format';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 
 function scoreColor(score: number): string { if (score >= 90) return 'text-success-600'; if (score >= 70) return 'text-warning-600'; return 'text-danger-600'; }
 function scoreBg(score: number): string { if (score >= 90) return 'bg-success-500'; if (score >= 70) return 'bg-warning-500'; return 'bg-danger-500'; }
@@ -32,6 +33,12 @@ export function DataQualitySnapshotPage() {
         ? { label: 'راجع مشكلات الجودة', description: `توجد ${formatNumber(totalIssues)} مشكلة مرصودة في اللقطة الحالية؛ راجع مصدرها وحدود تأثيرها قبل استخدام المخرجات.`, to: '/trust' }
         : { label: 'انتقل للتحليل', description: 'لا توجد مشكلات جودة مرصودة في اللقطة الحالية؛ يمكن الانتقال إلى طبقة التحليل مع بقاء الدليل هو المرجع.', to: '/analytics' };
   return <div dir="rtl" className="ag-data-quality-surface space-y-6 animate-fade-in"><PageHeader title="جودة البيانات" subtitle="فحص مركزي للحالات التي قد تؤثر في التحليل والقرار، مع إبقاء حالة النقص ظاهرة بدل تحويلها إلى يقين." actions={<><Link to="/import" className="btn-secondary text-[10px]"><Upload size={13}/> استيراد مصدر</Link><span className={snapshotStatus === 'EMPTY' ? 'badge-warning badge' : 'badge-success badge'}>{snapshotStatus === 'EMPTY' ? 'EMPTY — لا توجد قاعدة تجارية' : 'لقطة جودة متاحة'}</span><button type="button" onClick={() => void load(true)} disabled={refreshing} className="btn-primary text-[10px]"><RefreshCw size={13} className={refreshing ? 'animate-spin' : ''}/> تحديث</button></>} />
+    <ReportSurfaceContext
+      period="لقطة الجودة الحالية"
+      asOf={new Date().toISOString().slice(0, 10)}
+      status={snapshotStatus === 'EMPTY' ? 'INSUFFICIENT DATA' : criticalIssueTotal > 0 ? 'REVIEW' : 'CALCULATED'}
+      sourceLabel="حالة الجودة مشتقة من لقطة البيانات الحالية؛ EMPTY أو REVIEW لا يُرفع إلى نجاح لمجرد اكتمال العرض."
+    />
     <section className="rounded-2xl border border-primary-200 bg-primary-50/55 p-4" aria-label="قاعدة قراءة جودة البيانات"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-start gap-3"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-primary-700 ring-1 ring-inset ring-primary-100"><ShieldCheck size={17}/></div><div><div className="text-xs font-black text-ink-900">قاعدة القراءة</div><p className="mt-1 text-[10px] leading-5 text-ink-500">الدرجة أداة تشخيص مشتقة من السجلات والمشكلات المرصودة في اللقطة الحالية، وليست ثقة مطلقة ولا بديلًا عن الدليل.</p></div></div><Link to="/trust" className="btn-ghost shrink-0 text-[10px]">فحص الثقة والأدلة <ArrowUpLeft size={13}/></Link></div></section><section className="grid gap-4 lg:grid-cols-[1.25fr_.75fr]" aria-label="قرار جودة البيانات">
       <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-center gap-2 text-xs font-black text-ink-800"><ShieldCheck size={16} className={criticalIssueTotal > 0 ? 'text-warning-600' : 'text-primary-600'}/> القرار التالي مبني على اللقطة الحالية</div>
