@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / PDF REGRESSION CONTRACT REPAIR
+
+- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
+- ACTIVE PR → #672 / exec/20260927-current-main-import-ui-rebased.
+- CURRENT CODE/TEST CANDIDATE → 24982d5fd49158db2df5a15ee3b6927e1c19003d.
+- ROOT CAUSE CLOSED → exact-head CI exposed a TypeScript contract defect in the native PDF path: parsePdfText returned Dataset where parseFile requires Dataset[], and the PDF regression script called extractPdfTableRowsFromTextItems without importing it.
+- IMPLEMENTATION → PDF table path now returns [await buildDataset(...)]; regression harness imports the same canonical helper and verifies both the first page and a subsequent page using the persisted fallback header.
+- PROOF STATUS → implementation committed exactly at 24982d5fd49158db2df5a15ee3b6927e1c19003d; fresh current-SHA CI is required before PASS. No previous-SHA evidence transferred.
+- NEXT → consume this SHA's PDF/file-engine, typecheck, certification and production-regression results; repair only the first reproducible failure.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / UPLOAD STORAGE RUNTIME CLOSURE / EXACT SHA c87451168f610a5e569c7fc3bace4a83b44c05a6
 
 - MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
