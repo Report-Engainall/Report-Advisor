@@ -253,7 +253,7 @@
 ## EXECUTION CHECKPOINT — 2026-09-28 / LIVE FRONT RESCAN
 
 - OBSERVED BRANCH HEAD → `7ae3d26deaa915d54c43bd52d0a5e403af0221fa`.
-- FUNCTIONAL CODE CANDIDATE remains frozen at `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`; later commits are governance/documentation only.
+- FUNCTIONAL CODE CANDIDATE → `1f0758a502c7038531c47a9e73c585378e44b574`; this checkpoint contains a real report-execution source-snapshot binding change. later commits are governance/documentation only.
 - Exact current live findings:
   - PR #672 remains open; main is `4ec779a0a1573fc3e0e395862f6761a70f775d49`; branch is 0 behind.
   - Device-independent authenticated browser proof PASS exists only on exact SHA `1cfbaee82cc79a411c8b6824eb7242f65e08799b`: 29/29 routes, auth/tenant/session/refresh/logout and A/B distinction observed. Not transferred to later SHA.
@@ -261,7 +261,7 @@
   - Phase-F live resilience on exact `1cfbaee82cc79a411c8b6824eb7242f65e08799b`: tenant-canary PASS; operational-health SHA mismatch; backup/restore failed while pulling local Supabase images; rollback drill returned 503 deployment_lookup_failed:404; no production mutation occurred.
   - Supabase Security Advisor: 40 SECURITY DEFINER functions executable by authenticated users; report worker lease functions, enqueue, heartbeat, checkpoint, complete, fail, retry, recover are authenticated=false. Leaked Password Protection remains disabled.
   - Supabase migration history is 338 applied entries versus 269 repo migrations in the release manifest; schema exists for customer_credit_accounts, but fresh disposable replay/provenance parity is not proven.
-  - Durable Report Execution remains OPEN: report_execution_jobs contains 3,790 canonical-import jobs and 0 report:* jobs; report_source_versions=2, report_row_lineage=3, report_consolidation_runs=0, canonical_text_artifacts=0. Existing report execution UI still downloads browser Blobs.
+  - Durable Report Execution remains OPEN: report_execution_jobs contains 3,790 canonical-import jobs and 0 report:* jobs; report_source_versions=2, report_row_lineage=3, report_consolidation_runs=0, canonical_text_artifacts=0. Existing report execution UI still downloads browser Blobs. The enqueue API and SupabaseReportExecutionStore now require a live source_analysis_snapshots identity and bind source snapshot id into the report job key/evidence; live worker/output execution is still unproven.
   - Current API `api/report-execution-enqueue.mjs` is an authenticated tenant-aware enqueue caller, but no live authenticated enqueue proof and no real worker/output lifecycle proof exist.
   - Vercel production runtime-error query over the last 7 days returned no runtime errors; however backup/artifact/incident/SLO evidence tables remain empty.
   - Safe staging read benchmarks observed: customers company count execution 40.389ms; sales invoice 180-day aggregate 1.188ms; sales status aggregate 0.689ms. These are single-sample read observations, not P95/P99 certification.
