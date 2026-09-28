@@ -174,3 +174,16 @@
 - RELEASE BLOCKERS → Vercel free-plan build-rate limitation; exact-head authenticated browser certification; live Phase-F backup/restore/RPO/RTO/rollback evidence.
 - SECURITY RESIDUAL → broad Supabase Advisor SECURITY DEFINER findings and leaked-password warning remain an independent audit surface; no blanket mutation.
 - NEXT → commit this reconciliation, re-anchor proof to the resulting SHA, then consume terminal exact-head CI/browser evidence and repair only first current-head reproducible failures.
+
+# CURRENT EXECUTION CHECKPOINT — 2026-09-28 / 9FBC BROWSER + HOSTED PROOF RECONCILIATION
+
+- EXACT HEAD → `9fbc6eefa5bf14ac3a50afad16d16e5d0cd8d657` on `exec/20260927-current-main-import-ui-rebased` / PR #672.
+- 20-STAGE RELEASE READINESS → exact local HEAD 20/20 PASS after the previous checkpoint; targeted product/canonical/certification gates PASS.
+- BROWSER SHELL → exact-head local staging-client build renders Arabic RTL and login surface with zero runtime exceptions; 58 route×viewport checks pass, including desktop and 390x844 mobile; no 404/app-error/overflow detected.
+- HOSTED EXACT SHA → Vercel deployment READY at exact 9fbc. Hosted index 200 and hosted JS bundle inspection confirms the staging Supabase host is baked into the build and the local missing-env guard message is absent from that bundle.
+- NETLIFY → exact 9fbc deploy-preview cancelled with no-content-change; no PASS transferred.
+- AUTHENTICATED E2E → NOT PROVEN because repository browser runner requires TEST_USER_A/B and runtime secrets and TinyFish automation cannot start with current wallet state. No credentials were invented or used.
+- RESILIENCE → live Phase-F backup/restore/RPO/RTO/rollback evidence still NOT PROVEN on current head.
+- SECURITY → RLS, tenant policies, import RPC security, and canonical security-definer contracts verified; broad Supabase Advisor warnings remain independent audit surface.
+- CLEANUP → no duplicate state/control-plane/browser framework introduced; untracked artifacts remain evidence-only.
+- RELEASE STATE → product core and public UI shell are proven on 9fbc; final authenticated/operational certification remains open and is not labeled PASS.
