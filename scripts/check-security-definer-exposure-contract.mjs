@@ -115,6 +115,23 @@ function hasSafeSearchPath(window, mode) {
   return normalized === 'public' || normalized === 'public,pg_catalog' || normalized === 'pg_catalog,public';
 }
 function assertAuthenticatedOnly(name) {
+  if (name === 'fail_report_execution_job') {
+    const grantPattern = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${name}\\s*\\([^;]*?\\)\\s+TO\\s+([^;]+);`, 'ig');
+    let serviceRole = false;
+    let authenticated = false;
+    let anon = false;
+    let match;
+    while ((match = grantPattern.exec(sql)) !== null) {
+      const roles = match[1].split(',').map(role => role.trim().toLowerCase()).filter(Boolean);
+      serviceRole ||= roles.includes('service_role');
+      authenticated ||= roles.includes('authenticated');
+      anon ||= roles.includes('anon');
+    }
+    if (!serviceRole) failures.push(`${name}: service_role EXECUTE grant not found`);
+    if (authenticated) failures.push(`${name}: worker-only SECURITY DEFINER must not be executable by authenticated`);
+    if (anon) failures.push(`${name}: worker-only SECURITY DEFINER must not be executable by anon`);
+    return;
+  }
   const grantPattern = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${name}\\s*\\([^;]*?\\)\\s+TO\\s+([^;]+);`, 'ig');
   let authenticated = false;
   let anon = false;
