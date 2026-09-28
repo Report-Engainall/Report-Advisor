@@ -1,19 +1,19 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / DOCS CHECKPOINT `2bc6b6f9f13003de404035bddef9f384c3e4deb5`
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXACT PR HEAD `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`
 
 > This top block is the only startup boundary. It is the source the programmer must resume from after reconciling GitHub exact state.
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
 - ACTIVE PR → `#672` / `exec/20260927-current-main-import-ui-rebased`.
-- CURRENT REPOSITORY HEAD → `2bc6b6f9f13003de404035bddef9f384c3e4deb5` (docs/control-plane checkpoint; functional candidate unchanged).
-- CURRENT CODE/TEST CANDIDATE: `03d6d48a491f1237a247fe0844d2cb9811f9e2ea`.
+- CURRENT REPOSITORY HEAD → `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`.
+- CURRENT CODE/TEST CANDIDATE: `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`.
 - ACTIVE EXECUTION FRONTS → Resume-token governance repair; Phase-F live resilience; authenticated browser/business runtime; Tenant A/B isolation proof; real report-generation durable-execution trigger; worker crash/retry/DLQ/idempotency proof; authenticated import/OCR golden corpus; migration replay/schema parity; UI runtime completeness; security hardening; final certification/merge closure.
-- OPEN BLOCKERS → Phase-F live resilience is NOT READY (deployment SHA mismatch, backup/restore failure, rollback/forward 503); authenticated browser E2E is NOT PROVEN because test credentials are absent; Vercel free-plan build-rate remains external; fresh GitHub certification evidence must bind to the post-checkpoint SHA; **runtime proof remains open**. No blocker authorizes idle time.
-- LAST PROVEN → on code candidate `03d6d48...`, Execution Enforcement PASS, adversarial execution-enforcement PASS, Knowledge Architecture PASS, Quality Workflow Contract PASS, Operational Resilience Contract PASS, plus the previously green exact-head desktop/UI/import/security/runtime gates bound to exact SHAs.
-- LAST FAILED → `phase-f-live-resilience` remains NOT READY (1/4 passed); authenticated browser E2E is auth-blocked; the prior missing-resume-anchor root is CLOSED and must not be reopened.
-- NEXT EXECUTABLE ACTION → attack Phase-F deployment identity/restore/rollback and authenticated browser/runtime proof in parallel; keep tenant/security/recovery/corpus/report-trigger/UI fronts moving independently; then consume the first terminal current-SHA certification failure only.
-- NEXT INDEPENDENT ACTIONS → use PC01 + Playwright for browser/runtime proof; isolate/fix Phase-F target/deployment mismatch without weakening the gate; continue tenant/security/data/recovery/corpus/report-trigger fronts; run bounded UI-state rescan; consume terminal CI once, not repeated polling.
+- OPEN BLOCKERS → Phase-F live resilience remains NOT READY (deployment SHA mismatch, backup/restore failure, rollback-forward 503); fresh browser proof for the Replay `REVIEW` fix is pending; Vercel free-plan build-rate remains external. PC01 is OFFLINE; device-only proof is isolated, not a global blocker.
+- LAST PROVEN → exact `b2547f28…`: quality PASS, Final Certification Gate PASS, Execution Enforcement PASS, UI route completeness PASS, core import/security/data contracts PASS, desktop-windows PASS.
+- LAST FAILED → Phase-F 1/4; Device-Independent authenticated E2E failed on optional Replay console error, repaired in `b37adb8…`; no fresh proof yet on the new SHA.
+- NEXT EXECUTABLE ACTION → consume the fresh exact-`b37adb8…` CI/browser/final-certification results; repair only the first reproducible current-SHA failure, then persist/rescan.
+- NEXT INDEPENDENT ACTIONS → continue non-device Supabase/data/security/recovery/report-trigger/migration/UI fronts; isolate Phase-F target/restore/rollback; do not wait for PC01.
 - DO NOT REPEAT → stale SHA evidence; repeated unchanged CI polling; duplicate browser frameworks/runners/RPCs; preview-as-production claims; blanket SECURITY DEFINER revokes; deletion without Manifest/reference proof; reinstalling tools that are already available.
-- DEVICE → PC01 ONLINE; local PR worktree is available and writable.
+- DEVICE → PC01 OFFLINE; device-dependent proof is isolated.
 - QUALITY NOTE → lint currently reports 62 warnings / 0 errors; warnings are cleanup debt, not permission to delay higher-value closure.
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / SECURITY CONTRACT REPAIR REPROVED
