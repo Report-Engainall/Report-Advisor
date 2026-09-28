@@ -1368,3 +1368,14 @@
 - CI EXACT SHA → Final Certification Gate `36473883486` and Execution Enforcement Contract `36473883350` are queued on this exact SHA; no terminal PASS/FAIL transferred.
 - DO NOT REPEAT → do not let an outcome without evidence identity enter Learning; do not treat non-empty arbitrary JSON as a valid Evidence link.
 - RESUME POINT → continue the next concrete non-device certification/cleanup front while preserving this evidence identity gate.
+
+# RESUME TOKEN — 2026-09-28 / QUERY EXPORT GUARD WIRED INTO ENFORCEMENT CI
+
+- CURRENT CODE/CI HEAD → `3500c1b017fe58f057748520d584bbd7b0fb4909`.
+- CLOSED → `.github/workflows/execution-enforcement-contract.yml` now runs `node scripts/check-query-export-coverage.mjs` during the enforcement gate, so query export drift is caught before Final Certification.
+- CLOSED → package script `test:query-export-coverage` remains available for direct execution.
+- CLOSED → query guard covers normal + type-only imports, duplicate exports, and fail-closed missing-symbol behavior.
+- PROOF → exact-source wiring check PASS: workflow invocation, package hook, duplicate-export guard and type-import guard are all present on this exact HEAD.
+- CI EXACT SHA → this workflow change creates a fresh exact-head CI cycle; terminal results are not yet available and must not be inferred.
+- DO NOT REPEAT → do not add another query export guard in a parallel workflow; keep this one canonical.
+- RESUME POINT → consume exact-head CI terminal results when available, while continuing only concrete non-device gaps.
