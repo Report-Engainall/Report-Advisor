@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / IMPORT DROP ROOT CLOSED / EXACT SHA `86c168b77edeca9d32391664202cf812c6880f81`
+
+- MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- ACTIVE PR → #672 / `exec/20260927-current-main-import-ui-rebased`.
+- CURRENT FUNCTIONAL / EXECUTION CANDIDATE → `86c168b77edeca9d32391664202cf812c6880f81`.
+- CLOSED ROOT → advertised file dragging had no DOM drop event path; the fix now routes one dropped file into the same canonical `handleFile` pipeline and rejects ambiguous multi-file drops.
+- CONTRACT ALIGNMENT → import job metadata accepts the same 100 MB boundary advertised by the canonical file engine.
+- PROOF BOUNDARY → exact source readback passed the new drag/drop and size-contract assertions; fresh GitHub workflows are queued and remain the next authoritative runtime proof.
+- ACTIVE FRONTS → import/PDF extraction quality; post-import evidence/signal closure; Supabase/data/security; certification/browser; Phase-F resilience; cleanup.
+- NEXT → consume the first terminal CI/browser result on `86c168b…`; meanwhile execute independent native-PDF table extraction work without waiting.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / FUNCTIONAL CANDIDATE `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`
 
 > This top block is the only startup boundary. It is the source the programmer must resume from after reconciling GitHub exact state.

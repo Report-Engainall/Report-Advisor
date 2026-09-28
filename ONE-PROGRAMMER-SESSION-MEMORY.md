@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / IMPORT DROP ROOT CLOSED / EXACT SHA `86c168b77edeca9d32391664202cf812c6880f81`
+
+- MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- ACTIVE PR → #672 / `exec/20260927-current-main-import-ui-rebased` / exact code SHA `86c168b77edeca9d32391664202cf812c6880f81`.
+- ROOT CAUSE CLOSED → the canonical import dropzone advertised “اختر ملفًا أو اسحبه” but had no `onDrop/onDragOver` event path; dragged files therefore never entered `handleFile`.
+- IMPLEMENTATION → added explicit drag-enter/over/leave/drop handlers, keyboard activation, single-file fail-closed handling, visible drag state, and exact contract assertions; aligned the server import-job file-size boundary from 50 MB to the repository's 100 MB UI/security limit.
+- EXACT SOURCE PROOF → branch readback on `86c168b…`: dropzone marker, four drag handlers, `event.dataTransfer.files`, `handleDroppedFiles`, multi-file rejection, contract guards, and 100 MB migration cap all observed.
+- CI → exact-SHA runs `36429491585` (ci-bootstrap-smoke) and `36429491633` (Full Product Browser E2E) are queued; no terminal PASS is claimed.
+- DEVICE/RELEASE → PC01 remains offline in the canonical session state; hosted/browser evidence is not inferred from queued CI.
+- NEXT EXECUTABLE → consume the first terminal exact-SHA result; independently harden the native-PDF tabular extraction path for repeated-header multi-page Arabic reports, then persist/rescan.
+- DO NOT REPEAT → prior-SHA PASS; browser claims from old SHAs; duplicate import/drop runners; force-pushing over newer branch work.
+
 # RESUME TOKEN — 2026-09-28 / EXACT CURRENT EXECUTION HEAD
 
 - CURRENT REPOSITORY HEAD → `0314093836cd40e93f5009e97ae5569fe355b86d` (checkpoint parent for this persistence commit).
