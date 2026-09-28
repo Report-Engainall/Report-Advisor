@@ -46,6 +46,106 @@ function executionTaskBadge(status: ReportExecutionTaskRecord['status']): { labe
   return { label: 'انتظار', className: 'text-ink-500 bg-ink-50 border-ink-200' };
 }
 
+const SPECIALTY_REPORT_OUTPUTS: Record<string, Array<{ path: string; title: string; stage: string; description: string }>> = {
+  sales: [
+    { path: '/reports/sales', title: 'تقرير المبيعات', stage: 'SPECIALTY REPORT', description: 'المبيعات والفواتير والعملاء والمنتجات من الحقيقة الكانونية الحالية.' },
+  ],
+  purchases: [
+    { path: '/reports/purchases', title: 'تقرير المشتريات', stage: 'SPECIALTY REPORT', description: 'المشتريات والموردون والتدفقات الداخلة من الحقيقة الكانونية الحالية.' },
+  ],
+  inventory: [
+    { path: '/reports/inventory', title: 'تقرير المخزون', stage: 'SPECIALTY REPORT', description: 'الكميات والتكلفة والقيمة وحالات النقص من اللقطة الكانونية.' },
+    { path: '/reports/inventory-intelligence', title: 'ذكاء المخزون', stage: 'INTELLIGENCE OUTPUT', description: 'الأولوية التشغيلية ومخاطر المخزون بعد اجتياز بوابات الحقيقة.' },
+  ],
+  customers: [
+    { path: '/analytics', title: 'التحليلات المتخصصة', stage: 'ANALYTICS OUTPUT', description: 'تحليلات العملاء والحركة من البيانات الكانونية الحالية.' },
+  ],
+  suppliers: [
+    { path: '/analytics', title: 'التحليلات المتخصصة', stage: 'ANALYTICS OUTPUT', description: 'تحليلات الموردين والحركة من البيانات الكانونية الحالية.' },
+  ],
+  products: [
+    { path: '/analytics', title: 'التحليلات المتخصصة', stage: 'ANALYTICS OUTPUT', description: 'تحليلات الأصناف والمنتجات من البيانات الكانونية الحالية.' },
+  ],
+  payments: [
+    { path: '/analytics', title: 'التحليلات المتخصصة', stage: 'ANALYTICS OUTPUT', description: 'تحليلات التدفقات والمدفوعات المتاحة من الحقيقة الكانونية.' },
+  ],
+  other: [
+    { path: '/reports/executive', title: 'التقرير التنفيذي', stage: 'DECISION OUTPUT', description: 'المصدر العام يدخل إلى التقرير التنفيذي مع حدود الدليل الواضحة.' },
+  ],
+};
+
+function resolvePostImportReports(specialty: string | null | undefined, entityType: string | null | undefined) {
+  const normalizedSpecialty = String(specialty ?? '').toLowerCase();
+  const normalizedEntity = String(entityType ?? '').toLowerCase();
+  if (normalizedSpecialty === 'sales' || normalizedEntity === 'sales_invoices') return SPECIALTY_REPORT_OUTPUTS.sales;
+  if (normalizedSpecialty === 'purchases' || normalizedEntity === 'purchase_invoices') return SPECIALTY_REPORT_OUTPUTS.purchases;
+  if (normalizedSpecialty === 'inventory' || normalizedEntity === 'inventory_balances') return SPECIALTY_REPORT_OUTPUTS.inventory;
+  return SPECIALTY_REPORT_OUTPUTS[normalizedSpecialty] ?? SPECIALTY_REPORT_OUTPUTS.other;
+}
+
+function PostImportReportOutputs({ result }: { result: any }) {
+  const reports = resolvePostImportReports(result.sourceSpecialty, result.sourceEntityType);
+  const canOpenSpecialty = result.evidenceStatus === 'VERIFIED';
+  return <section className="w-full max-w-4xl rounded-[18px] border border-success-200 bg-success-50/30 p-4 text-right" aria-label="مخرجات التقارير بعد الاستيراد">
+    <div className="flex flex-wrap items-start justify-between gap-2">
+      <div>
+        <div className="text-[9px] font-black tracking-[.12em] text-success-700">REPORT OUTPUTS</div>
+        <div className="mt-1 text-sm font-black text-ink-950">التقارير التي يفتحها هذا المصدر</div>
+        <p className="mt-1 text-[10px] leading-5 text-ink-600">يُختار السطح التخصصي من الفهم الكانوني للمصدر؛ التقرير التنفيذي يبقى نقطة التجميع، ولا يُعامل السطح التخصصي كحقيقة مصدرية إذا بقي الدليل PARTIAL.</p>
+      </div>
+      <Badge variant={canOpenSpecialty ? 'success' : 'warning'}>{canOpenSpecialty ? 'السطح التخصصي قابل للفتح' : 'الدليل يحتاج مراجعة'}</Badge>
+    </div>
+    <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      {reports.map((report, index) => {
+        const href = report.path === '/reports/executive' && result.importId
+          ? report.path + '?import=' + encodeURIComponent(result.importId)
+          : report.path;
+        return <Link
+          key={report.path + '-' + index}
+          to={canOpenSpecialty || report.path === '/reports/executive' ? href : (result.importId ? '/trust?import=' + encodeURIComponent(result.importId) : '/trust')}
+          className="rounded-[14px] border border-white/90 bg-white/90 p-3 text-right transition hover:border-success-300 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[9px] font-black text-success-700">{report.stage}</span>
+            <span className="text-[9px] font-black text-ink-400">{canOpenSpecialty || report.path === '/reports/executive' ? 'فتح' : 'راجع الدليل'}</span>
+          </div>
+          <div className="mt-2 text-[11px] font-black text-ink-900">{report.title}</div>
+          <div className="mt-1 text-[9px] leading-4 text-ink-500">{report.description}</div>
+        </Link>;
+      })}
+    </div>
+  </section>;
+}
+
+function FinalExecutionProof({ tasks }: { tasks: ReportExecutionTaskRecord[] }) {
+  if (!tasks.length) return null;
+  const completed = tasks.filter(task => task.status === 'completed').length;
+  return <section className="w-full max-w-4xl rounded-[18px] border border-ink-200 bg-white p-4 text-right" aria-label="إثبات مهام التنفيذ النهائية">
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <div>
+        <div className="text-[9px] font-black tracking-[.12em] text-primary-700">EXECUTION PROOF</div>
+        <div className="mt-1 text-sm font-black text-ink-950">إثبات ما نفّذه المسار بعد السحب</div>
+        <div className="mt-1 text-[10px] text-ink-500">{completed}/{tasks.length} مهام مكتملة. المسار الحالي ينشئ المهام التسع ثم يقدّمها بالتسلسل عبر Worker مؤجر؛ ليست معالجة متوازية متعددة العمال.</div>
+      </div>
+      <span className={completed === tasks.length ? 'badge-success' : 'badge-warning'}>{completed === tasks.length ? 'كل المهام مكتملة' : 'المسار لم يكتمل'}</span>
+    </div>
+    <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      {tasks.map(task => {
+        const badge = executionTaskBadge(task.status);
+        return <article key={task.id} className="rounded-xl border border-ink-100 bg-ink-50/40 p-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[8px] font-black text-primary-700">{String(task.ordinal).padStart(2, '0')} · {task.stage}</span>
+            <span className={`rounded-full border px-2 py-0.5 text-[8px] font-black ${badge.className}`}>{badge.label}</span>
+          </div>
+          <div className="mt-1 text-[10px] font-black text-ink-900">{task.label}</div>
+          <div className="mt-1 text-[8px] text-ink-500">المحاولة {task.attempt} · العامل {task.worker_id ?? 'غير مثبت'}</div>
+          {task.completed_at && <div className="mt-1 text-[8px] text-ink-400">اكتملت: {formatDateTime(task.completed_at)}</div>}
+        </article>;
+      })}
+    </div>
+  </section>;
+}
+
 const CANONICAL_LIFECYCLE = [
   ['01', 'Security', 'فحص أمني'],
   ['02', 'Fingerprint', 'بصمة المصدر'],
@@ -661,10 +761,10 @@ export function CanonicalImportPage() {
     {step === 'saving' && <Card><CardBody>
       <div className="flex flex-col items-center py-8 gap-3" role="status" aria-live="polite" aria-busy="true">
         <Loader2 className="animate-spin text-primary-500" size={34}/>
-        <b>جارٍ تشغيل العملية الكانونية وتوزيع مهام التنفيذ...</b>
+        <b>جارٍ تشغيل العملية الكانونية وإنشاء مهام التنفيذ التسع...</b>
         <span className="text-lg font-semibold">{progress}%</span>
         <div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden" role="progressbar" aria-label="تقدم تنفيذ المصدر" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.max(0, Math.min(100, progress))}><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div>
-        <p className="text-xs text-ink-400">كل مرحلة لها Job/Task حقيقي وحالة محفوظة في قاعدة البيانات؛ التنفيذ الحالي متسلسل تحت Worker مؤجر، ولا تعتمد الواجهة على شريط تقدم وهمي.</p>
+        <p className="text-xs text-ink-400">تُنشأ المهام التسع فعليًا وتُحفظ في قاعدة البيانات، ثم يتقدم Worker مؤجر بينها بالتسلسل؛ لا تعتمد الواجهة على شريط تقدم وهمي.</p>
       </div>
       <section className="mt-4 w-full rounded-[16px] border border-ink-200 bg-white p-4 text-right">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -686,7 +786,8 @@ export function CanonicalImportPage() {
       </section>
     </CardBody></Card>}
 
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4">{result.evidenceStatus === 'VERIFIED' ? <CheckCircle2 className="text-success-500" size={52}/> : <AlertTriangle className="text-warning-600" size={52}/>}<h3 className="text-xl font-semibold">{result.evidenceStatus === 'VERIFIED' ? 'تم اعتماد المصدر وإثبات دليله' : 'اكتمل التنفيذ لكن الدليل بقي PARTIAL'}</h3><div className="w-full max-w-3xl rounded-[16px] border border-ink-200 bg-ink-50/60 p-4 text-right"><div className="text-[9px] font-black tracking-[.12em] text-primary-700">CANONICAL RESULT</div><div className="mt-1 text-sm font-black text-ink-950" role="status" aria-live="polite" aria-atomic="true">الحالة النهائية: {result.evidenceStatus === 'VERIFIED' ? 'VERIFIED' : 'PARTIAL / NOT PROVEN'}</div><div className="mt-1 text-[10px] leading-5 text-ink-500">{result.evidenceStatus === 'VERIFIED' ? 'تمت الكتابة الكانونية، ثم حفظ لقطة الدليل وإثباتها.' : 'تم تسجيل نتيجة التنفيذ، لكن لقطة الدليل لم تُثبت؛ لا تُعامل الدورة كحقيقة مثبتة.'}</div></div><div className="grid grid-cols-2 gap-3 w-full max-w-2xl text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف الكانونية</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة الفهم</div><b>{result.understandingConfidence == null ? 'غير متاح' : String(result.understandingConfidence) + '%'}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">جودة المصدر السلطوية</div><b>{result.authoritativeQualityScore == null ? 'غير متاح' : String(result.authoritativeQualityScore) + '%'}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">التخصص المكتشف</div><b>{specialtyLabel(result.sourceSpecialty)}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">مجموعات البيانات</div><b>{result.datasetCount == null ? 'غير متاح' : formatNumber(result.datasetCount)}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الكيان الكانوني</div><b>{entityLabel(result.sourceEntityType)}</b></div></div><div className="w-full max-w-3xl rounded-[16px] border border-primary-100 bg-primary-50/50 p-4 text-right"><div className="text-[9px] font-black tracking-[.12em] text-primary-700">SOURCE FLOW</div><div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{[['1','Security','فحص أمني'],['2','Understanding','فهم المصدر والمجموعات'],['3','Canonical Commit',result.evidenceStatus === 'VERIFIED' ? 'كتابة كانونية مثبتة' : 'تنفيذ كانوني مسجل'],['4','Evidence',result.evidenceStatus === 'VERIFIED' ? 'لقطة دليل مثبتة' : 'الدليل غير مثبت بالكامل']].map(([n,key,label]) => <div key={String(key)} className="rounded-xl border border-white/80 bg-white/80 p-3 text-right"><div className="text-[9px] font-black text-primary-700">{n} · {key}</div><div className="mt-1 text-[10px] font-bold text-ink-900">{label}</div></div>)}</div></div><CanonicalLifecycle />{(result.datasetSummaries?.length ?? 0) > 0 && <section className="w-full max-w-3xl rounded-[16px] border border-ink-200 bg-white p-4 text-right"><div className="text-[9px] font-black tracking-[.12em] text-primary-700">DATASET UNDERSTANDING</div><div className="mt-1 text-sm font-black text-ink-950">تفصيل ما فهمه النظام من كل مجموعة بيانات</div><div className="mt-3 space-y-2">{result.datasetSummaries.map((dataset: any, index: number) => <article key={String(dataset.name || 'dataset') + '-' + String(index)} className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="flex flex-wrap items-center justify-between gap-2"><div className="text-[11px] font-black text-ink-900">{dataset.name || 'مجموعة بيانات ' + String(index + 1)}</div><div className="flex flex-wrap gap-2 text-[9px] font-bold"><span className="badge-neutral">{specialtyLabel(dataset.specialty)}</span><span className={Number(dataset.specialtyConfidence) >= 75 ? 'badge-success' : Number(dataset.specialtyConfidence) >= 50 ? 'badge-warning' : 'badge-neutral'}>ثقة التخصص {dataset.specialtyConfidence == null ? 'غير متاح' : String(dataset.specialtyConfidence) + '%'}</span></div></div><div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3"><div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الصفوف</div><div className="mt-1 text-[10px] font-black">{dataset.rowCount == null ? 'غير متاح' : formatNumber(dataset.rowCount)}</div></div><div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الأعمدة</div><div className="mt-1 text-[10px] font-black">{dataset.columnCount == null ? 'غير متاح' : formatNumber(dataset.columnCount)}</div></div><div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الجودة</div><div className="mt-1 text-[10px] font-black">{dataset.qualityScore == null ? 'غير متاح' : String(dataset.qualityScore) + '%'}</div></div></div></article>)}</div></section>}<div className="flex flex-wrap items-center justify-center gap-2">
+    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4">{result.evidenceStatus === 'VERIFIED' ? <CheckCircle2 className="text-success-500" size={52}/> : <AlertTriangle className="text-warning-600" size={52}/>}<h3 className="text-xl font-semibold">{result.evidenceStatus === 'VERIFIED' ? 'تم اعتماد المصدر وإثبات دليله' : 'اكتمل التنفيذ لكن الدليل بقي PARTIAL'}</h3><div className="w-full max-w-3xl rounded-[16px] border border-ink-200 bg-ink-50/60 p-4 text-right"><div className="text-[9px] font-black tracking-[.12em] text-primary-700">CANONICAL RESULT</div><div className="mt-1 text-sm font-black text-ink-950" role="status" aria-live="polite" aria-atomic="true">الحالة النهائية: {result.evidenceStatus === 'VERIFIED' ? 'VERIFIED' : 'PARTIAL / NOT PROVEN'}</div><div className="mt-1 text-[10px] leading-5 text-ink-500">{result.evidenceStatus === 'VERIFIED' ? 'تمت الكتابة الكانونية، ثم حفظ لقطة الدليل وإثباتها.' : 'تم تسجيل نتيجة التنفيذ، لكن لقطة الدليل لم تُثبت؛ لا تُعامل الدورة كحقيقة مثبتة.'}</div></div><div className="grid grid-cols-2 gap-3 w-full max-w-2xl text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف الكانونية</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة الفهم</div><b>{result.understandingConfidence == null ? 'غير متاح' : String(result.understandingConfidence) + '%'}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">جودة المصدر السلطوية</div><b>{result.authoritativeQualityScore == null ? 'غير متاح' : String(result.authoritativeQualityScore) + '%'}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">التخصص المكتشف</div><b>{specialtyLabel(result.sourceSpecialty)}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">مجموعات البيانات</div><b>{result.datasetCount == null ? 'غير متاح' : formatNumber(result.datasetCount)}</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الكيان الكانوني</div><b>{entityLabel(result.sourceEntityType)}</b></div></div><div className="w-full max-w-3xl rounded-[16px] border border-primary-100 bg-primary-50/50 p-4 text-right"><div className="text-[9px] font-black tracking-[.12em] text-primary-700">SOURCE FLOW</div><div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{[['1','Security','فحص أمني'],['2','Understanding','فهم المصدر والمجموعات'],['3','Canonical Commit',result.evidenceStatus === 'VERIFIED' ? 'كتابة كانونية مثبتة' : 'تنفيذ كانوني مسجل'],['4','Evidence',result.evidenceStatus === 'VERIFIED' ? 'لقطة دليل مثبتة' : 'الدليل غير مثبت بالكامل']].map(([n,key,label]) => <div key={String(key)} className="rounded-xl border border-white/80 bg-white/80 p-3 text-right"><div className="text-[9px] font-black text-primary-700">{n} · {key}</div><div className="mt-1 text-[10px] font-bold text-ink-900">{label}</div></div>)}</div></div><CanonicalLifecycle /><PostImportReportOutputs result={result} />{result.executionTasks?.length > 0 && <FinalExecutionProof tasks={result.executionTasks} />}
+{(result.datasetSummaries?.length ?? 0) > 0 && <section className="w-full max-w-3xl rounded-[16px] border border-ink-200 bg-white p-4 text-right"><div className="text-[9px] font-black tracking-[.12em] text-primary-700">DATASET UNDERSTANDING</div><div className="mt-1 text-sm font-black text-ink-950">تفصيل ما فهمه النظام من كل مجموعة بيانات</div><div className="mt-3 space-y-2">{result.datasetSummaries.map((dataset: any, index: number) => <article key={String(dataset.name || 'dataset') + '-' + String(index)} className="rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="flex flex-wrap items-center justify-between gap-2"><div className="text-[11px] font-black text-ink-900">{dataset.name || 'مجموعة بيانات ' + String(index + 1)}</div><div className="flex flex-wrap gap-2 text-[9px] font-bold"><span className="badge-neutral">{specialtyLabel(dataset.specialty)}</span><span className={Number(dataset.specialtyConfidence) >= 75 ? 'badge-success' : Number(dataset.specialtyConfidence) >= 50 ? 'badge-warning' : 'badge-neutral'}>ثقة التخصص {dataset.specialtyConfidence == null ? 'غير متاح' : String(dataset.specialtyConfidence) + '%'}</span></div></div><div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3"><div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الصفوف</div><div className="mt-1 text-[10px] font-black">{dataset.rowCount == null ? 'غير متاح' : formatNumber(dataset.rowCount)}</div></div><div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الأعمدة</div><div className="mt-1 text-[10px] font-black">{dataset.columnCount == null ? 'غير متاح' : formatNumber(dataset.columnCount)}</div></div><div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الجودة</div><div className="mt-1 text-[10px] font-black">{dataset.qualityScore == null ? 'غير متاح' : String(dataset.qualityScore) + '%'}</div></div></div></article>)}</div></section>}<div className="flex flex-wrap items-center justify-center gap-2">
   <Badge variant={result.evidenceStatus === 'VERIFIED' ? 'success' : 'warning'}>{result.evidenceStatus === 'VERIFIED' ? 'الدليل: مثبت' : 'الدليل: PARTIAL'}</Badge>
   <span className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</span>
 </div><div className="max-w-xl text-center text-[11px] leading-5 text-ink-500">
