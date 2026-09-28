@@ -450,6 +450,13 @@ export function RecommendationsPage() {
         </div>
       </section>
 
+      <ReportSurfaceContext
+        period="سجل التوصيات الحالي"
+        asOf={items.length ? new Date(Math.max(...items.map(item => new Date(item.created_at).getTime()).filter(Number.isFinite))).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10)}
+        status="CALCULATED"
+        sourceLabel="التوصيات المعروضة هي سجلات مصدرية قابلة للمراجعة؛ لا يتم اعتبارها نتائج تنفيذية قبل مسار القرار والاعتماد."
+      />
+
       <SummaryStrip cells={[
         { label: 'إجمالي التوصيات', value: counts.all, note: 'السجل المتاح حاليًا' },
         { label: 'جاهزة للقرار', value: counts.open, note: 'OPEN من المصدر الكانوني' },
@@ -565,6 +572,13 @@ export function ForecastsPage() {
           <button type="button" onClick={() => void load()} className="inline-flex items-center gap-2 self-start rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15"><RefreshCw size={14}/>تحديث</button>
         </div>
       </section>
+
+      <ReportSurfaceContext
+        period={latestPeriod === 'غير متاح' ? 'غير متاح' : 'أحدث فترة تنبؤية'}
+        asOf={latestPeriod !== 'غير متاح' ? new Date(latestPeriod).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10)}
+        status={items.length ? 'CALCULATED' : 'INSUFFICIENT DATA'}
+        sourceLabel="التنبؤات تُقرأ من السجل المصدرّي وتظل موسومة FORECAST؛ غياب الاختبار الرجعي لا يُستبدل بنسبة دقة مصطنعة."
+      />
 
       <SummaryStrip cells={[
         {label:'إجمالي التنبؤات',value:items.length,note:'سجلات تقديرية متاحة'},
