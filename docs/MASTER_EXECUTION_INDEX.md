@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / EVIDENCE-BEFORE-COMMIT HARDENING
+
+- EXACT MAIN BASE → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- ACTIVE FRONT → `fix/20260928-canonical-import-dropzone`.
+- DONE IN SOURCE → real drag/drop intake; PDF multi-page tabular reconstruction; Arabic report-column mapping; deterministic source specialty inference; evidence-before-canonical-commit; fail-closed import-job terminalization.
+- LIVE STAGING → 150 processing/0 remain as historical debt; 125 have no file/source metadata; 25 have file-backed sources. No unsafe bulk mutation.
+- RELEASE BOUNDARY → Vercel current-head build-rate limit external; PC01 offline; no browser/production/device PASS transferred.
+- NEXT → terminal exact-head CI on the latest branch, then first current-SHA failure repair and legacy file-backed job causality review.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / SOURCE INTAKE + PDF TABLE + EVIDENCE GATE
 
 - EXACT MAIN BASE → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
