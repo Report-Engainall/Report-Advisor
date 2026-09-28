@@ -82,6 +82,21 @@ export function BusinessReplayPage() {
         <Card><CardBody><div className="flex items-center gap-2 text-[10px] text-ink-400"><Target size={14}/> outcomes — نافذة القراءة</div><div className="mt-2 text-2xl font-black text-ink-900">{formatNumber(snapshot?.outcomeCount ?? 0)}</div><div className="mt-1 text-[10px] text-ink-500">آخر نتيجة: {snapshot?.latestOutcomeAt ?? 'غير متاح'}</div></CardBody></Card>
         <Card><CardBody><div className="flex items-center gap-2 text-[10px] text-ink-400"><ShieldCheck size={14}/> عناصر العمل — نافذة القراءة</div><div className="mt-2 text-2xl font-black text-ink-900">{formatNumber(snapshot?.workItemCount ?? 0)}</div><div className="mt-1 text-[10px] text-ink-500">تُقرأ كدليل تنفيذ فقط، لا كتوقع.</div></CardBody></Card>
       </section>
+      <section className="rounded-[16px] border border-primary-200 bg-primary-50/35 p-5 shadow-card" aria-label="ملخص التعلم من النتائج">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="section-kicker">LEARNING FROM OUTCOMES</div>
+            <h2 className="mt-1 text-lg font-black text-ink-950">ما الذي تعلمناه من النتائج المحفوظة؟</h2>
+            <p className="mt-1 text-[10px] leading-5 text-ink-600">الحساب يأتي من محرك Outcome Learning canonical؛ لا يتم استنتاج جودة من غياب النتائج أو من أحداث غير محفوظة.</p>
+          </div>
+          <span className="badge-primary">نتائج: {formatNumber(snapshot?.learning.count ?? 0)}</span>
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[9px] text-ink-400">الدقة</div><div className="mt-1 text-xl font-black text-ink-950">{snapshot?.learning.accuracy == null ? 'غير متاحة' : Math.round(snapshot.learning.accuracy * 100) + '%'}</div></div>
+          <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[9px] text-ink-400">التغطية</div><div className="mt-1 text-xl font-black text-ink-950">{snapshot?.learning.coverage == null ? 'غير متاحة' : Math.round(snapshot.learning.coverage * 100) + '%'}</div></div>
+          <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[9px] text-ink-400">الأثر المتراكم</div><div className="mt-1 text-xl font-black text-ink-950">{snapshot?.learning.impact == null ? 'غير متاح' : formatNumber(snapshot.learning.impact)}</div></div>
+        </div>
+      </section>
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="حالة التعلم من النتائج">
         {[
           ['positive', 'نتائج إيجابية', 'text-success-700 bg-success-50'],
