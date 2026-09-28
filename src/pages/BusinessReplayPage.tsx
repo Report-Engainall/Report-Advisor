@@ -1,5 +1,5 @@
 import { History, ShieldCheck, ArrowUpLeft, Database, Target, CheckCircle2, CircleAlert, Clock3, Layers3 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
 import { Card, CardBody } from '@/components/ui/Card';
 import { PageHeader, ErrorState, LoadingState } from '@/components/ui/States';
@@ -12,6 +12,8 @@ export function BusinessReplayPage() {
   const [snapshot, setSnapshot] = useState<BusinessReplaySnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const importId = searchParams.get('import')?.trim() || null;
   const load = useCallback(async () => {
     try {
       setLoading(true);
@@ -51,6 +53,16 @@ export function BusinessReplayPage() {
     .reduce<Record<string, number>>((acc, event) => { const key = event.status ?? 'غير متاح'; acc[key] = (acc[key] ?? 0) + 1; return acc; }, {});
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in">
+      {importId && <section className="rounded-2xl border border-primary-200 bg-primary-50/40 p-4 shadow-sm" aria-label="نطاق إعادة التشغيل">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.14em] text-primary-700">COMPANY-LEVEL REPLAY</div>
+            <h2 className="mt-1 text-sm font-black text-ink-950">هذا السجل يعرض التاريخ التشغيلي للشركة، وليس Replay خاصًا بالملف</h2>
+            <p className="mt-1 text-[10px] leading-5 text-ink-600">معرّف الاستيراد المرفق بالمسار ({importId}) لا يغيّر نطاق Business Replay الحالي. لا نعرض أحداثًا أو نتائج على أنها تخص المصدر إلا عندما يضيفها النموذج التشغيلي كسجل مرتبط فعليًا.</p>
+          </div>
+          <Link to={`/reports/executive?import=${encodeURIComponent(importId)}`} className="btn-secondary text-[10px]">العودة للتقرير المربوط بالمصدر</Link>
+        </div>
+      </section>}
       <PageHeader
         title="Business Replay"
         subtitle="إعادة قراءة ما حدث فعليًا من snapshots ونتائج تنفيذ محفوظة، دون إعادة بناء تاريخ غير موجود."
