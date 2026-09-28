@@ -875,12 +875,7 @@ export function CanonicalImportPage() {
     </Link>
 
 
-    <Link to="/benchmark" className="group rounded-[14px] border border-warning-100 bg-warning-50/55 p-3 transition hover:border-warning-300 hover:bg-warning-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
-      <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-warning-800">06 · BENCHMARK</span><Scale size={14} className="text-warning-700" /></div>
-      <div className="mt-2 text-[11px] font-black text-ink-900">شبكة المقارنة</div>
-      <div className="mt-1 text-[9px] leading-4 text-ink-500">تُحسم أهلية المقارنة من العينة النظيرة والدليل المحفوظ داخل شبكة المقارنة؛ لا يظهر ترتيب هنا قبل تحقق الشروط.</div>
-      <div className="mt-2 text-[9px] font-black text-warning-800">عرض حالة المقارنة ←</div>
-    </Link>
+
   </div>
 </section>
 <div className="flex flex-wrap justify-center gap-2">{result.evidenceStatus === 'VERIFIED' ? (
