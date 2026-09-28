@@ -66,6 +66,20 @@ for (const [pattern, message] of reportSurfaceContract) {
   }
 }
 
+const domainReportsCount = (reportsCenterPage.match(/<ReportSurfaceContext/g) ?? []).length;
+if (domainReportsCount < 5) {
+  console.error('FAIL reports center report-context contract: domain reports and Reports Center must expose the shared report truth context');
+  process.exitCode = 1;
+}
+
+for (const pattern of [/status={kpis\.status === 'CONFIRMED' \? 'VERIFIED'/, /status={(snapshot\?\.kpis\.status/]) {
+  if (!pattern.test(reportsCenterPage)) {
+    console.error('FAIL reports center truth-state contract: confirmed/calculated states must preserve VERIFIED semantics');
+    process.exitCode = 1;
+    break;
+  }
+}
+
 const inventoryIntelligencePage = fs.readFileSync('src/pages/InventoryIntelligencePage.tsx', 'utf8');
 const inventoryIntelligenceContract = [
   [/ReportSurfaceContext/, 'Inventory Intelligence must use the canonical report truth context'],
