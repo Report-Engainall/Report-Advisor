@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / MIME PARITY + LIVE STAGING READBACK / EXACT SHA b0726bcfe64f1769c768a18d8993be4c270a6f15
+
+- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
+- ACTIVE PR → #672 / exec/20260927-current-main-import-ui-rebased.
+- CURRENT FUNCTIONAL / EXECUTION CANDIDATE → b0726bcfe64f1769c768a18d8993be4c270a6f15.
+- CLOSED ROOTS → drag/drop event path; native Arabic multi-page PDF table reconstruction; Arabic presentation-form header alias; 100 MB staging size mismatch; import_create_job MIME allowlist mismatch.
+- LIVE STAGING PROOF → migrations 20260928134009 and 20260928141500 applied; import_create_job readback is SECURITY INVOKER with 100 MB and expanded MIME allowlist.
+- IMPORT UX BOUNDARY → drag now enters the same handleFile pipeline as click-selection; parser, quality, reconciliation, durable canonical runner, finish-job and VERIFIED-only post-import intelligence remain the same canonical path.
+- ACTIVE RUNTIME FRONTS → exact-SHA PDF regression; full browser/certification; real import-to-readback; Phase-F resilience; security/data; cleanup.
+- NEXT → first terminal current-SHA failure only; otherwise retain stable implementation and pursue independent evidence fronts.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / STAGING UPLOAD-SIZE RUNTIME CLOSURE / EXACT SHA 60ae24fbf256b7ed2fa6c7c60a6ace883ae233e0
 
 - MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.

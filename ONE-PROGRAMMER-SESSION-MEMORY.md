@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / MIME PARITY + LIVE STAGING READBACK / EXACT SHA b0726bcfe64f1769c768a18d8993be4c270a6f15
+
+- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
+- ACTIVE PR → #672 / exec/20260927-current-main-import-ui-rebased.
+- ROOT CAUSE CLOSED → file-engine/UI accepted xls, xlsm, tsv, ods, json, jsonl, markdown, bmp and related source MIME types, while live import_create_job rejected most of them at the commit boundary.
+- IMPLEMENTATION → additive migration 20260928141500_reconcile_import_job_mime_allowlist.sql expands the existing canonical import_create_job allowlist without creating a duplicate RPC or modifying historical migrations.
+- STAGING EXECUTION → migration applied successfully to fnqbvfuwbdpwvhcgzksl. Function readback contains the added Excel/ODS/TSV/JSON/JSONL/XML/Markdown/BMP MIME types.
+- SECURITY READBACK → import_create_job remains SECURITY INVOKER after the upgrade.
+- EXACT SOURCE → migration blob 24767ae1dc42b2078e276053a78e88eaf7dca922; code HEAD is exactly b0726bcfe64f1769c768a18d8993be4c270a6f15.
+- REMAINING PROOF GAP → real authenticated drop→parse→storage→canonical commit→readback against a real 67-page PDF remains NOT PROVEN because PC01 is offline and current exact-SHA browser/PDF workflows are still queued.
+- NEXT → consume current exact-SHA terminal workflow results; run real hosted/device import proof when that lane is available; continue independent certification/security/Phase-F fronts without transferring older SHA evidence.
+- DO NOT REPEAT → historical migration mutation; stale MIME/runtime PASS; duplicate import RPCs; preview-as-production.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / STAGING UPLOAD-SIZE RUNTIME CLOSURE / EXACT SHA 60ae24fbf256b7ed2fa6c7c60a6ace883ae233e0
 
 - MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
