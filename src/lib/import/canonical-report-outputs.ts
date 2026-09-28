@@ -39,6 +39,9 @@ export function resolveCanonicalReportOutputs(
 ): CanonicalReportOutput[] {
   const normalizedSpecialty = String(specialty ?? '').toLowerCase() as CanonicalImportSpecialty;
   const normalizedEntity = String(entityType ?? '') as CanonicalImportEntityType;
-  const resolved = ENTITY_TO_SPECIALTY[normalizedEntity] ?? (normalizedSpecialty in CANONICAL_REPORT_OUTPUTS ? normalizedSpecialty : 'other');
+  const entitySpecialty = ENTITY_TO_SPECIALTY[normalizedEntity];
+  const resolved = normalizedEntity.startsWith('generic:')
+    ? 'other'
+    : entitySpecialty ?? (normalizedSpecialty in CANONICAL_REPORT_OUTPUTS ? normalizedSpecialty : 'other');
   return CANONICAL_REPORT_OUTPUTS[resolved];
 }
