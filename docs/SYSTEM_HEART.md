@@ -248,10 +248,15 @@ Every meaningful execution batch records exact SHA, change, rationale, evidence/
 
 The chat boot message is deliberately minimal. It only activates this control plane.
 
+The compact boot message MUST name and activate this exact startup chain:
+`docs/SYSTEM_HEART.md` → `ONE-PROGRAMMER-SESSION-MEMORY.md` → `docs/MASTER_EXECUTION_INDEX.md` → `docs/PROJECT_KNOWLEDGE_MANIFEST.md` → `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md` → only the Canonical Domain Masters required by the Manifest.
+
 Detailed execution behavior MUST be loaded from:
 `PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL`
 
 The Manifest remains the knowledge/dependency map; the Execution Index remains the active frontier; Session Memory remains the live resume pointer; GitHub exact SHA remains technical truth.
+
+When the device is unavailable, only device-dependent fronts are isolated. All safe repository, CI, API, hosted, Supabase, documentation, security, contract, cleanup, and evidence work MUST continue.
 
 The programmer MUST never require a second chat-specific playbook to operate correctly.
 
