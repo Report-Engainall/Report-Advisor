@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-UPLOAD EXECUTION + SECURITY CANDIDATE
+
+- CURRENT CODE/TEST CANDIDATE → `ccd1694dda934bdf19eb1b3a7079c7d02532bf8d`
+- CURRENT REPOSITORY HEAD → `ccd1694dda934bdf19eb1b3a7079c7d02532bf8d`
+- ACTIVE FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- CLOSED IMPLEMENTATION → durable 9-stage task ledger; ordered lease-fenced execution; authoritative enqueue/execute; tenant readback; live/final execution reports; enqueue RPC service-role-only; worker readback bound to persisted job tenant.
+- STAGING PROOF → task ordering/evidence tests and enqueue RPC privilege closure.
+- CURRENT GATES → fresh exact-head Quality, Certification, Browser and Phase-F.
+- NEXT → consume current-head results; no more code changes unless a real terminal failure appears.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-UPLOAD SECURITY CLOSED
 
 - CURRENT CODE/TEST CANDIDATE → `0ab7b14324f16ac19a7e5e20ffdc00db7f259047`

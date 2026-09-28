@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-28 / POST-UPLOAD EXECUTION + SECURITY CANDIDATE
+
+- CURRENT REPOSITORY HEAD → `ccd1694dda934bdf19eb1b3a7079c7d02532bf8d`
+- CURRENT CODE/TEST CANDIDATE → `ccd1694dda934bdf19eb1b3a7079c7d02532bf8d`
+- ACTIVE FRONTS → final exact-head CI for post-upload execution ledger, tenant security, quality/browser, Phase-F.
+- LAST PROVEN → report-execution-gate PASS on prior code candidate; Supabase task ledger creation/ordering/worker evidence proven; enqueue RPC service_role-only proven in Staging.
+- LAST CODE CHANGE → worker task readback is now bound to persisted `job.tenantId`, satisfying tenant legacy consumer authority contract.
+- LAST FAILURE ROOT → quality tenant legacy consumer boundary flagged a direct `eq(company_id, tenantId)`; corrected.
+- OPEN EXTERNAL → Vercel build-rate limit, hosted Phase-F deployment drift, PC01 offline.
+- NEXT EXACT ACTION → consume current-head quality/certification/browser/Phase-F gates on `ccd1694dda934bdf19eb1b3a7079c7d02532bf8d`; repair only first terminal failure.
+- DO NOT REPEAT → stale candidate evidence, direct tenant selectors, exposed SECURITY DEFINER enqueue, duplicate runners.
+- RESUME POINT → `ccd1694dda934bdf19eb1b3a7079c7d02532bf8d`.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / POST-UPLOAD SECURITY CLOSED
 
 - CURRENT REPOSITORY HEAD → `0ab7b14324f16ac19a7e5e20ffdc00db7f259047`
