@@ -1,3 +1,17 @@
+# RESUME TOKEN — 2026-09-28 / POST-UPLOAD EXECUTION LEDGER + TYPE SAFETY
+
+- CURRENT REPOSITORY HEAD → `b225b76f9d72c4a8e7cf4e0aeae9a47834f4eb39`
+- CURRENT CODE/TEST CANDIDATE → `b225b76f9d72c4a8e7cf4e0aeae9a47834f4eb39`
+- ACTIVE EXECUTION FRONTS → exact-head certification + report-execution-gate + quality/browser/Phase-F.
+- LAST PROVEN → Supabase staging task ledger: 9 tasks created per durable job; stage ordering is enforced; queued and fingerprinted tasks completed with worker/attempt/evidence under a synthetic lease transaction.
+- LAST FAILED → exact-head certification on previous checkpoint rejected stale candidate `578bf...`; candidate is now reanchored. The previous Quality syntax/type failures were fixed in `b225b76f9d72c4a8e7cf4e0aeae9a47834f4eb39`.
+- OPEN BLOCKERS → hosted Vercel build-rate limit; Netlify deploy preview must rebuild on `b225b76f9d72c4a8e7cf4e0aeae9a47834f4eb39`; Phase-F hosted deployment drift; PC01 offline.
+- NEXT EXECUTABLE ACTION → consume `b225b76f9d72c4a8e7cf4e0aeae9a47834f4eb39` exact-head Final Certification, Execution Enforcement, report-execution-gate, Quality, Browser and Phase-F results.
+- NEXT INDEPENDENT ACTIONS → repair only first terminal repository failure; otherwise persist current proof and isolate external/device blockers.
+- DO NOT REPEAT → stale candidate evidence, fake execution progress, duplicate runners, direct import terminal writes.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / POST-UPLOAD EXECUTION LEDGER IMPLEMENTED
 
 - CURRENT REPOSITORY HEAD → `578bf217609de50fca4180b7ff5f6c7ed27988b5`

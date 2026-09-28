@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-UPLOAD EXECUTION LEDGER + TYPE SAFETY
+
+- CURRENT CODE/TEST CANDIDATE → `b225b76f9d72c4a8e7cf4e0aeae9a47834f4eb39`
+- CURRENT REPOSITORY HEAD → `b225b76f9d72c4a8e7cf4e0aeae9a47834f4eb39`
+- ACTIVE FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- CLOSED IMPLEMENTATION → durable 9-stage Task Ledger, lease-fenced worker task lifecycle, authoritative enqueue/execute boundary, tenant readback, live execution report, final execution report, TypeScript/type-safety fixes.
+- STAGING PROOF → task creation and ordered execution verified in Supabase transaction tests; ordering guard proven.
+- CURRENT GATE → exact-head certification must consume `b225b76f9d72c4a8e7cf4e0aeae9a47834f4eb39`; no transfer from `578bf...`.
+- OPEN → hosted deployment refresh + Phase-F, and device-only PC01.
+- NEXT → execute current-head gates and first-failure repair only.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-UPLOAD EXECUTION LEDGER IMPLEMENTED
 
 - CURRENT CODE/TEST CANDIDATE → `578bf217609de50fca4180b7ff5f6c7ed27988b5`
