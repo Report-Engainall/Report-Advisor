@@ -1,3 +1,29 @@
+# RESUME TOKEN — 2026-09-29 / EXACT CURRENT CHECKPOINT — REPORT CORPUS + PHASE-F BLOCKERS PROVEN
+
+- CHECKPOINT BEFORE WRITE SHA: `5e1133153fbbb7d5f3284bfa6d7085ce7ce9e2d5`.
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`.
+- WORKTREE BEFORE WRITE: CLEAN; origin branch matches local SHA.
+- CURRENT FRONT: report-first intake gate + exact-head resilience/certification reconciliation.
+- CURRENT REPORT: NONE — canonical corpus contains no supported report input.
+- REPORT CORPUS PROOF: directory contains only `README.md`; supported ACTUAL=0; declared=9; required minimum=20.
+- CORPUS GATE PROOF: `npm run test:report-corpus-gate` on PC01 returned `DECLARED=9 ACTUAL=1 MINIMUM=20`, all nine declared fixtures missing, non-zero exit.
+- DEVICE SEARCH PROOF: all nine declared filenames absent from Downloads/Desktop/Documents/OneDrive and the wider `C:\Users` search.
+- CANONICAL LEDGER PROOF: no separate report-ledger file; current state is bound by `file_records` → `import_jobs` with `source_fingerprint` → `report_execution_tasks`. No duplicate ledger created.
+- EXACT-CURRENT CI: current SHA has SUCCESS for Full Product Browser E2E, Device-Independent Browser E2E, Storage Tenant Runtime E2E, desktop-windows, quality, security, import lifecycle, truth/evidence and related gates.
+- FINAL CERTIFICATION: run `36498034370` FAILED at certification contract execution because `test:report-corpus-gate` returned exit code 2. No report-level PASS claimed.
+- PHASE-F: run `36498034541` FAILED with 1/4 probes passing: health deployment SHA mismatch; tenant canary PASS; logical restore failed on `public.customer_credit_accounts`; rollback drill HTTP 503/deployment lookup 404.
+- LIVE SCHEMA PROOF: Staging `fnqbvfuwbdpwvhcgzksl` contains `public.customer_credit_accounts` with 2 rows across 2 companies; current repository migration tree has no definition/reference for it. This is migration-lineage drift.
+- VERCEL PROOF: current project is `Injaz / report-advisor`; recent READY deployments returned for later SHAs, but no deployment for current `5e113...` was returned in the recent set. Exact-head Phase-F therefore cannot pass against the fixed health URL.
+- WHAT CLOSED: exact-head reconciliation, corpus gate execution, current CI failure attribution, Phase-F failure attribution, live schema lineage verification, canonical-ledger verification.
+- WHAT REMAINS: restore/attach the actual report corpus; establish an exact-`5e113...` deployment; reconcile the live-only `customer_credit_accounts` lineage before clean logical restore certification.
+- REAL BLOCKERS: missing report corpus; stale/absent exact-head deployment target; live schema drift affecting restore.
+- DO-NOT-REPEAT: no fake fixtures, no arbitrary documents, no second importer/ledger, no stale SHA proof, no weakened Phase-F invariants.
+- RESUME POINT: corpus gate first; after real files are restored, register deterministically and process REPORT_001 through the existing canonical import path.
+- NEXT EXACT ACTION: restore the actual declared report files into `tests/fixtures/realistic-reports/` and rerun `npm run test:report-corpus-gate` until ACTUAL >= 20 and all declared files are present.
+- CHECKPOINT WRITE: persisted in this checkpoint commit.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / EXACT CURRENT CHECKPOINT — RESTORE + PHASE10 CONTRACT RECONCILED
 
 - EXACT HEAD SHA: `88764e8f13b0cbbd696eec280cea757981b00b90`.
