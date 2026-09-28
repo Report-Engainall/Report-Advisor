@@ -7,6 +7,7 @@ import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/co
 import { fetchDashboardSnapshot, type DashboardKPIs } from '@/lib/dashboard-canonical';
 import { formatCurrency } from '@/lib/format';
 import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
+import { SourceBoundReportContext } from '@/components/SourceBoundReportContext';
 
 function MoneyMetric({ label, value, note }: { label: string; value: number | null; note: string }) {
   return <div className="rounded-2xl border border-ink-100 bg-white p-4"><div className="text-[10px] font-black text-ink-400">{label}</div><div className="mt-2 text-xl font-black tabular-nums text-ink-950">{value == null ? 'غير متاح' : formatCurrency(value)}</div><div className="mt-1 text-[10px] leading-5 text-ink-400">{note}</div></div>;
@@ -60,6 +61,7 @@ export function LiquidityPage() {
 
   return <div dir="rtl" className="space-y-6 pb-10 animate-fade-in">
     <PageHeader title="السيولة والتعرض النقدي" subtitle="قراءة موثقة للذمم والمستحقات والتحصيل؛ الرصيد النقدي البنكي لا يُعرض ما لم يوجد مصدر مثبت له." actions={<button type="button" onClick={() => void load(true)} disabled={refreshing} className="btn-secondary text-[11px]"><RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} /> تحديث</button>} />
+    <SourceBoundReportContext />
     <ReportSurfaceContext
       period="آخر 6 أشهر"
       asOf={asOf}
