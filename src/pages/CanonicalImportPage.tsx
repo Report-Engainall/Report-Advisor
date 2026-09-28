@@ -482,16 +482,27 @@ export function CanonicalImportPage() {
         <p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p>
         <p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB · ملف واحد لكل عملية</p>
       </div>
-      {error && <div className="mt-4 rounded-xl border border-danger-200 bg-danger-50 p-3 text-danger-700 text-sm">
-        <div className="flex items-start gap-2"><AlertCircle size={16} className="mt-0.5 shrink-0"/><div className="min-w-0 break-words">{error}</div></div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {selectedFileRef.current && <button type="button" onClick={retryCurrentFile} className="btn-primary text-xs" aria-label="إعادة قراءة المصدر الحالي"><RefreshCw size={13}/> إعادة قراءة المصدر الحالي</button>}
-          <button type="button" onClick={() => { setError(null); inputRef.current?.click(); }} className="btn-secondary text-xs" aria-label="اختيار مصدر آخر"><Upload size={13}/> اختيار مصدر آخر</button>
-          <button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs" aria-label="تحديث سجل الاستيرادات"><RefreshCw size={13}/> تحديث السجل</button>
+      {error && (
+        <div className="mt-4 rounded-xl border border-danger-200 bg-danger-50 p-3 text-danger-700 text-sm">
+          <div className="flex items-start gap-2">
+            <AlertCircle size={16} className="mt-0.5 shrink-0"/>
+            <div className="min-w-0 break-words">{error}</div>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {selectedFileRef.current ? (
+              <button type="button" onClick={retryCurrentFile} className="btn-primary text-xs" aria-label="إعادة قراءة المصدر الحالي">
+                <RefreshCw size={13}/> إعادة قراءة المصدر الحالي
+              </button>
+            ) : null}
+            <button type="button" onClick={() => { setError(null); inputRef.current?.click(); }} className="btn-secondary text-xs" aria-label="اختيار مصدر آخر">
+              <Upload size={13}/> اختيار مصدر آخر
+            </button>
+            <button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs" aria-label="تحديث سجل الاستيرادات">
+              <RefreshCw size={13}/> تحديث السجل
+            </button>
+          </div>
         </div>
-      </div>
-    </CardBody></Card>}
-
+      )}
     {step === 'scanning' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4" role="status" aria-live="polite" aria-busy="true"><Loader2 className="animate-spin text-primary-500" size={34}/><div className="text-center"><b>جارٍ فحص وتحليل الملف</b><p className="text-sm text-ink-500 mt-1">أمان الملف، الصيغة، البصمة، التكرار وجودة البيانات</p></div></div></CardBody></Card>}
 
     {step === 'preview' && file && <div className="space-y-4">
