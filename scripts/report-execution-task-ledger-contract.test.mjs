@@ -12,6 +12,7 @@ const canonicalImportUi = readFileSync('src/pages/CanonicalImportPage.tsx', 'utf
 const reportsUi = readFileSync('src/pages/ReportsPage.tsx', 'utf8');
 const executiveUi = readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
 const sourceBoundContextUi = readFileSync('src/components/SourceBoundReportContext.tsx', 'utf8');
+const replayUi = readFileSync('src/pages/BusinessReplayPage.tsx', 'utf8');
 const inventoryIntelligenceUi = readFileSync('src/pages/InventoryIntelligencePage.tsx', 'utf8');
 const decisionUi = readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
 const workUi = readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
@@ -33,6 +34,8 @@ for (const token of ['const scopedDecisionWorkItems = useMemo(() => focusedImpor
 for (const token of ['completeDecisionWorkItem','إغلاق وإثبات النتيجة','الأثر الفعلي','Evidence Snapshot']) assert.ok(workUi.includes(token), `missing work completion outcome UI invariant: ${token}`);
 for (const token of ['SourceBoundReportContext']) assert.ok(analyticsUi.includes(token), `missing analytics source context: ${token}`);
 for (const token of ['SourceBoundReportContext']) assert.ok(inventoryIntelligenceUi.includes(token), `missing inventory intelligence source context: ${token}`);
+for (const token of ['COMPANY-LEVEL REPLAY','لا يغيّر نطاق Business Replay الحالي','العودة للتقرير المربوط بالمصدر']) assert.ok(replayUi.includes(token), `missing replay scope clarity invariant: ${token}`);
+
 for (const token of ['createRuntimeDecision','linkRecommendationToDecision','requestDecisionApproval','decideApproval','createDecisionWorkItem','startDecisionWorkItem','completeDecisionWorkItem','fetchRuntimeDecisionForRecommendation','fetchDecisionApproval','fetchDecisionWorkItem','fetchDecisionWorkItems','fetchRecommendationOutcome','fetchBusinessReplaySnapshot','fetchPurchaseSummary','fetchSalesExportRows','fetchPurchaseExportRows','fetchInventoryExportRows']) assert.ok(queries.includes(token), `missing canonical query/runtime contract: ${token}`);
 for (const token of ['const activeAlerts = useMemo(() => importJobId ? [] :','withImportContext("/work-center")','withImportContext("/replay")']) assert.ok(decisionUi.includes(token), `missing decision downstream provenance invariant: ${token}`);
 
