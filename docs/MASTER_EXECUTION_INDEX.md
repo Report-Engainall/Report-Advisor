@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / NATIVE PDF TABLE ROOT CLOSED / EXACT SHA 7064dff5e6e68794622ed29f24dbb02b1407e6d4
+
+- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
+- ACTIVE PR → #672 / exec/20260927-current-main-import-ui-rebased.
+- CURRENT FUNCTIONAL / EXECUTION CANDIDATE → 7064dff5e6e68794622ed29f24dbb02b1407e6d4.
+- CLOSED ROOT → positioned native-PDF text was previously discarded, so multi-page Arabic accounting tables arrived as line-only text rather than structured rows.
+- FIX → existing PDF adapter now reconstructs positioned table rows, detects repeated financial headers, and reuses the canonical file-engine/Dataset path; Arabic report-header synonyms were added without introducing another importer.
+- PROOF BOUNDARY → source changes are exact and limited to canonical file-engine components; behavioral regression + contract are bound to this candidate but remain NOT PROVEN until executed on exact SHA.
+- ACTIVE RUNTIME FRONTS → PDF/file-engine regression; import lifecycle/browser; evidence/signal/decision closure; Supabase security/data; certification; Phase-F resilience.
+- NEXT → consume the first terminal exact-SHA PDF/file-engine result; then first terminal browser/certification result; no old-SHA evidence transfer.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / IMPORT DROP ROOT CLOSED / EXACT SHA `86c168b77edeca9d32391664202cf812c6880f81`
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.

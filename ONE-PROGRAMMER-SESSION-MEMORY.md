@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / NATIVE PDF TABLE ROOT CLOSED / EXACT SHA 7064dff5e6e68794622ed29f24dbb02b1407e6d4
+
+- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
+- ACTIVE PR → #672 / exec/20260927-current-main-import-ui-rebased / exact code SHA 7064dff5e6e68794622ed29f24dbb02b1407e6d4.
+- ROOT CAUSE CLOSED → native PDF parsing previously flattened each page into an unstructured text dataset, losing repeated headers and row/column geometry from multi-page accounting reports.
+- IMPLEMENTATION → the existing PDF adapter now reconstructs table rows from pdf.js text-item coordinates, detects repeated Arabic/English financial headers, carries table anchors across pages, preserves raw header names, and feeds reconstructed rows into the existing canonical Dataset/buildDataset path. No duplicate parser/importer was added.
+- MAPPING HARDENING → added exact Arabic sales-report header synonyms for invoice number/date, customer, currency, invoice amount, discount, charges, tax, total, and net-local amount.
+- EXACT SOURCE PROOF → commit changes are exactly four file-engine files: adapter, synonyms, behavioral regressions, and architecture contract. No UI/DB duplicate path created.
+- RUNTIME PROOF → fresh exact-SHA workflow set is currently running/queued; PDF structured parser regression is queued and file-intelligence-security is in progress. No runtime PASS is claimed yet.
+- NEXT EXECUTABLE → consume first terminal PDF/file-engine result; repair only a reproduced failure. Then run/consume full exact-head browser/final-certification gates and continue Phase-F/security/data fronts independently.
+- DO NOT REPEAT → text-flattening PDF behavior; stale PDF parser PASS; duplicate document parser; old-SHA certification evidence.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / IMPORT DROP ROOT CLOSED / EXACT SHA `86c168b77edeca9d32391664202cf812c6880f81`
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
