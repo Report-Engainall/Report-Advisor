@@ -17,6 +17,8 @@ const executiveReportImportContract = [
   [/useSearchParams\(\)/, 'Executive report must read the import context from the canonical route query'],
   [/fetchImportRecords/, 'Executive report must resolve the requested import job through the tenant-bound query'],
   [/fetchImportEvidenceSnapshot/, 'Executive report must resolve the requested evidence snapshot through the tenant-bound query'],
+  [/fetchRecommendationsBoundToImport/, 'Executive report must resolve recommendations through the canonical import evidence binding'],
+  [/recommendations\.slice\(0, 6\)/, 'Executive report must render the context-selected recommendation set'],
   [/aria-label="سياق المصدر المستورد"/, 'Executive report must expose an import provenance/context surface'],
   [/REVIEW \/ NOT PROVEN/, 'Executive report must fail closed when the import context cannot be proven'],
 ];
