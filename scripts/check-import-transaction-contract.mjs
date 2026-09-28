@@ -341,6 +341,19 @@ for (const mime of canonicalClientMimes) {
 if (/accept="[^"]*\.xml/.test(canonicalImportPage)) {
   throw new Error('Canonical import UI must not advertise XML while the canonical parser rejects XML');
 }
+const postImportOutputContract = [
+  [/SPECIALTY_REPORT_OUTPUTS/, 'Canonical import UI must map detected specialty into governed report outputs'],
+  [/resolvePostImportReports/, 'Canonical import UI must resolve report outputs from specialty/entity'],
+  [/PostImportReportOutputs/, 'Canonical import UI must render source-derived report output links'],
+  [/FinalExecutionProof/, 'Canonical import UI must render final execution proof for durable tasks'],
+  [/مهام التنفيذ التسع/, 'Canonical import UI must describe the nine durable tasks accurately'],
+  [/ليست معالجة متوازية متعددة العمال/, 'Canonical import UI must not claim parallel multi-worker execution'],
+];
+const canonicalImportUiSource = fs.readFileSync(path.join(root, 'src', 'pages', 'CanonicalImportPage.tsx'), 'utf8');
+for (const [pattern, message] of postImportOutputContract) {
+  if (!pattern.test(canonicalImportUiSource)) throw new Error(`Post-import output contract missing: ${message}`);
+}
+
 console.log('Import transaction contract: PASS');
 
 for (const [name, wrapper] of [
