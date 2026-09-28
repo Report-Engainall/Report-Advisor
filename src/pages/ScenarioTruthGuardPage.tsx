@@ -5,11 +5,13 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchProfitabilitySnapshot } from '@/lib/dashboard-canonical';
 import { formatCurrency } from '@/lib/format';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 
 type ScenarioCalculatorProps = {
   baseRevenue: number;
   baseCost: number;
   currency: string;
+  asOf: string;
 };
 
 function formatDelta(value: number, currency: string) {
@@ -82,7 +84,7 @@ function SliderControl({
   );
 }
 
-function ScenarioCalculator({ baseRevenue, baseCost, currency }: ScenarioCalculatorProps) {
+function ScenarioCalculator({ baseRevenue, baseCost, currency, asOf }: ScenarioCalculatorProps) {
   const [priceChange, setPriceChange] = useState(5);
   const [volumeChange, setVolumeChange] = useState(10);
   const [costChange, setCostChange] = useState(0);
@@ -139,6 +141,12 @@ function ScenarioCalculator({ baseRevenue, baseCost, currency }: ScenarioCalcula
         }
       />
 
+      <ReportSurfaceContext
+        period="القاعدة المالية الحالية"
+        asOf={asOf}
+        status="CALCULATED"
+        sourceLabel="السيناريو يستخدم قاعدة الإيرادات والتكلفة المحاسبية المقروءة من Snapshot الربحية؛ كل المخرجات التالية deterministic على الافتراضات الظاهرة."
+      />
       <section className="overflow-hidden rounded-[1.5rem] border border-primary-900/30 bg-ink-950 text-white shadow-elevated">
         <div className="grid gap-5 p-5 lg:grid-cols-[1.2fr_.8fr] lg:items-end lg:p-7">
           <div>
@@ -310,7 +318,7 @@ function ScenarioCalculator({ baseRevenue, baseCost, currency }: ScenarioCalcula
 export function ScenarioTruthGuardPage() {
   const [state, setState] = useState<'loading' | 'ready' | 'blocked'>('loading');
   const [reason, setReason] = useState<string | null>(null);
-  const [financials, setFinancials] = useState<{ revenue: number; cost: number; currency: string } | null>(null);
+  const [financials, setFinancials] = useState<{ revenue: number; cost: number; currency: string; asOf: string } | null>(null);
 
   const load = useCallback(async () => {
     setState('loading');
@@ -323,7 +331,7 @@ export function ScenarioTruthGuardPage() {
         snapshot.cost !== null &&
         snapshot.currency !== null
       ) {
-        setFinancials({ revenue: snapshot.revenue, cost: snapshot.cost, currency: snapshot.currency });
+        setFinancials({ revenue: snapshot.revenue, cost: snapshot.cost, currency: snapshot.currency, asOf: snapshot.as_of });
         setState('ready');
         return;
       }
@@ -346,6 +354,7 @@ export function ScenarioTruthGuardPage() {
         baseRevenue={financials.revenue}
         baseCost={financials.cost}
         currency={financials.currency}
+        asOf={financials.asOf}
       />
     );
   }
@@ -358,6 +367,12 @@ export function ScenarioTruthGuardPage() {
         actions={<Link to="/data-quality" className="btn-secondary text-[10px]">فحص جودة البيانات <ArrowUpLeft size={13} /></Link>}
       />
 
+      <ReportSurfaceContext
+        period="القاعدة المالية المطلوبة"
+        asOf={new Date().toISOString().slice(0, 10)}
+        status="BLOCKED"
+        sourceLabel="المحاكاة متوقفة حتى تثبت الإيرادات والتكلفة والعملة من مصدر الربحية الكانوني."
+      />
       <section className="overflow-hidden rounded-[1.5rem] border border-warning-200 bg-warning-50/70">
         <div className="grid gap-4 p-5 lg:grid-cols-[auto_1fr_auto] lg:items-center lg:p-6">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-warning-700 ring-1 ring-inset ring-warning-200">
