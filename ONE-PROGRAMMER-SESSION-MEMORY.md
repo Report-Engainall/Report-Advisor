@@ -1,3 +1,15 @@
+# RESUME TOKEN — 2026-09-28 / IMPORT LIFECYCLE TEST ROOT CLOSED / CANDIDATE `63b86b421a9e`
+
+- EXACT MAIN → `4ec779a0a1573fc3e0e395862f6761a70f775d49`; ACTIVE PR #672 → `exec/20260927-current-main-import-ui-rebased`; current functional candidate → `63b86b421a9ef48fca5850821b97bf3ce832e3b3`.
+- CLOSED ROOTS → (1) `/import/analyze` internal redirect classified correctly by UI route completeness contract; (2) import-finish lifecycle negative-case fixture made newline-stable for Windows/CRLF.
+- EXACT PROOF ON CANDIDATE → UI route completeness PASS; UI/sidebar parity PASS; import-finish lifecycle 4/4 PASS; typecheck PASS.
+- CURRENT CERTIFICATION → exact candidate remains `63b86b421a9ef48fca5850821b97bf3ce832e3b3`; previous SHA evidence is not carried forward.
+- CI/RELEASE → current-SHA workflows executing; Vercel build-rate external; Netlify status not certification.
+- DEVICE → PC01 ONLINE.
+- NEXT → run/consume full current-SHA certification and browser gates; first reproducible failure only.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / UI ROUTE ROOT CLOSED / EXACT CANDIDATE `1de5cb174add`
 
 - EXACT MAIN HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
