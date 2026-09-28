@@ -1,4 +1,12 @@
-# RESUME TOKEN — 2026-09-28 / CANONICAL SURFACE COMPLETENESS DEEPENED — FUNCTIONAL CANDIDATE 3b419ba
+# RESUME TOKEN — 2026-09-28 / EXACT-HEAD CI OBSERVATION FOR FUNCTIONAL CANDIDATE 3b419ba
+
+- FUNCTIONAL CANDIDATE → `3b419ba0b772a2556d6d37b157eda29928d95150`.
+- CI OBSERVATION → 7 terminal workflow records on this exact candidate were `cancelled` or `skipped`; 46 remained pending/queued in the fetched page. No terminal code PASS or reproducible code FAIL is established from this candidate's current results.
+- EVIDENCE LAW → cancellation/supersession is not a failure verdict; skipped workflows are not success evidence.
+- CURRENT BRANCH HEAD → `2d23d91a741383c7d0ff1ce68583e32361eef5c6`, with only the Session Memory and Master Execution Index changed after the functional candidate.
+- NEXT → continue from functional candidate `3b419ba...` semantics and consume terminal results only when they exist; never transfer older PASS across SHA.
+
+
 
 - CURRENT FUNCTIONAL/UI CANDIDATE → `3b419ba0b772a2556d6d37b157eda29928d95150`.
 - BROAD SURFACE CLOSURE → shared truth context now covers Dashboard, Executive Command Center, Intelligence/Recommendations/Forecasts, Trust & Evidence, Decision Experience, Work Center, Business Replay, Benchmark, Liquidity, Data Quality, RFM/ABC/Aging, canonical Receivables/Profitability reports, Suppliers, Alternative Groups, Customers/Products/Inventory entity surfaces, Master Data Hub, and Metric Inspector.
