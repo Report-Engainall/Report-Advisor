@@ -112,6 +112,19 @@ for (const [pattern, message] of demandVelocityContract) {
   }
 }
 
+const businessReplayPage = fs.readFileSync('src/pages/BusinessReplayPage.tsx', 'utf8');
+const businessReplayTruthContract = [
+  [/ReportSurfaceContext/, 'Business Replay must expose the canonical truth context'],
+  [/hasReplay \? 'VERIFIED' : 'INSUFFICIENT DATA'/, 'Business Replay must keep absence of persisted outcomes fail-closed'],
+  [/snapshots وoutcomes محفوظة فقط/, 'Business Replay must disclose persisted snapshot/outcome provenance'],
+];
+for (const [pattern, message] of businessReplayTruthContract) {
+  if (!pattern.test(businessReplayPage)) {
+    console.error(`FAIL business replay truth context: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
 const workCenterPage = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
 const workCenterTruthContract = [
   [/ReportSurfaceContext/, 'Work Center must expose the canonical truth context'],
