@@ -12,6 +12,21 @@ const duplicateNavigationPaths = navigationPaths.filter((path, index) => navigat
 const missingFromSidebar = routePaths.filter((path) => path !== '*' && !navigationPaths.includes(path) && !INTERNAL_PROGRESSIVE_DISCLOSURE_ROUTES.has(path));
 const missingRoutesForSidebar = navigationPaths.filter((path) => !routePaths.includes(path));
 
+const reportsCenterPage = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
+const reportsCenterPageImportContract = [
+  [/التقرير التنفيذي/, 'Reports Center must expose the canonical Executive Report'],
+  [/inventory-intelligence/, 'Reports Center must expose inventory intelligence output'],
+  [/demand-velocity/, 'Reports Center must expose demand velocity output'],
+  [/سلسلة مخرجات القرار في التقارير/, 'Reports Center must expose the decision-output chain'],
+  [/Report Builder/, 'Reports Center must expose the governed session builder'],
+];
+for (const [pattern, message] of reportsCenterPageImportContract) {
+  if (!pattern.test(reportsCenterPage)) {
+    console.error(`FAIL reports center completeness: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
 const executiveReportPage = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
 const executiveReportImportContract = [
   [/useSearchParams\(\)/, 'Executive report must read the import context from the canonical route query'],
