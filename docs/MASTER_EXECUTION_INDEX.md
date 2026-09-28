@@ -1,4 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPORT OUTPUT UI SPEC CLOSURE — FUNCTIONAL CANDIDATE 994bbc4
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPORT SURFACE CONTEXT CLOSURE — FUNCTIONAL CANDIDATE 573304a
+
+- FUNCTIONAL/UI CANDIDATE → `573304a90dcf7d5672bb04ded788e2b0c90bd549`.
+- CLOSED → shared report truth context for company, period, currency, As Of, truth state, source description and Trust & Evidence link; applied to Inventory Intelligence and Demand Velocity.
+- CLOSED CONTRACT → route-completeness guard now protects the shared context plus tenant/currency/fail-closed requirements on both report surfaces.
+- EXACT DIFF → 5 commits / 4 files after prior boundary `91b0d65...`; no backend architecture duplication.
+- CURRENT CERTIFICATION STATE → no terminal exact-head PASS claimed for `573304a...`; source/diff proof only.
+- DEVICE/EXTERNAL → PC01 remains offline; hosted Phase-F/deployment blockers remain separate.
+- NEXT → consume exact-head gates if available; otherwise execute the next canonical report surface without reopening closed import/report fronts.
+
+
 
 - FUNCTIONAL/UI CANDIDATE → `994bbc4517e9ec350f787f01841b637b2202354c`.
 - CLOSED UI FRONT → Reports Center now presents canonical Executive + domain/intelligence outputs and a direct Evidence → Signals → Decision → Work → Outcome/Learning → Benchmark chain.
