@@ -19,7 +19,9 @@ function walk(dir) {
 
 const queries = fs.readFileSync(queryFile, 'utf8');
 const exports = new Set();
+const duplicateExports = new Set();
 for (const match of queries.matchAll(/export\s+(?:async\s+)?(?:type\s+)?(?:function|const|type|interface|class)\s+([A-Za-z0-9_]+)/g)) {
+  if (exports.has(match[1])) duplicateExports.add(match[1]);
   exports.add(match[1]);
 }
 for (const match of queries.matchAll(/export\s+(?:type\s+)?\{([^}]+)\}/g)) {
@@ -43,9 +45,14 @@ for (const file of walk(srcRoot)) {
   }
 }
 
-if (missing.length) {
-  for (const item of missing) console.error(`Missing @/lib/queries export: ${item.file} → ${item.name}`);
+if (duplicateExports.size) {
+  console.error('Duplicate @/lib/queries exports: ' + [...duplicateExports].sort().join(', '));
   process.exit(1);
 }
 
-console.log(`query export coverage: PASS (${exports.size} exports checked across source imports)`);
+if (missing.length) {
+  for (const item of missing) console.error('Missing @/lib/queries export: ' + item.file + ' → ' + item.name);
+  process.exit(1);
+}
+
+console.log('query export coverage: PASS (' + exports.size + ' exports checked across source imports)');
