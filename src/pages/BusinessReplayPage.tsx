@@ -6,6 +6,7 @@ import { PageHeader, ErrorState, LoadingState } from '@/components/ui/States';
 import { Badge } from '@/components/ui/Badge';
 import { fetchBusinessReplaySnapshot, type BusinessReplaySnapshot } from '@/lib/queries';
 import { formatNumber } from '@/lib/format';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 
 export function BusinessReplayPage() {
   const [snapshot, setSnapshot] = useState<BusinessReplaySnapshot | null>(null);
@@ -54,6 +55,12 @@ export function BusinessReplayPage() {
         title="Business Replay"
         subtitle="إعادة قراءة ما حدث فعليًا من snapshots ونتائج تنفيذ محفوظة، دون إعادة بناء تاريخ غير موجود."
         actions={<button type="button" onClick={() => void load()} disabled={loading} className="btn-secondary inline-flex items-center gap-2 disabled:cursor-wait disabled:opacity-60" aria-label="إعادة قراءة سجل الأعمال"><History size={15}/> إعادة القراءة</button>}
+      />
+      <ReportSurfaceContext
+        period="أحدث نافذة محفوظة"
+        asOf={snapshot?.latestOutcomeAt ?? snapshot?.latestSnapshotAt ?? new Date().toISOString().slice(0, 10)}
+        status={hasReplay ? 'VERIFIED' : 'INSUFFICIENT DATA'}
+        sourceLabel="Business Replay يعرض snapshots وoutcomes محفوظة فقط؛ عند غياب النتيجة لا يتم تركيب تاريخ أو تعلّم افتراضي."
       />
       <section className="rounded-[20px] border border-primary-100 bg-primary-50/50 p-5 shadow-card">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
