@@ -1,15 +1,15 @@
 # RESUME TOKEN — 2026-09-28 / EXACT CURRENT EXECUTION HEAD
 
-- CURRENT REPOSITORY HEAD → `03d6d48a491f1237a247fe0844d2cb9811f9e2ea`.
+- CURRENT REPOSITORY HEAD → `2bc6b6f9f13003de404035bddef9f384c3e4deb5`.
 - CURRENT CODE/TEST CANDIDATE → `03d6d48a491f1237a247fe0844d2cb9811f9e2ea`.
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
 - ACTIVE PR → `#672` / `exec/20260927-current-main-import-ui-rebased`.
 - ACTIVE EXECUTION FRONTS → Resume-token governance; Phase-F resilience; authenticated browser/business runtime; Tenant A/B isolation; durable report-generation trigger; worker recovery/retry/DLQ/idempotency; authenticated import/OCR corpus; migration replay/schema parity; full UI runtime states; security hardening; final certification/merge.
-- OPEN BLOCKERS → top resume token was missing mandatory anchors; Phase-F live resilience is NOT READY (deployment SHA mismatch, restore failure, rollback/forward 503); authenticated browser E2E is NOT PROVEN because workflow credentials are absent; Vercel free-plan build-rate is external.
-- LAST PROVEN → exact-head desktop-windows and the current exact-head contract/UI/import/security/runtime checks that completed successfully on `03d6d48...`; local typecheck/build/product proofs are exact-SHA only.
-- LAST FAILED → quality + Execution Enforcement Contract + Final Certification Gate reject missing resume anchors; phase-F-live-resilience is 1/4 passed; browser E2E is auth-blocked.
-- NEXT INDEPENDENT ACTIONS → (1) repair anchors and rerun affected gates; (2) use PC01 + Playwright for unauthenticated/auth-config/runtime proof; (3) continue tenant/security/recovery/corpus/report-trigger fronts in parallel; (4) run bounded UI/product rescan; (5) consume terminal CI evidence once and repair the first current-SHA failure only.
-- NEXT EXECUTABLE ACTION → fix the five required anchors in this top block, persist, then immediately execute all independent safe fronts without waiting.
+- OPEN BLOCKERS → Phase-F live resilience is NOT READY (deployment SHA mismatch, backup/restore failure, rollback/forward 503); authenticated browser E2E is NOT PROVEN because workflow credentials are absent; Vercel free-plan build-rate remains external; fresh GitHub certification evidence must bind to the post-checkpoint SHA. No blocker authorizes idle time.
+- LAST PROVEN → on code candidate `03d6d48...`, Execution Enforcement PASS, execution-enforcement adversarial PASS, Knowledge Architecture PASS, Quality Workflow Contract PASS, Operational Resilience Contract PASS, and the previously green exact-head desktop/UI/import/security/runtime gates remain bound to their exact SHAs.
+- LAST FAILED → phase-f-live-resilience remains 1/4 passed from deployment SHA mismatch + restore/rollback failures; authenticated browser E2E remains auth-blocked. The prior resume-anchor failure is CLOSED and must not be re-opened.
+- NEXT INDEPENDENT ACTIONS → (1) use PC01 + Playwright for authenticated/runtime/browser preparation and proof; (2) isolate/fix the Phase-F deployment identity or runtime target without weakening the gate; (3) continue tenant/security/recovery/corpus/report-trigger fronts in parallel; (4) run bounded UI/product rescan; (5) consume terminal CI evidence once and repair the first current-SHA failure only.
+- NEXT EXECUTABLE ACTION → attack Phase-F deployment identity/rollback/restore and authenticated browser runtime in parallel while continuing independent P0/P1 product and core fronts; persist each exact-SHA result.
 - DO NOT REPEAT → stale SHA PASS; unchanged CI polling; duplicate browser frameworks/RPCs/runners; preview-as-production; blanket security-definer revokes; unproven production claims; deletion without Manifest proof.
 - DEVICE → PC01 ONLINE and available for local execution.
 - EXECUTION WINDOW → when the device remains available, use the full available sprint for implementation/proof; no planned idle period.

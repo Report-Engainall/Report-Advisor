@@ -1,16 +1,17 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXACT HEAD `03d6d48a491f1237a247fe0844d2cb9811f9e2ea`
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / DOCS CHECKPOINT `2bc6b6f9f13003de404035bddef9f384c3e4deb5`
 
 > This top block is the only startup boundary. It is the source the programmer must resume from after reconciling GitHub exact state.
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
 - ACTIVE PR → `#672` / `exec/20260927-current-main-import-ui-rebased`.
-- CURRENT EXACT CANDIDATE/HEAD → `03d6d48a491f1237a247fe0844d2cb9811f9e2ea`.
+- CURRENT REPOSITORY HEAD → `2bc6b6f9f13003de404035bddef9f384c3e4deb5` (docs/control-plane checkpoint; functional candidate unchanged).
+- CURRENT CODE/TEST CANDIDATE: `03d6d48a491f1237a247fe0844d2cb9811f9e2ea`.
 - ACTIVE EXECUTION FRONTS → Resume-token governance repair; Phase-F live resilience; authenticated browser/business runtime; Tenant A/B isolation proof; real report-generation durable-execution trigger; worker crash/retry/DLQ/idempotency proof; authenticated import/OCR golden corpus; migration replay/schema parity; UI runtime completeness; security hardening; final certification/merge closure.
-- OPEN BLOCKERS → execution-enforcement/final-certification gates currently reject the top resume block because the five required anchors are absent; Phase-F live resilience is NOT READY (deployment SHA mismatch, backup/restore failure, rollback/forward 503); authenticated browser E2E is NOT PROVEN because test credentials are absent; Vercel free-plan build-rate remains external. No blocker authorizes idle time.
-- LAST PROVEN → on exact candidate `03d6d48...`, desktop-windows and the current-head contract/UI/import/security/runtime gate set reported SUCCESS in CI/local execution; typecheck/build/local product proof were previously green. These proofs remain bound to this SHA only.
-- LAST FAILED → `quality`, `Execution Enforcement Contract`, and `Final Certification Gate` fail on the same missing resume-token anchors; `phase-f-live-resilience` is NOT READY from deployment SHA mismatch + restore/rollback failures; browser E2E is auth-blocked rather than a product PASS.
-- NEXT EXECUTABLE ACTION → repair the five resume anchors at the canonical top of Session Memory; rerun only the affected enforcement/quality/final-certification checks; simultaneously execute independent P0/P1 fronts above, then bind the resulting evidence to the next exact SHA.
-- NEXT INDEPENDENT ACTIONS → use PC01 for targeted Playwright browser/runtime proof; run tenant/security/data/recovery/corpus fronts that do not conflict; repair durable report-generation caller wiring; close migration parity; perform bounded UI-state rescan; consume terminal CI once, not repeated polling.
+- OPEN BLOCKERS → Phase-F live resilience is NOT READY (deployment SHA mismatch, backup/restore failure, rollback/forward 503); authenticated browser E2E is NOT PROVEN because test credentials are absent; Vercel free-plan build-rate remains external; fresh GitHub certification evidence must bind to the post-checkpoint SHA. No blocker authorizes idle time.
+- LAST PROVEN → on code candidate `03d6d48...`, Execution Enforcement PASS, adversarial execution-enforcement PASS, Knowledge Architecture PASS, Quality Workflow Contract PASS, Operational Resilience Contract PASS, plus the previously green exact-head desktop/UI/import/security/runtime gates bound to exact SHAs.
+- LAST FAILED → `phase-f-live-resilience` remains NOT READY (1/4 passed); authenticated browser E2E is auth-blocked; the prior missing-resume-anchor root is CLOSED and must not be reopened.
+- NEXT EXECUTABLE ACTION → attack Phase-F deployment identity/restore/rollback and authenticated browser/runtime proof in parallel; keep tenant/security/recovery/corpus/report-trigger/UI fronts moving independently; then consume the first terminal current-SHA certification failure only.
+- NEXT INDEPENDENT ACTIONS → use PC01 + Playwright for browser/runtime proof; isolate/fix Phase-F target/deployment mismatch without weakening the gate; continue tenant/security/data/recovery/corpus/report-trigger fronts; run bounded UI-state rescan; consume terminal CI once, not repeated polling.
 - DO NOT REPEAT → stale SHA evidence; repeated unchanged CI polling; duplicate browser frameworks/runners/RPCs; preview-as-production claims; blanket SECURITY DEFINER revokes; deletion without Manifest/reference proof; reinstalling tools that are already available.
 - DEVICE → PC01 ONLINE; local PR worktree is available and writable.
 - QUALITY NOTE → lint currently reports 62 warnings / 0 errors; warnings are cleanup debt, not permission to delay higher-value closure.
