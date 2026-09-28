@@ -1,14 +1,15 @@
-# RESUME TOKEN — 2026-09-28 / SECURITY + REPORT-EXECUTION SOURCE PARITY
+# RESUME TOKEN — 2026-09-28 / SECURITY SOURCE PARITY + PHASE-F ISOLATION
 
-- CURRENT CODE/TEST CANDIDATE → `3b0f754f528bfc5a932fd794d06bcf666d744492`.
-- CURRENT REPOSITORY HEAD → governance descendant after this persistence commit; candidate remains `3b0…`.
-- CLOSED THIS BATCH → malformed execution fixture; security parser escaping; explicit-empty search_path classification; missing `fail_report_execution_job` source parity; Staging application and live readback.
-- PROVEN LIVE → `fail_report_execution_job` SECURITY DEFINER, authenticated/service_role execute, anon denied, `public, pg_catalog` search_path.
-- OPEN NON-DEVICE → terminal CI proof on current candidate; full live migration lineage proof; Vercel production operational token/deployment alignment; Phase-F backup/restore and rollback runtime.
-- OPEN DEVICE-ONLY → authenticated desktop/device browser actions on PC01 while it remains unavailable.
-- SECURITY ADVISOR → 40 unique authenticated SECURITY DEFINER findings remain intentional/classified; `capture_kpi_evidence_snapshot` is live-only; no blanket revocation.
-- PERFORMANCE ADVISOR → 80 unused-index INFO findings; no literal duplicate indexes were found, so no speculative drops performed.
-- NEXT ACTION → consume current candidate CI first failure, then proceed to remaining independent hosted/database fronts.
+- CURRENT CODE/TEST CANDIDATE → `068ea6b2339be6e643041d33ca7c11903f55108a`.
+- CURRENT REPOSITORY HEAD → `068ea6b2339be6e643041d33ca7c11903f55108a` before governance persistence.
+- CLOSED → SECURITY DEFINER parser, explicit empty search_path handling, fail_report_execution_job source parity, Staging apply/readback, and parser regression CI wiring.
+- PROVEN LIVE → fail_report_execution_job security_definer=true; authenticated=true; anon=false; service_role=true; fixed public,pg_catalog search_path.
+- OPEN NON-DEVICE → terminal CI proof; Vercel production operational-token/deployment alignment; Phase-F live deployment SHA mismatch; logical restore image-pull dependency; rollback drill deployment lookup; full migration lineage proof; Auth leaked-password protection platform setting.
+- OPEN DEVICE-ONLY → PC01/offline authenticated desktop/browser work.
+- SECURITY ADVISOR → 40 unique authenticated SECURITY DEFINER findings remain intentionally classified; capture_kpi_evidence_snapshot is live-only.
+- PERFORMANCE ADVISOR → 80 unused-index INFO findings; exact duplicate-index query returned zero duplicates.
+- PHASE-F DECISION → do not replace full Supabase `start` with `db start` because current Supabase docs state `db reset` requires the full stack; that would not satisfy the existing restore semantics.
+- NEXT ACTION → consume current candidate CI terminal failures; fix first real failure; then persist and rescan.
 # RESUME TOKEN — 2026-09-28 / Aghbari SALES-REPORT READINESS CHECKPOINT
 
 - CURRENT REPOSITORY HEAD → `5be55cb8401f0e06068731ee3dd89c7f1d00942c`.
