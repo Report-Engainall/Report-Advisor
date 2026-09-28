@@ -10,6 +10,7 @@ export interface DurableCanonicalImportInput {
   fileName: string;
   sourceHash: string;
   entityType: CanonicalImportEntityType;
+  sourceSpecialty?: string;
   rows: ReconciledCanonicalImportRow[];
   qualityScore: number;
   qualityApproved: boolean;
@@ -73,6 +74,41 @@ function assertUniqueBusinessKeys(entityType: DurableCanonicalImportInput['entit
     if (seen.has(key)) throw new Error(`IMPORT_DUPLICATE_BUSINESS_KEY:${key}`);
     seen.add(key);
   }
+}
+
+function buildRenderedReportOutput(input: DurableCanonicalImportInput): Record<string, unknown> {
+  const routesByEntity: Record<string, Array<{ key: string; path: string; label: string }>> = {
+    sales_invoices: [{ key: 'sales', path: '/reports/sales', label: 'تقرير المبيعات' }],
+    purchase_invoices: [{ key: 'purchases', path: '/reports/purchases', label: 'تقرير المشتريات' }],
+    inventory_balances: [
+      { key: 'inventory', path: '/reports/inventory', label: 'تقرير المخزون' },
+      { key: 'inventory-intelligence', path: '/reports/inventory-intelligence', label: 'ذكاء المخزون' },
+    ],
+    products: [{ key: 'analytics', path: '/analytics', label: 'التحليلات المتخصصة' }],
+    customers: [{ key: 'analytics', path: '/analytics', label: 'التحليلات المتخصصة' }],
+    suppliers: [{ key: 'analytics', path: '/analytics', label: 'التحليلات المتخصصة' }],
+    payments: [{ key: 'analytics', path: '/analytics', label: 'التحليلات المتخصصة' }],
+  };
+  const outputs = routesByEntity[input.entityType] ?? [{ key: 'executive', path: '/reports/executive', label: 'التقرير التنفيذي' }];
+  return {
+    contractVersion: '2026-09-28',
+    renderedAt: new Date().toISOString(),
+    sourceBound: true,
+    sourceHash: input.sourceHash,
+    importId: input.importId,
+    entityType: input.entityType,
+    sourceSpecialty: input.sourceSpecialty ?? null,
+    rowCount: input.rows.length,
+    qualityScore: input.qualityScore,
+    evidenceStatus: 'AWAITING_EVIDENCE_SNAPSHOT',
+    outputs: outputs.map((output) => ({
+      ...output,
+      eligibility: 'EVIDENCE_REQUIRED',
+      rendered: true,
+      sourceHash: input.sourceHash,
+      importId: input.importId,
+    })),
+  };
 }
 
 function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: string): void {
@@ -269,6 +305,7 @@ export async function runCanonicalImportThroughDurableRunner(
       if (stage === 'analyzed' && !currentRows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
       if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
       if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId, importJobId: input.importId });
+      if (stage === 'rendered') return buildRenderedReportOutput(input);
     },
   }, store);
 
