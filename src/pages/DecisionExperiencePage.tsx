@@ -29,6 +29,7 @@ import {
 } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Alert, Recommendation } from '@/lib/types';
+import { ReportSurfaceContext, type ReportTruthStatus } from '@/components/ReportSurfaceContext';
 
 type Stage = 'command' | 'evidence' | 'decision' | 'approval' | 'work' | 'outcome';
 
@@ -347,6 +348,18 @@ export function DecisionExperiencePage() {
   if (loading) return <LoadingState message="جارٍ تحميل سياق القرار..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   const readiness = decisionReadiness(selected);
+  const decisionTruthStatus: ReportTruthStatus = importJobId
+    ? !sourceSnapshot
+      ? 'PARTIAL'
+      : String(sourceSnapshot.analysis_status).toLowerCase() === 'analyzed'
+        ? 'VERIFIED'
+        : 'REVIEW'
+    : recommendations.length
+      ? 'CALCULATED'
+      : 'INSUFFICIENT DATA';
+  const decisionAsOf = sourceSnapshot?.created_at
+    ? new Date(sourceSnapshot.created_at).toISOString().slice(0, 10)
+    : new Date().toISOString().slice(0, 10);
 
   return (
     <div dir="rtl" className="ag-decision-experience-surface space-y-5 animate-fade-in pb-10">
@@ -367,6 +380,14 @@ export function DecisionExperiencePage() {
         </div>
       </section>
 
+      <ReportSurfaceContext
+        period="الحالة الحالية"
+        asOf={decisionAsOf}
+        status={decisionTruthStatus}
+        sourceLabel={importJobId
+          ? 'تجربة القرار مرتبطة بمصدر الاستيراد ودليله عند إثباتهما؛ لا يمكن القفز من وصف التوصية إلى قرار محفوظ دون Evidence Snapshot.'
+          : 'تجربة القرار العامة تقرأ السجلات الكانونية الحالية؛ لا تُعامل التوصية كحقيقة تنفيذية محفوظة قبل وجود مسار قرار.'}
+      />
       {importJobId && (
         <section className={"rounded-[16px] border p-4 " + (sourceSnapshot ? "border-success-200 bg-success-50/60" : "border-warning-200 bg-warning-50/70")} role="status">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
