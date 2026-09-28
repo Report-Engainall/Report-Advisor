@@ -39,3 +39,5 @@ for (const token of ['const activeAlerts = useMemo(() => importJobId ? [] :','wi
 console.log('Report execution task ledger contract: PASS');
 for (const token of ["path + (path.includes('?') ? '&' : '?') + 'import=' + encodeURIComponent(result.importId)"]) assert.ok(canonicalImportUi.includes(token), `missing canonical import propagation: ${token}`);
 for (const token of ['WORK_ITEM_EVIDENCE_REQUIRED','complete_decision_work_item','recommendation_outcomes','DECISION_STATE_CHANGED']) assert.ok(!decisionUi.includes(token) || queries.includes('completeDecisionWorkItem'), `completion chain guard missing: ${token}`);
+const queryExportGuard = readFileSync('scripts/check-query-export-coverage.mjs', 'utf8');
+for (const token of ['walk(srcRoot)','import\\s+(?:type\\s+)?','process.exit(1)','query export coverage: PASS']) assert.ok(queryExportGuard.includes(token), `missing repository-wide query export coverage guard invariant: ${token}`);
