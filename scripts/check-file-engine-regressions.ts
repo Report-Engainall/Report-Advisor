@@ -48,6 +48,15 @@ const pdfHeader = [
   pdfItem('التاريخ', 500, 700),
   pdfItem('رقم الفاتورة', 650, 700),
 ];
+const splitLongPdfHeader = [
+  pdfItem('مبلغ', 40, 720),
+  pdfItem('الصافي', 75, 720),
+  pdfItem('بالمحلي', 125, 720),
+  pdfItem('رقم الفاتورة', 650, 720),
+  pdfItem('التاريخ', 500, 720),
+  pdfItem('اسم العميل', 300, 720),
+  pdfItem('اجمالي الفاتورة', 100, 720),
+];
 const pdfPageOne = [
   ...pdfHeader,
   pdfItem('2,270,000.00', 100, 680),
@@ -72,6 +81,8 @@ const pdfPageTwo = [
 ];
 const pdfColumns = inferPdfTableColumns(pdfPageOne);
 assert(pdfColumns.length === 4, 'PDF table header must discover all business columns');
+const splitColumns = inferPdfTableColumns(splitLongPdfHeader);
+assert(splitColumns.some(column => column.key === 'net_amount'), 'PDF parser must detect long Arabic headers split across text items');
 const pdfRows = [
   ...reconstructPdfTabularRows(pdfPageOne, pdfColumns),
   ...reconstructPdfTabularRows(pdfPageTwo, pdfColumns),
