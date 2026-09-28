@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / SECURITY EXPOSURE CLASSIFICATION + LIVE READBACK
+
+- MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- CURRENT REPOSITORY HEAD → `a369fe11e7daea5aadd741f1cae491e3240725fd`.
+- CURRENT CODE/TEST CANDIDATE → `a369fe11e7daea5aadd741f1cae491e3240725fd`.
+- SECURITY IMPLEMENTATION → `check-security-definer-exposure-contract.mjs` now classifies every SECURITY DEFINER function name observed by the live Supabase authenticated-execution advisory (39 unique names; `record_payment` has two overloads). The known KPI snapshot function remains explicitly Live-only and outside repository-definition assertions.
+- LIVE READBACK → Staging project `fnqbvfuwbdpwvhcgzksl` reported all 39 observed names as `SECURITY DEFINER`; every name has authenticated EXECUTE and zero anon EXECUTE. `import_commit_batch` has two overloads with `search_path=pg_catalog` and `statement_timeout=30s`; import_create_job/import_finish_job remain SECURITY INVOKER.
+- SECURITY RESULT BOUNDARY → this is a live classification/readback, not a fabricated closure of the Supabase Advisor warning itself. The remaining Auth leaked-password-protection warning requires a platform Auth setting not exposed by the currently connected Supabase execution surface.
+- MIGRATION PROVENANCE → live migration history remains larger than repository migration inventory; no destructive squash/delete/replay was attempted without exact lineage proof.
+- NEXT EXECUTABLE ACTION → consume the first terminal current-SHA security/certification result; then continue migration provenance reconciliation and other independent repository/Supabase fronts.
+- DO NOT REPEAT → blanket SECURITY DEFINER revokes; deleting migrations to make counts match; transferring stale CI PASS; device/browser polling while PC01 is offline.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / Aghbari SALES-REPORT READINESS + EXACT SAVE-BLOCKER DIAGNOSTICS
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
