@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / SECURITY BOUNDARY + ENFORCEMENT CONTRACT CHECKPOINT
+
+- CURRENT REPOSITORY HEAD → `3c5b21af588453adeea7c19059fb685750b5fd09`
+- CURRENT CODE/TEST CANDIDATE → `3c5b21af588453adeea7c19059fb685750b5fd09`
+- ACTIVE EXECUTION FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- ACTIVE EXECUTION FRONTS → Security Definer Exposure, Execution Enforcement, Final Certification, Quality/Lint, Phase-F resilience, UI/Import truth.
+- OPEN BLOCKERS → fresh exact-SHA CI; Vercel free-plan build-rate limit; PC01 offline; Supabase Auth leaked-password protection external.
+- LAST PROVEN → Full Product Browser E2E SUCCESS, Device-Independent Browser E2E SUCCESS, desktop-windows SUCCESS, Phase 3 data/import truth SUCCESS, storage tenant isolation SUCCESS.
+- LAST FAILED → Execution Enforcement, Final Certification, Quality/Lint, Recovery Readiness, Security Definer Exposure, Phase-F live resilience on the previous exact SHA.
+- NEXT EXECUTABLE ACTION → first terminal exact-`3c5b21af...` CI failure only; repair then re-test and rescan.
+- NEXT INDEPENDENT ACTIONS → static security/data/UI fronts independent of PC01/Vercel.
+- DO NOT REPEAT → stale PASS transfer, duplicate import paths, blanket security-definer revokes, production/device claims.
+- REANCHOR MAIN → `650b74ee83095752f44a1b1a1b0df3cf496fc73f71` (historical main reference used for the functional reanchor).
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / CURRENT EXECUTION CHECKPOINT
 
 - CURRENT REPOSITORY HEAD → `a3d48175a731411e1ca6c67161afcce4708988cd`
