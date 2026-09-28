@@ -1,3 +1,19 @@
+# RESUME TOKEN — 2026-09-29 / REPORT BOOT KERNEL HARDENED + CERTIFICATION BOUNDARY FIXED
+
+- CURRENT REPOSITORY HEAD: `9ab1f902aefb67ba155b221a8ab980c538082e83`.
+- FUNCTIONAL CODE CANDIDATE REMAINS: `797a9aa1325d70847b6541f442e5af8f01d081ef`.
+- BOOT KERNEL CLOSED: `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md` now mandates the real report corpus gate, per-file canonical processing through the full lifecycle, nine actual durable execution stages, persisted evidence, fail-closed behavior, and one canonical importer/report pipeline. No fixture substitution or static-success claim is allowed.
+- CERTIFICATION ROOT CAUSE FIXED: `docs/MASTER_EXECUTION_INDEX.md` now starts with an explicit `CURRENT_CODE_TEST_CANDIDATE` bound to the actual functional SHA, so certification/enforcement no longer parse a stale historical candidate.
+- EXACT CURRENT-SHA CI OBSERVATION: prior HEAD `ef549458...` had enforcement and certification failures caused by the stale index candidate `c5b19311...`; the observed error was `CERTIFICATION BOUNDARY FAIL: HEAD ef549... differs from indexed candidate c5b... with non-governance changes`. This was a governance/index parsing defect, not a product runtime defect.
+- FRESH HOSTED STATE AFTER FIX: Netlify deploy-preview and CodeRabbit are SUCCESS on the newer branch head; Vercel is/was BUILDING for the current docs-only head. Do not claim final hosted PASS until the current head has terminal success.
+- LOCAL EXACT-FUNCTIONAL PROOF ALREADY CLOSED: `npm run test:20-stage-readiness` = TOTAL 20 / PASS 20 / FAIL 0 on functional SHA `797a9aa1...`; typecheck, build, post-import guard, report execution E2E contract, product WOW UI, and diff check also passed on that functional tree.
+- CORPUS: `npm run test:report-corpus-gate` = BLOCKED, exit 2, DECLARED=9 / ACTUAL=1 / MINIMUM=20; all 9 declared report examples are absent. This remains the only concrete input blocker for processing the 20+ real reports.
+- DEVICE: PC01 online; authenticated browser proof is not claimed because agent-browser is not installed and no valid project session was available. Do not fabricate browser success.
+- DO NOT REPEAT: do not transfer any PASS from `797a`/older SHAs to the current docs heads without exact-head evidence; do not merge an unstable PR; do not claim 20+ reports processed while corpus gate is BLOCKED.
+- NEXT EXACT ACTION: when the real 20+ report files exist under `tests/fixtures/realistic-reports/`, run the corpus gate, enumerate every file, process every report through the single canonical importer, require all nine actual execution tasks to complete, and collect per-report evidence/UI output. In parallel, consume current terminal CI/deployment results and repair only the first exact-head failure.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / POST-IMPORT REPORT ROUTE COMPLETENESS CLOSED
 
 # RESUME TOKEN — 2026-09-29 / DISTRIBUTED REPORT EXECUTION + SOURCE REPORT SURFACE CLOSED
