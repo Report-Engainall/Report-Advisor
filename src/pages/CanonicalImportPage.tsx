@@ -107,7 +107,7 @@ function PostImportReportOutputs({ result }: { result: any }) {
       {outputs.map((output, index) => {
         const path = typeof output.path === 'string' ? output.path : '/reports/executive';
         const title = typeof output.label === 'string' ? output.label : 'التقرير التنفيذي';
-        const href = path === '/reports/executive' && result.importId ? path + '?import=' + encodeURIComponent(result.importId) : path;
+        const href = result.importId ? path + (path.includes('?') ? '&' : '?') + 'import=' + encodeURIComponent(result.importId) : path;
         const canOpen = evidenceVerified;
         return <Link
           key={String(output.key ?? path) + '-' + index}
