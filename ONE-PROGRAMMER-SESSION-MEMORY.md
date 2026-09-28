@@ -1284,3 +1284,16 @@
 - DEVICE/EXTERNAL → PC01 offline; Vercel free-plan build-rate limit / hosted exact-head acceptance remain external.
 - DO NOT REPEAT → do not claim Replay/Benchmark are source-bound when their current contracts are company-level; do not drop import query context from downstream Decision/Work links; do not re-edit `queries.ts` from partial ranges.
 - RESUME POINT → consume terminal exact-head gates, then continue the next concrete non-device gap after Report→Decision→Work→Outcome/Benchmark eligibility.
+
+# RESUME TOKEN — 2026-09-28 / DECISION + WORK IMPORT SCOPING FAIL-CLOSED
+
+- CURRENT CODE/TEST HEAD → `4e6262d0309667e6d98820ce7884eb71c8de3eec`.
+- CLOSED → Decision Experience with `?import=` no longer presents tenant-wide alerts as source-specific signals; source-scoped sessions show only source-bound recommendations and fail closed when Evidence Snapshot is unavailable.
+- CLOSED → Decision Experience preserves import context across its internal navigation via `withImportContext()`; evidence/decision/work routes keep the same import scope.
+- CLOSED → Work Center with `?import=` now filters Decision Work Items by `evidence_refs.import_job_id === focusedImportId`; unrelated tenant work is no longer displayed as belonging to the selected source.
+- CLOSED → Work Center decision/Evidence navigation preserves the focused import context; no new endpoint or work-item model was created.
+- PROOF → 16 focused exact-source assertions PASS on `4e6262d...`; `queries.ts` still begins with exact `main` content and remains 28,903 characters.
+- CI EXACT SHA → Final Certification Gate `36472305103` and Execution Enforcement Contract `36472305117` are queued on this exact SHA; no terminal PASS/FAIL transferred.
+- NO FALSE RUNTIME PASS → this remains source-contract proof only; no browser/device claim made.
+- DO NOT REPEAT → do not display tenant-wide alerts as source-specific evidence; do not show unrelated work items in a focused import context; do not create a parallel decision/work scoping service.
+- RESUME POINT → inspect the next concrete chain gap after Decision/Work, specifically Outcome/learning persistence and Benchmark eligibility, then execute the first safe non-device repair.
