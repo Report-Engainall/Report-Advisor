@@ -14,7 +14,7 @@ const missingRoutesForSidebar = navigationPaths.filter((path) => !routePaths.inc
 
 const executiveReportPage = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
 const executiveReportImportContract = [
-  [/useSearchParams\\(\\)/, 'Executive report must read the import context from the canonical route query'],
+  [/useSearchParams\(\)/, 'Executive report must read the import context from the canonical route query'],
   [/fetchImportRecords/, 'Executive report must resolve the requested import job through the tenant-bound query'],
   [/fetchImportEvidenceSnapshot/, 'Executive report must resolve the requested evidence snapshot through the tenant-bound query'],
   [/aria-label="سياق المصدر المستورد"/, 'Executive report must expose an import provenance/context surface'],
