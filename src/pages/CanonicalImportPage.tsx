@@ -47,42 +47,6 @@ function executionTaskBadge(status: ReportExecutionTaskRecord['status']): { labe
   return { label: 'انتظار', className: 'text-ink-500 bg-ink-50 border-ink-200' };
 }
 
-const SPECIALTY_REPORT_OUTPUTS: Record<string, Array<{ path: string; title: string; stage: string; description: string }>> = {
-  sales: [
-    { path: '/reports/sales', title: 'تقرير المبيعات', stage: 'SPECIALTY REPORT', description: 'المبيعات والفواتير والعملاء والمنتجات من الحقيقة الكانونية الحالية.' },
-  ],
-  purchases: [
-    { path: '/reports/purchases', title: 'تقرير المشتريات', stage: 'SPECIALTY REPORT', description: 'المشتريات والموردون والتدفقات الداخلة من الحقيقة الكانونية الحالية.' },
-  ],
-  inventory: [
-    { path: '/reports/inventory', title: 'تقرير المخزون', stage: 'SPECIALTY REPORT', description: 'الكميات والتكلفة والقيمة وحالات النقص من اللقطة الكانونية.' },
-    { path: '/reports/inventory-intelligence', title: 'ذكاء المخزون', stage: 'INTELLIGENCE OUTPUT', description: 'الأولوية التشغيلية ومخاطر المخزون بعد اجتياز بوابات الحقيقة.' },
-  ],
-  customers: [
-    { path: '/analytics', title: 'التحليلات المتخصصة', stage: 'ANALYTICS OUTPUT', description: 'تحليلات العملاء والحركة من البيانات الكانونية الحالية.' },
-  ],
-  suppliers: [
-    { path: '/analytics', title: 'التحليلات المتخصصة', stage: 'ANALYTICS OUTPUT', description: 'تحليلات الموردين والحركة من البيانات الكانونية الحالية.' },
-  ],
-  products: [
-    { path: '/analytics', title: 'التحليلات المتخصصة', stage: 'ANALYTICS OUTPUT', description: 'تحليلات الأصناف والمنتجات من البيانات الكانونية الحالية.' },
-  ],
-  payments: [
-    { path: '/analytics', title: 'التحليلات المتخصصة', stage: 'ANALYTICS OUTPUT', description: 'تحليلات التدفقات والمدفوعات المتاحة من الحقيقة الكانونية.' },
-  ],
-  other: [
-    { path: '/reports/executive', title: 'التقرير التنفيذي', stage: 'DECISION OUTPUT', description: 'المصدر العام يدخل إلى التقرير التنفيذي مع حدود الدليل الواضحة.' },
-  ],
-};
-
-function resolvePostImportReports(specialty: string | null | undefined, entityType: string | null | undefined) {
-  const normalizedSpecialty = String(specialty ?? '').toLowerCase();
-  const normalizedEntity = String(entityType ?? '').toLowerCase();
-  if (normalizedSpecialty === 'sales' || normalizedEntity === 'sales_invoices') return SPECIALTY_REPORT_OUTPUTS.sales;
-  if (normalizedSpecialty === 'purchases' || normalizedEntity === 'purchase_invoices') return SPECIALTY_REPORT_OUTPUTS.purchases;
-  if (normalizedSpecialty === 'inventory' || normalizedEntity === 'inventory_balances') return SPECIALTY_REPORT_OUTPUTS.inventory;
-  return SPECIALTY_REPORT_OUTPUTS[normalizedSpecialty] ?? SPECIALTY_REPORT_OUTPUTS.other;
-}
 
 function PostImportReportOutputs({ result }: { result: any }) {
   const renderedOutput = result.executionReport?.evidence?.renderedOutput && typeof result.executionReport.evidence.renderedOutput === 'object'
