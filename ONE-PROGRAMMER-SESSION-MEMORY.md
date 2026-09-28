@@ -249,3 +249,23 @@
 - OPEN RELEASE BLOCKERS → authenticated tenant A/B browser E2E, live Phase-F resilience evidence, and final-certification workflow on a current triggering SHA remain NOT PROVEN. Public/browser shell and route coverage are proven.
 - NEXT EXECUTABLE ACTION → persist this checkpoint, run final exact-head critical gates on the resulting SHA, then inspect the exact-head PR/CI state and repair only any reproducible current-head failure. Do not transfer older SHA evidence.
 - DO NOT REPEAT → local missing-env false alarm; stale 268 CI evidence; stale Vercel SHA `e0d33a2d...`; Netlify no-content-change as PASS; broad SECURITY DEFINER revokes; duplicate browser frameworks; unverified authenticated PASS.
+
+## EXECUTION CHECKPOINT — 2026-09-28 / LIVE FRONT RESCAN
+
+- OBSERVED BRANCH HEAD → `7ae3d26deaa915d54c43bd52d0a5e403af0221fa`.
+- FUNCTIONAL CODE CANDIDATE remains frozen at `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`; later commits are governance/documentation only.
+- Exact current live findings:
+  - PR #672 remains open; main is `4ec779a0a1573fc3e0e395862f6761a70f775d49`; branch is 0 behind.
+  - Device-independent authenticated browser proof PASS exists only on exact SHA `1cfbaee82cc79a411c8b6824eb7242f65e08799b`: 29/29 routes, auth/tenant/session/refresh/logout and A/B distinction observed. Not transferred to later SHA.
+  - Current production deployment is `57127e0cfd19dce3f94ed963a74542c534e9f50d`; current branch deployment preview `7ae3d26deaa915d54c43bd52d0a5e403af0221fa` is READY, but production SHA mismatch remains.
+  - Phase-F live resilience on exact `1cfbaee82cc79a411c8b6824eb7242f65e08799b`: tenant-canary PASS; operational-health SHA mismatch; backup/restore failed while pulling local Supabase images; rollback drill returned 503 deployment_lookup_failed:404; no production mutation occurred.
+  - Supabase Security Advisor: 40 SECURITY DEFINER functions executable by authenticated users; report worker lease functions, enqueue, heartbeat, checkpoint, complete, fail, retry, recover are authenticated=false. Leaked Password Protection remains disabled.
+  - Supabase migration history is 338 applied entries versus 269 repo migrations in the release manifest; schema exists for customer_credit_accounts, but fresh disposable replay/provenance parity is not proven.
+  - Durable Report Execution remains OPEN: report_execution_jobs contains 3,790 canonical-import jobs and 0 report:* jobs; report_source_versions=2, report_row_lineage=3, report_consolidation_runs=0, canonical_text_artifacts=0. Existing report execution UI still downloads browser Blobs.
+  - Current API `api/report-execution-enqueue.mjs` is an authenticated tenant-aware enqueue caller, but no live authenticated enqueue proof and no real worker/output lifecycle proof exist.
+  - Vercel production runtime-error query over the last 7 days returned no runtime errors; however backup/artifact/incident/SLO evidence tables remain empty.
+  - Safe staging read benchmarks observed: customers company count execution 40.389ms; sales invoice 180-day aggregate 1.188ms; sales status aggregate 0.689ms. These are single-sample read observations, not P95/P99 certification.
+- STOP POINT → no safe completion of Durable Report runtime, Phase-F production certification, migration fresh replay, leaked-password setting, or exact-SHA final certification without inventing evidence or using unavailable authenticated/browser mutation credentials.
+- NEXT ACTION → implement/verify the real report input snapshot + durable worker/output binding on a single canonical path, then run authenticated staging lifecycle and exact-SHA certification; keep production promotion blocked until Phase-F evidence passes.
+- DO NOT REPEAT → do not reuse 1cfbaee browser evidence, old Phase-F artifacts, old production PASS labels, or static performance budgets as current exact-SHA evidence.
+
