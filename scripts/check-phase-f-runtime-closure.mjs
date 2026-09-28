@@ -13,9 +13,13 @@ if (!workflow.includes('workflow_dispatch')) throw new Error('Phase F live resil
 const resolver = fs.readFileSync(path.join(root,'supabase/migrations/20260925170000_reconcile_current_customer_company_id.sql'),'utf8');
 for (const token of [
   'create or replace function public.current_customer_company_id()',
-  'select public.current_company_id()',
+  'from public.profiles p',
+  'where p.id = auth.uid()',
   'grant execute on function public.current_customer_company_id() to authenticated, service_role',
 ]) if (!resolver.includes(token)) throw new Error(`Phase F restore-parity resolver invariant missing: ${token}`);
+if (resolver.includes('select public.current_company_id()')) {
+  throw new Error('Phase F restore-parity resolver invariant drift: customer resolver must remain distinct from staff current_company_id()');
+}
 const pkg = JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
 for (const script of ['test:operational-resilience','test:release-resilience-manifest','test:continuous-trust']) if (!pkg.scripts?.[script]) throw new Error(`Package gate missing: ${script}`);
 const probe = fs.readFileSync(path.join(root,'scripts/phase-f-live-resilience-probes.mjs'),'utf8');
