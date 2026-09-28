@@ -1,3 +1,11 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / TASK LEDGER CONTRACT HARDENED — FUNCTIONAL CANDIDATE 162881e
+
+- FUNCTIONAL/TEST CANDIDATE → `162881eaa84dcb23ea79d6fbae9777e459880b19`.
+- CLOSED CONTRACT → nine-stage task ledger, queued-task completion at worker claim, sequential stage runner through rendered, source-bound report semantics.
+- RUNTIME CANARY → Staging transaction created exactly 9 ordered Tasks for a synthetic enqueue; rollback completed and left zero canary jobs/tasks and zero recent task rows.
+- NO FALSE CERTIFICATION → transactional stage-transition canary was blocked by tool security before execution; CI exact-head remains authoritative and pending.
+- NEXT → consume exact-head report-execution/UI/quality/enforcement/final-cert/browser gates; fix first reproducible non-external failure.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-UPLOAD TASK SEMANTICS CLARIFIED — FUNCTIONAL CANDIDATE 449697a
 
 - FUNCTIONAL/UI CANDIDATE → `449697a8f63089d66ac4ae2ccbcc52d6211bc1b0`.
