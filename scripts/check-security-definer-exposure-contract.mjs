@@ -84,7 +84,7 @@ const criticalOperationalSecurityDefiners = [
 ];
 
 const workerOnlySecurityDefiners = [
-  { name: 'retry_report_execution_job', requiredTokens: [/report_execution_jobs/i, /company_id\s*=\s*p_company_id/i, /status\s*=\s*\x27failed\x27/i], searchPath: 'EMPTY_OR_SAFE' },
+  { name: 'retry_report_execution_job', requiredTokens: [/auth\.uid\s*\(\)/i, /current_company_id\s*\(\)/i, /report_execution_jobs/i, /company_id\s*=\s*p_company_id/i, /status\s*=\s*\x27failed\x27/i], searchPath: 'EMPTY_OR_SAFE' },
 ];
 
 const failures = [];
