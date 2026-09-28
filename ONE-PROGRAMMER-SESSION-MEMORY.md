@@ -1,4 +1,15 @@
-# RESUME TOKEN — 2026-09-28 / ADVANCED REPORT ACTIONS CLOSED — FUNCTIONAL CANDIDATE be36ca1
+# RESUME TOKEN — 2026-09-28 / EXECUTIVE REPORT TRUTH CONTEXT CLOSURE — FUNCTIONAL CANDIDATE 9ed3053
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `9ed30537a98cc55c52bbddc33bb12d8f0494539d`.
+- CLOSED → Executive Report now uses the shared `ReportSurfaceContext`, exposing company, period, currency, As Of, truth state, and Trust & Evidence navigation.
+- PRESERVED → import-bound provenance remains separate from company-level KPI scope; the Executive Report continues to fail closed for unproven import context.
+- CONTRACT → `scripts/check-ui-route-completeness.mjs` now requires the shared report context across all six report-output surfaces and guards Executive Report truth context explicitly.
+- STATIC PROOF → executive context, VERIFIED mapping, shared truth-state coverage, and report-surface threshold assertions all pass at source level.
+- RUNTIME/CI → no terminal exact-head code PASS is claimed. Current combined status remains Vercel free-plan build-rate-limit failure with a pending deployment.
+- DEVICE → PC01 remains offline; browser/device evidence remains isolated.
+- NEXT EXACT ACTION → continue non-device report/intelligence surface execution after persisting this boundary; do not reopen closed import provenance or report-context work without regression evidence.
+- DO NOT REPEAT → do not omit currency from report context; do not flatten VERIFIED to CALCULATED; do not transfer PASS across SHA.
+
 
 - CURRENT FUNCTIONAL/UI CANDIDATE → `be36ca1557748c00d426f8f6b3b7a3e6f11029cc`.
 - CLOSED → canonical report truth context across Reports Center + Sales + Purchases + Inventory + Receivables + Profitability.
