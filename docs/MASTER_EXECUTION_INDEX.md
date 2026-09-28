@@ -161,3 +161,16 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT-CANDIDATE + LIVE-STAGING BOUNDARY
 
 - CURRENT MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `c246071b6200f1652f7f8f272c18c2dcc2eaf2d1`
+# CURRENT EXECUTION CHECKPOINT — 2026-09-28 / EXACT HEAD 268952E RECONCILIATION
+
+- EXACT GITHUB HEAD → `268952ea880249012b89aab44ff727e98cf23505` / PR #672 / `exec/20260927-current-main-import-ui-rebased`.
+- GITHUB REF WAS RECHECKED → branch still points to 268952e after Vercel showed a different hosted deployment SHA; the Vercel artifact is not current-head proof.
+- LOCAL EXACT-HEAD CERTIFICATION BATCH → typecheck/build PASS; 20-stage readiness 20/20 PASS; workflow integrity 81 workflows PASS; import/data/runtime/security/UI/decision/canonical-duplicate guards PASS.
+- DATABASE READBACK → Staging `fnqbvfuwbdpwvhcgzksl` has invoker import finish, deliberate six-arg definer commit, authenticated-only execute on client import surfaces, anon denied, and RLS on the canonical import tables.
+- CURRENT PRODUCT BOUNDARY → unified import-to-decision architecture remains canonical; post-import Evidence→Signals→Decision→Work→Outcome/Learning remains governed by existing routes and fail-closed states.
+- UI BOUNDARY → canonical navigation registry/41 routes and state contracts are green locally; no duplicate import/decision/evidence engine or browser framework was introduced.
+- CLEANUP BOUNDARY → knowledge-architecture scan found no deletion-safe master consolidation; all 9 legacy-looking masters are referenced by Manifest.
+- RELEASE EVIDENCE → desktop-windows exact-head is terminal SUCCESS; Browser E2E/Final Certification/Quality remain queued or pending; no browser PASS is claimed.
+- RELEASE BLOCKERS → Vercel free-plan build-rate limitation; exact-head authenticated browser certification; live Phase-F backup/restore/RPO/RTO/rollback evidence.
+- SECURITY RESIDUAL → broad Supabase Advisor SECURITY DEFINER findings and leaked-password warning remain an independent audit surface; no blanket mutation.
+- NEXT → commit this reconciliation, re-anchor proof to the resulting SHA, then consume terminal exact-head CI/browser evidence and repair only first current-head reproducible failures.

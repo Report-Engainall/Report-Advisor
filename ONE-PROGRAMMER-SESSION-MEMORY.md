@@ -144,3 +144,25 @@
 
 - CURRENT MAIN BEFORE REANCHOR → `b39d585803f7bca021cb68bb75a522c8bce115d6`.
 - PRIOR FUNCTIONAL HEAD → `1c658d5efc9cc21061be858db3b9352263ec49b5`.
+# CURRENT EXECUTION CHECKPOINT — 2026-09-28 / EXACT GITHUB HEAD 268952E
+
+- GITHUB EXACT HEAD → `268952ea880249012b89aab44ff727e98cf23505`.
+- BRANCH / PR → `exec/20260927-current-main-import-ui-rebased` / PR #672; GitHub ref re-read after hosted drift check and still points to 268952e.
+- LOCAL CHECKOUT → `C:\\Users\\Report-Advisor-main-current`; exact candidate checked out; repository source clean before evidence artifacts. Local `artifacts/` is non-canonical evidence only.
+- EXACT LOCAL PROOF ON 268952E → typecheck PASS; production build PASS (2802 modules); 20-stage release readiness PASS (20/20); extended workflow integrity PASS (81 workflows).
+- EXACT LOCAL IMPORT/DATA PROOF → Phase-3 data truth, canonical import mapping, import transaction/state/RPC tenant/business-key, data-quality projections, migration schema audit (269 migrations / 0 findings), file-engine, schema intelligence, and import/document contracts PASS.
+- EXACT LOCAL DECISION/UI PROOF → decision dashboard, inventory intelligence + UI, demand velocity, batch decision, safe metrics, analysis cache/concurrency/batch runner, Executive Report, Intelligence, report truth, master requirements, UI route/sidebar parity, Product WOW, Connections/Language, Executive Dashboard, Decision/Intelligence closure PASS.
+- EXACT LOCAL RUNTIME/SECURITY PROOF → production certification/evidence-integrity/release-blocker/readiness, resilience, backup/restore evidence, Phase F/G contracts, watched-folder/cross-platform, security-definer exposure, file-intelligence security, duplicate identity and canonical intelligence guards PASS.
+- MIGRATION REVIEW → migration-dependency scanner reports intentional repeated OR-REPLACE/table-alter review entries; schema audit has 0 findings. No duplicate migration version was introduced by this head.
+- LIVE STAGING READBACK → project `fnqbvfuwbdpwvhcgzksl`; `import_finish_job(uuid,text,jsonb,text)` is SECURITY INVOKER with safe search_path and authenticated/service_role execute; anon=false.
+- LIVE STAGING COMMIT BOUNDARY → six-arg `import_commit_batch` remains intentional SECURITY DEFINER with `search_path=pg_catalog`, authenticated/service_role execute, anon=false; legacy five-arg execute for authenticated=false.
+- LIVE STAGING RLS → `import_jobs`, `import_job_rows`, `file_records`, `canonical_import_commits`, `client_ui_settings` all have RLS enabled; inspected policies bind to `current_company_id()`.
+- LIVE SECURITY ADVISOR → broad authenticated SECURITY DEFINER warnings plus leaked-password-protection warning remain; no exploit reproduced and no blanket revoke/mutation justified.
+- BROWSER BOUNDARY → repository already has one canonical Playwright browser workflow/runner; no duplicate framework added. PC01 terminal initially lacked Playwright; local install was started. Authenticated browser/final-certification remains NOT PROVEN until exact-head execution succeeds.
+- HOSTED BOUNDARY → Vercel status for 268952e is failure/pending due free-plan build-rate limitation. A newer Vercel deployment advertises SHA `e0d33a2d...` while GitHub branch remains 268952e; hosted evidence is therefore stale/non-authoritative for this candidate.
+- CI BOUNDARY → exact-head browser, quality and final-certification workflows were still queued/pending at last read; desktop-windows is terminal SUCCESS. Queued is not PASS.
+- KNOWLEDGE/CLEANUP → knowledge-architecture PASS; 198 docs scanned; 9 legacy-looking master files remain explicitly referenced by Manifest, so deletion/merge is not justified.
+- NON-PROJECT OPERATOR ERROR → one locally attempted script path `check-security-definer-exposure.mjs` does not exist; the canonical exposure contract and file-security contract themselves PASS. Do not repeat that typo.
+- OPEN RELEASE BLOCKERS → exact authenticated browser/final certification, Vercel exact-head deployment identity, and live Phase-F resilience evidence remain unproven/external. Security-advisor historical surface remains independent hardening work.
+- NEXT EXECUTABLE ACTION → persist this checkpoint, commit/push the canonical memory/index update, then re-run fresh critical gates on the resulting exact SHA and consume terminal GitHub browser/certification results; repair only a reproducible current-head failure.
+- DO NOT REPEAT → stale SHA evidence; Vercel deployment from another SHA; preview-as-production; duplicate browser tooling; broad SECURITY DEFINER revokes; deletion without Manifest/reference proof.
