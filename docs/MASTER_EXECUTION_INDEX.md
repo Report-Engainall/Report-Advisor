@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / CANONICAL REPORT OUTPUT ROUTING + UI JOURNEY ORDER
+
+- FUNCTIONAL CHECKPOINT → `d6d059fb6a31f2aa61a436d939ec451d60d6b6ee`.
+- CLOSED → report-output routing consolidated into `src/lib/import/canonical-report-outputs.ts`; durable import rendering consumes it instead of a page/adapter-local route map.
+- CLOSED → post-import Canonical Import journey is ordered 01 Evidence → 02 Signals → 03 Decision → 04 Work → 05 Outcome → 06 Benchmark → 07 Reports; duplicate Benchmark card removed.
+- CLOSED → import transaction contract now guards canonical output destinations and journey order/card uniqueness.
+- CLOSED → duplicate imported-report context component was removed after confirming Executive Report already owns the source-bound report context.
+- PROOF LAW → source-contract proof is recorded in current code; no GitHub Actions terminal PASS is claimed for this exact checkpoint.
+- HOSTED OPEN → current branch remains externally blocked by Netlify build failure and Vercel free-plan deployment rate limit; PC01/device browser proof remains offline.
+- DO NOT REPEAT → no page-local report route map, no second imported-report context, no source-scoped KPI claim without evidence binding.
+- NEXT EXACT ACTION → consume fresh exact-head build/test evidence and repair the first reproducible source-level build defect; then continue the next non-device certification/reporting front.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / BUSINESS REPLAY SCOPE CLARITY
 
 - FUNCTIONAL CODE/TEST HEAD → `6bdaa0470aeb927a8fa02e3a6d5e2ff72aee5947`.
