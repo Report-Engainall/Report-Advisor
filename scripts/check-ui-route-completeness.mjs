@@ -36,6 +36,7 @@ const executiveReportImportContract = [
   [/fetchImportEvidenceSnapshot/, 'Executive report must resolve the requested evidence snapshot through the tenant-bound query'],
   [/fetchRecommendationsBoundToImport/, 'Executive report must resolve recommendations through the canonical import evidence binding'],
   [/recommendations\.slice\(0, 6\)/, 'Executive report must render the context-selected recommendation set'],
+  [/ReportSurfaceContext/, 'Executive report must expose the canonical report truth context'],
   [/aria-label="سياق المصدر المستورد"/, 'Executive report must expose an import provenance/context surface'],
   [/REVIEW \/ NOT PROVEN/, 'Executive report must fail closed when the import context cannot be proven'],
   [/سلسلة الأدلة والقرار والنتيجة/, 'Executive report must expose the evidence-to-outcome chain'],
