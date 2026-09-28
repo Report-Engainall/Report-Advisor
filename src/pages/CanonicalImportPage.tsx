@@ -664,11 +664,11 @@ export function CanonicalImportPage() {
         <b>جارٍ تشغيل العملية الكانونية وتوزيع مهام التنفيذ...</b>
         <span className="text-lg font-semibold">{progress}%</span>
         <div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden" role="progressbar" aria-label="تقدم تنفيذ المصدر" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.max(0, Math.min(100, progress))}><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div>
-        <p className="text-xs text-ink-400">كل مرحلة لها Job/Task حقيقي وحالة محفوظة في قاعدة البيانات؛ لا تعتمد الواجهة على شريط تقدم وهمي.</p>
+        <p className="text-xs text-ink-400">كل مرحلة لها Job/Task حقيقي وحالة محفوظة في قاعدة البيانات؛ التنفيذ الحالي متسلسل تحت Worker مؤجر، ولا تعتمد الواجهة على شريط تقدم وهمي.</p>
       </div>
       <section className="mt-4 w-full rounded-[16px] border border-ink-200 bg-white p-4 text-right">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">LIVE EXECUTION REPORT</div><div className="mt-1 text-sm font-black text-ink-950">توزيع المهام الفعلي بعد السحب</div><div className="mt-1 text-[10px] font-black text-ink-600">تقرير ما حدث فعليًا بعد السحب</div></div>
+          <div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">LIVE EXECUTION REPORT</div><div className="mt-1 text-sm font-black text-ink-950">تفكيك التنفيذ الفعلي إلى 9 مهام بعد السحب</div><div className="mt-1 text-[10px] font-black text-ink-600">تقرير ما حدث فعليًا بعد السحب</div></div>
           <span className="text-[9px] font-mono text-ink-400">Job: {executionJobId ?? 'جارٍ الإنشاء'}</span>
         </div>
         {executionTaskError && <div className="mt-3 rounded-lg border border-warning-200 bg-warning-50 px-3 py-2 text-[10px] text-warning-800">{executionTaskError}</div>}
