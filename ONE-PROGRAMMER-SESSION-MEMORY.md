@@ -1,3 +1,20 @@
+# RESUME TOKEN — 2026-09-28 / IMPORT DRAG-AND-DROP ROOT CAUSE FIXED
+
+- EXACT MAIN CONTROL HEAD AT DISCOVERY → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- CANDIDATE → PR #674 / branch `fix/20260928-import-drag-drop` / current candidate SHA after this memory write will be recorded by the commit result below.
+- ROOT CAUSE → `src/pages/CanonicalImportPage.tsx` advertised drag-and-drop but the dropzone had only click/file-input handling; no `onDragOver` or `onDrop`, so dragged files never entered `handleFile`.
+- ACTUAL FIX → added keyboard-accessible dropzone semantics, real drag-over/leave/drop handlers, active-drop visual state, single-file fail-closed handling, and routing of dropped files through the existing `handleFile` pipeline. No duplicate importer/RPC/runner/data path added.
+- CONTRACT → `scripts/check-import-transaction-contract.mjs` now guards the existence of the drag-and-drop path, drag state transitions, and multi-file fail-closed behavior.
+- EXACT SOURCE VALIDATION → candidate SHA `fe99d2a58cc7e966be2b1453ada6d9faf4dd8e30`; direct in-memory execution of the relevant contract assertions returned PASS for drop handlers, file access, drag-state transitions, multi-file rejection, durable adapter routing, terminal finish RPC, and quality gates.
+- GITHUB CI → no workflow run exposed yet for candidate SHA; therefore NOT PROVEN as CI PASS.
+- HOSTING → Vercel commit status is `failure / build-rate-limit`; deployment context `pending`; no hosted PASS inferred.
+- DEVICE → PC01 is offline; no browser/device/production PASS claimed.
+- LIVE STAGING READBACK → over the last 7 days `import_jobs` shows 115 completed and 21 failed; latest failures are dated 2026-09-21 and include prior `CANONICAL_IMPORT_SERVER_EXECUTION_FAILED:HTTP_500`. No newer failed import was observed in that window.
+- LIVE REPORT EXECUTION READBACK → over the last 7 days 119 completed and 1 queued; no recent failed/dead-letter row appeared in the queried window. Historical failures remain retained as evidence.
+- STOP POINT → the blocked front is now only exact-head CI/hosted/device runtime proof; repository implementation is complete for the observed drag failure.
+- NEXT EXECUTABLE ACTION → consume fresh exact-head CI if it appears; otherwise re-anchor/merge only through the governed main process. Do not transfer older runtime/browser PASS.
+- DO-NOT-REPEAT → do not rework the durable import pipeline based only on the historical 2026-09-21 HTTP 500s; do not create a second drag/drop importer; do not claim runtime PASS without exact-head execution.
+
 # RESUME TOKEN — 2026-09-28 / CLIENT UI POLICY PARITY REPAIRED + LIVE VERIFIED
 
 - MAIN CONTROL HEAD BEFORE THIS WRITE → `b39d585803f7bca021cb68bb75a522c8bce115d6`.
