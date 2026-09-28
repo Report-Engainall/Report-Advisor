@@ -1,4 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / OUTCOME + BENCHMARK TRUTH CONTEXT CLOSURE — FUNCTIONAL CANDIDATE 1ddc45c
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / INTELLIGENCE + FINANCIAL SURFACE DEPTH CLOSURE — FUNCTIONAL CANDIDATE e26536d
+
+- FUNCTIONAL/UI CANDIDATE → `e26536df4a224b9d68a1aae749a6dce8032b5619`.
+- CLOSED → shared truth context + freshness across Intelligence, Forecasts, Recommendations, Scenarios, Command Center, Liquidity, Data Quality, RFM, ABC and Aging.
+- SAFETY → invalid timestamp handling fixed; financial scenario As Of comes from profitability snapshot; blocked scenarios stay BLOCKED.
+- CONTRACT → UI completeness guards all newly standardized surfaces and shared freshness.
+- SOURCE PROOF → 15/15 static assertions pass.
+- CI/EXTERNAL → no terminal exact-head code PASS yet; Vercel rate-limit remains external; PC01 offline.
+- NEXT → broad canonical-surface scan for any remaining data-bearing page outside the shared truth-context contract.
+
+
 
 - FUNCTIONAL/UI CANDIDATE → `1ddc45ca95d166345b78f60f4961f23fa92f8eeb`.
 - CLOSED → Business Replay truth context + persisted-outcome gate; Benchmark truth context + peer-sample gate.
