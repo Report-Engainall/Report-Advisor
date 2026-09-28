@@ -85,6 +85,8 @@ const inventoryIntelligenceContract = [
   [/ReportSurfaceContext/, 'Inventory Intelligence must use the canonical report truth context'],
   [/ReportSurfaceContext/, 'Inventory Intelligence must bind company/currency through the shared report context'],
   [/status={!projected\.length \? 'INSUFFICIENT DATA' : missingDemand\.length \? 'REVIEW' : 'CALCULATED'}/, 'Inventory Intelligence must fail closed to REVIEW/INSUFFICIENT DATA'],
+  [/downloadReportArtifact/, 'Inventory Intelligence must expose a canonical export action'],
+  [/window\.print\(\)/, 'Inventory Intelligence must expose a print action'],
 ];
 for (const [pattern, message] of inventoryIntelligenceContract) {
   if (!pattern.test(inventoryIntelligencePage)) {
@@ -99,6 +101,8 @@ const demandVelocityContract = [
   [/ReportSurfaceContext/, 'Demand Velocity must bind company/currency through the shared report context'],
   [/status={data\.length \? 'CALCULATED' : 'INSUFFICIENT DATA'}/, 'Demand Velocity must fail closed to INSUFFICIENT DATA'],
   [/\{days\} يومًا/, 'Demand Velocity truth context must disclose the active analysis window'],
+  [/downloadReportArtifact/, 'Demand Velocity must expose a canonical export action'],
+  [/window\.print\(\)/, 'Demand Velocity must expose a print action'],
 ];
 for (const [pattern, message] of demandVelocityContract) {
   if (!pattern.test(demandVelocityPage)) {
