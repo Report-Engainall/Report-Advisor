@@ -141,6 +141,21 @@ for (const [pattern, message] of intelligenceTruthContract) {
   }
 }
 
+const specializedAnalyticsPage = fs.readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
+const specializedAnalyticsTruthContract = [
+  [/export function RFMAnalysisPage/, 'RFM must remain a canonical analytics surface'],
+  [/export function ABCAnalysisPage/, 'ABC must remain a canonical analytics surface'],
+  [/export function AgingAnalysisPage/, 'Aging must remain a canonical analytics surface'],
+  [/ReportSurfaceContext/, 'Specialized analytics must expose the canonical truth context'],
+  [/status === 'CALCULATED' \? 'CALCULATED' : 'INSUFFICIENT DATA'/, 'Specialized analytics must preserve fail-closed states'],
+];
+for (const [pattern, message] of specializedAnalyticsTruthContract) {
+  if (!pattern.test(specializedAnalyticsPage)) {
+    console.error(`FAIL specialized analytics truth context: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
 const liquidityPage = fs.readFileSync('src/pages/LiquidityPage.tsx', 'utf8');
 const liquidityTruthContract = [
   [/ReportSurfaceContext/, 'Liquidity must expose the canonical truth context'],
