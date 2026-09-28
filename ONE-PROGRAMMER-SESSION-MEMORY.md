@@ -1,3 +1,16 @@
+# RESUME TOKEN — 2026-09-28 / NETLIFY EXACT-HEAD BUILD REPAIR CLOSED
+
+- CODE HEAD BEFORE THIS DOCUMENTATION WRITE-BACK → `efc6b0706d0010524cd74a617fa66f08346cf3ab`.
+- ROOT BUILD FAILURE → Netlify exact deploy `6abad26b76b6a7000825a362` failed because `CanonicalImportPage.tsx` imported `fetchDashboardIntelligence` through `@/lib/queries`, while `src/lib/queries.ts` did not export that canonical boundary function.
+- FIXED → `src/lib/queries.ts` now exports `fetchDashboardIntelligence()` by delegating to the canonical dashboard-intelligence implementation; no page-local workaround was added.
+- PROOF → Netlify exact-head deploy `6abad31037aff10008696bef` is `ready`, with `commit_ref=efc6b0706d0010524cd74a617fa66f08346cf3ab`, 64 new files uploaded, 1 redirect processed, and 1 function deployed.
+- SECURITY LIVE → Staging retry RPC is SECURITY DEFINER, auth/tenant-bound, and EXECUTE is `service_role=true`, `authenticated=false`, `anon=false`.
+- SUPABASE → The new retry migration was applied successfully to Staging; separate migration-history lookup did not return a row, so migration-history presence is not claimed from that query.
+- CI → GitHub Actions has not yet registered a terminal current-head run for this SHA; prior stale SHA failures were repaired and must not be reused as current proof.
+- HOSTED → Vercel remains externally blocked by free-plan `build-rate-limit`; do not transfer older Vercel READY evidence to this SHA.
+- DEVICE → PC01 remains offline; browser/device certification remains isolated.
+- NEXT → rescan exact-head statuses; only repair a newly reproducible current-head failure.
+
 # RESUME TOKEN — 2026-09-28 / REPORT-EXECUTION RETRY SECURITY + CI ROOT REPAIR
 
 - CURRENT CODE HEAD BEFORE THIS GOVERNANCE WRITE-BACK → `77f27f1dd561fa9abc6f2b59f756f091355b976b`.
