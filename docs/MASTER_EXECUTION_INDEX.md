@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPORT-EXECUTION RETRY SECURITY + CI ROOT REPAIR
+
+- EXACT CODE HEAD BEFORE THIS GOVERNANCE WRITE-BACK → `77f27f1dd561fa9abc6f2b59f756f091355b976b`.
+- CLOSED → exact-head security exposure root: `retry_report_execution_job` lacked auth/tenant invariants in repository source.
+- CLOSED → exact-head worker-contract root: checkpoint assertion was stale relative to the already-correct tenant-bound runner implementation.
+- CLOSED → added forward-only migration `20260928235900_harden_report_execution_retry_worker_rpc.sql`; retry remains worker-only and service_role-only.
+- CLOSED → security contract now guards `auth.uid()`, `current_company_id()`, and final worker-only revoke/grant boundary for retry.
+- CLOSED → report-execution worker contract now asserts the real `const checkpoint` persistence flow with tenant context.
+- PROOF BOUNDARY → code changes are pushed to the PR; fresh terminal CI evidence is still pending and must bind to the eventual exact HEAD.
+- HOSTED → Vercel functional deployment remains constrained by the free-plan build-rate-limit; this is external to the source fix.
+- DEVICE → PC01 remains offline; browser/authenticated desktop certification remains isolated.
+- DO NOT REPEAT → do not transfer prior SHA PASS, do not weaken security contracts, do not edit historical migrations, do not duplicate worker/import/report paths.
+- NEXT EXACT ACTION → consume current-head security/final-certification CI, then repair only the first reproducible root failure and reconcile again.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / DEEP REPORT-TRUTH + IMPORT-CONTEXT CLOSURE
 
 - EXACT BRANCH HEAD → `df1b23dd3cb6b1ae40119a01a7aa4aa652222846`.
