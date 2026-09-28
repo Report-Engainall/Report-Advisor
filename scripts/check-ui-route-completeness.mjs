@@ -157,6 +157,16 @@ for (const [pattern, message] of intelligenceTruthContract) {
   }
 }
 
+const metricInspectorPage = fs.readFileSync('src/pages/MetricInspectorPage.tsx', 'utf8');
+if (!/ReportSurfaceContext/.test(metricInspectorPage)) {
+  console.error('FAIL metric inspector truth context: shared ReportSurfaceContext is missing');
+  process.exitCode = 1;
+}
+if (!/const metricTruthStatus/.test(metricInspectorPage)) {
+  console.error('FAIL metric inspector truth state: governance status must map to canonical truth state');
+  process.exitCode = 1;
+}
+
 const masterDataHubPage = fs.readFileSync('src/pages/MasterDataHubPage.tsx', 'utf8');
 if (!/ReportSurfaceContext/.test(masterDataHubPage)) {
   console.error('FAIL master data hub truth context: shared ReportSurfaceContext is missing');
