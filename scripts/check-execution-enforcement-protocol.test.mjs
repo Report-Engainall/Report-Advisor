@@ -55,6 +55,7 @@ assert.equal(validateCurrentHeadIndex(underscoreCandidateIndex, currentHead), tr
 
 const boldCandidateIndex = `## CURRENT EXECUTION BOUNDARY\n- **CURRENT CODE/TEST CANDIDATE:** \`${currentHead}\`.`;
 assert.equal(validateCurrentHeadIndex(boldCandidateIndex, currentHead), true);
+const arrowCandidateIndex = `## CURRENT EXECUTION BOUNDARY\n- CURRENT CODE/TEST CANDIDATE → \${currentHead}.`;\nassert.equal(validateCurrentHeadIndex(arrowCandidateIndex, currentHead), true);
 
 const indexOnlyBoundary = `## CURRENT PROJECT STATE\n- Current repository index boundary head: \`${parentHead}\`.\n- Current code/test candidate: \`${parentHead}\`.`;
 assert.equal(validateCurrentHeadIndex(indexOnlyBoundary, currentHead, parentHead, governanceOnlyFiles), true);
