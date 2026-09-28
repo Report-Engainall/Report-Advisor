@@ -1,4 +1,17 @@
-# RESUME TOKEN — 2026-09-28 / EXECUTIVE REPORT TRUTH CONTEXT CLOSURE — FUNCTIONAL CANDIDATE 9ed3053
+# RESUME TOKEN — 2026-09-28 / TRUTH CONTEXT PROPAGATION CLOSURE — FUNCTIONAL CANDIDATE 14dc825
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `14dc825e371d26888a7ca8475db23dce6cbada47`.
+- CLOSED → the shared report context now preserves the full canonical truth vocabulary: VERIFIED, TRUSTED, PARTIAL, REVIEW, BLOCKED, INSUFFICIENT DATA, CALCULATED.
+- TRUST & EVIDENCE → now exposes the shared truth context using its effective evidence state and preserves the Evidence Passport.
+- DECISION EXPERIENCE → now carries the same truth context from source/evidence into the decision surface. Import-bound decisions are PARTIAL when the Evidence Snapshot is missing, VERIFIED only when the snapshot is analyzed, and REVIEW otherwise.
+- DECISION GATE PRESERVED → `DECISION_SOURCE_EVIDENCE_REQUIRED` remains the source-evidence gate before durable decision creation.
+- CONTRACT → `scripts/check-ui-route-completeness.mjs` guards Trust & Evidence and Decision Experience truth context and existing decision evidence gating.
+- STATIC PROOF → all checks for full truth vocabulary, Trust context, Decision context, decision evidence gate, and both contract guards pass.
+- CI/RUNTIME → no terminal exact-head code PASS is claimed. Vercel rate-limit failure remains external and PC01 remains offline.
+- PREVIEW → public Cloudflare preview is reachable at the shell/login boundary; unauthenticated fetching stops before protected workspace, so no authenticated report/decision rendering PASS is claimed.
+- NEXT EXACT ACTION → consume terminal exact-head gates when available; otherwise continue the next non-device canonical product surface without reopening closed report/import fronts.
+- DO NOT REPEAT → do not collapse canonical truth states; do not allow decision creation without source evidence; do not transfer browser/runtime PASS across SHA.
+
 
 - CURRENT FUNCTIONAL/UI CANDIDATE → `9ed30537a98cc55c52bbddc33bb12d8f0494539d`.
 - CLOSED → Executive Report now uses the shared `ReportSurfaceContext`, exposing company, period, currency, As Of, truth state, and Trust & Evidence navigation.
