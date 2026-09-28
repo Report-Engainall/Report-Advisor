@@ -51,7 +51,7 @@ export function ReportSurfaceContext({ companyName, period, currency, asOf, stat
   const meta = statusMeta[status];
   const freshness = (() => {
     const timestamp = new Date(asOf).getTime();
-    if (!Number.isFinite(timestamp)) return 'غير متاح';
+    if (!Number.isFinite(timestamp)) return 'غير مثبت';
     const ageDays = Math.max(0, Math.floor((Date.now() - timestamp) / 86400000));
     if (ageDays === 0) return 'حديثة اليوم';
     if (ageDays === 1) return 'قبل يوم';
