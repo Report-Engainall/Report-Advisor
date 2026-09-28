@@ -1,15 +1,12 @@
-# RESUME TOKEN — 2026-09-28 / SECURITY SOURCE PARITY + PHASE-F ISOLATION
+# RESUME TOKEN — 2026-09-28 / CUSTOMER TENANT RESOLVER SOURCE PARITY
 
-- CURRENT CODE/TEST CANDIDATE → `068ea6b2339be6e643041d33ca7c11903f55108a`.
-- CURRENT REPOSITORY HEAD → `068ea6b2339be6e643041d33ca7c11903f55108a` before governance persistence.
-- CLOSED → SECURITY DEFINER parser, explicit empty search_path handling, fail_report_execution_job source parity, Staging apply/readback, and parser regression CI wiring.
-- PROVEN LIVE → fail_report_execution_job security_definer=true; authenticated=true; anon=false; service_role=true; fixed public,pg_catalog search_path.
-- OPEN NON-DEVICE → terminal CI proof; Vercel production operational-token/deployment alignment; Phase-F live deployment SHA mismatch; logical restore image-pull dependency; rollback drill deployment lookup; full migration lineage proof; Auth leaked-password protection platform setting.
-- OPEN DEVICE-ONLY → PC01/offline authenticated desktop/browser work.
-- SECURITY ADVISOR → 40 unique authenticated SECURITY DEFINER findings remain intentionally classified; capture_kpi_evidence_snapshot is live-only.
-- PERFORMANCE ADVISOR → 80 unused-index INFO findings; exact duplicate-index query returned zero duplicates.
-- PHASE-F DECISION → do not replace full Supabase `start` with `db start` because current Supabase docs state `db reset` requires the full stack; that would not satisfy the existing restore semantics.
-- NEXT ACTION → consume current candidate CI terminal failures; fix first real failure; then persist and rescan.
+- CURRENT CODE/TEST CANDIDATE → `7353309309b5ba8ff37254e68f2bc047b710a931`.
+- CURRENT REPOSITORY HEAD → governance descendant after this persistence commit.
+- CLOSED THIS STEP → consumed external code change for `current_customer_company_id()` and verified live body/privileges; no additional migration needed because Staging already contains the corrected body.
+- LIVE PROOF → SECURITY DEFINER=true; authenticated EXECUTE=true; anon=false; tenant source is `profiles.organization_id` for `auth.uid()`.
+- OPEN NON-DEVICE → current-head CI terminal proof; Vercel production token/deployment alignment; Phase-F live resilience; full migration lineage proof; Auth leaked-password protection platform setting.
+- OPEN DEVICE-ONLY → PC01 offline desktop/authenticated browser actions.
+- NEXT ACTION → consume current candidate CI first terminal failure, then persist/rescan.
 # RESUME TOKEN — 2026-09-28 / Aghbari SALES-REPORT READINESS CHECKPOINT
 
 - CURRENT REPOSITORY HEAD → `5be55cb8401f0e06068731ee3dd89c7f1d00942c`.
