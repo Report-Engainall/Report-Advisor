@@ -1,9 +1,9 @@
 import * as XLSX from 'xlsx';
-import type { FileFormat, Dataset, ColumnProfile, ColumnStatistics } from './types';
-import { normalizeRows, normalizeColumnName, normalizeArabicDigits, parseNumber } from './normalizer';
-import { detectColumnDataType, cleanValue } from './data-types';
-import { mapColumns } from './synonyms';
-import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection';
+import type { FileFormat, Dataset, ColumnProfile, ColumnStatistics } from './types.ts';
+import { normalizeRows, normalizeColumnName, normalizeArabicDigits, parseNumber } from './normalizer.ts';
+import { detectColumnDataType, cleanValue } from './data-types.ts';
+import { mapColumns } from './synonyms.ts';
+import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection.ts';
 
 type Row = Record<string, unknown>;
 
