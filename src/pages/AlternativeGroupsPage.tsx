@@ -20,6 +20,7 @@ export function AlternativeGroupsPage(){
  const removeMember=async(id:string)=>{setSaving(true);setError('');try{const companyId=await requireTenant();const {error:e}=await supabase.rpc('remove_alternative_item_group_member',{p_company_id:companyId,p_member_id:id});if(e)throw e;setMembers(v=>v.filter(m=>m.id!==id))}catch(e){setError(e instanceof Error?e.message:'تعذر حذف الصنف')}finally{setSaving(false)}};
  const activeMembers=members.filter(m=>m.group_id===selected); const selectedGroup=groups.find(g=>g.id===selected);
  return <div dir="rtl" className="ag-alternatives space-y-6">
+  <ReportSurfaceContext period="السجل المرجعي الحالي" asOf={new Date().toISOString().slice(0, 10)} status={groups.length ? 'CALCULATED' : 'INSUFFICIENT DATA'} sourceLabel="مجموعات البدائل محفوظة ضمن المستأجر الحالي وتستخدم لاحقًا في تحليلات المخزون والطلب؛ غياب المجموعات لا يتحول إلى تجميع افتراضي." />
   <PageHeader title="مجموعات الأصناف البديلة" subtitle="اجمع الأصناف المتكافئة لتصبح قرارات المخزون والطلب على مستوى المجموعة." actions={<button type="button" onClick={load} disabled={loading} className="btn-secondary min-h-11" aria-busy={loading}><RefreshCw size={16} className={loading ? 'animate-spin' : ''}/> تحديث</button>} />
   {error&&<div role="alert" aria-live="assertive" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 flex gap-2"><AlertTriangle size={18} className="shrink-0"/><span>{error}</span></div>}
   <div className="grid lg:grid-cols-[360px_1fr] gap-5">
