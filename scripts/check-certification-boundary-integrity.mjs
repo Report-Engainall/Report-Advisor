@@ -29,6 +29,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     'scripts/final-certification-provenance.test.mjs',
     'scripts/check-production-gate-runtime.mjs',
     'scripts/check-execution-enforcement-protocol.mjs',
+    'scripts/check-security-definer-exposure-contract.mjs',
     'scripts/check-execution-enforcement-protocol.test.mjs',
     'scripts/execution-enforcement-adversarial.test.mjs',
     'scripts/check-decision-approval-toctou-contract.mjs',
