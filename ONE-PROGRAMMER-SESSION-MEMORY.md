@@ -1,3 +1,15 @@
+# RESUME TOKEN — 2026-09-28 / POST-RESCAN EXACT PRODUCT BATCH
+
+- LAST EXECUTED PRODUCT/UI FIX SHA → `d272feaceefed188c8ef9ad5365d4d3c541ddb96`.
+- FIXED → post-import journey numbering collision; Executive Report is now `07 · REPORTS`, Benchmark remains `06 · BENCHMARK`.
+- KNOWLEDGE STATE → canonical Session Memory and Master Execution Index were restored from the full 956/1082-line state and retained; no historical section was deleted.
+- CURRENT IMPORT/UI PROOF → Executive Report route exists, 7-card journey exists, and numbering is unique at exact SHA `d272feaceefed188c8ef9ad5365d4d3c541ddb96`.
+- CURRENT BLOCKERS → PC01 offline/device browser proof; Vercel build-rate-limit; hosted Phase-F deployment drift.
+- NEXT → fresh exact-head repository gates and first reproducible non-external failure, then bounded rescan.
+- DO NOT REPEAT → never truncate memory/index during targeted updates; never reuse stale PASS across SHA.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / EXACT CURRENT BRANCH — MEMORY RESTORED
 
 - EXACT CURRENT BRANCH → `exec/20260927-current-main-import-ui-rebased`.

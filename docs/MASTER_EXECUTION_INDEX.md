@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-RESCAN EXACT PRODUCT BATCH
+
+- CURRENT FUNCTIONAL BRANCH → `exec/20260927-current-main-import-ui-rebased`.
+- LAST EXECUTED PRODUCT/UI FIX SHA → `d272feaceefed188c8ef9ad5365d4d3c541ddb96`.
+- CLOSED → post-import journey numbering collision; Executive Report is `07 · REPORTS`, Benchmark remains `06 · BENCHMARK`.
+- PRESERVED → full canonical execution history in Session Memory and Master Execution Index; no legacy execution content was deleted.
+- NEXT → fresh exact-head repository gates, then first reproducible non-external defect and bounded UI/core rescan.
+- BLOCKED LOCAL/EXTERNAL → PC01 browser proof, Vercel build-rate limit, hosted Phase-F deployment drift.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXACT CURRENT BRANCH AFTER KNOWLEDGE RESTORATION
 
 - CURRENT FUNCTIONAL BRANCH → `exec/20260927-current-main-import-ui-rebased`.
