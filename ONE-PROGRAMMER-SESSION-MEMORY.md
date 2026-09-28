@@ -1,6 +1,6 @@
 # RESUME TOKEN — 2026-09-28 / EXACT CURRENT EXECUTION HEAD
 
-- CURRENT REPOSITORY HEAD → `4e66c0183cc0f0181439ba63d093937aa89ece7e`.
+- CURRENT REPOSITORY HEAD → `0314093836cd40e93f5009e97ae5569fe355b86d` (checkpoint parent for this persistence commit).
 
 - CURRENT FUNCTIONAL / EXECUTION CANDIDATE → `b37adb8dfcad45d6fed2c688cb341034a3c4e25a` (Git repository HEAD MUST be reconciled directly at every startup).
 - CURRENT CODE/TEST CANDIDATE → `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`.
