@@ -1257,3 +1257,17 @@
 - DEVICE/EXTERNAL → PC01 remains offline; Vercel continues to report the free-plan build-rate-limit failure; authenticated hosted runtime acceptance remains open.
 - DO NOT REPEAT → do not rebuild ReportsPage from a truncated read; always verify returned content length before a whole-file update; do not use unbound rendered output as report proof; do not create a second provenance validator.
 - RESUME POINT → consume the first terminal exact-head certification/enforcement result; if terminal code failure appears, repair it. Independently continue next safe non-device product front while leaving device/hosted proof isolated.
+
+# RESUME TOKEN — 2026-09-28 / SOURCE-BOUND REPORT SURFACES + QUERY-LAYER RECOVERY + NAVIGATION PROVENANCE
+
+- CURRENT CODE/TEST HEAD → `3c6a54e33fbb1183b82e9770db9bbb2b4063629e`.
+- NEW FRONT CLOSED → all report outputs that can be produced after import now expose the shared `SourceBoundReportContext`: Sales, Purchases, Inventory, Receivables, Profitability, Analytics and Inventory Intelligence. Each page keeps canonical company KPI truth separate from import provenance.
+- NEW FRONT CLOSED → rendered report links preserve `?import=` across every manifest output, including non-Executive routes; Reports Center Builder and navigation preserve existing query state instead of dropping import context.
+- ROOT REPAIR → `src/lib/queries.ts` had been truncated to a partial range during a prior whole-file update. It has now been reconstructed from exact `main` content plus only the required Task Ledger / rendered-manifest / Evidence Snapshot / source-bound recommendation contracts.
+- QUERY PROOF → current `queries.ts` begins with the exact `main` file content (`mainIsPrefix=true`), contains all main exported declarations, and is now 28,903 characters. No canonical main query surface was lost in the recovery.
+- SOURCE PROOF → 37 exact-source assertions PASS on this HEAD for runner, rendered manifest, query recovery, Evidence Snapshot, source-bound context, report navigation and all affected report surfaces.
+- CI EXACT-HEAD → Final Certification Gate `36471921296` and Execution Enforcement Contract `36471921049` are queued on this exact SHA; no PASS/FAIL transferred.
+- LIVE DB → source-analysis snapshot schema and recommendations schema were inspected directly; evidence readback is tenant-bound and recommendations are constrained by evidence_snapshot_id with sourceHash/importId mismatch rejection when those fields are present.
+- NO FALSE RUNTIME PASS → no real fixture import can be certified end-to-end from the current non-device path; hosted Vercel build-rate remains external and PC01 is offline.
+- DO NOT REPEAT → do not overwrite a whole file from a partial line-range read; do not allow report navigation to strip `import`; do not introduce per-page provenance validators when `SourceBoundReportContext` is canonical.
+- RESUME POINT → consume terminal exact-head CI; then inspect the next non-device chain gap after the Report → Decision → Work → Outcome surfaces, repairing only concrete reproducible gaps.
