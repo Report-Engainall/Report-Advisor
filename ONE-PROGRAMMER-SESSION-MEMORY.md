@@ -1,3 +1,23 @@
+# RESUME TOKEN — 2026-09-29 / REAL-CORPUS E2E RUNNER READY / REPORT_001 AWAITING TERMINAL PROOF
+
+- EXACT HEAD BEFORE MEMORY WRITE: `60caeeb5fb89689e42bdcec7f888f3e1edf97b6f`.
+- CURRENT FRONT: REPORT-FIRST / authenticated real-corpus canonical import.
+- CORPUS: 47 real reports; corpus gate previously proven PASS as `DECLARED=47 ACTUAL=48 MINIMUM=20`.
+- REPORT_001: `اعمار الديون للعملا.pdf`, raw SHA-256 `9996F169AAE09E31F909712CA4BE5ACE238C7A4F123B370D436A5F1A115EA099`.
+- IMPLEMENTED: existing `scripts/real-business-e2e.mjs` now supports deterministic real-corpus execution through the existing Import UI → canonical endpoint → canonical rows → nine durable tasks → source report proof. Existing synthetic path remains only when no corpus mode is configured.
+- IMPLEMENTED: existing `.github/workflows/full-product-browser-e2e.yml` now provisions the existing Staging E2E secrets and runs the real-corpus mode; evidence artifact is `artifacts/real-report-e2e`.
+- IMPLEMENTED: the real-corpus runner now scans candidate reports in deterministic order and skips any file whose raw SHA already has a completed tenant-scoped `import_job`; this prevents closed-report reprocessing and duplicate report jobs.
+- EXACT RUNS: Full Product Browser E2E run `36500247368` is queued on code SHA `15c147b76d70badfda7c23391e12a08a63a53575`; next optimized runner `36500355877` is queued on SHA `60caeeb5fb89689e42bdcec7f888f3e1edf97b6f`.
+- FINAL CERTIFICATION: latest corresponding exact-head certification is queued on `60caeeb...`; earlier exact-head boundary failure was resolved by the execution-index re-anchor and was PASS on the boundary step in run `36500247071`.
+- LAST COMPLETED REPORT STAGE: UNDERSTAND only. No report is CLOSED until the real runner proves canonical persistence + 9 tasks + source report VERIFIED.
+- REPORT COUNTS: TOTAL=47, CLOSED=0, REVIEW=0, FAILED=0, BLOCKED=0, REMAINING=47.
+- REAL BLOCKERS: none for report input; execution is waiting on GitHub Actions runner capacity/terminal result. Separate Phase-F/live-restore certification remains open and must not be conflated with report closure.
+- DO-NOT-REPEAT: do not create a second report runner/importer; do not run the synthetic CSV path for report corpus; do not re-upload REPORT_001 after a completed fingerprint is observed; do not use stale SHA proof.
+- RESUME POINT: consume terminal result of the first real-corpus Full Product Browser E2E, run `36500247368`. If it fails, repair only its first exact-SHA reproducible root cause. If it passes and closes REPORT_001, consume the optimized run `36500355877` to start REPORT_002 automatically.
+- NEXT EXACT ACTION: poll GitHub Actions run `36500247368` until terminal; on PASS read its uploaded `real-report-e2e` evidence and persist REPORT_001 closure, otherwise repair the first current-SHA failure.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / CORPUS RESTORED + REPORT_001 READY FOR CANONICAL IMPORT
 
 - EXACT HEAD BEFORE GOVERNANCE CHECKPOINT: `e58f0d7709e3d4707cf596cfc2ca1f42a37d1dad`.
