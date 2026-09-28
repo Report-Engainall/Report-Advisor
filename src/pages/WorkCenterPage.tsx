@@ -30,6 +30,7 @@ export function WorkCenterPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const focusedImportId = searchParams.get('import');
+  const withImportContext = (path: string) => focusedImportId ? path + (path.includes('?') ? '&' : '?') + 'import=' + encodeURIComponent(focusedImportId) : path;
 
   const load = useCallback(async () => {
     try {
@@ -66,6 +67,9 @@ export function WorkCenterPage() {
   useEffect(() => { void load(); }, [load]);
 
   const focusedImport = useMemo(() => focusedImportId ? rows.find(row => row.id === focusedImportId) ?? null : null, [focusedImportId, rows]);
+  const scopedDecisionWorkItems = useMemo(() => focusedImportId
+    ? decisionWorkItems.filter((item) => item.evidence_refs.some((ref) => ref.import_job_id === focusedImportId))
+    : decisionWorkItems, [focusedImportId, decisionWorkItems]);
   const filtered = useMemo(() => {
     const scoped = focusedImportId ? rows.filter(row => row.id === focusedImportId) : rows;
     return scoped.filter(r => matches(r, filter));
@@ -114,7 +118,7 @@ export function WorkCenterPage() {
   if (error) return <ErrorState message={error} onRetry={load} />;
 
   return <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
-    {focusedImportId && <section className="rounded-[14px] border border-primary-200 bg-primary-50/60 px-4 py-3" role="status" aria-live="polite"><div className="flex flex-wrap items-center justify-between gap-3"><div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">IMPORT CONTEXT</div><div className="mt-1 text-sm font-black text-ink-950">متابعة عملية الاستيراد الحالية</div><div className="mt-1 text-[10px] text-ink-600">{focusedImport ? focusedImport.file_name + " · " + statusLabel(focusedImport.status) : "لم تعد العملية ضمن نافذة القراءة الحالية؛ لا تُعرض حالة بديلة."}</div></div><Link to="/work-center" className="btn-secondary min-h-11 text-[10px]">عرض كل العمليات</Link></div></section>}
+    {focusedImportId && <section className="rounded-[14px] border border-primary-200 bg-primary-50/60 px-4 py-3" role="status" aria-live="polite"><div className="flex flex-wrap items-center justify-between gap-3"><div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">IMPORT CONTEXT</div><div className="mt-1 text-sm font-black text-ink-950">متابعة عملية الاستيراد الحالية</div><div className="mt-1 text-[10px] text-ink-600">{focusedImport ? focusedImport.file_name + " · " + statusLabel(focusedImport.status) : "لم تعد العملية ضمن نافذة القراءة الحالية؛ لا تُعرض حالة بديلة."}</div></div><Link to={withImportContext("/work-center")} className="btn-secondary min-h-11 text-[10px]">عرض كل العمليات</Link></div></section>}
 
     <ReportSurfaceContext
       period="الحالة التشغيلية الحالية"
@@ -187,15 +191,15 @@ export function WorkCenterPage() {
             <h2 className="mt-1 text-sm font-black text-ink-950">مهام التنفيذ المحكومة</h2>
             <p className="mt-1 text-[10px] leading-5 text-ink-500">هذه المهام تأتي من قرار معتمد، وتحمل دليلها معها. لا يبدأ التنفيذ تلقائيًا.</p>
           </div>
-          <Link to="/decision-experience?stage=decision" className="btn-secondary min-h-11 text-[10px]">العودة إلى مساحة القرار</Link>
+          <Link to={withImportContext("/decision-experience?stage=decision")} className="btn-secondary min-h-11 text-[10px]">العودة إلى مساحة القرار</Link>
         </div>
       </div>
       <div className="p-4">
-        {decisionWorkItems.length === 0 ? (
-          <EmptyState title="لا توجد مهام قرار محفوظة" message="لن تُنشأ مهمة تنفيذ قبل وجود قرار معتمد ومسؤول تنفيذ ودليل مرتبط." action={<Link to="/decision-experience" className="btn-secondary min-h-11 text-[11px]">فتح مساحة القرار</Link>} />
+        {scopedDecisionWorkItems.length === 0 ? (
+          <EmptyState title="لا توجد مهام قرار محفوظة" message="لن تُنشأ مهمة تنفيذ قبل وجود قرار معتمد ومسؤول تنفيذ ودليل مرتبط." action={<Link to={withImportContext("/decision-experience")} className="btn-secondary min-h-11 text-[11px]">فتح مساحة القرار</Link>} />
         ) : (
           <div className="grid gap-3 lg:grid-cols-2">
-            {decisionWorkItems.map((item) => (
+            {scopedDecisionWorkItems.map((item) => (
               <article key={item.id} className="rounded-[14px] border border-ink-200 bg-white p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -212,8 +216,8 @@ export function WorkCenterPage() {
                   <div className="rounded-lg bg-ink-50 p-2"><div className="text-[8px] text-ink-400">الدليل</div><div className="mt-1 text-[10px] font-black text-ink-800">{item.evidence_refs.length ? 'مرتبط' : 'غير مثبت'}</div></div>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <Link to={"/decision-experience?stage=work&recommendationId=" + encodeURIComponent(item.recommendation_id ?? '')} className="btn-ghost min-h-11 text-[10px]">فتح السياق</Link>
-                  {typeof item.evidence_refs[0]?.import_job_id === 'string' && <Link to={"/trust?import=" + encodeURIComponent(item.evidence_refs[0].import_job_id)} className="btn-ghost min-h-11 text-[10px]">فتح Evidence Passport</Link>}
+                  <Link to={withImportContext("/decision-experience?stage=work&recommendationId=" + encodeURIComponent(item.recommendation_id ?? ''))} className="btn-ghost min-h-11 text-[10px]">فتح السياق</Link>
+                  {typeof item.evidence_refs[0]?.import_job_id === 'string' && <Link to={withImportContext("/trust?import=" + encodeURIComponent(item.evidence_refs[0].import_job_id))} className="btn-ghost min-h-11 text-[10px]">فتح Evidence Passport</Link>}
                   {item.status === 'OPEN' && <button type="button" onClick={() => void startWorkItem(item.id)} disabled={startingWorkItemId === item.id} className="btn-primary min-h-11 text-[10px] disabled:opacity-60">{startingWorkItemId === item.id ? 'جارٍ البدء...' : 'بدء التنفيذ'}</button>}
                   {item.status === 'IN_PROGRESS' && <span className="inline-flex items-center rounded-xl bg-primary-50 px-3 py-2 text-[10px] font-black text-primary-700">قيد التنفيذ</span>}
                   {item.status === 'COMPLETED' && <span className="inline-flex items-center rounded-xl bg-success-50 px-3 py-2 text-[10px] font-black text-success-700">مكتمل</span>}
