@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowUpLeft, Calendar, ChartNoAxesCombined, CircleAlert, Package, ShieldCheck, Users, WalletCards } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -26,14 +26,19 @@ const analyticsIconClasses: Record<string, string> = {
 };
 
 function AnalyticsActionBar() {
+  const [searchParams] = useSearchParams();
+  const importId = searchParams.get('import')?.trim() || null;
+  const withImportContext = (path: string) => importId
+    ? path + (path.includes('?') ? '&' : '?') + 'import=' + encodeURIComponent(importId)
+    : path;
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-ink-200 bg-white p-3 shadow-card">
       <div className="hidden items-center gap-2 text-[10px] font-black text-ink-500 sm:flex sm:mr-auto">
         <ShieldCheck size={14} className="text-primary-700" /> التحليل يقرأ المؤشرات الكانونية ولا يصنع أرقامًا بديلة
       </div>
-      <Link to="/decision-experience" className="btn-secondary text-[10px]">تجربة القرار <ArrowUpLeft size={13} /></Link>
-      <Link to="/trust" className="btn-ghost text-[10px]">فحص الثقة</Link>
-      <Link to="/reports" className="btn-ghost text-[10px]">مركز التقارير</Link>
+      <Link to={withImportContext('/decision-experience')} className="btn-secondary text-[10px]">تجربة القرار <ArrowUpLeft size={13} /></Link>
+      <Link to={withImportContext('/trust')} className="btn-ghost text-[10px]">فحص الثقة</Link>
+      <Link to={withImportContext('/reports')} className="btn-ghost text-[10px]">مركز التقارير</Link>
     </div>
   );
 }
