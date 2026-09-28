@@ -20,7 +20,7 @@ export interface DurableProductionRunInput<T = unknown> {
   sourceHash: string;
   rows: Array<Record<string, unknown>>;
   lifecycle: Omit<ProductionLifecycleInput<T>, 'jobId' | 'companyId' | 'sourceHash' | 'currentRows'> & { currentRows: ProductionLifecycleInput<T>['currentRows'] };
-  executeStage?: (stage: ReportExecutionStage, input: { request: ReportExecutionRequest; rows: Array<Record<string, unknown>> }) => Promise<void>;
+  executeStage?: (stage: ReportExecutionStage, input: { request: ReportExecutionRequest; rows: Array<Record<string, unknown>> }) => Promise<Record<string, unknown> | void>;
   loadSourceSnapshot?: (input: { request: ReportExecutionRequest; expectedSourceHash: string; sourceSnapshotId: string }) => Promise<DurableSourceSnapshot<T>>;
   leaseSeconds?: number;
   heartbeatIntervalMs?: number;
@@ -51,6 +51,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
     const sourceRows = source.rows;
 
     let heartbeatFailure: unknown = null;
+    const stageEvidence: Record<string, Record<string, unknown>> = {};
     heartbeatTimer = setInterval(() => {
       void store.heartbeat(input.jobId, input.workerId, leaseSeconds, tenantId).catch((error) => { heartbeatFailure ??= error; });
     }, heartbeatIntervalMs);
@@ -63,12 +64,18 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       if (!following) throw new Error(`Cannot advance production lifecycle from ${stage}`);
       activeTask = following;
       await store.startTask(input.jobId, input.workerId, job.leaseToken!, following, tenantId);
-      if (input.executeStage) await input.executeStage(following, { request: input.request, rows: sourceRows });
+      const stageResult = input.executeStage
+        ? await input.executeStage(following, { request: input.request, rows: sourceRows })
+        : undefined;
+      if (stageResult && typeof stageResult === 'object' && !Array.isArray(stageResult)) {
+        stageEvidence[following] = stageResult;
+      }
       if (heartbeatFailure) throw heartbeatFailure;
       const checkpoint = buildCheckpoint(following);
       await store.saveCheckpoint(input.jobId, checkpoint, input.workerId, tenantId);
       await store.completeTask(input.jobId, input.workerId, job.leaseToken!, following, {
         stage: following, checkpoint, rowCount: sourceRows.length, observedAt: new Date().toISOString(),
+        ...(stageEvidence[following] ?? {}),
       }, tenantId);
       activeTask = null;
       stage = following;
@@ -90,6 +97,8 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       scenario: lifecycle.scenario,
       portfolio: lifecycle.portfolio,
       autonomy: lifecycle.autonomy,
+      stageEvidence,
+      renderedOutput: stageEvidence.rendered ?? null,
     }, tenantId);
     return lifecycle;
   } catch (error) {
