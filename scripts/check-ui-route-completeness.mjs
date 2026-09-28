@@ -141,6 +141,32 @@ for (const [pattern, message] of intelligenceTruthContract) {
   }
 }
 
+const liquidityPage = fs.readFileSync('src/pages/LiquidityPage.tsx', 'utf8');
+const liquidityTruthContract = [
+  [/ReportSurfaceContext/, 'Liquidity must expose the canonical truth context'],
+  [/kpis\.status === 'CONFIRMED' \? 'VERIFIED'/, 'Liquidity must preserve VERIFIED state'],
+  [/لا يتم تقديم رصيد نقدي غير مثبت/, 'Liquidity must keep cash non-fabrication boundary'],
+];
+for (const [pattern, message] of liquidityTruthContract) {
+  if (!pattern.test(liquidityPage)) {
+    console.error(`FAIL liquidity truth context: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
+const dataQualitySnapshotPage = fs.readFileSync('src/pages/DataQualitySnapshotPage.tsx', 'utf8');
+const dataQualityTruthContract = [
+  [/ReportSurfaceContext/, 'Data Quality must expose the canonical truth context'],
+  [/snapshotStatus === 'EMPTY' \? 'INSUFFICIENT DATA' : criticalIssueTotal > 0 \? 'REVIEW' : 'CALCULATED'/, 'Data Quality must map EMPTY/critical states into canonical truth states'],
+  [/EMPTY أو REVIEW/, 'Data Quality must preserve fail-closed state semantics'],
+];
+for (const [pattern, message] of dataQualityTruthContract) {
+  if (!pattern.test(dataQualitySnapshotPage)) {
+    console.error(`FAIL data quality truth context: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
 const executiveCommandCenterPage = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
 const commandCenterTruthContract = [
   [/ReportSurfaceContext/, 'Command Center must expose the canonical truth context'],
