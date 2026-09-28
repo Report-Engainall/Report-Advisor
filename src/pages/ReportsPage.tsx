@@ -224,7 +224,7 @@ export function ReportsCenterPage() {
         {sourceContext.evidence?.metadata?.boundRenderedOutput && typeof sourceContext.evidence.metadata.boundRenderedOutput === 'object' && Array.isArray((sourceContext.evidence.metadata.boundRenderedOutput as Record<string, unknown>).outputs)
           ? ((sourceContext.evidence.metadata.boundRenderedOutput as Record<string, unknown>).outputs as Array<Record<string, unknown>>).map((output, index) => {
               const path = typeof output.path === 'string' ? output.path : '/reports/executive';
-              const href = path === '/reports/executive' ? path + '?import=' + encodeURIComponent(importId) : path;
+              const href = path + (path.includes('?') ? '&' : '?') + 'import=' + encodeURIComponent(importId);
               return <Link key={String(output.key ?? path) + '-' + index} to={href} className="inline-flex min-h-10 items-center rounded-xl border border-primary-200 bg-white px-3 text-[9px] font-black text-primary-800 hover:border-primary-400">{String(output.label ?? 'التقرير')} ←</Link>;
             })
           : <span className="rounded-xl border border-warning-200 bg-warning-50 px-3 py-2 text-[9px] font-bold text-warning-900">لم يثبت Job مخرجات rendered بعد.</span>}
