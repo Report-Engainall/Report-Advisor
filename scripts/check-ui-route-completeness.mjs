@@ -12,6 +12,22 @@ const duplicateNavigationPaths = navigationPaths.filter((path, index) => navigat
 const missingFromSidebar = routePaths.filter((path) => path !== '*' && !navigationPaths.includes(path) && !INTERNAL_PROGRESSIVE_DISCLOSURE_ROUTES.has(path));
 const missingRoutesForSidebar = navigationPaths.filter((path) => !routePaths.includes(path));
 
+const reportSurfaceContext = fs.readFileSync('src/components/ReportSurfaceContext.tsx', 'utf8');
+const reportShellContextContract = [
+  [/الشركة/, 'Shared report context must expose company'],
+  [/الفترة/, 'Shared report context must expose period'],
+  [/العملة/, 'Shared report context must expose currency'],
+  [/As Of/, 'Shared report context must expose As Of'],
+  [/Freshness/, 'Shared report context must expose freshness'],
+  [/حالة الحقيقة/, 'Shared report context must expose truth state'],
+];
+for (const [pattern, message] of reportShellContextContract) {
+  if (!pattern.test(reportSurfaceContext)) {
+    console.error(`FAIL shared report shell context: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
 const reportsCenterPage = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
 const reportsCenterPageImportContract = [
   [/التقرير التنفيذي/, 'Reports Center must expose the canonical Executive Report'],
