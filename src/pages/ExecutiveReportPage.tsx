@@ -233,7 +233,7 @@ export function ExecutiveReportPage() {
               <span className="mt-1 block text-[11px] font-black">التشغيل</span>
               <span className="mt-1 block text-[8px] text-ink-300">المشاهدة لا تعني أن الإجراء نُفذ</span>
             </Link>
-            <Link to="/replay" className="rounded-xl border border-white/10 bg-white/5 p-3 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400">
+            <Link to={withImportContext("/replay")} className="rounded-xl border border-white/10 bg-white/5 p-3 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400">
               <span className="text-[9px] font-black text-primary-200">05 · OUTCOME</span>
               <span className="mt-1 block text-[11px] font-black">النتيجة / التعلّم</span>
               <span className="mt-1 block text-[8px] text-ink-300">{recordedOutcomeCount ? (formatNumber(recordedOutcomeCount) + ' أثر مسجل') : 'INSUFFICIENT DATA'}</span>
