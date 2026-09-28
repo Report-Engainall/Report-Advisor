@@ -75,18 +75,23 @@ export function TrustEvidencePage() {
     return 'VERIFIED' as const;
   }, [sourceSnapshot, criticalIssueTotal]);
   const effectiveStatus = importJobId ? sourceEvidenceStatus : status;
-  const truthContextStatus: ReportTruthStatus =
-    effectiveStatus === 'OK' || effectiveStatus === 'VERIFIED'
-      ? 'VERIFIED'
-      : effectiveStatus === 'TRUSTED'
-        ? 'TRUSTED'
-        : effectiveStatus === 'PARTIAL'
-          ? 'PARTIAL'
-          : effectiveStatus === 'REVIEW'
-            ? 'REVIEW'
-            : effectiveStatus === 'BLOCKED'
-              ? 'BLOCKED'
-              : 'INSUFFICIENT DATA';
+  const truthContextStatus: ReportTruthStatus = (() => {
+    switch (String(effectiveStatus).toUpperCase()) {
+      case 'OK':
+      case 'VERIFIED':
+        return 'VERIFIED';
+      case 'TRUSTED':
+        return 'TRUSTED';
+      case 'PARTIAL':
+        return 'PARTIAL';
+      case 'REVIEW':
+        return 'REVIEW';
+      case 'BLOCKED':
+        return 'BLOCKED';
+      default:
+        return 'INSUFFICIENT DATA';
+    }
+  })();
   const statusLabel = effectiveStatus === 'OK'
     ? 'الحالة قابلة للاستخدام'
     : effectiveStatus === 'EMPTY'
