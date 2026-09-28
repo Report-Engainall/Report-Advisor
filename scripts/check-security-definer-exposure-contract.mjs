@@ -81,7 +81,10 @@ const canonicalInvokerFunctions = [
 const criticalOperationalSecurityDefiners = [
   { name: 'current_company_id', requiredTokens: [/auth\.uid\s*\(\)/i, /company_memberships/i, /is_active\s*=\s*true/i, /is_default\s*=\s*true/i], searchPath: 'EMPTY_OR_SAFE' },
   { name: 'fail_report_execution_job', requiredTokens: [/auth\.uid\s*\(\)/i, /current_company_id\s*\(\)/i, /lease_token/i, /company_id\s*=\s*p_company_id/i, /UPDATE\s+public\.report_execution_jobs/i], searchPath: 'PUBLIC' },
-  { name: 'retry_report_execution_job', requiredTokens: [/auth\.uid\s*\(\)/i, /current_company_id\s*\(\)/i, /report_execution_jobs/i, /company_id\s*=\s*p_company_id/i, /status\s*=\s*\x27failed\x27/i], searchPath: 'EMPTY_OR_SAFE' },
+];
+
+const workerOnlySecurityDefiners = [
+  { name: 'retry_report_execution_job', requiredTokens: [/report_execution_jobs/i, /company_id\s*=\s*p_company_id/i, /status\s*=\s*\x27failed\x27/i], searchPath: 'EMPTY_OR_SAFE' },
 ];
 
 const failures = [];
@@ -144,6 +147,18 @@ function assertAuthenticatedOnly(name) {
   if (anon) failures.push(`${name}: SECURITY DEFINER function must not be executable by anon`);
 }
 
+
+function assertWorkerOnly(name) {
+  const revokePattern = new RegExp(`REVOKE\\s+ALL\\s+ON\\s+FUNCTION\\s+public\\.${name}\\([^;]*?\\)\\s+FROM\\s+PUBLIC,\\s*anon,\\s*authenticated;`, 'i');
+  const serviceGrantPattern = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+public\\.${name}\\([^;]*?\\)\\s+TO\\s+service_role;`, 'i');
+  if (!revokePattern.test(sql)) failures.push(`${name}: worker-only revoke boundary not found`);
+  if (!serviceGrantPattern.test(sql)) failures.push(`${name}: worker-only service_role grant not found`);
+  const workerWindow = sql.slice(sql.lastIndexOf('REVOKE ALL ON FUNCTION public.' + name));
+  if (/GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+public\\.[^;]*\\s+TO\\s+(authenticated|anon);/i.test(workerWindow)) {
+    failures.push(`${name}: worker-only SECURITY DEFINER must not grant authenticated/anon EXECUTE`);
+  }
+}
+
 for (const name of intendedAuthenticatedSecurityDefiners) {
   const window = getFunctionWindow(name);
   if (!window) { failures.push(`${name}: latest repository definition not found`); continue; }
@@ -152,6 +167,15 @@ for (const name of intendedAuthenticatedSecurityDefiners) {
   if (name !== 'current_company_id' && !/(auth\.uid\s*\(\)|current_company_id\s*\(\))/i.test(window)) failures.push(`${name}: caller/tenant binding missing in latest repository definition`);
   if (name === 'current_company_id' && !/auth\.uid\s*\(\)/i.test(window)) failures.push('current_company_id: auth.uid() binding missing in latest repository definition');
   assertAuthenticatedOnly(name);
+}
+
+for (const check of workerOnlySecurityDefiners) {
+  const window = getFunctionWindow(check.name);
+  if (!window) { failures.push(`${check.name}: worker-only definition not found`); continue; }
+  if (!/SECURITY\s+DEFINER/i.test(window)) failures.push(`${check.name}: SECURITY DEFINER missing`);
+  if (!hasSafeSearchPath(window, check.searchPath)) failures.push(`${check.name}: safe explicit search_path missing`);
+  for (const token of check.requiredTokens) if (!token.test(window)) failures.push(`${check.name}: required worker invariant missing: ${token}`);
+  assertWorkerOnly(check.name);
 }
 
 for (const check of canonicalInvokerFunctions) {
