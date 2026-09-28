@@ -43,6 +43,87 @@ export type ReportExecutionJobRecord = {
   updated_at: string;
 };
 
+export type RenderedReportOutput = {
+  key: string;
+  path: string;
+  label: string;
+  eligibility: string;
+  rendered: boolean;
+  sourceHash: string;
+  importId: string;
+};
+
+export type RenderedReportManifest = {
+  contractVersion: string;
+  renderedAt: string;
+  sourceBound: boolean;
+  sourceHash: string;
+  importId: string;
+  entityType: string;
+  sourceSpecialty: string | null;
+  rowCount: number;
+  qualityScore: number;
+  evidenceStatus: string;
+  outputs: RenderedReportOutput[];
+};
+
+export function getBoundRenderedReportManifest(
+  job: ReportExecutionJobRecord | null,
+  expectedImportId: string,
+  expectedSourceHash: string,
+): RenderedReportManifest | null {
+  if (!job || !expectedImportId.trim() || !expectedSourceHash.trim()) return null;
+  const raw = job.evidence?.renderedOutput;
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const manifest = raw as Record<string, unknown>;
+  if (
+    manifest.sourceBound !== true ||
+    manifest.importId !== expectedImportId ||
+    manifest.sourceHash !== expectedSourceHash ||
+    typeof manifest.contractVersion !== 'string' ||
+    typeof manifest.renderedAt !== 'string' ||
+    typeof manifest.entityType !== 'string' ||
+    !Array.isArray(manifest.outputs) ||
+    manifest.outputs.length === 0
+  ) return null;
+  const outputs: RenderedReportOutput[] = [];
+  for (const value of manifest.outputs) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    const output = value as Record<string, unknown>;
+    if (
+      typeof output.key !== 'string' ||
+      typeof output.path !== 'string' ||
+      typeof output.label !== 'string' ||
+      typeof output.eligibility !== 'string' ||
+      output.rendered !== true ||
+      output.importId !== expectedImportId ||
+      output.sourceHash !== expectedSourceHash
+    ) return null;
+    outputs.push({
+      key: output.key,
+      path: output.path,
+      label: output.label,
+      eligibility: output.eligibility,
+      rendered: true,
+      sourceHash: output.sourceHash,
+      importId: output.importId,
+    });
+  }
+  return {
+    contractVersion: manifest.contractVersion,
+    renderedAt: manifest.renderedAt,
+    sourceBound: true,
+    sourceHash: manifest.sourceHash,
+    importId: manifest.importId,
+    entityType: manifest.entityType,
+    sourceSpecialty: typeof manifest.sourceSpecialty === 'string' ? manifest.sourceSpecialty : null,
+    rowCount: typeof manifest.rowCount === 'number' ? manifest.rowCount : 0,
+    qualityScore: typeof manifest.qualityScore === 'number' ? manifest.qualityScore : 0,
+    evidenceStatus: typeof manifest.evidenceStatus === 'string' ? manifest.evidenceStatus : 'REVIEW',
+    outputs,
+  };
+}
+
 export async function fetchReportExecutionJob(jobId: string): Promise<ReportExecutionJobRecord | null> {
   if (!jobId.trim()) throw new Error('REPORT_EXECUTION_JOB_ID_REQUIRED');
   const companyId = await resolveCurrentCompanyId();
