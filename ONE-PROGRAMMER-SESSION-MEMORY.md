@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-28 / PR #672 RE-ANCHORED ON CURRENT MAIN
+
+- MAIN REFERENCE USED FOR REANCHOR → `650b74ee83095752f44a1a1b0df3cf496fc73f71`.
+- RE-ANCHOR MERGE COMMIT → `6e562e2200ac6b3d4862bc223dd957c3a5c1b42c`.
+- CURRENT FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`.
+- RELATION PROOF AT REANCHOR → PR head `6e562e22...`, base `650b74ee...`, ahead=136, behind=0, mergeable=true.
+- TREE PROOF → current-main control docs were preserved from main; functional/UI/security/migration files were taken from the final PR tree. 110 changed files remain in the re-anchored diff.
+- CI FRESHNESS → 50 pull_request runs registered on `6e562e22...`; required quality, Final Certification, Full Product Browser E2E, Device-Independent Browser E2E, Security Definer Exposure and Phase 3 are queued/in-progress. No terminal PASS transferred.
+- VERCEL/NETLIFY → Vercel commit status currently failure due free-plan build-rate; Netlify preview status pending. No hosted PASS claimed.
+- DEVICE → PC01 offline; device-only browser/desktop proof remains unproven.
+- SECURITY → Staging worker failure RPC hardening remains live and verified: authenticated=false, anon=false, service_role=true; Advisor count 40.
+- NEXT → consume first terminal exact-`6e562e22...` failure; repair only a reproducible current-SHA root. Do not modify main control docs until this functional front is merged, to preserve behind=0.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / WORKER RPC CONTRACT RECONCILIATION PROVEN
 
 - MAIN EXACT HEAD AT CHECKPOINT → `3f7963db851d87fadd57462482385452ca2536f5`.
