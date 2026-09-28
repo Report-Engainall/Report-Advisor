@@ -1,3 +1,27 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / POST-IMPORT REPORT ROUTE COMPLETENESS CLOSED
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / DISTRIBUTED REPORT EXECUTION + SOURCE REPORT SURFACE CLOSED
+
+- CODE EXACT SHA → `ba8ac9b8cce61f68eda58428dc95fddc9bc18e22`.
+- FRONT CLOSED → distributed post-upload execution, fail-closed rendered guard, automatic source-report handoff, execution-task visibility, and Reports Center source-report listing.
+- ACTUAL FLOW → upload → detect specialty → canonicalize → durable runner → query `report_execution_tasks` → require 9 ordered completed stages → finish import → source-bound report → downstream Trust/Executive/Decision/Work.
+- CURRENT UI → import completion exposes actual execution tasks; source report exposes actual execution tasks; Reports Center lists completed source reports from `import_jobs`.
+- FRESH LOCAL PROOF → typecheck PASS; production build PASS; Product Wow UI contract PASS; UI route completeness PASS; Report Truth PASS; Report Execution E2E contract PASS.
+- CURRENT-SHA CI CONTEXT → route completeness fix is proven on exact `c914825f` via success run `36494600152`; `ba8ac9b8` has fresh CI in progress and must receive its own terminal evidence.
+- NEXT → consume current `ba8ac9b8` CI; fix first terminal failure; no stale cross-SHA PASS.
+
+---
+
+- CODE EXACT SHA → `c914825f4750eabd9fa0f8ad379464ea98964afd`.
+- FRONT → POST-IMPORT REPORT CONTINUITY / UI ROUTE CONTRACT.
+- CURRENT-SHA FAILURE FOUND → `UI route completeness` rejected dynamic report detail route `/reports/source/:importId` because the contract required exact path equality.
+- FIX → route completeness contract now recognizes a registered parent navigation path as canonical coverage for nested child routes. No duplicate sidebar item was introduced.
+- FRESH PROOF → route completeness PASS; typecheck PASS; product-wow UI contract PASS on exact `c914825f`.
+- PERSISTENCE → branch pushed; working tree clean.
+- NEXT → consume fresh exact-`c914825f` CI; repair only the first reproducible current-SHA failure; do not carry stale failure evidence.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / WORKER RPC TEST CONTRACT RECONCILED
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / POST-IMPORT REPORT CONTINUITY CLOSED
