@@ -1311,3 +1311,17 @@
 - NO FALSE RUNTIME PASS → no tenant-bound browser E2E executed in this batch because the current SQL session has no company context and PC01 remains offline.
 - DO NOT REPEAT → do not leave page imports depending on non-exported query symbols; do not duplicate decision runtime writes when canonical vertical-slice RPC wrappers exist; do not fabricate replay history when snapshot/outcome tables are empty.
 - RESUME POINT → after terminal CI, continue the next concrete non-device gap in Outcome → Learning → Benchmark; Business Replay is now backed by real persistence reads and Benchmark remains fail-closed on INSUFFICIENT_SAMPLE.
+
+# RESUME TOKEN — 2026-09-28 / WORK→OUTCOME→EXECUTED COMPLETION LOOP
+
+- CURRENT CODE/TEST HEAD → `5c52d30295ebd0b018269785ee42ab55d7182e4e`.
+- CLOSED → Work Center now has an explicit `actual impact` capture for approved/in-progress work items and a canonical `إغلاق وإثبات النتيجة` action.
+- CLOSED → completion calls `completeDecisionWorkItem()` → existing `complete_decision_work_item` RPC, which requires an Evidence Snapshot and atomically updates Work Item to COMPLETED, writes `recommendation_outcomes`, and transitions the approved decision to EXECUTED. No client-side outcome fabrication was added.
+- CLOSED → Business Replay reads persisted `business_state_snapshots`, `decision_work_items`, and `recommendation_outcomes`; therefore a completed work item now feeds the existing replay surface automatically when runtime data exists.
+- CLOSED → query layer exposes the canonical completion contract; runtime type accepts nullable expected impact and structured evidence refs; pages retain zero missing imports.
+- PROOF → 8/8 focused source assertions PASS on `5c52d302...`; query export parser reports zero missing imports across Decision, Work, Reports, Executive and Replay.
+- LIVE DB RPC PROOF → `complete_decision_work_item` function definition directly verified: tenant/user context required, Evidence Snapshot validated against allowed snapshot tables, Work Item must be IN_PROGRESS, completion persists outcome, and Decision transitions APPROVED → EXECUTED.
+- CI EXACT SHA → Final Certification Gate `36473087801` and Execution Enforcement Contract `36473087858` are queued on this exact SHA; no terminal PASS/FAIL transferred.
+- NO FALSE RUNTIME PASS → browser/device proof remains open; current SQL session still lacks tenant context for a real canary.
+- DO NOT REPEAT → do not create a client-side outcome record; do not complete work without Evidence Snapshot; do not duplicate the completion RPC.
+- RESUME POINT → consume CI terminal state, then continue Outcome → Learning → Benchmark. Benchmark remains fail-closed on INSUFFICIENT_SAMPLE until a real peer cohort exists.
