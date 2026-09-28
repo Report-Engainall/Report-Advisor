@@ -7,7 +7,7 @@ import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/co
 import { DataTable } from '@/components/ui/DataTable';
 import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
-import { fetchCanonicalSourceReport, fetchImportRecords, fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
+import { fetchCanonicalSourceReport, fetchReportExecutionTasks, fetchImportRecords, fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate, formatDateTime } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 import type { SalesInvoice, PurchaseInvoice } from '@/lib/types';
@@ -211,12 +211,18 @@ export function ReportsCenterPage() {
 export function SourceReportPage(){
   const { importId } = useParams();
   const [report,setReport]=useState<Awaited<ReturnType<typeof fetchCanonicalSourceReport>>|null>(null);
+  const [executionTasks,setExecutionTasks]=useState<Awaited<ReturnType<typeof fetchReportExecutionTasks>>>([]);
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState<string|null>(null);
   const load=useCallback(async()=>{
     if(!importId){setError('IMPORT_JOB_ID_REQUIRED');setLoading(false);return;}
-    try{setLoading(true);setError(null);setReport(await fetchCanonicalSourceReport(importId));}
-    catch(e){setError(errorMessage(e));}
+    try{
+      setLoading(true);setError(null);
+      const nextReport=await fetchCanonicalSourceReport(importId);
+      const tasks=nextReport.executionJobId ? await fetchReportExecutionTasks(nextReport.executionJobId) : [];
+      setReport(nextReport);
+      setExecutionTasks(tasks);
+    }catch(e){setError(errorMessage(e));}
     finally{setLoading(false);}
   },[importId]);
   useEffect(()=>{void load();},[load]);
@@ -224,9 +230,12 @@ export function SourceReportPage(){
   if(loading)return <LoadingState message="جارٍ بناء تقرير المصدر من السجل الكانوني..." />;
   if(error)return <div dir="rtl" className="space-y-5"><PageHeader title="تقرير المصدر" subtitle="تعذر قراءة سجل المصدر الحالي."/><ErrorState message={error} onRetry={()=>void load()}/></div>;
   if(!report)return <DataUnavailableState title="تقرير المصدر غير متاح" message="لا توجد عملية استيراد قابلة للعرض لهذا المعرف." action={<Link to="/import" className="btn-primary text-[11px]">العودة إلى مركز المصادر</Link>}/>;
-  const completed=report.status==='completed';
+  const expectedStages=['queued','fingerprinted','extracted','canonicalized','validated','analyzed','decisioned','committed','rendered'];
+  const executionComplete=executionTasks.length===expectedStages.length && executionTasks.every((task,index)=>task.ordinal===index+1 && task.stage===expectedStages[index] && task.status==='completed');
+  const executionFailed=executionTasks.some((task)=>task.status==='failed');
+  const completed=report.status==='completed' && executionComplete;
   const generic=report.entityType.startsWith('generic:');
-  const truth=completed?'VERIFIED':report.status==='failed'?'BLOCKED':report.status==='partial'?'PARTIAL':'REVIEW';
+  const truth=completed?'VERIFIED':executionFailed||report.status==='failed'?'BLOCKED':report.status==='partial'?'PARTIAL':'REVIEW';
   const truthDetail=completed?'اكتملت دورة التنفيذ حتى rendered وتم حفظ نتيجة الاعتماد.':report.status==='failed'?'لم يكتمل الاعتماد؛ لا يتم إعلان نجاح غير مثبت.':'حالة العملية ليست مكتملة؛ راجع سجل العملية قبل استخدام المخرجات.';
   const specialized=report.entityType==='sales_invoices'?{path:'/reports/sales',label:'تقرير المبيعات'}:report.entityType==='products'?{path:'/products',label:'مركز المنتجات'}:report.entityType==='customers'?{path:'/customers',label:'مركز العملاء'}:null;
   const columns=[
@@ -236,7 +245,7 @@ export function SourceReportPage(){
     {key:'evidence',label:'Evidence',render:(row:any)=>String(row.provenance?.evidenceId??'—')},
   ];
   return <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
-    <PageHeader title="تقرير المصدر" subtitle="المصدر → الفهم → الحقيقة الكانونية → الدليل → المخرجات، مع إبقاء أي نقص ظاهرًا." actions={<div className="flex flex-wrap gap-2"><Link to="/reports" className="btn-secondary text-[11px]">مركز التقارير</Link><Link to="/import" className="btn-primary text-[11px]">مصدر جديد <ArrowUpLeft size={13}/></Link></div>}/>
+    <PageHeader title={report.fileName} subtitle="تفاصيل المصدر والنتيجة التنفيذية والدليل والبيانات الكانونية، مع منع أي نجاح غير مثبت." actions={<div className="flex flex-wrap gap-2"><Link to="/reports" className="btn-secondary text-[11px]">مركز التقارير</Link><Link to="/import" className="btn-primary text-[11px]">مصدر جديد <ArrowUpLeft size={13}/></Link></div>}/>
     <section className="rounded-[18px] border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
         <div className="min-w-0"><div className="flex items-center gap-2 text-[10px] font-black tracking-[.12em] text-primary-300"><FileSearch size={15}/> SOURCE REPORT</div><h1 className="mt-2 break-words text-[24px] font-black tracking-tight">{report.fileName}</h1><div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] text-ink-300"><span>{report.specialtyLabel}</span><span>·</span><span>{report.specialtyConfidence==null?'ثقة غير متاحة':'ثقة '+report.specialtyConfidence+'%'}</span><span>·</span><span>{report.entityType}</span></div></div>
@@ -251,10 +260,10 @@ export function SourceReportPage(){
       <Card><CardBody><div className="text-[10px] text-ink-400">As-of</div><div className="mt-2 text-xs font-black">{report.completedAt?formatDateTime(report.completedAt):report.createdAt?formatDateTime(report.createdAt):'غير متاح'}</div></CardBody></Card>
     </section>
     <Card><CardHeader title="سياق الحقيقة والمصدر" subtitle="هوية المصدر تبقى مع كل مخرج مشتق منه."/><CardBody><div className="grid gap-3 lg:grid-cols-2"><div className="rounded-xl border border-ink-100 bg-ink-50/60 p-4"><div className="text-[10px] font-black text-ink-500">Source hash</div><div className="mt-2 break-all font-mono text-[10px]">{report.sourceHash??'غير متاح'}</div></div><div className="rounded-xl border border-ink-100 bg-ink-50/60 p-4"><div className="text-[10px] font-black text-ink-500">Specialty evidence</div><div className="mt-2 text-[11px] leading-6">{report.specialtyEvidence.length?report.specialtyEvidence.join(' '):'لا يوجد تفسير تخصصي إضافي محفوظ.'}</div></div></div></CardBody></Card>
-    <Card><CardHeader title="دورة التنفيذ" subtitle="المراحل التسع بعد سحب الملف."/><CardBody><div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">{['queued','fingerprinted','extracted','canonicalized','validated','analyzed','decisioned','committed','rendered'].map((stage,index)=><div key={stage} className={completed?'rounded-[12px] border border-success-200 bg-success-50/70 p-3':'rounded-[12px] border border-warning-200 bg-warning-50/60 p-3'}><div className="text-[9px] font-black">{index+1}</div><div className="mt-1 text-[11px] font-black">{stage}</div><div className="mt-1 text-[9px]">{completed?'مكتملة':'لم يثبت اكتمالها'}</div></div>)}</div></CardBody></Card>
+    <Card><CardHeader title="دورة التنفيذ الفعلية" subtitle="تُقرأ من report_execution_tasks؛ لا توجد حالات واجهة ثابتة."/><CardBody><div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">{expectedStages.map((stage,index)=>{const task=executionTasks[index];const status=task?.stage===stage?task.status:'missing';return <div key={stage} className={status==='completed'?'rounded-[12px] border border-success-200 bg-success-50/70 p-3':status==='failed'?'rounded-[12px] border border-danger-200 bg-danger-50 p-3':'rounded-[12px] border border-warning-200 bg-warning-50/60 p-3'}><div className="text-[9px] font-black">{index+1}</div><div className="mt-1 text-[11px] font-black">{stage}</div><div className="mt-1 text-[9px]">{status}</div>{task?.completed_at&&<div className="mt-1 text-[8px] text-ink-400">{formatDateTime(task.completed_at)}</div>}</div>})}</div>{!executionComplete&&<div className="mt-3 rounded-xl border border-warning-200 bg-warning-50 p-3 text-[10px] font-semibold text-warning-900">لا يوجد إثبات كامل للمراحل التسع، لذلك الحالة تبقى REVIEW/BLOCKED.</div>}</CardBody></Card>
     <Card><CardHeader title="السجلات المرتبطة بالمصدر" subtitle={generic?'الصفوف العامة محفوظة في canonical_dataset_records وتظهر منها عينة فعلية.':'المصدر دخل نموذج كيان كانوني متخصص؛ هذا التقرير يحتفظ بهوية العملية ويحيل إلى المخرج المجالّي.'}/><CardBody>
-      {generic&&report.canonicalRows.length>0?<DataTable columns={columns} data={report.canonicalRows} pageSize={25}/>:<div className="rounded-[14px] border border-ink-200 bg-ink-50/60 p-5"><div className="flex items-start gap-3"><Database size={18} className="mt-0.5 text-primary-700"/><div><div className="text-sm font-black">{generic?'لا توجد صفوف عامة محفوظة للعرض':'تم توجيه المصدر إلى العقد المتخصص'}</div><p className="mt-1 text-[11px] leading-6 text-ink-500">{generic?'لن يتم ملء التقرير بصفوف اصطناعية.':'الكيان الكانوني: '+report.entityType+'. استخدم المخرج المتخصص لرؤية الصفوف الفعلية.'}</p></div></div></div>}
-      {generic&&report.canonicalRowsTotal>report.canonicalRows.length&&<div className="mt-3 text-[10px] text-ink-400">تظهر أول 50 صفًا من إجمالي {formatNumber(report.canonicalRowsTotal)}.</div>}
+      {report.canonicalRows.length>0?<DataTable columns={columns} data={report.canonicalRows} pageSize={25}/>:<div className="rounded-[14px] border border-ink-200 bg-ink-50/60 p-5"><div className="flex items-start gap-3"><Database size={18} className="mt-0.5 text-primary-700"/><div><div className="text-sm font-black">{generic?'لا توجد صفوف عامة محفوظة للعرض':'تم توجيه المصدر إلى العقد المتخصص'}</div><p className="mt-1 text-[11px] leading-6 text-ink-500">{generic?'لن يتم ملء التقرير بصفوف اصطناعية.':'الكيان الكانوني: '+report.entityType+'. استخدم المخرج المتخصص لرؤية الصفوف الفعلية.'}</p></div></div></div>}
+      {report.canonicalRowsTotal>report.canonicalRows.length&&<div className="mt-3 text-[10px] text-ink-400">تظهر أول {formatNumber(report.canonicalRows.length)} صف من إجمالي {formatNumber(report.canonicalRowsTotal)}؛ التقرير لا يدّعي أن المعروض هنا هو كامل السجلات.</div>}
     </CardBody></Card>
     <Card><CardHeader title="المخرجات التالية" subtitle="هنا تتحول نتيجة المصدر إلى أسطح تقرأ الحقيقة؛ لا يتم اختلاق قرار أو outcome."/><CardBody><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <Link to="/trust" className="card card-hover p-4"><ShieldCheck size={18} className="text-primary-700"/><div className="mt-3 text-sm font-black">الثقة والأدلة</div><div className="mt-1 text-[10px] leading-5 text-ink-500">فحص الهوية والبصمة والدليل.</div><span className="mt-3 inline-flex gap-1 text-[10px] font-black text-primary-700">فتح <ArrowUpLeft size={13}/></span></Link>

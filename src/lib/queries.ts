@@ -136,7 +136,39 @@ export type CanonicalSourceReport = {
   completedAt:string|null;
   canonicalRows:CanonicalSourceReportRow[];
   canonicalRowsTotal:number;
+  executionJobId:string|null;
 };
+
+export type ReportExecutionTaskStatus = 'queued'|'running'|'completed'|'failed';
+
+export interface ReportExecutionTask {
+  id:string;
+  report_execution_job_id:string;
+  stage:string;
+  ordinal:number;
+  label:string;
+  status:ReportExecutionTaskStatus;
+  worker_id:string|null;
+  attempt:number;
+  started_at:string|null;
+  completed_at:string|null;
+  last_error:Record<string,unknown>;
+  evidence:Record<string,unknown>;
+  updated_at:string|null;
+}
+
+export async function fetchReportExecutionTasks(reportExecutionJobId:string):Promise<ReportExecutionTask[]>{
+  if(!reportExecutionJobId.trim()) return [];
+  const companyId=await resolveCurrentCompanyId();
+  if(!companyId) throw new Error('TENANT_REQUIRED');
+  const {data,error}=await supabase
+    .from('report_execution_tasks')
+    .select('id,report_execution_job_id,stage,ordinal,label,status,worker_id,attempt,started_at,completed_at,last_error,evidence,updated_at')
+    .eq('report_execution_job_id',reportExecutionJobId)
+    .order('ordinal',{ascending:true});
+  if(error) throw error;
+  return ((data??[]) as ReportExecutionTask[]).filter((task)=>Boolean(task.report_execution_job_id));
+}
 
 export async function fetchCanonicalSourceReport(importJobId:string):Promise<CanonicalSourceReport>{
   if(!importJobId.trim()) throw new Error('IMPORT_JOB_ID_REQUIRED');
@@ -176,5 +208,6 @@ export async function fetchCanonicalSourceReport(importJobId:string):Promise<Can
     completedAt:job.completed_at??null,
     canonicalRows,
     canonicalRowsTotal:count??canonicalRows.length,
+    executionJobId: typeof summary.jobId === 'string' ? summary.jobId : null,
   };
 }

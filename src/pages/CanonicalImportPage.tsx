@@ -5,7 +5,7 @@ import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
-import { fetchImportRecords, createImportRecord } from '@/lib/queries';
+import { fetchImportRecords, createImportRecord, fetchReportExecutionTasks } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
@@ -256,6 +256,12 @@ export function CanonicalImportPage() {
         qualityApproved,
       });
 
+      const executionTasks = execution.jobId ? await fetchReportExecutionTasks(execution.jobId) : [];
+      const requiredStages = ['queued','fingerprinted','extracted','canonicalized','validated','analyzed','decisioned','committed','rendered'];
+      const executionIsFullyRendered = executionTasks.length === requiredStages.length
+        && executionTasks.every((task:any, index:number) => task.ordinal === index + 1 && task.stage === requiredStages[index] && task.status === 'completed');
+      if (!executionIsFullyRendered) throw new Error('CANONICAL_IMPORT_EXECUTION_NOT_FULLY_RENDERED');
+
       setProgress(88);
 
       const authoritativeRowCount = Number(execution.authoritativeRowCount ?? validRows.length);
@@ -296,9 +302,11 @@ export function CanonicalImportPage() {
         understandingConfidence,
         authoritativeQualityScore: Number(execution.authoritativeQualityScore ?? quality),
         specialty,
+        executionTasks,
       });
       setStep('done');
       await loadHistory();
+      navigate(`/reports/source/${rec.id}`);
     } catch (cause) {
       const failureMessage = cause instanceof Error ? cause.message : 'تعذر اعتماد المصدر';
       if (importJobId) {
@@ -406,7 +414,7 @@ export function CanonicalImportPage() {
 
     {step === 'done' && result && <div className="space-y-4">
       <Card><CardBody><div className="flex flex-col gap-4"><div className="flex flex-col items-center gap-3 text-center"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">اكتملت دورة المصدر حتى rendered</h3><p className="max-w-2xl text-[11px] leading-6 text-ink-500">تم اجتياز الفحص، الفهم، المطابقة، الجودة، الاعتماد، التنفيذ الدائم والكتابة الكانونية. المخرجات التالية تقرأ من هذا المصدر أو من النماذج الكانونية التي نتجت عنه؛ لا يوجد نجاح مصطنع.</p></div><div className="grid grid-cols-2 gap-3 w-full lg:grid-cols-4 text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">التخصص</div><b>{result.specialty?.label ?? 'مصدر عام'}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة الفهم</div><b>{result.understandingConfidence ?? 0}%</b></div><div className="p-3 rounded-lg bg-success-50"><div className="text-xs text-success-700">الجودة السلطوية</div><b>{result.authoritativeQualityScore ?? quality}%</b></div></div><div className="rounded-xl border border-ink-200 bg-ink-50/60 p-3 text-[10px] text-ink-500 break-all"><span className="font-black text-ink-800">Source hash:</span> {result.snapshotId ? `${result.snapshotId} · ` : ''}{fileHash}</div></div></CardBody></Card>
-      <Card><CardHeader title="مسار التنفيذ الذي اكتمل" subtitle="هذه هي دورة العمل الفعلية بعد سحب الملف، وليست مجرد حالات واجهة."/><CardBody><div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">{['queued','fingerprinted','extracted','canonicalized','validated','analyzed','decisioned','committed','rendered'].map((stage,index)=><div key={stage} className="rounded-[12px] border border-success-200 bg-success-50/70 p-3"><div className="text-[9px] font-black text-success-700">{index+1}</div><div className="mt-1 text-[11px] font-black text-ink-900">{stage}</div><div className="mt-1 text-[9px] text-success-700">مكتملة</div></div>)}</div></CardBody></Card>
+      <Card><CardHeader title="مسار التنفيذ الفعلي" subtitle="يُقرأ من report_execution_tasks؛ لا توجد حالة نجاح ثابتة في الواجهة."/><CardBody><div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">{(result.executionTasks ?? []).map((task:any,index:number)=><div key={task.id ?? task.stage} className={`rounded-[12px] border p-3 ${task.status === 'completed' ? 'border-success-200 bg-success-50/70' : task.status === 'failed' ? 'border-danger-200 bg-danger-50' : 'border-warning-200 bg-warning-50'}`}><div className="text-[9px] font-black text-ink-500">{index+1}</div><div className="mt-1 text-[11px] font-black text-ink-900">{task.stage}</div><div className="mt-1 text-[9px] font-bold">{task.status}</div>{task.completed_at && <div className="mt-1 text-[8px] text-ink-400">{formatDateTime(task.completed_at)}</div>}</div>)}</div></CardBody></Card>
       <Card><CardHeader title="مخرجات المصدر" subtitle="ابدأ من التقرير المرتبط بالمصدر، ثم انتقل إلى الثقة والقرار والعمل."/><CardBody><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Link to={`/reports/source/${result.importId}`} className="card card-hover p-4"><FileSearch size={18} className="text-primary-700"/><div className="mt-3 text-sm font-black text-ink-900">تقرير المصدر</div><div className="mt-1 text-[10px] leading-5 text-ink-500">الصفوف الكانونية، التخصص، البصمة، الدليل وسجل التنفيذ.</div><span className="mt-3 inline-flex items-center gap-1 text-[10px] font-black text-primary-700">فتح التقرير <ArrowUpLeft size={13}/></span></Link><Link to="/trust" className="card card-hover p-4"><ShieldCheck size={18} className="text-primary-700"/><div className="mt-3 text-sm font-black text-ink-900">الثقة والأدلة</div><div className="mt-1 text-[10px] leading-5 text-ink-500">راجع حالة الحقيقة ومصدر الدليل قبل استخدام الأرقام في القرار.</div><span className="mt-3 inline-flex items-center gap-1 text-[10px] font-black text-primary-700">فتح المركز <ArrowUpLeft size={13}/></span></Link><Link to="/reports/executive" className="card card-hover p-4"><BarChart3 size={18} className="text-primary-700"/><div className="mt-3 text-sm font-black text-ink-900">التقرير التنفيذي</div><div className="mt-1 text-[10px] leading-5 text-ink-500">يعرض المؤشرات الكانونية المتاحة فقط، ويحافظ على حالات INSUFFICIENT DATA.</div><span className="mt-3 inline-flex items-center gap-1 text-[10px] font-black text-primary-700">فتح التقرير <ArrowUpLeft size={13}/></span></Link><Link to="/decision-experience" className="card card-hover p-4"><CheckCircle2 size={18} className="text-primary-700"/><div className="mt-3 text-sm font-black text-ink-900">القرار والعمل</div><div className="mt-1 text-[10px] leading-5 text-ink-500">ينتقل المصدر إلى الإشارة والقرار والعمل دون تسجيل موافقة أو نتيجة غير مثبتة.</div><span className="mt-3 inline-flex items-center gap-1 text-[10px] font-black text-primary-700">فتح مساحة القرار <ArrowUpLeft size={13}/></span></Link></div>{specializedOutput && <div className="mt-3 rounded-xl border border-primary-200 bg-primary-50/60 p-4"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><div className="text-[10px] font-black text-primary-700">SPECIALTY OUTPUT</div><div className="mt-1 text-sm font-black text-ink-900">المخرج المتخصص: {specializedOutput.label}</div><p className="mt-1 text-[10px] leading-5 text-ink-600">هذا الرابط يستخدم لأن المصدر استوفى عقد الكيان الكانوني المتخصص؛ أما التخصصات العامة فتظل في تقرير المصدر دون ادعاء إدخالها في جدول مجال آخر.</p></div><Link to={specializedOutput.path} className="btn-primary text-[11px]">فتح المخرج المتخصص <ArrowUpLeft size={13}/></Link></div></div>}<div className="mt-3 rounded-xl border border-warning-200 bg-warning-50 p-4 text-[10px] leading-5 text-warning-900"><span className="font-black">Benchmark:</span> لا يتم إعلان أهلية المقارنة من هذا المصدر وحده. يلزم peer sample ودليل كافٍ؛ حتى ذلك الحين تبقى الحالة <b>INSUFFICIENT SAMPLE</b>.</div></CardBody></Card>
       <div className="flex flex-wrap gap-2 justify-center"><button type="button" onClick={() => navigate(`/reports/source/${result.importId}`)} className="btn-primary"><FileSearch size={14}/> فتح التقرير الآن</button><button type="button" onClick={reset} className="btn-secondary"><Upload size={14}/> تحليل ملف آخر</button></div>
     </div>}

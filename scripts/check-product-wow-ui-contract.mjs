@@ -142,6 +142,10 @@ assert.ok(canonicalImport.includes('aria-current={active ? \'step\' : undefined}
 assert.ok(canonicalImport.includes('detectImportedSpecialty'), 'post-import flow must detect a report specialty before canonical commit');
 assert.ok(canonicalImport.includes('specialty.canonicalEntityType'), 'post-import flow must commit the detected canonical entity type');
 assert.ok(!canonicalImport.includes("const entityType = 'generic:source-data';"), 'post-import flow must not force every file into generic:source-data');
+assert.ok(canonicalImport.includes('fetchReportExecutionTasks'), 'completed import must read actual distributed execution tasks');
+assert.ok(canonicalImport.includes('executionIsFullyRendered'), 'completed import must fail closed unless every durable stage is actually completed');
+assert.ok(canonicalImport.includes('CANONICAL_IMPORT_EXECUTION_NOT_FULLY_RENDERED'), 'incomplete execution must block canonical import success');
+assert.ok(canonicalImport.includes('aghbari:last-import-job'), 'completed import must persist a local resume pointer');
 assert.ok(canonicalImport.includes('/reports/source/'), 'completed import must expose a source-bound report destination');
 assert.ok(canonicalImport.includes('queued') && canonicalImport.includes('fingerprinted') && canonicalImport.includes('canonicalized') && canonicalImport.includes('rendered'), 'completed import UI must expose the durable lifecycle');
 assert.ok(reportsSurface.includes('export function SourceReportPage()'), 'reports must expose the canonical source report surface');
