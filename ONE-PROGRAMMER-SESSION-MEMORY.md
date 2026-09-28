@@ -1,12 +1,18 @@
-# RESUME TOKEN — 2026-09-28 / CURRENT PR HEAD LOCAL CERTIFICATION COMPLETE
+# RESUME TOKEN — 2026-09-28 / EXACT CURRENT EXECUTION HEAD
 
-- MAIN EXACT → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- PR #672 → `exec/20260927-current-main-import-ui-rebased`; current PR HEAD `bcbb348497e9cf588291587853c9077d1926a4d9`; functional candidate `63b86b421a9ef48fca5850821b97bf3ce832e3b3`.
-- CURRENT LOCAL PROOF → boundary/provenance PASS; UI route/navigation PASS; UI/sidebar parity PASS; import-finish lifecycle 4/4 PASS; typecheck PASS; lint 0 errors/62 warnings; production build PASS 2802 modules; release-evidence freshness PASS; artifact-migration provenance PASS.
-- CI EXACT HEAD → desktop-windows run `36363582543` SUCCESS. Other current-head release/browser/quality gates remain queued/pending.
-- HOSTED → Netlify preview status SUCCESS; Vercel free-plan build-rate external blocker.
-- REMAINING → consume terminal current-head CI/browser/final-certification evidence; resolve only reproducible current-head failures; complete release/runtime proof and merge/closure. Do not transfer older SHA evidence.
-- DEVICE → PC01 ONLINE.
+- CURRENT REPOSITORY HEAD → `03d6d48a491f1237a247fe0844d2cb9811f9e2ea`.
+- CURRENT CODE/TEST CANDIDATE → `03d6d48a491f1237a247fe0844d2cb9811f9e2ea`.
+- MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- ACTIVE PR → `#672` / `exec/20260927-current-main-import-ui-rebased`.
+- ACTIVE EXECUTION FRONTS → Resume-token governance; Phase-F resilience; authenticated browser/business runtime; Tenant A/B isolation; durable report-generation trigger; worker recovery/retry/DLQ/idempotency; authenticated import/OCR corpus; migration replay/schema parity; full UI runtime states; security hardening; final certification/merge.
+- OPEN BLOCKERS → top resume token was missing mandatory anchors; Phase-F live resilience is NOT READY (deployment SHA mismatch, restore failure, rollback/forward 503); authenticated browser E2E is NOT PROVEN because workflow credentials are absent; Vercel free-plan build-rate is external.
+- LAST PROVEN → exact-head desktop-windows and the current exact-head contract/UI/import/security/runtime checks that completed successfully on `03d6d48...`; local typecheck/build/product proofs are exact-SHA only.
+- LAST FAILED → quality + Execution Enforcement Contract + Final Certification Gate reject missing resume anchors; phase-F-live-resilience is 1/4 passed; browser E2E is auth-blocked.
+- NEXT INDEPENDENT ACTIONS → (1) repair anchors and rerun affected gates; (2) use PC01 + Playwright for unauthenticated/auth-config/runtime proof; (3) continue tenant/security/recovery/corpus/report-trigger fronts in parallel; (4) run bounded UI/product rescan; (5) consume terminal CI evidence once and repair the first current-SHA failure only.
+- NEXT EXECUTABLE ACTION → fix the five required anchors in this top block, persist, then immediately execute all independent safe fronts without waiting.
+- DO NOT REPEAT → stale SHA PASS; unchanged CI polling; duplicate browser frameworks/RPCs/runners; preview-as-production; blanket security-definer revokes; unproven production claims; deletion without Manifest proof.
+- DEVICE → PC01 ONLINE and available for local execution.
+- EXECUTION WINDOW → when the device remains available, use the full available sprint for implementation/proof; no planned idle period.
 
 ---
 

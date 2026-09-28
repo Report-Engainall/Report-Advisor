@@ -1,18 +1,19 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / CURRENT PR HEAD CERTIFIED LOCALLY
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXACT HEAD `03d6d48a491f1237a247fe0844d2cb9811f9e2ea`
 
-> This top block is the only startup boundary.
+> This top block is the only startup boundary. It is the source the programmer must resume from after reconciling GitHub exact state.
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- CURRENT PR HEAD → `bcbb348497e9cf588291587853c9077d1926a4d9` (docs-only checkpoint).
-- CURRENT CODE/TEST CANDIDATE → `63b86b421a9ef48fca5850821b97bf3ce832e3b3` (the only functional code change after the last closed root).
-- CLOSED ROOTS → UI `/import/analyze` progressive-disclosure classification; CRLF-stable import-finish lifecycle negative-case contract.
-- EXACT LOCAL PROOF ON CURRENT PR HEAD `bcbb...` → certification boundary PASS; certification-boundary test-of-test PASS; final-certification provenance adversarial PASS; UI route/navigation completeness PASS (41 routes / 38 canonical links); UI/sidebar parity PASS; import-finish lifecycle 4/4 PASS; typecheck PASS; lint PASS (0 errors / 62 warnings); production build PASS (2802 modules); release-evidence freshness PASS; artifact-migration provenance PASS.
-- EXACT CI PROOF ON CURRENT PR HEAD → `desktop-windows` run `36363582543` SUCCESS.
-- CURRENT CI → 49 workflows for `bcbb...`: 45 queued, 1 pending, 3 completed (2 skipped + desktop SUCCESS). Browser, quality, Phase-3, data-quality, security, production-regression and final-certification jobs have no terminal result yet on this exact PR head.
-- HOSTED → Netlify deploy-preview status SUCCESS for `bcbb...`; Vercel remains externally blocked by the free-plan build-rate limit and therefore is not product certification.
-- DEVICE → PC01 ONLINE; exact PR worktree active.
-- QUALITY CLEANUP → 62 lint warnings remain; they are non-blocking but unresolved technical-debt cleanup.
-- REMAINING RELEASE FRONT → fresh exact-HEAD CI/browser/final-certification evidence, hosted production proof where possible, unresolved external Phase-F/live-resilience evidence if CI proves it, and final merge/closure. No final PASS is declared until those terminal gates exist.
+- ACTIVE PR → `#672` / `exec/20260927-current-main-import-ui-rebased`.
+- CURRENT EXACT CANDIDATE/HEAD → `03d6d48a491f1237a247fe0844d2cb9811f9e2ea`.
+- ACTIVE EXECUTION FRONTS → Resume-token governance repair; Phase-F live resilience; authenticated browser/business runtime; Tenant A/B isolation proof; real report-generation durable-execution trigger; worker crash/retry/DLQ/idempotency proof; authenticated import/OCR golden corpus; migration replay/schema parity; UI runtime completeness; security hardening; final certification/merge closure.
+- OPEN BLOCKERS → execution-enforcement/final-certification gates currently reject the top resume block because the five required anchors are absent; Phase-F live resilience is NOT READY (deployment SHA mismatch, backup/restore failure, rollback/forward 503); authenticated browser E2E is NOT PROVEN because test credentials are absent; Vercel free-plan build-rate remains external. No blocker authorizes idle time.
+- LAST PROVEN → on exact candidate `03d6d48...`, desktop-windows and the current-head contract/UI/import/security/runtime gate set reported SUCCESS in CI/local execution; typecheck/build/local product proof were previously green. These proofs remain bound to this SHA only.
+- LAST FAILED → `quality`, `Execution Enforcement Contract`, and `Final Certification Gate` fail on the same missing resume-token anchors; `phase-f-live-resilience` is NOT READY from deployment SHA mismatch + restore/rollback failures; browser E2E is auth-blocked rather than a product PASS.
+- NEXT EXECUTABLE ACTION → repair the five resume anchors at the canonical top of Session Memory; rerun only the affected enforcement/quality/final-certification checks; simultaneously execute independent P0/P1 fronts above, then bind the resulting evidence to the next exact SHA.
+- NEXT INDEPENDENT ACTIONS → use PC01 for targeted Playwright browser/runtime proof; run tenant/security/data/recovery/corpus fronts that do not conflict; repair durable report-generation caller wiring; close migration parity; perform bounded UI-state rescan; consume terminal CI once, not repeated polling.
+- DO NOT REPEAT → stale SHA evidence; repeated unchanged CI polling; duplicate browser frameworks/runners/RPCs; preview-as-production claims; blanket SECURITY DEFINER revokes; deletion without Manifest/reference proof; reinstalling tools that are already available.
+- DEVICE → PC01 ONLINE; local PR worktree is available and writable.
+- QUALITY NOTE → lint currently reports 62 warnings / 0 errors; warnings are cleanup debt, not permission to delay higher-value closure.
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / SECURITY CONTRACT REPAIR REPROVED
 
