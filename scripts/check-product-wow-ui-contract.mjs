@@ -68,6 +68,18 @@ assert.ok(importSurface.includes('onClick={reset}'), 'canonical import history e
 assert.ok(importSurface.includes('const [historyError, setHistoryError]'), 'canonical import history must preserve fetch failures instead of mapping them to an empty list');
 assert.ok(importSurface.includes('historyError?<ErrorState'), 'canonical import history must distinguish backend errors from an empty history');
 assert.ok(importSurface.includes('onRetry={() => void loadHistory()}'), 'canonical import history errors must retry in place');
+assert.ok(importSurface.includes('const [dragActive, setDragActive]'), 'canonical import must expose an active drag state');
+assert.ok(importSurface.includes('const handleDrop = useCallback((event: DragEvent<HTMLDivElement>)'), 'canonical import must implement a real drop handler');
+assert.ok(importSurface.includes('event.dataTransfer.files?.[0]'), 'canonical import drop handler must consume the dropped file');
+assert.ok(importSurface.includes('onDragEnter={'), 'canonical import dropzone must handle drag enter');
+assert.ok(importSurface.includes('onDragOver={'), 'canonical import dropzone must handle drag over');
+assert.ok(importSurface.includes('onDragLeave={'), 'canonical import dropzone must handle drag leave');
+assert.ok(importSurface.includes('onDrop={handleDrop}'), 'canonical import dropzone must bind the drop handler');
+assert.ok(importSurface.includes('role="button"') && importSurface.includes('tabIndex={0}'), 'canonical import dropzone must remain keyboard accessible');
+assert.ok(importSurface.includes('onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ')'), 'canonical import dropzone must support keyboard activation');
+assert.ok(importSurface.includes('فحص الثقة والأدلة'), 'canonical import completion must expose the trust/evidence next action');
+assert.ok(importSurface.includes('متابعة مسار القرار'), 'canonical import completion must expose the decision next action');
+
 
 const entitiesSurface = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
 assert.ok(entitiesSurface.includes('const inventoryQueueEmpty = snapshot.totalRows === 0'), 'inventory page must use authoritative totalRows for source-empty state');
