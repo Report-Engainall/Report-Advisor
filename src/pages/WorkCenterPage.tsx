@@ -4,7 +4,7 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Link, useSearchParams } from 'react-router-dom';
 import { DataTable } from '@/components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
-import { fetchDecisionWorkItems, fetchImportRecords, fetchWorkerHealthSnapshot, startDecisionWorkItem, type DecisionWorkItemRecord, type WorkerHealthSnapshot } from '@/lib/queries';
+import { completeDecisionWorkItem, fetchDecisionWorkItems, fetchImportRecords, fetchWorkerHealthSnapshot, startDecisionWorkItem, type DecisionWorkItemRecord, type WorkerHealthSnapshot } from '@/lib/queries';
 import type { ImportRecord } from '@/lib/types';
 import { formatNumber } from '@/lib/format';
 import { ReportSurfaceContext, type ReportTruthStatus } from '@/components/ReportSurfaceContext';
@@ -25,6 +25,8 @@ export function WorkCenterPage() {
   const [workerHealth, setWorkerHealth] = useState<WorkerHealthSnapshot | null>(null);
   const [decisionWorkItems, setDecisionWorkItems] = useState<DecisionWorkItemRecord[]>([]);
   const [startingWorkItemId, setStartingWorkItemId] = useState<string | null>(null);
+  const [completingWorkItemId, setCompletingWorkItemId] = useState<string | null>(null);
+  const [actualImpactById, setActualImpactById] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<FilterKey>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +52,35 @@ export function WorkCenterPage() {
       setLoading(false);
     }
   }, []);
+
+  const completeWorkItem = useCallback(async (item: DecisionWorkItemRecord) => {
+    const rawActualImpact = actualImpactById[item.id]?.trim() ?? '';
+    const actualImpact = Number(rawActualImpact);
+    if (!rawActualImpact || !Number.isFinite(actualImpact)) {
+      setError('أدخل الأثر الفعلي رقماً قبل إغلاق المهمة.');
+      return;
+    }
+    const evidenceSnapshotId = item.evidence_refs.find((ref) => typeof ref.evidence_snapshot_id === 'string')?.evidence_snapshot_id;
+    if (typeof evidenceSnapshotId !== 'string' || !evidenceSnapshotId.trim()) {
+      setError('لا يمكن إغلاق المهمة دون Evidence Snapshot مرتبط بالمهمة.');
+      return;
+    }
+    setCompletingWorkItemId(item.id);
+    setError(null);
+    try {
+      await completeDecisionWorkItem(item.id, actualImpact, { evidence_snapshot_id: evidenceSnapshotId });
+      setActualImpactById((current) => {
+        const next = { ...current };
+        delete next[item.id];
+        return next;
+      });
+      await load();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'تعذر إغلاق مهمة التنفيذ وإثبات النتيجة');
+    } finally {
+      setCompletingWorkItemId(null);
+    }
+  }, [actualImpactById, load]);
 
   const startWorkItem = useCallback(async (workItemId: string) => {
     setStartingWorkItemId(workItemId);
@@ -219,7 +250,29 @@ export function WorkCenterPage() {
                   <Link to={withImportContext("/decision-experience?stage=work&recommendationId=" + encodeURIComponent(item.recommendation_id ?? ''))} className="btn-ghost min-h-11 text-[10px]">فتح السياق</Link>
                   {typeof item.evidence_refs[0]?.import_job_id === 'string' && <Link to={withImportContext("/trust?import=" + encodeURIComponent(item.evidence_refs[0].import_job_id))} className="btn-ghost min-h-11 text-[10px]">فتح Evidence Passport</Link>}
                   {item.status === 'OPEN' && <button type="button" onClick={() => void startWorkItem(item.id)} disabled={startingWorkItemId === item.id} className="btn-primary min-h-11 text-[10px] disabled:opacity-60">{startingWorkItemId === item.id ? 'جارٍ البدء...' : 'بدء التنفيذ'}</button>}
-                  {item.status === 'IN_PROGRESS' && <span className="inline-flex items-center rounded-xl bg-primary-50 px-3 py-2 text-[10px] font-black text-primary-700">قيد التنفيذ</span>}
+                  {item.status === 'IN_PROGRESS' && <>
+                    <div className="flex min-h-11 items-center gap-2 rounded-xl border border-primary-200 bg-primary-50/40 px-2.5 py-1.5">
+                      <span className="text-[9px] font-black text-primary-800">الأثر الفعلي</span>
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        step="any"
+                        value={actualImpactById[item.id] ?? ''}
+                        onChange={(event) => setActualImpactById((current) => ({ ...current, [item.id]: event.target.value }))}
+                        aria-label={`الأثر الفعلي للمهمة ${item.title}`}
+                        placeholder="أدخل الرقم"
+                        className="w-28 rounded-lg border border-primary-200 bg-white px-2 py-1.5 text-[10px] font-bold text-ink-900 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => void completeWorkItem(item)}
+                      disabled={completingWorkItemId === item.id}
+                      className="btn-primary min-h-11 text-[10px] disabled:opacity-60"
+                    >
+                      {completingWorkItemId === item.id ? 'جارٍ حفظ النتيجة...' : 'إغلاق وإثبات النتيجة'}
+                    </button>
+                  </>}
                   {item.status === 'COMPLETED' && <span className="inline-flex items-center rounded-xl bg-success-50 px-3 py-2 text-[10px] font-black text-success-700">مكتمل</span>}
                 </div>
               </article>
