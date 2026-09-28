@@ -342,6 +342,7 @@ if (/accept="[^"]*\.xml/.test(canonicalImportPage)) {
   throw new Error('Canonical import UI must not advertise XML while the canonical parser rejects XML');
 }
 const postImportOutputContract = [
+  [/نُخرج التقرير المناسب/, 'Import shell must disclose the post-import report output stage'],
   [/SPECIALTY_REPORT_OUTPUTS/, 'Canonical import UI must map detected specialty into governed report outputs'],
   [/resolvePostImportReports/, 'Canonical import UI must resolve report outputs from specialty/entity'],
   [/PostImportReportOutputs/, 'Canonical import UI must render source-derived report output links'],
