@@ -65,6 +65,12 @@ const adapter = fs.readFileSync(adapterPath, 'utf8');
 if (!/runDurableProductionLifecycle/.test(adapter) || !/SupabaseReportExecutionStore/.test(adapter)) {
   throw new Error('Canonical import must use the existing durable production runner/store');
 }
+if (!/parseNativePdfTable/.test(adapter) || !/groupNativePdfTextItems/.test(adapter) || !/transform\[4\]/.test(adapter) || !/transform\[5\]/.test(adapter)) {
+  throw new Error('Native PDF ingestion must retain layout geometry for table reconstruction');
+}
+if (!/const nativeTable = await parseNativePdfTable/.test(adapter) || !/if \(nativeTable\) return nativeTable/.test(adapter)) {
+  throw new Error('Native PDF ingestion must prefer reconstructed tables before raw-text fallback');
+}
 if (!/stage === 'committed'\)\s*await commitImportBatch/.test(adapter)) {
   throw new Error('Canonical commit must execute only at the durable committed lifecycle stage');
 }
