@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/Badge';
 import { DataTable } from '@/components/ui/DataTable';
 import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/States';
 import { formatCurrency, formatDate, formatNumber } from '@/lib/format';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 import { fetchReceivablesReportPage, fetchReceivablesExportRows, type ReceivablesReportPage, type ReceivablesReportRow } from '@/lib/queries';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 
