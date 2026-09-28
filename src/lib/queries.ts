@@ -1,7 +1,9 @@
 import { supabase, resolveCurrentCompanyId } from './supabase';
 import { fetchDashboardSnapshot, fetchDashboardIntelligence, type DashboardKPIs, type MonthlyTrend, type TopEntity, type AgingBucket, type CategoryBreakdown } from './dashboard-canonical';
 import type { Recommendation, Alert, SalesInvoice, PurchaseInvoice, ImportRecord, Customer, Forecast, Product } from './types';
+import { createRuntimeDecision as createCanonicalRuntimeDecision, linkRecommendationToDecision as linkCanonicalRecommendationToDecision, requestRuntimeApproval as requestCanonicalDecisionApproval, decideRuntimeApproval as decideCanonicalApproval, createRuntimeWorkItem as createCanonicalWorkItem, startRuntimeWorkItem as startCanonicalWorkItem } from './decision-automation/vertical-slice-runtime';
 export type { DashboardKPIs, MonthlyTrend, TopEntity, AgingBucket, CategoryBreakdown };
+export type { ImportRecord } from './types';
 export async function fetchDashboardKPIs(): Promise<DashboardKPIs> { return (await fetchDashboardSnapshot(6)).kpis; }
 export async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend[]> { return (await fetchDashboardSnapshot(months)).trend; }
 export async function fetchTopCustomers(limit = 5): Promise<TopEntity[]> { return (await fetchDashboardSnapshot(6)).topCustomers.slice(0, limit); }
@@ -351,4 +353,81 @@ export async function fetchRecommendationsBoundToImport(input: {
       return true;
     })
     .map((row) => row as unknown as Recommendation);
+}
+export type PurchaseSummary = { total: number | null; count: number; supplier_count: number; average: number | null };
+function isoDate(value: Date): string { return value.toISOString().slice(0, 10); }
+export async function fetchPurchaseSummary(from?: string, to?: string): Promise<PurchaseSummary> {
+  const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED');
+  const end = to ?? isoDate(new Date()); const startDate = new Date(); startDate.setMonth(startDate.getMonth() - 6); const start = from ?? isoDate(startDate);
+  const { data, error } = await supabase.rpc('get_purchase_summary', { p_company_id: companyId, p_from: start, p_to: end });
+  if (error) throw error; const payload = (data ?? {}) as Record<string, unknown>;
+  return { total: payload.total == null ? null : Number(payload.total), count: Number(payload.count ?? 0), supplier_count: Number(payload.supplier_count ?? 0), average: payload.average == null ? null : Number(payload.average) };
+}
+export async function fetchSalesExportRows(maxRows = 10000): Promise<CanonicalExportRow[]> {
+  const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase.rpc('get_sales_export_rows', { p_company_id: companyId, p_max_rows: maxRows }); if (error) throw error;
+  const payload = (data ?? {}) as Record<string, unknown>; if (!Array.isArray(payload.rows)) throw new Error('REPORT_DATA_UNAVAILABLE: sales export rows missing'); return payload.rows as CanonicalExportRow[];
+}
+export async function fetchPurchaseExportRows(maxRows = 10000): Promise<CanonicalExportRow[]> {
+  const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase.rpc('get_purchase_export_rows', { p_company_id: companyId, p_max_rows: maxRows }); if (error) throw error;
+  const payload = (data ?? {}) as Record<string, unknown>; if (!Array.isArray(payload.rows)) throw new Error('REPORT_DATA_UNAVAILABLE: purchase export rows missing'); return payload.rows as CanonicalExportRow[];
+}
+export async function fetchInventoryExportRows(maxRows = 10000): Promise<CanonicalExportRow[]> {
+  const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase.rpc('get_inventory_export_rows', { p_company_id: companyId, p_max_rows: maxRows }); if (error) throw error;
+  const payload = (data ?? {}) as Record<string, unknown>; if (!Array.isArray(payload.rows)) throw new Error('REPORT_DATA_UNAVAILABLE: inventory export rows missing'); return payload.rows as CanonicalExportRow[];
+}
+export type RuntimeDecisionRecord = { id:string; decision_key:string; decision_type:string; status:string; confidence:number|null; expected_impact:number|null; evidence:Record<string,unknown>; created_at:string; executed_at:string|null; recommendation_id:string|null; approved_by:string|null; approved_at:string|null; rejection_reason:string|null };
+export type DecisionApprovalRecord = { id:string; decision_id:string; status:string; requested_by:string|null; decided_by:string|null; requested_at:string; decided_at:string|null; reason:string|null; evidence:Record<string,unknown> };
+export type DecisionWorkItemRecord = { id:string; decision_id:string; recommendation_id:string|null; department:string; assignee_id:string|null; assignee_label:string|null; title:string; description:string|null; priority:string; status:string; due_at:string|null; started_at:string|null; completed_at:string|null; evidence_refs:Array<Record<string,unknown>>; expected_impact:number|null; actual_impact:number|null; created_at:string; updated_at:string };
+export type RecommendationOutcomeRecord = { id:string; company_id:string; recommendation_key:string; decision_id:string|null; observed_at:string; expected_impact:number|null; actual_impact:number|null; outcome_quality:number|null; status:string; evidence:Record<string,unknown> };
+export type BusinessReplayEvent = { kind:'SNAPSHOT'|'WORK'|'OUTCOME'; id:string; occurredAt:string; status:string|null; title:string; detail:string|null; evidencePresent:boolean; expectedImpact:number|null; actualImpact:number|null; qualityScore:number|null };
+export type BusinessReplaySnapshot = { snapshotCount:number; outcomeCount:number; workItemCount:number; latestSnapshotAt:string|null; latestOutcomeAt:string|null; windowLimit:number; hasMoreHistory:boolean; events:BusinessReplayEvent[] };
+export const createRuntimeDecision = createCanonicalRuntimeDecision;
+export const linkRecommendationToDecision = linkCanonicalRecommendationToDecision;
+export const requestDecisionApproval = requestCanonicalDecisionApproval;
+export const decideApproval = decideCanonicalApproval;
+export async function createDecisionWorkItem(input:{decisionId:string;recommendationId:string|null;department:string;assigneeId?:string;assigneeLabel?:string;title:string;description?:string|null;priority:'LOW'|'MEDIUM'|'HIGH'|'CRITICAL';dueAt?:string|null;expectedImpact:number|null;evidenceRefs:unknown[]}):Promise<string>{
+  return createCanonicalWorkItem(input.decisionId,input.recommendationId,{department:input.department,assigneeId:input.assigneeId,assigneeLabel:input.assigneeLabel,title:input.title,description:input.description??undefined,priority:input.priority,dueAt:input.dueAt??undefined,expectedImpact:input.expectedImpact,evidenceRefs:input.evidenceRefs});
+}
+export const startDecisionWorkItem = startCanonicalWorkItem;
+export async function fetchRuntimeDecisionForRecommendation(recommendationId:string):Promise<RuntimeDecisionRecord|null>{
+  if(!recommendationId.trim())throw new Error('RECOMMENDATION_ID_REQUIRED'); const companyId=await resolveCurrentCompanyId(); if(!companyId)throw new Error('TENANT_REQUIRED');
+  const {data,error}=await supabase.from('business_intelligence_decisions').select('id,decision_key,decision_type,status,confidence,expected_impact,evidence,created_at,executed_at,recommendation_id,approved_by,approved_at,rejection_reason').eq('company_id',companyId).eq('recommendation_id',recommendationId).order('created_at',{ascending:false}).limit(1).maybeSingle();
+  if(error)throw error; if(!data)return null; return {id:String(data.id),decision_key:String(data.decision_key),decision_type:String(data.decision_type),status:String(data.status),confidence:data.confidence==null?null:Number(data.confidence),expected_impact:data.expected_impact==null?null:Number(data.expected_impact),evidence:data.evidence&&typeof data.evidence==='object'?data.evidence as Record<string,unknown>:{},created_at:String(data.created_at),executed_at:data.executed_at?String(data.executed_at):null,recommendation_id:data.recommendation_id?String(data.recommendation_id):null,approved_by:data.approved_by?String(data.approved_by):null,approved_at:data.approved_at?String(data.approved_at):null,rejection_reason:data.rejection_reason?String(data.rejection_reason):null};
+}
+export async function fetchDecisionApproval(decisionId:string):Promise<DecisionApprovalRecord|null>{
+  if(!decisionId.trim())throw new Error('DECISION_ID_REQUIRED'); const companyId=await resolveCurrentCompanyId(); if(!companyId)throw new Error('TENANT_REQUIRED');
+  const {data,error}=await supabase.from('decision_approvals').select('id,decision_id,status,requested_by,decided_by,requested_at,decided_at,reason,evidence').eq('company_id',companyId).eq('decision_id',decisionId).order('requested_at',{ascending:false}).limit(1).maybeSingle();
+  if(error)throw error; if(!data)return null; return {id:String(data.id),decision_id:String(data.decision_id),status:String(data.status),requested_by:data.requested_by?String(data.requested_by):null,decided_by:data.decided_by?String(data.decided_by):null,requested_at:String(data.requested_at),decided_at:data.decided_at?String(data.decided_at):null,reason:data.reason?String(data.reason):null,evidence:data.evidence&&typeof data.evidence==='object'?data.evidence as Record<string,unknown>:{}}; 
+}
+function mapDecisionWorkItem(row:Record<string,unknown>):DecisionWorkItemRecord{
+ const refs=Array.isArray(row.evidence_refs)?row.evidence_refs.filter((ref):ref is Record<string,unknown>=>Boolean(ref&&typeof ref==='object'&&!Array.isArray(ref))):[];
+ return {id:String(row.id),decision_id:String(row.decision_id),recommendation_id:row.recommendation_id?String(row.recommendation_id):null,department:String(row.department),assignee_id:row.assignee_id?String(row.assignee_id):null,assignee_label:row.assignee_label?String(row.assignee_label):null,title:String(row.title),description:row.description?String(row.description):null,priority:String(row.priority),status:String(row.status),due_at:row.due_at?String(row.due_at):null,started_at:row.started_at?String(row.started_at):null,completed_at:row.completed_at?String(row.completed_at):null,evidence_refs:refs,expected_impact:row.expected_impact==null?null:Number(row.expected_impact),actual_impact:row.actual_impact==null?null:Number(row.actual_impact),created_at:String(row.created_at),updated_at:String(row.updated_at)};
+}
+export async function fetchDecisionWorkItem(decisionId:string):Promise<DecisionWorkItemRecord|null>{
+ const companyId=await resolveCurrentCompanyId(); if(!companyId)throw new Error('TENANT_REQUIRED'); const {data,error}=await supabase.from('decision_work_items').select('id,decision_id,recommendation_id,department,assignee_id,assignee_label,title,description,priority,status,due_at,started_at,completed_at,evidence_refs,expected_impact,actual_impact,created_at,updated_at').eq('company_id',companyId).eq('decision_id',decisionId).order('created_at',{ascending:false}).limit(1).maybeSingle(); if(error)throw error; return data?mapDecisionWorkItem(data as Record<string,unknown>):null;
+}
+export async function fetchDecisionWorkItems():Promise<DecisionWorkItemRecord[]>{
+ const companyId=await resolveCurrentCompanyId(); if(!companyId)throw new Error('TENANT_REQUIRED'); const {data,error}=await supabase.from('decision_work_items').select('id,decision_id,recommendation_id,department,assignee_id,assignee_label,title,description,priority,status,due_at,started_at,completed_at,evidence_refs,expected_impact,actual_impact,created_at,updated_at').eq('company_id',companyId).order('created_at',{ascending:false}).range(0,499); if(error)throw error; return (data??[]).map(row=>mapDecisionWorkItem(row as Record<string,unknown>));
+}
+export async function fetchRecommendationOutcome(decisionId:string):Promise<RecommendationOutcomeRecord|null>{
+ const companyId=await resolveCurrentCompanyId(); if(!companyId)throw new Error('TENANT_REQUIRED'); const {data,error}=await supabase.from('recommendation_outcomes').select('id,company_id,recommendation_key,decision_id,observed_at,expected_impact,actual_impact,outcome_quality,status,evidence').eq('company_id',companyId).eq('decision_id',decisionId).order('observed_at',{ascending:false}).limit(1).maybeSingle(); if(error)throw error; if(!data)return null;
+ return {id:String(data.id),company_id:String(data.company_id),recommendation_key:String(data.recommendation_key),decision_id:data.decision_id?String(data.decision_id):null,observed_at:String(data.observed_at),expected_impact:data.expected_impact==null?null:Number(data.expected_impact),actual_impact:data.actual_impact==null?null:Number(data.actual_impact),outcome_quality:data.outcome_quality==null?null:Number(data.outcome_quality)*100,status:String(data.status),evidence:data.evidence&&typeof data.evidence==='object'?data.evidence as Record<string,unknown>:{}};
+}
+export async function fetchBusinessReplaySnapshot(windowLimit=200):Promise<BusinessReplaySnapshot>{
+ const companyId=await resolveCurrentCompanyId(); if(!companyId)throw new Error('TENANT_REQUIRED'); if(!Number.isInteger(windowLimit)||windowLimit<1||windowLimit>500)throw new Error('REPLAY_WINDOW_INVALID');
+ const [{data:snapshots,error:snapshotError},{data:workItems,error:workError},{data:outcomes,error:outcomeError}]=await Promise.all([
+  supabase.from('business_state_snapshots').select('id,observed_at,source_version,evidence,quality_score').eq('company_id',companyId).order('observed_at',{ascending:false}).range(0,windowLimit-1),
+  supabase.from('decision_work_items').select('id,status,title,description,evidence_refs,expected_impact,actual_impact,created_at,updated_at').eq('company_id',companyId).order('created_at',{ascending:false}).range(0,windowLimit-1),
+  supabase.from('recommendation_outcomes').select('id,observed_at,status,expected_impact,actual_impact,outcome_quality,evidence,created_at').eq('company_id',companyId).order('observed_at',{ascending:false}).range(0,windowLimit-1)
+ ]);
+ if(snapshotError)throw snapshotError;if(workError)throw workError;if(outcomeError)throw outcomeError;
+ const events:BusinessReplayEvent[]=[
+  ...(snapshots??[]).map(row=>({kind:'SNAPSHOT' as const,id:String(row.id),occurredAt:String(row.observed_at),status:null,title:'لقطة حالة تجارية محفوظة',detail:row.source_version?('source_version: '+String(row.source_version)):null,evidencePresent:Boolean(row.evidence&&typeof row.evidence==='object'&&Object.keys(row.evidence).length),expectedImpact:null,actualImpact:null,qualityScore:row.quality_score==null?null:Number(row.quality_score)})),
+  ...(workItems??[]).map(row=>({kind:'WORK' as const,id:String(row.id),occurredAt:String(row.updated_at??row.created_at),status:row.status?String(row.status):null,title:String(row.title),detail:row.description?String(row.description):null,evidencePresent:Array.isArray(row.evidence_refs)&&row.evidence_refs.length>0,expectedImpact:row.expected_impact==null?null:Number(row.expected_impact),actualImpact:row.actual_impact==null?null:Number(row.actual_impact),qualityScore:null})),
+  ...(outcomes??[]).map(row=>({kind:'OUTCOME' as const,id:String(row.id),occurredAt:String(row.observed_at),status:row.status?String(row.status):null,title:'نتيجة توصية محفوظة',detail:row.evidence&&typeof row.evidence==='object'&&!Array.isArray(row.evidence)?((row.evidence as Record<string,unknown>).notes as string|null)??null:null,evidencePresent:Boolean(row.evidence&&typeof row.evidence==='object'),expectedImpact:row.expected_impact==null?null:Number(row.expected_impact),actualImpact:row.actual_impact==null?null:Number(row.actual_impact),qualityScore:row.outcome_quality==null?null:Number(row.outcome_quality)}))
+ ].sort((a,b)=>new Date(b.occurredAt).getTime()-new Date(a.occurredAt).getTime()).slice(0,windowLimit);
+ return {snapshotCount:snapshots?.length??0,outcomeCount:outcomes?.length??0,workItemCount:workItems?.length??0,latestSnapshotAt:snapshots?.[0]?.observed_at?String(snapshots[0].observed_at):null,latestOutcomeAt:outcomes?.[0]?.observed_at?String(outcomes[0].observed_at):null,windowLimit,hasMoreHistory:(snapshots?.length??0)>=windowLimit||(workItems?.length??0)>=windowLimit||(outcomes?.length??0)>=windowLimit,events};
 }
