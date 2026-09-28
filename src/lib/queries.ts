@@ -1,7 +1,7 @@
 import { supabase, resolveCurrentCompanyId } from './supabase';
 import { fetchDashboardSnapshot, fetchDashboardIntelligence, type DashboardKPIs, type MonthlyTrend, type TopEntity, type AgingBucket, type CategoryBreakdown } from './dashboard-canonical';
 import type { Recommendation, Alert, SalesInvoice, PurchaseInvoice, ImportRecord, Customer, Forecast, Product } from './types';
-import { createRuntimeDecision as createCanonicalRuntimeDecision, linkRecommendationToDecision as linkCanonicalRecommendationToDecision, requestRuntimeApproval as requestCanonicalDecisionApproval, decideRuntimeApproval as decideCanonicalApproval, createRuntimeWorkItem as createCanonicalWorkItem, startRuntimeWorkItem as startCanonicalWorkItem } from './decision-automation/vertical-slice-runtime';
+import { createRuntimeDecision as createCanonicalRuntimeDecision, linkRecommendationToDecision as linkCanonicalRecommendationToDecision, requestRuntimeApproval as requestCanonicalDecisionApproval, decideRuntimeApproval as decideCanonicalApproval, createRuntimeWorkItem as createCanonicalWorkItem, startRuntimeWorkItem as startCanonicalWorkItem, completeRuntimeWorkItem as completeCanonicalWorkItem } from './decision-automation/vertical-slice-runtime';
 export type { DashboardKPIs, MonthlyTrend, TopEntity, AgingBucket, CategoryBreakdown };
 export type { ImportRecord } from './types';
 export async function fetchDashboardKPIs(): Promise<DashboardKPIs> { return (await fetchDashboardSnapshot(6)).kpis; }
@@ -392,6 +392,9 @@ export async function createDecisionWorkItem(input:{decisionId:string;recommenda
   return createCanonicalWorkItem(input.decisionId,input.recommendationId,{department:input.department,assigneeId:input.assigneeId,assigneeLabel:input.assigneeLabel,title:input.title,description:input.description??undefined,priority:input.priority,dueAt:input.dueAt??undefined,expectedImpact:input.expectedImpact,evidenceRefs:input.evidenceRefs});
 }
 export const startDecisionWorkItem = startCanonicalWorkItem;
+export async function completeDecisionWorkItem(workItemId: string, actualImpact: number | null, evidence: Record<string, unknown>): Promise<void> {
+  await completeCanonicalWorkItem(workItemId, actualImpact as number, evidence);
+}
 export async function fetchRuntimeDecisionForRecommendation(recommendationId:string):Promise<RuntimeDecisionRecord|null>{
   if(!recommendationId.trim())throw new Error('RECOMMENDATION_ID_REQUIRED'); const companyId=await resolveCurrentCompanyId(); if(!companyId)throw new Error('TENANT_REQUIRED');
   const {data,error}=await supabase.from('business_intelligence_decisions').select('id,decision_key,decision_type,status,confidence,expected_impact,evidence,created_at,executed_at,recommendation_id,approved_by,approved_at,rejection_reason').eq('company_id',companyId).eq('recommendation_id',recommendationId).order('created_at',{ascending:false}).limit(1).maybeSingle();
