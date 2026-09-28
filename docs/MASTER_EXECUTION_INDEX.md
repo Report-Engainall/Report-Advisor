@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / BATCH PROVEN / PHASE-F EXTERNAL
+
+- CURRENT CODE/TEST CANDIDATE → `b5b5ac2d56477aa3da9029fd709ae895a649199e`
+- ACTIVE FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- CLOSED → governance push coverage, `public.profiles` restore parity, Unified Import accessibility, Final Certification, Quality, Full Product Browser E2E, Device-Independent Browser E2E and all completed exact-head security/truth/import/data contracts.
+- FRESH EVIDENCE → Final Certification `36451230363`, Quality `36451230469`, Full Browser `36451230478`, Device-Independent Browser `36451230142` all SUCCESS on candidate `b5b5ac2d56477aa3da9029fd709ae895a649199e`.
+- PHASE-F → live canary PASS, but hosted deployment proof is blocked because production SHA `22a5d3123fb576603de363c4c81fd830dfd53547` differs from candidate; backup verification `404`, rollback drill `503`. Do not downgrade this to a code failure or fake PASS.
+- EXTERNAL → Vercel free-plan build-rate limit; Supabase Auth leaked-password protection; device-dependent PC01 path.
+- NEXT → consume fresh exact-head governance CI after this docs checkpoint; continue only executable non-device fronts.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / CERTIFICATION CANDIDATE FIELD REPAIRED
 
 - CURRENT CODE/TEST CANDIDATE → `8fc8b09b55794b575b25704b6107800bb33e34a6`

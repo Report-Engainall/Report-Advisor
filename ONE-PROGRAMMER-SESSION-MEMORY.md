@@ -1,3 +1,37 @@
+# RESUME TOKEN — 2026-09-28 / BATCH PROVEN / PHASE-F EXTERNAL BLOCKER
+
+- CURRENT CODE/TEST CANDIDATE → `b5b5ac2d56477aa3da9029fd709ae895a649199e`
+- GOVERNANCE HEAD → pending this docs-only checkpoint
+- ACTIVE EXECUTION FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- CLOSED IN THIS BATCH →
+  - restored broad push coverage for Execution Enforcement + Final Certification governance;
+  - restored repository schema parity for `public.profiles` before `current_customer_company_id()`;
+  - improved Unified Import accessibility semantics on the canonical lifecycle/result surface;
+  - Final Certification Gate PASS on exact governance head `b5b5ac2d56477aa3da9029fd709ae895a649199e`;
+  - Quality PASS on `b5b5ac2d56477aa3da9029fd709ae895a649199e`;
+  - Full Product Browser E2E PASS on `b5b5ac2d56477aa3da9029fd709ae895a649199e`;
+  - Device-Independent Browser E2E PASS on `b5b5ac2d56477aa3da9029fd709ae895a649199e`;
+  - Execution Enforcement, Security, Truth, Import, Data Quality, Storage Tenant, Production Chain and related contracts all PASS on `b5b5ac2d56477aa3da9029fd709ae895a649199e`.
+- EXACT PROOF →
+  - Final Certification Gate run `36451230363` SUCCESS;
+  - Quality run `36451230469` SUCCESS;
+  - Full Product Browser E2E run `36451230478` SUCCESS;
+  - Device-Independent Browser E2E run `36451230142` SUCCESS;
+  - Execution Enforcement Contract run `36451229965` SUCCESS.
+- PHASE-F EXTERNAL BLOCKER →
+  - live tenant-canary PASS;
+  - operational-health returned HTTP 200 but deployment SHA `22a5d3123fb576603de363c4c81fd830dfd53547`, not candidate `b5b5ac2d56477aa3da9029fd709ae895a649199e`;
+  - logical backup-restore failed with `deployment_lookup_failed:404`;
+  - rollback-forward-fix drill returned HTTP 503;
+  - Phase-F result `NOT READY`, `1/4` probes passed.
+  - Root is hosted-production drift/build availability, not repository/runtime/test failure. Vercel status is `build-rate-limit` on the free plan.
+- OTHER EXTERNAL BLOCKERS → Supabase Auth leaked-password protection is external; PC01/browser device path remains device-dependent.
+- DO NOT REPEAT → stale PASS across SHAs, candidate field mismatch, duplicate import/evidence paths, blanket SECURITY DEFINER revokes, treating Vercel stale deployment as code PASS.
+- NEXT EXACT ACTION → after this governance checkpoint, consume fresh exact-head CI; keep Phase-F isolated as hosted/external until the deployed SHA is current.
+- RESUME POINT → do not reopen closed UI/import/certification roots; attack only fresh terminal failures or independent safe fronts.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / CERTIFICATION CANDIDATE FIELD REPAIRED
 
 - CURRENT CODE/TEST CANDIDATE → `8fc8b09b55794b575b25704b6107800bb33e34a6`
