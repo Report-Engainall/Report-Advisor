@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { validateExecutionEnforcementProtocol, validateCurrentHeadIndex } from './check-execution-enforcement-protocol.mjs';
+import { validateExecutionEnforcementProtocol, validateCurrentHeadIndex, validateResumeToken } from './check-execution-enforcement-protocol.mjs';
 
 const protocol = fs.readFileSync('docs/EXECUTION_ENFORCEMENT_PROTOCOL.md', 'utf8');
 assert.equal(validateExecutionEnforcementProtocol(protocol), true);
@@ -22,6 +22,21 @@ const mustReject = [
 for (const [name, candidate] of mustReject) assert.throws(() => validateExecutionEnforcementProtocol(candidate), undefined, name);
 
 const currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+
+const validResumeToken = `# RESUME TOKEN
+- CURRENT REPOSITORY HEAD → ` + currentHead + `
+- CURRENT CODE/TEST CANDIDATE → ` + currentHead + `
+- ACTIVE EXECUTION FRONTS → SURFACE | HEART | PROOF | GOVERNANCE
+- OPEN BLOCKERS → scoped only
+- LAST PROVEN → exact current evidence
+- LAST FAILED / FIRST FAILURE TO CONSUME → first reproducible failure
+- NEXT EXECUTABLE ACTION → execute now
+- NEXT INDEPENDENT ACTIONS → execute in parallel
+- DO NOT REPEAT → closed work only`;
+assert.equal(validateResumeToken(validResumeToken), true);
+assert.throws(() => validateResumeToken(validResumeToken.replace('NEXT EXECUTABLE ACTION','NEXT ACTION')), /missing anchors/);
+assert.throws(() => validateResumeToken(validResumeToken.replace(currentHead,'abc')), /40-char SHA/);
+
 const parentHead = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim();
 const governanceOnlyFiles = [
   'docs/MASTER_EXECUTION_INDEX.md',
@@ -40,6 +55,8 @@ assert.equal(validateCurrentHeadIndex(underscoreCandidateIndex, currentHead), tr
 
 const boldCandidateIndex = `## CURRENT EXECUTION BOUNDARY\n- **CURRENT CODE/TEST CANDIDATE:** \`${currentHead}\`.`;
 assert.equal(validateCurrentHeadIndex(boldCandidateIndex, currentHead), true);
+const arrowCandidateIndex = `## CURRENT EXECUTION BOUNDARY\n- CURRENT CODE/TEST CANDIDATE → \`${currentHead}\`.`;
+assert.equal(validateCurrentHeadIndex(arrowCandidateIndex, currentHead), true);
 
 const indexOnlyBoundary = `## CURRENT PROJECT STATE\n- Current repository index boundary head: \`${parentHead}\`.\n- Current code/test candidate: \`${parentHead}\`.`;
 assert.equal(validateCurrentHeadIndex(indexOnlyBoundary, currentHead, parentHead, governanceOnlyFiles), true);

@@ -25,7 +25,7 @@ assert.match(adapter, /p_lease_token: job\.leaseToken/);
 assert.match(runner, /const tenantId = input\.request\.tenantId/);
 assert.match(runner, /store\.claim\(input\.jobId, input\.workerId, leaseSeconds, tenantId\)/);
 assert.match(runner, /store\.heartbeat\(input\.jobId, input\.workerId, leaseSeconds, tenantId\)/);
-assert.match(runner, /store\.saveCheckpoint\(input\.jobId, checkpoint\(following\), input\.workerId, tenantId\)/);
+assert.match(runner, /const checkpoint = buildCheckpoint\(following\);\s+await store\.saveCheckpoint\(input\.jobId, checkpoint, input\.workerId, tenantId\)/);
 assert.match(runner, /store\.retry\(input\.jobId, tenantId\)/);
 
 for (const fn of ['enqueue_report_execution_job','claim_report_execution_job','heartbeat_report_execution_job','advance_report_execution_checkpoint','complete_report_execution_job','fail_report_execution_job','recover_expired_report_execution_jobs','retry_report_execution_job']) {

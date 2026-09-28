@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   AlertTriangle, ArrowLeft, ArrowUpLeft, Brain, CheckCircle2, CircleAlert, Lightbulb,
-  RefreshCw, Sparkles, Target, TrendingUp, WalletCards, XCircle, Zap
+  History, RefreshCw, Sparkles, Target, TrendingUp, WalletCards, XCircle, Zap
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DeterministicIntelligenceAssistant } from '@/components/DeterministicIntelligenceAssistant';
@@ -17,6 +17,8 @@ import {
 } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Recommendation, Alert, Forecast } from '@/lib/types';
+import { isActionableRecommendationStatus } from '@/lib/decision-status';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 
 function MetricStrip({
   label,
@@ -73,8 +75,8 @@ export function IntelligenceCenterPage() {
 
   useEffect(() => { void load(); }, [load]);
 
-  const newRecommendations = useMemo(
-    () => recommendations.filter((item) => item.status === 'new'),
+  const actionableRecommendations = useMemo(
+    () => recommendations.filter((item) => isActionableRecommendationStatus(item.status)),
     [recommendations],
   );
   const activeAlerts = useMemo(
@@ -86,12 +88,21 @@ export function IntelligenceCenterPage() {
     [forecasts],
   );
 
-  const decideRecommendation = useCallback(async (recommendationId: string, status: 'accepted' | 'rejected') => {
+  const intelligenceAsOf = useMemo(() => {
+    const dates = [
+      ...alerts.map((item) => item.created_at),
+      ...recommendations.map((item) => item.created_at),
+      ...forecasts.map((item) => item.period),
+    ].filter(Boolean).map(value => new Date(value).getTime()).filter(Number.isFinite);
+    return dates.length ? new Date(Math.max(...dates)).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
+  }, [alerts, recommendations, forecasts]);
+
+  const rejectRecommendation = useCallback(async (recommendationId: string) => {
     if (decisionId) return;
     try {
       setDecisionId(recommendationId);
       setError(null);
-      await updateRecommendationStatus(recommendationId, status);
+      await updateRecommendationStatus(recommendationId, 'rejected');
       await load(true);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحديث حالة التوصية.');
@@ -146,14 +157,21 @@ export function IntelligenceCenterPage() {
         </div>
       </section>
 
+      <ReportSurfaceContext
+        period="الحالة الحالية"
+        asOf={intelligenceAsOf}
+        status="CALCULATED"
+        sourceLabel="مركز الذكاء يقرأ الإشارات والتوصيات والتنبؤات من السجلات الكانونية؛ التنبؤ يبقى موسومًا كتنبؤ ولا يتحول إلى حقيقة تنفيذية."
+      />
+
       <section className="grid gap-3 md:grid-cols-3">
         <MetricStrip label="إشارات نشطة" value={activeAlerts.length} note="تحتاج انتباهًا غير مقروء" icon={<AlertTriangle size={15} />} />
-        <MetricStrip label="قرارات مقترحة" value={newRecommendations.length} note="بانتظار المراجعة" icon={<Lightbulb size={15} />} />
+        <MetricStrip label="قرارات مقترحة" value={actionableRecommendations.length} note="بانتظار المراجعة" icon={<Lightbulb size={15} />} />
         <MetricStrip label="تنبؤات مصدرية" value={forecasts.length} note="المتاح من المصدر الحالي" icon={<TrendingUp size={15} />} />
       </section>
 
       <DeterministicIntelligenceAssistant
-        recommendationsCount={recommendations.length}
+        recommendationsCount={actionableRecommendations.length}
         activeAlertsCount={activeAlerts.length}
         forecastsCount={forecasts.length}
       />
@@ -224,7 +242,7 @@ export function IntelligenceCenterPage() {
           />
           <CardBody>
             <div className="space-y-3">
-              {newRecommendations.slice(0, 5).map((recommendation) => (
+              {actionableRecommendations.slice(0, 5).map((recommendation) => (
                 <article key={recommendation.id} className="rounded-[14px] border border-primary-100 bg-primary-50/25 p-4">
                   <div className="flex items-start gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-100 text-primary-700">
@@ -241,29 +259,28 @@ export function IntelligenceCenterPage() {
                         <div className="mt-2 text-[10px] font-bold text-success-700">الأثر المتوقع: {formatCurrency(recommendation.expected_impact)}</div>
                       )}
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => void decideRecommendation(recommendation.id, 'accepted')}
-                          disabled={decisionId !== null}
-                          className="btn-primary text-[11px] disabled:cursor-wait disabled:opacity-60"
+                        <Link
+                          to={"/decision-experience?stage=decision&recommendationId=" + encodeURIComponent(recommendation.id)}
+                          className="btn-primary text-[11px]"
                         >
-                          <CheckCircle2 size={13} /> {decisionId === recommendation.id ? 'جارٍ الحفظ…' : 'قبول'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => void decideRecommendation(recommendation.id, 'rejected')}
-                          disabled={decisionId !== null}
-                          className="btn-secondary text-[11px] disabled:cursor-wait disabled:opacity-60"
-                        >
-                          <XCircle size={13} /> {decisionId === recommendation.id ? 'جارٍ الحفظ…' : 'رفض'}
-                        </button>
-                        <Link to="/decision-experience?stage=decision" className="btn-ghost text-[11px]">فتح القرار</Link>
+                          <CheckCircle2 size={13} /> فتح مسار القرار
+                        </Link>
+                        {(recommendation.status === 'OPEN' || recommendation.status === 'new') && (
+                          <button
+                            type="button"
+                            onClick={() => void rejectRecommendation(recommendation.id)}
+                            disabled={decisionId !== null}
+                            className="btn-secondary text-[11px] disabled:cursor-wait disabled:opacity-60"
+                          >
+                            <XCircle size={13} /> {decisionId === recommendation.id ? 'جارٍ الرفض…' : 'رفض'}
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
                 </article>
               ))}
-              {newRecommendations.length === 0 && <EmptyState title="لا توجد توصيات جديدة" message="لن يتم تصنيع توصية بديلة عند غياب إشارة مصدرية." />}
+              {actionableRecommendations.length === 0 && <EmptyState title="لا توجد توصيات جديدة" message="لن يتم تصنيع توصية بديلة عند غياب إشارة مصدرية." />}
             </div>
           </CardBody>
         </Card>
@@ -331,8 +348,13 @@ function MarginIcon() {
 
 function recommendationStatusLabel(status: string): string {
   if (status === 'new') return 'جديدة';
+  if (status === 'OPEN') return 'جاهزة للقرار';
   if (status === 'accepted') return 'مقبولة';
+  if (status === 'approved') return 'معتمدة';
+  if (status === 'in_progress') return 'قيد التنفيذ';
+  if (status === 'completed') return 'مكتملة';
   if (status === 'rejected') return 'مرفوضة';
+  if (status === 'dismissed') return 'مستبعدة';
   return status;
 }
 
@@ -343,6 +365,16 @@ function priorityLabel(priority: string): string {
   if (normalized === 'medium') return 'متوسطة';
   if (normalized === 'low') return 'منخفضة';
   return priority;
+}
+
+function latestIsoDate(values: Array<string | null | undefined>): string {
+  const timestamps = values
+    .filter((value): value is string => Boolean(value))
+    .map(value => new Date(value).getTime())
+    .filter(Number.isFinite);
+  return timestamps.length
+    ? new Date(Math.max(...timestamps)).toISOString().slice(0, 10)
+    : new Date().toISOString().slice(0, 10);
 }
 
 function SummaryStrip({ cells }: { cells: Array<{ label: string; value: string | number; note: string }> }) {
@@ -361,7 +393,7 @@ function SummaryStrip({ cells }: { cells: Array<{ label: string; value: string |
 
 export function RecommendationsPage() {
   const [items, setItems] = useState<Recommendation[]>([]);
-  const [filter, setFilter] = useState<'all' | 'new' | 'accepted' | 'rejected'>('all');
+  const [filter, setFilter] = useState<'all' | 'actionable' | 'approved' | 'in_progress' | 'rejected'>('all');
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -382,20 +414,26 @@ export function RecommendationsPage() {
 
   const counts = useMemo(() => ({
     all: items.length,
-    new: items.filter((item) => item.status === 'new').length,
-    accepted: items.filter((item) => item.status === 'accepted').length,
+    actionable: items.filter((item) => isActionableRecommendationStatus(item.status)).length,
+    open: items.filter((item) => item.status === 'OPEN').length,
+    approved: items.filter((item) => item.status === 'approved' || item.status === 'accepted').length,
+    in_progress: items.filter((item) => item.status === 'in_progress').length,
     rejected: items.filter((item) => item.status === 'rejected').length,
     withImpact: items.filter((item) => item.expected_impact !== null || item.impact_result !== null).length,
   }), [items]);
 
-  const visibleItems = filter === 'all' ? items : items.filter((item) => item.status === filter);
+  const visibleItems = filter === 'all'
+    ? items
+    : filter === 'actionable'
+      ? items.filter((item) => isActionableRecommendationStatus(item.status))
+      : items.filter((item) => item.status === filter);
 
-  const handleStatus = async (id: string, status: 'accepted' | 'rejected') => {
+  const handleReject = async (id: string) => {
     try {
       setPendingId(id);
       setError(null);
-      await updateRecommendationStatus(id, status);
-      setItems((current) => current.map((item) => item.id === id ? { ...item, status } : item));
+      await updateRecommendationStatus(id, 'rejected');
+      setItems((current) => current.map((item) => item.id === id ? { ...item, status: 'rejected' } : item));
     } catch (cause: unknown) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحديث حالة التوصية');
     } finally {
@@ -422,10 +460,18 @@ export function RecommendationsPage() {
         </div>
       </section>
 
+      <ReportSurfaceContext
+        period="سجل التوصيات الحالي"
+        asOf={latestIsoDate(items.map(item => item.created_at))}
+        status="CALCULATED"
+        sourceLabel="التوصيات المعروضة هي سجلات مصدرية قابلة للمراجعة؛ لا يتم اعتبارها نتائج تنفيذية قبل مسار القرار والاعتماد."
+      />
+
       <SummaryStrip cells={[
         { label: 'إجمالي التوصيات', value: counts.all, note: 'السجل المتاح حاليًا' },
-        { label: 'بانتظار المراجعة', value: counts.new, note: 'حالة جديدة' },
-        { label: 'مقبولة', value: counts.accepted, note: 'قرار مراجعة مسجل' },
+        { label: 'جاهزة للقرار', value: counts.open, note: 'OPEN من المصدر الكانوني' },
+        { label: 'معتمدة', value: counts.approved, note: 'بعد مسار القرار' },
+        { label: 'قيد التنفيذ', value: counts.in_progress, note: 'بعد اعتماد القرار' },
         { label: 'مرتبطة بأثر', value: counts.withImpact, note: 'أثر متوقع أو نتيجة مسجلة' },
       ]}/>
 
@@ -435,7 +481,7 @@ export function RecommendationsPage() {
           subtitle={visibleItems.length + ' من ' + items.length + ' توصية'}
           action={
             <div className="flex flex-wrap gap-1.5">
-              {([['all','الكل'],['new','الجديدة'],['accepted','المقبولة'],['rejected','المرفوضة']] as const).map(([key, label]) => (
+              {([['all','الكل'],['actionable','قابلة للقرار'],['approved','معتمدة'],['in_progress','قيد التنفيذ'],['rejected','المرفوضة']] as const).map(([key, label]) => (
                 <button key={key} type="button" onClick={() => setFilter(key)} className={filter === key ? 'rounded-full bg-ink-950 px-3 py-1.5 text-[10px] font-bold text-white' : 'rounded-full bg-ink-50 px-3 py-1.5 text-[10px] font-bold text-ink-600 hover:bg-ink-100'}>
                   {label} ({counts[key]})
                 </button>
@@ -450,14 +496,14 @@ export function RecommendationsPage() {
                 <article key={item.id} className="rounded-[15px] border border-ink-200 bg-white p-4 transition hover:border-primary-200 hover:shadow-card">
                   <div className="flex flex-col gap-4 xl:flex-row xl:items-start">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
-                      {item.status === 'new' ? <Lightbulb size={18}/> : item.status === 'accepted' ? <CheckCircle2 size={18}/> : <CircleAlert size={18}/>}
+                      {item.status === 'OPEN' || item.status === 'new' ? <Lightbulb size={18}/> : item.status === 'approved' || item.status === 'accepted' ? <CheckCircle2 size={18}/> : item.status === 'in_progress' ? <Zap size={18}/> : <CircleAlert size={18}/>} 
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <h2 className="text-[14px] font-black text-ink-900">{item.title}</h2>
                         <ConfidenceBadge confidence={item.confidence}/>
                         <span className="rounded-full bg-ink-50 px-2.5 py-1 text-[10px] font-bold text-ink-600">{priorityLabel(item.priority)}</span>
-                        <span className={item.status === 'new' ? 'rounded-full bg-warning-50 px-2.5 py-1 text-[10px] font-bold text-warning-800' : item.status === 'accepted' ? 'rounded-full bg-success-50 px-2.5 py-1 text-[10px] font-bold text-success-700' : 'rounded-full bg-ink-50 px-2.5 py-1 text-[10px] font-bold text-ink-500'}>
+                        <span className={item.status === 'OPEN' || item.status === 'new' ? 'rounded-full bg-warning-50 px-2.5 py-1 text-[10px] font-bold text-warning-800' : item.status === 'approved' || item.status === 'accepted' ? 'rounded-full bg-success-50 px-2.5 py-1 text-[10px] font-bold text-success-700' : item.status === 'in_progress' ? 'rounded-full bg-primary-50 px-2.5 py-1 text-[10px] font-bold text-primary-700' : 'rounded-full bg-ink-50 px-2.5 py-1 text-[10px] font-bold text-ink-500'}>
                           {recommendationStatusLabel(item.status)}
                         </span>
                       </div>
@@ -469,9 +515,9 @@ export function RecommendationsPage() {
                       </div>
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center gap-2">
-                      {item.status === 'new' && <>
-                        <button type="button" disabled={pendingId === item.id} onClick={() => void handleStatus(item.id, 'accepted')} className="btn-primary text-xs"><CheckCircle2 size={14}/>قبول</button>
-                        <button type="button" disabled={pendingId === item.id} onClick={() => void handleStatus(item.id, 'rejected')} className="btn-secondary text-xs"><XCircle size={14}/>رفض</button>
+                      {(item.status === 'OPEN' || item.status === 'new') && <>
+                        <Link to={'/decision-experience?stage=decision&recommendationId=' + encodeURIComponent(item.id)} className="btn-primary text-xs"><CheckCircle2 size={14}/>فتح مسار القرار</Link>
+                        <button type="button" disabled={pendingId === item.id} onClick={() => void handleReject(item.id)} className="btn-secondary text-xs"><XCircle size={14}/>رفض</button>
                       </>}
                       <Link to={'/decision-experience?stage=evidence&recommendationId=' + encodeURIComponent(item.id)} className="inline-flex items-center gap-1.5 rounded-xl border border-ink-200 px-3 py-2 text-xs font-semibold text-ink-700 hover:bg-ink-50">مساحة الدليل <ArrowLeft size={14}/></Link>
                     </div>
@@ -515,10 +561,13 @@ export function ForecastsPage() {
       return { label: labels[date.getMonth()] || item.period, forecast_value: item.forecast_value, upper_bound: item.upper_bound, lower_bound: item.lower_bound };
     });
   }, [company]);
-  const latestPeriod = useMemo(
-    () => items.length ? [...items].sort((a, b) => new Date(b.period).getTime() - new Date(a.period).getTime())[0]?.period || 'غير متاح' : 'غير متاح',
-    [items],
-  );
+  const latestPeriod = useMemo(() => {
+    const validPeriods = items
+      .map(item => item.period)
+      .filter(period => Number.isFinite(new Date(period).getTime()))
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+    return validPeriods[0] ?? 'غير متاح';
+  }, [items]);
   const qualityBounded = useMemo(() => items.filter((item) => item.quality_score !== null).length, [items]);
 
   if (loading) return <LoadingState message="جارٍ تجميع التنبؤات المصدرية..." />;
@@ -537,12 +586,33 @@ export function ForecastsPage() {
         </div>
       </section>
 
+      <ReportSurfaceContext
+        period={latestPeriod === 'غير متاح' ? 'غير متاح' : 'أحدث فترة تنبؤية'}
+        asOf={latestIsoDate(items.map(item => item.period))}
+        status={items.length ? 'CALCULATED' : 'INSUFFICIENT DATA'}
+        sourceLabel="التنبؤات تُقرأ من السجل المصدرّي وتظل موسومة FORECAST؛ غياب الاختبار الرجعي لا يُستبدل بنسبة دقة مصطنعة."
+      />
+
       <SummaryStrip cells={[
         {label:'إجمالي التنبؤات',value:items.length,note:'سجلات تقديرية متاحة'},
         {label:'على مستوى الشركة',value:company.length,note:'السلسلة المعروضة'},
         {label:'مع درجة جودة',value:qualityBounded,note:'حالة جودة مصدرية مسجلة'},
         {label:'آخر فترة',value:latestPeriod,note:'أحدث فترة في السجل'},
       ]}/>
+
+      <section aria-label="بوابة الاختبار الرجعي" className="rounded-[16px] border border-ink-200 bg-white p-4 shadow-card">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-50 text-warning-700"><History size={17}/></div>
+            <div>
+              <div className="text-[9px] font-black tracking-[.12em] text-warning-700">BACKTEST GATE</div>
+              <h2 className="mt-1 text-sm font-black text-ink-950">الاختبار الرجعي غير متاح حاليًا</h2>
+              <p className="mt-1 max-w-3xl text-[10px] leading-5 text-ink-500">لا توجد سلسلة تنبؤ تاريخية مرتبطة بنتائج فعلية محفوظة تسمح بقياس دقة التنبؤ دون تخمين. لذلك تبقى الحالة مغلقة بدل عرض نسبة دقة مصطنعة.</p>
+            </div>
+          </div>
+          <Link to="/replay" className="btn-secondary text-[11px]"><History size={13}/> مراجعة النتائج المحفوظة</Link>
+        </div>
+      </section>
 
       <section className="rounded-[16px] border border-warning-200 bg-warning-50/70 p-4">
         <div className="flex items-start gap-3">

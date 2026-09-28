@@ -23,5 +23,7 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
           echo "EXACT_HEAD=$(git rev-parse HEAD)"
+      - name: SECURITY DEFINER parser regression
+        run: node scripts/check-security-definer-exposure-contract.test.mjs
       - name: SECURITY DEFINER exposure contract
         run: node scripts/check-security-definer-exposure-contract.mjs

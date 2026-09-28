@@ -18,3 +18,26 @@ assert.match(
 );
 
 console.log('Company default context contract: PASS');
+
+const customerResolverMigration = fs.readFileSync(
+  'supabase/migrations/20260925170000_reconcile_current_customer_company_id.sql',
+  'utf8',
+);
+
+assert.match(
+  customerResolverMigration,
+  /create\s+or\s+replace\s+function\s+public\.current_customer_company_id\s*\([\s\S]*?from\s+public\.profiles\s+p[\s\S]*?where\s+p\.id\s*=\s*auth\.uid\(\)/i,
+  'customer tenant resolver must remain bound to the authenticated customer profile organization_id',
+);
+assert.doesNotMatch(
+  customerResolverMigration,
+  /select\s+public\.current_company_id\s*\(\s*\)/i,
+  'customer tenant resolver must not collapse into the staff/company tenant resolver',
+);
+assert.match(
+  customerResolverMigration,
+  /grant\s+execute\s+on\s+function\s+public\.current_customer_company_id\s*\([^)]*\)\s+to\s+authenticated\s*,?\s*service_role/i,
+  'customer tenant resolver execute grants must remain explicit',
+);
+
+console.log('Customer tenant resolver parity contract: PASS');

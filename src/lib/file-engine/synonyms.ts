@@ -1,5 +1,5 @@
-import { normalizeColumnName } from './normalizer';
-import type { SynonymEntry } from './types';
+import { normalizeColumnName } from './normalizer.ts';
+import type { SynonymEntry } from './types.ts';
 
 let synonymCache: Map<string, { canonical: string; confidence: number }> | null = null;
 
@@ -12,6 +12,7 @@ const BUILTIN_SYNONYMS: Array<[string, string, number]> = [
   ['min stock', 'min_stock', 98], ['minimum stock', 'min_stock', 96], ['min_stock', 'min_stock', 98], ['reorder point', 'reorder_point', 98], ['reorder_point', 'reorder_point', 98], ['is active', 'is_active', 98], ['is_active', 'is_active', 98], ['active', 'is_active', 92], ['نشط', 'is_active', 98],
   ['customer number', 'code', 98], ['customer code', 'code', 98], ['code', 'code', 98], ['رقم العميل', 'code', 98], ['كود العميل', 'code', 98], ['customer id', 'customer_id', 96], ['customer name', 'customer_name', 98], ['اسم العميل', 'customer_name', 98], ['phone', 'phone', 96], ['mobile', 'phone', 96], ['هاتف', 'phone', 96], ['جوال', 'phone', 96],
   ['email', 'email', 96], ['البريد الإلكتروني', 'email', 98], ['segment', 'segment', 98], ['customer segment', 'segment', 98], ['شريحة العميل', 'segment', 98], ['credit limit', 'credit_limit', 98], ['credit_limit', 'credit_limit', 98], ['حد ائتماني', 'credit_limit', 98], ['payment terms days', 'payment_terms_days', 98], ['payment_terms_days', 'payment_terms_days', 98], ['payment terms', 'payment_terms_days', 90], ['أيام شروط الدفع', 'payment_terms_days', 98],
+  ['رقم الفاتورة', 'invoice_number', 98], ['تاريخ الفاتورة', 'invoice_date', 98], ['نوع الفاتورة', 'invoice_type', 94], ['العملة', 'currency', 96], ['مبلغ الفاتورة', 'invoice_amount', 94], ['الخصم', 'discount', 94], ['الأعباء', 'charges', 90], ['اﻷعباء', 'charges', 90], ['الضريبة', 'tax_amount', 98], ['اجمالي الفاتورة', 'total', 98], ['مبلغ الصافي بالمحلي', 'net_local_amount', 92],
   ['date', 'date', 94], ['التاريخ', 'date', 96], ['invoice number', 'invoice_number', 98], ['invoice_number', 'invoice_number', 98], ['invoice date', 'invoice_date', 98], ['invoice_date', 'invoice_date', 98], ['subtotal', 'subtotal', 98], ['tax amount', 'tax_amount', 98], ['tax_amount', 'tax_amount', 98], ['paid amount', 'paid_amount', 98], ['paid_amount', 'paid_amount', 98], ['total', 'total', 94], ['الإجمالي', 'total', 96],
 ];
 

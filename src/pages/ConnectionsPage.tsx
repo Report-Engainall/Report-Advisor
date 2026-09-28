@@ -44,8 +44,8 @@ export function ConnectionsPage() {
             <h1 className="mt-4 text-3xl font-black tracking-tight lg:text-4xl">{title}</h1>
             <p className="mt-4 max-w-3xl text-sm leading-8 text-slate-300 lg:text-base">{subtitle}</p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/import" className="btn-primary inline-flex items-center gap-2">{ar ? 'ابدأ ببياناتك الآن' : 'Start with your data'} {ar ? <ArrowLeft size={16}/> : <ArrowRight size={16}/>}</Link>
-              <Link to="/trust" className="btn-secondary border-white/10 bg-white/5 text-white hover:bg-white/10">{ar ? 'راجع حدود الثقة والدليل' : 'Review trust boundaries'}</Link>
+              <Link to="/import" className="btn-primary min-h-11 inline-flex items-center gap-2">{ar ? 'ابدأ ببياناتك الآن' : 'Start with your data'} {ar ? <ArrowLeft size={16}/> : <ArrowRight size={16}/>}</Link>
+              <Link to="/trust" className="btn-secondary min-h-11 border-white/10 bg-white/5 text-white hover:bg-white/10">{ar ? 'راجع حدود الثقة والدليل' : 'Review trust boundaries'}</Link>
             </div>
           </div>
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
@@ -74,8 +74,8 @@ export function ConnectionsPage() {
               <p className="mt-2 min-h-16 text-sm leading-7 text-ink-500">{ar ? description.ar : description.en}</p>
               <div className="mt-5 flex items-center justify-between gap-3 border-t border-ink-100 pt-4">
                 <div className="flex items-center gap-2 text-[11px] font-semibold text-ink-400">{isAvailable ? <CheckCircle2 size={14} className="text-success-600"/> : isBounded ? <ShieldCheck size={14} className="text-warning-600"/> : <KeyRound size={14} className="text-ink-500"/>}{isAvailable ? (ar ? 'المسار مثبت داخل المنتج' : 'Path is proven in product') : isBounded ? (ar ? 'المسار موجود لكن حدوده التشغيلية معلنة' : 'Path exists with explicit runtime limits') : (ar ? 'لا نعد بالاتصال قبل إثباته' : 'No connection claim before runtime proof')}</div>
-                {isAvailable && <Link to="/import" className="text-xs font-black text-primary-700">{ar ? 'فتح المسار' : 'Open path'}</Link>}
-                {isBounded && <Link to={id === 'documents' ? '/import' : '/trust'} className="text-xs font-black text-warning-700">{id === 'documents' ? (ar ? 'ابدأ الاستيراد الموحد' : 'Start unified import') : (ar ? 'راجع الحدود' : 'Review limits')}</Link>}
+                {isAvailable && <Link to="/import" className="inline-flex min-h-11 items-center text-xs font-black text-primary-700">{ar ? 'فتح المسار' : 'Open path'}</Link>}
+                {isBounded && <Link to={id === 'documents' ? '/import' : '/trust'} className="inline-flex min-h-11 items-center text-xs font-black text-warning-700">{id === 'documents' ? (ar ? 'ابدأ الاستيراد الموحد' : 'Start unified import') : (ar ? 'راجع الحدود' : 'Review limits')}</Link>}
               </div>
             </article>
           );

@@ -4,6 +4,7 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/States';
 import { fetchProfitabilitySnapshot, type ProfitabilitySnapshot } from '@/lib/dashboard-canonical';
 import { formatCurrency, formatNumber } from '@/lib/format';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 
 function knownCount(a: number | null, b: number | null): string { if (a == null || b == null) return 'غير متاح'; return formatNumber(a + b); }
 
@@ -14,6 +15,7 @@ export function ProfitabilityReportCanonicalPage() {
   const calculated = snapshot.status === 'CALCULATED' && snapshot.revenue != null && snapshot.cost != null && snapshot.gross_profit != null;
   return <div dir="rtl" className="report-page space-y-5 animate-fade-in">
     <PageHeader title="تقرير الأرباح والربحية" subtitle="Financial Truth Contract: لا يتحول نقص الدليل المالي إلى صفر." actions={<button type="button" onClick={() => window.print()} className="btn-primary print-hide text-xs">طباعة التقرير</button>} />
+    <ReportSurfaceContext period="اللقطة المالية الحالية" asOf={snapshot.as_of} status={calculated ? 'VERIFIED' : 'REVIEW'} sourceLabel="الربحية تُعرض فقط عندما تتوافر الإيرادات والتكلفة والعملات المتسقة؛ أسباب النقص تبقى ظاهرة." />
     <section className="hero-surface p-4">
       <div className="flex flex-wrap items-center gap-3"><span className={`badge ${calculated ? 'badge-success' : 'badge-warning'}`}>{calculated ? 'محسوب من المصدر' : 'بيانات غير كافية'}</span><span className="text-[11px] font-semibold text-ink-500">العملة: {snapshot.currency || 'غير محددة'}</span><span className="text-[11px] font-semibold text-ink-500">حالة العملة: {snapshot.currency_status === 'CONSISTENT' ? 'متسقة' : 'غير كافية'}</span></div>
       <div className="report-meta mt-3"><span>حتى {snapshot.as_of}</span><span>الحسابات المالية من المسار المعتمد</span><span>الأصفار لا تُستخدم لتعويض الدليل المفقود</span></div>

@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/Badge';
 import { DataTable } from '@/components/ui/DataTable';
 import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/States';
 import { formatCurrency, formatDate, formatNumber } from '@/lib/format';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 import { fetchReceivablesReportPage, fetchReceivablesExportRows, type ReceivablesReportPage, type ReceivablesReportRow } from '@/lib/queries';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 
@@ -36,6 +37,7 @@ export function ReceivablesReportCanonicalPage() {
   };
   return <div dir="rtl" className="report-page space-y-5 animate-fade-in">
     <PageHeader title="تقرير الذمم والتحصيل" subtitle="الإجماليات والصفحات مشتقة من نفس الحقيقة المعتمدة على الخادم." actions={<div className="flex items-center gap-2"><button type="button" onClick={() => void load()} disabled={loading} className="btn-secondary inline-flex items-center gap-2 text-xs disabled:cursor-wait disabled:opacity-60" aria-label="تحديث تقرير الذمم">{loading ? 'جارٍ التحديث' : 'تحديث'}</button>{snapshot.status === 'CALCULATED' && <><button onClick={() => void exportRows()} className="btn-secondary text-xs">تصدير XLSX</button><button type="button" onClick={() => window.print()} className="btn-primary print-hide text-xs">طباعة</button></>}</div>} />
+    <ReportSurfaceContext period={`صفحة ${snapshot.page + 1}`} asOf={new Date().toISOString().slice(0, 10)} status={snapshot.status === 'CALCULATED' ? 'VERIFIED' : 'INSUFFICIENT DATA'} sourceLabel="تقرير الذمم يقرأ الصفحة الكانونية نفسها؛ عدم وجود صفوف مثبتة يبقى NO_DATA دون تحويله إلى صفر." />
     <section className="rounded-2xl border border-primary-200 bg-primary-50/60 p-4" role="status" aria-live="polite" aria-busy={loading}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">TRUTH CONTEXT</div><div className="mt-1 text-sm font-black text-ink-950">حالة التقرير: {truthStatus}</div><div className="mt-1 text-[11px] leading-5 text-ink-600">{truthMessage}</div></div>

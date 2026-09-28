@@ -13,6 +13,7 @@ export interface DurableCanonicalImportInput {
   rows: ReconciledCanonicalImportRow[];
   qualityScore: number;
   qualityApproved: boolean;
+  durableJobId?: string;
 }
 
 export interface CanonicalImportExecutionOptions {
@@ -21,6 +22,7 @@ export interface CanonicalImportExecutionOptions {
   dataClient?: SupabaseClient;
   companyId?: string;
   requestedBy?: string;
+  durableJobId?: string;
 }
 
 interface EnqueuedJob {
@@ -40,7 +42,25 @@ function rowKey(entityType: DurableCanonicalImportInput['entityType'], row: Reco
     ? row.data.sku
     : entityType === 'sales_invoices'
       ? row.data.invoice_number
-      : (row.data.code ?? row.data.name);
+      : entityType === 'purchase_invoices'
+        ? (
+            row.data.product_id != null ||
+            row.data.sku != null ||
+            row.data.product_name != null ||
+            row.data.quantity != null ||
+            row.data.unit_price != null ||
+            row.data.line_total != null ||
+            row.data.description != null
+              ? [row.data.invoice_number, row.data.product_id ?? row.data.sku ?? row.data.product_name ?? row.rowNumber, row.rowNumber].join(':')
+              : row.data.invoice_number
+          )
+      : entityType === 'suppliers'
+        ? (row.data.code ?? row.data.name)
+        : entityType === 'inventory_balances'
+          ? [row.data.warehouse_id ?? row.data.warehouse, row.data.product_id ?? row.data.sku ?? row.data.product_name].join(':')
+          : entityType === 'payments'
+            ? (row.data.payment_id ?? [row.data.reference, row.data.direction, row.data.payment_date])
+            : (row.data.code ?? row.data.name);
   const key = String(value ?? '').trim();
   if (!key) throw new Error(`IMPORT_ROW_BUSINESS_KEY_REQUIRED:${row.rowNumber}`);
   return `${entityType}:${key.toLowerCase()}`;
@@ -64,7 +84,10 @@ function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: stri
 
 interface CanonicalServerExecutionResult { jobId?: string; importId: string; sourceHash: string; [key: string]: unknown }
 
-async function executeThroughServerBoundary(input: DurableCanonicalImportInput, mode: 'execute' | 'finalize-source' = 'execute'): Promise<CanonicalServerExecutionResult> {
+async function executeThroughServerBoundary(
+  input: DurableCanonicalImportInput,
+  mode: 'execute' | 'enqueue' | 'finalize-source' = 'execute',
+): Promise<CanonicalServerExecutionResult> {
   const { supabase } = await import('../supabase');
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   const accessToken = sessionData.session?.access_token;
@@ -87,7 +110,12 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput, 
     const detail = typeof payload?.detail === 'string' ? payload.detail : typeof payload?.error === 'string' ? payload.error : `HTTP_${response.status}`;
     throw new Error(`CANONICAL_IMPORT_SERVER_EXECUTION_FAILED:${detail.slice(0, 512)}`);
   }
-  if (!payload?.importId || !payload?.sourceHash || (mode === 'execute' && !payload?.jobId)) {
+  if (
+    !payload?.importId ||
+    !payload?.sourceHash ||
+    ((mode === 'execute' || mode === 'enqueue') && !payload?.jobId) ||
+    (mode === 'execute' && !Number.isInteger(Number(payload?.authoritativeRowCount)))
+  ) {
     throw new Error('CANONICAL_IMPORT_SERVER_EXECUTION_RESPONSE_INVALID');
   }
   return payload;
@@ -97,17 +125,24 @@ export async function runCanonicalImportThroughDurableRunner(
   input: DurableCanonicalImportInput,
   options: CanonicalImportExecutionOptions = {},
 ) {
-  if (!input.rows.length) throw new Error('CANONICAL_IMPORT_REQUIRES_ROWS');
-  if (typeof input.qualityApproved !== 'boolean') throw new Error('CANONICAL_IMPORT_QUALITY_APPROVAL_REQUIRED');
+  const isBrowserServerBoundary = typeof window !== 'undefined' && !options.serverExecution;
+
+  // The browser is a transport/orchestration client only. Source truth, quality, reconciliation,
+  // duplicate detection, tenant binding, and canonical commit are authoritative on the server.
+  // Do not reject a source locally before the authoritative boundary receives it.
   if (!input.importId.trim()) throw new Error('CANONICAL_IMPORT_REQUIRES_IMPORT_ID');
   if (!input.fileName.trim()) throw new Error('CANONICAL_IMPORT_REQUIRES_SOURCE_PATH');
+  if (!/^sha256:[0-9a-fA-F]{64}$/.test(input.sourceHash)) throw new Error('IMPORT_SOURCE_HASH_INVALID');
+  if (typeof input.qualityApproved !== 'boolean') throw new Error('CANONICAL_IMPORT_QUALITY_APPROVAL_REQUIRED');
+
+  if (isBrowserServerBoundary) {
+    return executeThroughServerBoundary(input);
+  }
+
+  if (!input.rows.length) throw new Error('CANONICAL_IMPORT_REQUIRES_ROWS');
   if (!Number.isFinite(input.qualityScore) || input.qualityScore < 0 || input.qualityScore > 100) throw new Error('CANONICAL_IMPORT_INVALID_QUALITY');
   if (input.qualityScore < 50) throw new Error('CANONICAL_IMPORT_QUALITY_REJECTED');
   if (input.qualityScore < 75 && !input.qualityApproved) throw new Error('CANONICAL_IMPORT_REVIEW_APPROVAL_REQUIRED');
-
-  if (typeof window !== 'undefined' && !options.serverExecution) {
-    return executeThroughServerBoundary(input);
-  }
 
   let workerClient = options.workerClient;
   let dataClient = options.dataClient;
@@ -136,23 +171,35 @@ export async function runCanonicalImportThroughDurableRunner(
   const activeWorkerClient = workerClient;
   const activeDataClient = dataClient;
   if (!activeWorkerClient || !activeDataClient) throw new Error('SUPABASE_CLIENTS_REQUIRED');
-  const { data: enqueueData, error: enqueueError } = await activeWorkerClient.rpc('enqueue_report_execution_job', {
-    p_company_id: companyId,
-    p_job_key: jobKey,
-    p_source_path: input.fileName,
-    p_source_hash: input.sourceHash,
-    p_evidence_keys: [
-      `source:${input.sourceHash}`,
-      `import:${input.importId}`,
-      `entity:${input.entityType}`,
-      `rows:${input.rows.length}`,
-    ],
-    p_max_attempts: 3,
-  });
-  if (enqueueError) throw enqueueError;
-  if (!enqueueData || typeof enqueueData !== 'object') throw new Error('REPORT_EXECUTION_JOB_ENQUEUE_EMPTY');
-
-  const job = enqueueData as EnqueuedJob;
+  let job: EnqueuedJob;
+  if (options.durableJobId) {
+    const { data: existing, error: existingError } = await activeWorkerClient
+      .from('report_execution_jobs')
+      .select('id,company_id,status,checkpoint,attempt,max_attempts')
+      .eq('id', options.durableJobId)
+      .maybeSingle();
+    if (existingError) throw existingError;
+    if (!existing) throw new Error('REPORT_EXECUTION_JOB_NOT_FOUND_OR_FORBIDDEN');
+    if (existing.company_id !== companyId) throw new Error('REPORT_EXECUTION_JOB_TENANT_MISMATCH');
+    job = existing as EnqueuedJob;
+  } else {
+    const { data: enqueueData, error: enqueueError } = await activeWorkerClient.rpc('enqueue_report_execution_job', {
+      p_company_id: companyId,
+      p_job_key: jobKey,
+      p_source_path: input.fileName,
+      p_source_hash: input.sourceHash,
+      p_evidence_keys: [
+        `source:${input.sourceHash}`,
+        `import:${input.importId}`,
+        `entity:${input.entityType}`,
+        `rows:${input.rows.length}`,
+      ],
+      p_max_attempts: 3,
+    });
+    if (enqueueError) throw enqueueError;
+    if (!enqueueData || typeof enqueueData !== 'object') throw new Error('REPORT_EXECUTION_JOB_ENQUEUE_EMPTY');
+    job = enqueueData as EnqueuedJob;
+  }
   if (!job.id || job.company_id !== companyId) throw new Error('REPORT_EXECUTION_JOB_TENANT_MISMATCH');
   if (job.status === 'succeeded' || job.status === 'completed') throw new Error('IMPORT_ALREADY_COMPLETED_FOR_SOURCE');
   if (job.status === 'cancelled' || job.status === 'dead_letter') throw new Error('IMPORT_DURABLE_JOB_NOT_RETRYABLE');
@@ -226,6 +273,10 @@ export async function runCanonicalImportThroughDurableRunner(
   }, store);
 
   return { ...result, jobId: job.id, importId: input.importId };
+}
+
+export async function enqueueCanonicalImportForExecution(input: DurableCanonicalImportInput): Promise<CanonicalServerExecutionResult> {
+  return executeThroughServerBoundary(input, 'enqueue');
 }
 
 export async function finalizeCanonicalImportSource(input: Pick<DurableCanonicalImportInput, 'importId' | 'fileName' | 'sourceHash' | 'entityType'>): Promise<{ importId: string; sourceHash: string }> {

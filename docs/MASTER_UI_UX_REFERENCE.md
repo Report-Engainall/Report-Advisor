@@ -123,6 +123,17 @@ Every canonical surface must contain:
 
 A page is not complete because the default populated state looks good.
 
+### 5.1 Post-import continuation contract
+After canonical import completion, the result surface MUST expose one continuous customer path:
+`Evidence → Signals → Decision → Work → Outcome/Learning`.
+Each stage must reuse an existing canonical route and must remain truth-bound:
+- Evidence: inspect the source passport/status for the specific import.
+- Signals: open the canonical intelligence surface; source-scoped recommendation counts may be shown only when available.
+- Decision: route through governed Decision Experience; do not bypass approval with direct status mutation.
+- Work: route to the existing Work Center; viewing a recommendation is not equivalent to execution.
+- Outcome/Learning: route to Business Replay, which may remain `INSUFFICIENT DATA` until persisted snapshots/outcomes exist.
+The post-import path must not create a second importer, evidence store, decision runner, or replay implementation.
+
 ## 5. Import UX contract
 One user-facing ingestion entry:
 Any Source -> Read -> Understand -> Structure & Meaning -> Quality -> Evidence -> Review -> Canonical Approval/Commit -> Business Understanding
@@ -244,3 +255,25 @@ Summary versus itemized presentation must be explicit for financial/operational 
 Hierarchy -> Density -> Evidence -> Action -> Accessibility -> Mobile -> Print -> Empty/Loading/Error
 
 A surface is complete only when the quality gate is satisfied, not merely when the populated screenshot looks polished.
+
+
+## 11. Decision Center truth surfaces — 2026-09-27
+Decision Coverage is presented as two independent evidence-backed dimensions when actionable recommendations exist:
+- Owner Coverage — percentage of actionable recommendations with an explicit owner.
+- Outcome Coverage — percentage of actionable recommendations with a recorded impact result.
+Do not collapse these into a composite score unless a canonical metric contract defines the formula. Auxiliary surfaces such as Business Replay must not block the parent Decision Center when their read fails; show `REVIEW` and preserve an explicit retry path.
+
+## Post-import and forecasting truth gates — 2026-09-27
+The unified import result must expose the continuous customer path `Evidence → Signals → Decision → Work → Outcome/Learning`. The Forecasts surface must expose an explicit Backtest Gate; without historical paired forecast/outcome evidence, the UI must remain fail-closed and must not display synthetic accuracy or performance figures. Navigation coverage is contract-guarded: all 38 registry items must resolve to real App routes, and the eight canonical product zones must remain intact.
+
+
+## 12. Shell implementation invariant — 2026-09-27
+The authenticated Aghbari shell uses a dark executive topbar and dark right-aligned sidebar in Arabic RTL, with teal/emerald analytical accents and restrained warm-gold emphasis. Later CSS overrides must not reintroduce a light navigation tree or light topbar that contradicts the visual constitution. The shared Product WOW contract guards this invariant alongside route, journey, accessibility, evidence, and fail-closed state coverage.
+
+
+## 13. Master Data hub truth binding — 2026-09-27
+The Master Data surface is no longer a static navigation theater. It reads tenant-scoped counts from the canonical customer/product/inventory/supplier/warehouse/branch/category tables through the existing authenticated Supabase client, exposes loading/error/refresh states, and routes empty source states back to unified import. It must not fabricate entity counts or create duplicate warehouse/branch screens; those remain contextualized through the canonical inventory path.
+
+
+## Report Builder source-bound closure — 2026-09-27
+The Reports Center provides a source-bound session builder at `/reports?builder=1`. It composes only sections from the current canonical snapshot, preserves As Of and truth state, reuses the canonical export artifact and print paths, isolates builder print output from the reports shell, and explicitly does not claim saved-template persistence. The Builder is a surface capability over existing report truth, not a second reporting engine.

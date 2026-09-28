@@ -1,9 +1,9 @@
 import * as XLSX from 'xlsx';
-import type { FileFormat, Dataset, ColumnProfile, ColumnStatistics } from './types';
-import { normalizeRows, normalizeColumnName, normalizeArabicDigits, parseNumber } from './normalizer';
-import { detectColumnDataType, cleanValue } from './data-types';
-import { mapColumns } from './synonyms';
-import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection';
+import type { FileFormat, Dataset, ColumnProfile, ColumnStatistics } from './types.ts';
+import { normalizeRows, normalizeColumnName, normalizeArabicDigits, parseNumber } from './normalizer.ts';
+import { detectColumnDataType, cleanValue } from './data-types.ts';
+import { mapColumns } from './synonyms.ts';
+import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection.ts';
 
 type Row = Record<string, unknown>;
 
@@ -238,6 +238,186 @@ async function buildTextDataset(
   return [dataset];
 }
 
+export interface PdfTextPlacement {
+  str: string;
+  x: number;
+  y: number;
+  width: number;
+}
+
+interface PdfTableAnchor {
+  header: string;
+  centerX: number;
+  left: number;
+  right: number;
+}
+
+interface PdfTableHeader {
+  anchors: PdfTableAnchor[];
+  signature: string;
+}
+
+const PDF_TABLE_HEADER_ALIASES = [
+  'رقم الفاتورة',
+  'تاريخ الفاتورة',
+  'التاريخ',
+  'نوع الفاتورة',
+  'اسم العميل',
+  'العملة',
+  'مبلغ الفاتورة',
+  'الخصم',
+  'الأعباء',
+  'اﻷعباء',
+  'الضريبة',
+  'اجمالي الفاتورة',
+  'مبلغ الصافي بالمحلي',
+  'invoice number',
+  'invoice date',
+  'customer name',
+  'invoice type',
+  'currency',
+  'amount',
+  'discount',
+  'charges',
+  'tax',
+  'total',
+] as const;
+
+const PDF_TABLE_LINE_TOLERANCE = 4;
+const PDF_TABLE_MIN_ANCHORS = 4;
+
+function pdfPlacementFromItem(item: unknown): PdfTextPlacement | null {
+  if (typeof item !== 'object' || item === null) return null;
+  const value = item as { str?: unknown; transform?: unknown; width?: unknown };
+  if (typeof value.str !== 'string' || !value.str.trim() || !Array.isArray(value.transform)) return null;
+  const transform = value.transform as unknown[];
+  const x = Number(transform[4]);
+  const y = Number(transform[5]);
+  const width = Number(value.width);
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+  return { str: value.str.trim(), x, y, width: Number.isFinite(width) ? width : 0 };
+}
+
+function groupPdfLines(items: PdfTextPlacement[]): PdfTextPlacement[][] {
+  const sorted = [...items].sort((a, b) => b.y - a.y || a.x - b.x);
+  const groups: Array<{ y: number; items: PdfTextPlacement[] }> = [];
+  for (const item of sorted) {
+    let best: { y: number; items: PdfTextPlacement[] } | null = null;
+    let bestDistance = Number.POSITIVE_INFINITY;
+    for (const group of groups) {
+      const distance = Math.abs(group.y - item.y);
+      if (distance <= PDF_TABLE_LINE_TOLERANCE && distance < bestDistance) {
+        best = group;
+        bestDistance = distance;
+      }
+    }
+    if (!best) groups.push({ y: item.y, items: [item] });
+    else {
+      best.items.push(item);
+      best.y = (best.y * (best.items.length - 1) + item.y) / best.items.length;
+    }
+  }
+  return groups
+    .sort((a, b) => b.y - a.y)
+    .map(group => group.items.sort((a, b) => a.x - b.x));
+}
+
+function pdfHeaderMatch(value: string): string | null {
+  const normalized = normalizeColumnName(value);
+  const aliases = [...PDF_TABLE_HEADER_ALIASES].sort((a, b) => normalizeColumnName(b).length - normalizeColumnName(a).length);
+  return aliases.find(alias => normalized === normalizeColumnName(alias) || normalized.includes(normalizeColumnName(alias))) ?? null;
+}
+
+function detectPdfTableHeader(line: PdfTextPlacement[]): PdfTableHeader | null {
+  const sorted = [...line].sort((a, b) => a.x - b.x);
+  const anchors: PdfTableAnchor[] = [];
+  const used = new Set<number>();
+  for (let i = 0; i < sorted.length; i += 1) {
+    if (used.has(i)) continue;
+    let match: { end: number; alias: string } | null = null;
+    for (let span = Math.min(3, sorted.length - i); span >= 1; span -= 1) {
+      const candidate = sorted.slice(i, i + span).map(item => item.str).join(' ');
+      const normalizedCandidate = normalizeColumnName(candidate);
+      const aliases = [...PDF_TABLE_HEADER_ALIASES].sort(
+        (a, b) => normalizeColumnName(b).length - normalizeColumnName(a).length,
+      );
+      const exactAlias = aliases.find(alias => normalizedCandidate === normalizeColumnName(alias));
+      const singleItemAlias = span === 1 ? pdfHeaderMatch(candidate) : null;
+      const alias = exactAlias ?? singleItemAlias;
+      if (alias) {
+        match = { end: i + span - 1, alias };
+        break;
+      }
+    }
+    if (!match) continue;
+    for (let index = i; index <= match.end; index += 1) used.add(index);
+    const first = sorted[i];
+    const last = sorted[match.end];
+    anchors.push({
+      header: sorted.slice(i, match.end + 1).map(item => item.str).join(' ').trim(),
+      centerX: first.x + (Math.max(0, last.x + last.width - first.x) / 2),
+      left: first.x,
+      right: Math.max(first.x, last.x + last.width),
+    });
+  }
+  const unique = new Set(anchors.map(anchor => normalizeColumnName(anchor.header)));
+  if (unique.size < PDF_TABLE_MIN_ANCHORS) return null;
+  const signature = anchors.map(anchor => normalizeColumnName(anchor.header)).join('|');
+  return { anchors, signature };
+}
+
+function assignPdfRow(line: PdfTextPlacement[], header: PdfTableHeader): Row | null {
+  const sortedAnchors = [...header.anchors].sort((a, b) => a.centerX - b.centerX);
+  const cells = sortedAnchors.map(() => [] as string[]);
+  for (const item of line) {
+    const center = item.x + item.width / 2;
+    let bestIndex = -1;
+    let bestDistance = Number.POSITIVE_INFINITY;
+    sortedAnchors.forEach((anchor, index) => {
+      const distance = Math.abs(anchor.centerX - center);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestIndex = index;
+      }
+    });
+    if (bestIndex >= 0) cells[bestIndex].push(item.str);
+  }
+  const filled = cells.filter(cell => cell.length > 0).length;
+  if (filled < Math.max(PDF_TABLE_MIN_ANCHORS, Math.ceil(sortedAnchors.length * 0.45))) return null;
+  const row: Row = {};
+  sortedAnchors.forEach((anchor, index) => {
+    row[anchor.header] = cells[index].join(' ').trim();
+  });
+  const values = Object.values(row).map(value => String(value ?? '').trim()).filter(Boolean);
+  const hasSignal = values.some(value => /\d/.test(normalizeArabicDigits(value)) || /\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}/.test(value));
+  return hasSignal ? row : null;
+}
+
+export function extractPdfTableRowsFromTextItems(
+  rawItems: PdfTextPlacement[],
+  fallbackHeader: PdfTableHeader | null = null,
+): { rows: Row[]; header: PdfTableHeader | null } {
+  const items = rawItems.filter(item => item.str.trim());
+  const lines = groupPdfLines(items);
+  const candidates = lines
+    .map((line, index) => ({ index, header: detectPdfTableHeader(line) }))
+    .filter(candidate => candidate.header)
+    .sort((a, b) => (b.header?.anchors.length ?? 0) - (a.header?.anchors.length ?? 0));
+  const header = candidates[0]?.header ?? fallbackHeader;
+  if (!header) return { rows: [], header: null };
+  const headerIndices = new Set(candidates.filter(candidate => candidate.header?.signature === header.signature).map(candidate => candidate.index));
+  const rows: Row[] = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    if (headerIndices.has(index)) continue;
+    const row = assignPdfRow(lines[index], header);
+    if (!row) continue;
+    const signature = Object.values(row).map(value => normalizeColumnName(String(value))).join('|');
+    if (signature === header.signature) continue;
+    rows.push(row);
+  }
+  return { rows, header };
+}
+
 const PDF_OCR_MAX_PAGES = 20;
 
 const PDF_OCR_MAX_DIMENSION = 2200;
@@ -281,7 +461,25 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     useSystemFonts: true,
   }).promise;
   const pages: string[] = [];
-  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
+  const tableRows: Row[] = [];
+  let activeTableHeader: PdfTableHeader | null = null;
+  let tablePageCount = 0;
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+    const page = await pdf.getPage(pageNumber);
+    const content = await page.getTextContent();
+    const placements = content.items
+      .map(item => pdfPlacementFromItem(item))
+      .filter((item): item is PdfTextPlacement => item !== null);
+    const table = extractPdfTableRowsFromTextItems(placements, activeTableHeader);
+    if (table.header) activeTableHeader = table.header;
+    if (table.rows.length >= 1) {
+      tableRows.push(...table.rows);
+      tablePageCount += 1;
+    }
+    const text = placements.map(item => item.str).filter(Boolean).join(' ');
+    if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`);
+  }
+  if (tableRows.length >= 2 && tablePageCount >= 1) return [await buildDataset(tableRows, fileName, 'pdf-table')];
   if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
   return parseScannedPdfWithOcr(pdf, fileName);
 }

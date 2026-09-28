@@ -30,6 +30,7 @@ When two sources disagree: verify the exact repository state, then resolve the c
 | Runtime/certification | docs/MASTER_RUNTIME_CERTIFICATION.md | CI, deployment, E2E, certification, resilience, recovery |
 | Commercial | docs/MASTER_COMMERCIAL_REFERENCE.md | commercial moat, value proof, packaging, demo/proposal logic |
 | Knowledge map | docs/PROJECT_KNOWLEDGE_MANIFEST.md | all legacy-source mapping, merge status, deletion gates |
+| Execution operator | docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md | execution loop, tool routing, fallbacks, proof, persistence, continuation |
 
 No new competing master may be created without deliberately amending this table.
 
@@ -37,11 +38,14 @@ No new competing master may be created without deliberately amending this table.
 A. Read SYSTEM_HEART.
 B. Read the first/current block of ONE-PROGRAMMER-SESSION-MEMORY.
 C. Read MASTER_EXECUTION_INDEX current boundary.
-D. Read only the domain masters required by the current work fronts.
-E. Verify GitHub main exact HEAD directly.
-F. Reconcile memory/index SHA against GitHub.
-G. Derive NEXT EXECUTABLE ACTION from the newest state, not from an old checklist.
-H. Start two execution lanes immediately.
+D. Read PROJECT_KNOWLEDGE_MANIFEST and resolve the relevant source families/dependencies.
+E. Read PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.
+F. Read only the domain masters required by the current work fronts.
+G. Verify GitHub exact HEAD directly.
+H. Reconcile memory/index SHA against GitHub.
+I. Check available execution tooling and apply the protocol's fallback router; device absence is local to device-dependent proof.
+J. Derive NEXT EXECUTABLE ACTION from the newest state, not from an old checklist.
+K. Start safe independent execution lanes immediately.
 
 A session is invalid if it starts from an old task list without reconciling the live Git state.
 
@@ -238,3 +242,55 @@ Never:
 
 ### Documentation is implementation
 Every meaningful execution batch records exact SHA, change, rationale, evidence/run IDs, resulting state, blockers, and next executable work. Historical evidence is preserved when auditability requires it.
+
+
+## 16. Boot-kernel rule
+
+The chat boot message is deliberately minimal. It only activates this control plane.
+
+The compact boot message MUST name and activate this exact startup chain:
+`docs/SYSTEM_HEART.md` → `ONE-PROGRAMMER-SESSION-MEMORY.md` → `docs/MASTER_EXECUTION_INDEX.md` → `docs/PROJECT_KNOWLEDGE_MANIFEST.md` → `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md` → only the Canonical Domain Masters required by the Manifest.
+
+Detailed execution behavior MUST be loaded from:
+`PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL`
+
+The Manifest remains the knowledge/dependency map; the Execution Index remains the active frontier; Session Memory remains the live resume pointer; GitHub exact SHA remains technical truth.
+
+When the device is unavailable, only device-dependent fronts are isolated. All safe repository, CI, API, hosted, Supabase, documentation, security, contract, cleanup, and evidence work MUST continue.
+
+The programmer MUST never require a second chat-specific playbook to operate correctly.
+
+### 16.1 Two-hour execution sprint and tool-routing mandate
+
+When the execution device is available, treat the available execution window as a finite engineering sprint and spend it on closure, not repeated observation.
+
+Mandatory priorities, in order:
+1. Repair the first reproducible mandatory gate failure on the exact current candidate.
+2. In parallel, execute every independent P0/P1 product/runtime/security/data/evidence front that does not conflict.
+3. Close the product heart from import through business understanding, decision/work, outcome and replay where the data permits.
+4. Consume browser/runtime/release evidence only when it can change a gate; do not poll unchanged jobs repeatedly.
+5. Finish with proof, persistence, bounded rescan, and the next runnable fronts.
+
+Time-discipline rules:
+- Do not spend repeated cycles re-reading unchanged canonical documents.
+- Do not repeatedly fetch/poll queued workflows; one terminal result or state change is sufficient to trigger action.
+- Do not perform a whole-project rescan after every trivial edit; use targeted regression first, then a bounded global rescan after a meaningful batch.
+- Never wait on one blocked lane while another safe lane can execute.
+- Prefer implementation and proof over explanation, planning, or status narration.
+
+Tool routing:
+- Remote Desktop Commander = primary device filesystem, terminal, local runtime and Windows proof.
+- Playwright = primary browser automation/E2E when installed and available.
+- Playwright MCP = interactive browser fallback/inspection path.
+- Stagehand = browser workflow fallback when it materially reduces implementation time.
+- Browser Use = optional acceleration only when its runtime is already available; never block the session on installing Python solely for it.
+- TinyFish or another browser connector = fallback, never a single point of failure.
+- GitHub/CI = durable repository evidence; queued CI never becomes an idle reason.
+- Vercel/Netlify = deployment/runtime evidence only; preview or deploy status is never product certification by itself.
+
+Current-device rule:
+- If PC01 is online, use it aggressively for local build, targeted tests, browser proof, runtime diagnostics and artifact verification.
+- If the device drops, isolate only device-dependent fronts and immediately continue every safe repository/CI/API/hosted/documentation/security front.
+- Never fabricate device/browser/authenticated/production evidence.
+
+The programmer MUST continue until the global stopping condition is reached: no safe actionable front remains, or every remaining front requires explicit owner authority.

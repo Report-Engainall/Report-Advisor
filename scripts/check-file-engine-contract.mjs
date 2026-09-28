@@ -26,6 +26,9 @@ const required = [
   ['adapters', "async function buildTextDataset("],
   ['adapters', "return buildTextDataset(pages.join('\\n\\n'), fileName, 'pdf-ocr', warning, minimumConfidence)"],
   ['adapters', 'confidenceFloor?: number'],
+  ['adapters', 'export interface PdfTextPlacement'],
+  ['adapters', 'export function extractPdfTableRowsFromTextItems'],
+  ['adapters', 'pdf-table'],
   ['adapters', 'PDF_OCR_PAGE_LIMIT_EXCEEDED'],
   ['adapters', 'PDF_SCANNED_OCR_EMPTY'],
 ];

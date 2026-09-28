@@ -1,3 +1,536 @@
+# RESUME TOKEN — 2026-09-28 / EXACT-HEAD CI OBSERVATION FOR FUNCTIONAL CANDIDATE 3b419ba
+
+- FUNCTIONAL CANDIDATE → `3b419ba0b772a2556d6d37b157eda29928d95150`.
+- CI OBSERVATION → 7 terminal workflow records on this exact candidate were `cancelled` or `skipped`; 46 remained pending/queued in the fetched page. No terminal code PASS or reproducible code FAIL is established from this candidate's current results.
+- EVIDENCE LAW → cancellation/supersession is not a failure verdict; skipped workflows are not success evidence.
+- CURRENT BRANCH HEAD → `2d23d91a741383c7d0ff1ce68583e32361eef5c6`, with only the Session Memory and Master Execution Index changed after the functional candidate.
+- NEXT → continue from functional candidate `3b419ba...` semantics and consume terminal results only when they exist; never transfer older PASS across SHA.
+
+
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `3b419ba0b772a2556d6d37b157eda29928d95150`.
+- BROAD SURFACE CLOSURE → shared truth context now covers Dashboard, Executive Command Center, Intelligence/Recommendations/Forecasts, Trust & Evidence, Decision Experience, Work Center, Business Replay, Benchmark, Liquidity, Data Quality, RFM/ABC/Aging, canonical Receivables/Profitability reports, Suppliers, Alternative Groups, Customers/Products/Inventory entity surfaces, Master Data Hub, and Metric Inspector.
+- SHARED CONTEXT → company, period, currency, As Of, Freshness, and canonical truth states are centralized in `ReportSurfaceContext`.
+- DATA-BEARING MASTER DATA → Customers, Products, Inventory, Suppliers, Alternative Groups, and Master Data Hub now surface the same truth contract without creating a second data model.
+- GOVERNANCE → Metric Inspector now maps certification status into canonical truth states while preserving its existing freshness filters and evidence-capture behavior.
+- SAFETY REPAIRS → Intelligence As Of derivation hardened against invalid timestamps; Trust & Evidence status mapping normalized through explicit uppercase conversion; Scenario carries source `as_of` and remains BLOCKED before financial truth is ready.
+- CONTRACT → `scripts/check-ui-route-completeness.mjs` guards the newly standardized surfaces plus shared freshness and existing decision/evidence invariants.
+- STATIC PROOF → latest targeted checks pass; no duplicate ReportSurfaceContext imports were found in the latest Master Data/Governance pages.
+- CI EXACT HEAD → only skipped terminal runs observed so far; 51 workflows remain pending/queued. Combined status shows CodeRabbit success, Vercel free-plan rate-limit failure, and a pending Vercel deployment. No terminal code PASS claimed.
+- DEVICE → PC01 remains offline. Protected browser workspace remains unauthenticated/device-bound.
+- NEXT EXACT ACTION → continue the remaining non-device surface scan only where a concrete completeness gap remains; then consume terminal exact-head CI when available. Do not reopen closed import/report/decision/replay/benchmark work without regression evidence.
+
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `e26536df4a224b9d68a1aae749a6dce8032b5619`.
+- CLOSED → canonical truth context expanded into Intelligence Center, Recommendations, Forecasts, Scenario Truth Guard, Executive Command Center, Liquidity, Data Quality, and specialized RFM/ABC/Aging analytics.
+- SHARED CONTEXT DEPTH → `ReportSurfaceContext` now exposes company, period, currency, As Of, Freshness, and full truth-state vocabulary.
+- INTELLIGENCE SAFETY → recommendation/forecast As Of derivation is hardened against invalid timestamps; forecasts remain explicitly predictive.
+- SCENARIO SAFETY → ready scenarios carry the real profitability snapshot `as_of`; blocked scenarios remain `BLOCKED` before calculation.
+- COMMAND CENTER → replaced the older TruthContextStrip usage with the canonical shared context while preserving the existing truth-derived NEXT ACTION logic.
+- FINANCIAL SURFACES → Liquidity and Data Quality now expose shared truth context; specialized RFM/ABC/Aging analytics retain their existing deterministic status/unknown-row rules under the shared context.
+- CONTRACT → `scripts/check-ui-route-completeness.mjs` now guards intelligence, scenarios, command center, liquidity, data quality, specialized analytics, and shared freshness.
+- SOURCE PROOF → 15/15 static assertions pass for the latest front.
+- CI/RUNTIME → no terminal exact-head PASS claimed. Exact-head workflows are active/queued; Vercel free-plan deployment-rate-limit remains external; PC01 is offline.
+- NEXT EXACT ACTION → perform a broader canonical-surface scan for remaining data-bearing pages outside this context contract; implement the first reproducible gap without reopening closed import/report/decision/replay/benchmark fronts.
+
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `1ddc45ca95d166345b78f60f4961f23fa92f8eeb`.
+- CLOSED → Business Replay now exposes the shared truth context and remains VERIFIED only when persisted snapshots + outcomes exist; otherwise INSUFFICIENT DATA.
+- CLOSED → Benchmark Network now exposes the shared truth context and remains explicitly INSUFFICIENT DATA / INSUFFICIENT_SAMPLE without a peer cohort.
+- CONTRACT → `scripts/check-ui-route-completeness.mjs` guards both surfaces, their fail-closed states, and the canonical truth vocabulary.
+- STATIC PROOF → replay context/fail-closed, benchmark context/sample gate, both guards, and full truth vocabulary all pass.
+- CI/RUNTIME → no terminal exact-head code PASS claimed; Vercel free-plan rate-limit remains external; PC01 offline.
+- PREVIEW → public Cloudflare shell remains reachable but protected workspace requires authentication, so no authenticated-browser PASS transferred.
+- NEXT EXACT ACTION → consume terminal exact-head gates when available; otherwise continue the remaining non-device canonical surface without reopening closed report/import/decision/replay/benchmark fronts.
+- DO NOT REPEAT → never convert missing outcomes or benchmark samples into fabricated success, zero, percentile, or ranking.
+
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `5cfbc39b3e1f4ab93a5d2783243ed2e8a91daf48`.
+- CLOSED → Work Center now exposes the shared truth context with company/period/currency/As Of plus explicit operational truth state.
+- STATE LOGIC → empty operational history = INSUFFICIENT DATA; expired leases/review/failure rows = REVIEW; otherwise CALCULATED. Lease health remains tied to the existing worker-health read, with no change to execution semantics.
+- CONTRACT → `scripts/check-ui-route-completeness.mjs` guards Work Center context, truth-state derivation, and lease-health binding.
+- STATIC PROOF → Work Center context, state derivation, lease-health binding, guard coverage, and full truth vocabulary all pass.
+- CI/RUNTIME → no terminal exact-head PASS claimed; Vercel rate-limit remains external; PC01 offline.
+- NEXT EXACT ACTION → continue the next safe non-device canonical surface; do not reopen closed report/import/decision context fronts unless a regression proves it.
+
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `6da5e5501aa0bd78b7d1be36f269cdf2ee92c502`.
+- REPAIR → Trust & Evidence now maps its internal `OK/EMPTY` statuses explicitly into the canonical truth vocabulary instead of coercing them through a direct cast.
+- RESULT → `OK` is rendered as `VERIFIED`; unsupported/empty states remain fail-closed as `INSUFFICIENT DATA`; PARTIAL/REVIEW/BLOCKED/TRUSTED remain explicit.
+- DECISION EXPERIENCE → truth context propagation remains source-gated and `DECISION_SOURCE_EVIDENCE_REQUIRED` remains intact.
+- CONTRACT → route completeness now guards the internal-to-canonical status mapping.
+- STATIC PROOF → truth vocabulary, OK mapping, Trust guard, Decision context, and Decision evidence gate all pass at source level.
+- CI/RUNTIME → no terminal exact-head PASS claimed; Vercel rate-limit remains external, PC01 offline.
+- NEXT EXACT ACTION → continue next non-device canonical surface after this repair; do not reopen report/import fronts without regression evidence.
+
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `14dc825e371d26888a7ca8475db23dce6cbada47`.
+- CLOSED → the shared report context now preserves the full canonical truth vocabulary: VERIFIED, TRUSTED, PARTIAL, REVIEW, BLOCKED, INSUFFICIENT DATA, CALCULATED.
+- TRUST & EVIDENCE → now exposes the shared truth context using its effective evidence state and preserves the Evidence Passport.
+- DECISION EXPERIENCE → now carries the same truth context from source/evidence into the decision surface. Import-bound decisions are PARTIAL when the Evidence Snapshot is missing, VERIFIED only when the snapshot is analyzed, and REVIEW otherwise.
+- DECISION GATE PRESERVED → `DECISION_SOURCE_EVIDENCE_REQUIRED` remains the source-evidence gate before durable decision creation.
+- CONTRACT → `scripts/check-ui-route-completeness.mjs` guards Trust & Evidence and Decision Experience truth context and existing decision evidence gating.
+- STATIC PROOF → all checks for full truth vocabulary, Trust context, Decision context, decision evidence gate, and both contract guards pass.
+- CI/RUNTIME → no terminal exact-head code PASS is claimed. Vercel rate-limit failure remains external and PC01 remains offline.
+- PREVIEW → public Cloudflare preview is reachable at the shell/login boundary; unauthenticated fetching stops before protected workspace, so no authenticated report/decision rendering PASS is claimed.
+- NEXT EXACT ACTION → consume terminal exact-head gates when available; otherwise continue the next non-device canonical product surface without reopening closed report/import fronts.
+- DO NOT REPEAT → do not collapse canonical truth states; do not allow decision creation without source evidence; do not transfer browser/runtime PASS across SHA.
+
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `9ed30537a98cc55c52bbddc33bb12d8f0494539d`.
+- CLOSED → Executive Report now uses the shared `ReportSurfaceContext`, exposing company, period, currency, As Of, truth state, and Trust & Evidence navigation.
+- PRESERVED → import-bound provenance remains separate from company-level KPI scope; the Executive Report continues to fail closed for unproven import context.
+- CONTRACT → `scripts/check-ui-route-completeness.mjs` now requires the shared report context across all six report-output surfaces and guards Executive Report truth context explicitly.
+- STATIC PROOF → executive context, VERIFIED mapping, shared truth-state coverage, and report-surface threshold assertions all pass at source level.
+- RUNTIME/CI → no terminal exact-head code PASS is claimed. Current combined status remains Vercel free-plan build-rate-limit failure with a pending deployment.
+- DEVICE → PC01 remains offline; browser/device evidence remains isolated.
+- NEXT EXACT ACTION → continue non-device report/intelligence surface execution after persisting this boundary; do not reopen closed import provenance or report-context work without regression evidence.
+- DO NOT REPEAT → do not omit currency from report context; do not flatten VERIFIED to CALCULATED; do not transfer PASS across SHA.
+
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `be36ca1557748c00d426f8f6b3b7a3e6f11029cc`.
+- CLOSED → canonical report truth context across Reports Center + Sales + Purchases + Inventory + Receivables + Profitability.
+- CLOSED → Inventory Intelligence + Demand Velocity centralized company/currency resolution through `ReportSurfaceContext` and removed duplicated local tenant context state.
+- CLOSED → Inventory Intelligence + Demand Velocity expose print + canonical XLSX export actions; export scopes follow the currently selected report view/window.
+- CLOSED → Inventory snapshot preserves optional source `asOf` metadata from the canonical snapshot response.
+- CLOSED CONTRACT → `scripts/check-ui-route-completeness.mjs` guards report context, fail-closed truth states, print and export presence.
+- PROOF → static source assertions after the final implementation are all green; export implementation is compatible with existing `downloadReportArtifact(..., ReportRow[])` contract.
+- CI STATUS → no current-head terminal PASS is claimed. Combined status reports the known Vercel free-plan build-rate-limit failure plus a pending branch deployment; this is external hosting evidence, not a code-pass/fail verdict.
+- DEVICE → PC01 remains offline; browser/device proof remains isolated.
+- NEXT EXACT ACTION → consume terminal exact-head repository gates if they become available; otherwise continue the next non-device product surface. Do not reopen closed report/import fronts.
+- DO NOT REPEAT → no stale PASS across SHA; no duplicate report engine; no report surface without company/period/currency/As Of/truth context.
+
+
+- FUNCTIONAL/UI CANDIDATE → `be36ca1557748c00d426f8f6b3b7a3e6f11029cc`.
+- CLOSED FRONT → Reports Center, Sales, Purchases, Inventory, Receivables and Profitability now use the shared `ReportSurfaceContext` contract for company, period, currency, As Of, truth state and Trust navigation.
+- ADVANCED REPORTS → Inventory Intelligence and Demand Velocity now use the same centralized context resolver, eliminating duplicate company/currency state and query logic.
+- ACTIONABILITY → Inventory Intelligence and Demand Velocity now expose canonical export actions through `downloadReportArtifact` plus print actions; exports remain scoped to the currently rendered report window/mode.
+- INVENTORY AS-OF → `InventoryReportSnapshot` preserves source `asOf` metadata when the RPC returns it; the UI falls back to the query date only when the snapshot does not expose an As Of value.
+- VERIFIED SEMANTICS → shared report context preserves `VERIFIED`, `CALCULATED`, `REVIEW`, and `INSUFFICIENT DATA` rather than flattening confirmed evidence into a calculated state.
+- CONTRACT → `scripts/check-ui-route-completeness.mjs` guards shared report context, advanced-report fail-closed states, and print/export availability.
+- SOURCE PROOF → current static assertions are all green for shared context, five report surfaces, advanced exports, no duplicate advanced company resolver state, inventory As Of metadata, and route guards.
+- EXACT DIFF → the latest implementation batch after `0489cd0...` changed only report/UI/contract surfaces; no new backend RPC or duplicate reporting engine was introduced.
+- CI → current combined status is not certification evidence: Vercel reports a free-plan build-rate-limit failure and an associated deployment is pending. No PASS is claimed from this signal.
+- DEVICE → PC01 remains offline; browser proof remains isolated from completed repository work.
+- NEXT EXACT ACTION → consume terminal exact-head CI when available; if no terminal gate is exposed, continue the next non-device canonical surface without reopening closed import/report-context work.
+- DO NOT REPEAT → do not transfer historical CI/runtime PASS across SHA; do not label file/company scopes interchangeably; do not introduce another report engine or evidence path.
+
+
+- FUNCTIONAL/UI CANDIDATE → `573304a90dcf7d5672bb04ded788e2b0c90bd549`.
+- CLOSED UI FRONT → `src/components/ReportSurfaceContext.tsx` is now the shared report-context surface for company, period, currency, As Of, truth state, source description, and Trust & Evidence navigation.
+- INVENTORY INTELLIGENCE → `src/pages/InventoryIntelligencePage.tsx` now resolves the tenant company record through the existing `resolveCurrentCompanyId` boundary, exposes company/currency context, and fails closed to `REVIEW` when demand data is incomplete or `INSUFFICIENT DATA` when no analytical rows exist.
+- DEMAND VELOCITY → `src/pages/DemandVelocityPage.tsx` now resolves the tenant company record, exposes company/currency/context for the active 30/90/180/365-day window, As Of, and an explicit `CALCULATED` / `INSUFFICIENT DATA` state.
+- CONTRACT GUARD → `scripts/check-ui-route-completeness.mjs` now guards the shared report-truth context plus both report-specific tenant/currency/fail-closed contracts.
+- ARCHITECTURE → no new backend RPC, importer, evidence store, decision runner, or duplicate report engine was introduced; the existing company table and existing analytical fetchers are reused.
+- EXACT DIFF PROOF → compare from prior persisted head `91b0d65ce8d36cf43324a11deef71687f805ac79` to this candidate is exactly 5 commits and 4 files: one shared UI component, two report page updates, one UI contract guard.
+- CI → no terminal exact-head PASS is claimed for `573304a...`; current proof is source/diff level until exact-head workflow/build evidence is consumed.
+- DEVICE → PC01 remains offline; browser proof remains isolated and is not used as a reason to stop safe repository work.
+- NEXT EXACT ACTION → consume/inspect exact-head CI if available; otherwise continue the next canonical report surface with the same Route → Context → Data → Truth → Action → Evidence standard.
+- DO NOT REPEAT → do not call these reports complete without company/period/currency/As Of/truth visibility; do not transfer older PASS across SHA; do not create a second reporting engine.
+
+
+- CURRENT UI/FUNCTIONAL CANDIDATE → `994bbc4517e9ec350f787f01841b637b2202354c`.
+- REPORT CENTER UPGRADE → `src/pages/ReportsPage.tsx` now exposes the canonical Executive Report plus sales, purchases, inventory, inventory intelligence, demand velocity, receivables, and profitability outputs as a decision-oriented report catalog.
+- DECISION OUTPUT CHAIN UI → Reports Center now exposes direct canonical links for Evidence → Signals → Decision → Work → Outcome/Learning → Benchmark. No new report engine or alternate evidence path was created.
+- REPORT BUILDER UPGRADE → truth/evidence is a first-class block, exported and printed with status/As Of/aging state; the default package includes Truth + KPIs + Decision.
+- EXECUTIVE REPORT UPGRADE → source-bound Executive Report now exposes Evidence → Signals → Decision → Work → Outcome/Learning → Benchmark with explicit wording when signals are general and not source-bound.
+- CONTRACT GUARDS → existing `scripts/check-ui-route-completeness.mjs` now guards Reports Center output coverage, decision-output chain, Executive Report provenance/decision chain, and Builder truth/evidence/default selection.
+- EXACT SOURCE PROOF → current branch head is `994bbc4517e9ec350f787f01841b637b2202354c`; exact source re-read confirms the new UI sections and guards.
+- CI STATE → current-head workflows were triggered/queued after the reporting UI batch; no PASS claimed until terminal exact-head evidence.
+- DEVICE → PC01 remains offline; device/browser-only proof stays isolated.
+- NEXT EXACT ACTION → consume current-head UI/quality/report-execution/enforcement/final-cert/browser results; repair first reproducible non-external terminal failure; otherwise continue next non-device front.
+- DO NOT REPEAT → do not call report catalog completion when source/evidence/action links are missing; do not let Builder default omit truth state; do not attribute general signals to an import source without binding; do not transfer PASS across SHA.
+
+# RESUME TOKEN — 2026-09-28 / TASK LEDGER CONTRACT HARDENED — FUNCTIONAL CANDIDATE 162881e
+
+- CURRENT FUNCTIONAL/TEST CANDIDATE → `162881eaa84dcb23ea79d6fbae9777e459880b19`.
+- TEST HARDENING → `report-execution-task-ledger-contract.test.mjs` now guards the exact 9-stage enum, auto-completion of initial `queued` task during worker claim, sequential runner order through `rendered`, and the clarified post-upload UI semantics.
+- RUNTIME DB CANARY → on Staging, transactional enqueue created a real synthetic Job with exactly 9 ordered Tasks; the transaction was rolled back; readback confirms `canary_jobs=0`, `canary_tasks=0`, `recent_task_rows=0`. This proves the enqueue/task decomposition without leaving test data.
+- LIMITATION → a direct transactional start/complete stage canary was blocked by the Supabase tool security boundary before execution; no claim is made for that part.
+- CURRENT TEST STATE → exact-head workflows for `162881e...` are pending/queued; no PASS transferred from earlier SHAs.
+- NEXT → consume report-execution-gate, UI route, quality, enforcement, final certification and browser runs for this exact candidate; repair first reproducible non-external failure.
+
+# RESUME TOKEN — 2026-09-28 / POST-UPLOAD TASK SEMANTICS CLARIFIED — FUNCTIONAL CANDIDATE 449697a
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `449697a8f63089d66ac4ae2ccbcc52d6211bc1b0`.
+- UI CORRECTION → Canonical Import now describes the post-upload panel as a real 9-task decomposition and explicitly states current execution is sequential under one leased Worker; it no longer implies parallel workers.
+- REPORT FRONT → Executive Report remains source-bound via import Job/Snapshot/Source Hash and preserves import context into Decision Experience.
+- CURRENT TEST STATE → exact-head workflows are queued/in progress; no PASS claimed for `449697a...` until terminal evidence.
+- NEXT → consume current-head UI/quality/report-execution/enforcement/certification/browser results; first real failure only.
+
+# RESUME TOKEN — 2026-09-28 / EXECUTIVE REPORT SOURCE-BOUND DECISIONS — FUNCTIONAL CANDIDATE 70b448e
+
+- CURRENT FUNCTIONAL / UI-TEST CANDIDATE → `70b448ed3e4d5298d0f6b5ef8c5943cdbe6a451e`.
+- FINAL FRONT IMPLEMENTED → an import-bound Executive Report now reads `?import=`, resolves the tenant-bound import Job and evidence Snapshot, uses the existing canonical recommendation-binding query, and preserves the same import context into Decision Experience.
+- REPORT TRUTH → company-level KPIs remain company-level; source-bound recommendations are shown only when a verified Job/Snapshot/Source Hash binding exists. Missing binding does not fall back to a generic recommendation while claiming it came from the file.
+- FAIL-CLOSED → invalid/unproven import context stays `REVIEW / NOT PROVEN`; absent source-bound recommendations remain an explicit empty state.
+- UI CONTRACT → `scripts/check-ui-route-completeness.mjs` guards query context, tenant-bound import/evidence reads, source-bound recommendations, context-selected rendering and fail-closed provenance.
+- EXACT SOURCE PROOF → current branch source contains all required bindings at candidate `70b448e...`; terminal CI for this candidate is still pending/queued and no PASS is transferred from earlier SHAs.
+- POST-UPLOAD SEMANTICS → nine durable tasks are persisted and observable; current runner executes them sequentially under one leased worker. The UI's "distribution" is durable task distribution/claiming, not parallel worker execution.
+- NEXT EXACT ACTION → consume terminal current-head UI/quality/report-execution/enforcement/certification/browser gates. Repair only the first reproducible non-external failure.
+- DO NOT REPEAT → no generic company recommendation may be labeled file-generated; no stale PASS across SHAs; no claim of parallel workers; no upload-only completion.
+
+# RESUME TOKEN — 2026-09-28 / EXECUTIVE REPORT IMPORT PROVENANCE — FUNCTIONAL CANDIDATE acf52b6
+
+- CURRENT FUNCTIONAL / UI-TEST CANDIDATE → `acf52b6dcc1c3a09d9e4be77ca5185f9ca773c1a`.
+- THIS BATCH IMPLEMENTED → `ExecutiveReportPage` now reads the `?import=` route context, resolves the tenant-bound import job and evidence snapshot through existing canonical query functions, and renders source/status/evidence/snapshot/quality/row/column context.
+- TRUTH BOUNDARY → dashboard KPIs remain company-level canonical metrics; the import identifier is presented as provenance context and is not used to imply file-only KPI filtering that the metric service does not prove.
+- FAIL-CLOSED UI → when the import/job/snapshot cannot be proven, the report shows `REVIEW / NOT PROVEN` instead of a successful file-specific report claim.
+- TEST GUARD ADDED → `scripts/check-ui-route-completeness.mjs` now protects the import-query, tenant-bound import/evidence reads, provenance surface and fail-closed behavior. The matcher was corrected before CI; no PASS is claimed yet for the current head.
+- FRESH CI STATE → current-head UI/certification/report workflows are queued/in progress for this branch; no stale PASS is transferred from earlier SHAs.
+- PRODUCT FLOW FACT → post-upload work is durably decomposed into 9 persisted stages; current runner executes them sequentially under one leased worker, with live/final reports sourced from `report_execution_tasks`.
+- NEXT EXACT ACTION → consume current-head UI route/quality/report-execution/certification/browser results; repair the first reproducible non-external failure only; then reanchor governance if the functional head changes.
+- DO NOT REPEAT → do not present company-level KPIs as file-only, do not claim parallel workers when the current runner is sequential, do not claim CI PASS before terminal exact-head evidence.
+
+# RESUME TOKEN — 2026-09-28 / POST-UPLOAD WORKER CONTRACT REPAIRS — FUNCTIONAL CANDIDATE c9577a7
+
+- CURRENT FUNCTIONAL / CODE-TEST CANDIDATE → `c9577a75f95d08b20cf5645e00e56c8490c1c071`.
+- CURRENT BRANCH → `exec/20260927-current-main-import-ui-rebased`.
+- THIS BATCH EXECUTED → repaired `scripts/check-security-definer-exposure-contract.mjs` so `retry_report_execution_job` is classified as a worker-only SECURITY DEFINER and requires service_role-only execution; repaired `scripts/check-report-execution-worker-current-main-contract.mjs` so checkpoint construction and persistence are asserted against the current runner implementation.
+- EXACT CODE PROOF → `c9577a75f95d08b20cf5645e00e56c8490c1c071` contains both test repairs; the worker assertion is bound to `buildCheckpoint(following)` immediately followed by tenant-bound `saveCheckpoint`.
+- FRESH EXACT-HEAD OBSERVATIONS on `c9577a75f95d08b20cf5645e00e56c8490c1c071` → file-intelligence-security run `36460664348` SUCCESS; Phase-2 security closure run `36460664287` SUCCESS; decision-DML-boundary run `36460664241` SUCCESS.
+- FIRST TERMINAL NON-EXTERNAL FAILURE → Execution Enforcement Contract run `36460664556` failed before its enforcement stage because `scripts/check-certification-boundary-integrity.mjs` found the index still pointed to candidate `43fcb31567c1ff00973a3f87ccabc554df08858f` while HEAD was `c9577a75f95d08b20cf5645e00e56c8490c1c071` with non-governance changes.
+- ROOT FIX NOW APPLIED → governance must re-anchor the canonical Session Memory and Master Execution Index to functional candidate `c9577a75...`; no stale PASS is transferred.
+- POST-UPLOAD PRODUCT FACT → drag/drop is not completion: the canonical flow verifies the authoritative stored file, creates/recovers a durable Job, materializes 9 ordered execution Tasks, executes them under lease/tenant fencing, commits canonical truth, persists an evidence snapshot, then exposes source-bound signals/decision/work/replay/benchmark and the existing Executive Report route.
+- TASK DISTRIBUTION FACT → the 9 stages are persisted as separate durable tasks, but the current runner executes them sequentially under one leased worker; this is durable task decomposition, not parallel multi-worker execution.
+- CURRENT EXTERNAL/DEVICE BLOCKERS → PC01 offline; hosted Phase-F deployment drift; Vercel free-plan build-rate constraint; no code PASS is claimed for these.
+- NEXT EXACT ACTION → finish the governance re-anchor, consume fresh exact-head Final Certification + Execution Enforcement + Quality/report-execution/browser gates, repair only the first terminal non-external defect, then rescan the post-upload/report front.
+- DO NOT REPEAT → stale evidence across SHAs; classify worker-only RPCs as authenticated; treat upload as completion; claim parallel worker distribution when only sequential durable tasks are implemented; fabricate report/recommendation output.
+- RESUME POINT → functional candidate `c9577a75f95d08b20cf5645e00e56c8490c1c071`; next governance commits are documentation-only and must remain ancestry-bound.
+
+# RESUME TOKEN — 2026-09-28 / CERTIFICATION CANDIDATE REANCHORED
+
+- CURRENT CODE/TEST CANDIDATE → `43fcb31567c1ff00973a3f87ccabc554df08858f`.
+- LAST EXECUTED PRODUCT/UI FIX SHA → `d272feaceefed188c8ef9ad5365d4d3c541ddb96`.
+- FIXED → post-import journey numbering collision; Executive Report is now `07 · REPORTS`, Benchmark remains `06 · BENCHMARK`.
+- KNOWLEDGE STATE → canonical Session Memory and Master Execution Index were restored from the full 956/1082-line state and retained; no historical section was deleted.
+- CURRENT IMPORT/UI PROOF → Executive Report route exists, 7-card journey exists, and numbering is unique at exact SHA `d272feaceefed188c8ef9ad5365d4d3c541ddb96`.
+- CURRENT BLOCKERS → PC01 offline/device browser proof; Vercel build-rate-limit; hosted Phase-F deployment drift.
+- NEXT → fresh exact-head repository gates and first reproducible non-external failure, then bounded rescan.
+- DO NOT REPEAT → never truncate memory/index during targeted updates; never reuse stale PASS across SHA.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / EXACT CURRENT BRANCH — MEMORY RESTORED
+
+- EXACT CURRENT BRANCH → `exec/20260927-current-main-import-ui-rebased`.
+- EXACT CURRENT BRANCH SHA → `e01476a27bf1aa454a0748fff79d97a38341c0aa`.
+- BASE SECURITY-HARDENING SHA RESTORED FROM → `9ef416d5e5184daf07f242336ab78c657a97eebd`.
+- CURRENT PRODUCT BATCH → canonical post-upload journey now exposes the existing Executive Report route after canonical execution; no duplicate report backend was created.
+- CURRENT IMPORT CONTRACT → drag/drop → authoritative server verification → durable Job → 9 persisted execution Tasks → checkpointed execution → canonical commit → evidence snapshot → post-import signals/decision/work/replay/benchmark → Executive Report.
+- TASK LEDGER PROOF → staging schema contains report_execution_tasks plus enqueue/start/complete/fail task RPCs; enqueue_report_execution_job materializes 9 task rows for new Jobs. Historical staging Jobs predate the Task Ledger migration and therefore have no retroactive task rows.
+- CURRENT CANARY PROOF → unauthenticated SQL-side claim reached AUTHENTICATED_USER_REQUIRED; rollback left 0 post-upload-canary Jobs/Tasks. This is an authorization-boundary proof, not a worker execution PASS.
+- UI PROOF AT EXACT CURRENT SHA → CanonicalImportPage contains the 7-card post-import journey and the existing /reports/executive route with import context.
+- MEMORY RESTORATION → this file is rebuilt from the full 956-line canonical state at `9ef416d5e5184daf07f242336ab78c657a97eebd` rather than retaining the accidental truncated 15-line branch version.
+- INDEX RESTORATION → MASTER_EXECUTION_INDEX is likewise rebuilt from its full 1082-line canonical state at `9ef416d5e5184daf07f242336ab78c657a97eebd`, then re-anchored with this exact current branch state.
+- CURRENT BLOCKERS → Vercel build-rate limit; hosted Phase-F deployment drift; PC01 offline/device browser proof. These remain local/external blockers only.
+- CURRENT TEST STATE → no terminal workflow result has been observed for the final documentation-repair SHA yet. No stale PASS is transferred.
+- NEXT EXACT ACTION → run/consume fresh current-head repository gates after this restoration; repair first reproducible non-external defect; then rescan UI/core fronts.
+- DO NOT REPEAT → do not truncate canonical memory/index; do not transfer evidence across SHA; do not create duplicate report/import runners; do not fabricate task execution.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / CURRENT EXECUTION STATE
+
+- CURRENT REPOSITORY HEAD → `277e62b6a9467b10dae69696f1a203deb1e9a67d`
+- CURRENT CODE/TEST CANDIDATE → `4ff2104cc3d6e5d06a1d443ca0ba05d45d24fda4`
+- ACTIVE EXECUTION FRONTS → Phase-2 security surface, durable post-upload Task Ledger, exact-head certification, Quality, Browser, Phase-F.
+- OPEN BLOCKERS → Vercel build-rate limit; hosted Phase-F production deployment drift; PC01 offline/device path.
+- LAST PROVEN → Supabase 9-task ledger creation and ordered task execution with worker/attempt/evidence; enqueue RPC service_role-only; append-only-aware security-definer checker implementation.
+- LAST FAILED → previous Phase-2 security checker rejected the historical task-ledger migration because later hardening was not recognized; current checker now recognizes later explicit service_role-only hardening.
+- NEXT EXECUTABLE ACTION → consume current-head Phase-2 security, Final Certification, Task Ledger, Quality, Browser and Phase-F results; repair first terminal repository failure only.
+- NEXT INDEPENDENT ACTIONS → after repository gates pass, isolate hosted Phase-F deployment drift and device-only PC01 work without blocking independent fronts.
+- DO NOT REPEAT → stale evidence across SHAs, direct tenant selectors, modifying applied migrations for historical parity, exposed SECURITY DEFINER enqueue, duplicate runners.
+
+
+---
+
+# RESUME TOKEN — 2026-09-28 / POST-UPLOAD TENANT AUTHORITY CANDIDATE
+
+- CURRENT REPOSITORY HEAD → `08e83ddce76797222797b18c2eb1b2027d1c4407`
+- CURRENT CODE/TEST CANDIDATE → `248df251ae243e84a2003adb143a0602765aa27a`
+- ACTIVE FRONT → exact-head Quality, Task Ledger gate, Certification, Browser and Phase-F.
+- LAST IMPLEMENTED → canonical durable post-upload execution flow with 9 persisted tasks and tenant-safe readback.
+- LAST CODE REPAIR → canonical durable Job lookup now queries by Job ID and validates persisted `company_id` instead of client-selected tenant filtering.
+- LAST PROVEN → Task Ledger gate PASS before this latest tenant-authority correction; Supabase ordering/evidence/privilege proofs remain valid.
+- OPEN EXTERNAL → Vercel build-rate limit, hosted Phase-F production drift, PC01 offline.
+- NEXT EXACT ACTION → consume fresh current-head gates on `248df251ae243e84a2003adb143a0602765aa27a`; first terminal repository failure only.
+- NEXT INDEPENDENT ACTIONS → after repository gates pass, isolate hosted Phase-F deployment drift and device-only PC01 work without blocking independent fronts.
+- DO NOT REPEAT → stale candidate, direct tenant selector in consumers, exposed SECURITY DEFINER enqueue, duplicate runners.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / POST-UPLOAD EXECUTION + SECURITY CANDIDATE
+
+- CURRENT REPOSITORY HEAD → `ccd1694dda934bdf19eb1b3a7079c7d02532bf8d`
+- CURRENT CODE/TEST CANDIDATE → `ccd1694dda934bdf19eb1b3a7079c7d02532bf8d`
+- ACTIVE FRONTS → final exact-head CI for post-upload execution ledger, tenant security, quality/browser, Phase-F.
+- LAST PROVEN → report-execution-gate PASS on prior code candidate; Supabase task ledger creation/ordering/worker evidence proven; enqueue RPC service_role-only proven in Staging.
+- LAST CODE CHANGE → worker task readback is now bound to persisted `job.tenantId`, satisfying tenant legacy consumer authority contract.
+- LAST FAILURE ROOT → quality tenant legacy consumer boundary flagged a direct `eq(company_id, tenantId)`; corrected.
+- OPEN EXTERNAL → Vercel build-rate limit, hosted Phase-F deployment drift, PC01 offline.
+- NEXT EXACT ACTION → consume current-head quality/certification/browser/Phase-F gates on `ccd1694dda934bdf19eb1b3a7079c7d02532bf8d`; repair only first terminal failure.
+- DO NOT REPEAT → stale candidate evidence, direct tenant selectors, exposed SECURITY DEFINER enqueue, duplicate runners.
+- RESUME POINT → `ccd1694dda934bdf19eb1b3a7079c7d02532bf8d`.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / POST-UPLOAD SECURITY CLOSED
+
+- CURRENT REPOSITORY HEAD → `0ab7b14324f16ac19a7e5e20ffdc00db7f259047`
+- CURRENT CODE/TEST CANDIDATE → `0ab7b14324f16ac19a7e5e20ffdc00db7f259047`
+- ACTIVE EXECUTION FRONTS → exact-head security/certification + post-upload task ledger gates; Phase-F hosted runtime.
+- LAST PROVEN → Supabase task ledger and ordered task execution tests; durable enqueue RPC is now service_role-only in Staging.
+- LAST SECURITY PROOF → `enqueue_report_execution_job` privileges now show only `service_role` plus owner `postgres`; authenticated/anon/public EXECUTE removed.
+- LAST FAILED → Certification Phase2 security-definer surface caught the exposed enqueue RPC; fixed in the new migration `20260928234500_harden_post_upload_enqueue_rpc.sql`.
+- OPEN → fresh exact-head CI, Vercel rate-limit/hosted deployment, Phase-F production drift, PC01 offline.
+- NEXT EXACT ACTION → consume `0ab7b14324f16ac19a7e5e20ffdc00db7f259047` security/certification/task-ledger/quality/browser/Phase-F gates; repair only first terminal repository failure.
+- DO NOT REPEAT → stale candidate evidence, direct client RPC writes, exposed SECURITY DEFINER enqueue, duplicate runners.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / FINAL POST-UPLOAD EXECUTION FRONT CANDIDATE
+
+- CURRENT REPOSITORY HEAD → `ea7ff0067324bc48f86bc2c601bfeb5eb11a6144`
+- CURRENT CODE/TEST CANDIDATE → `ea7ff0067324bc48f86bc2c601bfeb5eb11a6144`
+- ACTIVE EXECUTION FRONTS → exact-head CI for durable post-upload task ledger, quality, certification, browser and Phase-F.
+- LAST IMPLEMENTED → authoritative 9-task post-upload ledger; lease-fenced task lifecycle; server enqueue/execute boundary; tenant task readback; live execution report; final execution report; TypeScript/type-safety repair.
+- LAST PROVEN LIVE DB → 9-task creation; ordering guard; queued/fingerprinted ordered completion with worker/attempt/evidence under transaction rollback.
+- LAST FAILED CODE → prior typecheck errors in queries/runner/UI were corrected in `ea7ff0067324bc48f86bc2c601bfeb5eb11a6144`. Prior stale-candidate governance failures are not code failures.
+- OPEN EXTERNAL → Vercel build-rate limit; Netlify deployment must rebuild on the corrected head; Phase-F production deployment drift; PC01 offline.
+- NEXT EXACT ACTION → consume current-head CI results on `ea7ff0067324bc48f86bc2c601bfeb5eb11a6144`; repair first terminal repository failure only.
+- DO NOT REPEAT → stale evidence across SHAs, repeated candidate drift, direct UI-only success claims, duplicate execution runners.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / POST-UPLOAD EXECUTION LEDGER + TYPE SAFETY
+
+- CURRENT REPOSITORY HEAD → `b225b76f9d72c4a8e7cf4e0aeae9a47834f4eb39`
+- CURRENT CODE/TEST CANDIDATE → `b225b76f9d72c4a8e7cf4e0aeae9a47834f4eb39`
+- ACTIVE EXECUTION FRONTS → exact-head certification + report-execution-gate + quality/browser/Phase-F.
+- LAST PROVEN → Supabase staging task ledger: 9 tasks created per durable job; stage ordering is enforced; queued and fingerprinted tasks completed with worker/attempt/evidence under a synthetic lease transaction.
+- LAST FAILED → exact-head certification on previous checkpoint rejected stale candidate `578bf...`; candidate is now reanchored. The previous Quality syntax/type failures were fixed in `b225b76f9d72c4a8e7cf4e0aeae9a47834f4eb39`.
+- OPEN BLOCKERS → hosted Vercel build-rate limit; Netlify deploy preview must rebuild on `b225b76f9d72c4a8e7cf4e0aeae9a47834f4eb39`; Phase-F hosted deployment drift; PC01 offline.
+- NEXT EXECUTABLE ACTION → consume `b225b76f9d72c4a8e7cf4e0aeae9a47834f4eb39` exact-head Final Certification, Execution Enforcement, report-execution-gate, Quality, Browser and Phase-F results.
+- NEXT INDEPENDENT ACTIONS → repair only first terminal repository failure; otherwise persist current proof and isolate external/device blockers.
+- DO NOT REPEAT → stale candidate evidence, fake execution progress, duplicate runners, direct import terminal writes.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / POST-UPLOAD EXECUTION LEDGER IMPLEMENTED
+
+- CURRENT REPOSITORY HEAD → `578bf217609de50fca4180b7ff5f6c7ed27988b5`
+- CURRENT CODE/TEST CANDIDATE → `578bf217609de50fca4180b7ff5f6c7ed27988b5`
+- ACTIVE EXECUTION FRONTS → post-upload durable task ledger + live/final execution reports; exact-head CI certification.
+- LAST PROVEN → Supabase staging: enqueue created 9 durable tasks; ordering guard correctly rejected starting `fingerprinted` before `queued`; ordered test completed `queued` then `fingerprinted` with worker/attempt/evidence inside a rollback transaction.
+- LAST FAILED → Quality on prior `6ff00d...`: `CanonicalImportPage.tsx:689` missing JSX `}`; fixed in `578bf217609de50fca4180b7ff5f6c7ed27988b5`. Earlier report-execution-gate failure on `934a...` was the missing final Arabic report text; fixed and final report added.
+- OPEN BLOCKERS → hosted Vercel build-rate limit; current Netlify deploy must re-run after syntax fix; Phase-F hosted production drift remains external until current exact-head live probe proves otherwise; PC01 is offline/device-dependent.
+- NEXT EXECUTABLE ACTION → consume fresh `report-execution-gate`, Quality, Final Certification, Browser, Device-Independent and Phase-F results on `578bf217609de50fca4180b7ff5f6c7ed27988b5`; repair the first terminal repository failure only.
+- NEXT INDEPENDENT ACTIONS → preserve exact-head proof, verify Netlify build after `578bf217609de50fca4180b7ff5f6c7ed27988b5`, then close task-ledger front without stale evidence.
+- DO NOT REPEAT → old SHA PASS transfer, UI-only progress claims, stale Netlify/Vercel deployments, duplicate runners, duplicate import paths.
+- RESUME POINT → `578bf217609de50fca4180b7ff5f6c7ed27988b5`; do not claim closure until current-head gates pass or only external/device blockers remain.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / EXACT-HEAD PROVEN / PHASE-F EXTERNAL
+
+- CURRENT REPOSITORY HEAD → `b5b5ac2d56477aa3da9029fd709ae895a649199e`
+- CURRENT CODE/TEST CANDIDATE → `b5b5ac2d56477aa3da9029fd709ae895a649199e`
+- ACTIVE EXECUTION FRONTS → exact-head governance verification; Phase-F hosted resilience remains externally blocked.
+- OPEN BLOCKERS → Vercel free-plan build-rate limit causing stale production alias; Supabase Auth leaked-password protection external; PC01 device/browser path.
+- LAST PROVEN → Final Certification Gate run `36451230363` SUCCESS; Quality run `36451230469` SUCCESS; Full Product Browser E2E run `36451230478` SUCCESS; Device-Independent Browser E2E run `36451230142` SUCCESS.
+- LAST FAILED → Phase-F run `36451230367` on candidate `b5b5ac2d56477aa3da9029fd709ae895a649199e`: operational-health 200 with stale deployment SHA `22a5d3123fb576603de363c4c81fd830dfd53547`; tenant-canary PASS; backup-restore `deployment_lookup_failed:404`; rollback drill HTTP 503; `PHASE_F_STATUS=NOT READY`, 1/4.
+- NEXT EXECUTABLE ACTION → consume fresh exact-head governance gates after this memory repair; repair only the first terminal repository failure. Do not alter Phase-F into a fake PASS.
+- NEXT INDEPENDENT ACTIONS → preserve certification/quality/browser proof, isolate hosted-production drift, continue any safe repository-only front that does not conflict with the active checkpoint.
+- DO NOT REPEAT → stale PASS across SHAs, malformed resume anchors, stale production deployment as code failure, duplicate import/evidence paths, blanket SECURITY DEFINER revokes.
+- RESUME POINT → candidate `b5b5...` is the last proven functional head; later docs-only governance checkpoints must remain ancestry-bound.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / BATCH PROVEN / PHASE-F EXTERNAL BLOCKER
+
+- CURRENT CODE/TEST CANDIDATE → `b5b5ac2d56477aa3da9029fd709ae895a649199e`
+- GOVERNANCE HEAD → pending this docs-only checkpoint
+- ACTIVE EXECUTION FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- CLOSED IN THIS BATCH →
+  - restored broad push coverage for Execution Enforcement + Final Certification governance;
+  - restored repository schema parity for `public.profiles` before `current_customer_company_id()`;
+  - improved Unified Import accessibility semantics on the canonical lifecycle/result surface;
+  - Final Certification Gate PASS on exact governance head `b5b5ac2d56477aa3da9029fd709ae895a649199e`;
+  - Quality PASS on `b5b5ac2d56477aa3da9029fd709ae895a649199e`;
+  - Full Product Browser E2E PASS on `b5b5ac2d56477aa3da9029fd709ae895a649199e`;
+  - Device-Independent Browser E2E PASS on `b5b5ac2d56477aa3da9029fd709ae895a649199e`;
+  - Execution Enforcement, Security, Truth, Import, Data Quality, Storage Tenant, Production Chain and related contracts all PASS on `b5b5ac2d56477aa3da9029fd709ae895a649199e`.
+- EXACT PROOF →
+  - Final Certification Gate run `36451230363` SUCCESS;
+  - Quality run `36451230469` SUCCESS;
+  - Full Product Browser E2E run `36451230478` SUCCESS;
+  - Device-Independent Browser E2E run `36451230142` SUCCESS;
+  - Execution Enforcement Contract run `36451229965` SUCCESS.
+- PHASE-F EXTERNAL BLOCKER →
+  - live tenant-canary PASS;
+  - operational-health returned HTTP 200 but deployment SHA `22a5d3123fb576603de363c4c81fd830dfd53547`, not candidate `b5b5ac2d56477aa3da9029fd709ae895a649199e`;
+  - logical backup-restore failed with `deployment_lookup_failed:404`;
+  - rollback-forward-fix drill returned HTTP 503;
+  - Phase-F result `NOT READY`, `1/4` probes passed.
+  - Root is hosted-production drift/build availability, not repository/runtime/test failure. Vercel status is `build-rate-limit` on the free plan.
+- OTHER EXTERNAL BLOCKERS → Supabase Auth leaked-password protection is external; PC01/browser device path remains device-dependent.
+- DO NOT REPEAT → stale PASS across SHAs, candidate field mismatch, duplicate import/evidence paths, blanket SECURITY DEFINER revokes, treating Vercel stale deployment as code PASS.
+- NEXT EXACT ACTION → after this governance checkpoint, consume fresh exact-head CI; keep Phase-F isolated as hosted/external until the deployed SHA is current.
+- RESUME POINT → do not reopen closed UI/import/certification roots; attack only fresh terminal failures or independent safe fronts.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / CERTIFICATION CANDIDATE FIELD REPAIRED
+
+- CURRENT CODE/TEST CANDIDATE → `8fc8b09b55794b575b25704b6107800bb33e34a6`
+- FUNCTIONAL EXECUTION HEAD → `8fc8b09b55794b575b25704b6107800bb33e34a6`
+- ACTIVE FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- THIS BATCH EXECUTION → broad governance push coverage restored; `public.profiles` restore-parity migration inserted before `current_customer_company_id()`; Unified Import accessibility semantics improved.
+- GOVERNANCE PROOF → Execution Enforcement Contract passed on `bdfd1457757b74c850140cbee81b5726f8c2ad36` in run `36450566953`.
+- CERTIFICATION ROOTS CLOSED → stale candidate was corrected twice: first the candidate became stale after code changes, then the candidate field name mismatch was caught by the validator and corrected to the exact contract name.
+- PHASE-F → fresh run on `8fc8b09b55794b575b25704b6107800bb33e34a6` remains the authoritative test of the new `profiles` migration.
+- OPEN → exact-head Final Certification, Phase-F, quality and UI/browser evidence; Vercel free-plan rate limit; Supabase Auth leaked-password protection external; PC01 device-only.
+- DO NOT REPEAT → stale PASS across SHAs, malformed candidate field, duplicate import/evidence paths, blanket SECURITY DEFINER revokes.
+- NEXT EXACT ACTION → consume current exact-head workflows and repair only the first terminal non-governance failure.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / BATCH CLOSED FOR CODE HANDOFF, EXACT-HEAD CERTIFICATION REANCHORED
+
+- FUNCTIONAL EXECUTION HEAD → `5ee193ff1a6a8169cc1e24ebe2a1b61cd91f1b53`
+- ACTIVE FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- COMPLETED IN THIS BATCH → restored broad-push coverage for Execution Enforcement + Final Certification governance; restored repository migration parity for `public.profiles` before `current_customer_company_id()`; improved Unified Import lifecycle accessibility semantics.
+- EXACT PROOF AVAILABLE → Execution Enforcement Contract passed on `bdfd1457757b74c850140cbee81b5726f8c2ad36` (run `36450870953`); fresh exact-head browser/device-independent/product runs are being consumed on `5ee193ff1a6a8169cc1e24ebe2a1b61cd91f1b53`.
+- LATEST CERTIFICATION FAILURE ROOT → indexed candidate remained stale at `40323c32da359c04f6328dd4d6273bbfc92b4a4a`; no application test was consumed because the certification boundary intentionally failed closed.
+- PHASE-F ROOT REPAIR → migration `20260925160000_restore_customer_profile_schema_parity.sql` adds the authoritative live `public.profiles` boundary before the resolver migration; fresh Phase-F on `5ee193ff1a6a8169cc1e24ebe2a1b61cd91f1b53` is still in progress.
+- OPEN NON-DEVICE BLOCKERS → Vercel free-plan build-rate limitation; Supabase Auth leaked-password protection external; fresh exact-head certification/Phase-F evidence still pending.
+- DEVICE STATUS → PC01/browser remains device-dependent only; Device-Independent Browser E2E is separately executable and must remain the evidence source for non-device UI claims.
+- DO NOT REPEAT → stale certification candidate, stale PASS transfer across SHAs, duplicate import/evidence paths, blanket SECURITY DEFINER revokes.
+- NEXT EXACT ACTION → re-anchor certification index to this head, then consume fresh Final Certification + Phase-F + quality results; repair the first terminal non-governance failure only.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / CERTIFICATION STARTUP-PARSER ROOT CLOSED
+
+- CURRENT REPOSITORY HEAD → `40323c32da359c04f6328dd4d6273bbfc92b4a4a`
+- CURRENT CODE/TEST CANDIDATE → `40323c32da359c04f6328dd4d6273bbfc92b4a4a`
+- ACTIVE EXECUTION FRONTS → Certification Boundary, Security Definer Exposure, Execution Enforcement, Quality/Lint, Phase-F resilience, UI/Import truth.
+- OPEN BLOCKERS → fresh exact-SHA CI; Vercel free-plan build-rate; PC01 offline; Supabase Auth leaked-password protection external.
+- LAST PROVEN → Execution Enforcement main contract + adversarial suites reached PASS on the preceding candidate; Browser/Device-Independent Browser E2E and desktop/data/tenant gates previously passed.
+- LAST FAILED ROOTS CLOSED → malformed enforcement test literal; stale Phase-F resolver contract; worker RPC grant ordering; certification startup-boundary parser capture bug.
+- LIVE SECURITY PROOF → `fail_report_execution_job` remains SECURITY DEFINER but authenticated=false, anon=false, service_role=true in Staging; advisor count=40.
+- NEXT EXECUTABLE ACTION → consume first terminal exact-`40323c32...` CI failure and repair only that reproducible root.
+- NEXT INDEPENDENT ACTIONS → continue safe static UI/data/security fronts independent of device/hosting.
+- DO NOT REPEAT → stale PASS transfer, duplicate import paths, blanket SECURITY DEFINER revokes, production/device claims.
+- MAIN REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`; PR #672 remains behind=0 from the functional reanchor.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / CERTIFICATION PARSER + PHASE-F CONTRACT ROOTS CLOSED
+
+- CURRENT REPOSITORY HEAD → `fda2a8eae8e2a85810ae39afc850fe339ef31b5f`
+- CURRENT CODE/TEST CANDIDATE → `fda2a8eae8e2a85810ae39afc850fe339ef31b5f`
+- ACTIVE EXECUTION FRONTS → Security Definer Exposure, Execution Enforcement, Final Certification, Quality/Lint, Phase-F resilience, UI/Import truth.
+- OPEN BLOCKERS → fresh exact-SHA CI; Vercel free-plan build-rate limit; PC01 offline; Supabase Auth leaked-password protection external.
+- LAST PROVEN → Execution Enforcement main contract and adversarial suites passed on `a5409154...`; Full Product Browser E2E and Device-Independent Browser E2E passed on prior candidate; desktop/tenant/data gates passed.
+- LAST FAILED ROOTS CLOSED → malformed enforcement test literal; certification startup-boundary parser regression; Phase-F customer-resolver contract incorrectly requiring staff resolver reuse; worker RPC privilege ordering.
+- LIVE SECURITY PROOF → `fail_report_execution_job` authenticated=false, anon=false, service_role=true in Staging.
+- NEXT EXECUTABLE ACTION → consume first terminal `fda2a8ea...` CI failure; repair only current-SHA reproducible root.
+- NEXT INDEPENDENT ACTIONS → continue repository-safe UI/data/security work independent of device/hosting.
+- DO NOT REPEAT → stale evidence transfer, duplicate import paths, blanket SECURITY DEFINER revokes, production/device claims.
+- MAIN REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`; PR #672 remains 0-behind from the reanchor.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / ENFORCEMENT TEST PARSE ROOT CLOSED
+
+- CURRENT REPOSITORY HEAD → `a540915475ac9423ded85099f54cf8600078c805`
+- CURRENT CODE/TEST CANDIDATE → `a540915475ac9423ded85099f54cf8600078c805`
+- ACTIVE EXECUTION FRONTS → Execution Enforcement, Final Certification, Security Definer Exposure, Quality/Lint, Phase-F resilience, UI/Import truth.
+- OPEN BLOCKERS → fresh exact-SHA CI; Vercel free-plan build-rate; PC01 offline; Supabase Auth leaked-password protection external.
+- LAST PROVEN → Browser E2E and Device-Independent Browser E2E SUCCESS on prior candidate; desktop-windows, Phase 3 data/import truth, storage isolation also SUCCESS.
+- LAST FAILED ROOTS → certification boundary anchor mismatch; worker RPC source-grant ordering; malformed enforcement test literal. The repository-executable roots have been corrected.
+- LIVE SECURITY PROOF → `fail_report_execution_job` currently resolves authenticated=false, anon=false, service_role=true in Staging.
+- NEXT EXECUTABLE ACTION → consume fresh terminal exact-`a5409154...` CI; repair only the first current-SHA reproducible failure.
+- NEXT INDEPENDENT ACTIONS → continue static security/data/UI fronts independent of device/hosting.
+- DO NOT REPEAT → no stale PASS transfer, no duplicate import path, no blanket SECURITY DEFINER revoke, no production/device claim.
+- MAIN REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`; candidate remains the functional code/test head, and documentation-only commits after it are governance persistence.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / SECURITY BOUNDARY + ENFORCEMENT CONTRACT CHECKPOINT
+
+- CURRENT REPOSITORY HEAD → `090469422277055af319876763ce7f488cf0daa9`
+- CURRENT CODE/TEST CANDIDATE → `3c5b21af588453adeea7c19059fb685750b5fd09`
+- ACTIVE EXECUTION FRONTS → Security Definer Exposure, Execution Enforcement, Final Certification, Quality/Lint, Phase-F resilience, UI/Import truth.
+- OPEN BLOCKERS → fresh exact-SHA CI; Vercel free-plan build-rate limit; PC01 offline; Supabase Auth leaked-password protection external.
+- LAST PROVEN → Full Product Browser E2E SUCCESS, Device-Independent Browser E2E SUCCESS, desktop-windows SUCCESS, Phase 3 data/import truth SUCCESS, storage tenant isolation SUCCESS.
+- LAST FAILED → Execution Enforcement, Final Certification, Quality/Lint, Recovery Readiness, Security Definer Exposure, Phase-F live resilience on the previous exact SHA; repository-executable roots are being corrected.
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-`3c5b21af...` CI failure; repair only that reproducible root, then persist and rescan.
+- NEXT INDEPENDENT ACTIONS → continue static security/data/UI contract work independent of PC01/Vercel.
+- DO NOT REPEAT → no stale PASS transfer, no duplicate import path, no blanket SECURITY DEFINER revocation, no production/device proof.
+- REANCHOR → PR #672 / `exec/20260927-current-main-import-ui-rebased` uses main `650b74ee83095752f44a1a1b0df3cf496fc73f71`; candidate is an ancestor of current HEAD and only governance docs changed after it.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / CURRENT EXECUTION CHECKPOINT
+
+- CURRENT REPOSITORY HEAD → `a3d48175a731411e1ca6c67161afcce4708988cd`
+- CURRENT CODE/TEST CANDIDATE → `e261364b6fbc720a47b9e2510885b378523300c9`
+- ACTIVE EXECUTION FRONTS → Execution Enforcement, Certification Boundary, Security Exposure Contract, Quality/Lint, Phase-F resilience, and current UI/Import truth.
+- OPEN BLOCKERS → exact-SHA certification gates; Vercel free-plan build-rate limit; PC01 offline; Supabase Auth leaked-password protection remains external.
+- LAST PROVEN → Full Product Browser E2E SUCCESS, Device-Independent Browser E2E SUCCESS, desktop-windows SUCCESS, Phase 3 data/import truth SUCCESS, storage tenant isolation SUCCESS on candidate `e261364b6fbc720a47b9e2510885b378523300c9`.
+- LAST FAILED → Execution Enforcement Contract, Final Certification Gate, Quality, Recovery Readiness, Security Definer Exposure Contract, Phase-F live resilience on `a3d48175a731411e1ca6c67161afcce4708988cd`.
+- NEXT EXECUTABLE ACTION → repair the first reproducible current-SHA failure, run fresh gates, persist exact evidence, then rescan.
+- NEXT INDEPENDENT ACTIONS → continue static security/data/UI contract repairs that do not depend on PC01 or Vercel.
+- DO NOT REPEAT → do not transfer PASS across SHA; do not recreate Import/Benchmark routes; do not blanket-revoke SECURITY DEFINER functions; do not claim production/device proof.
+- REANCHOR → PR #672 is based on main `650b74ee83095752f44a1a1b0df3cf496fc73f71` with behind=0 and mergeable=true.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / IMPORT BENCHMARK TRUTH CLAIM REPAIRED
+
+- CURRENT FUNCTIONAL HEAD BEFORE THIS CHECKPOINT → `e261364b6fbc720a47b9e2510885b378523300c9`.
+- MAIN REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`; PR #672 remains 0-behind after the earlier reanchor.
+- UI TRUTH FIX → `CanonicalImportPage.tsx` no longer hardcodes `INSUFFICIENT_SAMPLE`; Benchmark step now says eligibility is determined from peer sample + persisted evidence and no ranking is shown before those conditions are verified.
+- UI CONTRACT FIX → `scripts/check-import-transaction-contract.mjs` now guards the fail-closed wording and the Benchmark route without asserting an unobserved benchmark status.
+- SECURITY → `fail_report_execution_job` remains service_role-only live/source; Advisor authenticated SECURITY DEFINER count 40.
+- CI → exact current head will require fresh workflows; no terminal PASS claimed for this UI truth repair yet.
+- HOSTING/DEVICE → Vercel free-plan rate limit external; Netlify pending/preview boundary; PC01 offline.
+- NEXT → consume the first terminal exact-`e261364b...` CI failure if any; repair only its reproducible root.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / POST-REANCHOR CURRENT-HEAD CHECKPOINT
+
+- MAIN REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`.
+- ACTIVE FUNCTIONAL HEAD BEFORE THIS CHECKPOINT → `12c095d94fa526b577c52f300c1e0ffdf208b225`.
+- REANCHOR COMMIT → `6e562e2200ac6b3d4862bc223dd957c3a5c1b42c`; PR #672 relation remains behind=0 against main.
+- ACTIVE TREE → 110-file functional diff, with main's latest control-plane memory/index blobs preserved during reanchor.
+- CI ON REANCHORED HEAD → fresh pull_request suite registered; quality is in_progress, Security Definer Exposure/Phase 3/Certification/Browser gates are queued or in progress. No terminal PASS transferred.
+- SECURITY LIVE PROOF → `fail_report_execution_job` remains SECURITY DEFINER but is authenticated=false, anon=false, service_role=true; Security Advisor authenticated SECURITY DEFINER count is 40.
+- SOURCE TEST PROOF → worker-only grant contract syntax PASS; targeted harness accepts pre-revoke historical grants and rejects any authenticated grant after the latest revoke boundary.
+- HOSTING/DEVICE → Vercel free-plan rate limit external; Netlify pending; PC01 offline.
+- NEXT → consume first terminal exact-`12c095d9...` failure and repair only that reproducible root; avoid further control-doc commits unless new evidence requires them.
+
+---
+
+# RESUME TOKEN — 2026-09-28 / PR #672 RE-ANCHORED ON CURRENT MAIN
+
+- MAIN REFERENCE USED FOR REANCHOR → `650b74ee83095752f44a1a1b0df3cf496fc73f71`.
+- RE-ANCHOR MERGE COMMIT → `6e562e2200ac6b3d4862bc223dd957c3a5c1b42c`.
+- CURRENT FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`.
+- RELATION PROOF AT REANCHOR → PR head `6e562e22...`, base `650b74ee...`, ahead=136, behind=0, mergeable=true.
+- TREE PROOF → current-main control docs were preserved from main; functional/UI/security/migration files were taken from the final PR tree. 110 changed files remain in the re-anchored diff.
+- CI FRESHNESS → 50 pull_request runs registered on `6e562e22...`; required quality, Final Certification, Full Product Browser E2E, Device-Independent Browser E2E, Security Definer Exposure and Phase 3 are queued/in-progress. No terminal PASS transferred.
+- VERCEL/NETLIFY → Vercel commit status currently failure due free-plan build-rate; Netlify preview status pending. No hosted PASS claimed.
+- DEVICE → PC01 offline; device-only browser/desktop proof remains unproven.
+- SECURITY → Staging worker failure RPC hardening remains live and verified: authenticated=false, anon=false, service_role=true; Advisor count 40.
+- NEXT → consume first terminal exact-`6e562e22...` failure; repair only a reproducible current-SHA root. Do not modify main control docs until this functional front is merged, to preserve behind=0.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / WORKER RPC CONTRACT RECONCILIATION PROVEN
 
 - MAIN EXACT HEAD AT CHECKPOINT → `3f7963db851d87fadd57462482385452ca2536f5`.

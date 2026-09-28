@@ -22,6 +22,7 @@ import {
   resolveKpiEvidenceKey,
   type KpiEvidenceSnapshot,
 } from '@/lib/kpi-evidence';
+import { ReportSurfaceContext, type ReportTruthStatus } from '@/components/ReportSurfaceContext';
 
 type CertificationStatus = 'DRAFT' | 'REVIEWED' | 'CERTIFIED' | 'DEPRECATED';
 
@@ -134,12 +135,29 @@ export function MetricInspectorPage() {
 
   const governance = selected?.governance;
   const freshness = semanticMetricIsFresh(governance ?? null, null);
+  const metricTruthStatus: ReportTruthStatus =
+    !items.length
+      ? 'INSUFFICIENT DATA'
+      : governance?.certificationStatus === 'CERTIFIED'
+        ? 'VERIFIED'
+        : governance?.certificationStatus === 'REVIEWED'
+          ? 'TRUSTED'
+          : governance?.certificationStatus === 'DEPRECATED'
+            ? 'BLOCKED'
+            : 'REVIEW';
+
   const selectedCanCapture = Boolean(
     selected?.definition.metricId && resolveKpiEvidenceKey(selected.definition.metricId),
   );
 
   return (
     <div dir="rtl" className="ag-governance-page ag-metric-governance-surface space-y-6 animate-fade-in">
+      <ReportSurfaceContext
+        period="عقد المؤشر الحالي"
+        asOf={new Date().toISOString().slice(0, 10)}
+        status={metricTruthStatus}
+        sourceLabel="Metric Inspector يقرأ عقود المؤشرات والحداثة وشهادة الحوكمة من السجل الحالي؛ التقاط الدليل لا يرفع الحالة تلقائيًا إلى VERIFIED."
+      />
       <PageHeader
         title="حوكمة المؤشرات"
         subtitle="تعريف المؤشر، نسخته، مصدره، الأدلة، والجهات المستهلكة من عقد موحد"
@@ -157,13 +175,13 @@ export function MetricInspectorPage() {
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="ابحث بالاسم أو المعرّف أو الوصف"
                   aria-label="البحث في المؤشرات"
-                  className="w-full rounded-xl border border-ink-200 bg-white py-2.5 pr-9 pl-9 text-xs text-ink-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                  className="min-h-11 w-full rounded-xl border border-ink-200 bg-white py-2.5 pr-9 pl-9 text-xs text-ink-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
                 />
                 {query && (
                   <button
                     type="button"
                     onClick={() => setQuery('')}
-                    className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-ink-400 hover:bg-ink-50 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                    className="absolute left-1 top-1/2 flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-lg text-ink-400 hover:bg-ink-50 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
                     aria-label="مسح بحث المؤشرات"
                   >
                     <X size={14} aria-hidden="true" />
@@ -175,7 +193,7 @@ export function MetricInspectorPage() {
                   value={statusFilter}
                   onChange={(event) => setStatusFilter(event.target.value as CertificationStatus | 'ALL')}
                   aria-label="تصفية حالة الحوكمة"
-                  className="rounded-xl border border-ink-200 bg-white px-2.5 py-2 text-[11px] font-bold text-ink-700 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                  className="min-h-11 rounded-xl border border-ink-200 bg-white px-2.5 py-2 text-[11px] font-bold text-ink-700 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
                 >
                   <option value="ALL">كل الحالات</option>
                   <option value="CERTIFIED">مؤكد</option>
@@ -199,7 +217,7 @@ export function MetricInspectorPage() {
                 <button
                   type="button"
                   onClick={() => { setQuery(''); setStatusFilter('ALL'); setFreshnessFilter('ALL'); }}
-                  className="w-full rounded-xl border border-ink-200 bg-ink-50 px-3 py-2 text-[10px] font-bold text-ink-600 hover:bg-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                  className="min-h-11 w-full rounded-xl border border-ink-200 bg-ink-50 px-3 py-2 text-[10px] font-bold text-ink-600 hover:bg-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
                 >
                   إعادة ضبط التصفية
                 </button>
@@ -215,7 +233,7 @@ export function MetricInspectorPage() {
                     setCapture(null);
                     setCaptureError(null);
                   }}
-                  className={`ag-governance-item w-full rounded-xl px-3 py-3 text-right transition ${
+                  className={`ag-governance-item min-h-11 w-full rounded-xl px-3 py-3 text-right transition ${
                     selected?.definition.metricId === item.definition.metricId
                       ? 'ag-governance-item-active bg-primary-50'
                       : 'hover:bg-ink-50'
@@ -272,7 +290,7 @@ export function MetricInspectorPage() {
                         type="button"
                         onClick={() => void captureSelected()}
                         disabled={capturing}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
+                        className="inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
                       >
                         <Camera size={14} />
                         {capturing ? 'جارٍ التقاط الدليل...' : 'التقاط دليل فعلي'}
@@ -294,6 +312,7 @@ export function MetricInspectorPage() {
                 {captureError && (
                   <div
                     role="alert"
+                    aria-live="assertive"
                     className="mt-4 rounded-xl border border-danger-200 bg-danger-50 p-3 text-xs text-danger-700"
                   >
                     {captureError}

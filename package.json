@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
+    "@xmldom/xmldom": "0.8.15",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "lucide-react": "^0.446.0",
@@ -15,6 +16,7 @@
     "react-router-dom": "^7.18.2",
     "recharts": "^3.10.1",
     "tesseract.js": "^7.0.0",
+    "ws": "8.22.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
@@ -149,6 +151,7 @@
     "test:intelligence-product-contract": "node scripts/check-intelligence-product-contract.mjs",
     "test:product-wow-ui": "node scripts/check-product-wow-ui-contract.mjs",
     "test:connections-language-ui": "node scripts/check-connections-language-ui.mjs",
-    "test:knowledge-architecture": "node scripts/check-knowledge-architecture.mjs"
+    "test:knowledge-architecture": "node scripts/check-knowledge-architecture.mjs",
+    "test:report-execution-task-ledger": "node scripts/report-execution-task-ledger-contract.test.mjs"
   }
 }

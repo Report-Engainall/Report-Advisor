@@ -7,19 +7,21 @@ type CommandItem = Pick<NavigationItem, 'label' | 'description' | 'path' | 'keyw
 
 const COMMANDS: CommandItem[] = NAVIGATION_ITEMS;
 
-type CommandCategory = 'مركز القرار' | 'العمل والبيانات' | 'التحليل التجاري' | 'الذكاء والاستكشاف' | 'البيانات المرجعية' | 'الإعدادات والتجهيز';
+type CommandCategory = 'مركز القرار' | 'العمل والبيانات' | 'التحليل التجاري' | 'الذكاء والاستكشاف' | 'الثقة والأدلة' | 'التقارير والمخرجات' | 'البيانات المرجعية' | 'الإعدادات والتجهيز';
 
-const COMMAND_CATEGORY_LABELS: Record<string, CommandCategory> = {
+const COMMAND_CATEGORY_LABELS: Record<NavigationSectionId, CommandCategory> = {
   'decision-center': 'مركز القرار',
   'data-operations': 'العمل والبيانات',
   analytics: 'التحليل التجاري',
   intelligence: 'الذكاء والاستكشاف',
+  trust: 'الثقة والأدلة',
+  outputs: 'التقارير والمخرجات',
   reference: 'البيانات المرجعية',
   admin: 'الإعدادات والتجهيز',
 };
 
 function commandCategory(section: NavigationSectionId): CommandCategory {
-  return COMMAND_CATEGORY_LABELS[section] ?? (section === 'trust' ? 'Trust & Evidence' : 'Reports & Outputs');
+  return COMMAND_CATEGORY_LABELS[section];
 }
 
 interface CommandPaletteProps {
@@ -187,7 +189,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-400 hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+            className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg text-ink-400 hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
             aria-label="إغلاق لوحة الأوامر"
           >
             <X size={17} aria-hidden="true" />

@@ -62,6 +62,29 @@ async function resolveCurrentCompany(token) {
   return typeof value === 'string' && value ? value : null;
 }
 
+async function resolveSourceSnapshot(companyId, sourceSnapshotId, expectedSourceHash, expectedSourcePath) {
+  const params = new URLSearchParams({
+    select: 'id,company_id,source_hash,source_path,analysis_status',
+    company_id: `eq.${companyId}`,
+    id: `eq.${sourceSnapshotId}`,
+    limit: '1',
+  });
+  const response = await supabaseRequest(`/rest/v1/source_analysis_snapshots?${params.toString()}`, { method: 'GET' });
+  if (!response.ok) throw new Error('source_snapshot_lookup_failed');
+  const rows = await response.json();
+  const snapshot = Array.isArray(rows) ? rows[0] : null;
+  if (!snapshot) throw new Error('source_snapshot_not_found');
+  if (snapshot.company_id !== companyId) throw new Error('source_snapshot_tenant_mismatch');
+  if (snapshot.source_hash !== expectedSourceHash) throw new Error('source_snapshot_hash_mismatch');
+  if (snapshot.source_path !== expectedSourcePath) throw new Error('source_snapshot_path_mismatch');
+  return {
+    id: snapshot.id,
+    sourceHash: snapshot.source_hash,
+    sourcePath: snapshot.source_path,
+    analysisStatus: snapshot.analysis_status,
+  };
+}
+
 export default async function handler(req, res) {
   if (!requireMethod(req, res, 'POST')) return;
   if (!requireConfig(res, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'VITE_SUPABASE_ANON_KEY'])) return;
@@ -79,11 +102,14 @@ export default async function handler(req, res) {
     const body = await readJson(req);
     const reportId = requiredText(body.reportId, 'report_id');
     const idempotencyKey = requiredText(body.idempotencyKey, 'idempotency_key');
+    const sourceSnapshotId = requiredText(body.sourceSnapshotId, 'source_snapshot_id');
     const sourcePath = requiredText(body.sourcePath, 'source_path');
     const sourceHash = requiredText(body.sourceHash, 'source_hash');
     const keys = evidenceKeys(body.evidenceKeys);
     const maxAttempts = boundedAttempts(body.maxAttempts);
-    const jobKey = `report:${reportId}:${idempotencyKey}`;
+    const snapshot = await resolveSourceSnapshot(companyId, sourceSnapshotId, sourceHash, sourcePath);
+    const jobKey = `report:${reportId}:${idempotencyKey}:${sourceSnapshotId}`;
+    const boundEvidenceKeys = [...new Set([`source:snapshot:${sourceSnapshotId}`, ...keys])];
 
     const response = await supabaseRequest('/rest/v1/rpc/enqueue_report_execution_job', {
       method: 'POST',
@@ -92,7 +118,7 @@ export default async function handler(req, res) {
         p_job_key: jobKey,
         p_source_path: sourcePath,
         p_source_hash: sourceHash,
-        p_evidence_keys: keys,
+        p_evidence_keys: boundEvidenceKeys,
         p_max_attempts: maxAttempts,
       }),
     });
@@ -119,10 +145,12 @@ export default async function handler(req, res) {
       requested_by: user.id,
       job_key: job.job_key,
       source_hash: job.source_hash,
+      source_snapshot_id: snapshot.id,
+      source_analysis_status: snapshot.analysisStatus,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    const clientError = /_invalid$|^request_|^invalid_json$/.test(message);
+    const clientError = /_invalid$|^request_|^invalid_json$|^source_snapshot_(not_found|hash_mismatch|path_mismatch|tenant_mismatch)$/.test(message);
     return json(res, clientError ? 400 : 503, { status: 'failed', error: message });
   }
 }

@@ -5,4 +5,4 @@ const domains={schema:['header-aliases','unknown-schema-discovery','headerless-r
 for(const [d,items] of Object.entries(domains))for(const i of items)good[`${d}.${i}`]=true;
 assert.equal(capabilityCoverage(good).complete,true);
 delete good['documents.pdf-ocr'];const r=capabilityCoverage(good);assert.equal(r.complete,false);assert.ok(r.missing.includes('documents.pdf-ocr'));
-console.log('Capability gap closure tests PASS.');
+console.log('Capability coverage unit tests PASS: missing-capability detection is correct; implementation closure remains evidence-bound elsewhere.');

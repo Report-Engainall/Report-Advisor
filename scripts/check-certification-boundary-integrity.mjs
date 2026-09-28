@@ -3,7 +3,13 @@ import { execFileSync } from 'node:child_process';
 
 // Governance-only trigger: runtime certification remains fail-closed and exact-SHA bound.
 const normalize = value => String(value ?? '').replaceAll('\r\n', '\n').trim();
-const candidateFromIndex = index => normalize(index).match(/(?:CURRENT CODE\/TEST CANDIDATE|CURRENT_CODE_TEST_CANDIDATE|Current code\/test candidate|Current Code\/Test Candidate|Exact code\/test head entering this sweep)\s*:\s*`([0-9a-f]{40})`/i)?.[1]?.toLowerCase();
+const candidatePattern = /(?:CURRENT CODE\/TEST CANDIDATE|CURRENT_CODE_TEST_CANDIDATE|Current code\/test candidate|Current Code\/Test Candidate|Exact code\/test head entering this sweep|CURRENT REPOSITORY \/ CODE-TEST CHECKPOINT|CURRENT REPOSITORY \/ CODE\/TEST CHECKPOINT)\s*(?::|→)\s*\`([0-9a-f]{40})\`/i;
+const candidateFromIndex = index => {
+  const normalized = normalize(index);
+  const currentBoundary = normalized.match(/(?:^|\n)# CURRENT EXECUTION BOUNDARY[^\n]*\n([\s\S]*?)(?=\n# CURRENT EXECUTION BOUNDARY|\n---|(?![\s\S]))/);
+  const scoped = currentBoundary?.[1] ?? normalized;
+  return scoped.match(candidatePattern)?.[1]?.toLowerCase();
+};
 
 export function validateCertificationBoundary({ index, head, parent, changedFiles }) {
   const indexed = candidateFromIndex(index);
@@ -23,6 +29,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     'scripts/final-certification-provenance.test.mjs',
     'scripts/check-production-gate-runtime.mjs',
     'scripts/check-execution-enforcement-protocol.mjs',
+    'scripts/check-security-definer-exposure-contract.mjs',
     'scripts/check-execution-enforcement-protocol.test.mjs',
     'scripts/execution-enforcement-adversarial.test.mjs',
     'scripts/check-decision-approval-toctou-contract.mjs',
@@ -40,9 +47,14 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     'scripts/check-phase10-backup-restore-contract.mjs',
     'scripts/check-runtime-lifecycle-hardening.mjs',
     'scripts/check-tenant-resolver-lineage.mjs',
+    'scripts/check-company-default-context-contract.mjs',
     'scripts/check-unified-evidence-action-learning.mjs',
     'scripts/real-business-e2e.mjs',
     'scripts/run-full-product-browser-e2e.mjs',
+    'docs/SYSTEM_HEART.md',
+    'docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md',
+    'docs/EXECUTION_ENFORCEMENT_PROTOCOL.md',
+    '.github/workflows/quality.yml',
     '.github/workflows/execution-enforcement-contract.yml',
     '.github/workflows/final-certification-gate.yml',
     '.github/workflows/full-product-browser-e2e.yml',

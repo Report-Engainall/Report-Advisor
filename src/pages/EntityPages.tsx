@@ -11,6 +11,7 @@ import { fetchCustomersPage, fetchProductsPage } from '@/lib/queries';
 import { fetchInventoryReportSnapshot, type InventoryReportRow } from '@/lib/dashboard-canonical';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import type { Customer, Product } from '@/lib/types';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 
 
 function EntityContextDrawer({ title, subtitle, fields, links, onClose }: {
@@ -86,6 +87,7 @@ export function CustomersPage() {
     <div className="space-y-6 animate-fade-in" dir="rtl">
       <PageHeader title="العملاء" subtitle={`${formatNumber(total)} عميل`} actions={<button type="button" onClick={() => setCreateOpen(true)} className="btn-primary text-xs"><Plus size={14} /> عميل جديد</button>} />
       {createOpen && <CustomerCreateDialog onClose={() => setCreateOpen(false)} onCreated={() => { void load(); }} />}
+      <ReportSurfaceContext period="السجل المرجعي الحالي" asOf={new Date().toISOString().slice(0, 10)} status={customers.length ? 'CALCULATED' : 'INSUFFICIENT DATA'} sourceLabel="العملاء يعرضون السجل المرجعي للشركة الحالية؛ التحصيل والتحليل يبقيان في المسارات الكانونية المرتبطة." />
       <div className="ag-entity-toolbar grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div>
           <label className="mb-1.5 block text-[11px] font-bold text-ink-500">ابحث ثم افتح السجل لفهم السياق</label>
@@ -162,6 +164,7 @@ export function ProductsPage() {
     <div className="ag-entity-page-surface space-y-6 animate-fade-in" dir="rtl">
       <PageHeader title="المنتجات" subtitle={`${formatNumber(total)} منتج`} actions={<button type="button" onClick={() => setCreateOpen(true)} className="btn-primary text-xs"><Plus size={14} /> منتج جديد</button>} />
       {createOpen && <ProductCreateDialog onClose={() => setCreateOpen(false)} onCreated={() => { void load(); }} />}
+      <ReportSurfaceContext period="السجل المرجعي الحالي" asOf={new Date().toISOString().slice(0, 10)} status={products.length ? 'CALCULATED' : 'INSUFFICIENT DATA'} sourceLabel="المنتجات تعرض الهوية والتكلفة والسعر ونقطة الطلب من السجل الحالي؛ لا تُشتق أرقام تشغيلية غير موجودة." />
       <div className="ag-entity-toolbar grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div>
           <label className="mb-1.5 block text-[11px] font-bold text-ink-500">ابحث ثم افتح السجل لفهم ما يهم هذا الصنف</label>
@@ -215,6 +218,7 @@ export function InventoryPage() {
   const inventoryQueueEmpty = snapshot.totalRows === 0;
   const inventoryFilterEmpty = filter !== 'all' && snapshot.filteredRows === 0;
   return <div className="ag-entity-page-surface space-y-6 animate-fade-in"><PageHeader title="المخزون" subtitle="حالة المخزون من مصدر المخزون المعتمد، مع فصل إجماليات الأعمال عن صفحات العرض." />
+    <ReportSurfaceContext period={`صفحة ${snapshot.page + 1}`} asOf={snapshot.asOf ?? new Date().toISOString().slice(0, 10)} status={snapshot.dataStatus === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA'} sourceLabel="المخزون يقرأ الصورة الكانونية الحالية؛ الصفوف ذات البيانات الناقصة لا تتحول إلى قيمة أو حالة افتراضية." />
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4"><Card><CardBody><div className="text-xs text-ink-500 mb-1">قيمة المخزون</div><div className="text-xl font-bold text-ink-900">{snapshot.totalValue == null ? 'غير متاح' : formatCurrency(snapshot.totalValue)}</div>{snapshot.dataStatus==='INSUFFICIENT_DATA'&&<div className="text-xs text-warning-600 mt-1">بيانات التكلفة غير مكتملة</div>}</CardBody></Card><Card><CardBody><div className="text-xs text-ink-500 mb-1">إجمالي الأصناف</div><div className="text-xl font-bold text-ink-900">{formatNumber(snapshot.totalRows)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-500 mb-1">مخزون منخفض</div><div className="text-xl font-bold text-warning-600">{formatNumber(snapshot.lowStock)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-500 mb-1">نفد المخزون</div><div className="text-xl font-bold text-danger-600">{formatNumber(snapshot.outOfStock)}</div></CardBody></Card></div>
     <div className="flex flex-wrap gap-2">{[{ v: 'all' as const, l: 'الكل' },{ v: 'low' as const, l: 'منخفض' },{ v: 'out' as const, l: 'نفد' }].map(f => <button key={f.v} onClick={() => setFilter(f.v)} className={`px-3 py-1.5 rounded-lg text-xs font-medium ${filter === f.v ? 'bg-primary-600 text-white' : 'bg-white text-ink-600 border border-ink-200'}`}>{f.l}</button>)}</div>{error&&<div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
     <Card>

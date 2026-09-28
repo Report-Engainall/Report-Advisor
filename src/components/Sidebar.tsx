@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, BarChart3, ShieldCheck, Brain, ChevronDown, ClipboardCheck, Database, FileBarChart, Files, Gauge, Layers3, LayoutDashboard, ListChecks, LogOut, Package, Scale, ScanSearch, Settings, Target, Upload, UserCircle, Users, Warehouse, AlertCircle, PlugZap, Truck, WalletCards } from 'lucide-react';
+import { Activity, BarChart3, ShieldCheck, Brain, ChevronDown, ClipboardCheck, Database, FileBarChart, Files, Gauge, History, Layers3, LayoutDashboard, ListChecks, LogOut, Package, Scale, ScanSearch, Settings, Target, Upload, UserCircle, Users, Warehouse, AlertCircle, PlugZap, Truck, WalletCards } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
@@ -52,6 +52,8 @@ const iconFor: Record<NavigationIconKey, ReactNode> = {
   analytics: <BarChart3 size={16}/>,
   liquidity: <WalletCards size={16}/>,
   suppliers: <Truck size={16}/>,
+  benchmark: <Scale size={16}/>,
+  replay: <History size={16}/>,
   onboarding: <ListChecks size={16}/>,
   settings: <Settings size={16}/>,
   profile: <UserCircle size={16}/>,
@@ -113,7 +115,7 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
   </div>
   <div className="ag-sidebar-shortcuts px-3 pb-1">
     <div className="flex items-center justify-between px-2 pb-2"><div className="section-kicker">أدلة سريعة</div><span className="text-[9px] font-black text-ink-500">EVIDENCE</span></div>
-    <div className="grid grid-cols-2 gap-1.5">{(favoriteItems.length?favoriteItems:navSections.flatMap(section=>section.items).filter(item=>isWorkspacePathVisible(item.path,workspaceMode,workspacePreferences)).slice(0,4)).map(item=><Link key={item.path} to={item.path} onClick={onNavigate} className="flex items-center gap-1.5 rounded-[8px] border border-ink-200 bg-white px-2 py-2 text-[11px] font-semibold text-ink-600 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800">{item.iconNode}<span className="truncate">{language==='ar'?item.label:item.enLabel}</span></Link>)}</div>
+    <div className="grid grid-cols-2 gap-1.5">{(favoriteItems.length?favoriteItems:navSections.flatMap(section=>section.items).filter(item=>isWorkspacePathVisible(item.path,workspaceMode,workspacePreferences)).slice(0,4)).map(item=><Link key={item.path} to={item.path} onClick={onNavigate} className="flex min-h-11 items-center gap-1.5 rounded-[8px] border border-ink-200 bg-white px-2 py-2 text-[11px] font-semibold text-ink-600 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800">{item.iconNode}<span className="truncate">{language==='ar'?item.label:item.enLabel}</span></Link>)}</div>
   </div>
   <nav className="flex-1 overflow-y-auto px-3 py-3" aria-label={language==='ar'?'التنقل الرئيسي للمنصة':'Primary analytics navigation'}>
     <div className="space-y-1">

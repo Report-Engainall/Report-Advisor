@@ -480,5 +480,62 @@ are satisfied to the extent required by the front.
 
 A beautiful screen without truth/persistence is incomplete. A working backend without usable product surface is incomplete. A passing unit test without boundary proof is incomplete. A blocked external runtime gate does not excuse independent incomplete product work.
 
+## 21. Two-Hour Maximum-Throughput Execution Doctrine
+
+When a live execution window is available, especially a two-hour device window, optimize for actual closure.
+
+### 21.1 Priority queue
+Always execute in this order unless dependency analysis proves another order closes more work sooner:
+1. Current exact-HEAD mandatory gate failure.
+2. P0 product/runtime/data/security blocker.
+3. P1 front that is independent and can finish within the current window.
+4. Browser/authenticated runtime proof.
+5. Release/certification evidence.
+6. Cleanup and documentation necessary to make the completed state durable.
+
+Never substitute a long audit for a known root-cause fix.
+
+### 21.2 Parallel lanes
+Maintain the maximum safe number of non-conflicting lanes:
+- Lane A: exact-head failing gate/root-cause repair.
+- Lane B: independent UI/product-completion front.
+- Lane C: independent security/data/recovery/runtime front.
+- Lane D: browser/release/evidence preparation or consumption.
+Serialize only when two lanes mutate the same resource or one depends on the other's resulting SHA.
+
+### 21.3 No-idle / no-polling rule
+Do not idle because CI is queued, a deployment is building, or another lane is blocked.
+Do not repeatedly poll unchanged state.
+After a terminal result or meaningful state transition:
+FAIL -> ROOT CAUSE -> FIX -> TARGETED PROOF -> REGRESSION -> PERSIST -> RESCAN.
+When there is no state change, execute another independent lane instead.
+
+### 21.4 Tool preference
+Use the strongest already-available free tool first:
+Remote Desktop Commander -> Playwright -> Playwright MCP -> Stagehand -> other safe browser fallback.
+Use Browser Use only when its runtime already exists; do not spend the execution window installing a new Python runtime unless that installation itself is clearly faster than the work it unlocks.
+Use GitHub/CI as evidence, not as a waiting room.
+
+### 21.5 Definition of a real completion
+A front may be marked CLOSED only when the required combination of:
+implementation + persistence/readback + UI/business meaning + security + targeted/regression proof + exact-SHA evidence + durable memory
+is satisfied.
+Upload, parse, preview, route render, or a green unit test alone never closes an end-to-end product front.
+
+### 21.6 Resume-token invariants
+The first/current resume block MUST always contain these exact anchors:
+- ACTIVE EXECUTION FRONTS
+- OPEN BLOCKERS
+- LAST PROVEN
+- LAST FAILED
+- NEXT INDEPENDENT ACTIONS
+
+A certification/enforcement check MUST fail when any of those anchors is missing. Every subsequent programmer session must derive execution from that top block plus the exact Git state.
+
+### 21.7 Session output discipline
+During execution, status updates must be short and evidence-based. The programmer must not return a generic plan when runnable work exists.
+At the end of every meaningful batch:
+record exact SHA -> record actual result -> record blocker state -> record next executable action.
+
 ---
 **Governance:** This document is repository-resident operational policy. Changes to it must be intentional, auditable, and committed to GitHub.

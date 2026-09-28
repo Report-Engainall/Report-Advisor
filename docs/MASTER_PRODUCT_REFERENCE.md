@@ -552,3 +552,17 @@ This is the target product tree. It defines how capabilities are presented; it d
 │  ├─ Analytics Home
 │  ├─ Sales
 │  ├─ Purchases
+
+
+### Decision ROI governance — 2026-09-27
+Decision ROI is a required product surface, but the repository currently has no canonical metric formula/contract defining its denominator, numerator, cohort, period, or evidence semantics. Until that metric contract exists, the UI must remain `INSUFFICIENT DATA`/unavailable and may not invent an ROI calculation from expected/actual fields or presentation counts.
+
+
+### Recommendation status semantics — 2026-09-27
+The canonical recommendation workflow currently exposes `new → OPEN → approved → in_progress → completed`, with `rejected/dismissed` terminal states. UI queues and coverage calculations must use the shared `isActionableRecommendationStatus` resolver; they must not independently filter on legacy `new/accepted` or incompatible `pending/proposed` cohorts.
+
+## 2026-09-27 current implementation closure
+The current functional import/decision front keeps the product chain visible after source approval: `Evidence → Signals → Decision → Work → Outcome/Learning`. The Forecasts surface explicitly exposes a fail-closed Backtest Gate; without historical paired forecast/outcome evidence, accuracy or backtest performance is not fabricated. Decision Center currently exposes Decision ROI, Money Recovery and Decision Coverage as truth-bound states, while Decision Playbooks remain explicitly unavailable until a governed execution-record path exists. These are product-state constraints, not permission to substitute mock business results.
+
+## 2026-09-27 capability availability boundary
+Decision Playbooks and Backtests remain explicit availability states rather than synthetic features. Staging currently has no dedicated playbook/backtest records or schema and has zero forecast rows, so the UI must remain fail-closed until a governed canonical contract exists. Existing Decision Work Items, Operational Task Proposals, Decision Outcomes, and Forecasts are the reusable canonical data surfaces.

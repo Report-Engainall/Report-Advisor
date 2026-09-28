@@ -10,6 +10,7 @@ const index = read('docs/MASTER_EXECUTION_INDEX.md');
 const phaseFProbe = read('scripts/phase-f-live-resilience-probes.mjs');
 const cartsParityMigration = read('supabase/migrations/20260925200000_restore_carts_schema_parity.sql');
 const clientUiSettingsParityMigration = read('supabase/migrations/20260925184000_restore_client_ui_settings_schema_parity.sql');
+const customerCreditParityMigration = read('supabase/migrations/20260927182000_restore_customer_credit_accounts_schema_parity.sql');
 
 
 
@@ -72,6 +73,30 @@ for (const token of [
   'GRANT SELECT ON TABLE PUBLIC.CASH_ACCOUNTS TO AUTHENTICATED',
 ]) {
   if (!cartsParityUpper.includes(token)) throw new Error(`Missing branch/cash-account restore-parity invariant: ${token}`);
+}
+
+const customerCreditParityUpper = stripSqlComments(customerCreditParityMigration).toUpperCase();
+for (const token of [
+  'CREATE TABLE IF NOT EXISTS PUBLIC.CUSTOMER_CREDIT_ACCOUNTS',
+  'COMPANY_ID UUID NOT NULL',
+  'CUSTOMER_ID UUID NOT NULL',
+  "CURRENCY TEXT NOT NULL DEFAULT 'SAR'::TEXT",
+  'CREDIT_LIMIT NUMERIC NOT NULL DEFAULT 0',
+  'OUTSTANDING_BALANCE NUMERIC NOT NULL DEFAULT 0',
+  'CUSTOMER_CREDIT_ACCOUNTS_COMPANY_ID_FKEY',
+  'CUSTOMER_CREDIT_ACCOUNTS_CUSTOMER_ID_FKEY',
+  'CUSTOMER_CREDIT_ACCOUNTS_CUSTOMER_ID_KEY',
+  'CUSTOMER_CREDIT_ACCOUNTS_CREDIT_LIMIT_CHECK',
+  'CUSTOMER_CREDIT_ACCOUNTS_OUTSTANDING_BALANCE_CHECK',
+  'CUSTOMER_CREDIT_ACCOUNTS_CURRENCY_CHECK',
+  'IDX_CUSTOMER_CREDIT_ACCOUNTS_COMPANY_ID_FK',
+  'ENABLE ROW LEVEL SECURITY',
+  'CREDIT_CUSTOMER_SELECT',
+  'CUSTOMER_ID = PUBLIC.CURRENT_CUSTOMER_ID()',
+  'COMPANY_ID = PUBLIC.CURRENT_CUSTOMER_COMPANY_ID()',
+  'GRANT SELECT ON TABLE PUBLIC.CUSTOMER_CREDIT_ACCOUNTS TO AUTHENTICATED',
+]) {
+  if (!customerCreditParityUpper.includes(token)) throw new Error(`Missing customer_credit_accounts restore-parity invariant: ${token}`);
 }
 
 const clientUiSettingsParityUpper = stripSqlComments(clientUiSettingsParityMigration).toUpperCase();

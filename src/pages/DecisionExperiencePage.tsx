@@ -7,9 +7,29 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { ConfidenceBadge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
-import { fetchAlerts, fetchRecommendations } from '@/lib/queries';
+import {
+  createDecisionWorkItem,
+  createRuntimeDecision,
+  decideApproval,
+  fetchAlerts,
+  fetchDecisionApproval,
+  fetchDecisionWorkItem,
+  fetchImportEvidenceSnapshot,
+  fetchRecommendationOutcome,
+  fetchRecommendations,
+  fetchRecommendationsBoundToImport,
+  fetchRuntimeDecisionForRecommendation,
+  linkRecommendationToDecision,
+  requestDecisionApproval,
+  type DecisionApprovalRecord,
+  type DecisionWorkItemRecord,
+  type ImportEvidenceSnapshot,
+  type RecommendationOutcomeRecord,
+  type RuntimeDecisionRecord,
+} from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Alert, Recommendation } from '@/lib/types';
+import { ReportSurfaceContext, type ReportTruthStatus } from '@/components/ReportSurfaceContext';
 
 type Stage = 'command' | 'evidence' | 'decision' | 'approval' | 'work' | 'outcome';
 
@@ -27,12 +47,23 @@ function statusLabel(status: string | null): string {
   if (!status) return 'غير متاح';
   const labels: Record<string, string> = {
     pending: 'قيد المراجعة',
+    PENDING: 'قيد المراجعة',
     proposed: 'مقترح',
+    PROPOSED: 'مقترح',
     approved: 'معتمد',
+    APPROVED: 'معتمد',
+    open: 'جاهز للتنفيذ',
+    OPEN: 'جاهز للتنفيذ',
     in_progress: 'قيد التنفيذ',
+    IN_PROGRESS: 'قيد التنفيذ',
     completed: 'مكتمل',
+    COMPLETED: 'مكتمل',
+    executed: 'منفذ',
+    EXECUTED: 'منفذ',
     rejected: 'مرفوض',
+    REJECTED: 'مرفوض',
     cancelled: 'ملغى',
+    CANCELLED: 'ملغى',
   };
   return labels[status] ?? status;
 }
@@ -112,40 +143,198 @@ function RecommendationCard({
 export function DecisionExperiencePage() {
   const [params, setParams] = useSearchParams();
   const requestedStage = params.get('stage') as Stage | null;
+  const importJobId = params.get('import');
   const [stage, setStage] = useState<Stage>(STAGES.some((item) => item.id === requestedStage) ? requestedStage! : 'command');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [sourceSnapshot, setSourceSnapshot] = useState<ImportEvidenceSnapshot | null>(null);
+  const [runtimeDecision, setRuntimeDecision] = useState<RuntimeDecisionRecord | null>(null);
+  const [approval, setApproval] = useState<DecisionApprovalRecord | null>(null);
+  const [workItem, setWorkItem] = useState<DecisionWorkItemRecord | null>(null);
+  const [outcome, setOutcome] = useState<RecommendationOutcomeRecord | null>(null);
+  const [decisionMutationBusy, setDecisionMutationBusy] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(params.get('recommendationId'));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const selected = recommendations.find((item) => item.id === selectedId) ?? null;
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const [nextRecommendations, nextAlerts] = await Promise.all([fetchRecommendations(), fetchAlerts()]);
+      const nextSourceSnapshot = importJobId ? await fetchImportEvidenceSnapshot(importJobId) : null;
+      const nextRecommendations = importJobId
+        ? (nextSourceSnapshot
+            ? await fetchRecommendationsBoundToImport({
+                importJobId,
+                snapshotId: nextSourceSnapshot.id,
+                sourceHash: nextSourceSnapshot.source_hash,
+              })
+            : [])
+        : await fetchRecommendations();
+      const nextAlerts = await fetchAlerts();
       setRecommendations(nextRecommendations);
       setAlerts(nextAlerts);
+      setSourceSnapshot(nextSourceSnapshot);
       setSelectedId((current) => current && nextRecommendations.some((item) => item.id === current) ? current : nextRecommendations[0]?.id ?? null);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل سياق القرار');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [importJobId]);
 
   useEffect(() => { void load(); }, [load]);
-  useEffect(() => { if (requestedStage && STAGES.some((item) => item.id === requestedStage)) setStage(requestedStage); }, [requestedStage]);
 
-  const selected = recommendations.find((item) => item.id === selectedId) ?? null;
+  const refreshRuntimeDecision = useCallback(async () => {
+    if (!selectedId) {
+      setRuntimeDecision(null);
+      setApproval(null);
+      return;
+    }
+    try {
+      const nextDecision = await fetchRuntimeDecisionForRecommendation(selectedId);
+      setRuntimeDecision(nextDecision);
+      if (!nextDecision) {
+        setApproval(null);
+        setWorkItem(null);
+        setOutcome(null);
+        return;
+      }
+      const [nextApproval, nextWorkItem, nextOutcome] = await Promise.all([
+        fetchDecisionApproval(nextDecision.id),
+        fetchDecisionWorkItem(nextDecision.id),
+        fetchRecommendationOutcome(nextDecision.id),
+      ]);
+      setApproval(nextApproval);
+      setWorkItem(nextWorkItem);
+      setOutcome(nextOutcome);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'تعذر قراءة حالة القرار المحفوظ');
+    }
+  }, [selectedId]);
+
+  useEffect(() => { void refreshRuntimeDecision(); }, [refreshRuntimeDecision]);
+
+  const ensureDecisionAndApproval = useCallback(async () => {
+    if (!selected || !sourceSnapshot || !importJobId) throw new Error('DECISION_SOURCE_EVIDENCE_REQUIRED');
+    setDecisionMutationBusy(true);
+    setError(null);
+    try {
+      let decision = runtimeDecision;
+      if (!decision) {
+        const evidenceConfidence = sourceSnapshot.quality_score == null ? null : Math.max(0, Math.min(1, sourceSnapshot.quality_score / 100));
+        if (evidenceConfidence == null) throw new Error('DECISION_EVIDENCE_CONFIDENCE_UNAVAILABLE');
+        const decisionId = await createRuntimeDecision({
+          decisionKey: 'import:' + importJobId + ':recommendation:' + selected.id,
+          decisionType: 'recommendation:' + (selected.category || 'general'),
+          confidence: evidenceConfidence,
+          expectedImpact: selected.expected_impact,
+          evidence: {
+            evidence_snapshot_id: sourceSnapshot.id,
+            import_job_id: importJobId,
+            source_hash: sourceSnapshot.source_hash,
+            source_quality_score: sourceSnapshot.quality_score,
+            source_specialty: sourceSnapshot.metadata.sourceSpecialty ?? null,
+            source_specialty_confidence: sourceSnapshot.metadata.sourceSpecialtyConfidence ?? null,
+            recommendation_id: selected.id,
+            confidence_basis: 'source_quality_bound',
+          },
+        });
+        await linkRecommendationToDecision(selected.id, decisionId);
+        decision = await fetchRuntimeDecisionForRecommendation(selected.id);
+      }
+      if (!decision) throw new Error('DECISION_CREATE_READBACK_FAILED');
+      setRuntimeDecision(decision);
+      let currentApproval = await fetchDecisionApproval(decision.id);
+      if (!currentApproval && decision.status === 'PROPOSED') {
+        await requestDecisionApproval(decision.id, 'طلب اعتماد توصية بعد إثبات المصدر ودليلها الكانوني.');
+        currentApproval = await fetchDecisionApproval(decision.id);
+      }
+      setApproval(currentApproval);
+      setStage('approval');
+      const nextParams = new URLSearchParams(params);
+      nextParams.set('stage', 'approval');
+      if (selected.id) nextParams.set('recommendationId', selected.id);
+      setParams(nextParams, { replace: true });
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'تعذر إنشاء مسار القرار');
+    } finally {
+      setDecisionMutationBusy(false);
+    }
+  }, [selected, sourceSnapshot, importJobId, runtimeDecision, params, setParams]);
+
+  const decideCurrentApproval = useCallback(async (approve: boolean) => {
+    if (!approval) return;
+    setDecisionMutationBusy(true);
+    setError(null);
+    try {
+      await decideApproval(approval.id, approve, approve ? 'اعتماد القرار بعد مراجعة الدليل.' : 'رفض القرار بعد مراجعة الدليل.');
+      await refreshRuntimeDecision();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'تعذر تنفيذ قرار الموافقة');
+    } finally {
+      setDecisionMutationBusy(false);
+    }
+  }, [approval, refreshRuntimeDecision]);
+
+  const ensureWorkItem = useCallback(async () => {
+    if (!runtimeDecision || runtimeDecision.status !== 'APPROVED' || approval?.status !== 'APPROVED' || !selected || !sourceSnapshot) {
+      throw new Error('WORK_ITEM_APPROVAL_REQUIRED');
+    }
+    if (workItem) return;
+    const normalizedPriority = String(selected.priority ?? '').toUpperCase();
+    if (!['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].includes(normalizedPriority)) {
+      throw new Error('WORK_ITEM_PRIORITY_UNSUPPORTED');
+    }
+    setDecisionMutationBusy(true);
+    setError(null);
+    try {
+      await createDecisionWorkItem({
+        decisionId: runtimeDecision.id,
+        recommendationId: selected.id,
+        department: String(selected.category || 'general').trim() || 'general',
+        assigneeLabel: 'المستخدم الحالي',
+        title: selected.title,
+        description: selected.description,
+        priority: normalizedPriority as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL',
+        dueAt: selected.deadline && !Number.isNaN(Date.parse(selected.deadline + 'T00:00:00Z'))
+          ? new Date(selected.deadline + 'T00:00:00Z').toISOString()
+          : null,
+        expectedImpact: selected.expected_impact,
+        evidenceRefs: [{ evidence_snapshot_id: sourceSnapshot.id, import_job_id: importJobId, source_hash: sourceSnapshot.source_hash }],
+      });
+      await refreshRuntimeDecision();
+      setStage('work');
+      const nextParams = new URLSearchParams(params);
+      nextParams.set('stage', 'work');
+      nextParams.set('recommendationId', selected.id);
+      setParams(nextParams, { replace: true });
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'تعذر إنشاء مهمة التنفيذ');
+    } finally {
+      setDecisionMutationBusy(false);
+    }
+  }, [runtimeDecision, approval, selected, sourceSnapshot, workItem, importJobId, refreshRuntimeDecision, params, setParams]);
+
+  useEffect(() => {
+    if (!requestedStage || !STAGES.some((item) => item.id === requestedStage)) return;
+    const sourceBlocked = Boolean(importJobId && !sourceSnapshot);
+    const safeRequestedStage = sourceBlocked && ['decision', 'approval', 'work', 'outcome'].includes(requestedStage) ? 'evidence' : requestedStage;
+    setStage(safeRequestedStage);
+  }, [requestedStage, importJobId, sourceSnapshot]);
+
   const currentStageIndex = Math.max(0, STAGES.findIndex((item) => item.id === stage));
   const activeAlerts = useMemo(() => alerts.filter((item) => !item.is_read).slice(0, 6), [alerts]);
   const selectedStatus = selected?.status ?? null;
 
   const navigateStage = (next: Stage, id = selectedId) => {
-    setStage(next);
+    const sourceBlocked = Boolean(importJobId && !sourceSnapshot);
+    const safeNext = sourceBlocked && ['decision', 'approval', 'work', 'outcome'].includes(next) ? 'evidence' : next;
+    setStage(safeNext);
     const nextParams = new URLSearchParams(params);
-    nextParams.set('stage', next);
+    nextParams.set('stage', safeNext);
     if (id) nextParams.set('recommendationId', id);
     else nextParams.delete('recommendationId');
     setParams(nextParams, { replace: true });
@@ -159,6 +348,18 @@ export function DecisionExperiencePage() {
   if (loading) return <LoadingState message="جارٍ تحميل سياق القرار..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   const readiness = decisionReadiness(selected);
+  const decisionTruthStatus: ReportTruthStatus = importJobId
+    ? !sourceSnapshot
+      ? 'PARTIAL'
+      : String(sourceSnapshot.analysis_status).toLowerCase() === 'analyzed'
+        ? 'VERIFIED'
+        : 'REVIEW'
+    : recommendations.length
+      ? 'CALCULATED'
+      : 'INSUFFICIENT DATA';
+  const decisionAsOf = sourceSnapshot?.created_at
+    ? new Date(sourceSnapshot.created_at).toISOString().slice(0, 10)
+    : new Date().toISOString().slice(0, 10);
 
   return (
     <div dir="rtl" className="ag-decision-experience-surface space-y-5 animate-fade-in pb-10">
@@ -179,6 +380,26 @@ export function DecisionExperiencePage() {
         </div>
       </section>
 
+      <ReportSurfaceContext
+        period="الحالة الحالية"
+        asOf={decisionAsOf}
+        status={decisionTruthStatus}
+        sourceLabel={importJobId
+          ? 'تجربة القرار مرتبطة بمصدر الاستيراد ودليله عند إثباتهما؛ لا يمكن القفز من وصف التوصية إلى قرار محفوظ دون Evidence Snapshot.'
+          : 'تجربة القرار العامة تقرأ السجلات الكانونية الحالية؛ لا تُعامل التوصية كحقيقة تنفيذية محفوظة قبل وجود مسار قرار.'}
+      />
+      {importJobId && (
+        <section className={"rounded-[16px] border p-4 " + (sourceSnapshot ? "border-success-200 bg-success-50/60" : "border-warning-200 bg-warning-50/70")} role="status">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className={"text-[9px] font-black tracking-[.12em] " + (sourceSnapshot ? "text-success-700" : "text-warning-800")}>IMPORTED SOURCE CONTEXT</div>
+              <div className="mt-1 text-sm font-black text-ink-950">{sourceSnapshot ? 'الدليل المرتبط بالمصدر مثبت — يمكن متابعة مسار القرار.' : 'الدليل المرتبط بالمصدر غير مثبت — القرار محجوب مؤقتًا.'}</div>
+              <p className="mt-1 text-[10px] leading-5 text-ink-600">{sourceSnapshot ? ('المصدر: ' + String(sourceSnapshot.metadata.fileName ?? sourceSnapshot.source_path) + ' · ' + sourceSnapshot.row_count + ' صف · جودة ' + (sourceSnapshot.quality_score == null ? 'غير متاحة' : sourceSnapshot.quality_score + '%') + ' · As Of ' + (sourceSnapshot.created_at ? new Date(sourceSnapshot.created_at).toLocaleString('ar-YE') : 'غير متاح')) : 'الاستيراد قد يكون مرّ في المسار التشغيلي، لكن لا توجد Snapshot دليل قابلة للقراءة في هذه الجلسة.'}</p>
+            </div>
+            {!sourceSnapshot && <Link to={"/trust?import=" + encodeURIComponent(importJobId)} className="btn-secondary text-[11px]">فتح Evidence Passport</Link>}
+          </div>
+        </section>
+      )}
       <section className="ag-decision-strip" aria-label="ملخص القرار">
         <div className="ag-decision-cell"><span className="ag-decision-label">التوصية المحددة</span><span className="ag-decision-value">{selected?.title ?? 'لم تُحدد بعد'}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">الثقة</span><span className="ag-decision-value">{selected?.confidence ?? 'غير متاح'}</span></div>
@@ -244,7 +465,7 @@ export function DecisionExperiencePage() {
             <CardBody>
               <div className="space-y-3">
                 {recommendations.slice(0, 6).map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id)} />)}
-                {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يتم إنشاء توصية بديلة عند غياب بيانات المصدر." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
+                {!recommendations.length && <EmptyState title={importJobId ? 'لا توجد توصيات مرتبطة بهذا المصدر' : 'لا توجد توصيات'} message={importJobId ? 'لن يتم ربط توصية عامة بملف مستورد دون provenance يثبت علاقتها بالمصدر.' : 'لا يتم إنشاء توصية بديلة عند غياب بيانات المصدر.'} action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
               </div>
             </CardBody>
           </Card>
@@ -259,7 +480,7 @@ export function DecisionExperiencePage() {
             <CardBody>
               <div className="space-y-2">
                 {recommendations.map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id, 'evidence')} />)}
-                {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يمكن فحص دليل لعنصر غير موجود." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
+                {!recommendations.length && <EmptyState title={importJobId ? 'لا توجد توصيات موثقة لهذا المصدر' : 'لا توجد توصيات'} message={importJobId ? 'الدليل موجود، لكن لا توجد توصية مرتبطة به في المصدر الكانوني؛ لا يمكن القفز إلى قرار.' : 'لا يمكن فحص دليل لعنصر غير موجود.'} action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
               </div>
             </CardBody>
           </Card>
@@ -311,13 +532,35 @@ export function DecisionExperiencePage() {
             </CardBody>
           </Card>
           <div className="space-y-4">
-            <BlockedState title="القرار المحفوظ غير متاح من هذه الواجهة" detail="لا تتم كتابة حالة قرار محلية أو إنشاء موافقة اصطناعية. يتطلب الحفظ مسار الصلاحية والـDML المعتمدين." />
+            {!importJobId || !sourceSnapshot ? (
+              <BlockedState title="الدليل المصدر غير مثبت" detail="لا يمكن إنشاء قرار محفوظ قبل وجود Evidence Snapshot مرتبط بالمصدر الحالي." />
+            ) : runtimeDecision ? (
+              <>
+                <div className="rounded-[14px] border border-success-200 bg-success-50/70 p-4">
+                  <div className="flex flex-wrap items-center gap-2"><CheckCircle2 size={16} className="text-success-700"/><span className="text-[11px] font-black text-success-900">القرار محفوظ فعليًا</span><span className="rounded-full bg-white px-2 py-1 text-[9px] font-black text-ink-700">{statusLabel(runtimeDecision.status)}</span></div>
+                  <div className="mt-2 text-[10px] leading-5 text-success-900">Decision ID: {runtimeDecision.id}</div>
+                  <div className="mt-2 text-[10px] leading-5 text-success-900">الدليل: {sourceSnapshot.id} · أساس الثقة: جودة المصدر {sourceSnapshot.quality_score == null ? 'غير متاحة' : sourceSnapshot.quality_score + '%'}</div>
+                </div>
+                <div className="rounded-[12px] border border-ink-200 bg-white p-4">
+                  <div className="text-[10px] font-black text-ink-700">الموافقة الحالية</div>
+                  <div className="mt-2 text-sm font-black text-ink-950">{approval?.status ?? 'لم تُطلب بعد'}</div>
+                  <div className="mt-1 text-[10px] text-ink-400">{approval ? 'تُحكم الصلاحية من RPC قاعدة البيانات.' : 'يمكن طلب الموافقة من نفس المسار دون إنشاء حالة محلية.'}</div>
+                </div>
+              </>
+            ) : (
+              <div className="rounded-[14px] border border-primary-200 bg-primary-50/60 p-4">
+                <div className="text-sm font-black text-ink-950">إنشاء قرار حقيقي من هذه التوصية</div>
+                <p className="mt-1 text-[11px] leading-5 text-ink-600">سيُسجل القرار في قاعدة البيانات، ويربط بالتوصية وبـEvidence Snapshot نفسها، ثم يرسل طلب الموافقة عبر المسار المحكوم.</p>
+                <button type="button" onClick={() => void ensureDecisionAndApproval()} disabled={decisionMutationBusy} className="mt-4 btn-primary text-[11px] disabled:opacity-60">
+                  {decisionMutationBusy ? 'جارٍ إنشاء القرار...' : 'إنشاء القرار وطلب الموافقة'}
+                </button>
+              </div>
+            )}
             <div className="grid gap-3">
               <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><CheckCircle2 size={15} className="text-success-700"/> التوصية</div><p className="mt-1 text-[10px] text-ink-400">موجودة في المصدر</p></div>
-              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><ShieldCheck size={15} className="text-warning-700"/> الموافقة</div><p className="mt-1 text-[10px] text-ink-400">تحتاج مسارًا تشغيليًا موثقًا</p></div>
-              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><XCircle size={15} className="text-ink-400"/> النتيجة</div><p className="mt-1 text-[10px] text-ink-400">ليست مثبتة بعد</p></div>
+              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><ShieldCheck size={15} className="text-warning-700"/> الموافقة</div><p className="mt-1 text-[10px] text-ink-400">{approval?.status ?? 'لم تُطلب بعد'}</p></div>
+              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><XCircle size={15} className="text-ink-400"/> النتيجة</div><p className="mt-1 text-[10px] text-ink-400">لا تُسجل قبل التنفيذ الفعلي.</p></div>
             </div>
-            <button type="button" onClick={() => navigateStage('approval')} className="btn-secondary w-full justify-center text-[11px]">عرض مرحلة الموافقة <ArrowUpLeft size={13}/></button>
           </div>
         </section>
       )}
@@ -328,63 +571,108 @@ export function DecisionExperiencePage() {
             <CardHeader title="الموافقة والمسؤولية" subtitle="من يعتمد؟ وعلى أي دليل؟" />
             <CardBody>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">المسؤول المعتمد</div><div className="mt-2 text-[12px] font-black text-ink-900">غير متاح</div></div>
-                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">وقت الاعتماد</div><div className="mt-2 text-[12px] font-black text-ink-900">غير متاح</div></div>
+                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">المسؤول المعتمد</div><div className="mt-2 text-[12px] font-black text-ink-900">{approval?.decided_by ?? 'لم يعتمد بعد'}</div></div>
+                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">وقت الاعتماد</div><div className="mt-2 text-[12px] font-black text-ink-900">{approval?.decided_at ? new Date(approval.decided_at).toLocaleString('ar-YE') : 'لم يعتمد بعد'}</div></div>
                 <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الصلاحية</div><div className="mt-2 text-[12px] font-black text-ink-900">يتطلب جلسة موثقة</div></div>
                 <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الدليل</div><div className="mt-2 text-[12px] font-black text-ink-900">يحتاج إثباتًا حيًا</div></div>
               </div>
             </CardBody>
           </Card>
-          <BlockedState title="الموافقة محجوبة عمدًا" detail="المنتج لا يختلق صاحب موافقة، توقيتًا، أو حالة اعتماد. عند توفر المسار التشغيلي الموثق، تبقى هذه المرحلة مكانًا واضحًا للمسؤولية قبل التنفيذ." />
+          {runtimeDecision && approval ? (
+            <div className="rounded-[14px] border border-ink-200 bg-white p-4 space-y-3">
+              <div className="flex flex-wrap items-center gap-2"><span className="text-[10px] font-black text-ink-600">حالة الموافقة</span><span className="rounded-full bg-primary-50 px-2.5 py-1 text-[9px] font-black text-primary-800">{approval.status}</span></div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <div className="rounded-lg bg-ink-50/70 px-3 py-2"><div className="text-[9px] text-ink-400">صاحب الطلب</div><div className="mt-1 text-[10px] font-bold text-ink-700">{approval.requested_by ?? 'غير متاح'}</div></div>
+                <div className="rounded-lg bg-ink-50/70 px-3 py-2"><div className="text-[9px] text-ink-400">وقت الطلب</div><div className="mt-1 text-[10px] font-bold text-ink-700">{approval.requested_at ? new Date(approval.requested_at).toLocaleString('ar-YE') : 'غير متاح'}</div></div>
+              </div>
+              {approval.decided_at && <div className="rounded-lg border border-success-200 bg-success-50 px-3 py-2 text-[10px] text-success-900"><span className="font-black">تم القرار بواسطة:</span> {approval.decided_by ?? 'غير متاح'} · {new Date(approval.decided_at).toLocaleString('ar-YE')}</div>}
+              {approval.reason && <div className="rounded-lg border border-ink-100 bg-white px-3 py-2 text-[10px] leading-5 text-ink-600"><span className="font-black text-ink-700">السبب:</span> {approval.reason}</div>}
+              <div className="text-[10px] leading-5 text-ink-500">القرار: {runtimeDecision.id} · الدليل: {sourceSnapshot?.id ?? 'غير متاح'}</div>
+              {approval.status === 'PENDING' && (
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" onClick={() => void decideCurrentApproval(true)} disabled={decisionMutationBusy} className="btn-primary text-[11px] disabled:opacity-60">اعتماد</button>
+                  <button type="button" onClick={() => void decideCurrentApproval(false)} disabled={decisionMutationBusy} className="btn-secondary text-[11px] disabled:opacity-60">رفض</button>
+                </div>
+              )}
+              {approval.status === 'APPROVED' && (
+                <div className="rounded-lg border border-success-200 bg-success-50 p-3 text-[10px] font-black text-success-800">
+                  <div>تم اعتماد القرار.</div>
+                  {workItem ? (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 font-normal text-ink-700">
+                      <span>Work Item: {workItem.status}</span>
+                      <Link to="/work-center" className="btn-secondary text-[10px]">فتح مركز العمل</Link>
+                    </div>
+                  ) : (
+                    <button type="button" onClick={() => void ensureWorkItem()} disabled={decisionMutationBusy} className="mt-2 btn-primary text-[10px] disabled:opacity-60">
+                      {decisionMutationBusy ? 'جارٍ إنشاء مهمة التنفيذ...' : 'إنشاء مهمة تنفيذ للمستخدم الحالي'}
+                    </button>
+                  )}
+                </div>
+              )}
+              {approval.status === 'REJECTED' && <div className="rounded-lg bg-danger-50 p-3 text-[10px] font-black text-danger-800">القرار مرفوض؛ لا يتم إنشاء تنفيذ أو نتيجة تلقائيًا.</div>}
+            </div>
+          ) : (
+            <BlockedState title="لا توجد موافقة محفوظة بعد" detail="أنشئ القرار من مرحلة القرار أولًا، ثم يطلب النظام الموافقة عبر RPC المحكوم." />
+          )}
         </section>
       )}
 
       {stage === 'work' && (
         <section className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
           <Card>
-            <CardHeader title="التنفيذ والمتابعة" subtitle="ما تم فعليًا، وليس ما تتمنى المنظومة حدوثه." />
+            <CardHeader title="التنفيذ والمتابعة" subtitle="المهمة نفسها من قاعدة البيانات، دون إنشاء حالة محلية بديلة." />
             <CardBody>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {[
-                  ['المسؤول الحالي', selected?.owner ?? 'غير مثبت'],
-                  ['الموعد', formatDeadline(selected?.deadline ?? null)],
-                  ['حالة التوصية', statusLabel(selectedStatus)],
-                  ['الأثر المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
-                  ['الأثر الفعلي', selected?.impact_result ?? 'غير متاح بعد'],
-                  ['الإشارة التالية', selected?.impact_result ? 'الانتقال إلى النتيجة والتعلّم' : 'انتظار سجل تنفيذ موثق'],
-                ].map(([label, value]) => (
-                  <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">{label}</div><div className="mt-2 text-[12px] font-black text-ink-900">{value}</div></div>
-                ))}
-              </div>
+              {workItem ? (
+                <div className="space-y-3">
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">المهمة</div><div className="mt-2 text-[12px] font-black text-ink-900">{workItem.title}</div></div>
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الحالة</div><div className="mt-2 text-[12px] font-black text-ink-900">{statusLabel(workItem.status)}</div></div>
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">المسؤول</div><div className="mt-2 text-[12px] font-black text-ink-900">{workItem.assignee_label ?? 'غير مثبت'}</div></div>
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الموعد</div><div className="mt-2 text-[12px] font-black text-ink-900">{formatDeadline(workItem.due_at)}</div></div>
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الأثر المتوقع</div><div className="mt-2 text-[12px] font-black text-ink-900">{workItem.expected_impact == null ? 'غير متاح' : formatCurrency(workItem.expected_impact)}</div></div>
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الأثر الفعلي</div><div className="mt-2 text-[12px] font-black text-ink-900">{workItem.actual_impact == null ? 'غير متاح بعد' : formatCurrency(workItem.actual_impact)}</div></div>
+                  </div>
+                  {workItem.description && <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3 text-[11px] leading-5 text-ink-600">{workItem.description}</div>}
+                  <Link to="/work-center" className="btn-primary text-[11px]">فتح المهمة في مركز العمل <ArrowUpLeft size={13}/></Link>
+                </div>
+              ) : (
+                <BlockedState title="لا توجد مهمة تنفيذ محفوظة" detail="أنشئ Work Item من مرحلة الموافقة بعد اعتماد القرار؛ لا يتم افتراض التنفيذ من مجرد وجود التوصية." />
+              )}
             </CardBody>
           </Card>
-          <BlockedState title="لا يوجد سجل تنفيذ مُثبت" detail="لن يتم إنشاء مهمة أو حالة إنجاز من واجهة القرار. التنفيذ يجب أن يأتي من المسار التشغيلي المعتمد ويعود هنا كحالة persisted." />
+          <BlockedState title="بدء التنفيذ يحتاج فعلًا تشغيليًا" detail="لا يبدأ العمل تلقائيًا عند اعتماد القرار. يبدأ من مركز العمل عندما يملك المستخدم صلاحية التنفيذ وتكون المهمة OPEN." />
         </section>
       )}
 
       {stage === 'outcome' && (
         <section className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
           <Card>
-            <CardHeader title="النتيجة والتعلّم" subtitle="المتوقع مقابل الفعلي لا يظهر إلا بعد وجود نتيجة حقيقية." />
+            <CardHeader title="النتيجة والتعلّم" subtitle="المتوقع مقابل الفعلي يظهر فقط من سجل outcome محفوظ." />
             <CardBody>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {[
-                  ['المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
-                  ['الفعلي', 'غير متاح بعد'],
-                  ['الفارق', 'لا يمكن حسابه بعد'],
-                  ['جودة النتيجة', 'غير متاحة'],
-                  ['ملاحظات التنفيذ', 'غير متاحة'],
-                  ['إشارة التعلّم', 'غير مثبتة'],
-                ].map(([label, value]) => (
-                  <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4">
-                    <div className="text-[10px] text-ink-400">{label}</div>
-                    <div className="mt-2 text-[12px] font-black text-ink-900">{value}</div>
-                  </div>
-                ))}
-              </div>
+              {outcome ? (
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {[
+                    ['المتوقع', outcome.expected_impact == null ? 'غير متاح' : formatCurrency(outcome.expected_impact)],
+                    ['الفعلي', outcome.actual_impact == null ? 'غير متاح' : formatCurrency(outcome.actual_impact)],
+                    ['الفارق', outcome.actual_impact == null || outcome.expected_impact == null ? 'لا يمكن حسابه' : formatCurrency(outcome.actual_impact - outcome.expected_impact)],
+                    ['جودة النتيجة', outcome.outcome_quality == null ? 'غير متاحة' : outcome.outcome_quality + '%'],
+                    ['الحالة', outcome.status],
+                    ['وقت الرصد', new Date(outcome.observed_at).toLocaleString('ar-YE')],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4">
+                      <div className="text-[10px] text-ink-400">{label}</div>
+                      <div className="mt-2 text-[12px] font-black text-ink-900">{value}</div>
+                    </div>
+                  ))}
+                  <div className="sm:col-span-2 lg:col-span-3 rounded-xl border border-primary-100 bg-primary-50/40 p-3 text-[10px] leading-5 text-ink-600">Outcome ID: {outcome.id} · Evidence: {String(outcome.evidence.evidence_snapshot_id ?? 'غير متاح')}</div>
+                </div>
+              ) : (
+                <div className="rounded-[14px] border border-warning-200 bg-warning-50/70 p-4 text-[11px] leading-6 text-warning-900">لم تُثبت نتيجة تنفيذ لهذا القرار بعد. لا يتم تحويل التوصية إلى أثر أو تعلّم تلقائيًا.</div>
+              )}
             </CardBody>
           </Card>
-          <BlockedState title="النتيجة الفعلية غير موجودة بعد" detail="عدم توفر النتيجة ليس فشلًا في العرض؛ إنه حد حقيقي في الدليل. لن تُحوّل التوصية إلى نتيجة أو تعلّم تشغيلي قبل وجود سجل تنفيذ موثق." />
+          {!outcome && <BlockedState title="النتيجة الفعلية غير موجودة بعد" detail="أكمل Work Item فعليًا وأرفق Evidence Snapshot مناسبًا؛ بعدها ستظهر النتيجة هنا تلقائيًا من السجل." />}
+          {outcome && <div className="flex h-fit flex-wrap gap-2"><Link to="/work-center" className="inline-flex items-center gap-2 rounded-xl border border-ink-200 bg-white px-4 py-3 text-[11px] font-black text-ink-700">مراجعة المهمة والأدلة <ArrowUpLeft size={13}/></Link><Link to="/replay" className="inline-flex items-center gap-2 rounded-xl border border-primary-200 bg-primary-50 px-4 py-3 text-[11px] font-black text-primary-800">فتح سجل Business Replay <ArrowUpLeft size={13}/></Link></div>}
         </section>
       )}
 
