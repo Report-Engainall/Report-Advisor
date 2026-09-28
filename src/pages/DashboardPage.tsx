@@ -4,7 +4,7 @@ import {
   Package, RefreshCw, Sparkles, TrendingUp, WalletCards
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { TruthContextStrip } from '@/components/TruthContextStrip';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 
 import { LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/States';
