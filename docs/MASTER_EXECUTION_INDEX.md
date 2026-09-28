@@ -1,4 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPORT OUTPUT CONTEXT + EXPORT CLOSURE — FUNCTIONAL CANDIDATE be36ca1
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / ADVANCED REPORT ACTIONS CLOSED — FUNCTIONAL CANDIDATE be36ca1
+
+- FUNCTIONAL/UI CANDIDATE → `be36ca1557748c00d426f8f6b3b7a3e6f11029cc`.
+- CLOSED → report truth context, domain report metadata, centralized advanced-report context resolution, print/export actions, and inventory As Of preservation.
+- CONTRACT → UI route completeness guards the shared context and advanced report action invariants.
+- SOURCE PROOF → static assertions and export type-contract inspection pass.
+- CI/EXTERNAL → Vercel free-plan build-rate-limit failure/pending deployment remain external; no terminal PASS transferred.
+- DEVICE → PC01 offline.
+- NEXT → consume exact-head gates or continue the next non-device product surface; report/import fronts remain closed unless a fresh regression proves otherwise.
+
+
 
 - FUNCTIONAL/UI CANDIDATE → `be36ca1557748c00d426f8f6b3b7a3e6f11029cc`.
 - CLOSED → shared report context across Reports Center and domain reports; company/period/currency/As Of/truth state are exposed consistently.
