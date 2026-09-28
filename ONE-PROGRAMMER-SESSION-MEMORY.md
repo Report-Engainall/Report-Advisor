@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / STAGING UPLOAD-SIZE RUNTIME CLOSURE / EXACT SHA 60ae24fbf256b7ed2fa6c7c60a6ace883ae233e0
+
+- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
+- ACTIVE PR → #672 / exec/20260927-current-main-import-ui-rebased / exact code SHA 60ae24fbf256b7ed2fa6c7c60a6ace883ae233e0.
+- CODE CORRECTION → historical migration 20260927243000 was restored byte-for-byte to its original 50 MB state; additive migration 20260928134009_reconcile_import_job_file_size_100mb now owns the 100 MB upgrade.
+- STAGING EXECUTION → migration name reconcile_import_job_file_size_100mb applied successfully on fnqbvfuwbdpwvhcgzksl; schema_migrations records version 20260928134009.
+- STAGING READBACK → public.import_create_job(uuid,text,integer,text,text,bigint,text) is SECURITY INVOKER and its function body contains the 104857600-byte limit.
+- EXACT SOURCE PROOF → current branch preserves the historical migration SHA 459c31efac1dc01469f09f642d970168d9e24073 and contains the new 100 MB migration blob eafc7190895b842c08bd3a76dc58b8aced0fda2d.
+- RUNTIME PROOF GAP → end-to-end import of a real 67-page PDF is still not executed; device PC01 is offline and current GitHub browser/file-engine workflows are queued/in progress.
+- NEXT EXECUTABLE → consume first terminal exact-SHA PDF/file-engine result; then run the real hosted/import/browser proof when the platform lane becomes available, while continuing independent certification/security/Phase-F fronts.
+- DO NOT REPEAT → mutate historical migrations; old-SHA runtime evidence; preview-as-production; duplicate import paths.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / NATIVE PDF TABLE ROOT CLOSED / EXACT SHA 7064dff5e6e68794622ed29f24dbb02b1407e6d4
 
 - MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.

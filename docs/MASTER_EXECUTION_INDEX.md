@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / STAGING UPLOAD-SIZE RUNTIME CLOSURE / EXACT SHA 60ae24fbf256b7ed2fa6c7c60a6ace883ae233e0
+
+- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
+- ACTIVE PR → #672 / exec/20260927-current-main-import-ui-rebased.
+- CURRENT FUNCTIONAL / EXECUTION CANDIDATE → 60ae24fbf256b7ed2fa6c7c60a6ace883ae233e0.
+- CLOSED ROOT → UI/file-engine advertised 100 MB while the live Staging import_create_job RPC rejected files above 50 MB.
+- IMPLEMENTED → immutable historical migration restored; additive 100 MB upgrade migration added; Staging upgrade applied and read back successfully.
+- ACTIVE IMPORT FRONTS → drag/drop execution; native PDF table reconstruction; canonical source understanding; canonical commit/readback; browser/certification.
+- PROOF STATUS → exact source and Staging RPC readback proven; real-file/browser execution remains NOT PROVEN until exact-SHA runtime gate completes.
+- NEXT → first terminal GitHub PDF/file-engine result; then real import-to-decision runtime evidence; repair only reproduced current-SHA failures.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / NATIVE PDF TABLE ROOT CLOSED / EXACT SHA 7064dff5e6e68794622ed29f24dbb02b1407e6d4
 
 - MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
