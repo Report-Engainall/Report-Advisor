@@ -1415,3 +1415,14 @@
 - EXACT-CODE REGRESSION HARNESS → PASS on exact GitHub branch contents for canonical report routing, duplicate-map removal, post-import journey order/uniqueness, rendered evidence persistence path, and duplicate context absence.
 - BUILD LIMITATION → local clone/build could not execute because the execution environment cannot resolve GitHub; Netlify still reports generic build exit code 2 and Vercel is blocked by the free-plan deployment rate limit. No build PASS is claimed.
 - DO NOT REPEAT → do not invent staging task rows or fake a live import. Use the real canonical import path once authenticated tenant/device or a valid canary source is available.
+
+# RESUME TOKEN — 2026-09-28 / REPORT TRUTH + SOURCE-BOUND RENDER HARDENING
+
+- FUNCTIONAL CHECKPOINT → `09cf686248cd720bb72dc210f78ee8167fa47d7e`.
+- CLOSED → `getBoundRenderedReportManifest()` now fails closed unless the durable execution Job status is exactly `completed`; a merely present Manifest cannot claim `rendered`.
+- CLOSED → `SourceBoundReportContext` now exposes the actual source-bound rendered report outputs as navigable links, preserving the Import ID context and the canonical source hash binding.
+- CLOSED → `ReportSurfaceContext` now safely covers the complete truth vocabulary: VERIFIED, TRUSTED, CALCULATED, PARTIAL, REVIEW, BLOCKED, INSUFFICIENT DATA.
+- CLOSED → report-truth contract now guards both the completed-job requirement and rendered-output exposure.
+- PROOF → exact GitHub-content regression harness PASS for completed-job gating, rendered-output links, and all truth statuses.
+- DO NOT REPEAT → never treat Manifest presence alone as completed/rendered proof; do not add page-local truth-state styling outside the shared ReportSurfaceContext.
+- NEXT EXACT ACTION → rescan report surfaces for remaining source-bound/As-of/freshness gaps, then consume any exact-head hosted build evidence when available.
