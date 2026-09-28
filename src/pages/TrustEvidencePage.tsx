@@ -6,6 +6,7 @@ import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/u
 import { fetchDataQualitySnapshot } from '@/lib/data-quality-snapshot';
 import { fetchImportEvidenceSnapshot, type ImportEvidenceSnapshot } from '@/lib/queries';
 import { specialtyLabel } from '@/lib/import/canonical-labels';
+import { ReportSurfaceContext, type ReportTruthStatus } from '@/components/ReportSurfaceContext';
 
 const states = [
   { title: 'VERIFIED', text: 'بيانات قابلة للإثبات من المسار الكانوني.', tone: 'bg-success-50 text-success-700', icon: CheckCircle2 },
@@ -101,6 +102,12 @@ export function TrustEvidencePage() {
   if (error) return <ErrorState message={error} onRetry={() => void loadSnapshot()} />;
 
   return <div dir="rtl" className="ag-trust-evidence-surface space-y-6 animate-fade-in pb-10">
+    <ReportSurfaceContext
+      period="الحالة الحالية"
+      asOf={new Date().toISOString().slice(0, 10)}
+      status={((effectiveStatus === 'VERIFIED' || effectiveStatus === 'TRUSTED' || effectiveStatus === 'PARTIAL' || effectiveStatus === 'REVIEW' || effectiveStatus === 'BLOCKED' || effectiveStatus === 'INSUFFICIENT DATA') ? effectiveStatus : 'INSUFFICIENT DATA') as ReportTruthStatus}
+      sourceLabel={importJobId ? 'سياق الثقة مرتبط بعملية الاستيراد المحددة؛ لا يتم تحويل غياب Evidence Passport إلى نجاح.' : 'حالة الثقة تقرأ من المصدر الحالي للمستأجر، مع إبقاء الفجوات والحالات المحجوبة صريحة.'}
+    />
     <PageHeader
       title="مركز الثقة والأدلة"
       subtitle="طبقة واحدة لفهم مصدر الرقم، حالته، حدوده، وما إذا كان صالحًا للاستخدام في قرار."
