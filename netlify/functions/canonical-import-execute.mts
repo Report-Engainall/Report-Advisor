@@ -28,6 +28,10 @@ function bearer(request: Request): string {
 export default async (request: Request): Promise<Response> => {
   if (request.method !== 'POST') return json(405, { error: 'METHOD_NOT_ALLOWED' });
 
+  let activeJobId: string | null = null;
+  let activeCompanyId: string | null = null;
+  let markImportFailed: ((message: string) => Promise<void>) | null = null;
+
   try {
     const authorization = bearer(request);
     const supabaseUrl = env('VITE_SUPABASE_URL');
@@ -41,12 +45,32 @@ export default async (request: Request): Promise<Response> => {
     const serviceClient = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
+    markImportFailed = async (message: string): Promise<void> => {
+      if (!activeJobId || !activeCompanyId) return;
+      const { error } = await serviceClient
+        .from('import_jobs')
+        .update({
+          status: 'failed',
+          completed_at: new Date().toISOString(),
+          error_message: message.slice(0, 1000),
+          result_summary: {
+            recovery: 'canonical-import-server-fail-closed',
+            failed_at: new Date().toISOString(),
+            error: message.slice(0, 512),
+          },
+        })
+        .eq('id', activeJobId)
+        .eq('company_id', activeCompanyId)
+        .in('status', ['queued', 'processing']);
+      if (error) throw error;
+    };
 
     const { data: userData, error: userError } = await userClient.auth.getUser();
     if (userError || !userData.user?.id) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
     const { data: companyId, error: companyError } = await userClient.rpc('current_company_id');
     if (companyError || !companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
+    activeCompanyId = String(companyId);
 
     const payload = await request.json() as {
       importId?: string;
@@ -73,7 +97,9 @@ export default async (request: Request): Promise<Response> => {
       .eq('company_id', companyId)
       .maybeSingle();
     if (jobError) throw jobError;
-    if (!job?.file_record_id) throw new Error('IMPORT_JOB_SOURCE_RECORD_NOT_FOUND_OR_FORBIDDEN');
+    if (!job) throw new Error('IMPORT_JOB_NOT_FOUND_OR_FORBIDDEN');
+    activeJobId = job.id;
+    if (!job.file_record_id) throw new Error('IMPORT_JOB_SOURCE_RECORD_NOT_FOUND_OR_FORBIDDEN');
     if (job.job_type && job.job_type !== payload.entityType) throw new Error('IMPORT_JOB_ENTITY_TYPE_MISMATCH');
 
     const { data: fileRecord, error: fileError } = await serviceClient
@@ -183,6 +209,51 @@ export default async (request: Request): Promise<Response> => {
       .eq('company_id', companyId);
     if (jobUpdateError) throw jobUpdateError;
 
+    const { data: snapshot, error: snapshotError } = await serviceClient
+      .from('source_analysis_snapshots')
+      .insert({
+        company_id: companyId,
+        import_job_id: job.id,
+        source_hash: sourceSha,
+        source_path: storagePath,
+        source_format: detection.format,
+        analysis_status: 'analyzed',
+        entity_type: 'source-data',
+        quality_score: authoritativeQualityScore,
+        row_count: authoritativeRows.length,
+        column_count: Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns.length : 0,
+        datasets: [{
+          name: fileRecord.file_name || payload.fileName || 'import',
+          rowCount: authoritativeRows.length,
+          columnCount: Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns.length : 0,
+          columns: authoritativeDataset.columns,
+          preview: authoritativeDataset.preview.slice(0, 25),
+        }],
+        canonical_text: [
+          `source=${fileRecord.file_name || payload.fileName || 'import'}`,
+          `server_authoritative_quality=${authoritativeQualityScore}%`,
+          `source_sha=${sourceSha}`,
+        ].join(' | '),
+        visual_assets: [],
+        warnings: [],
+        metadata: {
+          fileName: fileRecord.file_name || payload.fileName || 'import',
+          sourceFormat: detection.format,
+          serverAuthoritativeSource: true,
+          serverAuthoritativeQualityScore: authoritativeQualityScore,
+          analyzedRowCount: authoritativeRows.length,
+          importJobId: job.id,
+          sourceStoragePath: storagePath,
+          canonicalCommitPending: true,
+        },
+      })
+      .select('id')
+      .single();
+    if (snapshotError || !snapshot?.id) {
+      throw new Error(`AUTHORITATIVE_EVIDENCE_PERSISTENCE_FAILED:${snapshotError?.message ?? 'SNAPSHOT_ID_MISSING'}`);
+    }
+    const snapshotId = snapshot.id;
+
     const execution = await runCanonicalImportThroughDurableRunner(
       {
         importId: job.id,
@@ -202,51 +273,6 @@ export default async (request: Request): Promise<Response> => {
       },
     );
 
-    let snapshotId: string | null = null;
-    try {
-      const { data: snapshot, error: snapshotError } = await serviceClient
-        .from('source_analysis_snapshots')
-        .insert({
-          company_id: companyId,
-          import_job_id: job.id,
-          source_hash: sourceSha,
-          source_path: storagePath,
-          source_format: detection.format,
-          analysis_status: 'analyzed',
-          entity_type: 'source-data',
-          quality_score: authoritativeQualityScore,
-          row_count: authoritativeRows.length,
-          column_count: Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns.length : 0,
-          datasets: [{
-            name: fileRecord.file_name || payload.fileName || 'import',
-            rowCount: authoritativeRows.length,
-            columnCount: Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns.length : 0,
-            columns: authoritativeDataset.columns,
-            preview: authoritativeDataset.preview.slice(0, 25),
-          }],
-          canonical_text: [
-            `source=${fileRecord.file_name || payload.fileName || 'import'}`,
-            `server_authoritative_quality=${authoritativeQualityScore}%`,
-            `source_sha=${sourceSha}`,
-          ].join(' | '),
-          visual_assets: [],
-          warnings: [],
-          metadata: {
-            fileName: fileRecord.file_name || payload.fileName || 'import',
-            sourceFormat: detection.format,
-            serverAuthoritativeSource: true,
-            serverAuthoritativeQualityScore: authoritativeQualityScore,
-            committed: authoritativeRows.length,
-            jobId: execution.jobId,
-            sourceStoragePath: storagePath,
-          },
-        })
-        .select('id')
-        .single();
-      if (!snapshotError) snapshotId = snapshot?.id ?? null;
-    } catch (snapshotError) {
-      console.error('[canonical-import-execute] non-fatal snapshot persistence failure', snapshotError);
-    }
 
     return json(200, {
       ...execution,
@@ -260,6 +286,13 @@ export default async (request: Request): Promise<Response> => {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED';
+    if (markImportFailed) {
+      try {
+        await markImportFailed(message);
+      } catch (recoveryError) {
+        console.error('[canonical-import-execute] fail-closed terminalization failed', recoveryError);
+      }
+    }
     const status = message.startsWith('NETLIFY_ENV_MISSING') ? 503 : 400;
     return json(status, { error: 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED', detail: message.slice(0, 512) });
   }
