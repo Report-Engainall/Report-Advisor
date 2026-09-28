@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / DECISION + WORK IMPORT SCOPING FAIL-CLOSED
+
+- FUNCTIONAL CODE/TEST HEAD → `4e6262d0309667e6d98820ce7884eb71c8de3eec`.
+- MEMORY DESCENDANT → `9b0a1acbf4dc55558730339b4516253c62890de2` before this Index write-back.
+- CLOSED → Decision Experience no longer presents tenant-wide alerts as source-specific evidence in `?import=` mode; no Evidence Snapshot means decision progression remains blocked.
+- CLOSED → Work Center `?import=` scope filters Decision Work Items by exact `evidence_refs.import_job_id` match and preserves import context on decision/Evidence navigation.
+- PRESERVED → existing decision/work contracts and canonical database models; no duplicate endpoint/service.
+- PROOF → 16 targeted source assertions PASS on `4e6262d...`; query main-prefix proof remains PASS.
+- CI EXACT SHA → Final Certification Gate `36472305103` and Execution Enforcement Contract `36472305117` are queued; no terminal PASS/FAIL claim.
+- OPEN → hosted exact-head runtime acceptance, Vercel rate limit, PC01 browser/device proof.
+- DO NOT REPEAT → no source attribution for generic alerts; no cross-import work-item display; no parallel scoping layer.
+- NEXT EXACT ACTION → scan Outcome/Learning persistence and Benchmark eligibility for the first concrete non-device gap and execute it.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPORT→DECISION PROVENANCE CONTINUITY
 
 - FUNCTIONAL CODE/TEST CANDIDATE → `0bf73fd97c907029b7dec7db4c1897041e22b031`.
