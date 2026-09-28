@@ -341,18 +341,40 @@ for (const mime of canonicalClientMimes) {
 if (/accept="[^"]*\.xml/.test(canonicalImportPage)) {
   throw new Error('Canonical import UI must not advertise XML while the canonical parser rejects XML');
 }
-const postImportOutputContract = [
-  [/نُخرج التقرير المناسب/, 'Import shell must disclose the post-import report output stage'],
-  [/SPECIALTY_REPORT_OUTPUTS/, 'Canonical import UI must map detected specialty into governed report outputs'],
-  [/resolvePostImportReports/, 'Canonical import UI must resolve report outputs from specialty/entity'],
-  [/PostImportReportOutputs/, 'Canonical import UI must render source-derived report output links'],
+const reportOutputContractPath = path.join(root, 'src', 'lib', 'import', 'canonical-report-outputs.ts');
+if (!fs.existsSync(reportOutputContractPath)) {
+  throw new Error('Canonical report output contract is missing');
+}
+const reportOutputContract = fs.readFileSync(reportOutputContractPath, 'utf8');
+for (const [token, message] of [
+  ['CANONICAL_REPORT_OUTPUTS', 'Canonical report output map missing'],
+  ['resolveCanonicalReportOutputs', 'Canonical report output resolver missing'],
+  ['/reports/sales', 'Sales report output route missing'],
+  ['/reports/purchases', 'Purchases report output route missing'],
+  ['/reports/inventory', 'Inventory report output route missing'],
+  ['/analytics/rfm', 'Customer RFM output route missing'],
+  ['/analytics/abc', 'Product ABC output route missing'],
+  ['/analytics/liquidity', 'Payment liquidity output route missing'],
+]) {
+  if (!reportOutputContract.includes(token)) throw new Error('Canonical report output contract missing: ' + message);
+}
+const canonicalImportAdapter = fs.readFileSync(path.join(root, 'src', 'lib', 'import', 'canonical-production-adapter.ts'), 'utf8');
+if (!canonicalImportAdapter.includes("resolveCanonicalReportOutputs")) {
+  throw new Error('Canonical durable import adapter must consume the shared report output contract');
+}
+if (/const routesByEntity|function resolvePostImportReports|const SPECIALTY_REPORT_OUTPUTS/.test(canonicalImportAdapter)) {
+  throw new Error('Report output routing must not be duplicated inside the durable import adapter');
+}
+const canonicalImportUiSource = fs.readFileSync(path.join(root, 'src', 'pages', 'CanonicalImportPage.tsx'), 'utf8');
+for (const [pattern, message] of [
+  [/مخرجات التقارير التي اعتمدها مسار التنفيذ/, 'Import result must disclose the authoritative post-import report outputs'],
+  [/Manifest الكانوني المحفوظ داخل Job/, 'Import result must explain that report outputs come from the durable manifest'],
+  [/PostImportReportOutputs/, 'Canonical import UI must render source-bound report output links'],
   [/FinalExecutionProof/, 'Canonical import UI must render final execution proof for durable tasks'],
   [/مهام التنفيذ التسع/, 'Canonical import UI must describe the nine durable tasks accurately'],
   [/ليست معالجة متوازية متعددة العمال/, 'Canonical import UI must not claim parallel multi-worker execution'],
-];
-const canonicalImportUiSource = fs.readFileSync(path.join(root, 'src', 'pages', 'CanonicalImportPage.tsx'), 'utf8');
-for (const [pattern, message] of postImportOutputContract) {
-  if (!pattern.test(canonicalImportUiSource)) throw new Error(`Post-import output contract missing: ${message}`);
+]) {
+  if (!pattern.test(canonicalImportUiSource)) throw new Error('Post-import output contract missing: ' + message);
 }
 
 console.log('Import transaction contract: PASS');
