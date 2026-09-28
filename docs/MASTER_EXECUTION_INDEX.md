@@ -1,16 +1,18 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / SECURITY SOURCE PARITY + ENFORCEMENT REPAIR
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / SECURITY + REPORT-EXECUTION SOURCE PARITY
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- CURRENT REPOSITORY HEAD → `787f0d89b756af43ebaa0305e0e7063fcedca31e`.
-- CURRENT CODE/TEST CANDIDATE → `787f0d89b756af43ebaa0305e0e7063fcedca31e`.
-- ENFORCEMENT REPAIR → `scripts/check-execution-enforcement-protocol.test.mjs` malformed arrow-candidate fixture was corrected; the prior CI failure was a parser error at line 58, not a product/runtime failure.
-- SECURITY SOURCE PARITY → a forward-only migration restores 13 verified Staging SECURITY DEFINER definitions covering 12 names (`record_payment` has two overloads), with explicit authenticated/service_role grants and PUBLIC/anon revocation. No new RPC names were introduced.
-- LIVE READBACK → Staging project `fnqbvfuwbdpwvhcgzksl` now reports every restored definition as SECURITY DEFINER, authenticated EXECUTE=true, anon EXECUTE=false, service_role EXECUTE=true; all use an empty locked search_path except `create_decision_action_receipt`, which intentionally uses `public` with fully-qualified relations.
-- STAGING APPLY → the source-parity migration applied successfully after correcting PostgreSQL grant-signature and statement-termination generation errors.
-- SECURITY ADVISOR BOUNDARY → intentional authenticated SECURITY DEFINER warnings are source-classified and live-readback proven; Auth leaked-password protection remains a platform setting not exposed by the connected mutation surface and is not falsely marked closed.
-- MIGRATION PROVENANCE → this closes the identified missing source-parity slice, but full live-history-to-repository lineage reconciliation remains open; no destructive squash/delete/replay is permitted without exact lineage proof.
-- NEXT EXECUTABLE ACTION → consume the first terminal current-SHA CI result; then continue migration provenance and remaining independent Supabase/runtime fronts.
-- DO NOT REPEAT → blanket SECURITY DEFINER revokes; migration deletion to force count equality; stale-SHA PASS transfer; device/browser polling while PC01 is unavailable.
+- CURRENT CODE/TEST CANDIDATE → `3b0f754f528bfc5a932fd794d06bcf666d744492`.
+- CURRENT REPOSITORY HEAD → this governance checkpoint will be a descendant of the exact code candidate; only governance changes follow.
+- SECURITY PARSER → `scripts/check-security-definer-exposure-contract.mjs` now uses a syntax-safe function-body parser, explicit empty/public/pg_catalog search-path recognition, and escaped function-name matching.
+- SECURITY SOURCE PARITY → `20260928213000_reconcile_live_security_definer_source_parity.sql` restores 13 verified Staging SECURITY DEFINER definitions across 12 names; applied successfully to Staging.
+- REPORT-EXECUTION SOURCE PARITY → `20260928220000_restore_report_execution_failure_rpc_source_parity.sql` restores the verified `fail_report_execution_job(uuid,uuid,text,uuid,jsonb)` source; applied successfully to Staging.
+- LIVE READBACK → `fail_report_execution_job` is SECURITY DEFINER with authenticated=true, service_role=true, anon=false, and fixed `public, pg_catalog` search_path.
+- PHASE-2 SECURITY SURFACE → the checker now treats an explicit empty `search_path` as fixed/safe because PostgreSQL resolves no implicit non-system schemas; public/pg_catalog remain accepted.
+- MIGRATION PROVENANCE → live history is 343 entries vs 274 repository migration files. Normalized name matching resolves only a partial subset; version IDs are not filename prefixes in many cases. No destructive reconciliation is permitted without exact lineage/source proof.
+- VERCEL/PHASE-F → production `https://report-advisor.vercel.app/api/tenant-canary` currently returns HTTP 503 `operational_token_not_configured`; current Vercel connector exposes deployment inspection but not environment-variable mutation, so this remains an external platform blocker, not a device blocker.
+- DEVICE → PC01 remains isolated; no device-dependent work was used to justify any repository claim.
+- NEXT EXECUTABLE ACTION → consume terminal CI for `3b0…`; if the code contracts pass, persist only a governance descendant and rescan. Phase-F remains fail-closed until production/runtime prerequisites are actually restored.
+- DO NOT REPEAT → stale candidate hashes, blanket index drops, migration deletion/squash, blanket SECURITY DEFINER revokes, or device polling.
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / Aghbari SALES-REPORT READINESS + EXACT SAVE-BLOCKER DIAGNOSTICS
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
