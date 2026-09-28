@@ -1222,3 +1222,22 @@
 - NEXT EXECUTABLE ACTION → consume the first terminal mandatory gate on `b081c3f`; then reconcile the governance lane. Do not promote the current production docs-only deployment as functional proof.
 - DO NOT REPEAT → stale PASS transfer; preview-as-production; production SHA bypass; duplicate importer/navigation/RPC/runner; broad-push workflow weakening solely to clear queue pressure.
 - RESUME STATUS → ACTIVE / IMPORT CORE HARDENED / EXACT-HEAD DEPLOYMENT PROVEN / RELEASE IDENTITY STILL OPEN.
+
+# RESUME TOKEN — 2026-09-28 / RENDERED REPORT OUTPUT CLOSURE + REPORT-CENTER HANDOFF
+
+- CURRENT EXECUTION HEAD → `a8785ff73d71c9eb7f57c6095c0eeb67284c7f8e` on `exec/20260927-current-main-import-ui-rebased`.
+- MAIN CONTROL HEAD VERIFIED BEFORE WORK → `1b0d25a7834c779198f9ad19039c87e1262c4cd3`; branch control doctrine synchronized with current main `SYSTEM_HEART.md` at commit `266419d28439f0c85a7434b7cd07a6f979c3bc13`.
+- ROOT GAP FOUND → durable stage `rendered` previously advanced the checkpoint but did not persist an actual source-bound report-output manifest.
+- CLOSED → `durable-production-runner.ts` now captures stage evidence and persists `renderedOutput` in the existing report-execution Job evidence; no new report engine/table/runner was created.
+- CLOSED → `canonical-production-adapter.ts` now emits a deterministic rendered-report manifest bound to source hash/import/entity/specialty and maps to existing canonical report surfaces: sales, purchases, inventory/inventory-intelligence, analytics, or Executive fallback.
+- CLOSED → authoritative server executor passes detected source specialty into the durable import runner.
+- CLOSED → tenant-bound `fetchReportExecutionJob()` readback added to existing query layer; no duplicate RPC/endpoint.
+- CLOSED → Canonical Import UI no longer treats static specialty links as proof; it reads persisted rendered-output evidence and requires completed Job + non-empty rendered outputs before declaring the report-render phase complete.
+- CLOSED → Reports Center now exposes a source-to-report handoff when opened with `?import=`, showing source, specialty, evidence state, rendered state, snapshot id, and actual Job-rendered outputs; KPI scope remains canonical company truth rather than fabricated file-only metrics.
+- TEST/PROOF → 22 exact-source contract assertions passed against the changed GitHub blobs/current server source for runner, report manifest, server specialty binding, query readback, post-upload UI, Reports Center handoff, and contract guard coverage.
+- LIVE SUPABASE PROOF → staging schema contains `report_execution_jobs` and `report_execution_tasks`; `report_execution_tasks` enforces the 9-stage domain; `report_execution_jobs` is tenant-policy bound; authenticated SELECT and service-role full privilege on Jobs were verified.
+- NO FALSE E2E → staging currently has zero persisted task rows; no real fixture import was executed end-to-end in this batch. GitHub Actions returned no workflow runs for the current exact head, and Vercel status is build-rate-limit failure. PC01 is offline.
+- CURRENT BLOCKERS ONLY → hosted Vercel free-plan build-rate limit; device-dependent browser proof on offline PC01; fresh hosted/runtime acceptance of the exact current head.
+- DO NOT REPEAT → do not rebuild the nine-stage ledger, do not create a second report-output table/runner, do not revert to static post-upload links, and do not call source-level contract PASS a runtime/browser PASS.
+- RESUME POINT → perform a real authoritative fixture import through the current server path when a runnable hosted/device execution path exists and require: 9 completed tasks → renderedOutput persisted in Job evidence → evidence snapshot → source-bound report handoff → downstream Decision/Work/Replay/Benchmark eligibility gates.
+- NEXT EXACT ACTION → persist this boundary in Master Execution Index, then rescan the current report UI for provenance validation gaps and continue the next safe non-device front.
