@@ -1,4 +1,11 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / CANONICAL SURFACE COMPLETENESS DEEPENED — FUNCTIONAL CANDIDATE 3b419ba
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXACT-HEAD CI OBSERVATION FOR FUNCTIONAL CANDIDATE 3b419ba
+
+- FUNCTIONAL CANDIDATE → `3b419ba0b772a2556d6d37b157eda29928d95150`.
+- CI → 7 terminal records were cancelled/skipped; 46 remained pending/queued in the fetched page. No exact-head code PASS/FAIL established.
+- CURRENT HEAD → `2d23d91a741383c7d0ff1ce68583e32361eef5c6`; only governance docs followed the functional candidate.
+- NEXT → consume terminal evidence without transferring historical PASS; continue concrete non-device gaps only.
+
+
 
 - FUNCTIONAL/UI CANDIDATE → `3b419ba0b772a2556d6d37b157eda29928d95150`.
 - CLOSED → truth context/freshness across the major dashboard, intelligence, evidence, decision, work, outcome, benchmark, analytics, report, master-data and governance surfaces.
