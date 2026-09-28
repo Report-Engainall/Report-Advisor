@@ -1,6 +1,6 @@
 # RESUME TOKEN — 2026-09-28 / EXACT CURRENT EXECUTION HEAD
 
-- CURRENT REPOSITORY HEAD → `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`.
+- CURRENT FUNCTIONAL / EXECUTION CANDIDATE → `b37adb8dfcad45d6fed2c688cb341034a3c4e25a` (Git repository HEAD MUST be reconciled directly at every startup).
 - CURRENT CODE/TEST CANDIDATE → `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`.
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
 - ACTIVE PR → `#672` / `exec/20260927-current-main-import-ui-rebased`.
