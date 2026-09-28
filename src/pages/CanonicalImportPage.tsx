@@ -679,7 +679,7 @@ export function CanonicalImportPage() {
               <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black text-primary-700">{String(task.ordinal).padStart(2,'0')} · {task.stage}</span><span className={`rounded-full border px-2 py-0.5 text-[9px] font-black ${badge.className}`}>{badge.label}</span></div>
               <div className="mt-2 text-[11px] font-black text-ink-900">{task.label}</div>
               <div className="mt-2 grid grid-cols-2 gap-2 text-[8px] text-ink-500"><span>العامل: {task.worker_id ?? 'بانتظار claim'}</span><span>المحاولة: {task.attempt}</span></div>
-              {task.last_error && Object.keys(task.last_error).length > 0 && <div className="mt-2 rounded-lg border border-danger-200 bg-danger-50 px-2 py-1.5 text-[9px] text-danger-700">{String(task.last_error.message ?? 'تعذر تنفيذ المهمة')}</div>}
+              {task.last_error && Object.keys(task.last_error).length > 0 && <div className="mt-2 rounded-lg border border-danger-200 bg-danger-50 px-2 py-1.5 text-[9px] text-danger-700">{String(typeof task.last_error?.message === 'string' ? task.last_error.message : 'تعذر تنفيذ المهمة')}</div>}
             </article>;
           })}
         </div>
@@ -726,7 +726,7 @@ export function CanonicalImportPage() {
         <div className="mt-2 text-[11px] font-black text-ink-900">{task.label}</div>
         <div className="mt-2 text-[8px] text-ink-500">العامل: {task.worker_id ?? 'غير متاح'} · المحاولة: {task.attempt}</div>
         <div className="mt-1 text-[8px] text-ink-400">{task.completed_at ? `اكتملت ${formatDateTime(task.completed_at)}` : task.started_at ? `بدأت ${formatDateTime(task.started_at)}` : 'لم تبدأ'}</div>
-        {task.last_error && Object.keys(task.last_error).length > 0 && <div className="mt-2 rounded-lg border border-danger-200 bg-danger-50 px-2 py-1.5 text-[9px] text-danger-700">{String(task.last_error.message ?? 'تعذر تنفيذ المهمة')}</div>}
+        {task.last_error && Object.keys(task.last_error).length > 0 && <div className="mt-2 rounded-lg border border-danger-200 bg-danger-50 px-2 py-1.5 text-[9px] text-danger-700">{String(typeof task.last_error?.message === 'string' ? task.last_error.message : 'تعذر تنفيذ المهمة')}</div>}
       </article>;
     })}
   </div>

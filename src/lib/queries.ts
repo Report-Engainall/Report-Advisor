@@ -567,6 +567,13 @@ export async function fetchSuppliersPage(page=0,pageSize=50,search=''):Promise<S
   return{data:(data??[]) as SupplierRow[],count,page,page_size:pageSize};
 }
 
+export type WorkerHealthSnapshot = {
+  queued: number;
+  active: number;
+  expiredActive: number;
+  activeReadComplete: boolean;
+};
+
 export type ReportExecutionTaskRecord = {
   id: string;
   report_execution_job_id: string;

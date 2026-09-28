@@ -33,6 +33,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
   if (!tenantId) throw new Error('Durable production execution requires a tenant context');
   const job = await store.claim(input.jobId, input.workerId, leaseSeconds, tenantId);
   let heartbeatTimer: ReturnType<typeof setInterval> | undefined;
+  let activeTask: ReportExecutionStage | null = null;
 
   try {
     if (job.tenantId !== tenantId) throw new Error('Tenant mismatch for durable production execution');
@@ -50,12 +51,11 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
     const sourceRows = source.rows;
 
     let heartbeatFailure: unknown = null;
-    let activeTask: ReportExecutionStage | null = null;
     heartbeatTimer = setInterval(() => {
       void store.heartbeat(input.jobId, input.workerId, leaseSeconds, tenantId).catch((error) => { heartbeatFailure ??= error; });
     }, heartbeatIntervalMs);
 
-    const checkpoint = (nextStage: ReportExecutionStage): ReportExecutionCheckpoint => ({ ...job.checkpoint, sourceHash: input.sourceHash, stage: nextStage, updatedAt: Date.now() });
+    const buildCheckpoint = (nextStage: ReportExecutionStage): ReportExecutionCheckpoint => ({ ...job.checkpoint, sourceHash: input.sourceHash, stage: nextStage, updatedAt: Date.now() });
     let stage = job.checkpoint.stage;
     while (stage !== 'rendered') {
       if (heartbeatFailure) throw heartbeatFailure;
@@ -65,10 +65,10 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       await store.startTask(input.jobId, input.workerId, job.leaseToken!, following, tenantId);
       if (input.executeStage) await input.executeStage(following, { request: input.request, rows: sourceRows });
       if (heartbeatFailure) throw heartbeatFailure;
-      const nextCheckpoint = checkpoint(following);
-      await store.saveCheckpoint(input.jobId, nextCheckpoint, input.workerId, tenantId);
+      const checkpoint = buildCheckpoint(following);
+      await store.saveCheckpoint(input.jobId, checkpoint, input.workerId, tenantId);
       await store.completeTask(input.jobId, input.workerId, job.leaseToken!, following, {
-        stage: following, checkpoint: nextCheckpoint, rowCount: sourceRows.length, observedAt: new Date().toISOString(),
+        stage: following, checkpoint, rowCount: sourceRows.length, observedAt: new Date().toISOString(),
       }, tenantId);
       activeTask = null;
       stage = following;
