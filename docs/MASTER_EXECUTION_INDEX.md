@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPORT→DECISION PROVENANCE CONTINUITY
+
+- FUNCTIONAL CODE/TEST CANDIDATE → `0bf73fd97c907029b7dec7db4c1897041e22b031`.
+- DOCUMENTATION DESCENDANT AFTER MEMORY WRITE-BACK → `f944869837f220828119ec180ace2af50ad9e8b2` before this Index write-back.
+- CLOSED → Executive Report preserves `import` on rendered-output routes, NEXT ACTION, source alerts and evidence actions through a canonical local query-preservation helper.
+- PRESERVED → Decision and Work already accept import context; Replay and Benchmark remain explicitly company-level surfaces and were not falsely relabeled as source-bound.
+- CLOSED → source-bound report context is shared across domain reports, Analytics and Inventory Intelligence.
+- QUERY RECOVERY → `src/lib/queries.ts` is exact-main-prefix plus branch-specific Task Ledger/Evidence additions; no main export is missing.
+- SOURCE PROOF → 28 focused assertions PASS on `0bf73fd...`.
+- CI EXACT SHA → Execution Enforcement Contract `36472061987` and Final Certification Gate `36472061942` are queued; no terminal PASS/FAIL claim.
+- OPEN → hosted exact-head runtime acceptance, Vercel free-plan rate limit, PC01 browser/device proof.
+- DO NOT REPEAT → no partial-range whole-file query edits; no Replay/Benchmark source-bound claim without a supporting contract; no dropped import context on downstream actions.
+- NEXT EXACT ACTION → consume terminal exact-head gates, then execute the next concrete non-device gap after Report → Decision → Work → Outcome/Benchmark eligibility.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / SOURCE-BOUND REPORT SURFACES + QUERY-LAYER RECOVERY + NAVIGATION PROVENANCE
 
 - FUNCTIONAL CODE/TEST CANDIDATE → `3c6a54e33fbb1183b82e9770db9bbb2b4063629e`.
