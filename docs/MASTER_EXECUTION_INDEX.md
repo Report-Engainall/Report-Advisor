@@ -1,3 +1,22 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / REAL CORPUS RESTORED / REPORT_001 NEXT
+
+- CURRENT CODE/TEST CANDIDATE: `e58f0d7709e3d4707cf596cfc2ca1f42a37d1dad`.
+- CONTROL HEAD BEFORE THIS GOVERNANCE WRITE: `126b375ebf98bfd1cda4a60600b459c4dca1ebb8`.
+- FUNCTIONAL APPLICATION CODE BASELINE: `5e1133153fbbb7d5f3284bfa6d7085ce7ce9e2d5`.
+- CORPUS: 47 real report files restored under `tests/fixtures/realistic-reports/`; canonical blob objects originate from historical commit `c8f2e55...`; README now inventories the actual corpus.
+- CORPUS GATE PROOF: equivalent local corpus commit `d77ad0b...` produced `DECLARED=47 ACTUAL=48 MINIMUM=20 PASS`; current GitHub HEAD `e58f0d...` contains the same 47 report blobs and the inventory README.
+- REPORT COUNTS: TOTAL=47, CLOSED=0, REVIEW=0, FAILED=0, BLOCKED=0, REMAINING=47.
+- CURRENT REPORT: REPORT_001 = deterministic first report `اعمار الديون للعملا.pdf`; raw SHA-256 `9996F169AAE09E31F909712CA4BE5ACE238C7A4F123B370D436A5F1A115EA099`.
+- LAST COMPLETED STAGE: UNDERSTAND. Real PDF read/understood; purpose is receivables/customer aging; period 01/01/2026–30/06/2026; YER; one page.
+- NO REPORT CLOSED: no canonical import/DB commit/evidence decision/render proof exists yet for REPORT_001.
+- CANONICAL PATH TO USE: existing `/api/canonical-import-execute` → `runCanonicalImportThroughDurableRunner`; existing `fetchCanonicalSourceReport` / `fetchReportExecutionTasks` / `SourceReportPage`.
+- OPEN EXECUTION FRONT: authenticated browser import of REPORT_001 through real Staging Auth/Storage, followed by canonical readback and nine-stage rendered proof.
+- SEPARATE OPEN CERTIFICATION FRONTS: Phase-F exact-runtime target and live restore migration drift remain unresolved and must not be conflated with report processing.
+- DO-NOT-REPEAT: no corpus rediscovery, no duplicate fixtures/importer/ledger, no direct SQL import of the report, no synthetic report substitute, no stale SHA proof.
+- NEXT EXACT ACTION: implement and run a one-report authenticated corpus E2E workflow for REPORT_001 using the existing Staging E2E secrets and canonical Import UI; stop the job after REPORT_001 and persist its observed import/canonical/task/source-report proof.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / REPORT-FIRST + EXACT-HEAD CHECKPOINT
 
 - CONTROL HEAD AFTER MEMORY CHECKPOINT: `80fd8c4008ec24c6f248dfa31b20f2fd155f6955`.
