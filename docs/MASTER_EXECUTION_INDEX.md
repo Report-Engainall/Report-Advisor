@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / SOURCE-BOUND REPORT SURFACES + QUERY-LAYER RECOVERY + NAVIGATION PROVENANCE
+
+- FUNCTIONAL CODE/TEST CANDIDATE → `3c6a54e33fbb1183b82e9770db9bbb2b4063629e`.
+- DOCUMENTATION HEAD AFTER MEMORY WRITE-BACK → `1ca99e755f5095462317e4d74faaf72e95e303b3` before this Index write-back.
+- CLOSED → rendered-report outputs preserve import provenance across all generated report routes; Sales/Purchases/Inventory/Receivables/Profitability, Analytics and Inventory Intelligence display the shared source-bound context when opened with `?import=`.
+- CLOSED → Reports Center preserves `import` when opening/closing Builder and when traversing report cards, decision-output chain and report actions.
+- ROOT REPAIR → `src/lib/queries.ts` was recovered from exact `main` and extended only with the durable Task Ledger, rendered-manifest validator, Evidence Snapshot and source-bound recommendation reads required by this branch.
+- PROOF → current queries file starts with exact main content; all main exports remain present. 37 targeted source assertions PASS on the functional HEAD.
+- CI EXACT SHA → Final Certification Gate `36471921296` and Execution Enforcement Contract `36471921049` are queued on `3c6a54...`; no terminal PASS/FAIL claimed.
+- OPEN → hosted exact-head/runtime acceptance and PC01 browser/device proof; Vercel free-plan build-rate remains external.
+- DO NOT REPEAT → no partial-range whole-file writes; no dropping import context; no duplicate source-provenance implementation.
+- NEXT EXACT ACTION → consume terminal exact-head gates; then inspect the next concrete non-device gap after Report → Decision → Work → Outcome/Benchmark.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / SOURCE-BOUND RENDERED REPORT HARDENING + REPORTS PAGE RESTORE
 
 - CURRENT CODE/TEST CANDIDATE → `b865bda42f89553e75bd03f6ba0e61cd3dddc1ec`.
