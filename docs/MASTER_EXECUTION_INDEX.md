@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / SOURCE INTAKE + PDF TABLE + EVIDENCE GATE
+
+- EXACT MAIN BASE → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- CURRENT FUNCTIONAL FRONT → `fix/20260928-canonical-import-dropzone`; this branch is the sole active import UX/data front in this batch.
+- IMPLEMENTED → real drag/drop on Canonical Import and External File Analysis; PDF multi-page table reconstruction; Arabic sales-report header mapping; deterministic source-specialty inference; evidence-gated decision navigation.
+- SECURITY/TRUTH → no raw-data fabrication, no typed canonical write target inferred from weak evidence, provenance remains tenant/source/hash/document/evidence/lineage.
+- LIVE STAGING → 150 zero-progress processing jobs remain; 125 have no file record and empty summaries, aged 2026-09-14..2026-09-20. No destructive cleanup performed; 25 file-backed jobs remain for causal rescan.
+- CI/DEVICE/HOSTING → current branch gates queued; PC01 offline; hosted runtime not proven at current SHA.
+- NEXT → terminal exact-head CI result, then file-backed stuck-job causality, then Phase-F/runtime/security certification. Do not reuse stale evidence.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / IMPORT UX CONTINUITY REPAIRED
 
 - EXACT MAIN BASE → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
