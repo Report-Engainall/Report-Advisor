@@ -504,7 +504,7 @@ export function DecisionExperiencePage() {
                   <BlockedState title="الدليل التشغيلي غير مثبت هنا" detail="لا تُعرض بيانات مصدرية مصطنعة ولا يتم تحويل وصف التوصية إلى دليل. الانتقال إلى القرار يحافظ على حالة المراجعة بدل الادعاء بوجود إثبات غير متاح." />
                   <div className="flex flex-wrap gap-2"><button type="button" onClick={() => navigateStage('decision')} className="btn-primary text-[11px]">متابعة إلى القرار <ArrowUpLeft size={13}/></button><Link to="/metrics" className="btn-secondary text-[11px]">فحص تعريف المؤشر <FileSearch size={13}/></Link></div>
                 </div>
-              ) : <EmptyState title="اختر توصية" message="اختر عنصرًا موجودًا لفحص سياق الدليل." action={<Link to="/command-center" className="btn-secondary text-[11px]">العودة إلى الإشارات</Link>}/>} 
+              ) : <EmptyState title="اختر توصية" message="اختر عنصرًا موجودًا لفحص سياق الدليل." action={<Link to={withImportContext("/command-center")} className="btn-secondary text-[11px]">العودة إلى الإشارات</Link>}/>} 
             </CardBody>
           </Card>
         </section>
@@ -601,7 +601,7 @@ export function DecisionExperiencePage() {
                   {workItem ? (
                     <div className="mt-2 flex flex-wrap items-center gap-2 font-normal text-ink-700">
                       <span>Work Item: {workItem.status}</span>
-                      <Link to="/work-center" className="btn-secondary text-[10px]">فتح مركز العمل</Link>
+                      <Link to={withImportContext("/work-center")} className="btn-secondary text-[10px]">فتح مركز العمل</Link>
                     </div>
                   ) : (
                     <button type="button" onClick={() => void ensureWorkItem()} disabled={decisionMutationBusy} className="mt-2 btn-primary text-[10px] disabled:opacity-60">
@@ -634,7 +634,7 @@ export function DecisionExperiencePage() {
                     <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الأثر الفعلي</div><div className="mt-2 text-[12px] font-black text-ink-900">{workItem.actual_impact == null ? 'غير متاح بعد' : formatCurrency(workItem.actual_impact)}</div></div>
                   </div>
                   {workItem.description && <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3 text-[11px] leading-5 text-ink-600">{workItem.description}</div>}
-                  <Link to="/work-center" className="btn-primary text-[11px]">فتح المهمة في مركز العمل <ArrowUpLeft size={13}/></Link>
+                  <Link to={withImportContext("/work-center")} className="btn-primary text-[11px]">فتح المهمة في مركز العمل <ArrowUpLeft size={13}/></Link>
                 </div>
               ) : (
                 <BlockedState title="لا توجد مهمة تنفيذ محفوظة" detail="أنشئ Work Item من مرحلة الموافقة بعد اعتماد القرار؛ لا يتم افتراض التنفيذ من مجرد وجود التوصية." />
@@ -673,7 +673,7 @@ export function DecisionExperiencePage() {
             </CardBody>
           </Card>
           {!outcome && <BlockedState title="النتيجة الفعلية غير موجودة بعد" detail="أكمل Work Item فعليًا وأرفق Evidence Snapshot مناسبًا؛ بعدها ستظهر النتيجة هنا تلقائيًا من السجل." />}
-          {outcome && <div className="flex h-fit flex-wrap gap-2"><Link to="/work-center" className="inline-flex items-center gap-2 rounded-xl border border-ink-200 bg-white px-4 py-3 text-[11px] font-black text-ink-700">مراجعة المهمة والأدلة <ArrowUpLeft size={13}/></Link><Link to="/replay" className="inline-flex items-center gap-2 rounded-xl border border-primary-200 bg-primary-50 px-4 py-3 text-[11px] font-black text-primary-800">فتح سجل Business Replay <ArrowUpLeft size={13}/></Link></div>}
+          {outcome && <div className="flex h-fit flex-wrap gap-2"><Link to={withImportContext("/work-center")} className="inline-flex items-center gap-2 rounded-xl border border-ink-200 bg-white px-4 py-3 text-[11px] font-black text-ink-700">مراجعة المهمة والأدلة <ArrowUpLeft size={13}/></Link><Link to={withImportContext("/replay")} className="inline-flex items-center gap-2 rounded-xl border border-primary-200 bg-primary-50 px-4 py-3 text-[11px] font-black text-primary-800">فتح سجل Business Replay <ArrowUpLeft size={13}/></Link></div>}
         </section>
       )}
 
