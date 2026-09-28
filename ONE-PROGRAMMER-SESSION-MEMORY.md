@@ -1,14 +1,15 @@
-# RESUME TOKEN — 2026-09-28 / SECURITY CLASSIFICATION CHECKPOINT
+# RESUME TOKEN — 2026-09-28 / SECURITY SOURCE PARITY + ENFORCEMENT REPAIR
 
-- CURRENT REPOSITORY HEAD → `a369fe11e7daea5aadd741f1cae491e3240725fd`.
-- CURRENT CODE/TEST CANDIDATE → `a369fe11e7daea5aadd741f1cae491e3240725fd`.
-- ACTIVE EXECUTION FRONTS → security-definer classification; exact certification boundary; import/PDF runtime; Supabase migration provenance; authenticated browser; Phase-F resilience; cleanup.
-- OPEN BLOCKERS → PC01 offline; Phase-F deployment SHA/backup/rollback evidence external; Auth leaked-password protection is a Supabase platform setting not exposed by the current mutation surface; migration history vs repository inventory requires lineage proof.
-- LAST PROVEN LIVE → 39 unique advisory names are SECURITY DEFINER with authenticated execute and zero anon execute; import_create_job/import_finish_job are SECURITY INVOKER; import_commit_batch remains the deliberate canonical write boundary.
-- LAST FAILED → certification boundary on earlier HEAD failed because the index marker format was unsupported; parser/test repair is committed in the current lineage.
-- NEXT EXECUTABLE ACTION → consume current exact-SHA certification/security results; first terminal failure only; continue migration provenance independently.
-- DO NOT REPEAT → stale evidence, blanket RPC revokes, destructive migration cleanup, device-dependent work while PC01 is unavailable.
-
+- CURRENT REPOSITORY HEAD → `787f0d89b756af43ebaa0305e0e7063fcedca31e` (code/test checkpoint before this governance persistence commit).
+- CURRENT CODE/TEST CANDIDATE → `787f0d89b756af43ebaa0305e0e7063fcedca31e`.
+- ACTIVE EXECUTION FRONTS → current-SHA CI/certification; migration provenance; Supabase security/data truth; import/PDF; authenticated browser; Phase-F; cleanup.
+- CLOSED THIS LAUNCH → malformed enforcement adversarial fixture; missing repository SECURITY DEFINER source parity for 12 live names/13 overload definitions; staging source-parity apply and live privilege/search_path readback.
+- OPEN BLOCKERS → PC01 offline; Phase-F deployment SHA/backup/rollback external evidence; Supabase Auth leaked-password protection platform setting not exposed by current mutation surface; full live migration lineage still requires non-destructive proof.
+- LAST PROVEN LIVE → restored 13 definitions are SECURITY DEFINER with authenticated/service_role execute and zero anon execute; source-parity migration applied successfully.
+- LAST FAILED / FIRST FAILURE CONSUMED → quality/execution-enforcement/final-certification on the prior SHA were blocked by the same malformed enforcement fixture and missing security source; both root causes are now repaired in the code checkpoint.
+- NEXT EXECUTABLE ACTION → consume terminal CI on the current code checkpoint; fix only the first reproducible failure, then persist and rescan.
+- NEXT INDEPENDENT ACTIONS → migration lineage reconciliation, Supabase advisor/readback, hosted/runtime evidence, import/PDF contracts, cleanup, without waiting for device.
+- DO NOT REPEAT → stale evidence, broad revokes, destructive migration cleanup, duplicate RPC/import paths, or device-dependent work while PC01 is offline.
 # RESUME TOKEN — 2026-09-28 / Aghbari SALES-REPORT READINESS CHECKPOINT
 
 - CURRENT REPOSITORY HEAD → `5be55cb8401f0e06068731ee3dd89c7f1d00942c`.
