@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / UPLOAD STORAGE RUNTIME CLOSURE / EXACT SHA c87451168f610a5e569c7fc3bace4a83b44c05a6
+
+- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
+- CURRENT FUNCTIONAL / EXECUTION CANDIDATE → c87451168f610a5e569c7fc3bace4a83b44c05a6.
+- CLOSED IMPORT ROOTS → drag/drop DOM path; native positioned-PDF table reconstruction; Arabic presentation-form header; RPC 50→100 MB mismatch; RPC MIME mismatch; storage bucket 50 MB/old MIME mismatch; UI XML over-advertisement.
+- LIVE STAGING → `import_create_job` is SECURITY INVOKER with 100 MB and expanded MIME allowlist; `documents` bucket is private, 100 MB, expanded MIME set.
+- STORAGE TENANT BOUNDARY → authenticated insert/select/update/delete policies remain company/owner constrained.
+- ACTIVE FRONTS → exact-head PDF regression, browser/certification, real import-to-readback, Phase-F resilience, security/data hardening, cleanup.
+- EVIDENCE LAW → all runtime/browser certification remains NOT PROVEN until actual exact-head execution; no previous-SHA evidence is transferred.
+- NEXT → first terminal current-SHA failure only, then persist/rescan/next.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / MIME PARITY + LIVE STAGING READBACK / EXACT SHA b0726bcfe64f1769c768a18d8993be4c270a6f15
 
 - MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.

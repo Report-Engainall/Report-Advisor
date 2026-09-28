@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / UPLOAD STORAGE RUNTIME CLOSURE / EXACT SHA c87451168f610a5e569c7fc3bace4a83b44c05a6
+
+- MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
+- ACTIVE PR → #672 / exec/20260927-current-main-import-ui-rebased / exact HEAD c87451168f610a5e569c7fc3bace4a83b44c05a6.
+- ROOT CAUSE CLOSED → Supabase `documents` bucket was still capped at 50 MB and exposed only the old MIME allowlist, so real uploads could fail even after the RPC was fixed.
+- IMPLEMENTATION → additive migration `20260928143000_reconcile_documents_bucket_limits.sql` updates only the existing private `documents` bucket to 100 MB and the canonical parseable MIME set. Historical migrations remain unchanged.
+- STAGING EXECUTION → migration applied successfully on `fnqbvfuwbdpwvhcgzksl`.
+- STAGING READBACK → `documents` is private, `file_size_limit=104857600`, and the expanded MIME set is present.
+- STORAGE SECURITY READBACK → authenticated INSERT requires `bucket_id='documents'`, first path segment = `current_company_id()`, and `owner_id=auth.uid()`; SELECT is tenant-scoped to the same company. DELETE/UPDATE are owner-scoped.
+- EXACT SOURCE → migration blob `152446dd88685bb7c9f90ff9ecb945a3a5e0d87d`.
+- PROOF GAP → authenticated real-file browser execution remains NOT PROVEN; PC01 is offline and current hosted Vercel deployment for c87451168f610a5e569c7fc3bace4a83b44c05a6 is queued. No production PASS is claimed.
+- NEXT EXECUTABLE → consume terminal exact-head CI/browser/PDF regression when available; otherwise continue independent Phase-F/security/data/certification fronts without transferring stale evidence.
+- DO NOT REPEAT → 50 MB storage state; old MIME allowlist; historical migration mutation; stale browser/runtime PASS.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / MIME PARITY + LIVE STAGING READBACK / EXACT SHA b0726bcfe64f1769c768a18d8993be4c270a6f15
 
 - MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
