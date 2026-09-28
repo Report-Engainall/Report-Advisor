@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPLAY LEARNING EVIDENCE-ID HARDENING
+
+- FUNCTIONAL CODE/TEST HEAD → `c3241c9e9768ccb13295f129ac36f4bd2eddfcba`.
+- MEMORY DESCENDANT → `1e5a791e32e05eff449356505cec2a895447da4a` before this Index write-back.
+- CLOSED → Replay Learning excludes outcomes lacking non-empty `evidence_snapshot_id`; no evidence-unbound outcome influences learning metrics.
+- CLOSED → Outcome timeline evidence badge requires both non-empty evidence payload and explicit evidence snapshot identity.
+- PROOF → 7/7 focused assertions PASS; query exports 73 unique; duplicate exports 0; query imports missing 0 across critical pages.
+- CI EXACT SHA → Final Certification Gate `36473883486` and Execution Enforcement Contract `36473883350` are queued; no terminal PASS/FAIL claim.
+- BENCHMARK → remains `INSUFFICIENT_SAMPLE` with no real peer cohort in current staging model.
+- OPEN → hosted exact-head runtime acceptance, PC01 browser/device E2E, Vercel free-plan rate limit, tenant-bound live canary.
+- DO NOT REPEAT → no learning without evidence identity; no arbitrary JSON evidence badge; no duplicate query exports.
+- NEXT EXACT ACTION → continue the next concrete non-device certification/cleanup gap.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPOSITORY-WIDE QUERY EXPORT COVERAGE GUARD
 
 - FUNCTIONAL CODE/TEST HEAD → `1544fa6af51d7b21e78b5305c2cf4d51f1cc57da`.
