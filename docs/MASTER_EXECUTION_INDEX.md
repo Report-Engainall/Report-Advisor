@@ -2,6 +2,19 @@
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / DISTRIBUTED REPORT EXECUTION + SOURCE REPORT SURFACE CLOSED
 
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / FINAL EXECUTION CHECKPOINT
+
+- FUNCTIONAL CODE SHA → `797a9aa1325d70847b6541f442e5af8f01d081ef`.
+- POST-UPLOAD → actual distributed execution tasks are validated across all nine ordered stages; automatic source-report navigation is wired; source report and Reports Center expose the real result.
+- LOCAL PROOF → typecheck PASS; Product Wow UI contract PASS; post-import guard PASS; report-execution E2E contract PASS; UI route completeness PASS; production build PASS.
+- CORPUS → `test:report-corpus-gate` BLOCKED at DECLARED=9 / ACTUAL=1 / MINIMUM=20. No report-corpus PASS.
+- DEVICE SEARCH → declared corpus files absent from repo and common user data folders.
+- CURRENT CI → older route fix success exists on `c914825f`; current head needs fresh terminal CI evidence.
+- OPEN BLOCKERS → real corpus attachment/restoration and non-terminal/failed hosted gates only.
+- NEXT → do not invent corpus; consume fresh CI and repair any current-SHA executable failure.
+
+---
+
 - CODE EXACT SHA → `ba8ac9b8cce61f68eda58428dc95fddc9bc18e22`.
 - FRONT CLOSED → distributed post-upload execution, fail-closed rendered guard, automatic source-report handoff, execution-task visibility, and Reports Center source-report listing.
 - ACTUAL FLOW → upload → detect specialty → canonicalize → durable runner → query `report_execution_tasks` → require 9 ordered completed stages → finish import → source-bound report → downstream Trust/Executive/Decision/Work.
