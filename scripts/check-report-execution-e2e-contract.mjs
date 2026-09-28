@@ -1,5 +1,6 @@
 import { readFileSync, existsSync } from 'node:fs';
 
+const apiEnqueue = readFileSync('api/report-execution-enqueue.mjs', 'utf8');
 const files = [
   'src/lib/report-execution/report-execution-contract.ts',
   'src/lib/report-execution/idempotency.ts',
@@ -34,6 +35,15 @@ required(renderers.toLowerCase(), ['pdf', 'xlsx', 'web'], 'Renderer');
 required(download, ['renderArtifact', 'downloadReportArtifact', 'Blob', 'anchor.download'], 'Report download path');
 required(durable, ['claim_report_execution_job', 'heartbeat_report_execution_job', 'advance_report_execution_checkpoint', 'complete_report_execution_job', 'fail_report_execution_job', 'retry_report_execution_job'], 'Durable worker adapter');
 required(ledger, ['artifactRefs', 'evidence', 'tenantId', 'immutable'], 'Execution ledger');
+
+required(apiEnqueue, [
+  'sourceSnapshotId',
+  'resolveSourceSnapshot',
+  'source_snapshot_not_found',
+  'source_snapshot_hash_mismatch',
+  'source_snapshot_path_mismatch',
+  'source:snapshot:',
+], 'Durable enqueue source-snapshot binding');
 
 const assertGateImplementation = (source) => {
   if (!source.includes("if (!input.sourceSnapshotId) throw new Error('Report execution requires a source snapshot');")) {
