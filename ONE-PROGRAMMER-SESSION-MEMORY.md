@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-28 / CERTIFICATION CANDIDATE FIELD REPAIRED
+
+- CURRENT CODE/TEST CANDIDATE → `8fc8b09b55794b575b25704b6107800bb33e34a6`
+- FUNCTIONAL EXECUTION HEAD → `8fc8b09b55794b575b25704b6107800bb33e34a6`
+- ACTIVE FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- THIS BATCH EXECUTION → broad governance push coverage restored; `public.profiles` restore-parity migration inserted before `current_customer_company_id()`; Unified Import accessibility semantics improved.
+- GOVERNANCE PROOF → Execution Enforcement Contract passed on `bdfd1457757b74c850140cbee81b5726f8c2ad36` in run `36450566953`.
+- CERTIFICATION ROOTS CLOSED → stale candidate was corrected twice: first the candidate became stale after code changes, then the candidate field name mismatch was caught by the validator and corrected to the exact contract name.
+- PHASE-F → fresh run on `8fc8b09b55794b575b25704b6107800bb33e34a6` remains the authoritative test of the new `profiles` migration.
+- OPEN → exact-head Final Certification, Phase-F, quality and UI/browser evidence; Vercel free-plan rate limit; Supabase Auth leaked-password protection external; PC01 device-only.
+- DO NOT REPEAT → stale PASS across SHAs, malformed candidate field, duplicate import/evidence paths, blanket SECURITY DEFINER revokes.
+- NEXT EXACT ACTION → consume current exact-head workflows and repair only the first terminal non-governance failure.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / BATCH CLOSED FOR CODE HANDOFF, EXACT-HEAD CERTIFICATION REANCHORED
 
 - FUNCTIONAL EXECUTION HEAD → `5ee193ff1a6a8169cc1e24ebe2a1b61cd91f1b53`

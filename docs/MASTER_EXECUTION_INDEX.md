@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / CERTIFICATION CANDIDATE FIELD REPAIRED
+
+- CURRENT CODE/TEST CANDIDATE → `8fc8b09b55794b575b25704b6107800bb33e34a6`
+- CURRENT EXECUTION HEAD → `8fc8b09b55794b575b25704b6107800bb33e34a6`
+- ACTIVE FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- THIS BATCH → broad governance push coverage restored; customer-profile schema parity restored before the resolver; Unified Import accessibility semantics improved.
+- CERTIFICATION GOVERNANCE → validator contract is preserved; current candidate is declared using the exact field name it consumes.
+- PHASE-F ROOT REPAIR → `20260925160000_restore_customer_profile_schema_parity.sql` precedes `20260925170000_reconcile_current_customer_company_id.sql`.
+- OPEN → fresh exact-head certification + Phase-F + quality + browser; Vercel build-rate external; Supabase Auth leaked-password protection external; PC01 device-only.
+- NEXT → consume terminal workflow failures and execute the first safe root fix only.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXACT-HEAD CERTIFICATION REANCHORED
 
 - FUNCTIONAL EXECUTION HEAD → `5ee193ff1a6a8169cc1e24ebe2a1b61cd91f1b53`
