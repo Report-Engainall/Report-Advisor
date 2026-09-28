@@ -43,11 +43,13 @@ const REPORT_BUILDER_BLOCKS: Array<{ id: ReportBuilderBlockId; label: string; de
   { id: 'decision', label: 'سياق القرار', description: 'As Of والحالة والـNEXT ACTION والمسار الكانوني.' },
 ];
 
-function ReportBuilder({ snapshot, nextLabel, nextPath }: {
+function ReportBuilder({ snapshot, nextLabel, nextPath, importId }: {
   snapshot: Awaited<ReturnType<typeof fetchDashboardSnapshot>>;
   nextLabel: string;
   nextPath: string;
+  importId?: string | null;
 }) {
+  const withImportContext = (path: string) => importId ? path + (path.includes('?') ? '&' : '?') + 'import=' + encodeURIComponent(importId) : path;
   const [selected, setSelected] = useState<ReportBuilderBlockId[]>(['truth', 'kpis', 'decision']);
   const toggle = (id: ReportBuilderBlockId) => setSelected(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
   const exportBuilder = () => {
@@ -107,7 +109,7 @@ function ReportBuilder({ snapshot, nextLabel, nextPath }: {
           <div className="rounded-xl border border-warning-200 bg-warning-50/60 p-3 text-[9px] leading-5 text-warning-900">النتيجة مربوطة بـ As Of: {snapshot.asOf}. البيانات غير المتاحة لا تتحول إلى صفر أو تقدير.</div>
         </div>
         <div className="min-w-0 space-y-3">
-          {selected.includes('truth') && <div className="rounded-xl border border-primary-200 bg-primary-50/40 p-4"><div className="section-kicker text-primary-800">01 · TRUTH / EVIDENCE</div><div className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-3"><div className="rounded-lg bg-white p-3"><div className="text-[9px] text-ink-400">الحالة</div><div className="mt-1 text-sm font-black text-ink-950">{snapshot.kpis.status}</div></div><div className="rounded-lg bg-white p-3"><div className="text-[9px] text-ink-400">As Of</div><div className="mt-1 text-sm font-black text-ink-950">{snapshot.asOf}</div></div><div className="rounded-lg bg-white p-3"><div className="text-[9px] text-ink-400">أعمار الذمم</div><div className="mt-1 text-sm font-black text-ink-950">{snapshot.aging.status}</div></div></div><Link to="/trust" className="mt-3 inline-flex min-h-10 items-center justify-center rounded-xl bg-ink-950 px-3 text-[10px] font-black text-white">فتح مركز الأدلة ←</Link></div>}
+          {selected.includes('truth') && <div className="rounded-xl border border-primary-200 bg-primary-50/40 p-4"><div className="section-kicker text-primary-800">01 · TRUTH / EVIDENCE</div><div className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-3"><div className="rounded-lg bg-white p-3"><div className="text-[9px] text-ink-400">الحالة</div><div className="mt-1 text-sm font-black text-ink-950">{snapshot.kpis.status}</div></div><div className="rounded-lg bg-white p-3"><div className="text-[9px] text-ink-400">As Of</div><div className="mt-1 text-sm font-black text-ink-950">{snapshot.asOf}</div></div><div className="rounded-lg bg-white p-3"><div className="text-[9px] text-ink-400">أعمار الذمم</div><div className="mt-1 text-sm font-black text-ink-950">{snapshot.aging.status}</div></div></div><Link to={withImportContext('/trust')} className="mt-3 inline-flex min-h-10 items-center justify-center rounded-xl bg-ink-950 px-3 text-[10px] font-black text-white">فتح مركز الأدلة ←</Link></div>}
           {selected.includes('kpis') && <div className="rounded-xl border border-ink-100 bg-white p-4"><div className="section-kicker">01 · KPIs</div><div className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-4">{[['المبيعات', snapshot.kpis.totalSales == null ? 'غير متاح' : formatCurrency(snapshot.kpis.totalSales)], ['الذمم', snapshot.kpis.totalReceivables == null ? 'غير متاح' : formatCurrency(snapshot.kpis.totalReceivables)], ['المخزون', snapshot.kpis.inventoryValue == null ? 'غير متاح' : formatCurrency(snapshot.kpis.inventoryValue)], ['الفواتير', snapshot.kpis.invoiceCount == null ? 'غير متاح' : formatNumber(snapshot.kpis.invoiceCount)]].map(([label, value]) => <div key={String(label)} className="rounded-lg bg-ink-50 p-3"><div className="text-[9px] text-ink-400">{String(label)}</div><div className="mt-1 text-sm font-black text-ink-950">{String(value)}</div></div>)}</div></div>}
           {selected.includes('trend') && <div className="rounded-xl border border-ink-100 bg-white p-4"><div className="section-kicker">02 · TREND</div><div className="mt-3 min-h-[220px]"><TrendChart data={snapshot.trend}/></div></div>}
           {selected.includes('aging') && <div className="rounded-xl border border-ink-100 bg-white p-4"><div className="section-kicker">03 · AGING</div><div className="mt-3 space-y-2">{snapshot.aging.status === 'CALCULATED' ? snapshot.aging.rows.slice(0, 6).map(bucket => <div key={bucket.bucket} className="flex items-center justify-between rounded-lg bg-ink-50 p-3 text-[10px]"><span>{bucket.bucket}</span><span className="font-black">{formatCurrency(bucket.amount)} · {formatNumber(bucket.count)} فاتورة</span></div>) : <div className="rounded-lg border border-warning-200 bg-warning-50 p-3 text-[10px] text-warning-900">أعمار الذمم غير متاحة للحساب من اللقطة الحالية.</div>}</div></div>}
@@ -134,6 +136,7 @@ export function ReportsCenterPage() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const importId = searchParams.get('import')?.trim() || null;
+  const withImportContext = (path: string) => importId ? path + (path.includes('?') ? '&' : '?') + 'import=' + encodeURIComponent(importId) : path;
 
   const load = useCallback(async (silent = false) => {
     try {
@@ -198,10 +201,10 @@ export function ReportsCenterPage() {
     <PageHeader
       title="مركز التقارير"
       subtitle="منظومة التقارير التنفيذية: كل رقم يعود إلى مصدره، وكل تفسير يبقى منفصلًا عن حقيقة البيانات."
-      actions={<div className="flex flex-wrap items-center gap-2"><span className={`badge ${truthClass}`}>{truthLabel}</span><button type="button" onClick={() => setSearchParams(builderOpen ? {} : { builder: '1' })} className="btn-primary inline-flex items-center gap-2 text-xs"><SlidersHorizontal size={14}/>{builderOpen ? 'إغلاق Builder' : 'Report Builder'}</button><button type="button" onClick={() => void load(true)} disabled={refreshing} className="btn-secondary inline-flex items-center gap-2 text-xs">{refreshing ? 'جارٍ التحديث' : 'تحديث اللقطة'}</button></div>}
+      actions={<div className="flex flex-wrap items-center gap-2"><span className={`badge ${truthClass}`}>{truthLabel}</span><button type="button" onClick={() => { const nextParams = new URLSearchParams(searchParams); if (builderOpen) nextParams.delete('builder'); else nextParams.set('builder', '1'); setSearchParams(nextParams); }} className="btn-primary inline-flex items-center gap-2 text-xs"><SlidersHorizontal size={14}/>{builderOpen ? 'إغلاق Builder' : 'Report Builder'}</button><button type="button" onClick={() => void load(true)} disabled={refreshing} className="btn-secondary inline-flex items-center gap-2 text-xs">{refreshing ? 'جارٍ التحديث' : 'تحديث اللقطة'}</button></div>}
     />
 
-    {builderOpen && <ReportBuilder snapshot={snapshot} nextLabel={nextLabel} nextPath={nextPath} />}
+    {builderOpen && <ReportBuilder snapshot={snapshot} nextLabel={nextLabel} nextPath={withImportContext(nextPath)} importId={importId} />}
 
     <ReportSurfaceContext period={`آخر ${months} أشهر`} asOf={asOf} status={kpis.status === 'CONFIRMED' ? 'VERIFIED' : kpis.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA'} sourceLabel="اللقطة التنفيذية الكانونية الحالية؛ ثبات الدليل وحالة المصدر يظهران قبل أي قراءة تقريرية."/>
     {importId && sourceContext && <section className="rounded-[18px] border border-primary-200 bg-primary-50/45 p-4 shadow-sm" aria-label="سياق مخرجات المصدر المستورد">
@@ -284,7 +287,7 @@ export function ReportsCenterPage() {
     </section>
 
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {reportCards.map((r) => <Link key={r.path} to={r.path} className="group">
+      {reportCards.map((r) => <Link key={r.path} to={withImportContext(r.path)} className="group">
         <Card className="ag-report-card h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-xl">
           <CardBody>
             <div className="flex items-start gap-4">
@@ -318,18 +321,18 @@ export function ReportsCenterPage() {
             { label:'Work', path:'/work-center' },
             { label:'Outcome / Learning', path:'/replay' },
             { label:'Benchmark', path:'/benchmark' },
-          ].map((stage) => <Link key={stage.label} to={stage.path} className="rounded-xl border border-white/10 bg-white/5 p-3 text-center text-[9px] font-black text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400">{stage.label}<span className="mt-1 block text-[8px] font-normal text-ink-300">فتح السياق ←</span></Link>)}
+          ].map((stage) => <Link key={stage.label} to={withImportContext(stage.path)} className="rounded-xl border border-white/10 bg-white/5 p-3 text-center text-[9px] font-black text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400">{stage.label}<span className="mt-1 block text-[8px] font-normal text-ink-300">فتح السياق ←</span></Link>)}
         </div>
       </div>
     </section>
 
     <section className="grid gap-4 lg:grid-cols-3">
-      <Link to="/reports/executive" className="card card-hover p-4">
+      <Link to={withImportContext('/reports/executive')} className="card card-hover p-4">
         <div className="text-[9px] font-black tracking-[.12em] text-primary-700">DECISION OUTPUT</div>
         <h3 className="mt-2 text-sm font-black text-ink-900">تقارير القرار والتوصية</h3>
         <p className="mt-1 text-[10px] leading-5 text-ink-500">استخدم التقرير التنفيذي كسطح مخرجات القرار الحالي، مع بقاء الدليل والسياق ظاهرين.</p>
       </Link>
-      <Link to="/data-quality" className="card card-hover p-4">
+      <Link to={withImportContext('/data-quality')} className="card card-hover p-4">
         <div className="text-[9px] font-black tracking-[.12em] text-primary-700">AUDIT OUTPUT</div>
         <h3 className="mt-2 text-sm font-black text-ink-900">جودة البيانات والتدقيق</h3>
         <p className="mt-1 text-[10px] leading-5 text-ink-500">مسار الجودة هو المصدر الحالي لمراجعة الحالات بدل إنشاء تقرير تدقيق منفصل ببيانات مكررة.</p>
@@ -338,7 +341,7 @@ export function ReportsCenterPage() {
         <div className="text-[9px] font-black tracking-[.12em] text-primary-800">SOURCE-BOUND BUILDER</div>
         <h3 className="mt-2 text-sm font-black text-ink-900">Report Builder</h3>
         <p className="mt-1 text-[10px] leading-5 text-ink-600">ابنِ حزمة تقرير جلسية من اللقطة الحالية مع طباعة وتصدير، دون ادعاء حفظ قالب دائم غير موجود.</p>
-        <button type="button" onClick={() => setSearchParams({ builder: '1' })} className="mt-3 btn-secondary text-[10px]">فتح Builder</button>
+        <button type="button" onClick={() => { const nextParams = new URLSearchParams(searchParams); nextParams.set('builder', '1'); setSearchParams(nextParams); }} className="mt-3 btn-secondary text-[10px]">فتح Builder</button>
       </div>
       </section>
     </div>
