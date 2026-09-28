@@ -1,3 +1,14 @@
+# RESUME TOKEN — 2026-09-28 / NATIVE PDF TABLE RECONSTRUCTION ADDED
+
+- EXACT CONTROL BASE → main `4ec779a0a1573fc3e0e395862f6761a70f775d49`; candidate before this memory write `422714cc8cfc27d482c09e94882486c0e7fbe7d0`.
+- ROOT CAUSE → native PDF parsing discarded text geometry and joined raw text in extraction order, which cannot reliably reconstruct columnar ERP tables spanning pages.
+- ACTUAL FIX → added one governed `parseNativePdfTable` path using PDF text-item x/y geometry, row grouping, header detection, column proximity and repeated-page reconstruction; raw-text parsing remains the fallback. No second importer/parser architecture added.
+- CONTRACT → `scripts/check-import-transaction-contract.mjs` now requires the native PDF geometry/table path and verifies it is preferred before raw-text fallback.
+- EXACT SOURCE VALIDATION → candidate `422714cc8cfc27d482c09e94882486c0e7fbe7d0`; direct exact-source assertions PASS for drag/drop, durable import path, native PDF geometry, native-table preference and contract guards.
+- DESIGN ALIGNMENT → implementation now materially matches the repository's documented PDF requirement to reconstruct rows/columns from layout geometry rather than trusting OCR/native text order alone.
+- CI/HOSTING → no terminal GitHub workflow PASS exposed; Vercel remains `build-rate-limit`; hosted/browser/device certification remains NOT PROVEN.
+- NEXT → run/consume exact-head typecheck + import/document tests when CI becomes available; then use an actual 67-page PDF run to prove row count, mapping, quality, provenance and canonical commit. Do not declare PDF ingestion closed from static evidence alone.
+
 # RESUME TOKEN — 2026-09-28 / IMPORT DRAG-AND-DROP ROOT CAUSE FIXED
 
 - EXACT MAIN CONTROL HEAD AT DISCOVERY → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
