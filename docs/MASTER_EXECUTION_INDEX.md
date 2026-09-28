@@ -1,7 +1,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / CURRENT EXACT IMPORT-RECOVERY CANDIDATE
 
 - MAIN EXACT HEAD → 4ec779a0a1573fc3e0e395862f6761a70f775d49.
-- CURRENT CODE/TEST CANDIDATE → 2f41eaff8c0bfde9abb48607354e9c2c1e5f7ea3.
+- CURRENT CODE/TEST CANDIDATE → `2f41eaff8c0bfde9abb48607354e9c2c1e5f7ea3`.
 - EXACT PROOF — PDF/file-engine regression: PASS on this SHA; existing file-engine regressions PASS and structured PDF/OCR regression PASS.
 - EXACT PROOF — Vite/Cloudflare compatibility: PASS on this SHA; exact checkout, npm ci, Vite build, and compatibility validation all PASS.
 - EXACT PROOF — data-quality-runtime: PASS on this SHA; empty-quality contract, behavioral regression, and typecheck all completed successfully.
