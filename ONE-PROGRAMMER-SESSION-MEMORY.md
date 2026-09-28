@@ -1379,3 +1379,13 @@
 - CI EXACT SHA → this workflow change creates a fresh exact-head CI cycle; terminal results are not yet available and must not be inferred.
 - DO NOT REPEAT → do not add another query export guard in a parallel workflow; keep this one canonical.
 - RESUME POINT → consume exact-head CI terminal results when available, while continuing only concrete non-device gaps.
+
+# RESUME TOKEN — 2026-09-28 / BUSINESS REPLAY SCOPE CLARITY
+
+- CURRENT CODE/TEST HEAD → `6bdaa0470aeb927a8fa02e3a6d5e2ff72aee5947`.
+- CLOSED → Business Replay now explicitly labels itself `COMPANY-LEVEL REPLAY` when reached with `?import=`, stating that the import id does not change replay scope and providing a return link to the source-bound Executive Report.
+- CLOSED → this keeps Replay honest: source-bound evidence/report surfaces stay source-scoped; Replay remains company-level until a true source-scoped replay contract exists.
+- PROOF → exact HEAD re-read: 10/10 focused assertions PASS; query exports 73, duplicate exports 0, missing query imports 0 in critical pages.
+- CI EXACT SHA → Execution Enforcement Contract `36474075669` and Final Certification Gate `36474075789` are queued on this exact SHA; no terminal PASS/FAIL transferred.
+- DO NOT REPEAT → do not imply Business Replay is source-bound merely because a source id is in the URL; preserve company-level scope until the data contract changes.
+- RESUME POINT → continue the next concrete non-device certification/cleanup gap; preserve Benchmark as INSUFFICIENT_SAMPLE and hosted/device blockers separately.
