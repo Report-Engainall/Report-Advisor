@@ -21,6 +21,42 @@ export class SupabaseReportExecutionStore {
     this.client = client;
   }
 
+  async enqueue(request: ReportExecutionRequest, sourcePath: string, sourceHash: string, evidenceKeys: string[] = [], maxAttempts = 3): Promise<DurableExecutionJob> {
+    if (!request.sourceSnapshotId) throw new Error('Report execution requires a source snapshot');
+    if (!request.tenantId || !request.idempotencyKey) throw new Error('Durable execution requires tenant and idempotency context');
+    if (!sourcePath.trim()) throw new Error('Report execution source path is required');
+    if (!/^sha256:[0-9a-fA-F]{64}$/.test(sourceHash)) throw new Error('Report execution source hash is invalid');
+    if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > 10) throw new Error('Report execution max attempts is invalid');
+
+    const { data: snapshot, error: snapshotError } = await this.client
+      .from('source_analysis_snapshots')
+      .select('id,company_id,source_hash,source_path')
+      .eq('id', request.sourceSnapshotId)
+      .eq('company_id', request.tenantId)
+      .single();
+    if (snapshotError) throw snapshotError;
+    if (!snapshot || snapshot.company_id !== request.tenantId) throw new Error('Report source snapshot tenant mismatch');
+    if (snapshot.source_hash !== sourceHash) throw new Error('Report source snapshot hash mismatch');
+    if (snapshot.source_path !== sourcePath) throw new Error('Report source snapshot path mismatch');
+
+    const jobKey = `report:${request.reportId}:${request.idempotencyKey}:${request.sourceSnapshotId}`;
+    const boundEvidenceKeys = [...new Set([`source:snapshot:${request.sourceSnapshotId}`, ...evidenceKeys])];
+    const { data, error } = await this.client.rpc('enqueue_report_execution_job', {
+      p_company_id: request.tenantId,
+      p_job_key: jobKey,
+      p_source_path: sourcePath,
+      p_source_hash: sourceHash,
+      p_evidence_keys: boundEvidenceKeys,
+      p_max_attempts: maxAttempts,
+    });
+    if (error) throw error;
+    if (!data || typeof data !== 'object' || typeof data.id !== 'string') throw new Error('Durable report execution enqueue returned no job');
+    const job = await this.require(data.id);
+    if (job.tenantId !== request.tenantId) throw new Error('Enqueued durable job tenant does not match request tenant');
+    if (job.checkpoint?.sourceHash !== sourceHash) throw new Error('Enqueued durable job source hash does not match request');
+    return job;
+  }
+
   async claim(jobId: string, workerId: string, leaseSeconds = 300, tenantId: string): Promise<DurableExecutionJob> {
     const { data, error } = await this.client.rpc('claim_report_execution_job', { p_job_id: jobId, p_company_id: tenantId, p_lease_owner: workerId, p_lease_seconds: leaseSeconds });
     if (error) throw error;
