@@ -185,6 +185,12 @@ for (const token of dropzoneTokens) {
 if (!/dropped\.length > 1/.test(canonicalImportPage)) {
   throw new Error('Canonical import drag/drop must reject ambiguous multi-file drops');
 }
+if (!canonicalImportPage.includes('to="/benchmark"')) {
+  throw new Error('Canonical import post-import journey must expose the benchmark gate');
+}
+if (!canonicalImportPage.includes('INSUFFICIENT_SAMPLE')) {
+  throw new Error('Canonical import benchmark UI must remain fail-closed when peer sample is insufficient');
+}
 if (!/const dbBlock =/i.test('noop')) {
   // marker kept intentionally unreachable; avoids accidental future broad replacements
 }
