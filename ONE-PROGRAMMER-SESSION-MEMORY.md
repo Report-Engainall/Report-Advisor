@@ -1404,3 +1404,14 @@
 - DEVICE → PC01 remains offline; browser/device certification stays isolated.
 - DO NOT REPEAT → do not add page-local report mappings, duplicate source-context components, or source-scoped KPI claims that are not backed by the canonical report/evidence contract.
 - RESUME POINT → obtain a fresh exact-head build/test result, repair the first reproducible build failure if source-fixable, then continue the next safe non-device reporting/runtime front.
+
+# RESUME TOKEN — 2026-09-28 / LIVE STAGING PROOF OF NINE TASKS + RENDERED EVIDENCE PERSISTENCE
+
+- LIVE STAGING PROJECT → `fnqbvfuwbdpwvhcgzksl` (`Report-Advisor-P0-2-Staging`).
+- DATABASE CONTRACT PROOF → `public.enqueue_report_execution_job` was read directly from PostgreSQL and explicitly inserts the nine tasks in ordinal order:
+  01 queued → 02 fingerprinted → 03 extracted → 04 canonicalized → 05 validated → 06 analyzed → 07 decisioned → 08 committed → 09 rendered.
+- LEASE/TERMINAL PROOF → `public.complete_report_execution_job` was read directly from PostgreSQL; it requires authenticated/tenant context, a live worker lease, checkpoint stage `rendered`, and persists the supplied JSON evidence into `report_execution_jobs.evidence` before terminal completion.
+- LIVE DATA STATE → staging currently has zero `report_execution_tasks` rows, so no real tenant import run was fabricated or claimed.
+- EXACT-CODE REGRESSION HARNESS → PASS on exact GitHub branch contents for canonical report routing, duplicate-map removal, post-import journey order/uniqueness, rendered evidence persistence path, and duplicate context absence.
+- BUILD LIMITATION → local clone/build could not execute because the execution environment cannot resolve GitHub; Netlify still reports generic build exit code 2 and Vercel is blocked by the free-plan deployment rate limit. No build PASS is claimed.
+- DO NOT REPEAT → do not invent staging task rows or fake a live import. Use the real canonical import path once authenticated tenant/device or a valid canary source is available.
