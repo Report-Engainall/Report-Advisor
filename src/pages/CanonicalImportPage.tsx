@@ -18,17 +18,46 @@ import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-p
 type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
-function analyzeSourceUnderstanding(dataset: Dataset): { confidence: number; reason: string } {
+type SourceUnderstanding = {
+  confidence: number;
+  reason: string;
+  specialtyKey: 'sales' | 'purchases' | 'inventory' | 'customers' | 'products' | 'payments' | 'other';
+  specialtyLabel: string;
+};
+
+function detectSourceSpecialty(dataset: Dataset): { key: SourceUnderstanding['specialtyKey']; label: string; confidence: number } {
+  const fields = new Set(dataset.columns.map(column => column.mappedField).filter(Boolean));
+  const sampleText = dataset.rows.slice(0, 200).map(row => String(row.invoice_type ?? row['نوع الفاتورة'] ?? '')).join(' ');
+  const hasInvoiceCore = fields.has('invoice_number') && Boolean(fields.has('total') || fields.has('invoice_amount') || fields.has('net_amount'));
+  const hasParty = Boolean(fields.has('customer_name') || fields.has('customer_id'));
+  const salesWords = /(مبيعات|بيع|sales|sale)/i.test(sampleText);
+  const purchaseWords = /(مشتريات|شراء|purchases|purchase)/i.test(sampleText);
+
+  if (hasInvoiceCore && hasParty && salesWords) return { key: 'sales', label: 'تقرير مبيعات', confidence: 96 };
+  if (hasInvoiceCore && hasParty && purchaseWords) return { key: 'purchases', label: 'تقرير مشتريات', confidence: 96 };
+  if (hasInvoiceCore && hasParty) return { key: 'sales', label: 'تدفق فواتير/مبيعات', confidence: 84 };
+  if (fields.has('sku') && fields.has('quantity')) return { key: 'inventory', label: 'بيانات مخزون', confidence: 92 };
+  if ((fields.has('sku') || fields.has('product_name')) && (fields.has('price') || fields.has('cost_price'))) return { key: 'products', label: 'بيانات أصناف', confidence: 88 };
+  if (fields.has('customer_name') && (fields.has('phone') || fields.has('email') || fields.has('code'))) return { key: 'customers', label: 'بيانات عملاء', confidence: 90 };
+  if (fields.has('date') && (fields.has('amount') || fields.has('total'))) return { key: 'payments', label: 'حركة مالية', confidence: 72 };
+  return { key: 'other', label: 'مصدر عام', confidence: 55 };
+}
+
+function analyzeSourceUnderstanding(dataset: Dataset): SourceUnderstanding {
   const columnCount = dataset.columns.length;
   const mappedCount = dataset.columns.filter(column => Boolean(column.mappedField)).length;
   const mappingCoverage = columnCount ? mappedCount / columnCount : 0;
   const structuralScore = Math.min(100, Math.round(mappingCoverage * 100));
   const qualityScore = Math.max(0, Math.min(100, Math.round(dataset.qualityScore)));
   const rowSignal = dataset.rowCount > 0 ? 100 : 0;
-  const confidence = Math.min(99, Math.round((structuralScore * 0.5) + (qualityScore * 0.4) + (rowSignal * 0.1)));
-  if (confidence >= 75) return { confidence, reason: 'تم فهم بنية المصدر وحقوله بدرجة كافية لبناء سياقه العام دون فرض هوية أو نوع سجل مسبق.' };
-  if (confidence >= 50) return { confidence, reason: 'تمت قراءة المصدر وفهم جزء معتبر من بنيته؛ بعض الحقول تحتاج مراجعة قبل الاعتماد.' };
-  return { confidence, reason: 'تمت قراءة المصدر، لكن دقة الفهم البنيوي لا تزال محدودة ويجب مراجعة البيانات قبل الاعتماد.' };
+  const specialty = detectSourceSpecialty(dataset);
+  const confidence = Math.min(99, Math.round((structuralScore * 0.45) + (qualityScore * 0.35) + (rowSignal * 0.10) + (specialty.confidence * 0.10)));
+  const reason = confidence >= 75
+    ? `تم فهم بنية المصدر؛ الاكتشاف الدلالي يشير إلى «${specialty.label}» دون تحويل هذا الاكتشاف إلى هدف كتابة مسبق.`
+    : confidence >= 50
+      ? `تمت قراءة المصدر وفهم جزء معتبر من بنيته؛ الاكتشاف الدلالي الحالي: «${specialty.label}»، مع حاجة بعض الحقول إلى مراجعة.`
+      : `تمت قراءة المصدر، لكن الفهم البنيوي محدود؛ الاكتشاف الحالي «${specialty.label}» إشارة تحليلية فقط وليست اعتمادًا.`;
+  return { confidence, reason, specialtyKey: specialty.key, specialtyLabel: specialty.label };
 }
 const STEPS: Array<{ key: Step; label: string }> = [
   { key: 'upload', label: 'الملف' },
@@ -92,6 +121,7 @@ export function CanonicalImportPage() {
   const [step, setStep] = useState<Step>('upload');
   const [understandingConfidence, setUnderstandingConfidence] = useState(0);
   const [understandingReason, setUnderstandingReason] = useState('لم يبدأ تحليل المصدر بعد.');
+  const [sourceSpecialty, setSourceSpecialty] = useState('مصدر عام');
   const [file, setFile] = useState<{ name: string; size: number; format: FileFormat; mime: string } | null>(null);
   const [fileHash, setFileHash] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
@@ -128,7 +158,7 @@ export function CanonicalImportPage() {
   useEffect(() => { void loadHistory(); }, [loadHistory]);
 
   const handleFile = useCallback(async (selected: File) => {
-    setError(null); setWarnings([]); setDuplicate(false); setSecurityPassed(false); setQualityApproved(false); setStep('scanning');
+    setError(null); setWarnings([]); setDuplicate(false); setSecurityPassed(false); setQualityApproved(false); setSourceSpecialty('مصدر عام'); setStep('scanning');
     try {
       const buffer = await selected.arrayBuffer();
       const scan = securityScan(selected, buffer);
@@ -156,6 +186,7 @@ export function CanonicalImportPage() {
       const understanding = analyzeSourceUnderstanding(dataset);
       setUnderstandingConfidence(understanding.confidence);
       setUnderstandingReason(understanding.reason);
+      setSourceSpecialty(understanding.specialtyLabel);
       setRows(dataset.rows.map((data, i) => ({ rowNumber: i + 1, data, valid: true })));
       setStep('preview');
     } catch (e: any) {
@@ -279,6 +310,7 @@ export function CanonicalImportPage() {
         snapshot_id: snapshotId,
         snapshot_available: Boolean(snapshotId),
         evidence_state: snapshotId ? 'VERIFIED' : 'INSUFFICIENT DATA',
+        source_specialty: sourceSpecialty,
       });
 
       if (typeof window !== 'undefined') {
@@ -295,6 +327,7 @@ export function CanonicalImportPage() {
         understandingConfidence,
         authoritativeQualityScore: Number(execution.authoritativeQualityScore ?? quality),
         evidenceReady: Boolean(snapshotId),
+        sourceSpecialty,
       });
       setStep('done');
       await loadHistory();
@@ -326,7 +359,7 @@ export function CanonicalImportPage() {
     understandingReason, loadHistory,
   ]);
 
-  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); if (inputRef.current) inputRef.current.value = ''; };
+  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); setSourceSpecialty('مصدر عام'); if (inputRef.current) inputRef.current.value = ''; };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
@@ -381,7 +414,7 @@ export function CanonicalImportPage() {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <span className={understandingConfidence >= 75 ? 'badge-success' : understandingConfidence >= 50 ? 'badge-warning' : 'badge-neutral'}>ثقة الفهم {understandingConfidence || 0}%</span>
-              <span className="badge-neutral">تحليل تلقائي</span>
+              <span className="badge-neutral">اكتشاف تلقائي: {sourceSpecialty}</span>
             </div>
           </div>
         </CardBody>
