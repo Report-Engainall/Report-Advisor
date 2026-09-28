@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / RENDERED REPORT OUTPUT CLOSURE + REPORT-CENTER HANDOFF
+
+- CURRENT EXECUTION HEAD → `26b92ab6304996630f7616269db63de0b53c4ad5` after mandatory Session Memory write-back; product/code checkpoint remains `a8785ff73d71c9eb7f57c6095c0eeb67284c7f8e`.
+- MAIN CONTROL HEAD VERIFIED BEFORE WORK → `1b0d25a7834c779198f9ad19039c87e1262c4cd3`; current-main `SYSTEM_HEART.md` synchronized into the branch at `266419d28439f0c85a7434b7cd07a6f979c3bc13`.
+- ROOT GAP FOUND/REPAIRED → stage `rendered` now produces a persisted source-bound report-output manifest inside existing Job evidence instead of only advancing a checkpoint.
+- CLOSED IMPLEMENTATION → durable runner captures stage evidence; rendered manifest is bound to sourceHash/importId/entityType/sourceSpecialty and routes only to existing report surfaces; server binds detected specialty; query layer provides tenant-bound Job readback.
+- CLOSED UI → Canonical Import waits for completed Job + rendered outputs before declaring rendered success and displays persisted report outputs; Reports Center with `?import=` now exposes source → evidence → rendered-output handoff while keeping metrics on canonical truth.
+- STATIC PROOF → 22 exact-source assertions passed across runner, adapter, server specialty binding, query readback, Canonical Import, Reports Center and guard coverage.
+- LIVE DB PROOF → staging contains `report_execution_jobs` + 9-stage `report_execution_tasks`; Job RLS is tenant-bound; authenticated SELECT and service-role full Job privileges were verified.
+- NO FALSE RUNTIME CERTIFICATION → no real fixture import executed end-to-end in this batch; current exact-head GitHub Actions query returned no workflow runs; Vercel reports build-rate-limit failure; PC01 is offline.
+- OPEN EXTERNAL/DEVICE → hosted exact-head build/runtime acceptance; browser/device proof on PC01.
+- DO NOT REPEAT → no second report engine/table/runner, no static-link-only completion, no stale PASS across SHA.
+- NEXT EXACT ACTION → rescan report provenance for mismatched Job/source/snapshot bindings; repair the first concrete non-device gap, then re-test and persist.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / POST-IMPORT REPORT UX + FIXTURE DISCOVERY REANCHORED
 
 - LATEST FUNCTIONAL CHECKPOINT SHA (before this documentation write-back) → `2b60a72021d969550055e6682e7f36ab4a43d60e`.
