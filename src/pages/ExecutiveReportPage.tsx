@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ArrowLeft, FileText, Printer, RefreshCw, ShieldCheck, Target, TrendingUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs, type MonthlyTrend } from '@/lib/dashboard-canonical';
-import type { Alert, Recommendation } from '@/lib/types';
+import type { Alert, ImportRecord, Recommendation } from '@/lib/types';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
 import { isActionableRecommendationStatus } from '@/lib/decision-status';
+import { fetchImportEvidenceSnapshot, fetchImportRecords, type ImportEvidenceSnapshot } from '@/lib/queries';
 
 function Metric({ label, value, hint }: { label: string; value: string; hint: string }) {
   return <div className="rounded-2xl border border-ink-100 bg-ink-50/70 p-4">
@@ -53,10 +54,13 @@ function TrendStrip({ trend }: { trend: MonthlyTrend[] }) {
 }
 
 export function ExecutiveReportPage() {
+  const [searchParams] = useSearchParams();
+  const importId = searchParams.get('import')?.trim() || null;
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
   const [trend, setTrend] = useState<MonthlyTrend[]>([]);
   const [asOf, setAsOf] = useState<string>('غير متاح');
   const [data, setData] = useState<{ alerts: Alert[]; recommendations: Recommendation[] } | null>(null);
+  const [importContext, setImportContext] = useState<{ record: ImportRecord | null; snapshot: ImportEvidenceSnapshot | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,17 +68,23 @@ export function ExecutiveReportPage() {
     setLoading(true);
     setError(null);
     try {
-      const [snapshot, intelligence] = await Promise.all([fetchDashboardSnapshot(6), fetchDashboardIntelligence()]);
+      const [snapshot, intelligence, focusedImports, evidenceSnapshot] = await Promise.all([
+        fetchDashboardSnapshot(6),
+        fetchDashboardIntelligence(),
+        importId ? fetchImportRecords(1, importId) : Promise.resolve([] as ImportRecord[]),
+        importId ? fetchImportEvidenceSnapshot(importId) : Promise.resolve(null),
+      ]);
       setKpis(snapshot.kpis);
       setTrend(snapshot.trend);
       setAsOf(snapshot.asOf);
       setData(intelligence);
+      setImportContext(importId ? { record: focusedImports[0] ?? null, snapshot: evidenceSnapshot } : null);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'تعذر تحميل التقرير التنفيذي.');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [importId]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -121,6 +131,28 @@ export function ExecutiveReportPage() {
       </section>
 
       <TruthContextStrip months={6} status={kpis?.status ?? 'INSUFFICIENT_DATA'} asOf={asOf} />
+      {importId && <section className="rounded-2xl border border-primary-200 bg-primary-50/45 p-4 shadow-sm" aria-label="سياق المصدر المستورد">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-[0.14em] text-primary-700">SOURCE CONTEXT</div>
+            <h2 className="mt-1 text-base font-black text-ink-950">تقرير مرتبط بعملية الاستيراد</h2>
+            <p className="mt-1 text-[11px] leading-5 text-ink-600">مرجع الاستيراد أدناه يحدد المصدر والدليل؛ لا يغيّر نطاق مؤشرات التقرير التنفيذي إلى أرقام خاصة بالملف ما لم يكن ذلك مثبتًا في المصدر الكانوني.</p>
+          </div>
+          <Link to={`/trust?import=${encodeURIComponent(importId)}`} className="btn-secondary text-[10px]">فتح Evidence Passport</Link>
+        </div>
+        {importContext?.record || importContext?.snapshot ? <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[9px] text-ink-400">المصدر</div><div className="mt-1 break-words text-[11px] font-black text-ink-900">{importContext.record?.file_name ?? importContext.snapshot?.source_path ?? 'غير متاح'}</div></div>
+          <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[9px] text-ink-400">حالة الاستيراد</div><div className="mt-1 text-[11px] font-black text-ink-900">{importContext.record?.status ?? 'غير متاح'}</div></div>
+          <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[9px] text-ink-400">حالة الدليل</div><div className="mt-1 text-[11px] font-black text-ink-900">{importContext.snapshot?.analysis_status ?? 'REVIEW / NOT PROVEN'}</div></div>
+          <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[9px] text-ink-400">Snapshot</div><div className="mt-1 break-all text-[10px] font-mono font-bold text-ink-900">{importContext.snapshot?.id ?? 'غير متاح'}</div></div>
+          {importContext.snapshot && <>
+            <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[9px] text-ink-400">جودة المصدر</div><div className="mt-1 text-[11px] font-black text-ink-900">{importContext.snapshot.quality_score == null ? 'غير متاح' : `${importContext.snapshot.quality_score}%`}</div></div>
+            <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[9px] text-ink-400">الصفوف</div><div className="mt-1 text-[11px] font-black text-ink-900">{formatNumber(importContext.snapshot.row_count)}</div></div>
+            <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[9px] text-ink-400">الأعمدة</div><div className="mt-1 text-[11px] font-black text-ink-900">{formatNumber(importContext.snapshot.column_count)}</div></div>
+            <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[9px] text-ink-400">التخصص / الكيان</div><div className="mt-1 text-[11px] font-black text-ink-900">{importContext.snapshot.entity_type || 'غير متاح'}</div></div>
+          </>}
+        </div> : <div className="mt-3 rounded-xl border border-warning-200 bg-warning-50 px-3 py-2 text-[10px] font-bold text-warning-800">REVIEW / NOT PROVEN — تعذر إثبات العملية أو لقطة الدليل لهذا المعرف. لا يتم تحويل ذلك إلى نجاح أو تقرير خاص بالمصدر.</div>}
+      </section>}
       <section className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm" aria-label="الخطوة التالية في التقرير التنفيذي">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div><div className="text-[10px] font-black uppercase tracking-[0.14em] text-primary-700">NEXT ACTION</div><p className="mt-1 text-sm font-black text-ink-900">{nextAction.label}</p><p className="mt-1 text-[11px] text-ink-500">{nextAction.reason}</p></div>
