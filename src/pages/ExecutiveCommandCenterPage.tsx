@@ -112,7 +112,7 @@ export function ExecutiveCommandCenterPage() {
       } else {
         setReplaySnapshot(null);
         setReplayError(true);
-        console.error('[ExecutiveCommandCenterPage] Replay snapshot unavailable', replayResult.reason);
+        console.warn('[ExecutiveCommandCenterPage] Replay snapshot unavailable; UI remains in REVIEW fail-closed state.', replayResult.reason);
       }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل مركز القيادة');
