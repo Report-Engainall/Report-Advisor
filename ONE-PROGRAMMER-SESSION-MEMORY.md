@@ -1,3 +1,19 @@
+# RESUME TOKEN — 2026-09-28 / CI DUPLICATION CLOSED + BENCHMARK UI CONTINUITY ADDED
+
+- EXACT MAIN HEAD AT START → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`.
+- EXACT RESULTING FUNCTIONAL HEAD → `fdb59e8f4fa08cfb8778006ffc71a1e63088fb21`.
+- ACTUAL UI CHANGE → `CanonicalImportPage.tsx` now exposes a sixth post-import Benchmark step linked to `/benchmark`; it explicitly remains `INSUFFICIENT_SAMPLE` until a peer sample and evidence exist.
+- ACTUAL UI CONTRACT → `scripts/check-import-transaction-contract.mjs` now guards the Benchmark link and fail-closed `INSUFFICIENT_SAMPLE` state.
+- ACTUAL CI CHANGE → Browser E2E, Final Certification, and Execution Enforcement now run `push` only on `main`; PR validation remains on `pull_request`. This removes duplicate PR push+PR executions without removing the PR gate.
+- STATIC TEST EXECUTION → exact branch source assertions PASS for all five changed files/conditions.
+- FRESH EXACT-HEAD CI → latest branch runs are pull_request-only for the affected Browser/Certification/Enforcement/Quality fronts; no terminal PASS/FAIL yet.
+- DEVICE → PC01 offline; no browser/device proof claimed.
+- EXTERNAL → Vercel free-plan rate limit remains external; no production mutation performed.
+- NEXT → consume first terminal exact-`fdb59e8f` CI result; repair only a reproducible current-SHA failure, then persist/rescan UI/core/security fronts.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / CLIENT UI POLICY PARITY REPAIRED + LIVE VERIFIED
 
 - MAIN CONTROL HEAD BEFORE THIS WRITE → `b39d585803f7bca021cb68bb75a522c8bce115d6`.
