@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPORT OUTPUT UI SPEC CLOSURE — FUNCTIONAL CANDIDATE 994bbc4
+
+- FUNCTIONAL/UI CANDIDATE → `994bbc4517e9ec350f787f01841b637b2202354c`.
+- CLOSED UI FRONT → Reports Center now presents canonical Executive + domain/intelligence outputs and a direct Evidence → Signals → Decision → Work → Outcome/Learning → Benchmark chain.
+- CLOSED BUILDER FRONT → Truth/Evidence is a first-class report section, included by default, exportable/printable with As Of and state.
+- CLOSED EXECUTIVE REPORT FRONT → import context, evidence snapshot, source-bound recommendations, decision-output chain and fail-closed unbound-signal wording are source-verified.
+- CONTRACT → `scripts/check-ui-route-completeness.mjs` protects these report-output invariants.
+- CURRENT CI → workflows for exact head `994bbc4...` are current/queued; no PASS is claimed until terminal evidence.
+- OPEN NON-DEVICE → consume exact-head reporting/certification gates and repair first reproducible non-external failure.
+- DEVICE/EXTERNAL → PC01 offline and hosted Phase-F/deployment constraints remain isolated.
+- NEXT EXACT ACTION → terminal current-head gates → first failure repair → persist → rescan → next non-device front.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / TASK LEDGER CONTRACT HARDENED — FUNCTIONAL CANDIDATE 162881e
 
 - FUNCTIONAL/TEST CANDIDATE → `162881eaa84dcb23ea79d6fbae9777e459880b19`.
