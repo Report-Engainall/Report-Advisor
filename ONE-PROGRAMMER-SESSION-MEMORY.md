@@ -1241,3 +1241,19 @@
 - DO NOT REPEAT → do not rebuild the nine-stage ledger, do not create a second report-output table/runner, do not revert to static post-upload links, and do not call source-level contract PASS a runtime/browser PASS.
 - RESUME POINT → perform a real authoritative fixture import through the current server path when a runnable hosted/device execution path exists and require: 9 completed tasks → renderedOutput persisted in Job evidence → evidence snapshot → source-bound report handoff → downstream Decision/Work/Replay/Benchmark eligibility gates.
 - NEXT EXACT ACTION → persist this boundary in Master Execution Index, then rescan the current report UI for provenance validation gaps and continue the next safe non-device front.
+
+# RESUME TOKEN — 2026-09-28 / SOURCE-BOUND RENDERED REPORT HARDENING + REPORTS PAGE RESTORE
+
+- CURRENT CODE/TEST HEAD → `b865bda42f89553e75bd03f6ba0e61cd3dddc1ec`.
+- ROOT HARDENING → rendered report output is now accepted only when Job evidence manifest matches the expected Import ID and exact source SHA, each output item repeats the same binding, and sourceBound=true.
+- CANONICAL HELPER → `getBoundRenderedReportManifest()` is the single validation contract used by post-import/report surfaces; no duplicate provenance validator was created.
+- CANONICAL IMPORT UI → rendered success now fails closed as `EXECUTION_RENDER_OUTPUT_MISSING_OR_UNBOUND` when the Job output is absent or mismatched.
+- REPORTS CENTER → after a bad intermediate patch truncated `ReportsPage.tsx`, the full 49,568-character implementation was restored from pre-truncation commit `5b7f5e5a6a78b7d4d781b2701014bf2cdbfd9246` and then re-applied with the provenance hardening. Current file size is 49,789 characters and the full domain report exports are present.
+- EXECUTIVE REPORT → now reads the same tenant-bound Job/Snapshot binding and visibly lists only source-bound rendered outputs; otherwise it remains REVIEW / NOT PROVEN.
+- CONTRACT TEST → `scripts/report-execution-task-ledger-contract.test.mjs` now guards report manifest validation plus Reports Center and Executive Report source-bound surfaces.
+- EXACT-SOURCE PROOF → 37 targeted source assertions PASS on `b865bda42f89553e75bd03f6ba0e61cd3dddc1ec`; changed files were re-read from GitHub exact branch content. This is source-contract evidence, not browser/runtime certification.
+- CI EXACT-HEAD → Final Certification Gate run `36470795514` and Execution Enforcement Contract run `36470795615` exist on the exact current SHA and are currently QUEUED; no PASS/FAIL transferred.
+- LIVE DB → staging Job/task schema and tenant RLS remain intact; no migration was added in this hardening front.
+- DEVICE/EXTERNAL → PC01 remains offline; Vercel continues to report the free-plan build-rate-limit failure; authenticated hosted runtime acceptance remains open.
+- DO NOT REPEAT → do not rebuild ReportsPage from a truncated read; always verify returned content length before a whole-file update; do not use unbound rendered output as report proof; do not create a second provenance validator.
+- RESUME POINT → consume the first terminal exact-head certification/enforcement result; if terminal code failure appears, repair it. Independently continue next safe non-device product front while leaving device/hosted proof isolated.
