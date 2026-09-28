@@ -1,3 +1,20 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / ENFORCEMENT TEST PARSE ROOT CLOSED
+
+- CURRENT REPOSITORY HEAD → `a540915475ac9423ded85099f54cf8600078c805`
+- CURRENT CODE/TEST CANDIDATE → `a540915475ac9423ded85099f54cf8600078c805`
+- ACTIVE EXECUTION FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- ACTIVE EXECUTION FRONTS → Execution Enforcement, Final Certification, Security Definer Exposure, Quality/Lint, Phase-F resilience, UI/Import truth.
+- OPEN BLOCKERS → fresh exact-SHA CI; Vercel free-plan build-rate; PC01 offline; Supabase Auth leaked-password protection external.
+- LAST PROVEN → Browser E2E and Device-Independent Browser E2E SUCCESS on prior candidate; desktop-windows, Phase 3 data/import truth, storage isolation SUCCESS.
+- LAST FAILED ROOTS → certification boundary anchor mismatch; worker RPC source-grant ordering; malformed enforcement test literal. These repository roots are corrected on this candidate.
+- LIVE SECURITY PROOF → `fail_report_execution_job` authenticated=false, anon=false, service_role=true in Staging.
+- NEXT EXECUTABLE ACTION → first terminal exact-head CI failure only; repair → test → prove → persist → rescan.
+- NEXT INDEPENDENT ACTIONS → static security/data/UI fronts independent of PC01/Vercel.
+- DO NOT REPEAT → stale evidence, duplicate import routes, blanket security-definer revokes, production/device claims.
+- MAIN REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`; current functional diff continues from PR #672 with behind=0 at the reanchor.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / SECURITY BOUNDARY + ENFORCEMENT CONTRACT CHECKPOINT
 
 - CURRENT REPOSITORY HEAD → `090469422277055af319876763ce7f488cf0daa9`

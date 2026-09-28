@@ -1,3 +1,19 @@
+# RESUME TOKEN — 2026-09-28 / ENFORCEMENT TEST PARSE ROOT CLOSED
+
+- CURRENT REPOSITORY HEAD → `a540915475ac9423ded85099f54cf8600078c805`
+- CURRENT CODE/TEST CANDIDATE → `a540915475ac9423ded85099f54cf8600078c805`
+- ACTIVE EXECUTION FRONTS → Execution Enforcement, Final Certification, Security Definer Exposure, Quality/Lint, Phase-F resilience, UI/Import truth.
+- OPEN BLOCKERS → fresh exact-SHA CI; Vercel free-plan build-rate; PC01 offline; Supabase Auth leaked-password protection external.
+- LAST PROVEN → Browser E2E and Device-Independent Browser E2E SUCCESS on prior candidate; desktop-windows, Phase 3 data/import truth, storage isolation also SUCCESS.
+- LAST FAILED ROOTS → certification boundary anchor mismatch; worker RPC source-grant ordering; malformed enforcement test literal. The repository-executable roots have been corrected.
+- LIVE SECURITY PROOF → `fail_report_execution_job` currently resolves authenticated=false, anon=false, service_role=true in Staging.
+- NEXT EXECUTABLE ACTION → consume fresh terminal exact-`a5409154...` CI; repair only the first current-SHA reproducible failure.
+- NEXT INDEPENDENT ACTIONS → continue static security/data/UI fronts independent of device/hosting.
+- DO NOT REPEAT → no stale PASS transfer, no duplicate import path, no blanket SECURITY DEFINER revoke, no production/device claim.
+- MAIN REFERENCE → `650b74ee83095752f44a1a1b0df3cf496fc73f71`; candidate remains the functional code/test head, and documentation-only commits after it are governance persistence.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / SECURITY BOUNDARY + ENFORCEMENT CONTRACT CHECKPOINT
 
 - CURRENT REPOSITORY HEAD → `090469422277055af319876763ce7f488cf0daa9`
