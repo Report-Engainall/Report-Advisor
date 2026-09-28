@@ -177,10 +177,10 @@ export async function runCanonicalImportThroughDurableRunner(
       .from('report_execution_jobs')
       .select('id,company_id,status,checkpoint,attempt,max_attempts')
       .eq('id', options.durableJobId)
-      .eq('company_id', companyId)
       .maybeSingle();
     if (existingError) throw existingError;
     if (!existing) throw new Error('REPORT_EXECUTION_JOB_NOT_FOUND_OR_FORBIDDEN');
+    if (existing.company_id !== companyId) throw new Error('REPORT_EXECUTION_JOB_TENANT_MISMATCH');
     job = existing as EnqueuedJob;
   } else {
     const { data: enqueueData, error: enqueueError } = await activeWorkerClient.rpc('enqueue_report_execution_job', {
