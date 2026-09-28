@@ -49,6 +49,52 @@ for (const [pattern, message] of executiveReportImportContract) {
   }
 }
 
+const reportSurfaceContext = fs.readFileSync('src/components/ReportSurfaceContext.tsx', 'utf8');
+const reportSurfaceContract = [
+  [/REPORT TRUTH CONTEXT/, 'Report surfaces must expose the canonical report truth context'],
+  [/الشركة/, 'Report truth context must expose company context'],
+  [/الفترة/, 'Report truth context must expose report period'],
+  [/العملة/, 'Report truth context must expose currency'],
+  [/As Of/, 'Report truth context must expose As Of'],
+  [/حالة الحقيقة/, 'Report truth context must expose truth status'],
+  [/>\/trust<|to="\/trust"/, 'Report truth context must link to canonical Trust & Evidence'],
+];
+for (const [pattern, message] of reportSurfaceContract) {
+  if (!pattern.test(reportSurfaceContext)) {
+    console.error(`FAIL report surface truth context: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
+const inventoryIntelligencePage = fs.readFileSync('src/pages/InventoryIntelligencePage.tsx', 'utf8');
+const inventoryIntelligenceContract = [
+  [/ReportSurfaceContext/, 'Inventory Intelligence must use the canonical report truth context'],
+  [/resolveCurrentCompanyId/, 'Inventory Intelligence must resolve the current tenant'],
+  [/select\('name,currency'\)/, 'Inventory Intelligence must expose company currency from the canonical company record'],
+  [/status={!projected\.length \? 'INSUFFICIENT DATA' : missingDemand\.length \? 'REVIEW' : 'CALCULATED'}/, 'Inventory Intelligence must fail closed to REVIEW/INSUFFICIENT DATA'],
+];
+for (const [pattern, message] of inventoryIntelligenceContract) {
+  if (!pattern.test(inventoryIntelligencePage)) {
+    console.error(`FAIL inventory intelligence report contract: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
+const demandVelocityPage = fs.readFileSync('src/pages/DemandVelocityPage.tsx', 'utf8');
+const demandVelocityContract = [
+  [/ReportSurfaceContext/, 'Demand Velocity must use the canonical report truth context'],
+  [/resolveCurrentCompanyId/, 'Demand Velocity must resolve the current tenant'],
+  [/select\('name,currency'\)/, 'Demand Velocity must expose company currency from the canonical company record'],
+  [/status={data\.length \? 'CALCULATED' : 'INSUFFICIENT DATA'}/, 'Demand Velocity must fail closed to INSUFFICIENT DATA'],
+  [/\{days\} يومًا/, 'Demand Velocity truth context must disclose the active analysis window'],
+];
+for (const [pattern, message] of demandVelocityContract) {
+  if (!pattern.test(demandVelocityPage)) {
+    console.error(`FAIL demand velocity report contract: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
 const pageSourceByFile = new Map();
 for (const page of pages) {
   pageSourceByFile.set(page, fs.readFileSync(`src/pages/${page}`, 'utf8'));
