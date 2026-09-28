@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / PHASE-2 SECURITY HARDENING CANDIDATE
+
+- CURRENT CODE/TEST CANDIDATE → `4ff2104cc3d6e5d06a1d443ca0ba05d45d24fda4`
+- CURRENT REPOSITORY HEAD → `4ff2104cc3d6e5d06a1d443ca0ba05d45d24fda4`
+- ACTIVE FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- IMPLEMENTED → durable post-upload 9-stage Task Ledger; lease-fenced execution; authoritative enqueue/execute; tenant-authoritative reads; live/final reports; service-role-only enqueue; append-only aware security-definer checker.
+- STAGING PROOF → task ordering/evidence and enqueue privilege closure verified.
+- NEXT → exact-head Phase-2 security + certification + quality/browser + Phase-F.
+- NO STALE PASS → every current claim must reference `4ff2104cc3d6e5d06a1d443ca0ba05d45d24fda4` or a new current run.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / POST-UPLOAD TENANT AUTHORITY CANDIDATE
 
 - CURRENT CODE/TEST CANDIDATE → `248df251ae243e84a2003adb143a0602765aa27a`

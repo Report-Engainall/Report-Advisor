@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-28 / PHASE-2 SECURITY HARDENING CANDIDATE
+
+- CURRENT REPOSITORY HEAD → `4ff2104cc3d6e5d06a1d443ca0ba05d45d24fda4`
+- CURRENT CODE/TEST CANDIDATE → `4ff2104cc3d6e5d06a1d443ca0ba05d45d24fda4`
+- ACTIVE FRONT → exact-head certification, Phase-2 security surface, task ledger, quality/browser/Phase-F.
+- LAST IMPLEMENTED → append-only aware SECURITY DEFINER surface checker; a later migration is accepted only when it explicitly revokes PUBLIC/anon/authenticated and grants service_role.
+- LAST LIVE SECURITY PROOF → durable enqueue RPC is service_role-only in Staging.
+- LAST CODE FAILURE → Phase-2 checker rejected the historical task-ledger migration because its later hardening migration was not considered; fixed in current checker.
+- OPEN EXTERNAL → Vercel build-rate limit, hosted Phase-F production drift, PC01 offline.
+- NEXT EXACT ACTION → consume current-head Phase-2 security, Final Certification, Task Ledger, Quality, Browser and Phase-F gates.
+- NEXT INDEPENDENT ACTIONS → after repository gates pass, isolate hosted Phase-F deployment drift and device-only PC01 work without blocking independent fronts.
+- DO NOT REPEAT → stale candidate evidence, direct tenant selectors, modifying applied migrations for historical parity, duplicate runners.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / POST-UPLOAD TENANT AUTHORITY CANDIDATE
 
 - CURRENT REPOSITORY HEAD → `08e83ddce76797222797b18c2eb1b2027d1c4407`
