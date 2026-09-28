@@ -11,6 +11,7 @@ import { fetchCustomersPage, fetchProductsPage } from '@/lib/queries';
 import { fetchInventoryReportSnapshot, type InventoryReportRow } from '@/lib/dashboard-canonical';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import type { Customer, Product } from '@/lib/types';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 
 
 function EntityContextDrawer({ title, subtitle, fields, links, onClose }: {
@@ -86,6 +87,7 @@ export function CustomersPage() {
     <div className="space-y-6 animate-fade-in" dir="rtl">
       <PageHeader title="العملاء" subtitle={`${formatNumber(total)} عميل`} actions={<button type="button" onClick={() => setCreateOpen(true)} className="btn-primary text-xs"><Plus size={14} /> عميل جديد</button>} />
       {createOpen && <CustomerCreateDialog onClose={() => setCreateOpen(false)} onCreated={() => { void load(); }} />}
+      <ReportSurfaceContext period="السجل المرجعي الحالي" asOf={new Date().toISOString().slice(0, 10)} status={customers.length ? 'CALCULATED' : 'INSUFFICIENT DATA'} sourceLabel="العملاء يعرضون السجل المرجعي للشركة الحالية؛ التحصيل والتحليل يبقيان في المسارات الكانونية المرتبطة." />
       <div className="ag-entity-toolbar grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div>
           <label className="mb-1.5 block text-[11px] font-bold text-ink-500">ابحث ثم افتح السجل لفهم السياق</label>
@@ -162,6 +164,7 @@ export function ProductsPage() {
     <div className="ag-entity-page-surface space-y-6 animate-fade-in" dir="rtl">
       <PageHeader title="المنتجات" subtitle={`${formatNumber(total)} منتج`} actions={<button type="button" onClick={() => setCreateOpen(true)} className="btn-primary text-xs"><Plus size={14} /> منتج جديد</button>} />
       {createOpen && <ProductCreateDialog onClose={() => setCreateOpen(false)} onCreated={() => { void load(); }} />}
+      <ReportSurfaceContext period="السجل المرجعي الحالي" asOf={new Date().toISOString().slice(0, 10)} status={products.length ? 'CALCULATED' : 'INSUFFICIENT DATA'} sourceLabel="المنتجات تعرض الهوية والتكلفة والسعر ونقطة الطلب من السجل الحالي؛ لا تُشتق أرقام تشغيلية غير موجودة." />
       <div className="ag-entity-toolbar grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div>
           <label className="mb-1.5 block text-[11px] font-bold text-ink-500">ابحث ثم افتح السجل لفهم ما يهم هذا الصنف</label>
