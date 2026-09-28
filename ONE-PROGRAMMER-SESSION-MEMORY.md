@@ -1,3 +1,19 @@
+# RESUME TOKEN — 2026-09-28 / WORKER RPC CONTRACT RECONCILIATION PROVEN
+
+- MAIN EXACT HEAD AT CHECKPOINT → `3f7963db851d87fadd57462482385452ca2536f5`.
+- FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`.
+- CURRENT FUNCTIONAL HEAD → `ee0cba1e220fc2c96e2fa4c77aa7fa96192abe68`.
+- SECURITY SOURCE → `20260928230000_restrict_report_execution_failure_worker_rpc.sql` is the canonical worker-only privilege boundary for `fail_report_execution_job`.
+- SECURITY LIVE PROOF → Staging confirms SECURITY DEFINER=true, authenticated=false, anon=false, service_role=true; advisor authenticated SECURITY DEFINER count 41 → 40.
+- TEST CONTRACT → `scripts/check-security-definer-exposure-contract.mjs` now treats `fail_report_execution_job` as worker-only and evaluates the latest REVOKE/GRANT boundary instead of stale historical grants.
+- TEST PROOF → syntax PASS after stripping imports for parse-only validation; targeted harness PASS for old-auth-grant-before-revoke and FAIL detection for any auth grant after the latest revoke.
+- CI → no Actions run registered for the latest head at last poll; therefore no runtime PASS claimed.
+- DEVICE → PC01 offline; browser/desktop/production proof remains isolated.
+- EXTERNAL → leaked-password protection remains a Supabase Auth platform setting; Vercel free-plan rate limit remains external.
+- NEXT → continue independent safe repository/security/data fronts; when fresh CI appears, consume terminal exact-head evidence only.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / WORKER FAILURE RPC SECURITY BOUNDARY CLOSED
 
 - MAIN EXACT HEAD AT CHECKPOINT → `a98dc4451b79544fde40f60680f8d52edd60e209`.
