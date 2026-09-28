@@ -467,7 +467,7 @@ export function CanonicalImportPage() {
         onDrop={(event) => { event.preventDefault(); event.stopPropagation(); handleDroppedFiles(event.dataTransfer.files); }}
         className={`ag-import-dropzone border-2 border-dashed rounded-[18px] p-10 text-center cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 ${isDragging ? 'border-primary-600 bg-primary-50 shadow-card' : 'hover:border-primary-400 hover:bg-primary-50/20'}`}
       >
-        <input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { if (e.target.files) handleDroppedFiles(e.target.files); }} />
+        <input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { if (e.target.files) handleDroppedFiles(e.target.files); }} />
         <Upload className={`mx-auto mb-3 ${isDragging ? 'text-primary-700' : 'text-primary-500'}`} size={30}/>
         <h3 className="font-semibold">{isDragging ? 'أفلت الملف لبدء الفحص' : 'اختر ملفًا أو اسحبه إلى هنا'}</h3>
         <p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p>

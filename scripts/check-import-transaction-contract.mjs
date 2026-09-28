@@ -307,6 +307,34 @@ for (const dir of sourceDirs) {
   }
 }
 
+const importMimeMigrationPath = 'supabase/migrations/20260928141500_reconcile_import_job_mime_allowlist.sql';
+if (!fs.existsSync(importMimeMigrationPath)) throw new Error('MIME allowlist parity migration is missing');
+const importMimeMigration = fs.readFileSync(importMimeMigrationPath, 'utf8');
+const canonicalClientMimes = [
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-excel',
+  'application/vnd.ms-excel.sheet.macroEnabled.12',
+  'application/vnd.oasis.opendocument.spreadsheet',
+  'text/csv',
+  'text/tab-separated-values',
+  'application/json',
+  'application/x-ndjson',
+  'text/plain',
+  'text/markdown',
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'image/jpeg',
+  'image/png',
+  'image/tiff',
+  'image/webp',
+  'image/bmp',
+];
+for (const mime of canonicalClientMimes) {
+  if (!importMimeMigration.includes("'"+mime+"'")) throw new Error(`MIME allowlist parity missing: ${mime}`);
+}
+if (/accept="[^"]*\.xml/.test(canonicalImportPage)) {
+  throw new Error('Canonical import UI must not advertise XML while the canonical parser rejects XML');
+}
 console.log('Import transaction contract: PASS');
 
 for (const [name, wrapper] of [
