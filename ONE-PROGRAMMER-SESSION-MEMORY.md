@@ -1,4 +1,17 @@
-# RESUME TOKEN — 2026-09-28 / REPORT OUTPUT UI SPEC CLOSURE — FUNCTIONAL CANDIDATE 994bbc4
+# RESUME TOKEN — 2026-09-28 / REPORT SURFACE CONTEXT CLOSURE — FUNCTIONAL CANDIDATE 573304a
+
+- FUNCTIONAL/UI CANDIDATE → `573304a90dcf7d5672bb04ded788e2b0c90bd549`.
+- CLOSED UI FRONT → `src/components/ReportSurfaceContext.tsx` is now the shared report-context surface for company, period, currency, As Of, truth state, source description, and Trust & Evidence navigation.
+- INVENTORY INTELLIGENCE → `src/pages/InventoryIntelligencePage.tsx` now resolves the tenant company record through the existing `resolveCurrentCompanyId` boundary, exposes company/currency context, and fails closed to `REVIEW` when demand data is incomplete or `INSUFFICIENT DATA` when no analytical rows exist.
+- DEMAND VELOCITY → `src/pages/DemandVelocityPage.tsx` now resolves the tenant company record, exposes company/currency/context for the active 30/90/180/365-day window, As Of, and an explicit `CALCULATED` / `INSUFFICIENT DATA` state.
+- CONTRACT GUARD → `scripts/check-ui-route-completeness.mjs` now guards the shared report-truth context plus both report-specific tenant/currency/fail-closed contracts.
+- ARCHITECTURE → no new backend RPC, importer, evidence store, decision runner, or duplicate report engine was introduced; the existing company table and existing analytical fetchers are reused.
+- EXACT DIFF PROOF → compare from prior persisted head `91b0d65ce8d36cf43324a11deef71687f805ac79` to this candidate is exactly 5 commits and 4 files: one shared UI component, two report page updates, one UI contract guard.
+- CI → no terminal exact-head PASS is claimed for `573304a...`; current proof is source/diff level until exact-head workflow/build evidence is consumed.
+- DEVICE → PC01 remains offline; browser proof remains isolated and is not used as a reason to stop safe repository work.
+- NEXT EXACT ACTION → consume/inspect exact-head CI if available; otherwise continue the next canonical report surface with the same Route → Context → Data → Truth → Action → Evidence standard.
+- DO NOT REPEAT → do not call these reports complete without company/period/currency/As Of/truth visibility; do not transfer older PASS across SHA; do not create a second reporting engine.
+
 
 - CURRENT UI/FUNCTIONAL CANDIDATE → `994bbc4517e9ec350f787f01841b637b2202354c`.
 - REPORT CENTER UPGRADE → `src/pages/ReportsPage.tsx` now exposes the canonical Executive Report plus sales, purchases, inventory, inventory intelligence, demand velocity, receivables, and profitability outputs as a decision-oriented report catalog.
