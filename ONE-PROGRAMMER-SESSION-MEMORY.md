@@ -1337,3 +1337,13 @@
 - NO FALSE RUNTIME PASS → tenant-bound browser/runtime canary remains external; PC01 offline and Vercel rate-limit blocker remain open.
 - DO NOT REPEAT → do not recompute learning metrics independently in pages; do not present replay history without persisted source records; do not bypass Evidence Snapshot for completion.
 - RESUME POINT → consume terminal CI result, then close the remaining Benchmark gate only when the repository/runtime provides a real peer cohort; otherwise preserve the documented INSUFFICIENT_SAMPLE state and finish other executable non-device gaps.
+
+# RESUME TOKEN — 2026-09-28 / REPLAY EVIDENCE FAIL-CLOSED HARDENING
+
+- CURRENT CODE/TEST HEAD → `7cb9bc346b7dfd790922a3b9b6d5030665c9a96e`.
+- CLOSED → Business Replay now marks an Outcome event as `evidencePresent` only when the stored evidence JSON object is non-array and non-empty. A placeholder/empty JSON object no longer appears as visible evidence.
+- PROOF → exact current HEAD re-read from GitHub: 8/8 focused assertions PASS; query export count 73; zero missing query imports across Decision, Replay, Reports, Executive and Work pages; benchmark gate remains `INSUFFICIENT_SAMPLE`.
+- CI EXACT SHA → Final Certification Gate `36473329852` and Execution Enforcement Contract `36473329970` are queued on this exact SHA; no terminal PASS/FAIL transferred.
+- NO FALSE RUNTIME PASS → live browser/tenant canary remains external; PC01 offline; Vercel free-plan rate limit remains external.
+- DO NOT REPEAT → do not mark non-empty proof from the mere existence of a JSONB value; preserve server-authoritative outcome/evidence semantics.
+- RESUME POINT → continue the next concrete non-device cleanup/certification front while consuming CI terminal state when available.
