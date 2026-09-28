@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ArrowUpLeft, CircleAlert, Landmark, RefreshCw, ShieldCheck, Target } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/States';
@@ -13,7 +13,7 @@ function MoneyMetric({ label, value, note }: { label: string; value: number | nu
   return <div className="rounded-2xl border border-ink-100 bg-white p-4"><div className="text-[10px] font-black text-ink-400">{label}</div><div className="mt-2 text-xl font-black tabular-nums text-ink-950">{value == null ? 'غير متاح' : formatCurrency(value)}</div><div className="mt-1 text-[10px] leading-5 text-ink-400">{note}</div></div>;
 }
 
-export function LiquidityPage() {
+export function LiquidityPage() { const [searchParams]=useSearchParams(); const importId=searchParams.get('import')?.trim()||null; const withImportContext=(path:string)=>importId?path+(path.includes('?')?'&':'?')+'import='+encodeURIComponent(importId):path;
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
   const [asOf, setAsOf] = useState('غير متاح');
   const [loading, setLoading] = useState(true);
@@ -113,7 +113,7 @@ export function LiquidityPage() {
         <span className="ag-decision-label">الخطوة التالية</span>
         <span className="ag-decision-value">
           <Target size={13} className="mr-1 inline text-primary-700" />
-          <Link to={nextAction.to} className="font-bold text-primary-700 hover:underline" aria-label={'الخطوة التالية: ' + nextAction.title}>
+          <Link to={withImportContext(nextAction.to)} className="font-bold text-primary-700 hover:underline" aria-label={'الخطوة التالية: ' + nextAction.title}>
             {nextAction.label}
           </Link>
         </span>
