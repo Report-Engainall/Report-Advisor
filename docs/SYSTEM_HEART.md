@@ -202,7 +202,42 @@ No canonical document may redefine the product into generic BI, CRUD, ERP, chatb
 - leave one clear resume pointer;
 - leave one next executable action set.
 
-## 15. Absorbed execution protections from the former autonomous protocol
+
+
+## 15. Fixture Intake + Post-Import Acceptance
+
+The canonical reusable fixture intake directory is:
+
+`tests/fixtures/realistic-reports/`
+
+Use `tests/fixtures/business-golden/` when its fixtures are part of the active acceptance set.
+
+At every session start, inspect these directories on the exact HEAD. Their presence is an executable test input source, not a request for owner instructions.
+
+When a new fixture/report file is present, the programmer MUST treat it as an acceptance input and execute the existing canonical import path:
+
+`UPLOAD → SECURITY → DETECTION → EXTRACTION → UNDERSTANDING → SPECIALTY → MATCHING/NORMALIZATION → QUALITY → TRUST → REVIEW → APPROVAL → COMMIT → ANALYSIS → EVIDENCE → SIGNAL → DECISION → ACTION → OUTCOME/LEARNING → BENCHMARK`
+
+The durable execution proof remains exactly nine ordered stages:
+
+`queued → fingerprinted → extracted → canonicalized → validated → analyzed → decisioned → committed → rendered`
+
+The current implementation creates the nine durable tasks and advances them sequentially through the leased worker. Do not describe this as parallel multi-worker processing unless the runtime contract changes and fresh evidence proves that change.
+
+After a fixture reaches `rendered`, the result UI MUST expose the real next outputs derived from the detected specialty/entity:
+- Executive Report as the governed aggregation surface.
+- The applicable specialty/domain report when one exists.
+- Evidence Passport / Trust & Evidence.
+- Decision surface.
+- Work Center.
+- Outcome/Learning / Business Replay.
+- Benchmark eligibility, fail-closed to `INSUFFICIENT_SAMPLE` when peer evidence is absent.
+
+A report link is not proof that its content is source-bound. Source-bound claims require the canonical import/evidence context. PARTIAL/REVIEW/BLOCKED states must route back to evidence/review rather than being presented as verified business truth.
+
+Fixtures are test inputs only. They must never be promoted to production truth merely because import succeeded. Never create a separate importer, RPC, runner, or report pipeline for a fixture specialty when the canonical path already exists.
+
+## 16. Absorbed execution protections from the former autonomous protocol
 
 ### Production mutation safety
 Production-impacting mutation is prohibited unless target identity and authorization are proven. Before any production mutation prove:
