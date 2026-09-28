@@ -162,6 +162,15 @@ if (fs.existsSync(pagePath)) {
   if (!/quality < 50/.test(page) || !/quality < 75 && !qualityApproved/.test(page)) {
     throw new Error('Canonical import UI must enforce the 50% rejection and 50–74% explicit approval gates');
   }
+  if (!/onDragOver=\{/.test(page) || !/onDrop=\{/.test(page) || !/dataTransfer\.files/.test(page)) {
+    throw new Error('Canonical import UI must implement a real drag-and-drop file entry path');
+  }
+  if (!/setIsDragging\(true\)/.test(page) || !/setIsDragging\(false\)/.test(page)) {
+    throw new Error('Canonical import drag-and-drop UI must expose and clear its active-drop state');
+  }
+  if (!/droppedFiles\.length > 1/.test(page)) {
+    throw new Error('Canonical import drag-and-drop UI must fail closed on multiple dropped files');
+  }
 }
 
 const runnerPath = path.join(root, 'src', 'lib', 'report-execution', 'durable-production-runner.ts');
