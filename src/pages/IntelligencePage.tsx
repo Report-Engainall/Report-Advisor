@@ -367,6 +367,16 @@ function priorityLabel(priority: string): string {
   return priority;
 }
 
+function latestIsoDate(values: Array<string | null | undefined>): string {
+  const timestamps = values
+    .filter((value): value is string => Boolean(value))
+    .map(value => new Date(value).getTime())
+    .filter(Number.isFinite);
+  return timestamps.length
+    ? new Date(Math.max(...timestamps)).toISOString().slice(0, 10)
+    : new Date().toISOString().slice(0, 10);
+}
+
 function SummaryStrip({ cells }: { cells: Array<{ label: string; value: string | number; note: string }> }) {
   return (
     <section className="ag-decision-strip" aria-label="ملخص الذكاء">
@@ -452,7 +462,7 @@ export function RecommendationsPage() {
 
       <ReportSurfaceContext
         period="سجل التوصيات الحالي"
-        asOf={items.length ? new Date(Math.max(...items.map(item => new Date(item.created_at).getTime()).filter(Number.isFinite))).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10)}
+        asOf={latestIsoDate(items.map(item => item.created_at))}
         status="CALCULATED"
         sourceLabel="التوصيات المعروضة هي سجلات مصدرية قابلة للمراجعة؛ لا يتم اعتبارها نتائج تنفيذية قبل مسار القرار والاعتماد."
       />
@@ -551,10 +561,13 @@ export function ForecastsPage() {
       return { label: labels[date.getMonth()] || item.period, forecast_value: item.forecast_value, upper_bound: item.upper_bound, lower_bound: item.lower_bound };
     });
   }, [company]);
-  const latestPeriod = useMemo(
-    () => items.length ? [...items].sort((a, b) => new Date(b.period).getTime() - new Date(a.period).getTime())[0]?.period || 'غير متاح' : 'غير متاح',
-    [items],
-  );
+  const latestPeriod = useMemo(() => {
+    const validPeriods = items
+      .map(item => item.period)
+      .filter(period => Number.isFinite(new Date(period).getTime()))
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+    return validPeriods[0] ?? 'غير متاح';
+  }, [items]);
   const qualityBounded = useMemo(() => items.filter((item) => item.quality_score !== null).length, [items]);
 
   if (loading) return <LoadingState message="جارٍ تجميع التنبؤات المصدرية..." />;
@@ -575,7 +588,7 @@ export function ForecastsPage() {
 
       <ReportSurfaceContext
         period={latestPeriod === 'غير متاح' ? 'غير متاح' : 'أحدث فترة تنبؤية'}
-        asOf={latestPeriod !== 'غير متاح' ? new Date(latestPeriod).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10)}
+        asOf={latestIsoDate(items.map(item => item.period))}
         status={items.length ? 'CALCULATED' : 'INSUFFICIENT DATA'}
         sourceLabel="التنبؤات تُقرأ من السجل المصدرّي وتظل موسومة FORECAST؛ غياب الاختبار الرجعي لا يُستبدل بنسبة دقة مصطنعة."
       />
