@@ -1,4 +1,15 @@
-# RESUME TOKEN — 2026-09-28 / WORK CENTER TRUTH CONTEXT CLOSURE — FUNCTIONAL CANDIDATE 5cfbc39
+# RESUME TOKEN — 2026-09-28 / OUTCOME + BENCHMARK TRUTH CONTEXT CLOSURE — FUNCTIONAL CANDIDATE 1ddc45c
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `1ddc45ca95d166345b78f60f4961f23fa92f8eeb`.
+- CLOSED → Business Replay now exposes the shared truth context and remains VERIFIED only when persisted snapshots + outcomes exist; otherwise INSUFFICIENT DATA.
+- CLOSED → Benchmark Network now exposes the shared truth context and remains explicitly INSUFFICIENT DATA / INSUFFICIENT_SAMPLE without a peer cohort.
+- CONTRACT → `scripts/check-ui-route-completeness.mjs` guards both surfaces, their fail-closed states, and the canonical truth vocabulary.
+- STATIC PROOF → replay context/fail-closed, benchmark context/sample gate, both guards, and full truth vocabulary all pass.
+- CI/RUNTIME → no terminal exact-head code PASS claimed; Vercel free-plan rate-limit remains external; PC01 offline.
+- PREVIEW → public Cloudflare shell remains reachable but protected workspace requires authentication, so no authenticated-browser PASS transferred.
+- NEXT EXACT ACTION → consume terminal exact-head gates when available; otherwise continue the remaining non-device canonical surface without reopening closed report/import/decision/replay/benchmark fronts.
+- DO NOT REPEAT → never convert missing outcomes or benchmark samples into fabricated success, zero, percentile, or ranking.
+
 
 - CURRENT FUNCTIONAL/UI CANDIDATE → `5cfbc39b3e1f4ab93a5d2783243ed2e8a91daf48`.
 - CLOSED → Work Center now exposes the shared truth context with company/period/currency/As Of plus explicit operational truth state.
