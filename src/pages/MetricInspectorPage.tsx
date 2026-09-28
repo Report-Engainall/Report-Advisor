@@ -22,6 +22,7 @@ import {
   resolveKpiEvidenceKey,
   type KpiEvidenceSnapshot,
 } from '@/lib/kpi-evidence';
+import { ReportSurfaceContext, type ReportTruthStatus } from '@/components/ReportSurfaceContext';
 
 type CertificationStatus = 'DRAFT' | 'REVIEWED' | 'CERTIFIED' | 'DEPRECATED';
 
@@ -134,12 +135,29 @@ export function MetricInspectorPage() {
 
   const governance = selected?.governance;
   const freshness = semanticMetricIsFresh(governance ?? null, null);
+  const metricTruthStatus: ReportTruthStatus =
+    !items.length
+      ? 'INSUFFICIENT DATA'
+      : governance?.certificationStatus === 'CERTIFIED'
+        ? 'VERIFIED'
+        : governance?.certificationStatus === 'REVIEWED'
+          ? 'TRUSTED'
+          : governance?.certificationStatus === 'DEPRECATED'
+            ? 'BLOCKED'
+            : 'REVIEW';
+
   const selectedCanCapture = Boolean(
     selected?.definition.metricId && resolveKpiEvidenceKey(selected.definition.metricId),
   );
 
   return (
     <div dir="rtl" className="ag-governance-page ag-metric-governance-surface space-y-6 animate-fade-in">
+      <ReportSurfaceContext
+        period="عقد المؤشر الحالي"
+        asOf={new Date().toISOString().slice(0, 10)}
+        status={metricTruthStatus}
+        sourceLabel="Metric Inspector يقرأ عقود المؤشرات والحداثة وشهادة الحوكمة من السجل الحالي؛ التقاط الدليل لا يرفع الحالة تلقائيًا إلى VERIFIED."
+      />
       <PageHeader
         title="حوكمة المؤشرات"
         subtitle="تعريف المؤشر، نسخته، مصدره، الأدلة، والجهات المستهلكة من عقد موحد"
