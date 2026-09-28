@@ -157,6 +157,16 @@ for (const [pattern, message] of intelligenceTruthContract) {
   }
 }
 
+const masterDataHubPage = fs.readFileSync('src/pages/MasterDataHubPage.tsx', 'utf8');
+if (!/ReportSurfaceContext/.test(masterDataHubPage)) {
+  console.error('FAIL master data hub truth context: shared ReportSurfaceContext is missing');
+  process.exitCode = 1;
+}
+if (!/summary\.entityRows > 0 \? 'CALCULATED' : 'INSUFFICIENT DATA'/.test(masterDataHubPage)) {
+  console.error('FAIL master data hub truth state: entity-empty state must remain INSUFFICIENT DATA');
+  process.exitCode = 1;
+}
+
 const entityPagesSource = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
 const entitySurfaceContract = [
   [/export function CustomersPage/, 'Customers page must remain available'],
