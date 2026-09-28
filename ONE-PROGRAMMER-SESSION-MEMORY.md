@@ -1,3 +1,19 @@
+# RESUME TOKEN — 2026-09-28 / POST-UPLOAD WORKER CONTRACT REPAIRS — FUNCTIONAL CANDIDATE c9577a7
+
+- CURRENT FUNCTIONAL / CODE-TEST CANDIDATE → `c9577a75f95d08b20cf5645e00e56c8490c1c071`.
+- CURRENT BRANCH → `exec/20260927-current-main-import-ui-rebased`.
+- THIS BATCH EXECUTED → repaired `scripts/check-security-definer-exposure-contract.mjs` so `retry_report_execution_job` is classified as a worker-only SECURITY DEFINER and requires service_role-only execution; repaired `scripts/check-report-execution-worker-current-main-contract.mjs` so checkpoint construction and persistence are asserted against the current runner implementation.
+- EXACT CODE PROOF → `c9577a75f95d08b20cf5645e00e56c8490c1c071` contains both test repairs; the worker assertion is bound to `buildCheckpoint(following)` immediately followed by tenant-bound `saveCheckpoint`.
+- FRESH EXACT-HEAD OBSERVATIONS on `c9577a75f95d08b20cf5645e00e56c8490c1c071` → file-intelligence-security run `36460664348` SUCCESS; Phase-2 security closure run `36460664287` SUCCESS; decision-DML-boundary run `36460664241` SUCCESS.
+- FIRST TERMINAL NON-EXTERNAL FAILURE → Execution Enforcement Contract run `36460664556` failed before its enforcement stage because `scripts/check-certification-boundary-integrity.mjs` found the index still pointed to candidate `43fcb31567c1ff00973a3f87ccabc554df08858f` while HEAD was `c9577a75f95d08b20cf5645e00e56c8490c1c071` with non-governance changes.
+- ROOT FIX NOW APPLIED → governance must re-anchor the canonical Session Memory and Master Execution Index to functional candidate `c9577a75...`; no stale PASS is transferred.
+- POST-UPLOAD PRODUCT FACT → drag/drop is not completion: the canonical flow verifies the authoritative stored file, creates/recovers a durable Job, materializes 9 ordered execution Tasks, executes them under lease/tenant fencing, commits canonical truth, persists an evidence snapshot, then exposes source-bound signals/decision/work/replay/benchmark and the existing Executive Report route.
+- TASK DISTRIBUTION FACT → the 9 stages are persisted as separate durable tasks, but the current runner executes them sequentially under one leased worker; this is durable task decomposition, not parallel multi-worker execution.
+- CURRENT EXTERNAL/DEVICE BLOCKERS → PC01 offline; hosted Phase-F deployment drift; Vercel free-plan build-rate constraint; no code PASS is claimed for these.
+- NEXT EXACT ACTION → finish the governance re-anchor, consume fresh exact-head Final Certification + Execution Enforcement + Quality/report-execution/browser gates, repair only the first terminal non-external defect, then rescan the post-upload/report front.
+- DO NOT REPEAT → stale evidence across SHAs; classify worker-only RPCs as authenticated; treat upload as completion; claim parallel worker distribution when only sequential durable tasks are implemented; fabricate report/recommendation output.
+- RESUME POINT → functional candidate `c9577a75f95d08b20cf5645e00e56c8490c1c071`; next governance commits are documentation-only and must remain ancestry-bound.
+
 # RESUME TOKEN — 2026-09-28 / CERTIFICATION CANDIDATE REANCHORED
 
 - CURRENT CODE/TEST CANDIDATE → `43fcb31567c1ff00973a3f87ccabc554df08858f`.
