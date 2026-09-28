@@ -12,6 +12,8 @@ const controlPlaneIndex = '# CURRENT CONTROL-PLANE BOUNDARY\n- CURRENT CODE/TEST
 assert.doesNotThrow(() => validateCertificationBoundary({ index: controlPlaneIndex, head: candidate, parent: '', changedFiles: [] }));
 const arrowIndex = '# CURRENT EXECUTION BOUNDARY\n- CURRENT CODE/TEST CANDIDATE → `' + candidate + '`';
 assert.doesNotThrow(() => validateCertificationBoundary({ index: arrowIndex, head: candidate, parent: '', changedFiles: [] }));
+const blankLineArrowIndex = '# CURRENT EXECUTION BOUNDARY — BLANK-LINE REGRESSION\n\n- CURRENT CODE/TEST CANDIDATE → `' + candidate + '`.';
+assert.doesNotThrow(() => validateCertificationBoundary({ index: blankLineArrowIndex, head: candidate, parent: '', changedFiles: [] }));
 const historicalBeforeStartupBoundary = [
   '# LATEST SESSION WRITE-BACK',
   '- CURRENT CODE/TEST CANDIDATE: `0000000000000000000000000000000000000000`.',
