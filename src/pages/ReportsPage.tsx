@@ -7,7 +7,7 @@ import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/co
 import { DataTable } from '@/components/ui/DataTable';
 import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
-import { fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
+import { fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows, fetchImportEvidenceSnapshot, fetchImportRecords, fetchReportExecutionJob, type ImportRecord } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
@@ -124,22 +124,49 @@ export function ReportsCenterPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const builderOpen = searchParams.get('builder') === '1';
   const [snapshot, setSnapshot] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null>(null);
+  const [sourceContext, setSourceContext] = useState<{
+    record: ImportRecord | null;
+    evidence: Awaited<ReturnType<typeof fetchImportEvidenceSnapshot>>;
+    job: Awaited<ReturnType<typeof fetchReportExecutionJob>>;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const importId = searchParams.get('import')?.trim() || null;
 
   const load = useCallback(async (silent = false) => {
     try {
       if (silent) setRefreshing(true); else setLoading(true);
       setError(null);
-      setSnapshot(await fetchDashboardSnapshot(6));
+      const [nextSnapshot, focusedImports, evidence, job] = await Promise.all([
+        fetchDashboardSnapshot(6),
+        importId ? fetchImportRecords(1, importId) : Promise.resolve([]),
+        importId ? fetchImportEvidenceSnapshot(importId) : Promise.resolve(null),
+        Promise.resolve(null),
+      ]);
+      setSnapshot(nextSnapshot);
+      if (importId) {
+        let resolvedJob: Awaited<ReturnType<typeof fetchReportExecutionJob>> = null;
+        try {
+          const record = focusedImports[0] ?? null;
+          const jobIdFromEvidence = evidence?.metadata?.jobId ?? null;
+          resolvedJob = typeof jobIdFromEvidence === 'string' && jobIdFromEvidence.trim()
+            ? await fetchReportExecutionJob(jobIdFromEvidence)
+            : null;
+          setSourceContext({ record, evidence, job: resolvedJob });
+        } catch {
+          setSourceContext({ record: focusedImports[0] ?? null, evidence, job: null });
+        }
+      } else {
+        setSourceContext(null);
+      }
     } catch (e) {
       setError(errorMessage(e));
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, []);
+  }, [importId]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -175,6 +202,32 @@ export function ReportsCenterPage() {
     {builderOpen && <ReportBuilder snapshot={snapshot} nextLabel={nextLabel} nextPath={nextPath} />}
 
     <ReportSurfaceContext period={`آخر ${months} أشهر`} asOf={asOf} status={kpis.status === 'CONFIRMED' ? 'VERIFIED' : kpis.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA'} sourceLabel="اللقطة التنفيذية الكانونية الحالية؛ ثبات الدليل وحالة المصدر يظهران قبل أي قراءة تقريرية."/>
+    {importId && sourceContext && <section className="rounded-[18px] border border-primary-200 bg-primary-50/45 p-4 shadow-sm" aria-label="سياق مخرجات المصدر المستورد">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">SOURCE → REPORT HANDOFF</div>
+          <h2 className="mt-1 text-base font-black text-ink-950">مخرجات التقرير مرتبطة بمصدر مستورد مثبت</h2>
+          <p className="mt-1 text-[10px] leading-5 text-ink-600">المقاييس أدناه تقرأ الحقيقة الكانونية الحالية. الـJob يثبت أي أسطح تقرير أعلن مسار rendered أنها أُنشئت لهذا المصدر؛ الدليل يبقى منفصلًا عن الأرقام.</p>
+        </div>
+        <Link to={`/trust?import=${encodeURIComponent(importId)}`} className="btn-secondary text-[10px]">فتح Evidence Passport</Link>
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[8px] text-ink-400">المصدر</div><div className="mt-1 break-all text-[10px] font-black text-ink-900">{sourceContext.record?.file_name ?? sourceContext.evidence?.source_path ?? 'غير متاح'}</div></div>
+        <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[8px] text-ink-400">التخصص</div><div className="mt-1 text-[10px] font-black text-ink-900">{sourceContext.evidence?.metadata?.sourceSpecialty ? String(sourceContext.evidence.metadata.sourceSpecialty) : 'غير متاح'}</div></div>
+        <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[8px] text-ink-400">Evidence</div><div className="mt-1 text-[10px] font-black text-ink-900">{sourceContext.evidence?.analysis_status === 'analyzed' ? 'VERIFIED' : 'PARTIAL / REVIEW'}</div></div>
+        <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[8px] text-ink-400">rendered</div><div className="mt-1 text-[10px] font-black text-ink-900">{sourceContext.job?.status === 'completed' && sourceContext.job?.evidence?.renderedOutput ? 'COMPLETED' : 'NOT PROVEN'}</div></div>
+        <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[8px] text-ink-400">Snapshot</div><div className="mt-1 break-all font-mono text-[9px] font-bold text-ink-900">{sourceContext.evidence?.id ?? 'غير متاح'}</div></div>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {sourceContext.job?.evidence?.renderedOutput && typeof sourceContext.job.evidence.renderedOutput === 'object' && Array.isArray((sourceContext.job.evidence.renderedOutput as Record<string, unknown>).outputs)
+          ? ((sourceContext.job.evidence.renderedOutput as Record<string, unknown>).outputs as Array<Record<string, unknown>>).map((output, index) => {
+              const path = typeof output.path === 'string' ? output.path : '/reports/executive';
+              const href = path === '/reports/executive' ? path + '?import=' + encodeURIComponent(importId) : path;
+              return <Link key={String(output.key ?? path) + '-' + index} to={href} className="inline-flex min-h-10 items-center rounded-xl border border-primary-200 bg-white px-3 text-[9px] font-black text-primary-800 hover:border-primary-400">{String(output.label ?? 'التقرير')} ←</Link>;
+            })
+          : <span className="rounded-xl border border-warning-200 bg-warning-50 px-3 py-2 text-[9px] font-bold text-warning-900">لم يثبت Job مخرجات rendered بعد.</span>}
+      </div>
+    </section>}
     <div className={builderOpen ? 'print:hidden space-y-5' : 'space-y-5'}>
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6" aria-label="اللقطة التنفيذية الحالية">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-stretch xl:justify-between">
