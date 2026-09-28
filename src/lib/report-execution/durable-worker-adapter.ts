@@ -67,7 +67,7 @@ export class SupabaseReportExecutionStore {
     const { data: queuedTask, error: queuedTaskError } = await this.client
       .from('report_execution_tasks')
       .select('status')
-      .eq('company_id', tenantId)
+      .eq('company_id', job.tenantId)
       .eq('report_execution_job_id', jobId)
       .eq('stage', 'queued')
       .maybeSingle();
