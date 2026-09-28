@@ -1,9 +1,16 @@
-# RESUME TOKEN — 2026-09-28 / CUSTOMER TENANT RESOLVER SOURCE PARITY
+# RESUME TOKEN — 2026-09-28 / CUSTOMER TENANT RESOLVER REGRESSION GUARD
 
 - CURRENT CODE/TEST CANDIDATE → `7353309309b5ba8ff37254e68f2bc047b710a931`.
-- CURRENT REPOSITORY HEAD → governance descendant after this persistence commit.
-- CLOSED THIS STEP → consumed external code change for `current_customer_company_id()` and verified live body/privileges; no additional migration needed because Staging already contains the corrected body.
-- LIVE PROOF → SECURITY DEFINER=true; authenticated EXECUTE=true; anon=false; tenant source is `profiles.organization_id` for `auth.uid()`.
+- CURRENT REPOSITORY HEAD → `c78aafb51df5c68110ea55b1c34b6437e70e9932` after governance/test guard persistence.
+- IMPLEMENTED → `scripts/check-company-default-context-contract.mjs` now asserts customer-portal `current_customer_company_id()` resolves from `profiles.organization_id` by `auth.uid()`, preserves explicit authenticated/service_role execution grants, and must not delegate to staff `current_company_id()`.
+- EXISTING WORKFLOW REUSE → the guard is added to the existing `company-context-contract` workflow; no duplicate workflow was created.
+- LIVE PROOF → Staging already exposes the intended customer resolver body and `customer_credit_accounts.credit_customer_select` RLS uses `current_customer_id()` + `current_customer_company_id()`.
+- CURRENT CI → no terminal run is available yet for this governance/test commit; therefore no PASS is claimed.
+- OPEN NON-DEVICE → current-head CI proof; Vercel production operational-token/deployment alignment; Phase-F resilience; full migration lineage proof; Auth leaked-password protection platform setting; 151 stale processing imports pending a governed recovery contract.
+- OPEN DEVICE-ONLY → PC01/offline desktop/authenticated browser proof.
+- NEXT → consume the first terminal current-head CI failure; fix only the reproduced defect, then persist/rescan. Keep production and stale import recovery fail-closed.
+- DO NOT REPEAT → collapsing customer/staff tenant resolvers, blanket SECURITY DEFINER revokes, speculative migration cleanup, bulk-terminalizing stale import jobs, or treating older Vercel READY previews as current-head proof.
+zation_id` for `auth.uid()`.
 - OPEN NON-DEVICE → current-head CI terminal proof; Vercel production token/deployment alignment; Phase-F live resilience; full migration lineage proof; Auth leaked-password protection platform setting.
 - OPEN DEVICE-ONLY → PC01 offline desktop/authenticated browser actions.
 - NEXT ACTION → consume current candidate CI first terminal failure, then persist/rescan.
