@@ -68,6 +68,24 @@ export function SourceBoundReportContext() {
       <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[8px] text-ink-400">Source</div><div className="mt-1 break-words text-[9px] font-black text-ink-900">{snapshot?.source_path ?? 'غير مثبت'}</div></div>
       <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[8px] text-ink-400">Output count</div><div className="mt-1 text-[9px] font-black text-ink-900">{manifest ? manifest.outputs.length : 'غير مثبت'}</div></div>
     </div>
+    {manifest && manifest.outputs.length > 0 && <div className="mt-3 rounded-xl border border-success-200 bg-success-50/60 p-3" aria-label="المخرجات المرتبطة بالمصدر">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <div className="text-[9px] font-black tracking-[.12em] text-success-800">RENDERED OUTPUTS</div>
+          <div className="mt-1 text-[10px] font-black text-ink-900">مخرجات التقرير التي أثبتها Job لهذا المصدر</div>
+          <div className="mt-1 text-[9px] leading-4 text-ink-600">فتح المخرج لا يغيّر نطاق الحقيقة الكانونية؛ الربط بالمصدر مثبت بالبصمة وImport ID وحالة Job المكتملة.</div>
+        </div>
+        <span className="badge-success">SOURCE-BOUND / RENDERED</span>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {manifest.outputs.map((output) => (
+          <Link key={output.key} to={output.path + (output.path.includes('?') ? '&' : '?') + 'import=' + encodeURIComponent(importId)} className="inline-flex min-h-10 items-center gap-1 rounded-xl border border-success-200 bg-white px-3 text-[9px] font-black text-success-800 hover:border-success-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
+            {output.label}
+            <span className="text-[8px] text-ink-400">←</span>
+          </Link>
+        ))}
+      </div>
+    </div>}
     {!loading && !manifest && <div className="mt-3 rounded-xl border border-warning-200 bg-warning-50 px-3 py-2 text-[9px] font-bold text-warning-900">REVIEW / NOT PROVEN — لم يثبت مخرج rendered مربوط بهذه العملية؛ لن يتم اعتبار التقرير دليلًا على المصدر.</div>}
   </section>;
 }
