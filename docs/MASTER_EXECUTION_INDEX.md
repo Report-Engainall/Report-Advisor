@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPORT ROUTE SMOKE CLOSURE
+
+- FUNCTIONAL PROOF SHA → `efc6b0706d0010524cd74a617fa66f08346cf3ab`.
+- CLOSED → all 10 import-capable report/analytics route URLs resolve through the successful Netlify SPA deployment without a route-level 404/server error.
+- COVERED → Reports, Sales, Purchases, Inventory, Inventory Intelligence, RFM, ABC, Liquidity, Receivables, Profitability.
+- LIMIT → unauthenticated smoke confirms routing/entry availability only; it does not prove authenticated data queries, source-bound rendering, or browser interaction.
+- CURRENT PR HEAD → `ff62658c3a0eb1e30957ea13d526c1984d9680e7`; from the functional SHA forward, only Session Memory and Master Execution Index changed.
+- HOSTED → Netlify functional deployment READY; Vercel remains externally blocked by free-plan `build-rate-limit`.
+- DEVICE → PC01 offline; authenticated browser/device certification remains external.
+- DO NOT REPEAT → build export repair, retry RPC security repair, route availability smoke, or stale-SHA PASS evidence.
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / EXACT-HEAD BUILD REPAIR CLOSED
 
 - EXACT CODE HEAD → `efc6b0706d0010524cd74a617fa66f08346cf3ab`.
