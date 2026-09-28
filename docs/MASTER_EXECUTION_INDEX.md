@@ -1,3 +1,20 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / CERTIFICATION STARTUP-PARSER ROOT CLOSED
+
+- CURRENT REPOSITORY HEAD → `40323c32da359c04f6328dd4d6273bbfc92b4a4a`
+- CURRENT CODE/TEST CANDIDATE → `40323c32da359c04f6328dd4d6273bbfc92b4a4a`
+- ACTIVE EXECUTION FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`
+- ACTIVE EXECUTION FRONTS → Certification Boundary, Security Definer Exposure, Execution Enforcement, Quality/Lint, Phase-F resilience, UI/Import truth.
+- OPEN BLOCKERS → fresh exact-SHA CI; Vercel free-plan build-rate; PC01 offline; Supabase Auth leaked-password protection external.
+- LAST PROVEN → Execution Enforcement main contract + adversarial suites passed on the preceding candidate; Browser/Device-Independent Browser E2E and desktop/data/tenant gates previously passed.
+- LAST FAILED ROOTS CLOSED → malformed enforcement test literal; stale Phase-F resolver contract; worker RPC grant ordering; certification startup-boundary parser capture bug.
+- NEXT EXECUTABLE ACTION → first terminal exact-`40323c32...` failure only; repair → test → prove → persist → rescan.
+- NEXT INDEPENDENT ACTIONS → safe static UI/data/security fronts independent of device/hosting.
+- DO NOT REPEAT → stale evidence, duplicate routes, blanket security-definer revokes, production/device claims.
+- REANCHOR MAIN → `650b74ee83095752f44a1a1b0df3cf496fc73f71`.
+- FUNCTIONAL RELATION → ahead=153, behind=0, changed_files=113 from main.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / CERTIFICATION PARSER + PHASE-F CONTRACT ROOTS CLOSED
 
 - CURRENT REPOSITORY HEAD → `fda2a8eae8e2a85810ae39afc850fe339ef31b5f`
