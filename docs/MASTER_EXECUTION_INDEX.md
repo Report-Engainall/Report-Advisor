@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / CI DUPLICATION CLOSED + BENCHMARK UI CONTINUITY
+
+- EXACT MAIN CONTROL HEAD AT START → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact head `fdb59e8f4fa08cfb8778006ffc71a1e63088fb21`.
+- UI DELIVERY → canonical Import now exposes Benchmark as the sixth post-import continuity step; `INSUFFICIENT_SAMPLE` is explicit until a peer cohort and evidence are available.
+- CONTRACT DELIVERY → import transaction contract asserts the Benchmark route and fail-closed status.
+- CI DELIVERY → Browser E2E, Final Certification, and Execution Enforcement push triggers are restricted to `main`; pull-request gates remain intact, eliminating duplicate PR push+PR executions for the affected workflows.
+- FRESH PROOF → branch-source static contract execution PASS. Affected exact-head GitHub runs are PR-only and currently queued; no terminal runtime PASS/FAIL claimed.
+- EXTERNAL → PC01 offline; Vercel free-plan build-rate limit; hosted/browser/device production proof remains NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume the first terminal exact-head CI result on `fdb59e8...`; repair only the first reproducible non-external failure, then persist/rescan and continue the next safe front.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / LIVE POLICY PARITY CLOSED
 
 - MAIN CONTROL HEAD AT CHECKPOINT → memory/index updates are the only main changes in this batch.
