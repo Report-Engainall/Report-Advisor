@@ -1,4 +1,17 @@
-# RESUME TOKEN — 2026-09-28 / OUTCOME + BENCHMARK TRUTH CONTEXT CLOSURE — FUNCTIONAL CANDIDATE 1ddc45c
+# RESUME TOKEN — 2026-09-28 / INTELLIGENCE + FINANCIAL SURFACE DEPTH CLOSURE — FUNCTIONAL CANDIDATE e26536d
+
+- CURRENT FUNCTIONAL/UI CANDIDATE → `e26536df4a224b9d68a1aae749a6dce8032b5619`.
+- CLOSED → canonical truth context expanded into Intelligence Center, Recommendations, Forecasts, Scenario Truth Guard, Executive Command Center, Liquidity, Data Quality, and specialized RFM/ABC/Aging analytics.
+- SHARED CONTEXT DEPTH → `ReportSurfaceContext` now exposes company, period, currency, As Of, Freshness, and full truth-state vocabulary.
+- INTELLIGENCE SAFETY → recommendation/forecast As Of derivation is hardened against invalid timestamps; forecasts remain explicitly predictive.
+- SCENARIO SAFETY → ready scenarios carry the real profitability snapshot `as_of`; blocked scenarios remain `BLOCKED` before calculation.
+- COMMAND CENTER → replaced the older TruthContextStrip usage with the canonical shared context while preserving the existing truth-derived NEXT ACTION logic.
+- FINANCIAL SURFACES → Liquidity and Data Quality now expose shared truth context; specialized RFM/ABC/Aging analytics retain their existing deterministic status/unknown-row rules under the shared context.
+- CONTRACT → `scripts/check-ui-route-completeness.mjs` now guards intelligence, scenarios, command center, liquidity, data quality, specialized analytics, and shared freshness.
+- SOURCE PROOF → 15/15 static assertions pass for the latest front.
+- CI/RUNTIME → no terminal exact-head PASS claimed. Exact-head workflows are active/queued; Vercel free-plan deployment-rate-limit remains external; PC01 is offline.
+- NEXT EXACT ACTION → perform a broader canonical-surface scan for remaining data-bearing pages outside this context contract; implement the first reproducible gap without reopening closed import/report/decision/replay/benchmark fronts.
+
 
 - CURRENT FUNCTIONAL/UI CANDIDATE → `1ddc45ca95d166345b78f60f4961f23fa92f8eeb`.
 - CLOSED → Business Replay now exposes the shared truth context and remains VERIFIED only when persisted snapshots + outcomes exist; otherwise INSUFFICIENT DATA.
