@@ -1456,3 +1456,13 @@
 - PROOF → exact GitHub-content regression harness PASS across all ten import-capable outputs.
 - DO NOT REPEAT → no page-specific replacement for SourceBoundReportContext; no output surface may silently become source-unbound after an import handoff.
 - RESUME POINT → rescan remaining report/analytics pages outside the canonical import-output list for accidental KPI/source ambiguity, then persist the next concrete closure.
+
+# RESUME TOKEN — 2026-09-28 / GENERIC SOURCE FAIL-CLOSED REPORT ROUTING
+
+- FUNCTIONAL CHECKPOINT → `aad3308460e07154ac1befc6328a14da896b3d33`.
+- CLOSED → `generic:source-data` can no longer fall back to a specialty report merely because the specialty classifier said sales/purchases/etc.; generic sources now route only to the Executive Report output.
+- REASON → `generic:source-data` explicitly means canonical entity requirements were not satisfied (or the source is mixed), so specialty-specific reporting would overstate canonical truth.
+- CLOSED → the guard is present in both `check-import-transaction-contract.mjs` and the broader `check-canonical-import-mapping.mjs` regression gate.
+- PROOF → 19-check exact GitHub-content deep regression PASS covering generic routing, completed-job render proof, shared source context, duplicate removal, all ten import-capable output surfaces, and the full post-import journey.
+- DO NOT REPEAT → never route generic/uncommitted canonical data into a specialty report; use Executive Report + REVIEW/EVIDENCE_REQUIRED semantics.
+- RESUME POINT → continue the next concrete non-device gap after the import/report truth chain; hosted/device blockers remain isolated.
