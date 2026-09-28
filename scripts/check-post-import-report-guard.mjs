@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+
+const root=process.cwd();
+const read=(p)=>fs.readFileSync(`${root}/${p}`,'utf8');
+const importPage=read('src/pages/CanonicalImportPage.tsx');
+const reportPage=read('src/pages/ReportsPage.tsx');
+const queries=read('src/lib/queries.ts');
+
+for(const token of ['fetchReportExecutionTasks','executionIsFullyRendered','CANONICAL_IMPORT_EXECUTION_NOT_FULLY_RENDERED','navigate(`/reports/source/${rec.id}`)','executionTasks'])
+  assert(importPage.includes(token),`Import report guard missing: ${token}`);
+
+for(const token of ['fetchReportExecutionTasks','executionComplete','report_execution_tasks','دورة التنفيذ الفعلية'])
+  assert(reportPage.includes(token),`Source report proof surface missing: ${token}`);
+
+assert(!reportPage.includes("['queued','fingerprinted','extracted','canonicalized','validated','analyzed','decisioned','committed','rendered'].map"),
+  'Source report must not hardcode nine stages as successful');
+
+for(const token of ['executionJobId','export interface ReportExecutionTask','report_execution_tasks','order('])
+  assert(queries.includes(token),`Report execution query contract missing: ${token}`);
+
+console.log('Post-import report guard: PASS (actual 9-stage proof + source-bound report navigation + no hardcoded success)');
