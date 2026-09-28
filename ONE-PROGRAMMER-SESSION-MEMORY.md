@@ -1271,3 +1271,16 @@
 - NO FALSE RUNTIME PASS → no real fixture import can be certified end-to-end from the current non-device path; hosted Vercel build-rate remains external and PC01 is offline.
 - DO NOT REPEAT → do not overwrite a whole file from a partial line-range read; do not allow report navigation to strip `import`; do not introduce per-page provenance validators when `SourceBoundReportContext` is canonical.
 - RESUME POINT → consume terminal exact-head CI; then inspect the next non-device chain gap after the Report → Decision → Work → Outcome surfaces, repairing only concrete reproducible gaps.
+
+# RESUME TOKEN — 2026-09-28 / REPORT→DECISION PROVENANCE CONTINUITY
+
+- CURRENT CODE/TEST HEAD → `0bf73fd97c907029b7dec7db4c1897041e22b031`.
+- CLOSED → Executive Report now preserves the current import context on rendered-report navigation, NEXT ACTION, source alerts and evidence actions through one local `withImportContext()` helper.
+- CLOSED → downstream Decision/Work paths already support import context; Replay/Benchmark do not consume import-scoped context, so they were deliberately not relabeled as source-bound.
+- PRESERVED → source-bound report output routes remain bound through the canonical shared `SourceBoundReportContext`; no per-page provenance validator was added.
+- QUERY RECOVERY REMAINS VALID → `src/lib/queries.ts` starts with exact main content and retains all main exports before the branch-specific Task Ledger/Evidence additions.
+- SOURCE PROOF → 28 focused exact-source assertions PASS on `0bf73fd...`; query main-prefix proof PASS.
+- CI EXACT SHA → Execution Enforcement Contract `36472061987` and Final Certification Gate `36472061942` are queued on this exact SHA; no terminal PASS/FAIL claimed.
+- DEVICE/EXTERNAL → PC01 offline; Vercel free-plan build-rate limit / hosted exact-head acceptance remain external.
+- DO NOT REPEAT → do not claim Replay/Benchmark are source-bound when their current contracts are company-level; do not drop import query context from downstream Decision/Work links; do not re-edit `queries.ts` from partial ranges.
+- RESUME POINT → consume terminal exact-head gates, then continue the next concrete non-device gap after Report→Decision→Work→Outcome/Benchmark eligibility.
