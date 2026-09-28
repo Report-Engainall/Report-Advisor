@@ -1,3 +1,19 @@
+# RESUME TOKEN — 2026-09-28 / CANONICAL IMPORT DROPZONE + POST-IMPORT CONTINUITY REPAIRED
+
+- EXACT MAIN BASE VERIFIED BEFORE MUTATION → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
+- FUNCTIONAL BRANCH → `fix/20260928-canonical-import-dropzone`.
+- ROOT CAUSE → `src/pages/CanonicalImportPage.tsx` advertised drag-and-drop but had only click/input selection; no `onDrop` path existed.
+- IMPLEMENTED → real `dragenter/dragover/dragleave/drop` handling, dropped-file extraction into the existing `handleFile` pipeline, active-drag visual state, keyboard activation, and accessible button semantics.
+- POST-IMPORT GAP → successful completion now exposes explicit next actions to `/trust` and `/decision-experience?stage=evidence`, while preserving the existing “analyze another file” action. No downstream business result is fabricated.
+- PROOF CONSOLIDATION → assertions were added to the existing `scripts/check-product-wow-ui-contract.mjs`; the temporary duplicate upload-contract file was removed.
+- CI WIRING → `.github/workflows/quality.yml` now executes `npm run test:product-wow-ui` on the exact checked-out commit.
+- CURRENT EVIDENCE → source readback is exact-SHA verified; latest GitHub Actions are queued/pending/in progress. This is NOT a runtime PASS until terminal success is observed.
+- DEVICE → PC01 offline; no physical-device/browser PASS claimed.
+- HOSTING → Vercel/Netlify remain external/pending; no hosted PASS inferred.
+- NEXT → consume the first terminal exact-head quality/UI/browser result; repair only the first reproducible current-SHA failure, then persist/rescan.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / CLIENT UI POLICY PARITY REPAIRED + LIVE VERIFIED
 
 - MAIN CONTROL HEAD BEFORE THIS WRITE → `b39d585803f7bca021cb68bb75a522c8bce115d6`.
