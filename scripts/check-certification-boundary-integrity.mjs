@@ -47,6 +47,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     'scripts/check-phase10-backup-restore-contract.mjs',
     'scripts/check-runtime-lifecycle-hardening.mjs',
     'scripts/check-tenant-resolver-lineage.mjs',
+    'scripts/check-company-default-context-contract.mjs',
     'scripts/check-unified-evidence-action-learning.mjs',
     'scripts/real-business-e2e.mjs',
     'scripts/run-full-product-browser-e2e.mjs',
