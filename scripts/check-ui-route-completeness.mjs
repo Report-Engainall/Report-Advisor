@@ -12,6 +12,21 @@ const duplicateNavigationPaths = navigationPaths.filter((path, index) => navigat
 const missingFromSidebar = routePaths.filter((path) => path !== '*' && !navigationPaths.includes(path) && !INTERNAL_PROGRESSIVE_DISCLOSURE_ROUTES.has(path));
 const missingRoutesForSidebar = navigationPaths.filter((path) => !routePaths.includes(path));
 
+const executiveReportPage = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
+const executiveReportImportContract = [
+  [/useSearchParams\\(\\)/, 'Executive report must read the import context from the canonical route query'],
+  [/fetchImportRecords/, 'Executive report must resolve the requested import job through the tenant-bound query'],
+  [/fetchImportEvidenceSnapshot/, 'Executive report must resolve the requested evidence snapshot through the tenant-bound query'],
+  [/aria-label="سياق المصدر المستورد"/, 'Executive report must expose an import provenance/context surface'],
+  [/REVIEW \/ NOT PROVEN/, 'Executive report must fail closed when the import context cannot be proven'],
+];
+for (const [pattern, message] of executiveReportImportContract) {
+  if (!pattern.test(executiveReportPage)) {
+    console.error(`FAIL executive report import provenance: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
 const pageSourceByFile = new Map();
 for (const page of pages) {
   pageSourceByFile.set(page, fs.readFileSync(`src/pages/${page}`, 'utf8'));
