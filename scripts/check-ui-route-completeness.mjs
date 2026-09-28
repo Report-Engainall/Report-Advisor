@@ -112,6 +112,19 @@ for (const [pattern, message] of demandVelocityContract) {
   }
 }
 
+const benchmarkNetworkPage = fs.readFileSync('src/pages/BenchmarkNetworkPage.tsx', 'utf8');
+const benchmarkTruthContract = [
+  [/ReportSurfaceContext/, 'Benchmark Network must expose the canonical truth context'],
+  [/status="INSUFFICIENT DATA"/, 'Benchmark Network must remain fail-closed without a peer sample'],
+  [/INSUFFICIENT_SAMPLE/, 'Benchmark Network must preserve the sample gate state'],
+];
+for (const [pattern, message] of benchmarkTruthContract) {
+  if (!pattern.test(benchmarkNetworkPage)) {
+    console.error(`FAIL benchmark truth context: ${message}`);
+    process.exitCode = 1;
+  }
+}
+
 const businessReplayPage = fs.readFileSync('src/pages/BusinessReplayPage.tsx', 'utf8');
 const businessReplayTruthContract = [
   [/ReportSurfaceContext/, 'Business Replay must expose the canonical truth context'],
