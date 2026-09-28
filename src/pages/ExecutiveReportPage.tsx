@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs, type MonthlyTrend } from '@/lib/dashboard-canonical';
 import type { Alert, ImportRecord, Recommendation } from '@/lib/types';
 import { formatCurrency, formatNumber } from '@/lib/format';
-import { TruthContextStrip } from '@/components/TruthContextStrip';
+import { ReportSurfaceContext } from '@/components/ReportSurfaceContext';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
 import { isActionableRecommendationStatus } from '@/lib/decision-status';
 import { fetchImportEvidenceSnapshot, fetchImportRecords, fetchRecommendationsBoundToImport, type ImportEvidenceSnapshot } from '@/lib/queries';
@@ -140,7 +140,7 @@ export function ExecutiveReportPage() {
         <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{kpis?.status ?? 'INSUFFICIENT_DATA'}</span></div>
       </section>
 
-      <TruthContextStrip months={6} status={kpis?.status ?? 'INSUFFICIENT_DATA'} asOf={asOf} />
+      <ReportSurfaceContext period="آخر 6 أشهر" asOf={asOf} status={kpis?.status === 'CONFIRMED' ? 'VERIFIED' : kpis?.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA'} sourceLabel="التقرير التنفيذي مبني على اللقطة الكانونية للشركة الحالية؛ مؤشرات الشركة لا تُنسب إلى الملف المستورد إلا عند إثبات الربط المصدرّي." />
       {importId && <section className="rounded-2xl border border-primary-200 bg-primary-50/45 p-4 shadow-sm" aria-label="سياق المصدر المستورد">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
