@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-28 / CURRENT EXECUTION CHECKPOINT
+
+- CURRENT REPOSITORY HEAD → `a3d48175a731411e1ca6c67161afcce4708988cd`
+- CURRENT CODE/TEST CANDIDATE → `e261364b6fbc720a47b9e2510885b378523300c9`
+- ACTIVE EXECUTION FRONTS → Execution Enforcement, Certification Boundary, Security Exposure Contract, Quality/Lint, Phase-F resilience, and current UI/Import truth.
+- OPEN BLOCKERS → exact-SHA certification gates; Vercel free-plan build-rate limit; PC01 offline; Supabase Auth leaked-password protection remains external.
+- LAST PROVEN → Full Product Browser E2E SUCCESS, Device-Independent Browser E2E SUCCESS, desktop-windows SUCCESS, Phase 3 data/import truth SUCCESS, storage tenant isolation SUCCESS on candidate `e261364b6fbc720a47b9e2510885b378523300c9`.
+- LAST FAILED → Execution Enforcement Contract, Final Certification Gate, Quality, Recovery Readiness, Security Definer Exposure Contract, Phase-F live resilience on `a3d48175a731411e1ca6c67161afcce4708988cd`.
+- NEXT EXECUTABLE ACTION → repair the first reproducible current-SHA failure, run fresh gates, persist exact evidence, then rescan.
+- NEXT INDEPENDENT ACTIONS → continue static security/data/UI contract repairs that do not depend on PC01 or Vercel.
+- DO NOT REPEAT → do not transfer PASS across SHA; do not recreate Import/Benchmark routes; do not blanket-revoke SECURITY DEFINER functions; do not claim production/device proof.
+- REANCHOR → PR #672 is based on main `650b74ee83095752f44a1a1b0df3cf496fc73f71` with behind=0 and mergeable=true.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / IMPORT BENCHMARK TRUTH CLAIM REPAIRED
 
 - CURRENT FUNCTIONAL HEAD BEFORE THIS CHECKPOINT → `e261364b6fbc720a47b9e2510885b378523300c9`.
