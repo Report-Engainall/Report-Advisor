@@ -1347,3 +1347,14 @@
 - NO FALSE RUNTIME PASS → live browser/tenant canary remains external; PC01 offline; Vercel free-plan rate limit remains external.
 - DO NOT REPEAT → do not mark non-empty proof from the mere existence of a JSONB value; preserve server-authoritative outcome/evidence semantics.
 - RESUME POINT → continue the next concrete non-device cleanup/certification front while consuming CI terminal state when available.
+
+# RESUME TOKEN — 2026-09-28 / REPOSITORY-WIDE QUERY EXPORT COVERAGE GUARD
+
+- CURRENT CODE/TEST HEAD → `1544fa6af51d7b21e78b5305c2cf4d51f1cc57da`.
+- CLOSED → added `scripts/check-query-export-coverage.mjs`, a repository-wide static guard that walks `src/`, parses canonical `@/lib/queries` exports, checks both normal and `import type` consumers, and fails closed on any missing symbol.
+- CLOSED → registered `npm run test:query-export-coverage` in `package.json`.
+- CLOSED → anchored the guard in `scripts/report-execution-task-ledger-contract.test.mjs` so the certification contract itself requires the guard to exist and preserve its fail-closed semantics.
+- PROOF → exact HEAD re-read: 5/5 guard assertions PASS; query export count 73; zero missing query imports across Decision, Business Replay, Reports, Executive and Work pages.
+- CI EXACT SHA → Execution Enforcement Contract `36473701629` and Final Certification Gate `36473701544` are queued on this exact SHA; no terminal PASS/FAIL transferred.
+- DO NOT REPEAT → do not reintroduce page-local query implementations or compatibility-only imports when canonical query exports exist; use the repository-wide guard for future changes.
+- RESUME POINT → continue the next concrete non-device certification/cleanup front while leaving benchmark fail-closed and hosted/device blockers isolated.
