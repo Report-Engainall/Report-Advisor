@@ -7,6 +7,7 @@ import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/u
 import { fetchDecisionWorkItems, fetchImportRecords, fetchWorkerHealthSnapshot, startDecisionWorkItem, type DecisionWorkItemRecord, type WorkerHealthSnapshot } from '@/lib/queries';
 import type { ImportRecord } from '@/lib/types';
 import { formatNumber } from '@/lib/format';
+import { ReportSurfaceContext, type ReportTruthStatus } from '@/components/ReportSurfaceContext';
 
 type FilterKey = 'all' | 'active' | 'review' | 'completed' | 'failed';
 const statusLabel = (s: string | null) => ({ queued: 'بالانتظار', processing: 'قيد التنفيذ', completed: 'مكتمل', partial: 'مكتمل جزئيًا', failed: 'فشل', cancelled: 'ملغى' }[s ?? ''] ?? 'غير معروف');
@@ -86,6 +87,13 @@ export function WorkCenterPage() {
     ? 'المعروض هو أحدث 500 عملية ضمن نافذة القراءة الحالية؛ لا يُستخدم كإجمالي تاريخي كامل.'
     : 'المعروض هو السجل الذي أعادته نافذة القراءة الحالية.';
 
+  const workTruthStatus: ReportTruthStatus =
+    rows.length === 0
+      ? 'INSUFFICIENT DATA'
+      : (workerHealth?.expiredActive ?? 0) > 0 || counts.review > 0 || counts.failed > 0
+        ? 'REVIEW'
+        : 'CALCULATED';
+
   const nextAction = (workerHealth?.expiredActive ?? 0) > 0
     ? { kind: 'refresh' as const, tone: 'danger' as const, title: 'إعادة فحص العامل الآن', message: 'هناك leases منتهية مثبتة في القراءة الحالية؛ أعد قراءة الحالة بعد دورة recovery التشغيلية بدل اعتبار الطابور سليمًا.', label: 'إعادة فحص العامل' }
     : workerHealth && !workerHealth.activeReadComplete
@@ -108,6 +116,12 @@ export function WorkCenterPage() {
   return <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
     {focusedImportId && <section className="rounded-[14px] border border-primary-200 bg-primary-50/60 px-4 py-3" role="status" aria-live="polite"><div className="flex flex-wrap items-center justify-between gap-3"><div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">IMPORT CONTEXT</div><div className="mt-1 text-sm font-black text-ink-950">متابعة عملية الاستيراد الحالية</div><div className="mt-1 text-[10px] text-ink-600">{focusedImport ? focusedImport.file_name + " · " + statusLabel(focusedImport.status) : "لم تعد العملية ضمن نافذة القراءة الحالية؛ لا تُعرض حالة بديلة."}</div></div><Link to="/work-center" className="btn-secondary min-h-11 text-[10px]">عرض كل العمليات</Link></div></section>}
 
+    <ReportSurfaceContext
+      period="الحالة التشغيلية الحالية"
+      asOf={new Date().toISOString().slice(0, 10)}
+      status={workTruthStatus}
+      sourceLabel="مركز العمل يقرأ العمليات والـleases والسجل التشغيلي الحالي للمستأجر؛ العرض المحلي لا يُعامل كدليل نجاح دون حالة مصدرية نهائية."
+    />
     <PageHeader
       title="مركز العمل"
       subtitle="طابور العمل والاستثناءات: ما الذي ينتظر، ما الذي يحتاج مراجعة، وما الذي اكتمل فعليًا."
