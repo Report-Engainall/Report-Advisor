@@ -4,6 +4,7 @@ name: Full Product Browser E2E
 # Uses the repository's existing Playwright runner; no duplicate browser framework is introduced.
 on:
   push:
+    branches: [main]
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'scripts/real-business-e2e.mjs'
