@@ -1,19 +1,17 @@
 # RESUME TOKEN — 2026-09-28 / CUSTOMER TENANT RESOLVER REGRESSION GUARD
 
 - CURRENT CODE/TEST CANDIDATE → `7353309309b5ba8ff37254e68f2bc047b710a931`.
-- CURRENT REPOSITORY HEAD → `c78aafb51df5c68110ea55b1c34b6437e70e9932` after governance/test guard persistence.
-- IMPLEMENTED → `scripts/check-company-default-context-contract.mjs` now asserts customer-portal `current_customer_company_id()` resolves from `profiles.organization_id` by `auth.uid()`, preserves explicit authenticated/service_role execution grants, and must not delegate to staff `current_company_id()`.
-- EXISTING WORKFLOW REUSE → the guard is added to the existing `company-context-contract` workflow; no duplicate workflow was created.
-- LIVE PROOF → Staging already exposes the intended customer resolver body and `customer_credit_accounts.credit_customer_select` RLS uses `current_customer_id()` + `current_customer_company_id()`.
-- CURRENT CI → no terminal run is available yet for this governance/test commit; therefore no PASS is claimed.
-- OPEN NON-DEVICE → current-head CI proof; Vercel production operational-token/deployment alignment; Phase-F resilience; full migration lineage proof; Auth leaked-password protection platform setting; 151 stale processing imports pending a governed recovery contract.
+- CURRENT REPOSITORY HEAD → `dad3418241d025a9c1b35214c9b7901783677e57` after governance/test-boundary persistence.
+- IMPLEMENTED → `scripts/check-company-default-context-contract.mjs` now asserts customer-portal `current_customer_company_id()` resolves from `profiles.organization_id` by `auth.uid()`, keeps explicit authenticated/service_role grants, and must not delegate to staff `current_company_id()`.
+- IMPLEMENTED → `scripts/check-certification-boundary-integrity.mjs` allowlists this existing tenant-context contract guard as governance-only; no duplicate workflow was created.
+- EXISTING WORKFLOW REUSE → the existing `company-context-contract` workflow executes the guard.
+- LIVE PROOF → Staging `current_customer_company_id()` is SECURITY DEFINER, authenticated EXECUTE=true, anon=false, and reads `profiles.organization_id` for `auth.uid()`; `customer_credit_accounts.credit_customer_select` binds both customer and tenant.
+- CURRENT CI → no terminal run is available yet for `7353309...`/governance descendants; no PASS is claimed from this batch.
+- OPEN NON-DEVICE → current-head CI proof; Vercel production operational-token/deployment alignment; Phase-F resilience; full migration lineage proof; Auth leaked-password protection platform setting; 151 stale processing imports pending a governed recovery path.
 - OPEN DEVICE-ONLY → PC01/offline desktop/authenticated browser proof.
-- NEXT → consume the first terminal current-head CI failure; fix only the reproduced defect, then persist/rescan. Keep production and stale import recovery fail-closed.
-- DO NOT REPEAT → collapsing customer/staff tenant resolvers, blanket SECURITY DEFINER revokes, speculative migration cleanup, bulk-terminalizing stale import jobs, or treating older Vercel READY previews as current-head proof.
-zation_id` for `auth.uid()`.
-- OPEN NON-DEVICE → current-head CI terminal proof; Vercel production token/deployment alignment; Phase-F live resilience; full migration lineage proof; Auth leaked-password protection platform setting.
-- OPEN DEVICE-ONLY → PC01 offline desktop/authenticated browser actions.
-- NEXT ACTION → consume current candidate CI first terminal failure, then persist/rescan.
+- NEXT → consume the first terminal current-head CI failure; fix only the reproduced non-external defect, then persist/rescan. Keep production and stale import recovery fail-closed.
+- DO NOT REPEAT → collapsing customer/staff tenant resolvers, stale-SHA PASS transfer, blanket SECURITY DEFINER revokes, speculative migration cleanup, bulk-terminalizing stale import jobs, or treating older Vercel READY previews as current-head proof.
+
 # RESUME TOKEN — 2026-09-28 / Aghbari SALES-REPORT READINESS CHECKPOINT
 
 - CURRENT REPOSITORY HEAD → `5be55cb8401f0e06068731ee3dd89c7f1d00942c`.
