@@ -1,17 +1,17 @@
 # RESUME TOKEN — 2026-09-28 / EXACT CURRENT EXECUTION HEAD
 
-- CURRENT REPOSITORY HEAD → `2bc6b6f9f13003de404035bddef9f384c3e4deb5`.
-- CURRENT CODE/TEST CANDIDATE → `03d6d48a491f1237a247fe0844d2cb9811f9e2ea`.
+- CURRENT REPOSITORY HEAD → `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`.
+- CURRENT CODE/TEST CANDIDATE → `b37adb8dfcad45d6fed2c688cb341034a3c4e25a`.
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
 - ACTIVE PR → `#672` / `exec/20260927-current-main-import-ui-rebased`.
 - ACTIVE EXECUTION FRONTS → Resume-token governance; Phase-F resilience; authenticated browser/business runtime; Tenant A/B isolation; durable report-generation trigger; worker recovery/retry/DLQ/idempotency; authenticated import/OCR corpus; migration replay/schema parity; full UI runtime states; security hardening; final certification/merge.
-- OPEN BLOCKERS → Phase-F live resilience is NOT READY (deployment SHA mismatch, backup/restore failure, rollback/forward 503); authenticated browser E2E is NOT PROVEN because workflow credentials are absent; Vercel free-plan build-rate remains external; fresh GitHub certification evidence must bind to the post-checkpoint SHA. No blocker authorizes idle time.
-- LAST PROVEN → on code candidate `03d6d48...`, Execution Enforcement PASS, execution-enforcement adversarial PASS, Knowledge Architecture PASS, Quality Workflow Contract PASS, Operational Resilience Contract PASS, and the previously green exact-head desktop/UI/import/security/runtime gates remain bound to their exact SHAs.
-- LAST FAILED → phase-f-live-resilience remains 1/4 passed from deployment SHA mismatch + restore/rollback failures; authenticated browser E2E remains auth-blocked. The prior resume-anchor failure is CLOSED and must not be re-opened.
-- NEXT INDEPENDENT ACTIONS → (1) use PC01 + Playwright for authenticated/runtime/browser preparation and proof; (2) isolate/fix the Phase-F deployment identity or runtime target without weakening the gate; (3) continue tenant/security/recovery/corpus/report-trigger fronts in parallel; (4) run bounded UI/product rescan; (5) consume terminal CI evidence once and repair the first current-SHA failure only.
-- NEXT EXECUTABLE ACTION → attack Phase-F deployment identity/rollback/restore and authenticated browser runtime in parallel while continuing independent P0/P1 product and core fronts; persist each exact-SHA result.
+- OPEN BLOCKERS → Phase-F live resilience is NOT READY (production deployment SHA mismatch, backup/restore failure, rollback-forward 503); Device-Independent authenticated browser E2E has one reproducible Replay-console failure now repaired on `b37adb8…`, requiring fresh exact-SHA browser proof; Vercel free-plan build-rate remains external. PC01 is OFFLINE for this session and is not a stop condition.
+- LAST PROVEN → on `b2547f28…`, quality PASS, Final Certification Gate PASS, Execution Enforcement PASS, UI route completeness PASS, canonical import/data/security contract set PASS, and desktop-windows PASS. These proofs remain bound to `b2547f28…`.
+- LAST FAILED → Phase-F remains 1/4; Device-Independent authenticated E2E failed only on `ExecutiveCommandCenterPage` replay-unavailable console error; the code now classifies that optional path as `REVIEW` with `console.warn`, so fresh proof is required on `b37adb8…`.
+- NEXT INDEPENDENT ACTIONS → (1) consume fresh exact-`b37adb8…` browser/quality/final-certification results; (2) continue Supabase/data/security/recovery/report-trigger/migration/UI-contract fronts independent of PC01; (3) isolate Phase-F deployment identity/restore/rollback without weakening gates; (4) update the canonical resume state after each meaningful batch.
+- NEXT EXECUTABLE ACTION → run the fresh exact-SHA CI/browser gates triggered by `b37adb8…`; repair only the first current-SHA failure, then persist and rescan.
 - DO NOT REPEAT → stale SHA PASS; unchanged CI polling; duplicate browser frameworks/RPCs/runners; preview-as-production; blanket security-definer revokes; unproven production claims; deletion without Manifest proof.
-- DEVICE → PC01 ONLINE and available for local execution.
+- DEVICE → PC01 OFFLINE; skip only device-dependent proof and continue every safe non-device front.
 - EXECUTION WINDOW → when the device remains available, use the full available sprint for implementation/proof; no planned idle period.
 
 ---
