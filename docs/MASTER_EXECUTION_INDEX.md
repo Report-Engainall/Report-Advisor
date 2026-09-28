@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / OUTCOME→LEARNING SURFACE CLOSURE
+
+- FUNCTIONAL CODE/TEST HEAD → `1f190e8874f0095ff30e58192f9f7099ffe93dda`.
+- MEMORY DESCENDANT → `b22b50ddf6772233c200503d99afb4ef373ad89c` before this Index write-back.
+- CLOSED → Business Replay now consumes persisted snapshots/work/outcomes and renders canonical Learning metrics via `summarizeOutcomes()`: count, accuracy, coverage, cumulative impact.
+- CLOSED → Work completion remains evidence-gated and server-authoritative, producing persisted outcome and EXECUTED decision state.
+- PROOF → 8/8 focused assertions PASS on `1f190e887...`.
+- CI EXACT SHA → Execution Enforcement Contract `36473253145` and Final Certification Gate `36473253108` are queued; no terminal PASS/FAIL claim.
+- BENCHMARK → current product remains intentionally `INSUFFICIENT_SAMPLE`; no peer cohort exists in the current staging model, so no percentile/rank is fabricated.
+- OPEN → browser/device E2E, hosted exact-head acceptance, Vercel free-plan rate limit, tenant-bound live canary.
+- DO NOT REPEAT → no page-local learning math, no fabricated replay, no bypass of Evidence Snapshot, no benchmark ranking from company-only data.
+- NEXT EXACT ACTION → consume CI terminal state; then only repair a concrete Benchmark/runtime gap if a real executable contract exists, otherwise continue the next non-device certification/cleanup front.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / WORK→OUTCOME→EXECUTED COMPLETION LOOP
 
 - FUNCTIONAL CODE/TEST HEAD → `5c52d30295ebd0b018269785ee42ab55d7182e4e`.
