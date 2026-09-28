@@ -144,6 +144,7 @@ export function DecisionExperiencePage() {
   const [params, setParams] = useSearchParams();
   const requestedStage = params.get('stage') as Stage | null;
   const importJobId = params.get('import');
+  const withImportContext = (path: string) => importJobId ? path + (path.includes('?') ? '&' : '?') + 'import=' + encodeURIComponent(importJobId) : path;
   const [stage, setStage] = useState<Stage>(STAGES.some((item) => item.id === requestedStage) ? requestedStage! : 'command');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -326,7 +327,7 @@ export function DecisionExperiencePage() {
   }, [requestedStage, importJobId, sourceSnapshot]);
 
   const currentStageIndex = Math.max(0, STAGES.findIndex((item) => item.id === stage));
-  const activeAlerts = useMemo(() => alerts.filter((item) => !item.is_read).slice(0, 6), [alerts]);
+  const activeAlerts = useMemo(() => importJobId ? [] : alerts.filter((item) => !item.is_read).slice(0, 6), [alerts, importJobId]);
   const selectedStatus = selected?.status ?? null;
 
   const navigateStage = (next: Stage, id = selectedId) => {
@@ -372,7 +373,7 @@ export function DecisionExperiencePage() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold text-ink-200">المرحلة {String(currentStageIndex + 1).padStart(2, '0')} / {String(STAGES.length).padStart(2, '0')}</span>
-            <Link to="/command-center" className="inline-flex items-center gap-2 rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15">العودة لمركز القيادة <ArrowUpLeft size={13}/></Link>
+            <Link to={withImportContext("/command-center")} className="inline-flex items-center gap-2 rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15">العودة لمركز القيادة <ArrowUpLeft size={13}/></Link>
           </div>
         </div>
         <div className="mt-5 grid grid-cols-6 gap-1" aria-label="مراحل القرار" role="progressbar" aria-valuemin={1} aria-valuemax={STAGES.length} aria-valuenow={currentStageIndex + 1} aria-valuetext={`${STAGES[currentStageIndex]?.label}: ${STAGES[currentStageIndex]?.description}`}>
@@ -450,12 +451,12 @@ export function DecisionExperiencePage() {
                         <div className="flex flex-wrap items-center gap-2"><SeverityBadge severity={alert.severity}/><span className="text-[10px] text-ink-400">{relativeTime(alert.created_at)}</span></div>
                         <div className="mt-2 text-[13px] font-black text-ink-900">{alert.title}</div>
                         {alert.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{alert.description}</p>}
-                        <Link to="/trust" className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-primary-700">فحص المصدر أولًا <ArrowUpLeft size={13}/></Link>
+                        <Link to={withImportContext("/trust")} className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-primary-700">فحص المصدر أولًا <ArrowUpLeft size={13}/></Link>
                       </div>
                     </div>
                   </article>
                 ))}
-                {!activeAlerts.length && <EmptyState title="لا توجد إشارات نشطة" message="لا توجد تنبيهات غير مقروءة في المصدر الحالي." action={<Link to="/trust" className="btn-secondary text-[11px]">فحص الثقة</Link>}/>} 
+                {!activeAlerts.length && <EmptyState title="لا توجد إشارات نشطة" message="لا توجد إشارات مصدرية مربوطة بهذه العملية. التنبيهات العامة لا تُعرض على أنها أدلة خاصة بالملف." action={<Link to={withImportContext("/trust")} className="btn-secondary text-[11px]">فحص الثقة</Link>}/>} 
               </div>
             </CardBody>
           </Card>
