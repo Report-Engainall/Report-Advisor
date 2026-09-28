@@ -392,8 +392,8 @@ export async function createDecisionWorkItem(input:{decisionId:string;recommenda
   return createCanonicalWorkItem(input.decisionId,input.recommendationId,{department:input.department,assigneeId:input.assigneeId,assigneeLabel:input.assigneeLabel,title:input.title,description:input.description??undefined,priority:input.priority,dueAt:input.dueAt??undefined,expectedImpact:input.expectedImpact,evidenceRefs:input.evidenceRefs});
 }
 export const startDecisionWorkItem = startCanonicalWorkItem;
-export async function completeDecisionWorkItem(workItemId: string, actualImpact: number | null, evidence: Record<string, unknown>): Promise<void> {
-  await completeCanonicalWorkItem(workItemId, actualImpact as number, evidence);
+export async function completeDecisionWorkItem(workItemId: string, actualImpact: number, evidence: Record<string, unknown>): Promise<void> {
+  await completeCanonicalWorkItem(workItemId, actualImpact, evidence);
 }
 export async function fetchRuntimeDecisionForRecommendation(recommendationId:string):Promise<RuntimeDecisionRecord|null>{
   if(!recommendationId.trim())throw new Error('RECOMMENDATION_ID_REQUIRED'); const companyId=await resolveCurrentCompanyId(); if(!companyId)throw new Error('TENANT_REQUIRED');
