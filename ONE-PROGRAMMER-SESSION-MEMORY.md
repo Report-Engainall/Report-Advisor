@@ -1,3 +1,14 @@
+# RESUME TOKEN — 2026-09-28 / SECURITY CLASSIFICATION CHECKPOINT
+
+- CURRENT REPOSITORY HEAD → `a369fe11e7daea5aadd741f1cae491e3240725fd`.
+- CURRENT CODE/TEST CANDIDATE → `a369fe11e7daea5aadd741f1cae491e3240725fd`.
+- ACTIVE EXECUTION FRONTS → security-definer classification; exact certification boundary; import/PDF runtime; Supabase migration provenance; authenticated browser; Phase-F resilience; cleanup.
+- OPEN BLOCKERS → PC01 offline; Phase-F deployment SHA/backup/rollback evidence external; Auth leaked-password protection is a Supabase platform setting not exposed by the current mutation surface; migration history vs repository inventory requires lineage proof.
+- LAST PROVEN LIVE → 39 unique advisory names are SECURITY DEFINER with authenticated execute and zero anon execute; import_create_job/import_finish_job are SECURITY INVOKER; import_commit_batch remains the deliberate canonical write boundary.
+- LAST FAILED → certification boundary on earlier HEAD failed because the index marker format was unsupported; parser/test repair is committed in the current lineage.
+- NEXT EXECUTABLE ACTION → consume current exact-SHA certification/security results; first terminal failure only; continue migration provenance independently.
+- DO NOT REPEAT → stale evidence, blanket RPC revokes, destructive migration cleanup, device-dependent work while PC01 is unavailable.
+
 # RESUME TOKEN — 2026-09-28 / Aghbari SALES-REPORT READINESS CHECKPOINT
 
 - CURRENT REPOSITORY HEAD → `5be55cb8401f0e06068731ee3dd89c7f1d00942c`.
