@@ -5,7 +5,7 @@ import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
-import { fetchDashboardIntelligence, fetchImportRecords, fetchRecommendationsBoundToImport, createImportRecord, fetchReportExecutionTasks, type ReportExecutionTaskRecord } from '@/lib/queries';
+import { fetchDashboardIntelligence, fetchImportRecords, fetchRecommendationsBoundToImport, createImportRecord, fetchReportExecutionTasks, fetchReportExecutionJob, type ReportExecutionTaskRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
@@ -84,39 +84,52 @@ function resolvePostImportReports(specialty: string | null | undefined, entityTy
 }
 
 function PostImportReportOutputs({ result }: { result: any }) {
-  const reports = resolvePostImportReports(result.sourceSpecialty, result.sourceEntityType);
-  const canOpenSpecialty = result.evidenceStatus === 'VERIFIED';
+  const renderedOutput = result.executionReport?.evidence?.renderedOutput && typeof result.executionReport.evidence.renderedOutput === 'object'
+    ? result.executionReport.evidence.renderedOutput as Record<string, unknown>
+    : null;
+  const outputs = Array.isArray(renderedOutput?.outputs)
+    ? renderedOutput.outputs.filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'))
+    : [];
+  const evidenceVerified = result.evidenceStatus === 'VERIFIED';
+  const reportRendered = result.executionReport?.status === 'completed' && outputs.length > 0;
   return <section className="w-full max-w-4xl rounded-[18px] border border-success-200 bg-success-50/30 p-4 text-right" aria-label="مخرجات التقارير بعد الاستيراد">
     <div className="flex flex-wrap items-start justify-between gap-2">
       <div>
-        <div className="text-[9px] font-black tracking-[.12em] text-success-700">REPORT OUTPUTS</div>
-        <div className="mt-1 text-sm font-black text-ink-950">التقارير التي يفتحها هذا المصدر</div>
-        <p className="mt-1 text-[10px] leading-5 text-ink-600">يُختار السطح التخصصي من الفهم الكانوني للمصدر؛ التقرير التنفيذي يبقى نقطة التجميع، ولا يُعامل السطح التخصصي كحقيقة مصدرية إذا بقي الدليل PARTIAL.</p>
+        <div className="text-[9px] font-black tracking-[.12em] text-success-700">RENDERED REPORT OUTPUTS</div>
+        <div className="mt-1 text-sm font-black text-ink-950">التقارير التي أنشأها مسار التنفيذ فعليًا</div>
+        <p className="mt-1 text-[10px] leading-5 text-ink-600">هذه القائمة تُقرأ من Evidence المحفوظ داخل Job نفسه عند مرحلة rendered؛ وليست قائمة روابط ثابتة في الواجهة. كل سطح يبقى مرتبطًا ببصمة المصدر والـImport Job.</p>
       </div>
-      <Badge variant={canOpenSpecialty ? 'success' : 'warning'}>{canOpenSpecialty ? 'السطح التخصصي قابل للفتح' : 'الدليل يحتاج مراجعة'}</Badge>
+      <Badge variant={reportRendered && evidenceVerified ? 'success' : 'warning'}>
+        {reportRendered ? (evidenceVerified ? 'التقرير مُنشأ والدليل مثبت' : 'التقرير مُنشأ — الدليل يحتاج مراجعة') : 'مخرجات التقرير غير مثبتة'}
+      </Badge>
     </div>
     <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-      {reports.map((report, index) => {
-        const href = report.path === '/reports/executive' && result.importId
-          ? report.path + '?import=' + encodeURIComponent(result.importId)
-          : report.path;
+      {outputs.map((output, index) => {
+        const path = typeof output.path === 'string' ? output.path : '/reports/executive';
+        const title = typeof output.label === 'string' ? output.label : 'التقرير التنفيذي';
+        const href = path === '/reports/executive' && result.importId ? path + '?import=' + encodeURIComponent(result.importId) : path;
+        const canOpen = evidenceVerified;
         return <Link
-          key={report.path + '-' + index}
-          to={canOpenSpecialty || report.path === '/reports/executive' ? href : (result.importId ? '/trust?import=' + encodeURIComponent(result.importId) : '/trust')}
+          key={String(output.key ?? path) + '-' + index}
+          to={canOpen ? href : (result.importId ? '/trust?import=' + encodeURIComponent(result.importId) : '/trust')}
           className="rounded-[14px] border border-white/90 bg-white/90 p-3 text-right transition hover:border-success-300 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
         >
           <div className="flex items-center justify-between gap-2">
-            <span className="text-[9px] font-black text-success-700">{report.stage}</span>
-            <span className="text-[9px] font-black text-ink-400">{canOpenSpecialty || report.path === '/reports/executive' ? 'فتح' : 'راجع الدليل'}</span>
+            <span className="text-[9px] font-black text-success-700">RENDERED · {String(output.key ?? 'report')}</span>
+            <span className="text-[9px] font-black text-ink-400">{canOpen ? 'فتح التقرير' : 'مراجعة الدليل'}</span>
           </div>
-          <div className="mt-2 text-[11px] font-black text-ink-900">{report.title}</div>
-          <div className="mt-1 text-[9px] leading-4 text-ink-500">{report.description}</div>
+          <div className="mt-2 text-[11px] font-black text-ink-900">{title}</div>
+          <div className="mt-1 text-[9px] leading-4 text-ink-500">source-bound · {String(renderedOutput?.entityType ?? result.sourceEntityType)} · {String(renderedOutput?.sourceHash ?? 'SHA غير متاح')}</div>
         </Link>;
       })}
     </div>
+    <div className="mt-3 grid gap-2 sm:grid-cols-3">
+      <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[8px] text-ink-400">مرحلة rendered</div><div className="mt-1 text-[10px] font-black text-ink-900">{reportRendered ? 'COMPLETED' : 'NOT PROVEN'}</div></div>
+      <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[8px] text-ink-400">عدد المخرجات</div><div className="mt-1 text-[10px] font-black text-ink-900">{formatNumber(outputs.length)}</div></div>
+      <div className="rounded-xl border border-white bg-white/80 p-3"><div className="text-[8px] text-ink-400">التخصص</div><div className="mt-1 text-[10px] font-black text-ink-900">{specialtyLabel(String(renderedOutput?.sourceSpecialty ?? result.sourceSpecialty ?? 'other'))}</div></div>
+    </div>
   </section>;
 }
-
 function FinalExecutionProof({ tasks }: { tasks: ReportExecutionTaskRecord[] }) {
   if (!tasks.length) return null;
   const completed = tasks.filter(task => task.status === 'completed').length;
@@ -459,6 +472,7 @@ export function CanonicalImportPage() {
         fileName: file.name,
         sourceHash: durableSourceHash,
         entityType,
+        sourceSpecialty,
         rows: reconciled.rows,
         qualityScore: quality,
         qualityApproved,
@@ -479,6 +493,7 @@ export function CanonicalImportPage() {
       const execution = await executeWithTaskMonitor({ ...executionInput, durableJobId }, durableJobId);
       setProgress(98);
 
+      let executionReport: Awaited<ReturnType<typeof fetchReportExecutionJob>> = null;
       try {
         finalExecutionTasks = await fetchReportExecutionTasks(durableJobId);
         setExecutionTasks(finalExecutionTasks);
@@ -487,8 +502,13 @@ export function CanonicalImportPage() {
         if (finalExecutionTasks.length < EXECUTION_TASK_STAGES.length || finalExecutionTasks.some((task) => task.status !== 'completed')) {
           throw new Error('EXECUTION_TASKS_NOT_COMPLETED');
         }
+        executionReport = await fetchReportExecutionJob(durableJobId);
+        const renderedOutput = executionReport?.evidence?.renderedOutput;
+        if (executionReport?.status !== 'completed' || !renderedOutput || typeof renderedOutput !== 'object' || !Array.isArray((renderedOutput as Record<string, unknown>).outputs) || ((renderedOutput as Record<string, unknown>).outputs as unknown[]).length === 0) {
+          throw new Error('EXECUTION_RENDER_OUTPUT_MISSING');
+        }
       } catch (cause) {
-        if (cause instanceof Error && cause.message.startsWith('EXECUTION_TASKS_')) throw cause;
+        if (cause instanceof Error && (cause.message.startsWith('EXECUTION_TASKS_') || cause.message === 'EXECUTION_RENDER_OUTPUT_MISSING')) throw cause;
         setExecutionTaskError(cause instanceof Error ? cause.message : 'تعذر إكمال تقرير مهام التنفيذ');
       }
 
@@ -565,6 +585,7 @@ export function CanonicalImportPage() {
         datasetSummaries: Array.isArray(execution.datasetSummaries) ? execution.datasetSummaries : [],
         postImportSignals,
         executionJobId: durableJobId,
+        executionReport,
         executionTasks: finalExecutionTasks,
         executionTaskError,
       });
