@@ -1,37 +1,19 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-28 / IMPORT + UI CONTRACT ROOTS CLOSED
+# CURRENT EXECUTION BOUNDARY — 2026-09-28 / CURRENT PR HEAD CERTIFIED LOCALLY
 
 > This top block is the only startup boundary.
 
 - MAIN EXACT HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- CURRENT CODE/TEST CANDIDATE → `63b86b421a9ef48fca5850821b97bf3ce832e3b3` (PR #672 / `exec/20260927-current-main-import-ui-rebased`).
-- ROOT 1 CLOSED → `/import/analyze` is explicitly classified as internal progressive disclosure; route/navigation completeness now PASSes without adding an erroneous sidebar entry.
-- ROOT 2 CLOSED → import-finish lifecycle contract fixture normalizes CRLF→LF before negative-case mutation; current Windows execution now passes all 4 contract tests.
-- EXACT LOCAL PROOF ON `63b86b421a9ef48fca5850821b97bf3ce832e3b3` → UI route/navigation completeness PASS (41 routes / 38 canonical links); UI route/sidebar parity PASS; import-finish lifecycle 4/4 PASS; typecheck PASS; prior production build and UI proof remain valid only up to the immediately preceding functional SHA and must be revalidated on this exact candidate.
-- CURRENT CI → fresh workflows are executing for `63b86b421a9ef48fca5850821b97bf3ce832e3b3`; exact-head terminal evidence is not yet complete.
-- CERTIFICATION → candidate anchoring is now required to `63b86b421a9ef48fca5850821b97bf3ce832e3b3`; no older code/browser/desktop PASS is transferred.
-- RELEASE → Vercel free-plan build-rate remains external; Netlify green status is not product certification.
-- DEVICE → PC01 ONLINE; exact PR worktree is available.
-- QUALITY → lint baseline remains 62 warnings / 0 errors; build warnings are non-blocking.
-- NEXT → consume the first terminal current-SHA CI/browser/final-certification failure; then repair only that reproduced root, persist, and rescan.
+- CURRENT PR HEAD → `bcbb348497e9cf588291587853c9077d1926a4d9` (docs-only checkpoint).
+- CURRENT CODE/TEST CANDIDATE → `63b86b421a9ef48fca5850821b97bf3ce832e3b3` (the only functional code change after the last closed root).
+- CLOSED ROOTS → UI `/import/analyze` progressive-disclosure classification; CRLF-stable import-finish lifecycle negative-case contract.
+- EXACT LOCAL PROOF ON CURRENT PR HEAD `bcbb...` → certification boundary PASS; certification-boundary test-of-test PASS; final-certification provenance adversarial PASS; UI route/navigation completeness PASS (41 routes / 38 canonical links); UI/sidebar parity PASS; import-finish lifecycle 4/4 PASS; typecheck PASS; lint PASS (0 errors / 62 warnings); production build PASS (2802 modules); release-evidence freshness PASS; artifact-migration provenance PASS.
+- EXACT CI PROOF ON CURRENT PR HEAD → `desktop-windows` run `36363582543` SUCCESS.
+- CURRENT CI → 49 workflows for `bcbb...`: 45 queued, 1 pending, 3 completed (2 skipped + desktop SUCCESS). Browser, quality, Phase-3, data-quality, security, production-regression and final-certification jobs have no terminal result yet on this exact PR head.
+- HOSTED → Netlify deploy-preview status SUCCESS for `bcbb...`; Vercel remains externally blocked by the free-plan build-rate limit and therefore is not product certification.
+- DEVICE → PC01 ONLINE; exact PR worktree active.
+- QUALITY CLEANUP → 62 lint warnings remain; they are non-blocking but unresolved technical-debt cleanup.
+- REMAINING RELEASE FRONT → fresh exact-HEAD CI/browser/final-certification evidence, hosted production proof where possible, unresolved external Phase-F/live-resilience evidence if CI proves it, and final merge/closure. No final PASS is declared until those terminal gates exist.
 
-# CURRENT EXECUTION CHECKPOINT — 2026-09-28 / CURRENT-SHA SCENARIO GATE CLOSURE
-
-- MAIN HEAD → `4ec779a0a1573fc3e0e395862f6761a70f775d49`.
-- FUNCTIONAL PROOF SHA → `a0a73ac2fb8f0221cd0c9e04054b44a7e5817b5b`.
-- PR → `#672` / `exec/20260927-current-main-import-ui-rebased`.
-- ROOT CAUSE CLOSED → `scripts/check-scenario-financial-truth-guard.mjs` referenced removed `src/pages/CanonicalScenarioPage.tsx`; the canonical scenario surface is `src/pages/ScenarioTruthGuardPage.tsx`, which owns the calculator.
-- FIX COMMITTED → `a0a73ac2fb8f0221cd0c9e04054b44a7e5817b5b` (`fix(ci): align scenario truth gate with canonical page`).
-- WORKFLOW FIX → `.github/workflows/scenario-financial-truth-guard.yml` now watches the canonical page and no longer watches the removed path.
-- EXACT LOCAL PROOF ON `a0a73ac2` → scenario financial-truth gate PASS; typecheck PASS; production build PASS (2802 modules); quality-workflow contract PASS (33 npm commands / 10 mandatory stage groups); knowledge-architecture PASS.
-- SAME-TREE PRIOR LOCAL PROOF → canonical import mapping/transaction/runtime, Phase-3 data import truth, decision intelligence, document intelligence, file security, tenant security, report truth, production-certification runtime/contract/evidence-integrity, import direct-write/tenant-context/business-key/state, report E2E contract, golden corpus, and incremental import ledger all passed before this docs checkpoint. These results remain bound to their exact execution SHA and are not transferred.
-- DEVICE → PC01 online; candidate tree is checked out locally.
-- BROWSER → Vite dev server reached READY on `127.0.0.1:4173`; `agent-browser` is not installed on PC01, so authenticated/browser E2E remains NOT PROVEN.
-- HOSTED/CI → fresh exact-head GitHub gates are queued/pending; `desktop-windows` was in progress at last observation. Vercel is pending; Netlify status success is not treated as product PASS.
-- STALE SCENARIO SEARCH → the only remaining `CanonicalScenarioPage` match is the deliberate negative assertion that forbids use of the removed superseded page.
-- DO NOT REPEAT → stale scenario gate path, stale PASS transfer, preview-as-production, browser claims without execution, duplicate import/RPC/runner paths, blanket SECURITY DEFINER cleanup.
-- NEXT EXECUTABLE ACTION → consume terminal exact-head certification/browser/runtime results when available; repair only a new reproducible current-SHA failure while continuing independent repository-safe closure.
-
----
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / SECURITY CONTRACT REPAIR REPROVED
 
 - CURRENT DOCUMENTATION HEAD → `6be77394707e70973d22b4156775c4049989b6d2` after the security-contract checkpoint; functional code parent is `eed9917e348e9fa2fed0be4af5bdd24d70152aea`.
