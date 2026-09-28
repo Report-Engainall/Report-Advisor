@@ -552,6 +552,13 @@ if (!reportOutputSurfaces.demand.includes('withImportContext(nextAction.to)')) {
 if (!reportOutputSurfaces.liquidity.includes('withImportContext(nextAction.to)')) {
   throw new Error('Liquidity next action must preserve import context');
 }
+const inventoryIntelligence = fs.readFileSync('src/pages/InventoryIntelligencePage.tsx', 'utf8');
+if (!inventoryIntelligence.includes('withImportContext(nextAction.to)')) {
+  throw new Error('Inventory Intelligence next action must preserve import context');
+}
+if (/asOf=\{new Date\(\)\.toISOString\(\)\.slice/.test(inventoryIntelligence)) {
+  throw new Error('Inventory Intelligence must not fabricate As Of from browser time');
+}
 
 assert.ok(reportsSurface.includes('طباعة'), 'reports must preserve a visible print capability');
 assert.ok(trustEvidence.includes('Evidence Passport'), 'trust surface must expose the Evidence Passport capability');
