@@ -1,11 +1,13 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { resolveCurrentCompanyId, supabase } from '@/lib/supabase';
 
 export type ReportTruthStatus = 'CALCULATED' | 'INSUFFICIENT DATA' | 'REVIEW';
 
 interface ReportSurfaceContextProps {
-  companyName: string;
+  companyName?: string;
   period: string;
-  currency: string | null;
+  currency?: string | null;
   asOf: string;
   status: ReportTruthStatus;
   sourceLabel: string;
@@ -18,6 +20,30 @@ const statusMeta: Record<ReportTruthStatus, { label: string; className: string }
 };
 
 export function ReportSurfaceContext({ companyName, period, currency, asOf, status, sourceLabel }: ReportSurfaceContextProps) {
+  const [resolvedCompanyName, setResolvedCompanyName] = useState(companyName ?? '');
+  const [resolvedCurrency, setResolvedCurrency] = useState<string | null>(currency ?? null);
+  const [contextError, setContextError] = useState(false);
+
+  useEffect(() => {
+    if (companyName !== undefined && currency !== undefined) return;
+    let active = true;
+    void (async () => {
+      try {
+        const companyId = await resolveCurrentCompanyId();
+        if (!companyId) throw new Error('TENANT_REQUIRED');
+        const { data, error } = await supabase.from('companies').select('name,currency').eq('id', companyId).single();
+        if (error) throw error;
+        if (!active) return;
+        setResolvedCompanyName(typeof data?.name === 'string' ? data.name : '');
+        setResolvedCurrency(typeof data?.currency === 'string' ? data.currency : null);
+        setContextError(false);
+      } catch {
+        if (active) setContextError(true);
+      }
+    })();
+    return () => { active = false; };
+  }, [companyName, currency]);
+
   const meta = statusMeta[status];
   return (
     <section aria-label="سياق التقرير والحقيقة" className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm">
@@ -32,9 +58,9 @@ export function ReportSurfaceContext({ companyName, period, currency, asOf, stat
         </Link>
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2 text-[10px] sm:grid-cols-3 xl:grid-cols-5">
-        <div className="rounded-xl bg-ink-50 px-3 py-2"><div className="text-ink-400">الشركة</div><div className="mt-1 truncate font-bold text-ink-800">{companyName || 'غير متاح'}</div></div>
+        <div className="rounded-xl bg-ink-50 px-3 py-2"><div className="text-ink-400">الشركة</div><div className="mt-1 truncate font-bold text-ink-800">{resolvedCompanyName || (contextError ? 'غير مثبت' : 'جارٍ التحقق')}</div></div>
         <div className="rounded-xl bg-ink-50 px-3 py-2"><div className="text-ink-400">الفترة</div><div className="mt-1 font-bold text-ink-800">{period}</div></div>
-        <div className="rounded-xl bg-ink-50 px-3 py-2"><div className="text-ink-400">العملة</div><div className="mt-1 font-bold text-ink-800">{currency || 'غير متاحة'}</div></div>
+        <div className="rounded-xl bg-ink-50 px-3 py-2"><div className="text-ink-400">العملة</div><div className="mt-1 font-bold text-ink-800">{resolvedCurrency || (contextError ? 'غير مثبتة' : 'جارٍ التحقق')}</div></div>
         <div className="rounded-xl bg-ink-50 px-3 py-2"><div className="text-ink-400">As Of</div><div className="mt-1 font-bold text-ink-800">{asOf}</div></div>
         <div className={'rounded-xl border px-3 py-2 font-bold ' + meta.className}><div className="opacity-70">حالة الحقيقة</div><div className="mt-1">{meta.label}</div></div>
       </div>
