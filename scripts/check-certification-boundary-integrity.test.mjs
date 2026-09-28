@@ -11,6 +11,8 @@ assert.doesNotThrow(() => validateCertificationBoundary({ index, head: candidate
 const controlPlaneIndex = '# CURRENT CONTROL-PLANE BOUNDARY\n- CURRENT CODE/TEST CANDIDATE: `' + candidate + '`';
 assert.doesNotThrow(() => validateCertificationBoundary({ index: controlPlaneIndex, head: candidate, parent: '', changedFiles: [] }));
 const arrowIndex = '# CURRENT EXECUTION BOUNDARY\n- CURRENT CODE/TEST CANDIDATE → `' + candidate + '`';
+const repositoryCheckpointIndex = '# CURRENT EXECUTION BOUNDARY\n- CURRENT REPOSITORY / CODE-TEST CHECKPOINT → `' + candidate + '`';
+assert.doesNotThrow(() => validateCertificationBoundary({ index: repositoryCheckpointIndex, head: candidate, parent: '', changedFiles: [] }));
 assert.doesNotThrow(() => validateCertificationBoundary({ index: arrowIndex, head: candidate, parent: '', changedFiles: [] }));
 const blankLineArrowIndex = '# CURRENT EXECUTION BOUNDARY — BLANK-LINE REGRESSION\n\n- CURRENT CODE/TEST CANDIDATE → `' + candidate + '`.';
 assert.doesNotThrow(() => validateCertificationBoundary({ index: blankLineArrowIndex, head: candidate, parent: '', changedFiles: [] }));
@@ -32,7 +34,7 @@ assert.throws(() => validateCertificationBoundary({ index, head: child, parent: 
 console.log('PASS certification-boundary Test-of-Test: exact candidate, governed-only ancestry, source mutation rejection, and ancestry spoof rejection are covered.');
 
 const liveMasterIndex = fs.readFileSync('docs/MASTER_EXECUTION_INDEX.md', 'utf8');
-const liveCandidate = liveMasterIndex.match(/CURRENT CODE\/TEST CANDIDATE\s*(?::|→)\s*`([0-9a-f]{40})`/i)?.[1];
+const liveCandidate = liveMasterIndex.match(/(?:CURRENT CODE\/TEST CANDIDATE|CURRENT REPOSITORY \/ CODE-TEST CHECKPOINT|CURRENT REPOSITORY \/ CODE\/TEST CHECKPOINT)\s*(?::|→)\s*`([0-9a-f]{40})`/i)?.[1];
 assert.ok(liveCandidate, 'live Master Execution Index must expose a parser-compatible current code/test candidate');
 const currentHead = child;
 const parentHead = candidate;
