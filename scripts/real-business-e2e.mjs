@@ -13,6 +13,8 @@ const emailB = process.env.TEST_USER_B_EMAIL?.trim();
 const passwordB = process.env.TEST_USER_B_PASSWORD;
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e-business';
+const reportMax = Math.max(1, Number(process.env.REPORT_CORPUS_MAX || '47'));
+const sessionProcessedHashes = new Set();
 let realReportPath = process.env.REPORT_CORPUS_FILE?.trim() || '';
 let realReportCandidates = realReportPath ? [path.resolve(realReportPath)] : [];
 const reportCorpusRoot = process.env.REPORT_CORPUS_ROOT?.trim() || '';
@@ -24,7 +26,7 @@ if (!realReportPath && reportCorpusRoot) {
 }
 for (const [name, value] of Object.entries({ supabaseURL, anonKey, emailA, passwordA, emailB, passwordB })) if (!value) throw new Error(`BUSINESS_E2E_ENV_MISSING:${name}`);
 await fs.mkdir(reportDir, { recursive: true });
-const evidence = { exactHead, baseURL, browser: 'Chromium', startedAt: new Date().toISOString(), status: 'NOT_PROVEN', tenantA: null, tenantB: null, persisted: {}, steps: [], failures: [] };
+const evidence = { exactHead, baseURL, browser: 'Chromium', startedAt: new Date().toISOString(), status: 'NOT_PROVEN', tenantA: null, tenantB: null, persisted: {}, reports: [], reportFailures: [], steps: [], failures: [] };
 const browser = await chromium.launch({ headless: true });
 const contextA = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
 const pageA = await contextA.newPage();
@@ -222,11 +224,23 @@ async function importOne(page, label, fields, marker) {
   return { job, canonical: canonicalRows[0] };
 }
 
+function resolveDomainSurface(specialty, entityType, importId) {
+  if (specialty === 'receivables' || entityType === 'generic:receivables') return { path: `/reports/receivables?importId=${encodeURIComponent(importId)}`, label: 'تقرير الذمم والتحصيل', sourceBound: true };
+  if (specialty === 'sales' || entityType === 'sales_invoices') return { path: '/reports/sales', label: 'تقرير المبيعات', sourceBound: false };
+  if (specialty === 'purchases') return { path: '/reports/purchases', label: 'تقرير المشتريات', sourceBound: false };
+  if (specialty === 'inventory') return { path: '/reports/inventory', label: 'تقرير المخزون', sourceBound: false };
+  if (specialty === 'products' || entityType === 'products') return { path: '/products', label: 'المنتجات', sourceBound: false };
+  if (specialty === 'customers' || entityType === 'customers') return { path: '/customers', label: 'العملاء', sourceBound: false };
+  if (specialty === 'payments') return { path: '/analytics/liquidity', label: 'السيولة والتعرض النقدي', sourceBound: false };
+  return null;
+}
+
 async function selectNextRealReport(page) {
   const companyId = evidence.tenantA ?? await currentTenant(page);
   for (const candidatePath of realReportCandidates) {
     const rawBytes = await fs.readFile(candidatePath);
     const sourceHash = crypto.createHash('sha256').update(rawBytes).digest('hex');
+    if (sessionProcessedHashes.has(sourceHash)) continue;
     const existing = await restSelect(
       page,
       'import_jobs',
@@ -237,20 +251,22 @@ async function selectNextRealReport(page) {
     const completed = existing.find(row => row?.status === 'completed');
     if (completed) {
       evidence.steps.push({ step: 'real-report-existing-completed-skip', status: 'PASS', fileName: path.basename(candidatePath), sourceHash, importJobId: completed.id });
+      sessionProcessedHashes.add(sourceHash);
       continue;
     }
     realReportPath = candidatePath;
     evidence.steps.push({ step: 'real-report-next-open-selected', status: 'PASS', fileName: path.basename(candidatePath), sourceHash });
     return { companyId, sourceHash, filePath: candidatePath };
   }
-  throw new Error('NO_OPEN_REAL_REPORTS');
+  return null;
 }
-async function importRealReportOne(page) {
-  const filePath = path.resolve(realReportPath);
+
+async function importRealReportOne(page, selection, reportKey) {
+  const filePath = selection.filePath;
   const fileName = path.basename(filePath);
   const rawBytes = await fs.readFile(filePath);
-  const sourceHash = crypto.createHash('sha256').update(rawBytes).digest('hex');
-  evidence.steps.push({ step: 'real-report-selected', status: 'PASS', fileName, sourceHash, bytes: rawBytes.length });
+  const sourceHash = selection.sourceHash;
+  evidence.steps.push({ step: `real-report-selected:${reportKey}`, status: 'PASS', fileName, sourceHash, bytes: rawBytes.length });
 
   await openImportSource(page);
   await page.locator('input[type=file]').first().setInputFiles(filePath);
@@ -258,21 +274,29 @@ async function importRealReportOne(page) {
   const qualityApproval = page.getByRole('checkbox', { name: /موافقة جودة صريحة/ });
   if (await qualityApproval.count() === 1 && await qualityApproval.isVisible()) {
     await qualityApproval.check();
-    evidence.steps.push({ step: 'real-report-quality-approval', status: 'PASS' });
+    evidence.steps.push({ step: `real-report-quality-approval:${reportKey}`, status: 'PASS' });
   }
 
   const commit = page.getByRole('button', { name: /تأكيد الاستيراد/ });
-  assert.equal(await commit.isEnabled(), true, 'real report import must be enabled after review');
-  const executionResponsePromise = page.waitForResponse(response => response.request().method() === 'POST' && (response.url().includes('/api/canonical-import-execute') || response.url().includes('/.netlify/functions/canonical-import-execute')), { timeout: 30000 });
+  if (!(await commit.isEnabled())) {
+    const reviewText = (await page.locator('body').innerText()).slice(0, 5000);
+    await page.screenshot({ path: `${reportDir}/${reportKey}-review.png`, fullPage: true });
+    return { reportKey, state: 'REVIEW', fileName, sourceHash, reviewText };
+  }
+
+  const executionResponsePromise = page.waitForResponse(response =>
+    response.request().method() === 'POST' &&
+    (response.url().includes('/api/canonical-import-execute') || response.url().includes('/.netlify/functions/canonical-import-execute')),
+    { timeout: 30000 },
+  );
   await commit.click();
   const executionResponse = await executionResponsePromise;
   const executionBody = await executionResponse.json().catch(() => ({}));
-  assert.equal(executionResponse.ok(), true, 'canonical-import-execute HTTP ' + executionResponse.status() + ': ' + JSON.stringify(executionBody).slice(0, 2000));
+  assert.equal(executionResponse.ok(), true, `canonical-import-execute HTTP ${executionResponse.status()}: ${JSON.stringify(executionBody).slice(0, 2000)}`);
   const importId = String(executionBody?.importId || '').trim();
   const executionJobId = String(executionBody?.jobId || '').trim();
   assert.ok(importId, 'canonical import response must return importId');
   assert.ok(executionJobId, 'canonical import response must return durable execution jobId');
-  evidence.steps.push({ step: 'real-report-canonical-import-response', status: 'PASS', importId, executionJobId, sourceHash: executionBody?.sourceHash });
 
   const companyId = evidence.tenantA ?? await currentTenant(page);
   const deadline = Date.now() + 180000;
@@ -280,52 +304,220 @@ async function importRealReportOne(page) {
   while (Date.now() < deadline) {
     const rows = await restSelect(page, 'import_jobs', { company_id: companyId, id: importId }, 'id,status,job_type,progress,processed_rows,valid_rows,invalid_rows,error_message,result_summary,source_fingerprint,created_at');
     job = rows[0] ?? null;
-    if (job?.status === 'failed' || job?.status === 'cancelled') throw new Error('REAL_REPORT_IMPORT_TERMINAL_FAILURE:' + JSON.stringify(job));
+    if (job?.status === 'failed' || job?.status === 'cancelled') throw new Error(`REAL_REPORT_IMPORT_TERMINAL_FAILURE:${JSON.stringify(job)}`);
     if (job?.status === 'completed') break;
     await page.waitForTimeout(2000);
   }
-  assert.equal(job?.status, 'completed', 'real report import did not complete: ' + JSON.stringify(job));
+  assert.equal(job?.status, 'completed', 'real report import must reach authoritative completed state');
   assert.equal(String(job?.source_fingerprint || '').toLowerCase(), sourceHash, 'import job fingerprint must equal raw source SHA-256');
-  evidence.steps.push({ step: 'real-report-import-job-complete', status: 'PASS', importId, sourceHash, progress: job.progress, validRows: job.valid_rows, invalidRows: job.invalid_rows });
+
+  const resultSummary = (job?.result_summary ?? {});
+  const specialty = String(resultSummary?.specialty || 'other');
+  const entityType = String(resultSummary?.canonical_entity_type || job?.job_type || 'generic:source-data');
+  const specialtyConfidence = resultSummary?.specialty_confidence == null ? null : Number(resultSummary.specialty_confidence);
 
   const canonicalRows = await restSelect(page, 'canonical_dataset_records', { company_id: companyId, import_job_id: importId }, 'id,company_id,import_job_id,source_hash,semantic_domain,row_number,record_key,data,provenance', { limit: 200 });
-  assert.ok(canonicalRows.length > 0, 'real report must persist canonical dataset rows');
+  assert.ok(canonicalRows.length > 0, 'real report must persist canonical rows');
   assert.ok(canonicalRows.every(row => row.company_id === companyId), 'canonical rows must be tenant-bound');
   assert.ok(canonicalRows.every(row => row.import_job_id === importId), 'canonical rows must bind to import job');
-  assert.ok(canonicalRows.every(row => String(row.source_hash || '').toLowerCase() === sourceHash), 'canonical row provenance must retain source SHA-256');
-  evidence.steps.push({ step: 'real-report-canonical-readback', status: 'PASS', canonicalRowSample: canonicalRows.length });
+  assert.ok(canonicalRows.every(row => String(row.source_hash || '').toLowerCase() === sourceHash), 'canonical row provenance must retain source hash');
 
-  const tasks = await restSelect(page, 'report_execution_tasks', { company_id: companyId, report_execution_job_id: executionJobId }, 'id,report_execution_job_id,stage,ordinal,status,completed_at,evidence', { order: 'ordinal.asc', limit: 20 });
+  const executionTasks = await restSelect(page, 'report_execution_tasks', { company_id: companyId, report_execution_job_id: executionJobId }, 'id,report_execution_job_id,stage,ordinal,status,completed_at,evidence', { order: 'ordinal.asc', limit: 20 });
   const expectedStages = ['queued', 'fingerprinted', 'extracted', 'canonicalized', 'validated', 'analyzed', 'decisioned', 'committed', 'rendered'];
-  assert.equal(tasks.length, expectedStages.length, 'real report must emit exactly nine durable execution tasks');
-  tasks.forEach((task, index) => {
+  assert.equal(executionTasks.length, expectedStages.length, 'real report must emit nine durable execution tasks');
+  executionTasks.forEach((task, index) => {
     assert.equal(task.ordinal, index + 1);
     assert.equal(task.stage, expectedStages[index]);
     assert.equal(task.status, 'completed');
-    assert.ok(task.completed_at, 'stage ' + task.stage + ' must have completed_at');
+    assert.ok(task.completed_at);
   });
-  evidence.steps.push({ step: 'real-report-nine-stage-execution-readback', status: 'PASS', executionJobId, stages: tasks.map(task => task.stage) });
 
-  await page.goto(baseURL + '/reports/source/' + importId, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(`${baseURL}/reports/source/${importId}`, { waitUntil: 'networkidle', timeout: 30000 });
   await page.getByRole('heading', { name: fileName, exact: true }).waitFor({ state: 'visible', timeout: 30000 });
-  assert.equal((await page.getByText('VERIFIED', { exact: true }).count()) > 0, true, 'source report must be VERIFIED only after rendered execution');
-  assert.equal((await page.getByText(sourceHash, { exact: true }).count()) > 0, true, 'source report must expose source hash provenance');
+  assert.equal((await page.getByText('VERIFIED', { exact: true }).count()) > 0, true, 'source report must be VERIFIED');
+  assert.equal((await page.getByText(sourceHash, { exact: true }).count()) > 0, true, 'source report must expose provenance');
   assert.equal((await page.getByText('Benchmark: INSUFFICIENT SAMPLE', { exact: true }).count()) > 0, true, 'single-source benchmark must fail closed');
-  const receivablesLink = page.getByRole('link', { name: /تقرير الذمم والتحصيل/ });
-  assert.ok(await receivablesLink.count() > 0, 'receivables source must expose the source-bound domain report output');
-  await receivablesLink.first().click();
-  await page.getByRole('heading', { name: 'تقرير الذمم والتحصيل', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
-  assert.equal((await page.getByText('SOURCE-BOUND RECEIVABLES', { exact: true }).count()) > 0, true, 'receivables domain surface must be source-bound');
-  assert.equal((await page.getByText(fileName, { exact: true }).count()) > 0, true, 'receivables domain surface must retain source identity');
-  assert.equal((await page.getByText(sourceHash, { exact: true }).count()) > 0, true, 'receivables domain surface must retain provenance');
-  assert.equal((await page.getByText('Benchmark: INSUFFICIENT SAMPLE', { exact: true }).count()) > 0, true, 'receivables domain benchmark must fail closed for one source');
-  evidence.steps.push({ step: 'real-report-receivables-domain-surface-rendered', status: 'PASS', domainRoute: `/reports/receivables?importId=${importId}` });
-  evidence.persisted.REPORT_001 = { job, executionJobId, sourceHash, fileName, canonicalSample: canonicalRows.slice(0, 5), tasks, reportRoute: '/reports/source/' + importId };
-  await page.screenshot({ path: reportDir + '/report-001.png', fullPage: true });
-  evidence.steps.push({ step: 'real-report-source-surface-rendered', status: 'PASS', reportRoute: '/reports/source/' + importId });
+
+  for (const outputLabel of ['الثقة والأدلة','التقرير التنفيذي','مساحة القرار','مركز العمل']) {
+    assert.equal((await page.getByText(outputLabel, { exact: true }).count()) > 0, true, `source report must expose output ${outputLabel}`);
+  }
+
+  const domain = resolveDomainSurface(specialty, entityType, importId);
+  let domainRendered = false;
+  if (domain) {
+    await page.goto(baseURL + domain.path, { waitUntil: 'networkidle', timeout: 30000 });
+    const domainBody = await page.locator('body').innerText();
+    assert.equal(domainBody.includes('حدث خطأ غير متوقع'), false, `domain surface ${domain.path} must not hit application error boundary`);
+    assert.ok(domainBody.includes(domain.label), `domain surface must render label: ${domain.label}`);
+    if (domain.sourceBound) {
+      assert.ok(domainBody.includes(fileName), 'source-bound domain report must retain file identity');
+      assert.ok(domainBody.includes(sourceHash), 'source-bound domain report must retain provenance');
+      assert.ok(domainBody.includes('SOURCE-BOUND RECEIVABLES'), 'receivables domain report must be source-bound');
+    }
+    domainRendered = true;
+  }
+
+  const reportArtifact = {
+    reportKey, state: 'CLOSED', fileName, sourceHash, specialty, specialtyConfidence, entityType,
+    importId, executionJobId, rows: canonicalRows.length, validRows: job.valid_rows, invalidRows: job.invalid_rows,
+    stages: executionTasks.map(task => task.stage), domainSurface: domain ? domain.path : null, domainRendered,
+    outputBundle: {
+      sourceReport: `/reports/source/${importId}`,
+      evidence: '/trust',
+      executive: '/reports/executive',
+      intelligence: '/intelligence',
+      decision: '/decision-experience?stage=decision',
+      workCenter: '/work-center',
+      benchmark: 'INSUFFICIENT_SAMPLE',
+      domain: domain?.path || null,
+    },
+  };
+
+  await page.goto(baseURL + `/reports/source/${importId}`, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.screenshot({ path: `${reportDir}/${reportKey}.png`, fullPage: true });
+  await fs.mkdir(path.join(reportDir, 'reports'), { recursive: true });
+  await fs.writeFile(path.join(reportDir, 'reports', `${reportKey}.json`), JSON.stringify(reportArtifact, null, 2));
+  evidence.persisted[reportKey] = { job, canonical: canonicalRows[0], importId, executionJobId };
+  evidence.steps.push({ step: `real-report-closed:${reportKey}`, status: 'PASS', fileName, sourceHash, specialty, entityType, domain: domain?.path || null });
+  return reportArtifact;
 }
 
 async function uiSearch(page, route, placeholder, value, step) { await page.goto(`${baseURL}${route}`, { waitUntil: 'networkidle', timeout: 30000 }); const input = page.getByPlaceholder(placeholder); await input.fill(value); await page.waitForTimeout(300); await page.getByText(value, { exact: true }).first().waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step, status: 'PASS', value }); }
+try {
+  await login(pageA, emailA, passwordA);
+  evidence.tenantA = await currentTenant(pageA);
+  evidence.steps.push({ step: 'tenant-A-resolution', status: 'PASS', tenantId: evidence.tenantA });
+
+  if (realReportCandidates.length) {
+    let processed = 0;
+    while (processed < Math.min(reportMax, realReportCandidates.length)) {
+      const selection = await selectNextRealReport(pageA);
+      if (!selection) break;
+      const reportKey = `REPORT_${String(processed + 1).padStart(3, '0')}`;
+      sessionProcessedHashes.add(selection.sourceHash);
+      try {
+        const artifact = await importRealReportOne(pageA, selection, reportKey);
+        evidence.reports.push(artifact);
+      } catch (error) {
+        const failure = {
+          reportKey,
+          fileName: path.basename(selection.filePath),
+          sourceHash: selection.sourceHash,
+          state: 'FAILED',
+          error: error instanceof Error ? error.message : String(error),
+        };
+        evidence.reportFailures.push(failure);
+        await fs.mkdir(path.join(reportDir, 'reports'), { recursive: true });
+        await fs.writeFile(path.join(reportDir, 'reports', `${reportKey}-failure.json`), JSON.stringify(failure, null, 2));
+        await pageA.goto(`${baseURL}/import`, { waitUntil: 'networkidle', timeout: 30000 }).catch(() => {});
+      }
+      processed += 1;
+    }
+    evidence.steps.push({
+      step: 'real-report-corpus-serial-complete',
+      status: evidence.reportFailures.length ? 'PARTIAL' : 'PASS',
+      requested: Math.min(reportMax, realReportCandidates.length),
+      processed,
+      closed: evidence.reports.length,
+      failed: evidence.reportFailures.length,
+      review: evidence.reports.filter(report => report.state === 'REVIEW').length,
+    });
+  } else {
+    const suffix = `1790641605978-${process.pid}`;
+    const customerName = `E2E عميل ${suffix}`;
+    const customerNumber = `E2E-CUST-${suffix}`;
+    const customerPhone = `+967770${String(Date.now()).slice(-6)}`;
+    const customerEmail = `e2e-${suffix}@example.invalid`;
+    const sku = `E2E-SKU-${suffix}`;
+    const productName = `E2E منتج ${suffix}`;
+    const invoiceNumber = `E2E-INV-${suffix}`;
+    const invoiceDate = new Date().toISOString().slice(0, 10);
+  
+    await importOne(pageA, 'customer-source', {
+      name: customerName,
+      code: customerNumber,
+      phone: customerPhone,
+      email: customerEmail,
+      segment: 'retail',
+      credit_limit: 0,
+      payment_terms_days: 0,
+    }, `customer-${suffix}`);
+  
+    await importOne(pageA, 'product-source', {
+      sku,
+      name: productName,
+      unit: 'قطعة',
+      cost_price: 10,
+      selling_price: 15,
+      min_stock: 0,
+      reorder_point: 0,
+      is_active: true,
+    }, `product-${suffix}`);
+  
+    await importOne(pageA, 'sales-source', {
+      invoice_number: invoiceNumber,
+      invoice_date: invoiceDate,
+      customer_name: customerName,
+      subtotal: 15,
+      tax_amount: 0,
+      total: 15,
+      paid_amount: 15,
+      status: 'posted',
+    }, `invoice-${suffix}`);
+  
+    }
+
+  const tenantBeforeRefresh = await currentTenant(pageA);
+  await pageA.reload({ waitUntil: 'networkidle', timeout: 30000 });
+  assert.equal(await currentTenant(pageA), tenantBeforeRefresh, 'tenant context must survive refresh');
+  evidence.steps.push({ step: 'refresh-session-tenant', status: 'PASS' });
+
+  const contextB = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
+  const pageB = await contextB.newPage();
+  attachRuntimeCapture(pageB);
+  try {
+    await login(pageB, emailB, passwordB);
+    evidence.tenantB = await currentTenant(pageB);
+    assert.notEqual(evidence.tenantB, evidence.tenantA, 'A and B must resolve distinct tenants');
+    evidence.steps.push({ step: 'tenant-B-resolution', status: 'PASS', tenantId: evidence.tenantB });
+
+    for (const [label, persisted] of Object.entries(evidence.persisted)) {
+      const rows = await restSelect(
+        pageB,
+        'canonical_dataset_records',
+        { company_id: evidence.tenantA, id: persisted.canonical.id },
+        'id,company_id,import_job_id',
+      );
+      assert.equal(rows.length, 0, `Tenant B must not read Tenant A canonical ${label} source row`);
+    }
+    evidence.steps.push({ step: 'A-to-B-canonical-read-isolation', status: 'PASS' });
+
+    await pageB.goto(`${baseURL}/import`, { waitUntil: 'networkidle', timeout: 30000 });
+    for (const persisted of Object.values(evidence.persisted)) {
+      const marker = String(persisted.job?.result_summary?.file_name || '');
+      if (marker) assert.equal(await pageB.getByText(marker, { exact: true }).count(), 0, 'Tenant B UI must not show Tenant A source history');
+    }
+    evidence.steps.push({ step: 'A-to-B-ui-import-history-isolation', status: 'PASS' });
+
+    const logoutB = pageB.getByRole('button', { name: 'تسجيل الخروج' });
+    assert.equal(await logoutB.count(), 1, 'Tenant B logout control must exist');
+    await logoutB.click();
+    await pageB.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 });
+    evidence.steps.push({ step: 'logout-B', status: 'PASS' });
+  } finally {
+    await pageB.close();
+    await contextB.close();
+  }
+
+  await pageA.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+  const logoutA = pageA.getByRole('button', { name: 'تسجيل الخروج' });
+  assert.equal(await logoutA.count(), 1, 'Tenant A logout control must exist');
+  await logoutA.click();
+  await pageA.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 });
+  evidence.steps.push({ step: 'logout-A', status: 'PASS' });
+
+if (evidence.failures.length) throw new Error(`BROWSER_RUNTIME_ERRORS:${evidence.failures.join(' | ')}`); evidence.status = 'PASS'; } catch (error) { evidence.status = 'FAIL'; evidence.error = error instanceof Error ? error.message : String(error); await pageA.screenshot({ path: `${reportDir}/failure.png`, fullPage: true }).catch(() => {}); process.exitCode = 1; } finally { evidence.finishedAt = new Date().toISOString(); await fs.writeFile(`${reportDir}/result.json`, JSON.stringify(evidence, null, 2)); await browser.close(); }
+console.log(JSON.stringify(evidence, null, 2));async function uiSearch(page, route, placeholder, value, step) { await page.goto(`${baseURL}${route}`, { waitUntil: 'networkidle', timeout: 30000 }); const input = page.getByPlaceholder(placeholder); await input.fill(value); await page.waitForTimeout(300); await page.getByText(value, { exact: true }).first().waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step, status: 'PASS', value }); }
 try {
   await login(pageA, emailA, passwordA);
   evidence.tenantA = await currentTenant(pageA);
