@@ -1,3 +1,22 @@
+# CURRENT RESUME CHECKPOINT — 2026-09-30 / PDF ROW-BOUNDARY ROOT FIX IN FUNCTIONAL BRANCH
+
+- EXACT GOVERNED MAIN HEAD BEFORE THIS WRITE → `c048d88093361b47f7aea43589113b75b16bc210`.
+- CURRENT REPORT → `ف العملاء الاجل من ت 01-06 حتى تاريخ 15-08.pdf`.
+- SOURCE SHA → `sha256:0a3e1bf1686ec64febbed95f5d5b4b755f82a5cebb1b268c8270ce122b261e82`.
+- FUNCTIONAL FIX BRANCH → `exec/20260927-current-main-import-ui-rebased`.
+- FUNCTIONAL FIX HEAD → `16fa4d8c5e4913648d110d4f482026c22e8a4db6`.
+- ROOT FIX → PDF table extraction now rejects invoice-table rows missing invoice number/date and rejects explicit total/subtotal summary labels before dataset construction.
+- REGRESSION → existing structured PDF regression now exercises a real invoice-shaped row plus the observed summary/footer row shapes from this source.
+- TEST EXECUTION STATUS → code is pushed to the functional branch; GitHub status currently has no fresh terminal PDF-regression result exposed yet. No PASS is claimed.
+- EXISTING STAGING STATE → prior durable job is completed through all 9 lifecycle stages but committed 399 source rows. Source-grounded inspection proves only 397 actual invoice rows; rows 398/399 are summary/footer.
+- IDEMPOTENCY CONSTRAINT → the canonical generic commit RPC treats the same tenant/entity/source-hash combination as immutable idempotent replay and returns the existing 399-row commit. A blind retry with corrected 397 rows would therefore not repair the current canonical dataset.
+- CURRENT ACTION STATUS → `IN_PROGRESS`.
+- NEXT EXACT ACTION → obtain fresh terminal regression evidence for functional head `16fa4d8c...`; then trace the existing canonical recovery/correction boundary for same-hash committed generic sources and implement correction only through that governed canonical path. Do not delete or rewrite rows directly.
+- CLOSURE GATE → remains BLOCKED until canonical rows read back as the source's 397 invoice records, source analysis and renderedOutput are source-bound, and applicable decision/evidence surfaces are actually proven.
+- DO-NOT-REPEAT → do not rerun the completed source blindly; do not publish the business PDF; do not fabricate renderedOutput/decision/outcome evidence; do not call stale CI PASS current.
+
+---
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / EXACT MAIN RE-ANCHORED AFTER REPORT ROOT + RESULT UI FIXES
 
 - CURRENT EXACT HEAD → `1acefccc6700f9ff53fc13c36ba7e71d3dfa9108`.
