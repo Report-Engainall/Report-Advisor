@@ -1254,3 +1254,24 @@
 - REPORT_001 STATUS → NOT CLOSED. No downstream smart-report bundle is accepted until the fresh exact-head E2E proves canonical import, nine durable stages, Source Report VERIFIED, source-bound receivables Domain Report, Evidence/Executive/Decision/Work surfaces, screenshots, and A/B isolation.
 - NEXT EXACT ACTION → consume the terminal result of run `36514801104`; on success inspect its artifact and REPORT_001 JSON/screenshot, reconcile the chosen processing job, persist CLOSED, then advance to REPORT_002. On failure fix only the first proven defect and regenerate fresh exact-head evidence.
 - DO-NOT-REPEAT → no stale SHA proof; no duplicate report job; no direct DB insertion; no guessed credentials; no preview-as-production; no treating fixture presence as smart-report closure.
+
+
+---
+
+# RESUME TOKEN — 2026-09-30 / EXACT-HEAD RECONCILIATION / REPORT-001 VERIFIED
+
+- CURRENT EXACT HEAD SHA: `065fe6398cbbd6d0fa2ce506eb83f521622abc7f`
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`
+- REPORT CORPUS COUNT: **47 report files** under `tests/fixtures/realistic-reports/` (README excluded), deterministically ordered by normalized relative path.
+- CURRENT FRONT: REAL REPORT CORPUS EXECUTION.
+- CURRENT REPORT: `REPORT_007` is the first currently unclosed report in the exact-head serial evidence; `REPORT_001` through `REPORT_006` are explicitly reported CLOSED by exact-head E2E evidence.
+- REPORT_001: `اعمار الديون للعملا.pdf`; source SHA-256 `9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`; import job `6de27d0f-98bb-4d1b-8143-fd3d9a85a4b8`; durable execution job `174196b5-42cf-4654-9721-13ac8d5a29db`.
+- REPORT_001 exact-head E2E proof: workflow `36634016332`, browser job `109630133933`, observed `real-report-selected:REPORT_001`, completed-job reconciliation, `real-report-closed:REPORT_001` PASS; specialty `receivables`, entity `generic:receivables`, source-bound domain path `/reports/source/6de27d0f-98bb-4d1b-8143-fd3d9a85a4b8/domain`.
+- REPORT_001 live DB readback: import job `completed`, 27/27 valid rows; durable execution `completed`, checkpoint `rendered`, attempt 2, no lease.
+- EXACT-HEAD CORPUS RUN: workflow `36634016332` processed all 47 candidates but ended PARTIAL: closed=23, failed=24, review=8. This is **not** corpus closure.
+- FIRST REPRODUCED UI DEFECT: `REPORT_007` has a completed canonical import (436/436 valid rows) and durable execution, but its older `import_jobs.result_summary` lacks `file_name`; `fetchCanonicalSourceReport()` falls back to `entityType` and therefore the source-report heading cannot match the real filename. The durable/source-analysis metadata contains the real filename.
+- CANONICAL ROOT-FIX TARGET: harden `fetchCanonicalSourceReport()` to recover source filename from the canonical durable execution/source-analysis identity when `result_summary.file_name` is absent, without fixture-specific logic or mock values; preserve tenant scoping and provenance.
+- ACTION STATUS: `IN_PROGRESS`
+- NEXT EXACT ACTION: implement and target-test the canonical filename fallback; commit; read back exact resulting SHA; rerun the real-report E2E focused on `REPORT_007` and then resume the corpus without redoing already CLOSED reports.
+- DO-NOT-REPEAT: do not re-import `REPORT_001`–`REPORT_006` unless SHA/contract/data/runtime regression evidence requires it; do not treat the 23 closed count as corpus completion.
+- REAL BLOCKER: current exact-head corpus has 24 failures / 8 reviews; this checkpoint specifically carries the first proven canonical UI identity defect so the next session can resume from the root fix rather than re-explore.
