@@ -471,7 +471,7 @@ export async function runCanonicalImportThroughDurableRunner(
   }, store);
 
   const renderedOutput = (result as { renderedOutput?: RenderedOutput }).renderedOutput ?? buildRenderedOutput(input);
-  await finalizeImportJobIfOpen(activeDataClient, input, companyId, {
+  await finalizeImportJobIfOpen(activeDataClient, input, authoritativeCompanyId, {
     companyId: authoritativeCompanyId,
     importId: input.importId,
     jobId: job.id,
