@@ -367,6 +367,8 @@ for (const [token, message] of [
   ["receivables:", 'Receivables specialty output mapping missing'],
   ['const EXECUTIVE_OUTPUT', 'Shared executive report output is missing'],
   ['const withExecutive', 'Specialty report outputs must retain the executive report'],
+  ['GENERIC_ENTITY_TO_SPECIALTY', 'Known generic report entities must retain their semantic specialty'],
+  ['generic:receivables', 'Generic receivables entity routing is missing'],
 ]) {
   if (!reportOutputContract.includes(token)) throw new Error('Canonical report output contract missing: ' + message);
 }
