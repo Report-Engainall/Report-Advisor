@@ -5,10 +5,15 @@ import { detectFormat } from '../../src/lib/file-engine/detector.ts';
 import { parseFile } from '../../src/lib/file-engine/adapters.ts';
 import { reconcileForCanonical } from '../../src/lib/import/canonical-truth-boundary.ts';
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, content-type, apikey',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
 function json(status: number, body: Record<string, unknown>): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    headers: { 'Content-Type': 'application/json; charset=utf-8', ...CORS_HEADERS },
   });
 }
 
@@ -25,6 +30,7 @@ function bearer(request: Request): string {
 }
 
 export default async (request: Request): Promise<Response> => {
+  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
   if (request.method !== 'POST') return json(405, { error: 'METHOD_NOT_ALLOWED' });
 
   try {
