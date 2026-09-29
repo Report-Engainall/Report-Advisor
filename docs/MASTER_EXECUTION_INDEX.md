@@ -1,4 +1,5 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / 735-ROW REPORT RECOVERY PROVEN — CURRENT-SHA CI ROOT FIX PERSISTED
+- VERIFICATION RUN HEAD → this branch carries only governance/test-harness changes after code candidate `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`; it exists only to obtain exact-head CI evidence before merging to main.
 
 - EXACT MAIN HEAD BEFORE THIS DOCUMENTATION CHECKPOINT → `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`.
 - CURRENT CODE/TEST CANDIDATE: `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`.
