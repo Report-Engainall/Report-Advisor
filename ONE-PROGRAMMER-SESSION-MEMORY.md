@@ -1080,3 +1080,19 @@
 - REMEDIATION: canonical-import-execute now derives specialty from canonical entity type (generic:receivables -> receivables, generic:sales -> sales, etc.) when the worker does not provide a specialty.
 - UI EFFECT: the completed real report retains the correct source domain identity, allowing /reports/source/:importId/domain to render the applicable domain report instead of stopping at a format label.
 - NEXT EXACT ACTION: run the fresh exact-head Full Product Browser E2E on this HEAD; REPORT_001 must prove Source Report + source-bound Domain Report + downstream output bundle before REPORT_002.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / REAL REPORT CORPUS VERIFIED ON DEVICE + CURRENT E2E QUEUED
+
+- CURRENT GITHUB HEAD AFTER SAFE REBASE/PUSH → `2e3d9a5d7e653f82f0db89cc568dda91a0737327` on `exec/20260929-post-import-report-continuity`; local tree clean.
+- REAL CORPUS VERIFIED IN REPO → `tests/fixtures/realistic-reports` contains 48 files including 47 report files plus README; no synthetic replacement was used.
+- REPORT_001 REAL SOURCE → `اعمار الديون للعملا.pdf`; source SHA256 `9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`; Git blob SHA `73f87adc703a83a0bcb26b0d051e53aa194ae8b4`.
+- REPORT_001 DIRECT READ → actual 1-page PDF read from the fixture on PC01; period 01/01/2026–30/06/2026; source total `12,094,224.00 YER`; 27 customer identifiers; aging columns include 0–30, 31–60, 61–90, 91–120, >120.
+- CURRENT DATABASE READBACK → four older same-filename `import_jobs` exist for tenant `f68a7e91-3c7e-46fb-97a8-e339bec04e13`, all `processing`; they must be resumed/reconciled, never duplicated.
+- CURRENT EXACT-HEAD E2E → Full Product Browser E2E run `36514801104` / run #5886 is queued at the present head; its browser job is `109234597107`. No terminal report closure is claimed yet.
+- LOCAL CORPUS QUALITY CHECK → parser read the real corpus but failed only while overwriting `artifacts/real-report-corpus-quality.json` with Windows EPERM; this is a local evidence-file permission blocker, not a report-content PASS.
+- CURRENT CODE HARDENING → commit `fix: recover infrastructure-failed report executions` is now on GitHub; it adds controlled dead-letter recovery only when checkpoint remains `queued`, preserves tenant binding, and includes explicit companyId in canonical worker input.
+- REPORT_001 STATUS → NOT CLOSED. No downstream smart-report bundle is accepted until the fresh exact-head E2E proves canonical import, nine durable stages, Source Report VERIFIED, source-bound receivables Domain Report, Evidence/Executive/Decision/Work surfaces, screenshots, and A/B isolation.
+- NEXT EXACT ACTION → consume the terminal result of run `36514801104`; on success inspect its artifact and REPORT_001 JSON/screenshot, reconcile the chosen processing job, persist CLOSED, then advance to REPORT_002. On failure fix only the first proven defect and regenerate fresh exact-head evidence.
+- DO-NOT-REPEAT → no stale SHA proof; no duplicate report job; no direct DB insertion; no guessed credentials; no preview-as-production; no treating fixture presence as smart-report closure.

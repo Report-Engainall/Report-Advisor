@@ -161,7 +161,10 @@ export async function runCanonicalImportThroughDurableRunner(
   if (job.status === 'succeeded' || job.status === 'completed') throw new Error('IMPORT_ALREADY_COMPLETED_FOR_SOURCE');
   const store = new SupabaseReportExecutionStore(activeWorkerClient);
   if (job.status === 'dead_letter') {
-    if (job.checkpoint?.stage !== 'queued') throw new Error('IMPORT_DURABLE_JOB_NOT_RECOVERABLE_AFTER_PROGRESS');
+    // The authoritative recovery RPC validates that every task is still queued
+    // before resetting an infrastructure-dead job. Do not infer progress solely
+    // from the parent checkpoint, because historical infrastructure failures can
+    // leave the checkpoint ahead of task persistence.
     await store.recoverDeadLetter(job.id, companyId);
     job.status = 'queued';
     job.attempt = 0;

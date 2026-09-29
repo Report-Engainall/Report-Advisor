@@ -39,10 +39,6 @@ BEGIN
     RETURN false;
   END IF;
 
-  IF coalesce(v_stage,'') <> 'queued' THEN
-    RAISE EXCEPTION 'REPORT_EXECUTION_RECOVERY_STAGE_NOT_INITIAL';
-  END IF;
-
   SELECT count(*)
     INTO v_nonqueued
   FROM public.report_execution_tasks
@@ -50,19 +46,28 @@ BEGIN
     AND company_id = p_company_id
     AND status <> 'queued';
 
+  -- Historical infrastructure failures can leave the parent checkpoint ahead
+  -- of the task ledger. Recovery is allowed only when no task has progressed.
   IF v_nonqueued > 0 THEN
     RAISE EXCEPTION 'REPORT_EXECUTION_RECOVERY_HAS_PROGRESS';
   END IF;
 
   UPDATE public.report_execution_jobs
   SET status = 'queued',
+      checkpoint = jsonb_set(
+        coalesce(checkpoint, '{}'::jsonb),
+        '{stage}',
+        '"queued"'::jsonb,
+        true
+      ),
       attempt = 0,
       lease_owner = NULL,
       lease_token = NULL,
       lease_expires_at = NULL,
       last_error = jsonb_build_object(
         'recovered_from', 'dead_letter',
-        'reason', 'infrastructure_failure_before_first_stage',
+        'reason', 'infrastructure_failure_before_task_progress',
+        'previous_checkpoint_stage', coalesce(v_stage, 'unknown'),
         'recovered_at', clock_timestamp()
       ),
       completed_at = NULL,
