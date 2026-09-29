@@ -29,6 +29,23 @@ const BUILTIN_SYNONYMS: Array<[string, string, number]> = [
   ['البيان', 'description', 98], ['رقمه', 'reference', 98], ['رقم المستند', 'reference', 98], ['المستند', 'document_number', 98], ['حالته', 'status', 98], ['الرصيد', 'balance', 98], ['دائن', 'credit', 98], ['مدين', 'debit', 98], ['رصيد سابق', 'opening_balance', 98],
   ['balance', 'balance', 98], ['credit', 'credit', 98], ['debit', 'debit', 98],
   ['payment_amount', 'payment_amount', 98], ['reference', 'reference', 98], ['amount', 'payment_amount', 96], ['المبلغ', 'payment_amount', 98], ['قيمة العملية', 'payment_amount', 98], ['قيمة', 'payment_amount', 96], ['الرقم المرجعي', 'reference', 98], ['المرجع', 'reference', 98],
+  ['الرصيد الحالي', 'balance', 98],
+  ['الرصيد الافتتاحي', 'opening_balance', 98],
+  ['الرصيد اﻹفتتاحي', 'opening_balance', 98],
+  ['الحركه خلال الفترة دائن', 'period_credit', 96],
+  ['الحركة خلال الفترة دائن', 'period_credit', 96],
+  ['الحركه خلال الفترة مدين', 'period_debit', 96],
+  ['الحركة خلال الفترة مدين', 'period_debit', 96],
+  ['الرصيد الحالي دائن', 'current_credit', 96],
+  ['الرصيد الحالي مدين', 'current_debit', 96],
+  ['الرصيد الافتتاحي دائن', 'opening_credit', 96],
+  ['الرصيد الافتتاحي مدين', 'opening_debit', 96],
+  ['الاسم', 'name', 96],
+  ['رقم البنك', 'bank_id', 98],
+  ['رقم الحساب', 'account_number', 98],
+  ['current balance', 'balance', 98],
+  ['opening balance', 'opening_balance', 98],
+
 ];
 
 function createBuiltinMap(): Map<string, { canonical: string; confidence: number }> { const map = new Map<string, { canonical: string; confidence: number }>(); for (const [synonym, canonical, confidence] of BUILTIN_SYNONYMS) map.set(normalizeColumnName(synonym), { canonical, confidence }); return map; }
