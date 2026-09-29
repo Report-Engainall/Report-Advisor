@@ -92,7 +92,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT-FINISH STAGING DRIFT RECONCILED
 
 - CANONICAL MAIN HEAD BEFORE THIS WRITE → `6f1d818f60a700b07a13b0163ddfc20dce0f2a57`
-- CURRENT CODE/TEST CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `9aa6c8ccea82b20d949ae2e41fdad2f1b1126631`
+- HISTORICAL CODE/TEST CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `9aa6c8ccea82b20d949ae2e41fdad2f1b1126631`
 - FRONT → IMPORT-TO-DECISION-CONTINUITY / SECURITY-RUNTIME-RECONCILIATION
 - ROOT CAUSE → live staging had `import_finish_job(uuid,text,jsonb,text)` as SECURITY DEFINER because an applied historical migration was absent from the candidate repository lineage.
 - IMPLEMENTED → candidate adds `20260927235000_reconcile_import_finish_job_security_invoker.sql` which preserves the function body and restores SECURITY INVOKER, safe search_path, and explicit authenticated/service_role EXECUTE.
@@ -109,7 +109,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / EXACT-CANDIDATE EVIDENCE BOUNDARY UPDATE
 
 - MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `924dc7c327d7c444bbe6ad6e436616014e58283d`
-- CURRENT CODE/TEST CANDIDATE → PR #672 / `ecfff32aa5ce1ec737663a71b1d9080ffe69e7eb`
+- HISTORICAL CODE/TEST CANDIDATE → PR #672 / `ecfff32aa5ce1ec737663a71b1d9080ffe69e7eb`
 - FRESH BUILD EVIDENCE → Windows desktop job `36348110511` completed SUCCESS on the exact candidate SHA: web build, native watcher, native runtime smoke, installer packaging and artifact upload all completed.
 - FRESH QUALITY/CERTIFICATION/BROWSER GATES → quality `36348110541`, enforcement `36348110823`, final certification `36348110593`, device-independent browser `36348110591`, full product browser `36348110595` remain queued at last observation.
 - VERCEL → commit status failure remains the free-plan `build-rate-limit` blocker; no production proof.
@@ -124,7 +124,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / CURRENT-CANDIDATE + LIVE-STAGING BOUNDARY
 
 - CURRENT MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `c246071b6200f1652f7f8f272c18c2dcc2eaf2d1`
-- CURRENT CODE/TEST CANDIDATE → PR #672 / `ecfff32aa5ce1ec737663a71b1d9080ffe69e7eb`
+- HISTORICAL CODE/TEST CANDIDATE → PR #672 / `ecfff32aa5ce1ec737663a71b1d9080ffe69e7eb`
 - CODE/TEST REPAIRS ACTUAL → UI contract and import transaction contract harnesses repaired and compile-style syntax verified.
 - FRESH EXACT-HEAD CI → quality `36348110541` queued; enforcement `36348110823` queued; Final Certification `36348110593` queued; Device-Independent Browser `36348110591` queued; Full Product Browser `36348110595` queued; desktop-windows `36348110511` in progress/queued.
 - DEVICE → PC01 offline; no device/browser/production PASS claimed.
@@ -139,7 +139,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / EXACT-CURRENT-CODE-CANDIDATE CONTRACT-CLOSURE
 
 - MAIN DOCUMENTATION HEAD → `8141294dd436aa96b91debc1ca9a5706ad6b358f`
-- CURRENT CODE/TEST CANDIDATE → PR #672 / `ecfff32aa5ce1ec737663a71b1d9080ffe69e7eb`
+- HISTORICAL CODE/TEST CANDIDATE → PR #672 / `ecfff32aa5ce1ec737663a71b1d9080ffe69e7eb`
 - CODE RELATION → candidate remains based directly on main code base `132e40f023e564dba9e7f84c63d543bab1b7fc71`; the current main docs tail is intentionally separate and does not invalidate code SHA evidence.
 - REAL FIX — UI CONTRACT → repaired declaration order, duplicate shared bindings, and a malformed literal newline in `scripts/check-product-wow-ui-contract.mjs`; local compile-style syntax check now passes after imports are stripped.
 - REAL FIX — IMPORT CONTRACT → repaired a missing token-list comma, added an explicit canonical import-page binding, and resolved a duplicate page-path binding in `scripts/check-import-transaction-contract.mjs`; same syntax check now passes.
@@ -155,7 +155,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / EXACT-CURRENT-MAIN + CODE-CANDIDATE CHECKPOINT
 
 - MAIN DOCUMENTATION HEAD BEFORE THIS WRITE → `132e40f023e564dba9e7f84c63d543bab1b7fc71`
-- CURRENT CODE/TEST CANDIDATE → PR #672 / `2ab23aec8747c4a39081a7b6b8ccef7115406c20`
+- HISTORICAL CODE/TEST CANDIDATE → PR #672 / `2ab23aec8747c4a39081a7b6b8ccef7115406c20`
 - CODE/MAIN RELATION → candidate is 1 commit ahead / 0 behind the main SHA used for its build; 76 files changed.
 - RECONCILIATION → candidate functional tree is preserved as a direct child of current main; this checkpoint is documentation-only.
 - FRESH EXACT-HEAD CI ON CODE CANDIDATE → quality `36347828523` queued; enforcement `36347828519` queued; Final Certification `36347828427` queued; Device-Independent Browser `36347828437` queued; Full Product Browser `36347828521` queued; desktop-windows `36347828455` in progress.
@@ -192,7 +192,7 @@
 > Exact-head evidence only. Current code candidate is kept separate from documentation/test-harness tails.
 
 - MAIN HEAD BEFORE THIS DOCS COMMIT → `f1444f7c7277fdc7662052a28629171063ab7d17`
-- CURRENT CODE/TEST CANDIDATE → `c5b193116e16b7ce46fd88d6d6edde268820ef52`
+- HISTORICAL CODE/TEST CANDIDATE → `c5b193116e16b7ce46fd88d6d6edde268820ef52`
 - FUNCTIONAL FRONT → PR #664 / `9218274998a82b0613d8ec8b6b0820bad173ad0b`
 - GOVERNANCE FRONT → PR #666 / `9aec629f5573830ef5d8d5bbc1e303ce41470ba3`
 - UI AFTER IMPORT → single canonical Import → Trust/Evidence → Decision/Work → Outcome/Learning → Replay path; Benchmark remains INSUFFICIENT_SAMPLE.
@@ -205,7 +205,7 @@
 > Exact-head evidence only. Code candidate and documentation tail are tracked separately.
 
 - MAIN HEAD BEFORE THIS DOCS COMMIT → `d5be7220b048a3e7bd798a9b2d9fea677b200183`
-- CURRENT CODE/TEST CANDIDATE → `c5b193116e16b7ce46fd88d6d6edde268820ef52`
+- HISTORICAL CODE/TEST CANDIDATE → `c5b193116e16b7ce46fd88d6d6edde268820ef52`
 - FUNCTIONAL FRONT → PR #664 / `22bdfb19f234a38640961e3851c3e5eef786cbad`
 - GOVERNANCE FRONT → PR #666 / `9aec629f5573830ef5d8d5bbc1e303ce41470ba3`
 - PROOF → #664 3 success / 3 in-progress / 39 queued / 0 failure; #666 3 in-progress / 1 pending / 34 queued / 0 failure.
@@ -219,7 +219,7 @@
 > Exact-head evidence only. This startup block supersedes older historical boundaries.
 
 - MAIN HEAD BEFORE THIS DOCS COMMIT → `16bfd89ac25f55dbc776871b5bc4cbc538320fc0`
-- CURRENT CODE/TEST CANDIDATE: `c5b193116e16b7ce46fd88d6d6edde268820ef52`
+- HISTORICAL CODE/TEST CANDIDATE: `c5b193116e16b7ce46fd88d6d6edde268820ef52`
 - FUNCTIONAL CANDIDATE → PR #664 / `c5b193116e16b7ce46fd88d6d6edde268820ef52`
 - GOVERNANCE CANDIDATE → PR #665 / `da99f6a873144b2ee56f73ad759f25456c2d9755`
 - ROOT CLOSED → TypeScript + canonical-import mapping roots fixed; fresh proof required on `c5b193116e16b7ce46fd88d6d6edde268820ef52`.
@@ -336,8 +336,8 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 144
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `8eb5b4154e02a1320942e08a33e052e0a35ab238`.
-- CURRENT CODE/TEST CANDIDATE A: `e76d7fb639da2e7a1a8b603156e82fc3ab27b0f9` (PR #657; current-main deep UI/core lane + Work Center zero-progress signal).
-- CURRENT CODE/TEST CANDIDATE B: `b324e023f1dbf603811f2cfe47bf58bfff6a0660` (PR #658; receivables truth closure).
+- HISTORICAL CODE/TEST CANDIDATE A: `e76d7fb639da2e7a1a8b603156e82fc3ab27b0f9` (PR #657; current-main deep UI/core lane + Work Center zero-progress signal).
+- HISTORICAL CODE/TEST CANDIDATE B: `b324e023f1dbf603811f2cfe47bf58bfff6a0660` (PR #658; receivables truth closure).
 - CURRENT GATES: previous #657 Vercel/Netlify/CodeRabbit and Windows success were exact for `124eec1...` only; they are not proof for `e76d7fb...`. #658 Netlify is READY exact; Vercel is externally rate-limited.
 - WORK CENTER CLOSURE: active rows with progress 0 are now explicitly surfaced as an operational signal and routed to active-work review. No DB status is altered.
 - KNOWLEDGE ARCHITECTURE: quality workflow includes `npm run test:knowledge-architecture`; current-head execution remains unproven until the new quality run terminalizes.
@@ -387,7 +387,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F LOGICAL SOURCE QUERY REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
-- CURRENT CODE/TEST CANDIDATE: `6d4c849f7b9b10f13e71e41bf15f12138c640278`.
+- HISTORICAL CODE/TEST CANDIDATE: `6d4c849f7b9b10f13e71e41bf15f12138c640278`.
 - CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `6d4c849f7b9b10f13e71e41bf15f12138c640278`.
 - DONE: fixed the Phase-F logical backup path so the generated schema-count query uses the resolved `runnerSource` URI, not the original direct DB URI; added a contract guard proving both schema-count and dump use the resolved source. This closes the observed IPv6 direct-host leak in one remaining query.
 - RETAINED CORE FIXES: replay-safe `enforce_same_company_reference()` helper; UUID-safe `current_company_id()`; no push trigger on Phase-F; bounded auth clock-skew retry; IPv4-safe source URI resolution.
@@ -400,7 +400,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / STORAGE AUTH CLOCK-SKEW RETRY
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: 9c4e5f03a53ae211d5ed00077c2fd43a339a7db2.
-- CURRENT CODE/TEST CANDIDATE: 10d2d4f5556efa662eba46f235c963f2c75126c5.
+- HISTORICAL CODE/TEST CANDIDATE: 10d2d4f5556efa662eba46f235c963f2c75126c5.
 - CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: 993778e43d72e77747a67c61cabd49304f962695.
 - DONE: Storage Tenant Runtime E2E exposed Supabase Auth "JWT issued at future". The test harness now retries only that exact transient condition (bounded to 12 attempts); normal authentication failures remain fail-closed.
 - PRIOR INDEPENDENT CORE FIX RETAINED: logical Phase-F backup now prefers IPv4 hostaddr while preserving source hostname; source candidate b8a19ec...
@@ -414,7 +414,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F DEPLOYMENT BOUNDARY + IPV4 BACKUP REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
-- CURRENT CODE/TEST CANDIDATE: `b8a19ec642955f695e7fe8b8a8525b9fa0918cc5`.
+- HISTORICAL CODE/TEST CANDIDATE: `b8a19ec642955f695e7fe8b8a8525b9fa0918cc5`.
 - CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `bb6bf125474c185670bb0bcf44f75eac8f85b4d8`.
 - PHASE-F EXACT RUN `36159874884` → FAILED CLOSED on `bb6bf12...`.
 - FIRST LIVE FAILURE → production `report-advisor.vercel.app` returned HTTP 200 but deployment SHA `dcabe46e594cbb070e145882a87dd67fa91ddabe`, not the exact candidate `bb6bf125474c185670bb0bcf44f75eac8f85b4d8`. Tenant canary itself returned HTTP 200.
@@ -431,7 +431,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / TENANT-RESOLVER LINEAGE CONTRACT REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
-- CURRENT CODE/TEST CANDIDATE: `92a32692497234841d942e5548465d54f3ff017e`.
+- HISTORICAL CODE/TEST CANDIDATE: `92a32692497234841d942e5548465d54f3ff017e`.
 - CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `4558397568c844ea934bbc46697cdc6e3cd793c9`.
 - DONE: fixed `check-tenant-resolver-lineage.mjs`, which incorrectly required the historical `count(*), min(company_id)` UUID aggregation. The contract now proves the intended fail-closed resolver semantics: count active/default memberships, require exactly one, then bounded-select its UUID.
 - PRIOR EXACT EVIDENCE: Quality SUCCESS, Storage Tenant Runtime E2E SUCCESS, Execution Enforcement SUCCESS, Full Product Browser E2E SUCCESS on `4558397...`. Final Certification exposed the lineage-contract defect.
@@ -443,7 +443,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / TENANT-RESOLVER CONTRACT REGEX REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
-- CURRENT CODE/TEST CANDIDATE: `817b9298b08677ea87a0a8deeaaeee4e3e976431`.
+- HISTORICAL CODE/TEST CANDIDATE: `817b9298b08677ea87a0a8deeaaeee4e3e976431`.
 - CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `f23d6f730c535ce858dec42cbf155c93a32205ab`.
 - DONE: fixed the next real Final Certification contract failure in `check-tenant-security-contract.mjs`: schema-qualified `public.company_memberships` is now accepted by the bounded tenant SELECT guard without relaxing tenant or security invariants.
 - PRIOR EXACT EVIDENCE: Storage Tenant Runtime E2E SUCCESS, Full Product Browser E2E SUCCESS, and Execution Enforcement SUCCESS on the previous stable governed head; Final Certification then exposed the regex defect.
@@ -455,7 +455,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / TENANT-CONTRACT REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
-- CURRENT CODE/TEST CANDIDATE: `ec1006f555a17a9c02492e29839c285c7214282e`.
+- HISTORICAL CODE/TEST CANDIDATE: `ec1006f555a17a9c02492e29839c285c7214282e`.
 - CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `ec1006f555a17a9c02492e29839c285c7214282e`.
 - DONE: repaired `current_company_id()` with an incremental UUID-safe resolver migration and verified the live staging function; Storage Tenant Runtime E2E is SUCCESS and Full Product Browser E2E is SUCCESS on the prior exact code candidate.
 - DONE: corrected `check-tenant-security-contract.mjs` so tenant schema evidence is validated across the full migration chain, while resolver-specific invariants remain bound to the latest resolver definition.
@@ -468,7 +468,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / UUID-RESOLVER REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
-- CURRENT CODE/TEST CANDIDATE: `34f77c248de5bcdb77c77f7fd1a016559c1fd1c5`.
+- HISTORICAL CODE/TEST CANDIDATE: `34f77c248de5bcdb77c77f7fd1a016559c1fd1c5`.
 - CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `34f77c248de5bcdb77c77f7fd1a016559c1fd1c5`.
 - DONE: reproduced and fixed the first exact-head Storage/tenant runtime failure: `current_company_id()` used PostgreSQL `min(uuid)`. Added incremental migration `20260925154500_repair_current_company_id_uuid_resolver.sql` without rewriting historical migrations.
 - LIVE STAGING REPAIR: the same UUID-safe resolver was applied to `Report-Advisor-P0-2-Staging` (`fnqbvfuwbdpwvhcgzksl`) for immediate runtime proof; source lineage remains the new migration.
@@ -481,7 +481,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F RESTORE CANDIDATE
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE REBIND: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
-- CURRENT CODE/TEST CANDIDATE: `a35e5a08884040a6ad983b24a7820f834ebdb1b9`.
+- HISTORICAL CODE/TEST CANDIDATE: `a35e5a08884040a6ad983b24a7820f834ebdb1b9`.
 - CURRENT GOVERNANCE HEAD: `a35e5a08884040a6ad983b24a7820f834ebdb1b9`.
 - DONE: Phase-F restore chain fixed through the generic tenant-reference helper, dashboard UUID→text fallback, import progress RPC default preservation, watched provenance composite-uniqueness prerequisite, and exact-head certification guard normalization.
 - EXACT PHASE-F HEAD: next run executes against `a35e5a08884040a6ad983b24a7820f834ebdb1b9`; prior source probe failure was Docker bridge IPv6/network-unreachable, not database or credential failure.
@@ -496,7 +496,7 @@
 > Exact-head routing header. The code candidate is the tested source SHA; the governance commit that follows must not be mistaken for the code candidate.
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `ddd9382f347cc02eb401fee75a9df48beaae7f05`.
 - DONE: terminal-approval concurrency migration reference fixed at `647f3c...`; live Phase-F then exposed a real restore defect in `20260828172000_runtime_lifecycle_idempotency_hardening.sql`, now corrected to fully-qualified RLS target columns.
 - EXACT LOCAL PROOF: migration schema audit PASS (254 migrations / 0 findings), decision/intelligence closure PASS, TypeScript PASS, Vite build PASS, route/sidebar parity PASS, Product WOW/Executive/Intelligence/Report UI contracts PASS.
@@ -512,7 +512,7 @@
 > HEAD below is the exact GitHub HEAD observed before this write. Never treat it as the SHA of this file's own future commit.
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `a024f263c90c5da9bc65a15482f95b3ab03b0d3b`
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`
 - CURRENT WORKING STATE: current main reconciled to exact candidate; certification-boundary governance rebind pending; Phase-F remains fail-closed; UI/core 50/50 execution remains mandatory.
 - LIVE STATE SOURCE: ONE-PROGRAMMER-SESSION-MEMORY.md
 - CONTROL PLANE: docs/SYSTEM_HEART.md
@@ -526,7 +526,7 @@
 > HEAD below is the exact GitHub HEAD observed before the current control-plane write. Never treat it as the SHA of this file's own future commit.
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: 9e1586ddecec31dd29ca9385d88236adb2307d90
-- CURRENT CODE/TEST CANDIDATE: 28691df0781b101ddf053425d5d6eddee999438a
+- HISTORICAL CODE/TEST CANDIDATE: 28691df0781b101ddf053425d5d6eddee999438a
 - CURRENT WORKING STATE: canonical knowledge control plane established; content migration remains active; UI 50% + core 50% execution remains mandatory.
 - LIVE STATE SOURCE: ONE-PROGRAMMER-SESSION-MEMORY.md
 - CONTROL PLANE: docs/SYSTEM_HEART.md
@@ -539,7 +539,7 @@
 > This header is authoritative for session-resume routing. Historical entries below remain evidence/history and must not override it.
 
 - MAIN HEAD: ec7db7e503af15af42045df1107a3eb5dc8e27db
-- CURRENT CODE/TEST CANDIDATE: 28691df0781b101ddf053425d5d6eddee999438a
+- HISTORICAL CODE/TEST CANDIDATE: 28691df0781b101ddf053425d5d6eddee999438a
 - CURRENT WORKING STATE: governance/control-plane consolidation is active; the latest main commits after the tested code candidate are documentation/governance changes.
 - LIVE STATE SOURCE: ONE-PROGRAMMER-SESSION-MEMORY.md
 - CONTROL PLANE: docs/SYSTEM_HEART.md
@@ -558,7 +558,7 @@
 > Exact-head evidence only. The current code/test candidate is the exact SHA where the Import Center contract, bounded history focus, DataTable pagination, and Browser E2E were freshly proven.
 
 - CURRENT MAIN HEAD OBSERVED: `28691df0781b101ddf053425d5d6eddee999438a`.
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - DONE: fixed `scripts/check-import-center-product-contract.mjs` so `missingDataTable` is initialized before validation; the previously masked contract defect is now exposed rather than hidden.
 - DONE: restored real bounded pagination controls in `src/components/ui/DataTable.tsx`; the component now provides previous/next navigation and explicit Arabic table-navigation semantics.
 - DONE: preserved bounded import-history reads while adding an exact `focusJobId` readback path in canonical `fetchImportRecords`.
@@ -616,7 +616,7 @@
 > Exact-head evidence only. No historical production runtime result is transferred.
 
 - CURRENT CERTIFIED MAIN BASELINE: `5367346e2837a06a4d1787bb016399245f213792`.
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - DATABASE FIX VERIFIED: migration `20260921194500_import_history_recent_window_index.sql` was committed and applied to Supabase staging; `idx_import_jobs_company_created_id` exists.
 - EXACT-HEAD BROWSER RESULT: Full Product Browser E2E for `84a62...` completed **SUCCESS**. Build, exact checkout, app start, authenticated E2E contract, full product browser E2E, KPI evidence persistence, and real-business browser evidence completed without failure.
 - ROOT CAUSE CLOSED: the real-business E2E timeout was an import-history scale/performance boundary on a tenant with 4,471 import jobs; the bounded query lacked its matching composite index.
@@ -631,7 +631,7 @@
 
 > Exact-head evidence only. No historical runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - ROOT CAUSE CONFIRMED: `import_jobs` had no composite index for the exact bounded history order/filter `company_id, created_at DESC, id ASC`; the affected tenant had 4,471 import jobs.
 - FIX APPLIED: migration `20260921194500_import_history_recent_window_index.sql` creates `idx_import_jobs_company_created_id`.
 - DB PROOF: Supabase staging now exposes that index in `pg_indexes`.
@@ -643,7 +643,7 @@
 
 > Exact-head evidence only. No historical runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - ROOT CAUSE CLOSED: `fetchImportRecords()` rejected any tenant with more than 500 import rows because it requested `count: 'exact'` and converted `count > 500` into `REPORT_QUERY_LIMIT_EXCEEDED`.
 - LIVE E2E OBSERVATION: the affected tenant had 4,471 import jobs; the newly imported customer job itself completed successfully with one canonical row and provenance. The UI history failed only when rendering the bounded history because the read function rejected the large total count.
 - FIX: canonical and compatibility import-history reads now use only the existing bounded latest-500 window; no global count query, no unbounded tenant read, no new RPC, and no new import route.
@@ -654,7 +654,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - GOVERNED MAIN DESCENDANT CERTIFIED: `2b9d28c9a1a8fa12677c03f11b7ba94e2a3dbac7` (documentation/governance descendants only).
 - CI PASS: quality, Execution Enforcement Contract, Final Execution Batch, Storage Tenant Isolation, Final Certification Gate.
 - UI DONE: Connections source status and next action are state-derived and guarded.
@@ -667,7 +667,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - DONE: Connections summary is now state-derived: proven/bounded/adapter counts and next-source action come from the existing connector array.
 - UI CONTRACT: current Product WOW contract guards the new state-derived summary.
 - ARCHITECTURE: no new route/RPC/runner/importer/tenant/calculation path.
@@ -678,7 +678,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - DONE: corrected the Work Center UI contract guard so it asserts the actual null-safe `expiredActive` expression used by the current implementation.
 - ROOT CAUSE OF THE FRESH CERTIFICATION FAIL: source guard drift, not a product/runtime failure.
 - NO ARCHITECTURE CHANGE: only `scripts/check-product-wow-ui-contract.mjs` changed in this correction.
@@ -689,7 +689,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - EXACT-HEAD QUALITY: 20/20 release-readiness stages PASS on this SHA after closing three typecheck defects exposed by the runner.
 - CURRENT CERTIFICATION DIAGNOSIS: certification/enforcement gates rejected the run because their index still pointed to `435534c9...` while current code/test was `88323d3f...`.
 - CORRECTION IN THIS WAVE: certification index/reference is being rebound to the real current code/test SHA through the existing governance files; no boundary weakening or bypass.
@@ -701,7 +701,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - UI IMPLEMENTATION: `src/pages/WorkCenterPage.tsx` at the current main code head; the exact implementation is source-re-read and bound by the product UI contract.
 - UI CONTRACT: `scripts/check-product-wow-ui-contract.mjs` now asserts the state-derived next-action branches, canonical import action, filter actions, `aria-pressed`, and `aria-live`.
 - DONE: Work Center now turns the live operational state into a concrete next action without inventing runtime state or creating a second workflow.
@@ -715,7 +715,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - PHASE-F PROBE: `97a52c0772089609ee3a5a5fb346839a3f8c6601`.
 - PHASE-F CONTRACT GUARD: `91536018fb02b8918874c28ecedfb8ef7d5e5df3`.
 - IMPORT PERFORMANCE MIGRATION: GitHub file `supabase/migrations/20260921182858_20260921183000_import_fk_performance_indexes.sql`; live migration version `20260921182858` / name `20260921183000_import_fk_performance_indexes`.
@@ -730,7 +730,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - DECISION EXPERIENCE: implementation `58f6dd971ce905a3ea5a1f8670101e92c75ddade`; zero expected impact remains semantically valid.
 - COMMAND CENTER: implementation `274f813567d111112d850a696035bf4aba604c28`; Money Recovery now reports receivables availability rather than recoverable-money certainty.
 - UI CONTRACT: `3ab9e99a41676b22a6b61fe35db7891c7f170eac`.
@@ -743,7 +743,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - UI IMPLEMENTATION: `25c681ad540bacab9b0567d78b74a331ea224849` with initial action commit `e0978b867fbcd4a9a9f70b8d8f3515948dfaa590`.
 - UI CONTRACT: `d6aec3aa6285f852043c4b3b7b1bbb364305141b`.
 - DONE: Canonical Import history is now fail-closed: backend fetch errors are not represented as empty history; actual empty history has a real source-selection action.
@@ -757,7 +757,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - UI IMPLEMENTATION: `3b7f6e35f69bb53fd56a1714922376d4322ccd1a` (with initial actionable-state commit `976adb2b54ba52af9cadae4b4deb0085bdc539e8`).
 - UI CONTRACT: `c90a97aad3c353f031c80cfd0788836b20add1e1`.
 - DONE: Inventory empty states are now source-aware and filter-aware, with real next actions and no reload.
@@ -770,7 +770,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - UI IMPLEMENTATION: `42743647d0a94d5fca37dc2308e904fda5b2dc5f`.
 - UI CONTRACT: `6ae2c1c5e41c85598d2b7a160b7fe681aa7e7e33`.
 - DONE: Dashboard analytical empty states for trend, categories, customers and products now contain context-aware next actions; no values are fabricated.
@@ -783,7 +783,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
+- HISTORICAL CODE/TEST CANDIDATE: `1e93d43ae1876fb6af8aba00ce7a3ff79fd18049`.
 - UI IMPLEMENTATION: `e6478ad3d7569e1e9cea832dac2e6b02f731ed9f`.
 - UI CONTRACT: `7301ae56b7c01723ebdcc78756fc8a1ea5ffe399`.
 - DONE: four report pages now retry in place through their existing loaders; full browser reload is removed from report error recovery.
@@ -796,7 +796,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- **CURRENT CODE/TEST CANDIDATE:** `34b2038602f4899a78e6e183087cfe232c02faa8`.
+- **HISTORICAL CODE/TEST CANDIDATE:** `34b2038602f4899a78e6e183087cfe232c02faa8`.
 - **UI IMPLEMENTATION:** `42ca66e327ce63fd5353de86d3f8753f12356b55`.
 - **UI CONTRACT:** `34b2038602f4899a78e6e183087cfe232c02faa8`.
 - **DONE:** decision alerts now send «فحص المصدر أولًا» to the existing Trust & Evidence route instead of returning to the same command screen.
