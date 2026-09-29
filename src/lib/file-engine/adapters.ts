@@ -187,6 +187,78 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
   return [row];
 }
 
+type PdfTextItem = { text: string; x: number; y: number; width: number; height: number };
+
+function isNumericToken(value: string): boolean {
+  return /^[-+]?\\d[\\d,\\s]*(?:\\.\\d+)?$/.test(value.trim());
+}
+
+function groupPdfItemsByLine(items: PdfTextItem[], tolerance = 2.5): PdfTextItem[][] {
+  const sorted = [...items].sort((a, b) => b.y - a.y || a.x - b.x);
+  const groups: Array<{ y: number; items: PdfTextItem[] }> = [];
+  for (const item of sorted) {
+    const group = groups.find((candidate) => Math.abs(candidate.y - item.y) <= tolerance);
+    if (!group) groups.push({ y: item.y, items: [item] });
+    else group.items.push(item);
+  }
+  return groups.sort((a, b) => b.y - a.y).map((group) => group.items.sort((a, b) => a.x - b.x));
+}
+
+function tryParseReceivablesAgingPdfItems(items: PdfTextItem[]): Row[] | null {
+  const lines = groupPdfItemsByLine(items);
+  const header = lines.find((line) => {
+    const joined = line.map((item) => item.text.trim()).join(' ');
+    return joined.includes('رقم العميل') && joined.includes('اسم العميل') && joined.includes('العملة')
+      && joined.includes('0 - 30') && joined.includes('31 - 60') && joined.includes('61 - 90') && joined.includes('91 - 120') && joined.includes('> 120');
+  });
+  if (!header) return null;
+  const headerY = header.reduce((sum, item) => sum + item.y, 0) / Math.max(1, header.length);
+  const exactHeaderCenter = (pattern: RegExp): number | null => {
+    const item = header.find((candidate) => pattern.test(candidate.text.trim()));
+    return item ? item.x + item.width / 2 : null;
+  };
+  const anchors = {
+    over120: exactHeaderCenter(/^>\\s*120$/), age91_120: exactHeaderCenter(/^91\\s*-\\s*120$/),
+    age61_90: exactHeaderCenter(/^61\\s*-\\s*90$/), age31_60: exactHeaderCenter(/^31\\s*-\\s*60$/),
+    age0_30: exactHeaderCenter(/^0\\s*-\\s*30$/), localAmount: exactHeaderCenter(/^المبلغ بالعملة المحلية$/),
+    amount: exactHeaderCenter(/^المبلغ$/), currency: exactHeaderCenter(/^العملة$/),
+    name: exactHeaderCenter(/^اسم العميل$/), customerId: exactHeaderCenter(/^رقم العميل$/),
+  };
+  if (Object.values(anchors).some((value) => value == null)) return null;
+  const nearest = (line: PdfTextItem[], anchor: number, predicate: (text: string) => boolean, threshold = 52): string | null => {
+    let best: { distance: number; text: string } | null = null;
+    for (const item of line) {
+      const text = item.text.trim(); if (!text || !predicate(text)) continue;
+      const center = item.x + item.width / 2; const distance = Math.abs(center - anchor);
+      if (distance > threshold) continue; if (!best || distance < best.distance) best = { distance, text };
+    }
+    return best?.text ?? null;
+  };
+  const numberAt = (line: PdfTextItem[], anchor: number) => nearest(line, anchor, isNumericToken, 55);
+  const rows: Row[] = [];
+  for (const line of lines) {
+    const y = line.reduce((sum, item) => sum + item.y, 0) / Math.max(1, line.length);
+    if (y >= headerY - 5) continue;
+    const customerId = nearest(line, anchors.customerId as number, (value) => /^\\d{4,}$/.test(value), 38);
+    const customerName = nearest(line, anchors.name as number, (value) => !isNumericToken(value) && value !== 'YER', 78);
+    const currency = nearest(line, anchors.currency as number, (value) => /^[A-Z]{3}$/.test(value), 28);
+    if (!customerId || !customerName || !currency) continue;
+    const row: Row = { customer_id: customerId, customer_name: customerName, currency };
+    const fields: Array<[string, number | null]> = [
+      ['age_over_120', anchors.over120], ['age_91_120', anchors.age91_120], ['age_61_90', anchors.age61_90],
+      ['age_31_60', anchors.age31_60], ['age_0_30', anchors.age0_30], ['local_amount', anchors.localAmount], ['outstanding_balance', anchors.amount],
+    ];
+    for (const [field, anchor] of fields) {
+      if (anchor == null) continue;
+      const value = numberAt(line, anchor);
+      if (value != null) row[field] = normalizeStructuredDocumentValue(value);
+    }
+    if (row.outstanding_balance == null && row.local_amount != null) row.outstanding_balance = row.local_amount;
+    if (row.outstanding_balance != null) rows.push(row);
+  }
+  return rows.length >= 3 ? rows : null;
+}
+
 export type OcrDisposition = 'REJECT' | 'REVIEW' | 'TRUSTED';
 export const OCR_REJECT_THRESHOLD = 50;
 export const OCR_TRUSTED_THRESHOLD = 75;
@@ -281,7 +353,25 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     useSystemFonts: true,
   }).promise;
   const pages: string[] = [];
-  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
+  const layoutItems: PdfTextItem[] = [];
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+    const page = await pdf.getPage(pageNumber);
+    const content = await page.getTextContent();
+    const pageItems = content.items
+      .filter((item): item is typeof item & { str: string; transform: number[] } => 'str' in item && typeof item.str === 'string' && Boolean(item.str.trim()) && Array.isArray(item.transform))
+      .map((item) => ({
+        text: item.str,
+        x: Number(item.transform[4] ?? 0),
+        y: Number(item.transform[5] ?? 0),
+        width: Number(item.width ?? 0),
+        height: Number(item.height ?? 0),
+      }));
+    layoutItems.push(...pageItems);
+    const text = pageItems.map((item) => item.text).join(' ');
+    if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`);
+  }
+  const agingRows = tryParseReceivablesAgingPdfItems(layoutItems);
+  if (agingRows) return [await buildDataset(agingRows, fileName, 'pdf')];
   if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
   return parseScannedPdfWithOcr(pdf, fileName);
 }
