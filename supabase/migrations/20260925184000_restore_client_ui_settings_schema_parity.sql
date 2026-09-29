@@ -65,6 +65,23 @@ begin
 end
 $$;
 
+create or replace function public.current_customer_company_id()
+returns uuid
+language sql
+security definer
+set search_path = public
+as $function$
+  select cm.company_id
+  from public.company_memberships cm
+  where cm.user_id = auth.uid()
+    and cm.is_active = true
+  order by cm.is_default desc, cm.created_at desc, cm.id
+  limit 1;
+$function$;
+
+revoke all on function public.current_customer_company_id() from public;
+grant execute on function public.current_customer_company_id() to authenticated, service_role;
+
 alter table public.client_ui_settings enable row level security;
 
 drop policy if exists ui_settings_customer_select on public.client_ui_settings;

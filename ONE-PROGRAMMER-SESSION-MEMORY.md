@@ -1,3 +1,244 @@
+# LIVE EXECUTION CHECKPOINT — 2026-09-29 / SOURCE-BOUND REPORT CORE FINAL CANDIDATE
+
+- CURRENT FUNCTIONAL CANDIDATE → `9ca8310c631217e4e7d91d657433edabeda78efd` on PR #680 / `exec-report-cert-parity-0929`.
+- REPORT CORPUS (EXECUTION DB) → 34 latest business PDF/XLS/XLSX sources; 32 terminal/rendered, 2 genuinely open with no canonical rows.
+- STRICT INVARIANT → 32/32 PASS after provenance backfill: report completed/rendered; evidence-linked import completed; import source_fingerprint == report source_hash; processed_rows == total_rows; invalid_rows == 0; canonical row count by source_hash == import total; Evidence sourceRowCount == canonical count; Evidence authoritativeCurrentRowCount == canonical count.
+- OPEN SOURCE A → `المبيعات.pdf`: report `1d11a5d3-061c-4ee4-8eb4-762357a00e04`; import `a1794204-e8be-4907-ade4-7da6b7f71708`; 328 expected rows; 0 canonical/import rows; private storage object exists, but no authorized byte/extraction artifact is available via current connectors.
+- OPEN SOURCE B → `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf`: report `d074ad5c-70d4-4402-a763-01129786f392`; import `bf206836-e52d-4b29-843a-6337403801e6`; 6,562 expected rows; 0 canonical; report queued/decisioned; no authorized byte/extraction artifact available.
+- REAL SOURCE PROOF → `فواتير العملاء من تاريخ 01-06 حتى 15-08.pdf`: 1,998 canonical rows, import 1998/1998, rendered report, exact source hash, source-bound analysis artifact at `/mnt/data/aghbari-real-source-report-2026-09-29.md`.
+- CORE IMPORT REPAIR → completed import now sets/persists `source_fingerprint`; evidence-complete legacy shells were backfilled only where canonical row count exactly matched the Evidence source hash.
+- CORE REQUEUE REPAIR → private SECURITY DEFINER trigger, transaction-local marker, no authenticated UPDATE on report_execution jobs/tasks.
+- SOURCE-BOUND QUERY REPAIR → report page resolves canonical rows by source_hash when a report-import shell has no rows under its own import_job_id; no fallback to tenant-wide data.
+- SOURCE-BOUND ROUTING → any recognized importId routes to `/reports/import/:importId`; SourceBoundReportPage is domain-aware and filename-first.
+- DOMAIN CLASSIFICATION TEST → added unit coverage for receivables/suppliers/payments/inventory/products filename overrides.
+- PHASE-F RESTORE REPAIR → `20260925184000_restore_client_ui_settings_schema_parity.sql` no longer depends on late `public.profiles`; resolver uses active `company_memberships`; live parity migration `20260929170000...` applied.
+- LIBRARY → 50 PDF/XLSX files visible, but many are specs/wireframes/templates/project docs; exact 47–48 operational-report count is not established.
+- CURRENT CI → latest functional candidate has not yet produced terminal CI evidence after the latest test commit. Previous HEAD `7ab6af...` failed only because of a SourceBoundReportPage syntax error; fixed in `e589...` and subsequent JSX cleanups through `05cf...`. Do not transfer that failure to the current candidate.
+- VERCEL/EDGE → no deployment matching current candidate visible; PC01 offline; no authenticated Edge/browser/production PASS claimed.
+- RESUME → consume CI for `9ca831...`; if failure appears, fix only first current-SHA reproducible root. Then pursue the two open source bytes through an authorized Storage/import path.
+
+---
+
+# LIVE EXECUTION CHECKPOINT — 2026-09-29 / REPORT CORPUS INVARIANT + PROVENANCE CORE
+
+- CURRENT FUNCTIONAL HEAD → `5a562a2714c5ca1847750daeeb2ee852ed848e45`.
+- CURRENT PR → #680 / `exec-report-cert-parity-0929`.
+- STRICT BUSINESS REPORT CORPUS → 34 latest human PDF/XLS/XLSX execution sources (2 runtime fixtures excluded): 32 terminal/rendered + 2 open/noncanonical.
+- STRICT INVARIANT NOW → `32/32 PASS`: report completed/rendered; evidence-linked import completed; source_fingerprint equals report source_hash; processed_rows=total_rows; invalid_rows=0; canonical row count by source_hash equals import total; evidence source-row count equals canonical; authoritative-current-row count equals canonical.
+- PROVENANCE CORE REPAIR → migration `20260929173000_persist_import_source_fingerprint` backfilled only evidence-complete terminal imports whose `result_summary.source_hash` matched the full canonical row count, and updated `import_finish_job` so future terminal imports persist `source_fingerprint`.
+- CANONICAL ALIAS REPAIR → `fetchCanonicalImportSourceRows` now resolves canonical rows by the import's source hash when a report-import shell has no canonical rows under its own id. This fixes the real 1,998-row report and the 13-row cash report without falling back to company-wide data.
+- SOURCE-BOUND ROUTING → every recognized import with an importId uses `/reports/import/:importId` as primary domain surface; the page is domain-aware and filename-first for known misclassifications.
+- REAL 1,998-ROW PROOF → `فواتير العملاء من تاريخ 01-06 حتى 15-08.pdf` remains real-source evidence: 1,998 canonical rows, full import 1998/1998, source hash exact, report rendered, smart outputs fail-closed where fields are absent. Artifact: `/mnt/data/aghbari-real-source-report-2026-09-29.md`.
+- TWO OPEN BUSINESS SOURCES → `المبيعات.pdf` (328 rows, 0 canonical, import processing) and `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf` (6,562 rows, 0 canonical, report queued/decisioned). Source bytes exist in private storage but no authorized source-byte retrieval path is available through the current connectors; do not fabricate.
+- LIBRARY CORPUS → 50 PDF/XLSX files are currently visible. Many are specifications, wireframes, permissions, templates or project docs; the current Library metadata does not establish 47–48 operational reports. DB execution corpus remains the authoritative executed-report count.
+- PHASE-F ROOT REPAIR → restore migration now uses `company_memberships` instead of late `profiles` dependency; live parity migration `20260929170000_reconcile_customer_company_resolver_restore_parity` applied.
+- CORE REQUEUE REPAIR → completed imports requeue the exact evidence-linked report job only through the private SECURITY DEFINER transaction trigger, with no authenticated UPDATE on report execution tables.
+- CURRENT CI → latest code HEAD has 49 workflows currently queued/being scheduled and no failures yet. Fresh terminal evidence is still required; no stale PASS transfer.
+- VERCEL/EDGE → no deployment matching current HEAD is visible; PC01 offline. No authenticated Edge/browser or production PASS claimed.
+- RESUME → poll exact current HEAD CI; repair first current-SHA failure only. Then recover the two source-only reports through an authorized storage/import path and run their complete canonical/report lifecycle.
+
+---
+
+# LIVE EXECUTION CHECKPOINT — 2026-09-29 / PHASE-F RESTORE PARITY REPAIR
+
+- CURRENT FUNCTIONAL HEAD → `b24d515d9e45847591b56ce6307105103874ea09`.
+- PREVIOUS FUNCTIONAL CANDIDATE → `6966931a2eedc67de3c8c4d6033f50ddc9a86ba1`.
+- PHASE-F ROOT CAUSE → logical-restore replay of `20260925184000_restore_client_ui_settings_schema_parity.sql` failed because it recreated `public.current_customer_company_id()` against `public.profiles`, while `company_memberships` is the canonical tenant membership schema available earlier in the migration order.
+- PHASE-F ROOT REPAIR → the migration now resolves the authenticated tenant through active `public.company_memberships` ordered by `is_default`, `created_at`, `id`; no compatibility `profiles` table/view is added.
+- LIVE PARITY MIGRATION → `20260929170000_reconcile_customer_company_resolver_restore_parity` applied successfully and mirrors the repaired resolver in the live database.
+- SECURITY → resolver remains SECURITY DEFINER with `search_path=public`; no new application DML grants.
+- CURRENT REPORT CORE → 34 business source files in execution DB: 32 completed/rendered with exact import/canonical continuity; 2 remain open because canonical source rows do not exist. All recognized import domains now route to source-bound report page; SourceBoundReportPage is domain-aware and filename-first classification corrects known semantic mislabels.
+- CURRENT OPEN REPORTS → `المبيعات.pdf` (328 rows, 0 canonical) and `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf` (6,562 rows, 0 canonical). No synthetic closure.
+- VERCEL → no deployment visible yet for the current PR head, so live production SHA match and authenticated Edge proof remain unclaimed.
+- CI → next exact-head wave must prove the Phase-F restore fix; do not transfer earlier Phase-F failure.
+- RESUME → consume CI on current PR HEAD; repair first current-SHA failure only, then pursue source-byte recovery for the two open reports.
+
+---
+
+# LIVE EXECUTION CHECKPOINT — 2026-09-29 / ALL-SOURCE REPORT CORE
+
+- CURRENT PR HEAD → `6966931a2eedc67de3c8c4d6033f50ddc9a86ba1` (#680 / `exec-report-cert-parity-0929`).
+- PREVIOUS FUNCTIONAL CANDIDATE → `28fee18d3d741c912abf16ca0ad940364194f985`.
+- CURRENT CODE CHANGES → source-bound routing for all recognized import domains; generic/domain-aware SourceBoundReportPage; deterministic filename-first domain classification; executive report empty-state contract literals.
+- SOURCE-BOUND ROUTE → all recognized imports with an importId now use `/reports/import/:importId` as the primary domain surface, preventing fallback to company-wide snapshots that ignore `?import=`.
+- DOMAIN CLASSIFICATION → filename signals override wrong semantic labels for the actual corpus: `ف العملاء الاجل...`→receivables, `تقارير ادارية للمورد.pdf`→suppliers, الصراف/البنوك/الصندوق→payments, مخزون/جرد/دوران/حركة المخزون→inventory, plain الاصناف→products, sales invoice/mبيعات→sales.
+- 34 BUSINESS SOURCE FILES IN EXECUTION DB → 32 completed/rendered + 2 open; 2 runtime fixtures are excluded. Completed source domains by canonical semantic label: inventory 8, sales 7, source-data 7, payments 5, receivables 2, purchases 1, products 1, customers 1. Filename-first correction adds `ف العملاء الاجل...` to receivables and `تقارير ادارية للمورد.pdf` to suppliers while leaving `تقارير ادارية.xlsx` as sales because its canonical rows contain `net_sales`, stock velocity and replenishment fields.
+- COMPLETED CONTINUITY PROOF → 32/32 latest human-file sources have report status completed/rendered, evidence-linked import completed, processed_rows=total_rows, invalid_rows=0, and canonical row count matching import total.
+- OPEN #1 → `المبيعات.pdf`: report `1d11a5d3-061c-4ee4-8eb4-762357a00e04`, import `a1794204-e8be-4907-ade4-7da6b7f71708`, 328 expected rows, 0 canonical. Source object exists in Supabase Storage (464,701 bytes), but public retrieval failed; no fabricated closure.
+- OPEN #2 → `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf`: report `d074ad5c-70d4-4402-a763-01129786f392`, import `bf206836-e52d-4b29-843a-6337403801e6`, 6,562 expected rows, 0 canonical; report queued at decisioned. No fabricated closure.
+- CORE REPAIR LIVE → `20260929160000_bind_import_finish_report_requeue_to_transaction` applied. `public.import_finish_job` remains SECURITY INVOKER; authenticated has no report/task UPDATE; private SECURITY DEFINER trigger is not directly executable by authenticated/anon and activates only with transaction-local `app.import_finish_job_id`.
+- RUNTIME CORE PROOF → real `المبيعات.pdf` import_finish_job test under authenticated context requeued the exact evidence-linked report with code `IMPORT_COMPLETION_REPORT_REQUEUE` inside the transaction, then ROLLBACK restored original state.
+- LIBRARY FILE CORPUS → 50 PDF/XLSX files currently visible; they include specifications, wireframes, templates and duplicated project references. Exact 47–48 business-report file count is not established from Library metadata and is not claimed.
+- CURRENT CI/RELEASE → the last clean fresh CI wave on `32bf420...` reached 44 successes before two terminal issues: Final Certification contract (fixed by adding the exact required empty-state punctuation) and Phase-F external deployment/restore gates. New exact-head CI for `6966931a...` is the required evidence next.
+- VERCEL → latest visible deployment was READY for `29653bda...`; no deployment was yet visible for `6966931a...`. Therefore Phase-F/live browser proof for the latest code is not claimed.
+- DEVICE → PC01 offline. No authenticated Edge/device runtime PASS is claimed.
+- RESUME → (1) poll CI on `6966931...`; (2) if failure, fix only first current-SHA reproducible root; (3) keep both missing-canonical business reports open until source bytes/canonical rows are recovered; (4) once the current deployment exists, run exact-head Phase-F and authenticated Edge proof.
+
+---
+
+# LIVE SESSION CHECKPOINT — 2026-09-29 / REPORT CORE SECURITY + SOURCE-BOUND DYNAMICITY
+
+- CURRENT FUNCTIONAL CANDIDATE → `28fee18d3d741c912abf16ca0ad940364194f985`.
+- CURRENT CONTROL/INDEX FOLLOW-UP → `f17bf035a17cc70846757693899bfb5819e931c1`.
+- CORE MIGRATIONS APPLIED → `20260929150000_requeue_report_execution_after_import_finish`, `20260929153000_secure_import_finish_report_requeue`, `20260929160000_bind_import_finish_report_requeue_to_transaction`.
+- CORE SECURITY RESULT → `public.import_finish_job` remains SECURITY INVOKER; authenticated has no UPDATE on report_execution_jobs/tasks; private trigger function is SECURITY DEFINER, not executable by authenticated/anon/service_role directly, and is activated only by the transaction-local marker set by import_finish_job on a completed transition.
+- RUNTIME CORE PROOF → authenticated-context transaction test called import_finish_job on a 1-row processing import, trigger path executed without permission failure, then transaction was rolled back; the source import returned to its original processing state (1/1 processed, invalid 0).
+- SOURCE-BOUND UI REPAIR → SourceBoundReportPage now loads import context from import_jobs, uses the actual imported filename/hash/status/row counts, removes hardcoded 1,998/913 report values, and fixes amount mismatch detection by separating total from local amount.
+- REAL REPORT BATCH → 32 latest human PDF/XLS/XLSX sources are completed/rendered with exact import continuity; 0 rendered-import gaps; 0 rendered-without-canonical; two business sources remain open because canonical rows are absent: `المبيعات.pdf` (328, 0 canonical) and `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf` (6,562, 0 canonical).
+- 47–48 COUNT → not verified as an exact file corpus. DB latest human-report subset is 36 including 2 runtime fixtures; Library PDF/XLSX filter shows 50 files including non-report specs/wireframes.
+- CURRENT CI → exact functional SHA `f73c01fe...` produced 20 successes plus failures from a SourceBoundReportPage TypeScript error and stale candidate binding; the TS error was fixed in `28fee18...`, and index binding is now updated. Fresh CI on the latest functional SHA is the release evidence still required.
+- DO-NOT-REPEAT → no direct report status mutation; no synthetic source closure; no UPDATE grants opened; no stale CI PASS transfer.
+- DEVICE → PC01 offline; Edge/device authenticated browser proof not claimed.
+- RESUME → consume CI for the latest exact candidate, repair only the first current-SHA reproducible failure, then continue source recovery for the two open business reports.
+
+---
+
+# LIVE SESSION CHECKPOINT — 2026-09-29 / BATCH REPORT CONTINUITY + CORE IMPORT REQUEUE REPAIR
+
+- CURRENT FUNCTIONAL/CONTROL HEAD → `174ae82785c511ce8ae52d690090010cd262655a` on PR #680 / `exec-report-cert-parity-0929` (governance follow-up commits keep the exact code/test candidate bound below).
+- CURRENT CODE/TEST CANDIDATE → `174ae82785c511ce8ae52d690090010cd262655a`.
+- PREVIOUS FUNCTIONAL CANDIDATE → `e093749e839fbddb89dabb1f908198021124078f`.
+- CORE REPAIR COMMITTED → `supabase/migrations/20260929150000_requeue_report_execution_after_import_finish.sql`.
+- LIVE MIGRATION PROOF → migration `20260929150000` / `requeue_report_execution_after_import_finish` is applied through the Supabase migration path.
+- ROOT CAUSE CLOSED → when an import completed after the report-execution worker lease expired before `rendered`, the import could remain terminal while the report job stayed stuck at `processing/committed`. The repaired `import_finish_job` now requeues the exact evidence-linked report job only when its lease is absent/expired and the checkpoint is not rendered; stale running tasks on that requeued job are reset to queued. It never marks the report rendered/completed itself.
+- BATCH SOURCE CORPUS ACTUAL DB STATE → 36 latest human-file report-execution sources identified in the database subset (PDF/XLSX/XLS), excluding customer/product/invoice generated CSV families. Of these: 32 are now `completed/rendered` with import continuity proven; 2 business reports remain non-terminal; 2 are runtime closure fixtures and are not business reports.
+- 32/32 CONTINUITY PROOF → all 32 rendered human reports have: `report_execution_jobs.status=completed`, checkpoint `rendered`, exact evidence-linked import `status=completed`, `processed_rows=total_rows`, `invalid_rows=0`, and canonical source rows matching the import total. Rendered-without-canonical=0; rendered-import-gap=0.
+- REPORTS CLOSED IN THIS SESSION → the 19 strict evidence-bound import continuity gaps were finalized through `public.import_finish_job`; then `الصراف الحوشبي.pdf` (8 rows), `الفواتير من تاريخ 01-09-2026 حتى 20-09-2026.pdf` (610), and `العملا النقد.pdf` (721) were recovered through `recover_expired_report_execution_jobs` → `claim_report_execution_job` → `advance_report_execution_checkpoint(rendered)` → `complete_report_execution_job`, with source hash and row evidence matching canonical data.
+- REMAINING BUSINESS REPORT #1 → `المبيعات.pdf` / report `1d11a5d3-061c-4ee4-8eb4-762357a00e04` is at checkpoint `analyzed`; import `a1794204-e8be-4907-ade4-7da6b7f71708` has 328 total rows but 0 canonical rows and remains `processing`. The source exists in Supabase Storage (documents bucket, 464,701 bytes), but direct public URL retrieval failed; no source rows are invented and the report is not closed.
+- REMAINING BUSINESS REPORT #2 → `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf` / report `d074ad5c-70d4-4402-a763-01129786f392` is `queued` at checkpoint `decisioned`; import `bf206836-e52d-4b29-843a-6337403801e6` has 6,562 total rows, 0 processed, 0 canonical rows. It must not be marked complete without source/canonical recovery.
+- REAL SOURCE PROOF → `فواتير العملاء من تاريخ 01-06 حتى 15-08.pdf` remains the full end-to-end source-bound proof: import `74c499d1-6e65-4834-a093-eef1eb633fb2`, 1,998/1,998 valid, report rendered, same source hash, exact source-bound route `/reports/import/:importId`, smart analyses fail-closed where fields are missing.
+- LIBRARY CORPUS NOTE → Library PDF/XLSX filtering currently returns 50 files total, but that includes specifications/wireframes and non-report documents; the user's 47–48-report count is therefore not yet an exact verified count. Do not equate Library-file count with DB business-report count.
+- CURRENT CI EXACT HEAD → on `e093749e...`: 34 successful workflow runs, 0 failed; 12 in progress and 1 queued at last poll. Skipped runs are not failures. No terminal certification claim yet.
+- PHASE-F → still fail-closed while its exact-head run is in progress/without terminal proof; do not weaken it. PC01 remains offline, so Edge/device authenticated runtime proof is not claimed.
+- DO-NOT-REPEAT → no stale PASS transfer; no direct-table status mutation for report closure; no synthetic report corpus presented as real proof; no generic canonical row source presented as domain truth; no duplicate importer/RPC/runner.
+- RESUME → consume terminal checks for `e093749e...`; if a current-SHA failure appears, repair only the first reproducible root. Separately, recover source/canonical for the two remaining business reports and then execute the same full chain through evidence → smart report surfaces → rendered UI → proof.
+
+---
+
+# LIVE SESSION CHECKPOINT — 2026-09-29 / REAL REPORT + SOURCE-BOUND REPORT
+
+- CURRENT CONTROL CHECKPOINT SHA → `62465db120c94f8a3777cffdddcfa0ba55200294`
+- CURRENT CODE/TEST CANDIDATE → `456bc2d0e670c0852f4636d42edc3180c844df37`
+- CURRENT FRONT → REAL REPORT END-TO-END / SOURCE-BOUND REPORT
+- REAL SOURCE → `فواتير العملاء من تاريخ 01-06 حتى 15-08.pdf`
+- IMPORT ID → `74c499d1-6e65-4834-a093-eef1eb633fb2`
+- SOURCE HASH → `sha256:c175fd3f105759568cf269a5f59fa26cfe16007a77269307b299e15a8c936dc8`
+- LIVE IMPORT PROOF → `completed`, 1,998/1,998 processed and valid, 0 invalid, progress 100%.
+- LIVE REPORT EXECUTION PROOF → `report_execution_jobs.status=completed`, checkpoint stage `rendered`, lineage/source row count 1,998.
+- CANONICAL SOURCE PROOF → 1,998 rows for the same tenant + source hash, row numbers 1..1998.
+- FIXED RUNTIME CONSISTENCY → the import job had remained processing/0 while the report execution was rendered; it was closed through `import_finish_job` with 1,998 committed/0 invalid, not by direct table mutation.
+- PRODUCT CHANGE → canonical import result for sales now routes to `/reports/import/:importId`, a source-bound report page that reads `canonical_dataset_records` by tenant + importId.
+- SMART REPORT OUTPUTS → Sales/time series/type mix/customer concentration are computed from the same imported rows; receivables is PARTIAL from rows classified as `آجل`; customer/RFM is REVIEW because 913 rows lack customer name; profitability/inventory/demand/purchases/supplier/forecast/benchmark are fail-closed where source fields do not support them.
+- REAL SOURCE QUALITY → 913 missing customer rows; 3 missing invoice numbers; 33 missing invoice types; 3 amount mismatches; 1,843 distinct invoice numbers.
+- REAL SOURCE TOTAL → 1,806,623,246 across the canonical source rows; 391 rows marked `آجل` total 467,984,170.
+- HOSTED PROOF → latest Vercel deployment for exact branch became READY; authenticated page fetch is blocked by login_required, so no hosted browser PASS is claimed from unauthenticated access.
+- CI STATE → build/typecheck succeeds on the recent head; current exact-head release certification had one script-parser failure from a duplicate `workCenter` binding, now repaired. Fresh checks are running.
+- OPEN → consume terminal exact-head CI; repair only the first reproducible current-SHA failure; then authenticated Edge/device proof when PC01 is online.
+- BLOCKERS → PC01 offline; browser-authenticated live UI not currently accessible; Phase-F/production promotion remains separate and fail-closed until its gates pass.
+- DO-NOT-REPEAT → no synthetic corpus as real-report proof; no generic source row presented as domain truth beyond supported fields; no benchmark/outcome fabrication; no direct DB status mutation.
+- RESUME → exact-head CI on candidate `456bc2d0e670c0852f4636d42edc3180c844df37`; then authenticated UI proof of `/reports/import/74c499d1-6e65-4834-a093-eef1eb633fb2`.
+
+---
+
+# LIVE SESSION CHECKPOINT — 2026-09-29 / REAL REPORT END-TO-END PROVEN
+
+- CURRENT CODE/TEST CANDIDATE → `9dc4c592330f91a86cfd0fe6ee2d0a80918b3cad`
+- CURRENT FRONT → REAL REPORT / SOURCE-BOUND REPORT + SMART REPORT APPLICATION
+- REAL SOURCE → `فواتير العملاء من تاريخ 01-06 حتى 15-08.pdf`
+- IMPORT ID → `74c499d1-6e65-4834-a093-eef1eb633fb2`
+- SOURCE HASH → `sha256:c175fd3f105759568cf269a5f59fa26cfe16007a77269307b299e15a8c936dc8`
+- IMPORT PROOF → `completed`, 1,998/1,998 rows, 0 invalid, progress 100, completed_at 2026-09-29 13:41:38Z.
+- REPORT EXECUTION PROOF → matching report_execution_job is `completed` at checkpoint stage `rendered`, 1,998 lineage rows, same source hash.
+- ACTUAL REPAIR → import job was stuck at `processing/0` despite rendered report; it was finalized through canonical `import_finish_job` with `committed=1998` and `invalidRows=0`, not via direct table mutation.
+- SOURCE-BOUND REPORT → new `SourceBoundReportPage` reads `canonical_dataset_records` for the exact importId and is routed from the sales post-import output.
+- SMART REPORTS APPLIED TO SAME SOURCE → Sales/Executive/Time Trend/Invoice-Type Mix/Customer Concentration/Data Quality/Partial Receivables/RFM Review. Profitability, Inventory, Demand, Purchases/Suppliers, Forecast, Benchmark remain fail-closed because the source lacks required fields/sample.
+- SOURCE FACTS → total sales 1,806,623,246; 1,843 distinct invoice numbers; 913 rows missing customer; 3 missing invoice numbers; 33 missing invoice types; 3 amount mismatches.
+- REAL DECISION SIGNALS → review missing customers, missing invoice types, missing invoice numbers, and amount mismatches before using customer concentration or receivables as final decision truth.
+- DO-NOT-REPEAT → do not substitute company-wide dashboard values for the source-bound report; do not label unsupported smart reports VERIFIED.
+- DEVICE → PC01 remains offline; Edge/device physical proof still not claimed.
+- CI → current candidate has no failed checks yet; certification/enforcement/browser checks are active or queued.
+- NEXT EXACT ACTION → consume terminal CI for `9dc4c592330f91a86cfd0fe6ee2d0a80918b3cad`; repair first reproducible defect only; then verify the source-bound route contract and promote the exact PR candidate.
+
+---
+
+# LIVE SESSION CHECKPOINT — 2026-09-29 / REPORT-FIRST / PHASE-F RESTORE DEPENDENCY REPAIRED
+
+- CURRENT EXACT CONTROL/CHECKPOINT SHA → `4803dfb765c5df3b97fbf4ad4d100ca0e5d4da9c`
+- CURRENT CODE/TEST CANDIDATE → `a77e29ab4dd9bea14a627ae8e3d74157cadd6677`
+- CURRENT FRONT → REPORT-FIRST / POST-IMPORT REPORT CONTINUITY + PHASE-F CLEAN-RESTORE PARITY
+- CURRENT REPORT → No real report corpus is committed under `tests/fixtures/realistic-reports/`; only README.md is present on main. PC01 remains offline.
+- CURRENT STAGE → exact-head certification after restore dependency repair.
+- LAST VERIFIED ACTION → restored the required `current_customer_company_id()` dependency inside the 20260925184000 client_ui_settings parity migration, then added forward migration `20260929133000_reconcile_client_ui_settings_tenant_policy.sql` to switch the live product boundary to `current_company_id()`.
+- LIVE PROOF → live `client_ui_settings` SELECT policy uses `organization_id = current_company_id()`; both tenant resolvers exist and are executable by authenticated.
+- PRIOR CERTIFICATION FAILURE ROOT CAUSE → clean restore failed because the parity migration referenced the customer resolver before its first definition. The source dependency is now closed without changing the historical contract semantics.
+- OTHER CERTIFICATION BLOCKER → operational-health previously reported `DEPLOYMENT_SHA_MISMATCH`; rollback-forward drill reported deployment lookup 404. These remain fail-closed until current-head certification proves them resolved.
+- CURRENT PROOF → prior exact-head browser-smoke succeeded: Vite build 2805 modules and Playwright root page/no console/page errors. Edge/device proof is NOT claimed because PC01 is offline.
+- CLOSED WORK → post-import continuity implementation; surface mapping test; certification parser/index binding; clean-restore tenant resolver dependency repair; forward live-policy reconciliation.
+- OPEN WORK → run exact-head certification on `a77e29ab4dd9bea14a627ae8e3d74157cadd6677`; repair first current-SHA failure only; then execute the first real report end-to-end when a real fixture/device source is accessible.
+- DO-NOT-REPEAT → no stale PASS, no import-only report closure, no synthetic corpus as real-report proof, no duplicate importer/RPC/runner, no weakening of Phase-F.
+- CURRENT RESUME POINTER → exact-head certification for `a77e29ab4dd9bea14a627ae8e3d74157cadd6677`.
+- NEXT EXACT ACTION → consume terminal certification; if clean restore passes, isolate remaining deployment mismatch as an external/live deployment alignment blocker and continue report work.
+
+---
+
+# LIVE SESSION CHECKPOINT — 2026-09-29 / REPORT-FIRST / CERTIFICATION REPAIR
+
+- CURRENT EXACT CONTROL/CHECKPOINT SHA → `eb3adfde480d286c4a0d8ff0c27eac1a4715b7e1`
+- CURRENT CODE/TEST CANDIDATE → `d6c324dcebf80a0a9e7b7e02356309f883fd0d32`
+- CURRENT FRONT → REPORT-FIRST / POST-IMPORT REPORT CONTINUITY + CLEAN-RESTORE CERTIFICATION
+- CURRENT REPORT → No real report corpus is committed under `tests/fixtures/realistic-reports/`; only README.md is present on main. PC01 remains offline.
+- CURRENT STAGE → exact-head certification after migration parity repair.
+- LAST VERIFIED ACTION → `20260925184000_restore_client_ui_settings_schema_parity.sql` was repaired so its clean-restore RLS policy matches the live canonical `current_company_id()` tenant policy.
+- LIVE PROOF → Supabase readback shows `client_ui_settings` SELECT policy uses `organization_id = current_company_id()`; both `current_company_id()` and `current_customer_company_id()` exist, but only the former is canonical for this table.
+- PRIOR CERTIFICATION FAILURE ROOT CAUSE → clean restore failed because the source migration referenced `current_customer_company_id()` before that resolver was available; this was fixed at the source migration.
+- OTHER CERTIFICATION BLOCKER → operational-health reported `DEPLOYMENT_SHA_MISMATCH`; rollback-forward drill reported deployment lookup 404 and Phase-F remained fail-closed. Do not mask or downgrade this.
+- CURRENT PROOF → exact-head browser-smoke on prior functional head succeeded: Vite build 2805 modules and Playwright page load/no console/page errors. Exact Edge/device proof is not claimed.
+- CLOSED WORK → post-import report continuity implementation; surface mapping test; certification index binding; clean-restore migration parity repair.
+- OPEN WORK → rerun exact-head certification on `d6c324dcebf80a0a9e7b7e02356309f883fd0d32`; repair only the first reproducible current-SHA failure; then obtain a real report from the device/source and execute the full report lifecycle.
+- DO-NOT-REPEAT → no stale PASS; no import-only report closure; no synthetic corpus as real-report proof; no duplicate importer/RPC/runner; no weakening of Phase-F.
+- CURRENT RESUME POINTER → exact-head CI for `d6c324dcebf80a0a9e7b7e02356309f883fd0d32`.
+- NEXT EXACT ACTION → consume terminal certification for `d6c324dcebf80a0a9e7b7e02356309f883fd0d32`. If clean restore passes but deployment mismatch remains, isolate it as external/live deployment blocker and continue non-blocked report/UI work.
+
+---
+
+# LIVE SESSION CHECKPOINT — 2026-09-29 / POST-IMPORT REPORT CONTINUITY / INDEX REBOUND
+
+- CURRENT EXACT CONTROL/CHECKPOINT SHA → `05c46a0fc209509f3b2bcaf98a4b93536353f1d9`
+- CURRENT CODE/TEST CANDIDATE → `cb5be214ae8aaf089355f133dc9a31a982f903c6`
+- CURRENT FRONT → REPORT-FIRST / POST-IMPORT REPORT CONTINUITY
+- CURRENT REPORT → Repository `tests/fixtures/realistic-reports/` on current main contains only `README.md`; no real 40+ report corpus is committed.
+- CURRENT STAGE → exact-head CI/certification for the implemented post-import continuity; device runtime not proven.
+- LAST VERIFIED ACTION → Master Execution Index now exposes the exact parser-readable candidate line for `cb5be214ae8aaf089355f133dc9a31a982f903c6`.
+- ACTUAL RESULT → canonical import result classifies report type with the existing planner and exposes existing Executive/Domain/Trust/Decision/Work/Outcome/Benchmark surfaces without a duplicate import pipeline.
+- TEST / PROOF → source candidate `cb5be214ae8aaf089355f133dc9a31a982f903c6`; fresh exact-head gates are running on this branch family. PC01 is offline; Edge/device/browser PASS is NOT PROVEN.
+- CLOSED WORK → post-import continuity implementation + dedicated surface mapping test + certification-index binding.
+- OPEN WORK → terminal exact-head CI; first reproducible current-SHA failure repair; then first real report execution when a real fixture/device source is accessible; then source-bound domain projections where canonical writers are absent.
+- REAL BLOCKERS → PC01 offline; main repository lacks the real 40+ report corpus. Synthetic golden data is not a substitute for real-report proof.
+- DO-NOT-REPEAT → no stale PASS transfer, no generic canonical commit presented as domain-specific ingestion, no unsupported outcome/benchmark claims, no duplicate importer/RPC/runner.
+- CURRENT RESUME POINTER → exact-head CI for candidate `cb5be214ae8aaf089355f133dc9a31a982f903c6`.
+- NEXT EXACT ACTION → consume terminal exact-head checks; repair only the first reproducible failure; then execute the first real report end-to-end.
+
+---
+
+# LIVE SESSION CHECKPOINT — 2026-09-29 / POST-IMPORT REPORT CONTINUITY
+
+- CURRENT EXACT HEAD SHA → `6b86fe4376e14ec2f8613a471282cb25f9dd53ba`
+- CURRENT CODE/TEST CANDIDATE → `cb5be214ae8aaf089355f133dc9a31a982f903c6`
+- CURRENT FRONT → REPORT-FIRST / POST-IMPORT REPORT CONTINUITY
+- CURRENT REPORT → No real repository fixture is present on `main`; current `tests/fixtures/realistic-reports/` contains only `README.md`.
+- CURRENT STAGE → CI/certification after implementation; report runtime execution waits on a real fixture/device source.
+- LAST VERIFIED ACTION → Added governed post-import report surface routing and report classification evidence on the canonical import result; updated the Master Execution Index with the exact candidate SHA.
+- ACTUAL RESULT → Import completion now derives report specialty through the existing universal ingestion planner and links the existing executive/domain/evidence/decision/work/outcome/benchmark surfaces. Unknown classification fails closed.
+- TEST / PROOF → PR #677 exact head `cb5be214ae8aaf089355f133dc9a31a982f903c6`; GitHub certification gate is running against that SHA. No browser/device PASS claimed because PC01 is offline.
+- CLOSED WORK → The current post-import navigation gap is implemented on the branch; no duplicate import pipeline/RPC/runner was created.
+- OPEN WORK → (1) consume exact-head CI and fix only the first reproducible failure; (2) obtain a real report fixture from the device and run report-first lifecycle end-to-end; (3) close source-bound report projections for report types whose canonical writer is not yet proven.
+- REAL BLOCKERS → PC01 offline. Current repository has no committed real 40+ report corpus; synthetic golden data must not be used as a substitute for real-report proof.
+- DO-NOT-REPEAT → Do not transfer old PR #672 PASS/evidence; do not claim report completion from import success; do not call generic canonical storage a domain-specific writer; do not fabricate benchmark/outcome.
+- CURRENT RESUME POINTER → Exact-head certification for `cb5be214ae8aaf089355f133dc9a31a982f903c6`, then first available real report.
+- NEXT EXACT ACTION → Consume the terminal checks for `cb5be214ae8aaf089355f133dc9a31a982f903c6`. If clean, connect/read the first real report and execute it through canonical import → analysis → evidence → report surfaces → rendered UI → proof → persist.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / WORKER RPC CONTRACT RECONCILIATION PROVEN
 
 - MAIN EXACT HEAD AT CHECKPOINT → `3f7963db851d87fadd57462482385452ca2536f5`.
