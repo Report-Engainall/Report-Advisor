@@ -131,9 +131,14 @@ assert.ok(reportsSurface.includes('القيم غير المتاحة تبقى غ�
 const canonicalImport = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
 assert.ok(canonicalImport.includes('role="list" aria-label="مراحل الاستيراد"'), 'canonical import stepper must expose a semantic list boundary');
 assert.ok(canonicalImport.includes('aria-current={active ? \'step\' : undefined}'), 'canonical import must expose the active step to assistive technology');
+assert.ok(canonicalImport.includes('تم اعتماد المصدر وربطه بمسار العمل'), 'canonical import must expose the post-commit result hub');
+assert.ok(canonicalImport.includes('/reports/executive'), 'canonical import result hub must expose the executive report route');
+assert.ok(canonicalImport.includes('to=\"/trust\"'), 'canonical import result hub must expose the evidence/trust route');
+assert.ok(canonicalImport.includes('to=\"/decision-experience\"'), 'canonical import result hub must expose the decision surface route');
+assert.ok(canonicalImport.includes('to=\"/work-center\"'), 'canonical import result hub must expose the work center route');
+assert.ok(canonicalImport.includes('const inferPostImportSurface'), 'canonical import must derive the domain result from mapped source fields');
 
 const commandPalette = fs.readFileSync('src/components/CommandPalette.tsx', 'utf8');
-const appShell = fs.readFileSync('src/App.tsx', 'utf8');
 assert.ok(appShell.includes('mobileSidebarRef'), 'mobile navigation drawer must expose a focus boundary');
 assert.ok(appShell.includes('aria-modal="true" aria-label="القائمة الرئيسية"'), 'mobile navigation drawer must declare modal semantics');
 assert.ok(appShell.includes("event.key === 'Tab'"), 'mobile navigation drawer must trap keyboard focus');
