@@ -1,3 +1,22 @@
+# RESUME TOKEN — REPORT-ADVISOR / الأغبري — 2026-09-30
+
+- CURRENT REPOSITORY HEAD → `f7f3b85d5f233c948b66de6e5586466f5c429204`
+- CURRENT CODE/TEST CANDIDATE → `2ee0dc2b3315094149dde5ef27e97c75cc0ce9a2`
+- ACTIVE EXECUTION FRONTS → report corpus #26 PDF root fix; canonical import recovery; CI corpus authentication; exact-head certification/enforcement.
+- OPEN BLOCKERS → report #26 has not yet been re-proven closed on the fixed parser; CI fresh run and terminal corpus evidence pending; browser/device proof is independent and not required for server-side corpus execution.
+- LAST PROVEN → corpus exact discovery = 47; reports #1–#4 are CLOSED on their own exact evidence; report #26 pre-fix failed with CANONICAL_IMPORT_QUALITY_REJECTED:0 because generic pdf-table extraction took precedence; exact-head certification boundary accepts current HEAD as governance-only descendant of indexed candidate.
+- LAST FAILED → report #26 at ordinal 26 on pre-parser-fix run: BLOCKED / CANONICAL_IMPORT_QUALITY_REJECTED:0; later runner attempt on same resume company failed AUTHENTICATED_USER_REQUIRED due shared CI auth identity.
+- NEXT EXECUTABLE ACTION → consume fresh exact-head real-report-corpus result; prove #26 parsing and canonical lifecycle, then fix only the first newly observed root cause and re-run #26.
+- NEXT INDEPENDENT ACTIONS → consume report24-extractor diagnostics; consume certification/enforcement terminal results; preserve exact-SHA evidence; continue corpus runner from persisted resume state.
+- DO NOT REPEAT → do not rerun CLOSED reports #1–#4; do not blind-retry completed durable jobs; do not create duplicate importer/pipeline; do not reuse one CI auth email across exact heads; do not transfer stale PASS.
+- CURRENT REPORT → #26 `tests/fixtures/realistic-reports/تقارير الأرصدة الإفتتاحية - ارصدة نهائية للموردين.pdf`
+- ACTION STATUS → `IN_PROGRESS`
+- CURRENT BRANCH → `exec/20260927-current-main-import-ui-rebased`
+- CORPUS COUNT → `47`
+- RESUME POINTER → fresh exact-head corpus runner on #26.
+
+---
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / REPORT #26 PDF + CI AUTH RECOVERY
 
 - CURRENT EXACT HEAD → `2ee0dc2b3315094149dde5ef27e97c75cc0ce9a2`.
