@@ -109,6 +109,11 @@ function missingCanonicalWriteFields(
 }
 
 function inferEntityType(specialty: CanonicalImportSpecialty, datasets: Dataset[]): CanonicalSourceUnderstanding['entityType'] {
+  if (specialty === 'receivables') return 'generic:receivables';
+  if (specialty === 'purchases') {
+    const missing = missingCanonicalWriteFields(specialty, datasets);
+    return missing.length > 0 ? 'generic:purchases' : 'purchase_invoices';
+  }
   const missing = missingCanonicalWriteFields(specialty, datasets);
   if (missing.length > 0) return 'generic:source-data';
   if (specialty === 'products') return 'products';
@@ -118,7 +123,6 @@ function inferEntityType(specialty: CanonicalImportSpecialty, datasets: Dataset[
   if (specialty === 'suppliers') return 'suppliers';
   if (specialty === 'inventory') return 'inventory_balances';
   if (specialty === 'payments') return 'payments';
-  if (specialty === 'receivables') return 'generic:receivables';
   return 'generic:source-data';
 }
 
