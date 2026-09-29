@@ -190,7 +190,7 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
 type PdfTextItem = { text: string; x: number; y: number; width: number; height: number };
 
 function isNumericToken(value: string): boolean {
-  return /^[-+]?\d[\d,\s]*(?:\\.\d+)?$/.test(value.trim());
+  return /^[-+]?\d[\d,\s]*(?:\.\d+)?$/.test(value.trim());
 }
 
 function groupPdfItemsByLine(items: PdfTextItem[], tolerance = 2.5): PdfTextItem[][] {
