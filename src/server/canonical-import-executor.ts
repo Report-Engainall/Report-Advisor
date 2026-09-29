@@ -244,7 +244,6 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
     } as Parameters<typeof buildRenderedReportOutput>[0];
 
     const renderedOutput = buildRenderedReportOutput(renderedInput);
-    const currentJobEvidence = durableQueueJob as Record<string, unknown>;
     const durableJobId = String(durableQueueJob.id);
     const { data: existingDurableJob, error: existingDurableJobError } = await serviceClient
       .from('report_execution_jobs')
@@ -281,7 +280,7 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
     execution = {
       importId: job.id,
       sourceHash: sourceSha,
-      jobId: job.id,
+      jobId: durableJobId,
       executionJobId: durableJobId,
       renderedOutput,
       reusedExistingCommit: true,
