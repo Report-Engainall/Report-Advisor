@@ -1,4 +1,6 @@
 import { createServer, type ViteDevServer } from 'vite';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
 if (!('DOMMatrix' in globalThis)) Object.defineProperty(globalThis, 'DOMMatrix', { configurable: true, value: class DOMMatrix {} });
 type PromiseConstructorWithTry = PromiseConstructor & { try?: (fn: (...args: unknown[]) => unknown, ...args: unknown[]) => Promise<unknown> };
@@ -132,6 +134,25 @@ async function main(): Promise<void> {
       'Invoice Number: INV-AR Date: 2026-09-15 Customer Name: Test Customer Subtotal: ١٢ Tax: ٣ Total: ١٥ Currency: YER',
       'INV-AR',
     );
+
+    const realPdfPath = path.join(process.cwd(), 'tests', 'fixtures', 'realistic-reports', 'اعمار الديون للعملا.pdf');
+    const realPdfBytes = await fs.readFile(realPdfPath);
+    const realBuffer = realPdfBytes.buffer.slice(realPdfBytes.byteOffset, realPdfBytes.byteOffset + realPdfBytes.byteLength);
+    const realDatasets = await parseFile(realBuffer, realPdfPath, 'pdf');
+    assert(realDatasets.length === 1, 'real receivables PDF must produce one dataset');
+    const [realDataset] = realDatasets;
+    assert(realDataset.rowCount === 27, `real receivables PDF row count must be 27, got ${realDataset.rowCount}`);
+    assert(realDataset.qualityScore >= 75, `real receivables PDF quality must meet trusted import threshold, got ${realDataset.qualityScore}`);
+    assert(realDataset.columns.filter((column) => column.mappedField).length >= 6, 'real receivables PDF must expose canonical mapped fields');
+    assert(realDataset.rows.every((row) => row.customer_id && row.customer_name && row.currency === 'YER'), 'real receivables PDF must retain customer identity and currency');
+    assert(realDataset.rows.every((row) => typeof row.outstanding_balance === 'number'), 'real receivables PDF must retain deterministic outstanding balance');
+    const { detectImportedSpecialty } = await vite.ssrLoadModule('/src/lib/file-engine/schema-hardening.ts') as {
+      detectImportedSpecialty: (dataset: typeof realDataset) => { specialty: string; confidence: number; canonicalEntityType: string };
+    };
+    const specialty = detectImportedSpecialty(realDataset);
+    assert(specialty.specialty === 'receivables', `real receivables PDF specialty must be receivables, got ${specialty.specialty}`);
+    assert(specialty.confidence >= 90, `real receivables specialty confidence must be >=90, got ${specialty.confidence}`);
+    console.log(`Real receivables PDF regression: PASS (rows=${realDataset.rowCount}, quality=${realDataset.qualityScore}, specialty=${specialty.specialty})`);
 
     console.log('Structured PDF/OCR behavioral regression: PASS');
   } finally {
