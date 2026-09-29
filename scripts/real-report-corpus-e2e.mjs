@@ -79,15 +79,20 @@ async function executeOne(file,ordinal,total,identity){
     .order('created_at', { ascending: false })
     .limit(1000);
   if (existing.error) throw existing.error;
-  const prior = (existing.data ?? []).find(row =>
-    row.result_summary?.source_path === rel &&
-    row.result_summary?.report_corpus === true
-  );
+  const priorRows = (existing.data ?? [])
+    .filter(row => row.result_summary?.source_path === rel && row.result_summary?.report_corpus === true);
+  const completedAttempt = priorRows.find(row => row.status === 'completed');
+  if (completedAttempt) {
+    return {
+      ordinal, total, path: rel, filename: fileName, fingerprint: source.hash, bytes: source.bytes,
+      exact_sha: exactHead, status: 'CLOSED', importId: completedAttempt.id, reusedCompletedAttempt: true,
+      completed_at: new Date().toISOString(),
+      proof: { existing_import_job_id: completedAttempt.id, source_file: rel },
+    };
+  }
+  const prior = priorRows[0];
 
   let importId;
-  if (prior?.status === 'completed') {
-    throw new Error('REPORT_ALREADY_CLOSED:' + rel);
-  }
   if (prior?.status === 'failed' || (prior?.status === 'processing' && prior.result_summary?.source_commit !== exactHead)) {
     if (!prior.file_record_id) throw new Error('RESUME_FAILED_IMPORT_FILE_RECORD_MISSING');
     const retryJob = await serviceClient.from('import_jobs').insert({
@@ -183,16 +188,13 @@ if (resumeRunId || resumeFromPath) {
       throw new Error('RESUME_PREVIOUS_REPORT_NOT_CLOSED:' + rel);
     }
   }
-  const latestByPath = new Map();
-  for (const row of (existing.data ?? [])) {
-    const rel = row.result_summary?.source_path;
-    if (typeof rel === 'string' && !latestByPath.has(rel)) latestByPath.set(rel, row);
-  }
+  const completedPaths = new Set(
+    (existing.data ?? [])
+      .filter(row => row.status === 'completed' && typeof row.result_summary?.source_path === 'string')
+      .map(row => row.result_summary.source_path),
+  );
   startIndex = targetIndex;
-  while (startIndex < files.length) {
-    const rel = relativePath(files[startIndex]);
-    const latest = latestByPath.get(rel);
-    if (!latest || latest.status !== 'completed') break;
+  while (startIndex < files.length && completedPaths.has(relativePath(files[startIndex]))) {
     startIndex += 1;
   }
   resumedClosed = startIndex;
