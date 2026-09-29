@@ -1,3 +1,25 @@
+# RESUME TOKEN — 2026-09-29 / REPORT-FIRST EXECUTION DISPATCHED / CURRENT HEAD 25a538b4
+
+- CURRENT EXACT HEAD: `25a538b4b04f556dd8fb329ebc22a7e43049952b`.
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`.
+- DEVICE: PC01 ONLINE.
+- EXECUTION FRONT: REPORT-FIRST; REPORT_001 remains the sole active report until authoritative closure.
+- REPORT_001: `اعمار الديون للعملا.pdf`; SHA256 `9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`; local readiness 27 rows / quality 98 / TRUSTED / receivables / confidence 96.
+- LOCAL RUNNER GUARD: `scripts/real-business-e2e.mjs` syntax-check PASS; runner explicitly preserves report-first serial execution and rejects stale/queued proof as closure.
+- NEW COMMIT: `25a538b4b04f556dd8fb329ebc22a7e43049952b` — `ci-trigger-report-first-real-corpus-e2e`.
+- CURRENT AUTHORITATIVE E2E RUNS FOR THIS SHA:
+  - push Run `36508566485` — QUEUED.
+  - pull_request Run `36508571874` — QUEUED.
+- STALE E2E RUN CLEANUP: prior Full Product Browser E2E runs on older SHAs were cancelled; they are not evidence and must not be revived.
+- CURRENT REPORT CLOSURE: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47.
+- AUTHENTICATED CLOSURE REQUIREMENT IS UNCHANGED: real file → unified import → fingerprint → canonical DB commit/readback → 9 ordered durable stages → source report VERIFIED → source-bound receivables report → downstream output bundle → tenant A/B isolation → persisted evidence.
+- DOWNSTREAM OUTPUT CONTRACT: Source Report + source-bound Domain Report + Reports Center + Trust/Evidence + Executive + Intelligence + Recommendations + conditional Forecasts + Decision + Work Center + Data Quality + conditional Outcome/Learning/Replay; benchmark fail-closed to `INSUFFICIENT SAMPLE`.
+- DO-NOT-REPEAT: no direct DB injection; no guessed credentials; no duplicate importer/runner; no report reprocessing after a completed fingerprint; no stale SHA/queued PASS; no generic domain substitution.
+- LAST VERIFIED ACTION: pushed exact-head report-first runner trigger; verified current branch head; cleaned stale E2E queue; confirmed only current-SHA Full Product Browser E2E runs remain authoritative.
+- NEXT EXACT ACTION: consume the first terminal current-SHA Full Product Browser E2E result; if REPORT_001 closes, persist its full proof and advance to REPORT_002; if it fails, repair only the first current-SHA blocker and rerun the affected proof path.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / REPORT-FIRST CONTINUITY / REPORT_001 READY FOR AUTHENTICATED COMMIT
 
 - CONTROL HEAD BEFORE MEMORY WRITE: `6b6cf7749245ad6b4e537288476c0ef6a03d13da`.
