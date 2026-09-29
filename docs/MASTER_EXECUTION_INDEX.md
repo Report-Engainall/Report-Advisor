@@ -1,3 +1,23 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / REPORT_001 REAL-PDF PARSER CLOSED / CANONICAL E2E IN FLIGHT
+
+- FUNCTIONAL CODE SHA: `d1f7ac7f3ba439c440504667a2ec20e77bc7d1a9`.
+- BRANCH: `exec/20260929-post-import-report-continuity`.
+- REPORT-FIRST: canonical corpus contains 47 real report inputs; no report is CLOSED yet.
+- REPORT_001: `اعمار الديون للعملا.pdf`; raw SHA-256 `9996F169AAE09E31F909712CA4BE5ACE238C7A4F123B370D436A5F1A115EA099`; PDF, 275,288 bytes, 1 page.
+- REAL PARSER PROOF: canonical PDF parser now preserves pdfjs layout, extracts 27 business rows, quality=98, specialty=receivables, and canonical mappings for customer identity, currency, aging, local amount and outstanding balance.
+- TARGETED LOCAL PROOF on exact SHA: PDF structured regression PASS; route/sidebar parity PASS; report truth PASS; canonical import mapping PASS; post-import report guard PASS; report execution E2E contract PASS; typecheck PASS; production build PASS; worktree clean.
+- REPORT_001 STAGE: UNDERSTAND completed; parser/mapping/quality/trust readiness proven. Canonical browser import + DB commit + 9 durable task readback + rendered source report are NOT YET PROVEN.
+- EXACT CI IN FLIGHT: PDF structured parser regression run `36501349245`; Full Product Browser E2E run `36501349418`; Final Certification run `36501349021`; desktop-windows run `36501349216`.
+- OLD PROOF INVALIDATION: the prior REPORT_001 browser failure at quality=0 on `60caeeb...` is superseded by current parser fixes and must not be reused as a current-head failure.
+- REPORT COUNTS: TOTAL=47, CLOSED=0, REVIEW=0, FAILED=0, BLOCKED=0, REMAINING=47.
+- OPEN: REPORT_001 canonical browser import/readback; then REPORT_002 onward via deterministic anti-repeat selection.
+- SEPARATE OPEN CERTIFICATION FRONT: Phase-F exact-runtime deployment identity and live `customer_credit_accounts` migration-lineage drift remain unresolved; they do not block the report parser lane.
+- DO-NOT-REPEAT: no corpus rediscovery; no duplicate importer/ledger; no direct DB injection; no synthetic substitute; no stale SHA evidence; no reprocessing of a completed fingerprint.
+- RESUME POINT: consume terminal exact-`d1f7...` Full Product Browser E2E. If PASS, read its real-report evidence artifact and close REPORT_001 only after all report closure gates. If FAIL, repair only the first current-SHA reproducible failure.
+- NEXT EXACT ACTION: consume run `36501349418` terminal result and its `real-report-e2e` artifact.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / REAL CORPUS RESTORED / REPORT_001 NEXT
 
 - CURRENT CODE/TEST CANDIDATE: `e58f0d7709e3d4707cf596cfc2ca1f42a37d1dad`.
