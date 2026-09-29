@@ -145,6 +145,37 @@ export default async (request: Request): Promise<Response> => {
     }
     if (reconciled.rows.length !== authoritativeRows.length) throw new Error('AUTHORITATIVE_SOURCE_RECONCILIATION_COUNT_MISMATCH');
 
+    // Persist the authoritative source proof before any canonical commit. The
+    // database boundary deliberately rejects commits without file hash,
+    // source fingerprint, security status, and raw-byte hash proof.
+    const verifiedMetadata = {
+      ...(fileRecord.metadata && typeof fileRecord.metadata === 'object' ? fileRecord.metadata as Record<string, unknown> : {}),
+      storage_bucket: storageBucket,
+      storage_path: storagePath,
+      raw_bytes_sha256: sourceSha,
+      server_verified_at: new Date().toISOString(),
+      server_verified_by: userData.user.id,
+      detected_format: detection.format,
+    };
+    const { error: updateFileError } = await userClient
+      .from('file_records')
+      .update({
+        file_hash: sourceSha,
+        security_status: 'passed',
+        status: 'ready',
+        metadata: verifiedMetadata,
+      })
+      .eq('id', fileRecord.id)
+      .eq('company_id', companyId);
+    if (updateFileError) throw updateFileError;
+
+    const { error: updateImportFingerprintError } = await userClient
+      .from('import_jobs')
+      .update({ source_fingerprint: sourceSha })
+      .eq('id', job.id)
+      .eq('company_id', companyId);
+    if (updateImportFingerprintError) throw updateImportFingerprintError;
+
     const workerResponse = await fetch(`${supabaseUrl}/functions/v1/canonical-import-worker`, {
       method: 'POST',
       headers: {
