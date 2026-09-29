@@ -124,6 +124,17 @@ async function main(): Promise<void> {
       const content = await page.getTextContent({ disableCombineTextItems: true });
       rawPageTexts.push(content.items.map((item: { str?: string }) => item.str ?? '').filter(Boolean).join(' '));
     }
+    const rawNormalizedSupplierText = rawPageTexts.join(' ').normalize('NFKC').replace(/\s+/g, ' ').trim();
+    const rawSupplierRowStartMatches = [...rawNormalizedSupplierText.matchAll(/(?<!\d)(-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:[.,]\d+)?)\s+(\d{4,8})\s+(YER|SAR|USD|EUR|ر\.س)(?=\s)/gi)];
+    console.log('RAW_PDFJS_SUPPLIER_SHAPE', JSON.stringify({
+      chars: rawNormalizedSupplierText.length,
+      header: /(رقم المورد|رقم الحساب|الرصيد الافتتاحي|العملة|الاسم)/.test(rawNormalizedSupplierText),
+      rowStarts: rawSupplierRowStartMatches.length,
+      yerTokens: (rawNormalizedSupplierText.match(/\bYER\b/gi) ?? []).length,
+      sarTokens: (rawNormalizedSupplierText.match(/ر\.س/gi) ?? []).length,
+      accountTokens: (rawNormalizedSupplierText.match(/(?<!\d)\d{8,12}(?!\d)/g) ?? []).length,
+      numericTokens: (rawNormalizedSupplierText.match(/-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:[.,]\d+)?/g) ?? []).length,
+    }));
     const rawSupplierRows = tryParseSupplierOpeningBalanceText(rawPageTexts.join(' '));
     console.log('RAW_PDFJS_SUPPLIER_ROWS', JSON.stringify({
       rows: rawSupplierRows?.length ?? 0,
