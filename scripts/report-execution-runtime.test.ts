@@ -51,7 +51,7 @@ const adapter = fs.readFileSync('src/lib/report-execution/durable-worker-adapter
 for (const rpc of ["rpc('advance_report_execution_checkpoint'", "rpc('complete_report_execution_job'", "rpc('retry_report_execution_job'"]) assert.ok(adapter.includes(rpc), `missing durable worker RPC: ${rpc}`);
 
 const runner = fs.readFileSync('src/lib/report-execution/durable-production-runner.ts', 'utf8');
-for (const invariant of ['loadSourceSnapshot', 'sourceSnapshotId', 'source.sourceHash !== input.sourceHash', 'source.currentRows', 'currentRows: source.currentRows', 'sourceSnapshotId: input.request.sourceSnapshotId ?? null', 'store.heartbeat', 'store.saveCheckpoint', 'store.complete', 'store.fail']) assert.ok(runner.includes(invariant), `missing durable production invariant: ${invariant}`);
+for (const invariant of ['loadSourceSnapshot', 'sourceSnapshotId', 'source.sourceHash !== input.sourceHash', 'source.currentRows', 'currentRows: source.currentRows', 'sourceSnapshotId: input.request.sourceSnapshotId ?? null', 'store.heartbeat', 'store.saveCheckpoint', 'store.complete', 'store.fail', 'renderedOutput: stageEvidence.rendered ?? null']) assert.ok(runner.includes(invariant), `missing durable production invariant: ${invariant}`);
 const snapshotGuard = fs.readFileSync('scripts/check-report-execution-source-snapshot-identity.mjs', 'utf8');
 assert.match(snapshotGuard, /sourceSnapshotId/);
 
