@@ -353,15 +353,28 @@ function compactArabicHeader(value: string): string {
   return normalizeColumnName(value).replace(/(?<=[\u0600-\u06FF])\s+(?=[\u0600-\u06FF])/gu, '');
 }
 
-function pdfHeaderMatch(value: string): string | null {
+function reverseHeaderText(value: string): string {
+  return [...value].reverse().join('');
+}
+
+function headerTextMatchesAlias(value: string, alias: string): boolean {
   const normalized = normalizeColumnName(value);
+  const normalizedAlias = normalizeColumnName(alias);
   const compact = compactArabicHeader(value);
-  const aliases = [...PDF_TABLE_HEADER_ALIASES].sort((a, b) => normalizeColumnName(b).length - normalizeColumnName(a).length);
-  return aliases.find(alias => {
-    const normalizedAlias = normalizeColumnName(alias);
-    const compactAlias = compactArabicHeader(alias);
-    return normalized === normalizedAlias || normalized.includes(normalizedAlias) || compact === compactAlias || compact.includes(compactAlias);
-  }) ?? null;
+  const compactAlias = compactArabicHeader(alias);
+  const reversedCompact = reverseHeaderText(compact);
+  return normalized === normalizedAlias
+    || normalized.includes(normalizedAlias)
+    || compact === compactAlias
+    || compact.includes(compactAlias)
+    || reversedCompact === compactAlias
+    || reversedCompact.includes(compactAlias);
+}
+
+function pdfHeaderMatch(value: string): string | null {
+  return [...PDF_TABLE_HEADER_ALIASES]
+    .sort((a, b) => normalizeColumnName(b).length - normalizeColumnName(a).length)
+    .find(alias => headerTextMatchesAlias(value, alias)) ?? null;
 }
 
 const SORTED_PDF_TABLE_ALIASES = [...PDF_TABLE_HEADER_ALIASES].sort(
@@ -372,9 +385,9 @@ function detectPdfTableHeader(line: PdfTextPlacement[]): PdfTableHeader | null {
   const sorted = [...line].sort((a, b) => a.x - b.x);
   if (sorted.length < PDF_TABLE_MIN_ANCHORS) return null;
 
-  const compactLine = compactArabicHeader(sorted.map(item => item.str).join(' '));
+  const fullLine = sorted.map(item => item.str).join(' ');
   const candidateAliases = SORTED_PDF_TABLE_ALIASES.filter(alias =>
-    compactLine.includes(compactArabicHeader(alias)),
+    headerTextMatchesAlias(fullLine, alias),
   );
   if (candidateAliases.length < PDF_TABLE_MIN_ANCHORS) return null;
 
@@ -392,8 +405,10 @@ function detectPdfTableHeader(line: PdfTextPlacement[]): PdfTableHeader | null {
       for (let span = 1; span <= maxSpan; span += 1) {
         const index = i + span - 1;
         if (used.has(index)) break;
-        compactCandidate = compactArabicHeader(sorted.slice(i, index + 1).map(item => item.str).join(' '));
-        if (compactCandidate === compactAlias || compactCandidate.includes(compactAlias)) {
+        const candidateText = sorted.slice(i, index + 1).map(item => item.str).join(' ');
+        compactCandidate = compactArabicHeader(candidateText);
+        const reversedCompactCandidate = reverseHeaderText(compactCandidate);
+        if (headerTextMatchesAlias(candidateText, alias) || reversedCompactCandidate === compactAlias || reversedCompactCandidate.includes(compactAlias)) {
           found = { start: i, end: index };
           break;
         }
