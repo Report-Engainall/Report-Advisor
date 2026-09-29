@@ -260,11 +260,16 @@ async function selectNextRealReport(page) {
       page,
       'import_jobs',
       { company_id: companyId, status: 'processing' },
-      'id,status,job_type,created_at,result_summary',
+      'id,status,job_type,source_fingerprint,created_at,result_summary',
       { order: 'created_at.desc', limit: 100 },
     );
     const pending = pendingByName.find(
-      row => row?.result_summary?.file_name === path.basename(candidatePath),
+      row =>
+        row?.result_summary?.file_name === path.basename(candidatePath) &&
+        (
+          String(row?.source_fingerprint || '').toLowerCase() === sourceHash.toLowerCase() ||
+          String(row?.result_summary?.source_hash || '').toLowerCase() === `sha256:${sourceHash.toLowerCase()}`
+        ),
     );
     if (pending) {
       evidence.steps.push({
