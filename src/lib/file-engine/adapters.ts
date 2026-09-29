@@ -865,19 +865,19 @@ function normalizedPdfRowValue(row: Row, pattern: RegExp): string {
 }
 
 export function isPdfBusinessTableRow(row: Row): boolean {
-  const invoiceNumber = normalizedPdfRowValue(row, /(?:رقم\s*(?:الفاتورة|فاتورة|المستند)|invoice\s*(?:number|no\.?)|document\\s*no)/i);
+  const invoiceNumber = normalizedPdfRowValue(row, /(?:رقم\s*(?:الفاتورة|فاتورة|المستند)|invoice\s*(?:number|no\.?)|document\s*no)/i);
   const invoiceDate = normalizedPdfRowValue(row, /(?:التاريخ|تاريخ\s*الفاتورة|invoice\s*date|date)/i);
-  const customerName = normalizedPdfRowValue(row, /(?:اسم\s*العميل|العميل|customer\\s*name)/i);
+  const customerName = normalizedPdfRowValue(row, /(?:اسم\s*العميل|العميل|customer\s*name)/i);
 
   const invoiceFieldExists = Object.keys(row).some((candidate) =>
-    /(?:رقم\s*(?:الفاتورة|فاتورة|المستند)|invoice\s*(?:number|no\.?)|document\\s*no)/i.test(normalizeColumnName(candidate)),
+    /(?:رقم\s*(?:الفاتورة|فاتورة|المستند)|invoice\s*(?:number|no\.?)|document\s*no)/i.test(normalizeColumnName(candidate)),
   );
 
   if (!invoiceFieldExists) return true;
   if (!invoiceNumber) return false;
   if (!invoiceDate) return false;
 
-  const summaryCustomer = /^(?:الإجمالي|الاجمالي|المجموع|اجمال(?:ي|ى)|total|subtotal|grand\s*total)\\s*:?$/i;
+  const summaryCustomer = /^(?:الإجمالي|الاجمالي|المجموع|اجمال(?:ي|ى)|total|subtotal|grand\s*total)\s*:?$/i;
   if (customerName && summaryCustomer.test(customerName.normalize('NFKC').trim())) return false;
   return true;
 }
