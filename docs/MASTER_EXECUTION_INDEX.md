@@ -1,3 +1,19 @@
+# LIVE EXECUTION CHECKPOINT — 2026-09-29 / PHASE-F RESTORE PARITY REPAIR
+
+- CURRENT FUNCTIONAL HEAD → `b24d515d9e45847591b56ce6307105103874ea09`.
+- PREVIOUS FUNCTIONAL CANDIDATE → `6966931a2eedc67de3c8c4d6033f50ddc9a86ba1`.
+- PHASE-F ROOT CAUSE → logical-restore replay of `20260925184000_restore_client_ui_settings_schema_parity.sql` failed because it recreated `public.current_customer_company_id()` against `public.profiles`, while `company_memberships` is the canonical tenant membership schema available earlier in the migration order.
+- PHASE-F ROOT REPAIR → the migration now resolves the authenticated tenant through active `public.company_memberships` ordered by `is_default`, `created_at`, `id`; no compatibility `profiles` table/view is added.
+- LIVE PARITY MIGRATION → `20260929170000_reconcile_customer_company_resolver_restore_parity` applied successfully and mirrors the repaired resolver in the live database.
+- SECURITY → resolver remains SECURITY DEFINER with `search_path=public`; no new application DML grants.
+- CURRENT REPORT CORE → 34 business source files in execution DB: 32 completed/rendered with exact import/canonical continuity; 2 remain open because canonical source rows do not exist. All recognized import domains now route to source-bound report page; SourceBoundReportPage is domain-aware and filename-first classification corrects known semantic mislabels.
+- CURRENT OPEN REPORTS → `المبيعات.pdf` (328 rows, 0 canonical) and `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf` (6,562 rows, 0 canonical). No synthetic closure.
+- VERCEL → no deployment visible yet for the current PR head, so live production SHA match and authenticated Edge proof remain unclaimed.
+- CI → next exact-head wave must prove the Phase-F restore fix; do not transfer earlier Phase-F failure.
+- RESUME → consume CI on current PR HEAD; repair first current-SHA failure only, then pursue source-byte recovery for the two open reports.
+
+---
+
 # LIVE EXECUTION CHECKPOINT — 2026-09-29 / ALL-SOURCE REPORT CORE
 
 - CURRENT PR HEAD → `6966931a2eedc67de3c8c4d6033f50ddc9a86ba1` (#680 / `exec-report-cert-parity-0929`).
