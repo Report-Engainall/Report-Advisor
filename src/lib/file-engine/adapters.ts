@@ -1115,7 +1115,7 @@ export function tryParseProductInventoryAdministrativeText(text: string): Row[] 
   ];
 
   function numericTokens(value: string): string[] {
-    return [...value.matchAll(/(?:\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)/g)].map(match => match[0]);
+    return [...value.matchAll(/-?(?:\d{1,3}(?:,\d{3})+|\d+|\.\d+)(?:[.,٫]\d+)?/g)].map(match => match[0]);
   }
 
   function findWarehousePackageIndex(values: string[]): number {
@@ -1142,9 +1142,14 @@ export function tryParseProductInventoryAdministrativeText(text: string): Row[] 
     const warehouseToken = tokens[packageIndex - 1];
     if (!/^\d+(?:\.\d+)?$/.test(warehouseToken)) continue;
 
-    const unitIndex = tokens.findIndex((token, tokenIndex) =>
-      tokenIndex > packageIndex && unitWords.includes(token),
-    );
+    const unitIndex = tokens.findIndex((token, tokenIndex) => {
+      if (tokenIndex <= packageIndex) return false;
+      const normalizedUnit = token
+        .normalize('NFKC')
+        .replace(/[^\p{L}]/gu, '')
+        .trim();
+      return unitWords.includes(normalizedUnit);
+    });
     if (unitIndex < 0 || unitIndex <= packageIndex || unitIndex >= tokens.length - 1) continue;
 
     const metricText = tokens.slice(0, packageIndex - 1).join(' ');
