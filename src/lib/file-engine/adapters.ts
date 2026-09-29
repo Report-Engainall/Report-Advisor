@@ -408,7 +408,14 @@ function detectPdfTableHeader(line: PdfTextPlacement[]): PdfTableHeader | null {
         const candidateText = sorted.slice(i, index + 1).map(item => item.str).join(' ');
         compactCandidate = compactArabicHeader(candidateText);
         const reversedCompactCandidate = reverseHeaderText(compactCandidate);
-        if (headerTextMatchesAlias(candidateText, alias) || reversedCompactCandidate === compactAlias || reversedCompactCandidate.includes(compactAlias)) {
+        const normalizedCandidate = normalizeColumnName(candidateText);
+        const normalizedAlias = normalizeColumnName(alias);
+        const reversedCandidate = reverseHeaderText(compactCandidate);
+        if (
+          normalizedCandidate === normalizedAlias ||
+          compactCandidate === compactAlias ||
+          reversedCandidate === compactAlias
+        ) {
           found = { start: i, end: index };
           break;
         }
