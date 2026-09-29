@@ -150,11 +150,13 @@ for (const token of [
   'Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")',
   'createClient(SUPABASE_URL,SERVICE_ROLE_KEY',
   'runCanonicalImportThroughDurableRunner',
-  "status: 'ready'",
 ]) {
   if (!worker.includes(token) && !worker.replaceAll(' ', '').includes(token.replaceAll(' ', ''))) {
     throw new Error(`Canonical durable worker boundary missing: ${token}`);
   }
+}
+if (!/status\\s*:\\s*["']ready["']/.test(worker)) {
+  throw new Error('Canonical durable worker boundary missing: ready status persistence');
 }
 if (/grant execute on function public\\.(claim|heartbeat|advance|complete|fail|retry)_report_execution_job[^\\n]*to authenticated/i.test(serverAdapter)) {
   throw new Error('Canonical server boundary must not add authenticated worker RPC grants');

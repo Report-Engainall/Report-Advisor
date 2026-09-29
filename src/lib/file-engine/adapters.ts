@@ -731,6 +731,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     // PDF.js 6.x force-disables real workers in Node and falls back to a fake
     // worker. Supplying the worker module explicitly prevents the Netlify
     // function from resolving a non-bundled /node_modules path at runtime.
+    // @ts-expect-error pdfjs-dist 6.x ships this worker entry without a TypeScript declaration.
     const pdfWorker = await import('pdfjs-dist/legacy/build/pdf.worker.mjs');
     (globalThis as typeof globalThis & { pdfjsWorker?: typeof pdfWorker }).pdfjsWorker = pdfWorker;
   } else {
