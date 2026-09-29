@@ -22,6 +22,34 @@ export type CanonicalImportSourceRow = {
   provenance: Record<string, unknown> | null;
 };
 
+export type CanonicalImportSourceContext = {
+  id: string;
+  status: string | null;
+  job_type: string | null;
+  total_rows: number | null;
+  processed_rows: number | null;
+  valid_rows: number | null;
+  invalid_rows: number | null;
+  progress: number | null;
+  source_fingerprint: string | null;
+  result_summary: Record<string, unknown> | null;
+};
+
+export async function fetchCanonicalImportSourceContext(importId: string): Promise<CanonicalImportSourceContext> {
+  if (!importId || !/^[0-9a-f-]{36}$/i.test(importId)) throw new Error('REPORT_QUERY_INVALID_IMPORT_ID');
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase
+    .from('import_jobs')
+    .select('id,status,job_type,total_rows,processed_rows,valid_rows,invalid_rows,progress,source_fingerprint,result_summary')
+    .eq('company_id', companyId)
+    .eq('id', importId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error('REPORT_SOURCE_NOT_FOUND');
+  return data as CanonicalImportSourceContext;
+}
+
 export async function fetchCanonicalImportSourceRows(importId: string, limit = 5000): Promise<CanonicalImportSourceRow[]> {
   if (!importId || !/^[0-9a-f-]{36}$/i.test(importId)) throw new Error('REPORT_QUERY_INVALID_IMPORT_ID');
   if (!Number.isInteger(limit) || limit < 1 || limit > 5000) throw new Error('REPORT_QUERY_INVALID_IMPORT_LIMIT');
