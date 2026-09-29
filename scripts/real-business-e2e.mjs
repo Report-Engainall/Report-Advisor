@@ -225,13 +225,14 @@ async function importOne(page, label, fields, marker) {
 }
 
 function resolveDomainSurface(specialty, entityType, importId) {
-  if (specialty === 'receivables' || entityType === 'generic:receivables') return { path: `/reports/receivables?importId=${encodeURIComponent(importId)}`, label: 'تقرير الذمم والتحصيل', sourceBound: true };
-  if (specialty === 'sales' || entityType === 'sales_invoices') return { path: '/reports/sales', label: 'تقرير المبيعات', sourceBound: false };
-  if (specialty === 'purchases') return { path: '/reports/purchases', label: 'تقرير المشتريات', sourceBound: false };
-  if (specialty === 'inventory') return { path: '/reports/inventory', label: 'تقرير المخزون', sourceBound: false };
-  if (specialty === 'products' || entityType === 'products') return { path: '/products', label: 'المنتجات', sourceBound: false };
-  if (specialty === 'customers' || entityType === 'customers') return { path: '/customers', label: 'العملاء', sourceBound: false };
-  if (specialty === 'payments') return { path: '/analytics/liquidity', label: 'السيولة والتعرض النقدي', sourceBound: false };
+  const path = `/reports/source/${encodeURIComponent(importId)}/domain`;
+  if (specialty === 'receivables' || entityType === 'generic:receivables') return { path, label: 'تقرير المجال — الذمم والتحصيل', sourceBound: true };
+  if (specialty === 'sales' || entityType === 'sales_invoices') return { path, label: 'تقرير المجال — المبيعات', sourceBound: true };
+  if (specialty === 'purchases') return { path, label: 'تقرير المجال — المشتريات', sourceBound: true };
+  if (specialty === 'inventory') return { path, label: 'تقرير المجال — المخزون', sourceBound: true };
+  if (specialty === 'products' || entityType === 'products') return { path, label: 'تقرير المجال — المنتجات', sourceBound: true };
+  if (specialty === 'customers' || entityType === 'customers') return { path, label: 'تقرير المجال — العملاء', sourceBound: true };
+  if (specialty === 'payments') return { path, label: 'تقرير المجال — الحركات المالية', sourceBound: true };
   return null;
 }
 
@@ -353,7 +354,7 @@ async function importRealReportOne(page, selection, reportKey) {
     if (domain.sourceBound) {
       assert.ok(domainBody.includes(fileName), 'source-bound domain report must retain file identity');
       assert.ok(domainBody.includes(sourceHash), 'source-bound domain report must retain provenance');
-      assert.ok(domainBody.includes('SOURCE-BOUND RECEIVABLES'), 'receivables domain report must be source-bound');
+      assert.ok(domainBody.includes('SOURCE-BOUND DOMAIN REPORT'), 'domain report must explicitly identify source-bound status');
     }
     domainRendered = true;
   }
