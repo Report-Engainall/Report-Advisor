@@ -102,10 +102,19 @@ jobs:
           if(!('sumPrecise' in Math)) Object.defineProperty(Math,'sumPrecise',{configurable:true,writable:true,value:(values)=>{let total=0;for(const value of values)total+=Number(value)||0;return total;}});
           if(!('try' in Promise)) Object.defineProperty(Promise,'try',{configurable:true,writable:true,value:(fn,...args)=>new Promise((resolve,reject)=>{try{resolve(fn(...args));}catch(error){reject(error);}})});
           if(!('toHex' in Uint8Array.prototype)) Object.defineProperty(Uint8Array.prototype,'toHex',{configurable:true,writable:true,value:function(){return Array.from(this,(byte)=>byte.toString(16).padStart(2,'0')).join('');}});
-          const { parseFile } = await import('./src/lib/file-engine/adapters.ts');
+          const { parseFile, tryParseSupplierOpeningBalanceText } = await import('./src/lib/file-engine/adapters.ts');
           const pdfjs = await import('pdfjs-dist');
           const file='tests/fixtures/realistic-reports/تقارير الأرصدة الإفتتاحية - ارصدة نهائية للموردين.pdf';
           const bytes=await fs.readFile(file);
+          const rawPageText = [];
+          for (let pageNumber=1; pageNumber<=Math.min(pdf.numPages,4); pageNumber++) {
+            const page=await pdf.getPage(pageNumber);
+            const content=await page.getTextContent({disableCombineTextItems:true});
+            rawPageText.push(content.items.map(item=>item.str).filter(Boolean).join(' '));
+          }
+          const directSupplierRows = tryParseSupplierOpeningBalanceText(rawPageText.join(' '));
+          console.log('SUPPLIER_OPENING_DIRECT_ROWS=' + (directSupplierRows?.length ?? 0));
+          console.log(JSON.stringify(directSupplierRows?.slice(0,4) ?? null,null,2));
           const parserBuffer=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
           const datasets=await parseFile(parserBuffer,file,'pdf');
           const pdfBytes=new Uint8Array(bytes);
