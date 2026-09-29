@@ -158,7 +158,7 @@ async function main(): Promise<void> {
       ['تقارير البنوك.xlsx', 'xlsx', 'payments'],
       ['تقارير حركة الصندوق.xlsx', 'xlsx', 'payments'],
       ['ديون العملاء المستحقة.xlsx', 'xlsx', 'receivables'],
-      ['الاصناف 3.xlsx', 'xlsx', 'products'],
+      ['الاصناف 3.xlsx', 'xlsx', 'inventory'], ['الاصناف .xlsx', 'xlsx', 'products'],
     ] as const;
     for (const [fileName, format, expectedSpecialty] of corpusCases) {
       const bytes = await fs.readFile(path.join(process.cwd(), 'tests', 'fixtures', 'realistic-reports', fileName));
