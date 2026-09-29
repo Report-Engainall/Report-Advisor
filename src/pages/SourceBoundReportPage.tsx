@@ -91,7 +91,7 @@ function domainLabel(domain: ReportDomain): string {
   return labels[domain];
 }
 
-function normalizeDomain(value: string | null | undefined, sourceName?: string | null): ReportDomain {
+export function normalizeDomain(value: string | null | undefined, sourceName?: string | null): ReportDomain {
   const semantic = String(value ?? '').toLowerCase();
   const file = String(sourceName ?? '').toLowerCase();
   const raw = \`${file} ${semantic}\`;
