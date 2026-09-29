@@ -1,3 +1,21 @@
+# CURRENT SESSION RECONCILIATION — 2026-09-30 / 735-ROW FRONT — COMPLETED-DURABLE-RESULT RECOVERY
+
+- EXACT GOVERNED MAIN HEAD VERIFIED → `dc08f0158bcef3105ff1ef8a12704514ef790aa1`.
+- ACTIVE FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased` / current head `3c95611194a2b9acbbe43dcf8d7758b9703c1992`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
+- SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- VERIFIED STAGING STATE → 735 canonical rows; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0` is `completed/rendered`; import job remains `processing` at `0/735`; persisted durable evidence has no `renderedOutput`.
+- SOURCE ANALYSIS → existing snapshot is `analyzed`, PDF, quality 87, row_count 735; it contains one unmapped source column (`المستوي`) plus high null rates on some descriptive fields. No synthetic metrics are authorized.
+- ROOT GAP → the current completed-job recovery path reconstructs `renderedOutput` and finalizes an open import job, but the completed-job branch does not persist the reconstructed rendered payload into durable evidence. This is the current canonical persistence boundary to repair.
+- ACTION STATUS → `IN_PROGRESS`.
+- CURRENT RESUME POINTER → add a service-role-only governed completed-result recovery boundary to the existing canonical server path; persist rendered evidence and terminalize the open import job through that governed recovery, then read back job/task/import/output state.
+- NEXT EXACT ACTION → patch the active canonical recovery path and its SQL contract, apply it to Staging, execute it once against this same import/job/source hash, and read back exact durable/rendered/import/UI contracts. No blind re-import.
+- RUNTIME BLOCKER → PC01 offline; authenticated browser/Edge proof unavailable. No browser PASS will be claimed.
+- DO-NOT-REPEAT → no alternate importer, no raw canonical-row rewrite, no blind retry of the completed job, no fake auth/JWT, no mock rendered result, no stale PASS.
+- NEXT REPORT → none; remain on this report until runtime/result closure or a newly proven blocker changes.
+
+---
+
 # CURRENT RESUME CHECKPOINT — 2026-09-30 / 735-ROW REPORT FRONT — TENANT GATE ROOT FIX
 
 - CURRENT EXACT MAIN HEAD → `4dcfbbc87b4acc9f95b7e0f3b35a71c42c366654`.
