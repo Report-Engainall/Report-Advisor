@@ -1526,3 +1526,26 @@
 - PROOF → exact-source regression PASS for Analytics/Demand/Liquidity context continuity; Inventory Intelligence changes are encoded in the same contract.
 - DO NOT REPEAT → never allow a report action launched inside an imported-source context to silently switch to tenant-wide scope without an explicit scope change.
 - RESUME POINT → perform the final exact-head deep regression, inspect current hosted statuses, and persist the latest execution boundary.
+
+# RESUME TOKEN — 2026-09-29 / REAL REPORT RECEIVABLES ROUTING + RENDER MANIFEST REPAIR
+
+- EXACT BRANCH HEAD → `a5d18e4253586cd216580f3596bd3c21142bbc65`.
+- CONTROL RECONCILIATION → the prior memory pointer was stale; this token supersedes it for the current branch. Do not transfer older SHA PASS claims.
+- REAL REPORT UNDER TEST → `اعمار الديون للعملا.pdf`.
+- REAL SOURCE FINGERPRINT → `sha256:9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`; file size 275288 bytes; security `passed`; source format `pdf`.
+- LIVE IMPORT PROOF → import job `6de27d0f-98bb-4d1b-8143-fd3d9a85a4b8` completed with 27/27 processed, 27 valid, 0 invalid, 0 quarantined, 0 duplicates, quality 98.
+- DURABLE EXECUTION PROOF → execution job `174196b5-42cf-4654-9721-13ac8d5a29db` reached all 9 required stages in order through `rendered`; canonical commit count = 1; canonical dataset records for the exact source = 27.
+- ROOT PRODUCT GAP FOUND → current canonical specialty type did not formally recognize `receivables`, so a generic receivables source could fall back to Executive only.
+- ROOT PRODUCT GAP FIXED IN SOURCE → `receivables` is now a first-class semantic specialty with aging/receivable signals; unknown `generic:source-data` still fails closed to Executive.
+- OUTPUT CONTRACT FIXED → recognized specialties now retain the Executive Report plus their applicable specialty/intelligence outputs; receivables now maps to `/reports/receivables` and `/analytics/aging`.
+- UI LABEL FIXED → receivables now displays as `الذمم المدينة / أعمار الديون` instead of an undefined specialty.
+- RENDER MANIFEST CONTRACT → current durable runner already persists `stageEvidence.rendered` into `report_execution_jobs.evidence.renderedOutput`; manifest contract version was advanced to `2026-09-29-receivables-output-v1` and the runtime contract test now guards this persistence invariant.
+- CRITICAL LIVE NEGATIVE PROOF → Staging currently has 3255 completed report execution jobs and 0 jobs with `evidence.renderedOutput`; the tested receivables job also has `rendered_output = null`. This is not accepted as UI proof. It demonstrates the deployed/old execution population predates the current render-manifest persistence contract.
+- SOURCE ANALYSIS PROOF → exact source has an analyzed evidence snapshot `efe39091-3055-4fd6-bd23-c11424bc5d90`, quality 98, 27 rows, 7 columns, but its historical row did not persist specialty metadata. Current source code now writes specialty metadata on new executions.
+- CORPUS PROGRESS → branch fixture corpus = 47 real fixture files. Today’s Staging has records for 40 fixture filenames; 38 have a verified `ready + security passed + hash` file record; 2 have only unverified uploaded records; 7 fixture filenames have no record yet.
+- CURRENT HOSTED/CI BOUNDARY → Vercel remains externally blocked by free-plan `build-rate-limit`; latest exact-head GitHub workflow lookup has no terminal run; Netlify’s last observed deploy for `ea928607...` was canceled as `no content change`, so no hosted build PASS is claimed for this repair.
+- DEVICE → PC01 is offline; authenticated Edge/device proof is therefore not claimed.
+- DO-NOT-REPEAT → do not rebuild the importer, do not create a second report pipeline, do not fabricate rendered evidence, do not transfer old report-output PASS across SHA, do not mark the receivables UI rendered until a current-head execution writes a bound manifest.
+- CURRENT RESUME POINT → current branch source/contract repair is persisted. The next execution boundary is a current-head authenticated run of the first real receivables fixture through the canonical path and verification that its Job stores a bound rendered manifest containing Executive + Receivables + Aging, followed by the same proof cycle for the remaining corpus.
+- NEXT EXACT ACTION → consume a current-head build/runtime proof when available; then execute/verify `اعمار الديون للعملا.pdf` once through the repaired canonical route, inspect its 9 task ledger + rendered manifest + source-bound report links, close the report only after proof, then move deterministically to the next corpus file.
+
