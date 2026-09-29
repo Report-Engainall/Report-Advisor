@@ -114,6 +114,10 @@ function inferEntityType(specialty: CanonicalImportSpecialty, datasets: Dataset[
     const missing = missingCanonicalWriteFields(specialty, datasets);
     return missing.length > 0 ? 'generic:purchases' : 'purchase_invoices';
   }
+  if (specialty === 'products') {
+    const missing = missingCanonicalWriteFields(specialty, datasets);
+    return missing.length > 0 ? 'generic:products' : 'products';
+  }
   const missing = missingCanonicalWriteFields(specialty, datasets);
   if (missing.length > 0) return 'generic:source-data';
   if (specialty === 'products') return 'products';
