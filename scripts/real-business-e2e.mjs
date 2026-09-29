@@ -1,3 +1,4 @@
+// REPORT-FIRST EXECUTION GATE: run the real corpus serially from the canonical authenticated path; queued/stale CI is never proof.
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
