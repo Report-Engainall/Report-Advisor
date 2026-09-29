@@ -28,6 +28,7 @@ const BUILTIN_SYNONYMS: Array<[string, string, number]> = [
   ['date', 'date', 94], ['التاريخ', 'date', 96], ['invoice number', 'invoice_number', 98], ['invoice_number', 'invoice_number', 98], ['invoice date', 'invoice_date', 98], ['invoice_date', 'invoice_date', 98], ['subtotal', 'subtotal', 98], ['tax amount', 'tax_amount', 98], ['tax_amount', 'tax_amount', 98], ['paid amount', 'paid_amount', 98], ['paid_amount', 'paid_amount', 98], ['total', 'total', 94], ['الإجمالي', 'total', 96],
   ['البيان', 'description', 98], ['رقمه', 'reference', 98], ['رقم المستند', 'reference', 98], ['المستند', 'document_number', 98], ['حالته', 'status', 98], ['الرصيد', 'balance', 98], ['دائن', 'credit', 98], ['مدين', 'debit', 98], ['رصيد سابق', 'opening_balance', 98],
   ['balance', 'balance', 98], ['credit', 'credit', 98], ['debit', 'debit', 98],
+  ['payment_amount', 'payment_amount', 98], ['amount', 'payment_amount', 96], ['المبلغ', 'payment_amount', 98], ['قيمة العملية', 'payment_amount', 98], ['قيمة', 'payment_amount', 96], ['الرقم المرجعي', 'reference', 98], ['المرجع', 'reference', 98],
 ];
 
 function createBuiltinMap(): Map<string, { canonical: string; confidence: number }> { const map = new Map<string, { canonical: string; confidence: number }>(); for (const [synonym, canonical, confidence] of BUILTIN_SYNONYMS) map.set(normalizeColumnName(synonym), { canonical, confidence }); return map; }
