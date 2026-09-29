@@ -551,6 +551,69 @@ function tryParseColumnMajorReceivablesText(text: string): Row[] | null {
   }));
 }
 
+function tryParseColumnMajorSupplierText(text: string): Row[] | null {
+  const normalized = normalizeArabicDigits(
+    stripControlCharacters(text.normalize('NFKC'))
+      .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
+  const headerIndex = normalized.indexOf('رقم المورد');
+  if (headerIndex < 0) return null;
+  const headerSlice = normalized.slice(headerIndex);
+  const requiredMarkers = ['اسم المورد', 'العمله', 'اجمالي المبلغ المستحق', 'المبلغ'];
+  if (requiredMarkers.filter(marker => headerSlice.includes(marker)).length < 3) return null;
+
+  const tokenMatches = [...normalized.slice(0, headerIndex).matchAll(/\b[A-Za-z]{3}\b/g)];
+  let currencyRun: { token: string; start: number; end: number; count: number } | null = null;
+  let current: { token: string; start: number; end: number; count: number } | null = null;
+  for (const match of tokenMatches) {
+    const token = match[0].toUpperCase();
+    const start = match.index ?? 0;
+    const end = start + match[0].length;
+    if (!current || current.token !== token || start - current.end > 2) {
+      current = { token, start, end, count: 1 };
+    } else {
+      current.end = end;
+      current.count += 1;
+    }
+    if (!currencyRun || current.count > currencyRun.count) currencyRun = { ...current };
+  }
+  if (!currencyRun || currencyRun.count < 3) return null;
+  const rowCount = currencyRun.count;
+  const currency = currencyRun.token;
+
+  const numericTokens = (segment: string): string[] => [...segment.matchAll(/\b(?:\d{1,3}(?:,\d{3})+|\d{4,9}|\d{1,3}(?:\.\d+)?)(?:\.\d+)?\b/g)].map(match => match[0]);
+  const beforeCurrency = normalized.slice(0, currencyRun.start);
+  const idValues = numericTokens(beforeCurrency).slice(-rowCount);
+  if (idValues.length !== rowCount) return null;
+
+  const afterCurrency = normalized.slice(currencyRun.end, headerIndex);
+  const values = numericTokens(afterCurrency);
+  if (values.length < rowCount * 3) return null;
+  const blockCount = Math.floor(values.length / rowCount);
+  if (blockCount < 3) return null;
+  const blocks = Array.from({ length: blockCount }, (_, index) => values
+    .slice(index * rowCount, (index + 1) * rowCount)
+    .map(parseNumber));
+  const purchaseBlock = blocks[0];
+  const outstandingBlockIndex = Math.max(0, blockCount - (headerSlice.includes('المندوب') ? 2 : 1));
+  const outstandingBlock = blocks[outstandingBlockIndex];
+  if (!purchaseBlock || !outstandingBlock || purchaseBlock.some(value => value == null) || outstandingBlock.some(value => value == null)) return null;
+
+  const salesRepBlock = headerSlice.includes('المندوب') && blockCount >= 2
+    ? blocks[blockCount - 1]
+    : undefined;
+
+  return idValues.map((id, index) => ({
+    supplier_id: Number(id),
+    currency,
+    purchase_amount: purchaseBlock[index] as number,
+    outstanding_balance: outstandingBlock[index] as number,
+    ...(salesRepBlock ? { sales_rep: salesRepBlock[index] ?? null } : {}),
+  }));
+}
+
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   ensurePdfJsRuntimeCompatibility();
   const pdfjs = await import('pdfjs-dist');
@@ -582,9 +645,12 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   }
   if (tableRows.length >= 2 && tablePageCount >= 1) return [await buildDataset(tableRows, fileName, 'pdf-table')];
   if (pages.length) {
-    const columnMajor = tryParseColumnMajorReceivablesText(pages.join('\n\n'));
-    if (columnMajor && columnMajor.length >= 2) return [await buildDataset(columnMajor, fileName, 'pdf-column-major')];
-    return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
+    const pageText = pages.join('\n\n');
+    const supplierColumnMajor = tryParseColumnMajorSupplierText(pageText);
+    if (supplierColumnMajor && supplierColumnMajor.length >= 2) return [await buildDataset(supplierColumnMajor, fileName, 'pdf-column-major-supplier')];
+    const receivablesColumnMajor = tryParseColumnMajorReceivablesText(pageText);
+    if (receivablesColumnMajor && receivablesColumnMajor.length >= 2) return [await buildDataset(receivablesColumnMajor, fileName, 'pdf-column-major-receivables')];
+    return buildTextDataset(pageText, fileName, 'pdf');
   }
   return parseScannedPdfWithOcr(pdf, fileName);
 }
