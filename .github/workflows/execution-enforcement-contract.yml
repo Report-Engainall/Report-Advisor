@@ -87,7 +87,7 @@ jobs:
           if (!('sumPrecise' in Math)) Object.defineProperty(Math, 'sumPrecise', { configurable: true, writable: true, value: (values) => { let total = 0; for (const value of values) total += Number(value) || 0; return total; } });
           if (!('try' in Promise)) Object.defineProperty(Promise, 'try', { configurable: true, writable: true, value: (fn, ...args) => new Promise((resolve, reject) => { try { resolve(fn(...args)); } catch (error) { reject(error); } }) });
           if (!('toHex' in Uint8Array.prototype)) Object.defineProperty(Uint8Array.prototype, 'toHex', { configurable: true, writable: true, value: function () { return Array.from(this, (byte) => byte.toString(16).padStart(2, '0')).join(''); } });
-          const { parseFile, extractPdfTableRowsFromTextItems } = await import('./src/lib/file-engine/adapters.ts');
+          const { parseFile, extractPdfTableRowsFromTextItems, loadEmbeddedPdfGlyphMap } = await import('./src/lib/file-engine/adapters.ts');
           const pdfjs = await import('pdfjs-dist');
           const file='tests/fixtures/realistic-reports/الصراف العامري.pdf';
           const bytes=await fs.readFile(file);
@@ -100,6 +100,21 @@ jobs:
             const content=await page.getTextContent({disableCombineTextItems:true});
             all.push(...content.items.map(item=>({str:item.str,x:Number(item.transform?.[4]),y:Number(item.transform?.[5]),width:Number(item.width)||0,page:pageNumber})).filter(item=>item.str&&Number.isFinite(item.x)&&Number.isFinite(item.y)));
           }
+          const glyphMap=await loadEmbeddedPdfGlyphMap(parserBuffer);
+          const repairedItems=all.map(item=>{
+            const repaired=[...item.str].map(ch=>{
+              const cps=glyphMap?.get(ch.charCodeAt(0));
+              const cp=cps?.find(v=>v>=0x0600&&v<=0x06ff) ?? cps?.[0];
+              return cp?String.fromCodePoint(cp):ch;
+            }).join('');
+            return {...item,str:repaired};
+          });
+          const repairedGroups=[];
+          for(const item of [...repairedItems].sort((a,b)=>b.y-a.y||a.x-b.x)){
+            const last=repairedGroups[repairedGroups.length-1];
+            if(!last||Math.abs(last.y-item.y)>4) repairedGroups.push({y:item.y,items:[item]}); else last.items.push(item);
+          }
+          console.log('REPAIRED_GROUPS='+JSON.stringify(repairedGroups.slice(0,20).map(g=>({y:g.y,text:g.items.sort((a,b)=>a.x-b.x).map(i=>i.str).join(' | ')})),null,2));
           const table=extractPdfTableRowsFromTextItems(all,null);
           const datasets=await parseFile(parserBuffer,file,'pdf');
           console.log(JSON.stringify({
