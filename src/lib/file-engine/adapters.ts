@@ -560,12 +560,13 @@ async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promi
       await page.render({ canvasContext: context, viewport, canvas }).promise;
 
       const result = await worker.recognize(canvas);
-      const text = typeof result?.data?.text === 'string' ? result.data.text.trim() : '';
-      const confidence = Number(result?.data?.confidence ?? 0);
+      const ocrData = result.data as unknown as { text?: string; confidence?: number; words?: any[] };
+      const text = typeof ocrData.text === 'string' ? ocrData.text.trim() : '';
+      const confidence = Number(ocrData.confidence ?? 0);
       confidences.push(confidence);
       if (text) pages.push(`PAGE ${pageNumber}\n${text}`);
 
-      const ocrWords = Array.isArray(result?.data?.words) ? result.data.words : [];
+      const ocrWords = Array.isArray(ocrData.words) ? ocrData.words : [];
       const wordItems: PdfTextItem[] = ocrWords
         .filter((word: any) => typeof word?.text === 'string' && word.text.trim() && word?.bbox)
         .map((word: any) => ({
