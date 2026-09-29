@@ -11,6 +11,11 @@ const canonicalImportExecuteURL = (
   process.env.VITE_CANONICAL_IMPORT_EXECUTE_URL ||
   `${baseURL}/api/canonical-import-execute`
 ).replace(/\/$/, '');
+
+function canonicalSourceHash(rawHash) {
+  const normalized = String(rawHash || '').trim().toLowerCase();
+  return normalized.startsWith('sha256:') ? normalized : `sha256:${normalized}`;
+}
 const supabaseURL = (process.env.REPORT_ADVISOR_SUPABASE_URL || '').replace(/\/$/, '');
 const anonKey = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY?.trim();
 const emailA = process.env.TEST_USER_A_EMAIL?.trim();
@@ -252,7 +257,7 @@ async function selectNextRealReport(page) {
     const existing = await restSelect(
       page,
       'import_jobs',
-      { company_id: companyId, source_fingerprint: sourceHash },
+      { company_id: companyId, source_fingerprint: canonicalSourceHash(sourceHash) },
       'id,status,source_fingerprint,created_at,result_summary',
       { order: 'created_at.desc', limit: 20 },
     );
@@ -291,9 +296,34 @@ async function selectNextRealReport(page) {
     }
     const completed = existing.find(row => row?.status === 'completed');
     if (completed) {
-      evidence.steps.push({ step: 'real-report-existing-completed-skip', status: 'PASS', fileName: path.basename(candidatePath), sourceHash, importJobId: completed.id });
-      sessionProcessedHashes.add(sourceHash);
-      continue;
+      const executionJobs = await restSelect(
+        page,
+        'report_execution_jobs',
+        { company_id: companyId, source_hash: canonicalSourceHash(sourceHash), status: 'completed' },
+        'id,status,checkpoint,evidence,completed_at',
+        { order: 'completed_at.desc', limit: 10 },
+      );
+      const execution = executionJobs[0] ?? null;
+      assert.ok(execution?.id, 'completed report import must have a completed durable execution job');
+      evidence.steps.push({
+        step: 'real-report-existing-completed-reuse',
+        status: 'PASS',
+        fileName: path.basename(candidatePath),
+        sourceHash,
+        importJobId: completed.id,
+        executionJobId: execution.id,
+      });
+      realReportPath = candidatePath;
+      return {
+        companyId,
+        sourceHash,
+        filePath: candidatePath,
+        corpusIndex: candidateIndex + 1,
+        existingImportId: completed.id,
+        existingEntityType: String(completed.job_type || completed.result_summary?.canonical_entity_type || 'generic:source-data'),
+        existingCompleted: true,
+        existingExecutionJobId: execution.id,
+      };
     }
     realReportPath = candidatePath;
     evidence.steps.push({ step: 'real-report-next-open-selected', status: 'PASS', fileName: path.basename(candidatePath), sourceHash, corpusIndex: candidateIndex + 1 });
@@ -311,7 +341,35 @@ async function importRealReportOne(page, selection, reportKey) {
 
   let importId = '';
   let executionJobId = '';
-  if (selection.existingImportId) {
+  if (selection.existingCompleted) {
+    importId = String(selection.existingImportId || '').trim();
+    executionJobId = String(selection.existingExecutionJobId || '').trim();
+    assert.ok(importId, 'completed existing report must return importId');
+    assert.ok(executionJobId, 'completed existing report must return executionJobId');
+
+    const token = await accessToken(page);
+    const response = await fetch(`${supabaseURL}/rest/v1/rpc/reconcile_completed_report_execution_task_ledger`, {
+      method: 'POST',
+      headers: {
+        apikey: anonKey,
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        p_job_id: executionJobId,
+        p_company_id: evidence.tenantA ?? await currentTenant(page),
+      }),
+    });
+    const body = await response.text();
+    assert.equal(response.ok, true, `completed report task-ledger reconciliation HTTP ${response.status}: ${body.slice(0, 2000)}`);
+    assert.equal(body.replaceAll('"', '').trim(), 'true', 'completed report task-ledger reconciliation must return true');
+    evidence.steps.push({
+      step: `real-report-existing-completed-reconciled:${reportKey}`,
+      status: 'PASS',
+      importJobId: importId,
+      executionJobId,
+    });
+  } else if (selection.existingImportId) {
     const token = await accessToken(page);
     const response = await fetch(canonicalImportExecuteURL, {
       method: 'POST',
@@ -389,7 +447,7 @@ async function importRealReportOne(page, selection, reportKey) {
     await page.waitForTimeout(2000);
   }
   assert.equal(job?.status, 'completed', 'real report import must reach authoritative completed state');
-  assert.equal(String(job?.source_fingerprint || '').toLowerCase(), sourceHash, 'import job fingerprint must equal raw source SHA-256');
+  assert.equal(String(job?.source_fingerprint || '').toLowerCase(), canonicalSourceHash(sourceHash), 'import job fingerprint must equal canonical source SHA-256');
 
   const resultSummary = (job?.result_summary ?? {});
   const specialty = String(resultSummary?.specialty || 'other');
@@ -400,7 +458,7 @@ async function importRealReportOne(page, selection, reportKey) {
   assert.ok(canonicalRows.length > 0, 'real report must persist canonical rows');
   assert.ok(canonicalRows.every(row => row.company_id === companyId), 'canonical rows must be tenant-bound');
   assert.ok(canonicalRows.every(row => row.import_job_id === importId), 'canonical rows must bind to import job');
-  assert.ok(canonicalRows.every(row => String(row.source_hash || '').toLowerCase() === sourceHash), 'canonical row provenance must retain source hash');
+  assert.ok(canonicalRows.every(row => String(row.source_hash || '').toLowerCase() === canonicalSourceHash(sourceHash)), 'canonical row provenance must retain canonical source hash');
 
   const executionTasks = await restSelect(page, 'report_execution_tasks', { company_id: companyId, report_execution_job_id: executionJobId }, 'id,report_execution_job_id,stage,ordinal,status,completed_at,evidence', { order: 'ordinal.asc', limit: 20 });
   const expectedStages = ['queued', 'fingerprinted', 'extracted', 'canonicalized', 'validated', 'analyzed', 'decisioned', 'committed', 'rendered'];
