@@ -56,6 +56,7 @@ const BUILTIN_SYNONYMS: Array<[string, string, number]> = [
   ['account_number', 'account_number', 98],
   ['name', 'name', 98],
   ['currency', 'currency', 98],
+  ['رقم الصنف', 'sku', 98], ['كود الصنف', 'sku', 98], ['اسم الصنف', 'product_name', 98], ['الصنف', 'product_name', 96], ['الوحدة', 'unit', 98], ['الكمية الافتتاحية', 'opening_quantity', 98], ['كمية افتتاحية', 'opening_quantity', 98], ['المخزون الافتتاحي', 'opening_quantity', 98], ['الكمية', 'quantity', 98], ['المخزون', 'quantity', 96], ['التكلفة', 'cost', 96], ['سعر التكلفة', 'cost_price', 98], ['متوسط التكلفة', 'average_cost', 98], ['قيمة المخزون', 'inventory_value', 98], ['اجمالي', 'total', 94], ['الإجمالي', 'total', 96],
 ];
 
 function createBuiltinMap(): Map<string, { canonical: string; confidence: number }> { const map = new Map<string, { canonical: string; confidence: number }>(); for (const [synonym, canonical, confidence] of BUILTIN_SYNONYMS) map.set(normalizeColumnName(synonym), { canonical, confidence }); return map; }
