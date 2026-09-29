@@ -1,3 +1,11 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / PRE-HOSTED-RUNTIME CHECKPOINT / d4d5fa61866f2a6825af80600c37a85830ca7dc7
+
+- EXACT MAIN HEAD → `d4d5fa61866f2a6825af80600c37a85830ca7dc7`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf` / import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
+- HOSTED RUNTIME FRONT → Netlify site `aghbari-report-advisor`, existing site ID `dfcf116c-cb75-449a-8a45-2f610a8ce3f5`.
+- ACTION STATUS → `IN_PROGRESS`.
+- NEXT EXACT ACTION → deploy current exact main, verify resulting deploy commit SHA, then test hosted result surfaces without re-import.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / EXACT GOVERNED MAIN `cfa69ce3439ebf7931823291cf8bbf41daf84a21` / 735-ROW REPORT CHECKPOINT
 
 - EXACT MAIN HEAD → `cfa69ce3439ebf7931823291cf8bbf41daf84a21`.

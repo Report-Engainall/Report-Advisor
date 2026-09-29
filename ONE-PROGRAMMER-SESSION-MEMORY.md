@@ -1,3 +1,12 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / PRE-HOSTED-RUNTIME CHECKPOINT / d4d5fa61866f2a6825af80600c37a85830ca7dc7
+
+- EXACT GOVERNED MAIN HEAD → `d4d5fa61866f2a6825af80600c37a85830ca7dc7`.
+- ACTION STATUS → `IN_PROGRESS` for hosted runtime closure.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- VERIFIED PRECONDITION → import completed 735/735; durable job completed/rendered; source-bound rendered outputs persisted.
+- LONG ACTION → deploy the exact governed main to existing Netlify site `aghbari-report-advisor`; then read back deployment state, exact commit SHA, hosted URL, and report result surfaces.
+- NEXT EXACT ACTION → verify deployment source SHA; if exact, fetch the real hosted result surfaces and reconcile UI output against persisted 735-row evidence. If deployment is blocked/old-SHA, record the exact blocker and do not claim browser PASS.
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / EXACT GOVERNED MAIN `cfa69ce3439ebf7931823291cf8bbf41daf84a21` / 735-ROW REPORT CHECKPOINT
 
 - EXACT GOVERNED MAIN HEAD → `cfa69ce3439ebf7931823291cf8bbf41daf84a21`.
