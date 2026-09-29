@@ -1121,7 +1121,7 @@ function tryParseProductInventoryAdministrativeText(text: string): Row[] | null 
   function findWarehousePackageIndex(values: string[]): number {
     for (let index = values.length - 1; index > 0; index -= 1) {
       if (!packageWords.includes(values[index])) continue;
-      if (/^\\d+(?:\\.\\d+)?$/.test(values[index - 1])) return index;
+      if (/^\d+(?:\.\d+)?$/.test(values[index - 1])) return index;
     }
     return -1;
   }
