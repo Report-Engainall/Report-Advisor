@@ -1068,10 +1068,16 @@ export function tryParseSupplierOpeningBalanceText(text: string): Row[] | null {
 
   if (!/(?:رقم المورد|رقم الحساب|الرصيد الافتتاحي|العملة|الاسم)/.test(normalized)) return null;
 
-  const rowStartPattern = /(?<!\d)(-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:[.,]\d+)?)\s+(\d{4,8})\s+(YER|SAR|USD|EUR|ر\.س|ريال\s+يمني|ريال\s+سعودي)(?=\s)/gi;
-  const starts = [...normalized.matchAll(rowStartPattern)];
-  if (starts.length < 5) return null;
-
+  const tokens = normalized.split(' ').filter(Boolean);
+  const currencyPattern = /^(?:YER|SAR|USD|EUR)$/i;
+  const arabicCurrencyPattern = /^(?:ر\.س|ريال\s+يمني|ريال\s+سعودي)$/i;
+  const isSupplierId = (value: string): boolean => /^\d{4,8}$/.test(normalizeArabicDigits(value));
+  const isAccountNumber = (value: string): boolean => /^\d{8,12}$/.test(normalizeArabicDigits(value));
+  const isAmount = (value: string): boolean => {
+    const normalizedValue = normalizeArabicDigits(value);
+    return /^-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:[.,]\d+)?$/.test(normalizedValue)
+      && parseNumber(normalizedValue) !== null;
+  };
   const normalizeCurrency = (value: string): string => {
     const normalizedCurrency = value.replace(/\s+/g, ' ').trim().toUpperCase();
     if (normalizedCurrency === 'ر.س' || /ريال\s+سعودي/i.test(normalizedCurrency)) return 'SAR';
@@ -1079,32 +1085,43 @@ export function tryParseSupplierOpeningBalanceText(text: string): Row[] | null {
     return normalizedCurrency;
   };
 
+  const starts: number[] = [];
+  for (let index = 0; index + 2 < tokens.length; index += 1) {
+    const amountToken = tokens[index];
+    const supplierToken = tokens[index + 1];
+    const currencyToken = tokens[index + 2];
+    if (!isAmount(amountToken) || !isSupplierId(supplierToken)) continue;
+    if (!(currencyPattern.test(currencyToken) || arabicCurrencyPattern.test(currencyToken))) continue;
+    starts.push(index);
+  }
+  if (starts.length < 5) return null;
+
   const rows: Row[] = [];
   for (let index = 0; index < starts.length; index += 1) {
-    const match = starts[index];
-    const segmentEnd = starts[index + 1]?.index ?? normalized.length;
-    const segment = normalized
-      .slice((match.index ?? 0) + match[0].length, segmentEnd)
-      .split(/(?:إجمالي\s+حسب\s+العملة|الاجمالي\s+الكلي|عدد\s+السجلات|رصيد\s+(?:دائن|مدين))/i)[0]
+    const startIndex = starts[index];
+    const endIndex = starts[index + 1] ?? tokens.length;
+    const amount = parseNumber(tokens[startIndex]);
+    const supplierId = Number(normalizeArabicDigits(tokens[startIndex + 1]));
+    const currency = normalizeCurrency(tokens[startIndex + 2]);
+    if (amount == null || !Number.isFinite(supplierId)) continue;
+
+    const segmentTokens = tokens.slice(startIndex + 3, endIndex);
+    const accountIndex = segmentTokens.findIndex(isAccountNumber);
+    if (accountIndex < 1) continue;
+
+    const supplierName = segmentTokens.slice(0, accountIndex).join(' ').trim();
+    const accountNumber = normalizeArabicDigits(segmentTokens[accountIndex]);
+    const accountName = segmentTokens.slice(accountIndex + 1).join(' ').trim()
+      .split(/(?:إجمالي\s+حسب\s+العملة|الاجمالي\s+الكلي|عدد\s+السج\w*|رصيد\s+(?:دائن|مدين))/i)[0]
       .trim();
-    if (!segment) continue;
 
-    const accountMatches = [...segment.matchAll(/(?<!\d)\d{8,12}(?!\d)/g)];
-    const accountMatch = accountMatches.at(-1);
-    if (!accountMatch || accountMatch.index == null) continue;
-
-    const supplierName = segment.slice(0, accountMatch.index).trim();
-    const accountName = segment.slice(accountMatch.index + accountMatch[0].length).trim();
-    const openingBalance = parseNumber(match[1]);
-    const supplierId = Number(match[2]);
-    if (openingBalance == null || !Number.isFinite(supplierId) || !supplierName || !accountName) continue;
-
+    if (!supplierName || !accountName) continue;
     rows.push({
       supplier_id: supplierId,
       supplier_name: supplierName,
-      currency: normalizeCurrency(match[3]),
-      opening_balance: openingBalance,
-      account_number: accountMatch[0],
+      currency,
+      opening_balance: amount,
+      account_number: accountNumber,
       account_name: accountName,
     });
   }
