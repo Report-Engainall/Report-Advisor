@@ -87,6 +87,8 @@ jobs:
           s=p.read_text()
           s=s.replace('const source=fingerprinted=await fingerprint(file);','const source=await fingerprint(file);')
           # The source declaration is the only normalization required; later references already use `source`.
+          s=s.replace("const ciEmail = 'report-advisor-corpus-ci@aghbari.example';\\nconst ciCompanyName = 'Aghbari Report Corpus CI';", "const ciKey = process.env.GITHUB_RUN_ID || exactHead.slice(0, 12);\\nconst ciEmail = 'report-advisor-corpus-ci-' + ciKey + '@aghbari.example';\\nconst ciCompanyName = 'Aghbari Report Corpus CI ' + ciKey;")
+          s=s.replace('const source=fingerprinted=await fingerprint(file);','const source=await fingerprint(file);')
           p.write_text(s)
           PY
           node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-report-corpus-e2e.mjs
