@@ -1,3 +1,11 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 07:42 +03:00 / CANDIDATE 2e950c48
+
+- CURRENT CODE/TEST CANDIDATE: `2e950c48544edb4c20e1c00eb9bde6f2a697e7`
+- UI PROVENANCE FIX: Source Report shows canonical SHA-256 and raw digest; E2E accepts either.
+- SECURITY FIX: durable enqueue is service_role-only.
+- REPORT-FIRST: REPORT_001 remains open.
+- NEXT EXACT ACTION: terminal current-SHA security/certification/full-corpus E2E, then report closure or first reproducible failure.
+---
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 07:38 +03:00 / SECURITY CANDIDATE 17dbee28
 
 - CURRENT CODE/TEST CANDIDATE: `17dbee28e7c647174cc0cf40d8d43c423e0a7f2f`

@@ -1,3 +1,16 @@
+# RESUME TOKEN — 2026-09-29 07:42 +03:00 / REPORT UI PROVENANCE FIX 2e950c48 / E2E NEXT
+
+- CURRENT FUNCTIONAL CODE/TEST SHA: 2e950c48544edb4c20e1c0e00eb9bde6f2a697e7
+- REPORT-FIRST FRONT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099
+- THIS CHECKPOINT: Source Report now exposes both canonical fingerprint (sha256:<digest>) and raw SHA-256 digest with explicit provenance labels; browser proof accepts either authoritative representation without weakening provenance.
+- PRIOR E2E FINDING: REPORT_001 reached existing-completed reconciliation and tenant A/B isolation; the sole report-specific proof failure was provenance formatting.
+- SECURITY FIX ALREADY IN BRANCH: enqueue_report_execution_job is service_role-only; authenticated/anon/public execution revoked.
+- REPORT_001 CLOSURE: OPEN pending exact-head full-corpus E2E proving source persistence, 9 stages, VERIFIED, domain, executive/evidence/decision/work-center links, benchmark fail-closed, and tenant isolation.
+- COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47
+- DO-NOT-REPEAT: no fabricated provenance, no test-only selector hacks, no stale SHA proof, no direct DB writes.
+- CURRENT RESUME POINTER: exact-head certification + Full Product Browser E2E for 2e950c48544edb4c20e1c00eb9bde6f2a697e7
+- NEXT EXACT ACTION: bind 2e950c48, consume terminal Phase 2 security + certification + full-corpus browser proof, repair first current-SHA blocker only, then close REPORT_001.
+---
 # RESUME TOKEN — 2026-09-29 07:38 +03:00 / SECURITY HEAD 17dbee28 / REPORT-FIRST E2E NEXT
 
 - CURRENT FUNCTIONAL CODE/TEST SHA: 17dbee28e7c647174cc0cf40d8d43c423e0a7f2f
