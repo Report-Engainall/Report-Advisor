@@ -481,21 +481,26 @@ function pdfObjectStream(raw: string, objectNumber: number): { dict: string; byt
 
 export async function loadEmbeddedPdfGlyphMap(buffer: ArrayBuffer): Promise<PdfGlyphMap | null> {
   const raw = latin1Decode(new Uint8Array(buffer));
+  const debug = (globalThis as typeof globalThis & { __PDF_FONT_DEBUG__?: boolean }).__PDF_FONT_DEBUG__ === true;
   const references = new Set<number>();
   for (const match of raw.matchAll(/\/FontFile2\s+(\d+)\s+0\s+R/g)) references.add(Number(match[1]));
+  if (debug) console.log('PDF_FONT_REFS', [...references]);
   if (!references.size) return null;
 
   const merged: PdfGlyphMap = new Map();
   for (const objectNumber of references) {
     const stream = pdfObjectStream(raw, objectNumber);
+    if (debug) console.log('PDF_FONT_STREAM', objectNumber, stream ? { dict: stream.dict.slice(0, 180), length: stream.bytes.length, first: [...stream.bytes.slice(0, 8)] } : null);
     if (!stream || !stream.dict.includes('/FlateDecode')) continue;
     let fontBytes: Uint8Array;
     try {
       fontBytes = await inflatePdfStream(stream.bytes);
-    } catch {
+    } catch (error) {
+      if (debug) console.log('PDF_FONT_INFLATE_ERROR', objectNumber, error instanceof Error ? error.message : String(error));
       continue;
     }
     const map = reverseTrueTypeCmap(fontBytes);
+    if (debug) console.log('PDF_FONT_CMAP_SIZE', objectNumber, map.size, 'ttfBytes', fontBytes.length);
     for (const [glyph, codePoints] of map) {
       const existing = merged.get(glyph) ?? [];
       for (const codePoint of codePoints) if (!existing.includes(codePoint)) existing.push(codePoint);
@@ -503,6 +508,7 @@ export async function loadEmbeddedPdfGlyphMap(buffer: ArrayBuffer): Promise<PdfG
     }
   }
 
+  if (debug) console.log('PDF_FONT_MERGED_SIZE', merged.size);
   return merged.size ? merged : null;
 }
 
