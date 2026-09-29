@@ -237,7 +237,7 @@ export function SourceReportPage(){
   const generic=report.entityType.startsWith('generic:');
   const truth=completed?'VERIFIED':executionFailed||report.status==='failed'?'BLOCKED':report.status==='partial'?'PARTIAL':'REVIEW';
   const truthDetail=completed?'اكتملت دورة التنفيذ حتى rendered وتم حفظ نتيجة الاعتماد.':report.status==='failed'?'لم يكتمل الاعتماد؛ لا يتم إعلان نجاح غير مثبت.':'حالة العملية ليست مكتملة؛ راجع سجل العملية قبل استخدام المخرجات.';
-  const specialized=report.entityType==='sales_invoices'?{path:'/reports/sales',label:'تقرير المبيعات'}:report.entityType==='products'?{path:'/products',label:'مركز المنتجات'}:report.entityType==='customers'?{path:'/customers',label:'مركز العملاء'}:null;
+  const specialized=report.entityType==='sales_invoices'?{path:'/reports/sales',label:'تقرير المبيعات'}:report.entityType==='products'?{path:'/products',label:'مركز المنتجات'}:report.entityType==='customers'?{path:'/customers',label:'مركز العملاء'}:(report.specialty==='receivables'||report.entityType==='generic:receivables')?{path:`/reports/receivables?importId=${encodeURIComponent(importId)}`,label:'تقرير الذمم والتحصيل'}:null;
   const columns=[
     {key:'row_number',label:'#',align:'center' as const,render:(row:any)=>formatNumber(row.row_number)},
     {key:'record_key',label:'Record key',render:(row:any)=>row.record_key},
