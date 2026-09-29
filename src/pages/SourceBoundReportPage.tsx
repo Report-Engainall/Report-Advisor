@@ -522,7 +522,7 @@ export function SourceBoundReportPage() {
             </div>
             <h1 className="mt-1.5 text-[24px] font-black text-ink-950 lg:text-[30px]">{sourceTitle(context)}</h1>
             <p className="mt-2 max-w-4xl text-[11px] leading-6 text-ink-500">
-              تقرير ${analysis.domainLabel} مبني على canonical rows لنفس عملية الاستيراد، وليس على لقطة عامة من الشركة.
+              تقرير {analysis.domainLabel} مبني على canonical rows لنفس عملية الاستيراد، وليس على لقطة عامة من الشركة.
             </p>
           </div>
           <div className="text-left text-[10px] text-ink-500">
@@ -704,7 +704,7 @@ export function SourceBoundReportPage() {
             <CardHeader title="Aging / أعمار الديون" subtitle="تظهر فقط حيث توجد أعمدة العمر/التاريخ في المصدر." />
             <CardBody>
               <div className="rounded-xl border border-primary-200 bg-primary-50 p-4 text-[11px] leading-6 text-primary-900">
-                ${sourceRows.some((row) => Object.keys(row).some((key) => key.startsWith('age_') || key.includes('عمر'))) ? 'توجد حقول أعمار مصدرية، ويمكن متابعة التقرير التفصيلي منها.' : 'لا توجد حقول أعمار كافية؛ الحالة تبقى INSUFFICIENT DATA.'}
+                {sourceRows.some((row) => Object.keys(row).some((key) => key.startsWith('age_') || key.includes('عمر'))) ? 'توجد حقول أعمار مصدرية، ويمكن متابعة التقرير التفصيلي منها.' : 'لا توجد حقول أعمار كافية؛ الحالة تبقى INSUFFICIENT DATA.'}
               </div>
             </CardBody>
           </Card>
