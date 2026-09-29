@@ -71,4 +71,4 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-# Corpus execution uses only the committed canonical runner; browser/device are not dependencies.
+# Corpus execution resumes only the first report without a completed canonical attempt; browser/device are not dependencies.
