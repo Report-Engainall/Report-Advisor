@@ -27,7 +27,7 @@ export interface CanonicalSourceUnderstanding {
   columnCount: number;
   qualityScore: number;  specialty: CanonicalImportSpecialty;
   specialtyConfidence: number;
-  entityType: 'products' | 'customers' | 'sales_invoices' | 'purchase_invoices' | 'suppliers' | 'inventory_balances' | 'payments' | 'generic:source-data';
+  entityType: 'products' | 'customers' | 'sales_invoices' | 'purchase_invoices' | 'suppliers' | 'inventory_balances' | 'payments' | `generic:${string}`;
   columns: ColumnProfile[];
   rows: Record<string, unknown>[];
   datasets: CanonicalDatasetSummary[];
@@ -118,6 +118,7 @@ function inferEntityType(specialty: CanonicalImportSpecialty, datasets: Dataset[
   if (specialty === 'suppliers') return 'suppliers';
   if (specialty === 'inventory') return 'inventory_balances';
   if (specialty === 'payments') return 'payments';
+  if (specialty === 'receivables') return 'generic:receivables';
   return 'generic:source-data';
 }
 
