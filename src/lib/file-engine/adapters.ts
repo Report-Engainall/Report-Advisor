@@ -445,16 +445,16 @@ async function inflatePdfStream(bytes: Uint8Array): Promise<Uint8Array> {
 }
 
 function pdfObjectStream(raw: string, objectNumber: number): { dict: string; bytes: Uint8Array } | null {
-  const marker = `${objectNumber} 0 obj`;
-  const candidates = [
-    raw.indexOf(`\\r\\n${marker}`),
-    raw.indexOf(`\\n${marker}`),
-    raw.indexOf(marker),
-  ].filter((index) => index >= 0);
-  const objectStart = candidates.length ? Math.min(...candidates) : -1;
+  const objectPattern = /(\\d+)\\s+0\\s+obj\\b/g;
+  let objectStart = -1;
+  for (const match of raw.matchAll(objectPattern)) {
+    if (Number(match[1]) === objectNumber) {
+      objectStart = match.index ?? -1;
+      break;
+    }
+  }
   if (objectStart < 0) return null;
-  const normalizedStart = raw[objectStart] === '\\r' || raw[objectStart] === '\\n' ? objectStart + (raw[objectStart] === '\\r' && raw[objectStart + 1] === '\\n' ? 2 : 1) : objectStart;
-  const streamStart = raw.indexOf('stream', normalizedStart);
+  const streamStart = raw.indexOf('stream', objectStart);
   const streamEnd = raw.indexOf('endstream', streamStart);
   if (streamStart < 0 || streamEnd < 0) return null;
   let contentStart = streamStart + 6;
@@ -462,7 +462,7 @@ function pdfObjectStream(raw: string, objectNumber: number): { dict: string; byt
   else if (raw[contentStart] === '\\n') contentStart += 1;
   let bytes = latin1Encode(raw.slice(contentStart, streamEnd));
   while (bytes.length && (bytes[0] === 0x0a || bytes[0] === 0x0d)) bytes = bytes.subarray(1);
-  return { dict: raw.slice(normalizedStart, streamStart), bytes };
+  return { dict: raw.slice(objectStart, streamStart), bytes };
 }
 
 export async function loadEmbeddedPdfGlyphMap(buffer: ArrayBuffer): Promise<PdfGlyphMap | null> {
