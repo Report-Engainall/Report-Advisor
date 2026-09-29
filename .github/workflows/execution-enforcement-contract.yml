@@ -79,7 +79,7 @@ jobs:
           persist-credentials: false
       - name: Install repository dependencies
         run: npm ci --no-audit --no-fund
-      - name: Inspect blocked PDF table extraction
+      - name: Inspect blocked PDF header geometry
         shell: bash
         run: |
           set -euo pipefail
@@ -89,19 +89,29 @@ jobs:
           if(!('sumPrecise' in Math)) Object.defineProperty(Math,'sumPrecise',{configurable:true,writable:true,value:(values)=>{let total=0;for(const value of values)total+=Number(value)||0;return total;}});
           if(!('try' in Promise)) Object.defineProperty(Promise,'try',{configurable:true,writable:true,value:(fn,...args)=>new Promise((resolve,reject)=>{try{resolve(fn(...args));}catch(error){reject(error);}})});
           if(!('toHex' in Uint8Array.prototype)) Object.defineProperty(Uint8Array.prototype,'toHex',{configurable:true,writable:true,value:function(){return Array.from(this,(byte)=>byte.toString(16).padStart(2,'0')).join('');}});
-          const { extractPdfTableRowsFromTextItems } = await import('./src/lib/file-engine/adapters.ts');
-          const pdfjs = await import('pdfjs-dist');
-          const file='tests/fixtures/realistic-reports/الصراف البدجي.pdf';
-          const bytes=await fs.readFile(file);
+          const pdfjs=await import('pdfjs-dist');
+          const bytes=await fs.readFile('tests/fixtures/realistic-reports/الصراف البدجي.pdf');
           const buffer=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
           const pdf=await pdfjs.getDocument({data:new Uint8Array(buffer),useSystemFonts:true}).promise;
-          const all=[];
+          const items=[];
           for(let pageNumber=1;pageNumber<=pdf.numPages;pageNumber++){
             const page=await pdf.getPage(pageNumber);
             const content=await page.getTextContent({disableCombineTextItems:true});
-            all.push(...content.items.map(item=>({str:item.str,x:Number(item.transform?.[4]),y:Number(item.transform?.[5]),width:Number(item.width)||0})).filter(item=>item.str&&Number.isFinite(item.x)&&Number.isFinite(item.y)));
+            items.push(...content.items.map(item=>({str:item.str,x:Number(item.transform?.[4]),y:Number(item.transform?.[5]),width:Number(item.width)||0})).filter(item=>item.str&&Number.isFinite(item.x)&&Number.isFinite(item.y)));
           }
-          console.log('ITEMS='+all.length);
-          const result=extractPdfTableRowsFromTextItems(all,null);
-          console.log(JSON.stringify({header:result.header,rows:result.rows.length,sample:result.rows.slice(0,5)},null,2));
+          const sorted=[...items].sort((a,b)=>b.y-a.y||a.x-b.x);
+          const groups=[];
+          for(const item of sorted){
+            let best=null,bestDistance=Infinity;
+            for(const group of groups){
+              const distance=Math.abs(group.y-item.y);
+              if(distance<=4&&distance<bestDistance){best=group;bestDistance=distance;}
+            }
+            if(!best)groups.push({y:item.y,items:[item]});
+            else{best.items.push(item);best.y=(best.y*(best.items.length-1)+item.y)/best.items.length;}
+          }
+          const matches=groups.map(group=>({y:group.y,text:group.items.sort((a,b)=>a.x-b.x).map(item=>item.str).join(' ')}))
+            .filter(group=>/ك\s*ش\s*ف|ال\s*ب\s*ي\s*ا\s*ن|ا\s*ل\s*ر\s*ص\s*ي\s*د|ا\s*ل\s*م\s*س\s*ت\s*ن\s*د/.test(group.text))
+            .slice(0,20);
+          console.log(JSON.stringify(matches,null,2));
           NODE
