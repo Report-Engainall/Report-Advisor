@@ -1070,3 +1070,13 @@
 - CURRENT REPORT: REPORT_001 remains the first report and is not CLOSED until the fresh exact-head browser artifact proves canonical commit/readback, terminal import job, nine stages, Source Report VERIFIED, source-bound receivables report, downstream surfaces, screenshot/evidence, and A/B isolation.
 - NEXT EXACT ACTION: consume the fresh exact-head Full Product Browser E2E generated from this checkpoint; REPORT_001 must close first, then REPORT_002, sequentially through the full corpus.
 - DO-NOT-REPEAT: no pending-job duplication; no orphan `processing` import jobs from a handled failure; no stale SHA proof.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / SOURCE SPECIALTY ROUTING CORRECTED
+
+- CONTROL CODE HEAD BEFORE THIS CHECKPOINT: 7cf82d4fea7664e35d51bc7c90342450190ba27f.
+- ROOT CAUSE #4: the terminal import summary could fall back to the detected file format (pdf/xlsx) as specialty, which would disconnect the source-bound Domain Report routing.
+- REMEDIATION: canonical-import-execute now derives specialty from canonical entity type (generic:receivables -> receivables, generic:sales -> sales, etc.) when the worker does not provide a specialty.
+- UI EFFECT: the completed real report retains the correct source domain identity, allowing /reports/source/:importId/domain to render the applicable domain report instead of stopping at a format label.
+- NEXT EXACT ACTION: run the fresh exact-head Full Product Browser E2E on this HEAD; REPORT_001 must prove Source Report + source-bound Domain Report + downstream output bundle before REPORT_002.

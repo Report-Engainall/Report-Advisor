@@ -173,7 +173,13 @@ export default async (request: Request): Promise<Response> => {
         file_name: fileRecord.file_name || payload.fileName || 'import',
         source_hash: sourceSha,
         canonical_entity_type: payload.entityType,
-        specialty: workerBody?.specialty ?? detection.format,
+        specialty:
+          workerBody?.specialty ??
+          (typeof payload.entityType === 'string' && payload.entityType.startsWith('generic:')
+            ? payload.entityType.slice('generic:'.length)
+            : payload.entityType === 'sales_invoices'
+              ? 'sales'
+              : payload.entityType),
         committed: authoritativeRows.length,
         invalidRows: 0,
         authoritativeRowCount: authoritativeRows.length,
