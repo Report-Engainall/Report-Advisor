@@ -190,7 +190,7 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
 type PdfTextItem = { text: string; x: number; y: number; width: number; height: number };
 
 function isNumericToken(value: string): boolean {
-  return /^[-+]?\\d[\\d,\\s]*(?:\\.\\d+)?$/.test(value.trim());
+  return /^[-+]?\d[\d,\s]*(?:\\.\d+)?$/.test(value.trim());
 }
 
 function groupPdfItemsByLine(items: PdfTextItem[], tolerance = 2.5): PdfTextItem[][] {
@@ -218,9 +218,9 @@ function tryParseReceivablesAgingPdfItems(items: PdfTextItem[]): Row[] | null {
     return item ? item.x + item.width / 2 : null;
   };
   const anchors = {
-    over120: exactHeaderCenter(/^>\\s*120$/), age91_120: exactHeaderCenter(/^91\\s*-\\s*120$/),
-    age61_90: exactHeaderCenter(/^61\\s*-\\s*90$/), age31_60: exactHeaderCenter(/^31\\s*-\\s*60$/),
-    age0_30: exactHeaderCenter(/^0\\s*-\\s*30$/), localAmount: exactHeaderCenter(/^المبلغ بالعملة المحلية$/),
+    over120: exactHeaderCenter(/^>\s*120$/), age91_120: exactHeaderCenter(/^91\s*-\s*120$/),
+    age61_90: exactHeaderCenter(/^61\s*-\s*90$/), age31_60: exactHeaderCenter(/^31\s*-\s*60$/),
+    age0_30: exactHeaderCenter(/^0\s*-\s*30$/), localAmount: exactHeaderCenter(/^المبلغ بالعملة المحلية$/),
     amount: exactHeaderCenter(/^المبلغ$/), currency: exactHeaderCenter(/^العملة$/),
     name: exactHeaderCenter(/^اسم العميل$/), customerId: exactHeaderCenter(/^رقم العميل$/),
   };
@@ -239,7 +239,7 @@ function tryParseReceivablesAgingPdfItems(items: PdfTextItem[]): Row[] | null {
   for (const line of lines) {
     const y = line.reduce((sum, item) => sum + item.y, 0) / Math.max(1, line.length);
     if (y >= headerY - 5) continue;
-    const customerId = nearest(line, anchors.customerId as number, (value) => /^\\d{4,}$/.test(value), 38);
+    const customerId = nearest(line, anchors.customerId as number, (value) => /^\d{4,}$/.test(value), 38);
     const customerName = nearest(line, anchors.name as number, (value) => !isNumericToken(value) && value !== 'YER', 78);
     const currency = nearest(line, anchors.currency as number, (value) => /^[A-Z]{3}$/.test(value), 28);
     if (!customerId || !customerName || !currency) continue;
