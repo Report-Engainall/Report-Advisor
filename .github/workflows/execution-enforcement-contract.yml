@@ -51,32 +51,6 @@ jobs:
       - name: Install repository dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Inspect blocked statement PDF header geometry
-        shell: bash
-        run: |
-          set -euo pipefail
-          node --input-type=module <<'NODE'
-          import fs from 'node:fs/promises';
-          if (!('DOMMatrix' in globalThis)) Object.defineProperty(globalThis, 'DOMMatrix', { configurable: true, value: class DOMMatrix {} });
-          if (!('sumPrecise' in Math)) Object.defineProperty(Math, 'sumPrecise', { configurable: true, value: (values) => { let total = 0; for (const value of values) total += Number(value) || 0; return total; } });
-          if (!('try' in Promise)) Object.defineProperty(Promise, 'try', { configurable: true, value: (fn, ...args) => new Promise((resolve, reject) => { try { resolve(fn(...args)); } catch (error) { reject(error); } }) });
-          if (!('toHex' in Uint8Array.prototype)) Object.defineProperty(Uint8Array.prototype, 'toHex', { configurable: true, value: function() { return Array.from(this, (byte) => byte.toString(16).padStart(2, '0')).join(''); } });
-          const pdfjs = await import('file://' + process.cwd() + '/node_modules/pdfjs-dist/build/pdf.mjs');
-          const file='tests/fixtures/realistic-reports/الصراف العامري.pdf';
-          const bytes=await fs.readFile(file);
-          const buffer=bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset+bytes.byteLength);
-          const pdf=await pdfjs.getDocument({data:new Uint8Array(buffer),useSystemFonts:true}).promise;
-          console.log('STATEMENT_PAGES='+pdf.numPages);
-          for(let pageNumber=1;pageNumber<=Math.min(2,pdf.numPages);pageNumber++){
-            const page=await pdf.getPage(pageNumber);
-            const content=await page.getTextContent({disableCombineTextItems:true});
-            const items=content.items.map((item)=>({str:'str' in item?String(item.str||''):'',x:item.transform?.[4],y:item.transform?.[5],width:item.width})).filter(i=>i.str.trim()&&Number.isFinite(i.x)&&Number.isFinite(i.y));
-            const lines=[];
-            for(const item of items.sort((a,b)=>b.y-a.y||a.x-b.x)){ const last=lines[lines.length-1]; if(!last||Math.abs(last.y-item.y)>4) lines.push({y:item.y,items:[item]}); else last.items.push(item); }
-            console.log('PAGE='+pageNumber+' ITEM_COUNT='+items.length);
-            for(const line of lines.slice(0,16)){ console.log('LINE '+line.y.toFixed(2)+' :: '+line.items.map(i=>i.str).join(' | ')); }
-          }
-          NODE
       - name: Normalize and execute real report corpus
         shell: bash
         env:
