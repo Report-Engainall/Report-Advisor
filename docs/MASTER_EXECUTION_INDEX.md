@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / 735-ROW FRONT — COMPLETED-DURABLE-RESULT RECOVERY
+
+- EXACT MAIN HEAD → `dc08f0158bcef3105ff1ef8a12704514ef790aa1`.
+- FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `3c95611194a2b9acbbe43dcf8d7758b9703c1992`.
+- REPORT-FIRST FRONT → import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / `تسعيرة الاصناف حسب رقم الصنف.pdf`.
+- SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- LIVE STATE → 735 canonical rows; durable execution job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0` is completed at rendered; `import_jobs` remains processing 0/735; durable evidence lacks rendered payload.
+- CURRENT GAP → completed-job recovery builds deterministic output but does not persist the reconstructed output into `report_execution_jobs.evidence`; the importer therefore has real canonical data but can retain a hidden/unfinished result after client interruption.
+- ACTION STATUS → IN_PROGRESS.
+- NEXT EXACT ACTION → implement the governed service-side completed-result recovery contract in the active canonical path, apply it to Staging, execute it once for this exact import/job/source hash, then prove `import_jobs` terminal state + durable rendered evidence + rendered task evidence + source-bound output contract.
+- UI/DEVICE → PC01 offline; authenticated Edge/browser proof remains NOT PROVEN.
+- CORPUS → re-count only from exact current main; do not import another branch's fixture corpus into the current count.
+- DO-NOT-REPEAT → old-SHA PASS, blind retry, direct canonical-row mutation, fake auth/JWT, fixture-specific importer, duplicate report pipeline.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / EXACT MAIN — REPORT RESULT + DURABLE RECOVERY + TENANT GATE ROOT FIX
 
 - MAIN EXACT HEAD → `4dcfbbc87b4acc9f95b7e0f3b35a71c42c366654`.
