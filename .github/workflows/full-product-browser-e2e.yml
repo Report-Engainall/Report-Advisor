@@ -107,13 +107,31 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          VITE_CANONICAL_IMPORT_EXECUTE_URL: https://deploy-preview-676--aghbari-report-advisor.netlify.app/api/canonical-import-execute
+          VITE_CANONICAL_IMPORT_EXECUTE_URL: http://127.0.0.1:9999/.netlify/functions/canonical-import-execute
         run: npm run build
+      - name: Install pinned Netlify CLI for exact-head function execution
+        run: npx --yes netlify-cli@27.10.2 --version
+      - name: Start exact-head local Netlify function
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          nohup npx --yes netlify-cli@27.10.2 functions:serve --functions netlify/functions --port 9999 >/tmp/report-advisor-functions.log 2>&1 &
+          for i in {1..90}; do
+            status="$(curl -sS -o /tmp/canonical-import-options.out -w '%{http_code}' -X OPTIONS http://127.0.0.1:9999/.netlify/functions/canonical-import-execute || true)"
+            if [ "$status" = "204" ]; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/report-advisor-functions.log || true
+          cat /tmp/canonical-import-options.out || true
+          echo "CANONICAL_IMPORT_FUNCTION_NOT_READY status=$status"
+          exit 1
       - name: Start exact-head preview
         env:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          VITE_CANONICAL_IMPORT_EXECUTE_URL: https://deploy-preview-676--aghbari-report-advisor.netlify.app/api/canonical-import-execute
+          VITE_CANONICAL_IMPORT_EXECUTE_URL: http://127.0.0.1:9999/.netlify/functions/canonical-import-execute
         run: |
           set -euo pipefail
           nohup npm run preview -- --host 127.0.0.1 --port 4173 >/tmp/report-advisor-full-browser.log 2>&1 &
@@ -123,23 +141,10 @@ jobs:
           done
           cat /tmp/report-advisor-full-browser.log
           exit 1
-      - name: Verify canonical import function
-        shell: bash
-        run: |
-          set -euo pipefail
-          url="https://deploy-preview-676--aghbari-report-advisor.netlify.app/api/canonical-import-execute"
-          for i in {1..90}; do
-            status="$(curl -sS -o /tmp/canonical-import-options.out -w '%{http_code}' -X OPTIONS "$url" || true)"
-            if [ "$status" = "204" ]; then exit 0; fi
-            sleep 2
-          done
-          cat /tmp/canonical-import-options.out || true
-          echo "CANONICAL_IMPORT_FUNCTION_NOT_READY status=$status"
-          exit 1
       - name: Run real report corpus serial E2E
         env:
           E2E_BASE_URL: http://127.0.0.1:4173
-          CANONICAL_IMPORT_EXECUTE_URL: https://deploy-preview-676--aghbari-report-advisor.netlify.app/api/canonical-import-execute
+          CANONICAL_IMPORT_EXECUTE_URL: http://127.0.0.1:9999/.netlify/functions/canonical-import-execute
           REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
