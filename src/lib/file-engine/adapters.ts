@@ -439,9 +439,23 @@ async function inflatePdfStream(bytes: Uint8Array): Promise<Uint8Array> {
   const DecompressionStreamCtor = (globalThis as typeof globalThis & {
     DecompressionStream?: new (format: string) => TransformStream;
   }).DecompressionStream;
-  if (!DecompressionStreamCtor) throw new Error('PDF_EMBEDDED_FONT_DECOMPRESSION_UNAVAILABLE');
-  const stream = new Blob([input]).stream().pipeThrough(new DecompressionStreamCtor('deflate'));
-  return new Uint8Array(await new Response(stream).arrayBuffer());
+  if (DecompressionStreamCtor) {
+    try {
+      const stream = new Blob([input]).stream().pipeThrough(new DecompressionStreamCtor('deflate'));
+      return new Uint8Array(await new Response(stream).arrayBuffer());
+    } catch {
+      // Fall through to Node's zlib for server-side/CI execution.
+    }
+  }
+  if (typeof window === 'undefined') {
+    try {
+      const { inflateSync } = await import(/* @vite-ignore */ 'node:zlib');
+      return new Uint8Array(inflateSync(input));
+    } catch (error) {
+      throw new Error(`PDF_EMBEDDED_FONT_DECOMPRESSION_FAILED:${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  throw new Error('PDF_EMBEDDED_FONT_DECOMPRESSION_UNAVAILABLE'); 
 }
 
 function pdfObjectStream(raw: string, objectNumber: number): { dict: string; bytes: Uint8Array } | null {
