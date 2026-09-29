@@ -65,7 +65,7 @@ export function WorkCenterPage() {
     : workerHealth && !workerHealth.activeReadComplete
       ? { kind: 'refresh' as const, tone: 'warning' as const, title: 'قراءة العامل جزئية', message: 'لم تُقرأ كل leases النشطة؛ لا يمكن تحويل القراءة الجزئية إلى حكم سلامة كامل. أعد الفحص عند الحاجة.', label: 'إعادة قراءة العامل' }
       : zeroProgressActive > 0
-        ? { kind: 'filter' as const, filter: 'active' as FilterKey, tone: 'warning' as const, title: 'تحقق من العمليات بدون تقدم', message: 'هناك عمليات نشطة بتقدم 0%. هذه إشارة تشغيلية للمراجعة وليست دليل نجاح أو فشل تلقائي.', label: 'عرض العمليات بدون تقدم' }
+        ? { kind: 'filter' as const, filter: 'active' as FilterKey, tone: 'warning' as const, title: 'تحقق من العمليات دون تقدم', message: 'هناك عمليات نشطة بتقدم 0%. هذه إشارة تشغيلية للمراجعة وليست دليل نجاح أو فشل تلقائي.', label: 'عرض العمليات بدون تقدم' }
         : counts.review > 0
         ? { kind: 'filter' as const, filter: 'review' as FilterKey, tone: 'warning' as const, title: 'راجع الاستثناءات أولًا', message: 'هناك عمليات تحتوي على مراجعة أو صفوف غير صالحة/معزولة؛ ابدأ بها قبل اعتبار الطابور مستقرًا.', label: 'عرض المراجعة' }
         : counts.failed > 0
