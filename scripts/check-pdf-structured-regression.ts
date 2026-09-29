@@ -157,6 +157,9 @@ async function main(): Promise<void> {
       ['تقارير ارصدة المخزون.pdf', 'pdf', 'inventory'],
       ['تقارير البنوك.xlsx', 'xlsx', 'payments'],
       ['تقارير حركة الصندوق.xlsx', 'xlsx', 'payments'],
+      ['الصراف البدجي.pdf', 'pdf', 'payments'],
+      ['الصراف المنتاب.pdf', 'pdf', 'payments'],
+      ['الصرافين.pdf', 'pdf', 'payments'],
       ['ديون العملاء المستحقة.xlsx', 'xlsx', 'receivables'],
       ['الاصناف 3.xlsx', 'xlsx', 'inventory'], ['الاصناف .xlsx', 'xlsx', 'products'],
     ] as const;
