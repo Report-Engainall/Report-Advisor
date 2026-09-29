@@ -196,3 +196,40 @@ jobs:
           })),null,2));
           NODE
 
+  pdf-exchange-geometry-diagnostic:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Install repository dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Print PDF cell geometry
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs --input-type=module <<'NODE'
+          import fs from 'node:fs/promises';
+          const pdfjs=await import('pdfjs-dist');
+          if(!('DOMMatrix' in globalThis)) Object.defineProperty(globalThis,'DOMMatrix',{configurable:true,value:class DOMMatrix{}});
+          if(!('sumPrecise' in Math)) Object.defineProperty(Math,'sumPrecise',{configurable:true,writable:true,value:(values)=>{let total=0;for(const value of values)total+=Number(value)||0;return total;}});
+          if(!('try' in Promise)) Object.defineProperty(Promise,'try',{configurable:true,writable:true,value:(fn,...args)=>new Promise((resolve,reject)=>{try{resolve(fn(...args));}catch(error){reject(error);}})});
+          if(!('toHex' in Uint8Array.prototype)) Object.defineProperty(Uint8Array.prototype,'toHex',{configurable:true,writable:true,value:function(){return Array.from(this,(byte)=>byte.toString(16).padStart(2,'0')).join('');}});
+          const bytes=await fs.readFile('tests/fixtures/realistic-reports/الصرافين.pdf');
+          const pdf=await pdfjs.getDocument({data:new Uint8Array(bytes),useSystemFonts:true}).promise;
+          const page=await pdf.getPage(1);
+          const content=await page.getTextContent({disableCombineTextItems:true});
+          const items=content.items.map((item)=>({str:item.str,x:item.transform?.[4],y:item.transform?.[5],w:item.width})).filter(item=>item.str&&Number.isFinite(item.x)&&Number.isFinite(item.y));
+          const groups=[];
+          for(const item of items.sort((a,b)=>b.y-a.y||a.x-b.x)){
+            let best=null,bestDistance=Infinity;
+            for(const group of groups){const distance=Math.abs(group.y-item.y);if(distance<=4&&distance<bestDistance){best=group;bestDistance=distance;}}
+            if(!best)groups.push({y:item.y,items:[item]});else{best.items.push(item);best.y=(best.y*(best.items.length-1)+item.y)/best.items.length;}
+          }
+          const out=groups.map(g=>({y:Number(g.y.toFixed(2)),items:g.items.sort((a,b)=>a.x-b.x).map(i=>({str:i.str,x:Number(i.x.toFixed(1)),w:Number((i.w||0).toFixed(1))}))})).filter(g=>g.items.length>=3);
+          console.log(JSON.stringify(out.slice(0,35),null,2));
+          NODE
+
