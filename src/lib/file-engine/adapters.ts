@@ -463,6 +463,81 @@ function ensurePdfJsRuntimeCompatibility(): void {
   }
 }
 
+function tryParseColumnMajorReceivablesText(text: string): Row[] | null {
+  const normalized = normalizeArabicDigits(
+    stripControlCharacters(text.normalize('NFKC'))
+      .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
+  const headerIndex = normalized.indexOf('رقم العميل');
+  if (headerIndex < 0) return null;
+  const headerSlice = normalized.slice(headerIndex);
+  const requiredMarkers = ['اسم العميل', 'العملة', 'إجمالي المبلغ المستحق', '0 - 30', '31 - 60', '61 - 90', '91 - 120'];
+  if (requiredMarkers.filter(marker => headerSlice.includes(marker)).length < 5) return null;
+
+  const tokenMatches = [...normalized.slice(0, headerIndex).matchAll(/\b[A-Za-z]{3}\b/g)];
+  let currencyRun: { token: string; start: number; end: number; count: number } | null = null;
+  let current: { token: string; start: number; end: number; count: number } | null = null;
+  for (const match of tokenMatches) {
+    const token = match[0].toUpperCase();
+    const start = match.index ?? 0;
+    const end = start + match[0].length;
+    if (!current || current.token !== token || start - current.end > 2) {
+      current = { token, start, end, count: 1 };
+    } else {
+      current.end = end;
+      current.count += 1;
+    }
+    if (!currencyRun || current.count > currencyRun.count) currencyRun = { ...current };
+  }
+  if (!currencyRun || currencyRun.count < 3) return null;
+  const rowCount = currencyRun.count;
+  const currency = currencyRun.token;
+
+  function groupedNumericRuns(segment: string): Array<{ values: string[]; start: number; end: number }> {
+    const matches = [...segment.matchAll(/\b(?:\d{1,3}(?:,\d{3})+|\d{4,9}|\d{1,3}(?:\.\d+)?)(?:\.\d+)?\b/g)];
+    const runs: Array<{ values: string[]; start: number; end: number }> = [];
+    let run: { values: string[]; start: number; end: number } | null = null;
+    for (const match of matches) {
+      const raw = match[0];
+      const start = match.index ?? 0;
+      const end = start + raw.length;
+      if (!run || start - run.end > 3) {
+        run = { values: [raw], start, end };
+        runs.push(run);
+      } else {
+        run.values.push(raw);
+        run.end = end;
+      }
+    }
+    return runs;
+  }
+
+  const beforeCurrency = normalized.slice(0, currencyRun.start);
+  const idRuns = groupedNumericRuns(beforeCurrency)
+    .filter(run => run.values.length >= rowCount && currencyRun.start - (run.end + headerIndex * 0) < 5000)
+    .sort((a, b) => Math.abs(currencyRun!.start - a.end) - Math.abs(currencyRun!.start - b.end));
+  const idRun = idRuns[0];
+  if (!idRun) return null;
+  const ids = idRun.values.slice(-rowCount);
+  if (ids.length !== rowCount) return null;
+
+  const afterCurrency = normalized.slice(currencyRun.end, headerIndex);
+  const amountRuns = groupedNumericRuns(afterCurrency).filter(run => run.values.length >= rowCount);
+  const amountRun = amountRuns[0];
+  if (!amountRun) return null;
+  const outstanding = amountRun.values.slice(0, rowCount).map(parseNumber);
+  if (outstanding.some(value => value == null)) return null;
+
+  return ids.map((id, index) => ({
+    customer_id: Number(id),
+    currency,
+    outstanding_balance: outstanding[index] as number,
+    local_amount: outstanding[index] as number,
+  }));
+}
+
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   ensurePdfJsRuntimeCompatibility();
   const pdfjs = await import('pdfjs-dist');
@@ -493,7 +568,11 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`);
   }
   if (tableRows.length >= 2 && tablePageCount >= 1) return [await buildDataset(tableRows, fileName, 'pdf-table')];
-  if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
+  if (pages.length) {
+    const columnMajor = tryParseColumnMajorReceivablesText(pages.join('\n\n'));
+    if (columnMajor && columnMajor.length >= 2) return [await buildDataset(columnMajor, fileName, 'pdf-column-major')];
+    return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
+  }
   return parseScannedPdfWithOcr(pdf, fileName);
 }
 
