@@ -1168,7 +1168,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     const text = placements.map(item => item.str).filter(Boolean).join(' ');
     if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`);
   }
-  if (customerDirectoryRows.length >= 10) return [await buildDataset(customerDirectoryRows, fileName, 'pdf-customer-directory')];
+  if (customerDirectoryRows.length >= 10) { const dataset = await buildDataset(customerDirectoryRows, fileName, 'pdf-' + marker.toLowerCase()); if (dataset.qualityScore >= OCR_REJECT_THRESHOLD) return [dataset]; }
   if (bankMovementRows.length >= 2) return [await buildDataset(bankMovementRows, fileName, 'pdf-bank-movement-summary')];
   if (tableRows.length >= 2 && tablePageCount >= 1) return [await buildDataset(tableRows, fileName, 'pdf-table')];
   if (pages.length) {
