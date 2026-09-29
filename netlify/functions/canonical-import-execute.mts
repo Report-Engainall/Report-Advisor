@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { securityScan } from '../../src/lib/file-engine/security.ts';
 import { detectFormat } from '../../src/lib/file-engine/detector.ts';
 import { parseFile } from '../../src/lib/file-engine/adapters.ts';
@@ -33,16 +33,17 @@ export default async (request: Request): Promise<Response> => {
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
   if (request.method !== 'POST') return json(405, { error: 'METHOD_NOT_ALLOWED' });
 
+  let activeImportId: string | null = null;
+  let userClient: SupabaseClient | null = null;
   try {
     const authorization = bearer(request);
     const supabaseUrl = env('VITE_SUPABASE_URL');
     const anonKey = env('VITE_SUPABASE_ANON_KEY');
 
-    const userClient = createClient(supabaseUrl, anonKey, {
+    userClient = createClient(supabaseUrl, anonKey, {
       auth: { persistSession: false, autoRefreshToken: false },
       global: { headers: { Authorization: authorization } },
     });
-    let activeImportId: string | null = null;
     const { data: userData, error: userError } = await userClient.auth.getUser();
     if (userError || !userData.user?.id) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
@@ -208,7 +209,7 @@ export default async (request: Request): Promise<Response> => {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED';
-    if (activeImportId) {
+    if (activeImportId && userClient) {
       try {
         await userClient.rpc('import_finish_job', {
           p_job_id: activeImportId,
