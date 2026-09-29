@@ -82,36 +82,11 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
           persist-credentials: false
-      - name: Install repository dependencies
-        run: npm ci --no-audit --no-fund
-      - name: Diagnose canonical parser for Jeeb PDF
+      - name: Inspect native OCR capabilities
         shell: bash
         run: |
           set -euo pipefail
-          node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs --input-type=module <<'NODE'
-          import fs from 'node:fs/promises';
-          const { parseFile, loadEmbeddedPdfGlyphMap } = await import('./src/lib/file-engine/adapters.ts');
-          if (!('DOMMatrix' in globalThis)) Object.defineProperty(globalThis,'DOMMatrix',{configurable:true,value:class DOMMatrix{}});
-          if (!('sumPrecise' in Math)) Object.defineProperty(Math,'sumPrecise',{configurable:true,writable:true,value:(values)=>{let t=0;for(const v of values)t+=Number(v)||0;return t;}});
-          if (!('try' in Promise)) Object.defineProperty(Promise,'try',{configurable:true,writable:true,value:(fn,...args)=>new Promise((resolve,reject)=>{try{resolve(fn(...args));}catch(e){reject(e);}})});
-          if (!('toHex' in Uint8Array.prototype)) Object.defineProperty(Uint8Array.prototype,'toHex',{configurable:true,writable:true,value:function(){return Array.from(this,b=>b.toString(16).padStart(2,'0')).join('');}});
-          const pdfjs=await import('pdfjs-dist');
-          const file='tests/fixtures/realistic-reports/الصراف جيب.pdf';
-          const bytes=await fs.readFile(file);
-          const sourceBuffer=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
-          const glyphBuffer=sourceBuffer.slice(0);
-          const pdfBuffer=sourceBuffer.slice(0);
-          const parserBuffer=sourceBuffer.slice(0);
-          const glyph=await loadEmbeddedPdfGlyphMap(glyphBuffer);
-          const pdf=await pdfjs.getDocument({data:new Uint8Array(pdfBuffer),useSystemFonts:true}).promise;
-          const pages=[]; let itemSample=[];
-          for(let pageNumber=1;pageNumber<=pdf.numPages;pageNumber++){
-            const page=await pdf.getPage(pageNumber);
-            const content=await page.getTextContent({disableCombineTextItems:true});
-            const items=content.items.map(item=>({str:String(item.str||''),x:Number(item.transform?.[4]),y:Number(item.transform?.[5]),width:Number(item.width)||0})).filter(i=>i.str&&Number.isFinite(i.x)&&Number.isFinite(i.y));
-            if(pageNumber===1) itemSample=items.slice(0,220);
-            pages.push(items.map(i=>i.str).join(' '));
-          }
-          const datasets=await parseFile(parserBuffer,file,'pdf');
-          console.log(JSON.stringify({pages:pdf.numPages,glyphMapSize:glyph?.size??0,rawText:pages.join('\n\n').slice(0,16000),rawItems:itemSample,datasets:datasets.map(d=>({rows:d.rowCount,columns:d.columnCount,quality:d.qualityScore,source:d.source,columns_profile:d.columns.map(c=>({name:c.name,mapped:c.mappedField,confidence:c.mappingConfidence})),sample:d.rows.slice(0,5)}))},null,2));
-          NODE
+          echo "PDFTOPPM=$(command -v pdftoppm || true)"
+          echo "TESSERACT=$(command -v tesseract || true)"
+          pdftoppm -v 2>&1 | head -3 || true
+          tesseract --version 2>&1 | head -2 || true
