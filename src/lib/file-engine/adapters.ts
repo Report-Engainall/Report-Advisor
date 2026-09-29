@@ -710,6 +710,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   if (tableRows.length >= 2 && tablePageCount >= 1) return [await buildDataset(tableRows, fileName, 'pdf-table')];
   if (pages.length) {
     const pageText = pages.join('\n\n');
+    if (fileName === 'الصراف العامري.pdf') console.log('DEBUG_ALAMRI_PDF_TEXT\n' + pageText.slice(0, 12000));
     const supplierColumnMajor = tryParseColumnMajorSupplierText(pageText);
     if (supplierColumnMajor && supplierColumnMajor.length >= 2) return [await buildDataset(supplierColumnMajor, fileName, 'pdf-column-major-supplier')];
     const receivablesColumnMajor = tryParseColumnMajorReceivablesText(pageText);
