@@ -1,3 +1,24 @@
+# RESUME TOKEN — 2026-09-29 / CORPUS PARSER HARDENED / SERIAL REAL REPORT RUN IN FLIGHT
+
+- CONTROL HEAD BEFORE THIS MEMORY WRITE: `2091f9bc7ea128e43356ed3afe5c5f679984ee7c`.
+- FUNCTIONAL CODE SHA: `bcbd88f9218b7b35e91a057608b2f45712c222e9`.
+- CURRENT FRONT: REPORT-FIRST / serial authenticated real-corpus execution.
+- CORPUS: 47 real report files; corpus gate PASS remains `DECLARED=47 ACTUAL=48 MINIMUM=20`.
+- PARSER HARDENING COMPLETED: PDF layout tables, multi-row headers, natural semantic headers, OCR fallback for low-quality native PDFs, spatial OCR words, real specialty classification across sales/purchases/inventory/receivables/payments/customers/products.
+- TARGETED REAL PROOF: 10/10 representative corpus cases PASS; `test:pdf-structured-regression` PASS; `typecheck` PASS; `build` PASS.
+- LATEST FULL CORPUS READINESS MATRIX BEFORE THE TOP-LEVEL SPECIALTY RULE PATCH: 47 total / 10 trusted / 13 review / 24 reject / 0 runtime blocked / 0 failed. It is readiness only and does not close reports.
+- REPORT_001: `اعمار الديون للعملا.pdf`; SHA256 `9996F169AAE09E31F909712CA4BE5ACE238C7A4F123B370D436A5F1A115EA099`; 27 rows; quality 98; receivables.
+- DOWNSTREAM OUTPUTS IMPLEMENTED: Source Report + applicable Domain Report + Reports Center + Trust/Evidence + Executive + Intelligence + Recommendations + Forecasts + Decision + Work Center + Data Quality + Benchmark fail-closed.
+- SERIAL RUNNER: existing canonical UI path; deterministic report identity from corpus order; tenant-scoped fingerprint anti-repeat; per-report JSON/screenshot; REVIEW/FAILED isolation without forcing commit; continues to next report.
+- CI: Full Product Browser E2E configured for `REPORT_CORPUS_MAX=47` with 360-minute timeout; current-head terminal evidence pending.
+- REPORT COUNTS: CLOSED=0, REVIEW=0, FAILED=0, BLOCKED=0, REMAINING=47. No report is CLOSED without authoritative DB commit + provenance + nine ordered tasks + rendered Source Report + applicable downstream proof.
+- SEPARATE OPEN CERTIFICATION FRONT: Phase-F exact deployment identity and `customer_credit_accounts` migration-lineage drift.
+- DO-NOT-REPEAT: no corpus rediscovery; no duplicate importer/runner/ledger; no direct DB insertion; no synthetic report substitute; no stale SHA proof; no completed fingerprint reprocessing.
+- RESUME: consume current exact-head Full Product Browser E2E and close reports one by one from real artifacts.
+- NEXT EXACT ACTION: inspect the terminal current-head Full Product Browser E2E run and its `real-report-e2e` artifact; fix only its first current-SHA reproducible blocker.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / REPORT_001 DOMAIN SURFACE PROVEN
 
 - CONTROL HEAD: 24c8f79c2920260b3a3848d0f31ffd5117a6f813
