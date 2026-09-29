@@ -4,7 +4,6 @@ import { securityScan } from '../../src/lib/file-engine/security.ts';
 import { detectFormat } from '../../src/lib/file-engine/detector.ts';
 import { parseFile } from '../../src/lib/file-engine/adapters.ts';
 import { reconcileForCanonical } from '../../src/lib/import/canonical-truth-boundary.ts';
-import { runCanonicalImportThroughDurableRunner } from '../../src/lib/import/canonical-production-adapter.ts';
 
 function json(status: number, body: Record<string, unknown>): Response {
   return new Response(JSON.stringify(body), {
@@ -32,16 +31,11 @@ export default async (request: Request): Promise<Response> => {
     const authorization = bearer(request);
     const supabaseUrl = env('VITE_SUPABASE_URL');
     const anonKey = env('VITE_SUPABASE_ANON_KEY');
-    const serviceRoleKey = env('SUPABASE_SERVICE_ROLE_KEY');
 
     const userClient = createClient(supabaseUrl, anonKey, {
       auth: { persistSession: false, autoRefreshToken: false },
       global: { headers: { Authorization: authorization } },
     });
-    const serviceClient = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-
     const { data: userData, error: userError } = await userClient.auth.getUser();
     if (userError || !userData.user?.id) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
@@ -66,7 +60,7 @@ export default async (request: Request): Promise<Response> => {
       throw new Error('CANONICAL_IMPORT_REQUEST_INVALID');
     }
 
-    const { data: job, error: jobError } = await serviceClient
+    const { data: job, error: jobError } = await userClient
       .from('import_jobs')
       .select('id, company_id, file_record_id, job_type, result_summary')
       .eq('id', payload.importId)
@@ -76,7 +70,7 @@ export default async (request: Request): Promise<Response> => {
     if (!job?.file_record_id) throw new Error('IMPORT_JOB_SOURCE_RECORD_NOT_FOUND_OR_FORBIDDEN');
     if (job.job_type && job.job_type !== payload.entityType) throw new Error('IMPORT_JOB_ENTITY_TYPE_MISMATCH');
 
-    const { data: fileRecord, error: fileError } = await serviceClient
+    const { data: fileRecord, error: fileError } = await userClient
       .from('file_records')
       .select('id, company_id, file_name, file_mime, file_size, file_hash, security_status, status, metadata')
       .eq('id', job.file_record_id)
@@ -91,7 +85,7 @@ export default async (request: Request): Promise<Response> => {
     if (storageBucket !== 'documents' || !storagePath) throw new Error('AUTHORITATIVE_SOURCE_STORAGE_BINDING_INVALID');
     if (!storagePath.startsWith(`${companyId}/imports/`)) throw new Error('AUTHORITATIVE_SOURCE_STORAGE_TENANT_MISMATCH');
 
-    const { data: sourceBlob, error: downloadError } = await serviceClient.storage
+    const { data: sourceBlob, error: downloadError } = await userClient.storage
       .from(storageBucket)
       .download(storagePath);
     if (downloadError || !sourceBlob) throw new Error(`AUTHORITATIVE_SOURCE_DOWNLOAD_FAILED:${downloadError?.message ?? 'EMPTY_SOURCE'}`);
@@ -142,49 +136,14 @@ export default async (request: Request): Promise<Response> => {
     }
     if (reconciled.rows.length !== authoritativeRows.length) throw new Error('AUTHORITATIVE_SOURCE_RECONCILIATION_COUNT_MISMATCH');
 
-    const verifiedMetadata = {
-      ...metadata,
-      storage_bucket: storageBucket,
-      storage_path: storagePath,
-      raw_bytes_sha256: sourceSha,
-      detected_format: detection.format,
-      server_verified_at: new Date().toISOString(),
-      server_verified_by: userData.user.id,
-    };
-
-    const { error: fileUpdateError } = await serviceClient
-      .from('file_records')
-      .update({
-        file_hash: sourceSha,
-        file_size: bytes.byteLength,
-        file_mime: fileRecord.file_mime || sourceBlob.type || detection.mime,
-        security_status: 'passed',
-        status: 'ready',
-        metadata: verifiedMetadata,
-      })
-      .eq('id', fileRecord.id)
-      .eq('company_id', companyId);
-    if (fileUpdateError) throw fileUpdateError;
-
-    const { error: jobUpdateError } = await serviceClient
-      .from('import_jobs')
-      .update({
-        source_fingerprint: sourceSha,
-        result_summary: {
-          ...(job.result_summary && typeof job.result_summary === 'object' ? job.result_summary : {}),
-          source_verified: true,
-          source_hash: sourceSha,
-          source_storage_bucket: storageBucket,
-          source_storage_path: storagePath,
-          server_verified_at: verifiedMetadata.server_verified_at,
-        },
-      })
-      .eq('id', job.id)
-      .eq('company_id', companyId);
-    if (jobUpdateError) throw jobUpdateError;
-
-    const execution = await runCanonicalImportThroughDurableRunner(
-      {
+    const workerResponse = await fetch(`${supabaseUrl}/functions/v1/canonical-import-worker`, {
+      method: 'POST',
+      headers: {
+        apikey: anonKey,
+        Authorization: authorization,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         importId: job.id,
         fileName: fileRecord.file_name || payload.fileName || 'import',
         sourceHash: sourceSha,
@@ -192,67 +151,22 @@ export default async (request: Request): Promise<Response> => {
         rows: reconciled.rows,
         qualityScore: authoritativeQualityScore,
         qualityApproved: payload.qualityApproved === true,
-      },
-      {
-        serverExecution: true,
-        workerClient: serviceClient,
-        dataClient: userClient,
-        companyId: String(companyId),
-        requestedBy: userData.user.id,
-      },
-    );
-
-    let snapshotId: string | null = null;
-    try {
-      const { data: snapshot, error: snapshotError } = await serviceClient
-        .from('source_analysis_snapshots')
-        .insert({
-          company_id: companyId,
-          import_job_id: job.id,
-          source_hash: sourceSha,
-          source_path: storagePath,
-          source_format: detection.format,
-          analysis_status: 'analyzed',
-          entity_type: 'source-data',
-          quality_score: authoritativeQualityScore,
-          row_count: authoritativeRows.length,
-          column_count: Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns.length : 0,
-          datasets: [{
-            name: fileRecord.file_name || payload.fileName || 'import',
-            rowCount: authoritativeRows.length,
-            columnCount: Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns.length : 0,
-            columns: authoritativeDataset.columns,
-            preview: authoritativeDataset.preview.slice(0, 25),
-          }],
-          canonical_text: [
-            `source=${fileRecord.file_name || payload.fileName || 'import'}`,
-            `server_authoritative_quality=${authoritativeQualityScore}%`,
-            `source_sha=${sourceSha}`,
-          ].join(' | '),
-          visual_assets: [],
-          warnings: [],
-          metadata: {
-            fileName: fileRecord.file_name || payload.fileName || 'import',
-            sourceFormat: detection.format,
-            serverAuthoritativeSource: true,
-            serverAuthoritativeQualityScore: authoritativeQualityScore,
-            committed: authoritativeRows.length,
-            jobId: execution.jobId,
-            sourceStoragePath: storagePath,
-          },
-        })
-        .select('id')
-        .single();
-      if (!snapshotError) snapshotId = snapshot?.id ?? null;
-    } catch (snapshotError) {
-      console.error('[canonical-import-execute] non-fatal snapshot persistence failure', snapshotError);
+        sourceStorageBucket: storageBucket,
+        sourceStoragePath: storagePath,
+        sourceFormat: detection.format,
+        authoritativeColumns: authoritativeDataset.columns,
+        authoritativePreview: authoritativeDataset.preview.slice(0, 25),
+      }),
+    });
+    const workerBody = await workerResponse.json().catch(() => ({}));
+    if (!workerResponse.ok) {
+      const detail = typeof workerBody?.detail === 'string' ? workerBody.detail : `HTTP_${workerResponse.status}`;
+      throw new Error(`CANONICAL_IMPORT_WORKER_FAILED:${detail}`);
     }
-
     return json(200, {
-      ...execution,
+      ...workerBody,
       importId: job.id,
       sourceHash: sourceSha,
-      snapshotId,
       authoritativeRowCount: authoritativeRows.length,
       authoritativeQualityScore,
       authoritativeColumns: authoritativeDataset.columns,
