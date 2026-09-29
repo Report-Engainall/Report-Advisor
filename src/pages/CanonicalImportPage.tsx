@@ -15,7 +15,7 @@ import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/l
 import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
 import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
 import { planIngestion } from '@/lib/report-intelligence/universal-ingestion-planner';
-import { buildImpactPlan } from '@/lib/import-pipeline/report-dependency-graph';
+import { buildImpactPlan, type IntelligenceNode } from '@/lib/import-pipeline/report-dependency-graph';
 import { buildPostImportReportSurfaces, buildPostImportReportSummary, reportTypeDomain } from '@/lib/report-intelligence/post-import-report-surfaces';
 
 type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
@@ -99,7 +99,7 @@ export function CanonicalImportPage() {
   const [reportConfidence, setReportConfidence] = useState(0);
   const [reportClassificationAction, setReportClassificationAction] = useState<ReturnType<typeof planIngestion>['action']>('review_mapping');
   const [reportReasons, setReportReasons] = useState<string[]>([]);
-  const [impactedNodes, setImpactedNodes] = useState<string[]>([]);
+  const [impactedNodes, setImpactedNodes] = useState<IntelligenceNode[]>([]);
   const [file, setFile] = useState<{ name: string; size: number; format: FileFormat; mime: string } | null>(null);
   const [fileHash, setFileHash] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);

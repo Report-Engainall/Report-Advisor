@@ -1,5 +1,5 @@
 import type { ReportType } from './report-type-detector';
-import type { ReportDomain, IntelligenceNode } from '@/lib/import-pipeline/report-dependency-graph';
+import type { ReportDomain, IntelligenceNode } from '../import-pipeline/report-dependency-graph';
 
 export interface PostImportReportSurface {
   key: 'executive' | 'domain' | 'evidence' | 'decision' | 'work' | 'outcome' | 'benchmark';
