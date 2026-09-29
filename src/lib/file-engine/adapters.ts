@@ -260,12 +260,129 @@ function tryParseReceivablesAgingPdfItems(items: PdfTextItem[]): Row[] | null {
 }
 
 type PdfTableColumn={key:string;label:string;center:number};
-const PDF_HEADER_TERMS=['رقم الصنف','اسم الصنف','اسم المنتج','اسم المورد','رقم المورد','رقم العميل','اسم العميل','المبلغ','الإجمالي','المبلغ بالعملة المحلية','الإجمالي بالعملة المحلية','العملة','الكمية','الوحدة','المخزن','التاريخ','نوع المستند','رقم المستند','البيان','رقم المرجع','مدين','دائن','الرصيد','المندوب','الخصم','الضريبة','صافي المبيعات','مبلغ المبيعات','الرصيد المستحق','إجمالي المبلغ المستحق'];
-function isLikelyPdfHeader(line:PdfTextItem[]):boolean{if(line.length<3)return false;const joined=line.map(i=>i.text.trim()).join(' ');const hits=PDF_HEADER_TERMS.filter(term=>joined.includes(term)).length;const textual=line.filter(i=>!isNumericToken(i.text)).length;return hits>=2&&textual>=2;}
-function uniquePdfColumnKey(label:string,index:number,seen:Set<string>):string{let key=normalizeColumnName(label).trim();if(!key)key='column_'+String(index+1);let candidate=key;let n=2;while(seen.has(candidate)){candidate=key+' '+n;n+=1;}seen.add(candidate);return candidate;}
-function tryParseGenericPdfTableItems(pages:PdfTextItem[][]):Row[]|null{const allRows:Row[]=[];for(const pageItems of pages){const lines=groupPdfItemsByLine(pageItems);const headerIndex=lines.findIndex(isLikelyPdfHeader);if(headerIndex<0)continue;const headerLine=lines[headerIndex];const seen=new Set<string>();const headers:PdfTableColumn[]=headerLine.map((item,index)=>({key:uniquePdfColumnKey(item.text,index,seen),label:item.text.trim(),center:item.x+item.width/2}));const headerKeys=new Set(headers.map(h=>normalizeColumnName(h.label)));
-for(let lineIndex=headerIndex+1;lineIndex<lines.length;lineIndex+=1){const line=lines[lineIndex];if(line.length<2)continue;const lineNorm=line.map(i=>normalizeColumnName(i.text));const repeatedHeader=lineNorm.filter(v=>headerKeys.has(v)).length>=Math.max(2,Math.ceil(headers.length*0.45));if(repeatedHeader)continue;const joined=line.map(i=>i.text.trim()).join(' ');if(/^(?:طبع بواسطة|تاريخ التقرير|عدد الأصناف|عدد اﻻصناف|O\.Box)/i.test(joined)||joined.includes('تاريخ التقرير'))continue;const row:Row={};let assigned=0;for(const item of line){const center=item.x+item.width/2;let best=headers[0];let bestDistance=Number.POSITIVE_INFINITY;for(const header of headers){const distance=Math.abs(center-header.center);if(distance<bestDistance){best=header;bestDistance=distance;}}if(!best)continue;const raw=item.text.trim();if(!raw)continue;const value=/^[-+]?\d[\d,\s]*(?:\.\d+)?$/.test(normalizeArabicDigits(raw).trim())?normalizeStructuredDocumentValue(raw):normalizeArabicDigits(raw).replace(/\s+/g,' ').trim();if(value===''||value==null)continue;const existing=row[best.key];row[best.key]=existing==null?value:String(existing)+' '+String(value);assigned+=1;}const populated=Object.values(row).filter(v=>v!==''&&v!=null).length;const hasNumeric=Object.values(row).some(v=>typeof v==='number'||isNumericToken(String(v)));if(populated>=2&&(hasNumeric||populated>=3)){allRows.push(row);}}}
-return allRows.length?allRows:null;}
+
+const PDF_HEADER_TERMS=[
+  'رقم الصنف','اسم الصنف','اسم المنتج','اسم المورد','رقم المورد','رقم العميل','اسم العميل',
+  'المبلغ','الإجمالي','المبلغ بالعملة المحلية','الإجمالي بالعملة المحلية','العملة','الكمية','الوحدة',
+  'المخزن','التاريخ','نوع المستند','رقم المستند','البيان','رقم المرجع','مدين','دائن','الرصيد','المندوب',
+  'الخصم','الضريبة','صافي المبيعات','مبلغ المبيعات','الرصيد المستحق','إجمالي المبلغ المستحق',
+  'رقم الفاتورة','نوع الفاتورة','العبوة','الوارد','الحركة','التكلفة','صافي المبيعات'
+];
+
+function normalizedPdfText(value:string):string{
+  return normalizeArabicDigits(value.replace(/\uFEFF/g,'').replace(/\s+/g,' ').trim());
+}
+
+function pdfHeaderClusters(lines:PdfTextItem[][], start:number, span:number):PdfTableColumn[]{
+  const items=lines.slice(start,start+span).flatMap(line=>line);
+  const clusters:Array<{center:number;items:PdfTextItem[]}>=[];
+
+  for(const item of items.sort((a,b)=>a.x-b.x||b.y-a.y)){
+    const text=normalizedPdfText(item.text);
+    if(!text) continue;
+    const numericOnly=isNumericToken(text)||/^[-–—]?\d+[\d,\s]*(?:\.\d+)?$/.test(text);
+    if(numericOnly && span>1) continue;
+    const center=item.x+item.width/2;
+    let best:null|{cluster:{center:number;items:PdfTextItem[]};distance:number}=null;
+    for(const cluster of clusters){
+      const distance=Math.abs(center-cluster.center);
+      if(distance<=20 && (!best||distance<best.distance)) best={cluster,distance};
+    }
+    if(best){
+      best.cluster.items.push(item);
+      best.cluster.center=(best.cluster.center*(best.cluster.items.length-1)+center)/best.cluster.items.length;
+    }else{
+      clusters.push({center,items:[item]});
+    }
+  }
+
+  return clusters
+    .filter(cluster=>cluster.items.length>0)
+    .sort((a,b)=>a.center-b.center)
+    .map((cluster,index)=>{
+      const labels=[...new Set(cluster.items.map(item=>normalizedPdfText(item.text)).filter(Boolean))];
+      return {key:'',label:labels.join(' ').trim(),center:cluster.center,index} as PdfTableColumn;
+    });
+}
+
+function findPdfHeaderWindow(lines:PdfTextItem[][]):{start:number;span:number;headers:PdfTableColumn[]}|null{
+  let best:null|{score:number;start:number;span:number;headers:PdfTableColumn[]}=null;
+  const maxStart=Math.min(lines.length,25);
+  for(let start=0;start<maxStart;start+=1){
+    for(const span of [1,2,3]){
+      if(start+span>lines.length) continue;
+      const headers=pdfHeaderClusters(lines,start,span);
+      if(headers.length<3) continue;
+      const joined=headers.map(header=>header.label).join(' ');
+      const hits=PDF_HEADER_TERMS.filter(term=>joined.includes(term)).length;
+      const textual=headers.filter(header=>/[^\d.,%\-+\s]/u.test(header.label)).length;
+      const numeric=headers.filter(header=>isNumericToken(header.label)).length;
+      if(hits<2||textual<3) continue;
+      const score=hits*30+Math.min(headers.length,14)*2+textual*2-numeric*25-span*2;
+      if(!best||score>best.score) best={score,start,span,headers};
+    }
+  }
+  if(!best) return null;
+  const seen=new Set<string>();
+  const headers=best.headers.map((header,index)=>({
+    ...header,
+    key:uniquePdfColumnKey(header.label,index,seen),
+  }));
+  return {start:best.start,span:best.span,headers};
+}
+
+function uniquePdfColumnKey(label:string,index:number,seen:Set<string>):string{
+  let key=normalizeColumnName(label).trim();
+  if(!key)key='column_'+String(index+1);
+  let candidate=key;
+  let n=2;
+  while(seen.has(candidate)){candidate=key+' '+n;n+=1;}
+  seen.add(candidate);
+  return candidate;
+}
+
+function tryParseGenericPdfTableItems(pages:PdfTextItem[][]):Row[]|null{
+  const allRows:Row[]=[];
+  for(const pageItems of pages){
+    const lines=groupPdfItemsByLine(pageItems);
+    const headerWindow=findPdfHeaderWindow(lines);
+    if(!headerWindow) continue;
+    const {start:headerStart,span:headerSpan,headers}=headerWindow;
+    const headerKeys=new Set(headers.flatMap(header=>normalizeColumnName(header.label).split(/\s+/).filter(Boolean)));
+    for(let lineIndex=headerStart+headerSpan;lineIndex<lines.length;lineIndex+=1){
+      const line=lines[lineIndex];
+      if(line.length<2) continue;
+      const lineNorm=line.map(item=>normalizeColumnName(item.text));
+      const repeatedHeader=lineNorm.filter(value=>headerKeys.has(value)).length>=Math.max(2,Math.ceil(headers.length*0.35));
+      if(repeatedHeader) continue;
+      const joined=line.map(item=>item.text.trim()).join(' ');
+      if(/^(?:طبع بواسطة|تاريخ التقرير|عدد الأصناف|عدد اﻻصناف|O\.Box)/i.test(joined)||joined.includes('تاريخ التقرير')) continue;
+
+      const row:Row={};
+      for(const item of line){
+        const center=item.x+item.width/2;
+        let best=headers[0];
+        let bestDistance=Number.POSITIVE_INFINITY;
+        for(const header of headers){
+          const distance=Math.abs(center-header.center);
+          if(distance<bestDistance){best=header;bestDistance=distance;}
+        }
+        const raw=normalizedPdfText(item.text);
+        if(!raw) continue;
+        const value=/^[-+]?\d[\d,\s]*(?:\.\d+)?$/.test(raw)?normalizeStructuredDocumentValue(raw):raw;
+        if(value===''||value==null) continue;
+        const existing=row[best.key];
+        row[best.key]=existing==null?value:String(existing)+' '+String(value);
+      }
+
+      const populated=Object.values(row).filter(value=>value!==''&&value!=null).length;
+      const hasNumeric=Object.values(row).some(value=>typeof value==='number'||isNumericToken(String(value)));
+      if(populated>=2&&(hasNumeric||populated>=3)) allRows.push(row);
+    }
+  }
+  return allRows.length?allRows:null;
+}
+
 export type OcrDisposition = 'REJECT' | 'REVIEW' | 'TRUSTED';
 export const OCR_REJECT_THRESHOLD = 50;
 export const OCR_TRUSTED_THRESHOLD = 75;
