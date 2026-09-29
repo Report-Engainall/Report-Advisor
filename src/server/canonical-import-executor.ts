@@ -169,7 +169,7 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
   }).eq('id', job.id).eq('company_id', companyId);
   if (jobUpdateError) throw jobUpdateError;
 
-  const durableJobKey = `canonical-import:${authoritativeEntityType}:${sourceSha}`;
+  const durableJobKey = `canonical-import:${authoritativeEntityType}:${sourceSha}:${job.id}`;
   if (mode === 'enqueue') {
     const { data: queuedJob, error: queueError } = await serviceClient.rpc('enqueue_report_execution_job', {
       p_company_id: companyId,
