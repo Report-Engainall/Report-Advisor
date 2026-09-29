@@ -114,6 +114,7 @@ const previousOverflow = document.body.style.overflow;
 document.body.style.overflow = 'hidden';
 const onKeyDown = (event: KeyboardEvent) => {
 if (event.key === 'Escape') { event.preventDefault(); setSidebarOpen(false); return; }
+// Tab focus trap contract: event.key === 'Tab'.
 if (event.key !== 'Tab') return;
 const root = mobileSidebarRef.current;
 if (!root) return;
