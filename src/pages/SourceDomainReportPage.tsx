@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowUpLeft, BarChart3, BrainCircuit, Database, ShieldCheck, Target, Workflow } from 'lucide-react';
+import { AlertTriangle, ArrowUpLeft, BarChart3, BrainCircuit, CheckCircle2, Database, ListChecks, ShieldCheck, Target, Workflow } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { DataTable } from '@/components/ui/DataTable';
 import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/States';
@@ -136,6 +136,107 @@ export function SourceDomainReportPage() {
       value: rows.reduce((sum, row) => sum + (num(row.data[metric.key]) ?? 0), 0),
     })), [config.metricFields, rows]);
 
+  const outputModel = useMemo(() => {
+    const values = (key: string) => rows.map(row => num(row.data[key])).filter((value): value is number => value != null);
+    const sum = (key: string) => values(key).reduce((total, value) => total + value, 0);
+    const countPresent = (keysToCheck: string[]) => rows.filter(row => keysToCheck.some(key => row.data[key] != null && row.data[key] !== '')).length;
+    const findings: string[] = [];
+    const adminChecks: string[] = [];
+    const decisionCandidates: string[] = [];
+    const actions: string[] = [];
+    const qualityBand = verified ? 'VERIFIED' : 'REVIEW';
+
+    const mapped = new Set(rows.flatMap(row => Object.keys(row.data)));
+
+    if (report.specialty === 'receivables') {
+      const outstanding = sum('outstanding_balance');
+      const overdue = sum('age_31_60') + sum('age_61_90') + sum('age_91_120') + sum('age_over_120');
+      if (outstanding > 0) findings.push(`الرصيد المستحق الظاهر في المصدر = ${formatCurrency(outstanding)}.`);
+      if (overdue > 0) findings.push(`يوجد رصيد في شرائح ما بعد 30 يومًا = ${formatCurrency(overdue)}؛ يلزم مراجعة أعمار التحصيل على مستوى الصفوف.`);
+      if (outstanding === 0) findings.push('لا يوجد رصيد مستحق رقمي مؤكد من الصفوف المصدرية المتاحة.');
+      decisionCandidates.push(overdue > 0 ? 'مرشح مراجعة تحصيل للشرائح المتأخرة؛ ليس قرارًا تنفيذيًا تلقائيًا.' : 'لا توجد إشارة تحصيل متأخرة مثبتة من هذا المصدر.');
+      actions.push('مراجعة العملاء/الحسابات ذات الرصيد المتأخر قبل أي إجراء تحصيلي.');
+      adminChecks.push(`صفوف المصدر: ${formatNumber(rows.length)}؛ الصفوف التي تحمل هوية عميل أو اسم عميل: ${formatNumber(countPresent(['customer_id','customer_name']))}.`);
+    } else if (report.specialty === 'sales') {
+      const sales = sum('net_sales') || sum('sales_amount') || sum('total');
+      const discount = sum('discount');
+      const quantity = sum('quantity');
+      if (sales > 0) findings.push(`قيمة المبيعات المجمعة من المصدر = ${formatCurrency(sales)}.`);
+      if (discount > 0) findings.push(`إجمالي الخصومات الظاهرة = ${formatCurrency(discount)}.`);
+      if (quantity > 0) findings.push(`الكمية المجمعة حيث تتوفر = ${formatNumber(quantity)}.`);
+      if (!sales && !quantity) findings.push('المصدر لا يوفر قيمة مبيعات أو كمية رقمية كافية للحساب.');
+      decisionCandidates.push(sales > 0 ? 'مرشح تحليل المبيعات حسب العميل/الصنف؛ لا يتم إعلان سبب أو أفضلية دون مقارنة موثقة.' : 'لا توجد إشارة مبيعات رقمية كافية.');
+      actions.push('مراجعة السجلات غير المكتملة قبل اعتماد مؤشرات الأداء أو المقارنات.');
+    } else if (report.specialty === 'purchases') {
+      const purchases = sum('local_amount') || sum('total');
+      const outstanding = sum('outstanding_balance');
+      if (purchases > 0) findings.push(`قيمة المشتريات المجمعة من المصدر = ${formatCurrency(purchases)}.`);
+      if (outstanding > 0) findings.push(`الرصيد المستحق للمصدر = ${formatCurrency(outstanding)}.`);
+      decisionCandidates.push(purchases > 0 ? 'مرشح تحليل الموردين/الأصناف؛ لا يتم إنشاء قرار شراء تلقائي.' : 'بيانات شراء غير كافية لبناء مرشح قرار.');
+      actions.push('مراجعة الموردين أو الحركات التي تحمل رصيدًا مستحقًا قبل اعتماد أي إجراء.');
+    } else if (report.specialty === 'inventory') {
+      const quantity = sum('available_quantity') || sum('quantity');
+      const low = rows.filter(row => {
+        const q = num(row.data.available_quantity ?? row.data.quantity);
+        const reorder = num(row.data.reorder_point);
+        return q != null && ((reorder != null && q <= reorder) || q <= 0);
+      }).length;
+      if (quantity > 0) findings.push(`الكمية الإجمالية حيث تتوفر = ${formatNumber(quantity)}.`);
+      findings.push(low > 0 ? `صفوف تحتاج مراجعة مخزون/إعادة طلب حسب الحقول المتاحة = ${formatNumber(low)}.` : 'لا توجد صفوف منخفضة يمكن إثباتها من الحقول المتاحة.');
+      decisionCandidates.push(low > 0 ? 'مرشح مراجعة إعادة الطلب/التغطية للأصناف المحددة فقط.' : 'لا توجد إشارة إعادة طلب مثبتة.');
+      actions.push('مراجعة الكمية والتكلفة ونقطة إعادة الطلب على الصفوف المتأثرة.');
+    } else if (report.specialty === 'payments') {
+      const debit = sum('debit');
+      const credit = sum('credit');
+      if (debit || credit) findings.push(`إجمالي المدين = ${formatCurrency(debit)}؛ إجمالي الدائن = ${formatCurrency(credit)}.`);
+      if (debit || credit) findings.push(`صافي الحركة المحسوب حتميًا = ${formatCurrency(credit - debit)}.`);
+      decisionCandidates.push(debit || credit ? 'مرشح مراجعة السيولة والحركات غير المتوازنة على مستوى المستند.' : 'لا توجد حركة مالية رقمية كافية.');
+      actions.push('مراجعة الحركات المالية التي ينقصها المرجع أو الوصف قبل اعتمادها تشغيليًا.');
+    } else if (report.specialty === 'products') {
+      const priced = rows.filter(row => num(row.data.cost_price) != null && num(row.data.selling_price) != null);
+      const margins = priced.map(row => {
+        const cost = num(row.data.cost_price) ?? 0;
+        const sell = num(row.data.selling_price) ?? 0;
+        return sell > 0 ? ((sell - cost) / sell) * 100 : null;
+      }).filter((value): value is number => value != null);
+      if (margins.length) findings.push(`توفر تسعير وتكلفة قابلة للحساب لـ${formatNumber(margins.length)} صفًا؛ الهامش هنا إشارة وصفية لا توصية سعرية.`);
+      findings.push(`صفوف كتالوج الأصناف = ${formatNumber(rows.length)}.`);
+      decisionCandidates.push(margins.length ? 'مرشح مراجعة تسعير/هامش للأصناف ذات التكلفة وسعر البيع المثبتين.' : 'لا توجد بيانات تكلفة/بيع كافية.');
+      actions.push('مراجعة الأصناف التي تملك تكلفة وسعر بيع مثبتين قبل أي قرار تسعيري.');
+    } else if (report.specialty === 'customers') {
+      const balance = sum('balance');
+      const credit = sum('credit_limit');
+      findings.push(`صفوف العملاء = ${formatNumber(rows.length)}.`);
+      if (balance || credit) findings.push(`إجمالي الرصيد الظاهر = ${formatCurrency(balance)}؛ حدود الائتمان الظاهرة = ${formatCurrency(credit)}.`);
+      decisionCandidates.push(balance || credit ? 'مرشح مراجعة ائتمان للعملاء ذوي البيانات المالية المكتملة.' : 'بيانات مالية غير كافية لبناء مرشح ائتماني.');
+      actions.push('مراجعة العملاء ذوي الحقول الائتمانية المكتملة قبل اعتماد أي إجراء.');
+    } else {
+      findings.push('تم استخراج المصدر دون تخصص تجاري كافٍ لإعلان مؤشرات مجال محددة.');
+      decisionCandidates.push('لا يوجد مرشح قرار قبل اكتمال التخصص أو المراجعة.');
+      actions.push('استكمال المراجعة الدلالية للمصدر قبل استخدامه تشغيليًا.');
+    }
+
+    const knownFieldCount = mapped.size;
+    const missingEvidence = report.validRows == null ? 'عدد الصفوف الصالحة غير متاح.' : `الصفوف الصالحة = ${formatNumber(report.validRows)}.`;
+    adminChecks.push(`حقول كانونّية ظاهرة في المخرج = ${formatNumber(knownFieldCount)}.`);
+    adminChecks.push(missingEvidence);
+    adminChecks.push('Benchmark: INSUFFICIENT SAMPLE — لا توجد عينة peer كافية من Report Job واحد.');
+
+    return {
+      qualityBand,
+      executive: findings[0] ?? 'لا يوجد ملخص رقمي مؤكد من المصدر.',
+      findings,
+      adminChecks,
+      decisionCandidates,
+      actions,
+      limitations: [
+        'هذه المخرجات مصدر-مقيدة ولا تتضمن دمجًا مع مصادر خارج Report Job الحالي.',
+        'لا يتم تحويل القيم المفقودة إلى صفر ولا إعلان نتيجة غير مثبتة.',
+        'الـBenchmark مغلق حتى تتوفر عينة مقارنة كافية.',
+      ],
+    };
+  }, [report, rows, verified]);
+
   const keys = useMemo(() => {
     const present = new Set(rows.flatMap(row => Object.keys(row.data)));
     const selected = config.tablePriority.filter(key => present.has(key));
@@ -170,6 +271,62 @@ export function SourceDomainReportPage() {
       <Card><CardBody><div className="surface-label">المخرجات</div><div className="mt-2 text-sm font-black">الذكاء + الإدارة + القرار</div></CardBody></Card>
       <Card><CardBody><div className="surface-label">Benchmark</div><div className="mt-2 text-sm font-black text-warning-700">INSUFFICIENT SAMPLE</div></CardBody></Card>
     </section>
+
+    <section className="grid gap-3 xl:grid-cols-2">
+      <Card>
+        <CardHeader title="الملخص التنفيذي" subtitle="EVIDENCE-BOUND — مشتق من نفس صفوف التقرير." />
+        <CardBody>
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="mt-0.5 text-primary-700" size={19} />
+            <div className="text-sm font-black leading-7">{outputModel.executive}</div>
+          </div>
+        </CardBody>
+      </Card>
+      <Card>
+        <CardHeader title="حالة الحقيقة" subtitle="لا إعلان نجاح إلا بعد إكمال المسار الكانوني." />
+        <CardBody>
+          <div className="text-lg font-black">{outputModel.qualityBand}</div>
+          <div className="mt-2 text-xs text-ink-500">{verified ? 'المصدر اجتاز مراحل التنفيذ التسع المقروءة من القاعدة.' : 'المصدر يحتاج استمرار/مراجعة قبل اعتباره مكتملًا.'}</div>
+        </CardBody>
+      </Card>
+    </section>
+
+    <section className="grid gap-3 lg:grid-cols-2">
+      <Card>
+        <CardHeader title="الإشارات الذكية" subtitle="Signals — لا تتحول تلقائيًا إلى قرار." />
+        <CardBody>
+          <div className="space-y-3">{outputModel.findings.map((item, index) => <div key={item} className="flex gap-3 rounded-xl border border-ink-100 bg-ink-50 p-3"><BrainCircuit size={16} className="mt-0.5 shrink-0 text-primary-700" /><div className="text-xs leading-6">{index + 1}. {item}</div></div>)}</div>
+        </CardBody>
+      </Card>
+      <Card>
+        <CardHeader title="الرقابة الإدارية" subtitle="فحوص يمكن متابعتها قبل اعتماد القرار." />
+        <CardBody>
+          <div className="space-y-3">{outputModel.adminChecks.map(item => <div key={item} className="flex gap-3 rounded-xl border border-ink-100 p-3"><ListChecks size={16} className="mt-0.5 shrink-0 text-primary-700" /><div className="text-xs leading-6">{item}</div></div>)}</div>
+        </CardBody>
+      </Card>
+    </section>
+
+    <section className="grid gap-3 lg:grid-cols-2">
+      <Card>
+        <CardHeader title="مرشحات القرار" subtitle="Decision Candidates — تحتاج مراجعة/اعتمادًا بشريًا." />
+        <CardBody>
+          <div className="space-y-3">{outputModel.decisionCandidates.map(item => <div key={item} className="flex gap-3 rounded-xl border border-warning-200 bg-warning-50 p-3"><Target size={16} className="mt-0.5 shrink-0 text-warning-700" /><div className="text-xs leading-6">{item}</div></div>)}</div>
+        </CardBody>
+      </Card>
+      <Card>
+        <CardHeader title="إجراءات المتابعة" subtitle="Work Items — ليست أوامر تنفيذية تلقائية." />
+        <CardBody>
+          <div className="space-y-3">{outputModel.actions.map(item => <div key={item} className="flex gap-3 rounded-xl border border-primary-100 bg-primary-50 p-3"><Workflow size={16} className="mt-0.5 shrink-0 text-primary-700" /><div className="text-xs leading-6">{item}</div></div>)}</div>
+        </CardBody>
+      </Card>
+    </section>
+
+    <Card>
+      <CardHeader title="القيود وحالة المقارنة" subtitle="Fail-closed boundaries" />
+      <CardBody>
+        <div className="grid gap-3 md:grid-cols-3">{outputModel.limitations.map(item => <div key={item} className="rounded-xl border border-ink-100 p-3 text-xs leading-6 text-ink-600"><AlertTriangle size={15} className="mb-2 text-warning-700" />{item}</div>)}</div>
+      </CardBody>
+    </Card>
 
     {metricValues.length ? <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {metricValues.slice(0, 8).map(metric => <Card key={metric.key}><CardBody><div className="surface-label">{metric.label}</div><div className="display-number mt-1">{metric.currency ? formatCurrency(metric.value) : formatNumber(metric.value)}</div><div className="mt-1 text-[10px] text-ink-400">حساب حتمي من صفوف المصدر.</div></CardBody></Card>)}
