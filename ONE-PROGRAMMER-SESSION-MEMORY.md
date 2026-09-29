@@ -1,3 +1,24 @@
+# LIVE SESSION CHECKPOINT — 2026-09-29 / REAL REPORT END-TO-END PROVEN
+
+- CURRENT CODE/TEST CANDIDATE → `9dc4c592330f91a86cfd0fe6ee2d0a80918b3cad`
+- CURRENT FRONT → REAL REPORT / SOURCE-BOUND REPORT + SMART REPORT APPLICATION
+- REAL SOURCE → `فواتير العملاء من تاريخ 01-06 حتى 15-08.pdf`
+- IMPORT ID → `74c499d1-6e65-4834-a093-eef1eb633fb2`
+- SOURCE HASH → `sha256:c175fd3f105759568cf269a5f59fa26cfe16007a77269307b299e15a8c936dc8`
+- IMPORT PROOF → `completed`, 1,998/1,998 rows, 0 invalid, progress 100, completed_at 2026-09-29 13:41:38Z.
+- REPORT EXECUTION PROOF → matching report_execution_job is `completed` at checkpoint stage `rendered`, 1,998 lineage rows, same source hash.
+- ACTUAL REPAIR → import job was stuck at `processing/0` despite rendered report; it was finalized through canonical `import_finish_job` with `committed=1998` and `invalidRows=0`, not via direct table mutation.
+- SOURCE-BOUND REPORT → new `SourceBoundReportPage` reads `canonical_dataset_records` for the exact importId and is routed from the sales post-import output.
+- SMART REPORTS APPLIED TO SAME SOURCE → Sales/Executive/Time Trend/Invoice-Type Mix/Customer Concentration/Data Quality/Partial Receivables/RFM Review. Profitability, Inventory, Demand, Purchases/Suppliers, Forecast, Benchmark remain fail-closed because the source lacks required fields/sample.
+- SOURCE FACTS → total sales 1,806,623,246; 1,843 distinct invoice numbers; 913 rows missing customer; 3 missing invoice numbers; 33 missing invoice types; 3 amount mismatches.
+- REAL DECISION SIGNALS → review missing customers, missing invoice types, missing invoice numbers, and amount mismatches before using customer concentration or receivables as final decision truth.
+- DO-NOT-REPEAT → do not substitute company-wide dashboard values for the source-bound report; do not label unsupported smart reports VERIFIED.
+- DEVICE → PC01 remains offline; Edge/device physical proof still not claimed.
+- CI → current candidate has no failed checks yet; certification/enforcement/browser checks are active or queued.
+- NEXT EXACT ACTION → consume terminal CI for `9dc4c592330f91a86cfd0fe6ee2d0a80918b3cad`; repair first reproducible defect only; then verify the source-bound route contract and promote the exact PR candidate.
+
+---
+
 # LIVE SESSION CHECKPOINT — 2026-09-29 / REPORT-FIRST / PHASE-F RESTORE DEPENDENCY REPAIRED
 
 - CURRENT EXACT CONTROL/CHECKPOINT SHA → `4803dfb765c5df3b97fbf4ad4d100ca0e5d4da9c`
