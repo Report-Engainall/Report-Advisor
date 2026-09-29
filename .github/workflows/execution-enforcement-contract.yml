@@ -79,7 +79,7 @@ jobs:
           persist-credentials: false
       - name: Install repository dependencies
         run: npm ci --no-audit --no-fund
-      - name: Inspect blocked PDF item sequence
+      - name: Inspect blocked PDF y groups
         shell: bash
         run: |
           set -euo pipefail
@@ -99,17 +99,23 @@ jobs:
             const content=await page.getTextContent({disableCombineTextItems:true});
             items.push(...content.items.map(item=>({str:item.str,x:Number(item.transform?.[4]),y:Number(item.transform?.[5]),width:Number(item.width)||0,page:pageNumber})).filter(item=>item.str&&Number.isFinite(item.x)&&Number.isFinite(item.y)));
           }
-          const target=['ك','ش','ف'];
-          const matches=[];
-          for(let i=0;i<items.length-2;i++){
-            const a=items[i],b=items[i+1],d=items[i+2];
-            if(a.str===target[0]&&b.str===target[1]&&d.str===target[2]){
-              matches.push({index:i,page:a.page,items:[a,b,d]});
-              if(matches.length>=20)break;
+          const sorted=[...items].sort((a,b)=>b.y-a.y||a.x-b.x);
+          const groups=[];
+          for(const item of sorted){
+            let best=null,bestDistance=Infinity;
+            for(const group of groups){
+              const distance=Math.abs(group.y-item.y);
+              if(distance<=4&&distance<bestDistance){best=group;bestDistance=distance;}
             }
+            if(!best)groups.push({y:item.y,items:[item]});
+            else{best.items.push(item);best.y=(best.y*(best.items.length-1)+item.y)/best.items.length;}
           }
-          const keywords=['البيان','البيان ','ا','ل','ب','ي','ا','ن'];
-          console.log(JSON.stringify({count:items.length,sequenceMatches:matches.slice(0,10)},null,2));
-          const near=items.map((item,i)=>({i,...item})).filter(item=>item.str==='ك' || item.str==='ش' || item.str==='ف').slice(0,100);
-          console.log(JSON.stringify({arabicLetterSamples:near.slice(0,40)},null,2));
+          const compact=s=>s.replace(/\s+/g,'');
+          const scored=groups.map(group=>{
+            const text=group.items.sort((a,b)=>a.x-b.x).map(item=>item.str).join(' ');
+            const c=compact(text);
+            const score=['ك','ش','ف','ح','س','ا','ب'].filter(ch=>c.includes(ch)).length;
+            return {page:group.items[0]?.page,y:group.y,count:group.items.length,score,text:text.slice(0,500),compact:c.slice(0,500)};
+          }).filter(group=>group.score>=5).sort((a,b)=>b.score-a.score||b.count-a.count).slice(0,25);
+          console.log(JSON.stringify(scored,null,2));
           NODE
