@@ -17,7 +17,7 @@ SET search_path TO 'public', 'pg_catalog'
 SET statement_timeout TO '30s'
 AS $function$
 DECLARE
-  v_company_id uuid := public.current_company_id();
+  v_company_id uuid := p_company_id;
   v_existing public.canonical_import_commits%rowtype;
   v_existing_count integer;
   v_new_count integer;
@@ -25,8 +25,7 @@ DECLARE
   v_existing_row public.canonical_dataset_records%rowtype;
   v_key text;
 BEGIN
-  IF v_company_id IS NULL THEN RAISE EXCEPTION 'TENANT_CONTEXT_REQUIRED'; END IF;
-  IF p_company_id IS DISTINCT FROM v_company_id THEN RAISE EXCEPTION 'TENANT_CONTEXT_MISMATCH'; END IF;
+  IF p_company_id IS NULL THEN RAISE EXCEPTION 'TENANT_CONTEXT_REQUIRED'; END IF;
   IF p_entity_type NOT IN ('generic:sales','generic:purchases') THEN
     RAISE EXCEPTION 'GENERIC_CANONICAL_TAIL_RECONCILIATION_UNSUPPORTED';
   END IF;
@@ -165,5 +164,5 @@ BEGIN
 END;
 $function$;
 
-REVOKE ALL ON FUNCTION public.reconcile_generic_canonical_tail_rows(uuid, text, text, integer, jsonb) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.reconcile_generic_canonical_tail_rows(uuid, text, text, integer, jsonb) TO authenticated;
+REVOKE ALL ON FUNCTION public.reconcile_generic_canonical_tail_rows(uuid, text, text, integer, jsonb) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.reconcile_generic_canonical_tail_rows(uuid, text, text, integer, jsonb) TO service_role;
