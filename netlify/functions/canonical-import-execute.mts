@@ -35,7 +35,9 @@ export default async (request: Request): Promise<Response> => {
 
   let activeImportId: string | null = null;
   let userClient: SupabaseClient | null = null;
+  let executionStage = 'request';
   try {
+    executionStage = 'authenticate';
     const authorization = bearer(request);
     const supabaseUrl = env('VITE_SUPABASE_URL');
     const anonKey = env('VITE_SUPABASE_ANON_KEY');
@@ -50,6 +52,7 @@ export default async (request: Request): Promise<Response> => {
     const { data: companyId, error: companyError } = await userClient.rpc('current_company_id');
     if (companyError || !companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
 
+    executionStage = 'request-parse';
     const payload = await request.json() as {
       importId?: string;
       fileName?: string;
@@ -94,6 +97,7 @@ export default async (request: Request): Promise<Response> => {
     if (storageBucket !== 'documents' || !storagePath) throw new Error('AUTHORITATIVE_SOURCE_STORAGE_BINDING_INVALID');
     if (!storagePath.startsWith(`${companyId}/imports/`)) throw new Error('AUTHORITATIVE_SOURCE_STORAGE_TENANT_MISMATCH');
 
+    executionStage = 'authoritative-source-download';
     const { data: sourceBlob, error: downloadError } = await userClient.storage
       .from(storageBucket)
       .download(storagePath);
@@ -110,6 +114,7 @@ export default async (request: Request): Promise<Response> => {
       type: fileRecord.file_mime || sourceBlob.type || 'application/octet-stream',
       lastModified: Date.now(),
     });
+    executionStage = 'security-scan';
     const security = securityScan(sourceFile, bytes.buffer);
     if (!security.passed) throw new Error(`AUTHORITATIVE_SOURCE_SECURITY_REJECTED:${security.issues.join(' | ')}`);
 
@@ -117,9 +122,11 @@ export default async (request: Request): Promise<Response> => {
     if (detection.format === 'unknown') throw new Error('AUTHORITATIVE_SOURCE_FORMAT_UNKNOWN');
 
     if (mode === 'finalize-source') {
-      return json(200, { importId: job.id, sourceHash: sourceSha });
+      executionStage = 'response';
+    return json(200, { importId: job.id, sourceHash: sourceSha });
     }
 
+    executionStage = 'pdf-or-file-extraction';
     const authoritativeDatasets = await parseFile(bytes.buffer, fileRecord.file_name || payload.fileName || 'import', detection.format);
     const authoritativeDataset = authoritativeDatasets[0];
     if (!authoritativeDataset || authoritativeDataset.rowCount === 0) throw new Error('AUTHORITATIVE_SOURCE_PARSE_EMPTY');
@@ -131,6 +138,7 @@ export default async (request: Request): Promise<Response> => {
     }
 
     const authoritativeRows = authoritativeDataset.rows.map((data, index) => ({ rowNumber: index + 1, data }));
+    executionStage = 'canonical-reconciliation';
     const reconciled = reconcileForCanonical(
       payload.entityType,
       String(companyId),
@@ -148,6 +156,7 @@ export default async (request: Request): Promise<Response> => {
     // Persist the authoritative source proof before any canonical commit. The
     // database boundary deliberately rejects commits without file hash,
     // source fingerprint, security status, and raw-byte hash proof.
+    executionStage = 'persist-source-proof';
     const verifiedMetadata = {
       ...(fileRecord.metadata && typeof fileRecord.metadata === 'object' ? fileRecord.metadata as Record<string, unknown> : {}),
       storage_bucket: storageBucket,
@@ -176,6 +185,7 @@ export default async (request: Request): Promise<Response> => {
       .eq('company_id', companyId);
     if (updateImportFingerprintError) throw updateImportFingerprintError;
 
+    executionStage = 'canonical-worker';
     const workerResponse = await fetch(`${supabaseUrl}/functions/v1/canonical-import-worker`, {
       method: 'POST',
       headers: {
@@ -204,6 +214,7 @@ export default async (request: Request): Promise<Response> => {
       const detail = typeof workerBody?.detail === 'string' ? workerBody.detail : `HTTP_${workerResponse.status}`;
       throw new Error(`CANONICAL_IMPORT_WORKER_FAILED:${detail}`);
     }
+    executionStage = 'import-job-terminalization';
     const { error: finishError } = await userClient.rpc('import_finish_job', {
       p_job_id: job.id,
       p_status: 'completed',
@@ -253,7 +264,10 @@ export default async (request: Request): Promise<Response> => {
       }
     }
     const status = message.startsWith('NETLIFY_ENV_MISSING') ? 503 : 400;
-    return json(status, { error: 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED', detail: message.slice(0, 512) });
+    return json(status, {
+      error: 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED',
+      detail: `stage=${executionStage}; ${message}`.slice(0, 1200),
+    });
   }
 };
 
