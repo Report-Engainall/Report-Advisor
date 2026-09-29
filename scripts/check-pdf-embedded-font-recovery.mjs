@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import { parseFile, loadEmbeddedPdfGlyphMap } from '../src/lib/file-engine/adapters.ts';
 
 const file = 'tests/fixtures/realistic-reports/الصراف العامري.pdf';
+globalThis.__PDF_FONT_DEBUG__ = true;
 const bytes = await fs.readFile(file);
 const buffer = Uint8Array.from(bytes).buffer;
 const raw = bytes.toString('latin1');
