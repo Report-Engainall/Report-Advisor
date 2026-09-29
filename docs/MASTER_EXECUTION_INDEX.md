@@ -1,3 +1,11 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 07:29 +03:00 / 91ab FUNCTIONAL CANDIDATE RECONCILED
+
+- CURRENT CODE/TEST CANDIDATE: `91ab9337fc152adab966819d92fa49353abfa4df`
+- THIS COMMIT MUST BE GOVERNANCE-ONLY AFTER THE FUNCTIONAL CHECKPOINT.
+- CLOSED FUNCTIONAL FIXES: PDF.js TypeScript/runtime compatibility; PDF worker module declaration; import transaction contract aligned to real Netlify + Supabase worker architecture.
+- REPORT-FIRST: REPORT_001 remains open and is the only report eligible to close next.
+- NEXT EXACT ACTION: terminal exact-head certification + Full Product Browser E2E for 91ab, then report closure or first-failure repair.
+---
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 07:23 +03:00 / CERTIFICATION CANDIDATE REBOUND TO CURRENT FUNCTIONAL SHA
 
 - CURRENT CONTROL/BRANCH FUNCTIONAL CANDIDATE: `df1c304c8c8c0d83f9bc8ec6eafcff45428b35ef`.

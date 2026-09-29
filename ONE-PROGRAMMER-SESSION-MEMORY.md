@@ -1,3 +1,19 @@
+# RESUME TOKEN — 2026-09-29 07:29 +03:00 / CURRENT FUNCTIONAL HEAD 91ab9337 / EXACT-HEAD PROOF NEXT
+
+- CURRENT FUNCTIONAL CODE SHA: 91ab9337fc152adab966819d92fa49353abfa4df
+- CURRENT CONTROL HEAD: PENDING_GOVERNANCE_COMMIT
+- REPORT-FIRST FRONT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099
+- FUNCTIONAL FIXES CLOSED IN 91ab:
+  1. DOMMatrix runtime shim assignment is type-compatible with the DOMMatrix constructor.
+  2. Added TypeScript declaration for pdfjs-dist/legacy/build/pdf.worker.mjs.
+  3. Import transaction contract now matches actual architecture: Netlify authenticated user client performs source proof/reconciliation; canonical Supabase worker owns service-role execution and durable runner.
+- PRIOR AUTHORITATIVE FAILURE FIXED: 7116cc48 reached existing-completed REPORT_001 reuse/task-ledger reconciliation but browser proof failed on strict duplicate-heading selector and observed transient PGRST303 JWT-issued-at-future during tenant B resolution; both were fixed in df1c.
+- REPORT_001 CLOSURE: OPEN. Exact-head browser proof still required for DB persistence/readback, 9 stages, Source Report VERIFIED, source-bound domain/receivables, downstream output bundle, and tenant A/B isolation.
+- COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47
+- DO-NOT-REPEAT: no stale certification candidate, no auth bypass, no direct DB insertion, no duplicate import path, no queued run treated as proof.
+- CURRENT RESUME POINTER: exact-head Full Product Browser E2E for 91ab9337fc152adab966819d92fa49353abfa4df
+- NEXT EXACT ACTION: consume terminal certification/build/E2E evidence on the governance-bound head; repair only the first reproducible current-SHA blocker, then close REPORT_001 and advance sequentially.
+---
 # RESUME TOKEN — 2026-09-29 07:20 +03:00 / REPORT_001 PROOF-HARNESS BLOCKERS FIXED / CURRENT-HEAD E2E NEXT
 
 - CURRENT EXACT HEAD AFTER FUNCTIONAL CHECKPOINT: df1c304c8c8c0d83f9bc8ec6eafcff45428b35ef
