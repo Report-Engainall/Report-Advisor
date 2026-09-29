@@ -20,6 +20,9 @@ assert(!reportPage.includes("['queued','fingerprinted','extracted','canonicalize
 for(const token of ['fetchCanonicalSourceReport','fetchReportExecutionTasks','SOURCE-BOUND DOMAIN REPORT','sourceHash','canonicalRowsTotal','report.specialty'])
   assert(domainReport.includes(token),`Source-bound domain report lineage contract missing: ${token}`);
 
+for(const token of ['الملخص التنفيذي','الإشارات الذكية','الرقابة الإدارية','مرشحات القرار','إجراءات المتابعة','القيود وحالة المقارنة','EVIDENCE-BOUND'])
+  assert(domainReport.includes(token),`Evidence-bound downstream output missing: ${token}`);
+
 for(const token of ['executionJobId','export interface ReportExecutionTask','report_execution_tasks','order('])
   assert(queries.includes(token),`Report execution query contract missing: ${token}`);
 
