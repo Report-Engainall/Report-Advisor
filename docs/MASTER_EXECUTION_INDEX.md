@@ -1,3 +1,20 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / REAL REPORT ROOT FIX PERSISTED
+
+- MAIN EXACT HEAD → `9d5781dae6b4a787de7288486e4b59df29e62109`.
+- REPORT-FIRST FRONT → staging import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / `تسعيرة الاصناف حسب رقم الصنف.pdf`.
+- SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- PRE-FIX REAL STATE → canonical commit readback was 735 rows; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0` was `completed` at stage `rendered`; rendered evidence payload was empty and `import_jobs.status` remained `processing`.
+- ROOT CAUSE → durable completion was not carrying a rendered payload, and import terminal finalization depended on the client path after durable completion.
+- ROOT FIX PERSISTED → durable runner captures/persists `renderedOutput`; canonical adapter creates source-bound executive/evidence/decision/work-center + applicable domain surfaces, verifies canonical commit readback, finalizes open import jobs through `import_finish_job`, and safely recovers an already-completed durable job after interruption.
+- CONTRACT PROOF SOURCE → exact files at current SHA contain the rendered-output, finalization, recovery, and regression-test guards; readback was performed from the resulting SHA.
+- CURRENT REPORT STATE → `BLOCKED` for runtime closure, not `CLOSED`.
+- RUNTIME BLOCKER → Netlify current deploy remains old commit `21f6562dbca1016842f037299ffd8815b59fe1aa`; the available deploy updater requires a local/source checkout and could not publish the new SHA from this workspace. PC01 is offline; TinyFish authenticated automation is unavailable at current wallet balance.
+- GITHUB FIXTURE CORPUS → `tests/fixtures/realistic-reports/` contains only `README.md`; `GITHUB REPORT CORPUS COUNT = 0`.
+- DO-NOT-REPEAT → no blind retry of the already-completed 735-row durable job; no fake tenant/auth; no stale PASS; no second report while this runtime closure remains open.
+- NEXT EXACT ACTION → get exact SHA `9d5781dae6b4a787de7288486e4b59df29e62109` into an authenticated runtime, recover the same import job through the canonical server boundary, and prove DB + rendered evidence + UI before closure.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / REAL REPORT CANARY + CANONICAL INTAKE BLOCKER
 
 - MAIN EXACT HEAD VERIFIED BEFORE THIS CHECKPOINT → `1b0d25a7834c779198f9ad19039c87e1262c4cd3`.
