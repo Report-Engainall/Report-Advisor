@@ -3,7 +3,7 @@ import { AlertTriangle, CheckCircle2, Database, FileText, ShieldCheck, Target, T
 import { Link, useParams } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { LoadingState, ErrorState } from '@/components/ui/States';
-import { fetchCanonicalImportSourceRows, type CanonicalImportSourceRow } from '@/lib/queries';
+import { fetchCanonicalImportSourceContext, fetchCanonicalImportSourceRows, type CanonicalImportSourceContext, type CanonicalImportSourceRow } from '@/lib/queries';
 import { formatCurrency, formatNumber } from '@/lib/format';
 
 type SourceRow = Record<string, unknown>;
@@ -38,7 +38,7 @@ function invoiceNumberValue(row: SourceRow): string | null {
 }
 
 function totalValue(row: SourceRow): number | null {
-  return numericValue(row, ['total', 'اجمالي الفاتوره', 'إجمالي الفاتورة', 'مبلغ الصافي بالمحلي']);
+  return numericValue(row, ['total', 'اجمالي الفاتوره', 'إجمالي الفاتورة', 'net_total']);
 }
 
 function invoiceTypeValue(row: SourceRow): string | null {
@@ -58,6 +58,7 @@ function StatusPill({ ok, label }: { ok: boolean; label: string }) {
 export function SourceBoundReportPage() {
   const { importId = '' } = useParams();
   const [rows, setRows] = useState<CanonicalImportSourceRow[]>([]);
+  const [context, setContext] = useState<CanonicalImportSourceContext | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,8 +68,14 @@ export function SourceBoundReportPage() {
       try {
         setLoading(true);
         setError(null);
-        const result = await fetchCanonicalImportSourceRows(importId);
-        if (!cancelled) setRows(result);
+        const [sourceContext, result] = await Promise.all([
+          fetchCanonicalImportSourceContext(importId),
+          fetchCanonicalImportSourceRows(importId),
+        ]);
+        if (!cancelled) {
+          setContext(sourceContext);
+          setRows(result);
+        }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e));
       } finally {
@@ -143,7 +150,7 @@ export function SourceBoundReportPage() {
   }, [sourceRows]);
 
   if (loading) return <LoadingState message="جارٍ بناء التقرير من الصفوف الكانونية للمصدر..." />;
-  if (error) return <ErrorState message={error} onRetry={() => window.location.reload()} />;
+  if (error || !context) return <ErrorState message={error ?? 'REPORT_SOURCE_NOT_FOUND'} onRetry={() => void load()} />;
 
   return <div dir="rtl" className="report-page space-y-5 pb-10">
     <header className="overflow-hidden rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
@@ -155,7 +162,8 @@ export function SourceBoundReportPage() {
         </div>
         <div className="text-left text-[10px] text-ink-500">
           <div>Import ID: <span className="font-mono">{importId}</span></div>
-          <div>الصفوف الكانونية: {formatNumber(analysis.totalRows)}</div>
+          <div>الصفوف الكانونية: {formatNumber(analysis.totalRows)} / المصدر: {formatNumber(context.total_rows ?? analysis.totalRows)}</div>
+          <div>الحالة: {context.status ?? 'UNKNOWN'} / المصدر: <span className="font-mono">{context.source_fingerprint ?? 'غير مثبت'}</span></div>
         </div>
       </div>
     </header>
@@ -237,7 +245,7 @@ export function SourceBoundReportPage() {
             {[
               ['Sales Report','VERIFIED / REVIEW',true,'المبيعات الزمنية ومزيج نوع الفاتورة وتركيز العملاء متاحة.'],
               ['Receivables','PARTIAL',true,'نوع «آجل» يعطي مرشحًا للذمم؛ لا توجد تواريخ استحقاق/دفعات من هذا المصدر، لذلك لا يُقدّم Aging نهائيًا.'],
-              ['Customer / RFM','REVIEW',analysis.missingCustomers < analysis.totalRows,'يعمل على العملاء المسمّين فقط؛ 913 صفًا بلا عميل يمنع اكتمال الهوية.'],
+              ['Customer / RFM', analysis.missingCustomers < analysis.totalRows ? 'REVIEW' : 'VERIFIED', analysis.missingCustomers < analysis.totalRows,'يعمل على العملاء المسمّين فقط؛ ' + formatNumber(analysis.missingCustomers) + ' صفًا بلا عميل يمنع اكتمال الهوية.'],
               ['Profitability','INSUFFICIENT DATA',false,'لا توجد تكلفة/كمية/بنود منتجات في هذا المصدر.'],
               ['Inventory','INSUFFICIENT DATA',false,'لا توجد حقول صنف/مستودع/كمية.'],
               ['Demand Velocity','INSUFFICIENT DATA',false,'لا توجد كمية وحدات مباعة أو SKU.'],
@@ -271,9 +279,9 @@ export function SourceBoundReportPage() {
     </section>
 
     <section className="grid gap-4 lg:grid-cols-3">
-      <div className="rounded-xl border border-success-200 bg-success-50 p-4"><div className="flex items-center gap-2 text-success-900"><CheckCircle2 size={17}/><span className="font-black">الاستيراد</span></div><div className="mt-2 text-[11px] leading-5 text-success-900">1,998 / 1,998 صف مثبت، import job مكتمل وreport execution rendered.</div></div>
-      <div className="rounded-xl border border-primary-200 bg-primary-50 p-4"><div className="flex items-center gap-2 text-primary-900"><TrendingUp size={17}/><span className="font-black">الذكاء</span></div><div className="mt-2 text-[11px] leading-5 text-primary-900">تم تطبيق التحليل المتاح فوق المصدر نفسه، مع حدود صريحة للحسابات غير المدعومة.</div></div>
-      <div className="rounded-xl border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-ink-900"><Database size={17}/><span className="font-black">المصدر</span></div><div className="mt-2 text-[11px] leading-5 text-ink-500">لا توجد بيانات مخفية من التقرير؛ الصفوف والهوية والفراغات والفروقات تُقرأ من المصدر المعياري.</div></div>
+      <div className="rounded-xl border border-success-200 bg-success-50 p-4"><div className="flex items-center gap-2 text-success-900"><CheckCircle2 size={17}/><span className="font-black">الاستيراد</span></div><div className="mt-2 text-[11px] leading-5 text-success-900">{formatNumber(context.processed_rows ?? 0)} / {formatNumber(context.total_rows ?? 0)} صف processed، invalid={formatNumber(context.invalid_rows ?? 0)}، والحالة {context.status ?? 'UNKNOWN'}.</div></div>
+      <div className="rounded-xl border border-primary-200 bg-primary-50 p-4"><div className="flex items-center gap-2 text-primary-900"><TrendingUp size={17}/><span className="font-black">الذكاء</span></div><div className="mt-2 text-[11px] leading-5 text-primary-900">تم تطبيق التحليل المتاح فوق {formatNumber(analysis.totalRows)} صفًا من المصدر نفسه، دون fallback إلى أرقام الشركة العامة.</div></div>
+      <div className="rounded-xl border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-ink-900"><Database size={17}/><span className="font-black">المصدر</span></div><div className="mt-2 text-[11px] leading-5 text-ink-500">الملف: {typeof context.result_summary?.file_name === 'string' ? context.result_summary.file_name : 'غير مثبت'}؛ لا توجد بيانات عامة بديلة.</div></div>
     </section>
   </div>;
 }
