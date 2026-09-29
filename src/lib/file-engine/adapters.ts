@@ -452,7 +452,7 @@ function ensurePdfJsRuntimeCompatibility(): void {
 
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   ensurePdfJsRuntimeCompatibility();
-  const pdfjs = await import('pdfjs-dist');
+  const pdfjs = typeof window === 'undefined' ? await import('pdfjs-dist/legacy/build/pdf.mjs') : await import('pdfjs-dist');
   if (typeof window !== 'undefined') {
     pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   }
