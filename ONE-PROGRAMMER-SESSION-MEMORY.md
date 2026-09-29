@@ -1,3 +1,27 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / REAL REPORT CANARY BLOCKED AT AUTHENTICATED CANONICAL INTAKE
+
+- EXACT MAIN HEAD VERIFIED BEFORE CHECKPOINT → `1b0d25a7834c779198f9ad19039c87e1262c4cd3`.
+- BRANCH → `main`.
+- CONTROL RECONCILIATION → the older resume entries in this file are stale relative to the current main head and are not transferred as current PASS/state.
+- GITHUB FIXTURE CORPUS DISCOVERY ON EXACT HEAD → `tests/fixtures/realistic-reports/` contains only `README.md`; therefore **GITHUB REPORT CORPUS COUNT = 0** supported report inputs on the exact main SHA.
+- REAL EXECUTION INPUT → Library/execution-workspace PDF `ف العملاء الاجل من ت 01-06 حتى تاريخ 15-08.pdf`; this is not claimed as part of the public GitHub fixture corpus and must not be committed to this public repository.
+- SOURCE FINGERPRINT → `sha256:0a3e1bf1686ec64febbed95f5d5b4b755f82a5cebb1b268c8270ce122b261e82`.
+- CURRENT REPORT → `ف العملاء الاجل من ت 01-06 حتى تاريخ 15-08.pdf`.
+- REPORT STAGE → READ → UNDERSTAND → CANONICAL INTAKE BLOCKED.
+- ACTION STATUS → `BLOCKED`.
+- VERIFIED SOURCE RESULT → 14-page native-text PDF; report title is a period-total sales report; company is العامري لتجارة المواد الغذائية - صنعاء; period `2026-06-01` through `2026-08-15`; 397 invoice rows across pages 1–13; 397 unique invoice numbers; 61 unique customer names; currency `YER`; all rows are credit/آجل.
+- VERIFIED SOURCE AGGREGATION → invoice amount `471,891,687.50 YER`; net `471,807,450.00 YER`; discounts `84,237.50 YER`; tax `0`; fees `0`; average invoice amount ≈ `1,188,644.05 YER`.
+- ANALYTICAL SIGNALS FROM REAL SOURCE ONLY → top 5 customers represent ≈39.02% of invoice value; top 10 ≈54.31%; June `191,238,577.50`, July `188,116,800.00`, August through 15th `92,536,310.00`; no receivables-balance/aging amount is claimed because the source is a credit-sales transaction report, not an outstanding-balance report.
+- ACTUAL CANONICAL PATH INSPECTED → existing server boundary `/api/canonical-import-execute` requires authenticated Bearer identity, `current_company_id`, tenant-bound `documents/<companyId>/imports/...` storage, authoritative server download/hash/detection/parse, then the existing durable runner and canonical commit path. No duplicate importer/runner/RPC was created.
+- REAL BLOCKER → the PDF is available as an execution input, but the authenticated runtime/storage intake required by the canonical server path is not currently available from the connected tools: PC01 is offline and the browser automation path cannot start with the current TinyFish wallet balance. No authenticated identity or tenant context was fabricated, and no report was falsely committed.
+- PROOF → exact source SHA above; PDF rendered/visually inspected; native text/table extraction reproduced the report structure and 397-row dataset; exact current GitHub main SHA verified; canonical import implementation re-read on the exact main SHA.
+- DO-NOT-REPEAT → do not publish this real business PDF to the public repo; do not fabricate auth/tenant context; do not treat local parsing as canonical import success; do not claim CLOSED/PASS; do not create a fixture-specific import path.
+- CURRENT RESUME POINTER → resume this same report at the authenticated canonical intake boundary; first verify current runtime/job/source state, then use the existing upload/storage → `/api/canonical-import-execute` → durable lifecycle → canonical commit/readback path.
+- NEXT EXACT ACTION → **obtain a valid authenticated runtime/session with tenant context and execute this same PDF through the existing canonical import path; then read back durable job stages, canonical commit, source-analysis snapshot, and resulting report/UI surfaces before closure.**
+- NEXT REPORT → none; remain on this blocked first real report until it is CLOSED or a separately proven blocker changes.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / WORKER RPC CONTRACT RECONCILIATION PROVEN
 
 - MAIN EXACT HEAD AT CHECKPOINT → `3f7963db851d87fadd57462482385452ca2536f5`.
