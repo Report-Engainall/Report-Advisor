@@ -76,6 +76,7 @@ async function executeOne(file,ordinal,total,identity){
     .from('import_jobs')
     .select('id,status,file_record_id,result_summary')
     .eq('company_id', identity.companyId)
+    .order('created_at', { ascending: false })
     .limit(1000);
   if (existing.error) throw existing.error;
   const prior = (existing.data ?? []).find(row =>
@@ -182,8 +183,19 @@ if (resumeRunId || resumeFromPath) {
       throw new Error('RESUME_PREVIOUS_REPORT_NOT_CLOSED:' + rel);
     }
   }
+  const latestByPath = new Map();
+  for (const row of (existing.data ?? [])) {
+    const rel = row.result_summary?.source_path;
+    if (typeof rel === 'string' && !latestByPath.has(rel)) latestByPath.set(rel, row);
+  }
   startIndex = targetIndex;
-  resumedClosed = targetIndex;
+  while (startIndex < files.length) {
+    const rel = relativePath(files[startIndex]);
+    const latest = latestByPath.get(rel);
+    if (!latest || latest.status !== 'completed') break;
+    startIndex += 1;
+  }
+  resumedClosed = startIndex;
 }
 const ledger={exact_sha:exactHead,corpus_root:relativePath(corpusRoot),corpus_count:files.length,discovered:files.length,registered:resumedClosed,processed:resumedClosed,closed:resumedClosed,review:0,blocked:0,remaining:files.length-resumedClosed,status:resumeRunId?'RESUMED':'RUNNING',started_at:new Date().toISOString(),resume_run_id:resumeRunId||null,resume_from_path:resumeFromPath||null,reports:[]};
 const save=async()=>{ledger.remaining=files.length-ledger.closed-ledger.review-ledger.blocked;await fs.writeFile(path.join(reportDir,'ledger.json'),JSON.stringify(ledger,null,2)+'\n');};
