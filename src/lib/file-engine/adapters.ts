@@ -830,13 +830,36 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     const text = placements.map(item => item.str).filter(Boolean).join(' ');
     if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`);
   }
-  if (tableRows.length >= 2 && tablePageCount >= 1) return [await buildDataset(tableRows, fileName, 'pdf-table')];
   if (pages.length) {
     const pageText = pages.join('\n\n');
     const supplierColumnMajor = tryParseColumnMajorSupplierText(pageText);
-    if (supplierColumnMajor && supplierColumnMajor.length >= 2) return [await buildDataset(supplierColumnMajor, fileName, 'pdf-column-major-supplier')];
     const receivablesColumnMajor = tryParseColumnMajorReceivablesText(pageText);
-    if (receivablesColumnMajor && receivablesColumnMajor.length >= 2) return [await buildDataset(receivablesColumnMajor, fileName, 'pdf-column-major-receivables')];
+    const columnMajorCandidates = [
+      supplierColumnMajor && supplierColumnMajor.length >= 2 ? {
+        source: 'pdf-column-major-supplier',
+        rows: supplierColumnMajor,
+      } : null,
+      receivablesColumnMajor && receivablesColumnMajor.length >= 2 ? {
+        source: 'pdf-column-major-receivables',
+        rows: receivablesColumnMajor,
+      } : null,
+    ].filter((candidate): candidate is { source: string; rows: Row[] } => candidate !== null);
+
+    const bestColumnMajor = columnMajorCandidates
+      .sort((a, b) => b.rows.length - a.rows.length)[0] ?? null;
+
+    if (bestColumnMajor && bestColumnMajor.rows.length > tableRows.length) {
+      return [await buildDataset(bestColumnMajor.rows, fileName, bestColumnMajor.source)];
+    }
+
+    if (tableRows.length >= 2 && tablePageCount >= 1) {
+      return [await buildDataset(tableRows, fileName, 'pdf-table')];
+    }
+
+    if (bestColumnMajor) {
+      return [await buildDataset(bestColumnMajor.rows, fileName, bestColumnMajor.source)];
+    }
+
     return buildTextDataset(pageText, fileName, 'pdf');
   }
   return parseScannedPdfWithOcr(pdf, fileName);
