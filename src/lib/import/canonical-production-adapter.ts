@@ -70,7 +70,11 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput, 
   const accessToken = sessionData.session?.access_token;
   if (sessionError || !accessToken) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
-  const response = await fetch('/api/canonical-import-execute', {
+  const configuredEndpoint = typeof import.meta !== 'undefined' && typeof import.meta.env?.VITE_CANONICAL_IMPORT_EXECUTE_URL === 'string'
+    ? import.meta.env.VITE_CANONICAL_IMPORT_EXECUTE_URL.trim()
+    : '';
+  const endpoint = configuredEndpoint || '/api/canonical-import-execute';
+  const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
