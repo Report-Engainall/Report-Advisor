@@ -338,24 +338,15 @@ function groupPdfLines(items: PdfTextPlacement[]): PdfTextPlacement[][] {
   const sorted = [...items].sort((a, b) => b.y - a.y || a.x - b.x);
   const groups: Array<{ y: number; items: PdfTextPlacement[] }> = [];
   for (const item of sorted) {
-    let best: { y: number; items: PdfTextPlacement[] } | null = null;
-    let bestDistance = Number.POSITIVE_INFINITY;
-    for (const group of groups) {
-      const distance = Math.abs(group.y - item.y);
-      if (distance <= PDF_TABLE_LINE_TOLERANCE && distance < bestDistance) {
-        best = group;
-        bestDistance = distance;
-      }
+    const last = groups[groups.length - 1];
+    if (!last || Math.abs(last.y - item.y) > PDF_TABLE_LINE_TOLERANCE) {
+      groups.push({ y: item.y, items: [item] });
+      continue;
     }
-    if (!best) groups.push({ y: item.y, items: [item] });
-    else {
-      best.items.push(item);
-      best.y = (best.y * (best.items.length - 1) + item.y) / best.items.length;
-    }
+    last.items.push(item);
+    last.y = (last.y * (last.items.length - 1) + item.y) / last.items.length;
   }
-  return groups
-    .sort((a, b) => b.y - a.y)
-    .map(group => group.items.sort((a, b) => a.x - b.x));
+  return groups.map(group => group.items.sort((a, b) => a.x - b.x));
 }
 
 function compactArabicHeader(value: string): string {
