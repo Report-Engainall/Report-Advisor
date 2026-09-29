@@ -258,7 +258,7 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
         source_path: storagePath,
         source_format: detection.format,
         analysis_status: 'analyzed',
-        entity_type: 'source-data',
+        entity_type: authoritativeEntityType,
         quality_score: authoritativeQualityScore,
         row_count: authoritativeRows.length,
         column_count: sourceUnderstanding.columnCount,
