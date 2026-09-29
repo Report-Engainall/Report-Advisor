@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, CheckCircle2, XCircle, AlertCircle, AlertTriangle, ShieldCheck, Loader2, ArrowLeft, LockKeyhole, FileCheck2, RefreshCw } from 'lucide-react';
+import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, CheckCircle2, XCircle, AlertCircle, AlertTriangle, ShieldCheck, Loader2, ArrowLeft, LockKeyhole, FileCheck2, RefreshCw, ArrowUpLeft } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
@@ -12,10 +12,29 @@ import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/s
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
 import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
+import { Link } from 'react-router-dom';
 import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
 
 type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
+
+function inferPostImportSurface(mappings: Array<{ mappedField: string | null }>): { path: string; label: string; reason: string } {
+  const fields = new Set(mappings.map((item) => item.mappedField).filter((value): value is string => Boolean(value)));
+  const has = (...names: string[]) => names.some((name) => fields.has(name));
+  if (has('customer_name', 'customer_id', 'code') && has('total', 'paid_amount', 'invoice_number')) {
+    return { path: '/reports/receivables', label: 'تقرير الذمم والعملاء', reason: 'الحقول المكتشفة تشير إلى بيانات عملاء وأرصدة/مبالغ قابلة للمتابعة.' };
+  }
+  if (has('supplier_name', 'supplier_code') && has('total', 'quantity', 'net_amount')) {
+    return { path: '/reports/purchases', label: 'تقرير المشتريات والموردين', reason: 'الحقول المكتشفة تشير إلى حركة شراء/موردين.' };
+  }
+  if (has('productCode', 'sku', 'productName', 'name') && has('currentStock', 'quantity', 'stock')) {
+    return { path: '/reports/inventory', label: 'تقرير المخزون', reason: 'الحقول المكتشفة تشير إلى أصناف وكميات/أرصدة مخزنية.' };
+  }
+  if (has('invoice_number', 'invoice_date') && has('total', 'subtotal', 'paid_amount')) {
+    return { path: '/reports/sales', label: 'تقرير المبيعات', reason: 'الحقول المكتشفة تشير إلى مستندات وفواتير ومبالغ مبيعات.' };
+  }
+  return { path: '/reports', label: 'مركز التقارير', reason: 'لم تصل مطابقة الحقول إلى مجال واحد بدرجة كافية؛ تم إبقاء الوجهة العامة دون تخمين.' };
+}
 
 function analyzeSourceUnderstanding(dataset: Dataset): { confidence: number; reason: string } {
   const columnCount = dataset.columns.length;
@@ -388,7 +407,7 @@ export function CanonicalImportPage() {
 
     {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم اعتماد المصدر عبر مسار الحقيقة الكانونية العامة مع بصمته وسياقه وجودته، ولا يُعلن نجاح الاعتماد إلا بعد إتمام مسار الكتابة الفعلي.</p></div></CardBody></Card>}
 
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم اعتماد المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence ?? 0}%</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم اعتماد المصدر في طبقة البيانات الكانونية العامة مع بصمته وسياقه وجودته، دون فرض نوع سجل أو مسار استيراد متخصص.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
+    {step === 'done' && result && <Card><CardBody><div className="flex flex-col py-8 gap-5"><div className="flex items-center gap-4"><CheckCircle2 className="text-success-500 shrink-0" size={52}/><div><h3 className="text-xl font-semibold">تم اعتماد المصدر وربطه بمسار العمل</h3><p className="text-xs text-ink-500 mt-1">النتيجة الكانونية مثبتة ويمكن الآن الانتقال إلى التقارير والقرارات المرتبطة دون إعادة رفع الملف.</p></div></div><div className="grid grid-cols-2 lg:grid-cols-4 gap-3 w-full text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence ?? 0}%</b></div><div className="p-3 rounded-lg bg-success-50"><div className="text-xs text-success-700">جودة الاعتماد</div><b>{result.authoritativeQualityScore ?? quality}%</b></div><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">البصمة</div><b className="font-mono text-[10px] break-all">{fileHash ? fileHash.slice(0, 16) + '…' : 'غير متاحة'}</b></div></div><div className="rounded-2xl border border-primary-200 bg-primary-50/50 p-4"><div className="text-sm font-black text-primary-900">المسار المكتشف من محتوى التقرير</div><div className="mt-1 font-bold text-primary-800">{inferPostImportSurface(mappings).label}</div><p className="mt-1 text-xs leading-5 text-primary-800/80">{inferPostImportSurface(mappings).reason}</p></div><div className="grid grid-cols-2 md:grid-cols-3 gap-2"><Link to={inferPostImportSurface(mappings).path} className="btn-primary text-xs justify-center"><ArrowUpLeft size={14}/> فتح تقرير المجال</Link><Link to="/reports/executive" className="btn-secondary text-xs justify-center">التقرير التنفيذي</Link><Link to="/trust" className="btn-secondary text-xs justify-center">جواز الدليل والثقة</Link><Link to="/decision-experience" className="btn-secondary text-xs justify-center">سطح القرار</Link><Link to="/work-center" className="btn-secondary text-xs justify-center">مركز العمل</Link><Link to="/data-quality" className="btn-secondary text-xs justify-center">جودة البيانات</Link></div><div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-[10px] font-mono text-ink-500"><div className="rounded-lg bg-ink-50 p-2 break-all">Snapshot: {result.snapshotId ?? 'غير متاح'}</div><div className="rounded-lg bg-ink-50 p-2 break-all">Import Job: {result.importId ?? 'غير متاح'}</div><div className="rounded-lg bg-ink-50 p-2 break-all">Execution Job: {result.jobId ?? 'غير متاح'}</div></div><p className="max-w-xl text-[11px] leading-5 text-ink-500">تم الاعتماد في طبقة البيانات الكانونية العامة مع البصمة وسياق الجودة. القيم غير المتاحة تبقى غير متاحة ولا يتم اختراع أرقام بديلة.</p><button type="button" onClick={reset} className="btn-primary self-center"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
 
     <Card><CardHeader title="سجل الاستيرادات" subtitle="أحدث 500 عملية مرتبطة بحسابك، مع 50 صفًا في كل صفحة لتبقى القراءة سريعة؛ العمليات الأقدم تبقى محفوظة" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={historyError} onRetry={() => void loadHistory()} />:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد عمليات سابقة" message="لم يُثبت مصدر سابق لهذا الحساب بعد؛ ابدأ الآن من مدخل الاستيراد الموحد." action={<button type="button" onClick={reset} className="btn-primary text-[11px]"><Upload size={13}/> اختيار مصدر</button>}/>:<DataTable columns={[{key:'file_name',label:'المصدر'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مراجعة',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} pageSize={50} emptyMessage="لا توجد عمليات سابقة"/>}</Card>
   </div>;
