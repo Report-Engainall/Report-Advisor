@@ -1,7 +1,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / EXACT MAIN — REPORT RESULT + DURABLE RECOVERY + TENANT GATE ROOT FIX
 
 - MAIN EXACT HEAD → `4dcfbbc87b4acc9f95b7e0f3b35a71c42c366654`.
-- CURRENT CODE/TEST CANDIDATE: `4dcfbbc87b4acc9f95b7e0f3b35a71c42c366654`.
+- CURRENT CODE/TEST CANDIDATE: `e99bc6300af2c5022bf89b6d8207fe2886608cae`.
 - REPORT-FIRST FRONT → staging import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / `تسعيرة الاصناف حسب رقم الصنف.pdf`.
 - SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
 - REAL STAGING READBACK → `import_jobs` is still `processing` with `0/735` processed; canonical rows for this import are `735`; source-analysis snapshot is `analyzed`, format `pdf`, quality `87`, row_count `735`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0` is `completed` at `rendered` with lineage `735`, but its persisted evidence contains no `renderedOutput`.

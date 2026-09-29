@@ -795,3 +795,18 @@
 - REAL BLOCKER → PC01 offline; authenticated browser/device proof unavailable; Vercel current-main deployment is externally rate-limited.
 - DO-NOT-REPEAT → stale PR #662/#663 PASS, synthetic fixture as real report, preview-as-production, duplicate pipelines, speculative Business Replay filtering.
 - RESUME STATUS → `ACTIVE / REPORT-FIRST / SOURCE-BOUND RESULT UI IN PROGRESS`.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-30 / CI ROOT FIX — AUTHORITATIVE TENANT CONTRACT RECONCILED
+
+- CURRENT EXACT MAIN CODE HEAD → `e99bc6300af2c5022bf89b6d8207fe2886608cae`.
+- CURRENT CODE/TEST CANDIDATE → `e99bc6300af2c5022bf89b6d8207fe2886608cae`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf` / import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
+- SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- ROOT CI FIX → repaired the two remaining `companyId` references after the authoritative tenant rename and updated the import transaction contract to explicitly accept `companyId: authoritativeCompanyId` while preserving authenticated `activeDataClient` + `importJobId` binding.
+- PREVIOUS EXACT-SHA FAILURE → typecheck failed at adapter lines 384/474; import transaction contract failed at its tenant-binding assertion. Lint was already clean (0 errors).
+- ACTION STATUS → `IN_PROGRESS`.
+- NEXT EXACT ACTION → consume terminal CI for this code candidate; repair only a newly reproduced failure. If CI is clean, resume the same 735-row source via canonical authenticated recovery and prove DB + rendered evidence + UI.
+- RUNTIME BLOCKER → authenticated tenant/browser/device proof unavailable; no Edge/production PASS claimed.
+- NEXT REPORT → none.
+- DO-NOT-REPEAT → stale CI, old SHA, substitute reports, blind retries, manual terminalization, duplicate import paths.
