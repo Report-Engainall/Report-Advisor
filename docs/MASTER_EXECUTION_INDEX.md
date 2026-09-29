@@ -1,3 +1,24 @@
+# LIVE EXECUTION CHECKPOINT — 2026-09-29 / SOURCE-BOUND REPORT CORE FINAL CANDIDATE
+
+- CURRENT FUNCTIONAL CANDIDATE → `9ca8310c631217e4e7d91d657433edabeda78efd` on PR #680 / `exec-report-cert-parity-0929`.
+- REPORT CORPUS (EXECUTION DB) → 34 latest business PDF/XLS/XLSX sources; 32 terminal/rendered, 2 genuinely open with no canonical rows.
+- STRICT INVARIANT → 32/32 PASS after provenance backfill: report completed/rendered; evidence-linked import completed; import source_fingerprint == report source_hash; processed_rows == total_rows; invalid_rows == 0; canonical row count by source_hash == import total; Evidence sourceRowCount == canonical count; Evidence authoritativeCurrentRowCount == canonical count.
+- OPEN SOURCE A → `المبيعات.pdf`: report `1d11a5d3-061c-4ee4-8eb4-762357a00e04`; import `a1794204-e8be-4907-ade4-7da6b7f71708`; 328 expected rows; 0 canonical/import rows; private storage object exists, but no authorized byte/extraction artifact is available via current connectors.
+- OPEN SOURCE B → `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf`: report `d074ad5c-70d4-4402-a763-01129786f392`; import `bf206836-e52d-4b29-843a-6337403801e6`; 6,562 expected rows; 0 canonical; report queued/decisioned; no authorized byte/extraction artifact available.
+- REAL SOURCE PROOF → `فواتير العملاء من تاريخ 01-06 حتى 15-08.pdf`: 1,998 canonical rows, import 1998/1998, rendered report, exact source hash, source-bound analysis artifact at `/mnt/data/aghbari-real-source-report-2026-09-29.md`.
+- CORE IMPORT REPAIR → completed import now sets/persists `source_fingerprint`; evidence-complete legacy shells were backfilled only where canonical row count exactly matched the Evidence source hash.
+- CORE REQUEUE REPAIR → private SECURITY DEFINER trigger, transaction-local marker, no authenticated UPDATE on report_execution jobs/tasks.
+- SOURCE-BOUND QUERY REPAIR → report page resolves canonical rows by source_hash when a report-import shell has no rows under its own import_job_id; no fallback to tenant-wide data.
+- SOURCE-BOUND ROUTING → any recognized importId routes to `/reports/import/:importId`; SourceBoundReportPage is domain-aware and filename-first.
+- DOMAIN CLASSIFICATION TEST → added unit coverage for receivables/suppliers/payments/inventory/products filename overrides.
+- PHASE-F RESTORE REPAIR → `20260925184000_restore_client_ui_settings_schema_parity.sql` no longer depends on late `public.profiles`; resolver uses active `company_memberships`; live parity migration `20260929170000...` applied.
+- LIBRARY → 50 PDF/XLSX files visible, but many are specs/wireframes/templates/project docs; exact 47–48 operational-report count is not established.
+- CURRENT CI → latest functional candidate has not yet produced terminal CI evidence after the latest test commit. Previous HEAD `7ab6af...` failed only because of a SourceBoundReportPage syntax error; fixed in `e589...` and subsequent JSX cleanups through `05cf...`. Do not transfer that failure to the current candidate.
+- VERCEL/EDGE → no deployment matching current candidate visible; PC01 offline; no authenticated Edge/browser/production PASS claimed.
+- RESUME → consume CI for `9ca831...`; if failure appears, fix only first current-SHA reproducible root. Then pursue the two open source bytes through an authorized Storage/import path.
+
+---
+
 # LIVE EXECUTION CHECKPOINT — 2026-09-29 / REPORT CORPUS INVARIANT + PROVENANCE CORE
 
 - CURRENT FUNCTIONAL HEAD → `5a562a2714c5ca1847750daeeb2ee852ed848e45`.
