@@ -39,7 +39,7 @@ type SpecialtySignals = Record<CanonicalImportSpecialty, string[]>;
 const SIGNALS: SpecialtySignals = {
   sales: ['invoice_number', 'invoice_date', 'sales_amount', 'customer_name', 'total', 'subtotal'],
   purchases: ['purchase_number', 'purchase_date', 'purchase_amount', 'supplier_id', 'supplier_name', 'vendor'],
-  inventory: ['stock', 'quantity', 'warehouse', 'reorder_level', 'inventory', 'on_hand'],
+  inventory: ['stock', 'quantity', 'warehouse', 'reorder_level', 'inventory', 'on_hand', 'sku', 'product_name', 'opening_quantity', 'inbound_quantity', 'net_inbound', 'posted_sales', 'unposted_sales', 'net_sales', 'daily_sales_rate', 'average_sales_rate', 'stockout_days', 'inventory_age', 'inventory_age_period'],
   customers: ['customer_id', 'customer_name', 'phone', 'email', 'address'],
   suppliers: ['supplier_id', 'supplier_name', 'vendor_id', 'vendor_name', 'age_0_30', 'age_31_60', 'age_61_90', 'age_91_120', 'age_over_120', 'outstanding_balance'],
   products: ['sku', 'name', 'product_name', 'barcode', 'price', 'selling_price', 'unit', 'quantity', 'unit_price', 'cost', 'cost_price', 'average_cost', 'warehouse', 'currency', 'profit_margin', 'profit_margin_pct', 'min_price', 'max_price', 'category', 'product_type'],
