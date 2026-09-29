@@ -61,8 +61,14 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
-          perl -0pi -e 's/const source=fingerprinted=await fingerprint\\(file\\);/const source=await fingerprint(file);/' scripts/real-report-corpus-e2e.mjs
-          perl -0pi -e 's/fingerprinted/source/g' scripts/real-report-corpus-e2e.mjs
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('scripts/real-report-corpus-e2e.mjs')
+          s=p.read_text()
+          s=s.replace('const source=fingerprinted=await fingerprint(file);','const source=await fingerprint(file);')
+          s=s.replace('fingerprinted','source')
+          p.write_text(s)
+          PY
           node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-report-corpus-e2e.mjs
       - name: Upload real report corpus evidence
         if: always()
