@@ -1,3 +1,23 @@
+# RESUME TOKEN — 2026-09-29 / SOURCE-BOUND DOMAIN REPORTS COMMITTED / SERIAL CORPUS E2E NEXT
+
+- CONTROL HEAD BEFORE MEMORY WRITE: `5ae51964fe64c000f80868d3af809019cf09e305`.
+- FUNCTIONAL CODE BASELINE: `bcbd88f9218b7b35e91a057608b2f45712c222e9`.
+- CURRENT FRONT: REPORT-FIRST / one real report job at a time through canonical import, then source-bound domain output.
+- CORPUS: 47 real reports; deterministic order; fingerprint anti-repeat.
+- NEW CLOSED CODE FRONT: `src/pages/SourceDomainReportPage.tsx` now renders a source-bound domain report for sales/purchases/inventory/payments/receivables/products/customers/other using the same `canonical_dataset_records` for the Report Job.
+- NEW ROUTE: `/reports/source/:importId/domain`.
+- SOURCE REPORT NAVIGATION: every supported specialty now points to the source-bound domain route instead of a generic tenant report as the primary domain proof.
+- DOMAIN OUTPUT PROOF REQUIREMENT: filename + source hash + specialty + canonical rows + deterministic metrics + benchmark fail-closed.
+- LOCAL EXACT-HEAD PROOF BEFORE COMMIT: typecheck PASS; UI route/sidebar parity PASS; post-import report guard PASS; report execution E2E contract PASS; build PASS.
+- SERIAL RUNNER: current script records per-report screenshot/JSON, source fingerprint, authoritative import completion, canonical provenance, nine stages, source-report VERIFIED, source-bound domain render and downstream output bundle; continues after a REVIEW/FAILED report.
+- CURRENT REPORT COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47. No report closure has been claimed yet because authenticated canonical DB commit/render proof is still pending.
+- DOWNSTREAM OUTPUT BUNDLE: Source Report, source-bound Domain Report, Reports Center, Trust & Evidence, Executive, Intelligence, Recommendations, Forecasts, Decision Experience, Work Center, Data Quality, Benchmark=`INSUFFICIENT SAMPLE` when peer sample is absent.
+- SEPARATE OPEN CERTIFICATION FRONT: Phase-F exact deployment identity and live `customer_credit_accounts` migration-lineage drift remain open.
+- DO-NOT-REPEAT: no duplicate importer/runner/ledger; no direct DB insertion; no synthetic corpus; no stale SHA evidence; no completed-fingerprint reprocessing.
+- NEXT EXACT ACTION: consume the current exact-head Full Product Browser E2E on `5ae51964...`; for each report use the real artifact to close only after canonical DB + 9 stages + Source Report + source-bound Domain Report are proven, then move to the next fingerprint.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / CORPUS PARSER HARDENED / SERIAL REAL REPORT RUN IN FLIGHT
 
 - CONTROL HEAD BEFORE THIS MEMORY WRITE: `2091f9bc7ea128e43356ed3afe5c5f679984ee7c`.
