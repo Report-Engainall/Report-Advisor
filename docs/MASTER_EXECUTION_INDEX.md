@@ -1,3 +1,12 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 07:47 +03:00 / REPORT_001 CLOSED / FULL CORPUS 48 NEXT
+
+- CURRENT FUNCTIONAL CODE/TEST CANDIDATE: `2e950c48544edb4c20e1c00eb9bde6f2a697e7`
+- GOVERNANCE/HARNESS HEAD: `86ed01c6f0249d5f389d159d8f0491cf8e20e937`
+- REPORT_001: CLOSED and proven by exact-head Full Product Browser E2E; no further report-specific fix is currently open.
+- FULL CORPUS: discovered=48 from prior corpus gate; current workflow was changed from MAX=1 to MAX=48 with complete-mode closure assertions.
+- NEXT EXACT ACTION: terminal current-head Full Product Browser E2E over all 48 reports; first current-SHA failure controls the next repair. On full PASS, persist CLOSED=48 and advance to non-report open fronts.
+- CERTIFICATION: this HEAD is governance/test-harness only after functional candidate 2e950c48; certification boundary must accept candidate 2e950c48 as ancestor.
+---
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 07:42 +03:00 / CANDIDATE 2e950c48
 
 - CURRENT CODE/TEST CANDIDATE: `2e950c48544edb4c20e1c00eb9bde6f2a697e7`

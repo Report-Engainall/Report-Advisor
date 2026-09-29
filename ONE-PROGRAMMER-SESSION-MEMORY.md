@@ -1,3 +1,16 @@
+# RESUME TOKEN — 2026-09-29 07:47 +03:00 / REPORT_001 CLOSED / FULL 48 CORPUS EXECUTION NEXT
+
+- CURRENT FUNCTIONAL CODE/TEST CANDIDATE: 2e950c48544edb4c20e1c0e00eb9bde6f2a697e7
+- CURRENT CONTROL HEAD AFTER HARNESS GOVERNANCE: PENDING_COMMIT_SHA
+- REPORT-FIRST STATUS: REPORT_001 is CLOSED by exact-head Full Product Browser E2E run 36521493399 on functional SHA 2e950c48.
+- REPORT_001 PROOF: import job 6de27d0f-98bb-4d1b-8143-fd3d9a85a4b8 completed at 100%; 27/27 valid rows; execution job 174196b5-42cf-4654-9721-13ac8d5a29db; source SHA-256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099; source report VERIFIED; benchmark INSUFFICIENT_SAMPLE; domain/source/report output bundle checks PASS; tenant A/B canonical and UI isolation PASS.
+- IMPORTANT LIMIT: that E2E run was intentionally REPORT_CORPUS_MAX=1. It proves REPORT_001, not the entire corpus.
+- HARNESS FIX IN THIS CHECKPOINT: full browser workflow now runs REPORT_CORPUS_MAX=48 and REPORT_CORPUS_COMPLETE=true; real-business-e2e asserts discovered=48, processed=48, closed=48, failed=0, review=0 in complete mode.
+- CORPUS DISCOVERY: prior corpus gate proved ACTUAL=48 files under tests/fixtures/realistic-reports.
+- CURRENT REPORT COUNTS: CLOSED=1 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47.
+- NEXT EXACT ACTION: current-head Full Product Browser E2E must execute all 48 candidates serially; existing completed reports are reused/reconciled, open reports are canonically imported and rendered. No report is reopened without a current-SHA/runtime reason.
+- DO-NOT-REPEAT: do not treat the one-report PASS as full-corpus PASS; do not skip reports manually; do not create fixture-specific import paths; no stale certificate.
+---
 # RESUME TOKEN — 2026-09-29 07:42 +03:00 / REPORT UI PROVENANCE FIX 2e950c48 / E2E NEXT
 
 - CURRENT FUNCTIONAL CODE/TEST SHA: 2e950c48544edb4c20e1c0e00eb9bde6f2a697e7
