@@ -578,15 +578,24 @@ try {
       }
       processed += 1;
     }
+    const requestedReports = Math.min(reportMax, realReportCandidates.length);
     evidence.steps.push({
       step: 'real-report-corpus-serial-complete',
       status: evidence.reportFailures.length ? 'PARTIAL' : 'PASS',
-      requested: Math.min(reportMax, realReportCandidates.length),
+      requested: requestedReports,
+      discovered: realReportCandidates.length,
       processed,
       closed: evidence.reports.length,
       failed: evidence.reportFailures.length,
       review: evidence.reports.filter(report => report.state === 'REVIEW').length,
     });
+    if (process.env.REPORT_CORPUS_COMPLETE === 'true') {
+      assert.equal(realReportCandidates.length, 48, 'full corpus gate expects exactly 48 real report candidates');
+      assert.equal(processed, realReportCandidates.length, 'full corpus gate must process every discovered report candidate');
+      assert.equal(evidence.reports.length, realReportCandidates.length, 'full corpus gate must close every discovered report candidate');
+      assert.equal(evidence.reportFailures.length, 0, 'full corpus gate must have zero failed reports');
+      assert.equal(evidence.reports.filter(report => report.state === 'REVIEW').length, 0, 'full corpus gate must have zero review reports');
+    }
   } else {
     const suffix = `1790641605978-${process.pid}`;
     const customerName = `E2E عميل ${suffix}`;
