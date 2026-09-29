@@ -476,6 +476,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     data: new Uint8Array(buffer),
     useSystemFonts: true,
   }).promise;
+
   const pages: string[] = [];
   const layoutItems: PdfTextItem[] = [];
   const layoutPages: PdfTextItem[][] = [];
@@ -483,7 +484,13 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     const page = await pdf.getPage(pageNumber);
     const content = await page.getTextContent();
     const pageItems = content.items
-      .filter((item): item is typeof item & { str: string; transform: ArrayLike<number>; width?: number; height?: number } => 'str' in item && typeof item.str === 'string' && Boolean(item.str.trim()) && 'transform' in item && item.transform != null && typeof item.transform.length === 'number')
+      .filter((item): item is typeof item & { str: string; transform: ArrayLike<number>; width?: number; height?: number } =>
+        'str' in item &&
+        typeof item.str === 'string' &&
+        Boolean(item.str.trim()) &&
+        'transform' in item &&
+        item.transform != null &&
+        typeof item.transform.length === 'number')
       .map((item) => ({
         text: item.str,
         x: Number(item.transform[4] ?? 0),
@@ -496,13 +503,40 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     const text = pageItems.map((item) => item.text).join(' ');
     if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`);
   }
+
   const agingRows = tryParseReceivablesAgingPdfItems(layoutItems);
   if (agingRows) return [await buildDataset(agingRows, fileName, 'pdf')];
+
   const tableRows = tryParseGenericPdfTableItems(layoutPages);
-  if (tableRows) return [await buildDataset(tableRows, fileName, 'pdf')];
-  if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
+  if (tableRows) {
+    const nativeDataset = await buildDataset(tableRows, fileName, 'pdf');
+    if (nativeDataset[0]?.qualityScore == null || nativeDataset[0].qualityScore >= OCR_REJECT_THRESHOLD || typeof document === 'undefined' || pdf.numPages > PDF_OCR_MAX_PAGES) {
+      return nativeDataset;
+    }
+    try {
+      const ocrDataset = await parseScannedPdfWithOcr(pdf, fileName);
+      return (ocrDataset[0]?.qualityScore ?? 0) > (nativeDataset[0]?.qualityScore ?? 0) ? ocrDataset : nativeDataset;
+    } catch {
+      return nativeDataset;
+    }
+  }
+
+  if (pages.length) {
+    const nativeDataset = await buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
+    if (nativeDataset[0]?.qualityScore == null || nativeDataset[0].qualityScore >= OCR_REJECT_THRESHOLD || typeof document === 'undefined' || pdf.numPages > PDF_OCR_MAX_PAGES) {
+      return nativeDataset;
+    }
+    try {
+      const ocrDataset = await parseScannedPdfWithOcr(pdf, fileName);
+      return (ocrDataset[0]?.qualityScore ?? 0) > (nativeDataset[0]?.qualityScore ?? 0) ? ocrDataset : nativeDataset;
+    } catch {
+      return nativeDataset;
+    }
+  }
+
   return parseScannedPdfWithOcr(pdf, fileName);
 }
+
 
 async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promise<Dataset[]> {
   if (typeof document === 'undefined') throw new Error('PDF_SCANNED_IMAGE_ONLY_SERVER_AUTHORITY_UNAVAILABLE: scanned-PDF OCR requires an authoritative OCR-capable runtime; no business data was fabricated.');
@@ -511,6 +545,7 @@ async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promi
   const worker = await tesseract.createWorker('ara+eng');
   const pages: string[] = [];
   const confidences: number[] = [];
+  const ocrLayoutPages: PdfTextItem[][] = [];
   try {
     for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
       const page = await pdf.getPage(pageNumber);
@@ -523,27 +558,54 @@ async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promi
       const context = canvas.getContext('2d');
       if (!context) throw new Error(`PDF_OCR_CANVAS_UNAVAILABLE: page ${pageNumber}`);
       await page.render({ canvasContext: context, viewport, canvas }).promise;
+
       const result = await worker.recognize(canvas);
       const text = typeof result?.data?.text === 'string' ? result.data.text.trim() : '';
       const confidence = Number(result?.data?.confidence ?? 0);
       confidences.push(confidence);
       if (text) pages.push(`PAGE ${pageNumber}\n${text}`);
-      canvas.width = 1; canvas.height = 1;
+
+      const ocrWords = Array.isArray(result?.data?.words) ? result.data.words : [];
+      const wordItems: PdfTextItem[] = ocrWords
+        .filter((word: any) => typeof word?.text === 'string' && word.text.trim() && word?.bbox)
+        .map((word: any) => ({
+          text: String(word.text),
+          x: Number(word.bbox.left ?? 0),
+          y: -Number(word.bbox.top ?? 0),
+          width: Math.max(1, Number(word.bbox.right ?? 0) - Number(word.bbox.left ?? 0)),
+          height: Math.max(1, Number(word.bbox.bottom ?? 0) - Number(word.bbox.top ?? 0)),
+        }));
+      ocrLayoutPages.push(wordItems);
+
+      canvas.width = 1;
+      canvas.height = 1;
     }
   } finally {
     await worker.terminate();
   }
+
   if (!pages.length) throw new Error('PDF_SCANNED_OCR_EMPTY: OCR produced no readable text; no business data was fabricated.');
   const minimumConfidence = confidences.length ? Math.min(...confidences) : 0;
   const disposition = classifyOcrConfidence(minimumConfidence);
   if (disposition === 'REJECT') {
     throw new Error(`PDF_OCR_LOW_CONFIDENCE_REJECT:${Math.round(minimumConfidence)}% (threshold < ${OCR_REJECT_THRESHOLD})`);
   }
+
   const warning = disposition === 'REVIEW'
     ? `OCR_REVIEW_REQUIRED:${Math.round(minimumConfidence)}%`
     : `OCR_TRUSTED:${Math.round(minimumConfidence)}%`;
+
+  const ocrTableRows = tryParseGenericPdfTableItems(ocrLayoutPages);
+  if (ocrTableRows) {
+    const dataset = await buildDataset(ocrTableRows, fileName, 'pdf-ocr');
+    dataset[0].qualityScore = Math.min(dataset[0].qualityScore, Math.round(minimumConfidence));
+    dataset[0].columns.forEach((column) => column.qualityIssues.push(warning));
+    return dataset;
+  }
+
   return buildTextDataset(pages.join('\n\n'), fileName, 'pdf-ocr', warning, minimumConfidence);
 }
+
 
 async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   const mammoth = await import('mammoth'); const result = await mammoth.extractRawText({ arrayBuffer: buffer });
