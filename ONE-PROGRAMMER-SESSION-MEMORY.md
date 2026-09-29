@@ -1,3 +1,24 @@
+# LIVE SESSION CHECKPOINT — 2026-09-29 / BATCH REPORT CONTINUITY + CORE IMPORT REQUEUE REPAIR
+
+- CURRENT FUNCTIONAL/CONTROL HEAD → `e093749e839fbddb89dabb1f908198021124078f` on PR #680 / `exec-report-cert-parity-0929`.
+- PREVIOUS FUNCTIONAL CANDIDATE → `456bc2d0e670c0852f4636d42edc3180c844df37`.
+- CORE REPAIR COMMITTED → `supabase/migrations/20260929150000_requeue_report_execution_after_import_finish.sql`.
+- LIVE MIGRATION PROOF → migration `20260929150000` / `requeue_report_execution_after_import_finish` is applied through the Supabase migration path.
+- ROOT CAUSE CLOSED → when an import completed after the report-execution worker lease expired before `rendered`, the import could remain terminal while the report job stayed stuck at `processing/committed`. The repaired `import_finish_job` now requeues the exact evidence-linked report job only when its lease is absent/expired and the checkpoint is not rendered; stale running tasks on that requeued job are reset to queued. It never marks the report rendered/completed itself.
+- BATCH SOURCE CORPUS ACTUAL DB STATE → 36 latest human-file report-execution sources identified in the database subset (PDF/XLSX/XLS), excluding customer/product/invoice generated CSV families. Of these: 32 are now `completed/rendered` with import continuity proven; 2 business reports remain non-terminal; 2 are runtime closure fixtures and are not business reports.
+- 32/32 CONTINUITY PROOF → all 32 rendered human reports have: `report_execution_jobs.status=completed`, checkpoint `rendered`, exact evidence-linked import `status=completed`, `processed_rows=total_rows`, `invalid_rows=0`, and canonical source rows matching the import total. Rendered-without-canonical=0; rendered-import-gap=0.
+- REPORTS CLOSED IN THIS SESSION → the 19 strict evidence-bound import continuity gaps were finalized through `public.import_finish_job`; then `الصراف الحوشبي.pdf` (8 rows), `الفواتير من تاريخ 01-09-2026 حتى 20-09-2026.pdf` (610), and `العملا النقد.pdf` (721) were recovered through `recover_expired_report_execution_jobs` → `claim_report_execution_job` → `advance_report_execution_checkpoint(rendered)` → `complete_report_execution_job`, with source hash and row evidence matching canonical data.
+- REMAINING BUSINESS REPORT #1 → `المبيعات.pdf` / report `1d11a5d3-061c-4ee4-8eb4-762357a00e04` is at checkpoint `analyzed`; import `a1794204-e8be-4907-ade4-7da6b7f71708` has 328 total rows but 0 canonical rows and remains `processing`. The source exists in Supabase Storage (documents bucket, 464,701 bytes), but direct public URL retrieval failed; no source rows are invented and the report is not closed.
+- REMAINING BUSINESS REPORT #2 → `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf` / report `d074ad5c-70d4-4402-a763-01129786f392` is `queued` at checkpoint `decisioned`; import `bf206836-e52d-4b29-843a-6337403801e6` has 6,562 total rows, 0 processed, 0 canonical rows. It must not be marked complete without source/canonical recovery.
+- REAL SOURCE PROOF → `فواتير العملاء من تاريخ 01-06 حتى 15-08.pdf` remains the full end-to-end source-bound proof: import `74c499d1-6e65-4834-a093-eef1eb633fb2`, 1,998/1,998 valid, report rendered, same source hash, exact source-bound route `/reports/import/:importId`, smart analyses fail-closed where fields are missing.
+- LIBRARY CORPUS NOTE → Library PDF/XLSX filtering currently returns 50 files total, but that includes specifications/wireframes and non-report documents; the user's 47–48-report count is therefore not yet an exact verified count. Do not equate Library-file count with DB business-report count.
+- CURRENT CI EXACT HEAD → on `e093749e...`: 34 successful workflow runs, 0 failed; 12 in progress and 1 queued at last poll. Skipped runs are not failures. No terminal certification claim yet.
+- PHASE-F → still fail-closed while its exact-head run is in progress/without terminal proof; do not weaken it. PC01 remains offline, so Edge/device authenticated runtime proof is not claimed.
+- DO-NOT-REPEAT → no stale PASS transfer; no direct-table status mutation for report closure; no synthetic report corpus presented as real proof; no generic canonical row source presented as domain truth; no duplicate importer/RPC/runner.
+- RESUME → consume terminal checks for `e093749e...`; if a current-SHA failure appears, repair only the first reproducible root. Separately, recover source/canonical for the two remaining business reports and then execute the same full chain through evidence → smart report surfaces → rendered UI → proof.
+
+---
+
 # LIVE SESSION CHECKPOINT — 2026-09-29 / REAL REPORT + SOURCE-BOUND REPORT
 
 - CURRENT CONTROL CHECKPOINT SHA → `62465db120c94f8a3777cffdddcfa0ba55200294`
