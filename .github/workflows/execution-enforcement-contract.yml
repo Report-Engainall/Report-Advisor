@@ -56,6 +56,7 @@ jobs:
           REAL_REPORT_CORPUS_ROOT: tests/fixtures/realistic-reports
           REAL_REPORT_CORPUS_BASE_URL: https://deploy-preview-672--aghbari-report-advisor.netlify.app
           GITHUB_TOKEN: ${{ github.token }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/real-report-corpus-e2e.mjs
       - name: Upload real report corpus evidence
         if: always()
