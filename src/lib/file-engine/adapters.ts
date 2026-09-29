@@ -1246,6 +1246,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     useSystemFonts: true,
   }).promise;
   const pages: string[] = [];
+  const structuredPages: string[] = [];
   const tableRows: Row[] = [];
   const bankMovementRows: Row[] = [];
   const customerDirectoryRows: Row[] = [];
@@ -1270,23 +1271,33 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
       tablePageCount += 1;
     }
     const text = placements.map(item => item.str).filter(Boolean).join(' ');
+    const structuredText = groupPdfLines(placements)
+      .map(group => group.map(item => item.str).filter(Boolean).join(' '))
+      .filter(Boolean)
+      .join(' ');
     if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`);
+    if (structuredText.trim()) structuredPages.push(`PAGE ${pageNumber}\n${structuredText}`);
   }
   if (customerDirectoryRows.length >= 10) { const dataset = await buildDataset(customerDirectoryRows, fileName, 'pdf-' + marker.toLowerCase()); if (dataset.qualityScore >= OCR_REJECT_THRESHOLD) return [dataset]; }
   if (bankMovementRows.length >= 2) return [await buildDataset(bankMovementRows, fileName, 'pdf-bank-movement-summary')];
   if (tableRows.length >= 2 && tablePageCount >= 1) return [await buildDataset(tableRows, fileName, 'pdf-table')];
   if (pages.length) {
     const pageText = pages.join('\n\n');
-    const supplierColumnMajor = tryParseColumnMajorSupplierText(pageText);
+    const structuredPageText = structuredPages.join(' ');
+
+    const supplierColumnMajor = tryParseColumnMajorSupplierText(structuredPageText);
     if (supplierColumnMajor && supplierColumnMajor.length >= 2) { const dataset = await buildDataset(supplierColumnMajor, fileName, 'pdf-column-major-supplier'); if (dataset.qualityScore >= OCR_REJECT_THRESHOLD) return [dataset]; }
-    const receivablesColumnMajor = tryParseColumnMajorReceivablesText(pageText);
+
+    const receivablesColumnMajor = tryParseColumnMajorReceivablesText(structuredPageText);
     if (receivablesColumnMajor && receivablesColumnMajor.length >= 2) return [await buildDataset(receivablesColumnMajor, fileName, 'pdf-column-major-receivables')];
-    const productInventoryRows = tryParseProductInventoryAdministrativeText(pageText);
+
+    const productInventoryRows = tryParseProductInventoryAdministrativeText(structuredPageText);
     if (productInventoryRows && productInventoryRows.length >= 10) {
       const dataset = await buildDataset(productInventoryRows, fileName, 'pdf-product-inventory-administrative');
       if (dataset.qualityScore >= OCR_REJECT_THRESHOLD) return [dataset];
     }
-    const bankStatementSummary = tryParseBankStatementSummaryText(pageText);
+
+    const bankStatementSummary = tryParseBankStatementSummaryText(structuredPageText);
     if (bankStatementSummary) return [await buildDataset(bankStatementSummary, fileName, 'pdf-bank-statement-summary')];
     const meaningfulText = pageText.replace(/PAGE\s+\d+/gi, ' ').replace(/\b\d+\s*\/\s*\d+\b/g, ' ').trim();
     if (!/[\\p{L}]/u.test(meaningfulText) || meaningfulText.length < 64) return parseScannedPdfWithOcr(pdf, fileName, buffer);
