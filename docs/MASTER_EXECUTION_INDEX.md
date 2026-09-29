@@ -1,3 +1,12 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / HOSTED RUNTIME BLOCKER RECONCILED / b3e7904f4c521acec1d8312f8557b99ffda319df
+
+- EXACT MAIN HEAD → `b3e7904f4c521acec1d8312f8557b99ffda319df`.
+- REPORT-FIRST FRONT → `تسعيرة الاصناف حسب رقم الصنف.pdf` / import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
+- PROCESSING STATE → completed/rendered, 735/735, source-bound result surfaces persisted.
+- HOSTED BLOCKER → Netlify deploy requires source checkout; GitHub DNS unavailable in execution container. Existing Netlify/Vercel deployments are stale relative to current exact main.
+- ACTION STATUS → `BLOCKED` for hosted/browser closure.
+- NEXT EXACT ACTION → exact-current-SHA hosted deployment + authenticated browser verification. No re-import.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / PRE-HOSTED-RUNTIME CHECKPOINT / d4d5fa61866f2a6825af80600c37a85830ca7dc7
 
 - EXACT MAIN HEAD → `d4d5fa61866f2a6825af80600c37a85830ca7dc7`.

@@ -1,3 +1,16 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / HOSTED RUNTIME BLOCKER RECONCILED / b3e7904f4c521acec1d8312f8557b99ffda319df
+
+- EXACT GOVERNED MAIN HEAD → `b3e7904f4c521acec1d8312f8557b99ffda319df`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REAL PROCESSING PROOF → import completed 735/735; durable job completed/rendered; renderedOutput persisted; 735 canonical lineage; source-bound Executive/Evidence/Decision/Work Center/Inventory outputs persisted.
+- HOSTED RUNTIME ATTEMPT → existing Netlify site `aghbari-report-advisor` confirmed, but deployment updater only emitted a command requiring execution from a source/repo checkout. Container checkout failed with `Could not resolve host: github.com`; therefore no new deployment was created.
+- EXISTING HOSTED STATE → Netlify production deploy `6ab0a18d4e62a900081272d3` is still bound to old commit `21f6562dbca1016842f037299ffd8815b59fe1aa`; Vercel READY deployment `dpl_2p6HL6ixFv3Lv9nAjT7nem86bHLG` is bound to `8f40f51...`, not current exact main.
+- BROWSER PROOF → NOT PROVEN. Vercel Authentication blocks unauthenticated fetch of protected deployment, and no authenticated Edge/device session is available.
+- ACTION STATUS → `BLOCKED` for authenticated hosted/browser closure only.
+- NEXT EXACT ACTION → when an authenticated/source-capable runtime is available, deploy/serve exact main `b3e7904f4c521acec1d8312f8557b99ffda319df`, verify deployment metadata matches the exact SHA, then open the persisted source-bound result surfaces and compare displayed hash/735 rows/trust/evidence/specialty against DB readback. Do not re-import.
+- NEXT REPORT → none until this report closes.
+- DO-NOT-REPEAT → no re-import, no stale deployment PASS, no DB-to-browser inference, no fake auth, no manual terminalization, no duplicate pipeline.
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / PRE-HOSTED-RUNTIME CHECKPOINT / d4d5fa61866f2a6825af80600c37a85830ca7dc7
 
 - EXACT GOVERNED MAIN HEAD → `d4d5fa61866f2a6825af80600c37a85830ca7dc7`.
