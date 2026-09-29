@@ -26,6 +26,7 @@ if(mapped.has('local_amount')&&((mapped.has('sku')||mapped.has('name')))&&!mappe
 if(mapped.has('sales_amount')||mapped.has('net_sales')||mapped.has('discount')||mapped.has('charges')){
 if(mapped.has('sku')||mapped.has('name'))return specialtyResult('sales',mapped,90,['ظهرت حقول حركة مبيعات وقيم خصم/ضريبة/صافي مرتبطة بالأصناف.']);
 }
+if(hasAll(mapped,['sku','name','unit'])&&(mapped.has('selling_price')||mapped.has('price')||mapped.has('min_price')||mapped.has('max_price'))&&!mapped.has('warehouse'))return specialtyResult('products',mapped,92,['اكتملت هوية الصنف مع تسعير واضح؛ الكمية المتوفرة تعامل كسياق مرجعي لا كتقرير حركة مخزون.']);
 if(mapped.has('available_quantity')||mapped.has('warehouse'))return specialtyResult('inventory',mapped,90,['ظهرت هوية الصنف مع كمية متاحة أو مخزن.']);
 if(hasAll(mapped,['sku','name','unit','cost_price','selling_price','min_stock','reorder_point','is_active']))return{specialty:'products',label:SPECIALTY_LABELS.products,confidence:96,evidence:['اكتملت حقول الصنف والهوية والتسعير وإعادة الطلب.'],canonicalEntityType:'products',mappedFields:[...mapped].sort()};
 if(hasAll(mapped,['name','segment','credit_limit','payment_terms_days']))return{specialty:'customers',label:SPECIALTY_LABELS.customers,confidence:94,evidence:['اكتملت حقول هوية العميل وشريحة الائتمان وشروط الدفع.'],canonicalEntityType:'customers',mappedFields:[...mapped].sort()};
