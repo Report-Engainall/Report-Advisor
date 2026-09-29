@@ -322,6 +322,202 @@ const PDF_TABLE_HEADER_ALIASES = [
 const PDF_TABLE_LINE_TOLERANCE = 4;
 const PDF_TABLE_MIN_ANCHORS = 4;
 
+type PdfGlyphMap = Map<number, number[]>;
+
+function latin1Decode(bytes: Uint8Array): string {
+  const chunkSize = 8192;
+  let text = '';
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    const chunk = bytes.subarray(offset, Math.min(offset + chunkSize, bytes.length));
+    let part = '';
+    for (let i = 0; i < chunk.length; i += 1) part += String.fromCharCode(chunk[i]);
+    text += part;
+  }
+  return text;
+}
+
+function latin1Encode(text: string): Uint8Array {
+  const bytes = new Uint8Array(text.length);
+  for (let i = 0; i < text.length; i += 1) bytes[i] = text.charCodeAt(i) & 0xff;
+  return bytes;
+}
+
+function readU16BE(bytes: Uint8Array, offset: number): number {
+  return (bytes[offset] << 8) | bytes[offset + 1];
+}
+
+function readI16BE(bytes: Uint8Array, offset: number): number {
+  return readU16BE(bytes, offset) - (bytes[offset] & 0x80 ? 0x10000 : 0);
+}
+
+function readU32BE(bytes: Uint8Array, offset: number): number {
+  return bytes[offset] * 0x1000000 + ((bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3]);
+}
+
+function reverseTrueTypeCmap(fontBytes: Uint8Array): PdfGlyphMap {
+  if (fontBytes.length < 12) return new Map();
+  const numTables = readU16BE(fontBytes, 4);
+  let cmapOffset = -1;
+  for (let i = 0; i < numTables; i += 1) {
+    const record = 12 + i * 16;
+    if (record + 12 > fontBytes.length) break;
+    const tag = String.fromCharCode(fontBytes[record], fontBytes[record + 1], fontBytes[record + 2], fontBytes[record + 3]);
+    if (tag === 'cmap') {
+      cmapOffset = readU32BE(fontBytes, record + 8);
+      break;
+    }
+  }
+  if (cmapOffset < 0 || cmapOffset + 4 > fontBytes.length) return new Map();
+
+  const cmap = fontBytes.subarray(cmapOffset);
+  const numSubtables = readU16BE(cmap, 2);
+  const reverse: PdfGlyphMap = new Map();
+  const add = (glyph: number, codePoint: number): void => {
+    if (!glyph || !Number.isFinite(codePoint)) return;
+    const list = reverse.get(glyph) ?? [];
+    if (!list.includes(codePoint)) list.push(codePoint);
+    reverse.set(glyph, list);
+  };
+
+  for (let i = 0; i < numSubtables; i += 1) {
+    const record = 4 + i * 8;
+    if (record + 8 > cmap.length) break;
+    const subOffset = readU32BE(cmap, record + 4);
+    if (subOffset < 0 || subOffset >= cmap.length) continue;
+    const sub = cmap.subarray(subOffset);
+    const format = readU16BE(sub, 0);
+
+    if (format === 4 && sub.length >= 16) {
+      const segCount = readU16BE(sub, 6) / 2;
+      const endBase = 14;
+      const startBase = endBase + segCount * 2 + 2;
+      const deltaBase = startBase + segCount * 2;
+      const rangeBase = deltaBase + segCount * 2;
+      for (let segment = 0; segment < segCount; segment += 1) {
+        const endPos = endBase + segment * 2;
+        const startPos = startBase + segment * 2;
+        const deltaPos = deltaBase + segment * 2;
+        const rangePos = rangeBase + segment * 2;
+        if (rangePos + 2 > sub.length) break;
+        const end = readU16BE(sub, endPos);
+        const start = readU16BE(sub, startPos);
+        const delta = readI16BE(sub, deltaPos);
+        const range = readU16BE(sub, rangePos);
+        for (let codePoint = start; codePoint <= end && codePoint !== 0xffff; codePoint += 1) {
+          let glyph = 0;
+          if (range === 0) {
+            glyph = (codePoint + delta) & 0xffff;
+          } else {
+            const glyphPos = rangePos + range + 2 * (codePoint - start);
+            if (glyphPos + 2 <= sub.length) {
+              glyph = readU16BE(sub, glyphPos);
+              if (glyph) glyph = (glyph + delta) & 0xffff;
+            }
+          }
+          add(glyph, codePoint);
+        }
+      }
+    } else if (format === 12 && sub.length >= 16) {
+      const groups = readU32BE(sub, 12);
+      let cursor = 16;
+      for (let group = 0; group < groups && cursor + 12 <= sub.length; group += 1) {
+        const start = readU32BE(sub, cursor);
+        const end = readU32BE(sub, cursor + 4);
+        const startGlyph = readU32BE(sub, cursor + 8);
+        for (let codePoint = start; codePoint <= end; codePoint += 1) add(startGlyph + (codePoint - start), codePoint);
+        cursor += 12;
+      }
+    }
+  }
+
+  return reverse;
+}
+
+async function inflatePdfStream(bytes: Uint8Array): Promise<Uint8Array> {
+  let input = bytes;
+  while (input.length && (input[0] === 0x0a || input[0] === 0x0d)) input = input.subarray(1);
+  const DecompressionStreamCtor = (globalThis as typeof globalThis & {
+    DecompressionStream?: new (format: string) => TransformStream;
+  }).DecompressionStream;
+  if (!DecompressionStreamCtor) throw new Error('PDF_EMBEDDED_FONT_DECOMPRESSION_UNAVAILABLE');
+  const stream = new Blob([input]).stream().pipeThrough(new DecompressionStreamCtor('deflate'));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+function pdfObjectStream(raw: string, objectNumber: number): { dict: string; bytes: Uint8Array } | null {
+  const marker = `${objectNumber} 0 obj`;
+  const objectStart = raw.indexOf(marker);
+  if (objectStart < 0) return null;
+  const streamStart = raw.indexOf('stream', objectStart);
+  const streamEnd = raw.indexOf('endstream', streamStart);
+  if (streamStart < 0 || streamEnd < 0) return null;
+  let contentStart = streamStart + 6;
+  if (raw[contentStart] === '\\r' && raw[contentStart + 1] === '\\n') contentStart += 2;
+  else if (raw[contentStart] === '\\n') contentStart += 1;
+  let bytes = latin1Encode(raw.slice(contentStart, streamEnd));
+  while (bytes.length && (bytes[0] === 0x0a || bytes[0] === 0x0d)) bytes = bytes.subarray(1);
+  return { dict: raw.slice(objectStart, streamStart), bytes };
+}
+
+async function loadEmbeddedPdfGlyphMap(buffer: ArrayBuffer): Promise<PdfGlyphMap | null> {
+  const raw = latin1Decode(new Uint8Array(buffer));
+  const references = new Set<number>();
+  for (const match of raw.matchAll(/\/FontFile2\s+(\d+)\s+0\s+R/g)) references.add(Number(match[1]));
+  if (!references.size) return null;
+
+  const merged: PdfGlyphMap = new Map();
+  for (const objectNumber of references) {
+    const stream = pdfObjectStream(raw, objectNumber);
+    if (!stream || !stream.dict.includes('/FlateDecode')) continue;
+    let fontBytes: Uint8Array;
+    try {
+      fontBytes = await inflatePdfStream(stream.bytes);
+    } catch {
+      continue;
+    }
+    const map = reverseTrueTypeCmap(fontBytes);
+    for (const [glyph, codePoints] of map) {
+      const existing = merged.get(glyph) ?? [];
+      for (const codePoint of codePoints) if (!existing.includes(codePoint)) existing.push(codePoint);
+      merged.set(glyph, existing);
+    }
+  }
+
+  return merged.size ? merged : null;
+}
+
+function isRecoveredArabic(codePoint: number): boolean {
+  return (codePoint >= 0x0600 && codePoint <= 0x06ff)
+    || (codePoint >= 0x0750 && codePoint <= 0x077f)
+    || (codePoint >= 0x08a0 && codePoint <= 0x08ff)
+    || (codePoint >= 0xfb50 && codePoint <= 0xfdff)
+    || (codePoint >= 0xfe70 && codePoint <= 0xfeff);
+}
+
+function logicalizeRecoveredArabic(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed || !/[\\u0600-\\u06ff\\ufb50-\\ufdff\\ufe70-\\ufeff]/.test(trimmed)) return text;
+  if (/[A-Za-z0-9]/.test(trimmed)) return text;
+  const words = trimmed.split(/\\s+/)
+    .reverse()
+    .map(word => [...word].reverse().join(''));
+  return words.join(' ').normalize('NFKC');
+}
+
+function repairEmbeddedPdfText(value: string, glyphMap: PdfGlyphMap): string {
+  if (![...value].some(character => character.charCodeAt(0) >= 0x0100 && character.charCodeAt(0) <= 0x02ff)) return value;
+  let changed = false;
+  const repaired = [...value].map(character => {
+    const codePoints = glyphMap.get(character.charCodeAt(0));
+    if (!codePoints?.length) return character;
+    const preferred = codePoints.find(isRecoveredArabic) ?? codePoints[0];
+    if (preferred === character.charCodeAt(0)) return character;
+    changed = true;
+    return String.fromCodePoint(preferred);
+  }).join('');
+  return changed ? logicalizeRecoveredArabic(repaired) : value;
+}
+
 function pdfPlacementFromItem(item: unknown): PdfTextPlacement | null {
   if (typeof item !== 'object' || item === null) return null;
   const value = item as { str?: unknown; transform?: unknown; width?: unknown };
@@ -680,12 +876,16 @@ function tryParseColumnMajorSupplierText(text: string): Row[] | null {
 
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   ensurePdfJsRuntimeCompatibility();
+  const pdfBytes = new Uint8Array(buffer);
+  const pdfBufferForParsing = pdfBytes.slice().buffer;
+  const fontBuffer = pdfBytes.slice().buffer;
+  const embeddedGlyphMapPromise = pdfBytes.some(byte => byte >= 0x80) ? loadEmbeddedPdfGlyphMap(fontBuffer).catch(() => null) : Promise.resolve(null);
   const pdfjs = await import('pdfjs-dist');
   if (typeof window !== 'undefined') {
     pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   }
   const pdf: PdfDocument = await pdfjs.getDocument({
-    data: new Uint8Array(buffer),
+    data: new Uint8Array(pdfBufferForParsing),
     useSystemFonts: true,
   }).promise;
   const pages: string[] = [];
@@ -695,9 +895,11 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
     const page = await pdf.getPage(pageNumber);
     const content = await page.getTextContent({ disableCombineTextItems: true });
+    const embeddedGlyphMap = await embeddedGlyphMapPromise;
     const placements = content.items
       .map(item => pdfPlacementFromItem(item))
-      .filter((item): item is PdfTextPlacement => item !== null);
+      .filter((item): item is PdfTextPlacement => item !== null)
+      .map(item => embeddedGlyphMap ? { ...item, str: repairEmbeddedPdfText(item.str, embeddedGlyphMap) } : item);
     const table = extractPdfTableRowsFromTextItems(placements, activeTableHeader);
     if (table.header) activeTableHeader = table.header;
     if (table.rows.length >= 1) {
@@ -710,7 +912,6 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   if (tableRows.length >= 2 && tablePageCount >= 1) return [await buildDataset(tableRows, fileName, 'pdf-table')];
   if (pages.length) {
     const pageText = pages.join('\n\n');
-    if (fileName === 'الصراف العامري.pdf') console.log('DEBUG_ALAMRI_PDF_TEXT\n' + pageText.slice(0, 12000));
     const supplierColumnMajor = tryParseColumnMajorSupplierText(pageText);
     if (supplierColumnMajor && supplierColumnMajor.length >= 2) return [await buildDataset(supplierColumnMajor, fileName, 'pdf-column-major-supplier')];
     const receivablesColumnMajor = tryParseColumnMajorReceivablesText(pageText);
