@@ -265,6 +265,7 @@ export function SourceBoundReportPage() {
 
     const missingCustomers = sourceRows.filter((row) => !textValue(row, ['customer_name', 'اسم العميل', 'customer', 'client_name'])).length;
     const missingSuppliers = sourceRows.filter((row) => !textValue(row, ['supplier_name', 'اسم المورد', 'supplier', 'vendor_name'])).length;
+    const missingProducts = sourceRows.filter((row) => !textValue(row, ['sku', 'رقم الصنف', 'كود الصنف', 'product_code', 'اسم الصنف', 'name'])).length;
     const missingDates = sourceRows.filter((row) => !textValue(row, ['date', 'التاريخ', 'invoice_date', 'payment_date', 'movement_date', 'last_payment_date'])).length;
 
     const domainMetrics: Array<{ label: string; value: string; hint: string }> = (() => {
@@ -481,6 +482,7 @@ export function SourceBoundReportPage() {
       collected,
       debit,
       credit,
+      availableQty,
       quantity,
       incoming,
       outgoing,
