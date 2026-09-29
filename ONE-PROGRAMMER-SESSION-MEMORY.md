@@ -1,3 +1,23 @@
+# LIVE SESSION CHECKPOINT — 2026-09-29 / REPORT-FIRST / CERTIFICATION REPAIR
+
+- CURRENT EXACT CONTROL/CHECKPOINT SHA → `eb3adfde480d286c4a0d8ff0c27eac1a4715b7e1`
+- CURRENT CODE/TEST CANDIDATE → `d6c324dcebf80a0a9e7b7e02356309f883fd0d32`
+- CURRENT FRONT → REPORT-FIRST / POST-IMPORT REPORT CONTINUITY + CLEAN-RESTORE CERTIFICATION
+- CURRENT REPORT → No real report corpus is committed under `tests/fixtures/realistic-reports/`; only README.md is present on main. PC01 remains offline.
+- CURRENT STAGE → exact-head certification after migration parity repair.
+- LAST VERIFIED ACTION → `20260925184000_restore_client_ui_settings_schema_parity.sql` was repaired so its clean-restore RLS policy matches the live canonical `current_company_id()` tenant policy.
+- LIVE PROOF → Supabase readback shows `client_ui_settings` SELECT policy uses `organization_id = current_company_id()`; both `current_company_id()` and `current_customer_company_id()` exist, but only the former is canonical for this table.
+- PRIOR CERTIFICATION FAILURE ROOT CAUSE → clean restore failed because the source migration referenced `current_customer_company_id()` before that resolver was available; this was fixed at the source migration.
+- OTHER CERTIFICATION BLOCKER → operational-health reported `DEPLOYMENT_SHA_MISMATCH`; rollback-forward drill reported deployment lookup 404 and Phase-F remained fail-closed. Do not mask or downgrade this.
+- CURRENT PROOF → exact-head browser-smoke on prior functional head succeeded: Vite build 2805 modules and Playwright page load/no console/page errors. Exact Edge/device proof is not claimed.
+- CLOSED WORK → post-import report continuity implementation; surface mapping test; certification index binding; clean-restore migration parity repair.
+- OPEN WORK → rerun exact-head certification on `d6c324dcebf80a0a9e7b7e02356309f883fd0d32`; repair only the first reproducible current-SHA failure; then obtain a real report from the device/source and execute the full report lifecycle.
+- DO-NOT-REPEAT → no stale PASS; no import-only report closure; no synthetic corpus as real-report proof; no duplicate importer/RPC/runner; no weakening of Phase-F.
+- CURRENT RESUME POINTER → exact-head CI for `d6c324dcebf80a0a9e7b7e02356309f883fd0d32`.
+- NEXT EXACT ACTION → consume terminal certification for `d6c324dcebf80a0a9e7b7e02356309f883fd0d32`. If clean restore passes but deployment mismatch remains, isolate it as external/live deployment blocker and continue non-blocked report/UI work.
+
+---
+
 # LIVE SESSION CHECKPOINT — 2026-09-29 / POST-IMPORT REPORT CONTINUITY / INDEX REBOUND
 
 - CURRENT EXACT CONTROL/CHECKPOINT SHA → `05c46a0fc209509f3b2bcaf98a4b93536353f1d9`
