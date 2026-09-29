@@ -698,3 +698,21 @@
 - NEXT EXECUTABLE ACTION → consume the first terminal mandatory gate on `b081c3f`; then reconcile the governance lane. Do not promote the current production docs-only deployment as functional proof.
 - DO NOT REPEAT → stale PASS transfer; preview-as-production; production SHA bypass; duplicate importer/navigation/RPC/runner; broad-push workflow weakening solely to clear queue pressure.
 - RESUME STATUS → ACTIVE / IMPORT CORE HARDENED / EXACT-HEAD DEPLOYMENT PROVEN / RELEASE IDENTITY STILL OPEN.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-30 / RENDERED-OUTPUT-RECOVERY-RECONCILIATION-001
+
+- SESSION-ID → `2026-09-30-REPORT-FIRST-RENDERED-OUTPUT-001`.
+- CURRENT EXACT MAIN HEAD BEFORE NEXT ACTION → `38fa4f542907c2fa7cbf6ef7de0e2419d6b2cfdc`.
+- CURRENT BRANCH → `main`.
+- RECONCILED CURRENT ROOT FIX → `src/lib/import/canonical-production-adapter.ts` now persists source-bound rendered output metadata and recovers completed durable jobs after interruption only after canonical commit readback; `src/lib/report-execution/durable-production-runner.ts` persists the rendered output with durable completion evidence.
+- CURRENT LIVE UI GAP → `src/pages/CanonicalImportPage.tsx` still shows only the generic “تم اعتماد المصدر” completion card and does not render the returned `renderedOutput` metadata or source metrics.
+- CORPUS TRUTH → exact current main still has 0 supported files in `tests/fixtures/realistic-reports/`; `tests/fixtures/business-golden/cycle-004.json` is synthetic only.
+- REAL REPORT RUNTIME EVIDENCE → staging source hash `sha256:c175fd3f105759568cf269a5f59fa26cfe16007a77269307b299e15a8c936dc8` is present as completed/rendered canonical data for 1,998 rows; this remains staging evidence, not current-main browser proof.
+- ACTION STATUS → `IN_PROGRESS`.
+- CURRENT STAGE → source-bound rendered result UI.
+- NEXT EXACT ACTION → extend the existing canonical rendered-output payload with deterministic source metrics and render them in the existing CanonicalImportPage completion surface; no new importer, RPC, runner, or duplicate report engine.
+- TEST/PROOF REQUIREMENT → run the exact current-SHA contract/runtime checks and inspect resulting CI/status. No PASS transfers from older SHAs.
+- REAL BLOCKER → PC01 offline; authenticated browser/device proof unavailable; Vercel current-main deployment is externally rate-limited.
+- DO-NOT-REPEAT → stale PR #662/#663 PASS, synthetic fixture as real report, preview-as-production, duplicate pipelines, speculative Business Replay filtering.
+- RESUME STATUS → `ACTIVE / REPORT-FIRST / SOURCE-BOUND RESULT UI IN PROGRESS`.
