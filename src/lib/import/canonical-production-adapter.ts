@@ -64,6 +64,62 @@ function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: stri
 
 interface CanonicalServerExecutionResult { jobId?: string; importId: string; sourceHash: string; [key: string]: unknown }
 
+function inferSourceFormat(fileName: string): string {
+  const extension = fileName.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'unknown';
+  return extension.slice(0, 32) || 'unknown';
+}
+
+async function ensureSourceAnalysisSnapshot(input: DurableCanonicalImportInput, client: SupabaseClient, companyId: string): Promise<string> {
+  const { data: existing, error: existingError } = await client
+    .from('source_analysis_snapshots')
+    .select('id')
+    .eq('company_id', companyId)
+    .eq('import_job_id', input.importId)
+    .eq('source_hash', input.sourceHash)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (existingError) throw existingError;
+  if (existing?.id) return String(existing.id);
+
+  const columns = Array.from(new Set(input.rows.flatMap(row => Object.keys(row.data)))).sort();
+  const preview = input.rows.slice(0, 10).map(row => row.data);
+  const { data: snapshot, error: snapshotError } = await client
+    .from('source_analysis_snapshots')
+    .insert({
+      company_id: companyId,
+      import_job_id: input.importId,
+      source_hash: input.sourceHash,
+      source_path: input.fileName,
+      source_format: inferSourceFormat(input.fileName),
+      analysis_status: 'analyzed',
+      entity_type: input.entityType,
+      quality_score: input.qualityScore,
+      row_count: input.rows.length,
+      column_count: columns.length,
+      datasets: [{ name: input.fileName, rowCount: input.rows.length, columnCount: columns.length, columns, preview }],
+      canonical_text: [
+        'source=' + input.fileName,
+        'source_sha=' + input.sourceHash,
+        'entity_type=' + input.entityType,
+        'rows=' + String(input.rows.length),
+        'quality=' + String(input.qualityScore) + '%',
+      ].join(' | '),
+      visual_assets: [],
+      warnings: [],
+      metadata: {
+        serverAuthoritativeSnapshot: true,
+        columnNames: columns,
+        sourceFormat: inferSourceFormat(input.fileName),
+        reportImportId: input.importId,
+      },
+    })
+    .select('id')
+    .single();
+  if (snapshotError || !snapshot?.id) throw snapshotError ?? new Error('SOURCE_ANALYSIS_SNAPSHOT_CREATE_FAILED');
+  return String(snapshot.id);
+}
+
 async function executeThroughServerBoundary(input: DurableCanonicalImportInput, mode: 'execute' | 'finalize-source' = 'execute'): Promise<CanonicalServerExecutionResult> {
   const { supabase } = await import('../supabase');
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -175,19 +231,21 @@ export async function runCanonicalImportThroughDurableRunner(
     value: row.value,
   }));
 
+  const reportRequest = {
+    reportId: jobKey,
+    tenantId: companyId,
+    requestedBy,
+    parameters: { entityType: input.entityType, importId: input.importId, rowCount: input.rows.length },
+    formats: ['web'] as const,
+    idempotencyKey: jobKey,
+  };
+
   const result = await runDurableProductionLifecycle({
     jobId: job.id,
     workerId: `canonical-import-server:${crypto.randomUUID()}`,
     sourceHash: input.sourceHash,
     rows: input.rows.map((row) => row.data),
-    request: {
-      reportId: jobKey,
-      tenantId: companyId,
-      requestedBy,
-      parameters: { entityType: input.entityType, importId: input.importId, rowCount: input.rows.length },
-      formats: ['web'],
-      idempotencyKey: jobKey,
-    },
+    request: reportRequest,
     lifecycle: {
       previousRows: [],
       currentRows,
@@ -219,7 +277,10 @@ export async function runCanonicalImportThroughDurableRunner(
       if (stage === 'validated') {
         for (const row of input.rows) if (row.rowNumber < 1) throw new Error(`IMPORT_VALIDATION_INVALID_ROW_NUMBER:${row.rowNumber}`);
       }
-      if (stage === 'analyzed' && !currentRows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
+      if (stage === 'analyzed') {
+        if (!currentRows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
+        reportRequest.sourceSnapshotId = await ensureSourceAnalysisSnapshot(input, activeWorkerClient, companyId);
+      }
       if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
       if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId, importJobId: input.importId });
     },
