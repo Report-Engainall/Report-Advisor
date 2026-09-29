@@ -1064,7 +1064,9 @@ export function tryParseSupplierOpeningBalanceText(text: string): Row[] | null {
 
   if (!/(?:رقم المورد|رقم الحساب|الرصيد الافتتاحي|العملة|الاسم)/.test(normalized)) return null;
 
-  const rowPattern = /(-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:[.,]\d+)?)\s+(\d{4,6})\s+(YER|SAR|USD|EUR|ر\.س|ريال\s+يمني|ريال\s+سعودي)\s+(.+?)\s+(\d{8,12})\s+(.+?)(?=\s+-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:[.,]\d+)?\s+\d{4,6}\s+(?:YER|SAR|USD|EUR|ر\.س|ريال\s+يمني|ريال\s+سعودي)\s+|\s+إجمالي\s+حسب\s+العملة|\s+الاجمالي\s+الكلي|$)/gi;
+  const rowStartPattern = /(?<!\d)(-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:[.,]\d+)?)\s+(\d{4,8})\s+(YER|SAR|USD|EUR|ر\.س|ريال\s+يمني|ريال\s+سعودي)(?=\s)/gi;
+  const starts = [...normalized.matchAll(rowStartPattern)];
+  if (starts.length < 5) return null;
 
   const normalizeCurrency = (value: string): string => {
     const normalizedCurrency = value.replace(/\s+/g, ' ').trim().toUpperCase();
@@ -1074,38 +1076,46 @@ export function tryParseSupplierOpeningBalanceText(text: string): Row[] | null {
   };
 
   const rows: Row[] = [];
-  for (const match of normalized.matchAll(rowPattern)) {
+  for (let index = 0; index < starts.length; index += 1) {
+    const match = starts[index];
+    const segmentEnd = starts[index + 1]?.index ?? normalized.length;
+    const segment = normalized
+      .slice((match.index ?? 0) + match[0].length, segmentEnd)
+      .split(/(?:إجمالي\s+حسب\s+العملة|الاجمالي\s+الكلي|عدد\s+السجلات|رصيد\s+(?:دائن|مدين))/i)[0]
+      .trim();
+    if (!segment) continue;
+
+    const accountMatches = [...segment.matchAll(/(?<!\d)\d{8,12}(?!\d)/g)];
+    const accountMatch = accountMatches.at(-1);
+    if (!accountMatch || accountMatch.index == null) continue;
+
+    const supplierName = segment.slice(0, accountMatch.index).trim();
+    const accountName = segment.slice(accountMatch.index + accountMatch[0].length).trim();
     const openingBalance = parseNumber(match[1]);
-    if (openingBalance == null) continue;
-
     const supplierId = Number(match[2]);
-    const currency = normalizeCurrency(match[3]);
-    const supplierName = match[4].trim();
-    const accountNumber = match[5].trim();
-    const accountName = match[6].replace(/\s+/g, ' ').trim();
-
-    if (!supplierName || !accountNumber || !accountName) continue;
-    if (!/^\d{8,12}$/.test(accountNumber)) continue;
+    if (openingBalance == null || !Number.isFinite(supplierId) || !supplierName || !accountName) continue;
 
     rows.push({
       supplier_id: supplierId,
       supplier_name: supplierName,
-      currency,
+      currency: normalizeCurrency(match[3]),
       opening_balance: openingBalance,
-      account_number: accountNumber,
+      account_number: accountMatch[0],
       account_name: accountName,
     });
   }
 
   const unique = rows.filter((row, index, all) =>
     index === all.findIndex(candidate =>
-      candidate.supplier_id === row.supplier_id && candidate.currency === row.currency && candidate.opening_balance === row.opening_balance,
+      candidate.supplier_id === row.supplier_id
+      && candidate.currency === row.currency
+      && candidate.opening_balance === row.opening_balance
+      && candidate.account_number === row.account_number,
     ),
   );
 
   return unique.length >= 5 ? unique : null;
 }
-
 
 function tryParseColumnMajorSupplierText(text: string): Row[] | null {
   const normalized = normalizeArabicDigits(
