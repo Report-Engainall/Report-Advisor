@@ -1,3 +1,19 @@
+# RESUME TOKEN — 2026-09-29 / REPORT_001 DOMAIN SURFACE PROVEN
+
+- CONTROL HEAD: 24c8f79c2920260b3a3848d0f31ffd5117a6f813
+- FUNCTIONAL CODE SHA: 92727ca32bcf78ac2ed8731ffbfea839bec025e4
+- CURRENT REPORT: REPORT_001 = اعمار الديون للعملا.pdf
+- REPORT SHA256: 9996F169AAE09E31F909712CA4BE5ACE238C7A4F123B370D436A5F1A115EA099
+- REAL PARSER: 27 rows, quality 98, specialty receivables
+- DOMAIN OUTPUT: source-bound receivables route reads canonical rows from the same import and preserves source hash and benchmark fail-closed state
+- LOCAL PROOF: PDF regression PASS; post-import guard PASS; report execution contract PASS; route parity PASS; typecheck PASS; build PASS
+- REPORT STATUS: TOTAL 47 / CLOSED 0 / REVIEW 0 / FAILED 0 / BLOCKED 0 / REMAINING 47
+- NOT YET PROVEN: authenticated canonical import, real DB commit/readback, 9 durable tasks, rendered source report/domain E2E
+- CI NEXT: consume exact-head Full Product Browser E2E for HEAD 92727ca32bcf78ac2ed8731ffbfea839bec025e4
+- DO-NOT-REPEAT: no direct DB injection, no synthetic report, no stale SHA proof, no reprocessing completed fingerprints
+- NEXT EXACT ACTION: consume the first terminal exact-92727 Full Product Browser E2E and inspect real-report-e2e evidence
+
+---
 # RESUME TOKEN — 2026-09-29 / REPORT_001 REAL PDF PARSER PROVEN
 
 - CONTROL HEAD: ecc236d246379027d9fbf2df0a7cb7aac687ad99
