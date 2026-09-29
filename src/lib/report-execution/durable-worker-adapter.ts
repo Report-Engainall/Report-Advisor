@@ -82,11 +82,16 @@ export class SupabaseReportExecutionStore {
   async startTask(jobId: string, workerId: string, leaseToken: string, stage: string, tenantId: string): Promise<void> {
     const job = await this.require(jobId);
     if (job.tenantId !== tenantId) throw new Error('Worker tenant context does not match the durable job tenant');
-    const { data, error } = await this.client.rpc('start_report_execution_task', {
-      p_job_id: jobId, p_company_id: tenantId, p_worker_id: workerId, p_lease_token: leaseToken, p_stage: stage,
-    });
-    if (error) throw error;
-    if (data !== true) throw new Error('Execution task start rejected for ' + stage);
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const { data, error } = await this.client.rpc('start_report_execution_task', {
+        p_job_id: jobId, p_company_id: tenantId, p_worker_id: workerId, p_lease_token: leaseToken, p_stage: stage,
+      });
+      if (error) throw error;
+      if (data === true) return;
+      if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 150));
+    }
+    const state = await this.require(jobId);
+    throw new Error(`Execution task start rejected for ${stage}: status=${state.status}; checkpoint=${JSON.stringify(state.checkpoint)}`);
   }
 
   async completeTask(jobId: string, workerId: string, leaseToken: string, stage: string, evidence: Record<string, unknown> = {}, tenantId: string): Promise<void> {
@@ -106,7 +111,17 @@ export class SupabaseReportExecutionStore {
       p_job_id: jobId, p_company_id: tenantId, p_worker_id: workerId, p_lease_token: leaseToken, p_stage: stage, p_error: errorPayload,
     });
     if (error) throw error;
-    if (data !== true) throw new Error('Execution task failure update rejected for ' + stage);
+    if (data === true) return;
+    const state = await this.require(jobId);
+    const { data: task } = await this.client.from('report_execution_tasks')
+      .select('status')
+      .eq('company_id', tenantId)
+      .eq('report_execution_job_id', jobId)
+      .eq('stage', stage)
+      .maybeSingle();
+    if (task?.status === 'running') {
+      throw new Error(`Execution task failure update rejected for ${stage}: job_status=${state.status}`);
+    }
   }
 
   async heartbeat(jobId: string, workerId: string, leaseSeconds = 300, tenantId: string): Promise<void> {
