@@ -157,7 +157,7 @@ export function SourceBoundReportPage() {
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <div className="flex items-center gap-2 text-[10px] font-black tracking-[.14em] text-primary-700"><FileText size={15}/> SOURCE-BOUND REPORT</div>
-          <h1 className="mt-1.5 text-[24px] font-black text-ink-950 lg:text-[30px]">فواتير العملاء — التقرير المسحوب</h1>
+          <h1 className="mt-1.5 text-[24px] font-black text-ink-950 lg:text-[30px]">{typeof context?.result_summary?.file_name === 'string' ? context.result_summary.file_name : 'التقرير المسحوب'}</h1>
           <p className="mt-2 max-w-4xl text-[11px] leading-6 text-ink-500">هذا التقرير يقرأ الصفوف الكانونية لنفس عملية الاستيراد، وليس لقطة عامة من الشركة. المصدر وصل إلى مرحلة rendered قبل العرض.</p>
         </div>
         <div className="text-left text-[10px] text-ink-500">
