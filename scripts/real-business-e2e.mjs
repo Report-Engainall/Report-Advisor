@@ -311,6 +311,15 @@ async function importRealReportOne(page) {
   assert.equal((await page.getByText('VERIFIED', { exact: true }).count()) > 0, true, 'source report must be VERIFIED only after rendered execution');
   assert.equal((await page.getByText(sourceHash, { exact: true }).count()) > 0, true, 'source report must expose source hash provenance');
   assert.equal((await page.getByText('Benchmark: INSUFFICIENT SAMPLE', { exact: true }).count()) > 0, true, 'single-source benchmark must fail closed');
+  const receivablesLink = page.getByRole('link', { name: /تقرير الذمم والتحصيل/ });
+  assert.ok(await receivablesLink.count() > 0, 'receivables source must expose the source-bound domain report output');
+  await receivablesLink.first().click();
+  await page.getByRole('heading', { name: 'تقرير الذمم والتحصيل', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  assert.equal((await page.getByText('SOURCE-BOUND RECEIVABLES', { exact: true }).count()) > 0, true, 'receivables domain surface must be source-bound');
+  assert.equal((await page.getByText(fileName, { exact: true }).count()) > 0, true, 'receivables domain surface must retain source identity');
+  assert.equal((await page.getByText(sourceHash, { exact: true }).count()) > 0, true, 'receivables domain surface must retain provenance');
+  assert.equal((await page.getByText('Benchmark: INSUFFICIENT SAMPLE', { exact: true }).count()) > 0, true, 'receivables domain benchmark must fail closed for one source');
+  evidence.steps.push({ step: 'real-report-receivables-domain-surface-rendered', status: 'PASS', domainRoute: `/reports/receivables?importId=${importId}` });
   evidence.persisted.REPORT_001 = { job, executionJobId, sourceHash, fileName, canonicalSample: canonicalRows.slice(0, 5), tasks, reportRoute: '/reports/source/' + importId };
   await page.screenshot({ path: reportDir + '/report-001.png', fullPage: true });
   evidence.steps.push({ step: 'real-report-source-surface-rendered', status: 'PASS', reportRoute: '/reports/source/' + importId });
