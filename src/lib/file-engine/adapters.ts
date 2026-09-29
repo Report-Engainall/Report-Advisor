@@ -510,14 +510,14 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   const tableRows = tryParseGenericPdfTableItems(layoutPages);
   if (tableRows) {
     const nativeDataset = await buildDataset(tableRows, fileName, 'pdf');
-    if (nativeDataset[0]?.qualityScore == null || nativeDataset[0].qualityScore >= OCR_REJECT_THRESHOLD || typeof document === 'undefined' || pdf.numPages > PDF_OCR_MAX_PAGES) {
-      return nativeDataset;
+    if (nativeDataset.qualityScore == null || nativeDataset.qualityScore >= OCR_REJECT_THRESHOLD || typeof document === 'undefined' || pdf.numPages > PDF_OCR_MAX_PAGES) {
+      return [nativeDataset];
     }
     try {
       const ocrDataset = await parseScannedPdfWithOcr(pdf, fileName);
-      return (ocrDataset[0]?.qualityScore ?? 0) > (nativeDataset[0]?.qualityScore ?? 0) ? ocrDataset : nativeDataset;
+      return (ocrDataset[0]?.qualityScore ?? 0) > nativeDataset.qualityScore ? ocrDataset : [nativeDataset];
     } catch {
-      return nativeDataset;
+      return [nativeDataset];
     }
   }
 
@@ -598,9 +598,9 @@ async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promi
   const ocrTableRows = tryParseGenericPdfTableItems(ocrLayoutPages);
   if (ocrTableRows) {
     const dataset = await buildDataset(ocrTableRows, fileName, 'pdf-ocr');
-    dataset[0].qualityScore = Math.min(dataset[0].qualityScore, Math.round(minimumConfidence));
-    dataset[0].columns.forEach((column) => column.qualityIssues.push(warning));
-    return dataset;
+    dataset.qualityScore = Math.min(dataset.qualityScore, Math.round(minimumConfidence));
+    dataset.columns.forEach((column) => column.qualityIssues.push(warning));
+    return [dataset];
   }
 
   return buildTextDataset(pages.join('\n\n'), fileName, 'pdf-ocr', warning, minimumConfidence);
