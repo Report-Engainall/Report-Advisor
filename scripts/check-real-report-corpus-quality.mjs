@@ -2,6 +2,9 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { createServer } from 'vite';
+if (!('DOMMatrix' in globalThis)) globalThis.DOMMatrix = class DOMMatrix {};
+if (!('toHex' in Uint8Array.prototype)) Object.defineProperty(Uint8Array.prototype, 'toHex', { configurable: true, value() { return Array.from(this, byte => byte.toString(16).padStart(2, '0')).join(''); } });
+if (!Promise.try) Promise.try = (fn, ...args) => new Promise((resolve, reject) => { try { resolve(fn(...args)); } catch (error) { reject(error); } });
 
 const repoRoot = process.cwd();
 const corpusRoot = path.join(repoRoot, 'tests', 'fixtures', 'realistic-reports');
