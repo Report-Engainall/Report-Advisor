@@ -1,3 +1,23 @@
+# RESUME TOKEN — 2026-09-29 / PDF FINANCIAL PARSER HARDENED / CORPUS 38-4-5
+
+- CONTROL HEAD BEFORE MEMORY WRITE: `58b170a76930707b247598855639ef1d9b02f418`.
+- CLOSED FRONT: PDF extraction hardening for CID-font Arabic fragments, Arabic Presentation Forms (NFKC), generic financial statements, and canonical emitted-field identity.
+- REAL EXCHANGE PROOF:
+  - `الصراف البدجي.pdf` → 38 rows / quality 82 / payments.
+  - `الصراف المنتاب.pdf` → 132 rows / quality 83 / payments.
+  - `الصرافين.pdf` → 22 rows / quality 72 / payments.
+- QUALITY MODEL: canonical mapped-field confidence 60% + mapped-field completeness 25% + mapped-column coverage 15%; zero canonical fields remain zero.
+- LATEST FULL CORPUS MATRIX: 47 total / TRUSTED 38 / REVIEW 4 / REJECT 5 / RUNTIME_BLOCKED 0 / FAILED 0.
+- SPECIALTY COUNTS: customers 1 / inventory 11 / other 15 / payments 7 / products 1 / purchases 2 / receivables 2 / sales 8.
+- REPRESENTATIVE REGRESSION: all current real cases PASS, including three exchange-statement PDFs; `test:file-engine-contract` PASS; `typecheck` PASS; `build` PASS; worktree clean.
+- SOURCE-BOUND REPORT OUTPUT: `/reports/source/:importId/domain` with evidence-bound executive summary, signals, administrative checks, decision candidates, actions and limitations.
+- REPORT CLOSURE: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47 because authenticated canonical DB/browser proof has not terminated.
+- CURRENT BLOCKER: GitHub Full Product Browser E2E runner has repeatedly remained queued; device has no E2E credentials/CDP session and existing Staging accounts are not safe to reset.
+- DO-NOT-REPEAT: no direct SQL report injection; no guessed credentials; no stale queued PASS; no generic domain proof in place of source-bound proof.
+- NEXT EXACT ACTION: consume current-head Full Product Browser E2E; if it starts, process REPORT_001 from raw file to canonical DB and close it only after 9 stages + Source Report + Domain Report + downstream evidence.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / SEMANTIC QUALITY SCORING FIXED / CORPUS 34-5-8
 
 - CONTROL HEAD BEFORE MEMORY WRITE: `244362fbae11f7ceb9a94b2eaa412ac5a2cad1d8`.
