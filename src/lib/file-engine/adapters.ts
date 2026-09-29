@@ -241,7 +241,7 @@ function coalescePdfCharacterRun(line: PdfTextItem[]): PdfTextItem[] {
     }
 
     const gap = item.x - (previous.x + previous.width);
-    const compatible = isArabicLetterFragment(previous.text) && isArabicLetterFragment(item.text) && gap <= 14;
+    const compatible = isArabicLetterFragment(previous.text) && isArabicLetterFragment(item.text) && gap <= 9;
     if (compatible) {
       run.push(item);
     } else {
@@ -328,7 +328,7 @@ const PDF_HEADER_TERMS=[
   'المبلغ','الإجمالي','المبلغ بالعملة المحلية','الإجمالي بالعملة المحلية','العملة','الكمية','الوحدة',
   'المخزن','التاريخ','نوع المستند','رقم المستند','البيان','رقم المرجع','مدين','دائن','الرصيد','المندوب',
   'الخصم','الضريبة','صافي المبيعات','مبلغ المبيعات','الرصيد المستحق','إجمالي المبلغ المستحق',
-  'رقم الفاتورة','نوع الفاتورة','العبوة','الوارد','الحركة','التكلفة','صافي المبيعات'
+  'رقم الفاتورة','نوع الفاتورة','العبوة','الوارد','الحركة','التكلفة','صافي المبيعات','رقمه','حالته','العمله','كشف الحساب','كشف حساب','رصيد سابق'
 ];
 
 function normalizedPdfText(value:string):string{
@@ -348,7 +348,7 @@ function pdfHeaderClusters(lines:PdfTextItem[][], start:number, span:number):Pdf
     let best:null|{cluster:{center:number;items:PdfTextItem[]};distance:number}=null;
     for(const cluster of clusters){
       const distance=Math.abs(center-cluster.center);
-      if(distance<=20 && (!best||distance<best.distance)) best={cluster,distance};
+      if(distance<=12 && (!best||distance<best.distance)) best={cluster,distance};
     }
     if(best){
       best.cluster.items.push(item);
