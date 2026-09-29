@@ -1038,44 +1038,73 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
 }
 
 function tryParseOcrBankStatementText(text: string): Row[] | null {
-  const lines = normalizeArabicDigits(stripControlCharacters(text.normalize('NFKC')))
-    .split(/\r?\n/)
-    .map(line => line.replace(/\s+/g, ' ').trim())
-    .filter(line => line && !/^PAGE\s+\d+$/i.test(line));
+  const normalized = normalizeArabicDigits(
+    stripControlCharacters(text.normalize('NFKC'))
+      .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
+
+  const pageParts = normalized
+    .split(/(?=PAGE\s+\d+)/i)
+    .map(part => part.trim())
+    .filter(Boolean);
 
   const rows: Row[] = [];
-  for (const line of lines) {
-    const dateMatch = line.match(/(\d{1,2}[./-]\d{1,2}[./-]20\d{2})/);
-    const amountMatch = line.match(/([\d٠-٩]{1,3}(?:[,٬][\d٠-٩]{3})*(?:[.٫][\d٠-٩]+)?)\s*ريال/);
-    if (!dateMatch || !amountMatch) continue;
+  const datePattern = /\b(\d{1,2}[./-]\d{1,2}[./-]20\d{2})\b/g;
+  const amountPattern = /([\d٠-٩]{1,3}(?:[,٬][\d٠-٩]{3})*(?:[.٫][\d٠-٩]+)?)\s*(?:ريال|ريال\s*يمن|YER)\b/gi;
+  const referencePattern = /\b(\d{10,16})\b/g;
 
-    const amount = parseNumber(normalizeArabicDigits(amountMatch[1]).replace(/٬/g, ','));
-    if (amount == null) continue;
+  for (const page of pageParts) {
+    const dateMatches = [...page.matchAll(datePattern)];
+    for (let index = 0; index < dateMatches.length; index += 1) {
+      const dateMatch = dateMatches[index];
+      const nextStart = dateMatches[index + 1]?.index ?? page.length;
+      const segment = page.slice(dateMatch.index ?? 0, nextStart).trim();
+      const references = [...segment.matchAll(referencePattern)].map(match => match[1]).filter(Boolean);
+      const amountMatches = [...segment.matchAll(amountPattern)];
 
-    const date = dateMatch[1].replace(/[./]/g, '-');
-    const afterAmount = line.slice((amountMatch.index ?? 0) + amountMatch[0].length);
-    const balanceMatch = afterAmount.match(/([\d٠-٩]{1,3}(?:[,٬][\d٠-٩]{3})*(?:[.٫][\d٠-٩]+)?)/);
-    const balance = balanceMatch ? parseNumber(normalizeArabicDigits(balanceMatch[1]).replace(/٬/g, ',')) : null;
+      if (!references.length || !amountMatches.length) continue;
 
-    const description = line
-      .replace(dateMatch[1], ' ')
-      .replace(amountMatch[0], ' ')
-      .replace(balanceMatch?.[1] ?? '', ' ')
-      .replace(/\|/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
+      const paymentAmountText = amountMatches[0][1];
+      const paymentAmount = parseNumber(paymentAmountText);
+      if (paymentAmount == null) continue;
 
-    rows.push({
-      date,
-      amount,
-      balance: balance ?? undefined,
-      currency: 'YER',
-      description: description.slice(0, 1200),
-    });
+      const amountEnd = (amountMatches[0].index ?? 0) + amountMatches[0][0].length;
+      const afterAmount = segment.slice(amountEnd);
+      const balanceMatch = afterAmount.match(
+        /([\d٠-٩]{1,3}(?:[,٬][\d٠-٩]{3})*(?:[.٫][\d٠-٩]+)?)\b/,
+      );
+      const balance = balanceMatch ? parseNumber(balanceMatch[1]) : null;
+
+      const reference = references[references.length - 1];
+      const date = dateMatch[1].replace(/[./]/g, '-');
+      const description = segment
+        .replace(dateMatch[1], ' ')
+        .replace(amountMatches[0][0], ' ')
+        .replace(balanceMatch?.[1] ?? '', ' ')
+        .replace(reference, ' ')
+        .replace(/\b\d{1,2}:\d{2}\b/g, ' ')
+        .replace(/\b\d{1,2}\.\d{2}\b/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      rows.push({
+        date,
+        reference,
+        payment_amount: paymentAmount,
+        balance: balance ?? undefined,
+        currency: 'YER',
+        description: description.slice(0, 1600),
+        debit: /\bدفع\b/.test(segment) ? paymentAmount : undefined,
+        credit: /\bتحويل\s+من\b|\bإيداع\b/.test(segment) ? paymentAmount : undefined,
+      });
+    }
   }
 
   return rows.length >= 3 ? rows : null;
 }
+
 
 async function parseScannedPdfWithNativeOcr(
   pdf: PdfDocument,
