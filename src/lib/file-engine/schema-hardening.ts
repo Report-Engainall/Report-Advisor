@@ -22,6 +22,7 @@ if(hasAll(mapped,['invoice_number','invoice_date','subtotal','tax_amount','total
 }
 if(mapped.has('debit')||mapped.has('credit')||mapped.has('payment_id')||(mapped.has('paid_amount')&&(mapped.has('payment_date')||mapped.has('payment_method'))))return specialtyResult('payments',mapped,92,['اكتملت حقول حركة مالية مدين/دائن أو حركة دفع قابلة للتتبع.']);
 if(mapped.has('supplier_id')||mapped.has('supplier_name')||mapped.has('purchase_order'))return specialtyResult('purchases',mapped,92,['ظهرت هوية المورد أو أمر شراء في مصدر المشتريات.']);
+if(mapped.has('local_amount')&&((mapped.has('sku')||mapped.has('name')))&&!mapped.has('sales_amount')&&!mapped.has('net_sales'))return specialtyResult('purchases',mapped,90,['ظهرت هوية صنف مع مبلغ شراء/إجمالي محلي دون حقول مبيعات.']);
 if(mapped.has('sales_amount')||mapped.has('net_sales')||mapped.has('discount')||mapped.has('charges')){
 if(mapped.has('sku')||mapped.has('name'))return specialtyResult('sales',mapped,90,['ظهرت حقول حركة مبيعات وقيم خصم/ضريبة/صافي مرتبطة بالأصناف.']);
 }
