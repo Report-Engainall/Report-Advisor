@@ -12,7 +12,9 @@ const supabaseUrl = (process.env.REPORT_ADVISOR_SUPABASE_URL || '').trim();
 const anonKey = (process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY || '').trim();
 const serviceRoleKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 const supported = new Set(['.xlsx','.xls','.xlsm','.csv','.tsv','.ods','.pdf','.docx','.json','.jsonl','.txt','.md','.xml','.png','.jpg','.jpeg','.tiff','.webp','.bmp']);
-const ciKey = process.env.GITHUB_RUN_ID || exactHead.slice(0, 12);
+const resumeRunId = (process.env.RESUME_RUN_ID || '').trim();
+const resumeFromPath = (process.env.RESUME_FROM_PATH || '').trim();
+const ciKey = resumeRunId || process.env.GITHUB_RUN_ID || exactHead.slice(0, 12);
 const ciEmail = 'report-advisor-corpus-ci-' + ciKey + '@aghbari.example';
 const ciCompanyName = 'Aghbari Report Corpus CI ' + ciKey;
 
@@ -69,24 +71,53 @@ async function executeOne(file,ordinal,total,identity){
   const rel=relativePath(file);
   const fileName=path.basename(file);
   const source=await fingerprint(file);
-  const storagePath=identity.companyId+'/imports/'+crypto.randomUUID()+'.'+extFor(fileName);
-  const upload=await serviceClient.storage.from('documents').upload(storagePath,source.buffer,{contentType:mimeFor(fileName),upsert:false});
-  if(upload.error)throw upload.error;
-  const fr=await serviceClient.from('file_records').insert({company_id:identity.companyId,file_name:fileName,file_extension:extFor(fileName),file_mime:mimeFor(fileName),file_size:source.bytes,file_hash:null,security_status:'pending',status:'uploaded',metadata:{storage_bucket:'documents',storage_path:storagePath,uploaded_by:identity.userId,report_corpus:true,repository:'Report-Engainall/Report-Advisor',source_commit:exactHead,source_path:rel}}).select('id').single();
-  if(fr.error||!fr.data)throw fr.error||new Error('FILE_RECORD_CREATE_FAILED');
-  const ij=await serviceClient.from('import_jobs').insert({company_id:identity.companyId,file_record_id:fr.data.id,job_type:'generic:source-data',processing_mode:'import',status:'processing',total_rows:0,processed_rows:0,valid_rows:0,invalid_rows:0,quarantined_rows:0,duplicate_rows:0,progress:0,started_at:new Date().toISOString(),result_summary:{file_name:fileName,source_path:rel,source_commit:exactHead,report_corpus:true}}).select('id').single();
-  if(ij.error||!ij.data)throw ij.error||new Error('IMPORT_JOB_CREATE_FAILED');
+
+  const existing = await serviceClient
+    .from('import_jobs')
+    .select('id,status,file_record_id,result_summary')
+    .eq('company_id', identity.companyId)
+    .limit(1000);
+  if (existing.error) throw existing.error;
+  const prior = (existing.data ?? []).find(row =>
+    row.result_summary?.source_path === rel &&
+    row.result_summary?.report_corpus === true
+  );
+
+  let importId;
+  if (prior?.status === 'completed') {
+    throw new Error('REPORT_ALREADY_CLOSED:' + rel);
+  }
+  if (prior?.status === 'failed') {
+    const reset = await serviceClient.from('import_jobs').update({
+      status: 'processing',
+      error_message: null,
+      started_at: new Date().toISOString(),
+    }).eq('id', prior.id).eq('company_id', identity.companyId);
+    if (reset.error) throw reset.error;
+    importId = prior.id;
+  } else if (prior) {
+    throw new Error('REPORT_ALREADY_OPEN:' + rel + ':' + prior.status);
+  } else {
+    const storagePath=identity.companyId+'/imports/'+crypto.randomUUID()+'.'+extFor(fileName);
+    const upload=await serviceClient.storage.from('documents').upload(storagePath,source.buffer,{contentType:mimeFor(fileName),upsert:false});
+    if(upload.error)throw upload.error;
+    const fr=await serviceClient.from('file_records').insert({company_id:identity.companyId,file_name:fileName,file_extension:extFor(fileName),file_mime:mimeFor(fileName),file_size:source.bytes,file_hash:null,security_status:'pending',status:'uploaded',metadata:{storage_bucket:'documents',storage_path:storagePath,uploaded_by:identity.userId,report_corpus:true,repository:'Report-Engainall/Report-Advisor',source_commit:exactHead,source_path:rel}}).select('id').single();
+    if(fr.error||!fr.data)throw fr.error||new Error('FILE_RECORD_CREATE_FAILED');
+    const ij=await serviceClient.from('import_jobs').insert({company_id:identity.companyId,file_record_id:fr.data.id,job_type:'generic:source-data',processing_mode:'import',status:'processing',total_rows:0,processed_rows:0,valid_rows:0,invalid_rows:0,quarantined_rows:0,duplicate_rows:0,progress:0,started_at:new Date().toISOString(),result_summary:{file_name:fileName,source_path:rel,source_commit:exactHead,report_corpus:true}}).select('id').single();
+    if(ij.error||!ij.data)throw ij.error||new Error('IMPORT_JOB_CREATE_FAILED');
+    importId = ij.data.id;
+  }
   let execution;
   try {
     execution = await executeCanonicalImport(
-      { importId:ij.data.id, fileName, sourceHash:source.hash, entityType:'generic:source-data', qualityApproved:false, mode:'execute' },
+      { importId, fileName, sourceHash:source.hash, entityType:'generic:source-data', qualityApproved:false, mode:'execute' },
       identity.accessToken,
       { supabaseUrl, anonKey, serviceRoleKey },
     );
   } catch (cause) {
     const failureMessage = cause instanceof Error ? cause.message : String(cause);
     const finishFailure = await anonClient.rpc('import_finish_job', {
-      p_job_id: ij.data.id,
+      p_job_id: importId,
       p_status: 'failed',
       p_result_summary: { file_name:fileName, source_path:rel, source_commit:exactHead, report_corpus:true, failure_stage:'canonical_execution' },
       p_error_message: failureMessage.slice(0, 1000),
@@ -95,16 +126,16 @@ async function executeOne(file,ordinal,total,identity){
     throw cause;
   }
   const evidenceStatus=execution.evidenceStatus==='VERIFIED'?'VERIFIED':'PARTIAL';
-  const finish=await anonClient.rpc('import_finish_job',{p_job_id:ij.data.id,p_status:evidenceStatus==='VERIFIED'?'completed':'partial',p_result_summary:{...(execution||{}),file_name:fileName,source_path:rel,source_commit:exactHead,report_corpus:true,evidence_status:evidenceStatus},p_error_message:null});
+  const finish=await anonClient.rpc('import_finish_job',{p_job_id:importId,p_status:evidenceStatus==='VERIFIED'?'completed':'partial',p_result_summary:{...(execution||{}),file_name:fileName,source_path:rel,source_commit:exactHead,report_corpus:true,evidence_status:evidenceStatus},p_error_message:null});
   if(finish.error)throw finish.error;
   const durableJobId=typeof execution.executionJobId==='string'?execution.executionJobId:(typeof execution.jobId==='string'?execution.jobId:null);
   let durableJob=null; let tasks=[];
   if(durableJobId){ const j=await serviceClient.from('report_execution_jobs').select('id,company_id,status,checkpoint,evidence,completed_at,updated_at').eq('id',durableJobId).eq('company_id',identity.companyId).maybeSingle(); if(j.error)throw j.error; durableJob=j.data; const t=await serviceClient.from('report_execution_tasks').select('stage,ordinal,status,attempt,completed_at,evidence').eq('report_execution_job_id',durableJobId).eq('company_id',identity.companyId).order('ordinal',{ascending:true}); if(t.error)throw t.error; tasks=t.data||[]; }
-  const record={ordinal,total,path:rel,filename:fileName,fingerprint:source.hash,bytes:source.bytes,exact_sha:exactHead,status:'CLOSED',importId:ij.data.id,snapshotId:typeof execution.snapshotId==='string'?execution.snapshotId:null,executionJobId:durableJobId,authoritativeRowCount:Number(execution.authoritativeRowCount??0),authoritativeQualityScore:Number(execution.authoritativeQualityScore??0),sourceSpecialty:typeof execution.sourceSpecialty==='string'?execution.sourceSpecialty:null,authoritativeEntityType:typeof execution.authoritativeEntityType==='string'?execution.authoritativeEntityType:null,evidenceStatus,renderedOutput:execution.renderedOutput??durableJob?.evidence?.renderedOutput??null,durableJob,tasks,completed_at:new Date().toISOString()};
+  const record={ordinal,total,path:rel,filename:fileName,fingerprint:source.hash,bytes:source.bytes,exact_sha:exactHead,status:'CLOSED',importId,snapshotId:typeof execution.snapshotId==='string'?execution.snapshotId:null,executionJobId:durableJobId,authoritativeRowCount:Number(execution.authoritativeRowCount??0),authoritativeQualityScore:Number(execution.authoritativeQualityScore??0),sourceSpecialty:typeof execution.sourceSpecialty==='string'?execution.sourceSpecialty:null,authoritativeEntityType:typeof execution.authoritativeEntityType==='string'?execution.authoritativeEntityType:null,evidenceStatus,renderedOutput:execution.renderedOutput??durableJob?.evidence?.renderedOutput??null,durableJob,tasks,completed_at:new Date().toISOString()};
   if(evidenceStatus!=='VERIFIED') { record.status='REVIEW'; record.blocker='EVIDENCE_STATUS_'+evidenceStatus; }
   else if(!durableJob||durableJob.status!=='completed'){ record.status='BLOCKED'; record.blocker='DURABLE_EXECUTION_NOT_COMPLETED'; }
   else if(tasks.length!==9||tasks.some(t=>t.status!=='completed')){ record.status='BLOCKED'; record.blocker='EXECUTION_TASK_LEDGER_NOT_CLOSED'; }
-  else if(!record.renderedOutput||record.renderedOutput.sourceBound!==true||record.renderedOutput.sourceHash!==source.hash||record.renderedOutput.importId!==ij.data.id){ record.status='BLOCKED'; record.blocker='RENDERED_MANIFEST_NOT_SOURCE_BOUND'; }
+  else if(!record.renderedOutput||record.renderedOutput.sourceBound!==true||record.renderedOutput.sourceHash!==source.hash||record.renderedOutput.importId!==importId){ record.status='BLOCKED'; record.blocker='RENDERED_MANIFEST_NOT_SOURCE_BOUND'; }
   else record.proof={exact_sha:exactHead,source_file:rel,source_fingerprint:source.hash,import_job_id:ij.data.id,snapshot_id:record.snapshotId,durable_job_id:durableJobId,durable_stage:durableJob?.checkpoint?.stage??null,authoritative_row_count:record.authoritativeRowCount,authoritative_quality_score:record.authoritativeQualityScore,specialty:record.sourceSpecialty,entity_type:record.authoritativeEntityType,rendered_output_keys:record.renderedOutput.outputs?.map(o=>o.key)??[],task_count:tasks.length};
   await fs.writeFile(path.join(reportDir,String(ordinal).padStart(3,'0')+'-checkpoint.json'),JSON.stringify(record,null,2)+'\n');
   return record;
@@ -113,9 +144,32 @@ async function executeOne(file,ordinal,total,identity){
 const files=(await discoverFiles(corpusRoot)).sort((a,b)=>relativePath(a).localeCompare(relativePath(b),'en',{numeric:false,sensitivity:'base'}));
 if(!files.length)throw new Error('REAL_REPORT_CORPUS_EMPTY');
 const identity=await ensureCiIdentity();
-const ledger={exact_sha:exactHead,corpus_root:relativePath(corpusRoot),corpus_count:files.length,discovered:files.length,registered:0,processed:0,closed:0,review:0,blocked:0,remaining:files.length,status:'RUNNING',started_at:new Date().toISOString(),reports:[]};
+let startIndex = 0;
+let resumedClosed = 0;
+if (resumeRunId || resumeFromPath) {
+  if (!resumeRunId || !resumeFromPath) throw new Error('RESUME_CONFIGURATION_INCOMPLETE');
+  const targetIndex = files.findIndex(file => relativePath(file) === resumeFromPath);
+  if (targetIndex < 0) throw new Error('RESUME_FROM_PATH_NOT_IN_CORPUS:' + resumeFromPath);
+  const existing = await serviceClient
+    .from('import_jobs')
+    .select('id,status,result_summary')
+    .eq('company_id', identity.companyId)
+    .limit(1000);
+  if (existing.error) throw existing.error;
+  for (let i = 0; i < targetIndex; i += 1) {
+    const rel = relativePath(files[i]);
+    const previous = (existing.data ?? []).find(row => row.result_summary?.source_path === rel && row.result_summary?.report_corpus === true);
+    if (!previous || previous.status !== 'completed') {
+      throw new Error('RESUME_PREVIOUS_REPORT_NOT_CLOSED:' + rel);
+    }
+  }
+  startIndex = targetIndex;
+  resumedClosed = targetIndex;
+}
+const ledger={exact_sha:exactHead,corpus_root:relativePath(corpusRoot),corpus_count:files.length,discovered:files.length,registered:resumedClosed,processed:resumedClosed,closed:resumedClosed,review:0,blocked:0,remaining:files.length-resumedClosed,status:resumeRunId?'RESUMED':'RUNNING',started_at:new Date().toISOString(),resume_run_id:resumeRunId||null,resume_from_path:resumeFromPath||null,reports:[]};
 const save=async()=>{ledger.remaining=files.length-ledger.closed-ledger.review-ledger.blocked;await fs.writeFile(path.join(reportDir,'ledger.json'),JSON.stringify(ledger,null,2)+'\n');};
 console.log('REAL_REPORT_CORPUS_COUNT='+files.length);
-for(let i=0;i<files.length;i+=1){ ledger.registered+=1; let record; try{record=await executeOne(files[i],i+1,files.length,identity);}catch(error){record={ordinal:i+1,total:files.length,path:relativePath(files[i]),filename:path.basename(files[i]),exact_sha:exactHead,status:'BLOCKED',blocker:error instanceof Error?error.message:String(error),completed_at:new Date().toISOString()}; await fs.writeFile(path.join(reportDir,String(i+1).padStart(3,'0')+'-checkpoint.json'),JSON.stringify(record,null,2)+'\n');} ledger.reports.push(record); if(record.status==='CLOSED'){ledger.closed+=1;ledger.processed+=1;}else if(record.status==='REVIEW')ledger.review+=1;else ledger.blocked+=1; await save(); console.log('REPORT_RESULT',JSON.stringify({ordinal:record.ordinal,total:files.length,path:record.path,status:record.status,importId:record.importId??null,executionJobId:record.executionJobId??null,blocker:record.blocker??null})); if(record.status!=='CLOSED'){ledger.status=record.status;ledger.finished_at=new Date().toISOString();await save();throw new Error('REPORT_STOPPED_AT_'+record.ordinal+':'+record.status+':'+(record.blocker||'unknown'));} }
+console.log('REAL_REPORT_CORPUS_START_INDEX='+startIndex);
+for(let i=startIndex;i<files.length;i+=1){ ledger.registered+=1; let record; try{record=await executeOne(files[i],i+1,files.length,identity);}catch(error){record={ordinal:i+1,total:files.length,path:relativePath(files[i]),filename:path.basename(files[i]),exact_sha:exactHead,status:'BLOCKED',blocker:error instanceof Error?error.message:String(error),completed_at:new Date().toISOString()}; await fs.writeFile(path.join(reportDir,String(i+1).padStart(3,'0')+'-checkpoint.json'),JSON.stringify(record,null,2)+'\n');} ledger.reports.push(record); if(record.status==='CLOSED'){ledger.closed+=1;ledger.processed+=1;}else if(record.status==='REVIEW')ledger.review+=1;else ledger.blocked+=1; await save(); console.log('REPORT_RESULT',JSON.stringify({ordinal:record.ordinal,total:files.length,path:record.path,status:record.status,importId:record.importId??null,executionJobId:record.executionJobId??null,blocker:record.blocker??null})); if(record.status!=='CLOSED'){ledger.status=record.status;ledger.finished_at=new Date().toISOString();await save();throw new Error('REPORT_STOPPED_AT_'+record.ordinal+':'+record.status+':'+(record.blocker||'unknown'));} }
 ledger.status='PASS';ledger.finished_at=new Date().toISOString();await save();
 console.log('REAL_REPORT_CORPUS_PASS',JSON.stringify({exact_sha:exactHead,count:files.length,discovered:ledger.discovered,registered:ledger.registered,processed:ledger.processed,closed:ledger.closed,review:ledger.review,blocked:ledger.blocked,remaining:ledger.remaining},null,2));
