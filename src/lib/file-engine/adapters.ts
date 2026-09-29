@@ -461,7 +461,8 @@ function tryParseFinancialStatementPdfItems(pages: PdfTextItem[][]): Row[] | nul
     };
     if (anchors.date == null || anchors.currency == null || anchors.balance == null || anchors.credit == null || anchors.debit == null) continue;
 
-    const nearest = (line: PdfTextItem[], anchor: number, predicate: (text: string) => boolean, threshold = 65): string | null => {
+    const nearest = (line: PdfTextItem[], anchor: number | null, predicate: (text: string) => boolean, threshold = 65): string | null => {
+      if (anchor == null) return null;
       let best: { distance: number; text: string } | null = null;
       for (const item of line) {
         const text = normalizedPdfText(item.text);
