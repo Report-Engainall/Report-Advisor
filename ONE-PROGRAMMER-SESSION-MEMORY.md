@@ -1020,3 +1020,22 @@
 - NEXT EXECUTABLE ACTION → consume the first terminal mandatory gate on `b081c3f`; then reconcile the governance lane. Do not promote the current production docs-only deployment as functional proof.
 - DO NOT REPEAT → stale PASS transfer; preview-as-production; production SHA bypass; duplicate importer/navigation/RPC/runner; broad-push workflow weakening solely to clear queue pressure.
 - RESUME STATUS → ACTIVE / IMPORT CORE HARDENED / EXACT-HEAD DEPLOYMENT PROVEN / RELEASE IDENTITY STILL OPEN.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / CANONICAL EDGE WORKER REPAIRED / REPORT_001 AUTH STILL OPEN
+
+- CONTROL CODE HEAD BEFORE THIS CHECKPOINT: `473e4fc0d5784c3ced1e2fd4a6ad53414f93454a`.
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`.
+- ACTIVE REPORT: REPORT_001 = `اعمار الديون للعملا.pdf`; RAW SHA256 `9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`.
+- REAL SOURCE READINESS: 27 rows; quality 98; specialty `receivables`; confidence 96; entity `generic:receivables`; currency YER.
+- ROOT CAUSE FOUND: deployed `canonical-import-worker` version 2 referenced `assertCanonicalBoundary` and `runCanonicalImportThroughDurableRunner` without importing/defining them, producing Edge `BOOT_ERROR` / HTTP 503.
+- ACTUAL REMEDIATION: rebuilt the worker as a thin secure adapter over the existing canonical truth boundary and durable runner; bundled the existing canonical modules with explicit `.ts` imports and `deno.json`; `verify_jwt=true`; tenant resolved through `current_company_id`; authoritative storage hash reverified before canonical execution.
+- DEPLOYED PROOF: Supabase `canonical-import-worker` version 4 is `ACTIVE`; deployed bundle SHA `8b6f29dafaa1d20bfb284b6e5c3b03a897146c0c55f3959b890c9453ac1c6761`.
+- PRE-FIX EVIDENCE: version 1/2 produced repeated HTTP 503 `BOOT_ERROR`; later requests reached the function and returned HTTP 400. The boot defect is isolated to the deployed worker source, not treated as a data-quality result.
+- REPORT_001 EXECUTION STATUS: NOT CLOSED. Staging currently contains 3 earlier `processing` import jobs for this same filename from the failed worker attempts; no new duplicate should be created. They remain to be reconciled through the canonical `import_finish_job` path after authenticated execution is restored.
+- CURRENT AUTH BLOCKER: the device has no directly readable authenticated E2E session for the report runner. The Edge profile contains an auth-token marker in LevelDB, but the session parser cannot recover a structured Supabase session; the active browser session is not exposed through CDP. No guessed credentials, password reset, cookie extraction, or direct DB insertion was used.
+- TOOL/PROOF RULE: worker deployment is not report closure. Closure still requires real authenticated import, canonical DB commit/readback, all 9 durable stages, source report + source-bound receivables report, downstream evidence/decision/work-center surfaces, rendered UI, and tenant A/B isolation.
+- UNTRACKED SESSION HARNESS: `scripts/execute-real-corpus-edge.mjs` remains temporary session tooling only; it must not become a second canonical runner. The governed runner remains the project's existing report-first execution path.
+- DO-NOT-REPEAT: no duplicate importer/runner; no direct DB insertion; no guessed credentials; no stale PASS; no reuse of the failed 503 proof; no report advancement to REPORT_002 before REPORT_001 closes.
+- NEXT EXACT ACTION: restore a valid authenticated browser/E2E session using the existing supported project path; reuse one existing REPORT_001 job; execute REPORT_001 end-to-end; reconcile the two leftover jobs; prove the nine stages and source-bound report surfaces; persist CLOSED; advance to REPORT_002.
