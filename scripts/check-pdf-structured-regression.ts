@@ -155,6 +155,8 @@ async function main(): Promise<void> {
       ['المبيعات.pdf', 'pdf', 'sales'],
       ['المشتريات.pdf', 'pdf', 'purchases'],
       ['تقارير ارصدة المخزون.pdf', 'pdf', 'inventory'],
+      ['تقارير المبيعات - فترية - حسب الاصناف - الزيت من تاريخ 01-04 حتى تاريخ 20-08.pdf', 'pdf', 'sales'],
+      ['تقارير المبيعات فترية حسب الاصناف.pdf', 'pdf', 'sales'],
       ['تقارير البنوك.xlsx', 'xlsx', 'payments'],
       ['تقارير حركة الصندوق.xlsx', 'xlsx', 'payments'],
       ['الصراف البدجي.pdf', 'pdf', 'payments'],
