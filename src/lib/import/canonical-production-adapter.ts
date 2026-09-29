@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ReportExecutionStage } from '../report-execution/checkpoint';
+import type { ReportExecutionRequest } from '../report-execution/report-execution-contract';
 import { SupabaseReportExecutionStore } from '../report-execution/durable-worker-adapter';
 import { runDurableProductionLifecycle } from '../report-execution/durable-production-runner';
 import type { CanonicalImportEntityType, ReconciledCanonicalImportRow } from './canonical-truth-boundary';
@@ -231,12 +232,12 @@ export async function runCanonicalImportThroughDurableRunner(
     value: row.value,
   }));
 
-  const reportRequest = {
+  const reportRequest: ReportExecutionRequest = {
     reportId: jobKey,
     tenantId: companyId,
     requestedBy,
     parameters: { entityType: input.entityType, importId: input.importId, rowCount: input.rows.length },
-    formats: ['web'] as const,
+    formats: ['web'],
     idempotencyKey: jobKey,
   };
 
