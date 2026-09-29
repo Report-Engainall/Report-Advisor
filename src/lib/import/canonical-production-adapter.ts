@@ -92,13 +92,105 @@ function inferSpecialty(entityType: CanonicalImportEntityType, rows: ReconciledC
   const has = (...tokens: string[]) => tokens.some(token => [...keys].some(key => key.includes(token)));
   if (has('supplier', 'مورد') && has('quantity', 'qty', 'netamount', 'شراء')) return 'purchases';
   if (has('customer', 'عميل', 'ذمم', 'receivable', 'credit') && has('balance', 'الرصيد', 'amount', 'netamount')) return 'receivables';
+  if (has('customer', 'عميل') && has('invoice', 'فاتورة') && has('total', 'amount', 'netamount', 'اجمالي')) return 'sales';
   if (has('payment', 'payments', 'دائن', 'مدين', 'cash', 'تحصيل')) return 'payments';
   if (has('quantity', 'qty', 'netamount', 'sales', 'مبيعات')) return 'sales';
   if (has('stock', 'inventory', 'مخزون', 'currentstock', 'sellingprice', 'costprice', 'سعر')) return 'inventory';
   return null;
 }
 
-function buildRenderedOutput(input: DurableCanonicalImportInput, rows = input.rows): RenderedOutput {
+type SourceReportMetrics = {
+  totalAmount: number | null;
+  uniqueInvoiceCount: number | null;
+  missingCustomerRows: number | null;
+  missingInvoiceNumberRows: number | null;
+  missingInvoiceTypeRows: number | null;
+  receivableCandidate: number | null;
+  asOfStart: string | null;
+  asOfEnd: string | null;
+  fieldAvailability: {
+    total: boolean;
+    invoiceNumber: boolean;
+    customer: boolean;
+    invoiceType: boolean;
+    date: boolean;
+  };
+};
+
+function finiteNumber(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number(value.replace(/,/g, ''));
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function normalizedValue(value: unknown): string {
+  return String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFKC')
+    .replace(/[ً-ْ]/g, '')
+    .replace(/\s+/g, ' ');
+}
+
+function buildSourceReportMetrics(rows: ReconciledCanonicalImportRow[]): SourceReportMetrics {
+  const data = rows.map((row) => row.data);
+  const hasField = (field: string) => data.some((record) => Object.prototype.hasOwnProperty.call(record, field));
+  const fieldAvailability = {
+    total: hasField('total'),
+    invoiceNumber: hasField('invoice_number'),
+    customer: hasField('customer_name'),
+    invoiceType: hasField('invoice_type'),
+    date: hasField('date'),
+  };
+
+  const totalValues = fieldAvailability.total
+    ? data.map((record) => finiteNumber(record.total)).filter((value): value is number => value !== null)
+    : [];
+  const invoiceValues = fieldAvailability.invoiceNumber
+    ? data.map((record) => String(record.invoice_number ?? '').trim()).filter(Boolean)
+    : [];
+  const dates = fieldAvailability.date
+    ? data.map((record) => String(record.date ?? '').trim()).filter(Boolean).sort()
+    : [];
+
+  let receivableCandidate: number | null = null;
+  if (fieldAvailability.total && fieldAvailability.invoiceType) {
+    let total = 0;
+    let matched = 0;
+    for (const record of data) {
+      const amount = finiteNumber(record.total);
+      const type = normalizedValue(record.invoice_type);
+      if (amount !== null && (type === 'آجل' || type === 'اجل' || type.includes('credit'))) {
+        total += amount;
+        matched += 1;
+      }
+    }
+    receivableCandidate = matched > 0 ? total : null;
+  }
+
+  return {
+    totalAmount: totalValues.length ? totalValues.reduce((sum, value) => sum + value, 0) : null,
+    uniqueInvoiceCount: invoiceValues.length ? new Set(invoiceValues).size : null,
+    missingCustomerRows: fieldAvailability.customer
+      ? data.filter((record) => !String(record.customer_name ?? '').trim()).length
+      : null,
+    missingInvoiceNumberRows: fieldAvailability.invoiceNumber
+      ? data.filter((record) => !String(record.invoice_number ?? '').trim()).length
+      : null,
+    missingInvoiceTypeRows: fieldAvailability.invoiceType
+      ? data.filter((record) => !String(record.invoice_type ?? '').trim()).length
+      : null,
+    receivableCandidate,
+    asOfStart: dates.length ? dates[0] : null,
+    asOfEnd: dates.length ? dates[dates.length - 1] : null,
+    fieldAvailability,
+  };
+}
+
+export function buildRenderedOutput(input: DurableCanonicalImportInput, rows = input.rows): RenderedOutput {
   const specialty = inferSpecialty(input.entityType, rows);
   const domain = specialty ? DOMAIN_OUTPUTS[specialty] : null;
   const outputs = [
@@ -125,6 +217,7 @@ function buildRenderedOutput(input: DurableCanonicalImportInput, rows = input.ro
     renderedAt: new Date().toISOString(),
     rowCount: rows.length,
     sourceSpecialty: specialty,
+    sourceMetrics: buildSourceReportMetrics(rows),
     trustState: input.qualityScore >= 75 ? 'TRUSTED' : input.qualityScore >= 50 ? 'REVIEW' : 'BLOCKED',
     qualityScore: input.qualityScore,
     evidenceStatus: 'AWAITING_EVIDENCE_SNAPSHOT',

@@ -162,6 +162,9 @@ if (fs.existsSync(pagePath)) {
   if (!/quality < 50/.test(page) || !/quality < 75 && !qualityApproved/.test(page)) {
     throw new Error('Canonical import UI must enforce the 50% rejection and 50–74% explicit approval gates');
   }
+  if (!/renderedOutput/.test(page) || !/المؤشرات المستخرجة من الصفوف الكانونية/.test(page) || !/مخرجات متاحة لهذا المصدر|المخرجات المتاحة لهذا المصدر/.test(page)) {
+    throw new Error('Canonical import UI must render the source-bound result after durable completion');
+  }
 }
 
 const runnerPath = path.join(root, 'src', 'lib', 'report-execution', 'durable-production-runner.ts');
@@ -212,3 +215,7 @@ console.log('Import transaction contract: PASS');
 if (!/import_finish_job/.test(adapter)) throw new Error('Canonical durable adapter must finalize import jobs through the governed import_finish_job RPC');
 if (!/recovered_from_completed_durable_job/.test(adapter)) throw new Error('Canonical durable adapter must recover completed durable jobs after interrupted client sessions');
 if (!/stage === 'rendered'/.test(adapter)) throw new Error('Canonical durable adapter must persist rendered-stage output evidence');
+if (!/buildSourceReportMetrics/.test(adapter) || !/sourceMetrics/.test(adapter) || !/missingCustomerRows/.test(adapter) || !/receivableCandidate/.test(adapter)) {
+  throw new Error('Canonical rendered output must expose deterministic source metrics from canonical rows');
+}
+

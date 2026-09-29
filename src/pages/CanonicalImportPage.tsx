@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, CheckCircle2, XCircle, AlertCircle, AlertTriangle, ShieldCheck, Loader2, ArrowLeft, LockKeyhole, FileCheck2, RefreshCw } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
+import { Link } from 'react-router-dom';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
@@ -282,6 +283,7 @@ export function CanonicalImportPage() {
         jobId: execution.jobId,
         understandingConfidence,
         authoritativeQualityScore: Number(execution.authoritativeQualityScore ?? quality),
+        renderedOutput: execution.renderedOutput ?? null,
       });
       setStep('done');
       await loadHistory();
@@ -388,7 +390,62 @@ export function CanonicalImportPage() {
 
     {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم اعتماد المصدر عبر مسار الحقيقة الكانونية العامة مع بصمته وسياقه وجودته، ولا يُعلن نجاح الاعتماد إلا بعد إتمام مسار الكتابة الفعلي.</p></div></CardBody></Card>}
 
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم اعتماد المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence ?? 0}%</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم اعتماد المصدر في طبقة البيانات الكانونية العامة مع بصمته وسياقه وجودته، دون فرض نوع سجل أو مسار استيراد متخصص.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
+    {step === 'done' && result && (() => {
+      const rendered = result.renderedOutput ?? {};
+      const metrics = rendered.sourceMetrics ?? {};
+      const outputs = Array.isArray(rendered.outputs) ? rendered.outputs : [];
+      const trustLabel = rendered.trustState === 'TRUSTED' ? 'موثوق' : rendered.trustState === 'REVIEW' ? 'مراجعة' : rendered.trustState === 'BLOCKED' ? 'محظور' : 'غير محدد';
+      const benchmarkLabel = rendered.benchmarkStatus === 'INSUFFICIENT_SAMPLE' ? 'العينة غير كافية' : String(rendered.benchmarkStatus ?? 'غير متاح');
+      const evidenceLabel = rendered.evidenceStatus === 'AWAITING_EVIDENCE_SNAPSHOT' ? 'بانتظار لقطة الدليل' : String(rendered.evidenceStatus ?? 'غير متاح');
+      const specialtyLabel: Record<string, string> = { sales: 'المبيعات', purchases: 'المشتريات', inventory: 'المخزون', payments: 'السيولة والمدفوعات', receivables: 'الذمم المدينة', profitability: 'الربحية' };
+      const metricValue = (value: unknown, suffix = '') => value == null ? 'غير متاح' : `${formatNumber(Number(value))}${suffix}`;
+      return <div className="space-y-4">
+        <Card><CardBody>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex items-start gap-3"><CheckCircle2 className="mt-1 text-success-500" size={42}/><div><h3 className="text-xl font-black text-ink-950">تم اعتماد المصدر وإعداد نتيجة التقرير</h3><p className="mt-1 text-sm text-ink-500">هذه النتيجة مرتبطة بالبصمة الكانونية نفسها، وليست شاشة نجاح عامة بعد الرفع.</p></div></div>
+            <div className="flex flex-wrap gap-2"><Badge variant="success">الثقة: {trustLabel}</Badge><Badge variant="neutral">Benchmark: {benchmarkLabel}</Badge></div>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <div className="rounded-xl bg-ink-50 p-4"><div className="text-xs text-ink-400">الصفوف الكانونية</div><b className="mt-1 block text-lg">{formatNumber(result.total)}</b></div>
+            <div className="rounded-xl bg-ink-50 p-4"><div className="text-xs text-ink-400">الفترة</div><b className="mt-1 block text-sm">{metrics.asOfStart ?? 'غير متاح'} → {metrics.asOfEnd ?? 'غير متاح'}</b></div>
+            <div className="rounded-xl bg-ink-50 p-4"><div className="text-xs text-ink-400">التخصص</div><b className="mt-1 block text-sm">{specialtyLabel[rendered.sourceSpecialty] ?? rendered.sourceSpecialty ?? 'مصدر عام'}</b></div>
+            <div className="rounded-xl bg-ink-50 p-4"><div className="text-xs text-ink-400">الدليل المصدر</div><b className="mt-1 block text-sm">{evidenceLabel}</b></div>
+          </div>
+          <p className="mt-4 break-all font-mono text-[10px] text-ink-400">Source SHA: {rendered.sourceHash ?? 'غير متاح'} · Import: {result.importId}</p>
+        </CardBody></Card>
+
+        <Card><CardHeader title="المؤشرات المستخرجة من الصفوف الكانونية" subtitle="لا تُعرض القيمة إلا عند وجود الحقل المطلوب في المصدر الموثوق."/><CardBody>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+            <div className="rounded-xl border border-ink-100 p-3"><div className="text-[11px] text-ink-400">إجمالي القيمة</div><b className="mt-1 block">{metricValue(metrics.totalAmount)}</b></div>
+            <div className="rounded-xl border border-ink-100 p-3"><div className="text-[11px] text-ink-400">الفواتير الفريدة</div><b className="mt-1 block">{metricValue(metrics.uniqueInvoiceCount)}</b></div>
+            <div className="rounded-xl border border-ink-100 p-3"><div className="text-[11px] text-ink-400">بلا عميل</div><b className="mt-1 block">{metricValue(metrics.missingCustomerRows)}</b></div>
+            <div className="rounded-xl border border-ink-100 p-3"><div className="text-[11px] text-ink-400">بلا نوع فاتورة</div><b className="mt-1 block">{metricValue(metrics.missingInvoiceTypeRows)}</b></div>
+            <div className="rounded-xl border border-ink-100 p-3"><div className="text-[11px] text-ink-400">مرشح الذمم «آجل»</div><b className="mt-1 block">{metricValue(metrics.receivableCandidate)}</b></div>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-3">
+            <div className="rounded-xl border border-ink-100 p-3"><div className="text-[11px] text-ink-400">بلا رقم فاتورة</div><b className="mt-1 block">{metricValue(metrics.missingInvoiceNumberRows)}</b></div>
+            <div className="rounded-xl border border-ink-100 p-3"><div className="text-[11px] text-ink-400">الجودة السلطوية</div><b className="mt-1 block">{formatNumber(result.authoritativeQualityScore ?? 0)}%</b></div>
+            <div className="rounded-xl border border-ink-100 p-3"><div className="text-[11px] text-ink-400">حالة القرار</div><b className="mt-1 block">لا قرار مثبت</b></div>
+          </div>
+        </CardBody></Card>
+
+        <Card><CardHeader title="المخرجات المتاحة لهذا المصدر" subtitle="المساحات أدناه هي المخرجات التي أعلنها المسار الكانوني لهذا التقرير، وليست نجاحًا مصطنعًا لنتائج غير مدعومة."/><CardBody>
+          <div className="grid gap-3 md:grid-cols-2">
+            {outputs.map((output: any) => <Link key={String(output.key)} to={String(output.path)} className="rounded-xl border border-ink-200 bg-white p-4 transition-colors hover:border-primary-300 hover:bg-primary-50/30">
+              <div className="flex items-center justify-between gap-3"><div><div className="text-sm font-black text-ink-950">{String(output.label ?? output.key)}</div><div className="mt-1 text-[10px] text-ink-400">{String(output.stage ?? '')} · مصدر مربوط</div></div><ArrowLeft size={15} className="text-primary-600"/></div>
+            </Link>)}
+          </div>
+          {outputs.length === 0 && <div className="rounded-xl bg-ink-50 p-4 text-sm text-ink-500">لا توجد مساحة إضافية مدعومة حاليًا؛ بقيت النتيجة في طبقة المصدر دون اختلاق تخصص.</div>}
+        </CardBody></Card>
+
+        <Card><CardBody>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div><div className="text-sm font-black text-ink-950">ماذا يعني الإغلاق هنا؟</div><p className="mt-1 text-xs leading-5 text-ink-500">تم حفظ المصدر والصفوف الكانونية ونتيجة الـrendered output. لا يتم تحويل غياب الأدلة أو القرار أو النتيجة أو العينة إلى نجاح.</p></div>
+            <button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button>
+          </div>
+        </CardBody></Card>
+      </div>;
+    })()}
 
     <Card><CardHeader title="سجل الاستيرادات" subtitle="أحدث 500 عملية مرتبطة بحسابك، مع 50 صفًا في كل صفحة لتبقى القراءة سريعة؛ العمليات الأقدم تبقى محفوظة" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={historyError} onRetry={() => void loadHistory()} />:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد عمليات سابقة" message="لم يُثبت مصدر سابق لهذا الحساب بعد؛ ابدأ الآن من مدخل الاستيراد الموحد." action={<button type="button" onClick={reset} className="btn-primary text-[11px]"><Upload size={13}/> اختيار مصدر</button>}/>:<DataTable columns={[{key:'file_name',label:'المصدر'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مراجعة',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} pageSize={50} emptyMessage="لا توجد عمليات سابقة"/>}</Card>
   </div>;

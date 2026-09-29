@@ -1,3 +1,4 @@
+import { buildRenderedOutput } from '../src/lib/import/canonical-production-adapter.ts';
 import { strict as assert } from 'node:assert';
 import fs from 'node:fs';
 import { advanceCheckpoint, canAdvanceCheckpoint, type ReportExecutionCheckpoint } from '../src/lib/report-execution/checkpoint.ts';
@@ -74,11 +75,11 @@ const fakeStore = {
   fail: async () => {},
 };
 const renderResult = await durableRunner.runDurableProductionLifecycle({
-  jobId: 'job-render-test', workerId: 'worker', sourceHash: 'sha-render-test', rows: [{ amount: 10 }],
+  jobId: 'job-render-test', workerId: 'worker', sourceHash: 'sha-render-test', rows: [{ total: 10, invoice_number: 101, customer_name: 'عميل', invoice_type: 'آجل', date: '2026-01-02' }],
   request: { reportId: 'report-render-test', tenantId: 'tenant-test', requestedBy: 'user-test', parameters: {}, formats: ['web'], idempotencyKey: 'render-test' },
   lifecycle: {
     previousRows: [],
-    currentRows: [{ key: 'row-1', hash: 'row-hash', value: { amount: 10 } }],
+    currentRows: [{ key: 'row-1', hash: 'row-hash', value: { total: 10, invoice_number: 101, customer_name: 'عميل', invoice_type: 'آجل', date: '2026-01-02' } }],
     sourceCandidates: [{ businessKey: 'row-1', sourceId: 'sha-render-test', precedence: 0, observedAt: new Date().toISOString(), value: { amount: 10 } }],
     scenarioOptions: [{ key: 'report-render-test', expectedImpact: 1, risk: 1, liquidityRequired: 0, serviceLevel: 1 }],
     riskBudget: { maxRisk: 1, protectedLiquidity: 1, minimumServiceLevel: 0 },
@@ -94,3 +95,29 @@ const renderResult = await durableRunner.runDurableProductionLifecycle({
 assert.deepEqual(renderStages.slice(-2), ['execute:committed', 'execute:rendered']);
 assert.ok(Array.isArray(completionEvidence[0]?.renderedOutput?.outputs));
 assert.equal((renderResult as any).renderedOutput.sourceBound, true);
+
+const renderedSource = buildRenderedOutput({
+  importId: 'import-render-test',
+  fileName: 'sales.pdf',
+  sourceHash: 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  entityType: 'generic:source-data',
+  qualityScore: 92,
+  qualityApproved: true,
+  rows: [{
+    rowNumber: 1,
+    data: { total: 10, invoice_number: 101, customer_name: 'عميل', invoice_type: 'آجل', date: '2026-01-02' },
+    provenance: {
+      sourceHash: 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      sourceId: 'source-1',
+      sourceDocumentId: 'doc-1',
+      evidenceId: 'evidence-1',
+      tenantId: 'tenant-test',
+      lineageId: 'line-1',
+    },
+  }],
+});
+assert.equal(renderedSource.sourceMetrics.totalAmount, 10);
+assert.equal(renderedSource.sourceMetrics.uniqueInvoiceCount, 1);
+assert.equal(renderedSource.sourceMetrics.receivableCandidate, 10);
+assert.equal(renderedSource.sourceMetrics.asOfStart, '2026-01-02');
+assert.equal(renderedSource.sourceMetrics.asOfEnd, '2026-01-02');
