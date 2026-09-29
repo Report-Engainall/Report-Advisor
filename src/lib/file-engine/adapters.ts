@@ -479,7 +479,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   let tablePageCount = 0;
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
     const page = await pdf.getPage(pageNumber);
-    const content = await page.getTextContent();
+    const content = await page.getTextContent({ disableCombineTextItems: true });
     const placements = content.items
       .map(item => pdfPlacementFromItem(item))
       .filter((item): item is PdfTextPlacement => item !== null);
