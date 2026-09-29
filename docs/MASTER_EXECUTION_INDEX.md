@@ -1585,3 +1585,15 @@
 - HOSTED/DEVICE → current exact-head hosted runtime remains unverified; Vercel is rate-limit blocked and PC01 is offline.
 - NEXT EXACT ACTION → current-head authenticated execution of the first fixture, verify the new source-bound manifest and all related report surfaces, then close and advance one deterministic fixture at a time.
 
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / CORPUS COVERAGE AND REPORT-CLOSURE PROOF
+
+- CODE HEAD BEFORE GOVERNANCE WRITE-BACK → `f369d13383297056ee27093857cb82f304235f06`.
+- CORPUS → 47 real fixtures.
+- STAGING COVERAGE → 40 filenames seen; 38 verified; 2 only unverified; 7 unseen.
+- IMPORT COMPLETION → 37 completed import jobs today, but only 12 associated with a complete 9-task durable ledger.
+- RENDERED PROOF → 0 completed durable jobs currently persist `evidence.renderedOutput`; existing import completions therefore do not satisfy rendered-report closure.
+- CURRENT REPORT → `اعمار الديون للعملا.pdf`, SHA `sha256:9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`, 27 valid, quality 98, canonical commit 1, dataset rows 27, historical durable ledger 9/9.
+- SOURCE/UI REPAIRS CLOSED → receivables specialty routing; Executive + domain/intelligence outputs; generic semantic entity routing; source-bound Aging/Receivables navigation; no synthetic report As Of; authoritative entity provenance in evidence snapshots.
+- PROOF LIMIT → no current-head browser/device certification because PC01 is offline; no current-head terminal CI PASS; Vercel rate-limit remains external.
+- NEXT EXACT ACTION → current-head authenticated execution of the first real fixture and verification of the persisted bound rendered manifest before closing the report; then advance one fixture at a time.
+
