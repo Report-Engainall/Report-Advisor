@@ -51,26 +51,6 @@ jobs:
       - name: Install repository dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Inspect fourth real XLSX structure
-        shell: bash
-        run: |
-          set -euo pipefail
-          node --input-type=module <<'NODE'
-          import fs from 'node:fs/promises';
-          const XLSX = await import('xlsx');
-          const { detectHeaderRow } = await import('./src/lib/file-engine/header-detection.ts');
-          const { mapColumns } = await import('./src/lib/file-engine/synonyms.ts');
-          const file='tests/fixtures/realistic-reports/الاصناف 3.xlsx';
-          const bytes=await fs.readFile(file);
-          const wb=XLSX.read(bytes,{type:'buffer',cellDates:true});
-          for(const sheetName of wb.SheetNames){
-            const matrix=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{header:1,defval:'',raw:true});
-            const candidate=detectHeaderRow(matrix);
-            const headers=candidate?.headers||[];
-            const mappings=await mapColumns(headers);
-            console.log(JSON.stringify({sheetName,rows:matrix.length,cols:matrix.reduce((m,row)=>Math.max(m,Array.isArray(row)?row.length:0),0),candidate,headers,mappings,preview:matrix.slice(0,5)},null,2));
-          }
-          NODE
       - name: Normalize and execute real report corpus
         shell: bash
         env:
