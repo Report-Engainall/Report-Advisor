@@ -1174,7 +1174,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   if (pages.length) {
     const pageText = pages.join('\n\n');
     const supplierColumnMajor = tryParseColumnMajorSupplierText(pageText);
-    if (supplierColumnMajor && supplierColumnMajor.length >= 2) return [await buildDataset(supplierColumnMajor, fileName, 'pdf-column-major-supplier')];
+    if (supplierColumnMajor && supplierColumnMajor.length >= 2) { const dataset = await buildDataset(supplierColumnMajor, fileName, 'pdf-column-major-supplier'); if (dataset.qualityScore >= OCR_REJECT_THRESHOLD) return [dataset]; }
     const receivablesColumnMajor = tryParseColumnMajorReceivablesText(pageText);
     if (receivablesColumnMajor && receivablesColumnMajor.length >= 2) return [await buildDataset(receivablesColumnMajor, fileName, 'pdf-column-major-receivables')];
     const bankStatementSummary = tryParseBankStatementSummaryText(pageText);
