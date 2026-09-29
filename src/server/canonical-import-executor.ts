@@ -311,6 +311,34 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
     );
   }
 
+  const renderedOutput = execution.renderedOutput && typeof execution.renderedOutput === 'object'
+    ? execution.renderedOutput
+    : buildRenderedReportOutput({
+        importId: job.id,
+        fileName: fileRecord.file_name || payload.fileName || 'import',
+        sourceHash: sourceSha,
+        entityType: authoritativeEntityType,
+        sourceSpecialty: sourceUnderstanding.specialty,
+        rows: reconciled.rows,
+        qualityScore: authoritativeQualityScore,
+        qualityApproved: payload.qualityApproved === true,
+      });
+
+  const { error: resultSummaryError } = await serviceClient.from('import_jobs').update({
+    result_summary: {
+      ...(job.result_summary && typeof job.result_summary === 'object' ? job.result_summary : {}),
+      execution_job_id: typeof execution.executionJobId === 'string'
+        ? execution.executionJobId
+        : (typeof execution.jobId === 'string' ? execution.jobId : null),
+      rendered_output: renderedOutput,
+      source_specialty: sourceUnderstanding.specialty,
+      source_entity_type: authoritativeEntityType,
+      committed: authoritativeRows.length,
+      quality_score: authoritativeQualityScore,
+    },
+  }).eq('id', job.id).eq('company_id', companyId);
+  if (resultSummaryError) throw resultSummaryError;
+
   let snapshotId: string | null = null;
   let evidenceStatus: 'VERIFIED' | 'PARTIAL' = 'PARTIAL';
   let evidenceWarning = 'تم تنفيذ الاستيراد الكانوني، لكن لقطة الدليل لم تُثبت؛ الحالة بقيت PARTIAL ولم يتم الادعاء باكتمال الدليل.';
@@ -352,6 +380,7 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
           sourceSpecialtyConfidence: sourceUnderstanding.specialtyConfidence,
           datasetCount: sourceUnderstanding.datasetCount,
           datasetWarnings: sourceUnderstanding.warnings,
+          renderedOutput,
         },
       })
       .select('id')
@@ -382,5 +411,7 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
     sourceWarnings: sourceUnderstanding.warnings,
     evidenceStatus,
     evidenceWarning: evidenceWarning || undefined,
+    renderedOutput,
+    executionJobId: typeof execution.executionJobId === 'string' ? execution.executionJobId : (typeof execution.jobId === 'string' && execution.jobId !== job.id ? execution.jobId : null),
   };
 }
