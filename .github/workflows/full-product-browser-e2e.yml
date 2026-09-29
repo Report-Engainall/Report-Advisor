@@ -22,6 +22,8 @@ on:
       - 'E2E_FAILURE_LEDGER.md'
       - 'E2E_PRODUCT_GAP_LEDGER.md'
       - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+      - 'netlify/functions/**'
       - 'package.json'
       - 'package-lock.json'
   pull_request:
@@ -42,6 +44,8 @@ on:
       - 'E2E_FAILURE_LEDGER.md'
       - 'E2E_PRODUCT_GAP_LEDGER.md'
       - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+      - 'netlify/functions/**'
       - 'package.json'
       - 'package-lock.json'
   workflow_dispatch:
