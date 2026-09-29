@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { DataTable } from '@/components/ui/DataTable';
@@ -11,6 +11,9 @@ import { fetchReceivablesReportPage, fetchReceivablesExportRows, type Receivable
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 
 export function ReceivablesReportCanonicalPage() {
+  const [searchParams] = useSearchParams();
+  const importId = searchParams.get('import')?.trim() || null;
+  const withImportContext = (path: string) => importId ? path + (path.includes('?') ? '&' : '?') + 'import=' + encodeURIComponent(importId) : path;
   const [snapshot, setSnapshot] = useState<ReceivablesReportPage | null>(null);
   const [page, setPage] = useState(0);
   const pageSize = 25;
@@ -29,7 +32,7 @@ export function ReceivablesReportCanonicalPage() {
   const truthMessage = snapshot.status === 'CALCULATED'
     ? 'الإجماليات والصفوف مشتقة من المسار المالي المعتمد.'
     : 'لا توجد سجلات ذمم مثبتة حاليًا؛ القيم غير المتاحة تبقى غير متاحة ولا تتحول إلى صفر.';
-  if (snapshot.status === 'NO_DATA') return <div dir="rtl" className="report-page space-y-5 animate-fade-in"><PageHeader title="تقرير الذمم والتحصيل" subtitle="المصدر لم يثبت بيانات قابلة للحساب في السياق الحالي." actions={<button type="button" onClick={() => void load()} className="btn-secondary text-xs">تحديث</button>} /><DataUnavailableState title="لا توجد ذمم مثبتة بعد" message="لا يتم عرض إجمالي أو رصيد بديل عند غياب السجلات. أضف مصدرًا موثوقًا ثم أعد المحاولة." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} /></div>;
+  if (snapshot.status === 'NO_DATA') return <div dir="rtl" className="report-page space-y-5 animate-fade-in"><PageHeader title="تقرير الذمم والتحصيل" subtitle="المصدر لم يثبت بيانات قابلة للحساب في السياق الحالي." actions={<button type="button" onClick={() => void load()} className="btn-secondary text-xs">تحديث</button>} /><SourceBoundReportContext /><DataUnavailableState title="لا توجد ذمم مثبتة بعد" message="لا يتم عرض إجمالي أو رصيد بديل عند غياب السجلات. أضف مصدرًا موثوقًا ثم أعد المحاولة." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} /></div>;
   const totalPages = Math.max(1, Math.ceil(snapshot.total_rows / pageSize));
   const exportRows = async () => {
 
@@ -43,7 +46,7 @@ export function ReceivablesReportCanonicalPage() {
     <section className="rounded-2xl border border-primary-200 bg-primary-50/60 p-4" role="status" aria-live="polite" aria-busy={loading}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">TRUTH CONTEXT</div><div className="mt-1 text-sm font-black text-ink-950">حالة التقرير: {truthStatus}</div><div className="mt-1 text-[11px] leading-5 text-ink-600">{truthMessage}</div></div>
-        <Link to={snapshot.status === 'CALCULATED' ? '/trust' : '/import'} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-ink-950 px-3 py-2 text-[10px] font-black text-white">{snapshot.status === 'CALCULATED' ? 'فحص الثقة' : 'إضافة مصدر'}</Link>
+        <Link to={snapshot.status === 'CALCULATED' ? withImportContext('/trust') : '/import'} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-ink-950 px-3 py-2 text-[10px] font-black text-white">{snapshot.status === 'CALCULATED' ? 'فحص الثقة' : 'إضافة مصدر'}</Link>
       </div>
     </section>
     {error && <div role="alert" className="danger-callout text-xs font-semibold text-danger-800">{error}</div>}
