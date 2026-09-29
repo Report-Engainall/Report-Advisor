@@ -92,8 +92,9 @@ async function executeOne(file,ordinal,total,identity){
       status: 'processing',
       error_message: null,
       started_at: new Date().toISOString(),
-    }).eq('id', prior.id).eq('company_id', identity.companyId);
-    if (reset.error) throw reset.error;
+    }).eq('id', prior.id).eq('company_id', identity.companyId).select('id,status').single();
+    if (reset.error) throw new Error('RESUME_IMPORT_RESET_FAILED:' + JSON.stringify(reset.error));
+    if (!reset.data || reset.data.status !== 'processing') throw new Error('RESUME_IMPORT_RESET_NOT_APPLIED:' + JSON.stringify(reset.data ?? null));
     importId = prior.id;
   } else if (prior) {
     throw new Error('REPORT_ALREADY_OPEN:' + rel + ':' + prior.status);
@@ -170,6 +171,6 @@ const ledger={exact_sha:exactHead,corpus_root:relativePath(corpusRoot),corpus_co
 const save=async()=>{ledger.remaining=files.length-ledger.closed-ledger.review-ledger.blocked;await fs.writeFile(path.join(reportDir,'ledger.json'),JSON.stringify(ledger,null,2)+'\n');};
 console.log('REAL_REPORT_CORPUS_COUNT='+files.length);
 console.log('REAL_REPORT_CORPUS_START_INDEX='+startIndex);
-for(let i=startIndex;i<files.length;i+=1){ ledger.registered+=1; let record; try{record=await executeOne(files[i],i+1,files.length,identity);}catch(error){record={ordinal:i+1,total:files.length,path:relativePath(files[i]),filename:path.basename(files[i]),exact_sha:exactHead,status:'BLOCKED',blocker:error instanceof Error?error.message:String(error),completed_at:new Date().toISOString()}; await fs.writeFile(path.join(reportDir,String(i+1).padStart(3,'0')+'-checkpoint.json'),JSON.stringify(record,null,2)+'\n');} ledger.reports.push(record); if(record.status==='CLOSED'){ledger.closed+=1;ledger.processed+=1;}else if(record.status==='REVIEW')ledger.review+=1;else ledger.blocked+=1; await save(); console.log('REPORT_RESULT',JSON.stringify({ordinal:record.ordinal,total:files.length,path:record.path,status:record.status,importId:record.importId??null,executionJobId:record.executionJobId??null,blocker:record.blocker??null})); if(record.status!=='CLOSED'){ledger.status=record.status;ledger.finished_at=new Date().toISOString();await save();throw new Error('REPORT_STOPPED_AT_'+record.ordinal+':'+record.status+':'+(record.blocker||'unknown'));} }
+for(let i=startIndex;i<files.length;i+=1){ ledger.registered+=1; let record; try{record=await executeOne(files[i],i+1,files.length,identity);}catch(error){record={ordinal:i+1,total:files.length,path:relativePath(files[i]),filename:path.basename(files[i]),exact_sha:exactHead,status:'BLOCKED',blocker:error instanceof Error?error.message:(typeof error==='string'?error:JSON.stringify(error)),completed_at:new Date().toISOString()}; await fs.writeFile(path.join(reportDir,String(i+1).padStart(3,'0')+'-checkpoint.json'),JSON.stringify(record,null,2)+'\n');} ledger.reports.push(record); if(record.status==='CLOSED'){ledger.closed+=1;ledger.processed+=1;}else if(record.status==='REVIEW')ledger.review+=1;else ledger.blocked+=1; await save(); console.log('REPORT_RESULT',JSON.stringify({ordinal:record.ordinal,total:files.length,path:record.path,status:record.status,importId:record.importId??null,executionJobId:record.executionJobId??null,blocker:record.blocker??null})); if(record.status!=='CLOSED'){ledger.status=record.status;ledger.finished_at=new Date().toISOString();await save();throw new Error('REPORT_STOPPED_AT_'+record.ordinal+':'+record.status+':'+(record.blocker||'unknown'));} }
 ledger.status='PASS';ledger.finished_at=new Date().toISOString();await save();
 console.log('REAL_REPORT_CORPUS_PASS',JSON.stringify({exact_sha:exactHead,count:files.length,discovered:ledger.discovered,registered:ledger.registered,processed:ledger.processed,closed:ledger.closed,review:ledger.review,blocked:ledger.blocked,remaining:ledger.remaining},null,2));
