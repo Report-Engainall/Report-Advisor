@@ -57,6 +57,9 @@ jobs:
           set -euo pipefail
           node --input-type=module <<'NODE'
           import fs from 'node:fs/promises';
+          if (!('DOMMatrix' in globalThis)) Object.defineProperty(globalThis, 'DOMMatrix', { configurable: true, value: class DOMMatrix {} });
+          const mathWithPrecise = Math;
+          if (!('sumPrecise' in mathWithPrecise)) Object.defineProperty(Math, 'sumPrecise', { configurable: true, writable: true, value: (values) => { let total = 0; for (const value of values) total += Number(value) || 0; return total; } });
           const pdfjs = await import('file://' + process.cwd() + '/node_modules/pdfjs-dist/build/pdf.mjs');
           const fileName = 'اعمار الديون للعملا.pdf';
           const bytes = await fs.readFile('tests/fixtures/realistic-reports/' + fileName);
