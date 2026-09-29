@@ -952,6 +952,39 @@ function tryParseColumnMajorSupplierText(text: string): Row[] | null {
   }));
 }
 
+function tryParseBankStatementSummaryText(text: string): Row[] | null {
+  const normalized = normalizeArabicDigits(
+    stripControlCharacters(text.normalize('NFKC'))
+      .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
+  const markers = ['البيان', 'رقمه', 'المستند', 'التاريخ', 'العملة', 'الرصيد', 'دائن', 'مدين', 'رصيد سابق'];
+  const markerCount = markers.filter(marker => normalized.includes(marker)).length;
+  if (markerCount < 6) return null;
+
+  const accountNumber = normalized.match(/(?:رقم\s*الحساب|الحساب)\s*[:：]?\s*(\d{4,})/i)?.[1] ?? null;
+  const dates = [...normalized.matchAll(/\b\d{4}[-\/]\d{1,2}[-\/]\d{1,2}\b/g)].map(match => match[0]);
+  const currencyMatch = normalized.match(/(?:ريال\s+يمني|ريال\s+سعودي|YER|SAR|USD|EUR)/i)?.[0] ?? null;
+  const triplet = normalized.match(/(?:الرصيد|رصيد)\b[\s\S]{0,220}?([\d]{1,3}(?:,\d{3})*(?:\.\d+)?)\s+([\d]{1,3}(?:,\d{3})*(?:\.\d+)?)\s+([\d]{1,3}(?:,\d{3})*(?:\.\d+)?)/i);
+  if (!triplet) return null;
+
+  const balance = parseNumber(triplet[1]);
+  const credit = parseNumber(triplet[2]);
+  const debit = parseNumber(triplet[3]);
+  if (balance == null || credit == null || debit == null) return null;
+
+  return [{
+    description: accountNumber ? `كشف حساب ${accountNumber}` : 'كشف حساب',
+    date: dates.at(-1) ?? null,
+    currency: currencyMatch,
+    balance,
+    credit,
+    debit,
+    ...(accountNumber ? { account_number: accountNumber } : {}),
+  }];
+}
+
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   ensurePdfJsRuntimeCompatibility();
   const pdfBytes = new Uint8Array(buffer);
@@ -994,6 +1027,8 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     if (supplierColumnMajor && supplierColumnMajor.length >= 2) return [await buildDataset(supplierColumnMajor, fileName, 'pdf-column-major-supplier')];
     const receivablesColumnMajor = tryParseColumnMajorReceivablesText(pageText);
     if (receivablesColumnMajor && receivablesColumnMajor.length >= 2) return [await buildDataset(receivablesColumnMajor, fileName, 'pdf-column-major-receivables')];
+    const bankStatementSummary = tryParseBankStatementSummaryText(pageText);
+    if (bankStatementSummary) return [await buildDataset(bankStatementSummary, fileName, 'pdf-bank-statement-summary')];
     return buildTextDataset(pageText, fileName, 'pdf');
   }
   return parseScannedPdfWithOcr(pdf, fileName);
