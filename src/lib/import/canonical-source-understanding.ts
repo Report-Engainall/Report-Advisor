@@ -179,7 +179,7 @@ export function understandCanonicalSource(datasets: Dataset[]): CanonicalSourceU
     ? Math.min(Math.round(weightedQuality), ...cleanedDatasets.map((dataset) => Math.round(dataset.qualityScore)))
     : 0;
   const aggregateScores = new Map<CanonicalImportSpecialty, number>();
-  for (const dataset of datasets) {
+  for (const dataset of cleanedDatasets) {
     const scored = scoreDataset(dataset);
     for (const [specialty, score] of scored.scores) {
       aggregateScores.set(specialty, (aggregateScores.get(specialty) ?? 0) + score);
@@ -192,8 +192,8 @@ export function understandCanonicalSource(datasets: Dataset[]): CanonicalSourceU
     : 0;
   const warnings: string[] = [];
   const mixedSpecialtySource = new Set(summaries.map((summary) => summary.specialty)).size > 1;
-  const entityType = mixedSpecialtySource ? 'generic:source-data' : inferEntityType(specialty, datasets);
-  const missingCanonicalFields = missingCanonicalWriteFields(specialty, datasets);
+  const entityType = mixedSpecialtySource ? 'generic:source-data' : inferEntityType(specialty, cleanedDatasets);
+  const missingCanonicalFields = missingCanonicalWriteFields(specialty, cleanedDatasets);
   if (cleanedDatasets.length > 1) warnings.push('MULTI_DATASET_SOURCE:' + cleanedDatasets.length);
   if (mixedSpecialtySource) {
     warnings.push('MULTI_SPECIALTY_SOURCE_REQUIRES_GENERIC_CANONICAL_BOUNDARY');
