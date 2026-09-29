@@ -28,3 +28,73 @@ jobs:
         run: node scripts/check-query-export-coverage.mjs
       - name: Run certification boundary test-of-test suite
         run: node scripts/check-certification-boundary-integrity.test.mjs
+  real-report-corpus:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    env:
+      EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${EXACT_HEAD}"
+          test -z "$(git status --porcelain)"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install repository dependencies
+        run: npm ci
+      - name: Install Playwright
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save --package-lock=false playwright
+          npx playwright install --with-deps chromium
+      - name: Build exact candidate
+        run: npm run build
+      - name: Start exact candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/report-advisor-vite.log 2>&1 &
+          echo $! > /tmp/report-advisor-vite.pid
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/report-advisor-vite.log
+          exit 1
+      - name: Execute real report corpus
+        shell: bash
+        env:
+          E2E_BASE_URL: http://127.0.0.1:4173
+          E2E_REPORT_DIR: artifacts/real-report-corpus
+          TEST_USER_A_EMAIL: ${{ secrets.TEST_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.TEST_USER_A_PASSWORD }}
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          EXACT_HEAD: ${{ env.EXACT_HEAD }}
+          REAL_REPORT_CORPUS_ROOT: tests/fixtures/realistic-reports
+        run: node scripts/real-report-corpus-e2e.mjs
+      - name: Upload real report corpus evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-advisor-real-report-corpus-${{ env.EXACT_HEAD }}
+          path: |
+            artifacts/real-report-corpus
+            /tmp/report-advisor-vite.log
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Stop exact candidate
+        if: always()
+        shell: bash
+        run: |
+          if [ -f /tmp/report-advisor-vite.pid ]; then kill "$(cat /tmp/report-advisor-vite.pid)" 2>/dev/null || true; fi
