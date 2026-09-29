@@ -150,11 +150,30 @@ export function SourceDomainReportPage() {
 
     if (report?.specialty === 'receivables') {
       const outstanding = sum('outstanding_balance');
+      const ageKeys = ['age_0_30', 'age_31_60', 'age_61_90', 'age_91_120', 'age_over_120'];
+      const availableAgeKeys = ageKeys.filter((key) => mapped.has(key));
       const overdue = sum('age_31_60') + sum('age_61_90') + sum('age_91_120') + sum('age_over_120');
+      const agedTotal = availableAgeKeys.reduce((total, key) => total + sum(key), 0);
+      const uncoveredBalance = outstanding - agedTotal;
+      const ageCoverageComplete = availableAgeKeys.length === ageKeys.length;
       if (outstanding > 0) findings.push(`الرصيد المستحق الظاهر في المصدر = ${formatCurrency(outstanding)}.`);
-      if (overdue > 0) findings.push(`يوجد رصيد في شرائح ما بعد 30 يومًا = ${formatCurrency(overdue)}؛ يلزم مراجعة أعمار التحصيل على مستوى الصفوف.`);
+      if (sum('age_0_30') > 0) findings.push(`الرصيد في شريحة 0–30 يومًا = ${formatCurrency(sum('age_0_30'))}.`);
+      if (sum('age_over_120') > 0) findings.push(`الرصيد في شريحة أكثر من 120 يومًا = ${formatCurrency(sum('age_over_120'))}.`);
+      if (overdue > 0 && ageCoverageComplete) findings.push(`يوجد رصيد كامل التغطية في شرائح ما بعد 30 يومًا = ${formatCurrency(overdue)}؛ يلزم مراجعة التحصيل على مستوى الصفوف.`);
       if (outstanding === 0) findings.push('لا يوجد رصيد مستحق رقمي مؤكد من الصفوف المصدرية المتاحة.');
-      decisionCandidates.push(overdue > 0 ? 'مرشح مراجعة تحصيل للشرائح المتأخرة؛ ليس قرارًا تنفيذيًا تلقائيًا.' : 'لا توجد إشارة تحصيل متأخرة مثبتة من هذا المصدر.');
+      if (!ageCoverageComplete && availableAgeKeys.length > 0) {
+        adminChecks.push(`تغطية أعمار الذمم جزئية: ${formatNumber(availableAgeKeys.length)}/${formatNumber(ageKeys.length)} شرائح متاحة؛ لا يجوز اعتبار الرصيد المتأخر الإجمالي مكتمل التغطية.`);
+      }
+      if (outstanding > 0 && availableAgeKeys.length > 0 && Math.abs(uncoveredBalance) > Math.max(1, outstanding * 0.01)) {
+        adminChecks.push(`فرق بين الرصيد المستحق وإجمالي شرائح الأعمار المتاحة = ${formatCurrency(uncoveredBalance)}؛ يحتاج مطابقة المصدر قبل أي قرار تحصيلي.`);
+      }
+      decisionCandidates.push(
+        !ageCoverageComplete && availableAgeKeys.length > 0
+          ? 'مرشح مراجعة أعمار التحصيل مع حالة تغطية جزئية؛ لا يُحوّل إلى قرار تنفيذي قبل استكمال الشرائح.'
+          : overdue > 0
+            ? 'مرشح مراجعة تحصيل للشرائح المتأخرة؛ ليس قرارًا تنفيذيًا تلقائيًا.'
+            : 'لا توجد إشارة تحصيل متأخرة مثبتة من هذا المصدر.',
+      );
       actions.push('مراجعة العملاء/الحسابات ذات الرصيد المتأخر قبل أي إجراء تحصيلي.');
       adminChecks.push(`صفوف المصدر: ${formatNumber(rows.length)}؛ الصفوف التي تحمل هوية عميل أو اسم عميل: ${formatNumber(countPresent(['customer_id','customer_name']))}.`);
     } else if (report?.specialty === 'sales') {

@@ -23,6 +23,9 @@ for(const token of ['fetchCanonicalSourceReport','fetchReportExecutionTasks','SO
 for(const token of ['الملخص التنفيذي','الإشارات الذكية','الرقابة الإدارية','مرشحات القرار','إجراءات المتابعة','القيود وحالة المقارنة','EVIDENCE-BOUND'])
   assert(domainReport.includes(token),`Evidence-bound downstream output missing: ${token}`);
 
+for(const token of ['age_0_30','age_31_60','age_61_90','age_91_120','age_over_120','ageCoverageComplete','تغطية أعمار الذمم جزئية','فرق بين الرصيد المستحق وإجمالي شرائح الأعمار المتاحة'])
+  assert(domainReport.includes(token),`Receivables aging coverage guard missing: ${token}`);
+
 for(const token of ['executionJobId','export interface ReportExecutionTask','report_execution_tasks','order('])
   assert(queries.includes(token),`Report execution query contract missing: ${token}`);
 
