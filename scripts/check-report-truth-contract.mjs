@@ -89,6 +89,15 @@ for (const file of asOfGuardFiles) {
     throw new Error('Report truth contract forbids synthetic current-date As Of in ' + file);
   }
 }
+
+for (const [file, marker] of [
+  ['src/pages/AnalyticsPage.tsx', '<SourceBoundReportContext />'],
+  ['src/pages/ReceivablesReportCanonicalPage.tsx', '<SourceBoundReportContext />'],
+]) {
+  const body = fs.readFileSync(path.join(root, file), 'utf8');
+  if (!body.includes(marker)) throw new Error('Imported-source reporting surface lost source-bound context: ' + file);
+}
+
 const sourceBoundContext = fs.readFileSync(path.join(root, 'src', 'components', 'SourceBoundReportContext.tsx'), 'utf8');
 if (!sourceBoundContext.includes('manifest.outputs.map')) {
   throw new Error('Source-bound report context must expose rendered output links');
