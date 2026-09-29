@@ -1,20 +1,17 @@
-# CURRENT RESUME CHECKPOINT — 2026-09-30 / REPORT-FIRST 735-ROW FRONT — CURRENT MAIN RECONCILED
+# CURRENT RESUME CHECKPOINT — 2026-09-30 / 735-ROW REPORT FRONT — TENANT GATE ROOT FIX
 
-- CURRENT EXACT MAIN HEAD → `41a535faf29fb408fe06b1328ea0374bfc50ee56`.
-- CURRENT CODE/TEST CANDIDATE → `41a535faf29fb408fe06b1328ea0374bfc50ee56`.
-- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`.
-- REPORT IMPORT → `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
+- CURRENT EXACT MAIN HEAD → `4dcfbbc87b4acc9f95b7e0f3b35a71c42c366654`.
+- CURRENT CODE/TEST CANDIDATE → `4dcfbbc87b4acc9f95b7e0f3b35a71c42c366654`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf` / import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
 - SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
-- CURRENT REPORT STATE → `BLOCKED` for authenticated runtime closure; do not mark `CLOSED`.
-- ROOT REPAIRS PERSISTED → durable rendered-output recovery + source-bound result UI + deterministic source metrics.
-- CURRENT-SHA CI REPAIR PERSISTED → duplicate `workCenter` declaration in `scripts/check-product-wow-ui-contract.mjs` removed after exact workflow log reproduced it as the sole lint error blocking the 20-stage readiness gate.
-- CURRENT ACTION STATUS → `IN_PROGRESS`.
-- LAST VERIFIED STATE → exact GitHub workflow on prior candidate built successfully and failed only on the duplicate Work Center lint declaration; the current candidate now contains that correction. Fresh workflow evidence for the new SHA is required.
-- NEXT EXACT ACTION → consume the first terminal current-SHA workflow failure/success; repair only a reproduced failure. Then use the existing canonical authenticated recovery path for this same 735-row report and verify database rows, renderedOutput/evidence, source metrics, and UI before closure.
-- REAL RUNTIME BLOCKER → authenticated tenant/browser/device proof remains unavailable while PC01 is offline; no browser/production PASS claimed.
-- DO-NOT-REPEAT → stale functional-branch proof, old-SHA status, 397/1998-row sources as substitutes for this front, synthetic fixture substitution, blind retries, manual DB row deletion/terminalization, duplicate pipeline creation.
+- STAGING READBACK → `735` canonical rows for the import; analysis snapshot `analyzed` / PDF / quality `87`; import job remains `processing` at 0/735; durable execution is `completed/rendered` but persisted rendered evidence is incomplete.
+- ACTION STATUS → `IN_PROGRESS`.
+- LAST VERIFIED CI ROOT → exact workflow logs showed one lint error in the UI contract; that error was fixed. The next reproduced blocker was the tenant legacy-consumer guard flagging the canonical adapter; the adapter now names and carries server-authoritative tenant identity explicitly as `authoritativeCompanyId`.
+- NEXT EXACT ACTION → consume fresh current-head CI. If clean, resume the same authenticated canonical runtime for this source and verify the durable recovery/result UI end-to-end. Do not close on database rows alone.
+- RUNTIME BLOCKER → PC01 offline; authenticated tenant/browser proof unavailable. No browser/production PASS claimed.
 - NEXT REPORT → none.
-- RESUME STATUS → `ACTIVE / REPORT-FIRST / 735-ROW SOURCE / CI ROOT FIX PERSISTED / RUNTIME PROOF OPEN`.
+- DO-NOT-REPEAT → old-SHA evidence, substitute reports, blind retries, manual DB terminalization/deletion, duplicate import paths.
+- RESUME STATUS → `ACTIVE / REPORT-FIRST / 735-ROW / TENANT GATE FIXED / RUNTIME PROOF OPEN`.
 
 ---
 

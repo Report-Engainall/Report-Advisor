@@ -1,19 +1,20 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-30 / EXACT MAIN — REPORT RESULT + DURABLE RECOVERY + CURRENT CI ROOT FIX
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / EXACT MAIN — REPORT RESULT + DURABLE RECOVERY + TENANT GATE ROOT FIX
 
-- MAIN EXACT HEAD → `41a535faf29fb408fe06b1328ea0374bfc50ee56`.
-- CURRENT CODE/TEST CANDIDATE → `41a535faf29fb408fe06b1328ea0374bfc50ee56`.
+- MAIN EXACT HEAD → `4dcfbbc87b4acc9f95b7e0f3b35a71c42c366654`.
+- CURRENT CODE/TEST CANDIDATE → `4dcfbbc87b4acc9f95b7e0f3b35a71c42c366654`.
 - REPORT-FIRST FRONT → staging import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / `تسعيرة الاصناف حسب رقم الصنف.pdf`.
 - SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
-- PRE-FIX REAL STATE → 735 canonical rows committed; durable execution job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0` reached `completed/rendered` with no rendered-output payload persisted; `import_jobs` remained `processing`.
-- CANONICAL ROOT FIX → durable runner persists rendered-stage output; canonical adapter verifies commit readback, finalizes open import jobs through the canonical `import_finish_job` boundary, and safely recovers an already-completed durable job.
-- RESULT-SURFACE FIX → existing canonical Import result now exposes deterministic source metrics and source-bound Executive/Evidence/Decision/Work Center/domain output surfaces without manufacturing outcome/benchmark values.
-- CURRENT CI ROOT FIX → exact-head lint failure was reproduced from workflow logs at `scripts/check-product-wow-ui-contract.mjs:231` as a duplicate `workCenter` declaration; the redundant declaration was removed in this exact candidate.
-- REPORT STATE → `BLOCKED`, not `CLOSED`. Code fix is persisted; authenticated tenant/runtime proof is still required for report closure.
-- GITHUB FIXTURE CORPUS → exact-head recursive discovery finds `0` supported report files in `tests/fixtures/realistic-reports/`; no non-README report is currently present on `41a535faf29fb408fe06b1328ea0374bfc50ee56`.
-- DEVICE / HOSTING → PC01 offline; Vercel deployment-rate limited; Netlify source-deploy unavailable from this workspace; no authenticated Edge/device PASS claimed.
-- NEXT EXACT ACTION → consume terminal workflows for `41a535faf29fb408fe06b1328ea0374bfc50ee56`, repair only the first reproduced current-SHA failure, then execute/recover the same 735-row source through the canonical authenticated runtime and read back DB + rendered evidence + UI before closure.
-- NEXT REPORT → none. Remain on this report until closure or a newly proven hard blocker.
-- DO-NOT-REPEAT → stale PR #662/#663 evidence, old-SHA PASS, the 1998-row staging source as a substitute, synthetic fixtures as real reports, blind retry of the completed 735-row job, manual terminalization, or duplicate import/report pipelines.
+- REAL STAGING READBACK → `import_jobs` is still `processing` with `0/735` processed; canonical rows for this import are `735`; source-analysis snapshot is `analyzed`, format `pdf`, quality `87`, row_count `735`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0` is `completed` at `rendered` with lineage `735`, but its persisted evidence contains no `renderedOutput`.
+- CANONICAL ROOT FIX → durable runner persists rendered-stage output, verifies canonical commit readback, finalizes open import jobs through canonical `import_finish_job`, and recovers already-completed durable jobs safely.
+- RESULT-SURFACE FIX → existing canonical Import result exposes deterministic source metrics and source-bound Executive/Evidence/Decision/Work Center/domain surfaces, with outcome/learning/benchmark fail-closed.
+- CURRENT CI ROOT FIXES → duplicate Work Center contract binding removed; canonical tenant authority is now explicitly named `authoritativeCompanyId` throughout the server-side tenant-scoped adapter path. No static `companyId` tenant filter remains in that adapter.
+- CURRENT REPORT STATE → `BLOCKED`, not `CLOSED`.
+- EXACT-SHA PROOF → on prior current candidate the build/typecheck path passed; lint failed on one duplicate declaration and is now repaired. Exact workflow proof for this new tenant fix is pending/required.
+- RUNTIME BLOCKER → authenticated tenant/browser/device proof is unavailable while PC01 is offline; no Edge PASS or production PASS is claimed.
+- GITHUB FIXTURE CORPUS → exact-main `tests/fixtures/realistic-reports/` still has `0` supported report inputs. The staging/library report remains the active real front and is not being counted as GitHub corpus.
+- NEXT EXACT ACTION → consume current-SHA CI results for `4dcfbbc87b4acc9f95b7e0f3b35a71c42c366654`, repair only the first reproducible failure, then execute/recover the same 735-row source through the authenticated canonical server boundary and verify DB + rendered evidence + UI before closure.
+- NEXT REPORT → none.
+- DO-NOT-REPEAT → old-SHA PASS, stale PR proof, 397/1998-row substitute sources, synthetic fixtures, blind retry, manual terminalization/deletion, duplicate pipelines, or tenant-gate suppression.
 
 ---
 
