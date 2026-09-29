@@ -74,6 +74,9 @@ jobs:
             for(const line of lines.slice(0,22)) console.log('LINE '+line.y.toFixed(2)+' :: '+line.items.map(i=>i.str).join(' | '));
           }
           NODE
+      - name: Decode العامري embedded Cairo font cmap
+        shell: bash
+        run: node scripts/debug-pdf-cairo-cmap.mjs
       - name: Normalize and execute real report corpus
         shell: bash
         env:
