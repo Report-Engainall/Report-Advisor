@@ -1078,50 +1078,93 @@ export function tryParseSupplierOpeningBalanceText(text: string): Row[] | null {
     return /^-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:[.,]\d+)?$/.test(normalizedValue)
       && parseNumber(normalizedValue) !== null;
   };
+  const isCurrency = (value: string): boolean => currencyPattern.test(value) || arabicCurrencyPattern.test(value);
   const normalizeCurrency = (value: string): string => {
     const normalizedCurrency = value.replace(/\s+/g, ' ').trim().toUpperCase();
     if (normalizedCurrency === 'ر.س' || /ريال\s+سعودي/i.test(normalizedCurrency)) return 'SAR';
     if (/ريال\s+يمني/i.test(normalizedCurrency)) return 'YER';
     return normalizedCurrency;
   };
+  const stripReportHeaderTokens = (value: string): string =>
+    value
+      .replace(/(?:PAGE\s+\d+|التجميع\s+بحسب|رقم\s+المورد|رقم\s+الحساب|الرصيد\s+الافتتاحي|الرصيد\s+اﻹفتتاحي|العملة|دائن|مدين|الاسم|الرقم)/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
 
-  const starts: number[] = [];
+  type RowStart = { index: number; orientation: 'forward' | 'reverse' };
+  const starts: RowStart[] = [];
+
+  // Canonical row order used by left-to-right PDFs.
   for (let index = 0; index + 2 < tokens.length; index += 1) {
-    const amountToken = tokens[index];
-    const supplierToken = tokens[index + 1];
-    const currencyToken = tokens[index + 2];
-    if (!isAmount(amountToken) || !isSupplierId(supplierToken)) continue;
-    if (!(currencyPattern.test(currencyToken) || arabicCurrencyPattern.test(currencyToken))) continue;
-    starts.push(index);
+    if (isAmount(tokens[index]) && isSupplierId(tokens[index + 1]) && isCurrency(tokens[index + 2])) {
+      starts.push({ index, orientation: 'forward' });
+    }
   }
+
+  // RTL/placement-grouped PDFs commonly arrive as:
+  // account_name → account_number → supplier_name → currency → supplier_id → amount
+  for (let index = 0; index + 2 < tokens.length; index += 1) {
+    if (isCurrency(tokens[index]) && isSupplierId(tokens[index + 1]) && isAmount(tokens[index + 2])) {
+      starts.push({ index, orientation: 'reverse' });
+    }
+  }
+
+  starts.sort((a, b) => a.index - b.index || (a.orientation === 'forward' ? -1 : 1));
   if (starts.length < 5) return null;
 
   const rows: Row[] = [];
-  for (let index = 0; index < starts.length; index += 1) {
-    const startIndex = starts[index];
-    const endIndex = starts[index + 1] ?? tokens.length;
-    const amount = parseNumber(tokens[startIndex]);
-    const supplierId = Number(normalizeArabicDigits(tokens[startIndex + 1]));
-    const currency = normalizeCurrency(tokens[startIndex + 2]);
+  for (let cursor = 0; cursor < starts.length; cursor += 1) {
+    const current = starts[cursor];
+    const next = starts[cursor + 1];
+    const endIndex = next?.index ?? tokens.length;
+
+    if (current.orientation === 'forward') {
+      const amount = parseNumber(tokens[current.index]);
+      const supplierId = Number(normalizeArabicDigits(tokens[current.index + 1]));
+      const currency = normalizeCurrency(tokens[current.index + 2]);
+      if (amount == null || !Number.isFinite(supplierId)) continue;
+
+      const segmentTokens = tokens.slice(current.index + 3, endIndex);
+      const accountIndex = segmentTokens.findIndex(isAccountNumber);
+      if (accountIndex < 1) continue;
+
+      const supplierName = segmentTokens.slice(0, accountIndex).join(' ').trim();
+      const accountNumber = normalizeArabicDigits(segmentTokens[accountIndex]);
+      const accountName = stripReportHeaderTokens(segmentTokens.slice(accountIndex + 1).join(' '))
+        .split(/(?:إجمالي\s+حسب\s+العملة|الاجمالي\s+الكلي|عدد\s+السج\w*|رصيد\s+(?:دائن|مدين))/i)[0]
+        .trim();
+      if (!supplierName || !accountName) continue;
+
+      rows.push({
+        supplier_id: supplierId,
+        supplier_name: supplierName,
+        currency,
+        opening_balance: amount,
+        account_number: accountNumber,
+        account_name: accountName,
+      });
+      continue;
+    }
+
+    const currency = normalizeCurrency(tokens[current.index]);
+    const supplierId = Number(normalizeArabicDigits(tokens[current.index + 1]));
+    const amount = parseNumber(tokens[current.index + 2]);
     if (amount == null || !Number.isFinite(supplierId)) continue;
 
-    const segmentTokens = tokens.slice(startIndex + 3, endIndex);
-    const accountIndex = segmentTokens.findIndex(isAccountNumber);
-    if (accountIndex < 1) continue;
+    const segmentTokens = tokens.slice(Math.max(0, current.index - 24), current.index);
+    const accountIndexFromEnd = [...segmentTokens].map((token, index) => ({ token, index })).reverse().find(entry => isAccountNumber(entry.token));
+    if (!accountIndexFromEnd) continue;
+    const accountIndex = accountIndexFromEnd.index;
+    const accountName = stripReportHeaderTokens(segmentTokens.slice(Math.max(0, accountIndex - 8), accountIndex).join(' '));
+    const supplierName = stripReportHeaderTokens(segmentTokens.slice(accountIndex + 1).join(' '));
+    if (!accountName || !supplierName) continue;
 
-    const supplierName = segmentTokens.slice(0, accountIndex).join(' ').trim();
-    const accountNumber = normalizeArabicDigits(segmentTokens[accountIndex]);
-    const accountName = segmentTokens.slice(accountIndex + 1).join(' ').trim()
-      .split(/(?:إجمالي\s+حسب\s+العملة|الاجمالي\s+الكلي|عدد\s+السج\w*|رصيد\s+(?:دائن|مدين))/i)[0]
-      .trim();
-
-    if (!supplierName || !accountName) continue;
     rows.push({
       supplier_id: supplierId,
       supplier_name: supplierName,
       currency,
       opening_balance: amount,
-      account_number: accountNumber,
+      account_number: normalizeArabicDigits(segmentTokens[accountIndex]),
       account_name: accountName,
     });
   }
