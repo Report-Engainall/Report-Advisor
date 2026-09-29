@@ -1,3 +1,17 @@
+# RESUME TOKEN — 2026-09-29 07:58 +03:00 / CURRENT HEAD 31d2091d / REPORT_001 CLOSED / FULL CORPUS RUNNING
+
+- CURRENT EXACT HEAD: 31d2091de5af67f6e7177224c0675ffd4d1de980
+- FUNCTIONAL CANDIDATE: 2e950c48544edb4c20e1c0e00eb9bde6f2a697e7
+- REPORT-FIRST STATUS: REPORT_001 CLOSED by exact-head Full Product Browser E2E run 36521493399 on functional candidate 2e950c48.
+- REPORT_001 PROOF: import job 6de27d0f-98bb-4d1b-8143-fd3d9a85a4b8; 27/27 valid; execution job 174196b5-42cf-4654-9721-13ac8d5a29db; source report VERIFIED; all 9 durable stages completed; domain rendered; evidence/decision/work-center output links present; Benchmark INSUFFICIENT SAMPLE; tenant A/B canonical and UI isolation PASS.
+- IMPORTANT LIMIT: the preceding PASS covered REPORT_001 only. It is not a corpus PASS.
+- HARNESS FIX NOW ON EXACT HEAD: full corpus mode discovers the real report candidates dynamically, processes all discovered candidates when no explicit max is supplied, requires at least 40 candidates, and enforces processed=discovered=closed with zero failed/review.
+- CORPUS FACT: filesystem has 48 entries including README.md; executable report candidate set is 47 because README.md is excluded. REPORT_001 CLOSED => REMAINING=46.
+- CURRENT REPORT COUNTS: CLOSED=1 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=46.
+- CURRENT RESUME POINTER: exact-head Full Product Browser E2E over all 47 executable report candidates.
+- NEXT EXACT ACTION: consume terminal full-corpus artifact; inspect every per-report artifact and close the report front only if discovered=processed=closed=47 and failed=review=0. First report-specific failure controls the next repair.
+- DO-NOT-REPEAT: never count README.md as a report; never treat one-report PASS as full-corpus PASS; no stale SHA proof; no direct DB injection; no duplicate importer path.
+---
 # RESUME TOKEN — 2026-09-29 07:52 +03:00 / REPORT_001 CLOSED / FULL DISCOVERED CORPUS NEXT
 
 - CURRENT EXACT HEAD: 51cbce1cf8527441d49a97a10b6521cc6a513111
