@@ -426,6 +426,7 @@ type PromiseConstructorWithTry = PromiseConstructor & { try?: (fn: (...args: unk
 type Uint8ArrayWithToHex = Uint8Array & { toHex?: () => string };
 
 function ensurePdfJsRuntimeCompatibility(): void {
+  if (!('DOMMatrix' in globalThis)) Object.defineProperty(globalThis, 'DOMMatrix', { configurable: true, value: class DOMMatrix {} });
   const uint8ArrayPrototype = Uint8Array.prototype as Uint8ArrayWithToHex;
   if (typeof uint8ArrayPrototype.toHex !== 'function') {
     Object.defineProperty(Uint8Array.prototype, 'toHex', {
@@ -452,7 +453,7 @@ function ensurePdfJsRuntimeCompatibility(): void {
 
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   ensurePdfJsRuntimeCompatibility();
-  const pdfjs = typeof window === 'undefined' ? await import('pdfjs-dist/legacy/build/pdf.mjs') : await import('pdfjs-dist');
+  const pdfjs = await import('pdfjs-dist');
   if (typeof window !== 'undefined') {
     pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   }
