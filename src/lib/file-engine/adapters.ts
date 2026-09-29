@@ -219,7 +219,7 @@ async function buildTextDataset(
     // Only native PDF text is structurally trusted at extraction time. OCR retains
     // its real confidence and can never be upgraded to trusted by the structured path.
     if (sourceType === 'pdf' && structurallyVerified) dataset.qualityScore = Math.max(dataset.qualityScore, 95);
-    if (confidenceFloor != null) dataset.qualityScore = Math.min(dataset.qualityScore, Math.round(confidenceFloor));
+    if (confidenceFloor != null) dataset.qualityScore = sourceType === 'pdf-ocr' ? Math.min(100, Math.round(confidenceFloor)) : Math.min(dataset.qualityScore, Math.round(confidenceFloor));
     if (warning) dataset.columns.forEach((column) => column.qualityIssues.push(warning));
     return [dataset];
   }
