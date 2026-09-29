@@ -865,12 +865,16 @@ function normalizedPdfRowValue(row: Row, pattern: RegExp): string {
 }
 
 export function isPdfBusinessTableRow(row: Row): boolean {
-  const invoiceNumber = normalizedPdfRowValue(row, /(?:رقم\s*(?:الفاتورة|فاتورة|المستند)|invoice\s*(?:number|no\.?)|document\s*no)/i);
-  const invoiceDate = normalizedPdfRowValue(row, /(?:التاريخ|تاريخ\s*الفاتورة|invoice\s*date|date)/i);
-  const customerName = normalizedPdfRowValue(row, /(?:اسم\s*العميل|العميل|customer\s*name)/i);
+  const invoiceFieldPattern = /(?:رقم\s*(?:الفاتور[هة]|فاتور[هة]|المستند)|invoice\s*(?:number|no\.?)|document\s*no)/i;
+  const invoiceDatePattern = /(?:التاريخ|تاريخ\s*الفاتور[هة]|invoice\s*date|date)/i;
+  const customerNamePattern = /(?:اسم\s*العميل|العميل|customer\s*name)/i;
+
+  const invoiceNumber = normalizedPdfRowValue(row, invoiceFieldPattern);
+  const invoiceDate = normalizedPdfRowValue(row, invoiceDatePattern);
+  const customerName = normalizedPdfRowValue(row, customerNamePattern);
 
   const invoiceFieldExists = Object.keys(row).some((candidate) =>
-    /(?:رقم\s*(?:الفاتورة|فاتورة|المستند)|invoice\s*(?:number|no\.?)|document\s*no)/i.test(normalizeColumnName(candidate)),
+    invoiceFieldPattern.test(normalizeColumnName(candidate)),
   );
 
   if (!invoiceFieldExists) return true;
