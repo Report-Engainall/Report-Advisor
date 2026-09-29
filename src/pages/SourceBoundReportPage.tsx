@@ -94,7 +94,7 @@ function domainLabel(domain: ReportDomain): string {
 export function normalizeDomain(value: string | null | undefined, sourceName?: string | null): ReportDomain {
   const semantic = String(value ?? '').toLowerCase();
   const file = String(sourceName ?? '').toLowerCase();
-  const raw = \`${file} ${semantic}\`;
+  const raw = `${file} ${semantic}`;
 
   if (/ف العملاء الاجل|ديون العملاء|اعمار الديون للعملا|المبلغ المتبقي|ذمم/.test(raw)) return 'receivables';
   if (/تقارير ادارية للمورد|اعمار الديون للمورد|الموردين|المورد/.test(raw)) return 'suppliers';
