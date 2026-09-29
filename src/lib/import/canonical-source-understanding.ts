@@ -8,6 +8,7 @@ export type CanonicalImportSpecialty =
   | 'suppliers'
   | 'products'
   | 'payments'
+  | 'receivables'
   | 'other';
 
 export interface CanonicalDatasetSummary {
@@ -43,6 +44,7 @@ const SIGNALS: SpecialtySignals = {
   suppliers: ['supplier_id', 'supplier_name', 'vendor_id', 'vendor_name'],
   products: ['sku', 'product_name', 'barcode', 'price', 'unit_price', 'cost'],
   payments: ['payment_id', 'payment_date', 'payment_amount', 'paid_amount', 'payment_method', 'bank'],
+  receivables: ['age_0_30', 'age_31_60', 'age_61_90', 'age_91_120', 'age_over_120', 'outstanding_balance', 'due_date', 'customer_id', 'customer_name'],
   other: [],
 };
 
@@ -83,6 +85,7 @@ const CANONICAL_WRITE_FIELDS: CanonicalWriteFields = {
   inventory: [['product_id', 'sku', 'product_name'], 'quantity'],
   suppliers: ['name'],
   payments: [['payment_id', 'reference'], 'payment_date', 'payment_amount', 'direction'],
+  receivables: [],
   other: [],
 };
 
