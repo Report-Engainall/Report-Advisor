@@ -1,3 +1,18 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / POST-IMPORT REPORT CONTINUITY
+
+- EXACT MAIN BASE → `1b0d25a7834c779198f9ad19039c87e1262c4cd3`.
+- CURRENT CODE/TEST CANDIDATE → PR #677 / `exec/20260929-report-post-import-continuity` / `cb5be214ae8aaf089355f133dc9a31a982f903c6`.
+- FUNCTIONAL FRONT → REPORT-FIRST / POST-IMPORT REPORT CONTINUITY.
+- IMPLEMENTED → existing universal ingestion planner now classifies imported headers; existing dependency graph derives affected intelligence nodes; canonical Import result now exposes existing Executive, applicable Domain, Trust/Evidence, Decision, Work Center, Outcome/Learning, and Benchmark continuity surfaces.
+- FAIL-CLOSED → unknown report type does not invent a specialty; Outcome and Benchmark are navigational surfaces only and do not assert an outcome/benchmark without evidence.
+- CANONICAL PATH → no duplicate importer/RPC/runner/workflow was introduced; existing `runCanonicalImportThroughDurableRunner` remains the execution path.
+- KNOWN LIMIT → current canonical DB commit contract still has concrete domain writers only for products/customers/sales_invoices; other classified report types remain generic canonical data until a real domain writer/analytical projection is proven.
+- DEVICE → PC01 is currently offline; Edge/device runtime proof is therefore NOT PROVEN.
+- TEST STATE → exact-head CI is running; no stale PASS is transferred.
+- NEXT EXACT ACTION → consume exact-head CI; repair only the first reproducible current-SHA failure; then load the first real report fixture available on the connected device and execute its full report lifecycle to rendered UI/evidence.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / WORKER RPC TEST CONTRACT RECONCILED
 
 - MAIN EXACT CONTROL HEAD BEFORE THIS WRITE → `42f1e861cf0a68279e446045b16100a94b9a3143`.
