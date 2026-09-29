@@ -1,0 +1,83 @@
+name: Realistic Report — Full 47-File Microsoft Edge E2E
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tests/fixtures/realistic-reports/**'
+      - 'src/pages/CanonicalImportPage.tsx'
+      - 'src/pages/ImportedReportResultPage.tsx'
+      - 'src/lib/file-engine/**'
+      - 'src/lib/import/**'
+      - 'src/lib/import-pipeline/**'
+      - 'src/lib/report-execution/**'
+      - 'scripts/run-realistic-report-corpus-e2e.mjs'
+      - '.github/workflows/realistic-report-corpus-e2e.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  corpus-e2e:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ env.EXACT_HEAD }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact checkout
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXACT_HEAD"
+          test -z "$(git status --porcelain)"
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --include=dev --no-audit --no-fund
+      - run: npm install --no-save --ignore-scripts playwright@1.55.0
+      - name: Install Microsoft Edge
+        run: npx playwright install msedge --with-deps
+      - name: Build exact HEAD
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        run: npm run build
+      - name: Start exact-head preview
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          nohup npm run preview -- --host 127.0.0.1 --port 4173 >/tmp/aghbari-real-report-corpus.log 2>&1 &
+          for i in {1..60}; do
+            curl -fsS http://127.0.0.1:4173/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/aghbari-real-report-corpus.log
+          exit 1
+      - name: Execute every realistic report in deterministic order
+        env:
+          E2E_BASE_URL: http://127.0.0.1:4173
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          EXACT_HEAD: ${{ env.EXACT_HEAD }}
+          E2E_REPORT_DIR: artifacts/realistic-report-corpus-e2e
+        run: node scripts/run-realistic-report-corpus-e2e.mjs
+      - name: Upload corpus evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: realistic-report-corpus-edge-${{ env.EXACT_HEAD }}
+          path: artifacts/realistic-report-corpus-e2e
+          if-no-files-found: warn
