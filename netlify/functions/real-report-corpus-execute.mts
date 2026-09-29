@@ -245,11 +245,10 @@ export default async (request: Request): Promise<Response> => {
 
     await verifyGitHubOidc(authorization.slice(7).trim(), expectedSha);
 
-    const { supabaseUrl, anonKey, serviceRoleKey } = {
-      supabaseUrl: env('VITE_SUPABASE_URL'),
-      anonKey: env('VITE_SUPABASE_ANON_KEY'),
-      serviceRoleKey: env('SUPABASE_SERVICE_ROLE_KEY'),
-    };
+    const supabaseUrl = env('VITE_SUPABASE_URL');
+    const anonKey = env('VITE_SUPABASE_ANON_KEY');
+    const serviceRoleKey = (request.headers.get('x-supabase-service-role-key')?.trim() || Netlify.env.get('SUPABASE_SERVICE_ROLE_KEY')?.trim() || '');
+    if (!serviceRoleKey) throw new Error('CI_SERVICE_ROLE_KEY_MISSING');
     const serviceClient = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
     const identity = await ensureCiIdentity(serviceClient);
     const userClient = createClient(supabaseUrl, anonKey, { auth: { persistSession: false, autoRefreshToken: false } });
