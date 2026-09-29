@@ -89,6 +89,9 @@ jobs:
           persist-credentials: false
       - name: Install repository dependencies
         run: npm ci --no-audit --no-fund
+      - name: Install native OCR runtime
+        shell: bash
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends poppler-utils tesseract-ocr tesseract-ocr-ara tesseract-ocr-eng
       - name: Inspect PDF table extractor
         shell: bash
         run: |
