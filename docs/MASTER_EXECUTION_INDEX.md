@@ -1,3 +1,20 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / 735-ROW REPORT RECOVERY PROVEN
+
+- EXACT MAIN HEAD → `2b67aae5a9d6f263205426e0bff919d4bb0db14f`.
+- ACTIVE FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased` / recovery head `e633e6fbe026fc67a54adf2f347b47edc3d55132`.
+- REPORT-FIRST FRONT → import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / `تسعيرة الاصناف حسب رقم الصنف.pdf`.
+- SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- VERIFIED LIVE READBACK → canonical rows `735`; canonical commit `735`; durable job `completed/rendered`; import job now `completed`, 100%, 735/735; renderedOutput persisted and source-bound; rendered task evidence persisted.
+- SMART RESULT CONTRACT → Executive + Evidence/Trust + Decision + Work Center + Inventory domain outputs persisted. No decision/action/outcome/learning/benchmark values are invented.
+- SOURCE QUALITY → PDF quality 87; analysis snapshot analyzed; `المستوي` remains an unmapped review-required field.
+- RECOVERY ROOT FIX → active canonical adapter now recovers a completed durable job through the governed service-side result-recovery contract; the recovery contract verifies tenant, source hash, completed/rendered state, canonical commit count, canonical dataset count, persists rendered evidence/task evidence, and completes the open import job.
+- CURRENT PROOF GAP → no exact-head GitHub Actions run for `e633e6f...`; Vercel is free-plan rate-limited; exact-head Netlify preview canceled due no content change; PC01 offline; authenticated Edge/browser proof remains open.
+- CURRENT REPORT STATE → `BLOCKED`, not CLOSED.
+- NEXT EXACT ACTION → obtain authenticated runtime on the recovery head, open the source-bound result page and each persisted output surface, compare the displayed source hash/row count/trust/evidence state to the durable record, then close only with observed browser proof.
+- DO-NOT-REPEAT → no blind import retry, no direct canonical row rewrites, no fake auth, no stale PASS, no second report.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / 735-ROW FRONT — COMPLETED-DURABLE-RESULT RECOVERY
 
 - EXACT MAIN HEAD → `dc08f0158bcef3105ff1ef8a12704514ef790aa1`.
