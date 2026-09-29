@@ -1,3 +1,25 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / ROOT FIX PERSISTED — REAL REPORT RECOVERY READY
+
+- CURRENT EXACT HEAD → `9d5781dae6b4a787de7288486e4b59df29e62109`.
+- CURRENT BRANCH → `main`.
+- EXACT HEAD READBACK → verified after commit creation and fast-forward update; modified canonical files re-read from this exact SHA.
+- REPORT-FIRST FRONT → open staging import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`, file `تسعيرة الاصناف حسب رقم الصنف.pdf`.
+- CURRENT REPORT FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- LAST VERIFIED REAL STATE BEFORE ROOT FIX → source security passed; 735 rows; `canonical_import_commits.committed_count=735`; durable execution job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0` reached `rendered` and `completed`; however durable evidence contained no rendered-output payload and import job remained `processing`.
+- ROOT CAUSE → the durable runner advanced to `rendered` without carrying a rendered payload into durable evidence, while canonical import finalization remained dependent on the browser returning to `CanonicalImportPage`; a browser/session interruption after durable completion could therefore leave a real import stuck in `processing` with hidden output.
+- IMPLEMENTED ROOT FIX → canonical durable runner now captures and persists `renderedOutput`; canonical import adapter now builds source-bound post-import surfaces, verifies canonical commit readback, finalizes open `import_jobs` through governed `import_finish_job`, and safely recovers already-completed durable jobs instead of blindly retrying them.
+- TEST CONTRACT UPDATED → rendered-stage payload persistence regression added to `scripts/report-execution-runtime.test.ts`; transaction contract now guards finalization + recovery + rendered-output behavior.
+- EXECUTION STATUS → `BLOCKED` for runtime closure only. Code/root repair is persisted; runtime execution of this same report on the new SHA is not yet proven.
+- CURRENT DEPLOYMENT EVIDENCE → Netlify production/main deploy still references old commit `21f6562dbca1016842f037299ffd8815b59fe1aa`; the connected deploy updater requires a local/source checkout to upload and could not deploy the new SHA from the current workspace. No hosted PASS claimed.
+- DEVICE/BROWSER → PC01 is offline. TinyFish authenticated browser automation could not start because wallet balance is negative. No browser PASS claimed.
+- GITHUB FIXTURE CORPUS → `tests/fixtures/realistic-reports/` still contains only `README.md`; `GITHUB REPORT CORPUS COUNT = 0`. The staging report above is a real live execution job, not a GitHub fixture.
+- DO-NOT-REPEAT → do not rerun the 735-row durable job blindly; use the new completed-job recovery branch. Do not publish the business PDF. Do not fabricate auth/tenant context. Do not claim CLOSED/PASS before runtime/database/UI readback on this exact SHA.
+- CURRENT RESUME POINTER → authenticated canonical server boundary for the same import job/source hash.
+- NEXT EXACT ACTION → publish/execute exact SHA `9d5781dae6b4a787de7288486e4b59df29e62109` through the existing authenticated canonical import runtime; then read back `import_jobs`, `report_execution_jobs`, `canonical_import_commits`, rendered evidence, source-analysis snapshot, and applicable real UI surfaces. Close this report only after those observations are proven.
+- NEXT REPORT → none; remain on this report until runtime closure or a changed, proven blocker.
+
+---
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / REAL REPORT CANARY BLOCKED AT AUTHENTICATED CANONICAL INTAKE
 
 - EXACT MAIN HEAD VERIFIED BEFORE CHECKPOINT → `1b0d25a7834c779198f9ad19039c87e1262c4cd3`.
