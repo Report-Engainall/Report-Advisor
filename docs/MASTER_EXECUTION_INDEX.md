@@ -1,3 +1,21 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / 735-ROW REPORT RECOVERY PROVEN — CURRENT-SHA CI ROOT FIX PERSISTED
+
+- EXACT MAIN HEAD BEFORE THIS DOCUMENTATION CHECKPOINT → `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`.
+- CURRENT CODE/TEST CANDIDATE → `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
+- SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- VERIFIED DATABASE READBACK → import job `completed` at 735/735, durable job `completed/rendered`, 735 canonical rows, persisted source-bound `renderedOutput`, rendered task evidence, source quality `87`.
+- SMART RESULT READBACK → Executive, Evidence/Trust, Decision, Work Center, and Inventory domain surfaces are persisted and source-bound; decision/action are not committed, outcome/learning unavailable, benchmark `INSUFFICIENT_SAMPLE`; no synthetic result.
+- CURRENT ROOT FIX → `src/lib/import/canonical-production-adapter.ts` now passes the authoritative tenant identity into finalization instead of the removed `companyId` binding.
+- CURRENT-SHA FAILURES OBSERVED ON PARENT → quality/typecheck failed at adapter line 474; Execution Enforcement rejected a missing current code/test candidate in the index; Final Certification failed through the same readiness boundary. These are the only reproduced current-head gates being repaired.
+- ACTION STATUS → `IN_PROGRESS`.
+- NEXT EXACT ACTION → consume terminal CI on the resulting exact documentation checkpoint; repair only a newly reproduced failure, then complete authenticated source-bound UI proof for this same report.
+- REPORT STATE → `BLOCKED` only for authenticated UI/runtime closure; database/durable recovery is proven.
+- NEXT REPORT → none until this report closure.
+- DO-NOT-REPEAT → no blind re-import, no direct canonical-row mutation, no stale PASS, no fake auth, no substitute report.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / 735-ROW REPORT RECOVERY PROVEN
 
 - EXACT MAIN HEAD → `fad080699ee6d27511b4771404b980ec004420c1`.

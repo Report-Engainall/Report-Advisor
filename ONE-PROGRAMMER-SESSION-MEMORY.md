@@ -1,3 +1,20 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / 735-ROW REPORT RECOVERY PROVEN — CURRENT-SHA CI ROOT FIX
+
+- EXACT MAIN HEAD BEFORE THIS DOCUMENTATION CHECKPOINT → `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`.
+- CURRENT CODE/TEST CANDIDATE → `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
+- SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REAL READBACK → 735 canonical rows; import job `completed`, 100%, 735/735; durable job `completed/rendered`; rendered output and rendered task evidence persisted and source-bound.
+- OUTPUT READBACK → Executive + Evidence/Trust + Decision + Work Center + Inventory outputs persisted; no decision/action committed; outcome/learning unavailable; benchmark `INSUFFICIENT_SAMPLE`; source quality 87 with `المستوي` remaining review-required.
+- CODE ROOT FIX PERSISTED → finalization now uses `authoritativeCompanyId`; exact parent-SHA CI reproduced and isolated the obsolete `companyId` reference.
+- ACTION STATUS → `IN_PROGRESS`.
+- RESUME POINTER → consume fresh current-head CI; then authenticated runtime/UI proof on the same report. Do not re-import.
+- RUNTIME BLOCKER → PC01/offline authenticated Edge proof remains unavailable; no browser PASS is claimed.
+- NEXT REPORT → none.
+- DO-NOT-REPEAT → blind retry, direct DB terminalization/deletion, stale SHA/pass, fake auth/JWT, duplicate pipeline.
+
+---
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / 735-ROW REPORT RECOVERY PROVEN
 
 - EXACT MAIN HEAD AT CHECKPOINT → `fad080699ee6d27511b4771404b980ec004420c1`.
