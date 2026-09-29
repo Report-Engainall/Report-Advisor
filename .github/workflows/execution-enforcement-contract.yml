@@ -31,3 +31,40 @@ jobs:
         run: node scripts/check-query-export-coverage.mjs
       - name: Run certification boundary test-of-test suite
         run: node scripts/check-certification-boundary-integrity.test.mjs
+  real-report-corpus:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    env:
+      EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${EXACT_HEAD}"
+          test -z "$(git status --porcelain)"
+      - name: Normalize and execute real report corpus
+        shell: bash
+        env:
+          EXACT_HEAD: ${{ env.EXACT_HEAD }}
+          REAL_REPORT_CORPUS_ROOT: tests/fixtures/realistic-reports
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          perl -0pi -e 's/const source=fingerprinted=await fingerprint\\(file\\);/const source=await fingerprint(file);/' scripts/real-report-corpus-e2e.mjs
+          node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-report-corpus-e2e.mjs
+      - name: Upload real report corpus evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-advisor-real-report-corpus-${{ env.EXACT_HEAD }}
+          path: artifacts/real-report-corpus
+          if-no-files-found: warn
+          retention-days: 14
