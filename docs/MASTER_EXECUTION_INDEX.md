@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / EXACT GOVERNED MAIN `cfa69ce3439ebf7931823291cf8bbf41daf84a21` / 735-ROW REPORT CHECKPOINT
+
+- EXACT MAIN HEAD → `cfa69ce3439ebf7931823291cf8bbf41daf84a21`.
+- REPORT-FIRST FRONT → `تسعيرة الاصناف حسب رقم الصنف.pdf` / import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / source `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- VERIFIED LIVE RESULT → import 100% at 735/735; durable completed/rendered; 735 canonical rows; persisted rendered evidence and source-bound smart outputs.
+- TRUTH LIMITS → quality 87; `المستوي` unmapped; 2 missing prices; 443 missing names; no committed decision/action; no outcome/learning; benchmark `INSUFFICIENT_SAMPLE`.
+- EXACT HEAD GATES → no fresh GitHub Actions run for the direct-main code SHA observed; combined status on the governed main checkpoint still shows Vercel free-plan rate-limit failure/pending. No stale PASS transfer.
+- UI RUNTIME → PC01 offline; authenticated Edge/browser proof NOT PROVEN; report remains `BLOCKED`, not CLOSED.
+- NEXT EXACT ACTION → authenticated runtime proof on this exact governed main; verify hash/735 rows/trust/evidence/specialty in the rendered UI against the persisted record; then close. No re-import.
+- NEXT REPORT → none until current report closes.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / EXACT MAIN `8f40f51be36abb256c06dd74b9fc89d31bb56b80` / 735-ROW REPORT CHECKPOINT RECONCILED
 
 - EXACT MAIN HEAD VERIFIED → `8f40f51be36abb256c06dd74b9fc89d31bb56b80` (documentation-only checkpoint after direct exact-head verification of `670f40f880eef5838ce5364ecee69ebf5d4e758b`).

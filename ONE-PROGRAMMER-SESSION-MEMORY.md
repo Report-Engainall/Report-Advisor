@@ -1,3 +1,19 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / EXACT GOVERNED MAIN `cfa69ce3439ebf7931823291cf8bbf41daf84a21` / 735-ROW REPORT CHECKPOINT
+
+- EXACT GOVERNED MAIN HEAD → `cfa69ce3439ebf7931823291cf8bbf41daf84a21`.
+- CODE HEAD RECONCILED → direct current-head code was `670f40f880eef5838ce5364ecee69ebf5d4e758b`; this commit is documentation-only reconciliation of the live resume state.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; source fingerprint `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REAL READBACK → import `completed` 100% 735/735; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0` `completed/rendered`; canonical lineage 735; renderedOutput persisted and source-bound.
+- REAL SMART OUTPUTS → Executive, Evidence/Trust, Decision, Work Center, Inventory persisted; quality 87; trust/evidence `TRUSTED/VERIFIED`; decision/action not committed; outcome/learning `NOT_AVAILABLE`; benchmark `INSUFFICIENT_SAMPLE`.
+- DATA LIMITS → 379 unique SKUs; 4 warehouses; 733 priced rows; average price ≈ 8718.09 YER; 443 missing names; 2 missing prices; `المستوي` remains unmapped/review-required.
+- CANONICAL PATH → existing durable import/recovery/finalization path is the only path used; current adapter source readback uses `authoritativeCompanyId` and returns rendered output.
+- GITHUB FIXTURE CORPUS → exact main discovery is 0 supported report inputs; only `README.md` is present under `tests/fixtures/realistic-reports/`. The active report is a staging/library execution input and is not counted as GitHub corpus.
+- CURRENT GATE → authenticated browser/UI proof remains NOT PROVEN because PC01 is offline. Vercel is externally rate-limited; no browser/production PASS is claimed.
+- ACTION STATUS → `BLOCKED` for UI/runtime closure only.
+- NEXT EXACT ACTION → authenticated runtime on this exact governed main, open the source-bound result surfaces, compare displayed hash/735 rows/trust/evidence/specialty to persisted DB state, then close only on observed browser proof. Do not re-import.
+- NEXT REPORT → none until this report closes.
+- DO-NOT-REPEAT → blind re-import, direct row mutation, fake auth/JWT, stale PASS, database-only browser claim, alternate importer.
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / EXACT MAIN 670f40f — 735-ROW REPORT DURABLE READBACK RECONCILED
 
 - EXACT MAIN HEAD VERIFIED DIRECTLY → `670f40f880eef5838ce5364ecee69ebf5d4e758b` via `refs/heads/main`.
