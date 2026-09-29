@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / EXACT MAIN `8f40f51be36abb256c06dd74b9fc89d31bb56b80` / 735-ROW REPORT CHECKPOINT RECONCILED
+
+- EXACT MAIN HEAD VERIFIED → `8f40f51be36abb256c06dd74b9fc89d31bb56b80` (documentation-only checkpoint after direct exact-head verification of `670f40f880eef5838ce5364ecee69ebf5d4e758b`).
+- REPORT-FIRST FRONT → `تسعيرة الاصناف حسب رقم الصنف.pdf` / import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / source `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- VERIFIED LIVE RESULT → import completed 100% at 735/735; durable execution completed/rendered; 735 canonical rows; rendered evidence and source-bound executive/evidence/decision/work-center/inventory outputs persisted.
+- TRUTH LIMITS → quality 87; unmapped `المستوي`; 2 missing prices; 443 missing names; decision/action not committed; outcome/learning unavailable; benchmark `INSUFFICIENT_SAMPLE`.
+- EXACT-SHA CI/RELEASE → no GitHub Actions run registered for direct-main code SHA `670f40f...`; current combined status is Vercel failure/pending because of the free-plan build-rate limit. No stale CI/browser/production PASS is transferred.
+- UI RUNTIME → PC01 remains offline; authenticated Edge proof is NOT PROVEN. Therefore current report remains `BLOCKED` for UI/runtime closure and is not CLOSED.
+- ACTION STATUS → `BLOCKED` only for authenticated UI/runtime proof; durable processing, database readback, provenance and result surfaces are already proven.
+- NEXT EXACT ACTION → authenticated runtime on current exact main, open the source-bound result surfaces, compare source hash/row count/trust/evidence/specialty with persisted state, then close only on observed browser proof. No re-import.
+- NEXT REPORT → none until this report closes.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / 735-ROW REPORT RECOVERY PROVEN — CURRENT-SHA CI ROOT FIX PERSISTED
 
 - EXACT MAIN HEAD BEFORE THIS DOCUMENTATION CHECKPOINT → `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`.
