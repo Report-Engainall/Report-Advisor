@@ -621,65 +621,74 @@ const SORTED_PDF_TABLE_ALIASES = [...PDF_TABLE_HEADER_ALIASES].sort(
 );
 
 function detectPdfTableHeader(line: PdfTextPlacement[]): PdfTableHeader | null {
-  const sorted = [...line].sort((a, b) => a.x - b.x);
-  if (sorted.length < PDF_TABLE_MIN_ANCHORS) return null;
+  const orders = [
+    [...line].sort((a, b) => a.x - b.x),
+    [...line].sort((a, b) => b.x - a.x),
+  ];
 
-  const fullLine = sorted.map(item => item.str).join(' ');
-  const candidateAliases = SORTED_PDF_TABLE_ALIASES.filter(alias =>
-    headerTextMatchesAlias(fullLine, alias),
-  );
-  if (candidateAliases.length < PDF_TABLE_MIN_ANCHORS) return null;
+  let best: PdfTableHeader | null = null;
+  for (const sorted of orders) {
+    if (sorted.length < PDF_TABLE_MIN_ANCHORS) continue;
 
-  const anchors: PdfTableAnchor[] = [];
-  const used = new Set<number>();
+    const fullLine = sorted.map(item => item.str).join(' ');
+    const candidateAliases = SORTED_PDF_TABLE_ALIASES.filter(alias =>
+      headerTextMatchesAlias(fullLine, alias),
+    );
+    if (candidateAliases.length < PDF_TABLE_MIN_ANCHORS) continue;
 
-  for (const alias of candidateAliases) {
-    const compactAlias = compactArabicHeader(alias);
-    let found: { start: number; end: number } | null = null;
+    const anchors: PdfTableAnchor[] = [];
+    const used = new Set<number>();
 
-    for (let i = 0; i < sorted.length && !found; i += 1) {
-      if (used.has(i)) continue;
-      let compactCandidate = '';
-      const maxSpan = Math.min(24, sorted.length - i);
-      for (let span = 1; span <= maxSpan; span += 1) {
-        const index = i + span - 1;
-        if (used.has(index)) break;
-        const candidateText = sorted.slice(i, index + 1).map(item => item.str).join(' ');
-        compactCandidate = compactArabicHeader(candidateText);
-        const reversedCompactCandidate = reverseHeaderText(compactCandidate);
-        const normalizedCandidate = normalizeColumnName(candidateText);
-        const normalizedAlias = normalizeColumnName(alias);
-        const reversedCandidate = reverseHeaderText(compactCandidate);
-        if (
-          normalizedCandidate === normalizedAlias ||
-          compactCandidate === compactAlias ||
-          reversedCandidate === compactAlias
-        ) {
-          found = { start: i, end: index };
-          break;
+    for (const alias of candidateAliases) {
+      const compactAlias = compactArabicHeader(alias);
+      let found: { start: number; end: number } | null = null;
+
+      for (let i = 0; i < sorted.length && !found; i += 1) {
+        if (used.has(i)) continue;
+        for (let span = 1; span <= Math.min(24, sorted.length - i); span += 1) {
+          const index = i + span - 1;
+          if (used.has(index)) break;
+          const candidateText = sorted.slice(i, index + 1).map(item => item.str).join(' ');
+          const compactCandidate = compactArabicHeader(candidateText);
+          const reversedCandidate = reverseHeaderText(compactCandidate);
+          const normalizedCandidate = normalizeColumnName(candidateText);
+          const normalizedAlias = normalizeColumnName(alias);
+          if (
+            normalizedCandidate === normalizedAlias ||
+            compactCandidate === compactAlias ||
+            reversedCandidate === compactAlias
+          ) {
+            found = { start: i, end: index };
+            break;
+          }
         }
       }
+
+      if (!found) continue;
+      for (let index = found.start; index <= found.end; index += 1) used.add(index);
+
+      const first = sorted[found.start];
+      const last = sorted[found.end];
+      anchors.push({
+        header: alias,
+        centerX: (Math.min(first.x, last.x) + Math.max(first.x + first.width, last.x + last.width)) / 2,
+        left: Math.min(first.x, last.x),
+        right: Math.max(first.x + first.width, last.x + last.width),
+      });
     }
 
-    if (!found) continue;
-    for (let index = found.start; index <= found.end; index += 1) used.add(index);
+    const unique = new Set(anchors.map(anchor => normalizeColumnName(anchor.header)));
+    if (unique.size < PDF_TABLE_MIN_ANCHORS) continue;
 
-    const first = sorted[found.start];
-    const last = sorted[found.end];
-    anchors.push({
-      header: alias,
-      centerX: first.x + (Math.max(0, last.x + last.width - first.x) / 2),
-      left: first.x,
-      right: Math.max(first.x, last.x + last.width),
-    });
+    anchors.sort((a, b) => a.centerX - b.centerX);
+    const candidate = {
+      anchors,
+      signature: anchors.map(anchor => normalizeColumnName(anchor.header)).join('|'),
+    };
+    if (!best || candidate.anchors.length > best.anchors.length) best = candidate;
   }
 
-  const unique = new Set(anchors.map(anchor => normalizeColumnName(anchor.header)));
-  if (unique.size < PDF_TABLE_MIN_ANCHORS) return null;
-
-  anchors.sort((a, b) => a.centerX - b.centerX);
-  const signature = anchors.map(anchor => normalizeColumnName(anchor.header)).join('|');
-  return { anchors, signature };
+  return best;
 }
 
 function assignPdfRow(line: PdfTextPlacement[], header: PdfTableHeader): Row | null {
