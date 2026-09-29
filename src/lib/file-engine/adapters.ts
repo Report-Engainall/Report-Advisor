@@ -459,7 +459,6 @@ function pdfObjectStream(raw: string, objectNumber: number): { dict: string; byt
   while (bytes.length && (bytes[0] === 0x0a || bytes[0] === 0x0d)) bytes = bytes.subarray(1);
   return { dict: raw.slice(objectStart, streamStart), bytes };
 }
-}
 
 export async function loadEmbeddedPdfGlyphMap(buffer: ArrayBuffer): Promise<PdfGlyphMap | null> {
   const raw = latin1Decode(new Uint8Array(buffer));
