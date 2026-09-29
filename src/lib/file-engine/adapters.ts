@@ -636,6 +636,32 @@ function detectPdfTableHeader(line: PdfTextPlacement[]): PdfTableHeader | null {
     );
     if (candidateAliases.length < PDF_TABLE_MIN_ANCHORS) continue;
 
+    const directAnchors: PdfTableAnchor[] = [];
+    const usedDirect = new Set<number>();
+    for (const alias of candidateAliases) {
+      const index = sorted.findIndex((item, itemIndex) =>
+        !usedDirect.has(itemIndex) && headerTextMatchesAlias(item.str, alias),
+      );
+      if (index < 0) continue;
+      usedDirect.add(index);
+      const item = sorted[index];
+      directAnchors.push({
+        header: alias,
+        centerX: item.x + item.width / 2,
+        left: item.x,
+        right: item.x + item.width,
+      });
+    }
+    if (directAnchors.length >= PDF_TABLE_MIN_ANCHORS) {
+      directAnchors.sort((a, b) => a.centerX - b.centerX);
+      const candidate = {
+        anchors: directAnchors,
+        signature: directAnchors.map(anchor => normalizeColumnName(anchor.header)).join('|'),
+      };
+      if (!best || candidate.anchors.length > best.anchors.length) best = candidate;
+      continue;
+    }
+
     const anchors: PdfTableAnchor[] = [];
     const used = new Set<number>();
 
