@@ -68,54 +68,5 @@ jobs:
           path: artifacts/real-report-corpus
           if-no-files-found: warn
           retention-days: 14
-  real-pdf-diagnostic:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 1
-          persist-credentials: false
-      - name: Install repository dependencies
-        run: npm ci --no-audit --no-fund
-      - name: Inspect blocked PDF y groups
-        shell: bash
-        run: |
-          set -euo pipefail
-          node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs --input-type=module <<'NODE'
-          import fs from 'node:fs/promises';
-          if(!('DOMMatrix' in globalThis)) Object.defineProperty(globalThis,'DOMMatrix',{configurable:true,value:class DOMMatrix{}});
-          if(!('sumPrecise' in Math)) Object.defineProperty(Math,'sumPrecise',{configurable:true,writable:true,value:(values)=>{let total=0;for(const value of values)total+=Number(value)||0;return total;}});
-          if(!('try' in Promise)) Object.defineProperty(Promise,'try',{configurable:true,writable:true,value:(fn,...args)=>new Promise((resolve,reject)=>{try{resolve(fn(...args));}catch(error){reject(error);}})});
-          if(!('toHex' in Uint8Array.prototype)) Object.defineProperty(Uint8Array.prototype,'toHex',{configurable:true,writable:true,value:function(){return Array.from(this,(byte)=>byte.toString(16).padStart(2,'0')).join('');}});
-          const pdfjs=await import('pdfjs-dist');
-          const bytes=await fs.readFile('tests/fixtures/realistic-reports/الصراف البدجي.pdf');
-          const buffer=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
-          const pdf=await pdfjs.getDocument({data:new Uint8Array(buffer),useSystemFonts:true}).promise;
-          const items=[];
-          for(let pageNumber=1;pageNumber<=pdf.numPages;pageNumber++){
-            const page=await pdf.getPage(pageNumber);
-            const content=await page.getTextContent({disableCombineTextItems:true});
-            items.push(...content.items.map(item=>({str:item.str,x:Number(item.transform?.[4]),y:Number(item.transform?.[5]),width:Number(item.width)||0,page:pageNumber})).filter(item=>item.str&&Number.isFinite(item.x)&&Number.isFinite(item.y)));
-          }
-          const sorted=[...items].sort((a,b)=>b.y-a.y||a.x-b.x);
-          const groups=[];
-          for(const item of sorted){
-            let best=null,bestDistance=Infinity;
-            for(const group of groups){
-              const distance=Math.abs(group.y-item.y);
-              if(distance<=4&&distance<bestDistance){best=group;bestDistance=distance;}
-            }
-            if(!best)groups.push({y:item.y,items:[item]});
-            else{best.items.push(item);best.y=(best.y*(best.items.length-1)+item.y)/best.items.length;}
-          }
-          const compact=s=>s.replace(/\s+/g,'');
-          const scored=groups.map(group=>{
-            const text=group.items.sort((a,b)=>a.x-b.x).map(item=>item.str).join(' ');
-            const c=compact(text);
-            const score=['ك','ش','ف','ح','س','ا','ب'].filter(ch=>c.includes(ch)).length;
-            return {page:group.items[0]?.page,y:group.y,count:group.items.length,score,text:text.slice(0,500),compact:c.slice(0,500)};
-          }).filter(group=>group.score>=5).sort((a,b)=>b.score-a.score||b.count-a.count).slice(0,25);
-          console.log(JSON.stringify(scored,null,2));
-          NODE
+
+# Corpus execution uses only the committed canonical runner; browser/device are not dependencies.
