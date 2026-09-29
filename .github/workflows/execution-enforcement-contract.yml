@@ -51,6 +51,26 @@ jobs:
       - name: Install repository dependencies
         run: npm ci --no-audit --no-fund
 
+      - name: Inspect first real PDF through canonical file engine
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/debug-real-pdf.mjs <<'EOF'
+          import fs from 'node:fs/promises';
+          const { parseFile } = await import(process.cwd() + '/src/lib/file-engine/adapters.ts');
+          const { understandCanonicalSource } = await import(process.cwd() + '/src/lib/import/canonical-source-understanding.ts');
+          const fileName = 'اعمار الديون للعملا.pdf';
+          const bytes = await fs.readFile('tests/fixtures/realistic-reports/' + fileName);
+          const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+          const datasets = await parseFile(buffer, fileName, 'pdf');
+          const understanding = understandCanonicalSource(datasets);
+          console.log(JSON.stringify({
+            dataset_count: datasets.length,
+            datasets: datasets.map(dataset => ({ name: dataset.name, rowCount: dataset.rowCount, columnCount: dataset.columnCount, qualityScore: dataset.qualityScore, columns: dataset.columns.map(column => ({name:column.name,mappedField:column.mappedField,mappingConfidence:column.mappingConfidence})), sample: dataset.rows.slice(0,3) })),
+            understanding: { rowCount: understanding.rowCount, columnCount: understanding.columnCount, qualityScore: understanding.qualityScore, specialty: understanding.specialty, specialtyConfidence: understanding.specialtyConfidence, entityType: understanding.entityType, sample: understanding.rows.slice(0,3) }
+          }, null, 2));
+          EOF
+          node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs /tmp/debug-real-pdf.mjs
       - name: Normalize and execute real report corpus
         shell: bash
         env:
