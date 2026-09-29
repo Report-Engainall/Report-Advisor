@@ -1,3 +1,17 @@
+# RESUME TOKEN — 2026-09-29 / SOURCE-BOUND REAL REPORT RESULT
+
+- CURRENT BRANCH → `exec/20260929-source-bound-report-closure`
+- CURRENT CODE CANDIDATE → `0557669999de77926c64c6603dce3c1a0858ce1c`
+- LIVE REPORT IMPORT → completed canonical import with 1,998 valid rows and durable report execution checkpoint `rendered`.
+- REAL ROOT CAUSE → existing executive/dashboard surfaces were not bound to the imported source; they could return unrelated tenant aggregates.
+- DELIVERED → source-bound report surface plus post-import entry link, using the canonical tenant-scoped import/execution/record tables.
+- VERIFIED DATA CONTRACT → same company + same source fingerprint are required for the report surface; missing/unsupported facts remain explicit rather than converted to zeros or invented benchmarks/outcomes.
+- OPEN GAP → `source_analysis_snapshots` is absent for the existing real import, so evidence-snapshot completion is still OPEN and must be fixed in the canonical import executor rather than hidden by the UI.
+- NEXT EXACT ACTION → consume fresh exact-head CI, then repair the canonical snapshot/rendered-output path and bind smart report surfaces to that shared source evidence before integrating to main.
+- DO NOT REPEAT → do not merge the 714-commit PR #672 wholesale; do not add a fixture-specific importer/route/RPC; do not claim UI/CI PASS from stale SHA; do not depend on user device/browser.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / WORKER RPC CONTRACT RECONCILIATION PROVEN
 
 - MAIN EXACT HEAD AT CHECKPOINT → `3f7963db851d87fadd57462482385452ca2536f5`.
