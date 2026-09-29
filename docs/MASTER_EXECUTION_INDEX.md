@@ -1,3 +1,20 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / DOMAIN LINEAGE GUARD CLOSED / SERIAL CORPUS CI ACTIVE
+
+- CONTROL HEAD: `1038d4c27f18469bea7c78697611950aa399907d`.
+- FUNCTIONAL CODE: `bcbd88f9218b7b35e91a057608b2f45712c222e9`.
+- BRANCH: `exec/20260929-post-import-report-continuity`.
+- CORPUS: 47 real reports; gate previously PASS DECLARED=47 / ACTUAL=48 / MINIMUM=20.
+- DOMAIN REPORT: source-bound route `/reports/source/:importId/domain`; reads only current Report Job canonical rows.
+- DOMAIN LINEAGE GUARD: contract enforces source hash + canonical row count + specialty/task readers.
+- SERIAL RUNNER: full corpus, REPORT_CORPUS_MAX=47, anti-repeat by source fingerprint, per-report proof artifacts.
+- OUTPUT BUNDLE: source + domain + executive + evidence + intelligence + recommendations + forecasts + decision + work center + data quality + benchmark status.
+- COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47.
+- CI: exact-head terminal proof pending; queued is not PASS.
+- OPEN CERTIFICATION: Phase-F exact deployment and migration-lineage drift.
+- NEXT EXACT ACTION: consume current-head Full Product Browser E2E and inspect first report artifact.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / SOURCE-BOUND DOMAIN REPORTS COMMITTED / SERIAL CORPUS E2E NEXT
 
 - CONTROL HEAD: `5ae51964fe64c000f80868d3af809019cf09e305`.
