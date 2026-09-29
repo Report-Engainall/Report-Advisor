@@ -1,3 +1,21 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / REAL REPORT CANARY + CANONICAL INTAKE BLOCKER
+
+- MAIN EXACT HEAD VERIFIED BEFORE THIS CHECKPOINT → `1b0d25a7834c779198f9ad19039c87e1262c4cd3`.
+- REPORT-FIRST FRONT → real execution input `ف العملاء الاجل من ت 01-06 حتى تاريخ 15-08.pdf` from the execution workspace/library.
+- GITHUB FIXTURE CORPUS → exact-head discovery of `tests/fixtures/realistic-reports/` returns only `README.md`; **GITHUB REPORT CORPUS COUNT = 0**.
+- SOURCE FINGERPRINT → `sha256:0a3e1bf1686ec64febbed95f5d5b4b755f82a5cebb1b268c8270ce122b261e82`.
+- VERIFIED REPORT → 14-page native-text sales-period report for العامري لتجارة المواد الغذائية - صنعاء; `2026-06-01` → `2026-08-15`; 397 invoice rows; 61 unique customers; YER; all invoices are credit/آجل.
+- VERIFIED SOURCE TOTALS → invoice amount `471,891,687.50 YER`; net `471,807,450.00 YER`; discounts `84,237.50 YER`; tax/fees `0`; average invoice `≈1,188,644.05 YER`.
+- ANALYSIS STATUS → source-bound deterministic analysis performed for this execution input; no outstanding receivable balance or benchmark/outcome is invented.
+- CANONICAL INTAKE STATUS → **BLOCKED**, not CLOSED. Existing canonical server path requires authenticated user, tenant `current_company_id`, tenant-bound document storage, authoritative server read/hash/detection/parse and durable canonical commit.
+- BLOCKER EVIDENCE → PC01 is offline; browser automation path is unavailable with current TinyFish balance; no authenticated tenant session/storage upload path is available to safely execute the canonical import. No fake identity, service-role browser session, or synthetic persistence used.
+- NO DUPLICATE PATH → no new importer/RPC/runner/report pipeline was created; only the existing canonical path was inspected and targeted for resumption.
+- CURRENT REPORT STATE → `BLOCKED`.
+- NEXT EXACT ACTION → obtain a valid authenticated runtime/session with tenant context; then execute this same PDF through the existing canonical upload/storage → `/api/canonical-import-execute` → durable lifecycle → commit/readback path; verify all nine durable stages and post-import business surfaces before closure.
+- DO-NOT-REPEAT → do not treat GitHub corpus count as nonzero from a Library file; do not publish the business PDF to the public repo; do not transfer stale PASS; do not advance to a second report while the first remains a resolvable blocker.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / WORKER RPC TEST CONTRACT RECONCILED
 
 - MAIN EXACT CONTROL HEAD BEFORE THIS WRITE → `42f1e861cf0a68279e446045b16100a94b9a3143`.
