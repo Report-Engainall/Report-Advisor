@@ -1,3 +1,23 @@
+# CURRENT RESUME CHECKPOINT — 2026-09-30 / REPORT-FIRST 735-ROW FRONT — CURRENT MAIN RECONCILED
+
+- CURRENT EXACT MAIN HEAD → `41a535faf29fb408fe06b1328ea0374bfc50ee56`.
+- CURRENT CODE/TEST CANDIDATE → `41a535faf29fb408fe06b1328ea0374bfc50ee56`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`.
+- REPORT IMPORT → `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
+- SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- CURRENT REPORT STATE → `BLOCKED` for authenticated runtime closure; do not mark `CLOSED`.
+- ROOT REPAIRS PERSISTED → durable rendered-output recovery + source-bound result UI + deterministic source metrics.
+- CURRENT-SHA CI REPAIR PERSISTED → duplicate `workCenter` declaration in `scripts/check-product-wow-ui-contract.mjs` removed after exact workflow log reproduced it as the sole lint error blocking the 20-stage readiness gate.
+- CURRENT ACTION STATUS → `IN_PROGRESS`.
+- LAST VERIFIED STATE → exact GitHub workflow on prior candidate built successfully and failed only on the duplicate Work Center lint declaration; the current candidate now contains that correction. Fresh workflow evidence for the new SHA is required.
+- NEXT EXACT ACTION → consume the first terminal current-SHA workflow failure/success; repair only a reproduced failure. Then use the existing canonical authenticated recovery path for this same 735-row report and verify database rows, renderedOutput/evidence, source metrics, and UI before closure.
+- REAL RUNTIME BLOCKER → authenticated tenant/browser/device proof remains unavailable while PC01 is offline; no browser/production PASS claimed.
+- DO-NOT-REPEAT → stale functional-branch proof, old-SHA status, 397/1998-row sources as substitutes for this front, synthetic fixture substitution, blind retries, manual DB row deletion/terminalization, duplicate pipeline creation.
+- NEXT REPORT → none.
+- RESUME STATUS → `ACTIVE / REPORT-FIRST / 735-ROW SOURCE / CI ROOT FIX PERSISTED / RUNTIME PROOF OPEN`.
+
+---
+
 # CURRENT RESUME CHECKPOINT — 2026-09-30 / PDF ROW-BOUNDARY ROOT FIX IN FUNCTIONAL BRANCH
 
 - EXACT GOVERNED MAIN HEAD BEFORE THIS WRITE → `c048d88093361b47f7aea43589113b75b16bc210`.

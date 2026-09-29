@@ -1,3 +1,22 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / EXACT MAIN — REPORT RESULT + DURABLE RECOVERY + CURRENT CI ROOT FIX
+
+- MAIN EXACT HEAD → `41a535faf29fb408fe06b1328ea0374bfc50ee56`.
+- CURRENT CODE/TEST CANDIDATE → `41a535faf29fb408fe06b1328ea0374bfc50ee56`.
+- REPORT-FIRST FRONT → staging import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / `تسعيرة الاصناف حسب رقم الصنف.pdf`.
+- SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- PRE-FIX REAL STATE → 735 canonical rows committed; durable execution job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0` reached `completed/rendered` with no rendered-output payload persisted; `import_jobs` remained `processing`.
+- CANONICAL ROOT FIX → durable runner persists rendered-stage output; canonical adapter verifies commit readback, finalizes open import jobs through the canonical `import_finish_job` boundary, and safely recovers an already-completed durable job.
+- RESULT-SURFACE FIX → existing canonical Import result now exposes deterministic source metrics and source-bound Executive/Evidence/Decision/Work Center/domain output surfaces without manufacturing outcome/benchmark values.
+- CURRENT CI ROOT FIX → exact-head lint failure was reproduced from workflow logs at `scripts/check-product-wow-ui-contract.mjs:231` as a duplicate `workCenter` declaration; the redundant declaration was removed in this exact candidate.
+- REPORT STATE → `BLOCKED`, not `CLOSED`. Code fix is persisted; authenticated tenant/runtime proof is still required for report closure.
+- GITHUB FIXTURE CORPUS → exact-head recursive discovery finds `0` supported report files in `tests/fixtures/realistic-reports/`; no non-README report is currently present on `41a535faf29fb408fe06b1328ea0374bfc50ee56`.
+- DEVICE / HOSTING → PC01 offline; Vercel deployment-rate limited; Netlify source-deploy unavailable from this workspace; no authenticated Edge/device PASS claimed.
+- NEXT EXACT ACTION → consume terminal workflows for `41a535faf29fb408fe06b1328ea0374bfc50ee56`, repair only the first reproduced current-SHA failure, then execute/recover the same 735-row source through the canonical authenticated runtime and read back DB + rendered evidence + UI before closure.
+- NEXT REPORT → none. Remain on this report until closure or a newly proven hard blocker.
+- DO-NOT-REPEAT → stale PR #662/#663 evidence, old-SHA PASS, the 1998-row staging source as a substitute, synthetic fixtures as real reports, blind retry of the completed 735-row job, manual terminalization, or duplicate import/report pipelines.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / EXACT MAIN — REPORT RESULT + DURABLE RECOVERY ROOT
 
 - MAIN EXACT HEAD → `32bf23841115c6a8b47adec92f2dcaef82251d19`.
