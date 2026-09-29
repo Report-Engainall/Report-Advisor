@@ -111,7 +111,7 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
   const sourceUnderstanding = understandCanonicalSource(authoritativeDatasets);
   if (sourceUnderstanding.rowCount === 0) throw new Error('AUTHORITATIVE_SOURCE_PARSE_EMPTY');
 
-  const authoritativeEntityType = sourceUnderstanding.entityType;
+  let authoritativeEntityType = sourceUnderstanding.entityType;
   const authoritativeQualityScore = Math.max(0, Math.min(100, Math.round(sourceUnderstanding.qualityScore)));
   if (authoritativeQualityScore < 50) throw new Error(`CANONICAL_IMPORT_QUALITY_REJECTED:${authoritativeQualityScore}`);
   if (authoritativeQualityScore < 75 && payload.qualityApproved !== true) {
@@ -135,6 +135,26 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
     throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(item => `${item.rowNumber}:${item.reason}`).join(',')}`);
   }
   if (reconciled.rows.length !== authoritativeRows.length) throw new Error('AUTHORITATIVE_SOURCE_RECONCILIATION_COUNT_MISMATCH');
+  if (authoritativeEntityType === 'inventory_balances') {
+    const skuValues = reconciled.rows
+      .map((row) => String(row.data.sku ?? '').trim())
+      .filter(Boolean);
+    const uniqueSkus = [...new Set(skuValues)];
+    if (uniqueSkus.length !== reconciled.rows.length) {
+      authoritativeEntityType = 'generic:inventory';
+    } else if (uniqueSkus.length > 0) {
+      const { data: existingProducts, error: existingProductsError } = await serviceClient
+        .from('products')
+        .select('sku')
+        .eq('company_id', companyId)
+        .in('sku', uniqueSkus);
+      if (existingProductsError) throw existingProductsError;
+      const known = new Set((existingProducts ?? []).map((row) => String(row.sku ?? '').trim()));
+      if (known.size !== uniqueSkus.length) {
+        authoritativeEntityType = 'generic:inventory';
+      }
+    }
+  }
 
   const verifiedMetadata = {
     ...metadata,
