@@ -1260,7 +1260,7 @@
 
 # RESUME TOKEN — 2026-09-30 / EXACT-HEAD RECONCILIATION / REPORT-001 VERIFIED
 
-- CURRENT EXACT HEAD SHA: `065fe6398cbbd6d0fa2ce506eb83f521622abc7f`
+- CURRENT EXACT HEAD SHA: `44c1fd70e56f86599a1d9c75b697d2777650c5a1`
 - CURRENT BRANCH: `exec/20260929-post-import-report-continuity`
 - REPORT CORPUS COUNT: **47 report files** under `tests/fixtures/realistic-reports/` (README excluded), deterministically ordered by normalized relative path.
 - CURRENT FRONT: REAL REPORT CORPUS EXECUTION.
