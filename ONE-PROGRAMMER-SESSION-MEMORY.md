@@ -1,3 +1,22 @@
+# LIVE EXECUTION CHECKPOINT — 2026-09-29
+
+- CURRENT EXACT HEAD SHA: `a755665957874a854df688834b3fca589d665714`
+- CURRENT CODE/TEST CANDIDATE: `a686f6ad8562811dc2917e180c7459cebaf5a387a`
+- CURRENT REPORT: live sales/receivables PDF already canonically imported into Staging.
+- CURRENT REPORT IMPORT: `74c499d1-6e65-4834-a093-eef1eb633fb2`
+- SOURCE HASH: `sha256:c175fd3f105759568cf269a5f59fa26cfe16007a77269307b299e15a8c936dc8`
+- CURRENT STAGE: `rendered`
+- LAST REAL ACTION: source-bound report surface + canonical source-analysis snapshot linkage + tenant-boundary hardening.
+- ACTUAL RESULT: 1,998 canonical rows, 1,806,623,246 total sales from the `total` field, 1,843 unique invoices, 913 missing customers, 33 missing invoice types, 3 missing invoice numbers, 391 credit rows with 467,984,170 receivable candidate.
+- PROOF: source-analysis snapshot `74cdfb0c-6f9b-4d3d-b97d-e87799214c2c` linked to the same import/source hash; browser E2E has passed on prior exact-head checkpoints; latest governance head is pending fresh all-gate certification.
+- CLOSED WORK: real source-bound result surface, post-import report entry, evidence samples, fail-closed smart-report statuses, canonical snapshot persistence, source-field truth correction, shared-table and UI accessibility contract repairs, explicit database-authoritative tenant resolution.
+- OPEN WORK: same-head Final Certification + Enforcement proof on the latest governance head, then integrate to main; after that process remaining real reports.
+- REAL BLOCKER: no repo fixture corpus is present under `tests/fixtures/realistic-reports/` beyond README on main; therefore do not claim corpus exhaustion until real fixture files are present/registered.
+- DO-NOT-REPEAT: do not merge PR #672 wholesale; do not create fixture-specific importers/routes/RPCs; do not use dashboard/global aggregates as source-bound report truth; do not use `مبلغ الصافي بالمحلي` as a fallback for sales total; do not transfer stale SHA PASS.
+- NEXT EXACT ACTION: consume terminal Actions results for head `a755665957874a854df688834b3fca589d665714`; if a fresh current-SHA failure appears, repair only that first failure and repeat the exact-head gate.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / SOURCE-BOUND REAL REPORT RESULT
 
 - CURRENT BRANCH → `exec/20260929-source-bound-report-closure`
