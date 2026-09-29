@@ -155,7 +155,7 @@ for (const token of [
     throw new Error(`Canonical durable worker boundary missing: ${token}`);
   }
 }
-if (!/status\\s*:\\s*["']ready["']/.test(worker)) {
+if (!/status\s*:\s*["']ready["']/.test(worker)) {
   throw new Error('Canonical durable worker boundary missing: ready status persistence');
 }
 if (/grant execute on function public\\.(claim|heartbeat|advance|complete|fail|retry)_report_execution_job[^\\n]*to authenticated/i.test(serverAdapter)) {
