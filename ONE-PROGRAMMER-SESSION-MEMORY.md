@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-29 / FULL CORPUS READINESS MATRIX VERIFIED
+
+- CONTROL HEAD BEFORE MEMORY WRITE: `06b56c9cbeb03b6ca77916d8e49ec99b3944365c`.
+- FULL CORPUS MATRIX ON CURRENT CODE: TOTAL 47 / TRUSTED 10 / REVIEW 13 / REJECT 24 / RUNTIME_BLOCKED 0 / FAILED 0.
+- SPECIALTY DISTRIBUTION: inventory 11, other 19, payments 4, products 1, purchases 2, receivables 2, sales 8.
+- INTERPRETATION: no parser/runtime crash across the corpus. Low bands are data-quality/readability/specialty gates and must be resolved or held at REVIEW/REJECT; browser OCR may improve scanned/garbled PDFs and remains the final runtime authority.
+- REPORT_001: 27 rows / quality 98 / receivables, still awaiting authoritative canonical import/DB/9-stage/browser proof.
+- SOURCE-BOUND DOMAIN REPORT: committed and guarded; all supported specialties now route to `/reports/source/:importId/domain`.
+- LOCAL PROOF: typecheck, build, route parity, post-import guard, report-execution contract PASS.
+- SERIAL E2E: current exact-head Full Product Browser E2E remains queued; no terminal report closure yet.
+- DO-NOT-REPEAT: do not treat local readiness as report closure; do not force Review/Reject reports into commit; do not substitute generic tenant pages for source-bound domain proof; do not use queued CI as PASS.
+- NEXT EXACT ACTION: consume the current-head Full Product Browser E2E; close the first real report only after canonical DB + 9 stages + source/domain lineage, then continue to the next fingerprint.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / DOMAIN LINEAGE GUARD CLOSED / SERIAL CORPUS CI ACTIVE
 
 - CONTROL HEAD BEFORE MEMORY WRITE: `1038d4c27f18469bea7c78697611950aa399907d`.
