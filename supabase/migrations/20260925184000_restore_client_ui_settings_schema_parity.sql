@@ -65,6 +65,21 @@ begin
 end
 $$;
 
+create or replace function public.current_customer_company_id()
+returns uuid
+language sql
+security definer
+set search_path = public
+as $function$
+  select p.organization_id
+  from public.profiles p
+  where p.id = auth.uid()
+  limit 1;
+$function$;
+
+revoke all on function public.current_customer_company_id() from public;
+grant execute on function public.current_customer_company_id() to authenticated, service_role;
+
 alter table public.client_ui_settings enable row level security;
 
 drop policy if exists ui_settings_customer_select on public.client_ui_settings;
@@ -73,8 +88,7 @@ create policy ui_settings_customer_select
   as permissive
   for select
   to authenticated
-  -- Canonical live tenant policy readback uses current_company_id(); keep clean-restore parity with live source of truth.
-  using (organization_id = public.current_company_id());
+  using (organization_id = public.current_customer_company_id());
 
 revoke all on table public.client_ui_settings from anon;
 revoke all on table public.client_ui_settings from authenticated;
