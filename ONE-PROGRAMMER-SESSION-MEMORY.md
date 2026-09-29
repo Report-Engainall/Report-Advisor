@@ -1,3 +1,14 @@
+# RESUME TOKEN — 2026-09-29 / REAL REPORT CORPUS EXECUTION
+
+- CURRENT EXACT HEAD → `3898d6e35584d840e2ecbed62dd8ad23fe552a80` (next workflow run will certify this SHA; do not transfer older PASS).
+- CORPUS → `47` real files under `tests/fixtures/realistic-reports/`, deterministic relative-path order, one file = one job.
+- CLOSED REAL REPORTS → #1 `اعمار الديون للعملا.pdf`, #2 `اعمار الديون للموردين.pdf`, #3 `الاصناف .xlsx`, #4 `الاصناف 3.xlsx`.
+- REPORT #4 PROOF → import `e02dc27a-ab44-4b7a-bd68-5e8d9f2f4717`, source SHA `sha256:73b7a59250528119df7eedb97d3df2b1d490a8d08b97150be6faff5b730cdaed`, 439 rows, quality 98, durable job `8d8f4ae5-19d5-43b8-9a52-52be6cc728ef`, 9/9 stages completed, outputs `executive` + `product-abc` source-bound.
+- ROOT FIXES CLOSED → PDF Node compatibility + column-major receivables/supplier extraction; durable checkpoint/task double-write removal; canonical rendered-output reuse for existing commits; Arabic product/supplier/purchase mappings; partial product routing to `generic:products`.
+- NEW EVIDENCE FIX → after `source_analysis_snapshots` persistence, canonical executor now updates durable job/task rendered evidence and import summary to `VERIFIED` with `snapshotId` instead of leaving rendered output at `AWAITING_EVIDENCE_SNAPSHOT`.
+- CURRENT REPORT → #5 `الاصناف 4 - يتبع.xlsx`; NEXT EXACT ACTION → execute the same canonical runner on the real fixture, fix only the first reproducible root cause, then prove and close #5.
+- DO-NOT-REPEAT → no device/browser dependency; no second pipeline; no stale SHA PASS; no re-open of reports 1–4 unless current-SHA regression proves it.
+
 # RESUME TOKEN — 2026-09-28 / REPORT ROUTE SMOKE CLOSURE
 
 - CODE/DEPLOYMENT PROOF BASE → `efc6b0706d0010524cd74a617fa66f08346cf3ab`.
