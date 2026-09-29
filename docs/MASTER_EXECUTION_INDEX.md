@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / REPORT_001 DOMAIN OUTPUT COMPLETED / REAL E2E READY
+
+- FUNCTIONAL CODE SHA: `92727ca32bcf78ac2ed8731ffbfea839bec025e4`.
+- CURRENT REPORT: REPORT_001 = `اعمار الديون للعملا.pdf`; raw SHA-256 `9996F169AAE09E31F909712CA4BE5ACE238C7A4F123B370D436A5F1A115EA099`.
+- REAL PARSER: 27 rows, quality 98, specialty receivables; canonical fields include customer identity, YER currency, outstanding balance and available aging buckets.
+- DOMAIN OUTPUT: generic receivables sources now open a source-bound `/reports/receivables?importId=...` surface that reads the same `canonical_dataset_records`, preserves source hash, truth state and benchmark fail-closed semantics.
+- LOCAL EXACT-HEAD PROOF: post-import guard PASS; report execution E2E contract PASS; route/sidebar parity PASS; typecheck PASS; build PASS; PDF structured regression PASS on the same real file.
+- REAL E2E CONTRACT: runner now asserts the source-bound Receivables domain surface after Source Report, including source hash, source identity and `Benchmark: INSUFFICIENT SAMPLE`.
+- REPORT_001 STAGE: parser + quality + specialty + domain UI ready. Authenticated canonical import/commit, nine durable tasks and rendered report are NOT YET PROVEN.
+- REPORT COUNTS: TOTAL=47, CLOSED=0, REVIEW=0, FAILED=0, BLOCKED=0, REMAINING=47.
+- CI TARGETS: current HEAD triggers exact-head Full Product Browser E2E, PDF parser regression, Final Certification and related gates; prior queued runs on older SHAs are stale and must not be used as current proof.
+- SEPARATE OPEN CERTIFICATION FRONT: Phase-F exact deployment identity and live migration-lineage drift remain unresolved.
+- NEXT EXACT ACTION: consume the first terminal exact-`92727...` Full Product Browser E2E and inspect its `real-report-e2e` artifact.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / REPORT_001 REAL-PDF PARSER CLOSED / CANONICAL E2E IN FLIGHT
 
 - FUNCTIONAL CODE SHA: `d1f7ac7f3ba439c440504667a2ec20e77bc7d1a9`.
