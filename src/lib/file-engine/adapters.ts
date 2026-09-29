@@ -539,7 +539,7 @@ function isRecoveredArabic(codePoint: number): boolean {
 
 function logicalizeRecoveredArabic(text: string): string {
   const trimmed = text.trim();
-  if (!trimmed || !/[\\u0600-\\u06ff\\ufb50-\\ufdff\\ufe70-\\ufeff]/.test(trimmed)) return text;
+  if (!trimmed || !/[\u0600-\u06ff\uFB50-\uFDFF\uFE70-\uFEFF]/.test(trimmed)) return text;
   if (/[A-Za-z0-9]/.test(trimmed)) return text;
   const words = trimmed.split(/\\s+/)
     .reverse()
