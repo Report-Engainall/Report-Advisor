@@ -1549,3 +1549,19 @@
 - CURRENT RESUME POINT → current branch source/contract repair is persisted. The next execution boundary is a current-head authenticated run of the first real receivables fixture through the canonical path and verification that its Job stores a bound rendered manifest containing Executive + Receivables + Aging, followed by the same proof cycle for the remaining corpus.
 - NEXT EXACT ACTION → consume a current-head build/runtime proof when available; then execute/verify `اعمار الديون للعملا.pdf` once through the repaired canonical route, inspect its 9 task ledger + rendered manifest + source-bound report links, close the report only after proof, then move deterministically to the next corpus file.
 
+# RESUME TOKEN — 2026-09-29 / CORPUS COVERAGE + SOURCE-BOUND UI CLOSURE
+
+- EXACT CODE HEAD BEFORE GOVERNANCE WRITE-BACK → `f369d13383297056ee27093857cb82f304235f06`.
+- REAL CORPUS → 47 fixture reports.
+- LIVE CORPUS COVERAGE → 40/47 fixture filenames have Staging file records today; 38/47 have verified ready+security-passed+hash records; 2/47 remain only-unverified; 7/47 are unseen.
+- LIVE SUCCESS METRIC → 37 import jobs completed today, but only 12 are tied to a 9/9 durable task ledger; this means import completion alone is not report closure and legacy/reused-import paths still exist in the environment.
+- LIVE RENDER PROOF → 0 completed durable jobs currently contain `evidence.renderedOutput`. Therefore no current Staging UI certification is claimed from the existing population.
+- FIRST REAL REPORT → `اعمار الديون للعملا.pdf` remains the canonical first report for current-head re-execution. Exact source SHA `sha256:9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`; 27 valid rows; quality 98; one canonical commit; 27 canonical dataset records; historical execution job reached 9/9 but has no persisted rendered manifest.
+- CLOSED SOURCE ROUTING → receivables specialty detection; Executive + Receivables + Aging output bundle; known `generic:*` semantic routing; unknown generic source remains fail-closed.
+- CLOSED UI PROVENANCE → Aging and Receivables pages expose SourceBoundReportContext; analytics-center report links preserve `import=`; report-center synthetic current-date As Of fallbacks removed.
+- CLOSED EVIDENCE PROVENANCE → source analysis snapshots now persist authoritative `entity_type`.
+- HOSTED/CI → Vercel exact-head status remains free-plan `build-rate-limit`; no terminal GitHub workflow run observed; device PC01 offline. No runtime/browser PASS claimed.
+- DO-NOT-REPEAT → do not mark the 37 historical completed imports as 37 closed smart reports; do not reuse old render evidence; do not fabricate a manifest; do not repeat the source-routing repair.
+- CURRENT RESUME POINTER → execute the current-head canonical path on the first real fixture in an authenticated runtime, prove the bound rendered manifest and UI output bundle, then close it and advance deterministically through the remaining corpus.
+- NEXT EXACT ACTION → current-head runtime execution/certification of `اعمار الديون للعملا.pdf`; after PASS, lock the proof and run the next fixture rather than reopening already-verified code routing.
+
