@@ -123,8 +123,10 @@ jobs:
           const pdfjs = await import('pdfjs-dist');
           const file = 'tests/fixtures/realistic-reports/الصراف العامري.pdf';
           const bytes = await fs.readFile(file);
-          const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
-          const pdf = await pdfjs.getDocument({ data: new Uint8Array(buffer), useSystemFonts: true }).promise;
+          const pdfBytes = new Uint8Array(bytes);
+          const pdfBuffer = pdfBytes.slice().buffer;
+          const parseBuffer = pdfBytes.slice().buffer;
+          const pdf = await pdfjs.getDocument({ data: new Uint8Array(pdfBuffer), useSystemFonts: true }).promise;
           const items = [];
           for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
             const page = await pdf.getPage(pageNumber);
@@ -132,7 +134,7 @@ jobs:
             items.push(...content.items.map(item => ({ str: item.str, x: Number(item.transform?.[4]), y: Number(item.transform?.[5]), width: Number(item.width) || 0, page: pageNumber })).filter(item => item.str && Number.isFinite(item.x) && Number.isFinite(item.y)));
           }
           const table = extractPdfTableRowsFromTextItems(items, null);
-          const datasets = await parseFile(buffer.slice(0), file, 'pdf');
+          const datasets = await parseFile(parseBuffer, file, 'pdf');
           console.log(JSON.stringify({
             pages: pdf.numPages,
             text_items: items.length,
