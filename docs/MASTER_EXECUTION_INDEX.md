@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / SEMANTIC QUALITY SCORING FIXED / CORPUS 34-5-8
+
+- CONTROL HEAD: `244362fbae11f7ceb9a94b2eaa412ac5a2cad1d8`.
+- FUNCTIONAL CODE: `244362fbae11f7ceb9a94b2eaa412ac5a2cad1d8` (current branch includes code + contract).
+- CORPUS: 47 real reports; latest local matrix TRUSTED=34 / REVIEW=5 / REJECT=8 / runtime=0 / failed=0.
+- QUALITY SEMANTICS: scores canonical fields by confidence/completeness and soft coverage; unmapped descriptive columns no longer zero the score.
+- REAL PARSER PROOF: 10/10 representative reports PASS with improved quality values.
+- REPORT OUTPUTS: Source Report + source-bound Domain + executive + evidence/trust + intelligence signals + administrative checks + decision candidates + actions + limitations.
+- LOCAL PROOF: file-engine contract PASS; typecheck PASS; PDF regression PASS; report-truth PASS; build PASS; worktree clean.
+- REPORT COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47 because authenticated DB E2E has not terminated successfully on the current SHA.
+- NEXT EXACT ACTION: consume exact-head browser E2E terminal proof; first current-SHA failure becomes the only repair target, otherwise close REPORT_001 and advance sequentially.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / FULL CORPUS MATRIX VERIFIED / SERIAL E2E PENDING
 
 - CONTROL HEAD: `06b56c9cbeb03b6ca77916d8e49ec99b3944365c`.
