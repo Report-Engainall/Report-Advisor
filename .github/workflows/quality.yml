@@ -41,7 +41,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm ci --include=dev --no-audit --no-fund
+          npm ci --no-audit --no-fund
           test -x node_modules/.bin/eslint
           test -x node_modules/.bin/vite
           node_modules/.bin/eslint --version
