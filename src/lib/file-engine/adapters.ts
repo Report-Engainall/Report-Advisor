@@ -45,7 +45,7 @@ function materializeCanonicalFields(rows: Row[], columns: ColumnProfile[]): Row[
   return rows.map((row) => { const next: Row = { ...row }; for (const [field, column] of canonicalOwners) { if (Object.prototype.hasOwnProperty.call(next, field) && next[field] !== '' && next[field] != null) continue; const value = row[column.name]; if (value !== '' && value !== null && value !== undefined) next[field] = value; } return next; });
 }
 
-async function buildDataset(rows: Row[], name: string, source: string, sheet?: string): Promise<Dataset> {
+export async function buildDataset(rows: Row[], name: string, source: string, sheet?: string): Promise<Dataset> {
   const normalized = normalizeRows(rows);
   if (!normalized.length) return { id: generateId(), name, source, sheet, rowCount: 0, columnCount: 0, columns: [], rows: [], preview: [], qualityScore: 0 };
   const columns = Object.keys(normalized[0]); const mappings = await mapColumns(columns); const columnProfiles = buildColumnProfiles(normalized, columns, mappings);
