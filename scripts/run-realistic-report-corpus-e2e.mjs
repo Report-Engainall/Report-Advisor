@@ -129,20 +129,24 @@ try {
       await input.setInputFiles(fixturePath);
 
       const ready = page.getByText('مراجعة قبل الاعتماد', { exact: false });
-      const errorish = page.locator('text=/تعذر|فشل|مرفوض|الملف فارغ|جودة البيانات أقل من 50/').first();
+      let previewReady = false;
       try {
-        await Promise.race([
-          ready.waitFor({ state: 'visible', timeout: 180000 }),
-          errorish.waitFor({ state: 'visible', timeout: 180000 }),
-        ]);
+        await ready.waitFor({ state: 'visible', timeout: 180000 });
+        previewReady = true;
       } catch {
-        throw new Error('IMPORT_PREVIEW_OR_ERROR_TIMEOUT');
+        previewReady = false;
       }
 
       const bodyBeforeCommit = await page.locator('body').innerText();
-      if (!(await ready.count()) || !(await ready.isVisible().catch(() => false))) {
-        record.state = bodyBeforeCommit.includes('أقل من 50%') ? 'BLOCKED' : 'REVIEW';
-        record.reason = bodyBeforeCommit.slice(-1200);
+      if (!previewReady) {
+        if (bodyBeforeCommit.includes('جودة البيانات أقل من 50%') || bodyBeforeCommit.includes('الملف فارغ') || bodyBeforeCommit.includes('تعذر تحديد صيغة الملف')) {
+          record.state = 'BLOCKED';
+        } else if (bodyBeforeCommit.includes('موافقة جودة صريحة') || bodyBeforeCommit.includes('يحتاج موافقة')) {
+          record.state = 'REVIEW';
+        } else {
+          record.state = 'FAILED';
+        }
+        record.reason = bodyBeforeCommit.slice(-1600);
         result.reports.push(record);
         await persist();
         continue;
