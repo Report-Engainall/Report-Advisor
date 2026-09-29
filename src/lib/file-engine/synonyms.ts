@@ -27,6 +27,7 @@ const BUILTIN_SYNONYMS: Array<[string, string, number]> = [
   ['رقم الفاتورة', 'invoice_number', 98], ['تاريخ الفاتورة', 'invoice_date', 98], ['نوع الفاتورة', 'invoice_type', 94], ['العملة', 'currency', 96], ['مبلغ الفاتورة', 'invoice_amount', 94], ['الخصم', 'discount', 94], ['الأعباء', 'charges', 90], ['اﻷعباء', 'charges', 90], ['الضريبة', 'tax_amount', 98], ['اجمالي الفاتورة', 'total', 98], ['مبلغ الصافي بالمحلي', 'net_local_amount', 92],
   ['date', 'date', 94], ['التاريخ', 'date', 96], ['invoice number', 'invoice_number', 98], ['invoice_number', 'invoice_number', 98], ['invoice date', 'invoice_date', 98], ['invoice_date', 'invoice_date', 98], ['subtotal', 'subtotal', 98], ['tax amount', 'tax_amount', 98], ['tax_amount', 'tax_amount', 98], ['paid amount', 'paid_amount', 98], ['paid_amount', 'paid_amount', 98], ['total', 'total', 94], ['الإجمالي', 'total', 96],
   ['البيان', 'description', 98], ['رقمه', 'reference', 98], ['رقم المستند', 'reference', 98], ['المستند', 'document_number', 98], ['حالته', 'status', 98], ['الرصيد', 'balance', 98], ['دائن', 'credit', 98], ['مدين', 'debit', 98], ['رصيد سابق', 'opening_balance', 98],
+  ['balance', 'balance', 98], ['credit', 'credit', 98], ['debit', 'debit', 98],
 ];
 
 function createBuiltinMap(): Map<string, { canonical: string; confidence: number }> { const map = new Map<string, { canonical: string; confidence: number }>(); for (const [synonym, canonical, confidence] of BUILTIN_SYNONYMS) map.set(normalizeColumnName(synonym), { canonical, confidence }); return map; }
