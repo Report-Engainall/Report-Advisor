@@ -106,22 +106,22 @@ jobs:
           const pdfjs = await import('pdfjs-dist');
           const file='tests/fixtures/realistic-reports/تقارير الأرصدة الإفتتاحية - ارصدة نهائية للموردين.pdf';
           const bytes=await fs.readFile(file);
+          const parserBuffer=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
+          const datasets=await parseFile(parserBuffer,file,'pdf');
+          const pdfBytes=new Uint8Array(bytes);
+          const pdfDoc=await pdfjs.getDocument({data:pdfBytes,useSystemFonts:true}).promise;
           const rawPageText = [];
-          for (let pageNumber=1; pageNumber<=Math.min(pdf.numPages,4); pageNumber++) {
-            const page=await pdf.getPage(pageNumber);
+          for (let pageNumber=1; pageNumber<=Math.min(pdfDoc.numPages,4); pageNumber++) {
+            const page=await pdfDoc.getPage(pageNumber);
             const content=await page.getTextContent({disableCombineTextItems:true});
             rawPageText.push(content.items.map(item=>item.str).filter(Boolean).join(' '));
           }
           const directSupplierRows = tryParseSupplierOpeningBalanceText(rawPageText.join(' '));
           console.log('SUPPLIER_OPENING_DIRECT_ROWS=' + (directSupplierRows?.length ?? 0));
           console.log(JSON.stringify(directSupplierRows?.slice(0,4) ?? null,null,2));
-          const parserBuffer=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
-          const datasets=await parseFile(parserBuffer,file,'pdf');
-          const pdfBytes=new Uint8Array(bytes);
-          const pdf=await pdfjs.getDocument({data:pdfBytes,useSystemFonts:true}).promise;
           let allText='';
-          for(let pageNumber=1;pageNumber<=Math.min(pdf.numPages,4);pageNumber++){
-            const page=await pdf.getPage(pageNumber);
+          for(let pageNumber=1;pageNumber<=Math.min(pdfDoc.numPages,4);pageNumber++){
+            const page=await pdfDoc.getPage(pageNumber);
             const content=await page.getTextContent({disableCombineTextItems:true});
             const placements=content.items.map(item=>({str:item.str,x:Number(item.transform?.[4]),y:Number(item.transform?.[5])})).filter(item=>item.str&&Number.isFinite(item.x)&&Number.isFinite(item.y));
             const lines=[...placements].sort((a,b)=>b.y-a.y||a.x-b.x).map(item=>item.str).join(' ');
@@ -129,6 +129,6 @@ jobs:
             console.log('PAGE_'+pageNumber+'='+lines.slice(0,7000));
           }
           
-          console.log(JSON.stringify({pages:pdf.numPages,datasets:datasets.map(d=>({rows:d.rowCount,columns:d.columnCount,quality:d.qualityScore,fields:d.columns.map(c=>({name:c.name,mappedField:c.mappedField,confidence:c.mappingConfidence})),sample:d.rows.slice(0,4)}))},null,2));
+          console.log(JSON.stringify({pages:pdfDoc.numPages,datasets:datasets.map(d=>({rows:d.rowCount,columns:d.columnCount,quality:d.qualityScore,fields:d.columns.map(c=>({name:c.name,mappedField:c.mappedField,confidence:c.mappingConfidence})),sample:d.rows.slice(0,4)}))},null,2));
           NODE
 
