@@ -1350,7 +1350,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     if (structuredText.trim()) structuredPages.push(`PAGE ${pageNumber}\n${structuredText}`);
   }
   if (customerDirectoryRows.length >= 10) { const dataset = await buildDataset(customerDirectoryRows, fileName, 'pdf-' + marker.toLowerCase()); if (dataset.qualityScore >= OCR_REJECT_THRESHOLD) return [dataset]; }
-  if (bankMovementRows.length >= 2) return [await buildDataset(bankMovementRows, fileName, 'pdf-bank-movement-summary')];
+  if (bankMovementRows.length >= 2) { const dataset = await buildDataset(bankMovementRows, fileName, 'pdf-bank-movement-summary'); if (dataset.qualityScore >= OCR_REJECT_THRESHOLD) return [dataset]; }
   if (tableRows.length >= 2 && tablePageCount >= 1) return [await buildDataset(tableRows, fileName, 'pdf-table')];
   if (pages.length) {
     const pageText = pages.join('\n\n');
