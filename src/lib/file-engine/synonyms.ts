@@ -5,6 +5,7 @@ let synonymCache: Map<string, { canonical: string; confidence: number }> | null 
 
 const BUILTIN_SYNONYMS: Array<[string, string, number]> = [
   ['sku', 'sku', 96],
+  ['product_id', 'product_id', 98], ['product_name', 'product_name', 98], ['name', 'name', 98], ['closing_balance', 'closing_balance', 98], ['opening_balance', 'opening_balance', 98], ['inbound_quantity', 'inbound_quantity', 98], ['inbound_unreceived', 'inbound_unreceived', 98], ['posted_sales', 'posted_sales', 98], ['unposted_sales', 'unposted_sales', 98], ['net_sales', 'net_sales', 98], ['net_transfer', 'net_transfer', 98], ['warehouse', 'warehouse', 98], ['package', 'package', 98], ['unit', 'unit', 98],
   ['البيان', 'description', 96], ['رقمه', 'document_no', 96], ['المستند', 'document_no', 96], ['الرصيد', 'balance', 98], ['دائن', 'credit', 98], ['مدين', 'debit', 98], ['الإجمالي', 'total', 98],
   ['رقمه', 'document_no', 96], ['العمله', 'currency', 98], ['حالت', 'status', 96],
   ['كافهالعملاتتفصيلي الرصيد', 'balance', 96], ['كافة العملات تفصيلي الرصيد', 'balance', 96], ['دائن > :', 'credit', 96], ['مدين', 'debit', 98],
