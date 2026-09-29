@@ -48,6 +48,9 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "${EXACT_HEAD}"
           test -z "$(git status --porcelain)"
+      - name: Install repository dependencies
+        run: npm ci --no-audit --no-fund
+
       - name: Normalize and execute real report corpus
         shell: bash
         env:
