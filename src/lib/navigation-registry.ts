@@ -137,6 +137,7 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
     items: [
       { section: 'outputs', path: '/reports', label: 'مركز التقارير', enLabel: 'Reports Center', description: 'التقارير التنفيذية والتفصيلية ومخرجات الأداء', keywords: ['reports', 'تقارير'], icon: 'reports' },
       { section: 'outputs', path: '/reports/executive', label: 'التقرير التنفيذي', enLabel: 'Executive Report', description: 'قصة الأداء والقرارات للإدارة', keywords: ['executive report', 'management'], icon: 'executive-report' },
+      { section: 'outputs', path: '/reports/source-bound', label: 'تقرير المصدر الحي', enLabel: 'Source-Bound Report', description: 'نتيجة تقرير مرتبطة مباشرة بالمصدر الكانوني وبصمته وأدلته', keywords: ['source bound', 'report', 'evidence', 'تقرير', 'مصدر', 'دليل'], icon: 'document' },
     ],
   },
   {
