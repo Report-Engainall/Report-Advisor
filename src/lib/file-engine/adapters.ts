@@ -1327,7 +1327,9 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   const pdfBufferForParsing = pdfBytes.slice().buffer;
   const fontBuffer = pdfBytes.slice().buffer;
   const embeddedGlyphMapPromise = pdfBytes.some(byte => byte >= 0x80) ? loadEmbeddedPdfGlyphMap(fontBuffer).catch(() => null) : Promise.resolve(null);
-  const pdfjs = typeof window === 'undefined'
+  const isViteSsr = Boolean((import.meta as unknown as { env?: { SSR?: boolean } }).env?.SSR);
+  const useNodePdfJs = typeof window === 'undefined' && !isViteSsr;
+  const pdfjs = useNodePdfJs
     ? await import('pdfjs-dist/legacy/build/pdf.mjs')
     : await import('pdfjs-dist');
   if (typeof window !== 'undefined') {
