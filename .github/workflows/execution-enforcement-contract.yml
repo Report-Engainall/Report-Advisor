@@ -88,17 +88,20 @@ jobs:
           set -euo pipefail
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends poppler-utils tesseract-ocr tesseract-ocr-ara tesseract-ocr-eng
-      - name: Inspect Jeeb PDF renderer failure
+      - name: Measure Jeeb OCR output
         shell: bash
         run: |
-          set +e
-          echo "=== pdfinfo ==="
-          pdfinfo "tests/fixtures/realistic-reports/الصراف جيب.pdf" 2>&1
-          echo "=== pdftoppm page 1 ==="
-          pdftoppm -png -r 150 -f 1 -l 1 "tests/fixtures/realistic-reports/الصراف جيب.pdf" /tmp/jeeb-page 2>&1
-          echo "pdftoppm_exit=$?"
-          echo "=== pdftocairo page 1 ==="
-          pdftocairo -png -r 150 -f 1 -l 1 "tests/fixtures/realistic-reports/الصراف جيب.pdf" /tmp/jeeb-cairo 2>&1
-          echo "pdftocairo_exit=$?"
-          echo "=== files ==="
-          ls -lh /tmp/jeeb-page* /tmp/jeeb-cairo* 2>&1
+          set -euo pipefail
+          mkdir -p /tmp/jeeb-ocr
+          pdftoppm -png -r 200 -f 1 -l 7 "tests/fixtures/realistic-reports/الصراف جيب.pdf" /tmp/jeeb-ocr/page >/dev/null 2>&1
+          : > /tmp/jeeb-ocr/all.txt
+          : > /tmp/jeeb-ocr/all.tsv
+          for image in /tmp/jeeb-ocr/page-*.png; do
+            echo "=== ${image} ===" >> /tmp/jeeb-ocr/all.txt
+            tesseract "${image}" stdout -l ara+eng --psm 6 2>/dev/null >> /tmp/jeeb-ocr/all.txt || true
+            tesseract "${image}" stdout -l ara+eng --psm 6 tsv 2>/dev/null | tail -n +2 >> /tmp/jeeb-ocr/all.tsv || true
+            echo >> /tmp/jeeb-ocr/all.txt
+          done
+          sed -n '1,260p' /tmp/jeeb-ocr/all.txt
+          echo "OCR_WORDS=$(grep -Eo '[[:alnum:]ء-ي٠-٩]+' /tmp/jeeb-ocr/all.txt | wc -l)"
+          echo "OCR_CONF_AVG=$(awk -F '\t' '{if ($11 ~ /^[0-9.]+$/ && $11 >= 0) {sum += $11; n++}} END {if(n) printf "%.2f\n",sum/n; else print "0"}' /tmp/jeeb-ocr/all.tsv)"
