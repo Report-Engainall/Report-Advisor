@@ -1,3 +1,23 @@
+# LIVE EXECUTION CHECKPOINT — 2026-09-29 / REPORT CORPUS INVARIANT + PROVENANCE CORE
+
+- CURRENT FUNCTIONAL HEAD → `5a562a2714c5ca1847750daeeb2ee852ed848e45`.
+- CURRENT PR → #680 / `exec-report-cert-parity-0929`.
+- STRICT BUSINESS REPORT CORPUS → 34 latest human PDF/XLS/XLSX execution sources (2 runtime fixtures excluded): 32 terminal/rendered + 2 open/noncanonical.
+- STRICT INVARIANT NOW → `32/32 PASS`: report completed/rendered; evidence-linked import completed; source_fingerprint equals report source_hash; processed_rows=total_rows; invalid_rows=0; canonical row count by source_hash equals import total; evidence source-row count equals canonical; authoritative-current-row count equals canonical.
+- PROVENANCE CORE REPAIR → migration `20260929173000_persist_import_source_fingerprint` backfilled only evidence-complete terminal imports whose `result_summary.source_hash` matched the full canonical row count, and updated `import_finish_job` so future terminal imports persist `source_fingerprint`.
+- CANONICAL ALIAS REPAIR → `fetchCanonicalImportSourceRows` now resolves canonical rows by the import's source hash when a report-import shell has no canonical rows under its own id. This fixes the real 1,998-row report and the 13-row cash report without falling back to company-wide data.
+- SOURCE-BOUND ROUTING → every recognized import with an importId uses `/reports/import/:importId` as primary domain surface; the page is domain-aware and filename-first for known misclassifications.
+- REAL 1,998-ROW PROOF → `فواتير العملاء من تاريخ 01-06 حتى 15-08.pdf` remains real-source evidence: 1,998 canonical rows, full import 1998/1998, source hash exact, report rendered, smart outputs fail-closed where fields are absent. Artifact: `/mnt/data/aghbari-real-source-report-2026-09-29.md`.
+- TWO OPEN BUSINESS SOURCES → `المبيعات.pdf` (328 rows, 0 canonical, import processing) and `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf` (6,562 rows, 0 canonical, report queued/decisioned). Source bytes exist in private storage but no authorized source-byte retrieval path is available through the current connectors; do not fabricate.
+- LIBRARY CORPUS → 50 PDF/XLSX files are currently visible. Many are specifications, wireframes, permissions, templates or project docs; the current Library metadata does not establish 47–48 operational reports. DB execution corpus remains the authoritative executed-report count.
+- PHASE-F ROOT REPAIR → restore migration now uses `company_memberships` instead of late `profiles` dependency; live parity migration `20260929170000_reconcile_customer_company_resolver_restore_parity` applied.
+- CORE REQUEUE REPAIR → completed imports requeue the exact evidence-linked report job only through the private SECURITY DEFINER transaction trigger, with no authenticated UPDATE on report execution tables.
+- CURRENT CI → latest code HEAD has 49 workflows currently queued/being scheduled and no failures yet. Fresh terminal evidence is still required; no stale PASS transfer.
+- VERCEL/EDGE → no deployment matching current HEAD is visible; PC01 offline. No authenticated Edge/browser or production PASS claimed.
+- RESUME → poll exact current HEAD CI; repair first current-SHA failure only. Then recover the two source-only reports through an authorized storage/import path and run their complete canonical/report lifecycle.
+
+---
+
 # LIVE EXECUTION CHECKPOINT — 2026-09-29 / PHASE-F RESTORE PARITY REPAIR
 
 - CURRENT FUNCTIONAL HEAD → `b24d515d9e45847591b56ce6307105103874ea09`.
