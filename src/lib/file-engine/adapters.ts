@@ -45,10 +45,30 @@ function materializeCanonicalFields(rows: Row[], columns: ColumnProfile[]): Row[
   return rows.map((row) => { const next: Row = { ...row }; for (const [field, column] of canonicalOwners) { if (Object.prototype.hasOwnProperty.call(next, field) && next[field] !== '' && next[field] != null) continue; const value = row[column.name]; if (value !== '' && value !== null && value !== undefined) next[field] = value; } return next; });
 }
 
+const CANONICAL_EMITTED_FIELDS = new Set([
+  'sku','name','name_en','unit','base_unit','pack_size','category','item_type','cost_price','selling_price',
+  'min_price','max_price','average_cost','available_quantity','quantity','warehouse','margin','margin_percent',
+  'customer_id','customer_name','phone','email','segment','credit_limit','opening_balance','balance',
+  'invoice_number','invoice_date','invoice_type','subtotal','tax_amount','total','paid_amount',
+  'supplier_id','supplier_name','purchase_order','outstanding_balance','local_amount',
+  'date','currency','document_no','document_type','reference_no','description','debit','credit',
+  'foreign_amount','status','sales_amount','net_sales','discount','charges','incoming','returns_amount',
+  'other_debit','other_credit','collected_amount','age_0_30','age_31_60','age_61_90','age_91_120','age_over_120',
+]);
+
 async function buildDataset(rows: Row[], name: string, source: string, sheet?: string): Promise<Dataset> {
   const normalized = normalizeRows(rows);
   if (!normalized.length) return { id: generateId(), name, source, sheet, rowCount: 0, columnCount: 0, columns: [], rows: [], preview: [], qualityScore: 0 };
-  const columns = Object.keys(normalized[0]); const mappings = await mapColumns(columns); const columnProfiles = buildColumnProfiles(normalized, columns, mappings);
+  const columns = Object.keys(normalized[0]);
+  const mappedColumns = await mapColumns(columns);
+  const mappings = mappedColumns.map((mapping) => {
+    const normalizedName = normalizeColumnName(mapping.sourceColumn);
+    if (CANONICAL_EMITTED_FIELDS.has(normalizedName)) {
+      return { ...mapping, mappedField: normalizedName, confidence: Math.max(mapping.confidence, 98), requiresReview: false };
+    }
+    return mapping;
+  });
+  const columnProfiles = buildColumnProfiles(normalized, columns, mappings);
   for (const col of columnProfiles) { if (col.nullCount > normalized.length * 0.5) col.qualityIssues.push('أكثر من 50% من القيم فارغة'); if (col.mappingConfidence < 80 && col.mappedField) col.qualityIssues.push('تعيين منخفض الثقة — يحتاج مراجعة'); if (!col.mappedField) col.qualityIssues.push('لم يتم تعريف العمود'); }
   const cleanedRows = normalized.map((row) => Object.fromEntries(columnProfiles.map((col) => [col.name, cleanValue(row[col.name], col.dataType)])) as Row);
   const canonicalRows = materializeCanonicalFields(cleanedRows, columnProfiles);
