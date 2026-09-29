@@ -27,7 +27,7 @@ interface EnqueuedJob {
   id: string;
   company_id: string;
   status: string;
-  checkpoint: unknown;
+  checkpoint?: { stage?: string };
   attempt: number;
   max_attempts: number;
 }
@@ -70,7 +70,11 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput, 
   const accessToken = sessionData.session?.access_token;
   if (sessionError || !accessToken) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
-  const response = await fetch('/api/canonical-import-execute', {
+  const configuredEndpoint = typeof import.meta !== 'undefined' && typeof import.meta.env?.VITE_CANONICAL_IMPORT_EXECUTE_URL === 'string'
+    ? import.meta.env.VITE_CANONICAL_IMPORT_EXECUTE_URL.trim()
+    : '';
+  const endpoint = configuredEndpoint || '/api/canonical-import-execute';
+  const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -152,13 +156,25 @@ export async function runCanonicalImportThroughDurableRunner(
   if (enqueueError) throw enqueueError;
   if (!enqueueData || typeof enqueueData !== 'object') throw new Error('REPORT_EXECUTION_JOB_ENQUEUE_EMPTY');
 
-  const job = enqueueData as EnqueuedJob;
+  let job = enqueueData as EnqueuedJob;
   if (!job.id || job.company_id !== companyId) throw new Error('REPORT_EXECUTION_JOB_TENANT_MISMATCH');
   if (job.status === 'succeeded' || job.status === 'completed') throw new Error('IMPORT_ALREADY_COMPLETED_FOR_SOURCE');
-  if (job.status === 'cancelled' || job.status === 'dead_letter') throw new Error('IMPORT_DURABLE_JOB_NOT_RETRYABLE');
-  if (job.status === 'running' || job.status === 'leased' || job.status === 'processing') throw new Error('IMPORT_DURABLE_JOB_ALREADY_RUNNING');
   const store = new SupabaseReportExecutionStore(activeWorkerClient);
-  if (job.status === 'failed') await store.retry(job.id, companyId);
+  if (job.status === 'dead_letter') {
+    // The authoritative recovery RPC validates that every task is still queued
+    // before resetting an infrastructure-dead job. Do not infer progress solely
+    // from the parent checkpoint, because historical infrastructure failures can
+    // leave the checkpoint ahead of task persistence.
+    await store.recoverDeadLetter(job.id, companyId);
+    job.status = 'queued';
+    job.attempt = 0;
+  }
+  if (job.status === 'cancelled') throw new Error('IMPORT_DURABLE_JOB_NOT_RETRYABLE');
+  if (job.status === 'running' || job.status === 'leased' || job.status === 'processing') throw new Error('IMPORT_DURABLE_JOB_ALREADY_RUNNING');
+  if (job.status === 'failed') {
+    await store.retry(job.id, companyId);
+    job.status = 'queued';
+  }
 
   const observedAt = new Date().toISOString();
   const quality = input.qualityScore / 100;

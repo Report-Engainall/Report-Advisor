@@ -1,5 +1,531 @@
+# RESUME TOKEN — 2026-09-29 08:04 +03:00 / CURRENT HEAD 147a4e69 / REPORT_001 CLOSED / FULL CORPUS RUNNER QUEUED
+
+- CURRENT EXACT HEAD: 147a4e692a9cdfb3aaf57eb79bb06d7bf03fe8e8
+- FUNCTIONAL CANDIDATE: 2e950c48544edb4c20e1c00eb9bde6f2a697e7
+- REPORT-FIRST STATUS: REPORT_001 CLOSED and individually proven by Full Product Browser E2E run 36521493399.
+- REPORT_001 PROOF: import 6de27d0f-98bb-4d1b-8143-fd3d9a85a4b8; 27/27 valid; execution 174196b5-42cf-4654-9721-13ac8d5a29db; all 9 stages completed; Source Report VERIFIED; source-bound domain rendered; output bundle links for Trust, Executive, Intelligence, Recommendations, Forecasts, Decision, Work Center, Data Quality; Benchmark INSUFFICIENT SAMPLE; tenant A/B isolation PASS.
+- FULL CORPUS: 47 executable candidates (48 filesystem entries minus README.md). The exact-head runner 36522086830 is configured for complete mode and no explicit max; status is QUEUED, not PASS.
+- CURRENT REPORT COUNTS: CLOSED=1 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=46.
+- CURRENT BLOCKER: GitHub Actions runner allocation. Remote Desktop device has 0 calls remaining, so no further device execution is possible in this session. No product/code blocker is inferred from the queue.
+- LANE B FINDING: Business Replay and Outcome follow-up are not orphaned screens: Command Center exposes Business Replay as an evidence-gated card, and Decision Experience exposes the Outcome stage with fail-closed persisted-outcome semantics. No duplicate route should be created merely to satisfy a label.
+- CURRENT RESUME POINTER: terminal full-corpus E2E run 36522086830 at exact HEAD 147a4e692a9cdfb3aaf57eb79bb06d7bf03fe8e8.
+- NEXT EXACT ACTION: when terminal evidence exists, inspect every per-report artifact; require discovered=processed=closed=47 and failed=review=0 before setting CLOSED=47. First current-SHA failure becomes the only repair target.
+- DO-NOT-REPEAT: never count README as a report; never use REPORT_001 PASS as corpus PASS; never weaken auth/RLS; never create duplicate Replay/Outcome surfaces without canonical backend evidence; no stale SHA proof.
+---
+# RESUME TOKEN — 2026-09-29 07:58 +03:00 / CURRENT HEAD 31d2091d / REPORT_001 CLOSED / FULL CORPUS RUNNING
+
+- CURRENT EXACT HEAD: 31d2091de5af67f6e7177224c0675ffd4d1de980
+- FUNCTIONAL CANDIDATE: 2e950c48544edb4c20e1c0e00eb9bde6f2a697e7
+- REPORT-FIRST STATUS: REPORT_001 CLOSED by exact-head Full Product Browser E2E run 36521493399 on functional candidate 2e950c48.
+- REPORT_001 PROOF: import job 6de27d0f-98bb-4d1b-8143-fd3d9a85a4b8; 27/27 valid; execution job 174196b5-42cf-4654-9721-13ac8d5a29db; source report VERIFIED; all 9 durable stages completed; domain rendered; evidence/decision/work-center output links present; Benchmark INSUFFICIENT SAMPLE; tenant A/B canonical and UI isolation PASS.
+- IMPORTANT LIMIT: the preceding PASS covered REPORT_001 only. It is not a corpus PASS.
+- HARNESS FIX NOW ON EXACT HEAD: full corpus mode discovers the real report candidates dynamically, processes all discovered candidates when no explicit max is supplied, requires at least 40 candidates, and enforces processed=discovered=closed with zero failed/review.
+- CORPUS FACT: filesystem has 48 entries including README.md; executable report candidate set is 47 because README.md is excluded. REPORT_001 CLOSED => REMAINING=46.
+- CURRENT REPORT COUNTS: CLOSED=1 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=46.
+- CURRENT RESUME POINTER: exact-head Full Product Browser E2E over all 47 executable report candidates.
+- NEXT EXACT ACTION: consume terminal full-corpus artifact; inspect every per-report artifact and close the report front only if discovered=processed=closed=47 and failed=review=0. First report-specific failure controls the next repair.
+- DO-NOT-REPEAT: never count README.md as a report; never treat one-report PASS as full-corpus PASS; no stale SHA proof; no direct DB injection; no duplicate importer path.
+---
+# RESUME TOKEN — 2026-09-29 07:52 +03:00 / REPORT_001 CLOSED / FULL DISCOVERED CORPUS NEXT
+
+- CURRENT EXACT HEAD: 51cbce1cf8527441d49a97a10b6521cc6a513111
+- REPORT-FIRST STATUS: REPORT_001 CLOSED by exact-head Full Product Browser E2E run 36521493399 on functional candidate 2e950c48544edb4c20e1c0e00eb9bde6f2a697e7.
+- REPORT_001 PROOF: import job 6de27d0f-98bb-4d1b-8143-fd3d9a85a4b8; 27/27 valid; execution job 174196b5-42cf-4654-9721-13ac8d5a29db; source report VERIFIED; all 9 durable stages completed; domain rendered; output bundle/evidence/decision/work-center labels PASS; Benchmark INSUFFICIENT SAMPLE; tenant A/B canonical + UI isolation PASS.
+- IMPORTANT LIMIT: that PASS covered REPORT_001 only because the workflow was then MAX=1.
+- HARNESS REPAIR NOW APPLIED: full browser gate no longer hardcodes MAX=48; absent an explicit max, the runner processes all discovered candidates. Complete mode requires >=40 candidates and enforces processed=discovered=closed with zero failed/review.
+- CORPUS FACT: filesystem contains 48 entries including README; executable report candidate set is 47 because README is excluded. REPORT_001 CLOSED => REMAINING=46.
+- CURRENT REPORT COUNTS: CLOSED=1 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=46.
+- DO-NOT-REPEAT: never count README as a report; never treat the one-report PASS as full-corpus PASS; no stale SHA proof; no direct DB injection.
+- CURRENT RESUME POINTER: exact-head Full Product Browser E2E over all discovered report candidates.
+- NEXT EXACT ACTION: consume the terminal full-corpus E2E; close each report only from its individual artifact evidence; if first report-specific blocker appears, repair it and rerun the full gate.
+---
+# RESUME TOKEN — 2026-09-29 07:47 +03:00 / REPORT_001 CLOSED / FULL 48 CORPUS EXECUTION NEXT
+
+- CURRENT FUNCTIONAL CODE/TEST CANDIDATE: 2e950c48544edb4c20e1c0e00eb9bde6f2a697e7
+- CURRENT CONTROL HEAD AFTER HARNESS GOVERNANCE: PENDING_COMMIT_SHA
+- REPORT-FIRST STATUS: REPORT_001 is CLOSED by exact-head Full Product Browser E2E run 36521493399 on functional SHA 2e950c48.
+- REPORT_001 PROOF: import job 6de27d0f-98bb-4d1b-8143-fd3d9a85a4b8 completed at 100%; 27/27 valid rows; execution job 174196b5-42cf-4654-9721-13ac8d5a29db; source SHA-256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099; source report VERIFIED; benchmark INSUFFICIENT_SAMPLE; domain/source/report output bundle checks PASS; tenant A/B canonical and UI isolation PASS.
+- IMPORTANT LIMIT: that E2E run was intentionally REPORT_CORPUS_MAX=1. It proves REPORT_001, not the entire corpus.
+- HARNESS FIX IN THIS CHECKPOINT: full browser workflow now runs REPORT_CORPUS_MAX=48 and REPORT_CORPUS_COMPLETE=true; real-business-e2e asserts discovered=48, processed=48, closed=48, failed=0, review=0 in complete mode.
+- CORPUS DISCOVERY: prior corpus gate proved ACTUAL=48 files under tests/fixtures/realistic-reports.
+- CURRENT REPORT COUNTS: CLOSED=1 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47.
+- NEXT EXACT ACTION: current-head Full Product Browser E2E must execute all 48 candidates serially; existing completed reports are reused/reconciled, open reports are canonically imported and rendered. No report is reopened without a current-SHA/runtime reason.
+- DO-NOT-REPEAT: do not treat the one-report PASS as full-corpus PASS; do not skip reports manually; do not create fixture-specific import paths; no stale certificate.
+---
+# RESUME TOKEN — 2026-09-29 07:42 +03:00 / REPORT UI PROVENANCE FIX 2e950c48 / E2E NEXT
+
+- CURRENT FUNCTIONAL CODE/TEST SHA: 2e950c48544edb4c20e1c0e00eb9bde6f2a697e7
+- REPORT-FIRST FRONT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099
+- THIS CHECKPOINT: Source Report now exposes both canonical fingerprint (sha256:<digest>) and raw SHA-256 digest with explicit provenance labels; browser proof accepts either authoritative representation without weakening provenance.
+- PRIOR E2E FINDING: REPORT_001 reached existing-completed reconciliation and tenant A/B isolation; the sole report-specific proof failure was provenance formatting.
+- SECURITY FIX ALREADY IN BRANCH: enqueue_report_execution_job is service_role-only; authenticated/anon/public execution revoked.
+- REPORT_001 CLOSURE: OPEN pending exact-head full-corpus E2E proving source persistence, 9 stages, VERIFIED, domain, executive/evidence/decision/work-center links, benchmark fail-closed, and tenant isolation.
+- COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47
+- DO-NOT-REPEAT: no fabricated provenance, no test-only selector hacks, no stale SHA proof, no direct DB writes.
+- CURRENT RESUME POINTER: exact-head certification + Full Product Browser E2E for 2e950c48544edb4c20e1c00eb9bde6f2a697e7
+- NEXT EXACT ACTION: bind 2e950c48, consume terminal Phase 2 security + certification + full-corpus browser proof, repair first current-SHA blocker only, then close REPORT_001.
+---
+# RESUME TOKEN — 2026-09-29 07:38 +03:00 / SECURITY HEAD 17dbee28 / REPORT-FIRST E2E NEXT
+
+- CURRENT FUNCTIONAL CODE/TEST SHA: 17dbee28e7c647174cc0cf40d8d43c423e0a7f2f
+- REPORT-FIRST FRONT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099
+- SECURITY FIX: migration 20260929061000_recover_dead_letter_on_enqueue.sql now revokes authenticated execution of enqueue_report_execution_job and grants it only to service_role. This matches the actual usage model: the function is an internal worker primitive and no application caller exists in repository code.
+- PRIOR SECURITY FAILURE: Phase 2 security closure on 0fde found the authenticated grant lacked tenant/user binding.
+- PRIOR FUNCTIONAL PROOF: build/typecheck PASS, PDF structured regression PASS; import contract had been reduced to the regex test and is fixed.
+- REPORT_001 CLOSURE: OPEN pending current-head Full Product Browser E2E proving persistence/readback, 9 stages, Source Report VERIFIED, source-bound domain/receivables, downstream intelligence/decision/work-center surfaces, benchmark fail-closed, and tenant isolation.
+- COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47
+- DO-NOT-REPEAT: never re-grant authenticated execution to internal durable primitives; never claim report closure from static contracts; no stale SHA proof.
+- CURRENT RESUME POINTER: exact-head certification + Full Product Browser E2E for 17dbee28.
+- NEXT EXACT ACTION: bind candidate, consume terminal security/certification/browser evidence, repair first current-SHA failure, then close REPORT_001.
+---
+# RESUME TOKEN — 2026-09-29 07:35 +03:00 / FUNCTIONAL HEAD 0fde380c / CERTIFICATION NEXT
+
+- CURRENT FUNCTIONAL CODE/TEST SHA: 0fde380cedc9bfc7ee8ad1b78f19a5532a3da942
+- CONTROL HEAD: PENDING_GOVERNANCE_COMMIT
+- REPORT-FIRST FRONT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099
+- THIS CHECKPOINT: corrected the durable worker ready-state regex in scripts/check-import-transaction-contract.mjs. The prior failure was test-only and caused by over-escaped regex whitespace.
+- PRIOR PROOF: at governance head 424e6a5d, build/typecheck passed and 19/20 release-readiness stages passed; only stage 09 import-transaction failed.
+- REPORT_001 CLOSURE: OPEN until current-SHA Full Product Browser E2E proves canonical persistence/readback, 9 durable stages, Source Report VERIFIED, source-bound domain/receivables, downstream outputs, benchmark fail-closed, and tenant A/B isolation.
+- COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47
+- DO-NOT-REPEAT: do not treat 19/20 as closure, do not use stale E2E from older SHA, do not bypass auth/RLS or inject DB rows.
+- CURRENT RESUME POINTER: exact-head certification + full-corpus browser E2E for 0fde380cedc9bfc7ee8ad1b78f19a5532a3da942
+- NEXT EXACT ACTION: bind this candidate, consume terminal certification and E2E, repair only the first current-SHA product/runtime blocker, then close REPORT_001 and advance.
+---
+# RESUME TOKEN — 2026-09-29 07:32 +03:00 / FUNCTIONAL HEAD 62533f95 / CURRENT-SHA CERTIFICATION NEXT
+
+- CURRENT FUNCTIONAL CODE SHA: 62533f95768336014280b91d094cee43685eede7
+- CONTROL HEAD: PENDING_GOVERNANCE_COMMIT
+- REPORT-FIRST FRONT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099
+- FIXES IN THIS FUNCTIONAL CHECKPOINT:
+  1. pdfjs legacy worker import now has a local explicit TypeScript expectation because the package ships the runtime entry without a declaration.
+  2. import transaction contract now checks the durable worker ready-write structurally, independent of single-vs-double quote formatting.
+- PRIOR CERTIFICATION FAILURES CLOSED: candidate binding; PDF DOMMatrix type mismatch; stale Netlify service-role assertion; worker ready quote mismatch.
+- REPORT_001 CLOSURE: OPEN. Current exact-head browser proof still required for canonical persistence, 9 durable stages, Source Report VERIFIED, source-bound domain/receivables, downstream evidence/intelligence/decision/work-center, benchmark status, and A/B tenant isolation.
+- COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47
+- DO-NOT-REPEAT: stale SHA PASS, auth bypass, direct DB insertion, duplicate import path, generic UI substituted for source-bound proof.
+- CURRENT RESUME POINTER: exact-head certification + Full Product Browser E2E for 62533f95768336014280b91d094cee43685eede7
+- NEXT EXACT ACTION: consume terminal certification and full-corpus E2E at this SHA; repair only first reproducible blocker; otherwise persist REPORT_001 closure and advance REPORT_002.
+---
+# RESUME TOKEN — 2026-09-29 07:29 +03:00 / CURRENT FUNCTIONAL HEAD 91ab9337 / EXACT-HEAD PROOF NEXT
+
+- CURRENT FUNCTIONAL CODE SHA: 91ab9337fc152adab966819d92fa49353abfa4df
+- CURRENT CONTROL HEAD: PENDING_GOVERNANCE_COMMIT
+- REPORT-FIRST FRONT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099
+- FUNCTIONAL FIXES CLOSED IN 91ab:
+  1. DOMMatrix runtime shim assignment is type-compatible with the DOMMatrix constructor.
+  2. Added TypeScript declaration for pdfjs-dist/legacy/build/pdf.worker.mjs.
+  3. Import transaction contract now matches actual architecture: Netlify authenticated user client performs source proof/reconciliation; canonical Supabase worker owns service-role execution and durable runner.
+- PRIOR AUTHORITATIVE FAILURE FIXED: 7116cc48 reached existing-completed REPORT_001 reuse/task-ledger reconciliation but browser proof failed on strict duplicate-heading selector and observed transient PGRST303 JWT-issued-at-future during tenant B resolution; both were fixed in df1c.
+- REPORT_001 CLOSURE: OPEN. Exact-head browser proof still required for DB persistence/readback, 9 stages, Source Report VERIFIED, source-bound domain/receivables, downstream output bundle, and tenant A/B isolation.
+- COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47
+- DO-NOT-REPEAT: no stale certification candidate, no auth bypass, no direct DB insertion, no duplicate import path, no queued run treated as proof.
+- CURRENT RESUME POINTER: exact-head Full Product Browser E2E for 91ab9337fc152adab966819d92fa49353abfa4df
+- NEXT EXACT ACTION: consume terminal certification/build/E2E evidence on the governance-bound head; repair only the first reproducible current-SHA blocker, then close REPORT_001 and advance sequentially.
+---
+# RESUME TOKEN — 2026-09-29 07:20 +03:00 / REPORT_001 PROOF-HARNESS BLOCKERS FIXED / CURRENT-HEAD E2E NEXT
+
+- CURRENT EXACT HEAD AFTER FUNCTIONAL CHECKPOINT: df1c304c8c8c0d83f9bc8ec6eafcff45428b35ef
+- CURRENT CONTROL HEAD: PENDING_GOVERNANCE_COMMIT
+- PREVIOUS CONTROL HEAD: 5b24aaa0cd699699b2616b19d1f39b9915c41eaa
+- REPORT-FIRST FRONT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099.
+- AUTHORITATIVE E2E FINDING: run 36520247114 on functional code SHA 7116cc48 reached existing-completed REPORT_001 reuse and task-ledger reconciliation; it then failed on a strict UI heading selector matching two legitimate headings. A separate tenant-isolation check observed Supabase PGRST303 / JWT issued at future.
+- FIX APPLIED: selector now disambiguates the last exact file-name heading; currentTenant retries only PGRST303/JWT-issued-at-future with bounded backoff and re-reads the session token; runtime capture ignores only that exact transient condition while currentTenant still fails closed if it does not converge.
+- SECURITY BOUNDARY: no auth bypass, RLS bypass, token fabrication, or direct database write was introduced.
+- REPORT_001 CLOSURE: NOT PROVEN until exact-head browser evidence proves canonical persistence, nine completed stages, Source Report VERIFIED, source-bound domain/receivables render, downstream bundle, and tenant A/B isolation.
+- COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47.
+- DO-NOT-REPEAT: do not alter legitimate duplicate headings just to satisfy a locator; do not weaken authentication/RLS; do not treat queued/stale E2E as proof; do not move to REPORT_002.
+- CURRENT RESUME POINTER: exact-head Full Product Browser E2E for REPORT_001.
+- NEXT EXACT ACTION: consume the terminal browser run for this checkpoint; repair only the first reproducible product/runtime blocker, otherwise close REPORT_001 and persist full evidence.
+
+---
+
+# RESUME TOKEN — 2026-09-29 07:12 +03:00 / REPORT_001 CURRENT-SHA RECONCILE / HOSTED PROOF NEXT
+
+- CURRENT FUNCTIONAL EXACT HEAD SHA: 7116cc48cd3b051535c410e98f1dda5fdba6619e.
+- CONTROL BRANCH: exec/20260929-post-import-report-continuity.
+- CURRENT FRONT: REPORT-FIRST / REPORT_001 only.
+- CURRENT REPORT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099.
+- ACTUAL CURRENT-SHA CHANGES: server PDF.js compatibility is present in the canonical parser; ReceivablesReportCanonicalPage hooks are now unconditional and its generic loader is suppressed on source-bound importId routes; the import transaction contract now validates authoritative parse/reconcile -> durable worker -> file_records ready ordering.
+- HOSTED PROOF STATUS: Full Product Browser E2E run 36520247114 is QUEUED; quality run 36520247028 is QUEUED; Final Certification Gate run 36520247016 is QUEUED; Execution Enforcement Contract run 36520247013 is QUEUED. QUEUED IS NOT PASS.
+- REPORT_001 CLOSURE: NOT PROVEN. No current-SHA authenticated canonical DB commit/readback, nine terminal durable stages, source report VERIFIED render, source-bound receivables render, downstream bundle proof, or tenant A/B isolation proof has been accepted.
+- CURRENT REPORT COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47.
+- REAL BLOCKERS: terminal current-SHA browser E2E and any runtime/deployment failure it reveals. Phase-F deployment/migration-lineage certification remains a separate front.
+- DO-NOT-REPEAT: no direct DB insertion; no guessed credentials; no duplicate importer/worker/runner; no stale SHA PASS; no queued Actions as evidence; no transition to REPORT_002 before REPORT_001 closure.
+- CURRENT RESUME POINTER: current-SHA Full Product Browser E2E for REPORT_001.
+- NEXT EXACT ACTION: consume run 36520247114 at terminal state; if it fails, repair only the first reproducible current-SHA blocker and rerun the affected proof; if it succeeds, inspect persisted report evidence and close REPORT_001 only after DB + 9 stages + Source Report + source-bound domain/receivables + downstream evidence/decision/work-center proof.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / REPORT_001 ANALYSIS HARDENED / CURRENT HEAD 2cfc2d90
+
+- CURRENT EXACT HEAD: `2cfc2d906ff35c17d9e0b4a436c57321b51746e4`.
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`.
+- DEVICE: PC01 ONLINE.
+- ACTIVE REPORT: REPORT_001 = `اعمار الديون للعملا.pdf`; SHA256 `9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`.
+- REAL SOURCE ANALYSIS: 27 rows; quality 98; specialty `receivables`; specialty confidence 96; entity `generic:receivables`; currency YER.
+- DETERMINISTIC RECEIVABLES TOTAL: outstanding balance = 12,094,224 YER across 27 rows.
+- AGE DATA FOUND IN SOURCE: only 2/5 canonical age bands are present (`age_0_30`, `age_over_120`). 0–30 = 8,149,860 YER; >120 = 3,075,864 YER; age-band coverage is therefore partial.
+- AGE RECONCILIATION GAP: available age bands total 11,225,724 YER, leaving 868,500 YER not attributable to the available age bands. This is a SOURCE/coverage limitation, not a recovered amount or forecast.
+- CONCENTRATION SIGNALS FROM REAL ROWS: top customer = 3,172,370 YER (26.23%); top two = 6,295,370 YER (52.04%); top five = 8,859,505 YER (73.25%). These are descriptive source-derived concentration signals only.
+- CLOSED CODE FRONT: `src/pages/SourceDomainReportPage.tsx` now exposes age-band coverage, 0–30 and >120 values, partial-coverage status, and an explicit reconciliation-gap administrative check; decision candidate is fail-closed when age coverage is incomplete.
+- GUARD HARDENED: `scripts/check-post-import-report-guard.mjs` now requires the receivables aging-coverage contract.
+- LOCAL EXACT-HEAD PROOF: `typecheck` PASS; `test:post-import-report-guard` PASS after the guard hardening; `test:report-execution-e2e-contract` PASS; production `build` PASS; `git diff --check` PASS.
+- FUNCTIONAL COMMIT: `2cfc2d906ff35c17d9e0b4a436c57321b51746e4` — `feat: expose receivables aging coverage gaps`.
+- AUTHENTICATED REPORT CLOSURE: NOT PROVEN. No canonical DB commit/readback, no 9-stage terminal evidence, no authenticated source report render, no tenant A/B browser proof.
+- CI PROOF RULE: the earlier Full Product Browser E2E on `25a538b4...` is now stale because the report UI logic changed afterward. It must not be reused as current proof. Current-head E2E terminal proof for `2cfc2d90...` has not yet been observed.
+- CURRENT REPORT COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47.
+- DO-NOT-REPEAT: no direct DB insertion; no guessed credentials; no browser-cookie extraction; no stale SHA PASS; no reuse of `25a538b4...` E2E after the aging-coverage fix; no transition to REPORT_002 before REPORT_001 reaches authoritative closure.
+- NEXT EXACT ACTION: obtain terminal authenticated E2E for `2cfc2d90...`; execute REPORT_001 through canonical commit + 9 stages + source-bound receivables report + downstream bundle + tenant A/B isolation. Only then persist CLOSED and advance to REPORT_002.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / REPORT-FIRST EXECUTION DISPATCHED / CURRENT HEAD 25a538b4
+
+- CURRENT EXACT HEAD: `25a538b4b04f556dd8fb329ebc22a7e43049952b`.
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`.
+- DEVICE: PC01 ONLINE.
+- EXECUTION FRONT: REPORT-FIRST; REPORT_001 remains the sole active report until authoritative closure.
+- REPORT_001: `اعمار الديون للعملا.pdf`; SHA256 `9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`; local readiness 27 rows / quality 98 / TRUSTED / receivables / confidence 96.
+- LOCAL RUNNER GUARD: `scripts/real-business-e2e.mjs` syntax-check PASS; runner explicitly preserves report-first serial execution and rejects stale/queued proof as closure.
+- NEW COMMIT: `25a538b4b04f556dd8fb329ebc22a7e43049952b` — `ci-trigger-report-first-real-corpus-e2e`.
+- CURRENT AUTHORITATIVE E2E RUNS FOR THIS SHA:
+  - push Run `36508566485` — QUEUED.
+  - pull_request Run `36508571874` — QUEUED.
+- STALE E2E RUN CLEANUP: prior Full Product Browser E2E runs on older SHAs were cancelled; they are not evidence and must not be revived.
+- CURRENT REPORT CLOSURE: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47.
+- AUTHENTICATED CLOSURE REQUIREMENT IS UNCHANGED: real file → unified import → fingerprint → canonical DB commit/readback → 9 ordered durable stages → source report VERIFIED → source-bound receivables report → downstream output bundle → tenant A/B isolation → persisted evidence.
+- DOWNSTREAM OUTPUT CONTRACT: Source Report + source-bound Domain Report + Reports Center + Trust/Evidence + Executive + Intelligence + Recommendations + conditional Forecasts + Decision + Work Center + Data Quality + conditional Outcome/Learning/Replay; benchmark fail-closed to `INSUFFICIENT SAMPLE`.
+- DO-NOT-REPEAT: no direct DB injection; no guessed credentials; no duplicate importer/runner; no report reprocessing after a completed fingerprint; no stale SHA/queued PASS; no generic domain substitution.
+- LAST VERIFIED ACTION: pushed exact-head report-first runner trigger; verified current branch head; cleaned stale E2E queue; confirmed only current-SHA Full Product Browser E2E runs remain authoritative.
+- NEXT EXACT ACTION: consume the first terminal current-SHA Full Product Browser E2E result; if REPORT_001 closes, persist its full proof and advance to REPORT_002; if it fails, repair only the first current-SHA blocker and rerun the affected proof path.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / REPORT-FIRST CONTINUITY / REPORT_001 READY FOR AUTHENTICATED COMMIT
+
+- CONTROL HEAD BEFORE MEMORY WRITE: `6b6cf7749245ad6b4e537288476c0ef6a03d13da`.
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`; worktree was clean before this memory checkpoint.
+- DEVICE: PC01 is ONLINE and responsive; previous offline blocker is no longer current.
+- CORPUS: 47 real report inputs under `tests/fixtures/realistic-reports/`; deterministic filename order; no corpus recreation required.
+- CURRENT REPORT: REPORT_001 = `اعمار الديون للعملا.pdf`.
+- REPORT_001 RAW SHA256: `9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`.
+- REPORT_001 LOCAL READINESS: 27 rows, quality 98, TRUSTED, specialty `receivables`, specialty confidence 96, canonical mapped fields include customer identity, currency, aging and outstanding balance.
+- FULL CORPUS LOCAL READINESS: 47 total / TRUSTED 40 / REVIEW 4 / REJECT 3 / RUNTIME_BLOCKED 0 / FAILED 0.
+- FULL CORPUS SPECIALTIES: customers 1 / inventory 11 / other 13 / payments 7 / products 1 / purchases 2 / receivables 2 / sales 10.
+- EXACT LOCAL PROOF ON CONTROL HEAD: `test:real-report-corpus-quality` produced the 47-report matrix; `test:pdf-structured-regression` PASS; `test:file-engine-regressions` PASS; `typecheck` PASS; `build` PASS.
+- REPORT CONTRACT PROOF ON CONTROL HEAD: report-execution-foundation PASS; report-execution-e2e-contract PASS; post-import-report-guard PASS; executive-report-product-contract PASS; intelligence-product-contract PASS; product-wow-ui PASS; report-truth PASS; canonical-import-mapping PASS; UI route/sidebar parity PASS (41 routes / 37 navigation links).
+- IMPORTANT: local corpus/parser proof is readiness only. It is NOT report closure and does NOT prove authenticated canonical DB commit, durable nine-stage execution, rendered source/domain report, tenant A/B browser isolation, or hosted exact-SHA runtime.
+- STAGING DB READBACK: REPORT_001 raw fingerprint is not present in `import_jobs`; no direct SQL insertion was performed.
+- AUTHENTICATED RUNTIME BLOCKER: local process has no Supabase URL/key or dedicated E2E user credentials; the existing Full Product Browser E2E runner requires these secrets and the current exact-head GitHub run `36507458820` is QUEUED. Queued is not evidence.
+- DOWNSTREAM OUTPUT CONTRACT AFTER A VERIFIED REPORT: Source Report; applicable source-bound Domain Report; Reports Center; Trust & Evidence / Evidence Passport; Executive Report; Intelligence; Recommendations; Forecasts; Decision Experience; Work Center; Data Quality; Outcome/Learning/Replay where supported; Benchmark fail-closed to `INSUFFICIENT_SAMPLE` when peer sample is absent. No output may invent financial truth.
+- CURRENT REPORT STATUS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47.
+- LAST VERIFIED ACTION: current branch reconciled against GitHub main baseline; real corpus enumerated locally; REPORT_001 fingerprint/readiness verified; local report contracts and build verified.
+- DO-NOT-REPEAT: no direct DB injection; no guessed credentials; no duplicate importer/runner/report pipeline; no stale SHA PASS; no report reprocessing after completed fingerprint; no promotion of queued CI to PASS.
+- NEXT EXACT ACTION: execute REPORT_001 through the existing authenticated canonical browser path using the real file; prove import fingerprint, canonical DB commit/readback, all 9 durable stages, source report VERIFIED, source-bound receivables report, downstream output bundle, and tenant A/B isolation. Then persist the report checkpoint and move to REPORT_002.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / PDF FINANCIAL PARSER HARDENED / CORPUS 38-4-5
+
+- CONTROL HEAD BEFORE MEMORY WRITE: `58b170a76930707b247598855639ef1d9b02f418`.
+- CLOSED FRONT: PDF extraction hardening for CID-font Arabic fragments, Arabic Presentation Forms (NFKC), generic financial statements, and canonical emitted-field identity.
+- REAL EXCHANGE PROOF:
+  - `الصراف البدجي.pdf` → 38 rows / quality 82 / payments.
+  - `الصراف المنتاب.pdf` → 132 rows / quality 83 / payments.
+  - `الصرافين.pdf` → 22 rows / quality 72 / payments.
+- QUALITY MODEL: canonical mapped-field confidence 60% + mapped-field completeness 25% + mapped-column coverage 15%; zero canonical fields remain zero.
+- LATEST FULL CORPUS MATRIX: 47 total / TRUSTED 38 / REVIEW 4 / REJECT 5 / RUNTIME_BLOCKED 0 / FAILED 0.
+- SPECIALTY COUNTS: customers 1 / inventory 11 / other 15 / payments 7 / products 1 / purchases 2 / receivables 2 / sales 8.
+- REPRESENTATIVE REGRESSION: all current real cases PASS, including three exchange-statement PDFs; `test:file-engine-contract` PASS; `typecheck` PASS; `build` PASS; worktree clean.
+- SOURCE-BOUND REPORT OUTPUT: `/reports/source/:importId/domain` with evidence-bound executive summary, signals, administrative checks, decision candidates, actions and limitations.
+- REPORT CLOSURE: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47 because authenticated canonical DB/browser proof has not terminated.
+- CURRENT BLOCKER: GitHub Full Product Browser E2E runner has repeatedly remained queued; device has no E2E credentials/CDP session and existing Staging accounts are not safe to reset.
+- DO-NOT-REPEAT: no direct SQL report injection; no guessed credentials; no stale queued PASS; no generic domain proof in place of source-bound proof.
+- NEXT EXACT ACTION: consume current-head Full Product Browser E2E; if it starts, process REPORT_001 from raw file to canonical DB and close it only after 9 stages + Source Report + Domain Report + downstream evidence.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / SEMANTIC QUALITY SCORING FIXED / CORPUS 34-5-8
+
+- CONTROL HEAD BEFORE MEMORY WRITE: `244362fbae11f7ceb9a94b2eaa412ac5a2cad1d8`.
+- CLOSED FRONT: file-engine semantic quality scoring corrected.
+- ROOT CAUSE: prior qualityScore averaged every column mapping confidence, so unmapped informational columns contributed zero and artificially rejected structurally valid reports.
+- NEW QUALITY MODEL: canonical mapped-field confidence 60% + mapped-field completeness 25% + mapped-column coverage 15%; reports with no canonical mapped fields remain quality=0.
+- EXACT CURRENT CORPUS MATRIX: 47 total / TRUSTED 34 / REVIEW 5 / REJECT 8 / RUNTIME_BLOCKED 0 / FAILED 0.
+- REPRESENTATIVE REGRESSION: 10/10 real reports PASS; supplier aging 90, sales 89, purchases 94, inventory 89, bank 85, cash 92, customer debt 96, stocked products 76, product catalog 92, client aging 98.
+- CONTRACT PROOF: file-engine architecture contract PASS; typecheck PASS; PDF structured regression PASS; report-truth contract PASS; build PASS.
+- DOWNSTREAM REPORT OUTPUT: source-bound domain route + executive summary + smart signals + administrative checks + decision candidates + follow-up actions + limitations; all evidence-bound and fail-closed.
+- REPORT_001: still requires authenticated canonical DB execution. Local parser proof does not equal report closure.
+- CI: GitHub current-head browser runs are the authoritative next gate; queued runs remain non-proof.
+- DO-NOT-REPEAT: do not restore old quality formula; do not turn REVIEW/REJECT into commit without evidence; do not use generic domain pages as source proof; no direct DB writes or guessed credentials.
+- NEXT EXACT ACTION: consume terminal current-head Full Product Browser E2E; close REPORT_001 only after DB provenance + 9 stages + Source Report + Source-Bound Domain Report, then proceed sequentially.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / FULL CORPUS READINESS MATRIX VERIFIED
+
+- CONTROL HEAD BEFORE MEMORY WRITE: `06b56c9cbeb03b6ca77916d8e49ec99b3944365c`.
+- FULL CORPUS MATRIX ON CURRENT CODE: TOTAL 47 / TRUSTED 10 / REVIEW 13 / REJECT 24 / RUNTIME_BLOCKED 0 / FAILED 0.
+- SPECIALTY DISTRIBUTION: inventory 11, other 19, payments 4, products 1, purchases 2, receivables 2, sales 8.
+- INTERPRETATION: no parser/runtime crash across the corpus. Low bands are data-quality/readability/specialty gates and must be resolved or held at REVIEW/REJECT; browser OCR may improve scanned/garbled PDFs and remains the final runtime authority.
+- REPORT_001: 27 rows / quality 98 / receivables, still awaiting authoritative canonical import/DB/9-stage/browser proof.
+- SOURCE-BOUND DOMAIN REPORT: committed and guarded; all supported specialties now route to `/reports/source/:importId/domain`.
+- LOCAL PROOF: typecheck, build, route parity, post-import guard, report-execution contract PASS.
+- SERIAL E2E: current exact-head Full Product Browser E2E remains queued; no terminal report closure yet.
+- DO-NOT-REPEAT: do not treat local readiness as report closure; do not force Review/Reject reports into commit; do not substitute generic tenant pages for source-bound domain proof; do not use queued CI as PASS.
+- NEXT EXACT ACTION: consume the current-head Full Product Browser E2E; close the first real report only after canonical DB + 9 stages + source/domain lineage, then continue to the next fingerprint.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / DOMAIN LINEAGE GUARD CLOSED / SERIAL CORPUS CI ACTIVE
+
+- CONTROL HEAD BEFORE MEMORY WRITE: `1038d4c27f18469bea7c78697611950aa399907d`.
+- FUNCTIONAL CODE: `bcbd88f9218b7b35e91a057608b2f45712c222e9`.
+- CLOSED FRONT: source-bound domain report UI + deterministic specialty routing + domain lineage guard.
+- DOMAIN LINEAGE GUARD now requires `fetchCanonicalSourceReport`, `fetchReportExecutionTasks`, `SOURCE-BOUND DOMAIN REPORT`, `sourceHash`, `canonicalRowsTotal`, and specialty evidence in `SourceDomainReportPage`.
+- LOCAL PROOF before guard commit: typecheck PASS; route/sidebar parity PASS; post-import report guard PASS; report execution contract PASS; build PASS.
+- CORPUS: 47 real report inputs; deterministic fingerprint anti-repeat.
+- REPORT_001 remains not CLOSED until authenticated canonical import, authoritative DB commit, nine ordered tasks, Source Report VERIFIED and source-bound Domain Report VERIFIED.
+- DOWNSTREAM OUTPUTS: Source Report + Domain Report + Reports Center + Trust/Evidence + Executive + Intelligence + Recommendations + Forecasts + Decision + Work Center + Data Quality + Benchmark fail-closed.
+- CI current-head serial corpus runs remain queued; no queued result is treated as PASS.
+- SEPARATE OPEN CERTIFICATION: Phase-F exact deployment identity and live customer_credit_accounts migration-lineage drift.
+- DO-NOT-REPEAT: no duplicate import path; no direct DB writes; no synthetic evidence; no stale SHA proof; no completed fingerprint reprocessing.
+- NEXT EXACT ACTION: consume exact-head Full Product Browser E2E terminal result; inspect first report artifact and either close it or repair the first current-SHA blocker, then continue to next fingerprint.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / SOURCE-BOUND DOMAIN REPORTS COMMITTED / SERIAL CORPUS E2E NEXT
+
+- CONTROL HEAD BEFORE MEMORY WRITE: `5ae51964fe64c000f80868d3af809019cf09e305`.
+- FUNCTIONAL CODE BASELINE: `bcbd88f9218b7b35e91a057608b2f45712c222e9`.
+- CURRENT FRONT: REPORT-FIRST / one real report job at a time through canonical import, then source-bound domain output.
+- CORPUS: 47 real reports; deterministic order; fingerprint anti-repeat.
+- NEW CLOSED CODE FRONT: `src/pages/SourceDomainReportPage.tsx` now renders a source-bound domain report for sales/purchases/inventory/payments/receivables/products/customers/other using the same `canonical_dataset_records` for the Report Job.
+- NEW ROUTE: `/reports/source/:importId/domain`.
+- SOURCE REPORT NAVIGATION: every supported specialty now points to the source-bound domain route instead of a generic tenant report as the primary domain proof.
+- DOMAIN OUTPUT PROOF REQUIREMENT: filename + source hash + specialty + canonical rows + deterministic metrics + benchmark fail-closed.
+- LOCAL EXACT-HEAD PROOF BEFORE COMMIT: typecheck PASS; UI route/sidebar parity PASS; post-import report guard PASS; report execution E2E contract PASS; build PASS.
+- SERIAL RUNNER: current script records per-report screenshot/JSON, source fingerprint, authoritative import completion, canonical provenance, nine stages, source-report VERIFIED, source-bound domain render and downstream output bundle; continues after a REVIEW/FAILED report.
+- CURRENT REPORT COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47. No report closure has been claimed yet because authenticated canonical DB commit/render proof is still pending.
+- DOWNSTREAM OUTPUT BUNDLE: Source Report, source-bound Domain Report, Reports Center, Trust & Evidence, Executive, Intelligence, Recommendations, Forecasts, Decision Experience, Work Center, Data Quality, Benchmark=`INSUFFICIENT SAMPLE` when peer sample is absent.
+- SEPARATE OPEN CERTIFICATION FRONT: Phase-F exact deployment identity and live `customer_credit_accounts` migration-lineage drift remain open.
+- DO-NOT-REPEAT: no duplicate importer/runner/ledger; no direct DB insertion; no synthetic corpus; no stale SHA evidence; no completed-fingerprint reprocessing.
+- NEXT EXACT ACTION: consume the current exact-head Full Product Browser E2E on `5ae51964...`; for each report use the real artifact to close only after canonical DB + 9 stages + Source Report + source-bound Domain Report are proven, then move to the next fingerprint.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / CORPUS PARSER HARDENED / SERIAL REAL REPORT RUN IN FLIGHT
+
+- CONTROL HEAD BEFORE THIS MEMORY WRITE: `2091f9bc7ea128e43356ed3afe5c5f679984ee7c`.
+- FUNCTIONAL CODE SHA: `bcbd88f9218b7b35e91a057608b2f45712c222e9`.
+- CURRENT FRONT: REPORT-FIRST / serial authenticated real-corpus execution.
+- CORPUS: 47 real report files; corpus gate PASS remains `DECLARED=47 ACTUAL=48 MINIMUM=20`.
+- PARSER HARDENING COMPLETED: PDF layout tables, multi-row headers, natural semantic headers, OCR fallback for low-quality native PDFs, spatial OCR words, real specialty classification across sales/purchases/inventory/receivables/payments/customers/products.
+- TARGETED REAL PROOF: 10/10 representative corpus cases PASS; `test:pdf-structured-regression` PASS; `typecheck` PASS; `build` PASS.
+- LATEST FULL CORPUS READINESS MATRIX BEFORE THE TOP-LEVEL SPECIALTY RULE PATCH: 47 total / 10 trusted / 13 review / 24 reject / 0 runtime blocked / 0 failed. It is readiness only and does not close reports.
+- REPORT_001: `اعمار الديون للعملا.pdf`; SHA256 `9996F169AAE09E31F909712CA4BE5ACE238C7A4F123B370D436A5F1A115EA099`; 27 rows; quality 98; receivables.
+- DOWNSTREAM OUTPUTS IMPLEMENTED: Source Report + applicable Domain Report + Reports Center + Trust/Evidence + Executive + Intelligence + Recommendations + Forecasts + Decision + Work Center + Data Quality + Benchmark fail-closed.
+- SERIAL RUNNER: existing canonical UI path; deterministic report identity from corpus order; tenant-scoped fingerprint anti-repeat; per-report JSON/screenshot; REVIEW/FAILED isolation without forcing commit; continues to next report.
+- CI: Full Product Browser E2E configured for `REPORT_CORPUS_MAX=47` with 360-minute timeout; current-head terminal evidence pending.
+- REPORT COUNTS: CLOSED=0, REVIEW=0, FAILED=0, BLOCKED=0, REMAINING=47. No report is CLOSED without authoritative DB commit + provenance + nine ordered tasks + rendered Source Report + applicable downstream proof.
+- SEPARATE OPEN CERTIFICATION FRONT: Phase-F exact deployment identity and `customer_credit_accounts` migration-lineage drift.
+- DO-NOT-REPEAT: no corpus rediscovery; no duplicate importer/runner/ledger; no direct DB insertion; no synthetic report substitute; no stale SHA proof; no completed fingerprint reprocessing.
+- RESUME: consume current exact-head Full Product Browser E2E and close reports one by one from real artifacts.
+- NEXT EXACT ACTION: inspect the terminal current-head Full Product Browser E2E run and its `real-report-e2e` artifact; fix only its first current-SHA reproducible blocker.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / REPORT_001 DOMAIN SURFACE PROVEN
+
+- CONTROL HEAD: 24c8f79c2920260b3a3848d0f31ffd5117a6f813
+- FUNCTIONAL CODE SHA: 92727ca32bcf78ac2ed8731ffbfea839bec025e4
+- CURRENT REPORT: REPORT_001 = اعمار الديون للعملا.pdf
+- REPORT SHA256: 9996F169AAE09E31F909712CA4BE5ACE238C7A4F123B370D436A5F1A115EA099
+- REAL PARSER: 27 rows, quality 98, specialty receivables
+- DOMAIN OUTPUT: source-bound receivables route reads canonical rows from the same import and preserves source hash and benchmark fail-closed state
+- LOCAL PROOF: PDF regression PASS; post-import guard PASS; report execution contract PASS; route parity PASS; typecheck PASS; build PASS
+- REPORT STATUS: TOTAL 47 / CLOSED 0 / REVIEW 0 / FAILED 0 / BLOCKED 0 / REMAINING 47
+- NOT YET PROVEN: authenticated canonical import, real DB commit/readback, 9 durable tasks, rendered source report/domain E2E
+- CI NEXT: consume exact-head Full Product Browser E2E for HEAD 92727ca32bcf78ac2ed8731ffbfea839bec025e4
+- DO-NOT-REPEAT: no direct DB injection, no synthetic report, no stale SHA proof, no reprocessing completed fingerprints
+- NEXT EXACT ACTION: consume the first terminal exact-92727 Full Product Browser E2E and inspect real-report-e2e evidence
+
+---
+# RESUME TOKEN — 2026-09-29 / REPORT_001 REAL PDF PARSER PROVEN
+
+- CONTROL HEAD: ecc236d246379027d9fbf2df0a7cb7aac687ad99
+- FUNCTIONAL CODE SHA: d1f7ac7f3ba439c440504667a2ec20e77bc7d1a9
+- CURRENT REPORT: REPORT_001 = اعمار الديون للعملا.pdf
+- RAW SHA256: 9996F169AAE09E31F909712CA4BE5ACE238C7A4F123B370D436A5F1A115EA099
+- ACTUAL PARSER RESULT: 27 rows, quality 98, specialty receivables
+- LOCAL PROOF: PDF regression PASS; route parity PASS; report truth PASS; canonical mapping PASS; post-import guard PASS; report execution contract PASS; typecheck PASS; build PASS
+- REPORT STATUS: TOTAL 47 / CLOSED 0 / REVIEW 0 / FAILED 0 / BLOCKED 0 / REMAINING 47
+- LAST COMPLETED STAGE: UNDERSTAND + parser/quality/specialty readiness
+- NOT YET PROVEN: authenticated canonical import, DB commit, 9 durable tasks, rendered source report
+- EXACT CI: PDF 36501349245; Full Product Browser E2E 36501349418; Final Certification 36501349021; desktop-windows 36501349216
+- NEXT EXACT ACTION: consume run 36501349418 and inspect real-report-e2e evidence; close REPORT_001 only after canonical DB/task/source-report proof
+
+---
+# RESUME TOKEN — 2026-09-29 / REAL-CORPUS E2E RUNNER READY / REPORT_001 AWAITING TERMINAL PROOF
+
+- EXACT HEAD BEFORE MEMORY WRITE: `60caeeb5fb89689e42bdcec7f888f3e1edf97b6f`.
+- CURRENT FRONT: REPORT-FIRST / authenticated real-corpus canonical import.
+- CORPUS: 47 real reports; corpus gate previously proven PASS as `DECLARED=47 ACTUAL=48 MINIMUM=20`.
+- REPORT_001: `اعمار الديون للعملا.pdf`, raw SHA-256 `9996F169AAE09E31F909712CA4BE5ACE238C7A4F123B370D436A5F1A115EA099`.
+- IMPLEMENTED: existing `scripts/real-business-e2e.mjs` now supports deterministic real-corpus execution through the existing Import UI → canonical endpoint → canonical rows → nine durable tasks → source report proof. Existing synthetic path remains only when no corpus mode is configured.
+- IMPLEMENTED: existing `.github/workflows/full-product-browser-e2e.yml` now provisions the existing Staging E2E secrets and runs the real-corpus mode; evidence artifact is `artifacts/real-report-e2e`.
+- IMPLEMENTED: the real-corpus runner now scans candidate reports in deterministic order and skips any file whose raw SHA already has a completed tenant-scoped `import_job`; this prevents closed-report reprocessing and duplicate report jobs.
+- EXACT RUNS: Full Product Browser E2E run `36500247368` is queued on code SHA `15c147b76d70badfda7c23391e12a08a63a53575`; next optimized runner `36500355877` is queued on SHA `60caeeb5fb89689e42bdcec7f888f3e1edf97b6f`.
+- FINAL CERTIFICATION: latest corresponding exact-head certification is queued on `60caeeb...`; earlier exact-head boundary failure was resolved by the execution-index re-anchor and was PASS on the boundary step in run `36500247071`.
+- LAST COMPLETED REPORT STAGE: UNDERSTAND only. No report is CLOSED until the real runner proves canonical persistence + 9 tasks + source report VERIFIED.
+- REPORT COUNTS: TOTAL=47, CLOSED=0, REVIEW=0, FAILED=0, BLOCKED=0, REMAINING=47.
+- REAL BLOCKERS: none for report input; execution is waiting on GitHub Actions runner capacity/terminal result. Separate Phase-F/live-restore certification remains open and must not be conflated with report closure.
+- DO-NOT-REPEAT: do not create a second report runner/importer; do not run the synthetic CSV path for report corpus; do not re-upload REPORT_001 after a completed fingerprint is observed; do not use stale SHA proof.
+- RESUME POINT: consume terminal result of the first real-corpus Full Product Browser E2E, run `36500247368`. If it fails, repair only its first exact-SHA reproducible root cause. If it passes and closes REPORT_001, consume the optimized run `36500355877` to start REPORT_002 automatically.
+- NEXT EXACT ACTION: poll GitHub Actions run `36500247368` until terminal; on PASS read its uploaded `real-report-e2e` evidence and persist REPORT_001 closure, otherwise repair the first current-SHA failure.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / CORPUS RESTORED + REPORT_001 READY FOR CANONICAL IMPORT
+
+- EXACT HEAD BEFORE GOVERNANCE CHECKPOINT: `e58f0d7709e3d4707cf596cfc2ca1f42a37d1dad`.
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`.
+- CURRENT FRONT: REPORT-FIRST / REAL CORPUS EXECUTION.
+- REPORT CORPUS: 47 real report files restored from the repository's own historical canonical corpus commit `c8f2e55a13cf0effc5d9d9bcfa93575b0cab832c`; README is now an inventory of those actual files.
+- CORPUS PROOF: local exact-tree equivalent commit `d77ad0b2ce728d9217da9ced52a2d20362829178` executed `npm run test:report-corpus-gate` with `DECLARED=47 ACTUAL=48 MINIMUM=20` and PASS (48 includes README; 47 are report inputs). The same 47 historical blob objects are now on GitHub under `e58f0d...`.
+- CURRENT REPORT: REPORT_001 = deterministic first report by normalized path: `اعمار الديون للعملا.pdf`.
+- REPORT_001 RAW FINGERPRINT: SHA-256 `9996F169AAE09E31F909712CA4BE5ACE238C7A4F123B370D436A5F1A115EA099`; 275,288 bytes; PDF; 1 page.
+- REPORT_001 UNDERSTANDING: visible title `أعمار الديون للعملاء`; receivables/aging report; period `01/01/2026–30/06/2026`; report date `27/07/2026`; currency YER; aging buckets include 0–30, 31–60, 61–90, 91–120, >120; customer/account rows are present.
+- LAST COMPLETED STAGE: `UNDERSTAND` for the real source file. No canonical import, DB commit, decision or final UI success is claimed yet.
+- CANONICAL PATH: existing `/api/canonical-import-execute` + `runCanonicalImportThroughDurableRunner`; no fixture-specific importer/runner/RPC created.
+- REPORT RESULT SURFACE: existing `fetchCanonicalSourceReport` + `fetchReportExecutionTasks` + `SourceReportPage` already expose source hash, specialty, canonical rows and the nine durable stages; no parallel report surface needed.
+- REAL BLOCKERS STILL OPEN: authenticated canonical browser import has not yet been proven on REPORT_001; exact-current hosted/Phase-F runtime remains separate and must not be conflated with local authenticated E2E.
+- DO-NOT-REPEAT: do not re-run corpus discovery; do not recreate the 47 fixtures; do not inject report rows directly into DB; do not use synthetic CSV/fixtures in place of REPORT_001; do not claim CLOSED until canonical commit + nine tasks + rendered source report + proof.
+- RESUME POINT: authenticate against the dedicated Staging test user in the existing browser E2E environment, choose REPORT_001, upload the actual file, approve only after the UI's real quality/trust gate, then verify import_job → canonical rows/provenance → nine report_execution_tasks → source report.
+- NEXT EXACT ACTION: add a dedicated report-corpus browser E2E runner/workflow that uses the existing authenticated Staging secrets and processes exactly REPORT_001 through the existing canonical import UI path, then emits machine-readable proof and stops after this one report.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / EXACT CURRENT CHECKPOINT — REPORT CORPUS + PHASE-F BLOCKERS PROVEN
+
+- CHECKPOINT BEFORE WRITE SHA: `5e1133153fbbb7d5f3284bfa6d7085ce7ce9e2d5`.
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`.
+- WORKTREE BEFORE WRITE: CLEAN; origin branch matches local SHA.
+- CURRENT FRONT: report-first intake gate + exact-head resilience/certification reconciliation.
+- CURRENT REPORT: NONE — canonical corpus contains no supported report input.
+- REPORT CORPUS PROOF: directory contains only `README.md`; supported ACTUAL=0; declared=9; required minimum=20.
+- CORPUS GATE PROOF: `npm run test:report-corpus-gate` on PC01 returned `DECLARED=9 ACTUAL=1 MINIMUM=20`, all nine declared fixtures missing, non-zero exit.
+- DEVICE SEARCH PROOF: all nine declared filenames absent from Downloads/Desktop/Documents/OneDrive and the wider `C:\Users` search.
+- CANONICAL LEDGER PROOF: no separate report-ledger file; current state is bound by `file_records` → `import_jobs` with `source_fingerprint` → `report_execution_tasks`. No duplicate ledger created.
+- EXACT-CURRENT CI: current SHA has SUCCESS for Full Product Browser E2E, Device-Independent Browser E2E, Storage Tenant Runtime E2E, desktop-windows, quality, security, import lifecycle, truth/evidence and related gates.
+- FINAL CERTIFICATION: run `36498034370` FAILED at certification contract execution because `test:report-corpus-gate` returned exit code 2. No report-level PASS claimed.
+- PHASE-F: run `36498034541` FAILED with 1/4 probes passing: health deployment SHA mismatch; tenant canary PASS; logical restore failed on `public.customer_credit_accounts`; rollback drill HTTP 503/deployment lookup 404.
+- LIVE SCHEMA PROOF: Staging `fnqbvfuwbdpwvhcgzksl` contains `public.customer_credit_accounts` with 2 rows across 2 companies; current repository migration tree has no definition/reference for it. This is migration-lineage drift.
+- VERCEL PROOF: current project is `Injaz / report-advisor`; recent READY deployments returned for later SHAs, but no deployment for current `5e113...` was returned in the recent set. Exact-head Phase-F therefore cannot pass against the fixed health URL.
+- WHAT CLOSED: exact-head reconciliation, corpus gate execution, current CI failure attribution, Phase-F failure attribution, live schema lineage verification, canonical-ledger verification.
+- WHAT REMAINS: restore/attach the actual report corpus; establish an exact-`5e113...` deployment; reconcile the live-only `customer_credit_accounts` lineage before clean logical restore certification.
+- REAL BLOCKERS: missing report corpus; stale/absent exact-head deployment target; live schema drift affecting restore.
+- DO-NOT-REPEAT: no fake fixtures, no arbitrary documents, no second importer/ledger, no stale SHA proof, no weakened Phase-F invariants.
+- RESUME POINT: corpus gate first; after real files are restored, register deterministically and process REPORT_001 through the existing canonical import path.
+- NEXT EXACT ACTION: restore the actual declared report files into `tests/fixtures/realistic-reports/` and rerun `npm run test:report-corpus-gate` until ACTUAL >= 20 and all declared files are present.
+- CHECKPOINT WRITE: persisted in this checkpoint commit.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / EXACT CURRENT CHECKPOINT — RESTORE + PHASE10 CONTRACT RECONCILED
+
+- EXACT HEAD SHA: `88764e8f13b0cbbd696eec280cea757981b00b90`.
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`.
+- WORKTREE STATE: CLEAN; HEAD matches origin branch.
+- CURRENT CODE/TEST CANDIDATE: `72f72aaf4b2d2702e7a80a0b723fb6ebb33ff750`.
+- CURRENT FRONT: report post-import continuity + clean-restore migration dependency + Phase-10 restore contract + exact-SHA certification.
+- CURRENT REPORT: NONE — no eligible real report input discovered; corpus gate is blocked.
+- REPORTS TOTAL: `0` supported actual inputs; declared contract files=`9`; minimum required=`20`; directory contains `README.md` only.
+- COMPLETED: `0` reports.
+- REVIEW: `0` reports.
+- FAILED: `0` reports.
+- BLOCKED: `CORPUS_GATE` — DECLARED=9, ACTUAL=1 (`README.md` only), MINIMUM=20; nine declared report files are absent.
+- REMAINING: no processable report files until real corpus is restored; corpus minimum gap=`19+` supported files.
+- LAST COMPLETED STAGE: clean-restore migration dependency correction + Phase-10 contract alignment + exact-SHA candidate re-anchoring.
+- WHAT WAS ACTUALLY EXECUTED: traced prior Phase-F backup/restore failure to migration `20260925184000_restore_client_ui_settings_schema_parity.sql` invoking `current_customer_company_id()` before its definition in `20260925200000_restore_carts_schema_parity.sql`; changed that policy to canonical `current_company_id()`, which is defined earlier in `20260822200000_canonical_tenant_membership.sql`; ran migration schema audit, migration dependency analysis, and operational-resilience contracts; committed `9a9e50c7`; updated `check-phase10-backup-restore-contract.mjs` to require `CURRENT_COMPANY_ID()`; committed `72f72aaf`; re-anchored the certification candidate via `88764e8f`.
+- ACTUAL RESULT: migration schema audit PASS (258 migrations, 0 findings); migration dependency analysis executed successfully; Phase-10 backup/restore contract PASS; operational resilience contract PASS; backup/restore evidence integrity PASS (13 invariants); certification boundary and execution enforcement PASS on `88764e8f`; exact local typecheck/build/report-truth/report-E2E/post-import/UI/security/import contracts PASS. Local full clean restore could not run because Supabase CLI and Docker are not installed on PC01.
+- TEST / PROOF: `9a9e50c7` migration fix persisted; `72f72aaf` Phase-10 contract fix persisted; current `88764e8f` Master Index re-anchor PASS. Fresh exact-current runs are queued: Final Certification `36497935487`, Execution Enforcement `36497935781`, Phase-F `36497935520`, Full Product Browser E2E `36497935613`, Device-Independent Browser E2E `36497935512`, Storage Tenant Runtime E2E `36497935623`, Desktop Windows `36497935625`.
+- WHAT CLOSED: migration-time tenant resolver dependency; stale Phase-10 contract invariant; stale certification/enforcement candidate placement/allowlist defects.
+- WHAT REMAINS: real report corpus restoration; current-SHA CI/final certification/Phase-F/hosted results; authenticated report-import browser proof only if a valid session and real corpus are available.
+- REAL BLOCKER: missing real report corpus under `tests/fixtures/realistic-reports/`; local clean-restore runtime is additionally blocked by missing Supabase CLI/Docker.
+- DO-NOT-REPEAT: do not fabricate or substitute report files; do not duplicate importer/report pipeline; do not transfer PASS across SHAs; do not force-push; do not treat Netlify/Vercel status alone as product certification.
+- RESUME POINT: PR #676 remains open and mergeable; exact `a7ee5b8a` fresh CI is queued.
+- NEXT EXACT ACTION: poll GitHub Actions run `36497935520` (Phase-F live resilience) for the first terminal exact-`88764e8f` result; if it fails, repair only its first reproducible root cause.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / POST-IMPORT REPORT ROUTE COMPLETENESS CLOSED
+
+# RESUME TOKEN — 2026-09-29 / DISTRIBUTED REPORT EXECUTION + SOURCE REPORT SURFACE CLOSED
+
+# RESUME TOKEN — 2026-09-29 / FINAL EXECUTION CHECKPOINT
+
+- FUNCTIONAL CODE SHA → `797a9aa1325d70847b6541f442e5af8f01d081ef`.
+- POST-UPLOAD CONTRACT CLOSED → import validates actual `report_execution_tasks` for all 9 ordered stages, fails closed on any incomplete stage, persists execution context, and navigates automatically to the source-bound report.
+- REPORT SURFACES CLOSED → source report reads canonical rows/provenance and actual execution tasks; Reports Center lists completed source reports from `import_jobs`; downstream Executive/Trust/Decision/Work surfaces remain linked.
+- LOCAL EXACT-SHA PROOF → typecheck PASS; Product Wow UI contract PASS; Post-import report guard PASS; Report Execution E2E contract PASS; UI route completeness PASS; production build PASS on the same functional tree.
+- CORPUS ACCEPTANCE → `npm run test:report-corpus-gate` is explicitly BLOCKED: DECLARED=9, ACTUAL=1, MINIMUM=20, with all 9 declared report fixtures missing. No report-corpus PASS is claimed.
+- DEVICE SEARCH → the declared corpus files are not present in Downloads/Desktop/Documents or the repository; `tests/fixtures` contains only the unrelated `business-golden/cycle-004.json` as an actual data fixture.
+- BROWSER → production preview renders the actual login gate with zero captured JS runtime errors using transient connected Supabase public env; authenticated upload/report E2E remains unclaimed because no valid project session exists.
+- CI → route-completeness defect was fixed and success was observed on exact `c914825f` (run `36494600152`). Current functional head `797a9aa1` and the final doc checkpoint below require their own fresh CI evidence; no cross-SHA PASS transfer.
+- TRUE REMAINING BLOCKERS → missing real report corpus (external input) + any non-terminal CI/hosted gates. These are the only open blockers from this execution front; do not manufacture fixtures or claim corpus completion.
+- DO NOT REPEAT → do not create fake reports, do not duplicate importer/report pipeline, do not add sidebar entries for nested source-report routes, do not call a static lifecycle list proof, do not transfer older SHA evidence.
+- RESUME EXACTLY → once real corpus is attached/restored, run `npm run test:report-corpus-gate`, then process every declared report through the single canonical import path and record per-file evidence; otherwise continue only current-SHA CI failures that are executable without the corpus.
+
+---
+
+- CURRENT CODE EXACT SHA → `ba8ac9b8cce61f68eda58428dc95fddc9bc18e22`.
+- PRIOR CODE SHA → `bbec155fa6078f12a8de7108f42c52dc63c1d23b`.
+- USER-REQUESTED POST-UPLOAD BEHAVIOR ENFORCED → upload no longer ends at “file received”. The import path reads the actual `report_execution_tasks` generated by the durable runner, requires exactly 9 ordered completed stages, then writes canonical import completion and automatically navigates to `/reports/source/:importId`.
+- FAIL-CLOSED EXECUTION GUARD → any missing, misordered, non-completed or failed task throws `CANONICAL_IMPORT_EXECUTION_NOT_FULLY_RENDERED`; the UI cannot claim rendered success from a static progress list.
+- DISTRIBUTED TASK VISIBILITY → import result keeps the execution task snapshot; source report reads `report_execution_tasks` by execution job and renders stage/status/timestamps.
+- REPORT CENTER DELIVERY → `ReportsCenterPage` reads recent `import_jobs` and shows completed source reports directly under “التقارير الناتجة من الاستيراد”; incomplete jobs do not receive a final-report link.
+- SOURCE REPORT TRUTH → tenant-scoped source report reads canonical rows/provenance, validates execution completion, and exposes downstream Trust / Executive / Decision / Work outputs with `INSUFFICIENT SAMPLE` benchmark guard.
+- FRESH TEST PROOF ON CURRENT CODE SHA → typecheck PASS; production build PASS; Product Wow UI contract PASS; UI route completeness PASS; Report Truth contract PASS; Report Execution E2E contract PASS; git diff check PASS.
+- CI PROOF → exact prior route-contract failure was repaired on `c914825f` and fresh GitHub run `36494600152` completed SUCCESS. `ba8ac9b8` has new workflows running; do not transfer terminal CI PASS from earlier SHAs.
+- BROWSER PROOF → production preview with transient connected Netlify Supabase public env renders the actual login gate with zero captured JavaScript runtime errors. Authenticated upload/report E2E remains unclaimed because no valid project session exists in connected Chrome profiles.
+- DEVICE → PC01 online. Vite dev watcher remains unreliable under the Windows Arabic user path; production `vite preview` is the proof path.
+- DO NOT REPEAT → no duplicate sidebar item for `/reports/source/:importId`; no static success without querying distributed execution tasks; no synthetic report values; no benchmark from one source; no stale PASS copied to `ba8ac9b8`.
+- NEXT EXACT ACTION → consume fresh current-SHA CI; repair only the first terminal current-SHA failure. When gates are green, re-anchor main/PR and run final exact-head proof.
+
+---
+
+- CURRENT CODE EXACT SHA → `c914825f4750eabd9fa0f8ad379464ea98964afd`.
+- PRIOR CODE SHA → `037f84f36f8c716302a2f329c352e4f7e07074b7`.
+- ACTUAL CURRENT-SHA FAILURE → GitHub Actions `UI route completeness` run `36494428179` failed because `/reports/source/:importId` is a nested child of the registered `/reports` navigation entry.
+- ROOT FIX → `scripts/check-ui-route-completeness.mjs` now treats a registered navigation ancestor as covering nested route paths; this preserves one canonical Reports Center entry instead of adding duplicate sidebar navigation.
+- FRESH CURRENT-SHA TESTS → `node scripts/check-ui-route-completeness.mjs` PASS (40 routes / 37 canonical navigation entries); `npm run typecheck` PASS; `npm run test:product-wow-ui` PASS.
+- PERSISTENCE → fix committed and pushed as `c914825f4750eabd9fa0f8ad379464ea98964afd` on `exec/20260929-post-import-report-continuity`.
+- DO NOT REPEAT → do not add sidebar entries for every nested source-report/detail route; do not transfer the failed `037f84f3` UI-route result to this SHA.
+- NEXT EXACT ACTION → consume fresh CI for `c914825f`; inspect the first terminal current-SHA failure only. If the current route contract is green, continue remaining executable fronts and then re-anchor/merge only after fresh gates.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / WORKER RPC CONTRACT RECONCILIATION PROVEN
 
+# RESUME TOKEN — 2026-09-29 / POST-IMPORT REPORT CONTINUITY CLOSED
+
+- CODE COMMIT EXACT SHA → `03cadf8fd033a77ad4efa3567f98be39c504162b`.
+- REMOTE BRANCH → `exec/20260929-post-import-report-continuity`.
+- FRONT CLOSED → upload result → specialty detection → canonical entity selection → durable lifecycle → source-bound report → executive/trust/decision/work outputs.
+- ACTUAL IMPLEMENTATION → removed forced `generic:source-data` selection; specialty detector now maps supported product/customer/sales contracts and generic specialty fallbacks; import result persists specialty, confidence, evidence, canonical entity and source hash.
+- REPORT DELIVERY → `/reports/source/:importId` reads the tenant-scoped `import_jobs` result plus `canonical_dataset_records`, exposes truth state, lifecycle, as-of, provenance, row sample and downstream outputs.
+- UI DELIVERY → completed import screen now exposes the nine durable stages, specialty result, quality/trust context, report destination and fail-closed benchmark `INSUFFICIENT SAMPLE`; import history now links completed jobs back to their source report.
+- WORK CENTER → active zero-progress jobs now carry a visible `بدون تقدم` state.
+- TEST CONTRACT DELIVERY → product-wow UI contract now guards post-import report continuity, specialty selection, durable lifecycle, source route and explicit React runtime entrypoint imports; executive report contract wording aligned to the actual empty-state UI.
+- FRESH TEST PROOF ON CODE SHA → typecheck PASS; production build PASS; canonical import mapping PASS; file-engine contract PASS; report truth PASS; report execution E2E contract PASS; executive report product contract PASS; product wow UI contract PASS.
+- BROWSER RUNTIME PROOF → production preview with temporary Netlify Supabase public envs mounted successfully; runtime JavaScript errors = none; unauthenticated `/import` renders the real Aghbari login surface. Authenticated upload/report E2E was not claimed because the connected Chrome profiles contained no valid project session.
+- DEVICE → PC01 online; Vite dev watcher exposed a Windows path/watcher failure under the Arabic user path, isolated by using `vite preview` for browser proof. This is an environment-only dev-server issue, not a product build failure.
+- EXTERNAL → no production mutation; no user credentials created; no secret committed. Netlify env values were used only for the local build process.
+- DO NOT REPEAT → do not force every import into `generic:source-data`; do not mark benchmark eligibility from one source; do not claim authenticated browser E2E without a real authenticated session; do not transfer pre-`03cadf8` PASS evidence to this SHA.
+- RESUME POINT → fetch fresh CI/PR status for `03cadf8`; consume only terminal current-SHA evidence; if green, merge/re-anchor and repeat the final exact-head proof. If a current-SHA failure appears, repair only the first reproducible root cause.
+
+---
 - MAIN EXACT HEAD AT CHECKPOINT → `3f7963db851d87fadd57462482385452ca2536f5`.
 - FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased`.
 - CURRENT FUNCTIONAL HEAD → `ee0cba1e220fc2c96e2fa4c77aa7fa96192abe68`.
@@ -652,3 +1178,131 @@
 - NEXT EXECUTABLE ACTION → consume the first terminal mandatory gate on `b081c3f`; then reconcile the governance lane. Do not promote the current production docs-only deployment as functional proof.
 - DO NOT REPEAT → stale PASS transfer; preview-as-production; production SHA bypass; duplicate importer/navigation/RPC/runner; broad-push workflow weakening solely to clear queue pressure.
 - RESUME STATUS → ACTIVE / IMPORT CORE HARDENED / EXACT-HEAD DEPLOYMENT PROVEN / RELEASE IDENTITY STILL OPEN.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / CANONICAL EDGE WORKER REPAIRED / REPORT_001 AUTH STILL OPEN
+
+- CONTROL CODE HEAD BEFORE THIS CHECKPOINT: `473e4fc0d5784c3ced1e2fd4a6ad53414f93454a`.
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`.
+- ACTIVE REPORT: REPORT_001 = `اعمار الديون للعملا.pdf`; RAW SHA256 `9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`.
+- REAL SOURCE READINESS: 27 rows; quality 98; specialty `receivables`; confidence 96; entity `generic:receivables`; currency YER.
+- ROOT CAUSE FOUND: deployed `canonical-import-worker` version 2 referenced `assertCanonicalBoundary` and `runCanonicalImportThroughDurableRunner` without importing/defining them, producing Edge `BOOT_ERROR` / HTTP 503.
+- ACTUAL REMEDIATION: rebuilt the worker as a thin secure adapter over the existing canonical truth boundary and durable runner; bundled the existing canonical modules with explicit `.ts` imports and `deno.json`; `verify_jwt=true`; tenant resolved through `current_company_id`; authoritative storage hash reverified before canonical execution.
+- DEPLOYED PROOF: Supabase `canonical-import-worker` version 4 is `ACTIVE`; deployed bundle SHA `8b6f29dafaa1d20bfb284b6e5c3b03a897146c0c55f3959b890c9453ac1c6761`.
+- PRE-FIX EVIDENCE: version 1/2 produced repeated HTTP 503 `BOOT_ERROR`; later requests reached the function and returned HTTP 400. The boot defect is isolated to the deployed worker source, not treated as a data-quality result.
+- REPORT_001 EXECUTION STATUS: NOT CLOSED. Staging currently contains 3 earlier `processing` import jobs for this same filename from the failed worker attempts; no new duplicate should be created. They remain to be reconciled through the canonical `import_finish_job` path after authenticated execution is restored.
+- CURRENT AUTH BLOCKER: the device has no directly readable authenticated E2E session for the report runner. The Edge profile contains an auth-token marker in LevelDB, but the session parser cannot recover a structured Supabase session; the active browser session is not exposed through CDP. No guessed credentials, password reset, cookie extraction, or direct DB insertion was used.
+- TOOL/PROOF RULE: worker deployment is not report closure. Closure still requires real authenticated import, canonical DB commit/readback, all 9 durable stages, source report + source-bound receivables report, downstream evidence/decision/work-center surfaces, rendered UI, and tenant A/B isolation.
+- UNTRACKED SESSION HARNESS: `scripts/execute-real-corpus-edge.mjs` remains temporary session tooling only; it must not become a second canonical runner. The governed runner remains the project's existing report-first execution path.
+- DO-NOT-REPEAT: no duplicate importer/runner; no direct DB insertion; no guessed credentials; no stale PASS; no reuse of the failed 503 proof; no report advancement to REPORT_002 before REPORT_001 closes.
+- NEXT EXACT ACTION: restore a valid authenticated browser/E2E session using the existing supported project path; reuse one existing REPORT_001 job; execute REPORT_001 end-to-end; reconcile the two leftover jobs; prove the nine stages and source-bound report surfaces; persist CLOSED; advance to REPORT_002.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / WORKER TENANT-CONTEXT FIX + PENDING-JOB RESUME HARDENED
+
+- CONTROL HEAD BEFORE THIS CHECKPOINT: `f0b4be84603a5dfe08168bf5a2f834e8bc2caca3`.
+- ACTIVE REPORT: REPORT_001 = `اعمار الديون للعملا.pdf`; raw SHA256 `9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`.
+- ROOT CAUSE #1 FIXED: `canonical-import-worker` used the service-role client as `dataClient` for `import_commit_batch`. That RPC resolves `current_company_id()` from the authenticated user context, so service-role-only execution could reach `TENANT_CONTEXT_REQUIRED`.
+- REMEDIATION: worker now keeps the service-role client for authoritative source/job access and durable enqueue/lease, while passing the authenticated user-scoped client as `dataClient` for canonical commit.
+- LIVE DEPLOYMENT: `canonical-import-worker` version 8 ACTIVE; bundle SHA `81998cf547bd56db862470ab7ca9002be4450e4ffccc52259f11fe684f02540f`.
+- ROOT CAUSE #2 FIXED IN RUNNER: the real-corpus runner previously created a new import job when an earlier attempt left the same corpus file in `processing`. It now detects the latest pending job by exact filename and resumes that job through the existing canonical endpoint, preventing duplicate report jobs after a recoverable failure.
+- NO NEW CANONICAL PATH: the runner still calls `/api/canonical-import-execute`; no alternate importer, RPC, or report pipeline was added.
+- CURRENT LIVE DB EFFECT: current CI attempt has created multiple `processing` import jobs while the worker returned 400; these are not CLOSED reports and must be resumed/reconciled, not duplicated again.
+- CURRENT REPORT STATUS: REPORT_001 NOT CLOSED. No canonical DB commit/readback, 9-stage terminal proof, source/domain render, downstream output bundle, or A/B isolation is considered proven until the next successful terminal E2E artifact.
+- NEXT EXACT ACTION: allow the in-flight old-SHA run to terminate; then execute the newly committed runner/worker pair. REPORT_001 must resume from its existing pending job first, reach canonical commit + nine completed stages + Source Report VERIFIED + source-bound receivables report + downstream bundle + A/B isolation, then and only then REPORT_002.
+- DO-NOT-REPEAT: no new job for a same-file pending report; no direct DB insertion; no service-role canonical commit without user tenant context; no stale PASS; no report advancement before REPORT_001 closes.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / IMPORT TERMINALIZATION GAP CLOSED
+
+- CONTROL CODE HEAD BEFORE THIS CHECKPOINT: `f3fc7e5963ee4b77ff2fc5a5023e2a6c2fa5e21e`.
+- ROOT CAUSE #3 FIXED: `canonical-import-execute` previously returned success after the canonical worker without calling `import_finish_job`, leaving real report imports in `processing` and preventing authoritative report closure.
+- SUCCESS REMEDIATION: after the worker returns successfully, the server now calls user-scoped `import_finish_job(completed)` with authoritative row counts, source hash, entity type, and durable execution job identity.
+- FAILURE REMEDIATION: when an active import job identity is known, the same endpoint terminalizes it through `import_finish_job(failed)` instead of leaving a new `processing` orphan.
+- SECURITY: terminalization uses the authenticated user-scoped client; no direct SQL write, service-role browser usage, or bypass was introduced.
+- CURRENT LIVE WORKER: `canonical-import-worker` v8 ACTIVE with user-scoped `dataClient`.
+- CURRENT PR: #676.
+- CURRENT REPORT: REPORT_001 remains the first report and is not CLOSED until the fresh exact-head browser artifact proves canonical commit/readback, terminal import job, nine stages, Source Report VERIFIED, source-bound receivables report, downstream surfaces, screenshot/evidence, and A/B isolation.
+- NEXT EXACT ACTION: consume the fresh exact-head Full Product Browser E2E generated from this checkpoint; REPORT_001 must close first, then REPORT_002, sequentially through the full corpus.
+- DO-NOT-REPEAT: no pending-job duplication; no orphan `processing` import jobs from a handled failure; no stale SHA proof.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / SOURCE SPECIALTY ROUTING CORRECTED
+
+- CONTROL CODE HEAD BEFORE THIS CHECKPOINT: 7cf82d4fea7664e35d51bc7c90342450190ba27f.
+- ROOT CAUSE #4: the terminal import summary could fall back to the detected file format (pdf/xlsx) as specialty, which would disconnect the source-bound Domain Report routing.
+- REMEDIATION: canonical-import-execute now derives specialty from canonical entity type (generic:receivables -> receivables, generic:sales -> sales, etc.) when the worker does not provide a specialty.
+- UI EFFECT: the completed real report retains the correct source domain identity, allowing /reports/source/:importId/domain to render the applicable domain report instead of stopping at a format label.
+- NEXT EXACT ACTION: run the fresh exact-head Full Product Browser E2E on this HEAD; REPORT_001 must prove Source Report + source-bound Domain Report + downstream output bundle before REPORT_002.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / REAL REPORT CORPUS VERIFIED ON DEVICE + CURRENT E2E QUEUED
+
+- CURRENT GITHUB HEAD AFTER SAFE REBASE/PUSH → `2e3d9a5d7e653f82f0db89cc568dda91a0737327` on `exec/20260929-post-import-report-continuity`; local tree clean.
+- REAL CORPUS VERIFIED IN REPO → `tests/fixtures/realistic-reports` contains 48 files including 47 report files plus README; no synthetic replacement was used.
+- REPORT_001 REAL SOURCE → `اعمار الديون للعملا.pdf`; source SHA256 `9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`; Git blob SHA `73f87adc703a83a0bcb26b0d051e53aa194ae8b4`.
+- REPORT_001 DIRECT READ → actual 1-page PDF read from the fixture on PC01; period 01/01/2026–30/06/2026; source total `12,094,224.00 YER`; 27 customer identifiers; aging columns include 0–30, 31–60, 61–90, 91–120, >120.
+- CURRENT DATABASE READBACK → four older same-filename `import_jobs` exist for tenant `f68a7e91-3c7e-46fb-97a8-e339bec04e13`, all `processing`; they must be resumed/reconciled, never duplicated.
+- CURRENT EXACT-HEAD E2E → Full Product Browser E2E run `36514801104` / run #5886 is queued at the present head; its browser job is `109234597107`. No terminal report closure is claimed yet.
+- LOCAL CORPUS QUALITY CHECK → parser read the real corpus but failed only while overwriting `artifacts/real-report-corpus-quality.json` with Windows EPERM; this is a local evidence-file permission blocker, not a report-content PASS.
+- CURRENT CODE HARDENING → commit `fix: recover infrastructure-failed report executions` is now on GitHub; it adds controlled dead-letter recovery only when checkpoint remains `queued`, preserves tenant binding, and includes explicit companyId in canonical worker input.
+- REPORT_001 STATUS → NOT CLOSED. No downstream smart-report bundle is accepted until the fresh exact-head E2E proves canonical import, nine durable stages, Source Report VERIFIED, source-bound receivables Domain Report, Evidence/Executive/Decision/Work surfaces, screenshots, and A/B isolation.
+- NEXT EXACT ACTION → consume the terminal result of run `36514801104`; on success inspect its artifact and REPORT_001 JSON/screenshot, reconcile the chosen processing job, persist CLOSED, then advance to REPORT_002. On failure fix only the first proven defect and regenerate fresh exact-head evidence.
+- DO-NOT-REPEAT → no stale SHA proof; no duplicate report job; no direct DB insertion; no guessed credentials; no preview-as-production; no treating fixture presence as smart-report closure.
+
+
+---
+
+# RESUME TOKEN — 2026-09-30 / EXACT-HEAD RECONCILIATION / REPORT-001 VERIFIED
+
+- CURRENT EXACT HEAD SHA: `44c1fd70e56f86599a1d9c75b697d2777650c5a1`
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`
+- REPORT CORPUS COUNT: **47 report files** under `tests/fixtures/realistic-reports/` (README excluded), deterministically ordered by normalized relative path.
+- CURRENT FRONT: REAL REPORT CORPUS EXECUTION.
+- CURRENT REPORT: `REPORT_007` is the first currently unclosed report in the exact-head serial evidence; `REPORT_001` through `REPORT_006` are explicitly reported CLOSED by exact-head E2E evidence.
+- REPORT_001: `اعمار الديون للعملا.pdf`; source SHA-256 `9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`; import job `6de27d0f-98bb-4d1b-8143-fd3d9a85a4b8`; durable execution job `174196b5-42cf-4654-9721-13ac8d5a29db`.
+- REPORT_001 exact-head E2E proof: workflow `36634016332`, browser job `109630133933`, observed `real-report-selected:REPORT_001`, completed-job reconciliation, `real-report-closed:REPORT_001` PASS; specialty `receivables`, entity `generic:receivables`, source-bound domain path `/reports/source/6de27d0f-98bb-4d1b-8143-fd3d9a85a4b8/domain`.
+- REPORT_001 live DB readback: import job `completed`, 27/27 valid rows; durable execution `completed`, checkpoint `rendered`, attempt 2, no lease.
+- EXACT-HEAD CORPUS RUN: workflow `36634016332` processed all 47 candidates but ended PARTIAL: closed=23, failed=24, review=8. This is **not** corpus closure.
+- FIRST REPRODUCED UI DEFECT: `REPORT_007` has a completed canonical import (436/436 valid rows) and durable execution, but its older `import_jobs.result_summary` lacks `file_name`; `fetchCanonicalSourceReport()` falls back to `entityType` and therefore the source-report heading cannot match the real filename. The durable/source-analysis metadata contains the real filename.
+- CANONICAL ROOT-FIX TARGET: harden `fetchCanonicalSourceReport()` to recover source filename from the canonical durable execution/source-analysis identity when `result_summary.file_name` is absent, without fixture-specific logic or mock values; preserve tenant scoping and provenance.
+- ACTION STATUS: `IN_PROGRESS`
+- NEXT EXACT ACTION: implement and target-test the canonical filename fallback; commit; read back exact resulting SHA; rerun the real-report E2E focused on `REPORT_007` and then resume the corpus without redoing already CLOSED reports.
+- DO-NOT-REPEAT: do not re-import `REPORT_001`–`REPORT_006` unless SHA/contract/data/runtime regression evidence requires it; do not treat the 23 closed count as corpus completion.
+- REAL BLOCKER: current exact-head corpus has 24 failures / 8 reviews; this checkpoint specifically carries the first proven canonical UI identity defect so the next session can resume from the root fix rather than re-explore.
+
+
+---
+
+# RESUME TOKEN — 2026-09-30 / ROOT FIX PERSISTED / QUERY IDENTITY HARDENING
+
+- CURRENT EXACT HEAD SHA: `0371cbf387d565684b699ec1b1d045e5774030d3`
+- ROOT FIX COMMIT: `c421d86c60bee78f58c71aaf15dc59a41ad298c0`
+- FIXED CANONICAL PATH: `src/lib/queries.ts -> fetchCanonicalSourceReport()` now recovers the real source filename from tenant-scoped `report_execution_jobs.source_path` when legacy `import_jobs.result_summary.file_name` is absent.
+- TARGET REAL REPORT: `REPORT_007` / `الاصناف مع التسعيرة مع المخزون.xlsx` / `sha256:cf6a9cefae3a5321df631daf6bbc8c7e4d7d2a8db60014c0b11457043f0650e4`.
+- TARGET LIVE STATE: import job `aa72ef87-554f-4511-a8d4-38f40378d872` is completed with 436/436 valid rows; durable execution is already completed, so **no re-import** is required.
+- ACTION STATUS: `IN_PROGRESS`
+- NEXT EXACT ACTION: run the focused frontend/query test and then the real-report browser E2E against the resulting exact SHA; verify REPORT_007 source heading, VERIFIED state, provenance, nine stages, and domain surface; then persist observed proof and resume at the next unclosed report.
+- DO-NOT-REPEAT: do not create a new importer, do not mutate the completed REPORT_007 data, do not re-run REPORT_001–REPORT_006 absent regression evidence.
+
+
+---
+
+# RESUME TOKEN — 2026-09-30 / PRE-BROWSER PROOF CHECKPOINT
+
+- CURRENT EXACT HEAD SHA: `352dfeb0e19d3ae4cb3327f0760ef010d167d01e`
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`
+- CURRENT REPORT: `REPORT_007` / `الاصناف مع التسعيرة مع المخزون.xlsx`
+- SOURCE FINGERPRINT: `cf6a9cefa3a5321df631daf6bbc8c7e4d7d2a8db60014c0b11457043f0650e4`
+- CURRENT STAGE: source-report canonical readback after completed import/execution.
+- ACTION STATUS: `IN_PROGRESS`
+- LAST VERIFIED STATE: import completed; 436/436 valid; durable execution rendered; source-analysis analyzed; legacy result_summary missing file_name is the reproduced UI identity defect.
+- ROOT FIX COMMIT: `c421d86c60bee78f58c71aaf15dc59a41ad298c0` — source filename fallback now reads tenant-scoped durable execution identity.
+- CURRENT GOVERNANCE CHECKPOINTS: session memory and `docs/MASTER_EXECUTION_INDEX.md` have both been reconciled to the exact resulting SHA `352dfeb0e19d3ae4cb3327f0760ef010d167d01e`.
+- NEXT EXACT ACTION: obtain current-head browser proof for REPORT_007 using the READY Vercel deployment/PR CI path; then either close REPORT_007 with observed proof or fix the next canonical boundary.
+- DO-NOT-REPEAT: no re-import of REPORT_007; no stale 065fe639 browser result as proof of the fix; do not mark CLOSED until current-head UI proof observes filename, VERIFIED, provenance, nine stages, and applicable domain output.

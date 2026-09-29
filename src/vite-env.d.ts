@@ -16,4 +16,10 @@ declare global {
   }
 }
 
+
+declare module 'pdfjs-dist/legacy/build/pdf.worker.mjs' {
+  const worker: unknown;
+  export default worker;
+}
+
 export {};

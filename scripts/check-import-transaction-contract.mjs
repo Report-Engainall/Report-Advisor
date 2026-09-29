@@ -118,27 +118,45 @@ if (!/const dbBlock =/i.test('noop')) {
   // marker kept intentionally unreachable; avoids accidental future broad replacements
 }
 const authoritativeParseIndex = serverAdapter.indexOf('const authoritativeDatasets =');
-const sourceReadyWriteIndex = serverAdapter.indexOf(".from('file_records')", authoritativeParseIndex);
-const verifiedMetadataIndex = serverAdapter.indexOf('const verifiedMetadata =', authoritativeParseIndex);
-if (authoritativeParseIndex < 0 || sourceReadyWriteIndex < 0 || verifiedMetadataIndex < 0 || sourceReadyWriteIndex < authoritativeParseIndex || sourceReadyWriteIndex < verifiedMetadataIndex) {
-  throw new Error('Source must not be marked ready before authoritative parsing');
+const reconcileIndex = serverAdapter.indexOf('const reconciled =', authoritativeParseIndex);
+const workerInvocationIndex = serverAdapter.indexOf("functions/v1/canonical-import-worker", authoritativeParseIndex);
+const workerPath = path.join(root, 'supabase', 'functions', 'canonical-import-worker', 'index.ts');
+if (authoritativeParseIndex < 0 || reconcileIndex < authoritativeParseIndex || workerInvocationIndex < reconcileIndex) {
+  throw new Error('Canonical server boundary must parse and reconcile before invoking the durable worker');
+}
+if (!fs.existsSync(workerPath)) throw new Error('Canonical import worker is missing');
+const worker = fs.readFileSync(workerPath, 'utf8');
+const verifiedMetadataIndex = worker.indexOf('const verifiedMetadata=');
+const sourceReadyWriteIndex = worker.search(/status\s*:\s*["']ready["']/);
+const workerExecutionIndex = worker.indexOf('runCanonicalImportThroughDurableRunner');
+if (verifiedMetadataIndex < 0 || sourceReadyWriteIndex < 0 || workerExecutionIndex < 0 || sourceReadyWriteIndex < workerExecutionIndex) {
+  throw new Error('Source must not be marked ready before durable canonical execution');
 }
 
 for (const token of [
   "request.method !== 'POST'",
-  "env('SUPABASE_SERVICE_ROLE_KEY')",
+  "env('VITE_SUPABASE_URL')",
+  "env('VITE_SUPABASE_ANON_KEY')",
   "Authorization",
   "userClient.rpc('current_company_id')",
-  "SUPABASE_SERVICE_ROLE_KEY",
-  "serverExecution: true",
-  "workerClient: serviceClient",
-  "dataClient: userClient",
   ".from('import_jobs')",
   ".eq('id', payload.importId)",
   ".eq('company_id', companyId)",
   "mode === 'finalize-source'",
 ]) {
   if (!serverAdapter.includes(token)) throw new Error(`Canonical server execution boundary missing: ${token}`);
+}
+for (const token of [
+  'Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")',
+  'createClient(SUPABASE_URL,SERVICE_ROLE_KEY',
+  'runCanonicalImportThroughDurableRunner',
+]) {
+  if (!worker.includes(token) && !worker.replaceAll(' ', '').includes(token.replaceAll(' ', ''))) {
+    throw new Error(`Canonical durable worker boundary missing: ${token}`);
+  }
+}
+if (!/status\s*:\s*["']ready["']/.test(worker)) {
+  throw new Error('Canonical durable worker boundary missing: ready status persistence');
 }
 if (/grant execute on function public\\.(claim|heartbeat|advance|complete|fail|retry)_report_execution_job[^\\n]*to authenticated/i.test(serverAdapter)) {
   throw new Error('Canonical server boundary must not add authenticated worker RPC grants');

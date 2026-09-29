@@ -220,6 +220,17 @@ The durable execution proof remains exactly nine ordered stages:
 
 The current implementation creates the nine durable tasks and advances them sequentially through the leased worker. Do not describe this as parallel multi-worker processing unless the runtime contract changes and fresh evidence proves that change.
 
+### HARD GATE — REAL REPORT CORPUS
+The report corpus is an executable acceptance input, not decorative documentation. Before any session may claim report-pipeline completion, run:
+
+`npm run test:report-corpus-gate`
+
+The gate must prove the actual files are present under `tests/fixtures/realistic-reports/`, the declared fixtures are present, and the corpus reaches the required minimum of 20 report files. Exit code `2` means `BLOCKED`: never convert it to PASS, never substitute arbitrary desktop documents, and never claim that a missing corpus was processed.
+
+When the gate is green, every report in the corpus MUST be processed through the canonical path. For each file persist and display at minimum: file name, format, SHA-256, security result, extraction result, content/schema understanding, detected specialty + confidence + evidence, mapping/normalization result, quality/trust state, import job ID, durable execution job ID, all nine actual stage statuses/timestamps, committed row count, canonical provenance/evidence references, downstream report destination, and benchmark state. A source is not accepted until the actual nine `report_execution_tasks` stages are `completed` in order through `rendered`.
+
+The programmer MUST NOT create a second importer or report pipeline to handle the corpus. One canonical import path is mandatory. On successful completion of each report, navigate directly to its source-bound report surface; on any failure, fail closed and expose the exact failing stage/reason instead of rendering success UI.
+
 After a fixture reaches `rendered`, the result UI MUST expose the real next outputs derived from the detected specialty/entity:
 - Executive Report as the governed aggregation surface.
 - The applicable specialty/domain report when one exists.

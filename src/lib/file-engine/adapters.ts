@@ -45,14 +45,42 @@ function materializeCanonicalFields(rows: Row[], columns: ColumnProfile[]): Row[
   return rows.map((row) => { const next: Row = { ...row }; for (const [field, column] of canonicalOwners) { if (Object.prototype.hasOwnProperty.call(next, field) && next[field] !== '' && next[field] != null) continue; const value = row[column.name]; if (value !== '' && value !== null && value !== undefined) next[field] = value; } return next; });
 }
 
+const CANONICAL_EMITTED_FIELDS = new Set([
+  'sku','name','name_en','unit','base_unit','pack_size','category','item_type','cost_price','selling_price',
+  'min_price','max_price','average_cost','available_quantity','quantity','warehouse','margin','margin_percent',
+  'customer_id','customer_name','phone','email','segment','credit_limit','opening_balance','balance',
+  'invoice_number','invoice_date','invoice_type','subtotal','tax_amount','total','paid_amount',
+  'supplier_id','supplier_name','purchase_order','outstanding_balance','local_amount',
+  'date','currency','document_no','document_type','reference_no','description','debit','credit',
+  'foreign_amount','status','sales_amount','net_sales','discount','charges','incoming','returns_amount',
+  'other_debit','other_credit','collected_amount','age_0_30','age_31_60','age_61_90','age_91_120','age_over_120',
+]);
+
 async function buildDataset(rows: Row[], name: string, source: string, sheet?: string): Promise<Dataset> {
   const normalized = normalizeRows(rows);
   if (!normalized.length) return { id: generateId(), name, source, sheet, rowCount: 0, columnCount: 0, columns: [], rows: [], preview: [], qualityScore: 0 };
-  const columns = Object.keys(normalized[0]); const mappings = await mapColumns(columns); const columnProfiles = buildColumnProfiles(normalized, columns, mappings);
+  const columns = Object.keys(normalized[0]);
+  const mappedColumns = await mapColumns(columns);
+  const mappings = mappedColumns.map((mapping) => {
+    const normalizedName = normalizeColumnName(mapping.sourceColumn);
+    if (CANONICAL_EMITTED_FIELDS.has(normalizedName)) {
+      return { ...mapping, mappedField: normalizedName, confidence: Math.max(mapping.confidence, 98), requiresReview: false };
+    }
+    return mapping;
+  });
+  const columnProfiles = buildColumnProfiles(normalized, columns, mappings);
   for (const col of columnProfiles) { if (col.nullCount > normalized.length * 0.5) col.qualityIssues.push('أكثر من 50% من القيم فارغة'); if (col.mappingConfidence < 80 && col.mappedField) col.qualityIssues.push('تعيين منخفض الثقة — يحتاج مراجعة'); if (!col.mappedField) col.qualityIssues.push('لم يتم تعريف العمود'); }
   const cleanedRows = normalized.map((row) => Object.fromEntries(columnProfiles.map((col) => [col.name, cleanValue(row[col.name], col.dataType)])) as Row);
   const canonicalRows = materializeCanonicalFields(cleanedRows, columnProfiles);
-  const qualityScore = columnProfiles.length ? Math.round(columnProfiles.reduce((s, c) => s + c.mappingConfidence, 0) / columnProfiles.length) : 0;
+  const mappedProfiles = columnProfiles.filter((column) => Boolean(column.mappedField));
+  const mappingConfidence = mappedProfiles.length ? mappedProfiles.reduce((sum, column) => sum + column.mappingConfidence, 0) / mappedProfiles.length : 0;
+  const mappedCompleteness = mappedProfiles.length
+    ? mappedProfiles.reduce((sum, column) => sum + ((normalized.length - column.nullCount) / Math.max(1, normalized.length)) * 100, 0) / mappedProfiles.length
+    : 0;
+  const mappedCoverage = columns.length ? (mappedProfiles.length / columns.length) * 100 : 0;
+  const qualityScore = mappedProfiles.length
+    ? Math.round((mappingConfidence * 0.6) + (mappedCompleteness * 0.25) + (mappedCoverage * 0.15))
+    : 0;
   return { id: generateId(), name, source, sheet, rowCount: canonicalRows.length, columnCount: columns.length, columns: columnProfiles, rows: canonicalRows, preview: canonicalRows.slice(0, 50), qualityScore };
 }
 
@@ -187,6 +215,399 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
   return [row];
 }
 
+type PdfTextItem = { text: string; x: number; y: number; width: number; height: number };
+
+function isNumericToken(value: string): boolean {
+  return /^[-+]?\d[\d,\s]*(?:\.\d+)?$/.test(value.trim());
+}
+
+function isArabicLetterFragment(text: string): boolean {
+  const chars = Array.from(text.trim());
+  return chars.length === 1 && /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/u.test(chars[0]);
+}
+
+function coalescePdfCharacterRun(line: PdfTextItem[]): PdfTextItem[] {
+  const sorted = [...line].sort((a, b) => a.x - b.x);
+  const output: PdfTextItem[] = [];
+  let run: PdfTextItem[] = [];
+
+  const flushRun = (): void => {
+    if (!run.length) return;
+    if (run.length < 2 || !run.every((item) => isArabicLetterFragment(item.text))) {
+      output.push(...run);
+      run = [];
+      return;
+    }
+    const ordered = [...run].sort((a, b) => b.x - a.x);
+    const left = Math.min(...run.map((item) => item.x));
+    const right = Math.max(...run.map((item) => item.x + item.width));
+    const y = run.reduce((sum, item) => sum + item.y, 0) / run.length;
+    const height = Math.max(...run.map((item) => item.height));
+    output.push({
+      text: ordered.map((item) => item.text).join(''),
+      x: left,
+      y,
+      width: Math.max(1, right - left),
+      height,
+    });
+    run = [];
+  };
+
+  for (const item of sorted) {
+    const previous = run[run.length - 1];
+    if (!previous) {
+      run.push(item);
+      continue;
+    }
+
+    const gap = item.x - (previous.x + previous.width);
+    const compatible = isArabicLetterFragment(previous.text) && isArabicLetterFragment(item.text) && gap <= 9;
+    if (compatible) {
+      run.push(item);
+    } else {
+      flushRun();
+      run.push(item);
+    }
+  }
+  flushRun();
+  return output.sort((a, b) => a.x - b.x);
+}
+
+function groupPdfItemsByLine(items: PdfTextItem[], tolerance = 2.5): PdfTextItem[][] {
+  const sorted = [...items].sort((a, b) => b.y - a.y || a.x - b.x);
+  const groups: Array<{ y: number; items: PdfTextItem[] }> = [];
+  for (const item of sorted) {
+    const group = groups.find((candidate) => Math.abs(candidate.y - item.y) <= tolerance);
+    if (!group) groups.push({ y: item.y, items: [item] });
+    else group.items.push(item);
+  }
+  return groups
+    .sort((a, b) => b.y - a.y)
+    .map((group) => coalescePdfCharacterRun(group.items.sort((a, b) => a.x - b.x)));
+}
+
+function tryParseReceivablesAgingPdfItems(items: PdfTextItem[]): Row[] | null {
+  const lines = groupPdfItemsByLine(items);
+  const header = lines.find((line) => {
+    const joined = line.map((item) => item.text.trim()).join(' ');
+    return joined.includes('رقم العميل') && joined.includes('اسم العميل') && joined.includes('العملة')
+      && joined.includes('0 - 30') && joined.includes('31 - 60') && joined.includes('61 - 90') && joined.includes('91 - 120') && joined.includes('> 120');
+  });
+  if (!header) return null;
+  const headerY = header.reduce((sum, item) => sum + item.y, 0) / Math.max(1, header.length);
+  const exactHeaderCenter = (pattern: RegExp): number | null => {
+    const item = header.find((candidate) => pattern.test(candidate.text.trim()));
+    return item ? item.x + item.width / 2 : null;
+  };
+  const anchors = {
+    over120: exactHeaderCenter(/^>\s*120$/), age91_120: exactHeaderCenter(/^91\s*-\s*120$/),
+    age61_90: exactHeaderCenter(/^61\s*-\s*90$/), age31_60: exactHeaderCenter(/^31\s*-\s*60$/),
+    age0_30: exactHeaderCenter(/^0\s*-\s*30$/), localAmount: exactHeaderCenter(/^المبلغ بالعملة المحلية$/),
+    amount: exactHeaderCenter(/^المبلغ$/), currency: exactHeaderCenter(/^العملة$/),
+    name: exactHeaderCenter(/^اسم العميل$/), customerId: exactHeaderCenter(/^رقم العميل$/),
+  };
+  if (Object.values(anchors).some((value) => value == null)) return null;
+  const nearest = (line: PdfTextItem[], anchor: number, predicate: (text: string) => boolean, threshold = 52): string | null => {
+    let best: { distance: number; text: string } | null = null;
+    for (const item of line) {
+      const text = item.text.trim(); if (!text || !predicate(text)) continue;
+      const center = item.x + item.width / 2; const distance = Math.abs(center - anchor);
+      if (distance > threshold) continue; if (!best || distance < best.distance) best = { distance, text };
+    }
+    return best?.text ?? null;
+  };
+  const numberAt = (line: PdfTextItem[], anchor: number) => nearest(line, anchor, isNumericToken, 55);
+  const rows: Row[] = [];
+  for (const line of lines) {
+    const y = line.reduce((sum, item) => sum + item.y, 0) / Math.max(1, line.length);
+    if (y >= headerY - 5) continue;
+    const customerId = nearest(line, anchors.customerId as number, (value) => /^\d{4,}$/.test(value), 38);
+    const customerName = nearest(line, anchors.name as number, (value) => !isNumericToken(value) && value !== 'YER', 78);
+    const currency = nearest(line, anchors.currency as number, (value) => /^[A-Z]{3}$/.test(value), 28);
+    if (!customerId || !customerName || !currency) continue;
+    const row: Row = { customer_id: customerId, customer_name: customerName, currency };
+    const fields: Array<[string, number | null]> = [
+      ['age_over_120', anchors.over120], ['age_91_120', anchors.age91_120], ['age_61_90', anchors.age61_90],
+      ['age_31_60', anchors.age31_60], ['age_0_30', anchors.age0_30], ['local_amount', anchors.localAmount], ['outstanding_balance', anchors.amount],
+    ];
+    for (const [field, anchor] of fields) {
+      if (anchor == null) continue;
+      const value = numberAt(line, anchor);
+      if (value != null) row[field] = normalizeStructuredDocumentValue(value);
+    }
+    if (row.outstanding_balance == null && row.local_amount != null) row.outstanding_balance = row.local_amount;
+    if (row.outstanding_balance != null) rows.push(row);
+  }
+  return rows.length >= 3 ? rows : null;
+}
+
+type PdfTableColumn={key:string;label:string;center:number};
+
+const PDF_HEADER_TERMS=[
+  'رقم الصنف','اسم الصنف','اسم المنتج','اسم المورد','رقم المورد','رقم العميل','اسم العميل',
+  'المبلغ','الإجمالي','المبلغ بالعملة المحلية','الإجمالي بالعملة المحلية','العملة','الكمية','الوحدة',
+  'المخزن','التاريخ','نوع المستند','رقم المستند','البيان','رقم المرجع','مدين','دائن','الرصيد','المندوب',
+  'الخصم','الضريبة','صافي المبيعات','مبلغ المبيعات','الرصيد المستحق','إجمالي المبلغ المستحق',
+  'رقم الفاتورة','نوع الفاتورة','العبوة','الوارد','الحركة','التكلفة','صافي المبيعات','رقمه','حالته','العمله','كشف الحساب','كشف حساب','رصيد سابق'
+];
+
+function normalizedPdfText(value:string):string{
+  return normalizeArabicDigits(
+    value
+      .replace(/\uFEFF/g, '')
+      .normalize('NFKC')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
+}
+
+function pdfHeaderClusters(lines:PdfTextItem[][], start:number, span:number):PdfTableColumn[]{
+  const items=lines.slice(start,start+span).flatMap(line=>line);
+  const clusters:Array<{center:number;items:PdfTextItem[]}>=[];
+
+  for(const item of items.sort((a,b)=>a.x-b.x||b.y-a.y)){
+    const text=normalizedPdfText(item.text);
+    if(!text) continue;
+    const numericOnly=isNumericToken(text)||/^[-–—]?\d+[\d,\s]*(?:\.\d+)?$/.test(text);
+    if(numericOnly && span>1) continue;
+    const center=item.x+item.width/2;
+    let best:null|{cluster:{center:number;items:PdfTextItem[]};distance:number}=null;
+    for(const cluster of clusters){
+      const distance=Math.abs(center-cluster.center);
+      if(distance<=12 && (!best||distance<best.distance)) best={cluster,distance};
+    }
+    if(best){
+      best.cluster.items.push(item);
+      best.cluster.center=(best.cluster.center*(best.cluster.items.length-1)+center)/best.cluster.items.length;
+    }else{
+      clusters.push({center,items:[item]});
+    }
+  }
+
+  return clusters
+    .filter(cluster=>cluster.items.length>0)
+    .sort((a,b)=>a.center-b.center)
+    .map((cluster,index)=>{
+      const labels=[...new Set(cluster.items.map(item=>normalizedPdfText(item.text)).filter(Boolean))];
+      return {key:'',label:labels.join(' ').trim(),center:cluster.center,index} as PdfTableColumn;
+    });
+}
+
+function findPdfHeaderWindow(lines:PdfTextItem[][]):{start:number;span:number;headers:PdfTableColumn[]}|null{
+  let best:null|{score:number;start:number;span:number;headers:PdfTableColumn[]}=null;
+  const maxStart=Math.min(lines.length,25);
+  for(let start=0;start<maxStart;start+=1){
+    for(const span of [1,2,3]){
+      if(start+span>lines.length) continue;
+      const headers=pdfHeaderClusters(lines,start,span);
+      if(headers.length<3) continue;
+      const joined=headers.map(header=>header.label).join(' ');
+      const hits=PDF_HEADER_TERMS.filter(term=>joined.includes(term)).length;
+      const textual=headers.filter(header=>/[^\d.,%\-+\s]/u.test(header.label)).length;
+      const numeric=headers.filter(header=>isNumericToken(header.label)).length;
+      if(hits<2||textual<3) continue;
+      const score=hits*30+Math.min(headers.length,14)*2+textual*2-numeric*25-span*2;
+      if(!best||score>best.score) best={score,start,span,headers};
+    }
+  }
+  if(!best) return null;
+  const seen=new Set<string>();
+  const headers=best.headers.map((header,index)=>({
+    ...header,
+    key:uniquePdfColumnKey(header.label,index,seen),
+  }));
+  return {start:best.start,span:best.span,headers};
+}
+
+function uniquePdfColumnKey(label:string,index:number,seen:Set<string>):string{
+  let key=normalizeColumnName(label).trim();
+  if(!key)key='column_'+String(index+1);
+  let candidate=key;
+  let n=2;
+  while(seen.has(candidate)){candidate=key+' '+n;n+=1;}
+  seen.add(candidate);
+  return candidate;
+}
+
+function tryParseFinancialStatementPdfItems(pages: PdfTextItem[][]): Row[] | null {
+  const rows: Row[] = [];
+
+  for (const pageItems of pages) {
+    const lines = groupPdfItemsByLine(pageItems);
+    const headerIndex = lines.findIndex((line) => {
+      const joined = line.map((item) => normalizedPdfText(item.text)).join(' ');
+      const hits = [
+        /البيان/u, /رقم(?:ه|\s+المستند)/u, /المستند/u, /التاريخ/u,
+        /العمل[ةه]/u, /حالته/u, /الرصيد/u, /دائن/u, /مدين/u,
+      ].filter((pattern) => pattern.test(joined)).length;
+      return hits >= 6;
+    });
+    if (headerIndex < 0) continue;
+
+    const header = lines[headerIndex];
+    const findCenter = (patterns: RegExp[]): number | null => {
+      const item = header.find((candidate) => patterns.some((pattern) => pattern.test(normalizedPdfText(candidate.text))));
+      return item ? item.x + item.width / 2 : null;
+    };
+
+    const anchors = {
+      documentNo: findCenter([/^رقمه$/u, /^رقم\s*المستند$/u]),
+      date: findCenter([/^التاريخ$/u]),
+      currency: findCenter([/^العمل[ةه]$/u]),
+      status: findCenter([/^حالته$/u]),
+      balance: findCenter([/^الرصيد$/u]),
+      credit: findCenter([/^دائن$/u]),
+      debit: findCenter([/^مدين$/u]),
+    };
+    if (anchors.date == null || anchors.currency == null || anchors.balance == null || anchors.credit == null || anchors.debit == null) continue;
+
+    const nearest = (line: PdfTextItem[], anchor: number | null, predicate: (text: string) => boolean, threshold = 65): string | null => {
+      if (anchor == null) return null;
+      let best: { distance: number; text: string } | null = null;
+      for (const item of line) {
+        const text = normalizedPdfText(item.text);
+        if (!text || !predicate(text)) continue;
+        const distance = Math.abs((item.x + item.width / 2) - anchor);
+        if (distance > threshold) continue;
+        if (!best || distance < best.distance) best = { distance, text };
+      }
+      return best?.text ?? null;
+    };
+
+    const numericAt = (line: PdfTextItem[], anchor: number, threshold = 70): string | null =>
+      nearest(line, anchor, (text) => isNumericToken(text), threshold);
+
+    for (let lineIndex = headerIndex + 1; lineIndex < lines.length; lineIndex += 1) {
+      const line = lines[lineIndex];
+      if (line.length < 2) continue;
+
+      const date = nearest(line, anchors.date, (text) => /^\d{4}[-/]\d{1,2}[-/]\d{1,2}$/.test(text) || /^\d{4}[-/]\d{1,2}$/.test(text), 80);
+      const currency = nearest(line, anchors.currency, (text) => /(?:ريال|﷼|YER|SAR|USD|EUR)/iu.test(text), 75);
+      const status = nearest(line, anchors.status, (text) => /^(?:مدين|دائن|مدين:|دائن:)$/u.test(text), 70);
+      const credit = numericAt(line, anchors.credit);
+      const debit = numericAt(line, anchors.debit);
+      const balance = numericAt(line, anchors.balance);
+      const documentNo = anchors.documentNo == null ? null : numericAt(line, anchors.documentNo, 60);
+
+      if (!date || !currency || (!credit && !debit && !balance)) continue;
+
+      const row: Row = { date: normalizeArabicDigits(date), currency };
+      if (status) row.status = status.replace(/[:：]/g, '');
+      if (documentNo) row.document_no = normalizeStructuredDocumentValue(documentNo);
+      if (credit != null) row.credit = normalizeStructuredDocumentValue(credit);
+      if (debit != null) row.debit = normalizeStructuredDocumentValue(debit);
+      if (balance != null) row.balance = normalizeStructuredDocumentValue(balance);
+      rows.push(row);
+    }
+  }
+
+  return rows.length >= 2 ? rows : null;
+}
+
+function tryParsePeriodicSalesByItemPdfItems(pages: PdfTextItem[][]): Row[] | null {
+  const rows: Row[] = [];
+
+  const normalizeSku = (text: string): string | null => {
+    const normalized = normalizeArabicDigits(text.trim()).replace(/\s/g, '');
+    return /^\d{7,12}$/.test(normalized) ? normalized : null;
+  };
+
+  for (const pageItems of pages) {
+    const lines = groupPdfItemsByLine(pageItems);
+    const headerIndex = lines.findIndex((line) => {
+      const header = line.map((item) => normalizedPdfText(item.text)).join(' ');
+      return /رقم\s*الصنف/u.test(header) && /(?:04|05|06|07|08)/u.test(header) && /(?:الإجمالي|اﻹجمالي|اجمالي)/u.test(header);
+    });
+    if (headerIndex < 0) continue;
+
+    const currency = lines.slice(0, Math.min(lines.length, headerIndex + 1))
+      .flatMap((line) => line)
+      .map((item) => normalizedPdfText(item.text))
+      .find((text) => /^(?:YER|SAR|USD|EUR)$/u.test(text)) ?? 'YER';
+
+    for (let index = headerIndex + 1; index < lines.length - 2; index += 1) {
+      const quantityLine = lines[index];
+      const skuItem = quantityLine.find((item) => normalizeSku(item.text) !== null);
+      if (!skuItem) continue;
+
+      const sku = normalizeSku(skuItem.text);
+      if (!sku) continue;
+
+      const quantityValues = quantityLine
+        .filter((item) => item !== skuItem)
+        .map((item) => normalizedPdfText(item.text))
+        .filter((text) => isNumericToken(text));
+      if (!quantityValues.length) continue;
+
+      const salesLine = lines[index + 1] ?? [];
+      const salesValues = salesLine
+        .map((item) => normalizedPdfText(item.text))
+        .filter((text) => isNumericToken(text));
+      if (!salesValues.length) continue;
+
+      const descriptorLines = [lines[index + 2] ?? [], lines[index + 3] ?? []];
+      const descriptors = descriptorLines
+        .flatMap((line) => line.map((item) => normalizedPdfText(item.text)))
+        .filter((text) => text && !isNumericToken(text) && !/^(?:كيس|دبه|حبه|كرتون|انصاف|قطمه|ل|ﻟﺘر|ﻟت|ﻛي|ملي|واحدﻛي)$/u.test(text))
+        .filter((text) => !/^(?:طبع بواسطة|الحسابات|تاريخ التقرير)$/u.test(text));
+
+      const name = descriptors.sort((a, b) => b.length - a.length)[0] ?? ('SKU ' + sku);
+
+      rows.push({
+        sku,
+        name,
+        quantity: normalizeStructuredDocumentValue(quantityValues[0]),
+        sales_amount: normalizeStructuredDocumentValue(salesValues[0]),
+        currency,
+      });
+    }
+  }
+
+  return rows.length >= 3 ? rows : null;
+}
+
+function tryParseGenericPdfTableItems(pages:PdfTextItem[][]):Row[]|null{
+  const allRows:Row[]=[];
+  for(const pageItems of pages){
+    const lines=groupPdfItemsByLine(pageItems);
+    const headerWindow=findPdfHeaderWindow(lines);
+    if(!headerWindow) continue;
+    const {start:headerStart,span:headerSpan,headers}=headerWindow;
+    const headerKeys=new Set(headers.flatMap(header=>normalizeColumnName(header.label).split(/\s+/).filter(Boolean)));
+    for(let lineIndex=headerStart+headerSpan;lineIndex<lines.length;lineIndex+=1){
+      const line=lines[lineIndex];
+      if(line.length<2) continue;
+      const lineNorm=line.map(item=>normalizeColumnName(item.text));
+      const repeatedHeader=lineNorm.filter(value=>headerKeys.has(value)).length>=Math.max(2,Math.ceil(headers.length*0.35));
+      if(repeatedHeader) continue;
+      const joined=line.map(item=>item.text.trim()).join(' ');
+      if(/^(?:طبع بواسطة|تاريخ التقرير|عدد الأصناف|عدد اﻻصناف|O\.Box)/i.test(joined)||joined.includes('تاريخ التقرير')) continue;
+
+      const row:Row={};
+      for(const item of line){
+        const center=item.x+item.width/2;
+        let best=headers[0];
+        let bestDistance=Number.POSITIVE_INFINITY;
+        for(const header of headers){
+          const distance=Math.abs(center-header.center);
+          if(distance<bestDistance){best=header;bestDistance=distance;}
+        }
+        const raw=normalizedPdfText(item.text);
+        if(!raw) continue;
+        const value=/^[-+]?\d[\d,\s]*(?:\.\d+)?$/.test(raw)?normalizeStructuredDocumentValue(raw):raw;
+        if(value===''||value==null) continue;
+        const existing=row[best.key];
+        row[best.key]=existing==null?value:String(existing)+' '+String(value);
+      }
+
+      const populated=Object.values(row).filter(value=>value!==''&&value!=null).length;
+      const hasNumeric=Object.values(row).some(value=>typeof value==='number'||isNumericToken(String(value)));
+      if(populated>=2&&(hasNumeric||populated>=3)) allRows.push(row);
+    }
+  }
+  return allRows.length?allRows:null;
+}
+
 export type OcrDisposition = 'REJECT' | 'REVIEW' | 'TRUSTED';
 export const OCR_REJECT_THRESHOLD = 50;
 export const OCR_TRUSTED_THRESHOLD = 75;
@@ -246,6 +667,35 @@ type PromiseConstructorWithTry = PromiseConstructor & { try?: (fn: (...args: unk
 type Uint8ArrayWithToHex = Uint8Array & { toHex?: () => string };
 
 function ensurePdfJsRuntimeCompatibility(): void {
+  // pdfjs-dist 6.x may evaluate a module-level DOMMatrix during Node import
+  // even when the server only performs text extraction. Netlify's Node 24
+  // runtime does not expose DOMMatrix and optional native canvas may be omitted
+  // from the function bundle. A minimal structural DOMMatrix is sufficient for
+  // PDF.js module initialization; server extraction never calls page.render().
+  if (typeof window === 'undefined' && typeof globalThis.DOMMatrix === 'undefined') {
+    class ServerExtractionDOMMatrix {
+      a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
+      m11 = 1; m12 = 0; m13 = 0; m14 = 0;
+      m21 = 0; m22 = 1; m23 = 0; m24 = 0;
+      m31 = 0; m32 = 0; m33 = 1; m34 = 0;
+      m41 = 0; m42 = 0; m43 = 0; m44 = 1;
+      constructor(init?: Partial<Record<'a'|'b'|'c'|'d'|'e'|'f', number>>) {
+        if (init) {
+          this.a = Number(init.a ?? this.a);
+          this.b = Number(init.b ?? this.b);
+          this.c = Number(init.c ?? this.c);
+          this.d = Number(init.d ?? this.d);
+          this.e = Number(init.e ?? this.e);
+          this.f = Number(init.f ?? this.f);
+          this.m11 = this.a; this.m12 = this.b;
+          this.m21 = this.c; this.m22 = this.d;
+          this.m41 = this.e; this.m42 = this.f;
+        }
+      }
+    }
+    (globalThis as typeof globalThis & { DOMMatrix?: typeof DOMMatrix }).DOMMatrix = ServerExtractionDOMMatrix as unknown as typeof DOMMatrix;
+  }
+
   const uint8ArrayPrototype = Uint8Array.prototype as Uint8ArrayWithToHex;
   if (typeof uint8ArrayPrototype.toHex !== 'function') {
     Object.defineProperty(Uint8Array.prototype, 'toHex', {
@@ -272,19 +722,92 @@ function ensurePdfJsRuntimeCompatibility(): void {
 
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   ensurePdfJsRuntimeCompatibility();
-  const pdfjs = await import('pdfjs-dist');
-  if (typeof window !== 'undefined') {
+  const isServerRuntime = typeof window === 'undefined';
+  const pdfjs = isServerRuntime
+    ? await import('pdfjs-dist/legacy/build/pdf.mjs')
+    : await import('pdfjs-dist');
+
+  if (isServerRuntime) {
+    // PDF.js 6.x force-disables real workers in Node and falls back to a fake
+    // worker. Supplying the worker module explicitly prevents the Netlify
+    // function from resolving a non-bundled /node_modules path at runtime.
+    // @ts-expect-error pdfjs-dist 6.x ships this worker entry without a TypeScript declaration.
+    const pdfWorker = await import('pdfjs-dist/legacy/build/pdf.worker.mjs');
+    (globalThis as typeof globalThis & { pdfjsWorker?: typeof pdfWorker }).pdfjsWorker = pdfWorker;
+  } else {
     pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   }
   const pdf: PdfDocument = await pdfjs.getDocument({
     data: new Uint8Array(buffer),
     useSystemFonts: true,
   }).promise;
+
   const pages: string[] = [];
-  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
-  if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
+  const layoutItems: PdfTextItem[] = [];
+  const layoutPages: PdfTextItem[][] = [];
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+    const page = await pdf.getPage(pageNumber);
+    const content = await page.getTextContent();
+    const pageItems = content.items
+      .filter((item): item is typeof item & { str: string; transform: ArrayLike<number>; width?: number; height?: number } =>
+        'str' in item &&
+        typeof item.str === 'string' &&
+        Boolean(item.str.trim()) &&
+        'transform' in item &&
+        item.transform != null &&
+        typeof item.transform.length === 'number')
+      .map((item) => ({
+        text: item.str,
+        x: Number(item.transform[4] ?? 0),
+        y: Number(item.transform[5] ?? 0),
+        width: Number(item.width ?? 0),
+        height: Number(item.height ?? 0),
+      }));
+    layoutItems.push(...pageItems);
+    layoutPages.push(pageItems);
+    const text = pageItems.map((item) => item.text).join(' ');
+    if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`);
+  }
+
+  const agingRows = tryParseReceivablesAgingPdfItems(layoutItems);
+  if (agingRows) return [await buildDataset(agingRows, fileName, 'pdf')];
+
+  const financialRows = tryParseFinancialStatementPdfItems(layoutPages);
+  if (financialRows) return [await buildDataset(financialRows, fileName, 'pdf')];
+
+  const periodicSalesRows = tryParsePeriodicSalesByItemPdfItems(layoutPages);
+  if (periodicSalesRows) return [await buildDataset(periodicSalesRows, fileName, 'pdf')];
+
+  const tableRows = tryParseGenericPdfTableItems(layoutPages);
+  if (tableRows) {
+    const nativeDataset = await buildDataset(tableRows, fileName, 'pdf');
+    if (nativeDataset.qualityScore == null || nativeDataset.qualityScore >= OCR_REJECT_THRESHOLD || typeof document === 'undefined' || pdf.numPages > PDF_OCR_MAX_PAGES) {
+      return [nativeDataset];
+    }
+    try {
+      const ocrDataset = await parseScannedPdfWithOcr(pdf, fileName);
+      return (ocrDataset[0]?.qualityScore ?? 0) > nativeDataset.qualityScore ? ocrDataset : [nativeDataset];
+    } catch {
+      return [nativeDataset];
+    }
+  }
+
+  if (pages.length) {
+    const nativeDataset = await buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
+    if (nativeDataset[0]?.qualityScore == null || nativeDataset[0].qualityScore >= OCR_REJECT_THRESHOLD || typeof document === 'undefined' || pdf.numPages > PDF_OCR_MAX_PAGES) {
+      return nativeDataset;
+    }
+    try {
+      const ocrDataset = await parseScannedPdfWithOcr(pdf, fileName);
+      return (ocrDataset[0]?.qualityScore ?? 0) > (nativeDataset[0]?.qualityScore ?? 0) ? ocrDataset : nativeDataset;
+    } catch {
+      return nativeDataset;
+    }
+  }
+
   return parseScannedPdfWithOcr(pdf, fileName);
 }
+
 
 async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promise<Dataset[]> {
   if (typeof document === 'undefined') throw new Error('PDF_SCANNED_IMAGE_ONLY_SERVER_AUTHORITY_UNAVAILABLE: scanned-PDF OCR requires an authoritative OCR-capable runtime; no business data was fabricated.');
@@ -293,6 +816,7 @@ async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promi
   const worker = await tesseract.createWorker('ara+eng');
   const pages: string[] = [];
   const confidences: number[] = [];
+  const ocrLayoutPages: PdfTextItem[][] = [];
   try {
     for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
       const page = await pdf.getPage(pageNumber);
@@ -305,27 +829,55 @@ async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promi
       const context = canvas.getContext('2d');
       if (!context) throw new Error(`PDF_OCR_CANVAS_UNAVAILABLE: page ${pageNumber}`);
       await page.render({ canvasContext: context, viewport, canvas }).promise;
+
       const result = await worker.recognize(canvas);
-      const text = typeof result?.data?.text === 'string' ? result.data.text.trim() : '';
-      const confidence = Number(result?.data?.confidence ?? 0);
+      const ocrData = result.data as unknown as { text?: string; confidence?: number; words?: any[] };
+      const text = typeof ocrData.text === 'string' ? ocrData.text.trim() : '';
+      const confidence = Number(ocrData.confidence ?? 0);
       confidences.push(confidence);
       if (text) pages.push(`PAGE ${pageNumber}\n${text}`);
-      canvas.width = 1; canvas.height = 1;
+
+      const ocrWords = Array.isArray(ocrData.words) ? ocrData.words : [];
+      const wordItems: PdfTextItem[] = ocrWords
+        .filter((word: any) => typeof word?.text === 'string' && word.text.trim() && word?.bbox)
+        .map((word: any) => ({
+          text: String(word.text),
+          x: Number(word.bbox.left ?? 0),
+          y: -Number(word.bbox.top ?? 0),
+          width: Math.max(1, Number(word.bbox.right ?? 0) - Number(word.bbox.left ?? 0)),
+          height: Math.max(1, Number(word.bbox.bottom ?? 0) - Number(word.bbox.top ?? 0)),
+        }));
+      ocrLayoutPages.push(wordItems);
+
+      canvas.width = 1;
+      canvas.height = 1;
     }
   } finally {
     await worker.terminate();
   }
+
   if (!pages.length) throw new Error('PDF_SCANNED_OCR_EMPTY: OCR produced no readable text; no business data was fabricated.');
   const minimumConfidence = confidences.length ? Math.min(...confidences) : 0;
   const disposition = classifyOcrConfidence(minimumConfidence);
   if (disposition === 'REJECT') {
     throw new Error(`PDF_OCR_LOW_CONFIDENCE_REJECT:${Math.round(minimumConfidence)}% (threshold < ${OCR_REJECT_THRESHOLD})`);
   }
+
   const warning = disposition === 'REVIEW'
     ? `OCR_REVIEW_REQUIRED:${Math.round(minimumConfidence)}%`
     : `OCR_TRUSTED:${Math.round(minimumConfidence)}%`;
+
+  const ocrTableRows = tryParseGenericPdfTableItems(ocrLayoutPages);
+  if (ocrTableRows) {
+    const dataset = await buildDataset(ocrTableRows, fileName, 'pdf-ocr');
+    dataset.qualityScore = Math.min(dataset.qualityScore, Math.round(minimumConfidence));
+    dataset.columns.forEach((column) => column.qualityIssues.push(warning));
+    return [dataset];
+  }
+
   return buildTextDataset(pages.join('\n\n'), fileName, 'pdf-ocr', warning, minimumConfidence);
 }
+
 
 async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   const mammoth = await import('mammoth'); const result = await mammoth.extractRawText({ arrayBuffer: buffer });

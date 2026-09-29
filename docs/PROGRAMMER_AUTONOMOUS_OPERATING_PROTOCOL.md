@@ -12,6 +12,27 @@ This document is the repository-resident operating contract for autonomous engin
 4. `PROJECT_MEMORY.md`, evidence ledgers, RCA documents, and appendices are operational memory and evidence sources.
 5. Chat messages are instructions/context, never proof of repository or production state.
 
+
+## 2A. HARD BOOT KERNEL — REPORT CORPUS EXECUTION
+
+When a project report corpus is declared under `tests/fixtures/realistic-reports/`, the programmer is REQUIRED to execute it as a deterministic acceptance workload; a review-only session is invalid.
+
+At session start, run:
+
+`npm run test:report-corpus-gate`
+
+If the gate is green, the programmer MUST enumerate every discovered report file and process every file through the single canonical pipeline:
+
+`UPLOAD → FORMAT → SECURITY → EXTRACTION → UNDERSTANDING → SPECIALTY → MATCHING → NORMALIZATION → QUALITY → TRUST → REVIEW → CANONICAL APPROVAL → COMMIT → ANALYSIS → EVIDENCE → SIGNAL → DECISION → ACTION → OUTCOME → LEARNING → BENCHMARK`
+
+For each report, the accepted output MUST contain actual persisted evidence for: file identity + SHA-256, security decision, extraction result, schema/content understanding, detected specialty/confidence/evidence, mapping/normalization, quality/trust state, import job ID, durable execution job ID, all nine execution stages and their timestamps/statuses, committed canonical-row count, provenance/evidence references, generated source-bound report, downstream Executive/Trust/Decision/Work surfaces, and benchmark eligibility.
+
+The report is NOT successful at upload, preview, extraction, or a static lifecycle display. It is successful only when the actual `report_execution_tasks` rows prove the ordered stages `queued → fingerprinted → extracted → canonicalized → validated → analyzed → decisioned → committed → rendered` are all `completed`, and the source-bound report renders the persisted result.
+
+Failures MUST be fail-closed. Never fabricate fixtures, substitute unrelated desktop files for the declared corpus, hardcode success states, or claim that a report was processed without per-file evidence. If the corpus gate is blocked because the real files are absent, record `BLOCKED` with the exact missing input and immediately continue with other executable fronts; never convert the blocker into PASS.
+
+One canonical importer and one canonical report-execution pipeline only. Reuse and extend existing contracts; do not create parallel importers, runners, routes, or fake report paths.
+
 ## 2. Mandatory Execution Loop
 
 For every actionable front:

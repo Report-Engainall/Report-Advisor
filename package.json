@@ -101,6 +101,8 @@
     "test:onyx-adapter-contract": "node scripts/check-onyx-adapter-contract.mjs",
     "test:report-execution-foundation": "node scripts/check-report-execution-foundation.mjs",
     "test:report-execution-e2e-contract": "node scripts/check-report-execution-e2e-contract.mjs",
+    "test:post-import-report-guard": "node scripts/check-post-import-report-guard.mjs",
+    "test:report-corpus-gate": "node scripts/check-report-corpus-gate.mjs",
     "test:production-release-blockers": "node scripts/check-production-release-blockers.mjs",
     "test:operational-file-pipeline": "node --experimental-strip-types scripts/check-operational-file-pipeline.mjs",
     "test:contracts": "node scripts/check-architecture-contract.mjs",
@@ -149,6 +151,8 @@
     "test:intelligence-product-contract": "node scripts/check-intelligence-product-contract.mjs",
     "test:product-wow-ui": "node scripts/check-product-wow-ui-contract.mjs",
     "test:connections-language-ui": "node scripts/check-connections-language-ui.mjs",
-    "test:knowledge-architecture": "node scripts/check-knowledge-architecture.mjs"
+    "test:knowledge-architecture": "node scripts/check-knowledge-architecture.mjs",
+    "test:pdf-structured-regression": "node --experimental-strip-types scripts/check-pdf-structured-regression.ts",
+    "test:real-report-corpus-quality": "node scripts/check-real-report-corpus-quality.mjs"
   }
 }

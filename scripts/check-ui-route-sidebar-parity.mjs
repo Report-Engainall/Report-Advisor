@@ -9,8 +9,9 @@ const navigationPaths = [...navigationRegistry.matchAll(/path:\s*'([^']+)'/g)].m
 const routeSet = new Set(routePaths);
 const navigationSet = new Set(navigationPaths);
 const intentionallyHiddenRoutes = new Set(['/proposal-demo']);
+const hasRegisteredNavigationAncestor = (path) => navigationPaths.some((registeredPath) => path === registeredPath || (registeredPath !== '/' && path.startsWith(`${registeredPath}/`)));
 const missingFromApp = navigationPaths.filter((path) => !routeSet.has(path));
-const missingFromSidebar = routePaths.filter((path) => path !== '*' && !navigationSet.has(path) && !intentionallyHiddenRoutes.has(path));
+const missingFromSidebar = routePaths.filter((path) => path !== '*' && !hasRegisteredNavigationAncestor(path) && !intentionallyHiddenRoutes.has(path));
 
 const requiredRoutes = ['/import/analyze', '/decision-experience', '/metrics', '/reports/executive', '/analytics/liquidity', '/suppliers'];
 const missingRequired = requiredRoutes.filter((path) => !routeSet.has(path) || !navigationSet.has(path));

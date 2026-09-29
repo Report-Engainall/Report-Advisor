@@ -1,4 +1,6 @@
 import { createServer, type ViteDevServer } from 'vite';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
 if (!('DOMMatrix' in globalThis)) Object.defineProperty(globalThis, 'DOMMatrix', { configurable: true, value: class DOMMatrix {} });
 type PromiseConstructorWithTry = PromiseConstructor & { try?: (fn: (...args: unknown[]) => unknown, ...args: unknown[]) => Promise<unknown> };
@@ -88,14 +90,10 @@ function pdfWithText(text: string): ArrayBuffer {
 }
 
 async function main(): Promise<void> {
-  if (!process.env.VITE_SUPABASE_URL || !process.env.VITE_SUPABASE_ANON_KEY) {
-    throw new Error('PDF regression requires the real Supabase test configuration; no fake environment is accepted.');
-  }
-
   const vite: ViteDevServer = await createServer({ logLevel: 'error', server: { middlewareMode: true }, appType: 'custom' });
   try {
     const { parseFile, classifyOcrConfidence } = await vite.ssrLoadModule('/src/lib/file-engine/adapters.ts') as {
-      parseFile: (input: ArrayBuffer, fileName: string, format: 'pdf') => Promise<Array<{ rows: Array<Record<string, unknown>>; qualityScore: number }>>;
+      parseFile: (input: ArrayBuffer, fileName: string, format: 'pdf'|'xlsx') => Promise<Array<{ rows: Array<Record<string, unknown>>; qualityScore: number; columns: Array<{ mappedField:string|null }> }>>;
       classifyOcrConfidence: (score: number) => 'REJECT' | 'REVIEW' | 'TRUSTED';
     };
 
@@ -132,6 +130,54 @@ async function main(): Promise<void> {
       'Invoice Number: INV-AR Date: 2026-09-15 Customer Name: Test Customer Subtotal: ١٢ Tax: ٣ Total: ١٥ Currency: YER',
       'INV-AR',
     );
+
+    const realPdfPath = path.join(process.cwd(), 'tests', 'fixtures', 'realistic-reports', 'اعمار الديون للعملا.pdf');
+    const realPdfBytes = await fs.readFile(realPdfPath);
+    const realBuffer = realPdfBytes.buffer.slice(realPdfBytes.byteOffset, realPdfBytes.byteOffset + realPdfBytes.byteLength);
+    const realDatasets = await parseFile(realBuffer, realPdfPath, 'pdf');
+    assert(realDatasets.length === 1, 'real receivables PDF must produce one dataset');
+    const [realDataset] = realDatasets;
+    assert(realDataset.rowCount === 27, `real receivables PDF row count must be 27, got ${realDataset.rowCount}`);
+    assert(realDataset.qualityScore >= 75, `real receivables PDF quality must meet trusted import threshold, got ${realDataset.qualityScore}`);
+    assert(realDataset.columns.filter((column) => column.mappedField).length >= 6, 'real receivables PDF must expose canonical mapped fields');
+    assert(realDataset.rows.every((row) => row.customer_id && row.customer_name && row.currency === 'YER'), 'real receivables PDF must retain customer identity and currency');
+    assert(realDataset.rows.every((row) => typeof row.outstanding_balance === 'number'), 'real receivables PDF must retain deterministic outstanding balance');
+    const { detectImportedSpecialty } = await vite.ssrLoadModule('/src/lib/file-engine/schema-hardening.ts') as {
+      detectImportedSpecialty: (dataset: typeof realDataset) => { specialty: string; confidence: number; canonicalEntityType: string };
+    };
+    const specialty = detectImportedSpecialty(realDataset);
+    assert(specialty.specialty === 'receivables', `real receivables PDF specialty must be receivables, got ${specialty.specialty}`);
+    assert(specialty.confidence >= 90, `real receivables specialty confidence must be >=90, got ${specialty.confidence}`);
+    console.log(`Real receivables PDF regression: PASS (rows=${realDataset.rowCount}, quality=${realDataset.qualityScore}, specialty=${specialty.specialty})`);
+
+    const corpusCases = [
+      ['اعمار الديون للموردين.pdf', 'pdf', 'purchases'],
+      ['المبيعات.pdf', 'pdf', 'sales'],
+      ['المشتريات.pdf', 'pdf', 'purchases'],
+      ['تقارير ارصدة المخزون.pdf', 'pdf', 'inventory'],
+      ['تقارير المبيعات - فترية - حسب الاصناف - الزيت من تاريخ 01-04 حتى تاريخ 20-08.pdf', 'pdf', 'sales'],
+      ['تقارير المبيعات فترية حسب الاصناف.pdf', 'pdf', 'sales'],
+      ['تقارير البنوك.xlsx', 'xlsx', 'payments'],
+      ['تقارير حركة الصندوق.xlsx', 'xlsx', 'payments'],
+      ['الصراف البدجي.pdf', 'pdf', 'payments'],
+      ['الصراف المنتاب.pdf', 'pdf', 'payments'],
+      ['الصرافين.pdf', 'pdf', 'payments'],
+      ['ديون العملاء المستحقة.xlsx', 'xlsx', 'receivables'],
+      ['الاصناف 3.xlsx', 'xlsx', 'inventory'], ['الاصناف .xlsx', 'xlsx', 'products'],
+    ] as const;
+    for (const [fileName, format, expectedSpecialty] of corpusCases) {
+      const bytes = await fs.readFile(path.join(process.cwd(), 'tests', 'fixtures', 'realistic-reports', fileName));
+      const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+      const datasets = await parseFile(buffer, fileName, format);
+      assert(datasets.length >= 1, `real corpus ${fileName} must yield at least one dataset`);
+      const dataset = datasets[0];
+      assert(dataset.rows.length > 0, `real corpus ${fileName} must yield structured rows`);
+      assert(dataset.qualityScore >= 50, `real corpus ${fileName} must reach at least review quality, got ${dataset.qualityScore}`);
+      assert(dataset.columns.some(column => column.mappedField), `real corpus ${fileName} must map at least one canonical field`);
+      const detected = detectImportedSpecialty(dataset);
+      assert(detected.specialty === expectedSpecialty, `real corpus ${fileName} specialty must be ${expectedSpecialty}, got ${detected.specialty}`);
+      console.log(`Real corpus case: PASS (file=${fileName}, rows=${dataset.rows.length}, quality=${dataset.qualityScore}, specialty=${detected.specialty})`);
+    }
 
     console.log('Structured PDF/OCR behavioral regression: PASS');
   } finally {
