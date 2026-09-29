@@ -97,6 +97,7 @@ async function main(): Promise<void> {
     const { parseFile, classifyOcrConfidence } = await vite.ssrLoadModule('/src/lib/file-engine/adapters.ts') as {
       parseFile: (input: ArrayBuffer, fileName: string, format: 'pdf') => Promise<Array<{ rows: Array<Record<string, unknown>>; qualityScore: number }>>;
       classifyOcrConfidence: (score: number) => 'REJECT' | 'REVIEW' | 'TRUSTED';
+      isPdfBusinessTableRow: (row: Record<string, unknown>) => boolean;
     };
 
     assert(classifyOcrConfidence(49) === 'REJECT', 'OCR confidence below 50 must reject');
@@ -104,6 +105,9 @@ async function main(): Promise<void> {
     assert(classifyOcrConfidence(74.99) === 'REVIEW', 'OCR confidence below 75 must require review');
     assert(classifyOcrConfidence(75) === 'TRUSTED', 'OCR confidence 75 must be trusted');
     assert(classifyOcrConfidence(100) === 'TRUSTED', 'OCR confidence 100 must be trusted');
+    assert(isPdfBusinessTableRow({ 'رقم الفاتورة': '1242', 'التاريخ': '15/08/2026', 'اسم العميل': 'عميل فعلي', 'اجمالي الفاتورة': '49670' }), 'invoice row accepted');
+    assert(!isPdfBusinessTableRow({ 'رقم الفاتورة': '', 'التاريخ': '', 'اسم العميل': 'الإجمالي :', 'اجمالي الفاتورة': '471807450' }), 'summary row rejected');
+    assert(!isPdfBusinessTableRow({ 'رقم الفاتورة': '', 'التاريخ': '', 'اسم العميل': '', 'اجمالي الفاتورة': '', 'مبلغ صافي': '471807450' }), 'footer row rejected');
 
     async function assertStructuredPdf(text: string, expectedInvoiceNumber: string): Promise<void> {
       const datasets = await parseFile(pdfWithText(text), 'structured-regression.pdf', 'pdf');
