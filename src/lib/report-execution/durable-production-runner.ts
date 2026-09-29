@@ -72,10 +72,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       }
       if (heartbeatFailure) throw heartbeatFailure;
       const checkpoint = buildCheckpoint(following);
-      await store.completeTask(input.jobId, input.workerId, job.leaseToken!, following, {
-        stage: following, checkpoint, rowCount: sourceRows.length, observedAt: new Date().toISOString(),
-        ...(stageEvidence[following] ?? {}),
-      }, tenantId);
+      // The canonical checkpoint RPC atomically advances the job and completes the current task.
       await store.saveCheckpoint(input.jobId, checkpoint, input.workerId, tenantId);
       activeTask = null;
       stage = following;
