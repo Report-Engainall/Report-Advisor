@@ -1,3 +1,11 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 07:32 +03:00 / CANDIDATE 62533f95
+
+- CURRENT CODE/TEST CANDIDATE: `62533f95768336014280b91d094cee43685eede7`
+- FUNCTIONAL FIX FRONT: PDF worker TypeScript boundary + quote-agnostic canonical ready contract.
+- REPORT-FIRST FRONT: REPORT_001 remains the only report eligible to close.
+- CERTIFICATION: governance must bind this candidate before terminal PASS is accepted.
+- NEXT EXACT ACTION: terminal exact-head certification and Full Product Browser E2E at 62533f95, then close REPORT_001 or repair first current-SHA failure.
+---
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 07:29 +03:00 / 91ab FUNCTIONAL CANDIDATE RECONCILED
 
 - CURRENT CODE/TEST CANDIDATE: `91ab9337fc152adab966819d92fa49353abfa4df`

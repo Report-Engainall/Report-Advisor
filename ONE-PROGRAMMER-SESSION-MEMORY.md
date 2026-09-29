@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-29 07:32 +03:00 / FUNCTIONAL HEAD 62533f95 / CURRENT-SHA CERTIFICATION NEXT
+
+- CURRENT FUNCTIONAL CODE SHA: 62533f95768336014280b91d094cee43685eede7
+- CONTROL HEAD: PENDING_GOVERNANCE_COMMIT
+- REPORT-FIRST FRONT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099
+- FIXES IN THIS FUNCTIONAL CHECKPOINT:
+  1. pdfjs legacy worker import now has a local explicit TypeScript expectation because the package ships the runtime entry without a declaration.
+  2. import transaction contract now checks the durable worker ready-write structurally, independent of single-vs-double quote formatting.
+- PRIOR CERTIFICATION FAILURES CLOSED: candidate binding; PDF DOMMatrix type mismatch; stale Netlify service-role assertion; worker ready quote mismatch.
+- REPORT_001 CLOSURE: OPEN. Current exact-head browser proof still required for canonical persistence, 9 durable stages, Source Report VERIFIED, source-bound domain/receivables, downstream evidence/intelligence/decision/work-center, benchmark status, and A/B tenant isolation.
+- COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47
+- DO-NOT-REPEAT: stale SHA PASS, auth bypass, direct DB insertion, duplicate import path, generic UI substituted for source-bound proof.
+- CURRENT RESUME POINTER: exact-head certification + Full Product Browser E2E for 62533f95768336014280b91d094cee43685eede7
+- NEXT EXACT ACTION: consume terminal certification and full-corpus E2E at this SHA; repair only first reproducible blocker; otherwise persist REPORT_001 closure and advance REPORT_002.
+---
 # RESUME TOKEN — 2026-09-29 07:29 +03:00 / CURRENT FUNCTIONAL HEAD 91ab9337 / EXACT-HEAD PROOF NEXT
 
 - CURRENT FUNCTIONAL CODE SHA: 91ab9337fc152adab966819d92fa49353abfa4df
