@@ -1031,7 +1031,7 @@ function tryParseColumnMajorReceivablesText(text: string): Row[] | null {
   }));
 }
 
-export function tryParseSupplierOpeningBalanceText(text: string): Row[] | null {
+function tryParseSupplierOpeningBalanceText(text: string): Row[] | null {
   const normalized = normalizeArabicDigits(
     stripControlCharacters(text.normalize('NFKC'))
       .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
@@ -1039,14 +1039,9 @@ export function tryParseSupplierOpeningBalanceText(text: string): Row[] | null {
       .trim(),
   );
 
-  const markers = ['رقم المورد', 'رقم الحساب', 'الرصيد الافتتاحي', 'العملة', 'الاسم'];
-  if (markers.filter(marker => normalized.includes(marker)).length < 4) return null;
+  if (!/(?:رقم المورد|رقم الحساب|الرصيد الافتتاحي|العملة|الاسم)/.test(normalized)) return null;
 
-  const supplierMatches = [...normalized.matchAll(/\b\d{4,6}\b\s+(YER|SAR|USD|EUR|ر\.س|ريال\s+يمني|ريال\s+سعودي)\b/gi)];
-  if (supplierMatches.length < 5) return null;
-
-  const amountPattern = /-?(?:\d{1,3}(?:,\d{3})+|\d+|\.\d+)(?:[.,٫]\d+)?/g;
-  const rows: Row[] = [];
+  const rowPattern = /(-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:[.,]\d+)?)\s+(\d{4,6})\s+(YER|SAR|USD|EUR|ر\.س|ريال\s+يمني|ريال\s+سعودي)\s+(.+?)\s+(\d{8,12})\s+(.+?)(?=\s+-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:[.,]\d+)?\s+\d{4,6}\s+(?:YER|SAR|USD|EUR|ر\.س|ريال\s+يمني|ريال\s+سعودي)\s+|\s+إجمالي\s+حسب\s+العملة|\s+الاجمالي\s+الكلي|$)/gi;
 
   const normalizeCurrency = (value: string): string => {
     const normalizedCurrency = value.replace(/\s+/g, ' ').trim().toUpperCase();
@@ -1055,41 +1050,24 @@ export function tryParseSupplierOpeningBalanceText(text: string): Row[] | null {
     return normalizedCurrency;
   };
 
-  for (let index = 0; index < supplierMatches.length; index += 1) {
-    const match = supplierMatches[index];
-    const rowStart = index === 0 ? 0 : (supplierMatches[index - 1].index ?? 0) + supplierMatches[index - 1][0].length;
-    const rowEnd = index + 1 < supplierMatches.length ? (supplierMatches[index + 1].index ?? normalized.length) : normalized.length;
-    const prefix = normalized.slice(rowStart, match.index ?? 0);
-
-    const amountMatches = [...prefix.matchAll(amountPattern)];
-    const amountRaw = amountMatches[amountMatches.length - 1]?.[0];
-    const openingBalance = parseNumber(amountRaw ?? '');
+  const rows: Row[] = [];
+  for (const match of normalized.matchAll(rowPattern)) {
+    const openingBalance = parseNumber(match[1]);
     if (openingBalance == null) continue;
 
-    const supplierId = match[0].match(/^(\d{4,6})/)?.[1];
-    const currencyRaw = match[0].match(/\b(YER|SAR|USD|EUR|ر\.س|ريال\s+يمني|ريال\s+سعودي)\b/i)?.[1];
-    if (!supplierId || !currencyRaw) continue;
+    const supplierId = Number(match[2]);
+    const currency = normalizeCurrency(match[3]);
+    const supplierName = match[4].trim();
+    const accountNumber = match[5].trim();
+    const accountName = match[6].replace(/\s+/g, ' ').trim();
 
-    let tail = normalized.slice((match.index ?? 0) + match[0].length, rowEnd);
-    tail = tail.replace(/\s+(?:إجمالي\s+حسب\s+العملة|عدد\s+السجلات)[:：]?.*$/i, ' ').trim();
-    const trailingAmount = [...tail.matchAll(amountPattern)].at(-1);
-    if (trailingAmount?.index != null && trailingAmount.index > 0) {
-      const trailingText = tail.slice(trailingAmount.index).trim();
-      if (parseNumber(trailingText) != null) tail = tail.slice(0, trailingAmount.index).trim();
-    }
-
-    const accountMatch = tail.match(/\b\d{8,12}\b/);
-    if (!accountMatch || accountMatch.index == null) continue;
-
-    const supplierName = tail.slice(0, accountMatch.index).trim();
-    const accountNumber = accountMatch[0];
-    const accountName = tail.slice(accountMatch.index + accountNumber.length).trim();
-    if (!supplierName || !accountName) continue;
+    if (!supplierName || !accountNumber || !accountName) continue;
+    if (!/^\d{8,12}$/.test(accountNumber)) continue;
 
     rows.push({
-      supplier_id: Number(supplierId),
+      supplier_id: supplierId,
       supplier_name: supplierName,
-      currency: normalizeCurrency(currencyRaw),
+      currency,
       opening_balance: openingBalance,
       account_number: accountNumber,
       account_name: accountName,
@@ -1097,10 +1075,14 @@ export function tryParseSupplierOpeningBalanceText(text: string): Row[] | null {
   }
 
   const unique = rows.filter((row, index, all) =>
-    index === all.findIndex(candidate => candidate.supplier_id === row.supplier_id && candidate.currency === row.currency),
+    index === all.findIndex(candidate =>
+      candidate.supplier_id === row.supplier_id && candidate.currency === row.currency && candidate.opening_balance === row.opening_balance,
+    ),
   );
+
   return unique.length >= 5 ? unique : null;
 }
+
 
 function tryParseColumnMajorSupplierText(text: string): Row[] | null {
   const normalized = normalizeArabicDigits(
