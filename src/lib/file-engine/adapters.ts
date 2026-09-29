@@ -1356,7 +1356,6 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   }
   if (customerDirectoryRows.length >= 10) { const dataset = await buildDataset(customerDirectoryRows, fileName, 'pdf-' + marker.toLowerCase()); if (dataset.qualityScore >= OCR_REJECT_THRESHOLD) return [dataset]; }
   if (bankMovementRows.length >= 2) { const dataset = await buildDataset(bankMovementRows, fileName, 'pdf-bank-movement-summary'); if (dataset.qualityScore >= OCR_REJECT_THRESHOLD) return [dataset]; }
-  if (tableRows.length >= 2 && tablePageCount >= 1) return [await buildDataset(tableRows, fileName, 'pdf-table')];
   if (pages.length) {
     const pageText = pages.join('\n\n');
     const structuredPageText = structuredPages.join(' ');
@@ -1379,6 +1378,10 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
       if (dataset.qualityScore >= OCR_REJECT_THRESHOLD) return [dataset];
     }
 
+    if (tableRows.length >= 2 && tablePageCount >= 1) {
+      const tableDataset = await buildDataset(tableRows, fileName, 'pdf-table');
+      if (tableDataset.qualityScore >= OCR_REJECT_THRESHOLD) return [tableDataset];
+    }
     const bankStatementSummary = tryParseBankStatementSummaryText(structuredPageText);
     if (bankStatementSummary) return [await buildDataset(bankStatementSummary, fileName, 'pdf-bank-statement-summary')];
     const meaningfulText = pageText.replace(/PAGE\s+\d+/gi, ' ').replace(/\b\d+\s*\/\s*\d+\b/g, ' ').trim();

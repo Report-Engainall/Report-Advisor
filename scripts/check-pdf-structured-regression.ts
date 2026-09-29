@@ -1,3 +1,5 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { createServer, type ViteDevServer } from 'vite';
 
 if (!('DOMMatrix' in globalThis)) Object.defineProperty(globalThis, 'DOMMatrix', { configurable: true, value: class DOMMatrix {} });
@@ -136,6 +138,17 @@ async function main(): Promise<void> {
       'Invoice Number: INV-AR Date: 2026-09-15 Customer Name: Test Customer Subtotal: ١٢ Tax: ٣ Total: ١٥ Currency: YER',
       'INV-AR',
     );
+
+    const supplierOpeningFixture = path.join(process.cwd(), 'tests/fixtures/realistic-reports/تقارير الأرصدة الإفتتاحية - ارصدة نهائية للموردين.pdf');
+    const supplierOpeningBytes = await fs.readFile(supplierOpeningFixture);
+    const supplierOpeningBuffer = supplierOpeningBytes.buffer.slice(supplierOpeningBytes.byteOffset, supplierOpeningBytes.byteOffset + supplierOpeningBytes.byteLength);
+    const supplierDatasets = await parseFile(supplierOpeningBuffer, path.basename(supplierOpeningFixture), 'pdf');
+    assert(supplierDatasets.length === 1, 'supplier opening-balance PDF must produce one dataset');
+    const [supplierDataset] = supplierDatasets;
+    assert(supplierDataset.rows.length >= 5, 'supplier opening-balance PDF must produce business rows; extracted=' + supplierDataset.rows.length);
+    assert(supplierDataset.qualityScore >= 75, 'supplier opening-balance PDF quality must be trusted, got ' + supplierDataset.qualityScore);
+    assert(supplierDataset.rows.some((row) => row.supplier_id != null && row.supplier_name && row.opening_balance != null && row.currency), 'supplier opening-balance PDF must expose supplier identity, opening balance and currency');
+    assert(supplierDataset.rows.some((row) => row.account_number), 'supplier opening-balance PDF must preserve account number provenance');
 
     console.log('Structured PDF/OCR behavioral regression: PASS');
   } finally {
