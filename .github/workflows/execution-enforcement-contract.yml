@@ -51,33 +51,6 @@ jobs:
       - name: Install repository dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Inspect blocked PDF through canonical parser
-        shell: bash
-        run: |
-          set -euo pipefail
-          cat > /tmp/debug-pdf.mjs <<'EOF'
-          import fs from 'node:fs/promises';
-          const { parseFile } = await import(process.cwd() + '/src/lib/file-engine/adapters.ts');
-          const { understandCanonicalSource } = await import(process.cwd() + '/src/lib/import/canonical-source-understanding.ts');
-          const fileName='الصراف البدجي.pdf';
-          const bytes=await fs.readFile('tests/fixtures/realistic-reports/' + fileName);
-          const buffer=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
-          const pdfjs=await import('file://' + process.cwd() + '/node_modules/pdfjs-dist/build/pdf.mjs');
-          if(!('DOMMatrix' in globalThis)) Object.defineProperty(globalThis,'DOMMatrix',{configurable:true,value:class DOMMatrix{}});
-          if(!('sumPrecise' in Math)) Object.defineProperty(Math,'sumPrecise',{configurable:true,writable:true,value:(values)=>{let total=0;for(const value of values)total+=Number(value)||0;return total;}});
-          if(!('try' in Promise)) Object.defineProperty(Promise,'try',{configurable:true,writable:true,value:(fn,...args)=>new Promise((resolve,reject)=>{try{resolve(fn(...args));}catch(error){reject(error);}})});
-          if(!('toHex' in Uint8Array.prototype)) Object.defineProperty(Uint8Array.prototype,'toHex',{configurable:true,writable:true,value:function(){return Array.from(this,(byte)=>byte.toString(16).padStart(2,'0')).join('');}});
-          const pdf=await pdfjs.getDocument({data:new Uint8Array(buffer),useSystemFonts:true}).promise;
-          console.log('PDF_PAGES='+pdf.numPages);
-          const page=await pdf.getPage(1);
-          const content=await page.getTextContent({disableCombineTextItems:true});
-          console.log('PDF_ITEMS='+content.items.length);
-          console.log('PDF_TEXT='+JSON.stringify(content.items.slice(0,300).map(item=>({str:item.str,x:item.transform?.[4],y:item.transform?.[5],width:item.width})),null,2));
-          const datasets=await parseFile(buffer,fileName,'pdf');
-          const understanding=understandCanonicalSource(datasets);
-          console.log(JSON.stringify({datasets:datasets.map(d=>({rows:d.rowCount,columns:d.columnCount,quality:d.qualityScore,cols:d.columns.map(c=>({name:c.name,mapped:c.mappedField,confidence:c.mappingConfidence})),sample:d.rows.slice(0,2)})),understanding:{quality:understanding.qualityScore,specialty:understanding.specialty,entityType:understanding.entityType,rows:understanding.rowCount}},null,2));
-          EOF
-          node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs /tmp/debug-pdf.mjs
       - name: Normalize and execute real report corpus
         shell: bash
         env:
