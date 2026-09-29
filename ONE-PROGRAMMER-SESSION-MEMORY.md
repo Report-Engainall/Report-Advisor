@@ -1,3 +1,22 @@
+# LIVE SESSION CHECKPOINT — 2026-09-29 / POST-IMPORT REPORT CONTINUITY / INDEX REBOUND
+
+- CURRENT EXACT CONTROL/CHECKPOINT SHA → `05c46a0fc209509f3b2bcaf98a4b93536353f1d9`
+- CURRENT CODE/TEST CANDIDATE → `cb5be214ae8aaf089355f133dc9a31a982f903c6`
+- CURRENT FRONT → REPORT-FIRST / POST-IMPORT REPORT CONTINUITY
+- CURRENT REPORT → Repository `tests/fixtures/realistic-reports/` on current main contains only `README.md`; no real 40+ report corpus is committed.
+- CURRENT STAGE → exact-head CI/certification for the implemented post-import continuity; device runtime not proven.
+- LAST VERIFIED ACTION → Master Execution Index now exposes the exact parser-readable candidate line for `cb5be214ae8aaf089355f133dc9a31a982f903c6`.
+- ACTUAL RESULT → canonical import result classifies report type with the existing planner and exposes existing Executive/Domain/Trust/Decision/Work/Outcome/Benchmark surfaces without a duplicate import pipeline.
+- TEST / PROOF → source candidate `cb5be214ae8aaf089355f133dc9a31a982f903c6`; fresh exact-head gates are running on this branch family. PC01 is offline; Edge/device/browser PASS is NOT PROVEN.
+- CLOSED WORK → post-import continuity implementation + dedicated surface mapping test + certification-index binding.
+- OPEN WORK → terminal exact-head CI; first reproducible current-SHA failure repair; then first real report execution when a real fixture/device source is accessible; then source-bound domain projections where canonical writers are absent.
+- REAL BLOCKERS → PC01 offline; main repository lacks the real 40+ report corpus. Synthetic golden data is not a substitute for real-report proof.
+- DO-NOT-REPEAT → no stale PASS transfer, no generic canonical commit presented as domain-specific ingestion, no unsupported outcome/benchmark claims, no duplicate importer/RPC/runner.
+- CURRENT RESUME POINTER → exact-head CI for candidate `cb5be214ae8aaf089355f133dc9a31a982f903c6`.
+- NEXT EXACT ACTION → consume terminal exact-head checks; repair only the first reproducible failure; then execute the first real report end-to-end.
+
+---
+
 # LIVE SESSION CHECKPOINT — 2026-09-29 / POST-IMPORT REPORT CONTINUITY
 
 - CURRENT EXACT HEAD SHA → `6b86fe4376e14ec2f8613a471282cb25f9dd53ba`
