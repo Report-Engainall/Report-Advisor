@@ -166,7 +166,7 @@ export default async (request: Request): Promise<Response> => {
       server_verified_by: userData.user.id,
       detected_format: detection.format,
     };
-    const { error: updateFileError } = await userClient
+    const { data: verifiedFileRecord, error: updateFileError } = await userClient
       .from('file_records')
       .update({
         file_hash: sourceSha,
@@ -175,15 +175,25 @@ export default async (request: Request): Promise<Response> => {
         metadata: verifiedMetadata,
       })
       .eq('id', fileRecord.id)
-      .eq('company_id', companyId);
-    if (updateFileError) throw updateFileError;
+      .eq('company_id', companyId)
+      .select('id,file_hash,status,security_status,metadata')
+      .single();
+    if (updateFileError || !verifiedFileRecord) {
+      const detail = updateFileError ? JSON.stringify(updateFileError) : 'NO_FILE_RECORD_UPDATED';
+      throw new Error(`SOURCE_PROOF_FILE_RECORD_UPDATE_FAILED:${detail}`);
+    }
 
-    const { error: updateImportFingerprintError } = await userClient
+    const { data: verifiedImportJob, error: updateImportFingerprintError } = await userClient
       .from('import_jobs')
       .update({ source_fingerprint: sourceSha })
       .eq('id', job.id)
-      .eq('company_id', companyId);
-    if (updateImportFingerprintError) throw updateImportFingerprintError;
+      .eq('company_id', companyId)
+      .select('id,source_fingerprint')
+      .single();
+    if (updateImportFingerprintError || !verifiedImportJob) {
+      const detail = updateImportFingerprintError ? JSON.stringify(updateImportFingerprintError) : 'NO_IMPORT_JOB_UPDATED';
+      throw new Error(`SOURCE_PROOF_IMPORT_JOB_UPDATE_FAILED:${detail}`);
+    }
 
     executionStage = 'canonical-worker';
     const workerResponse = await fetch(`${supabaseUrl}/functions/v1/canonical-import-worker`, {
