@@ -1275,3 +1275,17 @@
 - NEXT EXACT ACTION: implement and target-test the canonical filename fallback; commit; read back exact resulting SHA; rerun the real-report E2E focused on `REPORT_007` and then resume the corpus without redoing already CLOSED reports.
 - DO-NOT-REPEAT: do not re-import `REPORT_001`–`REPORT_006` unless SHA/contract/data/runtime regression evidence requires it; do not treat the 23 closed count as corpus completion.
 - REAL BLOCKER: current exact-head corpus has 24 failures / 8 reviews; this checkpoint specifically carries the first proven canonical UI identity defect so the next session can resume from the root fix rather than re-explore.
+
+
+---
+
+# RESUME TOKEN — 2026-09-30 / ROOT FIX PERSISTED / QUERY IDENTITY HARDENING
+
+- CURRENT EXACT HEAD SHA: `c421d86c60bee78f58c71aaf15dc59a41ad298c0`
+- ROOT FIX COMMIT: `c421d86c60bee78f58c71aaf15dc59a41ad298c0`
+- FIXED CANONICAL PATH: `src/lib/queries.ts -> fetchCanonicalSourceReport()` now recovers the real source filename from tenant-scoped `report_execution_jobs.source_path` when legacy `import_jobs.result_summary.file_name` is absent.
+- TARGET REAL REPORT: `REPORT_007` / `الاصناف مع التسعيرة مع المخزون.xlsx` / `sha256:cf6a9cefae3a5321df631daf6bbc8c7e4d7d2a8db60014c0b11457043f0650e4`.
+- TARGET LIVE STATE: import job `aa72ef87-554f-4511-a8d4-38f40378d872` is completed with 436/436 valid rows; durable execution is already completed, so **no re-import** is required.
+- ACTION STATUS: `IN_PROGRESS`
+- NEXT EXACT ACTION: run the focused frontend/query test and then the real-report browser E2E against the resulting exact SHA; verify REPORT_007 source heading, VERIFIED state, provenance, nine stages, and domain surface; then persist observed proof and resume at the next unclosed report.
+- DO-NOT-REPEAT: do not create a new importer, do not mutate the completed REPORT_007 data, do not re-run REPORT_001–REPORT_006 absent regression evidence.
