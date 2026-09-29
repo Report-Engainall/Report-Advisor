@@ -96,7 +96,7 @@ function missingCanonicalWriteFields(
   if (!(specialty in CANONICAL_WRITE_FIELDS)) return [];
   const required = CANONICAL_WRITE_FIELDS[specialty as keyof CanonicalWriteFields];
   const missing = new Set<string>();
-  for (const dataset of datasets) {
+  for (const dataset of cleanedDatasets) {
     const datasetFields = new Set(
       dataset.columns.map((column) => column.mappedField).filter(Boolean) as string[],
     );
@@ -131,9 +131,27 @@ function inferEntityType(specialty: CanonicalImportSpecialty, datasets: Dataset[
   return 'generic:source-data';
 }
 
+function isMeaningfulCanonicalRow(row: Record<string, unknown>): boolean {
+  return Object.values(row).some((value) => {
+    if (value == null) return false;
+    if (typeof value === 'string') return value.trim().length > 0;
+    return true;
+  });
+}
+
+function removeEmptyCanonicalRows(datasets: Dataset[]): Dataset[] {
+  return datasets.map((dataset) => {
+    const meaningfulRows = dataset.rows.filter(isMeaningfulCanonicalRow);
+    return meaningfulRows.length === dataset.rows.length
+      ? dataset
+      : { ...dataset, rows: meaningfulRows, rowCount: meaningfulRows.length };
+  });
+}
+
 export function understandCanonicalSource(datasets: Dataset[]): CanonicalSourceUnderstanding {
   if (!datasets.length) throw new Error('CANONICAL_SOURCE_UNDERSTANDING_EMPTY');
-  const summaries = datasets.map((dataset) => {
+  const cleanedDatasets = removeEmptyCanonicalRows(datasets);
+  const summaries = cleanedDatasets.map((dataset) => {
     const scored = scoreDataset(dataset);
     return {
       name: dataset.name,
@@ -145,20 +163,20 @@ export function understandCanonicalSource(datasets: Dataset[]): CanonicalSourceU
       specialtyConfidence: scored.confidence,
     };
   });
-  const rowCount = datasets.reduce((sum, dataset) => sum + dataset.rows.length, 0);
+  const rowCount = cleanedDatasets.reduce((sum, dataset) => sum + dataset.rows.length, 0);
   const columnOwners = new Map<string, ColumnProfile>();
-  for (const dataset of datasets) {
+  for (const dataset of cleanedDatasets) {
     for (const column of dataset.columns) {      const previous = columnOwners.get(column.name);
       if (!previous || column.mappingConfidence > previous.mappingConfidence) columnOwners.set(column.name, column);
     }
   }
   const columns = [...columnOwners.values()];
-  const rows = datasets.flatMap((dataset) => dataset.rows);
+  const rows = cleanedDatasets.flatMap((dataset) => dataset.rows);
   const weightedQuality = rowCount
-    ? datasets.reduce((sum, dataset) => sum + (dataset.qualityScore * dataset.rows.length), 0) / rowCount
+    ? cleanedDatasets.reduce((sum, dataset) => sum + (dataset.qualityScore * dataset.rows.length), 0) / rowCount
     : 0;
-  const qualityScore = datasets.length
-    ? Math.min(Math.round(weightedQuality), ...datasets.map((dataset) => Math.round(dataset.qualityScore)))
+  const qualityScore = cleanedDatasets.length
+    ? Math.min(Math.round(weightedQuality), ...cleanedDatasets.map((dataset) => Math.round(dataset.qualityScore)))
     : 0;
   const aggregateScores = new Map<CanonicalImportSpecialty, number>();
   for (const dataset of datasets) {
@@ -176,7 +194,7 @@ export function understandCanonicalSource(datasets: Dataset[]): CanonicalSourceU
   const mixedSpecialtySource = new Set(summaries.map((summary) => summary.specialty)).size > 1;
   const entityType = mixedSpecialtySource ? 'generic:source-data' : inferEntityType(specialty, datasets);
   const missingCanonicalFields = missingCanonicalWriteFields(specialty, datasets);
-  if (datasets.length > 1) warnings.push('MULTI_DATASET_SOURCE:' + datasets.length);
+  if (cleanedDatasets.length > 1) warnings.push('MULTI_DATASET_SOURCE:' + cleanedDatasets.length);
   if (mixedSpecialtySource) {
     warnings.push('MULTI_SPECIALTY_SOURCE_REQUIRES_GENERIC_CANONICAL_BOUNDARY');
   }
@@ -185,7 +203,7 @@ export function understandCanonicalSource(datasets: Dataset[]): CanonicalSourceU
   }
   if (qualityScore < 75) warnings.push('SOURCE_REVIEW_REQUIRED:' + qualityScore);
   return {
-    datasetCount: datasets.length,
+    datasetCount: cleanedDatasets.length,
     rowCount,
     columnCount: columns.length,
     qualityScore,
