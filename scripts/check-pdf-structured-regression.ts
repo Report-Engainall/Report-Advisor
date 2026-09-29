@@ -116,17 +116,6 @@ async function main(): Promise<void> {
     const supplierOpeningFixture = path.join(process.cwd(), 'tests/fixtures/realistic-reports/تقارير الأرصدة الإفتتاحية - ارصدة نهائية للموردين.pdf');
     const supplierOpeningBytes = await fs.readFile(supplierOpeningFixture);
     const supplierOpeningBuffer = supplierOpeningBytes.buffer.slice(supplierOpeningBytes.byteOffset, supplierOpeningBytes.byteOffset + supplierOpeningBytes.byteLength);
-    const vitePdfjs = await import('pdfjs-dist');
-    const vitePdfDocument = await vitePdfjs.getDocument({ data: new Uint8Array(supplierOpeningBuffer), useSystemFonts: true }).promise;
-    const vitePageText: string[] = [];
-    for (let pageNumber = 1; pageNumber <= vitePdfDocument.numPages; pageNumber += 1) {
-      const page = await vitePdfDocument.getPage(pageNumber);
-      const content = await page.getTextContent({ disableCombineTextItems: true });
-      vitePageText.push(content.items.map(item => item.str).filter(Boolean).join(' '));
-    }
-    const viteSupplierRows = tryParseSupplierOpeningBalanceText(vitePageText.join(' '));
-    console.log('VITE_SUPPLIER_DIRECT_ROWS', JSON.stringify({ rows: viteSupplierRows?.length ?? 0, sample: viteSupplierRows?.slice(0, 2) ?? null, textPrefix: vitePageText.join(' ').slice(0, 1200) }));
-    assert(viteSupplierRows != null && viteSupplierRows.length >= 5, 'Vite SSR supplier parser must produce trusted business rows before parseFile');
     const supplierDatasets = await parseFile(supplierOpeningBuffer, path.basename(supplierOpeningFixture), 'pdf');
     assert(supplierDatasets.length === 1, 'supplier opening-balance PDF must produce one dataset');
     const nodeRuntimeAdapters = await import('../src/lib/file-engine/adapters.ts');
