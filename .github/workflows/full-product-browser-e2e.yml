@@ -55,7 +55,7 @@ env:
 jobs:
   browser-e2e:
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
         with:
@@ -117,7 +117,7 @@ jobs:
           done
           cat /tmp/report-advisor-full-browser.log
           exit 1
-      - name: Run real REPORT_001 corpus E2E
+      - name: Run real report corpus serial E2E
         env:
           E2E_BASE_URL: http://127.0.0.1:4173
           REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
@@ -128,6 +128,7 @@ jobs:
           TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           REPORT_CORPUS_ROOT: tests/fixtures/realistic-reports
+          REPORT_CORPUS_MAX: 47
           E2E_REPORT_DIR: artifacts/real-report-e2e
         run: node scripts/real-business-e2e.mjs
       - name: Upload real report E2E evidence
