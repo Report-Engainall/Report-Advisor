@@ -494,7 +494,9 @@ async function importRealReportOne(page, selection, reportKey) {
   await page.goto(`${baseURL}/reports/source/${importId}`, { waitUntil: 'networkidle', timeout: 30000 });
   await page.getByRole('heading', { name: fileName, exact: true }).last().waitFor({ state: 'visible', timeout: 30000 });
   assert.equal((await page.getByText('VERIFIED', { exact: true }).count()) > 0, true, 'source report must be VERIFIED');
-  assert.equal((await page.getByText(sourceHash, { exact: true }).count()) > 0, true, 'source report must expose provenance');
+  const provenanceVisible = (await page.getByTestId('source-raw-hash').getByText(sourceHash, { exact: true }).count()) > 0
+    || (await page.getByTestId('source-canonical-hash').getByText(canonicalSourceHash(sourceHash), { exact: true }).count()) > 0;
+  assert.equal(provenanceVisible, true, 'source report must expose canonical provenance');
   assert.equal((await page.getByText('Benchmark: INSUFFICIENT SAMPLE', { exact: true }).count()) > 0, true, 'single-source benchmark must fail closed');
 
   for (const outputLabel of ['الثقة والأدلة','التقرير التنفيذي','مساحة القرار','مركز العمل']) {
