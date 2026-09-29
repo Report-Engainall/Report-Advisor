@@ -106,8 +106,10 @@ jobs:
           const pdfjs = await import('pdfjs-dist');
           const file='tests/fixtures/realistic-reports/تقارير الأرصدة الإفتتاحية - ارصدة نهائية للموردين.pdf';
           const bytes=await fs.readFile(file);
-          const buffer=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
-          const pdf=await pdfjs.getDocument({data:new Uint8Array(buffer),useSystemFonts:true}).promise;
+          const parserBuffer=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
+          const datasets=await parseFile(parserBuffer,file,'pdf');
+          const pdfBytes=new Uint8Array(bytes);
+          const pdf=await pdfjs.getDocument({data:pdfBytes,useSystemFonts:true}).promise;
           let allText='';
           for(let pageNumber=1;pageNumber<=Math.min(pdf.numPages,4);pageNumber++){
             const page=await pdf.getPage(pageNumber);
@@ -117,8 +119,7 @@ jobs:
             allText+=lines+' ';
             console.log('PAGE_'+pageNumber+'='+lines.slice(0,7000));
           }
-          const parserBuffer=buffer.slice(0);
-          const datasets=await parseFile(parserBuffer,file,'pdf');
+          
           console.log(JSON.stringify({pages:pdf.numPages,datasets:datasets.map(d=>({rows:d.rowCount,columns:d.columnCount,quality:d.qualityScore,fields:d.columns.map(c=>({name:c.name,mappedField:c.mappedField,confidence:c.mappingConfidence})),sample:d.rows.slice(0,4)}))},null,2));
           NODE
 
