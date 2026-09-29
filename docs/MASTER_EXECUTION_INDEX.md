@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / FULL CORPUS MATRIX VERIFIED / SERIAL E2E PENDING
+
+- CONTROL HEAD: `06b56c9cbeb03b6ca77916d8e49ec99b3944365c`.
+- CORPUS: 47 real reports.
+- FULL MATRIX: TRUSTED=10 / REVIEW=13 / REJECT=24 / RUNTIME_BLOCKED=0 / FAILED=0.
+- SPECIALTY COUNTS: inventory=11 / other=19 / payments=4 / products=1 / purchases=2 / receivables=2 / sales=8.
+- DOMAIN OUTPUT: source-bound route + lineage guard committed.
+- REPORT CLOSURE: CLOSED=0; authoritative browser/DB proof pending.
+- CI: exact-head Full Product Browser E2E queued; Final Certification queued.
+- NEXT EXACT ACTION: consume browser marathon; first terminal result controls next repair/closure.
+- DO-NOT-REPEAT: no fake closure from readiness matrix; no stale CI evidence.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / DOMAIN LINEAGE GUARD CLOSED / SERIAL CORPUS CI ACTIVE
 
 - CONTROL HEAD: `1038d4c27f18469bea7c78697611950aa399907d`.
