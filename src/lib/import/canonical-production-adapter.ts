@@ -77,7 +77,7 @@ function assertUniqueBusinessKeys(entityType: DurableCanonicalImportInput['entit
   }
 }
 
-function buildRenderedReportOutput(input: DurableCanonicalImportInput): Record<string, unknown> {
+export function buildRenderedReportOutput(input: DurableCanonicalImportInput): Record<string, unknown> {
   const outputs = resolveCanonicalReportOutputs(input.sourceSpecialty, input.entityType);
   return {
     contractVersion: '2026-09-29-receivables-output-v1',
