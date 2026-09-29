@@ -118,10 +118,19 @@ if (!/const dbBlock =/i.test('noop')) {
   // marker kept intentionally unreachable; avoids accidental future broad replacements
 }
 const authoritativeParseIndex = serverAdapter.indexOf('const authoritativeDatasets =');
-const sourceReadyWriteIndex = serverAdapter.indexOf(".from('file_records')", authoritativeParseIndex);
-const verifiedMetadataIndex = serverAdapter.indexOf('const verifiedMetadata =', authoritativeParseIndex);
-if (authoritativeParseIndex < 0 || sourceReadyWriteIndex < 0 || verifiedMetadataIndex < 0 || sourceReadyWriteIndex < authoritativeParseIndex || sourceReadyWriteIndex < verifiedMetadataIndex) {
-  throw new Error('Source must not be marked ready before authoritative parsing');
+const reconcileIndex = serverAdapter.indexOf('const reconciled =', authoritativeParseIndex);
+const workerInvocationIndex = serverAdapter.indexOf("functions/v1/canonical-import-worker", authoritativeParseIndex);
+const workerPath = path.join(root, 'supabase', 'functions', 'canonical-import-worker', 'index.ts');
+if (authoritativeParseIndex < 0 || reconcileIndex < authoritativeParseIndex || workerInvocationIndex < reconcileIndex) {
+  throw new Error('Canonical server boundary must parse and reconcile before invoking the durable worker');
+}
+if (!fs.existsSync(workerPath)) throw new Error('Canonical import worker is missing');
+const worker = fs.readFileSync(workerPath, 'utf8');
+const verifiedMetadataIndex = worker.indexOf('const verifiedMetadata=');
+const sourceReadyWriteIndex = worker.search(/status\s*:\s*["']ready["']/);
+const workerExecutionIndex = worker.indexOf('runCanonicalImportThroughDurableRunner');
+if (verifiedMetadataIndex < 0 || sourceReadyWriteIndex < 0 || workerExecutionIndex < 0 || sourceReadyWriteIndex < workerExecutionIndex) {
+  throw new Error('Source must not be marked ready before durable canonical execution');
 }
 
 for (const token of [
