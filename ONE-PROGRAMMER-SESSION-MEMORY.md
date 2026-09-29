@@ -1,3 +1,25 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / EXACT MAIN RE-ANCHORED AFTER REPORT ROOT + RESULT UI FIXES
+
+- CURRENT EXACT HEAD → `1acefccc6700f9ff53fc13c36ba7e71d3dfa9108`.
+- CURRENT BRANCH → `main`.
+- CURRENT CODE/TEST CANDIDATE → `32bf23841115c6a8b47adec92f2dcaef82251d19` (exact ancestor; this checkpoint adds governance-only memory/index persistence).
+- CURRENT REPORT → staging import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / `تسعيرة الاصناف حسب رقم الصنف.pdf`.
+- SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- VERIFIED PRE-FIX STATE → 735 canonical rows committed; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0` completed at `rendered` without persisted rendered payload; import job remained `processing`.
+- ROOT REPAIR PERSISTED → rendered payload capture/persistence, canonical commit readback, governed `import_finish_job` finalization, and safe completed-job recovery.
+- RESULT UI PERSISTED → canonical Import result now exposes deterministic source metrics from canonical rows plus source-bound Executive/Evidence/Decision/Work Center/domain output links, while keeping outcome/learning/benchmark fail-closed.
+- QUALITY REPAIR PERSISTED → current-main TypeScript/lint defects fixed in DataTable, ExecutiveReportPage, and the UI contract script.
+- EXACT-HEAD CONTRACT PROOF → contract check succeeded on the current code ancestor; an exact-head browser-e2e check also succeeded, but this is not authenticated Edge/device proof and does not close the real report.
+- ACTION STATUS → `BLOCKED` for authenticated runtime/report closure only.
+- RELEASE/DEVICE BLOCKERS → Vercel deployment-rate limit; Netlify source-deploy limitation from current workspace; PC01 offline; TinyFish wallet prevents authenticated browser automation.
+- GITHUB FIXTURE CORPUS → exact current main must be re-counted at any corpus claim; do not import another branch's 47-file corpus into the current count without merging it.
+- DO-NOT-REPEAT → no blind rerun of the already-completed 735-row durable source; no fake auth/tenant; no stale PASS; no second report while the current runtime closure is unresolved.
+- CURRENT RESUME POINTER → authenticated canonical server boundary for the same import ID/source hash.
+- NEXT EXACT ACTION → consume terminal checks for exact code candidate `32bf23841115c6a8b47adec92f2dcaef82251d19`; then execute/recover the same report in authenticated canonical runtime and read back database + rendered output + result UI before closure.
+- NEXT REPORT → none.
+
+---
+
 # LATEST SESSION RECONCILIATION — 2026-09-30 / REAL REPORT EXECUTED, CANONICAL ROW DEFECT BLOCKS CLOSURE
 
 - EXACT MAIN HEAD BEFORE THIS CHECKPOINT → `d0e56469cebd2ae12fb5ad745305bfa9813c2ba7`.
