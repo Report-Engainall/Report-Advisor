@@ -78,3 +78,46 @@ jobs:
           path: artifacts/real-report-corpus
           if-no-files-found: warn
           retention-days: 14
+
+  pdf-cash-customers-diagnostic:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Install repository dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install native PDF/OCR runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends poppler-utils tesseract-ocr tesseract-ocr-ara tesseract-ocr-eng
+      - name: Inspect cash-customers report
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE='tests/fixtures/realistic-reports/العملا النقد.pdf'
+          pdfinfo "$FILE" | sed -n '1,40p'
+          echo '--- PDF TEXT ---'
+          pdftotext -layout "$FILE" - | sed -n '1,240p'
+          echo '--- CANONICAL PARSER ---'
+          node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs --input-type=module <<'NODE'
+          import fs from 'node:fs/promises';
+          const { parseFile } = await import('./src/lib/file-engine/adapters.ts');
+          const file='tests/fixtures/realistic-reports/العملا النقد.pdf';
+          const bytes=await fs.readFile(file);
+          const datasets=await parseFile(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength),file,'pdf');
+          console.log(JSON.stringify(datasets.map(dataset=>({
+            rows:dataset.rowCount,
+            columns:dataset.columnCount,
+            quality:dataset.qualityScore,
+            source:dataset.source,
+            columns_profile:dataset.columns.map(column=>({name:column.name,mappedField:column.mappedField,confidence:column.mappingConfidence,issues:column.qualityIssues})),
+            sample:dataset.rows.slice(0,8)
+          })),null,2));
+          NODE
+
