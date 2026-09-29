@@ -459,7 +459,7 @@ function pdfObjectStream(raw: string, objectNumber: number): { dict: string; byt
   return { dict: raw.slice(objectStart, streamStart), bytes };
 }
 
-async function loadEmbeddedPdfGlyphMap(buffer: ArrayBuffer): Promise<PdfGlyphMap | null> {
+export async function loadEmbeddedPdfGlyphMap(buffer: ArrayBuffer): Promise<PdfGlyphMap | null> {
   const raw = latin1Decode(new Uint8Array(buffer));
   const references = new Set<number>();
   for (const match of raw.matchAll(/\/FontFile2\s+(\d+)\s+0\s+R/g)) references.add(Number(match[1]));
