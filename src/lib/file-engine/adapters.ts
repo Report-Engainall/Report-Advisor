@@ -1374,7 +1374,9 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     const pageText = pages.join('\n\n');
     const structuredPageText = structuredPages.join(' ');
 
-    const supplierOpeningBalanceRows = tryParseSupplierOpeningBalanceText(pageText);
+    const supplierOpeningBalanceRows =
+      tryParseSupplierOpeningBalanceText(structuredPageText)
+      ?? tryParseSupplierOpeningBalanceText(pageText);
     if (supplierOpeningBalanceRows && supplierOpeningBalanceRows.length >= 5) {
       const dataset = await buildDataset(supplierOpeningBalanceRows, fileName, 'pdf-supplier-opening-balance');
       if (dataset.qualityScore >= OCR_REJECT_THRESHOLD) return [dataset];
