@@ -237,7 +237,8 @@ function resolveDomainSurface(specialty, entityType, importId) {
 
 async function selectNextRealReport(page) {
   const companyId = evidence.tenantA ?? await currentTenant(page);
-  for (const candidatePath of realReportCandidates) {
+  for (let candidateIndex = 0; candidateIndex < realReportCandidates.length; candidateIndex += 1) {
+    const candidatePath = realReportCandidates[candidateIndex];
     const rawBytes = await fs.readFile(candidatePath);
     const sourceHash = crypto.createHash('sha256').update(rawBytes).digest('hex');
     if (sessionProcessedHashes.has(sourceHash)) continue;
@@ -255,8 +256,8 @@ async function selectNextRealReport(page) {
       continue;
     }
     realReportPath = candidatePath;
-    evidence.steps.push({ step: 'real-report-next-open-selected', status: 'PASS', fileName: path.basename(candidatePath), sourceHash });
-    return { companyId, sourceHash, filePath: candidatePath };
+    evidence.steps.push({ step: 'real-report-next-open-selected', status: 'PASS', fileName: path.basename(candidatePath), sourceHash, corpusIndex: candidateIndex + 1 });
+    return { companyId, sourceHash, filePath: candidatePath, corpusIndex: candidateIndex + 1 };
   }
   return null;
 }
@@ -393,7 +394,7 @@ try {
     while (processed < Math.min(reportMax, realReportCandidates.length)) {
       const selection = await selectNextRealReport(pageA);
       if (!selection) break;
-      const reportKey = `REPORT_${String(processed + 1).padStart(3, '0')}`;
+      const reportKey = `REPORT_${String(selection.corpusIndex).padStart(3, '0')}`;
       sessionProcessedHashes.add(selection.sourceHash);
       try {
         const artifact = await importRealReportOne(pageA, selection, reportKey);
@@ -516,109 +517,5 @@ try {
   await pageA.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 });
   evidence.steps.push({ step: 'logout-A', status: 'PASS' });
 
-if (evidence.failures.length) throw new Error(`BROWSER_RUNTIME_ERRORS:${evidence.failures.join(' | ')}`); evidence.status = 'PASS'; } catch (error) { evidence.status = 'FAIL'; evidence.error = error instanceof Error ? error.message : String(error); await pageA.screenshot({ path: `${reportDir}/failure.png`, fullPage: true }).catch(() => {}); process.exitCode = 1; } finally { evidence.finishedAt = new Date().toISOString(); await fs.writeFile(`${reportDir}/result.json`, JSON.stringify(evidence, null, 2)); await browser.close(); }
-console.log(JSON.stringify(evidence, null, 2));async function uiSearch(page, route, placeholder, value, step) { await page.goto(`${baseURL}${route}`, { waitUntil: 'networkidle', timeout: 30000 }); const input = page.getByPlaceholder(placeholder); await input.fill(value); await page.waitForTimeout(300); await page.getByText(value, { exact: true }).first().waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step, status: 'PASS', value }); }
-try {
-  await login(pageA, emailA, passwordA);
-  evidence.tenantA = await currentTenant(pageA);
-  evidence.steps.push({ step: 'tenant-A-resolution', status: 'PASS', tenantId: evidence.tenantA });
-
-  if (realReportCandidates.length) {
-    await selectNextRealReport(pageA);
-    await importRealReportOne(pageA);
-  } else {
-    const suffix = `${Date.now()}-${process.pid}`;
-    const customerName = `E2E عميل ${suffix}`;
-    const customerNumber = `E2E-CUST-${suffix}`;
-    const customerPhone = `+967770${String(Date.now()).slice(-6)}`;
-    const customerEmail = `e2e-${suffix}@example.invalid`;
-    const sku = `E2E-SKU-${suffix}`;
-    const productName = `E2E منتج ${suffix}`;
-    const invoiceNumber = `E2E-INV-${suffix}`;
-    const invoiceDate = new Date().toISOString().slice(0, 10);
-  
-    await importOne(pageA, 'customer-source', {
-      name: customerName,
-      code: customerNumber,
-      phone: customerPhone,
-      email: customerEmail,
-      segment: 'retail',
-      credit_limit: 0,
-      payment_terms_days: 0,
-    }, `customer-${suffix}`);
-  
-    await importOne(pageA, 'product-source', {
-      sku,
-      name: productName,
-      unit: 'قطعة',
-      cost_price: 10,
-      selling_price: 15,
-      min_stock: 0,
-      reorder_point: 0,
-      is_active: true,
-    }, `product-${suffix}`);
-  
-    await importOne(pageA, 'sales-source', {
-      invoice_number: invoiceNumber,
-      invoice_date: invoiceDate,
-      customer_name: customerName,
-      subtotal: 15,
-      tax_amount: 0,
-      total: 15,
-      paid_amount: 15,
-      status: 'posted',
-    }, `invoice-${suffix}`);
-  
-    }
-
-  const tenantBeforeRefresh = await currentTenant(pageA);
-  await pageA.reload({ waitUntil: 'networkidle', timeout: 30000 });
-  assert.equal(await currentTenant(pageA), tenantBeforeRefresh, 'tenant context must survive refresh');
-  evidence.steps.push({ step: 'refresh-session-tenant', status: 'PASS' });
-
-  const contextB = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
-  const pageB = await contextB.newPage();
-  attachRuntimeCapture(pageB);
-  try {
-    await login(pageB, emailB, passwordB);
-    evidence.tenantB = await currentTenant(pageB);
-    assert.notEqual(evidence.tenantB, evidence.tenantA, 'A and B must resolve distinct tenants');
-    evidence.steps.push({ step: 'tenant-B-resolution', status: 'PASS', tenantId: evidence.tenantB });
-
-    for (const [label, persisted] of Object.entries(evidence.persisted)) {
-      const rows = await restSelect(
-        pageB,
-        'canonical_dataset_records',
-        { company_id: evidence.tenantA, id: persisted.canonical.id },
-        'id,company_id,import_job_id',
-      );
-      assert.equal(rows.length, 0, `Tenant B must not read Tenant A canonical ${label} source row`);
-    }
-    evidence.steps.push({ step: 'A-to-B-canonical-read-isolation', status: 'PASS' });
-
-    await pageB.goto(`${baseURL}/import`, { waitUntil: 'networkidle', timeout: 30000 });
-    for (const persisted of Object.values(evidence.persisted)) {
-      const marker = String(persisted.job?.result_summary?.file_name || '');
-      if (marker) assert.equal(await pageB.getByText(marker, { exact: true }).count(), 0, 'Tenant B UI must not show Tenant A source history');
-    }
-    evidence.steps.push({ step: 'A-to-B-ui-import-history-isolation', status: 'PASS' });
-
-    const logoutB = pageB.getByRole('button', { name: 'تسجيل الخروج' });
-    assert.equal(await logoutB.count(), 1, 'Tenant B logout control must exist');
-    await logoutB.click();
-    await pageB.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 });
-    evidence.steps.push({ step: 'logout-B', status: 'PASS' });
-  } finally {
-    await pageB.close();
-    await contextB.close();
-  }
-
-  await pageA.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
-  const logoutA = pageA.getByRole('button', { name: 'تسجيل الخروج' });
-  assert.equal(await logoutA.count(), 1, 'Tenant A logout control must exist');
-  await logoutA.click();
-  await pageA.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 });
-  evidence.steps.push({ step: 'logout-A', status: 'PASS' });
-
-if (evidence.failures.length) throw new Error(`BROWSER_RUNTIME_ERRORS:${evidence.failures.join(' | ')}`); evidence.status = 'PASS'; } catch (error) { evidence.status = 'FAIL'; evidence.error = error instanceof Error ? error.message : String(error); await pageA.screenshot({ path: `${reportDir}/failure.png`, fullPage: true }).catch(() => {}); process.exitCode = 1; } finally { evidence.finishedAt = new Date().toISOString(); await fs.writeFile(`${reportDir}/result.json`, JSON.stringify(evidence, null, 2)); await browser.close(); }
+if (evidence.failures.length) throw new Error(`BROWSER_RUNTIME_ERRORS:${evidence.failures.join(' | ')}`); evidence.status = evidence.reportFailures.length ? 'PARTIAL' : 'PASS'; } catch (error) { evidence.status = 'FAIL'; evidence.error = error instanceof Error ? error.message : String(error); await pageA.screenshot({ path: `${reportDir}/failure.png`, fullPage: true }).catch(() => {}); process.exitCode = 1; } finally { evidence.finishedAt = new Date().toISOString(); await fs.writeFile(`${reportDir}/result.json`, JSON.stringify(evidence, null, 2)); await browser.close(); }
 console.log(JSON.stringify(evidence, null, 2));
