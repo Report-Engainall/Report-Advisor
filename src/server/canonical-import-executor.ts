@@ -4,7 +4,7 @@ import { securityScan } from '../lib/file-engine/security';
 import { detectFormat } from '../lib/file-engine/detector';
 import { parseFile } from '../lib/file-engine/adapters';
 import { reconcileForCanonical, type CanonicalImportEntityType } from '../lib/import/canonical-truth-boundary';
-import { runCanonicalImportThroughDurableRunner } from '../lib/import/canonical-production-adapter';
+import { buildRenderedReportOutput, runCanonicalImportThroughDurableRunner } from '../lib/import/canonical-production-adapter';
 import { understandCanonicalSource } from '../lib/import/canonical-source-understanding';
 
 export interface CanonicalImportServerEnv {
@@ -213,10 +213,77 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
     if (Number(existingCommit.committed_count) !== authoritativeRows.length) {
       throw new Error('CANONICAL_EXISTING_COMMIT_COUNT_MISMATCH');
     }
+
+    const { data: durableQueueJob, error: durableQueueError } = await serviceClient.rpc('enqueue_report_execution_job', {
+      p_company_id: companyId,
+      p_job_key: durableJobKey,
+      p_source_path: fileRecord.file_name || payload.fileName || 'import',
+      p_source_hash: sourceSha,
+      p_evidence_keys: [
+        `source:${sourceSha}`,
+        `import:${job.id}`,
+        `entity:${authoritativeEntityType}`,
+        `rows:${authoritativeRows.length}`,
+      ],
+      p_max_attempts: 3,
+    });
+    if (durableQueueError) throw durableQueueError;
+    if (!durableQueueJob || typeof durableQueueJob !== 'object' || typeof durableQueueJob.id !== 'string') {
+      throw new Error('REPORT_EXECUTION_JOB_ENQUEUE_EMPTY');
+    }
+
+    const renderedInput = {
+      importId: job.id,
+      fileName: fileRecord.file_name || payload.fileName || 'import',
+      sourceHash: sourceSha,
+      entityType: authoritativeEntityType,
+      sourceSpecialty: sourceUnderstanding.specialty,
+      rows: reconciled.rows,
+      qualityScore: authoritativeQualityScore,
+      qualityApproved: payload.qualityApproved === true,
+    } as Parameters<typeof buildRenderedReportOutput>[0];
+
+    const renderedOutput = buildRenderedReportOutput(renderedInput);
+    const currentJobEvidence = durableQueueJob as Record<string, unknown>;
+    const durableJobId = String(durableQueueJob.id);
+    const { data: existingDurableJob, error: existingDurableJobError } = await serviceClient
+      .from('report_execution_jobs')
+      .select('id,status,evidence')
+      .eq('id', durableJobId)
+      .eq('company_id', companyId)
+      .single();
+    if (existingDurableJobError) throw existingDurableJobError;
+    if (existingDurableJob.status !== 'completed') {
+      throw new Error(`CANONICAL_EXISTING_COMMIT_DURABLE_JOB_NOT_COMPLETED:${existingDurableJob.status}`);
+    }
+
+    const mergedEvidence = {
+      ...metadataRecord(existingDurableJob.evidence),
+      renderedOutput,
+    };
+    const { error: durableEvidenceError } = await serviceClient
+      .from('report_execution_jobs')
+      .update({ evidence: mergedEvidence })
+      .eq('id', durableJobId)
+      .eq('company_id', companyId)
+      .eq('status', 'completed');
+    if (durableEvidenceError) throw durableEvidenceError;
+
+    const { error: renderedTaskError } = await serviceClient
+      .from('report_execution_tasks')
+      .update({ evidence: { ...metadataRecord((await serviceClient.from('report_execution_tasks').select('evidence').eq('company_id', companyId).eq('report_execution_job_id', durableJobId).eq('stage', 'rendered').single()).data?.evidence), renderedOutput } })
+      .eq('company_id', companyId)
+      .eq('report_execution_job_id', durableJobId)
+      .eq('stage', 'rendered')
+      .eq('status', 'completed');
+    if (renderedTaskError) throw renderedTaskError;
+
     execution = {
       importId: job.id,
       sourceHash: sourceSha,
       jobId: job.id,
+      executionJobId: durableJobId,
+      renderedOutput,
       reusedExistingCommit: true,
       existingCommitId: String(existingCommit.id),
       existingCommitAt: existingCommit.committed_at,
