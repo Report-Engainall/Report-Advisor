@@ -1,3 +1,20 @@
+# RESUME TOKEN — 2026-09-29 / DOMAIN LINEAGE GUARD CLOSED / SERIAL CORPUS CI ACTIVE
+
+- CONTROL HEAD BEFORE MEMORY WRITE: `1038d4c27f18469bea7c78697611950aa399907d`.
+- FUNCTIONAL CODE: `bcbd88f9218b7b35e91a057608b2f45712c222e9`.
+- CLOSED FRONT: source-bound domain report UI + deterministic specialty routing + domain lineage guard.
+- DOMAIN LINEAGE GUARD now requires `fetchCanonicalSourceReport`, `fetchReportExecutionTasks`, `SOURCE-BOUND DOMAIN REPORT`, `sourceHash`, `canonicalRowsTotal`, and specialty evidence in `SourceDomainReportPage`.
+- LOCAL PROOF before guard commit: typecheck PASS; route/sidebar parity PASS; post-import report guard PASS; report execution contract PASS; build PASS.
+- CORPUS: 47 real report inputs; deterministic fingerprint anti-repeat.
+- REPORT_001 remains not CLOSED until authenticated canonical import, authoritative DB commit, nine ordered tasks, Source Report VERIFIED and source-bound Domain Report VERIFIED.
+- DOWNSTREAM OUTPUTS: Source Report + Domain Report + Reports Center + Trust/Evidence + Executive + Intelligence + Recommendations + Forecasts + Decision + Work Center + Data Quality + Benchmark fail-closed.
+- CI current-head serial corpus runs remain queued; no queued result is treated as PASS.
+- SEPARATE OPEN CERTIFICATION: Phase-F exact deployment identity and live customer_credit_accounts migration-lineage drift.
+- DO-NOT-REPEAT: no duplicate import path; no direct DB writes; no synthetic evidence; no stale SHA proof; no completed fingerprint reprocessing.
+- NEXT EXACT ACTION: consume exact-head Full Product Browser E2E terminal result; inspect first report artifact and either close it or repair the first current-SHA blocker, then continue to next fingerprint.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / SOURCE-BOUND DOMAIN REPORTS COMMITTED / SERIAL CORPUS E2E NEXT
 
 - CONTROL HEAD BEFORE MEMORY WRITE: `5ae51964fe64c000f80868d3af809019cf09e305`.
