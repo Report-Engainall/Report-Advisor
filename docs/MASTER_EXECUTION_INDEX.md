@@ -1,7 +1,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / 735-ROW REPORT RECOVERY PROVEN — CURRENT-SHA CI ROOT FIX PERSISTED
 
 - EXACT MAIN HEAD BEFORE THIS DOCUMENTATION CHECKPOINT → `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`.
-- CURRENT CODE/TEST CANDIDATE → `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`.
+- CURRENT CODE/TEST CANDIDATE: `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`.
 - CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
 - SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
 - VERIFIED DATABASE READBACK → import job `completed` at 735/735, durable job `completed/rendered`, 735 canonical rows, persisted source-bound `renderedOutput`, rendered task evidence, source quality `87`.
