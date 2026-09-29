@@ -1,6 +1,6 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / REAL SOURCE-BOUND REPORT RESULT
 
-- CURRENT CODE/TEST CANDIDATE → `0557669999de77926c64c6603dce3c1a0858ce1c` on `exec/20260929-source-bound-report-closure`.
+- CURRENT CODE/TEST CANDIDATE: `0557669999de77926c64c6603dce3c1a0858ce1c` on `exec/20260929-source-bound-report-closure`.
 - REAL LIVE REPORT → one previously uploaded/imported sales PDF is already present in Staging and canonically committed: 1,998 rows, report execution status `completed`, checkpoint `rendered`.
 - ROOT CAUSE CONFIRMED → the existing executive surface was dashboard/global-derived rather than source-bound; a live executive RPC returned unrelated aggregate values for the tenant instead of the imported report.
 - ACTUAL CODE DELIVERY → added a tenant-scoped source-bound report surface reading `import_jobs`, `report_execution_jobs`, and `canonical_dataset_records` under the same source fingerprint; added a direct post-import link to that report.
