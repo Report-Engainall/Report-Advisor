@@ -52,7 +52,7 @@ export function buildPostImportReportSurfaces(
   const query = importId ? `?import=${encodeURIComponent(importId)}` : '';
   const domain = reportTypeDomain(reportType);
   const domainLabel = domain ? DOMAIN_LABEL[domain] : 'التقرير المتخصص';
-  const domainPath = reportType === 'sales' && importId
+  const domainPath = importId
     ? `/reports/import/${encodeURIComponent(importId)}`
     : domain ? `${DOMAIN_PATH[domain]}${query}` : '/reports';
 
