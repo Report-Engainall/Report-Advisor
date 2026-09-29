@@ -89,8 +89,8 @@ jobs:
           import { understandCanonicalSource } from './src/lib/import/canonical-source-understanding.ts';
           const fileName='الصراف البدجي.pdf';
           const bytes=await fs.readFile('tests/fixtures/realistic-reports/' + fileName);
-          const pdfjs=await import('pdfjs-dist');
           if(!('DOMMatrix' in globalThis)) Object.defineProperty(globalThis,'DOMMatrix',{configurable:true,value:class DOMMatrix{}});
+          const pdfjs=await import('pdfjs-dist');
           if(!('sumPrecise' in Math)) Object.defineProperty(Math,'sumPrecise',{configurable:true,writable:true,value:(values)=>{let total=0;for(const value of values)total+=Number(value)||0;return total;}});
           if(!('try' in Promise)) Object.defineProperty(Promise,'try',{configurable:true,writable:true,value:(fn,...args)=>new Promise((resolve,reject)=>{try{resolve(fn(...args));}catch(error){reject(error);}})});
           if(!('toHex' in Uint8Array.prototype)) Object.defineProperty(Uint8Array.prototype,'toHex',{configurable:true,writable:true,value:function(){return Array.from(this,(byte)=>byte.toString(16).padStart(2,'0')).join('');}});
