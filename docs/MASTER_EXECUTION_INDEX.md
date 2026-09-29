@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 07:12 +03:00 / REPORT_001 CURRENT-SHA RECONCILED / HOSTED PROOF NEXT
+
+- FUNCTIONAL CODE SHA: 7116cc48cd3b051535c410e98f1dda5fdba6619e.
+- CURRENT REPORT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099.
+- CORPUS STATE: 47 real report candidates remain open; REPORT-FIRST order is unchanged.
+- CLOSED CODE FRONT: server PDF.js runtime compatibility present; Receivables conditional-hooks defect fixed; import readiness-order contract fixed to match the actual canonical worker.
+- HOSTED PROOF: runs 36520247114 / 36520247028 / 36520247016 / 36520247013 are queued on the functional SHA. No PASS is inferred.
+- REPORT CLOSURE: CLOSED=0 because authenticated canonical persistence and rendered downstream proof remain unverified at the functional SHA.
+- SEPARATE OPEN FRONT: Phase-F live resilience/deployment identity and migration-lineage drift.
+- DO-NOT-REPEAT: stale queued evidence, direct database injection, duplicate report paths, generic pages standing in for source-bound proof, completed-fingerprint reprocessing.
+- NEXT EXACT ACTION: consume the terminal Full Product Browser E2E for REPORT_001, then either repair its first current-SHA blocker or persist the full report proof and advance sequentially to REPORT_002.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / PDF FINANCIAL PARSER HARDENED / CORPUS 38-4-5
 
 - CONTROL HEAD: `58b170a76930707b247598855639ef1d9b02f418`.

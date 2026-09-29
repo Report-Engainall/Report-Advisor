@@ -1,3 +1,20 @@
+# RESUME TOKEN — 2026-09-29 07:12 +03:00 / REPORT_001 CURRENT-SHA RECONCILE / HOSTED PROOF NEXT
+
+- CURRENT FUNCTIONAL EXACT HEAD SHA: 7116cc48cd3b051535c410e98f1dda5fdba6619e.
+- CONTROL BRANCH: exec/20260929-post-import-report-continuity.
+- CURRENT FRONT: REPORT-FIRST / REPORT_001 only.
+- CURRENT REPORT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099.
+- ACTUAL CURRENT-SHA CHANGES: server PDF.js compatibility is present in the canonical parser; ReceivablesReportCanonicalPage hooks are now unconditional and its generic loader is suppressed on source-bound importId routes; the import transaction contract now validates authoritative parse/reconcile -> durable worker -> file_records ready ordering.
+- HOSTED PROOF STATUS: Full Product Browser E2E run 36520247114 is QUEUED; quality run 36520247028 is QUEUED; Final Certification Gate run 36520247016 is QUEUED; Execution Enforcement Contract run 36520247013 is QUEUED. QUEUED IS NOT PASS.
+- REPORT_001 CLOSURE: NOT PROVEN. No current-SHA authenticated canonical DB commit/readback, nine terminal durable stages, source report VERIFIED render, source-bound receivables render, downstream bundle proof, or tenant A/B isolation proof has been accepted.
+- CURRENT REPORT COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47.
+- REAL BLOCKERS: terminal current-SHA browser E2E and any runtime/deployment failure it reveals. Phase-F deployment/migration-lineage certification remains a separate front.
+- DO-NOT-REPEAT: no direct DB insertion; no guessed credentials; no duplicate importer/worker/runner; no stale SHA PASS; no queued Actions as evidence; no transition to REPORT_002 before REPORT_001 closure.
+- CURRENT RESUME POINTER: current-SHA Full Product Browser E2E for REPORT_001.
+- NEXT EXACT ACTION: consume run 36520247114 at terminal state; if it fails, repair only the first reproducible current-SHA blocker and rerun the affected proof; if it succeeds, inspect persisted report evidence and close REPORT_001 only after DB + 9 stages + Source Report + source-bound domain/receivables + downstream evidence/decision/work-center proof.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / REPORT_001 ANALYSIS HARDENED / CURRENT HEAD 2cfc2d90
 
 - CURRENT EXACT HEAD: `2cfc2d906ff35c17d9e0b4a436c57321b51746e4`.
