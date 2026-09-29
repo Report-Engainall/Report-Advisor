@@ -79,6 +79,7 @@ for (const status of ['VERIFIED', 'TRUSTED', 'PARTIAL', 'REVIEW', 'BLOCKED', 'IN
 }
 const asOfGuardFiles = [
   'src/pages/AnalyticsPage.tsx',
+  'src/pages/ReportsPage.tsx',
   'src/pages/DemandVelocityPage.tsx',
   'src/pages/ReceivablesReportCanonicalPage.tsx',
   'src/pages/ProfitabilityReportCanonicalPage.tsx',
