@@ -381,7 +381,7 @@ export async function runCanonicalImportThroughDurableRunner(
   if (job.status === 'succeeded' || job.status === 'completed') {
     await assertCanonicalCommitReadback(activeDataClient, authoritativeCompanyId, input.sourceHash, input.rows.length);
     const renderedOutput = buildRenderedOutput(input);
-    await finalizeImportJobIfOpen(activeDataClient, input, companyId, {
+    await finalizeImportJobIfOpen(activeDataClient, input, authoritativeCompanyId, {
       companyId: authoritativeCompanyId,
       importId: input.importId,
       jobId: job.id,

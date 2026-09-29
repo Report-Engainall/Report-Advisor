@@ -86,7 +86,7 @@ if (/from ['"]@\/lib\//.test(adapter) || /from ['"]@\/lib\//.test(fs.readFileSyn
 if (!/await import\('\.\.\/supabase'\)/.test(adapter) || !/await import\('\.\.\/supabase'\)/.test(fs.readFileSync(canonicalCommitPath, 'utf8'))) {
   throw new Error('Browser Supabase client must remain lazy in server-importable canonical modules');
 }
-if (!/commitImportBatch\(input\.entityType,\s*input\.rows,\s*input\.sourceHash,\s*\{\s*client:\s*activeDataClient,\s*companyId,\s*importJobId:\s*input\.importId\s*\}\)/.test(adapter)) {
+if (!/commitImportBatch\(input\.entityType,\s*input\.rows,\s*input\.sourceHash,\s*\{\s*client:\s*activeDataClient,\s*companyId\s*:\s*(?:authoritativeCompanyId|companyId),\s*importJobId:\s*input\.importId\s*\}\)/.test(adapter)) {
   throw new Error('Canonical import commit must remain tenant-bound to the authenticated data client and source import job');
 }
 if (!/IMPORT_DURABLE_JOB_ALREADY_RUNNING/.test(adapter)) {
