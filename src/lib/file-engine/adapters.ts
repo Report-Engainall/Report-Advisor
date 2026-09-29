@@ -504,6 +504,68 @@ function tryParseFinancialStatementPdfItems(pages: PdfTextItem[][]): Row[] | nul
   return rows.length >= 2 ? rows : null;
 }
 
+function tryParsePeriodicSalesByItemPdfItems(pages: PdfTextItem[][]): Row[] | null {
+  const rows: Row[] = [];
+
+  const normalizeSku = (text: string): string | null => {
+    const normalized = normalizeArabicDigits(text.trim()).replace(/\s/g, '');
+    return /^\d{7,12}$/.test(normalized) ? normalized : null;
+  };
+
+  for (const pageItems of pages) {
+    const lines = groupPdfItemsByLine(pageItems);
+    const headerIndex = lines.findIndex((line) => {
+      const header = line.map((item) => normalizedPdfText(item.text)).join(' ');
+      return /رقم\s*الصنف/u.test(header) && /(?:04|05|06|07|08)/u.test(header) && /(?:الإجمالي|اﻹجمالي|اجمالي)/u.test(header);
+    });
+    if (headerIndex < 0) continue;
+
+    const currency = lines.slice(0, Math.min(lines.length, headerIndex + 1))
+      .flatMap((line) => line)
+      .map((item) => normalizedPdfText(item.text))
+      .find((text) => /^(?:YER|SAR|USD|EUR)$/u.test(text)) ?? 'YER';
+
+    for (let index = headerIndex + 1; index < lines.length - 2; index += 1) {
+      const quantityLine = lines[index];
+      const skuItem = quantityLine.find((item) => normalizeSku(item.text) !== null);
+      if (!skuItem) continue;
+
+      const sku = normalizeSku(skuItem.text);
+      if (!sku) continue;
+
+      const quantityValues = quantityLine
+        .filter((item) => item !== skuItem)
+        .map((item) => normalizedPdfText(item.text))
+        .filter((text) => isNumericToken(text));
+      if (!quantityValues.length) continue;
+
+      const salesLine = lines[index + 1] ?? [];
+      const salesValues = salesLine
+        .map((item) => normalizedPdfText(item.text))
+        .filter((text) => isNumericToken(text));
+      if (!salesValues.length) continue;
+
+      const descriptorLines = [lines[index + 2] ?? [], lines[index + 3] ?? []];
+      const descriptors = descriptorLines
+        .flatMap((line) => line.map((item) => normalizedPdfText(item.text)))
+        .filter((text) => text && !isNumericToken(text) && !/^(?:كيس|دبه|حبه|كرتون|انصاف|قطمه|ل|ﻟﺘر|ﻟت|ﻛي|ملي|واحدﻛي)$/u.test(text))
+        .filter((text) => !/^(?:طبع بواسطة|الحسابات|تاريخ التقرير)$/u.test(text));
+
+      const name = descriptors.sort((a, b) => b.length - a.length)[0] ?? ('SKU ' + sku);
+
+      rows.push({
+        sku,
+        name,
+        quantity: normalizeStructuredDocumentValue(quantityValues[0]),
+        sales_amount: normalizeStructuredDocumentValue(salesValues[0]),
+        currency,
+      });
+    }
+  }
+
+  return rows.length >= 3 ? rows : null;
+}
+
 function tryParseGenericPdfTableItems(pages:PdfTextItem[][]):Row[]|null{
   const allRows:Row[]=[];
   for(const pageItems of pages){
@@ -672,6 +734,9 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
 
   const financialRows = tryParseFinancialStatementPdfItems(layoutPages);
   if (financialRows) return [await buildDataset(financialRows, fileName, 'pdf')];
+
+  const periodicSalesRows = tryParsePeriodicSalesByItemPdfItems(layoutPages);
+  if (periodicSalesRows) return [await buildDataset(periodicSalesRows, fileName, 'pdf')];
 
   const tableRows = tryParseGenericPdfTableItems(layoutPages);
   if (tableRows) {
