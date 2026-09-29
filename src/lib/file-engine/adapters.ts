@@ -1183,7 +1183,6 @@ function tryParseProductInventoryAdministrativeText(text: string): Row[] | null 
       warehouse: Number(warehouseToken),
       package: tokens[packageIndex],
       unit: tokens[unitIndex],
-      source_inventory_metric_contract: 'تقارير اصناف: الرصيد ← كمية المخزون الختامي؛ 8 مؤشرات رقمية محفوظة بترتيب المصدر',
     });
   }
 
