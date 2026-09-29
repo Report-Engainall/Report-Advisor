@@ -77,7 +77,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-27 / IMPORT-FINISH STAGING DRIFT RECONCILED
 
 - CANONICAL MAIN HEAD BEFORE THIS WRITE → `6f1d818f60a700b07a13b0163ddfc20dce0f2a57`
-- CURRENT CODE/TEST CANDIDATE → PR #672 / `exec/20260927-current-main-import-ui-rebased` / `9aa6c8ccea82b20d949ae2e41fdad2f1b1126631`
+- CURRENT CODE/TEST CANDIDATE → PR #681 / `fix/current-main-quality-errors-20260929` / `056fc8d98f3b5575047780950cacfc3f4a532443``
 - FRONT → IMPORT-TO-DECISION-CONTINUITY / SECURITY-RUNTIME-RECONCILIATION
 - ROOT CAUSE → live staging had `import_finish_job(uuid,text,jsonb,text)` as SECURITY DEFINER because an applied historical migration was absent from the candidate repository lineage.
 - IMPLEMENTED → candidate adds `20260927235000_reconcile_import_finish_job_security_invoker.sql` which preserves the function body and restores SECURITY INVOKER, safe search_path, and explicit authenticated/service_role EXECUTE.
