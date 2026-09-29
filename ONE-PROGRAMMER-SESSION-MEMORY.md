@@ -1,3 +1,18 @@
+# RESUME TOKEN — 2026-09-29 / REPORT_001 REAL PDF PARSER PROVEN
+
+- CONTROL HEAD: ecc236d246379027d9fbf2df0a7cb7aac687ad99
+- FUNCTIONAL CODE SHA: d1f7ac7f3ba439c440504667a2ec20e77bc7d1a9
+- CURRENT REPORT: REPORT_001 = اعمار الديون للعملا.pdf
+- RAW SHA256: 9996F169AAE09E31F909712CA4BE5ACE238C7A4F123B370D436A5F1A115EA099
+- ACTUAL PARSER RESULT: 27 rows, quality 98, specialty receivables
+- LOCAL PROOF: PDF regression PASS; route parity PASS; report truth PASS; canonical mapping PASS; post-import guard PASS; report execution contract PASS; typecheck PASS; build PASS
+- REPORT STATUS: TOTAL 47 / CLOSED 0 / REVIEW 0 / FAILED 0 / BLOCKED 0 / REMAINING 47
+- LAST COMPLETED STAGE: UNDERSTAND + parser/quality/specialty readiness
+- NOT YET PROVEN: authenticated canonical import, DB commit, 9 durable tasks, rendered source report
+- EXACT CI: PDF 36501349245; Full Product Browser E2E 36501349418; Final Certification 36501349021; desktop-windows 36501349216
+- NEXT EXACT ACTION: consume run 36501349418 and inspect real-report-e2e evidence; close REPORT_001 only after canonical DB/task/source-report proof
+
+---
 # RESUME TOKEN — 2026-09-29 / REAL-CORPUS E2E RUNNER READY / REPORT_001 AWAITING TERMINAL PROOF
 
 - EXACT HEAD BEFORE MEMORY WRITE: `60caeeb5fb89689e42bdcec7f888f3e1edf97b6f`.
