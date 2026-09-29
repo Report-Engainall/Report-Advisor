@@ -36,7 +36,7 @@ export function DataTable<T extends object>({ columns, data, loading, emptyMessa
 
   return (
     <div className="ag-data-table data-table-shell overflow-auto rounded-[12px]" role="region" aria-label="جدول البيانات">
-      <table className="w-full min-w-[760px] border-separate border-spacing-0" aria-rowcount={data.length + 1} aria-colcount={columns.length} aria-busy={loading === true}>
+      <table className="w-full min-w-[760px] border-separate border-spacing-0" aria-rowcount={data.length + 1} aria-colcount={columns.length} aria-busy={loading ?? false}>
         <thead>
           <tr>
             {columns.map(col => <th key={col.key} scope="col" className={'sticky top-0 z-10 border-b border-ink-200 bg-ink-50/95 px-4 py-2.5 text-[10px] font-black tracking-wide text-ink-500 backdrop-blur ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right')} style={{ width: col.width }}>{col.label}</th>)}
