@@ -746,6 +746,38 @@ function detectPdfTableHeader(line: PdfTextPlacement[]): PdfTableHeader | null {
   return best;
 }
 
+function tryParseCustomerDirectoryPlacements(items: PdfTextPlacement[]): Row[] | null {
+  const groups = groupPdfLines(items);
+  const rows: Row[] = [];
+  for (const group of groups) {
+    const phoneItem = group.find(item => /^7\d{8}$/.test(item.str.trim()));
+    if (!phoneItem) continue;
+
+    const statusItem = group.find(item => /^(?:غير\s*موقف|موقف|موقوف)$/u.test(item.str.trim()));
+    const groupItem = group.find(item => /^\d{1,2}$/.test(item.str.trim()));
+    const nameParts = group
+      .filter(item => item !== phoneItem && item !== statusItem && item !== groupItem)
+      .map(item => item.str.trim())
+      .filter(value => value && /[\u0600-\u06FF]/u.test(value))
+      .filter(value => !/^(?:رقم الجوال|اسم العميل|المجموعة|المدينة|تاريخ التعامل|رقم الفرع|توقيف)$/u.test(value));
+    const name = nameParts.join(' ').replace(/\s+/g, ' ').trim();
+    if (!name) continue;
+
+    rows.push({
+      customer_id: phoneItem.str.trim(),
+      phone: phoneItem.str.trim(),
+      name,
+      customer_name: name,
+      group: groupItem ? parseNumber(groupItem.str) : undefined,
+      status: statusItem?.str.trim() ?? undefined,
+    });
+  }
+
+  const unique = rows.filter((row, index, all) =>
+    index === all.findIndex(candidate => candidate.phone === row.phone),
+  );
+  return unique.length >= 10 ? unique : null;
+}
 function tryParseBankMovementSummaryPlacements(items: PdfTextPlacement[]): Row[] | null {
   const groups = groupPdfLines(items);
   const subHeaderIndex = groups.findIndex(group => group.filter(item => item.str === 'دائن' || item.str === 'مدين').length >= 6);
@@ -1083,6 +1115,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   const pages: string[] = [];
   const tableRows: Row[] = [];
   const bankMovementRows: Row[] = [];
+  const customerDirectoryRows: Row[] = [];
   let activeTableHeader: PdfTableHeader | null = null;
   let tablePageCount = 0;
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
@@ -1095,6 +1128,8 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
       .map(item => embeddedGlyphMap ? { ...item, str: repairEmbeddedPdfText(item.str, embeddedGlyphMap) } : item);
     const bankMovement = tryParseBankMovementSummaryPlacements(placements);
     if (bankMovement && bankMovement.length) bankMovementRows.push(...bankMovement);
+    const customerDirectory = tryParseCustomerDirectoryPlacements(placements);
+    if (customerDirectory && customerDirectory.length) customerDirectoryRows.push(...customerDirectory);
     const table = extractPdfTableRowsFromTextItems(placements, activeTableHeader);
     if (table.header) activeTableHeader = table.header;
     if (table.rows.length >= 1) {
@@ -1104,6 +1139,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     const text = placements.map(item => item.str).filter(Boolean).join(' ');
     if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`);
   }
+  if (customerDirectoryRows.length >= 10) return [await buildDataset(customerDirectoryRows, fileName, 'pdf-customer-directory')];
   if (bankMovementRows.length >= 2) return [await buildDataset(bankMovementRows, fileName, 'pdf-bank-movement-summary')];
   if (tableRows.length >= 2 && tablePageCount >= 1) return [await buildDataset(tableRows, fileName, 'pdf-table')];
   if (pages.length) {
