@@ -1,3 +1,22 @@
+# LIVE SESSION CHECKPOINT — 2026-09-29 / POST-IMPORT REPORT CONTINUITY
+
+- CURRENT EXACT HEAD SHA → `6b86fe4376e14ec2f8613a471282cb25f9dd53ba`
+- CURRENT CODE/TEST CANDIDATE → `cb5be214ae8aaf089355f133dc9a31a982f903c6`
+- CURRENT FRONT → REPORT-FIRST / POST-IMPORT REPORT CONTINUITY
+- CURRENT REPORT → No real repository fixture is present on `main`; current `tests/fixtures/realistic-reports/` contains only `README.md`.
+- CURRENT STAGE → CI/certification after implementation; report runtime execution waits on a real fixture/device source.
+- LAST VERIFIED ACTION → Added governed post-import report surface routing and report classification evidence on the canonical import result; updated the Master Execution Index with the exact candidate SHA.
+- ACTUAL RESULT → Import completion now derives report specialty through the existing universal ingestion planner and links the existing executive/domain/evidence/decision/work/outcome/benchmark surfaces. Unknown classification fails closed.
+- TEST / PROOF → PR #677 exact head `cb5be214ae8aaf089355f133dc9a31a982f903c6`; GitHub certification gate is running against that SHA. No browser/device PASS claimed because PC01 is offline.
+- CLOSED WORK → The current post-import navigation gap is implemented on the branch; no duplicate import pipeline/RPC/runner was created.
+- OPEN WORK → (1) consume exact-head CI and fix only the first reproducible failure; (2) obtain a real report fixture from the device and run report-first lifecycle end-to-end; (3) close source-bound report projections for report types whose canonical writer is not yet proven.
+- REAL BLOCKERS → PC01 offline. Current repository has no committed real 40+ report corpus; synthetic golden data must not be used as a substitute for real-report proof.
+- DO-NOT-REPEAT → Do not transfer old PR #672 PASS/evidence; do not claim report completion from import success; do not call generic canonical storage a domain-specific writer; do not fabricate benchmark/outcome.
+- CURRENT RESUME POINTER → Exact-head certification for `cb5be214ae8aaf089355f133dc9a31a982f903c6`, then first available real report.
+- NEXT EXACT ACTION → Consume the terminal checks for `cb5be214ae8aaf089355f133dc9a31a982f903c6`. If clean, connect/read the first real report and execute it through canonical import → analysis → evidence → report surfaces → rendered UI → proof → persist.
+
+---
+
 # RESUME TOKEN — 2026-09-28 / WORKER RPC CONTRACT RECONCILIATION PROVEN
 
 - MAIN EXACT HEAD AT CHECKPOINT → `3f7963db851d87fadd57462482385452ca2536f5`.
