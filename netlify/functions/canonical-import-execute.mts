@@ -153,18 +153,66 @@ export default async (request: Request): Promise<Response> => {
     }
     if (reconciled.rows.length !== authoritativeRows.length) throw new Error('AUTHORITATIVE_SOURCE_RECONCILIATION_COUNT_MISMATCH');
 
+    // Reuse the existing tenant-scoped file record when the exact raw-byte SHA is already registered.
+    // The unique company+hash invariant is a source identity rule, not a reason to fail a valid re-import.
+    let authoritativeFileRecord = fileRecord;
+    const { data: existingByHash, error: existingByHashError } = await userClient
+      .from('file_records')
+      .select('id, company_id, file_name, file_mime, file_size, file_hash, security_status, status, metadata')
+      .eq('company_id', companyId)
+      .eq('file_hash', sourceSha)
+      .neq('id', fileRecord.id)
+      .maybeSingle();
+    if (existingByHashError) throw existingByHashError;
+
+    let authoritativeStorageBucket = storageBucket;
+    let authoritativeStoragePath = storagePath;
+    let sourceRecordReused = false;
+
+    if (existingByHash) {
+      const existingMetadata = (existingByHash.metadata && typeof existingByHash.metadata === 'object')
+        ? existingByHash.metadata as Record<string, unknown>
+        : {};
+      const existingBucket = String(existingMetadata.storage_bucket ?? 'documents');
+      const existingPath = String(existingMetadata.storage_path ?? '');
+      if (existingBucket !== 'documents' || !existingPath) {
+        throw new Error('AUTHORITATIVE_SOURCE_DEDUPLICATED_RECORD_STORAGE_BINDING_INVALID');
+      }
+      if (!existingPath.startsWith(`${companyId}/imports/`)) {
+        throw new Error('AUTHORITATIVE_SOURCE_DEDUPLICATED_RECORD_TENANT_MISMATCH');
+      }
+
+      const { error: rebindError } = await userClient
+        .from('import_jobs')
+        .update({ file_record_id: existingByHash.id })
+        .eq('id', job.id)
+        .eq('company_id', companyId);
+      if (rebindError) throw rebindError;
+
+      authoritativeFileRecord = existingByHash;
+      authoritativeStorageBucket = existingBucket;
+      authoritativeStoragePath = existingPath;
+      sourceRecordReused = true;
+    }
+
     // Persist the authoritative source proof before any canonical commit. The
     // database boundary deliberately rejects commits without file hash,
     // source fingerprint, security status, and raw-byte hash proof.
     executionStage = 'persist-source-proof';
+    const authoritativeMetadata = (
+      authoritativeFileRecord.metadata && typeof authoritativeFileRecord.metadata === 'object'
+        ? authoritativeFileRecord.metadata as Record<string, unknown>
+        : {}
+    );
     const verifiedMetadata = {
-      ...(fileRecord.metadata && typeof fileRecord.metadata === 'object' ? fileRecord.metadata as Record<string, unknown> : {}),
-      storage_bucket: storageBucket,
-      storage_path: storagePath,
+      ...authoritativeMetadata,
+      storage_bucket: authoritativeStorageBucket,
+      storage_path: authoritativeStoragePath,
       raw_bytes_sha256: sourceSha,
       server_verified_at: new Date().toISOString(),
       server_verified_by: userData.user.id,
       detected_format: detection.format,
+      ...(sourceRecordReused ? { deduplicated_source_record: true } : {}),
     };
     const { data: verifiedFileRecord, error: updateFileError } = await userClient
       .from('file_records')
@@ -174,7 +222,7 @@ export default async (request: Request): Promise<Response> => {
         status: 'ready',
         metadata: verifiedMetadata,
       })
-      .eq('id', fileRecord.id)
+      .eq('id', authoritativeFileRecord.id)
       .eq('company_id', companyId)
       .select('id,file_hash,status,security_status,metadata')
       .single();
@@ -212,8 +260,8 @@ export default async (request: Request): Promise<Response> => {
         rows: reconciled.rows,
         qualityScore: authoritativeQualityScore,
         qualityApproved: payload.qualityApproved === true,
-        sourceStorageBucket: storageBucket,
-        sourceStoragePath: storagePath,
+        sourceStorageBucket: authoritativeStorageBucket,
+        sourceStoragePath: authoritativeStoragePath,
         sourceFormat: detection.format,
         authoritativeColumns: authoritativeDataset.columns,
         authoritativePreview: authoritativeDataset.preview.slice(0, 25),
@@ -254,6 +302,7 @@ export default async (request: Request): Promise<Response> => {
       ...workerBody,
       importId: job.id,
       sourceHash: sourceSha,
+      sourceRecordReused,
       authoritativeRowCount: authoritativeRows.length,
       authoritativeQualityScore,
       authoritativeColumns: authoritativeDataset.columns,
