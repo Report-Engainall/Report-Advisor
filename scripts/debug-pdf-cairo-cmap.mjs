@@ -20,7 +20,10 @@ function objectStream(objectNumber) {
   if (raw[start] === '\\r' && raw[start + 1] === '\\n') start += 2;
   else if (raw[start] === '\\n') start += 1;
   const dict = raw.slice(pos, stream);
-  return { dict, bytes: Buffer.from(raw.slice(start, end), 'latin1') };
+  let bytes = Buffer.from(raw.slice(start, end), 'latin1');
+  while (bytes.length >= 2 && bytes[0] === 13 && bytes[1] === 10) bytes = bytes.subarray(2);
+  while (bytes.length >= 1 && (bytes[0] === 10 || bytes[0] === 13)) bytes = bytes.subarray(1);
+  return { dict, bytes };
 }
 
 function buildReverseCmap(fontBytes) {
