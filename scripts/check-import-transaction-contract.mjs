@@ -347,11 +347,11 @@ if (!fs.existsSync(reportOutputContractPath)) {
 }
 const reportOutputContract = fs.readFileSync(reportOutputContractPath, 'utf8');
 const reportResolverSource = reportOutputContract;
-if (!reportResolverSource.includes("normalizedEntity.startsWith('generic:')")) {
-  throw new Error('Generic/uncommitted canonical sources must fail closed to non-specialty report output');
+if (!reportResolverSource.includes("normalizedEntity === 'generic:source-data'")) {
+  throw new Error('Unknown generic canonical sources must fail closed without discarding a known specialty');
 }
-if (!reportResolverSource.includes("resolved = normalizedEntity.startsWith('generic:')")) {
-  throw new Error('Canonical report resolver must guard generic entity types before specialty fallback');
+if (!reportResolverSource.includes("const knownSpecialty")) {
+  throw new Error('Canonical report resolver must retain a known semantic specialty when the canonical entity is generic');
 }
 for (const [token, message] of [
   ['CANONICAL_REPORT_OUTPUTS', 'Canonical report output map missing'],
@@ -362,6 +362,11 @@ for (const [token, message] of [
   ['/analytics/rfm', 'Customer RFM output route missing'],
   ['/analytics/abc', 'Product ABC output route missing'],
   ['/analytics/liquidity', 'Payment liquidity output route missing'],
+  ['/reports/receivables', 'Receivables report output route missing'],
+  ['/analytics/aging', 'Receivables aging output route missing'],
+  ["receivables:", 'Receivables specialty output mapping missing'],
+  ['const EXECUTIVE_OUTPUT', 'Shared executive report output is missing'],
+  ['const withExecutive', 'Specialty report outputs must retain the executive report'],
 ]) {
   if (!reportOutputContract.includes(token)) throw new Error('Canonical report output contract missing: ' + message);
 }
