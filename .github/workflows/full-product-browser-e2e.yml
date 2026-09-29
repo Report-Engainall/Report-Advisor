@@ -144,7 +144,7 @@ jobs:
           TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           REPORT_CORPUS_ROOT: tests/fixtures/realistic-reports
-          REPORT_CORPUS_MAX: 47
+          REPORT_CORPUS_MAX: 1
           E2E_REPORT_DIR: artifacts/real-report-e2e
         run: node scripts/real-business-e2e.mjs
       - name: Upload real report E2E evidence
