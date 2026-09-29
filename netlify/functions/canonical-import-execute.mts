@@ -153,6 +153,7 @@ export default async (request: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         importId: job.id,
+        companyId: String(companyId),
         fileName: fileRecord.file_name || payload.fileName || 'import',
         sourceHash: sourceSha,
         entityType: payload.entityType,
