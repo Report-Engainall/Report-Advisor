@@ -9,7 +9,7 @@ export type HeaderCandidate = {
 
 const HEADER_HINTS = [
   'sku', 'code', 'item', 'product', 'name', 'price', 'quantity', 'qty',
-  'رقم', 'كود', 'صنف', 'منتج', 'اسم', 'السعر', 'الكمية', 'العدد', 'التاريخ', 'date',
+  'رقم', 'كود', 'صنف', 'منتج', 'اسم', 'السعر', 'الكمية', 'العدد', 'التاريخ', 'date', 'المستند', 'البيان', 'مدين', 'دائن', 'الرصيد', 'المورد', 'العميل', 'المخزن', 'الوحدة',
 ];
 
 function nonEmpty(values: unknown[]): string[] {
@@ -42,6 +42,7 @@ export function detectHeaderRow(rows: unknown[][], maxRows = Math.min(rows.lengt
     if (headers.length === 1 && !isSingleKnownHeader) continue;
 
     const textLike = headers.filter(v => /[^\d.,%\-+\s]/u.test(v)).length / headers.length;
+    const numericLike = headers.filter(v => /^[-+]?\d[\d,\s]*(?:\.\d+)?$/.test(v)).length;
     const unique = uniqueRatio(headers);
     const hints = normalized.filter(h => HEADER_HINTS.some(x => h.includes(normalizeColumnName(x)))).length;
     const nextWidth = next.length;
@@ -56,6 +57,8 @@ export function detectHeaderRow(rows: unknown[][], maxRows = Math.min(rows.lengt
     if (nextWidth >= minimumNextWidth) { score += 20; reasons.push('next row matches width'); }
     if (headers.length === 1) { score += 5; reasons.push('single-field canonical header'); }
     if (rowIndex === 0) score += 5;
+    if (numericLike > 0) { score -= numericLike * 18; reasons.push('numeric metadata-like cells'); }
+    if (headers.length >= 5 && textLike >= 0.85) { score += 12; reasons.push('wide textual header'); }
     if (rowIndex > 0) score -= Math.min(rowIndex, 10);
 
     candidates.push({ rowIndex, score, headers, reasons });
