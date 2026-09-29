@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / REPORT CORPUS / CURRENT EXACT FUNCTIONAL HEAD
+
+- CURRENT FUNCTIONAL BRANCH → `exec/20260927-current-main-import-ui-rebased`.
+- CURRENT CODE/TEST CANDIDATE → `d36b4b6de005d0bb3d25327548b6ce9306e6054c`.
+- REPORT CORPUS → `47` supported real files under `tests/fixtures/realistic-reports/`, deterministic path order, one file = one report job.
+- CLOSED REPORTS → #1 `اعمار الديون للعملا.pdf`, #2 `اعمار الديون للموردين.pdf`, #3 `الاصناف .xlsx`, #4 `الاصناف 3.xlsx`.
+- CURRENT REPORT → #5 `الاصناف 4 - يتبع.xlsx`.
+- ROOT FIX JUST PERSISTED → canonical executor now reconciles a mismatched existing generic commit through `reconcile_generic_canonical_tail_rows` and performs source-hash/row-count readback before continuing.
+- ACTION STATUS → `IN_PROGRESS`.
+- CURRENT CI DEFECT → certification/enforcement candidate lookup failed because this file was stale; this checkpoint binds the exact current candidate.
+- NEXT EXACT ACTION → consume fresh terminal CI on this exact SHA, then consume #5 corpus execution evidence and repair only its first current-SHA reproducible root cause.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-28 / REPORT ROUTE SMOKE CLOSURE
 
 - FUNCTIONAL PROOF SHA → `efc6b0706d0010524cd74a617fa66f08346cf3ab`.

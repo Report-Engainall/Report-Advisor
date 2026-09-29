@@ -1,3 +1,19 @@
+# CURRENT RESUME CHECKPOINT — 2026-09-30 / REPORT CORPUS / EXACT FUNCTIONAL HEAD
+
+- CURRENT EXACT HEAD → `d36b4b6de005d0bb3d25327548b6ce9306e6054c`.
+- CURRENT BRANCH → `exec/20260927-current-main-import-ui-rebased` / PR #672.
+- CORPUS → `47` supported real files under `tests/fixtures/realistic-reports/`.
+- CLOSED REAL REPORTS → #1 `اعمار الديون للعملا.pdf`, #2 `اعمار الديون للموردين.pdf`, #3 `الاصناف .xlsx`, #4 `الاصناف 3.xlsx`.
+- CURRENT REPORT → #5 `الاصناف 4 - يتبع.xlsx`.
+- CURRENT ACTION STATUS → `IN_PROGRESS`.
+- ROOT FIX → mismatched completed generic sources now have a governed correction boundary via `reconcile_generic_canonical_tail_rows`, with exact source/tenant/entity/readback guards; no direct row rewrite was introduced.
+- PREVIOUS REPORT #4 PROOF remains historical and SHA-bound; do not transfer it as current.
+- CURRENT CI → enforcement failed only because the Master Index did not contain the current candidate; this checkpoint repairs the candidate binding.
+- NEXT EXACT ACTION → verify exact candidate on fresh CI, then inspect the real corpus runner output for #5 and proceed with canonical execution.
+- DO-NOT-REPEAT → no reports 1–4 re-run, no duplicate pipeline, no blind retry after a completed durable state, no stale PASS.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / REAL REPORT CORPUS EXECUTION
 
 - CURRENT EXACT HEAD → `3898d6e35584d840e2ecbed62dd8ad23fe552a80` (next workflow run will certify this SHA; do not transfer older PASS).
