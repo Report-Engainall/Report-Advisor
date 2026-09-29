@@ -233,14 +233,14 @@ export function buildRenderedOutput(input: DurableCanonicalImportInput, rows = i
 
 async function assertCanonicalCommitReadback(
   client: SupabaseClient,
-  companyId: string,
+  authoritativeCompanyId: string,
   sourceHash: string,
   expectedRows: number,
 ): Promise<void> {
   const { data, error } = await client
     .from('canonical_import_commits')
     .select('committed_count')
-    .eq('company_id', companyId)
+    .eq('company_id', authoritativeCompanyId)
     .eq('source_hash', sourceHash)
     .order('committed_at', { ascending: false })
     .limit(1)
@@ -254,14 +254,14 @@ async function assertCanonicalCommitReadback(
 async function finalizeImportJobIfOpen(
   client: SupabaseClient,
   input: DurableCanonicalImportInput,
-  companyId: string,
+  authoritativeCompanyId: string,
   summary: Record<string, unknown>,
 ): Promise<void> {
   const { data: current, error: currentError } = await client
     .from('import_jobs')
     .select('id,status')
     .eq('id', input.importId)
-    .eq('company_id', companyId)
+    .eq('company_id', authoritativeCompanyId)
     .single();
 
   if (currentError || !current) throw currentError ?? new Error('IMPORT_JOB_NOT_FOUND_OR_FORBIDDEN');
@@ -280,7 +280,7 @@ async function finalizeImportJobIfOpen(
     .from('import_jobs')
     .select('status')
     .eq('id', input.importId)
-    .eq('company_id', companyId)
+    .eq('company_id', authoritativeCompanyId)
     .single();
   if (!recheckError && recheck?.status === 'completed') return;
   throw error;
@@ -334,15 +334,15 @@ export async function runCanonicalImportThroughDurableRunner(
 
   let workerClient = options.workerClient;
   let dataClient = options.dataClient;
-  let companyId = options.companyId;
-  if (!workerClient || !dataClient || !companyId) {
+  let authoritativeCompanyId = options.companyId;
+  if (!workerClient || !dataClient || !authoritativeCompanyId) {
     if (typeof window === 'undefined') throw new Error('SERVER_CLIENTS_REQUIRED');
     const browser = await import('../supabase');
     workerClient ??= browser.supabase;
     dataClient ??= browser.supabase;
-    companyId ??= (await browser.resolveCurrentCompanyId()) ?? undefined;
+    authoritativeCompanyId ??= (await browser.resolveCurrentCompanyId()) ?? undefined;
   }
-  if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
+  if (!authoritativeCompanyId) throw new Error('TENANT_CONTEXT_REQUIRED');
 
   assertSourceHash(input.rows, input.sourceHash);
   assertUniqueBusinessKeys(input.entityType, input.rows);
@@ -360,7 +360,7 @@ export async function runCanonicalImportThroughDurableRunner(
   const activeDataClient = dataClient;
   if (!activeWorkerClient || !activeDataClient) throw new Error('SUPABASE_CLIENTS_REQUIRED');
   const { data: enqueueData, error: enqueueError } = await activeWorkerClient.rpc('enqueue_report_execution_job', {
-    p_company_id: companyId,
+    p_company_id: authoritativeCompanyId,
     p_job_key: jobKey,
     p_source_path: input.fileName,
     p_source_hash: input.sourceHash,
@@ -376,13 +376,13 @@ export async function runCanonicalImportThroughDurableRunner(
   if (!enqueueData || typeof enqueueData !== 'object') throw new Error('REPORT_EXECUTION_JOB_ENQUEUE_EMPTY');
 
   const job = enqueueData as EnqueuedJob;
-  if (!job.id || job.company_id !== companyId) throw new Error('REPORT_EXECUTION_JOB_TENANT_MISMATCH');
+  if (!job.id || job.company_id !== authoritativeCompanyId) throw new Error('REPORT_EXECUTION_JOB_TENANT_MISMATCH');
   if (job.status === 'cancelled' || job.status === 'dead_letter') throw new Error('IMPORT_DURABLE_JOB_NOT_RETRYABLE');
   if (job.status === 'succeeded' || job.status === 'completed') {
-    await assertCanonicalCommitReadback(activeDataClient, companyId, input.sourceHash, input.rows.length);
+    await assertCanonicalCommitReadback(activeDataClient, authoritativeCompanyId, input.sourceHash, input.rows.length);
     const renderedOutput = buildRenderedOutput(input);
     await finalizeImportJobIfOpen(activeDataClient, input, companyId, {
-      companyId,
+      companyId: authoritativeCompanyId,
       importId: input.importId,
       jobId: job.id,
       sourceHash: input.sourceHash,
@@ -402,7 +402,7 @@ export async function runCanonicalImportThroughDurableRunner(
   }
   if (job.status === 'running' || job.status === 'leased' || job.status === 'processing') throw new Error('IMPORT_DURABLE_JOB_ALREADY_RUNNING');
   const store = new SupabaseReportExecutionStore(activeWorkerClient);
-  if (job.status === 'failed') await store.retry(job.id, companyId);
+  if (job.status === 'failed') await store.retry(job.id, authoritativeCompanyId);
 
   const observedAt = new Date().toISOString();
   const quality = input.qualityScore / 100;
@@ -426,7 +426,7 @@ export async function runCanonicalImportThroughDurableRunner(
     rows: input.rows.map((row) => row.data),
     request: {
       reportId: jobKey,
-      tenantId: companyId,
+      tenantId: authoritativeCompanyId,
       requestedBy,
       parameters: { entityType: input.entityType, importId: input.importId, rowCount: input.rows.length },
       formats: ['web'],
@@ -465,14 +465,14 @@ export async function runCanonicalImportThroughDurableRunner(
       }
       if (stage === 'analyzed' && !currentRows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
       if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
-      if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId, importJobId: input.importId });
+      if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId: authoritativeCompanyId, importJobId: input.importId });
       if (stage === 'rendered') return buildRenderedOutput(input);
     },
   }, store);
 
   const renderedOutput = (result as { renderedOutput?: RenderedOutput }).renderedOutput ?? buildRenderedOutput(input);
   await finalizeImportJobIfOpen(activeDataClient, input, companyId, {
-    companyId,
+    companyId: authoritativeCompanyId,
     importId: input.importId,
     jobId: job.id,
     sourceHash: input.sourceHash,
