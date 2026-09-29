@@ -236,9 +236,29 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
     if (!authoritativeEntityType.startsWith('generic:')) {
       throw new Error('CANONICAL_EXISTING_COMMIT_COUNT_MISMATCH');
     }
-    const correctionRows = reconciled.rows.map((row) => ({
-      row_number: row.rowNumber,
-      record_key: `${authoritativeEntityType}:${row.provenance.lineageId}`,
+    const { data: existingPrefixRows, error: existingPrefixRowsError } = await serviceClient
+      .from('canonical_dataset_records')
+      .select('row_number,record_key,data,provenance')
+      .eq('company_id', companyId)
+      .eq('source_hash', sourceSha)
+      .eq('semantic_domain', authoritativeEntityType.slice('generic:'.length))
+      .lte('row_number', authoritativeRows.length)
+      .order('row_number', { ascending: true });
+    if (existingPrefixRowsError) throw existingPrefixRowsError;
+    if (!Array.isArray(existingPrefixRows) || existingPrefixRows.length !== authoritativeRows.length) {
+      throw new Error('CANONICAL_EXISTING_COMMIT_PREFIX_READBACK_MISMATCH');
+    }
+    for (let index = 0; index < authoritativeRows.length; index += 1) {
+      const existingRow = existingPrefixRows[index];
+      const authoritativeRow = authoritativeRows[index];
+      if (Number(existingRow.row_number) !== authoritativeRow.rowNumber
+        || JSON.stringify(existingRow.data) !== JSON.stringify(authoritativeRow.data)) {
+        throw new Error(`CANONICAL_EXISTING_COMMIT_PREFIX_DATA_MISMATCH:${authoritativeRow.rowNumber}`);
+      }
+    }
+    const correctionRows = existingPrefixRows.map((row) => ({
+      row_number: Number(row.row_number),
+      record_key: String(row.record_key),
       data: row.data,
       provenance: row.provenance,
     }));
