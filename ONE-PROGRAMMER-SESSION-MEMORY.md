@@ -1,5 +1,22 @@
 # RESUME TOKEN — REPORT-ADVISOR / الأغبري — 2026-09-30
 
+- CURRENT REPOSITORY HEAD → `dcf6576cb3cab5c815828aef0e63cf20b2cf2a2d`
+- CURRENT CODE/TEST CANDIDATE → `dcf6576cb3cab5c815828aef0e63cf20b2cf2a2d`
+- ACTIVE EXECUTION FRONTS → report corpus #26; supplier-opening parser; Node PDF runtime; canonical completed-result recovery.
+- OPEN BLOCKERS → #26 not CLOSED; fresh regression/corpus proof pending.
+- LAST PROVEN → corpus=47; #1–#4 CLOSED; supplier parser row-block fix persisted; normalized Arabic header fix persisted; recovery RPC/adapter persisted.
+- LAST FAILED → PDF regression previously failed before Node diagnostic because Vite SSR was incorrectly switched to legacy PDF.js. That selection is now split explicitly via Vite SSR detection.
+- NEXT EXECUTABLE ACTION → consume exact-head PDF regression and real-report-corpus on `dcf6576cb3cab5c815828aef0e63cf20b2cf2a2d`; inspect Node runtime supplier quality.
+- CURRENT REPORT → #26 `tests/fixtures/realistic-reports/تقارير الأرصدة الإفتتاحية - ارصدة نهائية للموردين.pdf`
+- ACTION STATUS → `IN_PROGRESS`
+- CURRENT BRANCH → `exec/20260927-current-main-import-ui-rebased`
+- CORPUS COUNT → `47`
+- RESUME POINTER → exact-head corpus #26.
+
+---
+
+# RESUME TOKEN — REPORT-ADVISOR / الأغبري — 2026-09-30
+
 - CURRENT REPOSITORY HEAD → `8fc18eb648220a9d871e2267df0acf105ba2c7fc`
 - CURRENT CODE/TEST CANDIDATE → `8fc18eb648220a9d871e2267df0acf105ba2c7fc`
 - ACTIVE EXECUTION FRONTS → report corpus #26; supplier-opening parser; Node PDF runtime; canonical completed-result recovery.

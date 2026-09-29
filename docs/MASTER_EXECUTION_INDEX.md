@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / REPORT #26 / VITE SSR VS NODE PDF RUNTIME
+
+- CURRENT REPOSITORY HEAD → `dcf6576cb3cab5c815828aef0e63cf20b2cf2a2d`
+- CURRENT CODE/TEST CANDIDATE → `dcf6576cb3cab5c815828aef0e63cf20b2cf2a2d`
+- ACTIVE BRANCH → `exec/20260927-current-main-import-ui-rebased`
+- CORPUS COUNT → `47`
+- CURRENT REPORT FRONT → #26 supplier-opening PDF
+- ROOT FIX → Vite SSR uses browser pdfjs-dist; direct Node uses pdfjs-dist legacy build.
+- CURRENT STATUS → `IN_PROGRESS`
+- NEXT EXACT ACTION → exact-head PDF regression, then #26 corpus execution/readback.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / REPORT #26 SUPPLIER PDF / NODE PDF RUNTIME FIX
 
 - CURRENT REPOSITORY HEAD → `8fc18eb648220a9d871e2267df0acf105ba2c7fc`
