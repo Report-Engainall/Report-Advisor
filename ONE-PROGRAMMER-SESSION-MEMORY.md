@@ -1,3 +1,20 @@
+# RESUME TOKEN — 2026-09-29 / SEMANTIC QUALITY SCORING FIXED / CORPUS 34-5-8
+
+- CONTROL HEAD BEFORE MEMORY WRITE: `244362fbae11f7ceb9a94b2eaa412ac5a2cad1d8`.
+- CLOSED FRONT: file-engine semantic quality scoring corrected.
+- ROOT CAUSE: prior qualityScore averaged every column mapping confidence, so unmapped informational columns contributed zero and artificially rejected structurally valid reports.
+- NEW QUALITY MODEL: canonical mapped-field confidence 60% + mapped-field completeness 25% + mapped-column coverage 15%; reports with no canonical mapped fields remain quality=0.
+- EXACT CURRENT CORPUS MATRIX: 47 total / TRUSTED 34 / REVIEW 5 / REJECT 8 / RUNTIME_BLOCKED 0 / FAILED 0.
+- REPRESENTATIVE REGRESSION: 10/10 real reports PASS; supplier aging 90, sales 89, purchases 94, inventory 89, bank 85, cash 92, customer debt 96, stocked products 76, product catalog 92, client aging 98.
+- CONTRACT PROOF: file-engine architecture contract PASS; typecheck PASS; PDF structured regression PASS; report-truth contract PASS; build PASS.
+- DOWNSTREAM REPORT OUTPUT: source-bound domain route + executive summary + smart signals + administrative checks + decision candidates + follow-up actions + limitations; all evidence-bound and fail-closed.
+- REPORT_001: still requires authenticated canonical DB execution. Local parser proof does not equal report closure.
+- CI: GitHub current-head browser runs are the authoritative next gate; queued runs remain non-proof.
+- DO-NOT-REPEAT: do not restore old quality formula; do not turn REVIEW/REJECT into commit without evidence; do not use generic domain pages as source proof; no direct DB writes or guessed credentials.
+- NEXT EXACT ACTION: consume terminal current-head Full Product Browser E2E; close REPORT_001 only after DB provenance + 9 stages + Source Report + Source-Bound Domain Report, then proceed sequentially.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / FULL CORPUS READINESS MATRIX VERIFIED
 
 - CONTROL HEAD BEFORE MEMORY WRITE: `06b56c9cbeb03b6ca77916d8e49ec99b3944365c`.
