@@ -1029,11 +1029,12 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     if (receivablesColumnMajor && receivablesColumnMajor.length >= 2) return [await buildDataset(receivablesColumnMajor, fileName, 'pdf-column-major-receivables')];
     const bankStatementSummary = tryParseBankStatementSummaryText(pageText);
     if (bankStatementSummary) return [await buildDataset(bankStatementSummary, fileName, 'pdf-bank-statement-summary')];
-    const meaningfulText = pageText.replace(/PAGE\\s+\\d+/gi, ' ').replace(/\\b\\d+\\s*\\/\\s*\\d+\\b/g, ' ').trim();
+    const meaningfulText = pageText.replace(/PAGE\s+\d+/gi, ' ').replace(/\b\d+\s*\/\s*\d+\b/g, ' ').trim();
     if (!/[\\p{L}]/u.test(meaningfulText) || meaningfulText.length < 64) return parseScannedPdfWithOcr(pdf, fileName, buffer);
     return buildTextDataset(pageText, fileName, 'pdf');
   }
-  if (typeof document === 'undefined') return parseScannedPdfWithNativeOcr(pdf, fileName, buffer);\n  return parseScannedPdfWithOcr(pdf, fileName);
+  if (typeof document === 'undefined') return parseScannedPdfWithNativeOcr(pdf, fileName, buffer);
+  return parseScannedPdfWithOcr(pdf, fileName);
 }
 
 function tryParseOcrBankStatementText(text: string): Row[] | null {
