@@ -71,9 +71,11 @@ language sql
 security definer
 set search_path = public
 as $function$
-  select p.organization_id
-  from public.profiles p
-  where p.id = auth.uid()
+  select cm.company_id
+  from public.company_memberships cm
+  where cm.user_id = auth.uid()
+    and cm.is_active = true
+  order by cm.is_default desc, cm.created_at desc, cm.id
   limit 1;
 $function$;
 
