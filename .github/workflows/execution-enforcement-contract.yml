@@ -82,8 +82,6 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-  pdf-jib-diagnostic:
-    runs-on: ubuntu-22.04
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
@@ -111,8 +109,6 @@ jobs:
           pdftoppm -f 1 -singlefile -png -r 180 "$FILE" /tmp/jib-page
           tesseract /tmp/jib-page.png stdout -l ara+eng --psm 6 | sed -n '1,220p'
 
-  pdf-jib-canonical-diagnostic:
-    runs-on: ubuntu-22.04
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
@@ -148,8 +144,6 @@ jobs:
           })),null,2));
           NODE
 
-  pdf-exchange-houses-diagnostic:
-    runs-on: ubuntu-22.04
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
@@ -196,8 +190,6 @@ jobs:
           })),null,2));
           NODE
 
-  pdf-exchange-geometry-diagnostic:
-    runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -232,4 +224,3 @@ jobs:
           const out=groups.map(g=>({y:Number(g.y.toFixed(2)),items:g.items.sort((a,b)=>a.x-b.x).map(i=>({str:i.str,x:Number(i.x.toFixed(1)),w:Number((i.w||0).toFixed(1))}))})).filter(g=>g.items.length>=3);
           console.log(JSON.stringify(out.slice(0,35),null,2));
           NODE
-
