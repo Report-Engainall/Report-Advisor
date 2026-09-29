@@ -1,3 +1,33 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / REAL CORPUS SERIAL EXECUTION / PARSER+OCR HARDENED
+
+- FUNCTIONAL CODE SHA: `bcbd88f9218b7b35e91a057608b2f45712c222e9`.
+- BRANCH: `exec/20260929-post-import-report-continuity`.
+- CORPUS: 47 real report inputs under `tests/fixtures/realistic-reports/`; corpus gate previously PASS at DECLARED=47 / ACTUAL=48 / MINIMUM=20.
+- CURRENT REPORT FRONT: REPORT-FIRST serial corpus runner; deterministic order by normalized filename; anti-repeat by tenant-scoped source fingerprint.
+- PARSER HARDENING: layout-aware PDF table extraction; multi-row headers; semantic header preservation; low-quality native PDF OCR fallback with spatial OCR words; product/customer/invoice/bank/inventory specialty rules; unchanged OCR thresholds <50 reject / 50–74 review / >=75 trusted.
+- REPRESENTATIVE REAL CORPUS PROOF: 10/10 real reports PASS targeted regression:
+  - receivables 27/98
+  - supplier aging 18/76 purchases
+  - sales 325/59
+  - purchases 290/70
+  - inventory 248/80
+  - bank 25/97 payments
+  - cash movement 971/97 payments
+  - customer debt XLSX 95/91 receivables
+  - stocked products XLSX 439/65 inventory
+  - product catalog XLSX 639/87 products
+- LOCAL EXACT-HEAD PROOF: `test:pdf-structured-regression` PASS; `typecheck` PASS; `build` PASS; worktree clean after artifact cleanup.
+- FULL CORPUS READINESS MATRIX (latest pre-current specialty patch): TOTAL=47, TRUSTED=10, REVIEW=13, REJECT=24, RUNTIME_BLOCKED=0, FAILED=0. This is parser readiness only, not report closure.
+- REPORT_001: `اعمار الديون للعملا.pdf`; SHA-256 `9996F169AAE09E31F909712CA4BE5ACE238C7A4F123B370D436A5F1A115EA099`; 27 rows; quality 98; specialty receivables. Authenticated canonical DB commit and rendered 9-stage E2E still not proven.
+- DOWNSTREAM OUTPUT BUNDLE implemented in Source Report: source report, domain report, Reports Center, Trust & Evidence, Executive Report, Intelligence, Recommendations, Forecasts, Decision Experience, Work Center, Data Quality, Benchmark state.
+- CI FRONT: Full Product Browser E2E is configured for serial real corpus, `REPORT_CORPUS_MAX=47`, timeout 360 minutes; exact-head evidence remains pending on current SHA.
+- SEPARATE BLOCKERS: Phase-F exact deployment identity + live `customer_credit_accounts` migration-lineage drift remain open and must not be conflated with report processing.
+- DO-NOT-REPEAT: no duplicate importer/runner/ledger; no direct DB injection; no synthetic report; no stale SHA PASS; no completed-fingerprint reprocessing.
+- RESUME POINT: consume current exact-head Full Product Browser E2E; close each report only after authoritative import_job + canonical provenance + 9 tasks + source report VERIFIED + applicable domain/output surface.
+- NEXT EXACT ACTION: consume terminal current-head Full Product Browser E2E and inspect `real-report-e2e` per-report artifacts; repair only the first reproducible current-SHA failure.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / REPORT_001 DOMAIN OUTPUT COMPLETED / REAL E2E READY
 
 - FUNCTIONAL CODE SHA: `92727ca32bcf78ac2ed8731ffbfea839bec025e4`.
