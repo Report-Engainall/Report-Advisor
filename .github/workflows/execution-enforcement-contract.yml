@@ -88,20 +88,18 @@ jobs:
           set -euo pipefail
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends poppler-utils tesseract-ocr tesseract-ocr-ara tesseract-ocr-eng
-      - name: Measure Jeeb OCR output
+      - name: Compare Tesseract segmentation modes
         shell: bash
         run: |
           set -euo pipefail
+          rm -rf /tmp/jeeb-ocr
           mkdir -p /tmp/jeeb-ocr
-          pdftoppm -png -r 200 -f 1 -l 7 "tests/fixtures/realistic-reports/الصراف جيب.pdf" /tmp/jeeb-ocr/page >/dev/null 2>&1
-          : > /tmp/jeeb-ocr/all.txt
-          : > /tmp/jeeb-ocr/all.tsv
-          for image in /tmp/jeeb-ocr/page-*.png; do
-            echo "=== ${image} ===" >> /tmp/jeeb-ocr/all.txt
-            tesseract "${image}" stdout -l ara+eng --psm 6 2>/dev/null >> /tmp/jeeb-ocr/all.txt || true
-            tesseract "${image}" stdout -l ara+eng --psm 6 tsv 2>/dev/null | tail -n +2 >> /tmp/jeeb-ocr/all.tsv || true
-            echo >> /tmp/jeeb-ocr/all.txt
+          pdftoppm -png -r 220 -f 1 -l 2 "tests/fixtures/realistic-reports/الصراف جيب.pdf" /tmp/jeeb-ocr/page >/dev/null 2>&1
+          for psm in 3 6 11 12; do
+            : > "/tmp/jeeb-ocr/psm-${psm}.tsv"
+            for image in /tmp/jeeb-ocr/page-*.png; do
+              tesseract "${image}" stdout -l ara+eng --psm "${psm}" tsv 2>/dev/null | tail -n +2 >> "/tmp/jeeb-ocr/psm-${psm}.tsv" || true
+            done
+            echo "PSM=${psm}"
+            awk -F '\t' '{if ($11 ~ /^[0-9.]+$/ && $11 >= 0) {sum += $11; n++}} END {if(n) printf "CONF_AVG=%.2f WORDS=%d\n",sum/n,n; else print "CONF_AVG=0 WORDS=0"}' "/tmp/jeeb-ocr/psm-${psm}.tsv"
           done
-          sed -n '1,260p' /tmp/jeeb-ocr/all.txt
-          echo "OCR_WORDS=$(grep -Eo '[[:alnum:]ء-ي٠-٩]+' /tmp/jeeb-ocr/all.txt | wc -l)"
-          echo "OCR_CONF_AVG=$(awk -F '\t' '{if ($11 ~ /^[0-9.]+$/ && $11 >= 0) {sum += $11; n++}} END {if(n) printf "%.2f\n",sum/n; else print "0"}' /tmp/jeeb-ocr/all.tsv)"
