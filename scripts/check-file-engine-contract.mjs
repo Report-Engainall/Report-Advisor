@@ -35,6 +35,9 @@ for (const [file, token] of required) {
 }
 
 if (!files.adapters.includes('Math.min(dataset.qualityScore, Math.round(confidenceFloor))')) throw new Error('OCR confidence floor propagation is missing');
+if (!files.adapters.includes('const mappedProfiles = columnProfiles.filter((column) => Boolean(column.mappedField))')) throw new Error('Semantic quality scoring must isolate canonical mapped fields');
+if (!files.adapters.includes('const mappedCompleteness = mappedProfiles.length')) throw new Error('Semantic quality scoring completeness term is missing');
+if (!files.adapters.includes('const mappedCoverage = columns.length ? (mappedProfiles.length / columns.length) * 100 : 0')) throw new Error('Semantic quality scoring coverage term is missing');
 if (/from ['\"]\.\.\/supabase['\"]/.test(files.synonyms)) throw new Error('File-engine synonyms must not import the browser-only Supabase client at module load time');
 if (/console\.log\(/.test(files.adapters)) throw new Error('File-engine adapter must not contain debug logging');
 if (!files.normalizer.includes("replace(/[\\u064B-\\u065F\\u0670]/g, '')")) throw new Error('Arabic diacritic normalization is missing');
