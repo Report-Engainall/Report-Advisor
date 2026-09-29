@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / REPORT #26 SUPPLIER PDF / NODE PDF RUNTIME FIX
+
+- CURRENT REPOSITORY HEAD → `8fc18eb648220a9d871e2267df0acf105ba2c7fc`
+- CURRENT CODE/TEST CANDIDATE → `8fc18eb648220a9d871e2267df0acf105ba2c7fc`
+- ACTIVE BRANCH → `exec/20260927-current-main-import-ui-rebased`
+- CORPUS COUNT → `47`
+- CURRENT REPORT FRONT → #26 `تقارير الأرصدة الإفتتاحية - ارصدة نهائية للموردين.pdf`
+- ROOT FIX A → specialized supplier parser precedes generic PDF table fallback.
+- ROOT FIX B → supplier opening rows parsed structurally by row starts + account number.
+- ROOT FIX C → normalized Arabic invoice/table headers are matched after normalizeArabicText converts ta marbuta to ha.
+- ROOT FIX D → server Node uses pdfjs-dist/legacy/build/pdf.mjs; browser keeps browser build.
+- ROOT FIX E → CI corpus auth identity is exact-SHA unique; completed-result recovery uses governed RPC.
+- CURRENT STATUS → `IN_PROGRESS`
+- NEXT EXACT ACTION → run exact-head PDF regression, then run/consume #26 corpus proof; close only after lifecycle + readback + rendered output + UI evidence.
+
+---
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / REPORT #26 SUPPLIER PDF / RECOVERY RPC
 
 - CURRENT REPOSITORY HEAD → `ae2352b4b680d9a6021a0615000bcc7d92c65e1c`

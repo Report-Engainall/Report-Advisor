@@ -1,5 +1,23 @@
 # RESUME TOKEN — REPORT-ADVISOR / الأغبري — 2026-09-30
 
+- CURRENT REPOSITORY HEAD → `8fc18eb648220a9d871e2267df0acf105ba2c7fc`
+- CURRENT CODE/TEST CANDIDATE → `8fc18eb648220a9d871e2267df0acf105ba2c7fc`
+- ACTIVE EXECUTION FRONTS → report corpus #26; supplier-opening parser; Node PDF runtime; canonical completed-result recovery.
+- OPEN BLOCKERS → #26 is not CLOSED; fresh exact-head corpus proof pending.
+- LAST PROVEN → corpus count=47; #1–#4 CLOSED; PDF parser regression exposed normalized-Arabic header bug and Node/browser PDF.js runtime divergence; both are now repaired; canonical recovery RPC and adapter path persisted.
+- LAST FAILED → #26 CANONICAL_IMPORT_QUALITY_REJECTED:0; Node PDF regression previously fell to native OCR because server runtime used browser PDF.js path.
+- NEXT EXECUTABLE ACTION → consume exact-head PDF regression and real-report-corpus on `8fc18eb648220a9d871e2267df0acf105ba2c7fc`; capture Node canonical quality and #26 REPORT_RESULT.
+- NEXT INDEPENDENT ACTIONS → certification/enforcement terminal checks; after #26 closes, database/rendered evidence/readback and UI proof.
+- DO NOT REPEAT → no #1–#4 rerun; no blind durable retry; no duplicate importer; no stale PASS; no browser-only PDF extraction in server runtime.
+- CURRENT REPORT → #26 `tests/fixtures/realistic-reports/تقارير الأرصدة الإفتتاحية - ارصدة نهائية للموردين.pdf`
+- ACTION STATUS → `IN_PROGRESS`
+- CURRENT BRANCH → `exec/20260927-current-main-import-ui-rebased`
+- CORPUS COUNT → `47`
+- RESUME POINTER → exact-head corpus execution on #26.
+
+---
+# RESUME TOKEN — REPORT-ADVISOR / الأغبري — 2026-09-30
+
 - CURRENT REPOSITORY HEAD → `ae2352b4b680d9a6021a0615000bcc7d92c65e1c`
 - CURRENT CODE/TEST CANDIDATE → `ae2352b4b680d9a6021a0615000bcc7d92c65e1c`
 - ACTIVE EXECUTION FRONTS → real report corpus #26; supplier-opening PDF parser; canonical completed-result recovery; exact-SHA certification.
