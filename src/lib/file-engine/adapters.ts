@@ -1041,109 +1041,76 @@ function tryParseOcrBankStatementText(text: string): Row[] | null {
   const normalized = normalizeArabicDigits(
     stripControlCharacters(text.normalize('NFKC'))
       .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
-      .replace(/\s+/g, ' ')
+      .replace(/\r\n?/g, '\n')
       .trim(),
   );
 
-  const pageParts = normalized
-    .split(/(?=PAGE\s+\d+)/i)
-    .map(part => part.trim())
-    .filter(Boolean);
+  const lines = normalized
+    .split(/\n+/)
+    .map(line => line.replace(/\s+/g, ' ').trim())
+    .filter(line => line && !/^PAGE\s+\d+$/i.test(line));
 
   const rows: Row[] = [];
-  const datePattern = /\b(\d{1,2}[./-]\d{1,2}[./-]20\d{2})\b/g;
-  const amountPattern = /([\d٠-٩]{1,3}(?:[,٬][\d٠-٩]{3})*(?:[.٫][\d٠-٩]+)?)\s*(?:ريال|ريال\s*يمن|YER)\b/gi;
-  const numberPattern = /[\d٠-٩]{1,3}(?:[,٬][\d٠-٩]{3})*(?:[.٫][\d٠-٩]+)?/g;
-  const referencePattern = /\b(\d{10,16})\b/g;
+  const datePattern = /\b(\d{1,2}[./-]\d{1,2}[./-]20\d{2})\b/;
+  const amountPattern = /([\d٠-٩]{1,3}(?:[,٬][\d٠-٩]{3})*(?:[.٫][\d٠-٩]+)?)\s*(?:ريال|ريال\s*يمن|YER)\b/i;
+  const referencePattern = /\b(\d{10,16})\b/;
+  const numericPattern = /[\d٠-٩]{1,3}(?:[,٬][\d٠-٩]{3})*(?:[.٫][\d٠-٩]+)?/g;
 
-  for (const page of pageParts) {
-    const dateMatches = [...page.matchAll(datePattern)];
-    for (const dateMatch of dateMatches) {
-      const dateIndex = dateMatch.index ?? 0;
-      const windowStart = Math.max(0, dateIndex - 520);
-      const windowEnd = Math.min(page.length, dateIndex + 760);
-      const segment = page.slice(windowStart, windowEnd);
-      const references = [...segment.matchAll(referencePattern)].map(match => match[1]).filter(Boolean);
-      if (!references.length) continue;
+  for (const line of lines) {
+    const dateMatch = line.match(datePattern);
+    const amountMatch = line.match(amountPattern);
+    const referenceMatch = line.match(referencePattern);
+    if (!dateMatch || !amountMatch || !referenceMatch) continue;
 
-      const amountMatches = [...segment.matchAll(amountPattern)]
-        .map(match => ({
-          raw: match[1],
-          index: (match.index ?? 0),
-          value: parseNumber(match[1]),
-        }))
-        .filter(candidate => candidate.value != null);
+    const paymentAmount = parseNumber(amountMatch[1]);
+    if (paymentAmount == null) continue;
 
-      const sanitizedSegment = segment.replace(dateMatch[1], ' ');
-      const fallbackNumbers = [...sanitizedSegment.matchAll(numberPattern)]
-        .map(match => ({
-          raw: match[0],
-          index: match.index ?? 0,
-          value: parseNumber(match[0]),
-        }))
-        .filter(candidate => candidate.value != null && (candidate.value as number) > 10);
+    const afterPayment = line.slice((amountMatch.index ?? 0) + amountMatch[0].length);
+    const candidateBalances = [...afterPayment.matchAll(numericPattern)]
+      .map(match => ({ raw: match[0], index: match.index ?? 0, value: parseNumber(match[0]) }))
+      .filter(candidate => candidate.value != null)
+      .filter(candidate => !/^\d{1,2}$/.test(candidate.raw))
+      .filter(candidate => candidate.value !== paymentAmount)
+      .filter(candidate => !/^20\d{2}$/.test(candidate.raw))
+      .sort((a, b) => a.index - b.index);
 
-      const paymentCandidate = amountMatches
-        .sort((a, b) => Math.abs(a.index - (dateIndex - windowStart)) - Math.abs(b.index - (dateIndex - windowStart)))[0]
-        ?? fallbackNumbers
-          .sort((a, b) => Math.abs(a.index - (dateIndex - windowStart)) - Math.abs(b.index - (dateIndex - windowStart)))[0];
+    const balanceCandidate = candidateBalances.find(candidate =>
+      candidate.raw.includes('.') || candidate.raw.includes('٬') || candidate.raw.includes(',') || (candidate.value ?? 0) > 1000,
+    ) ?? candidateBalances[0];
 
-      if (!paymentCandidate?.value && paymentCandidate?.value !== 0) continue;
+    const reference = referenceMatch[1];
+    const dateParts = dateMatch[1].split(/[./-]/).map(part => Number(part));
+    if (dateParts.length !== 3) continue;
+    const [day, month, year] = dateParts;
+    const isoDate = String(year).padStart(4, '0') + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
 
-      const paymentIndex = paymentCandidate.index;
-      const balanceCandidate = fallbackNumbers
-        .filter(candidate =>
-          candidate.index > paymentIndex + paymentCandidate.raw.length
-          && candidate.value !== paymentCandidate.value
-          && candidate.value !== 11
-          && candidate.value !== 8
-          && candidate.value !== 2026,
-        )
-        .sort((a, b) => Math.abs(a.index - paymentIndex) - Math.abs(b.index - paymentIndex))[0] ?? null;
+    const description = line
+      .replace(dateMatch[1], ' ')
+      .replace(reference, ' ')
+      .replace(amountMatch[0], ' ')
+      .replace(balanceCandidate?.raw ?? '', ' ')
+      .replace(/\b\d{1,2}:\d{2}\b/g, ' ')
+      .replace(/\b\d{1,2}\.\d{2}\b/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
 
-      const reference = references
-        .sort((a, b) => Math.abs(segment.indexOf(a) - (dateIndex - windowStart)) - Math.abs(segment.indexOf(b) - (dateIndex - windowStart)))[0];
-
-      const dateParts = dateMatch[1].split(/[./-]/).map(part => Number(part));
-      if (dateParts.length !== 3) continue;
-      const [day, month, year] = dateParts;
-      const isoDate = Number.isFinite(day) && Number.isFinite(month) && Number.isFinite(year)
-        ? `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-        : null;
-      if (!isoDate) continue;
-
-      const cleaned = segment
-        .replace(dateMatch[1], ' ')
-        .replace(reference, ' ')
-        .replace(amountMatches[0]?.raw ?? paymentCandidate.raw, ' ')
-        .replace(balanceCandidate?.raw ?? '', ' ')
-        .replace(/\b\d{1,2}:\d{2}\b/g, ' ')
-        .replace(/\b\d{1,2}\.\d{2}\b/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-      rows.push({
-        date: isoDate,
-        reference,
-        payment_amount: paymentCandidate.value,
-        balance: balanceCandidate?.value ?? undefined,
-        currency: 'YER',
-        description: cleaned.slice(0, 1600),
-        debit: /\bدفع\b/.test(segment) ? paymentCandidate.value : undefined,
-        credit: /\bتحويل\s+من\b|\bإيداع\b/.test(segment) ? paymentCandidate.value : undefined,
-      });
-    }
+    rows.push({
+      date: isoDate,
+      reference,
+      payment_amount: paymentAmount,
+      balance: balanceCandidate?.value ?? undefined,
+      currency: 'YER',
+      description: description.slice(0, 1600),
+      debit: /\bدفع\b/.test(line) ? paymentAmount : undefined,
+      credit: /\bتحويل\s+من\b|\bإيداع\b/.test(line) ? paymentAmount : undefined,
+    });
   }
 
   const deduplicated = rows.filter((row, index, all) =>
-    index === all.findIndex(candidate =>
-      candidate.reference === row.reference && candidate.date === row.date,
-    ),
+    index === all.findIndex(candidate => candidate.reference === row.reference && candidate.date === row.date),
   );
-
   return deduplicated.length >= 3 ? deduplicated : null;
 }
-
 
 
 async function parseScannedPdfWithNativeOcr(
@@ -1191,7 +1158,7 @@ async function parseScannedPdfWithNativeOcr(
       );
       const { stdout } = await execFileAsync(
         'tesseract',
-        [imagePath, 'stdout', '-l', 'ara+eng', '--psm', '12', 'tsv'],
+        [imagePath, 'stdout', '-l', 'ara+eng', '--psm', '6', 'tsv'],
         { timeout: 120000, maxBuffer: 16 * 1024 * 1024 },
       );
 
