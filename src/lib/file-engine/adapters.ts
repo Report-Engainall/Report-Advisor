@@ -201,6 +201,58 @@ function isNumericToken(value: string): boolean {
   return /^[-+]?\d[\d,\s]*(?:\.\d+)?$/.test(value.trim());
 }
 
+function isArabicLetterFragment(text: string): boolean {
+  const chars = Array.from(text.trim());
+  return chars.length === 1 && /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/u.test(chars[0]);
+}
+
+function coalescePdfCharacterRun(line: PdfTextItem[]): PdfTextItem[] {
+  const sorted = [...line].sort((a, b) => a.x - b.x);
+  const output: PdfTextItem[] = [];
+  let run: PdfTextItem[] = [];
+
+  const flushRun = (): void => {
+    if (!run.length) return;
+    if (run.length < 2 || !run.every((item) => isArabicLetterFragment(item.text))) {
+      output.push(...run);
+      run = [];
+      return;
+    }
+    const ordered = [...run].sort((a, b) => b.x - a.x);
+    const left = Math.min(...run.map((item) => item.x));
+    const right = Math.max(...run.map((item) => item.x + item.width));
+    const y = run.reduce((sum, item) => sum + item.y, 0) / run.length;
+    const height = Math.max(...run.map((item) => item.height));
+    output.push({
+      text: ordered.map((item) => item.text).join(''),
+      x: left,
+      y,
+      width: Math.max(1, right - left),
+      height,
+    });
+    run = [];
+  };
+
+  for (const item of sorted) {
+    const previous = run[run.length - 1];
+    if (!previous) {
+      run.push(item);
+      continue;
+    }
+
+    const gap = item.x - (previous.x + previous.width);
+    const compatible = isArabicLetterFragment(previous.text) && isArabicLetterFragment(item.text) && gap <= 14;
+    if (compatible) {
+      run.push(item);
+    } else {
+      flushRun();
+      run.push(item);
+    }
+  }
+  flushRun();
+  return output.sort((a, b) => a.x - b.x);
+}
+
 function groupPdfItemsByLine(items: PdfTextItem[], tolerance = 2.5): PdfTextItem[][] {
   const sorted = [...items].sort((a, b) => b.y - a.y || a.x - b.x);
   const groups: Array<{ y: number; items: PdfTextItem[] }> = [];
@@ -209,7 +261,9 @@ function groupPdfItemsByLine(items: PdfTextItem[], tolerance = 2.5): PdfTextItem
     if (!group) groups.push({ y: item.y, items: [item] });
     else group.items.push(item);
   }
-  return groups.sort((a, b) => b.y - a.y).map((group) => group.items.sort((a, b) => a.x - b.x));
+  return groups
+    .sort((a, b) => b.y - a.y)
+    .map((group) => coalescePdfCharacterRun(group.items.sort((a, b) => a.x - b.x)));
 }
 
 function tryParseReceivablesAgingPdfItems(items: PdfTextItem[]): Row[] | null {
