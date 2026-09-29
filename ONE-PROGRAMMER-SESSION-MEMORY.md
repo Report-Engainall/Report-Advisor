@@ -1,3 +1,27 @@
+# RESUME TOKEN — 2026-09-29 / REPORT-FIRST CONTINUITY / REPORT_001 READY FOR AUTHENTICATED COMMIT
+
+- CONTROL HEAD BEFORE MEMORY WRITE: `6b6cf7749245ad6b4e537288476c0ef6a03d13da`.
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`; worktree was clean before this memory checkpoint.
+- DEVICE: PC01 is ONLINE and responsive; previous offline blocker is no longer current.
+- CORPUS: 47 real report inputs under `tests/fixtures/realistic-reports/`; deterministic filename order; no corpus recreation required.
+- CURRENT REPORT: REPORT_001 = `اعمار الديون للعملا.pdf`.
+- REPORT_001 RAW SHA256: `9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`.
+- REPORT_001 LOCAL READINESS: 27 rows, quality 98, TRUSTED, specialty `receivables`, specialty confidence 96, canonical mapped fields include customer identity, currency, aging and outstanding balance.
+- FULL CORPUS LOCAL READINESS: 47 total / TRUSTED 40 / REVIEW 4 / REJECT 3 / RUNTIME_BLOCKED 0 / FAILED 0.
+- FULL CORPUS SPECIALTIES: customers 1 / inventory 11 / other 13 / payments 7 / products 1 / purchases 2 / receivables 2 / sales 10.
+- EXACT LOCAL PROOF ON CONTROL HEAD: `test:real-report-corpus-quality` produced the 47-report matrix; `test:pdf-structured-regression` PASS; `test:file-engine-regressions` PASS; `typecheck` PASS; `build` PASS.
+- REPORT CONTRACT PROOF ON CONTROL HEAD: report-execution-foundation PASS; report-execution-e2e-contract PASS; post-import-report-guard PASS; executive-report-product-contract PASS; intelligence-product-contract PASS; product-wow-ui PASS; report-truth PASS; canonical-import-mapping PASS; UI route/sidebar parity PASS (41 routes / 37 navigation links).
+- IMPORTANT: local corpus/parser proof is readiness only. It is NOT report closure and does NOT prove authenticated canonical DB commit, durable nine-stage execution, rendered source/domain report, tenant A/B browser isolation, or hosted exact-SHA runtime.
+- STAGING DB READBACK: REPORT_001 raw fingerprint is not present in `import_jobs`; no direct SQL insertion was performed.
+- AUTHENTICATED RUNTIME BLOCKER: local process has no Supabase URL/key or dedicated E2E user credentials; the existing Full Product Browser E2E runner requires these secrets and the current exact-head GitHub run `36507458820` is QUEUED. Queued is not evidence.
+- DOWNSTREAM OUTPUT CONTRACT AFTER A VERIFIED REPORT: Source Report; applicable source-bound Domain Report; Reports Center; Trust & Evidence / Evidence Passport; Executive Report; Intelligence; Recommendations; Forecasts; Decision Experience; Work Center; Data Quality; Outcome/Learning/Replay where supported; Benchmark fail-closed to `INSUFFICIENT_SAMPLE` when peer sample is absent. No output may invent financial truth.
+- CURRENT REPORT STATUS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47.
+- LAST VERIFIED ACTION: current branch reconciled against GitHub main baseline; real corpus enumerated locally; REPORT_001 fingerprint/readiness verified; local report contracts and build verified.
+- DO-NOT-REPEAT: no direct DB injection; no guessed credentials; no duplicate importer/runner/report pipeline; no stale SHA PASS; no report reprocessing after completed fingerprint; no promotion of queued CI to PASS.
+- NEXT EXACT ACTION: execute REPORT_001 through the existing authenticated canonical browser path using the real file; prove import fingerprint, canonical DB commit/readback, all 9 durable stages, source report VERIFIED, source-bound receivables report, downstream output bundle, and tenant A/B isolation. Then persist the report checkpoint and move to REPORT_002.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / PDF FINANCIAL PARSER HARDENED / CORPUS 38-4-5
 
 - CONTROL HEAD BEFORE MEMORY WRITE: `58b170a76930707b247598855639ef1d9b02f418`.
