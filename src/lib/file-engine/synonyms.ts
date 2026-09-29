@@ -5,6 +5,11 @@ let synonymCache: Map<string, { canonical: string; confidence: number }> | null 
 
 const BUILTIN_SYNONYMS: Array<[string, string, number]> = [
   ['sku', 'sku', 96],
+  ['المستوى', 'level', 98], ['اسم المستوى', 'level_name', 98], ['المخزن', 'warehouse', 98],
+  ['نسبة الربح', 'margin_percent', 96], ['نسبة\r\nالربح', 'margin_percent', 96], ['هامش الربح', 'margin', 96],
+  ['العملة', 'currency', 98], ['الحد الأدني للتسعيرة', 'min_price', 96], ['الحد الأدنى للتسعيرة', 'min_price', 96], ['الحد الأعلى للتسعيرة', 'max_price', 96],
+  ['الكمية المتوفرة', 'available_quantity', 98], ['الكمية\r\nالمتوفرة', 'available_quantity', 98], ['متوسط التكلفه YER', 'average_cost', 96], ['متوسط التكلفة YER', 'average_cost', 96],
+  ['آخر سعر توريد YER', 'last_supply_price', 96], ['آخر سعر شراء YER', 'last_purchase_price', 96], ['ملاحظات', 'notes', 98],
   ['المستوى', 'level', 98], ['اسم المستوى', 'level_name', 98], ['المخزن', 'warehouse', 98], ['نسبة الربح', 'profit_margin_pct', 98], ['نسبة\r\nالربح', 'profit_margin_pct', 98], ['هامش الربح', 'profit_margin', 98],
   ['العملة', 'currency', 98], ['السعر', 'selling_price', 98], ['الحد الأدني للتسعيرة', 'min_price', 98], ['الحد الأدنى للتسعيرة', 'min_price', 98], ['الحد الأعلى للتسعيرة', 'max_price', 98], ['الكمية\r\nالمتوفرة', 'quantity', 98], ['الكمية المتوفرة', 'quantity', 98],
   ['متوسط التكلفه YER', 'average_cost', 98], ['متوسط التكلفة YER', 'average_cost', 98], ['آخر سعر توريد YER', 'last_supply_price', 98], ['آخر سعر شراء YER', 'last_purchase_price', 98], ['ملاحظات', 'notes', 98], ['رقم الباركود', 'barcode', 98], ['المستوى', 'level', 92], ['اسم المستوى', 'level_name', 92], ['المخزن', 'warehouse', 96], ['نسبة الربح', 'profit_margin', 96], ['هامش الربح', 'profit_margin', 96], ['الحد الأدني للتسعيرة', 'min_price', 92], ['الحد الأعلى للتسعيرة', 'max_price', 92], ['الكمية المتوفرة', 'quantity', 96], ['متوسط التكلفه YER', 'average_cost', 96], ['متوسط التكلفة YER', 'average_cost', 96], ['آخر سعر توريد YER', 'last_supply_price', 92], ['آخر سعر شراء YER', 'last_purchase_price', 92], 
