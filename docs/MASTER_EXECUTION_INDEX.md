@@ -1,3 +1,11 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 07:38 +03:00 / SECURITY CANDIDATE 17dbee28
+
+- CURRENT CODE/TEST CANDIDATE: `17dbee28e7c647174cc0cf40d8d43c423e0a7f2f`
+- SECURITY FIX: durable enqueue primitive is service_role-only; authenticated, anon, and public execution revoked.
+- REPORT-FIRST: REPORT_001 remains open.
+- PRIOR TERMINAL SECURITY RESULT: Phase 2 security surface failed specifically on this authenticated grant; corrected here.
+- NEXT EXACT ACTION: terminal exact-head certification + Full Product Browser E2E for 17dbee28, then report closure or first reproducible failure.
+---
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 07:35 +03:00 / CANDIDATE 0fde380c
 
 - CURRENT CODE/TEST CANDIDATE: `0fde380cedc9bfc7ee8ad1b78f19a5532a3da942`

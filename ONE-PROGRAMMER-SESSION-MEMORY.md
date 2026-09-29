@@ -1,3 +1,16 @@
+# RESUME TOKEN — 2026-09-29 07:38 +03:00 / SECURITY HEAD 17dbee28 / REPORT-FIRST E2E NEXT
+
+- CURRENT FUNCTIONAL CODE/TEST SHA: 17dbee28e7c647174cc0cf40d8d43c423e0a7f2f
+- REPORT-FIRST FRONT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099
+- SECURITY FIX: migration 20260929061000_recover_dead_letter_on_enqueue.sql now revokes authenticated execution of enqueue_report_execution_job and grants it only to service_role. This matches the actual usage model: the function is an internal worker primitive and no application caller exists in repository code.
+- PRIOR SECURITY FAILURE: Phase 2 security closure on 0fde found the authenticated grant lacked tenant/user binding.
+- PRIOR FUNCTIONAL PROOF: build/typecheck PASS, PDF structured regression PASS; import contract had been reduced to the regex test and is fixed.
+- REPORT_001 CLOSURE: OPEN pending current-head Full Product Browser E2E proving persistence/readback, 9 stages, Source Report VERIFIED, source-bound domain/receivables, downstream intelligence/decision/work-center surfaces, benchmark fail-closed, and tenant isolation.
+- COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47
+- DO-NOT-REPEAT: never re-grant authenticated execution to internal durable primitives; never claim report closure from static contracts; no stale SHA proof.
+- CURRENT RESUME POINTER: exact-head certification + Full Product Browser E2E for 17dbee28.
+- NEXT EXACT ACTION: bind candidate, consume terminal security/certification/browser evidence, repair first current-SHA failure, then close REPORT_001.
+---
 # RESUME TOKEN — 2026-09-29 07:35 +03:00 / FUNCTIONAL HEAD 0fde380c / CERTIFICATION NEXT
 
 - CURRENT FUNCTIONAL CODE/TEST SHA: 0fde380cedc9bfc7ee8ad1b78f19a5532a3da942
