@@ -748,21 +748,10 @@ function detectPdfTableHeader(line: PdfTextPlacement[]): PdfTableHeader | null {
 
 function tryParseBankMovementSummaryPlacements(items: PdfTextPlacement[]): Row[] | null {
   const groups = groupPdfLines(items);
-  const headerGroupIndex = groups.findIndex(group => {
-    const text = group.map(item => item.str).join(' ');
-    return text.includes('الرصيد الحالي') && (text.includes('الحركه خﻼل الفترة') || text.includes('الحركة خلال الفترة')) && (text.includes('الرصيد اﻹفتتاحي') || text.includes('الرصيد الافتتاحي'));
-  });
-  if (headerGroupIndex < 0) return null;
+  const subHeaderIndex = groups.findIndex(group => group.filter(item => item.str === 'دائن' || item.str === 'مدين').length >= 6);
+  if (subHeaderIndex < 0) return null;
 
-  let subHeader: PdfTextPlacement[] | null = null;
-  for (let index = headerGroupIndex - 1; index >= Math.max(0, headerGroupIndex - 3); index -= 1) {
-    const candidate = groups[index];
-    const debitCreditCount = candidate.filter(item => item.str === 'دائن' || item.str === 'مدين').length;
-    if (debitCreditCount >= 6) { subHeader = candidate; break; }
-  }
-  if (!subHeader) return null;
-
-  const numericCenters = subHeader
+  const numericCenters = groups[subHeaderIndex]
     .filter(item => item.str === 'دائن' || item.str === 'مدين')
     .sort((a, b) => a.x - b.x)
     .slice(0, 6)
@@ -770,36 +759,37 @@ function tryParseBankMovementSummaryPlacements(items: PdfTextPlacement[]): Row[]
   if (numericCenters.length !== 6) return null;
 
   const rows: Row[] = [];
-  for (let index = headerGroupIndex + 1; index < groups.length; index += 1) {
+  for (let index = subHeaderIndex + 1; index < groups.length; index += 1) {
     const group = groups[index];
-    const bankId = [...group].reverse().find(item => /^\d{1,2}$/.test(item.str.trim()) && item.x > 700);
+    const bankIdItem = [...group].reverse().find(item => /^\d{1,2}$/.test(item.str.trim()) && item.x > 700);
     const nameItem = group.find(item => item.x > 600 && /[\u0600-\u06FFA-Za-z]/.test(item.str) && item.str.trim() !== 'YER');
-    if (!bankId || !nameItem) continue;
+    if (!bankIdItem || !nameItem) continue;
 
     const values = group
       .filter(item => item.x < 520 && item.str.trim() && item.str.trim() !== 'YER')
       .map(item => ({ item, value: parseNumber(item.str) }))
-      .filter((entry): entry is { item: PdfTextPlacement; value: number } => entry.value !== null)
-      .sort((a, b) => a.item.x - b.item.x);
-    if (!values.length) continue;
+      .filter((entry): entry is { item: PdfTextPlacement; value: number } => entry.value !== null);
+    if (values.length < 2) continue;
 
     const row: Row = {
-      bank_id: parseNumber(bankId.str),
+      bank_id: parseNumber(bankIdItem.str),
       name: nameItem.str.trim(),
-      currency: group.find(item => item.str.trim() === 'YER') ? 'YER' : undefined,
+      currency: group.some(item => item.str.trim() === 'YER') ? 'YER' : undefined,
     };
     const fields = ['current_credit','current_debit','period_credit','period_debit','opening_credit','opening_debit'];
     for (const entry of values) {
+      const center = entry.item.x + entry.item.width / 2;
       let nearestIndex = 0;
       let nearestDistance = Number.POSITIVE_INFINITY;
-      numericCenters.forEach((center, centerIndex) => {
-        const distance = Math.abs((entry.item.x + entry.item.width / 2) - center);
-        if (distance < nearestDistance) { nearestDistance = distance; nearestIndex = centerIndex; }
+      numericCenters.forEach((candidate, candidateIndex) => {
+        const distance = Math.abs(center - candidate);
+        if (distance < nearestDistance) { nearestDistance = distance; nearestIndex = candidateIndex; }
       });
-      if (nearestDistance <= 42) row[fields[nearestIndex]] = entry.value;
+      if (nearestDistance <= 45) row[fields[nearestIndex]] = entry.value;
     }
-    if (Object.keys(row).filter(key => key.startsWith('current_') || key.startsWith('period_') || key.startsWith('opening_')).length < 2) continue;
-    rows.push(row);
+
+    const numericFieldCount = fields.filter(field => row[field] !== undefined).length;
+    if (numericFieldCount >= 2) rows.push(row);
   }
 
   const unique = rows.filter((row, index, all) =>
@@ -807,6 +797,7 @@ function tryParseBankMovementSummaryPlacements(items: PdfTextPlacement[]): Row[]
   );
   return unique.length >= 2 ? unique : null;
 }
+
 function assignPdfRow(line: PdfTextPlacement[], header: PdfTableHeader): Row | null {
   const sortedAnchors = [...header.anchors].sort((a, b) => a.centerX - b.centerX);
   const cells = sortedAnchors.map(() => [] as string[]);
