@@ -2,13 +2,13 @@
 - VERIFICATION RUN HEAD → this branch carries only governance/test-harness changes after code candidate `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`; it exists only to obtain exact-head CI evidence before merging to main.
 
 - EXACT MAIN HEAD BEFORE THIS DOCUMENTATION CHECKPOINT → `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`.
-- CURRENT CODE/TEST CANDIDATE: `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`.
+- CURRENT CODE/TEST CANDIDATE: `870b39843a2dd840ab2499d43afc9a4a3a5b398c`.
 - CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
 - SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
 - VERIFIED DATABASE READBACK → import job `completed` at 735/735, durable job `completed/rendered`, 735 canonical rows, persisted source-bound `renderedOutput`, rendered task evidence, source quality `87`.
 - SMART RESULT READBACK → Executive, Evidence/Trust, Decision, Work Center, and Inventory domain surfaces are persisted and source-bound; decision/action are not committed, outcome/learning unavailable, benchmark `INSUFFICIENT_SAMPLE`; no synthetic result.
 - CURRENT ROOT FIX → `src/lib/import/canonical-production-adapter.ts` now passes the authoritative tenant identity into finalization instead of the removed `companyId` binding.
-- CURRENT-SHA FAILURES OBSERVED ON PARENT → quality/typecheck failed at adapter line 474; Execution Enforcement rejected a missing current code/test candidate in the index; Final Certification failed through the same readiness boundary. These are the only reproduced current-head gates being repaired.
+- CURRENT-SHA ROOT FIXES → authoritative tenant identity in canonical finalization; runtime test harness now loads TypeScript extensionless imports through the repository loader; candidate is bound to this verification head.
 - ACTION STATUS → `IN_PROGRESS`.
 - NEXT EXACT ACTION → consume terminal CI on the resulting exact documentation checkpoint; repair only a newly reproduced failure, then complete authenticated source-bound UI proof for this same report.
 - REPORT STATE → `BLOCKED` only for authenticated UI/runtime closure; database/durable recovery is proven.
