@@ -965,8 +965,8 @@ function tryParseBankStatementSummaryText(text: string): Row[] | null {
 
   const accountNumber = normalized.match(/(?:رقم\s*الحساب|الحساب)\s*[:：]?\s*(\d{4,})/i)?.[1] ?? null;
   const dates = [...normalized.matchAll(/\b\d{4}[-\/]\d{1,2}[-\/]\d{1,2}\b/g)].map(match => match[0]);
-  const currencyMatch = normalized.match(/(?:ريال\s+يمني|ريال\s+سعودي|YER|SAR|USD|EUR)/i)?.[0] ?? null;
-  const financialTokens = [...normalized.matchAll(/\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b/g)].map(match => match[0]).slice(0, 3);
+  const currencyMatch = normalized.includes('ريال يمني') ? 'YER' : normalized.match(/(?:ريال\s+سعودي|YER|SAR|USD|EUR)/i)?.[0] ?? null;
+  const financialTokens = [...normalized.matchAll(/\b(?:\d{1,3}(?:,\d{3})+|\d{1,3})(?:\.\d+)?\b/g)].map(match => match[0]).filter(value => value.includes(',') || value === '0').slice(0, 3);
   if (financialTokens.length < 3) return null;
 
   const balance = parseNumber(financialTokens[0]);
