@@ -459,7 +459,7 @@ async function inflatePdfStream(bytes: Uint8Array): Promise<Uint8Array> {
 }
 
 function pdfObjectStream(raw: string, objectNumber: number): { dict: string; bytes: Uint8Array } | null {
-  const objectPattern = /(\\d+)\\s+0\\s+obj\\b/g;
+  const objectPattern = /(\d+)\s+0\s+obj\b/g;
   let objectStart = -1;
   for (const match of raw.matchAll(objectPattern)) {
     if (Number(match[1]) === objectNumber) {
@@ -474,8 +474,8 @@ function pdfObjectStream(raw: string, objectNumber: number): { dict: string; byt
   const dict = raw.slice(objectStart, streamStart);
 
   let contentStart = streamStart + 6;
-  if (raw[contentStart] === '\\r' && raw[contentStart + 1] === '\\n') contentStart += 2;
-  else if (raw[contentStart] === '\\n' || raw[contentStart] === '\\r') contentStart += 1;
+  if (raw[contentStart] === '\r' && raw[contentStart + 1] === '\n') contentStart += 2;
+  else if (raw[contentStart] === '\n' || raw[contentStart] === '\r') contentStart += 1;
 
   const lengthMatch = dict.match(/\/Length\s+(\d+)\b/);
   if (lengthMatch) {
