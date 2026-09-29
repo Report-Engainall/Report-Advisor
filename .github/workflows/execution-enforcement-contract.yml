@@ -51,22 +51,6 @@ jobs:
       - name: Install repository dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Inspect third real XLSX structure
-        shell: bash
-        run: |
-          set -euo pipefail
-          node --input-type=module <<'NODE'
-          import fs from 'node:fs/promises';
-          const XLSX = await import('xlsx');
-          const file='tests/fixtures/realistic-reports/الاصناف .xlsx';
-          const bytes=await fs.readFile(file);
-          const wb=XLSX.read(bytes,{type:'buffer',cellDates:true});
-          for(const sheetName of wb.SheetNames){
-            const matrix=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{header:1,defval:'',raw:true});
-            console.log('XLSX_SHEET='+sheetName+' ROWS='+matrix.length+' COLS='+(matrix.reduce((m,row)=>Math.max(m,Array.isArray(row)?row.length:0),0)));
-            console.log(JSON.stringify(matrix.slice(0,12),null,2));
-          }
-          NODE
       - name: Normalize and execute real report corpus
         shell: bash
         env:
@@ -75,32 +59,7 @@ jobs:
           REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY }}
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-          p=Path('scripts/real-report-corpus-e2e.mjs')
-          s=p.read_text()
-          s=s.replace('const source=fingerprinted=await fingerprint(file);','const source=await fingerprint(file);')
-          # The source declaration is the only normalization required; later references already use `source`.
-          s=s.replace("const ciEmail = 'report-advisor-corpus-ci@aghbari.example';\\nconst ciCompanyName = 'Aghbari Report Corpus CI';", "const ciKey = process.env.GITHUB_RUN_ID || exactHead.slice(0, 12);\\nconst ciEmail = 'report-advisor-corpus-ci-' + ciKey + '@aghbari.example';\\nconst ciCompanyName = 'Aghbari Report Corpus CI ' + ciKey;")
-          s=s.replace('const source=fingerprinted=await fingerprint(file);','const source=await fingerprint(file);')
-          s=s.replace("const ciEmail = 'report-advisor-corpus-ci@aghbari.example';", "const ciEmail = 'report-advisor-corpus-ci-' + (process.env.GITHUB_RUN_ID || exactHead.slice(0,12)) + '@aghbari.example';")
-          s=s.replace("const ciCompanyName = 'Aghbari Report Corpus CI';", "const ciCompanyName = 'Aghbari Report Corpus CI ' + (process.env.GITHUB_RUN_ID || exactHead.slice(0,12));")
-          old = "  const execution=await executeCanonicalImport({importId:ij.data.id,fileName,sourceHash:source.hash,entityType:'generic:source-data',qualityApproved:false,mode:'execute'},identity.accessToken,{supabaseUrl,anonKey,serviceRoleKey});"
-          new = """  let execution;
-          try {
-            execution=await executeCanonicalImport({importId:ij.data.id,fileName,sourceHash:source.hash,entityType:'generic:source-data',qualityApproved:false,mode:'execute'},identity.accessToken,{supabaseUrl,anonKey,serviceRoleKey});
-          } catch(cause) {
-            const failureMessage=cause instanceof Error?cause.message:String(cause);
-            const finishFailure=await anonClient.rpc('import_finish_job',{p_job_id:ij.data.id,p_status:'failed',p_result_summary:{file_name:fileName,source_path:rel,source_commit:exactHead,report_corpus:true,failure_stage:'canonical_execution'},p_error_message:failureMessage.slice(0,1000)});
-            if(finishFailure.error) throw new AggregateError([cause,finishFailure.error],'REPORT_IMPORT_FAILURE_PERSISTENCE_FAILED');
-            throw cause;
-          }"""
-          s=s.replace(old,new)
-          p.write_text(s)
-          PY
-          node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-report-corpus-e2e.mjs
+        run: node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-report-corpus-e2e.mjs
       - name: Upload real report corpus evidence
         if: always()
         uses: actions/upload-artifact@v4
