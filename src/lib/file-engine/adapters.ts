@@ -373,41 +373,59 @@ function pdfHeaderMatch(value: string): string | null {
   }) ?? null;
 }
 
+const SORTED_PDF_TABLE_ALIASES = [...PDF_TABLE_HEADER_ALIASES].sort(
+  (a, b) => compactArabicHeader(b).length - compactArabicHeader(a).length,
+);
+
 function detectPdfTableHeader(line: PdfTextPlacement[]): PdfTableHeader | null {
   const sorted = [...line].sort((a, b) => a.x - b.x);
+  if (sorted.length < PDF_TABLE_MIN_ANCHORS) return null;
+
+  const compactLine = compactArabicHeader(sorted.map(item => item.str).join(' '));
+  const candidateAliases = SORTED_PDF_TABLE_ALIASES.filter(alias =>
+    compactLine.includes(compactArabicHeader(alias)),
+  );
+  if (candidateAliases.length < PDF_TABLE_MIN_ANCHORS) return null;
+
   const anchors: PdfTableAnchor[] = [];
   const used = new Set<number>();
-  for (let i = 0; i < sorted.length; i += 1) {
-    if (used.has(i)) continue;
-    let match: { end: number; alias: string } | null = null;
-    for (let span = Math.min(24, sorted.length - i); span >= 1; span -= 1) {
-      const candidate = sorted.slice(i, i + span).map(item => item.str).join(' ');
-      const normalizedCandidate = normalizeColumnName(candidate);
-      const aliases = [...PDF_TABLE_HEADER_ALIASES].sort(
-        (a, b) => normalizeColumnName(b).length - normalizeColumnName(a).length,
-      );
-      const exactAlias = aliases.find(alias => normalizedCandidate === normalizeColumnName(alias));
-      const singleItemAlias = span === 1 ? pdfHeaderMatch(candidate) : null;
-      const compactAliasMatch = aliases.find(alias => compactArabicHeader(candidate) === compactArabicHeader(alias));
-      const alias = exactAlias ?? compactAliasMatch ?? singleItemAlias;
-      if (alias) {
-        match = { end: i + span - 1, alias };
-        break;
+
+  for (const alias of candidateAliases) {
+    const compactAlias = compactArabicHeader(alias);
+    let found: { start: number; end: number } | null = null;
+
+    for (let i = 0; i < sorted.length && !found; i += 1) {
+      if (used.has(i)) continue;
+      let compactCandidate = '';
+      const maxSpan = Math.min(24, sorted.length - i);
+      for (let span = 1; span <= maxSpan; span += 1) {
+        const index = i + span - 1;
+        if (used.has(index)) break;
+        compactCandidate = compactArabicHeader(sorted.slice(i, index + 1).map(item => item.str).join(' '));
+        if (compactCandidate === compactAlias || compactCandidate.includes(compactAlias)) {
+          found = { start: i, end: index };
+          break;
+        }
       }
     }
-    if (!match) continue;
-    for (let index = i; index <= match.end; index += 1) used.add(index);
-    const first = sorted[i];
-    const last = sorted[match.end];
+
+    if (!found) continue;
+    for (let index = found.start; index <= found.end; index += 1) used.add(index);
+
+    const first = sorted[found.start];
+    const last = sorted[found.end];
     anchors.push({
-      header: match.alias,
+      header: alias,
       centerX: first.x + (Math.max(0, last.x + last.width - first.x) / 2),
       left: first.x,
       right: Math.max(first.x, last.x + last.width),
     });
   }
+
   const unique = new Set(anchors.map(anchor => normalizeColumnName(anchor.header)));
   if (unique.size < PDF_TABLE_MIN_ANCHORS) return null;
+
+  anchors.sort((a, b) => a.centerX - b.centerX);
   const signature = anchors.map(anchor => normalizeColumnName(anchor.header)).join('|');
   return { anchors, signature };
 }
