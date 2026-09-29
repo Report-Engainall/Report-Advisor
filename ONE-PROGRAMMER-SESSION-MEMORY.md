@@ -1,3 +1,21 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / 735-ROW REPORT — QUALITY OPEN
+
+- EXACT CURRENT VERIFICATION HEAD BEFORE THIS CHECKPOINT: `05b1cdc1040867e5e0354fd4ad806fa4b12e1967`.
+- CURRENT CODE/TEST CANDIDATE: `8c4c5d7a7cdea538e247c3cc223cdba756c892e8`.
+- CURRENT REPORT: `تسعيرة الاصناف حسب رقم الصنف.pdf`.
+- IMPORT ID: `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
+- SOURCE HASH: `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- LAST VERIFIED RESULT: completed import 735/735, durable completed/rendered, 735 authoritative current rows, source-bound smart outputs persisted.
+- SMART REPORT STATUS: trust TRUSTED; evidence VERIFIED; decision NO_DECISION_COMMITTED; action NO_ACTION_COMMITTED; outcome NOT_AVAILABLE; learning NOT_AVAILABLE; benchmark INSUFFICIENT_SAMPLE; specialty inventory.
+- CURRENT-SHA PASS EVIDENCE: Certification PASS, Enforcement PASS, Browser E2E PASS on predecessor `70515eb502d4b60f3dd4343fe3020abe4b4f18f7`.
+- CURRENT BLOCKER: fresh Quality for exact head `05b1cdc1040867e5e0354fd4ad806fa4b12e1967` is queued. Vercel build-rate-limit failure is secondary and not treated as project-heart failure.
+- ACTION STATUS: `IN_PROGRESS`.
+- RESUME POINTER: consume Quality on resulting exact head; then re-read final gates and complete report closure only with exact-head proof.
+- DO-NOT-REPEAT: no re-import, no direct DB terminalization, no stale SHA/pass, no fake browser/auth proof.
+- NEXT REPORT: none.
+
+---
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / 735-ROW REPORT RECOVERY PROVEN — CURRENT-SHA CI ROOT FIX
 
 - EXACT MAIN HEAD BEFORE THIS DOCUMENTATION CHECKPOINT → `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`.

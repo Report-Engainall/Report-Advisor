@@ -113,7 +113,7 @@ const previousOverflow = document.body.style.overflow;
 document.body.style.overflow = 'hidden';
 const onKeyDown = (event: KeyboardEvent) => {
 if (event.key === 'Escape') { event.preventDefault(); setSidebarOpen(false); return; }
-if (event.key !== 'Tab') return;
+if (event.key === 'Tab') {
 const root = mobileSidebarRef.current;
 if (!root) return;
 const focusable = Array.from(root.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'));
@@ -122,6 +122,7 @@ const first = focusable[0];
 const last = focusable[focusable.length - 1];
 if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
 else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+}
 };
 window.addEventListener('keydown', onKeyDown);
 requestAnimationFrame(() => mobileSidebarRef.current?.querySelector<HTMLElement>('button[aria-label="إغلاق القائمة"]')?.focus({ preventScroll: true }));

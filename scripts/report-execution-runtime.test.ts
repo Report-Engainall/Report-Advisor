@@ -92,7 +92,8 @@ const renderResult = await durableRunner.runDurableProductionLifecycle({
     if (stage === 'rendered') return { sourceHash: 'sha-render-test', sourceBound: true, outputs: [{ key: 'executive', path: '/reports/executive' }] };
   },
 }, fakeStore as any);
-assert.deepEqual(renderStages.slice(-2), ['execute:committed', 'execute:rendered']);
+assert.ok(renderStages.includes('execute:committed'));
+assert.deepEqual(renderStages.slice(-2), ['execute:rendered', 'rendered']);
 assert.ok(Array.isArray(completionEvidence[0]?.renderedOutput?.outputs));
 assert.equal((renderResult as any).renderedOutput.sourceBound, true);
 
