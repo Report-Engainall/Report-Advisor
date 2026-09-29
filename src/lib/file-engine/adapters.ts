@@ -443,6 +443,111 @@ function detectPdfTableHeader(line: PdfTextPlacement[]): PdfTableHeader | null {
   return { anchors, signature };
 }
 
+interface PdfReadingOrderHeaderMatch {
+  alias: string;
+  start: number;
+  end: number;
+  centerX: number;
+  y: number;
+  left: number;
+  right: number;
+}
+
+function detectPdfTableHeaderFromReadingOrder(
+  items: PdfTextPlacement[],
+): { header: PdfTableHeader | null; headerY: number | null } {
+  const aliases = SORTED_PDF_TABLE_ALIASES;
+  const matches: PdfReadingOrderHeaderMatch[] = [];
+
+  for (const alias of aliases) {
+    const compactAlias = compactArabicHeader(alias);
+    if (!compactAlias) continue;
+
+    for (let start = 0; start < items.length; start += 1) {
+      const first = items[start];
+      const firstCompact = compactArabicHeader(first.str);
+      if (!firstCompact || (
+        !firstCompact.startsWith(compactAlias.slice(0, 1))
+        && !reverseHeaderText(firstCompact).startsWith(compactAlias.slice(0, 1))
+      )) continue;
+
+      let minY = first.y;
+      let maxY = first.y;
+      const parts: string[] = [];
+      let found: PdfReadingOrderHeaderMatch | null = null;
+
+      for (let end = start; end < Math.min(items.length, start + 24); end += 1) {
+        const item = items[end];
+        if (item.page !== first.page) break;
+        minY = Math.min(minY, item.y);
+        maxY = Math.max(maxY, item.y);
+        if (maxY - minY > PDF_TABLE_LINE_TOLERANCE) break;
+        parts.push(item.str);
+
+        const candidateText = parts.join(' ');
+        if (!headerTextMatchesAlias(candidateText, alias)) continue;
+
+        const segment = items.slice(start, end + 1);
+        const left = Math.min(...segment.map(item => item.x));
+        const right = Math.max(...segment.map(item => item.x + item.width));
+        found = {
+          alias,
+          start,
+          end,
+          centerX: (left + right) / 2,
+          y: (minY + maxY) / 2,
+          left,
+          right,
+        };
+        break;
+      }
+
+      if (found) {
+        matches.push(found);
+        break;
+      }
+    }
+  }
+
+  if (!matches.length) return { header: null, headerY: null };
+
+  const groups: Array<{ y: number; page: number; matches: PdfReadingOrderHeaderMatch[] }> = [];
+  for (const match of matches) {
+    const page = items[match.start]?.page ?? 0;
+    let group = groups.find(candidate =>
+      candidate.page === page && Math.abs(candidate.y - match.y) <= PDF_TABLE_LINE_TOLERANCE,
+    );
+    if (!group) {
+      group = { y: match.y, page, matches: [] };
+      groups.push(group);
+    }
+    group.matches.push(match);
+    group.y = (group.y * (group.matches.length - 1) + match.y) / group.matches.length;
+  }
+
+  groups.sort((a, b) => b.matches.length - a.matches.length);
+  const best = groups[0];
+  const uniqueAliases = [...new Set(best?.matches.map(match => normalizeColumnName(match.alias)) ?? [])];
+  if (!best || uniqueAliases.length < PDF_TABLE_MIN_ANCHORS) return { header: null, headerY: null };
+
+  const anchors: PdfTableAnchor[] = best.matches
+    .map(match => ({
+      header: match.alias,
+      centerX: match.centerX,
+      left: match.left,
+      right: match.right,
+    }))
+    .sort((a, b) => a.centerX - b.centerX);
+
+  return {
+    header: {
+      anchors,
+      signature: anchors.map(anchor => normalizeColumnName(anchor.header)).join('|'),
+    },
+    headerY: best.y,
+  };
+}
+
 function assignPdfRow(line: PdfTextPlacement[], header: PdfTableHeader): Row | null {
   const sortedAnchors = [...header.anchors].sort((a, b) => a.centerX - b.centerX);
   const cells = sortedAnchors.map(() => [] as string[]);
@@ -476,16 +581,25 @@ export function extractPdfTableRowsFromTextItems(
 ): { rows: Row[]; header: PdfTableHeader | null } {
   const items = rawItems.filter(item => item.str.trim());
   const lines = groupPdfLines(items);
+  const readingOrder = detectPdfTableHeaderFromReadingOrder(items);
   const candidates = lines
-    .map((line, index) => ({ index, header: detectPdfTableHeader(line) }))
+    .map((line, index) => ({ index, line, header: detectPdfTableHeader(line) }))
     .filter(candidate => candidate.header)
     .sort((a, b) => (b.header?.anchors.length ?? 0) - (a.header?.anchors.length ?? 0));
-  const header = candidates[0]?.header ?? fallbackHeader;
+  const header = readingOrder.header ?? candidates[0]?.header ?? fallbackHeader;
   if (!header) return { rows: [], header: null };
-  const headerIndices = new Set(candidates.filter(candidate => candidate.header?.signature === header.signature).map(candidate => candidate.index));
+
+  const headerIndices = new Set(
+    candidates
+      .filter(candidate => candidate.header?.signature === header.signature)
+      .map(candidate => candidate.index),
+  );
+
   const rows: Row[] = [];
   for (let index = 0; index < lines.length; index += 1) {
+    const lineY = lines[index][0]?.y ?? null;
     if (headerIndices.has(index)) continue;
+    if (readingOrder.headerY != null && lineY != null && Math.abs(lineY - readingOrder.headerY) <= PDF_TABLE_LINE_TOLERANCE) continue;
     const row = assignPdfRow(lines[index], header);
     if (!row) continue;
     const signature = Object.values(row).map(value => normalizeColumnName(String(value))).join('|');
