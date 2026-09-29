@@ -81,3 +81,33 @@ jobs:
           path: artifacts/real-report-corpus
           if-no-files-found: warn
           retention-days: 14
+
+  pdf-jib-diagnostic:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Install repository dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install native OCR runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends poppler-utils tesseract-ocr tesseract-ocr-ara tesseract-ocr-eng
+      - name: Diagnose Jib PDF
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE='tests/fixtures/realistic-reports/الصراف جيب.pdf'
+          pdfinfo "$FILE" | sed -n '1,40p'
+          echo '--- PDF TEXT ---'
+          pdftotext -layout "$FILE" - | sed -n '1,220p'
+          echo '--- OCR PAGE 1 ---'
+          pdftoppm -f 1 -singlefile -png -r 180 "$FILE" /tmp/jib-page
+          tesseract /tmp/jib-page.png stdout -l ara+eng --psm 6 | sed -n '1,220p'
+
