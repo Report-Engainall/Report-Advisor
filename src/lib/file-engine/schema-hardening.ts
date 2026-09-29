@@ -19,7 +19,7 @@ const mapped=new Set(dataset.columns.map(c=>c.mappedField).filter((v):v is strin
 if(mapped.has('customer_id')||mapped.has('customer_name')){
 if(mapped.has('outstanding_balance')||mapped.has('balance')||mapped.has('age_0_30')||mapped.has('age_31_60')||mapped.has('age_61_90')||mapped.has('age_91_120')||mapped.has('age_over_120')||mapped.has('collected_amount'))return specialtyResult('receivables',mapped,96,['تمت مطابقة هوية العميل مع رصيد/أعمار الذمم أو التحصيل.']);
 if(mapped.has('invoice_number')&&(mapped.has('date')||mapped.has('invoice_date'))&&(mapped.has('total')||mapped.has('sales_amount')||mapped.has('net_sales')))return specialtyResult('sales',mapped,96,['ظهرت بنية فاتورة مبيعات برقم وتاريخ وقيمة مالية وهوية العميل.']);
-if(hasAll(mapped,['invoice_number','invoice_date','subtotal','tax_amount','total','paid_amount','status']))return{specialty:'sales',label:SPECIALTY_LABELS.sales,confidence:95,evidence:['اكتملت بنية فاتورة المبيعات والقيم المالية وحالة الفاتورة مع مرجع عميل.'],canonicalEntityType:'sales_invoices',mappedFields:[...mapped].sort()] ;
+if(hasAll(mapped,['invoice_number','invoice_date','subtotal','tax_amount','total','paid_amount','status']))return{specialty:'sales',label:SPECIALTY_LABELS.sales,confidence:95,evidence:['اكتملت بنية فاتورة المبيعات والقيم المالية وحالة الفاتورة مع مرجع عميل.'],canonicalEntityType:'sales_invoices',mappedFields:[...mapped].sort()};
 }
 if(mapped.has('customer_name')&&mapped.has('phone')&&mapped.has('segment')&&mapped.has('status'))return specialtyResult('customers',mapped,92,['ظهر دليل عملاء مرجعي يتضمن هوية العميل والهاتف والحالة والمجموعة.']);
 
