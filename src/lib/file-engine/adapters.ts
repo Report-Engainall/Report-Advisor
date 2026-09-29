@@ -1058,6 +1058,8 @@ function tryParseColumnMajorReceivablesText(text: string): Row[] | null {
   }));
 }
 
+const SUPPLIER_OPENING_MIN_ROWS = 5;
+
 export function tryParseSupplierOpeningBalanceText(text: string): Row[] | null {
   const normalized = normalizeArabicDigits(
     stripControlCharacters(text.normalize('NFKC'))
@@ -1110,7 +1112,7 @@ export function tryParseSupplierOpeningBalanceText(text: string): Row[] | null {
   }
 
   starts.sort((a, b) => a.index - b.index || (a.orientation === 'forward' ? -1 : 1));
-  if (starts.length < 5) return null;
+  if (starts.length < SUPPLIER_OPENING_MIN_ROWS) return null;
 
   const rows: Row[] = [];
   for (let cursor = 0; cursor < starts.length; cursor += 1) {
@@ -1178,7 +1180,7 @@ export function tryParseSupplierOpeningBalanceText(text: string): Row[] | null {
     ),
   );
 
-  return unique.length >= 5 ? unique : null;
+  return unique.length >= SUPPLIER_OPENING_MIN_ROWS ? unique : null;
 }
 
 function tryParseColumnMajorSupplierText(text: string): Row[] | null {
