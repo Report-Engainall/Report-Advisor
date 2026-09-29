@@ -1,3 +1,24 @@
+# LATEST SESSION RECONCILIATION — 2026-09-30 / REAL REPORT EXECUTED, CANONICAL ROW DEFECT BLOCKS CLOSURE
+
+- EXACT MAIN HEAD BEFORE THIS CHECKPOINT → `d0e56469cebd2ae12fb5ad745305bfa9813c2ba7`.
+- CURRENT REPORT → `ف العملاء الاجل من ت 01-06 حتى تاريخ 15-08.pdf`.
+- SOURCE FINGERPRINT → `sha256:0a3e1bf1686ec64febbed95f5d5b4b755f82a5cebb1b268c8270ce122b261e82`.
+- GITHUB FIXTURE CORPUS ON EXACT GOVERNED MAIN → **0 supported report files** under `tests/fixtures/realistic-reports/` (README-only); the real PDF remains an external execution input and is not being published to the repository.
+- RUNTIME RECONCILIATION → the same source already has a completed staging import and durable execution job; the earlier `AUTHENTICATED CANONICAL INTAKE` blocker is stale and is superseded by the observed database state.
+- DURABLE LIFECYCLE READBACK → all 9 canonical tasks exist for the source and are marked `completed`: queued, fingerprinted, extracted, canonicalized, validated, analyzed, decisioned, committed, rendered.
+- REPORT CLOSURE STATE → **BLOCKED / NOT CLOSED**.
+- ROOT DATA DEFECT → source inspection contains **397 actual invoice rows**; staging canonical storage contains **399 rows**. Rows 398 and 399 are summary/footer rows without invoice/date/business-key values. These rows must not enter canonical business truth.
+- SOURCE ANALYSIS DEFECT → the persisted snapshot reports `399` rows and includes a spurious column `01/06/2026`; `مبلغ الصافي بالمحلي` is unmapped and requires review. Quality score 94 does not override these observed structural defects.
+- RENDER PROOF DEFECT → the durable execution job is `completed/rendered`, but `evidence.renderedOutput = null`; therefore the repository's source-bound rendered-report manifest contract is **not proven** for this source.
+- DECISION / OUTCOME PROOF → source-hash scoped readback found no persisted source-bound rows in business intelligence decisions, decision work items, decision action receipts, decision outcomes, executive evidence graph, or KPI evidence snapshots.
+- CURRENT ACTION STATUS → `IN_PROGRESS` for canonical parser-root repair and regression proof; no report retry has started yet.
+- DO-NOT-REPEAT → do not blindly rerun the completed import; do not delete or rewrite canonical rows directly before locating the governed recovery/idempotency path; do not treat `completed/rendered` task state as UI/render proof; do not claim source-bound decision/outcome evidence that is absent.
+- CURRENT RESUME POINTER → repair the first broken canonical boundary in the active functional import branch (PDF table row acceptance), add a deterministic regression for trailing summary/footer rows, run exact-head targeted tests/CI, then use the project's existing safe recovery/idempotency mechanism on this same source and re-read canonical rows, analysis snapshot, rendered manifest, and business surfaces.
+- NEXT EXACT ACTION → **locate and validate the existing import/re-execution recovery contract before touching staging data; then patch the active functional PDF parser boundary and its regression test.**
+- NEXT REPORT → none. Remain on this same report until its closure gate is proven.
+
+---
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / ROOT FIX PERSISTED — REAL REPORT RECOVERY READY
 
 - CURRENT EXACT HEAD → `9d5781dae6b4a787de7288486e4b59df29e62109`.
