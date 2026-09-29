@@ -94,7 +94,7 @@ async function main(): Promise<void> {
 
   const vite: ViteDevServer = await createServer({ logLevel: 'error', server: { middlewareMode: true }, appType: 'custom' });
   try {
-    const { parseFile, classifyOcrConfidence } = await vite.ssrLoadModule('/src/lib/file-engine/adapters.ts') as {
+    const { parseFile, classifyOcrConfidence, isPdfBusinessTableRow } = await vite.ssrLoadModule('/src/lib/file-engine/adapters.ts') as {
       parseFile: (input: ArrayBuffer, fileName: string, format: 'pdf') => Promise<Array<{ rows: Array<Record<string, unknown>>; qualityScore: number }>>;
       classifyOcrConfidence: (score: number) => 'REJECT' | 'REVIEW' | 'TRUSTED';
       isPdfBusinessTableRow: (row: Record<string, unknown>) => boolean;
