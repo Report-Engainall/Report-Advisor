@@ -6,6 +6,11 @@ import crypto from 'node:crypto';
 import path from 'node:path';
 
 const baseURL = (process.env.E2E_BASE_URL || 'http://127.0.0.1:4173').replace(/\/$/, '');
+const canonicalImportExecuteURL = (
+  process.env.CANONICAL_IMPORT_EXECUTE_URL ||
+  process.env.VITE_CANONICAL_IMPORT_EXECUTE_URL ||
+  `${baseURL}/api/canonical-import-execute`
+).replace(/\/$/, '');
 const supabaseURL = (process.env.REPORT_ADVISOR_SUPABASE_URL || '').replace(/\/$/, '');
 const anonKey = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY?.trim();
 const emailA = process.env.TEST_USER_A_EMAIL?.trim();
@@ -303,7 +308,7 @@ async function importRealReportOne(page, selection, reportKey) {
   let executionJobId = '';
   if (selection.existingImportId) {
     const token = await accessToken(page);
-    const response = await fetch(`${baseURL}/api/canonical-import-execute`, {
+    const response = await fetch(canonicalImportExecuteURL, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -590,5 +595,11 @@ try {
   await pageA.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 });
   evidence.steps.push({ step: 'logout-A', status: 'PASS' });
 
-if (evidence.failures.length) throw new Error(`BROWSER_RUNTIME_ERRORS:${evidence.failures.join(' | ')}`); evidence.status = evidence.reportFailures.length ? 'PARTIAL' : 'PASS'; } catch (error) { evidence.status = 'FAIL'; evidence.error = error instanceof Error ? error.message : String(error); await pageA.screenshot({ path: `${reportDir}/failure.png`, fullPage: true }).catch(() => {}); process.exitCode = 1; } finally { evidence.finishedAt = new Date().toISOString(); await fs.writeFile(`${reportDir}/result.json`, JSON.stringify(evidence, null, 2)); await browser.close(); }
+if (evidence.failures.length) throw new Error(`BROWSER_RUNTIME_ERRORS:${evidence.failures.join(' | ')}`);
+const reviewCount = evidence.reports.filter(report => report.state === 'REVIEW').length;
+evidence.status = evidence.reportFailures.length || reviewCount ? 'PARTIAL' : 'PASS';
+if (evidence.reportFailures.length || reviewCount) {
+  evidence.gateError = `REPORT_CORPUS_NOT_CLOSED: failed=${evidence.reportFailures.length}, review=${reviewCount}`;
+  process.exitCode = 1;
+} } catch (error) { evidence.status = 'FAIL'; evidence.error = error instanceof Error ? error.message : String(error); await pageA.screenshot({ path: `${reportDir}/failure.png`, fullPage: true }).catch(() => {}); process.exitCode = 1; } finally { evidence.finishedAt = new Date().toISOString(); await fs.writeFile(`${reportDir}/result.json`, JSON.stringify(evidence, null, 2)); await browser.close(); }
 console.log(JSON.stringify(evidence, null, 2));
