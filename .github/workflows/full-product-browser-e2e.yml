@@ -107,7 +107,7 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          VITE_CANONICAL_IMPORT_EXECUTE_URL: http://127.0.0.1:9999/.netlify/functions/canonical-import-execute
+          VITE_CANONICAL_IMPORT_EXECUTE_URL: http://127.0.0.1:9999/api/canonical-import-execute
         run: npm run build
       - name: Install pinned Netlify CLI for exact-head function execution
         run: npx --yes netlify-cli@27.10.2 --version
@@ -119,7 +119,7 @@ jobs:
           set -euo pipefail
           nohup npx --yes netlify-cli@27.10.2 functions:serve --functions netlify/functions --port 9999 >/tmp/report-advisor-functions.log 2>&1 &
           for i in {1..90}; do
-            status="$(curl -sS -o /tmp/canonical-import-options.out -w '%{http_code}' -X OPTIONS http://127.0.0.1:9999/.netlify/functions/canonical-import-execute || true)"
+            status="$(curl -sS -o /tmp/canonical-import-options.out -w '%{http_code}' -X OPTIONS http://127.0.0.1:9999/api/canonical-import-execute || true)"
             if [ "$status" = "204" ]; then exit 0; fi
             sleep 2
           done
@@ -131,7 +131,7 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          VITE_CANONICAL_IMPORT_EXECUTE_URL: http://127.0.0.1:9999/.netlify/functions/canonical-import-execute
+          VITE_CANONICAL_IMPORT_EXECUTE_URL: http://127.0.0.1:9999/api/canonical-import-execute
         run: |
           set -euo pipefail
           nohup npm run preview -- --host 127.0.0.1 --port 4173 >/tmp/report-advisor-full-browser.log 2>&1 &
@@ -144,7 +144,7 @@ jobs:
       - name: Run real report corpus serial E2E
         env:
           E2E_BASE_URL: http://127.0.0.1:4173
-          CANONICAL_IMPORT_EXECUTE_URL: http://127.0.0.1:9999/.netlify/functions/canonical-import-execute
+          CANONICAL_IMPORT_EXECUTE_URL: http://127.0.0.1:9999/api/canonical-import-execute
           REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
