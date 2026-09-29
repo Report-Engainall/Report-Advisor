@@ -47,6 +47,17 @@ const ENTITY_TO_SPECIALTY: Partial<Record<CanonicalImportEntityType, CanonicalIm
   payments: 'payments',
 };
 
+const GENERIC_ENTITY_TO_SPECIALTY: Record<string, CanonicalImportSpecialty> = {
+  'generic:sales': 'sales',
+  'generic:purchases': 'purchases',
+  'generic:inventory': 'inventory',
+  'generic:customers': 'customers',
+  'generic:suppliers': 'suppliers',
+  'generic:products': 'products',
+  'generic:payments': 'payments',
+  'generic:receivables': 'receivables',
+};
+
 export function resolveCanonicalReportOutputs(
   specialty: string | null | undefined,
   entityType: CanonicalImportEntityType | string | null | undefined,
@@ -54,10 +65,11 @@ export function resolveCanonicalReportOutputs(
   const normalizedSpecialty = String(specialty ?? '').toLowerCase() as CanonicalImportSpecialty;
   const normalizedEntity = String(entityType ?? '') as CanonicalImportEntityType;
   const entitySpecialty = ENTITY_TO_SPECIALTY[normalizedEntity];
+  const genericEntitySpecialty = GENERIC_ENTITY_TO_SPECIALTY[normalizedEntity];
   const knownSpecialty = normalizedSpecialty in CANONICAL_REPORT_OUTPUTS ? normalizedSpecialty : null;
   const isUnknownGenericSource = normalizedEntity === 'generic:source-data';
   const resolved = isUnknownGenericSource
     ? 'other'
-    : entitySpecialty ?? knownSpecialty ?? 'other';
+    : entitySpecialty ?? genericEntitySpecialty ?? knownSpecialty ?? 'other';
   return CANONICAL_REPORT_OUTPUTS[resolved];
 }
