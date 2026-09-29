@@ -1181,7 +1181,11 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     if (bankStatementSummary) return [await buildDataset(bankStatementSummary, fileName, 'pdf-bank-statement-summary')];
     const meaningfulText = pageText.replace(/PAGE\s+\d+/gi, ' ').replace(/\b\d+\s*\/\s*\d+\b/g, ' ').trim();
     if (!/[\\p{L}]/u.test(meaningfulText) || meaningfulText.length < 64) return parseScannedPdfWithOcr(pdf, fileName, buffer);
-    return buildTextDataset(pageText, fileName, 'pdf');
+    const textDataset = buildTextDataset(pageText, fileName, 'pdf');
+    if (textDataset[0]?.qualityScore != null && textDataset[0].qualityScore < OCR_REJECT_THRESHOLD) {
+      return parseScannedPdfWithOcr(pdf, fileName, buffer);
+    }
+    return textDataset;
   }
   if (typeof document === 'undefined') return parseScannedPdfWithNativeOcr(pdf, fileName, buffer);
   return parseScannedPdfWithOcr(pdf, fileName);
