@@ -41,7 +41,7 @@ const SIGNALS: SpecialtySignals = {
   purchases: ['purchase_number', 'purchase_date', 'purchase_amount', 'supplier_id', 'supplier_name', 'vendor'],
   inventory: ['stock', 'quantity', 'warehouse', 'reorder_level', 'inventory', 'on_hand'],
   customers: ['customer_id', 'customer_name', 'phone', 'email', 'address'],
-  suppliers: ['supplier_id', 'supplier_name', 'vendor_id', 'vendor_name'],
+  suppliers: ['supplier_id', 'supplier_name', 'vendor_id', 'vendor_name', 'age_0_30', 'age_31_60', 'age_61_90', 'age_91_120', 'age_over_120', 'outstanding_balance'],
   products: ['sku', 'product_name', 'barcode', 'price', 'unit_price', 'cost'],
   payments: ['payment_id', 'payment_date', 'payment_amount', 'paid_amount', 'payment_method', 'bank'],
   receivables: ['age_0_30', 'age_31_60', 'age_61_90', 'age_91_120', 'age_over_120', 'outstanding_balance', 'due_date', 'customer_id', 'customer_name'],
