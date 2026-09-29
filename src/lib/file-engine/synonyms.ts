@@ -46,6 +46,16 @@ const BUILTIN_SYNONYMS: Array<[string, string, number]> = [
   ['current balance', 'balance', 98],
   ['opening balance', 'opening_balance', 98],
 
+  ['current_credit', 'current_credit', 98],
+  ['current_debit', 'current_debit', 98],
+  ['period_credit', 'period_credit', 98],
+  ['period_debit', 'period_debit', 98],
+  ['opening_credit', 'opening_credit', 98],
+  ['opening_debit', 'opening_debit', 98],
+  ['bank_id', 'bank_id', 98],
+  ['account_number', 'account_number', 98],
+  ['name', 'name', 98],
+  ['currency', 'currency', 98],
 ];
 
 function createBuiltinMap(): Map<string, { canonical: string; confidence: number }> { const map = new Map<string, { canonical: string; confidence: number }>(); for (const [synonym, canonical, confidence] of BUILTIN_SYNONYMS) map.set(normalizeColumnName(synonym), { canonical, confidence }); return map; }
