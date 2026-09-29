@@ -191,7 +191,7 @@ export async function runCanonicalImportThroughDurableRunner(
   }
   if (!requestedBy) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
-  const jobKey = `canonical-import:${input.entityType}:${input.sourceHash}`;
+  const jobKey = `canonical-import:${input.entityType}:${input.sourceHash}:${input.importId}`;
   const activeWorkerClient = workerClient;
   const activeDataClient = dataClient;
   if (!activeWorkerClient || !activeDataClient) throw new Error('SUPABASE_CLIENTS_REQUIRED');
