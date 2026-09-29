@@ -64,7 +64,7 @@ async function ensureCiIdentity() {
   if(m.error)throw m.error;
   const signIn=await anonClient.auth.signInWithPassword({email:ciEmail,password});
   if(signIn.error||!signIn.data.session?.access_token)throw signIn.error||new Error('CI_USER_SIGNIN_FAILED');
-  return {userId:user.id,companyId:company.data.id,password,accessToken:signIn.data.session.access_token};
+  return {userId:user.id,companyId:company.data.id,password,refreshToken:signIn.data.session.refresh_token,accessToken:signIn.data.session.access_token};
 }
 
 async function executeOne(file,ordinal,total,identity){
