@@ -12,8 +12,9 @@ const supabaseUrl = (process.env.REPORT_ADVISOR_SUPABASE_URL || '').trim();
 const anonKey = (process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY || '').trim();
 const serviceRoleKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 const supported = new Set(['.xlsx','.xls','.xlsm','.csv','.tsv','.ods','.pdf','.docx','.json','.jsonl','.txt','.md','.xml','.png','.jpg','.jpeg','.tiff','.webp','.bmp']);
-const ciEmail = 'report-advisor-corpus-ci@aghbari.example';
-const ciCompanyName = 'Aghbari Report Corpus CI';
+const ciKey = process.env.GITHUB_RUN_ID || exactHead.slice(0, 12);
+const ciEmail = 'report-advisor-corpus-ci-' + ciKey + '@aghbari.example';
+const ciCompanyName = 'Aghbari Report Corpus CI ' + ciKey;
 
 if (!/^[0-9a-f]{40}$/.test(exactHead)) throw new Error('REAL_REPORT_CORPUS_EXACT_HEAD_MISSING');
 if (!supabaseUrl || !anonKey || !serviceRoleKey) throw new Error('REAL_REPORT_CORPUS_SUPABASE_RUNTIME_MISSING');
@@ -67,7 +68,7 @@ async function ensureCiIdentity() {
 async function executeOne(file,ordinal,total,identity){
   const rel=relativePath(file);
   const fileName=path.basename(file);
-  const source=fingerprinted=await fingerprint(file);
+  const source=await fingerprint(file);
   const storagePath=identity.companyId+'/imports/'+crypto.randomUUID()+'.'+extFor(fileName);
   const upload=await serviceClient.storage.from('documents').upload(storagePath,source.buffer,{contentType:mimeFor(fileName),upsert:false});
   if(upload.error)throw upload.error;
@@ -75,7 +76,24 @@ async function executeOne(file,ordinal,total,identity){
   if(fr.error||!fr.data)throw fr.error||new Error('FILE_RECORD_CREATE_FAILED');
   const ij=await serviceClient.from('import_jobs').insert({company_id:identity.companyId,file_record_id:fr.data.id,job_type:'generic:source-data',processing_mode:'import',status:'processing',total_rows:0,processed_rows:0,valid_rows:0,invalid_rows:0,quarantined_rows:0,duplicate_rows:0,progress:0,started_at:new Date().toISOString(),result_summary:{file_name:fileName,source_path:rel,source_commit:exactHead,report_corpus:true}}).select('id').single();
   if(ij.error||!ij.data)throw ij.error||new Error('IMPORT_JOB_CREATE_FAILED');
-  const execution=await executeCanonicalImport({importId:ij.data.id,fileName,sourceHash:source.hash,entityType:'generic:source-data',qualityApproved:false,mode:'execute'},identity.accessToken,{supabaseUrl,anonKey,serviceRoleKey});
+  let execution;
+  try {
+    execution = await executeCanonicalImport(
+      { importId:ij.data.id, fileName, sourceHash:source.hash, entityType:'generic:source-data', qualityApproved:false, mode:'execute' },
+      identity.accessToken,
+      { supabaseUrl, anonKey, serviceRoleKey },
+    );
+  } catch (cause) {
+    const failureMessage = cause instanceof Error ? cause.message : String(cause);
+    const finishFailure = await anonClient.rpc('import_finish_job', {
+      p_job_id: ij.data.id,
+      p_status: 'failed',
+      p_result_summary: { file_name:fileName, source_path:rel, source_commit:exactHead, report_corpus:true, failure_stage:'canonical_execution' },
+      p_error_message: failureMessage.slice(0, 1000),
+    });
+    if (finishFailure.error) throw new AggregateError([cause, finishFailure.error], 'REPORT_IMPORT_FAILURE_PERSISTENCE_FAILED');
+    throw cause;
+  }
   const evidenceStatus=execution.evidenceStatus==='VERIFIED'?'VERIFIED':'PARTIAL';
   const finish=await anonClient.rpc('import_finish_job',{p_job_id:ij.data.id,p_status:evidenceStatus==='VERIFIED'?'completed':'partial',p_result_summary:{...(execution||{}),file_name:fileName,source_path:rel,source_commit:exactHead,report_corpus:true,evidence_status:evidenceStatus},p_error_message:null});
   if(finish.error)throw finish.error;
