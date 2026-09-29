@@ -1,3 +1,23 @@
+# LIVE SESSION CHECKPOINT — 2026-09-29 / REPORT-FIRST / PHASE-F RESTORE DEPENDENCY REPAIRED
+
+- CURRENT EXACT CONTROL/CHECKPOINT SHA → `4803dfb765c5df3b97fbf4ad4d100ca0e5d4da9c`
+- CURRENT CODE/TEST CANDIDATE → `a77e29ab4dd9bea14a627ae8e3d74157cadd6677`
+- CURRENT FRONT → REPORT-FIRST / POST-IMPORT REPORT CONTINUITY + PHASE-F CLEAN-RESTORE PARITY
+- CURRENT REPORT → No real report corpus is committed under `tests/fixtures/realistic-reports/`; only README.md is present on main. PC01 remains offline.
+- CURRENT STAGE → exact-head certification after restore dependency repair.
+- LAST VERIFIED ACTION → restored the required `current_customer_company_id()` dependency inside the 20260925184000 client_ui_settings parity migration, then added forward migration `20260929133000_reconcile_client_ui_settings_tenant_policy.sql` to switch the live product boundary to `current_company_id()`.
+- LIVE PROOF → live `client_ui_settings` SELECT policy uses `organization_id = current_company_id()`; both tenant resolvers exist and are executable by authenticated.
+- PRIOR CERTIFICATION FAILURE ROOT CAUSE → clean restore failed because the parity migration referenced the customer resolver before its first definition. The source dependency is now closed without changing the historical contract semantics.
+- OTHER CERTIFICATION BLOCKER → operational-health previously reported `DEPLOYMENT_SHA_MISMATCH`; rollback-forward drill reported deployment lookup 404. These remain fail-closed until current-head certification proves them resolved.
+- CURRENT PROOF → prior exact-head browser-smoke succeeded: Vite build 2805 modules and Playwright root page/no console/page errors. Edge/device proof is NOT claimed because PC01 is offline.
+- CLOSED WORK → post-import continuity implementation; surface mapping test; certification parser/index binding; clean-restore tenant resolver dependency repair; forward live-policy reconciliation.
+- OPEN WORK → run exact-head certification on `a77e29ab4dd9bea14a627ae8e3d74157cadd6677`; repair first current-SHA failure only; then execute the first real report end-to-end when a real fixture/device source is accessible.
+- DO-NOT-REPEAT → no stale PASS, no import-only report closure, no synthetic corpus as real-report proof, no duplicate importer/RPC/runner, no weakening of Phase-F.
+- CURRENT RESUME POINTER → exact-head certification for `a77e29ab4dd9bea14a627ae8e3d74157cadd6677`.
+- NEXT EXACT ACTION → consume terminal certification; if clean restore passes, isolate remaining deployment mismatch as an external/live deployment alignment blocker and continue report work.
+
+---
+
 # LIVE SESSION CHECKPOINT — 2026-09-29 / REPORT-FIRST / CERTIFICATION REPAIR
 
 - CURRENT EXACT CONTROL/CHECKPOINT SHA → `eb3adfde480d286c4a0d8ff0c27eac1a4715b7e1`
