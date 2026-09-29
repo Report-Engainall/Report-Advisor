@@ -1,7 +1,8 @@
 # LIVE SESSION CHECKPOINT — 2026-09-29 / BATCH REPORT CONTINUITY + CORE IMPORT REQUEUE REPAIR
 
-- CURRENT FUNCTIONAL/CONTROL HEAD → `e093749e839fbddb89dabb1f908198021124078f` on PR #680 / `exec-report-cert-parity-0929`.
-- PREVIOUS FUNCTIONAL CANDIDATE → `456bc2d0e670c0852f4636d42edc3180c844df37`.
+- CURRENT FUNCTIONAL/CONTROL HEAD → `174ae82785c511ce8ae52d690090010cd262655a` on PR #680 / `exec-report-cert-parity-0929` (governance follow-up commits keep the exact code/test candidate bound below).
+- CURRENT CODE/TEST CANDIDATE → `174ae82785c511ce8ae52d690090010cd262655a`.
+- PREVIOUS FUNCTIONAL CANDIDATE → `e093749e839fbddb89dabb1f908198021124078f`.
 - CORE REPAIR COMMITTED → `supabase/migrations/20260929150000_requeue_report_execution_after_import_finish.sql`.
 - LIVE MIGRATION PROOF → migration `20260929150000` / `requeue_report_execution_after_import_finish` is applied through the Supabase migration path.
 - ROOT CAUSE CLOSED → when an import completed after the report-execution worker lease expired before `rendered`, the import could remain terminal while the report job stayed stuck at `processing/committed`. The repaired `import_finish_job` now requeues the exact evidence-linked report job only when its lease is absent/expired and the checkpoint is not rendered; stale running tasks on that requeued job are reset to queued. It never marks the report rendered/completed itself.
