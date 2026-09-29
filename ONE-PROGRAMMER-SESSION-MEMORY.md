@@ -1,3 +1,24 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / 735-ROW REPORT RECOVERY PROVEN
+
+- EXACT MAIN HEAD AT CHECKPOINT → `2b67aae5a9d6f263205426e0bff919d4bb0db14f`.
+- ACTIVE FUNCTIONAL FRONT → PR #672 / `exec/20260927-current-main-import-ui-rebased` / exact recovery head `e633e6fbe026fc67a54adf2f347b47edc3d55132`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
+- SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REAL CANONICAL STATE → `735` canonical inventory rows; canonical commit count `735`; durable execution job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0` remains `completed/rendered`.
+- RECOVERY EXECUTION PROOF → governed `recover_completed_report_execution_result` executed successfully against the same import/job/source hash; `import_jobs.status` is now `completed`, progress `100`, processed `735`; `report_execution_jobs.evidence.renderedOutput` is persisted, source-bound, exact-source-hash-bound, and rowCount `735`; rendered task evidence is also persisted.
+- OUTPUT PROOF → source-bound outputs persisted for Executive, Evidence/Trust, Decision, Work Center, and Inventory domain surfaces. Decision/action are explicitly `NO_*_COMMITTED`; outcome/learning are `NOT_AVAILABLE`; benchmark is `INSUFFICIENT_SAMPLE`; no synthetic business outcome was created.
+- SOURCE QUALITY → analysis snapshot remains `analyzed`, PDF, quality `87`; one source field (`المستوي`) remains unmapped/review-required. Overall trust is retained as the source quality state; evidence is source-bound.
+- ROOT FIX PERSISTED IN FUNCTIONAL BRANCH → completed-durable-result recovery is now a governed service-side canonical boundary; the active adapter calls it instead of rejecting an already-completed durable job; trigger context is explicit and tenant-bound.
+- TEST/CHECK STATUS → no GitHub Actions run is registered for recovery head `e633e6f...`; therefore no fresh CI PASS is claimed. CodeRabbit context is successful; Vercel remains free-plan rate-limited; Netlify preview for this exact head was canceled as no-content-change and is not usable as hosted UI proof.
+- DEVICE/UI → PC01 is offline; authenticated Edge/browser proof remains NOT PROVEN. Hosted UI proof is also NOT PROVEN on the recovery head because the exact-head Netlify preview did not deploy.
+- CORPUS → current exact-main fixture discovery must be used for any corpus count; the active real report is staging/live execution, not a GitHub fixture file.
+- CURRENT ACTION STATUS → `BLOCKED` for final UI/browser/runtime closure only.
+- CURRENT RESUME POINTER → publish/execute this exact recovery head in an authenticated runtime, open the source-bound result surfaces in Edge, and verify the displayed report against the persisted output before CLOSE.
+- DO-NOT-REPEAT → do not re-import this completed source, do not mutate/delete canonical rows directly, do not fabricate auth/JWT, do not transfer stale CI, do not claim UI PASS from database proof alone.
+- NEXT REPORT → none; remain on this report until authenticated UI closure or a changed/proven blocker is recorded.
+
+---
+
 # CURRENT SESSION RECONCILIATION — 2026-09-30 / 735-ROW FRONT — COMPLETED-DURABLE-RESULT RECOVERY
 
 - EXACT GOVERNED MAIN HEAD VERIFIED → `dc08f0158bcef3105ff1ef8a12704514ef790aa1`.
