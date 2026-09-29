@@ -693,7 +693,7 @@ function ensurePdfJsRuntimeCompatibility(): void {
         }
       }
     }
-    (globalThis as typeof globalThis & { DOMMatrix?: unknown }).DOMMatrix = ServerExtractionDOMMatrix;
+    (globalThis as typeof globalThis & { DOMMatrix?: typeof DOMMatrix }).DOMMatrix = ServerExtractionDOMMatrix as unknown as typeof DOMMatrix;
   }
 
   const uint8ArrayPrototype = Uint8Array.prototype as Uint8ArrayWithToHex;

@@ -135,19 +135,26 @@ if (verifiedMetadataIndex < 0 || sourceReadyWriteIndex < 0 || workerExecutionInd
 
 for (const token of [
   "request.method !== 'POST'",
-  "env('SUPABASE_SERVICE_ROLE_KEY')",
+  "env('VITE_SUPABASE_URL')",
+  "env('VITE_SUPABASE_ANON_KEY')",
   "Authorization",
   "userClient.rpc('current_company_id')",
-  "SUPABASE_SERVICE_ROLE_KEY",
-  "serverExecution: true",
-  "workerClient: serviceClient",
-  "dataClient: userClient",
   ".from('import_jobs')",
   ".eq('id', payload.importId)",
   ".eq('company_id', companyId)",
   "mode === 'finalize-source'",
 ]) {
   if (!serverAdapter.includes(token)) throw new Error(`Canonical server execution boundary missing: ${token}`);
+}
+for (const token of [
+  'Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")',
+  'createClient(SUPABASE_URL,SERVICE_ROLE_KEY',
+  'runCanonicalImportThroughDurableRunner',
+  "status: 'ready'",
+]) {
+  if (!worker.includes(token) && !worker.replaceAll(' ', '').includes(token.replaceAll(' ', ''))) {
+    throw new Error(`Canonical durable worker boundary missing: ${token}`);
+  }
 }
 if (/grant execute on function public\\.(claim|heartbeat|advance|complete|fail|retry)_report_execution_job[^\\n]*to authenticated/i.test(serverAdapter)) {
   throw new Error('Canonical server boundary must not add authenticated worker RPC grants');
