@@ -286,6 +286,17 @@ const PDF_TABLE_HEADER_ALIASES = [
   'المندوب',
   'invoice number',
   'invoice date',
+  'كشف حساب',
+  'البيان',
+  'رقمه',
+  'المستند',
+  'التاريخ',
+  'العملة',
+  'حالته',
+  'الرصيد',
+  'دائن',
+  'مدين',
+  'رصيد سابق',
   'customer name',
   'invoice type',
   'currency',
@@ -335,10 +346,19 @@ function groupPdfLines(items: PdfTextPlacement[]): PdfTextPlacement[][] {
     .map(group => group.items.sort((a, b) => a.x - b.x));
 }
 
+function compactArabicHeader(value: string): string {
+  return normalizeColumnName(value).replace(/(?<=[\\u0600-\\u06FF])\\s+(?=[\\u0600-\\u06FF])/gu, '');
+}
+
 function pdfHeaderMatch(value: string): string | null {
   const normalized = normalizeColumnName(value);
+  const compact = compactArabicHeader(value);
   const aliases = [...PDF_TABLE_HEADER_ALIASES].sort((a, b) => normalizeColumnName(b).length - normalizeColumnName(a).length);
-  return aliases.find(alias => normalized === normalizeColumnName(alias) || normalized.includes(normalizeColumnName(alias))) ?? null;
+  return aliases.find(alias => {
+    const normalizedAlias = normalizeColumnName(alias);
+    const compactAlias = compactArabicHeader(alias);
+    return normalized === normalizedAlias || normalized.includes(normalizedAlias) || compact === compactAlias || compact.includes(compactAlias);
+  }) ?? null;
 }
 
 function detectPdfTableHeader(line: PdfTextPlacement[]): PdfTableHeader | null {
@@ -348,7 +368,7 @@ function detectPdfTableHeader(line: PdfTextPlacement[]): PdfTableHeader | null {
   for (let i = 0; i < sorted.length; i += 1) {
     if (used.has(i)) continue;
     let match: { end: number; alias: string } | null = null;
-    for (let span = Math.min(3, sorted.length - i); span >= 1; span -= 1) {
+    for (let span = Math.min(24, sorted.length - i); span >= 1; span -= 1) {
       const candidate = sorted.slice(i, i + span).map(item => item.str).join(' ');
       const normalizedCandidate = normalizeColumnName(candidate);
       const aliases = [...PDF_TABLE_HEADER_ALIASES].sort(
@@ -356,7 +376,8 @@ function detectPdfTableHeader(line: PdfTextPlacement[]): PdfTableHeader | null {
       );
       const exactAlias = aliases.find(alias => normalizedCandidate === normalizeColumnName(alias));
       const singleItemAlias = span === 1 ? pdfHeaderMatch(candidate) : null;
-      const alias = exactAlias ?? singleItemAlias;
+      const compactAliasMatch = aliases.find(alias => compactArabicHeader(candidate) === compactArabicHeader(alias));
+      const alias = exactAlias ?? compactAliasMatch ?? singleItemAlias;
       if (alias) {
         match = { end: i + span - 1, alias };
         break;
@@ -367,7 +388,7 @@ function detectPdfTableHeader(line: PdfTextPlacement[]): PdfTableHeader | null {
     const first = sorted[i];
     const last = sorted[match.end];
     anchors.push({
-      header: sorted.slice(i, match.end + 1).map(item => item.str).join(' ').trim(),
+      header: match.alias,
       centerX: first.x + (Math.max(0, last.x + last.width - first.x) / 2),
       left: first.x,
       right: Math.max(first.x, last.x + last.width),
