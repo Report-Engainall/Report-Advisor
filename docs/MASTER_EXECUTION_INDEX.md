@@ -1,3 +1,24 @@
+# LIVE EXECUTION CHECKPOINT — 2026-09-29 / ALL-SOURCE REPORT CORE
+
+- CURRENT PR HEAD → `6966931a2eedc67de3c8c4d6033f50ddc9a86ba1` (#680 / `exec-report-cert-parity-0929`).
+- PREVIOUS FUNCTIONAL CANDIDATE → `28fee18d3d741c912abf16ca0ad940364194f985`.
+- CURRENT CODE CHANGES → source-bound routing for all recognized import domains; generic/domain-aware SourceBoundReportPage; deterministic filename-first domain classification; executive report empty-state contract literals.
+- SOURCE-BOUND ROUTE → all recognized imports with an importId now use `/reports/import/:importId` as the primary domain surface, preventing fallback to company-wide snapshots that ignore `?import=`.
+- DOMAIN CLASSIFICATION → filename signals override wrong semantic labels for the actual corpus: `ف العملاء الاجل...`→receivables, `تقارير ادارية للمورد.pdf`→suppliers, الصراف/البنوك/الصندوق→payments, مخزون/جرد/دوران/حركة المخزون→inventory, plain الاصناف→products, sales invoice/mبيعات→sales.
+- 34 BUSINESS SOURCE FILES IN EXECUTION DB → 32 completed/rendered + 2 open; 2 runtime fixtures are excluded. Completed source domains by canonical semantic label: inventory 8, sales 7, source-data 7, payments 5, receivables 2, purchases 1, products 1, customers 1. Filename-first correction adds `ف العملاء الاجل...` to receivables and `تقارير ادارية للمورد.pdf` to suppliers while leaving `تقارير ادارية.xlsx` as sales because its canonical rows contain `net_sales`, stock velocity and replenishment fields.
+- COMPLETED CONTINUITY PROOF → 32/32 latest human-file sources have report status completed/rendered, evidence-linked import completed, processed_rows=total_rows, invalid_rows=0, and canonical row count matching import total.
+- OPEN #1 → `المبيعات.pdf`: report `1d11a5d3-061c-4ee4-8eb4-762357a00e04`, import `a1794204-e8be-4907-ade4-7da6b7f71708`, 328 expected rows, 0 canonical. Source object exists in Supabase Storage (464,701 bytes), but public retrieval failed; no fabricated closure.
+- OPEN #2 → `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf`: report `d074ad5c-70d4-4402-a763-01129786f392`, import `bf206836-e52d-4b29-843a-6337403801e6`, 6,562 expected rows, 0 canonical; report queued at decisioned. No fabricated closure.
+- CORE REPAIR LIVE → `20260929160000_bind_import_finish_report_requeue_to_transaction` applied. `public.import_finish_job` remains SECURITY INVOKER; authenticated has no report/task UPDATE; private SECURITY DEFINER trigger is not directly executable by authenticated/anon and activates only with transaction-local `app.import_finish_job_id`.
+- RUNTIME CORE PROOF → real `المبيعات.pdf` import_finish_job test under authenticated context requeued the exact evidence-linked report with code `IMPORT_COMPLETION_REPORT_REQUEUE` inside the transaction, then ROLLBACK restored original state.
+- LIBRARY FILE CORPUS → 50 PDF/XLSX files currently visible; they include specifications, wireframes, templates and duplicated project references. Exact 47–48 business-report file count is not established from Library metadata and is not claimed.
+- CURRENT CI/RELEASE → the last clean fresh CI wave on `32bf420...` reached 44 successes before two terminal issues: Final Certification contract (fixed by adding the exact required empty-state punctuation) and Phase-F external deployment/restore gates. New exact-head CI for `6966931a...` is the required evidence next.
+- VERCEL → latest visible deployment was READY for `29653bda...`; no deployment was yet visible for `6966931a...`. Therefore Phase-F/live browser proof for the latest code is not claimed.
+- DEVICE → PC01 offline. No authenticated Edge/device runtime PASS is claimed.
+- RESUME → (1) poll CI on `6966931...`; (2) if failure, fix only first current-SHA reproducible root; (3) keep both missing-canonical business reports open until source bytes/canonical rows are recovered; (4) once the current deployment exists, run exact-head Phase-F and authenticated Edge proof.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / BATCH REPORT CONTINUITY + CORE REQUEUE REPAIR
 
 - CURRENT CONTROL HEAD → `28fee18d3d741c912abf16ca0ad940364194f985`.
