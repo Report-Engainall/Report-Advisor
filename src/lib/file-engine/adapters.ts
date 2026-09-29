@@ -403,6 +403,80 @@ function uniquePdfColumnKey(label:string,index:number,seen:Set<string>):string{
   return candidate;
 }
 
+function tryParseFinancialStatementPdfItems(pages: PdfTextItem[][]): Row[] | null {
+  const rows: Row[] = [];
+
+  for (const pageItems of pages) {
+    const lines = groupPdfItemsByLine(pageItems);
+    const headerIndex = lines.findIndex((line) => {
+      const joined = line.map((item) => normalizedPdfText(item.text)).join(' ');
+      const hits = [
+        /البيان/u, /رقم(?:ه|\s+المستند)/u, /المستند/u, /التاريخ/u,
+        /العمل[ةه]/u, /حالته/u, /الرصيد/u, /دائن/u, /مدين/u,
+      ].filter((pattern) => pattern.test(joined)).length;
+      return hits >= 6;
+    });
+    if (headerIndex < 0) continue;
+
+    const header = lines[headerIndex];
+    const findCenter = (patterns: RegExp[]): number | null => {
+      const item = header.find((candidate) => patterns.some((pattern) => pattern.test(normalizedPdfText(candidate.text))));
+      return item ? item.x + item.width / 2 : null;
+    };
+
+    const anchors = {
+      documentNo: findCenter([/^رقمه$/u, /^رقم\s*المستند$/u]),
+      date: findCenter([/^التاريخ$/u]),
+      currency: findCenter([/^العمل[ةه]$/u]),
+      status: findCenter([/^حالته$/u]),
+      balance: findCenter([/^الرصيد$/u]),
+      credit: findCenter([/^دائن$/u]),
+      debit: findCenter([/^مدين$/u]),
+    };
+    if (anchors.date == null || anchors.currency == null || anchors.balance == null || anchors.credit == null || anchors.debit == null) continue;
+
+    const nearest = (line: PdfTextItem[], anchor: number, predicate: (text: string) => boolean, threshold = 65): string | null => {
+      let best: { distance: number; text: string } | null = null;
+      for (const item of line) {
+        const text = normalizedPdfText(item.text);
+        if (!text || !predicate(text)) continue;
+        const distance = Math.abs((item.x + item.width / 2) - anchor);
+        if (distance > threshold) continue;
+        if (!best || distance < best.distance) best = { distance, text };
+      }
+      return best?.text ?? null;
+    };
+
+    const numericAt = (line: PdfTextItem[], anchor: number, threshold = 70): string | null =>
+      nearest(line, anchor, (text) => isNumericToken(text), threshold);
+
+    for (let lineIndex = headerIndex + 1; lineIndex < lines.length; lineIndex += 1) {
+      const line = lines[lineIndex];
+      if (line.length < 2) continue;
+
+      const date = nearest(line, anchors.date, (text) => /^\d{4}[-/]\d{1,2}[-/]\d{1,2}$/.test(text) || /^\d{4}[-/]\d{1,2}$/.test(text), 80);
+      const currency = nearest(line, anchors.currency, (text) => /(?:ريال|﷼|YER|SAR|USD|EUR)/iu.test(text), 75);
+      const status = nearest(line, anchors.status, (text) => /^(?:مدين|دائن|مدين:|دائن:)$/u.test(text), 70);
+      const credit = numericAt(line, anchors.credit);
+      const debit = numericAt(line, anchors.debit);
+      const balance = numericAt(line, anchors.balance);
+      const documentNo = anchors.documentNo == null ? null : numericAt(line, anchors.documentNo, 60);
+
+      if (!date || !currency || (!credit && !debit && !balance)) continue;
+
+      const row: Row = { date: normalizeArabicDigits(date), currency };
+      if (status) row.status = status.replace(/[:：]/g, '');
+      if (documentNo) row.document_no = normalizeStructuredDocumentValue(documentNo);
+      if (credit != null) row.credit = normalizeStructuredDocumentValue(credit);
+      if (debit != null) row.debit = normalizeStructuredDocumentValue(debit);
+      if (balance != null) row.balance = normalizeStructuredDocumentValue(balance);
+      rows.push(row);
+    }
+  }
+
+  return rows.length >= 2 ? rows : null;
+}
+
 function tryParseGenericPdfTableItems(pages:PdfTextItem[][]):Row[]|null{
   const allRows:Row[]=[];
   for(const pageItems of pages){
@@ -568,6 +642,9 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
 
   const agingRows = tryParseReceivablesAgingPdfItems(layoutItems);
   if (agingRows) return [await buildDataset(agingRows, fileName, 'pdf')];
+
+  const financialRows = tryParseFinancialStatementPdfItems(layoutPages);
+  if (financialRows) return [await buildDataset(financialRows, fileName, 'pdf')];
 
   const tableRows = tryParseGenericPdfTableItems(layoutPages);
   if (tableRows) {
