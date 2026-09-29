@@ -217,7 +217,7 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
     if (durableJob.source_hash !== sourceSha) throw new Error('REPORT_EXECUTION_JOB_SOURCE_HASH_MISMATCH');
   }
 
-  const { data: existingCommit, error: existingCommitError } = await serviceClient
+  let { data: existingCommit, error: existingCommitError } = await serviceClient
     .from('canonical_import_commits')
     .select('id, entity_type, source_hash, committed_count, committed_at')
     .eq('company_id', companyId)
@@ -227,6 +227,47 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
     .limit(1)
     .maybeSingle();
   if (existingCommitError) throw existingCommitError;
+
+  let snapshotId: string | null = null;
+  let evidenceStatus: 'VERIFIED' | 'PARTIAL' = 'PARTIAL';
+  let evidenceWarning = 'تم تنفيذ الاستيراد الكانوني، لكن لقطة الدليل لم تُثبت؛ الحالة بقيت PARTIAL ولم يتم الادعاء باكتمال الدليل.';
+
+  if (existingCommit && Number(existingCommit.committed_count) !== authoritativeRows.length) {
+    if (!authoritativeEntityType.startsWith('generic:')) {
+      throw new Error('CANONICAL_EXISTING_COMMIT_COUNT_MISMATCH');
+    }
+    const correctionRows = reconciled.rows.map((row) => ({
+      row_number: row.rowNumber,
+      record_key: `${authoritativeEntityType}:${row.provenance.lineageId}`,
+      data: row.data,
+      provenance: row.provenance,
+    }));
+    const { data: correction, error: correctionError } = await serviceClient.rpc('reconcile_generic_canonical_tail_rows', {
+      p_company_id: companyId,
+      p_entity_type: authoritativeEntityType,
+      p_source_hash: sourceSha,
+      p_expected_existing_count: Number(existingCommit.committed_count),
+      p_rows: correctionRows,
+    });
+    if (correctionError) throw correctionError;
+    if (!correction || correction.reconciled !== true || Number(correction.committed) !== authoritativeRows.length) {
+      throw new Error('CANONICAL_EXISTING_COMMIT_RECONCILIATION_FAILED');
+    }
+    const { data: refreshedCommit, error: refreshedCommitError } = await serviceClient
+      .from('canonical_import_commits')
+      .select('id, entity_type, source_hash, committed_count, committed_at')
+      .eq('company_id', companyId)
+      .eq('entity_type', authoritativeEntityType)
+      .eq('source_hash', sourceSha)
+      .order('committed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (refreshedCommitError) throw refreshedCommitError;
+    existingCommit = refreshedCommit;
+    if (!existingCommit || Number(existingCommit.committed_count) !== authoritativeRows.length) {
+      throw new Error('CANONICAL_EXISTING_COMMIT_READBACK_MISMATCH');
+    }
+  }
 
   let execution: Record<string, unknown>;
   if (existingCommit) {
@@ -359,9 +400,6 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
   }).eq('id', job.id).eq('company_id', companyId);
   if (resultSummaryError) throw resultSummaryError;
 
-  let snapshotId: string | null = null;
-  let evidenceStatus: 'VERIFIED' | 'PARTIAL' = 'PARTIAL';
-  let evidenceWarning = 'تم تنفيذ الاستيراد الكانوني، لكن لقطة الدليل لم تُثبت؛ الحالة بقيت PARTIAL ولم يتم الادعاء باكتمال الدليل.';
   try {
     const { data: snapshot, error: snapshotError } = await serviceClient
       .from('source_analysis_snapshots')
