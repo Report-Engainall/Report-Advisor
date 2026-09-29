@@ -28,15 +28,15 @@ function num(d:Record<string,unknown>, keys:string[]):number|null {
 function dateOf(v:string|null):string|null { if(!v) return null; const n=Date.parse(v); return Number.isFinite(n)?new Date(n).toISOString().slice(0,10):null; }
 
 function build(job:Job, exec:Exec|null, rows:Row[]):Model {
-  const amounts=rows.map(r=>num(r.data,['total','اجمالي الفاتوره','مبلغ الصافي بالمحلي']));
+  const amounts=rows.map(r=>num(r.data,['total','اجمالي الفاتوره']));
   const sales=amounts.every(v=>v!=null)?amounts.reduce((s,v)=>s+(v as number),0):amounts.filter((v):v is number=>v!=null).reduce((s,v)=>s+v,0);
   const invoiceNumbers=rows.map(r=>txt(r.data,['invoice_number','رقم الفاتوره']));
   const types=rows.map(r=>txt(r.data,['invoice_type','نوع الفاتوره']));
   const credits=rows.filter(r=>(txt(r.data,['invoice_type','نوع الفاتوره'])||'')==='آجل');
-  const creditValues=credits.map(r=>num(r.data,['total','اجمالي الفاتوره','مبلغ الصافي بالمحلي']));
+  const creditValues=credits.map(r=>num(r.data,['total','اجمالي الفاتوره']));
   const creditAmount=creditValues.every(v=>v!=null)?creditValues.reduce((s,v)=>s+(v as number),0):null;
   const mix=new Map<string,{rows:number;amount:number}>();
-  rows.forEach(r=>{const t=txt(r.data,['invoice_type','نوع الفاتوره'])||'غير مصنف'; const a=num(r.data,['total','اجمالي الفاتوره','مبلغ الصافي بالمحلي']); const x=mix.get(t)||{rows:0,amount:0}; x.rows+=1; if(a!=null)x.amount+=a; mix.set(t,x);});
+  rows.forEach(r=>{const t=txt(r.data,['invoice_type','نوع الفاتوره'])||'غير مصنف'; const a=num(r.data,['total','اجمالي الفاتوره']); const x=mix.get(t)||{rows:0,amount:0}; x.rows+=1; if(a!=null)x.amount+=a; mix.set(t,x);});
   const dates=rows.map(r=>dateOf(txt(r.data,['date','التاريخ']))).filter((v):v is string=>Boolean(v)).sort();
   return {
     sourcePath:exec?.source_path||String(job.result_summary?.file_name||'مصدر غير مسمى'),
@@ -129,7 +129,7 @@ export function SourceBoundReportPage(){
       {[['صفوف بلا عميل',model.missingCustomer],['صفوف بلا نوع فاتورة',model.missingType],['فروقات مبلغ',model.amountDifferences],['فواتير بلا رقم',model.missingInvoiceNumber]].map(item=><div key={String(item[0])} className="rounded-xl border border-ink-100 p-3"><div className="flex justify-between gap-2"><b>{item[0]}</b><span className="badge-warning">{formatNumber(Number(item[1]))}</span></div><div className="mt-1 text-[10px] text-ink-500">تحتاج مراجعة مصدرية قبل أي قرار لاحق.</div></div>)}
     </div></CardBody></Card>
 
-    <Card><CardHeader title="عينة الدليل" subtitle="صفوف حقيقية مع Evidence ID" /><CardBody><div className="space-y-2">{model.sample.map(row=><div key={row.row_number} className="rounded-xl border border-ink-100 bg-ink-50 p-3"><div className="flex justify-between gap-2 text-xs font-black"><span>Row {row.row_number}</span><span className="font-mono text-[9px] text-ink-400">{String(row.provenance.evidenceId||'غير متاح')}</span></div><div className="mt-2 grid grid-cols-2 gap-2 text-[10px] sm:grid-cols-4"><div>التاريخ: <b>{txt(row.data,['date','التاريخ'])||'غير متاح'}</b></div><div>الفاتورة: <b>{txt(row.data,['invoice_number','رقم الفاتوره'])||'غير متاح'}</b></div><div>النوع: <b>{txt(row.data,['invoice_type','نوع الفاتوره'])||'غير متاح'}</b></div><div>المبلغ: <b>{formatCurrency(num(row.data,['total','اجمالي الفاتوره','مبلغ الصافي بالمحلي']))}</b></div></div></div>)}</div></CardBody></Card>
+    <Card><CardHeader title="عينة الدليل" subtitle="صفوف حقيقية مع Evidence ID" /><CardBody><div className="space-y-2">{model.sample.map(row=><div key={row.row_number} className="rounded-xl border border-ink-100 bg-ink-50 p-3"><div className="flex justify-between gap-2 text-xs font-black"><span>Row {row.row_number}</span><span className="font-mono text-[9px] text-ink-400">{String(row.provenance.evidenceId||'غير متاح')}</span></div><div className="mt-2 grid grid-cols-2 gap-2 text-[10px] sm:grid-cols-4"><div>التاريخ: <b>{txt(row.data,['date','التاريخ'])||'غير متاح'}</b></div><div>الفاتورة: <b>{txt(row.data,['invoice_number','رقم الفاتوره'])||'غير متاح'}</b></div><div>النوع: <b>{txt(row.data,['invoice_type','نوع الفاتوره'])||'غير متاح'}</b></div><div>المبلغ: <b>{formatCurrency(num(row.data,['total','اجمالي الفاتوره']))}</b></div></div></div>)}</div></CardBody></Card>
 
     <section className={proof?'rounded-2xl border border-success-200 bg-success-50 p-4':'rounded-2xl border border-warning-200 bg-warning-50 p-4'}><div className="flex items-start gap-3">{proof?<CheckCircle2 size={18} className="text-success-700"/>:<XCircle size={18} className="text-warning-700"}/><div><b>{proof?'إثبات مصدر التقرير':'إثبات التقرير غير مكتمل'}</b><p className="mt-1 text-[11px]">هذه الشاشة قرأت الصفوف الكانونية المرتبطة بنفس بصمة المصدر. لا تُحوّل البيانات الناقصة إلى أصفار ولا تُنشئ benchmark أو outcomes وهمية.</p></div></div></section>
     <div className="flex flex-wrap gap-2"><Link to="/import" className="btn-secondary text-xs"><ArrowLeft size={14}/> مركز المصادر</Link><Link to={'/trust?import='+encodeURIComponent(model.importId)} className="btn-primary text-xs"><ShieldCheck size={14}/> فحص الدليل</Link><Link to={'/decision-experience?import='+encodeURIComponent(model.importId)} className="btn-primary text-xs"><Database size={14}/> مساحة القرار</Link></div>
