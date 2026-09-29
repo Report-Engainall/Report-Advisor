@@ -150,7 +150,7 @@ export function SourceBoundReportPage() {
   }, [sourceRows]);
 
   if (loading) return <LoadingState message="جارٍ بناء التقرير من الصفوف الكانونية للمصدر..." />;
-  if (error || !context) return <ErrorState message={error ?? 'REPORT_SOURCE_NOT_FOUND'} onRetry={() => void load()} />;
+  if (error || !context) return <ErrorState message={error ?? 'REPORT_SOURCE_NOT_FOUND'} onRetry={() => window.location.reload()} />;
 
   return <div dir="rtl" className="report-page space-y-5 pb-10">
     <header className="overflow-hidden rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
