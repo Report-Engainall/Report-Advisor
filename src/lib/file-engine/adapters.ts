@@ -1094,7 +1094,7 @@ function tryParseColumnMajorSupplierText(text: string): Row[] | null {
   }));
 }
 
-function tryParseProductInventoryAdministrativeText(text: string): Row[] | null {
+export function tryParseProductInventoryAdministrativeText(text: string): Row[] | null {
   const normalized = normalizeArabicDigits(
     stripControlCharacters(text.normalize('NFKC'))
       .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
