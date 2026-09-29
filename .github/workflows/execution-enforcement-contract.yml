@@ -62,6 +62,10 @@ jobs:
           const fileName = 'اعمار الديون للعملا.pdf';
           const bytes = await fs.readFile('tests/fixtures/realistic-reports/' + fileName);
           const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+          const pdfjs = await import('pdfjs-dist');
+          const pdf = await pdfjs.getDocument({ data: new Uint8Array(buffer), useSystemFonts: true }).promise;
+          const struct = typeof pdf.getPage === 'function' ? await (await pdf.getPage(1)).getStructTree().catch(() => null) : null;
+          console.log('PDF_STRUCT_TREE=' + JSON.stringify(struct));
           const datasets = await parseFile(buffer, fileName, 'pdf');
           const understanding = understandCanonicalSource(datasets);
           console.log(JSON.stringify({
