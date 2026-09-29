@@ -6,6 +6,7 @@ export const specialtyLabel = (specialty: string | null | undefined): string => 
   suppliers: 'الموردون',
   products: 'المنتجات',
   payments: 'المدفوعات',
+  receivables: 'الذمم المدينة / أعمار الديون',
   other: 'مصدر عام',
 }[String(specialty ?? '').toLowerCase()] ?? 'غير محدد');
 
