@@ -146,6 +146,8 @@ if (!/parseFile\(bytes\.buffer, fileRecord\.file_name/.test(serverAdapter)) {
 if (!/reconcileForCanonical\(/.test(serverAdapter)) {
   throw new Error('Canonical server boundary must reconcile authoritative source rows before durable execution');
 }
+if (!/entity_type:\s*authoritativeEntityType/.test(serverAdapter)) throw new Error('Evidence snapshot must persist the authoritative canonical entity type');
+
 if (!/authoritativeQualityScore/.test(serverAdapter) || !/authoritativeQualityScore < 50/.test(serverAdapter) || !/authoritativeQualityScore < 75/.test(serverAdapter)) {
   throw new Error('Canonical server boundary must enforce authoritative quality gates');
 }
