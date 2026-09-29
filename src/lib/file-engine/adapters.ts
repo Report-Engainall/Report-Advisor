@@ -352,7 +352,13 @@ const PDF_HEADER_TERMS=[
 ];
 
 function normalizedPdfText(value:string):string{
-  return normalizeArabicDigits(value.replace(/\uFEFF/g,'').replace(/\s+/g,' ').trim());
+  return normalizeArabicDigits(
+    value
+      .replace(/\uFEFF/g, '')
+      .normalize('NFKC')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
 }
 
 function pdfHeaderClusters(lines:PdfTextItem[][], start:number, span:number):PdfTableColumn[]{
