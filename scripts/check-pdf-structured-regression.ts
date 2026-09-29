@@ -116,31 +116,6 @@ async function main(): Promise<void> {
     const supplierOpeningFixture = path.join(process.cwd(), 'tests/fixtures/realistic-reports/تقارير الأرصدة الإفتتاحية - ارصدة نهائية للموردين.pdf');
     const supplierOpeningBytes = await fs.readFile(supplierOpeningFixture);
     const supplierOpeningBuffer = supplierOpeningBytes.buffer.slice(supplierOpeningBytes.byteOffset, supplierOpeningBytes.byteOffset + supplierOpeningBytes.byteLength);
-    const rawPdfjs = await import('pdfjs-dist');
-    const rawPdfDocument = await rawPdfjs.getDocument({ data: new Uint8Array(supplierOpeningBuffer), useSystemFonts: true }).promise;
-    const rawPageTexts: string[] = [];
-    for (let pageNumber = 1; pageNumber <= rawPdfDocument.numPages; pageNumber += 1) {
-      const page = await rawPdfDocument.getPage(pageNumber);
-      const content = await page.getTextContent({ disableCombineTextItems: true });
-      rawPageTexts.push(content.items.map((item: { str?: string }) => item.str ?? '').filter(Boolean).join(' '));
-    }
-    const rawNormalizedSupplierText = rawPageTexts.join(' ').normalize('NFKC').replace(/\s+/g, ' ').trim();
-    const rawSupplierRowStartMatches = [...rawNormalizedSupplierText.matchAll(/(?<!\d)(-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:[.,]\d+)?)\s+(\d{4,8})\s+(YER|SAR|USD|EUR|ر\.س)(?=\s)/gi)];
-    console.log('RAW_PDFJS_SUPPLIER_SHAPE', JSON.stringify({
-      chars: rawNormalizedSupplierText.length,
-      header: /(رقم المورد|رقم الحساب|الرصيد الافتتاحي|العملة|الاسم)/.test(rawNormalizedSupplierText),
-      rowStarts: rawSupplierRowStartMatches.length,
-      yerTokens: (rawNormalizedSupplierText.match(/\bYER\b/gi) ?? []).length,
-      sarTokens: (rawNormalizedSupplierText.match(/ر\.س/gi) ?? []).length,
-      accountTokens: (rawNormalizedSupplierText.match(/(?<!\d)\d{8,12}(?!\d)/g) ?? []).length,
-      numericTokens: (rawNormalizedSupplierText.match(/-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:[.,]\d+)?/g) ?? []).length,
-    }));
-    const rawSupplierRows = tryParseSupplierOpeningBalanceText(rawPageTexts.join(' '));
-    console.log('RAW_PDFJS_SUPPLIER_ROWS', JSON.stringify({
-      rows: rawSupplierRows?.length ?? 0,
-      firstRowKeys: rawSupplierRows?.[0] ? Object.keys(rawSupplierRows[0]) : [],
-    }));
-    assert(rawSupplierRows != null && rawSupplierRows.length >= 5, 'raw PDF.js supplier parser must produce business rows');
     const supplierDatasets = await parseFile(supplierOpeningBuffer, path.basename(supplierOpeningFixture), 'pdf');
     assert(supplierDatasets.length === 1, 'supplier opening-balance PDF must produce one dataset');
     const nodeRuntimeAdapters = await import('../src/lib/file-engine/adapters.ts');
