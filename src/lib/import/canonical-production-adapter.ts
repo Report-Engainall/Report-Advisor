@@ -225,7 +225,32 @@ export async function runCanonicalImportThroughDurableRunner(
     job = enqueueData as EnqueuedJob;
   }
   if (!job.id || job.company_id !== companyId) throw new Error('REPORT_EXECUTION_JOB_TENANT_MISMATCH');
-  if (job.status === 'succeeded' || job.status === 'completed') throw new Error('IMPORT_ALREADY_COMPLETED_FOR_SOURCE');
+  if (job.status === 'succeeded' || job.status === 'completed') {
+    await assertCanonicalCommitReadback(activeDataClient, companyId, input.sourceHash, input.rows.length);
+    const renderedOutput = buildRenderedOutput(input);
+    const { data: recovery, error: recoveryError } = await activeWorkerClient.rpc('recover_completed_report_execution_result', {
+      p_company_id: companyId,
+      p_import_job_id: input.importId,
+      p_report_execution_job_id: job.id,
+      p_entity_type: input.entityType,
+      p_source_hash: input.sourceHash,
+      p_row_count: input.rows.length,
+      p_rendered_output: renderedOutput,
+    });
+    if (recoveryError) throw recoveryError;
+    if (!recovery || recovery.recovered !== true || Number(recovery.rowCount) !== input.rows.length) {
+      throw new Error('REPORT_EXECUTION_COMPLETED_RESULT_RECOVERY_FAILED');
+    }
+    return {
+      importId: input.importId,
+      sourceHash: input.sourceHash,
+      jobId: job.id,
+      authoritativeRowCount: input.rows.length,
+      authoritativeQualityScore: input.qualityScore,
+      renderedOutput,
+      recoveredFromCompletedDurableJob: true,
+    };
+  }
   if (job.status === 'cancelled' || job.status === 'dead_letter') throw new Error('IMPORT_DURABLE_JOB_NOT_RETRYABLE');
   if (job.status === 'running' || job.status === 'leased' || job.status === 'processing') throw new Error('IMPORT_DURABLE_JOB_ALREADY_RUNNING');
   const store = new SupabaseReportExecutionStore(activeWorkerClient);
