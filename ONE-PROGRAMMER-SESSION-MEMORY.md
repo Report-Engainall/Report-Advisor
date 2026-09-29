@@ -1,5 +1,24 @@
 # RESUME TOKEN — REPORT-ADVISOR / الأغبري — 2026-09-30
 
+- CURRENT REPOSITORY HEAD → `ae2352b4b680d9a6021a0615000bcc7d92c65e1c`
+- CURRENT CODE/TEST CANDIDATE → `ae2352b4b680d9a6021a0615000bcc7d92c65e1c`
+- ACTIVE EXECUTION FRONTS → real report corpus #26; supplier-opening PDF parser; canonical completed-result recovery; exact-SHA certification.
+- OPEN BLOCKERS → #26 is not yet proven CLOSED on this candidate; fresh exact-head corpus evidence pending.
+- LAST PROVEN → corpus count=47; #1–#4 CLOSED; #26 generic PDF table quality=0 was reached after native extraction; specialized supplier parser returned 0 rows before row-block fix; CI auth identity collision was isolated; canonical recovery migration and adapter RPC path are persisted.
+- LAST FAILED → #26 `CANONICAL_IMPORT_QUALITY_REJECTED:0` on pre-row-block parser; `AUTHENTICATED_USER_REQUIRED` on reused CI identity.
+- NEXT EXECUTABLE ACTION → consume exact-head corpus/diagnostic for `ae2352b4b680d9a6021a0615000bcc7d92c65e1c`, inspect the first report result, and continue only on evidence.
+- NEXT INDEPENDENT ACTIONS → consume certification/enforcement; after #26 closure perform DB/rendered-output/UI readback.
+- DO NOT REPEAT → no #1–#4 rerun; no blind durable retry; no duplicate importer; no stale PASS; no generic table before specialized supplier parser.
+- CURRENT REPORT → #26 `tests/fixtures/realistic-reports/تقارير الأرصدة الإفتتاحية - ارصدة نهائية للموردين.pdf`
+- ACTION STATUS → `IN_PROGRESS`
+- CURRENT BRANCH → `exec/20260927-current-main-import-ui-rebased`
+- CORPUS COUNT → `47`
+- RESUME POINTER → exact-head corpus execution on #26.
+
+---
+
+# RESUME TOKEN — REPORT-ADVISOR / الأغبري — 2026-09-30
+
 - CURRENT REPOSITORY HEAD → `f7f3b85d5f233c948b66de6e5586466f5c429204`
 - CURRENT CODE/TEST CANDIDATE → `2ee0dc2b3315094149dde5ef27e97c75cc0ce9a2`
 - ACTIVE EXECUTION FRONTS → report corpus #26 PDF root fix; canonical import recovery; CI corpus authentication; exact-head certification/enforcement.

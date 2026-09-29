@@ -1,3 +1,20 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / REPORT #26 SUPPLIER PDF / RECOVERY RPC
+
+- CURRENT REPOSITORY HEAD → `ae2352b4b680d9a6021a0615000bcc7d92c65e1c`
+- CURRENT CODE/TEST CANDIDATE → `ae2352b4b680d9a6021a0615000bcc7d92c65e1c`
+- ACTIVE BRANCH → `exec/20260927-current-main-import-ui-rebased`
+- REPORT CORPUS COUNT → `47`
+- CURRENT REPORT FRONT → #26 `تقارير الأرصدة الإفتتاحية - ارصدة نهائية للموردين.pdf`
+- ROOT FIX A → specialized supplier parser precedes generic PDF-table fallback.
+- ROOT FIX B → supplier parsing uses row-start + account-number structural boundaries.
+- ROOT FIX C → CI auth identity is exact-SHA unique within the shared resume company.
+- ROOT FIX D → SQL recovery RPC persists rendered evidence and terminal import state after completed durable execution.
+- ROOT FIX E → canonical adapter invokes the recovery RPC for interrupted completed jobs and validates canonical commit readback.
+- CURRENT STATUS → `IN_PROGRESS`
+- NEXT EXACT ACTION → fresh exact-head corpus proof for #26; close only with real lifecycle/readback evidence.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / REPORT #26 PDF ROOT + CI AUTH RECOVERY
 
 - CURRENT EXACT HEAD → `2ee0dc2b3315094149dde5ef27e97c75cc0ce9a2`.
