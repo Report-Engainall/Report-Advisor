@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 07:20 +03:00 / REPORT_001 PROOF-HARNESS BLOCKERS FIXED
+
+- CODE CHANGE: scripts/real-business-e2e.mjs only; product UI and auth boundaries are unchanged.
+- CLOSED HARNESS FRONT: duplicate heading strict-mode selector; transient Supabase JWT-issued-at-future synchronization handling.
+- PRIOR E2E PROOF: run 36520247114 on 7116cc48 reached existing-completed REPORT_001 reuse and task-ledger reconciliation before failing on the heading selector; it also observed PGRST303 during tenant isolation.
+- REPORT CLOSURE: still open.
+- NEXT EXACT ACTION: terminal exact-head Full Product Browser E2E, then report closure or first-failure repair.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 07:12 +03:00 / REPORT_001 CURRENT-SHA RECONCILED / HOSTED PROOF NEXT
 
 - FUNCTIONAL CODE SHA: 7116cc48cd3b051535c410e98f1dda5fdba6619e.

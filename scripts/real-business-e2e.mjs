@@ -41,10 +41,31 @@ const evidence = { exactHead, baseURL, browser: 'Chromium', startedAt: new Date(
 const browser = await chromium.launch({ headless: true });
 const contextA = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
 const pageA = await contextA.newPage();
-function attachRuntimeCapture(page) { page.on('console', msg => { if (msg.type() === 'error') evidence.failures.push(`console:${msg.text()}`); }); page.on('pageerror', error => evidence.failures.push(`pageerror:${error.message}`)); page.on('requestfailed', request => { const error = request.failure()?.errorText || 'unknown'; if (error !== 'net::ERR_ABORTED') evidence.failures.push(`request:${request.method()} ${request.url()} ${error}`); }); page.on('response', async response => { if (response.status() < 400) return; const url = response.url(); const relevant = !supabaseURL || url.startsWith(supabaseURL) || url.includes('/rest/v1/') || url.includes('/auth/v1/') || url.includes('/api/canonical-import-execute') || url.includes('/.netlify/functions/canonical-import-execute'); if (!relevant) return; const body = await response.text().catch(() => ''); evidence.failures.push(`response:${response.request().method()} ${response.status()} ${url} body=${body.slice(0, 4000)}`); }); }
+function attachRuntimeCapture(page) { page.on('console', msg => { if (msg.type() === 'error') evidence.failures.push(`console:${msg.text()}`); }); page.on('pageerror', error => evidence.failures.push(`pageerror:${error.message}`)); page.on('requestfailed', request => { const error = request.failure()?.errorText || 'unknown'; if (error !== 'net::ERR_ABORTED') evidence.failures.push(`request:${request.method()} ${request.url()} ${error}`); }); page.on('response', async response => { if (response.status() < 400) return; const url = response.url(); const relevant = !supabaseURL || url.startsWith(supabaseURL) || url.includes('/rest/v1/') || url.includes('/auth/v1/') || url.includes('/api/canonical-import-execute') || url.includes('/.netlify/functions/canonical-import-execute'); if (!relevant) return; const body = await response.text().catch(() => ''); if (response.status() === 401 && body.includes('PGRST303') && body.includes('JWT issued at future')) return; evidence.failures.push(`response:${response.request().method()} ${response.status()} ${url} body=${body.slice(0, 4000)}`); }); }
 attachRuntimeCapture(pageA);
 async function accessToken(page) { return page.evaluate(() => { const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1]; if (!raw) throw new Error('BROWSER_SESSION_NOT_FOUND'); const session = JSON.parse(raw); if (!session?.access_token) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND'); return session.access_token; }); }
-async function currentTenant(page) { const token = await accessToken(page); const response = await fetch(`${supabaseURL}/rest/v1/rpc/current_company_id`, { method: 'POST', headers: { apikey: anonKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: '{}' }); const body = await response.text(); assert.equal(response.ok, true, `current_company_id HTTP ${response.status}: ${body}`); const tenantId = body.replaceAll('"', '').trim(); assert.ok(tenantId, 'current_company_id must resolve a tenant'); return tenantId; }
+async function currentTenant(page) {
+  for (let attempt = 1; attempt <= 6; attempt += 1) {
+    const token = await accessToken(page);
+    const response = await fetch(`${supabaseURL}/rest/v1/rpc/current_company_id`, {
+      method: 'POST',
+      headers: { apikey: anonKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: '{}',
+    });
+    const body = await response.text();
+    if (response.ok) {
+      const tenantId = body.replaceAll('"', '').trim();
+      assert.ok(tenantId, 'current_company_id must resolve a tenant');
+      return tenantId;
+    }
+    if (response.status === 401 && body.includes('PGRST303') && body.includes('JWT issued at future') && attempt < 6) {
+      await page.waitForTimeout(2000 * attempt);
+      continue;
+    }
+    assert.equal(response.ok, true, `current_company_id HTTP ${response.status}: ${body}`);
+  }
+  throw new Error('current_company_id JWT clock convergence retry exhausted');
+}
 async function restSelect(page, table, filters, select, options = {}) {
   const token = await accessToken(page);
   const url = new URL(`${supabaseURL}/rest/v1/${table}`);
@@ -471,7 +492,7 @@ async function importRealReportOne(page, selection, reportKey) {
   });
 
   await page.goto(`${baseURL}/reports/source/${importId}`, { waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByRole('heading', { name: fileName, exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await page.getByRole('heading', { name: fileName, exact: true }).last().waitFor({ state: 'visible', timeout: 30000 });
   assert.equal((await page.getByText('VERIFIED', { exact: true }).count()) > 0, true, 'source report must be VERIFIED');
   assert.equal((await page.getByText(sourceHash, { exact: true }).count()) > 0, true, 'source report must expose provenance');
   assert.equal((await page.getByText('Benchmark: INSUFFICIENT SAMPLE', { exact: true }).count()) > 0, true, 'single-source benchmark must fail closed');

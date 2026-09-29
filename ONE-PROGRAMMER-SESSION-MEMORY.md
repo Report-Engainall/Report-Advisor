@@ -1,3 +1,19 @@
+# RESUME TOKEN — 2026-09-29 07:20 +03:00 / REPORT_001 PROOF-HARNESS BLOCKERS FIXED / CURRENT-HEAD E2E NEXT
+
+- CURRENT EXACT HEAD AFTER THIS CHECKPOINT: PENDING_COMMIT_SHA
+- PREVIOUS CONTROL HEAD: 5b24aaa0cd699699b2616b19d1f39b9915c41eaa
+- REPORT-FIRST FRONT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099.
+- AUTHORITATIVE E2E FINDING: run 36520247114 on functional code SHA 7116cc48 reached existing-completed REPORT_001 reuse and task-ledger reconciliation; it then failed on a strict UI heading selector matching two legitimate headings. A separate tenant-isolation check observed Supabase PGRST303 / JWT issued at future.
+- FIX APPLIED: selector now disambiguates the last exact file-name heading; currentTenant retries only PGRST303/JWT-issued-at-future with bounded backoff and re-reads the session token; runtime capture ignores only that exact transient condition while currentTenant still fails closed if it does not converge.
+- SECURITY BOUNDARY: no auth bypass, RLS bypass, token fabrication, or direct database write was introduced.
+- REPORT_001 CLOSURE: NOT PROVEN until exact-head browser evidence proves canonical persistence, nine completed stages, Source Report VERIFIED, source-bound domain/receivables render, downstream bundle, and tenant A/B isolation.
+- COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47.
+- DO-NOT-REPEAT: do not alter legitimate duplicate headings just to satisfy a locator; do not weaken authentication/RLS; do not treat queued/stale E2E as proof; do not move to REPORT_002.
+- CURRENT RESUME POINTER: exact-head Full Product Browser E2E for REPORT_001.
+- NEXT EXACT ACTION: consume the terminal browser run for this checkpoint; repair only the first reproducible product/runtime blocker, otherwise close REPORT_001 and persist full evidence.
+
+---
+
 # RESUME TOKEN — 2026-09-29 07:12 +03:00 / REPORT_001 CURRENT-SHA RECONCILE / HOSTED PROOF NEXT
 
 - CURRENT FUNCTIONAL EXACT HEAD SHA: 7116cc48cd3b051535c410e98f1dda5fdba6619e.
