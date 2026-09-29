@@ -54,6 +54,17 @@ jobs:
       - name: Run embedded PDF font recovery regression
         run: node scripts/check-pdf-embedded-font-recovery.mjs
 
+      - name: Normalize and execute real report corpus
+        shell: bash
+        env:
+          EXACT_HEAD: ${{ env.EXACT_HEAD }}
+          RESUME_RUN_ID: '36602376973'
+          RESUME_FROM_PATH: 'tests/fixtures/realistic-reports/الصراف الحوشبي.pdf'
+          REAL_REPORT_CORPUS_ROOT: tests/fixtures/realistic-reports
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY }}
+        run: node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-report-corpus-e2e.mjs
       - name: Upload real report corpus evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -63,67 +74,4 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-# Corpus execution resumes only the first report without a completed canonical attempt; browser/device are not dependencies.
-
-# Corpus execution uses only the committed canonical runner; browser/device are not dependencies.
-  pdf-aamery-diagnostic:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 12
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 1
-          persist-credentials: false
-      - name: Install repository dependencies
-        run: npm ci --no-audit --no-fund
-      - name: Diagnose canonical parser for Aamery statement
-        shell: bash
-        run: |
-          set -euo pipefail
-          node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs --input-type=module <<'NODE'
-          import fs from 'node:fs/promises';
-          if (!('DOMMatrix' in globalThis)) Object.defineProperty(globalThis, 'DOMMatrix', { configurable: true, value: class DOMMatrix {} });
-          if (!('sumPrecise' in Math)) Object.defineProperty(Math, 'sumPrecise', { configurable: true, writable: true, value: (values) => { let total = 0; for (const value of values) total += Number(value) || 0; return total; } });
-          if (!('try' in Promise)) Object.defineProperty(Promise, 'try', { configurable: true, writable: true, value: (fn, ...args) => new Promise((resolve, reject) => { try { resolve(fn(...args)); } catch (error) { reject(error); } }) });
-          if (!('toHex' in Uint8Array.prototype)) Object.defineProperty(Uint8Array.prototype, 'toHex', { configurable: true, writable: true, value: function () { return Array.from(this, (byte) => byte.toString(16).padStart(2, '0')).join(''); } });
-          const { parseFile, extractPdfTableRowsFromTextItems, loadEmbeddedPdfGlyphMap } = await import('./src/lib/file-engine/adapters.ts');
-          const pdfjs = await import('pdfjs-dist');
-          const file='tests/fixtures/realistic-reports/الصراف العامري.pdf';
-          const bytes=await fs.readFile(file);
-          const buffer=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
-          const parserBuffer=buffer.slice(0);
-          const pdf=await pdfjs.getDocument({data:new Uint8Array(buffer),useSystemFonts:true}).promise;
-          const all=[];
-          for(let pageNumber=1;pageNumber<=pdf.numPages;pageNumber++){
-            const page=await pdf.getPage(pageNumber);
-            const content=await page.getTextContent({disableCombineTextItems:true});
-            all.push(...content.items.map(item=>({str:item.str,x:Number(item.transform?.[4]),y:Number(item.transform?.[5]),width:Number(item.width)||0,page:pageNumber})).filter(item=>item.str&&Number.isFinite(item.x)&&Number.isFinite(item.y)));
-          }
-          const glyphMap=await loadEmbeddedPdfGlyphMap(parserBuffer);
-          const repairedItems=all.map(item=>{
-            const repaired=[...item.str].map(ch=>{
-              const cps=glyphMap?.get(ch.charCodeAt(0));
-              const cp=cps?.find(v=>v>=0x0600&&v<=0x06ff) ?? cps?.[0];
-              return cp?String.fromCodePoint(cp):ch;
-            }).join('');
-            return {...item,str:repaired};
-          });
-          const repairedGroups=[];
-          for(const item of [...repairedItems].sort((a,b)=>b.y-a.y||a.x-b.x)){
-            const last=repairedGroups[repairedGroups.length-1];
-            if(!last||Math.abs(last.y-item.y)>4) repairedGroups.push({y:item.y,items:[item]}); else last.items.push(item);
-          }
-          console.log('REPAIRED_GROUPS='+JSON.stringify(repairedGroups.slice(0,20).map(g=>({y:g.y,text:g.items.sort((a,b)=>a.x-b.x).map(i=>i.str).join(' | ')})),null,2));
-          const table=extractPdfTableRowsFromTextItems(all,null);
-          const datasets=await parseFile(parserBuffer,file,'pdf');
-          console.log(JSON.stringify({
-            pages:pdf.numPages,
-            text_items:all.length,
-            table_rows:table.rows.length,
-            table_header:table.header,
-            sample:table.rows.slice(0,3),
-            datasets:datasets.map(d=>({rows:d.rowCount,columns:d.columnCount,quality:d.qualityScore,source:d.source,columns_profile:d.columns.map(c=>({name:c.name,mapped:c.mappedField,confidence:c.mappingConfidence})),sample:d.rows.slice(0,2)}))
-          },null,2));
-          NODE
 
