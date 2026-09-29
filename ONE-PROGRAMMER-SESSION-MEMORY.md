@@ -1,6 +1,7 @@
 # RESUME TOKEN — 2026-09-29 07:20 +03:00 / REPORT_001 PROOF-HARNESS BLOCKERS FIXED / CURRENT-HEAD E2E NEXT
 
-- CURRENT EXACT HEAD AFTER THIS CHECKPOINT: PENDING_COMMIT_SHA
+- CURRENT EXACT HEAD AFTER FUNCTIONAL CHECKPOINT: df1c304c8c8c0d83f9bc8ec6eafcff45428b35ef
+- CURRENT CONTROL HEAD: PENDING_GOVERNANCE_COMMIT
 - PREVIOUS CONTROL HEAD: 5b24aaa0cd699699b2616b19d1f39b9915c41eaa
 - REPORT-FIRST FRONT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099.
 - AUTHORITATIVE E2E FINDING: run 36520247114 on functional code SHA 7116cc48 reached existing-completed REPORT_001 reuse and task-ledger reconciliation; it then failed on a strict UI heading selector matching two legitimate headings. A separate tenant-isolation check observed Supabase PGRST303 / JWT issued at future.

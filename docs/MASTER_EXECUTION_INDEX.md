@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 07:23 +03:00 / CERTIFICATION CANDIDATE REBOUND TO CURRENT FUNCTIONAL SHA
+
+- CURRENT CONTROL/BRANCH FUNCTIONAL CANDIDATE: `df1c304c8c8c0d83f9bc8ec6eafcff45428b35ef`.
+- CURRENT_CODE_TEST_CANDIDATE: `df1c304c8c8c0d83f9bc8ec6eafcff45428b35ef`.
+- REPORT-FIRST FRONT: REPORT_001 = `اعمار الديون للعملا.pdf`.
+- PRIOR E2E ROOT CAUSE FIXED IN FUNCTIONAL CHECKPOINT: strict duplicate-heading locator + bounded PGRST303/JWT-future retry.
+- CERTIFICATION RULE: this commit is governance-only after the functional checkpoint; HEAD will differ from the indexed candidate only by governance documents, which is the intended certification boundary.
+- REPORT_001 remains OPEN until current-head browser proof closes it.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 07:20 +03:00 / REPORT_001 PROOF-HARNESS BLOCKERS FIXED
 
 - CODE CHANGE: scripts/real-business-e2e.mjs only; product UI and auth boundaries are unchanged.
