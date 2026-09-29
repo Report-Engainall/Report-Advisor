@@ -72,11 +72,11 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       }
       if (heartbeatFailure) throw heartbeatFailure;
       const checkpoint = buildCheckpoint(following);
-      await store.saveCheckpoint(input.jobId, checkpoint, input.workerId, tenantId);
       await store.completeTask(input.jobId, input.workerId, job.leaseToken!, following, {
         stage: following, checkpoint, rowCount: sourceRows.length, observedAt: new Date().toISOString(),
         ...(stageEvidence[following] ?? {}),
       }, tenantId);
+      await store.saveCheckpoint(input.jobId, checkpoint, input.workerId, tenantId);
       activeTask = null;
       stage = following;
     }
