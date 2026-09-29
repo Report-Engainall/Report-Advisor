@@ -79,7 +79,7 @@ jobs:
           persist-credentials: false
       - name: Install repository dependencies
         run: npm ci --no-audit --no-fund
-      - name: Inspect blocked PDF header geometry
+      - name: Inspect blocked PDF item sequence
         shell: bash
         run: |
           set -euo pipefail
@@ -97,21 +97,19 @@ jobs:
           for(let pageNumber=1;pageNumber<=pdf.numPages;pageNumber++){
             const page=await pdf.getPage(pageNumber);
             const content=await page.getTextContent({disableCombineTextItems:true});
-            items.push(...content.items.map(item=>({str:item.str,x:Number(item.transform?.[4]),y:Number(item.transform?.[5]),width:Number(item.width)||0})).filter(item=>item.str&&Number.isFinite(item.x)&&Number.isFinite(item.y)));
+            items.push(...content.items.map(item=>({str:item.str,x:Number(item.transform?.[4]),y:Number(item.transform?.[5]),width:Number(item.width)||0,page:pageNumber})).filter(item=>item.str&&Number.isFinite(item.x)&&Number.isFinite(item.y)));
           }
-          const sorted=[...items].sort((a,b)=>b.y-a.y||a.x-b.x);
-          const groups=[];
-          for(const item of sorted){
-            let best=null,bestDistance=Infinity;
-            for(const group of groups){
-              const distance=Math.abs(group.y-item.y);
-              if(distance<=4&&distance<bestDistance){best=group;bestDistance=distance;}
+          const target=['ك','ش','ف'];
+          const matches=[];
+          for(let i=0;i<items.length-2;i++){
+            const a=items[i],b=items[i+1],d=items[i+2];
+            if(a.str===target[0]&&b.str===target[1]&&d.str===target[2]){
+              matches.push({index:i,page:a.page,items:[a,b,d]});
+              if(matches.length>=20)break;
             }
-            if(!best)groups.push({y:item.y,items:[item]});
-            else{best.items.push(item);best.y=(best.y*(best.items.length-1)+item.y)/best.items.length;}
           }
-          const matches=groups.map(group=>({y:group.y,text:group.items.sort((a,b)=>a.x-b.x).map(item=>item.str).join(' ')}))
-            .filter(group=>/ك\s*ش\s*ف|ال\s*ب\s*ي\s*ا\s*ن|ا\s*ل\s*ر\s*ص\s*ي\s*د|ا\s*ل\s*م\s*س\s*ت\s*ن\s*د/.test(group.text))
-            .slice(0,20);
-          console.log(JSON.stringify(matches,null,2));
+          const keywords=['البيان','البيان ','ا','ل','ب','ي','ا','ن'];
+          console.log(JSON.stringify({count:items.length,sequenceMatches:matches.slice(0,10)},null,2));
+          const near=items.map((item,i)=>({i,...item})).filter(item=>item.str==='ك' || item.str==='ش' || item.str==='ف').slice(0,100);
+          console.log(JSON.stringify({arabicLetterSamples:near.slice(0,40)},null,2));
           NODE
