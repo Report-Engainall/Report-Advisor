@@ -364,13 +364,17 @@ async function importRealReportOne(page, selection, reportKey) {
     stages: executionTasks.map(task => task.stage), domainSurface: domain ? domain.path : null, domainRendered,
     outputBundle: {
       sourceReport: `/reports/source/${importId}`,
+      reportsCenter: '/reports',
+      domain: domain?.path || null,
       evidence: '/trust',
       executive: '/reports/executive',
       intelligence: '/intelligence',
+      recommendations: '/intelligence/recommendations',
+      forecasts: '/intelligence/forecasts',
       decision: '/decision-experience?stage=decision',
       workCenter: '/work-center',
+      dataQuality: '/data-quality',
       benchmark: 'INSUFFICIENT_SAMPLE',
-      domain: domain?.path || null,
     },
   };
 
