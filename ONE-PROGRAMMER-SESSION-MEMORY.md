@@ -1,3 +1,21 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / EXACT MAIN 670f40f — 735-ROW REPORT DURABLE READBACK RECONCILED
+
+- EXACT MAIN HEAD VERIFIED DIRECTLY → `670f40f880eef5838ce5364ecee69ebf5d4e758b` via `refs/heads/main`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
+- SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REAL DATABASE READBACK → `import_jobs.status=completed`, progress `100`, processed `735/735`; durable execution job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0` = `completed` at `rendered`; canonical commit lineage/readback = `735` rows.
+- REAL OUTPUT READBACK → persisted source-bound outputs exist for Executive, Evidence/Trust, Decision, Work Center, and Inventory domain; trust/evidence state is `TRUSTED/VERIFIED`; quality `87`; `NO_DECISION_COMMITTED`; `NO_ACTION_COMMITTED`; outcome/learning `NOT_AVAILABLE`; benchmark `INSUFFICIENT_SAMPLE`; no synthetic business outcome.
+- REAL INVENTORY EVIDENCE → 735 rows, 379 unique SKUs, 4 warehouses, 733 priced rows, average price approximately 8,718.09 YER; 443 rows missing names, 2 rows missing price, unmapped source field `المستوي`; those limitations remain explicit and do not get promoted to invented truth.
+- CANONICAL CODE READBACK → current `src/lib/import/canonical-production-adapter.ts` passes `authoritativeCompanyId`, executes the existing durable lifecycle, returns persisted rendered output, and finalizes through the canonical import path; no alternate importer or fixture-specific pipeline was created.
+- GITHUB FIXTURE CORPUS → exact main discovery of `tests/fixtures/realistic-reports/` returns only `README.md`; supported report corpus count = `0`. The active real report above is a staging/library execution input and is not counted as GitHub corpus.
+- CURRENT CI/RELEASE STATE → exact-head combined status has Vercel failure due free-plan build-rate limit and Vercel deployment pending; no fresh GitHub Actions run is registered for this direct-main SHA in the connector. No CI/browser/production PASS is claimed.
+- DEVICE STATE → PC01 is still offline; authenticated Edge/browser proof is therefore NOT PROVEN.
+- ACTION STATUS → `BLOCKED` for authenticated UI/runtime closure only; durable data, canonical commit, evidence, result surfaces, and persisted recovery state are already proven by live readback.
+- NEXT EXACT ACTION → obtain an authenticated runtime bound to exact SHA `670f40f880eef5838ce5364ecee69ebf5d4e758b`, open the persisted source-bound result surfaces, verify displayed source hash/735-row count/trust/evidence/domain state against the database readback, then close this report only if browser proof is observed. Do not re-import.
+- NEXT REPORT → none until this report closes.
+- DO-NOT-REPEAT → no blind re-import; no direct canonical-row mutation; no fake auth/JWT; no stale PASS; no browser PASS inferred from DB evidence; no second report while this report remains open.
+- PROOF ANCHORS → main ref `670f40f880eef5838ce5364ecee69ebf5d4e758b`; live import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; execution job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash above.
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / 735-ROW REPORT RECOVERY PROVEN — CURRENT-SHA CI ROOT FIX
 
 - EXACT MAIN HEAD BEFORE THIS DOCUMENTATION CHECKPOINT → `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`.
