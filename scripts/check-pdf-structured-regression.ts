@@ -93,7 +93,7 @@ async function main(): Promise<void> {
   const vite: ViteDevServer = await createServer({ logLevel: 'error', server: { middlewareMode: true }, appType: 'custom' });
   try {
     const { parseFile, classifyOcrConfidence } = await vite.ssrLoadModule('/src/lib/file-engine/adapters.ts') as {
-      parseFile: (input: ArrayBuffer, fileName: string, format: 'pdf') => Promise<Array<{ rows: Array<Record<string, unknown>>; qualityScore: number }>>;
+      parseFile: (input: ArrayBuffer, fileName: string, format: 'pdf'|'xlsx') => Promise<Array<{ rows: Array<Record<string, unknown>>; qualityScore: number; columns: Array<{ mappedField:string|null }> }>>;
       classifyOcrConfidence: (score: number) => 'REJECT' | 'REVIEW' | 'TRUSTED';
     };
 
@@ -149,6 +149,30 @@ async function main(): Promise<void> {
     assert(specialty.specialty === 'receivables', `real receivables PDF specialty must be receivables, got ${specialty.specialty}`);
     assert(specialty.confidence >= 90, `real receivables specialty confidence must be >=90, got ${specialty.confidence}`);
     console.log(`Real receivables PDF regression: PASS (rows=${realDataset.rowCount}, quality=${realDataset.qualityScore}, specialty=${specialty.specialty})`);
+
+    const corpusCases = [
+      ['اعمار الديون للموردين.pdf', 'pdf', 'purchases'],
+      ['المبيعات.pdf', 'pdf', 'sales'],
+      ['المشتريات.pdf', 'pdf', 'purchases'],
+      ['تقارير ارصدة المخزون.pdf', 'pdf', 'inventory'],
+      ['تقارير البنوك.xlsx', 'xlsx', 'payments'],
+      ['تقارير حركة الصندوق.xlsx', 'xlsx', 'payments'],
+      ['ديون العملاء المستحقة.xlsx', 'xlsx', 'receivables'],
+      ['الاصناف 3.xlsx', 'xlsx', 'products'],
+    ] as const;
+    for (const [fileName, format, expectedSpecialty] of corpusCases) {
+      const bytes = await fs.readFile(path.join(process.cwd(), 'tests', 'fixtures', 'realistic-reports', fileName));
+      const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+      const datasets = await parseFile(buffer, fileName, format);
+      assert(datasets.length >= 1, `real corpus ${fileName} must yield at least one dataset`);
+      const dataset = datasets[0];
+      assert(dataset.rows.length > 0, `real corpus ${fileName} must yield structured rows`);
+      assert(dataset.qualityScore >= 50, `real corpus ${fileName} must reach at least review quality, got ${dataset.qualityScore}`);
+      assert(dataset.columns.some(column => column.mappedField), `real corpus ${fileName} must map at least one canonical field`);
+      const detected = detectImportedSpecialty(dataset);
+      assert(detected.specialty === expectedSpecialty, `real corpus ${fileName} specialty must be ${expectedSpecialty}, got ${detected.specialty}`);
+      console.log(`Real corpus case: PASS (file=${fileName}, rows=${dataset.rows.length}, quality=${dataset.qualityScore}, specialty=${detected.specialty})`);
+    }
 
     console.log('Structured PDF/OCR behavioral regression: PASS');
   } finally {
