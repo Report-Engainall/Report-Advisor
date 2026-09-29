@@ -93,12 +93,12 @@ jobs:
         run: |
           set +e
           echo "=== pdfinfo ==="
-          pdfinfo tests/fixtures/realistic-reports/الصراف جيب.pdf 2>&1
+          pdfinfo "tests/fixtures/realistic-reports/الصراف جيب.pdf" 2>&1
           echo "=== pdftoppm page 1 ==="
-          pdftoppm -png -r 150 -f 1 -l 1 tests/fixtures/realistic-reports/الصراف جيب.pdf /tmp/jeeb-page 2>&1
+          pdftoppm -png -r 150 -f 1 -l 1 "tests/fixtures/realistic-reports/الصراف جيب.pdf" /tmp/jeeb-page 2>&1
           echo "pdftoppm_exit=$?"
           echo "=== pdftocairo page 1 ==="
-          pdftocairo -png -r 150 -f 1 -l 1 tests/fixtures/realistic-reports/الصراف جيب.pdf /tmp/jeeb-cairo 2>&1
+          pdftocairo -png -r 150 -f 1 -l 1 "tests/fixtures/realistic-reports/الصراف جيب.pdf" /tmp/jeeb-cairo 2>&1
           echo "pdftocairo_exit=$?"
           echo "=== files ==="
           ls -lh /tmp/jeeb-page* /tmp/jeeb-cairo* 2>&1
