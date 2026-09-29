@@ -89,6 +89,19 @@ jobs:
           # The source declaration is the only normalization required; later references already use `source`.
           s=s.replace("const ciEmail = 'report-advisor-corpus-ci@aghbari.example';\\nconst ciCompanyName = 'Aghbari Report Corpus CI';", "const ciKey = process.env.GITHUB_RUN_ID || exactHead.slice(0, 12);\\nconst ciEmail = 'report-advisor-corpus-ci-' + ciKey + '@aghbari.example';\\nconst ciCompanyName = 'Aghbari Report Corpus CI ' + ciKey;")
           s=s.replace('const source=fingerprinted=await fingerprint(file);','const source=await fingerprint(file);')
+          s=s.replace("const ciEmail = 'report-advisor-corpus-ci@aghbari.example';", "const ciEmail = 'report-advisor-corpus-ci-' + (process.env.GITHUB_RUN_ID || exactHead.slice(0,12)) + '@aghbari.example';")
+          s=s.replace("const ciCompanyName = 'Aghbari Report Corpus CI';", "const ciCompanyName = 'Aghbari Report Corpus CI ' + (process.env.GITHUB_RUN_ID || exactHead.slice(0,12));")
+          old = "  const execution=await executeCanonicalImport({importId:ij.data.id,fileName,sourceHash:source.hash,entityType:'generic:source-data',qualityApproved:false,mode:'execute'},identity.accessToken,{supabaseUrl,anonKey,serviceRoleKey});"
+          new = """  let execution;
+          try {
+            execution=await executeCanonicalImport({importId:ij.data.id,fileName,sourceHash:source.hash,entityType:'generic:source-data',qualityApproved:false,mode:'execute'},identity.accessToken,{supabaseUrl,anonKey,serviceRoleKey});
+          } catch(cause) {
+            const failureMessage=cause instanceof Error?cause.message:String(cause);
+            const finishFailure=await anonClient.rpc('import_finish_job',{p_job_id:ij.data.id,p_status:'failed',p_result_summary:{file_name:fileName,source_path:rel,source_commit:exactHead,report_corpus:true,failure_stage:'canonical_execution'},p_error_message:failureMessage.slice(0,1000)});
+            if(finishFailure.error) throw new AggregateError([cause,finishFailure.error],'REPORT_IMPORT_FAILURE_PERSISTENCE_FAILED');
+            throw cause;
+          }"""
+          s=s.replace(old,new)
           p.write_text(s)
           PY
           node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-report-corpus-e2e.mjs
