@@ -1094,6 +1094,105 @@ function tryParseColumnMajorSupplierText(text: string): Row[] | null {
   }));
 }
 
+function tryParseProductInventoryAdministrativeText(text: string): Row[] | null {
+  const normalized = normalizeArabicDigits(
+    stripControlCharacters(text.normalize('NFKC'))
+      .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
+  if (!normalized.includes('رقم الصنف') || !normalized.includes('اسم الصنف')) return null;
+
+  const skuMatches = [...normalized.matchAll(/\b\d{8}\b/g)];
+  if (skuMatches.length < 10) return null;
+
+  const packageWords = [
+    'كرتون', 'كرتونه', 'كيس', 'علبة', 'حبة', 'حبه', 'نصف', 'انصاف', 'صندوق', 'عبوة',
+    'اكياس', 'أكياس', 'كرتونات',
+  ];
+  const unitWords = [
+    'لتر', 'جم', 'جرام', 'كجم', 'كيلو', 'ك', 'مل', 'متر', 'قطعة', 'حبة', 'حبه', 'وحدة',
+  ];
+
+  function numericTokens(value: string): string[] {
+    return [...value.matchAll(/(?:\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)/g)].map(match => match[0]);
+  }
+
+  function findLastTokenIndex(values: string[], candidates: string[]): number {
+    for (let index = values.length - 1; index >= 0; index -= 1) {
+      if (candidates.includes(values[index])) return index;
+    }
+    return -1;
+  }
+
+  const rows: Row[] = [];
+  for (let index = 0; index < skuMatches.length; index += 1) {
+    const match = skuMatches[index];
+    const segmentStart = index === 0
+      ? Math.max(0, normalized.lastIndexOf('رقم الصنف', match.index ?? 0))
+      : (skuMatches[index - 1].index ?? 0) + skuMatches[index - 1][0].length;
+    const segmentEnd = (match.index ?? normalized.length);
+    const segment = normalized.slice(segmentStart, segmentEnd).replace(/رقم الصنف/g, ' ').trim();
+    const tokens = segment.split(/\s+/).filter(Boolean);
+    if (tokens.length < 10) continue;
+
+    const packageIndex = findLastTokenIndex(tokens, packageWords);
+    if (packageIndex <= 0) continue;
+    const warehouseToken = tokens[packageIndex - 1];
+    if (!/^\d+(?:\.\d+)?$/.test(warehouseToken)) continue;
+
+    const unitIndex = tokens.findIndex((token, tokenIndex) =>
+      tokenIndex > packageIndex && unitWords.includes(token),
+    );
+    if (unitIndex < 0 || unitIndex <= packageIndex || unitIndex >= tokens.length - 1) continue;
+
+    const metricText = tokens.slice(0, packageIndex - 1).join(' ');
+    const metrics = numericTokens(metricText);
+    if (metrics.length < 8) continue;
+    const values = metrics.slice(-8).map(parseNumber);
+    if (values.some(value => value == null)) continue;
+
+    const productName = tokens.slice(unitIndex + 1).join(' ').trim();
+    if (!productName || productName.length < 2) continue;
+
+    const [
+      closingBalance,
+      netSales,
+      unpostedSales,
+      netTransfer,
+      openingBalance,
+      inboundUnreceived,
+      inboundQuantity,
+      postedSales,
+    ] = values as number[];
+
+    rows.push({
+      sku: match[0],
+      product_id: match[0],
+      product_name: productName,
+      name: productName,
+      quantity: closingBalance,
+      closing_balance: closingBalance,
+      opening_balance: openingBalance,
+      inbound_quantity: inboundQuantity,
+      inbound_unreceived: inboundUnreceived,
+      posted_sales: postedSales,
+      unposted_sales: unpostedSales,
+      net_sales: netSales,
+      net_transfer: netTransfer,
+      warehouse: Number(warehouseToken),
+      package: tokens[packageIndex],
+      unit: tokens[unitIndex],
+      source_inventory_metric_contract: 'تقارير اصناف: الرصيد ← كمية المخزون الختامي؛ 8 مؤشرات رقمية محفوظة بترتيب المصدر',
+    });
+  }
+
+  const unique = rows.filter((row, index, all) =>
+    index === all.findIndex(candidate => candidate.sku === row.sku),
+  );
+  return unique.length >= 10 ? unique : null;
+}
+
 function tryParseBankStatementSummaryText(text: string): Row[] | null {
   const normalized = normalizeArabicDigits(
     stripControlCharacters(text.normalize('NFKC'))
@@ -1177,6 +1276,11 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     if (supplierColumnMajor && supplierColumnMajor.length >= 2) { const dataset = await buildDataset(supplierColumnMajor, fileName, 'pdf-column-major-supplier'); if (dataset.qualityScore >= OCR_REJECT_THRESHOLD) return [dataset]; }
     const receivablesColumnMajor = tryParseColumnMajorReceivablesText(pageText);
     if (receivablesColumnMajor && receivablesColumnMajor.length >= 2) return [await buildDataset(receivablesColumnMajor, fileName, 'pdf-column-major-receivables')];
+    const productInventoryRows = tryParseProductInventoryAdministrativeText(pageText);
+    if (productInventoryRows && productInventoryRows.length >= 10) {
+      const dataset = await buildDataset(productInventoryRows, fileName, 'pdf-product-inventory-administrative');
+      if (dataset.qualityScore >= OCR_REJECT_THRESHOLD) return [dataset];
+    }
     const bankStatementSummary = tryParseBankStatementSummaryText(pageText);
     if (bankStatementSummary) return [await buildDataset(bankStatementSummary, fileName, 'pdf-bank-statement-summary')];
     const meaningfulText = pageText.replace(/PAGE\s+\d+/gi, ' ').replace(/\b\d+\s*\/\s*\d+\b/g, ' ').trim();
