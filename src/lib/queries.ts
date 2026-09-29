@@ -182,6 +182,30 @@ export async function fetchCanonicalSourceReport(importJobId:string):Promise<Can
   if(!job) throw new Error('IMPORT_JOB_NOT_FOUND_OR_FORBIDDEN');
   const summary=(job.result_summary??{}) as Record<string,unknown>;
   const entityType=String(summary.canonical_entity_type??job.job_type??'generic:source-data');
+  let durableSourcePath:string|null=null;
+  const summarySourceHash=typeof summary.source_hash==='string' ? summary.source_hash.trim().toLowerCase() : '';
+  const summaryJobId=typeof summary.jobId==='string' ? summary.jobId.trim() : '';
+  if(summaryJobId){
+    const {data:durableJob,error:durableJobError}=await supabase
+      .from('report_execution_jobs')
+      .select('source_path')
+      .eq('id',summaryJobId)
+      .eq('company_id',companyId)
+      .maybeSingle();
+    if(durableJobError) throw durableJobError;
+    durableSourcePath=typeof durableJob?.source_path==='string' ? durableJob.source_path : null;
+  }
+  if(!durableSourcePath && summarySourceHash){
+    const {data:durableJobs,error:durableJobsError}=await supabase
+      .from('report_execution_jobs')
+      .select('source_path')
+      .eq('company_id',companyId)
+      .eq('source_hash',summarySourceHash)
+      .order('created_at',{ascending:false})
+      .limit(1);
+    if(durableJobsError) throw durableJobsError;
+    durableSourcePath=typeof durableJobs?.[0]?.source_path==='string' ? durableJobs[0].source_path : null;
+  }
   const {data:rows,count,error:rowsError}=await supabase
     .from('canonical_dataset_records')
     .select('id,source_hash,semantic_domain,row_number,record_key,data,provenance',{count:'exact'})
@@ -192,7 +216,7 @@ export async function fetchCanonicalSourceReport(importJobId:string):Promise<Can
   return {
     importId:job.id,
     companyId,
-    fileName:String(summary.file_name??entityType),
+    fileName:String(summary.file_name??durableSourcePath??entityType),
     status:String(job.status??'unknown'),
     entityType,
     specialty:String(summary.specialty??'other'),
