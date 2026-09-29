@@ -2,7 +2,7 @@
 - VERIFICATION RUN HEAD → this branch carries only governance/test-harness changes after code candidate `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`; it exists only to obtain exact-head CI evidence before merging to main.
 
 - EXACT MAIN HEAD BEFORE THIS DOCUMENTATION CHECKPOINT → `b1ff45b11d8575a2c82efe3d8ad7a8b9e6a73ae3`.
-- CURRENT CODE/TEST CANDIDATE: `870b39843a2dd840ab2499d43afc9a4a3a5b398c`.
+- CURRENT CODE/TEST CANDIDATE: `37ff3b1128654bf87aa9c60c6b25f023c9318585`.
 - CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
 - SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
 - VERIFIED DATABASE READBACK → import job `completed` at 735/735, durable job `completed/rendered`, 735 canonical rows, persisted source-bound `renderedOutput`, rendered task evidence, source quality `87`.
