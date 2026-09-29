@@ -1185,6 +1185,58 @@ async function parseScannedPdfWithNativeOcr(
   return buildTextDataset(ocrText, fileName, 'pdf-ocr', warning, minimumConfidence);
 }
 
+async function parseScannedPdfWithBrowserOcr(pdf: PdfDocument, fileName: string): Promise<Dataset[]> {
+  if (pdf.numPages > PDF_OCR_MAX_PAGES) throw new Error(`PDF_OCR_PAGE_LIMIT_EXCEEDED: ${pdf.numPages} pages exceeds the safe OCR limit of ${PDF_OCR_MAX_PAGES}.`);
+  const tesseract = await import('tesseract.js');
+  const worker = await tesseract.createWorker('ara+eng');
+  const pages: string[] = [];
+  const confidences: number[] = [];
+  try {
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+      const page = await pdf.getPage(pageNumber);
+      const baseViewport = page.getViewport({ scale: PDF_OCR_SCALE });
+      const scale = Math.min(1, PDF_OCR_MAX_DIMENSION / Math.max(baseViewport.width, baseViewport.height));
+      const viewport = scale < 1 ? page.getViewport({ scale: PDF_OCR_SCALE * scale }) : baseViewport;
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.ceil(viewport.width));
+      canvas.height = Math.max(1, Math.ceil(viewport.height));
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error(`PDF_OCR_CANVAS_UNAVAILABLE: page ${pageNumber}`);
+      await page.render({ canvasContext: context, viewport, canvas }).promise;
+      const result = await worker.recognize(canvas);
+      const text = typeof result?.data?.text === 'string' ? result.data.text.trim() : '';
+      const confidence = Number(result?.data?.confidence ?? 0);
+      confidences.push(confidence);
+      if (text) pages.push(`PAGE ${pageNumber}\n${text}`);
+      canvas.width = 1;
+      canvas.height = 1;
+    }
+  } finally {
+    await worker.terminate();
+  }
+  if (!pages.length) throw new Error('PDF_SCANNED_OCR_EMPTY: OCR produced no readable text.');
+  const minimumConfidence = confidences.length ? Math.min(...confidences) : 0;
+  const disposition = classifyOcrConfidence(minimumConfidence);
+  if (disposition === 'REJECT') {
+    throw new Error(`PDF_OCR_LOW_CONFIDENCE_REJECT:${Math.round(minimumConfidence)}% (threshold < ${OCR_REJECT_THRESHOLD})`);
+  }
+  const warning = disposition === 'REVIEW'
+    ? `OCR_REVIEW_REQUIRED:${Math.round(minimumConfidence)}%`
+    : `OCR_TRUSTED:${Math.round(minimumConfidence)}%`;
+  return buildTextDataset(pages.join('\n\n'), fileName, 'pdf-ocr', warning, minimumConfidence);
+}
+
+async function parseScannedPdfWithOcr(
+  pdf: PdfDocument,
+  fileName: string,
+  sourceBuffer: ArrayBuffer,
+): Promise<Dataset[]> {
+  if (typeof document === 'undefined') {
+    return parseScannedPdfWithNativeOcr(pdf, fileName, sourceBuffer);
+  }
+  return parseScannedPdfWithBrowserOcr(pdf, fileName);
+}
+
 async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   const mammoth = await import('mammoth'); const result = await mammoth.extractRawText({ arrayBuffer: buffer });
   return buildTextDataset(result.value, fileName, 'docx', result.messages.length ? `DOCX_EXTRACTION_WARNINGS:${result.messages.length}` : undefined);
