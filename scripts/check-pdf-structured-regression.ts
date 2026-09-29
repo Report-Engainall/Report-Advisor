@@ -144,6 +144,20 @@ async function main(): Promise<void> {
     const supplierOpeningBuffer = supplierOpeningBytes.buffer.slice(supplierOpeningBytes.byteOffset, supplierOpeningBytes.byteOffset + supplierOpeningBytes.byteLength);
     const supplierDatasets = await parseFile(supplierOpeningBuffer, path.basename(supplierOpeningFixture), 'pdf');
     assert(supplierDatasets.length === 1, 'supplier opening-balance PDF must produce one dataset');
+    const nodeRuntimeAdapters = await import('../src/lib/file-engine/adapters.ts');
+    const nodeRuntimeDatasets = await nodeRuntimeAdapters.parseFile(supplierOpeningBuffer, path.basename(supplierOpeningFixture), 'pdf');
+    assert(nodeRuntimeDatasets.length === 1, 'node runtime supplier opening parser must produce one dataset');
+    const { understandCanonicalSource } = await import('../src/lib/import/canonical-source-understanding.ts');
+    const nodeUnderstanding = understandCanonicalSource(nodeRuntimeDatasets as never);
+    console.log('NODE_RUNTIME_SUPPLIER_UNDERSTANDING', JSON.stringify({
+      datasetCount: nodeRuntimeDatasets.length,
+      rows: nodeRuntimeDatasets[0]?.rows?.length ?? 0,
+      datasetQuality: nodeRuntimeDatasets[0]?.qualityScore ?? null,
+      canonicalQuality: nodeUnderstanding.qualityScore,
+      specialty: nodeUnderstanding.specialty,
+      entityType: nodeUnderstanding.entityType,
+    }));
+    assert(nodeUnderstanding.qualityScore >= 75, 'node runtime canonical understanding must retain trusted supplier-opening quality, got ' + nodeUnderstanding.qualityScore);
     const [supplierDataset] = supplierDatasets;
     assert(supplierDataset.rows.length >= 5, 'supplier opening-balance PDF must produce business rows; extracted=' + supplierDataset.rows.length);
     assert(supplierDataset.qualityScore >= 75, 'supplier opening-balance PDF quality must be trusted, got ' + supplierDataset.qualityScore);
