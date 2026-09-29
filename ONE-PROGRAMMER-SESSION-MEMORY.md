@@ -1,3 +1,23 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / REPORT #26 PDF + CI AUTH RECOVERY
+
+- CURRENT EXACT HEAD → `2ee0dc2b3315094149dde5ef27e97c75cc0ce9a2`.
+- CURRENT FUNCTIONAL CANDIDATE → `2ee0dc2b3315094149dde5ef27e97c75cc0ce9a2` (the current head itself; no governance-only divergence yet).
+- ACTIVE BRANCH → `exec/20260927-current-main-import-ui-rebased`.
+- CORPUS → `47` supported files under `tests/fixtures/realistic-reports/`.
+- CLOSED REPORTS → #1 `اعمار الديون للعملا.pdf`, #2 `اعمار الديون للموردين.pdf`, #3 `الاصناف .xlsx`, #4 `الاصناف 3.xlsx`.
+- CURRENT REPORT → #26 `تقارير الأرصدة الإفتتاحية - ارصدة نهائية للموردين.pdf` in the resumed CI corpus run; report #5 is historical branch context, but the current persisted runner resume pointer is the #26 blocking front from the latest corpus execution.
+- REPORT #26 ROOT CAUSE → generic PDF table extraction returned first with `quality=0` and bypassed the specialized supplier opening-balance parser.
+- ROOT FIX → generic `pdf-table` is now fallback only after specialized PDF parsers; generic table output is accepted only at/above the canonical reject threshold. A fixture regression now reads and validates the real supplier-opening PDF.
+- SECOND ROOT CAUSE → corpus CI reused one auth identity across resumed runs, allowing refresh-token rotation to invalidate the bearer token and produce `AUTHENTICATED_USER_REQUIRED`.
+- HARNESS FIX → CI email identity is now unique per `resume scope + exact SHA`, while the resume company remains shared, preventing concurrent refresh-token collision without losing prior closed-report state.
+- LAST REAL CORPUS PROOF BEFORE HARNESS FIX → exact report #26 no longer failed on parser quality in the latest code was not yet proven; the immediate next run must prove this exact SHA path.
+- CURRENT ACTION STATUS → `IN_PROGRESS`.
+- CURRENT RESUME POINTER → fresh corpus run for the current exact head; after parser/auth fixes, execute #26 and stop only at the first newly observed report-processing failure.
+- DO-NOT-REPEAT → do not rerun reports #1–#4; do not bypass the canonical parser; do not blind-retry a completed durable job; do not reuse a shared CI auth email across exact heads.
+- NEXT EXACT ACTION → consume fresh exact-head `real-report-corpus` and `report24-extractor-diagnostic`; inspect the first `REPORT_RESULT` and continue root-fix/re-run on the same report.
+
+---
+
 # CURRENT RESUME CHECKPOINT — 2026-09-30 / REPORT CORPUS / EXACT FUNCTIONAL HEAD
 
 - CURRENT EXACT HEAD → `d36b4b6de005d0bb3d25327548b6ce9306e6054c`.

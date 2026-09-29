@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / REPORT #26 PDF ROOT + CI AUTH RECOVERY
+
+- CURRENT EXACT HEAD → `2ee0dc2b3315094149dde5ef27e97c75cc0ce9a2`.
+- CURRENT CODE/TEST CANDIDATE → `2ee0dc2b3315094149dde5ef27e97c75cc0ce9a2`.
+- CORPUS COUNT → `47`.
+- CURRENT REPORT FRONT → #26 `tests/fixtures/realistic-reports/تقارير الأرصدة الإفتتاحية - ارصدة نهائية للموردين.pdf`.
+- REPORT #26 ROOT FIX → specialized supplier opening-balance parsing now precedes low-quality generic PDF-table fallback; real-fixture regression added.
+- CI AUTH ROOT FIX → corpus runner uses a per-exact-SHA CI auth identity while retaining the shared resume company.
+- CURRENT STATUS → `IN_PROGRESS`; #26 is not CLOSED yet.
+- NEXT EXACT ACTION → fresh corpus execution on this exact SHA, then first-failure repair and same-report re-run.
+- STALE PASS LAW → no report-closure claim transfers from prior SHA or prior runner attempt.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / REPORT CORPUS / CURRENT EXACT FUNCTIONAL HEAD
 
 - CURRENT FUNCTIONAL BRANCH → `exec/20260927-current-main-import-ui-rebased`.
