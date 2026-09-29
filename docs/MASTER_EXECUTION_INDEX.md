@@ -1571,3 +1571,17 @@
 - MANDATORY CI → certification `36326239773` / job `108639438409` and enforcement `36326239775` / job `108639438487` remain queued.
 - GOVERNANCE → broad-push coverage remains intentional per `check-ci-execution-topology.mjs`; no queue-clearing trigger weakening was introduced.
 - NEXT → first terminal mandatory gate on `b081c3f`, then authorized release identity/Phase-F path. No production SHA bypass.
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / REAL RECEIVABLES REPORT OUTPUT CONTRACT REPAIR
+
+- CURRENT EXACT HEAD BEFORE THIS DOCUMENTATION WRITE-BACK → `a5d18e4253586cd216580f3596bd3c21142bbc65`.
+- CLOSED SOURCE FRONT → `CanonicalImportSpecialty` now includes `receivables` with deterministic aging/receivables signals.
+- CLOSED REPORT ROUTING → shared canonical output map now exposes Executive + Receivables + Aging for receivables sources; unknown `generic:source-data` remains Executive-only.
+- CLOSED UI LABEL → receivables has an explicit Arabic display label.
+- CLOSED REGRESSION GUARD → runtime contract checks that the durable runner persists `renderedOutput: stageEvidence.rendered`; import transaction contract guards receivables and aging destinations plus the shared Executive output.
+- LIVE REPORT EVIDENCE → `اعمار الديون للعملا.pdf` has exact source SHA `sha256:9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`, 27 valid rows, quality 98, 9/9 durable stages completed, one canonical commit, and 27 canonical dataset records.
+- LIVE PROOF LIMIT → Staging has 3255 completed report jobs but none currently contains a persisted `renderedOutput` manifest. Therefore no authenticated UI rendered PASS is claimed.
+- CORPUS STATUS → 47 fixture files on the execution branch; 40 filenames have Staging records today, 38 have verified ready+security+hash records, 2 remain unverified, 7 are not present in Staging.
+- HOSTED/DEVICE → current exact-head hosted runtime remains unverified; Vercel is rate-limit blocked and PC01 is offline.
+- NEXT EXACT ACTION → current-head authenticated execution of the first fixture, verify the new source-bound manifest and all related report surfaces, then close and advance one deterministic fixture at a time.
+
