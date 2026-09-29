@@ -1,3 +1,23 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / EXACT MAIN — REPORT RESULT + DURABLE RECOVERY ROOT
+
+- MAIN EXACT HEAD → `32bf23841115c6a8b47adec92f2dcaef82251d19`.
+- CURRENT CODE/TEST CANDIDATE → `32bf23841115c6a8b47adec92f2dcaef82251d19`.
+- REPORT-FIRST FRONT → staging import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / `تسعيرة الاصناف حسب رقم الصنف.pdf`.
+- SOURCE FINGERPRINT → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- PRE-FIX REAL STATE → 735 canonical rows committed; durable execution job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0` reached `completed/rendered` with no rendered-output payload persisted; `import_jobs` remained `processing`.
+- ROOT FIX → durable runner now persists rendered-stage output; canonical adapter verifies canonical commit readback, finalizes open `import_jobs` through `import_finish_job`, and safely recovers an already-completed durable job.
+- RESULT-SURFACE FIX → successful canonical import now carries deterministic source metrics and source-bound output surfaces into the existing Import result UI; no mock financial/outcome/benchmark values are generated.
+- CURRENT TEST FIX → exact-main typecheck/lint roots fixed: DataTable boolean aria state, ExecutiveReport status guard, and duplicate `appShell` contract binding.
+- CURRENT REPORT STATE → `BLOCKED` for runtime closure only; code and exact-head contract evidence are not the same as real authenticated report execution.
+- EXACT-HEAD CI → current head has an exact-source browser-e2e SUCCESS and a contract SUCCESS; other exact-head gates are running/queued and must terminalize before any certification claim.
+- RELEASE BOUNDARY → Vercel current status remains free-plan deployment-rate limited; Netlify deploy updater cannot publish from this workspace without source checkout. Cloudflare exact-head deploy is running.
+- DEVICE/BROWSER → PC01 offline; TinyFish authenticated automation unavailable with negative wallet balance; no user-device/Edge PASS claimed.
+- GITHUB FIXTURE CORPUS → `tests/fixtures/realistic-reports/` is still empty of report inputs on this exact main unless a later exact-head commit proves otherwise. Do not infer corpus size from another branch.
+- DO-NOT-REPEAT → no blind retry of the 735-row completed durable job; use canonical completed-job recovery after exact source/commit readback. Do not transfer stale PASS or fabricate auth/tenant context.
+- NEXT EXACT ACTION → consume terminal exact-head CI results, then execute the same staging import through the authenticated canonical server boundary; read back `import_jobs`, `report_execution_jobs`, `canonical_import_commits`, rendered evidence, source metrics and real result UI. Close only after proof.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / REAL REPORT ROOT FIX PERSISTED
 
 - MAIN EXACT HEAD → `9d5781dae6b4a787de7288486e4b59df29e62109`.
