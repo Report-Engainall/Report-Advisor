@@ -117,7 +117,8 @@ jobs:
             allText+=lines+' ';
             console.log('PAGE_'+pageNumber+'='+lines.slice(0,7000));
           }
-          const datasets=await parseFile(buffer,file,'pdf');
+          const parserBuffer=buffer.slice(0);
+          const datasets=await parseFile(parserBuffer,file,'pdf');
           console.log(JSON.stringify({pages:pdf.numPages,datasets:datasets.map(d=>({rows:d.rowCount,columns:d.columnCount,quality:d.qualityScore,fields:d.columns.map(c=>({name:c.name,mappedField:c.mappedField,confidence:c.mappingConfidence})),sample:d.rows.slice(0,4)}))},null,2));
           NODE
 
