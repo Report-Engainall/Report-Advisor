@@ -966,12 +966,12 @@ function tryParseBankStatementSummaryText(text: string): Row[] | null {
   const accountNumber = normalized.match(/(?:رقم\s*الحساب|الحساب)\s*[:：]?\s*(\d{4,})/i)?.[1] ?? null;
   const dates = [...normalized.matchAll(/\b\d{4}[-\/]\d{1,2}[-\/]\d{1,2}\b/g)].map(match => match[0]);
   const currencyMatch = normalized.match(/(?:ريال\s+يمني|ريال\s+سعودي|YER|SAR|USD|EUR)/i)?.[0] ?? null;
-  const triplet = normalized.match(/(?:الرصيد|رصيد)\b[\s\S]{0,220}?([\d]{1,3}(?:,\d{3})*(?:\.\d+)?)\s+([\d]{1,3}(?:,\d{3})*(?:\.\d+)?)\s+([\d]{1,3}(?:,\d{3})*(?:\.\d+)?)/i);
-  if (!triplet) return null;
+  const financialTokens = [...normalized.matchAll(/\b\d{1,3}(?:,\d{3})+(?:\.\d+)?\b/g)].map(match => match[0]).slice(0, 3);
+  if (financialTokens.length < 3) return null;
 
-  const balance = parseNumber(triplet[1]);
-  const credit = parseNumber(triplet[2]);
-  const debit = parseNumber(triplet[3]);
+  const balance = parseNumber(financialTokens[0]);
+  const credit = parseNumber(financialTokens[1]);
+  const debit = parseNumber(financialTokens[2]);
   if (balance == null || credit == null || debit == null) return null;
 
   return [{
