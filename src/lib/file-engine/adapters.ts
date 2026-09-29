@@ -1052,6 +1052,7 @@ function tryParseOcrBankStatementText(text: string): Row[] | null {
 
   const rows: Row[] = [];
   const datePattern = /\b(\d{1,2}[./-]\d{1,2}[./-]20\d{2})\b/g;
+  const amountPattern = /([\d٠-٩]{1,3}(?:[,٬][\d٠-٩]{3})*(?:[.٫][\d٠-٩]+)?)\s*(?:ريال|ريال\s*يمن|YER)\b/gi;
   const numberPattern = /[\d٠-٩]{1,3}(?:[,٬][\d٠-٩]{3})*(?:[.٫][\d٠-٩]+)?/g;
   const referencePattern = /\b(\d{10,16})\b/g;
 
@@ -1065,36 +1066,56 @@ function tryParseOcrBankStatementText(text: string): Row[] | null {
       const references = [...segment.matchAll(referencePattern)].map(match => match[1]).filter(Boolean);
       if (!references.length) continue;
 
-      const candidates = [...segment.matchAll(numberPattern)]
+      const amountMatches = [...segment.matchAll(amountPattern)]
+        .map(match => ({
+          raw: match[1],
+          index: (match.index ?? 0),
+          value: parseNumber(match[1]),
+        }))
+        .filter(candidate => candidate.value != null);
+
+      const sanitizedSegment = segment.replace(dateMatch[1], ' ');
+      const fallbackNumbers = [...sanitizedSegment.matchAll(numberPattern)]
         .map(match => ({
           raw: match[0],
           index: match.index ?? 0,
           value: parseNumber(match[0]),
         }))
-        .filter(candidate => candidate.value != null);
+        .filter(candidate => candidate.value != null && (candidate.value as number) > 10);
 
-      if (!candidates.length) continue;
+      const paymentCandidate = amountMatches
+        .sort((a, b) => Math.abs(a.index - (dateIndex - windowStart)) - Math.abs(b.index - (dateIndex - windowStart)))[0]
+        ?? fallbackNumbers
+          .sort((a, b) => Math.abs(a.index - (dateIndex - windowStart)) - Math.abs(b.index - (dateIndex - windowStart)))[0];
 
-      const dateOffset = dateIndex - windowStart;
-      const ranked = candidates
-        .filter(candidate => Math.abs(candidate.index - dateOffset) < 420)
-        .sort((a, b) => Math.abs(a.index - dateOffset) - Math.abs(b.index - dateOffset));
-
-      const paymentCandidate = ranked.find(candidate => candidate.value !== null && candidate.raw !== dateMatch[1]);
       if (!paymentCandidate?.value && paymentCandidate?.value !== 0) continue;
 
-      const balanceCandidate = candidates
-        .filter(candidate => Math.abs(candidate.index - dateOffset) > 10 && candidate.raw !== dateMatch[1])
-        .sort((a, b) => Math.abs(a.index - dateOffset) - Math.abs(b.index - dateOffset))[1] ?? null;
+      const paymentIndex = paymentCandidate.index;
+      const balanceCandidate = fallbackNumbers
+        .filter(candidate =>
+          candidate.index > paymentIndex + paymentCandidate.raw.length
+          && candidate.value !== paymentCandidate.value
+          && candidate.value !== 11
+          && candidate.value !== 8
+          && candidate.value !== 2026,
+        )
+        .sort((a, b) => Math.abs(a.index - paymentIndex) - Math.abs(b.index - paymentIndex))[0] ?? null;
 
       const reference = references
-        .map(value => value)
-        .sort((a, b) => Math.abs(segment.indexOf(a) - dateOffset) - Math.abs(segment.indexOf(b) - dateOffset))[0];
+        .sort((a, b) => Math.abs(segment.indexOf(a) - (dateIndex - windowStart)) - Math.abs(segment.indexOf(b) - (dateIndex - windowStart)))[0];
+
+      const dateParts = dateMatch[1].split(/[./-]/).map(part => Number(part));
+      if (dateParts.length !== 3) continue;
+      const [day, month, year] = dateParts;
+      const isoDate = Number.isFinite(day) && Number.isFinite(month) && Number.isFinite(year)
+        ? `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+        : null;
+      if (!isoDate) continue;
 
       const cleaned = segment
         .replace(dateMatch[1], ' ')
         .replace(reference, ' ')
-        .replace(paymentCandidate.raw, ' ')
+        .replace(amountMatches[0]?.raw ?? paymentCandidate.raw, ' ')
         .replace(balanceCandidate?.raw ?? '', ' ')
         .replace(/\b\d{1,2}:\d{2}\b/g, ' ')
         .replace(/\b\d{1,2}\.\d{2}\b/g, ' ')
@@ -1102,7 +1123,7 @@ function tryParseOcrBankStatementText(text: string): Row[] | null {
         .trim();
 
       rows.push({
-        date: dateMatch[1].replace(/[./]/g, '-'),
+        date: isoDate,
         reference,
         payment_amount: paymentCandidate.value,
         balance: balanceCandidate?.value ?? undefined,
