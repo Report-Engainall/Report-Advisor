@@ -84,6 +84,9 @@ function AnalyticsStatusStrip({
 
 
 export function AnalyticsCenterPage() {
+  const [searchParams] = useSearchParams();
+  const importId = searchParams.get('import')?.trim() || null;
+  const withImportContext = (path: string) => importId ? path + (path.includes('?') ? '&' : '?') + 'import=' + encodeURIComponent(importId) : path;
   return (
     <div dir="rtl" className="ag-analytics-surface space-y-5 animate-fade-in pb-10">
       <PageHeader title="مركز التحليلات" subtitle="مساحة واحدة لاكتشاف الأنماط والاتجاهات ثم نقل النتيجة إلى سياق القرار والدليل." />
@@ -106,7 +109,7 @@ export function AnalyticsCenterPage() {
         {analyticsCards.map((item) => {
           const Icon = item.icon;
           return (
-            <Link key={item.path} to={item.path} className="group min-w-0">
+            <Link key={item.path} to={withImportContext(item.path)} className="group min-w-0">
               <Card hover className="h-full transition-transform duration-200 group-hover:-translate-y-0.5">
                 <CardBody className="h-full">
                   <div className="flex items-start justify-between gap-3">
