@@ -1,3 +1,15 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 08:12 +03:00 / EXACT HEAD 4a057fb4 / REPORT_001 CLOSED / FULL CORPUS PENDING RUNNER
+
+- CURRENT EXACT HEAD: `4a057fb4d22853e6fccbc99775affacadda3f76d`
+- FUNCTIONAL CANDIDATE: `2e950c48544edb4c20e1c00eb9bde6f2a697e7`
+- REPORT_001: CLOSED and individually proven by Full Product Browser E2E run 36521493399; artifact inspected.
+- CORPUS: 47 executable real reports (48 files including README.md). The full-corpus gate is dynamic, complete-mode, sequential, and fail-closed: discovered=processed=closed, failed=0, review=0, minimum 40.
+- CURRENT REPORT COUNTS: CLOSED=1 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=46.
+- CURRENT FULL-CORPUS RUN: previous exact functional run 36522086830 is QUEUED on 147a4e69. It is not accepted as exact-head proof for 4a057fb4.
+- NEXT EXACT ACTION: consume/run Full Product Browser E2E on 4a057fb4 and inspect every per-report artifact. Only then set CLOSED=47 or repair the first reproducible report-specific blocker.
+- LANE B: Business Replay is currently an evidence-gated card in Decision Command Center; Outcome follow-up is a persisted-outcome stage in Decision Experience. No duplicate screen is warranted from current canonical implementation.
+- DO-NOT-REPEAT: do not reuse older SHA PASS, do not count README as a report, do not bypass auth/RLS, do not create duplicate import/replay/outcome paths.
+---
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 07:58 +03:00 / CURRENT HEAD 31d2091d / REPORT_001 CLOSED / FULL CORPUS NEXT
 
 - CURRENT EXACT HEAD: `31d2091de5af67f6e7177224c0675ffd4d1de980`
