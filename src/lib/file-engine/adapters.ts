@@ -52,7 +52,15 @@ async function buildDataset(rows: Row[], name: string, source: string, sheet?: s
   for (const col of columnProfiles) { if (col.nullCount > normalized.length * 0.5) col.qualityIssues.push('أكثر من 50% من القيم فارغة'); if (col.mappingConfidence < 80 && col.mappedField) col.qualityIssues.push('تعيين منخفض الثقة — يحتاج مراجعة'); if (!col.mappedField) col.qualityIssues.push('لم يتم تعريف العمود'); }
   const cleanedRows = normalized.map((row) => Object.fromEntries(columnProfiles.map((col) => [col.name, cleanValue(row[col.name], col.dataType)])) as Row);
   const canonicalRows = materializeCanonicalFields(cleanedRows, columnProfiles);
-  const qualityScore = columnProfiles.length ? Math.round(columnProfiles.reduce((s, c) => s + c.mappingConfidence, 0) / columnProfiles.length) : 0;
+  const mappedProfiles = columnProfiles.filter((column) => Boolean(column.mappedField));
+  const mappingConfidence = mappedProfiles.length ? mappedProfiles.reduce((sum, column) => sum + column.mappingConfidence, 0) / mappedProfiles.length : 0;
+  const mappedCompleteness = mappedProfiles.length
+    ? mappedProfiles.reduce((sum, column) => sum + ((normalized.length - column.nullCount) / Math.max(1, normalized.length)) * 100, 0) / mappedProfiles.length
+    : 0;
+  const mappedCoverage = columns.length ? (mappedProfiles.length / columns.length) * 100 : 0;
+  const qualityScore = mappedProfiles.length
+    ? Math.round((mappingConfidence * 0.6) + (mappedCompleteness * 0.25) + (mappedCoverage * 0.15))
+    : 0;
   return { id: generateId(), name, source, sheet, rowCount: canonicalRows.length, columnCount: columns.length, columns: columnProfiles, rows: canonicalRows, preview: canonicalRows.slice(0, 50), qualityScore };
 }
 
