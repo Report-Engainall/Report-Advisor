@@ -78,39 +78,3 @@ jobs:
           path: artifacts/real-report-corpus
           if-no-files-found: warn
           retention-days: 14
-  report23-diagnostic:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 1
-          persist-credentials: false
-      - name: Install repository dependencies
-        run: npm ci --no-audit --no-fund
-      - name: Inspect report 23 PDF
-        shell: bash
-        run: |
-          set -euo pipefail
-          node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs --input-type=module <<'NODE'
-          import fs from 'node:fs/promises';
-          if(!('DOMMatrix' in globalThis)) Object.defineProperty(globalThis,'DOMMatrix',{configurable:true,value:class DOMMatrix{}});
-          if(!('sumPrecise' in Math)) Object.defineProperty(Math,'sumPrecise',{configurable:true,writable:true,value:(values)=>{let total=0;for(const value of values)total+=Number(value)||0;return total;}});
-          if(!('try' in Promise)) Object.defineProperty(Promise,'try',{configurable:true,writable:true,value:(fn,...args)=>new Promise((resolve,reject)=>{try{resolve(fn(...args));}catch(error){reject(error);}})});
-          if(!('toHex' in Uint8Array.prototype)) Object.defineProperty(Uint8Array.prototype,'toHex',{configurable:true,writable:true,value:function(){return Array.from(this,(byte)=>byte.toString(16).padStart(2,'0')).join('');}});
-          const { parseFile } = await import('./src/lib/file-engine/adapters.ts');
-          const pdfjs=await import('pdfjs-dist');
-          const file='tests/fixtures/realistic-reports/تقارير ادارية للمورد.pdf';
-          const bytes=await fs.readFile(file);
-          const buffer=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
-          const pdf=await pdfjs.getDocument({data:new Uint8Array(buffer),useSystemFonts:true}).promise;
-          for(let pageNumber=1;pageNumber<=Math.min(pdf.numPages,3);pageNumber++){
-            const page=await pdf.getPage(pageNumber);
-            const content=await page.getTextContent({disableCombineTextItems:true});
-            console.log('PAGE='+pageNumber+' TEXT='+content.items.map(i=>i.str).filter(Boolean).join(' ').slice(0,8000));
-          }
-          const datasets=await parseFile(buffer,file,'pdf');
-          console.log(JSON.stringify({datasets:datasets.map(d=>({rows:d.rowCount,columns:d.columnCount,quality:d.qualityScore,cols:d.columns.map(c=>({name:c.name,mapped:c.mappedField,confidence:c.mappingConfidence})),sample:d.rows.slice(0,3)}))},null,2));
-          NODE
-
