@@ -426,6 +426,18 @@ type PromiseConstructorWithTry = PromiseConstructor & { try?: (fn: (...args: unk
 type Uint8ArrayWithToHex = Uint8Array & { toHex?: () => string };
 
 function ensurePdfJsRuntimeCompatibility(): void {
+  const mathWithPrecise = Math as typeof Math & { sumPrecise?: (values: Iterable<number>) => number };
+  if (typeof mathWithPrecise.sumPrecise !== 'function') {
+    Object.defineProperty(Math, 'sumPrecise', {
+      configurable: true,
+      writable: true,
+      value: (values: Iterable<number>) => {
+        let total = 0;
+        for (const value of values) total += Number(value) || 0;
+        return total;
+      },
+    });
+  }
   if (!('DOMMatrix' in globalThis)) Object.defineProperty(globalThis, 'DOMMatrix', { configurable: true, value: class DOMMatrix {} });
   const uint8ArrayPrototype = Uint8Array.prototype as Uint8ArrayWithToHex;
   if (typeof uint8ArrayPrototype.toHex !== 'function') {
