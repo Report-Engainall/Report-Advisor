@@ -1,3 +1,28 @@
+# LIVE SESSION CHECKPOINT — 2026-09-29 / REAL REPORT + SOURCE-BOUND REPORT
+
+- CURRENT CONTROL CHECKPOINT SHA → `62465db120c94f8a3777cffdddcfa0ba55200294`
+- CURRENT CODE/TEST CANDIDATE → `456bc2d0e670c0852f4636d42edc3180c844df37`
+- CURRENT FRONT → REAL REPORT END-TO-END / SOURCE-BOUND REPORT
+- REAL SOURCE → `فواتير العملاء من تاريخ 01-06 حتى 15-08.pdf`
+- IMPORT ID → `74c499d1-6e65-4834-a093-eef1eb633fb2`
+- SOURCE HASH → `sha256:c175fd3f105759568cf269a5f59fa26cfe16007a77269307b299e15a8c936dc8`
+- LIVE IMPORT PROOF → `completed`, 1,998/1,998 processed and valid, 0 invalid, progress 100%.
+- LIVE REPORT EXECUTION PROOF → `report_execution_jobs.status=completed`, checkpoint stage `rendered`, lineage/source row count 1,998.
+- CANONICAL SOURCE PROOF → 1,998 rows for the same tenant + source hash, row numbers 1..1998.
+- FIXED RUNTIME CONSISTENCY → the import job had remained processing/0 while the report execution was rendered; it was closed through `import_finish_job` with 1,998 committed/0 invalid, not by direct table mutation.
+- PRODUCT CHANGE → canonical import result for sales now routes to `/reports/import/:importId`, a source-bound report page that reads `canonical_dataset_records` by tenant + importId.
+- SMART REPORT OUTPUTS → Sales/time series/type mix/customer concentration are computed from the same imported rows; receivables is PARTIAL from rows classified as `آجل`; customer/RFM is REVIEW because 913 rows lack customer name; profitability/inventory/demand/purchases/supplier/forecast/benchmark are fail-closed where source fields do not support them.
+- REAL SOURCE QUALITY → 913 missing customer rows; 3 missing invoice numbers; 33 missing invoice types; 3 amount mismatches; 1,843 distinct invoice numbers.
+- REAL SOURCE TOTAL → 1,806,623,246 across the canonical source rows; 391 rows marked `آجل` total 467,984,170.
+- HOSTED PROOF → latest Vercel deployment for exact branch became READY; authenticated page fetch is blocked by login_required, so no hosted browser PASS is claimed from unauthenticated access.
+- CI STATE → build/typecheck succeeds on the recent head; current exact-head release certification had one script-parser failure from a duplicate `workCenter` binding, now repaired. Fresh checks are running.
+- OPEN → consume terminal exact-head CI; repair only the first reproducible current-SHA failure; then authenticated Edge/device proof when PC01 is online.
+- BLOCKERS → PC01 offline; browser-authenticated live UI not currently accessible; Phase-F/production promotion remains separate and fail-closed until its gates pass.
+- DO-NOT-REPEAT → no synthetic corpus as real-report proof; no generic source row presented as domain truth beyond supported fields; no benchmark/outcome fabrication; no direct DB status mutation.
+- RESUME → exact-head CI on candidate `456bc2d0e670c0852f4636d42edc3180c844df37`; then authenticated UI proof of `/reports/import/74c499d1-6e65-4834-a093-eef1eb633fb2`.
+
+---
+
 # LIVE SESSION CHECKPOINT — 2026-09-29 / REAL REPORT END-TO-END PROVEN
 
 - CURRENT CODE/TEST CANDIDATE → `9dc4c592330f91a86cfd0fe6ee2d0a80918b3cad`
