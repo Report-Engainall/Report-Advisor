@@ -75,18 +75,30 @@ jobs:
           retention-days: 14
   pdf-jeeb-diagnostic:
     runs-on: ubuntu-22.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
           persist-credentials: false
-      - name: Inspect native OCR capabilities
+      - name: Install native OCR runtime
         shell: bash
         run: |
           set -euo pipefail
-          echo "PDFTOPPM=$(command -v pdftoppm || true)"
-          echo "TESSERACT=$(command -v tesseract || true)"
-          pdftoppm -v 2>&1 | head -3 || true
-          tesseract --version 2>&1 | head -2 || true
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends poppler-utils tesseract-ocr tesseract-ocr-ara tesseract-ocr-eng
+      - name: Diagnose Jeeb OCR output
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/jeeb-ocr
+          pdftoppm -png -r 180 -f 1 -l 7 tests/fixtures/realistic-reports/الصراف جيب.pdf /tmp/jeeb-ocr/page >/dev/null 2>&1
+          : > /tmp/jeeb-ocr/all.txt
+          for image in /tmp/jeeb-ocr/page-*.png; do
+            echo "=== ${image} ===" >> /tmp/jeeb-ocr/all.txt
+            tesseract "${image}" stdout -l ara+eng --psm 6 2>/dev/null >> /tmp/jeeb-ocr/all.txt || true
+            echo >> /tmp/jeeb-ocr/all.txt
+          done
+          sed -n '1,260p' /tmp/jeeb-ocr/all.txt
+          echo "OCR_WORDS=$(grep -Eo '[[:alnum:]ء-ي٠-٩]+' /tmp/jeeb-ocr/all.txt | wc -l)"
