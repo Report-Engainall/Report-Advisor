@@ -14,9 +14,10 @@ const serviceRoleKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim();
 const supported = new Set(['.xlsx','.xls','.xlsm','.csv','.tsv','.ods','.pdf','.docx','.json','.jsonl','.txt','.md','.xml','.png','.jpg','.jpeg','.tiff','.webp','.bmp']);
 const resumeRunId = (process.env.RESUME_RUN_ID || '').trim();
 const resumeFromPath = (process.env.RESUME_FROM_PATH || '').trim();
-const ciKey = resumeRunId || process.env.GITHUB_RUN_ID || exactHead.slice(0, 12);
-const ciEmail = 'report-advisor-corpus-ci-' + ciKey + '@aghbari.example';
-const ciCompanyName = 'Aghbari Report Corpus CI ' + ciKey;
+const ciScopeKey = resumeRunId || process.env.GITHUB_RUN_ID || exactHead.slice(0, 12);
+const ciIdentityKey = ciScopeKey + '-' + exactHead.slice(0, 12);
+const ciEmail = 'report-advisor-corpus-ci-' + ciIdentityKey + '@aghbari.example';
+const ciCompanyName = 'Aghbari Report Corpus CI ' + ciScopeKey;
 
 if (!/^[0-9a-f]{40}$/.test(exactHead)) throw new Error('REAL_REPORT_CORPUS_EXACT_HEAD_MISSING');
 if (!supabaseUrl || !anonKey || !serviceRoleKey) throw new Error('REAL_REPORT_CORPUS_SUPABASE_RUNTIME_MISSING');
