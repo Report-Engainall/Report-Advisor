@@ -251,6 +251,34 @@ async function selectNextRealReport(page) {
       'id,status,source_fingerprint,created_at,result_summary',
       { order: 'created_at.desc', limit: 20 },
     );
+    const pendingByName = await restSelect(
+      page,
+      'import_jobs',
+      { company_id: companyId, status: 'processing' },
+      'id,status,job_type,created_at,result_summary',
+      { order: 'created_at.desc', limit: 100 },
+    );
+    const pending = pendingByName.find(
+      row => row?.result_summary?.file_name === path.basename(candidatePath),
+    );
+    if (pending) {
+      evidence.steps.push({
+        step: 'real-report-existing-pending-resume',
+        status: 'PASS',
+        fileName: path.basename(candidatePath),
+        sourceHash,
+        importJobId: pending.id,
+      });
+      realReportPath = candidatePath;
+      return {
+        companyId,
+        sourceHash,
+        filePath: candidatePath,
+        corpusIndex: candidateIndex + 1,
+        existingImportId: pending.id,
+        existingEntityType: String(pending.job_type || 'generic:source-data'),
+      };
+    }
     const completed = existing.find(row => row?.status === 'completed');
     if (completed) {
       evidence.steps.push({ step: 'real-report-existing-completed-skip', status: 'PASS', fileName: path.basename(candidatePath), sourceHash, importJobId: completed.id });
@@ -271,35 +299,74 @@ async function importRealReportOne(page, selection, reportKey) {
   const sourceHash = selection.sourceHash;
   evidence.steps.push({ step: `real-report-selected:${reportKey}`, status: 'PASS', fileName, sourceHash, bytes: rawBytes.length });
 
-  await openImportSource(page);
-  await page.locator('input[type=file]').first().setInputFiles(filePath);
-  await page.getByText('المراجعة', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
-  const qualityApproval = page.getByRole('checkbox', { name: /موافقة جودة صريحة/ });
-  if (await qualityApproval.count() === 1 && await qualityApproval.isVisible()) {
-    await qualityApproval.check();
-    evidence.steps.push({ step: `real-report-quality-approval:${reportKey}`, status: 'PASS' });
-  }
+  let importId = '';
+  let executionJobId = '';
+  if (selection.existingImportId) {
+    const token = await accessToken(page);
+    const response = await fetch(`${baseURL}/api/canonical-import-execute`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        importId: selection.existingImportId,
+        fileName,
+        sourceHash,
+        entityType: selection.existingEntityType || 'generic:source-data',
+        rows: [],
+        qualityScore: 100,
+        qualityApproved: true,
+        mode: 'execute',
+      }),
+    });
+    const body = await response.json().catch(() => ({}));
+    assert.equal(
+      response.ok,
+      true,
+      `canonical-import-execute resume HTTP ${response.status}: ${JSON.stringify(body).slice(0, 2000)}`,
+    );
+    importId = String(body?.importId || selection.existingImportId).trim();
+    executionJobId = String(body?.jobId || '').trim();
+    assert.ok(importId, 'resumed canonical import must return importId');
+    assert.ok(executionJobId, 'resumed canonical import must return durable execution jobId');
+    evidence.steps.push({
+      step: `real-report-resumed-existing-job:${reportKey}`,
+      status: 'PASS',
+      importJobId: importId,
+      executionJobId,
+    });
+  } else {
+    await openImportSource(page);
+    await page.locator('input[type=file]').first().setInputFiles(filePath);
+    await page.getByText('المراجعة', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+    const qualityApproval = page.getByRole('checkbox', { name: /موافقة جودة صريحة/ });
+    if (await qualityApproval.count() === 1 && await qualityApproval.isVisible()) {
+      await qualityApproval.check();
+      evidence.steps.push({ step: `real-report-quality-approval:${reportKey}`, status: 'PASS' });
+    }
 
-  const commit = page.getByRole('button', { name: /تأكيد الاستيراد/ });
-  if (!(await commit.isEnabled())) {
-    const reviewText = (await page.locator('body').innerText()).slice(0, 5000);
-    await page.screenshot({ path: `${reportDir}/${reportKey}-review.png`, fullPage: true });
-    return { reportKey, state: 'REVIEW', fileName, sourceHash, reviewText };
-  }
+    const commit = page.getByRole('button', { name: /تأكيد الاستيراد/ });
+    if (!(await commit.isEnabled())) {
+      const reviewText = (await page.locator('body').innerText()).slice(0, 5000);
+      await page.screenshot({ path: `${reportDir}/${reportKey}-review.png`, fullPage: true });
+      return { reportKey, state: 'REVIEW', fileName, sourceHash, reviewText };
+    }
 
-  const executionResponsePromise = page.waitForResponse(response =>
-    response.request().method() === 'POST' &&
-    (response.url().includes('/api/canonical-import-execute') || response.url().includes('/.netlify/functions/canonical-import-execute')),
-    { timeout: 30000 },
-  );
-  await commit.click();
-  const executionResponse = await executionResponsePromise;
-  const executionBody = await executionResponse.json().catch(() => ({}));
-  assert.equal(executionResponse.ok(), true, `canonical-import-execute HTTP ${executionResponse.status()}: ${JSON.stringify(executionBody).slice(0, 2000)}`);
-  const importId = String(executionBody?.importId || '').trim();
-  const executionJobId = String(executionBody?.jobId || '').trim();
-  assert.ok(importId, 'canonical import response must return importId');
-  assert.ok(executionJobId, 'canonical import response must return durable execution jobId');
+    const executionResponsePromise = page.waitForResponse(response =>
+      response.request().method() === 'POST' &&
+      (response.url().includes('/api/canonical-import-execute') || response.url().includes('/.netlify/functions/canonical-import-execute')),
+      { timeout: 30000 },
+    );
+    await commit.click();
+    const executionResponse = await executionResponsePromise;
+    const executionBody = await executionResponse.json().catch(() => ({}));
+    assert.equal(executionResponse.ok(), true, `canonical-import-execute HTTP ${executionResponse.status()}: ${JSON.stringify(executionBody).slice(0, 2000)}`);
+    importId = String(executionBody?.importId || '').trim();
+    executionJobId = String(executionBody?.jobId || '').trim();
+    assert.ok(importId, 'canonical import response must return importId');
+    assert.ok(executionJobId, 'canonical import response must return durable execution jobId');
+  }
 
   const companyId = evidence.tenantA ?? await currentTenant(page);
   const deadline = Date.now() + 180000;

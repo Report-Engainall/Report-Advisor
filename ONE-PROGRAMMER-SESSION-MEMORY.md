@@ -1039,3 +1039,19 @@
 - UNTRACKED SESSION HARNESS: `scripts/execute-real-corpus-edge.mjs` remains temporary session tooling only; it must not become a second canonical runner. The governed runner remains the project's existing report-first execution path.
 - DO-NOT-REPEAT: no duplicate importer/runner; no direct DB insertion; no guessed credentials; no stale PASS; no reuse of the failed 503 proof; no report advancement to REPORT_002 before REPORT_001 closes.
 - NEXT EXACT ACTION: restore a valid authenticated browser/E2E session using the existing supported project path; reuse one existing REPORT_001 job; execute REPORT_001 end-to-end; reconcile the two leftover jobs; prove the nine stages and source-bound report surfaces; persist CLOSED; advance to REPORT_002.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / WORKER TENANT-CONTEXT FIX + PENDING-JOB RESUME HARDENED
+
+- CONTROL HEAD BEFORE THIS CHECKPOINT: `f0b4be84603a5dfe08168bf5a2f834e8bc2caca3`.
+- ACTIVE REPORT: REPORT_001 = `اعمار الديون للعملا.pdf`; raw SHA256 `9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`.
+- ROOT CAUSE #1 FIXED: `canonical-import-worker` used the service-role client as `dataClient` for `import_commit_batch`. That RPC resolves `current_company_id()` from the authenticated user context, so service-role-only execution could reach `TENANT_CONTEXT_REQUIRED`.
+- REMEDIATION: worker now keeps the service-role client for authoritative source/job access and durable enqueue/lease, while passing the authenticated user-scoped client as `dataClient` for canonical commit.
+- LIVE DEPLOYMENT: `canonical-import-worker` version 8 ACTIVE; bundle SHA `81998cf547bd56db862470ab7ca9002be4450e4ffccc52259f11fe684f02540f`.
+- ROOT CAUSE #2 FIXED IN RUNNER: the real-corpus runner previously created a new import job when an earlier attempt left the same corpus file in `processing`. It now detects the latest pending job by exact filename and resumes that job through the existing canonical endpoint, preventing duplicate report jobs after a recoverable failure.
+- NO NEW CANONICAL PATH: the runner still calls `/api/canonical-import-execute`; no alternate importer, RPC, or report pipeline was added.
+- CURRENT LIVE DB EFFECT: current CI attempt has created multiple `processing` import jobs while the worker returned 400; these are not CLOSED reports and must be resumed/reconciled, not duplicated again.
+- CURRENT REPORT STATUS: REPORT_001 NOT CLOSED. No canonical DB commit/readback, 9-stage terminal proof, source/domain render, downstream output bundle, or A/B isolation is considered proven until the next successful terminal E2E artifact.
+- NEXT EXACT ACTION: allow the in-flight old-SHA run to terminate; then execute the newly committed runner/worker pair. REPORT_001 must resume from its existing pending job first, reach canonical commit + nine completed stages + Source Report VERIFIED + source-bound receivables report + downstream bundle + A/B isolation, then and only then REPORT_002.
+- DO-NOT-REPEAT: no new job for a same-file pending report; no direct DB insertion; no service-role canonical commit without user tenant context; no stale PASS; no report advancement before REPORT_001 closes.
