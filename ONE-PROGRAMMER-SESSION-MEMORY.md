@@ -1289,3 +1289,20 @@
 - ACTION STATUS: `IN_PROGRESS`
 - NEXT EXACT ACTION: run the focused frontend/query test and then the real-report browser E2E against the resulting exact SHA; verify REPORT_007 source heading, VERIFIED state, provenance, nine stages, and domain surface; then persist observed proof and resume at the next unclosed report.
 - DO-NOT-REPEAT: do not create a new importer, do not mutate the completed REPORT_007 data, do not re-run REPORT_001–REPORT_006 absent regression evidence.
+
+
+---
+
+# RESUME TOKEN — 2026-09-30 / PRE-BROWSER PROOF CHECKPOINT
+
+- CURRENT EXACT HEAD SHA: `352dfeb0e19d3ae4cb3327f0760ef010d167d01e`
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`
+- CURRENT REPORT: `REPORT_007` / `الاصناف مع التسعيرة مع المخزون.xlsx`
+- SOURCE FINGERPRINT: `cf6a9cefa3a5321df631daf6bbc8c7e4d7d2a8db60014c0b11457043f0650e4`
+- CURRENT STAGE: source-report canonical readback after completed import/execution.
+- ACTION STATUS: `IN_PROGRESS`
+- LAST VERIFIED STATE: import completed; 436/436 valid; durable execution rendered; source-analysis analyzed; legacy result_summary missing file_name is the reproduced UI identity defect.
+- ROOT FIX COMMIT: `c421d86c60bee78f58c71aaf15dc59a41ad298c0` — source filename fallback now reads tenant-scoped durable execution identity.
+- CURRENT GOVERNANCE CHECKPOINTS: session memory and `docs/MASTER_EXECUTION_INDEX.md` have both been reconciled to the exact resulting SHA `352dfeb0e19d3ae4cb3327f0760ef010d167d01e`.
+- NEXT EXACT ACTION: obtain current-head browser proof for REPORT_007 using the READY Vercel deployment/PR CI path; then either close REPORT_007 with observed proof or fix the next canonical boundary.
+- DO-NOT-REPEAT: no re-import of REPORT_007; no stale 065fe639 browser result as proof of the fix; do not mark CLOSED until current-head UI proof observes filename, VERIFIED, provenance, nine stages, and applicable domain output.
