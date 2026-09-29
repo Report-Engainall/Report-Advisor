@@ -1281,7 +1281,7 @@
 
 # RESUME TOKEN — 2026-09-30 / ROOT FIX PERSISTED / QUERY IDENTITY HARDENING
 
-- CURRENT EXACT HEAD SHA: `c421d86c60bee78f58c71aaf15dc59a41ad298c0`
+- CURRENT EXACT HEAD SHA: `0371cbf387d565684b699ec1b1d045e5774030d3`
 - ROOT FIX COMMIT: `c421d86c60bee78f58c71aaf15dc59a41ad298c0`
 - FIXED CANONICAL PATH: `src/lib/queries.ts -> fetchCanonicalSourceReport()` now recovers the real source filename from tenant-scoped `report_execution_jobs.source_path` when legacy `import_jobs.result_summary.file_name` is absent.
 - TARGET REAL REPORT: `REPORT_007` / `الاصناف مع التسعيرة مع المخزون.xlsx` / `sha256:cf6a9cefae3a5321df631daf6bbc8c7e4d7d2a8db60014c0b11457043f0650e4`.
