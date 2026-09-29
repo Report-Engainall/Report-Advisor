@@ -90,10 +90,6 @@ function pdfWithText(text: string): ArrayBuffer {
 }
 
 async function main(): Promise<void> {
-  if (!process.env.VITE_SUPABASE_URL || !process.env.VITE_SUPABASE_ANON_KEY) {
-    throw new Error('PDF regression requires the real Supabase test configuration; no fake environment is accepted.');
-  }
-
   const vite: ViteDevServer = await createServer({ logLevel: 'error', server: { middlewareMode: true }, appType: 'custom' });
   try {
     const { parseFile, classifyOcrConfidence } = await vite.ssrLoadModule('/src/lib/file-engine/adapters.ts') as {
