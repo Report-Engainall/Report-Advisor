@@ -859,6 +859,29 @@ function tryParseBankMovementSummaryPlacements(items: PdfTextPlacement[]): Row[]
   return unique.length >= 2 ? unique : null;
 }
 
+function normalizedPdfRowValue(row: Row, pattern: RegExp): string {
+  const key = Object.keys(row).find((candidate) => pattern.test(normalizeColumnName(candidate)));
+  return key ? String(row[key] ?? '').trim() : '';
+}
+
+export function isPdfBusinessTableRow(row: Row): boolean {
+  const invoiceNumber = normalizedPdfRowValue(row, /(?:رقم\\s*(?:الفاتورة|فاتورة|المستند)|invoice\\s*(?:number|no\\.? )|document\\s*no)/i);
+  const invoiceDate = normalizedPdfRowValue(row, /(?:التاريخ|تاريخ\\s*الفاتورة|invoice\\s*date|date)/i);
+  const customerName = normalizedPdfRowValue(row, /(?:اسم\\s*العميل|العميل|customer\\s*name)/i);
+
+  const invoiceFieldExists = Object.keys(row).some((candidate) =>
+    /(?:رقم\\s*(?:الفاتورة|فاتورة|المستند)|invoice\\s*(?:number|no\\.? )|document\\s*no)/i.test(normalizeColumnName(candidate)),
+  );
+
+  if (!invoiceFieldExists) return true;
+  if (!invoiceNumber) return false;
+  if (!invoiceDate) return false;
+
+  const summaryCustomer = /^(?:الإجمالي|الاجمالي|المجموع|اجمال(?:ي|ى)|total|subtotal|grand\\s*total)\\s*:?$/i;
+  if (customerName && summaryCustomer.test(customerName.normalize('NFKC').trim())) return false;
+  return true;
+}
+
 function assignPdfRow(line: PdfTextPlacement[], header: PdfTableHeader): Row | null {
   const sortedAnchors = [...header.anchors].sort((a, b) => a.centerX - b.centerX);
   const cells = sortedAnchors.map(() => [] as string[]);
@@ -903,7 +926,7 @@ export function extractPdfTableRowsFromTextItems(
   for (let index = 0; index < lines.length; index += 1) {
     if (headerIndices.has(index)) continue;
     const row = assignPdfRow(lines[index], header);
-    if (!row) continue;
+    if (!row || !isPdfBusinessTableRow(row)) continue;
     const signature = Object.values(row).map(value => normalizeColumnName(String(value))).join('|');
     if (signature === header.signature) continue;
     rows.push(row);
