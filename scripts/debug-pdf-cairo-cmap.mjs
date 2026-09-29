@@ -87,8 +87,9 @@ function buildReverseCmap(fontBytes) {
 }
 
 const fontObj = objectStream(8);
+console.log(JSON.stringify({font_dict: fontObj?.dict, font_stream_length: fontObj?.bytes?.length, font_first_bytes: Array.from(fontObj?.bytes?.subarray(0,16) ?? [])}, null, 2));
 if (!fontObj) throw new Error('FONT_OBJECT_8_NOT_FOUND');
-const fontBytes = fontObj.dict.includes('/FlateDecode') ? (() => { try { return zlib.inflateSync(fontObj.bytes); } catch { return zlib.inflateRawSync(fontObj.bytes); } })() : fontObj.bytes;
+const fontBytes = fontObj.bytes;
 const reverse = buildReverseCmap(fontBytes);
 
 function decodeHex(hex) {
