@@ -47,7 +47,13 @@ export async function fetchCanonicalImportSourceContext(importId: string): Promi
     .maybeSingle();
   if (error) throw error;
   if (!data) throw new Error('REPORT_SOURCE_NOT_FOUND');
-  return data as CanonicalImportSourceContext;
+  const result = data as CanonicalImportSourceContext;
+  const summary = result.result_summary ?? {};
+  const summaryHash = typeof summary.source_hash === 'string' ? summary.source_hash : null;
+  return {
+    ...result,
+    source_fingerprint: result.source_fingerprint ?? summaryHash,
+  };
 }
 
 export async function fetchCanonicalImportSourceRows(importId: string, limit = 5000): Promise<CanonicalImportSourceRow[]> {
@@ -55,13 +61,27 @@ export async function fetchCanonicalImportSourceRows(importId: string, limit = 5
   if (!Number.isInteger(limit) || limit < 1 || limit > 5000) throw new Error('REPORT_QUERY_INVALID_IMPORT_LIMIT');
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
-  const { data, error } = await supabase
+
+  const context = await fetchCanonicalImportSourceContext(importId);
+  const summary = context.result_summary ?? {};
+  const sourceHash = context.source_fingerprint
+    ?? (typeof summary.source_hash === 'string' ? summary.source_hash : null);
+
+  let query = supabase
     .from('canonical_dataset_records')
     .select('row_number,semantic_domain,record_key,data,provenance')
-    .eq('company_id', companyId)
-    .eq('import_job_id', importId)
+    .eq('company_id', companyId);
+
+  if (sourceHash) {
+    query = query.eq('source_hash', sourceHash);
+  } else {
+    query = query.eq('import_job_id', importId);
+  }
+
+  const { data, error } = await query
     .order('row_number', { ascending: true })
     .range(0, limit - 1);
+
   if (error) throw error;
   return (data ?? []) as CanonicalImportSourceRow[];
 }
