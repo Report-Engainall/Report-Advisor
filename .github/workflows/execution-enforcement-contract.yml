@@ -51,6 +51,14 @@ jobs:
       - name: Install repository dependencies
         run: npm ci --no-audit --no-fund
 
+      - name: Install native OCR runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends poppler-utils tesseract-ocr tesseract-ocr-ara tesseract-ocr-eng
+
+
       - name: Run embedded PDF font recovery regression
         run: node scripts/check-pdf-embedded-font-recovery.mjs
 
@@ -73,33 +81,3 @@ jobs:
           path: artifacts/real-report-corpus
           if-no-files-found: warn
           retention-days: 14
-  pdf-jeeb-diagnostic:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 1
-          persist-credentials: false
-      - name: Install OCR runtime
-        shell: bash
-        run: |
-          set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends poppler-utils tesseract-ocr tesseract-ocr-ara tesseract-ocr-eng
-      - name: Compare Tesseract segmentation modes
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -rf /tmp/jeeb-ocr
-          mkdir -p /tmp/jeeb-ocr
-          pdftoppm -png -r 220 -f 1 -l 2 "tests/fixtures/realistic-reports/الصراف جيب.pdf" /tmp/jeeb-ocr/page >/dev/null 2>&1
-          for psm in 3 6 11 12; do
-            : > "/tmp/jeeb-ocr/psm-${psm}.tsv"
-            for image in /tmp/jeeb-ocr/page-*.png; do
-              tesseract "${image}" stdout -l ara+eng --psm "${psm}" tsv 2>/dev/null | tail -n +2 >> "/tmp/jeeb-ocr/psm-${psm}.tsv" || true
-            done
-            echo "PSM=${psm}"
-            awk -F '\t' '{if ($11 ~ /^[0-9.]+$/ && $11 >= 0) {sum += $11; n++}} END {if(n) printf "CONF_AVG=%.2f WORDS=%d\n",sum/n,n; else print "CONF_AVG=0 WORDS=0"}' "/tmp/jeeb-ocr/psm-${psm}.tsv"
-          done
