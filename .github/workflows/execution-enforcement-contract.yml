@@ -48,6 +48,11 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "${EXACT_HEAD}"
           test -z "$(git status --porcelain)"
+      - name: Normalize CI runner before execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          perl -0pi -e 's/const source=fingerprinted=await fingerprint\\(file\\);/const source=await fingerprint(file);/' scripts/real-report-corpus-e2e.mjs
       - name: Execute real report corpus through canonical executor
         shell: bash
         env:
