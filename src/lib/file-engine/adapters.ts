@@ -445,9 +445,10 @@ async function inflatePdfStream(bytes: Uint8Array): Promise<Uint8Array> {
 }
 
 function pdfObjectStream(raw: string, objectNumber: number): { dict: string; bytes: Uint8Array } | null {
-  const marker = `${objectNumber} 0 obj`;
-  const objectStart = raw.indexOf(marker);
-  if (objectStart < 0) return null;
+  const marker = new RegExp(`(?:^|[\\r\\n])\\s*${objectNumber}\\s+0\\s+obj\\b`);
+  const match = marker.exec(raw);
+  if (!match || match.index == null) return null;
+  const objectStart = match.index + match[0].search(/\\d/);
   const streamStart = raw.indexOf('stream', objectStart);
   const streamEnd = raw.indexOf('endstream', streamStart);
   if (streamStart < 0 || streamEnd < 0) return null;
@@ -457,6 +458,7 @@ function pdfObjectStream(raw: string, objectNumber: number): { dict: string; byt
   let bytes = latin1Encode(raw.slice(contentStart, streamEnd));
   while (bytes.length && (bytes[0] === 0x0a || bytes[0] === 0x0d)) bytes = bytes.subarray(1);
   return { dict: raw.slice(objectStart, streamStart), bytes };
+}
 }
 
 export async function loadEmbeddedPdfGlyphMap(buffer: ArrayBuffer): Promise<PdfGlyphMap | null> {
