@@ -91,16 +91,26 @@ function domainLabel(domain: ReportDomain): string {
   return labels[domain];
 }
 
-function normalizeDomain(value: string | null | undefined): ReportDomain {
-  const raw = String(value ?? '').toLowerCase();
-  if (raw.includes('sales')) return 'sales';
-  if (raw.includes('purchases')) return 'purchases';
-  if (raw.includes('receiv')) return 'receivables';
-  if (raw.includes('inventory') || raw.includes('stock')) return 'inventory';
-  if (raw.includes('payment') || raw.includes('cash') || raw.includes('liquidity') || raw.includes('bank')) return 'payments';
-  if (raw.includes('supplier')) return 'suppliers';
-  if (raw.includes('customer')) return 'customers';
-  if (raw.includes('product')) return 'products';
+function normalizeDomain(value: string | null | undefined, sourceName?: string | null): ReportDomain {
+  const semantic = String(value ?? '').toLowerCase();
+  const file = String(sourceName ?? '').toLowerCase();
+  const raw = \`${file} ${semantic}\`;
+
+  if (/ف العملاء الاجل|ديون العملاء|اعمار الديون للعملا|المبلغ المتبقي|ذمم/.test(raw)) return 'receivables';
+  if (/تقارير ادارية للمورد|اعمار الديون للمورد|الموردين|المورد/.test(raw)) return 'suppliers';
+  if (/الصراف|البنوك|حركة الصندوق|كشف حساب الصراف|السيولة|bank|payment|cash/.test(raw)) return 'payments';
+  if (/مخزون|الجرد|دوران|حركة المخزون|inventory|stock/.test(raw)) return 'inventory';
+  if (/الاصناف|بيانات الاصناف|product/.test(raw) && !/مع التسعيرة مع المخزون/.test(raw)) return 'products';
+  if (/مشتريات|purchase/.test(raw)) return 'purchases';
+  if (/مبيعات|فواتير العملاء|sales/.test(raw)) return 'sales';
+  if (semantic.includes('sales')) return 'sales';
+  if (semantic.includes('purchases')) return 'purchases';
+  if (semantic.includes('receiv')) return 'receivables';
+  if (semantic.includes('inventory') || semantic.includes('stock')) return 'inventory';
+  if (semantic.includes('payment') || semantic.includes('cash') || semantic.includes('liquidity') || semantic.includes('bank')) return 'payments';
+  if (semantic.includes('supplier')) return 'suppliers';
+  if (semantic.includes('customer')) return 'customers';
+  if (semantic.includes('product')) return 'products';
   return 'source-data';
 }
 
@@ -180,7 +190,8 @@ export function SourceBoundReportPage() {
 
   const domain = useMemo<ReportDomain>(() => {
     const semantic = rows.find((row) => row.semantic_domain)?.semantic_domain;
-    return normalizeDomain(semantic ?? context?.job_type);
+    const fileName = typeof context?.result_summary?.file_name === 'string' ? context.result_summary.file_name : null;
+    return normalizeDomain(semantic ?? context?.job_type, fileName);
   }, [context?.job_type, rows]);
 
   const analysis = useMemo(() => {
@@ -254,7 +265,6 @@ export function SourceBoundReportPage() {
 
     const missingCustomers = sourceRows.filter((row) => !textValue(row, ['customer_name', 'اسم العميل', 'customer', 'client_name'])).length;
     const missingSuppliers = sourceRows.filter((row) => !textValue(row, ['supplier_name', 'اسم المورد', 'supplier', 'vendor_name'])).length;
-    const missingProducts = sourceRows.filter((row) => !textValue(row, ['sku', 'رقم الصنف', 'كود الصنف', 'product_code', 'اسم الصنف', 'name'])).length;
     const missingDates = sourceRows.filter((row) => !textValue(row, ['date', 'التاريخ', 'invoice_date', 'payment_date', 'movement_date', 'last_payment_date'])).length;
 
     const domainMetrics: Array<{ label: string; value: string; hint: string }> = (() => {
