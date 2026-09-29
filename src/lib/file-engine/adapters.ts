@@ -468,15 +468,32 @@ function pdfObjectStream(raw: string, objectNumber: number): { dict: string; byt
     }
   }
   if (objectStart < 0) return null;
+
   const streamStart = raw.indexOf('stream', objectStart);
-  const streamEnd = raw.indexOf('endstream', streamStart);
-  if (streamStart < 0 || streamEnd < 0) return null;
+  if (streamStart < 0) return null;
+  const dict = raw.slice(objectStart, streamStart);
+
   let contentStart = streamStart + 6;
   if (raw[contentStart] === '\\r' && raw[contentStart + 1] === '\\n') contentStart += 2;
-  else if (raw[contentStart] === '\\n') contentStart += 1;
-  let bytes = latin1Encode(raw.slice(contentStart, streamEnd));
-  while (bytes.length && (bytes[0] === 0x0a || bytes[0] === 0x0d)) bytes = bytes.subarray(1);
-  return { dict: raw.slice(objectStart, streamStart), bytes };
+  else if (raw[contentStart] === '\\n' || raw[contentStart] === '\\r') contentStart += 1;
+
+  const lengthMatch = dict.match(/\\/Length\\s+(\\d+)\\b/);
+  if (lengthMatch) {
+    const length = Number(lengthMatch[1]);
+    if (Number.isSafeInteger(length) && length >= 0 && contentStart + length <= raw.length) {
+      return {
+        dict,
+        bytes: latin1Encode(raw.slice(contentStart, contentStart + length)),
+      };
+    }
+  }
+
+  const streamEnd = raw.indexOf('endstream', contentStart);
+  if (streamEnd < 0) return null;
+  return {
+    dict,
+    bytes: latin1Encode(raw.slice(contentStart, streamEnd)),
+  };
 }
 
 export async function loadEmbeddedPdfGlyphMap(buffer: ArrayBuffer): Promise<PdfGlyphMap | null> {
