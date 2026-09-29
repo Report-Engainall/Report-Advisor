@@ -14,12 +14,22 @@ export interface ImportedSpecialtyDetection{specialty:ImportedSpecialty;label:st
 const SPECIALTY_LABELS:Record<ImportedSpecialty,string>={sales:'المبيعات',purchases:'المشتريات',inventory:'المخزون',receivables:'الذمم والتحصيل',payments:'المدفوعات',customers:'العملاء',products:'المنتجات',other:'مصدر عام'};
 const hasAll=(mapped:Set<string>,required:string[])=>required.every(field=>mapped.has(field));
 const specialtyResult=(specialty:ImportedSpecialty,mapped:Set<string>,confidence:number,evidence:string[]):ImportedSpecialtyDetection=>({specialty,label:SPECIALTY_LABELS[specialty],confidence,evidence,canonicalEntityType:`generic:${specialty==='other'?'source-data':specialty}`,mappedFields:[...mapped].sort()});
-export function detectImportedSpecialty(dataset:Dataset):ImportedSpecialtyDetection{const mapped=new Set(dataset.columns.map(c=>c.mappedField).filter((v):v is string=>Boolean(v)));
+export function detectImportedSpecialty(dataset:Dataset):ImportedSpecialtyDetection{
+const mapped=new Set(dataset.columns.map(c=>c.mappedField).filter((v):v is string=>Boolean(v)));
+if(mapped.has('customer_id')||mapped.has('customer_name')){
+if(mapped.has('outstanding_balance')||mapped.has('balance')||mapped.has('age_0_30')||mapped.has('age_31_60')||mapped.has('age_61_90')||mapped.has('age_91_120')||mapped.has('age_over_120')||mapped.has('collected_amount'))return specialtyResult('receivables',mapped,96,['تمت مطابقة هوية العميل مع رصيد/أعمار الذمم أو التحصيل.']);
+if(hasAll(mapped,['invoice_number','invoice_date','subtotal','tax_amount','total','paid_amount','status']))return{specialty:'sales',label:SPECIALTY_LABELS.sales,confidence:95,evidence:['اكتملت بنية فاتورة المبيعات والقيم المالية وحالة الفاتورة مع مرجع عميل.'],canonicalEntityType:'sales_invoices',mappedFields:[...mapped].sort()};
+}
+if(mapped.has('debit')||mapped.has('credit')||mapped.has('payment_id')||(mapped.has('paid_amount')&&(mapped.has('payment_date')||mapped.has('payment_method'))))return specialtyResult('payments',mapped,92,['اكتملت حقول حركة مالية مدين/دائن أو حركة دفع قابلة للتتبع.']);
+if(mapped.has('supplier_id')||mapped.has('supplier_name')||mapped.has('purchase_order'))return specialtyResult('purchases',mapped,92,['ظهرت هوية المورد أو أمر شراء في مصدر المشتريات.']);
+if(mapped.has('sales_amount')||mapped.has('net_sales')||mapped.has('discount')||mapped.has('charges')){
+if(mapped.has('sku')||mapped.has('name'))return specialtyResult('sales',mapped,90,['ظهرت حقول حركة مبيعات وقيم خصم/ضريبة/صافي مرتبطة بالأصناف.']);
+}
+if(mapped.has('available_quantity')||mapped.has('warehouse'))return specialtyResult('inventory',mapped,90,['ظهرت هوية الصنف مع كمية متاحة أو مخزن.']);
 if(hasAll(mapped,['sku','name','unit','cost_price','selling_price','min_stock','reorder_point','is_active']))return{specialty:'products',label:SPECIALTY_LABELS.products,confidence:96,evidence:['اكتملت حقول الصنف والهوية والتسعير وإعادة الطلب.'],canonicalEntityType:'products',mappedFields:[...mapped].sort()};
 if(hasAll(mapped,['name','segment','credit_limit','payment_terms_days']))return{specialty:'customers',label:SPECIALTY_LABELS.customers,confidence:94,evidence:['اكتملت حقول هوية العميل وشريحة الائتمان وشروط الدفع.'],canonicalEntityType:'customers',mappedFields:[...mapped].sort()};
-if(hasAll(mapped,['invoice_number','invoice_date','subtotal','tax_amount','total','paid_amount','status'])&&(mapped.has('customer_id')||mapped.has('customer_name')))return{specialty:'sales',label:SPECIALTY_LABELS.sales,confidence:95,evidence:['اكتملت بنية فاتورة المبيعات والقيم المالية وحالة الفاتورة مع مرجع عميل قابل للحل.'],canonicalEntityType:'sales_invoices',mappedFields:[...mapped].sort()};
-if(mapped.has('supplier_id')||mapped.has('supplier_name')||mapped.has('purchase_order'))return specialtyResult('purchases',mapped,82,['ظهرت حقول مرتبطة بالمورد أو أمر الشراء.']);
-if(mapped.has('sku')&&mapped.has('quantity'))return specialtyResult('inventory',mapped,84,['ظهرت هوية صنف وكمية مخزون قابلة للقراءة.']);
-if((mapped.has('customer_id')||mapped.has('customer_name'))&&(mapped.has('outstanding_balance')||mapped.has('total')||mapped.has('balance')||mapped.has('due_date')||mapped.has('age_0_30')||mapped.has('age_31_60')||mapped.has('age_61_90')||mapped.has('age_91_120')||mapped.has('age_over_120')))return specialtyResult('receivables',mapped,94,['اكتملت هوية العميل مع رصيد مستحق أو حقول أعمار الذمم.']);
-if(mapped.has('payment_id')||(mapped.has('paid_amount')&&(mapped.has('payment_date')||mapped.has('payment_method'))))return specialtyResult('payments',mapped,80,['ظهرت حقول حركة دفع أو وسيلة وتاريخ دفع.']);
-return specialtyResult('other',mapped,Math.min(74,Math.max(20,Math.round(mapped.size/Math.max(1,dataset.columnCount)*70))),[mapped.size?`تم التعرف على ${mapped.size} حقول معيارية دون اكتمال تخصص مدعوم.`:'لم يتم التعرف على حقول معيارية كافية لتحديد تخصص.']);}
+if(hasAll(mapped,['sku','name','unit'])&&!(mapped.has('sales_amount')||mapped.has('net_sales')||mapped.has('available_quantity')))return specialtyResult('products',mapped,88,['اكتملت هوية الصنف الأساسية؛ بقية الحقول لا تكفي لإعلان حركة مالية.']);
+if(mapped.has('sku')&&mapped.has('quantity'))return specialtyResult('inventory',mapped,84,['ظهرت هوية صنف وكمية قابلة للقراءة.']);
+const evidence = mapped.size ? ['تم التعرف على '+mapped.size+' حقول معيارية دون اكتمال تخصص مدعوم.'] : ['لم يتم التعرف على حقول معيارية كافية لتحديد تخصص.'];
+return specialtyResult('other',mapped,Math.min(74,Math.max(20,Math.round(mapped.size/Math.max(1,dataset.columnCount)*70))),evidence);
+}
