@@ -258,7 +258,7 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
 
     const mergedEvidence = {
       ...metadataRecord(existingDurableJob.evidence),
-      renderedOutput,
+      renderedOutput: snapshotId && evidenceStatus === 'VERIFIED' ? { ...metadataRecord(renderedOutput), evidenceStatus, snapshotId } : renderedOutput,
     };
     const { error: durableEvidenceError } = await serviceClient
       .from('report_execution_jobs')
@@ -390,6 +390,98 @@ export async function executeCanonicalImport(value: unknown, authorization: stri
     if (!snapshotId) throw new Error('SOURCE_EVIDENCE_SNAPSHOT_ID_MISSING');
     evidenceStatus = 'VERIFIED';
     evidenceWarning = '';
+
+    const verifiedRenderedOutput = {
+      ...metadataRecord(renderedOutput),
+      evidenceStatus: 'VERIFIED',
+      snapshotId,
+    };
+    const durableExecutionJobId = typeof execution.executionJobId === 'string'
+      ? execution.executionJobId
+      : (typeof execution.jobId === 'string' && execution.jobId !== job.id ? execution.jobId : null);
+
+    if (durableExecutionJobId) {
+      const { data: durableJobRow, error: durableJobReadError } = await serviceClient
+        .from('report_execution_jobs')
+        .select('evidence')
+        .eq('id', durableExecutionJobId)
+        .eq('company_id', companyId)
+        .maybeSingle();
+      if (durableJobReadError) throw durableJobReadError;
+      if (durableJobRow) {
+        const mergedEvidence = {
+          ...metadataRecord(durableJobRow.evidence),
+          renderedOutput: verifiedRenderedOutput,
+        };
+        const { error: durableJobUpdateError } = await serviceClient
+          .from('report_execution_jobs')
+          .update({ evidence: mergedEvidence })
+          .eq('id', durableExecutionJobId)
+          .eq('company_id', companyId)
+          .eq('status', 'completed');
+        if (durableJobUpdateError) throw durableJobUpdateError;
+
+        const { data: renderedTaskRow, error: renderedTaskReadError } = await serviceClient
+          .from('report_execution_tasks')
+          .select('evidence')
+          .eq('report_execution_job_id', durableExecutionJobId)
+          .eq('company_id', companyId)
+          .eq('stage', 'rendered')
+          .maybeSingle();
+        if (renderedTaskReadError) throw renderedTaskReadError;
+        if (renderedTaskRow) {
+          const { error: renderedTaskUpdateError } = await serviceClient
+            .from('report_execution_tasks')
+            .update({
+              evidence: {
+                ...metadataRecord(renderedTaskRow.evidence),
+                renderedOutput: verifiedRenderedOutput,
+              },
+            })
+            .eq('report_execution_job_id', durableExecutionJobId)
+            .eq('company_id', companyId)
+            .eq('stage', 'rendered')
+            .eq('status', 'completed');
+          if (renderedTaskUpdateError) throw renderedTaskUpdateError;
+        }
+      }
+    }
+
+    const { data: refreshedImportJob, error: refreshedImportJobReadError } = await serviceClient
+      .from('import_jobs')
+      .select('result_summary')
+      .eq('id', job.id)
+      .eq('company_id', companyId)
+      .maybeSingle();
+    if (refreshedImportJobReadError) throw refreshedImportJobReadError;
+    if (refreshedImportJob) {
+      const { error: refreshedImportJobUpdateError } = await serviceClient
+        .from('import_jobs')
+        .update({
+          result_summary: {
+            ...metadataRecord(refreshedImportJob.result_summary),
+            evidence_status: 'VERIFIED',
+            snapshot_id: snapshotId,
+            rendered_output: verifiedRenderedOutput,
+          },
+        })
+        .eq('id', job.id)
+        .eq('company_id', companyId);
+      if (refreshedImportJobUpdateError) throw refreshedImportJobUpdateError;
+    }
+
+    const { error: snapshotMetadataUpdateError } = await serviceClient
+      .from('source_analysis_snapshots')
+      .update({
+        metadata: {
+          ...metadataRecord(snapshot?.metadata),
+          renderedOutput: verifiedRenderedOutput,
+          evidenceStatus: 'VERIFIED',
+        },
+      })
+      .eq('id', snapshotId)
+      .eq('company_id', companyId);
+    if (snapshotMetadataUpdateError) throw snapshotMetadataUpdateError;
   } catch (snapshotError) {
     console.error('[canonical-import-executor] evidence snapshot persistence failed after durable commit', snapshotError);
   }
