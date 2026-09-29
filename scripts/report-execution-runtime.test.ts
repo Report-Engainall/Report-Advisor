@@ -56,3 +56,41 @@ const snapshotGuard = fs.readFileSync('scripts/check-report-execution-source-sna
 assert.match(snapshotGuard, /sourceSnapshotId/);
 
 console.log('Report execution runtime: PASS (checkpoint + lease/dead-letter + tenant/idempotency + verified source snapshot lifecycle invariants)');
+
+
+const durableRunner = await import('../src/lib/report-execution/durable-production-runner.ts');
+const renderStages: string[] = [];
+const completionEvidence: Record<string, unknown>[] = [];
+const fakeStore = {
+  claim: async () => ({
+    id: 'job-render-test', tenantId: 'tenant-test', status: 'queued',
+    checkpoint: { stage: 'queued', sourceHash: 'sha-render-test', evidenceKeys: [], updatedAt: Date.now() },
+    attempt: 1, maxAttempts: 3, leaseOwner: 'worker', leaseToken: 'lease-token',
+    leaseExpiresAt: new Date(Date.now() + 300_000).toISOString(),
+  }),
+  heartbeat: async () => {},
+  saveCheckpoint: async (_jobId: string, checkpoint: ReportExecutionCheckpoint) => renderStages.push(checkpoint.stage),
+  complete: async (_jobId: string, _workerId: string, evidence: Record<string, unknown>) => completionEvidence.push(evidence),
+  fail: async () => {},
+};
+const renderResult = await durableRunner.runDurableProductionLifecycle({
+  jobId: 'job-render-test', workerId: 'worker', sourceHash: 'sha-render-test', rows: [{ amount: 10 }],
+  request: { reportId: 'report-render-test', tenantId: 'tenant-test', requestedBy: 'user-test', parameters: {}, formats: ['web'], idempotencyKey: 'render-test' },
+  lifecycle: {
+    previousRows: [],
+    currentRows: [{ key: 'row-1', hash: 'row-hash', value: { amount: 10 } }],
+    sourceCandidates: [{ businessKey: 'row-1', sourceId: 'sha-render-test', precedence: 0, observedAt: new Date().toISOString(), value: { amount: 10 } }],
+    scenarioOptions: [{ key: 'report-render-test', expectedImpact: 1, risk: 1, liquidityRequired: 0, serviceLevel: 1 }],
+    riskBudget: { maxRisk: 1, protectedLiquidity: 1, minimumServiceLevel: 0 },
+    portfolioCandidates: [{ key: 'report-render-test', materiality: 0.5, confidence: 0.9, urgency: 0.5, risk: 1 }],
+    autonomy: { trustHealthy: false, evidenceQuality: 0.9, confidence: 0.9, riskBudgetValid: true, criticalDrift: false, rollbackVerified: false, isolationVerified: false },
+    evidence: [{ key: 'evidence-1', source: 'sha-render-test', observedAt: new Date().toISOString(), quality: 0.9 }],
+  },
+  executeStage: async (stage: any) => {
+    renderStages.push('execute:' + stage);
+    if (stage === 'rendered') return { sourceHash: 'sha-render-test', sourceBound: true, outputs: [{ key: 'executive', path: '/reports/executive' }] };
+  },
+}, fakeStore as any);
+assert.deepEqual(renderStages.slice(-2), ['execute:committed', 'execute:rendered']);
+assert.ok(Array.isArray(completionEvidence[0]?.renderedOutput?.outputs));
+assert.equal((renderResult as any).renderedOutput.sourceBound, true);

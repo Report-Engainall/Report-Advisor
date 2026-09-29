@@ -20,7 +20,7 @@ export interface DurableProductionRunInput<T = unknown> {
   sourceHash: string;
   rows: Array<Record<string, unknown>>;
   lifecycle: Omit<ProductionLifecycleInput<T>, 'jobId' | 'companyId' | 'sourceHash' | 'currentRows'> & { currentRows: ProductionLifecycleInput<T>['currentRows'] };
-  executeStage?: (stage: ReportExecutionStage, input: { request: ReportExecutionRequest; rows: Array<Record<string, unknown>> }) => Promise<void>;
+  executeStage?: (stage: ReportExecutionStage, input: { request: ReportExecutionRequest; rows: Array<Record<string, unknown>> }) => Promise<Record<string, unknown> | void>;
   loadSourceSnapshot?: (input: { request: ReportExecutionRequest; expectedSourceHash: string; sourceSnapshotId: string }) => Promise<DurableSourceSnapshot<T>>;
   leaseSeconds?: number;
   heartbeatIntervalMs?: number;
@@ -55,12 +55,16 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
     }, heartbeatIntervalMs);
 
     const checkpoint = (stage: ReportExecutionStage): ReportExecutionCheckpoint => ({ ...job.checkpoint, sourceHash: input.sourceHash, stage, updatedAt: Date.now() });
+    let renderedOutput: Record<string, unknown> | undefined;
     let stage = job.checkpoint.stage;
     while (stage !== 'rendered') {
       if (heartbeatFailure) throw heartbeatFailure;
       const following = next(stage);
       if (!following) throw new Error(`Cannot advance production lifecycle from ${stage}`);
-      if (input.executeStage) await input.executeStage(following, { request: input.request, rows: sourceRows });
+      const stageResult = input.executeStage ? await input.executeStage(following, { request: input.request, rows: sourceRows }) : undefined;
+      if (following === 'rendered' && stageResult && typeof stageResult === 'object' && !Array.isArray(stageResult)) {
+        renderedOutput = stageResult as Record<string, unknown>;
+      }
       if (heartbeatFailure) throw heartbeatFailure;
       await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId, tenantId);
       stage = following;
@@ -82,8 +86,9 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       scenario: lifecycle.scenario,
       portfolio: lifecycle.portfolio,
       autonomy: lifecycle.autonomy,
+      ...(renderedOutput ? { renderedOutput } : {}),
     }, tenantId);
-    return lifecycle;
+    return renderedOutput ? { ...lifecycle, renderedOutput } : lifecycle;
   } catch (error) {
     try {
       await store.fail(input.jobId, input.workerId, { message: error instanceof Error ? error.message : String(error) }, tenantId);

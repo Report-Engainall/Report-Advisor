@@ -208,3 +208,7 @@ for (const dir of sourceDirs) {
 }
 
 console.log('Import transaction contract: PASS');
+
+if (!/import_finish_job/.test(adapter)) throw new Error('Canonical durable adapter must finalize import jobs through the governed import_finish_job RPC');
+if (!/recovered_from_completed_durable_job/.test(adapter)) throw new Error('Canonical durable adapter must recover completed durable jobs after interrupted client sessions');
+if (!/stage === 'rendered'/.test(adapter)) throw new Error('Canonical durable adapter must persist rendered-stage output evidence');
