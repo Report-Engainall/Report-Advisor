@@ -18,8 +18,11 @@ export function detectImportedSpecialty(dataset:Dataset):ImportedSpecialtyDetect
 const mapped=new Set(dataset.columns.map(c=>c.mappedField).filter((v):v is string=>Boolean(v)));
 if(mapped.has('customer_id')||mapped.has('customer_name')){
 if(mapped.has('outstanding_balance')||mapped.has('balance')||mapped.has('age_0_30')||mapped.has('age_31_60')||mapped.has('age_61_90')||mapped.has('age_91_120')||mapped.has('age_over_120')||mapped.has('collected_amount'))return specialtyResult('receivables',mapped,96,['تمت مطابقة هوية العميل مع رصيد/أعمار الذمم أو التحصيل.']);
-if(hasAll(mapped,['invoice_number','invoice_date','subtotal','tax_amount','total','paid_amount','status']))return{specialty:'sales',label:SPECIALTY_LABELS.sales,confidence:95,evidence:['اكتملت بنية فاتورة المبيعات والقيم المالية وحالة الفاتورة مع مرجع عميل.'],canonicalEntityType:'sales_invoices',mappedFields:[...mapped].sort()};
+if(mapped.has('invoice_number')&&(mapped.has('date')||mapped.has('invoice_date'))&&(mapped.has('total')||mapped.has('sales_amount')||mapped.has('net_sales')))return specialtyResult('sales',mapped,96,['ظهرت بنية فاتورة مبيعات برقم وتاريخ وقيمة مالية وهوية العميل.']);
+if(hasAll(mapped,['invoice_number','invoice_date','subtotal','tax_amount','total','paid_amount','status']))return{specialty:'sales',label:SPECIALTY_LABELS.sales,confidence:95,evidence:['اكتملت بنية فاتورة المبيعات والقيم المالية وحالة الفاتورة مع مرجع عميل.'],canonicalEntityType:'sales_invoices',mappedFields:[...mapped].sort()] ;
 }
+if(mapped.has('customer_name')&&mapped.has('phone')&&mapped.has('segment')&&mapped.has('status'))return specialtyResult('customers',mapped,92,['ظهر دليل عملاء مرجعي يتضمن هوية العميل والهاتف والحالة والمجموعة.']);
+
 if(mapped.has('debit')||mapped.has('credit')||mapped.has('payment_id')||(mapped.has('paid_amount')&&(mapped.has('payment_date')||mapped.has('payment_method'))))return specialtyResult('payments',mapped,92,['اكتملت حقول حركة مالية مدين/دائن أو حركة دفع قابلة للتتبع.']);
 if(mapped.has('supplier_id')||mapped.has('supplier_name')||mapped.has('purchase_order'))return specialtyResult('purchases',mapped,92,['ظهرت هوية المورد أو أمر شراء في مصدر المشتريات.']);
 if(mapped.has('local_amount')&&((mapped.has('sku')||mapped.has('name')))&&!mapped.has('sales_amount')&&!mapped.has('net_sales'))return specialtyResult('purchases',mapped,90,['ظهرت هوية صنف مع مبلغ شراء/إجمالي محلي دون حقول مبيعات.']);
@@ -27,7 +30,7 @@ if(mapped.has('sales_amount')||mapped.has('net_sales')||mapped.has('discount')||
 if(mapped.has('sku')||mapped.has('name'))return specialtyResult('sales',mapped,90,['ظهرت حقول حركة مبيعات وقيم خصم/ضريبة/صافي مرتبطة بالأصناف.']);
 }
 if(hasAll(mapped,['sku','name','unit'])&&(mapped.has('selling_price')||mapped.has('price')||mapped.has('min_price')||mapped.has('max_price'))&&!mapped.has('warehouse'))return specialtyResult('products',mapped,92,['اكتملت هوية الصنف مع تسعير واضح؛ الكمية المتوفرة تعامل كسياق مرجعي لا كتقرير حركة مخزون.']);
-if(mapped.has('available_quantity')||mapped.has('warehouse'))return specialtyResult('inventory',mapped,90,['ظهرت هوية الصنف مع كمية متاحة أو مخزن.']);
+if((mapped.has('sku')||mapped.has('name'))&&(mapped.has('available_quantity')||mapped.has('warehouse')||mapped.has('quantity')||mapped.has('cost_price')))return specialtyResult('inventory',mapped,90,['ظهرت هوية الصنف مع كمية/مخزن/تكلفة قابلة للقراءة.']);
 if(hasAll(mapped,['sku','name','unit','cost_price','selling_price','min_stock','reorder_point','is_active']))return{specialty:'products',label:SPECIALTY_LABELS.products,confidence:96,evidence:['اكتملت حقول الصنف والهوية والتسعير وإعادة الطلب.'],canonicalEntityType:'products',mappedFields:[...mapped].sort()};
 if(hasAll(mapped,['name','segment','credit_limit','payment_terms_days']))return{specialty:'customers',label:SPECIALTY_LABELS.customers,confidence:94,evidence:['اكتملت حقول هوية العميل وشريحة الائتمان وشروط الدفع.'],canonicalEntityType:'customers',mappedFields:[...mapped].sort()};
 if(hasAll(mapped,['sku','name','unit'])&&!(mapped.has('sales_amount')||mapped.has('net_sales')||mapped.has('available_quantity')))return specialtyResult('products',mapped,88,['اكتملت هوية الصنف الأساسية؛ بقية الحقول لا تكفي لإعلان حركة مالية.']);
