@@ -583,7 +583,7 @@ export function CanonicalImportPage() {
   }, [
     rows, file, fileHash, duplicate, securityPassed, quality,
     qualityApproved, understandingConfidence,
-    sourceSpecialty, sourceEntityType, datasetCount, loadHistory, executeWithTaskMonitor,
+    sourceSpecialty, sourceEntityType, datasetCount, existingImportId, loadHistory, executeWithTaskMonitor,
   ]);
 
   const reset = () => {
