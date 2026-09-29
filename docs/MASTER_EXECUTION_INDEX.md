@@ -1182,3 +1182,21 @@
 - MANDATORY CI → certification `36326239773` / job `108639438409` and enforcement `36326239775` / job `108639438487` remain queued.
 - GOVERNANCE → broad-push coverage remains intentional per `check-ci-execution-topology.mjs`; no queue-clearing trigger weakening was introduced.
 - NEXT → first terminal mandatory gate on `b081c3f`, then authorized release identity/Phase-F path. No production SHA bypass.
+
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / REAL REPORT CORPUS / SOURCE IDENTITY ROOT FIX
+
+> Exact-head evidence only. Historical PASS is not transferred.
+
+- FUNCTIONAL CURRENT HEAD: `809618143d97f0dbaf8de705e9cce1c964783b72` on `exec/20260929-post-import-report-continuity`.
+- REAL REPORT CORPUS: `47` supported report files under `tests/fixtures/realistic-reports/`; README excluded; deterministic relative-path ordering.
+- EXACT-HEAD CORPUS EVIDENCE BEFORE ROOT FIX: workflow `36634016332` / browser job `109630133933` discovered and processed all 47; terminal result was PARTIAL with closed=23, failed=24, review=8. This is not corpus closure.
+- REPORT_001–REPORT_006: explicitly observed CLOSED by that exact-head E2E run; do not repeat absent a relevant contract/dependency regression.
+- CURRENT OPEN FRONT: REPORT_007 — `الاصناف مع التسعيرة مع المخزون.xlsx` — SHA-256 `cf6a9cefae3a5321df631daf6bbc8c7e4d7d2a8db60014c0b11457043f0650e4`.
+- REPORT_007 LIVE DB READBACK: import job `aa72ef87-554f-4511-a8d4-38f40378d872` is completed; 436/436 valid; result summary records rendered=436 and report execution completed; source-analysis snapshot is analyzed with quality_score=76 and metadata filename present.
+- ROOT DEFECT REPRODUCED: source-report UI identity used only `import_jobs.result_summary.file_name`; legacy REPORT_007 lacks that field although canonical durable execution contains the real `source_path`. Browser therefore timed out looking for the real filename heading after otherwise completed import/analysis.
+- ROOT FIX: `src/lib/queries.ts::fetchCanonicalSourceReport()` now resolves a tenant-scoped `report_execution_jobs.source_path` by `summary.jobId`, then by canonical source hash, and uses it as the filename fallback. No fixture-specific path, mock, duplicate importer, or database mutation was introduced.
+- DEPLOYMENT READBACK: Vercel deployment `dpl_HGyG4duZqVDxRXsFunK9KkB8kijQ` is READY for exact head `0371cbf...`; a new current-head deployment for the subsequent memory checkpoint `809618...` may supersede it. Deployment readiness is build/deploy evidence only, not authenticated browser proof.
+- ACTION STATUS: IN_PROGRESS.
+- NEXT EXACT ACTION: run current-head browser proof against the root fix, then record REPORT_007 CLOSED only if source heading + VERIFIED + provenance + nine stages + domain output all pass; otherwise capture the next canonical failure and fix the heart.
+- DO-NOT-REPEAT: no re-import of REPORT_007; no CLOSED-report rerun unless the shared source-report read contract is the reason for validation; no stale CI PASS transfer; no production claim from a different SHA.
