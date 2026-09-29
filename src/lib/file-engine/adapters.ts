@@ -667,6 +667,35 @@ type PromiseConstructorWithTry = PromiseConstructor & { try?: (fn: (...args: unk
 type Uint8ArrayWithToHex = Uint8Array & { toHex?: () => string };
 
 function ensurePdfJsRuntimeCompatibility(): void {
+  // pdfjs-dist 6.x may evaluate a module-level DOMMatrix during Node import
+  // even when the server only performs text extraction. Netlify's Node 24
+  // runtime does not expose DOMMatrix and optional native canvas may be omitted
+  // from the function bundle. A minimal structural DOMMatrix is sufficient for
+  // PDF.js module initialization; server extraction never calls page.render().
+  if (typeof window === 'undefined' && typeof globalThis.DOMMatrix === 'undefined') {
+    class ServerExtractionDOMMatrix {
+      a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
+      m11 = 1; m12 = 0; m13 = 0; m14 = 0;
+      m21 = 0; m22 = 1; m23 = 0; m24 = 0;
+      m31 = 0; m32 = 0; m33 = 1; m34 = 0;
+      m41 = 0; m42 = 0; m43 = 0; m44 = 1;
+      constructor(init?: Partial<Record<'a'|'b'|'c'|'d'|'e'|'f', number>>) {
+        if (init) {
+          this.a = Number(init.a ?? this.a);
+          this.b = Number(init.b ?? this.b);
+          this.c = Number(init.c ?? this.c);
+          this.d = Number(init.d ?? this.d);
+          this.e = Number(init.e ?? this.e);
+          this.f = Number(init.f ?? this.f);
+          this.m11 = this.a; this.m12 = this.b;
+          this.m21 = this.c; this.m22 = this.d;
+          this.m41 = this.e; this.m42 = this.f;
+        }
+      }
+    }
+    (globalThis as typeof globalThis & { DOMMatrix?: unknown }).DOMMatrix = ServerExtractionDOMMatrix;
+  }
+
   const uint8ArrayPrototype = Uint8Array.prototype as Uint8ArrayWithToHex;
   if (typeof uint8ArrayPrototype.toHex !== 'function') {
     Object.defineProperty(Uint8Array.prototype, 'toHex', {
