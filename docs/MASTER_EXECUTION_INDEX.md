@@ -1,3 +1,11 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 07:35 +03:00 / CANDIDATE 0fde380c
+
+- CURRENT CODE/TEST CANDIDATE: `0fde380cedc9bfc7ee8ad1b78f19a5532a3da942`
+- LAST TERMINAL PROOF: governance 424e6a5d passed build/typecheck and 19/20 readiness stages; import transaction test was the sole failing stage.
+- FIX: quote-agnostic ready-state regex in import transaction contract.
+- REPORT-FIRST: REPORT_001 remains open.
+- NEXT EXACT ACTION: exact-head certification + Full Product Browser E2E for 0fde380c, then REPORT_001 closure or first-failure repair.
+---
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 07:32 +03:00 / CANDIDATE 62533f95
 
 - CURRENT CODE/TEST CANDIDATE: `62533f95768336014280b91d094cee43685eede7`

@@ -1,3 +1,16 @@
+# RESUME TOKEN — 2026-09-29 07:35 +03:00 / FUNCTIONAL HEAD 0fde380c / CERTIFICATION NEXT
+
+- CURRENT FUNCTIONAL CODE/TEST SHA: 0fde380cedc9bfc7ee8ad1b78f19a5532a3da942
+- CONTROL HEAD: PENDING_GOVERNANCE_COMMIT
+- REPORT-FIRST FRONT: REPORT_001 = اعمار الديون للعملا.pdf; raw SHA256 9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099
+- THIS CHECKPOINT: corrected the durable worker ready-state regex in scripts/check-import-transaction-contract.mjs. The prior failure was test-only and caused by over-escaped regex whitespace.
+- PRIOR PROOF: at governance head 424e6a5d, build/typecheck passed and 19/20 release-readiness stages passed; only stage 09 import-transaction failed.
+- REPORT_001 CLOSURE: OPEN until current-SHA Full Product Browser E2E proves canonical persistence/readback, 9 durable stages, Source Report VERIFIED, source-bound domain/receivables, downstream outputs, benchmark fail-closed, and tenant A/B isolation.
+- COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47
+- DO-NOT-REPEAT: do not treat 19/20 as closure, do not use stale E2E from older SHA, do not bypass auth/RLS or inject DB rows.
+- CURRENT RESUME POINTER: exact-head certification + full-corpus browser E2E for 0fde380cedc9bfc7ee8ad1b78f19a5532a3da942
+- NEXT EXACT ACTION: bind this candidate, consume terminal certification and E2E, repair only the first current-SHA product/runtime blocker, then close REPORT_001 and advance.
+---
 # RESUME TOKEN — 2026-09-29 07:32 +03:00 / FUNCTIONAL HEAD 62533f95 / CURRENT-SHA CERTIFICATION NEXT
 
 - CURRENT FUNCTIONAL CODE SHA: 62533f95768336014280b91d094cee43685eede7
