@@ -722,8 +722,18 @@ function ensurePdfJsRuntimeCompatibility(): void {
 
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   ensurePdfJsRuntimeCompatibility();
-  const pdfjs = typeof window === 'undefined' ? await import('pdfjs-dist/legacy/build/pdf.mjs') : await import('pdfjs-dist');
-  if (typeof window !== 'undefined') {
+  const isServerRuntime = typeof window === 'undefined';
+  const pdfjs = isServerRuntime
+    ? await import('pdfjs-dist/legacy/build/pdf.mjs')
+    : await import('pdfjs-dist');
+
+  if (isServerRuntime) {
+    // PDF.js 6.x force-disables real workers in Node and falls back to a fake
+    // worker. Supplying the worker module explicitly prevents the Netlify
+    // function from resolving a non-bundled /node_modules path at runtime.
+    const pdfWorker = await import('pdfjs-dist/legacy/build/pdf.worker.mjs');
+    (globalThis as typeof globalThis & { pdfjsWorker?: typeof pdfWorker }).pdfjsWorker = pdfWorker;
+  } else {
     pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   }
   const pdf: PdfDocument = await pdfjs.getDocument({
