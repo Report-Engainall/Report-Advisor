@@ -98,5 +98,7 @@ begin
     'lease_expires_at',target_job.lease_expires_at
   );
 end;
-$function$;REVOKE ALL ON FUNCTION public.enqueue_report_execution_job(uuid,text,text,text[],integer) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.enqueue_report_execution_job(uuid,text,text,text[],integer) TO authenticated, service_role;
+$function$;-- This function is an internal durable-worker primitive. It accepts an explicit company id
+-- and therefore must never be callable by an authenticated browser session.
+REVOKE ALL ON FUNCTION public.enqueue_report_execution_job(uuid,text,text,text[],integer) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.enqueue_report_execution_job(uuid,text,text,text[],integer) TO service_role;
