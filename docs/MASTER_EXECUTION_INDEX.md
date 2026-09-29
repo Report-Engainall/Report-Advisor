@@ -1,3 +1,20 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / PDF FINANCIAL PARSER HARDENED / CORPUS 38-4-5
+
+- CONTROL HEAD: `58b170a76930707b247598855639ef1d9b02f418`.
+- FUNCTIONAL CODE: `58b170a76930707b247598855639ef1d9b02f418`.
+- BRANCH: `exec/20260929-post-import-report-continuity`.
+- CORPUS: 47 real report inputs; corpus gate PASS at DECLARED=47 / ACTUAL=48 / MINIMUM=20.
+- LATEST MATRIX: TRUSTED=38 / REVIEW=4 / REJECT=5 / RUNTIME_BLOCKED=0 / FAILED=0.
+- PDF HARDENING: CID-font Arabic coalescing, presentation-form NFKC normalization, financial statement extraction, canonical-emitted field identity.
+- EXCHANGE REPORTS: three real PDFs now parse to Payments with row-level financial fields.
+- REPORT OUTPUTS: Source + source-bound Domain + Executive + Evidence/Trust + Intelligence Signals + Administrative Checks + Decision Candidates + Actions + Limitations + Benchmark fail-closed.
+- LOCAL PROOF: file-engine contract PASS; typecheck PASS; structured/report regression PASS; build PASS; worktree clean.
+- REPORT COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47.
+- OPEN SEPARATE CERTIFICATION: Phase-F exact deployment identity + migration-lineage drift.
+- NEXT EXACT ACTION: consume terminal current-head Full Product Browser E2E on this SHA and close REPORT_001 only after authoritative DB/task/source/domain proof.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / SEMANTIC QUALITY SCORING FIXED / CORPUS 34-5-8
 
 - CONTROL HEAD: `244362fbae11f7ceb9a94b2eaa412ac5a2cad1d8`.
