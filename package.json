@@ -71,7 +71,7 @@
     "test:phase-k-production-intelligence": "node scripts/check-phase-k-production-intelligence.mjs",
     "test:phase-k-runtime": "node --experimental-strip-types scripts/production-intelligence-runtime.test.mjs",
     "test:phase-l-runtime": "node scripts/check-phase-l-runtime-contract.mjs",
-    "test:phase-l-resumable-execution": "node scripts/report-execution-runtime.test.ts",
+    "test:phase-l-resumable-execution": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/report-execution-runtime.test.ts",
     "test:production-coordinator-runtime": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/production-coordinator-runtime.test.ts",
     "test:production-coordinator-integration": "node scripts/check-production-coordinator-integration.mjs",
     "test:phase-m-certification": "node scripts/check-phase-m-certification-contract.mjs",
