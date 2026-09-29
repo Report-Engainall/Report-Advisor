@@ -1029,50 +1029,159 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     if (receivablesColumnMajor && receivablesColumnMajor.length >= 2) return [await buildDataset(receivablesColumnMajor, fileName, 'pdf-column-major-receivables')];
     const bankStatementSummary = tryParseBankStatementSummaryText(pageText);
     if (bankStatementSummary) return [await buildDataset(bankStatementSummary, fileName, 'pdf-bank-statement-summary')];
+    const meaningfulText = pageText.replace(/PAGE\\s+\\d+/gi, ' ').replace(/\\b\\d+\\s*\\/\\s*\\d+\\b/g, ' ').trim();
+    if (!/[\\p{L}]/u.test(meaningfulText) || meaningfulText.length < 64) return parseScannedPdfWithOcr(pdf, fileName, buffer);
     return buildTextDataset(pageText, fileName, 'pdf');
   }
-  return parseScannedPdfWithOcr(pdf, fileName);
+  if (typeof document === 'undefined') return parseScannedPdfWithNativeOcr(pdf, fileName, buffer);\n  return parseScannedPdfWithOcr(pdf, fileName);
 }
 
-async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promise<Dataset[]> {
-  if (typeof document === 'undefined') throw new Error('PDF_SCANNED_IMAGE_ONLY_SERVER_AUTHORITY_UNAVAILABLE: scanned-PDF OCR requires an authoritative OCR-capable runtime; no business data was fabricated.');
-  if (pdf.numPages > PDF_OCR_MAX_PAGES) throw new Error(`PDF_OCR_PAGE_LIMIT_EXCEEDED: ${pdf.numPages} pages exceeds the safe OCR limit of ${PDF_OCR_MAX_PAGES}. Split the document before analysis.`);
-  const tesseract = await import('tesseract.js');
-  const worker = await tesseract.createWorker('ara+eng');
+function tryParseOcrBankStatementText(text: string): Row[] | null {
+  const lines = normalizeArabicDigits(stripControlCharacters(text.normalize('NFKC')))
+    .split(/\r?\n/)
+    .map(line => line.replace(/\s+/g, ' ').trim())
+    .filter(line => line && !/^PAGE\s+\d+$/i.test(line));
+
+  const rows: Row[] = [];
+  for (const line of lines) {
+    const dateMatch = line.match(/(\d{1,2}[./-]\d{1,2}[./-]20\d{2})/);
+    const amountMatch = line.match(/([\d٠-٩]{1,3}(?:[,٬][\d٠-٩]{3})*(?:[.٫][\d٠-٩]+)?)\s*ريال/);
+    if (!dateMatch || !amountMatch) continue;
+
+    const amount = parseNumber(normalizeArabicDigits(amountMatch[1]).replace(/٬/g, ','));
+    if (amount == null) continue;
+
+    const date = dateMatch[1].replace(/[./]/g, '-');
+    const afterAmount = line.slice((amountMatch.index ?? 0) + amountMatch[0].length);
+    const balanceMatch = afterAmount.match(/([\d٠-٩]{1,3}(?:[,٬][\d٠-٩]{3})*(?:[.٫][\d٠-٩]+)?)/);
+    const balance = balanceMatch ? parseNumber(normalizeArabicDigits(balanceMatch[1]).replace(/٬/g, ',')) : null;
+
+    const description = line
+      .replace(dateMatch[1], ' ')
+      .replace(amountMatch[0], ' ')
+      .replace(balanceMatch?.[1] ?? '', ' ')
+      .replace(/\|/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    rows.push({
+      date,
+      amount,
+      balance: balance ?? undefined,
+      currency: 'YER',
+      description: description.slice(0, 1200),
+    });
+  }
+
+  return rows.length >= 3 ? rows : null;
+}
+
+async function parseScannedPdfWithNativeOcr(
+  pdf: PdfDocument,
+  fileName: string,
+  sourceBuffer: ArrayBuffer,
+): Promise<Dataset[]> {
+  const { execFile } = await import('node:child_process');
+  const { promisify } = await import('node:util');
+  const fs = await import('node:fs/promises');
+  const os = await import('node:os');
+  const path = await import('node:path');
+  const execFileAsync = promisify(execFile);
+
+  const hasCommand = async (name: string): Promise<boolean> => {
+    try {
+      await execFileAsync('sh', ['-lc', `command -v ${name}`], { timeout: 5000 });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  if (!(await hasCommand('pdftoppm')) || !(await hasCommand('tesseract'))) {
+    throw new Error('PDF_SCANNED_IMAGE_ONLY_SERVER_AUTHORITY_UNAVAILABLE: native OCR runtime requires pdftoppm and tesseract.');
+  }
+  if (pdf.numPages > PDF_OCR_MAX_PAGES) {
+    throw new Error(`PDF_OCR_PAGE_LIMIT_EXCEEDED: ${pdf.numPages} pages exceeds the safe OCR limit of ${PDF_OCR_MAX_PAGES}.`);
+  }
+
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'aghbari-pdf-ocr-'));
+  const inputPdf = path.join(tempRoot, 'source.pdf');
   const pages: string[] = [];
   const confidences: number[] = [];
+
   try {
+    await fs.writeFile(inputPdf, new Uint8Array(sourceBuffer));
     for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
-      const page = await pdf.getPage(pageNumber);
-      const baseViewport = page.getViewport({ scale: PDF_OCR_SCALE });
-      const scale = Math.min(1, PDF_OCR_MAX_DIMENSION / Math.max(baseViewport.width, baseViewport.height));
-      const viewport = scale < 1 ? page.getViewport({ scale: PDF_OCR_SCALE * scale }) : baseViewport;
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.max(1, Math.ceil(viewport.width));
-      canvas.height = Math.max(1, Math.ceil(viewport.height));
-      const context = canvas.getContext('2d');
-      if (!context) throw new Error(`PDF_OCR_CANVAS_UNAVAILABLE: page ${pageNumber}`);
-      await page.render({ canvasContext: context, viewport, canvas }).promise;
-      const result = await worker.recognize(canvas);
-      const text = typeof result?.data?.text === 'string' ? result.data.text.trim() : '';
-      const confidence = Number(result?.data?.confidence ?? 0);
-      confidences.push(confidence);
-      if (text) pages.push(`PAGE ${pageNumber}\n${text}`);
-      canvas.width = 1; canvas.height = 1;
+      const imagePrefix = path.join(tempRoot, `page-${pageNumber}`);
+      const imagePath = `${imagePrefix}.png`;
+      await execFileAsync(
+        'pdftoppm',
+        ['-png', '-r', '220', '-f', String(pageNumber), '-l', String(pageNumber), '-singlefile', inputPdf, imagePrefix],
+        { timeout: 60000, maxBuffer: 4 * 1024 * 1024 },
+      );
+      const { stdout } = await execFileAsync(
+        'tesseract',
+        [imagePath, 'stdout', '-l', 'ara+eng', '--psm', '12', 'tsv'],
+        { timeout: 120000, maxBuffer: 16 * 1024 * 1024 },
+      );
+
+      const lines = new Map<string, string[]>();
+      const pageConfidences: number[] = [];
+      for (const row of String(stdout).split(/\r?\n/).slice(1)) {
+        const fields = row.split('\t');
+        if (fields.length < 12 || Number(fields[0]) !== 5) continue;
+        const lineNumber = fields[4] || '0';
+        const confidence = Number(fields[10]);
+        const token = (fields[11] || '').trim();
+        if (Number.isFinite(confidence) && confidence >= 0) pageConfidences.push(confidence);
+        if (!token) continue;
+        const bucket = lines.get(lineNumber) ?? [];
+        bucket.push(token);
+        lines.set(lineNumber, bucket);
+      }
+
+      for (const words of lines.values()) {
+        const line = words.join(' ').trim();
+        if (line) pages.push(`PAGE ${pageNumber}\n${line}`);
+      }
+
+      confidences.push(
+        pageConfidences.length
+          ? pageConfidences.reduce((sum, value) => sum + value, 0) / pageConfidences.length
+          : 0,
+      );
+      await fs.rm(imagePath, { force: true }).catch(() => undefined);
     }
   } finally {
-    await worker.terminate();
+    await fs.rm(tempRoot, { recursive: true, force: true }).catch(() => undefined);
   }
-  if (!pages.length) throw new Error('PDF_SCANNED_OCR_EMPTY: OCR produced no readable text; no business data was fabricated.');
+
+  if (!pages.length) throw new Error('PDF_SCANNED_OCR_EMPTY: OCR produced no readable text.');
   const minimumConfidence = confidences.length ? Math.min(...confidences) : 0;
   const disposition = classifyOcrConfidence(minimumConfidence);
   if (disposition === 'REJECT') {
     throw new Error(`PDF_OCR_LOW_CONFIDENCE_REJECT:${Math.round(minimumConfidence)}% (threshold < ${OCR_REJECT_THRESHOLD})`);
   }
+
+  const ocrText = pages.join('\n\n');
+  const bankRows = tryParseOcrBankStatementText(ocrText);
+  if (bankRows) {
+    const dataset = await buildDataset(bankRows, fileName, 'pdf-ocr-bank-statement');
+    dataset.qualityScore = Math.min(dataset.qualityScore, Math.round(minimumConfidence));
+    dataset.columns.forEach(column => {
+      column.qualityIssues.push(
+        disposition === 'REVIEW'
+          ? `OCR_REVIEW_REQUIRED:${Math.round(minimumConfidence)}%`
+          : `OCR_TRUSTED:${Math.round(minimumConfidence)}%`,
+      );
+    });
+    return [dataset];
+  }
+
   const warning = disposition === 'REVIEW'
     ? `OCR_REVIEW_REQUIRED:${Math.round(minimumConfidence)}%`
     : `OCR_TRUSTED:${Math.round(minimumConfidence)}%`;
-  return buildTextDataset(pages.join('\n\n'), fileName, 'pdf-ocr', warning, minimumConfidence);
+  return buildTextDataset(ocrText, fileName, 'pdf-ocr', warning, minimumConfidence);
 }
 
 async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
