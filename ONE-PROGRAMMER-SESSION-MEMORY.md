@@ -1,3 +1,20 @@
+# LIVE SESSION CHECKPOINT — 2026-09-29 / REPORT CORE SECURITY + SOURCE-BOUND DYNAMICITY
+
+- CURRENT FUNCTIONAL CANDIDATE → `28fee18d3d741c912abf16ca0ad940364194f985`.
+- CURRENT CONTROL/INDEX FOLLOW-UP → `f17bf035a17cc70846757693899bfb5819e931c1`.
+- CORE MIGRATIONS APPLIED → `20260929150000_requeue_report_execution_after_import_finish`, `20260929153000_secure_import_finish_report_requeue`, `20260929160000_bind_import_finish_report_requeue_to_transaction`.
+- CORE SECURITY RESULT → `public.import_finish_job` remains SECURITY INVOKER; authenticated has no UPDATE on report_execution_jobs/tasks; private trigger function is SECURITY DEFINER, not executable by authenticated/anon/service_role directly, and is activated only by the transaction-local marker set by import_finish_job on a completed transition.
+- RUNTIME CORE PROOF → authenticated-context transaction test called import_finish_job on a 1-row processing import, trigger path executed without permission failure, then transaction was rolled back; the source import returned to its original processing state (1/1 processed, invalid 0).
+- SOURCE-BOUND UI REPAIR → SourceBoundReportPage now loads import context from import_jobs, uses the actual imported filename/hash/status/row counts, removes hardcoded 1,998/913 report values, and fixes amount mismatch detection by separating total from local amount.
+- REAL REPORT BATCH → 32 latest human PDF/XLS/XLSX sources are completed/rendered with exact import continuity; 0 rendered-import gaps; 0 rendered-without-canonical; two business sources remain open because canonical rows are absent: `المبيعات.pdf` (328, 0 canonical) and `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf` (6,562, 0 canonical).
+- 47–48 COUNT → not verified as an exact file corpus. DB latest human-report subset is 36 including 2 runtime fixtures; Library PDF/XLSX filter shows 50 files including non-report specs/wireframes.
+- CURRENT CI → exact functional SHA `f73c01fe...` produced 20 successes plus failures from a SourceBoundReportPage TypeScript error and stale candidate binding; the TS error was fixed in `28fee18...`, and index binding is now updated. Fresh CI on the latest functional SHA is the release evidence still required.
+- DO-NOT-REPEAT → no direct report status mutation; no synthetic source closure; no UPDATE grants opened; no stale CI PASS transfer.
+- DEVICE → PC01 offline; Edge/device authenticated browser proof not claimed.
+- RESUME → consume CI for the latest exact candidate, repair only the first current-SHA reproducible failure, then continue source recovery for the two open business reports.
+
+---
+
 # LIVE SESSION CHECKPOINT — 2026-09-29 / BATCH REPORT CONTINUITY + CORE IMPORT REQUEUE REPAIR
 
 - CURRENT FUNCTIONAL/CONTROL HEAD → `174ae82785c511ce8ae52d690090010cd262655a` on PR #680 / `exec-report-cert-parity-0929` (governance follow-up commits keep the exact code/test candidate bound below).
