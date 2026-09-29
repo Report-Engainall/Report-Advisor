@@ -136,7 +136,7 @@ async function executeOne(file,ordinal,total,identity){
   else if(!durableJob||durableJob.status!=='completed'){ record.status='BLOCKED'; record.blocker='DURABLE_EXECUTION_NOT_COMPLETED'; }
   else if(tasks.length!==9||tasks.some(t=>t.status!=='completed')){ record.status='BLOCKED'; record.blocker='EXECUTION_TASK_LEDGER_NOT_CLOSED'; }
   else if(!record.renderedOutput||record.renderedOutput.sourceBound!==true||record.renderedOutput.sourceHash!==source.hash||record.renderedOutput.importId!==importId){ record.status='BLOCKED'; record.blocker='RENDERED_MANIFEST_NOT_SOURCE_BOUND'; }
-  else record.proof={exact_sha:exactHead,source_file:rel,source_fingerprint:source.hash,import_job_id:ij.data.id,snapshot_id:record.snapshotId,durable_job_id:durableJobId,durable_stage:durableJob?.checkpoint?.stage??null,authoritative_row_count:record.authoritativeRowCount,authoritative_quality_score:record.authoritativeQualityScore,specialty:record.sourceSpecialty,entity_type:record.authoritativeEntityType,rendered_output_keys:record.renderedOutput.outputs?.map(o=>o.key)??[],task_count:tasks.length};
+  else record.proof={exact_sha:exactHead,source_file:rel,source_fingerprint:source.hash,import_job_id:importId,snapshot_id:record.snapshotId,durable_job_id:durableJobId,durable_stage:durableJob?.checkpoint?.stage??null,authoritative_row_count:record.authoritativeRowCount,authoritative_quality_score:record.authoritativeQualityScore,specialty:record.sourceSpecialty,entity_type:record.authoritativeEntityType,rendered_output_keys:record.renderedOutput.outputs?.map(o=>o.key)??[],task_count:tasks.length};
   await fs.writeFile(path.join(reportDir,String(ordinal).padStart(3,'0')+'-checkpoint.json'),JSON.stringify(record,null,2)+'\n');
   return record;
 }
