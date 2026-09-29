@@ -36,6 +36,7 @@ export default async (request: Request): Promise<Response> => {
       auth: { persistSession: false, autoRefreshToken: false },
       global: { headers: { Authorization: authorization } },
     });
+    let activeImportId: string | null = null;
     const { data: userData, error: userError } = await userClient.auth.getUser();
     if (userError || !userData.user?.id) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
@@ -52,6 +53,7 @@ export default async (request: Request): Promise<Response> => {
       qualityApproved?: boolean;
       mode?: 'execute' | 'finalize-source';
     };
+    activeImportId = typeof payload.importId === 'string' ? payload.importId : null;
 
     const mode = payload.mode ?? 'execute';
     const genericEntity = typeof payload.entityType === 'string' && /^generic:[a-z][a-z0-9_-]{0,63}$/.test(payload.entityType);
@@ -163,6 +165,25 @@ export default async (request: Request): Promise<Response> => {
       const detail = typeof workerBody?.detail === 'string' ? workerBody.detail : `HTTP_${workerResponse.status}`;
       throw new Error(`CANONICAL_IMPORT_WORKER_FAILED:${detail}`);
     }
+    const { error: finishError } = await userClient.rpc('import_finish_job', {
+      p_job_id: job.id,
+      p_status: 'completed',
+      p_result_summary: {
+        ...workerBody,
+        file_name: fileRecord.file_name || payload.fileName || 'import',
+        source_hash: sourceSha,
+        canonical_entity_type: payload.entityType,
+        specialty: workerBody?.specialty ?? detection.format,
+        committed: authoritativeRows.length,
+        invalidRows: 0,
+        authoritativeRowCount: authoritativeRows.length,
+        authoritativeQualityScore,
+        executionJobId: workerBody?.jobId ?? null,
+      },
+      p_error_message: null,
+    });
+    if (finishError) throw finishError;
+
     return json(200, {
       ...workerBody,
       importId: job.id,
@@ -174,6 +195,18 @@ export default async (request: Request): Promise<Response> => {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED';
+    if (activeImportId) {
+      try {
+        await userClient.rpc('import_finish_job', {
+          p_job_id: activeImportId,
+          p_status: 'failed',
+          p_result_summary: { source_hash: null, terminalized_by: 'canonical-import-execute' },
+          p_error_message: message.slice(0, 512),
+        });
+      } catch {
+        // Preserve the original failure; terminalization is best-effort when the job identity is known.
+      }
+    }
     const status = message.startsWith('NETLIFY_ENV_MISSING') ? 503 : 400;
     return json(status, { error: 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED', detail: message.slice(0, 512) });
   }

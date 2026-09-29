@@ -1055,3 +1055,18 @@
 - CURRENT REPORT STATUS: REPORT_001 NOT CLOSED. No canonical DB commit/readback, 9-stage terminal proof, source/domain render, downstream output bundle, or A/B isolation is considered proven until the next successful terminal E2E artifact.
 - NEXT EXACT ACTION: allow the in-flight old-SHA run to terminate; then execute the newly committed runner/worker pair. REPORT_001 must resume from its existing pending job first, reach canonical commit + nine completed stages + Source Report VERIFIED + source-bound receivables report + downstream bundle + A/B isolation, then and only then REPORT_002.
 - DO-NOT-REPEAT: no new job for a same-file pending report; no direct DB insertion; no service-role canonical commit without user tenant context; no stale PASS; no report advancement before REPORT_001 closes.
+
+---
+
+# RESUME TOKEN — 2026-09-29 / IMPORT TERMINALIZATION GAP CLOSED
+
+- CONTROL CODE HEAD BEFORE THIS CHECKPOINT: `f3fc7e5963ee4b77ff2fc5a5023e2a6c2fa5e21e`.
+- ROOT CAUSE #3 FIXED: `canonical-import-execute` previously returned success after the canonical worker without calling `import_finish_job`, leaving real report imports in `processing` and preventing authoritative report closure.
+- SUCCESS REMEDIATION: after the worker returns successfully, the server now calls user-scoped `import_finish_job(completed)` with authoritative row counts, source hash, entity type, and durable execution job identity.
+- FAILURE REMEDIATION: when an active import job identity is known, the same endpoint terminalizes it through `import_finish_job(failed)` instead of leaving a new `processing` orphan.
+- SECURITY: terminalization uses the authenticated user-scoped client; no direct SQL write, service-role browser usage, or bypass was introduced.
+- CURRENT LIVE WORKER: `canonical-import-worker` v8 ACTIVE with user-scoped `dataClient`.
+- CURRENT PR: #676.
+- CURRENT REPORT: REPORT_001 remains the first report and is not CLOSED until the fresh exact-head browser artifact proves canonical commit/readback, terminal import job, nine stages, Source Report VERIFIED, source-bound receivables report, downstream surfaces, screenshot/evidence, and A/B isolation.
+- NEXT EXACT ACTION: consume the fresh exact-head Full Product Browser E2E generated from this checkpoint; REPORT_001 must close first, then REPORT_002, sequentially through the full corpus.
+- DO-NOT-REPEAT: no pending-job duplication; no orphan `processing` import jobs from a handled failure; no stale SHA proof.
