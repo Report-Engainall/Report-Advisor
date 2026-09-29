@@ -1,3 +1,16 @@
+# RESUME TOKEN — 2026-09-29 07:52 +03:00 / REPORT_001 CLOSED / FULL DISCOVERED CORPUS NEXT
+
+- CURRENT EXACT HEAD: 51cbce1cf8527441d49a97a10b6521cc6a513111
+- REPORT-FIRST STATUS: REPORT_001 CLOSED by exact-head Full Product Browser E2E run 36521493399 on functional candidate 2e950c48544edb4c20e1c0e00eb9bde6f2a697e7.
+- REPORT_001 PROOF: import job 6de27d0f-98bb-4d1b-8143-fd3d9a85a4b8; 27/27 valid; execution job 174196b5-42cf-4654-9721-13ac8d5a29db; source report VERIFIED; all 9 durable stages completed; domain rendered; output bundle/evidence/decision/work-center labels PASS; Benchmark INSUFFICIENT SAMPLE; tenant A/B canonical + UI isolation PASS.
+- IMPORTANT LIMIT: that PASS covered REPORT_001 only because the workflow was then MAX=1.
+- HARNESS REPAIR NOW APPLIED: full browser gate no longer hardcodes MAX=48; absent an explicit max, the runner processes all discovered candidates. Complete mode requires >=40 candidates and enforces processed=discovered=closed with zero failed/review.
+- CORPUS FACT: filesystem contains 48 entries including README; executable report candidate set is 47 because README is excluded. REPORT_001 CLOSED => REMAINING=46.
+- CURRENT REPORT COUNTS: CLOSED=1 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=46.
+- DO-NOT-REPEAT: never count README as a report; never treat the one-report PASS as full-corpus PASS; no stale SHA proof; no direct DB injection.
+- CURRENT RESUME POINTER: exact-head Full Product Browser E2E over all discovered report candidates.
+- NEXT EXACT ACTION: consume the terminal full-corpus E2E; close each report only from its individual artifact evidence; if first report-specific blocker appears, repair it and rerun the full gate.
+---
 # RESUME TOKEN — 2026-09-29 07:47 +03:00 / REPORT_001 CLOSED / FULL 48 CORPUS EXECUTION NEXT
 
 - CURRENT FUNCTIONAL CODE/TEST CANDIDATE: 2e950c48544edb4c20e1c0e00eb9bde6f2a697e7
