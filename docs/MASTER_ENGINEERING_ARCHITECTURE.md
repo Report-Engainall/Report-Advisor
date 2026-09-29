@@ -1,3 +1,16 @@
+## CANONICAL RUNTIME UPDATE — 2026-09-30 / RENDERED OUTPUT + INTERRUPTION RECOVERY
+
+The canonical import/runtime path now has an explicit durability boundary after the `committed` stage:
+
+- The existing durable lifecycle remains `queued → fingerprinted → extracted → canonicalized → validated → analyzed → decisioned → committed → rendered`; no replacement lifecycle was introduced.
+- The durable runner captures a structured `renderedOutput` returned by the canonical adapter at the `rendered` stage and persists it with the durable completion evidence.
+- The canonical import adapter verifies the source-bound canonical commit before recovery/finalization, then closes an open `import_jobs` record through the governed `import_finish_job` RPC.
+- A browser/session interruption after a durable job reaches `completed` is now recoverable: the adapter reuses the completed durable job after source/commit readback instead of blindly rerunning the canonical write.
+- Rendered outputs are source-bound metadata only; unavailable evidence, decision, action, outcome, learning, replay, and benchmark states remain explicitly non-success states. No financial result, outcome, or benchmark value is synthesized.
+- This change is canonical runtime knowledge and must be verified on the exact resulting SHA before any report is marked `CLOSED`.
+
+---
+
 # MASTER ENGINEERING ARCHITECTURE — الأغبري / Report-Advisor
 Status: CANONICAL DOMAIN REFERENCE
 
