@@ -148,7 +148,7 @@ export function SourceDomainReportPage() {
 
     const mapped = new Set(rows.flatMap(row => Object.keys(row.data)));
 
-    if (report.specialty === 'receivables') {
+    if (report?.specialty === 'receivables') {
       const outstanding = sum('outstanding_balance');
       const overdue = sum('age_31_60') + sum('age_61_90') + sum('age_91_120') + sum('age_over_120');
       if (outstanding > 0) findings.push(`الرصيد المستحق الظاهر في المصدر = ${formatCurrency(outstanding)}.`);
@@ -157,7 +157,7 @@ export function SourceDomainReportPage() {
       decisionCandidates.push(overdue > 0 ? 'مرشح مراجعة تحصيل للشرائح المتأخرة؛ ليس قرارًا تنفيذيًا تلقائيًا.' : 'لا توجد إشارة تحصيل متأخرة مثبتة من هذا المصدر.');
       actions.push('مراجعة العملاء/الحسابات ذات الرصيد المتأخر قبل أي إجراء تحصيلي.');
       adminChecks.push(`صفوف المصدر: ${formatNumber(rows.length)}؛ الصفوف التي تحمل هوية عميل أو اسم عميل: ${formatNumber(countPresent(['customer_id','customer_name']))}.`);
-    } else if (report.specialty === 'sales') {
+    } else if (report?.specialty === 'sales') {
       const sales = sum('net_sales') || sum('sales_amount') || sum('total');
       const discount = sum('discount');
       const quantity = sum('quantity');
@@ -167,14 +167,14 @@ export function SourceDomainReportPage() {
       if (!sales && !quantity) findings.push('المصدر لا يوفر قيمة مبيعات أو كمية رقمية كافية للحساب.');
       decisionCandidates.push(sales > 0 ? 'مرشح تحليل المبيعات حسب العميل/الصنف؛ لا يتم إعلان سبب أو أفضلية دون مقارنة موثقة.' : 'لا توجد إشارة مبيعات رقمية كافية.');
       actions.push('مراجعة السجلات غير المكتملة قبل اعتماد مؤشرات الأداء أو المقارنات.');
-    } else if (report.specialty === 'purchases') {
+    } else if (report?.specialty === 'purchases') {
       const purchases = sum('local_amount') || sum('total');
       const outstanding = sum('outstanding_balance');
       if (purchases > 0) findings.push(`قيمة المشتريات المجمعة من المصدر = ${formatCurrency(purchases)}.`);
       if (outstanding > 0) findings.push(`الرصيد المستحق للمصدر = ${formatCurrency(outstanding)}.`);
       decisionCandidates.push(purchases > 0 ? 'مرشح تحليل الموردين/الأصناف؛ لا يتم إنشاء قرار شراء تلقائي.' : 'بيانات شراء غير كافية لبناء مرشح قرار.');
       actions.push('مراجعة الموردين أو الحركات التي تحمل رصيدًا مستحقًا قبل اعتماد أي إجراء.');
-    } else if (report.specialty === 'inventory') {
+    } else if (report?.specialty === 'inventory') {
       const quantity = sum('available_quantity') || sum('quantity');
       const low = rows.filter(row => {
         const q = num(row.data.available_quantity ?? row.data.quantity);
@@ -185,14 +185,14 @@ export function SourceDomainReportPage() {
       findings.push(low > 0 ? `صفوف تحتاج مراجعة مخزون/إعادة طلب حسب الحقول المتاحة = ${formatNumber(low)}.` : 'لا توجد صفوف منخفضة يمكن إثباتها من الحقول المتاحة.');
       decisionCandidates.push(low > 0 ? 'مرشح مراجعة إعادة الطلب/التغطية للأصناف المحددة فقط.' : 'لا توجد إشارة إعادة طلب مثبتة.');
       actions.push('مراجعة الكمية والتكلفة ونقطة إعادة الطلب على الصفوف المتأثرة.');
-    } else if (report.specialty === 'payments') {
+    } else if (report?.specialty === 'payments') {
       const debit = sum('debit');
       const credit = sum('credit');
       if (debit || credit) findings.push(`إجمالي المدين = ${formatCurrency(debit)}؛ إجمالي الدائن = ${formatCurrency(credit)}.`);
       if (debit || credit) findings.push(`صافي الحركة المحسوب حتميًا = ${formatCurrency(credit - debit)}.`);
       decisionCandidates.push(debit || credit ? 'مرشح مراجعة السيولة والحركات غير المتوازنة على مستوى المستند.' : 'لا توجد حركة مالية رقمية كافية.');
       actions.push('مراجعة الحركات المالية التي ينقصها المرجع أو الوصف قبل اعتمادها تشغيليًا.');
-    } else if (report.specialty === 'products') {
+    } else if (report?.specialty === 'products') {
       const priced = rows.filter(row => num(row.data.cost_price) != null && num(row.data.selling_price) != null);
       const margins = priced.map(row => {
         const cost = num(row.data.cost_price) ?? 0;
@@ -203,7 +203,7 @@ export function SourceDomainReportPage() {
       findings.push(`صفوف كتالوج الأصناف = ${formatNumber(rows.length)}.`);
       decisionCandidates.push(margins.length ? 'مرشح مراجعة تسعير/هامش للأصناف ذات التكلفة وسعر البيع المثبتين.' : 'لا توجد بيانات تكلفة/بيع كافية.');
       actions.push('مراجعة الأصناف التي تملك تكلفة وسعر بيع مثبتين قبل أي قرار تسعيري.');
-    } else if (report.specialty === 'customers') {
+    } else if (report?.specialty === 'customers') {
       const balance = sum('balance');
       const credit = sum('credit_limit');
       findings.push(`صفوف العملاء = ${formatNumber(rows.length)}.`);
@@ -217,7 +217,7 @@ export function SourceDomainReportPage() {
     }
 
     const knownFieldCount = mapped.size;
-    const missingEvidence = report.validRows == null ? 'عدد الصفوف الصالحة غير متاح.' : `الصفوف الصالحة = ${formatNumber(report.validRows)}.`;
+    const missingEvidence = report?.validRows == null ? 'عدد الصفوف الصالحة غير متاح.' : `الصفوف الصالحة = ${formatNumber(report?.validRows ?? 0)}.`;
     adminChecks.push(`حقول كانونّية ظاهرة في المخرج = ${formatNumber(knownFieldCount)}.`);
     adminChecks.push(missingEvidence);
     adminChecks.push('Benchmark: INSUFFICIENT SAMPLE — لا توجد عينة peer كافية من Report Job واحد.');
@@ -267,7 +267,7 @@ export function SourceDomainReportPage() {
 
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <Card><CardBody><div className="surface-label">السجلات المصدرية</div><div className="display-number mt-1">{formatNumber(report.canonicalRowsTotal)}</div></CardBody></Card>
-      <Card><CardBody><div className="surface-label">الصالحة</div><div className="display-number mt-1">{report.validRows == null ? 'غير متاح' : formatNumber(report.validRows)}</div></CardBody></Card>
+      <Card><CardBody><div className="surface-label">الصالحة</div><div className="display-number mt-1">{report?.validRows == null ? 'غير متاح' : formatNumber(report?.validRows ?? 0)}</div></CardBody></Card>
       <Card><CardBody><div className="surface-label">المخرجات</div><div className="mt-2 text-sm font-black">الذكاء + الإدارة + القرار</div></CardBody></Card>
       <Card><CardBody><div className="surface-label">Benchmark</div><div className="mt-2 text-sm font-black text-warning-700">INSUFFICIENT SAMPLE</div></CardBody></Card>
     </section>
