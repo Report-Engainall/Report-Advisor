@@ -1031,7 +1031,7 @@ function tryParseColumnMajorReceivablesText(text: string): Row[] | null {
   }));
 }
 
-function tryParseSupplierOpeningBalanceText(text: string): Row[] | null {
+export function tryParseSupplierOpeningBalanceText(text: string): Row[] | null {
   const normalized = normalizeArabicDigits(
     stripControlCharacters(text.normalize('NFKC'))
       .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
