@@ -1,3 +1,26 @@
+# RESUME TOKEN — 2026-09-29 / REPORT_001 ANALYSIS HARDENED / CURRENT HEAD 2cfc2d90
+
+- CURRENT EXACT HEAD: `2cfc2d906ff35c17d9e0b4a436c57321b51746e4`.
+- CURRENT BRANCH: `exec/20260929-post-import-report-continuity`.
+- DEVICE: PC01 ONLINE.
+- ACTIVE REPORT: REPORT_001 = `اعمار الديون للعملا.pdf`; SHA256 `9996f169aae09e31f909712ca4be5ace238c7a4f123b370d436a5f1a115ea099`.
+- REAL SOURCE ANALYSIS: 27 rows; quality 98; specialty `receivables`; specialty confidence 96; entity `generic:receivables`; currency YER.
+- DETERMINISTIC RECEIVABLES TOTAL: outstanding balance = 12,094,224 YER across 27 rows.
+- AGE DATA FOUND IN SOURCE: only 2/5 canonical age bands are present (`age_0_30`, `age_over_120`). 0–30 = 8,149,860 YER; >120 = 3,075,864 YER; age-band coverage is therefore partial.
+- AGE RECONCILIATION GAP: available age bands total 11,225,724 YER, leaving 868,500 YER not attributable to the available age bands. This is a SOURCE/coverage limitation, not a recovered amount or forecast.
+- CONCENTRATION SIGNALS FROM REAL ROWS: top customer = 3,172,370 YER (26.23%); top two = 6,295,370 YER (52.04%); top five = 8,859,505 YER (73.25%). These are descriptive source-derived concentration signals only.
+- CLOSED CODE FRONT: `src/pages/SourceDomainReportPage.tsx` now exposes age-band coverage, 0–30 and >120 values, partial-coverage status, and an explicit reconciliation-gap administrative check; decision candidate is fail-closed when age coverage is incomplete.
+- GUARD HARDENED: `scripts/check-post-import-report-guard.mjs` now requires the receivables aging-coverage contract.
+- LOCAL EXACT-HEAD PROOF: `typecheck` PASS; `test:post-import-report-guard` PASS after the guard hardening; `test:report-execution-e2e-contract` PASS; production `build` PASS; `git diff --check` PASS.
+- FUNCTIONAL COMMIT: `2cfc2d906ff35c17d9e0b4a436c57321b51746e4` — `feat: expose receivables aging coverage gaps`.
+- AUTHENTICATED REPORT CLOSURE: NOT PROVEN. No canonical DB commit/readback, no 9-stage terminal evidence, no authenticated source report render, no tenant A/B browser proof.
+- CI PROOF RULE: the earlier Full Product Browser E2E on `25a538b4...` is now stale because the report UI logic changed afterward. It must not be reused as current proof. Current-head E2E terminal proof for `2cfc2d90...` has not yet been observed.
+- CURRENT REPORT COUNTS: CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47.
+- DO-NOT-REPEAT: no direct DB insertion; no guessed credentials; no browser-cookie extraction; no stale SHA PASS; no reuse of `25a538b4...` E2E after the aging-coverage fix; no transition to REPORT_002 before REPORT_001 reaches authoritative closure.
+- NEXT EXACT ACTION: obtain terminal authenticated E2E for `2cfc2d90...`; execute REPORT_001 through canonical commit + 9 stages + source-bound receivables report + downstream bundle + tenant A/B isolation. Only then persist CLOSED and advance to REPORT_002.
+
+---
+
 # RESUME TOKEN — 2026-09-29 / REPORT-FIRST EXECUTION DISPATCHED / CURRENT HEAD 25a538b4
 
 - CURRENT EXACT HEAD: `25a538b4b04f556dd8fb329ebc22a7e43049952b`.
