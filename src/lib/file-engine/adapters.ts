@@ -477,7 +477,7 @@ function pdfObjectStream(raw: string, objectNumber: number): { dict: string; byt
   if (raw[contentStart] === '\\r' && raw[contentStart + 1] === '\\n') contentStart += 2;
   else if (raw[contentStart] === '\\n' || raw[contentStart] === '\\r') contentStart += 1;
 
-  const lengthMatch = dict.match(/\\/Length\\s+(\\d+)\\b/);
+  const lengthMatch = dict.match(/\/Length\s+(\d+)\b/);
   if (lengthMatch) {
     const length = Number(lengthMatch[1]);
     if (Number.isSafeInteger(length) && length >= 0 && contentStart + length <= raw.length) {
