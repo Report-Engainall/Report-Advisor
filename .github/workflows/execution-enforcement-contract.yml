@@ -4,6 +4,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   enforcement-contract:
     runs-on: ubuntu-latest
@@ -37,7 +41,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 0
+          fetch-depth: 1
           persist-credentials: false
       - name: Verify exact checkout
         shell: bash
@@ -45,52 +49,19 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "${EXACT_HEAD}"
           test -z "$(git status --porcelain)"
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - name: Install repository dependencies
-        run: npm ci
-      - name: Install Playwright
-        shell: bash
-        run: |
-          set -euo pipefail
-          npm install --no-save --package-lock=false playwright
-          npx playwright install --with-deps chromium
-      - name: Build exact candidate
-        run: npm run build
-      - name: Start exact candidate
-        shell: bash
-        run: |
-          set -euo pipefail
-          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/report-advisor-vite.log 2>&1 &
-          echo $! > /tmp/report-advisor-vite.pid
-          for attempt in {1..30}; do
-            if curl --fail --silent --show-error http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
-            sleep 2
-          done
-          cat /tmp/report-advisor-vite.log
-          exit 1
       - name: Execute real report corpus
         shell: bash
         env:
-          E2E_REPORT_DIR: artifacts/real-report-corpus
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           REAL_REPORT_CORPUS_ROOT: tests/fixtures/realistic-reports
           REAL_REPORT_CORPUS_BASE_URL: https://deploy-preview-672--aghbari-report-advisor.netlify.app
+          GITHUB_TOKEN: ${{ github.token }}
         run: node scripts/real-report-corpus-e2e.mjs
       - name: Upload real report corpus evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: report-advisor-real-report-corpus-${{ env.EXACT_HEAD }}
-          path: |
-            artifacts/real-report-corpus
-            /tmp/report-advisor-vite.log
+          path: artifacts/real-report-corpus
           if-no-files-found: warn
           retention-days: 14
-      - name: Stop exact candidate
-        if: always()
-        shell: bash
-        run: |
-          if [ -f /tmp/report-advisor-vite.pid ]; then kill "$(cat /tmp/report-advisor-vite.pid)" 2>/dev/null || true; fi
