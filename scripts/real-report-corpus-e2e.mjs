@@ -88,14 +88,32 @@ async function executeOne(file,ordinal,total,identity){
     throw new Error('REPORT_ALREADY_CLOSED:' + rel);
   }
   if (prior?.status === 'failed') {
-    const reset = await serviceClient.from('import_jobs').update({
+    if (!prior.file_record_id) throw new Error('RESUME_FAILED_IMPORT_FILE_RECORD_MISSING');
+    const retryJob = await serviceClient.from('import_jobs').insert({
+      company_id: identity.companyId,
+      file_record_id: prior.file_record_id,
+      job_type: 'generic:source-data',
+      processing_mode: 'import',
       status: 'processing',
-      error_message: null,
+      total_rows: 0,
+      processed_rows: 0,
+      valid_rows: 0,
+      invalid_rows: 0,
+      quarantined_rows: 0,
+      duplicate_rows: 0,
+      progress: 0,
       started_at: new Date().toISOString(),
-    }).eq('id', prior.id).eq('company_id', identity.companyId).select('id,status').single();
-    if (reset.error) throw new Error('RESUME_IMPORT_RESET_FAILED:' + JSON.stringify(reset.error));
-    if (!reset.data || reset.data.status !== 'processing') throw new Error('RESUME_IMPORT_RESET_NOT_APPLIED:' + JSON.stringify(reset.data ?? null));
-    importId = prior.id;
+      result_summary: {
+        file_name: fileName,
+        source_path: rel,
+        source_commit: exactHead,
+        report_corpus: true,
+        retry_of_import_job_id: prior.id,
+        retry_reason: 'terminal_failed_attempt_requires_new_canonical_attempt',
+      },
+    }).select('id').single();
+    if (retryJob.error || !retryJob.data) throw new Error('RESUME_RETRY_JOB_CREATE_FAILED:' + JSON.stringify(retryJob.error ?? null));
+    importId = retryJob.data.id;
   } else if (prior) {
     throw new Error('REPORT_ALREADY_OPEN:' + rel + ':' + prior.status);
   } else {
