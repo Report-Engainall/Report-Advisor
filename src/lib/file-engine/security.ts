@@ -60,7 +60,7 @@ export function securityScan(file: File, buffer: ArrayBuffer): SecurityScanResul
   return { passed: issues.length === 0, issues, maxFileSize: MAX_FILE_SIZE, actualSize: file.size, isArchiveBomb, isZipTraversal };
 }
 
-export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _legacySupabase?: SupabaseClient): Promise<{ isDuplicate: boolean; existing: FileRecord | null }> {
+export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _legacySupabase?: SupabaseClient): Promise<{ isDuplicate: boolean; existing: FileRecord | null; existingImportJobId: string | null }> {
   const { resolveCurrentCompanyId, supabase } = await import('../supabase.ts');
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
@@ -82,8 +82,19 @@ export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _l
     .maybeSingle();
   if (canonicalError) throw canonicalError;
   if (canonicalCommit) {
+    const { data: existingImportJob, error: importJobError } = await supabase
+      .from('import_jobs')
+      .select('id')
+      .eq('company_id', companyId)
+      .eq('source_fingerprint', canonicalHash)
+      .eq('status', 'completed')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (importJobError) throw importJobError;
     return {
       isDuplicate: true,
+      existingImportJobId: existingImportJob?.id ? String(existingImportJob.id) : null,
       existing: {
         id: String(canonicalCommit.id),
         company_id: String(canonicalCommit.company_id),
@@ -106,7 +117,19 @@ export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _l
     .limit(1)
     .maybeSingle();
   if (fileError) throw fileError;
-  if (fileRecord) return { isDuplicate: true, existing: fileRecord as FileRecord };
+  if (fileRecord) {
+    const { data: existingImportJob, error: importJobError } = await supabase
+      .from('import_jobs')
+      .select('id')
+      .eq('company_id', companyId)
+      .eq('source_fingerprint', canonicalHash)
+      .eq('status', 'completed')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (importJobError) throw importJobError;
+    return { isDuplicate: true, existing: fileRecord as FileRecord, existingImportJobId: existingImportJob?.id ? String(existingImportJob.id) : null };
+  }
 
-  return { isDuplicate: false, existing: null };
+  return { isDuplicate: false, existing: null, existingImportJobId: null };
 }
