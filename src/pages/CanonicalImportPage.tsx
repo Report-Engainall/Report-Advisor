@@ -224,6 +224,7 @@ export function CanonicalImportPage() {
   const [error, setError] = useState<string | null>(null);
   const [securityPassed, setSecurityPassed] = useState(false);
   const [duplicate, setDuplicate] = useState(false);
+  const [existingImportId, setExistingImportId] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
@@ -252,7 +253,7 @@ export function CanonicalImportPage() {
 
   const handleFile = useCallback(async (selected: File) => {
     selectedFileRef.current = selected;
-    setError(null); setWarnings([]); setDuplicate(false); setSecurityPassed(false); setQualityApproved(false); setStep('scanning');
+    setError(null); setWarnings([]); setDuplicate(false); setExistingImportId(null); setSecurityPassed(false); setQualityApproved(false); setStep('scanning');
     try {
       const buffer = await selected.arrayBuffer();
       const scan = securityScan(selected, buffer);
@@ -268,6 +269,7 @@ export function CanonicalImportPage() {
       if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
       const dup = await checkDuplicate(hash, companyId, supabase);
       setDuplicate(dup.isDuplicate);
+      setExistingImportId(dup.existingImportJobId ?? null);
       if (dup.isDuplicate) setWarnings(prev => [...prev, 'هذا المصدر موجود مسبقًا لهذا الحساب. لن يتم حفظ نسخة تحليل مكررة.']);
       const datasets = await parseFile(buffer, selected.name, detection.format);
       const understanding = understandCanonicalSource(datasets);
@@ -369,7 +371,7 @@ export function CanonicalImportPage() {
 
   const saveAnalysis = useCallback(async () => {
     const validRows = rows.filter(r => r.valid);
-    if (!validRows.length || !file || !fileHash || duplicate || !securityPassed) return;
+    if (!validRows.length || !file || !fileHash || (duplicate && !existingImportId) || !securityPassed) return;
     if (quality < 50) { setError('جودة البيانات أقل من 50% — الاستيراد مرفوض.'); return; }
     if (quality < 75 && !qualityApproved) { setError('جودة البيانات بين 50% و74% وتتطلب موافقة صريحة قبل الاعتماد.'); return; }
 
@@ -384,34 +386,27 @@ export function CanonicalImportPage() {
       const sourceFile = selectedFileRef.current;
       if (!sourceFile) throw new Error('SOURCE_FILE_NOT_AVAILABLE');
 
-      const extension = (sourceFile.name.split('.').pop() || 'bin')
-        .toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12) || 'bin';
-      const sourceObjectPath = `${companyId}/imports/${crypto.randomUUID()}.${extension}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('documents')
-        .upload(sourceObjectPath, sourceFile, { contentType: file.mime, upsert: false });
-      if (uploadError) throw new Error(`SOURCE_UPLOAD_FAILED:${uploadError.message}`);
-
-      setProgress(30);
-
       const entityType = sourceEntityType;
-      const rec = await createImportRecord({
-        file_name: file.name,
-        file_size: file.size,
-        source_type: file.format,
-        file_mime: file.mime,
-        source_object_path: sourceObjectPath,
-        status: 'processing',
-        total_rows: rows.length,
-        valid_rows: validRows.length,
-        invalid_rows: rows.length - validRows.length,
-        quarantined_rows: rows.length - validRows.length,
-        entity_type: entityType,
-        progress: 0,
-      });
+      const reusingExistingReport = Boolean(existingImportId);
+      const rec = existingImportId
+        ? { id: existingImportId }
+        : await (async () => {
+            const extension = (sourceFile.name.split('.').pop() || 'bin')
+              .toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12) || 'bin';
+            const sourceObjectPath = `${companyId}/imports/${crypto.randomUUID()}.${extension}`;
+            const { error: uploadError } = await supabase.storage
+              .from('documents')
+              .upload(sourceObjectPath, sourceFile, { contentType: file.mime, upsert: false });
+            if (uploadError) throw new Error(`SOURCE_UPLOAD_FAILED:${uploadError.message}`);
+            setProgress(30);
+            return createImportRecord({
+              file_name: file.name, file_size: file.size, source_type: file.format, file_mime: file.mime,
+              source_object_path: sourceObjectPath, status: 'processing', total_rows: rows.length,
+              valid_rows: validRows.length, invalid_rows: rows.length - validRows.length,
+              quarantined_rows: rows.length - validRows.length, entity_type: entityType, progress: 0,
+            });
+          })();
       importJobId = rec.id;
-
       setProgress(45);
 
       const durableSourceHash = `sha256:${fileHash}`;
@@ -503,6 +498,7 @@ export function CanonicalImportPage() {
         evidence_status: evidenceStatus,
         evidence_warning: typeof execution.evidenceWarning === 'string' ? execution.evidenceWarning : null,
         reused_existing_commit: execution.reusedExistingCommit === true,
+        reused_existing_report: reusingExistingReport,
         existing_commit_id: typeof execution.existingCommitId === 'string' ? execution.existingCommitId : null,
         execution_job_id: durableJobId,
         execution_task_count: finalExecutionTasks.length,
@@ -561,7 +557,7 @@ export function CanonicalImportPage() {
       await loadHistory();
     } catch (cause) {
       const failureMessage = cause instanceof Error ? cause.message : 'تعذر اعتماد المصدر';
-      if (importJobId) {
+      if (importJobId && !existingImportId) {
         try {
           await finishImportJob(importJobId, 'failed', {
             total: rows.length,
@@ -620,18 +616,18 @@ export function CanonicalImportPage() {
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
   const qualityVariant = quality >= 75 ? 'success' : quality >= 50 ? 'warning' : 'danger';
-  const ready = Boolean(file && fileHash && securityPassed && !duplicate && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
+  const ready = Boolean(file && fileHash && securityPassed && (!duplicate || existingImportId) && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
   const readinessBlockers = useMemo(() => {
     const blockers: string[] = [];
     if (!file) blockers.push('لم يصل المصدر إلى مرحلة القراءة بعد.');
     if (!fileHash) blockers.push('لم تُثبت بصمة المصدر.');
     if (!securityPassed) blockers.push('الفحص الأمني لم يكتمل بنجاح.');
-    if (duplicate) blockers.push('المصدر مكرر داخل الحساب، والكتابة محظورة لمنع إنشاء نسخة ثانية.');
+    if (duplicate && !existingImportId) blockers.push('المصدر مكرر داخل الحساب ولا يوجد سجل تقرير مكتمل قابل لإعادة العرض.');
     if (valid <= 0) blockers.push('لا توجد صفوف قابلة للقراءة والاعتماد بعد.');
     if (quality < 50) blockers.push(`جودة البيانات ${quality}% أقل من الحد الأدنى 50%.`);
     if (quality >= 50 && quality < 75 && !qualityApproved) blockers.push(`جودة البيانات ${quality}% تقع في نطاق المراجعة وتحتاج موافقة صريحة.`);
     return blockers;
-  }, [file, fileHash, securityPassed, duplicate, valid, quality, qualityApproved]);
+  }, [file, fileHash, securityPassed, duplicate, existingImportId, valid, quality, qualityApproved]);
 
   const failurePresentation = describeImportFailure(error);
 
