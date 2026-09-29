@@ -1,15 +1,15 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / REAL SOURCE-BOUND REPORT RESULT
 
-- CURRENT CODE/TEST CANDIDATE: `0557669999de77926c64c6603dce3c1a0858ce1c` on `exec/20260929-source-bound-report-closure`.
+- CURRENT CODE/TEST CANDIDATE: `ed1ad353377d443e6b699258b0aa39799559b837` on `exec/20260929-source-bound-report-closure`.
 - REAL LIVE REPORT → one previously uploaded/imported sales PDF is already present in Staging and canonically committed: 1,998 rows, report execution status `completed`, checkpoint `rendered`.
 - ROOT CAUSE CONFIRMED → the existing executive surface was dashboard/global-derived rather than source-bound; a live executive RPC returned unrelated aggregate values for the tenant instead of the imported report.
 - ACTUAL CODE DELIVERY → added a tenant-scoped source-bound report surface reading `import_jobs`, `report_execution_jobs`, and `canonical_dataset_records` under the same source fingerprint; added a direct post-import link to that report.
 - RESULT SURFACE → source identity, SHA, import/execution IDs, row-derived sales metrics, invoice mix, receivables candidate, data-quality exceptions, smart-report eligibility, evidence samples, and fail-closed states are shown without mock/demo values.
 - SECURITY → the new surface resolves `current_company_id()` and scopes every read by company/source identity; it does not expose raw source files or bypass RLS.
-- SNAPSHOT GAP → the existing real report currently has no `source_analysis_snapshots` row, so evidence snapshot completion remains a real backend gap rather than being fabricated as PASS.
+- SNAPSHOT GAP CLOSED → live Staging now contains an authoritative `source_analysis_snapshots` row linked to the imported source, with the same SHA and 1,998 canonical rows; the execution job evidence now links that snapshot.
 - DEVICE → no local PC, Edge, Chrome, localhost, or Remote Desktop dependency was used for this execution.
 - EXACT-SHA LAW → no older PASS transferred. The branch now requires fresh exact-head CI before any main integration.
-- NEXT EXACT ACTION → consume terminal exact-head Actions result for `0557669999de77926c64c6603dce3c1a0858ce1c`; repair only the first current-SHA reproducible failure, then re-anchor the report surface to the canonical smart-report/evidence layers before main integration.
+- NEXT EXACT ACTION → consume terminal exact-head Actions result for `ed1ad353377d443e6b699258b0aa39799559b837`; repair only the first current-SHA reproducible failure, then integrate the source-bound result path to main once the exact-head gates pass.
 
 ---
 
