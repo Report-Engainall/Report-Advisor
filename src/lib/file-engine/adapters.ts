@@ -1118,9 +1118,10 @@ function tryParseProductInventoryAdministrativeText(text: string): Row[] | null 
     return [...value.matchAll(/(?:\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)/g)].map(match => match[0]);
   }
 
-  function findLastTokenIndex(values: string[], candidates: string[]): number {
-    for (let index = values.length - 1; index >= 0; index -= 1) {
-      if (candidates.includes(values[index])) return index;
+  function findWarehousePackageIndex(values: string[]): number {
+    for (let index = values.length - 1; index > 0; index -= 1) {
+      if (!packageWords.includes(values[index])) continue;
+      if (/^\\d+(?:\\.\\d+)?$/.test(values[index - 1])) return index;
     }
     return -1;
   }
@@ -1136,7 +1137,7 @@ function tryParseProductInventoryAdministrativeText(text: string): Row[] | null 
     const tokens = segment.split(/\s+/).filter(Boolean);
     if (tokens.length < 10) continue;
 
-    const packageIndex = findLastTokenIndex(tokens, packageWords);
+    const packageIndex = findWarehousePackageIndex(tokens);
     if (packageIndex <= 0) continue;
     const warehouseToken = tokens[packageIndex - 1];
     if (!/^\d+(?:\.\d+)?$/.test(warehouseToken)) continue;
