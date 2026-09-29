@@ -347,7 +347,7 @@ function groupPdfLines(items: PdfTextPlacement[]): PdfTextPlacement[][] {
 }
 
 function compactArabicHeader(value: string): string {
-  return normalizeColumnName(value).replace(/(?<=[\\u0600-\\u06FF])\\s+(?=[\\u0600-\\u06FF])/gu, '');
+  return normalizeColumnName(value).replace(/(?<=[\u0600-\u06FF])\s+(?=[\u0600-\u06FF])/gu, '');
 }
 
 function pdfHeaderMatch(value: string): string | null {
