@@ -80,7 +80,7 @@ function assertUniqueBusinessKeys(entityType: DurableCanonicalImportInput['entit
 function buildRenderedReportOutput(input: DurableCanonicalImportInput): Record<string, unknown> {
   const outputs = resolveCanonicalReportOutputs(input.sourceSpecialty, input.entityType);
   return {
-    contractVersion: '2026-09-28',
+    contractVersion: '2026-09-29-receivables-output-v1',
     renderedAt: new Date().toISOString(),
     sourceBound: true,
     sourceHash: input.sourceHash,
