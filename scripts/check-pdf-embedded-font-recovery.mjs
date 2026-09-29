@@ -1,9 +1,12 @@
 import fs from 'node:fs/promises';
-import { parseFile } from '../src/lib/file-engine/adapters.ts';
+import { parseFile, loadEmbeddedPdfGlyphMap } from '../src/lib/file-engine/adapters.ts';
 
 const file = 'tests/fixtures/realistic-reports/الصراف العامري.pdf';
 const bytes = await fs.readFile(file);
 const buffer = Uint8Array.from(bytes).buffer;
+const glyphMap = await loadEmbeddedPdfGlyphMap(buffer);
+if (!glyphMap || glyphMap.size < 20) throw new Error('PDF_EMBEDDED_FONT_REGRESSION: glyphMap=' + (glyphMap?.size ?? 0));
+console.log('EMBEDDED_GLYPH_MAP_SIZE=' + glyphMap.size);
 const datasets = await parseFile(buffer, file, 'pdf');
 if (!datasets.length) throw new Error('PDF_EMBEDDED_FONT_REGRESSION: no dataset produced');
 const dataset = datasets[0];
