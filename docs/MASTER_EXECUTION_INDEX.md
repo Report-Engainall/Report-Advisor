@@ -1,3 +1,20 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / BATCH REPORT CONTINUITY + CORE REQUEUE REPAIR
+
+- CURRENT CONTROL HEAD → `dd94204798fa46d94c314816068048c0e2fec306`.
+- CURRENT FUNCTIONAL CANDIDATE → `e093749e839fbddb89dabb1f908198021124078f`.
+- PR → #680 / `exec-report-cert-parity-0929`.
+- CORE MIGRATION → `supabase/migrations/20260929150000_requeue_report_execution_after_import_finish.sql`.
+- LIVE MIGRATION → `20260929150000 / requeue_report_execution_after_import_finish` applied successfully.
+- CORE ROOT FIX → completed imports now requeue the exact evidence-linked report execution job only when it is non-rendered and its worker lease is absent/expired; stale running tasks are returned to queued. The report is never marked complete by this repair.
+- REPORT BATCH PROOF → 32 latest human PDF/XLS/XLSX report sources are completed/rendered with exact evidence-linked import continuity; zero rendered-without-canonical and zero rendered-import-gap remain.
+- CURRENT OPEN BUSINESS REPORTS → `المبيعات.pdf` (328 import rows, 0 canonical, processing) and `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf` (6,562 import rows, 0 canonical, processing; report queued at decisioned). No closure is claimed until source/canonical data exists.
+- LIBRARY NOTE → 50 PDF/XLSX files are currently visible under Library filtering, but several are specifications/wireframes; 47–48 business reports are not yet an exact verified Library count.
+- EXACT-HEAD CI → `e093749e...` last poll: 34 success, 0 failure, 12 in progress, 1 queued, 2 skipped. Fresh evidence only.
+- DEVICE/RELEASE → PC01 offline; authenticated Edge/device runtime proof not claimed; Phase-F remains fail-closed until its exact-head terminal gates pass.
+- NEXT → consume only terminal checks on the current SHA; repair the first reproducible current-SHA defect, then recover the two remaining business sources and run the complete lifecycle.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / POST-IMPORT REPORT CONTINUITY
 
 - CURRENT CODE/TEST CANDIDATE: `456bc2d0e670c0852f4636d42edc3180c844df37`.
