@@ -103,13 +103,13 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          VITE_CANONICAL_IMPORT_EXECUTE_URL: https://deploy-preview-676--aghbari-report-advisor.netlify.app/.netlify/functions/canonical-import-execute
+          VITE_CANONICAL_IMPORT_EXECUTE_URL: https://deploy-preview-676--aghbari-report-advisor.netlify.app/api/canonical-import-execute
         run: npm run build
       - name: Start exact-head preview
         env:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          VITE_CANONICAL_IMPORT_EXECUTE_URL: https://deploy-preview-676--aghbari-report-advisor.netlify.app/.netlify/functions/canonical-import-execute
+          VITE_CANONICAL_IMPORT_EXECUTE_URL: https://deploy-preview-676--aghbari-report-advisor.netlify.app/api/canonical-import-execute
         run: |
           set -euo pipefail
           nohup npm run preview -- --host 127.0.0.1 --port 4173 >/tmp/report-advisor-full-browser.log 2>&1 &
@@ -123,7 +123,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          url="https://deploy-preview-676--aghbari-report-advisor.netlify.app/.netlify/functions/canonical-import-execute"
+          url="https://deploy-preview-676--aghbari-report-advisor.netlify.app/api/canonical-import-execute"
           for i in {1..90}; do
             status="$(curl -sS -o /tmp/canonical-import-options.out -w '%{http_code}' -X OPTIONS "$url" || true)"
             if [ "$status" = "204" ]; then exit 0; fi
