@@ -1,3 +1,12 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 07:52 +03:00 / REPORT_001 CLOSED / FULL 47-CANDIDATE CORPUS NEXT
+
+- CURRENT EXACT HEAD: `ebb485efb041c2476a42e443f7c69fa15cf56f77`
+- FUNCTIONAL REPORT CANDIDATE: `2e950c48544edb4c20e1c0e00eb9bde6f2a697e7`
+- REPORT_001: CLOSED and proven by run 36521493399; individual artifact inspected and confirms one closed report only.
+- CORPUS FACT: 48 filesystem entries include README; 47 executable report candidates. Complete mode now discovers and processes all candidates dynamically, requires >=40, and enforces processed=closed=discovered with zero failures/review.
+- REPORT-FIRST COUNTS: CLOSED=1 / REMAINING=46.
+- NEXT EXACT ACTION: terminal Full Product Browser E2E over all 47 discovered report candidates; first current-SHA report blocker controls next repair.
+---
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 07:47 +03:00 / REPORT_001 CLOSED / FULL CORPUS 48 NEXT
 
 - CURRENT FUNCTIONAL CODE/TEST CANDIDATE: `2e950c48544edb4c20e1c00eb9bde6f2a697e7`
