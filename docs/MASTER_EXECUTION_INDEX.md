@@ -1,6 +1,6 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / REAL SOURCE-BOUND REPORT RESULT
 
-- CURRENT CODE/TEST CANDIDATE: `a103562d3f3b8772f8bc789ff9f15a48813cba7b` on `exec/20260929-source-bound-report-closure`.
+- CURRENT CODE/TEST CANDIDATE: `761a630f360b4721ae06dfa2cf4c4e075c4bf76b` on `exec/20260929-source-bound-report-closure`.
 - REAL LIVE REPORT → one previously uploaded/imported sales PDF is already present in Staging and canonically committed: 1,998 rows, report execution status `completed`, checkpoint `rendered`.
 - ROOT CAUSE CONFIRMED → the existing executive surface was dashboard/global-derived rather than source-bound; a live executive RPC returned unrelated aggregate values for the tenant instead of the imported report.
 - ACTUAL CODE DELIVERY → added a tenant-scoped source-bound report surface reading `import_jobs`, `report_execution_jobs`, and `canonical_dataset_records` under the same source fingerprint; added a direct post-import link to that report.
@@ -9,7 +9,7 @@
 - SNAPSHOT GAP CLOSED → live Staging now contains an authoritative `source_analysis_snapshots` row linked to the imported source, with the same SHA and 1,998 canonical rows; the execution job evidence now links that snapshot.
 - DEVICE → no local PC, Edge, Chrome, localhost, or Remote Desktop dependency was used for this execution.
 - EXACT-SHA LAW → no older PASS transferred. The branch now requires fresh exact-head CI before any main integration.
-- NEXT EXACT ACTION → consume terminal exact-head Actions result for `a103562d3f3b8772f8bc789ff9f15a48813cba7b`; repair only the first current-SHA reproducible failure, then integrate the source-bound result path to main once the exact-head gates pass.
+- NEXT EXACT ACTION → consume terminal exact-head Actions result for `761a630f360b4721ae06dfa2cf4c4e075c4bf76b`; repair only the first current-SHA reproducible failure, then integrate the source-bound result path to main once the exact-head gates pass.
 
 ---
 
