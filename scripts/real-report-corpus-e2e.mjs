@@ -88,7 +88,7 @@ async function executeOne(file,ordinal,total,identity){
   if (prior?.status === 'completed') {
     throw new Error('REPORT_ALREADY_CLOSED:' + rel);
   }
-  if (prior?.status === 'failed') {
+  if (prior?.status === 'failed' || (prior?.status === 'processing' && prior.result_summary?.source_commit !== exactHead)) {
     if (!prior.file_record_id) throw new Error('RESUME_FAILED_IMPORT_FILE_RECORD_MISSING');
     const retryJob = await serviceClient.from('import_jobs').insert({
       company_id: identity.companyId,
