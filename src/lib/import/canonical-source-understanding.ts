@@ -96,7 +96,7 @@ function missingCanonicalWriteFields(
   if (!(specialty in CANONICAL_WRITE_FIELDS)) return [];
   const required = CANONICAL_WRITE_FIELDS[specialty as keyof CanonicalWriteFields];
   const missing = new Set<string>();
-  for (const dataset of cleanedDatasets) {
+  for (const dataset of datasets) {
     const datasetFields = new Set(
       dataset.columns.map((column) => column.mappedField).filter(Boolean) as string[],
     );
