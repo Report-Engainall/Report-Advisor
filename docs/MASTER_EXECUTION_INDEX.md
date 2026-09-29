@@ -1,3 +1,22 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-29 / SOURCE-BOUND DOMAIN REPORTS COMMITTED / SERIAL CORPUS E2E NEXT
+
+- CONTROL HEAD: `5ae51964fe64c000f80868d3af809019cf09e305`.
+- FUNCTIONAL CODE: `bcbd88f9218b7b35e91a057608b2f45712c222e9`.
+- BRANCH: `exec/20260929-post-import-report-continuity`.
+- REPORT CORPUS: 47 real report inputs; corpus gate previously PASS at `DECLARED=47 ACTUAL=48 MINIMUM=20`.
+- PARSER HARDENING: layout PDF tables, multi-row headers, OCR fallback, spatial OCR, semantic mapping, specialty detection across sales/purchases/inventory/receivables/payments/customers/products.
+- REPRESENTATIVE REGRESSION: 10/10 real reports pass parser+specialty regression; latest local targeted proof includes typecheck/build PASS.
+- DOMAIN SURFACE: `/reports/source/:importId/domain` is source-bound and reads only the current Report Job canonical rows.
+- SPECIALTY ROUTING: Source Report now routes sales/purchases/inventory/payments/receivables/products/customers to source-bound domain output.
+- REPORT OUTPUT BUNDLE: source report + domain report + reports center + evidence/trust + executive + intelligence + recommendations + forecasts + decision + work center + data quality + benchmark state.
+- REPORT COUNTS: TOTAL=47 / CLOSED=0 / REVIEW=0 / FAILED=0 / BLOCKED=0 / REMAINING=47.
+- CI: current branch push at this control head triggers exact-head Full Product Browser E2E configured for full real corpus serial execution; terminal proof pending.
+- CERTIFICATION: Phase-F exact deployment identity and migration-lineage drift remain separate open fronts.
+- DO-NOT-REPEAT: no duplicate path; no direct database injection; no synthetic evidence; no stale SHA proof.
+- NEXT EXACT ACTION: consume the current-head Full Product Browser E2E and inspect its per-report `real-report-e2e` artifacts; repair only the first reproducible current-SHA blocker, then continue to the next report fingerprint.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-29 / REAL CORPUS SERIAL EXECUTION / PARSER+OCR HARDENED
 
 - FUNCTIONAL CODE SHA: `bcbd88f9218b7b35e91a057608b2f45712c222e9`.
