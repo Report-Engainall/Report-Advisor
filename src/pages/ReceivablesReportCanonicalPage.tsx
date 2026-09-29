@@ -108,18 +108,19 @@ function SourceReceivablesReport({ importId }: { importId: string }) {
 export function ReceivablesReportCanonicalPage() {
   const [searchParams] = useSearchParams();
   const importId = searchParams.get('importId')?.trim() || '';
-  if (importId) return <SourceReceivablesReport importId={importId} />;
   const [snapshot, setSnapshot] = useState<ReceivablesReportPage | null>(null);
   const [page, setPage] = useState(0);
   const pageSize = 25;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(async () => {
+    if (importId) return;
     try { setLoading(true); setError(null); setSnapshot(await fetchReceivablesReportPage(page, pageSize)); }
     catch (e: unknown) { setError(e instanceof Error ? e.message : 'تعذر تحميل الذمم'); }
     finally { setLoading(false); }
-  }, [page]);
-  useEffect(() => { void load(); }, [load]);
+  }, [page, importId]);
+  useEffect(() => { if (!importId) void load(); }, [load, importId]);
+  if (importId) return <SourceReceivablesReport importId={importId} />;
   if (loading && !snapshot) return <LoadingState />;
   if (error && !snapshot) return <ErrorState message={error} onRetry={load} />;
   if (!snapshot) return <DataUnavailableState title="تقرير الذمم ينتظر البيانات" message="لم تصل صورة موثوقة للذمم بعد. لا يتم تحويل غياب البيانات إلى صفر أو تقرير فارغ." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
