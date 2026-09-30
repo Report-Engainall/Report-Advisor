@@ -43,16 +43,42 @@ function effectiveEvidenceStatus(
   if (
     current === 'AWAITING_EVIDENCE_SNAPSHOT' &&
     sourceAnalysis?.analysisStatus === 'analyzed' &&
-    Boolean(rendered.canonicalCommitVerified)
+    rendered.canonicalCommitVerified === true
   ) {
     return 'VERIFIED';
   }
+  if (rendered.canonicalCommitVerified === true) return 'VERIFIED';
   return current;
 }
 
 function entityTypeFrom(jobKey: string): string {
   const parts = jobKey.split(':');
-  return parts.length >= 3 ? parts[2] : jobKey;
+  return parts.length >= 3 ? parts.slice(2).join(':') : jobKey;
+}
+
+function isReportSourcePath(path: string): boolean {
+  return /\.(xlsx|xls|xlsm|csv|tsv|ods|pdf|docx|doc|rtf|json|jsonl|txt|md|markdown|jpg|jpeg|png|webp|tiff|bmp)$/i.test(path);
+}
+
+function mapCatalogItem(job: Record<string, unknown>): SmartReportCatalogItem | null {
+  const rendered = renderedOutputOf(job.evidence);
+  const path = String(job.source_path ?? '');
+  if (!rendered || !isReportSourcePath(path)) return null;
+  if (/^(customer|product|invoice)-\d+/i.test(path)) return null;
+  return {
+    jobId: String(job.id),
+    sourcePath: path || 'مصدر غير مسمى',
+    sourceHash: String(job.source_hash ?? ''),
+    entityType: entityTypeFrom(String(job.job_key ?? '')),
+    rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
+    qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
+    trustState: rendered.trustState == null ? null : String(rendered.trustState),
+    specialty: rendered.sourceSpecialty == null ? null : String(rendered.sourceSpecialty),
+    evidenceStatus: rendered.canonicalCommitVerified === true
+      ? 'VERIFIED'
+      : rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus),
+    completedAt: job.completed_at == null ? null : String(job.completed_at),
+  };
 }
 
 export async function fetchSmartReportCatalog(limit = 60): Promise<SmartReportCatalogItem[]> {
@@ -60,7 +86,7 @@ export async function fetchSmartReportCatalog(limit = 60): Promise<SmartReportCa
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
-  const { data: jobs, error: jobsError } = await supabase
+  const { data: jobs, error } = await supabase
     .from('report_execution_jobs')
     .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
     .eq('company_id', companyId)
@@ -70,36 +96,15 @@ export async function fetchSmartReportCatalog(limit = 60): Promise<SmartReportCa
     .order('completed_at', { ascending: false })
     .range(0, limit - 1);
 
-  if (jobsError) throw jobsError;
-
+  if (error) throw error;
   return (jobs ?? [])
-    .filter((job) => {
-      const path = String(job.source_path ?? '');
-      return /\.(xlsx|xls|csv|pdf|docx|json|txt)$/i.test(path)
-        && !/^(customer|product|invoice)-\d+/i.test(path)
-        && Boolean(renderedOutputOf(job.evidence));
-    })
-    .map((job) => {
-      const rendered = renderedOutputOf(job.evidence) ?? {};
-      return {
-        jobId: String(job.id),
-        sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
-        sourceHash: String(job.source_hash ?? ''),
-        entityType: entityTypeFrom(String(job.job_key ?? '')),
-        rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
-        qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
-        trustState: rendered.trustState == null ? null : String(rendered.trustState),
-        specialty: rendered.sourceSpecialty == null ? null : String(rendered.sourceSpecialty),
-        evidenceStatus: rendered.canonicalCommitVerified === true
-          ? 'VERIFIED'
-          : rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus),
-        completedAt: job.completed_at ?? null,
-      };
-    });
+    .map((job) => mapCatalogItem(job as Record<string, unknown>))
+    .filter((item): item is SmartReportCatalogItem => item !== null);
 }
 
 export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail | null> {
-  if (!jobId.trim()) throw new Error('REPORT_QUERY_INVALID_SMART_REPORT_ID');
+  const normalizedJobId = jobId.trim();
+  if (!normalizedJobId) throw new Error('REPORT_QUERY_INVALID_SMART_REPORT_ID');
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
@@ -107,7 +112,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     .from('report_execution_jobs')
     .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
     .eq('company_id', companyId)
-    .eq('id', jobId)
+    .eq('id', normalizedJobId)
     .maybeSingle();
 
   if (jobError) throw jobError;
@@ -126,17 +131,16 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
 
   if (analysisError) throw analysisError;
   const analysis = analyses?.[0] ?? null;
-
   const sourceAnalysis = analysis ? {
-      id: String(analysis.id),
-      importJobId: analysis.import_job_id == null ? null : String(analysis.import_job_id),
-      sourceFormat: analysis.source_format == null ? null : String(analysis.source_format),
-      analysisStatus: analysis.analysis_status == null ? null : String(analysis.analysis_status),
-      qualityScore: analysis.quality_score == null ? null : Number(analysis.quality_score),
-      rowCount: analysis.row_count == null ? null : Number(analysis.row_count),
-      columnCount: analysis.column_count == null ? null : Number(analysis.column_count),
-      datasets: Array.isArray(analysis.datasets) ? analysis.datasets : [],
-    } : null;
+    id: String(analysis.id),
+    importJobId: analysis.import_job_id == null ? null : String(analysis.import_job_id),
+    sourceFormat: analysis.source_format == null ? null : String(analysis.source_format),
+    analysisStatus: analysis.analysis_status == null ? null : String(analysis.analysis_status),
+    qualityScore: analysis.quality_score == null ? null : Number(analysis.quality_score),
+    rowCount: analysis.row_count == null ? null : Number(analysis.row_count),
+    columnCount: analysis.column_count == null ? null : Number(analysis.column_count),
+    datasets: Array.isArray(analysis.datasets) ? analysis.datasets : [],
+  } : null;
 
   return {
     jobId: String(job.id),
@@ -148,20 +152,10 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     trustState: rendered.trustState == null ? null : String(rendered.trustState),
     specialty: rendered.sourceSpecialty == null ? null : String(rendered.sourceSpecialty),
     evidenceStatus: effectiveEvidenceStatus(rendered, sourceAnalysis),
-    completedAt: job.completed_at ?? null,
+    completedAt: job.completed_at == null ? null : String(job.completed_at),
     importId: rendered.importId == null ? null : String(rendered.importId),
     checkpointStage: job.checkpoint?.stage == null ? null : String(job.checkpoint.stage),
     renderedOutput: rendered,
     sourceAnalysis,
-  };
-      id: String(analysis.id),
-      importJobId: analysis.import_job_id == null ? null : String(analysis.import_job_id),
-      sourceFormat: analysis.source_format == null ? null : String(analysis.source_format),
-      analysisStatus: analysis.analysis_status == null ? null : String(analysis.analysis_status),
-      qualityScore: analysis.quality_score == null ? null : Number(analysis.quality_score),
-      rowCount: analysis.row_count == null ? null : Number(analysis.row_count),
-      columnCount: analysis.column_count == null ? null : Number(analysis.column_count),
-      datasets: Array.isArray(analysis.datasets) ? analysis.datasets : [],
-    } : null,
   };
 }
