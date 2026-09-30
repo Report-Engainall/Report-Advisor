@@ -6,6 +6,7 @@ const netlifySource = fs.readFileSync(new URL('../netlify/functions/canonical-im
 const netlifyConfig = fs.readFileSync(new URL('../netlify.toml', import.meta.url), 'utf8');
 assert.match(source, /storage\.from\(storageBucket\)\.download\(storagePath\)/);
 assert.match(netlifySource, /resumeReportExecutionJobId/);
+assert.match(netlifySource, /canonical-import-resume-background/);
 assert.match(netlifyConfig, /node_modules\/pdfjs-dist\/build\/pdf\.worker\.mjs/);
 assert.match(netlifySource, /from\('report_execution_jobs'\)/);
 assert.match(netlifySource, /function reportEntityTypeFromJobKey/);
