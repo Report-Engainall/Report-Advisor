@@ -71,6 +71,17 @@ if (!beforeJob) throw new Error('OPEN_REPORT_JOB_NOT_FOUND');
 if (beforeJob.source_path !== EXPECTED_FILE) throw new Error('OPEN_REPORT_SOURCE_PATH_MISMATCH');
 if (beforeJob.source_hash !== EXPECTED_HASH) throw new Error('OPEN_REPORT_SOURCE_HASH_MISMATCH');
 
+console.log(JSON.stringify({
+  phase: 'RESUME_PREFLIGHT',
+  jobId: beforeJob.id,
+  status: beforeJob.status,
+  sourcePath: beforeJob.source_path,
+  sourceHash: beforeJob.source_hash,
+  jobKey: beforeJob.job_key,
+  checkpoint: beforeJob.checkpoint,
+  evidence: beforeJob.evidence,
+}, null, 2));
+
 const run = await fetch(BASE_URL + '/api/canonical-import-execute', {
   method: 'POST',
   headers: {
