@@ -260,23 +260,42 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
   const canonicalCommitVerified =
     authoritativeCurrentRowCount != null && canonicalCommitCount === authoritativeCurrentRowCount;
 
-  const canonicalRowLimit = Math.min(2000, Math.max(200, Number(sourceRowCount ?? 200)));
-  const { data: canonicalRowsData, error: canonicalRowsError } = await supabase
-    .from('canonical_dataset_records')
-    .select('row_number,data')
-    .eq('company_id', companyId)
-    .eq('source_hash', job.source_hash)
-    .order('row_number', { ascending: true })
-    .limit(canonicalRowLimit);
+  // Smart-report intelligence must inspect the canonical source, not an arbitrary preview.
+  // Supabase REST can cap a single response; page deterministically until the full source
+  // is consumed (with a defensive ceiling so a pathological source cannot freeze the browser).
+  const canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }> = [];
+  const canonicalFetchPageSize = 1000;
+  const canonicalFetchLimit = 50000;
+  let canonicalOffset = 0;
 
-  if (canonicalRowsError) throw canonicalRowsError;
+  while (canonicalOffset < canonicalFetchLimit) {
+    const { data: pageRows, error: pageError } = await supabase
+      .from('canonical_dataset_records')
+      .select('row_number,data')
+      .eq('company_id', companyId)
+      .eq('source_hash', job.source_hash)
+      .order('row_number', { ascending: true })
+      .range(canonicalOffset, canonicalOffset + canonicalFetchPageSize - 1);
 
-  const canonicalRows = (canonicalRowsData ?? [])
-    .filter((row) => row && typeof row.data === 'object' && row.data !== null)
-    .map((row) => ({
-      row_number: Number(row.row_number ?? 0),
-      data: row.data as Record<string, unknown>,
-    }));
+    if (pageError) throw pageError;
+
+    const normalizedPage = (pageRows ?? [])
+      .filter((row) => row && typeof row.data === 'object' && row.data !== null)
+      .map((row) => ({
+        row_number: Number(row.row_number ?? 0),
+        data: row.data as Record<string, unknown>,
+      }));
+
+    canonicalRows.push(...normalizedPage);
+
+    if ((pageRows ?? []).length < canonicalFetchPageSize) break;
+    canonicalOffset += canonicalFetchPageSize;
+  }
+
+  const canonicalRowsComplete =
+    sourceRowCount == null ||
+    canonicalRows.length >= sourceRowCount ||
+    canonicalRows.length >= canonicalFetchLimit;
 
   const sourceAnalysis = analysis ? {
     id: String(analysis.id),
