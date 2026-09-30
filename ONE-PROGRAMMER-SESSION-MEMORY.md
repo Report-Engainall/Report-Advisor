@@ -1,3 +1,16 @@
+# PRE-LONG-ACTION CHECKPOINT — 2026-09-30 / EXACT-HEAD TEST FRONT
+
+- EXACT MAIN HEAD → `0bf973554a3396159cb3548d4f17c37a0eb77895`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- CURRENT REPORT STATE → previously persisted completed/rendered/source-bound; no blind re-import.
+- CURRENT STAGE → post-render / source-bound business-surface verification.
+- LAST VERIFIED STATE → durable completed/rendered + canonical lineage + persisted Smart Report surfaces from prior current-SHA evidence; authenticated exact-SHA browser closure remains unproven.
+- ACTION IN PROGRESS → exact-head typecheck/build + targeted report-surface contract execution.
+- ACTION STATUS → `IN_PROGRESS`.
+- REAL BLOCKER → none for repository-side test execution; hosting/browser evidence remains separately constrained.
+- DO-NOT-REPEAT → no re-import, no direct canonical-row edit, no stale PASS, no fake browser proof.
+- NEXT EXACT ACTION → execute exact-head compile/build and targeted report-surface checks; fix only the first reproduced current-SHA failure, then re-run the same target.
+
 # LIVE SURGICAL CHECKPOINT — 2026-09-30 / SOURCE-BOUND BUSINESS SURFACES
 
 - EXACT MAIN HEAD → `bef320eeeed361f1f32a2e0895e2f73147a067bc`.
