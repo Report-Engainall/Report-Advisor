@@ -91,3 +91,6 @@ begin
   return v_job_id;
 end;
 $function$;
+
+revoke all on function public.rehydrate_legacy_import_job(uuid, uuid) from public;
+grant execute on function public.rehydrate_legacy_import_job(uuid, uuid) to service_role;
