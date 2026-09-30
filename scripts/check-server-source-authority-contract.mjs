@@ -11,6 +11,8 @@ assert.match(netlifySource, /raw_bytes_sha256/);
 assert.match(netlifySource, /CANONICAL_IMPORT_DURABLE_RUN_FAILED/);
 assert.match(netlifySource, /Netlify\.env\.get\('REPORT_ADVISOR_E2E_DEBUG'\)/);
 assert.match(netlifySource, /source_fingerprint: sourceSha/);
+assert.match(netlifySource, /\.eq\('id', importId\)/);
+assert.doesNotMatch(netlifySource, /\.eq\('id', payload\.importId\)/);
 assert.match(source, /computeSHA256\(buffer\)/);
 assert.match(source, /serverSourceAuthority/);
 assert.match(source, /resumeReportExecutionJobId/);
