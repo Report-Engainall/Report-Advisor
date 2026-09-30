@@ -152,19 +152,59 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
   }
 
   const keyColumn = findColumn(columns, ['sku', 'product_code', 'رقم الصنف', 'barcode']);
+  const warehouseColumn = findColumn(columns, ['warehouse', 'المخزن', 'المستودع']);
+  const priceColumn = findColumn(columns, ['price', 'السعر', 'selling_price', 'سعر البيع']);
   if (keyColumn && rows.length) {
     const keyName = text(keyColumn.name ?? keyColumn.mappedField);
+    const warehouseName = text(warehouseColumn?.name ?? warehouseColumn?.mappedField);
+    const priceName = text(priceColumn?.name ?? priceColumn?.mappedField);
     const seen = new Map<string, number>();
+    const pricesBySku = new Map<string, Set<number>>();
     let duplicateCount = 0;
     for (const row of rows) {
       const value = text(row.data?.[keyName]);
       if (!value) continue;
-      const next = (seen.get(value) ?? 0) + 1;
-      seen.set(value, next);
+      // Repeating a SKU across warehouses is a legitimate inventory grain.
+      // Only flag a duplicate when it repeats within the same source context.
+      const warehouse = warehouseName ? text(row.data?.[warehouseName]) : '';
+      const scopedKey = warehouse ? value + '|' + warehouse : value;
+      const next = (seen.get(scopedKey) ?? 0) + 1;
+      seen.set(scopedKey, next);
       if (next === 2) duplicateCount += 1;
+
+      if (priceName) {
+        const price = numeric(row.data?.[priceName]);
+        if (price != null) {
+          const values = pricesBySku.get(value) ?? new Set<number>();
+          values.add(price);
+          pricesBySku.set(value, values);
+        }
+      }
     }
     if (duplicateCount > 0) {
-      addSignal(signals, 'source:duplicate-key', 'high', 'مفاتيح مصدر مكررة تحتاج تفسيرًا', 'تم العثور على ' + duplicateCount + ' مفاتيح مكررة ضمن السجلات المقروءة؛ قد تكون تكرارًا صحيحًا أو ازدواجية تحتاج تدقيقًا.', ['keyField=' + keyName, 'duplicateKeys=' + duplicateCount]);
+      addSignal(
+        signals,
+        'source:duplicate-key',
+        'high',
+        'تكرار داخل نفس سياق المصدر',
+        'تم العثور على ' + duplicateCount + ' مفاتيح مكررة داخل نفس السياق؛ قد تكون ازدواجية فعلية وتحتاج مطابقة مع الدليل.',
+        ['keyField=' + keyName, 'scopeField=' + (warehouseName || 'none'), 'duplicateKeys=' + duplicateCount],
+      );
+    }
+
+    if (specialty === 'inventory' && priceColumn) {
+      const variablePriceSkuCount = [...pricesBySku.values()].filter((values) => values.size > 1).length;
+      if (variablePriceSkuCount > 0) {
+        addSignal(
+          signals,
+          'inventory:price-variation',
+          'medium',
+          'السعر يختلف لنفس الصنف',
+          'يوجد ' + variablePriceSkuCount + ' أصناف لها أكثر من سعر داخل المصدر؛ يجب تفسير اختلاف السعر بحسب المستودع/الوحدة/السياق قبل اعتماد مقارنة سعرية.',
+          ['skuField=' + keyName, 'priceField=' + priceName, 'variablePriceSkuCount=' + variablePriceSkuCount],
+          variablePriceSkuCount,
+        );
+      }
     }
   }
 
@@ -177,7 +217,8 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
     let action = 'افحص الدليل المرتبط بهذا الاستثناء ثم قرر الإجراء المناسب.';
     if (signal.id.includes('missing-price')) action = 'افتح صفوف المصدر التي بلا سعر وراجع التسعير قبل الاعتماد.';
     else if (signal.id.includes('missing-name')) action = 'ثبّت أسماء الأصناف وربطها بمفتاح الصنف قبل المقارنة أو التنبؤ.';
-    else if (signal.id.includes('duplicate-key')) action = 'راجع السجلات المتكررة وحدد هل هي حركات صحيحة أم ازدواجية.';
+    else if (signal.id.includes('duplicate-key')) action = 'طابق السجلات المتكررة مع رقم الصنف والسياق (مثل المستودع) وحدد إن كانت حركات/أسعار صحيحة أم ازدواجية.';
+    else if (signal.id.includes('price-variation')) action = 'قارن اختلاف السعر حسب المستودع والوحدة وتاريخ المصدر قبل إصدار تنبيه سعري أو قرار تسعير.';
     else if (signal.id.includes('date-missing')) action = 'ثبّت تاريخًا موحدًا للمصدر قبل بناء أي اتجاه زمني.';
     else if (signal.id.includes('amount-missing')) action = 'حدّد الحقل المالي الصحيح واربطه بالحقل الكانوني قبل إصدار إجمالي.';
     return {
