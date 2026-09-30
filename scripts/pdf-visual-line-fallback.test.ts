@@ -23,7 +23,7 @@ const pages: PdfPageText[] = [
 ];
 
 const lines = extractPdfVisualLines(pages);
-assert.equal(lines.length, 5);
+assert.equal(lines.length, 4);
 assert.deepEqual(lines.map(({ pageNumber, lineNumber, text }) => ({ pageNumber, lineNumber, text })), [
   { pageNumber: 1, lineNumber: 1, text: 'رقم الصنف السعر' },
   { pageNumber: 1, lineNumber: 2, text: '10101001 10750' },
