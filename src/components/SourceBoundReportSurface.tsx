@@ -276,10 +276,23 @@ export function SourceBoundReportSurface({ mode, jobId, expectedSourceHash }: { 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let active = true;
+  const loadReport = useCallback(async () => {
     setLoading(true);
     setError(null);
+    try {
+      const next = await fetchSmartReport(jobId);
+      if (!next) throw new Error('REPORT_SOURCE_NOT_FOUND');
+      if (expectedSourceHash && next.sourceHash !== expectedSourceHash) throw new Error('REPORT_SOURCE_HASH_MISMATCH');
+      setReport(next);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setLoading(false);
+    }
+  }, [jobId, expectedSourceHash]);
+
+  useEffect(() => {
+    let active = true;
     void fetchSmartReport(jobId).then((next) => {
       if (!active) return;
       if (!next) throw new Error('REPORT_SOURCE_NOT_FOUND');
@@ -302,7 +315,7 @@ export function SourceBoundReportSurface({ mode, jobId, expectedSourceHash }: { 
   }, [mode, report]);
 
   if (loading) return <div dir="rtl"><LoadingState message="جارٍ تحميل النتيجة المصدرية..." /></div>;
-  if (error) return <div dir="rtl"><ErrorState message={error} onRetry={() => window.location.reload()} /></div>;
+  if (error) return <div dir="rtl"><ErrorState message={error} onRetry={() => void loadReport()} /></div>;
   if (!report) return null;
 
   return (
