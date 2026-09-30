@@ -77,6 +77,11 @@ function findColumn(columns: Array<Record<string, unknown>>, aliases: string[]):
   }) ?? null;
 }
 
+function dataKey(column: Record<string, unknown> | null | undefined): string {
+  const mapped = text(column?.mappedField);
+  return mapped || text(column?.name);
+}
+
 function makePriority(severity: ReportSignalSeverity): ReportRecommendation['priority'] {
   if (severity === 'critical') return 'urgent';
   if (severity === 'high') return 'high';
@@ -153,10 +158,10 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
 
   const textColumn = findColumn(columns, ['text', 'النص']);
   if (textColumn && rows.length) {
-    const textKey = text(textColumn.name ?? textColumn.mappedField);
+    const textKey = dataKey(textColumn);
     const lines = rows.map((row) => text(row.data?.[textKey])).filter(Boolean);
     const pageColumn = findColumn(columns, ['page_number', 'page', 'الصفحة']);
-    const pageKey = text(pageColumn?.name ?? pageColumn?.mappedField);
+    const pageKey = dataKey(pageColumn);
     const pages = pageKey
       ? new Set(rows.map((row) => text(row.data?.[pageKey])).filter(Boolean)).size
       : null;
@@ -177,9 +182,9 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
   const totalColumn = findColumn(columns, ['total_amount', 'net_amount', 'total', 'amount', 'الإجمالي', 'الاجمالي']);
   const paidColumn = findColumn(columns, ['paid_amount', 'paid', 'المدفوع', 'المبلغ المدفوع']);
   if (rows.length && (totalColumn || paidColumn || invoiceColumn)) {
-    const totalKey = text(totalColumn?.name);
-    const paidKey = text(paidColumn?.name);
-    const invoiceKey = text(invoiceColumn?.name);
+    const totalKey = dataKey(totalColumn);
+    const paidKey = dataKey(paidColumn);
+    const invoiceKey = dataKey(invoiceColumn);
 
     let paidAboveTotal = 0;
     const invoiceTotals = new Map<string, Set<number>>();
@@ -228,9 +233,9 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
   const warehouseColumn = findColumn(columns, ['warehouse', 'المخزن', 'المستودع']);
   const priceColumn = findColumn(columns, ['price', 'السعر', 'selling_price', 'سعر البيع']);
   if (keyColumn && rows.length) {
-    const keyName = text(keyColumn.name ?? keyColumn.mappedField);
-    const warehouseName = text(warehouseColumn?.name ?? warehouseColumn?.mappedField);
-    const priceName = text(priceColumn?.name ?? priceColumn?.mappedField);
+    const keyName = dataKey(keyColumn);
+    const warehouseName = dataKey(warehouseColumn);
+    const priceName = dataKey(priceColumn);
     const seen = new Map<string, number>();
     const pricesBySku = new Map<string, Set<number>>();
     let duplicateCount = 0;
@@ -320,8 +325,8 @@ function deriveForecast(report: ReportInput): ReportForecast {
   const columns = columnsOf(report);
   const dateColumn = findColumn(columns, ['invoice_date', 'date', 'due_date', 'التاريخ']);
   const valueColumn = findColumn(columns, ['total_amount', 'net_amount', 'total', 'amount', 'sales', 'purchase', 'balance']);
-  const dateKey = text(dateColumn?.name);
-  const valueKey = text(valueColumn?.name);
+  const dateKey = dataKey(dateColumn);
+  const valueKey = dataKey(valueColumn);
   if (!dateKey || !valueKey || rows.length < 12) {
     return { status: 'INSUFFICIENT_SAMPLE', metric: valueKey || null, method: 'deterministic-monthly-trend', observedPeriods: 0, nextPeriod: null, nextValue: null, direction: null, note: 'لا توجد سلسلة زمنية كافية؛ لن يتم اختراع توقع.' };
   }
