@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatCurrency, formatNumber } from '@/lib/format';
+import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 
 export type SourceBoundReportMode = 'executive' | 'trust' | 'decision' | 'work';
 
@@ -126,7 +127,6 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
     <>
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatusCell label="Source Trust" value={report.sourceTrustState ?? report.trustState}/>
-        <StatusCell label="Source Trust" value={report.sourceTrustState ?? report.trustState}/>
         <StatusCell label="Report Verification" value={report.reportVerificationState}/>
         <StatusCell label="Decision" value={output.decisionStatus}/>
         <StatusCell label="Benchmark" value={output.benchmarkStatus}/>
@@ -150,7 +150,8 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
           </div>
         </div>
       </section>
-      <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
+      <ReportIntelligencePanel report={report} />
+            <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="text-[9px] font-black tracking-[.12em] text-primary-700">SOURCE METRICS</div>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {metrics.length ? metrics.map((metric) => <div key={metric.label} className="rounded-xl bg-ink-50 p-3"><div className="text-[10px] text-ink-500">{metric.label}</div><div className="mt-1 text-base font-black">{/amount|price|total|value|cost|sales|paid|balance|revenue|profit|ربح|قيمة|سعر|مبلغ/i.test(metric.label) ? formatCurrency(metric.value) : formatNumber(metric.value)}</div></div>) : <div className="rounded-xl border border-warning-200 bg-warning-50 p-4 text-xs text-warning-900">لا توجد قيمة رقمية كافية للعرض من المصدر الحالي.</div>}
@@ -211,7 +212,8 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
         <StatusCell label="Action" value={output.actionStatus}/>
         <StatusCell label="Outcome" value={output.outcomeStatus}/>
       </section>
-      <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
+      <ReportIntelligencePanel report={report} />
+            <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-start gap-3">
           <ShieldCheck size={19} className="mt-0.5 text-primary-700"/>
           <div>
