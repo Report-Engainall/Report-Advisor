@@ -27,6 +27,12 @@ export type PdfVisualLine = {
   text: string;
 };
 
+export type PdfVisualRow = {
+  pageNumber: number;
+  lineNumber: number;
+  cells: string[];
+};
+
 function finiteNumber(value: unknown, fallback = 0): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
 }
@@ -112,15 +118,23 @@ function pageMatrix(page: PdfPageText): string[][] {
  * Joining every TextItem with spaces collapses an entire page into one phrase and
  * destroys the evidence needed for downstream document understanding.
  */
-export function extractPdfVisualLines(pages: PdfPageText[]): PdfVisualLine[] {
-  const lines: PdfVisualLine[] = [];
+export function extractPdfVisualRows(pages: PdfPageText[]): PdfVisualRow[] {
+  const rows: PdfVisualRow[] = [];
   for (const page of pages) {
     groupVisualLines(page.items).forEach((tokens, index) => {
-      const text = tokens.map((token) => token.text.trim()).filter(Boolean).join(' ').trim();
-      if (text) lines.push({ pageNumber: page.pageNumber, lineNumber: index + 1, text });
+      const cells = splitVisualLine(tokens).map((cell) => cell.trim()).filter(Boolean);
+      if (cells.length) rows.push({ pageNumber: page.pageNumber, lineNumber: index + 1, cells });
     });
   }
-  return lines;
+  return rows;
+}
+
+export function extractPdfVisualLines(pages: PdfPageText[]): PdfVisualLine[] {
+  return extractPdfVisualRows(pages).map((row) => ({
+    pageNumber: row.pageNumber,
+    lineNumber: row.lineNumber,
+    text: row.cells.join(' | '),
+  }));
 }
 
 function normalizedHeaderKey(values: string[]): string {
