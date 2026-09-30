@@ -1,7 +1,7 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / CURRENT-SHA ROOT FIX + INDEX REANCHOR / f45b64b97cb905040ee2f096aff7dcc650b0bab3
 
 - EXACT MAIN HEAD → `f45b64b97cb905040ee2f096aff7dcc650b0bab3`.
-- CURRENT CODE/TEST CANDIDATE → `f45b64b97cb905040ee2f096aff7dcc650b0bab3`.
+- CURRENT CODE/TEST CANDIDATE: `5b99baf64a4e60edc0fd2858509118c3b8249b1a`
 - REPORT-FIRST FRONT → `تسعيرة الاصناف حسب رقم الصنف.pdf` / import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`.
 - CURRENT ROOT FIX → ESM runtime adapter import path corrected in `canonical-production-adapter.ts`.
 - VERIFIED REPORT STATE → 735/735 completed, rendered, source-bound outputs persisted.
