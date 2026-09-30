@@ -676,3 +676,18 @@ Commercial intelligence wave now includes:
 Runtime/deployment status remains open; no exact-current-head browser/deployment PASS is claimed.
 
 NEXT EXACT ACTION: continue with collaboration/integration surfaces where supported by existing schema; prioritize source-bound sharing, alert routing, connector memory, spreadsheet-grade grouping/pivot, and commercialization controls without creating parallel truth systems.
+
+
+## LIVE CHECKPOINT — 2026-09-30 / SPREADSHEET-GRADE WORKSPACE + REPLAY/BENCHMARK / HEAD 097c91b
+
+Product wave expanded again:
+- Source report workspace now supports search, deterministic sort, page size, column visibility, saved views, CSV export, Row Inspector, grouping and numeric aggregation over the filtered canonical rows.
+- Group/aggregate settings persist in the source-hash keyed local view and reset safely with the view.
+- Business Replay is a source-bound timeline backed by actual report stages, governed decisions, work items and persisted outcomes.
+- Benchmark surface is fail-closed: no network cohort means INSUFFICIENT_SAMPLE; internal same-specialty report count is readiness context only, never a benchmark score/rank.
+- Routes for `/replay` and `/benchmark` are registered and the smart report links to both.
+- Contracts for workspace grouping, Replay and Benchmark are part of release core/E2E coverage.
+
+Runtime/deployment boundary remains open; no current-head browser/deployment PASS is claimed.
+
+NEXT EXACT ACTION: continue market-facing integration surfaces: source-bound sharing/alerts, connector memory/integration adapters, collaboration-safe notification routing, and commercial controls; preserve the canonical truth/decision chain and avoid parallel data engines.
