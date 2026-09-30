@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { assertCanonicalBoundary, type CanonicalImportEntityType, type ReconciledCanonicalImportRow } from './canonical-truth-boundary';
+import { assertCanonicalBoundary, type CanonicalImportEntityType, type ReconciledCanonicalImportRow } from './canonical-truth-boundary.ts';
 
 export type CanonicalImportRow = Pick<ReconciledCanonicalImportRow, 'data' | 'rowNumber' | 'provenance'>;
 export interface CanonicalCommitResult { committed: number; ids: string[]; idempotentReplay: boolean }
