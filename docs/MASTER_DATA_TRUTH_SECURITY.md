@@ -1,3 +1,14 @@
+## CURRENT LIVE SOURCE-RECORD RECOVERY RECONCILIATION — 2026-09-30
+
+- Exact repository fix → `22fb675a634adeb29d60a432fe995f4b589b1e59`.
+- Root issue reproduced on Staging: a completed durable report had authoritative source hash/canonical rows, but its import result summary still pointed to an older pending file record/storage path.
+- Canonical recovery rule → a completed report may finalize only against a company-scoped `file_records` row whose `file_hash` exactly matches the durable source hash, whose `security_status` is `passed`, whose status is `ready|processed|verified`, and whose storage bucket/path are present.
+- Recovery is fail-closed when no matching verified source record exists.
+- Recovery updates the existing `import_jobs.file_record_id`, source fingerprint and result-summary provenance only; it does not rewrite canonical dataset rows.
+- Live verification → current report now points to file record `071db872-2f17-4acf-8374-b1e2d9852985`, storage path `.../5925f3a2-fbac-4678-9490-b892dca35d4d.pdf`, exact source hash, security `passed`, status `ready`; canonical dataset count remains 735 and canonical import commit count remains 735.
+- Recovery contract keeps execute permission restricted to `service_role`; `public`, `anon`, and `authenticated` are revoked.
+- This proof is Staging-specific and does not transfer to production/browser certification.
+
 ## CURRENT LIVE SECURITY RECONCILIATION — 2026-09-27
 
 - CURRENT CODE CANDIDATE → PR #672 / `9aa6c8ccea82b20d949ae2e41fdad2f1b1126631`.
