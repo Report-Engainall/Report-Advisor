@@ -165,6 +165,7 @@ function TrustMode({ report }: { report: SmartReportDetail }) {
   const warnings = report.sourceAnalysis?.datasets?.length ? report.sourceAnalysis.datasets.length : 0;
   return (
     <>
+      <ReportIntelligencePanel report={report} />
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatusCell label="Truth" value={report.trustState}/>
         <StatusCell label="Evidence" value={report.evidenceStatus}/>
@@ -241,6 +242,7 @@ function WorkMode({ report }: { report: SmartReportDetail }) {
   const lastStage = report.stages.length ? report.stages[report.stages.length - 1] : null;
   return (
     <>
+      <ReportIntelligencePanel report={report} />
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatusCell label="Job" value={report.checkpointStage ?? lastStage?.status}/>
         <StatusCell label="Action" value={report.renderedOutput.actionStatus}/>
