@@ -100,7 +100,7 @@ export default async (request: Request): Promise<Response> => {
     const { data: job, error: jobError } = await serviceClient
       .from('import_jobs')
       .select('id, company_id, file_record_id, job_type, result_summary')
-      .eq('id', payload.importId)
+      .eq('id', importId)
       .eq('company_id', companyId)
       .maybeSingle();
     if (jobError) throw jobError;
@@ -162,7 +162,7 @@ export default async (request: Request): Promise<Response> => {
     const reconciled = reconcileForCanonical(
       entityType,
       String(companyId),
-      fileRecord.file_name || payload.fileName || 'import',
+      fileRecord.file_name || fileName || 'import',
       sourceSha,
       job.id,
       (_data, rowNumber) => `${sourceSha}:${rowNumber}`,
@@ -219,7 +219,7 @@ export default async (request: Request): Promise<Response> => {
       const execution = await runCanonicalImportThroughDurableRunner(
         {
           importId: job.id,
-          fileName: fileRecord.file_name || payload.fileName || 'import',
+          fileName: fileRecord.file_name || fileName || 'import',
           sourceHash: sourceSha,
           entityType,
           rows: reconciled.rows,
@@ -255,21 +255,21 @@ export default async (request: Request): Promise<Response> => {
           row_count: authoritativeRows.length,
           column_count: Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns.length : 0,
           datasets: [{
-            name: fileRecord.file_name || payload.fileName || 'import',
+            name: fileRecord.file_name || fileName || 'import',
             rowCount: authoritativeRows.length,
             columnCount: Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns.length : 0,
             columns: authoritativeDataset.columns,
             preview: authoritativeDataset.preview.slice(0, 25),
           }],
           canonical_text: [
-            `source=${fileRecord.file_name || payload.fileName || 'import'}`,
+            `source=${fileRecord.file_name || fileName || 'import'}`,
             `server_authoritative_quality=${authoritativeQualityScore}%`,
             `source_sha=${sourceSha}`,
           ].join(' | '),
           visual_assets: [],
           warnings: [],
           metadata: {
-            fileName: fileRecord.file_name || payload.fileName || 'import',
+            fileName: fileRecord.file_name || fileName || 'import',
             sourceFormat: detection.format,
             serverAuthoritativeSource: true,
             serverAuthoritativeQualityScore: authoritativeQualityScore,
