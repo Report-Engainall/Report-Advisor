@@ -122,7 +122,7 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
     },
     {
       label: 'اكتمال البيانات',
-      value: completeness == null ? 'غير متاح' : \`\${completeness}%\`,
+      value: completeness == null ? 'غير متاح' : `${completeness}%`,
       detail: 'محسوب من القيم غير الفارغة',
     },
     {
