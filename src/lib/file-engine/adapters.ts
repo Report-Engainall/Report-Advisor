@@ -4,7 +4,7 @@ import { normalizeRows, normalizeColumnName, normalizeArabicDigits, parseNumber 
 import { detectColumnDataType, cleanValue } from './data-types.ts';
 import { mapColumns } from './synonyms.ts';
 import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection.ts';
-import { extractPdfTable, extractPdfVisualLines, extractPdfVisualRows, type PdfPageText } from './pdf-table.ts';
+import { extractArabicSalesTable, extractPdfTable, extractPdfVisualLines, extractPdfVisualRows, type PdfPageText } from './pdf-table.ts';
 
 type Row = Record<string, unknown>;
 
@@ -448,6 +448,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
 
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
     const page = await pdf.getPage(pageNumber);
+    const viewport = page.getViewport({ scale: 1 });
     const content = await page.getTextContent();
     const items: PdfPageText['items'] = [];
     for (const item of content.items) {
@@ -463,7 +464,17 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
         height: Number.isFinite((item as { height?: number }).height) ? Number((item as { height?: number }).height) : 10,
       });
     }
-    pages.push({ pageNumber, items });
+    pages.push({ pageNumber, items, pageWidth: viewport.width, pageHeight: viewport.height });
+  }
+
+  const layoutTable = extractArabicSalesTable(pages);
+  if (layoutTable) {
+    const dataset = await buildDataset(layoutTable.rows, fileName, 'pdf');
+    for (const column of dataset.columns) {
+      column.qualityIssues.push(`PDF_ARABIC_SALES_LAYOUT_RECONSTRUCTED:${layoutTable.confidence}%`);
+    }
+    dataset.qualityScore = Math.max(dataset.qualityScore, Math.min(100, layoutTable.confidence));
+    return [dataset];
   }
 
   const table = extractPdfTable(pages);
