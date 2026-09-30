@@ -40,16 +40,22 @@ for (const fileRecord of files ?? []) {
   };
 
   try {
+    const { data: importJobId, error: rehydrateError } = await service.rpc('rehydrate_legacy_import_job', {
+      p_company_id: fileRecord.company_id,
+      p_file_record_id: fileRecord.id,
+    });
+    if (rehydrateError || !importJobId) {
+      throw new Error('LEGACY_CORPUS_REHYDRATION_JOB_CREATE_FAILED:' + (rehydrateError?.message ?? 'EMPTY_JOB_ID'));
+    }
+
     const { data: importJob, error: importError } = await service
       .from('import_jobs')
       .select('id,company_id,file_record_id,file_name,status,job_type')
-      .eq('file_record_id', fileRecord.id)
+      .eq('id', String(importJobId))
       .eq('company_id', fileRecord.company_id)
-      .order('created_at', { ascending: false })
-      .limit(1)
       .maybeSingle();
 
-    if (importError || !importJob) throw new Error('LEGACY_CORPUS_IMPORT_JOB_MISSING');
+    if (importError || !importJob) throw new Error('LEGACY_CORPUS_REHYDRATION_JOB_NOT_FOUND');
 
     const entityType = typeof importJob.job_type === 'string' && importJob.job_type.trim()
       ? importJob.job_type.trim()
@@ -185,12 +191,21 @@ const summary = {
 };
 
 writeFileSync('artifacts/legacy-corpus/rehydration-summary.json', JSON.stringify(summary, null, 2));
+const failureGroups = results
+  .filter((item) => item.status === 'FAILED')
+  .reduce((groups, item) => {
+    const key = String(item.error ?? 'UNKNOWN');
+    groups[key] = (groups[key] ?? 0) + 1;
+    return groups;
+  }, {});
+
 console.log(JSON.stringify({
   LEGACY_CORPUS_DISCOVERED: summary.discovered,
   LEGACY_CORPUS_COMPLETED: summary.completed,
   LEGACY_CORPUS_REVIEW: summary.review,
   LEGACY_CORPUS_BLOCKED: summary.blocked,
   LEGACY_CORPUS_FAILED: summary.failed,
+  LEGACY_CORPUS_FAILURE_GROUPS: failureGroups,
 }, null, 2));
 
 if (summary.failed > 0) process.exitCode = 1;
