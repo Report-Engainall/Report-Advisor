@@ -1,13 +1,19 @@
 # CURRENT RESUME POINTER — 2026-09-30
 
-- CURRENT RESUME POINTER → `Report Smart Surface / persistent report continuity`.
-- EXACT MAIN HEAD → `9b9a00b08d813455eb51f9ff0a0bb5056518fc21`.
-- ROOT FIXES → duplicate sources now reopen the persisted source-bound Smart Report when a completed rendered Job exists; Smart Report catalog now queries persisted `renderedOutput` directly; structured analytical report quality is no longer reduced to canonical-column mapping coverage; specialty inference uses source content first and filename as a fallback signal.
-- LIVE WORKSPACE READBACK → current tenant has 9 persisted source-bound Smart Reports; `اعمار الديون للعملا.pdf` is completed/rendered as `generic:receivables`, quality 98, with executive + receivables + aging outputs.
-- USER REPRODUCTION → the same PDF was previously shown as duplicate + 0% raw line mapping in the import preview; the duplicate was blocking without reopening the already persisted result. That dead-end is fixed in the canonical source.
-- HOSTING → current Vercel exact-head deployment for this latest head is blocked by the external build-rate-limit. The last READY Vercel deployment is `fcbd529ec90040b8391733bd5dfab3fd8e2ced98`; it contains the persistent success-navigation fix but not the latest duplicate/quality changes.
+- CURRENT RESUME POINTER → `Report Smart Surface / source-bound business report`.
+- EXACT MAIN HEAD → `e8bfce227e6067c78305ff1ea4492a4cdd580eb2`.
+- SURGICAL FIXES IN THIS WAVE →
+  1. Duplicate source now reopens an existing persisted Smart Report when available instead of dead-ending at "مكرر".
+  2. Smart Report catalog queries persisted rendered outputs directly and normalizes verified evidence state.
+  3. Smart Report detail promotes VERIFIED when analysis is persisted and canonical commit is verified.
+  4. Smart Report page now renders Executive Brief, real source metrics, completeness, top source exposures/items, evidence state, decision/action/outcome/learning/benchmark states, provenance, and actual sample rows.
+  5. Domain-surface links preserve `reportJobId` + `sourceHash` context for the next source-bound surface integration.
+  6. Structured analytical report scoring no longer equals canonical-column mapping coverage; specialty inference uses content first and filename only as fallback.
+- LIVE TENANT READBACK → company `f68a7e91-3c7e-46fb-97a8-e339bec04e13` has 35 persisted Smart Reports; `اعمار الديون للعملا.pdf` is Job `174196b5-42cf-4654-9721-13ac8d5a29db`, 27 rows, quality 98, specialty receivables, canonicalCommitVerified=true, analysis snapshot `efe39091-3055-4fd6-bd23-c11424bc5d90`.
+- IMPORTANT LINKING RULE → never hand out a Smart Report Job ID from another company. Smart detail is tenant-scoped.
+- HOSTING → Vercel current exact-head deploy is blocked by build-rate-limit; Netlify accessible production is still on old commit `21f6562...`. Source fixes are persisted in GitHub but exact-head hosted proof is not yet claimed.
 - ACTION STATUS → `IN_PROGRESS`.
-- NEXT EXACT ACTION → deploy/verify exact HEAD `9b9a00b...`, then run one fresh non-duplicate analytical report and one duplicate-existing report through the UI; verify the persistent Smart Report route and all persisted output links. Do not re-import the existing report.
+- NEXT EXACT ACTION → publish exact HEAD `e8bfce...` to an accessible host, then verify the same tenant's `اعمار الديون للعملا.pdf` at Job `174196b5-42cf-4654-9721-13ac8d5a29db`, a fresh non-duplicate report, and a duplicate-existing report. No blind re-import.
 
 # FINAL SESSION WRITE-BACK — 2026-09-30
 
