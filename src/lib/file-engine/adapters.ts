@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx';
 import type { FileFormat, Dataset, ColumnProfile, ColumnStatistics } from './types';
 import { normalizeRows, normalizeColumnName, normalizeArabicDigits, parseNumber } from './normalizer.ts';
-import { detectColumnDataType, cleanValue } from './data-types';
+import { detectColumnDataType, cleanValue } from './data-types.ts';
 import { mapColumns } from './synonyms';
 import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection';
 import { extractPdfTable, extractPdfVisualLines, extractPdfVisualRows, type PdfPageText } from './pdf-table';
