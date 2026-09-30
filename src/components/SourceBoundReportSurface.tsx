@@ -116,6 +116,7 @@ function SourceHeader({ report }: { report: SmartReportDetail }) {
 function ExecutiveMode({ report }: { report: SmartReportDetail }) {
   const metrics = buildMetrics(report);
   const output = report.renderedOutput;
+  const lastStage = report.stages.length ? report.stages[report.stages.length - 1] : null;
   return (
     <>
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -146,7 +147,7 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="text-[9px] font-black tracking-[.12em] text-primary-700">SOURCE METRICS</div>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-          {metrics.length ? metrics.map((metric) => <div key={metric.label} className="rounded-xl bg-ink-50 p-3"><div className="text-[10px] text-ink-500">{metric.label}</div><div className="mt-1 text-base font-black">{formatCurrency(metric.value)}</div></div>) : <div className="rounded-xl border border-warning-200 bg-warning-50 p-4 text-xs text-warning-900">لا توجد قيمة رقمية كافية للعرض من المصدر الحالي.</div>}
+          {metrics.length ? metrics.map((metric) => <div key={metric.label} className="rounded-xl bg-ink-50 p-3"><div className="text-[10px] text-ink-500">{metric.label}</div><div className="mt-1 text-base font-black">{/amount|price|total|value|cost|sales|paid|balance|revenue|profit|ربح|قيمة|سعر|مبلغ/i.test(metric.label) ? formatCurrency(metric.value) : formatNumber(metric.value)}</div></div>) : <div className="rounded-xl border border-warning-200 bg-warning-50 p-4 text-xs text-warning-900">لا توجد قيمة رقمية كافية للعرض من المصدر الحالي.</div>}
         </div>
       </section>
     </>
@@ -179,8 +180,8 @@ function TrustMode({ report }: { report: SmartReportDetail }) {
           <div className="text-[9px] font-black tracking-[.12em] text-primary-700">EVIDENCE BOUNDARY</div>
           <h2 className="mt-1 text-xl font-black">ما الذي ثبت وما الذي لم يثبت؟</h2>
           <div className="mt-4 space-y-2">
-            <div className="rounded-xl border border-success-200 bg-success-50 p-3 text-xs">المصدر محلل، والاعتماد الكانوني مثبت، وحالة الدليل قابلة للعرض.</div>
-            <div className="rounded-xl border border-warning-200 bg-warning-50 p-3 text-xs text-warning-900">وجود المصدر لا يعني وجود قرار أو تنفيذ أو نتيجة لاحقة.</div>
+            <div className={`rounded-xl border p-3 text-xs ${report.renderedOutput.canonicalCommitVerified === true ? 'border-success-200 bg-success-50' : 'border-warning-200 bg-warning-50 text-warning-900'}`}>{report.renderedOutput.canonicalCommitVerified === true ? 'المصدر محلل والاعتماد الكانوني مثبت.' : 'الاعتماد الكانوني غير مثبت لهذا المصدر؛ لا تُرفع الثقة بالاستنتاج.'}</div>
+            <div className="rounded-xl border border-warning-200 bg-warning-50 p-3 text-xs text-warning-900">وجود المصدر وحده لا يعني وجود قرار أو تنفيذ أو نتيجة لاحقة.</div>
             <div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">Benchmark: {stateLabel(report.renderedOutput.benchmarkStatus)} — لا يتم اختلاق مقارنة عند نقص العينة.</div>
           </div>
         </div>
@@ -227,7 +228,7 @@ function WorkMode({ report }: { report: SmartReportDetail }) {
   return (
     <>
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatusCell label="Job" value={report.checkpointStage ?? report.stages.at(-1)?.status}/>
+        <StatusCell label="Job" value={report.checkpointStage ?? lastStage?.status}/>
         <StatusCell label="Action" value={report.renderedOutput.actionStatus}/>
         <StatusCell label="Outcome" value={report.renderedOutput.outcomeStatus}/>
         <StatusCell label="Learning" value={report.renderedOutput.learningStatus}/>
