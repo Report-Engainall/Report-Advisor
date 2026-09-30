@@ -1,4 +1,5 @@
 import { SourceBoundReportSurface } from '@/components/SourceBoundReportSurface';
+import { readActiveReportContext } from '@/lib/report-context';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ReportSourceContext } from '@/components/ReportSourceContext';
 import {
@@ -403,8 +404,9 @@ function DecisionExperienceGeneralPage() {
 
 export function DecisionExperiencePage() {
   const [params] = useSearchParams();
-  const reportJobId = params.get('reportJobId');
-  const sourceHash = params.get('sourceHash');
+  const saved = readActiveReportContext();
+  const reportJobId = params.get('reportJobId') || saved?.jobId;
+  const sourceHash = params.get('sourceHash') || saved?.sourceHash;
   if (reportJobId) {
     return <SourceBoundReportSurface mode="decision" jobId={reportJobId} expectedSourceHash={sourceHash} />;
   }
