@@ -1,8 +1,8 @@
 import type { ReportExecutionCheckpoint, ReportExecutionStage } from './checkpoint';
 import type { ReportExecutionRequest } from './report-execution-contract';
 import type { RowVersion } from '../production-intelligence';
-import { SupabaseReportExecutionStore } from './durable-worker-adapter';
-import { runProductionLifecycle, assertProductionCheckpoint, type ProductionLifecycleInput } from './production-coordinator-bridge';
+import { SupabaseReportExecutionStore } from './durable-worker-adapter.ts';
+import { runProductionLifecycle, assertProductionCheckpoint, type ProductionLifecycleInput } from './production-coordinator-bridge.ts';
 
 const ORDER: ReportExecutionStage[] = ['queued', 'fingerprinted', 'extracted', 'canonicalized', 'validated', 'analyzed', 'decisioned', 'committed', 'rendered'];
 const next = (s: ReportExecutionStage): ReportExecutionStage | null => { const i = ORDER.indexOf(s); return i >= 0 && i < ORDER.length - 1 ? ORDER[i + 1] : null; };

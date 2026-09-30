@@ -1,6 +1,6 @@
 import type { ReportExecutionCheckpoint, ReportExecutionStage } from './checkpoint';
-import { consolidateRuntime, chooseScenario, prioritizeDecisions, canAutonomouslyExecute, type RuntimeEvidence } from '../phase-kl-runtime';
-import { diffRows, type AutonomyGateInput, type PortfolioCandidate, type RiskBudget, type RowVersion, type ScenarioOption, type SourceCandidate } from '../production-intelligence';
+import { consolidateRuntime, chooseScenario, prioritizeDecisions, canAutonomouslyExecute, type RuntimeEvidence } from '../phase-kl-runtime.ts';
+import { diffRows, type AutonomyGateInput, type PortfolioCandidate, type RiskBudget, type RowVersion, type ScenarioOption, type SourceCandidate } from '../production-intelligence.ts';
 
 export interface ProductionLifecycleInput<T = unknown> {
   jobId: string;
