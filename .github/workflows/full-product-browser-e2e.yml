@@ -132,6 +132,7 @@ jobs:
           npm run typecheck
           npm run test:server-source-authority
           npm run test:pdf-visual-line-fallback
+          npm run test:pdf-arabic-sales-layout
           npm run test:report-intelligence-inventory-grain
           npm run test:document-intelligence-lines
           npm run test:report-intelligence-contradictions
