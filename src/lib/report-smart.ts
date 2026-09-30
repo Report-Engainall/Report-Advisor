@@ -69,7 +69,56 @@ function isReportSourcePath(path: string): boolean {
   return /\.(xlsx|xls|xlsm|csv|tsv|ods|pdf|docx|doc|rtf|json|jsonl|txt|md|markdown|jpg|jpeg|png|webp|tiff|bmp)$/i.test(path);
 }
 
-function mapCatalogItem(job: Record<string, unknown>): SmartReportCatalogItem | null {
+type AnalysisSnapshotLike = {
+  datasets?: unknown;
+};
+
+function inferSpecialtyFromAnalysis(analysis: AnalysisSnapshotLike | null | undefined): string | null {
+  const datasets = Array.isArray(analysis?.datasets) ? analysis.datasets : [];
+  const parts: string[] = [];
+  for (const dataset of datasets) {
+    if (!dataset || typeof dataset !== 'object') continue;
+    const row = dataset as Record<string, unknown>;
+    const columns = Array.isArray(row.columns) ? row.columns : [];
+    for (const column of columns) {
+      if (!column || typeof column !== 'object') continue;
+      const item = column as Record<string, unknown>;
+      parts.push(String(item.name ?? ''), String(item.mappedField ?? ''));
+    }
+    const preview = Array.isArray(row.preview) ? row.preview.slice(0, 100) : [];
+    for (const sample of preview) {
+      if (!sample || typeof sample !== 'object') continue;
+      for (const [key, value] of Object.entries(sample as Record<string, unknown>)) {
+        parts.push(key, String(value ?? ''));
+      }
+    }
+  }
+
+  const text = parts.join(' ').toLowerCase().normalize('NFKC');
+  if (!text.trim()) return null;
+
+  const score = (tokens: string[]) =>
+    tokens.reduce((sum, token) => sum + (text.includes(token.toLowerCase()) ? 1 : 0), 0);
+
+  const scores = {
+    inventory: score(['sku', 'productcode', 'productname', 'itemname', 'رقم الصنف', 'الصنف', 'مخزون', 'المخزن', 'كمية', 'warehouse', 'stock']),
+    sales: score(['sales', 'sale', 'المبيعات', 'فاتورة', 'customer', 'العميل', 'total_amount', 'net_amount']),
+    purchases: score(['purchase', 'purchases', 'المشتريات', 'supplier', 'المورد', 'cost']),
+    receivables: score(['receivable', 'receivables', 'ذمم', 'العملاء الآجل', 'الرصيد المستحق', 'debit', 'credit', 'due']),
+    payments: score(['payments', 'payment', 'الصراف', 'النقد', 'البنك', 'cash', 'bank']),
+    profitability: score(['profit', 'profitability', 'margin', 'الربح', 'الأرباح', 'الهامش']),
+  } as const;
+
+  const ranked = (Object.entries(scores) as Array<[string, number]>)
+    .sort((a, b) => b[1] - a[1]);
+  const [best, bestScore] = ranked[0] ?? [null, 0];
+  const secondScore = ranked[1]?.[1] ?? 0;
+
+  if (!best || bestScore < 2 || bestScore === secondScore) return null;
+  return best;
+}
+
+function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapshotLike | null): SmartReportCatalogItem | null {
   const rendered = renderedOutputOf(job.evidence);
   const path = String(job.source_path ?? '');
   if (!rendered || !isReportSourcePath(path)) return null;
@@ -83,7 +132,9 @@ function mapCatalogItem(job: Record<string, unknown>): SmartReportCatalogItem | 
     qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
     trustState: rendered.trustState == null ? null : String(rendered.trustState),
     reportVerificationState: rendered.evidenceStatus == null ? 'PENDING_EVIDENCE' : String(rendered.evidenceStatus),
-    specialty: rendered.sourceSpecialty == null ? null : String(rendered.sourceSpecialty),
+    specialty: rendered.sourceSpecialty == null
+      ? inferSpecialtyFromAnalysis(analysis)
+      : String(rendered.sourceSpecialty),
     evidenceStatus: rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus),
     completedAt: job.completed_at == null ? null : String(job.completed_at),
   };
@@ -109,10 +160,35 @@ export async function fetchSmartReportCatalog(limit = 60): Promise<SmartReportCa
 
   if (error) throw error;
 
+  const sourceHashes = [...new Set((jobs ?? [])
+    .map(job => String(job.source_hash ?? ''))
+    .filter(Boolean))];
+  const analysesByHash = new Map<string, Record<string, unknown>>();
+
+  for (let i = 0; i < sourceHashes.length; i += 100) {
+    const batch = sourceHashes.slice(i, i + 100);
+    if (!batch.length) continue;
+    const { data: analyses, error: analysisError } = await supabase
+      .from('source_analysis_snapshots')
+      .select('source_hash,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
+      .eq('company_id', companyId)
+      .in('source_hash', batch)
+      .order('created_at', { ascending: false });
+
+    if (analysisError) throw analysisError;
+    for (const analysis of analyses ?? []) {
+      const hash = String(analysis.source_hash ?? '');
+      if (hash && !analysesByHash.has(hash)) analysesByHash.set(hash, analysis as Record<string, unknown>);
+    }
+  }
+
   const seenSourceHashes = new Set<string>();
   const catalog: SmartReportCatalogItem[] = [];
   for (const job of jobs ?? []) {
-    const item = mapCatalogItem(job as Record<string, unknown>);
+    const item = mapCatalogItem(
+      job as Record<string, unknown>,
+      analysesByHash.get(String(job.source_hash ?? '')) ?? null,
+    );
     if (!item || seenSourceHashes.has(item.sourceHash)) continue;
     seenSourceHashes.add(item.sourceHash);
     catalog.push(item);
@@ -200,7 +276,9 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
     qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
     trustState: rendered.trustState == null ? null : String(rendered.trustState),
-    specialty: rendered.sourceSpecialty == null ? null : String(rendered.sourceSpecialty),
+    specialty: rendered.sourceSpecialty == null
+      ? inferSpecialtyFromAnalysis(sourceAnalysis)
+      : String(rendered.sourceSpecialty),
     evidenceStatus: effectiveEvidenceStatus(rendered),
     completedAt: job.completed_at == null ? null : String(job.completed_at),
     importId: rendered.importId == null ? null : String(rendered.importId),
