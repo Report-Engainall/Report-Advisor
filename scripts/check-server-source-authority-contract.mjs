@@ -8,6 +8,8 @@ assert.match(netlifySource, /resumeReportExecutionJobId/);
 assert.match(netlifySource, /from\('report_execution_jobs'\)/);
 assert.match(netlifySource, /function reportEntityTypeFromJobKey/);
 assert.match(netlifySource, /raw_bytes_sha256/);
+assert.match(netlifySource, /CANONICAL_IMPORT_DURABLE_RUN_FAILED/);
+assert.match(netlifySource, /Netlify\.env\.get\('REPORT_ADVISOR_E2E_DEBUG'\)/);
 assert.match(netlifySource, /source_fingerprint: sourceSha/);
 assert.match(source, /computeSHA256\(buffer\)/);
 assert.match(source, /serverSourceAuthority/);
