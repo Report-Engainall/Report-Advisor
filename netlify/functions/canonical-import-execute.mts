@@ -100,7 +100,7 @@ export default async (request: Request): Promise<Response> => {
     const { data: job, error: jobError } = await serviceClient
       .from('import_jobs')
       .select('id, company_id, file_record_id, job_type, result_summary')
-      .eq('id', payload.importId)
+      .eq('id', importId)
       .eq('company_id', companyId)
       .maybeSingle();
     if (jobError) throw jobError;
