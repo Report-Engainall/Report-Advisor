@@ -28,6 +28,131 @@ function stateLabel(value: string | null): string {
   return value ? (labels[value] ?? value) : 'غير متاح';
 }
 
+type SmartColumn = {
+  name?: string;
+  dataType?: string;
+  nullCount?: number;
+  mappingConfidence?: number;
+  statistics?: { sum?: number; mean?: number; min?: number; max?: number; count?: number };
+  mappedField?: string | null;
+};
+
+function numberValue(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = Number(value.replace(/,/g, ''));
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function normalizeKey(value: unknown): string {
+  return String(value ?? '').trim().toLowerCase().normalize('NFKC').replace(/[\s_\-]+/g, '');
+}
+
+function formatMetric(value: number | null): string {
+  return value == null ? 'غير متاح' : new Intl.NumberFormat('ar-YE', { maximumFractionDigits: 2 }).format(value);
+}
+
+function buildSmartAnalysis(report: SmartReportDetail | null) {
+  const dataset = report?.sourceAnalysis?.datasets?.[0];
+  const objectDataset = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : null;
+  const columns = Array.isArray(objectDataset?.columns)
+    ? objectDataset.columns.filter((row): row is SmartColumn => Boolean(row) && typeof row === 'object')
+    : [];
+  const preview = Array.isArray(objectDataset?.preview)
+    ? objectDataset.preview.filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === 'object')
+    : [];
+
+  const numeric = columns
+    .map(column => ({ column, sum: numberValue(column.statistics?.sum), mean: numberValue(column.statistics?.mean) }))
+    .filter(item => item.sum != null || item.mean != null);
+
+  const completeness = report?.rowCount && columns.length
+    ? Math.round(
+        Math.max(0, 100 - (
+          columns.reduce((sum, column) => sum + Math.min(report.rowCount ?? 0, Math.max(0, Number(column.nullCount ?? 0))), 0)
+          / Math.max(1, (report.rowCount ?? 0) * columns.length)
+        ) * 100)
+      )
+    : null;
+
+  const findColumn = (...names: string[]) =>
+    columns.find(column => {
+      const key = normalizeKey(column.mappedField ?? column.name);
+      return names.some(name => key.includes(normalizeKey(name)));
+    });
+
+  const amountColumn = findColumn('outstanding_balance', 'local_amount', 'total_amount', 'total', 'net_amount', 'amount', 'value');
+  const age120Column = findColumn('age_over_120', 'over_120');
+  const age30Column = findColumn('age_0_30', '0_30', 'age030');
+  const paidColumn = findColumn('paid_amount', 'paid');
+  const quantityColumn = findColumn('quantity', 'qty', 'stock', 'current_stock');
+  const customerColumn = findColumn('customer_name', 'customer', 'client');
+  const productColumn = findColumn('product_name', 'product', 'item', 'sku');
+
+  const topRows = preview
+    .map(row => ({
+      name: String(row[customerColumn?.name ?? ''] ?? row[productColumn?.name ?? ''] ?? row.name ?? 'غير مسمى'),
+      value: numberValue(
+        row[amountColumn?.name ?? ''] ??
+        row.outstanding_balance ??
+        row.local_amount ??
+        row.total ??
+        row.amount ??
+        row.value
+      ),
+    }))
+    .filter(row => row.value != null)
+    .sort((a, b) => Number(b.value) - Number(a.value))
+    .slice(0, 5);
+
+  const metrics = [
+    {
+      label: report?.specialty === 'receivables' ? 'إجمالي الرصيد المستحق' : 'أهم قيمة مالية',
+      value: formatMetric(amountColumn?.statistics?.sum == null ? null : Number(amountColumn.statistics.sum)),
+      detail: amountColumn?.mappedField ?? amountColumn?.name ?? 'غير متاح',
+    },
+    {
+      label: 'عدد الصفوف',
+      value: formatMetric(report?.rowCount == null ? null : report.rowCount),
+      detail: 'المصدر الكانوني',
+    },
+    {
+      label: 'اكتمال البيانات',
+      value: completeness == null ? 'غير متاح' : \`\${completeness}%\`,
+      detail: 'محسوب من القيم غير الفارغة',
+    },
+    {
+      label: report?.specialty === 'receivables' ? 'أكثر من 120 يومًا' : 'مؤشر عددي رئيسي',
+      value: formatMetric(age120Column?.statistics?.sum == null ? (numeric[0]?.sum ?? null) : Number(age120Column.statistics.sum)),
+      detail: age120Column?.mappedField ?? age120Column?.name ?? (numeric[0]?.column.mappedField ?? numeric[0]?.column.name ?? 'غير متاح'),
+    },
+  ];
+
+  if (report?.specialty === 'receivables' && age30Column) {
+    metrics.push({
+      label: '0–30 يومًا',
+      value: formatMetric(numberValue(age30Column.statistics?.sum)),
+      detail: age30Column.mappedField ?? age30Column.name ?? 'age_0_30',
+    });
+  } else if (report?.specialty === 'inventory' && quantityColumn) {
+    metrics.push({
+      label: 'الكمية',
+      value: formatMetric(numberValue(quantityColumn.statistics?.sum)),
+      detail: quantityColumn.mappedField ?? quantityColumn.name ?? 'quantity',
+    });
+  } else if (paidColumn) {
+    metrics.push({
+      label: 'المدفوع',
+      value: formatMetric(numberValue(paidColumn.statistics?.sum)),
+      detail: paidColumn.mappedField ?? paidColumn.name ?? 'paid_amount',
+    });
+  }
+
+  return { columns, preview, numeric, completeness, metrics, topRows };
+}
+
 function statusTone(value: string | null): string {
   if (value === 'TRUSTED' || value === 'VERIFIED') return 'border-success-200 bg-success-50 text-success-900';
   if (value === 'REVIEW' || value === 'AWAITING_EVIDENCE_SNAPSHOT') return 'border-warning-200 bg-warning-50 text-warning-900';
@@ -69,6 +194,8 @@ export function SmartReportPage() {
     return first ? Object.keys(first).slice(0, 8) : [];
   }, [previewRows]);
 
+  const smartAnalysis = useMemo(() => buildSmartAnalysis(report), [report]);
+
   if (loading) return <div dir="rtl"><LoadingState message="جارٍ بناء التقرير الذكي من المصدر الحقيقي..." /></div>;
   if (error) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={() => window.location.reload()} /></div>;
   if (!report) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="التقرير المطلوب غير موجود أو غير مكتمل." /><div className="rounded-2xl border border-warning-200 bg-warning-50 p-5 text-sm text-warning-900">لا توجد مخرجات ذكية مثبتة لهذا التقرير.</div></div>;
@@ -77,6 +204,16 @@ export function SmartReportPage() {
   const outputs = Array.isArray(output.outputs) ? output.outputs.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object') : [];
   const surfaceLinks = outputs.filter((item) => typeof item.path === 'string');
   const decisionKeys = ['recommendationStatus','decisionStatus','approvalStatus','actionStatus','outcomeStatus','learningStatus','benchmarkStatus','replayStatus'];
+  const sourceIsVerified = report.evidenceStatus === 'VERIFIED' || output.canonicalCommitVerified === true;
+  const businessSummary = report.specialty === 'receivables'
+    ? 'هذا المصدر هو تقرير ذمم مدينة. تمت قراءة أرصدة العملاء وشرائح الأعمار من المصدر الكانوني؛ القرارات والتحصيل الفعلي لا تُنسب للمصدر ما لم توجد معاملة موثقة.'
+    : report.specialty === 'inventory'
+      ? 'هذا المصدر هو تقرير مخزون. المؤشرات المستخرجة تعكس الكميات والقيم التي ظهرت في المصدر، مع فصل البيانات الناقصة عن القيم المؤكدة.'
+      : report.specialty === 'sales'
+        ? 'هذا المصدر هو تقرير مبيعات. المؤشرات المستخرجة مرتبطة بالمصدر نفسه ولا تعني توقعًا أو نتيجة مستقبلية.'
+        : report.specialty === 'purchases'
+          ? 'هذا المصدر هو تقرير مشتريات. التحليل يعرض ما ثبت في المصدر، مع إبقاء أثر القرار والتنفيذ منفصلًا.'
+          : 'هذا المصدر تم تحليله من بنيته وبياناته الفعلية، وتبقى المخرجات مربوطة بالمصدر دون اختلاق حقائق غير موجودة.';
 
   return <div dir="rtl" className="report-page space-y-5 animate-fade-in pb-10">
     <PageHeader
@@ -91,6 +228,44 @@ export function SmartReportPage() {
         <div className="rounded-2xl bg-ink-50 p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">SOURCE</div><div className="mt-2 font-black text-ink-950">{report.sourceHash.slice(0, 24)}…</div><div className="mt-1 text-[10px] text-ink-500">نوع الملف: {report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
         <div className="rounded-2xl bg-ink-50 p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">ROWS</div><div className="mt-2 text-xl font-black text-ink-950">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div><div className="mt-1 text-[10px] text-ink-500">الحالة: {report.checkpointStage ?? 'غير متاح'}</div></div>
         <div className="rounded-2xl bg-ink-50 p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">SPECIALTY</div><div className="mt-2 text-xl font-black text-ink-950">{report.specialty ?? 'عام'}</div><div className="mt-1 text-[10px] text-ink-500">التخصص يظهر فقط عند توفر دليل كافٍ من المصدر.</div></div>
+      </div>
+    </section>
+
+    <section className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
+      <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+        <div className="section-kicker">EXECUTIVE BRIEF</div>
+        <h2 className="mt-1 text-xl font-black text-ink-950">ماذا يقول هذا التقرير فعليًا؟</h2>
+        <p className="mt-3 text-sm leading-7 text-ink-600">{businessSummary}</p>
+        <div className="mt-4 flex flex-wrap gap-2 text-[10px]">
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 font-bold">التخصص: {report.specialty ?? 'عام'}</span>
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 font-bold">الصفوف: {formatNumber(report.rowCount ?? 0)}</span>
+          <span className={'badge ' + (sourceIsVerified ? 'badge-success' : 'badge-warning')}>{sourceIsVerified ? 'الدليل موثق' : 'الدليل يحتاج متابعة'}</span>
+        </div>
+      </div>
+      <div className="rounded-[18px] border border-ink-200 bg-ink-950 p-5 text-white shadow-card lg:p-6">
+        <div className="section-kicker text-primary-200">NEXT ACTION</div>
+        <h2 className="mt-1 text-lg font-black">ما الذي يمكن فعله الآن؟</h2>
+        <p className="mt-3 text-[12px] leading-6 text-ink-300">
+          {report.actionStatus === 'NO_ACTION_COMMITTED' ? 'لا توجد عملية تنفيذية موثقة نُفذت بعد؛ يمكن استخدام التقرير كمدخل لمراجعة القرار.' : stateLabel(String(report.renderedOutput.actionStatus ?? null))}
+        </p>
+        <Link to="/decision-experience?stage=evidence" className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-2.5 text-xs font-black text-ink-950">افتح مسار القرار الموثق ←</Link>
+      </div>
+    </section>
+
+    <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+      <div className="section-kicker">REAL BUSINESS METRICS</div>
+      <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
+        <h2 className="text-lg font-black text-ink-950">مؤشرات مستخرجة من هذا المصدر</h2>
+        <span className="text-[10px] text-ink-500">{smartAnalysis.columns.length} أعمدة · {smartAnalysis.numeric.length} مؤشرات رقمية</span>
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {smartAnalysis.metrics.map(metric => (
+          <div key={metric.label} className="rounded-2xl border border-ink-100 bg-ink-50 p-4">
+            <div className="text-[10px] font-bold text-ink-500">{metric.label}</div>
+            <div className="mt-2 text-xl font-black text-ink-950">{metric.value}</div>
+            <div className="mt-1 truncate text-[9px] text-ink-400">{metric.detail}</div>
+          </div>
+        ))}
       </div>
     </section>
 
@@ -114,13 +289,31 @@ export function SmartReportPage() {
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex items-center gap-2"><CheckCircle2 size={18} className="text-primary-600"/><div><div className="section-kicker">RENDERED SURFACES</div><h2 className="mt-1 text-lg font-black">الأسطح التي أنشأها مسار التقرير</h2></div></div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {surfaceLinks.map((surface, index) => <Link key={String(surface.key ?? index)} to={String(surface.path)} className="rounded-xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
+        {surfaceLinks.map((surface, index) => <Link key={String(surface.key ?? index)} to={String(surface.path) + '?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="rounded-xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
           <div className="text-[9px] font-black tracking-[.12em] text-primary-700">{String(surface.stage ?? 'OUTPUT')}</div>
           <div className="mt-2 text-sm font-black text-ink-950">{String(surface.label ?? surface.key ?? 'سطح')}</div>
           <div className="mt-2 text-[10px] text-ink-500">sourceBound={String(surface.sourceBound)} · hash={String(surface.sourceHash).slice(0, 14)}…</div>
         </Link>)}
       </div>
     </section>
+
+    {smartAnalysis.topRows.length > 0 && (
+      <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+        <div className="section-kicker">{report.specialty === 'receivables' ? 'TOP EXPOSURES' : 'TOP SOURCE ITEMS'}</div>
+        <h2 className="mt-1 text-lg font-black">أعلى البنود الظاهرة في العينة</h2>
+        <div className="mt-4 grid gap-2">
+          {smartAnalysis.topRows.map((row, index) => (
+            <div key={row.name + index} className="flex items-center justify-between gap-3 rounded-xl border border-ink-100 bg-ink-50 px-3 py-2.5">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-[10px] font-black">{index + 1}</span>
+                <span className="truncate text-xs font-bold text-ink-900">{row.name}</span>
+              </div>
+              <span className="shrink-0 text-xs font-black text-ink-950">{formatMetric(row.value)}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+    )}
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex items-center justify-between gap-3"><div><div className="section-kicker">CANONICAL SOURCE</div><h2 className="mt-1 text-lg font-black">عينة فعلية من التقرير</h2></div><div className="text-[10px] text-ink-500">{formatNumber(previewRows.length)} صفوف معروضة من العينة</div></div>
