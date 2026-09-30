@@ -65,6 +65,8 @@ on:
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'src/pages/**'
       - 'src/lib/dashboard-canonical.ts'
+      - 'src/lib/file-engine/**'
+      - 'scripts/pdf-arabic-sales-layout.test.ts'
       - 'src/lib/kpi-evidence.ts'
       - 'src/lib/semantic-metric-service.ts'
       - 'src/lib/semantic-metric-registry.ts'
