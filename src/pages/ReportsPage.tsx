@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { FileBarChart, ShoppingCart, Package, Receipt, TrendingUp } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -7,7 +7,7 @@ import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/co
 import { DataTable } from '@/components/ui/DataTable';
 import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
-import { fetchSmartReportCatalog, type SmartReportCatalogItem } from '@/lib/report-smart';
+import { fetchSmartReport, fetchSmartReportCatalog, type SmartReportCatalogItem, type SmartReportDetail } from '@/lib/report-smart';
 import { fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
@@ -32,6 +32,121 @@ function ReportTruthBar({ status, asOf, period, note }: { status: string; asOf?:
     {note && <span className="text-current/70">{note}</span>}
     <span className="mr-auto font-semibold">القيم غير المتاحة تبقى غير متاحة ولا تُستبدل بتقديرات.</span>
   </section>;
+}
+
+function useOptionalSourceReport() {
+  const [params] = useSearchParams();
+  const jobId = params.get('reportJobId')?.trim() ?? '';
+  const [report, setReport] = useState<SmartReportDetail | null>(null);
+  const [loading, setLoading] = useState(Boolean(jobId));
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!jobId) {
+      setReport(null);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+    let active = true;
+    setLoading(true);
+    setError(null);
+    void fetchSmartReport(jobId).then((next) => {
+      if (active) setReport(next);
+    }).catch((cause) => {
+      if (active) setError(errorMessage(cause));
+    }).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => { active = false; };
+  }, [jobId]);
+
+  return { jobId, report, loading, error };
+}
+
+function sourceValue(columns: Array<any>, ...tokens: string[]): any {
+  return columns.find((column) => tokens.some((token) => String(column.mappedField ?? column.name ?? '').toLowerCase().replace(/[\\s_-]+/g, '').includes(token.toLowerCase().replace(/[\\s_-]+/g, ''))));
+}
+
+function sourceNumber(column: any, stat: 'sum' | 'mean' | 'max' = 'sum'): number | null {
+  const value = column?.statistics?.[stat];
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+function sourceBoundHref(path: string, report: SmartReportDetail): string {
+  return path + (path.includes('?') ? '&' : '?')
+    + 'reportJobId=' + encodeURIComponent(report.jobId)
+    + '&sourceHash=' + encodeURIComponent(report.sourceHash);
+}
+
+function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report: SmartReportDetail; expectedSpecialty: string; title: string }) {
+  const dataset = report.sourceAnalysis?.datasets?.[0];
+  const objectDataset = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : {};
+  const columns = Array.isArray(objectDataset.columns) ? objectDataset.columns : [];
+  const preview = Array.isArray(objectDataset.preview) ? objectDataset.preview.filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === 'object').slice(0, 12) : [];
+  const amount = sourceValue(columns, 'outstanding_balance', 'local_amount', 'total_amount', 'net_amount', 'total', 'amount', 'value', 'sales', 'purchase');
+  const quantity = sourceValue(columns, 'quantity', 'qty', 'current_stock', 'stock');
+  const profit = sourceValue(columns, 'profit', 'gross_profit');
+  const margin = sourceValue(columns, 'margin', 'gross_margin');
+  const age120 = sourceValue(columns, 'age_over_120', 'over_120');
+  const age30 = sourceValue(columns, 'age_0_30', '0_30', 'age030');
+  const paid = sourceValue(columns, 'paid_amount', 'paid');
+  const nameColumn = sourceValue(columns, 'customer_name', 'customer', 'supplier_name', 'supplier', 'product_name', 'product', 'item', 'name');
+  const metricColumns = [amount, quantity, profit, margin, age120, age30, paid].filter(Boolean);
+  const rows = preview.map((row) => {
+    const name = String(row[nameColumn?.name ?? ''] ?? row.name ?? 'غير مسمى');
+    const value = Number(row[amount?.name ?? ''] ?? row[quantity?.name ?? ''] ?? row[profit?.name ?? ''] ?? row[margin?.name ?? '']);
+    return { name, value: Number.isFinite(value) ? value : null };
+  }).filter((row) => row.value != null).sort((a, b) => Number(b.value) - Number(a.value)).slice(0, 8);
+  const actualMatches = report.specialty === expectedSpecialty;
+  const specialtyLabel: Record<string, string> = { sales:'المبيعات', purchases:'المشتريات', inventory:'المخزون', receivables:'الذمم المدينة', profitability:'الربحية', payments:'المدفوعات والسيولة' };
+
+  return <div dir="rtl" className="report-page space-y-5 animate-fade-in pb-10">
+    <PageHeader
+      title={title + ' — تقرير المصدر'}
+      subtitle={report.sourcePath + ' · هذه الشاشة مربوطة مباشرة بنتيجة التقرير وبصمته، وليست لقطة الشركة العامة.'}
+      actions={<div className="flex flex-wrap gap-2">
+        <Link to={'/reports/smart/' + report.jobId} className="btn-secondary text-xs">التقرير الذكي</Link>
+        <Link to={sourceBoundHref('/trust', report)} className="btn-secondary text-xs">الدليل</Link>
+        <Link to={sourceBoundHref('/decision-experience?stage=evidence', report)} className="btn-primary text-xs">مساحة القرار</Link>
+      </div>}
+    />
+    {!actualMatches && <div className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">هذا المصدر مصنّف كـ{specialtyLabel[report.specialty ?? ''] ?? 'مصدر عام'} وليس {title}. لم يتم تحويله إلى حقيقة تخص هذا التخصص.</div>}
+    <ReportSourceContext />
+    <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+      <div className="section-kicker">SOURCE-BOUND DOMAIN ANALYSIS</div>
+      <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
+        <h2 className="text-xl font-black text-ink-950">{actualMatches ? 'التحليل المتخصص من المصدر' : 'التحليل العام للمصدر'}</h2>
+        <span className="text-[10px] text-ink-500">{formatNumber(report.rowCount ?? 0)} صف · {columns.length} أعمدة</span>
+      </div>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {(metricColumns.slice(0,4).length ? metricColumns.slice(0,4) : [{name:'metric'} as any]).map((column:any,index:number) => {
+          const label = String(column.mappedField ?? column.name ?? 'مؤشر').replace(/_/g,' ');
+          const value = sourceNumber(column, 'sum') ?? sourceNumber(column, 'mean');
+          return <div key={String(column.name ?? index)} className="rounded-2xl border border-ink-100 bg-ink-50 p-4"><div className="text-[10px] text-ink-500">{label}</div><div className="mt-2 text-xl font-black text-ink-950">{value == null ? 'غير متاح' : formatNumber(value)}</div><div className="mt-1 text-[9px] text-ink-400">من إحصائية العمود الكانوني للمصدر</div></div>;
+        })}
+      </div>
+    </section>
+    <section className="grid gap-4 lg:grid-cols-[1fr_.8fr]">
+      <Card><CardHeader title="أهم البنود من هذا المصدر" subtitle="أعلى القيم في العينة المقروءة — ليست قرارًا منفذًا."/><CardBody>
+        {rows.length ? <div className="space-y-2">{rows.map((row,index)=><div key={row.name + index} className="flex items-center justify-between gap-3 rounded-xl bg-ink-50 px-3 py-2.5"><span className="truncate text-xs font-bold text-ink-900">{row.name}</span><span className="shrink-0 text-xs font-black text-ink-950">{formatNumber(row.value ?? 0)}</span></div>)}</div> : <div className="text-sm text-ink-500">لا يوجد عمود رقمي مناسب للترتيب في المصدر الحالي.</div>}
+      </CardBody></Card>
+      <Card><CardHeader title="حدود الحقيقة"/><CardBody>
+        <div className="space-y-2 text-xs leading-5 text-ink-600">
+          <div>الثقة: <b>{report.trustState ?? 'غير متاح'}</b></div>
+          <div>الدليل: <b>{report.evidenceStatus ?? 'غير متاح'}</b></div>
+          <div>القرار: <b>{String(report.renderedOutput.decisionStatus ?? 'غير متاح')}</b></div>
+          <div>الإجراء: <b>{String(report.renderedOutput.actionStatus ?? 'غير متاح')}</b></div>
+          <div>النتيجة: <b>{String(report.renderedOutput.outcomeStatus ?? 'غير متاح')}</b></div>
+          <div>التعلم: <b>{String(report.renderedOutput.learningStatus ?? 'غير متاح')}</b></div>
+          <div>Benchmark: <b>{String(report.renderedOutput.benchmarkStatus ?? 'غير متاح')}</b></div>
+        </div>
+      </CardBody></Card>
+    </section>
+    <Card><CardHeader title="معاينة المصدر" subtitle="صفوف حقيقية من source_analysis_snapshots؛ لا تُستخدم وحدها كحقيقة مالية نهائية."/><CardBody>
+      {preview.length ? <div className="overflow-x-auto"><table className="min-w-full text-xs"><thead><tr className="border-b border-ink-100">{Object.keys(preview[0]).slice(0,8).map((key)=><th key={key} className="p-2 text-right">{key}</th>)}</tr></thead><tbody>{preview.map((row,index)=><tr key={index} className="border-b border-ink-50">{Object.keys(preview[0]).slice(0,8).map((key)=><td key={key} className="p-2">{String(row[key] ?? '—')}</td>)}</tr>)}</tbody></table></div> : <div className="text-sm text-ink-500">لا توجد معاينة مثبتة لهذا المصدر.</div>}
+    </CardBody></Card>
+  </div>;
 }
 
 const reportCards = [
