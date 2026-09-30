@@ -67,6 +67,7 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
   const preview = Array.isArray(objectDataset?.preview)
     ? objectDataset.preview.filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === 'object')
     : [];
+  const fullRows = (report?.canonicalRows ?? []).filter((row) => row && typeof row.data === 'object' && row.data !== null);
 
   const numeric = columns
     .map(column => ({ column, sum: numberValue(column.statistics?.sum), mean: numberValue(column.statistics?.mean) }))
@@ -95,16 +96,18 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
   const customerColumn = findColumn('customer_name', 'customer', 'client');
   const productColumn = findColumn('product_name', 'product', 'item', 'sku');
 
-  const topRows = preview
-    .map(row => ({
-      name: String(row[customerColumn?.name ?? ''] ?? row[productColumn?.name ?? ''] ?? row.name ?? 'غير مسمى'),
+  const topRows = fullRows
+    .map(record => ({
+      name: String(record.data[customerColumn?.name ?? ''] ?? record.data[productColumn?.name ?? ''] ?? record.data.name ?? record.data.sku ?? 'غير مسمى'),
       value: numberValue(
-        row[amountColumn?.name ?? ''] ??
-        row.outstanding_balance ??
-        row.local_amount ??
-        row.total ??
-        row.amount ??
-        row.value
+        record.data[amountColumn?.name ?? ''] ??
+        record.data.outstanding_balance ??
+        record.data.local_amount ??
+        record.data.total ??
+        record.data.amount ??
+        record.data.value ??
+        record.data.price ??
+        record.data['السعر']
       ),
     }))
     .filter(row => row.value != null)
@@ -242,7 +245,14 @@ export function SmartReportPage() {
   const smartAnalysis = useMemo(() => buildSmartAnalysis(report), [report]);
 
   if (loading) return <div dir="rtl"><LoadingState message="جارٍ بناء التقرير الذكي من المصدر الحقيقي..." /></div>;
-  if (error) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={() => window.location.reload()} /></div>;
+  if (error) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={() => {
+    setLoading(true);
+    setError(null);
+    void fetchSmartReport(jobId ?? '').then((next) => {
+      setReport(next);
+      if (next) saveActiveReportContext({ jobId: next.jobId, sourceHash: next.sourceHash });
+    }).catch((reason) => setError(reason instanceof Error ? reason.message : String(reason))).finally(() => setLoading(false));
+  }} /></div>;
   if (!report) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="التقرير المطلوب غير موجود أو غير مكتمل." /><div className="rounded-2xl border border-warning-200 bg-warning-50 p-5 text-sm text-warning-900">لا توجد مخرجات ذكية مثبتة لهذا التقرير.</div></div>;
 
   const output = report.renderedOutput;
