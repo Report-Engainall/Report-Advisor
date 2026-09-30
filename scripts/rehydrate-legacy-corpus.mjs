@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
-import { detectFormat, parseFile } from '../src/lib/file-engine/adapters.ts';
+import { parseFile } from '../src/lib/file-engine/adapters.ts';
+import { detectFormat } from '../src/lib/file-engine/detector.ts';
 import { securityScan } from '../src/lib/file-engine/security.ts';
 import { reconcileForCanonical } from '../src/lib/import/canonical-truth-boundary.ts';
 import { runCanonicalImportThroughDurableRunner } from '../src/lib/import/canonical-production-adapter.ts';
