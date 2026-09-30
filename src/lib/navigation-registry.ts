@@ -137,6 +137,8 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
     items: [
       { section: 'outputs', path: '/reports', label: 'مركز التقارير', enLabel: 'Reports Center', description: 'التقارير التنفيذية والتفصيلية ومخرجات الأداء', keywords: ['reports', 'تقارير'], icon: 'reports' },
       { section: 'outputs', path: '/reports/executive', label: 'التقرير التنفيذي', enLabel: 'Executive Report', description: 'قصة الأداء والقرارات للإدارة', keywords: ['executive report', 'management'], icon: 'executive-report' },
+      { section: 'outputs', path: '/replay', label: 'إعادة تشغيل الأعمال', enLabel: 'Business Replay', description: 'خط زمني مصدرّي من التقرير إلى القرار والعمل والنتيجة', keywords: ['replay', 'timeline', 'قرارات', 'إجراءات'], icon: 'replay' },
+      { section: 'outputs', path: '/benchmark', label: 'المعيار المقارن', enLabel: 'Benchmark', description: 'جاهزية المقارنة ومعايير العينة دون اختلاق مرجع', keywords: ['benchmark', 'cohort', 'مقارنة', 'عينة'], icon: 'benchmark' },
     ],
   },
   {
