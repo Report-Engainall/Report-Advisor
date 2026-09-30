@@ -1,3 +1,17 @@
+# LIVE CHECKPOINT — 2026-09-30 / REPORT LEDGER + SOURCE-BOUND UI FRONT
+
+- EXACT MAIN HEAD → `375d2c712f60a60d9979c0d0718807ab8e7030c1`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- ACTUAL RUNTIME READBACK → import completed 735/735; durable tasks 1..9 completed/rendered; canonical commit count 735; source analysis snapshot `e24ac287-234b-43ea-9434-ad60bdbb2eaa` analyzed 735 rows × 7 columns, quality 87.
+- RENDERED SOURCE RESULT → source-bound Executive, Evidence/Trust, Decision, Work Center, and Inventory outputs persisted; trust TRUSTED; evidence VERIFIED; decision/action NO_*_COMMITTED; outcome/learning NOT_AVAILABLE; benchmark INSUFFICIENT_SAMPLE.
+- ROOT FIX PERSISTED → completed import read-model now reconciles a historical `valid_rows=0` ledger counter from persisted `result_summary.committed=735` only when consistent with total rows; no canonical data mutation or re-import.
+- CURRENT UI SURFACE WORK → Smart Report is source-bound; post-import links carry `reportJobId + sourceHash`; Executive/Trust/Decision/Work Center/Liquidity retain source context; Sales/Purchases/Inventory/Receivables/Profitability switch to source-bound domain surfaces when a report context is present.
+- CORPUS FACT → exact GitHub `tests/fixtures/realistic-reports/` currently contains only README on the verified exact HEAD; no GitHub fixture corpus was fabricated or substituted. The current report is an already persisted staging report front, not a claim about Git-tracked fixture count.
+- TEST/PROOF STATE → repository source verification and staging persistence/readback are proven; exact-current-SHA typecheck/build/CI and authenticated Edge/browser proof are NOT PROVEN. Vercel is externally build-rate-limited; current GitHub wrapper returned no push workflow runs for the current SHA.
+- ACTION STATUS → `IN_PROGRESS` for the report front; runtime/browser closure remains blocked externally.
+- DO-NOT-REPEAT → no re-import, no direct canonical-row rewrite, no tenant bypass, no stale PASS, no database-to-browser inference.
+- NEXT EXACT ACTION → consume current-SHA repository CI/browser evidence when exposed; otherwise continue the remaining source-bound screen contract work, preserving this report and SHA.
+
 # PRE-LONG-ACTION CHECKPOINT — 2026-09-30 / EXACT-HEAD TEST FRONT
 
 - EXACT MAIN HEAD → `0bf973554a3396159cb3548d4f17c37a0eb77895`.
