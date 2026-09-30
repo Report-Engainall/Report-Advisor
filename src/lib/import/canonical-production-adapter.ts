@@ -308,7 +308,7 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput, 
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ ...input, mode }),
+    body: JSON.stringify({ ...input, mode, serverSourceAuthority: mode === 'execute' }),
   });
 
   const text = await response.text();
