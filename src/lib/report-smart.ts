@@ -47,18 +47,8 @@ function renderedOutputOf(evidence: unknown): Record<string, unknown> | null {
 
 function effectiveEvidenceStatus(
   rendered: Record<string, unknown>,
-  sourceAnalysis: SmartReportDetail['sourceAnalysis'],
 ): string | null {
-  const current = rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus);
-  if (
-    current === 'AWAITING_EVIDENCE_SNAPSHOT' &&
-    sourceAnalysis?.analysisStatus === 'analyzed' &&
-    rendered.canonicalCommitVerified === true
-  ) {
-    return 'VERIFIED';
-  }
-  if (rendered.canonicalCommitVerified === true) return 'VERIFIED';
-  return current;
+  return rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus);
 }
 
 function entityTypeFrom(jobKey: string): string {
@@ -170,7 +160,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
     trustState: rendered.trustState == null ? null : String(rendered.trustState),
     specialty: rendered.sourceSpecialty == null ? null : String(rendered.sourceSpecialty),
-    evidenceStatus: effectiveEvidenceStatus(rendered, sourceAnalysis),
+    evidenceStatus: effectiveEvidenceStatus(rendered),
     completedAt: job.completed_at == null ? null : String(job.completed_at),
     importId: rendered.importId == null ? null : String(rendered.importId),
     checkpointStage: job.checkpoint?.stage == null ? null : String(job.checkpoint.stage),
