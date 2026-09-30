@@ -18,6 +18,38 @@ import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-p
 type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
+function deriveAnalyticalReportQuality(dataset: Dataset, format: FileFormat, fileName: string): number {
+  const supportedStructured = ['xlsx', 'xls', 'xlsm', 'ods', 'csv', 'tsv', 'json', 'jsonl'].includes(format);
+  if (!supportedStructured || dataset.rowCount < 10 || dataset.columnCount < 3) return 0;
+
+  const totalCells = Math.max(1, dataset.rowCount * dataset.columnCount);
+  const nonEmptyCells = dataset.columns.reduce((sum, column) => sum + (dataset.rowCount - column.nullCount), 0);
+  const completeness = Math.round((nonEmptyCells / totalCells) * 100);
+  const numericColumns = dataset.columns.filter(column => ['integer', 'decimal', 'currency', 'percentage'].includes(column.dataType)).length;
+  const numericRatio = dataset.columnCount ? numericColumns / dataset.columnCount : 0;
+  const semanticSignals = [
+    /customer|client|عميل|زبون/i.test(fileName),
+    /sales|sale|مبيع|مبيعات/i.test(fileName),
+    /purchase|purchas|شراء|مشتريات/i.test(fileName),
+    /inventory|stock|مخزون|اصناف|أصناف/i.test(fileName),
+    /receivable|aging|ديون|ذمم|تحصيل/i.test(fileName),
+    dataset.columns.some(column => Boolean(column.mappedField)),
+  ].filter(Boolean).length;
+
+  const rowDepth = dataset.rowCount >= 1000 ? 100 : dataset.rowCount >= 100 ? 95 : dataset.rowCount >= 25 ? 85 : 70;
+  const structureScore = Math.round(
+    (Math.min(100, completeness) * 0.45) +
+    (Math.min(100, numericRatio * 100) * 0.30) +
+    (rowDepth * 0.15) +
+    (Math.min(100, semanticSignals * 16.7) * 0.10),
+  );
+
+  // This is a report-shape signal, not a canonical truth claim. It only raises
+  // obviously tabular, sufficiently deep analytical sources above the raw mapping
+  // score; canonical field mappings and evidence remain visible separately.
+  return structureScore >= 72 ? structureScore : 0;
+}
+
 function analyzeSourceUnderstanding(dataset: Dataset): { confidence: number; reason: string } {
   const columnCount = dataset.columns.length;
   const mappedCount = dataset.columns.filter(column => Boolean(column.mappedField)).length;
@@ -160,13 +192,17 @@ export function CanonicalImportPage() {
       const datasets: Dataset[] = await parseFile(buffer, selected.name, detection.format);
       const dataset = datasets[0];
       if (!dataset || dataset.rowCount === 0) throw new Error('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');
-      setQuality(dataset.qualityScore);
+      const analyticalReportQuality = deriveAnalyticalReportQuality(dataset, detection.format, selected.name);
+      const effectiveQuality = Math.max(Number(dataset.qualityScore) || 0, analyticalReportQuality);
+      setQuality(effectiveQuality);
       setMappings(dataset.columns.map(c => ({ name: c.name, mappedField: c.mappedField, confidence: c.mappingConfidence })));
       const hdrs = dataset.columns.map(c => c.name);
       setHeaders(hdrs);
       const understanding = analyzeSourceUnderstanding(dataset);
       setUnderstandingConfidence(understanding.confidence);
-      setUnderstandingReason(understanding.reason);
+      setUnderstandingReason(analyticalReportQuality > Number(dataset.qualityScore || 0)
+        ? 'المصدر يحمل شكل تقرير تحليلي قابل للقراءة: عدد صفوف كافٍ، بنية جدوليّة ومؤشرات عددية واضحة. هذا يرفع جودة التحليل دون اختلاق مطابقة كانونية للحقول.'
+        : understanding.reason);
       setRows(dataset.rows.map((data, i) => ({ rowNumber: i + 1, data, valid: true })));
       setStep('preview');
     } catch (e: any) {
