@@ -10,5 +10,7 @@ assert.ok(source.includes('decisionWorkItems'));
 assert.ok(source.includes('fetchDecisionWorkItems'));
 assert.ok(source.includes('reportExecutionJobId'));
 assert.ok(source.includes('sourceHash'));
+assert.ok(source.includes('overdue'));
+assert.ok(source.includes('isOverdue'));
 assert.ok(decisions.includes('decision_work_items'));
 console.log('WORK_CENTER_DECISION_QUEUE_CONTRACT_PASS');
