@@ -1,4 +1,4 @@
-import { detectHeaderRow, rowsFromDetectedHeader, type HeaderCandidate } from './header-detection';
+import { detectHeaderRow, rowsFromDetectedHeader, type HeaderCandidate } from './header-detection.ts';
 
 export type PdfTextToken = {
   text: string;
