@@ -1,3 +1,12 @@
+# PRE-CANONICAL-RECOVERY CHECKPOINT — 2026-09-30 / SOURCE RECORD BINDING
+
+- EXACT MAIN HEAD BEFORE DB RECOVERY FIX → `b670f79ed15602983a980f8080810f527f7a296a`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REPRODUCED ROOT ISSUE → completed import result_summary points at storage path `80cdfa2b-42ad-4007-a9e0-5632014118af.pdf` with `source_record_pending_hash=true`, while the same tenant has a ready/passed file_record carrying the exact source hash and storage path `5925f3a2-fbac-4678-9490-b892dca35d4d.pdf`.
+- SAFETY RULE → do not rewrite canonical dataset rows and do not re-import. Fix the existing governed recovery contract so a completed-job recovery reconciles the import's source record to a verified ready file_record matching the source hash and file identity.
+- ACTION STATUS → `IN_PROGRESS`.
+- NEXT EXACT ACTION → update the existing `recover_completed_report_execution_result` DB contract; execute one governed recovery readback for this completed job; verify file_record_id/source path/hash alignment and no canonical-row count change.
+
 # FINAL LIVE WRITE-BACK — 2026-09-30 / SOURCE-BOUND RESULT SURFACES
 
 - EXACT MAIN HEAD → `9043e6f10cef89c23aa72ad1f0060018cff0b1ed`.
