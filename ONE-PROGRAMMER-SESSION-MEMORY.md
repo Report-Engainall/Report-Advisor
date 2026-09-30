@@ -497,3 +497,14 @@ Observed gates:
 - GitHub workflow wrapper cannot currently expose push-triggered workflow runs through the available connector; therefore no CI PASS is claimed.
 
 NEXT EXACT ACTION: obtain an actual execution of the latest main HEAD (prefer Netlify or authenticated CI), then prove the same real report source through extraction -> canonical commit -> smart report -> specialty surfaces with exact row counts and source hash.
+
+
+## LIVE CHECKPOINT — 2026-09-30 / CONTEXT PERSISTENCE / HEAD 91865c5
+
+Active report context now persists the Job ID and source hash in both session and local storage, while source-bound URLs remain authoritative. This closes a navigation/reload loss mode without changing canonical source identity.
+
+Exact current main HEAD: `91865c58d7ebcc3689271d55a7e839c8b62956b2`.
+
+Release remains OPEN until latest code is executed and observed on a live/runtime path; Vercel remains rate-limited and Netlify production remains on an older commit.
+
+NEXT EXACT ACTION: runtime execution + source-bound browser proof of the latest HEAD, followed by exact row/hash readback.
