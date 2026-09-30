@@ -396,6 +396,7 @@ export async function runCanonicalImportThroughDurableRunner(
       jobId: job.id,
       sourceHash: input.sourceHash,
       committed: input.rows.length,
+      invalidRows: 0,
       rendered_output: renderedOutput,
       recovered_from_completed_durable_job: true,
     });
@@ -486,6 +487,7 @@ export async function runCanonicalImportThroughDurableRunner(
     jobId: job.id,
     sourceHash: input.sourceHash,
     committed: input.rows.length,
+    invalidRows: 0,
     rendered_output: renderedOutput,
     recovered_from_completed_durable_job: false,
   });
