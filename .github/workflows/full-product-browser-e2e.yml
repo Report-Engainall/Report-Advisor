@@ -28,6 +28,7 @@ on:
       - 'src/lib/semanticMetrics.ts'
       - 'src/lib/import/canonical-production-adapter.ts'
       - 'api/canonical-import-execute.ts'
+      - 'netlify/functions/canonical-import-execute.mts'
       - 'scripts/check-server-source-authority-contract.mjs'
       - 'scripts/pdf-visual-line-fallback.test.ts'
       - 'scripts/report-intelligence-inventory-grain.test.ts'
