@@ -505,6 +505,13 @@ try {
   result.failedRequests = failedRequests;
   result.failedResponses = failedResponses;
   result.requests = requests;
+  const browserBlocked = result.findings.some(x => x.status === 'BLOCKED');
+  const browserFailed = result.findings.some(x => x.status === 'FAIL') || result.routes.some(x => x.status === 'FAIL');
+  const browserNotProven = result.findings.some(x => x.status === 'NOT_PROVEN') ||
+    result.auth !== 'PASS' || result.tenant !== 'PASS' ||
+    result.routes.length !== routes.length ||
+    result.routes.some(x => x.status !== 'PASS');
+  result.status = browserFailed ? 'FAIL' : (browserNotProven || browserBlocked ? 'NOT_PROVEN' : 'PASS');
   await fs.writeFile(`${reportDir}/result.json`, JSON.stringify(result, null, 2));
   await browser.close();
 }
