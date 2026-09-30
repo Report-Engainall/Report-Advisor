@@ -69,7 +69,7 @@ async function authoritativeSourceInput(args: {
   dataClient: any;
   companyId: string;
   importId: string;
-  reportExecutionJobId: string;
+  reportExecutionJobId?: string;
   requestedBy: string;
   expectedSourceHash: string;
   fileName: string;
@@ -165,7 +165,7 @@ async function authoritativeSourceInput(args: {
       warnings: dataset.columns.flatMap((column: any) => Array.isArray(column.qualityIssues) ? column.qualityIssues : []),
       metadata: {
         authoritativeServerRead: true,
-        reportExecutionJobId,
+        reportExecutionJobId: reportExecutionJobId || null,
         sourceStorageBucket: storageBucket,
         sourceStoragePath: storagePath,
         requestedBy,
@@ -308,7 +308,22 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    const input = body as unknown as DurableCanonicalImportInput;
+    const serverSourceAuthority = body.serverSourceAuthority === true;
+    const input = serverSourceAuthority
+      ? await authoritativeSourceInput({
+          workerClient,
+          dataClient,
+          companyId,
+          importId: String(body.importId),
+          reportExecutionJobId: '',
+          requestedBy: user.id,
+          expectedSourceHash: String(body.sourceHash),
+          fileName: String(body.fileName),
+          entityType: String(body.entityType),
+          qualityApproved: body.qualityApproved === true,
+        })
+      : body as unknown as DurableCanonicalImportInput;
+
     const result = await runCanonicalImportThroughDurableRunner(input, {
       serverExecution: true,
       workerClient,
