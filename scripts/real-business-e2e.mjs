@@ -337,8 +337,10 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     'Smart Report must expose source trust'
   );
   assert.ok(
-    beforeRefreshText.includes('بانتظار الدليل') || beforeRefreshText.includes('Pending Evidence'),
-    'Smart Report must expose pending evidence state'
+    beforeRefreshText.includes('بانتظار لقطة الدليل') ||
+    beforeRefreshText.includes('بانتظار الدليل') ||
+    beforeRefreshText.includes('Pending Evidence'),
+    'Smart Report must expose the canonical pending-evidence state label'
   );
 
   await page.screenshot({
