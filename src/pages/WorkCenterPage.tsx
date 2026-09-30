@@ -1,8 +1,9 @@
+import { SourceBoundReportSurface } from '@/components/SourceBoundReportSurface';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ReportSourceContext } from '@/components/ReportSourceContext';
 import { Activity, AlertTriangle, CheckCircle2, Clock3, Filter, RefreshCw, ShieldCheck, XCircle } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { DataTable } from '@/components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchImportRecords, fetchWorkerHealthSnapshot, type WorkerHealthSnapshot } from '@/lib/queries';
@@ -20,7 +21,7 @@ function matches(row: ImportRecord, filter: FilterKey) {
   return row.status === 'failed' || row.status === 'cancelled';
 }
 
-export function WorkCenterPage() {
+function WorkCenterGeneralPage() {
   const [rows, setRows] = useState<ImportRecord[]>([]);
   const [workerHealth, setWorkerHealth] = useState<WorkerHealthSnapshot | null>(null);
   const [filter, setFilter] = useState<FilterKey>('all');
@@ -226,4 +227,14 @@ export function WorkCenterPage() {
       </CardBody>
     </Card>
   </div>;
+}
+
+export function WorkCenterPage() {
+  const [params] = useSearchParams();
+  const reportJobId = params.get('reportJobId');
+  const sourceHash = params.get('sourceHash');
+  if (reportJobId) {
+    return <SourceBoundReportSurface mode="work" jobId={reportJobId} expectedSourceHash={sourceHash} />;
+  }
+  return <WorkCenterGeneralPage />;
 }
