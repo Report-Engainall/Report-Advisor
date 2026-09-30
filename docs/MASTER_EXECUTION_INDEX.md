@@ -301,3 +301,14 @@ The release workflow now contains an authoritative server-side proof for the sin
 Current exact HEAD: `0758154667a0cfc1f6cac4c02bd9d1c5cc653e49`.
 
 No manual device/browser dependency is required for this proof.
+
+
+## CHECKPOINT — 2026-09-30 / REAL REPORT RESULT HARDENING / HEAD 006e27a
+
+The current main line contains result-chain fixes, not UI-only changes. Native PDF visual fallback retains visual cells and page boundaries; it is REVIEW-capable instead of being rejected for unproven table semantics. Smart-report intelligence consumes paginated canonical rows rather than a 2,000-row preview cap. Source-bound Sales/Purchases/Inventory surfaces use full canonical rows and verify the expected source hash.
+
+Exact current HEAD: `006e27a275d3c68cbe3290e637955ff82cd2dfd4`.
+
+Release remains OPEN: Vercel reports `build-rate-limit` failure and Netlify production remains on `21f6562dbca1016842f037299ffd8815b59fe1aa`. No unobserved CI result is treated as PASS.
+
+NEXT EXACT ACTION: execute the latest HEAD against the authoritative report source and collect actual browser/runtime evidence before any release-closed claim.
