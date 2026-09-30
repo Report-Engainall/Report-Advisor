@@ -14,6 +14,8 @@ assert.match(netlifySource, /raw_bytes_sha256/);
 assert.match(netlifySource, /CANONICAL_IMPORT_DURABLE_RUN_FAILED/);
 assert.match(netlifySource, /Netlify\.env\.get\('REPORT_ADVISOR_E2E_DEBUG'\)/);
 assert.match(netlifySource, /source_fingerprint: sourceSha/);
+assert.match(netlifySource, /AUTHORITATIVE_SOURCE_ANALYSIS_PERSIST_FAILED/);
+assert.doesNotMatch(netlifySource, /non-fatal snapshot persistence failure/);
 assert.match(netlifySource, /\.eq\('id', importId\)/);
 assert.doesNotMatch(netlifySource, /\.eq\('id', payload\.importId\)/);
 assert.match(source, /computeSHA256\(buffer\)/);
