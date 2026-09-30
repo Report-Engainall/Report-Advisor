@@ -568,3 +568,20 @@ The next commercial implementation front is persistent decision/work-item creati
 Runtime release remains OPEN; no current-head browser/deployment PASS is claimed.
 
 NEXT EXACT ACTION: implement the governed source-report -> proposed decision bridge using the existing decision RPCs, preserving evidence references and requiring approval before a work item can be created.
+
+
+## LIVE CHECKPOINT — 2026-09-30 / REPORT WORKSPACE ROW INSPECTOR / HEAD 0fc4919
+
+Product lane advanced again:
+- Report Workspace now supports row selection and a Row Inspector inside the same source-bound report.
+- Selected rows expose their full available fields and direct links to the same report's Evidence and Decision surfaces using the original Job ID + source hash.
+- Inspector state resets when the workspace search/sort/page-size context changes, preventing stale row selection.
+- Workspace contract now guards the inspector and canonical-row binding.
+
+Core lane remains unchanged and protected: PDF page/line/cell preservation, paginated canonical intelligence, contradiction signals, long-document OCR boundary and fail-closed server OCR behavior remain in the same main line.
+
+Next commercial frontier remains the governed decision/work-item bridge, but it must respect the existing RPC authority: source-intelligence output cannot bypass evidence acceptance or approval requirements.
+
+Runtime release remains OPEN; no current-head deployment/browser PASS is claimed.
+
+NEXT EXACT ACTION: continue productization over the existing governed decision/RPC model, beginning with a source-bound proposed-decision bridge that remains explicitly PROPOSED until governed evidence/approval exists.
