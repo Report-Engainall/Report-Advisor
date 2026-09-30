@@ -473,6 +473,8 @@ export function SmartReportPage() {
 
     <ReportIntelligencePanel report={report} />
 
+    <SourceDataWorkspace report={report}/>
+
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="section-kicker">REAL BUSINESS METRICS</div>
       <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
