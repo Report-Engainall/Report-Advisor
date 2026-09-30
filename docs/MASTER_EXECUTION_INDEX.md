@@ -1,6 +1,6 @@
 # FINAL CURRENT CODE CANDIDATE — 2026-09-30 / IN-PLACE RETRY PROOF
 
-- CURRENT CODE/TEST CANDIDATE → `eab4628b49cdcf5ee0e3edcde9010f2eb021be5e`.
+- CURRENT CODE/TEST CANDIDATE : `eab4628b49cdcf5ee0e3edcde9010f2eb021be5e`.
 - EXACT-SHA QUALITY → Typecheck PASS; Lint PASS; Build PASS; Performance PASS; Production-scale PASS; Intelligence/production contracts PASS; row-coverage contract PASS; all scheduled Quality release gates PASS.
 - EXACT-SHA FINAL EXECUTION BATCH → PASS; release artifact built and 29 deterministic gates passed.
 - IN-PLACE REPORT RETRY → source-bound report pages now retry through `useOptionalSourceReport.retry` instead of `window.location.reload()`; no full browser reload is used for report retry.
