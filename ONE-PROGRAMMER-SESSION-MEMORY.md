@@ -1,12 +1,13 @@
 # CURRENT RESUME POINTER — 2026-09-30
 
-- CURRENT RESUME POINTER → `Report Smart Surface` / post-import result-continuity fix.
-- EXACT MAIN HEAD → `c66e83ad2cc555da995d9b5d972212ab2921b2de`.
-- ROOT FIX → `src/pages/CanonicalImportPage.tsx` now persists `aghbari:last-smart-report-job` and navigates to `/reports/smart/{jobId}` after a successful canonical durable import, so the report result is no longer trapped in transient React state.
-- USER REPRODUCTION → the uploaded `مواصفات_مشروع_تطبيق_الأغبري_التجاري_المتكامل.xlsx` was read successfully but scored `0%` quality / `0%` mapping coverage, so canonical import was correctly rejected; no smart report should be fabricated for that non-report specification workbook.
-- HOSTING → Vercel deployment `dpl_DrqxFSQ6JG8agqWEbhS8yfnTYNMf` is `BUILDING` for the exact fix commit; no deployment PASS claimed yet.
+- CURRENT RESUME POINTER → `Report Smart Surface / persistent report continuity`.
+- EXACT MAIN HEAD → `9b9a00b08d813455eb51f9ff0a0bb5056518fc21`.
+- ROOT FIXES → duplicate sources now reopen the persisted source-bound Smart Report when a completed rendered Job exists; Smart Report catalog now queries persisted `renderedOutput` directly; structured analytical report quality is no longer reduced to canonical-column mapping coverage; specialty inference uses source content first and filename as a fallback signal.
+- LIVE WORKSPACE READBACK → current tenant has 9 persisted source-bound Smart Reports; `اعمار الديون للعملا.pdf` is completed/rendered as `generic:receivables`, quality 98, with executive + receivables + aging outputs.
+- USER REPRODUCTION → the same PDF was previously shown as duplicate + 0% raw line mapping in the import preview; the duplicate was blocking without reopening the already persisted result. That dead-end is fixed in the canonical source.
+- HOSTING → current Vercel exact-head deployment for this latest head is blocked by the external build-rate-limit. The last READY Vercel deployment is `fcbd529ec90040b8391733bd5dfab3fd8e2ced98`; it contains the persistent success-navigation fix but not the latest duplicate/quality changes.
 - ACTION STATUS → `IN_PROGRESS`.
-- NEXT EXACT ACTION → verify the exact-SHA Vercel build, then test one known-good business report end-to-end and confirm the durable Smart Report route survives navigation. Do not re-import completed reports.
+- NEXT EXACT ACTION → deploy/verify exact HEAD `9b9a00b...`, then run one fresh non-duplicate analytical report and one duplicate-existing report through the UI; verify the persistent Smart Report route and all persisted output links. Do not re-import the existing report.
 
 # FINAL SESSION WRITE-BACK — 2026-09-30
 
