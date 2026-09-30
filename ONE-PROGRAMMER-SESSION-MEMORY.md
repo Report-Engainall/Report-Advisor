@@ -456,3 +456,15 @@
 - CORPUS READBACK → 39 completed generic report jobs with rendered output; 1 unresolved report job remains queued/open.
 - PROOF BOUNDARY → current combined GitHub status exposes only Vercel build-rate-limit failure. New server-source contracts and regression scripts are persisted but not claimed executed PASS without an exact runtime workflow result.
 - NEXT EXACT ACTION → execute the new authoritative resume endpoint against `d074ad5c-70d4-4402-a763-01129786f392` from an authenticated runtime, then read back 6562-source/analysis/canonical/rendered results and immediately continue the next report.
+
+
+# LIVE CHECKPOINT — 2026-09-30 / SALE-READINESS HARDENING
+
+- EXACT CURRENT HEAD → `4356ba2a6ffc10e27796255cc2e16496c248d99d`.
+- PRODUCT HARDENING → server-authoritative private-source execution; resumable existing report job; idempotent analysis snapshot; PDF visual-line preservation; unstructured document intelligence; full-canonical top-item analysis; inventory grain-aware anomaly detection; source-bound cross-surface retry without losing report identity.
+- RELEASE GATE → `test:release-core` combines typecheck + server-source-authority + PDF visual-line + inventory-grain + document-intelligence regression contracts. Full Product Browser E2E workflow was updated to run these before Chromium/business proof.
+- LIVE DEPLOYMENT → Vercel production deployment for commit `70385467dad95383da179baa950dfc3384e4bf07` is READY at `report-advisor-mijx6ot97-injaz2.vercel.app`; runtime error query returned none. Later hardening commits are newer than that deployment and therefore are not yet claimed as live there.
+- CORPUS STATE → Staging has 39 completed generic report jobs with rendered outputs and exactly 1 open generic report job. The open report is `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf`, job `d074ad5c-70d4-4402-a763-01129786f392`, import `bf206836-e52d-4b29-843a-6337403801e6`, source hash `sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10`, expected 6562 rows. Its durable checkpoint is decisioned but task ledger remains queued and the import job is processing at 0 rows. It is not closed.
+- SMART SURFACES READBACK → among the 39 completed generic reports, 38 have an inferred specialty, all 39 have rendered outputs with 4+ declared surfaces, all 39 have evidence status, and all 39 currently report benchmark status `INSUFFICIENT_SAMPLE` rather than invented cohorts.
+- DO-NOT-REPEAT → do not create a second job for the open report, do not write synthetic 6562 rows, do not claim the new regression scripts PASS until an exact checkout runtime executes them.
+- NEXT EXACT ACTION → get the newer hardening HEAD deployed/verified, then execute the server-authoritative resume path for the single open report and read back its real 6562-row extraction/canonical/analysis/rendered result before closing it.
