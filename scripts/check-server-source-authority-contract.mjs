@@ -2,7 +2,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const source = fs.readFileSync(new URL('../api/canonical-import-execute.ts', import.meta.url), 'utf8');
+const netlifySource = fs.readFileSync(new URL('../netlify/functions/canonical-import-execute.mts', import.meta.url), 'utf8');
 assert.match(source, /storage\.from\(storageBucket\)\.download\(storagePath\)/);
+assert.match(netlifySource, /resumeReportExecutionJobId/);
+assert.match(netlifySource, /from\('report_execution_jobs'\)/);
+assert.match(netlifySource, /reportEntityTypeFromJobKey/);
+assert.match(netlifySource, /raw_bytes_sha256/);
+assert.match(netlifySource, /source_fingerprint: sourceSha/);
 assert.match(source, /computeSHA256\(buffer\)/);
 assert.match(source, /serverSourceAuthority/);
 assert.match(source, /resumeReportExecutionJobId/);
