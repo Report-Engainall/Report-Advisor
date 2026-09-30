@@ -228,6 +228,7 @@ function SourceDataWorkspace({ report }: { report: SmartReportDetail }) {
   const [pageSize, setPageSize] = useState(50);
   const [page, setPage] = useState(0);
   const [showColumns, setShowColumns] = useState(false);
+  const [selectedRowNumber, setSelectedRowNumber] = useState<number | null>(null);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(discoveredColumns.slice(0, 8));
 
   useEffect(() => {
@@ -356,10 +357,41 @@ function SourceDataWorkspace({ report }: { report: SmartReportDetail }) {
         {visibleRows.length ? (
           <table className="min-w-full text-right text-[10px]">
             <thead className="bg-ink-50"><tr><th className="sticky right-0 bg-ink-50 px-3 py-2 text-ink-400">#</th>{visibleColumns.map((column) => <th key={column} className="whitespace-nowrap px-3 py-2 font-black text-ink-600">{column}</th>)}</tr></thead>
-            <tbody>{visibleRows.map((row, index) => <tr key={(safePage * pageSize) + index} className="border-t border-ink-100"><td className="sticky right-0 bg-white px-3 py-2 font-mono text-ink-400">{safePage * pageSize + index + 1}</td>{visibleColumns.map((column) => <td key={column} className="max-w-[280px] whitespace-nowrap px-3 py-2 text-ink-800">{textValue(row[column])}</td>)}</tr>)}</tbody>
+            <tbody>{visibleRows.map((row, index) => {
+              const rowNumber = safePage * pageSize + index + 1;
+              const active = selectedRowNumber === rowNumber;
+              return <tr key={rowNumber} onClick={() => setSelectedRowNumber(rowNumber)} className={'cursor-pointer border-t border-ink-100 ' + (active ? 'bg-primary-50/60' : 'hover:bg-ink-50/70')} aria-selected={active}>
+                <td className={'sticky right-0 px-3 py-2 font-mono ' + (active ? 'bg-primary-50/80 text-primary-700' : 'bg-white text-ink-400')}>{rowNumber}</td>
+                {visibleColumns.map((column) => <td key={column} className="max-w-[280px] whitespace-nowrap px-3 py-2 text-ink-800">{textValue(row[column])}</td>)}
+              </tr>;
+            })}</tbody>
           </table>
         ) : <div className="p-8 text-center text-xs text-ink-500">لا توجد صفوف مطابقة لبحثك.</div>}
       </div>
+
+      {selectedRowNumber != null && orderedRows[selectedRowNumber - 1] && (
+        <aside className="mt-4 rounded-xl border border-primary-200 bg-primary-50/50 p-4" aria-label="تفاصيل الصف المحدد">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="section-kicker">ROW INSPECTOR</div>
+              <div className="mt-1 text-sm font-black text-ink-950">تفاصيل الصف #{selectedRowNumber}</div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link to={'/trust?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary text-[10px]">الأدلة</Link>
+              <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-primary text-[10px]">مسار القرار</Link>
+              <button type="button" onClick={() => setSelectedRowNumber(null)} className="btn-secondary text-[10px]">إغلاق</button>
+            </div>
+          </div>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {Object.entries(orderedRows[selectedRowNumber - 1]).map(([key, value]) => (
+              <div key={key} className="rounded-lg border border-ink-100 bg-white p-3">
+                <div className="text-[9px] font-black text-ink-400">{key}</div>
+                <div className="mt-1 break-words text-[11px] font-bold text-ink-800">{textValue(value)}</div>
+              </div>
+            ))}
+          </div>
+        </aside>
+      )}
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
         <div className="text-[10px] text-ink-500">صفحة {safePage + 1} من {pageCount}</div>
