@@ -240,6 +240,8 @@ function WorkCenterGeneralPage() {
               <th className="whitespace-nowrap px-3 py-2 font-black text-ink-600">الحالة</th>
               <th className="whitespace-nowrap px-3 py-2 font-black text-ink-600">المسؤول</th>
               <th className="whitespace-nowrap px-3 py-2 font-black text-ink-600">الأولوية</th>
+              <th className="whitespace-nowrap px-3 py-2 font-black text-ink-600">الموعد</th>
+              <th className="whitespace-nowrap px-3 py-2 font-black text-ink-600">الأثر</th>
               <th className="whitespace-nowrap px-3 py-2 font-black text-ink-600">المصدر</th>
               <th className="whitespace-nowrap px-3 py-2 font-black text-ink-600">الإجراء</th>
             </tr></thead>
@@ -257,6 +259,10 @@ function WorkCenterGeneralPage() {
                     <td className="px-3 py-3"><span className="rounded-full bg-ink-50 px-2 py-1 font-bold text-ink-700">{workStatusLabel(item.status)}</span></td>
                     <td className="px-3 py-3 text-ink-600">{item.assigneeLabel ?? 'غير متاح'}</td>
                     <td className="px-3 py-3 text-ink-600">{item.priority}</td>
+                    <td className="px-3 py-3 text-ink-600">{item.dueAt ? new Date(item.dueAt).toLocaleDateString('ar-YE') : 'غير محدد'}</td>
+                    <td className="px-3 py-3 text-ink-600">
+                      {item.actualImpact != null ? formatNumber(item.actualImpact) : item.expectedImpact != null ? 'متوقع ' + formatNumber(item.expectedImpact) : 'غير متاح'}
+                    </td>
                     <td className="px-3 py-3">
                       {reportJobIdValue && sourceHashValue
                         ? <span className="font-mono text-[8px] text-ink-400">{sourceHashValue.slice(0, 22)}…</span>
