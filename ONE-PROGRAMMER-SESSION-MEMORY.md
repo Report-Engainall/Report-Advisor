@@ -1,3 +1,13 @@
+# PRE-LONG-ACTION CHECKPOINT — 2026-09-30 / CORRECT PERSISTED EVIDENCE STATE
+
+- EXACT MAIN EXECUTION HEAD → `04e74d270b902077ab67717ca0e5e615e4fbb68d`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REPRODUCED SEMANTIC ISSUE → persisted renderedOutput currently says `evidenceStatus=VERIFIED`, while the canonical adapter contract generates `AWAITING_EVIDENCE_SNAPSHOT` and no KPI evidence snapshot in the tenant contains this source hash.
+- SAFETY RULE → correct only rendered evidence metadata through the existing governed recovery function; do not touch canonical_dataset_records and do not re-import.
+- VERIFIED FACTS THAT MUST REMAIN → source hash, ready/passed file record, canonical 735 rows, canonical commit 735, source analysis 735×7 quality 87, decision/action/outcome/learning/benchmark states.
+- ACTION STATUS → `IN_PROGRESS`.
+- NEXT EXACT ACTION → execute one governed recovery with renderedOutput.evidenceStatus corrected to `AWAITING_EVIDENCE_SNAPSHOT`; read back persisted evidence state and canonical counts; then update canonical memory/index.
+
 # FINAL LIVE WRITE-BACK — 2026-09-30 / REPORT SOURCE + DURABLE EXECUTION CLOSURE FRONT
 
 - EXECUTION BOUNDARY SHA → `4aee2ad02ee1f3ce9f026ead2f1ba5dc04b5c3f0`; the subsequent control-plane writeback commit is memory-only.
