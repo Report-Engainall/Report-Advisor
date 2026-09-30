@@ -12,8 +12,12 @@ declare
   v_latest public.import_jobs%rowtype;
   v_job_id uuid;
 begin
-  if auth.role() <> 'service_role' then
+  if coalesce(auth.jwt()->>'role','') <> 'service_role' then
     raise exception 'SERVICE_ROLE_REQUIRED';
+  end if;
+
+  if p_company_id is null or p_file_record_id is null then
+    raise exception 'LEGACY_REHYDRATION_INPUT_INVALID';
   end if;
 
   select * into v_file
@@ -28,8 +32,7 @@ begin
 
   if coalesce(v_file.metadata->>'storage_bucket','documents') <> 'documents'
      or coalesce(v_file.metadata->>'storage_path','') = ''
-     or coalesce(v_file.metadata->>'storage_path','') not like p_company_id::text || '/imports/%'
-     or position('..' in coalesce(v_file.metadata->>'storage_path','')) > 0 then
+     or v_file.metadata->>'storage_path' !~ ('^' || p_company_id::text || '/imports/[0-9a-fA-F-]{36}\.[A-Za-z0-9]{1,12}$') then
     raise exception 'LEGACY_SOURCE_STORAGE_BINDING_INVALID';
   end if;
 
@@ -40,44 +43,28 @@ begin
   order by created_at desc
   limit 1;
 
+  if found and v_latest.status in ('queued','processing') then
+    return v_latest.id;
+  end if;
+
   insert into public.import_jobs(
-    company_id,
-    file_record_id,
-    job_type,
-    processing_mode,
-    status,
-    total_rows,
-    processed_rows,
-    valid_rows,
-    invalid_rows,
-    quarantined_rows,
-    duplicate_rows,
-    progress,
-    started_at,
-    source_fingerprint,
-    result_summary
+    company_id,file_record_id,job_type,processing_mode,status,total_rows,processed_rows,
+    valid_rows,invalid_rows,quarantined_rows,duplicate_rows,progress,started_at,
+    source_fingerprint,result_summary
   )
   values(
     p_company_id,
     v_file.id,
-    coalesce(nullif(btrim(v_latest.job_type),''), 'generic:report'),
+    coalesce(nullif(btrim(v_latest.job_type),''),'generic:report'),
     'rehydration',
     'processing',
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    now(),
-    null,
+    0,0,0,0,0,0,0,now(),null,
     jsonb_build_object(
-      'file_name', v_file.file_name,
-      'source_storage_bucket', coalesce(v_file.metadata->>'storage_bucket','documents'),
-      'source_storage_path', v_file.metadata->>'storage_path',
-      'rehydrated_from_import_job_id', v_latest.id,
-      'legacy_rehydration', true
+      'legacy_rehydration',true,
+      'file_name',v_file.file_name,
+      'source_storage_bucket',v_file.metadata->>'storage_bucket',
+      'source_storage_path',v_file.metadata->>'storage_path',
+      'rehydrated_from_import_job_id',v_latest.id
     )
   )
   returning id into v_job_id;
