@@ -1,3 +1,18 @@
+# LIVE SURGICAL CHECKPOINT — 2026-09-30 / SOURCE-BOUND BUSINESS SURFACES
+
+- EXACT MAIN HEAD → `bef320eeeed361f1f32a2e0895e2f73147a067bc`.
+- REAL SURGICAL FIXES IN THIS WAVE →
+  1. Repaired `src/lib/report-smart.ts`; removed stray post-function code that could invalidate the Smart Report query module.
+  2. Added reusable `src/components/ReportSourceContext.tsx` with tenant-scoped `reportJobId + sourceHash` validation and navigation across Smart Report, Executive, Evidence, Decision, Work Center, and specialty surfaces.
+  3. Bound Executive Report, Trust/Evidence, Decision Experience, Work Center, and Liquidity to preserve the active source context instead of silently losing it.
+  4. Bound Sales, Purchases, Inventory, Receivables, and Profitability report routes to a source-specific surface when `reportJobId` is supplied; generic company-wide pages remain available only without source context.
+  5. Post-import output buttons now preserve `reportJobId + sourceHash` so navigation never drops source identity.
+  6. Smart Report catalog format eligibility expanded beyond the earlier narrow extension list to the supported report/document/image formats.
+- PRODUCT BOUNDARY → fixture reports remain acceptance evidence only. The implementation target is the generic source-analysis + canonical business-decision pipeline for supported file formats, not a fixture-specific workflow.
+- VERIFICATION → latest GitHub commit status still shows only the external Vercel build-rate-limit failure; no application PASS is claimed from that status. Authenticated Edge visual proof is still NOT PROVEN.
+- CURRENT ACTION STATUS → `IN_PROGRESS`.
+- NEXT EXACT ACTION → run exact-head typecheck/build + targeted report-surface tests through the repository's existing gates; fix the first newly reproduced compile/runtime contract only. Then verify one source-bound job across Smart → domain → evidence → decision → work-center without re-importing completed data.
+
 # CURRENT RESUME POINTER — 2026-09-30
 
 - CURRENT RESUME POINTER → `Report Smart Surface / source-bound business report`.
