@@ -239,8 +239,11 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
       signalMessage: decision.signalMessage,
       signalSeverity: decision.signalSeverity,
       department,
-    }).then(() => {
+    }).then((workItemId) => {
       setDecisionAction((current) => ({ ...current, [decision.id]: 'work-created' }));
+      setDecisions((current) => current.map((item) => item.id === decision.id
+        ? { ...item, workItemId, workItemStatus: 'OPEN' }
+        : item));
     }).catch(() => {
       setDecisionAction((current) => ({ ...current, [decision.id]: 'work-error' }));
     });
@@ -266,6 +269,12 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
                   <span className="rounded-full bg-white px-2 py-1 text-[9px] font-bold text-ink-600">{stateLabel(decision.status)}</span>
                 </div>
                 <div className="mt-1 break-all font-mono text-[8px] text-ink-400">{decision.id}</div>
+                {decision.workItemId && (
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[9px] font-bold text-primary-700">
+                    <span>Work Item: {decision.workItemStatus ?? 'OPEN'}</span>
+                    <span className="font-mono text-ink-400">{decision.workItemId}</span>
+                  </div>
+                )}
               </div>
               <div className="flex flex-wrap gap-2">
                 {decision.status === 'PROPOSED' && (
