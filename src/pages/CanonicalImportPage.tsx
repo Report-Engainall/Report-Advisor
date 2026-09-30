@@ -222,7 +222,20 @@ export function CanonicalImportPage() {
       p_result_summary: resultSummary,
       p_error_message: errorMessage ?? null,
     });
-    if (error) throw error;
+    if (!error) return;
+    if (status === 'completed' && error.message?.includes('IMPORT_JOB_ALREADY_TERMINAL')) {
+      const companyId = await resolveCurrentCompanyId();
+      if (companyId) {
+        const { data: current, error: readError } = await supabase
+          .from('import_jobs')
+          .select('status')
+          .eq('id', importJobId)
+          .eq('company_id', companyId)
+          .maybeSingle();
+        if (!readError && current?.status === 'completed') return;
+      }
+    }
+    throw error;
   };
 
   const saveAnalysis = useCallback(async () => {
