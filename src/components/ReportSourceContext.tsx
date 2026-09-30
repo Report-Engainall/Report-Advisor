@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowLeft, FileSearch, ShieldCheck } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
@@ -78,24 +78,23 @@ export function ReportSourceContext() {
     );
   }
 
-  const domain = report.specialty ? DOMAIN_PATHS[report.specialty] : null;
-  const contextLinks = useMemo(
-    () => [
-      { path: '/reports/smart/' + report.jobId, label: 'التقرير الذكي' },
-      { path: '/reports/executive', label: 'التقرير التنفيذي' },
-      { path: '/trust', label: 'الأدلة والثقة' },
-      { path: '/decision-experience?stage=evidence', label: 'مساحة القرار' },
-      { path: '/work-center', label: 'مركز العمل' },
-      ...(domain ? [{ path: domain.path, label: domain.label }] : []),
-    ].map((item) => {
-      const [pathname, query = ''] = item.path.split('?');
-      const next = new URLSearchParams(query);
-      next.set('reportJobId', report.jobId);
-      next.set('sourceHash', report.sourceHash);
-      return { ...item, href: pathname + '?' + next.toString() };
-    }),
-    [domain, report.jobId, report.sourceHash],
-  );
+  const domain = report?.specialty ? DOMAIN_PATHS[report.specialty] : null;
+  const contextLinks = report
+    ? [
+        { path: '/reports/smart/' + report.jobId, label: 'التقرير الذكي' },
+        { path: '/reports/executive', label: 'التقرير التنفيذي' },
+        { path: '/trust', label: 'الأدلة والثقة' },
+        { path: '/decision-experience?stage=evidence', label: 'مساحة القرار' },
+        { path: '/work-center', label: 'مركز العمل' },
+        ...(domain ? [{ path: domain.path, label: domain.label }] : []),
+      ].map((item) => {
+        const [pathname, query = ''] = item.path.split('?');
+        const next = new URLSearchParams(query);
+        next.set('reportJobId', report.jobId);
+        next.set('sourceHash', report.sourceHash);
+        return { ...item, href: pathname + '?' + next.toString() };
+      })
+    : [];
 
   return (
     <section dir="rtl" className="rounded-[18px] border border-primary-200 bg-primary-50/50 p-4 shadow-sm">
