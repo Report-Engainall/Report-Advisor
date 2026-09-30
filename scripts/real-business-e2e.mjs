@@ -485,6 +485,11 @@ async function proveCurrentSmartReport(page, report) {
     before.includes('بانتظار الدليل') ||
     before.includes('Pending Evidence')
   );
+  assert.ok(before.includes('ماذا استنتج النظام من هذا التقرير؟'), 'Smart Report intelligence panel missing');
+  assert.ok(before.includes('الإشارات المكتشفة'), 'Smart Report signals section missing');
+  assert.ok(before.includes('ما الذي ينصح به النظام؟'), 'Smart Report recommendations section missing');
+  assert.ok(before.includes('التنبؤ'), 'Smart Report forecast section missing');
+  assert.ok(before.includes('GUIDANCE'), 'Smart Report guidance section missing');
   await page.screenshot({ path: reportDir + '/current-report-smart-before-refresh.png', fullPage: true });
   await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
   await page.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
@@ -518,9 +523,41 @@ async function proveSourceBoundSurface(page, report, surface) {
   if (surface.label === 'trust') assert.ok(body.includes('EVIDENCE PASSPORT'));
   if (surface.label === 'decision') assert.ok(body.includes('مسار القرار لهذا التقرير فقط'));
   if (surface.label === 'work') assert.ok(body.includes('DURABLE LIFECYCLE') && body.includes('العرض'));
+  assert.ok(body.includes('ماذا استنتج النظام من هذا التقرير؟'), surface.label + ': intelligence panel missing');
+  assert.ok(body.includes('ما الذي ينصح به النظام؟'), surface.label + ': recommendations section missing');
+  assert.ok(body.includes('GUIDANCE'), surface.label + ': guidance section missing');
   if (surface.label === 'inventory') assert.ok(body.includes('SOURCE-BOUND DOMAIN ANALYSIS') && body.includes('هذه الشاشة مربوطة مباشرة بنتيجة التقرير'));
   await page.screenshot({ path: reportDir + '/current-report-' + surface.label + '.png', fullPage: true });
   evidence.steps.push({ step: 'source-bound-surface:' + surface.label, status: 'PASS', reportJobId: report.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, rowCount: CURRENT_REPORT_ROW_COUNT });
+}
+
+async function proveContextPreservedSurface(page, report, surface) {
+  const target = baseURL + surface.path;
+  const responsePromise = waitForCurrentJobResponse(page, report.reportJobId);
+  const response = await page.goto(target, { waitUntil: 'networkidle', timeout: 30000 });
+  assert.ok(response && response.status() < 400, surface.label + ': HTTP ' + (response?.status() ?? 'NO_RESPONSE'));
+  const jobResponse = await responsePromise;
+  assert.ok(jobResponse, surface.label + ': saved-context report readback missing');
+  const rows = await jobResponse.json();
+  assert.equal(rows.length, 1, surface.label + ': expected one source-bound job');
+  assert.equal(rows[0].id, report.reportJobId);
+  assert.equal(rows[0].source_hash, CURRENT_REPORT_SOURCE_HASH);
+  assert.equal(rows[0].source_path, CURRENT_REPORT_SOURCE_PATH);
+  const body = (await page.locator('body').innerText()).trim();
+  assertCurrentReportText(body, surface.label + ' saved-context');
+  assert.ok(body.includes('ماذا استنتج النظام من هذا التقرير؟'), surface.label + ': intelligence panel missing after context-only navigation');
+  assert.ok(body.includes('ما الذي ينصح به النظام؟'), surface.label + ': recommendations missing after context-only navigation');
+  assert.ok(body.includes('GUIDANCE'), surface.label + ': guidance missing after context-only navigation');
+  assert.equal(new URL(page.url()).searchParams.get('reportJobId'), null, surface.label + ': URL must not be the source of truth for saved-context navigation');
+  assert.equal(new URL(page.url()).searchParams.get('sourceHash'), null, surface.label + ': URL must not carry sourceHash for saved-context navigation');
+  evidence.steps.push({
+    step: 'saved-context-surface:' + surface.label,
+    status: 'PASS',
+    reportJobId: report.reportJobId,
+    sourceHash: CURRENT_REPORT_SOURCE_HASH,
+    rowCount: CURRENT_REPORT_ROW_COUNT,
+  });
+  await page.screenshot({ path: reportDir + '/current-report-saved-context-' + surface.label + '.png', fullPage: true });
 }
 
 async function uiSearch(page, route, placeholder, value, step) { await page.goto(`${baseURL}${route}`, { waitUntil: 'networkidle', timeout: 30000 }); const input = page.getByPlaceholder(placeholder); await input.fill(value); await page.waitForTimeout(300); await page.getByText(value, { exact: true }).first().waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step, status: 'PASS', value }); }
@@ -537,6 +574,13 @@ try {
   await proveSourceBoundSurface(pageA, currentReport, { label: 'decision', path: '/decision-experience?stage=evidence' });
   await proveSourceBoundSurface(pageA, currentReport, { label: 'work', path: '/work-center' });
   await proveSourceBoundSurface(pageA, currentReport, { label: 'inventory', path: '/reports/inventory' });
+  await pageA.goto(baseURL + '/reports/smart/' + currentReport.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
+  await pageA.reload({ waitUntil: 'networkidle', timeout: 30000 });
+  await proveContextPreservedSurface(pageA, currentReport, { label: 'executive-saved-context', path: '/reports/executive' });
+  await proveContextPreservedSurface(pageA, currentReport, { label: 'trust-saved-context', path: '/trust' });
+  await proveContextPreservedSurface(pageA, currentReport, { label: 'decision-saved-context', path: '/decision-experience?stage=evidence' });
+  await proveContextPreservedSurface(pageA, currentReport, { label: 'work-saved-context', path: '/work-center' });
+  await proveContextPreservedSurface(pageA, currentReport, { label: 'inventory-saved-context', path: '/reports/inventory' });
   await pageA.goto(baseURL + '/reports/smart/' + currentReport.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
   await pageA.reload({ waitUntil: 'networkidle', timeout: 30000 });
   assert.equal(await currentTenant(pageA), evidence.tenantA, 'CURRENT_REPORT_TENANT_CHANGED_ACROSS_REFRESH');
