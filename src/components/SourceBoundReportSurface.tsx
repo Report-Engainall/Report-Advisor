@@ -5,7 +5,7 @@ import { ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
-import { fetchSourceDecisionProposals, requestSourceDecisionApproval, type SourceDecisionState } from '@/lib/report-decisions';
+import { createApprovedDecisionWorkItemForCurrentUser, fetchSourceDecisionProposals, requestSourceDecisionApproval, type SourceDecisionState } from '@/lib/report-decisions';
 
 export type SourceBoundReportMode = 'executive' | 'trust' | 'decision' | 'work';
 
