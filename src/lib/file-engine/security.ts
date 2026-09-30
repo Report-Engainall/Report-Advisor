@@ -4,7 +4,17 @@ import { MAX_FILE_SIZE } from './types.ts';
 import { computeSHA256 } from './file-identity-core.ts';
 export { computeSHA256 } from './file-identity-core.ts';
 
-interface FileRecord { id: string; company_id: string; file_name: string; file_hash: string; created_at: string; status: string; }
+interface FileRecord {
+  id: string;
+  company_id: string;
+  file_name: string;
+  file_hash: string;
+  created_at: string;
+  status: string;
+  smart_report_job_id?: string | null;
+  smart_report_source_path?: string | null;
+  smart_report_ready?: boolean;
+}
 
 function isUnsafeArchivePath(name: string): boolean {
   const normalized = name.replaceAll('\\', '/');
@@ -82,15 +92,65 @@ export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _l
     .maybeSingle();
   if (canonicalError) throw canonicalError;
   if (canonicalCommit) {
+    const { data: existingSmartJob, error: smartJobError } = await supabase
+      .from('report_execution_jobs')
+      .select('id,source_path,evidence,status,completed_at')
+      .eq('company_id', companyId)
+      .eq('source_hash', canonicalHash)
+      .eq('status', 'completed')
+      .not('evidence->renderedOutput', 'is', null)
+      .order('completed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (smartJobError) throw smartJobError;
+    const evidence = existingSmartJob?.evidence && typeof existingSmartJob.evidence === 'object'
+      ? existingSmartJob.evidence as Record<string, unknown>
+      : null;
     return {
       isDuplicate: true,
       existing: {
         id: String(canonicalCommit.id),
         company_id: String(canonicalCommit.company_id),
-        file_name: '',
+        file_name: String(existingSmartJob?.source_path ?? ''),
         file_hash: canonicalHash,
         created_at: String(canonicalCommit.committed_at),
         status: 'committed',
+        smart_report_job_id: existingSmartJob ? String(existingSmartJob.id) : null,
+        smart_report_source_path: existingSmartJob ? String(existingSmartJob.source_path ?? '') : null,
+        smart_report_ready: Boolean((evidence?.renderedOutput as unknown) && typeof evidence?.renderedOutput === 'object'),
+      },
+    };
+  }
+
+  // A duplicate should reopen the already persisted Smart Report when one exists.
+  // This keeps "duplicate protection" from becoming a dead-end UX.
+  const { data: existingSmartJob, error: smartJobError } = await supabase
+    .from('report_execution_jobs')
+    .select('id,source_path,evidence,status,completed_at')
+    .eq('company_id', companyId)
+    .eq('source_hash', canonicalHash)
+    .eq('status', 'completed')
+    .not('evidence->renderedOutput', 'is', null)
+    .order('completed_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (smartJobError) throw smartJobError;
+  if (existingSmartJob) {
+    const evidence = existingSmartJob.evidence && typeof existingSmartJob.evidence === 'object'
+      ? existingSmartJob.evidence as Record<string, unknown>
+      : null;
+    return {
+      isDuplicate: true,
+      existing: {
+        id: String(existingSmartJob.id),
+        company_id: companyId,
+        file_name: String(existingSmartJob.source_path ?? ''),
+        file_hash: canonicalHash,
+        created_at: String(existingSmartJob.completed_at ?? new Date().toISOString()),
+        status: 'committed',
+        smart_report_job_id: String(existingSmartJob.id),
+        smart_report_source_path: String(existingSmartJob.source_path ?? ''),
+        smart_report_ready: Boolean((evidence?.renderedOutput as unknown) && typeof evidence?.renderedOutput === 'object'),
       },
     };
   }
