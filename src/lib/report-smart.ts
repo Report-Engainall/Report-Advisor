@@ -138,6 +138,18 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
     canonicalRows,
   });
 
+  const specialty = rendered.sourceSpecialty == null
+    ? inferSpecialtyFromAnalysis(sourceAnalysis)
+    : String(rendered.sourceSpecialty);
+
+  const intelligence = deriveReportIntelligence({
+    specialty,
+    rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
+    sourceAnalysis,
+    renderedOutput: rendered,
+    canonicalRows,
+  });
+
   return {
     jobId: String(job.id),
     sourcePath: path || 'مصدر غير مسمى',
