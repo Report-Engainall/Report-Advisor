@@ -11,4 +11,6 @@ assert.ok(decisions.includes("p_assignee_id: user.id"));
 assert.ok(surface.includes("createApprovedDecisionWorkItemForCurrentUser"));
 assert.ok(surface.includes("إنشاء عنصر عمل لي"));
 assert.ok(surface.includes("decision.status === 'APPROVED'"));
+assert.ok(surface.includes("workItemId"));
+assert.ok(decisions.includes("decision_work_items"));
 console.log('SOURCE_DECISION_WORK_ITEM_CONTRACT_PASS');
