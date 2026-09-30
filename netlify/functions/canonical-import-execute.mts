@@ -33,7 +33,7 @@ function reportEntityTypeFromJobKey(jobKey: string): string {
   throw new Error('REPORT_EXECUTION_ENTITY_TYPE_MISSING');
 }
 
-export default async (request: Request): Promise<Response> => {
+export async function handleCanonicalImport(request: Request): Promise<Response> {
   if (request.method !== 'POST') return json(405, { error: 'METHOD_NOT_ALLOWED' });
 
   try {
@@ -216,7 +216,7 @@ export default async (request: Request): Promise<Response> => {
 
     let execution;
     try {
-      const execution = await runCanonicalImportThroughDurableRunner(
+      execution = await runCanonicalImportThroughDurableRunner(
         {
           importId: job.id,
           fileName: fileRecord.file_name || fileName || 'import',
@@ -305,7 +305,36 @@ export default async (request: Request): Promise<Response> => {
       : 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED';
     return json(status, { error: 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED', detail });
   }
-};
+}
+
+export default async (request: Request): Promise<Response> {
+  const contentType = request.headers.get('content-type') ?? '';
+  if (contentType.includes('application/json')) {
+    const cloned = request.clone();
+    try {
+      const body = await cloned.json() as { resumeReportExecutionJobId?: string };
+      if (typeof body.resumeReportExecutionJobId === 'string' && body.resumeReportExecutionJobId.trim()) {
+        const backgroundUrl = new URL('/.netlify/functions/canonical-import-resume-background', request.url);
+        const dispatched = await fetch(backgroundUrl, {
+          method: 'POST',
+          headers: {
+            Authorization: request.headers.get('authorization') ?? '',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        });
+        if (!dispatched.ok) {
+          const detail = await dispatched.text();
+          return new Response(JSON.stringify({ error: 'CANONICAL_IMPORT_BACKGROUND_DISPATCH_FAILED', detail: detail.slice(0, 1000) }), { status: 502, headers: { 'Content-Type': 'application/json; charset=utf-8' } });
+        }
+        return new Response(JSON.stringify({ accepted: true, background: true, resumeReportExecutionJobId: body.resumeReportExecutionJobId.trim() }), { status: 202, headers: { 'Content-Type': 'application/json; charset=utf-8' } });
+      }
+    } catch {
+      // Fall through to the canonical synchronous handler for malformed/non-resume requests.
+    }
+  }
+  return handleCanonicalImport(request);
+}
 
 export const config = {
   path: '/api/canonical-import-execute',
