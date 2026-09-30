@@ -210,6 +210,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
   const [decisions, setDecisions] = useState<SourceDecisionState[]>([]);
   const [decisionAction, setDecisionAction] = useState<Record<string, string>>({});
   const [actualImpact, setActualImpact] = useState<Record<string, string>>({});
+  const [workDueAt, setWorkDueAt] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let active = true;
@@ -240,6 +241,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
       signalMessage: decision.signalMessage,
       signalSeverity: decision.signalSeverity,
       department,
+      dueAt: workDueAt[decision.id] ? new Date(workDueAt[decision.id]).toISOString() : null,
     }).then((workItemId) => {
       setDecisionAction((current) => ({ ...current, [decision.id]: 'work-created' }));
       setDecisions((current) => current.map((item) => item.id === decision.id
@@ -351,9 +353,21 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
                   )}
 
                   {decision.status === 'APPROVED' && !decision.workItemId && (
-                    <button type="button" disabled={decisionAction[decision.id] === 'creating-work'} onClick={() => createWorkItem(decision)} className="btn-primary text-[10px] disabled:opacity-50">
-                      {decisionAction[decision.id] === 'creating-work' ? 'جارٍ إنشاء عنصر العمل...' : 'إنشاء عنصر عمل لي'}
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <label className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-ink-200 bg-white px-2.5 text-[9px] font-bold text-ink-600">
+                        الموعد
+                        <input
+                          type="date"
+                          value={workDueAt[decision.id] ?? ''}
+                          onChange={(event) => setWorkDueAt((current) => ({ ...current, [decision.id]: event.target.value }))}
+                          className="bg-transparent outline-none"
+                          aria-label="موعد عنصر العمل"
+                        />
+                      </label>
+                      <button type="button" disabled={decisionAction[decision.id] === 'creating-work'} onClick={() => createWorkItem(decision)} className="btn-primary text-[10px] disabled:opacity-50">
+                        {decisionAction[decision.id] === 'creating-work' ? 'جارٍ إنشاء عنصر العمل...' : 'إنشاء عنصر عمل لي'}
+                      </button>
+                    </div>
                   )}
 
                   {decision.workItemStatus === 'OPEN' && decision.workItemId && (
