@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ReportExecutionStage } from '../report-execution/checkpoint';
-import { SupabaseReportExecutionStore } from '../report-execution/durable-worker-adapter';
+import { SupabaseReportExecutionStore } from '../report-execution/durable-worker-adapter.ts';
 import { runDurableProductionLifecycle } from '../report-execution/durable-production-runner';
 import type { CanonicalImportEntityType, ReconciledCanonicalImportRow } from './canonical-truth-boundary';
 import { commitImportBatch } from './canonical-commit';
