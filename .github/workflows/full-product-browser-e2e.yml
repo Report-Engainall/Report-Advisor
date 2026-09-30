@@ -16,6 +16,7 @@ on:
       - 'src/lib/semantic-metric-service.ts'
       - 'src/lib/semantic-metric-registry.ts'
       - 'src/lib/semanticMetrics.ts'
+      - 'src/lib/import/canonical-production-adapter.ts'
       - 'src/pages/MetricInspectorPage.tsx'
       - 'src/lib/queries.ts'
       - 'src/components/ui/DataTable.tsx'
