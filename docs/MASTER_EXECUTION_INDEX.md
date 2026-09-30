@@ -417,3 +417,23 @@ This closes the first meaningful path from report intelligence to operational fo
 Runtime release is still OPEN; current-head browser/deployment proof remains external/unobserved.
 
 NEXT EXACT ACTION: continue the commercial operating layer on the same governed path: approval/work-item UX and collaboration around decision_work_items, then connect outcome/learning/benchmark to the same source-bound decision identity.
+
+
+## LIVE CHECKPOINT — 2026-09-30 / SOURCE DECISION + APPROVAL UX / HEAD cf58b30
+
+Commercial operating layer now spans:
+1. report intelligence signal;
+2. governed PROPOSED decision persisted by the existing create_runtime_decision RPC;
+3. source-bound decision listing on the report's Decision surface;
+4. governed approval request through request_decision_approval;
+5. explicit boundary that Work Item creation still requires an approved decision and is not auto-created.
+
+The decision identity is deterministic on tenant + source hash + signal ID. Evidence retains report Job ID, source hash, signal metadata and source evidence references. The UI never labels a proposal as executed work.
+
+Contracts: source decision proposal + source decision approval tests are in release core and watched by the canonical E2E workflow.
+
+Core product foundation already added in this wave: canonical-row Report Workspace, saved views, search/sort/column control, CSV export, Row Inspector, source-bound work/decision navigation, contradiction intelligence, PDF visual-cell preservation and 120-page OCR boundary with server fail-closed behavior.
+
+Runtime release remains OPEN; exact current-head browser/deployment proof is still unobserved.
+
+NEXT EXACT ACTION: connect approved decision_work_items to a source-bound Work Center view, then bind outcome/learning back to the same decision identity.
