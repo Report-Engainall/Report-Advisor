@@ -214,24 +214,30 @@ export default async (request: Request): Promise<Response> => {
       .eq('company_id', companyId);
     if (jobUpdateError) throw jobUpdateError;
 
-    const execution = await runCanonicalImportThroughDurableRunner(
-      {
-        importId: job.id,
-        fileName: fileRecord.file_name || payload.fileName || 'import',
-        sourceHash: sourceSha,
-        entityType,
-        rows: reconciled.rows,
-        qualityScore: authoritativeQualityScore,
-        qualityApproved: resumeReportExecutionJobId ? true : payload.qualityApproved === true,
-      },
-      {
-        serverExecution: true,
-        workerClient: serviceClient,
-        dataClient: userClient,
-        companyId: String(companyId),
-        requestedBy: userData.user.id,
-      },
-    );
+    let execution;
+    try {
+      const execution = await runCanonicalImportThroughDurableRunner(
+        {
+          importId: job.id,
+          fileName: fileRecord.file_name || payload.fileName || 'import',
+          sourceHash: sourceSha,
+          entityType,
+          rows: reconciled.rows,
+          qualityScore: authoritativeQualityScore,
+          qualityApproved: resumeReportExecutionJobId ? true : payload.qualityApproved === true,
+        },
+        {
+          serverExecution: true,
+          workerClient: serviceClient,
+          dataClient: userClient,
+          companyId: String(companyId),
+          requestedBy: userData.user.id,
+        },
+      );
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new Error(`CANONICAL_IMPORT_DURABLE_RUN_FAILED:${entityType}:${job.id}:${detail}`);
+    }
 
     let snapshotId: string | null = null;
     try {
@@ -293,7 +299,8 @@ export default async (request: Request): Promise<Response> => {
     const message = error instanceof Error ? error.message : 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED';
     console.error('[canonical-import-execute] failed', error);
     const status = message.startsWith('NETLIFY_ENV_MISSING') ? 503 : 400;
-    const detail = process.env.REPORT_ADVISOR_E2E_DEBUG === '1'
+    const debugEnabled = Netlify.env.get('REPORT_ADVISOR_E2E_DEBUG') === '1';
+    const detail = debugEnabled
       ? message.slice(0, 512)
       : 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED';
     return json(status, { error: 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED', detail });
