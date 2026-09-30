@@ -14,5 +14,7 @@ assert.ok(source.includes('selectedRowNumber'));
 assert.ok(source.includes('groupedRows'));
 assert.ok(source.includes('GROUPED ANALYSIS'));
 assert.ok(source.includes('aggregateColumn'));
+assert.ok(source.includes('downloadReportArtifact'));
+assert.ok(source.includes("'xlsx'"));
 assert.ok(!source.includes('const workspaceRows = previewRows'));
 console.log('SOURCE_REPORT_WORKSPACE_CONTRACT_PASS');
