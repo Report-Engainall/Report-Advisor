@@ -240,3 +240,19 @@
 - NEXT EXACT ACTION → consume current-SHA CI, then complete hosted/browser proof without re-import.
 
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / HOSTED RUNTIME BLOCKER RECONCILED / b3e7904f4c521acec1d8312f8557b99ffda319df
+
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / PERSISTED REPORT BROWSER ACCEPTANCE CLOSED ON CODE CANDIDATE / c2568e18bdb70ca7b9cfc65ae6bc62511d90f6ac
+
+- SOURCE REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`.
+- SOURCE HASH → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REPORT JOB → `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`.
+- BROWSER PROOF CODE SHA → `9d671da62763345693174a6a5fa4a47397382342`.
+- REAL CHROMIUM RUN → Full Product Browser E2E `36679770124` / `6264` SUCCESS with exact checkout, build, preview, authenticated route proof, persisted-report business journey, fail-closed gate and artifact upload.
+- REPORT PROOF → job completed/rendered; 9/9 durable tasks completed; 735 source rows; 735 authoritative canonical rows; 735 canonical commit; analysis 735 × 7; quality 87; trust `TRUSTED`; evidence `AWAITING_EVIDENCE_SNAPSHOT`.
+- SOURCE-BOUND BROWSER PROOF → Smart Report plus Executive, Trust/Evidence, Decision, Work Center and Inventory surfaces all read the same `reportJobId` and `sourceHash`; refresh/readback preserved the exact source-bound state.
+- TENANT PROOF → Tenant B could not read Tenant A report job, canonical row, source history, Smart Report or report catalog entry for this source.
+- REPRODUCIBILITY FIX → Playwright `1.63.0` moved to `devDependencies` + `package-lock.json`; workflow now relies on `npm ci` and does not install Playwright ad hoc.
+- NO-REPEAT → no re-import, no canonical rewrite, no evidence promotion, no fake auth/JWT, no parallel importer/framework.
+- ARTIFACT → `full-product-browser-proof-36679770124`, 44 files, artifact `11081267824`, digest `sha256:043d59685f11f25c2289063aaa946be712d5c9da4d6af3656b4279a1715f0666`.
+- ACTION STATUS → persisted report Browser acceptance proven at code SHA `9d671da62763345693174a6a5fa4a47397382342`. This documentation commit is the next exact-head checkpoint; consume its triggered exact-head Browser E2E before final release closure.
+- NEXT EXACT ACTION → read back the resulting exact SHA and its Browser E2E result/artifacts. No re-import.
