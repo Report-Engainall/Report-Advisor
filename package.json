@@ -156,6 +156,7 @@
     "test:report-intelligence-inventory-grain": "node --experimental-strip-types scripts/report-intelligence-inventory-grain.test.ts",
     "test:document-intelligence-lines": "node --experimental-strip-types scripts/document-intelligence-lines.test.ts",
     "test:server-source-authority": "node scripts/check-server-source-authority-contract.mjs",
-    "test:release-core": "npm run typecheck && npm run test:server-source-authority && npm run test:pdf-visual-line-fallback && npm run test:report-intelligence-inventory-grain && npm run test:document-intelligence-lines"
+    "test:release-core": "npm run typecheck && npm run test:server-source-authority && npm run test:pdf-visual-line-fallback && npm run test:report-intelligence-inventory-grain && npm run test:document-intelligence-lines && npm run test:report-intelligence-contradictions",
+    "test:report-intelligence-contradictions": "tsx scripts/report-intelligence-contradictions.test.ts"
   }
 }
