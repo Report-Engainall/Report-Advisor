@@ -8,7 +8,7 @@ const navigationPaths = [...navigationRegistry.matchAll(/path:\s*'([^']+)'/g)].m
 
 const routeSet = new Set(routePaths);
 const navigationSet = new Set(navigationPaths);
-const intentionallyHiddenRoutes = new Set(['/proposal-demo']);
+const intentionallyHiddenRoutes = new Set(['/proposal-demo', '/reports/smart/:jobId']);
 const missingFromApp = navigationPaths.filter((path) => !routeSet.has(path));
 const missingFromSidebar = routePaths.filter((path) => path !== '*' && !navigationSet.has(path) && !intentionallyHiddenRoutes.has(path));
 
