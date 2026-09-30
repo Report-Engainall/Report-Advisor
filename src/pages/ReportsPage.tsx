@@ -41,6 +41,7 @@ function useOptionalSourceReport() {
   const [params] = useSearchParams();
   const saved = readActiveReportContext();
   const jobId = params.get('reportJobId')?.trim() || saved?.jobId || '';
+  const expectedSourceHash = params.get('sourceHash')?.trim() || saved?.sourceHash || '';
   const [report, setReport] = useState<SmartReportDetail | null>(null);
   const [loading, setLoading] = useState(Boolean(jobId));
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +61,9 @@ function useOptionalSourceReport() {
     try {
       const next = await fetchSmartReport(jobId);
       if (version !== requestVersion.current) return;
+      if (next && expectedSourceHash && next.sourceHash !== expectedSourceHash) {
+        throw new Error('REPORT_SOURCE_HASH_MISMATCH');
+      }
       setReport(next);
       if (next) saveActiveReportContext({ jobId: next.jobId, sourceHash: next.sourceHash });
     } catch (cause) {
@@ -68,7 +72,7 @@ function useOptionalSourceReport() {
     } finally {
       if (version === requestVersion.current) setLoading(false);
     }
-  }, [jobId]);
+  }, [jobId, expectedSourceHash]);
 
   useEffect(() => {
     void load();
@@ -97,6 +101,11 @@ function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report
   const objectDataset = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : {};
   const columns = Array.isArray(objectDataset.columns) ? objectDataset.columns : [];
   const preview = Array.isArray(objectDataset.preview) ? objectDataset.preview.filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === 'object').slice(0, 12) : [];
+  const fullRows = report.canonicalRows
+    .filter((row) => row && row.data && typeof row.data === 'object')
+    .map((row) => row.data);
+  const analyzedRows = report.rowCount == null ? fullRows.length : report.rowCount;
+  const fullSourceCoverage = report.rowCount == null ? true : fullRows.length >= report.rowCount;
   const amount = sourceValue(columns, 'outstanding_balance', 'local_amount', 'total_amount', 'net_amount', 'total', 'amount', 'value', 'sales', 'purchase');
   const quantity = sourceValue(columns, 'quantity', 'qty', 'current_stock', 'stock');
   const profit = sourceValue(columns, 'profit', 'gross_profit');
@@ -106,9 +115,10 @@ function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report
   const paid = sourceValue(columns, 'paid_amount', 'paid');
   const nameColumn = sourceValue(columns, 'customer_name', 'customer', 'supplier_name', 'supplier', 'product_name', 'product', 'item', 'name');
   const metricColumns = [amount, quantity, profit, margin, age120, age30, paid].filter(Boolean);
-  const rows = preview.map((row) => {
+  const rows = fullRows.map((row) => {
     const name = String(row[nameColumn?.name ?? ''] ?? row.name ?? 'غير مسمى');
-    const value = Number(row[amount?.name ?? ''] ?? row[quantity?.name ?? ''] ?? row[profit?.name ?? ''] ?? row[margin?.name ?? '']);
+    const raw = row[amount?.name ?? ''] ?? row[quantity?.name ?? ''] ?? row[profit?.name ?? ''] ?? row[margin?.name ?? ''];
+    const value = typeof raw === 'number' ? raw : Number(String(raw ?? '').replace(/,/g, ''));
     return { name, value: Number.isFinite(value) ? value : null };
   }).filter((row) => row.value != null).sort((a, b) => Number(b.value) - Number(a.value)).slice(0, 8);
   const actualMatches = report.specialty === expectedSpecialty;
@@ -131,7 +141,12 @@ function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report
       <div className="section-kicker">SOURCE-BOUND DOMAIN ANALYSIS</div>
       <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
         <h2 className="text-xl font-black text-ink-950">{actualMatches ? 'التحليل المتخصص من المصدر' : 'التحليل العام للمصدر'}</h2>
-        <span className="text-[10px] text-ink-500">{formatNumber(report.rowCount ?? 0)} صف · {columns.length} أعمدة</span>
+        <span className="text-[10px] text-ink-500">{formatNumber(report.rowCount ?? 0)} صف · {columns.length} أعمدة · محلل فعليًا: {formatNumber(analyzedRows)}</span>
+      </div>
+      <div className={`mt-3 rounded-xl border p-3 text-[11px] ${fullSourceCoverage ? 'border-success-200 bg-success-50 text-success-900' : 'border-warning-200 bg-warning-50 text-warning-900'}`}>
+        {fullSourceCoverage
+          ? 'التحليل المتخصص يستخدم مجموعة الصفوف الكانونية الكاملة لهذا التقرير، وليس معاينة الشاشة.'
+          : 'التحليل المتخصص غير مكتمل لهذا المصدر؛ لن تُرفع الاستنتاجات إلى حقيقة كاملة.'}
       </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {(metricColumns.slice(0,4).length ? metricColumns.slice(0,4) : [{name:'metric'} as any]).map((column:any,index:number) => {
@@ -157,7 +172,7 @@ function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report
         </div>
       </CardBody></Card>
     </section>
-    <Card><CardHeader title="معاينة المصدر" subtitle="صفوف حقيقية من source_analysis_snapshots؛ لا تُستخدم وحدها كحقيقة مالية نهائية."/><CardBody>
+    <Card><CardHeader title="معاينة المصدر" subtitle={`تعرض ${formatNumber(preview.length)} صفوف للمعاينة فقط؛ التحليل أعلاه مبني على ${formatNumber(analyzedRows)} صفًا كانونـيًا.`}/><CardBody>
       {preview.length ? <div className="overflow-x-auto"><table className="min-w-full text-xs"><thead><tr className="border-b border-ink-100">{Object.keys(preview[0]).slice(0,8).map((key)=><th key={key} className="p-2 text-right">{key}</th>)}</tr></thead><tbody>{preview.map((row,index)=><tr key={index} className="border-b border-ink-50">{Object.keys(preview[0]).slice(0,8).map((key)=><td key={key} className="p-2">{String(row[key] ?? '—')}</td>)}</tr>)}</tbody></table></div> : <div className="text-sm text-ink-500">لا توجد معاينة مثبتة لهذا المصدر.</div>}
     </CardBody></Card>
   </div>;
