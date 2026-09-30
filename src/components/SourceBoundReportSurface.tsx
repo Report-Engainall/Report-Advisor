@@ -94,7 +94,9 @@ function SourceHeader({ report }: { report: SmartReportDetail }) {
           <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-ink-600">
             <span>التخصص: {report.specialty ?? 'عام'}</span>
             <span>•</span>
-            <span>الصفوف: {report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</span>
+            <span>الصفوف المصدرية: {report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</span>
+            <span>•</span>
+            <span>الصفوف المعتمدة: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)}</span>
             <span>•</span>
             <span>الجودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</span>
             <span>•</span>
@@ -179,7 +181,10 @@ function TrustMode({ report }: { report: SmartReportDetail }) {
           <div className="text-[9px] font-black tracking-[.12em] text-primary-700">EVIDENCE BOUNDARY</div>
           <h2 className="mt-1 text-xl font-black">ما الذي ثبت وما الذي لم يثبت؟</h2>
           <div className="mt-4 space-y-2">
-            <div className={`rounded-xl border p-3 text-xs ${report.canonicalCommitVerified ? 'border-success-200 bg-success-50' : 'border-warning-200 bg-warning-50 text-warning-900'}`}>{report.canonicalCommitVerified ? `الاعتماد الكانوني مثبت: ${formatNumber(report.canonicalCommitCount)} سجل.` : 'الاعتماد الكانوني غير مثبت لهذا المصدر؛ لا تُرفع الثقة بالاستنتاج.'}</div>
+            <div className={`rounded-xl border p-3 text-xs ${report.canonicalCommitVerified ? 'border-success-200 bg-success-50' : 'border-warning-200 bg-warning-50 text-warning-900'}`}>
+              {report.canonicalCommitVerified ? `الاعتماد الكانوني مثبت: ${formatNumber(report.canonicalCommitCount)} سجل.` : 'الاعتماد الكانوني غير مثبت لهذا المصدر؛ لا تُرفع الثقة بالاستنتاج.'}
+              {report.canonicalCommitGap != null && report.canonicalCommitGap > 0 && <span className="mr-2 font-bold text-warning-900">فجوة الاعتماد: {formatNumber(report.canonicalCommitGap)} صف.</span>}
+            </div>
             <div className="rounded-xl border border-warning-200 bg-warning-50 p-3 text-xs text-warning-900">وجود المصدر وحده لا يعني وجود قرار أو تنفيذ أو نتيجة لاحقة.</div>
             <div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">Benchmark: {stateLabel(report.renderedOutput.benchmarkStatus)} — لا يتم اختلاق مقارنة عند نقص العينة.</div>
           </div>
