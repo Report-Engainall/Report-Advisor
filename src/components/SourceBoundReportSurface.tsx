@@ -5,6 +5,7 @@ import { ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
+import { fetchSourceDecisionProposals, requestSourceDecisionApproval, type SourceDecisionState } from '@/lib/report-decisions';
 
 export type SourceBoundReportMode = 'executive' | 'trust' | 'decision' | 'work';
 
@@ -151,7 +152,40 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
         </div>
       </section>
       <ReportIntelligencePanel report={report} />
-            <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
+
+      <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">GOVERNED DECISIONS</div>
+            <h2 className="mt-1 text-lg font-black text-ink-950">القرارات المقترحة المرتبطة بهذا المصدر</h2>
+            <p className="mt-1 text-[10px] leading-5 text-ink-500">الحفظ هنا ينشئ قرارًا مقترحًا فقط. طلب الموافقة يمر عبر الـRPC الحاكم؛ لا يتم إنشاء Work Item أو تنفيذ تلقائيًا.</p>
+          </div>
+          <span className="rounded-full bg-ink-50 px-2.5 py-1 text-[9px] font-black text-ink-600">{formatNumber(decisions.length)}</span>
+        </div>
+        <div className="mt-4 space-y-2">
+          {decisions.length ? decisions.map((decision) => (
+            <div key={decision.id} className="flex flex-col gap-3 rounded-xl border border-ink-200 bg-ink-50/70 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-black text-ink-900">{decision.signalTitle ?? decision.decisionKey}</span>
+                  <span className="rounded-full bg-white px-2 py-1 text-[9px] font-bold text-ink-600">{stateLabel(decision.status)}</span>
+                </div>
+                <div className="mt-1 break-all font-mono text-[8px] text-ink-400">{decision.id}</div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {decision.status === 'PROPOSED' && (
+                  <button type="button" disabled={decisionAction[decision.id] === 'saving'} onClick={() => requestApproval(decision)} className="btn-primary text-[10px] disabled:opacity-50">
+                    {decisionAction[decision.id] === 'saving' ? 'جارٍ طلب الموافقة...' : decisionAction[decision.id] === 'requested' ? 'تم طلب الموافقة' : 'طلب الموافقة'}
+                  </button>
+                )}
+                {decisionAction[decision.id] === 'error' && <span className="self-center text-[9px] font-bold text-danger-700">تعذر طلب الموافقة؛ الصلاحية أو حالة القرار تحتاج مراجعة.</span>}
+              </div>
+            </div>
+          )) : <div className="rounded-xl border border-ink-200 bg-ink-50 p-4 text-[10px] text-ink-600">لا توجد قرارات مصدرية محفوظة بعد لهذا المصدر.</div>}
+        </div>
+      </section>
+
+      <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="text-[9px] font-black tracking-[.12em] text-primary-700">SOURCE METRICS</div>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {metrics.length ? metrics.map((metric) => <div key={metric.label} className="rounded-xl bg-ink-50 p-3"><div className="text-[10px] text-ink-500">{metric.label}</div><div className="mt-1 text-base font-black">{/amount|price|total|value|cost|sales|paid|balance|revenue|profit|ربح|قيمة|سعر|مبلغ/i.test(metric.label) ? formatCurrency(metric.value) : formatNumber(metric.value)}</div></div>) : <div className="rounded-xl border border-warning-200 bg-warning-50 p-4 text-xs text-warning-900">لا توجد قيمة رقمية كافية للعرض من المصدر الحالي.</div>}
@@ -205,6 +239,32 @@ function TrustMode({ report }: { report: SmartReportDetail }) {
 
 function DecisionMode({ report }: { report: SmartReportDetail }) {
   const output = report.renderedOutput;
+  const [decisions, setDecisions] = useState<SourceDecisionState[]>([]);
+  const [decisionAction, setDecisionAction] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    let active = true;
+    void fetchSourceDecisionProposals(report.sourceHash).then((rows) => {
+      if (active) setDecisions(rows);
+    }).catch(() => {
+      if (active) setDecisions([]);
+    });
+    return () => { active = false; };
+  }, [report.sourceHash]);
+
+  const requestApproval = (decision: SourceDecisionState) => {
+    setDecisionAction((current) => ({ ...current, [decision.id]: 'saving' }));
+    void requestSourceDecisionApproval(
+      decision.id,
+      'طلب موافقة على قرار مقترح مرتبط بتقرير مصدر محدد؛ لا يعني الطلب أن التنفيذ حدث.',
+    ).then(() => {
+      setDecisionAction((current) => ({ ...current, [decision.id]: 'requested' }));
+      setDecisions((current) => current.map((item) => item.id === decision.id ? { ...item, status: 'PENDING_APPROVAL' } : item));
+    }).catch(() => {
+      setDecisionAction((current) => ({ ...current, [decision.id]: 'error' }));
+    });
+  };
+
   return (
     <>
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
