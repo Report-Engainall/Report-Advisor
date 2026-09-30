@@ -1,6 +1,5 @@
-﻿name: Full Product Browser E2E
+name: Full Product Browser E2E
 
-# Exact-head browser discovery gate. Push and PR triggers remain narrowly scoped to E2E/runtime surfaces.
 on:
   push:
     paths:
@@ -8,7 +7,6 @@ on:
       - 'scripts/real-business-e2e.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
-      - 'src/pages/**'
       - 'src/pages/**'
       - 'src/lib/dashboard-canonical.ts'
       - 'src/lib/kpi-evidence.ts'
@@ -18,6 +16,8 @@ on:
       - 'src/pages/MetricInspectorPage.tsx'
       - 'src/lib/queries.ts'
       - 'src/components/ui/DataTable.tsx'
+      - 'src/index.css'
+      - 'docs/METRIC_TRUTH_OWNERSHIP.md'
       - 'docs/MASTER_EXECUTION_INDEX.md'
       - 'E2E_FAILURE_LEDGER.md'
       - 'E2E_PRODUCT_GAP_LEDGER.md'
@@ -31,6 +31,7 @@ on:
       - 'scripts/real-business-e2e.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
+      - 'src/pages/**'
       - 'src/lib/dashboard-canonical.ts'
       - 'src/lib/kpi-evidence.ts'
       - 'src/lib/semantic-metric-service.ts'
@@ -39,6 +40,8 @@ on:
       - 'src/pages/MetricInspectorPage.tsx'
       - 'src/lib/queries.ts'
       - 'src/components/ui/DataTable.tsx'
+      - 'src/index.css'
+      - 'docs/METRIC_TRUTH_OWNERSHIP.md'
       - 'E2E_FAILURE_LEDGER.md'
       - 'E2E_PRODUCT_GAP_LEDGER.md'
       - 'supabase/migrations/**'
@@ -62,6 +65,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+
       - name: Verify exact checkout
         shell: bash
         run: |
@@ -70,3 +74,118 @@ jobs:
           expected="${EXACT_HEAD}"
           test "$actual" = "$expected"
           test -z "$(git status --porcelain)"
+          printf 'EXACT_HEAD=%s\n' "$actual" | tee exact-head.txt
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install application dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install deterministic Playwright runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save --package-lock=false playwright@1.63.0
+          test "$(node -p "require('playwright/package.json').version")" = "1.63.0"
+          npx playwright install --with-deps chromium
+          npx playwright --version
+
+      - name: Build exact SHA
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${EXACT_HEAD}"
+          npm run build
+
+      - name: Start exact preview
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/e2e-browser artifacts/e2e-business
+          nohup npm run preview -- --host 127.0.0.1 --port 4173 > artifacts/e2e-browser/preview.log 2>&1 &
+          echo $! > artifacts/e2e-browser/preview.pid
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:4173/ >/tmp/report-advisor-preview.html; then
+              test -s /tmp/report-advisor-preview.html
+              exit 0
+            fi
+            sleep 1
+          done
+          cat artifacts/e2e-browser/preview.log
+          exit 1
+
+      - name: Real Chromium route and authenticated browser proof
+        env:
+          EXACT_HEAD: ${{ env.EXACT_HEAD }}
+          E2E_BASE_URL: http://127.0.0.1:4173
+          E2E_REPORT_DIR: artifacts/e2e-browser
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.TEST_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.TEST_USER_A_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.TEST_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.TEST_USER_B_PASSWORD }}
+        run: node scripts/run-full-product-browser-e2e.mjs
+
+      - name: Real Chromium business journey and smart report proof
+        env:
+          EXACT_HEAD: ${{ env.EXACT_HEAD }}
+          E2E_BASE_URL: http://127.0.0.1:4173
+          E2E_REPORT_DIR: artifacts/e2e-business
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.TEST_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.TEST_USER_A_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.TEST_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.TEST_USER_B_PASSWORD }}
+        run: node scripts/real-business-e2e.mjs
+
+      - name: Fail closed on browser evidence
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('node:fs');
+          const files = ['artifacts/e2e-browser/result.json', 'artifacts/e2e-business/result.json'];
+          const failures = [];
+          for (const file of files) {
+            if (!fs.existsSync(file)) {
+              failures.push(file + ': RESULT_JSON_MISSING');
+              continue;
+            }
+            const result = JSON.parse(fs.readFileSync(file, 'utf8'));
+            if (result.exactHead !== process.env.EXACT_HEAD) failures.push(file + ': EXACT_HEAD_MISMATCH');
+            if (result.status !== 'PASS') failures.push(file + ': STATUS=' + (result.status || 'UNKNOWN'));
+            const items = [
+              ...(Array.isArray(result.findings) ? result.findings : []),
+              ...(Array.isArray(result.steps) ? result.steps : []),
+            ];
+            const blocked = items.filter(item => ['FAIL','NOT_PROVEN','BLOCKED'].includes(item.status));
+            if (blocked.length) failures.push(file + ': UNRESOLVED_BROWSER_FINDINGS=' + blocked.length);
+          }
+          if (failures.length) {
+            console.error(failures.join('\n'));
+            process.exit(1);
+          }
+          console.log('BROWSER_PROOF_GATE=PASS');
+          NODE
+
+      - name: Upload browser proof artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-product-browser-proof-${{ github.run_id }}
+          if-no-files-found: error
+          path: |
+            exact-head.txt
+            artifacts/e2e-browser/**
+            artifacts/e2e-business/**
