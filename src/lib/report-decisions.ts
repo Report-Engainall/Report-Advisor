@@ -83,3 +83,51 @@ export async function createSourceDecisionProposal(input: {
     decisionKey,
   };
 }
+
+
+export type SourceDecisionState = SourceDecisionProposal & {
+  signalId: string | null;
+  signalTitle: string | null;
+  createdAt: string | null;
+  approvedAt: string | null;
+  approvedBy: string | null;
+};
+
+export async function fetchSourceDecisionProposals(sourceHash: string): Promise<SourceDecisionState[]> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const { data, error } = await supabase
+    .from('business_intelligence_decisions')
+    .select('id,decision_key,status,created_at,approved_at,approved_by,evidence')
+    .eq('company_id', companyId)
+    .like('decision_key', 'source-intelligence:' + sourceHash + ':%')
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => {
+    const evidence = row.evidence && typeof row.evidence === 'object'
+      ? row.evidence as Record<string, unknown>
+      : {};
+    return {
+      id: String(row.id),
+      status: String(row.status ?? 'PROPOSED'),
+      decisionKey: String(row.decision_key),
+      signalId: evidence.signalId == null ? null : String(evidence.signalId),
+      signalTitle: evidence.signalTitle == null ? null : String(evidence.signalTitle),
+      createdAt: row.created_at == null ? null : String(row.created_at),
+      approvedAt: row.approved_at == null ? null : String(row.approved_at),
+      approvedBy: row.approved_by == null ? null : String(row.approved_by),
+    };
+  });
+}
+
+export async function requestSourceDecisionApproval(decisionId: string, reason: string): Promise<string> {
+  const { data, error } = await supabase.rpc('request_decision_approval', {
+    p_decision_id: decisionId,
+    p_reason: reason,
+  });
+  if (error) throw error;
+  return String(data);
+}
