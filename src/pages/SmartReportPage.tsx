@@ -221,6 +221,11 @@ function SourceDataWorkspace({ report }: { report: SmartReportDetail }) {
     return [...new Set([...fromDefinition, ...fromRows])];
   }, [definitionColumns, rows]);
 
+  const numericColumns = useMemo(() => discoveredColumns.filter((column) => {
+    const values = rows.slice(0, 200).map((row) => numberValue(row[column])).filter((value): value is number => value != null);
+    return values.length >= 3;
+  }), [discoveredColumns, rows]);
+
   const storageKey = 'aghbari.report-view.' + report.sourceHash;
   const [search, setSearch] = useState('');
   const [sortColumn, setSortColumn] = useState(discoveredColumns[0] ?? '');
@@ -229,6 +234,8 @@ function SourceDataWorkspace({ report }: { report: SmartReportDetail }) {
   const [page, setPage] = useState(0);
   const [showColumns, setShowColumns] = useState(false);
   const [selectedRowNumber, setSelectedRowNumber] = useState<number | null>(null);
+  const [groupColumn, setGroupColumn] = useState('');
+  const [aggregateColumn, setAggregateColumn] = useState('');
   const [visibleColumns, setVisibleColumns] = useState<string[]>(discoveredColumns.slice(0, 8));
 
   useEffect(() => {
@@ -251,6 +258,8 @@ function SourceDataWorkspace({ report }: { report: SmartReportDetail }) {
       setSortColumn(savedSort);
       setSortDirection(saved.sortDirection === 'desc' ? 'desc' : 'asc');
       setPageSize([25, 50, 100].includes(Number(saved.pageSize)) ? Number(saved.pageSize) : 50);
+      setGroupColumn(typeof saved.groupColumn === 'string' && discoveredColumns.includes(saved.groupColumn) ? saved.groupColumn : '');
+      setAggregateColumn(typeof saved.aggregateColumn === 'string' && numericColumns.includes(saved.aggregateColumn) ? saved.aggregateColumn : (numericColumns[0] ?? ''));
     } catch {
       setSortColumn(discoveredColumns[0]);
       setVisibleColumns(discoveredColumns.slice(0, 8));
@@ -279,17 +288,33 @@ function SourceDataWorkspace({ report }: { report: SmartReportDetail }) {
     });
   }, [filteredRows, sortColumn, sortDirection]);
 
+  const groupedRows = useMemo(() => {
+    if (!groupColumn || !aggregateColumn) return [];
+    const groups = new Map<string, { key: string; count: number; sum: number }>();
+    for (const row of filteredRows) {
+      const key = String(row[groupColumn] ?? 'غير محدد').trim() || 'غير محدد';
+      const value = numberValue(row[aggregateColumn]);
+      const current = groups.get(key) ?? { key, count: 0, sum: 0 };
+      current.count += 1;
+      if (value != null) current.sum += value;
+      groups.set(key, current);
+    }
+    return [...groups.values()].sort((a, b) => b.sum - a.sum).slice(0, 50);
+  }, [filteredRows, groupColumn, aggregateColumn]);
+
   const pageCount = Math.max(1, Math.ceil(orderedRows.length / pageSize));
   const safePage = Math.min(page, pageCount - 1);
   const visibleRows = orderedRows.slice(safePage * pageSize, (safePage + 1) * pageSize);
 
-  const persistView = () => window.localStorage.setItem(storageKey, JSON.stringify({ visibleColumns, sortColumn, sortDirection, pageSize, savedAt: Date.now() }));
+  const persistView = () => window.localStorage.setItem(storageKey, JSON.stringify({ visibleColumns, sortColumn, sortDirection, pageSize, groupColumn, aggregateColumn, savedAt: Date.now() }));
   const resetView = () => {
     setSearch('');
     setSortColumn(discoveredColumns[0] ?? '');
     setSortDirection('asc');
     setPageSize(50);
     setPage(0);
+    setGroupColumn('');
+    setAggregateColumn(numericColumns[0] ?? '');
     setVisibleColumns(discoveredColumns.slice(0, 8));
     window.localStorage.removeItem(storageKey);
   };
@@ -341,10 +366,46 @@ function SourceDataWorkspace({ report }: { report: SmartReportDetail }) {
         </label>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <label className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-ink-200 bg-ink-50 px-3 text-[10px] font-bold text-ink-600">
+          تجميع
+          <select value={groupColumn} onChange={(event) => setGroupColumn(event.target.value)} className="bg-transparent outline-none">
+            <option value="">بدون تجميع</option>
+            {discoveredColumns.map((column) => <option key={column} value={column}>{column}</option>)}
+          </select>
+        </label>
+        {groupColumn && (
+          <label className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-ink-200 bg-ink-50 px-3 text-[10px] font-bold text-ink-600">
+            التجميع المالي
+            <select value={aggregateColumn} onChange={(event) => setAggregateColumn(event.target.value)} className="bg-transparent outline-none">
+              {numericColumns.map((column) => <option key={column} value={column}>{column}</option>)}
+            </select>
+          </label>
+        )}
         <button type="button" onClick={() => setShowColumns((value) => !value)} aria-expanded={showColumns} className="inline-flex items-center gap-2 rounded-xl border border-ink-200 bg-white px-3 py-2 text-[10px] font-bold text-ink-700 hover:bg-ink-50"><Columns3 size={14}/> الأعمدة ({visibleColumns.length}/{discoveredColumns.length})</button>
-        <div className="text-[10px] text-ink-500">{formatNumber(orderedRows.length)} صف مطابق · {formatNumber(rows.length)} صف كانونـي</div>
+        <div className="mr-auto text-[10px] text-ink-500">{formatNumber(orderedRows.length)} صف مطابق · {formatNumber(rows.length)} صف كانونـي</div>
       </div>
+
+      {groupColumn && (
+        <section className="mt-3 rounded-xl border border-primary-200 bg-primary-50/40 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="section-kicker">GROUPED ANALYSIS</div>
+              <div className="mt-1 text-sm font-black text-ink-950">ملخص التجميع الكانوني</div>
+              <div className="mt-1 text-[10px] text-ink-600">التجميع يحسب من الصفوف المفلترة الحالية، وليس من المعاينة.</div>
+            </div>
+            <div className="text-[9px] text-primary-800">حتى 50 مجموعة معروضة</div>
+          </div>
+          <div className="mt-3 overflow-x-auto rounded-lg border border-primary-200 bg-white">
+            {groupedRows.length ? (
+              <table className="min-w-full text-right text-[10px]">
+                <thead className="bg-primary-50"><tr><th className="px-3 py-2 font-black text-primary-900">المجموعة</th><th className="px-3 py-2 font-black text-primary-900">الصفوف</th><th className="px-3 py-2 font-black text-primary-900">المجموع</th></tr></thead>
+                <tbody>{groupedRows.map((group) => <tr key={group.key} className="border-t border-primary-100"><td className="px-3 py-2 font-bold text-ink-900">{group.key}</td><td className="px-3 py-2 text-ink-600">{formatNumber(group.count)}</td><td className="px-3 py-2 font-black text-ink-900">{formatNumber(group.sum)}</td></tr>)}</tbody>
+              </table>
+            ) : <div className="p-5 text-center text-[10px] text-ink-500">لا توجد مجموعات قابلة للحساب بعد.</div>}
+          </div>
+        </section>
+      )}
 
       {showColumns && (
         <div className="mt-3 rounded-xl border border-ink-200 bg-ink-50/70 p-3">
