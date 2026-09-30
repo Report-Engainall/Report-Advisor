@@ -9,7 +9,9 @@ const KEY = 'aghbari.active-report-context.v1';
 export function saveActiveReportContext(context: Omit<ActiveReportContext, 'savedAt'>): void {
   if (!context.jobId.trim() || !context.sourceHash.trim() || typeof window === 'undefined') return;
   try {
-    window.sessionStorage.setItem(KEY, JSON.stringify({ ...context, savedAt: Date.now() }));
+    const value = JSON.stringify({ ...context, savedAt: Date.now() });
+    window.sessionStorage.setItem(KEY, value);
+    window.localStorage.setItem(KEY, value);
   } catch {
     // Best effort only; the source-bound URL remains authoritative.
   }
@@ -18,7 +20,7 @@ export function saveActiveReportContext(context: Omit<ActiveReportContext, 'save
 export function readActiveReportContext(): ActiveReportContext | null {
   if (typeof window === 'undefined') return null;
   try {
-    const raw = window.sessionStorage.getItem(KEY);
+    const raw = window.sessionStorage.getItem(KEY) || window.localStorage.getItem(KEY);
     if (!raw) return null;
     const value: unknown = JSON.parse(raw);
     if (!value || typeof value !== 'object') return null;
@@ -37,6 +39,7 @@ export function clearActiveReportContext(): void {
   if (typeof window === 'undefined') return;
   try {
     window.sessionStorage.removeItem(KEY);
+    window.localStorage.removeItem(KEY);
   } catch {
     // Best effort.
   }
