@@ -1,3 +1,8 @@
+# CURRENT RESUME POINTER — 2026-09-30
+
+- CURRENT RESUME POINTER → `Report Smart Surface` / certified functional candidate `531b4e810ccd7ad10dc73ea745ed3c24aa0bc8f2`; governance checkpoint HEAD is `7f8b8aa3b8f4484381f0bcccc91a545f464893d6`.
+- next action → consume current exact-HEAD governance CI; do not re-import completed reports.
+
 # FINAL SESSION WRITE-BACK — 2026-09-30
 
 - LAST CERTIFIED FUNCTIONAL CANDIDATE → `531b4e810ccd7ad10dc73ea745ed3c24aa0bc8f2`.
@@ -78,35 +83,3 @@
 # LATEST SESSION WRITE-BACK — 2026-09-30 / FOCUS-TRAP ACCESSIBILITY ROOT FIX / 7fe6bc49c4fc001f04fa5af40932aecd9b6afc89
 
 - EXACT MAIN HEAD → `7fe6bc49c4fc001f04fa5af40932aecd9b6afc89`.
-- CURRENT CODE/TEST CANDIDATE → `7fe6bc49c4fc001f04fa5af40932aecd9b6afc89`.
-- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
-- ROOT FIX → keyboard focus-trap conditions in the mobile sidebar, global Advisor, and alert drawer now expose an explicit `event.key === 'Tab'` check while preserving the existing Escape/Tab focus loop and scroll locking.
-- PREVIOUS FAILURE → Final Certification product-wow contract rejected the mobile navigation drawer focus-trap contract despite behavior existing, because the static contract could not see the exact Tab comparison.
-- OTHER CURRENT ROOT FIXES → shared table visible-row count, Work Center zero-progress labels, Executive empty-state punctuation, and ESM runtime import extensions remain persisted.
-- REPORT RESULT REMAINS → 735/735 completed; durable rendered; source-bound Executive/Evidence/Decision/Work Center/Inventory outputs persisted; no re-import.
-- ACTION STATUS → `IN_PROGRESS` while current-SHA CI terminalizes.
-- NEXT EXACT ACTION → consume current-SHA quality and Final Certification first failure only.
-
-# LATEST SESSION WRITE-BACK — 2026-09-30 / CANONICAL COMMIT ESM ROOT FIX / 8414ce7892080591285ea119a06bb3c89218e4c1
-
-- EXACT MAIN HEAD → `8414ce7892080591285ea119a06bb3c89218e4c1`.
-- CURRENT CODE/TEST CANDIDATE → `8414ce7892080591285ea119a06bb3c89218e4c1`.
-- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
-- ROOT FIX → `canonical-production-adapter.ts` now resolves `canonical-commit.ts` explicitly for Node ESM/strip-types runtime execution. The three runtime-local imports in this adapter now use explicit `.ts` extensions.
-- PREVIOUS QUALITY FAILURE → `ERR_MODULE_NOT_FOUND` for `canonical-commit` in the report-execution runtime test.
-- REPORT RESULT REMAINS → 735/735 completed; durable rendered; source-bound outputs persisted; no re-import.
-- ACTION STATUS → `IN_PROGRESS` while current-SHA gates terminalize.
-- NEXT EXACT ACTION → consume current-SHA quality/Final Certification/Execution Enforcement/Browser/Final Batch results; repair only first new failure.
-
-# LATEST SESSION WRITE-BACK — 2026-09-30 / DURABLE RUNNER ESM ROOT FIX / ebb6d94257342663e553a1a09d2c102d2c56494f
-
-- EXACT MAIN HEAD → `ebb6d94257342663e553a1a09d2c102d2c56494f`.
-- CURRENT CODE/TEST CANDIDATE → `ebb6d94257342663e553a1a09d2c102d2c56494f`.
-- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
-- ROOT FIX → `canonical-production-adapter.ts` now resolves both durable worker adapter and durable production runner with explicit `.ts` ESM extensions.
-- PREVIOUS QUALITY FAILURE → `ERR_MODULE_NOT_FOUND` for `durable-production-runner` in Node strip-types runtime.
-- REPORT RESULT REMAINS → 735/735 completed; durable rendered; source-bound outputs persisted; no re-import.
-- ACTION STATUS → `IN_PROGRESS` while current-SHA gates terminalize.
-- NEXT EXACT ACTION → consume current-SHA quality/Final Certification/Execution Enforcement/Browser/Final Batch results; repair only first new failure.
-
-# LATEST SESSION WRITE-BACK — 2026-09-30 / WORK CENTER ZERO-PROGRESS ROOT FIX / 2352764795d4c95359d932bd3923dac18430f643
