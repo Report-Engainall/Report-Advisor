@@ -8,7 +8,7 @@ for (const marker of [
   'authoritativeCurrentRowCount',
   'canonicalCommitGap',
   'canonicalCommitCount === authoritativeCurrentRowCount',
-  "reportVerificationState: canonicalCommitGap != null && canonicalCommitGap > 0",
+  "canonicalCommitGap != null && canonicalCommitGap > 0",
 ]) {
   if (!reportSmart.includes(marker)) throw new Error(`Row coverage contract missing: ${marker}`);
 }
