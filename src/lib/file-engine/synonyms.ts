@@ -1,4 +1,4 @@
-import { normalizeColumnName } from './normalizer';
+import { normalizeColumnName } from './normalizer.ts';
 import type { SynonymEntry } from './types';
 
 let synonymCache: Map<string, { canonical: string; confidence: number }> | null = null;
