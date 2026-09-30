@@ -243,3 +243,53 @@ export async function completeSourceDecisionWorkItem(input: {
 
   if (error) throw error;
 }
+
+
+export type DecisionWorkItemRecord = {
+  id: string;
+  decisionId: string;
+  status: string;
+  department: string;
+  assigneeId: string | null;
+  assigneeLabel: string | null;
+  title: string;
+  priority: string;
+  dueAt: string | null;
+  startedAt: string | null;
+  completedAt: string | null;
+  expectedImpact: number | null;
+  actualImpact: number | null;
+  evidenceRefs: unknown[];
+};
+
+export async function fetchDecisionWorkItems(limit = 200): Promise<DecisionWorkItemRecord[]> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const safeLimit = Math.max(1, Math.min(200, Math.trunc(limit)));
+  const { data, error } = await supabase
+    .from('decision_work_items')
+    .select('id,decision_id,status,department,assignee_id,assignee_label,title,priority,due_at,started_at,completed_at,expected_impact,actual_impact,evidence_refs')
+    .eq('company_id', companyId)
+    .order('created_at', { ascending: false })
+    .limit(safeLimit);
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    id: String(row.id),
+    decisionId: String(row.decision_id),
+    status: String(row.status ?? 'OPEN'),
+    department: String(row.department ?? ''),
+    assigneeId: row.assignee_id == null ? null : String(row.assignee_id),
+    assigneeLabel: row.assignee_label == null ? null : String(row.assignee_label),
+    title: String(row.title ?? ''),
+    priority: String(row.priority ?? 'MEDIUM'),
+    dueAt: row.due_at == null ? null : String(row.due_at),
+    startedAt: row.started_at == null ? null : String(row.started_at),
+    completedAt: row.completed_at == null ? null : String(row.completed_at),
+    expectedImpact: row.expected_impact == null ? null : Number(row.expected_impact),
+    actualImpact: row.actual_impact == null ? null : Number(row.actual_impact),
+    evidenceRefs: Array.isArray(row.evidence_refs) ? row.evidence_refs : [],
+  }));
+}
