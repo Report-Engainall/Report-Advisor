@@ -1,3 +1,14 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / CANONICAL COMMIT ESM ROOT FIX / 8414ce7892080591285ea119a06bb3c89218e4c1
+
+- EXACT MAIN HEAD → `8414ce7892080591285ea119a06bb3c89218e4c1`.
+- CURRENT CODE/TEST CANDIDATE → `8414ce7892080591285ea119a06bb3c89218e4c1`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- ROOT FIX → `canonical-production-adapter.ts` now resolves `canonical-commit.ts` explicitly for Node ESM/strip-types runtime execution. The three runtime-local imports in this adapter now use explicit `.ts` extensions.
+- PREVIOUS QUALITY FAILURE → `ERR_MODULE_NOT_FOUND` for `canonical-commit` in the report-execution runtime test.
+- REPORT RESULT REMAINS → 735/735 completed; durable rendered; source-bound outputs persisted; no re-import.
+- ACTION STATUS → `IN_PROGRESS` while current-SHA gates terminalize.
+- NEXT EXACT ACTION → consume current-SHA quality/Final Certification/Execution Enforcement/Browser/Final Batch results; repair only first new failure.
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / DURABLE RUNNER ESM ROOT FIX / ebb6d94257342663e553a1a09d2c102d2c56494f
 
 - EXACT MAIN HEAD → `ebb6d94257342663e553a1a09d2c102d2c56494f`.
