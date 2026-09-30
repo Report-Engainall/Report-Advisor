@@ -53,6 +53,7 @@ export default async (request: Request): Promise<Response> => {
       fileName?: string;
       sourceHash?: string;
       entityType?: 'products' | 'customers' | 'sales_invoices' | `generic:${string}`;
+      resumeReportExecutionJobId?: string;
       rows?: unknown[];
       qualityScore?: number;
       qualityApproved?: boolean;
@@ -60,9 +61,31 @@ export default async (request: Request): Promise<Response> => {
     };
 
     const mode = payload.mode ?? 'execute';
-    const genericEntity = typeof payload.entityType === 'string' && /^generic:[a-z][a-z0-9_-]{0,63}$/.test(payload.entityType);
-    if (payload.entityType !== 'products' && payload.entityType !== 'customers' && payload.entityType !== 'sales_invoices' && !genericEntity) throw new Error('CANONICAL_IMPORT_ENTITY_TYPE_INVALID');
-    if (!payload.importId || !payload.entityType || (mode === 'execute' && (!Array.isArray(payload.rows) || !Number.isFinite(payload.qualityScore) || typeof payload.qualityApproved !== 'boolean'))) {
+    const resumeReportExecutionJobId = typeof payload.resumeReportExecutionJobId === 'string' ? payload.resumeReportExecutionJobId.trim() : '';
+    let importId = typeof payload.importId === 'string' ? payload.importId.trim() : '';
+    let fileName = typeof payload.fileName === 'string' ? payload.fileName.trim() : '';
+    let sourceHash = typeof payload.sourceHash === 'string' ? payload.sourceHash.trim() : '';
+    let entityType = payload.entityType;
+
+    if (resumeReportExecutionJobId) {
+      const { data: reportJob, error: reportJobError } = await serviceClient
+        .from('report_execution_jobs')
+        .select('id,company_id,source_path,source_hash,job_key,status,checkpoint')
+        .eq('id', resumeReportExecutionJobId)
+        .eq('company_id', companyId)
+        .maybeSingle();
+      if (reportJobError || !reportJob) throw new Error('REPORT_EXECUTION_JOB_NOT_FOUND_OR_FORBIDDEN');
+      const checkpoint = reportJob.checkpoint && typeof reportJob.checkpoint === 'object' ? reportJob.checkpoint as Record<string, unknown> : {};
+      const evidenceKeys = Array.isArray(checkpoint.evidenceKeys) ? checkpoint.evidenceKeys.map(String) : [];
+      importId = importId || (evidenceKeys.find((key) => key.startsWith('import:'))?.slice(7) ?? '');
+      fileName = fileName || String(reportJob.source_path ?? '');
+      sourceHash = sourceHash || String(reportJob.source_hash ?? checkpoint.sourceHash ?? '');
+      entityType = reportEntityTypeFromJobKey(String(reportJob.job_key ?? ''));
+    }
+
+    const genericEntity = typeof entityType === 'string' && /^generic:[a-z][a-z0-9_-]{0,63}$/.test(entityType);
+    if (entityType !== 'products' && entityType !== 'customers' && entityType !== 'sales_invoices' && !genericEntity) throw new Error('CANONICAL_IMPORT_ENTITY_TYPE_INVALID');
+    if (!importId || !entityType || (mode === 'execute' && !resumeReportExecutionJobId && (!Array.isArray(payload.rows) || !Number.isFinite(payload.qualityScore) || typeof payload.qualityApproved !== 'boolean'))) {
       throw new Error('CANONICAL_IMPORT_REQUEST_INVALID');
     }
 
