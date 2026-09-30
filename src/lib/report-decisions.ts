@@ -94,6 +94,8 @@ export type SourceDecisionState = SourceDecisionProposal & {
   createdAt: string | null;
   approvedAt: string | null;
   approvedBy: string | null;
+  workItemId: string | null;
+  workItemStatus: string | null;
 };
 
 export async function fetchSourceDecisionProposals(sourceHash: string): Promise<SourceDecisionState[]> {
@@ -109,10 +111,32 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
 
   if (error) throw error;
 
-  return (data ?? []).map((row) => {
+  const decisionRows = data ?? [];
+  const decisionIds = decisionRows.map((row) => String(row.id));
+  const { data: workRows, error: workError } = decisionIds.length
+    ? await supabase
+        .from('decision_work_items')
+        .select('id,decision_id,status')
+        .eq('company_id', companyId)
+        .in('decision_id', decisionIds)
+        .order('created_at', { ascending: false })
+    : { data: [], error: null };
+
+  if (workError) throw workError;
+
+  const workByDecision = new Map<string, { id: string; status: string }>();
+  for (const work of workRows ?? []) {
+    const decisionId = String(work.decision_id);
+    if (!workByDecision.has(decisionId)) {
+      workByDecision.set(decisionId, { id: String(work.id), status: String(work.status ?? 'OPEN') });
+    }
+  }
+
+  return decisionRows.map((row) => {
     const evidence = row.evidence && typeof row.evidence === 'object'
       ? row.evidence as Record<string, unknown>
       : {};
+    const work = workByDecision.get(String(row.id));
     return {
       id: String(row.id),
       status: String(row.status ?? 'PROPOSED'),
@@ -124,6 +148,8 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
       createdAt: row.created_at == null ? null : String(row.created_at),
       approvedAt: row.approved_at == null ? null : String(row.approved_at),
       approvedBy: row.approved_by == null ? null : String(row.approved_by),
+      workItemId: work?.id ?? null,
+      workItemStatus: work?.status ?? null,
     };
   });
 }
