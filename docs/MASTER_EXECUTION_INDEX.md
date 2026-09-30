@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / REPORT LEDGER TRUTH RECONCILIATION
+
+- EXACT MAIN HEAD → `f1bd88f03eb2b188cdb173295d44f435c8158b1f`.
+- REPORT-FIRST FRONT → `تسعيرة الاصناف حسب رقم الصنف.pdf` / import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / durable report job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0` / source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- LIVE DB PROOF → import completed 735/735; nine durable stages completed; canonical commit 735; source analysis analyzed 735 rows × 7 columns at quality 87; renderedOutput contains source-bound Executive/Evidence/Decision/Work Center/Inventory outputs.
+- ROOT RECONCILIATION → historical `import_jobs.valid_rows=0` conflicts with persisted `result_summary.committed=735`; the canonical source of operation truth already contains 735 committed/rendered rows. `src/lib/queries.ts` now derives completed valid rows from persisted committed count only when the ledger counter is missing/zero and the count is consistent with total rows.
+- ACTION STATUS → `IN_PROGRESS`; authenticated exact-SHA browser/runtime closure remains NOT PROVEN.
+- CURRENT EXTERNAL BLOCKER → Vercel remains build-rate-limited; GitHub workflow-run wrapper exposes no push runs for the current SHA; no runtime PASS inferred.
+- NEXT EXACT ACTION → consume any current-SHA CI/browser evidence when available; otherwise continue the source-bound route/data contract closure without re-importing this report.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / SOURCE-BOUND REPORT SURFACE SURGERY / PRE-TEST CHECKPOINT
 
 - EXACT MAIN HEAD BEFORE NEXT LONG ACTION → `47ad2826b2c8822f0ced62f6a471e06c7882f1cc`.
