@@ -427,3 +427,19 @@
 - DESKTOP REMOTE → PC01 is currently offline; no local-device/Edge claim is made from that unavailable connection. Exact-current-SHA Chromium browser proof is independently proven by GitHub Actions.
 - ACTION STATUS → repository/browser acceptance is proven on the exact current HEAD. Do not re-import the current report. Remaining local-device action is optional verification when PC01 reconnects, not a blocker to the proven application code path.
 - NEXT EXACT ACTION → use the ready application deployment that contains the same product/runtime source as the current HEAD for interactive inspection; preserve this exact-head proof and do not create another pipeline.
+
+
+# LIVE CHECKPOINT — 2026-09-30 / PDF HEART + DOCUMENT INTELLIGENCE
+
+- EXACT CURRENT HEAD → `5277eccf39c0f36e081cf161f8288811086cd769`.
+- ROOT FIX 1 → PDF fallback no longer collapses a page into one phrase; it preserves page/visual-line boundaries through `extractPdfVisualLines`.
+- ROOT FIX 2 → unstructured PDF lines now receive deterministic document intelligence: structure, section/heading presence, date presence/gaps, numeric/financial-line presence, while refusing to fabricate business fields.
+- ROOT FIX 3 → Smart Report top items are derived from the full canonical row set rather than only the analysis preview sample.
+- ROOT FIX 4 → Smart Report retry is in-place; it no longer requires `window.location.reload()`.
+- ROOT FIX 5 → inventory intelligence distinguishes valid SKU repetition across warehouse grain from repeated records in the same source context and can surface price variation by SKU.
+- REGRESSION CONTRACTS ADDED → PDF visual-line fallback, inventory intelligence grain, and document-intelligence line analysis.
+- REAL CORPUS READBACK BEFORE THIS CODE WAVE → 39 completed generic report jobs with renderedOutput; 1 real report job remains non-completed and queued despite a decisioned checkpoint: `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf`, job `d074ad5c-70d4-4402-a763-01129786f392`, import `bf206836-e52d-4b29-843a-6337403801e6`, source hash `sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10`, source rows expected `6562`. Its task ledger is still queued 1..9 while checkpoint says decisioned; this is an unresolved durable-execution reconciliation issue, not a closed report.
+- SOURCE ACCESS REALITY → file record is present in tenant Storage metadata but its security/file hash are still pending and the private Storage object is not readable through the available public download path. No blind re-import or synthetic source data was used.
+- TEST PROOF BOUNDARY → GitHub combined status currently exposes only the external Vercel build-rate-limit failure. The newly added regression scripts are persisted but have not been claimed as executed PASS without a runtime capable of running the exact repository checkout.
+- DO-NOT-REPEAT → no re-import of completed reports, no canonical-row rewrite, no evidence promotion, no fake browser proof, no fixture-specific importer, no mock report.
+- NEXT EXACT ACTION → resolve the queued `d074...` durable job from the actual private source if an authoritative server-side Storage execution path becomes available; otherwise continue with the next real report only after the queued job is explicitly blocked or recovered by existing canonical worker/runtime contracts.
