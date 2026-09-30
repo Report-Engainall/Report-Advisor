@@ -37,6 +37,8 @@ export type SmartReportDetail = SmartReportCatalogItem & {
     lastError: Record<string, unknown>;
     evidence: Record<string, unknown>;
   }>;
+  canonicalCommitCount: number;
+  canonicalCommitVerified: boolean;
 };
 
 function renderedOutputOf(evidence: unknown): Record<string, unknown> | null {
@@ -140,6 +142,21 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
 
   if (analysisError) throw analysisError;
   const analysis = analyses?.[0] ?? null;
+  const { data: canonicalCommits, error: canonicalCommitError } = await supabase
+    .from('canonical_import_commits')
+    .select('committed_count')
+    .eq('company_id', companyId)
+    .eq('entity_type', entityTypeFrom(String(job.job_key ?? '')))
+    .eq('source_hash', job.source_hash);
+
+  if (canonicalCommitError) throw canonicalCommitError;
+  const canonicalCommitCount = (canonicalCommits ?? []).reduce(
+    (sum, row) => sum + Number(row.committed_count ?? 0),
+    0,
+  );
+  const canonicalRowCount = rendered.rowCount == null ? null : Number(rendered.rowCount);
+  const canonicalCommitVerified = canonicalRowCount != null && canonicalCommitCount === canonicalRowCount;
+
   const sourceAnalysis = analysis ? {
     id: String(analysis.id),
     importJobId: analysis.import_job_id == null ? null : String(analysis.import_job_id),
@@ -166,6 +183,8 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     checkpointStage: job.checkpoint?.stage == null ? null : String(job.checkpoint.stage),
     renderedOutput: rendered,
     sourceAnalysis,
+    canonicalCommitCount,
+    canonicalCommitVerified,
     stages: (stages ?? []).map((row) => ({
       ordinal: Number(row.ordinal),
       stage: String(row.stage),
