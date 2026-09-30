@@ -1,3 +1,17 @@
+# LIVE EXECUTION BOUNDARY — 2026-09-30 / SOURCE-RECORD RECOVERY CLOSED
+
+- EXACT MAIN HEAD → `e57d08526d1388cbf7fefb3fd2b32c1269e9a66d`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- ROOT FIX → repository migration `20260930110000_reconcile_completed_report_source_record_binding.sql` makes governed completed-report recovery resolve the verified source `file_records` row by exact source hash/security/file state and persist the authoritative storage identity.
+- LIVE READBACK → import status completed; file_record_id `071db872-2f17-4acf-8374-b1e2d9852985`; file hash exact; security `passed`; file status `ready`; source path `.../5925f3a2-fbac-4678-9490-b892dca35d4d.pdf`; `source_record_pending_hash=false`.
+- CANONICAL INTEGRITY → canonical dataset rows remain 735; canonical import commit rows remain 735; no re-import and no canonical-row rewrite.
+- REPORT EXECUTION → durable job remains completed/rendered, all 9 tasks completed; source-bound output states remain TRUSTED / VERIFIED / NO_DECISION_COMMITTED / NO_ACTION_COMMITTED / NOT_AVAILABLE / INSUFFICIENT_SAMPLE.
+- SEMANTIC FIX → `fetchSmartReport` no longer promotes persisted evidence state to VERIFIED merely from canonical commit presence; evidence state is read from persisted rendered evidence.
+- PROOF BOUNDARY → this source/recovery/persistence proof is Staging evidence. Exact current-SHA CI/build and authenticated Edge/browser proof remain NOT PROVEN; Vercel remains externally build-rate-limited.
+- ACTION STATUS → `IN_PROGRESS` for current-SHA certification/browser closure, not for report reprocessing.
+- DO-NOT-REPEAT → no re-import, no direct canonical mutation, no evidence-state promotion, no stale PASS, no database-to-browser inference.
+- NEXT EXACT ACTION → consume current-head CI evidence if exposed; otherwise continue canonical runtime/production-execution proof while preserving this completed report.
+
 # LIVE EXECUTION BOUNDARY — 2026-09-30 / SOURCE-BOUND RESULT SURFACES
 
 - EXACT MAIN HEAD → `fa5037bc43db476186bd202496e5b522acb4f1d8`.
