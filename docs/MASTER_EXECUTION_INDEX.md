@@ -323,3 +323,19 @@ Exact current main HEAD: `91865c58d7ebcc3689271d55a7e839c8b62956b2`.
 Release remains OPEN until latest code is executed and observed on a live/runtime path; Vercel remains rate-limited and Netlify production remains on an older commit.
 
 NEXT EXACT ACTION: runtime execution + source-bound browser proof of the latest HEAD, followed by exact row/hash readback.
+
+
+## LIVE CHECKPOINT — 2026-09-30 / SOURCE-CONTRADICTION INTELLIGENCE / HEAD 3e93c7d
+
+Added deterministic source-quality signals for cross-field contradictions:
+- records where paid amount exceeds total;
+- same invoice identifier appearing with different totals.
+These are evidence-review signals only and do not infer intent. Recommendations direct the operator to the original document/accounting evidence for reconciliation.
+
+Added regression `scripts/report-intelligence-contradictions.test.ts` and included it in `test:release-core` and the product E2E workflow.
+
+Exact code/CI commit immediately before this checkpoint: `3e93c7daee57de8bbdd6379bc403f566219b4818`.
+
+Release remains OPEN because live deployment/proof is still blocked by the available deployment path: Vercel reports `build-rate-limit`, Netlify production remains on an older deploy, and the connected desktop is offline. No browser/runtime PASS is claimed.
+
+NEXT EXACT ACTION: execute `main` on an available runtime and complete the authoritative open-report proof, then validate source-bound smart/specialty surfaces in the real browser.
