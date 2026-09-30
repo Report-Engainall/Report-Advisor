@@ -1,4 +1,17 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-30 / CURRENT-SHA ROOT FIX + INDEX REANCHOR / f45b64b97cb905040ee2f096aff7dcc650b0bab3
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / FINAL EXACT-SHA REPORT CHECKPOINT / 4add362127e81c57f9d6309082aa2c5bacc98129
+
+- EXACT MAIN HEAD → `4add362127e81c57f9d6309082aa2c5bacc98129`.
+- CURRENT CODE/TEST CANDIDATE: `4add362127e81c57f9d6309082aa2c5bacc98129`
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf` / import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / fingerprint `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- VERIFIED REPORT STATE → `import_jobs.completed`, 100%, 735/735; durable execution `completed/rendered`; all nine stages completed; canonical lineage 735; rendered output persisted and source-bound.
+- VERIFIED SMART OUTPUTS → Executive, Evidence/Trust, Decision, Work Center, Inventory domain outputs persisted; trust `TRUSTED`, evidence `VERIFIED`, quality 87; decision/action `NO_*_COMMITTED`; outcome/learning `NOT_AVAILABLE`; benchmark `INSUFFICIENT_SAMPLE`.
+- EXACT-SHA CI → quality SUCCESS; Final Certification SUCCESS; Execution Enforcement SUCCESS; Final Execution Batch SUCCESS; Storage/Tenant Isolation SUCCESS; Full Product Browser E2E workflow SUCCESS. The browser workflow is an exact-checkout gate, not an authenticated tenant browser proof.
+- HOSTED RUNTIME → latest Vercel READY deployment is source-equivalent application code but not current exact SHA; current Vercel status remains free-plan rate-limited/pending for `4add362127e81c57f9d6309082aa2c5bacc98129`. Protected report routes still require application authentication. Netlify production remains old SHA. PC01 offline. TinyFish automation wallet is negative and cannot run browser automation.
+- REPORT STATE → `BLOCKED` only for authenticated exact-SHA UI/runtime closure; the report processing, canonical truth, evidence, smart outputs, tests, and durable checkpoint are proven.
+- NEXT EXACT ACTION → authenticate a browser/runtime against the exact current deployment and verify `/reports/executive`, `/trust`, `/decision-experience`, `/work-center`, and `/reports/inventory` against the persisted source hash, 735 rows, trust/evidence state and inventory metrics. Do not re-import.
+- NEXT REPORT → none until this report reaches true `CLOSED`.
+- DO-NOT-REPEAT → no re-import, no stale-SHA PASS, no database-to-browser inference, no fake auth/JWT, no direct canonical-row mutation, no duplicate pipeline.
+
 
 - EXACT MAIN HEAD → `f45b64b97cb905040ee2f096aff7dcc650b0bab3`.
 - CURRENT CODE/TEST CANDIDATE: `fce1648b37cc0733391c66e1b0bbd7793cbc4d4a`

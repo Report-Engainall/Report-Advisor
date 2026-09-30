@@ -1,3 +1,18 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / FINAL EXACT-SHA REPORT CHECKPOINT / 4add362127e81c57f9d6309082aa2c5bacc98129
+
+- EXACT MAIN HEAD → `4add362127e81c57f9d6309082aa2c5bacc98129`.
+- CURRENT CODE/TEST CANDIDATE → `4add362127e81c57f9d6309082aa2c5bacc98129`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; fingerprint `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REAL READBACK → import completed 735/735; durable job completed/rendered; all nine tasks completed; canonical lineage 735; renderedOutput source-bound.
+- SMART RESULT READBACK → Executive, Evidence/Trust, Decision, Work Center, Inventory outputs persisted; quality 87; trust/evidence `TRUSTED/VERIFIED`; no decision/action; outcome/learning unavailable; benchmark `INSUFFICIENT_SAMPLE`.
+- ROOT FIXES PERSISTED → canonical ESM runtime import chain repaired; Executive empty-state contract corrected; shared table rowcount corrected; Work Center zero-progress labeling corrected; mobile/Advisor/alert focus-trap contracts made explicit; runtime test harness corrected to separate execute-stage order from checkpoint persistence.
+- EXACT-SHA CI → all required current-head gates are successful as of this checkpoint.
+- HOSTED/UI BLOCKER → no authenticated tenant browser proof on the exact current SHA. Vercel deployment available is not current exact SHA; Netlify is stale; PC01 offline; TinyFish automation balance negative. No browser PASS is claimed.
+- ACTION STATUS → `BLOCKED` only for exact authenticated UI/runtime closure.
+- NEXT EXACT ACTION → exact-SHA authenticated runtime proof of the five persisted result surfaces, then CLOSE report. Do not re-import.
+- NEXT REPORT → none.
+- DO-NOT-REPEAT → stale pass, re-import, fake auth, direct row mutation, duplicate pipeline.
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / REPORT EXECUTION TEST-HARNESS ROOT FIX / fce1648b37cc0733391c66e1b0bbd7793cbc4d4a
 
 - EXACT MAIN HEAD → `fce1648b37cc0733391c66e1b0bbd7793cbc4d4a`.
