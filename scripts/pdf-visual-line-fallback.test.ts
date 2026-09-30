@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { extractPdfVisualLines, type PdfPageText } from '../src/lib/file-engine/pdf-table.ts';
+import { extractPdfVisualLines, extractPdfVisualRows, type PdfPageText } from '../src/lib/file-engine/pdf-table.ts';
 
 const pages: PdfPageText[] = [
   {
@@ -21,6 +21,15 @@ const pages: PdfPageText[] = [
     ],
   },
 ];
+
+const visualRows = extractPdfVisualRows(pages);
+assert.equal(visualRows.length, 4);
+assert.deepEqual(visualRows.map(({ pageNumber, lineNumber, cells }) => ({ pageNumber, lineNumber, cells })), [
+  { pageNumber: 1, lineNumber: 1, cells: ['رقم الصنف', 'السعر'] },
+  { pageNumber: 1, lineNumber: 2, cells: ['10101001', '10750'] },
+  { pageNumber: 1, lineNumber: 3, cells: ['10101002', '10850'] },
+  { pageNumber: 2, lineNumber: 1, cells: ['10101003', '10800'] },
+]);
 
 const lines = extractPdfVisualLines(pages);
 assert.equal(lines.length, 4);
