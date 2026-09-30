@@ -443,3 +443,16 @@
 - TEST PROOF BOUNDARY → GitHub combined status currently exposes only the external Vercel build-rate-limit failure. The newly added regression scripts are persisted but have not been claimed as executed PASS without a runtime capable of running the exact repository checkout.
 - DO-NOT-REPEAT → no re-import of completed reports, no canonical-row rewrite, no evidence promotion, no fake browser proof, no fixture-specific importer, no mock report.
 - NEXT EXACT ACTION → resolve the queued `d074...` durable job from the actual private source if an authoritative server-side Storage execution path becomes available; otherwise continue with the next real report only after the queued job is explicitly blocked or recovered by existing canonical worker/runtime contracts.
+
+
+# LIVE CHECKPOINT — 2026-09-30 / SERVER-AUTHORITATIVE SOURCE EXECUTION
+
+- EXACT CURRENT HEAD → `0b07dafce94c8b3ed3fc3958c0f824f10b594597`.
+- ARCHITECTURAL ROOT FIX → canonical import execution now supports authoritative server-side source reading from the tenant-private Storage object. The server downloads the file with service-role storage access after resolving the authenticated tenant and validating the file record/path.
+- SERVER SOURCE CONTRACT → actual bytes are hashed server-side; supplied source hash must match; security scan and format detection run on the server; the canonical parser is reused; rows are reconciled with tenant/source provenance; analysis snapshot is persisted idempotently; file provenance is upgraded only after successful authoritative read.
+- RESUME CONTRACT → an existing report_execution_job can be resumed by ID using its own job_key/sourceHash/checkpoint and the import ID carried in evidence keys, without creating a duplicate report job.
+- CLIENT BOUNDARY → canonical execution requests now set `serverSourceAuthority=true`; local preview may remain client-side, but canonical truth is no longer dependent on client-parsed rows.
+- REAL QUEUED REPORT → `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf`, report job `d074ad5c-70d4-4402-a763-01129786f392`, import `bf206836-e52d-4b29-843a-6337403801e6`, expected source hash `sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10`, 6562 expected rows. It remains queued in the current Staging database because no authenticated execution trigger was available in this session; no fake completion was written.
+- CORPUS READBACK → 39 completed generic report jobs with rendered output; 1 unresolved report job remains queued/open.
+- PROOF BOUNDARY → current combined GitHub status exposes only Vercel build-rate-limit failure. New server-source contracts and regression scripts are persisted but not claimed executed PASS without an exact runtime workflow result.
+- NEXT EXACT ACTION → execute the new authoritative resume endpoint against `d074ad5c-70d4-4402-a763-01129786f392` from an authenticated runtime, then read back 6562-source/analysis/canonical/rendered results and immediately continue the next report.
