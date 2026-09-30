@@ -151,6 +151,26 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
     if (!age120) addSignal(signals, 'receivables:aging-gap', 'medium', 'شرائح التأخر غير مكتملة', 'لا يظهر حقل واضح للفئة فوق 120 يومًا.', ['age120Field=missing']);
   }
 
+  const textColumn = findColumn(columns, ['text', 'النص']);
+  if (textColumn && rows.length) {
+    const textKey = text(textColumn.name ?? textColumn.mappedField);
+    const lines = rows.map((row) => text(row.data?.[textKey])).filter(Boolean);
+    const pageColumn = findColumn(columns, ['page_number', 'page', 'الصفحة']);
+    const pageKey = text(pageColumn?.name ?? pageColumn?.mappedField);
+    const pages = pageKey
+      ? new Set(rows.map((row) => text(row.data?.[pageKey])).filter(Boolean)).size
+      : null;
+    const dateHits = lines.filter((line) => /(?:19|20)\d{2}[\/-]\d{1,2}[\/-]\d{1,2}|\b\d{1,2}[\/-]\d{1,2}[\/-](?:19|20)?\d{2}\b/.test(line)).length;
+    const amountHits = lines.filter((line) => /(?:\d[\d,٬.]*)\s*(?:ريال|ر\.ي|YER|USD|دولار)?\b/i.test(line)).length;
+    const headingLike = lines.filter((line) => line.length <= 90 && /(?:تقرير|كشف|إجمالي|اجمالي|المبيعات|المشتريات|المخزون|العملاء|المورد|الرصيد|الفاتورة|التاريخ|report|statement|total|sales|purchase|inventory|customer|supplier|invoice)/i.test(line)).length;
+
+    addSignal(signals, 'document:structure', 'info', 'تم حفظ بنية الوثيقة', 'تمت المحافظة على ' + lines.length + ' سطرًا مقروءًا' + (pages == null ? '' : ' عبر ' + pages + ' صفحة') + ' بدل دمج الوثيقة في نص واحد.', ['lineCount=' + lines.length, 'pageCount=' + (pages == null ? 'unknown' : pages)]);
+    if (headingLike > 0) addSignal(signals, 'document:sections', 'info', 'عناوين/أقسام قابلة للفهرسة', 'ظهرت ' + headingLike + ' أسطر تحمل مؤشرات عناوين أو أقسام أعمال يمكن استخدامها في التحليل التفصيلي.', ['headingLikeLines=' + headingLike]);
+    if (dateHits === 0) addSignal(signals, 'document:date-gap', 'medium', 'التاريخ غير مثبت في النص المقروء', 'لم يظهر نمط تاريخ واضح في الأسطر المقروءة؛ لا يجوز بناء اتجاه زمني من الوثيقة وحدها.', ['datePatternHits=0']);
+    else addSignal(signals, 'document:date-presence', 'info', 'تواريخ ظاهرة في المصدر', 'ظهرت أنماط تاريخ في ' + dateHits + ' أسطر من الوثيقة.', ['datePatternHits=' + dateHits]);
+    if (amountHits > 0) addSignal(signals, 'document:amount-presence', 'info', 'قيم رقمية قابلة للفحص', 'ظهرت قيم رقمية/مالية في ' + amountHits + ' أسطر؛ يلزم تعيين دلالتها قبل استخدامها كإجماليات.', ['numericLineHits=' + amountHits]);
+  }
+
   const keyColumn = findColumn(columns, ['sku', 'product_code', 'رقم الصنف', 'barcode']);
   const warehouseColumn = findColumn(columns, ['warehouse', 'المخزن', 'المستودع']);
   const priceColumn = findColumn(columns, ['price', 'السعر', 'selling_price', 'سعر البيع']);
@@ -303,7 +323,7 @@ export function deriveReportIntelligence(report: ReportInput): ReportIntelligenc
     focus: top ? top.title : 'لا توجد إشارة حرجة مثبتة من البيانات المتاحة.',
     inspect: signals.slice(0, 5).map((signal) => signal.message),
     ownerHint: specialty === 'inventory' ? 'مسؤول المخزون/التسعير' : specialty === 'receivables' ? 'مسؤول التحصيل' : specialty === 'sales' ? 'مسؤول المبيعات' : specialty === 'purchases' ? 'مسؤول المشتريات' : 'المسؤول التشغيلي المناسب للمصدر',
-    boundary: 'الإشارة تحدد موضعًا يحتاج تدقيقًا؛ لا تتحول إلى اتهام أو قرار نهائي دون دليل إضافي.',
+    boundary: 'الإشارة تحدد موضعًا يحتاج تدقيقًا؛ لا تتحول إلى اتهام أو قرار نهائي دون دليل إضافي. الوثائق النصية غير المهيكلة تحتاج تعيينًا دلاليًا قبل اعتماد أرقامها كحقيقة تجارية.',
   };
 
   return { summary, signals, recommendations, forecast: deriveForecast(report), guidance };
