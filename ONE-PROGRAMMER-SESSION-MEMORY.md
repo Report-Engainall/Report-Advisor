@@ -1,3 +1,23 @@
+# FINAL LIVE WRITE-BACK — 2026-09-30 / 39-REPORT OPERATIONAL CORPUS
+
+- EXACT EXECUTION HEAD → `9b6dd27da548b2c666f485beb905026259ff1c99`; this following memory commit is control-plane only.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- CURRENT REPORT PROOF → source rows 735; authoritative canonical rows 735; canonical commit 735; durable 9/9 completed/rendered; source analysis 735×7; quality 87; source file record verified ready/passed; evidence `AWAITING_EVIDENCE_SNAPSHOT`; trust `TRUSTED`.
+- OPERATIONAL REPORT CORPUS → 39 unique verified business-report sources discovered from tenant Storage after excluding generated entity-style filenames; 39/39 have completed durable generic jobs; 39/39 analyzed; 39/39 rendered; 0 report-like sources without job; 0 noncompleted report-like jobs.
+- CORPUS RECOVERY EXECUTED → three missing source-analysis snapshots were rebuilt from existing `canonical_dataset_records` with explicit recovery metadata and completeness-only quality scoring; existing rendered-output recovery then repaired all four previously missing outputs.
+- PARTIAL COMMIT TRUTH → `ف العملاء الاجل من ت 01-06 حتى تاريخ 15-08.pdf` has source/analyzed rows 399 and authoritative canonical rows 397; gap 2 is persisted and surfaced. No rows were silently rewritten.
+- CURRENT REPORT RECOVERY → current report rendered metadata now explicitly contains authoritative current row count 735 and canonical gap 0.
+- SEMANTIC EVIDENCE → no evidence state is promoted to VERIFIED by canonical commit or recovery. Current report and recovered corpus outputs remain `AWAITING_EVIDENCE_SNAPSHOT` where no dedicated source-bound evidence snapshot exists.
+- CANONICAL COMMIT PROOF → SmartReport independently derives tenant-scoped committed row count and compares it to `authoritativeCurrentRowCount`, not blindly to raw source row count.
+- UI → Smart Report and source-bound Executive/Trust/Decision/Work surfaces show source versus authoritative canonical counts and expose commit gaps.
+- DURABLE EXECUTION GUARD → main contains the existing coordinator contract guard preventing production in-memory report execution references outside canonical local/test implementation files.
+- REPOSITORY DB LINEAGE → migrations now include source-record recovery, evidence-state guard, and report analysis/render recovery/partial-commit semantics. Live Staging recovery functions are captured in repository migration `20260930130000_report_recovery_analysis_and_partial_commit_output.sql`.
+- GIT CORPUS TRUTH → `tests/fixtures/realistic-reports/` on exact Git HEAD remains README-only; the 39-report closure is Storage/tenant operational corpus evidence, not a claim that Git tracks 39 fixture files.
+- PROOF BOUNDARY → Staging source/recovery/canonical/corpus readback is proven. Exact current-SHA typecheck/build is not exposed by available GitHub wrapper; current combined status shows Vercel build-rate-limit failure. Authenticated Microsoft Edge/browser proof remains NOT PROVEN.
+- ACTION STATUS → `IN_PROGRESS` only for exact-current-SHA certification/runtime/browser closure.
+- DO-NOT-REPEAT → no blind re-import, no direct canonical-row mutation, no evidence promotion, no tenant bypass, no stale PASS, no database-to-browser inference.
+- NEXT EXACT ACTION → consume exact-current-SHA CI/build/runtime/browser evidence if exposed; preserve the 39-report operational corpus closure and current report truth while closing certification.
+
 # PRE-CORPUS-RECOVERY CHECKPOINT — 2026-09-30 / OPERATIONAL REPORT CORPUS
 
 - EXACT CURRENT MAIN HEAD → `fa463292bd4ba3b729ea4202b751b6638ff34a09`.
