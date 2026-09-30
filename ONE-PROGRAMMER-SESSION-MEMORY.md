@@ -12,7 +12,7 @@
 - OPERATIONAL CORPUS → 39 discovered/registered/completed/analyzed/rendered; evidence verified 0; gap-detected 1; pending evidence 38.
 - EVIDENCE INSPECTOR → implemented; separates Source, Fingerprint, Canonical Commit, Row Count, Analysis, Evidence, Verification.
 - IN-PLACE RETRY → all five source-bound report pages use useOptionalSourceReport.retry; ReportsPage.tsx contains no window.location.reload().
-- EXTERNAL BLOCKER → authenticated current-SHA Microsoft Edge/business-flow browser proof remains NOT PROVEN because no browser/device integration is available; Vercel remains externally build-rate-limited.
+- EXTERNAL BLOCKER → authenticated current-SHA Microsoft Edge/business-flow browser proof remains NOT PROVEN because no browser/device integration is available; Vercel current exact-head status is success; hosted deployment is not being used as authenticated browser proof.
 - ACTION STATUS → IN_PROGRESS only for authenticated browser proof; repository/build/certification gates are proven at the exact current code candidate.
 - NEXT EXACT ACTION → authenticated browser proof when an authorized browser/device becomes available; otherwise preserve this checkpoint and do not reopen completed report processing.
 
