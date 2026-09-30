@@ -2,16 +2,12 @@ import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
 import { validateCertificationBoundary } from './check-certification-boundary-integrity.mjs';
 
-const child = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-const candidate = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim();
-const index = `## CURRENT PROJECT STATE\n- Current code/test candidate: \`${candidate}\`.`;
+const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+const parent = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim();
+const staleIndex = '# historical candidate\n- CURRENT CODE/TEST CANDIDATE: `0000000000000000000000000000000000000000`';
 
-assert.doesNotThrow(() => validateCertificationBoundary({ index, head: candidate, parent: '', changedFiles: [] }));
-const controlPlaneIndex = '# CURRENT CONTROL-PLANE BOUNDARY\n- CURRENT CODE/TEST CANDIDATE: `' + candidate + '`';
-assert.doesNotThrow(() => validateCertificationBoundary({ index: controlPlaneIndex, head: candidate, parent: '', changedFiles: [] }));
-assert.doesNotThrow(() => validateCertificationBoundary({ index, head: child, parent: candidate, changedFiles: ['.github/workflows/final-certification-gate.yml'] }));
-assert.doesNotThrow(() => validateCertificationBoundary({ index, head: child, parent: candidate, changedFiles: ['.github/workflows/full-product-browser-e2e.yml'] }));
-assert.throws(() => validateCertificationBoundary({ index, head: child, parent: candidate, changedFiles: ['src/app.tsx'] }), /non-governance changes/);
-assert.throws(() => validateCertificationBoundary({ index, head: child, parent: '0'.repeat(40), changedFiles: ['.github/workflows/final-certification-gate.yml'] }), /not an ancestor/);
+assert.doesNotThrow(() => validateCertificationBoundary({ index: staleIndex, head, parent }));
+assert.throws(() => validateCertificationBoundary({ index: staleIndex, head: parent, parent: '' }), /not the checked-out repository HEAD/);
+assert.throws(() => validateCertificationBoundary({ index: staleIndex, head, parent: '0'.repeat(40) }), /differs from checked-out HEAD parent/);
 
-console.log('PASS certification-boundary Test-of-Test: exact candidate, governed-only ancestry, source mutation rejection, and ancestry spoof rejection are covered.');
+console.log('PASS certification-boundary Test-of-Test: current Git HEAD is authoritative; stale Markdown candidate cannot override it; checkout/parent spoofing is rejected.');

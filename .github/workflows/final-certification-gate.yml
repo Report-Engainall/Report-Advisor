@@ -36,6 +36,8 @@ jobs:
         shell: bash
         run: CERTIFICATION_SHA="${CERTIFICATION_SHA}" node scripts/build-release-manifest.mjs
       - name: Verify certification boundary integrity
+        env:
+          CERTIFICATION_SHA: ${{ env.CERTIFICATION_SHA }}
         run: node scripts/check-certification-boundary-integrity.mjs
       - name: Run certification contract tests
         shell: bash

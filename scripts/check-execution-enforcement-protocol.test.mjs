@@ -55,4 +55,9 @@ assert.throws(
   /(INDEX DRIFT|INDEX BOUNDARY NOT ANCESTOR)/,
 );
 
+
+const testedHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+const testedParent = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim();
+assert.doesNotThrow(() => validateCurrentHeadIndex('# stale index candidate: `0000000000000000000000000000000000000000`', testedHead, testedParent));
+assert.throws(() => validateCurrentHeadIndex('# stale index candidate', testedParent, testedHead), /differs from checked-out repository HEAD/);
 console.log('PASS v3.6 enforcement adversarial test-of-test (real git ancestry + governance-only boundary)');
