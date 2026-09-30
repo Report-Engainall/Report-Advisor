@@ -1,3 +1,15 @@
+## CURRENT EXACT-HEAD EVIDENCE/EXECUTION SEMANTICS — 2026-09-30
+
+- Exact source/report trust separation is mandatory: `TRUSTED` describes source quality; `PENDING_EVIDENCE` / `AWAITING_EVIDENCE_SNAPSHOT` describes report verification.
+- Canonical commit coverage is independent from evidence acceptance. `canonicalCommitVerified=true` may not promote report verification.
+- A canonical coverage gap is explicit: source/analysis row count may exceed authoritative canonical row count; the authoritative count and gap are persisted and surfaced. This project currently has a proven 399/397 example with gap 2.
+- `reportVerificationState` is derived as `GAP_DETECTED` when a positive canonical gap exists, otherwise `VERIFIED` only when persisted evidence acceptance is explicitly VERIFIED, otherwise `PENDING_EVIDENCE`.
+- `recover_completed_report_execution_result` rejects `evidenceStatus=VERIFIED` during recovery. Evidence acceptance remains a separate authority.
+- The in-memory report queue/coordinator implementations are compatibility-only leaf surfaces. Production source may not import them. The execution-boundary contract verifies this dependency boundary.
+- Exact current-SHA CI proof on `3c6dd2d...`: Typecheck PASS, Build PASS, Lint PASS, row-coverage contract PASS, release readiness PASS, deterministic execution batch PASS. These are current-SHA proofs; they do not constitute browser proof.
+- Browser proof remains separate from database/CI proof. No authenticated current-SHA browser result has been established.
+- Vercel build-rate-limit is external hosting evidence and must not be conflated with GitHub exact-SHA build proof.
+
 ## CURRENT REPORT EVIDENCE-STATE RECONCILIATION — 2026-09-30
 
 - Exact repository lineage → `0e9a3cc37c54b0ecd2b95dd8ab884275f2e6d751`.

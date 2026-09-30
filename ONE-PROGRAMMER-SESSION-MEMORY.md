@@ -1,3 +1,17 @@
+# FINAL LIVE WRITE-BACK — 2026-09-30 / P0 EXACT-SHA PROOF
+
+- EXECUTION BOUNDARY SHA BEFORE ATOMIC CONTROL-PLANE WRITEBACK → `3c6dd2d583b23be990bb9beb22eee9139b00f9c1`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REPORT PROOF → source rows 735; authoritative canonical 735; canonical commit 735; durable stages 1..9 completed/rendered; source analysis 735×7; quality 87; source record verified ready/passed; evidence `AWAITING_EVIDENCE_SNAPSHOT`; source trust `TRUSTED`; report verification `PENDING_EVIDENCE`.
+- EXACT-SHA TYPECHECK/BUILD/LINT → GitHub Quality on `3c6dd2d...` passed Typecheck, Lint and Build plus all scheduled deterministic release/contract gates. Final Execution Batch on the same SHA built the release artifact and passed 29 deterministic gates.
+- EXECUTION GUARD → corrected compatibility-only in-memory boundary passed the exact-SHA quality contract. Production-source importers of the in-memory compatibility surfaces remain prohibited.
+- ROW COVERAGE CONTRACT → 399 source / 397 canonical produces authoritative 397 + gap 2 + `GAP_DETECTED`; no silent downgrade.
+- CORPUS → 39/39 discovered, completed, analyzed and rendered; 0 missing report jobs; evidence verified 0; pending evidence 38; gap detected 1.
+- P2 EVIDENCE INSPECTOR → present in Smart Report and source-bound surfaces: Source, Fingerprint, Canonical Commit, Row Count, Analysis, Evidence, Verification State; Trusted Source remains distinct from Verified Report.
+- BROWSER → authenticated Edge/UI proof remains NOT PROVEN; current GitHub browser workflow only validates checkout.
+- ACTION STATUS → `IN_PROGRESS`.
+- NEXT EXACT ACTION → atomically persist Memory + Execution Index + Data Truth Master to the resulting exact SHA, then read them back from that SHA; after that, certification boundary should be rerun. Browser remains external blocker.
+
 # PRE-CI CHECKPOINT — 2026-09-30 / DURABLE EXECUTION BOUNDARY
 
 - EXACT CURRENT MAIN HEAD → `ec26e5cf9050291d5519b773b5028356d3e87492`.

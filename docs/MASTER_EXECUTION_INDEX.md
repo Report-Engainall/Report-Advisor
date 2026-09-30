@@ -1,3 +1,17 @@
+# CURRENT EXACT-HEAD CERTIFICATION BOUNDARY — 2026-09-30
+
+- EXACT MAIN HEAD BEFORE THIS ATOMIC CONTROL-PLANE WRITEBACK → `3c6dd2d583b23be990bb9beb22eee9139b00f9c1`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- EXACT-SHA CI PROOF → GitHub Actions Quality on `3c6dd2d...`: 20-stage release readiness passed; A0 intelligence hardening passed; Typecheck passed; behavioral/business/deep-golden/outcome/security/decision regressions passed; row-coverage contract passed; Lint passed; Build passed; performance budget, production scale and intelligence/production contracts passed. Final Execution Batch also passed build artifact + 29 deterministic gates on the same SHA.
+- CORE EXECUTION ROOT FIX → `scripts/check-report-execution-coordinator-contract.mjs` now treats `queue.ts`, `execution-ledger.ts`, and `worker-adapter.ts` as compatibility-only leaf definitions and fails when any other production source imports them. No production caller was found by GitHub code search/API search.
+- CURRENT REPORT TRUTH → source 735 / authoritative canonical 735 / canonical commit 735; source analysis 735×7 quality 87; evidence `AWAITING_EVIDENCE_SNAPSHOT`; source trust `TRUSTED`; report verification `PENDING_EVIDENCE`.
+- 399/397 → explicit contract and Staging readback prove source/analysis 399, canonical/authoritative 397, canonical gap 2, verification `GAP_DETECTED`; no manual canonical mutation.
+- OPERATIONAL CORPUS → 39 discovered / 39 registered / 39 completed / 39 analyzed / 39 rendered; 0 missing report jobs; evidence verified 0; gap-detected 1; pending-evidence 38.
+- BROWSER PROOF → Full Product Browser E2E on the tested SHA only verifies exact checkout, not authenticated browser interaction; Microsoft Edge authenticated proof remains NOT PROVEN. TinyFish/Remote Desktop are unavailable.
+- HOSTING → Vercel exact-current-SHA status remains externally build-rate-limited/pending; this does not invalidate the GitHub build proof.
+- ACTION STATUS → `IN_PROGRESS`.
+- NEXT EXACT ACTION → consume/refresh certification boundary after this atomic writeback, then persist resulting exact SHA and read it back; browser remains the only external proof blocker unless the environment becomes available.
+
 # LIVE EXECUTION BOUNDARY — 2026-09-30 / OPERATIONAL REPORT CORPUS CLOSED
 
 - EXACT CURRENT MAIN HEAD → `9b6dd27da548b2c666f485beb905026259ff1c99`.
