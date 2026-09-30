@@ -172,7 +172,7 @@ if (!commits.body?.[0] || Number(commits.body[0].committed_count) !== EXPECTED_R
 }
 
 const imports = await rest(
-  '/import_jobs?id=eq.' + encodeURIComponent(runBody.importId ?? '') +
+  '/import_jobs?id=eq.' + encodeURIComponent(checkpointImportId) +
   '&company_id=eq.' + encodeURIComponent(companyId) +
   '&select=id,status,total_rows,processed_rows,valid_rows,invalid_rows,source_fingerprint',
   accessToken,
