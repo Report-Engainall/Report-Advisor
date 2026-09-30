@@ -8,6 +8,7 @@ export type SmartReportCatalogItem = {
   rowCount: number | null;
   qualityScore: number | null;
   trustState: string | null;
+  reportVerificationState: string | null;
   specialty: string | null;
   evidenceStatus: string | null;
   completedAt: string | null;
@@ -41,6 +42,8 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   canonicalCommitGap: number | null;
   canonicalCommitCount: number;
   canonicalCommitVerified: boolean;
+  sourceTrustState: string | null;
+  reportVerificationState: string;
 };
 
 function renderedOutputOf(evidence: unknown): Record<string, unknown> | null {
@@ -77,10 +80,9 @@ function mapCatalogItem(job: Record<string, unknown>): SmartReportCatalogItem | 
     rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
     qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
     trustState: rendered.trustState == null ? null : String(rendered.trustState),
+    reportVerificationState: rendered.evidenceStatus == null ? 'PENDING_EVIDENCE' : String(rendered.evidenceStatus),
     specialty: rendered.sourceSpecialty == null ? null : String(rendered.sourceSpecialty),
-    evidenceStatus: rendered.canonicalCommitVerified === true
-      ? 'VERIFIED'
-      : rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus),
+    evidenceStatus: rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus),
     completedAt: job.completed_at == null ? null : String(job.completed_at),
   };
 }
@@ -196,6 +198,12 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     canonicalCommitGap,
     canonicalCommitCount,
     canonicalCommitVerified,
+    sourceTrustState: rendered.trustState == null ? null : String(rendered.trustState),
+    reportVerificationState: canonicalCommitGap != null && canonicalCommitGap > 0
+      ? 'GAP_DETECTED'
+      : effectiveEvidenceStatus(rendered) === 'VERIFIED'
+        ? 'VERIFIED'
+        : 'PENDING_EVIDENCE',
     stages: (stages ?? []).map((row) => ({
       ordinal: Number(row.ordinal),
       stage: String(row.stage),
