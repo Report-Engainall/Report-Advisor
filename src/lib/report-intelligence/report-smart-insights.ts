@@ -171,6 +171,59 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
     if (amountHits > 0) addSignal(signals, 'document:amount-presence', 'info', 'قيم رقمية قابلة للفحص', 'ظهرت قيم رقمية/مالية في ' + amountHits + ' أسطر؛ يلزم تعيين دلالتها قبل استخدامها كإجماليات.', ['numericLineHits=' + amountHits]);
   }
 
+  // Cross-field contradictions are source-quality signals. They identify records
+  // that require direct source matching before they can support a financial decision.
+  const invoiceColumn = findColumn(columns, ['invoice_number', 'invoice_no', 'رقم الفاتورة', 'فاتورة']);
+  const totalColumn = findColumn(columns, ['total_amount', 'net_amount', 'total', 'amount', 'الإجمالي', 'الاجمالي']);
+  const paidColumn = findColumn(columns, ['paid_amount', 'paid', 'المدفوع', 'المبلغ المدفوع']);
+  if (rows.length && (totalColumn || paidColumn || invoiceColumn)) {
+    const totalKey = text(totalColumn?.name);
+    const paidKey = text(paidColumn?.name);
+    const invoiceKey = text(invoiceColumn?.name);
+
+    let paidAboveTotal = 0;
+    const invoiceTotals = new Map<string, Set<number>>();
+    for (const row of rows) {
+      const totalValue = totalKey ? numeric(row.data?.[totalKey]) : null;
+      const paidValue = paidKey ? numeric(row.data?.[paidKey]) : null;
+      if (totalValue != null && paidValue != null && paidValue > totalValue + 0.01) paidAboveTotal += 1;
+
+      if (invoiceKey && totalValue != null) {
+        const invoice = text(row.data?.[invoiceKey]);
+        if (invoice) {
+          const values = invoiceTotals.get(invoice) ?? new Set<number>();
+          values.add(totalValue);
+          invoiceTotals.set(invoice, values);
+        }
+      }
+    }
+
+    if (paidAboveTotal > 0) {
+      addSignal(
+        signals,
+        'source:paid-above-total',
+        'high',
+        'المدفوع يتجاوز الإجمالي في سجلات',
+        'هناك ' + paidAboveTotal + ' سجلًا يظهر فيه المدفوع أكبر من إجمالي السجل؛ يجب مطابقة المصدر الأصلي والقيد المحاسبي قبل اعتماد التحصيل.',
+        ['totalField=' + totalKey, 'paidField=' + paidKey, 'affectedRows=' + paidAboveTotal],
+        paidAboveTotal,
+      );
+    }
+
+    const conflictingInvoiceTotals = [...invoiceTotals.values()].filter((values) => values.size > 1).length;
+    if (conflictingInvoiceTotals > 0) {
+      addSignal(
+        signals,
+        'source:invoice-total-conflict',
+        'high',
+        'نفس رقم الفاتورة يظهر بإجماليات مختلفة',
+        'يوجد ' + conflictingInvoiceTotals + ' أرقام فواتير لها أكثر من إجمالي داخل المصدر؛ قد تكون حركة صحيحة أو تعارضًا يحتاج مطابقة.',
+        ['invoiceField=' + invoiceKey, 'totalField=' + totalKey, 'conflictingInvoices=' + conflictingInvoiceTotals],
+        conflictingInvoiceTotals,
+      );
+    }
+  }
+
   const keyColumn = findColumn(columns, ['sku', 'product_code', 'رقم الصنف', 'barcode']);
   const warehouseColumn = findColumn(columns, ['warehouse', 'المخزن', 'المستودع']);
   const priceColumn = findColumn(columns, ['price', 'السعر', 'selling_price', 'سعر البيع']);
@@ -241,6 +294,8 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
     else if (signal.id.includes('price-variation')) action = 'قارن اختلاف السعر حسب المستودع والوحدة وتاريخ المصدر قبل إصدار تنبيه سعري أو قرار تسعير.';
     else if (signal.id.includes('date-missing')) action = 'ثبّت تاريخًا موحدًا للمصدر قبل بناء أي اتجاه زمني.';
     else if (signal.id.includes('amount-missing')) action = 'حدّد الحقل المالي الصحيح واربطه بالحقل الكانوني قبل إصدار إجمالي.';
+    else if (signal.id.includes('paid-above-total')) action = 'افتح السجلات المتأثرة وطابق الإجمالي والمدفوع مع الفاتورة الأصلية والقيد المحاسبي قبل اعتماد التحصيل.';
+    else if (signal.id.includes('invoice-total-conflict')) action = 'طابق أرقام الفواتير المتعارضة مع المستندات الأصلية وسبب التعديل/التجزئة قبل اعتبارها ازدواجية أو خطأ.';
     return {
       id: 'rec:' + signal.id,
       status: 'PROPOSED' as const,
