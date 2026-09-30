@@ -1,3 +1,16 @@
+# FINAL LIVE WRITE-BACK — 2026-09-30 / SOURCE-BOUND RESULT SURFACES
+
+- EXACT MAIN HEAD → `9043e6f10cef89c23aa72ad1f0060018cff0b1ed`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REAL REPORT RESULT → 735/735 processed; all 9 durable stages completed/rendered; canonical commit 735; source analysis 735 rows × 7 columns; quality 87; persisted outputs for Executive/Evidence/Decision/Work Center/Inventory.
+- COMPLETED PRODUCT FIX → `fetchSmartReport` now returns durable stage evidence; new `SourceBoundReportSurface` provides source-specific Executive/Trust/Decision/Work views; all four route wrappers switch to this surface when `reportJobId` exists and reject a mismatched `sourceHash`.
+- SOURCE-TRUTH RULE → source-context Decision does not show unrelated company-wide recommendations/alerts; source-context Work Center shows the report's durable lifecycle rather than global queue health; source-context Executive and Trust surfaces read the persisted report itself.
+- CORPUS TRUTH → exact-head `tests/fixtures/realistic-reports/` still contains only README. The persisted 35-report Smart cohort is staging evidence, not a claim that 35/40+ fixture files are tracked in Git.
+- PROOF BOUNDARY → code and Supabase staging persistence/readback are evidenced; exact current-SHA typecheck/build status is not exposed by the available GitHub wrapper, and combined status currently shows only Vercel build-rate-limit failure/pending deployment. Authenticated Microsoft Edge visual proof remains NOT PROVEN.
+- ACTION STATUS → `IN_PROGRESS` only for exact-SHA runtime/hosting proof; completed report itself is not reopened or re-imported.
+- DO-NOT-REPEAT → no blind re-import, no canonical row rewrite, no tenant bypass, no global-to-source inference, no stale PASS, no fake browser proof.
+- NEXT EXACT ACTION → current-head CI/browser/hosting proof; if unavailable, preserve this SHA and continue only the remaining runtime contract closure.
+
 # PRE-LONG-ACTION CHECKPOINT — 2026-09-30 / SOURCE-BOUND RESULT SURFACES
 
 - EXACT MAIN HEAD → `8d00d2a39bf743681e1033111e180c52d7906cd2`.
