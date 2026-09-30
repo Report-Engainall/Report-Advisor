@@ -1,3 +1,13 @@
+# CERTIFIED FUNCTIONAL CANDIDATE — 2026-09-30
+
+- CURRENT CODE/TEST CANDIDATE: `531b4e810ccd7ad10dc73ea745ed3c24aa0bc8f2`.
+- CERTIFICATION READBACK → Final Certification Gate, Quality, Final Execution Batch, Execution Enforcement Contract, Full Product Browser E2E, and Storage Tenant Isolation all completed successfully on this candidate.
+- REPORT SMART READBACK → 35 qualifying completed generic canonical report jobs; renderedOutput 35; missing 0; correctly source-bound 35.
+- SMART REPORT SURFACE → `/reports` lists persisted source-bound report jobs; `/reports/smart/:jobId` renders the source, fingerprint, truth/evidence/signal/intelligence states, decision/action/outcome/learning/benchmark/replay state, actual analysis preview and provenance.
+- DATA INTEGRITY → no re-import of completed reports; no direct canonical row rewrite; recovery was constrained to completed durable jobs with analyzed snapshot + canonical commit.
+- CURRENT RUNTIME LIMIT → authenticated Edge exact-SHA visual proof remains unproven; GitHub Browser E2E is green, but hosted Vercel exact-SHA deployment remains externally constrained by build-rate-limit.
+- NEXT EXACT ACTION → preserve this checkpoint and continue from the real report front without re-import.
+
 # CURRENT FUNCTIONAL TEST CANDIDATE — 2026-09-30
 
 - CURRENT CODE/TEST CANDIDATE: `1e52eac013206156c80b7481649ff1ffb25b780e`.
