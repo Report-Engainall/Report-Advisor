@@ -524,3 +524,26 @@ Exact code/CI commit immediately before this checkpoint: `3e93c7daee57de8bbdd637
 Release remains OPEN because live deployment/proof is still blocked by the available deployment path: Vercel reports `build-rate-limit`, Netlify production remains on an older deploy, and the connected desktop is offline. No browser/runtime PASS is claimed.
 
 NEXT EXACT ACTION: execute `main` on an available runtime and complete the authoritative open-report proof, then validate source-bound smart/specialty surfaces in the real browser.
+
+
+## LIVE CHECKPOINT — 2026-09-30 / PRODUCT WAVE + DOCUMENT HEART HARDENING / HEAD 2ff8c25
+
+Two execution lanes advanced on the same main line:
+
+PRODUCT LANE
+- Smart Report now contains a source-bound Report Workspace over `canonicalRows` rather than preview rows.
+- Workspace capabilities: full-source search, deterministic sorting, page size selection, column visibility, saved local views keyed by source hash, reset, and CSV export.
+- The workspace never changes canonical data; it is an exploration surface bound to the report fingerprint.
+- Regression contract: `scripts/source-report-workspace-contract.test.mjs`.
+
+CORE LANE
+- Native PDF visual fallback preserves page/line/cell structure and remains REVIEW-capable when table semantics are unproven.
+- Smart-report intelligence consumes paginated canonical rows rather than a 2,000-row cap, with explicit partial-analysis handling beyond the defensive ceiling.
+- Cross-field report contradictions now produce deterministic evidence-review signals and recommendations.
+- Long scanned PDFs: safe OCR ceiling raised from 20 to 120 pages. The server-authoritative runtime still fail-closes when scanned-image OCR cannot be performed by an approved server OCR adapter; no fabricated extraction is allowed.
+- Regression contract: `scripts/pdf-long-document-ocr-boundary.test.mjs`.
+- Release core now includes both new contracts and the E2E workflow watches them.
+
+Current hosting/runtime boundary remains unchanged: available deployment path has not yet produced a current-head authenticated browser proof. This is not converted to PASS.
+
+NEXT EXACT ACTION: continue the product wave with real persistent work-item/collaboration integration on top of the existing `decision_work_items` contract, while preserving source-bound evidence and tenant isolation; then consume exact-head runtime proof when an executable deployment path is available.
