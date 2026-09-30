@@ -83,9 +83,9 @@ function splitVisualLine(tokens: PdfTextToken[]): string[] {
 
   const medianGap = median(gaps.filter((gap) => gap > 0));
   // Column boundaries in real PDFs can be only slightly wider than the token width.
-  // A threshold based on ~1.25x token width preserves normal word spacing while
-  // still separating adjacent visual columns in compact tables.
-  const largeGapThreshold = Math.max(8, medianWidth * 1.25, medianGap > 0 ? medianGap * 0.75 : 0);
+  // A threshold based on ~1.10x token width preserves normal word spacing while
+  // separating adjacent visual columns in compact tables with uneven cell widths.
+  const largeGapThreshold = Math.max(6, medianWidth * 1.1, medianGap > 0 ? medianGap * 0.75 : 0);
 
   const cells: string[] = [];
   let current = '';
