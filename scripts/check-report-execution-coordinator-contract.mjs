@@ -21,8 +21,8 @@ function scanSourceTree(dir, relative = '') {
       scanSourceTree(new URL(`../src/${nextRelative}/`, import.meta.url).pathname, nextRelative);
       continue;
     }
-    if (!/\\.(ts|tsx|js|jsx)$/.test(entry.name)) continue;
-    if (allowedInMemoryFiles.has(nextRelative)) continue;
+    if (!/\.(ts|tsx|js|jsx)$/.test(entry.name)) continue;
+    if (allowedInMemoryFiles.has(nextRelative) || /\.test\.(ts|tsx|js|jsx)$/.test(entry.name)) continue;
     const source = fs.readFileSync(new URL(`../src/${nextRelative}`, import.meta.url), 'utf8');
     for (const token of forbiddenProductionTokens) {
       if (source.includes(token)) throw new Error(`Production source references in-memory report execution surface: ${nextRelative}: ${token}`);
