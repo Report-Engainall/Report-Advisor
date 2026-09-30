@@ -209,6 +209,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
   const output = report.renderedOutput;
   const [decisions, setDecisions] = useState<SourceDecisionState[]>([]);
   const [decisionAction, setDecisionAction] = useState<Record<string, string>>({});
+  const [actualImpact, setActualImpact] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let active = true;
@@ -249,53 +250,41 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
     });
   };
 
-  const requestApproval = (decision: SourceDecisionSta
+  const startWorkItem = (decision: SourceDecisionState) => {
+    if (!decision.workItemId) return;
+    setDecisionAction((current) => ({ ...current, [decision.id]: 'starting-work' }));
+    void startSourceDecisionWorkItem(decision.workItemId).then(() => {
+      setDecisionAction((current) => ({ ...current, [decision.id]: 'work-started' }));
+      setDecisions((current) => current.map((item) => item.id === decision.id ? { ...item, workItemStatus: 'IN_PROGRESS' } : item));
+    }).catch(() => {
+      setDecisionAction((current) => ({ ...current, [decision.id]: 'start-error' }));
+    });
+  };
 
-      <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">GOVERNED DECISIONS</div>
-            <h2 className="mt-1 text-lg font-black text-ink-950">القرارات المقترحة المرتبطة بهذا المصدر</h2>
-            <p className="mt-1 text-[10px] leading-5 text-ink-500">الحفظ هنا ينشئ قرارًا مقترحًا فقط. طلب الموافقة يمر عبر الـRPC الحاكم؛ لا يتم إنشاء Work Item أو تنفيذ تلقائيًا.</p>
-          </div>
-          <span className="rounded-full bg-ink-50 px-2.5 py-1 text-[9px] font-black text-ink-600">{formatNumber(decisions.length)}</span>
-        </div>
-        <div className="mt-4 space-y-2">
-          {decisions.length ? decisions.map((decision) => (
-            <div key={decision.id} className="flex flex-col gap-3 rounded-xl border border-ink-200 bg-ink-50/70 p-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-black text-ink-900">{decision.signalTitle ?? decision.decisionKey}</span>
-                  <span className="rounded-full bg-white px-2 py-1 text-[9px] font-bold text-ink-600">{stateLabel(decision.status)}</span>
-                </div>
-                <div className="mt-1 break-all font-mono text-[8px] text-ink-400">{decision.id}</div>
-                {decision.workItemId && (
-                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[9px] font-bold text-primary-700">
-                    <span>Work Item: {decision.workItemStatus ?? 'OPEN'}</span>
-                    <span className="font-mono text-ink-400">{decision.workItemId}</span>
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {decision.status === 'PROPOSED' && (
-                  <button type="button" disabled={decisionAction[decision.id] === 'saving'} onClick={() => requestApproval(decision)} className="btn-primary text-[10px] disabled:opacity-50">
-                    {decisionAction[decision.id] === 'saving' ? 'جارٍ طلب الموافقة...' : decisionAction[decision.id] === 'requested' ? 'تم طلب الموافقة' : 'طلب الموافقة'}
-                  </button>
-                )}
-                {decision.status === 'APPROVED' && (
-                  <button type="button" disabled={decisionAction[decision.id] === 'creating-work' || decisionAction[decision.id] === 'work-created'} onClick={() => createWorkItem(decision)} className="btn-primary text-[10px] disabled:opacity-50">
-                    {decisionAction[decision.id] === 'creating-work' ? 'جارٍ إنشاء عنصر العمل...' : decisionAction[decision.id] === 'work-created' ? 'تم إنشاء عنصر العمل' : 'إنشاء عنصر عمل لي'}
-                  </button>
-                )}
-                {decisionAction[decision.id] === 'work-error' && <span className="self-center text-[9px] font-bold text-danger-700">تعذر إنشاء عنصر العمل؛ تحقق من صلاحيتك وأن القرار معتمد.</span>}
-                {decisionAction[decision.id] === 'error' && <span className="self-center text-[9px] font-bold text-danger-700">تعذر طلب الموافقة؛ الصلاحية أو حالة القرار تحتاج مراجعة.</span>}
-              </div>
-            </div>
-          )) : <div className="rounded-xl border border-ink-200 bg-ink-50 p-4 text-[10px] text-ink-600">لا توجد قرارات مصدرية محفوظة بعد لهذا المصدر.</div>}
-        </div>
-      </section>
+  const completeWorkItem = (decision: SourceDecisionState) => {
+    if (!decision.workItemId || !report.sourceAnalysis?.id) return;
+    const rawImpact = actualImpact[decision.id]?.trim() ?? '';
+    const parsedImpact = rawImpact ? Number(rawImpact.replace(/,/g, '')) : null;
+    if (parsedImpact != null && !Number.isFinite(parsedImpact)) {
+      setDecisionAction((current) => ({ ...current, [decision.id]: 'impact-error' }));
+      return;
+    }
+    setDecisionAction((current) => ({ ...current, [decision.id]: 'completing-work' }));
+    void completeSourceDecisionWorkItem({
+      workItemId: decision.workItemId,
+      actualImpact: parsedImpact,
+      evidenceSnapshotId: report.sourceAnalysis.id,
+      reportJobId: report.jobId,
+      sourceHash: report.sourceHash,
+    }).then(() => {
+      setDecisionAction((current) => ({ ...current, [decision.id]: 'work-completed' }));
+      setDecisions((current) => current.map((item) => item.id === decision.id ? { ...item, workItemStatus: 'COMPLETED', status: 'EXECUTED' } : item));
+    }).catch(() => {
+      setDecisionAction((current) => ({ ...current, [decision.id]: 'complete-error' }));
+    });
+  };
 
-te) => {
+  const requestApproval = (decision: SourceDecisionState) => {
     setDecisionAction((current) => ({ ...current, [decision.id]: 'saving' }));
     void requestSourceDecisionApproval(
       decision.id,
