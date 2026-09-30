@@ -13,4 +13,6 @@ assert.ok(surface.includes("إنشاء عنصر عمل لي"));
 assert.ok(surface.includes("decision.status === 'APPROVED'"));
 assert.ok(surface.includes("workItemId"));
 assert.ok(decisions.includes("decision_work_items"));
+assert.ok(decisions.includes("p_due_at: input.dueAt ?? null"));
+assert.ok(surface.includes("موعد عنصر العمل"));
 console.log('SOURCE_DECISION_WORK_ITEM_CONTRACT_PASS');
