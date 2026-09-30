@@ -13,7 +13,7 @@ import type { ImportRecord } from '@/lib/types';
 import { formatNumber } from '@/lib/format';
 
 type FilterKey = 'all' | 'active' | 'review' | 'completed' | 'failed';
-type DecisionWorkFilter = 'all' | 'open' | 'in_progress' | 'completed';
+type DecisionWorkFilter = 'all' | 'open' | 'in_progress' | 'completed' | 'overdue';
 const statusLabel = (s: string | null) => ({ queued: 'بالانتظار', processing: 'قيد التنفيذ', completed: 'مكتمل', partial: 'مكتمل جزئيًا', failed: 'فشل', cancelled: 'ملغى' }[s ?? ''] ?? 'غير معروف');
 const statusClass = (s: string | null) => s === 'completed' ? 'bg-success-50 text-success-700' : s === 'failed' ? 'bg-danger-50 text-danger-700' : s === 'partial' ? 'bg-warning-50 text-warning-700' : s === 'processing' ? 'bg-primary-50 text-primary-700' : 'bg-ink-50 text-ink-600';
 function matches(row: ImportRecord, filter: FilterKey) {
@@ -55,6 +55,11 @@ function WorkCenterGeneralPage() {
   useEffect(() => { void load(); }, [load]);
 
   const filtered = useMemo(() => rows.filter(r => matches(r, filter)), [rows, filter]);
+  const isOverdue = (item: DecisionWorkItemRecord) =>
+    Boolean(item.dueAt) &&
+    Date.parse(item.dueAt as string) < Date.now() &&
+    item.status !== 'COMPLETED';
+
   const filteredDecisionWork = useMemo(() => decisionWorkItems.filter((item) =>
     decisionWorkFilter === 'all'
       ? true
@@ -62,13 +67,16 @@ function WorkCenterGeneralPage() {
         ? item.status === 'OPEN'
         : decisionWorkFilter === 'in_progress'
           ? item.status === 'IN_PROGRESS'
-          : item.status === 'COMPLETED'
+          : decisionWorkFilter === 'completed'
+            ? item.status === 'COMPLETED'
+            : isOverdue(item)
   ), [decisionWorkItems, decisionWorkFilter]);
 
   const decisionWorkCounts = useMemo(() => ({
     open: decisionWorkItems.filter(item => item.status === 'OPEN').length,
     inProgress: decisionWorkItems.filter(item => item.status === 'IN_PROGRESS').length,
     completed: decisionWorkItems.filter(item => item.status === 'COMPLETED').length,
+    overdue: decisionWorkItems.filter(isOverdue).length,
   }), [decisionWorkItems]);
 
   const sourceContextFromWork = (item: DecisionWorkItemRecord) => {
@@ -218,9 +226,9 @@ function WorkCenterGeneralPage() {
           <p className="mt-1 text-[11px] leading-5 text-ink-600">هذه المهام محفوظة في النظام الحاكم ومربوطة بمصدرها. مركز العمل يعرض الحالة؛ تفاصيل البدء والإغلاق والدليل تبقى مرتبطة بالتقرير.</p>
         </div>
         <div className="flex flex-wrap gap-2" role="toolbar" aria-label="تصفية عناصر القرار">
-          {(['all','open','in_progress','completed'] as DecisionWorkFilter[]).map((key) => (
+          {(['all','open','in_progress','completed','overdue'] as DecisionWorkFilter[]).map((key) => (
             <button key={key} type="button" onClick={() => setDecisionWorkFilter(key)} aria-pressed={decisionWorkFilter === key} className={'rounded-full px-3 py-1.5 text-[10px] font-bold ' + (decisionWorkFilter === key ? 'bg-ink-950 text-white' : 'bg-white text-ink-600 hover:bg-ink-50')}>
-              {key === 'all' ? 'الكل' : key === 'open' ? 'مفتوح' : key === 'in_progress' ? 'قيد التنفيذ' : 'مكتمل'}
+              {key === 'all' ? 'الكل' : key === 'open' ? 'مفتوح' : key === 'in_progress' ? 'قيد التنفيذ' : key === 'completed' ? 'مكتمل' : 'متأخر'}
             </button>
           ))}
         </div>
@@ -230,6 +238,7 @@ function WorkCenterGeneralPage() {
         <div className="rounded-xl border border-ink-100 bg-white p-3"><div className="text-[9px] text-ink-400">مفتوحة</div><div className="mt-1 text-xl font-black text-ink-950">{formatNumber(decisionWorkCounts.open)}</div></div>
         <div className="rounded-xl border border-ink-100 bg-white p-3"><div className="text-[9px] text-ink-400">قيد التنفيذ</div><div className="mt-1 text-xl font-black text-primary-700">{formatNumber(decisionWorkCounts.inProgress)}</div></div>
         <div className="rounded-xl border border-ink-100 bg-white p-3"><div className="text-[9px] text-ink-400">مكتملة</div><div className="mt-1 text-xl font-black text-success-700">{formatNumber(decisionWorkCounts.completed)}</div></div>
+        <div className="rounded-xl border border-danger-200 bg-danger-50/60 p-3"><div className="text-[9px] text-danger-700">متأخرة</div><div className="mt-1 text-xl font-black text-danger-700">{formatNumber(decisionWorkCounts.overdue)}</div></div>
       </div>
 
       <div className="mt-4 overflow-x-auto rounded-xl border border-ink-200 bg-white">
