@@ -29,6 +29,8 @@ const STATE_LABELS: Record<string, string> = {
   NOT_AVAILABLE: 'غير متاح',
   INSUFFICIENT_SAMPLE: 'عينة غير كافية',
   NOT_COMMITTED: 'غير معتمد',
+  PENDING_EVIDENCE: 'بانتظار الدليل',
+  GAP_DETECTED: 'فجوة اعتماد مكتشفة',
 };
 
 function stateLabel(value: unknown): string {
@@ -102,7 +104,9 @@ function SourceHeader({ report }: { report: SmartReportDetail }) {
             <span>•</span>
             <span>الثقة: {stateLabel(report.trustState)}</span>
             <span>•</span>
-            <span>الدليل: {stateLabel(report.evidenceStatus)}</span>
+            <span>المصدر: {stateLabel(report.sourceTrustState ?? report.trustState)}</span>
+            <span>•</span>
+            <span>التحقق: {report.reportVerificationState === 'VERIFIED' ? 'موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'فجوة اعتماد' : 'بانتظار الدليل'}</span>
           </div>
           <div className="mt-2 break-all font-mono text-[9px] text-ink-400">{report.sourceHash}</div>
         </div>
@@ -121,8 +125,9 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
   return (
     <>
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatusCell label="Truth" value={report.trustState}/>
-        <StatusCell label="Evidence" value={report.evidenceStatus}/>
+        <StatusCell label="Source Trust" value={report.sourceTrustState ?? report.trustState}/>
+        <StatusCell label="Source Trust" value={report.sourceTrustState ?? report.trustState}/>
+        <StatusCell label="Report Verification" value={report.reportVerificationState}/>
         <StatusCell label="Decision" value={output.decisionStatus}/>
         <StatusCell label="Benchmark" value={output.benchmarkStatus}/>
       </section>
@@ -162,6 +167,7 @@ function TrustMode({ report }: { report: SmartReportDetail }) {
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatusCell label="Truth" value={report.trustState}/>
         <StatusCell label="Evidence" value={report.evidenceStatus}/>
+        <StatusCell label="Verification" value={report.reportVerificationState}/>
         <StatusCell label="Analysis" value={report.sourceAnalysis?.analysisStatus}/>
         <StatusCell label="Canonical" value={report.canonicalCommitVerified ? 'VERIFIED' : 'NOT_COMMITTED'}/>
       </section>
@@ -185,7 +191,8 @@ function TrustMode({ report }: { report: SmartReportDetail }) {
               {report.canonicalCommitVerified ? `الاعتماد الكانوني مثبت: ${formatNumber(report.canonicalCommitCount)} سجل.` : 'الاعتماد الكانوني غير مثبت لهذا المصدر؛ لا تُرفع الثقة بالاستنتاج.'}
               {report.canonicalCommitGap != null && report.canonicalCommitGap > 0 && <span className="mr-2 font-bold text-warning-900">فجوة الاعتماد: {formatNumber(report.canonicalCommitGap)} صف.</span>}
             </div>
-            <div className="rounded-xl border border-warning-200 bg-warning-50 p-3 text-xs text-warning-900">وجود المصدر وحده لا يعني وجود قرار أو تنفيذ أو نتيجة لاحقة.</div>
+            <div className="rounded-xl border border-warning-200 bg-warning-50 p-3 text-xs text-warning-900">Trusted Source لا تعني Verified Report. حالة الدليل النهائية تعتمد على evidence acceptance مستقل.</div>
+            <div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">حالة التحقق: {report.reportVerificationState === 'VERIFIED' ? 'موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'فجوة اعتماد' : 'بانتظار الدليل'}</div>
             <div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">Benchmark: {stateLabel(report.renderedOutput.benchmarkStatus)} — لا يتم اختلاق مقارنة عند نقص العينة.</div>
           </div>
         </div>
