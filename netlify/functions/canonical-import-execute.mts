@@ -25,6 +25,14 @@ function bearer(request: Request): string {
   return value;
 }
 
+function reportEntityTypeFromJobKey(jobKey: string): string {
+  const parts = jobKey.split(':');
+  if (parts[0] !== 'canonical-import') throw new Error('REPORT_EXECUTION_JOB_KEY_INVALID');
+  if (parts[1] === 'generic' && parts[2]) return 'generic:' + parts[2];
+  if (parts[1]) return parts[1];
+  throw new Error('REPORT_EXECUTION_ENTITY_TYPE_MISSING');
+}
+
 export default async (request: Request): Promise<Response> => {
   if (request.method !== 'POST') return json(405, { error: 'METHOD_NOT_ALLOWED' });
 
