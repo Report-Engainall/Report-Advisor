@@ -27,6 +27,16 @@ export type SmartReportDetail = SmartReportCatalogItem & {
     columnCount: number | null;
     datasets: unknown[];
   } | null;
+  stages: Array<{
+    ordinal: number;
+    stage: string;
+    status: string;
+    attempt: number;
+    startedAt: string | null;
+    completedAt: string | null;
+    lastError: Record<string, unknown>;
+    evidence: Record<string, unknown>;
+  }>;
 };
 
 function renderedOutputOf(evidence: unknown): Record<string, unknown> | null {
@@ -121,6 +131,15 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
   const rendered = renderedOutputOf(job.evidence);
   if (!rendered) throw new Error('SMART_REPORT_RENDERED_OUTPUT_MISSING');
 
+  const { data: stages, error: stageError } = await supabase
+    .from('report_execution_tasks')
+    .select('ordinal,stage,status,attempt,started_at,completed_at,last_error,evidence')
+    .eq('company_id', companyId)
+    .eq('report_execution_job_id', job.id)
+    .order('ordinal', { ascending: true });
+
+  if (stageError) throw stageError;
+
   const { data: analyses, error: analysisError } = await supabase
     .from('source_analysis_snapshots')
     .select('id,import_job_id,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
@@ -157,5 +176,15 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     checkpointStage: job.checkpoint?.stage == null ? null : String(job.checkpoint.stage),
     renderedOutput: rendered,
     sourceAnalysis,
+    stages: (stages ?? []).map((row) => ({
+      ordinal: Number(row.ordinal),
+      stage: String(row.stage),
+      status: String(row.status),
+      attempt: Number(row.attempt ?? 0),
+      startedAt: row.started_at == null ? null : String(row.started_at),
+      completedAt: row.completed_at == null ? null : String(row.completed_at),
+      lastError: row.last_error && typeof row.last_error === 'object' ? row.last_error as Record<string, unknown> : {},
+      evidence: row.evidence && typeof row.evidence === 'object' ? row.evidence as Record<string, unknown> : {},
+    })),
   };
 }
