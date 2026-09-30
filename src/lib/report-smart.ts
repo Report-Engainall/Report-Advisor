@@ -99,13 +99,24 @@ export async function fetchSmartReportCatalog(limit = 60): Promise<SmartReportCa
     .eq('status', 'completed')
     .like('job_key', 'canonical-import:generic:%')
     .not('evidence->renderedOutput', 'is', null)
+    .not('source_path', 'like', 'customer-%')
+    .not('source_path', 'like', 'product-%')
+    .not('source_path', 'like', 'invoice-%')
     .order('completed_at', { ascending: false })
-    .range(0, limit - 1);
+    .range(0, Math.max(limit * 4, 120) - 1);
 
   if (error) throw error;
-  return (jobs ?? [])
-    .map((job) => mapCatalogItem(job as Record<string, unknown>))
-    .filter((item): item is SmartReportCatalogItem => item !== null);
+
+  const seenSourceHashes = new Set<string>();
+  const catalog: SmartReportCatalogItem[] = [];
+  for (const job of jobs ?? []) {
+    const item = mapCatalogItem(job as Record<string, unknown>);
+    if (!item || seenSourceHashes.has(item.sourceHash)) continue;
+    seenSourceHashes.add(item.sourceHash);
+    catalog.push(item);
+    if (catalog.length >= limit) break;
+  }
+  return catalog;
 }
 
 export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail | null> {
