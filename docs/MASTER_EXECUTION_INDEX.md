@@ -1,3 +1,21 @@
+# LIVE EXECUTION BOUNDARY — 2026-09-30 / OPERATIONAL REPORT CORPUS CLOSED
+
+- EXACT CURRENT MAIN HEAD → `9b6dd27da548b2c666f485beb905026259ff1c99`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- CURRENT REPORT RESULT → source rows 735; authoritative canonical rows 735; canonical commit 735; durable 9/9 completed/rendered; source analysis 735×7 quality 87; evidence `AWAITING_EVIDENCE_SNAPSHOT`; trust `TRUSTED`.
+- OPERATIONAL STORAGE REPORT CORPUS → `DISCOVERED=39`, `REGISTERED=39`, `COMPLETED=39`, `ANALYZED=39`, `RENDERED=39`, `NO_REPORT_JOB=0`, `NONCOMPLETED=0`.
+- PARTIAL COMMIT TRUTH → one report has source/analyzed rows 399 and authoritative canonical rows 397, gap 2. This is persisted as `authoritativeCurrentRowCount=397` and `canonicalCommitGap=2`; the report remains rendered and the gap is explicit, not silently dropped.
+- RECOVERY ROOT → new canonical migration `20260930130000_report_recovery_analysis_and_partial_commit_output.sql` persists the source-analysis recovery contract and rendered-output recovery that distinguishes source rows from authoritative canonical rows.
+- PREVIOUS ROOT FIXES → source-record recovery migration `20260930110000_reconcile_completed_report_source_record_binding.sql`; evidence-state guard `20260930120000_harden_report_recovery_evidence_state.sql`.
+- SEMANTIC EVIDENCE → persisted evidence remains `AWAITING_EVIDENCE_SNAPSHOT` unless a dedicated evidence acceptance contract proves otherwise. Canonical commit proof is separate.
+- UI → Smart Report + SourceBoundReportSurface now show source rows versus authoritative canonical rows and report canonical coverage gaps explicitly.
+- RUNTIME EXECUTION → existing durable execution guard blocks production references to in-memory report execution outside canonical local/test implementation files.
+- CORPUS BOUNDARY → this closes the discovered Storage operational report corpus (39). GitHub `tests/fixtures/realistic-reports/` still contains README only, so no Git fixture-corpus completion is claimed.
+- PROOF BOUNDARY → Staging source/recovery/canonical corpus readback is proven. Exact current-SHA automated typecheck/build is not exposed by the GitHub wrapper; current status shows Vercel build-rate-limit failure. Authenticated Microsoft Edge/browser proof remains NOT PROVEN.
+- ACTION STATUS → `IN_PROGRESS` only for exact-current-SHA certification/runtime/browser closure.
+- DO-NOT-REPEAT → no re-import of completed reports, no canonical-row rewrite, no evidence promotion, no stale CI/browser PASS, no database-to-browser inference.
+- NEXT EXACT ACTION → current-SHA CI/build/runtime/browser proof; preserve corpus closure state while closing certification.
+
 # LIVE EXECUTION BOUNDARY — 2026-09-30 / EVIDENCE TRUTH GUARD
 
 - EXACT MAIN EXECUTION HEAD → `fe32b46ca96ceb6df7d33514ebdf41b800d7a901`.
