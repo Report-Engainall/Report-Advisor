@@ -219,13 +219,15 @@ function looksLikeInvoiceNumber(value: string): boolean {
 }
 
 function looksLikeInvoiceType(value: string): boolean {
-  const normalized = value.trim().toLowerCase();
-  return /^(آجل|نقد|تحويل|من حساب|نقدا|آجل\\s*|credit|cash|transfer)$/i.test(normalized);
+  const normalized = value.normalize('NFKC').trim().toLowerCase();
+  if (!normalized) return false;
+  return !/^(نوع\\s*الفاتورة|التاريخ|رقم\\s*الفاتورة|الفاتورة|العملة)$/i.test(normalized);
 }
+
 
 function tokenTextForBand(tokens: PdfTextToken[], reverse = false): string {
   const ordered = [...tokens].sort((a, b) => reverse ? b.x - a.x : a.x - b.x);
-  return ordered.map((token) => token.text.trim()).filter(Boolean).join(' ').trim();
+  return ordered.map((token) => token.text.normalize('NFKC').trim()).filter(Boolean).join(' ').trim();
 }
 
 function scaledArabicSalesBands(pageWidth: number): Array<[number, number]> {
