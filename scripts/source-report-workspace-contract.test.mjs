@@ -11,5 +11,8 @@ assert.ok(source.includes('تصدير CSV'));
 assert.ok(source.includes('بحث داخل كل أعمدة التقرير'));
 assert.ok(source.includes('ROW INSPECTOR'));
 assert.ok(source.includes('selectedRowNumber'));
+assert.ok(source.includes('groupedRows'));
+assert.ok(source.includes('GROUPED ANALYSIS'));
+assert.ok(source.includes('aggregateColumn'));
 assert.ok(!source.includes('const workspaceRows = previewRows'));
 console.log('SOURCE_REPORT_WORKSPACE_CONTRACT_PASS');
