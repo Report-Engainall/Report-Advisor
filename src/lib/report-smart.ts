@@ -60,6 +60,8 @@ function effectiveEvidenceStatus(
 
 function entityTypeFrom(jobKey: string): string {
   const parts = jobKey.split(':');
+  if (parts[0] === 'canonical-import' && parts[1] === 'generic' && parts[2]) return `generic:${parts[2]}`;
+  if (parts[0] === 'canonical-import' && parts[1]) return parts[1];
   return parts.length >= 3 ? parts.slice(2).join(':') : jobKey;
 }
 
