@@ -260,8 +260,12 @@ export default async (request: Request): Promise<Response> => {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED';
+    console.error('[canonical-import-execute] failed', error);
     const status = message.startsWith('NETLIFY_ENV_MISSING') ? 503 : 400;
-    return json(status, { error: 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED', detail: message.slice(0, 512) });
+    const detail = process.env.REPORT_ADVISOR_E2E_DEBUG === '1'
+      ? message.slice(0, 512)
+      : 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED';
+    return json(status, { error: 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED', detail });
   }
 };
 
