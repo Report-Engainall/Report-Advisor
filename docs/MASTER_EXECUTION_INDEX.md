@@ -8,6 +8,7 @@
 - TRUTH CONTRACT → each recovered report preserves actual source hash, row count and quality; decision/action/outcome/learning/replay/benchmark are not promoted beyond persisted evidence. Recovered jobs without an evidence snapshot remain `AWAITING_EVIDENCE_SNAPSHOT`.
 - CANONICAL RECOVERY → Staging recovery contract executed once against completed durable report jobs; no blind re-import and no direct canonical-row mutation.
 - REMAINING-WORK REGISTER → backup/restore remains governed by the existing resilience boundary; do not mark it closed without its own exact evidence.
+- RECOVERY REGISTER → backup/restore, rollback, recovery, and runtime proof remains open are explicitly tracked here; source-level certification does not substitute for runtime restore/rollback evidence.
 - CURRENT TEST FINDINGS → UI route completeness required the smart detail route to be classified as internal progressive disclosure; this was fixed in the functional candidate. Certification boundary still needs the governance-only re-anchor below before the current SHA can certify.
 - HOSTING → Vercel status remains externally rate-limited by the free-plan build-rate limit; this is not treated as application PASS/FAIL evidence.
 - BROWSER → authenticated exact-SHA Edge/browser proof remains NOT PROVEN; no browser PASS is inferred from database state.
