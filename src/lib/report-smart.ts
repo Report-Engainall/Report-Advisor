@@ -138,18 +138,6 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
     canonicalRows,
   });
 
-  const specialty = rendered.sourceSpecialty == null
-    ? inferSpecialtyFromAnalysis(sourceAnalysis)
-    : String(rendered.sourceSpecialty);
-
-  const intelligence = deriveReportIntelligence({
-    specialty,
-    rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
-    sourceAnalysis,
-    renderedOutput: rendered,
-    canonicalRows,
-  });
-
   return {
     jobId: String(job.id),
     sourcePath: path || 'مصدر غير مسمى',
@@ -318,37 +306,3 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
     sourceHash: String(job.source_hash ?? ''),
     entityType: entityTypeFrom(String(job.job_key ?? '')),
-    rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
-    qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
-    trustState: rendered.trustState == null ? null : String(rendered.trustState),
-    specialty,
-    canonicalRows,
-    intelligence,
-    evidenceStatus: effectiveEvidenceStatus(rendered),
-    completedAt: job.completed_at == null ? null : String(job.completed_at),
-    importId: rendered.importId == null ? null : String(rendered.importId),
-    checkpointStage: job.checkpoint?.stage == null ? null : String(job.checkpoint.stage),
-    renderedOutput: rendered,
-    sourceAnalysis,
-    authoritativeCurrentRowCount,
-    canonicalCommitGap,
-    canonicalCommitCount,
-    canonicalCommitVerified,
-    sourceTrustState: rendered.trustState == null ? null : String(rendered.trustState),
-    reportVerificationState: canonicalCommitGap != null && canonicalCommitGap > 0
-      ? 'GAP_DETECTED'
-      : effectiveEvidenceStatus(rendered) === 'VERIFIED'
-        ? 'VERIFIED'
-        : 'PENDING_EVIDENCE',
-    stages: (stages ?? []).map((row) => ({
-      ordinal: Number(row.ordinal),
-      stage: String(row.stage),
-      status: String(row.status),
-      attempt: Number(row.attempt ?? 0),
-      startedAt: row.started_at == null ? null : String(row.started_at),
-      completedAt: row.completed_at == null ? null : String(row.completed_at),
-      lastError: row.last_error && typeof row.last_error === 'object' ? row.last_error as Record<string, unknown> : {},
-      evidence: row.evidence && typeof row.evidence === 'object' ? row.evidence as Record<string, unknown> : {},
-    })),
-  };
-}
