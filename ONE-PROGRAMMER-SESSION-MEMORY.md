@@ -1,3 +1,15 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / FOCUS-TRAP ACCESSIBILITY ROOT FIX / 7fe6bc49c4fc001f04fa5af40932aecd9b6afc89
+
+- EXACT MAIN HEAD → `7fe6bc49c4fc001f04fa5af40932aecd9b6afc89`.
+- CURRENT CODE/TEST CANDIDATE → `7fe6bc49c4fc001f04fa5af40932aecd9b6afc89`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- ROOT FIX → keyboard focus-trap conditions in the mobile sidebar, global Advisor, and alert drawer now expose an explicit `event.key === 'Tab'` check while preserving the existing Escape/Tab focus loop and scroll locking.
+- PREVIOUS FAILURE → Final Certification product-wow contract rejected the mobile navigation drawer focus-trap contract despite behavior existing, because the static contract could not see the exact Tab comparison.
+- OTHER CURRENT ROOT FIXES → shared table visible-row count, Work Center zero-progress labels, Executive empty-state punctuation, and ESM runtime import extensions remain persisted.
+- REPORT RESULT REMAINS → 735/735 completed; durable rendered; source-bound Executive/Evidence/Decision/Work Center/Inventory outputs persisted; no re-import.
+- ACTION STATUS → `IN_PROGRESS` while current-SHA CI terminalizes.
+- NEXT EXACT ACTION → consume current-SHA quality and Final Certification first failure only.
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / CANONICAL COMMIT ESM ROOT FIX / 8414ce7892080591285ea119a06bb3c89218e4c1
 
 - EXACT MAIN HEAD → `8414ce7892080591285ea119a06bb3c89218e4c1`.
