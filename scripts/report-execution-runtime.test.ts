@@ -61,6 +61,7 @@ console.log('Report execution runtime: PASS (checkpoint + lease/dead-letter + te
 
 const durableRunner = await import('../src/lib/report-execution/durable-production-runner.ts');
 const renderStages: string[] = [];
+const checkpointStages: string[] = [];
 const completionEvidence: Record<string, unknown>[] = [];
 const fakeStore = {
   claim: async () => ({
@@ -70,7 +71,7 @@ const fakeStore = {
     leaseExpiresAt: new Date(Date.now() + 300_000).toISOString(),
   }),
   heartbeat: async () => {},
-  saveCheckpoint: async (_jobId: string, checkpoint: ReportExecutionCheckpoint) => renderStages.push(checkpoint.stage),
+  saveCheckpoint: async (_jobId: string, checkpoint: ReportExecutionCheckpoint) => checkpointStages.push(checkpoint.stage),
   complete: async (_jobId: string, _workerId: string, evidence: Record<string, unknown>) => completionEvidence.push(evidence),
   fail: async () => {},
 };
@@ -92,7 +93,8 @@ const renderResult = await durableRunner.runDurableProductionLifecycle({
     if (stage === 'rendered') return { sourceHash: 'sha-render-test', sourceBound: true, outputs: [{ key: 'executive', path: '/reports/executive' }] };
   },
 }, fakeStore as any);
-assert.deepEqual(renderStages.slice(-2), ['execute:committed', 'execute:rendered']);
+assert.deepEqual(renderStages, ['execute:fingerprinted', 'execute:extracted', 'execute:canonicalized', 'execute:validated', 'execute:analyzed', 'execute:decisioned', 'execute:committed', 'execute:rendered']);
+assert.deepEqual(checkpointStages, ['fingerprinted', 'extracted', 'canonicalized', 'validated', 'analyzed', 'decisioned', 'committed', 'rendered']);
 assert.ok(Array.isArray(completionEvidence[0]?.renderedOutput?.outputs));
 assert.equal((renderResult as any).renderedOutput.sourceBound, true);
 
