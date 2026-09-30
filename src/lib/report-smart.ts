@@ -90,7 +90,9 @@ export async function fetchSmartReportCatalog(limit = 60): Promise<SmartReportCa
         qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
         trustState: rendered.trustState == null ? null : String(rendered.trustState),
         specialty: rendered.sourceSpecialty == null ? null : String(rendered.sourceSpecialty),
-        evidenceStatus: rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus),
+        evidenceStatus: rendered.canonicalCommitVerified === true
+          ? 'VERIFIED'
+          : rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus),
         completedAt: job.completed_at ?? null,
       };
     });
