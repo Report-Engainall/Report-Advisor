@@ -1,3 +1,4 @@
+import { SourceBoundReportSurface } from '@/components/SourceBoundReportSurface';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ReportSourceContext } from '@/components/ReportSourceContext';
 import {
@@ -110,7 +111,7 @@ function RecommendationCard({
   );
 }
 
-export function DecisionExperiencePage() {
+function DecisionExperienceGeneralPage() {
   const [params, setParams] = useSearchParams();
   const requestedStage = params.get('stage') as Stage | null;
   const [stage, setStage] = useState<Stage>(STAGES.some((item) => item.id === requestedStage) ? requestedStage! : 'command');
@@ -398,4 +399,14 @@ export function DecisionExperiencePage() {
       )}
     </div>
   );
+}
+
+export function DecisionExperiencePage() {
+  const [params] = useSearchParams();
+  const reportJobId = params.get('reportJobId');
+  const sourceHash = params.get('sourceHash');
+  if (reportJobId) {
+    return <SourceBoundReportSurface mode="decision" jobId={reportJobId} expectedSourceHash={sourceHash} />;
+  }
+  return <DecisionExperienceGeneralPage />;
 }
