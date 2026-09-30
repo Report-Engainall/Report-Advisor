@@ -1,3 +1,20 @@
+# FINAL LIVE WRITE-BACK — 2026-09-30 / REPORT SOURCE RECORD + CANONICAL COMMIT PROOF
+
+- EXECUTION BOUNDARY SHA → `a4d610076e9b5e7925e73cfae528cb4e7cd22cb4`; the following writeback commit is control-plane only.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REPORT RESULT → 735/735 processed; 9/9 durable stages completed/rendered; canonical dataset 735; canonical import commit rows 735; source analysis 735×7; quality 87.
+- SOURCE RECORD RECOVERY → import now binds verified `ready/passed` file record `071db872-2f17-4acf-8374-b1e2d9852985`; exact file hash; authoritative storage path `f68.../imports/5925f3a2-fbac-4678-9490-b892dca35d4d.pdf`; `source_record_pending_hash=false`.
+- SEMANTIC EVIDENCE → no code path now promotes persisted evidence state to VERIFIED merely because canonical commit exists.
+- CANONICAL COMMIT PROOF → Smart Report reads tenant-scoped `canonical_import_commits` and computes `canonicalCommitVerified` separately from trust/evidence status.
+- SOURCE-BOUND UI → Executive / Trust / Decision / Work consume the real report job and preserve `reportJobId + sourceHash`; domain routes already preserve this source context.
+- BUSINESS STATES → persisted report remains TRUSTED / VERIFIED / NO_DECISION_COMMITTED / NO_ACTION_COMMITTED / NOT_AVAILABLE / INSUFFICIENT_SAMPLE; no fabricated outcome/learning/replay/benchmark.
+- RUNTIME EXECUTION GUARD → PR #684 contains a strengthened existing coordinator contract intended to fail if production source references `InMemoryReportQueue` or `ReportExecutionCoordinator` outside canonical in-memory/test files. Its CI is not exposed by the connector; PR is not merged and is not treated as PASS.
+- CORPUS TRUTH → GitHub exact-head `tests/fixtures/realistic-reports/` still contains only README; Staging operational files are not Git fixture evidence.
+- PROOF BOUNDARY → Staging source/recovery/canonical readback is proven; exact current-SHA typecheck/build is not exposed; Vercel is build-rate-limited; authenticated Edge proof is NOT PROVEN; TinyFish wallet cannot run browser automation.
+- ACTION STATUS → `IN_PROGRESS` only for current-SHA certification/runtime/browser closure.
+- DO-NOT-REPEAT → no re-import, no direct canonical-row rewrite, no evidence promotion, no tenant bypass, no stale PASS, no database-to-browser inference.
+- NEXT EXACT ACTION → consume exact-current-SHA CI/build evidence when exposed; otherwise continue independent production-execution semantic proof while preserving this report.
+
 # FINAL LIVE WRITE-BACK — 2026-09-30 / SOURCE-RECORD RECOVERY + SEMANTIC EVIDENCE FIX
 
 - EXACT MAIN HEAD → `49c9a83eb39982d6edcea340de2be312364c009f`.
