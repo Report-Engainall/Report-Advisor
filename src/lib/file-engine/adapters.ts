@@ -4,7 +4,7 @@ import { normalizeRows, normalizeColumnName, normalizeArabicDigits, parseNumber 
 import { detectColumnDataType, cleanValue } from './data-types';
 import { mapColumns } from './synonyms';
 import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection';
-import { extractPdfTable, type PdfPageText } from './pdf-table';
+import { extractPdfTable, extractPdfVisualLines, type PdfPageText } from './pdf-table';
 
 type Row = Record<string, unknown>;
 
@@ -283,7 +283,6 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   }).promise;
 
   const pages: PdfPageText[] = [];
-  const pageText: string[] = [];
 
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
     const page = await pdf.getPage(pageNumber);
@@ -303,8 +302,6 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
       });
     }
     pages.push({ pageNumber, items });
-    const text = items.map((item) => item.text).join(' ').trim();
-    if (text) pageText.push(`PAGE ${pageNumber}\n${text}`);
   }
 
   const table = extractPdfTable(pages);
@@ -317,12 +314,19 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     return [dataset];
   }
 
-  if (pageText.length) {
-    const datasets = await buildTextDataset(pageText.join('\n\n'), fileName, 'pdf', 'PDF_TABLE_STRUCTURE_NOT_CONFIRMED: النص محفوظ لكن البنية الجدولية لم تُثبت');
-    for (const dataset of datasets) {
-      dataset.qualityScore = Math.min(dataset.qualityScore, 49);
+  const visualLines = extractPdfVisualLines(pages);
+  if (visualLines.length) {
+    const rows: Row[] = visualLines.map((line) => ({
+      page_number: line.pageNumber,
+      line_number: line.lineNumber,
+      text: line.text,
+    }));
+    const dataset = await buildDataset(rows, fileName, 'pdf');
+    for (const column of dataset.columns) {
+      column.qualityIssues.push('PDF_TABLE_STRUCTURE_NOT_CONFIRMED: النص محفوظ حسب الصفحة والسطر بدل دمج الصفحة في عبارة واحدة');
     }
-    return datasets;
+    dataset.qualityScore = Math.min(dataset.qualityScore, 49);
+    return [dataset];
   }
   return parseScannedPdfWithOcr(pdf, fileName);
 }
