@@ -1,3 +1,16 @@
+# PRE-CI CHECKPOINT — 2026-09-30 / DURABLE EXECUTION BOUNDARY
+
+- EXACT CURRENT MAIN HEAD → `ec26e5cf9050291d5519b773b5028356d3e87492`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- P0 BUILD/TYPECHECK/LINT → exact current SHA `94c89f8d...` already proved typecheck, build, and lint success in GitHub Actions; the only Quality failure was Core Contracts rejecting an unused in-memory compatibility definition in `worker-adapter.ts`.
+- ROOT FIX IN PROGRESS → `scripts/check-report-execution-coordinator-contract.mjs` now classifies `queue.ts`, `execution-ledger.ts`, and `worker-adapter.ts` as compatibility-only leaf definitions and fails when any other production source imports them. This preserves the no-in-memory-production rule without treating unused compatibility definitions as runtime callers.
+- REPORT TRUTH → source 735 / authoritative canonical 735 / commit 735; evidence `AWAITING_EVIDENCE_SNAPSHOT`; source trust `TRUSTED`; report verification remains `PENDING_EVIDENCE`.
+- 399/397 CONTRACT → current Staging evidence proves source/analysis 399, canonical 397, authoritative 397, gap 2, `GAP_DETECTED`; no canonical-row rewrite.
+- OPERATIONAL CORPUS → 39 discovered / 39 completed / 39 analyzed / 39 rendered; 0 missing report jobs; evidence verified 0; gap-detected 1; pending-evidence 38; browser proof not established for the corpus.
+- BROWSER → GitHub Full Product Browser E2E only verifies exact checkout; authenticated browser execution remains NOT PROVEN. TinyFish/Remote Desktop are unavailable.
+- ACTION STATUS → `IN_PROGRESS`.
+- NEXT EXACT ACTION → prove the corrected execution-boundary guard on the resulting exact SHA, then consume Quality build/typecheck/lint and certification results.
+
 # FINAL LIVE WRITE-BACK — 2026-09-30 / 39-REPORT OPERATIONAL CORPUS
 
 - EXACT EXECUTION HEAD → `9b6dd27da548b2c666f485beb905026259ff1c99`; this following memory commit is control-plane only.
