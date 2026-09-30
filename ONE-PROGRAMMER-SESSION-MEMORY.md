@@ -1,3 +1,14 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / CANONICAL ESM CHAIN REPAIRED / e84b9b716b5e63aedc7e9a9a8f9025bd6241789e
+
+- EXACT MAIN HEAD → `e84b9b716b5e63aedc7e9a9a8f9025bd6241789e`.
+- CURRENT CODE/TEST CANDIDATE → `e84b9b716b5e63aedc7e9a9a8f9025bd6241789e`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- ROOT FIX → completed the canonical report-execution ESM runtime chain with explicit `.ts` extensions in durable-production-runner, production-coordinator-bridge, and phase-kl-runtime, in addition to the existing adapter fixes.
+- PREVIOUS QUALITY FAILURES → sequential ERR_MODULE_NOT_FOUND failures in durable-production-runner, canonical-commit, then durable-worker-adapter imports.
+- REPORT RESULT REMAINS → 735/735 completed; durable rendered; source-bound smart outputs persisted; no re-import.
+- ACTION STATUS → `IN_PROGRESS` while current-SHA gates terminalize.
+- NEXT EXACT ACTION → consume current-SHA quality and Final Certification first failure only.
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / FOCUS-TRAP ACCESSIBILITY ROOT FIX / 7fe6bc49c4fc001f04fa5af40932aecd9b6afc89
 
 - EXACT MAIN HEAD → `7fe6bc49c4fc001f04fa5af40932aecd9b6afc89`.
