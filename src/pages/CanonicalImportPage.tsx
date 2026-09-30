@@ -481,8 +481,8 @@ export function CanonicalImportPage() {
 
         <Card><CardHeader title="المخرجات المتاحة لهذا المصدر" subtitle="المساحات أدناه هي المخرجات التي أعلنها المسار الكانوني لهذا التقرير، وليست نجاحًا مصطنعًا لنتائج غير مدعومة."/><CardBody>
           <div className="grid gap-3 md:grid-cols-2">
-            {outputs.map((output: any) => <Link key={String(output.key)} to={String(output.path)} className="rounded-xl border border-ink-200 bg-white p-4 transition-colors hover:border-primary-300 hover:bg-primary-50/30">
-              <div className="flex items-center justify-between gap-3"><div><div className="text-sm font-black text-ink-950">{String(output.label ?? output.key)}</div><div className="mt-1 text-[10px] text-ink-400">{String(output.stage ?? '')} · مصدر مربوط</div></div><ArrowLeft size={15} className="text-primary-600"/></div>
+            {outputs.map((output: any) => <Link key={String(output.key)} to={String(output.path) + '?reportJobId=' + encodeURIComponent(String(result?.jobId ?? '')) + '&sourceHash=' + encodeURIComponent(String(rendered?.sourceHash ?? ''))} className="rounded-xl border border-ink-200 bg-white p-4 transition-colors hover:border-primary-300 hover:bg-primary-50/30">
+              <div className="flex items-center justify-between gap-3"><div><div className="text-sm font-black text-ink-950">{String(output.label ?? output.key)}</div><div className="mt-1 text-[10px] text-ink-400">{String(output.stage ?? '')} · مصدر مربوط بالبصمة الحالية</div></div><ArrowLeft size={15} className="text-primary-600"/></div>
             </Link>)}
           </div>
           {outputs.length === 0 && <div className="rounded-xl bg-ink-50 p-4 text-sm text-ink-500">لا توجد مساحة إضافية مدعومة حاليًا؛ بقيت النتيجة في طبقة المصدر دون اختلاق تخصص.</div>}
