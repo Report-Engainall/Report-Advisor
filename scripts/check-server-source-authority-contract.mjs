@@ -6,6 +6,7 @@ const netlifySource = fs.readFileSync(new URL('../netlify/functions/canonical-im
 assert.match(source, /storage\.from\(storageBucket\)\.download\(storagePath\)/);
 assert.match(netlifySource, /resumeReportExecutionJobId/);
 assert.match(netlifySource, /from\('report_execution_jobs'\)/);
+assert.match(netlifySource, /\.eq\('id', importId\)/);
 assert.match(netlifySource, /function reportEntityTypeFromJobKey/);
 assert.match(netlifySource, /raw_bytes_sha256/);
 assert.match(netlifySource, /source_fingerprint: sourceSha/);
