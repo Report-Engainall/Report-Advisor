@@ -691,3 +691,23 @@ Product wave expanded again:
 Runtime/deployment boundary remains open; no current-head browser/deployment PASS is claimed.
 
 NEXT EXACT ACTION: continue market-facing integration surfaces: source-bound sharing/alerts, connector memory/integration adapters, collaboration-safe notification routing, and commercial controls; preserve the canonical truth/decision chain and avoid parallel data engines.
+
+
+## LIVE CHECKPOINT — 2026-09-30 / MARKET PRODUCT WAVE / HEAD c2a790f
+
+Implemented in the same canonical control plane:
+- Spreadsheet-grade Report Workspace: search, sort, page size, column visibility, saved views, grouping, numeric aggregation, Row Inspector, CSV and canonical XLSX export.
+- Governed Decision lifecycle: source signal -> proposed decision -> approval -> assigned work item -> due date -> start -> completion with accepted source evidence -> outcome/learning.
+- Work Center: import operations + decision work queue, state filters, overdue filter, assignee, priority, due date, impact, source hash and source-bound report link.
+- Tenant notification on work-item creation through the existing notify_decision_work_item RPC.
+- Business Replay route backed by actual report stages/decisions/work/outcomes.
+- Benchmark route fail-closed to INSUFFICIENT_SAMPLE when no authoritative network cohort exists.
+- Source-bound sharing/navigation retains Job ID + source hash.
+- Long PDF/OCR boundary, PDF visual cell preservation, contradiction intelligence, full canonical-row analysis remain protected by release contracts.
+- Release-core/E2E contract inventory has been extended for these product surfaces.
+
+No new parallel truth engine, importer, runner, or billing/entitlement model was introduced. Billing controls remain unimplemented because no authoritative subscription/entitlement schema exists in the current database.
+
+Runtime/deployment proof remains OPEN. No current-head browser/deployment PASS is claimed.
+
+NEXT EXACT ACTION: run/consume current-head static + typecheck/build contracts where execution infrastructure is available, inspect the latest code for regressions, then move to collaboration/API integrations and commercial packaging only after the product wave is regression-clean.
