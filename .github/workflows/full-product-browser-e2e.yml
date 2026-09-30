@@ -33,6 +33,7 @@ on:
       - 'scripts/source-report-workspace-contract.test.mjs'
       - 'scripts/pdf-long-document-ocr-boundary.test.mjs'
       - 'scripts/source-decision-proposal-contract.test.mjs'
+      - 'scripts/source-decision-approval-contract.test.mjs'
       - 'scripts/resume-open-report-server-proof.mjs'
       - 'src/pages/MetricInspectorPage.tsx'
       - 'src/lib/queries.ts'
@@ -137,6 +138,7 @@ jobs:
           npm run test:source-report-workspace
           npm run test:pdf-long-document-ocr-boundary
           npm run test:source-decision-proposal
+          npm run test:source-decision-approval
       - name: Start exact Netlify preview with serverless API
         env:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
