@@ -104,6 +104,7 @@ export function CanonicalImportPage() {
   const [error, setError] = useState<string | null>(null);
   const [securityPassed, setSecurityPassed] = useState(false);
   const [duplicate, setDuplicate] = useState(false);
+  const [existingSmartReportJobId, setExistingSmartReportJobId] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
@@ -128,7 +129,7 @@ export function CanonicalImportPage() {
   useEffect(() => { void loadHistory(); }, [loadHistory]);
 
   const handleFile = useCallback(async (selected: File) => {
-    setError(null); setWarnings([]); setDuplicate(false); setSecurityPassed(false); setQualityApproved(false); setStep('scanning');
+    setError(null); setWarnings([]); setDuplicate(false); setExistingSmartReportJobId(null); setSecurityPassed(false); setQualityApproved(false); setStep('scanning');
     try {
       const buffer = await selected.arrayBuffer();
       const scan = securityScan(selected, buffer);
@@ -145,7 +146,17 @@ export function CanonicalImportPage() {
       if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
       const dup = await checkDuplicate(hash, companyId, supabase);
       setDuplicate(dup.isDuplicate);
-      if (dup.isDuplicate) setWarnings(prev => [...prev, 'هذا المصدر موجود مسبقًا لهذا الحساب. لن يتم حفظ نسخة تحليل مكررة.']);
+      const existingSmartJobId = dup.existing?.smart_report_job_id ?? null;
+      setExistingSmartReportJobId(existingSmartJobId);
+      if (dup.isDuplicate) {
+        setWarnings(prev => [...prev, 'هذا المصدر موجود مسبقًا لهذا الحساب. سيتم فتح نتيجة التقرير المحفوظ بدل إنشاء نسخة مكررة.']);
+        if (existingSmartJobId) {
+          window.sessionStorage.setItem('aghbari:last-import-job', String(dup.existing?.id ?? ''));
+          window.sessionStorage.setItem('aghbari:last-smart-report-job', existingSmartJobId);
+          navigate('/reports/smart/' + existingSmartJobId, { replace: true });
+          return;
+        }
+      }
       const datasets: Dataset[] = await parseFile(buffer, selected.name, detection.format);
       const dataset = datasets[0];
       if (!dataset || dataset.rowCount === 0) throw new Error('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');
@@ -318,7 +329,7 @@ export function CanonicalImportPage() {
     understandingReason, loadHistory,
   ]);
 
-  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); if (inputRef.current) inputRef.current.value = ''; };
+  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setExistingSmartReportJobId(null); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); if (inputRef.current) inputRef.current.value = ''; };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
