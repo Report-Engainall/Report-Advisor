@@ -11,6 +11,7 @@ on:
       - 'scripts/execution-enforcement-adversarial-governance.test.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'src/pages/**'
+      - 'src/lib/report-smart.ts'
       - 'src/lib/dashboard-canonical.ts'
       - 'src/lib/kpi-evidence.ts'
       - 'src/lib/semantic-metric-service.ts'
