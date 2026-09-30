@@ -1,6 +1,9 @@
-import { AlertTriangle, BrainCircuit, CheckCircle2, TrendingUp } from 'lucide-react';
+import { AlertTriangle, BrainCircuit, CheckCircle2, TrendingUp, ArrowUpLeft } from 'lucide-react';
 import type { SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { createSourceDecisionProposal } from '@/lib/report-decisions';
 
 const severityLabel: Record<string, string> = {
   critical: 'حرج',
@@ -29,6 +32,7 @@ function number(value: number | null): string {
 
 export function ReportIntelligencePanel({ report }: { report: SmartReportDetail }) {
   const intelligence = report.intelligence;
+  const [proposalState, setProposalState] = useState<Record<string, string>>({});
   const forecast = intelligence.forecast;
   return (
     <section dir="rtl" className="space-y-4 rounded-[18px] border border-primary-200 bg-white p-5 shadow-card lg:p-6">
@@ -72,6 +76,38 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                     <span key={evidence} className="rounded-full bg-white/70 px-2 py-1 font-mono text-[8px]">{evidence}</span>
                   ))}
                 </div>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={proposalState[signal.id] === 'saving'}
+                    onClick={() => {
+                      setProposalState((current) => ({ ...current, [signal.id]: 'saving' }));
+                      void createSourceDecisionProposal({
+                        reportJobId: report.jobId,
+                        sourceHash: report.sourceHash,
+                        signalId: signal.id,
+                        signalTitle: signal.title,
+                        signalMessage: signal.message,
+                        severity: signal.severity,
+                        evidence: signal.evidence,
+                      }).then((result) => {
+                        setProposalState((current) => ({ ...current, [signal.id]: result.status === 'APPROVED' ? 'already-approved' : 'proposed' }));
+                      }).catch(() => {
+                        setProposalState((current) => ({ ...current, [signal.id]: 'error' }));
+                      });
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-primary-200 bg-white px-2.5 py-2 text-[9px] font-black text-primary-800 disabled:opacity-50"
+                  >
+                    {proposalState[signal.id] === 'saving' ? 'جارٍ الحفظ...' : proposalState[signal.id] === 'proposed' || proposalState[signal.id] === 'already-approved' ? 'تم حفظ القرار المقترح' : 'حفظ كقرار مقترح'}
+                  </button>
+                  <Link
+                    to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)}
+                    className="inline-flex items-center gap-1 text-[9px] font-bold text-primary-700"
+                  >
+                    فتح مسار القرار <ArrowUpLeft size={12}/>
+                  </Link>
+                </div>
+                {proposalState[signal.id] === 'error' && <div className="mt-2 text-[9px] font-bold text-danger-700">تعذر حفظ القرار المقترح؛ بقيت الإشارة مصدرية ولم تُحوّل إلى تنفيذ.</div>}
               </article>
             ))}
           </div>
