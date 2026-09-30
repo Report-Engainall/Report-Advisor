@@ -302,7 +302,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
           text: str,
           x: Number.isFinite(transform[4]) ? transform[4] : 0,
           y: Number.isFinite(transform[5]) ? transform[5] : 0,
-          width: Number.isFinite((item as { width?: number }).width) ? Number((item as { width?: number }).width) : Math.max(4, item.str.length * 4),
+          width: Number.isFinite((item as { width?: number }).width) ? Number((item as { width?: number }).width) : Math.max(4, str.length * 4),
           height: Number.isFinite((item as { height?: number }).height) ? Number((item as { height?: number }).height) : 10,
         };
       });
