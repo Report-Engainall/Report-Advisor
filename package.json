@@ -167,6 +167,7 @@
     "test:source-work-execution-lifecycle": "node scripts/source-work-execution-lifecycle-contract.test.mjs",
     "test:work-center-decision-queue": "node scripts/work-center-decision-queue-contract.test.mjs",
     "test:business-replay": "node scripts/business-replay-contract.test.mjs",
-    "test:benchmark-fail-closed": "node scripts/benchmark-fail-closed-contract.test.mjs"
+    "test:benchmark-fail-closed": "node scripts/benchmark-fail-closed-contract.test.mjs",
+    "test:pdf-arabic-sales-layout": "node --experimental-strip-types scripts/pdf-arabic-sales-layout.test.ts"
   }
 }
