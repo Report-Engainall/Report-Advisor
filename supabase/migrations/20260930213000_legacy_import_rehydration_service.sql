@@ -73,5 +73,5 @@ begin
 end;
 $function$;
 
-revoke all on function public.rehydrate_legacy_import_job(uuid, uuid) from public;
+revoke all on function public.rehydrate_legacy_import_job(uuid, uuid) from public, anon, authenticated;
 grant execute on function public.rehydrate_legacy_import_job(uuid, uuid) to service_role;
