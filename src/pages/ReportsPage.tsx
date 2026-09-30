@@ -7,6 +7,7 @@ import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/co
 import { DataTable } from '@/components/ui/DataTable';
 import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
+import { fetchSmartReportCatalog, type SmartReportCatalogItem } from '@/lib/report-smart';
 import { fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
@@ -46,12 +47,15 @@ export function ReportsCenterPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [smartReports, setSmartReports] = useState<SmartReportCatalogItem[]>([]);
 
   const load = useCallback(async (silent = false) => {
     try {
       if (silent) setRefreshing(true); else setLoading(true);
       setError(null);
-      setSnapshot(await fetchDashboardSnapshot(6));
+      const [nextSnapshot, nextSmartReports] = await Promise.all([fetchDashboardSnapshot(6), fetchSmartReportCatalog(60)]);
+      setSnapshot(nextSnapshot);
+      setSmartReports(nextSmartReports);
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -162,6 +166,39 @@ export function ReportsCenterPage() {
         </Card>
       </Link>)}
     </div>
+
+    <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div className="section-kicker">REAL REPORT CORPUS</div>
+          <h2 className="mt-1 text-lg font-black text-ink-950">التقارير الذكية المعالجة فعليًا</h2>
+          <p className="mt-1 text-[10px] text-ink-500">كل بطاقة مرتبطة بـ Job مكتمل وبصمة مصدر محددة. افتح التقرير لرؤية العينة الفعلية، الثقة، الأدلة، القرار والمخرجات.</p>
+        </div>
+        <span className="rounded-full bg-primary-50 px-3 py-1 text-[10px] font-black text-primary-700">{smartReports.length} تقريرًا</span>
+      </div>
+      {smartReports.length === 0 ? (
+        <div className="mt-4 rounded-xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">لا توجد مخرجات تقارير ذكية مثبتة للمساحة الحالية.</div>
+      ) : (
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {smartReports.map((report) => (
+            <Link key={report.jobId} to={'/reports/smart/' + report.jobId} className="rounded-2xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-black text-ink-950" title={report.sourcePath}>{report.sourcePath}</div>
+                  <div className="mt-1 text-[10px] text-ink-500">{report.rowCount == null ? 'عدد الصفوف غير متاح' : formatNumber(report.rowCount) + ' صف'} · {report.specialty ?? 'عام'}</div>
+                </div>
+                <span className={'shrink-0 rounded-full px-2 py-1 text-[9px] font-black ' + (report.trustState === 'TRUSTED' ? 'bg-success-50 text-success-800' : 'bg-warning-50 text-warning-800')}>{report.trustState ?? 'غير متاح'}</span>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-[10px]">
+                <span className="rounded-lg bg-ink-50 px-2 py-1">الجودة: {report.qualityScore == null ? '—' : report.qualityScore + '%'}</span>
+                <span className="rounded-lg bg-ink-50 px-2 py-1">الدليل: {report.evidenceStatus ?? '—'}</span>
+              </div>
+              <div className="mt-3 text-[10px] font-bold text-primary-700">فتح التقرير الذكي ←</div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </section>
 
     <section className="grid gap-4 lg:grid-cols-3">
       <Link to="/reports/executive" className="card card-hover p-4">
