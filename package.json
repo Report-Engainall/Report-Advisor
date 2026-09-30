@@ -156,12 +156,13 @@
     "test:report-intelligence-inventory-grain": "node --experimental-strip-types scripts/report-intelligence-inventory-grain.test.ts",
     "test:document-intelligence-lines": "node --experimental-strip-types scripts/document-intelligence-lines.test.ts",
     "test:server-source-authority": "node scripts/check-server-source-authority-contract.mjs",
-    "test:release-core": "npm run typecheck && npm run test:server-source-authority && npm run test:pdf-visual-line-fallback && npm run test:report-intelligence-inventory-grain && npm run test:document-intelligence-lines && npm run test:report-intelligence-contradictions && npm run test:source-report-workspace && npm run test:pdf-long-document-ocr-boundary && npm run test:source-decision-proposal && npm run test:source-decision-approval && npm run test:source-decision-work-item",
+    "test:release-core": "npm run typecheck && npm run test:server-source-authority && npm run test:pdf-visual-line-fallback && npm run test:report-intelligence-inventory-grain && npm run test:document-intelligence-lines && npm run test:report-intelligence-contradictions && npm run test:source-report-workspace && npm run test:pdf-long-document-ocr-boundary && npm run test:source-decision-proposal && npm run test:source-decision-approval && npm run test:source-decision-work-item && npm run test:source-work-execution-lifecycle",
     "test:report-intelligence-contradictions": "tsx scripts/report-intelligence-contradictions.test.ts",
     "test:source-report-workspace": "node scripts/source-report-workspace-contract.test.mjs",
     "test:pdf-long-document-ocr-boundary": "node scripts/pdf-long-document-ocr-boundary.test.mjs",
     "test:source-decision-proposal": "node scripts/source-decision-proposal-contract.test.mjs",
     "test:source-decision-approval": "node scripts/source-decision-approval-contract.test.mjs",
-    "test:source-decision-work-item": "node scripts/source-decision-work-item-contract.test.mjs"
+    "test:source-decision-work-item": "node scripts/source-decision-work-item-contract.test.mjs",
+    "test:source-work-execution-lifecycle": "node scripts/source-work-execution-lifecycle-contract.test.mjs"
   }
 }
