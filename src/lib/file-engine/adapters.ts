@@ -247,12 +247,7 @@ type PromiseConstructorWithTry = PromiseConstructor & { try?: (fn: (...args: unk
 type Uint8ArrayWithToHex = Uint8Array & { toHex?: () => string };
 
 function ensurePdfJsRuntimeCompatibility(): void {
-  const runtimeGlobal = globalThis as typeof globalThis & {
-    DOMMatrix?: new (...args: unknown[]) => unknown;
-    DOMMatrixReadOnly?: new (...args: unknown[]) => unknown;
-    Path2D?: new (...args: unknown[]) => unknown;
-    ImageData?: new (...args: unknown[]) => unknown;
-  };
+  const runtimeGlobal = globalThis as Record<string, any>;
 
   if (typeof runtimeGlobal.DOMMatrix === 'undefined') {
     class ServerDOMMatrix {
@@ -331,7 +326,10 @@ function ensurePdfJsRuntimeCompatibility(): void {
       }
 
       rotateSelf(angle = 0): this {
-        return this.multiplySelf(this.rotate(angle));
+        const radians = angle * Math.PI / 180;
+        const cos = Math.cos(radians);
+        const sin = Math.sin(radians);
+        return this.multiplySelf(new ServerDOMMatrix([cos, sin, -sin, cos, 0, 0]));
       }
 
       inverse(): ServerDOMMatrix {
@@ -376,6 +374,7 @@ function ensurePdfJsRuntimeCompatibility(): void {
       constructor(_path?: unknown) {}
       addPath(_path: unknown, _transform?: unknown): void {}
       closePath(): void {}
+      roundRect(_x: number, _y: number, _w: number, _h: number, _radii?: unknown): void {}
       moveTo(_x: number, _y: number): void {}
       lineTo(_x: number, _y: number): void {}
       bezierCurveTo(_cp1x: number, _cp1y: number, _cp2x: number, _cp2y: number, _x: number, _y: number): void {}
@@ -393,7 +392,7 @@ function ensurePdfJsRuntimeCompatibility(): void {
       data: Uint8ClampedArray;
       width: number;
       height: number;
-      colorSpace = 'srgb';
+      colorSpace: any = 'srgb';
 
       constructor(dataOrWidth: Uint8ClampedArray | number, widthOrHeight: number, height?: number) {
         if (typeof dataOrWidth === 'number') {
