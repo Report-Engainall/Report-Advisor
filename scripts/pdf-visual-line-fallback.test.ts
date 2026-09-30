@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import { extractPdfVisualLines, type PdfPageText } from '../src/lib/file-engine/pdf-table.ts';
+
+const pages: PdfPageText[] = [
+  {
+    pageNumber: 1,
+    items: [
+      { text: 'رقم الصنف', x: 10, y: 700, width: 40, height: 10 },
+      { text: 'السعر', x: 100, y: 700, width: 30, height: 10 },
+      { text: '10101001', x: 10, y: 680, width: 45, height: 10 },
+      { text: '10750', x: 100, y: 680, width: 30, height: 10 },
+      { text: '10101002', x: 10, y: 660, width: 45, height: 10 },
+      { text: '10850', x: 100, y: 660, width: 30, height: 10 },
+    ],
+  },
+  {
+    pageNumber: 2,
+    items: [
+      { text: '10101003', x: 10, y: 700, width: 45, height: 10 },
+      { text: '10800', x: 100, y: 700, width: 30, height: 10 },
+    ],
+  },
+];
+
+const lines = extractPdfVisualLines(pages);
+assert.equal(lines.length, 5);
+assert.deepEqual(lines.map(({ pageNumber, lineNumber, text }) => ({ pageNumber, lineNumber, text })), [
+  { pageNumber: 1, lineNumber: 1, text: 'رقم الصنف السعر' },
+  { pageNumber: 1, lineNumber: 2, text: '10101001 10750' },
+  { pageNumber: 1, lineNumber: 3, text: '10101002 10850' },
+  { pageNumber: 2, lineNumber: 1, text: '10101003 10800' },
+]);
+assert.ok(!lines.some((line) => line.text.includes('10101001') && line.text.includes('10101003')));
+console.log('PDF_VISUAL_LINE_FALLBACK_PASS');
