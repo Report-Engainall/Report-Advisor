@@ -146,32 +146,44 @@ async function authoritativeSourceInput(args: {
   if (!reconciled.rows.length) throw new Error('AUTHORITATIVE_SOURCE_NO_RECONCILED_ROWS');
   if (reconciled.rejected.length) throw new Error('AUTHORITATIVE_SOURCE_RECONCILIATION_REJECTED:' + reconciled.rejected.length);
 
-  const { error: analysisError } = await workerClient
+  const analysisPayload = {
+    company_id: companyId,
+    import_job_id: importId,
+    source_hash: sourceHash,
+    source_path: fileName,
+    source_format: detection.format,
+    analysis_status: 'analyzed',
+    entity_type: entityType,
+    quality_score: qualityScore,
+    row_count: dataset.rowCount,
+    column_count: dataset.columnCount,
+    datasets: [datasetForAnalysis(dataset)],
+    canonical_text: null,
+    visual_assets: [],
+    warnings: dataset.columns.flatMap((column: any) => Array.isArray(column.qualityIssues) ? column.qualityIssues : []),
+    metadata: {
+      authoritativeServerRead: true,
+      reportExecutionJobId: reportExecutionJobId || null,
+      sourceStorageBucket: storageBucket,
+      sourceStoragePath: storagePath,
+      requestedBy,
+    },
+  };
+  const { data: existingAnalysis, error: existingAnalysisError } = await workerClient
     .from('source_analysis_snapshots')
-    .insert({
-      company_id: companyId,
-      import_job_id: importId,
-      source_hash: sourceHash,
-      source_path: fileName,
-      source_format: detection.format,
-      analysis_status: 'analyzed',
-      entity_type: entityType,
-      quality_score: qualityScore,
-      row_count: dataset.rowCount,
-      column_count: dataset.columnCount,
-      datasets: [datasetForAnalysis(dataset)],
-      canonical_text: null,
-      visual_assets: [],
-      warnings: dataset.columns.flatMap((column: any) => Array.isArray(column.qualityIssues) ? column.qualityIssues : []),
-      metadata: {
-        authoritativeServerRead: true,
-        reportExecutionJobId: reportExecutionJobId || null,
-        sourceStorageBucket: storageBucket,
-        sourceStoragePath: storagePath,
-        requestedBy,
-      },
-    });
-  if (analysisError) throw new Error('AUTHORITATIVE_SOURCE_ANALYSIS_PERSIST_FAILED:' + analysisError.message);
+    .select('id')
+    .eq('company_id', companyId)
+    .eq('import_job_id', importId)
+    .eq('source_hash', sourceHash)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (existingAnalysisError) throw new Error('AUTHORITATIVE_SOURCE_ANALYSIS_LOOKUP_FAILED:' + existingAnalysisError.message);
+
+  const analysisWrite = existingAnalysis?.id
+    ? await workerClient.from('source_analysis_snapshots').update(analysisPayload).eq('id', existingAnalysis.id).eq('company_id', companyId)
+    : await workerClient.from('source_analysis_snapshots').insert(analysisPayload);
+  if (analysisWrite.error) throw new Error('AUTHORITATIVE_SOURCE_ANALYSIS_PERSIST_FAILED:' + analysisWrite.error.message);
 
   const { error: fileUpdateError } = await workerClient
     .from('file_records')
