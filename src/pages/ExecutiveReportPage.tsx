@@ -1,7 +1,8 @@
+import { SourceBoundReportSurface } from '@/components/SourceBoundReportSurface';
 import { useCallback, useEffect, useState } from 'react';
 import { ReportSourceContext } from '@/components/ReportSourceContext';
 import { ArrowLeft, FileText, Printer, RefreshCw, ShieldCheck, Target, TrendingUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs, type MonthlyTrend } from '@/lib/dashboard-canonical';
 import type { Alert, Recommendation } from '@/lib/types';
 import { formatCurrency, formatNumber } from '@/lib/format';
@@ -48,7 +49,7 @@ function TrendStrip({ trend }: { trend: MonthlyTrend[] }) {
   </div>;
 }
 
-export function ExecutiveReportPage() {
+function ExecutiveReportGeneralPage() {
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
   const [trend, setTrend] = useState<MonthlyTrend[]>([]);
   const [asOf, setAsOf] = useState<string>('غير متاح');
@@ -169,4 +170,14 @@ export function ExecutiveReportPage() {
       </section>
     </>}
   </div>;
+}
+
+export function ExecutiveReportPage() {
+  const [params] = useSearchParams();
+  const reportJobId = params.get('reportJobId');
+  const sourceHash = params.get('sourceHash');
+  if (reportJobId) {
+    return <SourceBoundReportSurface mode="executive" jobId={reportJobId} expectedSourceHash={sourceHash} />;
+  }
+  return <ExecutiveReportGeneralPage />;
 }
