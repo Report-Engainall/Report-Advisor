@@ -87,12 +87,13 @@ jobs:
       - name: Install application dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Install deterministic Playwright runtime
+      - name: Install deterministic browser tooling
         shell: bash
         run: |
           set -euo pipefail
-          npm install --no-save --package-lock=false playwright@1.63.0
+          npm install --no-save --package-lock=false netlify-cli@27.10.2 playwright@1.63.0
           test "$(node -p "require('playwright/package.json').version")" = "1.63.0"
+          test "$(node -p "require('netlify-cli/package.json').version")" = "27.10.2"
           npx playwright install --with-deps chromium
           npx playwright --version
 
@@ -104,13 +105,6 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "${EXACT_HEAD}"
           npm run build
-
-      - name: Install deterministic Netlify preview runtime
-        shell: bash
-        run: |
-          set -euo pipefail
-          npm install --no-save --package-lock=false netlify-cli@27.10.2
-          test "$(node -p "require('netlify-cli/package.json').version")" = "27.10.2"
 
       - name: Start exact Netlify preview with serverless API
         env:
