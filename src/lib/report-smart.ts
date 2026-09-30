@@ -37,6 +37,8 @@ export type SmartReportDetail = SmartReportCatalogItem & {
     lastError: Record<string, unknown>;
     evidence: Record<string, unknown>;
   }>;
+  authoritativeCurrentRowCount: number | null;
+  canonicalCommitGap: number | null;
   canonicalCommitCount: number;
   canonicalCommitVerified: boolean;
 };
@@ -154,8 +156,15 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     (sum, row) => sum + Number(row.committed_count ?? 0),
     0,
   );
-  const canonicalRowCount = rendered.rowCount == null ? null : Number(rendered.rowCount);
-  const canonicalCommitVerified = canonicalRowCount != null && canonicalCommitCount === canonicalRowCount;
+  const authoritativeCurrentRowCount = rendered.authoritativeCurrentRowCount == null
+    ? (rendered.rowCount == null ? null : Number(rendered.rowCount))
+    : Number(rendered.authoritativeCurrentRowCount);
+  const sourceRowCount = rendered.rowCount == null ? null : Number(rendered.rowCount);
+  const canonicalCommitGap = sourceRowCount == null || authoritativeCurrentRowCount == null
+    ? null
+    : Math.max(0, sourceRowCount - authoritativeCurrentRowCount);
+  const canonicalCommitVerified =
+    authoritativeCurrentRowCount != null && canonicalCommitCount === authoritativeCurrentRowCount;
 
   const sourceAnalysis = analysis ? {
     id: String(analysis.id),
@@ -183,6 +192,8 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     checkpointStage: job.checkpoint?.stage == null ? null : String(job.checkpoint.stage),
     renderedOutput: rendered,
     sourceAnalysis,
+    authoritativeCurrentRowCount,
+    canonicalCommitGap,
     canonicalCommitCount,
     canonicalCommitVerified,
     stages: (stages ?? []).map((row) => ({
