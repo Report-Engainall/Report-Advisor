@@ -52,7 +52,7 @@ export function ReportSourceContext() {
         return;
       }
       setReport(value);
-      saveActiveReportContext({ jobId: value.jobId, sourceHash: value.sourceHash });
+      if (value) saveActiveReportContext({ jobId: value.jobId, sourceHash: value.sourceHash });
     }).catch((cause) => {
       if (active) setError(cause instanceof Error ? cause.message : String(cause));
     });
