@@ -1,3 +1,15 @@
+# FINAL LIVE RECONCILIATION — 2026-09-30
+
+- EXACT MAIN HEAD → `c29d61cc09021a15cf9df3c93031138e3b6da0a5`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- VERIFIED STAGING RESULT → 735/735 processed; nine durable stages completed/rendered; canonical commit 735; source analysis analyzed 735×7 at quality 87; persisted rendered outputs are source-bound for Executive/Evidence/Decision/Work Center/Inventory.
+- CURRENT CODE RESULT → source-bound route/context propagation is persisted; completed import read-model reconciles historical zero valid_rows from consistent committed result data without mutating canonical records.
+- CORPUS TRUTH → GitHub exact-head `tests/fixtures/realistic-reports/` contains only README; no fabricated fixture count. Current report front is a persisted staging report, not a Git corpus substitution.
+- PROOF BOUNDARY → source and staging persistence/readback are proven; exact-current-SHA typecheck/build and authenticated browser proof are NOT PROVEN. Vercel remains build-rate-limited and current push workflow runs are not exposed by the available GitHub wrapper.
+- ACTION STATUS → `IN_PROGRESS`; report remains open for exact-SHA UI/runtime closure.
+- DO-NOT-REPEAT → no re-import, no direct canonical data rewrite, no tenant bypass, no stale PASS, no DB-to-browser inference.
+- NEXT EXACT ACTION → consume current-SHA CI/browser evidence when exposed; otherwise continue the remaining source-bound screen/action contract work from this exact head.
+
 # LIVE CHECKPOINT — 2026-09-30 / REPORT LEDGER + SOURCE-BOUND UI FRONT
 
 - EXACT MAIN HEAD → `375d2c712f60a60d9979c0d0718807ab8e7030c1`.
