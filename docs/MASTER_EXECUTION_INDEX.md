@@ -292,3 +292,12 @@ The canonical execution path no longer requires browser-parsed rows for canonica
 Real unresolved report: `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf` / report job `d074ad5c-70d4-4402-a763-01129786f392` / import `bf206836-e52d-4b29-843a-6337403801e6` / source hash `sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10` / 6562 rows. It must be resumed by the canonical server path; do not create a replacement job.
 
 NEXT EXACT ACTION: authenticated runtime execution of the authoritative resume endpoint for the real queued report, followed by exact Staging readback and next-report continuation.
+
+
+## LIVE EXECUTION CHECKPOINT — 2026-09-30 / OPEN REPORT SERVER PROOF / HEAD 0758154
+
+The release workflow now contains an authoritative server-side proof for the single open report job `d074ad5c-70d4-4402-a763-01129786f392`. It authenticates with the configured E2E account, executes `/api/canonical-import-execute` with `resumeReportExecutionJobId`, and fail-closes unless the same job reaches `completed/rendered`, the import reaches completed with 6562 valid rows, the canonical dataset contains exactly 6562 rows, the canonical commit is exactly 6562, rendered evidence exists, and no duplicate durable job exists.
+
+Current exact HEAD: `0758154667a0cfc1f6cac4c02bd9d1c5cc653e49`.
+
+No manual device/browser dependency is required for this proof.
