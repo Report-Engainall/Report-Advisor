@@ -97,7 +97,7 @@ export default async (request: Request): Promise<Response> => {
       .maybeSingle();
     if (jobError) throw jobError;
     if (!job?.file_record_id) throw new Error('IMPORT_JOB_SOURCE_RECORD_NOT_FOUND_OR_FORBIDDEN');
-    if (job.job_type && job.job_type !== payload.entityType) throw new Error('IMPORT_JOB_ENTITY_TYPE_MISMATCH');
+    if (job.job_type && job.job_type !== entityType) throw new Error('IMPORT_JOB_ENTITY_TYPE_MISMATCH');
 
     const { data: fileRecord, error: fileError } = await serviceClient
       .from('file_records')
@@ -122,11 +122,11 @@ export default async (request: Request): Promise<Response> => {
     const bytes = new Uint8Array(await sourceBlob.arrayBuffer());
     const sourceSha = `sha256:${createHash('sha256').update(bytes).digest('hex')}`;
 
-    if (payload.sourceHash && payload.sourceHash !== sourceSha) {
+    if (sourceHash && sourceHash !== sourceSha) {
       throw new Error('AUTHORITATIVE_SOURCE_HASH_MISMATCH');
     }
 
-    const sourceFile = new File([bytes], fileRecord.file_name || payload.fileName || 'import', {
+    const sourceFile = new File([bytes], fileRecord.file_name || fileName || 'import', {
       type: fileRecord.file_mime || sourceBlob.type || 'application/octet-stream',
       lastModified: Date.now(),
     });
@@ -140,7 +140,7 @@ export default async (request: Request): Promise<Response> => {
       return json(200, { importId: job.id, sourceHash: sourceSha });
     }
 
-    const authoritativeDatasets = await parseFile(bytes.buffer, fileRecord.file_name || payload.fileName || 'import', detection.format);
+    const authoritativeDatasets = await parseFile(bytes.buffer, fileRecord.file_name || fileName || 'import', detection.format);
     const authoritativeDataset = authoritativeDatasets[0];
     if (!authoritativeDataset || authoritativeDataset.rowCount === 0) throw new Error('AUTHORITATIVE_SOURCE_PARSE_EMPTY');
 
@@ -152,7 +152,7 @@ export default async (request: Request): Promise<Response> => {
 
     const authoritativeRows = authoritativeDataset.rows.map((data, index) => ({ rowNumber: index + 1, data }));
     const reconciled = reconcileForCanonical(
-      payload.entityType,
+      entityType,
       String(companyId),
       fileRecord.file_name || payload.fileName || 'import',
       sourceSha,
@@ -211,10 +211,10 @@ export default async (request: Request): Promise<Response> => {
         importId: job.id,
         fileName: fileRecord.file_name || payload.fileName || 'import',
         sourceHash: sourceSha,
-        entityType: payload.entityType,
+        entityType,
         rows: reconciled.rows,
         qualityScore: authoritativeQualityScore,
-        qualityApproved: payload.qualityApproved === true,
+        qualityApproved: resumeReportExecutionJobId ? true : payload.qualityApproved === true,
       },
       {
         serverExecution: true,
