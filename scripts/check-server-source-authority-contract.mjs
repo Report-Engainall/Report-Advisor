@@ -6,6 +6,8 @@ assert.match(source, /storage\.from\(storageBucket\)\.download\(storagePath\)/);
 assert.match(source, /computeSHA256\(buffer\)/);
 assert.match(source, /serverSourceAuthority/);
 assert.match(source, /resumeReportExecutionJobId/);
+assert.match(source, /body\.mode === 'finalize-source'/);
+assert.match(source, /AUTHORITATIVE_SOURCE_DOWNLOAD_FAILED/);
 assert.match(source, /parseFile\(buffer, fileName, detection\.format\)/);
 assert.match(source, /reconcileForCanonical\(/);
 assert.match(source, /source_analysis_snapshots/);
