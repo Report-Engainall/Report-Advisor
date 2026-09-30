@@ -288,24 +288,20 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
     const page = await pdf.getPage(pageNumber);
     const content = await page.getTextContent();
-    const items = content.items
-      .map((item) => {
-        if (!('str' in item) || typeof item.str !== 'string' || !item.str.trim()) return null;
-        return { item, str: item.str };
-      })
-      .filter((entry): entry is { item: typeof content.items[number] & { str: string }; str: string } => Boolean(entry))
-      .map(({ item, str }) => {
-        const transform = Array.isArray((item as { transform?: unknown }).transform)
-          ? (item as { transform: number[] }).transform
-          : [];
-        return {
-          text: str,
-          x: Number.isFinite(transform[4]) ? transform[4] : 0,
-          y: Number.isFinite(transform[5]) ? transform[5] : 0,
-          width: Number.isFinite((item as { width?: number }).width) ? Number((item as { width?: number }).width) : Math.max(4, str.length * 4),
-          height: Number.isFinite((item as { height?: number }).height) ? Number((item as { height?: number }).height) : 10,
-        };
+    const items: PdfPageText['items'] = [];
+    for (const item of content.items) {
+      if (!('str' in item) || typeof item.str !== 'string' || !item.str.trim()) continue;
+      const transform = Array.isArray((item as { transform?: unknown }).transform)
+        ? (item as { transform: number[] }).transform
+        : [];
+      items.push({
+        text: item.str,
+        x: Number.isFinite(transform[4]) ? transform[4] : 0,
+        y: Number.isFinite(transform[5]) ? transform[5] : 0,
+        width: Number.isFinite((item as { width?: number }).width) ? Number((item as { width?: number }).width) : Math.max(4, item.str.length * 4),
+        height: Number.isFinite((item as { height?: number }).height) ? Number((item as { height?: number }).height) : 10,
       });
+    }
     pages.push({ pageNumber, items });
     const text = items.map((item) => item.text).join(' ').trim();
     if (text) pageText.push(`PAGE ${pageNumber}\n${text}`);
