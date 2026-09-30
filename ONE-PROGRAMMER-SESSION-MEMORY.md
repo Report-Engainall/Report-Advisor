@@ -1,3 +1,15 @@
+# PRE-CANONICAL-RECOVERY-GUARD CHECKPOINT — 2026-09-30
+
+- EXACT MAIN EXECUTION HEAD → `dab7dc027e9df09562b5a6e1eb555b0599e59abe`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- VERIFIED READBACK AFTER CORRECTION → import completed; rendered evidence state is `AWAITING_EVIDENCE_SNAPSHOT`; trust `TRUSTED`; decision `NO_DECISION_COMMITTED`; action `NO_ACTION_COMMITTED`; benchmark `INSUFFICIENT_SAMPLE`; source pending-hash false.
+- CANONICAL INTEGRITY → 735 canonical dataset rows and 735 canonical import commit rows remain unchanged.
+- ROOT ISSUE NOW CLOSED → no KPI evidence snapshot for this source hash exists; therefore `VERIFIED` was not justified and was corrected through governed recovery.
+- NEXT ROOT HARDENING → recovery itself must reject `evidenceStatus=VERIFIED`; evidence acceptance must remain a separate contract.
+- DO-NOT-REPEAT → no re-import, no canonical-row mutation, no browser inference.
+- ACTION STATUS → `IN_PROGRESS`.
+- NEXT EXACT ACTION → harden the existing recovery function against VERIFIED evidence promotion, capture the guard in the repository migration lineage, then read back the current report again.
+
 # PRE-LONG-ACTION CHECKPOINT — 2026-09-30 / CORRECT PERSISTED EVIDENCE STATE
 
 - EXACT MAIN EXECUTION HEAD → `04e74d270b902077ab67717ca0e5e615e4fbb68d`.
