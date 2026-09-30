@@ -34,10 +34,10 @@ assert.deepEqual(visualRows.map(({ pageNumber, lineNumber, cells }) => ({ pageNu
 const lines = extractPdfVisualLines(pages);
 assert.equal(lines.length, 4);
 assert.deepEqual(lines.map(({ pageNumber, lineNumber, text }) => ({ pageNumber, lineNumber, text })), [
-  { pageNumber: 1, lineNumber: 1, text: 'رقم الصنف السعر' },
-  { pageNumber: 1, lineNumber: 2, text: '10101001 10750' },
-  { pageNumber: 1, lineNumber: 3, text: '10101002 10850' },
-  { pageNumber: 2, lineNumber: 1, text: '10101003 10800' },
+  { pageNumber: 1, lineNumber: 1, text: 'رقم الصنف | السعر' },
+  { pageNumber: 1, lineNumber: 2, text: '10101001 | 10750' },
+  { pageNumber: 1, lineNumber: 3, text: '10101002 | 10850' },
+  { pageNumber: 2, lineNumber: 1, text: '10101003 | 10800' },
 ]);
 assert.ok(!lines.some((line) => line.text.includes('10101001') && line.text.includes('10101003')));
 console.log('PDF_VISUAL_LINE_FALLBACK_PASS');
