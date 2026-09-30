@@ -1,3 +1,19 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / REAL REPORT SMART-OUTPUT SURFACE / FUNCTIONAL CANDIDATE 7a5da321326e4a2d9965cea786f28c4e5e679bb7
+
+- EXACT MAIN HEAD AT FUNCTIONAL CHECKPOINT → `7a5da321326e4a2d9965cea786f28c4e5e679bb7`.
+- CURRENT CODE/TEST CANDIDATE → `7a5da321326e4a2d9965cea786f28c4e5e679bb7`.
+- CURRENT REPORT FRONT → `تسعيرة الاصناف حسب رقم الصنف.pdf` / import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- LIVE REPORT COHORT → 35 qualifying completed generic canonical report jobs; 35/35 now carry `renderedOutput`; 0 missing; 0 source-hash/sourceBound mismatches.
+- REPORT SMART UI → new tenant-scoped catalog/detail data access in `src/lib/report-smart.ts`; new source-bound detail page `src/pages/SmartReportPage.tsx`; route `/reports/smart/:jobId`; report center cards link each real Job to its actual smart result surface.
+- RESULT CONTENT → source, fingerprint, trust, quality, row count, specialty, Truth/Evidence/Signal/Intelligence states, Decision/Action/Outcome/Learning/Benchmark/Replay states, rendered surface links, analysis preview and provenance are all displayed from persisted records; no synthetic decision/outcome/benchmark values.
+- RECOVERY → `public.recover_missing_report_rendered_outputs(company)` was executed once on Staging to reconstruct missing persisted `renderedOutput` from already completed durable jobs and canonical commits. No source was re-imported.
+- UI TEST ROOT FIX → `/reports/smart/:jobId` is classified as internal progressive disclosure in `scripts/check-ui-route-completeness.mjs`; this is a governance/test contract change.
+- CURRENT CI BLOCKS → Final Certification and Execution Enforcement currently reject the earlier HEAD because the execution index points to an older candidate; this governance checkpoint re-anchors the candidate to the functional SHA. Vercel remains externally rate-limited.
+- BROWSER STATUS → PC01/Edge authenticated proof is still NOT PROVEN; no DB-to-browser inference is allowed.
+- ACTION STATUS → `IN_PROGRESS`.
+- NEXT EXACT ACTION → read back the resulting governance commit SHA and exact-head workflow results; fix only the first newly reproduced product/test failure, then return to authenticated UI proof for the same real report. Never re-import.
+- DO-NOT-REPEAT → no blind re-import, no direct canonical-row mutation, no fake auth, no stale CI transfer, no browser PASS without observed authenticated rendering.
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / FINAL EXACT-SHA REPORT CHECKPOINT / 4add362127e81c57f9d6309082aa2c5bacc98129
 
 - EXACT MAIN HEAD → `4add362127e81c57f9d6309082aa2c5bacc98129`.
