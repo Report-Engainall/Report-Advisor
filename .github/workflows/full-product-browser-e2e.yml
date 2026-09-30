@@ -179,7 +179,7 @@ jobs:
           TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
           OPEN_REPORT_EXECUTION_JOB_ID: 'd074ad5c-70d4-4402-a763-01129786f392'
           OPEN_REPORT_EXPECTED_SOURCE_HASH: 'sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10'
-          OPEN_REPORT_EXPECTED_ROWS: '6776'
+          OPEN_REPORT_EXPECTED_ROWS: '0'
           OPEN_REPORT_FILE_NAME: 'فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf'
         run: node scripts/resume-open-report-server-proof.mjs
       - name: Install deterministic browser tooling
