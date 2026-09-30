@@ -298,8 +298,11 @@ export default async function handler(req: any, res: any) {
     if (typeof body.importId !== 'string' || !body.importId.trim()) throw new Error('import_id_invalid');
     if (typeof body.fileName !== 'string' || !body.fileName.trim() || body.fileName.length > 512) throw new Error('file_name_invalid');
     if (typeof body.sourceHash !== 'string' || !/^sha256:[0-9a-fA-F]{64}$/.test(body.sourceHash)) throw new Error('source_hash_invalid');
-    if (!Array.isArray(body.rows) || body.rows.length < 1 || body.rows.length > 500000) throw new Error('rows_invalid');
-    if (typeof body.qualityScore !== 'number' || !Number.isFinite(body.qualityScore) || body.qualityScore < 0 || body.qualityScore > 100) throw new Error('quality_score_invalid');
+    const mode = body.mode === 'finalize-source' ? 'finalize-source' : 'execute';
+    if (mode === 'execute') {
+      if (!Array.isArray(body.rows) || body.rows.length < 1 || body.rows.length > 500000) throw new Error('rows_invalid');
+      if (typeof body.qualityScore !== 'number' || !Number.isFinite(body.qualityScore) || body.qualityScore < 0 || body.qualityScore > 100) throw new Error('quality_score_invalid');
+    }
 
     const { data: importJob, error: importJobError } = await dataClient
       .from('import_jobs')
@@ -320,7 +323,23 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    const serverSourceAuthority = body.serverSourceAuthority === true;
+    const serverSourceAuthority = body.serverSourceAuthority === true || mode === 'finalize-source';
+    if (mode === 'finalize-source') {
+      const input = await authoritativeSourceInput({
+        workerClient,
+        dataClient,
+        companyId,
+        importId: String(body.importId),
+        reportExecutionJobId: '',
+        requestedBy: user.id,
+        expectedSourceHash: String(body.sourceHash),
+        fileName: String(body.fileName),
+        entityType: String(body.entityType),
+        qualityApproved: body.qualityApproved === true,
+      });
+      json(res, 200, { importId: input.importId, sourceHash: input.sourceHash });
+      return;
+    }
     const input = serverSourceAuthority
       ? await authoritativeSourceInput({
           workerClient,
