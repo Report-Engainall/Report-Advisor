@@ -374,6 +374,7 @@ export function SmartReportPage() {
   const [report, setReport] = useState<SmartReportDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -439,7 +440,21 @@ export function SmartReportPage() {
     <PageHeader
       title={report.sourcePath}
       subtitle="تقرير ذكي مربوط بالبصمة الأصلية، وليس نسخة تجريبية أو تقريرًا عامًا."
-      actions={<Link to="/reports" className="btn-secondary inline-flex items-center gap-2 text-xs"><ArrowLeft size={14}/> مركز التقارير</Link>}
+      actions={<div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            const url = window.location.origin + '/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash);
+            void navigator.clipboard?.writeText(url).then(() => setCopied(true)).catch(() => setCopied(false));
+          }}
+          className="btn-secondary inline-flex items-center gap-2 text-xs"
+        >
+          {copied ? 'تم نسخ الرابط' : 'نسخ رابط التقرير'}
+        </button>
+        <Link to={'/work-center?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary inline-flex items-center gap-2 text-xs">مركز العمل</Link>
+        <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-primary inline-flex items-center gap-2 text-xs">مسار القرار</Link>
+        <Link to="/reports" className="btn-secondary inline-flex items-center gap-2 text-xs"><ArrowLeft size={14}/> مركز التقارير</Link>
+      </div>}
     />
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
