@@ -1,6 +1,7 @@
+import { SourceBoundReportSurface } from '@/components/SourceBoundReportSurface';
 import { ArrowLeft, CheckCircle2, Eye, FileSearch, GitBranch, History, Landmark, RefreshCw, ShieldCheck } from 'lucide-react';
 import { ReportSourceContext } from '@/components/ReportSourceContext';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
@@ -24,7 +25,7 @@ const evidenceSurfaces = [
   { title: 'Metric Inspector', detail: 'فحص المؤشر وحدود الحساب ومصدره.', path: '/metrics', available: true, icon: Eye },
 ];
 
-export function TrustEvidencePage() {
+function TrustEvidenceGeneralPage() {
   const [snapshot, setSnapshot] = useState<Awaited<ReturnType<typeof fetchDataQualitySnapshot>> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -167,4 +168,14 @@ export function TrustEvidencePage() {
       الثقة لا تُستنتج من شكل الواجهة. أي غياب في المصدر أو السلسلة أو العينة يبقى ظاهرًا كـ REVIEW / BLOCKED / INSUFFICIENT DATA.
     </div>
   </div>;
+}
+
+export function TrustEvidencePage() {
+  const [params] = useSearchParams();
+  const reportJobId = params.get('reportJobId');
+  const sourceHash = params.get('sourceHash');
+  if (reportJobId) {
+    return <SourceBoundReportSurface mode="trust" jobId={reportJobId} expectedSourceHash={sourceHash} />;
+  }
+  return <TrustEvidenceGeneralPage />;
 }
