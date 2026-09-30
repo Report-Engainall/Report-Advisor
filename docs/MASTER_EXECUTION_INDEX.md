@@ -1,3 +1,16 @@
+# LIVE EXECUTION BOUNDARY — 2026-09-30 / SOURCE-BOUND RESULT SURFACES
+
+- EXACT MAIN HEAD → `fa5037bc43db476186bd202496e5b522acb4f1d8`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REPORT RESULT → 735/735 processed; durable stages 1..9 completed/rendered; canonical commit 735; source analysis 735×7 at quality 87; rendered outputs remain source-bound.
+- IMPLEMENTATION BOUNDARY → `fetchSmartReport` now exposes durable task evidence; `SourceBoundReportSurface` is reusable for Executive/Trust/Decision/Work Center; those four routes switch to the source-specific surface whenever `reportJobId` is present and validate `sourceHash`.
+- PRODUCT RULE ENFORCED → source-context pages no longer display unrelated company-wide recommendations, alerts, or worker metrics as though they belonged to the report. Decision/Approval/Action/Outcome/Learning/Replay/Benchmark remain at their persisted truth state.
+- CORPUS TRUTH → exact-head `tests/fixtures/realistic-reports/` still contains only README; no fabricated fixture count.
+- PROOF BOUNDARY → source/staging persistence is proven; current-HEAD combined status exposes only external Vercel build-rate-limit failure/pending deployment. Exact current-SHA automated build/typecheck and authenticated Edge visual proof remain NOT PROVEN.
+- ACTION STATUS → `IN_PROGRESS`.
+- DO-NOT-REPEAT → no re-import, no direct canonical rewrite, no global-to-source inference, no stale PASS, no fake browser proof.
+- NEXT EXACT ACTION → consume exact-current-SHA CI/browser evidence if exposed; otherwise close remaining runtime/host proof only, without re-importing the completed report.
+
 # LIVE HEAD RECONCILIATION — 2026-09-30
 
 - EXACT MAIN HEAD → `0090543ff814062b62b9cbee07cd806f3e42c81d`.
