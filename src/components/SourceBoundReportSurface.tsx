@@ -326,8 +326,17 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
                     <span className="text-xs font-black text-ink-900">{decision.signalTitle ?? decision.decisionKey}</span>
                     <span className="rounded-full bg-white px-2 py-1 text-[9px] font-bold text-ink-600">{stateLabel(decision.status)}</span>
                     {decision.workItemStatus && <span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-bold text-primary-800">Work: {decision.workItemStatus}</span>}
+                    {decision.outcomeStatus && <span className="rounded-full bg-success-50 px-2 py-1 text-[9px] font-bold text-success-800">Outcome: {decision.outcomeStatus}</span>}
                   </div>
                   <p className="mt-1 text-[10px] leading-5 text-ink-600">{decision.signalMessage ?? 'إشارة مصدرية مرتبطة بهذا القرار.'}</p>
+                  {(decision.actualImpact != null || decision.expectedImpact != null || decision.outcomeStatus) && (
+                    <div className="mt-2 flex flex-wrap gap-3 text-[9px] text-ink-500">
+                      <span>المتوقع: {decision.expectedImpact == null ? 'غير متاح' : formatNumber(decision.expectedImpact)}</span>
+                      <span>الفعلي: {decision.actualImpact == null ? 'غير متاح' : formatNumber(decision.actualImpact)}</span>
+                      <span>التعلم: {decision.outcomeStatus ?? 'غير مسجل'}</span>
+                      {decision.outcomeQuality != null && <span>جودة النتيجة: {formatNumber(decision.outcomeQuality)}</span>}
+                    </div>
+                  )}
                   <div className="mt-2 flex flex-wrap gap-2 text-[8px] text-ink-400">
                     <span className="font-mono">decision={decision.id}</span>
                     {decision.workItemId && <span className="font-mono">work={decision.workItemId}</span>}
