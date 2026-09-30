@@ -400,3 +400,20 @@ Next commercial frontier remains the governed decision/work-item bridge, but it 
 Runtime release remains OPEN; no current-head deployment/browser PASS is claimed.
 
 NEXT EXACT ACTION: continue productization over the existing governed decision/RPC model, beginning with a source-bound proposed-decision bridge that remains explicitly PROPOSED until governed evidence/approval exists.
+
+
+## LIVE CHECKPOINT — 2026-09-30 / GOVERNED SOURCE DECISION BRIDGE / HEAD 4e6a454
+
+A real product-to-work bridge now exists without creating a second decision engine:
+- Source intelligence signals can be saved as tenant-scoped PROPOSED business decisions through the existing create_runtime_decision RPC.
+- Decision evidence contains report execution Job ID, source hash, signal ID/title/message, severity and evidence references.
+- The bridge is idempotent on company + decision key and never creates a decision work item directly.
+- Approval remains a separate governed stage; create_decision_work_item is untouched and still requires an approved decision, active assignee, and evidence.
+- UI action is explicitly labelled as saving a proposed decision, not executing it.
+- Contract: scripts/source-decision-proposal-contract.test.mjs; included in test:release-core and watched by the E2E workflow.
+
+This closes the first meaningful path from report intelligence to operational follow-through while preserving Evidence -> Decision -> Approval -> Work governance.
+
+Runtime release is still OPEN; current-head browser/deployment proof remains external/unobserved.
+
+NEXT EXACT ACTION: continue the commercial operating layer on the same governed path: approval/work-item UX and collaboration around decision_work_items, then connect outcome/learning/benchmark to the same source-bound decision identity.
