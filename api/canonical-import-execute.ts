@@ -269,26 +269,37 @@ export default async function handler(req: any, res: any) {
       const importId = typeof body.importId === 'string' && body.importId.trim()
         ? body.importId.trim()
         : (evidenceKeys.find((key) => key.startsWith('import:'))?.slice(7) ?? '');
-      const input = await authoritativeSourceInput({
-        workerClient,
-        dataClient,
-        companyId,
-        importId,
-        reportExecutionJobId: reportJob.id,
-        requestedBy: user.id,
-        expectedSourceHash: String(reportJob.source_hash ?? checkpoint.sourceHash ?? ''),
-        fileName: String(reportJob.source_path ?? ''),
-        entityType,
-        qualityApproved: body.qualityApproved === true,
-      });
-      const result = await runCanonicalImportThroughDurableRunner(input, {
-        serverExecution: true,
-        workerClient,
-        dataClient,
-        companyId,
-        requestedBy: user.id,
-      });
-      json(res, 200, result);
+      let input: DurableCanonicalImportInput;
+      try {
+        input = await authoritativeSourceInput({
+          workerClient,
+          dataClient,
+          companyId,
+          importId,
+          reportExecutionJobId: reportJob.id,
+          requestedBy: user.id,
+          expectedSourceHash: String(reportJob.source_hash ?? checkpoint.sourceHash ?? ''),
+          fileName: String(reportJob.source_path ?? ''),
+          entityType,
+          qualityApproved: body.qualityApproved === true,
+        });
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        throw new Error(`CANONICAL_IMPORT_SOURCE_AUTHORITY_FAILED:${entityType}:${detail}`);
+      }
+      try {
+        const result = await runCanonicalImportThroughDurableRunner(input, {
+          serverExecution: true,
+          workerClient,
+          dataClient,
+          companyId,
+          requestedBy: user.id,
+        });
+        json(res, 200, result);
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        throw new Error(`CANONICAL_IMPORT_DURABLE_RUN_FAILED:${entityType}:${detail}`);
+      }
       return;
     }
 
