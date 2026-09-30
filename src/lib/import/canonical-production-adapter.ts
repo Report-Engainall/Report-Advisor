@@ -268,7 +268,7 @@ async function finalizeImportJobIfOpen(
 ): Promise<void> {
   const { data: current, error: currentError } = await client
     .from('import_jobs')
-    .select('id,status')
+    .select('id,status,total_rows')
     .eq('id', input.importId)
     .eq('company_id', authoritativeCompanyId)
     .single();
@@ -276,6 +276,23 @@ async function finalizeImportJobIfOpen(
   if (currentError || !current) throw currentError ?? new Error('IMPORT_JOB_NOT_FOUND_OR_FORBIDDEN');
   if (current.status === 'completed') return;
   if (['partial', 'failed', 'cancelled'].includes(current.status)) throw new Error('IMPORT_JOB_ALREADY_TERMINAL:' + current.status);
+
+  if (Number(current.total_rows ?? 0) !== input.rows.length) {
+    const { error: reconcileError } = await client
+      .from('import_jobs')
+      .update({
+        total_rows: input.rows.length,
+        result_summary: {
+          ...summary,
+          canonical_row_count_reconciled: true,
+          previous_total_rows: Number(current.total_rows ?? 0),
+        },
+      })
+      .eq('id', input.importId)
+      .eq('company_id', authoritativeCompanyId)
+      .in('status', ['queued', 'processing']);
+    if (reconcileError) throw new Error('IMPORT_JOB_TOTAL_ROW_RECONCILIATION_FAILED:' + reconcileError.message);
+  }
 
   const { error } = await client.rpc('import_finish_job', {
     p_job_id: input.importId,
