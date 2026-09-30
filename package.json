@@ -153,6 +153,7 @@
     "test:knowledge-architecture": "node scripts/check-knowledge-architecture.mjs",
     "test:report-row-coverage-contract": "node scripts/check-report-row-coverage-contract.mjs",
     "test:pdf-visual-line-fallback": "node --experimental-strip-types scripts/pdf-visual-line-fallback.test.ts",
+    "test:pdf-node-runtime": "node --experimental-strip-types scripts/pdf-node-runtime.test.ts",
     "test:report-intelligence-inventory-grain": "node --experimental-strip-types scripts/report-intelligence-inventory-grain.test.ts",
     "test:document-intelligence-lines": "node --experimental-strip-types scripts/document-intelligence-lines.test.ts",
     "test:server-source-authority": "node scripts/check-server-source-authority-contract.mjs",
