@@ -1,3 +1,21 @@
+# FINAL EXACT-HEAD READBACK CHECKPOINT — 2026-09-30
+
+- EXACT CURRENT HEAD BEFORE THIS GOVERNANCE-ONLY WRITEBACK → `73d7f0e2b49081372a7a12dc0f95b98b5fff8f1b`.
+- EXACT CURRENT-SHA QUALITY → PASS: Typecheck, Lint, Build, Performance, Production Scale, Intelligence/Production, Row Coverage, and all scheduled Quality gates.
+- EXACT CURRENT-SHA FINAL EXECUTION BATCH → PASS: release artifact + 29 deterministic gates.
+- EXACT CURRENT-SHA FINAL CERTIFICATION GATE → PASS.
+- EXACT CURRENT-SHA EXECUTION ENFORCEMENT → PASS.
+- EXACT CURRENT-SHA STORAGE TENANT ISOLATION → PASS.
+- EXACT CURRENT-SHA FULL PRODUCT BROWSER E2E → PASS for exact checkout verification only; it does not prove authenticated business-flow browser execution.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; source 735; authoritative canonical 735; commit 735; analysis 735×7; quality 87; sourceTrust TRUSTED; reportVerification PENDING_EVIDENCE; evidence AWAITING_EVIDENCE_SNAPSHOT.
+- 399/397 CONTRACT → source/analysis 399; canonical/authoritative 397; gap 2; GAP_DETECTED; no manual canonical mutation.
+- OPERATIONAL CORPUS → 39 discovered/registered/completed/analyzed/rendered; evidence verified 0; gap-detected 1; pending evidence 38.
+- EVIDENCE INSPECTOR → implemented; separates Source, Fingerprint, Canonical Commit, Row Count, Analysis, Evidence, Verification.
+- IN-PLACE RETRY → all five source-bound report pages use useOptionalSourceReport.retry; ReportsPage.tsx contains no window.location.reload().
+- EXTERNAL BLOCKER → authenticated current-SHA Microsoft Edge/business-flow browser proof remains NOT PROVEN because no browser/device integration is available; Vercel remains externally build-rate-limited.
+- ACTION STATUS → IN_PROGRESS only for authenticated browser proof; repository/build/certification gates are proven at the exact current code candidate.
+- NEXT EXACT ACTION → authenticated browser proof when an authorized browser/device becomes available; otherwise preserve this checkpoint and do not reopen completed report processing.
+
 # FINAL LIVE WRITE-BACK — 2026-09-30 / CURRENT CODE CANDIDATE eab462
 
 - EXACT CODE/TEST CANDIDATE → `eab4628b49cdcf5ee0e3edcde9010f2eb021be5e`.
