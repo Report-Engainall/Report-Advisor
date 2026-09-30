@@ -468,3 +468,13 @@
 - SMART SURFACES READBACK → among the 39 completed generic reports, 38 have an inferred specialty, all 39 have rendered outputs with 4+ declared surfaces, all 39 have evidence status, and all 39 currently report benchmark status `INSUFFICIENT_SAMPLE` rather than invented cohorts.
 - DO-NOT-REPEAT → do not create a second job for the open report, do not write synthetic 6562 rows, do not claim the new regression scripts PASS until an exact checkout runtime executes them.
 - NEXT EXACT ACTION → get the newer hardening HEAD deployed/verified, then execute the server-authoritative resume path for the single open report and read back its real 6562-row extraction/canonical/analysis/rendered result before closing it.
+
+
+# LIVE CHECKPOINT — 2026-09-30 / OPEN-REPORT CI EXECUTION GATE
+
+- EXACT CURRENT HEAD → `0758154667a0cfc1f6cac4c02bd9d1c5cc653e49`.
+- OPEN-REPORT EXECUTION GATE ADDED → `scripts/resume-open-report-server-proof.mjs` authenticates with the existing E2E test account, calls the exact canonical resume endpoint for `d074ad5c-70d4-4402-a763-01129786f392`, and verifies the same job reaches completed/rendered with exactly 6562 canonical rows, a 6562-row canonical commit, completed import job, analysis snapshot, rendered output, and exactly one durable job for the job key.
+- CI WORKFLOW → Full Product Browser E2E now runs the open-report server proof before Chromium browser proof, using existing Supabase/E2E secrets. No local device or user browser is required for this proof path.
+- LIVE DEPLOYMENT BOUNDARY → Vercel production deployment `dpl_3XueK4okyBMYmMtk27wohiPfMuDV` is READY for commit `70385467dad95383da179baa950dfc3384e4bf07`, which already includes the server-authoritative source execution core. The newest CI/open-report proof commits are newer than that deployment and have not been claimed as live on Vercel.
+- STAGING DATA → 39 completed generic reports + 1 open report. Open report remains untouched in Staging until the CI server-proof executes it; no synthetic completion has been written from this session.
+- NEXT EXACT ACTION → observe the CI proof result for the newest HEAD; if it passes, read back the open report as CLOSED and then expand the same proof pattern to the remaining corpus. If CI fails, fix the exact failing root cause and rerun by commit.
