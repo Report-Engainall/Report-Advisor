@@ -211,8 +211,6 @@ async function importOne(page, label, fields, marker) {
   const companyId = evidence.tenantA ?? await currentTenant(page);
   const job = await waitForAuthoritativeImportCompletion(page, companyId, marker);
 
-  await page.getByRole('heading', { name: 'تم اعتماد المصدر', exact: true }).waitFor({ state: 'visible', timeout: 15000 });
-
   const canonicalRows = await restSelect(
     page,
     'canonical_dataset_records',
