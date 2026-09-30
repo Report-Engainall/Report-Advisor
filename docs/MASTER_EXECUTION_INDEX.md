@@ -270,3 +270,16 @@
 - DESKTOP REMOTE → PC01 is currently offline; no local-device/Edge claim is made from that unavailable connection. Exact-current-SHA Chromium browser proof is independently proven by GitHub Actions.
 - ACTION STATUS → repository/browser acceptance is proven on the exact current HEAD. Do not re-import the current report. Remaining local-device action is optional verification when PC01 reconnects, not a blocker to the proven application code path.
 - NEXT EXACT ACTION → use the ready application deployment that contains the same product/runtime source as the current HEAD for interactive inspection; preserve this exact-head proof and do not create another pipeline.
+
+
+## LIVE EXECUTION CHECKPOINT — 2026-09-30 / PDF + DOCUMENT INTELLIGENCE / HEAD 5277eccf
+
+Current exact head: `5277eccf39c0f36e081cf161f8288811086cd769`.
+
+This wave repaired the canonical PDF/document heart: visual-line preservation, document-level intelligence for unstructured PDFs, full-canonical-row Smart Report top items, in-place Smart Report retry, and inventory grain-aware anomaly detection. Regression contracts were added for each relevant behavior.
+
+Corpus operational state remains 39 completed generic reports with rendered outputs and one unresolved real queued report: `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf` / job `d074ad5c-70d4-4402-a763-01129786f392` / import `bf206836-e52d-4b29-843a-6337403801e6` / source hash `sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10` / 6562 expected rows.
+
+No PASS is claimed for the new regression scripts until actual repository runtime execution is observed.
+
+NEXT EXACT ACTION: recover/execute the queued report through the authoritative private-source runtime without creating a duplicate job; then use the same heart fixes against subsequent PDFs.
