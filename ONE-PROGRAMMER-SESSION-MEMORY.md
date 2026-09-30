@@ -1,3 +1,20 @@
+# FINAL LIVE WRITE-BACK — 2026-09-30 / REPORT SOURCE + DURABLE EXECUTION CLOSURE FRONT
+
+- EXECUTION BOUNDARY SHA → `4aee2ad02ee1f3ce9f026ead2f1ba5dc04b5c3f0`; the subsequent control-plane writeback commit is memory-only.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REAL REPORT → 735/735 processed; durable stages 1..9 completed/rendered; canonical dataset 735; canonical import commit 735; source analysis 735×7; quality 87.
+- SOURCE RECORD → import now points to ready/passed file record `071db872-2f17-4acf-8374-b1e2d9852985`; exact hash; authoritative storage `.../5925f3a2-fbac-4678-9490-b892dca35d4d.pdf`; source_record_pending_hash=false.
+- RECOVERY ROOT FIX → repository migration `20260930110000_reconcile_completed_report_source_record_binding.sql` enforces verified source-record resolution and fail-closed storage/hash/security checks during completed-report recovery.
+- EVIDENCE ROOT FIX → persisted evidence state is never promoted to VERIFIED from canonical commit presence. Canonical commit proof is a separate tenant-scoped field derived from `canonical_import_commits`.
+- UI ROOT FIX → Executive / Trust / Decision / Work are source-bound; source hash is validated; Trust presents canonical commit proof separately from truth/evidence state.
+- EXECUTION ROOT GUARD → the canonical `check-report-execution-coordinator-contract.mjs` on main now fails if production source imports/instantiates the in-memory execution queue/coordinator outside canonical in-memory implementation/test files.
+- RUNTIME RESULT STATES → TRUSTED / VERIFIED / NO_DECISION_COMMITTED / NO_ACTION_COMMITTED / NOT_AVAILABLE / INSUFFICIENT_SAMPLE remain persisted truth; no fabricated outcomes/learning/replay/benchmark.
+- CORPUS TRUTH → GitHub exact-head `tests/fixtures/realistic-reports/` still only README; Staging operational file_records/report_execution_jobs are not fixture-corpus proof.
+- PROOF BOUNDARY → Staging source/recovery/canonical readback proven. Exact current-SHA build/typecheck/CI is not exposed by available GitHub wrapper; Vercel is build-rate-limited; authenticated Microsoft Edge/browser proof remains NOT PROVEN; TinyFish browser automation is unavailable at current wallet balance.
+- ACTION STATUS → `IN_PROGRESS` only for current-SHA certification/runtime/browser closure.
+- DO-NOT-REPEAT → no re-import, no direct canonical-row rewrite, no evidence promotion, no tenant bypass, no stale PASS, no database-to-browser inference.
+- NEXT EXACT ACTION → consume exact-current-SHA CI/build evidence if exposed; otherwise continue canonical production-execution semantic proof without touching the completed report data.
+
 # FINAL LIVE WRITE-BACK — 2026-09-30 / REPORT SOURCE RECORD + CANONICAL COMMIT PROOF
 
 - EXECUTION BOUNDARY SHA → `a4d610076e9b5e7925e73cfae528cb4e7cd22cb4`; the following writeback commit is control-plane only.
