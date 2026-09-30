@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, CheckCircle2, XCircle, AlertCircle, AlertTriangle, ShieldCheck, Loader2, ArrowLeft, LockKeyhole, FileCheck2, RefreshCw } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
@@ -89,6 +89,7 @@ function Stepper({ step }: { step: Step }) {
 }
 
 export function CanonicalImportPage() {
+  const navigate = useNavigate();
   const [step, setStep] = useState<Step>('upload');
   const [understandingConfidence, setUnderstandingConfidence] = useState(0);
   const [understandingReason, setUnderstandingReason] = useState('لم يبدأ تحليل المصدر بعد.');
@@ -272,6 +273,7 @@ export function CanonicalImportPage() {
 
       if (typeof window !== 'undefined') {
         window.sessionStorage.setItem('aghbari:last-import-job', rec.id);
+        window.sessionStorage.setItem('aghbari:last-smart-report-job', String(execution.jobId));
       }
       setProgress(100);
       setResult({
@@ -285,8 +287,9 @@ export function CanonicalImportPage() {
         authoritativeQualityScore: Number(execution.authoritativeQualityScore ?? quality),
         renderedOutput: execution.renderedOutput ?? null,
       });
-      setStep('done');
       await loadHistory();
+      navigate('/reports/smart/' + String(execution.jobId), { replace: true });
+      return;
     } catch (cause) {
       const failureMessage = cause instanceof Error ? cause.message : 'تعذر اعتماد المصدر';
       if (importJobId) {
