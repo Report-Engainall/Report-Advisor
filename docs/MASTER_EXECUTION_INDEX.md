@@ -256,3 +256,17 @@
 - ARTIFACT → `full-product-browser-proof-36679770124`, 44 files, artifact `11081267824`, digest `sha256:043d59685f11f25c2289063aaa946be712d5c9da4d6af3656b4279a1715f0666`.
 - ACTION STATUS → persisted report Browser acceptance proven at code SHA `9d671da62763345693174a6a5fa4a47397382342`. This documentation commit is the next exact-head checkpoint; consume its triggered exact-head Browser E2E before final release closure.
 - NEXT EXACT ACTION → read back the resulting exact SHA and its Browser E2E result/artifacts. No re-import.
+
+# FINAL LIVE BROWSER READBACK — 2026-09-30 / CURRENT HEAD b9d179212735dc3af0147bd6b97fde4d291c7bf4
+
+- EXACT CURRENT MAIN HEAD → `b9d179212735dc3af0147bd6b97fde4d291c7bf4`.
+- EXACT-CURRENT-SHA FULL PRODUCT BROWSER E2E → PASS: workflow run `36680171455`, run number `6265`, exact checkout matched `b9d179212735dc3af0147bd6b97fde4d291c7bf4`, exact build succeeded, authenticated Chromium route succeeded, persisted-report business journey succeeded, fail-closed browser gate succeeded, artifact upload succeeded.
+- EXACT-CURRENT-SHA QUALITY → PASS: workflow run `36680171431`, run number `9575`; Typecheck, Lint, Build, performance/scale, intelligence/production and all listed quality/certification contracts completed successfully.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; reportJobId `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`; source row count `735`.
+- CURRENT REPORT BROWSER READBACK → exact source path/hash/job identity preserved; Smart Report plus Executive / Trust / Decision / Work Center / Inventory source-bound surfaces preserved the same reportJobId + sourceHash; tenant isolation remained enforced; no re-import occurred.
+- BROWSER ARTIFACT → `full-product-browser-proof-36680171455`; artifact id `11081956234`; digest `sha256:137872163b74a3871b55cb64ff504c847231a70c7cbe057522bfb721814b268e`.
+- PRODUCT TRUTH → application code is unchanged relative to the latest ready Vercel deployment code candidate `4cc01beeb6c5fe50fb025108814dc1b0a05edd3b`; the three commits after that candidate changed only governance memory/index and the browser-proof test script, not product/runtime source.
+- EVIDENCE SEMANTICS → persisted report evidence remains governed separately; browser/render proof does not fabricate a missing evidence snapshot.
+- DESKTOP REMOTE → PC01 is currently offline; no local-device/Edge claim is made from that unavailable connection. Exact-current-SHA Chromium browser proof is independently proven by GitHub Actions.
+- ACTION STATUS → repository/browser acceptance is proven on the exact current HEAD. Do not re-import the current report. Remaining local-device action is optional verification when PC01 reconnects, not a blocker to the proven application code path.
+- NEXT EXACT ACTION → use the ready application deployment that contains the same product/runtime source as the current HEAD for interactive inspection; preserve this exact-head proof and do not create another pipeline.
