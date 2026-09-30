@@ -193,7 +193,5 @@ begin
 end;
 $function$;
 
-revoke all on function public.recover_completed_report_execution_result(uuid, uuid, uuid, text, text, integer, jsonb) from public;
-revoke all on function public.recover_completed_report_execution_result(uuid, uuid, uuid, text, text, integer, jsonb) from anon;
-revoke all on function public.recover_completed_report_execution_result(uuid, uuid, uuid, text, text, integer, jsonb) from authenticated;
+revoke all on function public.recover_completed_report_execution_result(uuid, uuid, uuid, text, text, integer, jsonb) from public, anon, authenticated;
 grant execute on function public.recover_completed_report_execution_result(uuid, uuid, uuid, text, text, integer, jsonb) to service_role;
