@@ -21,6 +21,12 @@ export type PdfTableExtraction = {
   headerPage: number;
 };
 
+export type PdfVisualLine = {
+  pageNumber: number;
+  lineNumber: number;
+  text: string;
+};
+
 function finiteNumber(value: unknown, fallback = 0): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
 }
@@ -99,6 +105,22 @@ function pageMatrix(page: PdfPageText): string[][] {
   return groupVisualLines(page.items)
     .map(splitVisualLine)
     .filter((row) => row.length > 0);
+}
+
+/**
+ * Preserve page and visual-line boundaries when a PDF is not a reconstructable table.
+ * Joining every TextItem with spaces collapses an entire page into one phrase and
+ * destroys the evidence needed for downstream document understanding.
+ */
+export function extractPdfVisualLines(pages: PdfPageText[]): PdfVisualLine[] {
+  const lines: PdfVisualLine[] = [];
+  for (const page of pages) {
+    groupVisualLines(page.items).forEach((tokens, index) => {
+      const text = tokens.map((token) => token.text.trim()).filter(Boolean).join(' ').trim();
+      if (text) lines.push({ pageNumber: page.pageNumber, lineNumber: index + 1, text });
+    });
+  }
+  return lines;
 }
 
 function normalizedHeaderKey(values: string[]): string {
