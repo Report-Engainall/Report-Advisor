@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / REAL REPORT SMART-OUTPUT SURFACE / FUNCTIONAL CANDIDATE 7a5da321326e4a2d9965cea786f28c4e5e679bb7
+
+- EXACT MAIN HEAD → `7a5da321326e4a2d9965cea786f28c4e5e679bb7`.
+- CURRENT CODE/TEST CANDIDATE → `7a5da321326e4a2d9965cea786f28c4e5e679bb7`.
+- CURRENT REPORT FRONT → `تسعيرة الاصناف حسب رقم الصنف.pdf` / import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REPORT COHORT READBACK → 35 qualifying completed generic canonical report execution jobs have `renderedOutput`; missing rendered outputs = 0; source-hash/sourceBound mismatches = 0.
+- SMART OUTPUT SURFACE → `src/lib/report-smart.ts` + `src/pages/SmartReportPage.tsx`; route `/reports/smart/:jobId`; `/reports` now lists the source-bound smart report jobs and opens the exact report surface.
+- TRUTH CONTRACT → each recovered report preserves actual source hash, row count and quality; decision/action/outcome/learning/replay/benchmark are not promoted beyond persisted evidence. Recovered jobs without an evidence snapshot remain `AWAITING_EVIDENCE_SNAPSHOT`.
+- CANONICAL RECOVERY → Staging recovery contract executed once against completed durable report jobs; no blind re-import and no direct canonical-row mutation.
+- CURRENT TEST FINDINGS → UI route completeness required the smart detail route to be classified as internal progressive disclosure; this was fixed in the functional candidate. Certification boundary still needs the governance-only re-anchor below before the current SHA can certify.
+- HOSTING → Vercel status remains externally rate-limited by the free-plan build-rate limit; this is not treated as application PASS/FAIL evidence.
+- BROWSER → authenticated exact-SHA Edge/browser proof remains NOT PROVEN; no browser PASS is inferred from database state.
+- ACTION STATUS → `IN_PROGRESS`.
+- NEXT EXACT ACTION → consume current-SHA quality, Final Certification, Execution Enforcement, Final Batch and desktop workflow results after this governance checkpoint; repair only the first newly reproduced functional failure. Then pursue authenticated runtime proof without re-importing the already completed canary.
+- DO-NOT-REPEAT → no re-import of completed sources, no direct canonical-row edits, no fake auth/JWT, no stale PASS, no second report before the current report's UI/runtime closure.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / FINAL EXACT-SHA REPORT CHECKPOINT / 4add362127e81c57f9d6309082aa2c5bacc98129
 
 - EXACT MAIN HEAD → `4add362127e81c57f9d6309082aa2c5bacc98129`.
