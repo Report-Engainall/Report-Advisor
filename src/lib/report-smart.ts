@@ -1,4 +1,5 @@
 import { supabase, resolveCurrentCompanyId } from './supabase';
+import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights';
 
 export type SmartReportCatalogItem = {
   jobId: string;
@@ -44,6 +45,8 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   canonicalCommitVerified: boolean;
   sourceTrustState: string | null;
   reportVerificationState: string;
+  canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }>;
+  intelligence: ReportIntelligence;
 };
 
 function renderedOutputOf(evidence: unknown): Record<string, unknown> | null {
@@ -123,6 +126,18 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
   const path = String(job.source_path ?? '');
   if (!rendered || !isReportSourcePath(path)) return null;
   if (/^(customer|product|invoice)-\d+/i.test(path)) return null;
+  const specialty = rendered.sourceSpecialty == null
+    ? inferSpecialtyFromAnalysis(sourceAnalysis)
+    : String(rendered.sourceSpecialty);
+
+  const intelligence = deriveReportIntelligence({
+    specialty,
+    rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
+    sourceAnalysis,
+    renderedOutput: rendered,
+    canonicalRows,
+  });
+
   return {
     jobId: String(job.id),
     sourcePath: path || 'مصدر غير مسمى',
@@ -257,6 +272,24 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
   const canonicalCommitVerified =
     authoritativeCurrentRowCount != null && canonicalCommitCount === authoritativeCurrentRowCount;
 
+  const canonicalRowLimit = Math.min(2000, Math.max(200, Number(sourceRowCount ?? 200)));
+  const { data: canonicalRowsData, error: canonicalRowsError } = await supabase
+    .from('canonical_dataset_records')
+    .select('row_number,data')
+    .eq('company_id', companyId)
+    .eq('source_hash', job.source_hash)
+    .order('row_number', { ascending: true })
+    .limit(canonicalRowLimit);
+
+  if (canonicalRowsError) throw canonicalRowsError;
+
+  const canonicalRows = (canonicalRowsData ?? [])
+    .filter((row) => row && typeof row.data === 'object' && row.data !== null)
+    .map((row) => ({
+      row_number: Number(row.row_number ?? 0),
+      data: row.data as Record<string, unknown>,
+    }));
+
   const sourceAnalysis = analysis ? {
     id: String(analysis.id),
     importJobId: analysis.import_job_id == null ? null : String(analysis.import_job_id),
@@ -276,9 +309,9 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
     qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
     trustState: rendered.trustState == null ? null : String(rendered.trustState),
-    specialty: rendered.sourceSpecialty == null
-      ? inferSpecialtyFromAnalysis(sourceAnalysis)
-      : String(rendered.sourceSpecialty),
+    specialty,
+    canonicalRows,
+    intelligence,
     evidenceStatus: effectiveEvidenceStatus(rendered),
     completedAt: job.completed_at == null ? null : String(job.completed_at),
     importId: rendered.importId == null ? null : String(rendered.importId),
