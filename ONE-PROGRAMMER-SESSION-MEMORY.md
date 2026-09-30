@@ -640,3 +640,19 @@ Contracts now include the complete source-work execution lifecycle and are inclu
 Current runtime/deployment proof remains OPEN; no current-head browser/deployment PASS is claimed.
 
 NEXT EXACT ACTION: add a first-class Work Center view for decision_work_items (filters, source-bound links, state, owner, priority, due date, outcome) so the operating layer is not trapped inside the report page; then add collaboration/notification and Outcome/Learning/Benchmark surfaces.
+
+
+## LIVE CHECKPOINT — 2026-09-30 / WORK CENTER + NOTIFICATION / HEAD 6d087a0
+
+Commercial operating layer expanded:
+- Work Center now reads tenant-scoped decision_work_items alongside import operations.
+- Decision work filters: all/open/in-progress/completed.
+- Work Center displays title, status, assignee, priority, due date, expected/actual impact, source hash, and source-bound report link when evidence refs contain the report Job ID and hash.
+- Approved work-item creation triggers the existing governed notify_decision_work_item RPC. Notification failure does not roll back the persisted work item.
+- Report decision surface remains the authoritative place for start/complete controls and source evidence.
+
+Core lifecycle remains governed by existing RPCs and evidence boundaries.
+
+Runtime release remains OPEN; current-head deployment/browser proof is not observed.
+
+NEXT EXACT ACTION: add outcome/learning visibility to Work Center and report decision surfaces, then connect Benchmark/Replay where source/decision evidence is sufficient; after that continue spreadsheet-grade exploration and collaboration features.
