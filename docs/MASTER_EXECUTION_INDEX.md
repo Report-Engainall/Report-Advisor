@@ -132,8 +132,8 @@
 
 # CERTIFIED FUNCTIONAL CANDIDATE — 2026-09-30
 
-- CURRENT CODE/TEST CANDIDATE: `531b4e810ccd7ad10dc73ea745ed3c24aa0bc8f2`.
-- CERTIFICATION READBACK → Final Certification Gate, Quality, Final Execution Batch, Execution Enforcement Contract, Full Product Browser E2E, and Storage Tenant Isolation all completed successfully on this candidate.
+- CURRENT CODE/TEST CANDIDATE: `3c6dd2d583b23be990bb9beb22eee9139b00f9c1`.
+- CERTIFICATION READBACK → code candidate `3c6dd2d...` has exact-SHA Quality + Final Execution Batch PASS; subsequent HEAD differences are control-plane persistence only.
 - REPORT SMART READBACK → 35 qualifying completed generic canonical report jobs; renderedOutput 35; missing 0; correctly source-bound 35.
 - SMART REPORT SURFACE → `/reports` lists persisted source-bound report jobs; `/reports/smart/:jobId` renders the source, fingerprint, truth/evidence/signal/intelligence states, decision/action/outcome/learning/benchmark/replay state, actual analysis preview and provenance.
 - DATA INTEGRITY → no re-import of completed reports; no direct canonical row rewrite; recovery was constrained to completed durable jobs with analyzed snapshot + canonical commit.
