@@ -437,3 +437,21 @@ Core product foundation already added in this wave: canonical-row Report Workspa
 Runtime release remains OPEN; exact current-head browser/deployment proof is still unobserved.
 
 NEXT EXACT ACTION: connect approved decision_work_items to a source-bound Work Center view, then bind outcome/learning back to the same decision identity.
+
+
+## LIVE CHECKPOINT — 2026-09-30 / WORK EXECUTION LIFECYCLE / HEAD 16ab198
+
+Product/core execution now reaches the full governed loop for a source-bound decision:
+- Source intelligence signal -> PROPOSED decision.
+- Governed approval request.
+- Approved decision -> decision_work_items creation assigned to current authenticated user, with source Job ID/hash evidence refs.
+- OPEN Work Item -> IN_PROGRESS through existing start_decision_work_item RPC.
+- IN_PROGRESS -> COMPLETED through existing complete_decision_work_item RPC; completion requires an accepted evidence snapshot reference and optionally records actual impact.
+- Completion RPC writes recommendation_outcomes when applicable and advances the approved decision to EXECUTED.
+- Decision surface now renders these persisted work states and exposes start/complete controls without creating another workflow engine.
+
+Contracts now include the complete source-work execution lifecycle and are included in release core/E2E workflow.
+
+Current runtime/deployment proof remains OPEN; no current-head browser/deployment PASS is claimed.
+
+NEXT EXACT ACTION: add a first-class Work Center view for decision_work_items (filters, source-bound links, state, owner, priority, due date, outcome) so the operating layer is not trapped inside the report page; then add collaboration/notification and Outcome/Learning/Benchmark surfaces.
