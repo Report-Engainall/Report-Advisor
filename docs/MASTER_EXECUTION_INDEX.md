@@ -1,3 +1,18 @@
+# LIVE EXECUTION BOUNDARY — 2026-09-30 / EVIDENCE TRUTH GUARD
+
+- EXACT MAIN EXECUTION HEAD → `fe32b46ca96ceb6df7d33514ebdf41b800d7a901`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- VERIFIED RESULT → import completed 735/735; durable 9/9 completed/rendered; canonical dataset 735; canonical commit rows 735; source analysis 735×7, quality 87.
+- SOURCE RECORD → ready/passed file record `071db872-2f17-4acf-8374-b1e2d9852985`; exact hash; authoritative storage `.../5925f3a2-fbac-4678-9490-b892dca35d4d.pdf`; source pending-hash false.
+- EVIDENCE TRUTH → persisted report evidence state is now `AWAITING_EVIDENCE_SNAPSHOT` because no tenant `kpi_evidence_snapshots` record is bound to this source hash.
+- ROOT GUARD → repository migration `20260930120000_harden_report_recovery_evidence_state.sql` and live recovery function v3 reject `evidenceStatus=VERIFIED` during recovery; evidence acceptance is a separate authority.
+- CANONICAL COMMIT PROOF → Smart Report independently computes committed row count from `canonical_import_commits`; this never upgrades evidence state.
+- DURABLE EXECUTION GUARD → main contains the strengthened existing coordinator contract preventing production references to in-memory execution outside canonical local/test files.
+- PROOF BOUNDARY → Staging source/recovery/canonical/evidence readback is proven; exact current-SHA build/typecheck/CI remains unexposed; Vercel build-rate-limit persists; authenticated Edge proof remains NOT PROVEN.
+- ACTION STATUS → `IN_PROGRESS` only for exact-current-SHA certification/runtime/browser closure.
+- DO-NOT-REPEAT → no re-import, no canonical-row rewrite, no evidence promotion, no stale PASS, no browser inference.
+- NEXT EXACT ACTION → consume current-head CI/build evidence if exposed; otherwise continue independent production-runtime semantic proof without touching completed report data.
+
 # LIVE EXECUTION BOUNDARY — 2026-09-30 / DURABLE EXECUTION SEMANTIC GUARD
 
 - EXACT MAIN EXECUTION HEAD → `558126a1eb75c64bf4eec220eba708517fd903b3`.
