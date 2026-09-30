@@ -35,6 +35,21 @@ function renderedOutputOf(evidence: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' ? value as Record<string, unknown> : null;
 }
 
+function effectiveEvidenceStatus(
+  rendered: Record<string, unknown>,
+  sourceAnalysis: SmartReportDetail['sourceAnalysis'],
+): string | null {
+  const current = rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus);
+  if (
+    current === 'AWAITING_EVIDENCE_SNAPSHOT' &&
+    sourceAnalysis?.analysisStatus === 'analyzed' &&
+    Boolean(rendered.canonicalCommitVerified)
+  ) {
+    return 'VERIFIED';
+  }
+  return current;
+}
+
 function entityTypeFrom(jobKey: string): string {
   const parts = jobKey.split(':');
   return parts.length >= 3 ? parts[2] : jobKey;
@@ -110,6 +125,17 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
   if (analysisError) throw analysisError;
   const analysis = analyses?.[0] ?? null;
 
+  const sourceAnalysis = analysis ? {
+      id: String(analysis.id),
+      importJobId: analysis.import_job_id == null ? null : String(analysis.import_job_id),
+      sourceFormat: analysis.source_format == null ? null : String(analysis.source_format),
+      analysisStatus: analysis.analysis_status == null ? null : String(analysis.analysis_status),
+      qualityScore: analysis.quality_score == null ? null : Number(analysis.quality_score),
+      rowCount: analysis.row_count == null ? null : Number(analysis.row_count),
+      columnCount: analysis.column_count == null ? null : Number(analysis.column_count),
+      datasets: Array.isArray(analysis.datasets) ? analysis.datasets : [],
+    } : null;
+
   return {
     jobId: String(job.id),
     sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
@@ -119,12 +145,13 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
     trustState: rendered.trustState == null ? null : String(rendered.trustState),
     specialty: rendered.sourceSpecialty == null ? null : String(rendered.sourceSpecialty),
-    evidenceStatus: rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus),
+    evidenceStatus: effectiveEvidenceStatus(rendered, sourceAnalysis),
     completedAt: job.completed_at ?? null,
     importId: rendered.importId == null ? null : String(rendered.importId),
     checkpointStage: job.checkpoint?.stage == null ? null : String(job.checkpoint.stage),
     renderedOutput: rendered,
-    sourceAnalysis: analysis ? {
+    sourceAnalysis,
+  };
       id: String(analysis.id),
       importJobId: analysis.import_job_id == null ? null : String(analysis.import_job_id),
       sourceFormat: analysis.source_format == null ? null : String(analysis.source_format),
