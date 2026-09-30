@@ -40,6 +40,8 @@ export type NavigationIconKey =
   | 'reports'
   | 'inventory-report'
   | 'inventory-intelligence'
+  | 'replay'
+  | 'benchmark'
   | 'demand'
   | 'analytics'
   | 'onboarding'
