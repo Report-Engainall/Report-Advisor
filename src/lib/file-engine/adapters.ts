@@ -289,13 +289,17 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     const page = await pdf.getPage(pageNumber);
     const content = await page.getTextContent();
     const items = content.items
-      .filter((item): item is typeof item & { str: string } => 'str' in item && typeof item.str === 'string' && item.str.trim().length > 0)
       .map((item) => {
+        if (!('str' in item) || typeof item.str !== 'string' || !item.str.trim()) return null;
+        return { item, str: item.str };
+      })
+      .filter((entry): entry is { item: typeof content.items[number] & { str: string }; str: string } => Boolean(entry))
+      .map(({ item, str }) => {
         const transform = Array.isArray((item as { transform?: unknown }).transform)
           ? (item as { transform: number[] }).transform
           : [];
         return {
-          text: item.str,
+          text: str,
           x: Number.isFinite(transform[4]) ? transform[4] : 0,
           y: Number.isFinite(transform[5]) ? transform[5] : 0,
           width: Number.isFinite((item as { width?: number }).width) ? Number((item as { width?: number }).width) : Math.max(4, item.str.length * 4),
