@@ -24,6 +24,11 @@ on:
       - 'src/lib/semantic-metric-registry.ts'
       - 'src/lib/semanticMetrics.ts'
       - 'src/lib/import/canonical-production-adapter.ts'
+      - 'api/canonical-import-execute.ts'
+      - 'scripts/check-server-source-authority-contract.mjs'
+      - 'scripts/pdf-visual-line-fallback.test.ts'
+      - 'scripts/report-intelligence-inventory-grain.test.ts'
+      - 'scripts/document-intelligence-lines.test.ts'
       - 'src/pages/MetricInspectorPage.tsx'
       - 'src/lib/queries.ts'
       - 'src/components/ui/DataTable.tsx'
@@ -114,6 +119,15 @@ jobs:
           test "$(git rev-parse HEAD)" = "${EXACT_HEAD}"
           npm run build
 
+      - name: Run canonical heart regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run typecheck
+          npm run test:server-source-authority
+          npm run test:pdf-visual-line-fallback
+          npm run test:report-intelligence-inventory-grain
+          npm run test:document-intelligence-lines
       - name: Start exact Netlify preview with serverless API
         env:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
