@@ -371,7 +371,7 @@ export async function handleCanonicalImport(request: Request): Promise<Response>
   }
 }
 
-export default async (request: Request): Promise<Response> {
+export default async (request: Request): Promise<Response> => {
   const contentType = request.headers.get('content-type') ?? '';
   if (contentType.includes('application/json')) {
     const cloned = request.clone();
