@@ -106,39 +106,67 @@ async function openImportSource(page) {
   throw new Error('UNIFIED_IMPORT_ROUTE_NOT_READY:exhausted');
 }
 async function waitForAuthoritativeImportCompletion(page, companyId, marker) {
-  const fileName = `${marker}.csv`;
+  const fileName = marker + '.csv';
   const deadline = Date.now() + 120000;
   let lastImport = null;
   let candidateJobId = null;
 
   while (Date.now() < deadline) {
-    const imports = await restSelect(
+    const sourceFiles = await restSelect(
       page,
-      'import_jobs',
-      candidateJobId ? { company_id: companyId, id: candidateJobId } : { company_id: companyId },
-      'id,status,job_type,progress,processed_rows,valid_rows,invalid_rows,error_message,result_summary,created_at',
-      candidateJobId ? { limit: 1 } : { order: 'created_at.desc', limit: 50 },
+      'file_records',
+      { company_id: companyId, file_name: fileName },
+      'id,company_id,file_name,file_hash,status,security_status,created_at',
+      { order: 'created_at.desc', limit: 5 },
     );
 
-    const candidate = candidateJobId
-      ? imports[0] ?? null
-      : imports.find((row) => row?.result_summary?.file_name === fileName) ?? null;
+    const source = sourceFiles[0] ?? null;
+    if (source?.id) {
+      const imports = await restSelect(
+        page,
+        'import_jobs',
+        candidateJobId
+          ? { company_id: companyId, id: candidateJobId }
+          : { company_id: companyId, file_record_id: source.id },
+        'id,file_record_id,status,job_type,progress,processed_rows,valid_rows,invalid_rows,error_message,result_summary,created_at',
+        candidateJobId
+          ? { limit: 1 }
+          : { order: 'created_at.desc', limit: 10 },
+      );
 
-    if (candidate) {
-      candidateJobId ??= candidate.id;
-      lastImport = candidate;
+      const candidate = candidateJobId ? imports[0] ?? null : imports[0] ?? null;
+      if (candidate) {
+        candidateJobId ??= candidate.id;
+        lastImport = candidate;
 
-      if (candidate.job_type !== 'generic:source-data') {
-        throw new Error(`UNIFIED_IMPORT_WRONG_JOB_TYPE:${candidate.job_type || 'missing'}`);
-      }
+        if (candidate.file_record_id !== source.id) {
+          throw new Error(
+            'UNIFIED_IMPORT_SOURCE_RECORD_MISMATCH:' +
+            candidate.id + ':' + candidate.file_record_id + ':' + source.id
+          );
+        }
 
-      if (candidate.status === 'failed' || candidate.status === 'cancelled') {
-        throw new Error(`IMPORT_TERMINAL_STATUS:job=${candidate.id}:status=${candidate.status}:error=${candidate.error_message || 'none'}`);
-      }
+        if (candidate.job_type !== 'generic:source-data') {
+          throw new Error('UNIFIED_IMPORT_WRONG_JOB_TYPE:' + (candidate.job_type || 'missing'));
+        }
 
-      if (candidate.status === 'completed') {
-        evidence.steps.push({ step: 'unified-import-authoritative-complete', status: 'PASS', importJobId: candidate.id });
-        return candidate;
+        if (candidate.status === 'failed' || candidate.status === 'cancelled') {
+          throw new Error(
+            'IMPORT_TERMINAL_STATUS:job=' + candidate.id +
+            ':status=' + candidate.status +
+            ':error=' + (candidate.error_message || 'none')
+          );
+        }
+
+        if (candidate.status === 'completed') {
+          evidence.steps.push({
+            step: 'unified-import-authoritative-complete',
+            status: 'PASS',
+            importJobId: candidate.id,
+            sourceRecordId: source.id,
+          });
+          return candidate;
+        }
       }
     }
 
@@ -146,7 +174,9 @@ async function waitForAuthoritativeImportCompletion(page, companyId, marker) {
   }
 
   throw new Error(
-    `IMPORT_COMPLETION_TIMEOUT:importJob=${lastImport?.id ?? 'NOT_FOUND'}:status=${lastImport?.status ?? 'NOT_FOUND'}:progress=${lastImport?.progress ?? 'NOT_OBSERVED'}`,
+    'IMPORT_COMPLETION_TIMEOUT:importJob=' + (lastImport?.id ?? 'NOT_FOUND') +
+    ':status=' + (lastImport?.status ?? 'NOT_FOUND') +
+    ':progress=' + (lastImport?.progress ?? 'NOT_OBSERVED')
   );
 }
 async function importOne(page, label, fields, marker) {
