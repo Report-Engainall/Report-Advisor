@@ -1,7 +1,12 @@
 # CURRENT RESUME POINTER — 2026-09-30
 
-- CURRENT RESUME POINTER → `Report Smart Surface` / certified functional candidate `531b4e810ccd7ad10dc73ea745ed3c24aa0bc8f2`; governance checkpoint HEAD is `7f8b8aa3b8f4484381f0bcccc91a545f464893d6`.
-- next action → consume current exact-HEAD governance CI; do not re-import completed reports.
+- CURRENT RESUME POINTER → `Report Smart Surface` / post-import result-continuity fix.
+- EXACT MAIN HEAD → `c66e83ad2cc555da995d9b5d972212ab2921b2de`.
+- ROOT FIX → `src/pages/CanonicalImportPage.tsx` now persists `aghbari:last-smart-report-job` and navigates to `/reports/smart/{jobId}` after a successful canonical durable import, so the report result is no longer trapped in transient React state.
+- USER REPRODUCTION → the uploaded `مواصفات_مشروع_تطبيق_الأغبري_التجاري_المتكامل.xlsx` was read successfully but scored `0%` quality / `0%` mapping coverage, so canonical import was correctly rejected; no smart report should be fabricated for that non-report specification workbook.
+- HOSTING → Vercel deployment `dpl_DrqxFSQ6JG8agqWEbhS8yfnTYNMf` is `BUILDING` for the exact fix commit; no deployment PASS claimed yet.
+- ACTION STATUS → `IN_PROGRESS`.
+- NEXT EXACT ACTION → verify the exact-SHA Vercel build, then test one known-good business report end-to-end and confirm the durable Smart Report route survives navigation. Do not re-import completed reports.
 
 # FINAL SESSION WRITE-BACK — 2026-09-30
 
