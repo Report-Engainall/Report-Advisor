@@ -1,3 +1,13 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-30 / SOURCE-BOUND REPORT SURFACE SURGERY / PRE-TEST CHECKPOINT
+
+- EXACT MAIN HEAD BEFORE NEXT LONG ACTION → `47ad2826b2c8822f0ced62f6a471e06c7882f1cc`.
+- REPORT-FIRST FRONT → `تسعيرة الاصناف حسب رقم الصنف.pdf` / import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REPORT PERSISTED STATE → previously proven completed/rendered/source-bound; no blind re-import permitted.
+- CURRENT ACTION → exact-head compile/build + targeted report-surface contract execution.
+- ACTION STATUS → `IN_PROGRESS`.
+- LONG-ACTION CHECKPOINT → repository state is persisted here before starting the next potentially long test/deploy operation.
+- NEXT EXACT ACTION → run exact-head typecheck/build and affected report-surface checks; repair only the first reproducible current-SHA failure, then re-run the same target.
+
 # CERTIFIED FUNCTIONAL CANDIDATE — 2026-09-30
 
 - CURRENT CODE/TEST CANDIDATE: `531b4e810ccd7ad10dc73ea745ed3c24aa0bc8f2`.
