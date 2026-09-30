@@ -2,6 +2,7 @@
   directory = "netlify/functions"
 
 [dev]
+framework = "#custom"
   command = "npm run preview -- --host 127.0.0.1 --port 5173"
   targetPort = 5173
   port = 4173
