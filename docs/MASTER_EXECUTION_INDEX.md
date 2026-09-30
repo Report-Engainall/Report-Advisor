@@ -1,3 +1,18 @@
+# LIVE EXECUTION BOUNDARY — 2026-09-30 / CANONICAL COMMIT PROOF + CURRENT REPORT
+
+- EXACT MAIN HEAD → `935a5b1f6c2eb3fa3b807a323f2e4fdb530a91a1`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- CURRENT REPORT RESULT → completed 735/735; durable stages 1..9 completed/rendered; canonical dataset rows 735; canonical import commit rows 735; source analysis 735×7 quality 87.
+- SOURCE RECORD → verified ready/passed file record `071db872-2f17-4acf-8374-b1e2d9852985`; exact source hash; authoritative storage path `f68.../imports/5925f3a2-fbac-4678-9490-b892dca35d4d.pdf`; recovery result no longer carries pending-hash state.
+- SEMANTIC EVIDENCE → persisted evidence state is read as stored; no automatic promotion to VERIFIED from canonical commit presence.
+- CANONICAL COMMIT PROOF → Smart Report now calculates tenant-scoped committed row count from `canonical_import_commits` and exposes `canonicalCommitVerified` separately from evidence/trust state.
+- UI → source-bound Executive/Trust/Decision/Work surfaces use the report job and source hash; Trust shows canonical commit proof separately and does not use it to upgrade evidence status.
+- RUNTIME ARCHITECTURE CONTRACT → PR #684 adds a scan to the existing report-execution coordinator contract to fail on production source references to `InMemoryReportQueue`/`ReportExecutionCoordinator` outside canonical in-memory implementation/test files. PR is not merged and its CI run is not exposed by the connector; no PASS is claimed from it.
+- PROOF BOUNDARY → Staging source/recovery/canonical readback proven; exact current-SHA build/typecheck not exposed; current combined status shows Vercel build-rate-limit failure/pending deployment. Authenticated Microsoft Edge proof remains NOT PROVEN.
+- ACTION STATUS → `IN_PROGRESS` only for current-SHA certification/runtime/browser closure.
+- DO-NOT-REPEAT → no re-import, no canonical-row rewrite, no evidence-state promotion, no stale PASS, no browser inference from DB.
+- NEXT EXACT ACTION → consume current-head CI/build evidence when available; otherwise continue independent production-execution semantic proof without touching the completed report data.
+
 # LIVE EXECUTION BOUNDARY — 2026-09-30 / SOURCE-RECORD RECOVERY CLOSED
 
 - EXACT MAIN HEAD → `e57d08526d1388cbf7fefb3fd2b32c1269e9a66d`.
