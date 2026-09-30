@@ -471,3 +471,23 @@ Core lifecycle remains governed by existing RPCs and evidence boundaries.
 Runtime release remains OPEN; current-head deployment/browser proof is not observed.
 
 NEXT EXACT ACTION: add outcome/learning visibility to Work Center and report decision surfaces, then connect Benchmark/Replay where source/decision evidence is sufficient; after that continue spreadsheet-grade exploration and collaboration features.
+
+
+## LIVE CHECKPOINT — 2026-09-30 / REPLAY + BENCHMARK SURFACES / HEAD fe186ed
+
+Commercial intelligence wave now includes:
+- Report Workspace over canonical rows: search, sort, column control, saved views, CSV export, Row Inspector.
+- Source intelligence signals with deterministic contradiction detection.
+- Governed proposed decisions bound to report Job ID + source hash.
+- Approval through the existing decision RPC.
+- Approved decision -> decision_work_item, assigned to current authenticated user with evidence refs.
+- Work execution: OPEN -> IN_PROGRESS -> COMPLETED using governed RPCs and accepted source-analysis evidence.
+- Outcome/Learning: recommendation_outcomes is read back into the same source decision, showing expected/actual impact and outcome status/quality.
+- Work Center now contains the decision work queue with filters, assignee, priority, due date, impact, source hash and source-bound report links.
+- Business Replay page reconstructs the actual source-bound timeline from report stages, decisions, work and outcomes.
+- Benchmark page is fail-closed on INSUFFICIENT_SAMPLE because no network Cohort authority currently exists; internal same-specialty report count is shown only as readiness context, never as a benchmark.
+- Replay and Benchmark contracts are in test:release-core and watched by the main E2E workflow.
+
+Runtime/deployment status remains open; no exact-current-head browser/deployment PASS is claimed.
+
+NEXT EXACT ACTION: continue with collaboration/integration surfaces where supported by existing schema; prioritize source-bound sharing, alert routing, connector memory, spreadsheet-grade grouping/pivot, and commercialization controls without creating parallel truth systems.
