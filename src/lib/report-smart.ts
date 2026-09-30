@@ -51,6 +51,7 @@ export async function fetchSmartReportCatalog(limit = 60): Promise<SmartReportCa
     .eq('company_id', companyId)
     .eq('status', 'completed')
     .like('job_key', 'canonical-import:generic:%')
+    .not('evidence->renderedOutput', 'is', null)
     .order('completed_at', { ascending: false })
     .range(0, limit - 1);
 
