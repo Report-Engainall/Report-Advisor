@@ -208,7 +208,19 @@ export async function createApprovedDecisionWorkItemForCurrentUser(input: {
   });
 
   if (error) throw error;
-  return String(data);
+  const workItemId = String(data);
+
+  try {
+    await supabase.rpc('notify_decision_work_item', {
+      p_work_item_id: workItemId,
+      p_title: 'عنصر عمل جديد من تقرير مصدرّي',
+      p_description: input.signalTitle + ' — افتح التقرير والبصمة الأصلية قبل التنفيذ.',
+    });
+  } catch {
+    // Notification failure must not roll back the persisted work item.
+  }
+
+  return workItemId;
 }
 
 
