@@ -395,3 +395,21 @@
 # LATEST SESSION WRITE-BACK — 2026-09-30 / FOCUS-TRAP ACCESSIBILITY ROOT FIX / 7fe6bc49c4fc001f04fa5af40932aecd9b6afc89
 
 - EXACT MAIN HEAD → `7fe6bc49c4fc001f04fa5af40932aecd9b6afc89`.
+
+# LATEST SESSION WRITE-BACK — 2026-09-30 / CURRENT PERSISTED REPORT BROWSER ACCEPTANCE PROVEN / 9d671da62763345693174a6a5fa4a47397382342
+
+- EXACT CODE/TEST HEAD PROVEN → `9d671da62763345693174a6a5fa4a47397382342`.
+- REPORT-FIRST FRONT → `تسعيرة الاصناف حسب رقم الصنف.pdf`.
+- EXACT SOURCE HASH → `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- SAME PERSISTED REPORT JOB → `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`.
+- REAL CHROMIUM RUN → Full Product Browser E2E run `36679770124` / run `6264`; exact-checkout, build, preview, browser route, business journey, fail-closed gate, and artifact upload all SUCCESS.
+- BROWSER RESULT → `artifacts/e2e-business/result.json` status `PASS`; exactHead matched; failures = `[]`; Chromium authentication and tenant resolution PASS.
+- DURABLE REPORT PROOF → job completed; checkpoint `rendered`; renderedOutput exists; 9/9 durable tasks completed; source rows 735; authoritative canonical rows 735; canonical commit 735; analysis 735 × 7; quality 87; trust `TRUSTED`; evidence `AWAITING_EVIDENCE_SNAPSHOT`.
+- SMART REPORT BROWSER PROOF → same persisted Job opened at `/reports/smart/:jobId`; exact source path/hash, 735 rows, quality, trust, evidence state and `EVIDENCE INSPECTOR` rendered; browser refresh/readback preserved the same source-bound state.
+- SOURCE-BOUND SURFACE PROOF → same `reportJobId` + `sourceHash` passed on `/reports/executive`, `/trust`, `/decision-experience?stage=evidence`, `/work-center`, and `/reports/inventory`; each returned the same source-bound Job/hash and no unrelated global intelligence was promoted as source truth.
+- TENANT ISOLATION PROOF → Tenant B resolved independently and could not read Tenant A report job, canonical row, source history, Smart Report, or report catalog entry for this source.
+- NON-ACTIONS → no report re-import, no canonical row rewrite, no evidence promotion, no fake auth/JWT, no parallel importer, and no parallel Browser E2E framework.
+- PLAYWRIGHT REPRODUCIBILITY → Playwright `1.63.0` is now a locked project devDependency/package-lock entry; workflow no longer installs Playwright with `npm install --no-save --package-lock=false`; `npm ci` installed the pinned version before the real Chromium run.
+- ARTIFACT → `full-product-browser-proof-36679770124` uploaded successfully; 44 files; artifact id `11081267824`; digest `sha256:043d59685f11f25c2289063aaa946be712d5c9da4d6af3656b4279a1715f0666`.
+- CURRENT ACTION STATUS → REPORT-FIRST Browser acceptance is proven for this code SHA and this persisted report. Final documentation/index update follows; after that the resulting exact SHA must be read back and its triggered Browser E2E consumed before final closure.
+- NEXT EXACT ACTION → persist this checkpoint plus the Master Execution Index, then consume the final exact-SHA Browser E2E on the resulting documentation SHA. No re-import.
