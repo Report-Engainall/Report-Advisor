@@ -210,3 +210,36 @@ export async function createApprovedDecisionWorkItemForCurrentUser(input: {
   if (error) throw error;
   return String(data);
 }
+
+
+export async function startSourceDecisionWorkItem(workItemId: string): Promise<void> {
+  const { error } = await supabase.rpc('start_decision_work_item', {
+    p_work_item_id: workItemId,
+  });
+  if (error) throw error;
+}
+
+export async function completeSourceDecisionWorkItem(input: {
+  workItemId: string;
+  actualImpact: number | null;
+  evidenceSnapshotId: string;
+  reportJobId: string;
+  sourceHash: string;
+}): Promise<void> {
+  if (!input.evidenceSnapshotId.trim()) throw new Error('WORK_ITEM_EVIDENCE_SNAPSHOT_REQUIRED');
+
+  const evidence = {
+    evidence_snapshot_id: input.evidenceSnapshotId,
+    reportExecutionJobId: input.reportJobId,
+    sourceHash: input.sourceHash,
+    completionBoundary: 'PERSISTED_OUTCOME',
+  };
+
+  const { error } = await supabase.rpc('complete_decision_work_item', {
+    p_work_item_id: input.workItemId,
+    p_actual_impact: input.actualImpact,
+    p_evidence: evidence,
+  });
+
+  if (error) throw error;
+}
