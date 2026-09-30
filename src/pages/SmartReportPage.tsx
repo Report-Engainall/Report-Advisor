@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, CheckCircle2, FileSearch, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, FileSearch, ShieldCheck, Search, Columns3, ArrowDownUp, Download, RotateCcw } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
@@ -202,6 +202,168 @@ function statusTone(value: string | null): string {
   if (value === 'TRUSTED' || value === 'VERIFIED') return 'border-success-200 bg-success-50 text-success-900';
   if (value === 'REVIEW' || value === 'AWAITING_EVIDENCE_SNAPSHOT') return 'border-warning-200 bg-warning-50 text-warning-900';
   return 'border-ink-200 bg-ink-50 text-ink-700';
+}
+
+
+function SourceDataWorkspace({ report }: { report: SmartReportDetail }) {
+  const dataset = report.sourceAnalysis?.datasets?.[0];
+  const objectDataset = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : {};
+  const definitionColumns = Array.isArray(objectDataset.columns)
+    ? objectDataset.columns.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object')
+    : [];
+  const rows = report.canonicalRows.map((row) => row.data);
+  const discoveredColumns = useMemo(() => {
+    const fromDefinition = definitionColumns.map((column) => String(column.name ?? '')).filter(Boolean);
+    const fromRows = rows.slice(0, 200).flatMap((row) => Object.keys(row));
+    return [...new Set([...fromDefinition, ...fromRows])];
+  }, [definitionColumns, rows]);
+
+  const storageKey = 'aghbari.report-view.' + report.sourceHash;
+  const [search, setSearch] = useState('');
+  const [sortColumn, setSortColumn] = useState(discoveredColumns[0] ?? '');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [pageSize, setPageSize] = useState(50);
+  const [page, setPage] = useState(0);
+  const [showColumns, setShowColumns] = useState(false);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(discoveredColumns.slice(0, 8));
+
+  useEffect(() => {
+    if (!discoveredColumns.length) return;
+    try {
+      const raw = window.localStorage.getItem(storageKey);
+      if (!raw) {
+        setSortColumn(discoveredColumns[0]);
+        setVisibleColumns(discoveredColumns.slice(0, 8));
+        return;
+      }
+      const saved = JSON.parse(raw) as Record<string, unknown>;
+      const savedVisible = Array.isArray(saved.visibleColumns)
+        ? saved.visibleColumns.map(String).filter((value) => discoveredColumns.includes(value))
+        : [];
+      const savedSort = typeof saved.sortColumn === 'string' && discoveredColumns.includes(saved.sortColumn)
+        ? saved.sortColumn
+        : discoveredColumns[0];
+      setVisibleColumns(savedVisible.length ? savedVisible : discoveredColumns.slice(0, 8));
+      setSortColumn(savedSort);
+      setSortDirection(saved.sortDirection === 'desc' ? 'desc' : 'asc');
+      setPageSize([25, 50, 100].includes(Number(saved.pageSize)) ? Number(saved.pageSize) : 50);
+    } catch {
+      setSortColumn(discoveredColumns[0]);
+      setVisibleColumns(discoveredColumns.slice(0, 8));
+    }
+  }, [storageKey, discoveredColumns]);
+
+  const filteredRows = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    if (!needle) return rows;
+    return rows.filter((row) => Object.values(row).some((value) => String(value ?? '').toLowerCase().includes(needle)));
+  }, [rows, search]);
+
+  const orderedRows = useMemo(() => {
+    if (!sortColumn) return filteredRows;
+    return [...filteredRows].sort((left, right) => {
+      const a = left[sortColumn];
+      const b = right[sortColumn];
+      const an = numberValue(a);
+      const bn = numberValue(b);
+      const comparison = an != null && bn != null ? an - bn : String(a ?? '').localeCompare(String(b ?? ''), 'ar');
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  }, [filteredRows, sortColumn, sortDirection]);
+
+  const pageCount = Math.max(1, Math.ceil(orderedRows.length / pageSize));
+  const safePage = Math.min(page, pageCount - 1);
+  const visibleRows = orderedRows.slice(safePage * pageSize, (safePage + 1) * pageSize);
+
+  const persistView = () => window.localStorage.setItem(storageKey, JSON.stringify({ visibleColumns, sortColumn, sortDirection, pageSize, savedAt: Date.now() }));
+  const resetView = () => {
+    setSearch('');
+    setSortColumn(discoveredColumns[0] ?? '');
+    setSortDirection('asc');
+    setPageSize(50);
+    setPage(0);
+    setVisibleColumns(discoveredColumns.slice(0, 8));
+    window.localStorage.removeItem(storageKey);
+  };
+  const exportRows = () => {
+    const body = orderedRows.map((row) => visibleColumns.map((column) => '"' + String(row[column] ?? '').replace(/"/g, '""') + '"').join(','));
+    const csv = '\uFEFF' + [visibleColumns.map((value) => '"' + value.replace(/"/g, '""') + '"').join(','), ...body].join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = (report.sourcePath.replace(/\.[^.]+$/, '') || 'report') + '-view.csv';
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        <div>
+          <div className="section-kicker">REPORT WORKSPACE</div>
+          <h2 className="mt-1 text-lg font-black text-ink-950">استكشاف البيانات الحقيقية</h2>
+          <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-500">البحث والفرز وإظهار الأعمدة والتصدير تعمل على الصفوف الكانونية لهذا التقرير، لا على معاينة منفصلة.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={persistView} className="btn-primary inline-flex items-center gap-2 text-[10px]">حفظ العرض <CheckCircle2 size={14}/></button>
+          <button type="button" onClick={resetView} className="btn-secondary inline-flex items-center gap-2 text-[10px]">إعادة الضبط <RotateCcw size={14}/></button>
+          <button type="button" onClick={exportRows} className="btn-secondary inline-flex items-center gap-2 text-[10px]">تصدير CSV <Download size={14}/></button>
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_auto_auto]">
+        <label className="relative block">
+          <span className="sr-only">البحث داخل التقرير</span>
+          <Search size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-400"/>
+          <input value={search} onChange={(event) => { setSearch(event.target.value); setPage(0); }} placeholder="ابحث داخل كل أعمدة التقرير..." className="min-h-11 w-full rounded-xl border border-ink-200 bg-ink-50/60 py-2 pr-9 pl-3 text-xs outline-none focus:border-primary-400 focus:bg-white" />
+        </label>
+        <label className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-ink-200 bg-ink-50 px-3 text-[10px] font-bold text-ink-600">
+          ترتيب
+          <select value={sortColumn} onChange={(event) => { setSortColumn(event.target.value); setPage(0); }} className="bg-transparent outline-none">
+            {discoveredColumns.map((column) => <option key={column} value={column}>{column}</option>)}
+          </select>
+          <button type="button" onClick={() => setSortDirection((value) => value === 'asc' ? 'desc' : 'asc')} aria-label="عكس اتجاه الترتيب" className="rounded-lg p-1 hover:bg-white"><ArrowDownUp size={14}/></button>
+        </label>
+        <label className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-ink-200 bg-ink-50 px-3 text-[10px] font-bold text-ink-600">
+          الصفوف
+          <select value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(0); }} className="bg-transparent outline-none">
+            {[25, 50, 100].map((size) => <option key={size} value={size}>{size}</option>)}
+          </select>
+        </label>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+        <button type="button" onClick={() => setShowColumns((value) => !value)} aria-expanded={showColumns} className="inline-flex items-center gap-2 rounded-xl border border-ink-200 bg-white px-3 py-2 text-[10px] font-bold text-ink-700 hover:bg-ink-50"><Columns3 size={14}/> الأعمدة ({visibleColumns.length}/{discoveredColumns.length})</button>
+        <div className="text-[10px] text-ink-500">{formatNumber(orderedRows.length)} صف مطابق · {formatNumber(rows.length)} صف كانونـي</div>
+      </div>
+
+      {showColumns && (
+        <div className="mt-3 rounded-xl border border-ink-200 bg-ink-50/70 p-3">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {discoveredColumns.map((column) => {
+              const active = visibleColumns.includes(column);
+              return <label key={column} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-[10px] font-bold text-ink-700"><input type="checkbox" checked={active} onChange={() => setVisibleColumns((current) => active ? current.filter((item) => item !== column) : [...current, column])}/><span className="min-w-0 truncate">{column}</span></label>;
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="mt-4 overflow-x-auto rounded-xl border border-ink-200">
+        {visibleRows.length ? (
+          <table className="min-w-full text-right text-[10px]">
+            <thead className="bg-ink-50"><tr><th className="sticky right-0 bg-ink-50 px-3 py-2 text-ink-400">#</th>{visibleColumns.map((column) => <th key={column} className="whitespace-nowrap px-3 py-2 font-black text-ink-600">{column}</th>)}</tr></thead>
+            <tbody>{visibleRows.map((row, index) => <tr key={(safePage * pageSize) + index} className="border-t border-ink-100"><td className="sticky right-0 bg-white px-3 py-2 font-mono text-ink-400">{safePage * pageSize + index + 1}</td>{visibleColumns.map((column) => <td key={column} className="max-w-[280px] whitespace-nowrap px-3 py-2 text-ink-800">{textValue(row[column])}</td>)}</tr>)}</tbody>
+          </table>
+        ) : <div className="p-8 text-center text-xs text-ink-500">لا توجد صفوف مطابقة لبحثك.</div>}
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+        <div className="text-[10px] text-ink-500">صفحة {safePage + 1} من {pageCount}</div>
+        <div className="flex gap-2"><button type="button" disabled={safePage <= 0} onClick={() => setPage((value) => Math.max(0, value - 1))} className="btn-secondary text-[10px] disabled:opacity-40">السابق</button><button type="button" disabled={safePage >= pageCount - 1} onClick={() => setPage((value) => Math.min(pageCount - 1, value + 1))} className="btn-secondary text-[10px] disabled:opacity-40">التالي</button></div>
+      </div>
+    </section>
+  );
 }
 
 export function SmartReportPage() {
