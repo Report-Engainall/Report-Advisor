@@ -1,3 +1,14 @@
+## CURRENT REPORT EVIDENCE-STATE RECONCILIATION — 2026-09-30
+
+- Exact repository lineage → `0e9a3cc37c54b0ecd2b95dd8ab884275f2e6d751`.
+- Current source `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300` has no matching `kpi_evidence_snapshots.source_evidence` record in the Staging tenant.
+- Therefore its rendered evidence state is correctly persisted as `AWAITING_EVIDENCE_SNAPSHOT`, while `TRUSTED` remains a separate source-quality state.
+- `recover_completed_report_execution_result` now fails closed on `evidenceStatus=VERIFIED`; recovery cannot act as an evidence-acceptance authority.
+- Canonical commit proof remains separate: 735 canonical dataset rows and 735 canonical import-commit rows are read back independently.
+- This distinction is mandatory:
+  `CANONICAL_COMMIT` does not imply `EVIDENCE_VERIFIED`.
+- A future evidence acceptance path must provide its own source-bound evidence/provenance before any `VERIFIED` state is committed.
+
 ## CURRENT LIVE SOURCE-RECORD RECOVERY RECONCILIATION — 2026-09-30
 
 - Exact repository fix → `22fb675a634adeb29d60a432fe995f4b589b1e59`.
