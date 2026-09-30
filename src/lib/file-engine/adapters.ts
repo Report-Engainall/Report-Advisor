@@ -476,6 +476,20 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     return [dataset];
   }
 
+  const structuredText = extractPdfVisualLines(pages)
+    .map((line) => line.text)
+    .join('\n');
+  const structuredRows = tryParseStructuredPdfText(structuredText);
+  if (structuredRows) {
+    const dataset = await buildDataset(structuredRows, fileName, 'pdf');
+    const requiredStructuredFields = ['invoice_number', 'invoice_date', 'customer_name', 'total'];
+    const structurallyVerified = requiredStructuredFields.every(
+      (field) => structuredRows[0]?.[field] !== null && structuredRows[0]?.[field] !== undefined && structuredRows[0]?.[field] !== '',
+    );
+    if (structurallyVerified) dataset.qualityScore = Math.max(dataset.qualityScore, 95);
+    return [dataset];
+  }
+
   const visualRows = extractPdfVisualRows(pages);
   if (visualRows.length) {
     const cellCount = Math.max(1, ...visualRows.map((row) => row.cells.length));
