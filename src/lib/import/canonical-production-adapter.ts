@@ -83,7 +83,7 @@ function normalizeKeys(rows: ReconciledCanonicalImportRow[]): Set<string> {
   return keys;
 }
 
-function inferSpecialty(entityType: CanonicalImportEntityType, rows: ReconciledCanonicalImportRow[]): string | null {
+function inferSpecialty(entityType: CanonicalImportEntityType, rows: ReconciledCanonicalImportRow[], sourcePath = ''): string | null {
   if (entityType.startsWith('generic:')) {
     const explicit = entityType.slice('generic:'.length);
     if (explicit && explicit !== 'source-data') return explicit;
@@ -96,6 +96,15 @@ function inferSpecialty(entityType: CanonicalImportEntityType, rows: ReconciledC
   if (has('payment', 'payments', 'دائن', 'مدين', 'cash', 'تحصيل')) return 'payments';
   if (has('quantity', 'qty', 'netamount', 'sales', 'مبيعات')) return 'sales';
   if (has('stock', 'inventory', 'مخزون', 'currentstock', 'sellingprice', 'costprice', 'سعر')) return 'inventory';
+
+  // Filename is a fallback signal only after the structural/content pass above.
+  // It never creates canonical fields or financial truth by itself.
+  const path = sourcePath.normalize('NFKC').toLowerCase();
+  if (/ذمم|ديون|تحصيل|receivable|aging/.test(path)) return 'receivables';
+  if (/مشتريات|شراء|purchase/.test(path)) return 'purchases';
+  if (/مبيعات|بيع|sales/.test(path)) return 'sales';
+  if (/مخزون|اصناف|أصناف|inventory|stock/.test(path)) return 'inventory';
+  if (/مدفوع|دفعات|payments|liquidity/.test(path)) return 'payments';
   return null;
 }
 
@@ -191,7 +200,7 @@ function buildSourceReportMetrics(rows: ReconciledCanonicalImportRow[]): SourceR
 }
 
 export function buildRenderedOutput(input: DurableCanonicalImportInput, rows = input.rows): RenderedOutput {
-  const specialty = inferSpecialty(input.entityType, rows);
+  const specialty = inferSpecialty(input.entityType, rows, input.fileName);
   const domain = specialty ? DOMAIN_OUTPUTS[specialty] : null;
   const outputs = [
     { key: 'executive', path: '/reports/executive', label: 'التقرير التنفيذي', stage: 'DECISION OUTPUT' },
