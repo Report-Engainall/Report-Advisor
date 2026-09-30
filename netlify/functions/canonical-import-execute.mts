@@ -1,3 +1,4 @@
+// FINAL REAL-REPORT RESUME CONTRACT: long PDF resumes execute in the background and proof polls the durable checkpoint.
 import { createHash } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { securityScan } from '../../src/lib/file-engine/security.ts';
