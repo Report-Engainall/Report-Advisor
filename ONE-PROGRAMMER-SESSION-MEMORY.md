@@ -1,3 +1,21 @@
+# FINAL LIVE WRITE-BACK — 2026-09-30 / EVIDENCE TRUTH GUARD + CURRENT REPORT
+
+- EXECUTION BOUNDARY SHA → `0165660ab6eab84660b3f130d7caa714531b9c5c`; the next control-plane writeback commit is memory-only.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REAL REPORT → 735/735; durable 9/9 completed/rendered; canonical dataset 735; canonical import commit rows 735; source analysis 735×7; quality 87.
+- SOURCE RECORD → ready/passed file record `071db872-2f17-4acf-8374-b1e2d9852985`; exact source hash; authoritative storage `.../5925f3a2-fbac-4678-9490-b892dca35d4d.pdf`; pending-hash false.
+- EVIDENCE CORRECTION → current persisted rendered evidence is `AWAITING_EVIDENCE_SNAPSHOT`; no Staging `kpi_evidence_snapshots` record contains this source hash. `TRUSTED` remains a separate source-quality state.
+- RECOVERY GUARD → live `recover_completed_report_execution_result` is v3 and rejects `evidenceStatus=VERIFIED`; repository lineage is `supabase/migrations/20260930120000_harden_report_recovery_evidence_state.sql`.
+- CANONICAL COMMIT PROOF → Smart Report computes tenant-scoped canonical commit row count independently and exposes `canonicalCommitVerified`; this field never changes evidence status.
+- UI ROOT FIXES → Executive / Trust / Decision / Work source-bind the active report by job + hash; Trust displays canonical commit proof separately; decision/action/outcome/learning/replay/benchmark remain their persisted states.
+- DURABLE EXECUTION GUARD → main contains the strengthened existing coordinator contract blocking production references to `InMemoryReportQueue`/`ReportExecutionCoordinator` outside canonical in-memory implementation/test files.
+- BUSINESS TRUTH → no fabricated financial KPI, recovery value, benchmark, decision, action, outcome, or learning.
+- CORPUS TRUTH → GitHub exact-head `tests/fixtures/realistic-reports/` remains README-only; Staging operational records are not Git corpus evidence.
+- PROOF BOUNDARY → Staging source/recovery/canonical/evidence readback proven; exact current-SHA build/typecheck/CI not exposed; Vercel build-rate-limited; authenticated Edge proof not proven; TinyFish browser unavailable at current wallet.
+- ACTION STATUS → `IN_PROGRESS` only for exact-current-SHA certification/runtime/browser closure.
+- DO-NOT-REPEAT → no re-import, no canonical-row rewrite, no evidence promotion, no tenant bypass, no stale PASS, no database-to-browser inference.
+- NEXT EXACT ACTION → consume exact-current-SHA CI/build evidence if exposed; otherwise continue independent production execution proof while preserving this completed report.
+
 # PRE-CANONICAL-RECOVERY-GUARD CHECKPOINT — 2026-09-30
 
 - EXACT MAIN EXECUTION HEAD → `dab7dc027e9df09562b5a6e1eb555b0599e59abe`.
