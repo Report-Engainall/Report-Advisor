@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowLeft, FileSearch, ShieldCheck } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
+import { readActiveReportContext, saveActiveReportContext } from '@/lib/report-context';
 import { formatNumber } from '@/lib/format';
 
 const DOMAIN_PATHS: Record<string, { path: string; label: string }> = {
@@ -29,8 +30,9 @@ function stateLabel(value: string | null): string {
 
 export function ReportSourceContext() {
   const [params] = useSearchParams();
-  const jobId = params.get('reportJobId')?.trim() ?? '';
-  const sourceHash = params.get('sourceHash')?.trim() ?? '';
+  const saved = readActiveReportContext();
+  const jobId = params.get('reportJobId')?.trim() || saved?.jobId || '';
+  const sourceHash = params.get('sourceHash')?.trim() || saved?.sourceHash || '';
   const [report, setReport] = useState<SmartReportDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +52,7 @@ export function ReportSourceContext() {
         return;
       }
       setReport(value);
+      if (value) saveActiveReportContext({ jobId: value.jobId, sourceHash: value.sourceHash });
     }).catch((cause) => {
       if (active) setError(cause instanceof Error ? cause.message : String(cause));
     });
@@ -98,35 +101,3 @@ export function ReportSourceContext() {
           <div className="flex items-center gap-2 text-[10px] font-black tracking-[.12em] text-primary-800">
             <FileSearch size={14}/> SOURCE-BOUND CONTEXT
           </div>
-          <div className="mt-1 truncate text-sm font-black text-ink-950" title={report.sourcePath}>{report.sourcePath}</div>
-          <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-ink-500">
-            <span>التخصص: {report.specialty ?? 'عام'}</span>
-            <span>·</span>
-            <span>الصفوف: {report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</span>
-            <span>·</span>
-            <span>الجودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</span>
-            <span>·</span>
-            <span>الثقة: {stateLabel(report.trustState)}</span>
-            <span>·</span>
-            <span>الدليل: {stateLabel(report.evidenceStatus)}</span>
-          </div>
-          <div className="mt-2 break-all font-mono text-[9px] text-ink-400">{report.sourceHash}</div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {contextLinks.map((item, index) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[10px] font-black transition ' + (index === 0 ? 'bg-ink-950 text-white hover:bg-ink-800' : 'border border-primary-200 bg-white text-primary-900 hover:bg-primary-100')}
-            >
-              {item.label}<ArrowLeft size={12}/>
-            </Link>
-          ))}
-        </div>
-      </div>
-      <p className="mt-3 border-t border-primary-200 pt-3 text-[10px] leading-5 text-primary-900/80">
-        هذه الشاشة مفتوحة من تقرير محدد. أي مؤشرات عامة أدناه لا تُعاد تسميتها إلى مؤشرات المصدر؛ المخرجات المصدرية المؤكدة تبقى مرتبطة بهذا Job والبصمة الأصلية.
-      </p>
-    </section>
-  );
-}
