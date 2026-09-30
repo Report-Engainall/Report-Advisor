@@ -216,7 +216,7 @@ export default async (request: Request): Promise<Response> => {
 
     let execution;
     try {
-      const execution = await runCanonicalImportThroughDurableRunner(
+      execution = await runCanonicalImportThroughDurableRunner(
         {
           importId: job.id,
           fileName: fileRecord.file_name || fileName || 'import',
