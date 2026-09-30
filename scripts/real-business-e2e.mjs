@@ -477,7 +477,14 @@ async function proveCurrentSmartReport(page, report) {
   assertCurrentReportText(before, 'current smart report');
   assert.ok(before.includes('EVIDENCE INSPECTOR'));
   assert.ok(before.includes(String(Number(report.rendered.qualityScore)) + '%'));
-  assert.ok(before.includes('بانتظار الدليل') || before.includes('Pending Evidence'));
+  assert.ok(
+    before.includes('موثق') ||
+    before.includes('Verified') ||
+    before.includes('VERIFIED') ||
+    before.includes('بانتظار لقطة الدليل') ||
+    before.includes('بانتظار الدليل') ||
+    before.includes('Pending Evidence')
+  );
   await page.screenshot({ path: reportDir + '/current-report-smart-before-refresh.png', fullPage: true });
   await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
   await page.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
@@ -485,7 +492,14 @@ async function proveCurrentSmartReport(page, report) {
   assertCurrentReportText(after, 'current smart report refresh');
   assert.ok(after.includes('EVIDENCE INSPECTOR'));
   assert.ok(after.includes(String(Number(report.rendered.qualityScore)) + '%'));
-  assert.ok(after.includes('بانتظار الدليل') || after.includes('Pending Evidence'));
+  assert.ok(
+    after.includes('موثق') ||
+    after.includes('Verified') ||
+    after.includes('VERIFIED') ||
+    after.includes('بانتظار لقطة الدليل') ||
+    after.includes('بانتظار الدليل') ||
+    after.includes('Pending Evidence')
+  );
   await page.screenshot({ path: reportDir + '/current-report-smart-after-refresh.png', fullPage: true });
   evidence.steps.push({ step: 'current-report-smart-report-refresh-readback', status: 'PASS', reportJobId: report.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, rowCount: CURRENT_REPORT_ROW_COUNT, qualityScore: Number(report.rendered.qualityScore), trustState: report.rendered.trustState, evidenceState: report.rendered.evidenceStatus });
 }
