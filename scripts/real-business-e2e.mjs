@@ -232,9 +232,21 @@ async function importOne(page, label, fields, marker) {
     canonicalRecordId: canonicalRows[0].id,
   });
 
-  await page.goto(`${baseURL}/import`, { waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByText(`${marker}.csv`, { exact: true }).waitFor({ state: 'visible', timeout: 15000 });
-  evidence.steps.push({ step: `unified-import-history-readback:${label}`, status: 'PASS' });
+  const historySource = await restSelect(
+    page,
+    'file_records',
+    { company_id: companyId, id: job.file_record_id },
+    'id,company_id,file_name,file_hash,status,security_status',
+    { limit: 1 },
+  );
+  assert.equal(historySource.length, 1, 'import history readback must resolve the persisted source record');
+  assert.equal(historySource[0].file_name, marker + '.csv');
+  assert.equal(historySource[0].company_id, companyId);
+  evidence.steps.push({
+    step: 'unified-import-history-readback:' + label,
+    status: 'PASS',
+    sourceRecordId: historySource[0].id,
+  });
 
   return { job, canonical: canonicalRows[0] };
 }
