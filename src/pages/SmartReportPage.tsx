@@ -24,6 +24,8 @@ function stateLabel(value: string | null): string {
     NO_ACTION_COMMITTED: 'لا إجراء معتمد',
     NOT_AVAILABLE: 'غير متاح',
     INSUFFICIENT_SAMPLE: 'عينة غير كافية',
+    PENDING_EVIDENCE: 'بانتظار الدليل',
+    GAP_DETECTED: 'فجوة اعتماد مكتشفة',
   };
   return value ? (labels[value] ?? value) : 'غير متاح';
 }
@@ -153,6 +155,44 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
   return { columns, preview, numeric, completeness, metrics, topRows };
 }
 
+function reportVerificationLabel(value: string): string {
+  if (value === 'VERIFIED') return 'Verified';
+  if (value === 'GAP_DETECTED') return 'Gap Detected';
+  return 'Pending Evidence';
+}
+
+function EvidenceInspector({ report }: { report: SmartReportDetail }) {
+  const gap = report.canonicalCommitGap ?? 0;
+  const verification = report.reportVerificationState;
+  const verificationClass = verification === 'VERIFIED'
+    ? 'border-success-200 bg-success-50 text-success-900'
+    : verification === 'GAP_DETECTED'
+      ? 'border-danger-200 bg-danger-50 text-danger-900'
+      : 'border-warning-200 bg-warning-50 text-warning-900';
+  return (
+    <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="section-kicker">EVIDENCE INSPECTOR</div>
+          <h2 className="mt-1 text-lg font-black text-ink-950">سلسلة الثقة لهذا التقرير</h2>
+          <p className="mt-1 text-xs leading-6 text-ink-500">Trusted Source لا تعني Verified Report. الاعتماد الكانوني دليل تغطية للبيانات، وليس قبولًا نهائيًا للدليل.</p>
+        </div>
+        <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black ${verificationClass}`}>{reportVerificationLabel(verification)}</span>
+      </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">SOURCE</div><div className="mt-2 text-sm font-black">{report.sourcePath}</div><div className="mt-1 text-[10px] text-ink-500">Trust: {stateLabel(report.sourceTrustState ?? report.trustState)}</div></div>
+        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">FINGERPRINT</div><div className="mt-2 break-all font-mono text-[10px]">{report.sourceHash}</div></div>
+        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">CANONICAL COMMIT</div><div className="mt-2 text-sm font-black">{formatNumber(report.canonicalCommitCount)} / {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)}</div><div className="mt-1 text-[10px] text-ink-500">{gap > 0 ? `Gap: ${formatNumber(gap)}` : 'No canonical coverage gap'}</div></div>
+        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">ANALYSIS</div><div className="mt-2 text-sm font-black">{report.sourceAnalysis?.analysisStatus ?? 'غير متاح'}</div><div className="mt-1 text-[10px] text-ink-500">{report.sourceAnalysis?.rowCount == null ? 'غير متاح' : formatNumber(report.sourceAnalysis.rowCount)} rows</div></div>
+      </div>
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
+        <div className="rounded-xl border border-ink-200 bg-ink-50/60 p-4"><div className="text-[9px] font-black text-ink-500">EVIDENCE</div><div className="mt-2 text-sm font-black">{stateLabel(report.evidenceStatus)}</div><div className="mt-1 text-[10px] text-ink-500">Evidence snapshot authority is separate from canonical commit.</div></div>
+        <div className={`rounded-xl border p-4 ${verificationClass}`}><div className="text-[9px] font-black">VERIFICATION STATE</div><div className="mt-2 text-sm font-black">{reportVerificationLabel(verification)}</div><div className="mt-1 text-[10px]">Source trust: {stateLabel(report.sourceTrustState ?? report.trustState)} · Report verification: {reportVerificationLabel(verification)}</div></div>
+      </div>
+    </section>
+  );
+}
+
 function statusTone(value: string | null): string {
   if (value === 'TRUSTED' || value === 'VERIFIED') return 'border-success-200 bg-success-50 text-success-900';
   if (value === 'REVIEW' || value === 'AWAITING_EVIDENCE_SNAPSHOT') return 'border-warning-200 bg-warning-50 text-warning-900';
@@ -204,7 +244,7 @@ export function SmartReportPage() {
   const outputs = Array.isArray(output.outputs) ? output.outputs.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object') : [];
   const surfaceLinks = outputs.filter((item) => typeof item.path === 'string');
   const decisionKeys = ['recommendationStatus','decisionStatus','approvalStatus','actionStatus','outcomeStatus','learningStatus','benchmarkStatus','replayStatus'];
-  const sourceIsVerified = report.evidenceStatus === 'VERIFIED' || output.canonicalCommitVerified === true;
+  const sourceIsVerified = report.reportVerificationState === 'VERIFIED';
   const businessSummary = report.specialty === 'receivables'
     ? 'هذا المصدر هو تقرير ذمم مدينة. تمت قراءة أرصدة العملاء وشرائح الأعمار من المصدر الكانوني؛ القرارات والتحصيل الفعلي لا تُنسب للمصدر ما لم توجد معاملة موثقة.'
     : report.specialty === 'inventory'
@@ -239,7 +279,7 @@ export function SmartReportPage() {
         <div className="mt-4 flex flex-wrap gap-2 text-[10px]">
           <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 font-bold">التخصص: {report.specialty ?? 'عام'}</span>
           <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 font-bold">الصفوف: {formatNumber(report.rowCount ?? 0)}</span>
-          <span className={'badge ' + (sourceIsVerified ? 'badge-success' : 'badge-warning')}>{sourceIsVerified ? 'الدليل موثق' : 'الدليل يحتاج متابعة'}</span>
+          <span className={'badge ' + (sourceIsVerified ? 'badge-success' : 'badge-warning')}>{sourceIsVerified ? 'التقرير موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'فجوة اعتماد' : 'بانتظار الدليل'}</span>
         </div>
       </div>
       <div className="rounded-[18px] border border-ink-200 bg-ink-950 p-5 text-white shadow-card lg:p-6">
@@ -251,6 +291,8 @@ export function SmartReportPage() {
         <Link to="/decision-experience?stage=evidence" className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-2.5 text-xs font-black text-ink-950">افتح مسار القرار الموثق ←</Link>
       </div>
     </section>
+
+    <EvidenceInspector report={report}/>
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="section-kicker">REAL BUSINESS METRICS</div>
