@@ -1,4 +1,5 @@
 import { SourceBoundReportSurface } from '@/components/SourceBoundReportSurface';
+import { readActiveReportContext } from '@/lib/report-context';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ReportSourceContext } from '@/components/ReportSourceContext';
 import { Activity, AlertTriangle, CheckCircle2, Clock3, Filter, RefreshCw, ShieldCheck, XCircle } from 'lucide-react';
@@ -231,8 +232,9 @@ function WorkCenterGeneralPage() {
 
 export function WorkCenterPage() {
   const [params] = useSearchParams();
-  const reportJobId = params.get('reportJobId');
-  const sourceHash = params.get('sourceHash');
+  const saved = readActiveReportContext();
+  const reportJobId = params.get('reportJobId') || saved?.jobId;
+  const sourceHash = params.get('sourceHash') || saved?.sourceHash;
   if (reportJobId) {
     return <SourceBoundReportSurface mode="work" jobId={reportJobId} expectedSourceHash={sourceHash} />;
   }
