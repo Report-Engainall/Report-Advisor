@@ -306,7 +306,93 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
         <StatusCell label="Outcome" value={output.outcomeStatus}/>
       </section>
       <ReportIntelligencePanel report={report} />
-            <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
+
+      <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">GOVERNED DECISIONS</div>
+            <h2 className="mt-1 text-lg font-black text-ink-950">القرارات المقترحة والتنفيذ المرتبط بهذا المصدر</h2>
+            <p className="mt-1 text-[10px] leading-5 text-ink-500">المسار المحكوم: مقترح → موافقة → عنصر عمل → بدء → إغلاق بدليل. لا يوجد تنفيذ تلقائي ولا انتقال صامت بين الحالات.</p>
+          </div>
+          <span className="rounded-full bg-ink-50 px-2.5 py-1 text-[9px] font-black text-ink-600">{formatNumber(decisions.length)}</span>
+        </div>
+
+        <div className="mt-4 space-y-3">
+          {decisions.length ? decisions.map((decision) => (
+            <article key={decision.id} className="rounded-xl border border-ink-200 bg-ink-50/70 p-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-black text-ink-900">{decision.signalTitle ?? decision.decisionKey}</span>
+                    <span className="rounded-full bg-white px-2 py-1 text-[9px] font-bold text-ink-600">{stateLabel(decision.status)}</span>
+                    {decision.workItemStatus && <span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-bold text-primary-800">Work: {decision.workItemStatus}</span>}
+                  </div>
+                  <p className="mt-1 text-[10px] leading-5 text-ink-600">{decision.signalMessage ?? 'إشارة مصدرية مرتبطة بهذا القرار.'}</p>
+                  <div className="mt-2 flex flex-wrap gap-2 text-[8px] text-ink-400">
+                    <span className="font-mono">decision={decision.id}</span>
+                    {decision.workItemId && <span className="font-mono">work={decision.workItemId}</span>}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                  {decision.status === 'PROPOSED' && (
+                    <button type="button" disabled={decisionAction[decision.id] === 'saving'} onClick={() => requestApproval(decision)} className="btn-primary text-[10px] disabled:opacity-50">
+                      {decisionAction[decision.id] === 'saving' ? 'جارٍ طلب الموافقة...' : decisionAction[decision.id] === 'requested' ? 'تم طلب الموافقة' : 'طلب الموافقة'}
+                    </button>
+                  )}
+
+                  {decision.status === 'APPROVED' && !decision.workItemId && (
+                    <button type="button" disabled={decisionAction[decision.id] === 'creating-work'} onClick={() => createWorkItem(decision)} className="btn-primary text-[10px] disabled:opacity-50">
+                      {decisionAction[decision.id] === 'creating-work' ? 'جارٍ إنشاء عنصر العمل...' : 'إنشاء عنصر عمل لي'}
+                    </button>
+                  )}
+
+                  {decision.workItemStatus === 'OPEN' && decision.workItemId && (
+                    <button type="button" disabled={decisionAction[decision.id] === 'starting-work'} onClick={() => startWorkItem(decision)} className="btn-secondary text-[10px] disabled:opacity-50">
+                      {decisionAction[decision.id] === 'starting-work' ? 'جارٍ بدء التنفيذ...' : 'بدء التنفيذ'}
+                    </button>
+                  )}
+
+                  {decision.workItemStatus === 'IN_PROGRESS' && decision.workItemId && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <input
+                        inputMode="decimal"
+                        value={actualImpact[decision.id] ?? ''}
+                        onChange={(event) => setActualImpact((current) => ({ ...current, [decision.id]: event.target.value }))}
+                        placeholder="الأثر الفعلي (اختياري)"
+                        aria-label="الأثر الفعلي"
+                        className="min-h-9 w-44 rounded-lg border border-ink-200 bg-white px-2.5 text-[10px] outline-none focus:border-primary-400"
+                      />
+                      <button type="button" disabled={decisionAction[decision.id] === 'completing-work'} onClick={() => completeWorkItem(decision)} className="btn-primary text-[10px] disabled:opacity-50">
+                        {decisionAction[decision.id] === 'completing-work' ? 'جارٍ إغلاق التنفيذ...' : 'إغلاق التنفيذ'}
+                      </button>
+                    </div>
+                  )}
+
+                  {decision.workItemStatus === 'COMPLETED' && (
+                    <span className="rounded-lg bg-success-50 px-2.5 py-2 text-[9px] font-black text-success-800">اكتمل التنفيذ والنتيجة مسجلة</span>
+                  )}
+                </div>
+              </div>
+
+              {decisionAction[decision.id] === 'start-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر بدء التنفيذ؛ تحقق من المكلّف وحالة القرار.</div>}
+              {decisionAction[decision.id] === 'impact-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">الأثر الفعلي يجب أن يكون رقمًا صالحًا.</div>}
+              {decisionAction[decision.id] === 'complete-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر إغلاق التنفيذ؛ يحتاج المسار إلى قرار معتمد ودليل مصدر صالح.</div>}
+              {decisionAction[decision.id] === 'work-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر إنشاء عنصر العمل؛ تحقق من الصلاحية وأن القرار معتمد.</div>}
+              {decisionAction[decision.id] === 'error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر طلب الموافقة؛ الصلاحية أو حالة القرار تحتاج مراجعة.</div>}
+              {decision.workItemStatus === 'IN_PROGRESS' && (
+                <div className="mt-3 rounded-lg border border-warning-200 bg-warning-50 p-3 text-[9px] leading-5 text-warning-900">
+                  دليل الإغلاق المرتبط بهذا التقرير: {report.sourceAnalysis?.id ?? 'غير متاح'} — لا يمكن إغلاق المهمة دون دليل مقبول.
+                </div>
+              )}
+            </article>
+          )) : (
+            <div className="rounded-xl border border-ink-200 bg-ink-50 p-4 text-[10px] text-ink-600">لا توجد قرارات مصدرية محفوظة بعد لهذا المصدر.</div>
+          )}
+        </div>
+      </section>
+
+      <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-start gap-3">
           <ShieldCheck size={19} className="mt-0.5 text-primary-700"/>
           <div>
