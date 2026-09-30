@@ -13,6 +13,7 @@ export interface DurableCanonicalImportInput {
   rows: ReconciledCanonicalImportRow[];
   qualityScore: number;
   qualityApproved: boolean;
+  repairExistingSource?: boolean;
 }
 
 export interface CanonicalImportExecutionOptions {
@@ -385,7 +386,7 @@ export async function runCanonicalImportThroughDurableRunner(
   const activeWorkerClient = workerClient;
   const activeDataClient = dataClient;
   if (!activeWorkerClient || !activeDataClient) throw new Error('SUPABASE_CLIENTS_REQUIRED');
-  const { data: enqueueData, error: enqueueError } = await activeWorkerClient.rpc('enqueue_report_execution_job', {
+  const enqueueArgs: Record<string, unknown> = {
     p_company_id: authoritativeCompanyId,
     p_job_key: jobKey,
     p_source_path: input.fileName,
@@ -397,7 +398,14 @@ export async function runCanonicalImportThroughDurableRunner(
       `rows:${input.rows.length}`,
     ],
     p_max_attempts: 3,
-  });
+  };
+  if (input.repairExistingSource === true) {
+    enqueueArgs.p_force_reprocess = true;
+  }
+
+  const { data: enqueueData, error: enqueueError } = input.repairExistingSource === true
+    ? await activeWorkerClient.rpc('enqueue_report_execution_job', enqueueArgs)
+    : await activeWorkerClient.rpc('enqueue_report_execution_job', enqueueArgs);
   if (enqueueError) throw enqueueError;
   if (!enqueueData || typeof enqueueData !== 'object') throw new Error('REPORT_EXECUTION_JOB_ENQUEUE_EMPTY');
 
