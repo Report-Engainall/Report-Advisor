@@ -547,3 +547,24 @@ CORE LANE
 Current hosting/runtime boundary remains unchanged: available deployment path has not yet produced a current-head authenticated browser proof. This is not converted to PASS.
 
 NEXT EXACT ACTION: continue the product wave with real persistent work-item/collaboration integration on top of the existing `decision_work_items` contract, while preserving source-bound evidence and tenant isolation; then consume exact-head runtime proof when an executable deployment path is available.
+
+
+## LIVE CHECKPOINT — 2026-09-30 / REPORT WORKSPACE + SOURCE-BOUND WORK BRIDGE / HEAD 8fc8bc2
+
+Product wave progress on main:
+- Smart Report has a canonical-row Report Workspace with search, sorting, column visibility, saved local views, reset, pagination, and CSV export.
+- Workspace and report navigation are bound to the exact report Job ID and source hash.
+- Smart Report header now exposes source-bound links to Work Center, Decision Experience, copyable report URL, and Reports Center; no alternate report identity is created.
+- Contract/test coverage includes source workspace integrity and long-document OCR boundary.
+
+Core wave progress:
+- PDF visual structure preserved page/line/cell.
+- Smart intelligence reads paginated canonical rows.
+- Deterministic contradiction signals and recommendations added.
+- OCR safe ceiling raised to 120 pages while server-only scanned OCR remains fail-closed without an approved OCR runtime.
+
+The next commercial implementation front is persistent decision/work-item creation through the existing governed RPC contract: create_runtime_decision -> approval -> create_decision_work_item. No parallel work engine will be introduced. Required tenant/role/evidence gates remain authoritative.
+
+Runtime release remains OPEN; no current-head browser/deployment PASS is claimed.
+
+NEXT EXACT ACTION: implement the governed source-report -> proposed decision bridge using the existing decision RPCs, preserving evidence references and requiring approval before a work item can be created.
