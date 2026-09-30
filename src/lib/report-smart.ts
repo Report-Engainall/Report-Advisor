@@ -126,18 +126,6 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
   const path = String(job.source_path ?? '');
   if (!rendered || !isReportSourcePath(path)) return null;
   if (/^(customer|product|invoice)-\d+/i.test(path)) return null;
-  const specialty = rendered.sourceSpecialty == null
-    ? inferSpecialtyFromAnalysis(sourceAnalysis)
-    : String(rendered.sourceSpecialty);
-
-  const intelligence = deriveReportIntelligence({
-    specialty,
-    rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
-    sourceAnalysis,
-    renderedOutput: rendered,
-    canonicalRows,
-  });
-
   return {
     jobId: String(job.id),
     sourcePath: path || 'مصدر غير مسمى',
@@ -300,6 +288,18 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     columnCount: analysis.column_count == null ? null : Number(analysis.column_count),
     datasets: Array.isArray(analysis.datasets) ? analysis.datasets : [],
   } : null;
+
+  const specialty = rendered.sourceSpecialty == null
+    ? inferSpecialtyFromAnalysis(sourceAnalysis)
+    : String(rendered.sourceSpecialty);
+
+  const intelligence = deriveReportIntelligence({
+    specialty,
+    rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
+    sourceAnalysis,
+    renderedOutput: rendered,
+    canonicalRows,
+  });
 
   return {
     jobId: String(job.id),
