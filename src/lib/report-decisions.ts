@@ -1,4 +1,5 @@
 import { supabase, resolveCurrentCompanyId } from './supabase';
+import { getAuthenticatedUser } from './auth-session';
 
 export type SourceDecisionProposal = {
   id: string;
@@ -88,6 +89,8 @@ export async function createSourceDecisionProposal(input: {
 export type SourceDecisionState = SourceDecisionProposal & {
   signalId: string | null;
   signalTitle: string | null;
+  signalSeverity: string | null;
+  signalMessage: string | null;
   createdAt: string | null;
   approvedAt: string | null;
   approvedBy: string | null;
@@ -116,6 +119,8 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
       decisionKey: String(row.decision_key),
       signalId: evidence.signalId == null ? null : String(evidence.signalId),
       signalTitle: evidence.signalTitle == null ? null : String(evidence.signalTitle),
+      signalSeverity: evidence.severity == null ? null : String(evidence.severity),
+      signalMessage: evidence.signalMessage == null ? null : String(evidence.signalMessage),
       createdAt: row.created_at == null ? null : String(row.created_at),
       approvedAt: row.approved_at == null ? null : String(row.approved_at),
       approvedBy: row.approved_by == null ? null : String(row.approved_by),
@@ -128,6 +133,54 @@ export async function requestSourceDecisionApproval(decisionId: string, reason: 
     p_decision_id: decisionId,
     p_reason: reason,
   });
+  if (error) throw error;
+  return String(data);
+}
+
+
+function workItemPriority(severity: string | null): string {
+  if (severity === 'critical') return 'CRITICAL';
+  if (severity === 'high') return 'HIGH';
+  if (severity === 'low' || severity === 'info') return 'LOW';
+  return 'MEDIUM';
+}
+
+export async function createApprovedDecisionWorkItemForCurrentUser(input: {
+  decisionId: string;
+  reportJobId: string;
+  sourceHash: string;
+  signalTitle: string;
+  signalMessage: string | null;
+  signalSeverity: string | null;
+  department: string;
+}): Promise<string> {
+  const user = await getAuthenticatedUser();
+  if (!user?.id) throw new Error('AUTHENTICATED_USER_REQUIRED');
+
+  const evidenceRefs = [
+    {
+      type: 'SOURCE_REPORT',
+      reportExecutionJobId: input.reportJobId,
+      sourceHash: input.sourceHash,
+      decisionId: input.decisionId,
+    },
+    ...(input.signalMessage ? [{ type: 'SIGNAL', message: input.signalMessage }] : []),
+  ];
+
+  const { data, error } = await supabase.rpc('create_decision_work_item', {
+    p_decision_id: input.decisionId,
+    p_recommendation_id: null,
+    p_department: input.department || 'تشغيل',
+    p_assignee_id: user.id,
+    p_assignee_label: user.email || user.id,
+    p_title: input.signalTitle,
+    p_description: 'عنصر عمل ناشئ من قرار مصدرّي موافق عليه. ارجع إلى التقرير والبصمة الأصلية قبل التنفيذ.',
+    p_priority: workItemPriority(input.signalSeverity),
+    p_due_at: null,
+    p_expected_impact: null,
+    p_evidence_refs: evidenceRefs,
+  });
+
   if (error) throw error;
   return String(data);
 }
