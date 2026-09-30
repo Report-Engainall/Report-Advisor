@@ -93,10 +93,38 @@ const run = await fetch(BASE_URL + '/api/canonical-import-execute', {
 const runText = await run.text();
 let runBody = null;
 try { runBody = runText ? JSON.parse(runText) : null; } catch {}
-if (!run.ok) throw new Error('OPEN_REPORT_RESUME_FAILED_HTTP_' + run.status + ':' + runText.slice(0, 1200));
-if (runBody?.jobId !== JOB_ID) throw new Error('OPEN_REPORT_RESUME_CREATED_OR_RETURNED_DIFFERENT_JOB');
-if (runBody?.sourceHash !== EXPECTED_HASH) throw new Error('OPEN_REPORT_RESUME_HASH_MISMATCH');
-if (Number(runBody?.authoritativeRowCount) !== EXPECTED_ROWS) throw new Error('OPEN_REPORT_RESUME_ROW_COUNT_MISMATCH');
+if (!run.ok && run.status !== 202) {
+  throw new Error('OPEN_REPORT_RESUME_FAILED_HTTP_' + run.status + ':' + runText.slice(0, 1200));
+}
+if (run.status !== 202 && (runBody?.jobId !== JOB_ID || runBody?.sourceHash !== EXPECTED_HASH || Number(runBody?.authoritativeRowCount) !== EXPECTED_ROWS)) {
+  throw new Error('OPEN_REPORT_RESUME_SYNCHRONOUS_RESPONSE_INVALID');
+}
+
+const checkpointImportId = Array.isArray(beforeJob.checkpoint?.evidenceKeys)
+  ? beforeJob.checkpoint.evidenceKeys.map(String).find((key) => key.startsWith('import:'))?.slice(7) ?? ''
+  : '';
+if (!checkpointImportId) throw new Error('OPEN_REPORT_IMPORT_ID_MISSING_FROM_CHECKPOINT');
+
+const deadline = Date.now() + 180_000;
+let job = null;
+while (Date.now() < deadline) {
+  const poll = await rest(
+    '/report_execution_jobs?id=eq.' + encodeURIComponent(JOB_ID) +
+    '&company_id=eq.' + encodeURIComponent(companyId) +
+    '&select=id,status,source_path,source_hash,job_key,checkpoint,evidence',
+    accessToken,
+  );
+  job = poll.body?.[0] ?? null;
+  if (job?.status === 'completed' && job.checkpoint?.stage === 'rendered') break;
+  if (job?.status === 'dead_letter' || job?.status === 'failed') {
+    throw new Error('OPEN_REPORT_BACKGROUND_EXECUTION_FAILED:' + JSON.stringify(job));
+  }
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+}
+if (!job || job.status !== 'completed' || job.checkpoint?.stage !== 'rendered') {
+  throw new Error('OPEN_REPORT_BACKGROUND_EXECUTION_TIMEOUT');
+}
+if (job.source_hash !== EXPECTED_HASH) throw new Error('OPEN_REPORT_RESUME_HASH_MISMATCH');
 
 const after = await rest(
   '/report_execution_jobs?id=eq.' + encodeURIComponent(JOB_ID) +
