@@ -1,3 +1,4 @@
+# Exact-current-head trigger touch: re-run browser proof after canonical ESM import repair.
 name: Full Product Browser E2E
 
 on:
