@@ -332,7 +332,9 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     for (const column of dataset.columns) {
       column.qualityIssues.push('PDF_TABLE_STRUCTURE_NOT_CONFIRMED: النص محفوظ حسب الصفحة والسطر بدل دمج الصفحة في عبارة واحدة');
     }
-    dataset.qualityScore = Math.min(dataset.qualityScore, 49);
+    // The content was extracted losslessly, but table semantics are not proven.
+    // Keep it in REVIEW rather than rejecting a real document before it can be inspected.
+    dataset.qualityScore = Math.max(55, Math.min(dataset.qualityScore, 74));
     return [dataset];
   }
   return parseScannedPdfWithOcr(pdf, fileName);
