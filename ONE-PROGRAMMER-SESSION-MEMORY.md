@@ -478,3 +478,22 @@
 - LIVE DEPLOYMENT BOUNDARY → Vercel production deployment `dpl_3XueK4okyBMYmMtk27wohiPfMuDV` is READY for commit `70385467dad95383da179baa950dfc3384e4bf07`, which already includes the server-authoritative source execution core. The newest CI/open-report proof commits are newer than that deployment and have not been claimed as live on Vercel.
 - STAGING DATA → 39 completed generic reports + 1 open report. Open report remains untouched in Staging until the CI server-proof executes it; no synthetic completion has been written from this session.
 - NEXT EXACT ACTION → observe the CI proof result for the newest HEAD; if it passes, read back the open report as CLOSED and then expand the same proof pattern to the remaining corpus. If CI fails, fix the exact failing root cause and rerun by commit.
+
+
+## LIVE CHECKPOINT — 2026-09-30 / REPORT RESULT HARDENING / HEAD 006e27a
+
+Current main HEAD: `006e27a275d3c68cbe3290e637955ff82cd2dfd4`.
+
+Executed hardening on the real result chain:
+- PDF non-table fallback now preserves page + visual-line + visual-cell boundaries instead of collapsing a page into one opaque phrase.
+- Native PDF visual fallback now enters REVIEW (quality 55–74) instead of being rejected solely because table semantics are unproven; OCR confidence thresholds remain fail-closed.
+- Smart-report canonical row retrieval now paginates the real `canonical_dataset_records` instead of silently limiting intelligence to 2,000 rows, with a 50,000-row defensive ceiling and explicit PARTIAL_ANALYSIS state beyond it.
+- Sales/Purchases/Inventory source-bound surfaces now derive top items from the full canonical rows and show whether the complete source is actually analyzed; preview rows remain preview-only.
+- Source-bound specialty context now verifies the active source hash instead of trusting only the job id.
+
+Observed gates:
+- Vercel commit status remains FAILURE because the connected Vercel build is blocked by `build-rate-limit`.
+- Netlify production site `aghbari-report-advisor` is READY but still deployed from old commit `21f6562dbca1016842f037299ffd8815b59fe1aa`.
+- GitHub workflow wrapper cannot currently expose push-triggered workflow runs through the available connector; therefore no CI PASS is claimed.
+
+NEXT EXACT ACTION: obtain an actual execution of the latest main HEAD (prefer Netlify or authenticated CI), then prove the same real report source through extraction -> canonical commit -> smart report -> specialty surfaces with exact row counts and source hash.
