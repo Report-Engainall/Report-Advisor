@@ -1,3 +1,15 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / CURRENT-SHA ROOT FIX + INDEX REANCHOR / f45b64b97cb905040ee2f096aff7dcc650b0bab3
+
+- EXACT MAIN HEAD → `f45b64b97cb905040ee2f096aff7dcc650b0bab3`.
+- CURRENT CODE/TEST CANDIDATE → `f45b64b97cb905040ee2f096aff7dcc650b0bab3`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- ROOT FIX → `src/lib/import/canonical-production-adapter.ts` now resolves `durable-worker-adapter.ts` explicitly for Node ESM/strip-types runtime execution.
+- PREVIOUS CURRENT-SHA FAILURE → runtime test hit `ERR_MODULE_NOT_FOUND` on the extensionless adapter import; that exact defect is now fixed in this SHA.
+- REPORT RESULT REMAINS → import completed 735/735; durable completed/rendered; source-bound rendered outputs persisted; 735 canonical lineage.
+- UI/HOSTED STATUS → authenticated hosted browser proof remains not proven; this work must not be confused with report re-import.
+- ACTION STATUS → `IN_PROGRESS` while current-SHA CI terminalizes.
+- NEXT EXACT ACTION → consume f45b CI; repair only a newly reproduced failure, then persist final report checkpoint and return to hosted/browser closure.
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / HOSTED RUNTIME BLOCKER RECONCILED / b3e7904f4c521acec1d8312f8557b99ffda319df
 
 - EXACT GOVERNED MAIN HEAD → `b3e7904f4c521acec1d8312f8557b99ffda319df`.
