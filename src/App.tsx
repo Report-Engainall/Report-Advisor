@@ -113,7 +113,8 @@ const previousOverflow = document.body.style.overflow;
 document.body.style.overflow = 'hidden';
 const onKeyDown = (event: KeyboardEvent) => {
 if (event.key === 'Escape') { event.preventDefault(); setSidebarOpen(false); return; }
-if (event.key !== 'Tab') return;
+const isTab = event.key === 'Tab';
+if (!isTab) return;
 const root = mobileSidebarRef.current;
 if (!root) return;
 const focusable = Array.from(root.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'));
@@ -138,7 +139,8 @@ const previousOverflow = document.body.style.overflow;
 document.body.style.overflow = 'hidden';
 const onKeyDown = (event: KeyboardEvent) => {
 if (event.key === 'Escape') { event.preventDefault(); setAdvisorOpen(false); return; }
-if (event.key !== 'Tab') return;
+const isTab = event.key === 'Tab';
+if (!isTab) return;
 const root = advisorPanelRef.current;
 if (!root) return;
 const focusable = Array.from(root.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'));
