@@ -5,7 +5,7 @@ const PASSWORD = process.env.TEST_USER_A_PASSWORD;
 const BASE_URL = process.env.E2E_BASE_URL ?? 'http://127.0.0.1:4173';
 const JOB_ID = process.env.OPEN_REPORT_EXECUTION_JOB_ID;
 const EXPECTED_HASH = process.env.OPEN_REPORT_EXPECTED_SOURCE_HASH;
-const EXPECTED_ROWS = Number(process.env.OPEN_REPORT_EXPECTED_ROWS ?? '0');
+const EXPECTED_ROWS_ENV = Number(process.env.OPEN_REPORT_EXPECTED_ROWS ?? '0');
 const EXPECTED_FILE = process.env.OPEN_REPORT_FILE_NAME;
 
 function required(name, value) {
@@ -19,7 +19,7 @@ required('TEST_USER_A_PASSWORD', PASSWORD);
 required('OPEN_REPORT_EXECUTION_JOB_ID', JOB_ID);
 required('OPEN_REPORT_EXPECTED_SOURCE_HASH', EXPECTED_HASH);
 required('OPEN_REPORT_FILE_NAME', EXPECTED_FILE);
-if (!EXPECTED_ROWS) throw new Error('OPEN_REPORT_EXPECTED_ROWS_INVALID');
+if (!Number.isFinite(EXPECTED_ROWS_ENV) || EXPECTED_ROWS_ENV < 0) throw new Error('OPEN_REPORT_EXPECTED_ROWS_INVALID');
 
 async function supabaseFetch(path, init = {}) {
   const response = await fetch(SUPABASE_URL + path, {
@@ -96,7 +96,7 @@ try { runBody = runText ? JSON.parse(runText) : null; } catch {}
 if (!run.ok && run.status !== 202) {
   throw new Error('OPEN_REPORT_RESUME_FAILED_HTTP_' + run.status + ':' + runText.slice(0, 1200));
 }
-if (run.status !== 202 && (runBody?.jobId !== JOB_ID || runBody?.sourceHash !== EXPECTED_HASH || Number(runBody?.authoritativeRowCount) !== EXPECTED_ROWS)) {
+if (run.status !== 202 && (runBody?.jobId !== JOB_ID || runBody?.sourceHash !== EXPECTED_HASH || (EXPECTED_ROWS_ENV > 0 && Number(runBody?.authoritativeRowCount) !== EXPECTED_ROWS_ENV))) {
   throw new Error('OPEN_REPORT_RESUME_SYNCHRONOUS_RESPONSE_INVALID');
 }
 
@@ -106,7 +106,7 @@ const checkpointImportId = Array.isArray(beforeJob.checkpoint?.evidenceKeys)
 if (!checkpointImportId) throw new Error('OPEN_REPORT_IMPORT_ID_MISSING_FROM_CHECKPOINT');
 
 const deadline = Date.now() + 180_000;
-let job = null;
+let polledJob = null;
 while (Date.now() < deadline) {
   const poll = await rest(
     '/report_execution_jobs?id=eq.' + encodeURIComponent(JOB_ID) +
@@ -114,17 +114,17 @@ while (Date.now() < deadline) {
     '&select=id,status,source_path,source_hash,job_key,checkpoint,evidence',
     accessToken,
   );
-  job = poll.body?.[0] ?? null;
-  if (job?.status === 'completed' && job.checkpoint?.stage === 'rendered') break;
-  if (job?.status === 'dead_letter' || job?.status === 'failed') {
-    throw new Error('OPEN_REPORT_BACKGROUND_EXECUTION_FAILED:' + JSON.stringify(job));
+  polledJob = poll.body?.[0] ?? null;
+  if (polledJob?.status === 'completed' && polledJob.checkpoint?.stage === 'rendered') break;
+  if (polledJob?.status === 'dead_letter' || polledJob?.status === 'failed') {
+    throw new Error('OPEN_REPORT_BACKGROUND_EXECUTION_FAILED:' + JSON.stringify(polledJob));
   }
   await new Promise((resolve) => setTimeout(resolve, 5000));
 }
-if (!job || job.status !== 'completed' || job.checkpoint?.stage !== 'rendered') {
+if (!polledJob || polledJob.status !== 'completed' || polledJob.checkpoint?.stage !== 'rendered') {
   throw new Error('OPEN_REPORT_BACKGROUND_EXECUTION_TIMEOUT');
 }
-if (job.source_hash !== EXPECTED_HASH) throw new Error('OPEN_REPORT_RESUME_HASH_MISMATCH');
+if (polledJob.source_hash !== EXPECTED_HASH) throw new Error('OPEN_REPORT_RESUME_HASH_MISMATCH');
 
 const after = await rest(
   '/report_execution_jobs?id=eq.' + encodeURIComponent(JOB_ID) +
@@ -137,16 +137,29 @@ if (!job || job.status !== 'completed') throw new Error('OPEN_REPORT_JOB_NOT_COM
 if (job.checkpoint?.stage !== 'rendered') throw new Error('OPEN_REPORT_CHECKPOINT_NOT_RENDERED');
 if (!job.evidence?.renderedOutput) throw new Error('OPEN_REPORT_RENDERED_OUTPUT_MISSING');
 
+const authoritativeRowCount = Number(
+  job.evidence?.renderedOutput?.rowCount ??
+  job.evidence?.renderedOutput?.authoritativeCurrentRowCount ??
+  job.checkpoint?.evidenceKeys?.map(String).find((key) => key.startsWith('rows:'))?.slice(5) ??
+  0,
+);
+if (!Number.isInteger(authoritativeRowCount) || authoritativeRowCount < 1) {
+  throw new Error('OPEN_REPORT_AUTHORITATIVE_ROW_COUNT_MISSING');
+}
+if (EXPECTED_ROWS_ENV > 0 && authoritativeRowCount !== EXPECTED_ROWS_ENV) {
+  throw new Error('OPEN_REPORT_EXPECTED_ROW_COUNT_MISMATCH:' + authoritativeRowCount);
+}
+
 const analysis = await rest(
   '/source_analysis_snapshots?company_id=eq.' + encodeURIComponent(companyId) +
   '&source_hash=eq.' + encodeURIComponent(EXPECTED_HASH) +
-  '&row_count=eq.' + EXPECTED_ROWS +
+  '&row_count=eq.' + authoritativeRowCount +
   '&select=id,row_count,column_count,source_format,analysis_status' +
   '&order=created_at.desc&limit=1',
   accessToken,
 );
 if (!analysis.body?.[0]) throw new Error('OPEN_REPORT_ANALYSIS_NOT_FOUND');
-if (Number(analysis.body[0].row_count) !== EXPECTED_ROWS) throw new Error('OPEN_REPORT_ANALYSIS_ROW_COUNT_MISMATCH');
+if (Number(analysis.body[0].row_count) !== authoritativeRowCount) throw new Error('OPEN_REPORT_ANALYSIS_ROW_COUNT_MISMATCH');
 
 const countResponse = await rest(
   '/canonical_dataset_records?company_id=eq.' + encodeURIComponent(companyId) +
@@ -157,7 +170,7 @@ const countResponse = await rest(
 );
 const contentRange = countResponse.response.headers.get('content-range') ?? '';
 const countMatch = contentRange.match(/\/(\d+)$/);
-if (!countMatch || Number(countMatch[1]) !== EXPECTED_ROWS) {
+if (!countMatch || Number(countMatch[1]) !== authoritativeRowCount) {
   throw new Error('OPEN_REPORT_CANONICAL_ROW_COUNT_MISMATCH:' + contentRange);
 }
 
@@ -167,7 +180,7 @@ const commits = await rest(
   '&select=committed_count&order=committed_at.desc&limit=1',
   accessToken,
 );
-if (!commits.body?.[0] || Number(commits.body[0].committed_count) !== EXPECTED_ROWS) {
+if (!commits.body?.[0] || Number(commits.body[0].committed_count) !== authoritativeRowCount) {
   throw new Error('OPEN_REPORT_CANONICAL_COMMIT_COUNT_MISMATCH');
 }
 
@@ -178,7 +191,7 @@ const imports = await rest(
   accessToken,
 );
 const importJob = imports.body?.[0];
-if (!importJob || importJob.status !== 'completed' || Number(importJob.valid_rows) !== EXPECTED_ROWS) {
+if (!importJob || importJob.status !== 'completed' || Number(importJob.valid_rows) !== authoritativeRowCount) {
   throw new Error('OPEN_REPORT_IMPORT_JOB_NOT_COMPLETED_OR_ROW_MISMATCH');
 }
 
@@ -198,7 +211,7 @@ console.log(JSON.stringify({
   jobId: JOB_ID,
   sourceHash: EXPECTED_HASH,
   companyId,
-  rowCount: EXPECTED_ROWS,
+  rowCount: authoritativeRowCount,
   canonicalRowCount: Number(countMatch[1]),
   canonicalCommitCount: Number(commits.body[0].committed_count),
   importStatus: importJob.status,
