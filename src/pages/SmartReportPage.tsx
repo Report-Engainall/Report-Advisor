@@ -286,7 +286,7 @@ export function SmartReportPage() {
         <div className="section-kicker text-primary-200">NEXT ACTION</div>
         <h2 className="mt-1 text-lg font-black">ما الذي يمكن فعله الآن؟</h2>
         <p className="mt-3 text-[12px] leading-6 text-ink-300">
-          {report.actionStatus === 'NO_ACTION_COMMITTED' ? 'لا توجد عملية تنفيذية موثقة نُفذت بعد؛ يمكن استخدام التقرير كمدخل لمراجعة القرار.' : stateLabel(String(report.renderedOutput.actionStatus ?? null))}
+          {report.renderedOutput.actionStatus === 'NO_ACTION_COMMITTED' ? 'لا توجد عملية تنفيذية موثقة نُفذت بعد؛ يمكن استخدام التقرير كمدخل لمراجعة القرار.' : stateLabel(String(report.renderedOutput.actionStatus ?? null))}
         </p>
         <Link to="/decision-experience?stage=evidence" className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-2.5 text-xs font-black text-ink-950">افتح مسار القرار الموثق ←</Link>
       </div>
