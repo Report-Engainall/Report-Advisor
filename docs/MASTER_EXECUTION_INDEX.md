@@ -283,3 +283,12 @@ Corpus operational state remains 39 completed generic reports with rendered outp
 No PASS is claimed for the new regression scripts until actual repository runtime execution is observed.
 
 NEXT EXACT ACTION: recover/execute the queued report through the authoritative private-source runtime without creating a duplicate job; then use the same heart fixes against subsequent PDFs.
+
+
+## LIVE EXECUTION CHECKPOINT — 2026-09-30 / SERVER-AUTHORITATIVE SOURCE / HEAD 0b07daf
+
+The canonical execution path no longer requires browser-parsed rows for canonical truth. `api/canonical-import-execute.ts` now supports private Storage download, server SHA-256 verification, server security/format detection, canonical parsing, reconciliation, analysis snapshot persistence, provenance update, and resumable execution of an existing report_execution_job. `src/lib/import/canonical-production-adapter.ts` requests server source authority for normal execute calls.
+
+Real unresolved report: `فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf` / report job `d074ad5c-70d4-4402-a763-01129786f392` / import `bf206836-e52d-4b29-843a-6337403801e6` / source hash `sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10` / 6562 rows. It must be resumed by the canonical server path; do not create a replacement job.
+
+NEXT EXACT ACTION: authenticated runtime execution of the authoritative resume endpoint for the real queued report, followed by exact Staging readback and next-report continuation.
