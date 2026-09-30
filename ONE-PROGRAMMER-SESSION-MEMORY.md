@@ -1,3 +1,15 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / REPORT EXECUTION TEST-HARNESS ROOT FIX / fce1648b37cc0733391c66e1b0bbd7793cbc4d4a
+
+- EXACT MAIN HEAD → `fce1648b37cc0733391c66e1b0bbd7793cbc4d4a`.
+- CURRENT CODE/TEST CANDIDATE → `fce1648b37cc0733391c66e1b0bbd7793cbc4d4a`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- ROOT FIX → `scripts/report-execution-runtime.test.ts` now separately asserts execute-stage order and checkpoint persistence order. The product runner still persists every durable stage; the test no longer conflates checkpoint writes with execute callbacks.
+- PREVIOUS QUALITY FAILURE → strict deep-equal expected execute committed/rendered but observed execute rendered plus persisted rendered checkpoint because the harness used one array for both signals.
+- VERIFIED PRODUCT CONTRACT PRESERVED → durable runner continues to call `store.saveCheckpoint` for each stage and then completes with rendered evidence.
+- REPORT RESULT REMAINS → 735/735 completed; durable rendered; source-bound smart outputs persisted; no re-import.
+- ACTION STATUS → `IN_PROGRESS` while current-SHA quality and certification terminalize.
+- NEXT EXACT ACTION → consume current-SHA quality; repair only a genuinely new product/runtime failure.
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / CANONICAL COMMIT BOUNDARY ESM FIX / 10a52f83b4ae128389ff3224e4d0db6e025a4341
 
 - EXACT MAIN HEAD → `10a52f83b4ae128389ff3224e4d0db6e025a4341`.
