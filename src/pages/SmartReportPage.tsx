@@ -3,6 +3,8 @@ import { ArrowLeft, CheckCircle2, FileSearch, ShieldCheck } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
+import { saveActiveReportContext } from '@/lib/report-context';
+import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { formatNumber } from '@/lib/format';
 
 function textValue(value: unknown): string {
@@ -210,7 +212,10 @@ export function SmartReportPage() {
     setLoading(true);
     setError(null);
     void fetchSmartReport(jobId ?? '').then((next) => {
-      if (active) setReport(next);
+      if (active) {
+        setReport(next);
+        if (next) saveActiveReportContext({ jobId: next.jobId, sourceHash: next.sourceHash });
+      }
     }).catch((reason) => {
       if (active) setError(reason instanceof Error ? reason.message : String(reason));
     }).finally(() => {
@@ -293,6 +298,8 @@ export function SmartReportPage() {
     </section>
 
     <EvidenceInspector report={report}/>
+
+    <ReportIntelligencePanel report={report} />
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="section-kicker">REAL BUSINESS METRICS</div>
