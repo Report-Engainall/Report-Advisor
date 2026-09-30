@@ -410,8 +410,15 @@ export async function runCanonicalImportThroughDurableRunner(
       recoveredFromCompletedDurableJob: true,
     };
   }
-  if (job.status === 'running' || job.status === 'leased' || job.status === 'processing') throw new Error('IMPORT_DURABLE_JOB_ALREADY_RUNNING');
   const store = new SupabaseReportExecutionStore(activeWorkerClient);
+  if (job.status === 'running' || job.status === 'leased' || job.status === 'processing') {
+    const currentLease = await store.require(job.id);
+    const leaseExpiresAt = currentLease.leaseExpiresAt ? Date.parse(currentLease.leaseExpiresAt) : 0;
+    if (Number.isFinite(leaseExpiresAt) && leaseExpiresAt > Date.now()) {
+      throw new Error('IMPORT_DURABLE_JOB_ALREADY_RUNNING');
+    }
+    // Expired/no lease: allow runDurableProductionLifecycle() to reclaim it atomically.
+  }
   if (job.status === 'failed') await store.retry(job.id, authoritativeCompanyId);
 
   const observedAt = new Date().toISOString();
