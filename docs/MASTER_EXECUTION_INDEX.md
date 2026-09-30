@@ -1,3 +1,15 @@
+# FINAL CURRENT CODE CANDIDATE — 2026-09-30 / IN-PLACE RETRY PROOF
+
+- CURRENT CODE/TEST CANDIDATE → `eab4628b49cdcf5ee0e3edcde9010f2eb021be5e`.
+- EXACT-SHA QUALITY → Typecheck PASS; Lint PASS; Build PASS; Performance PASS; Production-scale PASS; Intelligence/production contracts PASS; row-coverage contract PASS; all scheduled Quality release gates PASS.
+- EXACT-SHA FINAL EXECUTION BATCH → PASS; release artifact built and 29 deterministic gates passed.
+- IN-PLACE REPORT RETRY → source-bound report pages now retry through `useOptionalSourceReport.retry` instead of `window.location.reload()`; no full browser reload is used for report retry.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`: source 735, authoritative canonical 735, commit 735, analysis 735×7 quality 87; source trust TRUSTED; report verification PENDING_EVIDENCE; evidence AWAITING_EVIDENCE_SNAPSHOT.
+- 399/397 → source/analysis 399, authoritative canonical 397, gap 2, GAP_DETECTED; no manual canonical mutation.
+- OPERATIONAL CORPUS → 39 discovered/registered/completed/analyzed/rendered; evidence verified 0; gap-detected 1; pending evidence 38.
+- BROWSER → exact-checkout Full Product Browser E2E PASS; authenticated Microsoft Edge/business-flow proof remains NOT PROVEN.
+- NEXT EXACT ACTION → final governance-only persistence and current-SHA certification readback.
+
 # FINAL CURRENT CODE CANDIDATE — 2026-09-30 / SECURITY RECOVERY PROOF
 
 - CURRENT CODE/TEST CANDIDATE → `1a069bab2e5f7012e8deb08013914189b8d60f5e`.

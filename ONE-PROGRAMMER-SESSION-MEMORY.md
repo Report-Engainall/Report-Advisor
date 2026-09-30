@@ -1,3 +1,15 @@
+# FINAL LIVE WRITE-BACK — 2026-09-30 / CURRENT CODE CANDIDATE eab462
+
+- EXACT CODE/TEST CANDIDATE → `eab4628b49cdcf5ee0e3edcde9010f2eb021be5e`.
+- EXACT-SHA PROOF → Quality Typecheck PASS, Lint PASS, Build PASS, performance/scale/intelligence production contracts PASS; Final Execution Batch PASS with 29 deterministic gates.
+- REPORT RETRY ROOT FIX → `useOptionalSourceReport` now exposes an in-place `retry` function and all five source-bound report pages use it; no `window.location.reload()` remains in `ReportsPage.tsx`.
+- CURRENT REPORT → 735/735 source-authoritative canonical, 735 commit, 735×7 analysis, quality 87; TRUSTED source, PENDING_EVIDENCE report verification.
+- 399/397 → source 399, canonical 397, authoritative 397, gap 2, GAP_DETECTED.
+- CORPUS → 39 discovered/completed/analyzed/rendered; evidence verified 0; gap 1; pending evidence 38.
+- BROWSER → Full Product Browser E2E exact checkout PASS only; authenticated Edge/business-flow proof remains NOT PROVEN.
+- ACTION STATUS → IN_PROGRESS.
+- NEXT EXACT ACTION → governance-only persistence/readback, then exact current-head Final Certification result.
+
 # FINAL LIVE WRITE-BACK — 2026-09-30 / CURRENT CODE CANDIDATE 1a069b
 
 - EXACT CODE/TEST CANDIDATE → `1a069bab2e5f7012e8deb08013914189b8d60f5e`.
