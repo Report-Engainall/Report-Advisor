@@ -247,6 +247,169 @@ type PromiseConstructorWithTry = PromiseConstructor & { try?: (fn: (...args: unk
 type Uint8ArrayWithToHex = Uint8Array & { toHex?: () => string };
 
 function ensurePdfJsRuntimeCompatibility(): void {
+  const runtimeGlobal = globalThis as typeof globalThis & {
+    DOMMatrix?: new (...args: unknown[]) => unknown;
+    DOMMatrixReadOnly?: new (...args: unknown[]) => unknown;
+    Path2D?: new (...args: unknown[]) => unknown;
+    ImageData?: new (...args: unknown[]) => unknown;
+  };
+
+  if (typeof runtimeGlobal.DOMMatrix === 'undefined') {
+    class ServerDOMMatrix {
+      a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
+      m11 = 1; m12 = 0; m13 = 0; m14 = 0;
+      m21 = 0; m22 = 1; m23 = 0; m24 = 0;
+      m31 = 0; m32 = 0; m33 = 1; m34 = 0;
+      m41 = 0; m42 = 0; m43 = 0; m44 = 1;
+      is2D = true;
+      isIdentity = true;
+
+      constructor(init?: unknown) {
+        if (Array.isArray(init) && init.length >= 6) {
+          [this.a, this.b, this.c, this.d, this.e, this.f] = init.slice(0, 6).map(Number) as [number, number, number, number, number, number];
+        } else if (init && typeof init === 'object') {
+          const value = init as Record<string, unknown>;
+          for (const key of ['a', 'b', 'c', 'd', 'e', 'f'] as const) {
+            if (Number.isFinite(Number(value[key]))) this[key] = Number(value[key]);
+          }
+        }
+        this.syncMatrix();
+      }
+
+      private syncMatrix(): void {
+        this.m11 = this.a; this.m12 = this.b; this.m21 = this.c; this.m22 = this.d; this.m41 = this.e; this.m42 = this.f;
+        this.is2D = true;
+        this.isIdentity = this.a === 1 && this.b === 0 && this.c === 0 && this.d === 1 && this.e === 0 && this.f === 0;
+      }
+
+      multiply(other: ServerDOMMatrix): ServerDOMMatrix {
+        return new ServerDOMMatrix([
+          this.a * other.a + this.c * other.b,
+          this.b * other.a + this.d * other.b,
+          this.a * other.c + this.c * other.d,
+          this.b * other.c + this.d * other.d,
+          this.a * other.e + this.c * other.f + this.e,
+          this.b * other.e + this.d * other.f + this.f,
+        ]);
+      }
+
+      multiplySelf(other: ServerDOMMatrix): this {
+        const next = this.multiply(other);
+        Object.assign(this, next);
+        this.syncMatrix();
+        return this;
+      }
+
+      preMultiplySelf(other: ServerDOMMatrix): this {
+        const next = other.multiply(this);
+        Object.assign(this, next);
+        this.syncMatrix();
+        return this;
+      }
+
+      translate(tx = 0, ty = 0): ServerDOMMatrix {
+        return this.multiply(new ServerDOMMatrix([1, 0, 0, 1, tx, ty]));
+      }
+
+      translateSelf(tx = 0, ty = 0): this {
+        return this.multiplySelf(new ServerDOMMatrix([1, 0, 0, 1, tx, ty]));
+      }
+
+      scale(sx = 1, sy = sx): ServerDOMMatrix {
+        return this.multiply(new ServerDOMMatrix([sx, 0, 0, sy, 0, 0]));
+      }
+
+      scaleSelf(sx = 1, sy = sx): this {
+        return this.multiplySelf(new ServerDOMMatrix([sx, 0, 0, sy, 0, 0]));
+      }
+
+      rotate(angle = 0): ServerDOMMatrix {
+        const radians = angle * Math.PI / 180;
+        const cos = Math.cos(radians);
+        const sin = Math.sin(radians);
+        return this.multiply(new ServerDOMMatrix([cos, sin, -sin, cos, 0, 0]));
+      }
+
+      rotateSelf(angle = 0): this {
+        return this.multiplySelf(this.rotate(angle));
+      }
+
+      inverse(): ServerDOMMatrix {
+        const determinant = this.a * this.d - this.b * this.c;
+        if (!determinant) throw new Error('DOMMatrix_NOT_INVERTIBLE');
+        return new ServerDOMMatrix([
+          this.d / determinant,
+          -this.b / determinant,
+          -this.c / determinant,
+          this.a / determinant,
+          (this.c * this.f - this.d * this.e) / determinant,
+          (this.b * this.e - this.a * this.f) / determinant,
+        ]);
+      }
+
+      invertSelf(): this {
+        const next = this.inverse();
+        Object.assign(this, next);
+        this.syncMatrix();
+        return this;
+      }
+
+      toFloat32Array(): Float32Array {
+        return new Float32Array([this.a, this.b, this.c, this.d, this.e, this.f]);
+      }
+
+      toFloat64Array(): Float64Array {
+        return new Float64Array([this.a, this.b, this.c, this.d, this.e, this.f]);
+      }
+
+      toString(): string {
+        return `matrix(${this.a}, ${this.b}, ${this.c}, ${this.d}, ${this.e}, ${this.f})`;
+      }
+    }
+
+    runtimeGlobal.DOMMatrix = ServerDOMMatrix;
+    runtimeGlobal.DOMMatrixReadOnly = ServerDOMMatrix;
+  }
+
+  if (typeof runtimeGlobal.Path2D === 'undefined') {
+    class ServerPath2D {
+      constructor(_path?: unknown) {}
+      addPath(_path: unknown, _transform?: unknown): void {}
+      closePath(): void {}
+      moveTo(_x: number, _y: number): void {}
+      lineTo(_x: number, _y: number): void {}
+      bezierCurveTo(_cp1x: number, _cp1y: number, _cp2x: number, _cp2y: number, _x: number, _y: number): void {}
+      quadraticCurveTo(_cpx: number, _cpy: number, _x: number, _y: number): void {}
+      rect(_x: number, _y: number, _w: number, _h: number): void {}
+      arc(_x: number, _y: number, _radius: number, _startAngle: number, _endAngle: number, _counterClockwise?: boolean): void {}
+      arcTo(_x1: number, _y1: number, _x2: number, _y2: number, _radius: number): void {}
+      ellipse(_x: number, _y: number, _radiusX: number, _radiusY: number, _rotation: number, _startAngle: number, _endAngle: number, _counterClockwise?: boolean): void {}
+    }
+    runtimeGlobal.Path2D = ServerPath2D;
+  }
+
+  if (typeof runtimeGlobal.ImageData === 'undefined') {
+    class ServerImageData {
+      data: Uint8ClampedArray;
+      width: number;
+      height: number;
+      colorSpace = 'srgb';
+
+      constructor(dataOrWidth: Uint8ClampedArray | number, widthOrHeight: number, height?: number) {
+        if (typeof dataOrWidth === 'number') {
+          this.width = dataOrWidth;
+          this.height = widthOrHeight;
+          this.data = new Uint8ClampedArray(this.width * this.height * 4);
+        } else {
+          this.data = dataOrWidth;
+          this.width = widthOrHeight;
+          this.height = height ?? Math.max(1, Math.floor(this.data.length / Math.max(1, this.width * 4)));
+        }
+      }
+    }
+    runtimeGlobal.ImageData = ServerImageData;
+  }
+
   const uint8ArrayPrototype = Uint8Array.prototype as Uint8ArrayWithToHex;
   if (typeof uint8ArrayPrototype.toHex !== 'function') {
     Object.defineProperty(Uint8Array.prototype, 'toHex', {
