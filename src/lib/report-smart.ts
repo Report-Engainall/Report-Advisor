@@ -342,11 +342,13 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     canonicalCommitCount,
     canonicalCommitVerified,
     sourceTrustState: rendered.trustState == null ? null : String(rendered.trustState),
-    reportVerificationState: canonicalCommitGap != null && canonicalCommitGap > 0
-      ? 'GAP_DETECTED'
-      : effectiveEvidenceStatus(rendered) === 'VERIFIED'
-        ? 'VERIFIED'
-        : 'PENDING_EVIDENCE',
+    reportVerificationState: !canonicalRowsComplete
+      ? 'PARTIAL_ANALYSIS'
+      : canonicalCommitGap != null && canonicalCommitGap > 0
+        ? 'GAP_DETECTED'
+        : effectiveEvidenceStatus(rendered) === 'VERIFIED'
+          ? 'VERIFIED'
+          : 'PENDING_EVIDENCE',
     stages: (stages ?? []).map((row) => ({
       ordinal: Number(row.ordinal),
       stage: String(row.stage),
