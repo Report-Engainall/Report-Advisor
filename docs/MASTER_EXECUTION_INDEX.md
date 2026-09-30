@@ -1,3 +1,11 @@
+# LIVE HEAD RECONCILIATION — 2026-09-30
+
+- EXACT MAIN HEAD → `0090543ff814062b62b9cbee07cd806f3e42c81d`.
+- EXECUTION BOUNDARY IS UNCHANGED FROM THE PREVIOUS CHECKPOINT; the latest commit only persists live-memory state.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf` / import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340` / durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`.
+- ACTION STATUS → `IN_PROGRESS`; exact-SHA authenticated UI/runtime closure remains NOT PROVEN.
+- NEXT EXACT ACTION → consume current-SHA CI/browser evidence when exposed; otherwise continue source-bound screen closure without re-import.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / REPORT LEDGER TRUTH RECONCILIATION
 
 - EXACT MAIN HEAD → `f1bd88f03eb2b188cdb173295d44f435c8158b1f`.
