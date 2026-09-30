@@ -4,7 +4,7 @@ import { normalizeRows, normalizeColumnName, normalizeArabicDigits, parseNumber 
 import { detectColumnDataType, cleanValue } from './data-types';
 import { mapColumns } from './synonyms';
 import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection';
-import { extractPdfTable, extractPdfVisualLines, type PdfPageText } from './pdf-table';
+import { extractPdfTable, extractPdfVisualLines, extractPdfVisualRows, type PdfPageText } from './pdf-table';
 
 type Row = Record<string, unknown>;
 
@@ -314,13 +314,20 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     return [dataset];
   }
 
-  const visualLines = extractPdfVisualLines(pages);
-  if (visualLines.length) {
-    const rows: Row[] = visualLines.map((line) => ({
-      page_number: line.pageNumber,
-      line_number: line.lineNumber,
-      text: line.text,
-    }));
+  const visualRows = extractPdfVisualRows(pages);
+  if (visualRows.length) {
+    const cellCount = Math.max(1, ...visualRows.map((row) => row.cells.length));
+    const rows: Row[] = visualRows.map((line) => {
+      const row: Row = {
+        page_number: line.pageNumber,
+        line_number: line.lineNumber,
+        text: line.cells.join(' | '),
+      };
+      for (let index = 0; index < cellCount; index += 1) {
+        row[`visual_cell_${index + 1}`] = line.cells[index] ?? '';
+      }
+      return row;
+    });
     const dataset = await buildDataset(rows, fileName, 'pdf');
     for (const column of dataset.columns) {
       column.qualityIssues.push('PDF_TABLE_STRUCTURE_NOT_CONFIRMED: النص محفوظ حسب الصفحة والسطر بدل دمج الصفحة في عبارة واحدة');
