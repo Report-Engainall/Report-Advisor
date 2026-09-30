@@ -1,3 +1,16 @@
+# PRE-CORPUS-RECOVERY CHECKPOINT — 2026-09-30 / OPERATIONAL REPORT CORPUS
+
+- EXACT CURRENT MAIN HEAD → `fa463292bd4ba3b729ea4202b751b6638ff34a09`.
+- CURRENT REPORT REMAINS → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- CURRENT REPORT TRUTH → 735/735; durable 9/9 completed/rendered; canonical dataset 735; canonical commit 735; source analysis 735×7 quality 87; source record ready/passed; evidence `AWAITING_EVIDENCE_SNAPSHOT`; trust `TRUSTED`.
+- OPERATIONAL STORAGE REPORT CORPUS → 39 unique verified business-report source hashes after excluding generated entity-style filenames; all 39 have completed generic report jobs; no report-like source has no job or noncompleted job.
+- CORPUS GAP → only 35/39 have persisted `renderedOutput`; only 36/39 have a matching analyzed source-analysis snapshot. Four completed jobs lack rendered output; three of those also lack source-analysis snapshots.
+- MISSING RENDERED REPORTS → `الصراف الحوشبي.pdf` (payments, 8 rows), `العملا النقد.pdf` (customers, 721 rows), `الفواتير من تاريخ 01-09-2026 حتى 20-09-2026.pdf` (sales, 610 rows), `ف العملاء الاجل من ت 01-06 حتى تاريخ 15-08.pdf` (sales, 399 rows, quality 94 analysis available).
+- SAFETY BOUNDARY → do not re-import any of these completed jobs and do not rewrite canonical dataset rows. Recover analysis/output only from already persisted canonical/task evidence using existing canonical recovery paths.
+- ACTION STATUS → `IN_PROGRESS`.
+- NEXT EXACT ACTION → locate the existing canonical source-analysis recovery/build function; recover missing analysis for the three jobs with no snapshot; then invoke the existing rendered-output recovery for the four completed jobs; read back corpus counts.
+- DO-NOT-REPEAT → no new importer, no fixture-specific route, no direct canonical-row mutation, no evidence VERIFIED promotion, no stale CI PASS.
+
 # FINAL LIVE WRITE-BACK — 2026-09-30 / EVIDENCE TRUTH GUARD + CURRENT REPORT
 
 - EXECUTION BOUNDARY SHA → `0165660ab6eab84660b3f130d7caa714531b9c5c`; the next control-plane writeback commit is memory-only.
