@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/States';
 import { fetchDashboardSnapshot, type DashboardKPIs } from '@/lib/dashboard-canonical';
 import { formatCurrency } from '@/lib/format';
+import { ReportSourceContext } from '@/components/ReportSourceContext';
 
 function MoneyMetric({ label, value, note }: { label: string; value: number | null; note: string }) {
   return <div className="rounded-2xl border border-ink-100 bg-white p-4"><div className="text-[10px] font-black text-ink-400">{label}</div><div className="mt-2 text-xl font-black tabular-nums text-ink-950">{value == null ? 'غير متاح' : formatCurrency(value)}</div><div className="mt-1 text-[10px] leading-5 text-ink-400">{note}</div></div>;
@@ -57,7 +58,7 @@ export function LiquidityPage() {
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   if (!kpis) return <DataUnavailableState title="صورة السيولة غير متاحة" message="لم تصل مؤشرات الذمم والمستحقات من المصدر الكانوني؛ لا يتم عرض شاشة فارغة أو افتراض رصيد نقدي." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
 
-  return <div dir="rtl" className="space-y-6 pb-10 animate-fade-in">
+  return <div dir="rtl" className="space-y-6 pb-10 animate-fade-in">\n    <ReportSourceContext />
     <PageHeader title="السيولة والتعرض النقدي" subtitle="قراءة موثقة للذمم والمستحقات والتحصيل؛ الرصيد النقدي البنكي لا يُعرض ما لم يوجد مصدر مثبت له." actions={<button type="button" onClick={() => void load(true)} disabled={refreshing} className="btn-secondary text-[11px]"><RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} /> تحديث</button>} />
     <section className="ag-command-hero overflow-hidden rounded-[1.75rem] p-6 text-white lg:p-8">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
