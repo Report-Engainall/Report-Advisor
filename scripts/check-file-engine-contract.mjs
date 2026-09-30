@@ -20,7 +20,7 @@ const required = [
   ['dataTypes', 'export function detectColumnDataType'],
   ['types', 'interface MappingEvidence'],
   ['types', 'requiresReview?: boolean'],
-  ['adapters', 'PDF_OCR_MAX_PAGES = 20'],
+  ['adapters', 'PDF_OCR_MAX_PAGES = 120'],
   ['adapters', 'PDF_OCR_MAX_DIMENSION = 2200'],
   ['adapters', "parseScannedPdfWithOcr(pdf, fileName)"],
   ['adapters', "async function buildTextDataset("],
