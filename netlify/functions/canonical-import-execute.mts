@@ -160,6 +160,30 @@ export async function handleCanonicalImport(request: Request): Promise<Response>
     }
 
     const authoritativeRows = authoritativeDataset.rows.map((data, index) => ({ rowNumber: index + 1, data }));
+    let repairExistingSource = false;
+    if (resumeReportExecutionJobId) {
+      const { data: existingCommit, error: existingCommitError } = await serviceClient
+        .from('canonical_import_commits')
+        .select('committed_count')
+        .eq('company_id', companyId)
+        .eq('entity_type', entityType)
+        .eq('source_hash', sourceSha)
+        .maybeSingle();
+      if (existingCommitError) throw existingCommitError;
+      repairExistingSource = Boolean(
+        existingCommit &&
+        Number(existingCommit.committed_count ?? -1) !== authoritativeRows.length,
+      );
+      if (repairExistingSource) {
+        console.log('[canonical-import-execute] source repair required', {
+          sourceHash: sourceSha,
+          previousCommittedCount: Number(existingCommit?.committed_count ?? -1),
+          authoritativeRowCount: authoritativeRows.length,
+          parserVersion: '2026-09-30-arabic-sales-layout-v2',
+        });
+      }
+    }
+
     const reconciled = reconcileForCanonical(
       entityType,
       String(companyId),
@@ -182,6 +206,7 @@ export async function handleCanonicalImport(request: Request): Promise<Response>
       detected_format: detection.format,
       server_verified_at: new Date().toISOString(),
       server_verified_by: userData.user.id,
+      parser_version: '2026-09-30-arabic-sales-layout-v2',
     };
 
     const { error: fileUpdateError } = await serviceClient
@@ -226,6 +251,7 @@ export async function handleCanonicalImport(request: Request): Promise<Response>
           rows: reconciled.rows,
           qualityScore: authoritativeQualityScore,
           qualityApproved: resumeReportExecutionJobId ? true : payload.qualityApproved === true,
+          repairExistingSource,
         },
         {
           serverExecution: true,
