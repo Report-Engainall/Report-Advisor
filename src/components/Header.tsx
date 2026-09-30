@@ -49,7 +49,8 @@ export function Header({
         setShowAlerts(false);
         return;
       }
-      if (event.key !== 'Tab') return;
+      const isTab = event.key === 'Tab';
+      if (!isTab) return;
       const root = alertPanelRef.current;
       if (!root) return;
       const focusable = Array.from(root.querySelectorAll<HTMLElement>(
