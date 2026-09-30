@@ -216,57 +216,135 @@ async function waitForRenderedSmartReport(page, companyId, sourceHash) {
   const deadline = Date.now() + 120000;
   let lastRows = [];
   while (Date.now() < deadline) {
-    const rows = await restSelect(page, 'report_execution_jobs', { company_id: companyId, source_hash: sourceHash },
-      'id,status,source_path,source_hash,job_key,checkpoint,evidence,completed_at', { order: 'completed_at.desc', limit: 20 });
+    const rows = await restSelect(
+      page,
+      'report_execution_jobs',
+      { company_id: companyId, source_hash: sourceHash },
+      'id,status,source_path,source_hash,job_key,checkpoint,evidence,completed_at',
+      { order: 'completed_at.desc', limit: 20 },
+    );
     lastRows = rows;
-    const candidate = rows.find(row => row?.status === 'completed' &&
-      String(row?.job_key ?? '').startsWith('canonical-import:generic:') && row?.evidence?.renderedOutput);
+    const candidate = rows.find(row =>
+      row?.status === 'completed' &&
+      String(row?.job_key ?? '').startsWith('canonical-import:generic:') &&
+      row?.evidence?.renderedOutput
+    );
     if (candidate) return candidate;
-    const terminal = rows.find(row => ['failed', 'cancelled'].includes(String(row?.status ?? '')));
-    if (terminal) throw new Error(\`SMART_REPORT_TERMINAL_FAILURE:\${terminal.id}:\${terminal.status}\`);
+    const terminal = rows.find(row =>
+      ['failed', 'cancelled'].includes(String(row?.status ?? ''))
+    );
+    if (terminal) {
+      throw new Error(
+        'SMART_REPORT_TERMINAL_FAILURE:' + String(terminal.id) + ':' + String(terminal.status)
+      );
+    }
     await page.waitForTimeout(2000);
   }
-  throw new Error(\`SMART_REPORT_RENDER_TIMEOUT:sourceHash=\${sourceHash}:jobs=\${JSON.stringify(lastRows)}\`);
+  throw new Error(
+    'SMART_REPORT_RENDER_TIMEOUT:sourceHash=' + sourceHash + ':jobs=' + JSON.stringify(lastRows)
+  );
 }
 
 async function proveSmartReportAndEvidence(page, companyId, importResult, label) {
   const sourceHash = String(importResult.canonical?.source_hash ?? '');
-  if (!sourceHash) throw new Error(\`SMART_REPORT_SOURCE_HASH_MISSING:\${label}\`);
+  if (!sourceHash) {
+    throw new Error('SMART_REPORT_SOURCE_HASH_MISSING:' + label);
+  }
+
   const reportJob = await waitForRenderedSmartReport(page, companyId, sourceHash);
   const rendered = reportJob?.evidence?.renderedOutput ?? {};
-  if (String(rendered.evidenceStatus ?? '') === 'VERIFIED') throw new Error(\`SMART_REPORT_EVIDENCE_PROMOTED_UNEXPECTEDLY:\${label}\`);
-  if (!['AWAITING_EVIDENCE_SNAPSHOT', 'PENDING_EVIDENCE'].includes(String(rendered.evidenceStatus ?? ''))) {
-    throw new Error(\`SMART_REPORT_EVIDENCE_STATE_UNEXPECTED:\${label}:\${String(rendered.evidenceStatus)}\`);
-  }
-  const tasks = await restSelect(page, 'report_execution_tasks', { company_id: companyId, report_execution_job_id: reportJob.id },
-    'ordinal,stage,status,attempt', { order: 'ordinal.asc', limit: 20 });
-  if (tasks.length < 9 || tasks.some(task => task.status !== 'completed')) {
-    throw new Error(\`SMART_REPORT_STAGES_NOT_COMPLETE:\${label}:\${JSON.stringify(tasks)}\`);
+
+  if (String(rendered.evidenceStatus ?? '') === 'VERIFIED') {
+    throw new Error('SMART_REPORT_EVIDENCE_PROMOTED_UNEXPECTEDLY:' + label);
   }
 
-  await page.goto(\`\${baseURL}/reports/smart/\${reportJob.id}\`, { waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  if (!['AWAITING_EVIDENCE_SNAPSHOT', 'PENDING_EVIDENCE'].includes(String(rendered.evidenceStatus ?? ''))) {
+    throw new Error(
+      'SMART_REPORT_EVIDENCE_STATE_UNEXPECTED:' + label + ':' + String(rendered.evidenceStatus)
+    );
+  }
+
+  const tasks = await restSelect(
+    page,
+    'report_execution_tasks',
+    { company_id: companyId, report_execution_job_id: reportJob.id },
+    'ordinal,stage,status,attempt',
+    { order: 'ordinal.asc', limit: 20 },
+  );
+
+  if (tasks.length < 9 || tasks.some(task => task.status !== 'completed')) {
+    throw new Error(
+      'SMART_REPORT_STAGES_NOT_COMPLETE:' + label + ':' + JSON.stringify(tasks)
+    );
+  }
+
+  await page.goto(baseURL + '/reports/smart/' + reportJob.id, {
+    waitUntil: 'networkidle',
+    timeout: 30000,
+  });
+  await page.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({
+    state: 'visible',
+    timeout: 30000,
+  });
+
   const beforeRefreshText = (await page.locator('body').innerText()).trim();
-  assert.ok(beforeRefreshText.includes(sourceHash.slice(0, 24)), 'Smart Report must display the persisted source fingerprint');
-  assert.ok(beforeRefreshText.includes('موثوق') || beforeRefreshText.includes('Trusted Source'), 'Smart Report must expose source trust');
-  assert.ok(beforeRefreshText.includes('بانتظار الدليل') || beforeRefreshText.includes('Pending Evidence'), 'Smart Report must expose pending evidence state');
-  await page.screenshot({ path: \`\${reportDir}/smart-report-\${label}-before-refresh.png\`, fullPage: true });
+  assert.ok(
+    beforeRefreshText.includes(sourceHash.slice(0, 24)),
+    'Smart Report must display the persisted source fingerprint'
+  );
+  assert.ok(
+    beforeRefreshText.includes('موثوق') || beforeRefreshText.includes('Trusted Source'),
+    'Smart Report must expose source trust'
+  );
+  assert.ok(
+    beforeRefreshText.includes('بانتظار الدليل') || beforeRefreshText.includes('Pending Evidence'),
+    'Smart Report must expose pending evidence state'
+  );
+
+  await page.screenshot({
+    path: reportDir + '/smart-report-' + label + '-before-refresh.png',
+    fullPage: true,
+  });
 
   await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
-  const afterRefreshText = (await page.locator('body').innerText()).trim();
-  assert.ok(afterRefreshText.includes(sourceHash.slice(0, 24)), 'Smart Report fingerprint must survive browser refresh');
-  assert.ok(afterRefreshText.includes('EVIDENCE'), 'Smart Report evidence surface must survive browser refresh');
-  await page.screenshot({ path: \`\${reportDir}/smart-report-\${label}-after-refresh.png\`, fullPage: true });
+  await page.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({
+    state: 'visible',
+    timeout: 30000,
+  });
 
-  const readback = await restSelect(page, 'report_execution_jobs', { company_id: companyId, id: reportJob.id },
-    'id,status,source_hash,checkpoint,evidence,completed_at', { limit: 1 });
+  const afterRefreshText = (await page.locator('body').innerText()).trim();
+  assert.ok(
+    afterRefreshText.includes(sourceHash.slice(0, 24)),
+    'Smart Report fingerprint must survive browser refresh'
+  );
+  assert.ok(
+    afterRefreshText.includes('EVIDENCE'),
+    'Smart Report evidence surface must survive browser refresh'
+  );
+
+  await page.screenshot({
+    path: reportDir + '/smart-report-' + label + '-after-refresh.png',
+    fullPage: true,
+  });
+
+  const readback = await restSelect(
+    page,
+    'report_execution_jobs',
+    { company_id: companyId, id: reportJob.id },
+    'id,status,source_hash,checkpoint,evidence,completed_at',
+    { limit: 1 },
+  );
+
   assert.equal(readback.length, 1, 'Rendered smart report must be persisted and tenant-scoped');
   assert.equal(readback[0].status, 'completed');
   assert.equal(readback[0].source_hash, sourceHash);
-  assert.ok(readback[0].evidence?.renderedOutput, 'Rendered smart report readback must contain renderedOutput');
+  assert.ok(
+    readback[0].evidence?.renderedOutput,
+    'Rendered smart report readback must contain renderedOutput'
+  );
+
   evidence.steps.push({
-    step: \`smart-report-evidence-trust-refresh-readback:\${label}\`,
+    step: 'smart-report-evidence-trust-refresh-readback:' + label,
     status: 'PASS',
     reportJobId: reportJob.id,
     sourceHash,
@@ -274,6 +352,7 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     trustState: readback[0].evidence?.renderedOutput?.trustState ?? null,
     stageCount: tasks.length,
   });
+
   return reportJob;
 }
 
