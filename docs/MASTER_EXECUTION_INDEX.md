@@ -1,3 +1,10 @@
+# FINAL CURRENT CODE CANDIDATE — 2026-09-30
+
+- CURRENT CODE/TEST CANDIDATE → `5d8f4e3e308db77c54fdb8718bcb7e43a5faa6a2`.
+- EXACT-SHA RESULT → Quality PASS; Typecheck PASS; Lint PASS; Build PASS; row-coverage contract PASS; Final Execution Batch PASS.
+- UI contract fix → duplicate-source protection explicitly states `لن يتم حفظ نسخة تحليل مكررة`.
+- CERTIFICATION RULE → subsequent governance-only commits may differ from this candidate only through the canonical governance allowlist.
+
 # CURRENT EXACT-HEAD CERTIFICATION BOUNDARY — 2026-09-30
 
 - EXACT MAIN HEAD BEFORE THIS ATOMIC CONTROL-PLANE WRITEBACK → `3c6dd2d583b23be990bb9beb22eee9139b00f9c1`.
@@ -132,7 +139,7 @@
 
 # CERTIFIED FUNCTIONAL CANDIDATE — 2026-09-30
 
-- CURRENT CODE/TEST CANDIDATE: `3c6dd2d583b23be990bb9beb22eee9139b00f9c1`.
+- CURRENT CODE/TEST CANDIDATE: `5d8f4e3e308db77c54fdb8718bcb7e43a5faa6a2`.
 - CERTIFICATION READBACK → code candidate `3c6dd2d...` has exact-SHA Quality + Final Execution Batch PASS; subsequent HEAD differences are control-plane persistence only.
 - REPORT SMART READBACK → 35 qualifying completed generic canonical report jobs; renderedOutput 35; missing 0; correctly source-bound 35.
 - SMART REPORT SURFACE → `/reports` lists persisted source-bound report jobs; `/reports/smart/:jobId` renders the source, fingerprint, truth/evidence/signal/intelligence states, decision/action/outcome/learning/benchmark/replay state, actual analysis preview and provenance.
