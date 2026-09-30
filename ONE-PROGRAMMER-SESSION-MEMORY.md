@@ -1,3 +1,19 @@
+# FINAL LIVE WRITE-BACK — 2026-09-30 / CURRENT CODE CANDIDATE 1a069b
+
+- EXACT CODE/TEST CANDIDATE → `1a069bab2e5f7012e8deb08013914189b8d60f5e`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- EXACT-SHA CI → Quality PASS: Typecheck, Lint, Build, performance, production-scale and intelligence/production contracts all PASS; Final Execution Batch PASS with 29 deterministic gates.
+- CERTIFICATION ROOT → recovery migrations satisfy the SECURITY DEFINER surface contract with explicit service_role-only execution; execution-boundary contract is green for compatibility-only in-memory surfaces.
+- REPORT TRUTH → sourceTrust=TRUSTED; reportVerification=PENDING_EVIDENCE; evidence=AWAITING_EVIDENCE_SNAPSHOT. Canonical commit proof is separate.
+- CURRENT REPORT → 735/735 source-authoritative canonical rows, 735 commit rows, 735×7 analysis, quality 87, 9/9 durable stages rendered.
+- 399/397 CONTRACT → source/analysis 399, authoritative canonical 397, canonical gap 2, GAP_DETECTED; explicit and immutable.
+- CORPUS → 39 discovered/registered/completed/analyzed/rendered; evidence verified 0; gap-detected 1; pending evidence 38.
+- EVIDENCE INSPECTOR → implemented on Smart Report/source-bound surfaces.
+- BROWSER → no authenticated current-SHA browser proof; available Full Product Browser E2E only proves exact checkout.
+- HOSTING → Vercel is still external rate-limited/pending; GitHub exact-SHA build is proven.
+- ACTION STATUS → IN_PROGRESS.
+- NEXT EXACT ACTION → certify final governance-only HEAD, read back persistence at exact SHA, then report remaining browser blocker.
+
 # FINAL LIVE WRITE-BACK — 2026-09-30 / EXACT P0 PROOF COMPLETE
 
 - EXACT CODE/TEST CANDIDATE → `5d8f4e3e308db77c54fdb8718bcb7e43a5faa6a2`.

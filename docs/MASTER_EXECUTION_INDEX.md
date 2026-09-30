@@ -1,3 +1,16 @@
+# FINAL CURRENT CODE CANDIDATE — 2026-09-30 / SECURITY RECOVERY PROOF
+
+- CURRENT CODE/TEST CANDIDATE → `1a069bab2e5f7012e8deb08013914189b8d60f5e`.
+- EXACT-SHA QUALITY → Typecheck PASS; Lint PASS; Build PASS; Security Definer surface PASS; Row coverage PASS; all release/production contracts PASS.
+- EXACT-SHA FINAL EXECUTION BATCH → release build + 29 deterministic gates PASS.
+- CERTIFICATION ROOT → current candidate passes the execution-boundary contract once indexed; subsequent differences must be governance-only.
+- RECOVERY SECURITY → both completed-report recovery migrations now use an explicit combined `REVOKE ALL ... FROM public, anon, authenticated` plus `GRANT EXECUTE ... TO service_role` boundary, satisfying the security-definer contract without expanding access.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`: 735 source / 735 authoritative canonical / 735 commit / 735×7 analysis / quality 87; source trust TRUSTED; report verification PENDING_EVIDENCE; evidence AWAITING_EVIDENCE_SNAPSHOT.
+- 399/397 → source 399 / canonical 397 / gap 2 / GAP_DETECTED, no silent mutation.
+- OPERATIONAL CORPUS → 39 discovered / 39 completed / 39 analyzed / 39 rendered; evidence verified 0; gap-detected 1; pending evidence 38.
+- BROWSER → authenticated Edge proof remains NOT PROVEN; GitHub browser job verifies checkout only.
+- NEXT EXACT ACTION → certify the final governance-only HEAD and read back Memory/Index/Domain Master from that exact SHA.
+
 # FINAL CURRENT CODE CANDIDATE — 2026-09-30
 
 - CURRENT CODE/TEST CANDIDATE → `5d8f4e3e308db77c54fdb8718bcb7e43a5faa6a2`.
@@ -139,7 +152,7 @@
 
 # CERTIFIED FUNCTIONAL CANDIDATE — 2026-09-30
 
-- CURRENT CODE/TEST CANDIDATE: `5d8f4e3e308db77c54fdb8718bcb7e43a5faa6a2`.
+- CURRENT CODE/TEST CANDIDATE: `1a069bab2e5f7012e8deb08013914189b8d60f5e`.
 - CERTIFICATION READBACK → code candidate `3c6dd2d...` has exact-SHA Quality + Final Execution Batch PASS; subsequent HEAD differences are control-plane persistence only.
 - REPORT SMART READBACK → 35 qualifying completed generic canonical report jobs; renderedOutput 35; missing 0; correctly source-bound 35.
 - SMART REPORT SURFACE → `/reports` lists persisted source-bound report jobs; `/reports/smart/:jobId` renders the source, fingerprint, truth/evidence/signal/intelligence states, decision/action/outcome/learning/benchmark/replay state, actual analysis preview and provenance.
