@@ -222,6 +222,7 @@ export async function createApprovedDecisionWorkItemForCurrentUser(input: {
   signalMessage: string | null;
   signalSeverity: string | null;
   department: string;
+  dueAt?: string | null;
 }): Promise<string> {
   const user = await getAuthenticatedUser();
   if (!user?.id) throw new Error('AUTHENTICATED_USER_REQUIRED');
@@ -245,7 +246,7 @@ export async function createApprovedDecisionWorkItemForCurrentUser(input: {
     p_title: input.signalTitle,
     p_description: 'عنصر عمل ناشئ من قرار مصدرّي موافق عليه. ارجع إلى التقرير والبصمة الأصلية قبل التنفيذ.',
     p_priority: workItemPriority(input.signalSeverity),
-    p_due_at: null,
+    p_due_at: input.dueAt ?? null,
     p_expected_impact: null,
     p_evidence_refs: evidenceRefs,
   });
