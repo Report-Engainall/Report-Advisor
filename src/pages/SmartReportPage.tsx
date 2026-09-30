@@ -257,6 +257,10 @@ function SourceDataWorkspace({ report }: { report: SmartReportDetail }) {
     }
   }, [storageKey, discoveredColumns]);
 
+  useEffect(() => {
+    setSelectedRowNumber(null);
+  }, [search, sortColumn, sortDirection, pageSize]);
+
   const filteredRows = useMemo(() => {
     const needle = search.trim().toLowerCase();
     if (!needle) return rows;
