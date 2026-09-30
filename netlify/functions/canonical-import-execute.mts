@@ -260,7 +260,7 @@ export async function handleCanonicalImport(request: Request): Promise<Response>
             rowCount: authoritativeRows.length,
             columnCount: Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns.length : 0,
             columns: authoritativeDataset.columns,
-            preview: authoritativeDataset.preview.slice(0, 25),
+            preview: Array.isArray(authoritativeDataset.preview) ? authoritativeDataset.preview.slice(0, 25) : [],
           }],
           canonical_text: [
             `source=${fileRecord.file_name || fileName || 'import'}`,
@@ -281,10 +281,47 @@ export async function handleCanonicalImport(request: Request): Promise<Response>
         })
         .select('id')
         .single();
-      if (!snapshotError) snapshotId = snapshot?.id ?? null;
-    } catch (snapshotError) {
-      console.error('[canonical-import-execute] non-fatal snapshot persistence failure', snapshotError);
-    }
+      if (snapshotError || !snapshot?.id) {
+        throw new Error('AUTHORITATIVE_SOURCE_ANALYSIS_PERSIST_FAILED:' + (snapshotError?.message ?? 'EMPTY_SNAPSHOT_ID'));
+      }
+      snapshotId = snapshot.id;
+
+      const { data: completedReport, error: completedReportError } = await serviceClient
+        .from('report_execution_jobs')
+        .select('evidence')
+        .eq('id', execution.jobId)
+        .eq('company_id', companyId)
+        .maybeSingle();
+      if (completedReportError || !completedReport) {
+        throw new Error('REPORT_EXECUTION_EVIDENCE_READBACK_FAILED');
+      }
+
+      const evidence = completedReport.evidence && typeof completedReport.evidence === 'object'
+        ? completedReport.evidence as Record<string, unknown>
+        : {};
+      const rendered = evidence.renderedOutput && typeof evidence.renderedOutput === 'object'
+        ? evidence.renderedOutput as Record<string, unknown>
+        : {};
+      const linkedEvidence = {
+        ...evidence,
+        sourceSnapshotId: snapshotId,
+        evidenceStatus: 'VERIFIED',
+        renderedOutput: {
+          ...rendered,
+          sourceSnapshotId: snapshotId,
+          evidenceStatus: 'VERIFIED',
+          sourceAnalysisSnapshotId: snapshotId,
+        },
+      };
+
+      const { error: evidenceUpdateError } = await serviceClient
+        .from('report_execution_jobs')
+        .update({ evidence: linkedEvidence })
+        .eq('id', execution.jobId)
+        .eq('company_id', companyId);
+      if (evidenceUpdateError) {
+        throw new Error('REPORT_EXECUTION_EVIDENCE_LINK_FAILED:' + evidenceUpdateError.message);
+      }
 
     return json(200, {
       ...execution,
