@@ -318,18 +318,27 @@ export function CanonicalImportPage() {
       const previewRows = Array.isArray(execution.authoritativePreview) ? execution.authoritativePreview : validRows.slice(0, 25).map((row) => row.data);
       const authoritativeColumns = Array.isArray(execution.authoritativeColumns) ? execution.authoritativeColumns : mappings;
       const snapshotId = typeof execution.snapshotId === 'string' ? execution.snapshotId : null;
-      await finishImportJob(rec.id, 'completed', {
-        total: authoritativeRowCount,
-        valid: authoritativeRowCount,
-        invalid: 0,
-        invalidRows: 0,
-        committed: authoritativeRowCount,
-        importId: rec.id,
-        jobId: execution.jobId,
-        file_name: file.name,
-        semantic_understanding_confidence: understandingConfidence,
-        snapshot_id: snapshotId,
-      });
+      const { data: persistedImportJob, error: persistedImportJobError } = await supabase
+        .from('import_jobs')
+        .select('status')
+        .eq('id', rec.id)
+        .eq('company_id', companyId)
+        .maybeSingle();
+      if (persistedImportJobError) throw persistedImportJobError;
+      if (persistedImportJob?.status !== 'completed') {
+        await finishImportJob(rec.id, 'completed', {
+          total: authoritativeRowCount,
+          valid: authoritativeRowCount,
+          invalid: 0,
+          invalidRows: 0,
+          committed: authoritativeRowCount,
+          importId: rec.id,
+          jobId: execution.jobId,
+          file_name: file.name,
+          semantic_understanding_confidence: understandingConfidence,
+          snapshot_id: snapshotId,
+        });
+      }
 
       if (typeof window !== 'undefined') {
         window.sessionStorage.setItem('aghbari:last-import-job', rec.id);
