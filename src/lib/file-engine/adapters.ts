@@ -4,6 +4,7 @@ import { normalizeRows, normalizeColumnName, normalizeArabicDigits, parseNumber 
 import { detectColumnDataType, cleanValue } from './data-types';
 import { mapColumns } from './synonyms';
 import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection';
+import { extractPdfTable, type PdfPageText } from './pdf-table';
 
 type Row = Record<string, unknown>;
 
@@ -280,9 +281,49 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
     data: new Uint8Array(buffer),
     useSystemFonts: true,
   }).promise;
-  const pages: string[] = [];
-  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
-  if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
+
+  const pages: PdfPageText[] = [];
+  const pageText: string[] = [];
+
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+    const page = await pdf.getPage(pageNumber);
+    const content = await page.getTextContent();
+    const items = content.items
+      .filter((item): item is typeof item & { str: string } => 'str' in item && typeof item.str === 'string' && item.str.trim().length > 0)
+      .map((item) => {
+        const transform = Array.isArray((item as { transform?: unknown }).transform)
+          ? (item as { transform: number[] }).transform
+          : [];
+        return {
+          text: item.str,
+          x: Number.isFinite(transform[4]) ? transform[4] : 0,
+          y: Number.isFinite(transform[5]) ? transform[5] : 0,
+          width: Number.isFinite((item as { width?: number }).width) ? Number((item as { width?: number }).width) : Math.max(4, item.str.length * 4),
+          height: Number.isFinite((item as { height?: number }).height) ? Number((item as { height?: number }).height) : 10,
+        };
+      });
+    pages.push({ pageNumber, items });
+    const text = items.map((item) => item.text).join(' ').trim();
+    if (text) pageText.push(`PAGE ${pageNumber}\n${text}`);
+  }
+
+  const table = extractPdfTable(pages);
+  if (table) {
+    const dataset = await buildDataset(table.rows, fileName, 'pdf');
+    for (const column of dataset.columns) {
+      column.qualityIssues.push(`PDF_TABLE_RECONSTRUCTED:${table.confidence}%`);
+    }
+    dataset.qualityScore = Math.max(dataset.qualityScore, Math.min(95, table.confidence));
+    return [dataset];
+  }
+
+  if (pageText.length) {
+    const datasets = await buildTextDataset(pageText.join('\n\n'), fileName, 'pdf', 'PDF_TABLE_STRUCTURE_NOT_CONFIRMED: النص محفوظ لكن البنية الجدولية لم تُثبت');
+    for (const dataset of datasets) {
+      dataset.qualityScore = Math.min(dataset.qualityScore, 49);
+    }
+    return datasets;
+  }
   return parseScannedPdfWithOcr(pdf, fileName);
 }
 
