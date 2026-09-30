@@ -1,3 +1,14 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / CANONICAL COMMIT BOUNDARY ESM FIX / 10a52f83b4ae128389ff3224e4d0db6e025a4341
+
+- EXACT MAIN HEAD → `10a52f83b4ae128389ff3224e4d0db6e025a4341`.
+- CURRENT CODE/TEST CANDIDATE → `10a52f83b4ae128389ff3224e4d0db6e025a4341`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- ROOT FIX → `canonical-commit.ts` now resolves `canonical-truth-boundary.ts` explicitly for the Node ESM/strip-types runtime chain.
+- PREVIOUS QUALITY FAILURE → `ERR_MODULE_NOT_FOUND` for `canonical-truth-boundary` imported by `canonical-commit.ts`.
+- REPORT RESULT REMAINS → 735/735 completed; durable rendered; source-bound outputs persisted; no re-import.
+- ACTION STATUS → `IN_PROGRESS` while current-SHA quality/certification terminalize.
+- NEXT EXACT ACTION → consume current-SHA quality and Final Certification first failure only.
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / CANONICAL ESM CHAIN REPAIRED / e84b9b716b5e63aedc7e9a9a8f9025bd6241789e
 
 - EXACT MAIN HEAD → `e84b9b716b5e63aedc7e9a9a8f9025bd6241789e`.
