@@ -312,3 +312,14 @@ Exact current HEAD: `006e27a275d3c68cbe3290e637955ff82cd2dfd4`.
 Release remains OPEN: Vercel reports `build-rate-limit` failure and Netlify production remains on `21f6562dbca1016842f037299ffd8815b59fe1aa`. No unobserved CI result is treated as PASS.
 
 NEXT EXACT ACTION: execute the latest HEAD against the authoritative report source and collect actual browser/runtime evidence before any release-closed claim.
+
+
+## LIVE CHECKPOINT — 2026-09-30 / CONTEXT PERSISTENCE / HEAD 91865c5
+
+Active report context now persists the Job ID and source hash in both session and local storage, while source-bound URLs remain authoritative. This closes a navigation/reload loss mode without changing canonical source identity.
+
+Exact current main HEAD: `91865c58d7ebcc3689271d55a7e839c8b62956b2`.
+
+Release remains OPEN until latest code is executed and observed on a live/runtime path; Vercel remains rate-limited and Netlify production remains on an older commit.
+
+NEXT EXACT ACTION: runtime execution + source-bound browser proof of the latest HEAD, followed by exact row/hash readback.
