@@ -1,3 +1,14 @@
+# LATEST SESSION WRITE-BACK — 2026-09-30 / WORK CENTER ZERO-PROGRESS ROOT FIX / 2352764795d4c95359d932bd3923dac18430f643
+
+- EXACT MAIN HEAD → `2352764795d4c95359d932bd3923dac18430f643`.
+- CURRENT CODE/TEST CANDIDATE → `2352764795d4c95359d932bd3923dac18430f643`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- ROOT FIX → Work Center active zero-progress rows now visibly expose `بدون تقدم` while retaining the semantic progressbar and derived zero-progress filter/action.
+- PREVIOUS FAILURE → Final Certification product-wow contract rejected the Work Center because zero-progress active rows did not explicitly distinguish themselves from ordinary active rows.
+- REPORT RESULT REMAINS → 735/735 completed; durable execution completed/rendered; 735 canonical lineage; persisted source-bound smart outputs.
+- ACTION STATUS → `IN_PROGRESS` while current-SHA certification/quality terminalize.
+- NEXT EXACT ACTION → consume current-SHA CI and repair only the first newly reproduced failure.
+
 # LATEST SESSION WRITE-BACK — 2026-09-30 / SHARED TABLE CONTRACT ROOT FIX / 3d693fef12f990f8f8e083ac95cb886f70dfa0f6
 
 - EXACT MAIN HEAD → `3d693fef12f990f8f8e083ac95cb886f70dfa0f6`.
