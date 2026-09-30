@@ -37,6 +37,8 @@ on:
       - 'scripts/source-decision-work-item-contract.test.mjs'
       - 'scripts/source-work-execution-lifecycle-contract.test.mjs'
       - 'scripts/work-center-decision-queue-contract.test.mjs'
+      - 'scripts/business-replay-contract.test.mjs'
+      - 'scripts/benchmark-fail-closed-contract.test.mjs'
       - 'scripts/resume-open-report-server-proof.mjs'
       - 'src/pages/MetricInspectorPage.tsx'
       - 'src/lib/queries.ts'
@@ -145,6 +147,8 @@ jobs:
           npm run test:source-decision-work-item
           npm run test:source-work-execution-lifecycle
           npm run test:work-center-decision-queue
+          npm run test:business-replay
+          npm run test:benchmark-fail-closed
       - name: Start exact Netlify preview with serverless API
         env:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
