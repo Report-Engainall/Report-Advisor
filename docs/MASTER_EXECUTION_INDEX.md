@@ -1,3 +1,11 @@
+# CURRENT FUNCTIONAL TEST CANDIDATE — 2026-09-30
+
+- CURRENT CODE/TEST CANDIDATE: `1e52eac013206156c80b7481649ff1ffb25b780e`.
+- CHANGE → UI sidebar-parity contract now treats `/reports/smart/:jobId` as internal progressive disclosure, matching route completeness.
+- REPORT SMART SURFACE → source-bound smart report catalog/detail remains active; no report data re-imported.
+- STAGING COVERAGE → qualifying completed canonical report jobs = 35; rendered outputs = 35; missing = 0; sourceHash/sourceBound mismatches = 0.
+- NEXT EXACT ACTION → consume exact-SHA certification/quality results; fix only the next reproduced functional contract failure.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-30 / REAL REPORT SMART-OUTPUT SURFACE / FUNCTIONAL CANDIDATE 7a5da321326e4a2d9965cea786f28c4e5e679bb7
 
 - EXACT MAIN HEAD → `7a5da321326e4a2d9965cea786f28c4e5e679bb7`.
