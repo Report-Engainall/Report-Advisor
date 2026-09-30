@@ -6,6 +6,7 @@ import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { saveActiveReportContext } from '@/lib/report-context';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { formatNumber } from '@/lib/format';
+import { downloadReportArtifact } from '@/lib/report-execution/download';
 
 function textValue(value: unknown): string {
   if (value == null || value === '') return 'غير متاح';
@@ -330,6 +331,19 @@ function SourceDataWorkspace({ report }: { report: SmartReportDetail }) {
     URL.revokeObjectURL(url);
   };
 
+  const exportXlsx = () => {
+    downloadReportArtifact(
+      report.sourceHash,
+      report.sourcePath,
+      visibleColumns,
+      orderedRows.map((row) => visibleColumns.reduce<Record<string, unknown>>((result, column) => {
+        result[column] = row[column] ?? '';
+        return result;
+      }, {})),
+      'xlsx',
+    );
+  };
+
   return (
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
@@ -342,6 +356,7 @@ function SourceDataWorkspace({ report }: { report: SmartReportDetail }) {
           <button type="button" onClick={persistView} className="btn-primary inline-flex items-center gap-2 text-[10px]">حفظ العرض <CheckCircle2 size={14}/></button>
           <button type="button" onClick={resetView} className="btn-secondary inline-flex items-center gap-2 text-[10px]">إعادة الضبط <RotateCcw size={14}/></button>
           <button type="button" onClick={exportRows} className="btn-secondary inline-flex items-center gap-2 text-[10px]">تصدير CSV <Download size={14}/></button>
+          <button type="button" onClick={exportXlsx} className="btn-secondary inline-flex items-center gap-2 text-[10px]">تصدير XLSX <Download size={14}/></button>
         </div>
       </div>
 
