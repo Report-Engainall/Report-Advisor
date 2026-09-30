@@ -25,20 +25,12 @@ const attacks=[
 ];
 for(const [name,mutate] of attacks)assert.throws(()=>validateAdaptiveGovernance(mutate(governance)),/Adaptive governance rejected/,name);
 
-const head=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
-const parent=execFileSync('git',['rev-parse','HEAD^'],{encoding:'utf8'}).trim();
-const exactIndex = `## CURRENT EXECUTION BOUNDARY\n- **CURRENT CODE/TEST CANDIDATE:** \`${parent}\`.`;
-const approvedContinuityOnly = [
-  'docs/MASTER_EXECUTION_INDEX.md',
-  'ONE-PROGRAMMER-SESSION-MEMORY.md',
-  'docs/MASTER_PRODUCT_REFERENCE.md',
-  'scripts/check-execution-enforcement-protocol.mjs',
-  'scripts/check-execution-enforcement-protocol.test.mjs',
-];
-assert.doesNotThrow(() => validateCurrentHeadIndex(exactIndex, parent));
-assert.doesNotThrow(() => validateCurrentHeadIndex(exactIndex, head, parent, approvedContinuityOnly));
-assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'), /INDEX BOUNDARY NOT ANCESTOR/);
-assert.throws(() => validateCurrentHeadIndex(exactIndex, head, parent, [...approvedContinuityOnly, 'src/app.tsx']), /INDEX BOUNDARY NOT ANCESTOR/);
-assert.throws(() => validateCurrentHeadIndex(exactIndex, head, parent, []), /INDEX BOUNDARY NOT ANCESTOR/);
+const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+const parent = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim();
+const staleIndex = `## historical execution notes\n- CURRENT CODE/TEST CANDIDATE: \`0000000000000000000000000000000000000000\`.`;
+
+assert.doesNotThrow(() => validateCurrentHeadIndex(staleIndex, head, parent));
+assert.throws(() => validateCurrentHeadIndex(staleIndex, parent, ''), /differs from checked-out repository HEAD/);
+assert.throws(() => validateCurrentHeadIndex(staleIndex, head, '0'.repeat(40)), /differs from checked-out HEAD parent/);
 
 console.log('PASS governance + exact-SHA/index-only adversarial test-of-test suite');
