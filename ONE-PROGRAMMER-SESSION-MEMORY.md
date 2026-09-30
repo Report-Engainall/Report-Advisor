@@ -1,3 +1,14 @@
+# PRE-LONG-ACTION CHECKPOINT — 2026-09-30 / SOURCE-BOUND RESULT SURFACES
+
+- EXACT MAIN HEAD → `8d00d2a39bf743681e1033111e180c52d7906cd2`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- CURRENT TARGET → complete the source-bound result contract: when `reportJobId` exists, Executive / Trust-Evidence / Decision / Work Center must consume the persisted report result rather than silently rendering unrelated company-wide intelligence.
+- REPORT STATE → already completed/rendered 735/735 through all nine durable stages; no re-import.
+- PRODUCT RULE → no global recommendation/alert/worker state is presented as source-specific unless an explicit persisted relationship exists.
+- DO-NOT-REPEAT → no re-import, no canonical-row mutation, no fabricated decision/action/outcome/benchmark, no DB-to-browser PASS.
+- NEXT EXACT ACTION → patch only the four source-context result surfaces and add the minimum targeted contracts needed to enforce source binding; then persist execution-index/live-memory reconciliation.
+- ACTION STATUS → `IN_PROGRESS`.
+
 # FINAL LIVE RECONCILIATION — 2026-09-30
 
 - EXACT MAIN HEAD → `c29d61cc09021a15cf9df3c93031138e3b6da0a5`.
