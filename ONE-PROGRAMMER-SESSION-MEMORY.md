@@ -1,3 +1,20 @@
+# FINAL LIVE WRITE-BACK — 2026-09-30 / SOURCE-RECORD RECOVERY + SEMANTIC EVIDENCE FIX
+
+- EXACT MAIN HEAD → `49c9a83eb39982d6edcea340de2be312364c009f`.
+- CURRENT REPORT → `تسعيرة الاصناف حسب رقم الصنف.pdf`; import `54cf5fdd-4d94-4e1d-82f3-0d5bb7630340`; durable job `f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0`; source hash `sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300`.
+- REAL REPORT STATE → import completed 735/735; durable lifecycle completed/rendered with 9/9 tasks completed; canonical dataset 735; canonical import commit sum 735; source analysis 735×7, quality 87.
+- ROOT FIX 1 → `SourceBoundReportSurface` now consumes the actual report job for Executive/Trust/Decision/Work surfaces; route wrappers preserve `reportJobId + sourceHash`; source-context pages do not present unrelated company-wide intelligence as report truth.
+- ROOT FIX 2 → `fetchSmartReport` now preserves persisted evidence semantics; it no longer upgrades an evidence state to VERIFIED because canonical commit exists.
+- ROOT FIX 3 → governed recovery now reconciles the completed import to a verified company-scoped `file_records` row by exact source hash/security/file status and persists authoritative storage provenance. Repository migration: `supabase/migrations/20260930110000_reconcile_completed_report_source_record_binding.sql`.
+- LIVE READBACK AFTER RECOVERY → `file_record_id=071db872-2f17-4acf-8374-b1e2d9852985`; file hash exact source hash; security `passed`; file status `ready`; storage path `f68.../imports/5925f3a2-fbac-4678-9490-b892dca35d4d.pdf`; `source_record_pending_hash=false`; import status completed.
+- CANONICAL INTEGRITY → 735 canonical dataset rows and 735 canonical commit rows remain unchanged after recovery. No re-import and no canonical-row rewrite occurred.
+- BUSINESS OUTPUT TRUTH → current persisted report states remain TRUSTED / VERIFIED / NO_DECISION_COMMITTED / NO_ACTION_COMMITTED / NOT_AVAILABLE / INSUFFICIENT_SAMPLE. Decision/action/outcome/learning/replay/benchmark are not fabricated.
+- CORPUS TRUTH → exact GitHub `tests/fixtures/realistic-reports/` still contains only README; Staging file_records/report_execution_jobs are operational evidence, not Git fixture-corpus evidence.
+- PROOF BOUNDARY → source, recovery, canonical persistence and readback are proven on Staging. Exact current-SHA automated build/typecheck and authenticated Microsoft Edge/browser proof remain NOT PROVEN. Vercel remains externally build-rate-limited; TinyFish wallet is negative and cannot run browser automation.
+- ACTION STATUS → `IN_PROGRESS` only for exact-current-SHA certification/runtime/browser closure.
+- DO-NOT-REPEAT → no blind re-import, no direct canonical-row edit, no evidence-state promotion, no tenant bypass, no global-to-source inference, no stale PASS, no fake browser proof.
+- NEXT EXACT ACTION → consume exact-current-SHA CI/build evidence if exposed; otherwise continue independent canonical runtime/production-execution proof while preserving this completed report.
+
 # PRE-CANONICAL-RECOVERY CHECKPOINT — 2026-09-30 / SOURCE RECORD BINDING
 
 - EXACT MAIN HEAD BEFORE DB RECOVERY FIX → `b670f79ed15602983a980f8080810f527f7a296a`.
