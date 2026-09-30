@@ -11,4 +11,7 @@ assert.ok(surface.includes("decision.workItemStatus === 'OPEN'"));
 assert.ok(surface.includes("decision.workItemStatus === 'IN_PROGRESS'"));
 assert.ok(surface.includes("إغلاق التنفيذ"));
 assert.ok(surface.includes("report.sourceAnalysis.id"));
+assert.ok(surface.includes("outcomeStatus"));
+assert.ok(surface.includes("outcomeQuality"));
+assert.ok(bridge.includes("recommendation_outcomes"));
 console.log('SOURCE_WORK_EXECUTION_LIFECYCLE_CONTRACT_PASS');
