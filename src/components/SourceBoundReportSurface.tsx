@@ -116,7 +116,6 @@ function SourceHeader({ report }: { report: SmartReportDetail }) {
 function ExecutiveMode({ report }: { report: SmartReportDetail }) {
   const metrics = buildMetrics(report);
   const output = report.renderedOutput;
-  const lastStage = report.stages.length ? report.stages[report.stages.length - 1] : null;
   return (
     <>
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -225,6 +224,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
 }
 
 function WorkMode({ report }: { report: SmartReportDetail }) {
+  const lastStage = report.stages.length ? report.stages[report.stages.length - 1] : null;
   return (
     <>
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
