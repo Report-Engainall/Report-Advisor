@@ -27,11 +27,6 @@ function stateLabel(value: string | null): string {
   return labels[value] ?? value;
 }
 
-function sourcePath(path: string, jobId: string, sourceHash: string): string {
-  const params = new URLSearchParams({ reportJobId: jobId, sourceHash });
-  return path + '?' + params.toString();
-}
-
 export function ReportSourceContext() {
   const [params] = useSearchParams();
   const jobId = params.get('reportJobId')?.trim() ?? '';
