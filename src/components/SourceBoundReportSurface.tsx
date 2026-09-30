@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, CheckCircle2, Clock3, FileSearch, ShieldCheck, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
-import { createApprovedDecisionWorkItemForCurrentUser, fetchSourceDecisionProposals, requestSourceDecisionApproval, type SourceDecisionState } from '@/lib/report-decisions';
+import { completeSourceDecisionWorkItem, createApprovedDecisionWorkItemForCurrentUser, fetchSourceDecisionProposals, requestSourceDecisionApproval, startSourceDecisionWorkItem, type SourceDecisionState } from '@/lib/report-decisions';
 
 export type SourceBoundReportMode = 'executive' | 'trust' | 'decision' | 'work';
 
