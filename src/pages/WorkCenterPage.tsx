@@ -8,10 +8,12 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { DataTable } from '@/components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchImportRecords, fetchWorkerHealthSnapshot, type WorkerHealthSnapshot } from '@/lib/queries';
+import { fetchDecisionWorkItems, type DecisionWorkItemRecord } from '@/lib/report-decisions';
 import type { ImportRecord } from '@/lib/types';
 import { formatNumber } from '@/lib/format';
 
 type FilterKey = 'all' | 'active' | 'review' | 'completed' | 'failed';
+type DecisionWorkFilter = 'all' | 'open' | 'in_progress' | 'completed';
 const statusLabel = (s: string | null) => ({ queued: 'بالانتظار', processing: 'قيد التنفيذ', completed: 'مكتمل', partial: 'مكتمل جزئيًا', failed: 'فشل', cancelled: 'ملغى' }[s ?? ''] ?? 'غير معروف');
 const statusClass = (s: string | null) => s === 'completed' ? 'bg-success-50 text-success-700' : s === 'failed' ? 'bg-danger-50 text-danger-700' : s === 'partial' ? 'bg-warning-50 text-warning-700' : s === 'processing' ? 'bg-primary-50 text-primary-700' : 'bg-ink-50 text-ink-600';
 function matches(row: ImportRecord, filter: FilterKey) {
@@ -24,8 +26,10 @@ function matches(row: ImportRecord, filter: FilterKey) {
 
 function WorkCenterGeneralPage() {
   const [rows, setRows] = useState<ImportRecord[]>([]);
+  const [decisionWorkItems, setDecisionWorkItems] = useState<DecisionWorkItemRecord[]>([]);
   const [workerHealth, setWorkerHealth] = useState<WorkerHealthSnapshot | null>(null);
   const [filter, setFilter] = useState<FilterKey>('all');
+  const [decisionWorkFilter, setDecisionWorkFilter] = useState<DecisionWorkFilter>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,9 +37,14 @@ function WorkCenterGeneralPage() {
     try {
       setLoading(true);
       setError(null);
-      const [imports, health] = await Promise.all([fetchImportRecords(), fetchWorkerHealthSnapshot()]);
+      const [imports, health, workItems] = await Promise.all([
+        fetchImportRecords(),
+        fetchWorkerHealthSnapshot(),
+        fetchDecisionWorkItems(200),
+      ]);
       setRows(imports);
       setWorkerHealth(health);
+      setDecisionWorkItems(workItems);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'فشل تحميل مركز العمليات');
     } finally {
@@ -46,6 +55,29 @@ function WorkCenterGeneralPage() {
   useEffect(() => { void load(); }, [load]);
 
   const filtered = useMemo(() => rows.filter(r => matches(r, filter)), [rows, filter]);
+  const filteredDecisionWork = useMemo(() => decisionWorkItems.filter((item) =>
+    decisionWorkFilter === 'all'
+      ? true
+      : decisionWorkFilter === 'open'
+        ? item.status === 'OPEN'
+        : decisionWorkFilter === 'in_progress'
+          ? item.status === 'IN_PROGRESS'
+          : item.status === 'COMPLETED'
+  ), [decisionWorkItems, decisionWorkFilter]);
+
+  const decisionWorkCounts = useMemo(() => ({
+    open: decisionWorkItems.filter(item => item.status === 'OPEN').length,
+    inProgress: decisionWorkItems.filter(item => item.status === 'IN_PROGRESS').length,
+    completed: decisionWorkItems.filter(item => item.status === 'COMPLETED').length,
+  }), [decisionWorkItems]);
+
+  const sourceContextFromWork = (item: DecisionWorkItemRecord) => {
+    const sourceRef = item.evidenceRefs.find((ref): ref is Record<string, unknown> => Boolean(ref) && typeof ref === 'object' && (ref as Record<string, unknown>).type === 'SOURCE_REPORT');
+    return sourceRef ?? null;
+  };
+
+  const workStatusLabel = (status: string) =>
+    status === 'OPEN' ? 'مفتوح' : status === 'IN_PROGRESS' ? 'قيد التنفيذ' : status === 'COMPLETED' ? 'مكتمل' : status;
   const queueEmptyState = rows.length === 0
     ? { title: 'لا توجد عمليات تشغيل مثبتة', message: 'لا توجد عمليات استيراد مسجلة لهذا المستأجر حتى الآن؛ ابدأ بالمصدر الموحد لبناء أول دورة تشغيل قابلة للتتبع.' }
     : { title: 'لا توجد عمليات مطابقة', message: 'غيّر عامل التصفية أو اعرض السجل الكامل للوصول إلى العمليات المسجلة.' };
@@ -176,6 +208,72 @@ function WorkCenterGeneralPage() {
           </div>
         </CardBody>
       </Card>
+    </section>
+
+    <section className="rounded-[18px] border border-primary-200 bg-primary-50/40 p-5 shadow-sm">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+        <div>
+          <div className="section-kicker">DECISION WORK</div>
+          <h2 className="mt-1 text-lg font-black text-ink-950">قرارات تحولت إلى عمل</h2>
+          <p className="mt-1 text-[11px] leading-5 text-ink-600">هذه المهام محفوظة في النظام الحاكم ومربوطة بمصدرها. مركز العمل يعرض الحالة؛ تفاصيل البدء والإغلاق والدليل تبقى مرتبطة بالتقرير.</p>
+        </div>
+        <div className="flex flex-wrap gap-2" role="toolbar" aria-label="تصفية عناصر القرار">
+          {(['all','open','in_progress','completed'] as DecisionWorkFilter[]).map((key) => (
+            <button key={key} type="button" onClick={() => setDecisionWorkFilter(key)} aria-pressed={decisionWorkFilter === key} className={'rounded-full px-3 py-1.5 text-[10px] font-bold ' + (decisionWorkFilter === key ? 'bg-ink-950 text-white' : 'bg-white text-ink-600 hover:bg-ink-50')}>
+              {key === 'all' ? 'الكل' : key === 'open' ? 'مفتوح' : key === 'in_progress' ? 'قيد التنفيذ' : 'مكتمل'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-xl border border-ink-100 bg-white p-3"><div className="text-[9px] text-ink-400">مفتوحة</div><div className="mt-1 text-xl font-black text-ink-950">{formatNumber(decisionWorkCounts.open)}</div></div>
+        <div className="rounded-xl border border-ink-100 bg-white p-3"><div className="text-[9px] text-ink-400">قيد التنفيذ</div><div className="mt-1 text-xl font-black text-primary-700">{formatNumber(decisionWorkCounts.inProgress)}</div></div>
+        <div className="rounded-xl border border-ink-100 bg-white p-3"><div className="text-[9px] text-ink-400">مكتملة</div><div className="mt-1 text-xl font-black text-success-700">{formatNumber(decisionWorkCounts.completed)}</div></div>
+      </div>
+
+      <div className="mt-4 overflow-x-auto rounded-xl border border-ink-200 bg-white">
+        {filteredDecisionWork.length ? (
+          <table className="min-w-full text-right text-[10px]">
+            <thead className="bg-ink-50"><tr>
+              <th className="whitespace-nowrap px-3 py-2 font-black text-ink-600">العمل</th>
+              <th className="whitespace-nowrap px-3 py-2 font-black text-ink-600">الحالة</th>
+              <th className="whitespace-nowrap px-3 py-2 font-black text-ink-600">المسؤول</th>
+              <th className="whitespace-nowrap px-3 py-2 font-black text-ink-600">الأولوية</th>
+              <th className="whitespace-nowrap px-3 py-2 font-black text-ink-600">المصدر</th>
+              <th className="whitespace-nowrap px-3 py-2 font-black text-ink-600">الإجراء</th>
+            </tr></thead>
+            <tbody>
+              {filteredDecisionWork.map((item) => {
+                const source = sourceContextFromWork(item);
+                const sourceHashValue = typeof source?.sourceHash === 'string' ? source.sourceHash : '';
+                const reportJobIdValue = typeof source?.reportExecutionJobId === 'string' ? source.reportExecutionJobId : '';
+                return (
+                  <tr key={item.id} className="border-t border-ink-100">
+                    <td className="max-w-[280px] px-3 py-3">
+                      <div className="font-black text-ink-900">{item.title}</div>
+                      <div className="mt-1 font-mono text-[8px] text-ink-400">{item.id}</div>
+                    </td>
+                    <td className="px-3 py-3"><span className="rounded-full bg-ink-50 px-2 py-1 font-bold text-ink-700">{workStatusLabel(item.status)}</span></td>
+                    <td className="px-3 py-3 text-ink-600">{item.assigneeLabel ?? 'غير متاح'}</td>
+                    <td className="px-3 py-3 text-ink-600">{item.priority}</td>
+                    <td className="px-3 py-3">
+                      {reportJobIdValue && sourceHashValue
+                        ? <span className="font-mono text-[8px] text-ink-400">{sourceHashValue.slice(0, 22)}…</span>
+                        : <span className="text-ink-400">غير مربوط</span>}
+                    </td>
+                    <td className="px-3 py-3">
+                      {reportJobIdValue && sourceHashValue
+                        ? <Link to={'/reports/smart/' + reportJobIdValue + '?sourceHash=' + encodeURIComponent(sourceHashValue)} className="btn-secondary text-[9px]">فتح التقرير</Link>
+                        : <span className="text-ink-400">غير متاح</span>}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        ) : <div className="p-6 text-center text-[10px] text-ink-500">لا توجد عناصر عمل مطابقة داخل نافذة مركز العمل الحالية.</div>}
+      </div>
     </section>
 
     <section className="ag-decision-strip" aria-label="ملخص التشغيل">
