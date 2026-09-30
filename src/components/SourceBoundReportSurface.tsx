@@ -161,7 +161,7 @@ function TrustMode({ report }: { report: SmartReportDetail }) {
         <StatusCell label="Truth" value={report.trustState}/>
         <StatusCell label="Evidence" value={report.evidenceStatus}/>
         <StatusCell label="Analysis" value={report.sourceAnalysis?.analysisStatus}/>
-        <StatusCell label="Canonical" value={report.renderedOutput.canonicalCommitVerified === true ? 'VERIFIED' : 'NOT_COMMITTED'}/>
+        <StatusCell label="Canonical" value={report.canonicalCommitVerified ? 'VERIFIED' : 'NOT_COMMITTED'}/>
       </section>
       <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
         <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
@@ -179,7 +179,7 @@ function TrustMode({ report }: { report: SmartReportDetail }) {
           <div className="text-[9px] font-black tracking-[.12em] text-primary-700">EVIDENCE BOUNDARY</div>
           <h2 className="mt-1 text-xl font-black">ما الذي ثبت وما الذي لم يثبت؟</h2>
           <div className="mt-4 space-y-2">
-            <div className={`rounded-xl border p-3 text-xs ${report.renderedOutput.canonicalCommitVerified === true ? 'border-success-200 bg-success-50' : 'border-warning-200 bg-warning-50 text-warning-900'}`}>{report.renderedOutput.canonicalCommitVerified === true ? 'المصدر محلل والاعتماد الكانوني مثبت.' : 'الاعتماد الكانوني غير مثبت لهذا المصدر؛ لا تُرفع الثقة بالاستنتاج.'}</div>
+            <div className={`rounded-xl border p-3 text-xs ${report.canonicalCommitVerified ? 'border-success-200 bg-success-50' : 'border-warning-200 bg-warning-50 text-warning-900'}`}>{report.canonicalCommitVerified ? `الاعتماد الكانوني مثبت: ${formatNumber(report.canonicalCommitCount)} سجل.` : 'الاعتماد الكانوني غير مثبت لهذا المصدر؛ لا تُرفع الثقة بالاستنتاج.'}</div>
             <div className="rounded-xl border border-warning-200 bg-warning-50 p-3 text-xs text-warning-900">وجود المصدر وحده لا يعني وجود قرار أو تنفيذ أو نتيجة لاحقة.</div>
             <div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">Benchmark: {stateLabel(report.renderedOutput.benchmarkStatus)} — لا يتم اختلاق مقارنة عند نقص العينة.</div>
           </div>
