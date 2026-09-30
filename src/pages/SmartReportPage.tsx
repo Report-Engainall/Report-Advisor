@@ -208,10 +208,13 @@ function statusTone(value: string | null): string {
 function SourceDataWorkspace({ report }: { report: SmartReportDetail }) {
   const dataset = report.sourceAnalysis?.datasets?.[0];
   const objectDataset = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : {};
-  const definitionColumns = Array.isArray(objectDataset.columns)
-    ? objectDataset.columns.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object')
-    : [];
-  const rows = report.canonicalRows.map((row) => row.data);
+  const definitionColumns = useMemo(() => {
+    const raw = objectDataset.columns;
+    return Array.isArray(raw)
+      ? raw.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object')
+      : [];
+  }, [dataset]);
+  const rows = useMemo(() => report.canonicalRows.map((row) => row.data), [report.canonicalRows]);
   const discoveredColumns = useMemo(() => {
     const fromDefinition = definitionColumns.map((column) => String(column.name ?? '')).filter(Boolean);
     const fromRows = rows.slice(0, 200).flatMap((row) => Object.keys(row));
