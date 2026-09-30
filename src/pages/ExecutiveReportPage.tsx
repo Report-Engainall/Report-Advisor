@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { ReportSourceContext } from '@/components/ReportSourceContext';
 import { ArrowLeft, FileText, Printer, RefreshCw, ShieldCheck, Target, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs, type MonthlyTrend } from '@/lib/dashboard-canonical';
@@ -86,6 +87,7 @@ export function ExecutiveReportPage() {
         : { to: '/trust', label: 'فحص الدليل', reason: 'لا توجد عناصر قرار نشطة؛ راجع مصدر الحقيقة قبل الانتقال.' };
 
   return <div dir="rtl" className="ag-executive-report report-page space-y-5 pb-10 print:space-y-3">
+      <ReportSourceContext />
     <header className="ag-exec-hero overflow-hidden rounded-[14px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
