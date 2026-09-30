@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import type { FileFormat, Dataset, ColumnProfile, ColumnStatistics } from './types';
-import { normalizeRows, normalizeColumnName, normalizeArabicDigits, parseNumber } from './normalizer';
+import { normalizeRows, normalizeColumnName, normalizeArabicDigits, parseNumber } from './normalizer.ts';
 import { detectColumnDataType, cleanValue } from './data-types';
 import { mapColumns } from './synonyms';
 import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection';
