@@ -470,6 +470,39 @@ export async function completeSourceDecisionWorkItem(input: {
 }
 
 
+export type DecisionActivityRecord = {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  source: string | null;
+  createdAt: string;
+};
+
+export async function fetchRecentDecisionActivity(limit = 20): Promise<DecisionActivityRecord[]> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
+  const { data, error } = await supabase
+    .from('audit_logs')
+    .select('id,action,entity_type,entity_id,source,created_at')
+    .eq('company_id', companyId)
+    .order('created_at', { ascending: false })
+    .limit(safeLimit);
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    id: String(row.id),
+    action: String(row.action ?? ''),
+    entityType: String(row.entity_type ?? ''),
+    entityId: String(row.entity_id ?? ''),
+    source: row.source == null ? null : String(row.source),
+    createdAt: String(row.created_at),
+  }));
+}
+
 export async function fetchPendingDecisionApprovals(limit = 50): Promise<number> {
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
