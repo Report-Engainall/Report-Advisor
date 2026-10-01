@@ -543,7 +543,7 @@ async function proveDecisionActionSurface(page, report) {
     'DECISION_PERSIST_ACTION_MISSING'
   );
   assert.ok(body.includes('لا يوجد اعتماد تلقائي') || body.includes('بانتظار صاحب الصلاحية') || body.includes('طلب الموافقة'), 'DECISION_APPROVAL_GUARDRAIL_MISSING');
-  assert.ok(await pageA.getByRole('button', { name: /حفظ القرار وطلب الموافقة|استكمال مسار الموافقة/ }).count(), 'DECISION_ACTION_BUTTON_MISSING');
+  assert.ok(await page.getByRole('button', { name: /حفظ القرار وطلب الموافقة|استكمال مسار الموافقة/ }).count(), 'DECISION_ACTION_BUTTON_MISSING');
   await page.screenshot({ path: reportDir + '/decision-action-surface.png', fullPage: true });
   evidence.steps.push({ step: 'decision-action-surface', status: 'PASS', reportJobId: report.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, persistenceAction: true, approvalGuardrail: true });
 }
