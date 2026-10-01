@@ -206,6 +206,9 @@ function DecisionExperienceGeneralPage() {
     setDecisionError(null);
     try {
       if (decisionContext.decision) {
+        if (decisionContext.decision.recommendationId !== selected.id) {
+          await linkRecommendationToDecision(selected.id, decisionContext.decision.id);
+        }
         if (decisionContext.approval?.status === 'PENDING') {
           navigateStage('approval');
           return;
