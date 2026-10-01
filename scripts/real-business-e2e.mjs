@@ -536,15 +536,8 @@ async function proveTransactionalMutationAndAudit(page) {
   await page.getByText('مركز العمليات', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
 
   const advanceButtons = page.locator('[data-testid^="advance-order-"]');
-  const count = await advanceButtons.count();
-
-  if (count === 0) {
-    evidence.steps.push({
-      step: 'transactional-real-mutation',
-      status: 'NOT_PROVEN',
-      reason: 'NO_MUTABLE_ORDER_AVAILABLE',
-      actionSurfaceVisible: true,
-    });
+  if (await advanceButtons.count() === 0) {
+    evidence.steps.push({ step: 'transactional-real-mutation', status: 'NOT_PROVEN', reason: 'NO_MUTABLE_ORDER_AVAILABLE', actionSurfaceVisible: true });
     return;
   }
 
@@ -552,36 +545,91 @@ async function proveTransactionalMutationAndAudit(page) {
   const testId = await first.getAttribute('data-testid');
   assert.ok(testId, 'TRANSACTIONAL_ADVANCE_BUTTON_TEST_ID_MISSING');
   const orderId = testId.replace('advance-order-', '');
-
   const beforeBody = (await page.locator('body').innerText()).trim();
-  const beforeAuditCount = await page.locator('[data-testid="operations-audit-trace"] .divide-y > div').count().catch(() => 0);
 
-  await first.click();
-  await page.waitForTimeout(500);
-  await page.getByText('تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  const initialOrderRows = await restSelect(page, 'orders', { company_id: evidence.tenantA, id: orderId }, 'id,company_id,status,total,currency', { limit: 1 });
+  assert.equal(initialOrderRows.length, 1, 'TRANSACTIONAL_ORDER_DB_ROW_MISSING_BEFORE');
+  assert.equal(initialOrderRows[0].company_id, evidence.tenantA);
 
+  let orderStatus = String(initialOrderRows[0].status);
+  const transitions = [];
+  for (let step = 0; step < 6; step += 1) {
+    const button = page.locator('[data-testid="advance-order-' + orderId + '"]');
+    if (await button.count() === 0) break;
+    await button.click();
+    await page.getByText('تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+    const afterOrderRows = await restSelect(page, 'orders', { company_id: evidence.tenantA, id: orderId }, 'id,company_id,status,total,currency', { limit: 1 });
+    assert.equal(afterOrderRows.length, 1, 'TRANSACTIONAL_ORDER_DB_ROW_MISSING_AFTER_TRANSITION');
+    assert.equal(afterOrderRows[0].company_id, evidence.tenantA);
+    assert.notEqual(String(afterOrderRows[0].status), orderStatus, 'TRANSACTIONAL_ORDER_STATUS_DID_NOT_PERSIST');
+    transitions.push({ from: orderStatus, to: String(afterOrderRows[0].status) });
+    orderStatus = String(afterOrderRows[0].status);
+    if (orderStatus === 'completed') break;
+  }
+  assert.equal(orderStatus, 'completed', 'TRANSACTIONAL_ORDER_NOT_COMPLETED_FOR_INVOICE_FLOW');
+
+  const createInvoiceButton = page.locator('[data-testid="create-invoice-' + orderId + '"]');
+  assert.equal(await createInvoiceButton.count(), 1, 'TRANSACTIONAL_CREATE_INVOICE_BUTTON_MISSING');
+  await createInvoiceButton.click();
+  await page.getByText('تم تثبيت/قراءة الفاتورة المرتبطة بالطلب من المصدر.', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+
+  const invoiceRows = await restSelect(page, 'sales_invoices', { company_id: evidence.tenantA, order_id: orderId }, 'id,company_id,order_id,status,total,paid_amount,currency', { order: 'invoice_date.desc', limit: 5 });
+  assert.ok(invoiceRows.length >= 1, 'TRANSACTIONAL_INVOICE_DB_READBACK_MISSING');
+  const invoice = invoiceRows[0];
+  const invoiceId = String(invoice.id);
+  assert.equal(invoice.company_id, evidence.tenantA);
+  assert.equal(invoice.order_id, orderId);
+  const beforePaid = Number(invoice.paid_amount ?? 0);
+  const outstanding = Number(invoice.total) - beforePaid;
+  assert.ok(Number.isFinite(outstanding) && outstanding > 0, 'TRANSACTIONAL_INVOICE_HAS_NO_POSITIVE_BALANCE_TO_PAY');
+
+  const invoiceButton = page.locator('[data-testid="invoice-' + invoiceId + '"]');
+  assert.equal(await invoiceButton.count(), 1, 'TRANSACTIONAL_INVOICE_UI_READBACK_MISSING');
+  await invoiceButton.click();
+  const paymentForm = page.locator('[data-testid="payment-form-' + invoiceId + '"]');
+  await paymentForm.waitFor({ state: 'visible', timeout: 30000 });
+  const paymentAmount = Math.min(1, outstanding);
+  assert.ok(paymentAmount > 0, 'TRANSACTIONAL_PAYMENT_AMOUNT_NOT_POSITIVE');
+  await paymentForm.locator('[data-testid="payment-amount"]').fill(String(paymentAmount));
+
+  const paymentsBefore = await restSelect(page, 'payments', { company_id: evidence.tenantA, invoice_id: invoiceId }, 'id,company_id,invoice_id,amount,method,reference,payment_date', { order: 'created_at.desc', limit: 20 });
+  await paymentForm.getByRole('button', { name: /تسجيل الدفعة وإعادة القراءة/ }).click();
+  await page.getByText('تم تسجيل الدفعة وإعادة قراءة الفاتورة والرصيد من المصدر.', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+
+  const invoiceAfterPayment = await restSelect(page, 'sales_invoices', { company_id: evidence.tenantA, id: invoiceId }, 'id,company_id,order_id,status,total,paid_amount,currency', { limit: 1 });
+  assert.equal(invoiceAfterPayment.length, 1, 'TRANSACTIONAL_INVOICE_READBACK_AFTER_PAYMENT_MISSING');
+  const afterPaid = Number(invoiceAfterPayment[0].paid_amount ?? 0);
+  assert.ok(afterPaid > beforePaid, 'TRANSACTIONAL_PAYMENT_DID_NOT_PERSIST_TO_INVOICE');
+  assert.equal(invoiceAfterPayment[0].company_id, evidence.tenantA);
+
+  const paymentsAfter = await restSelect(page, 'payments', { company_id: evidence.tenantA, invoice_id: invoiceId }, 'id,company_id,invoice_id,amount,method,reference,payment_date', { order: 'created_at.desc', limit: 20 });
+  assert.ok(paymentsAfter.length > paymentsBefore.length, 'TRANSACTIONAL_PAYMENT_ROW_NOT_PERSISTED');
+  const payment = paymentsAfter[0];
+  assert.equal(payment.company_id, evidence.tenantA);
+  assert.equal(payment.invoice_id, invoiceId);
+
+  await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
+  await page.getByText('مركز العمليات', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
   const afterBody = (await page.locator('body').innerText()).trim();
   assert.ok(afterBody.includes('AUDIT / TRACE'), 'TRANSACTIONAL_AUDIT_TRACE_SECTION_MISSING_AFTER_MUTATION');
-
-  const auditEntries = page.locator('[data-testid="operations-audit-trace"] .divide-y > div');
-  await auditEntries.first().waitFor({ state: 'visible', timeout: 30000 });
-
-  const auditText = (await auditEntries.first().innerText()).trim();
-  assert.ok(/orders:(update|insert)/.test(auditText), 'TRANSACTIONAL_ORDER_AUDIT_ROW_MISSING');
   assert.notEqual(afterBody, beforeBody, 'TRANSACTIONAL_UI_READBACK_DID_NOT_CHANGE');
+  const auditTrace = page.locator('[data-testid="operations-audit-trace"]');
+  await auditTrace.waitFor({ state: 'visible', timeout: 30000 });
+  const auditText = await auditTrace.innerText();
+  assert.ok(auditText.includes('orders:update'), 'TRANSACTIONAL_ORDER_AUDIT_ROW_MISSING');
+  assert.ok(auditText.includes('sales_invoices:insert'), 'TRANSACTIONAL_INVOICE_AUDIT_ROW_MISSING');
+  assert.ok(auditText.includes('payments:insert'), 'TRANSACTIONAL_PAYMENT_AUDIT_ROW_MISSING');
 
-  await page.screenshot({ path: reportDir + '/transactional-real-mutation-audit.png', fullPage: true });
-  evidence.steps.push({
-    step: 'transactional-real-mutation',
-    status: 'PASS',
-    orderId,
-    action: 'advance-order',
-    uiReadback: true,
-    auditReadback: true,
-    auditEntryDelta: Math.max(1, await auditEntries.count() - beforeAuditCount),
-  });
+  const orderAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, source: 'operations-runtime', entity_id: orderId }, 'id,company_id,action,entity_type,entity_id,source,user_label,correlation_id,created_at', { order: 'created_at.desc', limit: 10 });
+  const invoiceAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, source: 'operations-runtime', entity_id: invoiceId }, 'id,company_id,action,entity_type,entity_id,source,user_label,correlation_id,created_at', { order: 'created_at.desc', limit: 10 });
+  const paymentAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, source: 'operations-runtime', entity_id: String(payment.id) }, 'id,company_id,action,entity_type,entity_id,source,user_label,correlation_id,created_at', { order: 'created_at.desc', limit: 10 });
+  assert.ok(orderAudit.some(row => String(row.action).startsWith('orders:')), 'TRANSACTIONAL_ORDER_AUDIT_DB_ROW_MISSING');
+  assert.ok(invoiceAudit.some(row => String(row.action).startsWith('sales_invoices:')), 'TRANSACTIONAL_INVOICE_AUDIT_DB_ROW_MISSING');
+  assert.ok(paymentAudit.some(row => String(row.action).startsWith('payments:')), 'TRANSACTIONAL_PAYMENT_AUDIT_DB_ROW_MISSING');
+
+  await page.screenshot({ path: reportDir + '/transactional-real-mutation-invoice-payment-audit.png', fullPage: true });
+  evidence.steps.push({ step: 'transactional-real-mutation', status: 'PASS', orderId, transitions, finalOrderStatus: orderStatus, invoiceId, invoicePersistence: true, invoiceReadback: true, paymentId: String(payment.id), paymentPersistence: true, paymentReadback: true, auditOrderReadback: true, auditInvoiceReadback: true, auditPaymentReadback: true, tenantId: evidence.tenantA });
 }
-
 async function proveDecisionActionSurface(page, report) {
   const target = baseURL + '/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(CURRENT_REPORT_SOURCE_HASH);
   const response = await page.goto(target, { waitUntil: 'networkidle', timeout: 30000 });

@@ -131,7 +131,8 @@ export function OperationsPage() {
     setBusy('invoice:' + order.id);
     setFeedback(null);
     try {
-      await createInvoiceFromOperationalOrder(order.id);
+      const createdInvoice = await createInvoiceFromOperationalOrder(order.id);
+      setSelectedInvoiceId(createdInvoice.id);
       setFeedback('تم تثبيت/قراءة الفاتورة المرتبطة بالطلب من المصدر.');
       await load();
     } catch (cause) {
@@ -237,9 +238,9 @@ export function OperationsPage() {
             })}
             {!invoices.length && <div className="rounded-xl border border-dashed border-ink-200 p-4 text-center text-xs text-ink-500">لا توجد فواتير متاحة.</div>}
           </div>}
-          {selectedInvoice && <form onSubmit={submitPayment} className="mt-4 space-y-3 rounded-xl border border-primary-100 bg-primary-50/50 p-4">
+          {selectedInvoice && <form onSubmit={submitPayment} data-testid={'payment-form-' + selectedInvoice.id} className="mt-4 space-y-3 rounded-xl border border-primary-100 bg-primary-50/50 p-4">
             <div className="text-xs font-black text-primary-900">تسجيل دفعة · {selectedInvoice.invoice_number}</div>
-            <label className="block text-[10px] font-bold text-ink-600">المبلغ<input value={paymentAmount} onChange={e => setPaymentAmount(e.target.value)} type="number" min="0.01" step="0.01" required className="mt-1 w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm"/></label>
+            <label className="block text-[10px] font-bold text-ink-600">المبلغ<input value={paymentAmount} onChange={e => setPaymentAmount(e.target.value)} type="number" min="0.01" step="0.01" required data-testid="payment-amount" className="mt-1 w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm"/></label>
             <div className="grid gap-2 sm:grid-cols-2">
               <label className="block text-[10px] font-bold text-ink-600">الطريقة<select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} className="mt-1 w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm"><option value="cash">نقد</option><option value="bank">تحويل بنكي</option><option value="card">بطاقة</option></select></label>
               <label className="block text-[10px] font-bold text-ink-600">التاريخ<input value={paymentDate} onChange={e => setPaymentDate(e.target.value)} type="date" required className="mt-1 w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm"/></label>
