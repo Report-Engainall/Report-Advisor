@@ -18,3 +18,247 @@ on:
       - 'src/components/SourceBoundReportSurface.tsx'
       - 'src/components/ReportSourceContext.tsx'
       - 'src/components/Sidebar.tsx'
+      - 'src/lib/navigation-registry.ts'
+      - 'src/lib/report-context.ts'
+      - 'src/lib/report-intelligence/**'
+      - 'src/lib/file-engine/**'
+      - 'src/lib/dashboard-canonical.ts'
+      - 'src/lib/kpi-evidence.ts'
+      - 'src/lib/semantic-metric-service.ts'
+      - 'src/lib/semantic-metric-registry.ts'
+      - 'src/lib/semanticMetrics.ts'
+      - 'src/lib/import/canonical-production-adapter.ts'
+      - 'api/canonical-import-execute.ts'
+      - 'netlify/functions/canonical-import-execute.mts'
+      - 'scripts/check-server-source-authority-contract.mjs'
+      - 'scripts/pdf-visual-line-fallback.test.ts'
+      - 'scripts/report-intelligence-inventory-grain.test.ts'
+      - 'scripts/document-intelligence-lines.test.ts'
+      - 'scripts/report-intelligence-contradictions.test.ts'
+      - 'scripts/source-report-workspace-contract.test.mjs'
+      - 'scripts/pdf-long-document-ocr-boundary.test.mjs'
+      - 'scripts/source-decision-proposal-contract.test.mjs'
+      - 'scripts/source-decision-approval-contract.test.mjs'
+      - 'scripts/source-decision-work-item-contract.test.mjs'
+      - 'scripts/source-work-execution-lifecycle-contract.test.mjs'
+      - 'scripts/work-center-decision-queue-contract.test.mjs'
+      - 'scripts/business-replay-contract.test.mjs'
+      - 'scripts/benchmark-fail-closed-contract.test.mjs'
+      - 'scripts/resume-open-report-server-proof.mjs'
+      - 'src/pages/MetricInspectorPage.tsx'
+      - 'src/lib/queries.ts'
+      - 'src/components/ui/DataTable.tsx'
+      - 'src/index.css'
+      - 'docs/METRIC_TRUTH_OWNERSHIP.md'
+      - 'docs/MASTER_EXECUTION_INDEX.md'
+      - 'E2E_FAILURE_LEDGER.md'
+      - 'E2E_PRODUCT_GAP_LEDGER.md'
+      - 'supabase/migrations/**'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/run-full-product-browser-e2e.mjs'
+      - 'scripts/real-business-e2e.mjs'
+      - 'scripts/verify-live-business-evidence.mjs'
+      - '.github/workflows/full-product-browser-e2e.yml'
+      - 'src/pages/**'
+      - 'src/lib/dashboard-canonical.ts'
+      - 'src/lib/file-engine/**'
+      - 'scripts/pdf-arabic-sales-layout.test.ts'
+      - 'src/lib/kpi-evidence.ts'
+      - 'src/lib/semantic-metric-service.ts'
+      - 'src/lib/semantic-metric-registry.ts'
+      - 'src/lib/semanticMetrics.ts'
+      - 'src/pages/MetricInspectorPage.tsx'
+      - 'src/lib/queries.ts'
+      - 'src/components/ui/DataTable.tsx'
+      - 'src/index.css'
+      - 'docs/METRIC_TRUTH_OWNERSHIP.md'
+      - 'E2E_FAILURE_LEDGER.md'
+      - 'E2E_PRODUCT_GAP_LEDGER.md'
+      - 'supabase/migrations/**'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  browser-e2e:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Verify exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          expected="${EXACT_HEAD}"
+          test "$actual" = "$expected"
+          test -z "$(git status --porcelain)"
+          printf 'EXACT_HEAD=%s\n' "$actual" | tee exact-head.txt
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install application dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build exact SHA
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${EXACT_HEAD}"
+          npm run build
+
+      - name: Run canonical heart regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run typecheck
+          npm run test:server-source-authority
+          npm run test:pdf-visual-line-fallback
+          npm run test:pdf-arabic-sales-layout
+          npm run test:report-intelligence-inventory-grain
+          npm run test:document-intelligence-lines
+          npm run test:report-intelligence-contradictions
+          npm run test:source-report-workspace
+          npm run test:pdf-long-document-ocr-boundary
+          npm run test:source-decision-proposal
+          npm run test:source-decision-approval
+          npm run test:source-decision-work-item
+          npm run test:source-work-execution-lifecycle
+          npm run test:work-center-decision-queue
+          npm run test:business-replay
+          npm run test:benchmark-fail-closed
+      - name: Start exact Netlify preview with serverless API
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REPORT_ADVISOR_E2E_DEBUG: '1'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_SERVICE_ROLE_KEY"
+          mkdir -p artifacts/e2e-browser artifacts/e2e-business
+          nohup npx netlify dev --no-open --port 4173 > artifacts/e2e-browser/preview.log 2>&1 &
+          echo $! > artifacts/e2e-browser/preview.pid
+          for attempt in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:4173/ >/tmp/report-advisor-preview.html; then
+              test -s /tmp/report-advisor-preview.html
+              exit 0
+            fi
+            sleep 1
+          done
+          cat artifacts/e2e-browser/preview.log
+          exit 1
+
+      - name: Resume and prove the real open report
+        env:
+          E2E_BASE_URL: http://127.0.0.1:4173
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          OPEN_REPORT_EXECUTION_JOB_ID: 'd074ad5c-70d4-4402-a763-01129786f392'
+          OPEN_REPORT_EXPECTED_SOURCE_HASH: 'sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10'
+          OPEN_REPORT_EXPECTED_ROWS: '0'
+          OPEN_REPORT_FILE_NAME: 'فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf'
+        run: node scripts/resume-open-report-server-proof.mjs
+      - name: Install deterministic browser tooling
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save --package-lock=false netlify-cli@27.10.2
+          test "$(node -p "require('playwright/package.json').version")" = "1.63.0"
+          test "$(node -p "require('netlify-cli/package.json').version")" = "27.10.2"
+          npx playwright install --with-deps chromium
+          npx playwright --version
+
+      - name: Real Chromium route and authenticated browser proof
+        env:
+          EXACT_HEAD: ${{ env.EXACT_HEAD }}
+          E2E_BASE_URL: http://127.0.0.1:4173
+          E2E_REPORT_DIR: artifacts/e2e-browser
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+          CURRENT_REPORT_SOURCE_PATH: 'تسعيرة الاصناف حسب رقم الصنف.pdf'
+          CURRENT_REPORT_SOURCE_HASH: 'sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300'
+          CURRENT_REPORT_ROW_COUNT: '735'
+        run: node scripts/run-full-product-browser-e2e.mjs
+
+      - name: Real Chromium business journey and smart report proof
+        env:
+          EXACT_HEAD: ${{ env.EXACT_HEAD }}
+          E2E_BASE_URL: http://127.0.0.1:4173
+          E2E_REPORT_DIR: artifacts/e2e-business
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+        run: node scripts/real-business-e2e.mjs
+
+      - name: Fail closed on browser evidence
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('node:fs');
+          const files = ['artifacts/e2e-browser/result.json', 'artifacts/e2e-business/result.json'];
+          const failures = [];
+          for (const file of files) {
+            if (!fs.existsSync(file)) {
+              failures.push(file + ': RESULT_JSON_MISSING');
+              continue;
+            }
+            const result = JSON.parse(fs.readFileSync(file, 'utf8'));
+            if (result.exactHead !== process.env.EXACT_HEAD) failures.push(file + ': EXACT_HEAD_MISMATCH');
+            if (result.status !== 'PASS') failures.push(file + ': STATUS=' + (result.status || 'UNKNOWN'));
+            const items = [
+              ...(Array.isArray(result.findings) ? result.findings : []),
+              ...(Array.isArray(result.steps) ? result.steps : []),
+            ];
+            const blocked = items.filter(item => ['FAIL','NOT_PROVEN','BLOCKED'].includes(item.status));
+            if (blocked.length) failures.push(file + ': UNRESOLVED_BROWSER_FINDINGS=' + blocked.length);
+          }
+          if (failures.length) {
+            console.error(failures.join('\n'));
+            process.exit(1);
+          }
+          console.log('BROWSER_PROOF_GATE=PASS');
+          NODE
+
+      - name: Upload browser proof artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-product-browser-proof-${{ github.run_id }}
+          if-no-files-found: error
+          path: |
+            exact-head.txt
+            artifacts/e2e-browser/**
+            artifacts/e2e-business/**
