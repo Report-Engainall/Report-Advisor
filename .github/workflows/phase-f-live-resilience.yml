@@ -101,6 +101,21 @@ jobs:
           )"
           echo "::add-mask::$token"
           printf 'RESILIENCE_CANARY_AUTH_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
+      - name: Publish exact head to Vercel production
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: prj_jcqgz6UKGd6tPgHZlttgFXaXvyvo
+          VERCEL_SCOPE: team_7BSJnGvDzIC6bXMakIOeAYle
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${VERCEL_TOKEN:?VERCEL_TOKEN_REQUIRED}"
+          npx --yes vercel@latest pull --yes --environment=production --token "$VERCEL_TOKEN" --scope "$VERCEL_SCOPE" --project "$VERCEL_PROJECT_ID"
+          npx --yes vercel@latest build --prod --token "$VERCEL_TOKEN"
+          npx --yes vercel@latest deploy --prebuilt --prod --token "$VERCEL_TOKEN" --scope "$VERCEL_SCOPE"
+          echo "Published exact certification HEAD: ${EXACT_HEAD}"
+
       - name: Live resilience probes
         env:
           RESILIENCE_TARGET_ENV: ${{ secrets.RESILIENCE_TARGET_ENV }}
