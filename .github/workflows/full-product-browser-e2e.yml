@@ -140,6 +140,7 @@ jobs:
         run: |
           set -euo pipefail
           npm run typecheck
+          npm run test:transactional-spine
           npm run test:server-source-authority
           npm run test:pdf-visual-line-fallback
           npm run test:pdf-arabic-sales-layout

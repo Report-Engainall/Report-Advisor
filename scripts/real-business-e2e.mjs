@@ -588,6 +588,16 @@ try {
   const finalBody = (await pageA.locator('body').innerText()).trim();
   assertCurrentReportText(finalBody, 'current report final readback'); assert.ok(finalBody.includes('EVIDENCE INSPECTOR'));
   evidence.steps.push({ step: 'current-report-final-refresh-readback', status: 'PASS', reportJobId: currentReport.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, rowCount: CURRENT_REPORT_ROW_COUNT });
+  await pageA.goto(baseURL + '/operations', { waitUntil: 'networkidle', timeout: 30000 });
+  await pageA.getByText('مركز العمليات', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  const operationsBody = (await pageA.locator('body').innerText()).trim();
+  assert.ok(operationsBody.includes('ORDER → FULFILLMENT'), 'TRANSACTIONAL_SPINE_ORDER_SURFACE_MISSING');
+  assert.ok(operationsBody.includes('INVOICE → PAYMENT'), 'TRANSACTIONAL_SPINE_PAYMENT_SURFACE_MISSING');
+  assert.ok(operationsBody.includes('PRICING TRUTH'), 'TRANSACTIONAL_SPINE_PRICING_SURFACE_MISSING');
+  assert.ok(operationsBody.includes('SUPPLIER OPERATIONS'), 'TRANSACTIONAL_SPINE_SUPPLIER_SURFACE_MISSING');
+  assert.ok(operationsBody.includes('FULFILLMENT / WAREHOUSE'), 'TRANSACTIONAL_SPINE_WAREHOUSE_SURFACE_MISSING');
+  await pageA.screenshot({ path: reportDir + '/transactional-spine-surface.png', fullPage: true });
+  evidence.steps.push({ step: 'transactional-spine-surface-shell', status: 'PASS', ordersSurface: true, invoicesPaymentsSurface: true, pricingSurface: true, supplierSurface: true, warehouseSurface: true });
   const contextB = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
   const pageB = await contextB.newPage(); attachRuntimeCapture(pageB);
   try {
