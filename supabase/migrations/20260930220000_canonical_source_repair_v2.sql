@@ -31,6 +31,7 @@ declare
   target_job public.report_execution_jobs%rowtype;
   initial_checkpoint jsonb;
 begin
+  if auth.role() <> 'service_role' then raise exception 'SERVICE_ROLE_REQUIRED'; end if;
   if p_company_id is null then raise exception 'company_id is required'; end if;
   if p_job_key is null or btrim(p_job_key) = '' then raise exception 'job_key is required'; end if;
   if p_source_path is null or btrim(p_source_path) = '' then raise exception 'source_path is required'; end if;
