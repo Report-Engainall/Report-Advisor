@@ -159,11 +159,13 @@ function runDockerPsqlFile(databaseUrl, filePath) {
   ]);
 }
 
+const VOLATILE_RESTORE_TABLES = new Set(['public.operational_health_snapshots']);
+
 function parseTableCounts(raw) {
   const result = {};
   for (const line of raw.split(/\r?\n/).map(value => value.trim()).filter(Boolean)) {
     const [tableName, rowCount] = line.split('|');
-    if (!tableName) continue;
+    if (!tableName || VOLATILE_RESTORE_TABLES.has(tableName)) continue;
     result[tableName] = Number(rowCount);
   }
   return result;
@@ -283,6 +285,7 @@ async function logicalBackupRestore() {
       source_snapshot_at: snapshotText,
       restore_verified: true,
       restore_target: 'ephemeral-local-supabase-postgres',
+      excluded_volatile_tables: [...VOLATILE_RESTORE_TABLES],
       backup_started_at: new Date(backupStartedAt).toISOString(),
       backup_completed_at: new Date(backupCompletedAt).toISOString(),
       restore_started_at: new Date(restoreStartedAt).toISOString(),
