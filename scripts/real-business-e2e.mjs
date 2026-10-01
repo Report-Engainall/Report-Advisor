@@ -531,6 +531,23 @@ async function proveSourceBoundSurface(page, report, surface) {
   evidence.steps.push({ step: 'source-bound-surface:' + surface.label, status: 'PASS', reportJobId: report.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, rowCount: CURRENT_REPORT_ROW_COUNT });
 }
 
+async function proveDecisionActionSurface(page, report) {
+  const target = baseURL + '/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(CURRENT_REPORT_SOURCE_HASH);
+  const response = await page.goto(target, { waitUntil: 'networkidle', timeout: 30000 });
+  assert.ok(response && response.status() < 400, 'decision-action: HTTP ' + (response?.status() ?? 'NO_RESPONSE'));
+  const body = (await page.locator('body').innerText()).trim();
+  assertCurrentReportText(body, 'decision action');
+  assert.ok(
+    body.includes('حفظ القرار وطلب الموافقة') ||
+    body.includes('استكمال مسار الموافقة'),
+    'DECISION_PERSIST_ACTION_MISSING'
+  );
+  assert.ok(body.includes('لا يوجد اعتماد تلقائي') || body.includes('بانتظار صاحب الصلاحية') || body.includes('طلب الموافقة'), 'DECISION_APPROVAL_GUARDRAIL_MISSING');
+  assert.ok(await pageA.getByRole('button', { name: /حفظ القرار وطلب الموافقة|استكمال مسار الموافقة/ }).count(), 'DECISION_ACTION_BUTTON_MISSING');
+  await page.screenshot({ path: reportDir + '/decision-action-surface.png', fullPage: true });
+  evidence.steps.push({ step: 'decision-action-surface', status: 'PASS', reportJobId: report.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, persistenceAction: true, approvalGuardrail: true });
+}
+
 async function proveContextPreservedSurface(page, report, surface) {
   const target = baseURL + surface.path;
   const responsePromise = waitForCurrentJobResponse(page, report.reportJobId);
@@ -572,6 +589,7 @@ try {
   await proveSourceBoundSurface(pageA, currentReport, { label: 'executive', path: '/reports/executive' });
   await proveSourceBoundSurface(pageA, currentReport, { label: 'trust', path: '/trust' });
   await proveSourceBoundSurface(pageA, currentReport, { label: 'decision', path: '/decision-experience?stage=evidence' });
+  await proveDecisionActionSurface(pageA, currentReport);
   await proveSourceBoundSurface(pageA, currentReport, { label: 'work', path: '/work-center' });
   await proveSourceBoundSurface(pageA, currentReport, { label: 'inventory', path: '/reports/inventory' });
   await pageA.goto(baseURL + '/reports/smart/' + currentReport.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
