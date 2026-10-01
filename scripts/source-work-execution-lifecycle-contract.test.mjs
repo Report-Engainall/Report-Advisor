@@ -4,6 +4,7 @@ import fs from 'node:fs';
 const bridge = fs.readFileSync('src/lib/report-decisions.ts', 'utf8');
 const surface = fs.readFileSync('src/components/SourceBoundReportSurface.tsx', 'utf8');
 const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
+const decisionsBridge = bridge;
 const auditMigration = fs.readFileSync('supabase/migrations/20261002030000_audit_recommendation_outcomes.sql', 'utf8');
 
 assert.ok(bridge.includes("start_decision_work_item"));
@@ -26,6 +27,11 @@ assert.ok(bridge.includes("recommendation_outcomes"));
 assert.ok(workCenter.includes("loadPersistedOutcomes"));
 assert.ok(workCenter.includes("OUTCOME → LEARNING"));
 assert.ok(workCenter.includes("NOT AVAILABLE"));
+assert.ok(workCenter.includes("work-center-start-"));
+assert.ok(workCenter.includes("work-center-complete-"));
+assert.ok(workCenter.includes("evidenceSnapshotId"));
+assert.ok(decisionsBridge.includes("p_recommendation_id: input.recommendationId"));
+assert.ok(decisionsBridge.includes("evidenceSnapshotId: input.evidenceSnapshotId"));
 for (const marker of ['trg_recommendation_outcome_audit','audit_decision_runtime_change','AFTER INSERT OR UPDATE OR DELETE']) {
   assert.ok(auditMigration.includes(marker), 'outcome audit contract missing: ' + marker);
 }
