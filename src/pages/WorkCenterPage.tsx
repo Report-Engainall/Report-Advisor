@@ -9,6 +9,8 @@ import { DataTable } from '@/components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchImportRecords, fetchWorkerHealthSnapshot, type WorkerHealthSnapshot } from '@/lib/queries';
 import { fetchDecisionWorkItems, type DecisionWorkItemRecord } from '@/lib/report-decisions';
+import { loadPersistedOutcomes, type DecisionOutcome } from '@/lib/analytics/outcome-feedback';
+import { resolveCurrentCompanyId } from '@/lib/supabase';
 import type { ImportRecord } from '@/lib/types';
 import { formatNumber } from '@/lib/format';
 
@@ -27,6 +29,7 @@ function matches(row: ImportRecord, filter: FilterKey) {
 function WorkCenterGeneralPage() {
   const [rows, setRows] = useState<ImportRecord[]>([]);
   const [decisionWorkItems, setDecisionWorkItems] = useState<DecisionWorkItemRecord[]>([]);
+  const [outcomes, setOutcomes] = useState<DecisionOutcome[]>([]);
   const [workerHealth, setWorkerHealth] = useState<WorkerHealthSnapshot | null>(null);
   const [filter, setFilter] = useState<FilterKey>('all');
   const [decisionWorkFilter, setDecisionWorkFilter] = useState<DecisionWorkFilter>('all');
@@ -37,14 +40,18 @@ function WorkCenterGeneralPage() {
     try {
       setLoading(true);
       setError(null);
-      const [imports, health, workItems] = await Promise.all([
+      const companyId = await resolveCurrentCompanyId();
+      if (!companyId) throw new Error('TENANT_REQUIRED');
+      const [imports, health, workItems, persistedOutcomes] = await Promise.all([
         fetchImportRecords(),
         fetchWorkerHealthSnapshot(),
         fetchDecisionWorkItems(200),
+        loadPersistedOutcomes(companyId),
       ]);
       setRows(imports);
       setWorkerHealth(health);
       setDecisionWorkItems(workItems);
+      setOutcomes(persistedOutcomes);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'فشل تحميل مركز العمليات');
     } finally {
@@ -289,6 +296,53 @@ function WorkCenterGeneralPage() {
           </table>
         ) : <div className="p-6 text-center text-[10px] text-ink-500">لا توجد عناصر عمل مطابقة داخل نافذة مركز العمل الحالية.</div>}
       </div>
+    </section>
+
+    <section className="rounded-[18px] border border-primary-200 bg-white p-5 shadow-sm" aria-label="نتائج القرار والتعلم">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+        <div>
+          <div className="section-kicker">OUTCOME → LEARNING</div>
+          <h2 className="mt-1 text-lg font-black text-ink-950">ما الذي تعلّمناه من التنفيذ؟</h2>
+          <p className="mt-1 text-[11px] leading-5 text-ink-600">هذه قراءة من سجلات النتائج المحفوظة لنفس المستأجر. لا يتم تحويل غياب النتيجة إلى نجاح أو تقدير.</p>
+        </div>
+        <div className="flex flex-wrap gap-2 text-[10px] font-bold text-ink-500">
+          <span className="rounded-full bg-ink-50 px-2.5 py-1.5">الإجمالي: {formatNumber(outcomes.length)}</span>
+          <span className="rounded-full bg-success-50 px-2.5 py-1.5 text-success-800">إيجابي: {formatNumber(outcomes.filter(item => item.label === 'correct').length)}</span>
+          <span className="rounded-full bg-warning-50 px-2.5 py-1.5 text-warning-900">جزئي: {formatNumber(outcomes.filter(item => item.label === 'partial').length)}</span>
+          <span className="rounded-full bg-danger-50 px-2.5 py-1.5 text-danger-800">سلبي: {formatNumber(outcomes.filter(item => item.label === 'incorrect').length)}</span>
+        </div>
+      </div>
+      {outcomes.length === 0 ? (
+        <div className="mt-4 rounded-xl border border-dashed border-ink-200 bg-ink-50/60 p-5 text-center text-[10px] leading-5 text-ink-500">
+          لا توجد نتيجة موثقة كافية حتى الآن. الحالة الصحيحة: <strong>NOT AVAILABLE</strong> — لا يتم إنشاء تعلم بديل.
+        </div>
+      ) : (
+        <div className="mt-4 grid gap-3 lg:grid-cols-3">
+          {outcomes.slice(-3).reverse().map((outcome, index) => {
+            const delta = outcome.expectedValue != null && outcome.actualValue != null
+              ? outcome.actualValue - outcome.expectedValue
+              : null;
+            const label = outcome.label === 'correct' ? 'إيجابي' : outcome.label === 'partial' ? 'جزئي' : outcome.label === 'incorrect' ? 'سلبي' : 'غير متاح';
+            return (
+              <article key={outcome.decisionFingerprint + outcome.observedAt + index} className="rounded-xl border border-ink-200 bg-ink-50/70 p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <span className={'rounded-full px-2 py-1 text-[9px] font-black ' + (outcome.label === 'correct' ? 'bg-success-50 text-success-800' : outcome.label === 'incorrect' ? 'bg-danger-50 text-danger-800' : outcome.label === 'partial' ? 'bg-warning-50 text-warning-900' : 'bg-ink-100 text-ink-600')}>{label}</span>
+                  <span className="text-[9px] text-ink-400">{new Date(outcome.observedAt).toLocaleString('ar-YE')}</span>
+                </div>
+                <div className="mt-3 text-[9px] font-mono text-ink-400 break-all">{outcome.decisionFingerprint}</div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">المتوقع</div><div className="mt-1 text-xs font-black text-ink-900">{outcome.expectedValue == null ? 'NOT AVAILABLE' : formatNumber(outcome.expectedValue)}</div></div>
+                  <div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الفعلي</div><div className="mt-1 text-xs font-black text-ink-900">{outcome.actualValue == null ? 'NOT AVAILABLE' : formatNumber(outcome.actualValue)}</div></div>
+                </div>
+                <div className="mt-2 rounded-lg border border-primary-100 bg-primary-50/60 p-2 text-[9px] leading-5 text-primary-900">
+                  <strong>تعلم قابل للتتبع:</strong> {delta == null ? 'لا توجد قيمة كافية لاستخراج فرق؛ تبقى الحالة غير مكتملة.' : 'فرق النتيجة عن المتوقع = ' + formatNumber(delta)}
+                </div>
+                <div className="mt-2 text-[9px] text-ink-500">Evidence: {outcome.evidenceSnapshotId ? 'موجود' : 'غير متاح'} · Action: {outcome.actionId ?? 'غير متاح'}</div>
+              </article>
+            );
+          })}
+        </div>
+      )}
     </section>
 
     <section className="ag-decision-strip" aria-label="ملخص التشغيل">
