@@ -73,7 +73,7 @@ create policy ui_settings_customer_select
   as permissive
   for select
   to authenticated
-  using (organization_id = public.current_customer_company_id());
+  using (organization_id = public.current_company_id());
 
 revoke all on table public.client_ui_settings from anon;
 revoke all on table public.client_ui_settings from authenticated;
