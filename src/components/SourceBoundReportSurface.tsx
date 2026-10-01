@@ -5,7 +5,7 @@ import { ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
-import { completeSourceDecisionWorkItem, createApprovedDecisionWorkItemForCurrentUser, decideSourceDecisionApproval, fetchSourceDecisionProposals, requestSourceDecisionApproval, startSourceDecisionWorkItem, type SourceDecisionState } from '@/lib/report-decisions';
+import { completeSourceDecisionWorkItem, createApprovedDecisionWorkItemForCurrentUser, decideSourceDecisionApproval, fetchSourceDecisionAuditTrace, fetchSourceDecisionProposals, requestSourceDecisionApproval, startSourceDecisionWorkItem, type DecisionAuditTrace, type SourceDecisionState } from '@/lib/report-decisions';
 import { getAuthenticatedUser } from '@/lib/auth-session';
 
 export type SourceBoundReportMode = 'executive' | 'trust' | 'decision' | 'work';
@@ -228,11 +228,30 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
   const [workDueAt, setWorkDueAt] = useState<Record<string, string>>({});
 
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [auditTrace, setAuditTrace] = useState<DecisionAuditTrace[]>([]);
+  const [auditLoading, setAuditLoading] = useState(false);
 
   const refreshDecisions = useCallback(async () => {
     const rows = await fetchSourceDecisionProposals(report.sourceHash);
     setDecisions(rows);
   }, [report.sourceHash]);
+
+  const refreshAudit = useCallback(async (decision: SourceDecisionState) => {
+    setAuditLoading(true);
+    try {
+      const rows = await fetchSourceDecisionAuditTrace(
+        decision.id,
+        decision.approvalId,
+        decision.workItemId,
+        null,
+      );
+      setAuditTrace(rows);
+    } catch {
+      setAuditTrace([]);
+    } finally {
+      setAuditLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -244,6 +263,15 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
     });
     return () => { active = false; };
   }, [refreshDecisions]);
+
+  useEffect(() => {
+    const latest = decisions[0];
+    if (!latest) {
+      setAuditTrace([]);
+      return;
+    }
+    void refreshAudit(latest);
+  }, [decisions, refreshAudit]);
 
   const createWorkItem = (decision: SourceDecisionState) => {
     setDecisionAction((current) => ({ ...current, [decision.id]: 'creating-work' }));
@@ -527,6 +555,38 @@ function WorkMode({ report }: { report: SmartReportDetail }) {
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-center gap-2"><FileSearch size={17} className="text-primary-700"/><h2 className="text-lg font-black">حد التنفيذ</h2></div>
         <p className="mt-2 text-xs leading-6 text-ink-600">اكتمال مراحل استيراد التقرير لا يعني وجود Action أو Outcome. التنفيذ التجاري يحتاج سجلًا مستقلًا؛ غيابه يبقى معلنًا.</p>
+      <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm" aria-label="سجل نشاط القرار">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">ACTIVITY / AUDIT</div>
+            <h3 className="mt-1 text-lg font-black text-ink-950">سجل ما حدث للقرار</h3>
+            <p className="mt-1 text-[10px] leading-5 text-ink-500">الخط الزمني يقرأ من audit_logs للقرار والموافقة والعمل والنتيجة؛ لا يصنع نشاطًا محليًا بديلًا.</p>
+          </div>
+          <button type="button" onClick={() => decisions[0] && void refreshAudit(decisions[0])} disabled={auditLoading} className="btn-secondary text-[10px] disabled:opacity-50">
+            {auditLoading ? 'جارٍ القراءة...' : 'تحديث السجل'}
+          </button>
+        </div>
+        {auditTrace.length === 0 ? (
+          <div className="mt-4 rounded-xl border border-dashed border-ink-200 bg-ink-50/60 p-4 text-[10px] text-ink-500">لا يوجد نشاط تدقيق متاح لهذا المسار حتى الآن.</div>
+        ) : (
+          <ol className="mt-4 space-y-2">
+            {auditTrace.slice(-12).reverse().map((event) => (
+              <li key={event.id} className="rounded-xl border border-ink-100 bg-ink-50/60 p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-white px-2 py-1 text-[9px] font-black text-ink-700">{event.action}</span>
+                  <span className="text-[9px] text-ink-400">{event.entityType}</span>
+                  <span className="mr-auto text-[9px] text-ink-400">{new Date(event.createdAt).toLocaleString('ar-YE')}</span>
+                </div>
+                <div className="mt-1 flex flex-wrap gap-2 text-[9px] text-ink-500">
+                  <span>المصدر: {event.source ?? 'غير متاح'}</span>
+                  <span>الفاعل: {event.userLabel ?? 'غير متاح'}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+
       </section>
     </>
   );
