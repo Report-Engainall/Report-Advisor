@@ -252,8 +252,24 @@ async function logicalBackupRestore() {
     const targetCounts = parseTableCounts(runDockerPsql(localDbUrl, generatedCountSql));
     const rtoSeconds = (restoreCompletedAt - restoreStartedAt) / 1000;
 
-    if (stableJson(sourceCounts) !== stableJson(targetCounts)) {
-      throw new Error('logical_restore_table_count_mismatch');
+    const mismatchTables = [...new Set([...Object.keys(sourceCounts), ...Object.keys(targetCounts)])]
+      .sort()
+      .map((tableName) => ({
+        tableName,
+        sourceCount: sourceCounts[tableName] ?? 0,
+        targetCount: targetCounts[tableName] ?? 0,
+      }))
+      .filter((item) => item.sourceCount !== item.targetCount);
+
+    if (mismatchTables.length > 0) {
+      fs.writeFileSync(
+        path.join(reportDir, 'logical-restore-count-mismatch.json'),
+        JSON.stringify({ exactHead, sourceCounts, targetCounts, mismatchTables }, null, 2) + '\n',
+        'utf8',
+      );
+      throw new Error(
+        `logical_restore_table_count_mismatch:${JSON.stringify(mismatchTables)}`,
+      );
     }
 
     const report = {
