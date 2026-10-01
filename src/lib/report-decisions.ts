@@ -101,6 +101,10 @@ export type SourceDecisionState = SourceDecisionProposal & {
   expectedImpact: number | null;
   actualImpact: number | null;
   observedAt: string | null;
+  approvalId: string | null;
+  approvalStatus: string | null;
+  approvalRequestedBy: string | null;
+  approvalDecidedBy: string | null;
 };
 
 export async function fetchSourceDecisionProposals(sourceHash: string): Promise<SourceDecisionState[]> {
@@ -147,6 +151,29 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
     : { data: [], error: null };
 
   if (outcomeError) throw outcomeError;
+  const { data: approvals, error: approvalError } = decisionIds.length
+    ? await supabase
+        .from('decision_approvals')
+        .select('id,decision_id,status,requested_by,decided_by')
+        .eq('company_id', companyId)
+        .in('decision_id', decisionIds)
+        .order('requested_at', { ascending: false })
+    : { data: [], error: null };
+
+  if (approvalError) throw approvalError;
+
+  const approvalByDecision = new Map();
+  for (const approval of approvals ?? []) {
+    const decisionId = String(approval.decision_id);
+    if (!approvalByDecision.has(decisionId)) {
+      approvalByDecision.set(decisionId, {
+        id: String(approval.id),
+        status: String(approval.status ?? 'PENDING'),
+        requestedBy: approval.requested_by == null ? null : String(approval.requested_by),
+        decidedBy: approval.decided_by == null ? null : String(approval.decided_by),
+      });
+    }
+  }
 
   const outcomeByDecision = new Map<string, {
     status: string;
@@ -193,6 +220,10 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
       expectedImpact: outcome?.expectedImpact ?? null,
       actualImpact: outcome?.actualImpact ?? null,
       observedAt: outcome?.observedAt ?? null,
+      approvalId: approvalByDecision.get(String(row.id))?.id ?? null,
+      approvalStatus: approvalByDecision.get(String(row.id))?.status ?? null,
+      approvalRequestedBy: approvalByDecision.get(String(row.id))?.requestedBy ?? null,
+      approvalDecidedBy: approvalByDecision.get(String(row.id))?.decidedBy ?? null,
     };
   });
 }
@@ -204,6 +235,15 @@ export async function requestSourceDecisionApproval(decisionId: string, reason: 
   });
   if (error) throw error;
   return String(data);
+}
+
+export async function decideSourceDecisionApproval(decisionApprovalId: string, approve: boolean, reason?: string): Promise<void> {
+  const { error } = await supabase.rpc('decide_approval', {
+    p_approval_id: decisionApprovalId,
+    p_approve: approve,
+    p_reason: reason ?? null,
+  });
+  if (error) throw error;
 }
 
 
