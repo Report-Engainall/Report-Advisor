@@ -152,6 +152,20 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
           </div>
         </div>
       </section>
+      <section className="rounded-[18px] border border-primary-200 bg-primary-50/50 p-4" aria-label="نتيجة القرار والتعلم">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">OUTCOME → LEARNING</div>
+            <div className="mt-1 text-sm font-black text-ink-950">النتيجة المسجلة تصبح معرفة قابلة للمتابعة، وليست نجاحًا افتراضيًا.</div>
+            <p className="mt-1 text-[10px] leading-5 text-ink-600">حالة التعلم تُقرأ من سجل النتيجة المرتبط بالقرار والدليل. عند غياب سجل موثوق تبقى الحالة NOT AVAILABLE.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <StatusCell label="Outcome" value={output.outcomeStatus}/>
+            <StatusCell label="Learning" value={output.learningStatus}/>
+            <StatusCell label="Benchmark" value={output.benchmarkStatus}/>
+          </div>
+        </div>
+      </section>
       <ReportIntelligencePanel report={report} />
 
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
@@ -329,11 +343,12 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
 
   return (
     <>
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <StatusCell label="Decision" value={output.decisionStatus}/>
         <StatusCell label="Approval" value={output.approvalStatus}/>
         <StatusCell label="Action" value={output.actionStatus}/>
         <StatusCell label="Outcome" value={output.outcomeStatus}/>
+        <StatusCell label="Learning" value={output.learningStatus}/>
       </section>
       <ReportIntelligencePanel report={report} />
 
