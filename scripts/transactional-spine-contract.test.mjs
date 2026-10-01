@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 const page = fs.readFileSync('src/pages/OperationsPage.tsx', 'utf8');
 const lib = fs.readFileSync('src/lib/transactional-spine.ts', 'utf8');
 const migration = fs.readFileSync('supabase/migrations/20261002010000_transactional_spine_staff_read_boundary.sql', 'utf8');
+const auditBoundary = fs.readFileSync('supabase/migrations/20261002014500_restore_audit_logs_append_only_policy_boundary.sql', 'utf8');
 const app = fs.readFileSync('src/App.tsx', 'utf8');
 const nav = fs.readFileSync('src/lib/navigation-registry.ts', 'utf8');
 const auditMigration = fs.readFileSync('supabase/migrations/20261002013000_operational_transaction_audit.sql', 'utf8');
@@ -27,6 +28,9 @@ assert.match(page, /READBACK CONTRACT/);
 assert.match(page, /READ-ONLY/);
 assert.match(page, /NOT IMPLEMENTED/);
 assert.match(page, /PERMISSION_DENIED/);
+for (const marker of ['drop policy if exists tenant_update','drop policy if exists tenant_delete','revoke update, delete, truncate on table public.audit_logs from authenticated']) {
+  assert.ok(auditBoundary.includes(marker), 'audit append-only boundary missing: ' + marker);
+}
 assert.match(app, /path="\/operations"/);
 assert.match(nav, /path: '\/operations'/);
 console.log('PASS: transactional spine surface + canonical RPC + tenant/RLS contract.');
