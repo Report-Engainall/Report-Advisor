@@ -122,6 +122,9 @@ export async function createSourceDecisionProposal(input: {
 
 
 export type SourceDecisionState = SourceDecisionProposal & {
+  recommendationTitle: string | null;
+  recommendationStatus: string | null;
+  recommendationEvidenceSnapshotId: string | null;
   signalId: string | null;
   signalTitle: string | null;
   signalSeverity: string | null;
@@ -132,6 +135,7 @@ export type SourceDecisionState = SourceDecisionProposal & {
   workItemId: string | null;
   workItemStatus: string | null;
   outcomeId: string | null;
+  outcomeEvidenceSnapshotId: string | null;
   outcomeStatus: string | null;
   outcomeQuality: number | null;
   expectedImpact: number | null;
@@ -158,6 +162,34 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
 
   const decisionRows = data ?? [];
   const decisionIds = decisionRows.map((row) => String(row.id));
+
+  const recommendationIds = decisionRows
+    .map((row) => row.recommendation_id)
+    .filter((id): id is string => Boolean(id));
+
+  const { data: recommendationRows, error: recommendationError } = recommendationIds.length
+    ? await supabase
+        .from('recommendations')
+        .select('id,title,status,evidence_snapshot_id')
+        .eq('company_id', companyId)
+        .in('id', recommendationIds)
+    : { data: [], error: null };
+
+  if (recommendationError) throw recommendationError;
+
+  const recommendationById = new Map<string, {
+    title: string | null;
+    status: string | null;
+    evidenceSnapshotId: string | null;
+  }>();
+
+  for (const recommendation of recommendationRows ?? []) {
+    recommendationById.set(String(recommendation.id), {
+      title: recommendation.title == null ? null : String(recommendation.title),
+      status: recommendation.status == null ? null : String(recommendation.status),
+      evidenceSnapshotId: recommendation.evidence_snapshot_id == null ? null : String(recommendation.evidence_snapshot_id),
+    });
+  }
   const { data: workRows, error: workError } = decisionIds.length
     ? await supabase
         .from('decision_work_items')
@@ -180,7 +212,7 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
   const { data: outcomes, error: outcomeError } = decisionIds.length
     ? await supabase
         .from('recommendation_outcomes')
-        .select('id,decision_id,status,outcome_quality,expected_impact,actual_impact,observed_at')
+        .select('id,decision_id,status,outcome_quality,expected_impact,actual_impact,observed_at,evidence')
         .eq('company_id', companyId)
         .in('decision_id', decisionIds)
         .order('observed_at', { ascending: false })
@@ -215,6 +247,7 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
     id: string;
     status: string;
     outcomeQuality: number | null;
+    evidenceSnapshotId: string | null;
     expectedImpact: number | null;
     actualImpact: number | null;
     observedAt: string | null;
@@ -223,9 +256,13 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
   for (const outcome of outcomes ?? []) {
     const decisionId = String(outcome.decision_id);
     if (!outcomeByDecision.has(decisionId)) {
+      const outcomeEvidence = outcome.evidence && typeof outcome.evidence === 'object'
+        ? outcome.evidence as Record<string, unknown>
+        : {};
       outcomeByDecision.set(decisionId, {
         id: String(outcome.id),
         status: String(outcome.status ?? 'insufficient'),
+        evidenceSnapshotId: outcomeEvidence.evidence_snapshot_id == null ? null : String(outcomeEvidence.evidence_snapshot_id),
         outcomeQuality: outcome.outcome_quality == null ? null : Number(outcome.outcome_quality),
         expectedImpact: outcome.expected_impact == null ? null : Number(outcome.expected_impact),
         actualImpact: outcome.actual_impact == null ? null : Number(outcome.actual_impact),
@@ -240,9 +277,13 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
       : {};
     const work = workByDecision.get(String(row.id));
     const outcome = outcomeByDecision.get(String(row.id));
+    const recommendation = row.recommendation_id == null ? null : recommendationById.get(String(row.recommendation_id));
     return {
       id: String(row.id),
       status: String(row.status ?? 'PROPOSED'),
+      recommendationTitle: recommendation?.title ?? null,
+      recommendationStatus: recommendation?.status ?? null,
+      recommendationEvidenceSnapshotId: recommendation?.evidenceSnapshotId ?? null,
       decisionKey: String(row.decision_key),
       recommendationId: row.recommendation_id == null ? null : String(row.recommendation_id),
       signalId: evidence.signalId == null ? null : String(evidence.signalId),
@@ -255,6 +296,7 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
       workItemId: work?.id ?? null,
       workItemStatus: work?.status ?? null,
       outcomeId: outcome?.id ?? null,
+      outcomeEvidenceSnapshotId: outcome?.evidenceSnapshotId ?? null,
       outcomeStatus: outcome?.status ?? null,
       outcomeQuality: outcome?.outcomeQuality ?? null,
       expectedImpact: outcome?.expectedImpact ?? null,
