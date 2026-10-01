@@ -596,8 +596,20 @@ try {
   assert.ok(operationsBody.includes('PRICING TRUTH'), 'TRANSACTIONAL_SPINE_PRICING_SURFACE_MISSING');
   assert.ok(operationsBody.includes('SUPPLIER OPERATIONS'), 'TRANSACTIONAL_SPINE_SUPPLIER_SURFACE_MISSING');
   assert.ok(operationsBody.includes('FULFILLMENT / WAREHOUSE'), 'TRANSACTIONAL_SPINE_WAREHOUSE_SURFACE_MISSING');
+  assert.ok(operationsBody.includes('AUDIT / TRACE'), 'TRANSACTIONAL_SPINE_AUDIT_TRACE_SURFACE_MISSING');
+  assert.ok(operationsBody.includes('READBACK CONTRACT'), 'TRANSACTIONAL_SPINE_READBACK_CONTRACT_MISSING');
   await pageA.screenshot({ path: reportDir + '/transactional-spine-surface.png', fullPage: true });
-  evidence.steps.push({ step: 'transactional-spine-surface-shell', status: 'PASS', ordersSurface: true, invoicesPaymentsSurface: true, pricingSurface: true, supplierSurface: true, warehouseSurface: true });
+  evidence.steps.push({
+    step: 'transactional-spine-surface-shell',
+    status: 'PASS',
+    ordersSurface: true,
+    invoicesPaymentsSurface: true,
+    pricingSurface: true,
+    supplierSurface: true,
+    warehouseSurface: true,
+    auditTraceSurface: true,
+    readbackContractSurface: true,
+  });
   const contextB = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
   const pageB = await contextB.newPage(); attachRuntimeCapture(pageB);
   try {
