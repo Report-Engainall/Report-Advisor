@@ -610,6 +610,30 @@ try {
     auditTraceSurface: true,
     readbackContractSurface: true,
   });
+  assert.ok(await pageA.locator('[dir="rtl"]').count(), 'OPERATIONS_RTL_ROOT_MISSING');
+  assert.ok(await pageA.getByRole('button', { name: 'تحديث' }).isVisible(), 'OPERATIONS_RETRY_ACTION_MISSING');
+  const desktopOverflow = await pageA.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
+  assert.equal(desktopOverflow, false, 'OPERATIONS_DESKTOP_HORIZONTAL_OVERFLOW');
+
+  await pageA.setViewportSize({ width: 390, height: 844 });
+  await pageA.goto(baseURL + '/operations', { waitUntil: 'networkidle', timeout: 30000 });
+  await pageA.getByText('مركز العمليات', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  const mobileBody = (await pageA.locator('body').innerText()).trim();
+  assert.ok(mobileBody.includes('AUDIT / TRACE'), 'OPERATIONS_MOBILE_AUDIT_TRACE_MISSING');
+  assert.ok(await pageA.getByRole('button', { name: 'تحديث' }).isVisible(), 'OPERATIONS_MOBILE_RETRY_MISSING');
+  const mobileOverflow = await pageA.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
+  assert.equal(mobileOverflow, false, 'OPERATIONS_MOBILE_HORIZONTAL_OVERFLOW');
+  await pageA.screenshot({ path: reportDir + '/transactional-spine-mobile.png', fullPage: true });
+  evidence.steps.push({
+    step: 'transactional-spine-responsive-rtl',
+    status: 'PASS',
+    rtlRoot: true,
+    desktopOverflow: false,
+    mobileOverflow: false,
+    retryAction: true,
+  });
+
+  await pageA.setViewportSize({ width: 1440, height: 1000 });
   const contextB = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
   const pageB = await contextB.newPage(); attachRuntimeCapture(pageB);
   try {
