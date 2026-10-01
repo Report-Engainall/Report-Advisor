@@ -31,6 +31,15 @@ export function requireOperationalToken(req, res) {
   return true;
 }
 
+export function runtimeIdentity() {
+  return {
+    deployment_id: process.env.VERCEL_DEPLOYMENT_ID?.trim() || null,
+    deployment_sha: process.env.VERCEL_GIT_COMMIT_SHA?.trim() || null,
+    target_env: process.env.RESILIENCE_TARGET_ENV?.trim() || null,
+    runtime_environment: process.env.VERCEL_ENV?.trim() || null,
+  };
+}
+
 export function requireConfig(res, keys) {
   const missing = keys.filter((key) => !process.env[key]?.trim());
   if (missing.length) {
