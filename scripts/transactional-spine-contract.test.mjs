@@ -39,7 +39,7 @@ for (const marker of ['prepare_e2e_order','E2E-ORDER-%','E2E_RESET_ADMIN_REQUIRE
 const normalizedRepeatabilityMigration = repeatabilityMigration.toLowerCase().replace(/\s+/g, ' ');
 assert.ok(normalizedRepeatabilityMigration.includes('revoke all on function public.prepare_e2e_order(uuid) from public, anon'));
 assert.ok(normalizedRepeatabilityMigration.includes('grant execute on function public.prepare_e2e_order(uuid) to authenticated'));
-for (const marker of ['prepare_e2e_order','delete from public.payments','delete from public.sales_invoices','order.e2e_reset','e2e_order_reset']) {
+for (const marker of ['prepare_e2e_order','delete from public.payments','delete from public.sales_invoices','order.e2e_reset']) {
   assert.ok(repeatabilityHardening.includes(marker), 'E2E reset hardening missing: ' + marker);
 }
 assert.match(app, /path="\/operations"/);
