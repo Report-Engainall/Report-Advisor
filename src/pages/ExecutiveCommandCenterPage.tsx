@@ -179,6 +179,45 @@ export function ExecutiveCommandCenterPage() {
         <Link to="/reports/executive" className="btn-ghost text-[11px]">التقرير التنفيذي</Link>
       </div>
 
+      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4" aria-label="ما يحتاج انتباهًا">
+        <Card variant="action">
+          <CardHeader kicker="WHAT NEEDS ATTENTION" title="ما يحتاج انتباهًا" subtitle="هذه الأولويات تُبنى فقط من السجلات الحالية؛ لا يوجد KPI اصطناعي." />
+          <CardBody>
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+              <Link to="/decision-experience?stage=approval" className="ag-attention-card">
+                <span className="ag-attention-icon ag-attention-warning"><ShieldCheck size={15}/></span>
+                <span><span className="ag-attention-label">اعتمادات معلقة</span><span className="ag-attention-value">{pendingApprovals}</span><span className="ag-attention-note">تحتاج صاحب صلاحية</span></span>
+              </Link>
+              <Link to="/work-center?stage=open" className="ag-attention-card">
+                <span className="ag-attention-icon ag-attention-neutral"><Clock3 size={15}/></span>
+                <span><span className="ag-attention-label">عمل مفتوح</span><span className="ag-attention-value">{executionSummary.open}</span><span className="ag-attention-note">ينتظر البدء</span></span>
+              </Link>
+              <Link to="/work-center?stage=in_progress" className="ag-attention-card">
+                <span className="ag-attention-icon ag-attention-primary"><TrendingUp size={15}/></span>
+                <span><span className="ag-attention-label">قيد التنفيذ</span><span className="ag-attention-value">{executionSummary.inProgress}</span><span className="ag-attention-note">يتطلب متابعة</span></span>
+              </Link>
+              <Link to="/data-quality" className="ag-attention-card">
+                <span className="ag-attention-icon ag-attention-danger"><CircleAlert size={15}/></span>
+                <span><span className="ag-attention-label">صحة البيانات</span><span className="ag-attention-value">{coverage}%</span><span className="ag-attention-note">{kpis.status === 'INSUFFICIENT_DATA' ? 'بيانات غير كافية' : 'تغطية القياسات المتاحة'}</span></span>
+              </Link>
+            </div>
+          </CardBody>
+        </Card>
+      </section>
+
+      <section className="ag-fast-actions" aria-label="إجراءات سريعة">
+        <div>
+          <div className="section-kicker">FAST ACTIONS</div>
+          <h2 className="mt-1 text-sm font-black text-ink-950">انتقل مباشرة إلى العمل</h2>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link to="/import" className="btn-primary text-[10px]"><Upload size={13}/>إدخال مصدر</Link>
+          <Link to="/operations" className="btn-secondary text-[10px]"><Package size={13}/>العمليات</Link>
+          <Link to="/work-center" className="btn-secondary text-[10px]"><CheckCircle2 size={13}/>مركز العمل</Link>
+          <Link to="/reports/executive" className="btn-ghost text-[10px]"><FileSearch size={13}/>التقرير التنفيذي</Link>
+        </div>
+      </section>
+
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <Link to="/reports/receivables" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><WalletCards size={18} className="text-primary-700"/><span className="rounded-full bg-success-50 px-2 py-1 text-[9px] font-black text-success-700">{kpis.totalReceivables === null ? 'INSUFFICIENT DATA' : 'بيانات الذمم متاحة'}</span></div>
