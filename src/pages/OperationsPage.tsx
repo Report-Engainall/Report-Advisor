@@ -1,5 +1,5 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { CheckCircle2, ChevronLeft, CreditCard, PackageCheck, ReceiptText, RefreshCw, Tags, Truck, Warehouse } from 'lucide-react';
+import { ChevronLeft, CreditCard, PackageCheck, ReceiptText, RefreshCw, Tags, Truck, Warehouse } from 'lucide-react';
 import { PageHeader } from '@/components/ui/States';
 import { Badge } from '@/components/ui/Badge';
 import { formatCurrency, formatNumber } from '@/lib/format';
