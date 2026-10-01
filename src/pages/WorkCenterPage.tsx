@@ -35,6 +35,13 @@ function WorkCenterGeneralPage() {
   const [workerHealth, setWorkerHealth] = useState<WorkerHealthSnapshot | null>(null);
   const [filter, setFilter] = useState<FilterKey>('all');
   const [decisionWorkFilter, setDecisionWorkFilter] = useState<DecisionWorkFilter>('all');
+  const [workParams] = useSearchParams();
+  useEffect(() => {
+    const requested = workParams.get('decisionWorkFilter');
+    if (requested === 'all' || requested === 'open' || requested === 'in_progress' || requested === 'completed' || requested === 'overdue') {
+      setDecisionWorkFilter(requested);
+    }
+  }, [workParams]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -289,6 +296,20 @@ function WorkCenterGeneralPage() {
               {key === 'all' ? 'الكل' : key === 'open' ? 'مفتوح' : key === 'in_progress' ? 'قيد التنفيذ' : key === 'completed' ? 'مكتمل' : 'متأخر'}
             </button>
           ))}
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-xl border border-primary-100 bg-primary-50/50 p-3" aria-label="سياق العمل الحالي">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="section-kicker">WHY · EVIDENCE · ACTION · OUTCOME</div>
+            <div className="mt-1 text-[11px] font-black text-ink-900">مركز العمل يربط المهمة بالدليل، الإجراء، والنتيجة المسجلة.</div>
+            <p className="mt-1 text-[9px] leading-5 text-ink-500">ابدأ المهمة فقط عندما تكون الحالة مفتوحة، وأغلقها بعد إدخال الأثر الفعلي مع Evidence مثبت. النتيجة والتعلّم تظهران من السجل المحفوظ.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/command-center" className="btn-secondary text-[9px]">مركز القيادة</Link>
+            <Link to="/decision-experience?stage=decision" className="btn-ghost text-[9px]">مساحة القرار</Link>
+          </div>
         </div>
       </div>
 
