@@ -8,7 +8,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { DataTable } from '@/components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchImportRecords, fetchWorkerHealthSnapshot, type WorkerHealthSnapshot } from '@/lib/queries';
-import { fetchDecisionWorkItems, type DecisionWorkItemRecord } from '@/lib/report-decisions';
+import { fetchDecisionWorkItems, startSourceDecisionWorkItem, completeSourceDecisionWorkItem, type DecisionWorkItemRecord } from '@/lib/report-decisions';
 import { loadPersistedOutcomes, type DecisionOutcome } from '@/lib/analytics/outcome-feedback';
 import { resolveCurrentCompanyId } from '@/lib/supabase';
 import type { ImportRecord } from '@/lib/types';
@@ -30,6 +30,8 @@ function WorkCenterGeneralPage() {
   const [rows, setRows] = useState<ImportRecord[]>([]);
   const [decisionWorkItems, setDecisionWorkItems] = useState<DecisionWorkItemRecord[]>([]);
   const [outcomes, setOutcomes] = useState<DecisionOutcome[]>([]);
+  const [workActions, setWorkActions] = useState<Record<string, 'starting' | 'completing' | 'error'>>({});
+  const [workImpacts, setWorkImpacts] = useState<Record<string, string>>({});
   const [workerHealth, setWorkerHealth] = useState<WorkerHealthSnapshot | null>(null);
   const [filter, setFilter] = useState<FilterKey>('all');
   const [decisionWorkFilter, setDecisionWorkFilter] = useState<DecisionWorkFilter>('all');
@@ -60,6 +62,55 @@ function WorkCenterGeneralPage() {
   }, []);
 
   useEffect(() => { void load(); }, [load]);
+
+  const startWork = useCallback(async (item: DecisionWorkItemRecord) => {
+    setWorkActions((current) => ({ ...current, [item.id]: 'starting' }));
+    try {
+      await startSourceDecisionWorkItem(item.id);
+      await load();
+    } catch {
+      setWorkActions((current) => ({ ...current, [item.id]: 'error' }));
+    } finally {
+      setWorkActions((current) => {
+        const next = { ...current };
+        if (next[item.id] !== 'error') delete next[item.id];
+        return next;
+      });
+    }
+  }, [load]);
+
+  const completeWork = useCallback(async (item: DecisionWorkItemRecord) => {
+    const snapshotId = item.evidenceSnapshotId;
+    if (!snapshotId || !item.sourceReportJobId || !item.sourceHash) {
+      setWorkActions((current) => ({ ...current, [item.id]: 'error' }));
+      return;
+    }
+    const rawImpact = workImpacts[item.id]?.trim() ?? '';
+    const parsedImpact = rawImpact ? Number(rawImpact.replace(/,/g, '')) : null;
+    if (parsedImpact != null && !Number.isFinite(parsedImpact)) {
+      setWorkActions((current) => ({ ...current, [item.id]: 'error' }));
+      return;
+    }
+    setWorkActions((current) => ({ ...current, [item.id]: 'completing' }));
+    try {
+      await completeSourceDecisionWorkItem({
+        workItemId: item.id,
+        actualImpact: parsedImpact,
+        evidenceSnapshotId: snapshotId,
+        reportJobId: item.sourceReportJobId,
+        sourceHash: item.sourceHash,
+      });
+      await load();
+    } catch {
+      setWorkActions((current) => ({ ...current, [item.id]: 'error' }));
+    } finally {
+      setWorkActions((current) => {
+        const next = { ...current };
+        if (next[item.id] !== 'error') delete next[item.id];
+        return next;
+      });
+    }
+  }, [load, workImpacts]);
 
   const filtered = useMemo(() => rows.filter(r => matches(r, filter)), [rows, filter]);
   const isOverdue = (item: DecisionWorkItemRecord) =>
@@ -277,7 +328,12 @@ function WorkCenterGeneralPage() {
                     <td className="px-3 py-3 text-ink-600">{item.priority}</td>
                     <td className="px-3 py-3 text-ink-600">{item.dueAt ? new Date(item.dueAt).toLocaleDateString('ar-YE') : 'غير محدد'}</td>
                     <td className="px-3 py-3 text-ink-600">
-                      {item.actualImpact != null ? formatNumber(item.actualImpact) : item.expectedImpact != null ? 'متوقع ' + formatNumber(item.expectedImpact) : 'غير متاح'}
+                      <div>{item.actualImpact != null ? formatNumber(item.actualImpact) : item.expectedImpact != null ? 'متوقع ' + formatNumber(item.expectedImpact) : 'غير متاح'}</div>
+                      {item.expectedImpact != null && item.actualImpact != null && (
+                        <div className={'mt-1 text-[8px] font-black ' + (item.actualImpact - item.expectedImpact >= 0 ? 'text-success-700' : 'text-danger-700')}>
+                          Delta: {formatNumber(item.actualImpact - item.expectedImpact)}
+                        </div>
+                      )}
                     </td>
                     <td className="px-3 py-3">
                       {reportJobIdValue && sourceHashValue
@@ -285,9 +341,47 @@ function WorkCenterGeneralPage() {
                         : <span className="text-ink-400">غير مربوط</span>}
                     </td>
                     <td className="px-3 py-3">
-                      {reportJobIdValue && sourceHashValue
-                        ? <Link to={'/reports/smart/' + reportJobIdValue + '?sourceHash=' + encodeURIComponent(sourceHashValue)} className="btn-secondary text-[9px]">فتح التقرير</Link>
-                        : <span className="text-ink-400">غير متاح</span>}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {item.status === 'OPEN' && (
+                          <button
+                            type="button"
+                            onClick={() => void startWork(item)}
+                            disabled={workActions[item.id] === 'starting'}
+                            className="btn-primary text-[9px] disabled:opacity-50"
+                            data-testid={'work-center-start-' + item.id}
+                          >
+                            {workActions[item.id] === 'starting' ? 'جارٍ البدء...' : 'بدء'}
+                          </button>
+                        )}
+                        {item.status === 'IN_PROGRESS' && item.evidenceSnapshotId && (
+                          <div className="flex flex-wrap items-center gap-1">
+                            <input
+                              inputMode="decimal"
+                              value={workImpacts[item.id] ?? ''}
+                              onChange={(event) => setWorkImpacts((current) => ({ ...current, [item.id]: event.target.value }))}
+                              placeholder="الأثر الفعلي"
+                              aria-label={'الأثر الفعلي ' + item.title}
+                              className="min-h-8 w-24 rounded-lg border border-ink-200 bg-white px-2 text-[9px] outline-none focus:border-primary-400"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => void completeWork(item)}
+                              disabled={workActions[item.id] === 'completing'}
+                              className="btn-primary text-[9px] disabled:opacity-50"
+                              data-testid={'work-center-complete-' + item.id}
+                            >
+                              {workActions[item.id] === 'completing' ? 'جارٍ الإغلاق...' : 'إغلاق'}
+                            </button>
+                          </div>
+                        )}
+                        {item.status === 'IN_PROGRESS' && !item.evidenceSnapshotId && (
+                          <span className="rounded-lg border border-warning-200 bg-warning-50 px-2 py-1 text-[8px] font-bold text-warning-900">Evidence غير متاح — افتح المصدر</span>
+                        )}
+                        {reportJobIdValue && sourceHashValue
+                          ? <Link to={'/reports/smart/' + reportJobIdValue + '?sourceHash=' + encodeURIComponent(sourceHashValue)} className="btn-secondary text-[9px]">المصدر</Link>
+                          : <span className="text-ink-400">غير متاح</span>}
+                      </div>
+                      {workActions[item.id] === 'error' && <div role="alert" className="mt-1 text-[8px] font-bold text-danger-700">تعذر تنفيذ الإجراء أو readback؛ بقيت الحالة دون تغيير محلي.</div>}
                     </td>
                   </tr>
                 );
