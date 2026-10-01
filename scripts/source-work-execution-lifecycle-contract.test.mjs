@@ -32,7 +32,8 @@ assert.ok(workCenter.includes("work-center-complete-"));
 assert.ok(workCenter.includes("evidenceSnapshotId"));
 assert.ok(decisionsBridge.includes("p_recommendation_id: input.recommendationId"));
 assert.ok(decisionsBridge.includes("evidenceSnapshotId: input.evidenceSnapshotId"));
-for (const marker of ['trg_recommendation_outcome_audit','audit_decision_runtime_change','AFTER INSERT OR UPDATE OR DELETE']) {
+for (const marker of ['trg_recommendation_outcome_audit','audit_decision_runtime_change']) {
   assert.ok(auditMigration.includes(marker), 'outcome audit contract missing: ' + marker);
 }
+assert.ok(/after\s+insert\s+or\s+update\s+or\s+delete/i.test(auditMigration), 'outcome audit trigger event contract missing');
 console.log('SOURCE_WORK_EXECUTION_LIFECYCLE_CONTRACT_PASS');
