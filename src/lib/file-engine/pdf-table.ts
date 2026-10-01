@@ -210,18 +210,18 @@ function canonicalDateText(value: string): string {
 }
 
 function looksLikeArabicSalesDate(value: string): boolean {
-  return /^\\d{4}-\\d{2}-\\d{2}$/.test(canonicalDateText(value));
+  return /^\d{4}-\d{2}-\d{2}$/.test(canonicalDateText(value));
 }
 
 function looksLikeInvoiceNumber(value: string): boolean {
-  const normalized = normalizeArabicDigitsForPdf(value).replace(/[,\\s]/g, '');
-  return /^\\d{1,12}$/.test(normalized);
+  const normalized = normalizeArabicDigitsForPdf(value).replace(/[,\s]/g, '');
+  return /^\d{1,12}$/.test(normalized);
 }
 
 function looksLikeInvoiceType(value: string): boolean {
   const normalized = value.normalize('NFKC').trim().toLowerCase();
   if (!normalized) return false;
-  return !/^(نوع\\s*الفاتورة|التاريخ|رقم\\s*الفاتورة|الفاتورة|العملة)$/i.test(normalized);
+  return !/^(نوع\s*الفاتورة|التاريخ|رقم\s*الفاتورة|الفاتورة|العملة)$/i.test(normalized);
 }
 
 
@@ -267,7 +267,7 @@ function extractArabicSalesTableFromPage(
       const reverse = index === 6;
       const value = tokenTextForBand(band, reverse);
       if (index === 9) return canonicalDateText(value);
-      if (index === 10) return normalizeArabicDigitsForPdf(value).replace(/[,\\s]/g, '');
+      if (index === 10) return normalizeArabicDigitsForPdf(value).replace(/[,\s]/g, '');
       return value;
     });
 
