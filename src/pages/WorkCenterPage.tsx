@@ -301,6 +301,7 @@ function WorkCenterGeneralPage() {
 
       <div className="mt-4 overflow-x-auto rounded-xl border border-ink-200 bg-white">
         {filteredDecisionWork.length ? (
+          <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full text-right text-[10px]">
             <thead className="bg-ink-50"><tr>
               <th className="whitespace-nowrap px-3 py-2 font-black text-ink-600">العمل</th>
@@ -391,6 +392,42 @@ function WorkCenterGeneralPage() {
               })}
             </tbody>
           </table>
+        </div>
+        <div className="grid gap-2 p-2 md:hidden">
+          {filteredDecisionWork.map((item) => {
+            const sourceHashValue = typeof item.sourceHash === 'string' ? item.sourceHash : '';
+            const reportJobIdValue = typeof item.sourceReportJobId === 'string' ? item.sourceReportJobId : '';
+            return (
+              <article key={item.id} className="rounded-xl border border-ink-200 bg-ink-50/55 p-3" aria-label={'عنصر عمل ' + item.title}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-black text-ink-900">{item.title}</div>
+                    <div className="mt-1 break-all font-mono text-[8px] text-ink-400">{item.id}</div>
+                  </div>
+                  <span className="shrink-0 rounded-full bg-primary-50 px-2 py-1 text-[8px] font-black text-primary-800">{workStatusLabel(item.status)}</span>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-[9px]">
+                  <div className="rounded-lg bg-white p-2"><div className="text-ink-400">المسؤول</div><div className="mt-1 font-bold text-ink-800">{item.assigneeLabel ?? 'غير متاح'}</div></div>
+                  <div className="rounded-lg bg-white p-2"><div className="text-ink-400">الموعد</div><div className="mt-1 font-bold text-ink-800">{item.dueAt ? new Date(item.dueAt).toLocaleDateString('ar-YE') : 'غير محدد'}</div></div>
+                  <div className="rounded-lg bg-white p-2"><div className="text-ink-400">المتوقع</div><div className="mt-1 font-bold text-ink-800">{item.expectedImpact == null ? 'غير متاح' : formatNumber(item.expectedImpact)}</div></div>
+                  <div className="rounded-lg bg-white p-2"><div className="text-ink-400">الفعلي</div><div className="mt-1 font-bold text-ink-800">{item.actualImpact == null ? 'غير متاح' : formatNumber(item.actualImpact)}</div></div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {item.status === 'OPEN' && <button type="button" onClick={() => void startWork(item)} disabled={workActions[item.id] === 'starting'} className="btn-primary text-[9px]">{workActions[item.id] === 'starting' ? 'جارٍ البدء...' : 'بدء'}</button>}
+                  {item.status === 'IN_PROGRESS' && item.evidenceSnapshotId && (
+                    <>
+                      <input inputMode="decimal" value={workImpacts[item.id] ?? ''} onChange={(event) => setWorkImpacts((current) => ({ ...current, [item.id]: event.target.value }))} placeholder="الأثر الفعلي" aria-label={'الأثر الفعلي ' + item.title} className="min-h-8 w-28 rounded-lg border border-ink-200 bg-white px-2 text-[9px] outline-none focus:border-primary-400" />
+                      <button type="button" onClick={() => void completeWork(item)} disabled={workActions[item.id] === 'completing'} className="btn-primary text-[9px]">{workActions[item.id] === 'completing' ? 'جارٍ الإغلاق...' : 'إغلاق'}</button>
+                    </>
+                  )}
+                  {item.status === 'IN_PROGRESS' && !item.evidenceSnapshotId && <span className="rounded-lg border border-warning-200 bg-warning-50 px-2 py-1 text-[8px] font-bold text-warning-900">الدليل غير متاح</span>}
+                  {reportJobIdValue && sourceHashValue && <Link to={'/reports/smart/' + reportJobIdValue + '?sourceHash=' + encodeURIComponent(sourceHashValue) + '#decision-evidence-inspector'} className="btn-secondary text-[9px]">التتبع</Link>}
+                </div>
+                {workActions[item.id] === 'error' && <div role="alert" className="mt-2 text-[8px] font-bold text-danger-700">تعذر تنفيذ الإجراء أو إعادة القراءة؛ بقيت الحالة كما هي في النظام.</div>}
+              </article>
+            );
+          })}
+        </div>
         ) : <div className="p-6 text-center text-[10px] text-ink-500">لا توجد عناصر عمل مطابقة داخل نافذة مركز العمل الحالية.</div>}
       </div>
     </section>
