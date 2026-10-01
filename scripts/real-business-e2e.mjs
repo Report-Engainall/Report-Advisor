@@ -691,7 +691,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
   await page.goto(baseURL + '/reports/smart/' + report.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
   await page.getByText('ماذا استنتج النظام من هذا التقرير؟', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
 
-  const proposalButton = page.getByRole('button', { name: 'حفظ كقرار مقترح', exact: true }).first();
+  const proposalButton = page.getByRole('button', { name: /حفظ كقرار مقترح|حفظ كتوصية ثم قرار/, exact: false }).first();
   if (await proposalButton.count() === 0) {
     evidence.steps.push({ step: 'decision-approval-action-outcome', status: 'NOT_PROVEN', reason: 'SOURCE_SIGNAL_NOT_AVAILABLE', reportJobId: report.reportJobId });
     return;
@@ -699,7 +699,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
 
   const userAId = await currentUserId(page);
   await proposalButton.click();
-  await page.getByText('تم حفظ القرار المقترح', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await page.getByText(/تم حفظ القرار المقترح|تم حفظ التوصية والقرار/, { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
 
   const decisionTarget = baseURL + '/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash);
   await page.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });
@@ -708,7 +708,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
     page,
     'business_intelligence_decisions',
     { company_id: evidence.tenantA },
-    'id,company_id,status,decision_key,created_at,approved_at,approved_by',
+    'id,company_id,status,decision_key,recommendation_id,created_at,approved_at,approved_by',
     { order: 'created_at.desc', limit: 100 },
   );
   const sourceDecisions = decisionRows.filter((row) => String(row.decision_key ?? '').startsWith('source-intelligence:' + report.sourceHash + ':'));
@@ -720,6 +720,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
   const decision = sourceDecisions[0];
   const decisionId = String(decision.id);
   assert.equal(String(decision.company_id), evidence.tenantA, 'DECISION_TENANT_MISMATCH');
+  assert.ok(decision.recommendation_id, 'DECISION_RECOMMENDATION_LINK_MISSING');
 
   const approvals = await restSelect(
     page,
@@ -734,10 +735,23 @@ async function proveDecisionApprovalActionOutcome(page, report) {
   if (decision.status === 'EXECUTED') {
     const workRows = await restSelect(page, 'decision_work_items', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,status,assignee_id,actual_impact', { order: 'created_at.desc', limit: 1 });
     const outcomeRows = await restSelect(page, 'recommendation_outcomes', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,status,outcome_quality,actual_impact,observed_at', { order: 'observed_at.desc', limit: 1 });
+    const recommendationRows = await restSelect(page, 'recommendations', { company_id: evidence.tenantA, id: String(decision.recommendation_id) }, 'id,company_id,decision_id,evidence_snapshot_id', { limit: 1 });
     assert.equal(workRows.length, 1, 'DECISION_EXECUTED_WORK_ITEM_MISSING');
     assert.equal(workRows[0].status, 'COMPLETED');
     assert.equal(String(workRows[0].assignee_id), userAId);
     assert.equal(outcomeRows.length, 1, 'DECISION_EXECUTED_OUTCOME_MISSING');
+    assert.equal(recommendationRows.length, 1, 'DECISION_RECOMMENDATION_READBACK_MISSING');
+    assert.equal(String(recommendationRows[0].decision_id), decisionId);
+    const decisionAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: decisionId }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+    const approvalRows = await restSelect(page, 'decision_approvals', { company_id: evidence.tenantA, decision_id: decisionId }, 'id', { order: 'requested_at.desc', limit: 1 });
+    assert.equal(approvalRows.length, 1, 'DECISION_EXECUTED_APPROVAL_MISSING');
+    const approvalAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(approvalRows[0].id) }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+    const workAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(workRows[0].id) }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+    const outcomeAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(outcomeRows[0].id) }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+    assert.ok(decisionAudit.length > 0, 'DECISION_AUDIT_READBACK_MISSING');
+    assert.ok(approvalAudit.length > 0, 'APPROVAL_AUDIT_READBACK_MISSING');
+    assert.ok(workAudit.length > 0, 'WORK_AUDIT_READBACK_MISSING');
+    assert.ok(outcomeAudit.length > 0, 'OUTCOME_AUDIT_READBACK_MISSING');
     await page.screenshot({ path: reportDir + '/decision-approval-action-outcome-reused.png', fullPage: true });
     evidence.steps.push({
       step: 'decision-approval-action-outcome',
@@ -850,9 +864,23 @@ async function proveDecisionApprovalActionOutcome(page, report) {
 
   const outcomeRows = await restSelect(page, 'recommendation_outcomes', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,status,outcome_quality,actual_impact,observed_at', { order: 'observed_at.desc', limit: 1 });
   assert.equal(outcomeRows.length, 1, 'DECISION_OUTCOME_DB_ROW_MISSING');
-  const decisionAfter = await restSelect(page, 'business_intelligence_decisions', { company_id: evidence.tenantA, id: decisionId }, 'id,company_id,status,approved_at,approved_by', { limit: 1 });
+  const recommendationRows = await restSelect(page, 'recommendations', { company_id: evidence.tenantA, id: String(decision.recommendation_id) }, 'id,company_id,decision_id,evidence_snapshot_id', { limit: 1 });
+  assert.equal(recommendationRows.length, 1, 'DECISION_RECOMMENDATION_READBACK_MISSING');
+  assert.equal(String(recommendationRows[0].decision_id), decisionId);
+  assert.ok(String(recommendationRows[0].evidence_snapshot_id), 'RECOMMENDATION_EVIDENCE_SNAPSHOT_MISSING');
+  const decisionAfter = await restSelect(page, 'business_intelligence_decisions', { company_id: evidence.tenantA, id: decisionId }, 'id,company_id,status,approved_at,approved_by,recommendation_id', { limit: 1 });
   assert.equal(decisionAfter.length, 1, 'DECISION_FINAL_READBACK_MISSING');
   assert.equal(decisionAfter[0].status, 'EXECUTED');
+  assert.equal(String(decisionAfter[0].recommendation_id), String(decision.recommendation_id));
+
+  const decisionAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: decisionId }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+  const approvalAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: approvalId }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+  const workAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: workItemId }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+  const outcomeAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(outcomeRows[0].id) }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+  assert.ok(decisionAudit.length > 0, 'DECISION_AUDIT_READBACK_MISSING');
+  assert.ok(approvalAudit.length > 0, 'APPROVAL_AUDIT_READBACK_MISSING');
+  assert.ok(workAudit.length > 0, 'WORK_AUDIT_READBACK_MISSING');
+  assert.ok(outcomeAudit.length > 0, 'OUTCOME_AUDIT_READBACK_MISSING');
 
   await page.screenshot({ path: reportDir + '/decision-approval-action-outcome.png', fullPage: true });
   evidence.steps.push({
@@ -861,6 +889,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
     reportJobId: report.reportJobId,
     sourceHash: report.sourceHash,
     decisionId,
+    recommendationId: String(decision.recommendation_id),
     approvalId,
     workItemId,
     approvalStatus: 'APPROVED',
