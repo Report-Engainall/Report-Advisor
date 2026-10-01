@@ -89,13 +89,13 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
       </div>
 
       <div className="relative z-10 mt-6 grid gap-2 rounded-2xl border border-white/10 bg-black/10 p-2 sm:grid-cols-5">
-        {[
+        {([
           ['TRUTH', report.trustState],
           ['EVIDENCE', report.evidenceStatus],
           ['SIGNAL', report.renderedOutput.signalStatus],
           ['DECISION', report.renderedOutput.decisionStatus],
           ['OUTCOME', report.renderedOutput.outcomeStatus],
-        ].map(([stage, value], index) => (
+        ] as Array<[string, unknown]>).map(([stage, value], index) => (
           <div key={String(stage)} className="flex items-center gap-2 rounded-xl px-3 py-2.5">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/10 text-[9px] font-black">{index + 1}</span>
             <div className="min-w-0">
