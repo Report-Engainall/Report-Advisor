@@ -1,6 +1,16 @@
 import { json, requireConfig, requireMethod, requireOperationalToken, persistIncidentEvidence, isProductionEnv, secureOutboundFetch } from '../src/server/resilience-runtime.mjs';
 
 async function vercelRequest(path, options = {}) {
+  const token = process.env.VERCEL_TOKEN.trim();
+  const team = process.env.VERCEL_TEAM_ID?.trim();
+  const separator = path.includes('?') ? '&' : '?';
+  const scoped = team ? `${path}${separator}teamId=${encodeURIComponent(team)}` : path;
+  return fetch(`https://api.vercel.com${scoped}`, {
+    ...options,
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/json', 'Content-Type': 'application/json', ...(options.headers || {}) },
+  });
+}
+
 async function listReadyProductionDeployments() {
   const projectId = process.env.VERCEL_PROJECT_ID?.trim();
   if (!projectId) throw new Error('vercel_project_id_required');
@@ -27,16 +37,6 @@ async function resolveDrillDeployments(fromId, forwardId) {
   if (!fromDeployment || fromDeployment.id === forwardDeployment.id) throw new Error('rollback_forward_deployments_not_distinct');
   return { fromDeployment, forwardDeployment, source: 'current_production_catalog' };
 }
-  const token = process.env.VERCEL_TOKEN.trim();
-  const team = process.env.VERCEL_TEAM_ID?.trim();
-  const separator = path.includes('?') ? '&' : '?';
-  const scoped = team ? `${path}${separator}teamId=${encodeURIComponent(team)}` : path;
-  return fetch(`https://api.vercel.com${scoped}`, {
-    ...options,
-    headers: { Authorization: `Bearer ${token}`, Accept: 'application/json', 'Content-Type': 'application/json', ...(options.headers || {}) },
-  });
-}
-
 export async function deploymentReady(id) {
   const projectId = process.env.VERCEL_PROJECT_ID?.trim();
   if (!projectId) throw new Error('vercel_project_id_required');
