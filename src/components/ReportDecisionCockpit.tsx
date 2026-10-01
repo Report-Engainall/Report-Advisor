@@ -1,4 +1,4 @@
-import { ArrowLeft, CheckCircle2, FileSearch, ShieldCheck, Sparkles, Target } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, BarChart3, BriefcaseBusiness, CheckCircle2, FileSearch, Lightbulb, ShieldCheck, Sparkles, Target, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
@@ -26,6 +26,19 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
   const job = encodeURIComponent(report.jobId);
   const evidenceReady = report.reportVerificationState === 'VERIFIED' && report.evidenceStatus !== 'PENDING_EVIDENCE';
   const gap = Number(report.canonicalCommitGap ?? 0);
+  const specialtyRoutes: Record<string, string> = {
+    sales: '/reports/sales',
+    purchases: '/reports/purchases',
+    inventory: '/reports/inventory',
+    receivables: '/reports/receivables',
+    profitability: '/reports/profitability',
+    payments: '/analytics/liquidity',
+  };
+  const specialtyHref = specialtyRoutes[String(report.specialty ?? '')] ?? '/intelligence';
+  const identity = '&reportJobId=' + job + '&sourceHash=' + hash;
+  const signals = report.intelligence.signals.slice(0, 3);
+  const recommendations = report.intelligence.recommendations.slice(0, 3);
+  const forecast = report.intelligence.forecast;
   const nextHref = evidenceReady
     ? '/decision-experience?stage=decision&reportJobId=' + job + '&sourceHash=' + hash
     : '/trust?reportJobId=' + job + '&sourceHash=' + hash;
@@ -105,6 +118,68 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
             {index < 4 && <span className="mr-auto hidden text-teal-100/35 sm:block">←</span>}
           </div>
         ))}
+      </div>
+
+      <div className="relative z-10 mt-5 grid gap-3 lg:grid-cols-[1.1fr_.9fr]">
+        <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+          <div className="flex items-center gap-2 text-[9px] font-black tracking-[.14em] text-teal-100/60">
+            <Lightbulb size={14}/> SIGNALS
+          </div>
+          {signals.length ? (
+            <div className="mt-3 space-y-2">
+              {signals.map((signal) => (
+                <div key={signal.id} className="rounded-xl border border-white/8 bg-white/[.045] p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-xs font-black text-white">{signal.title}</div>
+                      <div className="mt-1 text-[10px] leading-5 text-teal-50/65">{signal.message}</div>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-amber-100/15 bg-amber-100/5 px-2 py-1 text-[8px] font-black text-amber-100">{signal.severity}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-3 rounded-xl border border-white/8 bg-white/[.045] p-3 text-[10px] text-teal-50/65">لا توجد إشارة إضافية مثبتة من المصدر.</div>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+          <div className="flex items-center gap-2 text-[9px] font-black tracking-[.14em] text-teal-100/60">
+            <TrendingUp size={14}/> FORECAST
+          </div>
+          <div className="mt-3 rounded-xl border border-white/8 bg-white/[.045] p-3">
+            <div className="text-sm font-black text-white">{label(forecast.status)}</div>
+            <div className="mt-1 text-[10px] leading-5 text-teal-50/65">{forecast.note}</div>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="rounded-lg bg-white/[.04] p-2"><div className="text-[8px] text-teal-100/45">الفترات</div><div className="mt-1 text-sm font-black text-white">{formatNumber(forecast.observedPeriods)}</div></div>
+              <div className="rounded-lg bg-white/[.04] p-2"><div className="text-[8px] text-teal-100/45">القيمة التالية</div><div className="mt-1 text-sm font-black text-white">{forecast.nextValue == null ? '—' : formatNumber(forecast.nextValue)}</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative z-10 mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        <Link to={specialtyHref + '?' + identity.slice(1)} className="group rounded-2xl border border-white/10 bg-white/[.06] p-3 hover:bg-white/[.1]">
+          <div className="flex items-center justify-between gap-3"><BarChart3 size={16} className="text-amber-200"/><ArrowUpRight size={14} className="text-white/35 group-hover:text-white"/></div>
+          <div className="mt-2 text-xs font-black text-white">التحليل التخصصي</div>
+          <div className="mt-1 text-[10px] text-teal-50/60">{label(report.specialty || 'intelligence')}</div>
+        </Link>
+        <Link to={'/work-center?' + identity.slice(1)} className="group rounded-2xl border border-white/10 bg-white/[.06] p-3 hover:bg-white/[.1]">
+          <div className="flex items-center justify-between gap-3"><BriefcaseBusiness size={16} className="text-amber-200"/><ArrowUpRight size={14} className="text-white/35 group-hover:text-white"/></div>
+          <div className="mt-2 text-xs font-black text-white">Work Center</div>
+          <div className="mt-1 text-[10px] text-teal-50/60">{recommendations.length ? 'توصيات قابلة للتحويل إلى عمل' : 'متابعة أعمال التقرير'}</div>
+        </Link>
+        <Link to={'/benchmark?' + identity.slice(1)} className="group rounded-2xl border border-white/10 bg-white/[.06] p-3 hover:bg-white/[.1]">
+          <div className="flex items-center justify-between gap-3"><Target size={16} className="text-amber-200"/><ArrowUpRight size={14} className="text-white/35 group-hover:text-white"/></div>
+          <div className="mt-2 text-xs font-black text-white">Benchmark</div>
+          <div className="mt-1 text-[10px] text-teal-50/60">{forecast.status === 'INSUFFICIENT_SAMPLE' ? 'العينة غير كافية — لا مقارنة مصطنعة' : 'فتح أهلية المقارنة'}</div>
+        </Link>
+        <Link to={'/reports/smart/' + job + '?sourceHash=' + hash} className="group rounded-2xl border border-white/10 bg-white/[.06] p-3 hover:bg-white/[.1]">
+          <div className="flex items-center justify-between gap-3"><FileSearch size={16} className="text-amber-200"/><ArrowUpRight size={14} className="text-white/35 group-hover:text-white"/></div>
+          <div className="mt-2 text-xs font-black text-white">Report 360</div>
+          <div className="mt-1 text-[10px] text-teal-50/60">{formatNumber(report.canonicalCommitCount)} سجل مثبت</div>
+        </Link>
       </div>
     </section>
   );
