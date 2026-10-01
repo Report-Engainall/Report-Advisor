@@ -837,10 +837,17 @@ async function proveDecisionApprovalActionOutcome(page, report) {
     await createWorkButton.click();
   }
 
-  const workRowsOpen = await restSelect(page, 'decision_work_items', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,status,assignee_id,assignee_label', { order: 'created_at.desc', limit: 1 });
+  const workRowsOpen = await restSelect(page, 'decision_work_items', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,recommendation_id,status,assignee_id,assignee_label,evidence_refs', { order: 'created_at.desc', limit: 1 });
   assert.equal(workRowsOpen.length, 1, 'DECISION_WORK_ITEM_DB_ROW_MISSING');
   const workItemId = String(workRowsOpen[0].id);
   assert.equal(String(workRowsOpen[0].assignee_id), userAId);
+  assert.equal(String(workRowsOpen[0].recommendation_id), String(decision.recommendation_id), 'WORK_RECOMMENDATION_LINK_MISSING');
+  const workEvidenceRefs = Array.isArray(workRowsOpen[0].evidence_refs) ? workRowsOpen[0].evidence_refs : [];
+  const sourceRef = workEvidenceRefs.find((ref) => ref && typeof ref === 'object' && ref.type === 'SOURCE_REPORT');
+  assert.ok(sourceRef, 'WORK_SOURCE_REPORT_REF_MISSING');
+  assert.equal(String(sourceRef.sourceHash), report.sourceHash, 'WORK_SOURCE_HASH_MISMATCH');
+  assert.equal(String(sourceRef.reportExecutionJobId), report.reportJobId, 'WORK_REPORT_JOB_MISMATCH');
+  assert.ok(String(sourceRef.evidenceSnapshotId || ''), 'WORK_EVIDENCE_SNAPSHOT_MISSING');
   const workStatusBefore = String(workRowsOpen[0].status);
 
   if (workStatusBefore === 'OPEN') {
