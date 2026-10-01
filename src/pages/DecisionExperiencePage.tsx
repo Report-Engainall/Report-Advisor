@@ -13,6 +13,14 @@ import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchAlerts, fetchRecommendations } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Alert, Recommendation } from '@/lib/types';
+import {
+  createRuntimeDecision,
+  linkRecommendationToDecision,
+  loadRuntimeDecisionContext,
+  loadRuntimeRecommendationEvidence,
+  requestRuntimeApproval,
+  type RuntimeDecisionContext,
+} from '@/lib/decision-automation/vertical-slice-runtime';
 
 type Stage = 'command' | 'evidence' | 'decision' | 'approval' | 'work' | 'outcome';
 
@@ -121,6 +129,10 @@ function DecisionExperienceGeneralPage() {
   const [selectedId, setSelectedId] = useState<string | null>(params.get('recommendationId'));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [decisionContext, setDecisionContext] = useState<RuntimeDecisionContext>({ decision: null, approval: null });
+  const [decisionContextLoading, setDecisionContextLoading] = useState(false);
+  const [decisionBusy, setDecisionBusy] = useState(false);
+  const [decisionError, setDecisionError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -144,6 +156,109 @@ function DecisionExperienceGeneralPage() {
   const currentStageIndex = Math.max(0, STAGES.findIndex((item) => item.id === stage));
   const activeAlerts = useMemo(() => alerts.filter((item) => !item.is_read).slice(0, 6), [alerts]);
   const selectedStatus = selected?.status ?? null;
+  useEffect(() => {
+    let active = true;
+    setDecisionError(null);
+    if (!selectedId) {
+      setDecisionContext({ decision: null, approval: null });
+      setDecisionContextLoading(false);
+      return () => { active = false; };
+    }
+    setDecisionContextLoading(true);
+    void loadRuntimeDecisionContext(selectedId)
+      .then((context) => { if (active) setDecisionContext(context); })
+      .catch((cause) => {
+        if (active) {
+          setDecisionContext({ decision: null, approval: null });
+          setDecisionError(cause instanceof Error ? cause.message : 'تعذر قراءة مسار القرار المحفوظ');
+        }
+      })
+      .finally(() => { if (active) setDecisionContextLoading(false); });
+    return () => { active = false; };
+  }, [selectedId]);
+
+  const persistSelectedDecision = async () => {
+    if (!selected) return;
+    const expectedImpact = Number(selected.expected_impact);
+    const rawConfidence = String(selected.confidence ?? '').trim();
+    const numericConfidence = rawConfidence.includes('%')
+      ? Number(rawConfidence.replace('%', '')) / 100
+      : Number(rawConfidence);
+    const confidence = numericConfidence > 1 && numericConfidence <= 100
+      ? numericConfidence / 100
+      : numericConfidence;
+
+    if (!Number.isFinite(expectedImpact)) {
+      setDecisionError('لا يمكن حفظ قرار بلا أثر متوقع رقمي مثبت.');
+      return;
+    }
+    if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) {
+      setDecisionError('لا يمكن حفظ قرار بثقة غير قابلة للتحقق ضمن 0..1.');
+      return;
+    }
+
+    setDecisionBusy(true);
+    setDecisionError(null);
+    try {
+      if (decisionContext.decision) {
+        if (decisionContext.approval?.status === 'PENDING') {
+          navigateStage('approval');
+          return;
+        }
+        if (['APPROVED', 'REJECTED', 'CANCELLED'].includes(decisionContext.approval?.status ?? '')) {
+          navigateStage('approval');
+          return;
+        }
+        const approvalId = await requestRuntimeApproval(
+          decisionContext.decision.id,
+          selected.description ?? 'طلب اعتماد القرار من تجربة القرار',
+        );
+        const refreshed = await loadRuntimeDecisionContext(selected.id);
+        setDecisionContext(refreshed.approval ? refreshed : { ...refreshed, approval: { id: approvalId, status: 'PENDING', requestedBy: null, requestedAt: new Date().toISOString(), decidedBy: null, decidedAt: null, reason: selected.description ?? null } });
+        navigateStage('approval');
+        return;
+      }
+
+      const recommendationEvidence = await loadRuntimeRecommendationEvidence(selected.id);
+      if (!recommendationEvidence.evidenceSnapshotId || !recommendationEvidence.evidence) {
+        throw new Error('DECISION_EVIDENCE_SNAPSHOT_REQUIRED');
+      }
+
+      const reportContext = readActiveReportContext();
+      const decisionId = await createRuntimeDecision({
+        decisionKey: 'recommendation:' + selected.id,
+        decisionType: 'recommendation:' + selected.category,
+        confidence,
+        expectedImpact,
+        evidence: {
+          recommendationId: selected.id,
+          title: selected.title,
+          description: selected.description ?? null,
+          category: selected.category,
+          priority: selected.priority,
+          owner: selected.owner ?? null,
+          deadline: selected.deadline ?? null,
+          sourceEvidence: recommendationEvidence.evidence,
+          evidenceSnapshotId: recommendationEvidence.evidenceSnapshotId,
+          metricVersions: recommendationEvidence.metricVersions,
+          reportJobId: reportContext?.jobId ?? null,
+          sourceHash: reportContext?.sourceHash ?? null,
+        },
+      });
+      await linkRecommendationToDecision(selected.id, decisionId);
+      await requestRuntimeApproval(
+        decisionId,
+        selected.description ?? 'طلب اعتماد القرار من تجربة القرار',
+      );
+      const refreshed = await loadRuntimeDecisionContext(selected.id);
+      setDecisionContext(refreshed);
+      navigateStage('approval');
+    } catch (cause) {
+      setDecisionError(cause instanceof Error ? cause.message : 'تعذر حفظ القرار وطلب الموافقة');
+    } finally {
+      setDecisionBusy(false);
+    }
+  };
 
   const navigateStage = (next: Stage, id = selectedId) => {
     setStage(next);
@@ -315,13 +430,37 @@ function DecisionExperienceGeneralPage() {
             </CardBody>
           </Card>
           <div className="space-y-4">
-            <BlockedState title="القرار المحفوظ غير متاح من هذه الواجهة" detail="لا تتم كتابة حالة قرار محلية أو إنشاء موافقة اصطناعية. يتطلب الحفظ مسار الصلاحية والـDML المعتمدين." />
-            <div className="grid gap-3">
-              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><CheckCircle2 size={15} className="text-success-700"/> التوصية</div><p className="mt-1 text-[10px] text-ink-400">موجودة في المصدر</p></div>
-              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><ShieldCheck size={15} className="text-warning-700"/> الموافقة</div><p className="mt-1 text-[10px] text-ink-400">تحتاج مسارًا تشغيليًا موثقًا</p></div>
-              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><XCircle size={15} className="text-ink-400"/> النتيجة</div><p className="mt-1 text-[10px] text-ink-400">ليست مثبتة بعد</p></div>
+            {decisionError && <div role="alert" className="rounded-[12px] border border-danger-200 bg-danger-50 p-3 text-[11px] font-bold text-danger-800">{decisionError}</div>}
+            <div className="rounded-[14px] border border-primary-200 bg-primary-50/60 p-4">
+              {decisionContextLoading ? (
+                <div className="text-[11px] text-primary-900">جارٍ قراءة مسار القرار المحفوظ...</div>
+              ) : decisionContext.decision ? (
+                <>
+                  <div className="text-[10px] font-black text-primary-800">DECISION PERSISTED</div>
+                  <div className="mt-2 text-[12px] font-black text-ink-950">معرّف القرار: <span className="font-mono">{decisionContext.decision.id}</span></div>
+                  <div className="mt-1 text-[10px] text-ink-500">الحالة: {statusLabel(decisionContext.decision.status)} · الثقة: {decisionContext.decision.confidence ?? 'غير متاحة'}</div>
+                  {decisionContext.approval && <div className="mt-1 text-[10px] text-ink-500">الموافقة: {statusLabel(decisionContext.approval.status)} · <span className="font-mono">{decisionContext.approval.id}</span></div>}
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 text-[12px] font-black text-ink-900"><CheckCircle2 size={15} className="text-success-700"/> التوصية موجودة في المصدر</div>
+                  <p className="mt-1 text-[10px] leading-5 text-ink-500">سيتم إنشاء قرار حقيقي مرتبط بالتوصية، وربطه بدليلها، ثم إنشاء طلب موافقة persisted عبر RPC المحمي.</p>
+                </>
+              )}
             </div>
-            <button type="button" onClick={() => navigateStage('approval')} className="btn-secondary w-full justify-center text-[11px]">عرض مرحلة الموافقة <ArrowUpLeft size={13}/></button>
+            <button
+              type="button"
+              onClick={() => void persistSelectedDecision()}
+              disabled={!selected || decisionBusy || decisionContextLoading}
+              className="btn-primary w-full justify-center text-[11px]"
+            >
+              {decisionBusy ? 'جارٍ الحفظ وطلب الموافقة...' : decisionContext.decision ? 'استكمال مسار الموافقة' : 'حفظ القرار وطلب الموافقة'}
+              <ArrowUpLeft size={13}/>
+            </button>
+            <div className="grid gap-3">
+              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><ShieldCheck size={15} className="text-warning-700"/> الموافقة</div><p className="mt-1 text-[10px] text-ink-400">لا يتم اعتماد القرار تلقائيًا؛ ينتظر قرار صاحب الصلاحية.</p></div>
+              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><XCircle size={15} className="text-ink-400"/> النتيجة</div><p className="mt-1 text-[10px] text-ink-400">ليست مثبتة بعد ولن تُعرض كنجاح.</p></div>
+            </div>
           </div>
         </section>
       )}
@@ -331,15 +470,29 @@ function DecisionExperienceGeneralPage() {
           <Card>
             <CardHeader title="الموافقة والمسؤولية" subtitle="من يعتمد؟ وعلى أي دليل؟" />
             <CardBody>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">المسؤول المعتمد</div><div className="mt-2 text-[12px] font-black text-ink-900">غير متاح</div></div>
-                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">وقت الاعتماد</div><div className="mt-2 text-[12px] font-black text-ink-900">غير متاح</div></div>
-                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الصلاحية</div><div className="mt-2 text-[12px] font-black text-ink-900">يتطلب جلسة موثقة</div></div>
-                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الدليل</div><div className="mt-2 text-[12px] font-black text-ink-900">يحتاج إثباتًا حيًا</div></div>
-              </div>
+              {decisionContextLoading && <div className="text-[11px] text-ink-500">جارٍ قراءة القرار والموافقة...</div>}
+              {!decisionContextLoading && decisionContext.decision && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">القرار</div><div className="mt-2 text-[11px] font-mono font-black text-ink-900">{decisionContext.decision.id}</div></div>
+                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">حالة القرار</div><div className="mt-2 text-[12px] font-black text-ink-900">{statusLabel(decisionContext.decision.status)}</div></div>
+                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">طلب الموافقة</div><div className="mt-2 text-[11px] font-mono font-black text-ink-900">{decisionContext.approval?.id ?? 'غير موجود'}</div></div>
+                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">حالة الموافقة</div><div className="mt-2 text-[12px] font-black text-ink-900">{decisionContext.approval ? statusLabel(decisionContext.approval.status) : 'غير موجود'}</div></div>
+                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">طالب الموافقة</div><div className="mt-2 text-[11px] font-mono font-black text-ink-900">{decisionContext.approval?.requestedBy ?? 'غير متاح'}</div></div>
+                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">وقت الطلب</div><div className="mt-2 text-[12px] font-black text-ink-900">{decisionContext.approval?.requestedAt ? new Date(decisionContext.approval.requestedAt).toLocaleString('ar-YE') : 'غير متاح'}</div></div>
+                </div>
+              )}
+              {!decisionContextLoading && !decisionContext.decision && (
+                <BlockedState title="لم يُثبت قرار محفوظ بعد" detail="أنشئ القرار من المرحلة السابقة؛ هذه المرحلة لا تتجاوز مسار الصلاحية ولا تخترع حالة موافقة." />
+              )}
             </CardBody>
           </Card>
-          <BlockedState title="الموافقة محجوبة عمدًا" detail="المنتج لا يختلق صاحب موافقة، توقيتًا، أو حالة اعتماد. عند توفر المسار التشغيلي الموثق، تبقى هذه المرحلة مكانًا واضحًا للمسؤولية قبل التنفيذ." />
+          <div className="space-y-4">
+            {decisionError && <div role="alert" className="rounded-[12px] border border-danger-200 bg-danger-50 p-3 text-[11px] font-bold text-danger-800">{decisionError}</div>}
+            <div className="rounded-[14px] border border-warning-200 bg-warning-50/70 p-4">
+              <div className="flex items-start gap-3"><ShieldCheck size={17} className="mt-0.5 shrink-0 text-warning-700"/><div><div className="text-[12px] font-black text-warning-950">{decisionContext.approval?.status === 'PENDING' ? 'بانتظار صاحب الصلاحية' : 'لا يوجد اعتماد تلقائي'}</div><p className="mt-1 text-[11px] leading-5 text-warning-900/80">{decisionContext.approval?.status === 'PENDING' ? 'تم حفظ القرار وطلب الموافقة. الاعتماد نفسه يتطلب فعلًا موثقًا من صاحب الصلاحية.' : 'لا يتم تحويل المقترح إلى اعتماد أو تنفيذ دون موافقة موثقة.'}</p></div></div>
+            </div>
+            <button type="button" onClick={() => navigateStage('decision')} className="btn-secondary w-full justify-center text-[11px]">العودة إلى القرار <ArrowUpLeft size={13}/></button>
+          </div>
         </section>
       )}
 
