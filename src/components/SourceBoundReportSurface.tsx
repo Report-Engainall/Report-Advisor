@@ -5,7 +5,8 @@ import { ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
-import { completeSourceDecisionWorkItem, createApprovedDecisionWorkItemForCurrentUser, fetchSourceDecisionProposals, requestSourceDecisionApproval, startSourceDecisionWorkItem, type SourceDecisionState } from '@/lib/report-decisions';
+import { completeSourceDecisionWorkItem, createApprovedDecisionWorkItemForCurrentUser, decideSourceDecisionApproval, fetchSourceDecisionProposals, requestSourceDecisionApproval, startSourceDecisionWorkItem, type SourceDecisionState } from '@/lib/report-decisions';
+import { getAuthenticatedUser } from '@/lib/auth-session';
 
 export type SourceBoundReportMode = 'executive' | 'trust' | 'decision' | 'work';
 
@@ -212,15 +213,23 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
   const [actualImpact, setActualImpact] = useState<Record<string, string>>({});
   const [workDueAt, setWorkDueAt] = useState<Record<string, string>>({});
 
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  const refreshDecisions = useCallback(async () => {
+    const rows = await fetchSourceDecisionProposals(report.sourceHash);
+    setDecisions(rows);
+  }, [report.sourceHash]);
+
   useEffect(() => {
     let active = true;
-    void fetchSourceDecisionProposals(report.sourceHash).then((rows) => {
-      if (active) setDecisions(rows);
-    }).catch(() => {
+    void refreshDecisions().catch(() => {
       if (active) setDecisions([]);
     });
+    void getAuthenticatedUser().then((user) => {
+      if (active) setCurrentUserId(user?.id ?? null);
+    });
     return () => { active = false; };
-  }, [report.sourceHash]);
+  }, [refreshDecisions]);
 
   const createWorkItem = (decision: SourceDecisionState) => {
     setDecisionAction((current) => ({ ...current, [decision.id]: 'creating-work' }));
@@ -291,11 +300,30 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
     void requestSourceDecisionApproval(
       decision.id,
       'طلب موافقة على قرار مقترح مرتبط بتقرير مصدر محدد؛ لا يعني الطلب أن التنفيذ حدث.',
-    ).then(() => {
+    ).then(async () => {
+      await refreshDecisions();
       setDecisionAction((current) => ({ ...current, [decision.id]: 'requested' }));
-      setDecisions((current) => current.map((item) => item.id === decision.id ? { ...item, status: 'PENDING_APPROVAL' } : item));
     }).catch(() => {
       setDecisionAction((current) => ({ ...current, [decision.id]: 'error' }));
+    });
+  };
+
+  const decideApproval = (decision: SourceDecisionState, approve: boolean) => {
+    if (!decision.approvalId) return;
+    if (decision.approvalRequestedBy && currentUserId === decision.approvalRequestedBy) {
+      setDecisionAction((current) => ({ ...current, [decision.id]: 'self-approval-forbidden' }));
+      return;
+    }
+    setDecisionAction((current) => ({ ...current, [decision.id]: approve ? 'approving' : 'rejecting' }));
+    void decideSourceDecisionApproval(
+      decision.approvalId,
+      approve,
+      approve ? 'اعتماد موثق لقرار مصدرّي' : 'رفض موثق لقرار مصدرّي',
+    ).then(async () => {
+      await refreshDecisions();
+      setDecisionAction((current) => ({ ...current, [decision.id]: approve ? 'approved' : 'rejected' }));
+    }).catch(() => {
+      setDecisionAction((current) => ({ ...current, [decision.id]: 'approval-error' }));
     });
   };
 
@@ -346,10 +374,25 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                  {decision.status === 'PROPOSED' && (
-                    <button type="button" disabled={decisionAction[decision.id] === 'saving'} onClick={() => requestApproval(decision)} className="btn-primary text-[10px] disabled:opacity-50">
+                  {decision.status === 'PROPOSED' && decision.approvalStatus !== 'PENDING' && (
+                    <button type="button" disabled={decisionAction[decision.id] === 'saving'} onClick={() => requestApproval(decision)} className="btn-primary text-[10px] disabled:opacity-50" data-testid={'request-approval-' + decision.id}>
                       {decisionAction[decision.id] === 'saving' ? 'جارٍ طلب الموافقة...' : decisionAction[decision.id] === 'requested' ? 'تم طلب الموافقة' : 'طلب الموافقة'}
                     </button>
+                  )}
+
+                  {decision.status === 'PROPOSED' && decision.approvalStatus === 'PENDING' && (
+                    currentUserId === decision.approvalRequestedBy ? (
+                      <span className="rounded-lg border border-warning-200 bg-warning-50 px-2.5 py-2 text-[9px] font-black text-warning-900">PENDING · بانتظار صاحب صلاحية آخر — يمنع الاعتماد الذاتي</span>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        <button type="button" onClick={() => decideApproval(decision, true)} disabled={!decision.approvalId || decisionAction[decision.id] === 'approving'} className="btn-primary text-[10px] disabled:opacity-50" data-testid={'approve-decision-' + decision.id}>
+                          {decisionAction[decision.id] === 'approving' ? 'جارٍ الاعتماد...' : 'اعتماد القرار'}
+                        </button>
+                        <button type="button" onClick={() => decideApproval(decision, false)} disabled={!decision.approvalId || decisionAction[decision.id] === 'rejecting'} className="btn-secondary text-[10px] disabled:opacity-50" data-testid={'reject-decision-' + decision.id}>
+                          {decisionAction[decision.id] === 'rejecting' ? 'جارٍ الرفض...' : 'رفض القرار'}
+                        </button>
+                      </div>
+                    )
                   )}
 
                   {decision.status === 'APPROVED' && !decision.workItemId && (
@@ -402,7 +445,9 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
               {decisionAction[decision.id] === 'impact-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">الأثر الفعلي يجب أن يكون رقمًا صالحًا.</div>}
               {decisionAction[decision.id] === 'complete-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر إغلاق التنفيذ؛ يحتاج المسار إلى قرار معتمد ودليل مصدر صالح.</div>}
               {decisionAction[decision.id] === 'work-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر إنشاء عنصر العمل؛ تحقق من الصلاحية وأن القرار معتمد.</div>}
-              {decisionAction[decision.id] === 'error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر طلب الموافقة؛ الصلاحية أو حالة القرار تحتاج مراجعة.</div>}
+              {decisionAction[decision.id] === 'error' && <div role="alert" className="mt-3 text-[9px] font-bold text-danger-700">تعذر طلب الموافقة؛ الصلاحية أو حالة القرار تحتاج مراجعة.</div>}
+              {decisionAction[decision.id] === 'approval-error' && <div role="alert" className="mt-3 text-[9px] font-bold text-danger-700">تعذر اعتماد/رفض القرار؛ تحقق من الصلاحية وحالة الموافقة.</div>}
+              {decision.status === 'REJECTED' && <div className="mt-3 rounded-lg border border-danger-200 bg-danger-50 p-3 text-[9px] font-bold text-danger-800">REJECTED · القرار لم ينتقل إلى التنفيذ.</div>}
               {decision.workItemStatus === 'IN_PROGRESS' && (
                 <div className="mt-3 rounded-lg border border-warning-200 bg-warning-50 p-3 text-[9px] leading-5 text-warning-900">
                   دليل الإغلاق المرتبط بهذا التقرير: {report.sourceAnalysis?.id ?? 'غير متاح'} — لا يمكن إغلاق المهمة دون دليل مقبول.

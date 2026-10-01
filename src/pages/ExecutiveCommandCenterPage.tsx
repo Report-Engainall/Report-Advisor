@@ -11,6 +11,9 @@ import { TrendChart } from '@/components/ui/Charts';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs } from '@/lib/dashboard-canonical';
 import { formatCurrency, relativeTime } from '@/lib/format';
+import { resolveCurrentCompanyId } from '@/lib/supabase';
+import { fetchDecisionWorkItems, type DecisionWorkItemRecord } from '@/lib/report-decisions';
+import { loadPersistedOutcomes, type DecisionOutcome } from '@/lib/analytics/outcome-feedback';
 import type { Alert, Recommendation } from '@/lib/types';
 
 const PERIODS = [
@@ -80,6 +83,8 @@ export function ExecutiveCommandCenterPage() {
   const [trend, setTrend] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>['trend']>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [workItems, setWorkItems] = useState<DecisionWorkItemRecord[]>([]);
+  const [outcomes, setOutcomes] = useState<DecisionOutcome[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,15 +93,21 @@ export function ExecutiveCommandCenterPage() {
     try {
       if (silent) setRefreshing(true); else setLoading(true);
       setError(null);
-      const [snapshot, intelligence] = await Promise.all([
+      const companyId = await resolveCurrentCompanyId();
+      if (!companyId) throw new Error('TENANT_REQUIRED');
+      const [snapshot, intelligence, nextWorkItems, nextOutcomes] = await Promise.all([
         fetchDashboardSnapshot(months),
         fetchDashboardIntelligence(),
+        fetchDecisionWorkItems(20),
+        loadPersistedOutcomes(companyId),
       ]);
       setKpis(snapshot.kpis);
       setAsOf(snapshot.asOf);
       setTrend(snapshot.trend);
       setAlerts(intelligence.alerts.filter((item) => !item.is_read).slice(0, 5));
       setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').slice(0, 5));
+      setWorkItems(nextWorkItems);
+      setOutcomes(nextOutcomes.slice(-20).reverse());
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل مركز القيادة');
     } finally {
@@ -112,6 +123,13 @@ export function ExecutiveCommandCenterPage() {
     const fields = [kpis.totalSales, kpis.grossProfit, kpis.totalReceivables, kpis.inventoryValue, kpis.collectionRate];
     return Math.round((fields.filter((value) => value !== null).length / fields.length) * 100);
   }, [kpis]);
+
+  const executionSummary = useMemo(() => ({
+    open: workItems.filter((item) => item.status === 'OPEN').length,
+    inProgress: workItems.filter((item) => item.status === 'IN_PROGRESS').length,
+    completed: workItems.filter((item) => item.status === 'COMPLETED').length,
+    outcomes: outcomes.length,
+  }), [workItems, outcomes]);
 
   if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
@@ -192,6 +210,27 @@ export function ExecutiveCommandCenterPage() {
           <div className="mt-1">التغطية الحالية للقياسات الرئيسية {coverage}%. البيانات غير الكافية تبقى ظاهرة كحالة، ولا تُستبدل بأصفار أو تقديرات مخفية.</div>
         </div>
       )}
+
+      <Card>
+        <CardHeader title="التنفيذ والنتيجة" subtitle="حالة العمل والنتائج المسجلة من السجلات الكانونية." action={<Link to="/work-center" className="btn-ghost text-[11px]">فتح مركز العمل <ArrowUpLeft size={13}/></Link>}/>
+        <CardBody>
+          <div className="grid gap-2 sm:grid-cols-4">
+            <div className="rounded-xl border border-ink-100 bg-ink-50 p-3"><div className="text-[9px] text-ink-400">OPEN</div><div className="mt-1 text-lg font-black text-ink-900">{executionSummary.open}</div></div>
+            <div className="rounded-xl border border-warning-100 bg-warning-50 p-3"><div className="text-[9px] text-warning-700">IN PROGRESS</div><div className="mt-1 text-lg font-black text-warning-950">{executionSummary.inProgress}</div></div>
+            <div className="rounded-xl border border-success-100 bg-success-50 p-3"><div className="text-[9px] text-success-700">COMPLETED</div><div className="mt-1 text-lg font-black text-success-950">{executionSummary.completed}</div></div>
+            <div className="rounded-xl border border-primary-100 bg-primary-50 p-3"><div className="text-[9px] text-primary-700">OUTCOMES</div><div className="mt-1 text-lg font-black text-primary-950">{executionSummary.outcomes}</div></div>
+          </div>
+          {workItems.length === 0
+            ? <div className="mt-3 rounded-xl border border-dashed border-ink-200 p-4 text-center text-[10px] text-ink-500">لا توجد عناصر عمل محفوظة للـtenant الحالي. لا يتم اختلاق طابور بديل.</div>
+            : <div className="mt-3 space-y-2">
+              {workItems.slice(0, 3).map((item) => <div key={item.id} className="rounded-xl border border-ink-100 bg-white p-3">
+                <div className="flex flex-wrap items-center gap-2"><span className="text-[11px] font-black text-ink-900">{item.title}</span><span className="rounded-full bg-ink-50 px-2 py-1 text-[8px] font-black text-ink-600">{item.status}</span></div>
+                <div className="mt-1 text-[9px] text-ink-500">{item.department} · {item.assigneeLabel ?? 'غير مكلّف'}{item.actualImpact == null ? '' : ' · الأثر الفعلي ' + formatCurrency(item.actualImpact)}</div>
+              </div>)}
+              {outcomes.length > 0 && <div className="rounded-xl border border-success-100 bg-success-50 p-3 text-[10px] font-bold text-success-900">آخر نتيجة مسجلة: {outcomes[0].label} · {outcomes[0].notes ?? 'بدون ملاحظة'}</div>}
+            </div>}
+        </CardBody>
+      </Card>
 
       <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
         <Card>
