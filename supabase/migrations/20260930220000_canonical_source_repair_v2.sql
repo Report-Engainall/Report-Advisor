@@ -11,6 +11,10 @@ create table if not exists public.canonical_import_repair_history (
   created_at timestamptz not null default clock_timestamp()
 );
 
+alter table public.canonical_import_repair_history enable row level security;
+revoke all on table public.canonical_import_repair_history from public, anon, authenticated;
+grant all on table public.canonical_import_repair_history to service_role;
+
 create or replace function public.enqueue_report_execution_job(
   p_company_id uuid,
   p_job_key text,
@@ -259,8 +263,8 @@ begin
 end;
 $function$;
 
-revoke all on function public.import_commit_batch(uuid,text,jsonb,text,text,uuid,boolean) from public, authenticated, anon;
+revoke all on function public.import_commit_batch(uuid,text,jsonb,text,text,uuid,boolean) from public, anon, authenticated;
 grant execute on function public.import_commit_batch(uuid,text,jsonb,text,text,uuid,boolean) to service_role;
 
-revoke all on function public.enqueue_report_execution_job(uuid,text,text,text,text[],integer,boolean) from public, authenticated, anon;
+revoke all on function public.enqueue_report_execution_job(uuid,text,text,text,text[],integer,boolean) from public, anon, authenticated;
 grant execute on function public.enqueue_report_execution_job(uuid,text,text,text,text[],integer,boolean) to service_role;
