@@ -283,6 +283,10 @@ async function logicalBackupRestore() {
   }
 }
 
+async function sleep(ms) {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function probe(name, url, options = {}, validation = {}) {
   try {
     const response = await fetch(url, {
@@ -329,7 +333,65 @@ async function probe(name, url, options = {}, validation = {}) {
   }
 }
 
-await probe('operational-health', process.env.RESILIENCE_HEALTH_URL, {}, { expectDeploymentSha: true });
+async function probeOperationalHealthWithPropagation() {
+  const expectedSha = exactHead;
+  const maxAttempts = 24;
+  const intervalMs = 10_000;
+  let last = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const response = await fetch(process.env.RESILIENCE_HEALTH_URL, {
+        headers: {
+          Accept: 'application/json',
+          'x-resilience-token': process.env.RESILIENCE_OPERATIONAL_TOKEN.trim(),
+        },
+      });
+      const body = await response.text();
+      let parsedBody = null;
+      try { parsedBody = JSON.parse(body); } catch {}
+      const deploymentSha = typeof parsedBody?.deployment_sha === 'string' ? parsedBody.deployment_sha.trim() : null;
+      const deploymentId = typeof parsedBody?.deployment_id === 'string' ? parsedBody.deployment_id.trim() : null;
+      last = {
+        name: 'operational-health',
+        pass: response.ok && Boolean(expectedSha) && deploymentSha === expectedSha && Boolean(deploymentId),
+        status: response.status,
+        expected_deployment_sha: expectedSha,
+        deployment_sha: deploymentSha,
+        deployment_id: deploymentId,
+        attempt,
+      };
+
+      if (last.pass) {
+        checks.push(last);
+        console.log(`PASS operational-health: HTTP ${response.status} — deployment SHA matched on attempt ${attempt}`);
+        return;
+      }
+
+      if (attempt < maxAttempts) {
+        await sleep(intervalMs);
+      }
+    } catch (error) {
+      last = { name: 'operational-health', pass: false, error: String(error), attempt };
+      if (attempt < maxAttempts) await sleep(intervalMs);
+    }
+  }
+
+  const failure = !last
+    ? 'OPERATIONAL_HEALTH_NO_RESULT'
+    : !last.deployment_sha
+      ? 'DEPLOYMENT_SHA_MISSING'
+      : last.deployment_sha !== expectedSha
+        ? 'DEPLOYMENT_SHA_MISMATCH'
+        : !last.deployment_id
+          ? 'DEPLOYMENT_ID_MISSING'
+          : 'OPERATIONAL_HEALTH_NOT_READY';
+  const result = { ...(last || { name: 'operational-health', status: 0, pass: false }), pass: false, failure };
+  checks.push(result);
+  console.error(`FAIL operational-health: HTTP ${result.status ?? 0} — ${failure}`);
+}
+
+await probeOperationalHealthWithPropagation();
 await probe('tenant-canary', process.env.RESILIENCE_CANARY_URL, {
   headers: { Authorization: `Bearer ${process.env.RESILIENCE_CANARY_AUTH_TOKEN.trim()}` },
 });
