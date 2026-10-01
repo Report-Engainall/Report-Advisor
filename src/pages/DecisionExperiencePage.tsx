@@ -11,6 +11,9 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { ConfidenceBadge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchAlerts, fetchRecommendations } from '@/lib/queries';
+import { fetchDecisionWorkItems, type DecisionWorkItemRecord } from '@/lib/report-decisions';
+import { loadPersistedOutcomes, type DecisionOutcome } from '@/lib/analytics/outcome-feedback';
+import { resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Alert, Recommendation } from '@/lib/types';
 import {
@@ -138,14 +141,25 @@ function DecisionExperienceGeneralPage() {
   const [decisionContextLoading, setDecisionContextLoading] = useState(false);
   const [decisionBusy, setDecisionBusy] = useState(false);
   const [decisionError, setDecisionError] = useState<string | null>(null);
+  const [decisionWorkItems, setDecisionWorkItems] = useState<DecisionWorkItemRecord[]>([]);
+  const [outcomes, setOutcomes] = useState<DecisionOutcome[]>([]);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const [nextRecommendations, nextAlerts] = await Promise.all([fetchRecommendations(), fetchAlerts()]);
+      const companyId = await resolveCurrentCompanyId();
+      if (!companyId) throw new Error('TENANT_REQUIRED');
+      const [nextRecommendations, nextAlerts, nextWorkItems, nextOutcomes] = await Promise.all([
+        fetchRecommendations(),
+        fetchAlerts(),
+        fetchDecisionWorkItems(200),
+        loadPersistedOutcomes(companyId),
+      ]);
       setRecommendations(nextRecommendations);
       setAlerts(nextAlerts);
+      setDecisionWorkItems(nextWorkItems);
+      setOutcomes(nextOutcomes);
       setSelectedId((current) => current && nextRecommendations.some((item) => item.id === current) ? current : nextRecommendations[0]?.id ?? null);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل سياق القرار');
@@ -284,6 +298,16 @@ function DecisionExperienceGeneralPage() {
 
   if (loading) return <LoadingState message="جارٍ تحميل سياق القرار..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  const relatedWorkItems = useMemo(() => {
+    const decisionId = decisionContext.decision?.id;
+    return decisionId ? decisionWorkItems.filter((item) => item.decisionId === decisionId) : [];
+  }, [decisionContext.decision?.id, decisionWorkItems]);
+
+  const relatedOutcome = useMemo(() => {
+    const decisionId = decisionContext.decision?.id;
+    return outcomes.find((outcome) => (decisionId && outcome.actionId === decisionId) || outcome.decisionFingerprint === selectedId) ?? null;
+  }, [decisionContext.decision?.id, outcomes, selectedId]);
+
   const readiness = decisionReadiness(selected);
 
   return (
@@ -506,8 +530,8 @@ function DecisionExperienceGeneralPage() {
 
       {stage === 'work' && (
         <section className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
-          <Card>
-            <CardHeader title="التنفيذ والمتابعة" subtitle="ما تم فعليًا، وليس ما تتمنى المنظومة حدوثه." />
+          <Card variant="action">
+            <CardHeader kicker="WORK / READBACK" title="التنفيذ والمتابعة" subtitle="حالة العمل تُقرأ من decision_work_items، لا من حالة الواجهة المحلية." />
             <CardBody>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {[
@@ -515,31 +539,53 @@ function DecisionExperienceGeneralPage() {
                   ['الموعد', formatDeadline(selected?.deadline ?? null)],
                   ['حالة التوصية', statusLabel(selectedStatus)],
                   ['الأثر المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
-                  ['الأثر الفعلي', selected?.impact_result ?? 'غير متاح بعد'],
-                  ['الإشارة التالية', selected?.impact_result ? 'الانتقال إلى النتيجة والتعلّم' : 'انتظار سجل تنفيذ موثق'],
+                  ['العمل المحفوظ', relatedWorkItems.length ? relatedWorkItems.length + ' عنصر' : 'غير متاح'],
+                  ['الإجراء التالي', relatedWorkItems.some((item) => item.status === 'OPEN') ? 'ابدأ من مركز العمل' : relatedWorkItems.some((item) => item.status === 'IN_PROGRESS') ? 'أدخل الأثر الفعلي وأغلق العمل' : relatedWorkItems.some((item) => item.status === 'COMPLETED') ? 'افتح النتيجة والتعلّم' : 'لا يوجد عمل مثبت بعد'],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">{label}</div><div className="mt-2 text-[12px] font-black text-ink-900">{value}</div></div>
                 ))}
               </div>
+              {relatedWorkItems.length ? (
+                <div className="mt-4 space-y-2">
+                  {relatedWorkItems.slice(0, 5).map((item) => (
+                    <div key={item.id} className="rounded-xl border border-ink-200 bg-ink-50/60 p-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div><div className="text-[11px] font-black text-ink-900">{item.title}</div><div className="mt-1 font-mono text-[8px] text-ink-400">{item.id}</div></div>
+                        <span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-black text-primary-800">{item.status}</span>
+                      </div>
+                      <div className="mt-2 grid gap-2 sm:grid-cols-3 text-[9px] text-ink-500">
+                        <span>المسؤول: {item.assigneeLabel ?? 'غير متاح'}</span>
+                        <span>المتوقع: {item.expectedImpact == null ? 'غير متاح' : formatCurrency(item.expectedImpact)}</span>
+                        <span>الفعلي: {item.actualImpact == null ? 'غير متاح' : formatCurrency(item.actualImpact)}</span>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <Link to="/work-center" className="btn-secondary text-[9px]">فتح مركز العمل <ArrowUpLeft size={12}/></Link>
+                        {item.sourceReportJobId && item.sourceHash && <Link to={'/reports/smart/' + item.sourceReportJobId + '?sourceHash=' + encodeURIComponent(item.sourceHash) + '#decision-evidence-inspector'} className="btn-ghost text-[9px]">العودة للمصدر <FileSearch size={12}/></Link>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <BlockedState title="لم يُثبت سجل عمل لهذا القرار" detail="لا يتم إنشاء Work Item من هذه الشاشة. أنشئه من مسار القرار المعتمد ثم سيظهر هنا عبر readback." />
+              )}
             </CardBody>
           </Card>
-          <BlockedState title="لا يوجد سجل تنفيذ مُثبت" detail="لن يتم إنشاء مهمة أو حالة إنجاز من واجهة القرار. التنفيذ يجب أن يأتي من المسار التشغيلي المعتمد ويعود هنا كحالة persisted." />
         </section>
       )}
 
       {stage === 'outcome' && (
         <section className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
-          <Card>
-            <CardHeader title="النتيجة والتعلّم" subtitle="المتوقع مقابل الفعلي لا يظهر إلا بعد وجود نتيجة حقيقية." />
+          <Card variant="activity">
+            <CardHeader kicker="OUTCOME / LEARNING" title="النتيجة والتعلّم" subtitle="القراءة تأتي من recommendation_outcomes ولا تتحول القيم المفقودة إلى نجاح." />
             <CardBody>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {[
-                  ['المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
-                  ['الفعلي', 'غير متاح بعد'],
-                  ['الفارق', 'لا يمكن حسابه بعد'],
-                  ['جودة النتيجة', 'غير متاحة'],
-                  ['ملاحظات التنفيذ', 'غير متاحة'],
-                  ['إشارة التعلّم', 'غير مثبتة'],
+                  ['المتوقع', relatedOutcome?.expectedValue == null ? (selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)) : formatCurrency(relatedOutcome.expectedValue)],
+                  ['الفعلي', relatedOutcome?.actualValue == null ? 'غير متاح' : formatCurrency(relatedOutcome.actualValue)],
+                  ['الفارق', relatedOutcome?.expectedValue != null && relatedOutcome.actualValue != null ? formatCurrency(relatedOutcome.actualValue - relatedOutcome.expectedValue) : 'لا يمكن حسابه'],
+                  ['جودة النتيجة', relatedOutcome?.label === 'correct' ? 'إيجابية' : relatedOutcome?.label === 'partial' ? 'جزئية' : relatedOutcome?.label === 'incorrect' ? 'سلبية' : 'غير متاحة'],
+                  ['ملاحظات التنفيذ', relatedOutcome?.notes ?? 'غير متاحة'],
+                  ['Evidence', relatedOutcome?.evidenceSnapshotId ? 'مثبت' : 'غير متاح'],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4">
                     <div className="text-[10px] text-ink-400">{label}</div>
@@ -547,9 +593,31 @@ function DecisionExperienceGeneralPage() {
                   </div>
                 ))}
               </div>
+              {relatedOutcome?.actionId && <div className="mt-4 rounded-xl border border-success-100 bg-success-50/60 p-3 text-[10px] text-success-900">هذه النتيجة مرتبطة بالقرار المحفوظ: <span className="font-mono">{relatedOutcome.actionId}</span>.</div>}
+              {!relatedOutcome && <BlockedState title="لا توجد نتيجة محفوظة بعد" detail="الحالة الحالية: NOT AVAILABLE. لن يتم إنشاء تعلّم أو فارق مالي من واجهة العرض." />}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link to="/work-center" className="btn-secondary text-[10px]">العودة لمركز العمل <ArrowUpLeft size={12}/></Link>
+                {relatedWorkItems[0]?.sourceReportJobId && relatedWorkItems[0]?.sourceHash && <Link to={'/reports/smart/' + relatedWorkItems[0].sourceReportJobId + '?sourceHash=' + encodeURIComponent(relatedWorkItems[0].sourceHash) + '#decision-evidence-inspector'} className="btn-ghost text-[10px]">العودة إلى المصدر <FileSearch size={12}/></Link>}
+              </div>
             </CardBody>
           </Card>
-          <BlockedState title="النتيجة الفعلية غير موجودة بعد" detail="عدم توفر النتيجة ليس فشلًا في العرض؛ إنه حد حقيقي في الدليل. لن تُحوّل التوصية إلى نتيجة أو تعلّم تشغيلي قبل وجود سجل تنفيذ موثق." />
+          <Card variant="evidence">
+            <CardHeader title="مسار التعلّم" subtitle="التعلّم هنا تفسير للنتيجة المحفوظة، وليس تنبؤًا غير موثق." />
+            <CardBody>
+              {relatedOutcome ? (
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-primary-100 bg-primary-50/60 p-3 text-[10px] leading-5 text-primary-950">النتيجة موثقة، لذا يمكن مقارنة المتوقع بالفعلي وربطها بالقرار. لا يتم اشتقاق benchmark بلا cohort حقيقي.</div>
+                  <div className="rounded-xl border border-ink-200 bg-ink-50/60 p-3">
+                    <div className="text-[9px] font-black text-ink-500">DECISION FINGERPRINT</div>
+                    <div className="mt-1 break-all font-mono text-[9px] text-ink-700">{relatedOutcome.decisionFingerprint}</div>
+                  </div>
+                  <div className="text-[9px] text-ink-500">وقت الرصد: {new Date(relatedOutcome.observedAt).toLocaleString('ar-YE')}</div>
+                </div>
+              ) : (
+                <div className="text-[11px] leading-5 text-ink-500">ينتظر هذا الجزء نتيجة persisted. غيابها لا يعني نجاحًا أو فشلًا.</div>
+              )}
+            </CardBody>
+          </Card>
         </section>
       )}
 
