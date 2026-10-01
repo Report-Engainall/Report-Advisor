@@ -1,6 +1,13 @@
 -- Restore parity for live purchase_items.company_id discovered by Phase-F logical restore.
 -- Source-of-truth: Report-Advisor staging project fnqbvfuwbdpwvhcgzksl on 2026-10-01.
 
+-- Parent composite uniqueness must exist before tenant-scoped foreign keys are created during fresh restore.
+create unique index if not exists purchase_invoices_company_id_id_key
+  on public.purchase_invoices(company_id, id);
+
+create unique index if not exists products_company_id_id_key
+  on public.products(company_id, id);
+
 alter table public.purchase_items
   add column if not exists company_id uuid;
 
