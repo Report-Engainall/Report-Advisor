@@ -10,5 +10,5 @@ export default async (request: Request): Promise<void> => {
 };
 
 export const config = {
-  path: '/.netlify/functions/canonical-import-resume-background',
+  background: true,
 };
