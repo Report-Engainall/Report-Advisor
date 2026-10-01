@@ -41,9 +41,16 @@ jobs:
 
       - name: Require deploy credentials
         run: |
-          test -n "$VERCEL_TOKEN"
-          test -n "$VERCEL_ORG_ID"
-          test -n "$VERCEL_PROJECT_ID"
+          missing=0
+          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID RESILIENCE_OPERATIONAL_TOKEN; do
+            if [ -z "${!name:-}" ]; then
+              echo "MISSING_SECRET=$name"
+              missing=1
+            else
+              echo "SECRET_PRESENT=$name"
+            fi
+          done
+          test "$missing" -eq 0
 
       - name: Link exact Vercel project
         run: |
