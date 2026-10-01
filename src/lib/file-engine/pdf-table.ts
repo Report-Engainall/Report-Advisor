@@ -201,8 +201,8 @@ function normalizeArabicDigitsForPdf(value: string): string {
 }
 
 function canonicalDateText(value: string): string {
-  const normalized = normalizeArabicDigitsForPdf(value).replace(/\\s+/g, '');
-  const match = normalized.match(/(\\d{1,4})[/-](\\d{1,2})[/-](\\d{1,4})/);
+  const normalized = normalizeArabicDigitsForPdf(value).replace(/\s+/g, '');
+  const match = normalized.match(/(\d{1,4})[/-](\d{1,2})[/-](\d{1,4})/);
   if (!match) return normalized;
   const [, first, second, third] = match;
   if (first.length === 4) return `${first}-${second.padStart(2, '0')}-${third.padStart(2, '0')}`;
