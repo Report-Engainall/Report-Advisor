@@ -112,6 +112,25 @@ function splitVisualLine(tokens: PdfTextToken[]): string[] {
   return cells;
 }
 
+function groupVisualLinesInSourceOrder(items: PdfTextToken[]): PdfTextToken[][] {
+  const usable = items.filter((item) => item.text.trim());
+  const lines: Array<{ y: number; tokens: PdfTextToken[] }> = [];
+  const heights = usable.map((item) => Math.max(1, item.height)).filter(Number.isFinite);
+  const yTolerance = Math.max(2.5, median(heights) * 0.55);
+
+  for (const item of usable) {
+    const line = lines.find((candidate) => Math.abs(candidate.y - item.y) <= yTolerance);
+    if (line) {
+      line.tokens.push(item);
+      line.y = line.tokens.reduce((sum, token) => sum + token.y, 0) / line.tokens.length;
+    } else {
+      lines.push({ y: item.y, tokens: [item] });
+    }
+  }
+
+  return lines.map((line) => line.tokens.sort((a, b) => a.x - b.x));
+}
+
 function pageMatrix(page: PdfPageText): string[][] {
   return groupVisualLines(page.items)
     .map(splitVisualLine)
@@ -246,7 +265,7 @@ function extractArabicSalesTableFromPage(
   page: PdfPageText,
   bands: Array<[number, number]>,
 ): ArabicSalesLayoutRow[] {
-  const lines = groupVisualLines(page.items);
+  const lines = groupVisualLinesInSourceOrder(page.items);
   const rows: ArabicSalesLayoutRow[] = [];
 
   for (const tokens of lines) {
