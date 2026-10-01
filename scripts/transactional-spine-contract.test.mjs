@@ -36,8 +36,8 @@ for (const marker of ['drop policy if exists tenant_update','drop policy if exis
 for (const marker of ['prepare_e2e_order','E2E-ORDER-%','E2E_RESET_ADMIN_REQUIRED','E2E_ORDER_TAG_REQUIRED','e2e_order_reset']) {
   assert.ok(repeatabilityMigration.includes(marker), 'E2E repeatability contract missing: ' + marker);
 }
-assert.match(repeatabilityMigration, /revoke\\s+all\\s+on\\s+function\\s+public\\.prepare_e2e_order\\(uuid\\)\\s+from\\s+public,\\s*anon/i);
-assert.match(repeatabilityMigration, /grant\\s+execute\\s+on\\s+function\\s+public\\.prepare_e2e_order\\(uuid\\)\\s+to\\s+authenticated/i);
+assert.match(repeatabilityMigration, /revoke\s+all\s+on\s+function\s+public\.prepare_e2e_order\\(uuid\\)\s+from\s+public,\\s*anon/i);
+assert.match(repeatabilityMigration, /grant\s+execute\s+on\s+function\s+public\.prepare_e2e_order\\(uuid\\)\s+to\s+authenticated/i);
 for (const marker of ['prepare_e2e_order','delete from public.payments','delete from public.sales_invoices','order.e2e_reset','e2e_order_reset']) {
   assert.ok(repeatabilityHardening.includes(marker), 'E2E reset hardening missing: ' + marker);
 }
