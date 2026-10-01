@@ -57,6 +57,17 @@ function ErrorNote({ message }: { message: string }) {
   return <div role="alert" className="rounded-xl border border-danger-200 bg-danger-50 px-3 py-2 text-[11px] font-semibold text-danger-800">{message}</div>;
 }
 
+function operationalErrorMessage(cause: unknown, fallback: string): string {
+  const candidate = cause && typeof cause === 'object' ? cause as Record<string, unknown> : null;
+  const code = typeof candidate?.code === 'string' ? candidate.code : '';
+  const status = Number(candidate?.status ?? 0);
+  if (code === '42501' || code === 'PGRST301' || status === 401 || status === 403) {
+    return 'PERMISSION_DENIED: لا تملك صلاحية تنفيذ هذا الإجراء ضمن tenant الحالي.';
+  }
+  if (cause instanceof Error && cause.message.trim()) return cause.message;
+  return fallback;
+}
+
 export function OperationsPage() {
   const [orders, setOrders] = useState<OperationalOrder[]>([]);
   const [invoices, setInvoices] = useState<OperationalInvoice[]>([]);
@@ -86,12 +97,12 @@ export function OperationsPage() {
       fetchOperationalAuditTrace(),
     ]);
     const nextErrors: Record<string, string | null> = {};
-    if (results[0].status === 'fulfilled') setOrders(results[0].value); else nextErrors.orders = results[0].reason instanceof Error ? results[0].reason.message : 'تعذر قراءة الطلبات';
-    if (results[1].status === 'fulfilled') setInvoices(results[1].value); else nextErrors.invoices = results[1].reason instanceof Error ? results[1].reason.message : 'تعذر قراءة الفواتير';
-    if (results[2].status === 'fulfilled') setPrices(results[2].value); else nextErrors.prices = results[2].reason instanceof Error ? results[2].reason.message : 'تعذر قراءة التسعير';
-    if (results[3].status === 'fulfilled') setSuppliers(results[3].value); else nextErrors.suppliers = results[3].reason instanceof Error ? results[3].reason.message : 'تعذر قراءة الموردين';
-    if (results[4].status === 'fulfilled') setWarehouses(results[4].value); else nextErrors.warehouses = results[4].reason instanceof Error ? results[4].reason.message : 'تعذر قراءة المستودعات';
-    if (results[5].status === 'fulfilled') setAuditTrace(results[5].value); else nextErrors.audit = results[5].reason instanceof Error ? results[5].reason.message : 'تعذر قراءة سجل التدقيق';
+    if (results[0].status === 'fulfilled') setOrders(results[0].value); else nextErrors.orders = operationalErrorMessage(results[0].reason, 'تعذر قراءة الطلبات');
+    if (results[1].status === 'fulfilled') setInvoices(results[1].value); else nextErrors.invoices = operationalErrorMessage(results[1].reason, 'تعذر قراءة الفواتير');
+    if (results[2].status === 'fulfilled') setPrices(results[2].value); else nextErrors.prices = operationalErrorMessage(results[2].reason, 'تعذر قراءة التسعير');
+    if (results[3].status === 'fulfilled') setSuppliers(results[3].value); else nextErrors.suppliers = operationalErrorMessage(results[3].reason, 'تعذر قراءة الموردين');
+    if (results[4].status === 'fulfilled') setWarehouses(results[4].value); else nextErrors.warehouses = operationalErrorMessage(results[4].reason, 'تعذر قراءة المستودعات');
+    if (results[5].status === 'fulfilled') setAuditTrace(results[5].value); else nextErrors.audit = operationalErrorMessage(results[5].reason, 'تعذر قراءة سجل التدقيق');
     setErrors(nextErrors);
     setLoading(false);
   }, []);
@@ -110,7 +121,7 @@ export function OperationsPage() {
       setFeedback('تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.');
       await load();
     } catch (cause) {
-      setFeedback(cause instanceof Error ? cause.message : 'تعذر تنفيذ انتقال الطلب');
+      setFeedback(operationalErrorMessage(cause, 'تعذر تنفيذ انتقال الطلب'));
     } finally {
       setBusy(null);
     }
@@ -124,7 +135,7 @@ export function OperationsPage() {
       setFeedback('تم تثبيت/قراءة الفاتورة المرتبطة بالطلب من المصدر.');
       await load();
     } catch (cause) {
-      setFeedback(cause instanceof Error ? cause.message : 'تعذر تثبيت الفاتورة');
+      setFeedback(operationalErrorMessage(cause, 'تعذر تثبيت الفاتورة'));
     } finally {
       setBusy(null);
     }
@@ -149,7 +160,7 @@ export function OperationsPage() {
       setFeedback('تم تسجيل الدفعة وإعادة قراءة الفاتورة والرصيد من المصدر.');
       await load();
     } catch (cause) {
-      setFeedback(cause instanceof Error ? cause.message : 'تعذر تسجيل الدفعة');
+      setFeedback(operationalErrorMessage(cause, 'تعذر تسجيل الدفعة'));
     } finally {
       setBusy(null);
     }
