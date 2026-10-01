@@ -12,7 +12,7 @@ import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs } from '@/lib/dashboard-canonical';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import { resolveCurrentCompanyId } from '@/lib/supabase';
-import { fetchDecisionWorkItems, fetchPendingDecisionApprovals, type DecisionWorkItemRecord } from '@/lib/report-decisions';
+import { fetchDecisionWorkItems, fetchPendingDecisionApprovals, fetchRecentDecisionActivity, type DecisionActivityRecord, type DecisionWorkItemRecord } from '@/lib/report-decisions';
 import { loadPersistedOutcomes, type DecisionOutcome } from '@/lib/analytics/outcome-feedback';
 import type { Alert, Recommendation } from '@/lib/types';
 
@@ -86,6 +86,7 @@ export function ExecutiveCommandCenterPage() {
   const [workItems, setWorkItems] = useState<DecisionWorkItemRecord[]>([]);
   const [outcomes, setOutcomes] = useState<DecisionOutcome[]>([]);
   const [pendingApprovals, setPendingApprovals] = useState(0);
+  const [recentActivity, setRecentActivity] = useState<DecisionActivityRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,12 +97,13 @@ export function ExecutiveCommandCenterPage() {
       setError(null);
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_REQUIRED');
-      const [snapshot, intelligence, nextWorkItems, nextOutcomes, nextPendingApprovals] = await Promise.all([
+      const [snapshot, intelligence, nextWorkItems, nextOutcomes, nextPendingApprovals, nextRecentActivity] = await Promise.all([
         fetchDashboardSnapshot(months),
         fetchDashboardIntelligence(),
         fetchDecisionWorkItems(20),
         loadPersistedOutcomes(companyId),
         fetchPendingDecisionApprovals(),
+        fetchRecentDecisionActivity(12),
       ]);
       setKpis(snapshot.kpis);
       setAsOf(snapshot.asOf);
@@ -111,6 +113,7 @@ export function ExecutiveCommandCenterPage() {
       setWorkItems(nextWorkItems);
       setOutcomes(nextOutcomes.slice(-20).reverse());
       setPendingApprovals(nextPendingApprovals);
+      setRecentActivity(nextRecentActivity);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل مركز القيادة');
     } finally {
@@ -214,6 +217,29 @@ export function ExecutiveCommandCenterPage() {
           <div className="mt-1">التغطية الحالية للقياسات الرئيسية {coverage}%. البيانات غير الكافية تبقى ظاهرة كحالة، ولا تُستبدل بأصفار أو تقديرات مخفية.</div>
         </div>
       )}
+
+      <Card>
+        <CardHeader title="آخر النشاط" subtitle="قراءة مباشرة من audit_logs للمستأجر الحالي؛ لا يتم إنشاء نشاط محلي بديل." />
+        <CardBody>
+          {recentActivity.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-ink-200 bg-ink-50/60 p-4 text-center text-[10px] text-ink-500">لا يوجد نشاط تدقيق متاح حاليًا.</div>
+          ) : (
+            <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+              {recentActivity.slice(0, 8).map((event) => (
+                <div key={event.id} className="rounded-xl border border-ink-100 bg-ink-50/60 p-3">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-white px-2 py-1 text-[8px] font-black text-ink-700">{event.action}</span>
+                    <span className="mr-auto text-[8px] text-ink-400">{new Date(event.createdAt).toLocaleTimeString('ar-YE')}</span>
+                  </div>
+                  <div className="mt-2 text-[9px] font-bold text-ink-800">{event.entityType}</div>
+                  <div className="mt-1 break-all font-mono text-[8px] text-ink-400">{event.entityId}</div>
+                  <div className="mt-1 text-[8px] text-ink-500">المصدر: {event.source ?? 'غير متاح'}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardBody>
+      </Card>
 
       <Card>
         <CardHeader title="التنفيذ والنتيجة" subtitle="حالة العمل والنتائج المسجلة من السجلات الكانونية." action={<Link to="/work-center" className="btn-ghost text-[11px]">فتح مركز العمل <ArrowUpLeft size={13}/></Link>}/>
