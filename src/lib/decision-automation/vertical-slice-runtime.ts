@@ -10,7 +10,7 @@ export interface RuntimeRecommendationInput {
   description?: string;
   evidenceSnapshotId: string;
   evidence: Record<string, unknown>;
-  expectedImpact: number;
+  expectedImpact: number | null;
   metricVersions: Record<string, number>;
 }
 
