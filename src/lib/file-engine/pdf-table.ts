@@ -201,8 +201,8 @@ function normalizeArabicDigitsForPdf(value: string): string {
 }
 
 function canonicalDateText(value: string): string {
-  const normalized = normalizeArabicDigitsForPdf(value).replace(/\\s+/g, '');
-  const match = normalized.match(/(\\d{1,4})[/-](\\d{1,2})[/-](\\d{1,4})/);
+  const normalized = normalizeArabicDigitsForPdf(value).replace(/\s+/g, '');
+  const match = normalized.match(/(\d{1,4})[/-](\d{1,2})[/-](\d{1,4})/);
   if (!match) return normalized;
   const [, first, second, third] = match;
   if (first.length === 4) return `${first}-${second.padStart(2, '0')}-${third.padStart(2, '0')}`;
@@ -214,14 +214,14 @@ function looksLikeArabicSalesDate(value: string): boolean {
 }
 
 function looksLikeInvoiceNumber(value: string): boolean {
-  const normalized = normalizeArabicDigitsForPdf(value).replace(/[,\\s]/g, '');
-  return /^\\d{1,12}$/.test(normalized);
+  const normalized = normalizeArabicDigitsForPdf(value).replace(/[,\s]/g, '');
+  return /^\d{1,12}$/.test(normalized);
 }
 
 function looksLikeInvoiceType(value: string): boolean {
   const normalized = value.normalize('NFKC').trim().toLowerCase();
   if (!normalized) return false;
-  return !/^(نوع\\s*الفاتورة|التاريخ|رقم\\s*الفاتورة|الفاتورة|العملة)$/i.test(normalized);
+  return !/^(نوع\s*الفاتورة|التاريخ|رقم\s*الفاتورة|الفاتورة|العملة)$/i.test(normalized);
 }
 
 
@@ -267,7 +267,7 @@ function extractArabicSalesTableFromPage(
       const reverse = index === 6;
       const value = tokenTextForBand(band, reverse);
       if (index === 9) return canonicalDateText(value);
-      if (index === 10) return normalizeArabicDigitsForPdf(value).replace(/[,\\s]/g, '');
+      if (index === 10) return normalizeArabicDigitsForPdf(value).replace(/[,\s]/g, '');
       return value;
     });
 
