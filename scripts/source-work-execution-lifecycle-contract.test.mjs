@@ -9,6 +9,9 @@ const auditMigration = fs.readFileSync('supabase/migrations/20261002030000_audit
 assert.ok(bridge.includes("start_decision_work_item"));
 assert.ok(bridge.includes("complete_decision_work_item"));
 assert.ok(bridge.includes("evidence_snapshot_id"));
+assert.ok(surface.includes("fetchSourceDecisionAuditTrace"));
+assert.ok(surface.includes("ACTIVITY / AUDIT"));
+assert.ok(surface.includes("سجل ما حدث للقرار"));
 assert.ok(surface.includes("decision.workItemStatus === 'OPEN'"));
 assert.ok(surface.includes("decision.workItemStatus === 'IN_PROGRESS'"));
 assert.ok(surface.includes("إغلاق التنفيذ"));
