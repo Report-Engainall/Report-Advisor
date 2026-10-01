@@ -378,7 +378,10 @@ function WorkCenterGeneralPage() {
                           <span className="rounded-lg border border-warning-200 bg-warning-50 px-2 py-1 text-[8px] font-bold text-warning-900">Evidence غير متاح — افتح المصدر</span>
                         )}
                         {reportJobIdValue && sourceHashValue
-                          ? <Link to={'/reports/smart/' + reportJobIdValue + '?sourceHash=' + encodeURIComponent(sourceHashValue)} className="btn-secondary text-[9px]">المصدر</Link>
+                          ? <>
+                              <Link to={'/reports/smart/' + reportJobIdValue + '?sourceHash=' + encodeURIComponent(sourceHashValue)} className="btn-secondary text-[9px]">المصدر</Link>
+                              <Link to={'/reports/smart/' + reportJobIdValue + '?sourceHash=' + encodeURIComponent(sourceHashValue) + '#decision-evidence-inspector'} className="btn-ghost text-[9px]">التتبع</Link>
+                            </>
                           : <span className="text-ink-400">غير متاح</span>}
                       </div>
                       {workActions[item.id] === 'error' && <div role="alert" className="mt-1 text-[8px] font-bold text-danger-700">تعذر تنفيذ الإجراء أو readback؛ بقيت الحالة دون تغيير محلي.</div>}
