@@ -264,6 +264,49 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
   });
 }
 
+export type DecisionAuditTrace = {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  source: string | null;
+  userLabel: string | null;
+  createdAt: string;
+};
+
+export async function fetchSourceDecisionAuditTrace(
+  decisionId: string,
+  approvalId?: string | null,
+  workItemId?: string | null,
+  outcomeId?: string | null,
+): Promise<DecisionAuditTrace[]> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const entityIds = [decisionId, approvalId, workItemId, outcomeId].filter((value): value is string => Boolean(value));
+  if (!entityIds.length) return [];
+
+  const { data, error } = await supabase
+    .from('audit_logs')
+    .select('id,action,entity_type,entity_id,source,user_label,created_at')
+    .eq('company_id', companyId)
+    .in('entity_id', entityIds)
+    .order('created_at', { ascending: true })
+    .limit(100);
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    id: String(row.id),
+    action: String(row.action ?? ''),
+    entityType: String(row.entity_type ?? ''),
+    entityId: String(row.entity_id ?? ''),
+    source: row.source == null ? null : String(row.source),
+    userLabel: row.user_label == null ? null : String(row.user_label),
+    createdAt: String(row.created_at),
+  }));
+}
+
 export async function requestSourceDecisionApproval(decisionId: string, reason: string): Promise<string> {
   const { data, error } = await supabase.rpc('request_decision_approval', {
     p_decision_id: decisionId,
