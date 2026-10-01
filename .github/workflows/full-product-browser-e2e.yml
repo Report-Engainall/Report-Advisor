@@ -232,6 +232,8 @@ jobs:
           TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
           TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
           TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+          TEST_APPROVER_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_APPROVER_EMAIL }}
+          TEST_APPROVER_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_APPROVER_PASSWORD }}
         run: node scripts/real-business-e2e.mjs
 
       - name: Fail closed on browser evidence
