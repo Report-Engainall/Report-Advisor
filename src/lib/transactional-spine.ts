@@ -52,6 +52,17 @@ export type OperationalWarehouse = {
   is_active: boolean;
 };
 
+export type OperationalAuditEntry = {
+  id: string;
+  action: string;
+  entityType: string | null;
+  entityId: string | null;
+  source: string | null;
+  userLabel: string | null;
+  correlationId: string | null;
+  createdAt: string;
+};
+
 type RelationEntity = { id: string; name: string | null };
 
 function normalizeRelation<T>(value: T | T[] | null | undefined): T | null {
@@ -169,6 +180,38 @@ export async function fetchOperationalSuppliers(limit = 100): Promise<Operationa
     .limit(limit);
   if (error) throw error;
   return (data ?? []) as OperationalSupplier[];
+}
+
+
+export async function fetchOperationalAuditTrace(limit = 40): Promise<OperationalAuditEntry[]> {
+  const companyId = await tenantId();
+  const { data, error } = await supabase
+    .from('audit_logs')
+    .select('id,action,entity_type,entity_id,source,user_label,correlation_id,created_at')
+    .eq('company_id', companyId)
+    .eq('source', 'operations-runtime')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return ((data ?? []) as Array<{
+    id: string;
+    action: string;
+    entity_type: string | null;
+    entity_id: string | null;
+    source: string | null;
+    user_label: string | null;
+    correlation_id: string | null;
+    created_at: string;
+  }>).map(row => ({
+    id: row.id,
+    action: row.action,
+    entityType: row.entity_type,
+    entityId: row.entity_id,
+    source: row.source,
+    userLabel: row.user_label,
+    correlationId: row.correlation_id,
+    createdAt: row.created_at,
+  }));
 }
 
 export async function fetchOperationalWarehouses(limit = 100): Promise<OperationalWarehouse[]> {
