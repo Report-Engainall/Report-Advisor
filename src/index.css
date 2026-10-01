@@ -9,6 +9,12 @@
   --ag-color-brand-deep:#063b36;
   --ag-color-shell:#052e2b;
   --ag-color-accent:#e7b52b;
+  --ag-color-success:#177245;
+  --ag-color-warning:#9a6d00;
+  --ag-color-danger:#b42318;
+  --ag-color-info:#2463a6;
+  --ag-color-neutral:#51615b;
+  --ag-color-disabled:#9aa8a2;
   --ag-color-border:#cfe2dd;
   --ag-color-border-soft:#dfe7e1;
   --ag-color-muted:#94a39a;
