@@ -387,6 +387,7 @@ export async function createApprovedDecisionWorkItemForCurrentUser(input: {
   signalMessage: string | null;
   signalSeverity: string | null;
   recommendationId: string | null;
+  evidenceSnapshotId: string | null;
   department: string;
   dueAt?: string | null;
 }): Promise<string> {
@@ -399,13 +400,15 @@ export async function createApprovedDecisionWorkItemForCurrentUser(input: {
       reportExecutionJobId: input.reportJobId,
       sourceHash: input.sourceHash,
       decisionId: input.decisionId,
+      recommendationId: input.recommendationId,
+      evidenceSnapshotId: input.evidenceSnapshotId,
     },
     ...(input.signalMessage ? [{ type: 'SIGNAL', message: input.signalMessage }] : []),
   ];
 
   const { data, error } = await supabase.rpc('create_decision_work_item', {
     p_decision_id: input.decisionId,
-    p_recommendation_id: null,
+    p_recommendation_id: input.recommendationId,
     p_department: input.department || 'تشغيل',
     p_assignee_id: user.id,
     p_assignee_label: user.email || user.id,
@@ -499,6 +502,9 @@ export type DecisionWorkItemRecord = {
   expectedImpact: number | null;
   actualImpact: number | null;
   evidenceRefs: unknown[];
+  evidenceSnapshotId: string | null;
+  sourceReportJobId: string | null;
+  sourceHash: string | null;
 };
 
 export async function fetchDecisionWorkItems(limit = 200): Promise<DecisionWorkItemRecord[]> {
@@ -530,5 +536,23 @@ export async function fetchDecisionWorkItems(limit = 200): Promise<DecisionWorkI
     expectedImpact: row.expected_impact == null ? null : Number(row.expected_impact),
     actualImpact: row.actual_impact == null ? null : Number(row.actual_impact),
     evidenceRefs: Array.isArray(row.evidence_refs) ? row.evidence_refs : [],
+    evidenceSnapshotId: Array.isArray(row.evidence_refs)
+      ? (() => {
+          const source = row.evidence_refs.find((ref): ref is Record<string, unknown> => Boolean(ref) && typeof ref === 'object' && (ref as Record<string, unknown>).type === 'SOURCE_REPORT');
+          return typeof source?.evidenceSnapshotId === 'string' ? source.evidenceSnapshotId : null;
+        })()
+      : null,
+    sourceReportJobId: Array.isArray(row.evidence_refs)
+      ? (() => {
+          const source = row.evidence_refs.find((ref): ref is Record<string, unknown> => Boolean(ref) && typeof ref === 'object' && (ref as Record<string, unknown>).type === 'SOURCE_REPORT');
+          return typeof source?.reportExecutionJobId === 'string' ? source.reportExecutionJobId : null;
+        })()
+      : null,
+    sourceHash: Array.isArray(row.evidence_refs)
+      ? (() => {
+          const source = row.evidence_refs.find((ref): ref is Record<string, unknown> => Boolean(ref) && typeof ref === 'object' && (ref as Record<string, unknown>).type === 'SOURCE_REPORT');
+          return typeof source?.sourceHash === 'string' ? source.sourceHash : null;
+        })()
+      : null,
   }));
 }
