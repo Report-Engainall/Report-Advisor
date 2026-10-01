@@ -35,8 +35,11 @@ if (!releaseCertification.includes('certification_run_id')) throw new Error('Rel
 if (!releaseCertification.includes('manifest_id')) throw new Error('Release certification must emit a manifest identity');
 if (!releaseCertification.includes('certification-decision.json')) throw new Error('Release certification must emit a certification decision');
 
-for (const [name, text] of [['j-k-l-runtime-wave', jkl], ['autonomy-safety-wave', autonomy], ['phase-f-live-resilience', phaseF]]) {
+for (const [name, text] of [['j-k-l-runtime-wave', jkl], ['autonomy-safety-wave', autonomy]]) {
   if (/^ {2}push:\s*(?:\{|$)/m.test(text)) throw new Error(`${name} must not define a push trigger; it is a manual/scheduled wave`);
+}
+if (!/^  push:\s*\n\s*branches:\s*\[main\]/m.test(phaseF)) {
+  throw new Error('phase-f-live-resilience must remain a main-push exact-SHA runtime certification workflow');
 }
 
 const names = fs.readdirSync(workflowDir).filter((file) => file.endsWith('.yml') || file.endsWith('.yaml'));
@@ -70,7 +73,11 @@ for (const file of names) {
   if (!isCanonicalMain) scopedPushWorkflows.push(file);
   if (!hasBranchRestriction && !hasPathRestriction && !hasTagRestriction) broadPushWorkflows.push(file);
 }
-if (!canonicalMainPushWorkflows.includes('quality.yml')) throw new Error(`Expected quality.yml to be a canonical main push workflow, found: ${canonicalMainPushWorkflows.join(', ') || 'none'}`);
+for (const required of ['quality.yml', 'phase-f-live-resilience.yml']) {
+  if (!canonicalMainPushWorkflows.includes(required)) {
+    throw new Error(`Expected ${required} to be a canonical main push workflow, found: ${canonicalMainPushWorkflows.join(', ') || 'none'}`);
+  }
+}
 const governanceBroad = new Set(['execution-enforcement-contract.yml', 'final-certification-gate.yml']);
 const nonCanonicalBroad = broadPushWorkflows.filter((file) => file !== 'quality.yml' && !governanceBroad.has(file));
 if (nonCanonicalBroad.length) throw new Error(`Non-canonical broad push workflows are not allowed: ${nonCanonicalBroad.join(', ')}`);
@@ -85,5 +92,6 @@ console.log(JSON.stringify({
   productionEvidenceBoundary: 'release-certification -> workflow_run -> exact artifact -> consumption proof',
   scopedPushWorkflows,
   governanceBroadPushWorkflows: ['execution-enforcement-contract.yml', 'final-certification-gate.yml'],
-  manualWaves: ['j-k-l-runtime-wave.yml', 'autonomy-safety-wave.yml', 'phase-f-live-resilience.yml'],
+  manualWaves: ['j-k-l-runtime-wave.yml', 'autonomy-safety-wave.yml'],
+  exactMainShaRuntimeWaves: ['phase-f-live-resilience.yml'],
 }));
