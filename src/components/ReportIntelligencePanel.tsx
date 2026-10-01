@@ -79,7 +79,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    disabled={proposalState[signal.id] === 'saving'}
+                    disabled={proposalState[signal.id] === 'saving' || !report.sourceAnalysis?.id}
                     onClick={() => {
                       setProposalState((current) => ({ ...current, [signal.id]: 'saving' }));
                       void createSourceDecisionProposal({
@@ -90,6 +90,8 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                         signalMessage: signal.message,
                         severity: signal.severity,
                         evidence: signal.evidence,
+                        evidenceSnapshotId: report.sourceAnalysis?.id ?? '',
+
                       }).then((result) => {
                         setProposalState((current) => ({ ...current, [signal.id]: result.status === 'APPROVED' ? 'already-approved' : 'proposed' }));
                       }).catch(() => {
@@ -98,7 +100,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                     }}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-primary-200 bg-white px-2.5 py-2 text-[9px] font-black text-primary-800 disabled:opacity-50"
                   >
-                    {proposalState[signal.id] === 'saving' ? 'جارٍ الحفظ...' : proposalState[signal.id] === 'proposed' || proposalState[signal.id] === 'already-approved' ? 'تم حفظ القرار المقترح' : 'حفظ كقرار مقترح'}
+                    {proposalState[signal.id] === 'saving' ? 'جارٍ الحفظ...' : proposalState[signal.id] === 'proposed' || proposalState[signal.id] === 'already-approved' ? 'تم حفظ التوصية والقرار' : !report.sourceAnalysis?.id ? 'الدليل غير متاح' : 'حفظ كتوصية ثم قرار'}
                   </button>
                   <Link
                     to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)}
