@@ -107,6 +107,8 @@ if (!checkpointImportId) throw new Error('OPEN_REPORT_IMPORT_ID_MISSING_FROM_CHE
 
 const deadline = Date.now() + 180_000;
 let polledJob = null;
+let recoveredAnalysis = null;
+let recoveredImport = null;
 while (Date.now() < deadline) {
   const poll = await rest(
     '/report_execution_jobs?id=eq.' + encodeURIComponent(JOB_ID) +
@@ -115,14 +117,62 @@ while (Date.now() < deadline) {
     accessToken,
   );
   polledJob = poll.body?.[0] ?? null;
-  if (polledJob?.status === 'completed' && polledJob.checkpoint?.stage === 'rendered') break;
   if (polledJob?.status === 'dead_letter' || polledJob?.status === 'failed') {
     throw new Error('OPEN_REPORT_BACKGROUND_EXECUTION_FAILED:' + JSON.stringify(polledJob));
   }
+
+  const observedRows = Number(
+    polledJob?.evidence?.renderedOutput?.authoritativeCurrentRowCount ??
+    polledJob?.evidence?.renderedOutput?.rowCount ??
+    polledJob?.checkpoint?.evidenceKeys?.map(String).find((key) => key.startsWith('rows:'))?.slice(5) ??
+    0,
+  );
+
+  const analysisPoll = await rest(
+    '/source_analysis_snapshots?company_id=eq.' + encodeURIComponent(companyId) +
+    '&source_hash=eq.' + encodeURIComponent(EXPECTED_HASH) +
+    '&analysis_status=eq.analyzed' +
+    '&select=id,row_count,column_count,source_format,analysis_status' +
+    '&order=created_at.desc&limit=1',
+    accessToken,
+  );
+  recoveredAnalysis = analysisPoll.body?.[0] ?? null;
+
+  const importPoll = await rest(
+    '/import_jobs?id=eq.' + encodeURIComponent(checkpointImportId) +
+    '&company_id=eq.' + encodeURIComponent(companyId) +
+    '&select=id,status,total_rows,processed_rows,valid_rows,invalid_rows,source_fingerprint',
+    accessToken,
+  );
+  recoveredImport = importPoll.body?.[0] ?? null;
+
+  const analysisReady = Boolean(
+    recoveredAnalysis &&
+    Number(recoveredAnalysis.row_count) > 0 &&
+    (observedRows === 0 || Number(recoveredAnalysis.row_count) === observedRows),
+  );
+  const importReady = Boolean(
+    recoveredImport &&
+    recoveredImport.status === 'completed' &&
+    Number(recoveredImport.valid_rows) === Number(recoveredAnalysis?.row_count ?? observedRows),
+  );
+
+  if (
+    polledJob?.status === 'completed' &&
+    polledJob?.checkpoint?.stage === 'rendered' &&
+    analysisReady &&
+    importReady
+  ) {
+    break;
+  }
+
   await new Promise((resolve) => setTimeout(resolve, 5000));
 }
 if (!polledJob || polledJob.status !== 'completed' || polledJob.checkpoint?.stage !== 'rendered') {
   throw new Error('OPEN_REPORT_BACKGROUND_EXECUTION_TIMEOUT');
+}
+if (!recoveredAnalysis || !recoveredImport) {
+  throw new Error('OPEN_REPORT_RECOVERY_PERSISTENCE_TIMEOUT');
 }
 if (polledJob.source_hash !== EXPECTED_HASH) throw new Error('OPEN_REPORT_RESUME_HASH_MISMATCH');
 
