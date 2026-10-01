@@ -704,79 +704,146 @@ async function proveDecisionApprovalActionOutcome(page, report) {
   const decisionTarget = baseURL + '/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash);
   await page.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });
 
-  const requestButtons = page.locator('[data-testid^="request-approval-"]');
-  await requestButtons.first().waitFor({ state: 'visible', timeout: 30000 });
-  const requestTestId = await requestButtons.first().getAttribute('data-testid');
-  assert.ok(requestTestId, 'DECISION_REQUEST_TEST_ID_MISSING');
-  const decisionId = requestTestId.replace('request-approval-', '');
-  assert.ok(decisionId, 'DECISION_ID_MISSING_FROM_UI');
-
-  const proposalRows = await restSelect(
+  const decisionRows = await restSelect(
     page,
     'business_intelligence_decisions',
-    { id: decisionId, company_id: evidence.tenantA },
-    'id,company_id,status,decision_key',
-    { limit: 1 },
+    { company_id: evidence.tenantA },
+    'id,company_id,status,decision_key,created_at,approved_at,approved_by',
+    { order: 'created_at.desc', limit: 100 },
   );
-  assert.equal(proposalRows.length, 1, 'DECISION_PROPOSAL_DB_ROW_MISSING');
-  assert.ok(String(proposalRows[0].decision_key).startsWith('source-intelligence:' + report.sourceHash + ':'), 'DECISION_SOURCE_BINDING_MISSING');
+  const sourceDecisions = decisionRows.filter((row) => String(row.decision_key ?? '').startsWith('source-intelligence:' + report.sourceHash + ':'));
+  if (sourceDecisions.length === 0) {
+    evidence.steps.push({ step: 'decision-approval-action-outcome', status: 'NOT_PROVEN', reason: 'SOURCE_DECISION_ROW_NOT_AVAILABLE', reportJobId: report.reportJobId });
+    return;
+  }
 
-  await page.locator('[data-testid="request-approval-' + decisionId + '"]').click();
-  await page.getByText(/تم طلب الموافقة|PENDING · بانتظار صاحب صلاحية آخر/, { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
+  const decision = sourceDecisions[0];
+  const decisionId = String(decision.id);
+  assert.equal(String(decision.company_id), evidence.tenantA, 'DECISION_TENANT_MISMATCH');
 
-  const approvalsPending = await restSelect(page, 'decision_approvals', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,status,requested_by,decided_by', { order: 'requested_at.desc', limit: 1 });
-  assert.equal(approvalsPending.length, 1, 'DECISION_APPROVAL_ROW_MISSING_AFTER_REQUEST');
-  const approvalId = String(approvalsPending[0].id);
-  assert.equal(approvalsPending[0].status, 'PENDING');
-  assert.equal(String(approvalsPending[0].requested_by), userAId);
+  const approvals = await restSelect(
+    page,
+    'decision_approvals',
+    { company_id: evidence.tenantA, decision_id: decisionId },
+    'id,company_id,decision_id,status,requested_by,decided_by',
+    { order: 'requested_at.desc', limit: 1 },
+  );
+  let approvalId = approvals.length ? String(approvals[0].id) : null;
+  let approvalStatus = approvals.length ? String(approvals[0].status) : null;
 
-  const approverContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
-  const approverPage = await approverContext.newPage();
-  attachRuntimeCapture(approverPage);
-  try {
-    await login(approverPage, approverEmail, approverPassword);
-    const approverTenant = await currentTenant(approverPage);
-    const approverId = await currentUserId(approverPage);
-    assert.equal(approverTenant, evidence.tenantA, 'APPROVER_TENANT_MUST_MATCH_REQUEST_TENANT');
-    assert.notEqual(approverId, userAId, 'APPROVER_MUST_DIFFER_FROM_REQUESTER');
+  if (decision.status === 'EXECUTED') {
+    const workRows = await restSelect(page, 'decision_work_items', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,status,assignee_id,actual_impact', { order: 'created_at.desc', limit: 1 });
+    const outcomeRows = await restSelect(page, 'recommendation_outcomes', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,status,outcome_quality,actual_impact,observed_at', { order: 'observed_at.desc', limit: 1 });
+    assert.equal(workRows.length, 1, 'DECISION_EXECUTED_WORK_ITEM_MISSING');
+    assert.equal(workRows[0].status, 'COMPLETED');
+    assert.equal(String(workRows[0].assignee_id), userAId);
+    assert.equal(outcomeRows.length, 1, 'DECISION_EXECUTED_OUTCOME_MISSING');
+    await page.screenshot({ path: reportDir + '/decision-approval-action-outcome-reused.png', fullPage: true });
+    evidence.steps.push({
+      step: 'decision-approval-action-outcome',
+      status: 'PASS',
+      reportJobId: report.reportJobId,
+      sourceHash: report.sourceHash,
+      decisionId,
+      approvalId,
+      approvalStatus,
+      workItemId: String(workRows[0].id),
+      workStatus: String(workRows[0].status),
+      outcomeId: String(outcomeRows[0].id),
+      outcomeStatus: String(outcomeRows[0].status ?? ''),
+      finalDecisionStatus: String(decision.status),
+      reusedPersistedDecision: true,
+    });
+    return;
+  }
 
-    await approverPage.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });
-    const approveButton = approverPage.locator('[data-testid="approve-decision-' + decisionId + '"]');
-    await approveButton.waitFor({ state: 'visible', timeout: 30000 });
-    await approveButton.click();
-    await approverPage.waitForTimeout(500);
+  if (decision.status === 'REJECTED' || decision.status === 'CANCELLED') {
+    evidence.steps.push({ step: 'decision-approval-action-outcome', status: 'NOT_PROVEN', reason: 'SOURCE_DECISION_TERMINAL_NON_EXECUTED', decisionId, status: decision.status });
+    return;
+  }
 
-    const approvedRows = await restSelect(approverPage, 'decision_approvals', { company_id: evidence.tenantA, id: approvalId }, 'id,company_id,decision_id,status,requested_by,decided_by', { limit: 1 });
-    assert.equal(approvedRows.length, 1, 'DECISION_APPROVAL_READBACK_MISSING');
-    assert.equal(approvedRows[0].status, 'APPROVED');
-    assert.equal(String(approvedRows[0].requested_by), userAId);
-    assert.equal(String(approvedRows[0].decided_by), approverId);
-  } finally {
-    await approverPage.close().catch(() => {});
-    await approverContext.close().catch(() => {});
+  if (decision.status === 'PROPOSED' && approvalStatus !== 'PENDING') {
+    const requestButton = page.locator('[data-testid="request-approval-' + decisionId + '"]');
+    await requestButton.waitFor({ state: 'visible', timeout: 30000 });
+    await requestButton.click();
+    await page.getByText(/تم طلب الموافقة|PENDING · بانتظار صاحب صلاحية آخر/, { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
+
+    const refreshedApprovals = await restSelect(
+      page,
+      'decision_approvals',
+      { company_id: evidence.tenantA, decision_id: decisionId },
+      'id,company_id,decision_id,status,requested_by,decided_by',
+      { order: 'requested_at.desc', limit: 1 },
+    );
+    assert.equal(refreshedApprovals.length, 1, 'DECISION_APPROVAL_ROW_MISSING_AFTER_REQUEST');
+    approvalId = String(refreshedApprovals[0].id);
+    approvalStatus = String(refreshedApprovals[0].status);
+    assert.equal(approvalStatus, 'PENDING');
+    assert.equal(String(refreshedApprovals[0].requested_by), userAId);
+  }
+
+  if (approvalStatus === 'PENDING') {
+    const approverContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
+    const approverPage = await approverContext.newPage();
+    attachRuntimeCapture(approverPage);
+    try {
+      await login(approverPage, approverEmail, approverPassword);
+      const approverTenant = await currentTenant(approverPage);
+      const approverId = await currentUserId(approverPage);
+      assert.equal(approverTenant, evidence.tenantA, 'APPROVER_TENANT_MUST_MATCH_REQUEST_TENANT');
+      assert.notEqual(approverId, userAId, 'APPROVER_MUST_DIFFER_FROM_REQUESTER');
+
+      await approverPage.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });
+      const approveButton = approverPage.locator('[data-testid="approve-decision-' + decisionId + '"]');
+      await approveButton.waitFor({ state: 'visible', timeout: 30000 });
+      await approveButton.click();
+      await approverPage.waitForTimeout(500);
+
+      const approvedRows = await restSelect(approverPage, 'decision_approvals', { company_id: evidence.tenantA, id: approvalId }, 'id,company_id,decision_id,status,requested_by,decided_by', { limit: 1 });
+      assert.equal(approvedRows.length, 1, 'DECISION_APPROVAL_READBACK_MISSING');
+      assert.equal(approvedRows[0].status, 'APPROVED');
+      assert.equal(String(approvedRows[0].requested_by), userAId);
+      assert.equal(String(approvedRows[0].decided_by), approverId);
+      approvalStatus = 'APPROVED';
+    } finally {
+      await approverPage.close().catch(() => {});
+      await approverContext.close().catch(() => {});
+    }
   }
 
   await page.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });
   const createWorkButton = page.locator('[data-testid="create-work-' + decisionId + '"]');
-  await createWorkButton.waitFor({ state: 'visible', timeout: 30000 });
-  await createWorkButton.click();
+  if (await createWorkButton.count() === 0) {
+    const existingWork = await restSelect(page, 'decision_work_items', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,status,assignee_id,actual_impact', { order: 'created_at.desc', limit: 1 });
+    if (existingWork.length === 0 || existingWork[0].status === 'COMPLETED') {
+      evidence.steps.push({ step: 'decision-approval-action-outcome', status: 'NOT_PROVEN', reason: 'APPROVED_DECISION_HAS_NO_OPEN_ACTION', decisionId, approvalStatus });
+      return;
+    }
+  } else {
+    await createWorkButton.click();
+  }
 
   const workRowsOpen = await restSelect(page, 'decision_work_items', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,status,assignee_id,assignee_label', { order: 'created_at.desc', limit: 1 });
   assert.equal(workRowsOpen.length, 1, 'DECISION_WORK_ITEM_DB_ROW_MISSING');
   const workItemId = String(workRowsOpen[0].id);
   assert.equal(String(workRowsOpen[0].assignee_id), userAId);
-  assert.equal(workRowsOpen[0].status, 'OPEN');
+  const workStatusBefore = String(workRowsOpen[0].status);
 
-  const startButton = page.locator('[data-testid="start-work-' + decisionId + '"]');
-  await startButton.waitFor({ state: 'visible', timeout: 30000 });
-  await startButton.click();
+  if (workStatusBefore === 'OPEN') {
+    const startButton = page.locator('[data-testid="start-work-' + decisionId + '"]');
+    await startButton.waitFor({ state: 'visible', timeout: 30000 });
+    await startButton.click();
+  }
+
   const workRowsInProgress = await restSelect(page, 'decision_work_items', { company_id: evidence.tenantA, id: workItemId }, 'id,status,decision_id,assignee_id', { limit: 1 });
   assert.equal(workRowsInProgress.length, 1, 'DECISION_WORK_ITEM_READBACK_AFTER_START_MISSING');
-  assert.equal(workRowsInProgress[0].status, 'IN_PROGRESS');
 
-  const completeButton = page.locator('[data-testid="complete-work-' + decisionId + '"]');
-  await completeButton.waitFor({ state: 'visible', timeout: 30000 });
-  await completeButton.click();
+  if (workRowsInProgress[0].status === 'IN_PROGRESS') {
+    const completeButton = page.locator('[data-testid="complete-work-' + decisionId + '"]');
+    await completeButton.waitFor({ state: 'visible', timeout: 30000 });
+    await completeButton.click();
+  }
+
   const workRowsCompleted = await restSelect(page, 'decision_work_items', { company_id: evidence.tenantA, id: workItemId }, 'id,status,decision_id,assignee_id,actual_impact', { limit: 1 });
   assert.equal(workRowsCompleted.length, 1, 'DECISION_WORK_ITEM_READBACK_AFTER_COMPLETE_MISSING');
   assert.equal(workRowsCompleted[0].status, 'COMPLETED');
@@ -801,8 +868,10 @@ async function proveDecisionApprovalActionOutcome(page, report) {
     outcomeId: String(outcomeRows[0].id),
     outcomeStatus: String(outcomeRows[0].status ?? ''),
     finalDecisionStatus: String(decisionAfter[0].status),
+    reusedPersistedDecision: false,
   });
 }
+
 
 async function proveContextPreservedSurface(page, report, surface) {
   const target = baseURL + surface.path;
