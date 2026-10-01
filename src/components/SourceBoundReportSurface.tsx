@@ -243,7 +243,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
         decision.id,
         decision.approvalId,
         decision.workItemId,
-        null,
+        decision.outcomeId,
       );
       setAuditTrace(rows);
     } catch {
