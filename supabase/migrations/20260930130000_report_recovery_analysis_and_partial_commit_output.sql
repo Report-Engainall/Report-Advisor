@@ -340,8 +340,7 @@ begin
     end if;
   end loop;
 end;
-$function$
-
+$function$;
 
 revoke all on function public.recover_missing_source_analysis_snapshots(uuid) from public;
 revoke all on function public.recover_missing_source_analysis_snapshots(uuid) from anon;
@@ -576,8 +575,7 @@ begin
     return next;
   end loop;
 end;
-$function$
-
+$function$;
 
 revoke all on function public.recover_missing_report_rendered_outputs(uuid) from public;
 revoke all on function public.recover_missing_report_rendered_outputs(uuid) from anon;
