@@ -71,9 +71,9 @@ language sql
 stable
 security definer
 set search_path = public, pg_catalog
-as $
+as $function$
   select public.current_company_id();
-$;
+$function$;
 
 revoke all on function public.current_customer_company_id() from public, anon;
 grant execute on function public.current_customer_company_id() to authenticated, service_role;
