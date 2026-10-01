@@ -131,14 +131,28 @@ export async function requestRuntimeApproval(decisionId: string, reason?: string
 
 export async function loadRuntimeDecisionContext(recommendationId: string): Promise<RuntimeDecisionContext> {
   const companyId = await companyIdOrThrow();
-  const { data: decisions, error: decisionError } = await supabase
+  const { data: linkedDecisions, error: linkedDecisionError } = await supabase
     .from('business_intelligence_decisions')
     .select('id,recommendation_id,status,confidence,expected_impact,evidence,created_at')
     .eq('company_id', companyId)
     .eq('recommendation_id', recommendationId)
     .order('created_at', { ascending: false })
     .limit(1);
-  if (decisionError) throw decisionError;
+  if (linkedDecisionError) throw linkedDecisionError;
+
+  let decisions = linkedDecisions ?? [];
+  if (!decisions.length) {
+    const { data: keyedDecisions, error: keyedDecisionError } = await supabase
+      .from('business_intelligence_decisions')
+      .select('id,recommendation_id,status,confidence,expected_impact,evidence,created_at')
+      .eq('company_id', companyId)
+      .eq('decision_key', 'recommendation:' + recommendationId)
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (keyedDecisionError) throw keyedDecisionError;
+    decisions = keyedDecisions ?? [];
+  }
+
   const decision = decisions?.[0]
     ? {
         id: String(decisions[0].id),
