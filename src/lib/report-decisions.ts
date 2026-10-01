@@ -341,6 +341,23 @@ export async function completeSourceDecisionWorkItem(input: {
 }
 
 
+export async function fetchPendingDecisionApprovals(limit = 50): Promise<number> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
+  const { data, error } = await supabase
+    .from('decision_approvals')
+    .select('id')
+    .eq('company_id', companyId)
+    .eq('status', 'PENDING')
+    .order('requested_at', { ascending: false })
+    .limit(safeLimit);
+
+  if (error) throw error;
+  return (data ?? []).length;
+}
+
 export type DecisionWorkItemRecord = {
   id: string;
   decisionId: string;
