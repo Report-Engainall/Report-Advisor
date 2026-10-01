@@ -1,0 +1,22 @@
+name: Metric Boundary Hardening
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  metric-boundaries:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Execute metric boundary tests
+        run: node scripts/check-metric-source-evidence.mjs
