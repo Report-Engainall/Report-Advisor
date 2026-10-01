@@ -188,11 +188,11 @@ export function ExecutiveCommandCenterPage() {
                 <span className="ag-attention-icon ag-attention-warning"><ShieldCheck size={15}/></span>
                 <span><span className="ag-attention-label">اعتمادات معلقة</span><span className="ag-attention-value">{pendingApprovals}</span><span className="ag-attention-note">تحتاج صاحب صلاحية</span></span>
               </Link>
-              <Link to="/work-center?stage=open" className="ag-attention-card">
+              <Link to="/work-center?decisionWorkFilter=open" className="ag-attention-card">
                 <span className="ag-attention-icon ag-attention-neutral"><Clock3 size={15}/></span>
                 <span><span className="ag-attention-label">عمل مفتوح</span><span className="ag-attention-value">{executionSummary.open}</span><span className="ag-attention-note">ينتظر البدء</span></span>
               </Link>
-              <Link to="/work-center?stage=in_progress" className="ag-attention-card">
+              <Link to="/work-center?decisionWorkFilter=in_progress" className="ag-attention-card">
                 <span className="ag-attention-icon ag-attention-primary"><TrendingUp size={15}/></span>
                 <span><span className="ag-attention-label">قيد التنفيذ</span><span className="ag-attention-value">{executionSummary.inProgress}</span><span className="ag-attention-note">يتطلب متابعة</span></span>
               </Link>
