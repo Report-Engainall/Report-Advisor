@@ -52,6 +52,12 @@ export type OperationalWarehouse = {
   is_active: boolean;
 };
 
+type RelationEntity = { id: string; name: string | null };
+
+function normalizeRelation<T>(value: T | T[] | null | undefined): T | null {
+  return Array.isArray(value) ? value[0] ?? null : value ?? null;
+}
+
 async function tenantId(): Promise<string> {
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
@@ -67,7 +73,15 @@ export async function fetchOperationalOrders(limit = 100): Promise<OperationalOr
     .order('created_at', { ascending: false })
     .limit(limit);
   if (error) throw error;
-  return (data ?? []) as OperationalOrder[];
+  const rows = (data ?? []) as unknown as Array<Omit<OperationalOrder, 'customer' | 'warehouse'> & {
+    customer: RelationEntity | RelationEntity[] | null;
+    warehouse: RelationEntity | RelationEntity[] | null;
+  }>;
+  return rows.map((row) => ({
+    ...row,
+    customer: normalizeRelation(row.customer),
+    warehouse: normalizeRelation(row.warehouse),
+  }));
 }
 
 export async function transitionOperationalOrder(orderId: string, toStatus: string): Promise<OperationalOrder> {
@@ -96,7 +110,13 @@ export async function fetchOperationalInvoices(limit = 100): Promise<Operational
     .order('invoice_date', { ascending: false })
     .limit(limit);
   if (error) throw error;
-  return (data ?? []) as OperationalInvoice[];
+  const rows = (data ?? []) as unknown as Array<Omit<OperationalInvoice, 'customer'> & {
+    customer: RelationEntity | RelationEntity[] | null;
+  }>;
+  return rows.map((row) => ({
+    ...row,
+    customer: normalizeRelation(row.customer),
+  }));
 }
 
 export async function recordOperationalSalesPayment(input: {
@@ -128,7 +148,15 @@ export async function fetchOperationalPriceTruth(limit = 50): Promise<Operationa
     .order('created_at', { ascending: false })
     .limit(limit);
   if (error) throw error;
-  return (data ?? []) as OperationalPriceTier[];
+  const rows = (data ?? []) as unknown as Array<Omit<OperationalPriceTier, 'customer' | 'product'> & {
+    customer: RelationEntity | RelationEntity[] | null;
+    product: { id: string; name: string | null; sku: string | null } | Array<{ id: string; name: string | null; sku: string | null }> | null;
+  }>;
+  return rows.map((row) => ({
+    ...row,
+    customer: normalizeRelation(row.customer),
+    product: normalizeRelation(row.product),
+  }));
 }
 
 export async function fetchOperationalSuppliers(limit = 100): Promise<OperationalSupplier[]> {
