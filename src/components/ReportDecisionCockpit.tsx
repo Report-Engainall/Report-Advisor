@@ -182,6 +182,5 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
         </Link>
       </div>
     </section>
-    </section>
   );
 }
