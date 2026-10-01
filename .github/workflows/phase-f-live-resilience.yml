@@ -102,7 +102,7 @@ jobs:
           echo "::add-mask::$token"
           printf 'RESILIENCE_CANARY_AUTH_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
       - name: Publish exact head to Vercel production
-        if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && env.RESILIENCE_TARGET_ENV == 'production' && env.RESILIENCE_ALLOW_PRODUCTION == 'true' }}
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_PROJECT_ID: prj_jcqgz6UKGd6tPgHZlttgFXaXvyvo
