@@ -291,6 +291,8 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
       signalTitle: decision.signalTitle ?? 'عنصر عمل من قرار مصدرّي',
       signalMessage: decision.signalMessage,
       signalSeverity: decision.signalSeverity,
+      recommendationId: decision.recommendationId,
+      evidenceSnapshotId: report.sourceAnalysis?.id ?? null,
       department,
       dueAt: workDueAt[decision.id] ? new Date(workDueAt[decision.id]).toISOString() : null,
     }).then((workItemId) => {
