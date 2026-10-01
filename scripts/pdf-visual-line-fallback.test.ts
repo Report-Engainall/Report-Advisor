@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { extractPdfVisualLines, extractPdfVisualRows, type PdfPageText } from '../src/lib/file-engine/pdf-table.ts';
+import { parseFile } from '../src/lib/file-engine/adapters.ts';
 
 const pages: PdfPageText[] = [
   {
@@ -40,4 +41,13 @@ assert.deepEqual(lines.map(({ pageNumber, lineNumber, text }) => ({ pageNumber, 
   { pageNumber: 2, lineNumber: 1, text: '10101003 | 10800' },
 ]);
 assert.ok(!lines.some((line) => line.text.includes('10101001') && line.text.includes('10101003')));
+const minimalPdf = new TextEncoder().encode('%PDF-1.4\n%%EOF').buffer;
+try {
+  await parseFile(minimalPdf, 'runtime-check.pdf', 'pdf');
+} catch (error) {
+  const message = error instanceof Error ? error.message : String(error);
+  assert.ok(!/DOMMatrix is not defined/i.test(message), message);
+  assert.ok(!/Path2D is not defined/i.test(message), message);
+  assert.ok(!/ImageData is not defined/i.test(message), message);
+}
 console.log('PDF_VISUAL_LINE_FALLBACK_PASS');

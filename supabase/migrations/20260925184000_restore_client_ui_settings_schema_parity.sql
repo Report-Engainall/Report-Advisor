@@ -65,6 +65,19 @@ begin
 end
 $$;
 
+create or replace function public.current_customer_company_id()
+returns uuid
+language sql
+stable
+security definer
+set search_path = public, pg_catalog
+as $function$
+  select public.current_company_id();
+$function$;
+
+revoke all on function public.current_customer_company_id() from public, anon;
+grant execute on function public.current_customer_company_id() to authenticated, service_role;
+
 alter table public.client_ui_settings enable row level security;
 
 drop policy if exists ui_settings_customer_select on public.client_ui_settings;

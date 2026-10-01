@@ -25,7 +25,7 @@ RETURNS TABLE(
 )
 LANGUAGE sql
 STABLE
-AS $$
+AS $function$
 WITH sales AS (
   SELECT si.product_id,
          sum(si.quantity) FILTER (WHERE inv.invoice_date >= p_as_of - greatest(p_days,1)) AS qty,
@@ -62,7 +62,7 @@ SELECT id, sku, name, stock_qty, stock_value, last_sale,
          ELSE 'moving'
        END
 FROM base;
-$$;
+$function$;
 
 CREATE OR REPLACE FUNCTION demand_reorder_snapshot(
   p_company_id uuid,
@@ -91,7 +91,7 @@ RETURNS TABLE(
 )
 LANGUAGE sql
 STABLE
-AS $$
+AS $function$
 WITH v AS (
   SELECT * FROM inventory_liquidity_velocity(p_company_id,p_as_of,p_days)
 ), x AS (
@@ -115,7 +115,7 @@ SELECT product_id, sku, product_name, s, d,
             WHEN p_days >= 30 THEN 'medium'
             ELSE 'low' END
 FROM x;
-$$;
+$function$;
 
 CREATE OR REPLACE FUNCTION cash_liquidity_snapshot(
   p_company_id uuid,
@@ -132,7 +132,7 @@ RETURNS TABLE(
 )
 LANGUAGE sql
 STABLE
-AS $$
+AS $function$
 WITH days AS (
  SELECT generate_series(p_from,p_to,'1 day')::date d
 ), flow AS (
@@ -155,7 +155,7 @@ SELECT d,inflow,outflow,net,cumulative,
             WHEN cumulative < greatest(outflow,1) THEN 'high'
             ELSE 'normal' END
 FROM y ORDER BY d;
-$$;
+$function$;
 
 CREATE INDEX IF NOT EXISTS idx_sales_invoices_company_date_status
 ON sales_invoices(company_id, invoice_date, status);

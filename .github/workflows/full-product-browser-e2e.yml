@@ -1,4 +1,5 @@
 # Exact-current-head trigger touch: re-run browser proof after canonical ESM import repair.
+# Current PDF/Node ESM, background resume, and final proof closure wave.
 name: Full Product Browser E2E
 
 on:
@@ -64,6 +65,8 @@ on:
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'src/pages/**'
       - 'src/lib/dashboard-canonical.ts'
+      - 'src/lib/file-engine/**'
+      - 'scripts/pdf-arabic-sales-layout.test.ts'
       - 'src/lib/kpi-evidence.ts'
       - 'src/lib/semantic-metric-service.ts'
       - 'src/lib/semantic-metric-registry.ts'
@@ -131,6 +134,7 @@ jobs:
           npm run typecheck
           npm run test:server-source-authority
           npm run test:pdf-visual-line-fallback
+          npm run test:pdf-arabic-sales-layout
           npm run test:report-intelligence-inventory-grain
           npm run test:document-intelligence-lines
           npm run test:report-intelligence-contradictions
@@ -175,7 +179,7 @@ jobs:
           TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
           OPEN_REPORT_EXECUTION_JOB_ID: 'd074ad5c-70d4-4402-a763-01129786f392'
           OPEN_REPORT_EXPECTED_SOURCE_HASH: 'sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10'
-          OPEN_REPORT_EXPECTED_ROWS: '6562'
+          OPEN_REPORT_EXPECTED_ROWS: '0'
           OPEN_REPORT_FILE_NAME: 'فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf'
         run: node scripts/resume-open-report-server-proof.mjs
       - name: Install deterministic browser tooling

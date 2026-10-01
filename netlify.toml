@@ -1,5 +1,6 @@
 [functions]
   directory = "netlify/functions"
+  included_files = ["node_modules/pdfjs-dist/build/pdf.worker.mjs"]
 
 [dev]
 framework = "#custom"

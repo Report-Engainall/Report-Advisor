@@ -1,0 +1,58 @@
+name: Legacy Corpus Rehydration
+
+on:
+  push:
+    branches:
+      - fix/main-520a-pdf-node-runtime-20260930
+    paths:
+      - 'scripts/rehydrate-legacy-corpus.mjs'
+      - 'src/lib/file-engine/**'
+      - 'src/lib/import/**'
+      - 'supabase/migrations/**'
+      - 'package.json'
+      - 'package-lock.json'
+
+permissions:
+  contents: read
+
+jobs:
+  rehydrate:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      EXACT_HEAD: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install application dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Verify exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${EXACT_HEAD}"
+          test -z "$(git status --porcelain)"
+
+      - name: Run governed legacy corpus rehydration
+        run: node --experimental-strip-types scripts/rehydrate-legacy-corpus.mjs
+
+      - name: Upload deterministic corpus evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: legacy-corpus-rehydration-${{ github.run_id }}
+          if-no-files-found: error
+          path: artifacts/legacy-corpus/**
+# Final exact-head rehydration closure trigger.

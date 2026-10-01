@@ -134,7 +134,7 @@ for (const token of [
   "workerClient: serviceClient",
   "dataClient: userClient",
   ".from('import_jobs')",
-  ".eq('id', payload.importId)",
+  ".eq('id', importId)",
   ".eq('company_id', companyId)",
   "mode === 'finalize-source'",
 ]) {

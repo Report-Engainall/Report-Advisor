@@ -308,6 +308,10 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     datasets: Array.isArray(analysis.datasets) ? analysis.datasets : [],
   } : null;
 
+  const evidenceStatus = analysis && canonicalCommitVerified
+    ? 'VERIFIED'
+    : effectiveEvidenceStatus(rendered);
+
   const specialty = rendered.sourceSpecialty == null
     ? inferSpecialtyFromAnalysis(sourceAnalysis)
     : String(rendered.sourceSpecialty);
@@ -331,7 +335,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     specialty,
     canonicalRows,
     intelligence,
-    evidenceStatus: effectiveEvidenceStatus(rendered),
+    evidenceStatus,
     completedAt: job.completed_at == null ? null : String(job.completed_at),
     importId: rendered.importId == null ? null : String(rendered.importId),
     checkpointStage: job.checkpoint?.stage == null ? null : String(job.checkpoint.stage),
@@ -346,7 +350,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
       ? 'PARTIAL_ANALYSIS'
       : canonicalCommitGap != null && canonicalCommitGap > 0
         ? 'GAP_DETECTED'
-        : effectiveEvidenceStatus(rendered) === 'VERIFIED'
+: evidenceStatus === 'VERIFIED'
           ? 'VERIFIED'
           : 'PENDING_EVIDENCE',
     stages: (stages ?? []).map((row) => ({

@@ -11,6 +11,8 @@ export type PdfTextToken = {
 export type PdfPageText = {
   pageNumber: number;
   items: PdfTextToken[];
+  pageWidth?: number;
+  pageHeight?: number;
 };
 
 export type PdfTableExtraction = {
@@ -110,6 +112,25 @@ function splitVisualLine(tokens: PdfTextToken[]): string[] {
   return cells;
 }
 
+function groupVisualLinesInSourceOrder(items: PdfTextToken[]): PdfTextToken[][] {
+  const usable = items.filter((item) => item.text.trim());
+  const lines: Array<{ y: number; tokens: PdfTextToken[] }> = [];
+  const heights = usable.map((item) => Math.max(1, item.height)).filter(Number.isFinite);
+  const yTolerance = Math.max(2.5, median(heights) * 0.55);
+
+  for (const item of usable) {
+    const line = lines.find((candidate) => Math.abs(candidate.y - item.y) <= yTolerance);
+    if (line) {
+      line.tokens.push(item);
+      line.y = line.tokens.reduce((sum, token) => sum + token.y, 0) / line.tokens.length;
+    } else {
+      lines.push({ y: item.y, tokens: [item] });
+    }
+  }
+
+  return lines.map((line) => line.tokens.sort((a, b) => a.x - b.x));
+}
+
 function pageMatrix(page: PdfPageText): string[][] {
   return groupVisualLines(page.items)
     .map(splitVisualLine)
@@ -138,6 +159,181 @@ export function extractPdfVisualLines(pages: PdfPageText[]): PdfVisualLine[] {
     lineNumber: row.lineNumber,
     text: row.cells.join(' | '),
   }));
+}
+
+
+// Fixed-layout extractor for the Arabic sales report template produced by the ERP/PDF
+// source used by Aghbari. It is coordinate-driven, not token-gap-driven: the PDF
+// repeats the same eleven vertical bands on every landscape page. We keep the
+// generic extractor below as a fallback for other document families.
+export type ArabicSalesLayoutRow = Record<string, unknown>;
+
+const ARABIC_SALES_HEADERS = [
+  'مبلغ الصافي بالمحلي',
+  'اجمالي الفاتورة',
+  'الضريبة',
+  'الأعباء',
+  'الخصم',
+  'مبلغ الفاتورة',
+  'اسم العميل',
+  'العملة',
+  'نوع الفاتورة',
+  'التاريخ',
+  'رقم الفاتورة',
+] as const;
+
+const ARABIC_SALES_CANONICAL_KEYS = [
+  'net_local',
+  'total',
+  'tax_amount',
+  'burden_amount',
+  'discount',
+  'invoice_amount',
+  'customer_name',
+  'currency',
+  'invoice_type',
+  'invoice_date',
+  'invoice_number',
+] as const;
+
+// Base coordinates measured from the real landscape report (841.92pt wide).
+// They are scaled to the page width at runtime, so the extractor survives PDF
+// producer changes that preserve the same relative layout.
+const ARABIC_SALES_X_BANDS: Array<[number, number]> = [
+  [45, 145],
+  [140, 235],
+  [230, 285],
+  [280, 345],
+  [340, 415],
+  [405, 505],
+  [485, 630],
+  [625, 660],
+  [655, 710],
+  [708, 765],
+  [760, 830],
+];
+
+function normalizeArabicDigitsForPdf(value: string): string {
+  return value
+    .replace(/[٠-٩]/g, (digit) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)))
+    .replace(/[۰-۹]/g, (digit) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(digit)));
+}
+
+function canonicalDateText(value: string): string {
+  const normalized = normalizeArabicDigitsForPdf(value).replace(/\s+/g, '');
+  const match = normalized.match(/(\d{1,4})[/-](\d{1,2})[/-](\d{1,4})/);
+  if (!match) return normalized;
+  const [, first, second, third] = match;
+  if (first.length === 4) return `${first}-${second.padStart(2, '0')}-${third.padStart(2, '0')}`;
+  return `${third.padStart(4, '0')}-${second.padStart(2, '0')}-${first.padStart(2, '0')}`;
+}
+
+function looksLikeArabicSalesDate(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}$/.test(canonicalDateText(value));
+}
+
+function looksLikeInvoiceNumber(value: string): boolean {
+  const normalized = normalizeArabicDigitsForPdf(value).replace(/[,\s]/g, '');
+  return /^\d{1,12}$/.test(normalized);
+}
+
+function looksLikeInvoiceType(value: string): boolean {
+  const normalized = value.normalize('NFKC').trim().toLowerCase();
+  if (!normalized) return false;
+  return !/^(نوع\s*الفاتورة|التاريخ|رقم\s*الفاتورة|الفاتورة|العملة)$/i.test(normalized);
+}
+
+
+function tokenTextForBand(tokens: PdfTextToken[], reverse = false): string {
+  const ordered = [...tokens].sort((a, b) => reverse ? b.x - a.x : a.x - b.x);
+  return ordered.map((token) => token.text.normalize('NFKC').trim()).filter(Boolean).join(' ').trim();
+}
+
+function scaledArabicSalesBands(pageWidth: number): Array<[number, number]> {
+  const scale = pageWidth > 0 ? pageWidth / 841.92 : 1;
+  return ARABIC_SALES_X_BANDS.map(([left, right]) => [left * scale, right * scale]);
+}
+
+function findArabicSalesHeader(page: PdfPageText): boolean {
+  const topTokens = page.items.filter((token) => token.y < 150);
+  const text = topTokens.map((token) => token.text).join(' ');
+  const requiredHints = ['الفاتورة', 'التاريخ', 'العميل', 'العملة', 'مبلغ', 'الخصم', 'الضريبة'];
+  return requiredHints.filter((hint) => text.includes(hint)).length >= 5;
+}
+
+function extractArabicSalesTableFromPage(
+  page: PdfPageText,
+  bands: Array<[number, number]>,
+): ArabicSalesLayoutRow[] {
+  const lines = groupVisualLinesInSourceOrder(page.items);
+  const rows: ArabicSalesLayoutRow[] = [];
+
+  for (const tokens of lines) {
+    if (!tokens.length) continue;
+    const lineY = median(tokens.map((token) => token.y));
+    if (lineY < 130 || lineY > Math.max(540, (page.pageHeight ?? 595) - 35)) continue;
+
+    const cells: PdfTextToken[][] = Array.from({ length: bands.length }, () => []);
+    for (const token of tokens) {
+      const centerX = token.x + token.width / 2;
+      const bandIndex = bands.findIndex(([left, right]) => centerX >= left && centerX <= right);
+      if (bandIndex >= 0) cells[bandIndex].push(token);
+    }
+
+    const values = cells.map((band, index) => {
+      // Arabic text is encoded visually right-to-left in this PDF. Numeric cells,
+      // currency, and dates are safer left-to-right; customer text is reconstructed RTL.
+      const reverse = index === 6;
+      const value = tokenTextForBand(band, reverse);
+      if (index === 9) return canonicalDateText(value);
+      if (index === 10) return normalizeArabicDigitsForPdf(value).replace(/[,\s]/g, '');
+      return value;
+    });
+
+    const invoiceNumber = values[10];
+    const invoiceDate = values[9];
+    const invoiceType = values[8];
+    if (!looksLikeInvoiceNumber(invoiceNumber)) continue;
+    if (!looksLikeArabicSalesDate(invoiceDate)) continue;
+    if (!looksLikeInvoiceType(invoiceType)) continue;
+
+    const row: ArabicSalesLayoutRow = {};
+    values.forEach((value, index) => {
+      row[ARABIC_SALES_HEADERS[index]] = value || null;
+      row[ARABIC_SALES_CANONICAL_KEYS[index]] = value || null;
+    });
+    row.invoice_number = Number(invoiceNumber);
+    row.invoice_date = invoiceDate;
+    row.date = invoiceDate;
+    row.invoice_type = invoiceType;
+    row.customer_name = values[6] || null;
+    row.currency = values[7] || null;
+    rows.push(row);
+  }
+  return rows;
+}
+
+export function extractArabicSalesTable(
+  pages: PdfPageText[],
+): PdfTableExtraction | null {
+  const targetPages = pages.filter(findArabicSalesHeader);
+  if (!targetPages.length) return null;
+
+  const rows = targetPages.flatMap((page) =>
+    extractArabicSalesTableFromPage(
+      page,
+      scaledArabicSalesBands(page.pageWidth ?? 841.92),
+    ),
+  );
+  if (rows.length < 2) return null;
+
+  return {
+    headers: [...ARABIC_SALES_HEADERS],
+    rows,
+    confidence: Math.min(100, 95 + (rows.length >= 20 ? 4 : 0)),
+    pageCount: pages.length,
+    headerPage: targetPages[0].pageNumber,
+  };
 }
 
 function normalizedHeaderKey(values: string[]): string {

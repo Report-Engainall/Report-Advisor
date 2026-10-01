@@ -83,13 +83,14 @@ export async function commitImportBatch(
   entityType: CanonicalImportEntityType,
   rows: ReconciledCanonicalImportRow[],
   sourceHash: string,
-  context: { client?: SupabaseClient; companyId?: string; importJobId?: string } = {},
+  context: { client?: SupabaseClient; companyId?: string; importJobId?: string; repairExistingSource?: boolean } = {},
 ): Promise<CanonicalCommitResult> {
   if (!rows.length) return { committed: 0, ids: [], idempotentReplay: false };
   if (!/^sha256:[0-9a-fA-F]{64}$/.test(sourceHash)) throw new Error('IMPORT_SOURCE_HASH_INVALID');
   let client = context.client;
   let companyId = context.companyId;
   const importJobId = context.importJobId;
+  const repairExistingSource = context.repairExistingSource === true;
   if (!client || !companyId) {
     const browser = await import('../supabase');
     client ??= browser.supabase;
@@ -105,14 +106,20 @@ export async function commitImportBatch(
 
   const payload = rows.map((row) => canonicalizeRow(entityType, row));
   const activeClient = client;
-  const { data, error } = await activeClient.rpc('import_commit_batch', {
+  const rpcArgs: Record<string, unknown> = {
     p_company_id: companyId,
     p_entity_type: entityType,
     p_rows: payload,
     p_null_policy: 'preserve',
     p_source_hash: sourceHash,
     p_import_job_id: importJobId,
-  });
+  };
+  if (repairExistingSource) rpcArgs.p_repair = true;
+
+  const { data, error } = await activeClient.rpc(
+    'import_commit_batch',
+    rpcArgs,
+  );
   if (error) throw error;
 
   const result = data as { committed?: unknown; ids?: unknown; idempotent_replay?: unknown } | null;

@@ -13,6 +13,7 @@ export interface DurableCanonicalImportInput {
   rows: ReconciledCanonicalImportRow[];
   qualityScore: number;
   qualityApproved: boolean;
+  repairExistingSource?: boolean;
 }
 
 export interface CanonicalImportExecutionOptions {
@@ -268,7 +269,7 @@ async function finalizeImportJobIfOpen(
 ): Promise<void> {
   const { data: current, error: currentError } = await client
     .from('import_jobs')
-    .select('id,status')
+    .select('id,status,total_rows')
     .eq('id', input.importId)
     .eq('company_id', authoritativeCompanyId)
     .single();
@@ -276,6 +277,23 @@ async function finalizeImportJobIfOpen(
   if (currentError || !current) throw currentError ?? new Error('IMPORT_JOB_NOT_FOUND_OR_FORBIDDEN');
   if (current.status === 'completed') return;
   if (['partial', 'failed', 'cancelled'].includes(current.status)) throw new Error('IMPORT_JOB_ALREADY_TERMINAL:' + current.status);
+
+  if (Number(current.total_rows ?? 0) !== input.rows.length) {
+    const { error: reconcileError } = await client
+      .from('import_jobs')
+      .update({
+        total_rows: input.rows.length,
+        result_summary: {
+          ...summary,
+          canonical_row_count_reconciled: true,
+          previous_total_rows: Number(current.total_rows ?? 0),
+        },
+      })
+      .eq('id', input.importId)
+      .eq('company_id', authoritativeCompanyId)
+      .in('status', ['queued', 'processing']);
+    if (reconcileError) throw new Error('IMPORT_JOB_TOTAL_ROW_RECONCILIATION_FAILED:' + reconcileError.message);
+  }
 
   const { error } = await client.rpc('import_finish_job', {
     p_job_id: input.importId,
@@ -368,7 +386,7 @@ export async function runCanonicalImportThroughDurableRunner(
   const activeWorkerClient = workerClient;
   const activeDataClient = dataClient;
   if (!activeWorkerClient || !activeDataClient) throw new Error('SUPABASE_CLIENTS_REQUIRED');
-  const { data: enqueueData, error: enqueueError } = await activeWorkerClient.rpc('enqueue_report_execution_job', {
+  const enqueueArgs: Record<string, unknown> = {
     p_company_id: authoritativeCompanyId,
     p_job_key: jobKey,
     p_source_path: input.fileName,
@@ -380,7 +398,14 @@ export async function runCanonicalImportThroughDurableRunner(
       `rows:${input.rows.length}`,
     ],
     p_max_attempts: 3,
-  });
+  };
+  if (input.repairExistingSource === true) {
+    enqueueArgs.p_force_reprocess = true;
+  }
+
+  const { data: enqueueData, error: enqueueError } = input.repairExistingSource === true
+    ? await activeWorkerClient.rpc('enqueue_report_execution_job', enqueueArgs)
+    : await activeWorkerClient.rpc('enqueue_report_execution_job', enqueueArgs);
   if (enqueueError) throw enqueueError;
   if (!enqueueData || typeof enqueueData !== 'object') throw new Error('REPORT_EXECUTION_JOB_ENQUEUE_EMPTY');
 
@@ -410,8 +435,15 @@ export async function runCanonicalImportThroughDurableRunner(
       recoveredFromCompletedDurableJob: true,
     };
   }
-  if (job.status === 'running' || job.status === 'leased' || job.status === 'processing') throw new Error('IMPORT_DURABLE_JOB_ALREADY_RUNNING');
   const store = new SupabaseReportExecutionStore(activeWorkerClient);
+  if (job.status === 'running' || job.status === 'leased' || job.status === 'processing') {
+    const currentLease = await store.require(job.id);
+    const leaseExpiresAt = currentLease.leaseExpiresAt ? Date.parse(currentLease.leaseExpiresAt) : 0;
+    if (Number.isFinite(leaseExpiresAt) && leaseExpiresAt > Date.now()) {
+      throw new Error('IMPORT_DURABLE_JOB_ALREADY_RUNNING');
+    }
+    // Expired/no lease: allow runDurableProductionLifecycle() to reclaim it atomically.
+  }
   if (job.status === 'failed') await store.retry(job.id, authoritativeCompanyId);
 
   const observedAt = new Date().toISOString();
