@@ -38,6 +38,11 @@ function statusLabel(status: string | null): string {
   if (!status) return 'غير متاح';
   const labels: Record<string, string> = {
     pending: 'قيد المراجعة',
+    PROPOSED: 'مقترح',
+    PENDING: 'قيد الاعتماد',
+    APPROVED: 'معتمد',
+    REJECTED: 'مرفوض',
+    CANCELLED: 'ملغى',
     proposed: 'مقترح',
     approved: 'معتمد',
     in_progress: 'قيد التنفيذ',

@@ -169,6 +169,7 @@
     "test:business-replay": "node scripts/business-replay-contract.test.mjs",
     "test:benchmark-fail-closed": "node scripts/benchmark-fail-closed-contract.test.mjs",
     "test:pdf-arabic-sales-layout": "node --experimental-strip-types scripts/pdf-arabic-sales-layout.test.ts",
-    "test:transactional-spine": "node scripts/transactional-spine-contract.test.mjs"
+    "test:transactional-spine": "node scripts/transactional-spine-contract.test.mjs",
+    "test:decision-experience-persistence": "node scripts/check-decision-experience-persistence-contract.mjs"
   }
 }
