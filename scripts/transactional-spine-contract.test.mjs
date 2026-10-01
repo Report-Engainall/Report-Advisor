@@ -9,6 +9,7 @@ const app = fs.readFileSync('src/App.tsx', 'utf8');
 const nav = fs.readFileSync('src/lib/navigation-registry.ts', 'utf8');
 const auditMigration = fs.readFileSync('supabase/migrations/20261002013000_operational_transaction_audit.sql', 'utf8');
 const repeatabilityMigration = fs.readFileSync('supabase/migrations/20261002022000_e2e_order_repeatability_reset.sql', 'utf8');
+const repeatabilityHardening = fs.readFileSync('supabase/migrations/20261002022100_e2e_order_repeatability_reset_no_inventory_mutation.sql', 'utf8');
 
 for (const marker of ['transition_order','create_invoice_from_order','record_sales_payment','fetchOperationalAuditTrace','audit_logs','customer_price_tiers','orders','warehouses']) {
   assert.ok(lib.includes(marker), 'transactional lib missing canonical contract: ' + marker);
@@ -34,6 +35,9 @@ for (const marker of ['drop policy if exists tenant_update','drop policy if exis
 }
 for (const marker of ['prepare_e2e_order','E2E-ORDER-%','E2E_RESET_ADMIN_REQUIRED','E2E_ORDER_TAG_REQUIRED','e2e_order_reset','REVOKE ALL ON FUNCTION public.prepare_e2e_order(uuid) FROM public, anon','GRANT EXECUTE ON FUNCTION public.prepare_e2e_order(uuid) TO authenticated']) {
   assert.ok(repeatabilityMigration.includes(marker), 'E2E repeatability contract missing: ' + marker);
+}
+for (const marker of ['prepare_e2e_order','delete from public.payments','delete from public.sales_invoices','order.e2e_reset','e2e_order_reset']) {
+  assert.ok(repeatabilityHardening.includes(marker), 'E2E reset hardening missing: ' + marker);
 }
 assert.match(app, /path="\/operations"/);
 assert.match(nav, /path: '\/operations'/);
