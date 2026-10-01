@@ -1,5 +1,7 @@
 name: phase-f-live-resilience
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -29,21 +31,7 @@ jobs:
           if [[ -n "${{ github.event.pull_request.head.sha }}" ]]; then
             candidate="${{ github.event.pull_request.head.sha }}"
           else
-            candidate="$(node --input-type=module <<'NODE'
-          import fs from 'node:fs';
-          const index = fs.readFileSync('docs/MASTER_EXECUTION_INDEX.md', 'utf8');
-          const state = index.match(/CURRENT EXECUTION BOUNDARY[\s\S]{0,2500}/i)?.[0] ?? index;
-          const patterns = [
-            /CURRENT CODE\/TEST CANDIDATE\s*:?\s*`([0-9a-f]{40})`/i,
-            /CURRENT_CODE_TEST_CANDIDATE\s*:?\s*`([0-9a-f]{40})`/i,
-            /Exact candidate\s*:?\s*`([0-9a-f]{40})`/i,
-            /Current (?:code\/test )?(?:head|candidate)\s*:?\s*`([0-9a-f]{40})`/i,
-          ];
-          const candidate = patterns.map((pattern) => state.match(pattern)?.[1]).find(Boolean)?.toLowerCase();
-          if (!candidate) throw new Error('PHASE_F_CODE_CANDIDATE_MISSING');
-          process.stdout.write(candidate);
-          NODE
-            )"
+            candidate="${{ github.sha }}"
           fi
           test "$candidate" = "$(git rev-parse "$candidate^{commit}")"
           if [[ -z "${{ github.event.pull_request.head.sha }}" ]]; then
