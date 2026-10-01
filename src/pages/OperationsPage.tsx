@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/Badge';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import {
   createInvoiceFromOperationalOrder,
+  fetchOperationalAuditTrace,
   fetchOperationalInvoices,
   fetchOperationalOrders,
   fetchOperationalPriceTruth,
@@ -12,6 +13,7 @@ import {
   fetchOperationalWarehouses,
   recordOperationalSalesPayment,
   transitionOperationalOrder,
+  type OperationalAuditEntry,
   type OperationalInvoice,
   type OperationalOrder,
   type OperationalPriceTier,
@@ -61,6 +63,7 @@ export function OperationsPage() {
   const [prices, setPrices] = useState<OperationalPriceTier[]>([]);
   const [suppliers, setSuppliers] = useState<OperationalSupplier[]>([]);
   const [warehouses, setWarehouses] = useState<OperationalWarehouse[]>([]);
+  const [auditTrace, setAuditTrace] = useState<OperationalAuditEntry[]>([]);
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
@@ -80,6 +83,7 @@ export function OperationsPage() {
       fetchOperationalPriceTruth(),
       fetchOperationalSuppliers(),
       fetchOperationalWarehouses(),
+      fetchOperationalAuditTrace(),
     ]);
     const nextErrors: Record<string, string | null> = {};
     if (results[0].status === 'fulfilled') setOrders(results[0].value); else nextErrors.orders = results[0].reason instanceof Error ? results[0].reason.message : 'تعذر قراءة الطلبات';
@@ -87,6 +91,7 @@ export function OperationsPage() {
     if (results[2].status === 'fulfilled') setPrices(results[2].value); else nextErrors.prices = results[2].reason instanceof Error ? results[2].reason.message : 'تعذر قراءة التسعير';
     if (results[3].status === 'fulfilled') setSuppliers(results[3].value); else nextErrors.suppliers = results[3].reason instanceof Error ? results[3].reason.message : 'تعذر قراءة الموردين';
     if (results[4].status === 'fulfilled') setWarehouses(results[4].value); else nextErrors.warehouses = results[4].reason instanceof Error ? results[4].reason.message : 'تعذر قراءة المستودعات';
+    if (results[5].status === 'fulfilled') setAuditTrace(results[5].value); else nextErrors.audit = results[5].reason instanceof Error ? results[5].reason.message : 'تعذر قراءة سجل التدقيق';
     setErrors(nextErrors);
     setLoading(false);
   }, []);
@@ -231,6 +236,57 @@ export function OperationsPage() {
             <label className="block text-[10px] font-bold text-ink-600">المرجع<input value={paymentReference} onChange={e => setPaymentReference(e.target.value)} placeholder="مرجع اختياري" className="mt-1 w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm"/></label>
             <button type="submit" disabled={busy !== null} className="btn-primary w-full justify-center text-xs">{busy === 'payment' ? 'جارٍ التسجيل...' : 'تسجيل الدفعة وإعادة القراءة'} <CreditCard size={14}/></button>
           </form>}
+        </article>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
+        <article className="rounded-2xl border border-ink-200 bg-white p-4 shadow-card" data-testid="operations-audit-trace">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="section-kicker">AUDIT / TRACE</div>
+              <h2 className="mt-1 text-lg font-black text-ink-950">الأثر التشغيلي</h2>
+              <p className="mt-1 text-[11px] leading-5 text-ink-500">قراءة مباشرة لسجل التدقيق المرتبط بهذا المسار من tenant الحالي.</p>
+            </div>
+            <Badge variant="neutral">{auditTrace.length} سجل</Badge>
+          </div>
+          {errors.audit && <div className="mt-4"><ErrorNote message={errors.audit} /></div>}
+          {!errors.audit && !auditTrace.length && <div className="mt-4 rounded-xl border border-dashed border-ink-200 p-5 text-center text-xs text-ink-500">لا يوجد أثر تشغيلي بعد. نفّذ إجراءً فعليًا لترى trace محفوظًا.</div>}
+          {!errors.audit && auditTrace.length > 0 && (
+            <div className="mt-4 divide-y divide-ink-100">
+              {auditTrace.slice(0, 8).map((entry) => (
+                <div key={entry.id} className="py-3 first:pt-0 last:pb-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant={entry.action.endsWith(':insert') ? 'success' : entry.action.endsWith(':update') ? 'warning' : 'danger'}>{entry.action}</Badge>
+                    {entry.entityType && <span className="text-[10px] font-black text-ink-700">{entry.entityType}</span>}
+                    {entry.entityId && <span className="font-mono text-[9px] text-ink-400">{entry.entityId.slice(0, 8)}…</span>}
+                  </div>
+                  <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[9px] text-ink-400">
+                    <span>{new Date(entry.createdAt).toLocaleString('ar-YE')}</span>
+                    {entry.userLabel && <span>{entry.userLabel}</span>}
+                    {entry.correlationId && <span className="font-mono">corr:{entry.correlationId.slice(0, 8)}…</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </article>
+
+        <article className="rounded-2xl border border-primary-200 bg-primary-50/50 p-4">
+          <div className="section-kicker">READBACK CONTRACT</div>
+          <h2 className="mt-1 text-lg font-black text-primary-950">من الفعل إلى الإثبات</h2>
+          <div className="mt-4 space-y-2 text-[11px]">
+            {[
+              ['REAL DATA', 'قراءة البيانات من tenant الحالي'],
+              ['REAL ACTION', 'التغيير يمر عبر RPC محمي'],
+              ['READBACK', 'إعادة القراءة بعد الحفظ'],
+              ['AUDIT / TRACE', 'السجل محفوظ خارج الواجهة'],
+            ].map(([label, detail]) => (
+              <div key={label} className="rounded-xl border border-primary-100 bg-white/80 p-3">
+                <div className="text-[9px] font-black text-primary-800">{label}</div>
+                <div className="mt-1 font-semibold text-ink-700">{detail}</div>
+              </div>
+            ))}
+          </div>
         </article>
       </section>
 
