@@ -503,6 +503,97 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
         </div>
       </section>
 
+      <section id="decision-evidence-inspector" className="rounded-[18px] border border-primary-200 bg-primary-50/40 p-5 shadow-sm" aria-label="مفتش القرار والدليل">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="section-kicker">EVIDENCE / DECISION INSPECTOR</div>
+            <h3 className="mt-1 text-lg font-black text-ink-950">سلسلة التتبع الكاملة</h3>
+            <p className="mt-1 text-[10px] leading-5 text-ink-600">كل عقدة هنا تأتي من سجل canonical مرتبط بنفس المصدر والمستأجر؛ عند غياب العقدة تظهر كغير متاح بدل إنشاء قيمة بديلة.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary text-[9px]">فتح المصدر</Link>
+            <Link to={'/decision-experience?reportJobId=' + report.jobId + '&sourceHash=' + encodeURIComponent(report.sourceHash) + '&stage=evidence'} className="btn-primary text-[9px]">فتح تجربة القرار</Link>
+          </div>
+        </div>
+
+        {decisions[0] ? (() => {
+          const traced = decisions[0];
+          const nodes = [
+            {
+              key: 'source',
+              label: 'Source Report',
+              value: report.sourceHash.slice(0, 24) + '…',
+              detail: report.sourceAnalysis?.id ? 'Evidence Snapshot: ' + report.sourceAnalysis.id : 'Evidence Snapshot: غير متاح',
+              tone: report.sourceAnalysis?.id ? 'success' : 'warning',
+            },
+            {
+              key: 'recommendation',
+              label: 'Recommendation',
+              value: traced.recommendationTitle ?? traced.recommendationId ?? 'غير متاح',
+              detail: traced.recommendationId
+                ? 'id=' + traced.recommendationId + ' · ' + (traced.recommendationStatus ?? 'غير متاح')
+                : 'لا يوجد Recommendation مرتبط',
+              tone: traced.recommendationId ? 'success' : 'warning',
+            },
+            {
+              key: 'decision',
+              label: 'Decision',
+              value: traced.signalTitle ?? traced.decisionKey,
+              detail: 'id=' + traced.id + ' · ' + traced.status,
+              tone: 'primary',
+            },
+            {
+              key: 'approval',
+              label: 'Approval',
+              value: traced.approvalStatus ?? 'غير متاح',
+              detail: traced.approvalId ? 'id=' + traced.approvalId : 'لم يُطلب اعتماد بعد',
+              tone: traced.approvalStatus === 'APPROVED' ? 'success' : traced.approvalStatus === 'PENDING' ? 'warning' : 'neutral',
+            },
+            {
+              key: 'work',
+              label: 'Action / Work',
+              value: traced.workItemStatus ?? 'غير متاح',
+              detail: traced.workItemId ? 'id=' + traced.workItemId : 'لا يوجد عنصر عمل',
+              tone: traced.workItemStatus === 'COMPLETED' ? 'success' : traced.workItemStatus === 'IN_PROGRESS' ? 'primary' : 'neutral',
+            },
+            {
+              key: 'outcome',
+              label: 'Outcome',
+              value: traced.outcomeStatus ?? 'NOT AVAILABLE',
+              detail: traced.outcomeId
+                ? 'id=' + traced.outcomeId + ' · Evidence: ' + (traced.outcomeEvidenceSnapshotId ?? 'غير متاح')
+                : 'لا توجد نتيجة محفوظة بعد',
+              tone: traced.outcomeStatus === 'positive' ? 'success' : traced.outcomeStatus === 'negative' ? 'danger' : traced.outcomeStatus ? 'warning' : 'neutral',
+            },
+          ] as const;
+
+          return (
+            <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+              {nodes.map((node) => (
+                <article key={node.key} className="rounded-xl border border-ink-200 bg-white p-3">
+                  <div className="flex items-center gap-2">
+                    <span className={'h-2 w-2 rounded-full ' + (
+                      node.tone === 'success' ? 'bg-success-500' :
+                      node.tone === 'warning' ? 'bg-warning-500' :
+                      node.tone === 'danger' ? 'bg-danger-500' :
+                      node.tone === 'primary' ? 'bg-primary-500' :
+                      'bg-ink-300'
+                    )}/>
+                    <span className="text-[9px] font-black text-ink-500">{node.label}</span>
+                  </div>
+                  <div className="mt-2 break-words text-[11px] font-black text-ink-900">{node.value}</div>
+                  <div className="mt-1 break-all text-[9px] leading-5 text-ink-500">{node.detail}</div>
+                </article>
+              ))}
+            </div>
+          );
+        })() : (
+          <div className="mt-4 rounded-xl border border-dashed border-ink-200 bg-white p-5 text-center text-[10px] text-ink-500">
+            لا يوجد Decision مرتبط بهذا المصدر حتى الآن؛ تبقى السلسلة عند Evidence ولا يتم اختراع Recommendation أو Action.
+          </div>
+        )}
+      </section>
+
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-start gap-3">
           <ShieldCheck size={19} className="mt-0.5 text-primary-700"/>
