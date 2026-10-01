@@ -407,14 +407,14 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
                           aria-label="موعد عنصر العمل"
                         />
                       </label>
-                      <button type="button" disabled={decisionAction[decision.id] === 'creating-work'} onClick={() => createWorkItem(decision)} className="btn-primary text-[10px] disabled:opacity-50">
+                      <button type="button" disabled={decisionAction[decision.id] === 'creating-work'} onClick={() => createWorkItem(decision)} className="btn-primary text-[10px] disabled:opacity-50" data-testid={'create-work-' + decision.id}>
                         {decisionAction[decision.id] === 'creating-work' ? 'جارٍ إنشاء عنصر العمل...' : 'إنشاء عنصر عمل لي'}
                       </button>
                     </div>
                   )}
 
                   {decision.workItemStatus === 'OPEN' && decision.workItemId && (
-                    <button type="button" disabled={decisionAction[decision.id] === 'starting-work'} onClick={() => startWorkItem(decision)} className="btn-secondary text-[10px] disabled:opacity-50">
+                    <button type="button" disabled={decisionAction[decision.id] === 'starting-work'} onClick={() => startWorkItem(decision)} className="btn-secondary text-[10px] disabled:opacity-50" data-testid={'start-work-' + decision.id}>
                       {decisionAction[decision.id] === 'starting-work' ? 'جارٍ بدء التنفيذ...' : 'بدء التنفيذ'}
                     </button>
                   )}
@@ -429,7 +429,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
                         aria-label="الأثر الفعلي"
                         className="min-h-9 w-44 rounded-lg border border-ink-200 bg-white px-2.5 text-[10px] outline-none focus:border-primary-400"
                       />
-                      <button type="button" disabled={decisionAction[decision.id] === 'completing-work'} onClick={() => completeWorkItem(decision)} className="btn-primary text-[10px] disabled:opacity-50">
+                      <button type="button" disabled={decisionAction[decision.id] === 'completing-work'} onClick={() => completeWorkItem(decision)} className="btn-primary text-[10px] disabled:opacity-50" data-testid={'complete-work-' + decision.id}>
                         {decisionAction[decision.id] === 'completing-work' ? 'جارٍ إغلاق التنفيذ...' : 'إغلاق التنفيذ'}
                       </button>
                     </div>
