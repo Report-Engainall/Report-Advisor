@@ -1,5 +1,5 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, CreditCard, PackageCheck, ReceiptText, RefreshCw, Tags, Truck, Warehouse } from 'lucide-react';
+import { ChevronLeft, CreditCard, PackageCheck, ReceiptText, RefreshCw, Tags, Truck, Warehouse, type LucideIcon } from 'lucide-react';
 import { PageHeader } from '@/components/ui/States';
 import { Badge } from '@/components/ui/Badge';
 import { formatCurrency, formatNumber } from '@/lib/format';
@@ -164,16 +164,16 @@ export function OperationsPage() {
       {feedback && <div className="rounded-xl border border-primary-200 bg-primary-50 px-4 py-3 text-xs font-bold text-primary-900" role="status">{feedback}</div>}
 
       <section className="grid gap-3 md:grid-cols-5">
-        {[
-          ['الطلبات', orders.length, PackageCheck],
-          ['الفواتير', invoices.length, ReceiptText],
-          ['التسعير', prices.length, Tags],
-          ['الموردون', suppliers.length, Truck],
-          ['المستودعات', warehouses.length, Warehouse],
-        ].map(([label, value, Icon]) => (
-          <article key={String(label)} className="rounded-2xl border border-ink-200 bg-white p-4 shadow-card">
+        {([
+          { label: 'الطلبات', value: orders.length, Icon: PackageCheck },
+          { label: 'الفواتير', value: invoices.length, Icon: ReceiptText },
+          { label: 'التسعير', value: prices.length, Icon: Tags },
+          { label: 'الموردون', value: suppliers.length, Icon: Truck },
+          { label: 'المستودعات', value: warehouses.length, Icon: Warehouse },
+        ] satisfies Array<{ label: string; value: number; Icon: LucideIcon }>).map(({ label, value, Icon }) => (
+          <article key={label} className="rounded-2xl border border-ink-200 bg-white p-4 shadow-card">
             <div className="flex items-center gap-2 text-[10px] font-black text-ink-500"><Icon size={14}/>{label}</div>
-            <div className="mt-2 text-2xl font-black text-ink-950">{formatNumber(Number(value))}</div>
+            <div className="mt-2 text-2xl font-black text-ink-950">{formatNumber(value)}</div>
           </article>
         ))}
       </section>
