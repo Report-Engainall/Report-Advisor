@@ -161,9 +161,9 @@ export default async function handler(req, res) {
       root_cause: 'controlled rollback drill',
       impact: { production_touched: false, target_env: process.env.RESILIENCE_TARGET_ENV.trim(), alias: domain },
       actions: ['verified forward deployment', 'aliased rollback deployment', 'verified rollback', 'restored forward deployment', 'verified forward recovery'],
-      evidence: { from_deployment: fromDeployment.id, forward_deployment: forwardDeployment.id, expected_from_sha: fromDeployment.meta?.githubCommitSha || null, expected_forward_sha: forwardDeployment.meta?.githubCommitSha || null, rollback_probe: rollbackProbe, forward_probe: forwardProbe, rto_seconds: rtoSeconds },
+      evidence: { from_deployment: fromDeployment.id, forward_deployment: forwardDeployment.id, resolution_source: resolved.source, expected_from_sha: fromDeployment.meta?.githubCommitSha || null, expected_forward_sha: forwardDeployment.meta?.githubCommitSha || null, rollback_probe: rollbackProbe, forward_probe: forwardProbe, rto_seconds: rtoSeconds },
     });
-    return json(res, 200, { status: 'passed', production_touched: false, rollback_verified: true, forward_recovery_verified: true, rto_seconds: rtoSeconds });
+    return json(res, 200, { status: 'passed', production_touched: false, rollback_verified: true, forward_recovery_verified: true, rto_seconds: rtoSeconds, rollback_deployment_id: fromDeployment.id, forward_deployment_id: forwardDeployment.id, resolution_source: resolved.source });
   } catch (error) {
     if (validatedForwardDeployment) {
       try { await assignAlias(validatedForwardDeployment.id, domain); } catch {}
