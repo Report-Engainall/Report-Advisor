@@ -131,6 +131,7 @@ export type SourceDecisionState = SourceDecisionProposal & {
   approvedBy: string | null;
   workItemId: string | null;
   workItemStatus: string | null;
+  outcomeId: string | null;
   outcomeStatus: string | null;
   outcomeQuality: number | null;
   expectedImpact: number | null;
@@ -179,7 +180,7 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
   const { data: outcomes, error: outcomeError } = decisionIds.length
     ? await supabase
         .from('recommendation_outcomes')
-        .select('decision_id,status,outcome_quality,expected_impact,actual_impact,observed_at')
+        .select('id,decision_id,status,outcome_quality,expected_impact,actual_impact,observed_at')
         .eq('company_id', companyId)
         .in('decision_id', decisionIds)
         .order('observed_at', { ascending: false })
@@ -211,6 +212,7 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
   }
 
   const outcomeByDecision = new Map<string, {
+    id: string;
     status: string;
     outcomeQuality: number | null;
     expectedImpact: number | null;
@@ -222,6 +224,7 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
     const decisionId = String(outcome.decision_id);
     if (!outcomeByDecision.has(decisionId)) {
       outcomeByDecision.set(decisionId, {
+        id: String(outcome.id),
         status: String(outcome.status ?? 'insufficient'),
         outcomeQuality: outcome.outcome_quality == null ? null : Number(outcome.outcome_quality),
         expectedImpact: outcome.expected_impact == null ? null : Number(outcome.expected_impact),
@@ -251,6 +254,7 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
       approvedBy: row.approved_by == null ? null : String(row.approved_by),
       workItemId: work?.id ?? null,
       workItemStatus: work?.status ?? null,
+      outcomeId: outcome?.id ?? null,
       outcomeStatus: outcome?.status ?? null,
       outcomeQuality: outcome?.outcomeQuality ?? null,
       expectedImpact: outcome?.expectedImpact ?? null,
