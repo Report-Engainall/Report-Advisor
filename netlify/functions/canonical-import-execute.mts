@@ -90,6 +90,119 @@ export async function handleCanonicalImport(request: Request): Promise<Response>
       fileName = fileName || String(reportJob.source_path ?? '');
       sourceHash = sourceHash || String(reportJob.source_hash ?? checkpoint.sourceHash ?? '');
       entityType = reportEntityTypeFromJobKey(String(reportJob.job_key ?? ''));
+
+      if (reportJob.status === 'completed' && checkpoint.stage === 'rendered') {
+        const { count: canonicalRowCount, error: canonicalCountError } = await serviceClient
+          .from('canonical_dataset_records')
+          .select('id', { count: 'exact', head: true })
+          .eq('company_id', companyId)
+          .eq('source_hash', sourceHash);
+        if (canonicalCountError) throw canonicalCountError;
+
+        const { data: latestCommit, error: latestCommitError } = await serviceClient
+          .from('canonical_import_commits')
+          .select('committed_count')
+          .eq('company_id', companyId)
+          .eq('source_hash', sourceHash)
+          .order('committed_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (latestCommitError) throw latestCommitError;
+
+        if (Number(canonicalRowCount ?? 0) > 0 && Number(latestCommit?.committed_count ?? -1) === Number(canonicalRowCount)) {
+          const { error: recoveryError } = await serviceClient.rpc('recover_missing_source_analysis_snapshots', {
+            p_company_id: companyId,
+          });
+          if (recoveryError) throw recoveryError;
+
+          const { data: snapshot, error: snapshotReadError } = await serviceClient
+            .from('source_analysis_snapshots')
+            .select('id,row_count,column_count,quality_score,datasets')
+            .eq('company_id', companyId)
+            .eq('source_hash', sourceHash)
+            .eq('analysis_status', 'analyzed')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          if (snapshotReadError || !snapshot) {
+            throw new Error('AUTHORITATIVE_SOURCE_ANALYSIS_RECOVERY_READBACK_FAILED');
+          }
+
+          const checkpointImportId = evidenceKeys.find((key) => key.startsWith('import:'))?.slice(7) ?? '';
+          if (!checkpointImportId) throw new Error('REPORT_EXECUTION_IMPORT_ID_MISSING');
+
+          const { data: importJob, error: importJobError } = await userClient
+            .from('import_jobs')
+            .select('id,status,total_rows,processed_rows,valid_rows,invalid_rows')
+            .eq('id', checkpointImportId)
+            .eq('company_id', companyId)
+            .maybeSingle();
+          if (importJobError || !importJob) throw new Error('IMPORT_JOB_NOT_FOUND_OR_FORBIDDEN');
+
+          if (['queued', 'processing'].includes(String(importJob.status))) {
+            const { error: totalRowsError } = await userClient
+              .from('import_jobs')
+              .update({ total_rows: Number(canonicalRowCount) })
+              .eq('id', checkpointImportId)
+              .eq('company_id', companyId)
+              .in('status', ['queued', 'processing']);
+            if (totalRowsError) throw totalRowsError;
+
+            const { error: finishError } = await userClient.rpc('import_finish_job', {
+              p_job_id: checkpointImportId,
+              p_status: 'completed',
+              p_result_summary: {
+                source_hash: sourceHash,
+                committed: Number(canonicalRowCount),
+                invalidRows: 0,
+                recovered_from_canonical_dataset: true,
+                analysis_snapshot_id: snapshot.id,
+              },
+              p_error_message: null,
+            });
+            if (finishError) throw finishError;
+          } else if (importJob.status === 'completed' && Number(importJob.valid_rows ?? 0) !== Number(canonicalRowCount)) {
+            throw new Error('IMPORT_JOB_COMPLETED_ROW_MISMATCH');
+          }
+
+          const currentEvidence = reportJob.evidence && typeof reportJob.evidence === 'object'
+            ? reportJob.evidence as Record<string, unknown>
+            : {};
+          const currentRendered = currentEvidence.renderedOutput && typeof currentEvidence.renderedOutput === 'object'
+            ? currentEvidence.renderedOutput as Record<string, unknown>
+            : {};
+          const recoveredEvidence = {
+            ...currentEvidence,
+            sourceSnapshotId: snapshot.id,
+            evidenceStatus: 'AWAITING_EVIDENCE_SNAPSHOT',
+            recoveredFromCanonicalDataset: true,
+            renderedOutput: {
+              ...currentRendered,
+              sourceSnapshotId: snapshot.id,
+              analysisSnapshotId: snapshot.id,
+              authoritativeCurrentRowCount: Number(canonicalRowCount),
+              canonicalCommitVerified: true,
+              evidenceStatus: 'AWAITING_EVIDENCE_SNAPSHOT',
+            },
+          };
+          const { error: evidenceRepairError } = await serviceClient
+            .from('report_execution_jobs')
+            .update({ evidence: recoveredEvidence })
+            .eq('id', resumeReportExecutionJobId)
+            .eq('company_id', companyId);
+          if (evidenceRepairError) throw evidenceRepairError;
+
+          return json(200, {
+            importId: checkpointImportId,
+            sourceHash,
+            snapshotId: snapshot.id,
+            authoritativeRowCount: Number(canonicalRowCount),
+            authoritativeQualityScore: Number(snapshot.quality_score ?? 0),
+            recoveredFromCanonicalDataset: true,
+            jobId: reportJob.id,
+          });
+        }
+      }
     }
 
     const genericEntity = typeof entityType === 'string' && /^generic:[a-z][a-z0-9_-]{0,63}$/.test(entityType);
