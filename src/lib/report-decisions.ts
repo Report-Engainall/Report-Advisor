@@ -1,10 +1,12 @@
 import { supabase, resolveCurrentCompanyId } from './supabase';
 import { getAuthenticatedUser } from './auth-session';
+import { createRuntimeRecommendation, createRuntimeDecision, linkRecommendationToDecision } from './decision-automation/vertical-slice-runtime';
 
 export type SourceDecisionProposal = {
   id: string;
   status: string;
   decisionKey: string;
+  recommendationId: string | null;
 };
 
 export async function createSourceDecisionProposal(input: {
@@ -15,9 +17,11 @@ export async function createSourceDecisionProposal(input: {
   signalMessage: string;
   severity: string;
   evidence: string[];
+  evidenceSnapshotId: string;
 }): Promise<SourceDecisionProposal> {
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
+  if (!input.evidenceSnapshotId.trim()) throw new Error('SOURCE_EVIDENCE_SNAPSHOT_REQUIRED');
 
   const decisionKey = [
     'source-intelligence',
@@ -27,7 +31,7 @@ export async function createSourceDecisionProposal(input: {
 
   const { data: existing, error: existingError } = await supabase
     .from('business_intelligence_decisions')
-    .select('id,status')
+    .select('id,status,recommendation_id')
     .eq('company_id', companyId)
     .eq('decision_key', decisionKey)
     .maybeSingle();
@@ -38,11 +42,13 @@ export async function createSourceDecisionProposal(input: {
       id: String(existing.id),
       status: String(existing.status ?? 'PROPOSED'),
       decisionKey,
+      recommendationId: existing.recommendation_id == null ? null : String(existing.recommendation_id),
     };
   }
 
   const evidence = {
     type: 'SOURCE_INTELLIGENCE_SIGNAL',
+    sourceDecisionKey: decisionKey,
     reportExecutionJobId: input.reportJobId,
     sourceHash: input.sourceHash,
     signalId: input.signalId,
@@ -50,38 +56,67 @@ export async function createSourceDecisionProposal(input: {
     signalMessage: input.signalMessage,
     severity: input.severity,
     evidence: input.evidence,
+    evidenceSnapshotId: input.evidenceSnapshotId,
     decisionBoundary: 'PROPOSED_ONLY',
     confidenceSemantics: 'NEUTRAL_PROPOSAL_VALUE',
   };
 
-  const { data, error } = await supabase.rpc('create_runtime_decision', {
-    p_decision_key: decisionKey,
-    p_decision_type: 'SOURCE_INTELLIGENCE_SIGNAL',
-    p_confidence: 0.5,
-    p_expected_impact: null,
-    p_evidence: evidence,
-  });
+  const priority = input.severity === 'critical' ? 'critical' : input.severity === 'high' ? 'high' : input.severity === 'medium' ? 'medium' : 'low';
 
-  if (error) {
-    if (String(error.message ?? '').toLowerCase().includes('duplicate') || String(error.code ?? '') === '23505') {
-      const { data: retryExisting, error: retryError } = await supabase
-        .from('business_intelligence_decisions')
-        .select('id,status')
-        .eq('company_id', companyId)
-        .eq('decision_key', decisionKey)
-        .maybeSingle();
-      if (retryError) throw retryError;
-      if (retryExisting?.id) {
-        return { id: String(retryExisting.id), status: String(retryExisting.status ?? 'PROPOSED'), decisionKey };
-      }
-    }
-    throw error;
+  let recommendationId: string;
+  const { data: existingRecommendation, error: recommendationLookupError } = await supabase
+    .from('recommendations')
+    .select('id,decision_id')
+    .eq('company_id', companyId)
+    .contains('evidence', { sourceDecisionKey: decisionKey })
+    .maybeSingle();
+
+  if (recommendationLookupError) throw recommendationLookupError;
+
+  if (existingRecommendation?.id) {
+    recommendationId = String(existingRecommendation.id);
+  } else {
+    recommendationId = await createRuntimeRecommendation({
+      category: 'source-intelligence',
+      priority,
+      title: input.signalTitle,
+      description: input.signalMessage,
+      evidenceSnapshotId: input.evidenceSnapshotId,
+      evidence,
+      expectedImpact: null,
+      metricVersions: {},
+    });
   }
 
+  let decisionId: string;
+  try {
+    decisionId = await createRuntimeDecision({
+      decisionKey,
+      decisionType: 'SOURCE_INTELLIGENCE_SIGNAL',
+      confidence: 0.5,
+      expectedImpact: null,
+      evidence: { ...evidence, recommendationId },
+    });
+  } catch (error) {
+    if (!String(error instanceof Error ? error.message : error).toLowerCase().includes('duplicate')) throw error;
+    const { data: retryExisting, error: retryError } = await supabase
+      .from('business_intelligence_decisions')
+      .select('id,status,recommendation_id')
+      .eq('company_id', companyId)
+      .eq('decision_key', decisionKey)
+      .maybeSingle();
+    if (retryError) throw retryError;
+    if (!retryExisting?.id) throw error;
+    decisionId = String(retryExisting.id);
+  }
+
+  await linkRecommendationToDecision(recommendationId, decisionId);
+
   return {
-    id: String(data),
+    id: decisionId,
     status: 'PROPOSED',
     decisionKey,
+    recommendationId,
   };
 }
 
@@ -113,7 +148,7 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
 
   const { data, error } = await supabase
     .from('business_intelligence_decisions')
-    .select('id,decision_key,status,created_at,approved_at,approved_by,evidence')
+    .select('id,decision_key,status,created_at,approved_at,approved_by,recommendation_id,evidence')
     .eq('company_id', companyId)
     .like('decision_key', 'source-intelligence:' + sourceHash + ':%')
     .order('created_at', { ascending: false });
@@ -206,6 +241,7 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
       id: String(row.id),
       status: String(row.status ?? 'PROPOSED'),
       decisionKey: String(row.decision_key),
+      recommendationId: row.recommendation_id == null ? null : String(row.recommendation_id),
       signalId: evidence.signalId == null ? null : String(evidence.signalId),
       signalTitle: evidence.signalTitle == null ? null : String(evidence.signalTitle),
       signalSeverity: evidence.severity == null ? null : String(evidence.severity),
@@ -261,6 +297,7 @@ export async function createApprovedDecisionWorkItemForCurrentUser(input: {
   signalTitle: string;
   signalMessage: string | null;
   signalSeverity: string | null;
+  recommendationId: string | null;
   department: string;
   dueAt?: string | null;
 }): Promise<string> {
