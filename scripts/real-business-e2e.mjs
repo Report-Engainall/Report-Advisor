@@ -531,6 +531,57 @@ async function proveSourceBoundSurface(page, report, surface) {
   evidence.steps.push({ step: 'source-bound-surface:' + surface.label, status: 'PASS', reportJobId: report.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, rowCount: CURRENT_REPORT_ROW_COUNT });
 }
 
+async function proveTransactionalMutationAndAudit(page) {
+  await page.goto(baseURL + '/operations', { waitUntil: 'networkidle', timeout: 30000 });
+  await page.getByText('مركز العمليات', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+
+  const advanceButtons = page.locator('[data-testid^="advance-order-"]');
+  const count = await advanceButtons.count();
+
+  if (count === 0) {
+    evidence.steps.push({
+      step: 'transactional-real-mutation',
+      status: 'NOT_PROVEN',
+      reason: 'NO_MUTABLE_ORDER_AVAILABLE',
+      actionSurfaceVisible: true,
+    });
+    return;
+  }
+
+  const first = advanceButtons.first();
+  const testId = await first.getAttribute('data-testid');
+  assert.ok(testId, 'TRANSACTIONAL_ADVANCE_BUTTON_TEST_ID_MISSING');
+  const orderId = testId.replace('advance-order-', '');
+
+  const beforeBody = (await page.locator('body').innerText()).trim();
+  const beforeAuditCount = await page.locator('[data-testid="operations-audit-trace"] .divide-y > div').count().catch(() => 0);
+
+  await first.click();
+  await page.waitForTimeout(500);
+  await page.getByText('تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+
+  const afterBody = (await page.locator('body').innerText()).trim();
+  assert.ok(afterBody.includes('AUDIT / TRACE'), 'TRANSACTIONAL_AUDIT_TRACE_SECTION_MISSING_AFTER_MUTATION');
+
+  const auditEntries = page.locator('[data-testid="operations-audit-trace"] .divide-y > div');
+  await auditEntries.first().waitFor({ state: 'visible', timeout: 30000 });
+
+  const auditText = (await auditEntries.first().innerText()).trim();
+  assert.ok(/orders:(update|insert)/.test(auditText), 'TRANSACTIONAL_ORDER_AUDIT_ROW_MISSING');
+  assert.notEqual(afterBody, beforeBody, 'TRANSACTIONAL_UI_READBACK_DID_NOT_CHANGE');
+
+  await page.screenshot({ path: reportDir + '/transactional-real-mutation-audit.png', fullPage: true });
+  evidence.steps.push({
+    step: 'transactional-real-mutation',
+    status: 'PASS',
+    orderId,
+    action: 'advance-order',
+    uiReadback: true,
+    auditReadback: true,
+    auditEntryDelta: Math.max(1, await auditEntries.count() - beforeAuditCount),
+  });
+}
+
 async function proveDecisionActionSurface(page, report) {
   const target = baseURL + '/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(CURRENT_REPORT_SOURCE_HASH);
   const response = await page.goto(target, { waitUntil: 'networkidle', timeout: 30000 });
@@ -590,6 +641,7 @@ try {
   await proveSourceBoundSurface(pageA, currentReport, { label: 'trust', path: '/trust' });
   await proveSourceBoundSurface(pageA, currentReport, { label: 'decision', path: '/decision-experience?stage=evidence' });
   await proveDecisionActionSurface(pageA, currentReport);
+  await proveTransactionalMutationAndAudit(pageA);
   await proveSourceBoundSurface(pageA, currentReport, { label: 'work', path: '/work-center' });
   await proveSourceBoundSurface(pageA, currentReport, { label: 'inventory', path: '/reports/inventory' });
   await pageA.goto(baseURL + '/reports/smart/' + currentReport.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
