@@ -1,6 +1,32 @@
 import { json, requireConfig, requireMethod, requireOperationalToken, persistIncidentEvidence, isProductionEnv, secureOutboundFetch } from '../src/server/resilience-runtime.mjs';
 
 async function vercelRequest(path, options = {}) {
+async function listReadyProductionDeployments() {
+  const projectId = process.env.VERCEL_PROJECT_ID?.trim();
+  if (!projectId) throw new Error('vercel_project_id_required');
+  const response = await vercelRequest(`/v6/deployments?projectId=${encodeURIComponent(projectId)}&target=production&limit=20`);
+  if (!response.ok) throw new Error('production_deployments_lookup_failed:' + response.status);
+  const payload = await response.json();
+  const deployments = Array.isArray(payload?.deployments) ? payload.deployments : [];
+  return deployments.filter((deployment) => deployment?.readyState === 'READY' && deployment?.id)
+    .sort((a, b) => Number(b?.createdAt || 0) - Number(a?.createdAt || 0));
+}
+
+async function resolveDrillDeployments(fromId, forwardId) {
+  try {
+    const pair = await Promise.all([deploymentReady(fromId), deploymentReady(forwardId)]);
+    return { fromDeployment: pair[0], forwardDeployment: pair[1], source: 'configured_ids' };
+  } catch (error) {
+    if (!String(error).includes('deployment_lookup_failed:404')) throw error;
+  }
+
+  const deployments = await listReadyProductionDeployments();
+  if (deployments.length < 2) throw new Error('insufficient_ready_production_deployments_for_rollback_drill');
+  const forwardDeployment = deployments[0];
+  const fromDeployment = deployments.find((deployment) => deployment.id !== forwardDeployment.id) || deployments[1];
+  if (!fromDeployment || fromDeployment.id === forwardDeployment.id) throw new Error('rollback_forward_deployments_not_distinct');
+  return { fromDeployment, forwardDeployment, source: 'current_production_catalog' };
+}
   const token = process.env.VERCEL_TOKEN.trim();
   const team = process.env.VERCEL_TEAM_ID?.trim();
   const separator = path.includes('?') ? '&' : '?';
@@ -106,7 +132,8 @@ export default async function handler(req, res) {
   const started = Date.now();
   let validatedForwardDeployment;
   try {
-    const [fromDeployment, forwardDeployment] = await Promise.all([deploymentReady(from), deploymentReady(forward)]);
+    const resolved = await resolveDrillDeployments(from, forward);
+    const { fromDeployment, forwardDeployment } = resolved;
     validatedForwardDeployment = forwardDeployment;
     const before = await verify(domain, forwardDeployment);
     if (!before.ok) return json(res, 503, { status: 'blocked', error: `forward_baseline_failed:${before.status}` });
