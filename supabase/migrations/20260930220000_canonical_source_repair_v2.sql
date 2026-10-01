@@ -35,6 +35,7 @@ declare
   target_job public.report_execution_jobs%rowtype;
   initial_checkpoint jsonb;
 begin
+  if auth.role() <> 'service_role' then raise exception 'SERVICE_ROLE_REQUIRED'; end if;
   if p_company_id is null then raise exception 'company_id is required'; end if;
   if p_job_key is null or btrim(p_job_key) = '' then raise exception 'job_key is required'; end if;
   if p_source_path is null or btrim(p_source_path) = '' then raise exception 'source_path is required'; end if;
@@ -265,6 +266,9 @@ $function$;
 
 revoke all on function public.import_commit_batch(uuid,text,jsonb,text,text,uuid,boolean) from public, anon, authenticated;
 grant execute on function public.import_commit_batch(uuid,text,jsonb,text,text,uuid,boolean) to service_role;
+
+revoke all on function public.enqueue_report_execution_job(uuid,text,text,text[],integer,boolean) from public, authenticated, anon;
+grant execute on function public.enqueue_report_execution_job(uuid,text,text,text[],integer,boolean) to service_role;
 
 revoke all on function public.enqueue_report_execution_job(uuid,text,text,text,text[],integer,boolean) from public, anon, authenticated;
 grant execute on function public.enqueue_report_execution_job(uuid,text,text,text,text[],integer,boolean) to service_role;
