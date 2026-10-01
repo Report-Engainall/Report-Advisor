@@ -1,0 +1,96 @@
+name: vercel-production-deploy
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vercel-production-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      RESILIENCE_OPERATIONAL_TOKEN: ${{ secrets.RESILIENCE_OPERATIONAL_TOKEN }}
+    steps:
+      - name: Checkout exact main SHA
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Require deploy credentials
+        run: |
+          test -n "$VERCEL_TOKEN"
+          test -n "$VERCEL_ORG_ID"
+          test -n "$VERCEL_PROJECT_ID"
+
+      - name: Link exact Vercel project
+        run: |
+          mkdir -p .vercel
+          printf '%s\n' '{"projectId":"'"$VERCEL_PROJECT_ID"'","orgId":"'"$VERCEL_ORG_ID"'"}' > .vercel/project.json
+
+      - name: Pull production environment
+        run: npx vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Build production artifact
+        run: npx vercel@latest build --prod --token="$VERCEL_TOKEN"
+
+      - name: Deploy exact artifact to production
+        run: |
+          set -euo pipefail
+          npx vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN" 2>&1 | tee /tmp/vercel-deploy.log
+          grep -Eo 'https://[^[:space:]]+\.vercel\.app' /tmp/vercel-deploy.log | tail -1 > /tmp/vercel-url.txt
+          test -s /tmp/vercel-url.txt
+
+      - name: Verify production points to exact SHA
+        run: |
+          node --input-type=module <<'NODE'
+          const expected = process.env.GITHUB_SHA;
+          const token = process.env.RESILIENCE_OPERATIONAL_TOKEN;
+          if (!expected) throw new Error('GITHUB_SHA_MISSING');
+          if (!token) throw new Error('RESILIENCE_OPERATIONAL_TOKEN_MISSING');
+          const base = 'https://report-advisor.vercel.app/api/health';
+          const deadline = Date.now() + 180000;
+          let last = null;
+          while (Date.now() < deadline) {
+            const response = await fetch(base, {
+              headers: { 'Accept': 'application/json', 'x-resilience-token': token, 'cache-control': 'no-store' },
+            });
+            let body = {};
+            try { body = await response.json(); } catch {}
+            last = body;
+            if (response.ok && body.deployment_sha === expected && body.deployment_id) {
+              console.log(JSON.stringify({ status: 'PASS', expected_sha: expected, deployment_sha: body.deployment_sha, deployment_id: body.deployment_id }));
+              process.exit(0);
+            }
+            await new Promise(resolve => setTimeout(resolve, 5000));
+          }
+          console.error(JSON.stringify({ status: 'FAIL', reason: 'DEPLOYMENT_SHA_MISMATCH_OR_HEALTH_NOT_READY', expected_sha: expected, last_response: last }, null, 2));
+          process.exit(1);
+          NODE
+
+      - name: Publish deployment identity
+        if: always()
+        run: |
+          printf '%s\n' '## Vercel production deployment' '' "- Commit SHA: $GITHUB_SHA" '- Target: production' '- Health proof: deployment SHA must equal current GitHub SHA' >> "$GITHUB_STEP_SUMMARY"
