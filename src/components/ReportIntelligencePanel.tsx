@@ -3,7 +3,7 @@ import type { SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { createSourceDecisionProposal, fetchSourceDecisionProposals, type SourceDecisionState } from '@/lib/report-decisions';
+import { createSourceDecisionProposal, fetchSourceDecisionProposals, saveAdvisorBusinessCase, type SourceDecisionState } from '@/lib/report-decisions';
 
 const severityLabel: Record<string, string> = {
   critical: 'حرج',
@@ -34,6 +34,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
   const intelligence = report.intelligence;
   const [proposalState, setProposalState] = useState<Record<string, string>>({});
   const [decisionTrace, setDecisionTrace] = useState<SourceDecisionState[]>([]);
+  const [caseState, setCaseState] = useState<Record<string, string>>({});
   const forecast = intelligence.forecast;
 
   useEffect(() => {
@@ -66,6 +67,52 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
     { label: 'النتيجة', value: latestDecision.outcomeStatus ?? 'لم تُسجل' },
     { label: 'التعلّم', value: latestDecision.outcomeStatus && latestDecision.actualImpact != null ? (latestDecision.outcomeQuality == null ? 'نتيجة متاحة' : 'نتيجة مقاسة') : 'غير متاح' },
   ] : [];
+
+  const saveSignalAsCase = async (signal: typeof intelligence.signals[number]) => {
+    setProposalState((current) => ({ ...current, [signal.id]: 'saving' }));
+    setCaseState((current) => ({ ...current, [signal.id]: 'saving' }));
+    try {
+      const recommendation = intelligence.recommendations.find((item) => item.id === 'rec:' + signal.id);
+      const proposal = await createSourceDecisionProposal({
+        reportJobId: report.jobId,
+        sourceHash: report.sourceHash,
+        signalId: signal.id,
+        signalTitle: signal.title,
+        signalMessage: signal.message,
+        severity: signal.severity,
+        evidence: signal.evidence,
+        evidenceSnapshotId: report.sourceAnalysis?.id ?? '',
+      });
+      await saveAdvisorBusinessCase({
+        decisionId: proposal.id,
+        decisionKey: proposal.decisionKey,
+        reportJobId: report.jobId,
+        sourceHash: report.sourceHash,
+        signalId: signal.id,
+        signalTitle: signal.title,
+        issue: signal.title,
+        question,
+        why: signal.message,
+        impact: signal.impact,
+        evidence: signal.evidence,
+        whatNext: recommendation?.action ?? 'مراجعة الدليل قبل الإجراء.',
+        recommendation: recommendation?.title ?? 'توصية مرتبطة بالإشارة المصدرية.',
+        priority: signal.priority,
+        priorityReason: signal.priorityReason,
+        owner: recommendation?.ownerHint ?? signal.ownerHint,
+        expectedOutcome: recommendation?.expectedOutcome ?? 'تنفيذ المراجعة ثم تسجيل النتيجة الفعلية.',
+        followed: true,
+      });
+      setProposalState((current) => ({ ...current, [signal.id]: 'proposed' }));
+      setCaseState((current) => ({ ...current, [signal.id]: 'saved' }));
+      const rows = await fetchSourceDecisionProposals(report.sourceHash);
+      setDecisionTrace(rows);
+    } catch {
+      setProposalState((current) => ({ ...current, [signal.id]: 'error' }));
+      setCaseState((current) => ({ ...current, [signal.id]: 'error' }));
+    }
+  };
+
   return (
     <section dir="rtl" className="space-y-4 rounded-[18px] border border-primary-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -176,10 +223,19 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
               <div className="rounded-xl border border-success-200 bg-success-50 p-3 text-xs text-success-900">لم تُثبت إشارة استثنائية من البيانات المتاحة.</div>
             ) : intelligence.signals.slice(0, 8).map((signal) => (
               <article key={signal.id} className={'rounded-xl border p-3 ' + severityClass(signal.severity)}>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[9px] font-black">{severityLabel[signal.severity] ?? signal.severity}</span>
                   <span className="text-xs font-black">{signal.title}</span>
+                  <span className="rounded-full bg-ink-950 px-2 py-1 text-[8px] font-black text-white">{signal.priority}</span>
                 </div>
+                <details className="mt-2 rounded-lg border border-current/10 bg-white/60 p-2">
+                  <summary className="cursor-pointer list-none text-[8px] font-black opacity-70">WHY THIS IS PRIORITY</summary>
+                  <div className="mt-2 grid gap-1 sm:grid-cols-2">
+                    {signal.priorityReason.slice(0, 5).map((reason) => (
+                      <div key={reason} className="rounded-md bg-ink-50 px-2 py-1 text-[8px] leading-4">{reason}</div>
+                    ))}
+                  </div>
+                </details>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
                   <div className="rounded-lg border border-current/10 bg-white/60 p-2">
                     <div className="text-[8px] font-black opacity-70">WHY</div>
@@ -207,34 +263,19 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                   <button
                     type="button"
                     disabled={proposalState[signal.id] === 'saving' || !report.sourceAnalysis?.id}
-                    onClick={() => {
-                      setProposalState((current) => ({ ...current, [signal.id]: 'saving' }));
-                      void createSourceDecisionProposal({
-                        reportJobId: report.jobId,
-                        sourceHash: report.sourceHash,
-                        signalId: signal.id,
-                        signalTitle: signal.title,
-                        signalMessage: signal.message,
-                        severity: signal.severity,
-                        evidence: signal.evidence,
-                        evidenceSnapshotId: report.sourceAnalysis?.id ?? '',
-
-                      }).then((result) => {
-                        setProposalState((current) => ({ ...current, [signal.id]: result.status === 'APPROVED' ? 'already-approved' : 'proposed' }));
-                        return fetchSourceDecisionProposals(report.sourceHash);
-                      }).then((rows) => setDecisionTrace(rows)).catch(() => {
-                        setProposalState((current) => ({ ...current, [signal.id]: 'error' }));
-                      });
-                    }}
+                    onClick={() => { void saveSignalAsCase(signal); }}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-primary-200 bg-white px-2.5 py-2 text-[9px] font-black text-primary-800 disabled:opacity-50"
                   >
-                    {proposalState[signal.id] === 'saving' ? 'جارٍ الحفظ...' : proposalState[signal.id] === 'proposed' || proposalState[signal.id] === 'already-approved' ? 'تم حفظ التوصية والقرار' : !report.sourceAnalysis?.id ? 'الدليل غير متاح' : 'حفظ كتوصية ثم قرار'}
+                    {caseState[signal.id] === 'saving' ? 'جارٍ حفظ القضية...' : caseState[signal.id] === 'saved' ? 'تم حفظ القرار والقضية' : caseState[signal.id] === 'error' ? 'تعذر حفظ القضية' : !report.sourceAnalysis?.id ? 'الدليل غير متاح' : 'حفظ القرار والقضية'}
                   </button>
                   <Link
                     to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)}
                     className="inline-flex items-center gap-1 text-[9px] font-bold text-primary-700"
                   >
                     فتح مسار القرار <ArrowUpLeft size={12}/>
+                  </Link>
+                  <Link to="/advisor-cases" className="inline-flex items-center gap-1 text-[9px] font-bold text-primary-700">
+                    قضايا Advisor <ArrowUpLeft size={12}/>
                   </Link>
                 </div>
                 {proposalState[signal.id] === 'error' && <div className="mt-2 text-[9px] font-bold text-danger-700">تعذر حفظ القرار المقترح؛ بقيت الإشارة مصدرية ولم تُحوّل إلى تنفيذ.</div>}

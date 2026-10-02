@@ -10,6 +10,8 @@ export type ReportSignal = {
   soWhat: string;
   impact: string;
   ownerHint: string;
+  priority: 'P0' | 'P1' | 'P2' | 'P3';
+  priorityReason: string[];
 };
 
 export type ReportRecommendation = {
@@ -98,7 +100,7 @@ function makePriority(severity: ReportSignalSeverity): ReportRecommendation['pri
 
 function addSignal(signals: ReportSignal[], id: string, severity: ReportSignalSeverity, title: string, message: string, evidence: string[], affectedRows?: number): void {
   if (signals.some((item) => item.id === id)) return;
-  signals.push({ id, severity, title, message, evidence, ...(affectedRows == null ? {} : { affectedRows }), soWhat: '', impact: '', ownerHint: '' });
+  signals.push({ id, severity, title, message, evidence, ...(affectedRows == null ? {} : { affectedRows }), soWhat: '', impact: '', ownerHint: '', priority: 'P3', priorityReason: [] });
 }
 
 function deriveSignals(report: ReportInput): ReportSignal[] {
@@ -305,18 +307,48 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
           : specialty === 'payments'
             ? 'مسؤول الخزينة/السيولة'
             : 'المسؤول التشغيلي المناسب للمصدر';
-  return signals
-    .map((signal) => ({
+  const enriched = signals.map((signal) => {
+    const priority: ReportSignal['priority'] = signal.severity === 'critical' ? 'P0' : signal.severity === 'high' ? 'P1' : signal.severity === 'medium' ? 'P2' : 'P3';
+    const priorityReason = [
+      'الشدة: ' + (severityLabelForPriority(signal.severity)),
+      signal.affectedRows == null ? 'الأثر التشغيلي: غير كمي من المصدر الحالي' : 'النطاق المتأثر: ' + signal.affectedRows + ' سجل',
+      'قوة الدليل: ' + signal.evidence.length + ' مؤشرات مصدرية',
+      signal.severity === 'info' ? 'قابلية الإجراء: مراقبة' : 'قابلية الإجراء: مراجعة/تدخل',
+      'الحداثة: تحليل المصدر الحالي؛ لا توجد أقدمية مستقلة مثبتة للإشارة',
+    ];
+    return {
       ...signal,
+      priority,
+      priorityReason,
       soWhat: signal.affectedRows == null
         ? 'هذه الإشارة تحدد نقطة تحتاج مراجعة مباشرة؛ لا يثبت المصدر وحده أثرًا ماليًا نهائيًا.'
         : 'نطاق المراجعة المباشرة هو ' + signal.affectedRows + ' سجلًا متأثرًا وفق المصدر الكانوني.',
       impact: signal.affectedRows == null
         ? 'الأثر المالي غير مُثبت من المصدر الحالي.'
-        : 'الأثر المثبت حاليًا: نطاق سجلات متأثرة = ' + signal.affectedRows + '؛ لا توجد قيمة مالية مفترضة دون أساس.' ,
+        : 'الأثر المثبت حاليًا: نطاق سجلات متأثرة = ' + signal.affectedRows + '؛ لا توجد قيمة مالية مفترضة دون أساس.',
       ownerHint,
-    }))
-    .sort((a, b) => rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title));
+    };
+  });
+  return enriched
+    .sort((a, b) => {
+      const severityDelta = rank[b.severity] - rank[a.severity];
+      if (severityDelta) return severityDelta;
+      const rowsA = a.affectedRows ?? 0;
+      const rowsB = b.affectedRows ?? 0;
+      if (rowsB !== rowsA) return rowsB - rowsA;
+      if (b.evidence.length !== a.evidence.length) return b.evidence.length - a.evidence.length;
+      const actionA = a.severity === 'info' ? 0 : 1;
+      const actionB = b.severity === 'info' ? 0 : 1;
+      return actionB - actionA || a.title.localeCompare(b.title);
+    });
+}
+
+function severityLabelForPriority(severity: ReportSignalSeverity): string {
+  if (severity === 'critical') return 'حرج';
+  if (severity === 'high') return 'مرتفع';
+  if (severity === 'medium') return 'متوسط';
+  if (severity === 'low') return 'منخفض';
+  return 'معلومة';
 }
 
 function expectedOutcomeFor(signal: ReportSignal): string {

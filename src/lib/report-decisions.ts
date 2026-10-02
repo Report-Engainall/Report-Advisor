@@ -470,6 +470,187 @@ export async function completeSourceDecisionWorkItem(input: {
 }
 
 
+export type AdvisorBusinessCase = {
+  id: string;
+  companyId: string;
+  decisionKey: string;
+  decisionId: string;
+  status: string;
+  followed: boolean;
+  issue: string;
+  question: string;
+  why: string;
+  impact: string;
+  evidence: string[];
+  whatNext: string;
+  recommendation: string;
+  priority: string;
+  priorityReason: string[];
+  owner: string;
+  expectedOutcome: string;
+  sourceHash: string;
+  reportJobId: string;
+  signalId: string;
+  signalTitle: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type AdvisorBusinessCaseInput = Omit<AdvisorBusinessCase, 'id' | 'companyId' | 'status' | 'followed' | 'createdAt' | 'updatedAt'> & {
+  followed?: boolean;
+};
+
+function portfolioStatusForPriority(priority: string): string {
+  if (priority === 'P0') return 'ready';
+  if (priority === 'P1') return 'ready';
+  return 'candidate';
+}
+
+function parseAdvisorCase(row: Record<string, unknown>): AdvisorBusinessCase | null {
+  const evidence = row.evidence && typeof row.evidence === 'object' ? row.evidence as Record<string, unknown> : {};
+  if (evidence.type !== 'ADVISOR_BUSINESS_CASE') return null;
+  const caseData = evidence.case && typeof evidence.case === 'object' ? evidence.case as Record<string, unknown> : {};
+  const decisionId = String(caseData.decisionId ?? '');
+  const sourceHash = String(caseData.sourceHash ?? '');
+  const reportJobId = String(caseData.reportJobId ?? '');
+  if (!decisionId || !sourceHash || !reportJobId) return null;
+  return {
+    id: String(row.id),
+    companyId: String(row.company_id),
+    decisionKey: String(row.decision_key),
+    decisionId,
+    status: String(row.status ?? 'candidate'),
+    followed: Boolean(caseData.followed),
+    issue: String(caseData.issue ?? caseData.signalTitle ?? 'قضية Advisor'),
+    question: String(caseData.question ?? 'سؤال الأعمال غير متاح'),
+    why: String(caseData.why ?? ''),
+    impact: String(caseData.impact ?? ''),
+    evidence: Array.isArray(caseData.evidence) ? caseData.evidence.map(String) : [],
+    whatNext: String(caseData.whatNext ?? ''),
+    recommendation: String(caseData.recommendation ?? ''),
+    priority: String(caseData.priority ?? 'P3'),
+    priorityReason: Array.isArray(caseData.priorityReason) ? caseData.priorityReason.map(String) : [],
+    owner: String(caseData.owner ?? 'غير محدد'),
+    expectedOutcome: String(caseData.expectedOutcome ?? ''),
+    sourceHash,
+    reportJobId,
+    signalId: String(caseData.signalId ?? ''),
+    signalTitle: String(caseData.signalTitle ?? ''),
+    createdAt: String(caseData.createdAt ?? row.updated_at ?? new Date().toISOString()),
+    updatedAt: String(row.updated_at ?? new Date().toISOString()),
+  };
+}
+
+export async function saveAdvisorBusinessCase(input: AdvisorBusinessCaseInput): Promise<AdvisorBusinessCase> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const caseEvidence = {
+    type: 'ADVISOR_BUSINESS_CASE',
+    case: {
+      decisionId: input.decisionId,
+      reportJobId: input.reportJobId,
+      sourceHash: input.sourceHash,
+      signalId: input.signalId,
+      signalTitle: input.signalTitle,
+      issue: input.issue,
+      question: input.question,
+      why: input.why,
+      impact: input.impact,
+      evidence: input.evidence,
+      whatNext: input.whatNext,
+      recommendation: input.recommendation,
+      priority: input.priority,
+      priorityReason: input.priorityReason,
+      owner: input.owner,
+      expectedOutcome: input.expectedOutcome,
+      followed: Boolean(input.followed),
+      createdAt: new Date().toISOString(),
+    },
+  };
+
+  const { data, error } = await supabase
+    .from('decision_portfolio_items')
+    .upsert({
+      company_id: companyId,
+      decision_key: input.decisionKey,
+      priority_score: input.priority === 'P0' ? 1 : input.priority === 'P1' ? 0.8 : input.priority === 'P2' ? 0.6 : 0.4,
+      materiality_score: 0,
+      confidence_score: 0,
+      risk_consumption: 0,
+      escalation_required: input.priority === 'P0',
+      status: portfolioStatusForPriority(input.priority),
+      evidence: caseEvidence,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'company_id,decision_key' })
+    .select('id,company_id,decision_key,status,evidence,updated_at')
+    .single();
+
+  if (error) throw error;
+  const parsed = parseAdvisorCase(data as Record<string, unknown>);
+  if (!parsed) throw new Error('ADVISOR_CASE_PERSISTENCE_INVALID');
+  return parsed;
+}
+
+export async function fetchAdvisorBusinessCases(): Promise<AdvisorBusinessCase[]> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const { data, error } = await supabase
+    .from('decision_portfolio_items')
+    .select('id,company_id,decision_key,status,evidence,updated_at')
+    .eq('company_id', companyId)
+    .order('updated_at', { ascending: false })
+    .limit(200);
+  if (error) throw error;
+
+  const parsed = (data ?? [])
+    .map((row) => parseAdvisorCase(row as Record<string, unknown>))
+    .filter((value): value is AdvisorBusinessCase => value !== null);
+  return parsed;
+}
+
+export async function setAdvisorBusinessCaseFollowed(caseId: string, followed: boolean): Promise<void> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase
+    .from('decision_portfolio_items')
+    .select('evidence')
+    .eq('company_id', companyId)
+    .eq('id', caseId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error('ADVISOR_CASE_NOT_FOUND');
+
+  const evidence = data.evidence && typeof data.evidence === 'object' ? data.evidence as Record<string, unknown> : {};
+  const caseData = evidence.case && typeof evidence.case === 'object' ? { ...(evidence.case as Record<string, unknown>) } : {};
+  const nextEvidence = {
+    ...evidence,
+    type: 'ADVISOR_BUSINESS_CASE',
+    case: { ...caseData, followed },
+  };
+
+  const { error: updateError } = await supabase
+    .from('decision_portfolio_items')
+    .update({ evidence: nextEvidence, updated_at: new Date().toISOString() })
+    .eq('company_id', companyId)
+    .eq('id', caseId);
+  if (updateError) throw updateError;
+}
+
+export async function fetchAdvisorBusinessCaseByDecision(decisionKey: string): Promise<AdvisorBusinessCase | null> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase
+    .from('decision_portfolio_items')
+    .select('id,company_id,decision_key,status,evidence,updated_at')
+    .eq('company_id', companyId)
+    .eq('decision_key', decisionKey)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? parseAdvisorCase(data as Record<string, unknown>) : null;
+}
+
 export type DecisionActivityRecord = {
   id: string;
   action: string;

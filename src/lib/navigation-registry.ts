@@ -79,6 +79,7 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
       { section: 'decision-center', path: '/', label: 'نبض الأعمال', enLabel: 'Business Pulse', description: 'الصورة التنفيذية اليومية في شاشة واحدة', keywords: ['dashboard', 'home', 'نبض', 'أعمال', 'رئيسية'], icon: 'dashboard' },
       { section: 'decision-center', path: '/command-center', label: 'مركز القرار', enLabel: 'Decision Command', description: 'الإشارات والأولويات التي تستحق الانتباه الآن', keywords: ['command', 'decision', 'قيادة', 'قرار', 'أولوية'], icon: 'command-center' },
       { section: 'decision-center', path: '/decision-experience', label: 'تجربة القرار', enLabel: 'Decision Experience', description: 'الدليل والسياق والموافقة والإجراء والنتيجة', keywords: ['decision', 'evidence', 'approval', 'قرار', 'دليل', 'نتيجة'], icon: 'decision' },
+      { section: 'decision-center', path: '/advisor-cases', label: 'قضايا Advisor', enLabel: 'Advisor Cases', description: 'قضايا الأعمال المحفوظة والمُتابعة من التقارير إلى القرار والنتيجة', keywords: ['advisor', 'cases', 'saved', 'follow', 'continue', 'قضايا', 'متابعة', 'استئناف'], icon: 'decision' },
     ],
   },
   {

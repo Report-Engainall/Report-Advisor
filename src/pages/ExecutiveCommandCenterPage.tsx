@@ -193,6 +193,7 @@ export function ExecutiveCommandCenterPage() {
           {alerts.length ? 'فحص الإشارات' : 'فتح مساحة القرار'} <ArrowUpLeft size={13}/>
         </Link>
         <Link to="/data-quality" className="btn-secondary text-[11px]">مراجعة جودة البيانات</Link>
+        <Link to="/advisor-cases" className="btn-secondary text-[11px]">قضايا Advisor</Link>
         <Link to="/reports/executive" className="btn-ghost text-[11px]">التقرير التنفيذي</Link>
       </div>
 
