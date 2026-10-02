@@ -29,12 +29,16 @@ function norm(value: unknown): string {
 }
 
 function columnKey(report: RuleReport, field: string): string | null {
-  const dataset = report.sourceAnalysis?.datasets?.[0];
-  const columns = dataset && typeof dataset === 'object' && Array.isArray((dataset as Record<string, unknown>).columns)
-    ? (dataset as Record<string, unknown>).columns as Array<Record<string, unknown>>
-    : [];
-  const found = columns.find((column) => norm(column.mappedField) === norm(field));
-  return found ? text(found.mappedField ?? found.name) : null;
+  const datasets = Array.isArray(report.sourceAnalysis?.datasets) ? report.sourceAnalysis.datasets : [];
+  for (const dataset of datasets) {
+    if (!dataset || typeof dataset !== 'object') continue;
+    const columns = Array.isArray((dataset as Record<string, unknown>).columns)
+      ? (dataset as Record<string, unknown>).columns as Array<Record<string, unknown>>
+      : [];
+    const found = columns.find((column) => norm(column.mappedField) === norm(field));
+    if (found) return text(found.mappedField ?? found.name);
+  }
+  return null;
 }
 
 function rowsOf(report: RuleReport): Array<{ data?: Record<string, unknown> | null }> {
