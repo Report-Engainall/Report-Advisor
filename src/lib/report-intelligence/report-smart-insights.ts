@@ -499,12 +499,20 @@ function deriveBusinessFindings(report: ReportInput): {
     if (dateColumn) {
       const dateKey = dataKey(dateColumn);
       const monthly = new Map<string, number>();
+      const partyByMonth = new Map<string, Map<string, number>>();
+      const partyKeyForChange = partyColumn ? dataKey(partyColumn) : null;
       for (const row of rows) {
         const date = parseDate(row.data?.[dateKey]);
         const value = numeric(row.data?.[amountKey]);
         if (!date || value == null) continue;
         const month = date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0');
         monthly.set(month, (monthly.get(month) ?? 0) + value);
+        if (partyKeyForChange) {
+          const party = text(row.data?.[partyKeyForChange]) || 'غير محدد';
+          const byParty = partyByMonth.get(month) ?? new Map<string, number>();
+          byParty.set(party, (byParty.get(party) ?? 0) + value);
+          partyByMonth.set(month, byParty);
+        }
       }
       const periods = [...monthly.entries()].sort(([a], [b]) => a.localeCompare(b));
       if (periods.length >= 2) {
@@ -528,6 +536,47 @@ function deriveBusinessFindings(report: ReportInput): {
             ? 'افتح تحليل المساهمين في التغير قبل اعتماد أي قرار مبيعات.'
             : 'افتح تحليل الموردين والقيمة قبل اعتماد أي قرار مشتريات.',
         });
+        if (partyKeyForChange && periods.length >= 2) {
+          const previousPeriodId = periods[periods.length - 2][0];
+          const latestPeriodId = periods[periods.length - 1][0];
+          const previousParties = partyByMonth.get(previousPeriodId) ?? new Map<string, number>();
+          const latestParties = partyByMonth.get(latestPeriodId) ?? new Map<string, number>();
+          const partyNames = new Set([...previousParties.keys(), ...latestParties.keys()]);
+          const deltas = [...partyNames]
+            .map((party) => ({
+              party,
+              delta: (latestParties.get(party) ?? 0) - (previousParties.get(party) ?? 0),
+            }))
+            .filter((item) => item.delta !== 0)
+            .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+          const totalDelta = latest - previous;
+          const contributor = deltas[0];
+          if (contributor && totalDelta !== 0) {
+            const shareOfChange = Math.abs(contributor.delta / totalDelta) * 100;
+            const label = specialty === 'sales' ? 'العميل' : 'المورد';
+            findings.push({
+              id: specialty + ':change-contributor',
+              kind: 'FINDING',
+              priority: Math.abs(contributor.delta) >= Math.abs(totalDelta) * 0.5 ? 'high' : 'medium',
+              title: 'أكبر مساهم في تغير الفترة',
+              statement: label + ' "' + contributor.party + '" يمثل أكبر تغير منفرد بمقدار ' + contributor.delta.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '، أي ' + shareOfChange.toFixed(1) + '% من التغير الكلي المحسوب.',
+              value: contributor.delta,
+              unit: 'فرق القيمة',
+              dimensionLabel: label,
+              dimensionValue: contributor.party,
+              evidence: [
+                'dimensionField=' + partyKeyForChange,
+                'valueField=' + amountKey,
+                'previousPeriod=' + previousPeriodId,
+                'latestPeriod=' + latestPeriodId,
+                'partyDelta=' + contributor.delta.toFixed(2),
+                'totalDelta=' + totalDelta.toFixed(2),
+              ],
+              limitation: 'المساهمة في التغير لا تثبت سبب التغير؛ إنها تفكيك حسابي للفارق بين فترتين.',
+              action: 'افتح هذا ' + label + ' أولًا، ثم افحص الأصناف/المعاملات التي كوّنت التغير قبل اعتماد قرار.',
+            });
+          }
+        }
         if (pct != null && pct < -10) {
           risks.push({
             id: specialty + ':period-decline-risk',
