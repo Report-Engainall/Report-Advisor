@@ -312,35 +312,93 @@ export function ReportsCenterPage() {
     </div>
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <div className="section-kicker">REAL REPORT CORPUS</div>
-          <h2 className="mt-1 text-lg font-black text-ink-950">التقارير الذكية المعالجة فعليًا</h2>
-          <p className="mt-1 text-[10px] text-ink-500">كل بطاقة مرتبطة بـ Job مكتمل وبصمة مصدر محددة. افتح التقرير لرؤية العينة الفعلية، الثقة، الأدلة، القرار والمخرجات.</p>
+          <div className="section-kicker">SMART ADVISOR REPORTS</div>
+          <h2 className="mt-1 text-lg font-black text-ink-950">كل التقارير التي عولجت واستخرج منها المستشار فهمًا</h2>
+          <p className="mt-1 max-w-3xl text-[10px] leading-5 text-ink-500">هذه ليست قائمة ملفات: كل بطاقة تمثل مصدرًا معالجًا، نموذج التقرير الذي تعرّف عليه النظام، وحالة انتقاله من الحقيقة إلى الدليل والتوصية والقرار والعمل والنتيجة.</p>
         </div>
-        <span className="rounded-full bg-primary-50 px-3 py-1 text-[10px] font-black text-primary-700">{smartReports.length} تقريرًا</span>
+        <span className="rounded-full bg-primary-50 px-3 py-1 text-[10px] font-black text-primary-700">{smartReports.length} مصدرًا ذكيًا</span>
       </div>
+
       {smartReports.length === 0 ? (
-        <div className="mt-4 rounded-xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">لا توجد مخرجات تقارير ذكية مثبتة للمساحة الحالية.</div>
-      ) : (
-        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {smartReports.map((report) => (
-            <Link key={report.jobId} to={'/reports/smart/' + report.jobId} className="rounded-2xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-black text-ink-950" title={report.sourcePath}>{report.sourcePath}</div>
-                  <div className="mt-1 text-[10px] text-ink-500">{report.rowCount == null ? 'عدد الصفوف غير متاح' : formatNumber(report.rowCount) + ' صف'} · {report.specialty ?? 'عام'}</div>
-                </div>
-                <span className={'shrink-0 rounded-full px-2 py-1 text-[9px] font-black ' + (report.trustState === 'TRUSTED' ? 'bg-success-50 text-success-800' : 'bg-warning-50 text-warning-800')}>{report.trustState ?? 'غير متاح'}</span>
-              </div>
-              <div className="mt-3 grid grid-cols-2 gap-2 text-[10px]">
-                <span className="rounded-lg bg-ink-50 px-2 py-1">الجودة: {report.qualityScore == null ? '—' : report.qualityScore + '%'}</span>
-                <span className="rounded-lg bg-ink-50 px-2 py-1">الدليل: {report.evidenceStatus ?? '—'}</span>
-              </div>
-              <div className="mt-3 text-[10px] font-bold text-primary-700">فتح التقرير الذكي ←</div>
-            </Link>
-          ))}
+        <div className="mt-4 rounded-xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">
+          لا توجد تقارير ذكية مكتملة حتى الآن. ابدأ بإضافة مصدر حقيقي من صفحة إدخال البيانات.
         </div>
+      ) : (
+        <>
+          <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            {[
+              ['نماذج مكتشفة', smartReports.filter((r) => Boolean(r.archetypeId)).length, 'كل مصدر يمر على هوية نموذجية واضحة أو حالة مراجعة.'],
+              ['موثقة', smartReports.filter((r) => r.evidenceStatus === 'VERIFIED').length, 'دليل مصدر قابل للمراجعة.'],
+              ['توصيات', smartReports.filter((r) => Boolean(r.recommendationStatus)).length, 'وجود مخرج توصية في التقرير.'],
+              ['قرارات', smartReports.filter((r) => Boolean(r.decisionStatus)).length, 'وجود حالة قرار مرتبطة بالتقرير.'],
+              ['عمل', smartReports.filter((r) => Boolean(r.actionStatus)).length, 'وجود حالة تنفيذ/عمل.'],
+              ['نتائج', smartReports.filter((r) => Boolean(r.outcomeStatus)).length, 'وجود حالة نتيجة؛ لا تعني أنها مثبتة دائمًا.'],
+            ].map(([label, value, note]) => (
+              <div key={String(label)} className="rounded-xl border border-ink-100 bg-ink-50/70 p-3">
+                <div className="text-[9px] font-black text-ink-500">{label}</div>
+                <div className="mt-1 text-lg font-black text-ink-950">{String(value)}</div>
+                <div className="mt-1 text-[8px] leading-4 text-ink-400">{note}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {smartReports.map((report) => {
+              const modelLabel = report.archetypeId
+                ? report.archetypeId + (report.archetypeVersion ? ' · v' + report.archetypeVersion : '')
+                : report.archetypeState === 'REVIEW_REQUIRED' ? 'يحتاج مراجعة النموذج' : 'النموذج غير متاح';
+              const flow = [
+                ['دليل', report.evidenceStatus],
+                ['توصية', report.recommendationStatus],
+                ['قرار', report.decisionStatus],
+                ['اعتماد', report.approvalStatus],
+                ['عمل', report.actionStatus],
+                ['نتيجة', report.outcomeStatus],
+              ];
+              return (
+                <Link key={report.jobId} to={'/reports/smart/' + report.jobId} className="group rounded-2xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-black text-ink-950" title={report.sourcePath}>{report.sourcePath}</div>
+                      <div className="mt-1 text-[10px] text-ink-500">{report.rowCount == null ? 'عدد الصفوف غير متاح' : formatNumber(report.rowCount) + ' صف'} · {report.specialty ?? 'عام'}</div>
+                    </div>
+                    <span className={'shrink-0 rounded-full px-2 py-1 text-[9px] font-black ' + (report.trustState === 'TRUSTED' ? 'bg-success-50 text-success-800' : 'bg-warning-50 text-warning-800')}>{report.trustState ?? 'غير متاح'}</span>
+                  </div>
+
+                  <div className="mt-3 rounded-xl border border-primary-100 bg-primary-50/60 p-3">
+                    <div className="text-[9px] font-black tracking-[.08em] text-primary-700">ADVISOR MODEL</div>
+                    <div className="mt-1 truncate text-[11px] font-black text-ink-950" title={modelLabel}>{modelLabel}</div>
+                    <div className="mt-1 text-[9px] text-ink-500">الحالة: {report.archetypeState ?? 'غير متاح'}</div>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-[9px]">
+                    <span className="rounded-lg bg-ink-50 px-2 py-1">الجودة: {report.qualityScore == null ? '—' : report.qualityScore + '%'}</span>
+                    <span className="rounded-lg bg-ink-50 px-2 py-1">حقيقة: {report.reportVerificationState ?? '—'}</span>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-3 gap-1.5">
+                    {flow.map(([stage, state]) => (
+                      <span key={stage} className={'rounded-lg border px-2 py-1 text-center font-bold ' + (
+                        state === 'VERIFIED' || state === 'APPROVED' || state === 'COMPLETED' ? 'border-success-200 bg-success-50 text-success-800'
+                        : state === 'REVIEW_REQUIRED' || state === 'PENDING' || state === 'PROPOSED' ? 'border-warning-200 bg-warning-50 text-warning-800'
+                        : 'border-ink-100 bg-ink-50 text-ink-500'
+                      )}>
+                        {stage}: {state ?? '—'}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    <span className="text-[9px] text-ink-400">{report.completedAt ? new Date(report.completedAt).toLocaleString('ar-YE') : 'وقت المعالجة غير متاح'}</span>
+                    <span className="text-[10px] font-black text-primary-700 group-hover:translate-x-[-2px]">افتح الحزمة الاستشارية ←</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </>
       )}
     </section>
 
