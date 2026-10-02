@@ -62,6 +62,24 @@ function effectiveEvidenceStatus(
   return rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus);
 }
 
+export function resolveReportEvidenceStatus(
+  rendered: Record<string, unknown>,
+  canonicalCommitVerified: boolean,
+): string {
+  const renderedStatus = effectiveEvidenceStatus(rendered);
+  const evidenceSnapshotId =
+    typeof rendered.evidenceSnapshotId === 'string'
+      ? rendered.evidenceSnapshotId.trim()
+      : '';
+
+  if (renderedStatus === 'VERIFIED') {
+    if (canonicalCommitVerified && evidenceSnapshotId) return 'VERIFIED';
+    return canonicalCommitVerified ? 'AWAITING_EVIDENCE_SNAPSHOT' : 'PENDING_EVIDENCE';
+  }
+
+  return renderedStatus ?? (canonicalCommitVerified ? 'AWAITING_EVIDENCE_SNAPSHOT' : 'PENDING_EVIDENCE');
+}
+
 function entityTypeFrom(jobKey: string): string {
   const parts = jobKey.split(':');
   if (parts[0] === 'canonical-import' && parts[1] === 'generic' && parts[2]) return `generic:${parts[2]}`;
@@ -127,6 +145,15 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
   const path = String(job.source_path ?? '');
   if (!rendered || !isReportSourcePath(path)) return null;
   if (/^(customer|product|invoice)-\d+/i.test(path)) return null;
+  const normalizedEvidenceStatus =
+    rendered.evidenceStatus === 'VERIFIED' && !(
+      typeof rendered.evidenceSnapshotId === 'string' && rendered.evidenceSnapshotId.trim()
+    )
+      ? 'AWAITING_EVIDENCE_SNAPSHOT'
+      : rendered.evidenceStatus == null
+        ? null
+        : String(rendered.evidenceStatus);
+
   return {
     jobId: String(job.id),
     sourcePath: path || 'مصدر غير مسمى',
@@ -135,11 +162,11 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
     rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
     qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
     trustState: rendered.trustState == null ? null : String(rendered.trustState),
-    reportVerificationState: rendered.evidenceStatus == null ? 'PENDING_EVIDENCE' : String(rendered.evidenceStatus),
+    reportVerificationState: normalizedEvidenceStatus ?? 'PENDING_EVIDENCE',
     specialty: rendered.sourceSpecialty == null
       ? inferSpecialtyFromAnalysis(analysis)
       : String(rendered.sourceSpecialty),
-    evidenceStatus: rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus),
+    evidenceStatus: normalizedEvidenceStatus,
     completedAt: job.completed_at == null ? null : String(job.completed_at),
   };
 }
@@ -278,9 +305,9 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     ? (rendered.rowCount == null ? null : Number(rendered.rowCount))
     : Number(rendered.authoritativeCurrentRowCount);
   const sourceRowCount = rendered.rowCount == null ? null : Number(rendered.rowCount);
-  const canonicalCommitGap = sourceRowCount == null || authoritativeCurrentRowCount == null
+  const canonicalCommitGap = authoritativeCurrentRowCount == null
     ? null
-    : Math.max(0, sourceRowCount - authoritativeCurrentRowCount);
+    : Math.max(0, authoritativeCurrentRowCount - canonicalCommitCount);
   const canonicalCommitVerified =
     authoritativeCurrentRowCount != null && canonicalCommitCount === authoritativeCurrentRowCount;
 
@@ -333,9 +360,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     datasets: Array.isArray(analysis.datasets) ? analysis.datasets : [],
   } : null;
 
-  const evidenceStatus = analysis && canonicalCommitVerified
-    ? 'VERIFIED'
-    : effectiveEvidenceStatus(rendered);
+  const evidenceStatus = resolveReportEvidenceStatus(rendered, canonicalCommitVerified);
 
   const specialty = rendered.sourceSpecialty == null
     ? inferSpecialtyFromAnalysis(sourceAnalysis)
