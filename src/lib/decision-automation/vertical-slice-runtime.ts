@@ -17,7 +17,7 @@ export interface RuntimeRecommendationInput {
 export interface RuntimeDecisionInput {
   decisionKey: string;
   decisionType: string;
-  confidence: number;
+  confidence: number | null;
   expectedImpact: number | null;
   evidence: Record<string, unknown>;
 }
@@ -103,7 +103,7 @@ export async function loadRuntimeRecommendationEvidence(recommendationId: string
 
 export async function createRuntimeDecision(input: RuntimeDecisionInput): Promise<string> {
   await companyIdOrThrow();
-  if (input.confidence < 0 || input.confidence > 1) throw new Error('DECISION_CONFIDENCE_OUT_OF_RANGE');
+  if (input.confidence != null && (input.confidence < 0 || input.confidence > 1)) throw new Error('DECISION_CONFIDENCE_OUT_OF_RANGE');
   const { data, error } = await supabase.rpc('create_runtime_decision', {
     p_decision_key: input.decisionKey,
     p_decision_type: input.decisionType,
