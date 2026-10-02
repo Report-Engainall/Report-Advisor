@@ -93,8 +93,19 @@ jobs:
 
           const retryableStatuses = new Set([408, 425, 429, 500, 502, 503, 504]);
           const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+          const fetchWithTimeout = async (input, init = {}) => {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 15000);
+            try {
+              return await fetch(input, { ...init, signal: controller.signal });
+            } finally {
+              clearTimeout(timer);
+            }
+          };
+
           const client = createClient(url, anonKey, {
             auth: { autoRefreshToken: false, persistSession: false },
+            global: { fetch: fetchWithTimeout },
           });
 
           let lastError = null;
@@ -115,6 +126,9 @@ jobs:
               if (!retryableStatuses.has(status) || attempt === 6) throw lastError;
             } catch (error) {
               lastError = error instanceof Error ? error : new Error(String(error));
+              if (lastError.name === 'AbortError') {
+                lastError = new Error('PHASE_F_CANARY_PASSWORD_SIGNIN_TIMEOUT');
+              }
               const statusMatch = lastError.message.match(/PHASE_F_CANARY_PASSWORD_SIGNIN_FAILED:(\d+):/);
               const status = statusMatch ? Number(statusMatch[1]) : 0;
               if ((status && !retryableStatuses.has(status)) || attempt === 6) throw lastError;
