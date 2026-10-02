@@ -8,9 +8,10 @@ UPDATED_AT = 2026-10-02T14:20:00Z
 CURRENT_BRANCH = fix/current-head-runtime-provenance-20261002
 PR = #730 OPEN / NOT MERGED
 CURRENT_EXECUTION_HEAD = 28c6ea3d9c1a1d593a71b08025827c97927de697
+CURRENT_BRANCH_HEAD = 76fcfabb57e8ec3eb9b086cdf665ed0e2abcee99
 CURRENT_MAIN_HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3
 LATEST_COMMIT = test: select second tenant from E2E allowlist
-LATEST_CI = new exact-head suite triggered by current code fix; terminal results not yet consumed
+LATEST_CI = branch-head 76fcfabb has current PR checks queued/pending; no terminal live/browser/certification PASS consumed
 
 WHAT_I_WAS_ASKED_TO_DO = Restore the saved state, verify GitHub reality, identify the first active failure, repair the correct layer, continue execution, and persist a truthful handoff without repeating closed work.
 
@@ -82,6 +83,24 @@ Prior exact-head persistence runs on 689fbb61:
 
 New CI is triggered by current execution head 28c6ea3d9c1a1d593a71b08025827c97927de697 and supersedes the 689fbb61 results.
 
+
+
+## CURRENT_SMART_REPORT_READBACK
+- report value cohort candidates = 42
+- unique source hashes = 42
+- tenant count = 4
+- formats = 32 PDF + 10 XLSX
+- all 42 candidates have analyzed source_analysis_snapshots
+- quality range = 76..100; average = 93.64
+- analyzed rows across cohort = 12,998; analyzed columns = 370
+- reports with renderedOutput = 42/42
+- renderedOutput total outputs = 135
+- declared source specialties = products 12; inventory 11; payments 8; sales 5; receivables 2; customers 1; purchases 1; suppliers 1; one report has no declared specialty in the rendered output
+- evidence verification status = VERIFIED for 40/42
+- decision readiness = READY for 40/42
+- benchmark status is explicitly present for 17/42; no benchmark claim is made for the remaining reports
+- latest verified passport for RUNTIME-EVIDENCE-A-401117 currently has no linked recommendation/decision/approval/work/outcome rows, so the full action chain is still NOT PROVEN for that passport
+- rendered output objects carry description, eligibility, importId, key, label, path, rendered, sourceHash, and stage fields; output type is not currently declared
 
 ## CURRENT_DATABASE_READBACK
 - staging project = fnqbvfuwbdpwvhcgzksl
