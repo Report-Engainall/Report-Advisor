@@ -92,7 +92,7 @@ jobs:
             body_file="$(mktemp)"
             request_body="$(node --input-type=module -e 'process.stdout.write(JSON.stringify({email: process.env.AUTH_EMAIL, password: process.env.AUTH_PASSWORD}))')"
             set +e
-            status="$(curl -sS -o "$body_file" -w '%{http_code}' \
+            status="$(timeout --kill-after=5s 20s curl -sS -o "$body_file" -w '%{http_code}' \
               --connect-timeout 5 \
               --max-time 15 \
               -H "apikey: $anon_key" \
