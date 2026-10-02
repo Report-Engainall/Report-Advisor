@@ -78,6 +78,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         signalMessage: basis.statement,
         severity: basis.priority,
         evidence: basis.evidence,
+        evidenceSnapshotId: evidenceSnapshotId ?? '',
       });
       await refreshDecisionProposal();
     } catch (error) {
