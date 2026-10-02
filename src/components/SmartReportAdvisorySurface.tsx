@@ -41,6 +41,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
   });
 
   const decisionClaims = packet.claims.filter((claim) => claim.status === 'RECOMMENDED' || claim.status === 'DERIVED').slice(0, 6);
+  const { advisorBrief, findings, risks, opportunities } = report.intelligence;
 
   return (
     <section dir="rtl" className="space-y-4">
@@ -58,6 +59,70 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
           <div className="rounded-xl bg-white p-4 border border-ink-100"><div className="text-[9px] font-black text-ink-500">QUESTIONS</div><div className="mt-1 text-2xl font-black">{packet.questions.length}</div><div className="mt-1 text-[10px] text-ink-500">أسئلة أعمال</div></div>
           <div className="rounded-xl bg-white p-4 border border-ink-100"><div className="text-[9px] font-black text-ink-500">ACTION STATE</div><div className="mt-1 text-lg font-black">{packet.actionState === 'ACTIONABLE' ? 'قابل للمراجعة والتنفيذ' : packet.actionState === 'REVIEW_REQUIRED' ? 'مراجعة مطلوبة' : 'غير متاح'}</div><div className="mt-1 text-[10px] text-ink-500">لا تنفيذ تلقائي</div></div>
         </div>
+      </div>
+
+      <div className="rounded-[20px] border border-primary-200 bg-[linear-gradient(135deg,#f7fbfa,#ffffff)] p-5 shadow-card lg:p-6">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.16em] text-primary-700">ADVISOR BRIEF</div>
+            <h3 className="mt-1 text-2xl font-black tracking-tight text-ink-950">ماذا يريد الأغبري أن يقول للإدارة؟</h3>
+            <p className="mt-2 max-w-3xl text-xs leading-6 text-ink-600">${advisorBrief.headline}</p>
+          </div>
+          <div className="rounded-2xl border border-ink-200 bg-white px-4 py-3 text-right">
+            <div className="text-[9px] font-black text-ink-400">HEALTH</div>
+            <div className="mt-1 text-sm font-black text-ink-900">{advisorBrief.health === 'HEALTHY' ? 'سليم من الإشارات الحالية' : advisorBrief.health === 'ATTENTION' ? 'يحتاج انتباهًا' : 'المراجعة مطلوبة'}</div>
+            <div className="mt-1 text-[10px] text-ink-500">{advisorBrief.ownerHint}</div>
+          </div>
+        </div>
+        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {[
+            ['أهم نتيجة', advisorBrief.topFinding?.title ?? 'غير متاح', advisorBrief.topFinding?.statement ?? 'لا توجد نتيجة أعمال كافية.', 'FINDING'],
+            ['أهم خطر', advisorBrief.topRisk?.title ?? 'لا يوجد خطر مرتفع مثبت', advisorBrief.topRisk?.statement ?? 'لا يوجد خطر مجال أعمال مثبت من البيانات الحالية.', 'RISK'],
+            ['أهم فرصة', advisorBrief.topOpportunity?.title ?? 'لا توجد فرصة مثبتة', advisorBrief.topOpportunity?.statement ?? 'لا توجد فرصة قابلة للإثبات حاليًا.', 'OPPORTUNITY'],
+            ['الإجراء المقترح', advisorBrief.recommendedAction ?? 'لا يوجد إجراء مؤهل بعد', advisorBrief.expectedOutcome ?? advisorBrief.proofRequirement, 'ACTION'],
+          ].map(([label, title, detail, key]) => (
+            <div key={key} className="rounded-2xl border border-ink-100 bg-white p-4">
+              <div className="text-[9px] font-black tracking-[.08em] text-ink-400">{label}</div>
+              <div className="mt-2 text-sm font-black text-ink-950">{title}</div>
+              <div className="mt-1 text-[10px] leading-5 text-ink-600">{detail}</div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div className="rounded-xl border border-ink-100 bg-white px-4 py-3 text-[10px] leading-5 text-ink-600">
+            <span className="font-black text-ink-800">القياس بعد الإجراء:</span> {advisorBrief.measurement ?? 'لا يوجد KPI مؤهل للقياس بعد.'}
+            <span className="mx-2 text-ink-300">•</span>
+            <span className="font-black text-ink-800">حد الدليل:</span> {advisorBrief.proofRequirement}
+          </div>
+          <Link
+            to={'/decision-experience?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-700 px-5 py-3 text-xs font-black text-white shadow-sm transition hover:bg-primary-800"
+          >
+            حوّلها إلى قرار <ArrowLeft size={14}/>
+          </Link>
+        </div>
+      </div>
+
+      <div className="grid gap-3 lg:grid-cols-3">
+        {[
+          ['TOP FINDINGS', findings, 'نتائج محسوبة مباشرة من الصفوف الكانونية'],
+          ['TOP RISKS', risks, 'مخاطر لا تظهر إلا عندما يدعمها المصدر'],
+          ['TOP OPPORTUNITIES', opportunities, 'فرص مبنية على مؤشرات قابلة للحساب'],
+        ].map(([label, items, subtitle]) => (
+          <div key={label} className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">{label}</div>
+            <div className="mt-1 text-[10px] text-ink-500">{subtitle}</div>
+            <div className="mt-3 space-y-2">
+              {items.length ? items.slice(0, 3).map((item) => (
+                <div key={item.id} className="rounded-xl border border-ink-100 bg-ink-50/50 p-3">
+                  <div className="text-xs font-black text-ink-900">{item.title}</div>
+                  <div className="mt-1 text-[10px] leading-5 text-ink-600">{item.statement}</div>
+                  <div className="mt-2 text-[9px] text-ink-400">الدليل: {item.evidence.join(' · ')}</div>
+                </div>
+              )) : <div className="rounded-xl border border-dashed border-ink-200 p-3 text-[10px] text-ink-500">لا توجد نتيجة مثبتة من المصدر الحالي.</div>}
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
