@@ -159,7 +159,7 @@ export function applyArchetypeRuleSet(
 
   let modelFinding: BusinessFinding | null = null;
 
-  if (required.has('trend') || required.has('growth') || required.has('periodcomparison') || required.has('continuity') || required.has('seasonality')) {
+  if (family === 'trend' || required.has('trend') || required.has('growth') || required.has('periodcomparison') || required.has('continuity') || required.has('seasonality')) {
     if (dateKey && amountKey) {
       const trend = dateValue(rows, dateKey, amountKey);
       if (trend) {
@@ -182,7 +182,7 @@ export function applyArchetypeRuleSet(
     }
   }
 
-  if (!modelFinding && (required.has('concentration') || required.has('customervalue') || required.has('supplierdependency') || required.has('topsuppliershare') || required.has('productconcentration') || required.has('portfolio'))) {
+  if (!modelFinding && (family === 'party-concentration' || required.has('concentration') || required.has('customervalue') || required.has('supplierdependency') || required.has('topsuppliershare') || required.has('productconcentration') || required.has('portfolio'))) {
     if (dimensionKey && amountKey) {
       const top = groupTop(rows, dimensionKey, amountKey);
       const total = sumBy(rows, amountKey);
@@ -207,7 +207,7 @@ export function applyArchetypeRuleSet(
     }
   }
 
-  if (!modelFinding && (required.has('price') || required.has('pricevariance') || required.has('sellingprice') || required.has('marginimpactwhencostexists'))) {
+  if (!modelFinding && (family === 'price' || required.has('price') || required.has('pricevariance') || required.has('sellingprice') || required.has('marginimpactwhencostexists'))) {
     const priceKey = columnKey(report, 'unitPrice') ?? columnKey(report, 'sellingPrice') ?? columnKey(report, 'cost');
     if (priceKey) {
       const values = rows.map((row) => num(row.data?.[priceKey])).filter((value): value is number => value != null);
@@ -232,7 +232,7 @@ export function applyArchetypeRuleSet(
     }
   }
 
-  if (!modelFinding && (required.has('stockout risk') || required.has('coveragerisk') || required.has('days-weeks-cover') || required.has('stockout-risk') || required.has('stock-linkage') || required.has('coverage'))) {
+  if (!modelFinding && (family === 'coverage' || required.has('stockout risk') || required.has('coveragerisk') || required.has('days-weeks-cover') || required.has('stockout-risk') || required.has('stock-linkage') || required.has('coverage'))) {
     const stockKey = columnKey(report, 'currentStock');
     const salesKey = columnKey(report, 'salesQty') ?? columnKey(report, 'quantity');
     if (stockKey && salesKey) {
@@ -254,7 +254,7 @@ export function applyArchetypeRuleSet(
     }
   }
 
-  if (!modelFinding && (required.has('return-rate') || required.has('returns') || required.has('returnrate'))) {
+  if (!modelFinding && (family === 'returns' || required.has('return-rate') || required.has('returns') || required.has('returnrate'))) {
     const returnKey = columnKey(report, 'returnQty');
     const baseQtyKey = columnKey(report, 'quantity') ?? columnKey(report, 'salesQty');
     if (returnKey && baseQtyKey) {
@@ -276,7 +276,7 @@ export function applyArchetypeRuleSet(
     }
   }
 
-  if (!modelFinding && (required.has('discount-distribution') || required.has('discounts'))) {
+  if (!modelFinding && (family === 'discount' || required.has('discount-distribution') || required.has('discounts'))) {
     const discountKey = columnKey(report, 'discount');
     if (discountKey) {
       const totalDiscount = sumBy(rows, discountKey);
@@ -295,7 +295,7 @@ export function applyArchetypeRuleSet(
     }
   }
 
-  if (!modelFinding && (required.has('gap') || required.has('pace') || required.has('targetactual') || profile.id === 'sales.target-vs-actual')) {
+  if (!modelFinding && (family === 'target-gap' || required.has('gap') || required.has('pace') || required.has('targetactual') || profile.id === 'sales.target-vs-actual')) {
     const targetKey = columnKey(report, 'targetAmount');
     const actualKey = columnKey(report, 'netAmount') ?? columnKey(report, 'grossAmount');
     if (targetKey && actualKey) {
@@ -317,7 +317,7 @@ export function applyArchetypeRuleSet(
     }
   }
 
-  if (!modelFinding && (required.has('delivery') || required.has('lead-time') || required.has('leadtime'))) {
+  if (!modelFinding && (family === 'lead-time' || required.has('delivery') || required.has('lead-time') || required.has('leadtime'))) {
     const leadKey = columnKey(report, 'leadTimeDays');
     if (leadKey) {
       const values = rows.map((row) => num(row.data?.[leadKey])).filter((value): value is number => value != null);
@@ -340,7 +340,7 @@ export function applyArchetypeRuleSet(
     }
   }
 
-  if (!modelFinding && (required.has('aging-buckets') || required.has('overdue-exposure') || required.has('collection-queue') || required.has('due-schedule') || required.has('obligations'))) {
+  if (!modelFinding && (family === 'aging' || required.has('aging-buckets') || required.has('overdue-exposure') || required.has('collection-queue') || required.has('due-schedule') || required.has('obligations'))) {
     const dueKey = columnKey(report, 'dueDate');
     const valueKey = columnKey(report, 'netAmount') ?? columnKey(report, 'balance');
     if (dueKey && valueKey) {
@@ -369,7 +369,7 @@ export function applyArchetypeRuleSet(
     }
   }
 
-  if (!modelFinding && (required.has('cash-position') || required.has('inflows-outflows') || required.has('liquidity-gap') || required.has('obligations-vs-collections'))) {
+  if (!modelFinding && (family === 'cashflow' || required.has('cash-position') || required.has('inflows-outflows') || required.has('liquidity-gap') || required.has('obligations-vs-collections'))) {
     const debitKey = columnKey(report, 'debit');
     const creditKey = columnKey(report, 'credit');
     const netKey = columnKey(report, 'netAmount');
@@ -392,7 +392,7 @@ export function applyArchetypeRuleSet(
     }
   }
 
-  if (!modelFinding && (required.has('assets-liabilities-equity-when-present') || required.has('assetsliabilitiesequitywhenpresent') || profile.id === 'finance.balance-sheet')) {
+  if (!modelFinding && (family === 'balance-sheet' || required.has('assets-liabilities-equity-when-present') || required.has('assetsliabilitiesequitywhenpresent') || profile.id === 'finance.balance-sheet')) {
     const assetKey = columnKey(report, 'asset');
     const liabilityKey = columnKey(report, 'liability');
     const equityKey = columnKey(report, 'equity');
@@ -415,7 +415,7 @@ export function applyArchetypeRuleSet(
     }
   }
 
-  if (!modelFinding && (required.has('account-movement') || required.has('unusual-entries') || required.has('reconciliation-audit'))) {
+  if (!modelFinding && (family === 'account' || required.has('account-movement') || required.has('unusual-entries') || required.has('reconciliation-audit'))) {
     const accountKey = columnKey(report, 'accountCode') ?? columnKey(report, 'accountName');
     const valueKey = columnKey(report, 'netAmount') ?? columnKey(report, 'debit') ?? columnKey(report, 'credit');
     if (accountKey && valueKey) {
@@ -440,7 +440,7 @@ export function applyArchetypeRuleSet(
     }
   }
 
-  if (!modelFinding && (required.has('source-destination-flow') || required.has('transfer-optimization'))) {
+  if (!modelFinding && (family === 'transfer' || required.has('source-destination-flow') || required.has('transfer-optimization'))) {
     const fromKey = columnKey(report, 'fromWarehouse');
     const toKey = columnKey(report, 'toWarehouse');
     const valueKey = columnKey(report, 'quantity') ?? columnKey(report, 'salesQty');
@@ -470,7 +470,7 @@ export function applyArchetypeRuleSet(
     }
   }
 
-  if (!modelFinding && required.has('mix') && dimensionKey && amountKey) {
+  if (!modelFinding && (family === 'mix' || required.has('mix')) && dimensionKey && amountKey) {
     const top = groupTop(rows, dimensionKey, amountKey);
     if (top) {
       modelFinding = {
