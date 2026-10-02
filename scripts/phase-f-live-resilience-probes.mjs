@@ -196,13 +196,68 @@ async function logicalBackupRestore() {
   const jitEnabled = !dbPassword && Boolean(temporaryAccessToken);
   const password = dbPassword || temporaryAccessToken;
   const querySuffix = jitEnabled ? '?options=-c%20jit%3Don' : '';
-  const source = explicitSource
-    || (password
-      ? `postgresql://postgres.${encodeURIComponent(projectRef)}:${encodeURIComponent(password)}@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres${querySuffix}`
-      : '');
-  if (!source) throw new Error('logical_backup_source_db_url_not_configured');
-  const runnerSource = await preferIpv4Host(source);
-  const querySource = await preferIpv4Host(toTransactionPooler(source));
+  const poolerRegion = process.env.RESILIENCE_SUPABASE_REGION?.trim() || 'ap-southeast-2';
+  const derivedSource = password
+    ? `postgresql://postgres.${encodeURIComponent(projectRef)}:${encodeURIComponent(password)}@aws-0-${poolerRegion}.pooler.supabase.com:5432/postgres${querySuffix}`
+    : '';
+
+  if (!explicitSource && !derivedSource) {
+    throw new Error('logical_backup_source_db_url_not_configured');
+  }
+
+  const sourceCandidates = [];
+  const addCandidate = (sourceUrl, mode) => {
+    if (!sourceUrl || sourceCandidates.some(candidate => candidate.url === sourceUrl)) return;
+    sourceCandidates.push({ url: sourceUrl, mode });
+  };
+
+  addCandidate(explicitSource, 'explicit_override');
+  addCandidate(derivedSource, 'derived_project_pooler');
+
+  if (explicitSource && projectRef) {
+    try {
+      const parsedExplicit = new URL(explicitSource);
+      const directHost = `db.${projectRef}.supabase.co`;
+      const isDirectSupabaseDb = parsedExplicit.hostname === directHost;
+      if (isDirectSupabaseDb && parsedExplicit.password) {
+        const fallback = new URL(explicitSource);
+        fallback.hostname = `aws-0-${process.env.RESILIENCE_SUPABASE_REGION?.trim() || 'ap-southeast-2'}.pooler.supabase.com`;
+        fallback.port = '5432';
+        fallback.username = `postgres.${projectRef}`;
+        fallback.pathname = '/postgres';
+        addCandidate(fallback.toString(), 'explicit_to_project_pooler_fallback');
+      }
+    } catch {
+      throw new Error('logical_backup_explicit_source_invalid_url');
+    }
+  }
+
+  const probeErrors = [];
+  let runnerSource = null;
+  let sourceSelection = null;
+
+  for (const candidate of sourceCandidates) {
+    try {
+      const resolved = await preferIpv4Host(candidate.url);
+      runDockerPsql(resolved, 'select 1');
+      runnerSource = resolved;
+      sourceSelection = {
+        mode: candidate.mode,
+        candidate_count: sourceCandidates.length,
+        fallback_used: candidate.mode !== 'explicit_override',
+      };
+      break;
+    } catch (error) {
+      const message = String(error);
+      probeErrors.push(`${candidate.mode}: ${message.slice(-1800)}`);
+    }
+  }
+
+  if (!runnerSource) {
+    throw new Error(`logical_backup_source_unreachable:${probeErrors.join(' | ')}`);
+  }
+
+  const querySource = await preferIpv4Host(toTransactionPooler(runnerSource));
   const maxRpoSeconds = Number(process.env.RESILIENCE_MAX_RPO_SECONDS);
   if (!Number.isFinite(maxRpoSeconds) || maxRpoSeconds < 0) {
     throw new Error('invalid_max_rpo_seconds');
