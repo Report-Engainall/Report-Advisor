@@ -21,10 +21,11 @@ assert.match(migration, /grant execute on function public\.provision_e2e_test_me
 assert.match(migration, /e2e_actor/);
 assert.match(migration, /e2e_actor_membership_provisioned/);
 
-assert.match(workflow, /Provision deterministic E2E actors/);
-const provisionStep = workflow.indexOf('Provision deterministic E2E actors');
+assert.match(workflow, /Start exact Netlify preview with serverless API/);
+assert.ok(workflow.includes('node scripts/provision-e2e-actors.mjs'));
 const previewStep = workflow.indexOf('Start exact Netlify preview with serverless API');
-assert.ok(provisionStep >= 0 && provisionStep < previewStep);
+const provisionStep = workflow.indexOf('node scripts/provision-e2e-actors.mjs', previewStep);
+assert.ok(previewStep >= 0 && provisionStep > previewStep);
 assert.match(workflow, /SUPABASE_SERVICE_ROLE_KEY: \$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
 assert.match(workflow, /TEST_APPROVER_EMAIL: \$\{\{ secrets\.REPORT_ADVISOR_E2E_APPROVER_EMAIL \}\}/);
 

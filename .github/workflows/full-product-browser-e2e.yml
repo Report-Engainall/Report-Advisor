@@ -153,6 +153,7 @@ jobs:
           npm run test:pdf-long-document-ocr-boundary
           npm run test:source-decision-proposal
           npm run test:source-decision-approval
+          npm run test:e2e-actor-provisioning
           npm run test:source-decision-work-item
           npm run test:source-work-execution-lifecycle
           npm run test:work-center-decision-queue
@@ -164,10 +165,17 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           REPORT_ADVISOR_E2E_DEBUG: '1'
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+          TEST_APPROVER_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_APPROVER_EMAIL }}
+          TEST_APPROVER_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_APPROVER_PASSWORD }}
         shell: bash
         run: |
           set -euo pipefail
           test -n "$SUPABASE_SERVICE_ROLE_KEY"
+          node scripts/provision-e2e-actors.mjs
           mkdir -p artifacts/e2e-browser artifacts/e2e-business
           nohup npx netlify dev --no-open --port 4173 > artifacts/e2e-browser/preview.log 2>&1 &
           echo $! > artifacts/e2e-browser/preview.pid
