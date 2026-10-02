@@ -414,6 +414,7 @@ function WorkCenterGeneralPage() {
             </tbody>
           </table>
         </div>
+        <>
         <div className="grid gap-2 p-2 md:hidden">
           {filteredDecisionWork.map((item) => {
             const sourceHashValue = typeof item.sourceHash === 'string' ? item.sourceHash : '';
@@ -449,6 +450,7 @@ function WorkCenterGeneralPage() {
             );
           })}
         </div>
+        </>
         ) : <div className="p-6 text-center text-[10px] text-ink-500">لا توجد عناصر عمل مطابقة داخل نافذة مركز العمل الحالية.</div>}
       </div>
     </section>
