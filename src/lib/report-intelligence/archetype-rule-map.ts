@@ -17,6 +17,8 @@ export type ArchetypeRuleFamily =
   | 'inventory-position'
   | 'inventory-movement'
   | 'aging'
+  | 'inventory-aging'
+  | 'inventory-velocity'
   | 'coverage'
   | 'stockout-reorder'
   | 'inventory-valuation'
@@ -57,8 +59,8 @@ export const ARCHETYPE_RULE_FAMILY: Record<string, ArchetypeRuleFamily> = {
   'purchases.supply-cycle': 'lead-time',
   'inventory.balances': 'inventory-position',
   'inventory.movement-card': 'inventory-movement',
-  'inventory.aging': 'aging',
-  'inventory.velocity': 'coverage',
+  'inventory.aging': 'inventory-aging',
+  'inventory.velocity': 'inventory-velocity',
   'inventory.coverage': 'coverage',
   'inventory.stockout-reorder': 'stockout-reorder',
   'inventory.valuation': 'inventory-valuation',
