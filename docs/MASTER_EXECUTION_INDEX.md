@@ -1,17 +1,21 @@
 # LIVE EXECUTION CHECKPOINT — 2026-10-02 / DURABLE EVIDENCE PASSPORT
-- CURRENT EXACT HEAD → fea311c347f7d7610f34ae5b08348802ce9b7430.
-- BRANCH → fix/current-head-runtime-provenance-20261002.
-- PR #730 → OPEN / MERGEABLE.
-- PRIMARY PRODUCT MOVE → durable source-bound Evidence Passport now exists in repository schema with source, source version, analysis snapshot, canonical coverage, acceptance, verification, decision readiness, fingerprint, and lineage.
-- SOURCE DECISION GATE → source-intelligence recommendations, decisions and source work items are now designed to require a VERIFIED/READY Evidence Passport; runtime decision proposal confidence is NOT_ASSESSED when no calibrated confidence exists.
-- LEGACY EVIDENCE → prior embedded VERIFIED states without an explicit passport are classified as LEGACY_UNRESOLVED in the durable passport model; no fake evidence promotion.
-- SMART REPORT → 50,000-row ceiling now fails closed to PARTIAL_FETCH_CEILING; mappedField is preferred for canonical reads; Passport status and readiness are visible in the report UI.
-- ACCEPTANCE MATRIX → `scripts/report-value-cohort.mjs` now produces the requested 40-report Business Value matrix across Passport → Signal → Recommendation → Decision → Approval → Work → Outcome → Learning → Benchmark and refuses to run with a cohort smaller than 40.
-- LIVE DB PROOF → `20261002143000_create_report_evidence_passport` applied successfully. `20261002144000_refresh_report_evidence_passport` was applied once, but its Passport-lineage detail still needs correction and re-verification. The gate migration `20261002145000_enforce_report_evidence_passport_gates` and live 40-report batch are NOT PROVEN because the Supabase connector timed out.
-- RUNTIME PROOF → Vercel current-head proof remains blocked by build-rate-limit; authenticated Edge business-flow remains NOT_PROVEN.
-- SECURITY → `public.canonical_import_repair_history` still has RLS disabled; remediation remains deliberately un-applied pending correct tenant policies.
-- DO-NOT-REPEAT → no report re-import; no canonical-row rewrite; no evidence promotion without durable passport; no stale-SHA/browser PASS.
-- NEXT EXACT ACTION → restore Supabase connectivity; apply/correct the Passport refresh + gate functions; execute the same 40-report cohort through `accept_completed_report_evidence_batch`; then read back the 40-report Business Value matrix and continue only from the first blocked stage.
+- CURRENT EXACT EXECUTION HEAD → 1d1a9aecb236c7a6753c9924518e3a6083e6f244.
+- CONTROL-PLANE WRITEBACK → documentation-only; no product/import rollback.
+- PR #730 → OPEN / MERGEABLE at the execution head before this writeback.
+- FIRST REAL FAILURE → legacy report outputs could carry VERIFIED without a durable Evidence Snapshot.
+- ROOT CAUSE → embedded renderedOutput evidence was being treated as final evidence authority.
+- CORE DELTA → durable report_evidence_snapshots + report_evidence_passports now bind tenant, source hash, source version, analysis snapshot, canonical coverage, acceptance, verification, decision readiness, fingerprint and lineage.
+- LEGACY DELTA → when prior rendered state is VERIFIED without explicit snapshot identity, the new passport records LEGACY_UNRESOLVED rather than silently trusting the old state.
+- DECISION DELTA → source-intelligence recommendation/decision/work paths require a VERIFIED/READY passport in code; source proposal confidence is NOT_ASSESSED rather than a fabricated 0.5.
+- UX DELTA → Smart Report exposes Passport acceptance, verification, readiness, snapshot identity, legacy historical state and 50,000-row partial-analysis scope.
+- COHORT DELTA → exact-head runner `npm run report:value-cohort` exists and refuses to accept fewer than 40 reports; dedicated GitHub Action runs the same cohort against exact PR SHA with Supabase service credentials.
+- LIVE PROOF → 2 source reports have now produced durable VERIFIED/READY Passports. Both were correctly tagged legacyPriorVerification=true, proving the new Passport can replace historical embedded verification without erasing provenance.
+- LIVE BLOCKER → remaining cohort processing is incremental because some legacy jobs have invalid/missing importJobId links; these are intentionally REVIEW, not promoted.
+- DB GATE → Passport DDL is live. The full DB recommendation/decision/work trigger gate migration is in repository, but live application is still not proven because Supabase migration writes are intermittently timing out.
+- SECURITY → public.canonical_import_repair_history remains RLS-disabled; no automatic ALTER/policy mutation was applied.
+- RUNTIME → Vercel free build-rate-limit remains external; authenticated Microsoft Edge proof remains NOT_PROVEN.
+- DO-NOT-REPEAT → no re-import of completed reports; no canonical-row rewrite; no evidence promotion without durable Passport; no stale-SHA/browser PASS.
+- NEXT EXACT ACTION → finish live DB gate application when migration connectivity is stable, process the remaining same-40 cohort, then read the exact 40-row Business Value Acceptance Matrix and continue from the first REVIEW/BLOCKED state.
 
 
 # LIVE EXECUTION CHECKPOINT — 2026-10-02 / ADVISOR VALUE CLOSURE
