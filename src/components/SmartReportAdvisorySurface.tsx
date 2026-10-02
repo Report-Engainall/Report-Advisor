@@ -1,5 +1,7 @@
+import { useCallback, useEffect, useState } from 'react';
 import { ArrowLeft, BrainCircuit, CheckCircle2, ShieldCheck } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { createSourceDecisionProposal, fetchSourceDecisionProposals, type SourceDecisionState } from '@/lib/report-decisions';
 import type { SmartReportDetail } from '@/lib/report-smart';
 import { buildAdvisoryPacket } from '@/lib/report-intelligence/report-advisory-orchestrator';
 import { BusinessQuestionRail } from '@/components/intelligence/BusinessQuestionRail';
@@ -42,6 +44,48 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
 
   const decisionClaims = packet.claims.filter((claim) => claim.status === 'RECOMMENDED' || claim.status === 'DERIVED').slice(0, 6);
   const { advisorBrief, findings, risks, opportunities } = report.intelligence;
+  const navigate = useNavigate();
+  const [decisionProposal, setDecisionProposal] = useState<SourceDecisionState | null>(null);
+  const [decisionBusy, setDecisionBusy] = useState(false);
+  const [decisionError, setDecisionError] = useState<string | null>(null);
+
+  const refreshDecisionProposal = useCallback(async () => {
+    try {
+      const proposals = await fetchSourceDecisionProposals(report.sourceHash);
+      setDecisionProposal(proposals[0] ?? null);
+    } catch (error) {
+      setDecisionError(error instanceof Error ? error.message : 'تعذر قراءة قرار المصدر');
+    }
+  }, [report.sourceHash]);
+
+  useEffect(() => { void refreshDecisionProposal(); }, [refreshDecisionProposal]);
+
+  const createDecisionProposal = async () => {
+    const basis = advisorBrief.topRisk ?? advisorBrief.topFinding ?? advisorBrief.topOpportunity;
+    if (!basis) return;
+    if (packet.proofState !== 'VERIFIED') {
+      setDecisionError('لا يمكن إنشاء قرار من دليل غير مثبت.');
+      return;
+    }
+    try {
+      setDecisionBusy(true);
+      setDecisionError(null);
+      await createSourceDecisionProposal({
+        reportJobId: report.jobId,
+        sourceHash: report.sourceHash,
+        signalId: basis.id,
+        signalTitle: basis.title,
+        signalMessage: basis.statement,
+        severity: basis.priority,
+        evidence: basis.evidence,
+      });
+      await refreshDecisionProposal();
+    } catch (error) {
+      setDecisionError(error instanceof Error ? error.message : 'تعذر حفظ القرار المقترح');
+    } finally {
+      setDecisionBusy(false);
+    }
+  };
 
   return (
     <section dir="rtl" className="space-y-4">
@@ -88,18 +132,31 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
             </div>
           ))}
         </div>
+        {decisionError && <div role="alert" className="mt-3 rounded-xl border border-warning-200 bg-warning-50 px-3 py-2 text-[10px] leading-5 text-warning-900">تعذر تحديث مسار القرار: {decisionError}</div>}
         <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_auto] lg:items-center">
           <div className="rounded-xl border border-ink-100 bg-white px-4 py-3 text-[10px] leading-5 text-ink-600">
             <span className="font-black text-ink-800">القياس بعد الإجراء:</span> {advisorBrief.measurement ?? 'لا يوجد KPI مؤهل للقياس بعد.'}
             <span className="mx-2 text-ink-300">•</span>
             <span className="font-black text-ink-800">حد الدليل:</span> {advisorBrief.proofRequirement}
           </div>
-          <Link
-            to={'/decision-experience?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-700 px-5 py-3 text-xs font-black text-white shadow-sm transition hover:bg-primary-800"
-          >
-            حوّلها إلى قرار <ArrowLeft size={14}/>
-          </Link>
+          {decisionProposal ? (
+            <button
+              type="button"
+              onClick={() => navigate('/decision-experience?sourceDecisionId=' + encodeURIComponent(decisionProposal.id) + '&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash))}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-700 px-5 py-3 text-xs font-black text-white shadow-sm transition hover:bg-primary-800"
+            >
+              القرار المقترح محفوظ — متابعة <ArrowLeft size={14}/>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => void createDecisionProposal()}
+              disabled={decisionBusy || packet.proofState !== 'VERIFIED' || !advisorBrief.topRisk && !advisorBrief.topFinding && !advisorBrief.topOpportunity}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-700 px-5 py-3 text-xs font-black text-white shadow-sm transition hover:bg-primary-800 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {decisionBusy ? 'جارٍ حفظ القرار…' : 'حوّلها إلى قرار فعلي'} <ArrowLeft size={14}/>
+            </button>
+          )}
         </div>
       </div>
 
