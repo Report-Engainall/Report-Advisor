@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const script = fs.readFileSync('scripts/provision-e2e-actors.mjs', 'utf8');
-const migration = fs.readFileSync('supabase/migrations/20261002043000_harden_e2e_actor_service_role_claims.sql', 'utf8');
+const migration = fs.readFileSync('supabase/migrations/20261002050000_reconcile_e2e_actor_service_role_key_guard.sql', 'utf8');
 const workflow = fs.readFileSync('.github/workflows/full-product-browser-e2e.yml', 'utf8');
 
 assert.match(script, /auth\.admin\.createUser/);
@@ -20,10 +20,8 @@ assert.match(script, /GITHUB_ENV/);
 
 assert.match(migration, /security definer/i);
 assert.match(migration, /set search_path = public, pg_catalog/i);
-assert.match(migration, /request\.jwt\.claim\.role/);
-assert.match(migration, /request\.jwt\.claims/);
-assert.match(migration, /v_jwt_role := coalesce/);
-assert.match(migration, /service_role/);
+assert.doesNotMatch(migration, /request\.jwt\.claim\.role/);
+assert.doesNotMatch(migration, /request\.jwt\.claims/);
 assert.match(migration, /revoke all on function public\.provision_e2e_test_membership/i);
 assert.match(migration, /grant execute on function public\.provision_e2e_test_membership/i);
 assert.match(migration, /e2e_actor/);
