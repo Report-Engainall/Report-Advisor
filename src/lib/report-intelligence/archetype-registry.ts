@@ -259,7 +259,7 @@ function uniqueFields(fields: CanonicalField[]): CanonicalField[] {
   return [...new Set(fields)];
 }
 
-function scoreProfile(profile: ArchetypeProfile, available: Set<CanonicalField>, title: string): { score: number; matched: CanonicalField[]; missing: CanonicalField[]; reasons: string[] } {
+function scoreProfile(profile: ArchetypeProfileDefinition, available: Set<CanonicalField>, title: string): { score: number; matched: CanonicalField[]; missing: CanonicalField[]; reasons: string[] } {
   if (profile.legacyReportType === 'unknown') return { score: 0, matched: [], missing: [], reasons: ['لا يوجد تطابق متخصص؛ استخدام Generic Smart Pack.'] };
   const matched = profile.requiredFields.filter((field) => available.has(field));
   const missing = profile.requiredFields.filter((field) => !available.has(field));
