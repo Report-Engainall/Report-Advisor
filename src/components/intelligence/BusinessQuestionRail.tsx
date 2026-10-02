@@ -16,6 +16,18 @@ function icon(state: BusinessQuestionState) {
   return <HelpCircle size={15} />;
 }
 
+function displayAnswer(answer: unknown): string {
+  if (typeof answer === 'string') return answer;
+  if (typeof answer === 'number' || typeof answer === 'boolean') return String(answer);
+  if (answer && typeof answer === 'object') {
+    const record = answer as Record<string, unknown>;
+    for (const key of ['summary', 'observation', 'action', 'text']) {
+      if (typeof record[key] === 'string' && record[key].trim()) return record[key] as string;
+    }
+  }
+  return JSON.stringify(answer);
+}
+
 export function BusinessQuestionRail<TAnswer>({ questions }: { questions: BusinessQuestion<TAnswer>[] }) {
   return (
     <section dir="rtl" className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm">
@@ -27,7 +39,7 @@ export function BusinessQuestionRail<TAnswer>({ questions }: { questions: Busine
         {questions.map((question) => (
           <article key={question.id} className="rounded-xl border border-ink-100 bg-ink-50/50 p-3">
             <div className="flex items-center gap-2"><span className="text-primary-700">{icon(question.state)}</span><div className="min-w-0 flex-1"><div className="text-[11px] font-black text-ink-900">{question.label}</div><div className="mt-1 text-[9px] font-bold text-ink-500">{labels[question.state]}</div></div></div>
-            {question.state === 'ANSWERED' && question.answer != null && <div className="mt-2 rounded-lg border border-success-200 bg-success-50 p-2.5 text-[10px] leading-5 text-success-950">{typeof question.answer === 'string' ? question.answer : JSON.stringify(question.answer)}</div>}
+            {question.state === 'ANSWERED' && question.answer != null && <div className="mt-2 rounded-lg border border-success-200 bg-success-50 p-2.5 text-[10px] leading-5 text-success-950">{displayAnswer(question.answer)}</div>}
             {question.missingFields.length > 0 && <div className="mt-2 rounded-lg border border-warning-200 bg-warning-50 p-2.5 text-[9px] text-warning-950">الحقول المطلوبة: {question.missingFields.join('، ')}</div>}
             <div className="mt-2 text-[9px] leading-5 text-ink-500">{question.evidenceBoundary}</div>
           </article>
