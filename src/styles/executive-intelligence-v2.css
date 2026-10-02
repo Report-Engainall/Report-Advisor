@@ -586,3 +586,121 @@
     animation: none !important;
   }
 }
+
+
+/* v2.2 — semantic status grammar */
+@layer components {
+  /*
+   * These hooks are additive. They intentionally use stable semantic
+   * attributes/classes so the intelligence engine can evolve independently.
+   */
+  .ag-main [data-truth-state="verified"] {
+    color: #075f56 !important;
+    background: #e7f6f2 !important;
+    border-color: #b8ddd5 !important;
+  }
+
+  .ag-main [data-truth-state="review"],
+  .ag-main [data-truth-state="insufficient"] {
+    color: #73540a !important;
+    background: #fff7df !important;
+    border-color: #ead6a0 !important;
+  }
+
+  .ag-main [data-truth-state="blocked"],
+  .ag-main [data-truth-state="unavailable"] {
+    color: #9b343c !important;
+    background: #fff1f2 !important;
+    border-color: #edc8cb !important;
+  }
+
+  .ag-main [data-decision-state="ready"] {
+    box-shadow:
+      inset 0 0 0 1px rgba(8, 127, 115, .10),
+      0 14px 30px -24px rgba(8, 127, 115, .45) !important;
+  }
+
+  .ag-main [data-decision-state="pending"] {
+    box-shadow:
+      inset 0 0 0 1px rgba(228, 174, 50, .12),
+      0 14px 30px -24px rgba(228, 174, 50, .36) !important;
+  }
+
+  .ag-main [data-decision-state="blocked"] {
+    box-shadow:
+      inset 0 0 0 1px rgba(197, 63, 69, .10),
+      0 14px 30px -24px rgba(197, 63, 69, .24) !important;
+  }
+
+  .ag-main [data-stage="evidence"],
+  .ag-main [data-stage="claim"],
+  .ag-main [data-stage="question"],
+  .ag-main [data-stage="recommendation"],
+  .ag-main [data-stage="decision"],
+  .ag-main [data-stage="work"],
+  .ag-main [data-stage="outcome"] {
+    border-inline-start: 3px solid #b8dcd4;
+    padding-inline-start: .85rem;
+  }
+
+  .ag-main [data-stage="decision"],
+  .ag-main [data-stage="work"] {
+    border-inline-start-color: var(--ag-ui-gold);
+  }
+
+  .ag-main [data-stage="outcome"] {
+    border-inline-start-color: #5f9c90;
+  }
+
+  /* High-value actions get hierarchy without oversized controls. */
+  .ag-main [data-primary-action="true"] {
+    min-height: 44px;
+    border-radius: 11px !important;
+    box-shadow: 0 14px 28px -18px rgba(5, 92, 84, .62) !important;
+  }
+
+  .ag-main [data-primary-action="true"]:hover {
+    transform: translateY(-1px);
+  }
+
+  /* A quiet visual anchor for evidence/provenance disclosures. */
+  .ag-main [data-evidence-anchor="true"] {
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.98), rgba(242,249,247,.94)) !important;
+  }
+
+  .ag-main [data-evidence-anchor="true"]::after {
+    content: "EVIDENCE";
+    position: absolute;
+    inset-inline-end: .85rem;
+    top: .65rem;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .15em;
+    color: #6c8982;
+    opacity: .72;
+    pointer-events: none;
+  }
+
+  /* Visual emphasis for the one thing the executive should do next. */
+  .ag-main [data-next-action="true"] {
+    position: relative;
+    background:
+      radial-gradient(circle at 90% 10%, rgba(228,174,50,.10), transparent 12rem),
+      linear-gradient(135deg, #ffffff 0%, #eef8f5 100%) !important;
+    border-color: #b9d9d2 !important;
+    box-shadow: 0 18px 42px -30px rgba(5,92,84,.50) !important;
+  }
+
+  .ag-main [data-next-action="true"]::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--ag-ui-gold), var(--ag-ui-teal));
+  }
+}
