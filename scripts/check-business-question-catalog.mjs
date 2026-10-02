@@ -1,5 +1,5 @@
-import { buildBusinessQuestionSet, getBusinessQuestionDefinitions } from './business-question-catalog.ts';
-import { evaluateBusinessQuestion } from './business-question-engine.ts';
+import { buildBusinessQuestionSet, getBusinessQuestionDefinitions } from '../src/lib/report-intelligence/business-question-catalog.ts';
+import { evaluateBusinessQuestion } from '../src/lib/report-intelligence/business-question-engine.ts';
 
 const check = (condition, message) => { if (!condition) throw new Error(message); };
 
