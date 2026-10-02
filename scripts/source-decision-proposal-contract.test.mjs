@@ -12,7 +12,10 @@ assert.ok(bridge.includes("reportExecutionJobId"));
 assert.ok(bridge.includes("sourceHash"));
 assert.ok(bridge.includes("PROPOSED_ONLY"));
 const proposalStart = bridge.indexOf("export async function createSourceDecisionProposal");
-const proposalEnd = bridge.indexOf("\n\nexport type SourceDecisionState", proposalStart);
+const proposalEndMatch = /\r?\n\r?\nexport type SourceDecisionState/.exec(bridge.slice(proposalStart));
+const proposalEnd = proposalEndMatch
+  ? proposalStart + proposalEndMatch.index
+  : -1;
 assert.ok(proposalStart >= 0 && proposalEnd > proposalStart);
 const proposalBody = bridge.slice(proposalStart, proposalEnd);
 assert.ok(!proposalBody.includes("create_decision_work_item"));
