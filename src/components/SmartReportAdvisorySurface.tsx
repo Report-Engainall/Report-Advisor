@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ArrowLeft, BrainCircuit, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, BrainCircuit, CheckCircle2, Search, ShieldCheck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createSourceDecisionProposal, fetchSourceDecisionProposals, type SourceDecisionState } from '@/lib/report-decisions';
 import type { SmartReportDetail } from '@/lib/report-smart';
@@ -175,6 +175,14 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
                   <div className="text-xs font-black text-ink-900">{item.title}</div>
                   <div className="mt-1 text-[10px] leading-5 text-ink-600">{item.statement}</div>
                   <div className="mt-2 text-[9px] text-ink-400">الدليل: {item.evidence.join(' · ')}</div>
+                  {item.dimensionValue && (
+                    <Link
+                      to={'/reports/smart/' + encodeURIComponent(report.jobId) + '?focus=' + encodeURIComponent(String(item.dimensionValue)) + '&sourceHash=' + encodeURIComponent(report.sourceHash)}
+                      className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-primary-200 bg-white px-2.5 py-1.5 text-[9px] font-black text-primary-800 hover:bg-primary-50"
+                    >
+                      فحص سجلات {item.dimensionLabel ?? 'البند'} <Search size={12}/>
+                    </Link>
+                  )}
                 </div>
               )) : <div className="rounded-xl border border-dashed border-ink-200 p-3 text-[10px] text-ink-500">لا توجد نتيجة مثبتة من المصدر الحالي.</div>}
             </div>
