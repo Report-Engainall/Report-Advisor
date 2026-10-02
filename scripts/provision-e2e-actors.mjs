@@ -23,15 +23,33 @@ const ACTOR_METADATA = {
   e2e_purpose: 'full-product-browser-e2e',
 };
 
+function isRetryableAuthLookup(error) {
+  const status = Number(error?.status ?? 0);
+  return [408, 425, 429, 500, 502, 503, 504].includes(status);
+}
+
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 async function findUserByEmail(email) {
   for (let page = 1; page <= 10; page += 1) {
-    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage: 1000 });
-    if (error) throw error;
-    const user = (data.users ?? []).find((candidate) => candidate.email?.toLowerCase() === email.toLowerCase());
-    if (user) return user;
-    if ((data.users ?? []).length < 1000) return null;
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      const { data, error } = await supabase.auth.admin.listUsers({ page, perPage: 1000 });
+      if (!error) {
+        const user = (data.users ?? []).find((candidate) => candidate.email?.toLowerCase() === email.toLowerCase());
+        if (user) return { user, lookupUnavailable: false };
+        if ((data.users ?? []).length < 1000) return { user: null, lookupUnavailable: false };
+        break;
+      }
+
+      if (!isRetryableAuthLookup(error) || attempt === 3) {
+        if (isRetryableAuthLookup(error)) return { user: null, lookupUnavailable: true };
+        throw error;
+      }
+
+      await wait(1000 * 2 ** (attempt - 1));
+    }
   }
-  return null;
+  return { user: null, lookupUnavailable: false };
 }
 
 function runId() {
@@ -84,8 +102,22 @@ async function ensureActor(email, password, label) {
     generated = true;
   }
 
-  let user = await findUserByEmail(resolvedEmail);
-  if (!user) {
+  let user = null;
+  let lookupUnavailable = false;
+
+  if (!generated) {
+    const lookup = await findUserByEmail(resolvedEmail);
+    user = lookup.user;
+    lookupUnavailable = lookup.lookupUnavailable;
+  }
+
+  if (lookupUnavailable) {
+    const generatedCredentials = actorCredentials(label);
+    resolvedEmail = generatedCredentials.email;
+    resolvedPassword = generatedCredentials.password;
+    user = await createActor(resolvedEmail, resolvedPassword);
+    generated = true;
+  } else if (!user) {
     user = await createActor(resolvedEmail, resolvedPassword);
     generated = true;
   } else {
