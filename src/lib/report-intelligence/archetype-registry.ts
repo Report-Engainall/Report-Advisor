@@ -332,7 +332,7 @@ export function resolveArchetype(input: {
 
 export function resolveLegacyReportType(reportType: ArchetypeProfile['legacyReportType']): ArchetypeProfile {
   const archetypeId = LEGACY_TO_ARCHETYPE[reportType];
-  return getArchetypeProfile(archetypeId) ?? GENERIC_PROFILE;
+  return getArchetypeProfile(archetypeId) ?? getArchetypeProfile('generic.report')!;
 }
 
 export function evaluateFieldAvailability(
