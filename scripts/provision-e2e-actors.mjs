@@ -13,6 +13,12 @@ for (const name of required) {
 }
 
 const REQUEST_TIMEOUT_MS = Number(process.env.E2E_ACTOR_REQUEST_TIMEOUT_MS || '30000');
+const PROVISION_DEADLINE_MS = Number(process.env.E2E_ACTOR_PROVISION_DEADLINE_MS || '120000');
+const PROVISION_DEADLINE_AT = Date.now() + PROVISION_DEADLINE_MS;
+
+function assertProvisionDeadline(step) {
+  if (Date.now() > PROVISION_DEADLINE_AT) throw new Error('E2E_ACTOR_PROVISION_DEADLINE_EXCEEDED:' + step);
+}
 
 async function fetchWithTimeout(input, init = {}) {
   const controller = new AbortController();
@@ -49,7 +55,9 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function findUserByEmail(email) {
   for (let page = 1; page <= 10; page += 1) {
+    assertProvisionDeadline('find-user-page-' + page);
     for (let attempt = 1; attempt <= 3; attempt += 1) {
+      assertProvisionDeadline('find-user-attempt-' + page + '-' + attempt);
       const { data, error } = await supabase.auth.admin.listUsers({ page, perPage: 1000 });
       if (!error) {
         const user = (data.users ?? []).find((candidate) => candidate.email?.toLowerCase() === email.toLowerCase());
@@ -97,6 +105,7 @@ function persistActorCredentials(label, email, password) {
 
 async function createActor(email, password) {
   for (let attempt = 1; attempt <= 4; attempt += 1) {
+    assertProvisionDeadline('create-actor-attempt-' + attempt);
     try {
       const { data, error } = await supabase.auth.admin.createUser({
         email,
@@ -121,6 +130,7 @@ async function createActor(email, password) {
 }
 
 async function ensureActor(email, password, label) {
+  assertProvisionDeadline('ensure-actor-' + label);
   let resolvedEmail = email?.trim();
   let resolvedPassword = password;
   let generated = false;
@@ -168,6 +178,7 @@ async function ensureActor(email, password, label) {
 }
 
 async function findTenantA() {
+  assertProvisionDeadline('find-tenant-a');
   const { data, error } = await supabase
     .from('companies')
     .select('id,name,created_at')
@@ -194,6 +205,7 @@ function ensureApproverCredentials() {
 }
 
 async function findTenantB() {
+  assertProvisionDeadline('find-tenant-b');
   const { data, error } = await supabase
     .from('companies')
     .select('id,name,created_at')
@@ -206,6 +218,7 @@ async function findTenantB() {
 }
 
 async function prepareTransactionalFixture(companyId, actorId) {
+  assertProvisionDeadline('prepare-transaction-fixture');
   const fixtureKey = 'E2E-ORDER-B-001';
   const { data: order, error: orderError } = await supabase
     .from('orders')
@@ -344,6 +357,7 @@ async function prepareTransactionalFixture(companyId, actorId) {
 }
 
 async function provisionMembership(companyId, userId, requestedRole, isDefault, label) {
+  assertProvisionDeadline('provision-membership-' + label);
   const { data: existing, error: existingError } = await supabase
     .from('company_memberships')
     .select('role,is_active,is_default')

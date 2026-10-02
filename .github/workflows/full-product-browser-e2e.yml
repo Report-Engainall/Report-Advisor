@@ -216,7 +216,6 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$SUPABASE_SERVICE_ROLE_KEY"
-          node scripts/provision-e2e-actors.mjs
           mkdir -p artifacts/e2e-browser artifacts/e2e-business
           nohup npx --no-install netlify dev --no-open --port 4173 > artifacts/e2e-browser/preview.log 2>&1 &
           echo $! > artifacts/e2e-browser/preview.pid
@@ -229,6 +228,18 @@ jobs:
           done
           cat artifacts/e2e-browser/preview.log
           exit 1
+
+      - name: Provision rerunnable E2E actors with bounded recovery
+        env:
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          E2E_ACTOR_PROVISION_DEADLINE_MS: '120000'
+          E2E_ACTOR_REQUEST_TIMEOUT_MS: '15000'
+          REPORT_ADVISOR_E2E_DEBUG: '1'
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/provision-e2e-actors.mjs
 
       - name: Resume and prove the real open report
         env:
