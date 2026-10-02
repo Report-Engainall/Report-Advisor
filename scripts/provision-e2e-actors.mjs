@@ -136,12 +136,46 @@ function persistActorCredentials(label, email, password) {
   process.env[fields.password] = password;
 }
 
+const AUTH_RETRYABLE_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
+const AUTH_RETRY_ATTEMPTS = 3;
+const AUTH_REQUEST_TIMEOUT_MS = 20000;
+
+async function authFetchWithRecovery(input, init = {}) {
+  let lastError = null;
+  for (let attempt = 1; attempt <= AUTH_RETRY_ATTEMPTS; attempt += 1) {
+    assertProvisionDeadline('auth-request-attempt-' + attempt);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(new Error('E2E_AUTH_REQUEST_TIMEOUT')), AUTH_REQUEST_TIMEOUT_MS);
+    try {
+      const response = await fetch(input, { ...init, signal: controller.signal });
+      if (!AUTH_RETRYABLE_STATUS.has(response.status) || attempt === AUTH_RETRY_ATTEMPTS) return response;
+      lastError = new Error('E2E_AUTH_RETRYABLE_HTTP_' + response.status);
+    } catch (error) {
+      lastError = error;
+      if (attempt === AUTH_RETRY_ATTEMPTS) throw error;
+    } finally {
+      clearTimeout(timer);
+    }
+    await wait(Math.min(4000, 500 * 2 ** (attempt - 1)));
+  }
+  throw lastError ?? new Error('E2E_AUTH_RETRY_EXHAUSTED');
+}
+
+const authProbe = createClient(
+  process.env.REPORT_ADVISOR_SUPABASE_URL.trim(),
+  ANON_KEY,
+  {
+    auth: { autoRefreshToken: false, persistSession: false },
+    global: { fetch: authFetchWithRecovery },
+  },
+);
+
 async function signInConfiguredActor(email, password) {
   assertProvisionDeadline('sign-in-configured-actor');
-  const { data, error } = await anon.auth.signInWithPassword({ email, password });
+  const { data, error } = await authProbe.auth.signInWithPassword({ email, password });
   if (error) throw error;
   assert.ok(data.user?.id, 'E2E_CONFIGURED_ACTOR_ID_REQUIRED');
-  await anon.auth.signOut().catch(() => undefined);
+  await authProbe.auth.signOut().catch(() => undefined);
   return data.user;
 }
 
