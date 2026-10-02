@@ -51,6 +51,17 @@ const anon = createClient(url, anonKey, {
   auth: { autoRefreshToken: false, persistSession: false },
   global: { fetch: resilientFetch },
 });
+
+const runTag = 'gate-live-' + Date.now() + '-' + randomUUID().slice(0, 8);
+const users = [];
+const created = {
+  recommendations: [],
+  decisions: [],
+  approvals: [],
+  work: [],
+  outcomes: [],
+};
+
 async function expectBlocked(label, fn, expectedFragments = []) {
   try {
     await fn();
