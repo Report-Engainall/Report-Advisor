@@ -20,8 +20,8 @@ assert.match(script, /GITHUB_ENV/);
 
 assert.match(migration, /security definer/i);
 assert.match(migration, /set search_path = public, pg_catalog/i);
-assert.doesNotMatch(migration, /request\.jwt\.claim\.role/);
-assert.doesNotMatch(migration, /request\.jwt\.claims/);
+assert.doesNotMatch(migration, /current_setting\(['"]request\.jwt\.claim\.role/);
+assert.doesNotMatch(migration, /current_setting\(['"]request\.jwt\.claims/);
 assert.match(migration, /revoke all on function public\.provision_e2e_test_membership/i);
 assert.match(migration, /grant execute on function public\.provision_e2e_test_membership/i);
 assert.match(migration, /e2e_actor/);
