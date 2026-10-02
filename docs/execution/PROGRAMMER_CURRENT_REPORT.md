@@ -1,16 +1,17 @@
 # PROGRAMMER CURRENT REPORT
 
 SESSION HANDOFF = NOT READY
+CURRENT_HEAD_RECONCILED = YES
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 
-REPORT_FOR_HEAD = a6f19a064003e94c508b8a27bded19933465376c
+REPORT_FOR_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8d
 UPDATED_AT = 2026-10-02T14:40:00Z
 CURRENT_BRANCH = fix/current-head-runtime-provenance-20261002
 PR = #730 OPEN / NOT MERGED / MERGEABLE
-CURRENT_BRANCH_HEAD = a6f19a064003e94c508b8a27bded19933465376c
-CURRENT_EXECUTION_HEAD = a6f19a064003e94c508b8a27bded19933465376c
+CURRENT_BRANCH_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8d
+CURRENT_EXECUTION_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8d
 CURRENT_MAIN_HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3
-LATEST_COMMIT = fix: grant authenticated read access to evidence passports
+LATEST_COMMIT = ci: serialize report value cohort per pull request
 LATEST_CI = current-head checks will supersede all prior SHA evidence; no current live/browser/certification PASS claimed yet
 
 WHAT_I_WAS_ASKED_TO_DO = Reconcile exact branch/PR/report/state, close the authenticated Evidence Passport SELECT boundary without widening mutation privileges, fix the live negative-path assertion, investigate the cohort timeout, prove the Smart Business Action Chain, and persist truthful handoff.
@@ -107,3 +108,14 @@ DO_NOT_REPEAT =
 NEXT_EXACT_ACTION = Run current-head static checks on a6f19a0, then consume the new Evidence Passport Live Proof and Full Product Browser E2E; after P0 closure, reproduce/diagnose the 57014 cohort timeout with execution/lock evidence and complete one source-bound action-chain readback.
 
 SESSION_HANDOFF = NOT READY
+
+
+## P1_RUNTIME_PROOF
+- Passport privilege proof: authenticated SELECT=true; authenticated INSERT/UPDATE/DELETE=false; anon SELECT=false; RLS=true.
+- Same-tenant Passport read returned 1 row; wrong-tenant read returned 0; anon read failed with SQLSTATE 42501.
+- Source-bound action chain proof: Recommendation 4ec6baba-2f76-49a9-bc9b-9f7cfc0b0c28 -> Decision 7caefd77-62b1-4211-8669-84ddabb51cdd -> Approval f4a2445b-9ff1-4e1d-99ca-f6c6542cf65a -> Work 814b38d7-bd9b-4b56-9cd0-168e038817d7 -> Outcome 1eb22376-00eb-431e-bcea-02216bb60dc1.
+- Outcome status=insufficient; expected_impact=NULL; actual_impact=NULL. No impact was fabricated.
+- Source hash=sha256:0802746f23206b37cbe645738774db6e4208b546ec890ab3ea0305222ad77cee; job=cfcaaed7-7876-4968-a757-d559d2ea10d9; Passport=9ffb5a8d-25bf-4e74-8b00-b1651fc1a887; Passport snapshot=eff9dde2-a9da-40fa-9b26-1981471b7912; analysis snapshot=88b0e172-72c0-4dc2-a0bd-ffc44307be64.
+- P1-A query plans are index-backed and low cost; one refresh and four sample refreshes returned FULL/VERIFIED/READY; no statement_timeout increase was applied.
+- Report Value Cohort workflow now serializes per PR to prevent stale overlapping runs.
+- Full 40-report terminal cohort proof remains CI-pending.
