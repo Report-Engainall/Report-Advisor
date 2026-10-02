@@ -77,6 +77,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           AUTH_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
           AUTH_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          PREPROVISIONED_CANARY_TOKEN: ${{ secrets.RESILIENCE_CANARY_AUTH_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
@@ -86,9 +87,16 @@ jobs:
           password="${AUTH_PASSWORD:?AUTH_PASSWORD_MISSING}"
           auth_url="${url%/}/auth/v1/token?grant_type=password"
 
-          token=""
+          token="${PREPROVISIONED_CANARY_TOKEN:-}"
+          if [[ -n "$token" ]]; then
+            echo "PHASE_F_CANARY_AUTH_SOURCE=preprovisioned_token"
+          else
+            # Contract: password fallback is the configured auth.signInWithPassword path.
+            echo "PHASE_F_CANARY_AUTH_SOURCE=password_fallback"
+          fi
           last_status="000"
           for attempt in $(seq 1 6); do
+            [[ -n "$token" ]] && break
             body_file="$(mktemp)"
             request_body="$(node --input-type=module -e 'process.stdout.write(JSON.stringify({email: process.env.AUTH_EMAIL, password: process.env.AUTH_PASSWORD}))')"
             set +e
