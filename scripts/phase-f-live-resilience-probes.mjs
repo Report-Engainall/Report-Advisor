@@ -266,7 +266,27 @@ async function logicalBackupRestore() {
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'phase-f-logical-'));
   const backupPath = path.join(workDir, 'public-data.sql');
   const exactSnapshotSql = 'select clock_timestamp()::text';
-  const countSql = `select coalesce(string_agg(format('select %L as table_name, count(*) as row_count from %I.%I', table_schema || '.' || table_name, table_schema, table_name), ' union all ' order by table_name), 'select null::text as table_name, 0::bigint as row_count where false') from information_schema.tables where table_schema = 'public' and table_type = 'BASE TABLE'`;
+  const countSql = `create temp table _phase_f_counts(table_name text, row_count bigint) on commit drop;
+DO $$
+DECLARE
+  r record;
+BEGIN
+  FOR r IN
+    SELECT table_schema, table_name
+    FROM information_schema.tables
+    WHERE table_schema = 'public'
+      AND table_type = 'BASE TABLE'
+    ORDER BY table_name
+  LOOP
+    EXECUTE format(
+      'INSERT INTO _phase_f_counts(table_name, row_count) SELECT %L, count(*) FROM %I.%I',
+      r.table_schema || '.' || r.table_name,
+      r.table_schema,
+      r.table_name
+    );
+  END LOOP;
+END $$;
+SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_name;`;
 
   let localDbUrl = null;
   let localStarted = false;
@@ -298,15 +318,9 @@ async function logicalBackupRestore() {
     const snapshotAt = Date.parse(snapshotText);
     if (!Number.isFinite(snapshotAt)) throw new Error('source_snapshot_timestamp_invalid');
 
-    let generatedCountSql;
-    try {
-      generatedCountSql = runDockerPsql(querySource, countSql);
-    } catch (error) {
-      throw new Error(`logical_source_count_sql_failed:${error}`);
-    }
     let sourceCounts;
     try {
-      sourceCounts = parseTableCounts(runDockerPsql(querySource, generatedCountSql));
+      sourceCounts = parseTableCounts(runDockerPsql(querySource, countSql));
     } catch (error) {
       throw new Error(`logical_source_counts_failed:${error}`);
     }
@@ -336,7 +350,7 @@ async function logicalBackupRestore() {
     const restoreCompletedAt = Date.now();
     let targetCounts;
     try {
-      targetCounts = parseTableCounts(runDockerPsql(localDbUrl, generatedCountSql));
+      targetCounts = parseTableCounts(runDockerPsql(localDbUrl, countSql));
     } catch (error) {
       throw new Error(`logical_target_counts_failed:${error}`);
     }
