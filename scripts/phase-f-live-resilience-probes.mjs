@@ -137,6 +137,14 @@ async function preferIpv4Host(databaseUrl) {
   return databaseUrl;
 }
 
+function toTransactionPooler(databaseUrl) {
+  const parsed = new URL(databaseUrl);
+  if (parsed.hostname.endsWith('.pooler.supabase.com') && (!parsed.port || parsed.port === '5432')) {
+    parsed.port = '6543';
+  }
+  return parsed.toString();
+}
+
 function runDockerPsql(databaseUrl, sql) {
   return runCommand('docker', [
     'run', '--rm', '--network', 'host',
@@ -194,6 +202,7 @@ async function logicalBackupRestore() {
       : '');
   if (!source) throw new Error('logical_backup_source_db_url_not_configured');
   const runnerSource = await preferIpv4Host(source);
+  const querySource = await preferIpv4Host(toTransactionPooler(source));
   const maxRpoSeconds = Number(process.env.RESILIENCE_MAX_RPO_SECONDS);
   if (!Number.isFinite(maxRpoSeconds) || maxRpoSeconds < 0) {
     throw new Error('invalid_max_rpo_seconds');
@@ -227,7 +236,7 @@ async function logicalBackupRestore() {
 
     let snapshotText;
     try {
-      snapshotText = runDockerPsql(runnerSource, exactSnapshotSql);
+      snapshotText = runDockerPsql(querySource, exactSnapshotSql);
     } catch (error) {
       throw new Error(`logical_source_snapshot_failed:${error}`);
     }
@@ -236,13 +245,13 @@ async function logicalBackupRestore() {
 
     let generatedCountSql;
     try {
-      generatedCountSql = runDockerPsql(runnerSource, countSql);
+      generatedCountSql = runDockerPsql(querySource, countSql);
     } catch (error) {
       throw new Error(`logical_source_count_sql_failed:${error}`);
     }
     let sourceCounts;
     try {
-      sourceCounts = parseTableCounts(runDockerPsql(runnerSource, generatedCountSql));
+      sourceCounts = parseTableCounts(runDockerPsql(querySource, generatedCountSql));
     } catch (error) {
       throw new Error(`logical_source_counts_failed:${error}`);
     }
