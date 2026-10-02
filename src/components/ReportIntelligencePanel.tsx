@@ -109,6 +109,53 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         <p className="mt-2 text-sm leading-7 text-ink-800">{intelligence.summary}</p>
       </div>
 
+      <div className="grid gap-3 xl:grid-cols-[1.1fr_.9fr]">
+        <div className="rounded-2xl border border-primary-200 bg-primary-50/40 p-4">
+          <div className="text-[9px] font-black tracking-[.12em] text-primary-800">BUSINESS QUESTION</div>
+          <h3 className="mt-1 text-base font-black text-ink-950">{intelligence.businessQuestion}</h3>
+          <p className="mt-2 text-[10px] leading-5 text-ink-600">
+            هذه صياغة لسؤال الأعمال الذي تستطيع البيانات الحالية دعمه؛ لا تعني أن كل الإجابات مكتملة.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-ink-200 bg-white p-4">
+          <div className="text-[9px] font-black tracking-[.12em] text-ink-500">EVIDENCE PASSPORT</div>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <div className="rounded-lg bg-ink-50 p-2">
+              <div className="text-[8px] text-ink-400">SOURCE FINGERPRINT</div>
+              <div className="mt-1 break-all font-mono text-[8px] text-ink-800">{report.sourceHash}</div>
+            </div>
+            <div className="rounded-lg bg-ink-50 p-2">
+              <div className="text-[8px] text-ink-400">ANALYSIS SNAPSHOT</div>
+              <div className="mt-1 break-all font-mono text-[8px] text-ink-800">{report.sourceAnalysis?.id ?? 'غير متاح'}</div>
+            </div>
+            <div className="rounded-lg bg-ink-50 p-2">
+              <div className="text-[8px] text-ink-400">ROWS / QUALITY</div>
+              <div className="mt-1 text-[9px] font-black text-ink-900">{number(report.rowCount)} / {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div>
+            </div>
+            <div className="rounded-lg bg-ink-50 p-2">
+              <div className="text-[8px] text-ink-400">STATE / AS OF</div>
+              <div className="mt-1 text-[9px] font-black text-ink-900">{report.reportVerificationState} · {report.completedAt ? new Date(report.completedAt).toLocaleString('ar-YE') : 'غير متاح'}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-4">
+        {[
+          ['OBSERVED', 'ما قرأه النظام مباشرة من المصدر', 'bg-ink-50 text-ink-800'],
+          ['DERIVED', 'ما حُسب من الصفوف الكانونية', 'bg-primary-50 text-primary-900'],
+          ['RECOMMENDED', 'اقتراح يحتاج مراجعة واعتمادًا', 'bg-warning-50 text-warning-900'],
+          ['PROJECTED / UNKNOWN', forecast.status === 'AVAILABLE' ? 'إسقاط مشروط من عينة كافية' : 'غير متاح بسبب حد العينة', forecast.status === 'AVAILABLE' ? 'bg-success-50 text-success-900' : 'bg-ink-50 text-ink-700'],
+        ].map(([label, detail, classes]) => (
+          <div key={label} className={'rounded-xl border border-ink-200 p-3 ' + classes}>
+            <div className="text-[9px] font-black tracking-[.12em]">{label}</div>
+            <div className="mt-1 text-[9px] leading-4">{detail}</div>
+          </div>
+        ))}
+      </div>
+
+
+
       <div className="grid gap-3 lg:grid-cols-2">
         <div className="rounded-2xl border border-ink-200 bg-white p-4">
           <div className="flex items-center gap-2">
@@ -207,10 +254,10 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         <div className="rounded-2xl border border-ink-200 bg-ink-950 p-4 text-white">
           <div className="flex items-center gap-2">
             <TrendingUp size={16} className="text-primary-200" />
-            <div className="text-sm font-black">التنبؤ</div>
+            <div className="text-sm font-black">الإسقاط المشروط</div>
           </div>
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">الحالة</div><div className="mt-1 text-sm font-black">{forecast.status === 'AVAILABLE' ? 'متاح' : 'عينة غير كافية'}</div></div>
+            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">الحالة</div><div className="mt-1 text-sm font-black">{forecast.status === 'AVAILABLE' ? 'متاح من العينة' : 'عينة غير كافية'}</div></div>
             <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">الفترات</div><div className="mt-1 text-sm font-black">{forecast.observedPeriods}</div></div>
             <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">الفترة التالية</div><div className="mt-1 text-sm font-black">{forecast.nextPeriod ?? 'غير متاح'}</div></div>
             <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">القيمة المتوقعة</div><div className="mt-1 text-sm font-black">{number(forecast.nextValue)}</div></div>
