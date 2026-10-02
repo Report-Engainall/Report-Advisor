@@ -33,4 +33,21 @@ for (const token of [
 }
 
 assert.ok(!/Math\.random\(|fake|mock/i.test(source), 'synthetic marker detected');
+const advisorSource = fs.readFileSync('src/components/ReportIntelligencePanel.tsx', 'utf8');
+
+for (const token of [
+  'BUSINESS QUESTION',
+  'EVIDENCE PASSPORT',
+  'OBSERVED · Source',
+  'DERIVED · Intelligence',
+  'RECOMMENDED · Proposal',
+  'SO WHAT',
+  'WHAT NEXT',
+  'ACTION BRIEF',
+  'sourceHash',
+  'sourceTrustState',
+  'createdAt',
+]) {
+  assert.ok(advisorSource.includes(token), 'advisor value surface contract missing: ' + token);
+}
 console.log('Intelligence product contract: PASS');
