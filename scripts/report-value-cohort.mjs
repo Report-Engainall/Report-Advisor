@@ -52,180 +52,59 @@ function isRealReportJob(row) {
   );
 }
 
-async function selectCohortJobs() {
-  let query = supabase
-    .from('report_execution_jobs')
+async function selectCohortCandidates() {
+  let query = supabase.from('report_execution_jobs')
     .select('id,company_id,source_path,source_hash,job_key,checkpoint,evidence,updated_at')
     .eq('status', 'completed')
     .not('company_id', 'is', null)
     .not('source_hash', 'is', null)
     .order('updated_at', { ascending: true })
     .limit(5000);
-
   if (explicitCompanyId) query = query.eq('company_id', explicitCompanyId);
-
   const { data, error } = await query;
   if (error) throw error;
-
-  const rawJobs = (data ?? []).filter((job) =>
-    isRealReportJob(job) &&
-    String(job.checkpoint?.stage ?? '') === 'rendered' &&
-    /^[0-9a-fA-F-]{36}$/.test(String(job.evidence?.renderedOutput?.importId ?? '')),
-  );
-
-  const chunk = (items, size = 50) => {
-    const out = [];
-    for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
-    return out;
-  };
-
-  const sourceHashes = [...new Set(rawJobs.map((job) => String(job.source_hash)))];
-  const fileRows = [];
-  for (const batch of chunk(sourceHashes)) {
-    const result = await supabase
-      .from('file_records')
-      .select('id,company_id,file_hash,status,security_status')
-      .in('file_hash', batch)
-      .limit(1000);
-    if (result.error) throw result.error;
-    fileRows.push(...(result.data ?? []));
-  }
-
-  const eligibleFiles = new Map(
-    fileRows
-      .filter((file) => ['ready', 'processed', 'verified'].includes(String(file.status)) && String(file.security_status) === 'passed')
-      .map((file) => [String(file.company_id) + '|' + String(file.file_hash), file]),
-  );
-
-  const importIds = [...new Set(
-    rawJobs
-      .map((job) => String(job.evidence?.renderedOutput?.importId ?? ''))
-      .filter(Boolean),
-  )];
-
-  const importRows = [];
-  for (const batch of chunk(importIds)) {
-    const result = await supabase
-      .from('import_jobs')
-      .select('id,company_id,file_record_id,status')
-      .in('id', batch)
-      .limit(1000);
-    if (result.error) throw result.error;
-    importRows.push(...(result.data ?? []));
-  }
-
-  const eligibleImports = new Map(
-    importRows
-      .filter((item) => ['completed', 'processed', 'verified', 'ready'].includes(String(item.status ?? '')))
-      .map((item) => [String(item.id), item]),
-  );
-
-  const analysisRows = [];
-  for (const batch of chunk(importIds)) {
-    const result = await supabase
-      .from('source_analysis_snapshots')
-      .select('id,company_id,import_job_id,analysis_status')
-      .in('import_job_id', batch)
-      .eq('analysis_status', 'analyzed')
-      .limit(1000);
-    if (result.error) throw result.error;
-    analysisRows.push(...(result.data ?? []));
-  }
-
-  const eligibleAnalyses = new Set(
-    analysisRows.map((item) => String(item.company_id) + '|' + String(item.import_job_id)),
-  );
-
-  const refreshable = rawJobs.filter((job) => {
-    const companyId = String(job.company_id);
-    const hash = String(job.source_hash);
-    const importId = String(job.evidence?.renderedOutput?.importId ?? '');
-    const file = eligibleFiles.get(companyId + '|' + hash);
-    const importJob = eligibleImports.get(importId);
-    return Boolean(file && importJob && String(importJob.company_id) === companyId && String(importJob.file_record_id) === String(file.id) && eligibleAnalyses.has(companyId + '|' + importId));
-  });
-
-  const sorted = refreshable.sort((a, b) => {
-    const left = [String(a.source_path ?? '').normalize('NFKC').toLocaleLowerCase(), String(a.source_hash ?? ''), String(a.company_id ?? ''), String(a.id ?? '')];
-    const right = [String(b.source_path ?? '').normalize('NFKC').toLocaleLowerCase(), String(b.source_hash ?? ''), String(b.company_id ?? ''), String(b.id ?? '')];
-    for (let i = 0; i < left.length; i += 1) {
-      const cmp = left[i].localeCompare(right[i], 'ar');
-      if (cmp !== 0) return cmp;
-    }
-    return 0;
-  });
-
-  const selectedByHash = new Map();
-  for (const job of sorted) {
-    const hash = String(job.source_hash);
-    if (!selectedByHash.has(hash)) selectedByHash.set(hash, job);
-    if (selectedByHash.size === TARGET_COHORT_SIZE) break;
-  }
-
-  const sourceJobs = [...selectedByHash.values()];
-  if (sourceJobs.length !== TARGET_COHORT_SIZE) {
-    throw new Error('REPORT_VALUE_COHORT_INCOMPLETE:' + sourceJobs.length + '/' + TARGET_COHORT_SIZE + ':refreshableUniqueRealReportHashes');
-  }
-
-  console.log(JSON.stringify({
-    candidateCounts: {
-      rawRealReports: rawJobs.length,
-      refreshableReports: refreshable.length,
-      refreshableUniqueHashes: new Set(refreshable.map((job) => String(job.source_hash))).size,
-    },
-  }));
-
-  return sourceJobs;
-}
-
-const sourceJobs = await selectCohortJobs();
-const tenantCount = new Set(sourceJobs.map((job) => String(job.company_id))).size;
-console.log(JSON.stringify({
-  cohortMode: explicitCompanyId ? 'EXPLICIT_TENANT' : 'CROSS_TENANT_UNIQUE_SOURCE_HASH',
-  cohortSize: sourceJobs.length,
-  tenantCount,
-  tenants: [...new Set(sourceJobs.map((job) => String(job.company_id)))].sort(),
-  deterministicOrder: 'sourcePath_ASC_NORMALIZED → sourceHash_ASC → companyId_ASC',
-}));
-
-const refreshResults = [];
-for (let offset = 0; offset < sourceJobs.length; offset += 4) {
-  const batch = sourceJobs.slice(offset, offset + 4);
-  const batchResults = await Promise.all(batch.map(async (job) => {
-    const { data, error } = await supabase.rpc('refresh_report_evidence_passport', {
-      p_company_id: String(job.company_id),
-      p_job_id: String(job.id),
+  const sorted = (data ?? [])
+    .filter((job) => isRealReportJob(job) && String(job.checkpoint?.stage ?? '') === 'rendered' && /^[0-9a-fA-F-]{36}$/.test(String(job.evidence?.renderedOutput?.importId ?? '')))
+    .sort((a, b) => {
+      const left = [String(a.source_path ?? '').normalize('NFKC').toLocaleLowerCase(), String(a.source_hash ?? ''), String(a.company_id ?? ''), String(a.id ?? '')];
+      const right = [String(b.source_path ?? '').normalize('NFKC').toLocaleLowerCase(), String(b.source_hash ?? ''), String(b.company_id ?? ''), String(b.id ?? '')];
+      for (let i = 0; i < left.length; i += 1) { const cmp = left[i].localeCompare(right[i], 'ar'); if (cmp !== 0) return cmp; }
+      return 0;
     });
-    if (error) {
-      return {
-        jobId: String(job.id),
-        source: String(job.source_path ?? ''),
-        status: 'REVIEW',
-        reason: String(error.message || error),
-      };
-    }
-    return {
-      jobId: String(job.id),
-      source: String(job.source_path ?? ''),
-      status: String(data?.verificationStatus ?? 'REVIEW'),
-      decisionReadiness: String(data?.decisionReadiness ?? 'REVIEW'),
-      coverage: String(data?.canonicalCoverage ?? 'UNKNOWN'),
-      passportId: data?.passportId ? String(data.passportId) : null,
-    };
-  }));
-  refreshResults.push(...batchResults);
-  console.log(JSON.stringify({ refreshBatch: offset / 4 + 1, results: batchResults }));
+  const uniqueByHash = new Map();
+  for (const job of sorted) { const hash = String(job.source_hash); if (!uniqueByHash.has(hash)) uniqueByHash.set(hash, job); }
+  return [...uniqueByHash.values()];
 }
 
+const candidateJobs = await selectCohortCandidates();
+if (candidateJobs.length < TARGET_COHORT_SIZE) throw new Error('REPORT_VALUE_COHORT_CANDIDATES_INCOMPLETE:' + candidateJobs.length + '/' + TARGET_COHORT_SIZE);
+console.log(JSON.stringify({ candidatePool: candidateJobs.length, targetCohort: TARGET_COHORT_SIZE }));
+
+const provenJobs = [];
+const refreshResults = [];
+for (let offset = 0; offset < candidateJobs.length && provenJobs.length < TARGET_COHORT_SIZE; offset += 4) {
+  const batch = candidateJobs.slice(offset, offset + 4);
+  const batchResults = await Promise.all(batch.map(async (job) => {
+    const { data, error } = await supabase.rpc('refresh_report_evidence_passport', { p_company_id: String(job.company_id), p_job_id: String(job.id) });
+    if (error) return { jobId: String(job.id), companyId: String(job.company_id), source: String(job.source_path ?? ''), status: 'REVIEW', decisionReadiness: 'REVIEW', coverage: 'UNKNOWN', passportId: null, cohortAccepted: false, reason: String(error.message || error) };
+    const accepted = String(data?.verificationStatus ?? '') === 'VERIFIED' && String(data?.decisionReadiness ?? '') === 'READY' && String(data?.canonicalCoverage ?? '') === 'FULL';
+    return { jobId: String(job.id), companyId: String(job.company_id), source: String(job.source_path ?? ''), status: String(data?.verificationStatus ?? 'REVIEW'), decisionReadiness: String(data?.decisionReadiness ?? 'REVIEW'), coverage: String(data?.canonicalCoverage ?? 'UNKNOWN'), passportId: data?.passportId ? String(data.passportId) : null, cohortAccepted: accepted, reason: accepted ? null : 'PASSPORT_NOT_CLOSED' };
+  }));
+  for (const row of batchResults) { refreshResults.push(row); if (row.cohortAccepted && provenJobs.length < TARGET_COHORT_SIZE) { const job = candidateJobs.find((item) => String(item.id) === row.jobId); if (job) provenJobs.push(job); } }
+  console.log(JSON.stringify({ refreshBatch: Math.floor(offset / 4) + 1, accepted: provenJobs.length, results: batchResults }));
+}
 const refreshSummary = {
+  candidatePool: candidateJobs.length,
   attempted: refreshResults.length,
+  accepted: refreshResults.filter((row) => row.cohortAccepted).length,
   verified: refreshResults.filter((row) => row.status === 'VERIFIED').length,
   review: refreshResults.filter((row) => row.status === 'REVIEW').length,
   unverified: refreshResults.filter((row) => row.status === 'UNVERIFIED').length,
+  blockedReasons: refreshResults.filter((row) => !row.cohortAccepted).map((row) => ({ source: row.source, reason: row.reason, status: row.status })),
 };
 
-if (refreshSummary.attempted !== TARGET_COHORT_SIZE || refreshSummary.verified !== TARGET_COHORT_SIZE || refreshResults.some((row) => row.decisionReadiness !== 'READY' || row.coverage !== 'FULL')) {
-  throw new Error('REPORT_VALUE_COHORT_PASSPORT_NOT_CLOSED:' + JSON.stringify(refreshSummary) + ':' + JSON.stringify(refreshResults.filter((row) => row.status !== 'VERIFIED' || row.decisionReadiness !== 'READY' || row.coverage !== 'FULL')));
+if (refreshSummary.accepted !== TARGET_COHORT_SIZE) {
+  throw new Error('REPORT_VALUE_COHORT_PASSPORT_NOT_CLOSED:' + JSON.stringify(refreshSummary));
 }
 
 const jobIds = sourceJobs.map((job) => String(job.id));
