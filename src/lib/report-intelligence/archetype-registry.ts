@@ -2,6 +2,7 @@ import type { CanonicalField } from './canonical-schema';
 import { buildAdvisoryPacket, type AdvisoryPacket, type AdvisoryPacketInput } from './report-advisory-orchestrator';
 import { deriveReportIntelligence } from './report-smart-insights';
 import { applyArchetypeRuleSet } from './archetype-evaluator';
+import { attachArchetypeRuleFamily, type ArchetypeRuleFamily } from './archetype-rule-map';
 
 export type ArchetypeDomain =
   | 'sales'
@@ -36,6 +37,7 @@ export type ArchetypeProfile = {
   decisionQuestions: string[];
   provenanceRequirements: string[];
   limitations: string[];
+  ruleFamily?: ArchetypeRuleFamily;
 };
 
 const p = (
@@ -70,7 +72,7 @@ const p = (
   limitations: ['لا تُثبت السببية من الوصف وحده.', 'الحقول غير المتاحة لا تُستبدل بقيم مفترضة.'],
 });
 
-export const REPORT_ARCHETYPES: readonly ArchetypeProfile[] = [
+const REPORT_ARCHETYPES_RAW: readonly ArchetypeProfile[] = [
   p(1,'sales.over-time','المبيعات الإجمالية عبر الزمن','sales','sales',['sales','إجمالي المبيعات','sales trend'],'transaction-period',['documentDate','netAmount'],['customerCode','customerName','productCode','productName','quantity','cost'],6,['trend','growth','period-comparison','contributors','detractors','anomaly','concentration'],['مراجعة اتجاه المبيعات وأهم محركات التغير']),
   p(2,'sales.invoice-detail','تفاصيل فواتير المبيعات','sales','sales',['sales invoices','فواتير المبيعات'],'invoice-line',['documentNo','documentDate','netAmount'],['customerCode','customerName','productCode','productName','quantity','unitPrice','discount','grossAmount','cost'],12,['invoice-volume','average-invoice','customer-mix','product-mix','outliers','discounts','payment-trace'],['مراجعة الفواتير الشاذة ومصادر القيمة']),
   p(3,'sales.by-customer','المبيعات حسب العميل','sales','sales',['sales by customer','مبيعات العملاء'],'customer-period',['customerCode','netAmount'],['customerName','documentDate','quantity','productCode'],12,['customer-value','activity','trend','concentration','churn-signal','drilldown'],['مراجعة تركّز العملاء والعملاء المتغيرين']),
@@ -126,6 +128,8 @@ export const REPORT_ARCHETYPES: readonly ArchetypeProfile[] = [
 
   p(48,'demand.forecast','الطلب/التنبؤ','demand','sales',['demand forecast','التنبؤ بالطلب'],'product-period',['productCode','documentDate','salesQty'],['productName','currentStock','customerCode','warehouse','netAmount'],12,['demand-trend','velocity','seasonality','forecast','uncertainty','stock-linkage','reorder-production-implications'],['مراجعة الطلب المتوقع وحدود التنبؤ']),
 ] as const;
+
+export const REPORT_ARCHETYPES = REPORT_ARCHETYPES_RAW.map(attachArchetypeRuleFamily) as readonly (ArchetypeProfile & { ruleFamily: ArchetypeRuleFamily })[];
 
 const byId = new Map(REPORT_ARCHETYPES.map((profile) => [profile.id, profile]));
 const byNumber = new Map(REPORT_ARCHETYPES.map((profile) => [profile.number, profile]));
