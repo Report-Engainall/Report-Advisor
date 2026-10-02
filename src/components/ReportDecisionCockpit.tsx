@@ -1,7 +1,9 @@
 import { ArrowLeft, ArrowUpRight, BarChart3, BriefcaseBusiness, CheckCircle2, FileSearch, Lightbulb, ShieldCheck, Sparkles, Target, TrendingUp } from 'lucide-react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
+import { createSourceDecisionProposal, saveAdvisorBusinessCase } from '@/lib/report-decisions';
 
 function label(value: unknown) {
   const text = String(value ?? '').trim();
@@ -44,6 +46,47 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
   const nextHref = evidenceReady
     ? '/decision-experience?stage=decision&reportJobId=' + job + '&sourceHash=' + hash
     : '/trust?reportJobId=' + job + '&sourceHash=' + hash;
+  const [caseState, setCaseState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
+  const saveDecisionCase = async () => {
+    if (!topSignal || !report.sourceAnalysis?.id || !evidenceReady) return;
+    setCaseState('saving');
+    try {
+      const proposal = await createSourceDecisionProposal({
+        reportJobId: report.jobId,
+        sourceHash: report.sourceHash,
+        signalId: topSignal.id,
+        signalTitle: topSignal.title,
+        signalMessage: topSignal.message,
+        severity: topSignal.severity,
+        evidence: topSignal.evidence,
+        evidenceSnapshotId: report.sourceAnalysis.id,
+      });
+      await saveAdvisorBusinessCase({
+        decisionId: proposal.id,
+        decisionKey: proposal.decisionKey,
+        reportJobId: report.jobId,
+        sourceHash: report.sourceHash,
+        signalId: topSignal.id,
+        signalTitle: topSignal.title,
+        issue: topSignal.title,
+        question: report.intelligence.businessQuestion,
+        why: topSignal.message,
+        impact: topSignal.impact,
+        evidence: topSignal.evidence,
+        whatNext: topRecommendation?.action ?? 'يحتاج القرار إلى مراجعة الأدلة قبل الإجراء.',
+        recommendation: topRecommendation?.title ?? 'توصية غير متاحة.',
+        priority: topSignal.priority,
+        priorityReason: topSignal.priorityReason,
+        owner: topRecommendation?.ownerHint ?? topSignal.ownerHint,
+        expectedOutcome: topRecommendation?.expectedOutcome ?? 'نتيجة متوقعة غير متاحة.',
+        followed: true,
+      });
+      setCaseState('saved');
+    } catch {
+      setCaseState('error');
+    }
+  };
 
   return (
     <section className="relative overflow-hidden rounded-[24px] border border-ink-200 bg-[linear-gradient(135deg,#052b29_0%,#073a35_58%,#0b403a_100%)] p-5 text-white shadow-[0_26px_70px_-40px_rgba(5,46,43,.85)] lg:p-7" aria-label="غرفة قيادة التقرير">
@@ -154,6 +197,17 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
               <ArrowLeft size={13}/>
             </Link>
             {topSignal && <span className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-[10px] font-bold text-teal-50/75">الإشارة: {topSignal.title}</span>}
+            <button
+              type="button"
+              onClick={() => void saveDecisionCase()}
+              disabled={!evidenceReady || !topSignal || !report.sourceAnalysis?.id || caseState === 'saving' || caseState === 'saved'}
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-emerald-200/20 bg-emerald-100/[.08] px-3.5 py-2 text-[10px] font-black text-emerald-50 disabled:opacity-45"
+              data-testid="save-decision-case"
+            >
+              {caseState === 'saving' ? 'جارٍ حفظ القضية...' : caseState === 'saved' ? 'القضية محفوظة وتُتابع' : 'حفظ كقضية أعمال'}
+            </button>
+            {caseState === 'saved' && <Link to="/advisor-cases" className="inline-flex min-h-10 items-center rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-[10px] font-bold text-white">فتح القضايا</Link>}
+            {caseState === 'error' && <span className="inline-flex min-h-10 items-center rounded-xl border border-red-200/15 bg-red-100/[.06] px-3.5 py-2 text-[10px] font-bold text-red-100">تعذر حفظ القضية — لا تغيير على المصدر</span>}
           </div>
         </div>
 
