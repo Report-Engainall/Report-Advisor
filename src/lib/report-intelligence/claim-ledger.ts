@@ -60,8 +60,11 @@ export function validateClaim(claim: Claim): { valid: boolean; reasons: string[]
   if (!hasText(claim.statement)) reasons.push('STATEMENT_MISSING');
   if (!hasText(claim.calculationMethod)) reasons.push('CALCULATION_METHOD_MISSING');
   if (!Number.isInteger(claim.sampleSize) || claim.sampleSize < 0) reasons.push('SAMPLE_SIZE_INVALID');
-  if (!Array.isArray(claim.inputFields)) reasons.push('INPUT_FIELDS_INVALID');
+  if (!Array.isArray(claim.inputFields) || claim.inputFields.length === 0) reasons.push('INPUT_FIELDS_MISSING');
   if (!Array.isArray(claim.supportingEvidence)) reasons.push('SUPPORTING_EVIDENCE_INVALID');
+  if (['DERIVED', 'INFERRED', 'RECOMMENDED', 'DECISION', 'OUTCOME'].includes(claim.status) && claim.supportingEvidence.length === 0) {
+    reasons.push('SUPPORTING_EVIDENCE_MISSING');
+  }
 
   const evidenceBound =
     hasText(claim.evidenceSnapshotId) ||
