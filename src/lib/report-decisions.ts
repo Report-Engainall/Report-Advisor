@@ -16,6 +16,7 @@ export async function createSourceDecisionProposal(input: {
   signalMessage: string;
   severity: string;
   evidence: string[];
+  evidenceSnapshotId: string;
 }): Promise<SourceDecisionProposal> {
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
@@ -62,7 +63,7 @@ export async function createSourceDecisionProposal(input: {
     p_signal_message: input.signalMessage,
     p_severity: input.severity,
     p_evidence: evidence,
-    p_evidence_snapshot_id: String((input.evidence as Record<string, unknown>)?.evidenceSnapshotId ?? ''),
+    p_evidence_snapshot_id: input.evidenceSnapshotId,
   });
 
   if (error) throw error;
