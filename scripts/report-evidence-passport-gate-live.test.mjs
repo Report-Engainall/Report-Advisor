@@ -62,15 +62,17 @@ const created = {
   outcomes: [],
 };
 
-async function expectBlocked(label, fn, expectedFragments = []) {
+async function expectBlocked(label, fn, expectedErrors = []) {
   try {
     await fn();
     throw new Error(label + '_UNEXPECTED_ALLOW');
   } catch (error) {
     const message = String(error?.message ?? error);
-    for (const fragment of expectedFragments) {
-      assert.ok(message.includes(fragment), label + '_WRONG_ERROR:' + message);
-    }
+    const acceptedErrors = Array.isArray(expectedErrors) ? expectedErrors : [expectedErrors];
+    assert.ok(
+      acceptedErrors.some((expectedError) => message.includes(expectedError)),
+      label + '_WRONG_ERROR:' + message,
+    );
     return message;
   }
 }
@@ -155,6 +157,39 @@ await provisionMembership(passport.company_id, approver.id, 'admin');
 const clientA = await signIn(userA);
 const clientB = await signIn(userB);
 const clientApprover = await signIn(approver);
+
+const { data: sameTenantPassports, error: sameTenantReadError } = await clientA
+  .from('report_evidence_passports')
+  .select('id,company_id,evidence_snapshot_id,report_execution_job_id,source_hash')
+  .eq('id', passport.id);
+
+if (sameTenantReadError) throw sameTenantReadError;
+assert.equal(sameTenantPassports?.length, 1, 'AUTHENTICATED_SAME_TENANT_PASSPORT_READ_MISSING');
+assert.equal(
+  String(sameTenantPassports[0]?.company_id),
+  String(passport.company_id),
+  'AUTHENTICATED_SAME_TENANT_PASSPORT_WRONG_COMPANY',
+);
+
+const { data: wrongTenantPassports, error: wrongTenantReadError } = await clientB
+  .from('report_evidence_passports')
+  .select('id')
+  .eq('id', passport.id);
+
+if (wrongTenantReadError) throw wrongTenantReadError;
+assert.equal(wrongTenantPassports?.length, 0, 'AUTHENTICATED_WRONG_TENANT_PASSPORT_LEAK');
+
+const { data: anonymousPassports, error: anonymousReadError } = await anon
+  .from('report_evidence_passports')
+  .select('id')
+  .eq('id', passport.id);
+
+const anonymousReadMessage = String(anonymousReadError?.message ?? '');
+assert.ok(
+  anonymousReadError || anonymousPassports?.length === 0,
+  'ANONYMOUS_PASSPORT_SELECT_UNEXPECTED_ALLOW',
+);
+
 
 const fakeSnapshot = randomUUID();
 const fakeJob = randomUUID();
@@ -416,6 +451,7 @@ const anonymousMessage = await expectBlocked(
     const { error } = await anon.from('recommendations').insert(anonInsert);
     if (error) throw error;
   },
+  ['permission denied', '42501', 'new row violates row-level security policy'],
 );
 
 await service.from('recommendation_outcomes').delete().eq('id', outcomeRows[0].id);
