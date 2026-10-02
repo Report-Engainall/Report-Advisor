@@ -336,6 +336,12 @@ if (validDecisionError) throw validDecisionError;
 assert.ok(validDecisionId);
 created.decisions.push(String(validDecisionId));
 
+const { error: linkError } = await clientA.rpc('link_recommendation_to_decision', {
+  p_recommendation_id: String(validRecommendationId),
+  p_decision_id: String(validDecisionId),
+});
+if (linkError) throw linkError;
+
 const wrongDecisionMessage = await expectBlocked(
   'SERVICE_ROLE_DECISION_WRONG_HASH',
   async () => {
