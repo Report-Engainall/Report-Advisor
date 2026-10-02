@@ -42,16 +42,8 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
     payments: 'المدفوعات والسيولة',
     profitability: 'الربحية',
   };
-  const businessQuestion: Record<string, string> = {
-    inventory: 'أين توجد بيانات أصناف أو أسعار تحتاج مراجعة قبل قرار المخزون والتسعير؟',
-    sales: 'ما الذي يستحق تدخلًا في المبيعات، ولماذا، وما الدليل عليه؟',
-    purchases: 'أين توجد إشارات تستحق المراجعة في المشتريات والموردين؟',
-    receivables: 'أين يتركز خطر التحصيل، وما الذي يجب مراجعته أولًا؟',
-    payments: 'ما الذي يحتاج تسوية أو تحققًا قبل الاعتماد على أرقام السيولة؟',
-    profitability: 'ما التغير أو الاستثناء الذي قد يؤثر على الربحية ويحتاج فحصًا؟',
-  };
   const domain = report.specialty ? specialtyLabel[report.specialty] ?? report.specialty : 'لم يُحسم المجال من المحتوى';
-  const question = report.specialty ? businessQuestion[report.specialty] ?? 'ما الذي يستحق الانتباه في هذا المصدر؟' : 'ما الذي يستحق الانتباه في هذا المصدر؟';
+  const question = intelligence.businessQuestion;
   const topSignal = intelligence.signals[0] ?? null;
   const topRecommendation = topSignal
     ? intelligence.recommendations.find((item) => item.id === 'rec:' + topSignal.id) ?? null
@@ -108,53 +100,6 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         <div className="text-[10px] font-black text-ink-500">الخلاصة</div>
         <p className="mt-2 text-sm leading-7 text-ink-800">{intelligence.summary}</p>
       </div>
-
-      <div className="grid gap-3 xl:grid-cols-[1.1fr_.9fr]">
-        <div className="rounded-2xl border border-primary-200 bg-primary-50/40 p-4">
-          <div className="text-[9px] font-black tracking-[.12em] text-primary-800">BUSINESS QUESTION</div>
-          <h3 className="mt-1 text-base font-black text-ink-950">{intelligence.businessQuestion}</h3>
-          <p className="mt-2 text-[10px] leading-5 text-ink-600">
-            هذه صياغة لسؤال الأعمال الذي تستطيع البيانات الحالية دعمه؛ لا تعني أن كل الإجابات مكتملة.
-          </p>
-        </div>
-        <div className="rounded-2xl border border-ink-200 bg-white p-4">
-          <div className="text-[9px] font-black tracking-[.12em] text-ink-500">EVIDENCE PASSPORT</div>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            <div className="rounded-lg bg-ink-50 p-2">
-              <div className="text-[8px] text-ink-400">SOURCE FINGERPRINT</div>
-              <div className="mt-1 break-all font-mono text-[8px] text-ink-800">{report.sourceHash}</div>
-            </div>
-            <div className="rounded-lg bg-ink-50 p-2">
-              <div className="text-[8px] text-ink-400">ANALYSIS SNAPSHOT</div>
-              <div className="mt-1 break-all font-mono text-[8px] text-ink-800">{report.sourceAnalysis?.id ?? 'غير متاح'}</div>
-            </div>
-            <div className="rounded-lg bg-ink-50 p-2">
-              <div className="text-[8px] text-ink-400">ROWS / QUALITY</div>
-              <div className="mt-1 text-[9px] font-black text-ink-900">{number(report.rowCount)} / {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div>
-            </div>
-            <div className="rounded-lg bg-ink-50 p-2">
-              <div className="text-[8px] text-ink-400">STATE / AS OF</div>
-              <div className="mt-1 text-[9px] font-black text-ink-900">{report.reportVerificationState} · {report.completedAt ? new Date(report.completedAt).toLocaleString('ar-YE') : 'غير متاح'}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-4">
-        {[
-          ['OBSERVED', 'ما قرأه النظام مباشرة من المصدر', 'bg-ink-50 text-ink-800'],
-          ['DERIVED', 'ما حُسب من الصفوف الكانونية', 'bg-primary-50 text-primary-900'],
-          ['RECOMMENDED', 'اقتراح يحتاج مراجعة واعتمادًا', 'bg-warning-50 text-warning-900'],
-          ['PROJECTED / UNKNOWN', forecast.status === 'AVAILABLE' ? 'إسقاط مشروط من عينة كافية' : 'غير متاح بسبب حد العينة', forecast.status === 'AVAILABLE' ? 'bg-success-50 text-success-900' : 'bg-ink-50 text-ink-700'],
-        ].map(([label, detail, classes]) => (
-          <div key={label} className={'rounded-xl border border-ink-200 p-3 ' + classes}>
-            <div className="text-[9px] font-black tracking-[.12em]">{label}</div>
-            <div className="mt-1 text-[9px] leading-4">{detail}</div>
-          </div>
-        ))}
-      </div>
-
-
 
       <div className="grid gap-3 lg:grid-cols-2">
         <div className="rounded-2xl border border-ink-200 bg-white p-4">
