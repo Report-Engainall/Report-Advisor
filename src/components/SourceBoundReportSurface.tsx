@@ -76,6 +76,67 @@ function buildMetrics(report: SmartReportDetail) {
     .slice(0, 6);
 }
 
+function ContinuationRail({ report, decision }: { report: SmartReportDetail; decision: SourceDecisionState }) {
+  const workFilter =
+    decision.workItemStatus === 'COMPLETED'
+      ? 'completed'
+      : decision.workItemStatus === 'IN_PROGRESS'
+        ? 'in_progress'
+        : 'open';
+  const sourcePath = '/reports/smart/' + encodeURIComponent(report.jobId) +
+    '?sourceHash=' + encodeURIComponent(report.sourceHash) + '#decision-evidence-inspector';
+  const recommendationQuery = decision.recommendationId
+    ? '&recommendationId=' + encodeURIComponent(decision.recommendationId)
+    : '';
+  return (
+    <section className="rounded-[18px] border border-primary-200 bg-primary-50/50 p-5" aria-label="استمرار الرحلة">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-800">RETURN / CONTINUE</div>
+          <h2 className="mt-1 text-lg font-black text-ink-950">أكمل من نفس الدليل دون إعادة البحث</h2>
+          <p className="mt-1 text-[10px] leading-5 text-ink-600">الانتقالات التالية تستخدم السجلات المحفوظة لهذا المصدر؛ التنقل لا ينشئ قرارًا أو تنفيذًا جديدًا.</p>
+        </div>
+        <Link to={sourcePath} className="btn-secondary text-[10px]">العودة إلى المصدر والدليل</Link>
+      </div>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+        <Link to={'/decision-experience?stage=decision' + recommendationQuery} className="rounded-xl border border-primary-200 bg-white p-3 hover:border-primary-400" aria-label="متابعة القرار">
+          <div className="text-[9px] font-black text-primary-800">DECISION</div>
+          <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.status)}</div>
+          <div className="mt-1 text-[9px] text-ink-500">الدليل → التوصية → القرار</div>
+        </Link>
+        <Link to={'/decision-experience?stage=approval' + recommendationQuery} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة الموافقة">
+          <div className="text-[9px] font-black text-ink-600">APPROVAL</div>
+          <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.approvalStatus)}</div>
+          <div className="mt-1 text-[9px] text-ink-500">الحالة المحفوظة</div>
+        </Link>
+        {decision.workItemId ? (
+          <Link to={'/work-center?decisionWorkFilter=' + workFilter} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة التنفيذ">
+            <div className="text-[9px] font-black text-ink-600">WORK</div>
+            <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.workItemStatus)}</div>
+            <div className="mt-1 text-[9px] text-ink-500">عنصر العمل {decision.workItemId.slice(0, 8)}…</div>
+          </Link>
+        ) : (
+          <div className="rounded-xl border border-warning-200 bg-warning-50/70 p-3" aria-label="التنفيذ غير متاح">
+            <div className="text-[9px] font-black text-warning-900">WORK</div>
+            <div className="mt-1 text-xs font-black text-warning-950">غير متاح</div>
+            <div className="mt-1 text-[9px] text-warning-900">ينتظر الاعتماد الموثق</div>
+          </div>
+        )}
+        <Link to={'/decision-experience?stage=outcome' + recommendationQuery} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة النتيجة والتعلم">
+          <div className="text-[9px] font-black text-ink-600">OUTCOME / LEARNING</div>
+          <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.outcomeStatus)}</div>
+          <div className="mt-1 text-[9px] text-ink-500">النتيجة والتعلم</div>
+        </Link>
+        <Link to="/operations" className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="فتح مركز العمليات">
+          <div className="text-[9px] font-black text-ink-600">OPERATIONS</div>
+          <div className="mt-1 text-xs font-black text-ink-900">مركز العمليات</div>
+          <div className="mt-1 text-[9px] text-ink-500">الطلب → الفاتورة → التحصيل</div>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 function StatusCell({ label, value }: { label: string; value: unknown }) {
   const text = stateLabel(value);
   const good = value === 'TRUSTED' || value === 'VERIFIED' || value === 'completed';
@@ -167,6 +228,8 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
         </div>
       </section>
       <ReportIntelligencePanel report={report} />
+
+      {decisions[0] && <ContinuationRail report={report} decision={decisions[0]} />}
 
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="text-[9px] font-black tracking-[.12em] text-primary-700">SOURCE METRICS</div>
