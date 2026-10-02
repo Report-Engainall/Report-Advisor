@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createSourceDecisionProposal, fetchSourceDecisionProposals, type SourceDecisionState } from '@/lib/report-decisions';
 import type { SmartReportDetail } from '@/lib/report-smart';
 import { buildAdvisoryPacket } from '@/lib/report-intelligence/report-advisory-orchestrator';
+import { resolveReportArchetype } from '@/lib/report-intelligence/archetype-registry';
 import { BusinessQuestionRail } from '@/components/intelligence/BusinessQuestionRail';
 import { ClaimEvidenceCard } from '@/components/intelligence/ClaimEvidenceCard';
 import type { CanonicalField } from '@/lib/report-intelligence/canonical-schema';
@@ -26,6 +27,11 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
     ? report.renderedOutput.evidenceSnapshotId
     : null;
 
+  const requestedArchetypeId = typeof report.renderedOutput.archetypeId === 'string' ? report.renderedOutput.archetypeId : null;
+  const archetypeResolution = resolveReportArchetype({
+    archetypeId: requestedArchetypeId,
+    specialty: report.specialty,
+  });
   const packet = buildAdvisoryPacket({
     intelligence: report.intelligence,
     provenance: {
@@ -38,8 +44,10 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
     },
     availableFields: canonicalFields(report),
     sampleSize: report.rowCount ?? 0,
-    archetypeId: typeof report.renderedOutput.archetypeId === 'string' ? report.renderedOutput.archetypeId : null,
-    profileVersion: typeof report.renderedOutput.profileVersion === 'number' ? report.renderedOutput.profileVersion : null,
+    archetypeId: archetypeResolution.profile?.id ?? null,
+    profileVersion: typeof report.renderedOutput.profileVersion === 'number'
+      ? report.renderedOutput.profileVersion
+      : archetypeResolution.profile?.version ?? null,
   });
 
   const decisionClaims = packet.claims.filter((claim) => claim.status === 'RECOMMENDED' || claim.status === 'DERIVED').slice(0, 6);
@@ -101,7 +109,12 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
             <h2 className="mt-1 text-xl font-black text-ink-950">من التقرير إلى الفهم والقرار</h2>
             <p className="mt-2 max-w-3xl text-xs leading-6 text-ink-600">هذه الطبقة تجمع الإشارات والتوصيات والأسئلة وحالة الدليل في مسار واحد، مع إبقاء ما لم يُثبت معلنًا.</p>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-white px-3 py-1.5 text-[9px] font-black text-ink-700"><ShieldCheck size={13}/> {packet.proofState === 'VERIFIED' ? 'الدليل مرتبط' : 'المراجعة مطلوبة'}</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-white px-3 py-1.5 text-[9px] font-black text-ink-700"><ShieldCheck size={13}/> {packet.proofState === 'VERIFIED' ? 'الدليل مرتبط' : 'المراجعة مطلوبة'}</span>
+            <span className="inline-flex items-center rounded-full border border-primary-200 bg-primary-50 px-3 py-1.5 text-[9px] font-black text-primary-800">
+              {archetypeResolution.profile ? 'ARCHETYPE ' + String(archetypeResolution.profile.number).padStart(2, '0') + ' · V' + archetypeResolution.profile.version : 'ARCHETYPE · ' + archetypeResolution.state}
+            </span>
+          </div>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           <div className="rounded-xl bg-white p-4 border border-ink-100"><div className="text-[9px] font-black text-ink-500">CLAIMS</div><div className="mt-1 text-2xl font-black">{packet.claims.length}</div><div className="mt-1 text-[10px] text-ink-500">نتائج قابلة للتتبع</div></div>
