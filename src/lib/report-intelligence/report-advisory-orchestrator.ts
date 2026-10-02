@@ -29,7 +29,13 @@ function claimStateForProof(provenance: ClaimProvenance): AdvisoryPacket['proofS
   return provenance.evidenceSnapshotId || provenance.evidencePassportId ? 'VERIFIED' : 'REVIEW_REQUIRED';
 }
 
-function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQuestion<Record<string, unknown>>[] {
+type AdvisoryQuestionAnswer = Record<string, unknown>;
+
+function answerText(value: string): AdvisoryQuestionAnswer {
+  return { summary: value };
+}
+
+function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQuestion<AdvisoryQuestionAnswer>[] {
   const signalClaims = claims.filter((claim) => claim.claimId.startsWith('signal:'));
   const recommendationClaims = claims.filter((claim) => claim.claimId.startsWith('recommendation:'));
   const primarySignal = signalClaims[0] ?? null;
@@ -42,36 +48,40 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
   const contributorFinding = business.findings?.find((item) => item.id.endsWith(':change-contributor')) ?? business.findings?.find((item) => item.id.endsWith(':top-party')) ?? null;
 
   const whatAnswer = input.sampleSize > 0
-    ? 'تم تحليل ' + input.sampleSize + ' سجلًا من المصدر الكانوني. ' + (topFinding?.statement ?? input.intelligence.summary)
+    ? answerText('تم تحليل ' + input.sampleSize + ' سجلًا من المصدر الكانوني. ' + (topFinding?.statement ?? input.intelligence.summary))
     : null;
 
   const whereAnswer = contributorFinding
-    ? contributorFinding.dimensionLabel + ': ' + String(contributorFinding.dimensionValue ?? 'غير محدد') + ' — ' + contributorFinding.statement
+    ? answerText(contributorFinding.dimensionLabel + ': ' + String(contributorFinding.dimensionValue ?? 'غير محدد') + ' — ' + contributorFinding.statement)
     : topFinding?.dimensionLabel
-      ? topFinding.dimensionLabel + ': ' + String(topFinding.dimensionValue ?? 'غير محدد')
+      ? answerText(topFinding.dimensionLabel + ': ' + String(topFinding.dimensionValue ?? 'غير محدد'))
       : null;
 
   const contributorsAnswer = contributorFinding
-    ? contributorFinding.statement + ' الدليل: ' + contributorFinding.evidence.join(' · ')
+    ? answerText(contributorFinding.statement + ' الدليل: ' + contributorFinding.evidence.join(' · '))
     : null;
 
   const detractorsAnswer = topRisk
-    ? topRisk.statement + ' الإجراء المقترح: ' + topRisk.action
+    ? answerText(topRisk.statement + ' الإجراء المقترح: ' + topRisk.action)
     : null;
 
   const whyAnswer = primarySignal
-    ? primarySignal.statement + ' وهذه قراءة للملاحظة/المساهمة وليست إثباتًا سببيًا.'
+    ? { observation: primarySignal.statement, boundary: 'هذه قراءة للملاحظة/المساهمة وليست إثباتًا سببيًا.' }
     : null;
 
   const soWhatAnswer = topRisk
-    ? topRisk.title + ' — ' + topRisk.action
+    ? answerText(topRisk.title + ' — ' + topRisk.action)
     : topOpportunity
-      ? topOpportunity.title + ' — ' + topOpportunity.action
-      : topFinding?.action ?? null;
+      ? answerText(topOpportunity.title + ' — ' + topOpportunity.action)
+      : topFinding?.action
+        ? answerText(topFinding.action)
+        : null;
 
   const nextAnswer = nextRecommendation
-    ? nextRecommendation.statement
-    : business.advisorBrief?.recommendedAction ?? null;
+    ? { action: nextRecommendation.statement }
+    : business.advisorBrief?.recommendedAction
+      ? { action: business.advisorBrief.recommendedAction }
+      : null;
 
   const universal = [
     evaluateBusinessQuestion<Record<string, unknown>>({
@@ -123,7 +133,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       availableFields: input.availableFields,
       sampleSize: input.sampleSize,
       answer: primarySignal
-        ? primarySignal.statement
+        ? answerText(primarySignal.statement)
         : null,
     }),
     evaluateBusinessQuestion<Record<string, unknown>>({
@@ -196,7 +206,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
             : input.archetypeId?.startsWith('profitability.')
               ? 'profitability'
               : 'generic';
-  const answerFor = (id: string): Record<string, unknown> | string | null => {
+  const answerFor = (id: string): AdvisoryQuestionAnswer | null => {
     const findingById = (needle: string) => business.findings?.find((item) => item.id === needle)
       ?? business.risks?.find((item) => item.id === needle)
       ?? business.opportunities?.find((item) => item.id === needle)
@@ -204,15 +214,33 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
     if (id === 'sales.trend' || id === 'purchases.trend') {
       const finding = business.findings?.find((item) => item.id.endsWith(':period-change')) ?? null;
       return finding
-        ? finding.statement + ' القياس: ' + (business.forecast?.status === 'AVAILABLE' ? business.forecast.note : 'لا يوجد توقع متاح.')
+        ? answerText(finding.statement + ' القياس: ' + (business.forecast?.status === 'AVAILABLE' ? business.forecast.note : 'لا يوجد توقع متاح.'))
         : null;
     }
-    if (id === 'sales.customer-concentration') return findingById('sales:top-party')?.statement ?? null;
-    if (id === 'purchases.supplier-concentration') return findingById('purchases:top-party')?.statement ?? null;
-    if (id === 'sales.profitability' || id === 'profitability.margin') return findingById('profitability:margin')?.statement ?? null;
-    if (id === 'inventory.position') return findingById('inventory:position')?.statement ?? null;
-    if (id === 'inventory.valuation') return findingById('inventory:position')?.statement ?? null;
-    if (id === 'receivables.concentration') return findingById('receivables:concentration-risk')?.statement ?? null;
+    if (id === 'sales.customer-concentration') {
+      const finding = findingById('sales:top-party');
+      return finding ? answerText(finding.statement) : null;
+    }
+    if (id === 'purchases.supplier-concentration') {
+      const finding = findingById('purchases:top-party');
+      return finding ? answerText(finding.statement) : null;
+    }
+    if (id === 'sales.profitability' || id === 'profitability.margin') {
+      const finding = findingById('profitability:margin');
+      return finding ? answerText(finding.statement) : null;
+    }
+    if (id === 'inventory.position') {
+      const finding = findingById('inventory:position');
+      return finding ? answerText(finding.statement) : null;
+    }
+    if (id === 'inventory.valuation') {
+      const finding = findingById('inventory:position');
+      return finding ? answerText(finding.statement) : null;
+    }
+    if (id === 'receivables.concentration') {
+      const finding = findingById('receivables:concentration-risk');
+      return finding ? answerText(finding.statement) : null;
+    }
     return null;
   };
 
@@ -228,7 +256,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
     // Re-evaluate the question with the actual intelligence answer so the state
     // reflects ANSWERED/REVIEW_REQUIRED rather than remaining NOT_AVAILABLE/REVIEW_REQUIRED
     // from the initial empty-answer pass.
-    return evaluateBusinessQuestion<Record<string, unknown>>({
+    return evaluateBusinessQuestion<AdvisoryQuestionAnswer>({
       id: question.id,
       label: question.label,
       requiredFields: question.requiredFields,
