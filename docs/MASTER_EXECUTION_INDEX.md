@@ -1,3 +1,22 @@
+# LIVE EXECUTION CHECKPOINT — 2026-10-02 / SMART REPORT EVIDENCE + CORPUS VALUE CLOSURE
+- CURRENT EXACT HEAD → 83e9853e514c91eddd26fb08dde4fc33b04620d7.
+- BRANCH → fix/current-head-runtime-provenance-20261002.
+- PR → #730 OPEN / current head 83e9853e514c91eddd26fb08dde4fc33b04620d7.
+- FIRST REAL FAILURE → Smart Report promoted persisted `VERIFIED` from canonical row-count equality even when no explicit Evidence Snapshot existed.
+- ROOT CAUSE → `src/lib/report-smart.ts` treated canonical commit coverage and evidence verification as one state.
+- CORE CLOSURE DELTA → canonical commit coverage and Evidence Verification are now independent; VERIFIED requires canonical coverage plus explicit `evidenceSnapshotId`; stale VERIFIED states fail closed to AWAITING_EVIDENCE_SNAPSHOT / PENDING_EVIDENCE.
+- TEST DELTA → `scripts/report-smart-evidence-boundary.test.ts` added and wired into `full-product-browser-e2e.yml` via `npm run test:report-smart-evidence-boundary`.
+- PRODUCT DELTA → Smart Report now has an explicit EVIDENCE GATE showing Canonical Commit, Evidence Snapshot, and Decision Readiness separately, with a direct Trust/Evidence path.
+- CORPUS VALUE PROOF → staging query over the latest 40 distinct completed report sources: 40/40 reached extracted + canonicalized + validated + analyzed + decisioned + committed + rendered.
+- CORPUS STATUS → 38 evidence-claimed VERIFIED states are legacy/persisted without an explicit evidence snapshot marker; 2 remain AWAITING_EVIDENCE_SNAPSHOT. All 40 have NO_DECISION_COMMITTED (or no decision state), 39 NO_ACTION_COMMITTED, 39 OUTCOME NOT_AVAILABLE, 39 LEARNING NOT_AVAILABLE, 39 BENCHMARK INSUFFICIENT_SAMPLE.
+- SPECIALTIES IN THE 40-REPORT ACCEPTANCE SAMPLE → inventory 18, sales 8, payments 6, receivables 4, purchases 2, unknown 2.
+- BUSINESS GAP → the import/read/analyze/render spine is working on these 40 sources; the missing commercial closure is durable source-bound evidence acceptance followed by Decision → Approval → Work → Outcome → Learning.
+- FIXTURE BOUNDARY → Git `tests/fixtures/realistic-reports/` remains README-only; the 40-report result above comes from real staged report execution history, not from inventing Git fixtures.
+- RUNTIME/PROOF → Vercel free deployment is not exact-head proof: the latest deployed build is behind the current 83e head and Vercel status is affected by build-rate-limit. PC01 is currently offline, so authenticated Edge proof is NOT_PROVEN.
+- SECURITY BLOCKER → Supabase reports `public.canonical_import_repair_history` with RLS disabled. Do not auto-apply the suggested ALTER TABLE without adding the correct tenant policies.
+- DO-NOT-REPEAT → no re-import of completed reports, no canonical row rewrite, no evidence promotion, no stale-SHA PASS, no DB-to-browser inference.
+- NEXT EXACT ACTION → close the persistent Evidence Acceptance boundary and materialize per-report source-bound evidence IDs, then drive the same 40-report cohort through persisted Recommendation → Decision → Approval → Work → Outcome → Learning; runtime/browser proof continues in parallel without reopening completed import work.
+
 # LIVE EXECUTION CHECKPOINT — 2026-10-02 / ADVISOR VALUE CLOSURE
 - CURRENT FUNCTIONAL CODE HEAD → 7a01787de9bc08e0a6a7175251ca4d8eae7b13dd.
 - BRANCH → fix/current-head-runtime-provenance-20261002.
