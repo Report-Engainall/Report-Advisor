@@ -7,6 +7,9 @@ export type ReportSignal = {
   message: string;
   evidence: string[];
   affectedRows?: number;
+  soWhat: string;
+  impact: string;
+  ownerHint: string;
 };
 
 export type ReportRecommendation = {
@@ -17,6 +20,9 @@ export type ReportRecommendation = {
   action: string;
   why: string;
   evidence: string[];
+  ownerHint: string;
+  impact: string;
+  expectedOutcome: string;
 };
 
 export type ReportForecast = {
@@ -92,7 +98,7 @@ function makePriority(severity: ReportSignalSeverity): ReportRecommendation['pri
 
 function addSignal(signals: ReportSignal[], id: string, severity: ReportSignalSeverity, title: string, message: string, evidence: string[], affectedRows?: number): void {
   if (signals.some((item) => item.id === id)) return;
-  signals.push({ id, severity, title, message, evidence, ...(affectedRows == null ? {} : { affectedRows }) });
+  signals.push({ id, severity, title, message, evidence, ...(affectedRows == null ? {} : { affectedRows }), soWhat: '', impact: '', ownerHint: '' });
 }
 
 function deriveSignals(report: ReportInput): ReportSignal[] {
@@ -288,7 +294,41 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
   }
 
   const rank: Record<ReportSignalSeverity, number> = { critical: 5, high: 4, medium: 3, low: 2, info: 1 };
-  return signals.sort((a, b) => rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title));
+  const ownerHint = specialty === 'inventory'
+    ? 'مسؤول المخزون/التسعير'
+    : specialty === 'receivables'
+      ? 'مسؤول التحصيل'
+      : specialty === 'sales'
+        ? 'مسؤول المبيعات'
+        : specialty === 'purchases'
+          ? 'مسؤول المشتريات'
+          : specialty === 'payments'
+            ? 'مسؤول الخزينة/السيولة'
+            : 'المسؤول التشغيلي المناسب للمصدر';
+  return signals
+    .map((signal) => ({
+      ...signal,
+      soWhat: signal.affectedRows == null
+        ? 'هذه الإشارة تحدد نقطة تحتاج مراجعة مباشرة؛ لا يثبت المصدر وحده أثرًا ماليًا نهائيًا.'
+        : 'نطاق المراجعة المباشرة هو ' + signal.affectedRows + ' سجلًا متأثرًا وفق المصدر الكانوني.',
+      impact: signal.affectedRows == null
+        ? 'الأثر المالي غير مُثبت من المصدر الحالي.'
+        : 'الأثر المثبت حاليًا: نطاق سجلات متأثرة = ' + signal.affectedRows + '؛ لا توجد قيمة مالية مفترضة دون أساس.' ,
+      ownerHint,
+    }))
+    .sort((a, b) => rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title));
+}
+
+function expectedOutcomeFor(signal: ReportSignal): string {
+  if (signal.id.includes('missing-price')) return 'تثبيت السعر أو توثيق سبب غيابه، ثم إعادة فحص المصدر قبل الاعتماد.';
+  if (signal.id.includes('missing-name')) return 'استكمال هوية الصنف وربطها بالمفتاح الكانوني قبل المقارنة.';
+  if (signal.id.includes('duplicate-key')) return 'إثبات ما إذا كان التكرار حركة صحيحة أم ازدواجية فعلية قبل أي تصحيح.';
+  if (signal.id.includes('price-variation')) return 'تفسير اختلاف السعر حسب المستودع/الوحدة/السياق قبل إصدار قرار تسعير.';
+  if (signal.id.includes('date-missing')) return 'تثبيت تاريخ المصدر أو إبقاء التحليل الزمني محجوبًا حتى تتوفر دلالة صحيحة.';
+  if (signal.id.includes('amount-missing')) return 'تحديد الحقل المالي الصحيح وربطه دلاليًا قبل إصدار إجمالي أو أثر مالي.';
+  if (signal.id.includes('paid-above-total')) return 'مطابقة الإجمالي والمدفوع مع المستند/القيد الأصلي وإثبات سبب الاستثناء.';
+  if (signal.id.includes('invoice-total-conflict')) return 'تفسير اختلاف الإجماليات لنفس الفاتورة وربطه بالمستند الأصلي قبل اعتبارها ازدواجية.';
+  return 'تحديد حالة الاستثناء، تنفيذ الإجراء المناسب بعد المراجعة، ثم تسجيل النتيجة الكانونية.';
 }
 
 function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] {
@@ -310,6 +350,9 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
       action,
       why: signal.message,
       evidence: signal.evidence,
+      ownerHint: signal.ownerHint,
+      impact: signal.impact,
+      expectedOutcome: expectedOutcomeFor(signal),
     };
   });
 }

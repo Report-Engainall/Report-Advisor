@@ -1,9 +1,9 @@
 import { AlertTriangle, ArrowUpLeft, BrainCircuit, CheckCircle2, CircleHelp, ShieldCheck, TrendingUp } from 'lucide-react';
 import type { SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { createSourceDecisionProposal } from '@/lib/report-decisions';
+import { createSourceDecisionProposal, fetchSourceDecisionProposals, type SourceDecisionState } from '@/lib/report-decisions';
 
 const severityLabel: Record<string, string> = {
   critical: 'حرج',
@@ -33,7 +33,16 @@ function number(value: number | null): string {
 export function ReportIntelligencePanel({ report }: { report: SmartReportDetail }) {
   const intelligence = report.intelligence;
   const [proposalState, setProposalState] = useState<Record<string, string>>({});
+  const [decisionTrace, setDecisionTrace] = useState<SourceDecisionState[]>([]);
   const forecast = intelligence.forecast;
+
+  useEffect(() => {
+    let active = true;
+    void fetchSourceDecisionProposals(report.sourceHash)
+      .then((rows) => { if (active) setDecisionTrace(rows); })
+      .catch(() => { if (active) setDecisionTrace([]); });
+    return () => { active = false; };
+  }, [report.sourceHash]);
   const specialtyLabel: Record<string, string> = {
     inventory: 'المخزون',
     sales: 'المبيعات',
@@ -48,6 +57,15 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
   const topRecommendation = topSignal
     ? intelligence.recommendations.find((item) => item.id === 'rec:' + topSignal.id) ?? null
     : null;
+  const latestDecision = decisionTrace[0] ?? null;
+  const journey = latestDecision ? [
+    { label: 'التوصية', value: latestDecision.recommendationStatus ?? latestDecision.status },
+    { label: 'القرار', value: latestDecision.status },
+    { label: 'الموافقة', value: latestDecision.approvalStatus ?? 'لم تُطلب' },
+    { label: 'العمل', value: latestDecision.workItemStatus ?? 'لم يُنشأ' },
+    { label: 'النتيجة', value: latestDecision.outcomeStatus ?? 'لم تُسجل' },
+    { label: 'التعلّم', value: latestDecision.outcomeStatus && latestDecision.actualImpact != null ? (latestDecision.outcomeQuality == null ? 'نتيجة متاحة' : 'نتيجة مقاسة') : 'غير متاح' },
+  ] : [];
   return (
     <section dir="rtl" className="space-y-4 rounded-[18px] border border-primary-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -96,10 +114,55 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         </div>
       </div>
 
-      <div className="rounded-2xl border border-ink-200 bg-ink-50/70 p-4">
-        <div className="text-[10px] font-black text-ink-500">الخلاصة</div>
-        <p className="mt-2 text-sm leading-7 text-ink-800">{intelligence.summary}</p>
+      <div className="grid gap-3 lg:grid-cols-[1.05fr_.95fr]">
+        <div className="rounded-2xl border border-ink-200 bg-ink-50/70 p-4">
+          <div className="text-[10px] font-black text-ink-500">الخلاصة</div>
+          <p className="mt-2 text-sm leading-7 text-ink-800">{intelligence.summary}</p>
+        </div>
+        <div className="rounded-2xl border border-primary-200 bg-white p-4">
+          <div className="text-[10px] font-black tracking-[.12em] text-primary-700">ADVISOR VALUE CHAIN</div>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {[
+              ['WHAT', topSignal?.title ?? 'لا توجد إشارة'],
+              ['WHY', topSignal?.message ?? 'لا يوجد سبب مثبت إضافي'],
+              ['SO WHAT', topSignal?.soWhat ?? 'لا يوجد أثر نطاقي مثبت'],
+              ['IMPACT', topSignal?.impact ?? 'غير مُثبت'],
+              ['WHAT NEXT', topRecommendation?.action ?? 'مراجعة الدليل قبل الإجراء'],
+              ['PROOF', topSignal?.evidence?.[0] ?? 'Evidence غير متاح'],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-xl border border-ink-100 bg-ink-50/60 p-2.5">
+                <div className="text-[8px] font-black tracking-[.08em] text-ink-400">{label}</div>
+                <div className="mt-1 text-[9px] font-bold leading-4 text-ink-800">{value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
+      {latestDecision ? (
+        <section className="rounded-2xl border border-primary-200 bg-primary-50/50 p-4" aria-label="استمرارية القرار من التقرير إلى النتيجة">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div className="text-[10px] font-black tracking-[.12em] text-primary-700">DECISION → ACTION → OUTCOME → LEARNING</div>
+              <h3 className="mt-1 text-sm font-black text-ink-950">القضية نفسها ما زالت مرتبطة بالتقرير</h3>
+              <p className="mt-1 text-[10px] leading-5 text-ink-600">هذه الحالة مأخوذة من السجلات الكانونية الحالية لهذا المصدر، وليست حالة واجهة محلية.</p>
+            </div>
+            <Link to={'/decision-experience?stage=' + (latestDecision.workItemStatus ? 'work' : latestDecision.approvalStatus ? 'approval' : 'decision') + '&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-primary text-[10px]">فتح السلسلة الكاملة <ArrowUpLeft size={12}/></Link>
+          </div>
+          <div className="mt-3 grid gap-2 sm:grid-cols-3 xl:grid-cols-6">
+            {journey.map((stage, index) => (
+              <div key={stage.label} className="rounded-xl border border-white bg-white p-3">
+                <div className="flex items-center gap-2"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-100 text-[8px] font-black text-primary-800">{index + 1}</span><span className="text-[9px] font-black text-ink-700">{stage.label}</span></div>
+                <div className="mt-2 text-[9px] font-bold text-ink-900">{stage.value}</div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-2 grid gap-2 sm:grid-cols-3 text-[9px]">
+            <div className="rounded-lg bg-white p-2"><span className="text-ink-400">OWNER</span><div className="mt-1 font-black text-ink-800">{topRecommendation?.ownerHint ?? 'غير محدد'}</div></div>
+            <div className="rounded-lg bg-white p-2"><span className="text-ink-400">EXPECTED OUTCOME</span><div className="mt-1 font-bold text-ink-800">{topRecommendation?.expectedOutcome ?? 'غير متاح'}</div></div>
+            <div className="rounded-lg bg-white p-2"><span className="text-ink-400">ACTUAL OUTCOME</span><div className="mt-1 font-black text-ink-800">{latestDecision.actualImpact == null ? 'لم تُسجل نتيجة فعلية' : String(latestDecision.actualImpact)}</div></div>
+          </div>
+        </section>
+      ) : null}
 
       <div className="grid gap-3 lg:grid-cols-2">
         <div className="rounded-2xl border border-ink-200 bg-white p-4">
@@ -117,11 +180,18 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                   <span className="text-[9px] font-black">{severityLabel[signal.severity] ?? signal.severity}</span>
                   <span className="text-xs font-black">{signal.title}</span>
                 </div>
-                <p className="mt-1 text-[11px] leading-5">{signal.message}</p>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
                   <div className="rounded-lg border border-current/10 bg-white/60 p-2">
+                    <div className="text-[8px] font-black opacity-70">WHY</div>
+                    <div className="mt-1 text-[9px] leading-4">{signal.message}</div>
+                  </div>
+                  <div className="rounded-lg border border-current/10 bg-white/60 p-2">
                     <div className="text-[8px] font-black opacity-70">SO WHAT</div>
-                    <div className="mt-1 text-[9px] leading-4">{signal.affectedRows == null ? 'لا يوجد عدد متأثر مثبت؛ يلزم الرجوع إلى الدليل.' : 'السجلات المتأثرة: ' + formatNumber(signal.affectedRows)}</div>
+                    <div className="mt-1 text-[9px] leading-4">{signal.soWhat}</div>
+                  </div>
+                  <div className="rounded-lg border border-current/10 bg-white/60 p-2">
+                    <div className="text-[8px] font-black opacity-70">IMPACT</div>
+                    <div className="mt-1 text-[9px] leading-4">{signal.impact}</div>
                   </div>
                   <div className="rounded-lg border border-current/10 bg-white/60 p-2">
                     <div className="text-[8px] font-black opacity-70">WHAT NEXT</div>
@@ -151,7 +221,8 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
 
                       }).then((result) => {
                         setProposalState((current) => ({ ...current, [signal.id]: result.status === 'APPROVED' ? 'already-approved' : 'proposed' }));
-                      }).catch(() => {
+                        return fetchSourceDecisionProposals(report.sourceHash);
+                      }).then((rows) => setDecisionTrace(rows)).catch(() => {
                         setProposalState((current) => ({ ...current, [signal.id]: 'error' }));
                       });
                     }}
