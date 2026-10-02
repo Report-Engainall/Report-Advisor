@@ -20,6 +20,9 @@ for (const marker of ['orders_staff_select','order_items_staff_select','price_ti
 for (const marker of ['audit_operational_change','trg_orders_operational_audit','trg_sales_invoices_operational_audit','trg_payments_operational_audit','operations-runtime','AUDIT_TENANT_CONTEXT_MISMATCH']) {
   assert.ok(auditMigration.includes(marker), 'operational audit migration missing: ' + marker);
 }
+assert.ok(lib.includes('fetchOperationalOrderStatusHistory'));
+assert.match(page, /ORDER HISTORY \/ READBACK/);
+assert.match(page, /order-status-history/);
 assert.match(page, /ORDER → FULFILLMENT/);
 assert.match(page, /INVOICE → PAYMENT/);
 assert.match(page, /PRICING TRUTH/);
