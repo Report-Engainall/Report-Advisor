@@ -38,6 +38,8 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
   const identity = '&reportJobId=' + job + '&sourceHash=' + hash;
   const signals = report.intelligence.signals.slice(0, 3);
   const recommendations = report.intelligence.recommendations.slice(0, 3);
+  const topSignal = signals[0] ?? null;
+  const topRecommendation = recommendations[0] ?? null;
   const forecast = report.intelligence.forecast;
   const nextHref = evidenceReady
     ? '/decision-experience?stage=decision&reportJobId=' + job + '&sourceHash=' + hash
@@ -120,6 +122,52 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
         ))}
       </div>
 
+      <div className="relative z-10 mt-5 grid gap-3 lg:grid-cols-[1.1fr_.9fr]" aria-label="ملخص قرار التقرير">
+        <div className="rounded-2xl border border-amber-200/15 bg-amber-100/[.05] p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.14em] text-amber-100/75">
+              <Lightbulb size={14}/> WHAT NEXT / DECISION BRIEF
+            </div>
+            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[8px] font-black text-teal-50/60">RECOMMENDED</span>
+          </div>
+          <div className="mt-3 text-sm font-black text-white">
+            {topRecommendation?.title ?? 'لا توجد توصية قابلة للتنفيذ مثبتة من المصدر الحالي.'}
+          </div>
+          <div className="mt-2 text-[10px] leading-6 text-teal-50/70">
+            {topRecommendation?.action ?? 'يبقى الإجراء محجوبًا حتى تظهر إشارة تستند إلى دليل كافٍ.'}
+          </div>
+          {topRecommendation && (
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <div className="rounded-xl border border-white/8 bg-black/10 p-3">
+                <div className="text-[8px] font-black tracking-[.12em] text-teal-100/50">WHY</div>
+                <div className="mt-1 text-[10px] leading-5 text-white/80">{topRecommendation.why}</div>
+              </div>
+              <div className="rounded-xl border border-white/8 bg-black/10 p-3">
+                <div className="text-[8px] font-black tracking-[.12em] text-teal-100/50">EXPECTED OUTCOME</div>
+                <div className="mt-1 text-[10px] leading-5 text-white/80">{topRecommendation.expectedOutcome}</div>
+              </div>
+            </div>
+          )}
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link to={nextHref} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-amber-300 px-3.5 py-2 text-[10px] font-black text-[#12322f] hover:bg-amber-200">
+              {evidenceReady ? 'تحويل التوصية إلى قرار' : 'افتح الدليل قبل القرار'}
+              <ArrowLeft size={13}/>
+            </Link>
+            {topSignal && <span className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-[10px] font-bold text-teal-50/75">الإشارة: {topSignal.title}</span>}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
+          <div className="text-[9px] font-black tracking-[.14em] text-teal-100/60">TRUTH LABELS</div>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-teal-100/45">OBSERVED</div><div className="mt-1 text-sm font-black text-white">{formatNumber(report.rowCount ?? 0)} صف</div></div>
+            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-teal-100/45">DERIVED</div><div className="mt-1 text-sm font-black text-white">{signals.length} إشارات</div></div>
+            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-teal-100/45">RECOMMENDED</div><div className="mt-1 text-sm font-black text-white">{recommendations.length} توصيات</div></div>
+            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-teal-100/45">PROJECTED</div><div className="mt-1 text-sm font-black text-white">{forecast.status === 'AVAILABLE' ? formatNumber(forecast.nextValue ?? 0) : 'غير متاح'}</div></div>
+            <div className="col-span-2 rounded-xl border border-white/8 bg-white/[.03] p-3"><div className="text-[8px] text-teal-100/45">UNKNOWN / LIMITATION</div><div className="mt-1 text-[10px] leading-5 text-white/70">{forecast.status === 'INSUFFICIENT_SAMPLE' ? forecast.note : (topSignal?.impact || 'الأثر المالي النهائي غير مثبت من المصدر الحالي.')}</div></div>
+          </div>
+        </div>
+      </div>
       <div className="relative z-10 mt-5 grid gap-3 lg:grid-cols-[1.1fr_.9fr]">
         <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
           <div className="flex items-center gap-2 text-[9px] font-black tracking-[.14em] text-teal-100/60">

@@ -198,6 +198,13 @@ jobs:
             echo "E2E_ACTOR_MODE=ephemeral-run-scoped" >> "$GITHUB_ENV"
           fi
 
+      - name: Install deterministic Netlify CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save --package-lock=false netlify-cli@27.10.2
+          test -x node_modules/.bin/netlify
+          npx --no-install netlify --version
       - name: Start exact Netlify preview with serverless API
         env:
           REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
@@ -211,7 +218,7 @@ jobs:
           test -n "$SUPABASE_SERVICE_ROLE_KEY"
           node scripts/provision-e2e-actors.mjs
           mkdir -p artifacts/e2e-browser artifacts/e2e-business
-          nohup npx netlify dev --no-open --port 4173 > artifacts/e2e-browser/preview.log 2>&1 &
+          nohup npx --no-install netlify dev --no-open --port 4173 > artifacts/e2e-browser/preview.log 2>&1 &
           echo $! > artifacts/e2e-browser/preview.pid
           for attempt in $(seq 1 90); do
             if curl -fsS http://127.0.0.1:4173/ >/tmp/report-advisor-preview.html; then
