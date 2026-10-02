@@ -119,12 +119,12 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
           </div>
         </div>
         <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {[
-            ['أهم نتيجة', advisorBrief.topFinding?.title ?? 'غير متاح', advisorBrief.topFinding?.statement ?? 'لا توجد نتيجة أعمال كافية.', 'FINDING'],
-            ['أهم خطر', advisorBrief.topRisk?.title ?? 'لا يوجد خطر مرتفع مثبت', advisorBrief.topRisk?.statement ?? 'لا يوجد خطر مجال أعمال مثبت من البيانات الحالية.', 'RISK'],
-            ['أهم فرصة', advisorBrief.topOpportunity?.title ?? 'لا توجد فرصة مثبتة', advisorBrief.topOpportunity?.statement ?? 'لا توجد فرصة قابلة للإثبات حاليًا.', 'OPPORTUNITY'],
-            ['الإجراء المقترح', advisorBrief.recommendedAction ?? 'لا يوجد إجراء مؤهل بعد', advisorBrief.expectedOutcome ?? advisorBrief.proofRequirement, 'ACTION'],
-          ].map(([label, title, detail, key]) => (
+          {([
+            { label: 'أهم نتيجة', title: advisorBrief.topFinding?.title ?? 'غير متاح', detail: advisorBrief.topFinding?.statement ?? 'لا توجد نتيجة أعمال كافية.', key: 'FINDING' },
+            { label: 'أهم خطر', title: advisorBrief.topRisk?.title ?? 'لا يوجد خطر مرتفع مثبت', detail: advisorBrief.topRisk?.statement ?? 'لا يوجد خطر مجال أعمال مثبت من البيانات الحالية.', key: 'RISK' },
+            { label: 'أهم فرصة', title: advisorBrief.topOpportunity?.title ?? 'لا توجد فرصة مثبتة', detail: advisorBrief.topOpportunity?.statement ?? 'لا توجد فرصة قابلة للإثبات حاليًا.', key: 'OPPORTUNITY' },
+            { label: 'الإجراء المقترح', title: advisorBrief.recommendedAction ?? 'لا يوجد إجراء مؤهل بعد', detail: advisorBrief.expectedOutcome ?? advisorBrief.proofRequirement, key: 'ACTION' },
+          ]).map(({ label, title, detail, key }) => (
             <div key={key} className="rounded-2xl border border-ink-100 bg-white p-4">
               <div className="text-[9px] font-black tracking-[.08em] text-ink-400">{label}</div>
               <div className="mt-2 text-sm font-black text-ink-950">{title}</div>
@@ -161,11 +161,11 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        {[
-          ['TOP FINDINGS', findings, 'نتائج محسوبة مباشرة من الصفوف الكانونية'],
-          ['TOP RISKS', risks, 'مخاطر لا تظهر إلا عندما يدعمها المصدر'],
-          ['TOP OPPORTUNITIES', opportunities, 'فرص مبنية على مؤشرات قابلة للحساب'],
-        ].map(([label, items, subtitle]) => (
+        {([
+          { label: 'TOP FINDINGS', items: findings, subtitle: 'نتائج محسوبة مباشرة من الصفوف الكانونية' },
+          { label: 'TOP RISKS', items: risks, subtitle: 'مخاطر لا تظهر إلا عندما يدعمها المصدر' },
+          { label: 'TOP OPPORTUNITIES', items: opportunities, subtitle: 'فرص مبنية على مؤشرات قابلة للحساب' },
+        ] as const).map(({ label, items, subtitle }) => (
           <div key={label} className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
             <div className="text-[9px] font-black tracking-[.12em] text-primary-700">{label}</div>
             <div className="mt-1 text-[10px] text-ink-500">{subtitle}</div>
