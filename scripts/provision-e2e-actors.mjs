@@ -14,6 +14,7 @@ for (const name of required) {
 
 const REQUEST_TIMEOUT_MS = Number(process.env.E2E_ACTOR_REQUEST_TIMEOUT_MS || '30000');
 const ANON_KEY = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY?.trim() || '';
+const AUTH_PROVISION_URL = process.env.E2E_AUTH_PROVISION_URL?.trim() || '';
 if (!ANON_KEY) throw new Error('E2E_ACTOR_ENV_MISSING:REPORT_ADVISOR_SUPABASE_ANON_KEY');
 const POSTGREST_RETRYABLE_HTTP = new Set([408, 425, 429, 500, 502, 503, 504]);
 const POSTGREST_RETRY_ATTEMPTS = 12;
@@ -179,7 +180,41 @@ async function signInConfiguredActor(email, password) {
   return data.user;
 }
 
-async function createActor(email, password) {
+async function provisionActorThroughEdge(email, password, label) {
+  if (!AUTH_PROVISION_URL) return null;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    assertProvisionDeadline('edge-provision-' + label + '-attempt-' + attempt);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(new Error('E2E_AUTH_PROVISION_REQUEST_TIMEOUT')), 30000);
+    try {
+      const response = await fetch(AUTH_PROVISION_URL, {
+        method: 'POST',
+        headers: {
+          authorization: 'Bearer ' + process.env.SUPABASE_SERVICE_ROLE_KEY.trim(),
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, metadata: ACTOR_METADATA }),
+        signal: controller.signal,
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (response.ok && payload.ok && payload.userId) return { id: String(payload.userId), email };
+      if (![408, 425, 429, 500, 502, 503, 504].includes(response.status)) {
+        throw new Error('E2E_AUTH_PROVISION_FAILED:' + String(payload.error ?? response.status));
+      }
+    } catch (error) {
+      if (attempt === 3) throw error;
+    } finally {
+      clearTimeout(timer);
+    }
+    await wait(Math.min(5000, 500 * 2 ** (attempt - 1)));
+  }
+  throw new Error('E2E_AUTH_PROVISION_RETRY_EXHAUSTED:' + label);
+}
+
+async function createActor(email, password, label) {
+  const edgeUser = await provisionActorThroughEdge(email, password, label);
+  if (edgeUser) return edgeUser;
+
   for (let attempt = 1; attempt <= 4; attempt += 1) {
     assertProvisionDeadline('create-actor-attempt-' + attempt);
     try {
@@ -238,7 +273,7 @@ async function ensureActor(email, password, label, freshRunScoped = false) {
   let user = null;
   let lookupUnavailable = false;
 
-  const useRunScopedActor = freshRunScoped || (process.env.E2E_ACTOR_MODE === 'ephemeral-run-scoped' && generated);
+  const useRunScopedActor = freshRunScoped || process.env.E2E_ACTOR_MODE === 'ephemeral-run-scoped';
 
   if (useRunScopedActor) {
     // Never reuse workflow-provided ephemeral credentials after a partial/retried run.
@@ -246,7 +281,7 @@ async function ensureActor(email, password, label, freshRunScoped = false) {
     const generatedCredentials = actorCredentials(label);
     resolvedEmail = generatedCredentials.email;
     resolvedPassword = generatedCredentials.password;
-    user = await createActor(resolvedEmail, resolvedPassword);
+    user = await createActor(resolvedEmail, resolvedPassword, label);
     generated = true;
   } else if (!generated) {
     user = await signInConfiguredActor(resolvedEmail, resolvedPassword);
@@ -260,7 +295,7 @@ async function ensureActor(email, password, label, freshRunScoped = false) {
     user = await createActor(resolvedEmail, resolvedPassword);
     generated = true;
   } else if (!freshRunScoped && !user) {
-    user = await createActor(resolvedEmail, resolvedPassword);
+    user = await createActor(resolvedEmail, resolvedPassword, label);
     generated = true;
   } else if (!freshRunScoped && user) {
     const metadata = user.user_metadata ?? {};

@@ -248,6 +248,8 @@ jobs:
         env:
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          E2E_AUTH_PROVISION_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co/functions/v1/e2e-auth-provisioner
+          E2E_ACTOR_MODE: ephemeral-run-scoped
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           E2E_ACTOR_PROVISION_DEADLINE_MS: '240000'
           E2E_ACTOR_REQUEST_TIMEOUT_MS: '45000'
