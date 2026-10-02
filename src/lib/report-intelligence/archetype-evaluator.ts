@@ -903,6 +903,30 @@ export function applyArchetypeRuleSet(
     }
   }
 
+  if (!modelFinding && family === 'profitability') {
+    const revenueKey = columnKey(report, 'netAmount') ?? columnKey(report, 'grossAmount');
+    const costKey = columnKey(report, 'cost');
+    if (revenueKey && costKey) {
+      const revenue = sumBy(rows, revenueKey);
+      const cost = sumBy(rows, costKey);
+      const margin = revenue === 0 ? null : ((revenue - cost) / Math.abs(revenue)) * 100;
+      modelFinding = {
+        id: 'archetype:' + profile.id + ':profitability',
+        kind: margin != null && margin < 10 ? 'RISK' : 'FINDING',
+        priority: margin != null && margin < 10 ? 'high' : 'medium',
+        title: profile.title + ' — هامش المصدر',
+        statement: margin == null
+          ? 'تعذر حساب الهامش من الإيراد والتكلفة المتاحة.'
+          : 'الإيراد المحسوب ' + revenue.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '، والتكلفة ' + cost.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '، والهامش ' + margin.toFixed(1) + '%.',
+        value: margin,
+        unit: '% margin',
+        evidence: ['revenueField=' + revenueKey, 'costField=' + costKey, 'revenue=' + revenue.toFixed(2), 'cost=' + cost.toFixed(2)],
+        limitation: 'هذا هامش مبني على الحقول المحددة ولا يساوي صافي الربح بعد المصروفات.',
+        action: profile.recommendationFocus[0] || 'قسّم الهامش حسب المنتج/العميل قبل اعتماد قرار تسعير أو شراء.',
+      };
+    }
+  }
+
   if (!modelFinding && family === 'demand') {
     const dateKey = columnKey(report, 'documentDate');
     const demandKey = columnKey(report, 'salesQty') ?? columnKey(report, 'requestedQty');
