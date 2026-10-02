@@ -2,29 +2,28 @@
 
 SESSION HANDOFF = NOT READY
 STATE_OWNER = CAPTAIN + PROGRAMMER
-CURRENT_EXACT_HEAD = 8f62699a23aaabf5c342f72c54354ac8b6668b3c
-CURRENT_EXECUTION_HEAD = f95d5f2ead0a186bf783f20c81d3351988baf292
-CURRENT_MAIN_HEAD = 8f62699a23aaabf5c342f72c54354ac8b6668b3c
+CURRENT_EXACT_HEAD = 8e77b2ca81031ecd307d1499983f7135de42f5f6
+CURRENT_EXECUTION_HEAD = 8e77b2ca81031ecd307d1499983f7135de42f5f6
+CURRENT_MAIN_HEAD = 8e77b2ca81031ecd307d1499983f7135de42f5f6
 BRANCH = main
-PR = #754 MERGED
+PR = #756 MERGED
 PR #752 = MERGED
 PR #753 = MERGED
+PR #754 = MERGED
+PR #755 = MERGED
+PR #756 = MERGED
 PROGRAMMER_REPORT = PRESENT
-PROGRAMMER_REPORT_FOR_HEAD = f95d5f2ead0a186bf783f20c81d3351988baf292
+PROGRAMMER_REPORT_FOR_HEAD = 8e77b2ca81031ecd307d1499983f7135de42f5f6
 ACTION_STATUS = IN_PROGRESS
-UPDATED_AT = 2026-10-02T21:07:00Z
+UPDATED_AT = 2026-10-02T21:24:00Z
 
-CURRENT PRODUCT HEAD = f95d5f2ead0a186bf783f20c81d3351988baf292
-PRODUCT HEAD PARENT = 6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6
-LAST CLOSED FAILURE = Supabase Auth signInWithPassword HTTP 504 during Full Product Browser E2E actor provisioning.
-ROOT FIX = PR #753 adds bounded /auth/v1 transient retry (4 attempts) while preserving hard request timeout and global provisioning deadline.
+CURRENT PRODUCT HEAD = 8e77b2ca81031ecd307d1499983f7135de42f5f6
+LAST CLOSED FAILURE = stale Phase F runtime target plus Auth Admin generateLink timeout.
+ROOT FIX = PR #754 switched Phase F canary to configured password authentication with bounded transient retry; PR #756 moved Phase F probes to verified deploy-preview-754 and allows runtime SHA equivalence only when git diff to the exact head contains docs/execution-only changes.
+VERIFIED PREVIEW = https://deploy-preview-754--aghbari-report-advisor.netlify.app/api/health returned source/build/deployment SHA d1738d7a896b0a2544fd080455fa08f094cd6799 and healthy runtime.
+CURRENT RUNTIME FRONTIER = Phase F run 37066381079 is the current exact-head live resilience gate. Session Handoff run 37066380943 failed only because the persistent report was stale after PR #756; the handoff state/report are now aligned to 8e77 on the repair branch.
+AUTHENTICATED BROWSER PROOF = NOT_PROVEN. Full Product Browser E2E run 37064389357 on f95 failed twice at E2E actor provisioning with Supabase Auth HTTP 504 after bounded retry. No stale PASS is reused.
+PRODUCTION = Current exact-head production reconciliation remains open; Vercel deploy remains externally blocked by missing deploy credentials/build-rate-limit. No production PASS is claimed for 8e77.
 
-EXACT-SHA LOCAL PROOF = E2E_ACTOR_PROVISIONING_CONTRACT_PASS; typecheck PASS; git diff --check PASS on the repair branch before merge.
-PRODUCT HEAD PROOF = typecheck PASS; 48-archetype runtime PASS; Advisor intelligence PASS; intelligence vertical slice PASS; visual-system PASS; build PASS with BUILD_SOURCE_SHA=6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6; proposal/proof/claim/question/outcome/decision contracts PASS.
-PRODUCTION = READY deployment exists for 6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6 at report-advisor.vercel.app; current f95 head is newer and awaiting fresh production/certification readback.
-CURRENT RUNTIME FRONTIER = Full Product Browser E2E run 37064389357 plus Final Certification, Final Execution, Quality, Storage Tenant Isolation, Execution Enforcement, Session Handoff, Phase-F, Desktop and Vercel deploy runs are QUEUED for f95. No queued run is PASS.
-
-FIRST/REMAINING BLOCKER = authenticated current-head business journey and real-source proof remain unproven until the queued Browser E2E reaches terminal state.
-NEXT_EXACT_ACTION = consume the current-main Full Product Browser E2E terminal result; fix only the first failure; then continue to the real Smart Report proof.
-
-DO_NOT_REPEAT = no old-SHA browser PASS reuse; no queued-run PASS; no RLS/auth/evidence weakening; no fabricated real-source archetype coverage; no re-import without regression reason.
+NEXT_EXACT_ACTION = run the session-handoff contract on the aligned 8e77 state/report; merge the handoff repair; then consume Phase F run 37066381079 and fix only its first terminal failure. After Phase F/current-head certification closes, continue the authenticated Smart Report business proof.
+DO_NOT_REPEAT = no old-SHA browser PASS; no queued-run PASS; no RLS/auth/evidence weakening; no fabricated real-source archetype coverage; no re-import without regression evidence.
