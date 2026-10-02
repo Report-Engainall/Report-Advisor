@@ -48,7 +48,7 @@ describe('report claim adapter', () => {
       evidenceSnapshotId: 'snapshot-1',
       evidencePassportId: 'passport-1',
     },
-    inputFields: ['netAmount'] as const,
+    inputFields: ['netAmount'],
     sampleSize: 20,
     archetypeId: 'sales.transaction-detail',
     profileVersion: 1,
