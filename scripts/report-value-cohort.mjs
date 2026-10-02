@@ -8,8 +8,27 @@ if (!url || !serviceRole) {
   throw new Error('REPORT_VALUE_COHORT_ENV_REQUIRED');
 }
 
+const RETRYABLE_HTTP = new Set([408, 425, 429, 500, 502, 503, 504]);
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const resilientFetch = async (input, init = {}) => {
+  let last;
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
+    try {
+      const response = await fetch(input, init);
+      if (!RETRYABLE_HTTP.has(response.status) || attempt === 5) return response;
+      last = new Error('SUPABASE_RETRYABLE_HTTP_' + response.status);
+    } catch (error) {
+      last = error;
+      if (attempt === 5) throw error;
+    }
+    await wait(1000 * 2 ** (attempt - 1));
+  }
+  throw last ?? new Error('SUPABASE_RETRY_EXHAUSTED');
+};
+
 const supabase = createClient(url, serviceRole, {
   auth: { autoRefreshToken: false, persistSession: false },
+  global: { fetch: resilientFetch },
 });
 
 const eligiblePath = /\.(xlsx|xls|xlsm|csv|tsv|ods|pdf|docx|doc|rtf|json|jsonl|txt|md|markdown|jpg|jpeg|png|webp|tiff|bmp)$/i;
