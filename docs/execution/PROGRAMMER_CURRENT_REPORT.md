@@ -2,9 +2,9 @@
 
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-REPORT_FOR_HEAD = 62f5888a22ccbd8ca754d20a5ce4e927e7d85792
-CURRENT EXACT HEAD = 62f5888a22ccbd8ca754d20a5ce4e927e7d85792
-CURRENT BRANCH REF = 62f5888a22ccbd8ca754d20a5ce4e927e7d85792
+REPORT_FOR_HEAD = a4858371
+CURRENT EXACT HEAD = a4858371
+CURRENT BRANCH REF = a4858371
 BRANCH = fix/smart-report-archetype-runtime-20261002
 PR = #752 OPEN / NOT MERGED / MERGEABLE
 CURRENT MAIN HEAD = 114ebcdbe51bee44361b86e614fb7e2ec0829c8f
@@ -13,16 +13,14 @@ ACTION_STATUS = IN_PROGRESS
 
 WHAT_I_WAS_ASKED_TO_DO = إغلاق أول فشل P0/P1 على HEAD الحالي دون إضعاف الأمن، ثم إعادة تشغيل بوابات Passport/Browser/Storage/Cohort/Certification وإثبات source/evidence lineage.
 WHAT_I_ACTUALLY_DID = عُدّل live gate ليستخدم retry محدودًا للطلبات المؤقتة 408/425/429/500/502/503/504، مع بقاء المصادقة وRLS وPassport boundaries كما هي. لم تُضاف صلاحيات كتابة ولم يحدث تجاوز للمصادقة.
-WHAT_IS_PROVEN = code fixes are persisted through 62f5888a; browser, Evidence Passport, and certification are still being re-run on the current code frontier and no runtime PASS is claimed yet.
-FIRST_ACTIVE_FAILURE = Certification failed first at check-session-handoff-contract.mjs on 62f5888a: REPORT_FOR_HEAD was not an ancestor of HEAD; the correct remediation is a docs-only checkpoint commit rooted at the current code head.
-ROOT_CAUSE = session handoff metadata was stale and referenced an unrelated historical SHA; runtime fixes themselves remain unchanged.
-NEXT_EXACT_ACTION = close the current-head Evidence Passport Live Gate; then consume the first terminal Browser/Certification failure on 62f5888a and fix only that failure.
+WHAT_IS_PROVEN = code fixes through a4858371 are persisted; fresh current-head runtime gates will determine the next terminal result. No runtime PASS is claimed yet.
+FIRST_ACTIVE_FAILURE = prior Browser E2E failure was AuthRetryableFetchError: E2E_ACTOR_REQUEST_TIMEOUT in provisioning; remediation is a4858371, which uses configured A/B actors through Auth sign-in and reserves admin createUser for generated actors.
+ROOT_CAUSE = configured A/B credentials were incorrectly forced through Auth Admin createUser whenever E2E_ACTOR_MODE was ephemeral due to a missing approver secret.
+NEXT_EXACT_ACTION = rerun Browser/Evidence/Certification on a4858371; consume the first terminal failure only, then continue to Smart Reports proof.
 
 ## CURRENT HEAD RUNTIME FRONTIER
 
-- Evidence Passport Gate Live Proof #97 / run 37061565862 = IN_PROGRESS
-- Full Product Browser E2E #7296 / run 37061565818 = IN_PROGRESS
-- Final Certification Gate #15431 / run 37061566448 = FAILED at session handoff contract
+- Browser/Evidence/Certification from the previous code frontier are superseded by the fresh a4858371 runs.
 
 ## WHAT IS PROVEN — HISTORICAL, NOT CURRENT-HEAD RUNTIME
 
