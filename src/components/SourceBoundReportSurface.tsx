@@ -243,6 +243,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
       signalSeverity: decision.signalSeverity,
       department,
       dueAt: workDueAt[decision.id] ? new Date(workDueAt[decision.id]).toISOString() : null,
+      recommendationId: decision.recommendationId,
     }).then((workItemId) => {
       setDecisionAction((current) => ({ ...current, [decision.id]: 'work-created' }));
       setDecisions((current) => current.map((item) => item.id === decision.id
