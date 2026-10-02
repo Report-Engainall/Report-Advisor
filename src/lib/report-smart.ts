@@ -229,16 +229,39 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
 
   if (stageError) throw stageError;
 
-  const { data: analyses, error: analysisError } = await supabase
-    .from('source_analysis_snapshots')
-    .select('id,import_job_id,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
-    .eq('company_id', companyId)
-    .eq('source_hash', job.source_hash)
-    .order('created_at', { ascending: false })
-    .limit(1);
+  // Prefer the analysis snapshot that belongs to this exact import job. A source hash can
+  // legitimately have multiple analyses (for example, a newer compact summary and the
+  // report's full 7-column analysis). Using the latest snapshot by time alone can silently
+  // drop source-quality signals needed by Advisor.
+  let analysis: Record<string, unknown> | null = null;
+  const renderedImportId = rendered.importId == null ? '' : String(rendered.importId).trim();
 
-  if (analysisError) throw analysisError;
-  const analysis = analyses?.[0] ?? null;
+  if (renderedImportId) {
+    const { data: importAnalyses, error: importAnalysisError } = await supabase
+      .from('source_analysis_snapshots')
+      .select('id,import_job_id,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
+      .eq('company_id', companyId)
+      .eq('source_hash', job.source_hash)
+      .eq('import_job_id', renderedImportId)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (importAnalysisError) throw importAnalysisError;
+    analysis = (importAnalyses?.[0] ?? null) as Record<string, unknown> | null;
+  }
+
+  if (!analysis) {
+    const { data: analyses, error: analysisError } = await supabase
+      .from('source_analysis_snapshots')
+      .select('id,import_job_id,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
+      .eq('company_id', companyId)
+      .eq('source_hash', job.source_hash)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (analysisError) throw analysisError;
+    analysis = (analyses?.[0] ?? null) as Record<string, unknown> | null;
+  }
   const { data: canonicalCommits, error: canonicalCommitError } = await supabase
     .from('canonical_import_commits')
     .select('committed_count')

@@ -73,10 +73,26 @@ function numeric(value: unknown): number | null {
 }
 
 function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
-  const dataset = report.sourceAnalysis?.datasets?.[0];
-  if (!dataset || typeof dataset !== 'object') return [];
-  const columns = (dataset as Record<string, unknown>).columns;
-  return Array.isArray(columns) ? columns.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object') : [];
+  const datasets = report.sourceAnalysis?.datasets ?? [];
+  const columns: Array<Record<string, unknown>> = [];
+  const seen = new Set<string>();
+
+  for (const dataset of datasets) {
+    if (!dataset || typeof dataset !== 'object') continue;
+    const datasetColumns = (dataset as Record<string, unknown>).columns;
+    if (!Array.isArray(datasetColumns)) continue;
+
+    for (const item of datasetColumns) {
+      if (!item || typeof item !== 'object') continue;
+      const column = item as Record<string, unknown>;
+      const key = normalized(column.mappedField ?? column.name ?? '');
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      columns.push(column);
+    }
+  }
+
+  return columns;
 }
 
 function findColumn(columns: Array<Record<string, unknown>>, aliases: string[]): Record<string, unknown> | null {

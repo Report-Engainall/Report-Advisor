@@ -558,7 +558,7 @@ async function proveSourceBoundSurface(page, report, surface) {
 
 async function proveTransactionalMutationAndAudit(page) {
   await page.goto(baseURL + '/operations', { waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByText('مركز العمليات', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await page.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
 
   const e2eOrders = await restSelect(
     page,
@@ -583,7 +583,7 @@ async function proveTransactionalMutationAndAudit(page) {
   const orderId = String(prepared.id);
 
   await page.goto(baseURL + '/operations', { waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByText('مركز العمليات', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await page.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
   const first = page.locator('[data-testid="advance-order-' + orderId + '"]');
   assert.equal(await first.count(), 1, 'TRANSACTIONAL_E2E_ORDER_ACTION_MISSING');
   const beforeBody = (await page.locator('body').innerText()).trim();
@@ -650,7 +650,7 @@ async function proveTransactionalMutationAndAudit(page) {
   assert.equal(payment.invoice_id, invoiceId);
 
   await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByText('مركز العمليات', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await page.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
   const afterBody = (await page.locator('body').innerText()).trim();
   assert.ok(afterBody.includes('AUDIT / TRACE'), 'TRANSACTIONAL_AUDIT_TRACE_SECTION_MISSING_AFTER_MUTATION');
   assert.notEqual(afterBody, beforeBody, 'TRANSACTIONAL_UI_READBACK_DID_NOT_CHANGE');
@@ -989,7 +989,7 @@ try {
   assertCurrentReportText(finalBody, 'current report final readback'); assert.ok(finalBody.includes('EVIDENCE INSPECTOR'));
   evidence.steps.push({ step: 'current-report-final-refresh-readback', status: 'PASS', reportJobId: currentReport.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, rowCount: CURRENT_REPORT_ROW_COUNT });
   await pageA.goto(baseURL + '/operations', { waitUntil: 'networkidle', timeout: 30000 });
-  await pageA.getByText('مركز العمليات', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await pageA.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
   const operationsBody = (await pageA.locator('body').innerText()).trim();
   assert.ok(operationsBody.includes('ORDER → FULFILLMENT'), 'TRANSACTIONAL_SPINE_ORDER_SURFACE_MISSING');
   assert.ok(operationsBody.includes('INVOICE → PAYMENT'), 'TRANSACTIONAL_SPINE_PAYMENT_SURFACE_MISSING');
@@ -1017,7 +1017,7 @@ try {
 
   await pageA.setViewportSize({ width: 390, height: 844 });
   await pageA.goto(baseURL + '/operations', { waitUntil: 'networkidle', timeout: 30000 });
-  await pageA.getByText('مركز العمليات', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await pageA.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
   const mobileBody = (await pageA.locator('body').innerText()).trim();
   assert.ok(mobileBody.includes('AUDIT / TRACE'), 'OPERATIONS_MOBILE_AUDIT_TRACE_MISSING');
   assert.ok(await pageA.getByRole('button', { name: 'تحديث' }).isVisible(), 'OPERATIONS_MOBILE_RETRY_MISSING');
