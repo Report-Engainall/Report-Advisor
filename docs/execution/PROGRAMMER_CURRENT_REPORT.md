@@ -12,8 +12,10 @@ CURRENT_MAIN_HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3
 LATEST_COMMIT = test: select second tenant from E2E allowlist
 LATEST_CI = new exact-head suite triggered by current code fix; terminal results not yet consumed
 
-## WHAT I WAS ASKED TO DO
-Restore from the saved execution state, verify GitHub reality, identify the first active failure, repair the correct layer, continue execution, and persist a truthful handoff without repeating closed work.
+WHAT_I_WAS_ASKED_TO_DO = Restore the saved state, verify GitHub reality, identify the first active failure, repair the correct layer, continue execution, and persist a truthful handoff without repeating closed work.
+
+
+WHAT_I_ACTUALLY_DID = Verified main/PR/branch state; fixed workflow concurrency; fixed search_path contract parsing; fixed live E2E tenant selection; persisted report, archive, and resume state.
 
 ## WHAT I ACTUALLY DID
 - Verified main HEAD, PR #730, execution branch, and canonical session files.
@@ -25,6 +27,8 @@ Restore from the saved execution state, verify GitHub reality, identify the firs
 - Fixed the live gate test to select the second tenant only from that allowlist and fail explicitly with LIVE_GATE_SECOND_ALLOWED_TENANT_MISSING when an appropriate second tenant does not exist.
 - No production SQL or database migration was changed for this runtime test defect.
 
+WHAT_IS_PROVEN = Exact branch/main refs were verified; batch-integrity and security-definer contracts pass on PC01 at the current branch; the session-handoff contract failure is now identified as report-field shape, not missing files.
+
 ## WHAT IS PROVEN
 - Main exact HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3.
 - PR #730 remains OPEN / NOT MERGED.
@@ -34,8 +38,12 @@ Restore from the saved execution state, verify GitHub reality, identify the firs
 - The current code contains the allowlisted second-tenant selection fix.
 - No exact-head PASS is claimed for the new fix until its CI/live/browser results finish and are read back.
 
+FIRST_ACTIVE_FAILURE = SESSION_HANDOFF_CONTRACT_FAIL: missing report field WHAT_I_WAS_ASKED_TO_DO. The earlier live tenant failure has already been root-caused and fixed at the test layer.
+
 ## FIRST ACTIVE FAILURE
-E2E_PROVISION_TENANT_NOT_ALLOWED in the Evidence Passport live gate.
+E2E_PROVISION_TENANT_NOT_ALLOWED in the Evidence Passport live gate was the first runtime failure before the handoff-contract failure surfaced.
+
+ROOT_CAUSE = The current terminal contract failure is report schema shape: the checker requires explicit KEY = VALUE fields. The prior runtime root cause was the live gate selecting an arbitrary non-E2E tenant while provision_e2e_test_membership intentionally allowlisted only designated E2E tenants.
 
 ## ROOT CAUSE
 provision_e2e_test_membership intentionally rejects companies not named RUNTIME-EVIDENCE-A-401117 or matching Aghbari Report Corpus CI %. The live gate previously selected an arbitrary second company using neq(passport.company_id).limit(1), so it could select a legitimate non-E2E tenant and fail before the cross-tenant evidence checks ran.
@@ -98,6 +106,8 @@ This cycle remains focused on import/evidence/runtime truth and certification pl
 - Do not patch SQL solely to satisfy a defective static regex.
 - Do not claim queued/current CI as PASS.
 - Do not treat metadata-only persistence commits as new product/runtime code.
+
+NEXT_EXACT_ACTION = Re-run the session-handoff contract at the current branch and consume the live/browser/current-head gates for code head 28c6ea3d9c1a1d593a71b08025827c97927de697. Fix only the first new P0/P1 failure.
 
 ## NEXT_EXACT_ACTION
 Consume the exact-head CI results for 28c6ea3d9c1a1d593a71b08025827c97927de697. The first failed P0/P1 gate becomes the sole active runtime front; fix only that boundary, then persist/read back and rerun exact-head proof.
