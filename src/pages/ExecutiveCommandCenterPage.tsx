@@ -55,7 +55,7 @@ function AlertRow({ alert }: { alert: Alert }) {
           {alert.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{alert.description}</p>}
           <div className="mt-3 grid gap-2 sm:grid-cols-3 text-[9px]">
             <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">WHY</div><div className="mt-1 font-bold text-ink-800">{alert.description ?? 'سبب التنبيه غير متاح؛ راجع الدليل.'}</div></div>
-            <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">EVIDENCE</div><div className="mt-1 font-bold text-ink-800">{alert.metric_value == null ? 'قيمة القياس غير متاحة' : formatCurrency(alert.metric_value)}{alert.threshold == null ? '' : ' · الحد ' + formatCurrency(alert.threshold)}</div></div>
+            <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">EVIDENCE</div><div className="mt-1 font-bold text-ink-800">{alert.metric_value == null ? 'قيمة القياس غير متاحة' : formatNumber(alert.metric_value)}{alert.threshold == null ? '' : ' · الحد ' + formatNumber(alert.threshold)}</div></div>
             <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">WHAT NEXT</div><div className="mt-1 font-bold text-ink-800">مراجعة القياس ثم فتح سياق القرار</div></div>
           </div>
           <div className="mt-3 flex gap-2">
