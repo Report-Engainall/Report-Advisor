@@ -1,3 +1,4 @@
+/* BUILD_PROVENANCE_MARKER: exact source SHA is embedded into dist/index.html during build. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
