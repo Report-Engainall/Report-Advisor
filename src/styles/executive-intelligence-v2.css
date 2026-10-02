@@ -25,7 +25,6 @@
   --ag-ui-radius-sm: 11px;
 }
 
-@layer base {
   html {
     background:
       radial-gradient(circle at 7% 4%, rgba(228, 174, 50, .08), transparent 24rem),
@@ -48,9 +47,7 @@
     outline: 2px solid rgba(8, 127, 115, .58) !important;
     outline-offset: 3px;
   }
-}
 
-@layer components {
   /* App frame */
   .ag-app-shell {
     background:
@@ -382,7 +379,6 @@
     from { opacity: .84; transform: translateY(3px); }
     to { opacity: 1; transform: translateY(0); }
   }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .ag-main .card,
@@ -428,7 +424,6 @@
 
 
 /* v2.1 — dense executive workspace polish */
-@layer components {
   .ag-main .command-strip {
     border-color: rgba(195, 215, 209, .90) !important;
     background: rgba(255,255,255,.86) !important;
@@ -556,7 +551,6 @@
   .ag-main a:not(.btn):not(.nav-item):not(.ag-nav-item):hover {
     color: var(--ag-ui-teal-strong) !important;
   }
-}
 
 @media (max-width: 1100px) {
   .ag-main .ag-data-table {
@@ -589,7 +583,6 @@
 
 
 /* v2.2 — semantic status grammar */
-@layer components {
   /*
    * These hooks are additive. They intentionally use stable semantic
    * attributes/classes so the intelligence engine can evolve independently.
@@ -703,11 +696,9 @@
     width: 4px;
     background: linear-gradient(180deg, var(--ag-ui-gold), var(--ag-ui-teal));
   }
-}
 
 
 /* v2.3 — decision rail + report center visual hierarchy */
-@layer components {
   .ag-main .ag-journey {
     position: relative;
   }
@@ -914,7 +905,6 @@
     background: #fff !important;
     color: #073b36 !important;
   }
-}
 
 @media (max-width: 760px) {
   .ag-main .ag-journey-track {
@@ -932,7 +922,6 @@
 
 
 /* v2.4 — executive command-center finish */
-@layer components {
   .ag-main .ag-command-hero,
   .ag-main .ag-connection-hero,
   .ag-main .ag-exec-hero {
@@ -1066,7 +1055,6 @@
     pointer-events: none;
     z-index: -1;
   }
-}
 
 @media (max-width: 760px) {
   .ag-main .ag-command-hero,
