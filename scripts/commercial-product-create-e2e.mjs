@@ -98,7 +98,7 @@ try {
   assert.equal(String(persisted[0].name), name);
   assert.equal(Number(persisted[0].cost_price), 10);
   assert.equal(Number(persisted[0].selling_price), 15);
-  await page.getByRole('button', { name: 'إغلاق' }).click();
+  await page.locator('[role=\"dialog\"] form button[type=\"button\"]').filter({ hasText: 'إغلاق' }).click();
   await page.locator('[role="dialog"]').waitFor({ state: 'hidden', timeout: 30000 });
   await page.getByRole('textbox', { name: 'بحث عن منتج' }).fill(sku);
   await page.getByText(sku, { exact: true }).waitFor({ state: 'visible', timeout: 10000 });
