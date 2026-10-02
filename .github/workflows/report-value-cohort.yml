@@ -1,0 +1,67 @@
+name: Report Value Cohort
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/report-value-cohort.mjs'
+      - 'scripts/report-evidence-passport-contract.test.mjs'
+      - 'src/lib/report-decisions.ts'
+      - 'src/lib/decision-automation/vertical-slice-runtime.ts'
+      - 'src/lib/report-smart.ts'
+      - 'src/pages/SmartReportPage.tsx'
+      - 'supabase/migrations/**'
+      - 'package.json'
+      - '.github/workflows/report-value-cohort.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  exact-head-value-cohort:
+    runs-on: ubuntu-latest
+    env:
+      REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      REPORT_ADVISOR_COMPANY_ID: ${{ secrets.REPORT_ADVISOR_COMPANY_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+
+      - name: Assert exact HEAD
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "${{ github.event.pull_request.head.sha }}"
+          printf 'EXACT_HEAD=%s\n' "$actual"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run passport contract
+        run: npm run test:report-evidence-passport-contract
+
+      - name: Run 40-report business value cohort
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${REPORT_ADVISOR_SUPABASE_URL}"
+          test -n "${SUPABASE_SERVICE_ROLE_KEY}"
+          test -n "${REPORT_ADVISOR_COMPANY_ID}"
+          mkdir -p artifacts/report-value-cohort
+          npm run report:value-cohort | tee artifacts/report-value-cohort/cohort.json
+
+      - name: Upload cohort proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-value-cohort-${{ github.event.pull_request.head.sha }}
+          path: artifacts/report-value-cohort/cohort.json
+          if-no-files-found: error
