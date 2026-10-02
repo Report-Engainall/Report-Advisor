@@ -90,7 +90,7 @@ try {
   await page.locator('#product-create-min-stock').fill('2');
   await page.locator('#product-create-reorder').fill('3');
   await page.getByRole('button', { name: 'حفظ المنتج' }).click();
-  await page.locator('[role="dialog"]').waitFor({ state: 'hidden', timeout: 30000 });
+  await page.getByRole('status').filter({ hasText: 'تم الحفظ والتحقق' }).waitFor({ state: 'visible', timeout: 30000 });
   const persisted = await rest(`products?select=id,company_id,sku,name,unit,cost_price,selling_price,min_stock,reorder_point&company_id=eq.${evidence.tenant}&sku=eq.${encodeURIComponent(sku)}`);
   assert.equal(persisted.length, 1, 'exactly one persisted product expected');
   assert.equal(persisted[0].company_id, evidence.tenant, 'persisted product must belong to current tenant');
@@ -98,6 +98,8 @@ try {
   assert.equal(String(persisted[0].name), name);
   assert.equal(Number(persisted[0].cost_price), 10);
   assert.equal(Number(persisted[0].selling_price), 15);
+  await page.getByRole('button', { name: 'إغلاق' }).click();
+  await page.locator('[role="dialog"]').waitFor({ state: 'hidden', timeout: 30000 });
   await page.getByRole('textbox', { name: 'بحث عن منتج' }).fill(sku);
   await page.getByText(sku, { exact: true }).waitFor({ state: 'visible', timeout: 10000 });
   evidence.persisted = persisted[0];

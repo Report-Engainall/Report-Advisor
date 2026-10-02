@@ -887,12 +887,6 @@ async function proveDecisionApprovalActionOutcome(page, report) {
       assert.equal(String(approvedRows[0].decided_by), approverId);
       approvalStatus = 'APPROVED';
 
-      const approverCreateWorkButton = approverPage.locator('[data-testid="create-work-' + decisionId + '"]');
-      if (await approverCreateWorkButton.count() === 1) {
-        await approverCreateWorkButton.waitFor({ state: 'visible', timeout: 30000 });
-        await approverCreateWorkButton.click();
-        await approverPage.waitForTimeout(500);
-      }
     } finally {
       await approverPage.close().catch(() => {});
       await approverContext.close().catch(() => {});
