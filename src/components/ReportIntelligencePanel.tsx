@@ -260,6 +260,16 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                 </div>
                 <p className="mt-2 text-[11px] font-bold leading-5 text-ink-800">{item.action}</p>
                 <p className="mt-1 text-[10px] leading-5 text-ink-500">{item.why}</p>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  <div className="rounded-lg bg-white p-2">
+                    <div className="text-[8px] font-black text-ink-400">OWNER</div>
+                    <div className="mt-1 text-[9px] font-black text-ink-800">{item.ownerHint}</div>
+                  </div>
+                  <div className="rounded-lg bg-white p-2">
+                    <div className="text-[8px] font-black text-ink-400">EXPECTED OUTCOME</div>
+                    <div className="mt-1 text-[9px] font-bold leading-4 text-ink-800">{item.expectedOutcome}</div>
+                  </div>
+                </div>
               </article>
             ))}
           </div>
