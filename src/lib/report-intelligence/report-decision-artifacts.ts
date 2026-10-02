@@ -1,4 +1,5 @@
 import type {ReportIntelligence, ReportRecommendation, ReportSignal} from './report-smart-insights';
+import type {SourceDecisionState} from '../report-decisions';
 
 export type ClaimStatus = 'OBSERVED' | 'DERIVED' | 'INFERRED' | 'RECOMMENDED';
 export type ReportClaim = {
@@ -19,7 +20,7 @@ export type DecisionPacket = {
   expectedOutcome: string | null; actualOutcome: string | null; profileVersion: string | null; reproducibilityKey: string;
 };
 export type ReportDecisionArtifacts = { claims: ReportClaim[]; questions: BusinessQuestion[]; decisionPacket: DecisionPacket; };
-type ArtifactInput = { jobId: string; sourceHash: string; rowCount: number | null; specialty: string | null; renderedOutput: Record<string, unknown>; intelligence: ReportIntelligence; };
+type ArtifactInput = { jobId: string; sourceHash: string; rowCount: number | null; specialty: string | null; renderedOutput: Record<string, unknown>; intelligence: ReportIntelligence; sourceDecisions: SourceDecisionState[]; };
 function text(value: unknown): string { return String(value ?? '').trim(); }
 function buildObservedSourceClaim(input: ArtifactInput): ReportClaim {
   return {
@@ -72,17 +73,19 @@ export function buildReportDecisionArtifacts(input: ArtifactInput): ReportDecisi
     makeQuestion('SO_WHAT', 'ما الأثر التشغيلي؟', topSignal ? 'ANSWERED' : 'NOT_AVAILABLE', topSignal?.soWhat ?? 'الأثر التشغيلي غير متاح.', topClaimId ? [topClaimId] : []),
     makeQuestion('WHAT_NEXT', 'ماذا نفعل الآن؟', topRecommendation ? 'ANSWERED' : 'NOT_AVAILABLE', topRecommendation?.action ?? 'لا توجد توصية موثقة من الإشارات الحالية.', topRecommendation ? ['claim:recommendation:' + topRecommendation.id] : []),
     makeQuestion('PROOF', 'ما الدليل؟', proofReady ? 'ANSWERED' : 'BLOCKED', proofReady ? 'Evidence Passport وEvidence Snapshot مرتبطان بالمصدر ' + input.sourceHash + '.' : 'لا يمكن إعلان claim موثق قبل وجود Evidence Passport وEvidence Snapshot صالحين.', claims.slice(0, 6).map((claim) => claim.id), proofReady ? [] : ['Evidence gate غير مكتمل.']),
-    makeQuestion('AFTER_ACTION', 'ماذا حدث بعد التنفيذ؟', text(input.renderedOutput.outcomeStatus) && text(input.renderedOutput.outcomeStatus) !== 'NOT_AVAILABLE' ? 'ANSWERED' : 'NOT_AVAILABLE', text(input.renderedOutput.outcomeStatus) && text(input.renderedOutput.outcomeStatus) !== 'NOT_AVAILABLE' ? 'حالة النتيجة الحالية: ' + text(input.renderedOutput.outcomeStatus) : 'لا توجد نتيجة مقاسة بعد؛ اكتمال العمل لا يساوي Outcome Proven.', [], ['لا يتم إنشاء learning أو impact من دون actual outcome موثق.']),
+    makeQuestion('AFTER_ACTION', 'ماذا حدث بعد التنفيذ؟', outcomeStatus ? (actualOutcomeAvailable ? 'ANSWERED' : outcomeStatus === 'insufficient' ? 'REVIEW_REQUIRED' : 'ANSWERED') : 'NOT_AVAILABLE', outcomeStatus ? (actualOutcomeAvailable ? 'تم رصد Outcome فعلي: ' + String(actualImpact) : 'حالة النتيجة الحالية: ' + outcomeStatus + '؛ لا يوجد أثر مالي فعلي مقاس.') : 'لا توجد نتيجة محفوظة بعد؛ اكتمال العمل لا يساوي Outcome Proven.', [], ['لا يتم إنشاء learning أو impact من دون actual outcome موثق.']),
   ];
   const byKey = new Map(questions.map((question) => [question.key, question]));
   const profileVersion = text(input.renderedOutput.profileVersion) || null;
-  const actualImpact = Number(input.renderedOutput.actualImpact ?? input.renderedOutput.outcomeActualImpact);
-  const actualOutcomeAvailable = Number.isFinite(actualImpact) && text(input.renderedOutput.outcomeStatus) !== '' && text(input.renderedOutput.outcomeStatus) !== 'insufficient';
+  const latestDecision = input.sourceDecisions[0] ?? null;
+  const actualImpact = latestDecision?.actualImpact ?? Number(input.renderedOutput.actualImpact ?? input.renderedOutput.outcomeActualImpact);
+  const outcomeStatus = latestDecision?.outcomeStatus ?? text(input.renderedOutput.outcomeStatus);
+  const actualOutcomeAvailable = Number.isFinite(Number(actualImpact)) && Boolean(outcomeStatus) && outcomeStatus !== 'insufficient';
   return {
     claims, questions,
     decisionPacket: {
       businessQuestion: input.intelligence.businessQuestion, what: byKey.get('WHAT')!, why: byKey.get('WHY')!, soWhat: byKey.get('SO_WHAT')!,
-      impact: { status: actualOutcomeAvailable ? 'AVAILABLE' : text(input.renderedOutput.outcomeStatus) === 'insufficient' ? 'INSUFFICIENT_SAMPLE' : 'NOT_AVAILABLE', statement: actualOutcomeAvailable ? 'الأثر الفعلي المقاس = ' + String(actualImpact) : text(input.renderedOutput.outcomeStatus) === 'insufficient' ? 'تم تنفيذ العمل دون قياس أثر فعلي؛ لا يمكن إثبات outcome مالي.' : 'الأثر المالي/النتيجة الفعلية غير متاحين ما لم تُسجل ملاحظة بعد التنفيذ.' },
+      impact: { status: actualOutcomeAvailable ? 'AVAILABLE' : outcomeStatus === 'insufficient' ? 'INSUFFICIENT_SAMPLE' : 'NOT_AVAILABLE', statement: actualOutcomeAvailable ? 'الأثر الفعلي المقاس = ' + String(actualImpact) : outcomeStatus === 'insufficient' ? 'تم تنفيذ العمل دون قياس أثر فعلي؛ لا يمكن إثبات outcome مالي.' : 'الأثر المالي/النتيجة الفعلية غير متاحين ما لم تُسجل ملاحظة بعد التنفيذ.' },
       proof: byKey.get('PROOF')!,
       limitations: ['لا توجد سببية مثبتة من التحليل الوصفي وحده.', 'لا توجد نتيجة مالية فعلية قبل رصد Outcome مستقل.', profileVersion ? 'التفسير مرتبط بإصدار profile معلن.' : 'PROFILE_VERSION غير معلن؛ لا يجوز افتراض إعادة تفسير تاريخي صامت.'],
       recommendation: topRecommendation, decisionStatus: text(input.renderedOutput.decisionStatus) || null, approvalStatus: text(input.renderedOutput.approvalStatus) || null,
