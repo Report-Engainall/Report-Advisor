@@ -22,7 +22,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
-      REPORT_ADVISOR_COMPANY_ID: f68a7e91-3c7e-46fb-97a8-e339bec04e13
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
     steps:
       - uses: actions/checkout@v4
