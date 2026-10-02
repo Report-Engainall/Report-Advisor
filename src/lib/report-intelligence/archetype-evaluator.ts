@@ -5,6 +5,7 @@ type RuleProfile = {
   number: number;
   title: string;
   adapterSpecialty: string;
+  ruleFamily?: string;
   requiredFields: string[];
   capabilities: string[];
   recommendationFocus: string[];
@@ -147,6 +148,8 @@ export function applyArchetypeRuleSet(
 
   let intelligence = base;
   const required = new Set((profile.capabilities ?? []).map(norm));
+  const family = text(profile.ruleFamily);
+  if (!family) throw new Error('ARCHETYPE_RULE_FAMILY_MISSING:' + profile.id);
   const has = (field: string) => Boolean(columnKey(report, field));
 
   const dateKey = columnKey(report, 'documentDate');
@@ -506,44 +509,364 @@ export function applyArchetypeRuleSet(
     };
   }
 
-  if (!modelFinding && profile.requiredFields.every((field) => has(field))) {
-    const numericField = profile.requiredFields.find((field) => ['netAmount','grossAmount','unitPrice','sellingPrice','cost','quantity','salesQty','purchaseQty','currentStock','discount','paidAmount','targetAmount','dueDate','leadTimeDays','debit','credit','asset','liability','equity','profit'].includes(field) && has(field));
-    const dimensionField = primaryDimension(profile);
-    if (numericField) {
-      const key = columnKey(report, numericField);
-      if (key) {
-        const total = sumBy(rows, key);
+
+
+  if (!modelFinding && family === 'invoice') {
+    const docKey = columnKey(report, 'documentNo');
+    const valueKey = columnKey(report, 'netAmount') ?? columnKey(report, 'grossAmount');
+    if (docKey) {
+      const docs = new Set(rows.map((row) => text(row.data?.[docKey])).filter(Boolean));
+      const total = valueKey ? sumBy(rows, valueKey) : null;
+      modelFinding = {
+        id: 'archetype:' + profile.id + ':invoice',
+        kind: 'FINDING',
+        priority: 'medium',
+        title: profile.title + ' — كثافة الفواتير',
+        statement: 'يوجد ' + docs.size + ' رقم مستند/فاتورة فريد في ' + rows.length + ' سجلًا' + (total == null ? '.' : ' بإجمالي قيمة محسوبة ' + total.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '.'),
+        value: total ?? docs.size,
+        unit: total == null ? 'unique documents' : 'source value',
+        evidence: ['documentField=' + docKey, 'uniqueDocuments=' + docs.size, 'rows=' + rows.length],
+        limitation: 'عدد المستندات لا يثبت صحة الفواتير أو جودة التحصيل.',
+        action: profile.recommendationFocus[0] || 'راجع المستندات الأعلى أثرًا قبل اعتماد قرار.',
+      };
+    }
+  }
+
+  if (!modelFinding && family === 'continuity') {
+    const partyKey = columnKey(report, 'customerCode') ?? columnKey(report, 'supplierCode');
+    const dateKey = columnKey(report, 'documentDate');
+    if (partyKey && dateKey) {
+      const latestByParty = new Map<string, string>();
+      for (const row of rows) {
+        const party = text(row.data?.[partyKey]);
+        const date = text(row.data?.[dateKey]);
+        if (party && date) {
+          const current = latestByParty.get(party);
+          if (!current || date > current) latestByParty.set(party, date);
+        }
+      }
+      const latestDates = [...latestByParty.values()].sort();
+      const latest = latestDates.at(-1) ?? null;
+      modelFinding = {
+        id: 'archetype:' + profile.id + ':continuity',
+        kind: 'FINDING',
+        priority: 'medium',
+        title: profile.title + ' — استمرارية الكيانات',
+        statement: 'النموذج يتابع ' + latestByParty.size + ' كيانًا؛ أحدث تاريخ مرصود ضمن هذه العلاقات هو ' + (latest ?? 'غير متاح') + '.',
+        value: latestByParty.size,
+        unit: 'unique entities',
+        evidence: ['partyField=' + partyKey, 'dateField=' + dateKey, 'uniqueEntities=' + latestByParty.size],
+        limitation: 'وجود تاريخ أخير لا يثبت الخمول أو فقد العميل/المورد دون تعريف نافذة الانقطاع.',
+        action: profile.recommendationFocus[0] || 'راجع الكيانات التي انقطع نشاطها خارج نافذة المتابعة المعتمدة.',
+      };
+    }
+  }
+
+  if (!modelFinding && family === 'location') {
+    const locationKey = columnKey(report, 'warehouse');
+    const valueKey = columnKey(report, 'netAmount') ?? columnKey(report, 'quantity') ?? columnKey(report, 'currentStock');
+    if (locationKey && valueKey) {
+      const groups = groupTop(rows, locationKey, valueKey);
+      const unique = new Set(rows.map((row) => text(row.data?.[locationKey])).filter(Boolean)).size;
+      if (groups) {
         modelFinding = {
-          id: 'archetype:' + profile.id + ':primary',
+          id: 'archetype:' + profile.id + ':location',
           kind: 'FINDING',
           priority: 'medium',
-          title: profile.title + ' — نتيجة النموذج',
-          statement: 'النموذج قرأ ' + rows.length + ' سجلًا؛ مجموع ' + numericField + ' في الحقول المتاحة هو ' + total.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '.',
-          value: total,
-          unit: 'قيمة المصدر',
-          dimensionLabel: dimensionField ? dimensionField : null,
-          dimensionValue: dimensionField && rows[0] ? text(rows[0].data?.[dimensionField]) || null : null,
-          evidence: ['archetypeId=' + profile.id, 'requiredFields=' + profile.requiredFields.join(','), 'primaryMeasure=' + key, 'rowCount=' + rows.length],
-          limitation: 'هذه قراءة أساسية مرتبطة بالنموذج؛ لا تتجاوز دلالة الحقول المتاحة ولا تثبت السبب.',
-          action: profile.recommendationFocus[0] || 'راجع النتيجة مع الدليل قبل اعتماد القرار.',
+          title: profile.title + ' — توزيع المواقع',
+          statement: 'يغطي المصدر ' + unique + ' مواقع، وأعلى موقع في القيمة/الكمية المحسوبة هو "' + groups[0] + '".',
+          value: groups[1],
+          unit: 'source value',
+          dimensionLabel: 'الموقع',
+          dimensionValue: groups[0],
+          evidence: ['locationField=' + locationKey, 'valueField=' + valueKey, 'uniqueLocations=' + unique],
+          limitation: 'التركيز المكاني لا يثبت كفاءة الموقع أو الحاجة إلى التحويل.',
+          action: profile.recommendationFocus[0] || 'قارن المواقع مع الطلب والمخزون/المبيعات قبل الإجراء.',
         };
       }
-    } else {
-      const dimensionField = profile.requiredFields.find((field) => has(field) && ['customerCode','supplierCode','productCode','category','brand','warehouse','salesRep','accountCode'].includes(field));
-      const key = dimensionField ? columnKey(report, dimensionField) : null;
-      if (key) {
-        const unique = new Set(rows.map((row) => text(row.data?.[key])).filter(Boolean)).size;
+    }
+  }
+
+  if (!modelFinding && family === 'representative') {
+    const repKey = columnKey(report, 'salesRep');
+    const valueKey = columnKey(report, 'netAmount');
+    if (repKey && valueKey) {
+      const top = groupTop(rows, repKey, valueKey);
+      if (top) {
         modelFinding = {
-          id: 'archetype:' + profile.id + ':primary',
+          id: 'archetype:' + profile.id + ':representative',
           kind: 'FINDING',
           priority: 'medium',
-          title: profile.title + ' — تغطية الكيان',
-          statement: 'النموذج قرأ ' + rows.length + ' سجلًا ويغطي ' + unique + ' قيمة فريدة في ' + dimensionField + '.',
-          value: unique,
-          unit: 'unique entities',
-          evidence: ['archetypeId=' + profile.id, 'dimensionField=' + key, 'uniqueEntities=' + unique],
-          limitation: 'عدد الكيانات وحده لا يثبت جودة الأداء أو السببية.',
-          action: profile.recommendationFocus[0] || 'راجع الكيانات الأعلى أثرًا مع الدليل قبل القرار.',
+          title: profile.title + ' — مساهمة المندوب',
+          statement: 'المندوب "' + top[0] + '" يحمل أعلى قيمة محسوبة بمقدار ' + top[1].toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '.',
+          value: top[1],
+          unit: 'source value',
+          dimensionLabel: 'المندوب',
+          dimensionValue: top[0],
+          evidence: ['representativeField=' + repKey, 'valueField=' + valueKey],
+          limitation: 'القيمة الأعلى لا تعني بالضرورة أفضل أداء دون مقارنة الفرص والحصص والفترة.',
+          action: profile.recommendationFocus[0] || 'راجع محفظة المندوب والأصناف والعملاء المساهمين.',
+        };
+      }
+    }
+  }
+
+  if (!modelFinding && family === 'payment') {
+    const methodKey = columnKey(report, 'paymentMethod') ?? columnKey(report, 'paymentTerms') ?? columnKey(report, 'currency');
+    const valueKey = columnKey(report, 'netAmount') ?? columnKey(report, 'paidAmount');
+    if (methodKey && valueKey) {
+      const top = groupTop(rows, methodKey, valueKey);
+      if (top) {
+        modelFinding = {
+          id: 'archetype:' + profile.id + ':payment',
+          kind: 'FINDING',
+          priority: 'medium',
+          title: profile.title + ' — توزيع طريقة/شروط الدفع',
+          statement: 'القيمة الأعلى مرتبطة بـ"' + top[0] + '" بإجمالي محسوب ' + top[1].toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '.',
+          value: top[1],
+          unit: 'source value',
+          dimensionLabel: 'طريقة/شرط الدفع',
+          dimensionValue: top[0],
+          evidence: ['groupField=' + methodKey, 'valueField=' + valueKey],
+          limitation: 'التوزيع الوصفي لا يثبت مخاطرة ائتمانية أو مشكلة تحصيل.',
+          action: profile.recommendationFocus[0] || 'راجع توزيع الدفع وشروطه مع الذمم الفعلية.',
+        };
+      }
+    }
+  }
+
+  if (!modelFinding && family === 'inventory-position') {
+    const stockKey = columnKey(report, 'currentStock');
+    if (stockKey) {
+      const totalStock = sumBy(rows, stockKey);
+      const negative = rows.filter((row) => (num(row.data?.[stockKey]) ?? 0) < 0).length;
+      modelFinding = {
+        id: 'archetype:' + profile.id + ':inventory-position',
+        kind: negative ? 'RISK' : 'FINDING',
+        priority: negative ? 'high' : 'medium',
+        title: profile.title + ' — الرصيد الحالي',
+        statement: 'إجمالي الرصيد الحالي المحسوب هو ' + totalStock.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + ' مع ' + negative + ' سجل سالب.',
+        value: totalStock,
+        unit: 'quantity',
+        evidence: ['stockField=' + stockKey, 'negativeRows=' + negative, 'rows=' + rows.length],
+        limitation: 'الرصيد لا يوضح الحركة أو الطلب المستقبلي وحده.',
+        action: profile.recommendationFocus[0] || 'راجع الأرصدة غير الطبيعية ثم اربطها بالحركة والطلب.',
+      };
+    }
+  }
+
+  if (!modelFinding && family === 'inventory-movement') {
+    const openingKey = columnKey(report, 'openingStock') ?? columnKey(report, 'openingBalance');
+    const inboundKey = columnKey(report, 'inbound');
+    const outboundKey = columnKey(report, 'outbound');
+    const currentKey = columnKey(report, 'currentStock');
+    if (openingKey && inboundKey && outboundKey && currentKey) {
+      let gap = 0;
+      let usable = 0;
+      for (const row of rows) {
+        const opening = num(row.data?.[openingKey]);
+        const inbound = num(row.data?.[inboundKey]);
+        const outbound = num(row.data?.[outboundKey]);
+        const current = num(row.data?.[currentKey]);
+        if ([opening, inbound, outbound, current].every((v) => v != null)) {
+          gap += (opening! + inbound! - outbound!) - current!;
+          usable += 1;
+        }
+      }
+      modelFinding = {
+        id: 'archetype:' + profile.id + ':inventory-movement',
+        kind: gap === 0 ? 'FINDING' : 'RISK',
+        priority: gap === 0 ? 'medium' : 'high',
+        title: profile.title + ' — تسوية الحركة',
+        statement: 'تمت مطابقة ' + usable + ' سجلًا؛ فجوة التسوية الإجمالية = ' + gap.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '.',
+        value: gap,
+        unit: 'reconciliation gap',
+        evidence: ['opening=' + openingKey, 'inbound=' + inboundKey, 'outbound=' + outboundKey, 'current=' + currentKey, 'usableRows=' + usable],
+        limitation: 'الفجوة الحسابية لا تفسر وحدها مصدر الفرق.',
+        action: profile.recommendationFocus[0] || 'طابق الحركات المصدرية مع الرصيد النهائي قبل تعديل المخزون.',
+      };
+    }
+  }
+
+  if (!modelFinding && family === 'stockout-reorder') {
+    const stockKey = columnKey(report, 'currentStock');
+    const demandKey = columnKey(report, 'salesQty') ?? columnKey(report, 'requestedQty');
+    if (stockKey && demandKey) {
+      const stock = sumBy(rows, stockKey);
+      const demand = sumBy(rows, demandKey);
+      const ratio = demand === 0 ? null : stock / Math.abs(demand);
+      modelFinding = {
+        id: 'archetype:' + profile.id + ':stockout-reorder',
+        kind: ratio != null && ratio < 1 ? 'RISK' : 'FINDING',
+        priority: ratio != null && ratio < 1 ? 'high' : 'medium',
+        title: profile.title + ' — أولوية إعادة الطلب',
+        statement: ratio == null ? 'تعذر حساب نسبة كمية بين الرصيد والطلب المرجعي.' : 'نسبة الرصيد إلى الطلب المرجعي = ' + ratio.toFixed(2) + '.',
+        value: ratio,
+        unit: 'stock-to-demand ratio',
+        evidence: ['stockField=' + stockKey, 'demandField=' + demandKey],
+        limitation: 'لا تكفي هذه النسبة وحدها لتحديد كمية إعادة الطلب أو تاريخ النفاد.',
+        action: profile.recommendationFocus[0] || 'اربط الرصيد بالمهلة والطلب التاريخي قبل اعتماد كمية شراء.',
+      };
+    }
+  }
+
+  if (!modelFinding && family === 'inventory-valuation') {
+    const stockKey = columnKey(report, 'currentStock');
+    const costKey = columnKey(report, 'cost');
+    if (stockKey && costKey) {
+      const value = rows.reduce((sum, row) => sum + (num(row.data?.[stockKey]) ?? 0) * (num(row.data?.[costKey]) ?? 0), 0);
+      modelFinding = {
+        id: 'archetype:' + profile.id + ':inventory-valuation',
+        kind: 'FINDING',
+        priority: 'medium',
+        title: profile.title + ' — قيمة المخزون المرجعية',
+        statement: 'القيمة المرجعية المحسوبة من الكمية × التكلفة = ' + value.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '.',
+        value,
+        unit: 'reference inventory value',
+        evidence: ['stockField=' + stockKey, 'costField=' + costKey],
+        limitation: 'هذه قيمة مرجعية وليست بالضرورة قيمة دفترية أو تقييمًا محاسبيًا نهائيًا.',
+        action: profile.recommendationFocus[0] || 'طابق التقييم المرجعي مع سياسة التكلفة والسجل المحاسبي.',
+      };
+    }
+  }
+
+  if (!modelFinding && family === 'inventory-adjustment') {
+    const adjustmentKey = columnKey(report, 'adjustmentQty') ?? columnKey(report, 'quantity');
+    if (adjustmentKey) {
+      const values = rows.map((row) => num(row.data?.[adjustmentKey])).filter((v): v is number => v != null);
+      const abs = values.reduce((sum, value) => sum + Math.abs(value), 0);
+      const nonZero = values.filter((value) => value !== 0).length;
+      modelFinding = {
+        id: 'archetype:' + profile.id + ':inventory-adjustment',
+        kind: nonZero ? 'RISK' : 'FINDING',
+        priority: nonZero ? 'medium' : 'low',
+        title: profile.title + ' — حجم التسويات',
+        statement: 'تم رصد ' + nonZero + ' حركة غير صفرية بقيمة مطلقة إجمالية ' + abs.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '.',
+        value: abs,
+        unit: 'absolute adjustment quantity',
+        evidence: ['adjustmentField=' + adjustmentKey, 'nonZeroRows=' + nonZero],
+        limitation: 'وجود التسوية لا يثبت خطأً؛ يلزم سبب الحركة ومستندها.',
+        action: profile.recommendationFocus[0] || 'راجع الحركات غير الصفرية مع المستندات الأصلية.',
+      };
+    }
+  }
+
+  if (!modelFinding && family === 'activity') {
+    const partyKey = columnKey(report, 'customerCode') ?? columnKey(report, 'supplierCode');
+    const dateKey = columnKey(report, 'documentDate');
+    if (partyKey) {
+      const unique = new Set(rows.map((row) => text(row.data?.[partyKey])).filter(Boolean)).size;
+      modelFinding = {
+        id: 'archetype:' + profile.id + ':activity',
+        kind: 'FINDING',
+        priority: 'medium',
+        title: profile.title + ' — نطاق النشاط',
+        statement: 'المصدر يغطي ' + unique + ' كيانًا فريدًا ضمن ' + rows.length + ' سجلًا.',
+        value: unique,
+        unit: 'unique entities',
+        evidence: ['entityField=' + partyKey, 'uniqueEntities=' + unique, 'dateField=' + (dateKey ?? 'missing')],
+        limitation: 'عدد الكيانات لا يثبت نشاطًا فعالًا دون نافذة زمنية وتعريف النشاط.',
+        action: profile.recommendationFocus[0] || 'قسّم النشاط حسب الفترة والقيمة قبل ترتيب المتابعة.',
+      };
+    }
+  }
+
+  if (!modelFinding && family === 'rfm') {
+    const customerKey = columnKey(report, 'customerCode');
+    const dateKey = columnKey(report, 'documentDate');
+    const valueKey = columnKey(report, 'netAmount');
+    if (customerKey && dateKey && valueKey) {
+      const now = Date.now();
+      const customers = new Map<string, { last: number; frequency: number; monetary: number }>();
+      for (const row of rows) {
+        const customer = text(row.data?.[customerKey]);
+        const date = new Date(text(row.data?.[dateKey]));
+        const value = num(row.data?.[valueKey]);
+        if (!customer || Number.isNaN(date.getTime()) || value == null) continue;
+        const item = customers.get(customer) ?? { last: 0, frequency: 0, monetary: 0 };
+        item.last = Math.max(item.last, date.getTime());
+        item.frequency += 1;
+        item.monetary += value;
+        customers.set(customer, item);
+      }
+      const scored = [...customers.entries()].sort((a,b)=>b[1].monetary-a[1].monetary)[0];
+      if (scored) {
+        const recencyDays = Math.max(0, Math.round((now - scored[1].last) / 86400000));
+        modelFinding = {
+          id: 'archetype:' + profile.id + ':rfm',
+          kind: 'FINDING',
+          priority: 'medium',
+          title: profile.title + ' — أعلى ملف RFM',
+          statement: 'العميل "' + scored[0] + '" لديه تكرار ' + scored[1].frequency + ' وقيمة ' + scored[1].monetary.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '، وحداثة مرصودة تقارب ' + recencyDays + ' يومًا حتى تاريخ التشغيل.',
+          value: scored[1].monetary,
+          unit: 'monetary',
+          dimensionLabel: 'العميل',
+          dimensionValue: scored[0],
+          evidence: ['customerField=' + customerKey, 'dateField=' + dateKey, 'valueField=' + valueKey, 'frequency=' + scored[1].frequency, 'monetary=' + scored[1].monetary.toFixed(2)],
+          limitation: 'RFM وصفي ويحتاج نافذة ومرجعًا زمنيًا معتمدًا قبل تصنيف شرائح كاملة.',
+          action: profile.recommendationFocus[0] || 'راجع العملاء الأعلى قيمة وحداثة قبل بناء حملة متابعة.',
+        };
+      }
+    }
+  }
+
+  if (!modelFinding && family === 'supplier-performance') {
+    const supplierKey = columnKey(report, 'supplierCode');
+    const leadKey = columnKey(report, 'leadTimeDays');
+    const priceKey = columnKey(report, 'unitPrice');
+    if (supplierKey && (leadKey || priceKey)) {
+      const suppliers = new Map<string, { count: number; lead: number; leadCount: number; price: number; priceCount: number }>();
+      for (const row of rows) {
+        const supplier = text(row.data?.[supplierKey]);
+        if (!supplier) continue;
+        const item = suppliers.get(supplier) ?? { count: 0, lead: 0, leadCount: 0, price: 0, priceCount: 0 };
+        item.count += 1;
+        const lead = leadKey ? num(row.data?.[leadKey]) : null;
+        const price = priceKey ? num(row.data?.[priceKey]) : null;
+        if (lead != null) { item.lead += lead; item.leadCount += 1; }
+        if (price != null) { item.price += price; item.priceCount += 1; }
+        suppliers.set(supplier, item);
+      }
+      const candidate = [...suppliers.entries()].sort((a,b)=>(b[1].lead / Math.max(1,b[1].leadCount))-(a[1].lead / Math.max(1,a[1].leadCount)))[0];
+      if (candidate) {
+        const avgLead = candidate[1].leadCount ? candidate[1].lead / candidate[1].leadCount : null;
+        modelFinding = {
+          id: 'archetype:' + profile.id + ':supplier-performance',
+          kind: avgLead != null && avgLead >= 30 ? 'RISK' : 'FINDING',
+          priority: avgLead != null && avgLead >= 30 ? 'high' : 'medium',
+          title: profile.title + ' — أداء المورد',
+          statement: 'المورد "' + candidate[0] + '" لديه ' + candidate[1].count + ' سجلًا ومتوسط مدة توريد مرصودة ' + (avgLead == null ? 'غير متاحة' : avgLead.toFixed(1) + ' يوم') + '.',
+          value: avgLead,
+          unit: 'days',
+          dimensionLabel: 'المورد',
+          dimensionValue: candidate[0],
+          evidence: ['supplierField=' + supplierKey, 'leadTimeField=' + (leadKey ?? 'missing'), 'records=' + candidate[1].count],
+          limitation: 'هذه قراءة وصفية ولا تقيس الالتزام بموعد تعاقدي غير موجود.',
+          action: profile.recommendationFocus[0] || 'راجع المورد مقابل المهلة المتفق عليها والأسعار والتأخيرات.',
+        };
+      }
+    }
+  }
+
+  if (!modelFinding && family === 'demand') {
+    const dateKey = columnKey(report, 'documentDate');
+    const demandKey = columnKey(report, 'salesQty') ?? columnKey(report, 'requestedQty');
+    if (dateKey && demandKey) {
+      const trend = dateValue(rows, dateKey, demandKey);
+      if (trend) {
+        modelFinding = {
+          id: 'archetype:' + profile.id + ':demand',
+          kind: trend.pct != null && trend.pct < -10 ? 'RISK' : 'FINDING',
+          priority: trend.pct != null && Math.abs(trend.pct) >= 20 ? 'high' : 'medium',
+          title: profile.title + ' — اتجاه الطلب',
+          statement: 'الطلب المحسوب انتقل من ' + trend.previous[1].toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + ' إلى ' + trend.latest[1].toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '.',
+          value: trend.delta,
+          unit: 'demand period delta',
+          dimensionLabel: 'الفترة',
+          dimensionValue: trend.latest[0],
+          evidence: ['dateField=' + dateKey, 'demandField=' + demandKey, 'previousPeriod=' + trend.previous[0], 'latestPeriod=' + trend.latest[0]],
+          limitation: 'هذا اتجاه وصفي؛ التنبؤ يحتاج تاريخًا كافيًا ولا يضمن نتيجة مستقبلية.',
+          action: profile.recommendationFocus[0] || 'اربط اتجاه الطلب بالمخزون وتاريخ التوريد قبل القرار.',
         };
       }
     }
