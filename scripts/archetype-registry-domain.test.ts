@@ -12,7 +12,7 @@ const inventory = resolveArchetype({
   title: 'أرصدة المخزون',
 });
 assert.equal(inventory.archetypeId, 'inventory.balance');
-assert.equal(inventory.profileVersion, 1);
+assert.equal(inventory.profileVersion, 'inventory.balance@v1');
 assert.equal(inventory.reviewRequired, false);
 assert.deepEqual(inventory.missingRequiredFields, []);
 
@@ -21,6 +21,7 @@ const arabicHeaders = resolveArchetypeFromHeaders({
   title: 'تقرير المخزون',
 });
 assert.equal(arabicHeaders.archetypeId, 'inventory.balance');
+assert.equal(arabicHeaders.profileVersion, 'inventory.balance@v1');
 assert.equal(arabicHeaders.confidence, 1);
 assert.equal(arabicHeaders.reviewRequired, false);
 
@@ -29,10 +30,12 @@ const sales = resolveArchetype({
   title: 'Sales Detail',
 });
 assert.equal(sales.archetypeId, 'sales.transaction-detail');
+assert.equal(sales.profileVersion, 'sales.transaction-detail@v1');
 assert.ok(sales.confidence >= 0.8);
 
 const unknown = resolveArchetype({ fields: ['currency'], title: 'كشف غير معروف' });
 assert.equal(unknown.archetypeId, 'generic.report');
+assert.equal(unknown.profileVersion, 'generic.report@v1');
 assert.equal(unknown.reviewRequired, true);
 
 const generic = buildGenericSmartPack({
