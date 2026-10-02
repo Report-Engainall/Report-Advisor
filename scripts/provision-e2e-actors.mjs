@@ -160,8 +160,25 @@ async function createActor(email, password) {
         return data.user;
       }
 
+      if (isRetryableAuthLookup(error) || String(error?.message ?? '').toLowerCase().includes('already registered')) {
+        try {
+          const recoveredUser = await signInConfiguredActor(email, password);
+          if (recoveredUser?.id) return recoveredUser;
+        } catch {
+          // The create request may have failed before the identity became visible.
+        }
+      }
+
       if (!isRetryableAuthLookup(error) || attempt === 4) throw error;
     } catch (error) {
+      if (isRetryableAuthLookup(error) || String(error?.message ?? '').toLowerCase().includes('already registered')) {
+        try {
+          const recoveredUser = await signInConfiguredActor(email, password);
+          if (recoveredUser?.id) return recoveredUser;
+        } catch {
+          // Continue with the bounded create retry below.
+        }
+      }
       if (!isRetryableAuthLookup(error) || attempt === 4) throw error;
     }
 
