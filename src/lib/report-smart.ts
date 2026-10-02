@@ -1,7 +1,7 @@
 import { supabase, resolveCurrentCompanyId } from './supabase.ts';
 import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights.ts';
 import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
-import { detectReportArchetype } from './report-intelligence/archetype-registry.ts';
+import { detectReportArchetype, runReportArchetype } from './report-intelligence/archetype-registry.ts';
 
 export type SmartReportCatalogItem = {
   jobId: string;
@@ -399,7 +399,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     ? inferSpecialtyFromAnalysis(sourceAnalysis)
     : String(rendered.sourceSpecialty);
 
-  const intelligence = deriveReportIntelligence({
+  const baseIntelligence = deriveReportIntelligence({
     specialty,
     rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
     sourceAnalysis,
@@ -413,8 +413,86 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
   );
   if (!catalogItem) throw new Error('SMART_REPORT_CATALOG_ITEM_UNAVAILABLE');
 
+  const availableFields = [...new Set((Array.isArray(sourceAnalysis?.datasets) ? sourceAnalysis.datasets : []).flatMap((dataset) => {
+    if (!dataset || typeof dataset !== 'object') return [];
+    const columns = (dataset as Record<string, unknown>).columns;
+    if (!Array.isArray(columns)) return [];
+    return columns
+      .filter((column): column is Record<string, unknown> => Boolean(column) && typeof column === 'object')
+      .map((column) => String(column.mappedField ?? ''))
+      .filter(Boolean);
+  }))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
+
+  const detectedArchetype = detectReportArchetype({
+    sourcePath: String(job.source_path ?? ''),
+    specialty,
+    availableFields,
+  });
+
+  let intelligence: ReportIntelligence = baseIntelligence;
+  let archetypeState = detectedArchetype.state;
+
+  if (detectedArchetype.profile) {
+    const archetypeRun = runReportArchetype({
+      intelligence: baseIntelligence,
+      provenance: {
+        tenantId: companyId,
+        sourceHash: String(job.source_hash ?? ''),
+        reportExecutionJobId: String(job.id),
+        evidenceSnapshotId: typeof rendered.evidenceSnapshotId === 'string' ? rendered.evidenceSnapshotId : null,
+        evidencePassportId: typeof rendered.evidencePassportId === 'string' ? rendered.evidencePassportId : null,
+        sourceVersionId: typeof rendered.sourceVersionId === 'string' ? rendered.sourceVersionId : null,
+      },
+      availableFields,
+      sampleSize: rendered.rowCount == null ? 0 : Number(rendered.rowCount),
+      archetypeId: detectedArchetype.profile.id,
+      profileVersion: detectedArchetype.profile.version,
+      report: {
+        specialty,
+        rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
+        sourceAnalysis,
+        renderedOutput: rendered,
+        canonicalRows,
+      },
+    });
+
+    archetypeState = archetypeRun.state;
+    intelligence = archetypeRun.state === 'SUPPORTED'
+      ? archetypeRun.intelligence
+      : {
+          ...archetypeRun.intelligence,
+          signals: archetypeRun.intelligence.signals.filter((signal) => !signal.id.startsWith('model:')),
+          recommendations: [],
+          advisorBrief: {
+            ...archetypeRun.intelligence.advisorBrief,
+            recommendedAction: null,
+            expectedOutcome: null,
+            measurement: null,
+            headline: 'النموذج لم يجتز بوابة التشغيل: ' + archetypeRun.state,
+          },
+        };
+  } else {
+    // A specialty-level generic recommendation is not an archetype proof.
+    // Keep source-quality understanding available, but block recommendation/decision output.
+    intelligence = {
+      ...baseIntelligence,
+      signals: baseIntelligence.signals.filter((signal) => !signal.id.startsWith('model:')),
+      recommendations: [],
+      advisorBrief: {
+        ...baseIntelligence.advisorBrief,
+        recommendedAction: null,
+        expectedOutcome: null,
+        measurement: null,
+        headline: 'لا يوجد نموذج مصدرّي مثبت لهذا التقرير: ' + detectedArchetype.state,
+      },
+    };
+  }
+
   return {
     ...catalogItem,
+    archetypeState,
+    archetypeId: detectedArchetype.profile?.id ?? null,
+    archetypeVersion: detectedArchetype.profile?.version ?? null,
     jobId: String(job.id),
     tenantId: companyId,
     sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
