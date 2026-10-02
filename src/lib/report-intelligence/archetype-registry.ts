@@ -24,6 +24,7 @@ export type ArchetypeRule = {
 export type ArchetypeProfile = {
   archetypeId: string;
   version: number;
+  profileVersion: string;
   status: ArchetypeStatus;
   legacyReportType: 'inventory' | 'sales' | 'purchases' | 'customerBalances' | 'supplierBalances' | 'stockMovement' | 'unknown';
   titleAliases: string[];
@@ -56,7 +57,9 @@ export type ArchetypeResolution = {
   limitations: string[];
 };
 
-const PROFILES: readonly ArchetypeProfile[] = [
+type ArchetypeProfileDefinition = Omit<ArchetypeProfile, 'profileVersion'>;
+
+const PROFILES: readonly ArchetypeProfileDefinition[] = [
   {
     archetypeId: 'inventory.balance',
     version: 1,
@@ -228,7 +231,10 @@ const GENERIC_PROFILE: ArchetypeProfile = {
   confidenceThreshold: 0.5,
 };
 
-const ALL_PROFILES = [...PROFILES, GENERIC_PROFILE] as const;
+const ALL_PROFILES: readonly ArchetypeProfile[] = [...PROFILES, GENERIC_PROFILE].map((profile) => Object.freeze({
+  ...profile,
+  profileVersion: `${profile.archetypeId}@v${profile.version}`,
+}));
 
 export function resolveArchetypeFromHeaders(input: { headers: string[]; title?: string | null }): ArchetypeResolution {
   const fields = uniqueFields(
