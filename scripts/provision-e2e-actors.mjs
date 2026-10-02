@@ -129,7 +129,7 @@ async function createActor(email, password) {
   throw new Error('E2E_ACTOR_CREATE_RETRY_EXHAUSTED');
 }
 
-async function ensureActor(email, password, label) {
+async function ensureActor(email, password, label, freshRunScoped = false) {
   assertProvisionDeadline('ensure-actor-' + label);
   let resolvedEmail = email?.trim();
   let resolvedPassword = password;
@@ -145,22 +145,27 @@ async function ensureActor(email, password, label) {
   let user = null;
   let lookupUnavailable = false;
 
-  if (!generated) {
+  if (freshRunScoped) {
+    // Workflow-generated credentials are unique to this run. Avoid the Auth Admin
+    // listUsers scan entirely; that scan is a major dependency during Auth pressure.
+    user = await createActor(resolvedEmail, resolvedPassword);
+    generated = true;
+  } else if (!generated) {
     const lookup = await findUserByEmail(resolvedEmail);
     user = lookup.user;
     lookupUnavailable = lookup.lookupUnavailable;
   }
 
-  if (lookupUnavailable) {
+  if (!freshRunScoped && lookupUnavailable) {
     const generatedCredentials = actorCredentials(label);
     resolvedEmail = generatedCredentials.email;
     resolvedPassword = generatedCredentials.password;
     user = await createActor(resolvedEmail, resolvedPassword);
     generated = true;
-  } else if (!user) {
+  } else if (!freshRunScoped && !user) {
     user = await createActor(resolvedEmail, resolvedPassword);
     generated = true;
-  } else {
+  } else if (!freshRunScoped && user) {
     const metadata = user.user_metadata ?? {};
     const tagged = metadata.e2e_actor === 'true' && metadata.e2e_purpose === ACTOR_METADATA.e2e_purpose;
     if (!tagged) {
@@ -382,9 +387,24 @@ async function provisionMembership(companyId, userId, requestedRole, isDefault, 
 }
 
 const approverCredentials = ensureApproverCredentials();
-const userA = await ensureActor(process.env.TEST_USER_A_EMAIL, process.env.TEST_USER_A_PASSWORD, 'A');
-const userB = await ensureActor(process.env.TEST_USER_B_EMAIL, process.env.TEST_USER_B_PASSWORD, 'B');
-const approver = await ensureActor(approverCredentials.email, approverCredentials.password, 'APPROVER');
+const userA = await ensureActor(
+  process.env.TEST_USER_A_EMAIL,
+  process.env.TEST_USER_A_PASSWORD,
+  'A',
+  process.env.TEST_USER_A_EPHEMERAL === 'true',
+);
+const userB = await ensureActor(
+  process.env.TEST_USER_B_EMAIL,
+  process.env.TEST_USER_B_PASSWORD,
+  'B',
+  process.env.TEST_USER_B_EPHEMERAL === 'true',
+);
+const approver = await ensureActor(
+  approverCredentials.email,
+  approverCredentials.password,
+  'APPROVER',
+  approverCredentials.generated,
+);
 
 assert.notEqual(userA.id, approver.id, 'APPROVER_MUST_DIFFER_FROM_REQUESTER');
 assert.notEqual(userA.id, userB.id, 'USER_A_AND_USER_B_MUST_DIFFER');
