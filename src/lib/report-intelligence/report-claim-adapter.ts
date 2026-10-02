@@ -64,7 +64,7 @@ export function buildClaimsFromReportIntelligence(input: ClaimAdapterInput): Cla
       limitations: [
         'التوصية اقتراح تشغيلي مبني على الإشارة؛ القرار والموافقة يظلّان بشريين.',
       ],
-      supportingEvidence: [...recommendation.evidence, recommendation.why],
+      supportingEvidence: [...recommendation.evidence],
       ruleId: recommendation.id.replace(/^rec:/, ''),
     });
   }
