@@ -46,7 +46,7 @@ export type ArchetypeProfile = {
 
 export type ArchetypeResolution = {
   archetypeId: string;
-  profileVersion: number;
+  profileVersion: string;
   legacyReportType: ArchetypeProfile['legacyReportType'];
   matchReason: string[];
   matchedFields: CanonicalField[];
@@ -209,7 +209,7 @@ const PROFILES: readonly ArchetypeProfileDefinition[] = [
   },
 ];
 
-const GENERIC_PROFILE: ArchetypeProfile = {
+const GENERIC_PROFILE: ArchetypeProfileDefinition = {
   archetypeId: 'generic.report',
   version: 1,
   status: 'ACTIVE',
@@ -304,7 +304,7 @@ export function resolveArchetype(input: {
   if (bestScore < best.confidenceThreshold) {
     return {
       archetypeId: GENERIC_PROFILE.archetypeId,
-      profileVersion: GENERIC_PROFILE.version,
+      profileVersion: `${GENERIC_PROFILE.archetypeId}@v${GENERIC_PROFILE.version}`,
       legacyReportType: 'unknown',
       matchReason: ['الثقة الدلالية أقل من الحد؛ لم يتم فرض قالب متخصص.', 'تم اختيار Generic Smart Pack.'],
       matchedFields: [],
@@ -318,7 +318,7 @@ export function resolveArchetype(input: {
 
   return {
     archetypeId: best.archetypeId,
-    profileVersion: best.version,
+    profileVersion: `${best.archetypeId}@v${best.version}`,
     legacyReportType: best.legacyReportType,
     matchReason: bestMatch.reasons,
     matchedFields: bestMatch.matched,
@@ -358,7 +358,7 @@ export function buildGenericSmartPack(input: {
   title?: string | null;
 }): {
   archetypeId: string;
-  profileVersion: number;
+  profileVersion: string;
   whatWasUnderstood: string;
   calculable: string[];
   notCalculable: string[];
