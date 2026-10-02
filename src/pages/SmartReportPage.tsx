@@ -196,6 +196,32 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
         <div className="rounded-xl border border-ink-200 bg-ink-50/60 p-4"><div className="text-[9px] font-black text-ink-500">EVIDENCE</div><div className="mt-2 text-sm font-black">{stateLabel(report.evidenceStatus)}</div><div className="mt-1 text-[10px] text-ink-500">Evidence snapshot authority is separate from canonical commit.</div></div>
         <div className={`rounded-xl border p-4 ${verificationClass}`}><div className="text-[9px] font-black">VERIFICATION STATE</div><div className="mt-2 text-sm font-black">{reportVerificationLabel(verification)}</div><div className="mt-1 text-[10px]">Source trust: {stateLabel(report.sourceTrustState ?? report.trustState)} · Report verification: {reportVerificationLabel(verification)}</div></div>
       </div>
+      <div className="mt-3 rounded-2xl border border-primary-200 bg-primary-50/45 p-4" aria-label="بوابة الدليل قبل القرار">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="text-[9px] font-black tracking-[0.12em] text-primary-700">EVIDENCE GATE</div>
+            <h3 className="mt-1 text-sm font-black text-ink-950">الاعتماد الكانوني والدليل النهائي مرحلتان منفصلتان</h3>
+            <p className="mt-1 text-[10px] leading-5 text-ink-600">اكتمال Commit يثبت تغطية البيانات الكانونية فقط. لا تصبح النتيجة Verified إلا بعد وجود Evidence Snapshot صريح مرتبط بالمصدر.</p>
+          </div>
+          {verification !== 'VERIFIED' ? (
+            <Link to="/trust" className="btn-secondary text-[10px]">فتح بوابة الأدلة <ArrowLeft size={12} /></Link>
+          ) : null}
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <div className="rounded-xl bg-white p-3">
+            <div className="text-[8px] font-black text-ink-400">CANONICAL COMMIT</div>
+            <div className="mt-1 text-[10px] font-black text-ink-900">{gap > 0 ? `فجوة ${formatNumber(gap)} صف` : report.canonicalCommitVerified ? 'مغطى' : 'غير مثبت'}</div>
+          </div>
+          <div className="rounded-xl bg-white p-3">
+            <div className="text-[8px] font-black text-ink-400">EVIDENCE SNAPSHOT</div>
+            <div className="mt-1 text-[10px] font-black text-ink-900">{verification === 'VERIFIED' ? 'موجود ومثبت' : report.evidenceStatus === 'AWAITING_EVIDENCE_SNAPSHOT' ? 'بانتظار لقطة دليل' : stateLabel(report.evidenceStatus)}</div>
+          </div>
+          <div className="rounded-xl bg-white p-3">
+            <div className="text-[8px] font-black text-ink-400">DECISION READINESS</div>
+            <div className="mt-1 text-[10px] font-black text-ink-900">{verification === 'VERIFIED' ? 'الدليل متاح للمراجعة' : 'لا يوجد اعتماد دليلي نهائي بعد'}</div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
