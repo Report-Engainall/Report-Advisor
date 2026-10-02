@@ -290,7 +290,35 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
     });
   }).filter((question) => !universal.some((existing) => existing.id === question.id));
 
-  return sortBusinessQuestions([...universal, ...specialized]).map((question) => ({
+  const modelFinding = input.archetypeId
+    ? business.findings?.find((item) => item.id.startsWith('archetype:' + input.archetypeId + ':')) ?? null
+    : null;
+  const archetypeQuestion = input.archetypeId
+    ? evaluateBusinessQuestion<AdvisoryQuestionAnswer>({
+        id: 'archetype:' + input.archetypeId + ':primary-question',
+        label: 'النموذج ' + input.archetypeId + ' — ما النتيجة الأساسية؟',
+        requiredFields: [],
+        minimumSample: 1,
+        priority: 110,
+        availableFields: input.availableFields,
+        sampleSize: input.sampleSize,
+        answer: modelFinding
+          ? {
+              finding: modelFinding.statement,
+              evidence: modelFinding.evidence,
+              limitation: modelFinding.limitation,
+              action: modelFinding.action,
+            }
+          : null,
+        reviewRequired: Boolean(input.archetypeId) && !modelFinding,
+      })
+    : null;
+
+  return sortBusinessQuestions([
+    ...universal,
+    ...specialized,
+    ...(archetypeQuestion ? [archetypeQuestion] : []),
+  ]).map((question) => ({
     ...question,
     followUpQuestion: question.followUpQuestion ?? followUpForQuestion(question),
   }));
