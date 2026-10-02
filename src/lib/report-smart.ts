@@ -16,6 +16,7 @@ export type SmartReportCatalogItem = {
 };
 
 export type SmartReportDetail = SmartReportCatalogItem & {
+  tenantId: string;
   importId: string | null;
   checkpointStage: string | null;
   renderedOutput: Record<string, unknown>;
@@ -150,7 +151,7 @@ export async function fetchSmartReportCatalog(limit = 60): Promise<SmartReportCa
 
   const { data: jobs, error } = await supabase
     .from('report_execution_jobs')
-    .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
+    .select('id,company_id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
     .eq('company_id', companyId)
     .eq('status', 'completed')
     .like('job_key', 'canonical-import:generic:%')
@@ -326,6 +327,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
 
   return {
     jobId: String(job.id),
+    tenantId: String(job.company_id ?? ''),
     sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
     sourceHash: String(job.source_hash ?? ''),
     entityType: entityTypeFrom(String(job.job_key ?? '')),
