@@ -138,6 +138,10 @@ export function ExecutiveCommandCenterPage() {
     pendingApprovals,
   }), [workItems, outcomes, pendingApprovals]);
 
+  const actionWorkItems = useMemo(() => workItems
+    .filter((item) => item.status === 'OPEN' || item.status === 'IN_PROGRESS')
+    .slice(0, 4), [workItems]);
+
   if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   if (!kpis) return <DataUnavailableState title="مركز القيادة ينتظر الحقيقة" message="لا توجد مؤشرات أساسية موثوقة تكفي لبناء صورة تنفيذية. راجع جودة المصدر قبل اتخاذ القرار." action={<Link to="/data-quality" className="btn-primary text-[11px]">مراجعة جودة البيانات</Link>} />;
@@ -201,6 +205,49 @@ export function ExecutiveCommandCenterPage() {
                 <span><span className="ag-attention-label">صحة البيانات</span><span className="ag-attention-value">{coverage}%</span><span className="ag-attention-note">{kpis.status === 'INSUFFICIENT_DATA' ? 'بيانات غير كافية' : 'تغطية القياسات المتاحة'}</span></span>
               </Link>
             </div>
+          </CardBody>
+        </Card>
+      </section>
+
+      <section aria-label="من الانتباه إلى الإجراء">
+        <Card variant="evidence">
+          <CardHeader
+            kicker="ATTENTION → ACTION"
+            title="من الانتباه إلى الإجراء"
+            subtitle="العناصر التالية هي سجلات عمل محفوظة؛ كل بطاقة تكشف السبب، الدليل، المالك، الحالة، وما حدث بعدها."
+            action={<Link to="/work-center" className="btn-ghost text-[10px]">فتح كل الأعمال <ArrowUpLeft size={13}/></Link>}
+          />
+          <CardBody>
+            {actionWorkItems.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-ink-200 bg-ink-50/60 p-4 text-center text-[10px] text-ink-500">
+                لا توجد مهمة مفتوحة أو قيد التنفيذ الآن. لا يتم إنشاء طابور بديل.
+              </div>
+            ) : (
+              <div className="grid gap-2 lg:grid-cols-2">
+                {actionWorkItems.map((item) => (
+                  <article key={item.id} className="rounded-xl border border-ink-200 bg-white p-3">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-black text-ink-900">{item.title}</div>
+                        <div className="mt-1 text-[9px] text-ink-500">{item.department || 'قسم غير محدد'} · {item.assigneeLabel ?? 'المالك غير محدد'}</div>
+                      </div>
+                      <span className="rounded-full bg-primary-50 px-2 py-1 text-[8px] font-black text-primary-800">{item.status}</span>
+                    </div>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-3 text-[9px]">
+                      <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">WHY</div><div className="mt-1 font-bold text-ink-800">{item.title}</div></div>
+                      <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">EVIDENCE</div><div className="mt-1 font-bold text-ink-800">{item.evidenceSnapshotId ? 'مثبت' : 'غير متاح'}</div></div>
+                      <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">OUTCOME</div><div className="mt-1 font-bold text-ink-800">{item.actualImpact == null ? 'لم تُسجل نتيجة بعد' : formatCurrency(item.actualImpact)}</div></div>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Link to={'/work-center?decisionWorkFilter=' + (item.status === 'OPEN' ? 'open' : 'in_progress')} className="btn-primary text-[9px]">فتح الإجراء <ArrowUpLeft size={12}/></Link>
+                      {item.sourceReportJobId && item.sourceHash && (
+                        <Link to={'/reports/smart/' + item.sourceReportJobId + '?sourceHash=' + encodeURIComponent(item.sourceHash) + '#decision-evidence-inspector'} className="btn-ghost text-[9px]">فتح الدليل والمصدر <FileSearch size={12}/></Link>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
           </CardBody>
         </Card>
       </section>

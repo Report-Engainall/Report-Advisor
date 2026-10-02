@@ -160,6 +160,22 @@ jobs:
           npm run test:work-center-decision-queue
           npm run test:business-replay
           npm run test:benchmark-fail-closed
+      - name: Provision legitimate E2E actors and memberships
+        env:
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+          TEST_APPROVER_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_APPROVER_EMAIL }}
+          TEST_APPROVER_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_APPROVER_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_SERVICE_ROLE_KEY"
+          npm run provision:e2e-actors
+
       - name: Start exact Netlify preview with serverless API
         env:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
