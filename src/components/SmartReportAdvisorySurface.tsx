@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createSourceDecisionProposal, fetchSourceDecisionProposals, type SourceDecisionState } from '@/lib/report-decisions';
 import type { SmartReportDetail } from '@/lib/report-smart';
 import { buildAdvisoryPacket } from '@/lib/report-intelligence/report-advisory-orchestrator';
-import { resolveReportArchetype } from '@/lib/report-intelligence/archetype-registry';
+import { detectReportArchetype } from '@/lib/report-intelligence/archetype-registry';
 import { BusinessQuestionRail } from '@/components/intelligence/BusinessQuestionRail';
 import { ClaimEvidenceCard } from '@/components/intelligence/ClaimEvidenceCard';
 import type { CanonicalField } from '@/lib/report-intelligence/canonical-schema';
@@ -28,10 +28,22 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
     : null;
 
   const requestedArchetypeId = typeof report.renderedOutput.archetypeId === 'string' ? report.renderedOutput.archetypeId : null;
-  const archetypeResolution = resolveReportArchetype({
-    archetypeId: requestedArchetypeId,
+  const requestedProfile = requestedArchetypeId ? detectReportArchetype({
+    sourcePath: report.sourcePath,
     specialty: report.specialty,
-  });
+    availableFields: canonicalFields(report),
+  }) : null;
+  const archetypeResolution = requestedArchetypeId
+    ? (requestedProfile?.profile?.id === requestedArchetypeId
+      ? requestedProfile
+      : requestedProfile?.state === 'SUPPORTED'
+        ? { ...requestedProfile, reason: 'STORED_ID_CONFLICTS_WITH_FINGERPRINT' as const }
+        : { profile: null, state: 'REVIEW_REQUIRED' as const, reason: 'STORED_ARCHETYPE_REQUIRES_REVIEW' })
+    : detectReportArchetype({
+        sourcePath: report.sourcePath,
+        specialty: report.specialty,
+        availableFields: canonicalFields(report),
+      });
   const packet = buildAdvisoryPacket({
     intelligence: report.intelligence,
     provenance: {
