@@ -1,55 +1,50 @@
 # PROGRAMMER CURRENT REPORT
-
-SESSION HANDOFF = NOT READY
+SESSION_HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-REPORT_FOR_HEAD = 204e82f1496d37b79b52d3533073325a4b64e3ec
-CURRENT EXACT HEAD = 204e82f1496d37b79b52d3533073325a4b64e3ec
-CURRENT EXECUTION HEAD = 204e82f1496d37b79b52d3533073325a4b64e3ec
-CURRENT MAIN HEAD = 204e82f1496d37b79b52d3533073325a4b64e3ec
-BRANCH = main
-PR = #756 MERGED
-UPDATED_AT = 2026-10-02T21:24:00Z
-ACTION_STATUS = IN_PROGRESS
-NEXT_EXACT_ACTION = resolve Netlify project deploy HTTP 403, deploy exact main 204e82f1496d37b79b52d3533073325a4b64e3ec, verify JSON /api/health provenance, rerun Phase-F, fix only the first terminal failure, then continue exact-head authenticated Smart Report browser proof.
-
-WHAT_I_WAS_ASKED_TO_DO = Close the real product path: source intake → truth → evidence → signal → decision → approval → action → outcome, with exact-head proof and no stale PASS reuse.
-
-WHAT_I_ACTUALLY_DID = Merged PR #752, #753, #754, #755 and #756; fixed transient Auth provisioning retries; switched Phase F to configured password authentication; repaired stale Phase F runtime targeting; repaired the exact-head session handoff contract; continued current-head certification.
-
-WHAT_IS_PROVEN = Product intelligence/static contracts and exact local builds are proven on recorded SHAs. Phase F Auth canary succeeds on current-head run 37066381079 before live probes. Final Certification contracts previously passed on 8abc. Authenticated browser business proof remains unproven.
-
-FIRST_ACTIVE_FAILURE = Netlify current-main deploy returned HTTP 403 after successful CLI authentication. Public /api/health still serves HTML fallback. Prior Phase-F also remains blocked by Supabase connection-pool checkout timeout.
-
-ROOT_CAUSE = Netlify project deploy is forbidden for the authenticated CLI account, so the stale runtime cannot be replaced. Supabase staging is ACTIVE_HEALTHY, but live SQL/backup paths have intermittent pool checkout timeouts.
-
-## EXACT PROOF
-
-- PR #752: merged; Smart Report archetype runtime promoted.
-- PR #753: E2E actor provisioning contract PASS; typecheck PASS; diff check PASS.
-- PR #754: Phase F runtime closure PASS; resilience runtime PASS; typecheck PASS; diff check PASS.
-- PR #755: SESSION_HANDOFF_CONTRACT_PASS.
-- PR #756: Phase F runtime closure PASS; resilience runtime PASS; typecheck PASS; diff check PASS.
-- Verified preview health: NOT_PROVEN for 204e82; d1738d7a896b0a2544fd080455fa08f094cd6799 remains historical and is not current runtime proof.
-- Netlify CLI authenticated successfully, but `netlify deploy --prod --build` returned HTTP 403; no deployment PASS is claimed.
-- Phase F run 37066381079 terminal result: tenant-canary PASS; operational-health STALE_RUNTIME; backup-restore-verification failed on Postgres connection-pool checkout timeout; rollback-forward-fix-drill failed with fetch failed. Phase F status was NOT READY.
-- Full Product Browser E2E run 37064389357 was re-run twice on f95 and both failed at actor provisioning with Supabase Auth 504. No authenticated browser PASS is claimed.
-- Final Certification on 8abc completed successfully; not transferred to 549d09 as runtime proof.
-
-## OPEN
-
-- Fresh current-main runtime deployment and runtime provenance proof.
-- Fresh Phase-F live resilience rerun on the current runtime.
-- Current-head Final Certification readback after the runtime target is current.
-- Current exact-head authenticated browser business journey.
-- Real Smart Report source/evidence/decision proof.
-- Real-source 48 archetype proof.
-- Current-head report corpus evidence; tests/fixtures/realistic-reports currently contains only README in the repository.
-- Final production exact-SHA release reconciliation; Vercel workflow remains externally blocked.
-
-## DO_NOT_REPEAT
-
-- old-SHA browser PASS reuse
-- queued-run PASS
-- RLS/auth/evidence weakening
-- fabricated real-source archetype coverage
-- re-import without concrete regression evidence
+CURRENT MAIN HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
+CURRENT EXECUTION HEAD = bc63be68f04e11ead63f0a865695e29529a5e085
+BRANCH = captain/phase-f-dynamic-pr-preview-20261003
+PR = #762 OPEN
+UPDATED = 2026-10-03
+WHAT_ACTUALLY_HAPPENED
+1. Netlify deploy permission was diagnosed: Owner account, correct team/site, no SSO block; Production 403 is Free-plan credit exhaustion.
+2. Exact-head Netlify Branch Preview was established for PR #762; /api/health provenance matched exact deployment SHA.
+3. PR #761 was merged and turned tenant-missing from a dead end into actionable membership recovery without weakening tenant authority.
+4. Phase-F stale deploy-preview-754 targeting was removed; dynamic PR target + exact-head health provenance was added.
+5. Auth retry was bounded with a 15s request timeout, converting silent hangs into terminal evidence.
+6. Logical restore removed session statement-timeout truncation and added stage-specific failure labels.
+7. Source snapshot/count reads moved to Transaction Pooler :6543 while pg_dump remains on Session Pooler.
+8. Current Phase-F #4008 reached auth and then failed on Supabase Auth /token 500/504 context deadline exceeded; live probes were skipped.
+WHAT_IS_PROVEN
+- typecheck PASS
+- build PASS
+- report-advisor intelligence PASS
+- intelligence vertical slice PASS
+- evidence passport contract PASS
+- operational resilience PASS
+- workflow syntax/node checks PASS
+- exact-head Netlify Preview provenance PASS before Supabase lifecycle interruption
+- unauthenticated browser login surface PASS
+FIRST_ACTIVE FAILURE
+SUPABASE PROJECT LIFECYCLE = PAUSING
+The project was paused as the reversible infrastructure recovery for the observed Auth/DB connection failures; restore is currently rejected while the project remains PAUSING.
+ROOT CAUSE
+Auth logs show repeated /token 504 request_timeout/context deadline exceeded and a 500 context canceled.
+Direct Postgres execute_sql independently returns Connection terminated due to connection timeout.
+Supabase performance advisor also cannot open the project DB connection.
+Public Supabase status currently shows no matching regional incident; this is therefore tracked as project-specific until disproven.
+FILES / COMMITS
+- src/components/AuthGate.tsx via PR #761 -> 9d78baf6... -> main 7e9cec1...
+- .github/workflows/phase-f-live-resilience.yml via PR #762 -> current bc63be68...
+- netlify.toml and scripts/phase-f-live-resilience-probes.mjs via PR #762
+No schema/data/RLS weakening was introduced.
+REMAINING OPEN
+- return fnqbvfuwbdpwvhcgzksl to ACTIVE_HEALTHY
+- prove direct DB connectivity and fresh Auth /token
+- rerun Phase-F at exact bc63be68 and fix first terminal failure only
+- complete authenticated Edge/Smart Report browser journey
+- Production Netlify deploy remains credit-blocked
+- real realistic-report corpus and real-source archetype proof remain unproven
+DO_NOT_REPEAT
+No stale PASS, no queued-run PASS, no Service Role impersonation, no new Supabase project, no tenant/RLS bypass, no fabricated corpus/archetype coverage.
+NEXT EXACT ACTION = RESTORE EXISTING SUPABASE STAGING PROJECT THROUGH OWNER DASHBOARD/OFFICIAL SUPPORT UNTIL ACTIVE_HEALTHY, THEN VERIFY DB + AUTH AND RERUN PR #762 EXACT HEAD bc63be68f04e11ead63f0a865695e29529a5e085.
