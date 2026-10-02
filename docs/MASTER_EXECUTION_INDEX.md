@@ -1,3 +1,21 @@
+# LIVE EXECUTION CHECKPOINT — 2026-10-02 / ADVISOR VALUE CLOSURE
+- CURRENT EXACT HEAD → 0ec00b44306c0d2e0bcf95d58becf37f05439609.
+- BRANCH → fix/current-head-runtime-provenance-20261002.
+- PR → #730 OPEN / NOT MERGED.
+- WHAT CHANGED → Report Advisor now renders WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF; recommendations also expose OWNER + EXPECTED OUTCOME.
+- DECISION CONTINUITY → the Advisor surface reads canonical decision/recommendation/approval/work/outcome state for the same source hash and shows DECISION → ACTION → OUTCOME → LEARNING without local fake state.
+- DETERMINISTIC CORE → every new value field is derived from existing canonical source analysis/signals; no new financial truth, KPI, benchmark, or forecast is invented.
+- TEST ADDED → scripts/report-intelligence-value-chain.test.ts verifies signal enrichment, recommendation linkage, owner, bounded impact, expected outcome, and evidence retention.
+- EXACT-SHA PROOF → npm run typecheck PASS; focused Advisor value-chain test PASS; Intelligence Product contract PASS; parallel heart + UI contract PASS.
+- EXACT-SHA BUILD → npm run build PASS with BUILD_SOURCE_SHA=0ec00b44306c0d2e0bcf95d58becf37f05439609.
+- LINT → prior candidate lint had warnings only and exit 0; current SHA requires fresh lint if certification needs an explicit current-SHA lint record.
+- FIXTURE REALITY → local tests/fixtures/realistic-reports/ contains README only; no claim is made that the Git fixture corpus was processed locally.
+- BROWSER → unauthenticated local route can be served; authenticated business-flow, Tenant A/B, Approval→Work→Outcome, Edge, and production-runtime proof remain NOT_PROVEN.
+- RUNTIME → current exact-head Vercel status is pending; Netlify exact-head preview is pending; no deployment is promoted to PRODUCTION_PROVEN from pending state.
+- PRODUCT / UX → Advisor value is now visible inside the report surface rather than only in contracts or a separate evidence page.
+- DO-NOT-REPEAT → do not re-import completed reports, do not invent evidence, do not promote pending runtime, do not reuse stale SHA/browser proof.
+- NEXT EXACT ACTION → fresh current-SHA lint, authenticated Edge/browser journey on the same SHA, then deployment SHA + /api/health + production readback and tenant isolation proof.
+
 # FINAL EXACT-HEAD READBACK CHECKPOINT — 2026-09-30
 
 - EXACT CURRENT HEAD BEFORE THIS GOVERNANCE-ONLY WRITEBACK → `73d7f0e2b49081372a7a12dc0f95b98b5fff8f1b`.
