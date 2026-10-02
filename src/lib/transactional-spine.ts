@@ -95,6 +95,28 @@ export async function fetchOperationalOrders(limit = 100): Promise<OperationalOr
   }));
 }
 
+export type OperationalOrderStatusHistoryEntry = {
+  id: string;
+  order_id: string;
+  from_status: string;
+  to_status: string;
+  actor_id: string | null;
+  created_at: string;
+};
+
+export async function fetchOperationalOrderStatusHistory(orderId: string, limit = 30): Promise<OperationalOrderStatusHistoryEntry[]> {
+  const companyId = await tenantId();
+  const { data, error } = await supabase
+    .from('order_status_history')
+    .select('id,order_id,from_status,to_status,actor_id,created_at')
+    .eq('company_id', companyId)
+    .eq('order_id', orderId)
+    .order('created_at', { ascending: true })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []) as OperationalOrderStatusHistoryEntry[];
+}
+
 export async function transitionOperationalOrder(orderId: string, toStatus: string): Promise<OperationalOrder> {
   await tenantId();
   const { data, error } = await supabase.rpc('transition_order', {
