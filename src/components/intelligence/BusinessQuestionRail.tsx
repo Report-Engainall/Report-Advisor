@@ -42,6 +42,11 @@ export function BusinessQuestionRail<TAnswer>({ questions }: { questions: Busine
             {question.state === 'ANSWERED' && question.answer != null && <div className="mt-2 rounded-lg border border-success-200 bg-success-50 p-2.5 text-[10px] leading-5 text-success-950">{displayAnswer(question.answer)}</div>}
             {question.missingFields.length > 0 && <div className="mt-2 rounded-lg border border-warning-200 bg-warning-50 p-2.5 text-[9px] text-warning-950">الحقول المطلوبة: {question.missingFields.join('، ')}</div>}
             <div className="mt-2 text-[9px] leading-5 text-ink-500">{question.evidenceBoundary}</div>
+            {question.followUpQuestion && (
+              <div className="mt-2 rounded-lg border border-primary-100 bg-primary-50/40 p-2.5 text-[9px] leading-5 text-primary-900">
+                <span className="font-black">السؤال التالي:</span> {question.followUpQuestion}
+              </div>
+            )}
           </article>
         ))}
       </div>
