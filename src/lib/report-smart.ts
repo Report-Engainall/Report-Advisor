@@ -1,5 +1,6 @@
 import { supabase, resolveCurrentCompanyId } from './supabase.ts';
 import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights.ts';
+import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
 
 export type SmartReportCatalogItem = {
   jobId: string;
@@ -55,30 +56,6 @@ function renderedOutputOf(evidence: unknown): Record<string, unknown> | null {
   if (!evidence || typeof evidence !== 'object') return null;
   const value = (evidence as Record<string, unknown>).renderedOutput;
   return value && typeof value === 'object' ? value as Record<string, unknown> : null;
-}
-
-function effectiveEvidenceStatus(
-  rendered: Record<string, unknown>,
-): string | null {
-  return rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus);
-}
-
-export function resolveReportEvidenceStatus(
-  rendered: Record<string, unknown>,
-  canonicalCommitVerified: boolean,
-): string {
-  const renderedStatus = effectiveEvidenceStatus(rendered);
-  const evidenceSnapshotId =
-    typeof rendered.evidenceSnapshotId === 'string'
-      ? rendered.evidenceSnapshotId.trim()
-      : '';
-
-  if (renderedStatus === 'VERIFIED') {
-    if (canonicalCommitVerified && evidenceSnapshotId) return 'VERIFIED';
-    return canonicalCommitVerified ? 'AWAITING_EVIDENCE_SNAPSHOT' : 'PENDING_EVIDENCE';
-  }
-
-  return renderedStatus ?? (canonicalCommitVerified ? 'AWAITING_EVIDENCE_SNAPSHOT' : 'PENDING_EVIDENCE');
 }
 
 function entityTypeFrom(jobKey: string): string {
