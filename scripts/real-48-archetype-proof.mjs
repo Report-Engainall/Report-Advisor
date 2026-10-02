@@ -111,11 +111,26 @@ for (const companyId of tenantIds) {
       specialty: typeof rendered.sourceSpecialty === 'string' ? rendered.sourceSpecialty : null,
       availableFields,
     });
-    const archetypeId = typeof rendered.archetypeId === 'string' && byId.has(rendered.archetypeId)
+    // Runtime proof must be derived from canonical source analysis, not trusted from rendered output metadata.
+    // A rendered archetype id is accepted only when it exactly agrees with the detector result.
+    const detectedArchetypeId = detected.profile?.id ?? null;
+    const renderedArchetypeId = typeof rendered.archetypeId === 'string' && byId.has(rendered.archetypeId)
       ? rendered.archetypeId
-      : detected.profile?.id ?? null;
-    if (!archetypeId || !byId.has(archetypeId)) continue;
-    candidateJobs.push({ job, rendered, archetypeId });
+      : null;
+    if (!detectedArchetypeId || !byId.has(detectedArchetypeId)) continue;
+    if (renderedArchetypeId && renderedArchetypeId !== detectedArchetypeId) {
+      continue;
+    }
+    candidateJobs.push({
+      job,
+      rendered,
+      archetypeId: detectedArchetypeId,
+      detectionEvidence: {
+        sourcePath: String(job.source_path ?? ''),
+        specialty: typeof rendered.sourceSpecialty === 'string' ? rendered.sourceSpecialty : null,
+        availableFields,
+      },
+    });
   }
 }
 
