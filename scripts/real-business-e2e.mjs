@@ -913,9 +913,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
     assert.ok(existingWork.length === 1, 'DECISION_WORK_ITEM_DB_ROW_MISSING_AFTER_ADMIN_CREATION');
   }
 
-  const workPage = workActorPage || page;
-  const workRowsOpen = await restSelect(workPage, 'decision_work_items', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,recommendation_id,status,assignee_id,assignee_label,evidence_refs', { order: 'created_at.desc', limit: 1 });
-  assert.equal(workRowsOpen.length, 1, 'DECISION_WORK_ITEM_DB_ROW_MISSING');
+  let workPage = workActorPage || page;\n  if (existingWork.length === 1 && existingWork[0].status === 'OPEN' && String(existingWork[0].assignee_id) !== String(userAId) && !workActorPage) {\n    workActorContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });\n    workActorPage = await workActorContext.newPage();\n    attachRuntimeCapture(workActorPage);\n    await login(workActorPage, approverEmail, approverPassword);\n    const existingWorkActorTenant = await currentTenant(workActorPage);\n    workActorId = await currentUserId(workActorPage);\n    assert.equal(existingWorkActorTenant, evidence.tenantA, 'EXISTING_WORK_ACTOR_TENANT_MISMATCH');\n    assert.equal(String(workActorId), String(existingWork[0].assignee_id), 'EXISTING_WORK_ASSIGNEE_ACTOR_UNAVAILABLE');\n    await workActorPage.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });\n    workPage = workActorPage;\n  }\n  workPage = workActorPage || page;\n  const workRowsOpen = await restSelect(workPage, 'decision_work_items', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,recommendation_id,status,assignee_id,assignee_label,evidence_refs', { order: 'created_at.desc', limit: 1 });\n  assert.equal(workRowsOpen.length, 1, 'DECISION_WORK_ITEM_DB_ROW_MISSING');
   const workItemId = String(workRowsOpen[0].id);
   assert.ok(String(workRowsOpen[0].assignee_id), 'WORK_ITEM_ASSIGNEE_MISSING');
   assert.equal(String(workRowsOpen[0].recommendation_id), String(decision.recommendation_id), 'WORK_RECOMMENDATION_LINK_MISSING');
