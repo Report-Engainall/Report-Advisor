@@ -26,6 +26,7 @@ const sales = deriveReportIntelligence({
 
 check(sales.findings.some((item) => item.id === 'sales:total-value'), 'sales total finding missing');
 check(sales.findings.some((item) => item.id === 'sales:top-party'), 'sales top-party finding missing');
+check(sales.findings.some((item) => item.id === 'sales:change-contributor'), 'sales change contributor finding missing');
 check(sales.risks.some((item) => item.id === 'sales:period-decline-risk'), 'sales decline risk missing');
 check(sales.advisorBrief.topFinding?.id === 'sales:total-value', 'advisor brief must expose the top finding');
 check(sales.advisorBrief.recommendedAction, 'advisor brief needs a concrete action');
