@@ -78,6 +78,18 @@ BEGIN
   IF p_evidence_snapshot_id IS NULL THEN
     RAISE EXCEPTION 'SOURCE_PROPOSAL_EVIDENCE_REQUIRED';
   END IF;
+  IF NOT EXISTS (
+    SELECT 1
+      FROM public.report_evidence_passports p
+     WHERE p.company_id = v_company
+       AND p.evidence_snapshot_id = p_evidence_snapshot_id
+       AND p.report_execution_job_id = p_report_job_id
+       AND p.source_hash = p_source_hash
+       AND p.verification_status = 'VERIFIED'
+       AND p.decision_readiness = 'READY'
+  ) THEN
+    RAISE EXCEPTION 'SOURCE_PROPOSAL_EVIDENCE_REQUIRED';
+  END IF;
   IF nullif(btrim(coalesce(p_signal_id,'')), '') IS NULL OR nullif(btrim(coalesce(p_signal_title,'')), '') IS NULL THEN
     RAISE EXCEPTION 'SOURCE_PROPOSAL_SIGNAL_REQUIRED';
   END IF;
