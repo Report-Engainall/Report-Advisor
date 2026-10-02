@@ -39,10 +39,10 @@ WHAT_IS_PROVEN = Exact branch/main refs were verified; batch-integrity and secur
 - The current code contains the allowlisted second-tenant selection fix.
 - No exact-head PASS is claimed for the new fix until its CI/live/browser results finish and are read back.
 
-FIRST_ACTIVE_FAILURE = SESSION_HANDOFF_CONTRACT_FAIL: missing report field WHAT_I_WAS_ASKED_TO_DO. The earlier live tenant failure has already been root-caused and fixed at the test layer.
+FIRST_ACTIVE_FAILURE = NONE CURRENTLY OBSERVED ON CURRENT-CODE STATIC/STAGING READBACK. FIRST ACTIVE UNPROVEN GATE = Evidence Passport Live Proof. Historical first runtime failure E2E_PROVISION_TENANT_NOT_ALLOWED is root-caused and fixed at the test layer.
 
 ## FIRST ACTIVE FAILURE
-E2E_PROVISION_TENANT_NOT_ALLOWED in the Evidence Passport live gate was the first runtime failure before the handoff-contract failure surfaced.
+No new P0/P1 failure is currently observable from the current exact-code static/staging evidence. The next gate requiring terminal proof is the current-head Evidence Passport Live Proof.
 
 ROOT_CAUSE = The current terminal contract failure is report schema shape: the checker requires explicit KEY = VALUE fields. The prior runtime root cause was the live gate selecting an arbitrary non-E2E tenant while provision_e2e_test_membership intentionally allowlisted only designated E2E tenants.
 
@@ -141,7 +141,7 @@ This cycle remains focused on import/evidence/runtime truth and certification pl
 - Do not claim queued/current CI as PASS.
 - Do not treat metadata-only persistence commits as new product/runtime code.
 
-NEXT_EXACT_ACTION = Re-run the session-handoff contract at the current branch and consume the live/browser/current-head gates for code head 28c6ea3d9c1a1d593a71b08025827c97927de697. Fix only the first new P0/P1 failure.
+NEXT_EXACT_ACTION = Consume terminal current-branch CI results; the first new P0/P1 failure becomes the sole active runtime front. Until then, retain the current static/staging proof and do not claim live/browser PASS.
 
 ## NEXT_EXACT_ACTION
 Consume the exact-head CI results for 28c6ea3d9c1a1d593a71b08025827c97927de697. The first failed P0/P1 gate becomes the sole active runtime front; fix only that boundary, then persist/read back and rerun exact-head proof.
