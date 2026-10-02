@@ -18,7 +18,7 @@ export interface RuntimeDecisionInput {
   decisionKey: string;
   decisionType: string;
   confidence: number;
-  expectedImpact: number;
+  expectedImpact: number | null;
   evidence: Record<string, unknown>;
 }
 
