@@ -158,7 +158,23 @@ for (const profile of allProfiles) {
   const renderedPassportId = typeof rendered.evidencePassportId === 'string' ? rendered.evidencePassportId : null;
   const evidenceSnapshotId = passport ? String(passport.evidence_snapshot_id ?? '') || renderedSnapshotId : null;
   const evidencePassportId = passport ? String(passport.id) : null;
-  if (!passport || !evidenceSnapshotId) {
+  let snapshot = null;
+  if (passport && evidenceSnapshotId) {
+    const snapshotRows = await restSelect(
+      'report_evidence_snapshots',
+      { company_id: job.company_id, id: evidenceSnapshotId, report_execution_job_id: job.id, source_hash: job.source_hash },
+      'id,company_id,report_execution_job_id,source_version_id,analysis_snapshot_id,source_hash,canonical_coverage_status,acceptance_status,verification_status',
+      { limit: 2 },
+    );
+    snapshot = snapshotRows.find((row) =>
+      String(row.company_id) === String(job.company_id) &&
+      String(row.report_execution_job_id) === String(job.id) &&
+      String(row.source_hash) === String(job.source_hash) &&
+      String(row.verification_status) === 'VERIFIED' &&
+      String(row.canonical_coverage_status) === 'FULL'
+    ) ?? null;
+  }
+  if (!passport || !evidenceSnapshotId || !snapshot) {
     proof.archetypes.push({
       number: profile.number,
       archetypeId: profile.id,
@@ -170,7 +186,7 @@ for (const profile of allProfiles) {
       tenantId: job.company_id,
       evidenceSnapshotId: renderedSnapshotId,
       evidencePassportId: renderedPassportId,
-      reason: 'REAL_SOURCE_EVIDENCE_PASSPORT_NOT_VERIFIED_READY_FOR_EXACT_JOB_HASH',
+      reason: 'REAL_SOURCE_EVIDENCE_SNAPSHOT_NOT_VERIFIED_FULL_FOR_EXACT_JOB_HASH',
     });
     continue;
   }
@@ -205,7 +221,7 @@ for (const profile of allProfiles) {
     result.advisory.questions.length > 0 &&
     result.advisory.proofState === 'VERIFIED' &&
     result.advisory.claims.every((claim) => claim.archetypeId === profile.id) &&
-    Boolean(evidenceSnapshotId || evidencePassportId);
+    Boolean(evidenceSnapshotId && evidencePassportId && snapshot);
 
   proof.archetypes.push({
     number: profile.number,
