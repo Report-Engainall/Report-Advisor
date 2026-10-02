@@ -120,7 +120,6 @@ export async function createSourceDecisionProposal(input: {
   };
 }
 
-
 export type SourceDecisionState = SourceDecisionProposal & {
   recommendationTitle: string | null;
   recommendationStatus: string | null;
