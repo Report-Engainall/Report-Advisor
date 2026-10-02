@@ -5,6 +5,7 @@ import { ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { saveActiveReportContext } from '@/lib/report-context';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
+import { SmartReportAdvisorySurface } from '@/components/SmartReportAdvisorySurface';
 import { ReportDecisionCockpit } from '@/components/ReportDecisionCockpit';
 import { formatNumber } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
@@ -607,6 +608,7 @@ export function SmartReportPage() {
     <EvidenceInspector report={report}/>
 
     <ReportIntelligencePanel report={report} />
+    <SmartReportAdvisorySurface report={report} />
 
     <SourceDataWorkspace report={report}/>
 
