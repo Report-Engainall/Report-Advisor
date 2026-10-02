@@ -1,20 +1,20 @@
 # LIVE EXECUTION CHECKPOINT — 2026-10-02 / ADVISOR VALUE CLOSURE
-- CURRENT EXACT HEAD → 0ec00b44306c0d2e0bcf95d58becf37f05439609.
+- CURRENT FUNCTIONAL CODE HEAD → 7a01787de9bc08e0a6a7175251ca4d8eae7b13dd.
 - BRANCH → fix/current-head-runtime-provenance-20261002.
 - PR → #730 OPEN / NOT MERGED.
-- WHAT CHANGED → Report Advisor now renders WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF; recommendations also expose OWNER + EXPECTED OUTCOME.
-- DECISION CONTINUITY → the Advisor surface reads canonical decision/recommendation/approval/work/outcome state for the same source hash and shows DECISION → ACTION → OUTCOME → LEARNING without local fake state.
-- DETERMINISTIC CORE → every new value field is derived from existing canonical source analysis/signals; no new financial truth, KPI, benchmark, or forecast is invented.
-- TEST ADDED → scripts/report-intelligence-value-chain.test.ts verifies signal enrichment, recommendation linkage, owner, bounded impact, expected outcome, and evidence retention.
-- EXACT-SHA PROOF → npm run typecheck PASS; focused Advisor value-chain test PASS; Intelligence Product contract PASS; parallel heart + UI contract PASS.
-- EXACT-SHA BUILD → npm run build PASS with BUILD_SOURCE_SHA=0ec00b44306c0d2e0bcf95d58becf37f05439609.
-- LINT → prior candidate lint had warnings only and exit 0; current SHA requires fresh lint if certification needs an explicit current-SHA lint record.
-- FIXTURE REALITY → local tests/fixtures/realistic-reports/ contains README only; no claim is made that the Git fixture corpus was processed locally.
-- BROWSER → unauthenticated local route can be served; authenticated business-flow, Tenant A/B, Approval→Work→Outcome, Edge, and production-runtime proof remain NOT_PROVEN.
-- RUNTIME → current exact-head Vercel status is pending; Netlify exact-head preview is pending; no deployment is promoted to PRODUCTION_PROVEN from pending state.
-- PRODUCT / UX → Advisor value is now visible inside the report surface rather than only in contracts or a separate evidence page.
-- DO-NOT-REPEAT → do not re-import completed reports, do not invent evidence, do not promote pending runtime, do not reuse stale SHA/browser proof.
-- NEXT EXACT ACTION → fresh current-SHA lint, authenticated Edge/browser journey on the same SHA, then deployment SHA + /api/health + production readback and tenant isolation proof.
+- CODE DELTA → Report Advisor now renders WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF; every recommendation also exposes OWNER + EXPECTED OUTCOME inside the report surface.
+- DECISION CONTINUITY → the report surface reads persisted source-bound decision/recommendation/approval/work/outcome state and exposes DECISION → ACTION → OUTCOME → LEARNING without local fake state.
+- DETERMINISTIC CORE → all new Advisor value fields derive from existing source analysis/signals; no new financial truth, KPI, benchmark, or forecast is invented.
+- EXACT TEST → scripts/report-intelligence-value-chain.test.ts verifies signal enrichment, recommendation linkage, bounded impact, owner, expected outcome, and evidence retention.
+- EXACT-SHA PROOF ON 7a → npm run typecheck PASS; npm run lint PASS with 0 errors / 137 warnings; focused Advisor value-chain test PASS; Intelligence Product contract PASS; parallel heart + UI contract PASS; git diff --check PASS.
+- EXACT-SHA BUILD ON 7a → npm run build PASS with BUILD_SOURCE_SHA=7a01787de9bc08e0a6a7175251ca4d8eae7b13dd.
+- RUNTIME PREVIEW PROOF → Netlify deployment 6abf16a16c8ffe00088ba2e8 is READY from commit 7a; /api/health returned HTTP 200 with source_sha=build_sha=deployment_sha=7a, target_env=preview.
+- PUBLIC PREVIEW CONTENT → rendered page title is الأغبري | منصة ذكاء الأعمال والقرار; TinyFish confirmed Arabic landing/auth gate and metadata aghbari-source-sha=7a.
+- BROWSER BOUNDARY → authenticated Microsoft Edge business-flow, Tenant A/B, Approval→Work→Outcome, and production-runtime browser proof remain NOT_PROVEN. Unauthenticated preview content is verified; it is not a business-flow PASS.
+- PRODUCTION → Vercel remains blocked by build-rate-limit; no production status is promoted from pending/failure.
+- FIXTURE BOUNDARY → local tests/fixtures/realistic-reports/ contains README only; no Git fixture-corpus completion is claimed in this round.
+- DO-NOT-REPEAT → no re-import of completed reports, no canonical-row rewrite, no evidence promotion, no stale-SHA/browser PASS, no database-to-browser inference.
+- NEXT EXACT ACTION → authenticated exact-head browser journey on 7a, then Tenant A/B isolation + Approval→Work→Outcome + production deployment provenance; preserve preview proof and current Advisor value delta.
 
 # FINAL EXACT-HEAD READBACK CHECKPOINT — 2026-09-30
 
