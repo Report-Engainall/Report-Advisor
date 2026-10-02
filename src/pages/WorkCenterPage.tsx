@@ -322,6 +322,7 @@ function WorkCenterGeneralPage() {
 
       <div className="mt-4 overflow-x-auto rounded-xl border border-ink-200 bg-white">
         {filteredDecisionWork.length ? (
+          <>
           <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full text-right text-[10px]">
             <thead className="bg-ink-50"><tr>
@@ -414,7 +415,6 @@ function WorkCenterGeneralPage() {
             </tbody>
           </table>
         </div>
-        <>
         <div className="grid gap-2 p-2 md:hidden">
           {filteredDecisionWork.map((item) => {
             const sourceHashValue = typeof item.sourceHash === 'string' ? item.sourceHash : '';
