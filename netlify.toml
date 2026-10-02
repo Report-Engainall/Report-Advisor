@@ -16,6 +16,12 @@ framework = "#custom"
   ignore = "if [ \"$CACHED_COMMIT_REF\" = \"$COMMIT_REF\" ]; then exit 1; fi; git diff --quiet \"$CACHED_COMMIT_REF\" \"$COMMIT_REF\" -- src public netlify/functions package.json package-lock.json index.html vite.config.ts tailwind.config.js postcss.config.js netlify.toml"
 
 [[redirects]]
+  from = "/api/health"
+  to = "/.netlify/functions/health"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/canonical-import-execute"
   to = "/.netlify/functions/canonical-import-execute"
   status = 200
