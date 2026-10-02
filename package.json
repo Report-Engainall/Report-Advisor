@@ -178,6 +178,7 @@
     "test:report-intelligence-value-chain": "node --experimental-strip-types scripts/report-intelligence-value-chain.test.ts",
     "test:report-smart-evidence-boundary": "node --experimental-strip-types scripts/report-smart-evidence-boundary.test.ts",
     "test:advisory-proof-state-contract": "node scripts/check-advisory-proof-state-contract.mjs",
+    "test:claim-evidence-completeness-contract": "node scripts/check-claim-evidence-completeness-contract.mjs",
     "test:report-evidence-passport-contract": "node scripts/report-evidence-passport-contract.test.mjs",
     "report:value-cohort": "node scripts/report-value-cohort.mjs",
     "test:advisor-case-product-contract": "node scripts/advisor-case-product-contract.test.mjs",
