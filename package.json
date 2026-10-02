@@ -178,6 +178,7 @@
     "test:report-intelligence-value-chain": "node --experimental-strip-types scripts/report-intelligence-value-chain.test.ts",
     "test:report-smart-evidence-boundary": "node --experimental-strip-types scripts/report-smart-evidence-boundary.test.ts",
     "test:report-evidence-passport-contract": "node scripts/report-evidence-passport-contract.test.mjs",
+    "report:value-cohort": "node scripts/report-value-cohort.mjs",
     "test:advisor-case-product-contract": "node scripts/advisor-case-product-contract.test.mjs",
     "test:report-decision-cockpit": "node scripts/report-decision-cockpit-product-contract.test.mjs"
   }
