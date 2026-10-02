@@ -161,7 +161,7 @@ async function prepareTransactionalFixture(companyId, actorId) {
 
   const { data: items, error: itemError } = await supabase
     .from('order_items')
-    .select('product_id,quantity')
+    .select('product_id,quantity,unit_price')
     .eq('company_id', companyId)
     .eq('order_id', order.id);
   if (itemError) throw itemError;
@@ -169,36 +169,51 @@ async function prepareTransactionalFixture(companyId, actorId) {
   for (const item of items ?? []) {
     const { data: balance, error: balanceError } = await supabase
       .from('inventory_balances')
-      .select('id,quantity')
+      .select('id,quantity,unit_cost')
       .eq('company_id', companyId)
       .eq('warehouse_id', order.warehouse_id)
       .eq('product_id', item.product_id)
       .maybeSingle();
     if (balanceError) throw balanceError;
-    if (!balance) throw new Error('E2E_RESET_INVENTORY_BALANCE_MISSING');
 
-    const nextQuantity = Number(balance.quantity) + Number(item.quantity);
-    const { error: updateBalanceError } = await supabase
-      .from('inventory_balances')
-      .update({ quantity: nextQuantity, last_movement_date: new Date().toISOString().slice(0, 10), updated_at: new Date().toISOString() })
-      .eq('id', balance.id)
-      .eq('company_id', companyId);
-    if (updateBalanceError) throw updateBalanceError;
+    const resetDate = new Date().toISOString().slice(0, 10);
+    if (!balance) {
+      const { error: insertBalanceError } = await supabase
+        .from('inventory_balances')
+        .insert({
+          company_id: companyId,
+          warehouse_id: order.warehouse_id,
+          product_id: item.product_id,
+          quantity: Number(item.quantity),
+          unit_cost: Number(item.unit_price ?? 0),
+          last_movement_date: resetDate,
+          updated_at: new Date().toISOString(),
+        });
+      if (insertBalanceError) throw insertBalanceError;
+    } else {
+      const nextQuantity = Number(balance.quantity) + Number(item.quantity);
+      const { error: updateBalanceError } = await supabase
+        .from('inventory_balances')
+        .update({ quantity: nextQuantity, last_movement_date: resetDate, updated_at: new Date().toISOString() })
+        .eq('id', balance.id)
+        .eq('company_id', companyId);
+      if (updateBalanceError) throw updateBalanceError;
 
-    const { error: movementError } = await supabase
-      .from('inventory_movements')
-      .insert({
-        company_id: companyId,
-        warehouse_id: order.warehouse_id,
-        product_id: item.product_id,
-        movement_type: 'return',
-        quantity: item.quantity,
-        reference_type: 'e2e_order_reset',
-        reference_id: order.id,
-        movement_date: new Date().toISOString().slice(0, 10),
-        notes: 'Repeatable browser E2E reset',
-      });
-    if (movementError) throw movementError;
+      const { error: movementError } = await supabase
+        .from('inventory_movements')
+        .insert({
+          company_id: companyId,
+          warehouse_id: order.warehouse_id,
+          product_id: item.product_id,
+          movement_type: 'return',
+          quantity: item.quantity,
+          reference_type: 'e2e_order_reset',
+          reference_id: order.id,
+          movement_date: resetDate,
+          notes: 'Repeatable browser E2E reset',
+        });
+      if (movementError) throw movementError;
+    }
   }
 
   const { data: invoices, error: invoiceError } = await supabase
