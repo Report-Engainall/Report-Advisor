@@ -13,6 +13,7 @@ declare
   v_company uuid := public.current_company_id();
   v_user uuid := auth.uid();
   v_decision uuid;
+  v_decision_status text;
   v_status text;
   v_requested_by uuid;
 begin
@@ -20,18 +21,39 @@ begin
     raise exception 'TENANT_CONTEXT_REQUIRED';
   end if;
 
-  select decision_id, status, requested_by
-    into v_decision, v_status, v_requested_by
+  select decision_id
+    into v_decision
+  from public.decision_approvals
+  where id = p_approval_id
+    and company_id = v_company;
+
+  if v_decision is null then
+    raise exception 'APPROVAL_NOT_FOUND';
+  end if;
+
+  select status
+    into v_decision_status
+  from public.business_intelligence_decisions
+  where id = v_decision
+    and company_id = v_company
+  for update;
+
+  if v_decision_status is distinct from 'PROPOSED' then
+    raise exception 'DECISION_STATE_CHANGED';
+  end if;
+
+  select status, requested_by
+    into v_status, v_requested_by
   from public.decision_approvals
   where id = p_approval_id
     and company_id = v_company
   for update;
 
-  if v_decision is null or v_status <> 'PENDING' then
+  if v_status <> 'PENDING' then
     raise exception 'APPROVAL_NOT_PENDING';
   end if;
 
-  if v_requested_by is not null and v_requested_by = v_user then
+  if p_approve and v_requested_by = v_user then
     raise exception 'SELF_APPROVAL_FORBIDDEN';
   end if;
 
