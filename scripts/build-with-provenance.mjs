@@ -21,8 +21,8 @@ if (!/^[0-9a-f]{40}$/i.test(sourceSha)) {
 process.env.VITE_BUILD_SHA = sourceSha;
 console.log('BUILD_SOURCE_SHA=' + sourceSha);
 
-const npm = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-const result = spawnSync(npm, ['vite', 'build'], {
+const viteCli = new URL('../node_modules/vite/bin/vite.js', import.meta.url);
+const result = spawnSync(process.execPath, [viteCli.pathname], {
   env: process.env,
   stdio: 'inherit',
 });
