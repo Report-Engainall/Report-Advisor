@@ -33,7 +33,7 @@ for (const job of jobs ?? []) {
   if (sourceJobs.length === 40) break;
 }
 
-assert.equal(sourceJobs.length, Math.min(40, sourceJobs.length));
+if (sourceJobs.length !== 40) throw new Error('REPORT_VALUE_COHORT_INCOMPLETE:' + sourceJobs.length + '/40');
 
 const hashes = sourceJobs.map((job) => String(job.source_hash));
 const jobIds = sourceJobs.map((job) => String(job.id));
