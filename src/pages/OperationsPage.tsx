@@ -144,6 +144,17 @@ export function OperationsPage() {
 
   const selectedInvoice = useMemo(() => invoices.find(item => item.id === selectedInvoiceId) ?? null, [invoices, selectedInvoiceId]);
 
+  const refreshOrderHistory = async (orderId: string) => {
+    try {
+      const rows = await fetchOperationalOrderStatusHistory(orderId);
+      setOrderHistory(rows);
+      setErrors((current) => ({ ...current, orderHistory: null }));
+    } catch (cause) {
+      setOrderHistory([]);
+      setErrors((current) => ({ ...current, orderHistory: operationalErrorMessage(cause, 'تعذر قراءة مسار الطلب') }));
+    }
+  };
+
   const runOrderTransition = async (order: OperationalOrder) => {
     const next = nextStatusFor(order);
     if (!next) return;
@@ -153,6 +164,8 @@ export function OperationsPage() {
       await transitionOperationalOrder(order.id, next);
       setFeedback('تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.');
       await load();
+      setSelectedOrderId(order.id);
+      await refreshOrderHistory(order.id);
     } catch (cause) {
       setFeedback(operationalErrorMessage(cause, 'تعذر تنفيذ انتقال الطلب'));
     } finally {
