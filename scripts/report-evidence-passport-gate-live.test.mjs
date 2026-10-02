@@ -2,6 +2,24 @@ import assert from 'node:assert/strict';
 import { createClient } from '@supabase/supabase-js';
 import { randomUUID } from 'node:crypto';
 
+const RETRYABLE_HTTP = new Set([408, 425, 429, 500, 502, 503, 504]);
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const resilientFetch = async (input, init = {}) => {
+  let last;
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
+    try {
+      const response = await fetch(input, init);
+      if (!RETRYABLE_HTTP.has(response.status) || attempt === 5) return response;
+      last = new Error('SUPABASE_RETRYABLE_HTTP_' + response.status);
+    } catch (error) {
+      last = error;
+      if (attempt === 5) throw error;
+    }
+    await wait(1000 * 2 ** (attempt - 1));
+  }
+  throw last ?? new Error('SUPABASE_RETRY_EXHAUSTED');
+};
+
 const url = process.env.REPORT_ADVISOR_SUPABASE_URL?.trim();
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 const anonKey = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY?.trim();
@@ -33,29 +51,6 @@ const anon = createClient(url, anonKey, {
   auth: { autoRefreshToken: false, persistSession: false },
   global: { fetch: resilientFetch },
 });
-
-const RETRYABLE_HTTP = new Set([408, 425, 429, 500, 502, 503, 504]);
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-const resilientFetch = async (input, init = {}) => {
-  let last;
-  for (let attempt = 1; attempt <= 5; attempt += 1) {
-    try {
-      const response = await fetch(input, init);
-      if (!RETRYABLE_HTTP.has(response.status) || attempt === 5) return response;
-      last = new Error('SUPABASE_RETRYABLE_HTTP_' + response.status);
-    } catch (error) {
-      last = error;
-      if (attempt === 5) throw error;
-    }
-    await wait(1000 * 2 ** (attempt - 1));
-  }
-  throw last ?? new Error('SUPABASE_RETRY_EXHAUSTED');
-};
-
-const runTag = 'gate-live-' + Date.now() + '-' + randomUUID().slice(0, 8);
-const users = [];
-const created = { recommendations: [], decisions: [], approvals: [], work: [], outcomes: [] };
-
 async function expectBlocked(label, fn, expectedFragments = []) {
   try {
     await fn();
