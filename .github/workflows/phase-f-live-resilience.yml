@@ -128,14 +128,82 @@ jobs:
           )"
           echo "::add-mask::$token"
           printf 'RESILIENCE_CANARY_AUTH_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
+      - name: Resolve current live runtime targets
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          EXPLICIT_HEALTH_URL: ${{ secrets.RESILIENCE_HEALTH_URL || vars.RESILIENCE_HEALTH_URL }}
+          EXPLICIT_CANARY_URL: ${{ secrets.RESILIENCE_CANARY_URL || vars.RESILIENCE_CANARY_URL }}
+          EXPLICIT_BACKUP_URL: ${{ secrets.RESILIENCE_BACKUP_VERIFY_URL || vars.RESILIENCE_BACKUP_VERIFY_URL }}
+          EXPLICIT_ROLLBACK_URL: ${{ secrets.RESILIENCE_ROLLBACK_DRILL_URL || vars.RESILIENCE_ROLLBACK_DRILL_URL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "${PR_NUMBER:-}" ]]; then
+            base="https://deploy-preview-${PR_NUMBER}--aghbari-report-advisor.netlify.app"
+            health="$base/api/health"
+            canary="$base/api/tenant-canary"
+            backup="$base/api/backup-restore-verify"
+            rollback="$base/api/rollback-drill"
+          else
+            health="${EXPLICIT_HEALTH_URL:-}"
+            canary="${EXPLICIT_CANARY_URL:-}"
+            backup="${EXPLICIT_BACKUP_URL:-}"
+            rollback="${EXPLICIT_ROLLBACK_URL:-}"
+          fi
+
+          for pair in \
+            "RESILIENCE_HEALTH_URL=$health" \
+            "RESILIENCE_CANARY_URL=$canary" \
+            "RESILIENCE_BACKUP_VERIFY_URL=$backup" \
+            "RESILIENCE_ROLLBACK_DRILL_URL=$rollback"; do
+            name="${pair%%=*}"
+            value="${pair#*=}"
+            test -n "$value" || { echo "${name}_MISSING"; exit 1; }
+            [[ "$value" != *deploy-preview-754* ]] || { echo "${name}_STALE_PREVIEW_754"; exit 1; }
+            printf '%s=%s\n' "$name" "$value" >> "$GITHUB_ENV"
+          done
+          echo "LIVE_RUNTIME_TARGETS_RESOLVED=true"
+      - name: Verify preview runtime provenance before probes
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          RESILIENCE_HEALTH_URL: ${{ format('https://deploy-preview-{0}--aghbari-report-advisor.netlify.app/api/health', github.event.pull_request.number) }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="${EXACT_HEAD:?EXACT_HEAD_NOT_RESOLVED}"
+          for attempt in $(seq 1 36); do
+            body="$(curl -fsS --max-time 8 "$RESILIENCE_HEALTH_URL" 2>/dev/null || true)"
+            readarray -t values < <(node - "$body" <<'NODE'
+          const raw = process.argv[2] || '';
+          try {
+            const value = JSON.parse(raw);
+            process.stdout.write(String(value.source_sha ?? '') + '\n');
+            process.stdout.write(String(value.build_sha ?? '') + '\n');
+            process.stdout.write(String(value.deployment_sha ?? '') + '\n');
+          } catch {
+            process.stdout.write('\n\n\n');
+          }
+          NODE
+            )
+            source="${values[0]:-}"
+            build="${values[1]:-}"
+            deployment="${values[2]:-}"
+            if [[ "$source" == "$expected" && "$build" == "$expected" && "$deployment" == "$expected" ]]; then
+              echo "RUNTIME_PROVENANCE_MATCH=true"
+              echo "source_sha=$source"
+              echo "build_sha=$build"
+              echo "deployment_sha=$deployment"
+              exit 0
+            fi
+            echo "Runtime preview not exact yet: attempt=$attempt source=$source build=$build deployment=$deployment expected=$expected"
+            sleep 5
+          done
+          echo "PHASE_F_RUNTIME_PROVENANCE_MISMATCH"
+          exit 1
       - name: Live resilience probes
         env:
           RESILIENCE_TARGET_ENV: ${{ secrets.RESILIENCE_TARGET_ENV }}
           RESILIENCE_OPERATIONAL_TOKEN: ${{ secrets.RESILIENCE_OPERATIONAL_TOKEN }}
-          RESILIENCE_HEALTH_URL: https://deploy-preview-754--aghbari-report-advisor.netlify.app/api/health
-          RESILIENCE_CANARY_URL: https://deploy-preview-754--aghbari-report-advisor.netlify.app/api/tenant-canary
-          RESILIENCE_BACKUP_VERIFY_URL: https://deploy-preview-754--aghbari-report-advisor.netlify.app/api/backup-restore-verify
-          RESILIENCE_ROLLBACK_DRILL_URL: https://deploy-preview-754--aghbari-report-advisor.netlify.app/api/rollback-drill
           RESILIENCE_ALLOW_PRODUCTION: ${{ secrets.RESILIENCE_ALLOW_PRODUCTION }}
           RESILIENCE_BACKUP_MODE: ${{ secrets.RESILIENCE_BACKUP_MODE }}
           RESILIENCE_LOGICAL_SOURCE_DB_URL: ${{ secrets.RESILIENCE_LOGICAL_SOURCE_DB_URL || vars.RESILIENCE_LOGICAL_SOURCE_DB_URL }}
