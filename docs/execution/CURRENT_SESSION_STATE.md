@@ -2,8 +2,8 @@
 
 SESSION HANDOFF = NOT READY
 STATE_OWNER = CAPTAIN + PROGRAMMER
-CURRENT_EXACT_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8
-CURRENT_EXECUTION_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8
+CURRENT_EXACT_HEAD = af00db7d9019aff771a7e2c54491bc268cd15932
+CURRENT_EXECUTION_HEAD = af00db7d9019aff771a7e2c54491bc268cd15932
 CURRENT_BRANCH_REF = d4e5d6d504a77c11dbc77d449fcec6109ef59b52
 CURRENT_EXECUTION_HEAD_STABILITY = PASS: branch diff after 5184cc1 contains documentation-only files
 CURRENT_MAIN_HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3
@@ -20,10 +20,10 @@ P0B_FIX = expectBlocked accepts one documented error from allowlist; same-tenant
 COHORT_PROOF = 40 selected reports; 40 unique source hashes; 4 tenants; FULL=40; VERIFIED=40; READY=40; ACCEPTED=40; non_terminal=0
 ACTION_CHAIN_PROOF = PROVEN by DB readback: Recommendation 4ec6baba -> Decision 7caefd77 -> Approval f4a2445b -> Work 814b38d7 -> Outcome 1eb22376; all evidence retains same tenant/hash/job/passport/snapshots
 ACTION_OUTCOME_TRUTH = outcome=insufficient; expected_impact=NULL; actual_impact=NULL; no fabricated impact
-P1A_STATUS = direct sequential 40-report staging refresh completed without 57014; query plans index-backed; concurrency guard in place; terminal CI cohort run still queued
+P1A_STATUS = direct sequential 40-report staging refresh completed without 57014; terminal cohort run after af00db7d9019aff771a7e2c54491bc268cd15932 is pending
 P1C_STATUS = Phase F remains separate and uncertified
 SECURITY_ADVISORY = public.canonical_import_repair_history RLS disabled; direct anon/authenticated table privileges false; no auto-remediation
-CURRENT_RUNTIME_RUNS = Evidence Passport Live Proof #72; Full Product Browser E2E #7050; Report Value Cohort #85; Final Certification #15040; all queued at branch ref d4e5d6d
+CURRENT_RUNTIME_RUNS = Evidence Passport Live Proof #74; Full Product Browser E2E #7097; Report Value Cohort #87; Final Certification #15126; all at execution head af00db7d9019aff771a7e2c54491bc268cd15932; Live Gate queued
 GOVERNANCE_NOTE = session-handoff run on historical execution commit 5184cc1 reports stale documentation because later persistence files are intentionally absent there; branch-ref persistence is the authoritative handoff state
-NEXT_EXACT_ACTION = consume first terminal result from Evidence Passport Live Proof #72 or Full Product Browser E2E #7050; first new P0/P1 only
+NEXT_EXACT_ACTION = consume Live Gate #74 terminal result; first new P0/P1 only
 DO_NOT_REPEAT = no old-SHA PASS reuse; no Passport mutation grants; no RLS weakening; no arbitrary negative-path errors; no blind timeout; no fabricated impact
