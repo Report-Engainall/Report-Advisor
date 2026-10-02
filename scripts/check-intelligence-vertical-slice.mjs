@@ -50,6 +50,39 @@ check(advisory.questions.find((q) => q.id === 'report.contributors')?.state === 
 check(advisory.questions.find((q) => q.id === 'report.so-what')?.state === 'REVIEW_REQUIRED' || advisory.questions.find((q) => q.id === 'report.so-what')?.state === 'ANSWERED', 'so-what must have an explicit state');
 check(advisory.questions.find((q) => q.id === 'report.why')?.state === 'REVIEW_REQUIRED', 'why should retain causal review boundary');
 
+const archetypeIntelligence = {
+  ...intelligence,
+  findings: [{
+    id: 'sales:top-party',
+    kind: 'FINDING',
+    priority: 'high',
+    title: 'تركيز العملاء',
+    statement: 'العميل أ يمثل الحصة الأكبر من القيمة.',
+    value: 70,
+    unit: '%',
+    dimensionLabel: 'العميل',
+    dimensionValue: 'عميل أ',
+    evidence: ['customerField=customerCode', 'share=70%'],
+    limitation: 'التركيز وصفي ولا يثبت سبب التغير.',
+    action: 'راجع الاعتماد على العميل قبل اعتماد قرار.',
+  }],
+  risks: [],
+  opportunities: [],
+  advisorBrief: {
+    ...(intelligence.advisorBrief ?? {}),
+    recommendedAction: 'راجع الاعتماد على العميل قبل اعتماد قرار.',
+  },
+};
+const archetypePacket = buildAdvisoryPacket({
+  ...base,
+  intelligence: archetypeIntelligence,
+  availableFields: ['netAmount', 'customerCode'],
+  sampleSize: 20,
+});
+const concentrationQuestion = archetypePacket.questions.find((q) => q.id === 'sales.customer-concentration');
+check(concentrationQuestion?.state === 'ANSWERED', 'answered archetype question must be marked ANSWERED');
+check(String(concentrationQuestion?.answer ?? '').includes('العميل أ'), 'archetype answer must come from business intelligence');
+
 const recommendation = advisory.nextRecommendation;
 check(Boolean(recommendation), 'vertical slice needs a recommendation claim');
 
