@@ -27,6 +27,7 @@ export type SmartReportDetail = SmartReportCatalogItem & {
     qualityScore: number | null;
     rowCount: number | null;
     columnCount: number | null;
+    createdAt: string | null;
     datasets: unknown[];
   } | null;
   stages: Array<{
@@ -305,6 +306,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     qualityScore: analysis.quality_score == null ? null : Number(analysis.quality_score),
     rowCount: analysis.row_count == null ? null : Number(analysis.row_count),
     columnCount: analysis.column_count == null ? null : Number(analysis.column_count),
+    createdAt: analysis.created_at == null ? null : String(analysis.created_at),
     datasets: Array.isArray(analysis.datasets) ? analysis.datasets : [],
   } : null;
 
