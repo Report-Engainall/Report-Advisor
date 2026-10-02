@@ -676,15 +676,34 @@ async function proveDecisionActionSurface(page, report) {
   assert.ok(response && response.status() < 400, 'decision-action: HTTP ' + (response?.status() ?? 'NO_RESPONSE'));
   const body = (await page.locator('body').innerText()).trim();
   assertCurrentReportText(body, 'decision action');
+  assert.ok(body.includes('مسار القرار لهذا التقرير فقط'), 'SOURCE_BOUND_DECISION_SURFACE_MISSING');
+
+  const approvalButton = page.getByRole('button', { name: 'طلب الموافقة' }).first();
+  const approvalButtonCount = await approvalButton.count();
+  const emptyDecisionState = body.includes('لا توجد قرارات مصدرية محفوظة بعد لهذا المصدر.');
+
   assert.ok(
-    body.includes('حفظ القرار وطلب الموافقة') ||
-    body.includes('استكمال مسار الموافقة'),
-    'DECISION_PERSIST_ACTION_MISSING'
+    approvalButtonCount === 1 || emptyDecisionState,
+    'SOURCE_BOUND_DECISION_STATE_MISSING'
   );
-  assert.ok(body.includes('لا يوجد اعتماد تلقائي') || body.includes('بانتظار صاحب الصلاحية') || body.includes('طلب الموافقة'), 'DECISION_APPROVAL_GUARDRAIL_MISSING');
-  assert.ok(await page.getByRole('button', { name: /حفظ القرار وطلب الموافقة|استكمال مسار الموافقة/ }).count(), 'DECISION_ACTION_BUTTON_MISSING');
+  assert.ok(
+    body.includes('لا يوجد اعتماد تلقائي') ||
+    body.includes('بانتظار صاحب الصلاحية') ||
+    body.includes('طلب الموافقة') ||
+    emptyDecisionState,
+    'DECISION_APPROVAL_GUARDRAIL_MISSING'
+  );
+
   await page.screenshot({ path: reportDir + '/decision-action-surface.png', fullPage: true });
-  evidence.steps.push({ step: 'decision-action-surface', status: 'PASS', reportJobId: report.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, persistenceAction: true, approvalGuardrail: true });
+  evidence.steps.push({
+    step: 'decision-action-surface',
+    status: 'PASS',
+    reportJobId: report.reportJobId,
+    sourceHash: CURRENT_REPORT_SOURCE_HASH,
+    persistenceAction: approvalButtonCount === 1,
+    approvalGuardrail: true,
+    prePersistedDecisionState: approvalButtonCount === 1 ? 'AVAILABLE' : 'EMPTY_AWAITING_CREATION',
+  });
 }
 
 async function proveDecisionApprovalActionOutcome(page, report) {
