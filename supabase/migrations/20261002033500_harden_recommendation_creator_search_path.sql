@@ -12,7 +12,7 @@ create or replace function public.create_runtime_recommendation(
 returns uuid
 language plpgsql
 security definer
-set search_path = ''
+set search_path = public, pg_catalog
 as $$
 declare
   v_company uuid := public.current_company_id();

@@ -11,7 +11,7 @@ assert.ok(surface.includes("طلب الموافقة"));
 assert.ok(surface.includes("PROPOSED"));
 assert.ok(surface.includes("report.sourceHash"));
 assert.ok(!surface.includes("create_decision_work_item"));
-for (const marker of ['decide_approval','SELF_APPROVAL_FORBIDDEN','decided_by = v_user','set search_path = \'\'']) {
+for (const marker of ['decide_approval','SELF_APPROVAL_FORBIDDEN','decided_by = v_user','set search_path = public, pg_catalog']) {
   assert.ok(approvalMigration.includes(marker), 'approval separation contract missing: ' + marker);
 }
 console.log('SOURCE_DECISION_APPROVAL_CONTRACT_PASS');

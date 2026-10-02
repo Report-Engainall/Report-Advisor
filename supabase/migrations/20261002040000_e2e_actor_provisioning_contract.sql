@@ -7,7 +7,7 @@ create or replace function public.provision_e2e_test_membership(
 returns public.company_memberships
 language plpgsql
 security definer
-set search_path = ''
+set search_path = public, pg_catalog
 as $$
 declare
   v_membership public.company_memberships;
