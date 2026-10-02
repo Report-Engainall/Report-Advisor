@@ -8,10 +8,10 @@ REPORT_FOR_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8d
 UPDATED_AT = 2026-10-02T14:40:00Z
 CURRENT_BRANCH = fix/current-head-runtime-provenance-20261002
 PR = #730 OPEN / NOT MERGED / MERGEABLE
-CURRENT_BRANCH_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8d
-CURRENT_EXECUTION_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8d
+CURRENT_BRANCH_HEAD = 1e6e3a23a0b31a22cec0ad4d741007e612f0b4bd
+CURRENT_EXECUTION_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8
 CURRENT_MAIN_HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3
-LATEST_COMMIT = ci: serialize report value cohort per pull request
+LATEST_COMMIT = docs: finalize current session resume state
 LATEST_CI = current-head checks will supersede all prior SHA evidence; no current live/browser/certification PASS claimed yet
 
 WHAT_I_WAS_ASKED_TO_DO = Reconcile exact branch/PR/report/state, close the authenticated Evidence Passport SELECT boundary without widening mutation privileges, fix the live negative-path assertion, investigate the cohort timeout, prove the Smart Business Action Chain, and persist truthful handoff.
