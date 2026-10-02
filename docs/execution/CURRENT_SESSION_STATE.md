@@ -2,8 +2,8 @@
 
 SESSION HANDOFF = NOT READY
 STATE_OWNER = CAPTAIN + PROGRAMMER
-CURRENT_EXACT_HEAD = b5cf38e410347661db4484bd252ab00ec1e8e5df
-CURRENT_BRANCH_HEAD = b5cf38e410347661db4484bd252ab00ec1e8e5df
+CURRENT_EXACT_HEAD = 507602c6f3f7e8ee1c3eb0d542b11271f0a08c42
+CURRENT_BRANCH_HEAD = 507602c6f3f7e8ee1c3eb0d542b11271f0a08c42
 CURRENT_EXECUTION_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8
 CURRENT_MAIN_HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3
 BRANCH = fix/current-head-runtime-provenance-20261002
@@ -12,7 +12,7 @@ PROGRAMMER_REPORT = PRESENT
 PROGRAMMER_REPORT_FOR_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8
 ACTION_STATUS = IN_PROGRESS
 
-STATIC_PROOF = CURRENT_HEAD_WORKFLOW_BATCH_PENDING; CURRENT_HEAD_SECURITY_DEFINER_PENDING; SESSION_HANDOFF_PENDING; LIVE_GATE_SYNTAX_PENDING; DIFF_CHECK_PENDING
+STATIC_PROOF = WORKFLOW_BATCH_PASS; SECURITY_DEFINER_PASS; SESSION_HANDOFF_PASS; LIVE_GATE_SYNTAX_PASS; GIT_DIFF_CHECK_PASS
 P0A_PROOF = authenticated SELECT=true; authenticated INSERT/UPDATE/DELETE=false; anon SELECT=false; RLS=true; same-tenant visible_rows=1; wrong-tenant visible_rows=0; anon SELECT SQLSTATE=42501
 P0B_FIX = expectBlocked accepts one documented error from an allowed set; live gate includes authenticated Passport SELECT assertions
 COHORT_PROOF = 42 candidates; 42 unique source hashes; 4 tenants; 32 PDF; 10 XLSX; 42 analyzed; quality 76..100 avg 93.64; 135 rendered outputs; 40 VERIFIED; 40 READY
@@ -21,7 +21,7 @@ P1A_STATUS = no scan root cause proven; query plans low-cost/index-backed; direc
 P1C_STATUS = Phase F STALE_RUNTIME + rollback-forward TypeError remains separate and uncertified
 SECURITY_ADVISORY = public.canonical_import_repair_history RLS disabled; direct anon/authenticated table privileges false; no auto-remediation
 MIGRATION_PROVENANCE = 20261002165000 migration added to branch; equivalent GRANT applied directly to staging for proof
-NEXT_EXACT_ACTION = run/consume current-head Evidence Passport Live Proof, Full Product Browser E2E, Report Value Cohort, and Final Certification; fix only first new P0/P1
+NEXT_EXACT_ACTION = consume terminal current-head Evidence Passport Live Proof, Full Product Browser E2E, Report Value Cohort, and Final Certification; first new P0/P1 only
 DO_NOT_REPEAT = do not reuse old SHA PASS; do not widen Passport mutation privileges; do not weaken RLS; do not accept arbitrary negative-path errors; do not raise statement_timeout blindly
 
 Resume anchor: execution code is a6f19a064003e94c508b8a27bded19933465376c. Metadata commits after it are persistence only.
