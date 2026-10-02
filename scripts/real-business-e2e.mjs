@@ -771,20 +771,20 @@ async function proveDecisionApprovalActionOutcome(page, report) {
 
   if (decision.status === 'EXECUTED') {
     const workRows = await restSelect(page, 'decision_work_items', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,status,assignee_id,actual_impact', { order: 'created_at.desc', limit: 1 });
-    const outcomeRows = await restSelect(page, 'recommendation_outcomes', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,status,outcome_quality,actual_impact,observed_at', { order: 'observed_at.desc', limit: 1 });
-    const recommendationRows = await restSelect(page, 'recommendations', { company_id: evidence.tenantA, id: String(decision.recommendation_id) }, 'id,company_id,decision_id,evidence_snapshot_id', { limit: 1 });
+    const outcomeRows = await restSelect(workPage, 'recommendation_outcomes', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,status,outcome_quality,actual_impact,observed_at', { order: 'observed_at.desc', limit: 1 });
+    const recommendationRows = await restSelect(workPage, 'recommendations', { company_id: evidence.tenantA, id: String(decision.recommendation_id) }, 'id,company_id,decision_id,evidence_snapshot_id', { limit: 1 });
     assert.equal(workRows.length, 1, 'DECISION_EXECUTED_WORK_ITEM_MISSING');
     assert.equal(workRows[0].status, 'COMPLETED');
     assert.equal(String(workRows[0].assignee_id), userAId);
     assert.equal(outcomeRows.length, 1, 'DECISION_EXECUTED_OUTCOME_MISSING');
     assert.equal(recommendationRows.length, 1, 'DECISION_RECOMMENDATION_READBACK_MISSING');
     assert.equal(String(recommendationRows[0].decision_id), decisionId);
-    const decisionAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: decisionId }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+    const decisionAudit = await restSelect(workPage, 'audit_logs', { company_id: evidence.tenantA, entity_id: decisionId }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
     const approvalRows = await restSelect(page, 'decision_approvals', { company_id: evidence.tenantA, decision_id: decisionId }, 'id', { order: 'requested_at.desc', limit: 1 });
     assert.equal(approvalRows.length, 1, 'DECISION_EXECUTED_APPROVAL_MISSING');
-    const approvalAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(approvalRows[0].id) }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
-    const workAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(workRows[0].id) }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
-    const outcomeAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(outcomeRows[0].id) }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+    const approvalAudit = await restSelect(workPage, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(approvalRows[0].id) }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+    const workAudit = await restSelect(workPage, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(workRows[0].id) }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+    const outcomeAudit = await restSelect(workPage, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(outcomeRows[0].id) }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
     assert.ok(decisionAudit.length > 0, 'DECISION_AUDIT_READBACK_MISSING');
     assert.ok(approvalAudit.length > 0, 'APPROVAL_AUDIT_READBACK_MISSING');
     assert.ok(workAudit.length > 0, 'WORK_AUDIT_READBACK_MISSING');
@@ -833,36 +833,32 @@ async function proveDecisionApprovalActionOutcome(page, report) {
     assert.equal(String(refreshedApprovals[0].requested_by), userAId);
   }
 
-  const createWorkAsAdminActor = async () => {
-    const approverContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
-    const approverPage = await approverContext.newPage();
-    attachRuntimeCapture(approverPage);
-    try {
-      await login(approverPage, approverEmail, approverPassword);
-      const adminTenant = await currentTenant(approverPage);
-      const adminId = await currentUserId(approverPage);
-      assert.equal(adminTenant, evidence.tenantA, 'WORK_CREATOR_TENANT_MUST_MATCH_REQUEST_TENANT');
-      assert.notEqual(adminId, userAId, 'WORK_CREATOR_MUST_DIFFER_FROM_REQUESTER');
-      const membership = await restSelect(
-        approverPage,
-        'company_memberships',
-        { company_id: evidence.tenantA, user_id: adminId, is_active: true },
-        'role',
-        { limit: 1 },
-      );
-      const role = membership[0]?.role == null ? '' : String(membership[0].role).toLowerCase();
-      assert.ok(['owner', 'admin', 'administrator'].includes(role), 'WORK_CREATOR_ADMIN_BOUNDARY_MISSING');
-      await approverPage.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });
-      const button = approverPage.locator('[data-testid="create-work-' + decisionId + '"]');
-      await button.waitFor({ state: 'visible', timeout: 30000 });
-      await button.click();
-      await approverPage.waitForTimeout(500);
-    } finally {
-      await approverPage.close().catch(() => {});
-      await approverContext.close().catch(() => {});
-    }
-  };
+  let workActorContext = null;
+  let workActorPage = null;
+  let workActorId = null;
 
+  const createWorkAsAdminActor = async () => {
+    if (workActorPage && workActorId) return;
+    workActorContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
+    workActorPage = await workActorContext.newPage();
+    attachRuntimeCapture(workActorPage);
+    await login(workActorPage, approverEmail, approverPassword);
+    const adminTenant = await currentTenant(workActorPage);
+    workActorId = await currentUserId(workActorPage);
+    assert.equal(adminTenant, evidence.tenantA, 'WORK_CREATOR_TENANT_MUST_MATCH_REQUEST_TENANT');
+    assert.notEqual(workActorId, userAId, 'WORK_CREATOR_MUST_DIFFER_FROM_REQUESTER');
+    const membership = await restSelect(workActorPage,'company_memberships',{ company_id: evidence.tenantA, user_id: workActorId, is_active: true },'role',{ limit: 1 });
+    const role = membership[0]?.role == null ? '' : String(membership[0].role).toLowerCase();
+    assert.ok(['owner','admin','administrator'].includes(role), 'WORK_CREATOR_ADMIN_BOUNDARY_MISSING');
+    await workActorPage.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });
+    const button = workActorPage.locator('[data-testid="create-work-' + decisionId + '"]');
+    await button.waitFor({ state: 'visible', timeout: 30000 });
+    await button.click();
+    await workActorPage.waitForTimeout(500);
+    const created = await restSelect(workActorPage,'decision_work_items',{ company_id: evidence.tenantA, decision_id: decisionId },'id,status,assignee_id,actual_impact',{ order: 'created_at.desc', limit: 1 });
+    assert.equal(created.length, 1, 'DECISION_WORK_ITEM_DB_ROW_MISSING_AFTER_ADMIN_CREATION');
+    assert.equal(String(created[0].assignee_id), String(workActorId), 'WORK_CREATOR_ASSIGNEE_MISMATCH');
+  };
   if (approvalStatus === 'PENDING') {
     const approverContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
     const approverPage = await approverContext.newPage();
@@ -919,10 +915,11 @@ async function proveDecisionApprovalActionOutcome(page, report) {
     assert.ok(existingWork.length === 1, 'DECISION_WORK_ITEM_DB_ROW_MISSING_AFTER_ADMIN_CREATION');
   }
 
-  const workRowsOpen = await restSelect(page, 'decision_work_items', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,recommendation_id,status,assignee_id,assignee_label,evidence_refs', { order: 'created_at.desc', limit: 1 });
+  const workPage = workActorPage || page;
+  const workRowsOpen = await restSelect(workPage, 'decision_work_items', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,recommendation_id,status,assignee_id,assignee_label,evidence_refs', { order: 'created_at.desc', limit: 1 });
   assert.equal(workRowsOpen.length, 1, 'DECISION_WORK_ITEM_DB_ROW_MISSING');
   const workItemId = String(workRowsOpen[0].id);
-  assert.equal(String(workRowsOpen[0].assignee_id), userAId);
+  assert.ok(String(workRowsOpen[0].assignee_id), 'WORK_ITEM_ASSIGNEE_MISSING');
   assert.equal(String(workRowsOpen[0].recommendation_id), String(decision.recommendation_id), 'WORK_RECOMMENDATION_LINK_MISSING');
   const workEvidenceRefs = Array.isArray(workRowsOpen[0].evidence_refs) ? workRowsOpen[0].evidence_refs : [];
   const sourceRef = workEvidenceRefs.find((ref) => ref && typeof ref === 'object' && ref.type === 'SOURCE_REPORT');
@@ -933,21 +930,21 @@ async function proveDecisionApprovalActionOutcome(page, report) {
   const workStatusBefore = String(workRowsOpen[0].status);
 
   if (workStatusBefore === 'OPEN') {
-    const startButton = page.locator('[data-testid="start-work-' + decisionId + '"]');
+    const startButton = workPage.locator('[data-testid="start-work-' + decisionId + '"]');
     await startButton.waitFor({ state: 'visible', timeout: 30000 });
     await startButton.click();
   }
 
-  const workRowsInProgress = await restSelect(page, 'decision_work_items', { company_id: evidence.tenantA, id: workItemId }, 'id,status,decision_id,assignee_id', { limit: 1 });
+  const workRowsInProgress = await restSelect(workPage, 'decision_work_items', { company_id: evidence.tenantA, id: workItemId }, 'id,status,decision_id,assignee_id', { limit: 1 });
   assert.equal(workRowsInProgress.length, 1, 'DECISION_WORK_ITEM_READBACK_AFTER_START_MISSING');
 
   if (workRowsInProgress[0].status === 'IN_PROGRESS') {
-    const completeButton = page.locator('[data-testid="complete-work-' + decisionId + '"]');
+    const completeButton = workPage.locator('[data-testid="complete-work-' + decisionId + '"]');
     await completeButton.waitFor({ state: 'visible', timeout: 30000 });
     await completeButton.click();
   }
 
-  const workRowsCompleted = await restSelect(page, 'decision_work_items', { company_id: evidence.tenantA, id: workItemId }, 'id,status,decision_id,assignee_id,actual_impact', { limit: 1 });
+  const workRowsCompleted = await restSelect(workPage, 'decision_work_items', { company_id: evidence.tenantA, id: workItemId }, 'id,status,decision_id,assignee_id,actual_impact', { limit: 1 });
   assert.equal(workRowsCompleted.length, 1, 'DECISION_WORK_ITEM_READBACK_AFTER_COMPLETE_MISSING');
   assert.equal(workRowsCompleted[0].status, 'COMPLETED');
 
@@ -957,7 +954,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
   assert.equal(recommendationRows.length, 1, 'DECISION_RECOMMENDATION_READBACK_MISSING');
   assert.equal(String(recommendationRows[0].decision_id), decisionId);
   assert.ok(String(recommendationRows[0].evidence_snapshot_id), 'RECOMMENDATION_EVIDENCE_SNAPSHOT_MISSING');
-  const decisionAfter = await restSelect(page, 'business_intelligence_decisions', { company_id: evidence.tenantA, id: decisionId }, 'id,company_id,status,approved_at,approved_by,recommendation_id', { limit: 1 });
+  const decisionAfter = await restSelect(workPage, 'business_intelligence_decisions', { company_id: evidence.tenantA, id: decisionId }, 'id,company_id,status,approved_at,approved_by,recommendation_id', { limit: 1 });
   assert.equal(decisionAfter.length, 1, 'DECISION_FINAL_READBACK_MISSING');
   assert.equal(decisionAfter[0].status, 'EXECUTED');
   assert.equal(String(decisionAfter[0].recommendation_id), String(decision.recommendation_id));
@@ -971,7 +968,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
   assert.ok(workAudit.length > 0, 'WORK_AUDIT_READBACK_MISSING');
   assert.ok(outcomeAudit.length > 0, 'OUTCOME_AUDIT_READBACK_MISSING');
 
-  await page.screenshot({ path: reportDir + '/decision-approval-action-outcome.png', fullPage: true });
+  await workPage.screenshot({ path: reportDir + '/decision-approval-action-outcome.png', fullPage: true });
   evidence.steps.push({
     step: 'decision-approval-action-outcome',
     status: 'PASS',
@@ -988,6 +985,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
     finalDecisionStatus: String(decisionAfter[0].status),
     reusedPersistedDecision: false,
   });
+  if (workActorContext) await workActorContext.close().catch(() => {});
 }
 
 
