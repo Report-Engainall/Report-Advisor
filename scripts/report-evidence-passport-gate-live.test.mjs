@@ -38,13 +38,23 @@ const service = createClient(url, serviceRoleKey, {
 });
 
 const timeoutFetch = async (input, init = {}) => {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(new Error('LIVE_GATE_REQUEST_TIMEOUT')), 30000);
-  try {
-    return await fetch(input, { ...init, signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
+  let lastError = null;
+  for (let attempt = 1; attempt <= 4; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(new Error('LIVE_GATE_REQUEST_TIMEOUT')), 30000);
+    try {
+      const response = await fetch(input, { ...init, signal: controller.signal });
+      if (!RETRYABLE_HTTP.has(response.status) || attempt === 4) return response;
+      lastError = new Error('LIVE_GATE_RETRYABLE_HTTP_' + response.status);
+    } catch (error) {
+      lastError = error;
+      if (attempt === 4) throw error;
+    } finally {
+      clearTimeout(timer);
+    }
+    await wait(1000 * 2 ** (attempt - 1));
   }
+  throw lastError ?? new Error('LIVE_GATE_REQUEST_RETRY_EXHAUSTED');
 };
 
 const anon = createClient(url, anonKey, {
