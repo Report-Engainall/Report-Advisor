@@ -13,7 +13,7 @@ export default async function handler(req, res) {
       const body = await response.text();
       return json(res, 503, { status: 'critical', component: 'database', http_status: response.status, detail: body.slice(0, 300) });
     }
-    await persistHealth(process.env.RESILIENCE_COMPANY_ID.trim(), 'database', 'healthy', latencyMs, { source: 'vercel-function' });
+    await persistHealth(process.env.RESILIENCE_COMPANY_ID.trim(), 'database', 'healthy', latencyMs, { source: 'resilience-health-function', runtime: 'portable' });
     return json(res, 200, {
       status: 'healthy',
       component: 'database',
