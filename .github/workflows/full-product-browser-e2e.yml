@@ -140,6 +140,7 @@ jobs:
         run: |
           set -euo pipefail
           npm run typecheck
+          npm run test:build-provenance
           npm run test:transactional-spine
           npm run test:parallel-heart-ui-contract
           npm run test:decision-experience-persistence
