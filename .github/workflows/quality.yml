@@ -135,6 +135,8 @@ jobs:
         run: npm run test:report-advisor-intelligence
       - name: Source intelligence proposal atomic contract
         run: npm run test:source-intelligence-proposal-contract
+      - name: 48 archetype runtime coverage
+        run: npm run test:48-archetype-runtime
       - name: Deep golden corpus regressions
         run: node --experimental-strip-types scripts/golden-dataset-deep-regressions.test.ts
       - name: Outcome feedback regressions
