@@ -25,6 +25,6 @@ PRODUCTION = READY deployment exists for 6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d
 CURRENT RUNTIME FRONTIER = Full Product Browser E2E run 37064389357 plus Final Certification, Final Execution, Quality, Storage Tenant Isolation, Execution Enforcement, Session Handoff, Phase-F, Desktop and Vercel deploy runs are QUEUED for f95. No queued run is PASS.
 
 FIRST/REMAINING BLOCKER = authenticated current-head business journey and real-source proof remain unproven until the queued Browser E2E reaches terminal state.
-NEXT EXACT ACTION = consume the current-main Full Product Browser E2E terminal result; fix only the first failure; then continue to the real Smart Report proof.
+NEXT_EXACT_ACTION = consume the current-main Full Product Browser E2E terminal result; fix only the first failure; then continue to the real Smart Report proof.
 
 DO_NOT_REPEAT = no old-SHA browser PASS reuse; no queued-run PASS; no RLS/auth/evidence weakening; no fabricated real-source archetype coverage; no re-import without regression reason.
