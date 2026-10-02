@@ -5,15 +5,11 @@ PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 
 REPORT_FOR_HEAD = af00db7d9019aff771a7e2c54491bc268cd15932
 CURRENT EXACT HEAD = af00db7d9019aff771a7e2c54491bc268cd15932
-CURRENT BRANCH REF = d4e5d6d504a77c11dbc77d449fcec6109ef59b52
+CURRENT BRANCH REF = 2840aeac77914b28df2e58a1ebd0793c261f0b9f
 BRANCH = fix/current-head-runtime-provenance-20261002
 PR = #730 OPEN / NOT MERGED / MERGEABLE
 CURRENT MAIN HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3
-EXECUTION_HEAD_STABILITY_PROOF = PASS: diff 5184cc1..branch contains only:
-- docs/execution/CURRENT_SESSION_STATE.md
-- docs/execution/PROGRAMMER_CURRENT_REPORT.md
-- docs/execution/PROGRAMMER_REPORTS/2026-10-02/SESSION-20261002-1413.md
-No runtime/code path differs after 5184cc1.
+EXECUTION_HEAD_PROVENANCE = PASS: execution head advanced once from 5184cc1 to af00db7d for the first new P0/P1 fix; only scripts/report-evidence-passport-gate-live.test.mjs is the runtime/code delta. Later commits are documentation-only persistence.
 
 ACTION_STATUS = IN_PROGRESS
 
@@ -30,7 +26,7 @@ ACTION_STATUS = IN_PROGRESS
 
 ### STATIC / EXACT-HEAD LOCAL
 On PC01, checkout was exactly:
-5184cc1fe839a794cf2c7f4c5e1568d16aaaff8
+af00db7d9019aff771a7e2c54491bc268cd15932
 
 PASS:
 - npm ci
