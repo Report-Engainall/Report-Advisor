@@ -2,26 +2,28 @@
 
 SESSION HANDOFF = NOT READY
 STATE_OWNER = CAPTAIN + PROGRAMMER
-CURRENT_EXACT_HEAD = a4858371
-CURRENT_EXECUTION_HEAD = a4858371
-CURRENT_BRANCH_REF = a4858371
-CURRENT_EXECUTION_HEAD_STABILITY = PASS: a4858371 is the current runtime/code head; the next commit is documentation-only persistence.
-CURRENT_MAIN_HEAD = 114ebcdbe51bee44361b86e614fb7e2ec0829c8f
-BRANCH = fix/smart-report-archetype-runtime-20261002
-PR = #752 OPEN / NOT MERGED / MERGEABLE
+CURRENT_EXACT_HEAD = e9a9b566627625f3289cd1cf46faa00efa4c7437
+CURRENT_EXECUTION_HEAD = f95d5f2ead0a186bf783f20c81d3351988baf292
+CURRENT_MAIN_HEAD = e9a9b566627625f3289cd1cf46faa00efa4c7437
+BRANCH = main
+PR #752 = MERGED
+PR #753 = MERGED
 PROGRAMMER_REPORT = PRESENT
-PROGRAMMER_REPORT_FOR_HEAD = a4858371
+PROGRAMMER_REPORT_FOR_HEAD = f95d5f2ead0a186bf783f20c81d3351988baf292
 ACTION_STATUS = IN_PROGRESS
-UPDATED_AT = 2026-10-02T20:40:00Z
+UPDATED_AT = 2026-10-02T21:05:00Z
 
-STATIC_PROOF = current code frontier contains live-gate retry, E2E actor rotation/PostgREST retry, configured-actor Auth sign-in, authentication failure-state surfacing, and certification TS-loader fixes through a4858371
-CURRENT_RUNTIME_PROOF = queued; no current-head runtime PASS claimed
-HISTORICAL_DATABASE_PROOF = available but not transferred to current-head runtime certification
-HISTORICAL_BROWSER_PROOF = not current-head and not transferred
-SECURITY_ADVISORY = public.canonical_import_repair_history RLS disabled; direct anon/authenticated table privileges false; advisory only and not auto-remediated
+CURRENT PRODUCT HEAD = f95d5f2ead0a186bf783f20c81d3351988baf292
+PRODUCT HEAD PARENT = 6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6
+LAST CLOSED FAILURE = Supabase Auth signInWithPassword HTTP 504 during Full Product Browser E2E actor provisioning.
+ROOT FIX = PR #753 adds bounded /auth/v1 transient retry (4 attempts) while preserving hard request timeout and global provisioning deadline.
 
-CURRENT_RUNTIME_RUNS = fresh current-head runs will be started on the a4858371 code head
-NEXT_EXACT_ACTION = consume first terminal result on the a4858371 runtime gates; fix only the first failure; then continue to real Smart Reports proof
-DO_NOT_REPEAT = no old-SHA PASS reuse; no RLS weakening; no Passport mutation grants; no blind timeout; no fabricated impact; no queued-run PASS
+EXACT-SHA LOCAL PROOF = E2E_ACTOR_PROVISIONING_CONTRACT_PASS; typecheck PASS; git diff --check PASS on the repair branch before merge.
+PRODUCT HEAD PROOF = typecheck PASS; 48-archetype runtime PASS; Advisor intelligence PASS; intelligence vertical slice PASS; visual-system PASS; build PASS with BUILD_SOURCE_SHA=6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6; proposal/proof/claim/question/outcome/decision contracts PASS.
+PRODUCTION = READY deployment exists for 6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6 at report-advisor.vercel.app; current f95 head is newer and awaiting fresh production/certification readback.
+CURRENT RUNTIME FRONTIER = Full Product Browser E2E run 37064389357 plus Final Certification, Final Execution, Quality, Storage Tenant Isolation, Execution Enforcement, Session Handoff, Phase-F, Desktop and Vercel deploy runs are QUEUED for f95. No queued run is PASS.
 
-SESSION HANDOFF = NOT READY
+FIRST/REMAINING BLOCKER = authenticated current-head business journey and real-source proof remain unproven until the queued Browser E2E reaches terminal state.
+NEXT EXACT ACTION = consume run 37064389357 on exact f95d5f2ead0a186bf783f20c81d3351988baf292; fix only its first terminal failure; then continue to real Smart Report proof.
+
+DO_NOT_REPEAT = no old-SHA browser PASS reuse; no queued-run PASS; no RLS/auth/evidence weakening; no fabricated real-source archetype coverage; no re-import without regression reason.
