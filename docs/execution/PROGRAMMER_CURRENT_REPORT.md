@@ -3,107 +3,105 @@
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 
-REPORT_FOR_HEAD = 1cbf4699cf52eb5e1643034b5ea57424b3f70a93
-UPDATED_AT = 2026-10-02T14:13:38Z
+REPORT_FOR_HEAD = 28c6ea3d9c1a1d593a71b08025827c97927de697
+UPDATED_AT = 2026-10-02T14:20:00Z
 CURRENT_BRANCH = fix/current-head-runtime-provenance-20261002
 PR = #730 OPEN / NOT MERGED
-CURRENT_EXECUTION_HEAD = 1cbf4699cf52eb5e1643034b5ea57424b3f70a93
+CURRENT_EXECUTION_HEAD = 28c6ea3d9c1a1d593a71b08025827c97927de697
 CURRENT_MAIN_HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3
-LATEST_COMMIT = test: accept valid PostgreSQL search_path spacing
-LATEST_CI = fresh exact-head workflow suite queued; quality run in progress; no terminal PASS transferred
+LATEST_COMMIT = test: select second tenant from E2E allowlist
+LATEST_CI = new exact-head suite triggered by current code fix; terminal results not yet consumed
 
 ## WHAT I WAS ASKED TO DO
 Restore from the saved execution state, verify GitHub reality, identify the first active failure, repair the correct layer, continue execution, and persist a truthful handoff without repeating closed work.
 
 ## WHAT I ACTUALLY DID
-- Verified repository: Report-Engainall/Report-Advisor.
-- Verified main exact HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3.
-- Verified execution branch = fix/current-head-runtime-provenance-20261002.
-- Verified PR #730 remains OPEN / NOT MERGED.
-- Verified branch exact HEAD = 1cbf4699cf52eb5e1643034b5ea57424b3f70a93.
-- Reconciled stale session state against actual GitHub branch state. Historical CURRENT_SESSION_STATE referenced e5091df9..., while e5091df9... is an ancestor included in the actual branch tip; it is not the current branch HEAD.
-- Read the canonical programmer operating protocol, current session state, current programmer report placeholder, and checked the programmer archive directory. Archive directory existed only as README; no dated programmer execution archive was present.
-- Inspected the latest failed CI evidence on the prior exact merge checkout 80af4d3e58b67a179f5e8fe0f6a21b5fd5ce9e6a.
-- Fixed the first reproducible CI contract failure: session-report-contract.yml concurrency now includes github.workflow.
-- Fixed the security-definer contract test false-negative: search_path parsing now accepts valid PostgreSQL forms with or without whitespace before =/TO.
-- No database migration was changed in this cycle.
-- Fresh exact-head CI was triggered by the fixes; current run IDs are queued/pending except quality which is in progress.
+- Verified main HEAD, PR #730, execution branch, and canonical session files.
+- Reconciled the stale CURRENT_SESSION_STATE head with the actual branch history.
+- Fixed the first reproducible workflow-batch CI defect by making session-report-contract concurrency workflow-scoped.
+- Fixed the security-definer contract parser so valid PostgreSQL SET search_path syntax without whitespace is accepted.
+- Created the mandatory programmer report and dated archive.
+- Reconfirmed the historical live Evidence Passport failure at source level: E2E_PROVISION_TENANT_NOT_ALLOWED occurs because the gate selected the first arbitrary company outside the E2E provisioning allowlist, while the provisioning RPC intentionally allows only RUNTIME-EVIDENCE-A-401117 or Aghbari Report Corpus CI tenants.
+- Fixed the live gate test to select the second tenant only from that allowlist and fail explicitly with LIVE_GATE_SECOND_ALLOWED_TENANT_MISSING when an appropriate second tenant does not exist.
+- No production SQL or database migration was changed for this runtime test defect.
 
 ## WHAT IS PROVEN
-- GitHub branch ref proof: current execution branch points to 1cbf4699cf52eb5e1643034b5ea57424b3f70a93.
-- Main ref proof: main points to 0c337e58898d88d8a7d2a60a26773b34d90c6dd3.
-- Previous CI failure proof:
-  - batch-integrity-guards failed because session-report-contract.yml lacked a workflow-scoped concurrency key.
-  - security-definer-exposure-contract failed because the test regex required whitespace after search_path; the latest repository SQL uses valid SET search_path=... syntax.
-  - session-handoff failed because the programmer report was still marked missing/unknown.
-  - Evidence Passport live gate failed with E2E_PROVISION_TENANT_NOT_ALLOWED on the prior exact merge checkout.
-- Fresh exact-head runs for batch integrity, security-definer exposure, Session Handoff, Report Value Cohort, Evidence Passport Gate Live Proof, Full Product Browser E2E, and Final Certification were queued after the fixes.
-- No fresh runtime PASS is claimed until those current-head runs finish and their evidence is read back.
+- Main exact HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3.
+- PR #730 remains OPEN / NOT MERGED.
+- Current execution code HEAD = 28c6ea3d9c1a1d593a71b08025827c97927de697.
+- Historical terminal CI evidence proves the workflow-batch, search_path parser, session-handoff, and Evidence Passport failures listed below.
+- Exact source inspection proves the tenant provisioning mismatch was in the live test's company selection, not a weakening of the evidence authorization boundary.
+- The current code contains the allowlisted second-tenant selection fix.
+- No exact-head PASS is claimed for the new fix until its CI/live/browser results finish and are read back.
 
 ## FIRST ACTIVE FAILURE
-The first active failure from the last terminal CI evidence was E2E_PROVISION_TENANT_NOT_ALLOWED in the live Evidence Passport gate. It must be re-confirmed on the new exact HEAD before being treated as the current runtime blocker.
+E2E_PROVISION_TENANT_NOT_ALLOWED in the Evidence Passport live gate.
 
 ## ROOT CAUSE
-- Closed source-level CI root cause #1: session-report-contract workflow concurrency group was not workflow-scoped.
-- Closed source-level CI root cause #2: security-definer contract regex incorrectly required whitespace after search_path, rejecting valid PostgreSQL syntax.
-- Open runtime root cause: historical live gate reported E2E_PROVISION_TENANT_NOT_ALLOWED; exact current-head root cause is NOT YET RECONFIRMED.
+provision_e2e_test_membership intentionally rejects companies not named RUNTIME-EVIDENCE-A-401117 or matching Aghbari Report Corpus CI %. The live gate previously selected an arbitrary second company using neq(passport.company_id).limit(1), so it could select a legitimate non-E2E tenant and fail before the cross-tenant evidence checks ran.
+
+## FIX
+The live gate now loads candidate companies, filters candidates by the provisioning allowlist, excludes the passport tenant, requires a second allowed E2E tenant, and emits LIVE_GATE_SECOND_ALLOWED_TENANT_MISSING when that precondition is absent.
 
 ## FILES_CHANGED
 - .github/workflows/session-report-contract.yml
 - scripts/check-security-definer-exposure-contract.mjs
+- scripts/report-evidence-passport-gate-live.test.mjs
 - docs/execution/PROGRAMMER_CURRENT_REPORT.md
+- docs/execution/CURRENT_SESSION_STATE.md
+- docs/execution/PROGRAMMER_REPORTS/2026-10-02/SESSION-20261002-1413.md
 
 ## MIGRATIONS_CHANGED
 NONE
 
 ## TESTS_AND_RUN_IDS
-Historical terminal evidence inspected:
-- batch-integrity-guards run 37016731231 -> failure
-- security-definer-exposure-contract run 37016731105 -> failure
-- Final Certification Gate run 37016731100 -> failure
-- Evidence Passport Gate Live Proof run 37016730937 -> failure
-- Session Handoff Contract run 37016730955 -> failure
+Historical terminal runs:
+- 37016731231 batch-integrity-guards -> failure
+- 37016731105 security-definer-exposure-contract -> failure
+- 37016731100 Final Certification Gate -> failure
+- 37016730937 Evidence Passport Gate Live Proof -> failure
+- 37016730955 Session Handoff Contract -> failure
 
-Fresh exact-head runs spawned from 1cbf4699:
-- batch-integrity-guards run 37018388411 -> queued
-- security-definer-exposure-contract run 37018387460 -> queued
-- Session Handoff Contract run 37018388290 -> pending
-- Report Value Cohort run 37018387560 -> queued
-- Evidence Passport Gate Live Proof run 37018387657 -> queued
-- Full Product Browser E2E run 37018387449 -> queued
-- Final Certification Gate run 37018387756 -> queued
-- quality run 37018387800 -> in progress
+Prior exact-head persistence runs on 689fbb61:
+- 37018644704 batch-integrity-guards -> queued
+- 37018644909 security-definer-exposure-contract -> queued
+- 37018645259 Session Handoff Contract -> pending
+- 37018645289 Report Value Cohort -> queued
+- 37018644235 Evidence Passport Gate Live Proof -> queued
+- 37018644324 Full Product Browser E2E -> queued
+- 37018645280 Final Certification Gate -> queued
+- 37018644625 quality -> queued
+
+New CI is triggered by current execution head 28c6ea3d9c1a1d593a71b08025827c97927de697 and supersedes the 689fbb61 results.
 
 ## DATABASE_PROOF
-No database mutation was executed in this cycle.
-Historical live DB/runtime evidence remains subject to exact-head reconciliation.
-The prior live gate failure was E2E_PROVISION_TENANT_NOT_ALLOWED; no current-head database PASS is claimed.
+No database mutation was executed in this cycle. The provisioning RPC remains fail-closed to the E2E tenant allowlist. No database PASS is claimed for the new test fix.
 
 ## RUNTIME_DEPLOYMENT_PROOF
-Prior Netlify preview proof for PR #730 reported deployment 6abf21ae7935b800085c252c as READY with source/build/deployment SHA e7c12542960c6df0392792df2c1bbd4d227e8193. This is historical and is not transferred to 1cbf4699cf52eb5e1643034b5ea57424b3f70a93.
+No new deployment proof yet for 28c6ea3d9c1a1d593a71b08025827c97927de697. Historical Netlify preview evidence is not transferred across SHA.
 
 ## BROWSER_PROOF
-No current-head authenticated browser PASS is claimed.
-Full Product Browser E2E is queued for the current head.
+No current-head authenticated browser PASS is claimed. Full Product Browser E2E must be consumed on 28c6ea3d9c1a1d593a71b08025827c97927de697.
 
 ## PRODUCT_UX_UI_DELTA
-This cycle is correctness/CI/runtime-proof focused. No product-screen redesign or business-value surface was changed.
+This cycle remains focused on import/evidence/runtime truth and certification plumbing. No UI redesign was made.
 
 ## REMAINING_OPEN
-- Reconfirm the live Evidence Passport provisioning boundary on exact current HEAD.
-- Consume Report Value Cohort, Evidence Passport Live, Full Product Browser E2E, Final Certification, and quality results on 1cbf4699cf52eb5e1643034b5ea57424b3f70a93.
-- If the first runtime gate fails, fix only that boundary, then commit and rerun exact-head evidence.
-- Complete the report corpus execution proof; no fixture-corpus completion is currently claimed.
+- Consume CI/live/browser evidence for 28c6ea3d9c1a1d593a71b08025827c97927de697.
+- If LIVE_GATE_SECOND_ALLOWED_TENANT_MISSING appears, establish the second designated E2E tenant via the existing fixture/governance path rather than weakening the RPC allowlist.
+- If the live gate passes, capture the complete recommendation -> decision -> approval -> work -> outcome chain with tenant/source/job/hash proof.
+- Continue Report Value Cohort and real fixture-corpus execution; no corpus completion is claimed.
 
 ## DO_NOT_REPEAT
-- Do not reuse e7c1254296 or older runtime PASS as current proof.
-- Do not treat main 0c337e5 as the executable PR head; PR #730 branch is 1cbf4699cf52eb5e1643034b5ea57424b3f70a93.
-- Do not re-add whitespace to production SQL merely to satisfy the old regex; the checker was repaired to accept valid syntax.
-- Do not claim live/browser/runtime PASS while the exact-head runs are queued.
+- Do not reuse any pre-28c runtime PASS as current proof.
+- Do not weaken provision_e2e_test_membership to accept arbitrary companies.
+- Do not patch SQL solely to satisfy a defective static regex.
+- Do not claim queued/current CI as PASS.
+- Do not treat metadata-only persistence commits as new product/runtime code.
 
 ## NEXT_EXACT_ACTION
-Consume the fresh exact-head CI results for 1cbf4699cf52eb5e1643034b5ea57424b3f70a93. If any P0/P1 runtime gate fails, extract the first failing boundary and fix only that layer, then persist/read back and rerun exact-head proof.
+Consume the exact-head CI results for 28c6ea3d9c1a1d593a71b08025827c97927de697. The first failed P0/P1 gate becomes the sole active runtime front; fix only that boundary, then persist/read back and rerun exact-head proof.
 
-## SESSION_HANDOFF
+## SESSION HANDOFF
 SESSION HANDOFF = NOT READY
-NEXT EXACT ACTION = consume fresh exact-head CI/runtime evidence, then repair the first reproducible runtime failure.
+NEXT EXACT ACTION = consume exact-head CI/live/browser evidence for 28c6ea3d9c1a1d593a71b08025827c97927de697.
