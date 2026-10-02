@@ -29,7 +29,20 @@ export function LoginPage() {
     setError(null);
     setSubmitting(true);
     const { error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-    if (signInError) setError('تعذر تسجيل الدخول. تحقق من بيانات الحساب ثم حاول مرة أخرى.');
+    if (signInError) {
+      const code = String(signInError.code ?? '').toLowerCase();
+      const message = String(signInError.message ?? '').toLowerCase();
+      console.error('[LoginPage] Supabase sign-in failed', { code: signInError.code, message: signInError.message });
+      if (code.includes('invalid') || message.includes('invalid login credentials')) {
+        setError('بيانات البريد أو كلمة المرور غير صحيحة.');
+      } else if (code.includes('email_not_confirmed') || message.includes('email not confirmed')) {
+        setError('البريد الإلكتروني للحساب غير مؤكد بعد.');
+      } else if (message.includes('rate limit') || code.includes('rate')) {
+        setError('تم تجاوز حد محاولات الدخول مؤقتًا. أعد المحاولة لاحقًا.');
+      } else {
+        setError('تعذر الوصول إلى خدمة الهوية. تحقّق من الاتصال ثم أعد المحاولة.');
+      }
+    }
     setSubmitting(false);
   }
 

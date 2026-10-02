@@ -1,6 +1,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
 
 const baseURL = (process.env.E2E_BASE_URL || 'http://127.0.0.1:4173').replace(/\/$/, '');
 const supabaseURL = (process.env.REPORT_ADVISOR_SUPABASE_URL || '').replace(/\/$/, '');
@@ -1119,7 +1120,16 @@ try {
     await pageB.getByRole('button', { name: 'تسجيل الخروج' }).click(); await pageB.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step: 'tenant-B-logout', status: 'PASS' });
   } finally { await pageB.close(); await contextB.close(); }
   await pageA.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 }); const logoutA = pageA.getByRole('button', { name: 'تسجيل الخروج' }); assert.equal(await logoutA.count(), 1, 'TENANT_A_LOGOUT_CONTROL_MISSING'); await logoutA.click(); await pageA.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step: 'tenant-A-logout', status: 'PASS' });
-  if (evidence.failures.length) throw new Error('BROWSER_RUNTIME_ERRORS:' + evidence.failures.join(' | ')); evidence.status = evidence.steps.some(step=>step.status!=='PASS') ? 'NOT_PROVEN' : 'PASS';
+  if (evidence.failures.length) throw new Error('BROWSER_RUNTIME_ERRORS:' + evidence.failures.join(' | '));
+  const real48 = spawnSync(process.execPath, ['--experimental-strip-types', '--experimental-loader', './scripts/node-ts-extension-loader.mjs', 'scripts/real-48-archetype-proof.mjs'], { env: process.env, stdio: 'pipe', encoding: 'utf8' });
+  evidence.steps.push({
+    step: 'real-source-48-archetype-proof',
+    status: real48.status === 0 ? 'PASS' : 'FAIL',
+    outputTail: String(real48.stdout || '').slice(-6000),
+    errorTail: String(real48.stderr || '').slice(-6000),
+  });
+  if (real48.status !== 0) throw new Error('REAL_48_ARCHETYPE_PROOF_FAILED');
+  evidence.status = evidence.steps.some(step=>step.status!=='PASS') ? 'NOT_PROVEN' : 'PASS';
 } catch (error) { evidence.status = error instanceof Error && /_MISSING$|NOT_PROVEN/.test(error.message) ? 'NOT_PROVEN' : 'FAIL'; evidence.error = error instanceof Error ? error.message : String(error); await pageA.screenshot({ path: reportDir + '/failure.png', fullPage: true }).catch(() => {}); }
 finally { evidence.finishedAt = new Date().toISOString(); await fs.writeFile(reportDir + '/result.json', JSON.stringify(evidence, null, 2)); await browser.close(); }
 console.log(JSON.stringify(evidence, null, 2)); process.exitCode = evidence.status === 'PASS' ? 0 : 1;

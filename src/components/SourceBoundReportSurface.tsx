@@ -374,6 +374,7 @@ function TrustMode({ report }: { report: SmartReportDetail }) {
 
 function DecisionMode({ report }: { report: SmartReportDetail }) {
   const output = report.renderedOutput;
+  const evidenceSnapshotId = typeof output.evidenceSnapshotId === 'string' ? output.evidenceSnapshotId.trim() : '';
   const [decisions, setDecisions] = useState<SourceDecisionState[]>([]);
   const [decisionAction, setDecisionAction] = useState<Record<string, string>>({});
   const [actualImpact, setActualImpact] = useState<Record<string, string>>({});
@@ -469,7 +470,10 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
   };
 
   const completeWorkItem = (decision: SourceDecisionState) => {
-    if (!decision.workItemId || !report.sourceAnalysis?.id) return;
+    if (!decision.workItemId || !evidenceSnapshotId) {
+      setDecisionAction((current) => ({ ...current, [decision.id]: 'evidence-error' }));
+      return;
+    }
     const rawImpact = actualImpact[decision.id]?.trim() ?? '';
     const parsedImpact = rawImpact ? Number(rawImpact.replace(/,/g, '')) : null;
     if (parsedImpact != null && !Number.isFinite(parsedImpact)) {
@@ -480,7 +484,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
     void completeSourceDecisionWorkItem({
       workItemId: decision.workItemId,
       actualImpact: parsedImpact,
-      evidenceSnapshotId: report.sourceAnalysis.id,
+      evidenceSnapshotId,
       reportJobId: report.jobId,
       sourceHash: report.sourceHash,
     }).then(() => {
@@ -644,13 +648,14 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
               {decisionAction[decision.id] === 'start-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر بدء التنفيذ؛ تحقق من المكلّف وحالة القرار.</div>}
               {decisionAction[decision.id] === 'impact-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">الأثر الفعلي يجب أن يكون رقمًا صالحًا.</div>}
               {decisionAction[decision.id] === 'complete-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر إغلاق التنفيذ؛ يحتاج المسار إلى قرار معتمد ودليل مصدر صالح.</div>}
+              {decisionAction[decision.id] === 'evidence-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">لا توجد Evidence Snapshot حقيقية مرتبطة بالتقرير؛ تم منع إغلاق التنفيذ.</div>}
               {decisionAction[decision.id] === 'work-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر إنشاء عنصر العمل؛ تحقق من الصلاحية وأن القرار معتمد.</div>}
               {decisionAction[decision.id] === 'error' && <div role="alert" className="mt-3 text-[9px] font-bold text-danger-700">تعذر طلب الموافقة؛ الصلاحية أو حالة القرار تحتاج مراجعة.</div>}
               {decisionAction[decision.id] === 'approval-error' && <div role="alert" className="mt-3 text-[9px] font-bold text-danger-700">تعذر اعتماد/رفض القرار؛ تحقق من الصلاحية وحالة الموافقة.</div>}
               {decision.status === 'REJECTED' && <div className="mt-3 rounded-lg border border-danger-200 bg-danger-50 p-3 text-[9px] font-bold text-danger-800">REJECTED · القرار لم ينتقل إلى التنفيذ.</div>}
               {decision.workItemStatus === 'IN_PROGRESS' && (
                 <div className="mt-3 rounded-lg border border-warning-200 bg-warning-50 p-3 text-[9px] leading-5 text-warning-900">
-                  دليل الإغلاق المرتبط بهذا التقرير: {report.sourceAnalysis?.id ?? 'غير متاح'} — لا يمكن إغلاق المهمة دون دليل مقبول.
+                  لقطة الدليل المطلوبة للإغلاق: {evidenceSnapshotId || 'غير متاحة'} — لا يمكن إغلاق المهمة دون Evidence Snapshot حقيقية.
                 </div>
               )}
             </article>

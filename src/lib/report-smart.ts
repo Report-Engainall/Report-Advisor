@@ -1,6 +1,7 @@
 import { supabase, resolveCurrentCompanyId } from './supabase.ts';
 import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights.ts';
 import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
+import { detectReportArchetype, runReportArchetype } from './report-intelligence/archetype-registry.ts';
 
 export type SmartReportCatalogItem = {
   jobId: string;
@@ -13,10 +14,20 @@ export type SmartReportCatalogItem = {
   reportVerificationState: string | null;
   specialty: string | null;
   evidenceStatus: string | null;
+  archetypeId: string | null;
+  archetypeVersion: number | null;
+  archetypeState: string | null;
+  recommendationStatus: string | null;
+  decisionStatus: string | null;
+  approvalStatus: string | null;
+  actionStatus: string | null;
+  outcomeStatus: string | null;
+  learningStatus: string | null;
   completedAt: string | null;
 };
 
 export type SmartReportDetail = SmartReportCatalogItem & {
+  tenantId: string;
   importId: string | null;
   checkpointStage: string | null;
   renderedOutput: Record<string, unknown>;
@@ -122,7 +133,37 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
   const rendered = renderedOutputOf(job.evidence);
   const path = String(job.source_path ?? '');
   if (!rendered || !isReportSourcePath(path)) return null;
-  if (/^(customer|product|invoice)-\d+/i.test(path)) return null;
+
+  const specialty = rendered.sourceSpecialty == null
+    ? inferSpecialtyFromAnalysis(analysis)
+    : String(rendered.sourceSpecialty);
+
+  const datasets = Array.isArray(analysis?.datasets) ? analysis.datasets : [];
+  const availableFields = [...new Set(datasets.flatMap((dataset) => {
+    if (!dataset || typeof dataset !== 'object') return [];
+    const columns = (dataset as Record<string, unknown>).columns;
+    if (!Array.isArray(columns)) return [];
+    return columns
+      .filter((column): column is Record<string, unknown> => Boolean(column) && typeof column === 'object')
+      .map((column) => String(column.mappedField ?? ''))
+      .filter(Boolean);
+  }))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
+
+  const detected = detectReportArchetype({
+    sourcePath: path,
+    specialty,
+    availableFields,
+  });
+
+  const renderedArchetypeId =
+    typeof rendered.archetypeId === 'string' ? rendered.archetypeId.trim() : '';
+  const detectedArchetypeId = detected.profile?.id ?? null;
+  const archetypeId = renderedArchetypeId && renderedArchetypeId === detectedArchetypeId
+    ? renderedArchetypeId
+    : detectedArchetypeId;
+  const archetypeVersion =
+    archetypeId && detected.profile ? Number(detected.profile.version) : null;
+
   const normalizedEvidenceStatus =
     rendered.evidenceStatus === 'VERIFIED' && !(
       typeof rendered.evidenceSnapshotId === 'string' && rendered.evidenceSnapshotId.trim()
@@ -141,35 +182,48 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
     qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
     trustState: rendered.trustState == null ? null : String(rendered.trustState),
     reportVerificationState: normalizedEvidenceStatus ?? 'PENDING_EVIDENCE',
-    specialty: rendered.sourceSpecialty == null
-      ? inferSpecialtyFromAnalysis(analysis)
-      : String(rendered.sourceSpecialty),
+    specialty,
     evidenceStatus: normalizedEvidenceStatus,
+    archetypeId,
+    archetypeVersion,
+    archetypeState: detected.state,
+    recommendationStatus: rendered.recommendationStatus == null ? null : String(rendered.recommendationStatus),
+    decisionStatus: rendered.decisionStatus == null ? null : String(rendered.decisionStatus),
+    approvalStatus: rendered.approvalStatus == null ? null : String(rendered.approvalStatus),
+    actionStatus: rendered.actionStatus == null ? null : String(rendered.actionStatus),
+    outcomeStatus: rendered.outcomeStatus == null ? null : String(rendered.outcomeStatus),
+    learningStatus: rendered.learningStatus == null ? null : String(rendered.learningStatus),
     completedAt: job.completed_at == null ? null : String(job.completed_at),
   };
 }
 
-export async function fetchSmartReportCatalog(limit = 60): Promise<SmartReportCatalogItem[]> {
-  if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error('REPORT_QUERY_INVALID_SMART_REPORT_LIMIT');
+export async function fetchSmartReportCatalog(limit = 500): Promise<SmartReportCatalogItem[]> {
+  if (!Number.isInteger(limit) || limit < 1 || limit > 5000) throw new Error('REPORT_QUERY_INVALID_SMART_REPORT_LIMIT');
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
-  const { data: jobs, error } = await supabase
-    .from('report_execution_jobs')
-    .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
-    .eq('company_id', companyId)
-    .eq('status', 'completed')
-    .like('job_key', 'canonical-import:generic:%')
-    .not('evidence->renderedOutput', 'is', null)
-    .not('source_path', 'like', 'customer-%')
-    .not('source_path', 'like', 'product-%')
-    .not('source_path', 'like', 'invoice-%')
-    .order('completed_at', { ascending: false })
-    .range(0, Math.max(limit * 4, 120) - 1);
+  const pageSize = 200;
+  const jobs: Array<Record<string, unknown>> = [];
 
-  if (error) throw error;
+  for (let offset = 0; offset < limit; offset += pageSize) {
+    const endRange = Math.min(offset + pageSize - 1, limit - 1);
+    const { data, error } = await supabase
+      .from('report_execution_jobs')
+      .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
+      .eq('company_id', companyId)
+      .eq('status', 'completed')
+      .like('job_key', 'canonical-import:generic:%')
+      .not('evidence->renderedOutput', 'is', null)
+      .order('completed_at', { ascending: false })
+      .range(offset, endRange);
 
-  const sourceHashes = [...new Set((jobs ?? [])
+    if (error) throw error;
+    if (!data?.length) break;
+    jobs.push(...(data as Array<Record<string, unknown>>));
+    if (data.length < endRange - offset + 1) break;
+  }
+
+  const sourceHashes = [...new Set(jobs
     .map(job => String(job.source_hash ?? ''))
     .filter(Boolean))];
   const analysesByHash = new Map<string, Record<string, unknown>>();
@@ -191,21 +245,18 @@ export async function fetchSmartReportCatalog(limit = 60): Promise<SmartReportCa
     }
   }
 
-  const seenSourceHashes = new Set<string>();
-  const catalog: SmartReportCatalogItem[] = [];
-  for (const job of jobs ?? []) {
+  const latestBySourceHash = new Map<string, SmartReportCatalogItem>();
+  for (const job of jobs) {
     const item = mapCatalogItem(
-      job as Record<string, unknown>,
+      job,
       analysesByHash.get(String(job.source_hash ?? '')) ?? null,
     );
-    if (!item || seenSourceHashes.has(item.sourceHash)) continue;
-    seenSourceHashes.add(item.sourceHash);
-    catalog.push(item);
-    if (catalog.length >= limit) break;
+    if (!item || !item.sourceHash) continue;
+    if (!latestBySourceHash.has(item.sourceHash)) latestBySourceHash.set(item.sourceHash, item);
   }
-  return catalog;
-}
 
+  return [...latestBySourceHash.values()].slice(0, limit);
+}
 export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail | null> {
   const normalizedJobId = jobId.trim();
   if (!normalizedJobId) throw new Error('REPORT_QUERY_INVALID_SMART_REPORT_ID');
@@ -348,7 +399,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     ? inferSpecialtyFromAnalysis(sourceAnalysis)
     : String(rendered.sourceSpecialty);
 
-  const intelligence = deriveReportIntelligence({
+  const baseIntelligence = deriveReportIntelligence({
     specialty,
     rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
     sourceAnalysis,
@@ -356,8 +407,94 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     canonicalRows,
   });
 
+  const catalogItem = mapCatalogItem(
+    job as Record<string, unknown>,
+    sourceAnalysis,
+  );
+  if (!catalogItem) throw new Error('SMART_REPORT_CATALOG_ITEM_UNAVAILABLE');
+
+  const availableFields = [...new Set((Array.isArray(sourceAnalysis?.datasets) ? sourceAnalysis.datasets : []).flatMap((dataset) => {
+    if (!dataset || typeof dataset !== 'object') return [];
+    const columns = (dataset as Record<string, unknown>).columns;
+    if (!Array.isArray(columns)) return [];
+    return columns
+      .filter((column): column is Record<string, unknown> => Boolean(column) && typeof column === 'object')
+      .map((column) => String(column.mappedField ?? ''))
+      .filter(Boolean);
+  }))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
+
+  const detectedArchetype = detectReportArchetype({
+    sourcePath: String(job.source_path ?? ''),
+    specialty,
+    availableFields,
+  });
+
+  let intelligence: ReportIntelligence = baseIntelligence;
+  let archetypeState = detectedArchetype.state;
+
+  if (detectedArchetype.profile) {
+    const archetypeRun = runReportArchetype({
+      intelligence: baseIntelligence,
+      provenance: {
+        tenantId: companyId,
+        sourceHash: String(job.source_hash ?? ''),
+        reportExecutionJobId: String(job.id),
+        evidenceSnapshotId: typeof rendered.evidenceSnapshotId === 'string' ? rendered.evidenceSnapshotId : null,
+        evidencePassportId: typeof rendered.evidencePassportId === 'string' ? rendered.evidencePassportId : null,
+        sourceVersionId: typeof rendered.sourceVersionId === 'string' ? rendered.sourceVersionId : null,
+      },
+      availableFields,
+      sampleSize: rendered.rowCount == null ? 0 : Number(rendered.rowCount),
+      archetypeId: detectedArchetype.profile.id,
+      profileVersion: detectedArchetype.profile.version,
+      report: {
+        specialty,
+        rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
+        sourceAnalysis,
+        renderedOutput: rendered,
+        canonicalRows,
+      },
+    });
+
+    archetypeState = archetypeRun.state;
+    intelligence = archetypeRun.state === 'SUPPORTED'
+      ? archetypeRun.intelligence
+      : {
+          ...archetypeRun.intelligence,
+          signals: archetypeRun.intelligence.signals.filter((signal) => !signal.id.startsWith('model:')),
+          recommendations: [],
+          advisorBrief: {
+            ...archetypeRun.intelligence.advisorBrief,
+            recommendedAction: null,
+            expectedOutcome: null,
+            measurement: null,
+            headline: 'النموذج لم يجتز بوابة التشغيل: ' + archetypeRun.state,
+          },
+        };
+  } else {
+    // A specialty-level generic recommendation is not an archetype proof.
+    // Keep source-quality understanding available, but block recommendation/decision output.
+    intelligence = {
+      ...baseIntelligence,
+      signals: baseIntelligence.signals.filter((signal) => !signal.id.startsWith('model:')),
+      recommendations: [],
+      advisorBrief: {
+        ...baseIntelligence.advisorBrief,
+        recommendedAction: null,
+        expectedOutcome: null,
+        measurement: null,
+        headline: 'لا يوجد نموذج مصدرّي مثبت لهذا التقرير: ' + detectedArchetype.state,
+      },
+    };
+  }
+
   return {
+    ...catalogItem,
+    archetypeState,
+    archetypeId: detectedArchetype.profile?.id ?? null,
+    archetypeVersion: detectedArchetype.profile?.version ?? null,
     jobId: String(job.id),
+    tenantId: companyId,
     sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
     sourceHash: String(job.source_hash ?? ''),
     entityType: entityTypeFrom(String(job.job_key ?? '')),

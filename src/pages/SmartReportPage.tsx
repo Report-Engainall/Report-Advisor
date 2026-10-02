@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, CheckCircle2, FileSearch, ShieldCheck, Search, Columns3, ArrowDownUp, Download, RotateCcw } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { saveActiveReportContext } from '@/lib/report-context';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
+import { SmartReportAdvisorySurface } from '@/components/SmartReportAdvisorySurface';
 import { ReportDecisionCockpit } from '@/components/ReportDecisionCockpit';
 import { formatNumber } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
@@ -257,7 +258,7 @@ function statusTone(value: string | null): string {
 }
 
 
-function SourceDataWorkspace({ report }: { report: SmartReportDetail }) {
+function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDetail; initialSearch?: string }) {
   const dataset = report.sourceAnalysis?.datasets?.[0];
   const objectDataset = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : {};
   const definitionColumns = useMemo(() => {
@@ -289,6 +290,13 @@ function SourceDataWorkspace({ report }: { report: SmartReportDetail }) {
   const [groupColumn, setGroupColumn] = useState('');
   const [aggregateColumn, setAggregateColumn] = useState('');
   const [visibleColumns, setVisibleColumns] = useState<string[]>(discoveredColumns.slice(0, 8));
+
+  useEffect(() => {
+    if (initialSearch != null && initialSearch !== '') {
+      setSearch(initialSearch);
+      setPage(0);
+    }
+  }, [initialSearch]);
 
   useEffect(() => {
     if (!discoveredColumns.length) return;
@@ -534,6 +542,7 @@ function SourceDataWorkspace({ report }: { report: SmartReportDetail }) {
 
 export function SmartReportPage() {
   const { jobId } = useParams<{ jobId: string }>();
+  const [searchParams] = useSearchParams();
   const [report, setReport] = useState<SmartReportDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -665,8 +674,9 @@ export function SmartReportPage() {
     ) : null}
 
     <ReportIntelligencePanel report={report} />
+    <SmartReportAdvisorySurface report={report} />
 
-    <SourceDataWorkspace report={report}/>
+    <SourceDataWorkspace report={report} initialSearch={searchParams.get('focus') ?? ''}/>
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="section-kicker">REAL BUSINESS METRICS</div>
