@@ -1,0 +1,78 @@
+import {
+  listReportArchetypes,
+  getReportArchetypeByNumber,
+  runReportArchetype,
+} from '../src/lib/report-intelligence/archetype-registry.ts';
+
+const fail = (message) => { throw new Error(message); };
+const archetypes = listReportArchetypes();
+
+if (archetypes.length !== 48) fail('Expected exactly 48 canonical report archetypes, got ' + archetypes.length);
+
+const numbers = new Set(archetypes.map((item) => item.number));
+const ids = new Set(archetypes.map((item) => item.id));
+if (numbers.size !== 48 || [...numbers].some((value, index) => value !== index + 1)) fail('Archetype numbering is not exactly 01..48');
+if (ids.size !== 48) fail('Archetype IDs must be unique');
+
+for (const profile of archetypes) {
+  if (!profile.title.trim()) fail('Missing title for #' + profile.number);
+  if (!profile.id.trim()) fail('Missing id for #' + profile.number);
+  if (!profile.grain.trim()) fail('Missing grain for #' + profile.id);
+  if (!Array.isArray(profile.requiredFields)) fail('Missing requiredFields for ' + profile.id);
+  if (!Array.isArray(profile.optionalFields)) fail('Missing optionalFields for ' + profile.id);
+  if (!Number.isInteger(profile.minimumSample) || profile.minimumSample < 1) fail('Invalid minimumSample for ' + profile.id);
+  if (!profile.capabilities.length) fail('No runtime capabilities for ' + profile.id);
+  if (!profile.recommendationFocus.length) fail('No recommendation focus for ' + profile.id);
+  if (profile.provenanceRequirements.join('|').indexOf('sourceHash') < 0) fail('Source provenance missing for ' + profile.id);
+  if (getReportArchetypeByNumber(profile.number)?.id !== profile.id) fail('Number lookup mismatch for ' + profile.id);
+}
+
+const sampleRows = [{ data: { netAmount: 100, documentDate: '2026-01-01', productCode: 'SKU-1', customerCode: 'C-1', supplierCode: 'S-1', currentStock: 10, salesQty: 4, cost: 60 } }];
+
+for (const profile of archetypes) {
+  const availableFields = [...new Set(['documentDate','netAmount','productCode','customerCode','supplierCode','currentStock','salesQty','cost', ...profile.requiredFields])];
+  const result = runReportArchetype({
+    archetypeId: profile.id,
+    report: {
+      specialty: profile.adapterSpecialty,
+      rowCount: 12,
+      canonicalRows: sampleRows,
+      sourceAnalysis: { datasets: [{ columns: availableFields.map((mappedField) => ({ name: mappedField, mappedField })) }] },
+    },
+    availableFields,
+    sampleSize: 12,
+    provenance: {
+      tenantId: 'runtime-contract-tenant',
+      sourceHash: 'sha256:runtime-contract',
+      reportExecutionJobId: 'runtime-contract-job',
+      evidenceSnapshotId: 'runtime-contract-snapshot',
+      evidencePassportId: 'runtime-contract-passport',
+    },
+  });
+
+  if (result.profile.id !== profile.id) fail('Runtime resolved wrong profile for ' + profile.id);
+  if (result.advisory.questions.length === 0) fail('No advisory questions emitted for ' + profile.id);
+  if (!result.advisory.claims.length) fail('No claims emitted for ' + profile.id);
+  if (result.advisory.proofState !== 'VERIFIED') fail('Runtime lost evidence state for ' + profile.id);
+  if (result.advisory.claims.some((claim) => claim.archetypeId !== profile.id)) fail('Claim lineage lost archetype ID for ' + profile.id);
+}
+
+const missingEvidence = runReportArchetype({
+  archetypeId: archetypes[0].id,
+  report: { specialty: archetypes[0].adapterSpecialty, rowCount: 12, canonicalRows: sampleRows, sourceAnalysis: { datasets: [{ columns: [] }] } },
+  availableFields: archetypes[0].requiredFields,
+  sampleSize: 12,
+  provenance: { tenantId: 'runtime-contract-tenant', sourceHash: 'sha256:runtime-contract', reportExecutionJobId: 'runtime-contract-job' },
+});
+if (missingEvidence.state !== 'REVIEW_REQUIRED') fail('Missing evidence must remain REVIEW_REQUIRED');
+
+const insufficient = runReportArchetype({
+  archetypeId: archetypes[0].id,
+  report: { specialty: archetypes[0].adapterSpecialty, rowCount: 1, canonicalRows: sampleRows, sourceAnalysis: { datasets: [{ columns: [] }] } },
+  availableFields: archetypes[0].requiredFields,
+  sampleSize: 1,
+  provenance: { tenantId: 'runtime-contract-tenant', sourceHash: 'sha256:runtime-contract', reportExecutionJobId: 'runtime-contract-job', evidenceSnapshotId: 'runtime-contract-snapshot' },
+});
+if (insufficient.state !== 'INSUFFICIENT_SAMPLE') fail('Insufficient sample must be explicit');
+
+console.log('48-archetype-runtime-contract: PASS');
