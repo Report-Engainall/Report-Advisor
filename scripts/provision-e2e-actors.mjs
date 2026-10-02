@@ -148,8 +148,11 @@ async function ensureActor(email, password, label, freshRunScoped = false) {
   const useRunScopedActor = freshRunScoped || process.env.E2E_ACTOR_MODE === 'ephemeral-run-scoped';
 
   if (useRunScopedActor) {
-    // Workflow-generated credentials are unique to this run. Avoid the Auth Admin
-    // listUsers scan entirely; that scan is a major dependency during Auth pressure.
+    // Never reuse workflow-provided ephemeral credentials after a partial/retried run.
+    // Generate a fresh identity and avoid the Auth Admin listUsers scan entirely.
+    const generatedCredentials = actorCredentials(label);
+    resolvedEmail = generatedCredentials.email;
+    resolvedPassword = generatedCredentials.password;
     user = await createActor(resolvedEmail, resolvedPassword);
     generated = true;
   } else if (!generated) {
