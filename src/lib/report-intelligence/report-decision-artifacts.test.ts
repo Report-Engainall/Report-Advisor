@@ -11,7 +11,7 @@ const intelligence: ReportIntelligence = { businessQuestion: 'ما أهم ما �
 
 const artifacts = buildReportDecisionArtifacts({ jobId: 'job-1', sourceHash: 'sha256:test', rowCount: 10, specialty: 'inventory',
   renderedOutput: { evidenceSnapshotId: 'snapshot-1', evidencePassportId: 'passport-1', evidenceVerificationStatus: 'VERIFIED', profileVersion: 'inventory-v1', outcomeStatus: 'NOT_AVAILABLE' }, intelligence });
-assert.equal(artifacts.claims.length, 2); assert.equal(artifacts.claims[0].status, 'DERIVED'); assert.equal(artifacts.claims[1].status, 'RECOMMENDED');
+assert.equal(artifacts.claims.length, 3); assert.equal(artifacts.claims[0].status, 'OBSERVED'); assert.equal(artifacts.claims[1].status, 'DERIVED'); assert.equal(artifacts.claims[2].status, 'RECOMMENDED');
 assert.equal(artifacts.questions.find((q) => q.key === 'PROOF')?.status, 'ANSWERED');
 assert.equal(artifacts.questions.find((q) => q.key === 'AFTER_ACTION')?.status, 'NOT_AVAILABLE');
 assert.equal(artifacts.decisionPacket.profileVersion, 'inventory-v1'); assert.match(artifacts.decisionPacket.reproducibilityKey, /inventory-v1$/);
