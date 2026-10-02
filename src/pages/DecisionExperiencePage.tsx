@@ -296,8 +296,6 @@ function DecisionExperienceGeneralPage() {
     navigateStage(next, id);
   };
 
-  if (loading) return <LoadingState message="جارٍ تحميل سياق القرار..." />;
-  if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   const relatedWorkItems = useMemo(() => {
     const decisionId = decisionContext.decision?.id;
     return decisionId ? decisionWorkItems.filter((item) => item.decisionId === decisionId) : [];
@@ -309,6 +307,9 @@ function DecisionExperienceGeneralPage() {
   }, [decisionContext.decision?.id, outcomes, selectedId]);
 
   const readiness = decisionReadiness(selected);
+
+  if (loading) return <LoadingState message="جارٍ تحميل سياق القرار..." />;
+  if (error) return <ErrorState message={error} onRetry={() => void load()} />;
 
   return (
     <div dir="rtl" className="ag-decision-experience-surface space-y-5 animate-fade-in pb-10">
