@@ -302,6 +302,35 @@ async function logicalBackupRestore() {
   }
 }
 
+function runtimeEnvironmentCompatible(targetEnv, runtimeEnvironment) {
+  if (!runtimeEnvironment || !targetEnv) return true;
+  if (/^(prod|production)$/i.test(targetEnv)) return runtimeEnvironment === 'production';
+  if (/^(staging|preview|test|testing|qa|development|dev|recovery|dr)([-_].*)?$/i.test(targetEnv)) {
+    return runtimeEnvironment !== 'production';
+  }
+  return true;
+}
+
+function validateRuntimeIdentity(body) {
+  const deploymentSha = typeof body?.deployment_sha === 'string' ? body.deployment_sha.trim() : null;
+  const deploymentId = typeof body?.deployment_id === 'string' ? body.deployment_id.trim() : null;
+  const targetEnv = typeof body?.target_env === 'string' ? body.target_env.trim() : target;
+  const runtimeEnvironment = typeof body?.runtime_environment === 'string' ? body.runtime_environment.trim() : null;
+  const identity = {
+    source_sha: exactHead,
+    deployment_sha: deploymentSha,
+    deployment_id: deploymentId,
+    target_env: targetEnv || null,
+    runtime_environment: runtimeEnvironment || null,
+  };
+  if (!exactHead || exactHead === 'UNKNOWN') return { pass: false, failure: 'SOURCE_SHA_MISSING', identity };
+  if (!deploymentSha) return { pass: false, failure: 'DEPLOYMENT_SHA_MISSING', identity };
+  if (deploymentSha !== exactHead) return { pass: false, failure: 'STALE_RUNTIME', diagnostic_code: 'DEPLOYMENT_SHA_MISMATCH', identity };
+  if (!deploymentId) return { pass: false, failure: 'DEPLOYMENT_ID_MISSING', identity };
+  if (!runtimeEnvironmentCompatible(targetEnv, runtimeEnvironment)) return { pass: false, failure: 'RUNTIME_ENV_MISMATCH', identity };
+  return { pass: true, identity };
+}
+
 async function sleep(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -353,7 +382,6 @@ async function probe(name, url, options = {}, validation = {}) {
 }
 
 async function probeOperationalHealthWithPropagation() {
-  const expectedSha = exactHead;
   const maxAttempts = 24;
   const intervalMs = 10_000;
   let last = null;
@@ -369,16 +397,15 @@ async function probeOperationalHealthWithPropagation() {
       const body = await response.text();
       let parsedBody = null;
       try { parsedBody = JSON.parse(body); } catch {}
-      const deploymentSha = typeof parsedBody?.deployment_sha === 'string' ? parsedBody.deployment_sha.trim() : null;
-      const deploymentId = typeof parsedBody?.deployment_id === 'string' ? parsedBody.deployment_id.trim() : null;
+      const validation = validateRuntimeIdentity(parsedBody);
       last = {
         name: 'operational-health',
-        pass: response.ok && Boolean(expectedSha) && deploymentSha === expectedSha && Boolean(deploymentId),
+        pass: response.ok && validation.pass,
         status: response.status,
-        expected_deployment_sha: expectedSha,
-        deployment_sha: deploymentSha,
-        deployment_id: deploymentId,
         attempt,
+        ...validation.identity,
+        ...(validation.failure ? { failure: validation.failure } : {}),
+        ...(validation.diagnostic_code ? { diagnostic_code: validation.diagnostic_code } : {}),
       };
 
       if (last.pass) {
@@ -387,24 +414,15 @@ async function probeOperationalHealthWithPropagation() {
         return;
       }
 
-      if (attempt < maxAttempts) {
-        await sleep(intervalMs);
-      }
+      if (attempt < maxAttempts) await sleep(intervalMs);
     } catch (error) {
       last = { name: 'operational-health', pass: false, error: String(error), attempt };
       if (attempt < maxAttempts) await sleep(intervalMs);
     }
   }
 
-  const failure = !last
-    ? 'OPERATIONAL_HEALTH_NO_RESULT'
-    : !last.deployment_sha
-      ? 'DEPLOYMENT_SHA_MISSING'
-      : last.deployment_sha !== expectedSha
-        ? 'DEPLOYMENT_SHA_MISMATCH'
-        : !last.deployment_id
-          ? 'DEPLOYMENT_ID_MISSING'
-          : 'OPERATIONAL_HEALTH_NOT_READY';
+  const failure = last?.failure
+    || (last?.status ? `HTTP_${last.status}` : 'OPERATIONAL_HEALTH_NO_RESULT');
   const result = { ...(last || { name: 'operational-health', status: 0, pass: false }), pass: false, failure };
   checks.push(result);
   console.error(`FAIL operational-health: HTTP ${result.status ?? 0} — ${failure}`);

@@ -11,8 +11,19 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { ConfidenceBadge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchAlerts, fetchRecommendations } from '@/lib/queries';
+import { fetchDecisionWorkItems, type DecisionWorkItemRecord } from '@/lib/report-decisions';
+import { loadPersistedOutcomes, type DecisionOutcome } from '@/lib/analytics/outcome-feedback';
+import { resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Alert, Recommendation } from '@/lib/types';
+import {
+  createRuntimeDecision,
+  linkRecommendationToDecision,
+  loadRuntimeDecisionContext,
+  loadRuntimeRecommendationEvidence,
+  requestRuntimeApproval,
+  type RuntimeDecisionContext,
+} from '@/lib/decision-automation/vertical-slice-runtime';
 
 type Stage = 'command' | 'evidence' | 'decision' | 'approval' | 'work' | 'outcome';
 
@@ -30,6 +41,11 @@ function statusLabel(status: string | null): string {
   if (!status) return 'غير متاح';
   const labels: Record<string, string> = {
     pending: 'قيد المراجعة',
+    PROPOSED: 'مقترح',
+    PENDING: 'قيد الاعتماد',
+    APPROVED: 'معتمد',
+    REJECTED: 'مرفوض',
+    CANCELLED: 'ملغى',
     proposed: 'مقترح',
     approved: 'معتمد',
     in_progress: 'قيد التنفيذ',
@@ -121,14 +137,29 @@ function DecisionExperienceGeneralPage() {
   const [selectedId, setSelectedId] = useState<string | null>(params.get('recommendationId'));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [decisionContext, setDecisionContext] = useState<RuntimeDecisionContext>({ decision: null, approval: null });
+  const [decisionContextLoading, setDecisionContextLoading] = useState(false);
+  const [decisionBusy, setDecisionBusy] = useState(false);
+  const [decisionError, setDecisionError] = useState<string | null>(null);
+  const [decisionWorkItems, setDecisionWorkItems] = useState<DecisionWorkItemRecord[]>([]);
+  const [outcomes, setOutcomes] = useState<DecisionOutcome[]>([]);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const [nextRecommendations, nextAlerts] = await Promise.all([fetchRecommendations(), fetchAlerts()]);
+      const companyId = await resolveCurrentCompanyId();
+      if (!companyId) throw new Error('TENANT_REQUIRED');
+      const [nextRecommendations, nextAlerts, nextWorkItems, nextOutcomes] = await Promise.all([
+        fetchRecommendations(),
+        fetchAlerts(),
+        fetchDecisionWorkItems(200),
+        loadPersistedOutcomes(companyId),
+      ]);
       setRecommendations(nextRecommendations);
       setAlerts(nextAlerts);
+      setDecisionWorkItems(nextWorkItems);
+      setOutcomes(nextOutcomes);
       setSelectedId((current) => current && nextRecommendations.some((item) => item.id === current) ? current : nextRecommendations[0]?.id ?? null);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل سياق القرار');
@@ -144,6 +175,112 @@ function DecisionExperienceGeneralPage() {
   const currentStageIndex = Math.max(0, STAGES.findIndex((item) => item.id === stage));
   const activeAlerts = useMemo(() => alerts.filter((item) => !item.is_read).slice(0, 6), [alerts]);
   const selectedStatus = selected?.status ?? null;
+  useEffect(() => {
+    let active = true;
+    setDecisionError(null);
+    if (!selectedId) {
+      setDecisionContext({ decision: null, approval: null });
+      setDecisionContextLoading(false);
+      return () => { active = false; };
+    }
+    setDecisionContextLoading(true);
+    void loadRuntimeDecisionContext(selectedId)
+      .then((context) => { if (active) setDecisionContext(context); })
+      .catch((cause) => {
+        if (active) {
+          setDecisionContext({ decision: null, approval: null });
+          setDecisionError(cause instanceof Error ? cause.message : 'تعذر قراءة مسار القرار المحفوظ');
+        }
+      })
+      .finally(() => { if (active) setDecisionContextLoading(false); });
+    return () => { active = false; };
+  }, [selectedId]);
+
+  const persistSelectedDecision = async () => {
+    if (!selected) return;
+    const expectedImpact = Number(selected.expected_impact);
+    const rawConfidence = String(selected.confidence ?? '').trim();
+    const numericConfidence = rawConfidence.includes('%')
+      ? Number(rawConfidence.replace('%', '')) / 100
+      : Number(rawConfidence);
+    const confidence = numericConfidence > 1 && numericConfidence <= 100
+      ? numericConfidence / 100
+      : numericConfidence;
+
+    if (!Number.isFinite(expectedImpact)) {
+      setDecisionError('لا يمكن حفظ قرار بلا أثر متوقع رقمي مثبت.');
+      return;
+    }
+    if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) {
+      setDecisionError('لا يمكن حفظ قرار بثقة غير قابلة للتحقق ضمن 0..1.');
+      return;
+    }
+
+    setDecisionBusy(true);
+    setDecisionError(null);
+    try {
+      if (decisionContext.decision) {
+        if (decisionContext.decision.recommendationId !== selected.id) {
+          await linkRecommendationToDecision(selected.id, decisionContext.decision.id);
+        }
+        if (decisionContext.approval?.status === 'PENDING') {
+          navigateStage('approval');
+          return;
+        }
+        if (['APPROVED', 'REJECTED', 'CANCELLED'].includes(decisionContext.approval?.status ?? '')) {
+          navigateStage('approval');
+          return;
+        }
+        const approvalId = await requestRuntimeApproval(
+          decisionContext.decision.id,
+          selected.description ?? 'طلب اعتماد القرار من تجربة القرار',
+        );
+        const refreshed = await loadRuntimeDecisionContext(selected.id);
+        setDecisionContext(refreshed.approval ? refreshed : { ...refreshed, approval: { id: approvalId, status: 'PENDING', requestedBy: null, requestedAt: new Date().toISOString(), decidedBy: null, decidedAt: null, reason: selected.description ?? null } });
+        navigateStage('approval');
+        return;
+      }
+
+      const recommendationEvidence = await loadRuntimeRecommendationEvidence(selected.id);
+      if (!recommendationEvidence.evidenceSnapshotId || !recommendationEvidence.evidence) {
+        throw new Error('DECISION_EVIDENCE_SNAPSHOT_REQUIRED');
+      }
+
+      const reportContext = readActiveReportContext();
+      const decisionId = await createRuntimeDecision({
+        decisionKey: 'recommendation:' + selected.id,
+        decisionType: 'recommendation:' + selected.category,
+        confidence,
+        expectedImpact,
+        evidence: {
+          recommendationId: selected.id,
+          title: selected.title,
+          description: selected.description ?? null,
+          category: selected.category,
+          priority: selected.priority,
+          owner: selected.owner ?? null,
+          deadline: selected.deadline ?? null,
+          sourceEvidence: recommendationEvidence.evidence,
+          evidenceSnapshotId: recommendationEvidence.evidenceSnapshotId,
+          metricVersions: recommendationEvidence.metricVersions,
+          reportJobId: reportContext?.jobId ?? null,
+          sourceHash: reportContext?.sourceHash ?? null,
+        },
+      });
+      await linkRecommendationToDecision(selected.id, decisionId);
+      await requestRuntimeApproval(
+        decisionId,
+        selected.description ?? 'طلب اعتماد القرار من تجربة القرار',
+      );
+      const refreshed = await loadRuntimeDecisionContext(selected.id);
+      setDecisionContext(refreshed);
+      navigateStage('approval');
+    } catch (cause) {
+      setDecisionError(cause instanceof Error ? cause.message : 'تعذر حفظ القرار وطلب الموافقة');
+    } finally {
+      setDecisionBusy(false);
+    }
+  };
 
   const navigateStage = (next: Stage, id = selectedId) => {
     setStage(next);
@@ -159,9 +296,20 @@ function DecisionExperienceGeneralPage() {
     navigateStage(next, id);
   };
 
+  const relatedWorkItems = useMemo(() => {
+    const decisionId = decisionContext.decision?.id;
+    return decisionId ? decisionWorkItems.filter((item) => item.decisionId === decisionId) : [];
+  }, [decisionContext.decision?.id, decisionWorkItems]);
+
+  const relatedOutcome = useMemo(() => {
+    const decisionId = decisionContext.decision?.id;
+    return outcomes.find((outcome) => (decisionId && outcome.actionId === decisionId) || outcome.decisionFingerprint === selectedId) ?? null;
+  }, [decisionContext.decision?.id, outcomes, selectedId]);
+
+  const readiness = decisionReadiness(selected);
+
   if (loading) return <LoadingState message="جارٍ تحميل سياق القرار..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
-  const readiness = decisionReadiness(selected);
 
   return (
     <div dir="rtl" className="ag-decision-experience-surface space-y-5 animate-fade-in pb-10">
@@ -315,13 +463,37 @@ function DecisionExperienceGeneralPage() {
             </CardBody>
           </Card>
           <div className="space-y-4">
-            <BlockedState title="القرار المحفوظ غير متاح من هذه الواجهة" detail="لا تتم كتابة حالة قرار محلية أو إنشاء موافقة اصطناعية. يتطلب الحفظ مسار الصلاحية والـDML المعتمدين." />
-            <div className="grid gap-3">
-              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><CheckCircle2 size={15} className="text-success-700"/> التوصية</div><p className="mt-1 text-[10px] text-ink-400">موجودة في المصدر</p></div>
-              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><ShieldCheck size={15} className="text-warning-700"/> الموافقة</div><p className="mt-1 text-[10px] text-ink-400">تحتاج مسارًا تشغيليًا موثقًا</p></div>
-              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><XCircle size={15} className="text-ink-400"/> النتيجة</div><p className="mt-1 text-[10px] text-ink-400">ليست مثبتة بعد</p></div>
+            {decisionError && <div role="alert" className="rounded-[12px] border border-danger-200 bg-danger-50 p-3 text-[11px] font-bold text-danger-800">{decisionError}</div>}
+            <div className="rounded-[14px] border border-primary-200 bg-primary-50/60 p-4">
+              {decisionContextLoading ? (
+                <div className="text-[11px] text-primary-900">جارٍ قراءة مسار القرار المحفوظ...</div>
+              ) : decisionContext.decision ? (
+                <>
+                  <div className="text-[10px] font-black text-primary-800">DECISION PERSISTED</div>
+                  <div className="mt-2 text-[12px] font-black text-ink-950">معرّف القرار: <span className="font-mono">{decisionContext.decision.id}</span></div>
+                  <div className="mt-1 text-[10px] text-ink-500">الحالة: {statusLabel(decisionContext.decision.status)} · الثقة: {decisionContext.decision.confidence ?? 'غير متاحة'}</div>
+                  {decisionContext.approval && <div className="mt-1 text-[10px] text-ink-500">الموافقة: {statusLabel(decisionContext.approval.status)} · <span className="font-mono">{decisionContext.approval.id}</span></div>}
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 text-[12px] font-black text-ink-900"><CheckCircle2 size={15} className="text-success-700"/> التوصية موجودة في المصدر</div>
+                  <p className="mt-1 text-[10px] leading-5 text-ink-500">سيتم إنشاء قرار حقيقي مرتبط بالتوصية، وربطه بدليلها، ثم إنشاء طلب موافقة persisted عبر RPC المحمي.</p>
+                </>
+              )}
             </div>
-            <button type="button" onClick={() => navigateStage('approval')} className="btn-secondary w-full justify-center text-[11px]">عرض مرحلة الموافقة <ArrowUpLeft size={13}/></button>
+            <button
+              type="button"
+              onClick={() => void persistSelectedDecision()}
+              disabled={!selected || decisionBusy || decisionContextLoading}
+              className="btn-primary w-full justify-center text-[11px]"
+            >
+              {decisionBusy ? 'جارٍ الحفظ وطلب الموافقة...' : decisionContext.decision ? 'استكمال مسار الموافقة' : 'حفظ القرار وطلب الموافقة'}
+              <ArrowUpLeft size={13}/>
+            </button>
+            <div className="grid gap-3">
+              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><ShieldCheck size={15} className="text-warning-700"/> الموافقة</div><p className="mt-1 text-[10px] text-ink-400">لا يتم اعتماد القرار تلقائيًا؛ ينتظر قرار صاحب الصلاحية.</p></div>
+              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><XCircle size={15} className="text-ink-400"/> النتيجة</div><p className="mt-1 text-[10px] text-ink-400">ليست مثبتة بعد ولن تُعرض كنجاح.</p></div>
+            </div>
           </div>
         </section>
       )}
@@ -331,22 +503,36 @@ function DecisionExperienceGeneralPage() {
           <Card>
             <CardHeader title="الموافقة والمسؤولية" subtitle="من يعتمد؟ وعلى أي دليل؟" />
             <CardBody>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">المسؤول المعتمد</div><div className="mt-2 text-[12px] font-black text-ink-900">غير متاح</div></div>
-                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">وقت الاعتماد</div><div className="mt-2 text-[12px] font-black text-ink-900">غير متاح</div></div>
-                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الصلاحية</div><div className="mt-2 text-[12px] font-black text-ink-900">يتطلب جلسة موثقة</div></div>
-                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الدليل</div><div className="mt-2 text-[12px] font-black text-ink-900">يحتاج إثباتًا حيًا</div></div>
-              </div>
+              {decisionContextLoading && <div className="text-[11px] text-ink-500">جارٍ قراءة القرار والموافقة...</div>}
+              {!decisionContextLoading && decisionContext.decision && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">القرار</div><div className="mt-2 text-[11px] font-mono font-black text-ink-900">{decisionContext.decision.id}</div></div>
+                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">حالة القرار</div><div className="mt-2 text-[12px] font-black text-ink-900">{statusLabel(decisionContext.decision.status)}</div></div>
+                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">طلب الموافقة</div><div className="mt-2 text-[11px] font-mono font-black text-ink-900">{decisionContext.approval?.id ?? 'غير موجود'}</div></div>
+                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">حالة الموافقة</div><div className="mt-2 text-[12px] font-black text-ink-900">{decisionContext.approval ? statusLabel(decisionContext.approval.status) : 'غير موجود'}</div></div>
+                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">طالب الموافقة</div><div className="mt-2 text-[11px] font-mono font-black text-ink-900">{decisionContext.approval?.requestedBy ?? 'غير متاح'}</div></div>
+                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">وقت الطلب</div><div className="mt-2 text-[12px] font-black text-ink-900">{decisionContext.approval?.requestedAt ? new Date(decisionContext.approval.requestedAt).toLocaleString('ar-YE') : 'غير متاح'}</div></div>
+                </div>
+              )}
+              {!decisionContextLoading && !decisionContext.decision && (
+                <BlockedState title="لم يُثبت قرار محفوظ بعد" detail="أنشئ القرار من المرحلة السابقة؛ هذه المرحلة لا تتجاوز مسار الصلاحية ولا تخترع حالة موافقة." />
+              )}
             </CardBody>
           </Card>
-          <BlockedState title="الموافقة محجوبة عمدًا" detail="المنتج لا يختلق صاحب موافقة، توقيتًا، أو حالة اعتماد. عند توفر المسار التشغيلي الموثق، تبقى هذه المرحلة مكانًا واضحًا للمسؤولية قبل التنفيذ." />
+          <div className="space-y-4">
+            {decisionError && <div role="alert" className="rounded-[12px] border border-danger-200 bg-danger-50 p-3 text-[11px] font-bold text-danger-800">{decisionError}</div>}
+            <div className="rounded-[14px] border border-warning-200 bg-warning-50/70 p-4">
+              <div className="flex items-start gap-3"><ShieldCheck size={17} className="mt-0.5 shrink-0 text-warning-700"/><div><div className="text-[12px] font-black text-warning-950">{decisionContext.approval?.status === 'PENDING' ? 'بانتظار صاحب الصلاحية' : 'لا يوجد اعتماد تلقائي'}</div><p className="mt-1 text-[11px] leading-5 text-warning-900/80">{decisionContext.approval?.status === 'PENDING' ? 'تم حفظ القرار وطلب الموافقة. الاعتماد نفسه يتطلب فعلًا موثقًا من صاحب الصلاحية.' : 'لا يتم تحويل المقترح إلى اعتماد أو تنفيذ دون موافقة موثقة.'}</p></div></div>
+            </div>
+            <button type="button" onClick={() => navigateStage('decision')} className="btn-secondary w-full justify-center text-[11px]">العودة إلى القرار <ArrowUpLeft size={13}/></button>
+          </div>
         </section>
       )}
 
       {stage === 'work' && (
         <section className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
-          <Card>
-            <CardHeader title="التنفيذ والمتابعة" subtitle="ما تم فعليًا، وليس ما تتمنى المنظومة حدوثه." />
+          <Card variant="action">
+            <CardHeader kicker="WORK / READBACK" title="التنفيذ والمتابعة" subtitle="حالة العمل تُقرأ من decision_work_items، لا من حالة الواجهة المحلية." />
             <CardBody>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {[
@@ -354,31 +540,53 @@ function DecisionExperienceGeneralPage() {
                   ['الموعد', formatDeadline(selected?.deadline ?? null)],
                   ['حالة التوصية', statusLabel(selectedStatus)],
                   ['الأثر المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
-                  ['الأثر الفعلي', selected?.impact_result ?? 'غير متاح بعد'],
-                  ['الإشارة التالية', selected?.impact_result ? 'الانتقال إلى النتيجة والتعلّم' : 'انتظار سجل تنفيذ موثق'],
+                  ['العمل المحفوظ', relatedWorkItems.length ? relatedWorkItems.length + ' عنصر' : 'غير متاح'],
+                  ['الإجراء التالي', relatedWorkItems.some((item) => item.status === 'OPEN') ? 'ابدأ من مركز العمل' : relatedWorkItems.some((item) => item.status === 'IN_PROGRESS') ? 'أدخل الأثر الفعلي وأغلق العمل' : relatedWorkItems.some((item) => item.status === 'COMPLETED') ? 'افتح النتيجة والتعلّم' : 'لا يوجد عمل مثبت بعد'],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">{label}</div><div className="mt-2 text-[12px] font-black text-ink-900">{value}</div></div>
                 ))}
               </div>
+              {relatedWorkItems.length ? (
+                <div className="mt-4 space-y-2">
+                  {relatedWorkItems.slice(0, 5).map((item) => (
+                    <div key={item.id} className="rounded-xl border border-ink-200 bg-ink-50/60 p-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div><div className="text-[11px] font-black text-ink-900">{item.title}</div><div className="mt-1 font-mono text-[8px] text-ink-400">{item.id}</div></div>
+                        <span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-black text-primary-800">{item.status}</span>
+                      </div>
+                      <div className="mt-2 grid gap-2 sm:grid-cols-3 text-[9px] text-ink-500">
+                        <span>المسؤول: {item.assigneeLabel ?? 'غير متاح'}</span>
+                        <span>المتوقع: {item.expectedImpact == null ? 'غير متاح' : formatCurrency(item.expectedImpact)}</span>
+                        <span>الفعلي: {item.actualImpact == null ? 'غير متاح' : formatCurrency(item.actualImpact)}</span>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <Link to="/work-center" className="btn-secondary text-[9px]">فتح مركز العمل <ArrowUpLeft size={12}/></Link>
+                        {item.sourceReportJobId && item.sourceHash && <Link to={'/reports/smart/' + item.sourceReportJobId + '?sourceHash=' + encodeURIComponent(item.sourceHash) + '#decision-evidence-inspector'} className="btn-ghost text-[9px]">العودة للمصدر <FileSearch size={12}/></Link>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <BlockedState title="لم يُثبت سجل عمل لهذا القرار" detail="لا يتم إنشاء Work Item من هذه الشاشة. أنشئه من مسار القرار المعتمد ثم سيظهر هنا عبر readback." />
+              )}
             </CardBody>
           </Card>
-          <BlockedState title="لا يوجد سجل تنفيذ مُثبت" detail="لن يتم إنشاء مهمة أو حالة إنجاز من واجهة القرار. التنفيذ يجب أن يأتي من المسار التشغيلي المعتمد ويعود هنا كحالة persisted." />
         </section>
       )}
 
       {stage === 'outcome' && (
         <section className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
-          <Card>
-            <CardHeader title="النتيجة والتعلّم" subtitle="المتوقع مقابل الفعلي لا يظهر إلا بعد وجود نتيجة حقيقية." />
+          <Card variant="activity">
+            <CardHeader kicker="OUTCOME / LEARNING" title="النتيجة والتعلّم" subtitle="القراءة تأتي من recommendation_outcomes ولا تتحول القيم المفقودة إلى نجاح." />
             <CardBody>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {[
-                  ['المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
-                  ['الفعلي', 'غير متاح بعد'],
-                  ['الفارق', 'لا يمكن حسابه بعد'],
-                  ['جودة النتيجة', 'غير متاحة'],
-                  ['ملاحظات التنفيذ', 'غير متاحة'],
-                  ['إشارة التعلّم', 'غير مثبتة'],
+                  ['المتوقع', relatedOutcome?.expectedValue == null ? (selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)) : formatCurrency(relatedOutcome.expectedValue)],
+                  ['الفعلي', relatedOutcome?.actualValue == null ? 'غير متاح' : formatCurrency(relatedOutcome.actualValue)],
+                  ['الفارق', relatedOutcome?.expectedValue != null && relatedOutcome.actualValue != null ? formatCurrency(relatedOutcome.actualValue - relatedOutcome.expectedValue) : 'لا يمكن حسابه'],
+                  ['جودة النتيجة', relatedOutcome?.label === 'correct' ? 'إيجابية' : relatedOutcome?.label === 'partial' ? 'جزئية' : relatedOutcome?.label === 'incorrect' ? 'سلبية' : 'غير متاحة'],
+                  ['ملاحظات التنفيذ', relatedOutcome?.notes ?? 'غير متاحة'],
+                  ['Evidence', relatedOutcome?.evidenceSnapshotId ? 'مثبت' : 'غير متاح'],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4">
                     <div className="text-[10px] text-ink-400">{label}</div>
@@ -386,9 +594,31 @@ function DecisionExperienceGeneralPage() {
                   </div>
                 ))}
               </div>
+              {relatedOutcome?.actionId && <div className="mt-4 rounded-xl border border-success-100 bg-success-50/60 p-3 text-[10px] text-success-900">هذه النتيجة مرتبطة بالقرار المحفوظ: <span className="font-mono">{relatedOutcome.actionId}</span>.</div>}
+              {!relatedOutcome && <BlockedState title="لا توجد نتيجة محفوظة بعد" detail="الحالة الحالية: NOT AVAILABLE. لن يتم إنشاء تعلّم أو فارق مالي من واجهة العرض." />}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link to="/work-center" className="btn-secondary text-[10px]">العودة لمركز العمل <ArrowUpLeft size={12}/></Link>
+                {relatedWorkItems[0]?.sourceReportJobId && relatedWorkItems[0]?.sourceHash && <Link to={'/reports/smart/' + relatedWorkItems[0].sourceReportJobId + '?sourceHash=' + encodeURIComponent(relatedWorkItems[0].sourceHash) + '#decision-evidence-inspector'} className="btn-ghost text-[10px]">العودة إلى المصدر <FileSearch size={12}/></Link>}
+              </div>
             </CardBody>
           </Card>
-          <BlockedState title="النتيجة الفعلية غير موجودة بعد" detail="عدم توفر النتيجة ليس فشلًا في العرض؛ إنه حد حقيقي في الدليل. لن تُحوّل التوصية إلى نتيجة أو تعلّم تشغيلي قبل وجود سجل تنفيذ موثق." />
+          <Card variant="evidence">
+            <CardHeader title="مسار التعلّم" subtitle="التعلّم هنا تفسير للنتيجة المحفوظة، وليس تنبؤًا غير موثق." />
+            <CardBody>
+              {relatedOutcome ? (
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-primary-100 bg-primary-50/60 p-3 text-[10px] leading-5 text-primary-950">النتيجة موثقة، لذا يمكن مقارنة المتوقع بالفعلي وربطها بالقرار. لا يتم اشتقاق benchmark بلا cohort حقيقي.</div>
+                  <div className="rounded-xl border border-ink-200 bg-ink-50/60 p-3">
+                    <div className="text-[9px] font-black text-ink-500">DECISION FINGERPRINT</div>
+                    <div className="mt-1 break-all font-mono text-[9px] text-ink-700">{relatedOutcome.decisionFingerprint}</div>
+                  </div>
+                  <div className="text-[9px] text-ink-500">وقت الرصد: {new Date(relatedOutcome.observedAt).toLocaleString('ar-YE')}</div>
+                </div>
+              ) : (
+                <div className="text-[11px] leading-5 text-ink-500">ينتظر هذا الجزء نتيجة persisted. غيابها لا يعني نجاحًا أو فشلًا.</div>
+              )}
+            </CardBody>
+          </Card>
         </section>
       )}
 

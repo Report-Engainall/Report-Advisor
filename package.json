@@ -36,10 +36,11 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/build-with-provenance.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "preview": "vite preview",
+    "provision:e2e-actors": "node scripts/provision-e2e-actors.mjs",
     "test:ui-route-sidebar-parity": "node scripts/check-ui-route-sidebar-parity.mjs",
     "test:executive-dashboard-ui": "node scripts/check-executive-dashboard-ui-contract.mjs",
     "test:pdf-renderer-byte-integrity": "node scripts/check-pdf-renderer-byte-integrity.mjs",
@@ -168,6 +169,18 @@
     "test:work-center-decision-queue": "node scripts/work-center-decision-queue-contract.test.mjs",
     "test:business-replay": "node scripts/business-replay-contract.test.mjs",
     "test:benchmark-fail-closed": "node scripts/benchmark-fail-closed-contract.test.mjs",
-    "test:pdf-arabic-sales-layout": "node --experimental-strip-types scripts/pdf-arabic-sales-layout.test.ts"
+    "test:pdf-arabic-sales-layout": "node --experimental-strip-types scripts/pdf-arabic-sales-layout.test.ts",
+    "test:transactional-spine": "node scripts/transactional-spine-contract.test.mjs",
+    "test:decision-experience-persistence": "node scripts/check-decision-experience-persistence-contract.mjs",
+    "test:parallel-heart-ui-contract": "node scripts/check-parallel-heart-ui-contract.mjs",
+    "test:e2e-actor-provisioning": "node scripts/e2e-actor-provisioning-contract.test.mjs",
+    "test:build-provenance": "node scripts/build-provenance-contract.test.mjs",
+    "test:report-intelligence-value-chain": "node --experimental-strip-types scripts/report-intelligence-value-chain.test.ts",
+    "test:report-smart-evidence-boundary": "node --experimental-strip-types scripts/report-smart-evidence-boundary.test.ts",
+    "test:report-evidence-passport-contract": "node scripts/report-evidence-passport-contract.test.mjs",
+    "report:value-cohort": "node scripts/report-value-cohort.mjs",
+    "test:advisor-case-product-contract": "node scripts/advisor-case-product-contract.test.mjs",
+    "test:report-decision-cockpit": "node scripts/report-decision-cockpit-product-contract.test.mjs",
+    "test:archetype-registry-domain": "node --experimental-strip-types scripts/archetype-registry-domain.test.ts"
   }
 }

@@ -6,6 +6,7 @@ import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { saveActiveReportContext } from '@/lib/report-context';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { ReportDecisionCockpit } from '@/components/ReportDecisionCockpit';
+import { ReportAdvisorBrief } from '@/components/ReportAdvisorBrief';
 import { formatNumber } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 
@@ -21,6 +22,12 @@ function stateLabel(value: string | null): string {
     REVIEW: 'مراجعة',
     BLOCKED: 'محظور',
     VERIFIED: 'موثق',
+    ACCEPTED: 'مقبول',
+    UNVERIFIED: 'غير موثق بعد',
+    LEGACY_UNRESOLVED: 'تحقق تاريخي يحتاج إعادة إثبات',
+    READY: 'جاهز للقرار',
+    FULL_SOURCE: 'المصدر كامل',
+    PARTIAL_FETCH_CEILING: 'تحليل جزئي — حد القراءة 50,000',
     AWAITING_EVIDENCE_SNAPSHOT: 'بانتظار لقطة الدليل',
     AVAILABLE_FROM_CANONICAL_ANALYSIS: 'متاح من التحليل الكانوني',
     NOT_COMMITTED: 'غير معتمد',
@@ -58,6 +65,10 @@ function normalizeKey(value: unknown): string {
 
 function formatMetric(value: number | null): string {
   return value == null ? 'غير متاح' : new Intl.NumberFormat('ar-YE', { maximumFractionDigits: 2 }).format(value);
+}
+
+function dataKey(column: SmartColumn | null | undefined): string {
+  return String(column?.mappedField ?? column?.name ?? '').trim();
 }
 
 function buildSmartAnalysis(report: SmartReportDetail | null) {
@@ -98,11 +109,15 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
   const customerColumn = findColumn('customer_name', 'customer', 'client');
   const productColumn = findColumn('product_name', 'product', 'item', 'sku');
 
+  const customerKey = dataKey(customerColumn);
+  const productKey = dataKey(productColumn);
+  const amountKey = dataKey(amountColumn);
+
   const topRows = fullRows
     .map(record => ({
-      name: String(record.data[customerColumn?.name ?? ''] ?? record.data[productColumn?.name ?? ''] ?? record.data.name ?? record.data.sku ?? 'غير مسمى'),
+      name: String(record.data[customerKey] ?? record.data[productKey] ?? record.data.name ?? record.data.sku ?? 'غير مسمى'),
       value: numberValue(
-        record.data[amountColumn?.name ?? ''] ??
+        record.data[amountKey] ??
         record.data.outstanding_balance ??
         record.data.local_amount ??
         record.data.total ??
@@ -193,8 +208,44 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
         <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">ANALYSIS</div><div className="mt-2 text-sm font-black">{report.sourceAnalysis?.analysisStatus ?? 'غير متاح'}</div><div className="mt-1 text-[10px] text-ink-500">{report.sourceAnalysis?.rowCount == null ? 'غير متاح' : formatNumber(report.sourceAnalysis.rowCount)} rows</div></div>
       </div>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
-        <div className="rounded-xl border border-ink-200 bg-ink-50/60 p-4"><div className="text-[9px] font-black text-ink-500">EVIDENCE</div><div className="mt-2 text-sm font-black">{stateLabel(report.evidenceStatus)}</div><div className="mt-1 text-[10px] text-ink-500">Evidence snapshot authority is separate from canonical commit.</div></div>
-        <div className={`rounded-xl border p-4 ${verificationClass}`}><div className="text-[9px] font-black">VERIFICATION STATE</div><div className="mt-2 text-sm font-black">{reportVerificationLabel(verification)}</div><div className="mt-1 text-[10px]">Source trust: {stateLabel(report.sourceTrustState ?? report.trustState)} · Report verification: {reportVerificationLabel(verification)}</div></div>
+        <div className="rounded-xl border border-ink-200 bg-ink-50/60 p-4">
+          <div className="text-[9px] font-black text-ink-500">EVIDENCE PASSPORT</div>
+          <div className="mt-2 text-sm font-black">{stateLabel(String(report.renderedOutput.evidenceVerificationStatus ?? report.evidenceStatus))}</div>
+          <div className="mt-1 text-[10px] text-ink-500">Acceptance: {stateLabel(String(report.renderedOutput.evidenceAcceptanceStatus ?? 'غير متاح'))} · Readiness: {stateLabel(String(report.renderedOutput.decisionReadiness ?? 'غير متاح'))}</div>
+          <div className="mt-1 break-all font-mono text-[9px] text-ink-400">Snapshot: {String(report.renderedOutput.evidenceSnapshotId ?? 'غير موجود')}</div>
+        </div>
+        <div className={`rounded-xl border p-4 ${verificationClass}`}>
+          <div className="text-[9px] font-black">VERIFICATION STATE</div>
+          <div className="mt-2 text-sm font-black">{reportVerificationLabel(verification)}</div>
+          <div className="mt-1 text-[10px]">Source trust: {stateLabel(report.sourceTrustState ?? report.trustState)} · Report verification: {reportVerificationLabel(verification)}</div>
+          {report.renderedOutput.legacyPriorVerification === true ? <div className="mt-2 rounded-lg border border-warning-300 bg-warning-50 px-2 py-1 text-[9px] font-bold text-warning-900">حالة VERIFIED القديمة تم استبدالها بدليل Passport مستقل.</div> : null}
+        </div>
+      </div>
+      <div className="mt-3 rounded-2xl border border-primary-200 bg-primary-50/45 p-4" aria-label="بوابة الدليل قبل القرار">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="text-[9px] font-black tracking-[0.12em] text-primary-700">EVIDENCE GATE</div>
+            <h3 className="mt-1 text-sm font-black text-ink-950">الاعتماد الكانوني والدليل النهائي مرحلتان منفصلتان</h3>
+            <p className="mt-1 text-[10px] leading-5 text-ink-600">اكتمال Commit يثبت تغطية البيانات الكانونية فقط. لا تصبح النتيجة Verified إلا بعد وجود Evidence Snapshot صريح مرتبط بالمصدر.</p>
+          </div>
+          {verification !== 'VERIFIED' ? (
+            <Link to="/trust" className="btn-secondary text-[10px]">فتح بوابة الأدلة <ArrowLeft size={12} /></Link>
+          ) : null}
+        </div>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <div className="rounded-xl bg-white p-3">
+            <div className="text-[8px] font-black text-ink-400">CANONICAL COMMIT</div>
+            <div className="mt-1 text-[10px] font-black text-ink-900">{gap > 0 ? `فجوة ${formatNumber(gap)} صف` : report.canonicalCommitVerified ? 'مغطى' : 'غير مثبت'}</div>
+          </div>
+          <div className="rounded-xl bg-white p-3">
+            <div className="text-[8px] font-black text-ink-400">EVIDENCE SNAPSHOT</div>
+            <div className="mt-1 text-[10px] font-black text-ink-900">{verification === 'VERIFIED' ? 'موجود ومثبت' : report.evidenceStatus === 'AWAITING_EVIDENCE_SNAPSHOT' ? 'بانتظار لقطة دليل' : stateLabel(report.evidenceStatus)}</div>
+          </div>
+          <div className="rounded-xl bg-white p-3">
+            <div className="text-[8px] font-black text-ink-400">DECISION READINESS</div>
+            <div className="mt-1 text-[10px] font-black text-ink-900">{verification === 'VERIFIED' ? 'الدليل متاح للمراجعة' : 'لا يوجد اعتماد دليلي نهائي بعد'}</div>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -573,12 +624,13 @@ export function SmartReportPage() {
     />
 
     <ReportDecisionCockpit report={report}/>
+    <ReportAdvisorBrief report={report}/>
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="grid gap-3 md:grid-cols-4">
         <div className="rounded-2xl bg-ink-950 p-4 text-white"><div className="text-[9px] font-black tracking-[.12em] text-primary-200">TRUST</div><div className="mt-2 text-xl font-black">{stateLabel(report.trustState)}</div><div className="mt-1 text-[10px] text-ink-300">جودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div></div>
         <div className="rounded-2xl bg-ink-50 p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">SOURCE</div><div className="mt-2 font-black text-ink-950">{report.sourceHash.slice(0, 24)}…</div><div className="mt-1 text-[10px] text-ink-500">نوع الملف: {report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
-        <div className="rounded-2xl bg-ink-50 p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">ROWS</div><div className="mt-2 text-xl font-black text-ink-950">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div><div className="mt-1 text-[10px] text-ink-500">المعتمد: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)} · الحالة: {report.checkpointStage ?? 'غير متاح'}</div></div>
+        <div className="rounded-2xl bg-ink-50 p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">ROWS</div><div className="mt-2 text-xl font-black text-ink-950">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div><div className="mt-1 text-[10px] text-ink-500">المعتمد: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)} · النطاق: {report.canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING' ? 'تحليل جزئي / حد 50,000' : 'المصدر كامل'}</div></div>
         <div className="rounded-2xl bg-ink-50 p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">SPECIALTY</div><div className="mt-2 text-xl font-black text-ink-950">{report.specialty ?? 'عام'}</div><div className="mt-1 text-[10px] text-ink-500">التخصص يظهر فقط عند توفر دليل كافٍ من المصدر.</div></div>
       </div>
     </section>
@@ -605,6 +657,14 @@ export function SmartReportPage() {
     </section>
 
     <EvidenceInspector report={report}/>
+
+    {report.canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING' ? (
+      <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900" aria-label="حد نطاق التحليل">
+        <div className="text-[9px] font-black tracking-[.12em]">ANALYSIS SCOPE</div>
+        <div className="mt-1 text-sm font-black">التحليل هنا جزئي؛ المصدر يتجاوز حد القراءة المباشرة 50,000 صف.</div>
+        <div className="mt-1 text-[10px] leading-5">المخرجات المعروضة لا تمثل كامل المصدر. يجب الاعتماد على تجميعات خادمية موثقة قبل أي قرار شامل.</div>
+      </section>
+    ) : null}
 
     <ReportIntelligencePanel report={report} />
 

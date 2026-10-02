@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { timingSafeEqual } from 'node:crypto';
 import rollbackHandler, { deploymentReady } from '../api/rollback-drill.mjs';
-import { isDisallowedOutboundAddress, isProductionEnv, parseSecureOutboundUrl, secureOutboundFetch, sha256ResponseBody } from '../src/server/resilience-runtime.mjs';
+import { isDisallowedOutboundAddress, isProductionEnv, parseSecureOutboundUrl, secureOutboundFetch, sha256ResponseBody, runtimeIdentity } from '../src/server/resilience-runtime.mjs';
 
 const files = [
   'api/health.mjs',
@@ -23,6 +23,18 @@ assert.equal(timingSafeEqual(Buffer.from('resilience-secret'), Buffer.from('resi
 process.env.RESILIENCE_TARGET_ENV = 'production';
 assert.equal(isProductionEnv(), true);
 delete process.env.RESILIENCE_TARGET_ENV;
+process.env.VERCEL_DEPLOYMENT_ID = 'dpl-test-runtime';
+process.env.VERCEL_GIT_COMMIT_SHA = 'sha-test-runtime';
+process.env.VERCEL_ENV = 'preview';
+process.env.RESILIENCE_TARGET_ENV = 'staging';
+assert.deepEqual(runtimeIdentity(), {
+  deployment_id: 'dpl-test-runtime',
+  deployment_sha: 'sha-test-runtime',
+  target_env: 'staging',
+  runtime_environment: 'preview',
+  provenance_contract_version: '3',
+});
+for (const key of ['VERCEL_DEPLOYMENT_ID', 'VERCEL_GIT_COMMIT_SHA', 'VERCEL_ENV', 'RESILIENCE_TARGET_ENV']) delete process.env[key];
 
 assert.equal(parseSecureOutboundUrl('https://backup.example.test/artifact').protocol, 'https:');
 assert.throws(() => parseSecureOutboundUrl('http://backup.example.test/artifact', 'backup_artifact_url'), /insecure_backup_artifact_url/);

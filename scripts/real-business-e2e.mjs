@@ -9,9 +9,11 @@ const emailA = process.env.TEST_USER_A_EMAIL?.trim();
 const passwordA = process.env.TEST_USER_A_PASSWORD;
 const emailB = process.env.TEST_USER_B_EMAIL?.trim();
 const passwordB = process.env.TEST_USER_B_PASSWORD;
+const approverEmail = process.env.TEST_APPROVER_EMAIL?.trim();
+const approverPassword = process.env.TEST_APPROVER_PASSWORD;
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e-business';
-for (const [name, value] of Object.entries({ supabaseURL, anonKey, emailA, passwordA, emailB, passwordB })) if (!value) throw new Error(`BUSINESS_E2E_ENV_MISSING:${name}`);
+for (const [name, value] of Object.entries({ supabaseURL, anonKey, emailA, passwordA, emailB, passwordB, approverEmail, approverPassword })) if (!value) throw new Error(`BUSINESS_E2E_ENV_MISSING:${name}`);
 await fs.mkdir(reportDir, { recursive: true });
 const evidence = { exactHead, baseURL, browser: 'Chromium', startedAt: new Date().toISOString(), status: 'NOT_PROVEN', tenantA: null, tenantB: null, persisted: {}, steps: [], failures: [] };
 const browser = await chromium.launch({ headless: true });
@@ -20,6 +22,17 @@ const pageA = await contextA.newPage();
 function attachRuntimeCapture(page) { page.on('console', msg => { if (msg.type() === 'error') evidence.failures.push(`console:${msg.text()}`); }); page.on('pageerror', error => evidence.failures.push(`pageerror:${error.message}`)); page.on('requestfailed', request => { const error = request.failure()?.errorText || 'unknown'; if (error !== 'net::ERR_ABORTED') evidence.failures.push(`request:${request.method()} ${request.url()} ${error}`); }); page.on('response', async response => { if (response.status() < 400) return; const url = response.url(); const relevant = !supabaseURL || url.startsWith(supabaseURL) || url.includes('/rest/v1/') || url.includes('/auth/v1/') || url.includes('/api/canonical-import-execute') || url.includes('/.netlify/functions/canonical-import-execute'); if (!relevant) return; const body = await response.text().catch(() => ''); evidence.failures.push(`response:${response.request().method()} ${response.status()} ${url} body=${body.slice(0, 4000)}`); }); }
 attachRuntimeCapture(pageA);
 async function accessToken(page) { return page.evaluate(() => { const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1]; if (!raw) throw new Error('BROWSER_SESSION_NOT_FOUND'); const session = JSON.parse(raw); if (!session?.access_token) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND'); return session.access_token; }); }
+async function currentUserId(page) {
+  const token = await accessToken(page);
+  const response = await fetch(`${supabaseURL}/auth/v1/user`, {
+    headers: { apikey: anonKey, Authorization: `Bearer ${token}` },
+  });
+  const body = await response.text();
+  assert.equal(response.ok, true, `auth user HTTP ${response.status}: ${body}`);
+  const user = body ? JSON.parse(body) : null;
+  assert.ok(user?.id, 'AUTH_USER_ID_MISSING');
+  return String(user.id);
+}
 async function currentTenant(page) { const token = await accessToken(page); const response = await fetch(`${supabaseURL}/rest/v1/rpc/current_company_id`, { method: 'POST', headers: { apikey: anonKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: '{}' }); const body = await response.text(); assert.equal(response.ok, true, `current_company_id HTTP ${response.status}: ${body}`); const tenantId = body.replaceAll('"', '').trim(); assert.ok(tenantId, 'current_company_id must resolve a tenant'); return tenantId; }
 async function restSelect(page, table, filters, select, options = {}) {
   const token = await accessToken(page);
@@ -28,11 +41,34 @@ async function restSelect(page, table, filters, select, options = {}) {
   for (const [column, value] of Object.entries(filters)) url.searchParams.set(column, `eq.${value}`);
   if (options.order) url.searchParams.set('order', options.order);
   if (options.limit) url.searchParams.set('limit', String(options.limit));
+  if (options.offset) url.searchParams.set('offset', String(options.offset));
   const response = await fetch(url, { headers: { apikey: anonKey, Authorization: `Bearer ${token}` } });
   const body = await response.text();
   assert.equal(response.ok, true, `${table} read HTTP ${response.status}: ${body}`);
   return body ? JSON.parse(body) : [];
 }
+async function restSelectAll(page, table, filters, select, options = {}) {
+  const pageSize = Number(options.pageSize ?? 1000);
+  const rows = [];
+  for (let offset = 0; ; offset += pageSize) {
+    const pageRows = await restSelect(page, table, filters, select, { ...options, limit: pageSize, offset });
+    rows.push(...pageRows);
+    if (pageRows.length < pageSize) return rows;
+  }
+}
+
+async function restRpc(page, functionName, payload) {
+  const token = await accessToken(page);
+  const response = await fetch(supabaseURL + '/rest/v1/rpc/' + functionName, {
+    method: 'POST',
+    headers: { apikey: anonKey, Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const body = await response.text();
+  assert.equal(response.ok, true, 'rpc ' + functionName + ' HTTP ' + response.status + ': ' + body);
+  return body ? JSON.parse(body) : null;
+}
+
 async function restUpdate(page, table, id, payload) { const token = await accessToken(page); const url = new URL(`${supabaseURL}/rest/v1/${table}`); url.searchParams.set('id', `eq.${id}`); const response = await fetch(url, { method: 'PATCH', headers: { apikey: anonKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify(payload) }); const body = await response.text(); assert.equal(response.ok, true, `${table} cross-tenant update HTTP ${response.status}: ${body}`); return body ? JSON.parse(body) : []; }
 async function login(page, email, password) {
   await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -40,7 +76,7 @@ async function login(page, email, password) {
   await page.locator('#login-email').fill(email);
   await page.locator('#login-password').fill(password);
   let authResponse = null;
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
+  for (let attempt = 1; attempt <= 6; attempt += 1) {
     if (attempt > 1) {
       await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
       await page.locator('#login-email').waitFor({ state: 'visible', timeout: 30000 });
@@ -55,13 +91,13 @@ async function login(page, email, password) {
     ).catch(() => null);
     await page.locator('form button[type="submit"]').click();
     const candidate = await authResponsePromise;
-    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 3) {
-      await page.waitForTimeout(5000 * attempt);
+    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 6) {
+      await page.waitForTimeout(Math.min(5000 * attempt, 20000));
       continue;
     }
     authResponse = candidate;
-    if (authResponse || attempt === 3) break;
-    await page.waitForTimeout(5000 * attempt);
+    if (authResponse || attempt === 6) break;
+    await page.waitForTimeout(Math.min(5000 * attempt, 20000));
   }
   if (!authResponse) throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
   const authStatus = authResponse.status();
@@ -343,6 +379,10 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     'Smart Report must expose the canonical pending-evidence state label'
   );
 
+  assert.ok(beforeRefreshText.includes('WHAT NEXT / DECISION BRIEF'), 'Decision Brief must be visible on the real Smart Report');
+  assert.ok(beforeRefreshText.includes('TRUTH LABELS'), 'Smart Report must expose truth-state labels');
+  assert.ok(beforeRefreshText.includes('EXPECTED OUTCOME'), 'Decision Brief must expose expected outcome');
+
   await page.screenshot({
     path: reportDir + '/smart-report-' + label + '-before-refresh.png',
     fullPage: true,
@@ -401,8 +441,9 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
 const CURRENT_REPORT_SOURCE_PATH = process.env.CURRENT_REPORT_SOURCE_PATH?.trim() || 'تسعيرة الاصناف حسب رقم الصنف.pdf';
 const CURRENT_REPORT_SOURCE_HASH = process.env.CURRENT_REPORT_SOURCE_HASH?.trim() || 'sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300';
 const CURRENT_REPORT_ROW_COUNT = Number(process.env.CURRENT_REPORT_ROW_COUNT || '735');
-const CURRENT_REPORT_TASK_COUNT = 9;
-const CURRENT_REPORT_ENTITY_TYPE = 'generic:inventory';
+const CURRENT_REPORT_TASK_COUNT = Number(process.env.CURRENT_REPORT_TASK_COUNT || '9');
+const CURRENT_REPORT_ENTITY_TYPE = process.env.CURRENT_REPORT_ENTITY_TYPE?.trim() || 'generic:inventory';
+const CURRENT_REPORT_JOB_ID = process.env.CURRENT_REPORT_JOB_ID?.trim() || 'f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0';
 
 function assertCurrentReportText(text, label) {
   assert.ok(text.includes(CURRENT_REPORT_SOURCE_PATH), label + ': source path missing');
@@ -416,7 +457,7 @@ async function readCurrentPersistedReport(page, companyId) {
   const uniqueJobs = [...new Map(jobs.map(job => [String(job.id), job])).values()];
   assert.equal(uniqueJobs.length, 1, 'CURRENT_REPORT_JOB_MUST_BE_UNAMBIGUOUS');
   const job = uniqueJobs[0];
-  assert.equal(job.id, 'f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0', 'CURRENT_REPORT_JOB_ID_CHANGED');
+  assert.equal(job.id, CURRENT_REPORT_JOB_ID, 'CURRENT_REPORT_JOB_ID_CHANGED');
   assert.equal(job.status, 'completed');
   assert.equal(job.source_hash, CURRENT_REPORT_SOURCE_HASH);
   assert.equal(job.source_path, CURRENT_REPORT_SOURCE_PATH);
@@ -438,7 +479,7 @@ async function readCurrentPersistedReport(page, companyId) {
   assert.equal(Number(imports[0].total_rows), CURRENT_REPORT_ROW_COUNT);
   assert.equal(Number(imports[0].processed_rows), CURRENT_REPORT_ROW_COUNT);
   assert.equal(imports[0].source_fingerprint, CURRENT_REPORT_SOURCE_HASH);
-  const canonicalRows = await restSelect(page, 'canonical_dataset_records', { company_id: companyId, import_job_id: importId, source_hash: CURRENT_REPORT_SOURCE_HASH }, 'id,company_id,import_job_id,source_hash,row_number,semantic_domain,record_key', { order: 'row_number.asc', limit: 1000 });
+  const canonicalRows = await restSelectAll(page, 'canonical_dataset_records', { company_id: companyId, import_job_id: importId, source_hash: CURRENT_REPORT_SOURCE_HASH }, 'id,company_id,import_job_id,source_hash,row_number,semantic_domain,record_key', { order: 'row_number.asc' });
   assert.equal(canonicalRows.length, CURRENT_REPORT_ROW_COUNT);
   assert.equal(Number(canonicalRows[0].row_number), 1);
   assert.equal(Number(canonicalRows[canonicalRows.length - 1].row_number), CURRENT_REPORT_ROW_COUNT);
@@ -490,6 +531,70 @@ async function proveCurrentSmartReport(page, report) {
   assert.ok(before.includes('ما الذي ينصح به النظام؟'), 'Smart Report recommendations section missing');
   assert.ok(before.includes('التنبؤ'), 'Smart Report forecast section missing');
   assert.ok(before.includes('GUIDANCE'), 'Smart Report guidance section missing');
+  assert.ok(before.includes('ماذا يريد الأغبري أن يقول للإدارة؟'), 'REAL_ADVISOR_BRIEF_HEADING_MISSING');
+  assert.ok(before.includes('TOP FINDINGS'), 'REAL_ADVISOR_TOP_FINDINGS_MISSING');
+  assert.ok(before.includes('TOP RISK'), 'REAL_ADVISOR_TOP_RISK_MISSING');
+  assert.ok(before.includes('TOP OPPORTUNITY'), 'REAL_ADVISOR_TOP_OPPORTUNITY_MISSING');
+  assert.ok(before.includes('BUSINESS QUESTIONS'), 'REAL_ADVISOR_BUSINESS_QUESTIONS_MISSING');
+  assert.ok(before.includes('WHY'), 'REAL_ADVISOR_WHY_MISSING');
+  assert.ok(before.includes('RECOMMENDED ACTION'), 'REAL_ADVISOR_RECOMMENDATION_MISSING');
+  assert.ok(before.includes('حوّلها إلى قرار'), 'REAL_ADVISOR_DECISION_ACTION_MISSING');
+  assert.ok(before.includes('27.54%'), 'REAL_ADVISOR_REAL_SALES_CHANGE_MISSING');
+  assert.ok(before.includes('رضوان حسين علي الجرادي'), 'REAL_ADVISOR_REAL_CONTRIBUTOR_MISSING');
+  assert.ok(before.includes(CURRENT_REPORT_SOURCE_HASH), 'REAL_ADVISOR_SOURCE_HASH_LINEAGE_MISSING');
+  assert.ok(before.includes(report.reportJobId), 'REAL_ADVISOR_JOB_LINEAGE_MISSING');
+  assert.ok(before.includes('evidenceSnapshotId='), 'REAL_ADVISOR_EVIDENCE_LINEAGE_MISSING');
+
+  const advisorDecisionButton = page.getByRole('button', { name: 'حوّلها إلى قرار', exact: true });
+  assert.equal(await advisorDecisionButton.count(), 1, 'REAL_ADVISOR_CONVERT_BUTTON_MISSING');
+  assert.equal(await advisorDecisionButton.isEnabled(), true, 'REAL_ADVISOR_CONVERT_BUTTON_DISABLED_WITH_VERIFIED_EVIDENCE');
+  await advisorDecisionButton.click();
+  await page.waitForURL(/\/decision-experience\?/, { timeout: 30000 });
+  const decisionUrl = new URL(page.url());
+  const recommendationId = decisionUrl.searchParams.get('recommendationId');
+  assert.ok(recommendationId, 'REAL_ADVISOR_RECOMMENDATION_ID_MISSING_AFTER_CONVERSION');
+
+  const recommendationRows = await restSelect(
+    page,
+    'recommendations',
+    { company_id: evidence.tenantA, id: recommendationId },
+    'id,company_id,title,status,decision_id,evidence_snapshot_id',
+    { limit: 1 },
+  );
+  assert.equal(recommendationRows.length, 1, 'REAL_ADVISOR_RECOMMENDATION_READBACK_MISSING');
+  assert.equal(String(recommendationRows[0].company_id), String(evidence.tenantA));
+  assert.equal(String(recommendationRows[0].evidence_snapshot_id), String(report.rendered.evidenceSnapshotId));
+  assert.ok(recommendationRows[0].decision_id, 'REAL_ADVISOR_RECOMMENDATION_DECISION_LINK_MISSING');
+
+  const decisionRows = await restSelect(
+    page,
+    'business_intelligence_decisions',
+    { company_id: evidence.tenantA, recommendation_id: String(recommendationId) },
+    'id,company_id,status,decision_key,recommendation_id,evidence',
+    { limit: 1 },
+  );
+  assert.equal(decisionRows.length, 1, 'REAL_ADVISOR_DECISION_READBACK_MISSING');
+  assert.equal(String(decisionRows[0].company_id), String(evidence.tenantA));
+  assert.equal(String(decisionRows[0].recommendation_id), String(recommendationId));
+  assert.equal(String(decisionRows[0].evidence?.sourceHash), String(CURRENT_REPORT_SOURCE_HASH));
+  assert.equal(String(decisionRows[0].evidence?.jobId), String(report.reportJobId));
+
+  const decisionBody = (await page.locator('body').innerText()).trim();
+  assert.ok(decisionBody.includes(CURRENT_REPORT_SOURCE_HASH), 'REAL_ADVISOR_DECISION_SOURCE_HASH_MISSING');
+  assert.ok(decisionBody.includes(report.reportJobId), 'REAL_ADVISOR_DECISION_JOB_ID_MISSING');
+  evidence.steps.push({
+    step: 'advisor-brief-to-decision',
+    status: 'PASS',
+    reportJobId: report.reportJobId,
+    sourceHash: CURRENT_REPORT_SOURCE_HASH,
+    evidenceSnapshotId: String(report.rendered.evidenceSnapshotId),
+    recommendationId: String(recommendationId),
+    decisionId: String(decisionRows[0].id),
+  });
+
+  await page.goto(baseURL + '/reports/smart/' + report.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+
   await page.screenshot({ path: reportDir + '/current-report-smart-before-refresh.png', fullPage: true });
   await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
   await page.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
@@ -530,6 +635,446 @@ async function proveSourceBoundSurface(page, report, surface) {
   await page.screenshot({ path: reportDir + '/current-report-' + surface.label + '.png', fullPage: true });
   evidence.steps.push({ step: 'source-bound-surface:' + surface.label, status: 'PASS', reportJobId: report.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, rowCount: CURRENT_REPORT_ROW_COUNT });
 }
+
+async function proveTransactionalMutationAndAudit(page) {
+  await page.goto(baseURL + '/operations', { waitUntil: 'networkidle', timeout: 30000 });
+  await page.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+
+  const e2eOrders = await restSelect(
+    page,
+    'orders',
+    { company_id: evidence.tenantA },
+    'id,company_id,status,warehouse_id,customer_id,order_number,idempotency_key,total,currency',
+    { order: 'created_at.asc', limit: 50 },
+  );
+  const expectedFixtureKey = process.env.E2E_TRANSACTION_ORDER_IDEMPOTENCY_KEY?.trim();
+  const e2eFixture = expectedFixtureKey
+    ? e2eOrders.find((row) => String(row.idempotency_key ?? '') === expectedFixtureKey)
+    : e2eOrders.find((row) => String(row.idempotency_key ?? '').startsWith('E2E-ORDER-'));
+  if (!e2eFixture) {
+    evidence.steps.push({ step: 'transactional-real-mutation', status: 'NOT_PROVEN', reason: 'E2E_FIXTURE_ORDER_MISSING', actionSurfaceVisible: true });
+    return;
+  }
+
+  const beforePrepare = {
+    status: String(e2eFixture.status),
+    invoiceCount: (await restSelect(page, 'sales_invoices', { company_id: evidence.tenantA, order_id: e2eFixture.id }, 'id', { limit: 20 })).length,
+  };
+  assert.equal(beforePrepare.status, 'pending', 'E2E_TRANSACTION_FIXTURE_NOT_PENDING');
+  const orderId = String(e2eFixture.id);
+
+  await page.goto(baseURL + '/operations', { waitUntil: 'networkidle', timeout: 30000 });
+  await page.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  const first = page.locator('[data-testid="advance-order-' + orderId + '"]');
+  assert.equal(await first.count(), 1, 'TRANSACTIONAL_E2E_ORDER_ACTION_MISSING');
+  const beforeBody = (await page.locator('body').innerText()).trim();
+
+  const initialOrderRows = await restSelect(page, 'orders', { company_id: evidence.tenantA, id: orderId }, 'id,company_id,status,total,currency,order_number,idempotency_key', { limit: 1 });
+  assert.equal(initialOrderRows.length, 1, 'TRANSACTIONAL_ORDER_DB_ROW_MISSING_BEFORE');
+  assert.equal(initialOrderRows[0].company_id, evidence.tenantA);
+
+  let orderStatus = String(initialOrderRows[0].status);
+  const transitions = [];
+  for (let step = 0; step < 6; step += 1) {
+    const button = page.locator('[data-testid="advance-order-' + orderId + '"]');
+    if (await button.count() === 0) break;
+    const fromStatus = orderStatus;
+    await button.click();
+    await page.getByText('تم حفظ انتقال الطلب وإعادة قراءة الحالة من المصدر.', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+    const afterOrderRows = await restSelect(page, 'orders', { company_id: evidence.tenantA, id: orderId }, 'id,company_id,status,total,currency', { limit: 1 });
+    assert.equal(afterOrderRows.length, 1, 'TRANSACTIONAL_ORDER_DB_ROW_MISSING_AFTER_TRANSITION');
+    assert.equal(afterOrderRows[0].company_id, evidence.tenantA);
+    assert.notEqual(String(afterOrderRows[0].status), fromStatus, 'TRANSACTIONAL_ORDER_STATUS_DID_NOT_PERSIST');
+    orderStatus = String(afterOrderRows[0].status);
+    transitions.push({ from: fromStatus, to: orderStatus });
+    if (orderStatus === 'completed') break;
+  }
+  assert.equal(orderStatus, 'completed', 'TRANSACTIONAL_ORDER_NOT_COMPLETED_FOR_INVOICE_FLOW');
+
+  const createInvoiceButton = page.locator('[data-testid="create-invoice-' + orderId + '"]');
+  assert.equal(await createInvoiceButton.count(), 1, 'TRANSACTIONAL_CREATE_INVOICE_BUTTON_MISSING');
+  await createInvoiceButton.click();
+  await page.getByText('تم تثبيت/قراءة الفاتورة المرتبطة بالطلب من المصدر.', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+
+  const invoiceRows = await restSelect(page, 'sales_invoices', { company_id: evidence.tenantA, order_id: orderId }, 'id,company_id,order_id,status,total,paid_amount,currency', { order: 'invoice_date.desc', limit: 5 });
+  assert.ok(invoiceRows.length >= 1, 'TRANSACTIONAL_INVOICE_DB_READBACK_MISSING');
+  const invoice = invoiceRows[0];
+  const invoiceId = String(invoice.id);
+  assert.equal(invoice.company_id, evidence.tenantA);
+  assert.equal(invoice.order_id, orderId);
+  const beforePaid = Number(invoice.paid_amount ?? 0);
+  const outstanding = Number(invoice.total) - beforePaid;
+  assert.ok(Number.isFinite(outstanding) && outstanding > 0, 'TRANSACTIONAL_INVOICE_HAS_NO_POSITIVE_BALANCE_TO_PAY');
+
+  const invoiceButton = page.locator('[data-testid="invoice-' + invoiceId + '"]');
+  assert.equal(await invoiceButton.count(), 1, 'TRANSACTIONAL_INVOICE_UI_READBACK_MISSING');
+  await invoiceButton.click();
+  const paymentForm = page.locator('[data-testid="payment-form-' + invoiceId + '"]');
+  await paymentForm.waitFor({ state: 'visible', timeout: 30000 });
+  const paymentAmount = Math.min(1, outstanding);
+  await paymentForm.locator('[data-testid="payment-amount"]').fill(String(paymentAmount));
+
+  const paymentsBefore = await restSelect(page, 'payments', { company_id: evidence.tenantA, invoice_id: invoiceId }, 'id,company_id,invoice_id,amount,method,reference,payment_date', { order: 'created_at.desc', limit: 20 });
+  await paymentForm.getByRole('button', { name: /تسجيل الدفعة وإعادة القراءة/ }).click();
+  await page.getByText('تم تسجيل الدفعة وإعادة قراءة الفاتورة والرصيد من المصدر.', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+
+  const invoiceAfterPayment = await restSelect(page, 'sales_invoices', { company_id: evidence.tenantA, id: invoiceId }, 'id,company_id,order_id,status,total,paid_amount,currency', { limit: 1 });
+  assert.equal(invoiceAfterPayment.length, 1, 'TRANSACTIONAL_INVOICE_READBACK_AFTER_PAYMENT_MISSING');
+  const afterPaid = Number(invoiceAfterPayment[0].paid_amount ?? 0);
+  assert.ok(afterPaid > beforePaid, 'TRANSACTIONAL_PAYMENT_DID_NOT_PERSIST_TO_INVOICE');
+  assert.equal(invoiceAfterPayment[0].company_id, evidence.tenantA);
+
+  const paymentsAfter = await restSelect(page, 'payments', { company_id: evidence.tenantA, invoice_id: invoiceId }, 'id,company_id,invoice_id,amount,method,reference,payment_date', { order: 'created_at.desc', limit: 20 });
+  assert.ok(paymentsAfter.length > paymentsBefore.length, 'TRANSACTIONAL_PAYMENT_ROW_NOT_PERSISTED');
+  const payment = paymentsAfter[0];
+  assert.equal(payment.company_id, evidence.tenantA);
+  assert.equal(payment.invoice_id, invoiceId);
+
+  await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
+  await page.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  const afterBody = (await page.locator('body').innerText()).trim();
+  assert.ok(afterBody.includes('AUDIT / TRACE'), 'TRANSACTIONAL_AUDIT_TRACE_SECTION_MISSING_AFTER_MUTATION');
+  assert.notEqual(afterBody, beforeBody, 'TRANSACTIONAL_UI_READBACK_DID_NOT_CHANGE');
+  const auditTrace = page.locator('[data-testid="operations-audit-trace"]');
+  await auditTrace.waitFor({ state: 'visible', timeout: 30000 });
+  const auditText = await auditTrace.innerText();
+  assert.ok(auditText.includes('order_status_changed') || auditText.includes('order_created'), 'TRANSACTIONAL_ORDER_AUDIT_ROW_MISSING');
+  assert.ok(auditText.includes('invoice_created'), 'TRANSACTIONAL_INVOICE_AUDIT_ROW_MISSING');
+
+  const orderAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: orderId }, 'id,company_id,action,entity_type,entity_id,source,user_label,correlation_id,created_at', { order: 'created_at.desc', limit: 20 });
+  const invoiceAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: invoiceId }, 'id,company_id,action,entity_type,entity_id,source,user_label,correlation_id,created_at', { order: 'created_at.desc', limit: 20 });
+  const paymentAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(payment.id) }, 'id,company_id,action,entity_type,entity_id,source,user_label,correlation_id,created_at', { order: 'created_at.desc', limit: 20 });
+  assert.ok(orderAudit.length > 0, 'TRANSACTIONAL_ORDER_AUDIT_DB_ROW_MISSING');
+  assert.ok(invoiceAudit.length > 0, 'TRANSACTIONAL_INVOICE_AUDIT_DB_ROW_MISSING');
+  assert.ok(paymentAudit.length > 0, 'TRANSACTIONAL_PAYMENT_AUDIT_DB_ROW_MISSING');
+
+  await page.screenshot({ path: reportDir + '/transactional-real-mutation-invoice-payment-audit.png', fullPage: true });
+  evidence.steps.push({ step: 'transactional-real-mutation', status: 'PASS', orderId, fixtureKey: String(e2eFixture.idempotency_key), beforePrepare, prepareContract: 'prepare_e2e_order', transitions, finalOrderStatus: orderStatus, invoiceId, invoicePersistence: true, invoiceReadback: true, paymentId: String(payment.id), paymentPersistence: true, paymentReadback: true, auditOrderReadback: true, auditInvoiceReadback: true, auditPaymentReadback: true, tenantId: evidence.tenantA });
+}
+async function proveDecisionActionSurface(page, report) {
+  const target = baseURL + '/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(CURRENT_REPORT_SOURCE_HASH);
+  const response = await page.goto(target, { waitUntil: 'networkidle', timeout: 30000 });
+  assert.ok(response && response.status() < 400, 'decision-action: HTTP ' + (response?.status() ?? 'NO_RESPONSE'));
+  const body = (await page.locator('body').innerText()).trim();
+  assertCurrentReportText(body, 'decision action');
+  assert.ok(body.includes('مسار القرار لهذا التقرير فقط'), 'SOURCE_BOUND_DECISION_SURFACE_MISSING');
+
+  const createDecisionButton = page.getByRole('button', { name: /حفظ القرار والقضية|حفظ كقرار مقترح|حفظ كتوصية ثم قرار/, exact: false }).first();
+  const createDecisionButtonCount = await createDecisionButton.count();
+  const approvalButton = page.getByRole('button', { name: /طلب الموافقة|استكمال مسار الموافقة/, exact: false }).first();
+  const approvalButtonCount = await approvalButton.count();
+  const emptyDecisionState = body.includes('لا توجد قرارات مصدرية محفوظة بعد لهذا المصدر.');
+  const persistedDecisionState =
+    body.includes('DECISION → ACTION → OUTCOME → LEARNING') ||
+    body.includes('APPROVED') ||
+    body.includes('القضية نفسها ما زالت مرتبطة بالتقرير');
+
+  const decisionState =
+    createDecisionButtonCount === 1
+      ? 'CREATE_PERSIST_READY'
+      : approvalButtonCount === 1
+        ? 'APPROVAL_READY'
+        : emptyDecisionState
+          ? 'EMPTY_AWAITING_CREATION'
+          : persistedDecisionState
+            ? 'PERSISTED_DECISION_READY'
+            : 'UNKNOWN';
+
+  assert.notEqual(decisionState, 'UNKNOWN', 'SOURCE_BOUND_DECISION_STATE_MISSING');
+  assert.ok(
+    body.includes('لا يوجد اعتماد تلقائي') ||
+    body.includes('بانتظار صاحب الصلاحية') ||
+    body.includes('طلب الموافقة') ||
+    body.includes('استكمال مسار الموافقة') ||
+    createDecisionButtonCount === 1 ||
+    emptyDecisionState,
+    'DECISION_APPROVAL_GUARDRAIL_MISSING'
+  );
+
+  await page.screenshot({ path: reportDir + '/decision-action-surface.png', fullPage: true });
+  evidence.steps.push({
+    step: 'decision-action-surface',
+    status: 'PASS',
+    reportJobId: report.reportJobId,
+    sourceHash: CURRENT_REPORT_SOURCE_HASH,
+    persistenceAction: createDecisionButtonCount === 1,
+    approvalActionAvailable: approvalButtonCount === 1,
+    approvalGuardrail: true,
+    prePersistedDecisionState: decisionState,
+  });
+}
+
+async function proveDecisionApprovalActionOutcome(page, report) {
+  await page.goto(baseURL + '/reports/smart/' + report.reportJobId, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.getByText('ماذا استنتج النظام من هذا التقرير؟', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+
+  const proposalButton = page.getByRole('button', { name: /حفظ القرار والقضية|حفظ كقرار مقترح|حفظ كتوصية ثم قرار/, exact: false }).first();
+  if (await proposalButton.count() === 0) {
+    evidence.steps.push({ step: 'decision-approval-action-outcome', status: 'NOT_PROVEN', reason: 'SOURCE_SIGNAL_NOT_AVAILABLE', reportJobId: report.reportJobId });
+    return;
+  }
+
+  const userAId = await currentUserId(page);
+  await proposalButton.click();
+  await page.getByText(/تم حفظ القرار والقضية|تم حفظ القرار المقترح|تم حفظ التوصية والقرار/, { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
+
+  const decisionTarget = baseURL + '/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash);
+  await page.goto(decisionTarget, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+  const decisionRows = await restSelect(
+    page,
+    'business_intelligence_decisions',
+    { company_id: evidence.tenantA },
+    'id,company_id,status,decision_key,recommendation_id,created_at,approved_at,approved_by',
+    { order: 'created_at.desc', limit: 100 },
+  );
+  const sourceDecisions = decisionRows.filter((row) => String(row.decision_key ?? '').startsWith('source-intelligence:' + report.sourceHash + ':'));
+  if (sourceDecisions.length === 0) {
+    evidence.steps.push({ step: 'decision-approval-action-outcome', status: 'NOT_PROVEN', reason: 'SOURCE_DECISION_ROW_NOT_AVAILABLE', reportJobId: report.reportJobId });
+    return;
+  }
+
+  const decision = sourceDecisions[0];
+  const decisionId = String(decision.id);
+  assert.equal(String(decision.company_id), evidence.tenantA, 'DECISION_TENANT_MISMATCH');
+  assert.ok(decision.recommendation_id, 'DECISION_RECOMMENDATION_LINK_MISSING');
+
+  const approvals = await restSelect(
+    page,
+    'decision_approvals',
+    { company_id: evidence.tenantA, decision_id: decisionId },
+    'id,company_id,decision_id,status,requested_by,decided_by',
+    { order: 'requested_at.desc', limit: 1 },
+  );
+  let approvalId = approvals.length ? String(approvals[0].id) : null;
+  let approvalStatus = approvals.length ? String(approvals[0].status) : null;
+
+  if (decision.status === 'EXECUTED') {
+    const workRows = await restSelect(page, 'decision_work_items', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,status,assignee_id,actual_impact', { order: 'created_at.desc', limit: 1 });
+    const outcomeRows = await restSelect(workPage, 'recommendation_outcomes', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,status,outcome_quality,actual_impact,observed_at', { order: 'observed_at.desc', limit: 1 });
+    const recommendationRows = await restSelect(workPage, 'recommendations', { company_id: evidence.tenantA, id: String(decision.recommendation_id) }, 'id,company_id,decision_id,evidence_snapshot_id', { limit: 1 });
+    assert.equal(workRows.length, 1, 'DECISION_EXECUTED_WORK_ITEM_MISSING');
+    assert.equal(workRows[0].status, 'COMPLETED');
+    assert.equal(String(workRows[0].assignee_id), userAId);
+    assert.equal(outcomeRows.length, 1, 'DECISION_EXECUTED_OUTCOME_MISSING');
+    assert.equal(recommendationRows.length, 1, 'DECISION_RECOMMENDATION_READBACK_MISSING');
+    assert.equal(String(recommendationRows[0].decision_id), decisionId);
+    const decisionAudit = await restSelect(workPage, 'audit_logs', { company_id: evidence.tenantA, entity_id: decisionId }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+    const approvalRows = await restSelect(page, 'decision_approvals', { company_id: evidence.tenantA, decision_id: decisionId }, 'id', { order: 'requested_at.desc', limit: 1 });
+    assert.equal(approvalRows.length, 1, 'DECISION_EXECUTED_APPROVAL_MISSING');
+    const approvalAudit = await restSelect(workPage, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(approvalRows[0].id) }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+    const workAudit = await restSelect(workPage, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(workRows[0].id) }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+    const outcomeAudit = await restSelect(workPage, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(outcomeRows[0].id) }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+    assert.ok(decisionAudit.length > 0, 'DECISION_AUDIT_READBACK_MISSING');
+    assert.ok(approvalAudit.length > 0, 'APPROVAL_AUDIT_READBACK_MISSING');
+    assert.ok(workAudit.length > 0, 'WORK_AUDIT_READBACK_MISSING');
+    assert.ok(outcomeAudit.length > 0, 'OUTCOME_AUDIT_READBACK_MISSING');
+    await page.screenshot({ path: reportDir + '/decision-approval-action-outcome-reused.png', fullPage: true });
+    evidence.steps.push({
+      step: 'decision-approval-action-outcome',
+      status: 'PASS',
+      reportJobId: report.reportJobId,
+      sourceHash: report.sourceHash,
+      decisionId,
+      approvalId,
+      approvalStatus,
+      workItemId: String(workRows[0].id),
+      workStatus: String(workRows[0].status),
+      outcomeId: String(outcomeRows[0].id),
+      outcomeStatus: String(outcomeRows[0].status ?? ''),
+      finalDecisionStatus: String(decision.status),
+      reusedPersistedDecision: true,
+    });
+    return;
+  }
+
+  if (decision.status === 'REJECTED' || decision.status === 'CANCELLED') {
+    evidence.steps.push({ step: 'decision-approval-action-outcome', status: 'NOT_PROVEN', reason: 'SOURCE_DECISION_TERMINAL_NON_EXECUTED', decisionId, status: decision.status });
+    return;
+  }
+
+  if (decision.status === 'PROPOSED' && approvalStatus !== 'PENDING') {
+    const requestButton = page.locator('[data-testid="request-approval-' + decisionId + '"]');
+    await requestButton.waitFor({ state: 'visible', timeout: 30000 });
+    await requestButton.click();
+    await page.getByText(/تم طلب الموافقة|PENDING · بانتظار صاحب صلاحية آخر/, { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
+
+    const refreshedApprovals = await restSelect(
+      page,
+      'decision_approvals',
+      { company_id: evidence.tenantA, decision_id: decisionId },
+      'id,company_id,decision_id,status,requested_by,decided_by',
+      { order: 'requested_at.desc', limit: 1 },
+    );
+    assert.equal(refreshedApprovals.length, 1, 'DECISION_APPROVAL_ROW_MISSING_AFTER_REQUEST');
+    approvalId = String(refreshedApprovals[0].id);
+    approvalStatus = String(refreshedApprovals[0].status);
+    assert.equal(approvalStatus, 'PENDING');
+    assert.equal(String(refreshedApprovals[0].requested_by), userAId);
+  }
+
+  let workActorContext = null;
+  let workActorPage = null;
+  let workActorId = null;
+
+  const createWorkAsAdminActor = async () => {
+    if (workActorPage && workActorId) return;
+    workActorContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
+    workActorPage = await workActorContext.newPage();
+    attachRuntimeCapture(workActorPage);
+    await login(workActorPage, approverEmail, approverPassword);
+    const adminTenant = await currentTenant(workActorPage);
+    workActorId = await currentUserId(workActorPage);
+    assert.equal(adminTenant, evidence.tenantA, 'WORK_CREATOR_TENANT_MUST_MATCH_REQUEST_TENANT');
+    assert.notEqual(workActorId, userAId, 'WORK_CREATOR_MUST_DIFFER_FROM_REQUESTER');
+    const membership = await restSelect(workActorPage,'company_memberships',{ company_id: evidence.tenantA, user_id: workActorId, is_active: true },'role',{ limit: 1 });
+    const role = membership[0]?.role == null ? '' : String(membership[0].role).toLowerCase();
+    assert.ok(['owner','admin','administrator'].includes(role), 'WORK_CREATOR_ADMIN_BOUNDARY_MISSING');
+    await workActorPage.goto(decisionTarget, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    const button = workActorPage.locator('[data-testid="create-work-' + decisionId + '"]');
+    await button.waitFor({ state: 'visible', timeout: 30000 });
+    await button.click();
+    await workActorPage.waitForTimeout(500);
+    const created = await restSelect(workActorPage,'decision_work_items',{ company_id: evidence.tenantA, decision_id: decisionId },'id,status,assignee_id,actual_impact',{ order: 'created_at.desc', limit: 1 });
+    assert.equal(created.length, 1, 'DECISION_WORK_ITEM_DB_ROW_MISSING_AFTER_ADMIN_CREATION');
+    assert.equal(String(created[0].assignee_id), String(workActorId), 'WORK_CREATOR_ASSIGNEE_MISMATCH');
+  };
+  if (approvalStatus === 'PENDING') {
+    const approverContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
+    const approverPage = await approverContext.newPage();
+    attachRuntimeCapture(approverPage);
+    try {
+      await login(approverPage, approverEmail, approverPassword);
+      const approverTenant = await currentTenant(approverPage);
+      const approverId = await currentUserId(approverPage);
+      assert.equal(approverTenant, evidence.tenantA, 'APPROVER_TENANT_MUST_MATCH_REQUEST_TENANT');
+      assert.notEqual(approverId, userAId, 'APPROVER_MUST_DIFFER_FROM_REQUESTER');
+
+      await approverPage.goto(decisionTarget, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      const approveButton = approverPage.locator('[data-testid="approve-decision-' + decisionId + '"]');
+      await approveButton.waitFor({ state: 'visible', timeout: 30000 });
+      await approveButton.click();
+      await approverPage.waitForTimeout(500);
+
+      const approvedRows = await restSelect(approverPage, 'decision_approvals', { company_id: evidence.tenantA, id: approvalId }, 'id,company_id,decision_id,status,requested_by,decided_by', { limit: 1 });
+      assert.equal(approvedRows.length, 1, 'DECISION_APPROVAL_READBACK_MISSING');
+      assert.equal(approvedRows[0].status, 'APPROVED');
+      assert.equal(String(approvedRows[0].requested_by), userAId);
+      assert.equal(String(approvedRows[0].decided_by), approverId);
+      approvalStatus = 'APPROVED';
+
+    } finally {
+      await approverPage.close().catch(() => {});
+      await approverContext.close().catch(() => {});
+    }
+  }
+
+  await page.goto(decisionTarget, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  let existingWork = await restSelect(
+    page,
+    'decision_work_items',
+    { company_id: evidence.tenantA, decision_id: decisionId },
+    'id,status,assignee_id,actual_impact',
+    { order: 'created_at.desc', limit: 1 },
+  );
+  if (existingWork.length === 0 || existingWork[0].status === 'COMPLETED') {
+    await createWorkAsAdminActor();
+    existingWork = await restSelect(
+      page,
+      'decision_work_items',
+      { company_id: evidence.tenantA, decision_id: decisionId },
+      'id,status,assignee_id,actual_impact',
+      { order: 'created_at.desc', limit: 1 },
+    );
+    assert.ok(existingWork.length === 1, 'DECISION_WORK_ITEM_DB_ROW_MISSING_AFTER_ADMIN_CREATION');
+  }
+
+  let workPage = workActorPage || page;
+  if (existingWork.length === 1 && existingWork[0].status === 'OPEN' && String(existingWork[0].assignee_id) !== String(userAId) && !workActorPage) {
+    workActorContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
+    workActorPage = await workActorContext.newPage();
+    attachRuntimeCapture(workActorPage);
+    await login(workActorPage, approverEmail, approverPassword);
+    const existingWorkActorTenant = await currentTenant(workActorPage);
+    workActorId = await currentUserId(workActorPage);
+    assert.equal(existingWorkActorTenant, evidence.tenantA, 'EXISTING_WORK_ACTOR_TENANT_MISMATCH');
+    assert.equal(String(workActorId), String(existingWork[0].assignee_id), 'EXISTING_WORK_ASSIGNEE_ACTOR_UNAVAILABLE');
+    await workActorPage.goto(decisionTarget, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    workPage = workActorPage;
+  }
+  workPage = workActorPage || page;
+  const workRowsOpen = await restSelect(workPage, 'decision_work_items', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,recommendation_id,status,assignee_id,assignee_label,evidence_refs', { order: 'created_at.desc', limit: 1 });
+  assert.equal(workRowsOpen.length, 1, 'DECISION_WORK_ITEM_DB_ROW_MISSING');
+  const workItemId = String(workRowsOpen[0].id);
+  assert.ok(String(workRowsOpen[0].assignee_id), 'WORK_ITEM_ASSIGNEE_MISSING');
+  assert.equal(String(workRowsOpen[0].recommendation_id), String(decision.recommendation_id), 'WORK_RECOMMENDATION_LINK_MISSING');
+  const workEvidenceRefs = Array.isArray(workRowsOpen[0].evidence_refs) ? workRowsOpen[0].evidence_refs : [];
+  const sourceRef = workEvidenceRefs.find((ref) => ref && typeof ref === 'object' && ref.type === 'SOURCE_REPORT');
+  assert.ok(sourceRef, 'WORK_SOURCE_REPORT_REF_MISSING');
+  assert.equal(String(sourceRef.sourceHash), report.sourceHash, 'WORK_SOURCE_HASH_MISMATCH');
+  assert.equal(String(sourceRef.reportExecutionJobId), report.reportJobId, 'WORK_REPORT_JOB_MISMATCH');
+  assert.ok(String(sourceRef.evidenceSnapshotId || ''), 'WORK_EVIDENCE_SNAPSHOT_MISSING');
+  const workStatusBefore = String(workRowsOpen[0].status);
+
+  if (workStatusBefore === 'OPEN') {
+    const startButton = workPage.locator('[data-testid="start-work-' + decisionId + '"]');
+    await startButton.waitFor({ state: 'visible', timeout: 30000 });
+    await startButton.click();
+  }
+
+  const workRowsInProgress = await restSelect(workPage, 'decision_work_items', { company_id: evidence.tenantA, id: workItemId }, 'id,status,decision_id,assignee_id', { limit: 1 });
+  assert.equal(workRowsInProgress.length, 1, 'DECISION_WORK_ITEM_READBACK_AFTER_START_MISSING');
+
+  if (workRowsInProgress[0].status === 'IN_PROGRESS') {
+    const completeButton = workPage.locator('[data-testid="complete-work-' + decisionId + '"]');
+    await completeButton.waitFor({ state: 'visible', timeout: 30000 });
+    await completeButton.click();
+  }
+
+  const workRowsCompleted = await restSelect(workPage, 'decision_work_items', { company_id: evidence.tenantA, id: workItemId }, 'id,status,decision_id,assignee_id,actual_impact', { limit: 1 });
+  assert.equal(workRowsCompleted.length, 1, 'DECISION_WORK_ITEM_READBACK_AFTER_COMPLETE_MISSING');
+  assert.equal(workRowsCompleted[0].status, 'COMPLETED');
+
+  const outcomeRows = await restSelect(page, 'recommendation_outcomes', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,status,outcome_quality,actual_impact,observed_at', { order: 'observed_at.desc', limit: 1 });
+  assert.equal(outcomeRows.length, 1, 'DECISION_OUTCOME_DB_ROW_MISSING');
+  const recommendationRows = await restSelect(page, 'recommendations', { company_id: evidence.tenantA, id: String(decision.recommendation_id) }, 'id,company_id,decision_id,evidence_snapshot_id', { limit: 1 });
+  assert.equal(recommendationRows.length, 1, 'DECISION_RECOMMENDATION_READBACK_MISSING');
+  assert.equal(String(recommendationRows[0].decision_id), decisionId);
+  assert.ok(String(recommendationRows[0].evidence_snapshot_id), 'RECOMMENDATION_EVIDENCE_SNAPSHOT_MISSING');
+  const decisionAfter = await restSelect(workPage, 'business_intelligence_decisions', { company_id: evidence.tenantA, id: decisionId }, 'id,company_id,status,approved_at,approved_by,recommendation_id', { limit: 1 });
+  assert.equal(decisionAfter.length, 1, 'DECISION_FINAL_READBACK_MISSING');
+  assert.equal(decisionAfter[0].status, 'EXECUTED');
+  assert.equal(String(decisionAfter[0].recommendation_id), String(decision.recommendation_id));
+
+  const decisionAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: decisionId }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+  const approvalAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: approvalId }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+  const workAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: workItemId }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+  const outcomeAudit = await restSelect(page, 'audit_logs', { company_id: evidence.tenantA, entity_id: String(outcomeRows[0].id) }, 'id,entity_type,action,source', { order: 'created_at.desc', limit: 20 });
+  assert.ok(decisionAudit.length > 0, 'DECISION_AUDIT_READBACK_MISSING');
+  assert.ok(approvalAudit.length > 0, 'APPROVAL_AUDIT_READBACK_MISSING');
+  assert.ok(workAudit.length > 0, 'WORK_AUDIT_READBACK_MISSING');
+  assert.ok(outcomeAudit.length > 0, 'OUTCOME_AUDIT_READBACK_MISSING');
+
+  await workPage.screenshot({ path: reportDir + '/decision-approval-action-outcome.png', fullPage: true });
+  evidence.steps.push({
+    step: 'decision-approval-action-outcome',
+    status: 'PASS',
+    reportJobId: report.reportJobId,
+    sourceHash: report.sourceHash,
+    decisionId,
+    recommendationId: String(decision.recommendation_id),
+    approvalId,
+    workItemId,
+    approvalStatus: 'APPROVED',
+    workStatus: String(workRowsCompleted[0].status),
+    outcomeId: String(outcomeRows[0].id),
+    outcomeStatus: String(outcomeRows[0].status ?? ''),
+    finalDecisionStatus: String(decisionAfter[0].status),
+    reusedPersistedDecision: false,
+  });
+  if (workActorContext) await workActorContext.close().catch(() => {});
+}
+
 
 async function proveContextPreservedSurface(page, report, surface) {
   const target = baseURL + surface.path;
@@ -572,6 +1117,9 @@ try {
   await proveSourceBoundSurface(pageA, currentReport, { label: 'executive', path: '/reports/executive' });
   await proveSourceBoundSurface(pageA, currentReport, { label: 'trust', path: '/trust' });
   await proveSourceBoundSurface(pageA, currentReport, { label: 'decision', path: '/decision-experience?stage=evidence' });
+  await proveDecisionActionSurface(pageA, currentReport);
+  await proveDecisionApprovalActionOutcome(pageA, currentReport);
+  await proveTransactionalMutationAndAudit(pageA);
   await proveSourceBoundSurface(pageA, currentReport, { label: 'work', path: '/work-center' });
   await proveSourceBoundSurface(pageA, currentReport, { label: 'inventory', path: '/reports/inventory' });
   await pageA.goto(baseURL + '/reports/smart/' + currentReport.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
@@ -588,6 +1136,52 @@ try {
   const finalBody = (await pageA.locator('body').innerText()).trim();
   assertCurrentReportText(finalBody, 'current report final readback'); assert.ok(finalBody.includes('EVIDENCE INSPECTOR'));
   evidence.steps.push({ step: 'current-report-final-refresh-readback', status: 'PASS', reportJobId: currentReport.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, rowCount: CURRENT_REPORT_ROW_COUNT });
+  await pageA.goto(baseURL + '/operations', { waitUntil: 'networkidle', timeout: 30000 });
+  await pageA.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  const operationsBody = (await pageA.locator('body').innerText()).trim();
+  assert.ok(operationsBody.includes('ORDER → FULFILLMENT'), 'TRANSACTIONAL_SPINE_ORDER_SURFACE_MISSING');
+  assert.ok(operationsBody.includes('INVOICE → PAYMENT'), 'TRANSACTIONAL_SPINE_PAYMENT_SURFACE_MISSING');
+  assert.ok(operationsBody.includes('PRICING TRUTH'), 'TRANSACTIONAL_SPINE_PRICING_SURFACE_MISSING');
+  assert.ok(operationsBody.includes('SUPPLIER OPERATIONS'), 'TRANSACTIONAL_SPINE_SUPPLIER_SURFACE_MISSING');
+  assert.ok(operationsBody.includes('FULFILLMENT / WAREHOUSE'), 'TRANSACTIONAL_SPINE_WAREHOUSE_SURFACE_MISSING');
+  assert.ok(operationsBody.includes('AUDIT / TRACE'), 'TRANSACTIONAL_SPINE_AUDIT_TRACE_SURFACE_MISSING');
+  assert.ok(operationsBody.includes('READBACK CONTRACT'), 'TRANSACTIONAL_SPINE_READBACK_CONTRACT_MISSING');
+  await pageA.screenshot({ path: reportDir + '/transactional-spine-surface.png', fullPage: true });
+  evidence.steps.push({
+    step: 'transactional-spine-surface-shell',
+    status: 'PASS',
+    ordersSurface: true,
+    invoicesPaymentsSurface: true,
+    pricingSurface: true,
+    supplierSurface: true,
+    warehouseSurface: true,
+    auditTraceSurface: true,
+    readbackContractSurface: true,
+  });
+  assert.ok(await pageA.locator('[dir="rtl"]').count(), 'OPERATIONS_RTL_ROOT_MISSING');
+  assert.ok(await pageA.getByRole('button', { name: 'تحديث' }).isVisible(), 'OPERATIONS_RETRY_ACTION_MISSING');
+  const desktopOverflow = await pageA.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
+  assert.equal(desktopOverflow, false, 'OPERATIONS_DESKTOP_HORIZONTAL_OVERFLOW');
+
+  await pageA.setViewportSize({ width: 390, height: 844 });
+  await pageA.goto(baseURL + '/operations', { waitUntil: 'networkidle', timeout: 30000 });
+  await pageA.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  const mobileBody = (await pageA.locator('body').innerText()).trim();
+  assert.ok(mobileBody.includes('AUDIT / TRACE'), 'OPERATIONS_MOBILE_AUDIT_TRACE_MISSING');
+  assert.ok(await pageA.getByRole('button', { name: 'تحديث' }).isVisible(), 'OPERATIONS_MOBILE_RETRY_MISSING');
+  const mobileOverflow = await pageA.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
+  assert.equal(mobileOverflow, false, 'OPERATIONS_MOBILE_HORIZONTAL_OVERFLOW');
+  await pageA.screenshot({ path: reportDir + '/transactional-spine-mobile.png', fullPage: true });
+  evidence.steps.push({
+    step: 'transactional-spine-responsive-rtl',
+    status: 'PASS',
+    rtlRoot: true,
+    desktopOverflow: false,
+    mobileOverflow: false,
+    retryAction: true,
+  });
+
+  await pageA.setViewportSize({ width: 1440, height: 1000 });
   const contextB = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
   const pageB = await contextB.newPage(); attachRuntimeCapture(pageB);
   try {

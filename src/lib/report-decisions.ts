@@ -1,10 +1,12 @@
 import { supabase, resolveCurrentCompanyId } from './supabase';
 import { getAuthenticatedUser } from './auth-session';
+import { createRuntimeRecommendation, createRuntimeDecision, linkRecommendationToDecision } from './decision-automation/vertical-slice-runtime';
 
 export type SourceDecisionProposal = {
   id: string;
   status: string;
   decisionKey: string;
+  recommendationId: string | null;
 };
 
 export async function createSourceDecisionProposal(input: {
@@ -15,9 +17,25 @@ export async function createSourceDecisionProposal(input: {
   signalMessage: string;
   severity: string;
   evidence: string[];
+  evidenceSnapshotId: string;
 }): Promise<SourceDecisionProposal> {
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
+  if (!input.evidenceSnapshotId.trim()) throw new Error('SOURCE_EVIDENCE_SNAPSHOT_REQUIRED');
+
+  const { data: passport, error: passportError } = await supabase
+    .from('report_evidence_passports')
+    .select('id,evidence_snapshot_id,verification_status,decision_readiness,report_execution_job_id,source_hash')
+    .eq('company_id', companyId)
+    .eq('report_execution_job_id', input.reportJobId)
+    .eq('source_hash', input.sourceHash)
+    .eq('evidence_snapshot_id', input.evidenceSnapshotId)
+    .eq('verification_status', 'VERIFIED')
+    .eq('decision_readiness', 'READY')
+    .maybeSingle();
+
+  if (passportError) throw passportError;
+  if (!passport?.id) throw new Error('SOURCE_EVIDENCE_PASSPORT_REQUIRED');
 
   const decisionKey = [
     'source-intelligence',
@@ -27,7 +45,7 @@ export async function createSourceDecisionProposal(input: {
 
   const { data: existing, error: existingError } = await supabase
     .from('business_intelligence_decisions')
-    .select('id,status')
+    .select('id,status,recommendation_id')
     .eq('company_id', companyId)
     .eq('decision_key', decisionKey)
     .maybeSingle();
@@ -38,11 +56,13 @@ export async function createSourceDecisionProposal(input: {
       id: String(existing.id),
       status: String(existing.status ?? 'PROPOSED'),
       decisionKey,
+      recommendationId: existing.recommendation_id == null ? null : String(existing.recommendation_id),
     };
   }
 
   const evidence = {
     type: 'SOURCE_INTELLIGENCE_SIGNAL',
+    sourceDecisionKey: decisionKey,
     reportExecutionJobId: input.reportJobId,
     sourceHash: input.sourceHash,
     signalId: input.signalId,
@@ -50,43 +70,76 @@ export async function createSourceDecisionProposal(input: {
     signalMessage: input.signalMessage,
     severity: input.severity,
     evidence: input.evidence,
+    evidenceSnapshotId: input.evidenceSnapshotId,
+    evidencePassportId: String(passport.id),
     decisionBoundary: 'PROPOSED_ONLY',
-    confidenceSemantics: 'NEUTRAL_PROPOSAL_VALUE',
+    confidenceSemantics: 'NOT_ASSESSED',
+    expectedImpactStatus: 'NOT_AVAILABLE',
   };
 
-  const { data, error } = await supabase.rpc('create_runtime_decision', {
-    p_decision_key: decisionKey,
-    p_decision_type: 'SOURCE_INTELLIGENCE_SIGNAL',
-    p_confidence: 0.5,
-    p_expected_impact: null,
-    p_evidence: evidence,
-  });
+  const priority = input.severity === 'critical' ? 'critical' : input.severity === 'high' ? 'high' : input.severity === 'medium' ? 'medium' : 'low';
 
-  if (error) {
-    if (String(error.message ?? '').toLowerCase().includes('duplicate') || String(error.code ?? '') === '23505') {
-      const { data: retryExisting, error: retryError } = await supabase
-        .from('business_intelligence_decisions')
-        .select('id,status')
-        .eq('company_id', companyId)
-        .eq('decision_key', decisionKey)
-        .maybeSingle();
-      if (retryError) throw retryError;
-      if (retryExisting?.id) {
-        return { id: String(retryExisting.id), status: String(retryExisting.status ?? 'PROPOSED'), decisionKey };
-      }
-    }
-    throw error;
+  let recommendationId: string;
+  const { data: existingRecommendation, error: recommendationLookupError } = await supabase
+    .from('recommendations')
+    .select('id,decision_id')
+    .eq('company_id', companyId)
+    .contains('evidence', { sourceDecisionKey: decisionKey })
+    .maybeSingle();
+
+  if (recommendationLookupError) throw recommendationLookupError;
+
+  if (existingRecommendation?.id) {
+    recommendationId = String(existingRecommendation.id);
+  } else {
+    recommendationId = await createRuntimeRecommendation({
+      category: 'source-intelligence',
+      priority,
+      title: input.signalTitle,
+      description: input.signalMessage,
+      evidenceSnapshotId: input.evidenceSnapshotId,
+      evidence,
+      expectedImpact: null,
+      metricVersions: {},
+    });
   }
 
+  let decisionId: string;
+  try {
+    decisionId = await createRuntimeDecision({
+      decisionKey,
+      decisionType: 'SOURCE_INTELLIGENCE_SIGNAL',
+      confidence: null,
+      expectedImpact: null,
+      evidence: { ...evidence, recommendationId },
+    });
+  } catch (error) {
+    if (!String(error instanceof Error ? error.message : error).toLowerCase().includes('duplicate')) throw error;
+    const { data: retryExisting, error: retryError } = await supabase
+      .from('business_intelligence_decisions')
+      .select('id,status,recommendation_id')
+      .eq('company_id', companyId)
+      .eq('decision_key', decisionKey)
+      .maybeSingle();
+    if (retryError) throw retryError;
+    if (!retryExisting?.id) throw error;
+    decisionId = String(retryExisting.id);
+  }
+
+  await linkRecommendationToDecision(recommendationId, decisionId);
+
   return {
-    id: String(data),
+    id: decisionId,
     status: 'PROPOSED',
     decisionKey,
+    recommendationId,
   };
 }
 
-
 export type SourceDecisionState = SourceDecisionProposal & {
+  recommendationTitle: string | null;
+  recommendationStatus: string | null;
+  recommendationEvidenceSnapshotId: string | null;
   signalId: string | null;
   signalTitle: string | null;
   signalSeverity: string | null;
@@ -96,11 +149,17 @@ export type SourceDecisionState = SourceDecisionProposal & {
   approvedBy: string | null;
   workItemId: string | null;
   workItemStatus: string | null;
+  outcomeId: string | null;
+  outcomeEvidenceSnapshotId: string | null;
   outcomeStatus: string | null;
   outcomeQuality: number | null;
   expectedImpact: number | null;
   actualImpact: number | null;
   observedAt: string | null;
+  approvalId: string | null;
+  approvalStatus: string | null;
+  approvalRequestedBy: string | null;
+  approvalDecidedBy: string | null;
 };
 
 export async function fetchSourceDecisionProposals(sourceHash: string): Promise<SourceDecisionState[]> {
@@ -109,7 +168,7 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
 
   const { data, error } = await supabase
     .from('business_intelligence_decisions')
-    .select('id,decision_key,status,created_at,approved_at,approved_by,evidence')
+    .select('id,decision_key,status,created_at,approved_at,approved_by,recommendation_id,evidence')
     .eq('company_id', companyId)
     .like('decision_key', 'source-intelligence:' + sourceHash + ':%')
     .order('created_at', { ascending: false });
@@ -118,6 +177,34 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
 
   const decisionRows = data ?? [];
   const decisionIds = decisionRows.map((row) => String(row.id));
+
+  const recommendationIds = decisionRows
+    .map((row) => row.recommendation_id)
+    .filter((id): id is string => Boolean(id));
+
+  const { data: recommendationRows, error: recommendationError } = recommendationIds.length
+    ? await supabase
+        .from('recommendations')
+        .select('id,title,status,evidence_snapshot_id')
+        .eq('company_id', companyId)
+        .in('id', recommendationIds)
+    : { data: [], error: null };
+
+  if (recommendationError) throw recommendationError;
+
+  const recommendationById = new Map<string, {
+    title: string | null;
+    status: string | null;
+    evidenceSnapshotId: string | null;
+  }>();
+
+  for (const recommendation of recommendationRows ?? []) {
+    recommendationById.set(String(recommendation.id), {
+      title: recommendation.title == null ? null : String(recommendation.title),
+      status: recommendation.status == null ? null : String(recommendation.status),
+      evidenceSnapshotId: recommendation.evidence_snapshot_id == null ? null : String(recommendation.evidence_snapshot_id),
+    });
+  }
   const { data: workRows, error: workError } = decisionIds.length
     ? await supabase
         .from('decision_work_items')
@@ -140,17 +227,42 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
   const { data: outcomes, error: outcomeError } = decisionIds.length
     ? await supabase
         .from('recommendation_outcomes')
-        .select('decision_id,status,outcome_quality,expected_impact,actual_impact,observed_at')
+        .select('id,decision_id,status,outcome_quality,expected_impact,actual_impact,observed_at,evidence')
         .eq('company_id', companyId)
         .in('decision_id', decisionIds)
         .order('observed_at', { ascending: false })
     : { data: [], error: null };
 
   if (outcomeError) throw outcomeError;
+  const { data: approvals, error: approvalError } = decisionIds.length
+    ? await supabase
+        .from('decision_approvals')
+        .select('id,decision_id,status,requested_by,decided_by')
+        .eq('company_id', companyId)
+        .in('decision_id', decisionIds)
+        .order('requested_at', { ascending: false })
+    : { data: [], error: null };
+
+  if (approvalError) throw approvalError;
+
+  const approvalByDecision = new Map();
+  for (const approval of approvals ?? []) {
+    const decisionId = String(approval.decision_id);
+    if (!approvalByDecision.has(decisionId)) {
+      approvalByDecision.set(decisionId, {
+        id: String(approval.id),
+        status: String(approval.status ?? 'PENDING'),
+        requestedBy: approval.requested_by == null ? null : String(approval.requested_by),
+        decidedBy: approval.decided_by == null ? null : String(approval.decided_by),
+      });
+    }
+  }
 
   const outcomeByDecision = new Map<string, {
+    id: string;
     status: string;
     outcomeQuality: number | null;
+    evidenceSnapshotId: string | null;
     expectedImpact: number | null;
     actualImpact: number | null;
     observedAt: string | null;
@@ -159,8 +271,13 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
   for (const outcome of outcomes ?? []) {
     const decisionId = String(outcome.decision_id);
     if (!outcomeByDecision.has(decisionId)) {
+      const outcomeEvidence = outcome.evidence && typeof outcome.evidence === 'object'
+        ? outcome.evidence as Record<string, unknown>
+        : {};
       outcomeByDecision.set(decisionId, {
+        id: String(outcome.id),
         status: String(outcome.status ?? 'insufficient'),
+        evidenceSnapshotId: outcomeEvidence.evidence_snapshot_id == null ? null : String(outcomeEvidence.evidence_snapshot_id),
         outcomeQuality: outcome.outcome_quality == null ? null : Number(outcome.outcome_quality),
         expectedImpact: outcome.expected_impact == null ? null : Number(outcome.expected_impact),
         actualImpact: outcome.actual_impact == null ? null : Number(outcome.actual_impact),
@@ -175,10 +292,15 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
       : {};
     const work = workByDecision.get(String(row.id));
     const outcome = outcomeByDecision.get(String(row.id));
+    const recommendation = row.recommendation_id == null ? null : recommendationById.get(String(row.recommendation_id));
     return {
       id: String(row.id),
       status: String(row.status ?? 'PROPOSED'),
+      recommendationTitle: recommendation?.title ?? null,
+      recommendationStatus: recommendation?.status ?? null,
+      recommendationEvidenceSnapshotId: recommendation?.evidenceSnapshotId ?? null,
       decisionKey: String(row.decision_key),
+      recommendationId: row.recommendation_id == null ? null : String(row.recommendation_id),
       signalId: evidence.signalId == null ? null : String(evidence.signalId),
       signalTitle: evidence.signalTitle == null ? null : String(evidence.signalTitle),
       signalSeverity: evidence.severity == null ? null : String(evidence.severity),
@@ -188,13 +310,62 @@ export async function fetchSourceDecisionProposals(sourceHash: string): Promise<
       approvedBy: row.approved_by == null ? null : String(row.approved_by),
       workItemId: work?.id ?? null,
       workItemStatus: work?.status ?? null,
+      outcomeId: outcome?.id ?? null,
+      outcomeEvidenceSnapshotId: outcome?.evidenceSnapshotId ?? null,
       outcomeStatus: outcome?.status ?? null,
       outcomeQuality: outcome?.outcomeQuality ?? null,
       expectedImpact: outcome?.expectedImpact ?? null,
       actualImpact: outcome?.actualImpact ?? null,
       observedAt: outcome?.observedAt ?? null,
+      approvalId: approvalByDecision.get(String(row.id))?.id ?? null,
+      approvalStatus: approvalByDecision.get(String(row.id))?.status ?? null,
+      approvalRequestedBy: approvalByDecision.get(String(row.id))?.requestedBy ?? null,
+      approvalDecidedBy: approvalByDecision.get(String(row.id))?.decidedBy ?? null,
     };
   });
+}
+
+export type DecisionAuditTrace = {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  source: string | null;
+  userLabel: string | null;
+  createdAt: string;
+};
+
+export async function fetchSourceDecisionAuditTrace(
+  decisionId: string,
+  approvalId?: string | null,
+  workItemId?: string | null,
+  outcomeId?: string | null,
+): Promise<DecisionAuditTrace[]> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const entityIds = [decisionId, approvalId, workItemId, outcomeId].filter((value): value is string => Boolean(value));
+  if (!entityIds.length) return [];
+
+  const { data, error } = await supabase
+    .from('audit_logs')
+    .select('id,action,entity_type,entity_id,source,user_label,created_at')
+    .eq('company_id', companyId)
+    .in('entity_id', entityIds)
+    .order('created_at', { ascending: true })
+    .limit(100);
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    id: String(row.id),
+    action: String(row.action ?? ''),
+    entityType: String(row.entity_type ?? ''),
+    entityId: String(row.entity_id ?? ''),
+    source: row.source == null ? null : String(row.source),
+    userLabel: row.user_label == null ? null : String(row.user_label),
+    createdAt: String(row.created_at),
+  }));
 }
 
 export async function requestSourceDecisionApproval(decisionId: string, reason: string): Promise<string> {
@@ -204,6 +375,15 @@ export async function requestSourceDecisionApproval(decisionId: string, reason: 
   });
   if (error) throw error;
   return String(data);
+}
+
+export async function decideSourceDecisionApproval(decisionApprovalId: string, approve: boolean, reason?: string): Promise<void> {
+  const { error } = await supabase.rpc('decide_approval', {
+    p_approval_id: decisionApprovalId,
+    p_approve: approve,
+    p_reason: reason ?? null,
+  });
+  if (error) throw error;
 }
 
 
@@ -221,6 +401,8 @@ export async function createApprovedDecisionWorkItemForCurrentUser(input: {
   signalTitle: string;
   signalMessage: string | null;
   signalSeverity: string | null;
+  recommendationId: string | null;
+  evidenceSnapshotId: string | null;
   department: string;
   dueAt?: string | null;
 }): Promise<string> {
@@ -233,13 +415,15 @@ export async function createApprovedDecisionWorkItemForCurrentUser(input: {
       reportExecutionJobId: input.reportJobId,
       sourceHash: input.sourceHash,
       decisionId: input.decisionId,
+      recommendationId: input.recommendationId,
+      evidenceSnapshotId: input.evidenceSnapshotId,
     },
     ...(input.signalMessage ? [{ type: 'SIGNAL', message: input.signalMessage }] : []),
   ];
 
   const { data, error } = await supabase.rpc('create_decision_work_item', {
     p_decision_id: input.decisionId,
-    p_recommendation_id: null,
+    p_recommendation_id: input.recommendationId,
     p_department: input.department || 'تشغيل',
     p_assignee_id: user.id,
     p_assignee_label: user.email || user.id,
@@ -301,6 +485,237 @@ export async function completeSourceDecisionWorkItem(input: {
 }
 
 
+export type AdvisorBusinessCase = {
+  id: string;
+  companyId: string;
+  decisionKey: string;
+  decisionId: string;
+  status: string;
+  followed: boolean;
+  issue: string;
+  question: string;
+  why: string;
+  impact: string;
+  evidence: string[];
+  whatNext: string;
+  recommendation: string;
+  priority: string;
+  priorityReason: string[];
+  owner: string;
+  expectedOutcome: string;
+  sourceHash: string;
+  reportJobId: string;
+  signalId: string;
+  signalTitle: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type AdvisorBusinessCaseInput = Omit<AdvisorBusinessCase, 'id' | 'companyId' | 'status' | 'followed' | 'createdAt' | 'updatedAt'> & {
+  followed?: boolean;
+};
+
+function portfolioStatusForPriority(priority: string): string {
+  if (priority === 'P0') return 'ready';
+  if (priority === 'P1') return 'ready';
+  return 'candidate';
+}
+
+function parseAdvisorCase(row: Record<string, unknown>): AdvisorBusinessCase | null {
+  const evidence = row.evidence && typeof row.evidence === 'object' ? row.evidence as Record<string, unknown> : {};
+  if (evidence.type !== 'ADVISOR_BUSINESS_CASE') return null;
+  const caseData = evidence.case && typeof evidence.case === 'object' ? evidence.case as Record<string, unknown> : {};
+  const decisionId = String(caseData.decisionId ?? '');
+  const sourceHash = String(caseData.sourceHash ?? '');
+  const reportJobId = String(caseData.reportJobId ?? '');
+  if (!decisionId || !sourceHash || !reportJobId) return null;
+  return {
+    id: String(row.id),
+    companyId: String(row.company_id),
+    decisionKey: String(row.decision_key),
+    decisionId,
+    status: String(row.status ?? 'candidate'),
+    followed: Boolean(caseData.followed),
+    issue: String(caseData.issue ?? caseData.signalTitle ?? 'قضية Advisor'),
+    question: String(caseData.question ?? 'سؤال الأعمال غير متاح'),
+    why: String(caseData.why ?? ''),
+    impact: String(caseData.impact ?? ''),
+    evidence: Array.isArray(caseData.evidence) ? caseData.evidence.map(String) : [],
+    whatNext: String(caseData.whatNext ?? ''),
+    recommendation: String(caseData.recommendation ?? ''),
+    priority: String(caseData.priority ?? 'P3'),
+    priorityReason: Array.isArray(caseData.priorityReason) ? caseData.priorityReason.map(String) : [],
+    owner: String(caseData.owner ?? 'غير محدد'),
+    expectedOutcome: String(caseData.expectedOutcome ?? ''),
+    sourceHash,
+    reportJobId,
+    signalId: String(caseData.signalId ?? ''),
+    signalTitle: String(caseData.signalTitle ?? ''),
+    createdAt: String(caseData.createdAt ?? row.updated_at ?? new Date().toISOString()),
+    updatedAt: String(row.updated_at ?? new Date().toISOString()),
+  };
+}
+
+export async function saveAdvisorBusinessCase(input: AdvisorBusinessCaseInput): Promise<AdvisorBusinessCase> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const caseEvidence = {
+    type: 'ADVISOR_BUSINESS_CASE',
+    case: {
+      decisionId: input.decisionId,
+      reportJobId: input.reportJobId,
+      sourceHash: input.sourceHash,
+      signalId: input.signalId,
+      signalTitle: input.signalTitle,
+      issue: input.issue,
+      question: input.question,
+      why: input.why,
+      impact: input.impact,
+      evidence: input.evidence,
+      whatNext: input.whatNext,
+      recommendation: input.recommendation,
+      priority: input.priority,
+      priorityReason: input.priorityReason,
+      owner: input.owner,
+      expectedOutcome: input.expectedOutcome,
+      followed: Boolean(input.followed),
+      createdAt: new Date().toISOString(),
+    },
+  };
+
+  const { data, error } = await supabase
+    .from('decision_portfolio_items')
+    .upsert({
+      company_id: companyId,
+      decision_key: input.decisionKey,
+      priority_score: input.priority === 'P0' ? 1 : input.priority === 'P1' ? 0.8 : input.priority === 'P2' ? 0.6 : 0.4,
+      materiality_score: 0,
+      confidence_score: 0,
+      risk_consumption: 0,
+      escalation_required: input.priority === 'P0',
+      status: portfolioStatusForPriority(input.priority),
+      evidence: caseEvidence,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'company_id,decision_key' })
+    .select('id,company_id,decision_key,status,evidence,updated_at')
+    .single();
+
+  if (error) throw error;
+  const parsed = parseAdvisorCase(data as Record<string, unknown>);
+  if (!parsed) throw new Error('ADVISOR_CASE_PERSISTENCE_INVALID');
+  return parsed;
+}
+
+export async function fetchAdvisorBusinessCases(): Promise<AdvisorBusinessCase[]> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const { data, error } = await supabase
+    .from('decision_portfolio_items')
+    .select('id,company_id,decision_key,status,evidence,updated_at')
+    .eq('company_id', companyId)
+    .order('updated_at', { ascending: false })
+    .limit(200);
+  if (error) throw error;
+
+  const parsed = (data ?? [])
+    .map((row) => parseAdvisorCase(row as Record<string, unknown>))
+    .filter((value): value is AdvisorBusinessCase => value !== null);
+  return parsed;
+}
+
+export async function setAdvisorBusinessCaseFollowed(caseId: string, followed: boolean): Promise<void> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase
+    .from('decision_portfolio_items')
+    .select('evidence')
+    .eq('company_id', companyId)
+    .eq('id', caseId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error('ADVISOR_CASE_NOT_FOUND');
+
+  const evidence = data.evidence && typeof data.evidence === 'object' ? data.evidence as Record<string, unknown> : {};
+  const caseData = evidence.case && typeof evidence.case === 'object' ? { ...(evidence.case as Record<string, unknown>) } : {};
+  const nextEvidence = {
+    ...evidence,
+    type: 'ADVISOR_BUSINESS_CASE',
+    case: { ...caseData, followed },
+  };
+
+  const { error: updateError } = await supabase
+    .from('decision_portfolio_items')
+    .update({ evidence: nextEvidence, updated_at: new Date().toISOString() })
+    .eq('company_id', companyId)
+    .eq('id', caseId);
+  if (updateError) throw updateError;
+}
+
+export async function fetchAdvisorBusinessCaseByDecision(decisionKey: string): Promise<AdvisorBusinessCase | null> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase
+    .from('decision_portfolio_items')
+    .select('id,company_id,decision_key,status,evidence,updated_at')
+    .eq('company_id', companyId)
+    .eq('decision_key', decisionKey)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? parseAdvisorCase(data as Record<string, unknown>) : null;
+}
+
+export type DecisionActivityRecord = {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  source: string | null;
+  createdAt: string;
+};
+
+export async function fetchRecentDecisionActivity(limit = 20): Promise<DecisionActivityRecord[]> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
+  const { data, error } = await supabase
+    .from('audit_logs')
+    .select('id,action,entity_type,entity_id,source,created_at')
+    .eq('company_id', companyId)
+    .order('created_at', { ascending: false })
+    .limit(safeLimit);
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    id: String(row.id),
+    action: String(row.action ?? ''),
+    entityType: String(row.entity_type ?? ''),
+    entityId: String(row.entity_id ?? ''),
+    source: row.source == null ? null : String(row.source),
+    createdAt: String(row.created_at),
+  }));
+}
+
+export async function fetchPendingDecisionApprovals(limit = 50): Promise<number> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
+  const { data, error } = await supabase
+    .from('decision_approvals')
+    .select('id')
+    .eq('company_id', companyId)
+    .eq('status', 'PENDING')
+    .order('requested_at', { ascending: false })
+    .limit(safeLimit);
+
+  if (error) throw error;
+  return (data ?? []).length;
+}
+
 export type DecisionWorkItemRecord = {
   id: string;
   decisionId: string;
@@ -316,6 +731,9 @@ export type DecisionWorkItemRecord = {
   expectedImpact: number | null;
   actualImpact: number | null;
   evidenceRefs: unknown[];
+  evidenceSnapshotId: string | null;
+  sourceReportJobId: string | null;
+  sourceHash: string | null;
 };
 
 export async function fetchDecisionWorkItems(limit = 200): Promise<DecisionWorkItemRecord[]> {
@@ -347,5 +765,23 @@ export async function fetchDecisionWorkItems(limit = 200): Promise<DecisionWorkI
     expectedImpact: row.expected_impact == null ? null : Number(row.expected_impact),
     actualImpact: row.actual_impact == null ? null : Number(row.actual_impact),
     evidenceRefs: Array.isArray(row.evidence_refs) ? row.evidence_refs : [],
+    evidenceSnapshotId: Array.isArray(row.evidence_refs)
+      ? (() => {
+          const source = row.evidence_refs.find((ref): ref is Record<string, unknown> => Boolean(ref) && typeof ref === 'object' && (ref as Record<string, unknown>).type === 'SOURCE_REPORT');
+          return typeof source?.evidenceSnapshotId === 'string' ? source.evidenceSnapshotId : null;
+        })()
+      : null,
+    sourceReportJobId: Array.isArray(row.evidence_refs)
+      ? (() => {
+          const source = row.evidence_refs.find((ref): ref is Record<string, unknown> => Boolean(ref) && typeof ref === 'object' && (ref as Record<string, unknown>).type === 'SOURCE_REPORT');
+          return typeof source?.reportExecutionJobId === 'string' ? source.reportExecutionJobId : null;
+        })()
+      : null,
+    sourceHash: Array.isArray(row.evidence_refs)
+      ? (() => {
+          const source = row.evidence_refs.find((ref): ref is Record<string, unknown> => Boolean(ref) && typeof ref === 'object' && (ref as Record<string, unknown>).type === 'SOURCE_REPORT');
+          return typeof source?.sourceHash === 'string' ? source.sourceHash : null;
+        })()
+      : null,
   }));
 }

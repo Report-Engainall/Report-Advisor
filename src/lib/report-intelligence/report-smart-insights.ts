@@ -1,4 +1,18 @@
+import { deriveEvidenceBusinessSignals } from './evidence-business-signals.ts';
+
 export type ReportSignalSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info';
+
+export type ReportSignalDriver = {
+  dimension: string;
+  value: string;
+  contribution: number | null;
+  share: number | null;
+  period: string | null;
+  expected: number | null;
+  actual: number | null;
+  why: string;
+  proof: string[];
+};
 
 export type ReportSignal = {
   id: string;
@@ -7,6 +21,12 @@ export type ReportSignal = {
   message: string;
   evidence: string[];
   affectedRows?: number;
+  soWhat: string;
+  impact: string;
+  ownerHint: string;
+  priority: 'P0' | 'P1' | 'P2' | 'P3';
+  priorityReason: string[];
+  drivers?: ReportSignalDriver[];
 };
 
 export type ReportRecommendation = {
@@ -17,6 +37,9 @@ export type ReportRecommendation = {
   action: string;
   why: string;
   evidence: string[];
+  ownerHint: string;
+  impact: string;
+  expectedOutcome: string;
 };
 
 export type ReportForecast = {
@@ -38,6 +61,7 @@ export type ReportGuidance = {
 };
 
 export type ReportIntelligence = {
+  businessQuestion: string;
   summary: string;
   signals: ReportSignal[];
   recommendations: ReportRecommendation[];
@@ -64,10 +88,26 @@ function numeric(value: unknown): number | null {
 }
 
 function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
-  const dataset = report.sourceAnalysis?.datasets?.[0];
-  if (!dataset || typeof dataset !== 'object') return [];
-  const columns = (dataset as Record<string, unknown>).columns;
-  return Array.isArray(columns) ? columns.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object') : [];
+  const datasets = report.sourceAnalysis?.datasets ?? [];
+  const columns: Array<Record<string, unknown>> = [];
+  const seen = new Set<string>();
+
+  for (const dataset of datasets) {
+    if (!dataset || typeof dataset !== 'object') continue;
+    const datasetColumns = (dataset as Record<string, unknown>).columns;
+    if (!Array.isArray(datasetColumns)) continue;
+
+    for (const item of datasetColumns) {
+      if (!item || typeof item !== 'object') continue;
+      const column = item as Record<string, unknown>;
+      const key = normalized(column.mappedField ?? column.name ?? '');
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      columns.push(column);
+    }
+  }
+
+  return columns;
 }
 
 function findColumn(columns: Array<Record<string, unknown>>, aliases: string[]): Record<string, unknown> | null {
@@ -89,9 +129,23 @@ function makePriority(severity: ReportSignalSeverity): ReportRecommendation['pri
   return 'low';
 }
 
-function addSignal(signals: ReportSignal[], id: string, severity: ReportSignalSeverity, title: string, message: string, evidence: string[], affectedRows?: number): void {
+function addSignal(
+  signals: ReportSignal[],
+  id: string,
+  severity: ReportSignalSeverity,
+  title: string,
+  message: string,
+  evidence: string[],
+  affectedRows?: number,
+  drivers?: ReportSignalDriver[],
+): void {
   if (signals.some((item) => item.id === id)) return;
-  signals.push({ id, severity, title, message, evidence, ...(affectedRows == null ? {} : { affectedRows }) });
+  signals.push({
+    id, severity, title, message, evidence,
+    ...(affectedRows == null ? {} : { affectedRows }),
+    ...(drivers?.length ? { drivers } : {}),
+    soWhat: '', impact: '', ownerHint: '', priority: 'P3', priorityReason: [],
+  });
 }
 
 function deriveSignals(report: ReportInput): ReportSignal[] {
@@ -286,8 +340,85 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
     }
   }
 
+  for (const businessSignal of deriveEvidenceBusinessSignals(report)) {
+    addSignal(
+      signals,
+      businessSignal.id,
+      businessSignal.severity,
+      businessSignal.title,
+      businessSignal.message,
+      businessSignal.evidence,
+      businessSignal.affectedRows,
+      businessSignal.drivers,
+    );
+  }
+
   const rank: Record<ReportSignalSeverity, number> = { critical: 5, high: 4, medium: 3, low: 2, info: 1 };
-  return signals.sort((a, b) => rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title));
+  const ownerHint = specialty === 'inventory'
+    ? 'مسؤول المخزون/التسعير'
+    : specialty === 'receivables'
+      ? 'مسؤول التحصيل'
+      : specialty === 'sales'
+        ? 'مسؤول المبيعات'
+        : specialty === 'purchases'
+          ? 'مسؤول المشتريات'
+          : specialty === 'payments'
+            ? 'مسؤول الخزينة/السيولة'
+            : 'المسؤول التشغيلي المناسب للمصدر';
+  const enriched = signals.map((signal) => {
+    const priority: ReportSignal['priority'] = signal.severity === 'critical' ? 'P0' : signal.severity === 'high' ? 'P1' : signal.severity === 'medium' ? 'P2' : 'P3';
+    const priorityReason = [
+      'الشدة: ' + (severityLabelForPriority(signal.severity)),
+      signal.affectedRows == null ? 'الأثر التشغيلي: غير كمي من المصدر الحالي' : 'النطاق المتأثر: ' + signal.affectedRows + ' سجل',
+      'قوة الدليل: ' + signal.evidence.length + ' مؤشرات مصدرية',
+      signal.severity === 'info' ? 'قابلية الإجراء: مراقبة' : 'قابلية الإجراء: مراجعة/تدخل',
+      'الحداثة: تحليل المصدر الحالي؛ لا توجد أقدمية مستقلة مثبتة للإشارة',
+    ];
+    return {
+      ...signal,
+      priority,
+      priorityReason,
+      soWhat: signal.affectedRows == null
+        ? 'هذه الإشارة تحدد نقطة تحتاج مراجعة مباشرة؛ لا يثبت المصدر وحده أثرًا ماليًا نهائيًا.'
+        : 'نطاق المراجعة المباشرة هو ' + signal.affectedRows + ' سجلًا متأثرًا وفق المصدر الكانوني.',
+      impact: signal.affectedRows == null
+        ? 'الأثر المالي غير مُثبت من المصدر الحالي.'
+        : 'الأثر المثبت حاليًا: نطاق سجلات متأثرة = ' + signal.affectedRows + '؛ لا توجد قيمة مالية مفترضة دون أساس.',
+      ownerHint,
+    };
+  });
+  return enriched
+    .sort((a, b) => {
+      const severityDelta = rank[b.severity] - rank[a.severity];
+      if (severityDelta) return severityDelta;
+      const rowsA = a.affectedRows ?? 0;
+      const rowsB = b.affectedRows ?? 0;
+      if (rowsB !== rowsA) return rowsB - rowsA;
+      if (b.evidence.length !== a.evidence.length) return b.evidence.length - a.evidence.length;
+      const actionA = a.severity === 'info' ? 0 : 1;
+      const actionB = b.severity === 'info' ? 0 : 1;
+      return actionB - actionA || a.title.localeCompare(b.title);
+    });
+}
+
+function severityLabelForPriority(severity: ReportSignalSeverity): string {
+  if (severity === 'critical') return 'حرج';
+  if (severity === 'high') return 'مرتفع';
+  if (severity === 'medium') return 'متوسط';
+  if (severity === 'low') return 'منخفض';
+  return 'معلومة';
+}
+
+function expectedOutcomeFor(signal: ReportSignal): string {
+  if (signal.id.includes('missing-price')) return 'تثبيت السعر أو توثيق سبب غيابه، ثم إعادة فحص المصدر قبل الاعتماد.';
+  if (signal.id.includes('missing-name')) return 'استكمال هوية الصنف وربطها بالمفتاح الكانوني قبل المقارنة.';
+  if (signal.id.includes('duplicate-key')) return 'إثبات ما إذا كان التكرار حركة صحيحة أم ازدواجية فعلية قبل أي تصحيح.';
+  if (signal.id.includes('price-variation')) return 'تفسير اختلاف السعر حسب المستودع/الوحدة/السياق قبل إصدار قرار تسعير.';
+  if (signal.id.includes('date-missing')) return 'تثبيت تاريخ المصدر أو إبقاء التحليل الزمني محجوبًا حتى تتوفر دلالة صحيحة.';
+  if (signal.id.includes('amount-missing')) return 'تحديد الحقل المالي الصحيح وربطه دلاليًا قبل إصدار إجمالي أو أثر مالي.';
+  if (signal.id.includes('paid-above-total')) return 'مطابقة الإجمالي والمدفوع مع المستند/القيد الأصلي وإثبات سبب الاستثناء.';
+  if (signal.id.includes('invoice-total-conflict')) return 'تفسير اختلاف الإجماليات لنفس الفاتورة وربطه بالمستند الأصلي قبل اعتبارها ازدواجية.';
+  return 'تحديد حالة الاستثناء، تنفيذ الإجراء المناسب بعد المراجعة، ثم تسجيل النتيجة الكانونية.';
 }
 
 function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] {
@@ -309,6 +440,9 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
       action,
       why: signal.message,
       evidence: signal.evidence,
+      ownerHint: signal.ownerHint,
+      impact: signal.impact,
+      expectedOutcome: expectedOutcomeFor(signal),
     };
   });
 }
@@ -386,5 +520,17 @@ export function deriveReportIntelligence(report: ReportInput): ReportIntelligenc
     boundary: 'الإشارة تحدد موضعًا يحتاج تدقيقًا؛ لا تتحول إلى اتهام أو قرار نهائي دون دليل إضافي. الوثائق النصية غير المهيكلة تحتاج تعيينًا دلاليًا قبل اعتماد أرقامها كحقيقة تجارية.',
   };
 
-  return { summary, signals, recommendations, forecast: deriveForecast(report), guidance };
+  const businessQuestion = specialty === 'sales'
+    ? 'ما الذي حدث في المبيعات وأين توجد إشارات تحتاج تدخلًا؟'
+    : specialty === 'receivables'
+      ? 'ما حجم الذمم وأين تتركز مخاطر التحصيل؟'
+      : specialty === 'inventory'
+        ? 'أين توجد فجوات في هوية الصنف أو السعر أو المخزون؟'
+        : specialty === 'purchases'
+          ? 'أين توجد استثناءات في المشتريات والموردين والتكلفة؟'
+          : specialty === 'payments'
+            ? 'هل حركة التحصيل/السيولة مكتملة ويمكن تسويتها بثقة؟'
+            : 'ما أهم ما تثبته بيانات المصدر، وما الذي يحتاج مراجعة قبل القرار؟';
+
+  return { businessQuestion, summary, signals, recommendations, forecast: deriveForecast(report), guidance };
 }

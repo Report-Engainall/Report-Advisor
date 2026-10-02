@@ -1,4 +1,4 @@
-import { json, requireConfig, requireMethod, requireOperationalToken, supabaseRequest, persistHealth } from '../src/server/resilience-runtime.mjs';
+import { json, requireConfig, requireMethod, requireOperationalToken, supabaseRequest, persistHealth, runtimeIdentity } from '../src/server/resilience-runtime.mjs';
 
 export default async function handler(req, res) {
   if (!requireMethod(req, res, 'GET')) return;
@@ -13,13 +13,12 @@ export default async function handler(req, res) {
       const body = await response.text();
       return json(res, 503, { status: 'critical', component: 'database', http_status: response.status, detail: body.slice(0, 300) });
     }
-    await persistHealth(process.env.RESILIENCE_COMPANY_ID.trim(), 'database', 'healthy', latencyMs, { source: 'vercel-function' });
+    await persistHealth(process.env.RESILIENCE_COMPANY_ID.trim(), 'database', 'healthy', latencyMs, { source: 'resilience-health-function', runtime: 'portable' });
     return json(res, 200, {
       status: 'healthy',
       component: 'database',
       latency_ms: latencyMs,
-      deployment_id: process.env.VERCEL_DEPLOYMENT_ID?.trim() || null,
-      deployment_sha: process.env.VERCEL_GIT_COMMIT_SHA?.trim() || null,
+      ...runtimeIdentity(),
       checked_at: new Date().toISOString(),
     });
   } catch (error) {
