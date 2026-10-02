@@ -1,5 +1,6 @@
 import { supabase, resolveCurrentCompanyId } from './supabase';
 import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights';
+import { detectReportArchetype, type ArchetypeRuntimeState } from './report-intelligence/archetype-registry';
 
 export type SmartReportCatalogItem = {
   jobId: string;
@@ -13,6 +14,9 @@ export type SmartReportCatalogItem = {
   specialty: string | null;
   evidenceStatus: string | null;
   completedAt: string | null;
+  archetypeId: string | null;
+  archetypeVersion: number | null;
+  archetypeState: ArchetypeRuntimeState;
 };
 
 export type SmartReportDetail = SmartReportCatalogItem & {
@@ -48,6 +52,9 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   reportVerificationState: string;
   canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }>;
   intelligence: ReportIntelligence;
+  archetypeId: string | null;
+  archetypeVersion: number | null;
+  archetypeState: ArchetypeRuntimeState;
 };
 
 function renderedOutputOf(evidence: unknown): Record<string, unknown> | null {
@@ -127,6 +134,15 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
   const path = String(job.source_path ?? '');
   if (!rendered || !isReportSourcePath(path)) return null;
   if (/^(customer|product|invoice)-\d+/i.test(path)) return null;
+  const specialty = rendered.sourceSpecialty == null
+    ? inferSpecialtyFromAnalysis(analysis)
+    : String(rendered.sourceSpecialty);
+  const dataset = analysis?.datasets?.[0];
+  const columns = dataset && typeof dataset === 'object' && Array.isArray((dataset as Record<string, unknown>).columns)
+    ? (dataset as Record<string, unknown>).columns.filter((column): column is Record<string, unknown> => Boolean(column) && typeof column === 'object')
+    : [];
+  const availableFields = [...new Set(columns.map((column) => String(column.mappedField ?? '')).filter(Boolean))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
+  const archetype = detectReportArchetype({ sourcePath: path, specialty, availableFields });
   return {
     jobId: String(job.id),
     sourcePath: path || 'مصدر غير مسمى',
@@ -136,11 +152,12 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
     qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
     trustState: rendered.trustState == null ? null : String(rendered.trustState),
     reportVerificationState: rendered.evidenceStatus == null ? 'PENDING_EVIDENCE' : String(rendered.evidenceStatus),
-    specialty: rendered.sourceSpecialty == null
-      ? inferSpecialtyFromAnalysis(analysis)
-      : String(rendered.sourceSpecialty),
+    specialty,
     evidenceStatus: rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus),
     completedAt: job.completed_at == null ? null : String(job.completed_at),
+    archetypeId: archetype.profile?.id ?? null,
+    archetypeVersion: archetype.profile?.version ?? null,
+    archetypeState: archetype.state,
   };
 }
 
@@ -316,6 +333,13 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
   const specialty = rendered.sourceSpecialty == null
     ? inferSpecialtyFromAnalysis(sourceAnalysis)
     : String(rendered.sourceSpecialty);
+  const availableFields = sourceAnalysis?.datasets?.flatMap((dataset) => {
+    if (!dataset || typeof dataset !== 'object') return [];
+    const columns = (dataset as Record<string, unknown>).columns;
+    if (!Array.isArray(columns)) return [];
+    return columns.map((column) => column && typeof column === 'object' ? String((column as Record<string, unknown>).mappedField ?? '') : '').filter(Boolean);
+  }) ?? [];
+  const archetype = detectReportArchetype({ sourcePath: String(job.source_path ?? ''), specialty, availableFields: [...new Set(availableFields)] as Parameters<typeof detectReportArchetype>[0]['availableFields'] });
 
   const intelligence = deriveReportIntelligence({
     specialty,
@@ -348,6 +372,9 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     canonicalCommitCount,
     canonicalCommitVerified,
     sourceTrustState: rendered.trustState == null ? null : String(rendered.trustState),
+    archetypeId: archetype.profile?.id ?? null,
+    archetypeVersion: archetype.profile?.version ?? null,
+    archetypeState: archetype.state,
     reportVerificationState: !canonicalRowsComplete
       ? 'PARTIAL_ANALYSIS'
       : canonicalCommitGap != null && canonicalCommitGap > 0
