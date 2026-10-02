@@ -35,6 +35,28 @@ function answerText(value: string): AdvisoryQuestionAnswer {
   return { summary: value };
 }
 
+function followUpForQuestion(question: BusinessQuestion<AdvisoryQuestionAnswer>): string | null {
+  if (question.state === 'NOT_AVAILABLE' && question.missingFields.length) {
+    return 'ما البيانات التي يجب توفيرها أولًا؟ (' + question.missingFields.join('، ') + ')';
+  }
+  if (question.state === 'INSUFFICIENT_SAMPLE') {
+    return 'هل يمكن توسيع العينة إلى الحد الأدنى المطلوب (' + question.minimumSample + ')؟';
+  }
+  if (question.state === 'BLOCKED') return 'ما العائق الذي يجب رفعه قبل متابعة التحليل؟';
+  const next: Record<string, string> = {
+    'report.what-happened': 'أين تركز التغير، ومن ساهم فيه؟',
+    'report.where': 'من/ما الذي ساهم في هذه البؤرة؟',
+    'report.contributors': 'هل توجد مخاطر أو فرص مرتبطة بهذه المساهمة؟',
+    'report.detractors': 'ما الإجراء الذي يمكن تجربته لمعالجة هذا الانحراف؟',
+    'report.primary-signal': 'هل الدليل الحالي كافٍ لتحويل الإشارة إلى قرار؟',
+    'report.why': 'ما الدليل المباشر الذي يثبت هذا التفسير؟',
+    'report.so-what': 'من المسؤول، وما النتيجة التي سنقيسها بعد التنفيذ؟',
+    'report.what-next': 'كيف سنقرأ النتيجة بعد التنفيذ ونتعلم منها؟',
+    'report.proof': 'هل أصبحت الأدلة كافية لاعتماد القرار؟',
+  };
+  return next[question.id] ?? 'ما القرار أو الإجراء التالي الذي يتطلبه هذا السؤال؟';
+}
+
 function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQuestion<AdvisoryQuestionAnswer>[] {
   const signalClaims = claims.filter((claim) => claim.claimId.startsWith('signal:'));
   const recommendationClaims = claims.filter((claim) => claim.claimId.startsWith('recommendation:'));
@@ -268,7 +290,10 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
     });
   }).filter((question) => !universal.some((existing) => existing.id === question.id));
 
-  return sortBusinessQuestions([...universal, ...specialized]);
+  return sortBusinessQuestions([...universal, ...specialized]).map((question) => ({
+    ...question,
+    followUpQuestion: question.followUpQuestion ?? followUpForQuestion(question),
+  }));
 }
 
 export function buildAdvisoryPacket(input: AdvisoryPacketInput): AdvisoryPacket {
