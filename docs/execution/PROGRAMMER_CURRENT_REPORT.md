@@ -1,133 +1,219 @@
 # PROGRAMMER CURRENT REPORT
 
 SESSION HANDOFF = NOT READY
-CURRENT_HEAD_RECONCILED = YES
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 
 REPORT_FOR_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8d
-UPDATED_AT = 2026-10-02T14:40:00Z
-CURRENT_BRANCH = fix/current-head-runtime-provenance-20261002
+CURRENT EXACT HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8d
+CURRENT BRANCH REF = d4e5d6d504a77c11dbc77d449fcec6109ef59b52
+BRANCH = fix/current-head-runtime-provenance-20261002
 PR = #730 OPEN / NOT MERGED / MERGEABLE
-CURRENT_EXECUTION_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8
-CURRENT_EXECUTION_HEAD_STABILITY = stable across documentation-only persistence commits; verify GitHub branch ref separately at session restore
-CURRENT_MAIN_HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3
-LATEST_COMMIT = docs: finalize current session resume state
-LATEST_CI = current-head checks will supersede all prior SHA evidence; no current live/browser/certification PASS claimed yet
-
-WHAT_I_WAS_ASKED_TO_DO = Reconcile exact branch/PR/report/state, close the authenticated Evidence Passport SELECT boundary without widening mutation privileges, fix the live negative-path assertion, investigate the cohort timeout, prove the Smart Business Action Chain, and persist truthful handoff.
-
-WHAT_I_ACTUALLY_DID = Reconciled the branch HEAD against PR #730; confirmed the prior report/state drift; fixed Evidence Passport authenticated SELECT with least-privilege GRANT; preserved RLS and denied authenticated mutations/anon access; fixed negative-path helper to accept one documented error from an allowed set; added same-tenant/wrong-tenant/anon SELECT assertions to the live gate; read-only verified the staging privilege and RLS boundary; profiled the cohort queries; persisted this report and the session state.
-
-WHAT_IS_PROVEN = Branch ref and PR head are a6f19a064003e94c508b8a27bded19933465376c. Staging report_evidence_passports privileges are authenticated SELECT=true, authenticated INSERT/UPDATE/DELETE=false, anon SELECT=false, RLS=true. Same-tenant authenticated row visibility returns 1; wrong-tenant visibility returns 0; anon access fails with SQLSTATE 42501. Workflow-batch, security-definer, session-handoff and diff-check passed on PC01 at the prior code state; current-head static proof still needs one fresh readback after this change. The 42-report cohort is real and analyzed, but the full action chain is not yet proven.
-
-FIRST_ACTIVE_FAILURE = Historical current-head P0-A was authenticated GET /report_evidence_passports -> HTTP 403 / PostgreSQL 42501. Root cause confirmed: authenticated table SELECT privilege was absent.
-CURRENT_ACTIVE_RUNTIME_FRONT = Evidence Passport Live Proof and Browser E2E on the new exact HEAD a6f19a064003e94c508b8a27bded19933465376c.
-
-ROOT_CAUSE = report_evidence_passports had RLS/policy but no authenticated table SELECT privilege. P0-B historical wrong-tenant assertion was too strict because the helper required all fragments instead of one documented fail-closed error.
-
-FILES_CHANGED =
-- supabase/migrations/20261002165000_report_evidence_passports_authenticated_select.sql
-- scripts/report-evidence-passport-gate-live.test.mjs
-- docs/execution/PROGRAMMER_CURRENT_REPORT.md
+CURRENT MAIN HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3
+EXECUTION_HEAD_STABILITY_PROOF = PASS: diff 5184cc1..branch contains only:
 - docs/execution/CURRENT_SESSION_STATE.md
+- docs/execution/PROGRAMMER_CURRENT_REPORT.md
 - docs/execution/PROGRAMMER_REPORTS/2026-10-02/SESSION-20261002-1413.md
+No runtime/code path differs after 5184cc1.
 
-MIGRATIONS =
-- Added 20261002165000_report_evidence_passports_authenticated_select.sql
-- SQL: GRANT SELECT to authenticated; REVOKE authenticated INSERT/UPDATE/DELETE/TRUNCATE/REFERENCES/TRIGGER; REVOKE ALL anon.
-- Applied the equivalent SQL directly to staging for proof.
-- No RLS policy was weakened and no mutation privilege was added.
+ACTION_STATUS = IN_PROGRESS
 
-TESTS_AND_RUN_IDS =
-- PC01 prior static proofs: workflow-batch PASS, security-definer PASS, session-handoff PASS after full-history, git diff --check PASS.
-- Staging privilege proof: authenticated SELECT=true; authenticated INSERT/UPDATE/DELETE=false; anon SELECT=false; RLS=true.
-- Staging same-tenant RLS read: visible_rows=1.
-- Staging wrong-tenant RLS read: visible_rows=0.
-- Staging anon SELECT proof: SQLSTATE 42501 permission denied.
-- Current exact-head CI runs have not yet been consumed; do not transfer older SHA runtime PASS.
+## WHAT WAS DONE
 
-DATABASE_PROOF =
-- report_evidence_passports is RLS-enabled with the tenant SELECT policy.
-- authenticated SELECT is now granted; authenticated mutation privileges remain false; anon has no privilege.
-- The existing RLS tenant predicate remains company_id = public.current_company_id().
-- Provisioning and evidence-gate SECURITY DEFINER mutation functions remain service_role-only where applicable.
-- Security advisory remains open for public.canonical_import_repair_history RLS disabled; no automatic remediation was applied.
+1. Reconciled the execution head and branch ref; branch contains documentation-only persistence commits after the stable execution code head.
+2. Kept P0-A closed: authenticated SELECT on report_evidence_passports is granted; authenticated mutations remain denied; anon remains denied; RLS tenant boundary remains unchanged.
+3. Kept P0-B closed: negative-path assertion accepts one documented fail-closed error from an allowlist and asserts same-tenant/wrong-tenant/anon Passport access.
+4. Completed direct sequential refresh over the selected 40-report cohort.
+5. Proved the source-bound Recommendation -> Decision -> Approval -> Work -> Outcome chain by database readback.
+6. Ran exact-head local contracts on PC01 at 5184cc1.
 
-COHORT_PLAN_PROOF =
-- canonical_import_commits uses the exact composite unique index (company_id, entity_type, source_hash), estimated plan cost ~0.28..2.50.
-- canonical_dataset_records uses company_id+source_hash index and filters semantic_domain, estimated cost ~0.42..2.64; no full table scan observed.
-- source_analysis_snapshots uses company_id+source_hash index and filters analysis_status, then sorts by created_at/id, estimated cost ~0.27..2.50.
-- Therefore the earlier 57014 is not currently proven to be caused by a catastrophic scan. Next required proof is contention/repeated-refresh behavior or actual execution timing; no blind timeout increase or index has been applied.
+## WHAT IS PROVEN
 
-COHORT_RUNTIME_CLOSURE =
-- Direct sequential staging refresh over the selected 40-report cohort completed without 57014.
-- target_reports=40
-- unique_source_hashes=40
-- tenants=4
-- FULL=40
-- VERIFIED=40
-- READY=40
-- ACCEPTED=40
-- non_terminal=0
-- fully_terminal=40
+### STATIC / EXACT-HEAD LOCAL
+On PC01, checkout was exactly:
+5184cc1fe839a794cf2c7f4c5e1568d16aaaff8
 
-SMART_REPORT_READBACK =
-- candidate reports=42
-- unique source hashes=42
-- tenants=4
-- formats=32 PDF + 10 XLSX
-- analyzed=42
-- quality avg=93.64, min=76, max=100
-- renderedOutput reports=42/42
-- renderedOutput outputs=135
-- specialties=8
-- VERIFIED=40/42
-- READY=40/42
-- benchmark status declared=17/42
-- latest verified passport still has no linked recommendation/decision/approval/work/outcome; full action chain remains NOT PROVEN.
+PASS:
+- npm ci
+- npm run typecheck
+- test:report-evidence-passport-contract
+- test:report-smart-evidence-boundary
+- test:source-decision-proposal
+- test:source-decision-approval
+- test:source-decision-work-item
+- test:source-work-execution-lifecycle
+- test:work-center-decision-queue
+- test:business-replay
+- test:benchmark-fail-closed
+- workflow batch integrity (86 workflows)
+- security-definer exposure contract
+- git diff --check
 
-RUNTIME_DEPLOYMENT_PROOF =
-- No current-head deployment proof yet.
-- Vercel remains blocked by build-rate-limit.
-- Netlify remains the free runtime path; prior deployment evidence is not transferred across SHA.
+A session-handoff contract executed on 5184cc1 reported a metadata-only stale-report condition because the later persistence files do not exist at that historical execution commit. This is governance drift by design, not a runtime defect. The branch-ref handoff contract is the authority for persisted handoff state.
 
-BROWSER_PROOF =
-- No authenticated browser PASS claimed on a6f19a0 yet.
-- The new live gate contains authenticated same-tenant SELECT, wrong-tenant SELECT, and anon SELECT assertions.
-- Evidence Passport Live Proof and Full Product Browser E2E are the next exact-head runtime checks.
+### DATABASE / REAL SOURCE READBACK
+REAL SOURCE:
+كشف حساب الصراف العماقي.pdf
 
-PRODUCT_UX_UI_DELTA =
-- No product UI scope expansion.
-- This cycle is runtime/evidence boundary closure and proof only.
+SOURCE HASH:
+sha256:0802746f23206b37cbe645738774db6e4208b546ec890ab3ea0305222ad77cee
 
-REMAINING_OPEN =
-- Consume current-head Evidence Passport Live Proof and Full Product Browser E2E.
-- Verify P0-B negative-path result on current HEAD.
-- Finish P1-A by proving the cause of 57014 and applying the smallest evidence-backed optimization if still reproducible.
-- Prove a real source-bound Recommendation -> Decision -> Approval -> Work -> Outcome -> Readback chain on one verified passport.
-- Keep Phase F independent and uncertified.
-- Maintain the open RLS advisory on canonical_import_repair_history until policy-backed remediation is defined.
+TENANT:
+f68a7e91-3c7e-46fb-97a8-e339bec04e13
 
-DO_NOT_REPEAT =
-- Do not use 28c6ea3/fbec841 or any older SHA as current runtime proof.
-- Do not grant authenticated write privileges to report_evidence_passports.
-- Do not bypass RLS or weaken company_id = current_company_id().
-- Do not accept every error string in negative-path tests; only the documented fail-closed alternatives.
+REPORT EXECUTION JOB:
+cfcaaed7-7876-4968-a757-d559d2ea10d9
+status=completed
+checkpoint.stage=rendered
+rows=13
+
+SOURCE VERSION:
+30aa209b-82e1-4afe-a96c-fe096e822758
+
+ANALYSIS SNAPSHOT:
+88b0e172-72c0-4dc2-a0bd-ffc44307be64
+status=analyzed
+format=pdf
+quality=99
+rows=13
+columns=6
+
+EVIDENCE SNAPSHOT:
+eff9dde2-a9da-40fa-9b26-1981471b7912
+coverage=FULL
+acceptance=ACCEPTED
+verification=VERIFIED
+authoritative_rows=13
+
+EVIDENCE PASSPORT:
+9ffb5a8d-25bf-4e74-8b00-b1651fc1a887
+verification=VERIFIED
+decision_readiness=READY
+
+SMART REPORT OUTPUTS:
+- executive /reports/executive
+- evidence /trust
+- decision /decision-experience
+- work-center /work-center
+- domain-payments /analytics/liquidity
+All rendered=true and sourceBound=true with the same source hash.
+Trust state=TRUSTED; qualityScore=99; specialty=payments; signalStatus=AVAILABLE_FROM_CANONICAL_ANALYSIS.
+
+ACTION CHAIN READBACK:
+Recommendation = 4ec6baba-2f76-49a9-bc9b-9f7cfc0b0c28
+Decision = 7caefd77-62b1-4211-8669-84ddabb51cdd
+Approval = f4a2445b-9ff1-4e1d-99ca-f6c6542cf65a
+Work = 814b38d7-bd9b-4b56-9cd0-168e038817d7
+Outcome = 1eb22376-00eb-431e-bcea-02216bb60dc1
+
+Readback confirms:
+- recommendation.decision_id = decision id
+- decision.recommendation_id = recommendation id
+- approval.decision_id = decision id
+- work.decision_id = decision id
+- work.recommendation_id = recommendation id
+- all company_id values = f68a7e91-3c7e-46fb-97a8-e339bec04e13
+- recommendation/decision/work/outcome evidence carries the same source hash/job/passport/snapshot
+- decision.status = EXECUTED
+- approval.status = APPROVED
+- work.status = COMPLETED
+- outcome.status = insufficient
+- expected_impact = NULL
+- actual_impact = NULL
+No measured impact was fabricated.
+
+## FIRST ACTIVE FAILURE
+
+No new P0/P1 runtime failure is proven.
+
+Current live frontier:
+- Evidence Passport Gate Live Proof: queued
+- Full Product Browser E2E: queued
+- Report Value Cohort: queued
+- Final Certification Gate: queued
+
+Current GitHub run IDs:
+- Evidence Passport Gate Live Proof: run 72 / 37023728900
+- Full Product Browser E2E: run 7050 / 37023728801
+- Report Value Cohort: run 85 / 37023729204
+- Final Certification Gate: run 15040 / 37023729519
+All four target the current branch ref d4e5d6d..., whose only delta from 5184cc1 is documentation.
+
+## ROOT CAUSE
+
+Historical P0-A root cause: missing authenticated table SELECT privilege on report_evidence_passports despite RLS policy existing.
+Historical P0-B root cause: negative-path helper required all error fragments instead of one documented fail-closed error.
+Historical 57014 root cause remains unconfirmed as query-scan related; selected 40-report sequential refresh reproduced no timeout. Query plans were index-backed and low-cost. Concurrency guard was added to the cohort workflow.
+
+## REQUIRED SECURITY STATE
+
+- report_evidence_passports RLS remains enabled.
+- Tenant predicate remains company_id = public.current_company_id().
+- authenticated SELECT=true.
+- authenticated INSERT/UPDATE/DELETE=false.
+- anon SELECT=false.
+- SECURITY DEFINER boundary unchanged.
+- No new privilege expansion was introduced.
+
+## REPORT VALUE COHORT
+
+Direct sequential staging proof:
+target_reports=40
+unique_source_hashes=40
+tenants=4
+FULL=40
+VERIFIED=40
+READY=40
+ACCEPTED=40
+non_terminal=0
+fully_terminal=40
+No 57014 observed in the sequential replay.
+No timeout increase added.
+No blind index added.
+
+## RUNTIME PROOF
+
+Direct database runtime proof is complete for one real source and the full 40-report Passport cohort.
+Current-head GitHub runtime proof is NOT terminal yet because the associated runs remain queued.
+No old-SHA runtime PASS has been transferred.
+
+## BROWSER PROOF
+
+No current-head authenticated browser PASS claimed.
+Full Product Browser E2E remains queued as run 7050.
+PC01 has Edge running, but the local checkout does not carry the CI service-role/authentication secrets required to reproduce the full authenticated GitHub browser workflow. A supplementary browser check would not be equivalent to the required current-head authenticated proof, so it is not being mislabeled as PASS.
+
+## PRODUCT/UX/UI DELTA
+
+No new product/UI code was changed in this P0/P1 proof wave.
+Database evidence confirms the real source currently declares source-bound executive, evidence, decision, work-center and domain-payments outputs.
+
+## REMAINING OPEN
+
+1. Consume the first terminal result from Evidence Passport Gate Live Proof and Full Product Browser E2E.
+2. If a new P0/P1 failure appears, fix only the first one and prove it before touching secondary failures.
+3. Consume final current-head cohort and certification results.
+4. Keep Phase F separate and uncertified.
+5. Keep canonical_import_repair_history RLS advisory open pending policy-backed remediation.
+6. Do not enter PR #734 / Archetype Registry work until P0/P1 current-head proof is closed.
+
+## DO NOT REPEAT
+
+- Do not reuse older-SHA runtime PASS.
+- Do not weaken tenant RLS.
+- Do not grant Passport write privileges.
+- Do not accept arbitrary negative-path errors.
 - Do not raise statement_timeout blindly.
-- Do not claim 42 rendered / 40 verified as proof of action-chain completion.
-- Do not reopen fixed workflow/search_path/session-handoff defects unless current-head evidence regresses.
+- Do not bypass canonical action APIs.
+- Do not fabricate expected or actual impact.
+- Do not treat documentation-only SHA drift as a runtime code change.
+- Do not claim browser PASS while the current browser run is queued.
 
-NEXT_EXACT_ACTION = consume current-head Evidence Passport Live Proof, Full Product Browser E2E, Report Value Cohort and Final Certification; fix only first new P0/P1; do not reopen closed P0-A/P0-B/P1-B.
+## NEXT EXACT ACTION
 
-SESSION_HANDOFF = NOT READY
+Consume the first terminal result from:
+Evidence Passport Gate Live Proof (run 72)
+Full Product Browser E2E (run 7050)
 
+Use the terminal failure, if any, as the only new P0/P1 input. Fix only that first failure, then persist and read back the proof before advancing.
 
-## P1_RUNTIME_PROOF
-- Passport privilege proof: authenticated SELECT=true; authenticated INSERT/UPDATE/DELETE=false; anon SELECT=false; RLS=true.
-- Same-tenant Passport read returned 1 row; wrong-tenant read returned 0; anon read failed with SQLSTATE 42501.
-- Source-bound action chain proof: Recommendation 4ec6baba-2f76-49a9-bc9b-9f7cfc0b0c28 -> Decision 7caefd77-62b1-4211-8669-84ddabb51cdd -> Approval f4a2445b-9ff1-4e1d-99ca-f6c6542cf65a -> Work 814b38d7-bd9b-4b56-9cd0-168e038817d7 -> Outcome 1eb22376-00eb-431e-bcea-02216bb60dc1.
-- Outcome status=insufficient; expected_impact=NULL; actual_impact=NULL. No impact was fabricated.
-- Source hash=sha256:0802746f23206b37cbe645738774db6e4208b546ec890ab3ea0305222ad77cee; job=cfcaaed7-7876-4968-a757-d559d2ea10d9; Passport=9ffb5a8d-25bf-4e74-8b00-b1651fc1a887; Passport snapshot=eff9dde2-a9da-40fa-9b26-1981471b7912; analysis snapshot=88b0e172-72c0-4dc2-a0bd-ffc44307be64.
-- P1-A query plans are index-backed and low cost; one refresh and four sample refreshes returned FULL/VERIFIED/READY; no statement_timeout increase was applied.
-- Report Value Cohort workflow now serializes per PR to prevent stale overlapping runs.
-- Full 40-report terminal cohort proof remains CI-pending.
+SESSION HANDOFF = NOT READY
