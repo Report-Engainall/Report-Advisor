@@ -577,7 +577,33 @@ async function proveTransactionalMutationAndAudit(page) {
     status: String(e2eFixture.status),
     invoiceCount: (await restSelect(page, 'sales_invoices', { company_id: evidence.tenantA, order_id: e2eFixture.id }, 'id', { limit: 20 })).length,
   };
-  const prepared = await restRpc(page, 'prepare_e2e_order', { p_order_id: e2eFixture.id });
+
+  let prepared = e2eFixture;
+  if (String(e2eFixture.status) !== 'pending') {
+    const provisionContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
+    const provisionPage = await provisionContext.newPage();
+    attachRuntimeCapture(provisionPage);
+    try {
+      await login(provisionPage, approverEmail, approverPassword);
+      const provisionTenant = await currentTenant(provisionPage);
+      const provisionUserId = await currentUserId(provisionPage);
+      assert.equal(provisionTenant, evidence.tenantA, 'E2E_PROVISIONING_TENANT_MISMATCH');
+      const memberships = await restSelect(
+        provisionPage,
+        'company_memberships',
+        { company_id: evidence.tenantA, user_id: provisionUserId, is_active: true },
+        'role',
+        { limit: 1 },
+      );
+      const provisionRole = memberships[0]?.role == null ? '' : String(memberships[0].role);
+      assert.ok(['owner', 'admin'].includes(provisionRole), 'E2E_PROVISIONING_ADMIN_ACTOR_REQUIRED');
+      prepared = await restRpc(provisionPage, 'prepare_e2e_order', { p_order_id: e2eFixture.id });
+    } finally {
+      await provisionPage.close().catch(() => {});
+      await provisionContext.close().catch(() => {});
+    }
+  }
+
   assert.equal(prepared.company_id, evidence.tenantA, 'E2E_PREPARE_TENANT_MISMATCH');
   assert.equal(prepared.status, 'pending', 'E2E_PREPARE_DID_NOT_RETURN_PENDING');
   const orderId = String(prepared.id);
@@ -710,7 +736,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
   await page.goto(baseURL + '/reports/smart/' + report.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
   await page.getByText('ماذا استنتج النظام من هذا التقرير؟', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
 
-  const proposalButton = page.getByRole('button', { name: /حفظ كقرار مقترح|حفظ كتوصية ثم قرار/, exact: false }).first();
+  const proposalButton = page.getByRole('button', { name: /حفظ القرار والقضية|حفظ كقرار مقترح|حفظ كتوصية ثم قرار/, exact: false }).first();
   if (await proposalButton.count() === 0) {
     evidence.steps.push({ step: 'decision-approval-action-outcome', status: 'NOT_PROVEN', reason: 'SOURCE_SIGNAL_NOT_AVAILABLE', reportJobId: report.reportJobId });
     return;
@@ -718,7 +744,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
 
   const userAId = await currentUserId(page);
   await proposalButton.click();
-  await page.getByText(/تم حفظ القرار المقترح|تم حفظ التوصية والقرار/, { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
+  await page.getByText(/تم حفظ القرار والقضية|تم حفظ القرار المقترح|تم حفظ التوصية والقرار/, { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
 
   const decisionTarget = baseURL + '/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash);
   await page.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });
