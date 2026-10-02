@@ -67,6 +67,10 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
       setDecisionError('لا يمكن إنشاء قرار من دليل غير مثبت.');
       return;
     }
+    if (!evidenceSnapshotId) {
+      setDecisionError('لا توجد Evidence Snapshot مؤكدة لهذا التقرير؛ تم منع إنشاء المقترح.');
+      return;
+    }
     try {
       setDecisionBusy(true);
       setDecisionError(null);
