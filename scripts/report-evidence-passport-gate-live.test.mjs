@@ -104,7 +104,7 @@ async function signIn(credentials) {
 
 const { data: passports, error: passportError } = await service
   .from('report_evidence_passports')
-  .select('id,company_id,evidence_snapshot_id,report_execution_job_id,source_hash,verification_status,decision_readiness,legacy_prior_verification')
+  .select('id,company_id,evidence_snapshot_id,report_execution_job_id,source_hash,verification_status,decision_readiness,prior_verification_state')
   .eq('verification_status', 'VERIFIED')
   .eq('decision_readiness', 'READY')
   .order('created_at', { ascending: false })
