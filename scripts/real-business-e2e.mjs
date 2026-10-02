@@ -567,7 +567,10 @@ async function proveTransactionalMutationAndAudit(page) {
     'id,company_id,status,warehouse_id,customer_id,order_number,idempotency_key,total,currency',
     { order: 'created_at.asc', limit: 50 },
   );
-  const e2eFixture = e2eOrders.find((row) => String(row.idempotency_key ?? '').startsWith('E2E-ORDER-'));
+  const expectedFixtureKey = process.env.E2E_TRANSACTION_ORDER_IDEMPOTENCY_KEY?.trim();
+  const e2eFixture = expectedFixtureKey
+    ? e2eOrders.find((row) => String(row.idempotency_key ?? '') === expectedFixtureKey)
+    : e2eOrders.find((row) => String(row.idempotency_key ?? '').startsWith('E2E-ORDER-'));
   if (!e2eFixture) {
     evidence.steps.push({ step: 'transactional-real-mutation', status: 'NOT_PROVEN', reason: 'E2E_FIXTURE_ORDER_MISSING', actionSurfaceVisible: true });
     return;
@@ -577,36 +580,8 @@ async function proveTransactionalMutationAndAudit(page) {
     status: String(e2eFixture.status),
     invoiceCount: (await restSelect(page, 'sales_invoices', { company_id: evidence.tenantA, order_id: e2eFixture.id }, 'id', { limit: 20 })).length,
   };
-
-  let prepared = e2eFixture;
-  if (String(e2eFixture.status) !== 'pending') {
-    const provisionContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
-    const provisionPage = await provisionContext.newPage();
-    attachRuntimeCapture(provisionPage);
-    try {
-      await login(provisionPage, approverEmail, approverPassword);
-      const provisionTenant = await currentTenant(provisionPage);
-      const provisionUserId = await currentUserId(provisionPage);
-      assert.equal(provisionTenant, evidence.tenantA, 'E2E_PROVISIONING_TENANT_MISMATCH');
-      const memberships = await restSelect(
-        provisionPage,
-        'company_memberships',
-        { company_id: evidence.tenantA, user_id: provisionUserId, is_active: true },
-        'role',
-        { limit: 1 },
-      );
-      const provisionRole = memberships[0]?.role == null ? '' : String(memberships[0].role);
-      assert.ok(['owner', 'admin'].includes(provisionRole), 'E2E_PROVISIONING_ADMIN_ACTOR_REQUIRED');
-      prepared = await restRpc(provisionPage, 'prepare_e2e_order', { p_order_id: e2eFixture.id });
-    } finally {
-      await provisionPage.close().catch(() => {});
-      await provisionContext.close().catch(() => {});
-    }
-  }
-
-  assert.equal(prepared.company_id, evidence.tenantA, 'E2E_PREPARE_TENANT_MISMATCH');
-  assert.equal(prepared.status, 'pending', 'E2E_PREPARE_DID_NOT_RETURN_PENDING');
-  const orderId = String(prepared.id);
+  assert.equal(beforePrepare.status, 'pending', 'E2E_TRANSACTION_FIXTURE_NOT_PENDING');
+  const orderId = String(e2eFixture.id);
 
   await page.goto(baseURL + '/operations', { waitUntil: 'networkidle', timeout: 30000 });
   await page.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });

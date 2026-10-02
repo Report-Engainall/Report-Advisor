@@ -143,6 +143,129 @@ async function findTenantB() {
   return data[0];
 }
 
+async function prepareTransactionalFixture(companyId, actorId) {
+  const fixtureKey = 'E2E-ORDER-B-001';
+  const { data: order, error: orderError } = await supabase
+    .from('orders')
+    .select('id,company_id,status,warehouse_id,order_number,idempotency_key')
+    .eq('company_id', companyId)
+    .eq('idempotency_key', fixtureKey)
+    .maybeSingle();
+  if (orderError) throw orderError;
+  if (!order) throw new Error('E2E_ORDER_FIXTURE_MISSING');
+
+  if (order.status === 'pending') {
+    if (process.env.GITHUB_ENV) fs.appendFileSync(process.env.GITHUB_ENV, 'E2E_TRANSACTION_ORDER_IDEMPOTENCY_KEY=' + fixtureKey + '\n');
+    return order;
+  }
+
+  const { data: items, error: itemError } = await supabase
+    .from('order_items')
+    .select('product_id,quantity')
+    .eq('company_id', companyId)
+    .eq('order_id', order.id);
+  if (itemError) throw itemError;
+
+  for (const item of items ?? []) {
+    const { data: balance, error: balanceError } = await supabase
+      .from('inventory_balances')
+      .select('id,quantity')
+      .eq('company_id', companyId)
+      .eq('warehouse_id', order.warehouse_id)
+      .eq('product_id', item.product_id)
+      .maybeSingle();
+    if (balanceError) throw balanceError;
+    if (!balance) throw new Error('E2E_RESET_INVENTORY_BALANCE_MISSING');
+
+    const nextQuantity = Number(balance.quantity) + Number(item.quantity);
+    const { error: updateBalanceError } = await supabase
+      .from('inventory_balances')
+      .update({ quantity: nextQuantity, last_movement_date: new Date().toISOString().slice(0, 10), updated_at: new Date().toISOString() })
+      .eq('id', balance.id)
+      .eq('company_id', companyId);
+    if (updateBalanceError) throw updateBalanceError;
+
+    const { error: movementError } = await supabase
+      .from('inventory_movements')
+      .insert({
+        company_id: companyId,
+        warehouse_id: order.warehouse_id,
+        product_id: item.product_id,
+        movement_type: 'return',
+        quantity: item.quantity,
+        reference_type: 'e2e_order_reset',
+        reference_id: order.id,
+        movement_date: new Date().toISOString().slice(0, 10),
+        notes: 'Repeatable browser E2E reset',
+      });
+    if (movementError) throw movementError;
+  }
+
+  const { data: invoices, error: invoiceError } = await supabase
+    .from('sales_invoices')
+    .select('id,created_at')
+    .eq('company_id', companyId)
+    .eq('order_id', order.id)
+    .order('created_at', { ascending: false });
+  if (invoiceError) throw invoiceError;
+
+  for (const invoice of invoices ?? []) {
+    const { error: paymentDeleteError } = await supabase
+      .from('payments')
+      .delete()
+      .eq('company_id', companyId)
+      .eq('invoice_id', invoice.id);
+    if (paymentDeleteError) throw paymentDeleteError;
+
+    const { error: invoiceDeleteError } = await supabase
+      .from('sales_invoices')
+      .delete()
+      .eq('company_id', companyId)
+      .eq('id', invoice.id);
+    if (invoiceDeleteError) throw invoiceDeleteError;
+  }
+
+  const { error: historyError } = await supabase.from('order_status_history').insert({
+    company_id: companyId,
+    order_id: order.id,
+    from_status: order.status,
+    to_status: 'pending',
+    actor_id: actorId,
+  });
+  if (historyError) throw historyError;
+
+  const { data: preparedOrder, error: updateOrderError } = await supabase
+    .from('orders')
+    .update({ status: 'pending', updated_at: new Date().toISOString() })
+    .eq('company_id', companyId)
+    .eq('id', order.id)
+    .select('id,company_id,status,warehouse_id,customer_id,order_number,total,currency,idempotency_key')
+    .single();
+  if (updateOrderError) throw updateOrderError;
+
+  const { error: outboxError } = await supabase.from('order_outbox_events').insert({
+    company_id: companyId,
+    order_id: order.id,
+    event_type: 'order.e2e_reset',
+    payload: { order_id: order.id, order_number: order.order_number },
+  });
+  if (outboxError) throw outboxError;
+
+  const { error: auditError } = await supabase.from('audit_logs').insert({
+    company_id: companyId,
+    action: 'order_e2e_reset',
+    entity_type: 'order',
+    entity_id: order.id,
+    old_value: { status: order.status },
+    new_value: { status: 'pending' },
+    source: 'e2e-provisioning',
+  });
+  if (auditError) throw auditError;
+
+  if (process.env.GITHUB_ENV) fs.appendFileSync(process.env.GITHUB_ENV, 'E2E_TRANSACTION_ORDER_IDEMPOTENCY_KEY=' + fixtureKey + '\n');
+  return preparedOrder;
+}
+
 async function provisionMembership(companyId, userId, requestedRole, isDefault, label) {
   const { data: existing, error: existingError } = await supabase
     .from('company_memberships')
@@ -183,6 +306,7 @@ assert.notEqual(String(tenantA.id), String(tenantB.id), 'TENANT_A_AND_B_MUST_BE_
 const membershipA = await provisionMembership(tenantA.id, userA.id, 'sales', true, 'A');
 const membershipApprover = await provisionMembership(tenantA.id, approver.id, 'manager', true, 'APPROVER');
 const membershipB = await provisionMembership(tenantB.id, userB.id, 'sales', true, 'B');
+const transactionFixture = await prepareTransactionalFixture(tenantA.id, userA.id);
 
 const [{ data: auditA }, { data: auditApprover }, { data: auditB }] = await Promise.all([
   supabase.from('audit_logs').select('id,company_id,action,entity_type,entity_id,source').eq('company_id', tenantA.id).eq('action', 'e2e_actor_membership_provisioned').eq('entity_id', membershipA.id).limit(1),
