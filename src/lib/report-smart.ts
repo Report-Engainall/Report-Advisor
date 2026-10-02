@@ -407,7 +407,14 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     canonicalRows,
   });
 
+  const catalogItem = mapCatalogItem(
+    job as Record<string, unknown>,
+    sourceAnalysis,
+  );
+  if (!catalogItem) throw new Error('SMART_REPORT_CATALOG_ITEM_UNAVAILABLE');
+
   return {
+    ...catalogItem,
     jobId: String(job.id),
     tenantId: companyId,
     sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),

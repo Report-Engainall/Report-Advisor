@@ -5,6 +5,7 @@
  */
 
 :root {
+  direction: rtl;
   --ag-ui-bg: #f4f7f6;
   --ag-ui-surface: #ffffff;
   --ag-ui-surface-2: #f8fbfa;

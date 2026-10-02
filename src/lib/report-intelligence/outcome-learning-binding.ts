@@ -29,7 +29,8 @@ export function buildOutcomeLearningBinding(input: {
 
   const archetypeId = input.archetypeId?.trim();
   if (!archetypeId) throw new Error('OUTCOME_LEARNING_ARCHETYPE_ID_REQUIRED');
-  if (!Number.isInteger(input.profileVersion) || (input.profileVersion ?? 0) < 1) {
+  const profileVersion = input.profileVersion;
+  if (typeof profileVersion !== 'number' || !Number.isInteger(profileVersion) || profileVersion < 1) {
     throw new Error('OUTCOME_LEARNING_PROFILE_VERSION_REQUIRED');
   }
 
@@ -37,7 +38,7 @@ export function buildOutcomeLearningBinding(input: {
     outcomeId: input.outcomeId,
     recommendationId: input.recommendationId,
     archetypeId,
-    profileVersion: input.profileVersion,
+    profileVersion,
     ruleId: input.ruleId ?? null,
     sourceHash: input.sourceHash,
     reportExecutionJobId: input.reportExecutionJobId,
