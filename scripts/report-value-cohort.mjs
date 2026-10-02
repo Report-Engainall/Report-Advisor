@@ -31,71 +31,86 @@ const supabase = createClient(url, serviceRole, {
   global: { fetch: resilientFetch },
 });
 
+const TARGET_COHORT_SIZE = 40;
 const eligiblePath = /\.(xlsx|xls|xlsm|csv|tsv|ods|pdf|docx|doc|rtf|json|jsonl|txt|md|markdown|jpg|jpeg|png|webp|tiff|bmp)$/i;
 const syntheticPath = /^(customer|product|invoice)-\d+/i;
+const syntheticCanonicalPath = /^canonical-import:/i;
+const supportedGenericJob = /^canonical-import:generic:/i;
 
-async function resolveCohortCompanyId() {
-  if (explicitCompanyId) {
-    return { companyId: explicitCompanyId, resolution: 'EXPLICIT' };
-  }
+function isRealReportJob(row) {
+  const sourcePath = String(row.source_path ?? '').trim();
+  const sourceHash = String(row.source_hash ?? '').trim();
+  const jobKey = String(row.job_key ?? '').trim();
+  return Boolean(
+    row.company_id &&
+    sourceHash &&
+    /^sha256:[0-9a-fA-F]{64}$/.test(sourceHash) &&
+    eligiblePath.test(sourcePath) &&
+    !syntheticPath.test(sourcePath) &&
+    !syntheticCanonicalPath.test(sourcePath) &&
+    supportedGenericJob.test(jobKey),
+  );
+}
 
-  const { data, error } = await supabase
+async function selectCohortJobs() {
+  let query = supabase
     .from('report_execution_jobs')
-    .select('company_id,source_path,source_hash,status')
+    .select('id,company_id,source_path,source_hash,job_key,checkpoint,evidence,updated_at')
     .eq('status', 'completed')
     .not('company_id', 'is', null)
     .not('source_hash', 'is', null)
+    .order('updated_at', { ascending: true })
     .limit(5000);
+
+  if (explicitCompanyId) {
+    query = query.eq('company_id', explicitCompanyId);
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
 
-  const counts = new Map();
-  for (const row of data ?? []) {
-    const companyId = String(row.company_id ?? '').trim();
-    const sourcePath = String(row.source_path ?? '');
-    const sourceHash = String(row.source_hash ?? '');
-    if (!companyId || !sourceHash || syntheticPath.test(sourcePath) || !eligiblePath.test(sourcePath)) continue;
-    const item = counts.get(companyId) ?? { uniqueHashes: new Set(), jobs: 0 };
-    item.uniqueHashes.add(sourceHash);
-    item.jobs += 1;
-    counts.set(companyId, item);
+  const sorted = (data ?? [])
+    .filter(isRealReportJob)
+    .sort((a, b) => {
+      const left = [String(a.source_path ?? '').normalize('NFKC').toLocaleLowerCase(), String(a.source_hash ?? ''), String(a.company_id ?? ''), String(a.id ?? '')];
+      const right = [String(b.source_path ?? '').normalize('NFKC').toLocaleLowerCase(), String(b.source_hash ?? ''), String(b.company_id ?? ''), String(b.id ?? '')];
+      for (let i = 0; i < left.length; i += 1) {
+        const cmp = left[i].localeCompare(right[i], 'ar');
+        if (cmp !== 0) return cmp;
+      }
+      return 0;
+    });
+
+  const selectedByHash = new Map();
+  for (const job of sorted) {
+    const hash = String(job.source_hash);
+    if (!selectedByHash.has(hash)) selectedByHash.set(hash, job);
+    if (selectedByHash.size === TARGET_COHORT_SIZE) break;
   }
 
-  const candidates = [...counts.entries()]
-    .map(([companyId, stats]) => ({ companyId, uniqueHashes: stats.uniqueHashes.size, jobs: stats.jobs }))
-    .filter((row) => row.uniqueHashes >= 40)
-    .sort((a, b) => b.uniqueHashes - a.uniqueHashes || b.jobs - a.jobs || a.companyId.localeCompare(b.companyId));
-
-  if (candidates.length !== 1) {
-    throw new Error('REPORT_VALUE_COHORT_COMPANY_RESOLUTION_AMBIGUOUS:' + JSON.stringify(candidates));
+  const sourceJobs = [...selectedByHash.values()];
+  if (sourceJobs.length !== TARGET_COHORT_SIZE) {
+    throw new Error(
+      'REPORT_VALUE_COHORT_INCOMPLETE:' +
+      sourceJobs.length +
+      '/' +
+      TARGET_COHORT_SIZE +
+      ':uniqueRealReportHashes',
+    );
   }
-  return { companyId: candidates[0].companyId, resolution: 'INFERRED_SINGLE_40PLUS_COHORT' };
+
+  return sourceJobs;
 }
 
-const { companyId, resolution: companyResolution } = await resolveCohortCompanyId();
-console.log(JSON.stringify({ cohortCompanyResolution: companyResolution, cohortCompanyId: companyId }));
-
-const { data: jobs, error: jobsError } = await supabase
-  .from('report_execution_jobs')
-  .select('id,source_path,source_hash,checkpoint,evidence')
-  .eq('company_id', companyId)
-  .eq('status', 'completed')
-  .order('updated_at', { ascending: false })
-  .limit(500);
-if (jobsError) throw jobsError;
-
-const sourceJobs = [];
-const seen = new Set();
-for (const job of jobs ?? []) {
-  const pathName = String(job.source_path ?? '');
-  const hash = String(job.source_hash ?? '');
-  if (!hash || seen.has(hash) || /^(customer|product|invoice)-\\d+/i.test(pathName)) continue;
-  if (!/\\.(xlsx|xls|xlsm|csv|tsv|ods|pdf|docx|doc|rtf|json|jsonl|txt|md|markdown|jpg|jpeg|png|webp|tiff|bmp)$/i.test(pathName)) continue;
-  seen.add(hash);
-  sourceJobs.push(job);
-  if (sourceJobs.length === 40) break;
-}
-
-if (sourceJobs.length !== 40) throw new Error('REPORT_VALUE_COHORT_INCOMPLETE:' + sourceJobs.length + '/40');
+const sourceJobs = await selectCohortJobs();
+const tenantCount = new Set(sourceJobs.map((job) => String(job.company_id))).size;
+console.log(JSON.stringify({
+  cohortMode: explicitCompanyId ? 'EXPLICIT_TENANT' : 'CROSS_TENANT_UNIQUE_SOURCE_HASH',
+  cohortSize: sourceJobs.length,
+  tenantCount,
+  tenants: [...new Set(sourceJobs.map((job) => String(job.company_id)))].sort(),
+  deterministicOrder: 'sourcePath_ASC_NORMALIZED → sourceHash_ASC → companyId_ASC',
+}));
 
 const refreshResults = [];
 for (let offset = 0; offset < sourceJobs.length; offset += 4) {
@@ -133,46 +148,50 @@ const refreshSummary = {
   unverified: refreshResults.filter((row) => row.status === 'UNVERIFIED').length,
 };
 
-const hashes = sourceJobs.map((job) => String(job.source_hash));
 const jobIds = sourceJobs.map((job) => String(job.id));
 
 const { data: passports, error: passportError } = await supabase
   .from('report_evidence_passports')
-  .select('id,report_execution_job_id,evidence_snapshot_id,source_hash,acceptance_status,verification_status,decision_readiness,evidence')
-  .eq('company_id', companyId)
-  .in('source_hash', hashes);
+  .select('id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash,acceptance_status,verification_status,decision_readiness,evidence')
+  .in('report_execution_job_id', jobIds);
 if (passportError) throw passportError;
 
-const { data: recommendations, error: recommendationError } = await supabase
-  .from('recommendations')
-  .select('id,decision_id,evidence_snapshot_id,evidence,status,expected_impact')
-  .eq('company_id', companyId)
-  .in('evidence_snapshot_id', (passports ?? []).map((row) => row.evidence_snapshot_id));
+const snapshotIds = [...new Set((passports ?? []).map((row) => row.evidence_snapshot_id).filter(Boolean).map(String))];
+const { data: recommendations, error: recommendationError } = snapshotIds.length
+  ? await supabase
+      .from('recommendations')
+      .select('id,company_id,decision_id,evidence_snapshot_id,evidence,status,expected_impact')
+      .in('evidence_snapshot_id', snapshotIds)
+  : { data: [], error: null };
 if (recommendationError) throw recommendationError;
 
-const { data: decisions, error: decisionError } = await supabase
-  .from('business_intelligence_decisions')
-  .select('id,recommendation_id,status,evidence,approved_at,expected_impact,confidence')
-  .eq('company_id', companyId);
+const recommendationIds = [...new Set((recommendations ?? []).map((row) => row.id).filter(Boolean).map(String))];
+const { data: decisions, error: decisionError } = recommendationIds.length
+  ? await supabase
+      .from('business_intelligence_decisions')
+      .select('id,company_id,recommendation_id,status,evidence,approved_at,expected_impact,confidence')
+      .in('recommendation_id', recommendationIds)
+  : { data: [], error: null };
 if (decisionError) throw decisionError;
 
-const decisionIds = (decisions ?? []).map((row) => String(row.id));
+const decisionIds = [...new Set((decisions ?? []).map((row) => String(row.id)))];
 const { data: approvals, error: approvalError } = decisionIds.length
-  ? await supabase.from('decision_approvals').select('id,decision_id,status').eq('company_id', companyId).in('decision_id', decisionIds)
+  ? await supabase.from('decision_approvals').select('id,company_id,decision_id,status').in('decision_id', decisionIds)
   : { data: [], error: null };
 if (approvalError) throw approvalError;
 
 const { data: workItems, error: workError } = decisionIds.length
-  ? await supabase.from('decision_work_items').select('id,decision_id,status,evidence_refs').eq('company_id', companyId).in('decision_id', decisionIds)
+  ? await supabase.from('decision_work_items').select('id,company_id,decision_id,status,evidence_refs').in('decision_id', decisionIds)
   : { data: [], error: null };
 if (workError) throw workError;
 
 const { data: outcomes, error: outcomeError } = decisionIds.length
-  ? await supabase.from('recommendation_outcomes').select('id,decision_id,status,expected_impact,actual_impact,evidence').eq('company_id', companyId).in('decision_id', decisionIds)
+  ? await supabase.from('recommendation_outcomes').select('id,company_id,decision_id,status,expected_impact,actual_impact,evidence').in('decision_id', decisionIds)
   : { data: [], error: null };
 if (outcomeError) throw outcomeError;
 
-const passportByHash = new Map((passports ?? []).map((row) => [String(row.source_hash), row]));
+const passportByJobId = new Map((passports ?? []).map((row) => [String(row.report_execution_job_id), row]));
+const recommendationsBySnapshot = new Map();
 const recommendationsBySnapshot = new Map();
 for (const row of recommendations ?? []) {
   const key = String(row.evidence_snapshot_id);
@@ -189,7 +208,8 @@ for (const row of decisions ?? []) {
 
 const result = sourceJobs.map((job) => {
   const hash = String(job.source_hash);
-  const passport = passportByHash.get(hash);
+  const tenantId = String(job.company_id);
+  const passport = passportByJobId.get(String(job.id));
   const snapshotId = passport ? String(passport.evidence_snapshot_id) : '';
   const sourceRecommendations = snapshotId ? (recommendationsBySnapshot.get(snapshotId) ?? []) : [];
   const sourceDecisionIds = sourceRecommendations.map((row) => String(row.id)).map((id) => decisionsByRecommendation.get(id)).filter(Boolean);
@@ -223,6 +243,7 @@ const result = sourceJobs.map((job) => {
 
   return {
     source: String(job.source_path ?? ''),
+    companyId: tenantId,
     passport: passport?.verification_status === 'VERIFIED' ? 'PASS' : passport?.acceptance_status === 'REVIEW' ? 'REVIEW' : 'BLOCKED',
     signals: signals.length ? 'PASS' : 'REVIEW',
     recommendation: sourceRecommendations.length ? 'PASS' : 'REVIEW',
@@ -237,6 +258,8 @@ const result = sourceJobs.map((job) => {
 
 const summary = {
   cohort: result.length,
+  uniqueSourceHashes: new Set(result.map((row) => sourceJobs.find((job) => String(job.source_path) === row.source)?.source_hash).filter(Boolean)).size,
+  tenants: new Set(result.map((row) => row.companyId)).size,
   evidencePassport: result.filter((row) => row.passport === 'PASS').length,
   signals: result.filter((row) => row.signals === 'PASS').length,
   recommendations: result.filter((row) => row.recommendation === 'PASS').length,
