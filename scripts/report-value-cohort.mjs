@@ -73,52 +73,67 @@ async function selectCohortJobs() {
     /^[0-9a-fA-F-]{36}$/.test(String(job.evidence?.renderedOutput?.importId ?? '')),
   );
 
+  const chunk = (items, size = 50) => {
+    const out = [];
+    for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
+    return out;
+  };
+
   const sourceHashes = [...new Set(rawJobs.map((job) => String(job.source_hash)))];
-  const fileResult = sourceHashes.length
-    ? await supabase
-        .from('file_records')
-        .select('id,company_id,file_hash,status,security_status')
-        .in('file_hash', sourceHashes)
-        .limit(5000)
-    : { data: [], error: null };
-  if (fileResult.error) throw fileResult.error;
+  const fileRows = [];
+  for (const batch of chunk(sourceHashes)) {
+    const result = await supabase
+      .from('file_records')
+      .select('id,company_id,file_hash,status,security_status')
+      .in('file_hash', batch)
+      .limit(1000);
+    if (result.error) throw result.error;
+    fileRows.push(...(result.data ?? []));
+  }
 
   const eligibleFiles = new Map(
-    (fileResult.data ?? [])
+    fileRows
       .filter((file) => ['ready', 'processed', 'verified'].includes(String(file.status)) && String(file.security_status) === 'passed')
       .map((file) => [String(file.company_id) + '|' + String(file.file_hash), file]),
   );
 
-  const importIds = rawJobs
-    .map((job) => String(job.evidence?.renderedOutput?.importId ?? ''))
-    .filter(Boolean);
-  const importResult = importIds.length
-    ? await supabase
-        .from('import_jobs')
-        .select('id,company_id,file_record_id,status')
-        .in('id', importIds)
-        .limit(5000)
-    : { data: [], error: null };
-  if (importResult.error) throw importResult.error;
+  const importIds = [...new Set(
+    rawJobs
+      .map((job) => String(job.evidence?.renderedOutput?.importId ?? ''))
+      .filter(Boolean),
+  )];
+
+  const importRows = [];
+  for (const batch of chunk(importIds)) {
+    const result = await supabase
+      .from('import_jobs')
+      .select('id,company_id,file_record_id,status')
+      .in('id', batch)
+      .limit(1000);
+    if (result.error) throw result.error;
+    importRows.push(...(result.data ?? []));
+  }
 
   const eligibleImports = new Map(
-    (importResult.data ?? [])
+    importRows
       .filter((item) => ['completed', 'processed', 'verified', 'ready'].includes(String(item.status ?? '')))
       .map((item) => [String(item.id), item]),
   );
 
-  const analysisResult = importIds.length
-    ? await supabase
-        .from('source_analysis_snapshots')
-        .select('id,company_id,import_job_id,analysis_status')
-        .in('import_job_id', importIds)
-        .eq('analysis_status', 'analyzed')
-        .limit(5000)
-    : { data: [], error: null };
-  if (analysisResult.error) throw analysisResult.error;
+  const analysisRows = [];
+  for (const batch of chunk(importIds)) {
+    const result = await supabase
+      .from('source_analysis_snapshots')
+      .select('id,company_id,import_job_id,analysis_status')
+      .in('import_job_id', batch)
+      .eq('analysis_status', 'analyzed')
+      .limit(1000);
+    if (result.error) throw result.error;
+    analysisRows.push(...(result.data ?? []));
+  }
 
   const eligibleAnalyses = new Set(
-    (analysisResult.data ?? []).map((item) => String(item.company_id) + '|' + String(item.import_job_id)),
+    analysisRows.map((item) => String(item.company_id) + '|' + String(item.import_job_id)),
   );
 
   const refreshable = rawJobs.filter((job) => {
