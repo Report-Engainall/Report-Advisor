@@ -20,6 +20,12 @@ assert.match(rpc, /p_confidence\s+numeric/i);
 assert.match(rpc, /NULL,\s*NULL,\s*v_evidence/i);
 assert.match(rpc, /link_recommendation_to_decision/i);
 assert.match(rpc, /p_evidence_snapshot_id uuid/i);
+assert.match(rpc, /report_evidence_passports/i);
+assert.match(rpc, /p\.company_id = v_company/i);
+assert.match(rpc, /p\.report_execution_job_id = p_report_job_id/i);
+assert.match(rpc, /p\.source_hash = p_source_hash/i);
+assert.match(rpc, /p\.verification_status = 'VERIFIED'/i);
+assert.match(rpc, /p\.decision_readiness = 'READY'/i);
 assert.match(rpc, /SOURCE_PROPOSAL_EVIDENCE_REQUIRED/i);
 assert.doesNotMatch(rpc, /p_confidence.*0\.5/i);
 
