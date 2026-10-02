@@ -247,6 +247,7 @@ jobs:
       - name: Provision rerunnable E2E actors with bounded recovery
         env:
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           E2E_ACTOR_PROVISION_DEADLINE_MS: '240000'
           E2E_ACTOR_REQUEST_TIMEOUT_MS: '45000'

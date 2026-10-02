@@ -13,6 +13,8 @@ for (const name of required) {
 }
 
 const REQUEST_TIMEOUT_MS = Number(process.env.E2E_ACTOR_REQUEST_TIMEOUT_MS || '30000');
+const ANON_KEY = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY?.trim() || '';
+if (!ANON_KEY) throw new Error('E2E_ACTOR_ENV_MISSING:REPORT_ADVISOR_SUPABASE_ANON_KEY');
 const POSTGREST_RETRYABLE_HTTP = new Set([408, 425, 429, 500, 502, 503, 504]);
 const POSTGREST_RETRY_ATTEMPTS = 12;
 const PROVISION_DEADLINE_MS = Number(process.env.E2E_ACTOR_PROVISION_DEADLINE_MS || '120000');
@@ -55,6 +57,15 @@ async function fetchWithTimeout(input, init = {}) {
 const supabase = createClient(
   process.env.REPORT_ADVISOR_SUPABASE_URL.trim(),
   process.env.SUPABASE_SERVICE_ROLE_KEY.trim(),
+  {
+    auth: { autoRefreshToken: false, persistSession: false },
+    global: { fetch: fetchWithTimeout },
+  },
+);
+
+const anon = createClient(
+  process.env.REPORT_ADVISOR_SUPABASE_URL.trim(),
+  ANON_KEY,
   {
     auth: { autoRefreshToken: false, persistSession: false },
     global: { fetch: fetchWithTimeout },
@@ -125,6 +136,15 @@ function persistActorCredentials(label, email, password) {
   process.env[fields.password] = password;
 }
 
+async function signInConfiguredActor(email, password) {
+  assertProvisionDeadline('sign-in-configured-actor');
+  const { data, error } = await anon.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  assert.ok(data.user?.id, 'E2E_CONFIGURED_ACTOR_ID_REQUIRED');
+  await anon.auth.signOut().catch(() => undefined);
+  return data.user;
+}
+
 async function createActor(email, password) {
   for (let attempt = 1; attempt <= 4; attempt += 1) {
     assertProvisionDeadline('create-actor-attempt-' + attempt);
@@ -167,7 +187,7 @@ async function ensureActor(email, password, label, freshRunScoped = false) {
   let user = null;
   let lookupUnavailable = false;
 
-  const useRunScopedActor = freshRunScoped || process.env.E2E_ACTOR_MODE === 'ephemeral-run-scoped';
+  const useRunScopedActor = freshRunScoped || (process.env.E2E_ACTOR_MODE === 'ephemeral-run-scoped' && generated);
 
   if (useRunScopedActor) {
     // Never reuse workflow-provided ephemeral credentials after a partial/retried run.
@@ -178,9 +198,8 @@ async function ensureActor(email, password, label, freshRunScoped = false) {
     user = await createActor(resolvedEmail, resolvedPassword);
     generated = true;
   } else if (!generated) {
-    const lookup = await findUserByEmail(resolvedEmail);
-    user = lookup.user;
-    lookupUnavailable = lookup.lookupUnavailable;
+    user = await signInConfiguredActor(resolvedEmail, resolvedPassword);
+    lookupUnavailable = false;
   }
 
   if (!freshRunScoped && lookupUnavailable) {
