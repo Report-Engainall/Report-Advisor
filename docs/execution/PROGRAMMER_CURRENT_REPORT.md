@@ -2,9 +2,9 @@
 
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-REPORT_FOR_HEAD = a4858371
-CURRENT EXACT HEAD = a4858371
-CURRENT BRANCH REF = a4858371
+REPORT_FOR_HEAD = 19dae5c2af4b743ba0e3dfafb23969ee96273c1c
+CURRENT EXACT HEAD = 19dae5c2af4b743ba0e3dfafb23969ee96273c1c
+CURRENT BRANCH REF = 19dae5c2af4b743ba0e3dfafb23969ee96273c1c
 BRANCH = fix/smart-report-archetype-runtime-20261002
 PR = #752 OPEN / NOT MERGED / MERGEABLE
 CURRENT MAIN HEAD = 114ebcdbe51bee44361b86e614fb7e2ec0829c8f
@@ -12,15 +12,15 @@ UPDATED_AT = 2026-10-02T20:40:00Z
 ACTION_STATUS = IN_PROGRESS
 
 WHAT_I_WAS_ASKED_TO_DO = إغلاق أول فشل P0/P1 على HEAD الحالي دون إضعاف الأمن، ثم إعادة تشغيل بوابات Passport/Browser/Storage/Cohort/Certification وإثبات source/evidence lineage.
-WHAT_I_ACTUALLY_DID = عُدّل live gate ليستخدم retry محدودًا للطلبات المؤقتة 408/425/429/500/502/503/504، مع بقاء المصادقة وRLS وPassport boundaries كما هي. لم تُضاف صلاحيات كتابة ولم يحدث تجاوز للمصادقة.
-WHAT_IS_PROVEN = code fixes through a4858371 are persisted; fresh current-head runtime gates will determine the next terminal result. No runtime PASS is claimed yet.
-FIRST_ACTIVE_FAILURE = prior Browser E2E failure was AuthRetryableFetchError: E2E_ACTOR_REQUEST_TIMEOUT in provisioning; remediation is a4858371, which uses configured A/B actors through Auth sign-in and reserves admin createUser for generated actors.
-ROOT_CAUSE = configured A/B credentials were incorrectly forced through Auth Admin createUser whenever E2E_ACTOR_MODE was ephemeral due to a missing approver secret.
-NEXT_EXACT_ACTION = rerun Browser/Evidence/Certification on a4858371; consume the first terminal failure only, then continue to Smart Reports proof.
+WHAT_I_ACTUALLY_DID = عُدّل live gate وPostgREST/Auth resilience، وأُضيف provisioner E2E محمي داخل Supabase بحيث تُنشأ هويات الاختبار داخل نفس منطقة Auth بدل الاعتماد على Auth Admin من GitHub runner. لم تُضاف صلاحيات كتابة للمستخدمين ولم يحدث bypass للمصادقة.
+WHAT_IS_PROVEN = code fixes through 19dae5c2 are persisted; Final Certification and Execution Enforcement have prior successful runs on the immediately preceding code head, while fresh 19dae5c2 runtime gates are not yet terminal. No runtime PASS is claimed for 19dae5c2 yet.
+FIRST_ACTIVE_FAILURE = Session Handoff failed on 19dae5c2 because persisted report metadata still referenced a4858371; this is docs-only checkpoint drift, not a product runtime failure. The immediate fix is this docs-only checkpoint commit.
+ROOT_CAUSE = session handoff state lagged behind the code frontier after adding the protected Supabase E2E auth provisioner.
+NEXT_EXACT_ACTION = commit this current-head handoff checkpoint, then consume the first terminal Browser/Evidence/Certification failure on 19dae5c2; only after a real product proof closes proceed to Smart Reports and production.
 
 ## CURRENT HEAD RUNTIME FRONTIER
 
-- Browser/Evidence/Certification from the previous code frontier are superseded by the fresh a4858371 runs.
+- Browser/Evidence/Certification from 19dae5c2 are the authoritative current-code runs; any older SHA evidence remains historical.
 
 ## WHAT IS PROVEN — HISTORICAL, NOT CURRENT-HEAD RUNTIME
 
