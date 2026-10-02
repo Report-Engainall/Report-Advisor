@@ -144,7 +144,7 @@ function runDockerPsql(databaseUrl, sql) {
     '-e', `QUERY=${sql}`,
     'postgres:17',
     'sh', '-lc',
-    'psql "$PGURI" -v ON_ERROR_STOP=1 -At -c "$QUERY"',
+    'psql "$PGURI" -v ON_ERROR_STOP=1 -At -c "SET statement_timeout = 0" -c "$QUERY"',
   ]);
 }
 
@@ -155,7 +155,7 @@ function runDockerPsqlFile(databaseUrl, filePath) {
     '-e', `PGURI=${databaseUrl}`,
     'postgres:17',
     'sh', '-lc',
-    'psql "$PGURI" -v ON_ERROR_STOP=1 -f /tmp/phase-f-backup.sql',
+    'psql "$PGURI" -v ON_ERROR_STOP=1 -c "SET statement_timeout = 0" -f /tmp/phase-f-backup.sql',
   ]);
 }
 
@@ -225,12 +225,27 @@ async function logicalBackupRestore() {
 
     runCommand('supabase', ['db', 'reset', '--debug', '--no-seed'], { cwd: workDir });
 
-    const snapshotText = runDockerPsql(runnerSource, exactSnapshotSql);
+    let snapshotText;
+    try {
+      snapshotText = runDockerPsql(runnerSource, exactSnapshotSql);
+    } catch (error) {
+      throw new Error(`logical_source_snapshot_failed:${error}`);
+    }
     const snapshotAt = Date.parse(snapshotText);
     if (!Number.isFinite(snapshotAt)) throw new Error('source_snapshot_timestamp_invalid');
 
-    const generatedCountSql = runDockerPsql(runnerSource, countSql);
-    const sourceCounts = parseTableCounts(runDockerPsql(runnerSource, generatedCountSql));
+    let generatedCountSql;
+    try {
+      generatedCountSql = runDockerPsql(runnerSource, countSql);
+    } catch (error) {
+      throw new Error(`logical_source_count_sql_failed:${error}`);
+    }
+    let sourceCounts;
+    try {
+      sourceCounts = parseTableCounts(runDockerPsql(runnerSource, generatedCountSql));
+    } catch (error) {
+      throw new Error(`logical_source_counts_failed:${error}`);
+    }
 
     const backupStartedAt = Date.now();
     runCommand('supabase', [
@@ -249,9 +264,18 @@ async function logicalBackupRestore() {
     if (rpoSeconds > maxRpoSeconds) throw new Error(`rpo_budget_exceeded:${rpoSeconds}`);
 
     const restoreStartedAt = Date.now();
-    runDockerPsqlFile(localDbUrl, backupPath);
+    try {
+      runDockerPsqlFile(localDbUrl, backupPath);
+    } catch (error) {
+      throw new Error(`logical_target_restore_failed:${error}`);
+    }
     const restoreCompletedAt = Date.now();
-    const targetCounts = parseTableCounts(runDockerPsql(localDbUrl, generatedCountSql));
+    let targetCounts;
+    try {
+      targetCounts = parseTableCounts(runDockerPsql(localDbUrl, generatedCountSql));
+    } catch (error) {
+      throw new Error(`logical_target_counts_failed:${error}`);
+    }
     const rtoSeconds = (restoreCompletedAt - restoreStartedAt) / 1000;
 
     const mismatchTables = [...new Set([...Object.keys(sourceCounts), ...Object.keys(targetCounts)])]
