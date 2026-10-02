@@ -635,6 +635,61 @@ export function applyArchetypeRuleSet(
     }
   }
 
+  if (!modelFinding && family === 'inventory-aging') {
+    const stockKey = columnKey(report, 'currentStock');
+    const dateKey = columnKey(report, 'documentDate');
+    if (stockKey && dateKey) {
+      const dated = rows.map((row) => {
+        const raw = text(row.data?.[dateKey]);
+        const date = new Date(raw);
+        const stock = num(row.data?.[stockKey]);
+        return Number.isNaN(date.getTime()) || stock == null ? null : { date, stock };
+      }).filter((item): item is { date: Date; stock: number } => Boolean(item));
+      if (dated.length) {
+        const asOf = dated.reduce((latest, item) => item.date > latest ? item.date : latest, dated[0].date);
+        const nonZero = dated.filter((item) => item.stock > 0);
+        const oldest = nonZero.reduce((oldest, item) => item.date < oldest ? item.date : oldest, asOf);
+        const ageDays = Math.max(0, Math.round((asOf.getTime() - oldest.getTime()) / 86400000));
+        modelFinding = {
+          id: 'archetype:' + profile.id + ':inventory-aging',
+          kind: ageDays >= 90 ? 'RISK' : 'FINDING',
+          priority: ageDays >= 90 ? 'high' : 'medium',
+          title: profile.title + ' — عمر الرصيد المرصود',
+          statement: 'أقدم تاريخ مرصود لرصيد موجب يسبق آخر تاريخ للمصدر بنحو ' + ageDays + ' يومًا.',
+          value: ageDays,
+          unit: 'days',
+          evidence: ['stockField=' + stockKey, 'dateField=' + dateKey, 'asOf=' + asOf.toISOString().slice(0, 10), 'oldestPositiveStockDate=' + oldest.toISOString().slice(0, 10)],
+          limitation: 'العمر هنا مشتق من تواريخ السجلات المتاحة وليس من تاريخ دخول المخزون الفعلي ما لم يكن مسجلًا.',
+          action: profile.recommendationFocus[0] || 'حدد الأرصدة الأقدم واربطها بحركة البيع قبل قرار التصفية.',
+        };
+      }
+    }
+  }
+
+  if (!modelFinding && family === 'inventory-velocity') {
+    const dateKey = columnKey(report, 'documentDate');
+    const salesKey = columnKey(report, 'salesQty');
+    if (dateKey && salesKey) {
+      const trend = dateValue(rows, dateKey, salesKey);
+      if (trend) {
+        modelFinding = {
+          id: 'archetype:' + profile.id + ':inventory-velocity',
+          kind: 'FINDING',
+          priority: 'medium',
+          title: profile.title + ' — حركة الكمية',
+          statement: 'كمية الحركة انتقلت من ' + trend.previous[1].toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + ' إلى ' + trend.latest[1].toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + ' بين آخر فترتين.',
+          value: trend.delta,
+          unit: 'quantity delta',
+          dimensionLabel: 'الفترة',
+          dimensionValue: trend.latest[0],
+          evidence: ['dateField=' + dateKey, 'salesQtyField=' + salesKey, 'previousPeriod=' + trend.previous[0], 'latestPeriod=' + trend.latest[0]],
+          limitation: 'هذا تغير في الكمية وليس معدل دوران محاسبي؛ معدل الدوران يحتاج متوسط مخزون موثق.',
+          action: profile.recommendationFocus[0] || 'اربط حركة الكمية بالرصيد المتوسط لتقييم السرعة الفعلية.',
+        };
+      }
+    }
+  }
+
   if (!modelFinding && family === 'inventory-position') {
     const stockKey = columnKey(report, 'currentStock');
     if (stockKey) {
