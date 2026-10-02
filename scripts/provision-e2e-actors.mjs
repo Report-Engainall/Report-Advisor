@@ -198,7 +198,9 @@ async function findTenantA() {
 function ensureApproverCredentials() {
   const existingEmail = process.env.TEST_APPROVER_EMAIL?.trim();
   const existingPassword = process.env.TEST_APPROVER_PASSWORD;
-  if (existingEmail && existingPassword) return { email: existingEmail, password: existingPassword, generated: false };
+  const ephemeral = process.env.TEST_APPROVER_EPHEMERAL === 'true'
+    || process.env.E2E_ACTOR_MODE === 'ephemeral-run-scoped';
+  if (existingEmail && existingPassword) return { email: existingEmail, password: existingPassword, generated: ephemeral };
 
   const runId = String(process.env.GITHUB_RUN_ID || process.env.E2E_APPROVER_RUN_ID || Date.now()).replace(/[^0-9]/g, '');
   const email = 'e2e-approver-' + runId + '@e2e.report-advisor.invalid';
