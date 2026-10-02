@@ -1,4 +1,4 @@
-import type { ReportIntelligence, BusinessFinding, ReportSignal, ReportRecommendation } from './report-smart-insights';
+import { deriveReportIntelligence, type ReportIntelligence, type BusinessFinding, type ReportSignal, type ReportRecommendation } from './report-smart-insights';
 
 type RuleProfile = {
   id: string;
@@ -10,7 +10,7 @@ type RuleProfile = {
   recommendationFocus: string[];
 };
 
-type RuleReport = Parameters<import('./report-smart-insights').deriveReportIntelligence>[0];
+type RuleReport = Parameters<typeof deriveReportIntelligence>[0];
 
 function text(value: unknown): string {
   return String(value ?? '').trim();
