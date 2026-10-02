@@ -48,6 +48,7 @@ check(advisory.actionState === 'ACTIONABLE', 'verified recommendation should be 
 check(advisory.questions.find((q) => q.id === 'report.what-happened')?.state === 'ANSWERED', 'what-happened should be answered from source intelligence');
 check(advisory.questions.find((q) => q.id === 'report.contributors')?.state === 'ANSWERED' || advisory.questions.find((q) => q.id === 'report.contributors')?.state === 'REVIEW_REQUIRED', 'contributors must have an explicit evidence state');
 check(advisory.questions.find((q) => q.id === 'report.so-what')?.state === 'REVIEW_REQUIRED' || advisory.questions.find((q) => q.id === 'report.so-what')?.state === 'ANSWERED', 'so-what must have an explicit state');
+check(Boolean(advisory.questions.find((q) => q.id === 'report.what-happened')?.followUpQuestion), 'answered questions must expose a contextual follow-up');
 check(advisory.questions.find((q) => q.id === 'report.why')?.state === 'REVIEW_REQUIRED', 'why should retain causal review boundary');
 
 const archetypeIntelligence = {
