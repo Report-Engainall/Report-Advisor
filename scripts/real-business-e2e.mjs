@@ -833,6 +833,36 @@ async function proveDecisionApprovalActionOutcome(page, report) {
     assert.equal(String(refreshedApprovals[0].requested_by), userAId);
   }
 
+  const createWorkAsAdminActor = async () => {
+    const approverContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
+    const approverPage = await approverContext.newPage();
+    attachRuntimeCapture(approverPage);
+    try {
+      await login(approverPage, approverEmail, approverPassword);
+      const adminTenant = await currentTenant(approverPage);
+      const adminId = await currentUserId(approverPage);
+      assert.equal(adminTenant, evidence.tenantA, 'WORK_CREATOR_TENANT_MUST_MATCH_REQUEST_TENANT');
+      assert.notEqual(adminId, userAId, 'WORK_CREATOR_MUST_DIFFER_FROM_REQUESTER');
+      const membership = await restSelect(
+        approverPage,
+        'company_memberships',
+        { company_id: evidence.tenantA, user_id: adminId, is_active: true },
+        'role',
+        { limit: 1 },
+      );
+      const role = membership[0]?.role == null ? '' : String(membership[0].role).toLowerCase();
+      assert.ok(['owner', 'admin', 'administrator'].includes(role), 'WORK_CREATOR_ADMIN_BOUNDARY_MISSING');
+      await approverPage.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });
+      const button = approverPage.locator('[data-testid="create-work-' + decisionId + '"]');
+      await button.waitFor({ state: 'visible', timeout: 30000 });
+      await button.click();
+      await approverPage.waitForTimeout(500);
+    } finally {
+      await approverPage.close().catch(() => {});
+      await approverContext.close().catch(() => {});
+    }
+  };
+
   if (approvalStatus === 'PENDING') {
     const approverContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
     const approverPage = await approverContext.newPage();
@@ -856,6 +886,13 @@ async function proveDecisionApprovalActionOutcome(page, report) {
       assert.equal(String(approvedRows[0].requested_by), userAId);
       assert.equal(String(approvedRows[0].decided_by), approverId);
       approvalStatus = 'APPROVED';
+
+      const approverCreateWorkButton = approverPage.locator('[data-testid="create-work-' + decisionId + '"]');
+      if (await approverCreateWorkButton.count() === 1) {
+        await approverCreateWorkButton.waitFor({ state: 'visible', timeout: 30000 });
+        await approverCreateWorkButton.click();
+        await approverPage.waitForTimeout(500);
+      }
     } finally {
       await approverPage.close().catch(() => {});
       await approverContext.close().catch(() => {});
@@ -863,15 +900,23 @@ async function proveDecisionApprovalActionOutcome(page, report) {
   }
 
   await page.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });
-  const createWorkButton = page.locator('[data-testid="create-work-' + decisionId + '"]');
-  if (await createWorkButton.count() === 0) {
-    const existingWork = await restSelect(page, 'decision_work_items', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,status,assignee_id,actual_impact', { order: 'created_at.desc', limit: 1 });
-    if (existingWork.length === 0 || existingWork[0].status === 'COMPLETED') {
-      evidence.steps.push({ step: 'decision-approval-action-outcome', status: 'NOT_PROVEN', reason: 'APPROVED_DECISION_HAS_NO_OPEN_ACTION', decisionId, approvalStatus });
-      return;
-    }
-  } else {
-    await createWorkButton.click();
+  let existingWork = await restSelect(
+    page,
+    'decision_work_items',
+    { company_id: evidence.tenantA, decision_id: decisionId },
+    'id,status,assignee_id,actual_impact',
+    { order: 'created_at.desc', limit: 1 },
+  );
+  if (existingWork.length === 0 || existingWork[0].status === 'COMPLETED') {
+    await createWorkAsAdminActor();
+    existingWork = await restSelect(
+      page,
+      'decision_work_items',
+      { company_id: evidence.tenantA, decision_id: decisionId },
+      'id,status,assignee_id,actual_impact',
+      { order: 'created_at.desc', limit: 1 },
+    );
+    assert.ok(existingWork.length === 1, 'DECISION_WORK_ITEM_DB_ROW_MISSING_AFTER_ADMIN_CREATION');
   }
 
   const workRowsOpen = await restSelect(page, 'decision_work_items', { company_id: evidence.tenantA, decision_id: decisionId }, 'id,company_id,decision_id,recommendation_id,status,assignee_id,assignee_label,evidence_refs', { order: 'created_at.desc', limit: 1 });

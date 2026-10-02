@@ -319,7 +319,7 @@ const tenantB = await findTenantB();
 assert.notEqual(String(tenantA.id), String(tenantB.id), 'TENANT_A_AND_B_MUST_BE_DISTINCT');
 
 const membershipA = await provisionMembership(tenantA.id, userA.id, 'sales', true, 'A');
-const membershipApprover = await provisionMembership(tenantA.id, approver.id, 'manager', true, 'APPROVER');
+const membershipApprover = await provisionMembership(tenantA.id, approver.id, 'admin', true, 'APPROVER');
 const membershipB = await provisionMembership(tenantB.id, userB.id, 'sales', true, 'B');
 const transactionFixture = await prepareTransactionalFixture(tenantA.id, userA.id);
 
