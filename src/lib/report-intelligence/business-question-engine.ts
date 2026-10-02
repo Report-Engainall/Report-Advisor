@@ -17,6 +17,7 @@ export type BusinessQuestion<TAnswer = unknown> = {
   state: BusinessQuestionState;
   missingFields: CanonicalField[];
   evidenceBoundary: string;
+  followUpQuestion: string | null;
 };
 
 function uniqueFields(fields: CanonicalField[]): CanonicalField[] {
@@ -24,8 +25,9 @@ function uniqueFields(fields: CanonicalField[]): CanonicalField[] {
 }
 
 export function evaluateBusinessQuestion<TAnswer>(
-  question: Omit<BusinessQuestion<TAnswer>, 'state' | 'missingFields' | 'evidenceBoundary'> & {
+  question: Omit<BusinessQuestion<TAnswer>, 'state' | 'missingFields' | 'evidenceBoundary' | 'followUpQuestion'> & {
     availableFields: CanonicalField[];
+    followUpQuestion?: string | null;
     sampleSize: number;
     answer?: TAnswer | null;
     reviewRequired?: boolean;
@@ -47,6 +49,7 @@ export function evaluateBusinessQuestion<TAnswer>(
       state: 'BLOCKED',
       missingFields,
       evidenceBoundary: question.blockedReason,
+          followUpQuestion: question.followUpQuestion ?? null,
     };
   }
 
@@ -61,6 +64,7 @@ export function evaluateBusinessQuestion<TAnswer>(
       state: 'NOT_AVAILABLE',
       missingFields,
       evidenceBoundary: 'الإجابة تتطلب الحقول: ' + missingFields.join('، '),
+          followUpQuestion: question.followUpQuestion ?? null,
     };
   }
 
@@ -75,6 +79,7 @@ export function evaluateBusinessQuestion<TAnswer>(
       state: 'INSUFFICIENT_SAMPLE',
       missingFields: [],
       evidenceBoundary: 'العينة المتاحة أقل من الحد الأدنى المطلوب (' + question.minimumSample + ').',
+          followUpQuestion: question.followUpQuestion ?? null,
     };
   }
 
@@ -89,6 +94,7 @@ export function evaluateBusinessQuestion<TAnswer>(
       state: 'REVIEW_REQUIRED',
       missingFields: [],
       evidenceBoundary: 'الإجابة تحتاج مراجعة بشرية قبل اعتمادها كقرار.',
+          followUpQuestion: question.followUpQuestion ?? null,
     };
   }
 
@@ -103,6 +109,7 @@ export function evaluateBusinessQuestion<TAnswer>(
       state: 'REVIEW_REQUIRED',
       missingFields: [],
       evidenceBoundary: 'المدخلات متاحة لكن لم تُنتج طبقة التحليل إجابة مثبتة.',
+          followUpQuestion: question.followUpQuestion ?? null,
     };
   }
 
@@ -116,6 +123,7 @@ export function evaluateBusinessQuestion<TAnswer>(
     state: 'ANSWERED',
     missingFields: [],
     evidenceBoundary: 'الإجابة مبنية على الحقول والعينة المحددة؛ ارجع إلى evidence/passport قبل القرار التنفيذي.',
+        followUpQuestion: question.followUpQuestion ?? null,
   };
 }
 
