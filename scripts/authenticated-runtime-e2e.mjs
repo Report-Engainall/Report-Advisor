@@ -15,15 +15,21 @@ if (!baseUrl || !anonKey || !tenantAId || !tenantBId || tenantAId === tenantBId 
 }
 
 async function login(user) {
-  const response = await fetch(`${baseUrl}/auth/v1/token?grant_type=password`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', apikey: anonKey },
-    body: JSON.stringify({ email: user.email, password: user.password }),
-  });
-  const body = await response.json().catch(() => ({}));
-  assert.equal(response.ok, true, `authenticated login failed: ${response.status}`);
-  assert.ok(body.access_token, 'login response must contain access_token');
-  return body.access_token;
+  let lastStatus = 599;
+  for (let attempt = 1; attempt <= 6; attempt += 1) {
+    const response = await fetch(`${baseUrl}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', apikey: anonKey },
+      body: JSON.stringify({ email: user.email, password: user.password }),
+    });
+    const body = await response.json().catch(() => ({}));
+    lastStatus = response.status;
+    if (response.ok && body.access_token) return body.access_token;
+    const retryable = [429, 500, 502, 503, 504].includes(response.status);
+    if (!retryable || attempt === 6) break;
+    await new Promise(resolve => setTimeout(resolve, Math.min(5000 * attempt, 20000)));
+  }
+  throw new Error(`authenticated login failed after recovery attempts: ${lastStatus}`);
 }
 
 async function probe(token) {

@@ -78,7 +78,9 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
     items: [
       { section: 'decision-center', path: '/', label: 'نبض الأعمال', enLabel: 'Business Pulse', description: 'الصورة التنفيذية اليومية في شاشة واحدة', keywords: ['dashboard', 'home', 'نبض', 'أعمال', 'رئيسية'], icon: 'dashboard' },
       { section: 'decision-center', path: '/command-center', label: 'مركز القرار', enLabel: 'Decision Command', description: 'الإشارات والأولويات التي تستحق الانتباه الآن', keywords: ['command', 'decision', 'قيادة', 'قرار', 'أولوية'], icon: 'command-center' },
+      { section: 'decision-center', path: '/decision-inbox', label: 'صندوق القرار', enLabel: 'Decision Inbox', description: 'ما يحتاج قرارًا أو اعتمادًا أو متابعة أو نتيجة، من السجلات الكانونية', keywords: ['decision inbox', 'inbox', 'approval', 'work', 'outcome', 'قرار', 'اعتماد', 'عمل', 'نتيجة'], icon: 'decision' },
       { section: 'decision-center', path: '/decision-experience', label: 'تجربة القرار', enLabel: 'Decision Experience', description: 'الدليل والسياق والموافقة والإجراء والنتيجة', keywords: ['decision', 'evidence', 'approval', 'قرار', 'دليل', 'نتيجة'], icon: 'decision' },
+      { section: 'decision-center', path: '/advisor-cases', label: 'قضايا Advisor', enLabel: 'Advisor Cases', description: 'قضايا الأعمال المحفوظة والمُتابعة من التقارير إلى القرار والنتيجة', keywords: ['advisor', 'cases', 'saved', 'follow', 'continue', 'قضايا', 'متابعة', 'استئناف'], icon: 'decision' },
     ],
   },
   {
@@ -87,6 +89,7 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
     enTitle: 'Data Operations',
     items: [
       { section: 'data-operations', path: '/work-center', label: 'مركز العمل', enLabel: 'Work Center', description: 'صف التنفيذ والاستثناءات ودورات العمل', keywords: ['work center', 'jobs', 'عمليات', 'تشغيل', 'استثناء'], icon: 'work-center' },
+      { section: 'data-operations', path: '/operations', label: 'مركز العمليات', enLabel: 'Operations Center', description: 'تشغيل الطلبات والفواتير والتحصيل وربطها بالتسعير والمستودع', keywords: ['operations','orders','invoices','payments','pricing','warehouse','طلبات','فواتير','تحصيل','تسعير','مستودعات'], icon: 'work-center' },
       { section: 'data-operations', path: '/import', label: 'إدخال البيانات', enLabel: 'Data Import', description: 'رفع ومعاينة واعتماد المصادر دون تجاوز مسار الحقيقة', keywords: ['import', 'upload', 'excel', 'csv', 'pdf', 'استيراد', 'رفع'], icon: 'import' },
       { section: 'data-operations', path: '/import/analyze', label: 'تحليل المستندات', enLabel: 'Document Analysis', description: 'استخراج المستندات وإثبات الحقول والثقة', keywords: ['document', 'ocr', 'extract', 'تحليل', 'مستند'], icon: 'document' },
       { section: 'data-operations', path: '/data-quality', label: 'جودة البيانات', enLabel: 'Data Quality', description: 'التغطية والفجوات والأخطاء والثقة', keywords: ['quality', 'dq', 'جودة', 'بيانات', 'ثقة'], icon: 'quality' },

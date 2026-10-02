@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 
-type BadgeVariant = 'primary' | 'success' | 'warning' | 'danger' | 'neutral' | 'accent';
+type BadgeVariant = 'primary' | 'success' | 'warning' | 'danger' | 'neutral' | 'accent' | 'info' | 'disabled';
 
 const variants: Record<BadgeVariant, string> = {
   primary: 'bg-primary-50 text-primary-700',
@@ -9,6 +9,8 @@ const variants: Record<BadgeVariant, string> = {
   danger: 'bg-danger-50 text-danger-700',
   neutral: 'bg-ink-100 text-ink-600',
   accent: 'bg-accent-50 text-accent-700',
+  info: 'bg-info-50 text-info-700 ring-1 ring-inset ring-info-100',
+  disabled: 'bg-ink-100 text-ink-400 ring-1 ring-inset ring-ink-200',
 };
 
 export function Badge({ children, variant = 'neutral', className = '' }: { children: ReactNode; variant?: BadgeVariant; className?: string }) {
@@ -31,6 +33,9 @@ export function StatusBadge({ status }: { status: string }) {
     completed: { variant: 'success', label: 'مكتمل' },
     failed: { variant: 'danger', label: 'فشل' },
     partial: { variant: 'warning', label: 'جزئي' },
+    unavailable: { variant: 'disabled', label: 'غير متاح' },
+    readonly: { variant: 'disabled', label: 'قراءة فقط' },
+    queued: { variant: 'info', label: 'بالانتظار' },
   };
   const config = map[status] || { variant: 'neutral' as BadgeVariant, label: status };
   return <Badge variant={config.variant}>{config.label}</Badge>;

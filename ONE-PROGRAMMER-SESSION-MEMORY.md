@@ -1,3 +1,41 @@
+# LIVE EXECUTION CHECKPOINT — 2026-10-02 / DURABLE EVIDENCE PASSPORT
+- CURRENT EXACT EXECUTION HEAD → 1d1a9aecb236c7a6753c9924518e3a6083e6f244.
+- CONTROL-PLANE WRITEBACK → documentation-only; no product/import rollback.
+- PR #730 → OPEN / MERGEABLE at the execution head before this writeback.
+- FIRST REAL FAILURE → legacy report outputs could carry VERIFIED without a durable Evidence Snapshot.
+- ROOT CAUSE → embedded renderedOutput evidence was being treated as final evidence authority.
+- CORE DELTA → durable report_evidence_snapshots + report_evidence_passports now bind tenant, source hash, source version, analysis snapshot, canonical coverage, acceptance, verification, decision readiness, fingerprint and lineage.
+- LEGACY DELTA → when prior rendered state is VERIFIED without explicit snapshot identity, the new passport records LEGACY_UNRESOLVED rather than silently trusting the old state.
+- DECISION DELTA → source-intelligence recommendation/decision/work paths require a VERIFIED/READY passport in code; source proposal confidence is NOT_ASSESSED rather than a fabricated 0.5.
+- UX DELTA → Smart Report exposes Passport acceptance, verification, readiness, snapshot identity, legacy historical state and 50,000-row partial-analysis scope.
+- COHORT DELTA → exact-head runner `npm run report:value-cohort` exists and refuses to accept fewer than 40 reports; dedicated GitHub Action runs the same cohort against exact PR SHA with Supabase service credentials.
+- LIVE PROOF → 2 source reports have now produced durable VERIFIED/READY Passports. Both were correctly tagged legacyPriorVerification=true, proving the new Passport can replace historical embedded verification without erasing provenance.
+- LIVE BLOCKER → remaining cohort processing is incremental because some legacy jobs have invalid/missing importJobId links; these are intentionally REVIEW, not promoted.
+- DB GATE → Passport DDL is live. The full DB recommendation/decision/work trigger gate migration is in repository, but live application is still not proven because Supabase migration writes are intermittently timing out.
+- SECURITY → public.canonical_import_repair_history remains RLS-disabled; no automatic ALTER/policy mutation was applied.
+- RUNTIME → Vercel free build-rate-limit remains external; authenticated Microsoft Edge proof remains NOT_PROVEN.
+- DO-NOT-REPEAT → no re-import of completed reports; no canonical-row rewrite; no evidence promotion without durable Passport; no stale-SHA/browser PASS.
+- NEXT EXACT ACTION → finish live DB gate application when migration connectivity is stable, process the remaining same-40 cohort, then read the exact 40-row Business Value Acceptance Matrix and continue from the first REVIEW/BLOCKED state.
+
+
+# LIVE EXECUTION CHECKPOINT — 2026-10-02 / ADVISOR VALUE CLOSURE
+- CURRENT FUNCTIONAL CODE HEAD → 7a01787de9bc08e0a6a7175251ca4d8eae7b13dd.
+- BRANCH → fix/current-head-runtime-provenance-20261002.
+- PR → #730 OPEN / NOT MERGED.
+- CODE DELTA → Report Advisor now renders WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF; every recommendation also exposes OWNER + EXPECTED OUTCOME inside the report surface.
+- DECISION CONTINUITY → the report surface reads persisted source-bound decision/recommendation/approval/work/outcome state and exposes DECISION → ACTION → OUTCOME → LEARNING without local fake state.
+- DETERMINISTIC CORE → all new Advisor value fields derive from existing source analysis/signals; no new financial truth, KPI, benchmark, or forecast is invented.
+- EXACT TEST → scripts/report-intelligence-value-chain.test.ts verifies signal enrichment, recommendation linkage, bounded impact, owner, expected outcome, and evidence retention.
+- EXACT-SHA PROOF ON 7a → npm run typecheck PASS; npm run lint PASS with 0 errors / 137 warnings; focused Advisor value-chain test PASS; Intelligence Product contract PASS; parallel heart + UI contract PASS; git diff --check PASS.
+- EXACT-SHA BUILD ON 7a → npm run build PASS with BUILD_SOURCE_SHA=7a01787de9bc08e0a6a7175251ca4d8eae7b13dd.
+- RUNTIME PREVIEW PROOF → Netlify deployment 6abf16a16c8ffe00088ba2e8 is READY from commit 7a; /api/health returned HTTP 200 with source_sha=build_sha=deployment_sha=7a, target_env=preview.
+- PUBLIC PREVIEW CONTENT → rendered page title is الأغبري | منصة ذكاء الأعمال والقرار; TinyFish confirmed Arabic landing/auth gate and metadata aghbari-source-sha=7a.
+- BROWSER BOUNDARY → authenticated Microsoft Edge business-flow, Tenant A/B, Approval→Work→Outcome, and production-runtime browser proof remain NOT_PROVEN. Unauthenticated preview content is verified; it is not a business-flow PASS.
+- PRODUCTION → Vercel remains blocked by build-rate-limit; no production status is promoted from pending/failure.
+- FIXTURE BOUNDARY → local tests/fixtures/realistic-reports/ contains README only; no Git fixture-corpus completion is claimed in this round.
+- DO-NOT-REPEAT → no re-import of completed reports, no canonical-row rewrite, no evidence promotion, no stale-SHA/browser PASS, no database-to-browser inference.
+- NEXT EXACT ACTION → authenticated exact-head browser journey on 7a, then Tenant A/B isolation + Approval→Work→Outcome + production deployment provenance; preserve preview proof and current Advisor value delta.
+
 # FINAL EXACT-HEAD READBACK CHECKPOINT — 2026-09-30
 
 - EXACT CURRENT HEAD BEFORE THIS GOVERNANCE-ONLY WRITEBACK → `73d7f0e2b49081372a7a12dc0f95b98b5fff8f1b`.
