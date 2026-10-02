@@ -59,6 +59,18 @@ COHORT_PLAN_PROOF =
 - source_analysis_snapshots uses company_id+source_hash index and filters analysis_status, then sorts by created_at/id, estimated cost ~0.27..2.50.
 - Therefore the earlier 57014 is not currently proven to be caused by a catastrophic scan. Next required proof is contention/repeated-refresh behavior or actual execution timing; no blind timeout increase or index has been applied.
 
+COHORT_RUNTIME_CLOSURE =
+- Direct sequential staging refresh over the selected 40-report cohort completed without 57014.
+- target_reports=40
+- unique_source_hashes=40
+- tenants=4
+- FULL=40
+- VERIFIED=40
+- READY=40
+- ACCEPTED=40
+- non_terminal=0
+- fully_terminal=40
+
 SMART_REPORT_READBACK =
 - candidate reports=42
 - unique source hashes=42
@@ -105,7 +117,7 @@ DO_NOT_REPEAT =
 - Do not claim 42 rendered / 40 verified as proof of action-chain completion.
 - Do not reopen fixed workflow/search_path/session-handoff defects unless current-head evidence regresses.
 
-NEXT_EXACT_ACTION = Run current-head static checks on a6f19a0, then consume the new Evidence Passport Live Proof and Full Product Browser E2E; after P0 closure, reproduce/diagnose the 57014 cohort timeout with execution/lock evidence and complete one source-bound action-chain readback.
+NEXT_EXACT_ACTION = consume current-head Evidence Passport Live Proof, Full Product Browser E2E, Report Value Cohort and Final Certification; fix only first new P0/P1; do not reopen closed P0-A/P0-B/P1-B.
 
 SESSION_HANDOFF = NOT READY
 
