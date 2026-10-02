@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   ArrowUpLeft, BarChart3, Brain, CalendarRange, CheckCircle2, CircleAlert,
-  FileSearch, Package, RefreshCw, Sparkles, TrendingUp, Upload, WalletCards
+  FileSearch, Package, RefreshCw, ShieldCheck, Sparkles, Clock3, TrendingUp, Upload, WalletCards
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
