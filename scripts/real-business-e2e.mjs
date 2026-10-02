@@ -729,7 +729,7 @@ async function proveDecisionActionSurface(page, report) {
 }
 
 async function proveDecisionApprovalActionOutcome(page, report) {
-  await page.goto(baseURL + '/reports/smart/' + report.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(baseURL + '/reports/smart/' + report.reportJobId, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.getByText('ماذا استنتج النظام من هذا التقرير؟', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
 
   const proposalButton = page.getByRole('button', { name: /حفظ القرار والقضية|حفظ كقرار مقترح|حفظ كتوصية ثم قرار/, exact: false }).first();
@@ -743,7 +743,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
   await page.getByText(/تم حفظ القرار والقضية|تم حفظ القرار المقترح|تم حفظ التوصية والقرار/, { exact: false }).first().waitFor({ state: 'visible', timeout: 30000 });
 
   const decisionTarget = baseURL + '/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.reportJobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash);
-  await page.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(decisionTarget, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
   const decisionRows = await restSelect(
     page,
@@ -854,7 +854,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
     const membership = await restSelect(workActorPage,'company_memberships',{ company_id: evidence.tenantA, user_id: workActorId, is_active: true },'role',{ limit: 1 });
     const role = membership[0]?.role == null ? '' : String(membership[0].role).toLowerCase();
     assert.ok(['owner','admin','administrator'].includes(role), 'WORK_CREATOR_ADMIN_BOUNDARY_MISSING');
-    await workActorPage.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });
+    await workActorPage.goto(decisionTarget, { waitUntil: 'domcontentloaded', timeout: 30000 });
     const button = workActorPage.locator('[data-testid="create-work-' + decisionId + '"]');
     await button.waitFor({ state: 'visible', timeout: 30000 });
     await button.click();
@@ -874,7 +874,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
       assert.equal(approverTenant, evidence.tenantA, 'APPROVER_TENANT_MUST_MATCH_REQUEST_TENANT');
       assert.notEqual(approverId, userAId, 'APPROVER_MUST_DIFFER_FROM_REQUESTER');
 
-      await approverPage.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });
+      await approverPage.goto(decisionTarget, { waitUntil: 'domcontentloaded', timeout: 30000 });
       const approveButton = approverPage.locator('[data-testid="approve-decision-' + decisionId + '"]');
       await approveButton.waitFor({ state: 'visible', timeout: 30000 });
       await approveButton.click();
@@ -893,7 +893,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
     }
   }
 
-  await page.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(decisionTarget, { waitUntil: 'domcontentloaded', timeout: 30000 });
   let existingWork = await restSelect(
     page,
     'decision_work_items',
@@ -923,7 +923,7 @@ async function proveDecisionApprovalActionOutcome(page, report) {
     workActorId = await currentUserId(workActorPage);
     assert.equal(existingWorkActorTenant, evidence.tenantA, 'EXISTING_WORK_ACTOR_TENANT_MISMATCH');
     assert.equal(String(workActorId), String(existingWork[0].assignee_id), 'EXISTING_WORK_ASSIGNEE_ACTOR_UNAVAILABLE');
-    await workActorPage.goto(decisionTarget, { waitUntil: 'networkidle', timeout: 30000 });
+    await workActorPage.goto(decisionTarget, { waitUntil: 'domcontentloaded', timeout: 30000 });
     workPage = workActorPage;
   }
   workPage = workActorPage || page;
