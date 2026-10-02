@@ -110,7 +110,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
           <div>
             <div className="text-[9px] font-black tracking-[.16em] text-primary-700">ADVISOR BRIEF</div>
             <h3 className="mt-1 text-2xl font-black tracking-tight text-ink-950">ماذا يريد الأغبري أن يقول للإدارة؟</h3>
-            <p className="mt-2 max-w-3xl text-xs leading-6 text-ink-600">${advisorBrief.headline}</p>
+            <p className="mt-2 max-w-3xl text-xs leading-6 text-ink-600">{advisorBrief.headline}</p>
           </div>
           <div className="rounded-2xl border border-ink-200 bg-white px-4 py-3 text-right">
             <div className="text-[9px] font-black text-ink-400">HEALTH</div>
