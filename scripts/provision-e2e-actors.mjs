@@ -79,15 +79,28 @@ function persistActorCredentials(label, email, password) {
 }
 
 async function createActor(email, password) {
-  const { data, error } = await supabase.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: ACTOR_METADATA,
-  });
-  if (error) throw error;
-  assert.ok(data.user?.id, 'E2E_ACTOR_ID_REQUIRED');
-  return data.user;
+  for (let attempt = 1; attempt <= 4; attempt += 1) {
+    try {
+      const { data, error } = await supabase.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: ACTOR_METADATA,
+      });
+      if (!error) {
+        assert.ok(data.user?.id, 'E2E_ACTOR_ID_REQUIRED');
+        return data.user;
+      }
+
+      if (!isRetryableAuthLookup(error) || attempt === 4) throw error;
+    } catch (error) {
+      if (!isRetryableAuthLookup(error) || attempt === 4) throw error;
+    }
+
+    await wait(2000 * 2 ** (attempt - 1));
+  }
+
+  throw new Error('E2E_ACTOR_CREATE_RETRY_EXHAUSTED');
 }
 
 async function ensureActor(email, password, label) {
