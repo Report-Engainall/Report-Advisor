@@ -168,6 +168,13 @@
     "test:work-center-decision-queue": "node scripts/work-center-decision-queue-contract.test.mjs",
     "test:business-replay": "node scripts/business-replay-contract.test.mjs",
     "test:benchmark-fail-closed": "node scripts/benchmark-fail-closed-contract.test.mjs",
-    "test:pdf-arabic-sales-layout": "node --experimental-strip-types scripts/pdf-arabic-sales-layout.test.ts"
+    "test:pdf-arabic-sales-layout": "node --experimental-strip-types scripts/pdf-arabic-sales-layout.test.ts",
+    "test:claim-ledger": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs src/lib/report-intelligence/claim-ledger.test.mjs",
+    "test:business-question-engine": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs src/lib/report-intelligence/business-question-engine.test.mjs",
+    "test:report-claim-adapter": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs src/lib/report-intelligence/report-claim-adapter.test.mjs",
+    "test:report-advisory-orchestrator": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs src/lib/report-intelligence/report-advisory-orchestrator.test.mjs",
+    "test:decision-packet-builder": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs src/lib/report-intelligence/decision-packet-builder.test.mjs",
+    "test:outcome-learning-binding": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs src/lib/report-intelligence/outcome-learning-binding.test.mjs",
+    "test:advisory-invariants": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs src/lib/report-intelligence/advisory-invariants.test.mjs"
   }
 }
