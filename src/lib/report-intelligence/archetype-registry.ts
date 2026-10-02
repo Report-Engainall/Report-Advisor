@@ -1,4 +1,4 @@
-import { matchCanonicalField, type CanonicalField } from './canonical-schema';
+import { matchCanonicalField, type CanonicalField } from './canonical-schema.ts';
 
 export type ArchetypeStatus = 'ACTIVE' | 'CANDIDATE' | 'DEPRECATED';
 export type AvailabilityStatus = 'AVAILABLE' | 'NOT_AVAILABLE' | 'INSUFFICIENT_SAMPLE';
