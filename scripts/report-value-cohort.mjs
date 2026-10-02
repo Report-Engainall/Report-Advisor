@@ -117,7 +117,7 @@ for (let offset = 0; offset < sourceJobs.length; offset += 4) {
   const batch = sourceJobs.slice(offset, offset + 4);
   const batchResults = await Promise.all(batch.map(async (job) => {
     const { data, error } = await supabase.rpc('refresh_report_evidence_passport', {
-      p_company_id: companyId,
+      p_company_id: String(job.company_id),
       p_job_id: String(job.id),
     });
     if (error) {
@@ -192,7 +192,6 @@ if (outcomeError) throw outcomeError;
 
 const passportByJobId = new Map((passports ?? []).map((row) => [String(row.report_execution_job_id), row]));
 const recommendationsBySnapshot = new Map();
-const recommendationsBySnapshot = new Map();
 for (const row of recommendations ?? []) {
   const key = String(row.evidence_snapshot_id);
   const list = recommendationsBySnapshot.get(key) ?? [];
@@ -258,7 +257,7 @@ const result = sourceJobs.map((job) => {
 
 const summary = {
   cohort: result.length,
-  uniqueSourceHashes: new Set(result.map((row) => sourceJobs.find((job) => String(job.source_path) === row.source)?.source_hash).filter(Boolean)).size,
+  uniqueSourceHashes: new Set(sourceJobs.map((job) => String(job.source_hash))).size,
   tenants: new Set(result.map((row) => row.companyId)).size,
   evidencePassport: result.filter((row) => row.passport === 'PASS').length,
   signals: result.filter((row) => row.signals === 'PASS').length,
