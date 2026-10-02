@@ -87,16 +87,39 @@ jobs:
           if (!url || !anonKey || !email || !password) {
             throw new Error('PHASE_F_CANARY_AUTH_ENV_MISSING');
           }
-          const response = await fetch(`${url.replace(/\/$/, '')}/auth/v1/token?grant_type=password`, {
-            method: 'POST',
-            headers: { apikey: anonKey, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-          });
-          const body = await response.json().catch(() => ({}));
-          if (!response.ok || typeof body.access_token !== 'string' || !body.access_token.trim()) {
-            throw new Error(`PHASE_F_CANARY_AUTH_FAILED:${response.status}:${body.error_code || body.error || body.msg || 'unknown'}`);
+          const retryableStatuses = new Set([408, 425, 429, 500, 502, 503, 504]);
+          const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+          let lastError = null;
+
+          for (let attempt = 1; attempt <= 4; attempt += 1) {
+            try {
+              const response = await fetch(url.replace(/\/$/, '') + '/auth/v1/token?grant_type=password', {
+                method: 'POST',
+                headers: { apikey: anonKey, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+              });
+              const body = await response.json().catch(() => ({}));
+
+              if (response.ok && typeof body.access_token === 'string' && body.access_token.trim()) {
+                process.stdout.write(body.access_token.trim());
+                lastError = null;
+                break;
+              }
+
+              const status = Number(response.status);
+              lastError = new Error('PHASE_F_CANARY_AUTH_FAILED:' + status + ':' + (body.error_code || body.error || body.msg || 'unknown'));
+              if (!retryableStatuses.has(status) || attempt === 4) throw lastError;
+            } catch (error) {
+              lastError = error instanceof Error ? error : new Error(String(error));
+              const statusMatch = lastError.message.match(/PHASE_F_CANARY_AUTH_FAILED:(\d+):/);
+              const status = statusMatch ? Number(statusMatch[1]) : 0;
+              if ((status && !retryableStatuses.has(status)) || attempt === 4) throw lastError;
+            }
+
+            await sleep(2000 * 2 ** (attempt - 1));
           }
-          process.stdout.write(body.access_token.trim());
+
+          if (lastError) throw lastError;
           NODE
           )"
           echo "::add-mask::$token"
