@@ -1,14 +1,11 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { randomBytes } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 
 const required = [
   'REPORT_ADVISOR_SUPABASE_URL',
   'SUPABASE_SERVICE_ROLE_KEY',
-  'TEST_USER_A_EMAIL',
-  'TEST_USER_A_PASSWORD',
-  'TEST_USER_B_EMAIL',
-  'TEST_USER_B_PASSWORD',
 ];
 
 for (const name of required) {
@@ -37,30 +34,73 @@ async function findUserByEmail(email) {
   return null;
 }
 
+function runId() {
+  return String(process.env.GITHUB_RUN_ID || process.env.E2E_ACTOR_RUN_ID || Date.now()).replace(/[^0-9]/g, '');
+}
+
+function actorCredentials(label) {
+  const normalized = label.toLowerCase();
+  const suffix = runId();
+  const email = 'e2e-' + normalized + '-' + suffix + '@e2e.report-advisor.invalid';
+  const password = 'E2e-' + normalized + '-' + randomBytes(24).toString('base64url') + '!';
+  return { email, password, generated: true };
+}
+
+function persistActorCredentials(label, email, password) {
+  const fields = label === 'A'
+    ? { email: 'TEST_USER_A_EMAIL', password: 'TEST_USER_A_PASSWORD' }
+    : label === 'B'
+      ? { email: 'TEST_USER_B_EMAIL', password: 'TEST_USER_B_PASSWORD' }
+      : { email: 'TEST_APPROVER_EMAIL', password: 'TEST_APPROVER_PASSWORD' };
+
+  if (process.env.GITHUB_ENV) {
+    fs.appendFileSync(process.env.GITHUB_ENV, fields.email + '=' + email + '\n' + fields.password + '=' + password + '\n');
+  }
+  process.env[fields.email] = email;
+  process.env[fields.password] = password;
+}
+
+async function createActor(email, password) {
+  const { data, error } = await supabase.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: ACTOR_METADATA,
+  });
+  if (error) throw error;
+  assert.ok(data.user?.id, 'E2E_ACTOR_ID_REQUIRED');
+  return data.user;
+}
+
 async function ensureActor(email, password, label) {
-  let user = await findUserByEmail(email);
+  let resolvedEmail = email?.trim();
+  let resolvedPassword = password;
+  let generated = false;
+
+  if (!resolvedEmail || !resolvedPassword) {
+    const generatedCredentials = actorCredentials(label);
+    resolvedEmail = generatedCredentials.email;
+    resolvedPassword = generatedCredentials.password;
+    generated = true;
+  }
+
+  let user = await findUserByEmail(resolvedEmail);
   if (!user) {
-    const { data, error } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: ACTOR_METADATA,
-    });
-    if (error) throw error;
-    user = data.user;
+    user = await createActor(resolvedEmail, resolvedPassword);
+    generated = true;
   } else {
     const metadata = user.user_metadata ?? {};
-    if (metadata.e2e_actor !== 'true' || metadata.e2e_purpose !== ACTOR_METADATA.e2e_purpose) {
-      throw new Error('E2E_EXISTING_USER_NOT_TAGGED:' + label);
+    const tagged = metadata.e2e_actor === 'true' && metadata.e2e_purpose === ACTOR_METADATA.e2e_purpose;
+    if (!tagged) {
+      const generatedCredentials = actorCredentials(label);
+      resolvedEmail = generatedCredentials.email;
+      resolvedPassword = generatedCredentials.password;
+      user = await createActor(resolvedEmail, resolvedPassword);
+      generated = true;
     }
-    const { data, error } = await supabase.auth.admin.updateUserById(user.id, {
-      password,
-      email_confirm: true,
-      user_metadata: { ...metadata, ...ACTOR_METADATA },
-    });
-    if (error) throw error;
-    user = data.user;
   }
+
+  if (generated) persistActorCredentials(label, resolvedEmail, resolvedPassword);
   assert.ok(user?.id, 'E2E_ACTOR_ID_REQUIRED:' + label);
   return user;
 }
@@ -128,8 +168,8 @@ async function provisionMembership(companyId, userId, requestedRole, isDefault, 
 }
 
 const approverCredentials = ensureApproverCredentials();
-const userA = await ensureActor(process.env.TEST_USER_A_EMAIL.trim(), process.env.TEST_USER_A_PASSWORD, 'A');
-const userB = await ensureActor(process.env.TEST_USER_B_EMAIL.trim(), process.env.TEST_USER_B_PASSWORD, 'B');
+const userA = await ensureActor(process.env.TEST_USER_A_EMAIL, process.env.TEST_USER_A_PASSWORD, 'A');
+const userB = await ensureActor(process.env.TEST_USER_B_EMAIL, process.env.TEST_USER_B_PASSWORD, 'B');
 const approver = await ensureActor(approverCredentials.email, approverCredentials.password, 'APPROVER');
 
 assert.notEqual(userA.id, approver.id, 'APPROVER_MUST_DIFFER_FROM_REQUESTER');

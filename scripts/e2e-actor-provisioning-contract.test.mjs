@@ -6,11 +6,14 @@ const migration = fs.readFileSync('supabase/migrations/20261002040000_e2e_actor_
 const workflow = fs.readFileSync('.github/workflows/full-product-browser-e2e.yml', 'utf8');
 
 assert.match(script, /auth\.admin\.createUser/);
-assert.match(script, /auth\.admin\.updateUserById/);
+assert.match(script, /createActor\(/);
 assert.match(script, /provision_e2e_test_membership/);
 assert.doesNotMatch(script, /\.from\(['"]company_memberships['"]\)[\s\S]{0,300}\.insert\(/);
 assert.doesNotMatch(script, /\.from\(['"]company_memberships['"]\)[\s\S]{0,300}\.update\(/);
-assert.match(script, /E2E_EXISTING_USER_NOT_TAGGED/);
+assert.match(script, /tagged =/);
+assert.match(script, /actorCredentials\(/);
+assert.match(script, /persistActorCredentials\(/);
+assert.doesNotMatch(script, /E2E_EXISTING_USER_NOT_TAGGED/);
 assert.match(script, /ensureApproverCredentials/);
 assert.match(script, /GITHUB_RUN_ID/);
 assert.match(script, /GITHUB_ENV/);
