@@ -166,6 +166,47 @@ export function resolveReportArchetype(input: {
   return { profile: null, state: 'NOT_AVAILABLE', reason: 'NO_ARCHETYPE_MATCH' };
 }
 
+
+export function detectReportArchetype(input: {
+  sourcePath?: string | null;
+  specialty?: string | null;
+  availableFields: CanonicalField[];
+}): { profile: ArchetypeProfile | null; state: ArchetypeRuntimeState; reason: string } {
+  const specialty = normalize(input.specialty);
+  const path = normalize(input.sourcePath);
+  const fields = new Set(input.availableFields);
+
+  const candidates = REPORT_ARCHETYPES.filter((profile) => {
+    if (!specialty) return true;
+    return normalize(profile.adapterSpecialty) === specialty || normalize(profile.domain) === specialty;
+  });
+
+  if (!candidates.length) return { profile: null, state: 'NOT_AVAILABLE', reason: 'NO_ARCHETYPE_CANDIDATES' };
+
+  const scored = candidates.map((profile) => {
+    const requiredHits = profile.requiredFields.filter((field) => fields.has(field)).length;
+    const optionalHits = profile.optionalFields.filter((field) => fields.has(field)).length;
+    const aliasHits = profile.aliases.filter((alias) => {
+      const token = normalize(alias);
+      return token.length >= 3 && path.includes(token);
+    }).length;
+    const requiredCoverage = profile.requiredFields.length ? requiredHits / profile.requiredFields.length : 0;
+    const score = aliasHits * 8 + requiredHits * 3 + optionalHits + requiredCoverage * 2;
+    return { profile, score, requiredHits, aliasHits };
+  }).sort((a, b) => b.score - a.score || b.requiredHits - a.requiredHits || b.aliasHits - a.aliasHits);
+
+  const top = scored[0];
+  const second = scored[1];
+  if (!top || top.score <= 0) {
+    return { profile: null, state: 'REVIEW_REQUIRED', reason: 'ARCHETYPE_FINGERPRINT_INSUFFICIENT' };
+  }
+  if (second && top.score === second.score) {
+    return { profile: null, state: 'REVIEW_REQUIRED', reason: 'ARCHETYPE_FINGERPRINT_AMBIGUOUS' };
+  }
+
+  return { profile: top.profile, state: 'SUPPORTED', reason: 'SEMANTIC_FINGERPRINT_MATCH' };
+}
+
 export function runReportArchetype(
   input: Omit<AdvisoryPacketInput, 'archetypeId' | 'profileVersion'> & {
     archetypeId: string;
