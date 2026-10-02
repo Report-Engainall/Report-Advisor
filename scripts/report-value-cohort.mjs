@@ -53,27 +53,21 @@ function isRealReportJob(row) {
 }
 
 async function selectCohortCandidates() {
-  let query = supabase.from('report_execution_jobs')
-    .select('id,company_id,source_path,source_hash,job_key,checkpoint,evidence,updated_at')
-    .eq('status', 'completed')
-    .not('company_id', 'is', null)
-    .not('source_hash', 'is', null)
-    .order('updated_at', { ascending: true })
-    .limit(5000);
-  if (explicitCompanyId) query = query.eq('company_id', explicitCompanyId);
-  const { data, error } = await query;
+  const { data, error } = await supabase.rpc('get_report_value_cohort_candidates', {
+    p_limit: 100,
+    p_company_id: explicitCompanyId || null,
+  });
   if (error) throw error;
-  const sorted = (data ?? [])
-    .filter((job) => isRealReportJob(job) && String(job.checkpoint?.stage ?? '') === 'rendered' && /^[0-9a-fA-F-]{36}$/.test(String(job.evidence?.renderedOutput?.importId ?? '')))
-    .sort((a, b) => {
-      const left = [String(a.source_path ?? '').normalize('NFKC').toLocaleLowerCase(), String(a.source_hash ?? ''), String(a.company_id ?? ''), String(a.id ?? '')];
-      const right = [String(b.source_path ?? '').normalize('NFKC').toLocaleLowerCase(), String(b.source_hash ?? ''), String(b.company_id ?? ''), String(b.id ?? '')];
-      for (let i = 0; i < left.length; i += 1) { const cmp = left[i].localeCompare(right[i], 'ar'); if (cmp !== 0) return cmp; }
-      return 0;
-    });
-  const uniqueByHash = new Map();
-  for (const job of sorted) { const hash = String(job.source_hash); if (!uniqueByHash.has(hash)) uniqueByHash.set(hash, job); }
-  return [...uniqueByHash.values()];
+  return (data ?? []).map((row) => ({
+    id: String(row.job_id),
+    company_id: String(row.company_id),
+    source_path: String(row.source_path ?? ''),
+    source_hash: String(row.source_hash ?? ''),
+    job_key: String(row.job_key ?? ''),
+    checkpoint: row.checkpoint ?? {},
+    evidence: row.evidence ?? {},
+    updated_at: row.updated_at ?? null,
+  }));
 }
 
 const candidateJobs = await selectCohortCandidates();
@@ -93,6 +87,8 @@ for (let offset = 0; offset < candidateJobs.length && provenJobs.length < TARGET
   for (const row of batchResults) { refreshResults.push(row); if (row.cohortAccepted && provenJobs.length < TARGET_COHORT_SIZE) { const job = candidateJobs.find((item) => String(item.id) === row.jobId); if (job) provenJobs.push(job); } }
   console.log(JSON.stringify({ refreshBatch: Math.floor(offset / 4) + 1, accepted: provenJobs.length, results: batchResults }));
 }
+const sourceJobs = provenJobs.slice(0, TARGET_COHORT_SIZE);
+
 const refreshSummary = {
   candidatePool: candidateJobs.length,
   attempted: refreshResults.length,
