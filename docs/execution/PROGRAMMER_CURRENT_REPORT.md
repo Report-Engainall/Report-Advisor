@@ -12,11 +12,11 @@ UPDATED_AT = 2026-10-02T21:10:00Z
 ACTION_STATUS = IN_PROGRESS
 NEXT_EXACT_ACTION = wait for the current-main Full Product Browser E2E / Final Certification terminals on eda4; fix only the first concrete runtime failure; then prove the real Smart Report business journey.
 
-## WHAT_I_WAS_ASKED_TO_DO
+WHAT_I_WAS_ASKED_TO_DO = Close the real product path, not merely contracts: source intake → truth → evidence → signal → decision → approval → action → outcome, with exact-head proof and no stale PASS reuse.
 
-Close the real product path, not merely contracts: source intake → truth → evidence → signal → decision → approval → action → outcome, with exact-head proof and no stale PASS reuse.
+## EXECUTION SCOPE
 
-## WHAT_I_ACTUALLY_DID
+WHAT_I_ACTUALLY_DID = Merged PR #752 and PR #753, fixed the Phase F canary in PR #754, and continued exact-head runtime verification.
 
 1. Merged PR #752, promoting the source-bound Smart Report archetype runtime into main.
 2. Reproduced the first current-main browser failure on 6dcec82b: Supabase Auth signInWithPassword returned HTTP 504 / request timeout during E2E actor provisioning.
@@ -26,7 +26,9 @@ Close the real product path, not merely contracts: source intake → truth → e
 6. Implemented and merged PR #754: Phase F now resolves its canary session using configured password authentication with bounded transient retry, removing dependency on Auth Admin generateLink.
 7. Current main head is eda4c770d3b206d8f9c9f1412969bf9ed604bf5f. Fresh main workflows are now running.
 
-## WHAT_IS_PROVEN
+WHAT_IS_PROVEN = Local contracts/build and static product gates are proven on the recorded exact SHAs; current authenticated browser/business proof is not yet proven.
+
+## PROOF DETAILS
 
 On product head 6dcec82b:
 - npm run typecheck PASS
@@ -56,13 +58,9 @@ On eda4 current-main:
 - Final Execution / Final Certification / Phase F / Desktop pipelines running at capture time
 - the first current-main Session Handoff run exposed a documentation contract gap: CURRENT_SESSION_STATE lacked required PR and NEXT_EXACT_ACTION keys. That is being repaired now.
 
-## FIRST_ACTIVE_FAILURE
+FIRST_ACTIVE_FAILURE = Supabase Auth connectivity for authenticated E2E actor provisioning on the current GitHub runner. The application code is not failing its local contract; the external Auth endpoint is timing out from the GitHub runner.
 
-Current exact runtime frontier: Supabase Auth connectivity for authenticated E2E actor provisioning. The application code is not failing its local contract; the external Auth endpoint is timing out from the GitHub runner.
-
-## ROOT_CAUSE
-
-The E2E actor provisioning layer retries transient Auth requests but is still bounded by a 45-second request timeout and a 240-second global provisioning deadline. On f95, configured actor signInWithPassword exhausted that budget without obtaining an Auth session. Separately, Phase F relied on the Auth Admin generateLink path; PR #754 removed that independent failure mode.
+ROOT_CAUSE = The E2E actor provisioning layer retries transient Auth requests but is still bounded by a 45-second request timeout and a 240-second global provisioning deadline. On f95, configured actor signInWithPassword exhausted that budget without obtaining an Auth session. Separately, Phase F relied on the Auth Admin generateLink path; PR #754 removed that independent failure mode.
 
 ## PRODUCTION
 
