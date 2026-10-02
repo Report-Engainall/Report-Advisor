@@ -85,63 +85,42 @@ jobs:
 
           const url = process.env.SUPABASE_URL?.trim();
           const anonKey = process.env.SUPABASE_ANON_KEY?.trim();
-          const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
           const email = process.env.AUTH_EMAIL?.trim();
-          if (!url || !anonKey || !serviceRoleKey || !email) {
+          const password = process.env.AUTH_PASSWORD;
+          if (!url || !anonKey || !email || !password) {
             throw new Error('PHASE_F_CANARY_AUTH_ENV_MISSING');
           }
 
           const retryableStatuses = new Set([408, 425, 429, 500, 502, 503, 504]);
           const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-          const admin = createClient(url, serviceRoleKey, {
-            auth: { autoRefreshToken: false, persistSession: false },
-          });
           const client = createClient(url, anonKey, {
             auth: { autoRefreshToken: false, persistSession: false },
           });
 
           let lastError = null;
 
-          for (let attempt = 1; attempt <= 4; attempt += 1) {
+          for (let attempt = 1; attempt <= 6; attempt += 1) {
             try {
-              const generated = await admin.auth.admin.generateLink({
-                type: 'magiclink',
-                email,
-              });
-
-              if (generated.error) {
-                const status = Number(generated.error.status ?? 0);
-                lastError = new Error('PHASE_F_CANARY_GENERATE_LINK_FAILED:' + status + ':' + (generated.error.message || 'unknown'));
-                if (!retryableStatuses.has(status) || attempt === 4) throw lastError;
-              } else {
-                const tokenHash = generated.data?.properties?.hashed_token;
-                if (!tokenHash) throw new Error('PHASE_F_CANARY_TOKEN_HASH_MISSING');
-
-                const verified = await client.auth.verifyOtp({
-                  token_hash: tokenHash,
-                  type: 'email',
-                });
-
-                if (!verified.error && verified.data?.session?.access_token) {
-                  process.stdout.write(verified.data.session.access_token.trim());
-                  lastError = null;
-                  break;
-                }
-
-                const status = Number(verified.error?.status ?? 0);
-                lastError = new Error(
-                  'PHASE_F_CANARY_VERIFY_OTP_FAILED:' + status + ':' + (verified.error?.message || 'unknown'),
-                );
-                if (!retryableStatuses.has(status) || attempt === 4) throw lastError;
+              const { data, error } = await client.auth.signInWithPassword({ email, password });
+              if (!error && data?.session?.access_token) {
+                process.stdout.write(data.session.access_token.trim());
+                lastError = null;
+                break;
               }
+
+              const status = Number(error?.status ?? 0);
+              lastError = new Error(
+                'PHASE_F_CANARY_PASSWORD_SIGNIN_FAILED:' + status + ':' + (error?.message || 'unknown'),
+              );
+              if (!retryableStatuses.has(status) || attempt === 6) throw lastError;
             } catch (error) {
               lastError = error instanceof Error ? error : new Error(String(error));
-              const statusMatch = lastError.message.match(/PHASE_F_CANARY_(?:GENERATE_LINK|VERIFY_OTP)_FAILED:(\d+):/);
+              const statusMatch = lastError.message.match(/PHASE_F_CANARY_PASSWORD_SIGNIN_FAILED:(\d+):/);
               const status = statusMatch ? Number(statusMatch[1]) : 0;
-              if ((status && !retryableStatuses.has(status)) || attempt === 4) throw lastError;
+              if ((status && !retryableStatuses.has(status)) || attempt === 6) throw lastError;
             }
 
-            await sleep(2000 * 2 ** (attempt - 1));
+            await sleep(Math.min(8000, 2000 * 2 ** (attempt - 1)));
           }
 
           if (lastError) throw lastError;
