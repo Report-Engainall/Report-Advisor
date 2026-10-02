@@ -32,6 +32,7 @@ assert.deepEqual(runtimeIdentity(), {
   deployment_sha: 'sha-test-runtime',
   target_env: 'staging',
   runtime_environment: 'preview',
+  provenance_contract_version: '3',
 });
 for (const key of ['VERCEL_DEPLOYMENT_ID', 'VERCEL_GIT_COMMIT_SHA', 'VERCEL_ENV', 'RESILIENCE_TARGET_ENV']) delete process.env[key];
 
