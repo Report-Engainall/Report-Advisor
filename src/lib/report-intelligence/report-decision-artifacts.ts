@@ -68,7 +68,8 @@ export function buildReportDecisionArtifacts(input: ArtifactInput): ReportDecisi
   const latestDecision = input.sourceDecisions[0] ?? null;
   const actualImpact = latestDecision?.actualImpact ?? Number(input.renderedOutput.actualImpact ?? input.renderedOutput.outcomeActualImpact);
   const outcomeStatus = latestDecision?.outcomeStatus ?? text(input.renderedOutput.outcomeStatus);
-  const actualOutcomeAvailable = Number.isFinite(Number(actualImpact)) && Boolean(outcomeStatus) && outcomeStatus !== 'insufficient';
+  const hasOutcomeState = Boolean(outcomeStatus) && outcomeStatus !== 'NOT_AVAILABLE' && outcomeStatus !== 'NO_OUTCOME_COMMITTED';
+  const actualOutcomeAvailable = hasOutcomeState && Number.isFinite(Number(actualImpact)) && outcomeStatus !== 'insufficient';
   const profileVersion = text(input.renderedOutput.profileVersion) || null;
   const questions: BusinessQuestion[] = [
     makeQuestion('WHAT', 'ماذا حدث؟', topSignal ? 'ANSWERED' : 'NOT_AVAILABLE', topSignal?.message ?? 'لا توجد إشارة أعمال مثبتة من المصدر الحالي.', topClaimId ? [topClaimId] : []),
@@ -78,7 +79,7 @@ export function buildReportDecisionArtifacts(input: ArtifactInput): ReportDecisi
     makeQuestion('SO_WHAT', 'ما الأثر التشغيلي؟', topSignal ? 'ANSWERED' : 'NOT_AVAILABLE', topSignal?.soWhat ?? 'الأثر التشغيلي غير متاح.', topClaimId ? [topClaimId] : []),
     makeQuestion('WHAT_NEXT', 'ماذا نفعل الآن؟', topRecommendation ? 'ANSWERED' : 'NOT_AVAILABLE', topRecommendation?.action ?? 'لا توجد توصية موثقة من الإشارات الحالية.', topRecommendation ? ['claim:recommendation:' + topRecommendation.id] : []),
     makeQuestion('PROOF', 'ما الدليل؟', proofReady ? 'ANSWERED' : 'BLOCKED', proofReady ? 'Evidence Passport وEvidence Snapshot مرتبطان بالمصدر ' + input.sourceHash + '.' : 'لا يمكن إعلان claim موثق قبل وجود Evidence Passport وEvidence Snapshot صالحين.', claims.slice(0, 6).map((claim) => claim.id), proofReady ? [] : ['Evidence gate غير مكتمل.']),
-    makeQuestion('AFTER_ACTION', 'ماذا حدث بعد التنفيذ؟', outcomeStatus ? (actualOutcomeAvailable ? 'ANSWERED' : outcomeStatus === 'insufficient' ? 'REVIEW_REQUIRED' : 'ANSWERED') : 'NOT_AVAILABLE', outcomeStatus ? (actualOutcomeAvailable ? 'تم رصد Outcome فعلي: ' + String(actualImpact) : 'حالة النتيجة الحالية: ' + outcomeStatus + '؛ لا يوجد أثر مالي فعلي مقاس.') : 'لا توجد نتيجة محفوظة بعد؛ اكتمال العمل لا يساوي Outcome Proven.', [], ['لا يتم إنشاء learning أو impact من دون actual outcome موثق.']),
+    makeQuestion('AFTER_ACTION', 'ماذا حدث بعد التنفيذ؟', hasOutcomeState ? (actualOutcomeAvailable ? 'ANSWERED' : outcomeStatus === 'insufficient' ? 'REVIEW_REQUIRED' : 'ANSWERED') : 'NOT_AVAILABLE', hasOutcomeState ? (actualOutcomeAvailable ? 'تم رصد Outcome فعلي: ' + String(actualImpact) : 'حالة النتيجة الحالية: ' + outcomeStatus + '؛ لا يوجد أثر مالي فعلي مقاس.') : 'لا توجد نتيجة محفوظة بعد؛ اكتمال العمل لا يساوي Outcome Proven.', [], ['لا يتم إنشاء learning أو impact من دون actual outcome موثق.']),
   ];
   const byKey = new Map(questions.map((question) => [question.key, question]));
   return {
