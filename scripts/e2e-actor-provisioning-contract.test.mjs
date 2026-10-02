@@ -15,6 +15,7 @@ assert.match(script, /actorCredentials\(/);
 assert.match(script, /persistActorCredentials\(/);
 assert.doesNotMatch(script, /E2E_EXISTING_USER_NOT_TAGGED/);
 assert.match(script, /ensureApproverCredentials/);
+assert.match(script, /E2E_ACTOR_MODE === 'ephemeral-run-scoped'/);
 assert.match(script, /freshRunScoped/);
 assert.match(script, /TEST_USER_A_EPHEMERAL/);
 assert.match(script, /TEST_USER_B_EPHEMERAL/);
