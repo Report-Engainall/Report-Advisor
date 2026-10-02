@@ -2,28 +2,25 @@
 
 SESSION HANDOFF = NOT READY
 STATE_OWNER = CAPTAIN + PROGRAMMER
-CURRENT_BRANCH_HEAD = 43647952d1b092dcfc141eb979eac0b84bb0c7ad
-CURRENT_EXECUTION_HEAD = 28c6ea3d9c1a1d593a71b08025827c97927de697
+CURRENT_BRANCH_HEAD = cd65458182b40ed8c74545a956cab9d8b59e7cf9
+CURRENT_EXECUTION_HEAD = a6f19a064003e94c508b8a27bded19933465376c
 CURRENT_MAIN_HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3
 BRANCH = fix/current-head-runtime-provenance-20261002
-PR = #730 OPEN / NOT MERGED
-LATEST_COMMIT = docs: archive final cohort and proof checkpoint
+PR = #730 OPEN / NOT MERGED / MERGEABLE
 PROGRAMMER_REPORT = PRESENT
-PROGRAMMER_REPORT_FOR_HEAD = 28c6ea3d9c1a1d593a71b08025827c97927de697
+PROGRAMMER_REPORT_FOR_HEAD = a6f19a064003e94c508b8a27bded19933465376c
 ACTION_STATUS = IN_PROGRESS
 
-STATIC_PROOF = WORKFLOW_BATCH_PASS; SECURITY_DEFINER_PASS; SESSION_HANDOFF_PASS_AFTER_FULL_HISTORY; GIT_DIFF_CHECK_PASS
-STAGING_PROOF = E2E_ALLOWLIST_PRESENT=60; VALUE_COHORT_CANDIDATES=42; UNIQUE_SOURCE_HASHES=42; ANALYZED=42; QUALITY_AVG=93.64; QUALITY_MIN=76; QUALITY_MAX=100; TOTAL_ROWS=12998; RENDERED_OUTPUT_REPORTS=42; RENDERED_OUTPUTS=135; SPECIALTIES=8; EVIDENCE_VERIFIED=40; DECISION_READY=40
-FORMAT_PROOF = PDF=32; XLSX=10
-ACTION_CHAIN_PROOF = LATEST_VERIFIED_READY_PASSPORT HAS NO LINKED RECOMMENDATION/DECISION/APPROVAL/WORK/OUTCOME; FULL BUSINESS ACTION CHAIN NOT PROVEN
-CURRENT_ACTIVE_FAILURE = NONE OBSERVED IN CURRENT STATIC/STAGING READBACK
-FIRST_ACTIVE_UNPROVEN_GATE = CURRENT-HEAD EVIDENCE PASSPORT LIVE PROOF
-RUNTIME_FIX = LIVE GATE SELECTS SECOND TENANT FROM DESIGNATED E2E ALLOWLIST; HISTORICAL E2E_PROVISION_TENANT_NOT_ALLOWED ROOT CAUSE FIXED
-SECURITY_ADVISORY = public.canonical_import_repair_history RLS DISABLED; direct anon/authenticated table privileges currently false; remediation NOT applied
-MIGRATION_PROVENANCE = get_report_value_cohort_candidates and refresh_report_evidence_passport runtime functions exist in staging and match repository SQL, but corresponding migration names are absent from migration ledger
-CI = CURRENT PR CHECKS QUEUED/PENDING ON BRANCH HEAD; NO CURRENT LIVE/BROWSER/CERTIFICATION PASS CLAIMED
-DEPLOYMENT = VERCEL BUILD-RATE-LIMIT FAILURE; NETLIFY PREVIEW PENDING; NO CURRENT-HEAD DEPLOYMENT PROOF
-NEXT_EXACT_ACTION = CONSUME CURRENT-BRANCH CI RESULTS; IF FIRST NEW P0/P1 FAILS, FIX ONLY THAT BOUNDARY; OTHERWISE COMPLETE LIVE PASSPORT + VALUE COHORT + BROWSER + FINAL CERTIFICATION PROOF
-DO_NOT_REPEAT = DO NOT WEAKEN E2E TENANT ALLOWLIST; DO NOT CLAIM QUEUED CI AS PASS; DO NOT REUSE PREVIOUS-SHA RUNTIME PASS; DO NOT AUTO-ENABLE RLS; DO NOT PATCH PRODUCTION SQL FOR THE OLD REGEX TEST BUG
+STATIC_PROOF = PRIOR_PC01_WORKFLOW_BATCH_PASS; PRIOR_PC01_SECURITY_DEFINER_PASS; PRIOR_PC01_SESSION_HANDOFF_PASS; NEW_HEAD_STATIC_REREAD_PENDING
+P0A_PROOF = authenticated SELECT=true; authenticated INSERT/UPDATE/DELETE=false; anon SELECT=false; RLS=true; same-tenant visible_rows=1; wrong-tenant visible_rows=0; anon SELECT SQLSTATE=42501
+P0B_FIX = expectBlocked now accepts one documented error from an allowed set; live gate has explicit same-tenant/wrong-tenant/anon Passport SELECT assertions
+COHORT_PROOF = 42 candidates; 42 unique source hashes; 4 tenants; 32 PDF; 10 XLSX; 42 analyzed; quality 76..100 avg 93.64; 135 rendered outputs; 40 VERIFIED; 40 READY
+ACTION_CHAIN_PROOF = NOT PROVEN; latest verified passport has no linked recommendation/decision/approval/work/outcome
+P1A_STATUS = plans are low-cost/index-backed; 57014 root cause not yet isolated; no blind timeout increase applied
+P1C_STATUS = Phase F STALE_RUNTIME + rollback-forward TypeError remains separate and uncertified
+SECURITY_ADVISORY = public.canonical_import_repair_history RLS disabled; direct anon/authenticated table privileges false; no auto-remediation
+MIGRATION_PROVENANCE = 20261002165000 migration added to branch; equivalent GRANT applied directly to staging for proof
+NEXT_EXACT_ACTION = run current-head static checks, then consume current-head Evidence Passport Live Proof + Full Product Browser E2E; then isolate 57014 with execution/lock evidence and prove one source-bound action chain
+DO_NOT_REPEAT = do not reuse old SHA PASS; do not widen Passport mutation privileges; do not weaken RLS; do not accept arbitrary negative-path errors; do not raise statement_timeout blindly
 
-The execution code head is intentionally held separately from later documentation-only persistence commits. Resume by verifying the branch ref, then the execution code head, then the first unproven/failed runtime gate.
+Resume anchor: execution code is a6f19a064003e94c508b8a27bded19933465376c. Metadata commits after it are persistence only.
