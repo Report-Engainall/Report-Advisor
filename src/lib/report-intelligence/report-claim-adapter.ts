@@ -17,7 +17,7 @@ function claimId(prefix: string, id: string): string {
 }
 
 function evidenceBoundState(provenance: ClaimProvenance): Claim['state'] {
-  return provenance.evidenceSnapshotId || provenance.evidencePassportId ? 'VALID' : 'REVIEW_REQUIRED';
+  return provenance.evidenceSnapshotId && provenance.evidencePassportId ? 'VALID' : 'REVIEW_REQUIRED';
 }
 
 function signalStatus(severity: ReportIntelligence['signals'][number]['severity']): ClaimStatus {

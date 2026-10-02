@@ -127,7 +127,7 @@ export function isClaimDecisionReady(claim: Claim): boolean {
   return (
     claim.state === 'VALID' &&
     claim.status !== 'INFERRED' &&
-    Boolean(claim.evidenceSnapshotId || claim.evidencePassportId) &&
+    Boolean(claim.evidenceSnapshotId && claim.evidencePassportId) &&
     claim.sampleSize > 0 &&
     claim.limitations.every((item) => item.trim().length > 0)
   );
