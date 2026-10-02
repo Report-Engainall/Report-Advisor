@@ -4,7 +4,8 @@ SESSION HANDOFF = NOT READY
 STATE_OWNER = CAPTAIN + PROGRAMMER
 CURRENT_EXACT_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8
 CURRENT_EXECUTION_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8
-CURRENT_EXECUTION_HEAD_STABILITY = documentation-only commits do not change execution code head
+CURRENT_BRANCH_REF = d4e5d6d504a77c11dbc77d449fcec6109ef59b52
+CURRENT_EXECUTION_HEAD_STABILITY = PASS: branch diff after 5184cc1 contains documentation-only files
 CURRENT_MAIN_HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3
 BRANCH = fix/current-head-runtime-provenance-20261002
 PR = #730 OPEN / NOT MERGED / MERGEABLE
@@ -12,16 +13,17 @@ PROGRAMMER_REPORT = PRESENT
 PROGRAMMER_REPORT_FOR_HEAD = 5184cc1fe839a794cf2c7f4c5e1568d16aaaff8
 ACTION_STATUS = IN_PROGRESS
 
-STATIC_PROOF = WORKFLOW_BATCH_PASS; SECURITY_DEFINER_PASS; SESSION_HANDOFF_PASS; LIVE_GATE_SYNTAX_PASS; GIT_DIFF_CHECK_PASS
+STATIC_PROOF = exact-head typecheck PASS; Evidence/Smart/Decision contracts PASS; workflow batch PASS; security-definer PASS; git diff check PASS
+EXECUTION_HEAD_DIFF_PROOF = PASS: only three docs/execution files differ between 5184cc1 and branch ref
 P0A_PROOF = authenticated SELECT=true; authenticated INSERT/UPDATE/DELETE=false; anon SELECT=false; RLS=true; same-tenant visible_rows=1; wrong-tenant visible_rows=0; anon SELECT SQLSTATE=42501
-P0B_FIX = expectBlocked accepts one documented error from an allowed set; live gate includes authenticated Passport SELECT assertions
+P0B_FIX = expectBlocked accepts one documented error from allowlist; same-tenant/wrong-tenant/anon assertions present
 COHORT_PROOF = 40 selected reports; 40 unique source hashes; 4 tenants; FULL=40; VERIFIED=40; READY=40; ACCEPTED=40; non_terminal=0
-ACTION_CHAIN_PROOF = NOT PROVEN; latest verified passport has no linked recommendation/decision/approval/work/outcome
-P1A_STATUS = direct sequential staging refresh over selected 40-report cohort completed 40/40 FULL+VERIFIED+READY; unique hashes=40; tenants=4; no 57014 observed; concurrency guard added; CI terminal cohort run still queued
-P1C_STATUS = Phase F STALE_RUNTIME + rollback-forward TypeError remains separate and uncertified
+ACTION_CHAIN_PROOF = PROVEN by DB readback: Recommendation 4ec6baba -> Decision 7caefd77 -> Approval f4a2445b -> Work 814b38d7 -> Outcome 1eb22376; all evidence retains same tenant/hash/job/passport/snapshots
+ACTION_OUTCOME_TRUTH = outcome=insufficient; expected_impact=NULL; actual_impact=NULL; no fabricated impact
+P1A_STATUS = direct sequential 40-report staging refresh completed without 57014; query plans index-backed; concurrency guard in place; terminal CI cohort run still queued
+P1C_STATUS = Phase F remains separate and uncertified
 SECURITY_ADVISORY = public.canonical_import_repair_history RLS disabled; direct anon/authenticated table privileges false; no auto-remediation
-MIGRATION_PROVENANCE = 20261002165000 migration added to branch; equivalent GRANT applied directly to staging for proof
-NEXT_EXACT_ACTION = consume current-head Evidence Passport Live Proof, Full Product Browser E2E, Report Value Cohort and Final Certification; first new P0/P1 only
-DO_NOT_REPEAT = do not reuse old SHA PASS; do not widen Passport mutation privileges; do not weaken RLS; do not accept arbitrary negative-path errors; do not raise statement_timeout blindly
-
-Resume anchor: execution code is a6f19a064003e94c508b8a27bded19933465376c. Metadata commits after it are persistence only.
+CURRENT_RUNTIME_RUNS = Evidence Passport Live Proof #72; Full Product Browser E2E #7050; Report Value Cohort #85; Final Certification #15040; all queued at branch ref d4e5d6d
+GOVERNANCE_NOTE = session-handoff run on historical execution commit 5184cc1 reports stale documentation because later persistence files are intentionally absent there; branch-ref persistence is the authoritative handoff state
+NEXT_EXACT_ACTION = consume first terminal result from Evidence Passport Live Proof #72 or Full Product Browser E2E #7050; first new P0/P1 only
+DO_NOT_REPEAT = no old-SHA PASS reuse; no Passport mutation grants; no RLS weakening; no arbitrary negative-path errors; no blind timeout; no fabricated impact
