@@ -30,7 +30,7 @@ try {
   await page.locator('#login-password').fill(password);
 
   let authResponse = null;
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
+  for (let attempt = 1; attempt <= 6; attempt += 1) {
     if (attempt > 1) {
       await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
       await page.locator('#login-email').fill(email);
@@ -46,12 +46,12 @@ try {
     if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
     await loginSubmit.click();
     const candidate = await authResponsePromise;
-    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 3) {
-      await page.waitForTimeout(5000 * attempt);
+    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 6) {
+      await page.waitForTimeout(Math.min(5000 * attempt, 20000));
       continue;
     }
     authResponse = candidate;
-    if (authResponse || attempt === 3) break;
+    if (authResponse || attempt === 6) break;
     await page.waitForTimeout(2500);
   }
   if (!authResponse) throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');

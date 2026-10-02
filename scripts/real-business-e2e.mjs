@@ -65,7 +65,7 @@ async function login(page, email, password) {
   await page.locator('#login-email').fill(email);
   await page.locator('#login-password').fill(password);
   let authResponse = null;
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
+  for (let attempt = 1; attempt <= 6; attempt += 1) {
     if (attempt > 1) {
       await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
       await page.locator('#login-email').waitFor({ state: 'visible', timeout: 30000 });
@@ -80,13 +80,13 @@ async function login(page, email, password) {
     ).catch(() => null);
     await page.locator('form button[type="submit"]').click();
     const candidate = await authResponsePromise;
-    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 3) {
-      await page.waitForTimeout(5000 * attempt);
+    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 6) {
+      await page.waitForTimeout(Math.min(5000 * attempt, 20000));
       continue;
     }
     authResponse = candidate;
-    if (authResponse || attempt === 3) break;
-    await page.waitForTimeout(5000 * attempt);
+    if (authResponse || attempt === 6) break;
+    await page.waitForTimeout(Math.min(5000 * attempt, 20000));
   }
   if (!authResponse) throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
   const authStatus = authResponse.status();
@@ -367,6 +367,10 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     beforeRefreshText.includes('Pending Evidence'),
     'Smart Report must expose the canonical pending-evidence state label'
   );
+
+  assert.ok(beforeRefreshText.includes('WHAT NEXT / DECISION BRIEF'), 'Decision Brief must be visible on the real Smart Report');
+  assert.ok(beforeRefreshText.includes('TRUTH LABELS'), 'Smart Report must expose truth-state labels');
+  assert.ok(beforeRefreshText.includes('EXPECTED OUTCOME'), 'Decision Brief must expose expected outcome');
 
   await page.screenshot({
     path: reportDir + '/smart-report-' + label + '-before-refresh.png',
