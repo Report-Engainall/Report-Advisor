@@ -1,5 +1,5 @@
-import { supabase, resolveCurrentCompanyId } from './supabase';
-import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights';
+import { supabase, resolveCurrentCompanyId } from './supabase.ts';
+import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights.ts';
 
 export type SmartReportCatalogItem = {
   jobId: string;
