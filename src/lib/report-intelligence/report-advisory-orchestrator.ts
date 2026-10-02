@@ -26,7 +26,11 @@ export type AdvisoryPacketInput = {
 };
 
 function claimStateForProof(provenance: ClaimProvenance): AdvisoryPacket['proofState'] {
-  return provenance.evidenceSnapshotId || provenance.evidencePassportId ? 'VERIFIED' : 'REVIEW_REQUIRED';
+  // VERIFIED requires the complete source-bound evidence chain. A single identifier
+  // is not sufficient to establish the authoritative passport/snapshot relationship.
+  return provenance.evidenceSnapshotId && provenance.evidencePassportId
+    ? 'VERIFIED'
+    : 'REVIEW_REQUIRED';
 }
 
 type AdvisoryQuestionAnswer = Record<string, unknown>;
