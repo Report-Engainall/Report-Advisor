@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 function detectSourceSha() {
   const candidates = [
@@ -21,7 +22,7 @@ if (!/^[0-9a-f]{40}$/i.test(sourceSha)) {
 process.env.VITE_BUILD_SHA = sourceSha;
 console.log('BUILD_SOURCE_SHA=' + sourceSha);
 
-const viteCli = new URL('../node_modules/vite/bin/vite.js', import.meta.url);
+const viteCli = fileURLToPath(new URL('../node_modules/vite/bin/vite.js', import.meta.url));
 const result = spawnSync(process.execPath, [viteCli.pathname], {
   env: process.env,
   stdio: 'inherit',
