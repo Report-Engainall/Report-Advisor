@@ -40,7 +40,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "preview": "vite preview",
-    "provision:e2e-actors": "node scripts/provision-e2e-test-actors.mjs",
+    "provision:e2e-actors": "node scripts/provision-e2e-actors.mjs",
     "test:ui-route-sidebar-parity": "node scripts/check-ui-route-sidebar-parity.mjs",
     "test:executive-dashboard-ui": "node scripts/check-executive-dashboard-ui-contract.mjs",
     "test:pdf-renderer-byte-integrity": "node scripts/check-pdf-renderer-byte-integrity.mjs",
