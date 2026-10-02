@@ -425,3 +425,164 @@
     font-size: 1.20rem;
   }
 }
+
+
+/* v2.1 — dense executive workspace polish */
+@layer components {
+  .ag-main .command-strip {
+    border-color: rgba(195, 215, 209, .90) !important;
+    background: rgba(255,255,255,.86) !important;
+  }
+
+  .ag-main .command-strip,
+  .ag-main .filter-toolbar {
+    min-height: 46px;
+  }
+
+  .ag-main .ag-kpi-card {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .ag-main .ag-kpi-card::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--ag-ui-gold), var(--ag-ui-teal));
+    opacity: .72;
+    pointer-events: none;
+  }
+
+  .ag-main .ag-kpi-card .text-ink-400,
+  .ag-main .ag-kpi-card .text-ink-500 {
+    color: #60746f !important;
+  }
+
+  /* Decision journey: one visual language across every report stage */
+  [aria-label="رحلة القرار"],
+  [aria-label="مراحل القرار"],
+  [aria-label="Report journey"] {
+    padding: .35rem !important;
+    border: 1px solid var(--ag-ui-line) !important;
+    border-radius: 16px !important;
+    background:
+      linear-gradient(180deg, #fbfefd, #f2f8f6) !important;
+    box-shadow: var(--ag-ui-shadow);
+  }
+
+  [aria-label="رحلة القرار"] > *,
+  [aria-label="مراحل القرار"] > *,
+  [aria-label="Report journey"] > * {
+    border-color: #d7e6e1 !important;
+  }
+
+  /* Tables become an executive reading surface instead of a raw data grid */
+  .ag-main .ag-data-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+
+  .ag-main .ag-data-table thead th {
+    position: relative;
+    box-shadow: 0 1px 0 #cfdfda;
+  }
+
+  .ag-main .ag-data-table tbody tr {
+    transition: background-color .16s ease, box-shadow .16s ease;
+  }
+
+  .ag-main .ag-data-table tbody tr:hover {
+    box-shadow: inset 3px 0 0 rgba(8, 127, 115, .26);
+  }
+
+  .ag-main .data-table-shell:has(.ag-data-table) {
+    background: #fff;
+  }
+
+  /* Chart containers */
+  .ag-main .recharts-responsive-container {
+    min-height: 230px;
+  }
+
+  .ag-main .recharts-wrapper {
+    filter: saturate(.96);
+  }
+
+  /* Empty/loading/error surfaces should feel intentional */
+  .ag-main [aria-busy="true"] {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ag-main [aria-busy="true"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 25%, rgba(255,255,255,.55) 48%, transparent 70%);
+    background-size: 220% 100%;
+    animation: ag-ui-shimmer 1.45s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes ag-ui-shimmer {
+    from { background-position: 120% 0; }
+    to { background-position: -120% 0; }
+  }
+
+  /* Make long analytical pages scannable */
+  .ag-main > * + * {
+    margin-top: .95rem;
+  }
+
+  .ag-main .report-meta {
+    color: #60746f !important;
+  }
+
+  /* Quiet but recognizable separators */
+  .ag-main .quiet-divider {
+    background: linear-gradient(90deg, transparent, #dbe8e4 18%, #dbe8e4 82%, transparent) !important;
+  }
+
+  /* Links should behave like navigation, not underlined utility text */
+  .ag-main a:not(.btn):not(.nav-item):not(.ag-nav-item) {
+    transition: color .16s ease, background-color .16s ease;
+  }
+
+  .ag-main a:not(.btn):not(.nav-item):not(.ag-nav-item):hover {
+    color: var(--ag-ui-teal-strong) !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .ag-main .ag-data-table {
+    min-width: 700px;
+  }
+
+  .ag-main .data-table-shell {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 640px) {
+  .ag-main .ag-data-table {
+    min-width: 620px;
+  }
+
+  [aria-label="رحلة القرار"],
+  [aria-label="مراحل القرار"],
+  [aria-label="Report journey"] {
+    overflow-x: auto !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ag-main [aria-busy="true"]::after {
+    animation: none !important;
+  }
+}
