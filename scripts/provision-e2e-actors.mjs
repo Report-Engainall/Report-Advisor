@@ -17,6 +17,7 @@ const ANON_KEY = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY?.trim() || '';
 if (!ANON_KEY) throw new Error('E2E_ACTOR_ENV_MISSING:REPORT_ADVISOR_SUPABASE_ANON_KEY');
 const POSTGREST_RETRYABLE_HTTP = new Set([408, 425, 429, 500, 502, 503, 504]);
 const POSTGREST_RETRY_ATTEMPTS = 12;
+const AUTH_RETRY_ATTEMPTS = 4;
 const PROVISION_DEADLINE_MS = Number(process.env.E2E_ACTOR_PROVISION_DEADLINE_MS || '120000');
 const PROVISION_DEADLINE_AT = Date.now() + PROVISION_DEADLINE_MS;
 
@@ -24,15 +25,29 @@ function assertProvisionDeadline(step) {
   if (Date.now() > PROVISION_DEADLINE_AT) throw new Error('E2E_ACTOR_PROVISION_DEADLINE_EXCEEDED:' + step);
 }
 
+function requestUrl(input) {
+  return typeof input === 'string' ? input : input instanceof URL ? input.href : input?.url ?? '';
+}
+
 function isPostgrestRequest(input) {
-  const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input?.url ?? '';
+  const url = requestUrl(input);
   return /\/rest\/v1\//.test(url) || /\/rpc\//.test(url);
+}
+
+function isAuthRequest(input) {
+  return /\/auth\/v1\//.test(requestUrl(input));
 }
 
 async function fetchWithTimeout(input, init = {}) {
   let lastError = null;
-  const retryable = isPostgrestRequest(input);
-  const attempts = retryable ? POSTGREST_RETRY_ATTEMPTS : 1;
+  const postgrestRetryable = isPostgrestRequest(input);
+  const authRetryable = isAuthRequest(input);
+  const retryable = postgrestRetryable || authRetryable;
+  const attempts = postgrestRetryable
+    ? POSTGREST_RETRY_ATTEMPTS
+    : authRetryable
+      ? AUTH_RETRY_ATTEMPTS
+      : 1;
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     assertProvisionDeadline('http-attempt-' + attempt);
