@@ -13,6 +13,8 @@ for (const name of required) {
 }
 
 const REQUEST_TIMEOUT_MS = Number(process.env.E2E_ACTOR_REQUEST_TIMEOUT_MS || '30000');
+const POSTGREST_RETRYABLE_HTTP = new Set([408, 425, 429, 500, 502, 503, 504]);
+const POSTGREST_RETRY_ATTEMPTS = 12;
 const PROVISION_DEADLINE_MS = Number(process.env.E2E_ACTOR_PROVISION_DEADLINE_MS || '120000');
 const PROVISION_DEADLINE_AT = Date.now() + PROVISION_DEADLINE_MS;
 
@@ -20,14 +22,34 @@ function assertProvisionDeadline(step) {
   if (Date.now() > PROVISION_DEADLINE_AT) throw new Error('E2E_ACTOR_PROVISION_DEADLINE_EXCEEDED:' + step);
 }
 
+function isPostgrestRequest(input) {
+  const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input?.url ?? '';
+  return /\/rest\/v1\//.test(url) || /\/rpc\//.test(url);
+}
+
 async function fetchWithTimeout(input, init = {}) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(new Error('E2E_ACTOR_REQUEST_TIMEOUT')), REQUEST_TIMEOUT_MS);
-  try {
-    return await fetch(input, { ...init, signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
+  let lastError = null;
+  const retryable = isPostgrestRequest(input);
+  const attempts = retryable ? POSTGREST_RETRY_ATTEMPTS : 1;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    assertProvisionDeadline('http-attempt-' + attempt);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(new Error('E2E_ACTOR_REQUEST_TIMEOUT')), REQUEST_TIMEOUT_MS);
+    try {
+      const response = await fetch(input, { ...init, signal: controller.signal });
+      if (!retryable || !POSTGREST_RETRYABLE_HTTP.has(response.status) || attempt === attempts) return response;
+      lastError = new Error('E2E_POSTGREST_RETRYABLE_HTTP_' + response.status);
+    } catch (error) {
+      lastError = error;
+      if (!retryable || attempt === attempts) throw error;
+    } finally {
+      clearTimeout(timer);
+    }
+    await wait(Math.min(8000, 500 * 2 ** (attempt - 1)));
   }
+
+  throw lastError ?? new Error('E2E_POSTGREST_RETRY_EXHAUSTED');
 }
 
 const supabase = createClient(
