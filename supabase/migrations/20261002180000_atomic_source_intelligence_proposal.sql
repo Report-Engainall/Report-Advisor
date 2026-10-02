@@ -104,6 +104,48 @@ BEGIN
    FOR UPDATE;
 
   IF v_existing.id IS NOT NULL THEN
+    IF v_existing.recommendation_id IS NULL THEN
+      v_evidence := coalesce(p_evidence, '{}'::jsonb)
+        || jsonb_build_object(
+          'type','SOURCE_INTELLIGENCE_SIGNAL',
+          'reportExecutionJobId',p_report_job_id,
+          'sourceHash',p_source_hash,
+          'signalId',p_signal_id,
+          'signalTitle',p_signal_title,
+          'signalMessage',p_signal_message,
+          'severity',p_severity,
+          'evidenceSnapshotId',p_evidence_snapshot_id,
+          'decisionBoundary','PROPOSED_ONLY',
+          'confidenceSemantics','NOT_AVAILABLE_UNTIL_VERIFIED_DECISION',
+          'repairedLegacyProposal',true
+        );
+
+      INSERT INTO public.recommendations(
+        company_id, category, priority, title, description, evidence,
+        expected_impact, confidence, status, evidence_snapshot_id, metric_versions
+      )
+      VALUES(
+        v_company,
+        'source-intelligence',
+        coalesce(nullif(p_severity,''),'medium'),
+        p_signal_title,
+        p_signal_message,
+        v_evidence || jsonb_build_object('recommendationRepairForDecisionId', v_existing.id),
+        NULL,
+        'CALCULATED',
+        'new',
+        p_evidence_snapshot_id,
+        '{}'::jsonb
+      )
+      RETURNING id INTO v_recommendation_id;
+
+      PERFORM public.link_recommendation_to_decision(v_recommendation_id, v_existing.id);
+
+      RETURN QUERY
+      SELECT v_recommendation_id, v_existing.id, coalesce(v_existing.status, 'PROPOSED');
+      RETURN;
+    END IF;
+
     RETURN QUERY
     SELECT v_existing.recommendation_id, v_existing.id, coalesce(v_existing.status, 'PROPOSED');
     RETURN;
