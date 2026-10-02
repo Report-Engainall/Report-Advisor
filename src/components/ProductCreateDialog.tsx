@@ -17,6 +17,7 @@ export function ProductCreateDialog({ onClose, onCreated }: ProductCreateDialogP
   const [reorderPoint, setReorderPoint] = useState('0');
   const [isActive, setIsActive] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -37,6 +38,7 @@ export function ProductCreateDialog({ onClose, onCreated }: ProductCreateDialogP
     }
 
     setSaving(true);
+    setSuccess(null);
     setError(null);
     try {
       const companyId = await resolveCurrentCompanyId();
@@ -54,8 +56,19 @@ export function ProductCreateDialog({ onClose, onCreated }: ProductCreateDialogP
         p_null_policy: 'preserve',
       });
       if (rpcError) throw rpcError;
+
+      const { data: readback, error: readbackError } = await supabase
+        .from('products')
+        .select('id,sku,name,company_id')
+        .eq('company_id', companyId)
+        .eq('sku', normalizedSku)
+        .maybeSingle();
+      if (readbackError) throw readbackError;
+      if (!readback?.id) throw new Error('PRODUCT_PERSISTENCE_READBACK_FAILED');
+      if (String(readback.company_id) !== String(companyId)) throw new Error('PRODUCT_TENANT_READBACK_MISMATCH');
+
+      setSuccess(`تم حفظ المنتج والتحقق منه: ${String(readback.name ?? normalizedName)} (${String(readback.sku ?? normalizedSku)})`);
       onCreated();
-      onClose();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر إنشاء المنتج');
     } finally {
@@ -81,8 +94,9 @@ export function ProductCreateDialog({ onClose, onCreated }: ProductCreateDialogP
             <div><label htmlFor="product-create-reorder" className="mb-1 block text-xs font-medium text-ink-700">نقطة إعادة الطلب *</label><input id="product-create-reorder" value={reorderPoint} onChange={event => setReorderPoint(event.target.value)} className="input w-full" type="number" min="0" step="0.01" required /></div>
             <label htmlFor="product-create-active" className="flex items-center gap-2 self-end rounded-lg border border-ink-100 px-3 py-2 text-sm text-ink-700"><input id="product-create-active" type="checkbox" checked={isActive} onChange={event => setIsActive(event.target.checked)} />المنتج نشط</label>
           </div>
-          {error && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-          <div className="flex justify-end gap-2 pt-2"><button type="button" onClick={onClose} className="rounded-lg border border-ink-200 px-4 py-2 text-sm">إلغاء</button><button type="submit" disabled={saving} className="btn-primary text-sm disabled:opacity-50">{saving ? 'جارٍ الحفظ...' : 'حفظ المنتج'}</button></div>
+          {success && <div role="status" aria-live="polite" className="rounded-lg border border-success-200 bg-success-50 p-3 text-sm text-success-700"><div className="font-bold">تم الحفظ والتحقق</div><div className="mt-1 text-xs">{success}</div></div>}
+          {error && <div role="alert" aria-live="assertive" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"><div className="font-bold">تعذر الحفظ</div><div className="mt-1 text-xs break-words">{error}</div></div>}
+          <div className="flex flex-wrap justify-end gap-2 pt-2"><button type="button" onClick={onClose} className="rounded-lg border border-ink-200 px-4 py-2 text-sm">{success ? 'إغلاق' : 'إلغاء'}</button><button type="submit" disabled={saving || Boolean(success)} className="btn-primary text-sm disabled:opacity-50">{saving ? 'جارٍ الحفظ والتحقق...' : success ? 'تم التحقق' : 'حفظ المنتج'}</button></div>
         </form>
       </div>
     </div>
