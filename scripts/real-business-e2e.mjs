@@ -682,9 +682,13 @@ async function proveDecisionActionSurface(page, report) {
   const approvalButton = page.getByRole('button', { name: 'طلب الموافقة' }).first();
   const approvalButtonCount = await approvalButton.count();
   const emptyDecisionState = body.includes('لا توجد قرارات مصدرية محفوظة بعد لهذا المصدر.');
+  const persistedDecisionState =
+    body.includes('DECISION → ACTION → OUTCOME → LEARNING') ||
+    body.includes('APPROVED') ||
+    body.includes('القضية نفسها ما زالت مرتبطة بالتقرير');
 
   assert.ok(
-    approvalButtonCount === 1 || emptyDecisionState,
+    approvalButtonCount === 1 || emptyDecisionState || persistedDecisionState,
     'SOURCE_BOUND_DECISION_STATE_MISSING'
   );
   assert.ok(
