@@ -68,6 +68,40 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         <BusinessQuestionRail questions={packet.questions}/>
       </div>
 
+      <div className="rounded-2xl border border-primary-200 bg-[linear-gradient(135deg,#ffffff,#f5faf8)] p-4 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="text-[9px] font-black tracking-[.14em] text-primary-700">DECISION PATH</div>
+            <div className="mt-1 text-sm font-black text-ink-950">لا تتوقف عند التوصية — تابعها حتى العمل والنتيجة</div>
+            <p className="mt-1 text-[11px] leading-5 text-ink-600">الانتقال إلى مساحة القرار يبقى مربوطًا بهذا التقرير ومصدره؛ لا يتم إنشاء قرار أو أثر تنفيذي تلقائيًا من هذه الشاشة.</p>
+          </div>
+          <Link
+            to={'/decision-experience?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-700 px-4 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-primary-800"
+          >
+            فتح مساحة القرار <ArrowLeft size={14}/>
+          </Link>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-6" aria-label="رحلة القرار">
+          {[
+            ['1', 'الدليل', packet.proofState === 'VERIFIED'],
+            ['2', 'الفهم', packet.claims.length > 0],
+            ['3', 'التوصية', Boolean(packet.nextRecommendation)],
+            ['4', 'القرار', false],
+            ['5', 'العمل', false],
+            ['6', 'النتيجة', packet.outcomeState === 'OBSERVED'],
+          ].map(([step, label, done]) => (
+            <div key={String(step)} className="rounded-xl border border-ink-100 bg-white px-2 py-3 text-center">
+              <div className={"mx-auto flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-black " + (done ? "bg-primary-100 text-primary-800" : "bg-ink-100 text-ink-500")}>
+                {done ? '✓' : step}
+              </div>
+              <div className="mt-2 text-[10px] font-bold text-ink-700">{label}</div>
+              <div className="mt-1 text-[9px] text-ink-400">{done ? 'متحقق' : 'لم يُثبت بعد'}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="rounded-2xl border border-ink-200 bg-white p-4">
         <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-primary-700"/><div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">NEXT</div><div className="mt-1 text-sm font-black">الخطوة التالية</div></div></div>
         <p className="mt-2 text-xs leading-6 text-ink-600">{packet.nextRecommendation?.statement ?? 'لا توجد توصية مثبتة قابلة للتحويل إلى خطوة الآن.'}</p>
