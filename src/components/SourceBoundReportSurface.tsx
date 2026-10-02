@@ -5,7 +5,8 @@ import { ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
-import { completeSourceDecisionWorkItem, createApprovedDecisionWorkItemForCurrentUser, fetchSourceDecisionProposals, requestSourceDecisionApproval, startSourceDecisionWorkItem, type SourceDecisionState } from '@/lib/report-decisions';
+import { completeSourceDecisionWorkItem, createApprovedDecisionWorkItemForCurrentUser, decideSourceDecisionApproval, fetchSourceDecisionAuditTrace, fetchSourceDecisionProposals, requestSourceDecisionApproval, startSourceDecisionWorkItem, type DecisionAuditTrace, type SourceDecisionState } from '@/lib/report-decisions';
+import { getAuthenticatedUser } from '@/lib/auth-session';
 
 export type SourceBoundReportMode = 'executive' | 'trust' | 'decision' | 'work';
 
@@ -75,6 +76,67 @@ function buildMetrics(report: SmartReportDetail) {
     .slice(0, 6);
 }
 
+function ContinuationRail({ report, decision }: { report: SmartReportDetail; decision: SourceDecisionState }) {
+  const workFilter =
+    decision.workItemStatus === 'COMPLETED'
+      ? 'completed'
+      : decision.workItemStatus === 'IN_PROGRESS'
+        ? 'in_progress'
+        : 'open';
+  const sourcePath = '/reports/smart/' + encodeURIComponent(report.jobId) +
+    '?sourceHash=' + encodeURIComponent(report.sourceHash) + '#decision-evidence-inspector';
+  const recommendationQuery = decision.recommendationId
+    ? '&recommendationId=' + encodeURIComponent(decision.recommendationId)
+    : '';
+  return (
+    <section className="rounded-[18px] border border-primary-200 bg-primary-50/50 p-5" aria-label="استمرار الرحلة">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-800">RETURN / CONTINUE</div>
+          <h2 className="mt-1 text-lg font-black text-ink-950">أكمل من نفس الدليل دون إعادة البحث</h2>
+          <p className="mt-1 text-[10px] leading-5 text-ink-600">الانتقالات التالية تستخدم السجلات المحفوظة لهذا المصدر؛ التنقل لا ينشئ قرارًا أو تنفيذًا جديدًا.</p>
+        </div>
+        <Link to={sourcePath} className="btn-secondary text-[10px]">العودة إلى المصدر والدليل</Link>
+      </div>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+        <Link to={'/decision-experience?stage=decision' + recommendationQuery} className="rounded-xl border border-primary-200 bg-white p-3 hover:border-primary-400" aria-label="متابعة القرار">
+          <div className="text-[9px] font-black text-primary-800">DECISION</div>
+          <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.status)}</div>
+          <div className="mt-1 text-[9px] text-ink-500">الدليل → التوصية → القرار</div>
+        </Link>
+        <Link to={'/decision-experience?stage=approval' + recommendationQuery} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة الموافقة">
+          <div className="text-[9px] font-black text-ink-600">APPROVAL</div>
+          <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.approvalStatus)}</div>
+          <div className="mt-1 text-[9px] text-ink-500">الحالة المحفوظة</div>
+        </Link>
+        {decision.workItemId ? (
+          <Link to={'/work-center?decisionWorkFilter=' + workFilter} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة التنفيذ">
+            <div className="text-[9px] font-black text-ink-600">WORK</div>
+            <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.workItemStatus)}</div>
+            <div className="mt-1 text-[9px] text-ink-500">عنصر العمل {decision.workItemId.slice(0, 8)}…</div>
+          </Link>
+        ) : (
+          <div className="rounded-xl border border-warning-200 bg-warning-50/70 p-3" aria-label="التنفيذ غير متاح">
+            <div className="text-[9px] font-black text-warning-900">WORK</div>
+            <div className="mt-1 text-xs font-black text-warning-950">غير متاح</div>
+            <div className="mt-1 text-[9px] text-warning-900">ينتظر الاعتماد الموثق</div>
+          </div>
+        )}
+        <Link to={'/decision-experience?stage=outcome' + recommendationQuery} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة النتيجة والتعلم">
+          <div className="text-[9px] font-black text-ink-600">OUTCOME / LEARNING</div>
+          <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.outcomeStatus)}</div>
+          <div className="mt-1 text-[9px] text-ink-500">النتيجة والتعلم</div>
+        </Link>
+        <Link to="/operations" className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="فتح مركز العمليات">
+          <div className="text-[9px] font-black text-ink-600">OPERATIONS</div>
+          <div className="mt-1 text-xs font-black text-ink-900">مركز العمليات</div>
+          <div className="mt-1 text-[9px] text-ink-500">الطلب → الفاتورة → التحصيل</div>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 function StatusCell({ label, value }: { label: string; value: unknown }) {
   const text = stateLabel(value);
   const good = value === 'TRUSTED' || value === 'VERIFIED' || value === 'completed';
@@ -84,6 +146,97 @@ function StatusCell({ label, value }: { label: string; value: unknown }) {
       <div className="text-[9px] font-black text-ink-500">{label}</div>
       <div className="mt-1 text-xs font-black text-ink-900">{text}</div>
     </div>
+  );
+}
+
+function BusinessJourneyRail({
+  report,
+  output,
+  decision,
+}: {
+  report: SmartReportDetail;
+  output: SmartReportDetail['renderedOutput'];
+  decision: SourceDecisionState | null;
+}) {
+  const signalCount = report.intelligence.signals.length;
+  const stages = [
+    { key: 'DATA', label: 'البيانات', value: report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount) + ' صف', state: report.rowCount == null ? 'neutral' : 'good' },
+    { key: 'TRUTH', label: 'الحقيقة', value: report.sourceTrustState ?? report.evidenceStatus ?? 'غير مثبت', state: report.sourceTrustState === 'TRUSTED' || report.evidenceStatus === 'VERIFIED' ? 'good' : 'neutral' },
+    { key: 'SIGNAL', label: 'الإشارة', value: signalCount ? formatNumber(signalCount) + ' إشارة' : 'لا توجد إشارة', state: signalCount ? 'attention' : 'neutral' },
+    { key: 'DECISION', label: 'القرار', value: decision ? stateLabel(decision.status) : stateLabel(output.decisionStatus), state: decision ? 'good' : 'neutral' },
+    { key: 'APPROVAL', label: 'الموافقة', value: decision?.approvalStatus ?? stateLabel(output.approvalStatus), state: decision?.approvalStatus === 'APPROVED' ? 'good' : decision?.approvalStatus === 'PENDING' ? 'attention' : 'neutral' },
+    { key: 'WORK', label: 'العمل', value: decision?.workItemStatus ?? stateLabel(output.actionStatus), state: decision?.workItemStatus === 'COMPLETED' ? 'good' : decision?.workItemStatus === 'IN_PROGRESS' ? 'attention' : 'neutral' },
+    { key: 'OUTCOME', label: 'النتيجة', value: decision?.outcomeStatus ?? stateLabel(output.outcomeStatus), state: decision?.outcomeStatus ? 'good' : 'neutral' },
+    { key: 'LEARNING', label: 'التعلّم', value: decision?.actualImpact != null ? 'نتيجة فعلية مسجلة' : stateLabel(output.learningStatus), state: decision?.actualImpact != null ? 'good' : 'neutral' },
+  ] as const;
+
+  const nextAction = decision
+    ? decision.status === 'PROPOSED' && decision.approvalStatus !== 'PENDING'
+      ? 'اطلب الموافقة من صاحب الصلاحية.'
+      : decision.status === 'PROPOSED' && decision.approvalStatus === 'PENDING'
+        ? 'انتظر صاحب صلاحية آخر لاعتماد القرار.'
+        : decision.status === 'APPROVED' && !decision.workItemId
+          ? 'حوّل القرار المعتمد إلى عنصر عمل.'
+          : decision.workItemStatus === 'OPEN'
+            ? 'ابدأ تنفيذ عنصر العمل.'
+            : decision.workItemStatus === 'IN_PROGRESS'
+              ? 'سجّل الأثر الفعلي وأغلق التنفيذ بالدليل.'
+              : decision.workItemStatus === 'COMPLETED'
+                ? 'راجع النتيجة والتعلّم المحفوظ.'
+                : 'راجع الدليل قبل الانتقال إلى الإجراء.'
+    : signalCount
+      ? 'اختر إشارة مثبتة وابدأ قضية Advisor.'
+      : 'لا توجد إشارة مثبتة؛ راجع جودة المصدر أولًا.';
+
+  return (
+    <section className="rounded-[20px] border border-ink-200 bg-white p-4 shadow-sm" aria-label="رحلة البيانات إلى القرار">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">BUSINESS JOURNEY</div>
+          <h2 className="mt-1 text-base font-black text-ink-950">من البيانات إلى القرار والنتيجة — في سياق واحد</h2>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">كل حالة هنا قراءة من المصدر والسجل الكانوني؛ لا تُعرض كتوقع أو حقيقة مالية غير مثبتة.</p>
+        </div>
+        <div className="max-w-xl rounded-xl border border-primary-200 bg-primary-50/60 px-3 py-2.5 text-[9px] font-black text-primary-900">
+          <span className="text-primary-700">NEXT EXACT ACTION</span>
+          <div className="mt-1 leading-5">{nextAction}</div>
+        </div>
+      </div>
+
+      <div className="mt-4 overflow-x-auto pb-1" role="list" aria-label="مراحل رحلة الأعمال">
+        <div className="flex min-w-[760px] items-stretch gap-2">
+          {stages.map((stage, index) => (
+            <div
+              key={stage.key}
+              role="listitem"
+              className={[
+                'relative min-w-[118px] flex-1 rounded-xl border p-3',
+                stage.state === 'good'
+                  ? 'border-success-200 bg-success-50'
+                  : stage.state === 'attention'
+                    ? 'border-warning-200 bg-warning-50'
+                    : 'border-ink-200 bg-ink-50',
+              ].join(' ')}
+            >
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-[8px] font-black text-ink-700 shadow-sm">
+                  {index + 1}
+                </span>
+                <span className="text-[9px] font-black text-ink-800">{stage.label}</span>
+              </div>
+              <div className="mt-2 truncate text-[9px] font-black text-ink-950" title={stage.value}>{stage.value}</div>
+              {index < stages.length - 1 && <span className="pointer-events-none absolute -left-2 top-1/2 hidden -translate-y-1/2 text-ink-300 lg:block">←</span>}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-[8px] font-black">
+        <span className="rounded-full bg-success-50 px-2.5 py-1 text-success-800">OBSERVED / PROVEN</span>
+        <span className="rounded-full bg-warning-50 px-2.5 py-1 text-warning-900">ATTENTION / ACTION</span>
+        <span className="rounded-full bg-ink-50 px-2.5 py-1 text-ink-600">UNKNOWN / NOT AVAILABLE</span>
+        <span className="mr-auto rounded-full bg-ink-50 px-2.5 py-1 font-mono text-ink-600">source: {report.sourceHash ? report.sourceHash.slice(0, 26) + '…' : 'غير متاح'}</span>
+      </div>
+    </section>
   );
 }
 
@@ -151,6 +304,20 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
           </div>
         </div>
       </section>
+      <section className="rounded-[18px] border border-primary-200 bg-primary-50/50 p-4" aria-label="نتيجة القرار والتعلم">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">OUTCOME → LEARNING</div>
+            <div className="mt-1 text-sm font-black text-ink-950">النتيجة المسجلة تصبح معرفة قابلة للمتابعة، وليست نجاحًا افتراضيًا.</div>
+            <p className="mt-1 text-[10px] leading-5 text-ink-600">حالة التعلم تُقرأ من سجل النتيجة المرتبط بالقرار والدليل. عند غياب سجل موثوق تبقى الحالة NOT AVAILABLE.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <StatusCell label="Outcome" value={output.outcomeStatus}/>
+            <StatusCell label="Learning" value={output.learningStatus}/>
+            <StatusCell label="Benchmark" value={output.benchmarkStatus}/>
+          </div>
+        </div>
+      </section>
       <ReportIntelligencePanel report={report} />
 
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
@@ -213,15 +380,51 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
   const [actualImpact, setActualImpact] = useState<Record<string, string>>({});
   const [workDueAt, setWorkDueAt] = useState<Record<string, string>>({});
 
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [auditTrace, setAuditTrace] = useState<DecisionAuditTrace[]>([]);
+  const [auditLoading, setAuditLoading] = useState(false);
+
+  const refreshDecisions = useCallback(async () => {
+    const rows = await fetchSourceDecisionProposals(report.sourceHash);
+    setDecisions(rows);
+  }, [report.sourceHash]);
+
+  const refreshAudit = useCallback(async (decision: SourceDecisionState) => {
+    setAuditLoading(true);
+    try {
+      const rows = await fetchSourceDecisionAuditTrace(
+        decision.id,
+        decision.approvalId,
+        decision.workItemId,
+        decision.outcomeId,
+      );
+      setAuditTrace(rows);
+    } catch {
+      setAuditTrace([]);
+    } finally {
+      setAuditLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     let active = true;
-    void fetchSourceDecisionProposals(report.sourceHash).then((rows) => {
-      if (active) setDecisions(rows);
-    }).catch(() => {
+    void refreshDecisions().catch(() => {
       if (active) setDecisions([]);
     });
+    void getAuthenticatedUser().then((user) => {
+      if (active) setCurrentUserId(user?.id ?? null);
+    });
     return () => { active = false; };
-  }, [report.sourceHash]);
+  }, [refreshDecisions]);
+
+  useEffect(() => {
+    const latest = decisions[0];
+    if (!latest) {
+      setAuditTrace([]);
+      return;
+    }
+    void refreshAudit(latest);
+  }, [decisions, refreshAudit]);
 
   const createWorkItem = (decision: SourceDecisionState) => {
     setDecisionAction((current) => ({ ...current, [decision.id]: 'creating-work' }));
@@ -241,9 +444,10 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
       signalTitle: decision.signalTitle ?? 'عنصر عمل من قرار مصدرّي',
       signalMessage: decision.signalMessage,
       signalSeverity: decision.signalSeverity,
+      recommendationId: decision.recommendationId,
+      evidenceSnapshotId: report.sourceAnalysis?.id ?? null,
       department,
       dueAt: workDueAt[decision.id] ? new Date(workDueAt[decision.id]).toISOString() : null,
-      recommendationId: decision.recommendationId,
     }).then((workItemId) => {
       setDecisionAction((current) => ({ ...current, [decision.id]: 'work-created' }));
       setDecisions((current) => current.map((item) => item.id === decision.id
@@ -296,23 +500,46 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
     void requestSourceDecisionApproval(
       decision.id,
       'طلب موافقة على قرار مقترح مرتبط بتقرير مصدر محدد؛ لا يعني الطلب أن التنفيذ حدث.',
-    ).then(() => {
+    ).then(async () => {
+      await refreshDecisions();
       setDecisionAction((current) => ({ ...current, [decision.id]: 'requested' }));
-      setDecisions((current) => current.map((item) => item.id === decision.id ? { ...item, status: 'PENDING_APPROVAL' } : item));
     }).catch(() => {
       setDecisionAction((current) => ({ ...current, [decision.id]: 'error' }));
     });
   };
 
+  const decideApproval = (decision: SourceDecisionState, approve: boolean) => {
+    if (!decision.approvalId) return;
+    if (decision.approvalRequestedBy && currentUserId === decision.approvalRequestedBy) {
+      setDecisionAction((current) => ({ ...current, [decision.id]: 'self-approval-forbidden' }));
+      return;
+    }
+    setDecisionAction((current) => ({ ...current, [decision.id]: approve ? 'approving' : 'rejecting' }));
+    void decideSourceDecisionApproval(
+      decision.approvalId,
+      approve,
+      approve ? 'اعتماد موثق لقرار مصدرّي' : 'رفض موثق لقرار مصدرّي',
+    ).then(async () => {
+      await refreshDecisions();
+      setDecisionAction((current) => ({ ...current, [decision.id]: approve ? 'approved' : 'rejected' }));
+    }).catch(() => {
+      setDecisionAction((current) => ({ ...current, [decision.id]: 'approval-error' }));
+    });
+  };
+
   return (
     <>
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <StatusCell label="Decision" value={output.decisionStatus}/>
         <StatusCell label="Approval" value={output.approvalStatus}/>
         <StatusCell label="Action" value={output.actionStatus}/>
         <StatusCell label="Outcome" value={output.outcomeStatus}/>
+        <StatusCell label="Learning" value={output.learningStatus}/>
       </section>
+      <BusinessJourneyRail report={report} output={output} decision={decisions[0] ?? null} />
       <ReportIntelligencePanel report={report} />
+
+      {decisions[0] && <ContinuationRail report={report} decision={decisions[0]} />}
 
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-start justify-between gap-3">
@@ -351,10 +578,25 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                  {decision.status === 'PROPOSED' && (
-                    <button type="button" disabled={decisionAction[decision.id] === 'saving'} onClick={() => requestApproval(decision)} className="btn-primary text-[10px] disabled:opacity-50">
+                  {decision.status === 'PROPOSED' && decision.approvalStatus !== 'PENDING' && (
+                    <button type="button" disabled={decisionAction[decision.id] === 'saving'} onClick={() => requestApproval(decision)} className="btn-primary text-[10px] disabled:opacity-50" data-testid={'request-approval-' + decision.id}>
                       {decisionAction[decision.id] === 'saving' ? 'جارٍ طلب الموافقة...' : decisionAction[decision.id] === 'requested' ? 'تم طلب الموافقة' : 'طلب الموافقة'}
                     </button>
+                  )}
+
+                  {decision.status === 'PROPOSED' && decision.approvalStatus === 'PENDING' && (
+                    currentUserId === decision.approvalRequestedBy ? (
+                      <span className="rounded-lg border border-warning-200 bg-warning-50 px-2.5 py-2 text-[9px] font-black text-warning-900">PENDING · بانتظار صاحب صلاحية آخر — يمنع الاعتماد الذاتي</span>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        <button type="button" onClick={() => decideApproval(decision, true)} disabled={!decision.approvalId || decisionAction[decision.id] === 'approving'} className="btn-primary text-[10px] disabled:opacity-50" data-testid={'approve-decision-' + decision.id}>
+                          {decisionAction[decision.id] === 'approving' ? 'جارٍ الاعتماد...' : 'اعتماد القرار'}
+                        </button>
+                        <button type="button" onClick={() => decideApproval(decision, false)} disabled={!decision.approvalId || decisionAction[decision.id] === 'rejecting'} className="btn-secondary text-[10px] disabled:opacity-50" data-testid={'reject-decision-' + decision.id}>
+                          {decisionAction[decision.id] === 'rejecting' ? 'جارٍ الرفض...' : 'رفض القرار'}
+                        </button>
+                      </div>
+                    )
                   )}
 
                   {decision.status === 'APPROVED' && !decision.workItemId && (
@@ -369,14 +611,14 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
                           aria-label="موعد عنصر العمل"
                         />
                       </label>
-                      <button type="button" disabled={decisionAction[decision.id] === 'creating-work'} onClick={() => createWorkItem(decision)} className="btn-primary text-[10px] disabled:opacity-50">
+                      <button type="button" disabled={decisionAction[decision.id] === 'creating-work'} onClick={() => createWorkItem(decision)} className="btn-primary text-[10px] disabled:opacity-50" data-testid={'create-work-' + decision.id}>
                         {decisionAction[decision.id] === 'creating-work' ? 'جارٍ إنشاء عنصر العمل...' : 'إنشاء عنصر عمل لي'}
                       </button>
                     </div>
                   )}
 
                   {decision.workItemStatus === 'OPEN' && decision.workItemId && (
-                    <button type="button" disabled={decisionAction[decision.id] === 'starting-work'} onClick={() => startWorkItem(decision)} className="btn-secondary text-[10px] disabled:opacity-50">
+                    <button type="button" disabled={decisionAction[decision.id] === 'starting-work'} onClick={() => startWorkItem(decision)} className="btn-secondary text-[10px] disabled:opacity-50" data-testid={'start-work-' + decision.id}>
                       {decisionAction[decision.id] === 'starting-work' ? 'جارٍ بدء التنفيذ...' : 'بدء التنفيذ'}
                     </button>
                   )}
@@ -391,7 +633,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
                         aria-label="الأثر الفعلي"
                         className="min-h-9 w-44 rounded-lg border border-ink-200 bg-white px-2.5 text-[10px] outline-none focus:border-primary-400"
                       />
-                      <button type="button" disabled={decisionAction[decision.id] === 'completing-work'} onClick={() => completeWorkItem(decision)} className="btn-primary text-[10px] disabled:opacity-50">
+                      <button type="button" disabled={decisionAction[decision.id] === 'completing-work'} onClick={() => completeWorkItem(decision)} className="btn-primary text-[10px] disabled:opacity-50" data-testid={'complete-work-' + decision.id}>
                         {decisionAction[decision.id] === 'completing-work' ? 'جارٍ إغلاق التنفيذ...' : 'إغلاق التنفيذ'}
                       </button>
                     </div>
@@ -408,7 +650,9 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
               {decisionAction[decision.id] === 'complete-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر إغلاق التنفيذ؛ يحتاج المسار إلى قرار معتمد ودليل مصدر صالح.</div>}
               {decisionAction[decision.id] === 'evidence-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">لا توجد Evidence Snapshot حقيقية مرتبطة بالتقرير؛ تم منع إغلاق التنفيذ.</div>}
               {decisionAction[decision.id] === 'work-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر إنشاء عنصر العمل؛ تحقق من الصلاحية وأن القرار معتمد.</div>}
-              {decisionAction[decision.id] === 'error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر طلب الموافقة؛ الصلاحية أو حالة القرار تحتاج مراجعة.</div>}
+              {decisionAction[decision.id] === 'error' && <div role="alert" className="mt-3 text-[9px] font-bold text-danger-700">تعذر طلب الموافقة؛ الصلاحية أو حالة القرار تحتاج مراجعة.</div>}
+              {decisionAction[decision.id] === 'approval-error' && <div role="alert" className="mt-3 text-[9px] font-bold text-danger-700">تعذر اعتماد/رفض القرار؛ تحقق من الصلاحية وحالة الموافقة.</div>}
+              {decision.status === 'REJECTED' && <div className="mt-3 rounded-lg border border-danger-200 bg-danger-50 p-3 text-[9px] font-bold text-danger-800">REJECTED · القرار لم ينتقل إلى التنفيذ.</div>}
               {decision.workItemStatus === 'IN_PROGRESS' && (
                 <div className="mt-3 rounded-lg border border-warning-200 bg-warning-50 p-3 text-[9px] leading-5 text-warning-900">
                   لقطة الدليل المطلوبة للإغلاق: {evidenceSnapshotId || 'غير متاحة'} — لا يمكن إغلاق المهمة دون Evidence Snapshot حقيقية.
@@ -419,6 +663,97 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
             <div className="rounded-xl border border-ink-200 bg-ink-50 p-4 text-[10px] text-ink-600">لا توجد قرارات مصدرية محفوظة بعد لهذا المصدر.</div>
           )}
         </div>
+      </section>
+
+      <section id="decision-evidence-inspector" className="rounded-[18px] border border-primary-200 bg-primary-50/40 p-5 shadow-sm" aria-label="مفتش القرار والدليل">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="section-kicker">EVIDENCE / DECISION INSPECTOR</div>
+            <h3 className="mt-1 text-lg font-black text-ink-950">سلسلة التتبع الكاملة</h3>
+            <p className="mt-1 text-[10px] leading-5 text-ink-600">كل عقدة هنا تأتي من سجل canonical مرتبط بنفس المصدر والمستأجر؛ عند غياب العقدة تظهر كغير متاح بدل إنشاء قيمة بديلة.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary text-[9px]">فتح المصدر</Link>
+            <Link to={'/decision-experience?reportJobId=' + report.jobId + '&sourceHash=' + encodeURIComponent(report.sourceHash) + '&stage=evidence'} className="btn-primary text-[9px]">فتح تجربة القرار</Link>
+          </div>
+        </div>
+
+        {decisions[0] ? (() => {
+          const traced = decisions[0];
+          const nodes = [
+            {
+              key: 'source',
+              label: 'Source Report',
+              value: report.sourceHash.slice(0, 24) + '…',
+              detail: report.sourceAnalysis?.id ? 'Evidence Snapshot: ' + report.sourceAnalysis.id : 'Evidence Snapshot: غير متاح',
+              tone: report.sourceAnalysis?.id ? 'success' : 'warning',
+            },
+            {
+              key: 'recommendation',
+              label: 'Recommendation',
+              value: traced.recommendationTitle ?? traced.recommendationId ?? 'غير متاح',
+              detail: traced.recommendationId
+                ? 'id=' + traced.recommendationId + ' · ' + (traced.recommendationStatus ?? 'غير متاح')
+                : 'لا يوجد Recommendation مرتبط',
+              tone: traced.recommendationId ? 'success' : 'warning',
+            },
+            {
+              key: 'decision',
+              label: 'Decision',
+              value: traced.signalTitle ?? traced.decisionKey,
+              detail: 'id=' + traced.id + ' · ' + traced.status,
+              tone: 'primary',
+            },
+            {
+              key: 'approval',
+              label: 'Approval',
+              value: traced.approvalStatus ?? 'غير متاح',
+              detail: traced.approvalId ? 'id=' + traced.approvalId : 'لم يُطلب اعتماد بعد',
+              tone: traced.approvalStatus === 'APPROVED' ? 'success' : traced.approvalStatus === 'PENDING' ? 'warning' : 'neutral',
+            },
+            {
+              key: 'work',
+              label: 'Action / Work',
+              value: traced.workItemStatus ?? 'غير متاح',
+              detail: traced.workItemId ? 'id=' + traced.workItemId : 'لا يوجد عنصر عمل',
+              tone: traced.workItemStatus === 'COMPLETED' ? 'success' : traced.workItemStatus === 'IN_PROGRESS' ? 'primary' : 'neutral',
+            },
+            {
+              key: 'outcome',
+              label: 'Outcome',
+              value: traced.outcomeStatus ?? 'NOT AVAILABLE',
+              detail: traced.outcomeId
+                ? 'id=' + traced.outcomeId + ' · Evidence: ' + (traced.outcomeEvidenceSnapshotId ?? 'غير متاح')
+                : 'لا توجد نتيجة محفوظة بعد',
+              tone: traced.outcomeStatus === 'positive' ? 'success' : traced.outcomeStatus === 'negative' ? 'danger' : traced.outcomeStatus ? 'warning' : 'neutral',
+            },
+          ] as const;
+
+          return (
+            <div className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+              {nodes.map((node) => (
+                <article key={node.key} className="rounded-xl border border-ink-200 bg-white p-3">
+                  <div className="flex items-center gap-2">
+                    <span className={'h-2 w-2 rounded-full ' + (
+                      node.tone === 'success' ? 'bg-success-500' :
+                      node.tone === 'warning' ? 'bg-warning-500' :
+                      node.tone === 'danger' ? 'bg-danger-500' :
+                      node.tone === 'primary' ? 'bg-primary-500' :
+                      'bg-ink-300'
+                    )}/>
+                    <span className="text-[9px] font-black text-ink-500">{node.label}</span>
+                  </div>
+                  <div className="mt-2 break-words text-[11px] font-black text-ink-900">{node.value}</div>
+                  <div className="mt-1 break-all text-[9px] leading-5 text-ink-500">{node.detail}</div>
+                </article>
+              ))}
+            </div>
+          );
+        })() : (
+          <div className="mt-4 rounded-xl border border-dashed border-ink-200 bg-white p-5 text-center text-[10px] text-ink-500">
+            لا يوجد Decision مرتبط بهذا المصدر حتى الآن؛ تبقى السلسلة عند Evidence ولا يتم اختراع Recommendation أو Action.
+          </div>
+        )}
       </section>
 
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
@@ -441,6 +776,37 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
         <StatusCell label="Evidence" value={report.evidenceStatus}/>
       </section>
       <Link to={'/decision-experience?reportJobId=' + report.jobId + '&sourceHash=' + encodeURIComponent(report.sourceHash) + '&stage=evidence'} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-ink-950 px-4 text-xs font-black text-white">فتح مسار القرار <ArrowLeft size={13}/></Link>
+      <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm" aria-label="سجل نشاط القرار">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">ACTIVITY / AUDIT</div>
+            <h3 className="mt-1 text-lg font-black text-ink-950">سجل ما حدث للقرار</h3>
+            <p className="mt-1 text-[10px] leading-5 text-ink-500">الخط الزمني يقرأ من audit_logs للقرار والموافقة والعمل والنتيجة؛ لا يصنع نشاطًا محليًا بديلًا.</p>
+          </div>
+          <button type="button" onClick={() => decisions[0] && void refreshAudit(decisions[0])} disabled={auditLoading} className="btn-secondary text-[10px] disabled:opacity-50">
+            {auditLoading ? 'جارٍ القراءة...' : 'تحديث السجل'}
+          </button>
+        </div>
+        {auditTrace.length === 0 ? (
+          <div className="mt-4 rounded-xl border border-dashed border-ink-200 bg-ink-50/60 p-4 text-[10px] text-ink-500">لا يوجد نشاط تدقيق متاح لهذا المسار حتى الآن.</div>
+        ) : (
+          <ol className="mt-4 space-y-2">
+            {auditTrace.slice(-12).reverse().map((event) => (
+              <li key={event.id} className="rounded-xl border border-ink-100 bg-ink-50/60 p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-white px-2 py-1 text-[9px] font-black text-ink-700">{event.action}</span>
+                  <span className="text-[9px] text-ink-400">{event.entityType}</span>
+                  <span className="mr-auto text-[9px] text-ink-400">{new Date(event.createdAt).toLocaleString('ar-YE')}</span>
+                </div>
+                <div className="mt-1 flex flex-wrap gap-2 text-[9px] text-ink-500">
+                  <span>المصدر: {event.source ?? 'غير متاح'}</span>
+                  <span>الفاعل: {event.userLabel ?? 'غير متاح'}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
     </>
   );
 }
@@ -473,6 +839,8 @@ function WorkMode({ report }: { report: SmartReportDetail }) {
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-center gap-2"><FileSearch size={17} className="text-primary-700"/><h2 className="text-lg font-black">حد التنفيذ</h2></div>
         <p className="mt-2 text-xs leading-6 text-ink-600">اكتمال مراحل استيراد التقرير لا يعني وجود Action أو Outcome. التنفيذ التجاري يحتاج سجلًا مستقلًا؛ غيابه يبقى معلنًا.</p>
+
+
       </section>
     </>
   );

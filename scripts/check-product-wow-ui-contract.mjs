@@ -5,6 +5,14 @@ const login = fs.readFileSync('src/pages/LoginPage.tsx', 'utf8');
 const dashboard = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 const entities = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
 const dataTable = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
+const smartReport = fs.readFileSync('src/pages/SmartReportPage.tsx', 'utf8');
+for (const token of [
+  'EVIDENCE GATE',
+  'Evidence Snapshot',
+  'الاعتماد الكانوني والدليل النهائي مرحلتان منفصلتان',
+  'لا يوجد اعتماد دليلي نهائي بعد',
+  'فتح بوابة الأدلة',
+]) assert.ok(smartReport.includes(token), `smart report evidence gate UI missing: ${token}`);
 assert.ok(dataTable.includes('role="status" aria-live="polite" aria-busy="true"'), 'shared table loading state must expose assistive status semantics');
 assert.ok(dataTable.includes('role="status" aria-live="polite"'), 'shared table empty state must expose assistive status semantics');
 assert.ok(dataTable.includes('scope="col"'), 'shared table headers must declare column scope');

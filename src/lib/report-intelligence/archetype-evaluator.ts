@@ -97,6 +97,16 @@ function primaryDimension(profile: RuleProfile): string | null {
   return null;
 }
 
+function baseOwnerHint(profile: RuleProfile): string {
+  const id = String(profile.id).toLowerCase();
+  if (id.includes('inventory') || id.includes('stock')) return 'مسؤول المخزون';
+  if (id.includes('sales') || id.includes('customer')) return 'مسؤول المبيعات';
+  if (id.includes('purchase') || id.includes('supplier')) return 'مسؤول المشتريات';
+  if (id.includes('receivable') || id.includes('collection')) return 'مسؤول التحصيل';
+  if (id.includes('profit') || id.includes('margin')) return 'المدير المالي';
+  return 'المسؤول التشغيلي المناسب للمصدر';
+}
+
 function addModelFinding(
   intelligence: ReportIntelligence,
   profile: RuleProfile,
@@ -128,6 +138,9 @@ function addModelRecommendation(intelligence: ReportIntelligence, profile: RuleP
     action: finding.action || profile.recommendationFocus[0] || 'راجع النتيجة مع الدليل قبل اتخاذ القرار.',
     why: finding.statement,
     evidence: finding.evidence,
+    ownerHint: baseOwnerHint(profile),
+    impact: finding.value == null ? 'الأثر المالي غير مثبت من المصدر الحالي.' : 'الأثر المثبت حاليًا مرتبط بالقيمة/النطاق الظاهر في الدليل.',
+    expectedOutcome: 'إعادة القياس بعد تنفيذ الإجراء مع نفس source/job/evidence lineage.',
   };
   return {
     ...intelligence,
@@ -987,6 +1000,11 @@ export function applyArchetypeRuleSet(
     title: 'النموذج ' + String(profile.number).padStart(2, '0') + ' قُرئ من المصدر',
     message: modelFinding.statement,
     evidence: modelFinding.evidence,
+    soWhat: modelFinding.action,
+    impact: modelFinding.value == null ? 'الأثر المالي غير مثبت من المصدر الحالي.' : 'الأثر المثبت حاليًا مرتبط بالقيمة/النطاق الظاهر في الدليل.',
+    ownerHint: baseOwnerHint(profile),
+    priority: modelFinding.kind === 'RISK' && modelFinding.priority === 'high' ? 'P1' : 'P2',
+    priorityReason: ['الأهمية مشتقة من نتيجة النموذج', 'الدليل: ' + modelFinding.evidence.length + ' مؤشرات مصدرية'],
   };
 
   return {

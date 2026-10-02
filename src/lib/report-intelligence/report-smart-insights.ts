@@ -1,5 +1,17 @@
 export type ReportSignalSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 
+export type ReportSignalDriver = {
+  dimension: string;
+  value: string;
+  contribution: number | null;
+  share: number | null;
+  period: string | null;
+  expected: number | null;
+  actual: number | null;
+  why: string;
+  proof: string[];
+};
+
 export type ReportSignal = {
   id: string;
   severity: ReportSignalSeverity;
@@ -7,6 +19,12 @@ export type ReportSignal = {
   message: string;
   evidence: string[];
   affectedRows?: number;
+  soWhat: string;
+  impact: string;
+  ownerHint: string;
+  priority: 'P0' | 'P1' | 'P2' | 'P3';
+  priorityReason: string[];
+  drivers?: ReportSignalDriver[];
 };
 
 export type ReportRecommendation = {
@@ -17,6 +35,9 @@ export type ReportRecommendation = {
   action: string;
   why: string;
   evidence: string[];
+  ownerHint: string;
+  impact: string;
+  expectedOutcome: string;
 };
 
 export type ReportForecast = {
@@ -68,6 +89,7 @@ export type AdvisorBrief = {
 };
 
 export type ReportIntelligence = {
+  businessQuestion: string;
   summary: string;
   signals: ReportSignal[];
   recommendations: ReportRecommendation[];
@@ -125,7 +147,7 @@ function makePriority(severity: ReportSignalSeverity): ReportRecommendation['pri
 
 function addSignal(signals: ReportSignal[], id: string, severity: ReportSignalSeverity, title: string, message: string, evidence: string[], affectedRows?: number): void {
   if (signals.some((item) => item.id === id)) return;
-  signals.push({ id, severity, title, message, evidence, ...(affectedRows == null ? {} : { affectedRows }) });
+  signals.push({ id, severity, title, message, evidence, ...(affectedRows == null ? {} : { affectedRows }), soWhat: '', impact: '', ownerHint: '', priority: 'P3', priorityReason: [] });
 }
 
 function deriveSignals(report: ReportInput): ReportSignal[] {
@@ -321,7 +343,24 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
   }
 
   const rank: Record<ReportSignalSeverity, number> = { critical: 5, high: 4, medium: 3, low: 2, info: 1 };
-  return signals.sort((a, b) => rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title));
+  const ownerHint = ownerForSpecialty(specialty);
+  const enriched = signals.map((signal) => {
+    const priority: ReportSignal['priority'] = signal.severity === 'critical' ? 'P0' : signal.severity === 'high' ? 'P1' : signal.severity === 'medium' ? 'P2' : 'P3';
+    return {
+      ...signal,
+      drivers: signal.drivers ?? [],
+      ownerHint,
+      priority,
+      priorityReason: [
+        'الشدة: ' + signal.severity,
+        signal.affectedRows == null ? 'النطاق المتأثر غير كمي من المصدر الحالي' : 'النطاق المتأثر: ' + signal.affectedRows + ' سجل',
+        'قوة الدليل: ' + signal.evidence.length + ' مؤشرات مصدرية',
+      ],
+      soWhat: signal.affectedRows == null ? 'تحتاج هذه الإشارة مراجعة مباشرة قبل القرار.' : 'تؤثر الإشارة على ' + signal.affectedRows + ' سجلًا من المصدر.',
+      impact: signal.affectedRows == null ? 'الأثر المالي غير مثبت من المصدر الحالي.' : 'الأثر المثبت حاليًا هو نطاق السجلات المتأثرة؛ لا يتم افتراض قيمة مالية.',
+    };
+  });
+  return enriched.sort((a, b) => rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title));
 }
 
 function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] {
@@ -343,6 +382,9 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
       action,
       why: signal.message,
       evidence: signal.evidence,
+      ownerHint: signal.ownerHint,
+      impact: signal.impact,
+      expectedOutcome: 'افحص الدليل المرتبط بهذا الاستثناء، نفّذ الإجراء بعد الاعتماد، ثم أعد القياس بنفس المصدر.',
     };
   });
 }
@@ -487,14 +529,7 @@ function deriveBusinessFindings(report: ReportInput): {
           unit: 'عملة المصدر',
           dimensionLabel: specialty === 'sales' ? 'العميل' : 'المورد',
           dimensionValue: top.dimension,
-          evidence: [
-            'dimensionField=' + partyKey,
-            (specialty === 'sales' ? 'customerField=' : 'supplierField=') + partyKey,
-            'valueField=' + amountKey,
-            'dimensionValue=' + top.dimension,
-            'dimensionValueTotal=' + top.value.toFixed(2),
-            'sourceTotal=' + total.toFixed(2),
-          ],
+          evidence: [(specialty === 'sales' ? 'customerField=' : 'supplierField=') + partyKey, 'dimensionField=' + partyKey, 'valueField=' + amountKey, 'dimensionValue=' + top.dimension, 'dimensionValueTotal=' + top.value.toFixed(2), 'sourceTotal=' + total.toFixed(2)],
           limitation: 'التركيز الحسابي لا يثبت خطرًا تجاريًا بحد ذاته؛ يحتاج إلى تفسير حسب سياسة الشركة وتوزيع باقي القيمة.',
           action: specialty === 'sales'
             ? 'راجع هذا العميل أولًا ضمن خطة المحافظة على الإيراد ومخاطر التركّز.'
@@ -506,20 +541,12 @@ function deriveBusinessFindings(report: ReportInput): {
     if (dateColumn) {
       const dateKey = dataKey(dateColumn);
       const monthly = new Map<string, number>();
-      const partyByMonth = new Map<string, Map<string, number>>();
-      const partyKeyForChange = partyColumn ? dataKey(partyColumn) : null;
       for (const row of rows) {
         const date = parseDate(row.data?.[dateKey]);
         const value = numeric(row.data?.[amountKey]);
         if (!date || value == null) continue;
         const month = date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0');
         monthly.set(month, (monthly.get(month) ?? 0) + value);
-        if (partyKeyForChange) {
-          const party = text(row.data?.[partyKeyForChange]) || 'غير محدد';
-          const byParty = partyByMonth.get(month) ?? new Map<string, number>();
-          byParty.set(party, (byParty.get(party) ?? 0) + value);
-          partyByMonth.set(month, byParty);
-        }
       }
       const periods = [...monthly.entries()].sort(([a], [b]) => a.localeCompare(b));
       if (periods.length >= 2) {
@@ -527,6 +554,43 @@ function deriveBusinessFindings(report: ReportInput): {
         const latest = periods[periods.length - 1][1];
         const delta = latest - previous;
         const pct = previous === 0 ? null : (delta / Math.abs(previous)) * 100;
+        if (partyColumn && delta !== 0) {
+          const partyKey = dataKey(partyColumn);
+          const byPeriod = new Map<string, Map<string, number>>();
+          for (const row of rows) {
+            const date = parseDate(row.data?.[dateKey]);
+            const value = numeric(row.data?.[amountKey]);
+            if (!date || value == null) continue;
+            const month = date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0');
+            const party = text(row.data?.[partyKey]) || 'غير محدد';
+            const bucket = byPeriod.get(month) ?? new Map<string, number>();
+            bucket.set(party, (bucket.get(party) ?? 0) + value);
+            byPeriod.set(month, bucket);
+          }
+          const previousParties = byPeriod.get(periods[periods.length - 2][0]) ?? new Map<string, number>();
+          const latestParties = byPeriod.get(periods[periods.length - 1][0]) ?? new Map<string, number>();
+          const contributor = [...new Set([...previousParties.keys(), ...latestParties.keys()])]
+            .map((party) => ({ party, delta: (latestParties.get(party) ?? 0) - (previousParties.get(party) ?? 0) }))
+            .filter((item) => item.delta !== 0)
+            .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))[0];
+          if (contributor) {
+            findings.push({
+              id: specialty + ':change-contributor',
+              kind: 'FINDING',
+              priority: Math.abs(contributor.delta) >= Math.abs(delta) * 0.5 ? 'high' : 'medium',
+              title: 'أكبر مساهم في تغير الفترة',
+              statement: (specialty === 'sales' ? 'العميل' : 'المورد') + ' "' + contributor.party + '" يمثل أكبر تغير منفرد بمقدار ' + contributor.delta.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '.',
+              value: contributor.delta,
+              unit: 'فرق القيمة',
+              dimensionLabel: specialty === 'sales' ? 'العميل' : 'المورد',
+              dimensionValue: contributor.party,
+              evidence: ['dimensionField=' + partyKey, 'previousPeriod=' + periods[periods.length - 2][0], 'latestPeriod=' + periods[periods.length - 1][0], 'partyDelta=' + contributor.delta.toFixed(2)],
+              limitation: 'المساهمة في التغير تفكيك حسابي وليست إثباتًا للسبب.',
+              action: 'افتح معاملات هذا الطرف ومصادر تغيره قبل اعتماد الإجراء.',
+            });
+          }
+        }
+
         findings.push({
           id: specialty + ':period-change',
           kind: 'FINDING',
@@ -543,47 +607,6 @@ function deriveBusinessFindings(report: ReportInput): {
             ? 'افتح تحليل المساهمين في التغير قبل اعتماد أي قرار مبيعات.'
             : 'افتح تحليل الموردين والقيمة قبل اعتماد أي قرار مشتريات.',
         });
-        if (partyKeyForChange && periods.length >= 2) {
-          const previousPeriodId = periods[periods.length - 2][0];
-          const latestPeriodId = periods[periods.length - 1][0];
-          const previousParties = partyByMonth.get(previousPeriodId) ?? new Map<string, number>();
-          const latestParties = partyByMonth.get(latestPeriodId) ?? new Map<string, number>();
-          const partyNames = new Set([...previousParties.keys(), ...latestParties.keys()]);
-          const deltas = [...partyNames]
-            .map((party) => ({
-              party,
-              delta: (latestParties.get(party) ?? 0) - (previousParties.get(party) ?? 0),
-            }))
-            .filter((item) => item.delta !== 0)
-            .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
-          const totalDelta = latest - previous;
-          const contributor = deltas[0];
-          if (contributor && totalDelta !== 0) {
-            const shareOfChange = Math.abs(contributor.delta / totalDelta) * 100;
-            const label = specialty === 'sales' ? 'العميل' : 'المورد';
-            findings.push({
-              id: specialty + ':change-contributor',
-              kind: 'FINDING',
-              priority: Math.abs(contributor.delta) >= Math.abs(totalDelta) * 0.5 ? 'high' : 'medium',
-              title: 'أكبر مساهم في تغير الفترة',
-              statement: label + ' "' + contributor.party + '" يمثل أكبر تغير منفرد بمقدار ' + contributor.delta.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '، أي ' + shareOfChange.toFixed(1) + '% من التغير الكلي المحسوب.',
-              value: contributor.delta,
-              unit: 'فرق القيمة',
-              dimensionLabel: label,
-              dimensionValue: contributor.party,
-              evidence: [
-                'dimensionField=' + partyKeyForChange,
-                'valueField=' + amountKey,
-                'previousPeriod=' + previousPeriodId,
-                'latestPeriod=' + latestPeriodId,
-                'partyDelta=' + contributor.delta.toFixed(2),
-                'totalDelta=' + totalDelta.toFixed(2),
-              ],
-              limitation: 'المساهمة في التغير لا تثبت سبب التغير؛ إنها تفكيك حسابي للفارق بين فترتين.',
-              action: 'افتح هذا ' + label + ' أولًا، ثم افحص الأصناف/المعاملات التي كوّنت التغير قبل اعتماد قرار.',
-            });
-          }
-        }
         if (pct != null && pct < -10) {
           risks.push({
             id: specialty + ':period-decline-risk',
@@ -862,6 +885,18 @@ export function deriveReportIntelligence(report: ReportInput): ReportIntelligenc
             ? 'المصدر يصف المدفوعات/السيولة؛ الذكاء يركز على التسوية والفترة والعملة.'
             : 'المصدر محلل من بنية الحقول والقيم؛ العناصر غير المثبتة تبقى معلنة كمراجعة.';
 
+  const businessQuestion = specialty === 'sales'
+    ? 'ما الذي حدث في المبيعات وأين توجد إشارات تحتاج تدخلًا؟'
+    : specialty === 'receivables'
+      ? 'ما حجم الذمم وأين تتركز مخاطر التحصيل؟'
+      : specialty === 'inventory'
+        ? 'أين توجد فجوات في هوية الصنف أو السعر أو المخزون؟'
+        : specialty === 'purchases'
+          ? 'أين توجد استثناءات في المشتريات والموردين والتكلفة؟'
+          : specialty === 'payments'
+            ? 'هل حركة التحصيل/السيولة مكتملة ويمكن تسويتها بثقة؟'
+            : 'ما أهم ما تثبته بيانات المصدر، وما الذي يحتاج مراجعة قبل القرار؟';
+
   const top = signals[0];
   const guidance: ReportGuidance = {
     focus: top ? top.title : 'لا توجد إشارة حرجة مثبتة من البيانات المتاحة.',
@@ -873,6 +908,7 @@ export function deriveReportIntelligence(report: ReportInput): ReportIntelligenc
   const business = deriveBusinessFindings(report);
   const advisorBrief = buildAdvisorBrief(report, business, signals);
   return {
+    businessQuestion,
     summary,
     signals,
     recommendations,

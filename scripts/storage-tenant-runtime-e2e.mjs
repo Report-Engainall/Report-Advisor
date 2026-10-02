@@ -43,7 +43,7 @@ async function browserSession(user) {
   await page.locator('#login-password').fill(user.password);
 
   let authResponse = null;
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
+  for (let attempt = 1; attempt <= 6; attempt += 1) {
     if (attempt > 1) {
       await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
       await page.locator('#login-email').fill(user.email);
@@ -59,13 +59,13 @@ async function browserSession(user) {
     if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
     await loginSubmit.click();
     const candidate = await authResponsePromise;
-    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 3) {
-      await page.waitForTimeout(5000 * attempt);
+    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 6) {
+      await page.waitForTimeout(Math.min(5000 * attempt, 20000));
       continue;
     }
     authResponse = candidate;
-    if (authResponse || attempt === 3) break;
-    await page.waitForTimeout(5000 * attempt);
+    if (authResponse || attempt === 6) break;
+    await page.waitForTimeout(Math.min(5000 * attempt, 20000));
   }
   if (!authResponse) throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
   const authStatus = authResponse.status();
@@ -123,7 +123,7 @@ async function browserSession(user) {
 async function storageRequest(token, method, path, body, headers = {}) {
   const transientStatuses = new Set([502, 503, 504, 544]);
   let last = null;
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
+  for (let attempt = 1; attempt <= 6; attempt += 1) {
     const response = await fetch(`${supabaseURL}/storage/v1/${path}`, {
       method,
       headers: { apikey: anonKey, Authorization: `Bearer ${token}`, ...headers },
@@ -132,8 +132,8 @@ async function storageRequest(token, method, path, body, headers = {}) {
     const text = await response.text();
     let payload = text; try { payload = JSON.parse(text); } catch {}
     last = { ok: response.ok, status: response.status, payload, attempts: attempt };
-    if (response.ok || !transientStatuses.has(response.status) || attempt === 3) return last;
-    await new Promise(resolve => setTimeout(resolve, 750 * attempt));
+    if (response.ok || !transientStatuses.has(response.status) || attempt === 6) return last;
+    await new Promise(resolve => setTimeout(resolve, Math.min(1500 * attempt, 10000)));
   }
   return last;
 }

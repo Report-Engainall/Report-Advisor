@@ -74,29 +74,77 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           AUTH_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
           AUTH_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
         shell: bash
         run: |
           set -euo pipefail
           token="$(node --input-type=module <<'NODE'
+          const { createClient } = await import('@supabase/supabase-js');
+
           const url = process.env.SUPABASE_URL?.trim();
           const anonKey = process.env.SUPABASE_ANON_KEY?.trim();
+          const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
           const email = process.env.AUTH_EMAIL?.trim();
-          const password = process.env.AUTH_PASSWORD;
-          if (!url || !anonKey || !email || !password) {
+          if (!url || !anonKey || !serviceRoleKey || !email) {
             throw new Error('PHASE_F_CANARY_AUTH_ENV_MISSING');
           }
-          const response = await fetch(`${url.replace(/\/$/, '')}/auth/v1/token?grant_type=password`, {
-            method: 'POST',
-            headers: { apikey: anonKey, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
+
+          const retryableStatuses = new Set([408, 425, 429, 500, 502, 503, 504]);
+          const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+          const admin = createClient(url, serviceRoleKey, {
+            auth: { autoRefreshToken: false, persistSession: false },
           });
-          const body = await response.json().catch(() => ({}));
-          if (!response.ok || typeof body.access_token !== 'string' || !body.access_token.trim()) {
-            throw new Error(`PHASE_F_CANARY_AUTH_FAILED:${response.status}:${body.error_code || body.error || body.msg || 'unknown'}`);
+          const client = createClient(url, anonKey, {
+            auth: { autoRefreshToken: false, persistSession: false },
+          });
+
+          let lastError = null;
+
+          for (let attempt = 1; attempt <= 4; attempt += 1) {
+            try {
+              const generated = await admin.auth.admin.generateLink({
+                type: 'magiclink',
+                email,
+              });
+
+              if (generated.error) {
+                const status = Number(generated.error.status ?? 0);
+                lastError = new Error('PHASE_F_CANARY_GENERATE_LINK_FAILED:' + status + ':' + (generated.error.message || 'unknown'));
+                if (!retryableStatuses.has(status) || attempt === 4) throw lastError;
+              } else {
+                const tokenHash = generated.data?.properties?.hashed_token;
+                if (!tokenHash) throw new Error('PHASE_F_CANARY_TOKEN_HASH_MISSING');
+
+                const verified = await client.auth.verifyOtp({
+                  token_hash: tokenHash,
+                  type: 'email',
+                });
+
+                if (!verified.error && verified.data?.session?.access_token) {
+                  process.stdout.write(verified.data.session.access_token.trim());
+                  lastError = null;
+                  break;
+                }
+
+                const status = Number(verified.error?.status ?? 0);
+                lastError = new Error(
+                  'PHASE_F_CANARY_VERIFY_OTP_FAILED:' + status + ':' + (verified.error?.message || 'unknown'),
+                );
+                if (!retryableStatuses.has(status) || attempt === 4) throw lastError;
+              }
+            } catch (error) {
+              lastError = error instanceof Error ? error : new Error(String(error));
+              const statusMatch = lastError.message.match(/PHASE_F_CANARY_(?:GENERATE_LINK|VERIFY_OTP)_FAILED:(\d+):/);
+              const status = statusMatch ? Number(statusMatch[1]) : 0;
+              if ((status && !retryableStatuses.has(status)) || attempt === 4) throw lastError;
+            }
+
+            await sleep(2000 * 2 ** (attempt - 1));
           }
-          process.stdout.write(body.access_token.trim());
+
+          if (lastError) throw lastError;
           NODE
           )"
           echo "::add-mask::$token"
@@ -105,10 +153,10 @@ jobs:
         env:
           RESILIENCE_TARGET_ENV: ${{ secrets.RESILIENCE_TARGET_ENV }}
           RESILIENCE_OPERATIONAL_TOKEN: ${{ secrets.RESILIENCE_OPERATIONAL_TOKEN }}
-          RESILIENCE_HEALTH_URL: https://report-advisor.vercel.app/api/health
-          RESILIENCE_CANARY_URL: https://report-advisor.vercel.app/api/tenant-canary
-          RESILIENCE_BACKUP_VERIFY_URL: https://report-advisor.vercel.app/api/backup-restore-verify
-          RESILIENCE_ROLLBACK_DRILL_URL: https://report-advisor.vercel.app/api/rollback-drill
+          RESILIENCE_HEALTH_URL: https://deploy-preview-730--aghbari-report-advisor.netlify.app/api/health
+          RESILIENCE_CANARY_URL: https://deploy-preview-730--aghbari-report-advisor.netlify.app/api/tenant-canary
+          RESILIENCE_BACKUP_VERIFY_URL: https://deploy-preview-730--aghbari-report-advisor.netlify.app/api/backup-restore-verify
+          RESILIENCE_ROLLBACK_DRILL_URL: https://deploy-preview-730--aghbari-report-advisor.netlify.app/api/rollback-drill
           RESILIENCE_ALLOW_PRODUCTION: ${{ secrets.RESILIENCE_ALLOW_PRODUCTION }}
           RESILIENCE_BACKUP_MODE: ${{ secrets.RESILIENCE_BACKUP_MODE }}
           RESILIENCE_LOGICAL_SOURCE_DB_URL: ${{ secrets.RESILIENCE_LOGICAL_SOURCE_DB_URL || vars.RESILIENCE_LOGICAL_SOURCE_DB_URL }}

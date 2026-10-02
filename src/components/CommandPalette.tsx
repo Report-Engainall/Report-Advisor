@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, Command, Search, X } from 'lucide-react';
 import { NAVIGATION_ITEMS, type NavigationItem, type NavigationSectionId } from '@/lib/navigation-registry';
+import { searchUnifiedKnowledge, type UnifiedSearchResult } from '@/lib/unified-search';
 
 type CommandItem = Pick<NavigationItem, 'label' | 'description' | 'path' | 'keywords' | 'section'>;
 
@@ -39,6 +40,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const [recentPaths, setRecentPaths] = useState<string[]>([]);
+  const [knowledgeResults, setKnowledgeResults] = useState<UnifiedSearchResult[]>([]);
+  const [knowledgeLoading, setKnowledgeLoading] = useState(false);
+  const [knowledgeError, setKnowledgeError] = useState<string | null>(null);
 
   const recentCommands = useMemo(
     () => recentPaths.map(path => COMMANDS.find(item => item.path === path)).filter((item): item is CommandItem => Boolean(item)),
@@ -83,6 +87,11 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     });
   }, [contextScore, query, recentPaths]);
 
+  const openSearchResult = useCallback((item: UnifiedSearchResult) => {
+    navigate(item.path);
+    onClose();
+  }, [navigate, onClose]);
+
   const openCommand = useCallback((item: CommandItem) => {
     const next = [item.path, ...recentPaths.filter(path => path !== item.path)].slice(0, RECENT_LIMIT);
     setRecentPaths(next);
@@ -120,6 +129,39 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
       }
     };
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const normalized = query.trim();
+    if (normalized.length < 2) {
+      setKnowledgeResults([]);
+      setKnowledgeLoading(false);
+      setKnowledgeError(null);
+      return;
+    }
+    let activeRequest = true;
+    setKnowledgeLoading(true);
+    setKnowledgeError(null);
+    const timer = window.setTimeout(() => {
+      void searchUnifiedKnowledge(normalized)
+        .then(results => {
+          if (!activeRequest) return;
+          setKnowledgeResults(results);
+        })
+        .catch(error => {
+          if (!activeRequest) return;
+          setKnowledgeResults([]);
+          setKnowledgeError(error instanceof Error ? error.message : 'تعذر الوصول إلى المعرفة المحفوظة');
+        })
+        .finally(() => {
+          if (activeRequest) setKnowledgeLoading(false);
+        });
+    }, 180);
+    return () => {
+      activeRequest = false;
+      window.clearTimeout(timer);
+    };
+  }, [open, query]);
 
   useEffect(() => {
     if (!open) return;
@@ -166,6 +208,11 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
 
   if (!open) return null;
 
+  const knowledgeKindLabel: Record<UnifiedSearchResult['kind'], string> = {
+    SOURCE: 'مصدر', EVIDENCE: 'دليل', RECOMMENDATION: 'توصية', DECISION: 'قرار',
+    APPROVAL: 'موافقة', WORK: 'عمل', OUTCOME: 'نتيجة', AUDIT: 'تدقيق',
+  };
+
   return (
     <div className="ag-command-overlay fixed inset-0 z-[100] flex items-start justify-center bg-ink-950/45 px-4 pt-[10vh] backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="لوحة الأوامر">
       <button className="absolute inset-0 cursor-default" aria-label="إغلاق" tabIndex={-1} onClick={onClose} />
@@ -194,7 +241,35 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
           </button>
         </div>
 
-        <div id="command-results" className="max-h-[55vh] overflow-y-auto p-2" role="listbox" aria-label="نتائج لوحة الأوامر" aria-live="polite">
+        <div id="command-results" className="max-h-[65vh] overflow-y-auto p-2" role="listbox" aria-label="نتائج لوحة الأوامر" aria-live="polite">
+          {query.trim().length >= 2 && (
+            <div className="mb-3 rounded-xl border border-primary-100 bg-primary-50/40 p-2">
+              <div className="flex items-center justify-between px-2 pb-2 pt-1">
+                <div className="text-[10px] font-black uppercase tracking-wide text-primary-700">المعرفة المرتبطة</div>
+                {knowledgeLoading && <span className="text-[10px] text-ink-400">جارٍ البحث...</span>}
+              </div>
+              {knowledgeError && <div className="px-2 py-2 text-xs text-red-700">تعذر البحث: {knowledgeError}</div>}
+              {!knowledgeLoading && !knowledgeError && knowledgeResults.length === 0 && (
+                <div className="px-2 py-3 text-xs text-ink-500">لا توجد كيانات محفوظة مطابقة لهذه العبارة.</div>
+              )}
+              {knowledgeResults.map(item => (
+                <button
+                  key={`${item.kind}:${item.id}`}
+                  type="button"
+                  onClick={() => openSearchResult(item)}
+                  className="mb-1 flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-right transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                >
+                  <span className="mt-0.5 rounded-full bg-white px-2 py-0.5 text-[9px] font-black text-primary-700">{knowledgeKindLabel[item.kind]}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-semibold text-ink-900">{item.title}</span>
+                    <span className="mt-0.5 block truncate text-[11px] text-ink-500">{item.summary}</span>
+                  </span>
+                  {item.status && <span className="shrink-0 rounded-full bg-ink-100 px-2 py-0.5 text-[9px] font-bold text-ink-500">{item.status}</span>}
+                </button>
+              ))}
+            </div>
+          )}
+
           {!query.trim() && recentCommands.length > 0 && (
             <div className="mb-2">
               <div className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-wide text-ink-400">الوصول السريع</div>

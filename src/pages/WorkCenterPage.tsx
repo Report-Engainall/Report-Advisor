@@ -8,7 +8,9 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { DataTable } from '@/components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchImportRecords, fetchWorkerHealthSnapshot, type WorkerHealthSnapshot } from '@/lib/queries';
-import { fetchDecisionWorkItems, type DecisionWorkItemRecord } from '@/lib/report-decisions';
+import { fetchDecisionWorkItems, startSourceDecisionWorkItem, completeSourceDecisionWorkItem, type DecisionWorkItemRecord } from '@/lib/report-decisions';
+import { loadPersistedOutcomes, type DecisionOutcome } from '@/lib/analytics/outcome-feedback';
+import { resolveCurrentCompanyId } from '@/lib/supabase';
 import type { ImportRecord } from '@/lib/types';
 import { formatNumber } from '@/lib/format';
 
@@ -27,9 +29,19 @@ function matches(row: ImportRecord, filter: FilterKey) {
 function WorkCenterGeneralPage() {
   const [rows, setRows] = useState<ImportRecord[]>([]);
   const [decisionWorkItems, setDecisionWorkItems] = useState<DecisionWorkItemRecord[]>([]);
+  const [outcomes, setOutcomes] = useState<DecisionOutcome[]>([]);
+  const [workActions, setWorkActions] = useState<Record<string, 'starting' | 'completing' | 'error'>>({});
+  const [workImpacts, setWorkImpacts] = useState<Record<string, string>>({});
   const [workerHealth, setWorkerHealth] = useState<WorkerHealthSnapshot | null>(null);
   const [filter, setFilter] = useState<FilterKey>('all');
   const [decisionWorkFilter, setDecisionWorkFilter] = useState<DecisionWorkFilter>('all');
+  const [workParams] = useSearchParams();
+  useEffect(() => {
+    const requested = workParams.get('decisionWorkFilter');
+    if (requested === 'all' || requested === 'open' || requested === 'in_progress' || requested === 'completed' || requested === 'overdue') {
+      setDecisionWorkFilter(requested);
+    }
+  }, [workParams]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,14 +49,18 @@ function WorkCenterGeneralPage() {
     try {
       setLoading(true);
       setError(null);
-      const [imports, health, workItems] = await Promise.all([
+      const companyId = await resolveCurrentCompanyId();
+      if (!companyId) throw new Error('TENANT_REQUIRED');
+      const [imports, health, workItems, persistedOutcomes] = await Promise.all([
         fetchImportRecords(),
         fetchWorkerHealthSnapshot(),
         fetchDecisionWorkItems(200),
+        loadPersistedOutcomes(companyId),
       ]);
       setRows(imports);
       setWorkerHealth(health);
       setDecisionWorkItems(workItems);
+      setOutcomes(persistedOutcomes);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'فشل تحميل مركز العمليات');
     } finally {
@@ -53,6 +69,55 @@ function WorkCenterGeneralPage() {
   }, []);
 
   useEffect(() => { void load(); }, [load]);
+
+  const startWork = useCallback(async (item: DecisionWorkItemRecord) => {
+    setWorkActions((current) => ({ ...current, [item.id]: 'starting' }));
+    try {
+      await startSourceDecisionWorkItem(item.id);
+      await load();
+    } catch {
+      setWorkActions((current) => ({ ...current, [item.id]: 'error' }));
+    } finally {
+      setWorkActions((current) => {
+        const next = { ...current };
+        if (next[item.id] !== 'error') delete next[item.id];
+        return next;
+      });
+    }
+  }, [load]);
+
+  const completeWork = useCallback(async (item: DecisionWorkItemRecord) => {
+    const snapshotId = item.evidenceSnapshotId;
+    if (!snapshotId || !item.sourceReportJobId || !item.sourceHash) {
+      setWorkActions((current) => ({ ...current, [item.id]: 'error' }));
+      return;
+    }
+    const rawImpact = workImpacts[item.id]?.trim() ?? '';
+    const parsedImpact = rawImpact ? Number(rawImpact.replace(/,/g, '')) : null;
+    if (parsedImpact != null && !Number.isFinite(parsedImpact)) {
+      setWorkActions((current) => ({ ...current, [item.id]: 'error' }));
+      return;
+    }
+    setWorkActions((current) => ({ ...current, [item.id]: 'completing' }));
+    try {
+      await completeSourceDecisionWorkItem({
+        workItemId: item.id,
+        actualImpact: parsedImpact,
+        evidenceSnapshotId: snapshotId,
+        reportJobId: item.sourceReportJobId,
+        sourceHash: item.sourceHash,
+      });
+      await load();
+    } catch {
+      setWorkActions((current) => ({ ...current, [item.id]: 'error' }));
+    } finally {
+      setWorkActions((current) => {
+        const next = { ...current };
+        if (next[item.id] !== 'error') delete next[item.id];
+        return next;
+      });
+    }
+  }, [load, workImpacts]);
 
   const filtered = useMemo(() => rows.filter(r => matches(r, filter)), [rows, filter]);
   const isOverdue = (item: DecisionWorkItemRecord) =>
@@ -234,6 +299,20 @@ function WorkCenterGeneralPage() {
         </div>
       </div>
 
+      <div className="mt-4 rounded-xl border border-primary-100 bg-primary-50/50 p-3" aria-label="سياق العمل الحالي">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="section-kicker">WHY · EVIDENCE · ACTION · OUTCOME</div>
+            <div className="mt-1 text-[11px] font-black text-ink-900">مركز العمل يربط المهمة بالدليل، الإجراء، والنتيجة المسجلة.</div>
+            <p className="mt-1 text-[9px] leading-5 text-ink-500">ابدأ المهمة فقط عندما تكون الحالة مفتوحة، وأغلقها بعد إدخال الأثر الفعلي مع Evidence مثبت. النتيجة والتعلّم تظهران من السجل المحفوظ.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/command-center" className="btn-secondary text-[9px]">مركز القيادة</Link>
+            <Link to="/decision-experience?stage=decision" className="btn-ghost text-[9px]">مساحة القرار</Link>
+          </div>
+        </div>
+      </div>
+
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         <div className="rounded-xl border border-ink-100 bg-white p-3"><div className="text-[9px] text-ink-400">مفتوحة</div><div className="mt-1 text-xl font-black text-ink-950">{formatNumber(decisionWorkCounts.open)}</div></div>
         <div className="rounded-xl border border-ink-100 bg-white p-3"><div className="text-[9px] text-ink-400">قيد التنفيذ</div><div className="mt-1 text-xl font-black text-primary-700">{formatNumber(decisionWorkCounts.inProgress)}</div></div>
@@ -243,6 +322,8 @@ function WorkCenterGeneralPage() {
 
       <div className="mt-4 overflow-x-auto rounded-xl border border-ink-200 bg-white">
         {filteredDecisionWork.length ? (
+          <>
+          <div className="hidden md:block overflow-x-auto">
           <table className="min-w-full text-right text-[10px]">
             <thead className="bg-ink-50"><tr>
               <th className="whitespace-nowrap px-3 py-2 font-black text-ink-600">العمل</th>
@@ -270,7 +351,12 @@ function WorkCenterGeneralPage() {
                     <td className="px-3 py-3 text-ink-600">{item.priority}</td>
                     <td className="px-3 py-3 text-ink-600">{item.dueAt ? new Date(item.dueAt).toLocaleDateString('ar-YE') : 'غير محدد'}</td>
                     <td className="px-3 py-3 text-ink-600">
-                      {item.actualImpact != null ? formatNumber(item.actualImpact) : item.expectedImpact != null ? 'متوقع ' + formatNumber(item.expectedImpact) : 'غير متاح'}
+                      <div>{item.actualImpact != null ? formatNumber(item.actualImpact) : item.expectedImpact != null ? 'متوقع ' + formatNumber(item.expectedImpact) : 'غير متاح'}</div>
+                      {item.expectedImpact != null && item.actualImpact != null && (
+                        <div className={'mt-1 text-[8px] font-black ' + (item.actualImpact - item.expectedImpact >= 0 ? 'text-success-700' : 'text-danger-700')}>
+                          Delta: {formatNumber(item.actualImpact - item.expectedImpact)}
+                        </div>
+                      )}
                     </td>
                     <td className="px-3 py-3">
                       {reportJobIdValue && sourceHashValue
@@ -278,17 +364,142 @@ function WorkCenterGeneralPage() {
                         : <span className="text-ink-400">غير مربوط</span>}
                     </td>
                     <td className="px-3 py-3">
-                      {reportJobIdValue && sourceHashValue
-                        ? <Link to={'/reports/smart/' + reportJobIdValue + '?sourceHash=' + encodeURIComponent(sourceHashValue)} className="btn-secondary text-[9px]">فتح التقرير</Link>
-                        : <span className="text-ink-400">غير متاح</span>}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {item.status === 'OPEN' && (
+                          <button
+                            type="button"
+                            onClick={() => void startWork(item)}
+                            disabled={workActions[item.id] === 'starting'}
+                            className="btn-primary text-[9px] disabled:opacity-50"
+                            data-testid={'work-center-start-' + item.id}
+                          >
+                            {workActions[item.id] === 'starting' ? 'جارٍ البدء...' : 'بدء'}
+                          </button>
+                        )}
+                        {item.status === 'IN_PROGRESS' && item.evidenceSnapshotId && (
+                          <div className="flex flex-wrap items-center gap-1">
+                            <input
+                              inputMode="decimal"
+                              value={workImpacts[item.id] ?? ''}
+                              onChange={(event) => setWorkImpacts((current) => ({ ...current, [item.id]: event.target.value }))}
+                              placeholder="الأثر الفعلي"
+                              aria-label={'الأثر الفعلي ' + item.title}
+                              className="min-h-8 w-24 rounded-lg border border-ink-200 bg-white px-2 text-[9px] outline-none focus:border-primary-400"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => void completeWork(item)}
+                              disabled={workActions[item.id] === 'completing'}
+                              className="btn-primary text-[9px] disabled:opacity-50"
+                              data-testid={'work-center-complete-' + item.id}
+                            >
+                              {workActions[item.id] === 'completing' ? 'جارٍ الإغلاق...' : 'إغلاق'}
+                            </button>
+                          </div>
+                        )}
+                        {item.status === 'IN_PROGRESS' && !item.evidenceSnapshotId && (
+                          <span className="rounded-lg border border-warning-200 bg-warning-50 px-2 py-1 text-[8px] font-bold text-warning-900">Evidence غير متاح — افتح المصدر</span>
+                        )}
+                        {reportJobIdValue && sourceHashValue
+                          ? <>
+                              <Link to={'/reports/smart/' + reportJobIdValue + '?sourceHash=' + encodeURIComponent(sourceHashValue)} className="btn-secondary text-[9px]">المصدر</Link>
+                              <Link to={'/reports/smart/' + reportJobIdValue + '?sourceHash=' + encodeURIComponent(sourceHashValue) + '#decision-evidence-inspector'} className="btn-ghost text-[9px]">التتبع</Link>
+                            </>
+                          : <span className="text-ink-400">غير متاح</span>}
+                      </div>
+                      {workActions[item.id] === 'error' && <div role="alert" className="mt-1 text-[8px] font-bold text-danger-700">تعذر تنفيذ الإجراء أو readback؛ بقيت الحالة دون تغيير محلي.</div>}
                     </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
+        </div>
+        <div className="grid gap-2 p-2 md:hidden">
+          {filteredDecisionWork.map((item) => {
+            const sourceHashValue = typeof item.sourceHash === 'string' ? item.sourceHash : '';
+            const reportJobIdValue = typeof item.sourceReportJobId === 'string' ? item.sourceReportJobId : '';
+            return (
+              <article key={item.id} className="rounded-xl border border-ink-200 bg-ink-50/55 p-3" aria-label={'عنصر عمل ' + item.title}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-black text-ink-900">{item.title}</div>
+                    <div className="mt-1 break-all font-mono text-[8px] text-ink-400">{item.id}</div>
+                  </div>
+                  <span className="shrink-0 rounded-full bg-primary-50 px-2 py-1 text-[8px] font-black text-primary-800">{workStatusLabel(item.status)}</span>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-[9px]">
+                  <div className="rounded-lg bg-white p-2"><div className="text-ink-400">المسؤول</div><div className="mt-1 font-bold text-ink-800">{item.assigneeLabel ?? 'غير متاح'}</div></div>
+                  <div className="rounded-lg bg-white p-2"><div className="text-ink-400">الموعد</div><div className="mt-1 font-bold text-ink-800">{item.dueAt ? new Date(item.dueAt).toLocaleDateString('ar-YE') : 'غير محدد'}</div></div>
+                  <div className="rounded-lg bg-white p-2"><div className="text-ink-400">المتوقع</div><div className="mt-1 font-bold text-ink-800">{item.expectedImpact == null ? 'غير متاح' : formatNumber(item.expectedImpact)}</div></div>
+                  <div className="rounded-lg bg-white p-2"><div className="text-ink-400">الفعلي</div><div className="mt-1 font-bold text-ink-800">{item.actualImpact == null ? 'غير متاح' : formatNumber(item.actualImpact)}</div></div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {item.status === 'OPEN' && <button type="button" onClick={() => void startWork(item)} disabled={workActions[item.id] === 'starting'} className="btn-primary text-[9px]">{workActions[item.id] === 'starting' ? 'جارٍ البدء...' : 'بدء'}</button>}
+                  {item.status === 'IN_PROGRESS' && item.evidenceSnapshotId && (
+                    <>
+                      <input inputMode="decimal" value={workImpacts[item.id] ?? ''} onChange={(event) => setWorkImpacts((current) => ({ ...current, [item.id]: event.target.value }))} placeholder="الأثر الفعلي" aria-label={'الأثر الفعلي ' + item.title} className="min-h-8 w-28 rounded-lg border border-ink-200 bg-white px-2 text-[9px] outline-none focus:border-primary-400" />
+                      <button type="button" onClick={() => void completeWork(item)} disabled={workActions[item.id] === 'completing'} className="btn-primary text-[9px]">{workActions[item.id] === 'completing' ? 'جارٍ الإغلاق...' : 'إغلاق'}</button>
+                    </>
+                  )}
+                  {item.status === 'IN_PROGRESS' && !item.evidenceSnapshotId && <span className="rounded-lg border border-warning-200 bg-warning-50 px-2 py-1 text-[8px] font-bold text-warning-900">الدليل غير متاح</span>}
+                  {reportJobIdValue && sourceHashValue && <Link to={'/reports/smart/' + reportJobIdValue + '?sourceHash=' + encodeURIComponent(sourceHashValue) + '#decision-evidence-inspector'} className="btn-secondary text-[9px]">التتبع</Link>}
+                </div>
+                {workActions[item.id] === 'error' && <div role="alert" className="mt-2 text-[8px] font-bold text-danger-700">تعذر تنفيذ الإجراء أو إعادة القراءة؛ بقيت الحالة كما هي في النظام.</div>}
+              </article>
+            );
+          })}
+        </div>
+        </>
         ) : <div className="p-6 text-center text-[10px] text-ink-500">لا توجد عناصر عمل مطابقة داخل نافذة مركز العمل الحالية.</div>}
       </div>
+    </section>
+
+    <section className="rounded-[18px] border border-primary-200 bg-white p-5 shadow-sm" aria-label="نتائج القرار والتعلم">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+        <div>
+          <div className="section-kicker">OUTCOME → LEARNING</div>
+          <h2 className="mt-1 text-lg font-black text-ink-950">ما الذي تعلّمناه من التنفيذ؟</h2>
+          <p className="mt-1 text-[11px] leading-5 text-ink-600">هذه قراءة من سجلات النتائج المحفوظة لنفس المستأجر. لا يتم تحويل غياب النتيجة إلى نجاح أو تقدير.</p>
+        </div>
+        <div className="flex flex-wrap gap-2 text-[10px] font-bold text-ink-500">
+          <span className="rounded-full bg-ink-50 px-2.5 py-1.5">الإجمالي: {formatNumber(outcomes.length)}</span>
+          <span className="rounded-full bg-success-50 px-2.5 py-1.5 text-success-800">إيجابي: {formatNumber(outcomes.filter(item => item.label === 'correct').length)}</span>
+          <span className="rounded-full bg-warning-50 px-2.5 py-1.5 text-warning-900">جزئي: {formatNumber(outcomes.filter(item => item.label === 'partial').length)}</span>
+          <span className="rounded-full bg-danger-50 px-2.5 py-1.5 text-danger-800">سلبي: {formatNumber(outcomes.filter(item => item.label === 'incorrect').length)}</span>
+        </div>
+      </div>
+      {outcomes.length === 0 ? (
+        <div className="mt-4 rounded-xl border border-dashed border-ink-200 bg-ink-50/60 p-5 text-center text-[10px] leading-5 text-ink-500">
+          لا توجد نتيجة موثقة كافية حتى الآن. الحالة الصحيحة: <strong>NOT AVAILABLE</strong> — لا يتم إنشاء تعلم بديل.
+        </div>
+      ) : (
+        <div className="mt-4 grid gap-3 lg:grid-cols-3">
+          {outcomes.slice(-3).reverse().map((outcome, index) => {
+            const delta = outcome.expectedValue != null && outcome.actualValue != null
+              ? outcome.actualValue - outcome.expectedValue
+              : null;
+            const label = outcome.label === 'correct' ? 'إيجابي' : outcome.label === 'partial' ? 'جزئي' : outcome.label === 'incorrect' ? 'سلبي' : 'غير متاح';
+            return (
+              <article key={outcome.decisionFingerprint + outcome.observedAt + index} className="rounded-xl border border-ink-200 bg-ink-50/70 p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <span className={'rounded-full px-2 py-1 text-[9px] font-black ' + (outcome.label === 'correct' ? 'bg-success-50 text-success-800' : outcome.label === 'incorrect' ? 'bg-danger-50 text-danger-800' : outcome.label === 'partial' ? 'bg-warning-50 text-warning-900' : 'bg-ink-100 text-ink-600')}>{label}</span>
+                  <span className="text-[9px] text-ink-400">{new Date(outcome.observedAt).toLocaleString('ar-YE')}</span>
+                </div>
+                <div className="mt-3 text-[9px] font-mono text-ink-400 break-all">{outcome.decisionFingerprint}</div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">المتوقع</div><div className="mt-1 text-xs font-black text-ink-900">{outcome.expectedValue == null ? 'NOT AVAILABLE' : formatNumber(outcome.expectedValue)}</div></div>
+                  <div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الفعلي</div><div className="mt-1 text-xs font-black text-ink-900">{outcome.actualValue == null ? 'NOT AVAILABLE' : formatNumber(outcome.actualValue)}</div></div>
+                </div>
+                <div className="mt-2 rounded-lg border border-primary-100 bg-primary-50/60 p-2 text-[9px] leading-5 text-primary-900">
+                  <strong>تعلم قابل للتتبع:</strong> {delta == null ? 'لا توجد قيمة كافية لاستخراج فرق؛ تبقى الحالة غير مكتملة.' : 'فرق النتيجة عن المتوقع = ' + formatNumber(delta)}
+                </div>
+                <div className="mt-2 text-[9px] text-ink-500">Evidence: {outcome.evidenceSnapshotId ? 'موجود' : 'غير متاح'} · Action: {outcome.actionId ?? 'غير متاح'}</div>
+              </article>
+            );
+          })}
+        </div>
+      )}
     </section>
 
     <section className="ag-decision-strip" aria-label="ملخص التشغيل">

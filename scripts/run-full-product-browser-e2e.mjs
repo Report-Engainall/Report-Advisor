@@ -220,13 +220,24 @@ async function runWorkspacePersonalizationProbe(targetPage) {
     const startedAt = Date.now();
     let lastDiagnostic = null;
 
-    for (let attempt = 1; attempt <= 2; attempt += 1) {
-      const response = await targetPage.goto(`${baseURL}/settings`, {
-        waitUntil: attempt === 1 ? 'domcontentloaded' : 'networkidle',
-        timeout: 30000,
-      });
-      await targetPage.waitForURL(url => new URL(url).pathname === '/settings', { timeout: 30000 });
-      await targetPage.waitForTimeout(attempt === 1 ? 750 : 1200);
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      let response = null;
+      let gotoError = null;
+      try {
+        response = await targetPage.goto(`${baseURL}/settings`, {
+          waitUntil: 'domcontentloaded',
+          timeout: 30000,
+        });
+        await targetPage.waitForURL(url => new URL(url).pathname === '/settings', { timeout: 15000 }).catch(() => {});
+        await targetPage.locator('[data-testid="workspace-editor"]').waitFor({
+          state: 'attached',
+          timeout: 15000,
+        }).catch(() => {});
+      } catch (error) {
+        gotoError = error instanceof Error ? error.message : String(error);
+      }
+
+      await targetPage.waitForTimeout(500 + attempt * 500);
 
       const diagnostic = await targetPage.evaluate(() => ({
         readyState: document.readyState,
@@ -241,6 +252,7 @@ async function runWorkspacePersonalizationProbe(targetPage) {
       lastDiagnostic = {
         attempt,
         responseStatus: response?.status() ?? null,
+        gotoError,
         durationMs: Date.now() - startedAt,
         ...diagnostic,
       };
@@ -249,7 +261,7 @@ async function runWorkspacePersonalizationProbe(targetPage) {
         return { ...lastDiagnostic, recovered: convergenceRecovery };
       }
 
-      if (attempt === 1) convergenceRecovery = true;
+      convergenceRecovery = true;
     }
 
     return { ...lastDiagnostic, recovered: convergenceRecovery };
@@ -487,12 +499,34 @@ try {
       if (await logout.count() && await logout.isVisible().catch(() => false)) {
         await logout.click();
         try {
-          await page.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 });
-          const residualAuthToken = await page.evaluate(() => Object.keys(localStorage).some(key => key.endsWith('-auth-token')));
-          if (residualAuthToken) addFinding('E2E-AUTH-007', 'FAIL', 'P1', 'Logout UI reached login state but an auth token remained in browser storage.');
-          else addFinding('E2E-AUTH-008', 'PASS', 'P1', 'Logout returned the browser to the unauthenticated login state and cleared the persisted auth token.');
-        } catch {
-          addFinding('E2E-AUTH-007', 'FAIL', 'P1', 'Logout did not return the browser to the unauthenticated login state within the bounded convergence window.');
+          const loginInput = page.locator('#login-email');
+          let loginVisible = false;
+          for (let attempt = 0; attempt < 12; attempt += 1) {
+            loginVisible = await loginInput.isVisible().catch(() => false);
+            if (loginVisible) break;
+
+            const residualAuthToken = await page.evaluate(() =>
+              Object.keys(localStorage).some(key => key.endsWith('-auth-token'))
+            ).catch(() => true);
+
+            if (!residualAuthToken) {
+              await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
+              loginVisible = await loginInput.isVisible().catch(() => false);
+              if (loginVisible) break;
+            }
+
+            await page.waitForTimeout(1000);
+          }
+
+          if (!loginVisible) {
+            addFinding('E2E-AUTH-007', 'FAIL', 'P1', 'Logout did not return the browser to the unauthenticated login state within the bounded convergence window.');
+          } else {
+            const residualAuthToken = await page.evaluate(() => Object.keys(localStorage).some(key => key.endsWith('-auth-token')));
+            if (residualAuthToken) addFinding('E2E-AUTH-007', 'FAIL', 'P1', 'Logout UI reached login state but an auth token remained in browser storage.');
+            else addFinding('E2E-AUTH-008', 'PASS', 'P1', 'Logout returned the browser to the unauthenticated login state and cleared the persisted auth token.');
+          }
+        } catch (error) {
+          addFinding('E2E-AUTH-007', 'FAIL', 'P1', 'Logout convergence probe failed: ' + (error instanceof Error ? error.message : String(error)));
         }
       } else addFinding('E2E-AUTH-009', 'NOT_PROVEN', 'P1', 'Logout control was not available in authenticated UI.');
     }

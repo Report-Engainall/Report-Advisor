@@ -1,0 +1,46 @@
+name: Evidence Passport Gate Live Proof
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/report-evidence-passport-gate-live.test.mjs'
+      - 'supabase/migrations/**'
+      - 'src/lib/report-decisions.ts'
+      - 'src/lib/decision-automation/vertical-slice-runtime.ts'
+      - '.github/workflows/report-evidence-passport-gate-live.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-gate-proof:
+    runs-on: ubuntu-latest
+    env:
+      REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
+      REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+
+      - name: Assert exact HEAD
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          printf 'EXACT_HEAD=%s\n' "$(git rev-parse HEAD)"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Live Evidence Passport gate proof
+        run: node scripts/report-evidence-passport-gate-live.test.mjs
+

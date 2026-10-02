@@ -30,7 +30,7 @@ try {
   await page.locator('#login-password').fill(password);
 
   let authResponse = null;
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
+  for (let attempt = 1; attempt <= 6; attempt += 1) {
     if (attempt > 1) {
       await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
       await page.locator('#login-email').fill(email);
@@ -46,12 +46,12 @@ try {
     if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
     await loginSubmit.click();
     const candidate = await authResponsePromise;
-    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 3) {
-      await page.waitForTimeout(5000 * attempt);
+    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 6) {
+      await page.waitForTimeout(Math.min(5000 * attempt, 20000));
       continue;
     }
     authResponse = candidate;
-    if (authResponse || attempt === 3) break;
+    if (authResponse || attempt === 6) break;
     await page.waitForTimeout(2500);
   }
   if (!authResponse) throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
@@ -90,7 +90,7 @@ try {
   await page.locator('#product-create-min-stock').fill('2');
   await page.locator('#product-create-reorder').fill('3');
   await page.getByRole('button', { name: 'حفظ المنتج' }).click();
-  await page.locator('[role="dialog"]').waitFor({ state: 'hidden', timeout: 30000 });
+  await page.getByRole('status').filter({ hasText: 'تم الحفظ والتحقق' }).waitFor({ state: 'visible', timeout: 30000 });
   const persisted = await rest(`products?select=id,company_id,sku,name,unit,cost_price,selling_price,min_stock,reorder_point&company_id=eq.${evidence.tenant}&sku=eq.${encodeURIComponent(sku)}`);
   assert.equal(persisted.length, 1, 'exactly one persisted product expected');
   assert.equal(persisted[0].company_id, evidence.tenant, 'persisted product must belong to current tenant');
@@ -98,6 +98,8 @@ try {
   assert.equal(String(persisted[0].name), name);
   assert.equal(Number(persisted[0].cost_price), 10);
   assert.equal(Number(persisted[0].selling_price), 15);
+  await page.locator('[role=\"dialog\"] form button[type=\"button\"]').filter({ hasText: 'إغلاق' }).click();
+  await page.locator('[role="dialog"]').waitFor({ state: 'hidden', timeout: 30000 });
   await page.getByRole('textbox', { name: 'بحث عن منتج' }).fill(sku);
   await page.getByText(sku, { exact: true }).waitFor({ state: 'visible', timeout: 10000 });
   evidence.persisted = persisted[0];

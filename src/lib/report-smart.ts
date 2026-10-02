@@ -1,6 +1,6 @@
-import { supabase, resolveCurrentCompanyId } from './supabase';
-import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights';
-import { detectReportArchetype, type ArchetypeRuntimeState } from './report-intelligence/archetype-registry';
+import { supabase, resolveCurrentCompanyId } from './supabase.ts';
+import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights.ts';
+import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
 
 export type SmartReportCatalogItem = {
   jobId: string;
@@ -14,9 +14,6 @@ export type SmartReportCatalogItem = {
   specialty: string | null;
   evidenceStatus: string | null;
   completedAt: string | null;
-  archetypeId: string | null;
-  archetypeVersion: number | null;
-  archetypeState: ArchetypeRuntimeState;
 };
 
 export type SmartReportDetail = SmartReportCatalogItem & {
@@ -32,6 +29,7 @@ export type SmartReportDetail = SmartReportCatalogItem & {
     qualityScore: number | null;
     rowCount: number | null;
     columnCount: number | null;
+    createdAt: string | null;
     datasets: unknown[];
   } | null;
   stages: Array<{
@@ -48,25 +46,17 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   canonicalCommitGap: number | null;
   canonicalCommitCount: number;
   canonicalCommitVerified: boolean;
+  canonicalAnalysisScope: 'FULL_SOURCE' | 'PARTIAL_FETCH_CEILING';
   sourceTrustState: string | null;
   reportVerificationState: string;
   canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }>;
   intelligence: ReportIntelligence;
-  archetypeId: string | null;
-  archetypeVersion: number | null;
-  archetypeState: ArchetypeRuntimeState;
 };
 
 function renderedOutputOf(evidence: unknown): Record<string, unknown> | null {
   if (!evidence || typeof evidence !== 'object') return null;
   const value = (evidence as Record<string, unknown>).renderedOutput;
   return value && typeof value === 'object' ? value as Record<string, unknown> : null;
-}
-
-function effectiveEvidenceStatus(
-  rendered: Record<string, unknown>,
-): string | null {
-  return rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus);
 }
 
 function entityTypeFrom(jobKey: string): string {
@@ -134,20 +124,15 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
   const path = String(job.source_path ?? '');
   if (!rendered || !isReportSourcePath(path)) return null;
   if (/^(customer|product|invoice)-\d+/i.test(path)) return null;
-  const specialty = rendered.sourceSpecialty == null
-    ? inferSpecialtyFromAnalysis(analysis)
-    : String(rendered.sourceSpecialty);
-  const datasets = Array.isArray(analysis?.datasets) ? analysis.datasets : [];
-  const availableFields = [...new Set(datasets.flatMap((dataset) => {
-    if (!dataset || typeof dataset !== 'object') return [];
-    const columns = (dataset as Record<string, unknown>).columns;
-    if (!Array.isArray(columns)) return [];
-    return columns
-      .filter((column): column is Record<string, unknown> => Boolean(column) && typeof column === 'object')
-      .map((column) => String(column.mappedField ?? ''))
-      .filter(Boolean);
-  }))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
-  const archetype = detectReportArchetype({ sourcePath: path, specialty, availableFields });
+  const normalizedEvidenceStatus =
+    rendered.evidenceStatus === 'VERIFIED' && !(
+      typeof rendered.evidenceSnapshotId === 'string' && rendered.evidenceSnapshotId.trim()
+    )
+      ? 'AWAITING_EVIDENCE_SNAPSHOT'
+      : rendered.evidenceStatus == null
+        ? null
+        : String(rendered.evidenceStatus);
+
   return {
     jobId: String(job.id),
     sourcePath: path || 'مصدر غير مسمى',
@@ -156,13 +141,12 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
     rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
     qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
     trustState: rendered.trustState == null ? null : String(rendered.trustState),
-    reportVerificationState: rendered.evidenceStatus == null ? 'PENDING_EVIDENCE' : String(rendered.evidenceStatus),
-    specialty,
-    evidenceStatus: rendered.evidenceStatus == null ? null : String(rendered.evidenceStatus),
+    reportVerificationState: normalizedEvidenceStatus ?? 'PENDING_EVIDENCE',
+    specialty: rendered.sourceSpecialty == null
+      ? inferSpecialtyFromAnalysis(analysis)
+      : String(rendered.sourceSpecialty),
+    evidenceStatus: normalizedEvidenceStatus,
     completedAt: job.completed_at == null ? null : String(job.completed_at),
-    archetypeId: archetype.profile?.id ?? null,
-    archetypeVersion: archetype.profile?.version ?? null,
-    archetypeState: archetype.state,
   };
 }
 
@@ -173,7 +157,7 @@ export async function fetchSmartReportCatalog(limit = 60): Promise<SmartReportCa
 
   const { data: jobs, error } = await supabase
     .from('report_execution_jobs')
-    .select('id,company_id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
+    .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
     .eq('company_id', companyId)
     .eq('status', 'completed')
     .like('job_key', 'canonical-import:generic:%')
@@ -231,7 +215,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
 
   const { data: job, error: jobError } = await supabase
     .from('report_execution_jobs')
-    .select('id,company_id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
+    .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
     .eq('company_id', companyId)
     .eq('id', normalizedJobId)
     .maybeSingle();
@@ -251,16 +235,39 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
 
   if (stageError) throw stageError;
 
-  const { data: analyses, error: analysisError } = await supabase
-    .from('source_analysis_snapshots')
-    .select('id,import_job_id,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
-    .eq('company_id', companyId)
-    .eq('source_hash', job.source_hash)
-    .order('created_at', { ascending: false })
-    .limit(1);
+  // Prefer the analysis snapshot that belongs to this exact import job. A source hash can
+  // legitimately have multiple analyses (for example, a newer compact summary and the
+  // report's full 7-column analysis). Using the latest snapshot by time alone can silently
+  // drop source-quality signals needed by Advisor.
+  let analysis: Record<string, unknown> | null = null;
+  const renderedImportId = rendered.importId == null ? '' : String(rendered.importId).trim();
 
-  if (analysisError) throw analysisError;
-  const analysis = analyses?.[0] ?? null;
+  if (renderedImportId) {
+    const { data: importAnalyses, error: importAnalysisError } = await supabase
+      .from('source_analysis_snapshots')
+      .select('id,import_job_id,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
+      .eq('company_id', companyId)
+      .eq('source_hash', job.source_hash)
+      .eq('import_job_id', renderedImportId)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (importAnalysisError) throw importAnalysisError;
+    analysis = (importAnalyses?.[0] ?? null) as Record<string, unknown> | null;
+  }
+
+  if (!analysis) {
+    const { data: analyses, error: analysisError } = await supabase
+      .from('source_analysis_snapshots')
+      .select('id,import_job_id,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
+      .eq('company_id', companyId)
+      .eq('source_hash', job.source_hash)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (analysisError) throw analysisError;
+    analysis = (analyses?.[0] ?? null) as Record<string, unknown> | null;
+  }
   const { data: canonicalCommits, error: canonicalCommitError } = await supabase
     .from('canonical_import_commits')
     .select('committed_count')
@@ -277,9 +284,9 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     ? (rendered.rowCount == null ? null : Number(rendered.rowCount))
     : Number(rendered.authoritativeCurrentRowCount);
   const sourceRowCount = rendered.rowCount == null ? null : Number(rendered.rowCount);
-  const canonicalCommitGap = sourceRowCount == null || authoritativeCurrentRowCount == null
+  const canonicalCommitGap = authoritativeCurrentRowCount == null
     ? null
-    : Math.max(0, sourceRowCount - authoritativeCurrentRowCount);
+    : Math.max(0, authoritativeCurrentRowCount - canonicalCommitCount);
   const canonicalCommitVerified =
     authoritativeCurrentRowCount != null && canonicalCommitCount === authoritativeCurrentRowCount;
 
@@ -315,10 +322,14 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     canonicalOffset += canonicalFetchPageSize;
   }
 
+  const canonicalFetchCeilingReached = canonicalRows.length >= canonicalFetchLimit;
   const canonicalRowsComplete =
     sourceRowCount == null ||
-    canonicalRows.length >= sourceRowCount ||
-    canonicalRows.length >= canonicalFetchLimit;
+    (!canonicalFetchCeilingReached && canonicalRows.length >= sourceRowCount);
+  const canonicalAnalysisScope =
+    sourceRowCount != null && sourceRowCount > canonicalFetchLimit
+      ? 'PARTIAL_FETCH_CEILING'
+      : 'FULL_SOURCE';
 
   const sourceAnalysis = analysis ? {
     id: String(analysis.id),
@@ -328,23 +339,15 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     qualityScore: analysis.quality_score == null ? null : Number(analysis.quality_score),
     rowCount: analysis.row_count == null ? null : Number(analysis.row_count),
     columnCount: analysis.column_count == null ? null : Number(analysis.column_count),
+    createdAt: analysis.created_at == null ? null : String(analysis.created_at),
     datasets: Array.isArray(analysis.datasets) ? analysis.datasets : [],
   } : null;
 
-  const evidenceStatus = analysis && canonicalCommitVerified
-    ? 'VERIFIED'
-    : effectiveEvidenceStatus(rendered);
+  const evidenceStatus = resolveReportEvidenceStatus(rendered, canonicalCommitVerified);
 
   const specialty = rendered.sourceSpecialty == null
     ? inferSpecialtyFromAnalysis(sourceAnalysis)
     : String(rendered.sourceSpecialty);
-  const availableFields = sourceAnalysis?.datasets?.flatMap((dataset) => {
-    if (!dataset || typeof dataset !== 'object') return [];
-    const columns = (dataset as Record<string, unknown>).columns;
-    if (!Array.isArray(columns)) return [];
-    return columns.map((column) => column && typeof column === 'object' ? String((column as Record<string, unknown>).mappedField ?? '') : '').filter(Boolean);
-  }) ?? [];
-  const archetype = detectReportArchetype({ sourcePath: String(job.source_path ?? ''), specialty, availableFields: [...new Set(availableFields)] as Parameters<typeof detectReportArchetype>[0]['availableFields'] });
 
   const intelligence = deriveReportIntelligence({
     specialty,
@@ -356,7 +359,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
 
   return {
     jobId: String(job.id),
-    tenantId: String(job.company_id ?? ''),
+    tenantId: companyId,
     sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
     sourceHash: String(job.source_hash ?? ''),
     entityType: entityTypeFrom(String(job.job_key ?? '')),
@@ -376,10 +379,8 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     canonicalCommitGap,
     canonicalCommitCount,
     canonicalCommitVerified,
+    canonicalAnalysisScope,
     sourceTrustState: rendered.trustState == null ? null : String(rendered.trustState),
-    archetypeId: archetype.profile?.id ?? null,
-    archetypeVersion: archetype.profile?.version ?? null,
-    archetypeState: archetype.state,
     reportVerificationState: !canonicalRowsComplete
       ? 'PARTIAL_ANALYSIS'
       : canonicalCommitGap != null && canonicalCommitGap > 0
