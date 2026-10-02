@@ -172,6 +172,7 @@
     "test:intelligence-vertical-slice": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/check-intelligence-vertical-slice.mjs",
     "test:business-question-catalog": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/check-business-question-catalog.mjs",
     "test:report-advisor-intelligence": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/report-advisor-intelligence.test.mjs",
-    "test:source-intelligence-proposal-contract": "node scripts/check-source-intelligence-proposal-contract.mjs"
+    "test:source-intelligence-proposal-contract": "node scripts/check-source-intelligence-proposal-contract.mjs",
+    "test:48-archetype-runtime": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/check-48-archetype-runtime-contract.mjs"
   }
 }
