@@ -147,6 +147,7 @@ jobs:
           npm run test:work-center-decision-queue
           npm run test:business-replay
           npm run test:benchmark-fail-closed
+          npm run test:48-archetype-runtime
       - name: Start exact Netlify preview with serverless API
         env:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
