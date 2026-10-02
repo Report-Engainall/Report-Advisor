@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
 
 const required = [
@@ -8,8 +9,6 @@ const required = [
   'TEST_USER_A_PASSWORD',
   'TEST_USER_B_EMAIL',
   'TEST_USER_B_PASSWORD',
-  'TEST_APPROVER_EMAIL',
-  'TEST_APPROVER_PASSWORD',
 ];
 
 for (const name of required) {
@@ -78,6 +77,20 @@ async function findTenantA() {
   return data;
 }
 
+function ensureApproverCredentials() {
+  const existingEmail = process.env.TEST_APPROVER_EMAIL?.trim();
+  const existingPassword = process.env.TEST_APPROVER_PASSWORD;
+  if (existingEmail && existingPassword) return { email: existingEmail, password: existingPassword, generated: false };
+
+  const runId = String(process.env.GITHUB_RUN_ID || process.env.E2E_APPROVER_RUN_ID || Date.now()).replace(/[^0-9]/g, '');
+  const email = 'e2e-approver-' + runId + '@e2e.report-advisor.invalid';
+  const password = 'E2e-AppR0ver-' + runId.slice(-12) + '-Ra7!';
+  if (process.env.GITHUB_ENV) {
+    fs.appendFileSync(process.env.GITHUB_ENV, 'TEST_APPROVER_EMAIL=' + email + '\nTEST_APPROVER_PASSWORD=' + password + '\n');
+  }
+  return { email, password, generated: true };
+}
+
 async function findTenantB() {
   const { data, error } = await supabase
     .from('companies')
@@ -114,9 +127,10 @@ async function provisionMembership(companyId, userId, requestedRole, isDefault, 
   return membership;
 }
 
+const approverCredentials = ensureApproverCredentials();
 const userA = await ensureActor(process.env.TEST_USER_A_EMAIL.trim(), process.env.TEST_USER_A_PASSWORD, 'A');
 const userB = await ensureActor(process.env.TEST_USER_B_EMAIL.trim(), process.env.TEST_USER_B_PASSWORD, 'B');
-const approver = await ensureActor(process.env.TEST_APPROVER_EMAIL.trim(), process.env.TEST_APPROVER_PASSWORD, 'APPROVER');
+const approver = await ensureActor(approverCredentials.email, approverCredentials.password, 'APPROVER');
 
 assert.notEqual(userA.id, approver.id, 'APPROVER_MUST_DIFFER_FROM_REQUESTER');
 assert.notEqual(userA.id, userB.id, 'USER_A_AND_USER_B_MUST_DIFFER');
@@ -143,6 +157,7 @@ assert.ok(auditB?.length, 'E2E_ACTOR_B_AUDIT_MISSING');
 const mask = (email) => email.replace(/^(.{2}).*(@.*)$/, '$1***$2');
 console.log(JSON.stringify({
   status: 'PASS',
+  approverCredentials: { generated: approverCredentials.generated },
   tenantA: { id: tenantA.id, name: tenantA.name },
   tenantB: { id: tenantB.id, name: tenantB.name },
   actors: {
