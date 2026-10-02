@@ -5,6 +5,7 @@ type RuleProfile = {
   number: number;
   title: string;
   adapterSpecialty: string;
+  requiredFields: string[];
   capabilities: string[];
   recommendationFocus: string[];
 };
@@ -82,11 +83,11 @@ function primaryDimension(profile: RuleProfile): string | null {
     ['category', 'category'],
     ['brand', 'brand'],
     ['warehouse', 'warehouse'],
-    ['salesRep', 'salesRep'],
+    ['salesRep', 'salesrep'],
     ['accountCode', 'account'],
   ] as const;
   for (const [field, label] of candidates) {
-    if (profile.capabilities.some((cap) => cap.toLowerCase().includes(label.toLowerCase()))) return field;
+    if (profile.requiredFields.includes(field) || profile.capabilities.some((cap) => norm(cap).includes(norm(label)))) return field;
   }
   return null;
 }
@@ -499,6 +500,49 @@ export function applyArchetypeRuleSet(
       limitation: 'لا يثبت سبب عدم التلبية أو الخلل التشغيلي.',
       action: profile.recommendationFocus[0] || 'افحص الطلبات غير الملباة وأسبابها قبل الإجراء.',
     };
+  }
+
+  if (!modelFinding && profile.requiredFields.every((field) => has(field))) {
+    const numericField = profile.requiredFields.find((field) => ['netAmount','grossAmount','unitPrice','sellingPrice','cost','quantity','salesQty','purchaseQty','currentStock','discount','paidAmount','targetAmount','dueDate','leadTimeDays','debit','credit','asset','liability','equity','profit'].includes(field) && has(field));
+    const dimensionField = primaryDimension(profile);
+    if (numericField) {
+      const key = columnKey(report, numericField);
+      if (key) {
+        const total = sumBy(rows, key);
+        modelFinding = {
+          id: 'archetype:' + profile.id + ':primary',
+          kind: 'FINDING',
+          priority: 'medium',
+          title: profile.title + ' — نتيجة النموذج',
+          statement: 'النموذج قرأ ' + rows.length + ' سجلًا؛ مجموع ' + numericField + ' في الحقول المتاحة هو ' + total.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '.',
+          value: total,
+          unit: 'قيمة المصدر',
+          dimensionLabel: dimensionField ? dimensionField : null,
+          dimensionValue: dimensionField && rows[0] ? text(rows[0].data?.[dimensionField]) || null : null,
+          evidence: ['archetypeId=' + profile.id, 'requiredFields=' + profile.requiredFields.join(','), 'primaryMeasure=' + key, 'rowCount=' + rows.length],
+          limitation: 'هذه قراءة أساسية مرتبطة بالنموذج؛ لا تتجاوز دلالة الحقول المتاحة ولا تثبت السبب.',
+          action: profile.recommendationFocus[0] || 'راجع النتيجة مع الدليل قبل اعتماد القرار.',
+        };
+      }
+    } else {
+      const dimensionField = profile.requiredFields.find((field) => has(field) && ['customerCode','supplierCode','productCode','category','brand','warehouse','salesRep','accountCode'].includes(field));
+      const key = dimensionField ? columnKey(report, dimensionField) : null;
+      if (key) {
+        const unique = new Set(rows.map((row) => text(row.data?.[key])).filter(Boolean)).size;
+        modelFinding = {
+          id: 'archetype:' + profile.id + ':primary',
+          kind: 'FINDING',
+          priority: 'medium',
+          title: profile.title + ' — تغطية الكيان',
+          statement: 'النموذج قرأ ' + rows.length + ' سجلًا ويغطي ' + unique + ' قيمة فريدة في ' + dimensionField + '.',
+          value: unique,
+          unit: 'unique entities',
+          evidence: ['archetypeId=' + profile.id, 'dimensionField=' + key, 'uniqueEntities=' + unique],
+          limitation: 'عدد الكيانات وحده لا يثبت جودة الأداء أو السببية.',
+          action: profile.recommendationFocus[0] || 'راجع الكيانات الأعلى أثرًا مع الدليل قبل القرار.',
+        };
+      }
+    }
   }
 
   if (!modelFinding && has('customerCode') && has('productCode') && profile.capabilities.some((cap) => norm(cap).includes('customerproduct') || norm(cap).includes('mix'))) {
