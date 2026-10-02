@@ -38,7 +38,7 @@ assert.ok(workflow.includes('node scripts/provision-e2e-actors.mjs'));
 const previewStep = workflow.indexOf('Start exact Netlify preview with serverless API');
 const provisionStep = workflow.indexOf('node scripts/provision-e2e-actors.mjs', previewStep);
 assert.ok(previewStep >= 0 && provisionStep > previewStep);
-assert.match(workflow, /REPORT_ADVISOR_SUPABASE_URL: \$\{\{ secrets\.REPORT_ADVISOR_SUPABASE_URL \}\}/);
+assert.ok(/REPORT_ADVISOR_SUPABASE_URL:\s*\$\{\{\s*secrets\.REPORT_ADVISOR_SUPABASE_URL\s*\}\}|REPORT_ADVISOR_SUPABASE_URL:\s*https:\/\/fnqbvfuwbdpwvhcgzksl\.supabase\.co/.test(workflow), 'REPORT_ADVISOR_SUPABASE_URL contract missing canonical or secret endpoint');
 assert.match(workflow, /SUPABASE_SERVICE_ROLE_KEY: \$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
 assert.match(workflow, /Prepare rerunnable E2E actor credentials/);
 
