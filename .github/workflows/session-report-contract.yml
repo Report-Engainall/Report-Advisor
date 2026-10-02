@@ -1,0 +1,25 @@
+name: Session Handoff Contract
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - 'fix/**'
+
+concurrency:
+  group: session-handoff-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  session-handoff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate persistent session handoff
+        run: node scripts/check-session-handoff-contract.mjs
