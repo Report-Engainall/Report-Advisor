@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { resolveReportEvidenceStatus } from '../src/lib/report-smart.ts';
+import { resolveReportEvidenceStatus } from '../src/lib/report-smart-evidence-status.ts';
 
 assert.equal(
   resolveReportEvidenceStatus(
