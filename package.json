@@ -170,6 +170,7 @@
     "test:benchmark-fail-closed": "node scripts/benchmark-fail-closed-contract.test.mjs",
     "test:pdf-arabic-sales-layout": "node --experimental-strip-types scripts/pdf-arabic-sales-layout.test.ts",
     "test:intelligence-vertical-slice": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/check-intelligence-vertical-slice.mjs",
-    "test:business-question-catalog": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/check-business-question-catalog.mjs"
+    "test:business-question-catalog": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/check-business-question-catalog.mjs",
+    "test:report-advisor-intelligence": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/report-advisor-intelligence.test.mjs"
   }
 }
