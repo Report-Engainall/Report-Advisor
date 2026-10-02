@@ -11,6 +11,9 @@ assert.match(script, /provision_e2e_test_membership/);
 assert.doesNotMatch(script, /\.from\(['"]company_memberships['"]\)[\s\S]{0,300}\.insert\(/);
 assert.doesNotMatch(script, /\.from\(['"]company_memberships['"]\)[\s\S]{0,300}\.update\(/);
 assert.match(script, /E2E_EXISTING_USER_NOT_TAGGED/);
+assert.match(script, /ensureApproverCredentials/);
+assert.match(script, /GITHUB_RUN_ID/);
+assert.match(script, /GITHUB_ENV/);
 
 assert.match(migration, /security definer/i);
 assert.match(migration, /set search_path = ''/i);
@@ -26,7 +29,8 @@ assert.ok(workflow.includes('node scripts/provision-e2e-actors.mjs'));
 const previewStep = workflow.indexOf('Start exact Netlify preview with serverless API');
 const provisionStep = workflow.indexOf('node scripts/provision-e2e-actors.mjs', previewStep);
 assert.ok(previewStep >= 0 && provisionStep > previewStep);
+assert.match(workflow, /REPORT_ADVISOR_SUPABASE_URL: \$\{\{ secrets\.REPORT_ADVISOR_SUPABASE_URL \}\}/);
 assert.match(workflow, /SUPABASE_SERVICE_ROLE_KEY: \$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
-assert.match(workflow, /TEST_APPROVER_EMAIL: \$\{\{ secrets\.REPORT_ADVISOR_E2E_APPROVER_EMAIL \}\}/);
+assert.match(workflow, /Prepare rerunnable E2E actor credentials/);
 
 console.log('E2E_ACTOR_PROVISIONING_CONTRACT_PASS');
