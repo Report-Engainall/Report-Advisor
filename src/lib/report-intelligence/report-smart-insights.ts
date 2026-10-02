@@ -1,5 +1,17 @@
 export type ReportSignalSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 
+export type ReportSignalDriver = {
+  dimension: string;
+  value: string;
+  contribution: number | null;
+  share: number | null;
+  period: string | null;
+  expected: number | null;
+  actual: number | null;
+  why: string;
+  proof: string[];
+};
+
 export type ReportSignal = {
   id: string;
   severity: ReportSignalSeverity;
@@ -12,6 +24,7 @@ export type ReportSignal = {
   ownerHint: string;
   priority: 'P0' | 'P1' | 'P2' | 'P3';
   priorityReason: string[];
+  drivers?: ReportSignalDriver[];
 };
 
 export type ReportRecommendation = {
