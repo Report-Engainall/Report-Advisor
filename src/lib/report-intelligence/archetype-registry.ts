@@ -1,4 +1,4 @@
-import type { CanonicalField } from './canonical-schema';
+import { matchCanonicalField, type CanonicalField } from './canonical-schema';
 
 export type ArchetypeStatus = 'ACTIVE' | 'CANDIDATE' | 'DEPRECATED';
 export type AvailabilityStatus = 'AVAILABLE' | 'NOT_AVAILABLE' | 'INSUFFICIENT_SAMPLE';
@@ -76,7 +76,10 @@ const PROFILES: readonly ArchetypeProfile[] = [
       { ruleId: 'inventory.balance.coverage.v1', metric: 'stock_coverage', minSample: 12, timeWindow: null, rationale: 'لا تعرض تغطية المخزون إلا عند وجود مدخلات طلب يومي صالحة.', limitations: ['بدون طلب يومي لا يمكن حساب التغطية.'] },
     ],
     limitations: ['قيمة المخزون والربحية تتطلب cost.', 'مقارنة المستودعات تتطلب warehouse.'],
-    capabilities: [],
+    capabilities: [
+      { capabilityId: 'inventory.stock-position', label: 'وضع المخزون الحالي', requiredFields: ['productCode', 'currentStock'], minSample: 1, status: 'AVAILABLE', missingFields: [] },
+      { capabilityId: 'inventory.valuation', label: 'تقييم المخزون', requiredFields: ['productCode', 'currentStock', 'cost'], minSample: 12, status: 'AVAILABLE', missingFields: [] },
+    ],
     minSample: 1,
     confidenceThreshold: 0.5,
   },
@@ -97,7 +100,11 @@ const PROFILES: readonly ArchetypeProfile[] = [
     measureFields: ['quantity', 'unitPrice', 'grossAmount', 'discount', 'netAmount', 'cost', 'profit'],
     rules: [],
     limitations: ['الربحية تحتاج cost/profit.', 'التحليل الزمني يحتاج documentDate.'],
-    capabilities: [],
+    capabilities: [
+      { capabilityId: 'sales.timeline', label: 'الاتجاه الزمني للمبيعات', requiredFields: ['documentDate', 'netAmount'], minSample: 6, status: 'AVAILABLE', missingFields: [] },
+      { capabilityId: 'sales.customer-concentration', label: 'تركّز المبيعات حسب العميل', requiredFields: ['customerCode', 'netAmount'], minSample: 12, status: 'AVAILABLE', missingFields: [] },
+      { capabilityId: 'sales.profitability', label: 'الربحية', requiredFields: ['netAmount', 'cost'], minSample: 12, status: 'AVAILABLE', missingFields: [] },
+    ],
     minSample: 12,
     confidenceThreshold: 0.5,
   },
@@ -118,7 +125,10 @@ const PROFILES: readonly ArchetypeProfile[] = [
     measureFields: ['quantity', 'unitPrice', 'grossAmount', 'discount', 'netAmount', 'cost'],
     rules: [],
     limitations: ['تحليل الموردين يحتاج supplierCode/supplierName.', 'الاتجاه الزمني يحتاج documentDate.'],
-    capabilities: [],
+    capabilities: [
+      { capabilityId: 'purchases.timeline', label: 'الاتجاه الزمني للمشتريات', requiredFields: ['documentDate', 'netAmount'], minSample: 6, status: 'AVAILABLE', missingFields: [] },
+      { capabilityId: 'purchases.supplier-concentration', label: 'تركّز المشتريات حسب المورد', requiredFields: ['supplierCode', 'netAmount'], minSample: 12, status: 'AVAILABLE', missingFields: [] },
+    ],
     minSample: 12,
     confidenceThreshold: 0.5,
   },
@@ -139,7 +149,10 @@ const PROFILES: readonly ArchetypeProfile[] = [
     measureFields: ['netAmount'],
     rules: [],
     limitations: ['العمر الحقيقي للذمم يحتاج dueDate.', 'قيمة الرصيد تحتاج حقل مالي واضح.'],
-    capabilities: [],
+    capabilities: [
+      { capabilityId: 'customer.aging', label: 'أعمار الذمم المدينة', requiredFields: ['customerCode', 'dueDate', 'netAmount'], minSample: 12, status: 'AVAILABLE', missingFields: [] },
+      { capabilityId: 'customer.activity', label: 'نشاط العملاء عبر الزمن', requiredFields: ['customerCode', 'documentDate', 'netAmount'], minSample: 12, status: 'AVAILABLE', missingFields: [] },
+    ],
     minSample: 12,
     confidenceThreshold: 0.5,
   },
@@ -160,7 +173,10 @@ const PROFILES: readonly ArchetypeProfile[] = [
     measureFields: ['netAmount'],
     rules: [],
     limitations: ['العمر والاستحقاق يحتاجان dueDate.', 'الالتزامات المالية تحتاج حقل قيمة واضح.'],
-    capabilities: [],
+    capabilities: [
+      { capabilityId: 'supplier.aging', label: 'أعمار الذمم الدائنة', requiredFields: ['supplierCode', 'dueDate', 'netAmount'], minSample: 12, status: 'AVAILABLE', missingFields: [] },
+      { capabilityId: 'supplier.activity', label: 'نشاط الموردين عبر الزمن', requiredFields: ['supplierCode', 'documentDate', 'netAmount'], minSample: 12, status: 'AVAILABLE', missingFields: [] },
+    ],
     minSample: 12,
     confidenceThreshold: 0.5,
   },
@@ -181,7 +197,10 @@ const PROFILES: readonly ArchetypeProfile[] = [
     measureFields: ['quantity', 'inbound', 'outbound'],
     rules: [],
     limitations: ['التسلسل الزمني يحتاج documentDate.', 'مقارنة المستودعات تحتاج warehouse.'],
-    capabilities: [],
+    capabilities: [
+      { capabilityId: 'inventory.movement-trend', label: 'اتجاه حركة الأصناف', requiredFields: ['productCode', 'documentDate', 'quantity'], minSample: 12, status: 'AVAILABLE', missingFields: [] },
+      { capabilityId: 'inventory.warehouse-comparison', label: 'مقارنة حركة المستودعات', requiredFields: ['productCode', 'warehouse', 'quantity'], minSample: 12, status: 'AVAILABLE', missingFields: [] },
+    ],
     minSample: 12,
     confidenceThreshold: 0.5,
   },
@@ -210,6 +229,15 @@ const GENERIC_PROFILE: ArchetypeProfile = {
 };
 
 const ALL_PROFILES = [...PROFILES, GENERIC_PROFILE] as const;
+
+export function resolveArchetypeFromHeaders(input: { headers: string[]; title?: string | null }): ArchetypeResolution {
+  const fields = uniqueFields(
+    input.headers
+      .map((header) => matchCanonicalField(header))
+      .filter((field): field is CanonicalField => Boolean(field)),
+  );
+  return resolveArchetype({ fields, title: input.title });
+}
 
 const LEGACY_TO_ARCHETYPE: Record<ArchetypeProfile['legacyReportType'], string> = {
   inventory: 'inventory.balance',
