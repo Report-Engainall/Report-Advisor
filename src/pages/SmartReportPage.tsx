@@ -60,6 +60,10 @@ function formatMetric(value: number | null): string {
   return value == null ? 'غير متاح' : new Intl.NumberFormat('ar-YE', { maximumFractionDigits: 2 }).format(value);
 }
 
+function dataKey(column: SmartColumn | null | undefined): string {
+  return String(column?.mappedField ?? column?.name ?? '').trim();
+}
+
 function buildSmartAnalysis(report: SmartReportDetail | null) {
   const dataset = report?.sourceAnalysis?.datasets?.[0];
   const objectDataset = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : null;
@@ -98,11 +102,15 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
   const customerColumn = findColumn('customer_name', 'customer', 'client');
   const productColumn = findColumn('product_name', 'product', 'item', 'sku');
 
+  const customerKey = dataKey(customerColumn);
+  const productKey = dataKey(productColumn);
+  const amountKey = dataKey(amountColumn);
+
   const topRows = fullRows
     .map(record => ({
-      name: String(record.data[customerColumn?.name ?? ''] ?? record.data[productColumn?.name ?? ''] ?? record.data.name ?? record.data.sku ?? 'غير مسمى'),
+      name: String(record.data[customerKey] ?? record.data[productKey] ?? record.data.name ?? record.data.sku ?? 'غير مسمى'),
       value: numberValue(
-        record.data[amountColumn?.name ?? ''] ??
+        record.data[amountKey] ??
         record.data.outstanding_balance ??
         record.data.local_amount ??
         record.data.total ??
@@ -614,7 +622,7 @@ export function SmartReportPage() {
       <div className="grid gap-3 md:grid-cols-4">
         <div className="rounded-2xl bg-ink-950 p-4 text-white"><div className="text-[9px] font-black tracking-[.12em] text-primary-200">TRUST</div><div className="mt-2 text-xl font-black">{stateLabel(report.trustState)}</div><div className="mt-1 text-[10px] text-ink-300">جودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div></div>
         <div className="rounded-2xl bg-ink-50 p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">SOURCE</div><div className="mt-2 font-black text-ink-950">{report.sourceHash.slice(0, 24)}…</div><div className="mt-1 text-[10px] text-ink-500">نوع الملف: {report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
-        <div className="rounded-2xl bg-ink-50 p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">ROWS</div><div className="mt-2 text-xl font-black text-ink-950">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div><div className="mt-1 text-[10px] text-ink-500">المعتمد: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)} · الحالة: {report.checkpointStage ?? 'غير متاح'}</div></div>
+        <div className="rounded-2xl bg-ink-50 p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">ROWS</div><div className="mt-2 text-xl font-black text-ink-950">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div><div className="mt-1 text-[10px] text-ink-500">المعتمد: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)} · النطاق: {report.canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING' ? 'تحليل جزئي / حد 50,000' : 'المصدر كامل'}</div></div>
         <div className="rounded-2xl bg-ink-50 p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">SPECIALTY</div><div className="mt-2 text-xl font-black text-ink-950">{report.specialty ?? 'عام'}</div><div className="mt-1 text-[10px] text-ink-500">التخصص يظهر فقط عند توفر دليل كافٍ من المصدر.</div></div>
       </div>
     </section>
@@ -641,6 +649,14 @@ export function SmartReportPage() {
     </section>
 
     <EvidenceInspector report={report}/>
+
+    {report.canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING' ? (
+      <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900" aria-label="حد نطاق التحليل">
+        <div className="text-[9px] font-black tracking-[.12em]">ANALYSIS SCOPE</div>
+        <div className="mt-1 text-sm font-black">التحليل هنا جزئي؛ المصدر يتجاوز حد القراءة المباشرة 50,000 صف.</div>
+        <div className="mt-1 text-[10px] leading-5">المخرجات المعروضة لا تمثل كامل المصدر. يجب الاعتماد على تجميعات خادمية موثقة قبل أي قرار شامل.</div>
+      </section>
+    ) : null}
 
     <ReportIntelligencePanel report={report} />
 
