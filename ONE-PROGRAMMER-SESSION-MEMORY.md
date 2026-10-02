@@ -1,3 +1,19 @@
+# LIVE EXECUTION CHECKPOINT — 2026-10-02 / AUTH PROVISIONING ROOT FIX + EXACT-HEAD HANDOFF
+- CURRENT DOCUMENTATION HEAD → 79c2b4798dceea4a37159e94303bafd7d4382393.
+- CURRENT PRODUCT CODE HEAD → f95d5f2ead0a186bf783f20c81d3351988baf292.
+- PR #752 → MERGED. PR #753 → MERGED.
+- FIRST CURRENT-MAIN FAILURE → Supabase Auth signInWithPassword HTTP 504 during Full Product Browser E2E actor provisioning.
+- ROOT CAUSE → provisioning retry boundary covered PostgREST/RPC but not /auth/v1/.
+- FIX → PR #753 adds bounded Auth retry for transient 408/425/429/500/502/503/504, max 4 attempts, retaining request timeout and global provisioning deadline.
+- EXACT FIX PROOF → E2E_ACTOR_PROVISIONING_CONTRACT_PASS; npm run typecheck PASS; git diff --check PASS on repair head 2ef0371f80730575a5eb078ec9803c8e0d4df3ef.
+- PRODUCT HEAD PROOF BEFORE FIX → typecheck, 48-archetype runtime, Advisor intelligence, intelligence vertical slice, visual system, build, proposal/proof/claim/question/outcome/decision contracts all PASS on 6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6.
+- PRODUCTION → READY deployment for 6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6; report-advisor.vercel.app rendered Arabic landing/auth gate with no console errors. Current f95 is newer and not yet certified in production.
+- CURRENT RUNTIME FRONTIER → Full Product Browser E2E run 37064389357 plus Final Certification/Final Execution/Quality/Storage/Execution Enforcement/Session Handoff/Phase-F/Desktop/Vercel runs are queued on f95. No queued PASS.
+- FIRST NEXT ACTION → consume run 37064389357; fix only its first terminal failure; continue to authenticated real Smart Report proof.
+- OPEN PRODUCT GATES → authenticated Tenant A/B, real source, evidence lineage, real-source 48 archetype coverage, current-head corpus evidence, final certification and final production exact-SHA reconciliation.
+- DO-NOT-REPEAT → no stale-SHA browser PASS; no queued-run PASS; no auth/RLS/evidence weakening; no fabricated real-source archetype coverage.
+- SESSION HANDOFF → NOT READY.
+
 # LIVE EXECUTION CHECKPOINT — 2026-10-02 / DURABLE EVIDENCE PASSPORT
 - CURRENT EXACT EXECUTION HEAD → 1d1a9aecb236c7a6753c9924518e3a6083e6f244.
 - CONTROL-PLANE WRITEBACK → documentation-only; no product/import rollback.
