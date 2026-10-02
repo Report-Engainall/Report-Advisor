@@ -1,3 +1,26 @@
+# LIVE EXECUTION CHECKPOINT — 2026-10-02 / SMART REPORT EVIDENCE + CORPUS VALUE CLOSURE
+- CURRENT EXACT HEAD → 70b3ae8b008a5373d739eddbf5f971f4dc00c86e.
+- BRANCH → fix/current-head-runtime-provenance-20261002.
+- PR → #730 OPEN.
+- FIRST REAL FAILURE → Smart Report auto-promoted evidence to VERIFIED from canonical row-count equality without an explicit Evidence Snapshot.
+- ROOT CAUSE → canonical commit coverage and evidence verification were coupled in `src/lib/report-smart.ts`.
+- MINIMAL CORRECT FIX → added `resolveReportEvidenceStatus`; VERIFIED now requires canonical coverage plus a non-empty `evidenceSnapshotId`; stale VERIFIED fails closed to AWAITING_EVIDENCE_SNAPSHOT / PENDING_EVIDENCE.
+- CORE DELTA → canonical coverage gap is now measured from authoritative current rows versus canonical committed rows.
+- TEST/PROOF DELTA → added `scripts/report-smart-evidence-boundary.test.ts`; wired it into the canonical heart regression workflow; no PASS is claimed yet for 70b because current exact-head automated execution is not exposed by the available GitHub wrapper.
+- PRODUCT CAPABILITY DELTA → Smart Report has an explicit EVIDENCE GATE that separates Canonical Commit, Evidence Snapshot, and Decision Readiness and routes the user to Trust/Evidence when proof is incomplete.
+- UX/UI DELTA → the report surface now tells the user why a canonical report is not Verified and what the next evidence action is; this improves TRUST and DECISION READINESS rather than adding cosmetic UI.
+- CORPUS VALUE DELTA → latest 40 distinct completed staged reports were examined without re-importing: 40/40 extracted, canonicalized, validated, analyzed, decisioned, committed and rendered. Specialties: inventory 18, sales 8, payments 6, receivables 4, purchases 2, unknown 2.
+- CORPUS BUSINESS RESULT → 40/40 have no committed decision outcome; 39/40 have NO_ACTION_COMMITTED, 39/40 OUTCOME NOT_AVAILABLE, 39/40 LEARNING NOT_AVAILABLE, 39/40 BENCHMARK INSUFFICIENT_SAMPLE; 2 are explicitly AWAITING_EVIDENCE_SNAPSHOT and the existing 38 VERIFIED claims have no explicit evidenceSnapshotId marker in the queried renderedOutput.
+- ADVISOR VALUE STATUS → current durable portfolio/work infrastructure exists, but the 40-report cohort is not yet durably source-bound from Signal → Recommendation → Decision → Approval → Work → Outcome → Learning.
+- COMMERCIAL DELTA → the customer can now distinguish “data committed” from “evidence verified”; the next commercial proof is a source-bound evidence passport that unlocks traceable decision/action continuity.
+- INNOVATION OPPORTUNITY → introduce a durable source-bound Evidence Passport keyed by report source hash + evidence snapshot, then use it as the mandatory prerequisite for source-bound Recommendation/Decision/Work creation.
+- RUNTIME/PROOF → Vercel free build-rate-limit prevents treating hosted deployment as exact-head runtime proof. Latest successful Vercel deployments are behind 70b. PC01 is offline; authenticated Microsoft Edge business-flow proof remains NOT_PROVEN.
+- SECURITY BLOCKER → Supabase live advisory reports `public.canonical_import_repair_history` with RLS disabled. Do not auto-apply the suggested ALTER TABLE; tenant policies must accompany remediation.
+- FIXTURE BOUNDARY → Git `tests/fixtures/realistic-reports/` remains README-only. The 40-report acceptance evidence above is from real staged report execution history, not invented fixture files.
+- DO-NOT-REPEAT → no completed-report re-import; no canonical-row rewrite; no evidence promotion; no stale-SHA PASS; no database-to-browser inference.
+- ACTION STATUS → IN_PROGRESS.
+- NEXT EXACT ACTION → implement the durable source-bound Evidence Passport/acceptance boundary, backfill only through governed recovery paths where justified, then rerun the same 40-report cohort through Recommendation → Decision → Approval → Work → Outcome → Learning. Keep runtime/browser proof in parallel.
+
 # LIVE EXECUTION CHECKPOINT — 2026-10-02 / ADVISOR VALUE CLOSURE
 - CURRENT FUNCTIONAL CODE HEAD → 7a01787de9bc08e0a6a7175251ca4d8eae7b13dd.
 - BRANCH → fix/current-head-runtime-provenance-20261002.
