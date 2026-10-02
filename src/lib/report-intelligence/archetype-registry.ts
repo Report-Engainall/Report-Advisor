@@ -1,6 +1,7 @@
 import type { CanonicalField } from './canonical-schema';
 import { buildAdvisoryPacket, type AdvisoryPacket, type AdvisoryPacketInput } from './report-advisory-orchestrator';
 import { deriveReportIntelligence } from './report-smart-insights';
+import { applyArchetypeRuleSet } from './archetype-evaluator';
 
 export type ArchetypeDomain =
   | 'sales'
@@ -223,7 +224,8 @@ export function runReportArchetype(
   if (!profile) throw new Error('UNKNOWN_ARCHETYPE_ID');
   const available = new Set(input.availableFields);
   const missingRequired = profile.requiredFields.filter((field) => !available.has(field));
-  const intelligence = deriveReportIntelligence({ ...input.report, specialty: profile.adapterSpecialty });
+  const baseIntelligence = deriveReportIntelligence({ ...input.report, specialty: profile.adapterSpecialty });
+  const intelligence = applyArchetypeRuleSet(profile, { ...input.report, specialty: profile.adapterSpecialty }, baseIntelligence);
   const advisory = buildAdvisoryPacket({
     intelligence,
     provenance: input.provenance,
