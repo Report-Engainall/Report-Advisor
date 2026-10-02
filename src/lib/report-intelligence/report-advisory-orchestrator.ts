@@ -223,8 +223,21 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
   });
   const specialized = definitions.map((question) => {
     const answer = answerFor(question.id);
-    if (!answer || question.state !== 'ANSWERED') return question;
-    return { ...question, answer };
+    if (answer == null) return question;
+
+    // Re-evaluate the question with the actual intelligence answer so the state
+    // reflects ANSWERED/REVIEW_REQUIRED rather than remaining NOT_AVAILABLE/REVIEW_REQUIRED
+    // from the initial empty-answer pass.
+    return evaluateBusinessQuestion<Record<string, unknown>>({
+      id: question.id,
+      label: question.label,
+      requiredFields: question.requiredFields,
+      minimumSample: question.minimumSample,
+      priority: question.priority,
+      availableFields: input.availableFields,
+      sampleSize: input.sampleSize,
+      answer,
+    });
   }).filter((question) => !universal.some((existing) => existing.id === question.id));
 
   return sortBusinessQuestions([...universal, ...specialized]);
