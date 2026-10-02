@@ -67,4 +67,12 @@ assert.equal(
   'INSUFFICIENT_SAMPLE',
 );
 
+const ambiguous = resolveArchetypeFromHeaders({
+  headers: ['الرصيد'],
+  title: 'كشف مورد',
+});
+assert.equal(ambiguous.archetypeId, 'generic.report');
+assert.equal(ambiguous.profileVersion, 'generic.report@v1');
+assert.equal(ambiguous.reviewRequired, true);
+
 console.log('PASS archetype-registry-domain');
