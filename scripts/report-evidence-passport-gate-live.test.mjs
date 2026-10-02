@@ -82,7 +82,7 @@ async function createUser(label) {
     email,
     password,
     email_confirm: true,
-    user_metadata: { e2e_actor: 'true', e2e_purpose: 'report-evidence-passport-live-gate' },
+    user_metadata: { e2e_actor: 'true', e2e_purpose: 'full-product-browser-e2e' },
   });
   if (error) throw error;
   users.push(String(data.user.id));
