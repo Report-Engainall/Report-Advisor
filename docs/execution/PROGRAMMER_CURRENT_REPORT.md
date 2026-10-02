@@ -2,30 +2,27 @@
 
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-REPORT_FOR_HEAD = 7b1339c4e249b47f8186bb99bef5d882d4c68225
-CURRENT EXACT HEAD = 7b1339c4e249b47f8186bb99bef5d882d4c68225
-CURRENT BRANCH REF = 7b1339c4e249b47f8186bb99bef5d882d4c68225
-BRANCH = fix/current-head-runtime-provenance-20261002
-PR = #730 OPEN / NOT MERGED / MERGEABLE
-CURRENT MAIN HEAD = 0c337e58898d88d8a7d2a60a26773b34d90c6dd3
-UPDATED_AT = 2026-10-02T17:45:00Z
+REPORT_FOR_HEAD = 62f5888a22ccbd8ca754d20a5ce4e927e7d85792
+CURRENT EXACT HEAD = 62f5888a22ccbd8ca754d20a5ce4e927e7d85792
+CURRENT BRANCH REF = 62f5888a22ccbd8ca754d20a5ce4e927e7d85792
+BRANCH = fix/smart-report-archetype-runtime-20261002
+PR = #752 OPEN / NOT MERGED / MERGEABLE
+CURRENT MAIN HEAD = 114ebcdbe51bee44361b86e614fb7e2ec0829c8f
+UPDATED_AT = 2026-10-02T20:40:00Z
 ACTION_STATUS = IN_PROGRESS
 
 WHAT_I_WAS_ASKED_TO_DO = إغلاق أول فشل P0/P1 على HEAD الحالي دون إضعاف الأمن، ثم إعادة تشغيل بوابات Passport/Browser/Storage/Cohort/Certification وإثبات source/evidence lineage.
 WHAT_I_ACTUALLY_DID = عُدّل live gate ليستخدم retry محدودًا للطلبات المؤقتة 408/425/429/500/502/503/504، مع بقاء المصادقة وRLS وPassport boundaries كما هي. لم تُضاف صلاحيات كتابة ولم يحدث تجاوز للمصادقة.
-WHAT_IS_PROVEN = الإصلاح البرمجي persisted على HEAD 7b1339c. لا يوجد حتى الآن runtime PASS على هذا الـHEAD؛ البوابات المستهدفة ما زالت queued في آخر readback.
-FIRST_ACTIVE_FAILURE = لا يوجد فشل terminal جديد مثبت على HEAD 7b1339c؛ frontier الحالي queued.
-ROOT_CAUSE = الفشل السابق لـ Evidence Passport Live Proof كان LIVE_GATE_REQUEST_TIMEOUT أثناء signIn. تم إصلاحه بإعادة محاولة محدودة للطلبات العابرة بدل رفع المهلة بلا حدود أو تجاوز المصادقة.
-NEXT_EXACT_ACTION = استهلاك أول نتيجة terminal من Evidence Passport Gate Live Proof وFull Product Browser E2E على HEAD 7b1339c؛ معالجة أول P0/P1 فقط ثم persist/readback/run.
+WHAT_IS_PROVEN = code fixes are persisted through 62f5888a; browser, Evidence Passport, and certification are still being re-run on the current code frontier and no runtime PASS is claimed yet.
+FIRST_ACTIVE_FAILURE = Certification failed first at check-session-handoff-contract.mjs on 62f5888a: REPORT_FOR_HEAD was not an ancestor of HEAD; the correct remediation is a docs-only checkpoint commit rooted at the current code head.
+ROOT_CAUSE = session handoff metadata was stale and referenced an unrelated historical SHA; runtime fixes themselves remain unchanged.
+NEXT_EXACT_ACTION = close the current-head Evidence Passport Live Gate; then consume the first terminal Browser/Certification failure on 62f5888a and fix only that failure.
 
 ## CURRENT HEAD RUNTIME FRONTIER
 
-- Evidence Passport Gate Live Proof #78 / run 37039762827 = QUEUED
-- Full Product Browser E2E #7172 / run 37039764081 = QUEUED
-- Storage Tenant Runtime E2E #3698 / run 37039762943 = QUEUED
-- Report Value Cohort #91 / run 37039763181 = QUEUED
-- Final Certification Gate #15229 / run 37039763119 = QUEUED
-- quality #10300 / run 37039762887 = QUEUED
+- Evidence Passport Gate Live Proof #97 / run 37061565862 = IN_PROGRESS
+- Full Product Browser E2E #7296 / run 37061565818 = IN_PROGRESS
+- Final Certification Gate #15431 / run 37061566448 = FAILED at session handoff contract
 
 ## WHAT IS PROVEN — HISTORICAL, NOT CURRENT-HEAD RUNTIME
 
