@@ -23,6 +23,20 @@ export async function createSourceDecisionProposal(input: {
   if (!companyId) throw new Error('TENANT_REQUIRED');
   if (!input.evidenceSnapshotId.trim()) throw new Error('SOURCE_EVIDENCE_SNAPSHOT_REQUIRED');
 
+  const { data: passport, error: passportError } = await supabase
+    .from('report_evidence_passports')
+    .select('id,evidence_snapshot_id,verification_status,decision_readiness,report_execution_job_id,source_hash')
+    .eq('company_id', companyId)
+    .eq('report_execution_job_id', input.reportJobId)
+    .eq('source_hash', input.sourceHash)
+    .eq('evidence_snapshot_id', input.evidenceSnapshotId)
+    .eq('verification_status', 'VERIFIED')
+    .eq('decision_readiness', 'READY')
+    .maybeSingle();
+
+  if (passportError) throw passportError;
+  if (!passport?.id) throw new Error('SOURCE_EVIDENCE_PASSPORT_REQUIRED');
+
   const decisionKey = [
     'source-intelligence',
     input.sourceHash,
@@ -57,8 +71,10 @@ export async function createSourceDecisionProposal(input: {
     severity: input.severity,
     evidence: input.evidence,
     evidenceSnapshotId: input.evidenceSnapshotId,
+    evidencePassportId: String(passport.id),
     decisionBoundary: 'PROPOSED_ONLY',
-    confidenceSemantics: 'NEUTRAL_PROPOSAL_VALUE',
+    confidenceSemantics: 'NOT_ASSESSED',
+    expectedImpactStatus: 'NOT_AVAILABLE',
   };
 
   const priority = input.severity === 'critical' ? 'critical' : input.severity === 'high' ? 'high' : input.severity === 'medium' ? 'medium' : 'low';
@@ -93,7 +109,7 @@ export async function createSourceDecisionProposal(input: {
     decisionId = await createRuntimeDecision({
       decisionKey,
       decisionType: 'SOURCE_INTELLIGENCE_SIGNAL',
-      confidence: 0.5,
+      confidence: null,
       expectedImpact: null,
       evidence: { ...evidence, recommendationId },
     });
