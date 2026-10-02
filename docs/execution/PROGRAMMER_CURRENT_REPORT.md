@@ -2,91 +2,85 @@
 
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-REPORT_FOR_HEAD = f95d5f2ead0a186bf783f20c81d3351988baf292
-CURRENT EXACT HEAD = e9a9b566627625f3289cd1cf46faa00efa4c7437
-CURRENT EXECUTION HEAD = f95d5f2ead0a186bf783f20c81d3351988baf292
-CURRENT MAIN HEAD = e9a9b566627625f3289cd1cf46faa00efa4c7437
+REPORT_FOR_HEAD = eda4c770d3b206d8f9c9f1412969bf9ed604bf5f
+CURRENT EXACT HEAD = 53d3468c24e9f142fd627c219a063cd972779230
+CURRENT EXECUTION HEAD = eda4c770d3b206d8f9c9f1412969bf9ed604bf5f
+CURRENT MAIN HEAD = eda4c770d3b206d8f9c9f1412969bf9ed604bf5f
 BRANCH = main
-PR #752 = MERGED
-PR #753 = MERGED
-UPDATED_AT = 2026-10-02T21:05:00Z
+PR = #754 MERGED
+UPDATED_AT = 2026-10-02T21:10:00Z
 ACTION_STATUS = IN_PROGRESS
+NEXT_EXACT_ACTION = wait for the current-main Full Product Browser E2E / Final Certification terminals on eda4; fix only the first concrete runtime failure; then prove the real Smart Report business journey.
 
-## LAST EXECUTION DELTA
+WHAT_I_WAS_ASKED_TO_DO = Close the real product path, not merely contracts: source intake → truth → evidence → signal → decision → approval → action → outcome, with exact-head proof and no stale PASS reuse.
 
-The first current-main Full Product Browser E2E blocker was reproduced from exact product head 6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6:
-Supabase Auth signInWithPassword returned HTTP 504 Gateway Timeout during actor provisioning.
+## EXECUTION SCOPE
 
-Root cause: scripts/provision-e2e-actors.mjs retried PostgREST/RPC requests but treated /auth/v1/ as a single-attempt request.
+WHAT_I_ACTUALLY_DID = Merged PR #752 and PR #753, fixed the Phase F canary in PR #754, and continued exact-head runtime verification.
 
-PR #753 corrected only this transport boundary:
-- bounded Auth retry for transient 408/425/429/500/502/503/504;
-- four attempts maximum;
-- existing request timeout retained;
-- existing global provisioning deadline retained;
-- no auth bypass, RLS change, credential weakening, or tenant-policy mutation.
+1. Merged PR #752, promoting the source-bound Smart Report archetype runtime into main.
+2. Reproduced the first current-main browser failure on 6dcec82b: Supabase Auth signInWithPassword returned HTTP 504 / request timeout during E2E actor provisioning.
+3. Merged PR #753, adding bounded transient retry for /auth/v1/ without weakening auth or RLS.
+4. Re-ran the exact-head browser gate. Netlify preview and all static/contract gates passed, but actor provisioning still failed on exact f95d5f2e with repeated Auth transport timeouts.
+5. Identified Phase F's independent failure on exact f95d5f2e: Auth Admin generateLink returned HTTP 504 after bounded retries.
+6. Implemented and merged PR #754: Phase F now resolves its canary session using configured password authentication with bounded transient retry, removing dependency on Auth Admin generateLink.
+7. Current main head is eda4c770d3b206d8f9c9f1412969bf9ed604bf5f. Fresh main workflows are now running.
 
-## EXACT PROOF
+WHAT_IS_PROVEN = Local contracts/build and static product gates are proven on the recorded exact SHAs; current authenticated browser/business proof is not yet proven.
 
-Repair branch HEAD before merge: 2ef0371f80730575a5eb078ec9803c8e0d4df3ef
-- E2E_ACTOR_PROVISIONING_CONTRACT_PASS
+## PROOF DETAILS
+
+On product head 6dcec82b:
+- npm run typecheck PASS
+- npm run test:48-archetype-runtime PASS
+- npm run test:report-advisor-intelligence PASS
+- npm run test:intelligence-vertical-slice PASS
+- executive visual system contract PASS
+- npm run build PASS with BUILD_SOURCE_SHA=6dcec82b
+- source-intelligence proposal, advisory proof-state, claim/evidence, business-question, outcome-learning and decision-cockpit contracts PASS
+
+On repair head d1738d7a:
+- Phase F runtime closure contract PASS
+- resilience runtime PASS
 - npm run typecheck PASS
 - git diff --check PASS
 
-Product head 6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6:
-- typecheck PASS
-- 48-archetype runtime contract PASS
-- report-advisor-intelligence PASS
-- intelligence-vertical-slice PASS
-- executive visual system contract PASS
-- build PASS with BUILD_SOURCE_SHA=6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6
-- source intelligence proposal atomic contract PASS
-- advisory proof-state contract PASS
-- claim/evidence completeness contract PASS
-- business-question catalog PASS
-- outcome-learning archetype contract PASS
-- decision cockpit contract PASS
+On exact f95 browser run 37064389357:
+- checkout/build/canonical heart regressions PASS
+- Netlify preview startup PASS
+- E2E actor provisioning did NOT prove authenticated runtime; it ended with E2E_ACTOR_REQUEST_TIMEOUT after repeated Auth attempts.
+- real authenticated Smart Report proof did not start because actor provisioning failed closed.
+
+On eda4 current-main:
+- storage-tenant-isolation PASS
+- execution-enforcement PASS
+- quality pipeline still running at capture time
+- Final Execution / Final Certification / Phase F / Desktop pipelines running at capture time
+- the first current-main Session Handoff run exposed a documentation contract gap: CURRENT_SESSION_STATE lacked required PR and NEXT_EXACT_ACTION keys. That is being repaired now.
+
+FIRST_ACTIVE_FAILURE = Supabase Auth connectivity for authenticated E2E actor provisioning on the current GitHub runner. The application code is not failing its local contract; the external Auth endpoint is timing out from the GitHub runner.
+
+ROOT_CAUSE = The E2E actor provisioning layer retries transient Auth requests but is still bounded by a 45-second request timeout and a 240-second global provisioning deadline. On f95, configured actor signInWithPassword exhausted that budget without obtaining an Auth session. Separately, Phase F relied on the Auth Admin generateLink path; PR #754 removed that independent failure mode.
 
 ## PRODUCTION
 
-Vercel deployment for 6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6 was READY and aliased to report-advisor.vercel.app. Playwright opened the production page from PC01:
-title = الأغبري | منصة ذكاء الأعمال والقرار
-Arabic landing/auth gate rendered; no console errors observed.
+A READY Vercel production deployment exists for 6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6 at report-advisor.vercel.app. It rendered the Arabic auth gate with no console errors from PC01. Production is not yet certified for eda4.
 
-This is not a current-f95 authenticated business-flow PASS. Current f95 production/certification readback remains open.
-
-## CURRENT RUNTIME FRONTIER
-
-Fresh exact-head workflows for f95d5f2ead0a186bf783f20c81d3351988baf292 are queued, including:
-- Full Product Browser E2E run 37064389357
-- Final Certification Gate run 37064389518
-- Final Execution Batch run 37064389363
-- quality run 37064389447
-- Storage Tenant Isolation run 37064389366
-- Execution Enforcement Contract run 37064389546
-- Session Handoff Contract run 37064389330
-- Phase-F Live Resilience run 37064389427
-- Desktop Windows run 37064389373
-- Vercel production deploy run 37064389466
-
-No queued run is PASS.
+Vercel's GitHub production deploy workflow continues to report missing deploy credentials/build-rate-limit externally; no production PASS is claimed for eda4 from that workflow.
 
 ## OPEN
 
-1. Consume Full Product Browser E2E run 37064389357 on exact f95.
-2. Fix only the first terminal failure.
-3. Prove authenticated Tenant A/B + real source + Smart Report + evidence + recommendation + decision + approval + work + outcome/readback.
-4. Run real-source 48-archetype proof; contract coverage is not real-source coverage.
-5. Complete current-head report corpus evidence; no Git fixture-corpus PASS is claimed.
-6. Reconcile production to the final certified exact SHA.
+- Current-main authenticated browser journey.
+- Real Smart Report source/evidence/decision proof.
+- Real-source 48 archetype proof.
+- Current-head report corpus evidence; tests/fixtures/realistic-reports currently contains README only in the checked-out repository.
+- Final production exact-SHA certification.
+- Session handoff contract repair and re-run.
 
-## NEXT EXACT ACTION
+## DO_NOT_REPEAT
 
-Consume run 37064389357. If Auth remains the first terminal failure, inspect the new Auth retry result and fix only that root. If Auth clears, continue immediately to the real Smart Report business journey and its source/evidence lineage.
-
-DO NOT REPEAT:
-- old-SHA browser PASS reuse;
-- queued-run PASS;
-- fabricated real-source archetype coverage;
-- RLS/auth/evidence weakening;
-- re-import of completed reports without regression evidence.
+- old-SHA browser PASS reuse
+- queued workflow PASS
+- fabricated real-source archetype coverage
+- RLS/auth/evidence weakening
+- re-import of completed reports without a concrete regression reason

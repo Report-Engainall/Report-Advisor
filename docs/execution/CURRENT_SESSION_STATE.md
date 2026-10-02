@@ -6,6 +6,7 @@ CURRENT_EXACT_HEAD = 8f62699a23aaabf5c342f72c54354ac8b6668b3c
 CURRENT_EXECUTION_HEAD = f95d5f2ead0a186bf783f20c81d3351988baf292
 CURRENT_MAIN_HEAD = 8f62699a23aaabf5c342f72c54354ac8b6668b3c
 BRANCH = main
+PR = #754 MERGED
 PR #752 = MERGED
 PR #753 = MERGED
 PROGRAMMER_REPORT = PRESENT
@@ -24,6 +25,6 @@ PRODUCTION = READY deployment exists for 6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d
 CURRENT RUNTIME FRONTIER = Full Product Browser E2E run 37064389357 plus Final Certification, Final Execution, Quality, Storage Tenant Isolation, Execution Enforcement, Session Handoff, Phase-F, Desktop and Vercel deploy runs are QUEUED for f95. No queued run is PASS.
 
 FIRST/REMAINING BLOCKER = authenticated current-head business journey and real-source proof remain unproven until the queued Browser E2E reaches terminal state.
-NEXT EXACT ACTION = consume run 37064389357 on exact f95d5f2ead0a186bf783f20c81d3351988baf292; fix only its first terminal failure; then continue to real Smart Report proof.
+NEXT_EXACT_ACTION = consume the current-main Full Product Browser E2E terminal result; fix only the first failure; then continue to the real Smart Report proof.
 
 DO_NOT_REPEAT = no old-SHA browser PASS reuse; no queued-run PASS; no RLS/auth/evidence weakening; no fabricated real-source archetype coverage; no re-import without regression reason.
