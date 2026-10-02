@@ -81,8 +81,6 @@ jobs:
         run: |
           set -euo pipefail
           token="$(node --input-type=module <<'NODE'
-          const { createClient } = await import('@supabase/supabase-js');
-
           const url = process.env.SUPABASE_URL?.trim();
           const anonKey = process.env.SUPABASE_ANON_KEY?.trim();
           const email = process.env.AUTH_EMAIL?.trim();
@@ -93,37 +91,43 @@ jobs:
 
           const retryableStatuses = new Set([408, 425, 429, 500, 502, 503, 504]);
           const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-          const fetchWithTimeout = async (input, init = {}) => {
+          const authUrl = new URL('/auth/v1/token?grant_type=password', url).toString();
+
+          const signInWithPassword = async () => {
             const controller = new AbortController();
             const timer = setTimeout(() => controller.abort(), 15000);
             try {
-              return await fetch(input, { ...init, signal: controller.signal });
+              const response = await fetch(authUrl, {
+                method: 'POST',
+                headers: {
+                  apikey: anonKey,
+                  Authorization: `Bearer ${anonKey}`,
+                  'content-type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+                signal: controller.signal,
+              });
+              const payload = await response.json().catch(() => ({}));
+              if (!response.ok || !payload?.access_token) {
+                const message = payload?.msg || payload?.message || `HTTP_${response.status}`;
+                throw new Error(
+                  `PHASE_F_CANARY_PASSWORD_SIGNIN_FAILED:${response.status}:${message}`,
+                );
+              }
+              return String(payload.access_token).trim();
             } finally {
               clearTimeout(timer);
             }
           };
 
-          const client = createClient(url, anonKey, {
-            auth: { autoRefreshToken: false, persistSession: false },
-            global: { fetch: fetchWithTimeout },
-          });
-
           let lastError = null;
 
           for (let attempt = 1; attempt <= 6; attempt += 1) {
             try {
-              const { data, error } = await client.auth.signInWithPassword({ email, password });
-              if (!error && data?.session?.access_token) {
-                process.stdout.write(data.session.access_token.trim());
-                lastError = null;
-                break;
-              }
-
-              const status = Number(error?.status ?? 0);
-              lastError = new Error(
-                'PHASE_F_CANARY_PASSWORD_SIGNIN_FAILED:' + status + ':' + (error?.message || 'unknown'),
-              );
-              if (!retryableStatuses.has(status) || attempt === 6) throw lastError;
+              const token = await signInWithPassword();
+              process.stdout.write(token);
+              lastError = null;
+              break;
             } catch (error) {
               lastError = error instanceof Error ? error : new Error(String(error));
               if (lastError.name === 'AbortError') {
@@ -137,7 +141,8 @@ jobs:
             await sleep(Math.min(8000, 2000 * 2 ** (attempt - 1)));
           }
 
-          if (lastError) throw lastError;
+          if (!lastError) process.exit(0);
+          throw lastError;
           NODE
           )"
           echo "::add-mask::$token"
