@@ -12,10 +12,25 @@ for (const name of required) {
   if (!process.env[name]?.trim()) throw new Error('E2E_ACTOR_ENV_MISSING:' + name);
 }
 
+const REQUEST_TIMEOUT_MS = Number(process.env.E2E_ACTOR_REQUEST_TIMEOUT_MS || '30000');
+
+async function fetchWithTimeout(input, init = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(new Error('E2E_ACTOR_REQUEST_TIMEOUT')), REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 const supabase = createClient(
   process.env.REPORT_ADVISOR_SUPABASE_URL.trim(),
   process.env.SUPABASE_SERVICE_ROLE_KEY.trim(),
-  { auth: { autoRefreshToken: false, persistSession: false } },
+  {
+    auth: { autoRefreshToken: false, persistSession: false },
+    global: { fetch: fetchWithTimeout },
+  },
 );
 
 const ACTOR_METADATA = {
@@ -25,7 +40,9 @@ const ACTOR_METADATA = {
 
 function isRetryableAuthLookup(error) {
   const status = Number(error?.status ?? 0);
-  return [408, 425, 429, 500, 502, 503, 504].includes(status);
+  return [408, 425, 429, 500, 502, 503, 504].includes(status)
+    || error?.name === 'AbortError'
+    || String(error?.message || '').includes('E2E_ACTOR_REQUEST_TIMEOUT');
 }
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
