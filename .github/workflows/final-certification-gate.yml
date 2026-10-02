@@ -49,7 +49,11 @@ jobs:
               continue
             fi
             echo "Running $f"
-            node "$f"
+            if [ "$(basename "$f")" = "check-48-archetype-runtime-contract.mjs" ]; then
+              node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs "$f"
+            else
+              node "$f"
+            fi
           done
       - name: Verify certification provenance
         shell: bash
