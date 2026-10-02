@@ -62,24 +62,83 @@ async function selectCohortJobs() {
     .order('updated_at', { ascending: true })
     .limit(5000);
 
-  if (explicitCompanyId) {
-    query = query.eq('company_id', explicitCompanyId);
-  }
+  if (explicitCompanyId) query = query.eq('company_id', explicitCompanyId);
 
   const { data, error } = await query;
   if (error) throw error;
 
-  const sorted = (data ?? [])
-    .filter(isRealReportJob)
-    .sort((a, b) => {
-      const left = [String(a.source_path ?? '').normalize('NFKC').toLocaleLowerCase(), String(a.source_hash ?? ''), String(a.company_id ?? ''), String(a.id ?? '')];
-      const right = [String(b.source_path ?? '').normalize('NFKC').toLocaleLowerCase(), String(b.source_hash ?? ''), String(b.company_id ?? ''), String(b.id ?? '')];
-      for (let i = 0; i < left.length; i += 1) {
-        const cmp = left[i].localeCompare(right[i], 'ar');
-        if (cmp !== 0) return cmp;
-      }
-      return 0;
-    });
+  const rawJobs = (data ?? []).filter((job) =>
+    isRealReportJob(job) &&
+    String(job.checkpoint?.stage ?? '') === 'rendered' &&
+    /^[0-9a-fA-F-]{36}$/.test(String(job.evidence?.renderedOutput?.importId ?? '')),
+  );
+
+  const sourceHashes = [...new Set(rawJobs.map((job) => String(job.source_hash)))];
+  const fileResult = sourceHashes.length
+    ? await supabase
+        .from('file_records')
+        .select('id,company_id,file_hash,status,security_status')
+        .in('file_hash', sourceHashes)
+        .limit(5000)
+    : { data: [], error: null };
+  if (fileResult.error) throw fileResult.error;
+
+  const eligibleFiles = new Map(
+    (fileResult.data ?? [])
+      .filter((file) => ['ready', 'processed', 'verified'].includes(String(file.status)) && String(file.security_status) === 'passed')
+      .map((file) => [String(file.company_id) + '|' + String(file.file_hash), file]),
+  );
+
+  const importIds = rawJobs
+    .map((job) => String(job.evidence?.renderedOutput?.importId ?? ''))
+    .filter(Boolean);
+  const importResult = importIds.length
+    ? await supabase
+        .from('import_jobs')
+        .select('id,company_id,file_record_id,status')
+        .in('id', importIds)
+        .limit(5000)
+    : { data: [], error: null };
+  if (importResult.error) throw importResult.error;
+
+  const eligibleImports = new Map(
+    (importResult.data ?? [])
+      .filter((item) => ['completed', 'processed', 'verified', 'ready'].includes(String(item.status ?? '')))
+      .map((item) => [String(item.id), item]),
+  );
+
+  const analysisResult = importIds.length
+    ? await supabase
+        .from('source_analysis_snapshots')
+        .select('id,company_id,import_job_id,analysis_status')
+        .in('import_job_id', importIds)
+        .eq('analysis_status', 'analyzed')
+        .limit(5000)
+    : { data: [], error: null };
+  if (analysisResult.error) throw analysisResult.error;
+
+  const eligibleAnalyses = new Set(
+    (analysisResult.data ?? []).map((item) => String(item.company_id) + '|' + String(item.import_job_id)),
+  );
+
+  const refreshable = rawJobs.filter((job) => {
+    const companyId = String(job.company_id);
+    const hash = String(job.source_hash);
+    const importId = String(job.evidence?.renderedOutput?.importId ?? '');
+    const file = eligibleFiles.get(companyId + '|' + hash);
+    const importJob = eligibleImports.get(importId);
+    return Boolean(file && importJob && String(importJob.company_id) === companyId && String(importJob.file_record_id) === String(file.id) && eligibleAnalyses.has(companyId + '|' + importId));
+  });
+
+  const sorted = refreshable.sort((a, b) => {
+    const left = [String(a.source_path ?? '').normalize('NFKC').toLocaleLowerCase(), String(a.source_hash ?? ''), String(a.company_id ?? ''), String(a.id ?? '')];
+    const right = [String(b.source_path ?? '').normalize('NFKC').toLocaleLowerCase(), String(b.source_hash ?? ''), String(b.company_id ?? ''), String(b.id ?? '')];
+    for (let i = 0; i < left.length; i += 1) {
+      const cmp = left[i].localeCompare(right[i], 'ar');
+      if (cmp !== 0) return cmp;
+    }
+    return 0;
+  });
 
   const selectedByHash = new Map();
   for (const job of sorted) {
@@ -90,14 +149,16 @@ async function selectCohortJobs() {
 
   const sourceJobs = [...selectedByHash.values()];
   if (sourceJobs.length !== TARGET_COHORT_SIZE) {
-    throw new Error(
-      'REPORT_VALUE_COHORT_INCOMPLETE:' +
-      sourceJobs.length +
-      '/' +
-      TARGET_COHORT_SIZE +
-      ':uniqueRealReportHashes',
-    );
+    throw new Error('REPORT_VALUE_COHORT_INCOMPLETE:' + sourceJobs.length + '/' + TARGET_COHORT_SIZE + ':refreshableUniqueRealReportHashes');
   }
+
+  console.log(JSON.stringify({
+    candidateCounts: {
+      rawRealReports: rawJobs.length,
+      refreshableReports: refreshable.length,
+      refreshableUniqueHashes: new Set(refreshable.map((job) => String(job.source_hash))).size,
+    },
+  }));
 
   return sourceJobs;
 }
@@ -147,6 +208,10 @@ const refreshSummary = {
   review: refreshResults.filter((row) => row.status === 'REVIEW').length,
   unverified: refreshResults.filter((row) => row.status === 'UNVERIFIED').length,
 };
+
+if (refreshSummary.attempted !== TARGET_COHORT_SIZE || refreshSummary.verified !== TARGET_COHORT_SIZE || refreshResults.some((row) => row.decisionReadiness !== 'READY' || row.coverage !== 'FULL')) {
+  throw new Error('REPORT_VALUE_COHORT_PASSPORT_NOT_CLOSED:' + JSON.stringify(refreshSummary) + ':' + JSON.stringify(refreshResults.filter((row) => row.status !== 'VERIFIED' || row.decisionReadiness !== 'READY' || row.coverage !== 'FULL')));
+}
 
 const jobIds = sourceJobs.map((job) => String(job.id));
 
