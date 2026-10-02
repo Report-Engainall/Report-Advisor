@@ -18,7 +18,7 @@ STATIC_PROOF = bounded transient-auth retry fix persisted on exact runtime head 
 CURRENT_RUNTIME_PROOF = queued; no current-head runtime PASS claimed
 HISTORICAL_DATABASE_PROOF = available but not transferred to current-head runtime certification
 HISTORICAL_BROWSER_PROOF = not current-head and not transferred
-SECURITY_ADVISORY = public.canonical_import_repair_history RLS disabled; direct anon/authenticated table privileges false; remains advisory and is not auto-remediated
+SECURITY_ADVISORY = public.canonical_import_repair_history RLS disabled; direct anon/authenticated table privileges false; advisory only and not auto-remediated
 
 CURRENT_RUNTIME_RUNS = Evidence Passport #78 (37039762827); Full Product Browser #7172 (37039764081); Storage Tenant #3698 (37039762943); Report Value Cohort #91 (37039763181); Final Certification #15229 (37039763119); quality #10300 (37039762887)
 NEXT_EXACT_ACTION = consume first terminal current-head P0/P1 result; fix only first failure; persist/readback/rerun
