@@ -53,6 +53,8 @@ for (const profile of archetypes) {
   if (result.profile.id !== profile.id) fail('Runtime resolved wrong profile for ' + profile.id);
   if (result.advisory.questions.length === 0) fail('No advisory questions emitted for ' + profile.id);
   if (!result.advisory.claims.length) fail('No claims emitted for ' + profile.id);
+  if (!result.intelligence.signals.some((signal) => signal.id === 'model:' + profile.id)) fail('Archetype-specific model signal missing for ' + profile.id);
+  if (!result.intelligence.recommendations.some((recommendation) => recommendation.id === 'rec:archetype:' + profile.id)) fail('Archetype-specific recommendation missing for ' + profile.id);
   if (result.advisory.proofState !== 'VERIFIED') fail('Runtime lost evidence state for ' + profile.id);
   if (result.advisory.claims.some((claim) => claim.archetypeId !== profile.id)) fail('Claim lineage lost archetype ID for ' + profile.id);
 }
