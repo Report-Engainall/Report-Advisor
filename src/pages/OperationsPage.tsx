@@ -6,6 +6,7 @@ import { formatCurrency, formatNumber } from '@/lib/format';
 import {
   createInvoiceFromOperationalOrder,
   fetchOperationalAuditTrace,
+  fetchOperationalOrderStatusHistory,
   fetchOperationalInvoices,
   fetchOperationalOrders,
   fetchOperationalPriceTruth,
@@ -14,6 +15,7 @@ import {
   recordOperationalSalesPayment,
   transitionOperationalOrder,
   type OperationalAuditEntry,
+  type OperationalOrderStatusHistoryEntry,
   type OperationalInvoice,
   type OperationalOrder,
   type OperationalPriceTier,
@@ -75,6 +77,9 @@ export function OperationsPage() {
   const [suppliers, setSuppliers] = useState<OperationalSupplier[]>([]);
   const [warehouses, setWarehouses] = useState<OperationalWarehouse[]>([]);
   const [auditTrace, setAuditTrace] = useState<OperationalAuditEntry[]>([]);
+  const [selectedOrderId, setSelectedOrderId] = useState('');
+  const [orderHistory, setOrderHistory] = useState<OperationalOrderStatusHistoryEntry[]>([]);
+  const [orderHistoryLoading, setOrderHistoryLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
@@ -108,6 +113,34 @@ export function OperationsPage() {
   }, []);
 
   useEffect(() => { void load(); }, [load]);
+
+  useEffect(() => {
+    if (!selectedOrderId) {
+      setOrderHistory([]);
+      return;
+    }
+    let cancelled = false;
+    setOrderHistoryLoading(true);
+    void fetchOperationalOrderStatusHistory(selectedOrderId)
+      .then((rows) => {
+        if (!cancelled) {
+          setOrderHistory(rows);
+          setErrors((current) => ({ ...current, orderHistory: null }));
+        }
+      })
+      .catch((cause) => {
+        if (!cancelled) {
+          setOrderHistory([]);
+          setErrors((current) => ({ ...current, orderHistory: operationalErrorMessage(cause, 'تعذر قراءة مسار الطلب') }));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setOrderHistoryLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedOrderId]);
 
   const selectedInvoice = useMemo(() => invoices.find(item => item.id === selectedInvoiceId) ?? null, [invoices, selectedInvoiceId]);
 
@@ -214,6 +247,9 @@ export function OperationsPage() {
                     <div className="mt-1 text-[10px] text-ink-500">{money(order.total, order.currency)} · {new Date(order.created_at).toLocaleString('ar-YE')}</div>
                   </div>
                   <div className="flex flex-wrap gap-2">
+                    <button type="button" onClick={() => setSelectedOrderId(order.id)} className={selectedOrderId === order.id ? 'btn-ghost text-[10px] ring-1 ring-primary-300' : 'btn-ghost text-[10px]'} aria-pressed={selectedOrderId === order.id}>
+                      {selectedOrderId === order.id ? 'المسار مفتوح' : 'عرض المسار'}
+                    </button>
                     {next && <button type="button" onClick={() => void runOrderTransition(order)} disabled={busy !== null} className="btn-primary text-[11px]" data-testid={'advance-order-' + order.id}>{busy === 'order:' + order.id ? 'جارٍ الحفظ...' : 'تقدم إلى ' + statusLabel(next)} <ChevronLeft size={13}/></button>}
                     {order.status === 'completed' && <button type="button" onClick={() => void createInvoice(order)} disabled={busy !== null} className="btn-secondary text-[11px]" data-testid={'create-invoice-' + order.id}>{busy === 'invoice:' + order.id ? 'جارٍ التثبيت...' : 'تثبيت/قراءة الفاتورة'} <ReceiptText size={13}/></button>}
                   </div>
@@ -221,6 +257,41 @@ export function OperationsPage() {
               </div>;
             })}
           </div>}
+          {selectedOrderId && (
+            <div className="border-t border-primary-100 bg-primary-50/40 p-4" data-testid="order-status-history">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="section-kicker">ORDER HISTORY / READBACK</div>
+                  <h3 className="mt-1 text-sm font-black text-primary-950">مسار الطلب المحفوظ</h3>
+                  <p className="mt-1 text-[10px] leading-5 text-ink-600">الحالة هنا تُقرأ من <span className="font-mono">order_status_history</span> للـtenant الحالي، وليست حالة محلية.</p>
+                </div>
+                <Badge variant="neutral">{orderHistory.length} انتقال</Badge>
+              </div>
+              {orderHistoryLoading && <div className="mt-3 text-[10px] text-primary-800">جارٍ قراءة المسار...</div>}
+              {!orderHistoryLoading && errors.orderHistory && <div className="mt-3"><ErrorNote message={errors.orderHistory}/></div>}
+              {!orderHistoryLoading && !errors.orderHistory && !orderHistory.length && <div className="mt-3 rounded-xl border border-dashed border-primary-200 bg-white/70 p-4 text-center text-[10px] text-ink-500">لا يوجد سجل انتقال محفوظ لهذا الطلب.</div>}
+              {!orderHistoryLoading && !errors.orderHistory && orderHistory.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  {orderHistory.map((entry, index) => (
+                    <div key={entry.id} className="flex gap-3 rounded-xl border border-primary-100 bg-white/80 p-3">
+                      <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-100 text-[9px] font-black text-primary-800">{index + 1}</div>
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 text-[10px] font-black text-ink-900">
+                          <span>{statusLabel(entry.from_status)}</span>
+                          <span className="text-primary-600">→</span>
+                          <span>{statusLabel(entry.to_status)}</span>
+                        </div>
+                        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[8px] text-ink-400">
+                          <span>{new Date(entry.created_at).toLocaleString('ar-YE')}</span>
+                          {entry.actor_id && <span className="font-mono">actor:{entry.actor_id.slice(0, 8)}…</span>}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </article>
 
         <article className="rounded-2xl border border-ink-200 bg-white shadow-card p-4">
