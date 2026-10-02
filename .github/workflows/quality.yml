@@ -130,6 +130,9 @@ jobs:
         run: npm run test:file-engine-regressions && npm run test:business-key-regressions && npm run test:import-classifier-regressions && node scripts/dashboard-canonical-regression.mjs
       - name: Business intelligence regressions
         run: node --experimental-strip-types scripts/business-intelligence-regressions.test.ts
+
+      - name: Smart Report advisor intelligence
+        run: npm run test:report-advisor-intelligence
       - name: Deep golden corpus regressions
         run: node --experimental-strip-types scripts/golden-dataset-deep-regressions.test.ts
       - name: Outcome feedback regressions
