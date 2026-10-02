@@ -35,6 +35,42 @@ for (const job of jobs ?? []) {
 
 if (sourceJobs.length !== 40) throw new Error('REPORT_VALUE_COHORT_INCOMPLETE:' + sourceJobs.length + '/40');
 
+const refreshResults = [];
+for (let offset = 0; offset < sourceJobs.length; offset += 4) {
+  const batch = sourceJobs.slice(offset, offset + 4);
+  const batchResults = await Promise.all(batch.map(async (job) => {
+    const { data, error } = await supabase.rpc('refresh_report_evidence_passport', {
+      p_company_id: companyId,
+      p_job_id: String(job.id),
+    });
+    if (error) {
+      return {
+        jobId: String(job.id),
+        source: String(job.source_path ?? ''),
+        status: 'REVIEW',
+        reason: String(error.message || error),
+      };
+    }
+    return {
+      jobId: String(job.id),
+      source: String(job.source_path ?? ''),
+      status: String(data?.verificationStatus ?? 'REVIEW'),
+      decisionReadiness: String(data?.decisionReadiness ?? 'REVIEW'),
+      coverage: String(data?.canonicalCoverage ?? 'UNKNOWN'),
+      passportId: data?.passportId ? String(data.passportId) : null,
+    };
+  }));
+  refreshResults.push(...batchResults);
+  console.log(JSON.stringify({ refreshBatch: offset / 4 + 1, results: batchResults }));
+}
+
+const refreshSummary = {
+  attempted: refreshResults.length,
+  verified: refreshResults.filter((row) => row.status === 'VERIFIED').length,
+  review: refreshResults.filter((row) => row.status === 'REVIEW').length,
+  unverified: refreshResults.filter((row) => row.status === 'UNVERIFIED').length,
+};
+
 const hashes = sourceJobs.map((job) => String(job.source_hash));
 const jobIds = sourceJobs.map((job) => String(job.id));
 
@@ -150,4 +186,4 @@ const summary = {
   benchmarkReady: result.filter((row) => row.benchmark === 'PASS').length,
 };
 
-console.log(JSON.stringify({ summary, reports: result }, null, 2));
+console.log(JSON.stringify({ summary, refreshSummary, refreshResults, reports: result }, null, 2));
