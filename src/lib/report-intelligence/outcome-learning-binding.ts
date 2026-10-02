@@ -27,11 +27,17 @@ export function buildOutcomeLearningBinding(input: {
   const outcomeState: OutcomeLearningBinding['outcomeState'] =
     input.actualOutcome?.trim() ? 'OBSERVED' : input.expectedOutcome?.trim() ? 'INSUFFICIENT' : 'NOT_AVAILABLE';
 
+  const archetypeId = input.archetypeId?.trim();
+  if (!archetypeId) throw new Error('OUTCOME_LEARNING_ARCHETYPE_ID_REQUIRED');
+  if (!Number.isInteger(input.profileVersion) || (input.profileVersion ?? 0) < 1) {
+    throw new Error('OUTCOME_LEARNING_PROFILE_VERSION_REQUIRED');
+  }
+
   return {
     outcomeId: input.outcomeId,
     recommendationId: input.recommendationId,
-    archetypeId: input.archetypeId ?? 'generic.report',
-    profileVersion: input.profileVersion ?? 1,
+    archetypeId,
+    profileVersion: input.profileVersion,
     ruleId: input.ruleId ?? null,
     sourceHash: input.sourceHash,
     reportExecutionJobId: input.reportExecutionJobId,
