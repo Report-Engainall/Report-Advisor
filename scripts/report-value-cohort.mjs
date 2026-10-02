@@ -3,14 +3,57 @@ import { createClient } from '@supabase/supabase-js';
 
 const url = process.env.REPORT_ADVISOR_SUPABASE_URL || process.env.SUPABASE_URL;
 const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const companyId = process.env.REPORT_ADVISOR_COMPANY_ID;
-if (!url || !serviceRole || !companyId) {
+const explicitCompanyId = process.env.REPORT_ADVISOR_COMPANY_ID?.trim() || '';
+if (!url || !serviceRole) {
   throw new Error('REPORT_VALUE_COHORT_ENV_REQUIRED');
 }
 
 const supabase = createClient(url, serviceRole, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
+
+const eligiblePath = /\.(xlsx|xls|xlsm|csv|tsv|ods|pdf|docx|doc|rtf|json|jsonl|txt|md|markdown|jpg|jpeg|png|webp|tiff|bmp)$/i;
+const syntheticPath = /^(customer|product|invoice)-\d+/i;
+
+async function resolveCohortCompanyId() {
+  if (explicitCompanyId) {
+    return { companyId: explicitCompanyId, resolution: 'EXPLICIT' };
+  }
+
+  const { data, error } = await supabase
+    .from('report_execution_jobs')
+    .select('company_id,source_path,source_hash,status')
+    .eq('status', 'completed')
+    .not('company_id', 'is', null)
+    .not('source_hash', 'is', null)
+    .limit(5000);
+  if (error) throw error;
+
+  const counts = new Map();
+  for (const row of data ?? []) {
+    const companyId = String(row.company_id ?? '').trim();
+    const sourcePath = String(row.source_path ?? '');
+    const sourceHash = String(row.source_hash ?? '');
+    if (!companyId || !sourceHash || syntheticPath.test(sourcePath) || !eligiblePath.test(sourcePath)) continue;
+    const item = counts.get(companyId) ?? { uniqueHashes: new Set(), jobs: 0 };
+    item.uniqueHashes.add(sourceHash);
+    item.jobs += 1;
+    counts.set(companyId, item);
+  }
+
+  const candidates = [...counts.entries()]
+    .map(([companyId, stats]) => ({ companyId, uniqueHashes: stats.uniqueHashes.size, jobs: stats.jobs }))
+    .filter((row) => row.uniqueHashes >= 40)
+    .sort((a, b) => b.uniqueHashes - a.uniqueHashes || b.jobs - a.jobs || a.companyId.localeCompare(b.companyId));
+
+  if (candidates.length !== 1) {
+    throw new Error('REPORT_VALUE_COHORT_COMPANY_RESOLUTION_AMBIGUOUS:' + JSON.stringify(candidates));
+  }
+  return { companyId: candidates[0].companyId, resolution: 'INFERRED_SINGLE_40PLUS_COHORT' };
+}
+
+const { companyId, resolution: companyResolution } = await resolveCohortCompanyId();
+console.log(JSON.stringify({ cohortCompanyResolution: companyResolution, cohortCompanyId: companyId }));
 
 const { data: jobs, error: jobsError } = await supabase
   .from('report_execution_jobs')

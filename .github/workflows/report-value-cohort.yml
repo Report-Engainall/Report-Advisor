@@ -23,7 +23,6 @@ jobs:
     env:
       REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      REPORT_ADVISOR_COMPANY_ID: ${{ secrets.REPORT_ADVISOR_COMPANY_ID }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -55,7 +54,6 @@ jobs:
           set -euo pipefail
           test -n "${REPORT_ADVISOR_SUPABASE_URL}"
           test -n "${SUPABASE_SERVICE_ROLE_KEY}"
-          test -n "${REPORT_ADVISOR_COMPANY_ID}"
           mkdir -p artifacts/report-value-cohort
           npm run report:value-cohort | tee artifacts/report-value-cohort/cohort.json
 
