@@ -129,7 +129,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
             : input.archetypeId?.startsWith('profitability.')
               ? 'profitability'
               : 'generic';
-  const specialized = buildBusinessQuestionSet(archetypeFamily, evaluateBusinessQuestion, {
+  const specialized = buildBusinessQuestionSet<Record<string, unknown>>(archetypeFamily, evaluateBusinessQuestion, {
     availableFields: input.availableFields,
     sampleSize: input.sampleSize,
     answers: {},
