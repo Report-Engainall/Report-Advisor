@@ -951,7 +951,7 @@ export function applyArchetypeRuleSet(
     }
   }
 
-  if (!modelFinding && has('customerCode') && has('productCode') && profile.capabilities.some((cap) => norm(cap).includes('customerproduct') || norm(cap).includes('mix'))) {
+  if (!modelFinding && (family === 'customer-product' || (has('customerCode') && has('productCode') && profile.capabilities.some((cap) => norm(cap).includes('customerproduct') || norm(cap).includes('mix'))))) {
     const customerKey = columnKey(report, 'customerCode')!;
     const productKey = columnKey(report, 'productCode')!;
     const pairs = new Map<string, number>();
