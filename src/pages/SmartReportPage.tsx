@@ -193,8 +193,18 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
         <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">ANALYSIS</div><div className="mt-2 text-sm font-black">{report.sourceAnalysis?.analysisStatus ?? 'غير متاح'}</div><div className="mt-1 text-[10px] text-ink-500">{report.sourceAnalysis?.rowCount == null ? 'غير متاح' : formatNumber(report.sourceAnalysis.rowCount)} rows</div></div>
       </div>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
-        <div className="rounded-xl border border-ink-200 bg-ink-50/60 p-4"><div className="text-[9px] font-black text-ink-500">EVIDENCE</div><div className="mt-2 text-sm font-black">{stateLabel(report.evidenceStatus)}</div><div className="mt-1 text-[10px] text-ink-500">Evidence snapshot authority is separate from canonical commit.</div></div>
-        <div className={`rounded-xl border p-4 ${verificationClass}`}><div className="text-[9px] font-black">VERIFICATION STATE</div><div className="mt-2 text-sm font-black">{reportVerificationLabel(verification)}</div><div className="mt-1 text-[10px]">Source trust: {stateLabel(report.sourceTrustState ?? report.trustState)} · Report verification: {reportVerificationLabel(verification)}</div></div>
+        <div className="rounded-xl border border-ink-200 bg-ink-50/60 p-4">
+          <div className="text-[9px] font-black text-ink-500">EVIDENCE PASSPORT</div>
+          <div className="mt-2 text-sm font-black">{stateLabel(String(report.renderedOutput.evidenceVerificationStatus ?? report.evidenceStatus))}</div>
+          <div className="mt-1 text-[10px] text-ink-500">Acceptance: {stateLabel(String(report.renderedOutput.evidenceAcceptanceStatus ?? 'غير متاح'))} · Readiness: {stateLabel(String(report.renderedOutput.decisionReadiness ?? 'غير متاح'))}</div>
+          <div className="mt-1 break-all font-mono text-[9px] text-ink-400">Snapshot: {String(report.renderedOutput.evidenceSnapshotId ?? 'غير موجود')}</div>
+        </div>
+        <div className={`rounded-xl border p-4 ${verificationClass}`}>
+          <div className="text-[9px] font-black">VERIFICATION STATE</div>
+          <div className="mt-2 text-sm font-black">{reportVerificationLabel(verification)}</div>
+          <div className="mt-1 text-[10px]">Source trust: {stateLabel(report.sourceTrustState ?? report.trustState)} · Report verification: {reportVerificationLabel(verification)}</div>
+          {report.renderedOutput.legacyPriorVerification === true ? <div className="mt-2 rounded-lg border border-warning-300 bg-warning-50 px-2 py-1 text-[9px] font-bold text-warning-900">حالة VERIFIED القديمة تم استبدالها بدليل Passport مستقل.</div> : null}
+        </div>
       </div>
       <div className="mt-3 rounded-2xl border border-primary-200 bg-primary-50/45 p-4" aria-label="بوابة الدليل قبل القرار">
         <div className="flex flex-wrap items-start justify-between gap-3">
