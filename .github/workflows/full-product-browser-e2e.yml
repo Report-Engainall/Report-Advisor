@@ -150,6 +150,7 @@ jobs:
           npm run test:pdf-visual-line-fallback
           npm run test:pdf-arabic-sales-layout
           npm run test:report-intelligence-inventory-grain
+          npm run test:report-smart-evidence-boundary
           npm run test:document-intelligence-lines
           npm run test:report-intelligence-contradictions
           npm run test:source-report-workspace
