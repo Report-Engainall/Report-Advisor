@@ -53,7 +53,15 @@ function AlertRow({ alert }: { alert: Alert }) {
           <div className="flex flex-wrap items-center gap-2"><SeverityBadge severity={alert.severity}/><span className="text-[10px] text-ink-400">{relativeTime(alert.created_at)}</span></div>
           <div className="mt-2 text-[13px] font-black text-ink-900">{alert.title}</div>
           {alert.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{alert.description}</p>}
-          <div className="mt-3 flex gap-2"><Link to="/decision-experience" className="btn-secondary text-[11px]">افتح السياق <ArrowUpLeft size={13}/></Link><Link to="/metrics" className="btn-ghost text-[11px]">افحص القياس</Link></div>
+          <div className="mt-3 grid gap-2 sm:grid-cols-3 text-[9px]">
+            <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">WHY</div><div className="mt-1 font-bold text-ink-800">{alert.description ?? 'سبب التنبيه غير متاح؛ راجع الدليل.'}</div></div>
+            <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">EVIDENCE</div><div className="mt-1 font-bold text-ink-800">{alert.metric_value == null ? 'قيمة القياس غير متاحة' : formatCurrency(alert.metric_value)}{alert.threshold == null ? '' : ' · الحد ' + formatCurrency(alert.threshold)}</div></div>
+            <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">WHAT NEXT</div><div className="mt-1 font-bold text-ink-800">مراجعة القياس ثم فتح سياق القرار</div></div>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <Link to="/decision-experience" className="btn-secondary text-[11px]">افتح السياق <ArrowUpLeft size={13}/></Link>
+            <Link to="/metrics" className="btn-ghost text-[11px]">افحص القياس</Link>
+          </div>
         </div>
       </div>
     </article>
@@ -69,6 +77,11 @@ function DecisionRow({ recommendation }: { recommendation: Recommendation }) {
           <div className="flex flex-wrap items-center gap-2"><span className="text-[10px] font-black text-primary-700">توصية</span><PriorityBadge priority={recommendation.priority}/></div>
           <div className="mt-2 text-[13px] font-black text-ink-900">{recommendation.title}</div>
           {recommendation.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{recommendation.description}</p>}
+          <div className="mt-3 grid gap-2 sm:grid-cols-3 text-[9px]">
+            <div className="rounded-lg bg-white p-2"><div className="text-ink-400">OWNER</div><div className="mt-1 font-bold text-ink-800">{recommendation.owner ?? 'غير محدد'}</div></div>
+            <div className="rounded-lg bg-white p-2"><div className="text-ink-400">IMPACT</div><div className="mt-1 font-bold text-ink-800">{recommendation.expected_impact == null ? 'غير متاح' : formatCurrency(recommendation.expected_impact)}</div></div>
+            <div className="rounded-lg bg-white p-2"><div className="text-ink-400">STATUS</div><div className="mt-1 font-bold text-ink-800">{recommendation.status}</div></div>
+          </div>
           <div className="mt-3"><Link to="/decision-experience?stage=decision" className="btn-primary text-[11px]">فتح القرار <ArrowUpLeft size={13}/></Link></div>
         </div>
       </div>
