@@ -137,11 +137,16 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
   const specialty = rendered.sourceSpecialty == null
     ? inferSpecialtyFromAnalysis(analysis)
     : String(rendered.sourceSpecialty);
-  const dataset = analysis?.datasets?.[0];
-  const columns = dataset && typeof dataset === 'object' && Array.isArray((dataset as Record<string, unknown>).columns)
-    ? (dataset as Record<string, unknown>).columns.filter((column): column is Record<string, unknown> => Boolean(column) && typeof column === 'object')
-    : [];
-  const availableFields = [...new Set(columns.map((column) => String(column.mappedField ?? '')).filter(Boolean))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
+  const datasets = Array.isArray(analysis?.datasets) ? analysis.datasets : [];
+  const availableFields = [...new Set(datasets.flatMap((dataset) => {
+    if (!dataset || typeof dataset !== 'object') return [];
+    const columns = (dataset as Record<string, unknown>).columns;
+    if (!Array.isArray(columns)) return [];
+    return columns
+      .filter((column): column is Record<string, unknown> => Boolean(column) && typeof column === 'object')
+      .map((column) => String(column.mappedField ?? ''))
+      .filter(Boolean);
+  }))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
   const archetype = detectReportArchetype({ sourcePath: path, specialty, availableFields });
   return {
     jobId: String(job.id),
