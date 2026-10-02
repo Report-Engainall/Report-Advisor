@@ -417,7 +417,7 @@ console.log(JSON.stringify({
     evidenceSnapshotId: passport.evidence_snapshot_id,
     reportExecutionJobId: passport.report_execution_job_id,
     sourceHash: passport.source_hash,
-    legacyPriorVerification: passport.legacy_prior_verification,
+    legacyPriorVerification: passport.prior_verification_state,
   },
   cases: {
     recommendationWithoutVerifiedPassport: { state: 'BLOCKED', error: noPassportRecommendationMessage },
