@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import { listReportArchetypes, runReportArchetype } from '../src/lib/report-intelligence/archetype-registry.ts';
+import { listReportArchetypes, runReportArchetype, detectReportArchetype } from '../src/lib/report-intelligence/archetype-registry.ts';
 
 const baseURL = (process.env.E2E_BASE_URL || 'http://127.0.0.1:4173').replace(/\/$/, '');
 const supabaseURL = (process.env.REPORT_ADVISOR_SUPABASE_URL || '').replace(/\/$/, '');
@@ -70,10 +70,42 @@ for (const companyId of tenantIds) {
     { order: 'completed_at.desc', limit: 500 },
   );
   proof.sourceJobsScanned += jobs.length;
+
+  const hashes = [...new Set(jobs.map((job) => String(job.source_hash ?? '')).filter(Boolean))];
+  const analysesByHash = new Map();
+  for (let i = 0; i < hashes.length; i += 100) {
+    const batch = hashes.slice(i, i + 100);
+    if (!batch.length) continue;
+    const url = new URL(supabaseURL + '/rest/v1/source_analysis_snapshots');
+    url.searchParams.set('select', 'source_hash,row_count,datasets,created_at');
+    url.searchParams.set('company_id', 'eq.' + companyId);
+    url.searchParams.set('source_hash', 'in.(' + batch.map((hash) => '"' + hash.replaceAll('"', '') + '"').join(',') + ')');
+    url.searchParams.set('order', 'created_at.desc');
+    const response = await fetch(url, { headers: { apikey: anonKey, Authorization: 'Bearer ' + accessToken } });
+    const body = await response.text();
+    if (!response.ok) throw new Error('source_analysis_snapshots_HTTP_' + response.status + ':' + body.slice(0, 1200));
+    const analyses = body ? JSON.parse(body) : [];
+    for (const analysis of analyses) {
+      const hash = String(analysis.source_hash ?? '');
+      if (hash && !analysesByHash.has(hash)) analysesByHash.set(hash, analysis);
+    }
+  }
+
   for (const job of jobs) {
     const rendered = job?.evidence?.renderedOutput;
     if (!rendered || typeof rendered !== 'object') continue;
-    const archetypeId = typeof rendered.archetypeId === 'string' ? rendered.archetypeId : null;
+    const analysis = analysesByHash.get(String(job.source_hash ?? '')) ?? null;
+    const dataset = analysis?.datasets?.[0];
+    const columns = Array.isArray(dataset?.columns) ? dataset.columns : [];
+    const availableFields = [...new Set(columns.map((column) => column?.mappedField).filter(Boolean))];
+    const detected = detectReportArchetype({
+      sourcePath: String(job.source_path ?? ''),
+      specialty: typeof rendered.sourceSpecialty === 'string' ? rendered.sourceSpecialty : null,
+      availableFields,
+    });
+    const archetypeId = typeof rendered.archetypeId === 'string' && byId.has(rendered.archetypeId)
+      ? rendered.archetypeId
+      : detected.profile?.id ?? null;
     if (!archetypeId || !byId.has(archetypeId)) continue;
     candidateJobs.push({ job, rendered, archetypeId });
   }
