@@ -2,12 +2,18 @@ import {
   listReportArchetypes,
   getReportArchetypeByNumber,
   runReportArchetype,
+  REPORT_ARCHETYPE_CATALOG_ID,
+  REPORT_ARCHETYPE_CATALOG_VERSION,
+  REPORT_ARCHETYPE_CATALOG_SIZE,
 } from '../src/lib/report-intelligence/archetype-registry.ts';
 
 const fail = (message) => { throw new Error(message); };
 const archetypes = listReportArchetypes();
 
-if (archetypes.length !== 48) fail('Expected exactly 48 canonical report archetypes, got ' + archetypes.length);
+if (REPORT_ARCHETYPE_CATALOG_ID !== 'report-intelligence.48') fail('Canonical catalog id mismatch');
+if (REPORT_ARCHETYPE_CATALOG_VERSION !== '1.0.0') fail('Canonical catalog version mismatch');
+if (REPORT_ARCHETYPE_CATALOG_SIZE !== 48) fail('Canonical catalog size mismatch');
+if (archetypes.length !== REPORT_ARCHETYPE_CATALOG_SIZE) fail('Expected exactly 48 canonical report archetypes, got ' + archetypes.length);
 
 const numbers = new Set(archetypes.map((item) => item.number));
 const ids = new Set(archetypes.map((item) => item.id));
@@ -23,6 +29,9 @@ for (const profile of archetypes) {
   if (!Number.isInteger(profile.minimumSample) || profile.minimumSample < 1) fail('Invalid minimumSample for ' + profile.id);
   if (!profile.capabilities.length) fail('No runtime capabilities for ' + profile.id);
   if (!profile.recommendationFocus.length) fail('No recommendation focus for ' + profile.id);
+  if (!Array.isArray(profile.recommendationRules) || !profile.recommendationRules.length) fail('No recommendation rules for ' + profile.id);
+  if (!Array.isArray(profile.evidenceRequirements) || profile.evidenceRequirements.length < 4) fail('Evidence requirements missing for ' + profile.id);
+  if (profile.evaluatorId !== 'archetype.evaluator.' + profile.id) fail('Evaluator id mismatch for ' + profile.id);
   if (profile.provenanceRequirements.join('|').indexOf('sourceHash') < 0) fail('Source provenance missing for ' + profile.id);
   if (getReportArchetypeByNumber(profile.number)?.id !== profile.id) fail('Number lookup mismatch for ' + profile.id);
 }

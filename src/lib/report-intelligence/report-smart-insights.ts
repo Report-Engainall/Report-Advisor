@@ -487,7 +487,14 @@ function deriveBusinessFindings(report: ReportInput): {
           unit: 'عملة المصدر',
           dimensionLabel: specialty === 'sales' ? 'العميل' : 'المورد',
           dimensionValue: top.dimension,
-          evidence: ['dimensionField=' + partyKey, 'valueField=' + amountKey, 'dimensionValue=' + top.dimension, 'dimensionValueTotal=' + top.value.toFixed(2), 'sourceTotal=' + total.toFixed(2)],
+          evidence: [
+            'dimensionField=' + partyKey,
+            (specialty === 'sales' ? 'customerField=' : 'supplierField=') + partyKey,
+            'valueField=' + amountKey,
+            'dimensionValue=' + top.dimension,
+            'dimensionValueTotal=' + top.value.toFixed(2),
+            'sourceTotal=' + total.toFixed(2),
+          ],
           limitation: 'التركيز الحسابي لا يثبت خطرًا تجاريًا بحد ذاته؛ يحتاج إلى تفسير حسب سياسة الشركة وتوزيع باقي القيمة.',
           action: specialty === 'sales'
             ? 'راجع هذا العميل أولًا ضمن خطة المحافظة على الإيراد ومخاطر التركّز.'

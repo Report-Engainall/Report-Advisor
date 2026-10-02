@@ -75,7 +75,7 @@ export function getBusinessQuestionDefinitions(archetype: BusinessArchetype): re
 
 export function buildBusinessQuestionSet<TAnswer>(
   archetype: BusinessArchetype,
-  evaluate: (input: Omit<BusinessQuestion<TAnswer>, 'state' | 'missingFields' | 'evidenceBoundary'> & {
+  evaluate: (input: Omit<BusinessQuestion<TAnswer>, 'state' | 'missingFields' | 'evidenceBoundary' | 'followUpQuestion'> & {
     availableFields: CanonicalField[];
     sampleSize: number;
     answer?: TAnswer | null;

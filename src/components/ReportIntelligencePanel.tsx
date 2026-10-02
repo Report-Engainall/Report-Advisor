@@ -32,6 +32,7 @@ function number(value: number | null): string {
 
 export function ReportIntelligencePanel({ report }: { report: SmartReportDetail }) {
   const intelligence = report.intelligence;
+  const evidenceSnapshotId = typeof report.renderedOutput.evidenceSnapshotId === 'string' ? report.renderedOutput.evidenceSnapshotId : '';
   const [proposalState, setProposalState] = useState<Record<string, string>>({});
   const forecast = intelligence.forecast;
   return (
@@ -90,6 +91,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                         signalMessage: signal.message,
                         severity: signal.severity,
                         evidence: signal.evidence,
+                        evidenceSnapshotId,
                       }).then((result) => {
                         setProposalState((current) => ({ ...current, [signal.id]: result.status === 'APPROVED' ? 'already-approved' : 'proposed' }));
                       }).catch(() => {

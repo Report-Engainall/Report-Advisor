@@ -28,6 +28,14 @@ const auth = await fetchJson(supabaseURL + '/auth/v1/token?grant_type=password',
 const accessToken = auth?.access_token;
 if (!accessToken) throw new Error('REAL_48_PROOF_ACCESS_TOKEN_MISSING');
 
+async function restRpc(functionName, payload) {
+  return fetchJson(supabaseURL + '/rest/v1/rpc/' + functionName, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + accessToken },
+    body: JSON.stringify(payload),
+  });
+}
+
 async function restSelect(table, filters, select, options = {}) {
   const url = new URL(supabaseURL + '/rest/v1/' + table);
   url.searchParams.set('select', select);
@@ -220,7 +228,15 @@ for (const profile of allProfiles) {
     result.advisory.claims.length > 0 &&
     result.advisory.questions.length > 0 &&
     result.advisory.proofState === 'VERIFIED' &&
-    result.advisory.claims.every((claim) => claim.archetypeId === profile.id) &&
+    result.advisory.claims.every((claim) =>
+      claim.archetypeId === profile.id &&
+      claim.tenantId === job.company_id &&
+      claim.sourceHash === job.source_hash &&
+      claim.reportExecutionJobId === job.id &&
+      claim.evidenceSnapshotId === evidenceSnapshotId
+    ) &&
+    result.intelligence.signals.some((signal) => signal.id === 'model:' + profile.id) &&
+    result.intelligence.recommendations.some((recommendation) => recommendation.id === 'rec:archetype:' + profile.id) &&
     Boolean(evidenceSnapshotId && evidencePassportId && snapshot);
 
   proof.archetypes.push({
@@ -248,8 +264,180 @@ for (const profile of allProfiles) {
 const supported = proof.archetypes.filter((item) => item.status === 'SUPPORTED').length;
 const missing = proof.archetypes.filter((item) => item.status === 'NOT_PROVEN_REAL_SOURCE').length;
 const review = proof.archetypes.filter((item) => item.status === 'REVIEW_REQUIRED').length;
-proof.summary = { total: proof.archetypes.length, supported, missing, review };
-proof.status = supported === 48 && missing === 0 && review === 0 ? 'PASS' : 'NOT_PROVEN';
+
+if (supported === 48 && missing === 0 && review === 0) {
+  const lineage = [];
+  const runId = process.env.GITHUB_RUN_ID || ('local-' + Date.now());
+
+  for (const item of proof.archetypes) {
+    const signalId = 'real-48:' + runId + ':' + item.archetypeId;
+    const proposal = await restRpc('create_source_intelligence_proposal', {
+      p_report_job_id: item.reportJobId,
+      p_source_hash: item.sourceHash,
+      p_signal_id: signalId,
+      p_signal_title: item.title,
+      p_signal_message: 'Real-source archetype advisory lineage proof for ' + item.archetypeId,
+      p_severity: 'medium',
+      p_evidence: {
+        gate: 'REAL_48_ARCHETYPE_LINEAGE',
+        exactHead,
+        archetypeId: item.archetypeId,
+        evaluatorId: 'archetype.evaluator.' + item.archetypeId,
+        sourceHash: item.sourceHash,
+        reportExecutionJobId: item.reportJobId,
+        evidenceSnapshotId: item.evidenceSnapshotId,
+        evidencePassportId: item.evidencePassportId,
+        measurementStatus: 'INSUFFICIENT',
+      },
+      p_evidence_snapshot_id: item.evidenceSnapshotId,
+    });
+    const proposalRow = Array.isArray(proposal) ? proposal[0] : proposal;
+    if (!proposalRow?.recommendation_id || !proposalRow?.decision_id) {
+      throw new Error('REAL_48_LINEAGE_RECOMMENDATION_DECISION_MISSING:' + item.archetypeId);
+    }
+
+    const recommendationId = String(proposalRow.recommendation_id);
+    const decisionId = String(proposalRow.decision_id);
+    const approvalId = String(await restRpc('request_decision_approval', {
+      p_decision_id: decisionId,
+      p_reason: 'REAL_48_ARCHETYPE_LINEAGE_GATE',
+    }));
+    await restRpc('decide_approval', {
+      p_approval_id: approvalId,
+      p_approve: true,
+      p_reason: 'Automated staging proof; no outcome or impact fabricated.',
+    });
+
+    const workItemId = String(await restRpc('create_decision_work_item', {
+      p_decision_id: decisionId,
+      p_recommendation_id: recommendationId,
+      p_department: '48-archetype-gate',
+      p_assignee_id: null,
+      p_assignee_label: 'Report-Advisor 48 Archetype Gate',
+      p_title: item.title,
+      p_description: 'Source-bound archetype action-lineage proof.',
+      p_priority: 'HIGH',
+      p_due_at: null,
+      p_expected_impact: null,
+      p_evidence_refs: [{
+        archetypeId: item.archetypeId,
+        sourceHash: item.sourceHash,
+        reportExecutionJobId: item.reportJobId,
+        evidenceSnapshotId: item.evidenceSnapshotId,
+        evidencePassportId: item.evidencePassportId,
+      }],
+    }));
+
+    await restRpc('start_decision_work_item', { p_work_item_id: workItemId });
+    await restRpc('complete_decision_work_item', {
+      p_work_item_id: workItemId,
+      p_actual_impact: null,
+      p_evidence: {
+        gate: 'REAL_48_ARCHETYPE_LINEAGE',
+        measurementStatus: 'INSUFFICIENT',
+        actualImpact: null,
+        expectedImpact: null,
+        archetypeId: item.archetypeId,
+        sourceHash: item.sourceHash,
+        reportExecutionJobId: item.reportJobId,
+        evidenceSnapshotId: item.evidenceSnapshotId,
+      },
+    });
+
+    const recommendations = await restSelect(
+      'recommendations',
+      { company_id: item.tenantId, id: recommendationId },
+      'id,company_id,decision_id,evidence_snapshot_id,status,evidence,expected_impact,actual_impact',
+      { limit: 1 },
+    );
+    const decisions = await restSelect(
+      'business_intelligence_decisions',
+      { company_id: item.tenantId, id: decisionId },
+      'id,company_id,recommendation_id,status,evidence,approved_at,executed_at',
+      { limit: 1 },
+    );
+    const approvals = await restSelect(
+      'decision_approvals',
+      { company_id: item.tenantId, id: approvalId, decision_id: decisionId },
+      'id,company_id,decision_id,status,decided_at',
+      { limit: 1 },
+    );
+    const workItems = await restSelect(
+      'decision_work_items',
+      { company_id: item.tenantId, id: workItemId, decision_id: decisionId },
+      'id,company_id,decision_id,recommendation_id,status,expected_impact,actual_impact,evidence_refs',
+      { limit: 1 },
+    );
+    const outcomes = await restSelect(
+      'recommendation_outcomes',
+      { company_id: item.tenantId, decision_id: decisionId },
+      'id,company_id,decision_id,status,expected_impact,actual_impact,observed_at,evidence',
+      { order: 'observed_at.desc', limit: 5 },
+    );
+
+    const recommendation = recommendations[0];
+    const decision = decisions[0];
+    const approval = approvals[0];
+    const workItem = workItems[0];
+    const outcome = outcomes[0];
+
+    if (!recommendation || !decision || !approval || !workItem || !outcome) {
+      throw new Error('REAL_48_LINEAGE_READBACK_MISSING:' + item.archetypeId);
+    }
+    if (String(recommendation.company_id) !== String(item.tenantId) ||
+        String(decision.company_id) !== String(item.tenantId) ||
+        String(approval.company_id) !== String(item.tenantId) ||
+        String(workItem.company_id) !== String(item.tenantId) ||
+        String(outcome.company_id) !== String(item.tenantId)) {
+      throw new Error('REAL_48_LINEAGE_TENANT_MISMATCH:' + item.archetypeId);
+    }
+    if (String(recommendation.decision_id) !== decisionId) throw new Error('REAL_48_LINEAGE_RECOMMENDATION_DECISION_MISMATCH:' + item.archetypeId);
+    if (String(decision.recommendation_id) !== recommendationId) throw new Error('REAL_48_LINEAGE_DECISION_RECOMMENDATION_MISMATCH:' + item.archetypeId);
+    if (approval.status !== 'APPROVED') throw new Error('REAL_48_LINEAGE_APPROVAL_NOT_APPROVED:' + item.archetypeId);
+    if (String(workItem.decision_id) !== decisionId || String(workItem.recommendation_id) !== recommendationId) throw new Error('REAL_48_LINEAGE_WORK_LINK_MISMATCH:' + item.archetypeId);
+    if (workItem.status !== 'COMPLETED') throw new Error('REAL_48_LINEAGE_WORK_NOT_COMPLETED:' + item.archetypeId);
+    if (workItem.actual_impact !== null) throw new Error('REAL_48_LINEAGE_FABRICATED_WORK_IMPACT:' + item.archetypeId);
+    if (String(outcome.decision_id) !== decisionId || outcome.status !== 'insufficient') throw new Error('REAL_48_LINEAGE_OUTCOME_STATE_MISMATCH:' + item.archetypeId);
+    if (outcome.expected_impact !== null || outcome.actual_impact !== null) throw new Error('REAL_48_LINEAGE_FABRICATED_OUTCOME_IMPACT:' + item.archetypeId);
+    if (!outcome.observed_at) throw new Error('REAL_48_LINEAGE_OBSERVED_AT_MISSING:' + item.archetypeId);
+
+    lineage.push({
+      archetypeId: item.archetypeId,
+      tenantId: item.tenantId,
+      sourcePath: item.sourcePath,
+      sourceHash: item.sourceHash,
+      reportExecutionJobId: item.reportJobId,
+      evidenceSnapshotId: item.evidenceSnapshotId,
+      evidencePassportId: item.evidencePassportId,
+      recommendationId,
+      decisionId,
+      approvalId,
+      workItemId,
+      outcomeId: String(outcome.id),
+      outcomeStatus: outcome.status,
+      expectedImpact: outcome.expected_impact,
+      actualImpact: outcome.actual_impact,
+      learningState: 'INSUFFICIENT',
+    });
+  }
+
+  proof.lineage = {
+    status: 'PASS',
+    runId,
+    matrixCount: lineage.length,
+    closureState: '48/48 RECOMMENDATION→DECISION→APPROVAL→WORK→INSUFFICIENT OUTCOME→READBACK→LEARNING',
+    noFabricatedImpact: true,
+    matrix: lineage,
+  };
+} else {
+  proof.lineage = {
+    status: 'NOT_RUN',
+    reason: '48_REAL_SOURCE_RUNTIME_NOT_CLOSED',
+  };
+}
+
+proof.summary = { total: proof.archetypes.length, supported, missing, review, lineageStatus: proof.lineage.status };
+proof.status = supported === 48 && missing === 0 && review === 0 && proof.lineage.status === 'PASS' ? 'PASS' : 'NOT_PROVEN';
 
 await fs.mkdir(reportDir, { recursive: true });
 await fs.writeFile(outFile, JSON.stringify(proof, null, 2));

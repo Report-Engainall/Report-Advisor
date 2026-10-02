@@ -34,8 +34,11 @@ export type ArchetypeProfile = {
   minimumSample: number;
   capabilities: string[];
   recommendationFocus: string[];
+  recommendationRules: string[];
   decisionQuestions: string[];
   provenanceRequirements: string[];
+  evidenceRequirements: string[];
+  evaluatorId: string;
   limitations: string[];
   ruleFamily?: ArchetypeRuleFamily;
 };
@@ -67,8 +70,11 @@ const p = (
   minimumSample,
   capabilities,
   recommendationFocus,
+  recommendationRules: recommendationFocus.map((focus) => 'recommend-only-when-evidence-supports:' + focus),
   decisionQuestions: ['ماذا حدث؟', 'أين تركز التغير؟', 'ما الدليل؟', 'ما الإجراء التالي؟', 'ماذا حدث بعد الإجراء؟'],
   provenanceRequirements: ['tenantId', 'sourceHash', 'reportExecutionJobId', 'evidenceSnapshotId|evidencePassportId'],
+  evidenceRequirements: ['tenantId', 'sourceHash', 'reportExecutionJobId', 'evidenceSnapshotId|evidencePassportId'],
+  evaluatorId: 'archetype.evaluator.' + id,
   limitations: ['لا تُثبت السببية من الوصف وحده.', 'الحقول غير المتاحة لا تُستبدل بقيم مفترضة.'],
 });
 
@@ -129,7 +135,13 @@ const REPORT_ARCHETYPES_RAW: readonly ArchetypeProfile[] = [
   p(48,'demand.forecast','الطلب/التنبؤ','demand','sales',['demand forecast','التنبؤ بالطلب'],'product-period',['productCode','documentDate','salesQty'],['productName','currentStock','customerCode','warehouse','netAmount'],12,['demand-trend','velocity','seasonality','forecast','uncertainty','stock-linkage','reorder-production-implications'],['مراجعة الطلب المتوقع وحدود التنبؤ']),
 ] as const;
 
+export const REPORT_ARCHETYPE_CATALOG_ID = 'report-intelligence.48';
+export const REPORT_ARCHETYPE_CATALOG_VERSION = '1.0.0';
+export const REPORT_ARCHETYPE_CATALOG_SIZE = 48;
+
 export const REPORT_ARCHETYPES = REPORT_ARCHETYPES_RAW.map(attachArchetypeRuleFamily) as readonly (ArchetypeProfile & { ruleFamily: ArchetypeRuleFamily })[];
+
+if (REPORT_ARCHETYPES.length !== REPORT_ARCHETYPE_CATALOG_SIZE) throw new Error('REPORT_ARCHETYPE_CATALOG_SIZE_MISMATCH');
 
 const byId = new Map(REPORT_ARCHETYPES.map((profile) => [profile.id, profile]));
 const byNumber = new Map(REPORT_ARCHETYPES.map((profile) => [profile.number, profile]));
@@ -230,6 +242,8 @@ export function runReportArchetype(
   const missingRequired = profile.requiredFields.filter((field) => !available.has(field));
   const baseIntelligence = deriveReportIntelligence({ ...input.report, specialty: profile.adapterSpecialty });
   const intelligence = applyArchetypeRuleSet(profile, { ...input.report, specialty: profile.adapterSpecialty }, baseIntelligence);
+  const modelSignalPresent = intelligence.signals.some((signal) => signal.id === 'model:' + profile.id);
+  const modelRecommendationPresent = intelligence.recommendations.some((recommendation) => recommendation.id === 'rec:archetype:' + profile.id);
   const advisory = buildAdvisoryPacket({
     intelligence,
     provenance: input.provenance,
@@ -246,6 +260,9 @@ export function runReportArchetype(
     return { profile, state: 'INSUFFICIENT_SAMPLE', intelligence, advisory };
   }
   if (!input.provenance.evidenceSnapshotId && !input.provenance.evidencePassportId) {
+    return { profile, state: 'REVIEW_REQUIRED', intelligence, advisory };
+  }
+  if (!modelSignalPresent || !modelRecommendationPresent) {
     return { profile, state: 'REVIEW_REQUIRED', intelligence, advisory };
   }
   return { profile, state: 'SUPPORTED', intelligence, advisory };

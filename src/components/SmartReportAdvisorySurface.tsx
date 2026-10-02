@@ -68,6 +68,11 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
   const [decisionProposal, setDecisionProposal] = useState<SourceDecisionState | null>(null);
   const [decisionBusy, setDecisionBusy] = useState(false);
   const [decisionError, setDecisionError] = useState<string | null>(null);
+  const decision = decisionProposal ?? { id: '', recommendationId: null as string | null };
+  const decisionReadback = {
+    recommendationId: decision.recommendationId,
+    decisionId: decision.id,
+  };
 
   const refreshDecisionProposal = useCallback(async () => {
     try {

@@ -82,7 +82,7 @@ const archetypePacket = buildAdvisoryPacket({
 });
 const concentrationQuestion = archetypePacket.questions.find((q) => q.id === 'sales.customer-concentration');
 check(concentrationQuestion?.state === 'ANSWERED', 'answered archetype question must be marked ANSWERED');
-check(String(concentrationQuestion?.answer ?? '').includes('العميل أ'), 'archetype answer must come from business intelligence');
+check(String((concentrationQuestion?.answer && typeof concentrationQuestion.answer === 'object' ? concentrationQuestion.answer.summary : concentrationQuestion?.answer) ?? '').includes('العميل أ'), 'archetype answer must come from business intelligence');
 
 const recommendation = advisory.nextRecommendation;
 check(Boolean(recommendation), 'vertical slice needs a recommendation claim');

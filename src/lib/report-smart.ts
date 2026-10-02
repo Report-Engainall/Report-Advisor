@@ -231,7 +231,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
 
   const { data: job, error: jobError } = await supabase
     .from('report_execution_jobs')
-    .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
+    .select('id,company_id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
     .eq('company_id', companyId)
     .eq('id', normalizedJobId)
     .maybeSingle();
