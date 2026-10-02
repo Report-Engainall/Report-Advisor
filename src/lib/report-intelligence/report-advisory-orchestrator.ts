@@ -35,17 +35,43 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
   const primarySignal = signalClaims[0] ?? null;
   const nextRecommendation = recommendationClaims[0] ?? null;
 
+  const business = input.intelligence;
+  const topFinding = business.findings?.[0] ?? null;
+  const topRisk = business.risks?.[0] ?? null;
+  const topOpportunity = business.opportunities?.[0] ?? null;
+  const contributorFinding = business.findings?.find((item) => item.id.endsWith(':change-contributor')) ?? business.findings?.find((item) => item.id.endsWith(':top-party')) ?? null;
+
   const whatAnswer = input.sampleSize > 0
-    ? { summary: input.intelligence.summary, sampleSize: input.sampleSize }
+    ? 'تم تحليل ' + input.sampleSize + ' سجلًا من المصدر الكانوني. ' + (topFinding?.statement ?? input.intelligence.summary)
+    : null;
+
+  const whereAnswer = contributorFinding
+    ? contributorFinding.dimensionLabel + ': ' + String(contributorFinding.dimensionValue ?? 'غير محدد') + ' — ' + contributorFinding.statement
+    : topFinding?.dimensionLabel
+      ? topFinding.dimensionLabel + ': ' + String(topFinding.dimensionValue ?? 'غير محدد')
+      : null;
+
+  const contributorsAnswer = contributorFinding
+    ? contributorFinding.statement + ' الدليل: ' + contributorFinding.evidence.join(' · ')
+    : null;
+
+  const detractorsAnswer = topRisk
+    ? topRisk.statement + ' الإجراء المقترح: ' + topRisk.action
     : null;
 
   const whyAnswer = primarySignal
-    ? { observation: primarySignal.statement, boundary: 'هذه ملاحظة/مساهمة مثبتة وليست إثباتًا سببيًا.' }
+    ? primarySignal.statement + ' وهذه قراءة للملاحظة/المساهمة وليست إثباتًا سببيًا.'
     : null;
 
+  const soWhatAnswer = topRisk
+    ? topRisk.title + ' — ' + topRisk.action
+    : topOpportunity
+      ? topOpportunity.title + ' — ' + topOpportunity.action
+      : topFinding?.action ?? null;
+
   const nextAnswer = nextRecommendation
-    ? { action: nextRecommendation.statement, claimId: nextRecommendation.claimId }
-    : null;
+    ? nextRecommendation.statement
+    : business.advisorBrief?.recommendedAction ?? null;
 
   const universal = [
     evaluateBusinessQuestion<Record<string, unknown>>({
@@ -59,6 +85,36 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       answer: whatAnswer,
     }),
     evaluateBusinessQuestion<Record<string, unknown>>({
+      id: 'report.where',
+      label: 'أين تركز التغير؟',
+      requiredFields: [],
+      minimumSample: 1,
+      priority: 95,
+      availableFields: input.availableFields,
+      sampleSize: input.sampleSize,
+      answer: whereAnswer,
+    }),
+    evaluateBusinessQuestion<Record<string, unknown>>({
+      id: 'report.contributors',
+      label: 'من/ما الذي ساهم في التغير؟',
+      requiredFields: [],
+      minimumSample: 1,
+      priority: 90,
+      availableFields: input.availableFields,
+      sampleSize: input.sampleSize,
+      answer: contributorsAnswer,
+    }),
+    evaluateBusinessQuestion<Record<string, unknown>>({
+      id: 'report.detractors',
+      label: 'من/ما الذي سحب النتيجة إلى الأسفل؟',
+      requiredFields: [],
+      minimumSample: 1,
+      priority: 85,
+      availableFields: input.availableFields,
+      sampleSize: input.sampleSize,
+      answer: detractorsAnswer,
+    }),
+    evaluateBusinessQuestion<Record<string, unknown>>({
       id: 'report.primary-signal',
       label: 'ما أهم إشارة مثبتة الآن؟',
       requiredFields: [],
@@ -67,7 +123,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       availableFields: input.availableFields,
       sampleSize: input.sampleSize,
       answer: primarySignal
-        ? { statement: primarySignal.statement, severity: input.intelligence.signals[0]?.severity ?? 'info', claimId: primarySignal.claimId }
+        ? primarySignal.statement
         : null,
     }),
     evaluateBusinessQuestion<Record<string, unknown>>({
@@ -82,6 +138,17 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       reviewRequired: Boolean(primarySignal),
     }),
     evaluateBusinessQuestion<Record<string, unknown>>({
+      id: 'report.so-what',
+      label: 'ما أثر ذلك على القرار؟',
+      requiredFields: [],
+      minimumSample: 1,
+      priority: 75,
+      availableFields: input.availableFields,
+      sampleSize: input.sampleSize,
+      answer: soWhatAnswer,
+      reviewRequired: Boolean(topRisk || topOpportunity),
+    }),
+    evaluateBusinessQuestion<Record<string, unknown>>({
       id: 'report.what-next',
       label: 'ما الإجراء التالي المقترح؟',
       requiredFields: [],
@@ -90,7 +157,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       availableFields: input.availableFields,
       sampleSize: input.sampleSize,
       answer: nextAnswer,
-      reviewRequired: Boolean(nextRecommendation),
+      reviewRequired: Boolean(nextRecommendation || business.advisorBrief?.recommendedAction),
     }),
     evaluateBusinessQuestion<Record<string, unknown>>({
       id: 'report.proof',
