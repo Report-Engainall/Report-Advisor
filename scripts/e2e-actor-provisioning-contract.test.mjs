@@ -16,7 +16,7 @@ assert.match(script, /GITHUB_RUN_ID/);
 assert.match(script, /GITHUB_ENV/);
 
 assert.match(migration, /security definer/i);
-assert.match(migration, /set search_path = ''/i);
+assert.match(migration, /set search_path = public, pg_catalog/i);
 assert.match(migration, /request\.jwt\.claim\.role/);
 assert.match(migration, /service_role/);
 assert.match(migration, /revoke all on function public\.provision_e2e_test_membership/i);
