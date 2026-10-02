@@ -8,6 +8,9 @@ const migration = fs.readFileSync(path.join(root,'supabase/migrations/2026082505
 for (const token of ['ENABLE ROW LEVEL SECURITY','company_id = public.current_company_id()','REVOKE ALL ON TABLE','expires_at > now()','blocker_count = 0']) if (!migration.includes(token)) throw new Error(`Phase F security invariant missing: ${token}`);
 const workflow = fs.readFileSync(path.join(root,'.github/workflows/phase-f-live-resilience.yml'),'utf8');
 for (const token of ['phase-f-live-resilience','phase-f-live-resilience-probes.mjs','RESILIENCE_BACKUP_MODE','RESILIENCE_LOGICAL_SOURCE_DB_URL','RESILIENCE_MAX_RPO_SECONDS','supabase/setup-cli@v1']) if (!workflow.includes(token)) throw new Error(`Phase F workflow invariant missing: ${token}`);
+if (!workflow.includes('auth.signInWithPassword')) throw new Error('Phase F canary must use configured password authentication');
+if (!workflow.includes('PHASE_F_CANARY_PASSWORD_SIGNIN_FAILED')) throw new Error('Phase F canary password auth failure boundary missing');
+if (workflow.includes('admin.auth.admin.generateLink')) throw new Error('Phase F canary must not depend on Auth Admin generateLink for authenticated session resolution');
 if (!workflow.includes('npm run test:operational-resilience') && !workflow.includes('check-operational-resilience-contract.mjs')) throw new Error('Phase F workflow must execute the operational resilience contract');
 if (!workflow.includes('workflow_dispatch')) throw new Error('Phase F live resilience must remain explicitly dispatchable');
 const pkg = JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
