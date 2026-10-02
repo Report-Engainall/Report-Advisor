@@ -9,7 +9,7 @@ assert.equal(pkg.scripts.build, 'node scripts/build-with-provenance.mjs');
 assert.match(buildScript, /VITE_BUILD_SHA/);
 assert.match(buildScript, /COMMIT_REF/);
 assert.match(buildScript, /VERCEL_GIT_COMMIT_SHA/);
-assert.match(buildScript, /git['"], ['rev-parse', 'HEAD']/);
+assert.ok(buildScript.includes("['rev-parse', 'HEAD']"));
 assert.match(buildScript, /BUILD_SOURCE_SHA_INVALID/);
 assert.match(index, /name="aghbari-source-sha"/);
 assert.match(index, /content="%VITE_BUILD_SHA%"/);
