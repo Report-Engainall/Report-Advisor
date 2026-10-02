@@ -17,7 +17,9 @@ export type DecisionPacket = {
   impact: { status: 'AVAILABLE' | 'NOT_AVAILABLE' | 'INSUFFICIENT_SAMPLE'; statement: string; };
   proof: BusinessQuestion; limitations: string[]; recommendation: ReportRecommendation | null;
   decisionStatus: string | null; approvalStatus: string | null; workStatus: string | null;
-  expectedOutcome: string | null; actualOutcome: string | null; profileVersion: string | null; reproducibilityKey: string;
+  expectedOutcome: string | null; actualOutcome: string | null;
+  learning: { status: 'AVAILABLE' | 'NOT_AVAILABLE' | 'INSUFFICIENT_DATA'; expected: number | null; actual: number | null; delta: number | null; statement: string; limitations: string[]; };
+  profileVersion: string | null; reproducibilityKey: string;
 };
 export type ReportDecisionArtifacts = { claims: ReportClaim[]; questions: BusinessQuestion[]; decisionPacket: DecisionPacket; };
 type ArtifactInput = { jobId: string; sourceHash: string; rowCount: number | null; specialty: string | null; renderedOutput: Record<string, unknown>; intelligence: ReportIntelligence; sourceDecisions: SourceDecisionState[]; };
@@ -70,6 +72,9 @@ export function buildReportDecisionArtifacts(input: ArtifactInput): ReportDecisi
   const outcomeStatus = latestDecision?.outcomeStatus ?? text(input.renderedOutput.outcomeStatus);
   const hasOutcomeState = Boolean(outcomeStatus) && outcomeStatus !== 'NOT_AVAILABLE' && outcomeStatus !== 'NO_OUTCOME_COMMITTED';
   const actualOutcomeAvailable = hasOutcomeState && Number.isFinite(Number(actualImpact)) && outcomeStatus !== 'insufficient';
+  const expectedImpact = latestDecision?.expectedImpact ?? null;
+  const learningAvailable = actualOutcomeAvailable && Number.isFinite(Number(expectedImpact));
+  const learningDelta = learningAvailable ? Number(actualImpact) - Number(expectedImpact) : null;
   const profileVersion = text(input.renderedOutput.profileVersion) || null;
   const questions: BusinessQuestion[] = [
     makeQuestion('WHAT', 'ماذا حدث؟', topSignal ? 'ANSWERED' : 'NOT_AVAILABLE', topSignal?.message ?? 'لا توجد إشارة أعمال مثبتة من المصدر الحالي.', topClaimId ? [topClaimId] : []),
@@ -91,6 +96,14 @@ export function buildReportDecisionArtifacts(input: ArtifactInput): ReportDecisi
       limitations: ['لا توجد سببية مثبتة من التحليل الوصفي وحده.', 'لا توجد نتيجة مالية فعلية قبل رصد Outcome مستقل.', profileVersion ? 'التفسير مرتبط بإصدار profile معلن.' : 'PROFILE_VERSION غير معلن؛ لا يجوز افتراض إعادة تفسير تاريخي صامت.'],
       recommendation: topRecommendation, decisionStatus: latestDecision?.status ?? (text(input.renderedOutput.decisionStatus) || null), approvalStatus: latestDecision?.approvalStatus ?? (text(input.renderedOutput.approvalStatus) || null),
       workStatus: latestDecision?.workItemStatus ?? (text(input.renderedOutput.actionStatus) || null), expectedOutcome: topRecommendation?.expectedOutcome ?? null, actualOutcome: outcomeStatus || null,
+      learning: {
+        status: learningAvailable ? 'AVAILABLE' : outcomeStatus === 'insufficient' ? 'INSUFFICIENT_DATA' : 'NOT_AVAILABLE',
+        expected: learningAvailable ? Number(expectedImpact) : Number.isFinite(Number(expectedImpact)) ? Number(expectedImpact) : null,
+        actual: learningAvailable ? Number(actualImpact) : null,
+        delta: learningDelta,
+        statement: learningAvailable ? 'مقارنة فعلية بين المتوقع والفعلي بعد التنفيذ؛ لا تثبت السببية.' : outcomeStatus === 'insufficient' ? 'تم تنفيذ العمل دون قياس أثر كافٍ؛ لا توجد مادة تعلم قابلة للحساب.' : 'لا توجد نتيجة مقاسة كافية لتكوين تعلم من هذه الحالة.',
+        limitations: ['التعلم وصفي من outcome المحفوظ ولا يثبت السببية.', 'لا يُبنى benchmark أو forecast من outcome واحد.'],
+      },
       profileVersion, reproducibilityKey: [input.sourceHash, input.jobId, profileVersion || 'PROFILE_VERSION_UNDECLARED'].join(':')
     }
   };
