@@ -10,14 +10,16 @@ const stripSqlComments = (value) => value
   .replace(/--[^\n\r]*/g, '');
 
 const functionName = (fn) => fn.replace(/^public\./i, '').replace(/"/g, '');
+const escapeRegex = (value) => value.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&');
+
 const hasServiceRoleOnlyGrant = (sql, fn) => {
-  const name = functionName(fn).replace(/[\^$.*+?()[\]{}|]/g, '\\$&');
+  const name = escapeRegex(functionName(fn));
   const revoke = new RegExp(
-    \`REVOKE\\s+ALL\\s+ON\\s+FUNCTION\\s+public\\.\\\${name}\\s*\\([^;]*?\\)\\s+FROM\\s+(?:PUBLIC|public)\\s*,\\s*anon\\s*,\\s*authenticated\\s*;\`,
+    'REVOKE\\s+ALL\\s+ON\\s+FUNCTION\\s+public\\.' + name + '\\s*\\([^;]*?\\)\\s+FROM\\s+(?:PUBLIC|public)\\s*,\\s*anon\\s*,\\s*authenticated\\s*;',
     'i',
   );
   const grant = new RegExp(
-    \`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+public\\.\\\${name}\\s*\\([^;]*?\\)\\s+TO\\s+service_role\\s*;\`,
+    'GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+public\\.' + name + '\\s*\\([^;]*?\\)\\s+TO\\s+service_role\\s*;',
     'i',
   );
   return revoke.test(sql) && grant.test(sql);
@@ -44,21 +46,21 @@ for (const file of migrationFiles) {
 const failures = [];
 for (const { file, fn, block } of effectiveDefinitions.values()) {
   if (!/SET\s+search_path\s*(?:=|TO)\s*'?(?:public|pg_catalog)'?/i.test(block)) {
-    failures.push(\`\${file}: \${fn} missing fixed search_path (public or pg_catalog)\`);
+    failures.push(file + ': ' + fn + ' missing fixed search_path (public or pg_catalog)');
   }
 
   if (/current_company_id\s*\(\)|auth\.uid\s*\(\)/i.test(block)) continue;
 
   const fileSql = stripSqlComments(readFileSync(file, 'utf8'));
   if (!hasServiceRoleOnlyGrant(fileSql, fn)) {
-    failures.push(\`\${file}: \${fn} missing authenticated tenant/user binding or explicit service_role-only boundary\`);
+    failures.push(file + ': ' + fn + ' missing authenticated tenant/user binding or explicit service_role-only boundary');
   }
 }
 
 if (failures.length) {
   console.error('PHASE2_SECURITY_DEFINER_SURFACE_FAILED');
-  for (const failure of failures) console.error(\`- \${failure}\`);
+  for (const failure of failures) console.error('- ' + failure);
   process.exit(1);
 }
 
-console.log(\`PHASE2_SECURITY_DEFINER_SURFACE_PASS (effective definitions: \${effectiveDefinitions.size}; migrations scanned: \${migrationFiles.length})\`);
+console.log('PHASE2_SECURITY_DEFINER_SURFACE_PASS (effective definitions: ' + effectiveDefinitions.size + '; migrations scanned: ' + migrationFiles.length + ')');
