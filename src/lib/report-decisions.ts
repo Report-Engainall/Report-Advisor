@@ -3,6 +3,7 @@ import { getAuthenticatedUser } from './auth-session';
 
 export type SourceDecisionProposal = {
   id: string;
+  recommendationId: string | null;
   status: string;
   decisionKey: string;
 };
@@ -36,6 +37,7 @@ export async function createSourceDecisionProposal(input: {
   if (existing?.id) {
     return {
       id: String(existing.id),
+      recommendationId: existing.recommendation_id == null ? null : String(existing.recommendation_id),
       status: String(existing.status ?? 'PROPOSED'),
       decisionKey,
     };
@@ -50,37 +52,27 @@ export async function createSourceDecisionProposal(input: {
     signalMessage: input.signalMessage,
     severity: input.severity,
     evidence: input.evidence,
-    decisionBoundary: 'PROPOSED_ONLY',
-    confidenceSemantics: 'NEUTRAL_PROPOSAL_VALUE',
   };
 
-  const { data, error } = await supabase.rpc('create_runtime_decision', {
-    p_decision_key: decisionKey,
-    p_decision_type: 'SOURCE_INTELLIGENCE_SIGNAL',
-    p_confidence: 0.5,
-    p_expected_impact: null,
+  const { data, error } = await supabase.rpc('create_source_intelligence_proposal', {
+    p_report_job_id: input.reportJobId,
+    p_source_hash: input.sourceHash,
+    p_signal_id: input.signalId,
+    p_signal_title: input.signalTitle,
+    p_signal_message: input.signalMessage,
+    p_severity: input.severity,
     p_evidence: evidence,
+    p_evidence_snapshot_id: String((input.evidence as Record<string, unknown>)?.evidenceSnapshotId ?? ''),
   });
 
-  if (error) {
-    if (String(error.message ?? '').toLowerCase().includes('duplicate') || String(error.code ?? '') === '23505') {
-      const { data: retryExisting, error: retryError } = await supabase
-        .from('business_intelligence_decisions')
-        .select('id,status')
-        .eq('company_id', companyId)
-        .eq('decision_key', decisionKey)
-        .maybeSingle();
-      if (retryError) throw retryError;
-      if (retryExisting?.id) {
-        return { id: String(retryExisting.id), status: String(retryExisting.status ?? 'PROPOSED'), decisionKey };
-      }
-    }
-    throw error;
-  }
+  if (error) throw error;
+  const proposal = Array.isArray(data) ? data[0] : data;
+  if (!proposal?.decision_id) throw new Error('SOURCE_PROPOSAL_DECISION_ID_MISSING');
 
   return {
-    id: String(data),
-    status: 'PROPOSED',
+    id: String(proposal.decision_id),
+    recommendationId: proposal.recommendation_id == null ? null : String(proposal.recommendation_id),
+    status: String(proposal.decision_status ?? 'PROPOSED'),
     decisionKey,
   };
 }
