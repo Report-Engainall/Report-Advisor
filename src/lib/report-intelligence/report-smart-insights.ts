@@ -38,6 +38,7 @@ export type ReportGuidance = {
 };
 
 export type ReportIntelligence = {
+  businessQuestion: string;
   summary: string;
   signals: ReportSignal[];
   recommendations: ReportRecommendation[];
@@ -386,5 +387,17 @@ export function deriveReportIntelligence(report: ReportInput): ReportIntelligenc
     boundary: 'الإشارة تحدد موضعًا يحتاج تدقيقًا؛ لا تتحول إلى اتهام أو قرار نهائي دون دليل إضافي. الوثائق النصية غير المهيكلة تحتاج تعيينًا دلاليًا قبل اعتماد أرقامها كحقيقة تجارية.',
   };
 
-  return { summary, signals, recommendations, forecast: deriveForecast(report), guidance };
+  const businessQuestion = specialty === 'sales'
+    ? 'ما الذي حدث في المبيعات وأين توجد إشارات تحتاج تدخلًا؟'
+    : specialty === 'receivables'
+      ? 'ما حجم الذمم وأين تتركز مخاطر التحصيل؟'
+      : specialty === 'inventory'
+        ? 'أين توجد فجوات في هوية الصنف أو السعر أو المخزون؟'
+        : specialty === 'purchases'
+          ? 'أين توجد استثناءات في المشتريات والموردين والتكلفة؟'
+          : specialty === 'payments'
+            ? 'هل حركة التحصيل/السيولة مكتملة ويمكن تسويتها بثقة؟'
+            : 'ما أهم ما تثبته بيانات المصدر، وما الذي يحتاج مراجعة قبل القرار؟';
+
+  return { businessQuestion, summary, signals, recommendations, forecast: deriveForecast(report), guidance };
 }
