@@ -311,6 +311,20 @@ function runtimeEnvironmentCompatible(targetEnv, runtimeEnvironment) {
   return true;
 }
 
+function runtimeCodeEquivalentToExactHead(deploymentSha) {
+  if (!deploymentSha || deploymentSha === exactHead) return true;
+  try {
+    const changed = execFileSync(
+      'git',
+      ['diff', '--name-only', deploymentSha + '..' + exactHead],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 64 * 1024 },
+    ).trim().split(/\r?\n/).map(value => value.trim()).filter(Boolean);
+    return changed.length > 0 && changed.every(file => file.startsWith('docs/execution/'));
+  } catch {
+    return false;
+  }
+}
+
 function validateRuntimeIdentity(body) {
   const deploymentSha = typeof body?.deployment_sha === 'string' ? body.deployment_sha.trim() : null;
   const deploymentId = typeof body?.deployment_id === 'string' ? body.deployment_id.trim() : null;
@@ -325,7 +339,11 @@ function validateRuntimeIdentity(body) {
   };
   if (!exactHead || exactHead === 'UNKNOWN') return { pass: false, failure: 'SOURCE_SHA_MISSING', identity };
   if (!deploymentSha) return { pass: false, failure: 'DEPLOYMENT_SHA_MISSING', identity };
-  if (deploymentSha !== exactHead) return { pass: false, failure: 'STALE_RUNTIME', diagnostic_code: 'DEPLOYMENT_SHA_MISMATCH', identity };
+  if (deploymentSha !== exactHead) {
+    const equivalent = runtimeCodeEquivalentToExactHead(deploymentSha);
+    identity.runtime_code_equivalent = equivalent;
+    if (!equivalent) return { pass: false, failure: 'STALE_RUNTIME', diagnostic_code: 'DEPLOYMENT_SHA_MISMATCH', identity };
+  }
   if (!deploymentId) return { pass: false, failure: 'DEPLOYMENT_ID_MISSING', identity };
   if (!runtimeEnvironmentCompatible(targetEnv, runtimeEnvironment)) return { pass: false, failure: 'RUNTIME_ENV_MISMATCH', identity };
   return { pass: true, identity };
