@@ -196,10 +196,35 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
             : input.archetypeId?.startsWith('profitability.')
               ? 'profitability'
               : 'generic';
-  const specialized = buildBusinessQuestionSet<Record<string, unknown>>(archetypeFamily, evaluateBusinessQuestion, {
+  const answerFor = (id: string): Record<string, unknown> | string | null => {
+    const findingById = (needle: string) => business.findings?.find((item) => item.id === needle)
+      ?? business.risks?.find((item) => item.id === needle)
+      ?? business.opportunities?.find((item) => item.id === needle)
+      ?? null;
+    if (id === 'sales.trend' || id === 'purchases.trend') {
+      const finding = business.findings?.find((item) => item.id.endsWith(':period-change')) ?? null;
+      return finding
+        ? finding.statement + ' القياس: ' + (business.forecast?.status === 'AVAILABLE' ? business.forecast.note : 'لا يوجد توقع متاح.')
+        : null;
+    }
+    if (id === 'sales.customer-concentration') return findingById('sales:top-party')?.statement ?? null;
+    if (id === 'purchases.supplier-concentration') return findingById('purchases:top-party')?.statement ?? null;
+    if (id === 'sales.profitability' || id === 'profitability.margin') return findingById('profitability:margin')?.statement ?? null;
+    if (id === 'inventory.position') return findingById('inventory:position')?.statement ?? null;
+    if (id === 'inventory.valuation') return findingById('inventory:position')?.statement ?? null;
+    if (id === 'receivables.concentration') return findingById('receivables:concentration-risk')?.statement ?? null;
+    return null;
+  };
+
+  const definitions = buildBusinessQuestionSet<Record<string, unknown>>(archetypeFamily, evaluateBusinessQuestion, {
     availableFields: input.availableFields,
     sampleSize: input.sampleSize,
     answers: {},
+  });
+  const specialized = definitions.map((question) => {
+    const answer = answerFor(question.id);
+    if (!answer || question.state !== 'ANSWERED') return question;
+    return { ...question, answer };
   }).filter((question) => !universal.some((existing) => existing.id === question.id));
 
   return sortBusinessQuestions([...universal, ...specialized]);
