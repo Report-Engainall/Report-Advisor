@@ -2,15 +2,15 @@
 
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-REPORT_FOR_HEAD = 549d09bc6a8d65906f1933d2e033db9282dcc1f6
-CURRENT EXACT HEAD = 549d09bc6a8d65906f1933d2e033db9282dcc1f6
-CURRENT EXECUTION HEAD = 549d09bc6a8d65906f1933d2e033db9282dcc1f6
-CURRENT MAIN HEAD = 549d09bc6a8d65906f1933d2e033db9282dcc1f6
+REPORT_FOR_HEAD = 204e82f1496d37b79b52d3533073325a4b64e3ec
+CURRENT EXACT HEAD = 204e82f1496d37b79b52d3533073325a4b64e3ec
+CURRENT EXECUTION HEAD = 204e82f1496d37b79b52d3533073325a4b64e3ec
+CURRENT MAIN HEAD = 204e82f1496d37b79b52d3533073325a4b64e3ec
 BRANCH = main
 PR = #756 MERGED
 UPDATED_AT = 2026-10-02T21:24:00Z
 ACTION_STATUS = IN_PROGRESS
-NEXT_EXACT_ACTION = deploy current main 549d09 as a fresh Netlify runtime, verify runtime provenance, rerun Phase-F, then fix only the first remaining terminal failure before authenticated Smart Report proof.
+NEXT_EXACT_ACTION = resolve Netlify project deploy HTTP 403, deploy exact main 204e82f1496d37b79b52d3533073325a4b64e3ec, verify JSON /api/health provenance, rerun Phase-F, fix only the first terminal failure, then continue exact-head authenticated Smart Report browser proof.
 
 WHAT_I_WAS_ASKED_TO_DO = Close the real product path: source intake → truth → evidence → signal → decision → approval → action → outcome, with exact-head proof and no stale PASS reuse.
 
@@ -18,9 +18,9 @@ WHAT_I_ACTUALLY_DID = Merged PR #752, #753, #754, #755 and #756; fixed transient
 
 WHAT_IS_PROVEN = Product intelligence/static contracts and exact local builds are proven on recorded SHAs. Phase F Auth canary succeeds on current-head run 37066381079 before live probes. Final Certification contracts previously passed on 8abc. Authenticated browser business proof remains unproven.
 
-FIRST_ACTIVE_FAILURE = Phase F run 37066381079 failed at live resilience: operational-health STALE_RUNTIME; backup-restore-verification hit Postgres ECHECKOUTTIMEOUT; rollback-forward-fix-drill ended with fetch failed.
+FIRST_ACTIVE_FAILURE = Netlify current-main deploy returned HTTP 403 after successful CLI authentication. Public /api/health still serves HTML fallback. Prior Phase-F also remains blocked by Supabase connection-pool checkout timeout.
 
-ROOT_CAUSE = the configured Netlify target remained on d1738d7a896b0a2544fd080455fa08f094cd6799 while 8e77 changed Phase-F workflow/probe implementation; the stale runtime was therefore a real provenance failure. The database backup probe also hit a connection-pool checkout timeout from CI.
+ROOT_CAUSE = Netlify project deploy is forbidden for the authenticated CLI account, so the stale runtime cannot be replaced. Supabase staging is ACTIVE_HEALTHY, but live SQL/backup paths have intermittent pool checkout timeouts.
 
 ## EXACT PROOF
 
@@ -29,7 +29,8 @@ ROOT_CAUSE = the configured Netlify target remained on d1738d7a896b0a2544fd08045
 - PR #754: Phase F runtime closure PASS; resilience runtime PASS; typecheck PASS; diff check PASS.
 - PR #755: SESSION_HANDOFF_CONTRACT_PASS.
 - PR #756: Phase F runtime closure PASS; resilience runtime PASS; typecheck PASS; diff check PASS.
-- Verified preview health d1738d7a896b0a2544fd080455fa08f094cd6799 on deploy-preview-754 is historical/stale for 549d09; it is not current runtime proof.
+- Verified preview health: NOT_PROVEN for 204e82; d1738d7a896b0a2544fd080455fa08f094cd6799 remains historical and is not current runtime proof.
+- Netlify CLI authenticated successfully, but `netlify deploy --prod --build` returned HTTP 403; no deployment PASS is claimed.
 - Phase F run 37066381079 terminal result: tenant-canary PASS; operational-health STALE_RUNTIME; backup-restore-verification failed on Postgres connection-pool checkout timeout; rollback-forward-fix-drill failed with fetch failed. Phase F status was NOT READY.
 - Full Product Browser E2E run 37064389357 was re-run twice on f95 and both failed at actor provisioning with Supabase Auth 504. No authenticated browser PASS is claimed.
 - Final Certification on 8abc completed successfully; not transferred to 549d09 as runtime proof.
