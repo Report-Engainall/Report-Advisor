@@ -2,55 +2,91 @@
 
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-REPORT_FOR_HEAD = a4858371
-CURRENT EXACT HEAD = a4858371
-CURRENT BRANCH REF = a4858371
-BRANCH = fix/smart-report-archetype-runtime-20261002
-PR = #752 OPEN / NOT MERGED / MERGEABLE
-CURRENT MAIN HEAD = 114ebcdbe51bee44361b86e614fb7e2ec0829c8f
-UPDATED_AT = 2026-10-02T20:40:00Z
+REPORT_FOR_HEAD = f95d5f2ead0a186bf783f20c81d3351988baf292
+CURRENT EXACT HEAD = e9a9b566627625f3289cd1cf46faa00efa4c7437
+CURRENT EXECUTION HEAD = f95d5f2ead0a186bf783f20c81d3351988baf292
+CURRENT MAIN HEAD = e9a9b566627625f3289cd1cf46faa00efa4c7437
+BRANCH = main
+PR #752 = MERGED
+PR #753 = MERGED
+UPDATED_AT = 2026-10-02T21:05:00Z
 ACTION_STATUS = IN_PROGRESS
 
-WHAT_I_WAS_ASKED_TO_DO = إغلاق أول فشل P0/P1 على HEAD الحالي دون إضعاف الأمن، ثم إعادة تشغيل بوابات Passport/Browser/Storage/Cohort/Certification وإثبات source/evidence lineage.
-WHAT_I_ACTUALLY_DID = عُدّل live gate ليستخدم retry محدودًا للطلبات المؤقتة 408/425/429/500/502/503/504، مع بقاء المصادقة وRLS وPassport boundaries كما هي. لم تُضاف صلاحيات كتابة ولم يحدث تجاوز للمصادقة.
-WHAT_IS_PROVEN = code fixes through a4858371 are persisted; fresh current-head runtime gates will determine the next terminal result. No runtime PASS is claimed yet.
-FIRST_ACTIVE_FAILURE = prior Browser E2E failure was AuthRetryableFetchError: E2E_ACTOR_REQUEST_TIMEOUT in provisioning; remediation is a4858371, which uses configured A/B actors through Auth sign-in and reserves admin createUser for generated actors.
-ROOT_CAUSE = configured A/B credentials were incorrectly forced through Auth Admin createUser whenever E2E_ACTOR_MODE was ephemeral due to a missing approver secret.
-NEXT_EXACT_ACTION = rerun Browser/Evidence/Certification on a4858371; consume the first terminal failure only, then continue to Smart Reports proof.
+## LAST EXECUTION DELTA
 
-## CURRENT HEAD RUNTIME FRONTIER
+The first current-main Full Product Browser E2E blocker was reproduced from exact product head 6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6:
+Supabase Auth signInWithPassword returned HTTP 504 Gateway Timeout during actor provisioning.
 
-- Browser/Evidence/Certification from the previous code frontier are superseded by the fresh a4858371 runs.
+Root cause: scripts/provision-e2e-actors.mjs retried PostgREST/RPC requests but treated /auth/v1/ as a single-attempt request.
 
-## WHAT IS PROVEN — HISTORICAL, NOT CURRENT-HEAD RUNTIME
+PR #753 corrected only this transport boundary:
+- bounded Auth retry for transient 408/425/429/500/502/503/504;
+- four attempts maximum;
+- existing request timeout retained;
+- existing global provisioning deadline retained;
+- no auth bypass, RLS change, credential weakening, or tenant-policy mutation.
 
-- Evidence Passport RLS boundary previously proved: authenticated SELECT only; authenticated mutations denied; anon denied; same-tenant visible; wrong-tenant hidden.
-- Real source previously proved: كشف حساب الصراف العماقي.pdf with source/evidence/action lineage and no fabricated actual impact.
-- 40-report sequential staging refresh previously completed without SQLSTATE 57014.
+## EXACT PROOF
 
-هذه الأدلة التاريخية لا تُعاد تسميتها كـ current-head PASS.
+Repair branch HEAD before merge: 2ef0371f80730575a5eb078ec9803c8e0d4df3ef
+- E2E_ACTOR_PROVISIONING_CONTRACT_PASS
+- npm run typecheck PASS
+- git diff --check PASS
 
-## SECURITY STATE
+Product head 6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6:
+- typecheck PASS
+- 48-archetype runtime contract PASS
+- report-advisor-intelligence PASS
+- intelligence-vertical-slice PASS
+- executive visual system contract PASS
+- build PASS with BUILD_SOURCE_SHA=6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6
+- source intelligence proposal atomic contract PASS
+- advisory proof-state contract PASS
+- claim/evidence completeness contract PASS
+- business-question catalog PASS
+- outcome-learning archetype contract PASS
+- decision cockpit contract PASS
 
-- report_evidence_passports RLS remains enabled.
-- authenticated SELECT remains allowed.
-- authenticated INSERT/UPDATE/DELETE remain denied.
-- anon SELECT remains denied.
-- No token bypass, RLS weakening, or Passport mutation grant was introduced.
-- Auth retry is bounded and limited to transient HTTP classes.
+## PRODUCTION
 
-## REPORT VALUE COHORT
+Vercel deployment for 6dcec82bd75e3ff44f8ab0b55c409a0c6da0c5d6 was READY and aliased to report-advisor.vercel.app. Playwright opened the production page from PC01:
+title = الأغبري | منصة ذكاء الأعمال والقرار
+Arabic landing/auth gate rendered; no console errors observed.
 
-Previous sequential staging proof: 40 unique sources across 4 tenants; FULL=40, VERIFIED=40, READY=40, ACCEPTED=40, non-terminal=0.
-Current-head cohort #91 remains queued and is the authoritative next result.
+This is not a current-f95 authenticated business-flow PASS. Current f95 production/certification readback remains open.
 
-## DO NOT REPEAT
+## CURRENT RUNTIME FRONTIER
 
-- Do not reuse old-SHA runtime PASS as current.
-- Do not weaken RLS or evidence gates.
-- Do not add arbitrary timeout increases.
-- Do not fabricate impact, confidence, benchmark, forecast, or outcome.
-- Do not call queued runs PASS.
-- Do not close the session while current-head certification remains unresolved.
+Fresh exact-head workflows for f95d5f2ead0a186bf783f20c81d3351988baf292 are queued, including:
+- Full Product Browser E2E run 37064389357
+- Final Certification Gate run 37064389518
+- Final Execution Batch run 37064389363
+- quality run 37064389447
+- Storage Tenant Isolation run 37064389366
+- Execution Enforcement Contract run 37064389546
+- Session Handoff Contract run 37064389330
+- Phase-F Live Resilience run 37064389427
+- Desktop Windows run 37064389373
+- Vercel production deploy run 37064389466
 
-SESSION HANDOFF = NOT READY
+No queued run is PASS.
+
+## OPEN
+
+1. Consume Full Product Browser E2E run 37064389357 on exact f95.
+2. Fix only the first terminal failure.
+3. Prove authenticated Tenant A/B + real source + Smart Report + evidence + recommendation + decision + approval + work + outcome/readback.
+4. Run real-source 48-archetype proof; contract coverage is not real-source coverage.
+5. Complete current-head report corpus evidence; no Git fixture-corpus PASS is claimed.
+6. Reconcile production to the final certified exact SHA.
+
+## NEXT EXACT ACTION
+
+Consume run 37064389357. If Auth remains the first terminal failure, inspect the new Auth retry result and fix only that root. If Auth clears, continue immediately to the real Smart Report business journey and its source/evidence lineage.
+
+DO NOT REPEAT:
+- old-SHA browser PASS reuse;
+- queued-run PASS;
+- fabricated real-source archetype coverage;
+- RLS/auth/evidence weakening;
+- re-import of completed reports without regression evidence.
