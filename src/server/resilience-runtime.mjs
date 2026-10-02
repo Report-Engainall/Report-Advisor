@@ -37,7 +37,7 @@ export function runtimeIdentity() {
     deployment_sha: process.env.VERCEL_GIT_COMMIT_SHA?.trim() || null,
     target_env: process.env.RESILIENCE_TARGET_ENV?.trim() || null,
     runtime_environment: process.env.VERCEL_ENV?.trim() || null,
-    provenance_contract_version: '2',
+    provenance_contract_version: '3',
   };
 }
 
