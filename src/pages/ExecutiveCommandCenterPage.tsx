@@ -10,7 +10,7 @@ import { LoadingState, ErrorState, EmptyState, DataUnavailableState } from '@/co
 import { TrendChart } from '@/components/ui/Charts';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs } from '@/lib/dashboard-canonical';
-import { formatCurrency, relativeTime } from '@/lib/format';
+import { formatCurrency, formatNumber, relativeTime } from '@/lib/format';
 import { resolveCurrentCompanyId } from '@/lib/supabase';
 import { fetchDecisionWorkItems, fetchPendingDecisionApprovals, fetchRecentDecisionActivity, type DecisionActivityRecord, type DecisionWorkItemRecord } from '@/lib/report-decisions';
 import { loadPersistedOutcomes, type DecisionOutcome } from '@/lib/analytics/outcome-feedback';
