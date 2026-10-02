@@ -96,23 +96,20 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$EXACT_HEAD"
           test -z "$(git status --porcelain)"
-      - name: Verify real E2E secrets
+      - name: Verify E2E provisioning secrets
         shell: bash
         env:
           SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
-          USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
-          USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
-          USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
           missing=0
-          for name in SUPABASE_URL SUPABASE_ANON_KEY USER_A_EMAIL USER_A_PASSWORD USER_B_EMAIL USER_B_PASSWORD; do
+          for name in SUPABASE_URL SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY; do
             if [ -n "${!name:-}" ]; then echo "$name=SET"; else echo "$name=MISSING"; missing=1; fi
           done
           if [ "$missing" -ne 0 ]; then
-            echo 'AUTHENTICATED_E2E_BLOCKED: provision the dedicated test-only Staging secrets; no device-local workaround is accepted.'
+            echo 'AUTHENTICATED_E2E_BLOCKED: E2E actor provisioning requires Staging URL, anon key, and service-role secret.'
             exit 2
           fi
       - uses: actions/setup-node@v4
@@ -143,15 +140,21 @@ jobs:
           done
           cat /tmp/report-advisor-auth-e2e.log
           exit 1
+      - name: Provision rerunnable E2E actors with bounded recovery
+        env:
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          E2E_ACTOR_MODE: ephemeral-run-scoped
+          E2E_ACTOR_PROVISION_DEADLINE_MS: '240000'
+          E2E_ACTOR_REQUEST_TIMEOUT_MS: '45000'
+          REPORT_ADVISOR_E2E_DEBUG: '1'
+        run: node scripts/provision-e2e-actors.mjs
       - name: Run authenticated Auth/Tenant/Product/Import browser E2E
         env:
           E2E_BASE_URL: http://127.0.0.1:4173
           REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
-          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
-          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
-          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_REPORT_DIR: artifacts/device-independent-e2e
         run: node scripts/run-full-product-browser-e2e.mjs
