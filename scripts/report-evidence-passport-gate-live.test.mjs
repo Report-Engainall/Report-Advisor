@@ -184,9 +184,8 @@ const { data: anonymousPassports, error: anonymousReadError } = await anon
   .select('id')
   .eq('id', passport.id);
 
-const anonymousReadMessage = String(anonymousReadError?.message ?? '');
 assert.ok(
-  anonymousReadError || anonymousPassports?.length === 0,
+  anonymousReadError,
   'ANONYMOUS_PASSPORT_SELECT_UNEXPECTED_ALLOW',
 );
 
