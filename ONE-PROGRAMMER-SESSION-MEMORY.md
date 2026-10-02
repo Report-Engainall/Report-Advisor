@@ -1,25 +1,22 @@
-# LIVE EXECUTION CHECKPOINT — 2026-10-02 / SMART REPORT EVIDENCE + CORPUS VALUE CLOSURE
-- CURRENT EXACT HEAD → 70b3ae8b008a5373d739eddbf5f971f4dc00c86e.
+# LIVE EXECUTION CHECKPOINT — 2026-10-02 / DURABLE EVIDENCE PASSPORT BUILD
+- CURRENT EXACT HEAD → fdd9ca0ea5c9fe781ad1fdb156e70026a2c9caf6.
 - BRANCH → fix/current-head-runtime-provenance-20261002.
-- PR → #730 OPEN.
-- FIRST REAL FAILURE → Smart Report auto-promoted evidence to VERIFIED from canonical row-count equality without an explicit Evidence Snapshot.
-- ROOT CAUSE → canonical commit coverage and evidence verification were coupled in `src/lib/report-smart.ts`.
-- MINIMAL CORRECT FIX → added `resolveReportEvidenceStatus`; VERIFIED now requires canonical coverage plus a non-empty `evidenceSnapshotId`; stale VERIFIED fails closed to AWAITING_EVIDENCE_SNAPSHOT / PENDING_EVIDENCE.
-- CORE DELTA → canonical coverage gap is now measured from authoritative current rows versus canonical committed rows.
-- TEST/PROOF DELTA → added `scripts/report-smart-evidence-boundary.test.ts`; wired it into the canonical heart regression workflow; no PASS is claimed yet for 70b because current exact-head automated execution is not exposed by the available GitHub wrapper.
-- PRODUCT CAPABILITY DELTA → Smart Report has an explicit EVIDENCE GATE that separates Canonical Commit, Evidence Snapshot, and Decision Readiness and routes the user to Trust/Evidence when proof is incomplete.
-- UX/UI DELTA → the report surface now tells the user why a canonical report is not Verified and what the next evidence action is; this improves TRUST and DECISION READINESS rather than adding cosmetic UI.
-- CORPUS VALUE DELTA → latest 40 distinct completed staged reports were examined without re-importing: 40/40 extracted, canonicalized, validated, analyzed, decisioned, committed and rendered. Specialties: inventory 18, sales 8, payments 6, receivables 4, purchases 2, unknown 2.
-- CORPUS BUSINESS RESULT → 40/40 have no committed decision outcome; 39/40 have NO_ACTION_COMMITTED, 39/40 OUTCOME NOT_AVAILABLE, 39/40 LEARNING NOT_AVAILABLE, 39/40 BENCHMARK INSUFFICIENT_SAMPLE; 2 are explicitly AWAITING_EVIDENCE_SNAPSHOT and the existing 38 VERIFIED claims have no explicit evidenceSnapshotId marker in the queried renderedOutput.
-- ADVISOR VALUE STATUS → current durable portfolio/work infrastructure exists, but the 40-report cohort is not yet durably source-bound from Signal → Recommendation → Decision → Approval → Work → Outcome → Learning.
-- COMMERCIAL DELTA → the customer can now distinguish “data committed” from “evidence verified”; the next commercial proof is a source-bound evidence passport that unlocks traceable decision/action continuity.
-- INNOVATION OPPORTUNITY → introduce a durable source-bound Evidence Passport keyed by report source hash + evidence snapshot, then use it as the mandatory prerequisite for source-bound Recommendation/Decision/Work creation.
-- RUNTIME/PROOF → Vercel free build-rate-limit prevents treating hosted deployment as exact-head runtime proof. Latest successful Vercel deployments are behind 70b. PC01 is offline; authenticated Microsoft Edge business-flow proof remains NOT_PROVEN.
-- SECURITY BLOCKER → Supabase live advisory reports `public.canonical_import_repair_history` with RLS disabled. Do not auto-apply the suggested ALTER TABLE; tenant policies must accompany remediation.
-- FIXTURE BOUNDARY → Git `tests/fixtures/realistic-reports/` remains README-only. The 40-report acceptance evidence above is from real staged report execution history, not invented fixture files.
-- DO-NOT-REPEAT → no completed-report re-import; no canonical-row rewrite; no evidence promotion; no stale-SHA PASS; no database-to-browser inference.
-- ACTION STATUS → IN_PROGRESS.
-- NEXT EXACT ACTION → implement the durable source-bound Evidence Passport/acceptance boundary, backfill only through governed recovery paths where justified, then rerun the same 40-report cohort through Recommendation → Decision → Approval → Work → Outcome → Learning. Keep runtime/browser proof in parallel.
+- PR #730 → OPEN; current automated mergeability is false while hosted checks remain unresolved.
+- CORE DELTA → added durable report_evidence_snapshots + report_evidence_passports with tenant/source/version/analysis/canonical lineage, deterministic fingerprint, acceptance status, verification status, and decision readiness.
+- GATE DELTA → source-intelligence Recommendation / Decision / Work now require a VERIFIED source-bound Evidence Passport at the database boundary.
+- LEGACY DELTA → existing embedded VERIFIED state without explicit evidenceSnapshotId is treated as historical/legacy provenance in the new passport model rather than being accepted as fresh evidence.
+- DECISION DELTA → source decision proposals now read the durable passport and reject missing/unverified evidence; proposal confidence is NULL / NOT_ASSESSED rather than an arbitrary 0.5.
+- UI DELTA → Smart Report shows Passport acceptance/verification/readiness, snapshot identity, and legacy-prior-verification state.
+- ANALYSIS DELTA → Smart Report now fails closed at the 50,000-row fetch ceiling and labels partial analysis explicitly; top-item reads use mappedField before source field name.
+- VALUE DELTA → added scripts/report-value-cohort.mjs to produce the required 40-report Business Value Acceptance Matrix across Passport → Signal → Recommendation → Decision → Approval → Work → Outcome → Learning → Benchmark.
+- TEST DELTA → added report-evidence-passport-contract and wired it into the canonical browser workflow; value cohort runner is exposed as npm run report:value-cohort.
+- LIVE DATABASE STATUS → passport schema migration applied successfully; subsequent passport refresh/gate migration application and live cohort execution are NOT PROVEN because the Supabase connector is currently timing out. No PASS is claimed.
+- RUNTIME STATUS → Vercel reports build-rate-limit failure/pending on the current head; no current-head hosted runtime PASS.
+- BROWSER STATUS → authenticated Microsoft Edge business-flow remains NOT_PROVEN.
+- SECURITY STATUS → public.canonical_import_repair_history remains an independent RLS blocker; no automatic remediation was applied.
+- DO-NOT-REPEAT → no report re-import, no canonical row rewrite, no stale-SHA PASS, no fake evidence promotion.
+- NEXT EXACT ACTION → restore Supabase connectivity, apply the refresh/passport gate migration, run the same 40-report cohort through durable Passport verification, then execute the acceptance matrix and proceed with source Signal → Recommendation → Decision → Approval → Work → Outcome → Learning.
+
 
 # LIVE EXECUTION CHECKPOINT — 2026-10-02 / ADVISOR VALUE CLOSURE
 - CURRENT FUNCTIONAL CODE HEAD → 7a01787de9bc08e0a6a7175251ca4d8eae7b13dd.
