@@ -10,6 +10,8 @@ assert.match(netlifySource, /canonical-import-resume-background/);
 assert.match(netlifyConfig, /node_modules\/pdfjs-dist\/build\/pdf\.worker\.mjs/);
 assert.match(netlifySource, /from\('report_execution_jobs'\)/);
 assert.match(netlifySource, /function reportEntityTypeFromJobKey/);
+assert.match(netlifySource, /\.eq\('id', importId\)/);
+assert.match(netlifySource, /execution = await runCanonicalImportThroughDurableRunner/);
 assert.match(netlifySource, /raw_bytes_sha256/);
 assert.match(netlifySource, /CANONICAL_IMPORT_DURABLE_RUN_FAILED/);
 assert.match(netlifySource, /Netlify\.env\.get\('REPORT_ADVISOR_E2E_DEBUG'\)/);
