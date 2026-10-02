@@ -30,7 +30,7 @@ for (const profile of archetypes) {
 const sampleRows = [{ data: { netAmount: 100, documentDate: '2026-01-01', productCode: 'SKU-1', customerCode: 'C-1', supplierCode: 'S-1', currentStock: 10, salesQty: 4, cost: 60 } }];
 
 for (const profile of archetypes) {
-  const availableFields = [...new Set(['documentDate','netAmount','productCode','customerCode','supplierCode','currentStock','salesQty','cost', ...profile.requiredFields])];
+  const availableFields = [...new Set(['productCode','productName','category','brand','unit','warehouse','fromWarehouse','toWarehouse','openingBalance','openingStock','inbound','outbound','salesQty','purchaseQty','currentStock','adjustmentQty','returnQty','requestedQty','fulfilledQty','orderedQty','receivedQty','customerCode','customerName','supplierCode','supplierName','salesRep','documentNo','documentDate','transactionType','accountCode','accountName','quantity','unitPrice','sellingPrice','grossAmount','discount','netAmount','cost','profit','currency','paymentMethod','paymentTerms','paidAmount','targetAmount','dueDate','leadTimeDays','debit','credit','asset','liability','equity', ...profile.requiredFields])];
   const result = runReportArchetype({
     archetypeId: profile.id,
     report: {
