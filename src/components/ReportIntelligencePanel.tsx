@@ -1,4 +1,4 @@
-import { AlertTriangle, BrainCircuit, CheckCircle2, TrendingUp, ArrowUpLeft } from 'lucide-react';
+import { AlertTriangle, ArrowUpLeft, BrainCircuit, CheckCircle2, CircleHelp, ShieldCheck, TrendingUp } from 'lucide-react';
 import type { SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
 import { useState } from 'react';
@@ -34,6 +34,28 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
   const intelligence = report.intelligence;
   const [proposalState, setProposalState] = useState<Record<string, string>>({});
   const forecast = intelligence.forecast;
+  const specialtyLabel: Record<string, string> = {
+    inventory: 'المخزون',
+    sales: 'المبيعات',
+    purchases: 'المشتريات',
+    receivables: 'الذمم والتحصيل',
+    payments: 'المدفوعات والسيولة',
+    profitability: 'الربحية',
+  };
+  const businessQuestion: Record<string, string> = {
+    inventory: 'أين توجد بيانات أصناف أو أسعار تحتاج مراجعة قبل قرار المخزون والتسعير؟',
+    sales: 'ما الذي يستحق تدخلًا في المبيعات، ولماذا، وما الدليل عليه؟',
+    purchases: 'أين توجد إشارات تستحق المراجعة في المشتريات والموردين؟',
+    receivables: 'أين يتركز خطر التحصيل، وما الذي يجب مراجعته أولًا؟',
+    payments: 'ما الذي يحتاج تسوية أو تحققًا قبل الاعتماد على أرقام السيولة؟',
+    profitability: 'ما التغير أو الاستثناء الذي قد يؤثر على الربحية ويحتاج فحصًا؟',
+  };
+  const domain = report.specialty ? specialtyLabel[report.specialty] ?? report.specialty : 'لم يُحسم المجال من المحتوى';
+  const question = report.specialty ? businessQuestion[report.specialty] ?? 'ما الذي يستحق الانتباه في هذا المصدر؟' : 'ما الذي يستحق الانتباه في هذا المصدر؟';
+  const topSignal = intelligence.signals[0] ?? null;
+  const topRecommendation = topSignal
+    ? intelligence.recommendations.find((item) => item.id === 'rec:' + topSignal.id) ?? null
+    : null;
   return (
     <section dir="rtl" className="space-y-4 rounded-[18px] border border-primary-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -47,6 +69,39 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         <span className="rounded-full border border-primary-200 bg-primary-50 px-3 py-1.5 text-[10px] font-black text-primary-800">
           PROPOSED · لا يعتمد قرارًا تلقائيًا
         </span>
+      </div>
+
+      <div className="grid gap-3 lg:grid-cols-[1.2fr_.8fr]">
+        <div className="rounded-2xl border border-primary-200 bg-primary-50/55 p-4">
+          <div className="flex items-center gap-2">
+            <CircleHelp size={16} className="text-primary-700" />
+            <div className="text-[10px] font-black tracking-[0.08em] text-primary-800">BUSINESS QUESTION</div>
+          </div>
+          <p className="mt-2 text-sm font-black leading-7 text-ink-950">{question}</p>
+          <div className="mt-3 flex flex-wrap gap-2 text-[9px] font-bold text-ink-600">
+            <span className="rounded-full bg-white px-2.5 py-1">المجال: {domain}</span>
+            <span className="rounded-full bg-white px-2.5 py-1">الحالة: {report.evidenceStatus ?? 'غير مثبت'}</span>
+            <span className="rounded-full bg-white px-2.5 py-1">{report.rowCount == null ? 'عدد الصفوف غير متاح' : formatNumber(report.rowCount) + ' صف'}</span>
+          </div>
+        </div>
+        <div id="source-evidence-passport" className="rounded-2xl border border-ink-200 bg-white p-4">
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={16} className="text-success-700" />
+            <div className="text-[10px] font-black tracking-[0.08em] text-ink-700">EVIDENCE PASSPORT</div>
+          </div>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">SOURCE</div><div className="mt-1 break-all font-mono text-[8px] text-ink-700">{report.sourcePath}</div></div>
+            <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">FINGERPRINT</div><div className="mt-1 break-all font-mono text-[8px] text-ink-700">{report.sourceHash || 'غير متاح'}</div></div>
+            <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">TRUST</div><div className="mt-1 text-[9px] font-black text-ink-800">{report.sourceTrustState ?? 'غير مثبت'}</div></div>
+            <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">AS OF</div><div className="mt-1 text-[9px] font-black text-ink-800">{report.sourceAnalysis?.createdAt ? new Date(report.sourceAnalysis.createdAt).toLocaleString('ar-YE') : report.completedAt ? new Date(report.completedAt).toLocaleString('ar-YE') : 'غير متاح'}</div></div>
+          </div>
+          <div className="mt-3 text-[9px] leading-5 text-ink-500">القيم أدناه تُصنّف كمشاهدة من المصدر أو مشتقة منه. لا تتحول إلى حقيقة مالية نهائية بلا Evidence مناسب.</div>
+          <div className="mt-2 flex flex-wrap gap-2 text-[8px] font-black">
+            <span className="rounded-full bg-success-50 px-2 py-1 text-success-800">OBSERVED · Source</span>
+            <span className="rounded-full bg-primary-50 px-2 py-1 text-primary-800">DERIVED · Intelligence</span>
+            <span className="rounded-full bg-warning-50 px-2 py-1 text-warning-900">RECOMMENDED · Proposal</span>
+          </div>
+        </div>
       </div>
 
       <div className="rounded-2xl border border-ink-200 bg-ink-50/70 p-4">
@@ -71,6 +126,16 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                   <span className="text-xs font-black">{signal.title}</span>
                 </div>
                 <p className="mt-1 text-[11px] leading-5">{signal.message}</p>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  <div className="rounded-lg border border-current/10 bg-white/60 p-2">
+                    <div className="text-[8px] font-black opacity-70">SO WHAT</div>
+                    <div className="mt-1 text-[9px] leading-4">{signal.affectedRows == null ? 'لا يوجد عدد متأثر مثبت؛ يلزم الرجوع إلى الدليل.' : 'السجلات المتأثرة: ' + formatNumber(signal.affectedRows)}</div>
+                  </div>
+                  <div className="rounded-lg border border-current/10 bg-white/60 p-2">
+                    <div className="text-[8px] font-black opacity-70">WHAT NEXT</div>
+                    <div className="mt-1 text-[9px] leading-4">{intelligence.recommendations.find((item) => item.id === 'rec:' + signal.id)?.action ?? 'مراجعة الدليل المرتبط قبل أي إجراء.'}</div>
+                  </div>
+                </div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {signal.evidence.slice(0, 3).map((evidence) => (
                     <span key={evidence} className="rounded-full bg-white/70 px-2 py-1 font-mono text-[8px]">{evidence}</span>
@@ -156,6 +221,15 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         <div className="rounded-2xl border border-ink-200 bg-white p-4">
           <div className="text-[10px] font-black text-primary-700">GUIDANCE</div>
           <h3 className="mt-1 text-lg font-black text-ink-950">{intelligence.guidance.focus}</h3>
+          {topSignal && (
+            <div className="mt-3 rounded-xl border border-primary-100 bg-primary-50/60 p-3">
+              <div className="text-[8px] font-black text-primary-800">ACTION BRIEF</div>
+              <div className="mt-1 text-[10px] font-black text-ink-900">لماذا الآن؟</div>
+              <div className="mt-1 text-[10px] leading-5 text-ink-700">{topSignal.message}</div>
+              <div className="mt-2 text-[10px] font-black text-ink-900">الخطوة المقترحة</div>
+              <div className="mt-1 text-[10px] leading-5 text-ink-700">{topRecommendation?.action ?? 'افتح Evidence Passport وراجع المصدر قبل إنشاء قرار.'}</div>
+            </div>
+          )}
           <div className="mt-3 space-y-2">
             {intelligence.guidance.inspect.map((item) => <div key={item} className="rounded-xl bg-ink-50 p-3 text-[11px] leading-5 text-ink-700">{item}</div>)}
           </div>
