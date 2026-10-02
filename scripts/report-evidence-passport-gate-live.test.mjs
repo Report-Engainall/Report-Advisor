@@ -128,12 +128,21 @@ if (!passport) throw new Error('LIVE_GATE_VERIFIED_PASSPORT_MISSING');
 const { data: companies, error: companyError } = await service
   .from('companies')
   .select('id,name')
-  .neq('id', passport.company_id)
   .order('created_at', { ascending: true })
-  .limit(1);
+  .limit(100);
 if (companyError) throw companyError;
-const otherCompany = companies?.[0];
-if (!otherCompany) throw new Error('LIVE_GATE_SECOND_TENANT_MISSING');
+
+const isAllowedE2ETenant = (name) =>
+  name === 'RUNTIME-EVIDENCE-A-401117' ||
+  String(name ?? '').startsWith('Aghbari Report Corpus CI ');
+
+const otherCompany = (companies ?? []).find(
+  (company) => company.id !== passport.company_id && isAllowedE2ETenant(company.name),
+);
+
+if (!otherCompany) {
+  throw new Error('LIVE_GATE_SECOND_ALLOWED_TENANT_MISSING');
+}
 
 const userA = await createUser('gate-auth-a');
 const userB = await createUser('gate-auth-b');
