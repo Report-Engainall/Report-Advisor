@@ -52,6 +52,8 @@ for (const profile of archetypes) {
 
   if (result.profile.id !== profile.id) fail('Runtime resolved wrong profile for ' + profile.id);
   if (result.advisory.questions.length === 0) fail('No advisory questions emitted for ' + profile.id);
+  const archetypeQuestion = result.advisory.questions.find((question) => question.id === 'archetype:' + profile.id + ':primary-question');
+  if (!archetypeQuestion || archetypeQuestion.state !== 'ANSWERED') fail('Archetype-specific advisory question must be answered for ' + profile.id);
   if (!result.advisory.claims.length) fail('No claims emitted for ' + profile.id);
   if (!result.intelligence.signals.some((signal) => signal.id === 'model:' + profile.id)) fail('Archetype-specific model signal missing for ' + profile.id);
   if (!result.intelligence.recommendations.some((recommendation) => recommendation.id === 'rec:archetype:' + profile.id)) fail('Archetype-specific recommendation missing for ' + profile.id);
