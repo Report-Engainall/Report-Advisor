@@ -137,12 +137,46 @@ for (const profile of allProfiles) {
   const availableFields = [...new Set(columns.map((column) => column?.mappedField).filter(Boolean))];
   const sourceRows = await restSelect(
     'canonical_dataset_records',
-    { company_id: job.company_id, source_hash: job.source_hash },
+    { company_id: job.company_id, source_hash: job.source_hash, import_job_id: analysis?.import_job_id ?? '' },
     'id,company_id,import_job_id,source_hash,row_number,data,provenance',
     { order: 'row_number.asc', limit: 5000 },
   );
-  const evidenceSnapshotId = typeof rendered.evidenceSnapshotId === 'string' ? rendered.evidenceSnapshotId : null;
-  const evidencePassportId = typeof rendered.evidencePassportId === 'string' ? rendered.evidencePassportId : null;
+  const passportRows = await restSelect(
+    'report_evidence_passports',
+    { company_id: job.company_id, report_execution_job_id: job.id, source_hash: job.source_hash },
+    'id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash,verification_status,decision_readiness,acceptance_status',
+    { order: 'updated_at.desc', limit: 5 },
+  );
+  const passport = passportRows.find((row) =>
+    String(row.company_id) === String(job.company_id) &&
+    String(row.report_execution_job_id) === String(job.id) &&
+    String(row.source_hash) === String(job.source_hash) &&
+    String(row.verification_status) === 'VERIFIED' &&
+    String(row.decision_readiness) === 'READY'
+  ) ?? null;
+  const renderedSnapshotId = typeof rendered.evidenceSnapshotId === 'string' ? rendered.evidenceSnapshotId : null;
+  const renderedPassportId = typeof rendered.evidencePassportId === 'string' ? rendered.evidencePassportId : null;
+  const evidenceSnapshotId = passport ? String(passport.evidence_snapshot_id ?? '') || renderedSnapshotId : null;
+  const evidencePassportId = passport ? String(passport.id) : null;
+  if (!passport || !evidenceSnapshotId) {
+    proof.archetypes.push({
+      number: profile.number,
+      archetypeId: profile.id,
+      title: profile.title,
+      status: 'REVIEW_REQUIRED',
+      sourcePath: job.source_path ?? null,
+      sourceHash: job.source_hash,
+      reportJobId: job.id,
+      tenantId: job.company_id,
+      evidenceSnapshotId: renderedSnapshotId,
+      evidencePassportId: renderedPassportId,
+      reason: 'REAL_SOURCE_EVIDENCE_PASSPORT_NOT_VERIFIED_READY_FOR_EXACT_JOB_HASH',
+    });
+    continue;
+  }
+  if (renderedSnapshotId && renderedSnapshotId !== evidenceSnapshotId) throw new Error('REAL_48_RENDERED_SNAPSHOT_MISMATCH:' + profile.id);
+  if (renderedPassportId && renderedPassportId !== evidencePassportId) throw new Error('REAL_48_RENDERED_PASSPORT_MISMATCH:' + profile.id);
+
   const result = runReportArchetype({
     archetypeId: profile.id,
     report: {
