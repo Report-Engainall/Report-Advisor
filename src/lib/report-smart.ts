@@ -44,6 +44,7 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   canonicalCommitGap: number | null;
   canonicalCommitCount: number;
   canonicalCommitVerified: boolean;
+  canonicalAnalysisScope: 'FULL_SOURCE' | 'PARTIAL_FETCH_CEILING';
   sourceTrustState: string | null;
   reportVerificationState: string;
   canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }>;
@@ -343,10 +344,14 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     canonicalOffset += canonicalFetchPageSize;
   }
 
+  const canonicalFetchCeilingReached = canonicalRows.length >= canonicalFetchLimit;
   const canonicalRowsComplete =
     sourceRowCount == null ||
-    canonicalRows.length >= sourceRowCount ||
-    canonicalRows.length >= canonicalFetchLimit;
+    (!canonicalFetchCeilingReached && canonicalRows.length >= sourceRowCount);
+  const canonicalAnalysisScope =
+    sourceRowCount != null && sourceRowCount > canonicalFetchLimit
+      ? 'PARTIAL_FETCH_CEILING'
+      : 'FULL_SOURCE';
 
   const sourceAnalysis = analysis ? {
     id: String(analysis.id),
@@ -395,6 +400,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     canonicalCommitGap,
     canonicalCommitCount,
     canonicalCommitVerified,
+    canonicalAnalysisScope,
     sourceTrustState: rendered.trustState == null ? null : String(rendered.trustState),
     reportVerificationState: !canonicalRowsComplete
       ? 'PARTIAL_ANALYSIS'
