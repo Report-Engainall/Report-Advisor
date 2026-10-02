@@ -130,7 +130,7 @@ jobs:
 
       - name: Build exact SHA
         env:
-          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
         run: |
           set -euo pipefail
@@ -221,8 +221,8 @@ jobs:
           npx --no-install netlify --version
       - name: Start exact Netlify preview with serverless API
         env:
-          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
-          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
+          VITE_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           REPORT_ADVISOR_E2E_DEBUG: '1'
@@ -245,7 +245,7 @@ jobs:
 
       - name: Provision rerunnable E2E actors with bounded recovery
         env:
-          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           E2E_ACTOR_PROVISION_DEADLINE_MS: '240000'
           E2E_ACTOR_REQUEST_TIMEOUT_MS: '45000'
@@ -258,7 +258,7 @@ jobs:
       - name: Resume and prove the real open report
         env:
           E2E_BASE_URL: http://127.0.0.1:4173
-          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           OPEN_REPORT_EXECUTION_JOB_ID: 'd074ad5c-70d4-4402-a763-01129786f392'
           OPEN_REPORT_EXPECTED_SOURCE_HASH: 'sha256:f68f77f641cb54bbc30b9ece0ed9516700cb5ae48b6cbfb5b52317a8360faf10'
@@ -280,7 +280,7 @@ jobs:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_BASE_URL: http://127.0.0.1:4173
           E2E_REPORT_DIR: artifacts/e2e-browser
-          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           CURRENT_REPORT_SOURCE_PATH: 'تسعيرة الاصناف حسب رقم الصنف.pdf'
           CURRENT_REPORT_SOURCE_HASH: 'sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300'
@@ -292,7 +292,7 @@ jobs:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_BASE_URL: http://127.0.0.1:4173
           E2E_REPORT_DIR: artifacts/e2e-business
-          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
         run: node scripts/real-business-e2e.mjs
 
