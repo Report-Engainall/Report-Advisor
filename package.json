@@ -172,6 +172,7 @@
     "test:transactional-spine": "node scripts/transactional-spine-contract.test.mjs",
     "test:decision-experience-persistence": "node scripts/check-decision-experience-persistence-contract.mjs",
     "test:parallel-heart-ui-contract": "node scripts/check-parallel-heart-ui-contract.mjs",
-    "test:e2e-actor-provisioning": "node scripts/e2e-actor-provisioning-contract.test.mjs"
+    "test:e2e-actor-provisioning": "node scripts/e2e-actor-provisioning-contract.test.mjs",
+    "test:build-provenance": "node scripts/build-provenance-contract.test.mjs"
   }
 }
