@@ -229,8 +229,6 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
       </section>
       <ReportIntelligencePanel report={report} />
 
-      {decisions[0] && <ContinuationRail report={report} decision={decisions[0]} />}
-
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="text-[9px] font-black tracking-[.12em] text-primary-700">SOURCE METRICS</div>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
@@ -444,6 +442,8 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
         <StatusCell label="Learning" value={output.learningStatus}/>
       </section>
       <ReportIntelligencePanel report={report} />
+
+      {decisions[0] && <ContinuationRail report={report} decision={decisions[0]} />}
 
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-start justify-between gap-3">
