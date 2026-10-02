@@ -27,7 +27,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
   const packet = buildAdvisoryPacket({
     intelligence: report.intelligence,
     provenance: {
-      tenantId: 'current-tenant-context',
+      tenantId: report.tenantId,
       sourceHash: report.sourceHash,
       reportExecutionJobId: report.jobId,
       evidenceSnapshotId,
@@ -36,7 +36,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
     },
     availableFields: canonicalFields(report),
     sampleSize: report.rowCount ?? 0,
-    archetypeId: typeof report.renderedOutput.archetypeId === 'string' ? report.renderedOutput.archetypeId : report.specialty,
+    archetypeId: typeof report.renderedOutput.archetypeId === 'string' ? report.renderedOutput.archetypeId : null,
     profileVersion: typeof report.renderedOutput.profileVersion === 'number' ? report.renderedOutput.profileVersion : null,
   });
 
