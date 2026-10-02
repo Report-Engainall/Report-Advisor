@@ -145,7 +145,9 @@ async function ensureActor(email, password, label, freshRunScoped = false) {
   let user = null;
   let lookupUnavailable = false;
 
-  if (freshRunScoped) {
+  const useRunScopedActor = freshRunScoped || process.env.E2E_ACTOR_MODE === 'ephemeral-run-scoped';
+
+  if (useRunScopedActor) {
     // Workflow-generated credentials are unique to this run. Avoid the Auth Admin
     // listUsers scan entirely; that scan is a major dependency during Auth pressure.
     user = await createActor(resolvedEmail, resolvedPassword);
