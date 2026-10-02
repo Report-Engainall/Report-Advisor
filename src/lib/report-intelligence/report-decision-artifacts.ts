@@ -65,6 +65,11 @@ export function buildReportDecisionArtifacts(input: ArtifactInput): ReportDecisi
   const proofReady = Boolean(text(input.renderedOutput.evidenceSnapshotId) && text(input.renderedOutput.evidencePassportId) && input.renderedOutput.evidenceVerificationStatus === 'VERIFIED');
   const whereAnswered = Boolean(topSignal?.affectedRows != null || topSignal?.drivers?.some((driver) => Boolean(driver.value.trim())));
   const contributorAnswered = Boolean(topSignal?.drivers?.length);
+  const latestDecision = input.sourceDecisions[0] ?? null;
+  const actualImpact = latestDecision?.actualImpact ?? Number(input.renderedOutput.actualImpact ?? input.renderedOutput.outcomeActualImpact);
+  const outcomeStatus = latestDecision?.outcomeStatus ?? text(input.renderedOutput.outcomeStatus);
+  const actualOutcomeAvailable = Number.isFinite(Number(actualImpact)) && Boolean(outcomeStatus) && outcomeStatus !== 'insufficient';
+  const profileVersion = text(input.renderedOutput.profileVersion) || null;
   const questions: BusinessQuestion[] = [
     makeQuestion('WHAT', 'ماذا حدث؟', topSignal ? 'ANSWERED' : 'NOT_AVAILABLE', topSignal?.message ?? 'لا توجد إشارة أعمال مثبتة من المصدر الحالي.', topClaimId ? [topClaimId] : []),
     makeQuestion('WHERE', 'أين ظهر ذلك؟', whereAnswered ? 'ANSWERED' : 'NOT_AVAILABLE', whereAnswered ? 'النطاق المثبت في المصدر: ' + String(topSignal?.affectedRows ?? 'مساهمة/بُعد قابل للفحص') + ' سجل/سياق.' : 'لا يحتوي المصدر الحالي على نطاق/بُعد كافٍ لتحديد الموضع.', topClaimId ? [topClaimId] : [], whereAnswered ? [] : ['يلزم حقل أو بُعد إضافي لتحديد الموضع بدقة.']),
@@ -76,11 +81,6 @@ export function buildReportDecisionArtifacts(input: ArtifactInput): ReportDecisi
     makeQuestion('AFTER_ACTION', 'ماذا حدث بعد التنفيذ؟', outcomeStatus ? (actualOutcomeAvailable ? 'ANSWERED' : outcomeStatus === 'insufficient' ? 'REVIEW_REQUIRED' : 'ANSWERED') : 'NOT_AVAILABLE', outcomeStatus ? (actualOutcomeAvailable ? 'تم رصد Outcome فعلي: ' + String(actualImpact) : 'حالة النتيجة الحالية: ' + outcomeStatus + '؛ لا يوجد أثر مالي فعلي مقاس.') : 'لا توجد نتيجة محفوظة بعد؛ اكتمال العمل لا يساوي Outcome Proven.', [], ['لا يتم إنشاء learning أو impact من دون actual outcome موثق.']),
   ];
   const byKey = new Map(questions.map((question) => [question.key, question]));
-  const profileVersion = text(input.renderedOutput.profileVersion) || null;
-  const latestDecision = input.sourceDecisions[0] ?? null;
-  const actualImpact = latestDecision?.actualImpact ?? Number(input.renderedOutput.actualImpact ?? input.renderedOutput.outcomeActualImpact);
-  const outcomeStatus = latestDecision?.outcomeStatus ?? text(input.renderedOutput.outcomeStatus);
-  const actualOutcomeAvailable = Number.isFinite(Number(actualImpact)) && Boolean(outcomeStatus) && outcomeStatus !== 'insufficient';
   return {
     claims, questions,
     decisionPacket: {
@@ -88,8 +88,8 @@ export function buildReportDecisionArtifacts(input: ArtifactInput): ReportDecisi
       impact: { status: actualOutcomeAvailable ? 'AVAILABLE' : outcomeStatus === 'insufficient' ? 'INSUFFICIENT_SAMPLE' : 'NOT_AVAILABLE', statement: actualOutcomeAvailable ? 'الأثر الفعلي المقاس = ' + String(actualImpact) : outcomeStatus === 'insufficient' ? 'تم تنفيذ العمل دون قياس أثر فعلي؛ لا يمكن إثبات outcome مالي.' : 'الأثر المالي/النتيجة الفعلية غير متاحين ما لم تُسجل ملاحظة بعد التنفيذ.' },
       proof: byKey.get('PROOF')!,
       limitations: ['لا توجد سببية مثبتة من التحليل الوصفي وحده.', 'لا توجد نتيجة مالية فعلية قبل رصد Outcome مستقل.', profileVersion ? 'التفسير مرتبط بإصدار profile معلن.' : 'PROFILE_VERSION غير معلن؛ لا يجوز افتراض إعادة تفسير تاريخي صامت.'],
-      recommendation: topRecommendation, decisionStatus: text(input.renderedOutput.decisionStatus) || null, approvalStatus: text(input.renderedOutput.approvalStatus) || null,
-      workStatus: text(input.renderedOutput.actionStatus) || null, expectedOutcome: topRecommendation?.expectedOutcome ?? null, actualOutcome: text(input.renderedOutput.outcomeStatus) || null,
+      recommendation: topRecommendation, decisionStatus: latestDecision?.status ?? (text(input.renderedOutput.decisionStatus) || null), approvalStatus: latestDecision?.approvalStatus ?? (text(input.renderedOutput.approvalStatus) || null),
+      workStatus: latestDecision?.workItemStatus ?? (text(input.renderedOutput.actionStatus) || null), expectedOutcome: topRecommendation?.expectedOutcome ?? null, actualOutcome: outcomeStatus || null,
       profileVersion, reproducibilityKey: [input.sourceHash, input.jobId, profileVersion || 'PROFILE_VERSION_UNDECLARED'].join(':')
     }
   };
