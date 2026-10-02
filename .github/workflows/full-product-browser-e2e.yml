@@ -164,6 +164,7 @@ jobs:
           npm run test:work-center-decision-queue
           npm run test:business-replay
           npm run test:benchmark-fail-closed
+          npm run test:48-archetype-runtime
       - name: Prepare rerunnable E2E actor credentials
         env:
           SECRET_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}

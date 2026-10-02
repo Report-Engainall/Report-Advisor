@@ -43,23 +43,6 @@ export async function createSourceDecisionProposal(input: {
     input.signalId,
   ].join(':');
 
-  const { data: existing, error: existingError } = await supabase
-    .from('business_intelligence_decisions')
-    .select('id,status,recommendation_id')
-    .eq('company_id', companyId)
-    .eq('decision_key', decisionKey)
-    .maybeSingle();
-
-  if (existingError) throw existingError;
-  if (existing?.id) {
-    return {
-      id: String(existing.id),
-      status: String(existing.status ?? 'PROPOSED'),
-      decisionKey,
-      recommendationId: existing.recommendation_id == null ? null : String(existing.recommendation_id),
-    };
-  }
-
   const evidence = {
     type: 'SOURCE_INTELLIGENCE_SIGNAL',
     sourceDecisionKey: decisionKey,
@@ -73,66 +56,30 @@ export async function createSourceDecisionProposal(input: {
     evidenceSnapshotId: input.evidenceSnapshotId,
     evidencePassportId: String(passport.id),
     decisionBoundary: 'PROPOSED_ONLY',
+    confidence: null,
     confidenceSemantics: 'NOT_ASSESSED',
     expectedImpactStatus: 'NOT_AVAILABLE',
   };
 
-  const priority = input.severity === 'critical' ? 'critical' : input.severity === 'high' ? 'high' : input.severity === 'medium' ? 'medium' : 'low';
-
-  let recommendationId: string;
-  const { data: existingRecommendation, error: recommendationLookupError } = await supabase
-    .from('recommendations')
-    .select('id,decision_id')
-    .eq('company_id', companyId)
-    .contains('evidence', { sourceDecisionKey: decisionKey })
-    .maybeSingle();
-
-  if (recommendationLookupError) throw recommendationLookupError;
-
-  if (existingRecommendation?.id) {
-    recommendationId = String(existingRecommendation.id);
-  } else {
-    recommendationId = await createRuntimeRecommendation({
-      category: 'source-intelligence',
-      priority,
-      title: input.signalTitle,
-      description: input.signalMessage,
-      evidenceSnapshotId: input.evidenceSnapshotId,
-      evidence,
-      expectedImpact: null,
-      metricVersions: {},
-    });
-  }
-
-  let decisionId: string;
-  try {
-    decisionId = await createRuntimeDecision({
-      decisionKey,
-      decisionType: 'SOURCE_INTELLIGENCE_SIGNAL',
-      confidence: null,
-      expectedImpact: null,
-      evidence: { ...evidence, recommendationId },
-    });
-  } catch (error) {
-    if (!String(error instanceof Error ? error.message : error).toLowerCase().includes('duplicate')) throw error;
-    const { data: retryExisting, error: retryError } = await supabase
-      .from('business_intelligence_decisions')
-      .select('id,status,recommendation_id')
-      .eq('company_id', companyId)
-      .eq('decision_key', decisionKey)
-      .maybeSingle();
-    if (retryError) throw retryError;
-    if (!retryExisting?.id) throw error;
-    decisionId = String(retryExisting.id);
-  }
-
-  await linkRecommendationToDecision(recommendationId, decisionId);
+  const { data, error } = await supabase.rpc('create_source_intelligence_proposal', {
+    p_report_job_id: input.reportJobId,
+    p_source_hash: input.sourceHash,
+    p_signal_id: input.signalId,
+    p_signal_title: input.signalTitle,
+    p_signal_message: input.signalMessage,
+    p_severity: input.severity,
+    p_evidence: evidence,
+    p_evidence_snapshot_id: input.evidenceSnapshotId,
+  });
+  if (error) throw error;
+  const proposal = Array.isArray(data) ? data[0] : data;
+  if (!proposal?.decision_id) throw new Error('SOURCE_PROPOSAL_DECISION_ID_MISSING');
 
   return {
-    id: decisionId,
-    status: 'PROPOSED',
+    id: String(proposal.decision_id),
+    status: String(proposal.decision_status ?? 'PROPOSED'),
     decisionKey,
-    recommendationId,
+    recommendationId: proposal.recommendation_id == null ? null : String(proposal.recommendation_id),
   };
 }
 
@@ -423,7 +370,7 @@ export async function createApprovedDecisionWorkItemForCurrentUser(input: {
 
   const { data, error } = await supabase.rpc('create_decision_work_item', {
     p_decision_id: input.decisionId,
-    p_recommendation_id: input.recommendationId,
+    p_recommendation_id: input.recommendationId ?? null,
     p_department: input.department || 'تشغيل',
     p_assignee_id: user.id,
     p_assignee_label: user.email || user.id,

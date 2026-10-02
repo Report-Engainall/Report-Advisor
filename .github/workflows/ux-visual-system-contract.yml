@@ -1,0 +1,47 @@
+name: UX Visual System Contract
+
+on:
+  pull_request:
+    paths:
+      - 'src/main.tsx'
+      - 'src/styles/executive-intelligence-v2.css'
+      - '.github/workflows/ux-visual-system-contract.yml'
+      - 'scripts/check-executive-visual-system-contract.mjs'
+  push:
+    branches:
+      - 'captain/ux-visual-system-v2-*'
+    paths:
+      - 'src/main.tsx'
+      - 'src/styles/executive-intelligence-v2.css'
+      - '.github/workflows/ux-visual-system-contract.yml'
+      - 'scripts/check-executive-visual-system-contract.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  ux-visual-system:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Validate visual system contract
+        run: node scripts/check-executive-visual-system-contract.mjs
+
+      - name: Build exact visual branch
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        run: npm run build
