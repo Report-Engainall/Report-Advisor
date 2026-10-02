@@ -160,6 +160,46 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         </div>
       </div>
 
+      {decisionProposal && (
+        <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div className="text-[9px] font-black tracking-[.14em] text-primary-700">OUTCOME READBACK</div>
+              <h3 className="mt-1 text-lg font-black text-ink-950">ماذا حدث بعد القرار؟</h3>
+              <p className="mt-1 text-xs leading-6 text-ink-500">قراءة للحالة المحفوظة من مسار القرار/العمل، دون استنتاج نتيجة لم تُسجل.</p>
+            </div>
+            <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-700">
+              {decisionProposal.outcomeStatus === 'observed' ? 'نتيجة مرصودة' : decisionProposal.outcomeStatus === 'insufficient' ? 'القياس غير كافٍ' : decisionProposal.outcomeStatus ? decisionProposal.outcomeStatus : 'لا نتيجة مسجلة'}
+            </span>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-4">
+            <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3">
+              <div className="text-[9px] font-black text-ink-400">DECISION</div>
+              <div className="mt-1 text-xs font-black text-ink-900">{decisionProposal.status}</div>
+            </div>
+            <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3">
+              <div className="text-[9px] font-black text-ink-400">WORK</div>
+              <div className="mt-1 text-xs font-black text-ink-900">{decisionProposal.workItemStatus ?? 'لم يُنشأ'}</div>
+            </div>
+            <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3">
+              <div className="text-[9px] font-black text-ink-400">EXPECTED IMPACT</div>
+              <div className="mt-1 text-xs font-black text-ink-900">{decisionProposal.expectedImpact == null ? 'غير مسجل' : String(decisionProposal.expectedImpact)}</div>
+            </div>
+            <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3">
+              <div className="text-[9px] font-black text-ink-400">ACTUAL IMPACT</div>
+              <div className="mt-1 text-xs font-black text-ink-900">{decisionProposal.actualImpact == null ? 'غير مقاس' : String(decisionProposal.actualImpact)}</div>
+            </div>
+          </div>
+          <div className="mt-3 rounded-xl border border-ink-100 bg-white px-4 py-3 text-[10px] leading-5 text-ink-600">
+            {decisionProposal.observedAt
+              ? 'آخر قراءة محفوظة: ' + new Date(decisionProposal.observedAt).toLocaleString('ar-YE')
+              : decisionProposal.actualImpact == null
+                ? 'لم تُسجل نتيجة فعلية بعد؛ لا يجوز اعتبار الأثر المتوقع نتيجة محققة.'
+                : 'تم تسجيل أثر فعلي، ويجب الرجوع إلى لقطة الدليل المرتبطة قبل اعتماد القياس.'}
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-3 lg:grid-cols-3">
         {([
           { label: 'TOP FINDINGS', items: findings, subtitle: 'نتائج محسوبة مباشرة من الصفوف الكانونية' },
