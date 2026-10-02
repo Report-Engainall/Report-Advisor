@@ -80,71 +80,68 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          token="$(node --input-type=module <<'NODE'
-          const url = process.env.SUPABASE_URL?.trim();
-          const anonKey = process.env.SUPABASE_ANON_KEY?.trim();
-          const email = process.env.AUTH_EMAIL?.trim();
-          const password = process.env.AUTH_PASSWORD;
-          if (!url || !anonKey || !email || !password) {
-            throw new Error('PHASE_F_CANARY_AUTH_ENV_MISSING');
+          url="${SUPABASE_URL:?SUPABASE_URL_MISSING}"
+          anon_key="${SUPABASE_ANON_KEY:?SUPABASE_ANON_KEY_MISSING}"
+          email="${AUTH_EMAIL:?AUTH_EMAIL_MISSING}"
+          password="${AUTH_PASSWORD:?AUTH_PASSWORD_MISSING}"
+          auth_url="${url%/}/auth/v1/token?grant_type=password"
+
+          token=""
+          last_status="000"
+          for attempt in $(seq 1 6); do
+            body_file="$(mktemp)"
+            request_body="$(node --input-type=module -e 'process.stdout.write(JSON.stringify({email: process.env.AUTH_EMAIL, password: process.env.AUTH_PASSWORD}))')"
+            set +e
+            status="$(curl -sS -o "$body_file" -w '%{http_code}' \
+              --connect-timeout 5 \
+              --max-time 15 \
+              -H "apikey: $anon_key" \
+              -H "Authorization: Bearer $anon_key" \
+              -H "Content-Type: application/json" \
+              --data "$request_body" \
+              "$auth_url")"
+            curl_exit=$?
+            set -e
+            last_status="$status"
+
+            if [[ "$curl_exit" -eq 0 && "$status" == "200" ]]; then
+              token="$(node --input-type=module -e '
+                const fs = await import("node:fs");
+                const body = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+                process.stdout.write(String(body.access_token || "").trim());
+              ' "$body_file")"
+              rm -f "$body_file"
+              if [[ -n "$token" ]]; then
+                break
+              fi
+            else
+              if [[ "$status" != "408" && "$status" != "425" && "$status" != "429" && "$status" != "500" && "$status" != "502" && "$status" != "503" && "$status" != "504" && "$status" != "000" ]]; then
+                error_message="$(node --input-type=module -e '
+                  const fs = await import("node:fs");
+                  try {
+                    const body = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+                    process.stdout.write(String(body.msg || body.message || "unknown"));
+                  } catch {
+                    process.stdout.write("unknown");
+                  }
+                ' "$body_file")"
+                rm -f "$body_file"
+                echo "PHASE_F_CANARY_PASSWORD_SIGNIN_FAILED:$status:$error_message" >&2
+                exit 1
+              fi
+            fi
+
+            rm -f "$body_file"
+            if [[ "$attempt" -lt 6 ]]; then
+              sleep $((attempt * 2))
+            fi
+          done
+
+          [[ -n "$token" ]] || {
+            echo "PHASE_F_CANARY_PASSWORD_SIGNIN_FAILED:$last_status:timeout_or_no_access_token" >&2
+            exit 1
           }
 
-          const retryableStatuses = new Set([408, 425, 429, 500, 502, 503, 504]);
-          const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-          const authUrl = new URL('/auth/v1/token?grant_type=password', url).toString();
-
-          const signInWithPassword = async () => {
-            const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), 15000);
-            try {
-              const response = await fetch(authUrl, {
-                method: 'POST',
-                headers: {
-                  apikey: anonKey,
-                  Authorization: `Bearer ${anonKey}`,
-                  'content-type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-                signal: controller.signal,
-              });
-              const payload = await response.json().catch(() => ({}));
-              if (!response.ok || !payload?.access_token) {
-                const message = payload?.msg || payload?.message || `HTTP_${response.status}`;
-                throw new Error(
-                  `PHASE_F_CANARY_PASSWORD_SIGNIN_FAILED:${response.status}:${message}`,
-                );
-              }
-              return String(payload.access_token).trim();
-            } finally {
-              clearTimeout(timer);
-            }
-          };
-
-          let lastError = null;
-
-          for (let attempt = 1; attempt <= 6; attempt += 1) {
-            try {
-              const token = await signInWithPassword();
-              process.stdout.write(token);
-              lastError = null;
-              break;
-            } catch (error) {
-              lastError = error instanceof Error ? error : new Error(String(error));
-              if (lastError.name === 'AbortError') {
-                lastError = new Error('PHASE_F_CANARY_PASSWORD_SIGNIN_TIMEOUT');
-              }
-              const statusMatch = lastError.message.match(/PHASE_F_CANARY_PASSWORD_SIGNIN_FAILED:(\d+):/);
-              const status = statusMatch ? Number(statusMatch[1]) : 0;
-              if ((status && !retryableStatuses.has(status)) || attempt === 6) throw lastError;
-            }
-
-            await sleep(Math.min(8000, 2000 * 2 ** (attempt - 1)));
-          }
-
-          if (!lastError) process.exit(0);
-          throw lastError;
-          NODE
-          )"
           echo "::add-mask::$token"
           printf 'RESILIENCE_CANARY_AUTH_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
       - name: Resolve current live runtime targets
