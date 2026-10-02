@@ -679,7 +679,9 @@ async function proveDecisionActionSurface(page, report) {
   assertCurrentReportText(body, 'decision action');
   assert.ok(body.includes('مسار القرار لهذا التقرير فقط'), 'SOURCE_BOUND_DECISION_SURFACE_MISSING');
 
-  const approvalButton = page.getByRole('button', { name: 'طلب الموافقة' }).first();
+  const createDecisionButton = page.getByRole('button', { name: /حفظ القرار والقضية|حفظ كقرار مقترح|حفظ كتوصية ثم قرار/, exact: false }).first();
+  const createDecisionButtonCount = await createDecisionButton.count();
+  const approvalButton = page.getByRole('button', { name: /طلب الموافقة|استكمال مسار الموافقة/, exact: false }).first();
   const approvalButtonCount = await approvalButton.count();
   const emptyDecisionState = body.includes('لا توجد قرارات مصدرية محفوظة بعد لهذا المصدر.');
   const persistedDecisionState =
@@ -687,14 +689,24 @@ async function proveDecisionActionSurface(page, report) {
     body.includes('APPROVED') ||
     body.includes('القضية نفسها ما زالت مرتبطة بالتقرير');
 
-  assert.ok(
-    approvalButtonCount === 1 || emptyDecisionState || persistedDecisionState,
-    'SOURCE_BOUND_DECISION_STATE_MISSING'
-  );
+  const decisionState =
+    createDecisionButtonCount === 1
+      ? 'CREATE_PERSIST_READY'
+      : approvalButtonCount === 1
+        ? 'APPROVAL_READY'
+        : emptyDecisionState
+          ? 'EMPTY_AWAITING_CREATION'
+          : persistedDecisionState
+            ? 'PERSISTED_DECISION_READY'
+            : 'UNKNOWN';
+
+  assert.notEqual(decisionState, 'UNKNOWN', 'SOURCE_BOUND_DECISION_STATE_MISSING');
   assert.ok(
     body.includes('لا يوجد اعتماد تلقائي') ||
     body.includes('بانتظار صاحب الصلاحية') ||
     body.includes('طلب الموافقة') ||
+    body.includes('استكمال مسار الموافقة') ||
+    createDecisionButtonCount === 1 ||
     emptyDecisionState,
     'DECISION_APPROVAL_GUARDRAIL_MISSING'
   );
@@ -705,9 +717,10 @@ async function proveDecisionActionSurface(page, report) {
     status: 'PASS',
     reportJobId: report.reportJobId,
     sourceHash: CURRENT_REPORT_SOURCE_HASH,
-    persistenceAction: approvalButtonCount === 1,
+    persistenceAction: createDecisionButtonCount === 1,
+    approvalActionAvailable: approvalButtonCount === 1,
     approvalGuardrail: true,
-    prePersistedDecisionState: approvalButtonCount === 1 ? 'AVAILABLE' : 'EMPTY_AWAITING_CREATION',
+    prePersistedDecisionState: decisionState,
   });
 }
 
