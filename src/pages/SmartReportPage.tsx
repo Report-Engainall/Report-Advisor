@@ -6,6 +6,7 @@ import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { saveActiveReportContext } from '@/lib/report-context';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { ReportDecisionCockpit } from '@/components/ReportDecisionCockpit';
+import { ReportDecisionPacket } from '@/components/ReportDecisionPacket';
 import { formatNumber } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 
@@ -665,6 +666,8 @@ export function SmartReportPage() {
     ) : null}
 
     <ReportIntelligencePanel report={report} />
+
+    <ReportDecisionPacket report={report} />
 
     <SourceDataWorkspace report={report}/>
 
