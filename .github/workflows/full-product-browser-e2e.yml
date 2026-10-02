@@ -160,8 +160,47 @@ jobs:
           npm run test:work-center-decision-queue
           npm run test:business-replay
           npm run test:benchmark-fail-closed
+      - name: Prepare rerunnable E2E actor credentials
+        env:
+          SECRET_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          SECRET_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          SECRET_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          SECRET_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+          SECRET_APPROVER_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_APPROVER_EMAIL }}
+          SECRET_APPROVER_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_APPROVER_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          run_id="${GITHUB_RUN_ID}"
+          make_password() {
+            node -e "console.log(require('node:crypto').randomBytes(24).toString('hex'))"
+          }
+          email_a="${SECRET_A_EMAIL:-report-advisor-e2e-a-${run_id}@example.com}"
+          email_b="${SECRET_B_EMAIL:-report-advisor-e2e-b-${run_id}@example.com}"
+          email_approver="${SECRET_APPROVER_EMAIL:-report-advisor-e2e-approver-${run_id}@example.com}"
+          password_a="${SECRET_A_PASSWORD:-$(make_password)}"
+          password_b="${SECRET_B_PASSWORD:-$(make_password)}"
+          password_approver="${SECRET_APPROVER_PASSWORD:-$(make_password)}"
+          for secret in "$password_a" "$password_b" "$password_approver"; do
+            echo "::add-mask::$secret"
+          done
+          {
+            echo "TEST_USER_A_EMAIL=$email_a"
+            echo "TEST_USER_A_PASSWORD=$password_a"
+            echo "TEST_USER_B_EMAIL=$email_b"
+            echo "TEST_USER_B_PASSWORD=$password_b"
+            echo "TEST_APPROVER_EMAIL=$email_approver"
+            echo "TEST_APPROVER_PASSWORD=$password_approver"
+          } >> "$GITHUB_ENV"
+          if [[ -n "${SECRET_APPROVER_EMAIL}" ]]; then
+            echo "E2E_ACTOR_MODE=configured-secrets" >> "$GITHUB_ENV"
+          else
+            echo "E2E_ACTOR_MODE=ephemeral-run-scoped" >> "$GITHUB_ENV"
+          fi
+
       - name: Start exact Netlify preview with serverless API
         env:
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
