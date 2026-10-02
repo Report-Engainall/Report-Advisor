@@ -75,4 +75,19 @@ assert.equal(ambiguous.archetypeId, 'generic.report');
 assert.equal(ambiguous.profileVersion, 'generic.report@v1');
 assert.equal(ambiguous.reviewRequired, true);
 
+for (const archetypeId of [
+  'inventory.balance',
+  'sales.transaction-detail',
+  'purchases.transaction-detail',
+  'customer.balance',
+  'supplier.balance',
+  'inventory.movement',
+]) {
+  const activeProfile = getArchetypeProfile(archetypeId);
+  assert.ok(activeProfile?.advisorPlaybook, archetypeId + ' must expose advisor playbook');
+  assert.ok(activeProfile!.advisorPlaybook.questionSequence.length >= 3);
+  assert.ok(activeProfile!.advisorPlaybook.evidenceRequirements.length >= 1);
+  assert.ok(activeProfile!.advisorPlaybook.actionTemplates.length >= 1);
+}
+
 console.log('PASS archetype-registry-domain');

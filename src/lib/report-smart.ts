@@ -1,5 +1,6 @@
 import { supabase, resolveCurrentCompanyId } from './supabase.ts';
 import { deriveReportIntelligence, type ReportIntelligence } from './report-intelligence/report-smart-insights.ts';
+import { buildReportAdvisorBrief, type AdvisorBrief } from './report-intelligence/report-advisor-engine.ts';
 import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
 
 export type SmartReportCatalogItem = {
@@ -50,6 +51,8 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   reportVerificationState: string;
   canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }>;
   intelligence: ReportIntelligence;
+  advisorBrief: AdvisorBrief;
+  evidenceSnapshotId: string | null;
 };
 
 function renderedOutputOf(evidence: unknown): Record<string, unknown> | null {
@@ -355,6 +358,19 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     renderedOutput: rendered,
     canonicalRows,
   });
+  const evidenceSnapshotId = typeof rendered.evidenceSnapshotId === 'string' && rendered.evidenceSnapshotId.trim()
+    ? rendered.evidenceSnapshotId
+    : null;
+  const advisorBrief = buildReportAdvisorBrief({
+    jobId: String(job.id),
+    sourceHash: String(job.source_hash ?? ''),
+    evidenceSnapshotId,
+    specialty,
+    rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
+    sourceAnalysis,
+    canonicalRows,
+    existingSignals: intelligence.signals,
+  });
 
   return {
     jobId: String(job.id),
@@ -367,6 +383,8 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     specialty,
     canonicalRows,
     intelligence,
+    advisorBrief,
+    evidenceSnapshotId,
     evidenceStatus,
     completedAt: job.completed_at == null ? null : String(job.completed_at),
     importId: rendered.importId == null ? null : String(rendered.importId),

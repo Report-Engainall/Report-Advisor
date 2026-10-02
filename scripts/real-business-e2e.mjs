@@ -41,11 +41,22 @@ async function restSelect(page, table, filters, select, options = {}) {
   for (const [column, value] of Object.entries(filters)) url.searchParams.set(column, `eq.${value}`);
   if (options.order) url.searchParams.set('order', options.order);
   if (options.limit) url.searchParams.set('limit', String(options.limit));
+  if (options.offset) url.searchParams.set('offset', String(options.offset));
   const response = await fetch(url, { headers: { apikey: anonKey, Authorization: `Bearer ${token}` } });
   const body = await response.text();
   assert.equal(response.ok, true, `${table} read HTTP ${response.status}: ${body}`);
   return body ? JSON.parse(body) : [];
 }
+async function restSelectAll(page, table, filters, select, options = {}) {
+  const pageSize = Number(options.pageSize ?? 1000);
+  const rows = [];
+  for (let offset = 0; ; offset += pageSize) {
+    const pageRows = await restSelect(page, table, filters, select, { ...options, limit: pageSize, offset });
+    rows.push(...pageRows);
+    if (pageRows.length < pageSize) return rows;
+  }
+}
+
 async function restRpc(page, functionName, payload) {
   const token = await accessToken(page);
   const response = await fetch(supabaseURL + '/rest/v1/rpc/' + functionName, {
@@ -430,8 +441,9 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
 const CURRENT_REPORT_SOURCE_PATH = process.env.CURRENT_REPORT_SOURCE_PATH?.trim() || 'تسعيرة الاصناف حسب رقم الصنف.pdf';
 const CURRENT_REPORT_SOURCE_HASH = process.env.CURRENT_REPORT_SOURCE_HASH?.trim() || 'sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300';
 const CURRENT_REPORT_ROW_COUNT = Number(process.env.CURRENT_REPORT_ROW_COUNT || '735');
-const CURRENT_REPORT_TASK_COUNT = 9;
-const CURRENT_REPORT_ENTITY_TYPE = 'generic:inventory';
+const CURRENT_REPORT_TASK_COUNT = Number(process.env.CURRENT_REPORT_TASK_COUNT || '9');
+const CURRENT_REPORT_ENTITY_TYPE = process.env.CURRENT_REPORT_ENTITY_TYPE?.trim() || 'generic:inventory';
+const CURRENT_REPORT_JOB_ID = process.env.CURRENT_REPORT_JOB_ID?.trim() || 'f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0';
 
 function assertCurrentReportText(text, label) {
   assert.ok(text.includes(CURRENT_REPORT_SOURCE_PATH), label + ': source path missing');
@@ -445,7 +457,7 @@ async function readCurrentPersistedReport(page, companyId) {
   const uniqueJobs = [...new Map(jobs.map(job => [String(job.id), job])).values()];
   assert.equal(uniqueJobs.length, 1, 'CURRENT_REPORT_JOB_MUST_BE_UNAMBIGUOUS');
   const job = uniqueJobs[0];
-  assert.equal(job.id, 'f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0', 'CURRENT_REPORT_JOB_ID_CHANGED');
+  assert.equal(job.id, CURRENT_REPORT_JOB_ID, 'CURRENT_REPORT_JOB_ID_CHANGED');
   assert.equal(job.status, 'completed');
   assert.equal(job.source_hash, CURRENT_REPORT_SOURCE_HASH);
   assert.equal(job.source_path, CURRENT_REPORT_SOURCE_PATH);
@@ -467,7 +479,7 @@ async function readCurrentPersistedReport(page, companyId) {
   assert.equal(Number(imports[0].total_rows), CURRENT_REPORT_ROW_COUNT);
   assert.equal(Number(imports[0].processed_rows), CURRENT_REPORT_ROW_COUNT);
   assert.equal(imports[0].source_fingerprint, CURRENT_REPORT_SOURCE_HASH);
-  const canonicalRows = await restSelect(page, 'canonical_dataset_records', { company_id: companyId, import_job_id: importId, source_hash: CURRENT_REPORT_SOURCE_HASH }, 'id,company_id,import_job_id,source_hash,row_number,semantic_domain,record_key', { order: 'row_number.asc', limit: 1000 });
+  const canonicalRows = await restSelectAll(page, 'canonical_dataset_records', { company_id: companyId, import_job_id: importId, source_hash: CURRENT_REPORT_SOURCE_HASH }, 'id,company_id,import_job_id,source_hash,row_number,semantic_domain,record_key', { order: 'row_number.asc' });
   assert.equal(canonicalRows.length, CURRENT_REPORT_ROW_COUNT);
   assert.equal(Number(canonicalRows[0].row_number), 1);
   assert.equal(Number(canonicalRows[canonicalRows.length - 1].row_number), CURRENT_REPORT_ROW_COUNT);
@@ -519,6 +531,70 @@ async function proveCurrentSmartReport(page, report) {
   assert.ok(before.includes('ما الذي ينصح به النظام؟'), 'Smart Report recommendations section missing');
   assert.ok(before.includes('التنبؤ'), 'Smart Report forecast section missing');
   assert.ok(before.includes('GUIDANCE'), 'Smart Report guidance section missing');
+  assert.ok(before.includes('ماذا يريد الأغبري أن يقول للإدارة؟'), 'REAL_ADVISOR_BRIEF_HEADING_MISSING');
+  assert.ok(before.includes('TOP FINDINGS'), 'REAL_ADVISOR_TOP_FINDINGS_MISSING');
+  assert.ok(before.includes('TOP RISK'), 'REAL_ADVISOR_TOP_RISK_MISSING');
+  assert.ok(before.includes('TOP OPPORTUNITY'), 'REAL_ADVISOR_TOP_OPPORTUNITY_MISSING');
+  assert.ok(before.includes('BUSINESS QUESTIONS'), 'REAL_ADVISOR_BUSINESS_QUESTIONS_MISSING');
+  assert.ok(before.includes('WHY'), 'REAL_ADVISOR_WHY_MISSING');
+  assert.ok(before.includes('RECOMMENDED ACTION'), 'REAL_ADVISOR_RECOMMENDATION_MISSING');
+  assert.ok(before.includes('حوّلها إلى قرار'), 'REAL_ADVISOR_DECISION_ACTION_MISSING');
+  assert.ok(before.includes('27.54%'), 'REAL_ADVISOR_REAL_SALES_CHANGE_MISSING');
+  assert.ok(before.includes('رضوان حسين علي الجرادي'), 'REAL_ADVISOR_REAL_CONTRIBUTOR_MISSING');
+  assert.ok(before.includes(CURRENT_REPORT_SOURCE_HASH), 'REAL_ADVISOR_SOURCE_HASH_LINEAGE_MISSING');
+  assert.ok(before.includes(report.reportJobId), 'REAL_ADVISOR_JOB_LINEAGE_MISSING');
+  assert.ok(before.includes('evidenceSnapshotId='), 'REAL_ADVISOR_EVIDENCE_LINEAGE_MISSING');
+
+  const advisorDecisionButton = page.getByRole('button', { name: 'حوّلها إلى قرار', exact: true });
+  assert.equal(await advisorDecisionButton.count(), 1, 'REAL_ADVISOR_CONVERT_BUTTON_MISSING');
+  assert.equal(await advisorDecisionButton.isEnabled(), true, 'REAL_ADVISOR_CONVERT_BUTTON_DISABLED_WITH_VERIFIED_EVIDENCE');
+  await advisorDecisionButton.click();
+  await page.waitForURL(/\/decision-experience\?/, { timeout: 30000 });
+  const decisionUrl = new URL(page.url());
+  const recommendationId = decisionUrl.searchParams.get('recommendationId');
+  assert.ok(recommendationId, 'REAL_ADVISOR_RECOMMENDATION_ID_MISSING_AFTER_CONVERSION');
+
+  const recommendationRows = await restSelect(
+    page,
+    'recommendations',
+    { company_id: evidence.tenantA, id: recommendationId },
+    'id,company_id,title,status,decision_id,evidence_snapshot_id',
+    { limit: 1 },
+  );
+  assert.equal(recommendationRows.length, 1, 'REAL_ADVISOR_RECOMMENDATION_READBACK_MISSING');
+  assert.equal(String(recommendationRows[0].company_id), String(evidence.tenantA));
+  assert.equal(String(recommendationRows[0].evidence_snapshot_id), String(report.rendered.evidenceSnapshotId));
+  assert.ok(recommendationRows[0].decision_id, 'REAL_ADVISOR_RECOMMENDATION_DECISION_LINK_MISSING');
+
+  const decisionRows = await restSelect(
+    page,
+    'business_intelligence_decisions',
+    { company_id: evidence.tenantA, recommendation_id: String(recommendationId) },
+    'id,company_id,status,decision_key,recommendation_id,evidence',
+    { limit: 1 },
+  );
+  assert.equal(decisionRows.length, 1, 'REAL_ADVISOR_DECISION_READBACK_MISSING');
+  assert.equal(String(decisionRows[0].company_id), String(evidence.tenantA));
+  assert.equal(String(decisionRows[0].recommendation_id), String(recommendationId));
+  assert.equal(String(decisionRows[0].evidence?.sourceHash), String(CURRENT_REPORT_SOURCE_HASH));
+  assert.equal(String(decisionRows[0].evidence?.jobId), String(report.reportJobId));
+
+  const decisionBody = (await page.locator('body').innerText()).trim();
+  assert.ok(decisionBody.includes(CURRENT_REPORT_SOURCE_HASH), 'REAL_ADVISOR_DECISION_SOURCE_HASH_MISSING');
+  assert.ok(decisionBody.includes(report.reportJobId), 'REAL_ADVISOR_DECISION_JOB_ID_MISSING');
+  evidence.steps.push({
+    step: 'advisor-brief-to-decision',
+    status: 'PASS',
+    reportJobId: report.reportJobId,
+    sourceHash: CURRENT_REPORT_SOURCE_HASH,
+    evidenceSnapshotId: String(report.rendered.evidenceSnapshotId),
+    recommendationId: String(recommendationId),
+    decisionId: String(decisionRows[0].id),
+  });
+
+  await page.goto(baseURL + '/reports/smart/' + report.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+
   await page.screenshot({ path: reportDir + '/current-report-smart-before-refresh.png', fullPage: true });
   await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
   await page.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });

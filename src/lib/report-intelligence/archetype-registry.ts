@@ -21,6 +21,18 @@ export type ArchetypeRule = {
   limitations: string[];
 };
 
+export type ArchetypeAdvisorPlaybook = {
+  kpis: string[];
+  detection: string[];
+  driverDimensions: CanonicalField[];
+  riskSignals: string[];
+  opportunitySignals: string[];
+  questionSequence: string[];
+  actionTemplates: string[];
+  evidenceRequirements: CanonicalField[];
+  defaultOwner: string;
+};
+
 export type ArchetypeProfile = {
   archetypeId: string;
   version: number;
@@ -42,6 +54,7 @@ export type ArchetypeProfile = {
   capabilities: IntelligenceCapability[];
   minSample: number;
   confidenceThreshold: number;
+  advisorPlaybook: ArchetypeAdvisorPlaybook;
 };
 
 export type ArchetypeResolution = {
@@ -57,7 +70,7 @@ export type ArchetypeResolution = {
   limitations: string[];
 };
 
-type ArchetypeProfileDefinition = Omit<ArchetypeProfile, 'profileVersion'>;
+type ArchetypeProfileDefinition = Omit<ArchetypeProfile, 'profileVersion' | 'advisorPlaybook'>;
 
 const PROFILES: readonly ArchetypeProfileDefinition[] = [
   {
@@ -231,9 +244,90 @@ const GENERIC_PROFILE: ArchetypeProfileDefinition = {
   confidenceThreshold: 0.5,
 };
 
+const ADVISOR_PLAYBOOKS: Record<string, ArchetypeAdvisorPlaybook> = {
+  'inventory.balance': {
+    kpis: ['current_stock', 'stock_value_when_cost_available', 'zero_or_negative_stock_rows'],
+    detection: ['zero_or_negative_stock', 'stock_concentration_by_product', 'warehouse_imbalance'],
+    driverDimensions: ['productCode', 'productName', 'warehouse'],
+    riskSignals: ['stockout', 'negative_stock', 'single_warehouse_concentration'],
+    opportunitySignals: ['inventory_rebalancing', 'stale_or_excess_review_when_time_series_exists'],
+    questionSequence: ['WHAT', 'WHERE', 'WHO_CONTRIBUTED', 'WHY', 'SO_WHAT', 'WHAT_NEXT', 'PROOF', 'AFTER_ACTION'],
+    actionTemplates: ['review_zero_or_negative_stock', 'rebalance_by_warehouse', 'validate_cost_before_valuation'],
+    evidenceRequirements: ['productCode', 'currentStock'],
+    defaultOwner: 'مسؤول المخزون',
+  },
+  'sales.transaction-detail': {
+    kpis: ['sales_total', 'sales_change', 'customer_contribution', 'gross_margin_when_cost_available'],
+    detection: ['period_change', 'customer_contribution_to_change', 'customer_concentration', 'anomalies'],
+    driverDimensions: ['customerCode', 'customerName', 'productCode', 'productName', 'documentDate'],
+    riskSignals: ['material_decline', 'customer_concentration', 'unexplained_anomaly'],
+    opportunitySignals: ['customer_recovery_or_growth', 'product_mix_opportunity_when_fields_exist'],
+    questionSequence: ['WHAT', 'WHERE', 'WHO_CONTRIBUTED', 'WHY', 'SO_WHAT', 'WHAT_NEXT', 'PROOF', 'AFTER_ACTION'],
+    actionTemplates: ['review_top_declining_customers', 'validate_driver_evidence', 'measure_14_day_readback'],
+    evidenceRequirements: ['documentDate', 'netAmount', 'customerCode'],
+    defaultOwner: 'مسؤول المبيعات',
+  },
+  'purchases.transaction-detail': {
+    kpis: ['purchase_total', 'purchase_change', 'supplier_contribution'],
+    detection: ['period_change', 'supplier_contribution', 'supplier_concentration', 'price_variation_when_unit_price_exists'],
+    driverDimensions: ['supplierCode', 'supplierName', 'productCode', 'documentDate'],
+    riskSignals: ['supplier_concentration', 'purchase_spike', 'price_exception'],
+    opportunitySignals: ['supplier_mix_shift', 'purchase_timing_review'],
+    questionSequence: ['WHAT', 'WHERE', 'WHO_CONTRIBUTED', 'WHY', 'SO_WHAT', 'WHAT_NEXT', 'PROOF', 'AFTER_ACTION'],
+    actionTemplates: ['review_top_supplier_drivers', 'validate_price_exception', 'measure_next_purchase_window'],
+    evidenceRequirements: ['documentDate', 'netAmount', 'supplierCode'],
+    defaultOwner: 'مسؤول المشتريات',
+  },
+  'customer.balance': {
+    kpis: ['customer_balance', 'overdue_balance_when_due_date_exists', 'customer_concentration'],
+    detection: ['overdue_aging', 'balance_concentration', 'activity_change_when_dates_exist'],
+    driverDimensions: ['customerCode', 'customerName', 'dueDate', 'documentDate'],
+    riskSignals: ['overdue_exposure', 'customer_concentration'],
+    opportunitySignals: ['collection_focus', 'customer_repayment_followup'],
+    questionSequence: ['WHAT', 'WHERE', 'WHO_CONTRIBUTED', 'WHY', 'SO_WHAT', 'WHAT_NEXT', 'PROOF', 'AFTER_ACTION'],
+    actionTemplates: ['prioritize_overdue_customers', 'validate_aging', 'measure_collection_readback'],
+    evidenceRequirements: ['customerCode', 'netAmount'],
+    defaultOwner: 'مسؤول التحصيل',
+  },
+  'supplier.balance': {
+    kpis: ['supplier_balance', 'overdue_payable_when_due_date_exists', 'supplier_concentration'],
+    detection: ['overdue_aging', 'supplier_concentration', 'maturity_clustering'],
+    driverDimensions: ['supplierCode', 'supplierName', 'dueDate', 'documentDate'],
+    riskSignals: ['overdue_payable', 'supplier_concentration'],
+    opportunitySignals: ['payment_prioritization', 'maturity_smoothing'],
+    questionSequence: ['WHAT', 'WHERE', 'WHO_CONTRIBUTED', 'WHY', 'SO_WHAT', 'WHAT_NEXT', 'PROOF', 'AFTER_ACTION'],
+    actionTemplates: ['prioritize_payables', 'validate_due_dates', 'measure_payment_readback'],
+    evidenceRequirements: ['supplierCode', 'netAmount'],
+    defaultOwner: 'مسؤول الحسابات الدائنة',
+  },
+  'inventory.movement': {
+    kpis: ['movement_volume', 'inbound_outbound_balance', 'movement_by_product'],
+    detection: ['movement_spike', 'movement_decline', 'warehouse_shift'],
+    driverDimensions: ['productCode', 'productName', 'warehouse', 'documentDate'],
+    riskSignals: ['abnormal_movement', 'warehouse_imbalance'],
+    opportunitySignals: ['rebalancing', 'movement_timing_review'],
+    questionSequence: ['WHAT', 'WHERE', 'WHO_CONTRIBUTED', 'WHY', 'SO_WHAT', 'WHAT_NEXT', 'PROOF', 'AFTER_ACTION'],
+    actionTemplates: ['review_movement_drivers', 'validate_warehouse_shift', 'measure_post_action_movement'],
+    evidenceRequirements: ['productCode', 'quantity'],
+    defaultOwner: 'مسؤول حركة المخزون',
+  },
+  'generic.report': {
+    kpis: ['available_canonical_measures_only'],
+    detection: ['schema_gaps', 'field_completeness'],
+    driverDimensions: [],
+    riskSignals: ['insufficient_semantic_match'],
+    opportunitySignals: [],
+    questionSequence: ['WHAT', 'PROOF', 'AFTER_ACTION'],
+    actionTemplates: ['resolve_semantic_mapping'],
+    evidenceRequirements: [],
+    defaultOwner: 'المسؤول التخصصي',
+  },
+};
+
 const ALL_PROFILES: readonly ArchetypeProfile[] = [...PROFILES, GENERIC_PROFILE].map((profile) => Object.freeze({
   ...profile,
-  profileVersion: `${profile.archetypeId}@v${profile.version}`,
+  profileVersion: profile.archetypeId + '@v' + profile.version,
+  advisorPlaybook: ADVISOR_PLAYBOOKS[profile.archetypeId] ?? ADVISOR_PLAYBOOKS['generic.report'],
 }));
 
 export function resolveArchetypeFromHeaders(input: { headers: string[]; title?: string | null }): ArchetypeResolution {

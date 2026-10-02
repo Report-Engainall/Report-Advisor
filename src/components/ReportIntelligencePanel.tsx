@@ -81,7 +81,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         signalMessage: signal.message,
         severity: signal.severity,
         evidence: signal.evidence,
-        evidenceSnapshotId: report.sourceAnalysis?.id ?? '',
+        evidenceSnapshotId: report.evidenceSnapshotId ?? '',
       });
       await saveAdvisorBusinessCase({
         decisionId: proposal.id,

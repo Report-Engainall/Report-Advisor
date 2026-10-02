@@ -282,9 +282,12 @@ jobs:
           E2E_REPORT_DIR: artifacts/e2e-browser
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          CURRENT_REPORT_SOURCE_PATH: 'تسعيرة الاصناف حسب رقم الصنف.pdf'
-          CURRENT_REPORT_SOURCE_HASH: 'sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300'
-          CURRENT_REPORT_ROW_COUNT: '735'
+          CURRENT_REPORT_SOURCE_PATH: 'فواتير العملاء من تاريخ 01-06 حتى 15-08.pdf'
+          CURRENT_REPORT_SOURCE_HASH: 'sha256:c175fd3f105759568cf269a5f59fa26cfe16007a77269307b299e15a8c936dc8'
+          CURRENT_REPORT_ROW_COUNT: '1998'
+          CURRENT_REPORT_TASK_COUNT: '9'
+          CURRENT_REPORT_ENTITY_TYPE: 'generic:sales'
+          CURRENT_REPORT_JOB_ID: '983b894c-fd8f-4ed4-94a3-b57a341a3bc9'
         run: node scripts/run-full-product-browser-e2e.mjs
 
       - name: Real Chromium business journey and smart report proof
@@ -294,6 +297,12 @@ jobs:
           E2E_REPORT_DIR: artifacts/e2e-business
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          CURRENT_REPORT_SOURCE_PATH: 'فواتير العملاء من تاريخ 01-06 حتى 15-08.pdf'
+          CURRENT_REPORT_SOURCE_HASH: 'sha256:c175fd3f105759568cf269a5f59fa26cfe16007a77269307b299e15a8c936dc8'
+          CURRENT_REPORT_ROW_COUNT: '1998'
+          CURRENT_REPORT_TASK_COUNT: '9'
+          CURRENT_REPORT_ENTITY_TYPE: 'generic:sales'
+          CURRENT_REPORT_JOB_ID: '983b894c-fd8f-4ed4-94a3-b57a341a3bc9'
         run: node scripts/real-business-e2e.mjs
 
       - name: Fail closed on browser evidence

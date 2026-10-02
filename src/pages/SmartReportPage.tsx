@@ -6,6 +6,7 @@ import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { saveActiveReportContext } from '@/lib/report-context';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { ReportDecisionCockpit } from '@/components/ReportDecisionCockpit';
+import { ReportAdvisorBrief } from '@/components/ReportAdvisorBrief';
 import { formatNumber } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 
@@ -623,6 +624,7 @@ export function SmartReportPage() {
     />
 
     <ReportDecisionCockpit report={report}/>
+    <ReportAdvisorBrief report={report}/>
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="grid gap-3 md:grid-cols-4">
