@@ -1,5 +1,6 @@
 import type { CanonicalField } from './canonical-schema';
 import { evaluateBusinessQuestion, sortBusinessQuestions, type BusinessQuestion } from './business-question-engine';
+import { buildBusinessQuestionSet, type BusinessArchetype } from './business-question-catalog';
 import { buildClaimsFromReportIntelligence } from './report-claim-adapter';
 import type { ClaimProvenance, Claim } from './claim-ledger';
 import type { ReportIntelligence } from './report-smart-insights';
@@ -46,7 +47,7 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
     ? { action: nextRecommendation.statement, claimId: nextRecommendation.claimId }
     : null;
 
-  return sortBusinessQuestions([
+  const universal = [
     evaluateBusinessQuestion<Record<string, unknown>>({
       id: 'report.what-happened',
       label: 'ماذا حدث في هذا المصدر؟',
@@ -113,7 +114,28 @@ function buildQuestions(input: AdvisoryPacketInput, claims: Claim[]): BusinessQu
       sampleSize: input.sampleSize,
       answer: null,
     }),
-  ]);
+  ];
+
+  const archetypeFamily: BusinessArchetype = input.archetypeId?.startsWith('sales.')
+    ? 'sales'
+    : input.archetypeId?.startsWith('purchases.')
+      ? 'purchases'
+      : input.archetypeId?.startsWith('inventory.')
+        ? 'inventory'
+        : input.archetypeId?.startsWith('receivables.')
+          ? 'receivables'
+          : input.archetypeId?.startsWith('payments.')
+            ? 'payments'
+            : input.archetypeId?.startsWith('profitability.')
+              ? 'profitability'
+              : 'generic';
+  const specialized = buildBusinessQuestionSet(archetypeFamily, evaluateBusinessQuestion, {
+    availableFields: input.availableFields,
+    sampleSize: input.sampleSize,
+    answers: {},
+  }).filter((question) => !universal.some((existing) => existing.id === question.id));
+
+  return sortBusinessQuestions([...universal, ...specialized]);
 }
 
 export function buildAdvisoryPacket(input: AdvisoryPacketInput): AdvisoryPacket {
