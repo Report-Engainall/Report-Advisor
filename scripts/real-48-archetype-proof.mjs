@@ -6,10 +6,12 @@ const supabaseURL = (process.env.REPORT_ADVISOR_SUPABASE_URL || '').replace(/\/$
 const anonKey = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY?.trim();
 const email = process.env.TEST_USER_A_EMAIL?.trim();
 const password = process.env.TEST_USER_A_PASSWORD;
+const approverEmail = process.env.TEST_APPROVER_EMAIL?.trim();
+const approverPassword = process.env.TEST_APPROVER_PASSWORD;
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e-business';
 const outFile = reportDir + '/real-48-archetype-proof.json';
-for (const [name, value] of Object.entries({ supabaseURL, anonKey, email, password })) {
+for (const [name, value] of Object.entries({ supabaseURL, anonKey, email, password, approverEmail, approverPassword })) {
   if (!value) throw new Error('REAL_48_PROOF_ENV_MISSING:' + name);
 }
 
@@ -20,23 +22,40 @@ async function fetchJson(url, options = {}) {
   return body ? JSON.parse(body) : null;
 }
 
-const auth = await fetchJson(supabaseURL + '/auth/v1/token?grant_type=password', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password }),
-});
-const accessToken = auth?.access_token;
-if (!accessToken) throw new Error('REAL_48_PROOF_ACCESS_TOKEN_MISSING');
+async function signInActor(actor, actorPassword, missingCode) {
+  const auth = await fetchJson(supabaseURL + '/auth/v1/token?grant_type=password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: actor, password: actorPassword }),
+  });
+  const token = auth?.access_token;
+  if (!token) throw new Error(missingCode);
+  return token;
+}
 
-async function restRpc(functionName, payload) {
+async function currentUserId(token) {
+  const user = await fetchJson(supabaseURL + '/auth/v1/user', {
+    headers: { Authorization: 'Bearer ' + token },
+  });
+  if (!user?.id) throw new Error('REAL_48_USER_ID_MISSING');
+  return String(user.id);
+}
+
+const accessToken = await signInActor(email, password, 'REAL_48_PROOF_ACCESS_TOKEN_MISSING');
+const approverAccessToken = await signInActor(approverEmail, approverPassword, 'REAL_48_APPROVER_ACCESS_TOKEN_MISSING');
+const requesterUserId = await currentUserId(accessToken);
+const approverUserId = await currentUserId(approverAccessToken);
+if (requesterUserId === approverUserId) throw new Error('REAL_48_APPROVER_MUST_DIFFER_FROM_REQUESTER');
+
+async function restRpc(functionName, payload, token = accessToken) {
   return fetchJson(supabaseURL + '/rest/v1/rpc/' + functionName, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + accessToken },
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
     body: JSON.stringify(payload),
   });
 }
 
-async function restSelect(table, filters, select, options = {}) {
+async function restSelect(table, filters, select, options = {}, token = accessToken) {
   const url = new URL(supabaseURL + '/rest/v1/' + table);
   url.searchParams.set('select', select);
   for (const [column, value] of Object.entries(filters)) url.searchParams.set(column, 'eq.' + value);
@@ -316,12 +335,12 @@ if (supported === 48 && missing === 0 && review === 0) {
     const approvalId = String(await restRpc('request_decision_approval', {
       p_decision_id: decisionId,
       p_reason: 'REAL_48_ARCHETYPE_LINEAGE_GATE',
-    }));
+    }, accessToken));
     await restRpc('decide_approval', {
       p_approval_id: approvalId,
       p_approve: true,
-      p_reason: 'Automated staging proof; no outcome or impact fabricated.',
-    });
+      p_reason: 'REAL_48_DISTINCT_APPROVER_PROOF; no outcome or impact fabricated.',
+    }, approverAccessToken);
 
     const workItemId = String(await restRpc('create_decision_work_item', {
       p_decision_id: decisionId,
@@ -341,9 +360,9 @@ if (supported === 48 && missing === 0 && review === 0) {
         evidenceSnapshotId: item.evidenceSnapshotId,
         evidencePassportId: item.evidencePassportId,
       }],
-    }));
+    }, approverAccessToken));
 
-    await restRpc('start_decision_work_item', { p_work_item_id: workItemId });
+    await restRpc('start_decision_work_item', { p_work_item_id: workItemId }, approverAccessToken);
     await restRpc('complete_decision_work_item', {
       p_work_item_id: workItemId,
       p_actual_impact: null,
@@ -357,7 +376,7 @@ if (supported === 48 && missing === 0 && review === 0) {
         reportExecutionJobId: item.reportJobId,
         evidenceSnapshotId: item.evidenceSnapshotId,
       },
-    });
+    }, approverAccessToken);
 
     const recommendations = await restSelect(
       'recommendations',
@@ -374,7 +393,7 @@ if (supported === 48 && missing === 0 && review === 0) {
     const approvals = await restSelect(
       'decision_approvals',
       { company_id: item.tenantId, id: approvalId, decision_id: decisionId },
-      'id,company_id,decision_id,status,decided_at',
+      'id,company_id,decision_id,status,requested_by,decided_by,decided_at',
       { limit: 1 },
     );
     const workItems = await restSelect(
@@ -386,7 +405,7 @@ if (supported === 48 && missing === 0 && review === 0) {
     const outcomes = await restSelect(
       'recommendation_outcomes',
       { company_id: item.tenantId, decision_id: decisionId },
-      'id,company_id,decision_id,status,expected_impact,actual_impact,observed_at,evidence',
+      'id,company_id,decision_id,status,expected_impact,actual_impact,observed_at,observed_by,evidence',
       { order: 'observed_at.desc', limit: 5 },
     );
 
@@ -409,11 +428,15 @@ if (supported === 48 && missing === 0 && review === 0) {
     if (String(recommendation.decision_id) !== decisionId) throw new Error('REAL_48_LINEAGE_RECOMMENDATION_DECISION_MISMATCH:' + item.archetypeId);
     if (String(decision.recommendation_id) !== recommendationId) throw new Error('REAL_48_LINEAGE_DECISION_RECOMMENDATION_MISMATCH:' + item.archetypeId);
     if (approval.status !== 'APPROVED') throw new Error('REAL_48_LINEAGE_APPROVAL_NOT_APPROVED:' + item.archetypeId);
+    if (String(approval.requested_by) === String(approval.decided_by)) throw new Error('REAL_48_LINEAGE_APPROVER_NOT_DISTINCT:' + item.archetypeId);
+    if (String(approval.decided_by) !== approverUserId) throw new Error('REAL_48_LINEAGE_APPROVER_ID_MISMATCH:' + item.archetypeId);
     if (String(workItem.decision_id) !== decisionId || String(workItem.recommendation_id) !== recommendationId) throw new Error('REAL_48_LINEAGE_WORK_LINK_MISMATCH:' + item.archetypeId);
     if (workItem.status !== 'COMPLETED') throw new Error('REAL_48_LINEAGE_WORK_NOT_COMPLETED:' + item.archetypeId);
     if (workItem.actual_impact !== null) throw new Error('REAL_48_LINEAGE_FABRICATED_WORK_IMPACT:' + item.archetypeId);
     if (String(outcome.decision_id) !== decisionId || outcome.status !== 'insufficient') throw new Error('REAL_48_LINEAGE_OUTCOME_STATE_MISMATCH:' + item.archetypeId);
     if (outcome.expected_impact !== null || outcome.actual_impact !== null) throw new Error('REAL_48_LINEAGE_FABRICATED_OUTCOME_IMPACT:' + item.archetypeId);
+    if (!outcome.observed_by) throw new Error('REAL_48_LINEAGE_OBSERVED_BY_MISSING:' + item.archetypeId);
+    if (String(outcome.observed_by) !== approverUserId) throw new Error('REAL_48_LINEAGE_OBSERVED_BY_MISMATCH:' + item.archetypeId);
     if (!outcome.observed_at) throw new Error('REAL_48_LINEAGE_OBSERVED_AT_MISSING:' + item.archetypeId);
 
     lineage.push({
