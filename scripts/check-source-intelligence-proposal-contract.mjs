@@ -31,6 +31,10 @@ assert.doesNotMatch(rpc, /p_confidence.*0\.5/i);
 
 assert.match(client, /supabase\.rpc\('create_source_intelligence_proposal'/i);
 assert.match(client, /p_evidence_snapshot_id:\s*input\.evidenceSnapshotId/i);
+assert.match(client, /recommendationId:\s*string \| null/i);
+assert.match(client, /recommendation_id[,)]/i);
+assert.match(client, /p_recommendation_id:\s*input\.recommendationId \?\? null/i);
+assert.match(ui, /recommendationId:\s*decision\.recommendationId/i);
 const proposalFn = client.slice(client.indexOf('export async function createSourceDecisionProposal'), client.indexOf('export type SourceDecisionState'));
 assert.doesNotMatch(proposalFn, /\.from\('business_intelligence_decisions'\)/i);
 assert.doesNotMatch(client, /p_confidence:\s*0\.5/i);
