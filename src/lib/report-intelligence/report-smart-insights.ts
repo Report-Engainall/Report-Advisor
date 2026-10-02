@@ -129,9 +129,23 @@ function makePriority(severity: ReportSignalSeverity): ReportRecommendation['pri
   return 'low';
 }
 
-function addSignal(signals: ReportSignal[], id: string, severity: ReportSignalSeverity, title: string, message: string, evidence: string[], affectedRows?: number): void {
+function addSignal(
+  signals: ReportSignal[],
+  id: string,
+  severity: ReportSignalSeverity,
+  title: string,
+  message: string,
+  evidence: string[],
+  affectedRows?: number,
+  drivers?: ReportSignalDriver[],
+): void {
   if (signals.some((item) => item.id === id)) return;
-  signals.push({ id, severity, title, message, evidence, ...(affectedRows == null ? {} : { affectedRows }), soWhat: '', impact: '', ownerHint: '', priority: 'P3', priorityReason: [] });
+  signals.push({
+    id, severity, title, message, evidence,
+    ...(affectedRows == null ? {} : { affectedRows }),
+    ...(drivers?.length ? { drivers } : {}),
+    soWhat: '', impact: '', ownerHint: '', priority: 'P3', priorityReason: [],
+  });
 }
 
 function deriveSignals(report: ReportInput): ReportSignal[] {
