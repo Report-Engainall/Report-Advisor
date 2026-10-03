@@ -107,6 +107,13 @@ if (legacyInventory.state !== 'SUPPORTED') fail('Legacy semantic inventory mappi
 if (!legacyInventory.intelligence.signals.some((signal) => signal.id === 'model:inventory.stockout-reorder')) fail('Legacy semantic inventory mapping lost stockout model signal');
 if (!legacyInventory.intelligence.recommendations.some((recommendation) => recommendation.id === 'rec:archetype:inventory.stockout-reorder')) fail('Legacy semantic inventory mapping lost stockout recommendation');
 
+const rawLabelDetection = detectReportArchetype({
+  sourcePath: 'تقارير ادارية باصناف المورد.xlsx',
+  specialty: 'inventory',
+  availableFields: ['sku', 'الرصيد', 'صافي المبيعات', 'الفترةالمتوقعة لنفادالكمية'],
+});
+if (rawLabelDetection.profile?.id !== 'inventory.stockout-reorder') fail('Raw inventory labels must resolve to stockout-reorder, got ' + (rawLabelDetection.profile?.id ?? rawLabelDetection.reason));
+
 const missingEvidence = runReportArchetype({
   archetypeId: archetypes[0].id,
   report: { specialty: archetypes[0].adapterSpecialty, rowCount: 12, canonicalRows: sampleRows, sourceAnalysis: { datasets: [{ columns: [] }] } },

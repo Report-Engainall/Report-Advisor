@@ -195,7 +195,8 @@ export function detectReportArchetype(input: {
   for (const rawField of input.availableFields) {
     const semantic = matchCanonicalField(rawField);
     if (semantic) fields.add(semantic);
-    if (normalize(rawField) === 'netsales' && normalize(input.specialty) === 'inventory') fields.add('salesQty');
+    const normalizedRaw = normalize(rawField);
+    if (normalize(input.specialty) === 'inventory' && (normalizedRaw === 'netsales' || normalizedRaw === 'صافياالمبيعات' || normalizedRaw === 'صافيالمبيعات')) fields.add('salesQty');
   }
 
   const candidates = REPORT_ARCHETYPES.filter((profile) => {
@@ -213,8 +214,15 @@ export function detectReportArchetype(input: {
       return token.length >= 3 && path.includes(token);
     }).length;
     const requiredCoverage = profile.requiredFields.length ? requiredHits / profile.requiredFields.length : 0;
-    const score = aliasHits * 8 + requiredHits * 3 + optionalHits + requiredCoverage * 2;
-    return { profile, score, requiredHits, aliasHits };
+    const fieldLabels = [...fields].map((field) => normalize(field)).filter((field) => field.length >= 3);
+    const fieldAliasHits = profile.aliases.filter((alias) => {
+      const token = normalize(alias);
+      return token.length >= 3 && fieldLabels.some((field) => field.includes(token) || token.includes(field));
+    }).length;
+    const titleTokens = normalize(profile.title).split(/[^\p{L}\p{N}]+/u).filter((token) => token.length >= 4);
+    const titleFieldHits = titleTokens.filter((token) => fieldLabels.some((field) => field.includes(token))).length;
+    const score = aliasHits * 8 + fieldAliasHits * 5 + titleFieldHits * 4 + requiredHits * 3 + optionalHits + requiredCoverage * 2;
+    return { profile, score, requiredHits, aliasHits, fieldAliasHits, titleFieldHits };
   }).sort((a, b) => b.score - a.score || b.requiredHits - a.requiredHits || b.aliasHits - a.aliasHits);
 
   const top = scored[0];
@@ -247,7 +255,8 @@ export function runReportArchetype(
   for (const rawField of input.availableFields) {
     const semantic = matchCanonicalField(rawField);
     if (semantic) available.add(semantic);
-    if (normalize(rawField) === 'netsales' && profile.adapterSpecialty === 'inventory') available.add('salesQty');
+    const normalizedRaw = normalize(rawField);
+    if (profile.adapterSpecialty === 'inventory' && (normalizedRaw === 'netsales' || normalizedRaw === 'صافياالمبيعات' || normalizedRaw === 'صافيالمبيعات')) available.add('salesQty');
   }
   const missingRequired = profile.requiredFields.filter((field) => !available.has(field));
   const baseIntelligence = deriveReportIntelligence({ ...input.report, specialty: profile.adapterSpecialty });
