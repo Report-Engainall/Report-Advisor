@@ -299,7 +299,7 @@ assert.doesNotMatch(
 );
 assert.match(catalogMatch[0], /const rendered = renderedOutputOf\(job\.evidence\) \?\? \{\};/, 'catalog must render completed report sources even when prior renderedOutput is absent');
 
-assert.match(smartReport, /runtimeWarnings\.push\('تعذر قراءة لقطات التحليل البديلة؛ استمر التقرير اعتمادًا على المخرجات المحفوظة والصفوف الكانونية المتاحة。'\)/, 'latest analysis snapshot failure must degrade to a visible runtime warning instead of throwing');
+assert.match(smartReport, /runtimeWarnings\.push\('تعذر قراءة لقطات التحليل البديلة؛ استمر التقرير اعتمادًا على المخرجات المحفوظة والصفوف الكانونية المتاحة.'\)/, 'latest analysis snapshot failure must degrade to a visible runtime warning instead of throwing');
 assert.match(smartReport, /function emptyReportIntelligence\(specialty: string \| null\)/, 'Smart Report must have a safe fallback intelligence object');
 assert.match(smartReport, /function analysisUsabilityScore\(analysis: Record<string, unknown>\)/, 'analysis selection must score snapshots by usable schema instead of timestamp alone');
 assert.match(smartReport, /function chooseBestAnalysisSnapshot\(rows: Array<Record<string, unknown>>\)/, 'analysis selection must choose the most usable snapshot deterministically');
