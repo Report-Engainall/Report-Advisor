@@ -3,7 +3,7 @@ import {
   AlertTriangle, ArrowLeft, ArrowUpLeft, Brain, CheckCircle2, CircleAlert, Lightbulb,
   RefreshCw, Sparkles, Target, TrendingUp, WalletCards, XCircle, Zap
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { DeterministicIntelligenceAssistant } from '@/components/DeterministicIntelligenceAssistant';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { SeverityBadge, PriorityBadge, ConfidenceBadge } from '@/components/ui/Badge';
@@ -17,6 +17,8 @@ import {
 } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Recommendation, Alert, Forecast } from '@/lib/types';
+import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
+import { readActiveReportContext } from '@/lib/report-context';
 
 function MetricStrip({
   label,
@@ -41,8 +43,99 @@ function MetricStrip({
   );
 }
 
+
+async function loadOptionalSourceReport(params: URLSearchParams): Promise<SmartReportDetail | null> {
+  const saved = readActiveReportContext();
+  const jobId = params.get('reportJobId')?.trim() || saved?.jobId || '';
+  const sourceHash = params.get('sourceHash')?.trim() || saved?.sourceHash || '';
+  if (!jobId) return null;
+  const report = await fetchSmartReport(jobId);
+  if (!report) return null;
+  if (sourceHash && report.sourceHash !== sourceHash) throw new Error('REPORT_SOURCE_HASH_MISMATCH');
+  return report;
+}
+
+function SourceIntelligenceRail({ report }: { report: SmartReportDetail }) {
+  const intelligence = report.intelligence;
+  const topSignal = intelligence.signals[0];
+  const topRecommendation = intelligence.recommendations[0];
+  return (
+    <section dir="rtl" className="rounded-[18px] border border-primary-200 bg-primary-50/40 p-4 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="text-[9px] font-black tracking-[.12em] text-primary-800">SOURCE-BOUND INTELLIGENCE</div>
+          <h2 className="mt-1 text-base font-black text-ink-950">{report.sourcePath}</h2>
+          <div className="mt-1 text-[10px] text-ink-500">{report.specialty ?? 'عام'} · {report.rowCount ?? 0} صف · {report.sourceHash.slice(0, 20)}…</div>
+        </div>
+        <Link to={'/reports/smart/' + encodeURIComponent(report.jobId) + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-primary text-[10px]">افتح التقرير الذكي <ArrowUpLeft size={12}/></Link>
+      </div>
+      <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-xl border border-ink-200 bg-white p-3"><div className="text-[9px] font-black text-ink-400">الإشارات</div><div className="mt-1 text-sm font-black">{intelligence.signals.length}</div><div className="mt-1 text-[10px] leading-4 text-ink-600">{topSignal?.title ?? 'لا توجد إشارة استثنائية مثبتة'}</div></div>
+        <div className="rounded-xl border border-ink-200 bg-white p-3"><div className="text-[9px] font-black text-ink-400">التوصيات</div><div className="mt-1 text-sm font-black">{intelligence.recommendations.length}</div><div className="mt-1 text-[10px] leading-4 text-ink-600">{topRecommendation?.action ?? 'لا توجد توصية مصدرية كافية'}</div></div>
+        <div className="rounded-xl border border-ink-200 bg-white p-3"><div className="text-[9px] font-black text-ink-400">التنبؤ</div><div className="mt-1 text-sm font-black">{intelligence.forecast.status === 'AVAILABLE' ? 'متاح' : 'عينة غير كافية'}</div><div className="mt-1 text-[10px] leading-4 text-ink-600">{intelligence.forecast.note}</div></div>
+        <div className="rounded-xl border border-ink-200 bg-white p-3"><div className="text-[9px] font-black text-ink-400">الإرشاد</div><div className="mt-1 text-sm font-black">{intelligence.advisorBrief.health === 'HEALTHY' ? 'سليم' : intelligence.advisorBrief.health === 'ATTENTION' ? 'يحتاج انتباهًا' : 'مراجعة مطلوبة'}</div><div className="mt-1 text-[10px] leading-4 text-ink-600">{intelligence.guidance.focus}</div></div>
+      </div>
+    </section>
+  );
+}
+
+function SourceRecommendationsDetail({ report }: { report: SmartReportDetail }) {
+  const items = report.intelligence.recommendations;
+  return (
+    <section dir="rtl" className="rounded-[18px] border border-primary-200 bg-white p-4 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">REPORT RECOMMENDATIONS</div><h2 className="mt-1 text-base font-black text-ink-950">توصيات التقرير نفسه</h2></div>
+        <span className="rounded-full bg-primary-50 px-2.5 py-1 text-[9px] font-black text-primary-800">{items.length} توصية</span>
+      </div>
+      <div className="mt-3 grid gap-2 lg:grid-cols-2">
+        {items.length ? items.map((item) => (
+          <article key={item.id} className="rounded-xl border border-ink-200 bg-ink-50/60 p-3">
+            <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-primary-100 px-2 py-1 text-[8px] font-black text-primary-800">{item.priority}</span><span className="text-xs font-black text-ink-900">{item.title}</span></div>
+            <div className="mt-2 text-[10px] leading-5 text-ink-700">{item.action}</div>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2 text-[9px]"><div className="rounded-lg bg-white p-2"><b>WHY</b><div className="mt-1 text-ink-600">{item.why}</div></div><div className="rounded-lg bg-white p-2"><b>OWNER / OUTCOME</b><div className="mt-1 text-ink-600">{item.ownerHint} · {item.expectedOutcome}</div></div></div>
+            <div className="mt-2 text-[8px] font-mono text-ink-400">{item.evidence.join(' · ')}</div>
+          </article>
+        )) : <div className="rounded-xl border border-dashed border-ink-200 p-4 text-[10px] text-ink-500">لا توجد توصية مصدرية كافية حاليًا.</div>}
+      </div>
+    </section>
+  );
+}
+
+function SourceForecastDetail({ report }: { report: SmartReportDetail }) {
+  const forecast = report.intelligence.forecast;
+  return (
+    <section dir="rtl" className="rounded-[18px] border border-ink-200 bg-ink-950 p-4 text-white shadow-sm">
+      <div className="text-[9px] font-black tracking-[.12em] text-primary-200">REPORT FORECAST</div>
+      <h2 className="mt-1 text-base font-black">التنبؤ الخاص بهذا التقرير</h2>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-xl bg-white/5 p-3"><div className="text-[8px] text-ink-300">الحالة</div><div className="mt-1 text-sm font-black">{forecast.status === 'AVAILABLE' ? 'متاح' : 'عينة غير كافية'}</div></div>
+        <div className="rounded-xl bg-white/5 p-3"><div className="text-[8px] text-ink-300">الفترات</div><div className="mt-1 text-sm font-black">{forecast.observedPeriods}</div></div>
+        <div className="rounded-xl bg-white/5 p-3"><div className="text-[8px] text-ink-300">القيمة التالية</div><div className="mt-1 text-sm font-black">{forecast.nextValue == null ? 'غير متاح' : forecast.nextValue.toLocaleString('ar-YE', { maximumFractionDigits: 2 })}</div></div>
+        <div className="rounded-xl bg-white/5 p-3"><div className="text-[8px] text-ink-300">الاتجاه</div><div className="mt-1 text-sm font-black">{forecast.direction ?? 'غير متاح'}</div></div>
+      </div>
+      <p className="mt-3 text-[10px] leading-5 text-ink-300">{forecast.note}</p>
+    </section>
+  );
+}
+
 export function IntelligenceCenterPage() {
   const [sourceParams] = useSearchParams();
+  const [sourceReport, setSourceReport] = useState<SmartReportDetail | null>(null);
+  const [sourceReportError, setSourceReportError] = useState<string | null>(null);
+  const sourceQueryKey = sourceParams.toString();
+  useEffect(() => {
+    let active = true;
+    void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then((value) => {
+      if (!active) return;
+      setSourceReport(value);
+      setSourceReportError(null);
+    }).catch((cause) => {
+      if (!active) return;
+      setSourceReport(null);
+      setSourceReportError(cause instanceof Error ? cause.message : String(cause));
+    });
+    return () => { active = false; };
+  }, [sourceQueryKey]);
   const [sourceReport, setSourceReport] = useState<SmartReportDetail | null>(null);
   const [sourceReportError, setSourceReportError] = useState<string | null>(null);
   const sourceQueryKey = sourceParams.toString();
@@ -136,6 +229,8 @@ export function IntelligenceCenterPage() {
 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
+      {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
+      {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
       {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(sourceParams).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
@@ -386,6 +481,22 @@ export function RecommendationsPage() {
   const [sourceParams] = useSearchParams();
   const [sourceReport, setSourceReport] = useState<SmartReportDetail | null>(null);
   const [sourceReportError, setSourceReportError] = useState<string | null>(null);
+  const sourceQueryKey = sourceParams.toString();
+  useEffect(() => {
+    let active = true;
+    void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then((value) => {
+      if (!active) return;
+      setSourceReport(value);
+      setSourceReportError(null);
+    }).catch((cause) => {
+      if (!active) return;
+      setSourceReport(null);
+      setSourceReportError(cause instanceof Error ? cause.message : String(cause));
+    });
+    return () => { active = false; };
+  }, [sourceQueryKey]);
+  const [sourceReport, setSourceReport] = useState<SmartReportDetail | null>(null);
+  const [sourceReportError, setSourceReportError] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
     void loadOptionalSourceReport(sourceParams).then((value) => {
@@ -447,6 +558,8 @@ export function RecommendationsPage() {
 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
+      {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
+      {sourceReport && <SourceRecommendationsDetail report={sourceReport} />}
       <section className="ag-intelligence-hero rounded-[20px] bg-ink-950 p-5 text-white shadow-elevated lg:p-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
@@ -531,6 +644,22 @@ export function ForecastsPage() {
   const [sourceParams] = useSearchParams();
   const [sourceReport, setSourceReport] = useState<SmartReportDetail | null>(null);
   const [sourceReportError, setSourceReportError] = useState<string | null>(null);
+  const sourceQueryKey = sourceParams.toString();
+  useEffect(() => {
+    let active = true;
+    void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then((value) => {
+      if (!active) return;
+      setSourceReport(value);
+      setSourceReportError(null);
+    }).catch((cause) => {
+      if (!active) return;
+      setSourceReport(null);
+      setSourceReportError(cause instanceof Error ? cause.message : String(cause));
+    });
+    return () => { active = false; };
+  }, [sourceQueryKey]);
+  const [sourceReport, setSourceReport] = useState<SmartReportDetail | null>(null);
+  const [sourceReportError, setSourceReportError] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
     void loadOptionalSourceReport(sourceParams).then((value) => {
@@ -581,6 +710,8 @@ export function ForecastsPage() {
 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
+      {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
+      {sourceReport && <SourceForecastDetail report={sourceReport} />}
       <section className="ag-intelligence-hero rounded-[20px] bg-ink-950 p-5 text-white shadow-elevated lg:p-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
