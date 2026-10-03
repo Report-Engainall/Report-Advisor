@@ -2,8 +2,8 @@
 SESSION_HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT EXECUTION HEAD = 2eabdd40837ab7a4f87a761168bd8495767d7476
-REPORT_FOR_HEAD = 2eabdd40837ab7a4f87a761168bd8495767d7476
+CURRENT EXECUTION HEAD = 1a38250863743edbe00682c51979954bd12cc64c
+REPORT_FOR_HEAD = 1a38250863743edbe00682c51979954bd12cc64c
 BRANCH = captain/phase-f-dynamic-pr-preview-20261003
 PR = #762 OPEN
 UPDATED = 2026-10-03
@@ -42,7 +42,7 @@ ROOT_CAUSE
 The earlier runtime failures were a combination of a recovered Supabase lifecycle interruption and two stale/incorrect source-level assertions. The handoff failures are metadata synchronization failures, not product/runtime failures.
 FILES / COMMITS
 - PR #761 -> 9d78baf6... -> main 7e9cec1...
-- PR #762 runtime repair series -> current code head 4db6c1884a9892f9a6c20631c4d4836db0c7b5e7
+- PR #762 runtime repair series -> latest product-code repair baseline 2eabdd40837ab7a4f87a761168bd8495767d7476; current branch head 1a38250863743edbe00682c51979954bd12cc64c is execution-state/report synchronization only
 - Evidence Passport hardening migration -> 20261003130700_restrict_evidence_gate_trigger_execute.sql
 REMAINING OPEN
 - finish latest-head Phase-F live resilience evidence
@@ -53,4 +53,4 @@ REMAINING OPEN
 - real-source 48-archetype proof remains unproven
 DO_NOT_REPEAT
 No stale PASS, no queued-run PASS, no Service Role impersonation, no new Supabase project, no tenant/RLS bypass, no fabricated corpus/archetype coverage.
-NEXT EXACT ACTION = consume the first completed CI failure on code head 2eabdd40837ab7a4f87a761168bd8495767d7476, fix only that blocker, then rerun the affected gate
+NEXT EXACT ACTION = consume the first completed CI failure on exact current branch head 1a38250863743be00682c51979954bd12cc64c, fix only that blocker, then rerun the affected gate
