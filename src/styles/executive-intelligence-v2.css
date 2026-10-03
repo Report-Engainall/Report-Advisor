@@ -1777,3 +1777,95 @@ body{
     transition:none!important;
   }
 }
+
+
+/* v3.3 — source intelligence + advisory brief finish */
+.ag-main .ag-source-intelligence-panel{
+  position:relative;
+  overflow:hidden;
+  border-color:#dfe2ea!important;
+  background:
+    radial-gradient(circle at 88% 0%,rgba(91,92,230,.055),transparent 18rem),
+    #fff!important;
+}
+.ag-main .ag-source-intelligence-panel::before{
+  content:"";
+  position:absolute;
+  inset-inline-start:0;
+  top:0;
+  bottom:0;
+  width:3px;
+  background:linear-gradient(180deg,var(--ag-v3-indigo),var(--ag-v3-gold));
+}
+.ag-main .ag-source-intelligence-panel > section:first-of-type{
+  border-color:#e0e3ea!important;
+  background:#fafbfc!important;
+  box-shadow:none!important;
+}
+.ag-main .ag-source-intelligence-panel > section:first-of-type > div{
+  border-color:#e2e5ec!important;
+  border-radius:14px!important;
+}
+.ag-main .ag-source-intelligence-panel .bg-primary-50{
+  background:#f0f1ff!important;
+}
+.ag-main .ag-source-intelligence-panel .text-primary-700,
+.ag-main .ag-source-intelligence-panel .text-primary-800{
+  color:#5053bf!important;
+}
+
+/* The Advisor Brief is the product's "so what". It gets the strongest hierarchy
+   without turning evidence/provenance into a decorative marketing card. */
+.ag-main .ag-smart-advisor-surface{
+  margin-top:2px!important;
+}
+.ag-main .ag-smart-advisor-surface > div:first-child{
+  border-color:#e0e3ea!important;
+  background:
+    radial-gradient(circle at 88% 0%,rgba(124,58,237,.16),transparent 16rem),
+    radial-gradient(circle at 10% 100%,rgba(240,185,75,.08),transparent 15rem),
+    linear-gradient(145deg,#111621,#1b2130)!important;
+  color:#f5f7fb!important;
+  box-shadow:0 28px 64px -44px rgba(15,23,42,.76)!important;
+}
+.ag-main .ag-smart-advisor-surface > div:first-child .text-ink-950,
+.ag-main .ag-smart-advisor-surface > div:first-child .text-ink-900{
+  color:#f7f8fb!important;
+}
+.ag-main .ag-smart-advisor-surface > div:first-child .text-ink-600,
+.ag-main .ag-smart-advisor-surface > div:first-child .text-ink-500{
+  color:#b5bdcb!important;
+}
+.ag-main .ag-smart-advisor-surface > div:first-child .bg-white{
+  background:rgba(255,255,255,.08)!important;
+  border-color:rgba(255,255,255,.10)!important;
+}
+.ag-main .ag-smart-advisor-surface > div:nth-child(2){
+  border-color:#e0e3ea!important;
+  background:
+    radial-gradient(circle at 88% 0%,rgba(91,92,230,.07),transparent 18rem),
+    linear-gradient(145deg,#fff,#f7f8fb)!important;
+}
+.ag-main .ag-smart-advisor-surface > div:nth-child(2) > div > div{
+  border-color:#e0e3ea!important;
+}
+.ag-main .ag-smart-advisor-surface .bg-primary-50{
+  background:#eef0ff!important;
+}
+.ag-main .ag-smart-advisor-surface .text-primary-700,
+.ag-main .ag-smart-advisor-surface .text-primary-800{
+  color:#4f52bf!important;
+}
+.ag-main .ag-smart-advisor-surface .bg-success-50{
+  background:#eaf8f1!important;
+}
+.ag-main .ag-smart-advisor-surface .bg-warning-50{
+  background:#fff7e7!important;
+}
+@media(max-width:700px){
+  .ag-main .ag-source-intelligence-panel,
+  .ag-main .ag-smart-advisor-surface > div:first-child,
+  .ag-main .ag-smart-advisor-surface > div:nth-child(2){
+    border-radius:16px!important;
+  }
+}
