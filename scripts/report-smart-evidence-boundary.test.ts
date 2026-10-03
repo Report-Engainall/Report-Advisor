@@ -120,4 +120,12 @@ assert.match(
   'Smart Report must bind decision provenance to the Passport snapshot',
 );
 
-console.log('PASS: evidence verification, Advisor decision provenance, live Passport readback and source-proposal reconciliation remain fail-closed.');
+const catalogMatch = smartReport.match(/function mapCatalogItem\\([\\s\\S]*?\\n}\\n\\nexport async function fetchSmartReportCatalog/);
+assert.ok(catalogMatch, 'Smart Report catalog mapper must remain discoverable for regression checks');
+assert.doesNotMatch(
+  catalogMatch[0],
+  /effectiveRendered/,
+  'catalog mapping must use its local rendered output; Passport-refreshed effectiveRendered exists only inside fetchSmartReport',
+);
+
+console.log('PASS: evidence verification, Advisor decision provenance, live Passport readback, catalog provenance scope and source-proposal reconciliation remain fail-closed.');
