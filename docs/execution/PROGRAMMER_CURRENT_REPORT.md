@@ -2,7 +2,7 @@
 SESSION_HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT EXECUTION HEAD = 0771059dd1c505aa72eb8d6a855df43eb9c698c6
+CURRENT EXECUTION HEAD = d9b9291a02acc57fc50391d9fee151bb5a5deeab
 BRANCH = captain/phase-f-dynamic-pr-preview-20261003
 PR = #762 OPEN
 UPDATED = 2026-10-03
@@ -19,6 +19,7 @@ WHAT_ACTUALLY_HAPPENED
 10. Aligned the Phase-10 backup/restore static contract with the real runtime: source snapshot/count reads use the resolved Transaction Pooler URI (6543), while pg_dump remains on runnerSource.
 11. Increased E2E actor provisioning recovery budget to 360s with 15s per HTTP attempt across both browser workflows and the provisioning script.
 12. Re-proved staging health and direct PostgreSQL connectivity through the connected Supabase control plane.
+13. Corrected the Phase-F contract matcher so it exactly matches the live nested transaction-pooler URI expression.
 WHAT_IS_PROVEN
 - typecheck PASS
 - build PASS
