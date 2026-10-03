@@ -241,6 +241,20 @@ async function buildTextDataset(
 
 const PDF_OCR_MAX_PAGES = 120;
 
+/** Detect PDF text-layer glyph corruption (common when ToUnicode maps are broken). */
+function hasPdfTextEncodingCorruption(text: string): boolean {
+  const chars = Array.from(text).filter((char) => !/\s/u.test(char));
+  if (chars.length < 24) return false;
+  const suspicious = chars.filter((char) =>
+    /[\u0180-\u024F\u0370-\u052F\u1E00-\u1EFF\u2C60-\u2C7F]/u.test(char),
+  ).length;
+  const arabic = chars.filter((char) => /[\u0600-\u06FF]/u.test(char)).length;
+  const latin = chars.filter((char) => /[A-Za-z]/u.test(char)).length;
+  const suspiciousRatio = suspicious / chars.length;
+  const arabicOrLatinRatio = (arabic + latin) / chars.length;
+  return suspicious >= 6 && suspiciousRatio >= 0.12 && arabicOrLatinRatio < 0.65;
+}
+
 const PDF_OCR_MAX_DIMENSION = 2200;
 const PDF_OCR_SCALE = 1.5;
 type PromiseConstructorWithTry = PromiseConstructor & { try?: (fn: (...args: unknown[]) => unknown, ...args: unknown[]) => Promise<unknown> };
@@ -465,6 +479,25 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
       });
     }
     pages.push({ pageNumber, items, pageWidth: viewport.width, pageHeight: viewport.height });
+  }
+
+  const extractedTextForHealth = pages
+    .flatMap((page) => page.items.map((item) => item.text))
+    .join(' ');
+
+  if (hasPdfTextEncodingCorruption(extractedTextForHealth)) {
+    try {
+      const recovered = await parseScannedPdfWithOcr(pdf, fileName);
+      recovered.forEach((dataset) => {
+        dataset.columns.forEach((column) => column.qualityIssues.push('PDF_TEXT_ENCODING_CORRUPTION_RECOVERED_BY_OCR'));
+      });
+      return recovered;
+    } catch (error) {
+      if (error instanceof Error && error.message.startsWith('PDF_OCR_LOW_CONFIDENCE_REJECT:')) {
+        throw error;
+      }
+      // OCR may be unavailable on a constrained runtime; preserve the original extracted evidence below.
+    }
   }
 
   const layoutTable = extractArabicSalesTable(pages);
