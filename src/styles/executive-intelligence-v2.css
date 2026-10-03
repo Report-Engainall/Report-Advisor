@@ -1742,10 +1742,6 @@ body{
 .ag-main .ag-work-center-surface .ag-data-table tbody tr:hover td{
   background:#f5f5ff!important;
 }
-.ag-main .ag-work-center-surface .rounded-xl.border.bg-ink-50/55:hover{
-  border-color:#cfd2ea!important;
-  box-shadow:0 14px 30px -28px rgba(79,70,229,.35)!important;
-}
 .ag-main .ag-work-center-surface .bg-primary-50{
   background:#f0f1ff!important;
 }
