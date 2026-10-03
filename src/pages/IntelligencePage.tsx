@@ -45,9 +45,10 @@ export function IntelligenceCenterPage() {
   const [sourceParams] = useSearchParams();
   const [sourceReport, setSourceReport] = useState<SmartReportDetail | null>(null);
   const [sourceReportError, setSourceReportError] = useState<string | null>(null);
+  const sourceQueryKey = sourceParams.toString();
   useEffect(() => {
     let active = true;
-    void loadOptionalSourceReport(sourceParams).then((value) => {
+    void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then((value) => {
       if (!active) return;
       setSourceReport(value);
       setSourceReportError(null);
@@ -57,7 +58,7 @@ export function IntelligenceCenterPage() {
       setSourceReportError(cause instanceof Error ? cause.message : String(cause));
     });
     return () => { active = false; };
-  }, [sourceParams]);
+  }, [sourceQueryKey]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [forecasts, setForecasts] = useState<Forecast[]>([]);
@@ -135,7 +136,7 @@ export function IntelligenceCenterPage() {
 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
-      {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(sourceParams).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
+      {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
       {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(sourceParams).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
       {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
