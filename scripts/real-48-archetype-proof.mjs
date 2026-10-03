@@ -125,7 +125,20 @@ for (const companyId of tenantIds) {
     const rendered = job?.evidence?.renderedOutput && typeof job.evidence.renderedOutput === 'object'
       ? job.evidence.renderedOutput
       : {};
-    const analysis = analysesByHash.get(String(job.source_hash ?? '')) ?? null;
+    const analysisCandidates = analysesByHash.get(String(job.source_hash ?? '')) ?? [];
+    const renderedImportId = typeof rendered.importId === 'string' ? rendered.importId.trim() : '';
+    const jobRowCount = Number(rendered.rowCount ?? 0);
+    const analysis = analysisCandidates
+      .filter((candidate) => !renderedImportId || String(candidate.import_job_id ?? '') === renderedImportId)
+      .sort((a, b) => {
+        const aColumns = Array.isArray(a?.datasets?.[0]?.columns) ? a.datasets[0].columns.length : 0;
+        const bColumns = Array.isArray(b?.datasets?.[0]?.columns) ? b.datasets[0].columns.length : 0;
+        if (bColumns !== aColumns) return bColumns - aColumns;
+        if (jobRowCount > 0) {
+          return Math.abs(Number(a.row_count ?? 0) - jobRowCount) - Math.abs(Number(b.row_count ?? 0) - jobRowCount);
+        }
+        return String(b.created_at ?? '').localeCompare(String(a.created_at ?? ''));
+      })[0] ?? null;
     if (!analysis) continue;
     const dataset = analysis?.datasets?.[0];
     const columns = Array.isArray(dataset?.columns) ? dataset.columns : [];
