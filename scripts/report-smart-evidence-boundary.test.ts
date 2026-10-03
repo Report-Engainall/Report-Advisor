@@ -1,7 +1,8 @@
+import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
 import { resolveReportEvidenceStatus } from '../src/lib/report-smart-evidence-status.ts';
 
-assert.equal(
   resolveReportEvidenceStatus(
     { evidenceStatus: 'AWAITING_EVIDENCE_SNAPSHOT' },
     true,
@@ -55,4 +56,23 @@ assert.equal(
   'blocked state must remain a real state',
 );
 
-console.log('PASS: canonical commit and evidence verification remain independent and fail closed.');
+const panelPath = fileURLToPath(new URL('../src/components/ReportIntelligencePanel.tsx', import.meta.url));
+const panel = fs.readFileSync(panelPath, 'utf8');
+
+assert.match(
+  panel,
+  /const evidenceSnapshotId = typeof report\.renderedOutput\?\.evidenceSnapshotId === 'string'/,
+  'advisor case action must derive its decision evidence from the rendered Passport snapshot',
+);
+assert.match(
+  panel,
+  /evidenceSnapshotId,\n\s*\}\);/,
+  'createSourceDecisionProposal must receive the canonical Passport evidence snapshot',
+);
+assert.doesNotMatch(
+  panel,
+  /evidenceSnapshotId:\s*report\.sourceAnalysis\?\.id/,
+  'analysis snapshot ids must not be used as Passport decision evidence',
+);
+
+console.log('PASS: canonical commit/evidence verification and Advisor decision provenance remain independent and fail closed.');
