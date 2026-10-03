@@ -207,15 +207,6 @@ function DecisionExperienceGeneralPage() {
       ? numericConfidence / 100
       : numericConfidence;
 
-    if (!Number.isFinite(expectedImpact)) {
-      setDecisionError('لا يمكن حفظ قرار بلا أثر متوقع رقمي مثبت.');
-      return;
-    }
-    if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) {
-      setDecisionError('لا يمكن حفظ قرار بثقة غير قابلة للتحقق ضمن 0..1.');
-      return;
-    }
-
     setDecisionBusy(true);
     setDecisionError(null);
     try {
@@ -223,11 +214,7 @@ function DecisionExperienceGeneralPage() {
         if (decisionContext.decision.recommendationId !== selected.id) {
           await linkRecommendationToDecision(selected.id, decisionContext.decision.id);
         }
-        if (decisionContext.approval?.status === 'PENDING') {
-          navigateStage('approval');
-          return;
-        }
-        if (['APPROVED', 'REJECTED', 'CANCELLED'].includes(decisionContext.approval?.status ?? '')) {
+        if (decisionContext.approval?.status || decisionContext.decision.status !== 'PROPOSED') {
           navigateStage('approval');
           return;
         }
@@ -238,6 +225,15 @@ function DecisionExperienceGeneralPage() {
         const refreshed = await loadRuntimeDecisionContext(selected.id);
         setDecisionContext(refreshed.approval ? refreshed : { ...refreshed, approval: { id: approvalId, status: 'PENDING', requestedBy: null, requestedAt: new Date().toISOString(), decidedBy: null, decidedAt: null, reason: selected.description ?? null } });
         navigateStage('approval');
+        return;
+      }
+
+      if (!Number.isFinite(expectedImpact)) {
+        setDecisionError('لا يمكن إنشاء قرار جديد بلا أثر متوقع رقمي مثبت.');
+        return;
+      }
+      if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) {
+        setDecisionError('لا يمكن إنشاء قرار جديد بثقة غير قابلة للتحقق ضمن 0..1.');
         return;
       }
 
