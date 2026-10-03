@@ -210,6 +210,23 @@ export function detectReportArchetype(input: {
 
   if (!candidates.length) return { profile: null, state: 'NOT_AVAILABLE', reason: 'NO_ARCHETYPE_CANDIDATES' };
 
+  const invoiceDetailCandidate = candidates.find((profile) => profile.id === `${specialty}.invoice-detail`);
+  const invoiceDetailSignalFields: CanonicalField[] = ['unitPrice', 'grossAmount', 'discount', 'cost'];
+  const invoiceDetailSignals = invoiceDetailSignalFields.filter((field) => fields.has(field)).length;
+  if (
+    invoiceDetailCandidate &&
+    fields.has('documentNo') &&
+    fields.has('documentDate') &&
+    fields.has('netAmount') &&
+    invoiceDetailSignals >= 2
+  ) {
+    return {
+      profile: invoiceDetailCandidate,
+      state: 'SUPPORTED',
+      reason: 'INVOICE_DETAIL_CANONICAL_CLUSTER',
+    };
+  }
+
   const scored = candidates.map((profile) => {
     const requiredHits = profile.requiredFields.filter((field) => fields.has(field)).length;
     const optionalHits = profile.optionalFields.filter((field) => fields.has(field)).length;
@@ -225,8 +242,6 @@ export function detectReportArchetype(input: {
     }).length;
     const titleTokens = normalize(profile.title).split(/[^\p{L}\p{N}]+/u).filter((token) => token.length >= 4);
     const titleFieldHits = titleTokens.filter((token) => fieldLabels.some((field) => field.includes(token))).length;
-    const invoiceDetailSignalFields: CanonicalField[] = ['unitPrice', 'grossAmount', 'discount', 'cost'];
-    const invoiceDetailSignals = invoiceDetailSignalFields.filter((field) => fields.has(field)).length;
     const invoiceDetailBonus =
       profile.id.endsWith('.invoice-detail') &&
       fields.has('documentNo') &&
