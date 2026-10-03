@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { resolveReportEvidenceStatus } from '../src/lib/report-smart-evidence-status.ts';
 
+assert.equal(
   resolveReportEvidenceStatus(
     { evidenceStatus: 'AWAITING_EVIDENCE_SNAPSHOT' },
     true,
@@ -55,6 +56,7 @@ assert.equal(
   'BLOCKED',
   'blocked state must remain a real state',
 );
+
 
 const panelPath = fileURLToPath(new URL('../src/components/ReportIntelligencePanel.tsx', import.meta.url));
 const panel = fs.readFileSync(panelPath, 'utf8');
