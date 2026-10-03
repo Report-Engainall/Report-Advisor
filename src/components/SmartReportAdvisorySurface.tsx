@@ -257,6 +257,8 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         </div>
       )}
 
+      <div className="rounded-[16px] border border-primary-200 bg-primary-50/60 px-4 py-3"><div className="text-[9px] font-black tracking-[.14em] text-primary-700">TOP FINDINGS</div><div className="mt-1 text-sm font-black text-ink-950">أهم النتائج التي تستحق انتباه الإدارة</div></div>
+
       <div className="grid gap-3 lg:grid-cols-3">
         {([
           { label: 'FINDINGS', items: findings, subtitle: 'نتائج محسوبة مباشرة من الصفوف الكانونية' },
