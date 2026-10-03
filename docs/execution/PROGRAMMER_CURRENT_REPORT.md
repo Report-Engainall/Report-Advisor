@@ -35,10 +35,10 @@ WHAT_IS_PROVEN = typecheck/build/intelligence/evidence-passport/operational-resi
 - security-definer exposure contract PASS
 - direct Supabase DB connectivity PASS
 - real report job f0880ab8...: 735 source rows, 7 columns, PDF, quality 87, canonical coverage FULL, Evidence Passport VERIFIED/READY
-FIRST_ACTIVE_FAILURE
+FIRST_ACTIVE_FAILURE = CI_RECERTIFICATION_IN_PROGRESS; the last completed handoff failure was the missing scalar WHAT_IS_PROVEN contract field.
 CI_RECERTIFICATION = IN_PROGRESS
 Previous completed failure on the current gate family was Session Handoff Contract: the parser required scalar `WHAT_IS_PROVEN = ...`, while the report only had a Markdown heading. This was a documentation-contract mismatch and is corrected in this synchronization.
-ROOT_CAUSE
+ROOT_CAUSE = persistent-session handoff metadata was formatted as Markdown headings instead of the contract's scalar KEY = VALUE fields; no product/runtime bypass was involved.
 The earlier runtime failures were a combination of a recovered Supabase lifecycle interruption and two stale/incorrect source-level assertions. The handoff failures are metadata synchronization failures, not product/runtime failures.
 FILES / COMMITS
 - PR #761 -> 9d78baf6... -> main 7e9cec1...
