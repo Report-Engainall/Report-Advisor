@@ -436,13 +436,13 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
 
   const specialty = effectiveRendered.sourceSpecialty == null
     ? inferSpecialtyFromAnalysis(sourceAnalysis)
-    : String(rendered.sourceSpecialty);
+    : String(effectiveRendered.sourceSpecialty);
 
   const baseIntelligence = deriveReportIntelligence({
     specialty,
     rowCount: effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount),
     sourceAnalysis,
-    renderedOutput: runtimeRendered,
+    renderedOutput: effectiveRendered,
     canonicalRows,
   });
 
@@ -480,7 +480,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
         reportExecutionJobId: String(job.id),
         evidenceSnapshotId: typeof effectiveRendered.evidenceSnapshotId === 'string' ? effectiveRendered.evidenceSnapshotId : null,
         evidencePassportId: typeof effectiveRendered.evidencePassportId === 'string' ? effectiveRendered.evidencePassportId : null,
-        sourceVersionId: typeof rendered.sourceVersionId === 'string' ? rendered.sourceVersionId : null,
+        sourceVersionId: typeof effectiveRendered.sourceVersionId === 'string' ? effectiveRendered.sourceVersionId : null,
       },
       availableFields,
       sampleSize: effectiveRendered.rowCount == null ? 0 : Number(effectiveRendered.rowCount),

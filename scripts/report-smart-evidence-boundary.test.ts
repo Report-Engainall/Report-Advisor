@@ -209,6 +209,12 @@ assert.match(
   /intelligenceStatus: runtimeIntelligenceStatus/,
   'Smart Report must expose current intelligence status in rendered output',
 );
+const runtimeStateDeclaration = smartReport.indexOf('const runtimeRendered = {');
+const runtimeStateUse = smartReport.indexOf('renderedOutput: runtimeRendered,');
+assert.ok(runtimeStateDeclaration >= 0, 'Smart Report runtime rendered state declaration must exist');
+assert.ok(runtimeStateUse > runtimeStateDeclaration, 'Smart Report must only consume runtimeRendered after it is initialized');
+assert.match(smartReport, /renderedOutput: effectiveRendered,/, 'base intelligence must consume the passport-refreshed rendered state before runtime state is synthesized');
+
 assert.match(
   smartReport,
   /evidenceSnapshotId: currentPassport\.evidence_snapshot_id/,
