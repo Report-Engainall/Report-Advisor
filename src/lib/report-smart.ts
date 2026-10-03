@@ -499,15 +499,10 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     intelligence = archetypeRun.state === 'SUPPORTED'
       ? archetypeRun.intelligence
       : {
-          ...archetypeRun.intelligence,
-          signals: archetypeRun.intelligence.signals.filter((signal) => !signal.id.startsWith('model:')),
-          recommendations: [],
+          ...baseIntelligence,
           advisorBrief: {
-            ...archetypeRun.intelligence.advisorBrief,
-            recommendedAction: null,
-            expectedOutcome: null,
-            measurement: null,
-            headline: 'النموذج لم يجتز بوابة التشغيل: ' + archetypeRun.state,
+            ...baseIntelligence.advisorBrief,
+            headline: 'النموذج لم يجتز بوابة التشغيل: ' + archetypeRun.state + ' — تم إبقاء الذكاء المصدرّي المتاح دون اعتماد النموذج المتخصص.',
           },
         };
   } else {
