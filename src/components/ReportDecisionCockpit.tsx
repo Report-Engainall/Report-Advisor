@@ -38,8 +38,8 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
   };
   const specialtyHref = specialtyRoutes[String(report.specialty ?? '')] ?? '/intelligence';
   const identity = '&reportJobId=' + job + '&sourceHash=' + hash;
-  const signals = report.intelligence.signals.slice(0, 3);
-  const recommendations = report.intelligence.recommendations.slice(0, 3);
+  const signals = report.intelligence.signals;
+  const recommendations = report.intelligence.recommendations;
   const topSignal = signals[0] ?? null;
   const topRecommendation = recommendations[0] ?? null;
   const forecast = report.intelligence.forecast;
