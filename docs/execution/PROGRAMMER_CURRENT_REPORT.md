@@ -56,3 +56,6 @@ REMAINING OPEN
 DO_NOT_REPEAT
 No stale PASS, no queued-run PASS, no Service Role impersonation, no new Supabase project, no tenant/RLS bypass, no fabricated corpus/archetype coverage.
 NEXT_EXACT_ACTION = certify exact head 9bec7dc45ba65ddd036aa02491c0b4574d579570; authenticated Browser E2E must prove save/readback, then close Phase-F and final certification.
+
+
+<!-- exact-main-preview-marker: 76ae1b03da15503a408e97033d5c4e64624c5878 -->
