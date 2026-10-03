@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Building2, CheckCircle2, CircleAlert, FileInput, FileText, Gauge, ShieldCheck, Users, Wand2 } from 'lucide-react';
+import { ArrowLeft, ArrowUpLeft, BrainCircuit, Building2, CheckCircle2, CircleAlert, FileInput, FileSearch, FileText, Gauge, ShieldCheck, Target, Users, Wand2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PageHeader, ErrorState, LoadingState } from '@/components/ui/States';
@@ -63,7 +63,33 @@ export function OnboardingPage() {
   const nextAction = STEPS.find(step => stateFor(step.id, data) === 'ACTION_REQUIRED');
   return (
     <div dir="rtl" className="ag-onboarding-page space-y-6">
-      <PageHeader title="بدء الاستخدام التجاري" subtitle="مسار تجهيز مبني على حالة الحساب والشركة الحالية والبيانات الحقيقية." />
+      <PageHeader
+        title="من أول تقرير إلى قرار قابل للتنفيذ"
+        subtitle="الأغبري لا يبدأ من لوحة مؤشرات. يبدأ من المصدر، يثبت الحقيقة، يشرح ما يعنيه الرقم، ثم يربط التوصية بالقرار والعمل والنتيجة."
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <Link to="/import" className="btn-primary text-xs"><FileInput size={14}/> ابدأ برفع تقرير</Link>
+            <Link to="/command-center" className="btn-secondary text-xs"><ArrowUpLeft size={14}/> مركز القيادة</Link>
+          </div>
+        }
+      />
+      <section className="ag-onboarding-value grid gap-3 md:grid-cols-2 xl:grid-cols-4" aria-label="القيمة التي يحصل عليها العميل">
+        {[
+          { step: '01', icon: ShieldCheck, title: 'الحقيقة أولًا', text: 'كل نتيجة تبقى مرتبطة بالمصدر وبصمته ولقطة الدليل وحالة الثقة.', tone: 'border-primary-200 bg-primary-50/55 text-primary-800' },
+          { step: '02', icon: BrainCircuit, title: 'المستشار الحقيقي', text: 'النتيجة تتحول إلى Finding وRisk وOpportunity وSignal وأسئلة أعمال واضحة.', tone: 'border-ink-200 bg-white text-ink-800' },
+          { step: '03', icon: Target, title: 'قرار موثق', text: 'التوصية لا تصبح قرارًا تلقائيًا؛ تمر عبر مساحة قرار وموافقة منفصلة.', tone: 'border-warning-200 bg-warning-50/65 text-warning-900' },
+          { step: '04', icon: FileSearch, title: 'عمل ونتيجة', text: 'ينتقل السياق إلى Work Center ثم يعود بنتيجة فعلية عندما تُسجل.', tone: 'border-success-200 bg-success-50/65 text-success-900' },
+        ].map(({ step, icon: Icon, title, text, tone }) => (
+          <article key={step} className={'rounded-[18px] border p-4 shadow-sm ' + tone}>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[9px] font-black tracking-[.16em] opacity-70">{step}</span>
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/75"><Icon size={17}/></span>
+            </div>
+            <h2 className="mt-4 text-sm font-black">{title}</h2>
+            <p className="mt-1.5 text-[10px] leading-5 opacity-80">{text}</p>
+          </article>
+        ))}
+      </section>
       <section className="ag-onboarding-summary grid gap-4 sm:grid-cols-3" aria-label="ملخص حالة البدء"><Card><CardBody><div className="text-xs text-ink-500">جاهز</div><div className="mt-1 text-2xl font-black text-success-700">{summary.ready}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-500">يحتاج إجراء</div><div className="mt-1 text-2xl font-black text-warning-700">{summary.action}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-500">غير مثبت بعد</div><div className="mt-1 text-2xl font-black text-ink-700">{summary.unknown}</div></CardBody></Card></section>
       {nextAction && <Card className="ag-onboarding-next"><CardBody className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><div className="text-xs font-medium text-primary-700">الخطوة التالية</div><div className="mt-1 text-lg font-bold text-ink-900">{nextAction.title}</div><div className="mt-1 text-sm text-ink-500">{nextAction.description}</div></div><Link to={nextAction.href} className="btn-primary text-xs">متابعة <ArrowLeft size={14} /></Link></CardBody></Card>}
       <Card><CardHeader title="مسار التجهيز التجاري" subtitle={data.companyName ? `الشركة الحالية: ${data.companyName}${data.role ? ` · الدور: ${data.role}` : ''}` : 'لم يتم تثبيت الشركة الحالية بعد.'} /><CardBody className="space-y-3"><div role="list" aria-label="خطوات التجهيز">{STEPS.map((step, index) => { const state = stateFor(step.id, data); const Icon = step.icon; const badge = state === 'READY' ? { text: 'جاهز', className: 'bg-success-50 text-success-700' } : state === 'ACTION_REQUIRED' ? { text: 'إجراء مطلوب', className: 'bg-warning-50 text-warning-700' } : { text: 'غير مثبت', className: 'bg-ink-50 text-ink-500' }; return <div key={step.id} role="listitem" className="ag-onboarding-step flex flex-col gap-3 rounded-xl border border-ink-100 p-4 sm:flex-row sm:items-center"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink-50 text-ink-600"><Icon size={18} /></div><div className="min-w-0 flex-1"><div className="text-xs font-bold text-primary-600">0{index + 1}</div><div className="mt-0.5 text-sm font-semibold text-ink-900">{step.title}</div><div className="mt-1 text-xs leading-5 text-ink-400">{step.description}</div></div><div className="flex items-center gap-2"><span role="status" aria-label={badge.text} className={`rounded-full px-3 py-1 text-xs font-medium ${badge.className}`}>{state === 'READY' && <CheckCircle2 className="ml-1 inline" size={13} />}{state === 'ACTION_REQUIRED' && <CircleAlert className="ml-1 inline" size={13} />}{badge.text}</span><Link to={step.href} className="inline-flex min-h-11 items-center rounded-lg border border-ink-200 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50">فتح</Link></div></div>; })}</div></CardBody></Card>
