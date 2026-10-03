@@ -45,7 +45,7 @@ export function BenchmarkPage() {
   const networkStatus = 'INSUFFICIENT_SAMPLE';
 
   return (
-    <div dir="rtl" className="space-y-5 pb-10">
+    <div dir="rtl" className="ag-benchmark-surface space-y-5 pb-10">
       <section className="rounded-[18px] border border-primary-200 bg-primary-50/60 p-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
