@@ -224,7 +224,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
           <div className="mt-3 space-y-2">
             {intelligence.signals.length === 0 ? (
               <div className="rounded-xl border border-success-200 bg-success-50 p-3 text-xs text-success-900">لم تُثبت إشارة استثنائية من البيانات المتاحة.</div>
-            ) : intelligence.signals.slice(0, 8).map((signal) => (
+            ) : intelligence.signals.map((signal) => (
               <article key={signal.id} className={'rounded-xl border p-3 ' + severityClass(signal.severity)}>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[9px] font-black">{severityLabel[signal.severity] ?? signal.severity}</span>
@@ -291,7 +291,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                     onClick={() => { void saveSignalAsCase(signal); }}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-primary-200 bg-white px-2.5 py-2 text-[9px] font-black text-primary-800 disabled:opacity-50"
                   >
-                    {caseState[signal.id] === 'saving' ? 'جارٍ حفظ القضية...' : caseState[signal.id] === 'saved' ? 'تم حفظ القرار والقضية' : caseState[signal.id] === 'error' ? 'تعذر حفظ القضية' : !report.sourceAnalysis?.id ? 'الدليل غير متاح' : 'حفظ القرار والقضية'}
+                    {caseState[signal.id] === 'saving' ? 'جارٍ حفظ القضية...' : caseState[signal.id] === 'saved' ? 'تم حفظ القرار والقضية' : caseState[signal.id] === 'error' ? 'تعذر حفظ القضية' : !evidenceSnapshotId ? 'الدليل غير متاح' : 'حفظ القرار والقضية'}
                   </button>
                   <Link
                     to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)}
