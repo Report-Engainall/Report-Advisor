@@ -56,7 +56,7 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   canonicalCommitGap: number | null;
   canonicalCommitCount: number;
   canonicalCommitVerified: boolean;
-  canonicalAnalysisScope: 'FULL_SOURCE' | 'PARTIAL_FETCH_CEILING';
+  canonicalAnalysisScope: 'FULL_SOURCE' | 'PARTIAL_FETCH_CEILING' | 'PARTIAL_FETCH_ERROR';
   sourceTrustState: string | null;
   reportVerificationState: string;
   canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }>;
@@ -184,8 +184,8 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
     sourceHash: String(job.source_hash ?? ''),
     entityType: entityTypeFrom(String(job.job_key ?? '')),
     rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
-    qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
-    trustState: rendered.trustState == null ? null : String(rendered.trustState),
+    qualityScore: effectiveRendered.qualityScore == null ? null : Number(effectiveRendered.qualityScore),
+    trustState: effectiveRendered.trustState == null ? null : String(effectiveRendered.trustState),
     reportVerificationState: normalizedEvidenceStatus ?? 'PENDING_EVIDENCE',
     specialty,
     evidenceStatus: normalizedEvidenceStatus,
@@ -377,7 +377,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
   );
   const authoritativeCurrentRowCount = effectiveRendered.authoritativeCurrentRowCount == null
     ? (effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount))
-    : Number(rendered.authoritativeCurrentRowCount);
+    : Number(effectiveRendered.authoritativeCurrentRowCount);
   const sourceRowCount = effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount);
   const canonicalCommitGap = authoritativeCurrentRowCount == null
     ? null
@@ -564,7 +564,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     intelligence,
     evidenceStatus,
     completedAt: job.completed_at == null ? null : String(job.completed_at),
-    importId: rendered.importId == null ? null : String(rendered.importId),
+    importId: effectiveRendered.importId == null ? null : String(effectiveRendered.importId),
     checkpointStage: job.checkpoint?.stage == null ? null : String(job.checkpoint.stage),
     renderedOutput: runtimeRendered,
     sourceAnalysis,
@@ -573,7 +573,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     canonicalCommitCount,
     canonicalCommitVerified,
     canonicalAnalysisScope,
-    sourceTrustState: rendered.trustState == null ? null : String(rendered.trustState),
+    sourceTrustState: effectiveRendered.trustState == null ? null : String(effectiveRendered.trustState),
     reportVerificationState: !canonicalRowsComplete || canonicalRowsPartial
       ? 'PARTIAL_ANALYSIS'
       : canonicalCommitGap != null && canonicalCommitGap > 0
