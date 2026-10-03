@@ -125,6 +125,19 @@ export async function fetchAgingSnapshot(): Promise<AgingSnapshot> {
   const row = data as Record<string, unknown>; return { rows: requiredArray<AgingSnapshotRow>(row.rows), asOf: typeof row.asOf==='string'?row.asOf:asOfDate(), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'NO_DATA' ? 'NO_DATA' : 'INSUFFICIENT_DATA' };
 }
 
+export function normalizeRecommendationStatus(status: string): string {
+  const normalized = status.trim().toLowerCase();
+  if (normalized === 'open') return 'accepted';
+  return status;
+}
+
+function normalizeRecommendations(value: unknown): Recommendation[] {
+  return requiredArray<Recommendation>(value).map((item) => ({
+    ...item,
+    status: normalizeRecommendationStatus(item.status),
+  }));
+}
+
 export async function fetchDashboardIntelligence(): Promise<{recommendations: Recommendation[]; alerts: Alert[]}> {
   const maxAttempts = 3;
   let lastError: unknown = null;
@@ -134,7 +147,7 @@ export async function fetchDashboardIntelligence(): Promise<{recommendations: Re
       if (error) throw error;
       if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: dashboard intelligence missing');
       const row = data as Record<string, unknown>;
-      return { recommendations: requiredArray<Recommendation>(row.recommendations), alerts: requiredArray<Alert>(row.alerts) };
+      return { recommendations: normalizeRecommendations(row.recommendations), alerts: requiredArray<Alert>(row.alerts) };
     } catch (error) {
       lastError = error;
       if (attempt < maxAttempts) await new Promise(resolve => setTimeout(resolve, 250 * attempt));
