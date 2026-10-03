@@ -125,5 +125,6 @@ assert.equal(renderedSource.sourceMetrics.asOfStart, '2026-01-02');
 assert.equal(renderedSource.sourceMetrics.asOfEnd, '2026-01-02');
 assert.equal(renderedSource.archetypeId, 'sales.invoice-detail');
 assert.equal(renderedSource.archetypeVersion, 1);
+assert.equal(renderedSource.profileVersion, 1);
 assert.equal(renderedSource.archetypeState, 'SUPPORTED');
 assert.equal(typeof renderedSource.archetypeReason, 'string');
