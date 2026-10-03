@@ -186,7 +186,7 @@ assert.match(
 );
 assert.match(
   smartReport,
-  /renderedOutput: effectiveRendered/,
+  /renderedOutput: runtimeRendered/,
   'Smart Report consumers must receive the Passport-refreshed provenance',
 );
 assert.match(
