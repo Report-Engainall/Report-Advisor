@@ -225,7 +225,16 @@ export function detectReportArchetype(input: {
     }).length;
     const titleTokens = normalize(profile.title).split(/[^\p{L}\p{N}]+/u).filter((token) => token.length >= 4);
     const titleFieldHits = titleTokens.filter((token) => fieldLabels.some((field) => field.includes(token))).length;
-    const score = aliasHits * 8 + fieldAliasHits * 5 + titleFieldHits * 4 + requiredHits * 3 + optionalHits + requiredCoverage * 2;
+    const invoiceDetailSignals = ['unitPrice', 'grossAmount', 'discount', 'cost'].filter((field) => fields.has(field)).length;
+    const invoiceDetailBonus =
+      profile.id.endsWith('.invoice-detail') &&
+      fields.has('documentNo') &&
+      fields.has('documentDate') &&
+      fields.has('netAmount') &&
+      invoiceDetailSignals >= 2
+        ? 24
+        : 0;
+    const score = aliasHits * 8 + fieldAliasHits * 5 + titleFieldHits * 4 + requiredHits * 3 + optionalHits + requiredCoverage * 2 + invoiceDetailBonus;
     return { profile, score, requiredHits, aliasHits, fieldAliasHits, titleFieldHits };
   }).sort((a, b) => b.score - a.score || b.requiredHits - a.requiredHits || b.aliasHits - a.aliasHits);
 
