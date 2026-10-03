@@ -149,8 +149,10 @@ function analysisUsabilityScore(analysis: Record<string, unknown>): number {
     totalColumns += columns.length;
     if (Array.isArray(row.preview)) previewRows += row.preview.length;
   }
-  const rowCount = Number(analysis.row_count ?? 0);
-  const quality = Number(analysis.quality_score ?? 0);
+  const rowCountValue = Number(analysis.row_count ?? 0);
+  const qualityValue = Number(analysis.quality_score ?? 0);
+  const rowCount = Number.isFinite(rowCountValue) ? rowCountValue : 0;
+  const quality = Number.isFinite(qualityValue) ? qualityValue : 0;
   return (
     datasetsWithColumns * 1_000_000 +
     totalColumns * 10_000 +
@@ -279,7 +281,7 @@ export async function fetchSmartReportCatalog(limit = 500): Promise<SmartReportC
       .eq('company_id', companyId)
       .in('source_hash', batch)
       .order('created_at', { ascending: false })
-      .limit(500);
+      .limit(1000);
 
     if (analysisError) {
       // Catalog reads must never freeze the reports center when an optional analysis snapshot is unavailable.
