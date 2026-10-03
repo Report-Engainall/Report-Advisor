@@ -75,6 +75,22 @@ function SourceIntelligenceRail({ report }: { report: SmartReportDetail }) {
         <div className="rounded-xl border border-ink-200 bg-white p-3"><div className="text-[9px] font-black text-ink-400">التنبؤ</div><div className="mt-1 text-sm font-black">{intelligence.forecast.status === 'AVAILABLE' ? 'متاح' : 'عينة غير كافية'}</div><div className="mt-1 text-[10px] leading-4 text-ink-600">{intelligence.forecast.note}</div></div>
         <div className="rounded-xl border border-ink-200 bg-white p-3"><div className="text-[9px] font-black text-ink-400">الإرشاد</div><div className="mt-1 text-sm font-black">{intelligence.advisorBrief.health === 'HEALTHY' ? 'سليم' : intelligence.advisorBrief.health === 'ATTENTION' ? 'يحتاج انتباهًا' : 'مراجعة مطلوبة'}</div><div className="mt-1 text-[10px] leading-4 text-ink-600">{intelligence.guidance.focus}</div></div>
       </div>
+      <div className="mt-2 grid gap-2 grid-cols-2 md:grid-cols-3 xl:grid-cols-6" aria-label="طبقات ذكاء التقرير">
+        {[
+          { label: 'تحليلي', value: intelligence.findings.length, note: 'Finding' },
+          { label: 'تفسيري', value: intelligence.signals.filter((signal) => Boolean(signal.message && signal.soWhat)).length, note: 'WHY → SO WHAT' },
+          { label: 'تحذيري', value: intelligence.signals.filter((signal) => ['critical','high','medium'].includes(signal.severity)).length, note: 'Severity' },
+          { label: 'تنبؤي', value: intelligence.forecast.status === 'AVAILABLE' ? 1 : 0, note: intelligence.forecast.status === 'AVAILABLE' ? 'متاح' : 'غير كافٍ' },
+          { label: 'إرشادي', value: intelligence.guidance.inspect.length, note: 'Inspect' },
+          { label: 'توصية', value: intelligence.recommendations.length, note: 'Recommendation' },
+        ].map((layer) => (
+          <div key={layer.label} className="rounded-xl border border-ink-200 bg-white p-3">
+            <div className="text-[9px] font-black text-ink-400">{layer.label}</div>
+            <div className="mt-1 text-lg font-black text-ink-950">{layer.value}</div>
+            <div className="mt-1 text-[8px] font-bold text-ink-500">{layer.note}</div>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
