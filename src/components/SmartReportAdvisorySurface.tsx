@@ -147,10 +147,10 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
             <h3 className="mt-1 text-xl font-black tracking-tight">كل ما اكتشفه التقرير</h3>
             <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-200">الإشارات، التوصيات، التوقع، الإرشاد، والنتائج تعرض كاملة من نفس حزمة التقرير. لا يوجد حد عرض مصطنع.</p>
           </div>
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black text-ink-100">${packet.proofState === 'VERIFIED' ? 'دليل مرتبط' : 'مراجعة مطلوبة'} · ${report.rowCount ?? 0} سجل</span>
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black text-ink-100">{packet.proofState === 'VERIFIED' ? 'دليل مرتبط' : 'مراجعة مطلوبة'} · {report.rowCount ?? 0} سجل</span>
         </div>
         <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          ${[
+          {[
             ['إشارات', report.intelligence.signals.length],
             ['توصيات', report.intelligence.recommendations.length],
             ['نتائج', findings.length],
