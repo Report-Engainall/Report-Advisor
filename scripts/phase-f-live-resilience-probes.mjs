@@ -339,6 +339,8 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
     }
 
     const backupStartedAt = Date.now();
+    // Pre-create the bind-mounted host file; otherwise Docker creates a directory at this path.
+    fs.writeFileSync(backupPath, '', 'utf8');
     runDockerPgDump(runnerSource, backupPath);
     const backupCompletedAt = Date.now();
 
@@ -604,15 +606,44 @@ if (backupMode === 'logical') {
 } else {
   await probe('backup-restore-verification', process.env.RESILIENCE_BACKUP_VERIFY_URL, { method: 'POST' });
 }
-await probe(
-  'rollback-forward-fix-drill',
-  process.env.RESILIENCE_ROLLBACK_DRILL_URL,
-  {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: '{}',
-  },
-);
+async function probeRollbackForwardFix() {
+  const name = 'rollback-forward-fix-drill';
+  try {
+    const response = await fetch(process.env.RESILIENCE_ROLLBACK_DRILL_URL, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'x-resilience-token': process.env.RESILIENCE_OPERATIONAL_TOKEN.trim(),
+      },
+      body: '{}',
+    });
+    const body = await response.text();
+    let parsedBody = null;
+    try { parsedBody = JSON.parse(body); } catch {}
+    const identity = validateRuntimeIdentity(parsedBody);
+    const pass = response.ok
+      && parsedBody?.status === 'verified'
+      && parsedBody?.operation === 'rollback-forward-fix'
+      && parsedBody?.mode === 'non-destructive-preflight'
+      && identity.pass;
+    const result = {
+      name, pass, status: response.status,
+      operation: parsedBody?.operation ?? null,
+      mode: parsedBody?.mode ?? null,
+      identity: identity.identity,
+      failure: pass ? undefined : (identity.failure ?? 'ROLLBACK_DRILL_SEMANTICS_INVALID'),
+    };
+    checks.push(result);
+    console.log((pass ? 'PASS' : 'FAIL') + ' ' + name + ': HTTP ' + response.status + (result.failure ? ' — ' + result.failure : ''));
+    if (!pass) console.error(body.slice(0, 1200));
+  } catch (error) {
+    checks.push({ name, pass: false, error: String(error) });
+    console.error('FAIL ' + name + ': ' + error);
+  }
+}
+
+await probeRollbackForwardFix();
 
 const failed = checks.filter(check => !check.pass);
 const status = failed.length ? 'NOT READY' : 'READY';
