@@ -134,6 +134,7 @@ for (const companyId of tenantIds) {
   }
 
   for (const job of jobs) {
+    if (!verifiedJobIds.has(String(job.id))) continue;
     const rendered = job?.evidence?.renderedOutput && typeof job.evidence.renderedOutput === 'object'
       ? job.evidence.renderedOutput
       : {};
