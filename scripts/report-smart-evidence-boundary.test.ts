@@ -214,6 +214,16 @@ const runtimeStateUse = smartReport.indexOf('renderedOutput: runtimeRendered,');
 assert.ok(runtimeStateDeclaration >= 0, 'Smart Report runtime rendered state declaration must exist');
 assert.ok(runtimeStateUse > runtimeStateDeclaration, 'Smart Report must only consume runtimeRendered after it is initialized');
 assert.match(smartReport, /renderedOutput: effectiveRendered,/, 'base intelligence must consume the passport-refreshed rendered state before runtime state is synthesized');
+assert.match(
+  smartReport,
+  /headline: 'النموذج لم يجتز بوابة التشغيل: ' \+ archetypeRun\.state \+ ' — تم إبقاء الذكاء المصدرّي المتاح/,
+  'Archetype review must preserve source intelligence instead of blanking all signals and recommendations',
+);
+assert.doesNotMatch(
+  smartReport,
+  /archetypeRun\.state === 'SUPPORTED'[\s\S]*?recommendations: \[\]/,
+  'Archetype review must not erase all source recommendations',
+);
 
 assert.match(
   smartReport,
