@@ -136,6 +136,41 @@ function resolveEffectiveSpecialty(renderedSpecialty: unknown, analysis: Analysi
   return inferred ?? renderedValue;
 }
 
+function analysisUsabilityScore(analysis: Record<string, unknown>): number {
+  const datasets = Array.isArray(analysis.datasets) ? analysis.datasets : [];
+  let datasetsWithColumns = 0;
+  let totalColumns = 0;
+  let previewRows = 0;
+  for (const dataset of datasets) {
+    if (!dataset || typeof dataset !== 'object') continue;
+    const row = dataset as Record<string, unknown>;
+    const columns = Array.isArray(row.columns) ? row.columns : [];
+    if (columns.length > 0) datasetsWithColumns += 1;
+    totalColumns += columns.length;
+    if (Array.isArray(row.preview)) previewRows += row.preview.length;
+  }
+  const rowCount = Number(analysis.row_count ?? 0);
+  const quality = Number(analysis.quality_score ?? 0);
+  return (
+    datasetsWithColumns * 1_000_000 +
+    totalColumns * 10_000 +
+    Math.min(10_000, Math.max(0, previewRows)) * 10 +
+    Math.min(100, Math.max(0, quality)) +
+    Math.min(1_000_000, Math.max(0, rowCount)) / 1_000_000
+  );
+}
+
+function chooseBestAnalysisSnapshot(rows: Array<Record<string, unknown>>): Record<string, unknown> | null {
+  if (!rows.length) return null;
+  return [...rows].sort((left, right) => {
+    const usabilityDelta = analysisUsabilityScore(right) - analysisUsabilityScore(left);
+    if (usabilityDelta !== 0) return usabilityDelta;
+    const rightTime = Date.parse(String(right.created_at ?? ''));
+    const leftTime = Date.parse(String(left.created_at ?? ''));
+    return (Number.isFinite(rightTime) ? rightTime : 0) - (Number.isFinite(leftTime) ? leftTime : 0);
+  })[0] ?? null;
+}
+
 function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapshotLike | null): SmartReportCatalogItem | null {
   const rendered = renderedOutputOf(job.evidence) ?? {};
   const path = String(job.source_path ?? '');
@@ -243,15 +278,24 @@ export async function fetchSmartReportCatalog(limit = 500): Promise<SmartReportC
       .select('source_hash,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
       .eq('company_id', companyId)
       .in('source_hash', batch)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(500);
 
     if (analysisError) {
       // Catalog reads must never freeze the reports center when an optional analysis snapshot is unavailable.
       continue;
     }
+    const byHash = new Map<string, Record<string, unknown>[]>();
     for (const analysis of analyses ?? []) {
       const hash = String(analysis.source_hash ?? '');
-      if (hash && !analysesByHash.has(hash)) analysesByHash.set(hash, analysis as Record<string, unknown>);
+      if (!hash) continue;
+      const rows = byHash.get(hash) ?? [];
+      rows.push(analysis as Record<string, unknown>);
+      byHash.set(hash, rows);
+    }
+    for (const [hash, rows] of byHash) {
+      const best = chooseBestAnalysisSnapshot(rows);
+      if (best) analysesByHash.set(hash, best);
     }
   }
 
@@ -413,12 +457,12 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
       .eq('company_id', companyId)
       .eq('source_hash', job.source_hash)
       .order('created_at', { ascending: false })
-      .limit(1);
+      .limit(20);
 
     if (analysisError) {
-      runtimeWarnings.push('تعذر قراءة أحدث لقطة تحليل؛ استمر التقرير اعتمادًا على المخرجات المحفوظة والصفوف الكانونية المتاحة.');
+      runtimeWarnings.push('تعذر قراءة لقطات التحليل البديلة؛ استمر التقرير اعتمادًا على المخرجات المحفوظة والصفوف الكانونية المتاحة.');
     }
-    analysis = (analyses?.[0] ?? null) as Record<string, unknown> | null;
+    analysis = chooseBestAnalysisSnapshot((analyses ?? []) as Array<Record<string, unknown>>);
   }
   if (analysis) {
     if (effectiveRendered.rowCount == null && analysis.row_count != null) effectiveRendered.rowCount = Number(analysis.row_count);
