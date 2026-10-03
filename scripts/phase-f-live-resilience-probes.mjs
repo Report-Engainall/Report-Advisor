@@ -598,7 +598,15 @@ if (backupMode === 'logical') {
 } else {
   await probe('backup-restore-verification', process.env.RESILIENCE_BACKUP_VERIFY_URL, { method: 'POST' });
 }
-await probe('rollback-forward-fix-drill', process.env.RESILIENCE_ROLLBACK_DRILL_URL, { method: 'POST' });
+await probe(
+  'rollback-forward-fix-drill',
+  process.env.RESILIENCE_ROLLBACK_DRILL_URL,
+  {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: '{}',
+  },
+);
 
 const failed = checks.filter(check => !check.pass);
 const status = failed.length ? 'NOT READY' : 'READY';
