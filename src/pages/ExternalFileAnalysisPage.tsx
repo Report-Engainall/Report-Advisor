@@ -34,6 +34,7 @@ function downloadCsv(dataset: Dataset) {
 export function ExternalFileAnalysisPage() {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
+  const selectedFileRef = useRef<File | null>(null);
   const [file, setFile] = useState<{name:string;size:number;format:FileFormat;hash:string}|null>(null);
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [active, setActive] = useState(0);
@@ -52,6 +53,7 @@ export function ExternalFileAnalysisPage() {
       const hash = await computeSHA256(buffer);
       const parsed = await parseFile(buffer, selected.name, detection.format);
       if (!parsed.length) throw new Error('لم يتم العثور على بيانات قابلة للتحليل داخل الملف');
+      selectedFileRef.current = selected;
       setFile({ name:selected.name, size:selected.size, format:detection.format, hash });
       setDatasets(parsed);
     } catch (e) {
@@ -88,7 +90,7 @@ export function ExternalFileAnalysisPage() {
         <button
           type="button"
           onClick={() => {
-            const selected = inputRef.current?.files?.[0];
+            const selected = selectedFileRef.current;
             if (selected) navigate('/import', { state: { preloadedFile: selected } });
           }}
           className="btn-primary inline-flex items-center gap-2 whitespace-nowrap"
