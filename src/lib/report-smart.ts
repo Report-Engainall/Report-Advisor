@@ -564,7 +564,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     completedAt: job.completed_at == null ? null : String(job.completed_at),
     importId: rendered.importId == null ? null : String(rendered.importId),
     checkpointStage: job.checkpoint?.stage == null ? null : String(job.checkpoint.stage),
-    renderedOutput: effectiveRendered,
+    renderedOutput: runtimeRendered,
     sourceAnalysis,
     authoritativeCurrentRowCount,
     canonicalCommitGap,
