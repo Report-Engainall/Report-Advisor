@@ -1,14 +1,15 @@
 # CURRENT SESSION STATE
 SESSION_HANDOFF = NOT READY
 ACTION_STATUS = ACTIVE_EXECUTION
+CURRENT_EXACT_HEAD = 4db6c1884a9892f9a6c20631c4d4836db0c7b5e7
 CURRENT_MAIN_HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT_EXECUTION_HEAD = d9b9291a02acc57fc50391d9fee151bb5a5deeab
+CURRENT_EXECUTION_HEAD = 4db6c1884a9892f9a6c20631c4d4836db0c7b5e7
 BRANCH = captain/phase-f-dynamic-pr-preview-20261003
 PR = #762 OPEN
 PR_PRODUCT_DELTA = #761 MERGED
 PR_PRODUCT_DELTA_SHA = 9d78baf6ef00fac9c9cbd975b1ae0d737b100b23
 CURRENT_PRODUCT_MAIN = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT_PR_HEAD = d9b9291a02acc57fc50391d9fee151bb5a5deeab
+CURRENT_PR_HEAD = 4db6c1884a9892f9a6c20631c4d4836db0c7b5e7
 WHAT_ACTUALLY_HAPPENED
 - Netlify account is Owner; site is Git-connected; Production deploy remains blocked by Free-plan credit exhaustion/HTTP 403.
 - PR #761 merged an actionable tenant-context gate without weakening RLS, default tenant selection, or client tenant authority.
