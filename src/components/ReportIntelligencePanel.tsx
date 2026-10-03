@@ -36,6 +36,9 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
   const [decisionTrace, setDecisionTrace] = useState<SourceDecisionState[]>([]);
   const [caseState, setCaseState] = useState<Record<string, string>>({});
   const forecast = intelligence.forecast;
+  const evidenceSnapshotId = typeof report.renderedOutput?.evidenceSnapshotId === 'string'
+    ? report.renderedOutput.evidenceSnapshotId.trim()
+    : '';
 
   useEffect(() => {
     let active = true;
@@ -81,7 +84,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         signalMessage: signal.message,
         severity: signal.severity,
         evidence: signal.evidence,
-        evidenceSnapshotId: report.sourceAnalysis?.id ?? '',
+        evidenceSnapshotId,
       });
       await saveAdvisorBusinessCase({
         decisionId: proposal.id,
@@ -284,7 +287,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    disabled={proposalState[signal.id] === 'saving' || !report.sourceAnalysis?.id}
+                    disabled={proposalState[signal.id] === 'saving' || !evidenceSnapshotId}
                     onClick={() => { void saveSignalAsCase(signal); }}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-primary-200 bg-white px-2.5 py-2 text-[9px] font-black text-primary-800 disabled:opacity-50"
                   >
