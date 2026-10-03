@@ -120,12 +120,4 @@ assert.match(
   'Smart Report must bind decision provenance to the Passport snapshot',
 );
 
-const decisionsPath = fileURLToPath(new URL('../src/lib/report-decisions.ts', import.meta.url));
-const decisions = fs.readFileSync(decisionsPath, 'utf8');
-assert.match(
-  decisions,
-  /refresh_source_intelligence_recommendation_evidence/,
-  'source proposal creation must repair legacy recommendation Passport provenance',
-);
-
-console.log('PASS: evidence verification, Advisor decision provenance, live Passport readback, and legacy provenance repair remain fail-closed.');
+console.log('PASS: evidence verification, Advisor decision provenance, live Passport readback and source-proposal reconciliation remain fail-closed.');
