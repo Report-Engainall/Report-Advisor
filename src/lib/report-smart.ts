@@ -503,15 +503,24 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
   const canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }> = [];
   const canonicalFetchPageSize = 1000;
   const canonicalFetchLimit = 50000;
+  const canonicalImportJobId = renderedImportId || (
+    analysis?.import_job_id == null ? '' : String(analysis.import_job_id).trim()
+  );
+  if (!canonicalImportJobId) {
+    runtimeWarnings.push('لم تتوفر import_job_id لهذا التشغيل؛ استُخدم sourceHash كحد أدنى للقراءة الكانونية، وقد تكون هناك لقطات تاريخية إضافية لنفس الملف.');
+  }
   let canonicalOffset = 0;
   let canonicalFetchError = false;
 
   while (canonicalOffset < canonicalFetchLimit) {
-    const { data: pageRows, error: pageError } = await supabase
+    const canonicalSourceQuery = supabase
       .from('canonical_dataset_records')
       .select('row_number,data')
-      .eq('company_id', companyId)
-      .eq('source_hash', job.source_hash)
+      .eq('company_id', companyId);
+    const canonicalScopedQuery = canonicalImportJobId
+      ? canonicalSourceQuery.eq('import_job_id', canonicalImportJobId)
+      : canonicalSourceQuery.eq('source_hash', job.source_hash);
+    const { data: pageRows, error: pageError } = await canonicalScopedQuery
       .order('row_number', { ascending: true })
       .range(canonicalOffset, canonicalOffset + canonicalFetchPageSize - 1);
 
