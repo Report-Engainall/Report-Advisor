@@ -10,12 +10,12 @@ const principles = [
   { icon: CheckCircle2, title: 'العزل قبل الراحة', text: 'الهوية والصلاحيات وبيانات الشركة تُثبت قبل فتح المساحة التشغيلية.' },
 ];
 
-const competitiveProofLanes = [
-  { title: 'Evidence-First BI', text: 'مؤشر لا يُعرض وحده: تعريفه ومصدره ودليله ومسار القرار.', state: 'مسار منتج' },
-  { title: 'Governed Excel / CSV', text: 'من ملف العميل إلى بيانات كانونية بدل إدخال يدوي أو ETL عام.', state: 'مسار منتج' },
-  { title: 'Arabic RTL B2B UX', text: 'تجربة عربية أصلية، mobile وlow-bandwidth داخل workflows حقيقية.', state: 'مسار منتج' },
-  { title: 'Inventory / Receivables', text: 'من الإشارة التشغيلية إلى التفسير ثم القرار والإجراء.', state: 'مسار منتج' },
-  { title: 'Supabase Tenant Security', text: 'RLS وعزل المستأجرين مع إثبات رفض cross-tenant.', state: 'إثبات runtime مطلوب' },
+const customerValueLanes = [
+  { title: 'تقارير تفهمها الإدارة', text: 'من المصدر إلى المؤشرات، الإشارات، المخاطر والفرص داخل تقرير واحد.', state: 'Evidence-first' },
+  { title: 'دليل لا يضيع', text: 'كل نتيجة تبقى مربوطة بالمصدر والبصمة ولقطة الدليل وحالة الثقة.', state: 'Provenance' },
+  { title: 'قرار بدل شاشة', text: 'التوصية لا تتوقف عند التحليل؛ تنتقل إلى مساحة قرار وموافقة منفصلة.', state: 'Decision' },
+  { title: 'إجراء ونتيجة', text: 'ينتقل السياق إلى العمل ثم يعود بنتيجة فعلية عندما تُسجل، بلا تخمين.', state: 'Outcome' },
+  { title: 'عربي أصيل', text: 'RTL أصلية ومسارات تشغيلية مترابطة، وليست ترجمة سطحية لواجهة أجنبية.', state: 'Arabic-first' },
 ];
 
 export function LoginPage() {
@@ -66,11 +66,11 @@ export function LoginPage() {
               <div className="max-w-2xl">
                 <div className="section-kicker">منصة أعمال · Evidence-first</div>
                 <h1 className="mt-3 text-[34px] font-black leading-[1.18] tracking-tight text-ink-950 sm:text-[44px]">
-                  ليست لوحة مؤشرات.
-                  <span className="block text-primary-700">إنها مساحة قرار متكاملة.</span>
+                  من أول تقرير.
+                  <span className="block text-primary-700">إلى قرار يمكن متابعته وقياسه.</span>
                 </h1>
                 <p className="mt-5 max-w-2xl text-[14px] leading-7 text-ink-600">
-                  من المستند والاستيراد إلى جودة البيانات، التحليل، الذكاء، القرار، والتنفيذ — داخل مساحة عربية أصلية تحفظ سياق الشركة والدليل بدل تشتيتك بين أدوات منفصلة.
+                  ارفع تقريرك كما هو. الأغبري يحافظ على المصدر، يثبت الحقيقة، يفسر ما حدث، يبرز ما يحتاج انتباهًا، ثم يربط التوصية بالقرار والعمل والنتيجة — داخل مساحة عربية أصلية.
                 </p>
 
                 <div className="mt-8 grid gap-px overflow-hidden rounded-[12px] border border-ink-200 bg-ink-200 sm:grid-cols-2">
@@ -83,9 +83,9 @@ export function LoginPage() {
                 </div>
 
                 <div className="mt-8">
-                  <div className="flex items-center gap-2 text-[12px] font-black text-ink-900"><Sparkles size={15} className="text-primary-700"/>خمس طرق محددة لمنافسة المشاريع الأكبر</div>
+                  <div className="flex items-center gap-2 text-[12px] font-black text-ink-900"><Sparkles size={15} className="text-primary-700"/>ما الذي يحصل عليه العميل</div>
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                    {competitiveProofLanes.map(lane => (
+                    {customerValueLanes.map(lane => (
                       <div key={lane.title} className="rounded-[10px] border border-ink-200 bg-ink-50/70 p-3.5">
                         <div className="flex items-center justify-between gap-2"><div className="text-[11px] font-black text-ink-900">{lane.title}</div><span className="rounded-full bg-white px-2 py-1 text-[9px] font-bold text-ink-500 ring-1 ring-inset ring-ink-200">{lane.state}</span></div>
                         <p className="mt-1.5 text-[10px] leading-5 text-ink-500">{lane.text}</p>
@@ -96,7 +96,7 @@ export function LoginPage() {
               </div>
             </div>
 
-            <div className="border-t border-ink-200 pt-4 text-[10px] font-medium text-ink-400"><Upload size={12} className="mr-1 inline"/> تشغيل منخفض النطاق، responsive، وPWA-ready.</div>
+            <div className="border-t border-ink-200 pt-4 text-[10px] font-medium text-ink-400"><Upload size={12} className="mr-1 inline"/> ابدأ من مستند واحد. لا تحتاج إلى إعادة بناء نظامك كي ترى قيمة التحليل.</div>
           </div>
         </section>
 
