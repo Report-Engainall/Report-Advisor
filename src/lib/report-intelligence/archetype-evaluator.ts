@@ -136,7 +136,7 @@ function addModelFinding(
   profile: RuleProfile,
   finding: BusinessFinding,
 ): ReportIntelligence {
-  const findings = [finding, ...intelligence.findings.filter((item) => item.id !== finding.id)].slice(0, 8);
+  const findings = [finding, ...intelligence.findings.filter((item) => item.id !== finding.id)];
   return {
     ...intelligence,
     findings,
@@ -171,7 +171,7 @@ function addModelRecommendation(intelligence: ReportIntelligence, profile: RuleP
     recommendations: [
       recommendation,
       ...intelligence.recommendations.filter((item) => item.id !== recommendation.id),
-    ].slice(0, 8),
+    ],
   };
 }
 
@@ -1033,6 +1033,6 @@ export function applyArchetypeRuleSet(
 
   return {
     ...intelligence,
-    signals: [modelSignal, ...intelligence.signals.filter((signal) => signal.id !== modelSignal.id)].slice(0, 20),
+    signals: [modelSignal, ...intelligence.signals.filter((signal) => signal.id !== modelSignal.id)],
   };
 }

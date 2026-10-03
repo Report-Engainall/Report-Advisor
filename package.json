@@ -188,6 +188,7 @@
     "test:report-advisor-intelligence": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/report-advisor-intelligence.test.mjs",
     "test:source-intelligence-proposal-contract": "node scripts/check-source-intelligence-proposal-contract.mjs",
     "test:48-archetype-runtime": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/check-48-archetype-runtime-contract.mjs",
-    "test:48-real-source-proof": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-archetype-proof.mjs"
+    "test:48-real-source-proof": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-archetype-proof.mjs",
+    "test:archetype-intelligence-retention": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/archetype-intelligence-retention.test.mjs"
   }
 }
