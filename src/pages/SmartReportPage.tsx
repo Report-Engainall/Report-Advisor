@@ -191,7 +191,7 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
   const gap = report.canonicalCommitGap ?? 0;
   const verification = report.reportVerificationState;
   const verificationClass = verification === 'VERIFIED'
-    ? 'border-success-200 bg-success-50 text-success-900'
+    ? 'border-indigo-200 bg-indigo-50 text-indigo-900'
     : verification === 'GAP_DETECTED'
       ? 'border-danger-200 bg-danger-50 text-danger-900'
       : 'border-warning-200 bg-warning-50 text-warning-900';
@@ -256,7 +256,7 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
 }
 
 function statusTone(value: string | null): string {
-  if (value === 'TRUSTED' || value === 'VERIFIED') return 'border-success-200 bg-success-50 text-success-900';
+  if (value === 'TRUSTED' || value === 'VERIFIED') return 'border-indigo-200 bg-indigo-50 text-indigo-900';
   if (value === 'REVIEW' || value === 'AWAITING_EVIDENCE_SNAPSHOT') return 'border-warning-200 bg-warning-50 text-warning-900';
   return 'border-ink-200 bg-ink-50 text-ink-700';
 }
