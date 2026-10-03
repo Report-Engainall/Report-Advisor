@@ -12,6 +12,7 @@ export function normalizeArabicDigits(text: string): string {
 
 export function normalizeArabicText(text: string): string {
   return text
+    .normalize('NFKC')
     .replace(/[\u0640]/g, '')
     .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, '')
     .replace(/[\u064B-\u065F\u0670]/g, '')
