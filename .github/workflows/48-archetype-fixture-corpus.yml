@@ -1,0 +1,32 @@
+name: 48-archetype-fixture-corpus
+
+on:
+  pull_request:
+    paths:
+      - 'tests/fixtures/realistic-reports/48-archetypes/**'
+      - 'scripts/check-48-fixture-corpus-contract.mjs'
+      - '.github/workflows/48-archetype-fixture-corpus.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tests/fixtures/realistic-reports/48-archetypes/**'
+      - 'scripts/check-48-fixture-corpus-contract.mjs'
+      - '.github/workflows/48-archetype-fixture-corpus.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/check-48-fixture-corpus-contract.mjs
