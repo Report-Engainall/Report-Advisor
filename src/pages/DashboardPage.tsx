@@ -156,11 +156,11 @@ export function DashboardPage() {
   }, []);
 
   const liveAlerts = useMemo(
-    () => alerts.filter((item) => !item.is_read).slice(0, 3),
+    () => alerts.filter((item) => !item.is_read),
     [alerts],
   );
   const liveRecommendations = useMemo(
-    () => recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').slice(0, 3),
+    () => recommendations.filter((item) => item.status === 'new' || item.status === 'accepted'),
     [recommendations],
   );
   const decisionAccountability = useMemo(() => {
@@ -241,15 +241,15 @@ export function DashboardPage() {
 
   return (
     <div dir="rtl" className="animate-fade-in space-y-5 pb-10">
-      <section className="ag-dashboard-header rounded-[18px] border border-ink-200 bg-white px-5 py-5 shadow-card lg:px-6 lg:py-6">
+      <section className="ag-dashboard-header ag-command-hero rounded-[20px] border border-[#1d5f58] px-5 py-6 shadow-elevated lg:px-7 lg:py-7">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 text-[11px] font-black text-primary-700">
+            <div className="flex items-center gap-2 text-[10px] font-black tracking-[0.12em] text-[#9fe7d9]">
               <Sparkles size={15} />
               لوحة ذكاء الأعمال · الأغبري
             </div>
-            <h1 className="mt-2 max-w-3xl text-[25px] font-black tracking-tight text-ink-950 lg:text-[31px]">نبض الأعمال</h1>
-            <p className="mt-2 max-w-3xl text-[12px] leading-6 text-ink-500">
+            <h1 className="mt-2 max-w-3xl text-[27px] font-black tracking-tight text-white lg:text-[34px]">نبض الأعمال</h1>
+            <p className="mt-2 max-w-3xl text-[12px] leading-6 text-[#c8e3de]">
               صورة تنفيذية موثقة لأداء العمل اليوم — من البيانات إلى التحليل ثم الإشارة والقرار. لا تعرض المنصة رقمًا غير مدعوم بمصدره وحالته.
             </p>
           </div>
@@ -259,7 +259,7 @@ export function DashboardPage() {
             <Link to="/import/analyze" className="btn-ghost text-[11px]">تحليل المستندات</Link>
           </div>
         </div>
-        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-ink-100 pt-4">
+        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-white/10 pt-4">
           <StatusLine status={kpis.status} text={kpis.status === 'INSUFFICIENT_DATA' ? 'الصورة تحتاج مراجعة' : 'الصورة صالحة للاستخدام'} />
           <span className="rounded-full border border-ink-200 bg-ink-50 px-2.5 py-1 text-[10px] font-semibold text-ink-500">تغطية المؤشرات {coverage}%</span>
           <span className="rounded-full border border-ink-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-ink-400">As-of: {snapshotAsOf ?? 'غير متاح'}</span>
