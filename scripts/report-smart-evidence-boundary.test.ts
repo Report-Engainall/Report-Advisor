@@ -150,7 +150,7 @@ assert.match(advisorySurface, /TOP OPPORTUNITIES/, 'smart report must render opp
 
 const intelligencePagePath = fileURLToPath(new URL('../src/pages/IntelligencePage.tsx', import.meta.url));
 const intelligencePage = fs.readFileSync(intelligencePagePath, 'utf8');
-assert.equal((intelligencePage.match(/<SourceIntelligenceRail report=\\{sourceReport\\} \/>/g) ?? []).length, 3, 'intelligence, recommendations, and forecast screens must each render one source-bound rail');
+assert.equal((intelligencePage.match(/<SourceIntelligenceRail report=\{sourceReport\} \/>/g) ?? []).length, 3, 'intelligence, recommendations, and forecast screens must each render one source-bound rail');
 assert.match(intelligencePage, /SourceRecommendationsDetail/, 'recommendation screen must expose report-bound recommendation details');
 assert.match(intelligencePage, /SourceForecastDetail/, 'forecast screen must expose report-bound forecast details');
 assert.match(intelligencePage, /loadOptionalSourceReport/, 'intelligence screens must load the active Report Job context');
