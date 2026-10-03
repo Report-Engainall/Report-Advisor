@@ -18,6 +18,7 @@ const service = createClient(url, serviceRole, {
 });
 
 async function seed48ArchetypeFixtureCorpus() {
+  mkdirSync('artifacts/legacy-corpus', { recursive: true });
   const fixtureDir = fileURLToPath(new URL('../tests/fixtures/realistic-reports/48-archetypes/', import.meta.url));
   const manifest = JSON.parse(readFileSync(path.join(fixtureDir, 'manifest.json'), 'utf8'));
   if (manifest.count !== 48 || manifest.catalogId !== 'report-intelligence.48') {
