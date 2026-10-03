@@ -127,6 +127,9 @@ assert.match(
   'canonical importer must execute the normal security, duplicate, canonicalization and smart-report path for handed-off files',
 );
 
+assert.match(smartReportPage, /key === 'evidenceStatus' \\? \\(report\.evidenceStatus/, 'smart report status surface must use canonical evidence status instead of stale rendered output');
+assert.match(smartReportPage, /stateLabel\(report\.evidenceStatus\)/, 'evidence inspector must use canonical report verification state');
+
 const smartReportPagePath = fileURLToPath(new URL('../src/pages/SmartReportPage.tsx', import.meta.url));
 const smartReportPage = fs.readFileSync(smartReportPagePath, 'utf8');
 assert.match(smartReportPage, /<ReportIntelligencePanel report=\{report\}\/>/, 'smart report must mount the intelligence panel');
