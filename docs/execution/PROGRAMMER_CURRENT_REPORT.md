@@ -3,14 +3,14 @@ SESSION_HANDOFF = NOT READY
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT EXECUTION HEAD = 51a85b6a97f9b55df825f3b01ffaf5c3594012f4
-REPORT_FOR_HEAD = 51a85b6a97f9b55df825f3b01ffaf5c3594012f4
+CURRENT EXECUTION HEAD = 77c3291986449d7bd2ee571bf11e5624823d99e4
+REPORT_FOR_HEAD = 77c3291986449d7bd2ee571bf11e5624823d99e4
 BRANCH = captain/phase-f-dynamic-pr-preview-20261003
 PR = #762 OPEN
 UPDATED = 2026-10-03
-UPDATED_AT = 2026-10-03T13:47:00Z
+UPDATED_AT = 2026-10-03T13:55:00Z
 WHAT_I_WAS_ASKED_TO_DO = إكمال المشروع فعليًا بالتوازي، إزالة اختناقات Phase-F وAuth/E2E، تثبيت Evidence Passport، وإغلاق الشهادة دون PASS وهمي.
-WHAT_I_ACTUALLY_DID = نفذت إصلاح provenance في Smart Report وDecision Cockpit، أضفت regression guard، ثم أضفت migration reconciliation للـlegacy source-intelligence recommendation/decision بحيث يُحدّث Passport snapshot فقط مع تطابق reportJobId/sourceHash/signalId دون تغيير حالة القرار.
+WHAT_I_ACTUALLY_DID = أصلحت ربط حفظ القضية مع Passport snapshot الفعلي بدل Analysis snapshot، أصلحت Decision Cockpit بنفس القاعدة، أضفت regression guards، أضفت auto-refresh للـEvidence Passport عند اكتمال التقرير، وأضافت RPC repair آمن للقرارات القديمة ذات نفس job/hash/tenant.
 WHAT_ACTUALLY_HAPPENED
 1. Removed stale Phase-F deploy-preview-754 targeting and replaced it with current-PR runtime resolution plus exact-head provenance checks.
 2. Aligned logical backup/restore source snapshot/count reads with Transaction Pooler :6543 while retaining pg_dump on the resolved runner source URI.
@@ -22,7 +22,7 @@ WHAT_ACTUALLY_HAPPENED
 8. Reconciled staging with the application contract by applying the atomic `create_source_intelligence_proposal` migration; authenticated EXECUTE is now present.
 9. Fixed the real Browser E2E Smart Report failure by exposing the Forecast panel with the canonical Arabic label `التنبؤ`.
 10. Quality and broad certification contracts passed; the latest Final Certification blocker was reduced to persistent-session handoff metadata.
-WHAT_IS_PROVEN = typecheck/build/intelligence/evidence-passport/operational-resilience/quality contracts and real f088 Evidence Passport are proven; fresh browser, Phase-F, and final certification remain under recertification.
+WHAT_IS_PROVEN = typecheck/build/intelligence/evidence-passport/operational-resilience/quality contracts, real f088 Evidence Passport, live Work Item completion gate, and database hardening are proven; the new provenance/auto-Passport fix is awaiting fresh exact-head CI.
 - typecheck PASS
 - build PASS
 - report-advisor intelligence PASS
@@ -36,10 +36,10 @@ WHAT_IS_PROVEN = typecheck/build/intelligence/evidence-passport/operational-resi
 - security-definer exposure contract PASS
 - direct Supabase DB connectivity PASS
 - real report job f0880ab8...: 735 source rows, 7 columns, PDF, quality 87, canonical coverage FULL, Evidence Passport VERIFIED/READY
-FIRST_ACTIVE_FAILURE = CI_RECERTIFICATION_IN_PROGRESS; the latest completed Browser proof exposed a real Advisor decision persistence provenance mismatch, now repaired in both product surfaces.
+FIRST_ACTIVE_FAILURE = CI_RECERTIFICATION_IN_PROGRESS; the last completed Browser failure was a real Passport-provenance mismatch during Advisor case persistence.
 CI_RECERTIFICATION = IN_PROGRESS
 Previous completed failure on the current gate family was Session Handoff Contract: the parser required scalar `WHAT_IS_PROVEN = ...`, while the report only had a Markdown heading. This was a documentation-contract mismatch and is corrected in this synchronization.
-ROOT_CAUSE = Smart Report and Decision Cockpit were passing source_analysis_snapshots.id as evidence to a Passport-bound proposal RPC. The live report Passport uses a distinct evidence_snapshot_id, so persistence failed closed.
+ROOT_CAUSE = the UI passed source_analysis_snapshots.id as a Passport evidence id; an existing legacy recommendation also retained the old analysis snapshot. The live RPC now repairs only exact tenant/job/hash/source-key matches to the current VERIFIED/READY Passport. Report completion now attempts Passport creation automatically and records PENDING on a real refresh error.
 The earlier runtime failures were a combination of a recovered Supabase lifecycle interruption and two stale/incorrect source-level assertions. The handoff failures are metadata synchronization failures, not product/runtime failures.
 FILES / COMMITS
 - PR #761 -> 9d78baf6... -> main 7e9cec1...
@@ -55,4 +55,4 @@ REMAINING OPEN
 - real-source 48-archetype proof remains unproven
 DO_NOT_REPEAT
 No stale PASS, no queued-run PASS, no Service Role impersonation, no new Supabase project, no tenant/RLS bypass, no fabricated corpus/archetype coverage.
-NEXT_EXACT_ACTION = certify exact product/DB migration head 51a85b6a97f9b55df825f3b01ffaf5c3594012f4 and consume the first completed failure on that head.
+NEXT_EXACT_ACTION = consume the first completed CI failure on exact current execution head 77c3291986449d7bd2ee571bf11e5624823d99e4; if clear, advance Browser business proof through Advisor case → decision → approval → work → outcome.
