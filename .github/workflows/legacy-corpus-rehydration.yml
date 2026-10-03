@@ -12,6 +12,15 @@ on:
       - 'supabase/migrations/**'
       - 'package.json'
       - 'package-lock.json'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/rehydrate-legacy-corpus.mjs'
+      - 'src/lib/file-engine/**'
+      - 'src/lib/import/**'
+      - 'supabase/migrations/**'
+      - 'package.json'
+      - 'package-lock.json'
 
 permissions:
   contents: read
