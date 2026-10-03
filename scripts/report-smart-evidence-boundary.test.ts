@@ -255,6 +255,21 @@ assert.match(
 );
 assert.match(
   smartReport,
+  /const canonicalCommitQueryFailed = Boolean\(canonicalCommitError\)/,
+  'Canonical commit read failures must be tracked separately from data gaps',
+);
+assert.match(
+  smartReport,
+  /canonicalCommitQueryFailed \|\| authoritativeCurrentRowCount == null/,
+  'A failed commit read must not be reported as a canonical gap',
+);
+assert.match(
+  smartReport,
+  /canonicalCommitQueryFailed \|\| !canonicalRowsComplete \|\| canonicalRowsPartial/,
+  'A failed commit read must downgrade verification to PARTIAL_ANALYSIS',
+);
+assert.match(
+  smartReport,
   /PARTIAL_FETCH_ERROR/,
   'Smart Report must expose a distinct partial-fetch-error scope',
 );
