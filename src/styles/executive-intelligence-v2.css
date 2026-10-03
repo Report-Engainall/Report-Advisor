@@ -1581,3 +1581,291 @@ body{
   .ag-main .ag-command-hero,.ag-main .ag-intelligence-hero{border-radius:18px!important}
   .ag-main .card,.ag-main .shell-surface,.ag-main .page-surface,.ag-main .hero-surface{border-radius:14px!important}
 }
+
+
+/* v3.2 — surgical screen refinement: Smart Report → Decision → Work
+   Preserve the evidence-first semantics while removing remaining card-soup
+   and giving the three core surfaces a shared product rhythm. */
+
+.ag-main .ag-smart-report-surface{
+  max-width:1420px!important;
+  margin-inline:auto!important;
+}
+.ag-main .ag-smart-report-surface > .ag-page-header{
+  margin-bottom:10px!important;
+}
+.ag-main .ag-smart-report-surface > section{
+  border-color:#dde1e8!important;
+  box-shadow:0 16px 44px -34px rgba(15,23,42,.34)!important;
+}
+.ag-main .ag-smart-report-surface > section:first-of-type{
+  position:relative;
+  overflow:hidden;
+  border-color:#dfe2f2!important;
+  background:
+    radial-gradient(circle at 88% 0%,rgba(91,92,230,.075),transparent 17rem),
+    linear-gradient(145deg,#ffffff,#f7f8fb)!important;
+}
+.ag-main .ag-smart-report-surface > section:first-of-type::before{
+  content:"";
+  position:absolute;
+  inset-inline-start:0;
+  top:0;
+  bottom:0;
+  width:3px;
+  background:linear-gradient(180deg,var(--ag-v3-indigo),var(--ag-v3-indigo-2),var(--ag-v3-gold));
+  opacity:.9;
+}
+.ag-main .ag-smart-report-surface > section:nth-of-type(2){
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 12% 10%,rgba(91,92,230,.10),transparent 15rem),
+    linear-gradient(145deg,#fbfcfd,#f5f6f9)!important;
+}
+.ag-main .ag-smart-report-surface > section:nth-of-type(2) .text-white{
+  text-shadow:none!important;
+}
+.ag-main .ag-smart-report-surface .report-page{
+  position:relative;
+}
+.ag-main .ag-smart-report-surface .section-kicker{
+  color:#6a7282!important;
+}
+.ag-main .ag-smart-report-surface .grid > article,
+.ag-main .ag-smart-report-surface .grid > aside{
+  transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease!important;
+}
+.ag-main .ag-smart-report-surface .grid > article:hover,
+.ag-main .ag-smart-report-surface .grid > aside:hover{
+  border-color:#cfd2ea!important;
+  box-shadow:0 14px 32px -28px rgba(79,70,229,.40)!important;
+}
+.ag-main .ag-smart-report-surface table{
+  border-collapse:separate;
+  border-spacing:0;
+}
+.ag-main .ag-smart-report-surface thead th{
+  position:sticky;
+  top:0;
+  z-index:2;
+}
+.ag-main .ag-smart-report-surface .bg-primary-50{
+  background:#f0f1ff!important;
+}
+.ag-main .ag-smart-report-surface .border-primary-200{
+  border-color:#d7d9f5!important;
+}
+.ag-main .ag-smart-report-surface .text-primary-700,
+.ag-main .ag-smart-report-surface .text-primary-800{
+  color:#4f52bf!important;
+}
+.ag-main .ag-smart-report-surface .bg-ink-950{
+  background:
+    radial-gradient(circle at 86% 0%,rgba(124,58,237,.20),transparent 13rem),
+    linear-gradient(145deg,#101521,#1a2030)!important;
+}
+.ag-main .ag-smart-report-surface .bg-ink-950 .text-primary-200{
+  color:#bfc1ff!important;
+}
+
+/* Decision workspace */
+.ag-main .ag-decision-workspace{
+  max-width:1320px!important;
+  margin-inline:auto!important;
+}
+.ag-main .ag-decision-workspace > .ag-command-hero{
+  min-height:164px!important;
+}
+.ag-main .ag-decision-workspace > section{
+  border-color:#dde1e8!important;
+  box-shadow:0 16px 42px -34px rgba(15,23,42,.30)!important;
+}
+.ag-main .ag-decision-workspace .ag-decision-strip{
+  position:sticky;
+  top:68px;
+  z-index:12;
+  backdrop-filter:blur(14px);
+  background:rgba(255,255,255,.92)!important;
+}
+.ag-main .ag-decision-workspace .ag-decision-cell{
+  min-height:72px!important;
+}
+.ag-main .ag-decision-workspace .ag-decision-value{
+  font-size:1.02rem!important;
+}
+.ag-main .ag-decision-workspace [role="tablist"] button[aria-selected="true"],
+.ag-main .ag-decision-workspace [aria-current="step"]{
+  box-shadow:0 10px 22px -18px rgba(79,70,229,.50)!important;
+}
+.ag-main .ag-decision-workspace section article{
+  border-color:#e0e3e9!important;
+  background:#fff!important;
+}
+.ag-main .ag-decision-workspace section article:hover{
+  border-color:#cbcee8!important;
+  box-shadow:0 18px 40px -30px rgba(15,23,42,.28)!important;
+}
+.ag-main .ag-decision-workspace .bg-success-50{
+  background:#eaf8f1!important;
+}
+.ag-main .ag-decision-workspace .bg-warning-50{
+  background:#fff7e7!important;
+}
+.ag-main .ag-decision-workspace .bg-danger-50{
+  background:#fff1f3!important;
+}
+
+/* Work Center */
+.ag-main .ag-work-center-surface{
+  max-width:1420px!important;
+  margin-inline:auto!important;
+}
+.ag-main .ag-work-center-surface > .ag-operational-hero{
+  overflow:hidden;
+  border-color:#dde1e8!important;
+}
+.ag-main .ag-work-center-surface > section{
+  border-color:#dde1e8!important;
+  box-shadow:0 16px 42px -34px rgba(15,23,42,.30)!important;
+}
+.ag-main .ag-work-center-surface .ag-decision-strip{
+  margin-top:2px!important;
+  position:sticky;
+  top:68px;
+  z-index:11;
+  backdrop-filter:blur(14px);
+  background:rgba(255,255,255,.92)!important;
+}
+.ag-main .ag-work-center-surface .data-table-shell{
+  overflow:hidden;
+}
+.ag-main .ag-work-center-surface .ag-data-table tbody tr:hover td{
+  background:#f5f5ff!important;
+}
+.ag-main .ag-work-center-surface .bg-primary-50{
+  background:#f0f1ff!important;
+}
+.ag-main .ag-work-center-surface .text-primary-800,
+.ag-main .ag-work-center-surface .text-primary-700{
+  color:#4f52bf!important;
+}
+.ag-main .ag-work-center-surface .ag-fast-actions{
+  margin-top:2px!important;
+}
+
+/* Shared micro-interaction: actions stay crisp, not animated like a marketing site. */
+.ag-main .ag-smart-report-surface a,
+.ag-main .ag-decision-workspace a,
+.ag-main .ag-work-center-surface a{
+  transition:color .14s ease,background-color .14s ease,border-color .14s ease,box-shadow .14s ease,transform .14s ease!important;
+}
+.ag-main .ag-smart-report-surface .btn-primary:hover,
+.ag-main .ag-decision-workspace .btn-primary:hover,
+.ag-main .ag-work-center-surface .btn-primary:hover{
+  transform:translateY(-1px)!important;
+}
+@media(max-width:900px){
+  .ag-main .ag-decision-workspace .ag-decision-strip,
+  .ag-main .ag-work-center-surface .ag-decision-strip{
+    position:static!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .ag-main .ag-smart-report-surface a,
+  .ag-main .ag-decision-workspace a,
+  .ag-main .ag-work-center-surface a{
+    transition:none!important;
+  }
+}
+
+
+/* v3.3 — source intelligence + advisory brief finish */
+.ag-main .ag-source-intelligence-panel{
+  position:relative;
+  overflow:hidden;
+  border-color:#dfe2ea!important;
+  background:
+    radial-gradient(circle at 88% 0%,rgba(91,92,230,.055),transparent 18rem),
+    #fff!important;
+}
+.ag-main .ag-source-intelligence-panel::before{
+  content:"";
+  position:absolute;
+  inset-inline-start:0;
+  top:0;
+  bottom:0;
+  width:3px;
+  background:linear-gradient(180deg,var(--ag-v3-indigo),var(--ag-v3-gold));
+}
+.ag-main .ag-source-intelligence-panel > section:first-of-type{
+  border-color:#e0e3ea!important;
+  background:#fafbfc!important;
+  box-shadow:none!important;
+}
+.ag-main .ag-source-intelligence-panel > section:first-of-type > div{
+  border-color:#e2e5ec!important;
+  border-radius:14px!important;
+}
+.ag-main .ag-source-intelligence-panel .bg-primary-50{
+  background:#f0f1ff!important;
+}
+.ag-main .ag-source-intelligence-panel .text-primary-700,
+.ag-main .ag-source-intelligence-panel .text-primary-800{
+  color:#5053bf!important;
+}
+
+/* The Advisor Brief is the product's "so what". It gets the strongest hierarchy
+   without turning evidence/provenance into a decorative marketing card. */
+.ag-main .ag-smart-advisor-surface{
+  margin-top:2px!important;
+}
+.ag-main .ag-smart-advisor-surface > div:first-child{
+  border-color:#e0e3ea!important;
+  background:
+    radial-gradient(circle at 88% 0%,rgba(124,58,237,.16),transparent 16rem),
+    radial-gradient(circle at 10% 100%,rgba(240,185,75,.08),transparent 15rem),
+    linear-gradient(145deg,#111621,#1b2130)!important;
+  color:#f5f7fb!important;
+  box-shadow:0 28px 64px -44px rgba(15,23,42,.76)!important;
+}
+.ag-main .ag-smart-advisor-surface > div:first-child .text-ink-950,
+.ag-main .ag-smart-advisor-surface > div:first-child .text-ink-900{
+  color:#f7f8fb!important;
+}
+.ag-main .ag-smart-advisor-surface > div:first-child .text-ink-600,
+.ag-main .ag-smart-advisor-surface > div:first-child .text-ink-500{
+  color:#b5bdcb!important;
+}
+.ag-main .ag-smart-advisor-surface > div:first-child .bg-white{
+  background:rgba(255,255,255,.08)!important;
+  border-color:rgba(255,255,255,.10)!important;
+}
+.ag-main .ag-smart-advisor-surface > div:nth-child(2){
+  border-color:#e0e3ea!important;
+  background:
+    radial-gradient(circle at 88% 0%,rgba(91,92,230,.07),transparent 18rem),
+    linear-gradient(145deg,#fff,#f7f8fb)!important;
+}
+.ag-main .ag-smart-advisor-surface > div:nth-child(2) > div > div{
+  border-color:#e0e3ea!important;
+}
+.ag-main .ag-smart-advisor-surface .bg-primary-50{
+  background:#eef0ff!important;
+}
+.ag-main .ag-smart-advisor-surface .text-primary-700,
+.ag-main .ag-smart-advisor-surface .text-primary-800{
+  color:#4f52bf!important;
+}
+.ag-main .ag-smart-advisor-surface .bg-success-50{
+  background:#eaf8f1!important;
+}
+.ag-main .ag-smart-advisor-surface .bg-warning-50{
+  background:#fff7e7!important;
+}
+@media(max-width:700px){
+  .ag-main .ag-source-intelligence-panel,
+  .ag-main .ag-smart-advisor-surface > div:first-child,
+  .ag-main .ag-smart-advisor-surface > div:nth-child(2){
+    border-radius:16px!important;
+  }
+}

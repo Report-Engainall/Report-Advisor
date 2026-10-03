@@ -612,7 +612,7 @@ export function SmartReportPage() {
           ? 'هذا المصدر هو تقرير مشتريات. التحليل يعرض ما ثبت في المصدر، مع إبقاء أثر القرار والتنفيذ منفصلًا.'
           : 'هذا المصدر تم تحليله من بنيته وبياناته الفعلية، وتبقى المخرجات مربوطة بالمصدر دون اختلاق حقائق غير موجودة.';
 
-  return <div dir="rtl" className="report-page space-y-5 animate-fade-in pb-10">
+  return <div dir="rtl" className="report-page ag-smart-report-surface space-y-5 animate-fade-in pb-10">
     <PageHeader
       title={report.sourcePath}
       subtitle="تقرير ذكي مربوط بالبصمة الأصلية، وليس نسخة تجريبية أو تقريرًا عامًا."
