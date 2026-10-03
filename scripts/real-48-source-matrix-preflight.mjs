@@ -154,7 +154,21 @@ for (const companyId of tenantIds) {
     const snapshot = await fetchVerifiedSnapshot(companyId, String(job.id), sourceHash, passport);
     if (!snapshot) continue;
 
-    const fields = usableColumns(analysis);
+    const analysisFields = usableColumns(analysis);
+    const canonicalPreview = await restSelect(
+      'canonical_dataset_records',
+      {
+        company_id: companyId,
+        source_hash: sourceHash,
+        import_job_id: String(analysis.import_job_id),
+      },
+      'data',
+      { limit: 25 },
+    );
+    const rowFields = [...new Set(canonicalPreview.flatMap((row) =>
+      row?.data && typeof row.data === 'object' ? Object.keys(row.data) : []
+    ))];
+    const fields = [...new Set([...analysisFields, ...rowFields])];
     sourceRecords.push({
       companyId,
       job,
