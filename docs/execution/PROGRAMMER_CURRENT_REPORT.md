@@ -3,14 +3,14 @@ SESSION_HANDOFF = NOT READY
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT EXECUTION HEAD = 9aaf4362309c0e99af74c8ca8d7f829eb2924c70
-REPORT_FOR_HEAD = 9aaf4362309c0e99af74c8ca8d7f829eb2924c70
+CURRENT EXECUTION HEAD = 51a85b6a97f9b55df825f3b01ffaf5c3594012f4
+REPORT_FOR_HEAD = 51a85b6a97f9b55df825f3b01ffaf5c3594012f4
 BRANCH = captain/phase-f-dynamic-pr-preview-20261003
 PR = #762 OPEN
 UPDATED = 2026-10-03
-UPDATED_AT = 2026-10-03T13:43:00Z
+UPDATED_AT = 2026-10-03T13:47:00Z
 WHAT_I_WAS_ASKED_TO_DO = إكمال المشروع فعليًا بالتوازي، إزالة اختناقات Phase-F وAuth/E2E، تثبيت Evidence Passport، وإغلاق الشهادة دون PASS وهمي.
-WHAT_I_ACTUALLY_DID = نفذت إزالة هدف Preview القديم، إصلاح Transaction Pooler وAuth/E2E bounded recovery، استعادة Evidence Passport الحقيقي، إغلاق سطح RPC العام لدوال trigger-only، إصلاح ربط Smart Report وDecision Cockpit بالـPassport snapshot الفعلي، وإضافة regression guard يمنع استخدام analysis snapshot كدليل قرار.
+WHAT_I_ACTUALLY_DID = نفذت إصلاح provenance في Smart Report وDecision Cockpit، أضفت regression guard، ثم أضفت migration reconciliation للـlegacy source-intelligence recommendation/decision بحيث يُحدّث Passport snapshot فقط مع تطابق reportJobId/sourceHash/signalId دون تغيير حالة القرار.
 WHAT_ACTUALLY_HAPPENED
 1. Removed stale Phase-F deploy-preview-754 targeting and replaced it with current-PR runtime resolution plus exact-head provenance checks.
 2. Aligned logical backup/restore source snapshot/count reads with Transaction Pooler :6543 while retaining pg_dump on the resolved runner source URI.
@@ -55,4 +55,4 @@ REMAINING OPEN
 - real-source 48-archetype proof remains unproven
 DO_NOT_REPEAT
 No stale PASS, no queued-run PASS, no Service Role impersonation, no new Supabase project, no tenant/RLS bypass, no fabricated corpus/archetype coverage.
-NEXT_EXACT_ACTION = certify exact product/test head 9aaf4362309c0e99af74c8ca8d7f829eb2924c70 and consume the first completed failure on that head.
+NEXT_EXACT_ACTION = certify exact product/DB migration head 51a85b6a97f9b55df825f3b01ffaf5c3594012f4 and consume the first completed failure on that head.
