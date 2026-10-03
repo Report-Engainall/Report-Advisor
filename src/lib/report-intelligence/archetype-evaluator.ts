@@ -31,6 +31,12 @@ function norm(value: unknown): string {
 }
 
 function columnKey(report: RuleReport, field: string): string | null {
+  const legacyAliases: Record<string, string[]> = {
+    productCode: ['sku', 'itemcode', 'item_code'],
+    currentStock: ['balance', 'stock', 'onhand', 'on_hand'],
+    salesQty: ['net_sales', 'netsales', 'sales', 'sales_qty', 'صافيالمبيعات'],
+  };
+  const aliases = legacyAliases[field] ?? [];
   const datasets = Array.isArray(report.sourceAnalysis?.datasets) ? report.sourceAnalysis.datasets : [];
   for (const dataset of datasets) {
     if (!dataset || typeof dataset !== 'object') continue;
@@ -41,6 +47,9 @@ function columnKey(report: RuleReport, field: string): string | null {
       const mappedField = text(column.mappedField);
       const columnName = text(column.name);
       if (norm(mappedField) === norm(field)) return mappedField || columnName;
+      if (
+        aliases.some((alias) => norm(mappedField) === norm(alias) || norm(columnName) === norm(alias))
+      ) return mappedField || columnName;
       if (matchCanonicalField(mappedField) === field || matchCanonicalField(columnName) === field) {
         return mappedField || columnName;
       }
