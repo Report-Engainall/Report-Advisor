@@ -61,6 +61,7 @@ export type SmartReportDetail = SmartReportCatalogItem & {
   reportVerificationState: string;
   canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }>;
   intelligence: ReportIntelligence;
+  runtimeWarnings?: string[];
 };
 
 function renderedOutputOf(evidence: unknown): Record<string, unknown> | null {
@@ -242,7 +243,7 @@ export async function fetchSmartReportCatalog(limit = 500): Promise<SmartReportC
       .in('source_hash', batch)
       .order('created_at', { ascending: false });
 
-    if (analysisError) throw analysisError;
+    if (analysisError) runtimeWarnings.push('تعذر قراءة Snapshot التحليل؛ سيُعرض فقط ما يمكن إثباته من المصدر الكانوني والمخرجات المحفوظة.');
     for (const analysis of analyses ?? []) {
       const hash = String(analysis.source_hash ?? '');
       if (hash && !analysesByHash.has(hash)) analysesByHash.set(hash, analysis as Record<string, unknown>);
@@ -280,6 +281,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
   const rendered = renderedOutputOf(job.evidence);
   if (!rendered) throw new Error('SMART_REPORT_RENDERED_OUTPUT_MISSING');
 
+  const runtimeWarnings: string[] = [];
   const { data: passportRows, error: passportError } = await supabase
     .from('report_evidence_passports')
     .select('id,evidence_snapshot_id,verification_status,decision_readiness,updated_at')
@@ -289,7 +291,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     .order('updated_at', { ascending: false })
     .limit(1);
 
-  if (passportError) throw passportError;
+  if (passportError) runtimeWarnings.push('تعذر قراءة Evidence Passport الحالي؛ تم خفض حالة الدليل إلى المراجعة بدل إيقاف التقرير.');
 
   const currentPassport = passportRows?.[0] ?? null;
   const passportStatus =
@@ -326,7 +328,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     .eq('report_execution_job_id', job.id)
     .order('ordinal', { ascending: true });
 
-  if (stageError) throw stageError;
+  if (stageError) runtimeWarnings.push('تعذر قراءة مراحل التنفيذ؛ بقي التحليل الذكي منفصلًا عن حالة المراحل.');
 
   // Prefer the analysis snapshot that belongs to this exact import job. A source hash can
   // legitimately have multiple analyses (for example, a newer compact summary and the
@@ -345,7 +347,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
       .order('created_at', { ascending: false })
       .limit(1);
 
-    if (importAnalysisError) throw importAnalysisError;
+    if (importAnalysisError) runtimeWarnings.push('تعذر قراءة لقطة التحليل المرتبطة بالاستيراد؛ تم استخدام أحدث لقطة متاحة أو التحليل الكانوني.');
     analysis = (importAnalyses?.[0] ?? null) as Record<string, unknown> | null;
   }
 
@@ -368,7 +370,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     .eq('entity_type', entityTypeFrom(String(job.job_key ?? '')))
     .eq('source_hash', job.source_hash);
 
-  if (canonicalCommitError) throw canonicalCommitError;
+  if (canonicalCommitError) runtimeWarnings.push('تعذر قراءة سجل Canonical Commit؛ لم يُعتبر ذلك تحققًا، وبقيت حالة الدليل غير موثقة تلقائيًا.');
   const canonicalCommitCount = (canonicalCommits ?? []).reduce(
     (sum, row) => sum + Number(row.committed_count ?? 0),
     0,
@@ -390,6 +392,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
   const canonicalFetchPageSize = 1000;
   const canonicalFetchLimit = 50000;
   let canonicalOffset = 0;
+  let canonicalFetchError = false;
 
   while (canonicalOffset < canonicalFetchLimit) {
     const { data: pageRows, error: pageError } = await supabase
@@ -400,7 +403,11 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
       .order('row_number', { ascending: true })
       .range(canonicalOffset, canonicalOffset + canonicalFetchPageSize - 1);
 
-    if (pageError) throw pageError;
+    if (pageError) {
+      canonicalFetchError = true;
+      runtimeWarnings.push('تعذر قراءة جزء من الصفوف الكانونية؛ تم الإبقاء على الصفوف المقروءة فقط وعدم اختلاق بقية المصدر.');
+      break;
+    }
 
     const normalizedPage = (pageRows ?? [])
       .filter((row) => row && typeof row.data === 'object' && row.data !== null)
@@ -416,13 +423,16 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
   }
 
   const canonicalFetchCeilingReached = canonicalRows.length >= canonicalFetchLimit;
+  const canonicalRowsPartial = canonicalFetchError || canonicalFetchCeilingReached;
   const canonicalRowsComplete =
     sourceRowCount == null ||
     (!canonicalFetchCeilingReached && canonicalRows.length >= sourceRowCount);
   const canonicalAnalysisScope =
-    sourceRowCount != null && sourceRowCount > canonicalFetchLimit
-      ? 'PARTIAL_FETCH_CEILING'
-      : 'FULL_SOURCE';
+    canonicalFetchError
+      ? 'PARTIAL_FETCH_ERROR'
+      : sourceRowCount != null && sourceRowCount > canonicalFetchLimit
+        ? 'PARTIAL_FETCH_CEILING'
+        : 'FULL_SOURCE';
 
   const sourceAnalysis = analysis ? {
     id: String(analysis.id),
@@ -512,14 +522,9 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     // Keep source-quality understanding available, but block recommendation/decision output.
     intelligence = {
       ...baseIntelligence,
-      signals: baseIntelligence.signals.filter((signal) => !signal.id.startsWith('model:')),
-      recommendations: [],
       advisorBrief: {
         ...baseIntelligence.advisorBrief,
-        recommendedAction: null,
-        expectedOutcome: null,
-        measurement: null,
-        headline: 'لا يوجد نموذج مصدرّي مثبت لهذا التقرير: ' + detectedArchetype.state,
+        headline: 'لا يوجد نموذج مصدرّي مثبت لهذا التقرير: ' + detectedArchetype.state + ' — تم إبقاء الذكاء المصدرّي المتاح دون اختلاق نموذج متخصص.',
       },
     };
   }
@@ -569,13 +574,14 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     canonicalCommitVerified,
     canonicalAnalysisScope,
     sourceTrustState: rendered.trustState == null ? null : String(rendered.trustState),
-    reportVerificationState: !canonicalRowsComplete
+    reportVerificationState: !canonicalRowsComplete || canonicalRowsPartial
       ? 'PARTIAL_ANALYSIS'
       : canonicalCommitGap != null && canonicalCommitGap > 0
         ? 'GAP_DETECTED'
 : evidenceStatus === 'VERIFIED'
           ? 'VERIFIED'
           : 'PENDING_EVIDENCE',
+    runtimeWarnings,
     stages: (stages ?? []).map((row) => ({
       ordinal: Number(row.ordinal),
       stage: String(row.stage),
