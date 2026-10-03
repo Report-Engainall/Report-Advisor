@@ -200,7 +200,6 @@ export function detectReportArchetype(input: {
       if (normalizedRaw === 'sku') fields.add('productCode');
       if (normalizedRaw === 'balance' || normalizedRaw === 'stock') fields.add('currentStock');
     }
-    const normalizedRaw = normalize(rawField);
     if (normalize(input.specialty) === 'inventory' && (normalizedRaw === 'netsales' || normalizedRaw.includes('صافيالمبيعات'))) fields.add('salesQty');
   }
 
@@ -265,7 +264,6 @@ export function runReportArchetype(
       if (normalizedRaw === 'sku') available.add('productCode');
       if (normalizedRaw === 'balance' || normalizedRaw === 'stock') available.add('currentStock');
     }
-    const normalizedRaw = normalize(rawField);
     if (profile.adapterSpecialty === 'inventory' && (normalizedRaw === 'netsales' || normalizedRaw === 'صافياالمبيعات' || normalizedRaw === 'صافيالمبيعات')) available.add('salesQty');
   }
   const missingRequired = profile.requiredFields.filter((field) => !available.has(field));
