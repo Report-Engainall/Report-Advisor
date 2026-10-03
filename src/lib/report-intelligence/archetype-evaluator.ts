@@ -844,7 +844,6 @@ export function applyArchetypeRuleSet(
     const dateKey = columnKey(report, 'documentDate');
     const valueKey = columnKey(report, 'netAmount');
     if (customerKey && dateKey && valueKey) {
-      const now = Date.now();
       const customers = new Map<string, { last: number; frequency: number; monetary: number }>();
       for (const row of rows) {
         const customer = text(row.data?.[customerKey]);
@@ -859,18 +858,19 @@ export function applyArchetypeRuleSet(
       }
       const scored = [...customers.entries()].sort((a,b)=>b[1].monetary-a[1].monetary)[0];
       if (scored) {
-        const recencyDays = Math.max(0, Math.round((now - scored[1].last) / 86400000));
+        const sourceAsOfMs = Math.max(...[...customers.values()].map((item) => item.last));
+        const recencyDays = Math.max(0, Math.round((sourceAsOfMs - scored[1].last) / 86400000));
         modelFinding = {
           id: 'archetype:' + profile.id + ':rfm',
           kind: 'FINDING',
           priority: 'medium',
           title: profile.title + ' — أعلى ملف RFM',
-          statement: 'العميل "' + scored[0] + '" لديه تكرار ' + scored[1].frequency + ' وقيمة ' + scored[1].monetary.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '، وحداثة مرصودة تقارب ' + recencyDays + ' يومًا حتى تاريخ التشغيل.',
+          statement: 'العميل "' + scored[0] + '" لديه تكرار ' + scored[1].frequency + ' وقيمة ' + scored[1].monetary.toLocaleString('ar-YE', { maximumFractionDigits: 2 }) + '، وحداثة مرصودة تقارب ' + recencyDays + ' يومًا حتى تاريخ آخر سجل في المصدر.' ,
           value: scored[1].monetary,
           unit: 'monetary',
           dimensionLabel: 'العميل',
           dimensionValue: scored[0],
-          evidence: ['customerField=' + customerKey, 'dateField=' + dateKey, 'valueField=' + valueKey, 'frequency=' + scored[1].frequency, 'monetary=' + scored[1].monetary.toFixed(2)],
+          evidence: ['customerField=' + customerKey, 'dateField=' + dateKey, 'valueField=' + valueKey, 'sourceAsOf=' + new Date(sourceAsOfMs).toISOString().slice(0, 10), 'frequency=' + scored[1].frequency, 'monetary=' + scored[1].monetary.toFixed(2)],
           limitation: 'RFM وصفي ويحتاج نافذة ومرجعًا زمنيًا معتمدًا قبل تصنيف شرائح كاملة.',
           action: profile.recommendationFocus[0] || 'راجع العملاء الأعلى قيمة وحداثة قبل بناء حملة متابعة.',
         };
