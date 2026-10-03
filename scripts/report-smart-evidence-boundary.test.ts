@@ -151,6 +151,8 @@ const intelligencePagePath = fileURLToPath(new URL('../src/pages/IntelligencePag
 const intelligencePage = fs.readFileSync(intelligencePagePath, 'utf8');
 assert.equal((intelligencePage.match(/<SourceIntelligenceRail report=\{sourceReport\} \/>/g) ?? []).length, 3, 'intelligence, recommendations, and forecast screens must each render one source-bound rail');
 assert.match(intelligencePage, /SourceRecommendationsDetail/, 'recommendation screen must expose report-bound recommendation details');
+assert.match(intelligencePage, /SourceSignalsDetail/, 'intelligence screen must expose all source-bound signals');
+assert.match(intelligencePage, /SourceGuidanceDetail/, 'intelligence screen must expose source-bound guidance details');
 assert.match(intelligencePage, /SourceForecastDetail/, 'forecast screen must expose report-bound forecast details');
 assert.match(intelligencePage, /loadOptionalSourceReport/, 'intelligence screens must load the active Report Job context');
 assert.match(intelligencePage, /intelligence\.recommendations\.length/, 'recommendation screen must expose report-bound recommendations');
