@@ -705,7 +705,7 @@ export function applyArchetypeRuleSet(
 
   if (!modelFinding && family === 'inventory-velocity') {
     const dateKey = columnKey(report, 'documentDate');
-    const salesKey = columnKey(report, 'salesQty') ?? ((family === 'coverage' || family === 'stockout-reorder' || family === 'inventory-velocity' || family === 'demand') && text(report.specialty) === 'inventory' ? rawColumnKey(report, ['net_sales', 'صافي المبيعات']) : null);
+    const salesKey = columnKey(report, 'salesQty') ?? (text(report.specialty) === 'inventory' ? rawColumnKey(report, ['net_sales', 'صافي المبيعات']) : null);
     if (dateKey && salesKey) {
       const trend = dateValue(rows, dateKey, salesKey);
       if (trend) {
