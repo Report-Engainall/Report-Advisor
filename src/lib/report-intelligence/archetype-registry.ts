@@ -195,7 +195,8 @@ export function detectReportArchetype(input: {
   for (const rawField of input.availableFields) {
     const semantic = matchCanonicalField(rawField);
     if (semantic) fields.add(semantic);
-    if (normalize(rawField) === 'netsales' && normalize(input.specialty) === 'inventory') fields.add('salesQty');
+    const normalizedRaw = normalize(rawField);
+    if (normalize(input.specialty) === 'inventory' && (normalizedRaw === 'netsales' || normalizedRaw === 'صافياالمبيعات' || normalizedRaw === 'صافيالمبيعات')) fields.add('salesQty');
   }
 
   const candidates = REPORT_ARCHETYPES.filter((profile) => {
@@ -254,7 +255,8 @@ export function runReportArchetype(
   for (const rawField of input.availableFields) {
     const semantic = matchCanonicalField(rawField);
     if (semantic) available.add(semantic);
-    if (normalize(rawField) === 'netsales' && profile.adapterSpecialty === 'inventory') available.add('salesQty');
+    const normalizedRaw = normalize(rawField);
+    if (profile.adapterSpecialty === 'inventory' && (normalizedRaw === 'netsales' || normalizedRaw === 'صافياالمبيعات' || normalizedRaw === 'صافيالمبيعات')) available.add('salesQty');
   }
   const missingRequired = profile.requiredFields.filter((field) => !available.has(field));
   const baseIntelligence = deriveReportIntelligence({ ...input.report, specialty: profile.adapterSpecialty });
