@@ -199,6 +199,7 @@
     "test:header-intelligence-retention": "node scripts/header-intelligence-retention.test.mjs",
     "test:source-domain-metrics-retention": "node scripts/source-domain-metrics-retention.test.mjs",
     "test:smart-report-runtime-archetype-contract": "node scripts/smart-report-runtime-archetype-contract.test.mjs",
+    "test:smart-report-complete-intelligence-surface": "node scripts/smart-report-complete-intelligence-surface.test.mjs",
     "test:enqueue-tenant-binding": "node scripts/check-enqueue-tenant-binding.mjs",
     "test:commercial-onboarding-experience": "node scripts/commercial-onboarding-experience.test.mjs",
     "test:commercial-login-value-surface": "node scripts/commercial-login-value-surface.test.mjs",
