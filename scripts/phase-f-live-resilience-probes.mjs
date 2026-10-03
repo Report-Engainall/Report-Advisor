@@ -196,7 +196,7 @@ function runDockerPgDump(databaseUrl, outputPath) {
     '-v', `${outputDir}:${containerDir}`,
     '-e', `PGURI=${databaseUrl}`,
     'postgres:17',
-    'sh', '-lc', `pg_dump "$PGURI" --schema=public --data-only --no-owner --no-privileges --serializable-deferrable --format=plain --file=${containerPath}`,
+    'sh', '-lc', `pg_dump "$PGURI" --schema=public --data-only --disable-triggers --no-owner --no-privileges --serializable-deferrable --format=plain --file=${containerPath}`,
   ]);
 }
 
