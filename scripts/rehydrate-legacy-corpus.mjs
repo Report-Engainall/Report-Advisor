@@ -133,6 +133,12 @@ for (const fileRecord of files ?? []) {
     result.qualityDisposition = qualityDisposition;
 
     if (qualityScore < 50) {
+      if (claimAcquired && claimMetadata) {
+        const cleanupMetadata = { ...claimMetadata };
+        delete cleanupMetadata.rehydrationClaimRun;
+        delete cleanupMetadata.rehydrationClaimedAt;
+        await service.from('file_records').update({ metadata: cleanupMetadata }).eq('id', fileRecord.id).eq('company_id', fileRecord.company_id).eq('status', 'uploaded');
+      }
       result.status = 'BLOCKED';
       result.error = 'LEGACY_CORPUS_QUALITY_REJECTED';
       results.push({ ...result, finishedAt: new Date().toISOString() });
@@ -140,6 +146,12 @@ for (const fileRecord of files ?? []) {
     }
 
     if (qualityScore < 75) {
+      if (claimAcquired && claimMetadata) {
+        const cleanupMetadata = { ...claimMetadata };
+        delete cleanupMetadata.rehydrationClaimRun;
+        delete cleanupMetadata.rehydrationClaimedAt;
+        await service.from('file_records').update({ metadata: cleanupMetadata }).eq('id', fileRecord.id).eq('company_id', fileRecord.company_id).eq('status', 'uploaded');
+      }
       result.status = 'REVIEW';
       result.error = 'LEGACY_CORPUS_REVIEW_REQUIRED';
       results.push({ ...result, finishedAt: new Date().toISOString() });
