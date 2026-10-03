@@ -192,14 +192,7 @@ for (const profile of allProfiles) {
     continue;
   }
 
-  const { job, rendered } = candidate;
-  const analysisRows = await restSelect(
-    'source_analysis_snapshots',
-    { company_id: job.company_id, source_hash: job.source_hash },
-    'id,import_job_id,row_count,datasets,created_at',
-    { order: 'created_at.desc', limit: 1 },
-  );
-  const analysis = analysisRows[0] ?? null;
+  const { job, rendered, analysis } = candidate;
   const dataset = analysis?.datasets?.[0];
   const columns = Array.isArray(dataset?.columns) ? dataset.columns : [];
   const availableFields = [...new Set(columns.map((column) => column?.mappedField).filter(Boolean))];
