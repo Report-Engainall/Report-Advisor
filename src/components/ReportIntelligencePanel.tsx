@@ -251,7 +251,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                 <details className="mt-2 rounded-lg border border-current/10 bg-white/60 p-2">
                   <summary className="cursor-pointer list-none text-[8px] font-black opacity-70">WHY THIS IS PRIORITY</summary>
                   <div className="mt-2 grid gap-1 sm:grid-cols-2">
-                    {signal.priorityReason.slice(0, 5).map((reason) => (
+                    {signal.priorityReason.map((reason) => (
                       <div key={reason} className="rounded-md bg-ink-50 px-2 py-1 text-[8px] leading-4">{reason}</div>
                     ))}
                   </div>
@@ -277,7 +277,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                 <div className="mt-3 rounded-xl border border-current/10 bg-white/55 p-2.5">
   <div className="text-[8px] font-black tracking-[.08em]">MAIN DRIVER / CONTRIBUTORS</div>
   {(signal.drivers ?? []).length > 0 ? <div className="mt-2 grid gap-2">
-    {(signal.drivers ?? []).slice(0, 5).map((driver, driverIndex) => (
+    {(signal.drivers ?? []).map((driver, driverIndex) => (
       <div key={driver.dimension + driver.value + driverIndex} className="rounded-lg border border-ink-100 bg-white/70 p-2">
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full bg-primary-50 px-2 py-1 text-[8px] font-black text-primary-800">{driverIndex === 0 ? "MAIN DRIVER" : "CONTRIBUTOR"}</span>
@@ -291,13 +291,13 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
           <span>Period: {driver.period ?? "N/A"}</span>
         </div>
         <div className="mt-1 text-[8px] leading-4 text-ink-600">{driver.why}</div>
-        <div className="mt-1 flex flex-wrap gap-1">{driver.proof.slice(0, 3).map((proof) => <span key={proof} className="rounded-full bg-ink-50 px-2 py-1 font-mono text-[7px] text-ink-500">{proof}</span>)}</div>
+        <div className="mt-1 flex flex-wrap gap-1">{driver.proof.map((proof) => <span key={proof} className="rounded-full bg-ink-50 px-2 py-1 font-mono text-[7px] text-ink-500">{proof}</span>)}</div>
       </div>
     ))}
   </div> : null}
 </div>
 <div className="mt-2 flex flex-wrap gap-1.5">
-                  {signal.evidence.slice(0, 3).map((evidence) => (
+                  {signal.evidence.map((evidence) => (
                     <span key={evidence} className="rounded-full bg-white/70 px-2 py-1 font-mono text-[8px]">{evidence}</span>
                   ))}
                 </div>
