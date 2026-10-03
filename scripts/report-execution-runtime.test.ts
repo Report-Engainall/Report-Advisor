@@ -114,6 +114,10 @@ const renderedSource = buildRenderedOutput({
       customer_name: 'عميل',
       invoice_type: 'آجل',
       date: '2026-01-02',
+      unitPrice: 10,
+      grossAmount: 10,
+      discount: 0,
+      cost: 6,
     },
     provenance: {
       sourceHash: 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
