@@ -127,6 +127,24 @@ assert.match(
   'canonical importer must execute the normal security, duplicate, canonicalization and smart-report path for handed-off files',
 );
 
+const smartReportPagePath = fileURLToPath(new URL('../src/pages/SmartReportPage.tsx', import.meta.url));
+const smartReportPage = fs.readFileSync(smartReportPagePath, 'utf8');
+assert.match(smartReportPage, /<ReportIntelligencePanel report=\{report\}\/>/, 'smart report must mount the intelligence panel');
+assert.match(smartReportPage, /<SmartReportAdvisorySurface report=\{report\}\/>/, 'smart report must mount the advisory surface');
+
+const intelligencePanelPath = fileURLToPath(new URL('../src/components/ReportIntelligencePanel.tsx', import.meta.url));
+const intelligencePanel = fs.readFileSync(intelligencePanelPath, 'utf8');
+assert.match(intelligencePanel, /التنبؤ \/ الإسقاط المشروط/, 'smart report must render the forecast surface');
+assert.match(intelligencePanel, /GUIDANCE/, 'smart report must render the guidance surface');
+assert.match(intelligencePanel, /ما الذي ينصح به النظام؟/, 'smart report must render recommendations');
+
+const advisorySurfacePath = fileURLToPath(new URL('../src/components/SmartReportAdvisorySurface.tsx', import.meta.url));
+const advisorySurface = fs.readFileSync(advisorySurfacePath, 'utf8');
+assert.match(advisorySurface, /ADVISOR BRIEF/, 'smart report must render the advisor brief');
+assert.match(advisorySurface, /TOP FINDINGS/, 'smart report must render findings');
+assert.match(advisorySurface, /TOP RISKS/, 'smart report must render risks');
+assert.match(advisorySurface, /TOP OPPORTUNITIES/, 'smart report must render opportunities');
+
 const smartReportPath = fileURLToPath(new URL('../src/lib/report-smart.ts', import.meta.url));
 const smartReport = fs.readFileSync(smartReportPath, 'utf8');
 
