@@ -318,9 +318,9 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
     const snapshotAt = Date.parse(snapshotText);
     if (!Number.isFinite(snapshotAt)) throw new Error('source_snapshot_timestamp_invalid');
 
-    let sourceCountsBefore;
+    let sourceCounts;
     try {
-      sourceCountsBefore = parseTableCounts(runDockerPsql(querySource, countSql));
+      sourceCounts = parseTableCounts(runDockerPsql(querySource, countSql));
     } catch (error) {
       throw new Error(`logical_source_counts_failed:${error}`);
     }
@@ -372,9 +372,9 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
       }))
       .filter((item) => item.sourceCount !== item.targetCount);
 
-    const mismatchBefore = mismatchFor(sourceCountsBefore);
+    const mismatchBefore = mismatchFor(sourceCounts);
     const mismatchAfter = mismatchFor(sourceCountsAfter);
-    const sourceDriftTables = mismatchFor(sourceCountsBefore)
+    const sourceDriftTables = mismatchFor(sourceCounts)
       .map((item) => ({
         tableName: item.tableName,
         beforeCount: item.sourceCount,
@@ -393,7 +393,7 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
         path.join(reportDir, 'logical-restore-count-mismatch.json'),
         JSON.stringify({
           exactHead,
-          sourceCountsBefore,
+          sourceCounts,
           sourceCountsAfter,
           targetCounts,
           mismatchBefore,
@@ -414,7 +414,7 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
       bytes,
       rpo_seconds: rpoSeconds,
       rto_seconds: rtoSeconds,
-      table_count: Object.keys(sourceCountsBefore).length,
+      table_count: Object.keys(sourceCounts).length,
       source_snapshot_at: snapshotText,
       source_count_snapshot_match: restoreSnapshotMatch,
       source_count_drift_detected: sourceDriftTables.length > 0,
