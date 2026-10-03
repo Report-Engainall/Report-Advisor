@@ -202,7 +202,7 @@ UPDATE public.recommendations r
   FROM public.business_intelligence_decisions d
   JOIN public.report_evidence_passports p
     ON p.company_id = d.company_id
-   AND p.report_execution_job_id = coalesce(d.evidence->>'reportExecutionJobId','')::uuid
+   AND p.report_execution_job_id::text = coalesce(d.evidence->>'reportExecutionJobId','')
    AND p.source_hash = d.evidence->>'sourceHash'
    AND p.verification_status = 'VERIFIED'
    AND p.decision_readiness = 'READY'
