@@ -329,7 +329,7 @@ export function DecisionInboxPage() {
   };
 
   return (
-    <div dir="rtl" className="space-y-5 pb-10 animate-fade-in">
+    <div dir="rtl" className="ag-decision-inbox-surface space-y-5 pb-10 animate-fade-in">
       <PageHeader
         title="صندوق القرار"
         subtitle="ما الذي يحتاج منك قرارًا أو متابعة الآن؟ كل صف أدناه مرتبط بسجل قرار، دليل مصدر، ومراحل الموافقة والعمل والنتيجة الموجودة فعليًا."
