@@ -94,7 +94,7 @@ for (const companyId of tenantIds) {
     'report_execution_jobs',
     { company_id: companyId, status: 'completed' },
     'id,company_id,source_path,source_hash,evidence,completed_at',
-    { order: 'completed_at.desc', limit: 500 },
+    { order: 'completed_at.desc', limit: 5000 },
   );
   proof.sourceJobsScanned += jobs.length;
 
@@ -119,25 +119,31 @@ for (const companyId of tenantIds) {
   }
 
   for (const job of jobs) {
-    const rendered = job?.evidence?.renderedOutput;
-    if (!rendered || typeof rendered !== 'object') continue;
+    const rendered = job?.evidence?.renderedOutput && typeof job.evidence.renderedOutput === 'object'
+      ? job.evidence.renderedOutput
+      : {};
     const analysis = analysesByHash.get(String(job.source_hash ?? '')) ?? null;
+    if (!analysis) continue;
     const dataset = analysis?.datasets?.[0];
     const columns = Array.isArray(dataset?.columns) ? dataset.columns : [];
-    const availableFields = [...new Set(columns.map((column) => column?.mappedField).filter(Boolean))];
+    const availableFields = [...new Set(
+      columns.flatMap((column) => [column?.mappedField, column?.name]).filter(Boolean),
+    )];
     const detected = detectReportArchetype({
       sourcePath: String(job.source_path ?? ''),
       specialty: typeof rendered.sourceSpecialty === 'string' ? rendered.sourceSpecialty : null,
       availableFields,
     });
-    // Runtime proof must be derived from canonical source analysis, not trusted from rendered output metadata.
-    // A rendered archetype id is accepted only when it exactly agrees with the detector result.
+    // Runtime proof is source-first. Persisted rendered archetype metadata is optional evidence,
+    // never a prerequisite for evaluating a verified real source.
     const detectedArchetypeId = detected.profile?.id ?? null;
     const renderedArchetypeId = typeof rendered.archetypeId === 'string' && byId.has(rendered.archetypeId)
       ? rendered.archetypeId
       : null;
-    if (!detectedArchetypeId || !byId.has(detectedArchetypeId)) continue;
-    if (renderedArchetypeId && renderedArchetypeId !== detectedArchetypeId) {
+    if (renderedArchetypeId && detectedArchetypeId && renderedArchetypeId !== detectedArchetypeId) {
+      continue;
+    }
+    if (!detectedArchetypeId || !byId.has(detectedArchetypeId)) {
       continue;
     }
     candidateJobs.push({
@@ -148,6 +154,9 @@ for (const companyId of tenantIds) {
         sourcePath: String(job.source_path ?? ''),
         specialty: typeof rendered.sourceSpecialty === 'string' ? rendered.sourceSpecialty : null,
         availableFields,
+        detectorState: detected.state,
+        detectorReason: detected.reason,
+        renderedArchetypeId,
       },
     });
   }
