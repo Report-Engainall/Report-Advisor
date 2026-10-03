@@ -11,7 +11,7 @@ const definitions:FieldDefinition[]=[
 {field:'toWarehouse',aliases:['إلى المخزن','المخزن الوجهة','To Warehouse','Destination Warehouse'],type:'text'},
 {field:'openingBalance',aliases:['الرصيد الافتتاحي','رصيد أول المدة','Opening Balance'],type:'number'},
 {field:'openingStock',aliases:['المخزون الافتتاحي','رصيد المخزون أول المدة','Opening Stock'],type:'number'},
-{field:'inbound',aliases:['الوارد','إجمالي الوارد','كمية الوارد','Inbound','Received Qty'],type:'number'},
+{field:'inbound',aliases:['الوارد','إجمالي الوارد','كمية الوارد','الـوارد','incoming','Incoming','Inbound','Received Qty'],type:'number'},
 {field:'outbound',aliases:['الصادر','إجمالي الصادر','كمية الصادر','Outbound','Issued Qty'],type:'number'},
 {field:'salesQty',aliases:['الكمية المباعة','كمية المبيعات','صافي المبيعات كمية','Sales Qty','Sold Qty'],type:'number'},
 {field:'adjustmentQty',aliases:['كمية التسوية','تسويات الكمية','Adjustment Qty'],type:'number'},
