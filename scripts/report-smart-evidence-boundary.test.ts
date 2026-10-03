@@ -96,6 +96,37 @@ assert.doesNotMatch(
   'decision cockpit must not use the analysis snapshot as Passport evidence',
 );
 
+const externalAnalysisPath = fileURLToPath(new URL('../src/pages/ExternalFileAnalysisPage.tsx', import.meta.url));
+const externalAnalysis = fs.readFileSync(externalAnalysisPath, 'utf8');
+assert.match(
+  externalAnalysis,
+  /navigate\('\\/import',\s*\{ state: \{ preloadedFile: selected \} \}\)/,
+  'external file analysis must hand the original File into the canonical importer instead of ending at local-only quality output',
+);
+assert.match(
+  externalAnalysis,
+  /const selectedFileRef = useRef<File \| null>\(null\)/,
+  'external file analysis must preserve the selected File after clearing the input value',
+);
+
+const canonicalImportPath = fileURLToPath(new URL('../src/pages/CanonicalImportPage.tsx', import.meta.url));
+const canonicalImport = fs.readFileSync(canonicalImportPath, 'utf8');
+assert.match(
+  canonicalImport,
+  /useLocation/,
+  'canonical importer must be able to consume the external-analysis handoff state',
+);
+assert.match(
+  canonicalImport,
+  /preloadedFile instanceof File/,
+  'canonical importer must consume a real File object from the external-analysis handoff',
+);
+assert.match(
+  canonicalImport,
+  /void handleFile\(preloadedFile\)/,
+  'canonical importer must execute the normal security, duplicate, canonicalization and smart-report path for handed-off files',
+);
+
 const smartReportPath = fileURLToPath(new URL('../src/lib/report-smart.ts', import.meta.url));
 const smartReport = fs.readFileSync(smartReportPath, 'utf8');
 
