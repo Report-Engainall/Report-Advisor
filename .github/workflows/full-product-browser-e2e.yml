@@ -129,7 +129,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "${EXACT_HEAD}"
           test -z "$(git status --porcelain)"
       - name: Rehydrate governed report corpus for archetype persistence
-        run: node --experimental-strip-types scripts/rehydrate-legacy-corpus.mjs
+        run: node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/rehydrate-legacy-corpus.mjs
       - name: Upload governed corpus evidence
         if: always()
         uses: actions/upload-artifact@v4
