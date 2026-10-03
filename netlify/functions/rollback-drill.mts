@@ -21,25 +21,30 @@ function json(body, status) {
 }
 
 export default async function handler(request) {
-  if (request.method !== 'POST') return json({ status: 'method_not_allowed', allowed: ['POST'] }, 405);
+  const readOnlyProof = request.method === 'GET';
+  if (!readOnlyProof && request.method !== 'POST') return json({ status: 'method_not_allowed', allowed: ['GET', 'POST'] }, 405);
 
-  const operationalToken = process.env.RESILIENCE_OPERATIONAL_TOKEN?.trim() || '';
-  const canaryToken = process.env.RESILIENCE_CANARY_AUTH_TOKEN?.trim() || '';
-  const receivedOperationalToken = request.headers.get('x-resilience-token')?.trim() || '';
-  const receivedCanaryToken = request.headers.get('x-canary-auth-token')?.trim() || '';
-  const authorized =
-    (operationalToken && receivedOperationalToken === operationalToken)
-    || (canaryToken && receivedCanaryToken === canaryToken);
-  if (!operationalToken && !canaryToken) {
-    return json({ status: 'unavailable', reason: 'rollback_drill_token_not_configured' }, 503);
+  if (!readOnlyProof) {
+    const operationalToken = process.env.RESILIENCE_OPERATIONAL_TOKEN?.trim() || '';
+    const canaryToken = process.env.RESILIENCE_CANARY_AUTH_TOKEN?.trim() || '';
+    const receivedOperationalToken = request.headers.get('x-resilience-token')?.trim() || '';
+    const receivedCanaryToken = request.headers.get('x-canary-auth-token')?.trim() || '';
+    const authorized =
+      (operationalToken && receivedOperationalToken === operationalToken)
+      || (canaryToken && receivedCanaryToken === canaryToken);
+    if (!operationalToken && !canaryToken) {
+      return json({ status: 'unavailable', reason: 'rollback_drill_token_not_configured' }, 503);
+    }
+    if (!authorized) return json({ status: 'unauthorized' }, 401);
   }
-  if (!authorized) return json({ status: 'unauthorized' }, 401);
 
-  try {
-    const payload = request.body ? await request.json() : {};
-    if (payload == null || typeof payload !== 'object' || Array.isArray(payload)) return json({ status: 'invalid_request', reason: 'expected_json_object' }, 400);
-  } catch {
-    return json({ status: 'invalid_request', reason: 'invalid_json' }, 400);
+  if (!readOnlyProof) {
+    try {
+      const payload = request.body ? await request.json() : {};
+      if (payload == null || typeof payload !== 'object' || Array.isArray(payload)) return json({ status: 'invalid_request', reason: 'expected_json_object' }, 400);
+    } catch {
+      return json({ status: 'invalid_request', reason: 'invalid_json' }, 400);
+    }
   }
 
   const provenance = loadProvenance();
