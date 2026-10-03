@@ -168,10 +168,13 @@ function runDockerPsqlFile(databaseUrl, filePath) {
 }
 
 function runDockerPgDump(databaseUrl, outputPath) {
-  const containerPath = '/tmp/phase-f-backup.sql';
+  const outputDir = path.dirname(path.resolve(outputPath));
+  const outputName = path.basename(outputPath);
+  const containerDir = '/tmp/phase-f-output';
+  const containerPath = `${containerDir}/${outputName}`;
   runCommand('docker', [
     'run', '--rm', '--network', 'host',
-    '-v', `${path.resolve(outputPath)}:${containerPath}`,
+    '-v', `${outputDir}:${containerDir}`,
     '-e', `PGURI=${databaseUrl}`,
     'postgres:17',
     'sh', '-lc', `pg_dump "$PGURI" --schema=public --data-only --no-owner --no-privileges --serializable-deferrable --format=plain --file=${containerPath}`,
@@ -277,7 +280,10 @@ async function logicalBackupRestore() {
   }
 
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'phase-f-logical-'));
-  const backupPath = path.join(workDir, 'public-data.sql');
+  const backupDir = path.join(workDir, 'dump');
+  fs.mkdirSync(backupDir, { recursive: true, mode: 0o777 });
+  fs.chmodSync(backupDir, 0o777);
+  const backupPath = path.join(backupDir, 'public-data.sql');
   const exactSnapshotSql = 'select clock_timestamp()::text';
   const countSql = `create temp table _phase_f_counts(table_name text, row_count bigint) on commit drop;
 DO $$
@@ -339,8 +345,6 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
     }
 
     const backupStartedAt = Date.now();
-    // Pre-create the bind-mounted host file; otherwise Docker creates a directory at this path.
-    fs.writeFileSync(backupPath, '', 'utf8');
     runDockerPgDump(runnerSource, backupPath);
     const backupCompletedAt = Date.now();
 
@@ -504,6 +508,7 @@ async function probe(name, url, options = {}, validation = {}) {
       headers: {
         Accept: 'application/json',
         'x-resilience-token': process.env.RESILIENCE_OPERATIONAL_TOKEN.trim(),
+        'x-canary-auth-token': process.env.RESILIENCE_CANARY_AUTH_TOKEN.trim(),
         ...(options.headers || {}),
       },
     });
