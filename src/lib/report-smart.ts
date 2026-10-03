@@ -374,6 +374,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     .eq('source_hash', job.source_hash);
 
   if (canonicalCommitError) runtimeWarnings.push('تعذر قراءة سجل Canonical Commit؛ لم يُعتبر ذلك تحققًا، وبقيت حالة الدليل غير موثقة تلقائيًا.');
+  const canonicalCommitQueryFailed = Boolean(canonicalCommitError);
   const canonicalCommitCount = (canonicalCommits ?? []).reduce(
     (sum, row) => sum + Number(row.committed_count ?? 0),
     0,
@@ -382,11 +383,13 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     ? (effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount))
     : Number(effectiveRendered.authoritativeCurrentRowCount);
   const sourceRowCount = effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount);
-  const canonicalCommitGap = authoritativeCurrentRowCount == null
+  const canonicalCommitGap = canonicalCommitQueryFailed || authoritativeCurrentRowCount == null
     ? null
     : Math.max(0, authoritativeCurrentRowCount - canonicalCommitCount);
   const canonicalCommitVerified =
-    authoritativeCurrentRowCount != null && canonicalCommitCount === authoritativeCurrentRowCount;
+    !canonicalCommitQueryFailed &&
+    authoritativeCurrentRowCount != null &&
+    canonicalCommitCount === authoritativeCurrentRowCount;
 
   // Smart-report intelligence must inspect the canonical source, not an arbitrary preview.
   // Supabase REST can cap a single response; page deterministically until the full source
@@ -580,7 +583,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     canonicalCommitVerified,
     canonicalAnalysisScope,
     sourceTrustState: effectiveRendered.trustState == null ? null : String(effectiveRendered.trustState),
-    reportVerificationState: !canonicalRowsComplete || canonicalRowsPartial
+    reportVerificationState: canonicalCommitQueryFailed || !canonicalRowsComplete || canonicalRowsPartial
       ? 'PARTIAL_ANALYSIS'
       : canonicalCommitGap != null && canonicalCommitGap > 0
         ? 'GAP_DETECTED'
