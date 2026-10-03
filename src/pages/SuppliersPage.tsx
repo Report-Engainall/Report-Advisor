@@ -87,7 +87,7 @@ export function SuppliersPage() {
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
 
   return (
-    <div dir="rtl" className="space-y-6 pb-10 animate-fade-in">
+    <div dir="rtl" className="ag-suppliers-surface space-y-6 pb-10 animate-fade-in">
       <PageHeader
         title="الموردون"
         subtitle="واجهة مرجعية خفيفة تربط المورد بالسياق الشرائي دون تحويل المنصة إلى نظام إدارة موردين مستقل."
