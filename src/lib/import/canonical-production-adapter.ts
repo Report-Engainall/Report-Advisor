@@ -4,6 +4,7 @@ import { SupabaseReportExecutionStore } from '../report-execution/durable-worker
 import { runDurableProductionLifecycle } from '../report-execution/durable-production-runner.ts';
 import type { CanonicalImportEntityType, ReconciledCanonicalImportRow } from './canonical-truth-boundary';
 import { commitImportBatch } from './canonical-commit.ts';
+import { detectReportArchetype } from '../report-intelligence/archetype-registry.ts';
 
 export interface DurableCanonicalImportInput {
   importId: string;
@@ -65,7 +66,20 @@ function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: stri
 
 interface CanonicalServerExecutionResult { jobId?: string; importId: string; sourceHash: string; [key: string]: unknown }
 
-type RenderedOutput = Record<string, unknown>;
+type PersistedArchetype = {
+  id: string | null;
+  version: number | null;
+  state: string;
+  reason: string;
+};
+
+type RenderedOutput = Record<string, unknown> & {
+  archetypeId?: string | null;
+  archetypeVersion?: number | null;
+  profileVersion?: number | null;
+  archetypeState?: string;
+  archetypeReason?: string;
+};
 
 const DOMAIN_OUTPUTS: Record<string, { path: string; label: string }> = {
   sales: { path: '/reports/sales', label: 'تقرير المبيعات' },
@@ -218,6 +232,19 @@ export function buildRenderedOutput(input: DurableCanonicalImportInput, rows = i
     eligibility: 'EVIDENCE_REQUIRED',
   }));
 
+  const availableFields = [...new Set(rows.slice(0, 250).flatMap((row) => Object.keys(row.data)))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
+  const archetype = detectReportArchetype({
+    sourcePath: input.fileName,
+    specialty,
+    availableFields,
+  });
+  const persistedArchetype: PersistedArchetype = {
+    id: archetype.profile?.id ?? null,
+    version: archetype.profile?.version ?? null,
+    state: archetype.state,
+    reason: archetype.reason,
+  };
+
   return {
     outputs,
     importId: input.importId,
@@ -227,6 +254,11 @@ export function buildRenderedOutput(input: DurableCanonicalImportInput, rows = i
     renderedAt: new Date().toISOString(),
     rowCount: rows.length,
     sourceSpecialty: specialty,
+    archetypeId: persistedArchetype.id,
+    archetypeVersion: persistedArchetype.version,
+    profileVersion: persistedArchetype.version,
+    archetypeState: persistedArchetype.state,
+    archetypeReason: persistedArchetype.reason,
     sourceMetrics: buildSourceReportMetrics(rows),
     trustState: input.qualityScore >= 75 ? 'TRUSTED' : input.qualityScore >= 50 ? 'REVIEW' : 'BLOCKED',
     qualityScore: input.qualityScore,
