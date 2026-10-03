@@ -77,4 +77,23 @@ assert.doesNotMatch(
   'analysis snapshot ids must not be used as Passport decision evidence',
 );
 
+const cockpitPath = fileURLToPath(new URL('../src/components/ReportDecisionCockpit.tsx', import.meta.url));
+const cockpit = fs.readFileSync(cockpitPath, 'utf8');
+
+assert.match(
+  cockpit,
+  /const evidenceSnapshotId = typeof report\.renderedOutput\?\.evidenceSnapshotId === 'string'/,
+  'decision cockpit must derive its decision evidence from the rendered Passport snapshot',
+);
+assert.match(
+  cockpit,
+  /evidenceSnapshotId,\n\s*\}\);/,
+  'decision cockpit must pass the canonical Passport evidence snapshot',
+);
+assert.doesNotMatch(
+  cockpit,
+  /evidenceSnapshotId:\s*report\.sourceAnalysis\.id/,
+  'decision cockpit must not use the analysis snapshot as Passport evidence',
+);
+
 console.log('PASS: canonical commit/evidence verification and Advisor decision provenance remain independent and fail closed.');
