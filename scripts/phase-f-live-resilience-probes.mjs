@@ -196,7 +196,7 @@ function runDockerPgDump(databaseUrl, outputPath) {
     '-v', `${outputDir}:${containerDir}`,
     '-e', `PGURI=${databaseUrl}`,
     'postgres:17',
-    'sh', '-lc', `pg_dump "$PGURI" --schema=public --data-only --disable-triggers --no-owner --no-privileges --serializable-deferrable --format=plain --file=${containerPath}`,
+    'sh', '-lc', `pg_dump "$PGURI" --schema=public --data-only --no-owner --no-privileges --serializable-deferrable --format=plain --file=${containerPath}`,
   ]);
 }
 
@@ -379,10 +379,13 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
     const rpoSeconds = Math.max(0, (backupCompletedAt - snapshotAt) / 1000);
     if (rpoSeconds > maxRpoSeconds) throw new Error(`rpo_budget_exceeded:${rpoSeconds}`);
 
+    const restoreConstraints = captureRestoreConstraints(localDbUrl);
     const restoreStartedAt = Date.now();
     try {
+      dropRestoreConstraints(localDbUrl, restoreConstraints);
       runDockerPsqlFile(localDbUrl, backupPath);
       verifyRestoredRecommendationAuthority(localDbUrl);
+      restoreRestoreConstraints(localDbUrl, restoreConstraints);
     } catch (error) {
       throw new Error(`logical_target_restore_failed:${error}`);
     }
@@ -470,6 +473,69 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
   }
 }
 
+function quoteIdentifier(value) {
+  return '"' + String(value).replaceAll('"', '""') + '"';
+}
+
+function parseDefinitionRows(raw) {
+  return raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)
+    .map((line) => line.split('|'))
+    .filter((parts) => parts.length >= 3)
+    .map(([tableName, objectName, definition, state]) => ({ tableName, objectName, definition, state: state ?? null }));
+}
+
+function captureRestoreConstraints(databaseUrl) {
+  const foreignKeys = parseDefinitionRows(runDockerPsql(databaseUrl, `
+select n.nspname || '.' || c.relname,
+       con.conname,
+       pg_get_constraintdef(con.oid, true),
+       ''
+from pg_constraint con
+join pg_class c on c.oid = con.conrelid
+join pg_namespace n on n.oid = c.relnamespace
+where n.nspname = 'public'
+  and con.contype = 'f'
+order by n.nspname, c.relname, con.conname;
+`));
+
+  const userTriggers = parseDefinitionRows(runDockerPsql(databaseUrl, `
+select n.nspname || '.' || c.relname,
+       t.tgname,
+       pg_get_triggerdef(t.oid, true),
+       t.tgenabled::text
+from pg_trigger t
+join pg_class c on c.oid = t.tgrelid
+join pg_namespace n on n.oid = c.relnamespace
+where n.nspname = 'public'
+  and not t.tgisinternal
+  and t.tgenabled <> 'D'
+order by n.nspname, c.relname, t.tgname;
+`));
+
+  return { foreignKeys, userTriggers };
+}
+
+function dropRestoreConstraints(databaseUrl, restoreConstraints) {
+  const statements = [];
+  for (const fk of restoreConstraints.foreignKeys) {
+    statements.push('alter table only ' + fk.tableName + ' drop constraint ' + quoteIdentifier(fk.objectName) + ';');
+  }
+  for (const trigger of restoreConstraints.userTriggers) {
+    statements.push('alter table only ' + trigger.tableName + ' disable trigger ' + quoteIdentifier(trigger.objectName) + ';');
+  }
+  if (statements.length) runDockerPsql(databaseUrl, statements.join('\n'));
+}
+
+function restoreRestoreConstraints(databaseUrl, restoreConstraints) {
+  const statements = [];
+  for (const fk of restoreConstraints.foreignKeys) {
+    statements.push('alter table only ' + fk.tableName + ' add constraint ' + quoteIdentifier(fk.objectName) + ' ' + fk.definition + ';');
+  }
+  for (const trigger of restoreConstraints.userTriggers) {
+    statements.push('alter table only ' + trigger.tableName + ' enable trigger ' + quoteIdentifier(trigger.objectName) + ';');
+  }
+  if (statements.length) runDockerPsql(databaseUrl, statements.join('\n'));
+}
 function runtimeEnvironmentCompatible(targetEnv, runtimeEnvironment) {
   if (!runtimeEnvironment || !targetEnv) return true;
   if (/^(prod|production)$/i.test(targetEnv)) return runtimeEnvironment === 'production';
