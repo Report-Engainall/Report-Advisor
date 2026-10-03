@@ -72,8 +72,7 @@ function buildMetrics(report: SmartReportDetail) {
       label: String(column.mappedField ?? column.name ?? 'حقل'),
       value: numberValue((column.statistics as Record<string, unknown> | undefined)?.sum ?? null),
     }))
-    .filter((metric) => metric.value != null)
-    .slice(0, 6);
+    .filter((metric) => metric.value != null);
 }
 
 function ContinuationRail({ report, decision }: { report: SmartReportDetail; decision: SourceDecisionState }) {
