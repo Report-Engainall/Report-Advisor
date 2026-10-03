@@ -1,7 +1,7 @@
 # CURRENT SESSION STATE
 SESSION_HANDOFF = NOT READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 4e29b4e8281eb3b18477bc01379749fbd39ba227
+CURRENT_EXACT_HEAD = 0b7b8a502e45758555756675c9053d85a65c11ed
 CURRENT_MAIN_HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
 CURRENT_EXECUTION_HEAD = 1a38250863743edbe00682c51979954bd12cc64c
 BRANCH = captain/phase-f-dynamic-pr-preview-20261003
@@ -9,7 +9,7 @@ PR = #762 OPEN
 PR_PRODUCT_DELTA = #761 MERGED
 PR_PRODUCT_DELTA_SHA = 9d78baf6ef00fac9c9cbd975b1ae0d737b100b23
 CURRENT_PRODUCT_MAIN = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT_PR_HEAD = 4e29b4e8281eb3b18477bc01379749fbd39ba227
+CURRENT_PR_HEAD = 0b7b8a502e45758555756675c9053d85a65c11ed
 WHAT_ACTUALLY_HAPPENED
 - Netlify account is Owner; site is Git-connected; Production deploy remains blocked by Free-plan credit exhaustion/HTTP 403.
 - PR #761 merged an actionable tenant-context gate without weakening RLS, default tenant selection, or client tenant authority.
@@ -57,4 +57,4 @@ DO_NOT_REPEAT
 - No new Supabase project.
 - No RLS/auth/evidence weakening.
 - No fabricated real-report corpus or archetype coverage.
-NEXT_EXACT_ACTION = certify exact head 4e29b4e8281eb3b18477bc01379749fbd39ba227; first completed failure only, then close browser business journey and Phase-F on the same head.
+NEXT_EXACT_ACTION = certify exact head 0b7b8a502e45758555756675c9053d85a65c11ed; consume first completed failure only, then close Browser business journey and Phase-F.
