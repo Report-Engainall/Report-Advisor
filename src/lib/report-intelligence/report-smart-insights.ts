@@ -128,8 +128,12 @@ function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
 
 function findColumn(columns: Array<Record<string, unknown>>, aliases: string[]): Record<string, unknown> | null {
   return columns.find((column) => {
-    const key = normalized(column.mappedField ?? column.name);
-    return aliases.some((alias) => key.includes(normalized(alias)));
+    const mappedKey = normalized(column.mappedField);
+    const rawKey = normalized(column.name);
+    return aliases.some((alias) => {
+      const token = normalized(alias);
+      return (mappedKey && mappedKey.includes(token)) || (rawKey && rawKey.includes(token));
+    });
   }) ?? null;
 }
 
