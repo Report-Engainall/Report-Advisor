@@ -309,7 +309,7 @@ jobs:
           set -euo pipefail
           test -n "${TEST_USER_A_EMAIL}"
           test -n "${TEST_USER_A_PASSWORD}"
-          node scripts/real-48-source-matrix-preflight.mjs
+          node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs
 
       - name: Resume and prove the real open report
         env:
