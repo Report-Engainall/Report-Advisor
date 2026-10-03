@@ -69,6 +69,17 @@ for (const fileRecord of files ?? []) {
     }
     claimAcquired = true;
 
+    const { data: previousImportJob, error: previousImportError } = await service
+      .from('import_jobs')
+      .select('job_type')
+      .eq('file_record_id', fileRecord.id)
+      .eq('company_id', fileRecord.company_id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (previousImportError) throw new Error('LEGACY_CORPUS_PREVIOUS_JOB_LOOKUP_FAILED:' + previousImportError.message);
+
     const { data: importJobId, error: rehydrateError } = await service.rpc('rehydrate_legacy_import_job', {
       p_company_id: fileRecord.company_id,
       p_file_record_id: fileRecord.id,
@@ -77,18 +88,16 @@ for (const fileRecord of files ?? []) {
       throw new Error('LEGACY_CORPUS_REHYDRATION_JOB_CREATE_FAILED:' + (rehydrateError?.message ?? 'EMPTY_JOB_ID'));
     }
 
-    const { data: importJob, error: importError } = await service
-      .from('import_jobs')
-      .select('id,company_id,file_record_id,file_name,status,job_type')
-      .eq('id', String(importJobId))
-      .eq('company_id', fileRecord.company_id)
-      .maybeSingle();
+    const importJob = {
+      id: String(importJobId),
+      company_id: fileRecord.company_id,
+      file_record_id: fileRecord.id,
+      job_type: typeof previousImportJob?.job_type === 'string' && previousImportJob.job_type.trim()
+        ? previousImportJob.job_type.trim()
+        : 'generic:report',
+    };
 
-    if (importError || !importJob) throw new Error('LEGACY_CORPUS_REHYDRATION_JOB_NOT_FOUND');
-
-    const entityType = typeof importJob.job_type === 'string' && importJob.job_type.trim()
-      ? importJob.job_type.trim()
-      : 'generic:report';
+    const entityType = importJob.job_type;
 
     const bucket = String(claimMetadata?.storage_bucket ?? 'documents');
     const storagePath = String(metadata.storage_path ?? '');
