@@ -242,7 +242,7 @@ async function buildTextDataset(
 const PDF_OCR_MAX_PAGES = 120;
 
 /** Detect PDF text-layer glyph corruption (common when ToUnicode maps are broken). */
-function hasPdfTextEncodingCorruption(text: string): boolean {
+export function hasPdfTextEncodingCorruption(text: string): boolean {
   const chars = Array.from(text).filter((char) => !/\s/u.test(char));
   if (chars.length < 24) return false;
   const suspicious = chars.filter((char) =>
