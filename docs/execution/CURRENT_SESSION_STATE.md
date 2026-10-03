@@ -1,7 +1,7 @@
 # CURRENT SESSION STATE
 SESSION_HANDOFF = NOT READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 51a85b6a97f9b55df825f3b01ffaf5c3594012f4
+CURRENT_EXACT_HEAD = 77c3291986449d7bd2ee571bf11e5624823d99e4
 CURRENT_MAIN_HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
 CURRENT_EXECUTION_HEAD = 1a38250863743edbe00682c51979954bd12cc64c
 BRANCH = captain/phase-f-dynamic-pr-preview-20261003
@@ -9,7 +9,7 @@ PR = #762 OPEN
 PR_PRODUCT_DELTA = #761 MERGED
 PR_PRODUCT_DELTA_SHA = 9d78baf6ef00fac9c9cbd975b1ae0d737b100b23
 CURRENT_PRODUCT_MAIN = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT_PR_HEAD = 51a85b6a97f9b55df825f3b01ffaf5c3594012f4
+CURRENT_PR_HEAD = 77c3291986449d7bd2ee571bf11e5624823d99e4
 WHAT_ACTUALLY_HAPPENED
 - Netlify account is Owner; site is Git-connected; Production deploy remains blocked by Free-plan credit exhaustion/HTTP 403.
 - PR #761 merged an actionable tenant-context gate without weakening RLS, default tenant selection, or client tenant authority.
@@ -19,7 +19,7 @@ WHAT_ACTUALLY_HAPPENED
 - A targeted migration removed public RPC execution from the three trigger-only Evidence Passport SECURITY DEFINER functions without changing trigger behavior.
  - The live Evidence Passport gate contract was aligned with the real work-item lifecycle: start before complete, and source-analysis evidence is used for completion evidence.
 - Smart Report Advisor case persistence was corrected to use the Passport evidence snapshot from rendered provenance rather than the analysis snapshot id; a regression guard was added.
-WHAT_IS_PROVEN = typecheck/build/intelligence/evidence-passport/operational-resilience/quality contracts, live Evidence Passport/Work-Item gates, Smart Report Passport provenance repair, and live staging reconciliation RPC are proven; fresh browser, Phase-F, and final certification remain under recertification.
+WHAT_IS_PROVEN = typecheck/build/intelligence/evidence-passport/operational-resilience/quality contracts, real f088 Evidence Passport, and live Work Item completion gate are proven; fresh provenance/auto-Passport repair awaits exact-head CI.
 - npm run typecheck PASS.
 - npm run build PASS.
 - npm run test:report-advisor-intelligence PASS.
@@ -40,16 +40,14 @@ PHASE_F_HISTORY
 CURRENT_ACTIVE_FAILURE
 CI_RECERTIFICATION = IN_PROGRESS
 FIRST_TERMINAL_FAILURE_TO_TRUST = completed latest-head workflow result; queued/running runs are not PASS
-SUPABASE_PROJECT_LIFECYCLE = ACTIVE_HEALTHY
-RECOVERY_TRIGGER = resolved; connected Supabase control plane now reports healthy project and DB
-RUNTIME_PROOF = latest authenticated browser and Phase-F runs are still being recertified
+PRODUCT_FRONTIER = Advisor case persistence provenance repair + automatic Passport refresh at report completion are now on the exact execution branch.
 ROOT_CAUSE_EVIDENCE
 - Earlier auth/database timeouts coincided with a project lifecycle interruption; that infrastructure condition is now recovered.
 - Two stale/incorrect static contracts were corrected to match the live Transaction Pooler/runtime design.
 OPEN
-- Finish latest-head Phase-F live resilience evidence.
-- Finish authenticated Chromium Auth/Tenant/Product/Import/Smart Report proof.
-- Close Session Handoff and Final Certification.
+- Finish exact-head Browser proof through Advisor case persistence and Decision → Approval → Work → Outcome.
+- Finish exact-head Phase-F live resilience evidence.
+- Close Session Handoff and Final Certification on the exact branch head.
 - Production Netlify deploy remains credit-blocked.
 - tests/fixtures/realistic-reports/ still contains no real report files beyond README; no fabricated corpus will be added.
 - Real-source 48-archetype proof remains unproven.
@@ -59,4 +57,4 @@ DO_NOT_REPEAT
 - No new Supabase project.
 - No RLS/auth/evidence weakening.
 - No fabricated real-report corpus or archetype coverage.
-NEXT_EXACT_ACTION = certify exact product/DB migration head 51a85b6a97f9b55df825f3b01ffaf5c3594012f4 and consume the first completed failure on that head.
+NEXT_EXACT_ACTION = consume the first completed CI failure on exact current execution head 77c3291986449d7bd2ee571bf11e5624823d99e4; if clear, advance Browser business proof through Advisor case → decision → approval → work → outcome.
