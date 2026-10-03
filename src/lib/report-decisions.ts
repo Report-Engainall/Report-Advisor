@@ -79,7 +79,7 @@ export async function createSourceDecisionProposal(input: {
     id: String(proposal.decision_id),
     status: String(proposal.decision_status ?? 'PROPOSED'),
     decisionKey,
-    recommendationId,
+    recommendationId: null,
   };
 }
 
