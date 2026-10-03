@@ -297,6 +297,7 @@ assert.doesNotMatch(
   /effectiveRendered/,
   'catalog mapping must use its local rendered output; Passport-refreshed effectiveRendered exists only inside fetchSmartReport',
 );
+assert.match(catalogMatch[0], /const rendered = renderedOutputOf\(job\.evidence\) \\?\\? \{\\};/, 'catalog must render completed report sources even when prior renderedOutput is absent');
 
 assert.match(smartReport, /تعذر قراءة أحدث لقطة تحليل؛ استمر التقرير اعتمادًا على المخرجات المحفوظة/, 'latest analysis snapshot failure must degrade to a visible runtime warning instead of throwing');
 assert.match(smartReport, /function emptyReportIntelligence\(specialty: string \| null\)/, 'Smart Report must have a safe fallback intelligence object');
