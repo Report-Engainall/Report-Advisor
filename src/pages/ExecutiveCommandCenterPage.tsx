@@ -113,16 +113,16 @@ export function ExecutiveCommandCenterPage() {
       const [snapshot, intelligence, nextWorkItems, nextOutcomes, nextPendingApprovals, nextRecentActivity] = await Promise.all([
         fetchDashboardSnapshot(months),
         fetchDashboardIntelligence(),
-        fetchDecisionWorkItems(20),
+        fetchDecisionWorkItems(200),
         loadPersistedOutcomes(companyId),
         fetchPendingDecisionApprovals(),
-        fetchRecentDecisionActivity(12),
+        fetchRecentDecisionActivity(100),
       ]);
       setKpis(snapshot.kpis);
       setAsOf(snapshot.asOf);
       setTrend(snapshot.trend);
-      setAlerts(intelligence.alerts.filter((item) => !item.is_read).slice(0, 5));
-      setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').slice(0, 5));
+      setAlerts(intelligence.alerts.filter((item) => !item.is_read));
+      setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted'));
       setWorkItems(nextWorkItems);
       setOutcomes(nextOutcomes.slice(-20).reverse());
       setPendingApprovals(nextPendingApprovals);
@@ -152,8 +152,7 @@ export function ExecutiveCommandCenterPage() {
   }), [workItems, outcomes, pendingApprovals]);
 
   const actionWorkItems = useMemo(() => workItems
-    .filter((item) => item.status === 'OPEN' || item.status === 'IN_PROGRESS')
-    .slice(0, 4), [workItems]);
+    .filter((item) => item.status === 'OPEN' || item.status === 'IN_PROGRESS'), [workItems]);
 
   if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
@@ -325,7 +324,7 @@ export function ExecutiveCommandCenterPage() {
             <div className="rounded-xl border border-dashed border-ink-200 bg-ink-50/60 p-4 text-center text-[10px] text-ink-500">لا يوجد نشاط تدقيق متاح حاليًا.</div>
           ) : (
             <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
-              {recentActivity.slice(0, 8).map((event) => (
+              {recentActivity.map((event) => (
                 <div key={event.id} className="rounded-xl border border-ink-100 bg-ink-50/60 p-3">
                   <div className="flex items-center gap-2">
                     <span className="rounded-full bg-white px-2 py-1 text-[8px] font-black text-ink-700">{event.action}</span>
@@ -354,7 +353,7 @@ export function ExecutiveCommandCenterPage() {
           {workItems.length === 0
             ? <div className="mt-3 rounded-xl border border-dashed border-ink-200 p-4 text-center text-[10px] text-ink-500">لا توجد عناصر عمل محفوظة للـtenant الحالي. لا يتم اختلاق طابور بديل.</div>
             : <div className="mt-3 space-y-2">
-              {workItems.slice(0, 3).map((item) => <div key={item.id} className="rounded-xl border border-ink-100 bg-white p-3">
+              {workItems.map((item) => <div key={item.id} className="rounded-xl border border-ink-100 bg-white p-3">
                 <div className="flex flex-wrap items-center gap-2"><span className="text-[11px] font-black text-ink-900">{item.title}</span><span className="rounded-full bg-ink-50 px-2 py-1 text-[8px] font-black text-ink-600">{item.status}</span></div>
                 <div className="mt-1 text-[9px] text-ink-500">{item.department} · {item.assigneeLabel ?? 'غير مكلّف'}{item.actualImpact == null ? '' : ' · الأثر الفعلي ' + formatCurrency(item.actualImpact)}</div>
               </div>)}

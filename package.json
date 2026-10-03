@@ -191,6 +191,7 @@
     "test:48-real-source-proof": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-archetype-proof.mjs",
     "test:archetype-intelligence-retention": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/archetype-intelligence-retention.test.mjs",
     "test:advisory-surface-retention": "node scripts/advisory-surface-retention.test.mjs",
-    "test:decision-cockpit-retention": "node scripts/decision-cockpit-retention.test.mjs"
+    "test:decision-cockpit-retention": "node scripts/decision-cockpit-retention.test.mjs",
+    "test:command-decision-intelligence-retention": "node scripts/command-decision-intelligence-retention.test.mjs"
   }
 }
