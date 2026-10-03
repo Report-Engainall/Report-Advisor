@@ -100,7 +100,7 @@ const externalAnalysisPath = fileURLToPath(new URL('../src/pages/ExternalFileAna
 const externalAnalysis = fs.readFileSync(externalAnalysisPath, 'utf8');
 assert.match(
   externalAnalysis,
-  /navigate\('\\/import',\s*\{ state: \{ preloadedFile: selected \} \}\)/,
+  /navigate\('\/import',\s*\{ state: \{ preloadedFile: selected \} \}\)/,
   'external file analysis must hand the original File into the canonical importer instead of ending at local-only quality output',
 );
 assert.match(
