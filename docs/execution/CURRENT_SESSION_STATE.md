@@ -14,7 +14,9 @@ WHAT_ACTUALLY_HAPPENED
 - Netlify account is Owner; site is Git-connected; Production deploy remains blocked by Free-plan credit exhaustion/HTTP 403.
 - PR #761 merged an actionable tenant-context gate without weakening RLS, default tenant selection, or client tenant authority.
 - PR #762 removed stale Phase-F preview targeting, added exact-head provenance validation, bounded Auth retries, timeout-safe logical restore, and Transaction Pooler reads for source snapshot/counts.
-- Preview deploy for bc63be68 was exact-head proven before the Supabase lifecycle interruption.
+- Staging Supabase project recovered to ACTIVE_HEALTHY and direct PostgreSQL connectivity was re-proven.
+- Evidence Passport for the real report job f0880ab8... was refreshed through the canonical RPC and now exists as VERIFIED/READY with FULL canonical coverage.
+- A targeted migration removed public RPC execution from the three trigger-only Evidence Passport SECURITY DEFINER functions without changing trigger behavior.
 WHAT_IS_PROVEN
 - npm run typecheck PASS.
 - npm run build PASS.
@@ -22,36 +24,36 @@ WHAT_IS_PROVEN
 - npm run test:intelligence-vertical-slice PASS.
 - npm run test:report-evidence-passport-contract PASS.
 - npm run test:operational-resilience PASS.
-- git diff --check PASS; node --check phase-f-live-resilience-probes.mjs PASS.
-- Browser unauthenticated login surface on deploy-preview-762 was rendered successfully.
+- quality workflow PASS on the latest tested head before handoff-only failures.
+- Phase 10 backup/restore static contract PASS.
+- Production certification contract family PASS.
+- Security-definer exposure contract PASS.
+- Browser unauthenticated login surface PASS.
+- Real report f0880ab8...: 735 source rows, quality 87, canonical coverage FULL, Evidence Passport VERIFIED/READY.
 PHASE_F_HISTORY
 - #4006: stale runtime fixed; first terminal failure was statement_timeout in logical backup/restore.
 - #4007: statement timeout fixed; first terminal failure moved to Session Pooler ECHECKOUTTIMEOUT on source snapshot.
-- #4008: current PR head bc63be68; exact-head/provenance/local contracts passed, then Supabase Auth /token failed with 500/504 context deadline exceeded after six bounded retries.
+- #4008: Auth /token failed with 500/504 context deadline exceeded during a Supabase lifecycle interruption.
 CURRENT_ACTIVE_FAILURE
 CI_RECERTIFICATION = IN_PROGRESS
 FIRST_TERMINAL_FAILURE_TO_TRUST = completed latest-head workflow result; queued/running runs are not PASS
 SUPABASE_PROJECT_LIFECYCLE = ACTIVE_HEALTHY
 RECOVERY_TRIGGER = resolved; connected Supabase control plane now reports healthy project and DB
-RESTORE_ATTEMPT = recovered; project is ACTIVE_HEALTHY
-SUPABASE_PROJECT = fnqbvfuwbdpwvhcgzksl / Report-Advisor-P0-2-Staging
-RUNTIME_PROOF = prior exact-head Preview proven; latest-head authenticated business proof is re-running
+RUNTIME_PROOF = latest authenticated browser and Phase-F runs are still being recertified
 ROOT_CAUSE_EVIDENCE
-- auth_logs: /token returned repeated 504 request_timeout/context deadline exceeded and one 500 context canceled.
-- direct execute_sql: Connection terminated due to connection timeout.
-- performance advisor call also failed on project connection timeout.
-- Supabase public status currently shows Auth/Database/Connection Pooler operational; no matching public incident found.
+- Earlier auth/database timeouts coincided with a project lifecycle interruption; that infrastructure condition is now recovered.
+- Two stale/incorrect static contracts were corrected to match the live Transaction Pooler/runtime design.
 OPEN
-- Supabase staging recovery is complete: project is ACTIVE_HEALTHY.
-- Direct PostgreSQL connectivity was re-proven with a successful SQL query.
-- Latest-head CI is re-running Phase-F, Quality, Browser E2E, Session Handoff, and Final Certification on 0771059dd1c505aa72eb8d6a855df43eb9c698c6.
-- Complete authenticated Edge/Smart Report business proof.
+- Finish latest-head Phase-F live resilience evidence.
+- Finish authenticated Chromium Auth/Tenant/Product/Import/Smart Report proof.
+- Close Session Handoff and Final Certification.
 - Production Netlify deploy remains credit-blocked.
-- Real realistic-report corpus and real-source 48-archetype proof remain unproven.
+- tests/fixtures/realistic-reports/ still contains no real report files beyond README; no fabricated corpus will be added.
+- Real-source 48-archetype proof remains unproven.
 DO_NOT_REPEAT
 - No stale SHA or queued-run PASS.
 - No Service Role/user-token impersonation.
 - No new Supabase project.
 - No RLS/auth/evidence weakening.
 - No fabricated real-report corpus or archetype coverage.
-NEXT_EXACT_ACTION = verify latest-head CI terminal results and close only the first real failure on the exact current head
+NEXT_EXACT_ACTION = consume the latest terminal CI result on the exact code head 4db6c1884a9892f9a6c20631c4d4836db0c7b5e7; repair only the first completed failure and rerun that exact gate.
