@@ -74,11 +74,57 @@ const candidateJobs = await selectCohortCandidates();
 if (candidateJobs.length < TARGET_COHORT_SIZE) throw new Error('REPORT_VALUE_COHORT_CANDIDATES_INCOMPLETE:' + candidateJobs.length + '/' + TARGET_COHORT_SIZE);
 console.log(JSON.stringify({ candidatePool: candidateJobs.length, targetCohort: TARGET_COHORT_SIZE }));
 
+const candidateIds = candidateJobs.map((job) => String(job.id));
+const { data: existingPassports, error: existingPassportError } = await supabase
+  .from('report_evidence_passports')
+  .select('id,company_id,report_execution_job_id,evidence_snapshot_id,verification_status,decision_readiness')
+  .in('report_execution_job_id', candidateIds);
+if (existingPassportError) throw existingPassportError;
+
+const existingSnapshotIds = [...new Set((existingPassports ?? []).map((row) => row.evidence_snapshot_id).filter(Boolean).map(String))];
+const { data: existingSnapshots, error: existingSnapshotError } = existingSnapshotIds.length
+  ? await supabase.from('report_evidence_snapshots')
+      .select('id,canonical_coverage_status,verification_status')
+      .in('id', existingSnapshotIds)
+  : { data: [], error: null };
+if (existingSnapshotError) throw existingSnapshotError;
+
+const snapshotById = new Map((existingSnapshots ?? []).map((row) => [String(row.id), row]));
+const passportByJobId = new Map((existingPassports ?? []).map((row) => [String(row.report_execution_job_id), row]));
+const alreadyProven = new Map();
+for (const job of candidateJobs) {
+  const passport = passportByJobId.get(String(job.id));
+  const snapshot = passport?.evidence_snapshot_id
+    ? snapshotById.get(String(passport.evidence_snapshot_id))
+    : null;
+  const accepted =
+    String(passport?.verification_status ?? '') === 'VERIFIED' &&
+    String(passport?.decision_readiness ?? '') === 'READY' &&
+    String(snapshot?.verification_status ?? '') === 'VERIFIED' &&
+    String(snapshot?.canonical_coverage_status ?? '') === 'FULL';
+  if (accepted) alreadyProven.set(String(job.id), { passport, snapshot });
+}
+console.log(JSON.stringify({ alreadyProven: alreadyProven.size, candidatePool: candidateJobs.length }));
+
 const provenJobs = [];
 const refreshResults = [];
 for (let offset = 0; offset < candidateJobs.length && provenJobs.length < TARGET_COHORT_SIZE; offset += 4) {
   const batch = candidateJobs.slice(offset, offset + 4);
   const batchResults = await Promise.all(batch.map(async (job) => {
+    const existing = alreadyProven.get(String(job.id));
+    if (existing) {
+      return {
+        jobId: String(job.id),
+        companyId: String(job.company_id),
+        source: String(job.source_path ?? ''),
+        status: 'VERIFIED',
+        decisionReadiness: 'READY',
+        coverage: 'FULL',
+        passportId: existing.passport?.id ? String(existing.passport.id) : null,
+        cohortAccepted: true,
+        reason: 'PASSPORT_ALREADY_VERIFIED_READY_FULL',
+      };
+    }
     const { data, error } = await supabase.rpc('refresh_report_evidence_passport', { p_company_id: String(job.company_id), p_job_id: String(job.id) });
     if (error) return { jobId: String(job.id), companyId: String(job.company_id), source: String(job.source_path ?? ''), status: 'REVIEW', decisionReadiness: 'REVIEW', coverage: 'UNKNOWN', passportId: null, cohortAccepted: false, reason: String(error.message || error) };
     const accepted = String(data?.verificationStatus ?? '') === 'VERIFIED' && String(data?.decisionReadiness ?? '') === 'READY' && String(data?.canonicalCoverage ?? '') === 'FULL';
