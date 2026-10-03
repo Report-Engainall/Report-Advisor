@@ -318,9 +318,9 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
     const snapshotAt = Date.parse(snapshotText);
     if (!Number.isFinite(snapshotAt)) throw new Error('source_snapshot_timestamp_invalid');
 
-    let sourceCounts;
+    let sourceCountsBefore;
     try {
-      sourceCounts = parseTableCounts(runDockerPsql(querySource, countSql));
+      sourceCountsBefore = parseTableCounts(runDockerPsql(querySource, countSql));
     } catch (error) {
       throw new Error(`logical_source_counts_failed:${error}`);
     }
@@ -335,6 +335,13 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
       '-f', backupPath,
     ]);
     const backupCompletedAt = Date.now();
+
+    let sourceCountsAfter;
+    try {
+      sourceCountsAfter = parseTableCounts(runDockerPsql(querySource, countSql));
+    } catch (error) {
+      throw new Error(`logical_source_counts_after_dump_failed:${error}`);
+    }
 
     const bytes = fs.statSync(backupPath).size;
     const sha256 = crypto.createHash('sha256').update(fs.readFileSync(backupPath)).digest('hex');
@@ -356,23 +363,47 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
     }
     const rtoSeconds = (restoreCompletedAt - restoreStartedAt) / 1000;
 
-    const mismatchTables = [...new Set([...Object.keys(sourceCounts), ...Object.keys(targetCounts)])]
+    const mismatchFor = (expectedCounts) => [...new Set([...Object.keys(expectedCounts), ...Object.keys(targetCounts)])]
       .sort()
       .map((tableName) => ({
         tableName,
-        sourceCount: sourceCounts[tableName] ?? 0,
+        sourceCount: expectedCounts[tableName] ?? 0,
         targetCount: targetCounts[tableName] ?? 0,
       }))
       .filter((item) => item.sourceCount !== item.targetCount);
 
-    if (mismatchTables.length > 0) {
+    const mismatchBefore = mismatchFor(sourceCountsBefore);
+    const mismatchAfter = mismatchFor(sourceCountsAfter);
+    const sourceDriftTables = mismatchFor(sourceCountsBefore)
+      .map((item) => ({
+        tableName: item.tableName,
+        beforeCount: item.sourceCount,
+        afterCount: sourceCountsAfter[item.tableName] ?? 0,
+      }))
+      .filter((item) => item.beforeCount !== item.afterCount);
+
+    const restoreSnapshotMatch = mismatchBefore.length === 0
+      ? 'before-dump'
+      : mismatchAfter.length === 0
+        ? 'after-dump'
+        : null;
+
+    if (!restoreSnapshotMatch) {
       fs.writeFileSync(
         path.join(reportDir, 'logical-restore-count-mismatch.json'),
-        JSON.stringify({ exactHead, sourceCounts, targetCounts, mismatchTables }, null, 2) + '\n',
+        JSON.stringify({
+          exactHead,
+          sourceCountsBefore,
+          sourceCountsAfter,
+          targetCounts,
+          mismatchBefore,
+          mismatchAfter,
+          sourceDriftTables,
+        }, null, 2) + '\n',
         'utf8',
       );
       throw new Error(
-        `logical_restore_table_count_mismatch:${JSON.stringify(mismatchTables)}`,
+        `logical_restore_table_count_mismatch:${JSON.stringify(mismatchAfter.length <= mismatchBefore.length ? mismatchAfter : mismatchBefore)}`,
       );
     }
 
@@ -383,8 +414,11 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
       bytes,
       rpo_seconds: rpoSeconds,
       rto_seconds: rtoSeconds,
-      table_count: Object.keys(sourceCounts).length,
+      table_count: Object.keys(sourceCountsBefore).length,
       source_snapshot_at: snapshotText,
+      source_count_snapshot_match: restoreSnapshotMatch,
+      source_count_drift_detected: sourceDriftTables.length > 0,
+      source_count_drift_tables: sourceDriftTables,
       restore_verified: true,
       restore_target: 'ephemeral-local-supabase-postgres',
       excluded_volatile_tables: [...VOLATILE_RESTORE_TABLES],
