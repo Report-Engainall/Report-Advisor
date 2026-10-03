@@ -186,7 +186,9 @@ assert.match(
 );
 assert.match(
   smartReport,
-  /renderedOutput: effectiveRendered/,,
+  /renderedOutput: effectiveRendered/,
+  'Smart Report consumers must receive the Passport-refreshed provenance',
+);
 assert.match(
   smartReport,
   /const runtimeSignalStatus = intelligence\.signals\.length/,
@@ -206,8 +208,6 @@ assert.match(
   smartReport,
   /intelligenceStatus: runtimeIntelligenceStatus/,
   'Smart Report must expose current intelligence status in rendered output',
-);
-  'Smart Report consumers must receive the Passport-refreshed provenance',
 );
 assert.match(
   smartReport,
