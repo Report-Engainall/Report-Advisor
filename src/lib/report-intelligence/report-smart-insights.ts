@@ -865,12 +865,15 @@ function buildAdvisorBrief(
     if (signal.affectedRows == null || !report.rowCount) return true;
     return signal.affectedRows / Math.max(1, report.rowCount) >= 0.2;
   });
+  const sourceRowCount = Number(report.rowCount ?? 0);
   const health: AdvisorBrief['health'] =
-    topRisk?.priority === 'high' || highImpactSignal || materialReviewSignal
-      ? 'REVIEW_REQUIRED'
-      : topRisk || signals.some((signal) => signal.severity === 'medium') || signals.length > 0
-        ? 'ATTENTION'
-        : 'HEALTHY';
+    sourceRowCount <= 0
+      ? 'HEALTHY'
+      : topRisk?.priority === 'high' || highImpactSignal || materialReviewSignal
+        ? 'REVIEW_REQUIRED'
+        : topRisk || signals.some((signal) => signal.severity === 'medium') || signals.length > 0
+          ? 'ATTENTION'
+          : 'HEALTHY';
   const recommendedAction = topRisk?.action ?? topFinding?.action ?? topOpportunity?.action ?? null;
   const headline = topRisk
     ? topRisk.statement
