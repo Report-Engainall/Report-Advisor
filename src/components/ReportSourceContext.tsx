@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, FileSearch, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, FileSearch, ShieldCheck, AlertTriangle, CheckCircle2, TrendingUp, Lightbulb } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
@@ -127,8 +127,50 @@ export function ReportSourceContext() {
           ))}
         </div>
       </div>
-      <p className="mt-3 border-t border-primary-200 pt-3 text-[10px] leading-5 text-primary-900/80">
-        هذه الشاشة مفتوحة من تقرير محدد. أي مؤشرات عامة أدناه لا تُعاد تسميتها إلى مؤشرات المصدر؛ المخرجات المصدرية المؤكدة تبقى مرتبطة بهذا Job والبصمة الأصلية.
+      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-xl border border-ink-200 bg-white p-3">
+          <div className="flex items-center gap-2 text-[9px] font-black text-ink-500"><AlertTriangle size={13} className="text-warning-700"/> الإشارات</div>
+          <div className="mt-1 text-sm font-black text-ink-950">{report.intelligence.signals.length}</div>
+          <div className="mt-1 text-[10px] leading-4 text-ink-500">{report.intelligence.signals[0]?.title ?? 'لا توجد إشارة استثنائية مثبتة'}</div>
+        </div>
+        <div className="rounded-xl border border-ink-200 bg-white p-3">
+          <div className="flex items-center gap-2 text-[9px] font-black text-ink-500"><Lightbulb size={13} className="text-primary-700"/> التوصيات</div>
+          <div className="mt-1 text-sm font-black text-ink-950">{report.intelligence.recommendations.length}</div>
+          <div className="mt-1 text-[10px] leading-4 text-ink-500">{report.intelligence.recommendations[0]?.action ?? 'لا توجد توصية مصدرية كافية حاليًا'}</div>
+        </div>
+        <div className="rounded-xl border border-ink-200 bg-white p-3">
+          <div className="flex items-center gap-2 text-[9px] font-black text-ink-500"><TrendingUp size={13} className="text-primary-700"/> التنبؤ</div>
+          <div className="mt-1 text-sm font-black text-ink-950">{report.intelligence.forecast.status === 'AVAILABLE' ? 'متاح' : 'عينة غير كافية'}</div>
+          <div className="mt-1 text-[10px] leading-4 text-ink-500">{report.intelligence.forecast.status === 'AVAILABLE' ? 'الفترة التالية: ' + (report.intelligence.forecast.nextPeriod ?? 'غير متاح') : report.intelligence.forecast.note}</div>
+        </div>
+        <div className="rounded-xl border border-ink-200 bg-white p-3">
+          <div className="flex items-center gap-2 text-[9px] font-black text-ink-500"><CheckCircle2 size={13} className="text-success-700"/> الإرشاد</div>
+          <div className="mt-1 text-sm font-black text-ink-950">{report.intelligence.advisorBrief.health === 'HEALTHY' ? 'سليم' : report.intelligence.advisorBrief.health === 'ATTENTION' ? 'يحتاج انتباهًا' : 'مراجعة مطلوبة'}</div>
+          <div className="mt-1 text-[10px] leading-4 text-ink-500">{report.intelligence.guidance.focus}</div>
+        </div>
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Link
+          to={'/reports/smart/' + encodeURIComponent(report.jobId) + '?sourceHash=' + encodeURIComponent(report.sourceHash)}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary-700 px-3 py-2 text-[10px] font-black text-white"
+        >
+          افتح كل طبقات الذكاء <ArrowLeft size={12}/>
+        </Link>
+        <Link
+          to={'/intelligence/recommendations?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-primary-200 bg-white px-3 py-2 text-[10px] font-black text-primary-900"
+        >
+          التوصيات <ArrowLeft size={12}/>
+        </Link>
+        <Link
+          to={'/intelligence/forecasts?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-primary-200 bg-white px-3 py-2 text-[10px] font-black text-primary-900"
+        >
+          التنبؤات <ArrowLeft size={12}/>
+        </Link>
+      </div>
+      <p className="mt-4 border-t border-primary-200 pt-3 text-[10px] leading-5 text-primary-900/80">
+        هذه الشاشة مفتوحة من تقرير محدد. كل طبقات الذكاء أعلاه مشتقة من نفس Report Job؛ المؤشرات العامة أدناه لا تُعاد تسميتها إلى مؤشرات المصدر.
       </p>
     </section>
   );
