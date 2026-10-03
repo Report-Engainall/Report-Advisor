@@ -140,6 +140,27 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         </div>
       </div>
 
+      <div className="rounded-[20px] border border-ink-200 bg-ink-950 p-5 text-white shadow-card lg:p-6">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="text-[9px] font-black tracking-[.16em] text-primary-300">INTELLIGENCE INVENTORY</div>
+            <h3 className="mt-1 text-xl font-black tracking-tight">كل ما اكتشفه التقرير</h3>
+            <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-200">الإشارات، التوصيات، التوقع، الإرشاد، والنتائج تعرض كاملة من نفس حزمة التقرير. لا يوجد حد عرض مصطنع.</p>
+          </div>
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black text-ink-100">${packet.proofState === 'VERIFIED' ? 'دليل مرتبط' : 'مراجعة مطلوبة'} · ${report.rowCount ?? 0} سجل</span>
+        </div>
+        <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          ${[
+            ['إشارات', report.intelligence.signals.length],
+            ['توصيات', report.intelligence.recommendations.length],
+            ['نتائج', findings.length],
+            ['مخاطر', risks.length],
+            ['فرص', opportunities.length],
+            ['أسئلة', packet.questions.length],
+          ].map(([label, count]) => <div key={String(label)} className="rounded-xl border border-white/10 bg-white/5 p-3"><div className="text-[9px] font-black text-ink-300">{label}</div><div className="mt-1 text-2xl font-black">{count}</div></div>)}
+        </div>
+      </div>
+
       <div className="rounded-[20px] border border-primary-200 bg-[linear-gradient(135deg,#f7fbfa,#ffffff)] p-5 shadow-card lg:p-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
