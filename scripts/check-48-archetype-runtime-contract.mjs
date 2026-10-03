@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import {
   listReportArchetypes,
   getReportArchetypeByNumber,
+  detectReportArchetype,
   runReportArchetype,
   REPORT_ARCHETYPE_CATALOG_ID,
   REPORT_ARCHETYPE_CATALOG_VERSION,
