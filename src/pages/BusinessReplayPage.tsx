@@ -49,7 +49,7 @@ export function BusinessReplayPage() {
 
   const source = replay.report;
   return (
-    <div dir="rtl" className="space-y-5 pb-10">
+    <div dir="rtl" className="ag-replay-surface space-y-5 pb-10">
       <section className="rounded-[18px] border border-primary-200 bg-primary-50/60 p-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
