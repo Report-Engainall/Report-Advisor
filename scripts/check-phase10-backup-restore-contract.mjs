@@ -26,8 +26,8 @@ if (!/sourceCounts = parseTableCounts\(runDockerPsql\(querySource, countSql\)\)/
 if (!/const directPort = parsed\.port \|\| '5432';/.test(phaseFProbe) || !/directPort === '5432'/.test(phaseFProbe)) {
   throw new Error('Phase-F direct Supabase source fallback must treat an omitted port as the default 5432');
 }
-if (!/runCommand\('supabase', \[\s*'db', 'dump',[\s\S]*?'--db-url', runnerSource,/.test(phaseFProbe)) {
-  throw new Error('Phase-F logical dump must use the resolved runnerSource URI');
+if (!/function runDockerPgDump\(databaseUrl, outputPath\)/.test(phaseFProbe) || !/pg_dump \\\"\$PGURI\\\"/.test(phaseFProbe) || !/runDockerPgDump\(runnerSource, backupPath\)/.test(phaseFProbe)) {
+  throw new Error('Phase-F logical dump must use the resolved runnerSource URI via pg_dump');
 }
 
 const stripSqlComments = (sql) => sql
