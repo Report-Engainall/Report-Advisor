@@ -62,7 +62,7 @@ export function AdvisorCasesPage() {
   };
 
   return (
-    <div dir="rtl" className="space-y-5">
+    <div dir="rtl" className="ag-advisor-cases-surface space-y-5">
       <section className="rounded-[18px] border border-primary-200 bg-ink-950 p-5 text-white shadow-card lg:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
