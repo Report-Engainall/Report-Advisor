@@ -245,7 +245,11 @@ export function buildRenderedOutput(input: DurableCanonicalImportInput, rows = i
       .map((field) => matchCanonicalField(field))
       .filter((field): field is CanonicalField => Boolean(field)),
   );
-  const invoiceDetailProfile = specialty ? getReportArchetype(`${specialty}.invoice-detail`) : null;
+  const invoiceDetailProfile = input.entityType === 'sales_invoices'
+    ? getReportArchetype('sales.invoice-detail')
+    : specialty
+      ? getReportArchetype(`${specialty}.invoice-detail`)
+      : null;
   const invoiceDetailSignalCount = ['unitPrice', 'grossAmount', 'discount', 'cost']
     .filter((field) => canonicalFieldSet.has(field as CanonicalField))
     .length;
