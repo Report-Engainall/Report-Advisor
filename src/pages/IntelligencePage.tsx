@@ -215,9 +215,6 @@ const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
       {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
-      {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
-      {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(sourceParams).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
-      {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(sourceParams).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
       <section className="ag-command-hero rounded-[20px] border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated lg:p-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
@@ -525,6 +522,7 @@ const [items, setItems] = useState<Recommendation[]>([]);
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
+      {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       {sourceReport && <SourceRecommendationsDetail report={sourceReport} />}
       <section className="ag-intelligence-hero rounded-[20px] bg-ink-950 p-5 text-white shadow-elevated lg:p-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
@@ -662,6 +660,7 @@ const [items, setItems] = useState<Forecast[]>([]);
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
+      {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       {sourceReport && <SourceForecastDetail report={sourceReport} />}
       <section className="ag-intelligence-hero rounded-[20px] bg-ink-950 p-5 text-white shadow-elevated lg:p-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
