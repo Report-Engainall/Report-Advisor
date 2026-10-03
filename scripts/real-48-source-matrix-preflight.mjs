@@ -253,11 +253,16 @@ for (const profile of profiles) {
       profileVersion: profile.version,
     });
 
+    const persistedArchetypeId =
+      typeof rendered.archetypeId === 'string' ? rendered.archetypeId.trim() : null;
+    const persistedArchetypeConsistency =
+      !persistedArchetypeId || persistedArchetypeId === profile.id;
     const valid =
       result.state === 'SUPPORTED' &&
       result.advisory.proofState === 'VERIFIED' &&
       result.advisory.questions.length > 0 &&
       result.advisory.claims.length > 0 &&
+      persistedArchetypeConsistency &&
       result.advisory.claims.every((claim) =>
         claim.archetypeId === profile.id &&
         claim.tenantId === candidate.companyId &&
@@ -292,6 +297,11 @@ for (const profile of profiles) {
     advisoryProofState: runtime?.advisory.proofState ?? null,
     recommendationCount: runtime?.intelligence.recommendations.length ?? 0,
     claimCount: runtime?.advisory.claims.length ?? 0,
+    persistedArchetypeId: chosen?.job?.evidence?.renderedOutput?.archetypeId ?? null,
+    persistedArchetypeConsistency: chosen
+      ? (typeof chosen.job?.evidence?.renderedOutput?.archetypeId !== 'string'
+        || chosen.job.evidence.renderedOutput.archetypeId === profile.id)
+      : null,
   });
 }
 
