@@ -11,7 +11,7 @@ for (const marker of [
 ]) {
   if (!source.includes(marker)) throw new Error('Missing tenant-binding security invariant: ' + marker);
 }
-if ((source.match(/CREATE OR REPLACE FUNCTION public\\.enqueue_report_execution_job/g) || []).length !== 2) {
+if ((source.match(/CREATE OR REPLACE FUNCTION public\.enqueue_report_execution_job/g) || []).length !== 2) {
   throw new Error('Expected both enqueue_report_execution_job overloads to be hardened');
 }
 console.log('enqueue-tenant-binding: PASS');
