@@ -196,6 +196,11 @@ export function detectReportArchetype(input: {
     const semantic = matchCanonicalField(rawField);
     if (semantic) fields.add(semantic);
     const normalizedRaw = normalize(rawField);
+    if (normalize(input.specialty) === 'inventory') {
+      if (normalizedRaw === 'sku') fields.add('productCode');
+      if (normalizedRaw === 'balance' || normalizedRaw === 'stock') fields.add('currentStock');
+    }
+    const normalizedRaw = normalize(rawField);
     if (normalize(input.specialty) === 'inventory' && (normalizedRaw === 'netsales' || normalizedRaw.includes('صافيالمبيعات'))) fields.add('salesQty');
   }
 
@@ -255,6 +260,11 @@ export function runReportArchetype(
   for (const rawField of input.availableFields) {
     const semantic = matchCanonicalField(rawField);
     if (semantic) available.add(semantic);
+    const normalizedRaw = normalize(rawField);
+    if (profile.adapterSpecialty === 'inventory') {
+      if (normalizedRaw === 'sku') available.add('productCode');
+      if (normalizedRaw === 'balance' || normalizedRaw === 'stock') available.add('currentStock');
+    }
     const normalizedRaw = normalize(rawField);
     if (profile.adapterSpecialty === 'inventory' && (normalizedRaw === 'netsales' || normalizedRaw === 'صافياالمبيعات' || normalizedRaw === 'صافيالمبيعات')) available.add('salesQty');
   }
