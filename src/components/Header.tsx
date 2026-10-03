@@ -201,7 +201,7 @@ export function Header({
                     <div className="p-6 text-center text-sm text-ink-400">لا توجد تنبيهات</div>
                   ) : (
                     <div className="max-h-96 divide-y divide-ink-100 overflow-y-auto">
-                      {alerts.slice(0, 10).map((alert) => (
+                      {alerts.map((alert) => (
                         <button
                           type="button"
                           key={alert.id}
