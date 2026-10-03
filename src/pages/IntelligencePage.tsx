@@ -260,6 +260,8 @@ const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
     () => forecasts.filter((item) => item.entity_type === 'company'),
     [forecasts],
   );
+  const visibleActiveAlerts = useMemo(() => activeAlerts.slice(0, 24), [activeAlerts]);
+  const visibleNewRecommendations = useMemo(() => newRecommendations.slice(0, 24), [newRecommendations]);
 
   const decideRecommendation = useCallback(async (recommendationId: string, status: 'accepted' | 'rejected') => {
     if (decisionId) return;
@@ -370,7 +372,7 @@ const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
           />
           <CardBody>
             <div className="space-y-3">
-              {activeAlerts.map((alert) => (
+              {visibleActiveAlerts.map((alert) => (
                 <article key={alert.id} className="rounded-[14px] border border-ink-200 bg-white p-4">
                   <div className="flex items-start gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-danger-50 text-danger-700">
@@ -404,7 +406,7 @@ const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
           />
           <CardBody>
             <div className="space-y-3">
-              {newRecommendations.map((recommendation) => (
+              {visibleNewRecommendations.map((recommendation) => (
                 <article key={recommendation.id} className="rounded-[14px] border border-primary-100 bg-primary-50/25 p-4">
                   <div className="flex items-start gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-100 text-primary-700">
