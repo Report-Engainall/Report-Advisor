@@ -261,8 +261,8 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
 
       <div className="grid gap-3 lg:grid-cols-3">
         {([
-          { label: 'FINDINGS', items: findings, subtitle: 'نتائج محسوبة مباشرة من الصفوف الكانونية' },
-          { label: 'RISKS', items: risks, subtitle: 'مخاطر لا تظهر إلا عندما يدعمها المصدر' },
+          { label: 'TOP FINDINGS', items: findings, subtitle: 'نتائج محسوبة مباشرة من الصفوف الكانونية' },
+          { label: 'TOP RISKS', items: risks, subtitle: 'مخاطر لا تظهر إلا عندما يدعمها المصدر' },
           { label: 'OPPORTUNITIES', items: opportunities, subtitle: 'فرص مبنية على مؤشرات قابلة للحساب' },
         ] as const).map(({ label, items, subtitle }) => (
           <div key={label} className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
