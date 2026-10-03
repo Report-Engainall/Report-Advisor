@@ -196,7 +196,7 @@ export function detectReportArchetype(input: {
     const semantic = matchCanonicalField(rawField);
     if (semantic) fields.add(semantic);
     const normalizedRaw = normalize(rawField);
-    if (normalize(input.specialty) === 'inventory' && (normalizedRaw === 'netsales' || normalizedRaw === 'صافياالمبيعات' || normalizedRaw === 'صافيالمبيعات')) fields.add('salesQty');
+    if (normalize(input.specialty) === 'inventory' && (normalizedRaw === 'netsales' || normalizedRaw.includes('صافيالمبيعات'))) fields.add('salesQty');
   }
 
   const candidates = REPORT_ARCHETYPES.filter((profile) => {
