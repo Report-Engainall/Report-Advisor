@@ -173,6 +173,29 @@ function chooseBestAnalysisSnapshot(rows: Array<Record<string, unknown>>): Recor
   })[0] ?? null;
 }
 
+function resolveImportJobId(
+  job: Record<string, unknown>,
+  rendered: Record<string, unknown>,
+  analysis: Record<string, unknown> | null,
+): string {
+  const renderedImportId = rendered.importId == null ? '' : String(rendered.importId).trim();
+  if (renderedImportId) return renderedImportId;
+
+  const checkpoint = job.checkpoint;
+  if (checkpoint && typeof checkpoint === 'object') {
+    const evidenceKeys = (checkpoint as Record<string, unknown>).evidenceKeys;
+    if (Array.isArray(evidenceKeys)) {
+      const importKey = evidenceKeys
+        .map((value) => String(value ?? '').trim())
+        .find((value) => value.startsWith('import:') && value.slice('import:'.length).trim());
+      if (importKey) return importKey.slice('import:'.length).trim();
+    }
+  }
+
+  const analysisImportId = analysis?.import_job_id == null ? '' : String(analysis.import_job_id).trim();
+  return analysisImportId;
+}
+
 function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapshotLike | null): SmartReportCatalogItem | null {
   const rendered = renderedOutputOf(job.evidence) ?? {};
   const path = String(job.source_path ?? '');
@@ -436,7 +459,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
   // report's full 7-column analysis). Using the latest snapshot by time alone can silently
   // drop source-quality signals needed by Advisor.
   let analysis: Record<string, unknown> | null = null;
-  const renderedImportId = effectiveRendered.importId == null ? '' : String(effectiveRendered.importId).trim();
+  const renderedImportId = resolveImportJobId(job as Record<string, unknown>, effectiveRendered, analysis);
 
   if (renderedImportId) {
     const { data: importAnalyses, error: importAnalysisError } = await supabase
