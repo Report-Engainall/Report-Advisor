@@ -191,7 +191,6 @@ end $$;`;
   runDockerPsql(databaseUrl, sql);
   return true;
 }
-}
 
 function runDockerPgDump(databaseUrl, outputPath) {
   const outputDir = path.dirname(path.resolve(outputPath));
