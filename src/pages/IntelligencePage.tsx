@@ -136,23 +136,7 @@ export function IntelligenceCenterPage() {
     });
     return () => { active = false; };
   }, [sourceQueryKey]);
-  const [sourceReport, setSourceReport] = useState<SmartReportDetail | null>(null);
-  const [sourceReportError, setSourceReportError] = useState<string | null>(null);
-  const sourceQueryKey = sourceParams.toString();
-  useEffect(() => {
-    let active = true;
-    void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then((value) => {
-      if (!active) return;
-      setSourceReport(value);
-      setSourceReportError(null);
-    }).catch((cause) => {
-      if (!active) return;
-      setSourceReport(null);
-      setSourceReportError(cause instanceof Error ? cause.message : String(cause));
-    });
-    return () => { active = false; };
-  }, [sourceQueryKey]);
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [forecasts, setForecasts] = useState<Forecast[]>([]);
   const [loading, setLoading] = useState(true);
@@ -232,11 +216,8 @@ export function IntelligenceCenterPage() {
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
       {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
-      {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(sourceParams).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
-      {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(sourceParams).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
-      {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       <section className="ag-command-hero rounded-[20px] border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated lg:p-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
@@ -495,22 +476,7 @@ export function RecommendationsPage() {
     });
     return () => { active = false; };
   }, [sourceQueryKey]);
-  const [sourceReport, setSourceReport] = useState<SmartReportDetail | null>(null);
-  const [sourceReportError, setSourceReportError] = useState<string | null>(null);
-  useEffect(() => {
-    let active = true;
-    void loadOptionalSourceReport(sourceParams).then((value) => {
-      if (!active) return;
-      setSourceReport(value);
-      setSourceReportError(null);
-    }).catch((cause) => {
-      if (!active) return;
-      setSourceReport(null);
-      setSourceReportError(cause instanceof Error ? cause.message : String(cause));
-    });
-    return () => { active = false; };
-  }, [sourceParams]);
-  const [items, setItems] = useState<Recommendation[]>([]);
+const [items, setItems] = useState<Recommendation[]>([]);
   const [filter, setFilter] = useState<'all' | 'new' | 'accepted' | 'rejected'>('all');
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -658,22 +624,7 @@ export function ForecastsPage() {
     });
     return () => { active = false; };
   }, [sourceQueryKey]);
-  const [sourceReport, setSourceReport] = useState<SmartReportDetail | null>(null);
-  const [sourceReportError, setSourceReportError] = useState<string | null>(null);
-  useEffect(() => {
-    let active = true;
-    void loadOptionalSourceReport(sourceParams).then((value) => {
-      if (!active) return;
-      setSourceReport(value);
-      setSourceReportError(null);
-    }).catch((cause) => {
-      if (!active) return;
-      setSourceReport(null);
-      setSourceReportError(cause instanceof Error ? cause.message : String(cause));
-    });
-    return () => { active = false; };
-  }, [sourceParams]);
-  const [items, setItems] = useState<Forecast[]>([]);
+const [items, setItems] = useState<Forecast[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
