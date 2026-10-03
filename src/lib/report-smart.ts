@@ -442,7 +442,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     specialty,
     rowCount: effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount),
     sourceAnalysis,
-    renderedOutput: effectiveRendered,
+    renderedOutput: runtimeRendered,
     canonicalRows,
   });
 
@@ -526,6 +526,23 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
       },
     };
   }
+
+  const runtimeSignalStatus = intelligence.signals.length
+    ? 'SIGNALS_PRESENT'
+    : 'NO_EXCEPTIONAL_SIGNALS';
+  const runtimeIntelligenceStatus =
+    archetypeState === 'BLOCKED'
+      ? 'BLOCKED'
+      : archetypeState === 'INSUFFICIENT_SAMPLE'
+        ? 'INSUFFICIENT_SAMPLE'
+        : archetypeState === 'SUPPORTED' && evidenceStatus === 'VERIFIED'
+          ? 'READY'
+          : 'REVIEW_REQUIRED';
+  const runtimeRendered = {
+    ...effectiveRendered,
+    signalStatus: runtimeSignalStatus,
+    intelligenceStatus: runtimeIntelligenceStatus,
+  };
 
   return {
     ...catalogItem,
