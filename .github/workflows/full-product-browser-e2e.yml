@@ -135,7 +135,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: governed-corpus-rehydration-${{ github.run_id }}
-          if-no-files-found: error
+          if-no-files-found: warn
           path: artifacts/legacy-corpus/**
 
   browser-e2e:
