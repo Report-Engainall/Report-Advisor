@@ -1,15 +1,15 @@
 # CURRENT SESSION STATE
 SESSION_HANDOFF = NOT READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 2eabdd40837ab7a4f87a761168bd8495767d7476
+CURRENT_EXACT_HEAD = 1a38250863743edbe00682c51979954bd12cc64c
 CURRENT_MAIN_HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT_EXECUTION_HEAD = 2eabdd40837ab7a4f87a761168bd8495767d7476
+CURRENT_EXECUTION_HEAD = 1a38250863743edbe00682c51979954bd12cc64c
 BRANCH = captain/phase-f-dynamic-pr-preview-20261003
 PR = #762 OPEN
 PR_PRODUCT_DELTA = #761 MERGED
 PR_PRODUCT_DELTA_SHA = 9d78baf6ef00fac9c9cbd975b1ae0d737b100b23
 CURRENT_PRODUCT_MAIN = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT_PR_HEAD = 2eabdd40837ab7a4f87a761168bd8495767d7476
+CURRENT_PR_HEAD = 1a38250863743edbe00682c51979954bd12cc64c
 WHAT_ACTUALLY_HAPPENED
 - Netlify account is Owner; site is Git-connected; Production deploy remains blocked by Free-plan credit exhaustion/HTTP 403.
 - PR #761 merged an actionable tenant-context gate without weakening RLS, default tenant selection, or client tenant authority.
@@ -30,6 +30,7 @@ WHAT_IS_PROVEN
 - Security-definer exposure contract PASS.
 - Browser unauthenticated login surface PASS.
 - Real report f0880ab8...: 735 source rows, quality 87, canonical coverage FULL, Evidence Passport VERIFIED/READY.
+- Last product-code repair baseline = 2eabdd40837ab7a4f87a761168bd8495767d7476; current branch head adds only execution-state/report synchronization.
 PHASE_F_HISTORY
 - #4006: stale runtime fixed; first terminal failure was statement_timeout in logical backup/restore.
 - #4007: statement timeout fixed; first terminal failure moved to Session Pooler ECHECKOUTTIMEOUT on source snapshot.
