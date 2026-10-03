@@ -90,10 +90,10 @@ const { data: existingSnapshots, error: existingSnapshotError } = existingSnapsh
 if (existingSnapshotError) throw existingSnapshotError;
 
 const snapshotById = new Map((existingSnapshots ?? []).map((row) => [String(row.id), row]));
-const passportByJobId = new Map((existingPassports ?? []).map((row) => [String(row.report_execution_job_id), row]));
+const existingPassportByJobId = new Map((existingPassports ?? []).map((row) => [String(row.report_execution_job_id), row]));
 const alreadyProven = new Map();
 for (const job of candidateJobs) {
-  const passport = passportByJobId.get(String(job.id));
+  const passport = existingPassportByJobId.get(String(job.id));
   const snapshot = passport?.evidence_snapshot_id
     ? snapshotById.get(String(passport.evidence_snapshot_id))
     : null;
