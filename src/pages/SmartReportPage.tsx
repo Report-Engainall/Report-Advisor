@@ -28,6 +28,7 @@ function stateLabel(value: string | null): string {
     READY: 'جاهز للقرار',
     FULL_SOURCE: 'المصدر كامل',
     PARTIAL_FETCH_CEILING: 'تحليل جزئي — حد القراءة 50,000',
+    PARTIAL_FETCH_ERROR: 'تحليل جزئي — تعذر قراءة جزء من المصدر',
     AWAITING_EVIDENCE_SNAPSHOT: 'بانتظار لقطة الدليل',
     AVAILABLE_FROM_CANONICAL_ANALYSIS: 'متاح من التحليل الكانوني',
     NOT_COMMITTED: 'غير معتمد',
@@ -667,6 +668,15 @@ export function SmartReportPage() {
     </section>
 
     <EvidenceInspector report={report}/>
+    {report.runtimeWarnings?.length ? (
+      <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900" aria-label="تحذيرات التشغيل">
+        <div className="text-[9px] font-black tracking-[.12em]">RUNTIME READBACK</div>
+        <div className="mt-1 text-sm font-black">التقرير استمر رغم وجود أجزاء تعذر قراءتها</div>
+        <div className="mt-2 space-y-1">
+          {report.runtimeWarnings.map((warning) => <div key={warning} className="text-[10px] leading-5">• {warning}</div>)}
+        </div>
+      </section>
+    ) : null}
 
     {report.canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING' ? (
       <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900" aria-label="حد نطاق التحليل">

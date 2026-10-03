@@ -239,6 +239,22 @@ assert.doesNotMatch(
   /archetypeRun\.state === 'SUPPORTED'[\s\S]*?recommendations: \[\]/,
   'Archetype review must not erase all source recommendations',
 );
+assert.match(
+  smartReport,
+  /const runtimeWarnings: string\[\] = \[\]/,
+  'Smart Report must have a fail-soft runtime warning channel',
+);
+assert.match(
+  smartReport,
+  /canonicalFetchError = true/,
+  'Canonical row read failures must downgrade to partial analysis instead of crashing the report',
+);
+assert.match(
+  smartReport,
+  /PARTIAL_FETCH_ERROR/,
+  'Smart Report must expose a distinct partial-fetch-error scope',
+);
+
 
 assert.match(
   smartReport,
