@@ -308,6 +308,8 @@ assert.match(smartReport, /deriveReportIntelligence\([\s\S]*?catch \(error\)/, '
 assert.match(smartReport, /runReportArchetype\([\s\S]*?catch \(error\)/, 'specialized archetype execution must fail soft');
 assert.match(smartReport, /const canonicalImportJobId = renderedImportId \|\|/, 'canonical rows must prefer the active import job identity');
 assert.match(smartReport, /canonicalSourceQuery\.eq\('import_job_id', canonicalImportJobId\)/, 'canonical row reads must scope to the active import job');
+assert.match(smartReport, /function analysisUsabilityScore\(analysis: Record<string, unknown>\)/, 'final Smart Report runtime must score analysis snapshots by usable schema');
+
 
 
 console.log('PASS: evidence verification, Advisor decision provenance, live Passport readback, catalog provenance scope and source-proposal reconciliation remain fail-closed.');
