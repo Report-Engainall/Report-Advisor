@@ -52,6 +52,27 @@ const salesNeedsAttention = deriveReportIntelligence({
 });
 check(salesNeedsAttention.advisorBrief.health === 'REVIEW_REQUIRED', 'material source signal must not be presented as healthy');
 check(salesNeedsAttention.signals.some((item) => item.id === 'sales:date-missing'), 'sales date-missing signal must exist');
+const fullRecommendationColumns = Array.from({ length: 12 }, (_, index) => ({
+  name: 'حقل غير مربوط ' + (index + 1),
+  mappedField: null,
+}));
+const fullSurface = deriveReportIntelligence({
+  specialty: 'sales',
+  rowCount: 1,
+  sourceAnalysis: {
+    datasets: [{
+      columns: [
+        { name: 'القيمة', mappedField: 'netAmount' },
+        { name: 'العميل', mappedField: 'customer' },
+        ...fullRecommendationColumns,
+      ],
+    }],
+  },
+  canonicalRows: [{ row_number: 1, data: { netAmount: 100, customer: 'عميل' } }],
+});
+check(fullSurface.recommendations.length >= 12, 'intelligence recommendations must not be truncated at eight');
+check(fullSurface.recommendations.some((item) => item.id === 'rec:unmapped:حقل غير مربوط 12'), 'late unmapped recommendation must remain visible');
+
 
 const inventory = deriveReportIntelligence({
   specialty: 'inventory',
