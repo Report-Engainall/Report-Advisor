@@ -1,4 +1,5 @@
 import { AlertTriangle, ArrowUpLeft, BrainCircuit, CheckCircle2, CircleHelp, ShieldCheck, TrendingUp } from 'lucide-react';
+// PREVIEW_MATRIX_FORCE_REBUILD: verify the final Smart Report intelligence matrix on Netlify.
 import type { SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
 import { useEffect, useState } from 'react';
