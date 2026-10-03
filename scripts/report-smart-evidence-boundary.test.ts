@@ -129,7 +129,7 @@ assert.match(
 
 const smartReportPagePath = fileURLToPath(new URL('../src/pages/SmartReportPage.tsx', import.meta.url));
 const smartReportPage = fs.readFileSync(smartReportPagePath, 'utf8');
-assert.match(smartReportPage, /key === 'evidenceStatus' \\? \\(report\.evidenceStatus/, 'smart report status surface must use canonical evidence status instead of stale rendered output');
+assert.match(smartReportPage, /key === 'evidenceStatus' \? \(report\.evidenceStatus/, 'smart report status surface must use canonical evidence status instead of stale rendered output');
 assert.match(smartReportPage, /stateLabel\(report\.evidenceStatus\)/, 'evidence inspector must use canonical report verification state');
 assert.match(smartReportPage, /<ReportIntelligencePanel report=\{report\}\/>/, 'smart report must mount the intelligence panel');
 assert.match(smartReportPage, /<SmartReportAdvisorySurface report=\{report\}\/>/, 'smart report must mount the advisory surface');
@@ -191,7 +191,7 @@ assert.match(
   'Smart Report must bind decision provenance to the Passport snapshot',
 );
 
-const catalogMatch = smartReport.match(/function mapCatalogItem\\([\\s\\S]*?\\n}\\n\\nexport async function fetchSmartReportCatalog/);
+const catalogMatch = smartReport.match(/function mapCatalogItem\([\s\S]*?\n}\n\nexport async function fetchSmartReportCatalog/);
 assert.ok(catalogMatch, 'Smart Report catalog mapper must remain discoverable for regression checks');
 assert.doesNotMatch(
   catalogMatch[0],
