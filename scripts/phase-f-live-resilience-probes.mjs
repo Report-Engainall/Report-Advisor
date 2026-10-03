@@ -168,22 +168,29 @@ function runDockerPsqlFile(databaseUrl, filePath) {
 }
 
 function verifyRestoredRecommendationAuthority(databaseUrl) {
-  const sql = `select count(*) from public.recommendations r
-left join public.report_evidence_passports p
-  on p.company_id = r.company_id
- and p.evidence_snapshot_id = nullif(r.evidence->>'evidenceSnapshotId','')::uuid
- and p.report_execution_job_id = nullif(r.evidence->>'reportExecutionJobId','')::uuid
- and p.source_hash = nullif(trim(r.evidence->>'sourceHash'),'')
- and p.verification_status = 'VERIFIED'
- and p.decision_readiness = 'READY'
-where lower(coalesce(r.category,'')) = 'source-intelligence'
-  and p.id is null;`;
-  const invalidCount = Number(runDockerPsql(databaseUrl, sql));
-  if (!Number.isFinite(invalidCount) || invalidCount !== 0) {
-    throw new Error(`logical_restore_source_recommendation_integrity_failed:${invalidCount}`);
-  }
-  runDockerPsql(databaseUrl, 'select 1');
+  const sql = `
+do $$
+declare
+  invalid_count bigint;
+begin
+  select count(*) into invalid_count
+  from public.recommendations r
+  left join public.report_evidence_passports p
+    on p.company_id = r.company_id
+   and p.evidence_snapshot_id = nullif(r.evidence->>'evidenceSnapshotId','')::uuid
+   and p.report_execution_job_id = nullif(r.evidence->>'reportExecutionJobId','')::uuid
+   and p.source_hash = nullif(trim(r.evidence->>'sourceHash'),'')
+   and p.verification_status = 'VERIFIED'
+   and p.decision_readiness = 'READY'
+  where lower(coalesce(r.category,'')) = 'source-intelligence'
+    and p.id is null;
+  if invalid_count <> 0 then
+    raise exception 'logical_restore_source_recommendation_integrity_failed:%', invalid_count;
+  end if;
+end $$;`;
+  runDockerPsql(databaseUrl, sql);
   return true;
+}
 }
 
 function runDockerPgDump(databaseUrl, outputPath) {

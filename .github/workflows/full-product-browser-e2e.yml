@@ -10,6 +10,7 @@ on:
       - 'scripts/e2e-actor-provisioning-contract.test.mjs'
       - 'scripts/real-business-e2e.mjs'
       - 'scripts/real-48-source-matrix-preflight.mjs'
+      - 'scripts/phase-f-live-resilience-probes.mjs'
       - 'scripts/rehydrate-legacy-corpus.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
       - 'scripts/check-certification-boundary-integrity.mjs'
