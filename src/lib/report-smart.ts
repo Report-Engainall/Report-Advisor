@@ -714,6 +714,11 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
           : 'REVIEW_REQUIRED';
   const runtimeRendered = {
     ...effectiveRendered,
+    archetypeId: detectedArchetype.profile?.id ?? null,
+    archetypeVersion: detectedArchetype.profile?.version ?? null,
+    profileVersion: detectedArchetype.profile?.version ?? null,
+    archetypeState,
+    archetypeReason: detectedArchetype.reason,
     signalStatus: runtimeSignalStatus,
     intelligenceStatus: runtimeIntelligenceStatus,
   };
