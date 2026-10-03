@@ -100,14 +100,14 @@ assert.equal((renderResult as any).renderedOutput.sourceBound, true);
 
 const renderedSource = buildRenderedOutput({
   importId: 'import-render-test',
-  fileName: 'sales.pdf',
+  fileName: 'sales invoices.pdf',
   sourceHash: 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-  entityType: 'generic:source-data',
+  entityType: 'sales_invoices',
   qualityScore: 92,
   qualityApproved: true,
   rows: [{
     rowNumber: 1,
-    data: { total: 10, invoice_number: 101, customer_name: 'عميل', invoice_type: 'آجل', date: '2026-01-02' },
+    data: { total: 10, net_sales: 10, invoice_number: 101, customer_name: 'عميل', invoice_type: 'آجل', date: '2026-01-02' },
     provenance: {
       sourceHash: 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       sourceId: 'source-1',
@@ -123,3 +123,7 @@ assert.equal(renderedSource.sourceMetrics.uniqueInvoiceCount, 1);
 assert.equal(renderedSource.sourceMetrics.receivableCandidate, 10);
 assert.equal(renderedSource.sourceMetrics.asOfStart, '2026-01-02');
 assert.equal(renderedSource.sourceMetrics.asOfEnd, '2026-01-02');
+assert.equal(renderedSource.archetypeId, 'sales.invoice-detail');
+assert.equal(renderedSource.archetypeVersion, 1);
+assert.equal(renderedSource.archetypeState, 'SUPPORTED');
+assert.equal(typeof renderedSource.archetypeReason, 'string');
