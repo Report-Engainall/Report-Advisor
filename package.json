@@ -194,6 +194,8 @@
     "test:decision-cockpit-retention": "node scripts/decision-cockpit-retention.test.mjs",
     "test:command-decision-intelligence-retention": "node scripts/command-decision-intelligence-retention.test.mjs",
     "test:intelligence-executive-report-retention": "node scripts/intelligence-executive-report-retention.test.mjs",
-    "test:source-metrics-retention": "node scripts/source-metrics-retention.test.mjs"
+    "test:source-metrics-retention": "node scripts/source-metrics-retention.test.mjs",
+    "test:real-48-source-matrix": "node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs",
+    "test:real-48-source-matrix-contract": "node scripts/real-48-source-matrix-contract.test.mjs"
   }
 }

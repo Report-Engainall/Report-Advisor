@@ -9,6 +9,7 @@ on:
       - 'scripts/provision-e2e-actors.mjs'
       - 'scripts/e2e-actor-provisioning-contract.test.mjs'
       - 'scripts/real-business-e2e.mjs'
+      - 'scripts/real-48-source-matrix-preflight.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
       - 'scripts/check-certification-boundary-integrity.mjs'
       - 'scripts/check-execution-enforcement-protocol.mjs'
@@ -67,6 +68,7 @@ on:
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'scripts/real-business-e2e.mjs'
+      - 'scripts/real-48-source-matrix-preflight.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'src/pages/**'
@@ -256,6 +258,19 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/provision-e2e-actors.mjs
+
+      - name: Prove real-source 48 archetype matrix
+        env:
+          EXACT_HEAD: ${{ env.EXACT_HEAD }}
+          E2E_REPORT_DIR: artifacts/e2e-business
+          REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${TEST_USER_A_EMAIL}"
+          test -n "${TEST_USER_A_PASSWORD}"
+          node scripts/real-48-source-matrix-preflight.mjs
 
       - name: Resume and prove the real open report
         env:
