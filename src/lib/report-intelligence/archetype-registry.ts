@@ -225,7 +225,8 @@ export function detectReportArchetype(input: {
     }).length;
     const titleTokens = normalize(profile.title).split(/[^\p{L}\p{N}]+/u).filter((token) => token.length >= 4);
     const titleFieldHits = titleTokens.filter((token) => fieldLabels.some((field) => field.includes(token))).length;
-    const invoiceDetailSignals = ['unitPrice', 'grossAmount', 'discount', 'cost'].filter((field) => fields.has(field)).length;
+    const invoiceDetailSignalFields: CanonicalField[] = ['unitPrice', 'grossAmount', 'discount', 'cost'];
+    const invoiceDetailSignals = invoiceDetailSignalFields.filter((field) => fields.has(field)).length;
     const invoiceDetailBonus =
       profile.id.endsWith('.invoice-detail') &&
       fields.has('documentNo') &&
