@@ -131,6 +131,23 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         </span>
       </div>
 
+      <section className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6" aria-label="طبقات الذكاء">
+        {[
+          { label: 'تحليلي', count: intelligence.findings.length, note: 'نتائج مشتقة', tone: 'border-primary-200 bg-primary-50 text-primary-900' },
+          { label: 'تفسيري', count: intelligence.signals.filter((signal) => Boolean(signal.message && signal.soWhat)).length, note: 'WHY → SO WHAT', tone: 'border-ink-200 bg-ink-50 text-ink-900' },
+          { label: 'تحذيري', count: intelligence.signals.filter((signal) => ['critical', 'high', 'medium'].includes(signal.severity)).length, note: 'تحتاج انتباهًا', tone: 'border-danger-200 bg-danger-50 text-danger-900' },
+          { label: 'تنبؤي', count: forecast.status === 'AVAILABLE' ? 1 : 0, note: forecast.status === 'AVAILABLE' ? 'متاح' : 'غير كافٍ', tone: 'border-warning-200 bg-warning-50 text-warning-900' },
+          { label: 'إرشادي', count: intelligence.guidance.inspect.length, note: 'خطوات فحص', tone: 'border-success-200 bg-success-50 text-success-900' },
+          { label: 'توصية', count: intelligence.recommendations.length, note: 'مقترحات مصدرية', tone: 'border-primary-200 bg-primary-50 text-primary-900' },
+        ].map((layer) => (
+          <div key={layer.label} className={'rounded-2xl border p-3 ' + layer.tone}>
+            <div className="text-[9px] font-black tracking-[.08em]">{layer.label}</div>
+            <div className="mt-1 text-2xl font-black">{formatNumber(layer.count)}</div>
+            <div className="mt-1 text-[8px] font-bold opacity-70">{layer.note}</div>
+          </div>
+        ))}
+      </section>
+
       <div className="grid gap-3 lg:grid-cols-[1.2fr_.8fr]">
         <div className="rounded-2xl border border-primary-200 bg-primary-50/55 p-4">
           <div className="flex items-center gap-2">
