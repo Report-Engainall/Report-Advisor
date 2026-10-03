@@ -1,12 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const root = new URL('../tests/fixtures/realistic-reports/48-archetypes/', import.meta.url);
 const directory = root instanceof URL ? fileURLToPath(root) : root;
-
-function fileURLToPath(value) {
-  return new URL(value).pathname.replace(/^\//, '').replaceAll('%20', ' ');
-}
 
 function fail(message) {
   throw new Error('48_FIXTURE_CORPUS:' + message);
