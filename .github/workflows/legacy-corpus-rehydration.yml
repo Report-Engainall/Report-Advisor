@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - fix/main-520a-pdf-node-runtime-20260930
+      - feat/complete-smart-intelligence-surface-20261003
     paths:
       - 'scripts/rehydrate-legacy-corpus.mjs'
       - 'src/lib/file-engine/**'
