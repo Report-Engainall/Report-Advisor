@@ -216,6 +216,21 @@ assert.ok(runtimeStateUse > runtimeStateDeclaration, 'Smart Report must only con
 assert.match(smartReport, /renderedOutput: effectiveRendered,/, 'base intelligence must consume the passport-refreshed rendered state before runtime state is synthesized');
 assert.match(
   smartReport,
+  /function resolveEffectiveSpecialty\(renderedSpecialty: unknown, analysis: AnalysisSnapshotLike/,
+  'Smart Report specialty resolution must have a source-derived fallback',
+);
+assert.match(
+  smartReport,
+  /const inferred = inferSpecialtyFromAnalysis\(analysis\)/,
+  'Smart Report must infer specialty from source analysis when it is available',
+);
+assert.match(
+  smartReport,
+  /const specialty = resolveEffectiveSpecialty\(/,
+  'Smart Report runtime must use resolved specialty rather than stale rendered metadata',
+);
+assert.match(
+  smartReport,
   /headline: 'النموذج لم يجتز بوابة التشغيل: ' \+ archetypeRun\.state \+ ' — تم إبقاء الذكاء المصدرّي المتاح/,
   'Archetype review must preserve source intelligence instead of blanking all signals and recommendations',
 );
