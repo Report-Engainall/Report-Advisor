@@ -240,7 +240,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
           </div>
           <div className="mt-3 space-y-2">
             {intelligence.signals.length === 0 ? (
-              <div className="rounded-xl border border-success-200 bg-success-50 p-3 text-xs text-success-900">لم تُثبت إشارة استثنائية من البيانات المتاحة.</div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800">لم تُثبت إشارة استثنائية من البيانات المتاحة.</div>
             ) : intelligence.signals.map((signal) => (
               <article key={signal.id} className={'rounded-xl border p-3 ' + severityClass(signal.severity)}>
                 <div className="flex flex-wrap items-center gap-2">
@@ -360,7 +360,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
       </div>
 
       <div className="grid gap-3 lg:grid-cols-[1fr_1fr]">
-        <div className="rounded-2xl border border-ink-200 bg-ink-950 p-4 text-white">
+        <div className="rounded-2xl border border-ink-200 bg-[linear-gradient(145deg,#0f172a,#1e293b)] p-4 text-white shadow-[0_18px_45px_-32px_rgba(15,23,42,.9)]">
           <div className="flex items-center gap-2">
             <TrendingUp size={16} className="text-primary-200" />
             <div className="text-sm font-black">التنبؤ / الإسقاط المشروط</div>
