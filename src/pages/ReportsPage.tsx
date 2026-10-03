@@ -12,7 +12,6 @@ import { readActiveReportContext, saveActiveReportContext } from '@/lib/report-c
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
-import { ReportSourceContext } from '@/components/ReportSourceContext';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 import type { SalesInvoice, PurchaseInvoice } from '@/lib/types';
 import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingBucket, InventoryReportRow } from '@/lib/dashboard-canonical';
@@ -135,8 +134,7 @@ function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report
       </div>}
     />
     {!actualMatches && <div className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">هذا المصدر مصنّف كـ{specialtyLabel[report.specialty ?? ''] ?? 'مصدر عام'} وليس {title}. لم يتم تحويله إلى حقيقة تخص هذا التخصص.</div>}
-    <ReportSourceContext />
-    <ReportIntelligencePanel report={report} />
+        <ReportIntelligencePanel report={report} />
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="section-kicker">SOURCE-BOUND DOMAIN ANALYSIS</div>
       <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
