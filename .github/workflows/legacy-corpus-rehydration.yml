@@ -21,6 +21,7 @@ on:
       - 'supabase/migrations/**'
       - 'package.json'
       - 'package-lock.json'
+      - '.github/workflows/legacy-corpus-rehydration.yml'
 
 permissions:
   contents: read
