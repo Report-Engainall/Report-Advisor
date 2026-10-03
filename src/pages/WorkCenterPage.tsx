@@ -186,7 +186,7 @@ function WorkCenterGeneralPage() {
   if (loading) return <LoadingState message="جارٍ تحميل حالة العمليات..." />;
   if (error) return <ErrorState message={error} onRetry={load} />;
 
-  return <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
+  return <div dir="rtl" className="ag-work-center-surface space-y-5 animate-fade-in pb-10">
     <PageHeader
       title="مركز العمل"
       subtitle="طابور العمل والاستثناءات: ما الذي ينتظر، ما الذي يحتاج مراجعة، وما الذي اكتمل فعليًا."
