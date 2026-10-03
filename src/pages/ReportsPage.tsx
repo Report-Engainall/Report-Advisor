@@ -147,7 +147,7 @@ function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report
           : 'التحليل المتخصص غير مكتمل لهذا المصدر؛ لن تُرفع الاستنتاجات إلى حقيقة كاملة.'}
       </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {(metricColumns.slice(0,4).length ? metricColumns.slice(0,4) : [{name:'metric'} as any]).map((column:any,index:number) => {
+        {(metricColumns.length ? metricColumns : [{name:'metric'} as any]).map((column:any,index:number) => {
           const label = String(column.mappedField ?? column.name ?? 'مؤشر').replace(/_/g,' ');
           const value = sourceNumber(column, 'sum') ?? sourceNumber(column, 'mean');
           return <div key={String(column.name ?? index)} className="rounded-2xl border border-ink-100 bg-ink-50 p-4"><div className="text-[10px] text-ink-500">{label}</div><div className="mt-2 text-xl font-black text-ink-950">{value == null ? 'غير متاح' : formatNumber(value)}</div><div className="mt-1 text-[9px] text-ink-400">من إحصائية العمود الكانوني للمصدر</div></div>;
