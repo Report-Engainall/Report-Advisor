@@ -125,7 +125,7 @@ export async function fetchAgingSnapshot(): Promise<AgingSnapshot> {
   const row = data as Record<string, unknown>; return { rows: requiredArray<AgingSnapshotRow>(row.rows), asOf: typeof row.asOf==='string'?row.asOf:asOfDate(), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'NO_DATA' ? 'NO_DATA' : 'INSUFFICIENT_DATA' };
 }
 
-function normalizeRecommendationStatus(status: string): string {
+export function normalizeRecommendationStatus(status: string): string {
   const normalized = status.trim().toLowerCase();
   if (normalized === 'open') return 'accepted';
   return status;
