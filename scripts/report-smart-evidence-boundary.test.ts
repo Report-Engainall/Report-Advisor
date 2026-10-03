@@ -184,6 +184,14 @@ const appPath = fileURLToPath(new URL('../src/App.tsx', import.meta.url));
 const app = fs.readFileSync(appPath, 'utf8');
 assert.match(app, /<ReportSourceContext\/>/, 'global shell must keep active report intelligence visible while navigating across screens');
 
+const smartInsightsPath = fileURLToPath(new URL('../src/lib/report-intelligence/report-smart-insights.ts', import.meta.url));
+const smartInsights = fs.readFileSync(smartInsightsPath, 'utf8');
+assert.match(
+  smartInsights,
+  /const mappedKey = normalized\(column\.mappedField\);[\s\S]*const rawKey = normalized\(column\.name\);/,
+  'source intelligence field matching must inspect both mapped and raw labels',
+);
+
 const smartReportPath = fileURLToPath(new URL('../src/lib/report-smart.ts', import.meta.url));
 const smartReport = fs.readFileSync(smartReportPath, 'utf8');
 
