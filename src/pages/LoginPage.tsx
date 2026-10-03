@@ -18,6 +18,14 @@ const customerValueLanes = [
   { title: 'عربي أصيل', text: 'RTL أصلية ومسارات تشغيلية مترابطة، وليست ترجمة سطحية لواجهة أجنبية.', state: 'Arabic-first' },
 ];
 
+const competitiveProofLanes = [
+  { title: 'Evidence-First BI', text: 'التحليل يبدأ من المصدر الموثق، ويحافظ على البصمة ولقطة الدليل قبل الاستنتاج.', state: 'ميزة جوهرية' },
+  { title: 'Governed Excel / CSV', text: 'ملفات العمل اليومية تدخل مسارًا محكومًا للتطبيع والجودة والتتبع بدل أن تصبح أرقامًا بلا أصل.', state: 'ميزة تشغيلية' },
+  { title: 'Arabic RTL B2B UX', text: 'القرار والتنفيذ والإثبات مصممة أصلًا بالعربية وRTL، لا كتجربة مترجمة فوق واجهة عامة.', state: 'ميزة تجربة' },
+  { title: 'Inventory / Receivables', text: 'المنتج يربط ذكاء المخزون والتحصيل بالإشارة والقرار والعمل، بدل فصل كل تقرير في شاشة مستقلة.', state: 'ميزة نطاق' },
+  { title: 'Supabase Tenant Security', text: 'عزل الشركة والصلاحيات وحدود الكتابة جزء من المسار التشغيلي، لا طبقة لاحقة بعد الواجهة.', state: 'ميزة ثقة' },
+];
+
 export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -80,6 +88,18 @@ export function LoginPage() {
                       <p className="mt-2 text-[11px] leading-5 text-ink-500">{text}</p>
                     </div>
                   ))}
+                </div>
+
+                <div className="mt-8">
+                  <div className="flex items-center gap-2 text-[12px] font-black text-ink-900"><Sparkles size={15} className="text-primary-700"/>خمس طرق محددة لمنافسة المشاريع الأكبر</div>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {competitiveProofLanes.map(lane => (
+                      <div key={lane.title} className="rounded-[10px] border border-primary-100 bg-primary-50/40 p-3.5">
+                        <div className="flex items-center justify-between gap-2"><div className="text-[11px] font-black text-ink-900">{lane.title}</div><span className="rounded-full bg-white px-2 py-1 text-[9px] font-bold text-primary-700 ring-1 ring-inset ring-primary-200">{lane.state}</span></div>
+                        <p className="mt-1.5 text-[10px] leading-5 text-ink-600">{lane.text}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="mt-8">
