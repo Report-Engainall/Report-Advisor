@@ -1,7 +1,6 @@
 import { SourceBoundReportSurface } from '@/components/SourceBoundReportSurface';
 import { readActiveReportContext } from '@/lib/report-context';
 import { ArrowLeft, CheckCircle2, Eye, FileSearch, GitBranch, History, Landmark, RefreshCw, ShieldCheck } from 'lucide-react';
-import { ReportSourceContext } from '@/components/ReportSourceContext';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
@@ -74,7 +73,6 @@ function TrustEvidenceGeneralPage() {
   if (error) return <ErrorState message={error} onRetry={() => void loadSnapshot()} />;
 
   return <div dir="rtl" className="ag-trust-evidence-surface space-y-6 animate-fade-in pb-10">
-      <ReportSourceContext />
     <PageHeader
       title="مركز الثقة والأدلة"
       subtitle="طبقة واحدة لفهم مصدر الرقم، حالته، حدوده، وما إذا كان صالحًا للاستخدام في قرار."
