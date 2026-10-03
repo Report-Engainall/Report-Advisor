@@ -101,6 +101,66 @@ function SourceRecommendationsDetail({ report }: { report: SmartReportDetail }) 
   );
 }
 
+function SourceSignalsDetail({ report }: { report: SmartReportDetail }) {
+  const signals = report.intelligence.signals;
+  const severityLabel: Record<string, string> = {
+    critical: 'حرج',
+    high: 'تحذيري',
+    medium: 'تنبيهي',
+    low: 'ملاحظة',
+    info: 'إرشادي',
+  };
+  return (
+    <section dir="rtl" className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <div className="text-[9px] font-black tracking-[.12em] text-warning-700">SOURCE SIGNALS</div>
+          <h2 className="mt-1 text-base font-black text-ink-950">كل الإشارات المثبتة في هذا التقرير</h2>
+        </div>
+        <span className="rounded-full bg-warning-50 px-2.5 py-1 text-[9px] font-black text-warning-900">{signals.length} إشارة</span>
+      </div>
+      <div className="mt-3 grid gap-2 lg:grid-cols-2">
+        {signals.length ? signals.map((signal) => (
+          <article key={signal.id} className="rounded-xl border border-ink-200 bg-ink-50/60 p-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-warning-100 px-2 py-1 text-[8px] font-black text-warning-900">{severityLabel[signal.severity] ?? signal.severity}</span>
+              <span className="rounded-full bg-ink-100 px-2 py-1 text-[8px] font-black text-ink-700">{signal.priority}</span>
+              <span className="text-xs font-black text-ink-900">{signal.title}</span>
+            </div>
+            <p className="mt-2 text-[10px] leading-5 text-ink-700">{signal.message}</p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2 text-[9px]">
+              <div className="rounded-lg bg-white p-2"><b>SO WHAT</b><div className="mt-1 text-ink-600">{signal.soWhat}</div></div>
+              <div className="rounded-lg bg-white p-2"><b>IMPACT / OWNER</b><div className="mt-1 text-ink-600">{signal.impact} · {signal.ownerHint}</div></div>
+            </div>
+            <div className="mt-2 text-[8px] font-mono leading-4 text-ink-400">{signal.evidence.join(' · ')}</div>
+          </article>
+        )) : <div className="rounded-xl border border-dashed border-ink-200 p-4 text-[10px] text-ink-500">لا توجد إشارة استثنائية مثبتة من هذا المصدر.</div>}
+      </div>
+    </section>
+  );
+}
+
+function SourceGuidanceDetail({ report }: { report: SmartReportDetail }) {
+  const guidance = report.intelligence.guidance;
+  return (
+    <section dir="rtl" className="rounded-[18px] border border-primary-200 bg-primary-50/50 p-4 shadow-sm">
+      <div className="text-[9px] font-black tracking-[.12em] text-primary-800">SOURCE GUIDANCE</div>
+      <h2 className="mt-1 text-base font-black text-ink-950">الإرشاد المبني على نفس التقرير</h2>
+      <div className="mt-3 grid gap-2 lg:grid-cols-3">
+        <div className="rounded-xl bg-white p-3"><div className="text-[8px] font-black text-primary-700">FOCUS</div><div className="mt-1 text-[10px] leading-5 text-ink-700">{guidance.focus}</div></div>
+        <div className="rounded-xl bg-white p-3"><div className="text-[8px] font-black text-primary-700">OWNER</div><div className="mt-1 text-[10px] leading-5 text-ink-700">{guidance.ownerHint}</div></div>
+        <div className="rounded-xl bg-white p-3"><div className="text-[8px] font-black text-primary-700">BOUNDARY</div><div className="mt-1 text-[10px] leading-5 text-ink-700">{guidance.boundary}</div></div>
+      </div>
+      <div className="mt-3 rounded-xl bg-white p-3">
+        <div className="text-[8px] font-black text-primary-700">INSPECT NEXT</div>
+        <div className="mt-2 grid gap-2 md:grid-cols-2">
+          {guidance.inspect.map((item, index) => <div key={index} className="rounded-lg border border-primary-100 bg-primary-50/30 p-2 text-[9px] leading-5 text-ink-700">{index + 1}. {item}</div>)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function SourceForecastDetail({ report }: { report: SmartReportDetail }) {
   const forecast = report.intelligence.forecast;
   return (
@@ -215,6 +275,8 @@ const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
       {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
+      {sourceReport && <SourceSignalsDetail report={sourceReport} />}
+      {sourceReport && <SourceGuidanceDetail report={sourceReport} />}
       <section className="ag-command-hero rounded-[20px] border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated lg:p-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
