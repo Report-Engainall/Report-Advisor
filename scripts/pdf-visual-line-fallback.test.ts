@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { extractPdfVisualLines, extractPdfVisualRows, type PdfPageText } from '../src/lib/file-engine/pdf-table.ts';
-import { parseFile } from '../src/lib/file-engine/adapters.ts';
+import { parseFile, hasPdfTextEncodingCorruption } from '../src/lib/file-engine/adapters.ts';
 
 const pages: PdfPageText[] = [
   {
@@ -22,6 +22,9 @@ const pages: PdfPageText[] = [
     ],
   },
 ];
+
+assert.equal(hasPdfTextEncodingCorruption('ƕĊƹěƐĉ ƞƓžŅ ŀƗĥŏƓƐĉ ļƺŅĊĥƐĉ ƮƏƓŧƐĉ ƞĥƐĊĺ ŀƹŘņƐĉ 60336'), true);
+assert.equal(hasPdfTextEncodingCorruption('رقم الصنف السعر 10101001 10750'), false);
 
 const visualRows = extractPdfVisualRows(pages);
 assert.equal(visualRows.length, 4);
