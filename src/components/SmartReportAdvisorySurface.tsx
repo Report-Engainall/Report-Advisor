@@ -62,7 +62,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
       : archetypeResolution.profile?.version ?? null,
   });
 
-  const decisionClaims = packet.claims.filter((claim) => claim.status === 'RECOMMENDED' || claim.status === 'DERIVED').slice(0, 6);
+  const decisionClaims = packet.claims.filter((claim) => claim.status === 'RECOMMENDED' || claim.status === 'DERIVED');
   const { advisorBrief, findings, risks, opportunities } = report.intelligence;
   const navigate = useNavigate();
   const [decisionProposal, setDecisionProposal] = useState<SourceDecisionState | null>(null);
