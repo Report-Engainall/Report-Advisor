@@ -3,14 +3,14 @@ SESSION_HANDOFF = NOT READY
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT EXECUTION HEAD = 694051ae661824a030e67f7fc2fc88b2edff25ff
-REPORT_FOR_HEAD = 694051ae661824a030e67f7fc2fc88b2edff25ff
+CURRENT EXECUTION HEAD = f716fc03b2b70cc8b1e7150f7a8f1aaa072bf1eb
+REPORT_FOR_HEAD = f716fc03b2b70cc8b1e7150f7a8f1aaa072bf1eb
 BRANCH = captain/phase-f-dynamic-pr-preview-20261003
 PR = #762 OPEN
 UPDATED = 2026-10-03
-UPDATED_AT = 2026-10-03T13:28:00Z
+UPDATED_AT = 2026-10-03T13:37:00Z
 WHAT_I_WAS_ASKED_TO_DO = إكمال المشروع فعليًا بالتوازي، إزالة اختناقات Phase-F وAuth/E2E، تثبيت Evidence Passport، وإغلاق الشهادة دون PASS وهمي.
-WHAT_I_ACTUALLY_DID = نفذت إزالة هدف Preview قديم، إصلاح Transaction Pooler، تقوية Auth/E2E bounded recovery، استعادة Evidence Passport الحقيقي، وإغلاق سطح RPC العام لدوال trigger-only.
+WHAT_I_ACTUALLY_DID = نفذت إزالة هدف Preview قديم، إصلاح Transaction Pooler، تقوية Auth/E2E bounded recovery، استعادة Evidence Passport الحقيقي، إغلاق سطح RPC العام لدوال trigger-only، وإصلاح ربط حفظ القضية بالـPassport snapshot الفعلي مع regression guard.
 WHAT_ACTUALLY_HAPPENED
 1. Removed stale Phase-F deploy-preview-754 targeting and replaced it with current-PR runtime resolution plus exact-head provenance checks.
 2. Aligned logical backup/restore source snapshot/count reads with Transaction Pooler :6543 while retaining pg_dump on the resolved runner source URI.
@@ -36,10 +36,10 @@ WHAT_IS_PROVEN = typecheck/build/intelligence/evidence-passport/operational-resi
 - security-definer exposure contract PASS
 - direct Supabase DB connectivity PASS
 - real report job f0880ab8...: 735 source rows, 7 columns, PDF, quality 87, canonical coverage FULL, Evidence Passport VERIFIED/READY
-FIRST_ACTIVE_FAILURE = CI_RECERTIFICATION_IN_PROGRESS; the last completed handoff failure was the missing scalar WHAT_IS_PROVEN contract field.
+FIRST_ACTIVE_FAILURE = CI_RECERTIFICATION_IN_PROGRESS; the latest completed Browser proof exposed a real Advisor case persistence-boundary mismatch.
 CI_RECERTIFICATION = IN_PROGRESS
 Previous completed failure on the current gate family was Session Handoff Contract: the parser required scalar `WHAT_IS_PROVEN = ...`, while the report only had a Markdown heading. This was a documentation-contract mismatch and is corrected in this synchronization.
-ROOT_CAUSE = persistent-session handoff metadata was formatted as Markdown headings instead of the contract's scalar KEY = VALUE fields; no product/runtime bypass was involved.
+ROOT_CAUSE = Smart Report passed source_analysis_snapshots.id into a Passport-bound proposal RPC; the live Passport for this report uses a distinct evidence_snapshot_id. The UI therefore could not persist the case and timed out waiting for success.
 The earlier runtime failures were a combination of a recovered Supabase lifecycle interruption and two stale/incorrect source-level assertions. The handoff failures are metadata synchronization failures, not product/runtime failures.
 FILES / COMMITS
 - PR #761 -> 9d78baf6... -> main 7e9cec1...
@@ -55,4 +55,4 @@ REMAINING OPEN
 - real-source 48-archetype proof remains unproven
 DO_NOT_REPEAT
 No stale PASS, no queued-run PASS, no Service Role impersonation, no new Supabase project, no tenant/RLS bypass, no fabricated corpus/archetype coverage.
-NEXT_EXACT_ACTION = consume the first completed CI failure on exact current execution head 694051ae661824a030e67f7fc2fc88b2edff25ff; fix only that blocker, then rerun the affected gate.
+NEXT_EXACT_ACTION = certify exact product head f716fc03b2b70cc8b1e7150f7a8f1aaa072bf1eb and consume the first completed failure on that head.
