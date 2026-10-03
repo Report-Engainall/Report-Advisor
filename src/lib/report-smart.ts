@@ -150,8 +150,11 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
     if (!Array.isArray(columns)) return [];
     return columns
       .filter((column): column is Record<string, unknown> => Boolean(column) && typeof column === 'object')
-      .map((column) => String(column.mappedField ?? ''))
-      .filter(Boolean);
+      .flatMap((column) => {
+        const mapped = String(column.mappedField ?? '').trim();
+        const name = String(column.name ?? '').trim();
+        return [mapped, name].filter(Boolean);
+      });
   }))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
 
   const detected = detectReportArchetype({
@@ -470,8 +473,11 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     if (!Array.isArray(columns)) return [];
     return columns
       .filter((column): column is Record<string, unknown> => Boolean(column) && typeof column === 'object')
-      .map((column) => String(column.mappedField ?? ''))
-      .filter(Boolean);
+      .flatMap((column) => {
+        const mapped = String(column.mappedField ?? '').trim();
+        const name = String(column.name ?? '').trim();
+        return [mapped, name].filter(Boolean);
+      });
   }))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
 
   const detectedArchetype = detectReportArchetype({
