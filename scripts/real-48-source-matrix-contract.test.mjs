@@ -12,6 +12,7 @@ for (const marker of [
   "claim.archetypeId === profile.id",
   "claim.evidenceSnapshotId === candidate.snapshot.id",
   "status: supported === profiles.length ? 'PASS' : 'NOT_PROVEN'",
+  "canonicalRowsRead: chosen ? sourceRowsCache.get(String(chosen.job.id))?.length ?? 0 : 0,",
 ]) {
   if (!source.includes(marker)) fail('Missing real-48 proof invariant: ' + marker);
 }
