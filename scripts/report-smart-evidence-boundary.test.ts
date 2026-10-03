@@ -148,15 +148,15 @@ assert.match(advisorySurface, /ADVISOR BRIEF/, 'smart report must render the adv
 assert.match(advisorySurface, /TOP FINDINGS/, 'smart report must render findings');
 assert.match(advisorySurface, /TOP RISKS/, 'smart report must render risks');
 assert.match(advisorySurface, /TOP OPPORTUNITIES/, 'smart report must render opportunities');
-const intelligencePanelPath = fileURLToPath(new URL('../src/components/ReportIntelligencePanel.tsx', import.meta.url));
-const intelligencePanel = fs.readFileSync(intelligencePanelPath, 'utf8');
-assert.match(intelligencePanel, /طبقات الذكاء/, 'smart report must expose the intelligence layer matrix');
-assert.match(intelligencePanel, /تحليلي/, 'smart report intelligence matrix must show analytical layer');
-assert.match(intelligencePanel, /تفسيري/, 'smart report intelligence matrix must show explanatory layer');
-assert.match(intelligencePanel, /تحذيري/, 'smart report intelligence matrix must show warning layer');
-assert.match(intelligencePanel, /تنبؤي/, 'smart report intelligence matrix must show predictive layer');
-assert.match(intelligencePanel, /إرشادي/, 'smart report intelligence matrix must show guidance layer');
-assert.match(intelligencePanel, /توصية/, 'smart report intelligence matrix must show recommendation layer');
+const intelligencePanelMatrixPath = fileURLToPath(new URL('../src/components/ReportIntelligencePanel.tsx', import.meta.url));
+const intelligencePanelMatrix = fs.readFileSync(intelligencePanelMatrixPath, 'utf8');
+assert.match(intelligencePanelMatrix, /طبقات الذكاء/, 'smart report must expose the intelligence layer matrix');
+assert.match(intelligencePanelMatrix, /تحليلي/, 'smart report intelligence matrix must show analytical layer');
+assert.match(intelligencePanelMatrix, /تفسيري/, 'smart report intelligence matrix must show explanatory layer');
+assert.match(intelligencePanelMatrix, /تحذيري/, 'smart report intelligence matrix must show warning layer');
+assert.match(intelligencePanelMatrix, /تنبؤي/, 'smart report intelligence matrix must show predictive layer');
+assert.match(intelligencePanelMatrix, /إرشادي/, 'smart report intelligence matrix must show guidance layer');
+assert.match(intelligencePanelMatrix, /توصية/, 'smart report intelligence matrix must show recommendation layer');
 
 const intelligencePagePath = fileURLToPath(new URL('../src/pages/IntelligencePage.tsx', import.meta.url));
 const intelligencePage = fs.readFileSync(intelligencePagePath, 'utf8');
@@ -297,5 +297,11 @@ assert.doesNotMatch(
   /effectiveRendered/,
   'catalog mapping must use its local rendered output; Passport-refreshed effectiveRendered exists only inside fetchSmartReport',
 );
+assert.match(catalogMatch[0], /const rendered = renderedOutputOf\(job\.evidence\) \\?\\? \{\\};/, 'catalog must render completed report sources even when prior renderedOutput is absent');
+
+assert.match(smartReport, /تعذر قراءة أحدث لقطة تحليل؛ استمر التقرير اعتمادًا على المخرجات المحفوظة/, 'latest analysis snapshot failure must degrade to a visible runtime warning instead of throwing');
+assert.match(smartReport, /function emptyReportIntelligence\(specialty: string \| null\)/, 'Smart Report must have a safe fallback intelligence object');
+assert.match(smartReport, /deriveReportIntelligence\([\s\S]*?catch \(error\)/, 'intelligence derivation must be guarded against malformed runtime data');
+assert.match(smartReport, /runReportArchetype\([\s\S]*?catch \(error\)/, 'specialized archetype execution must fail soft');
 
 console.log('PASS: evidence verification, Advisor decision provenance, live Passport readback, catalog provenance scope and source-proposal reconciliation remain fail-closed.');

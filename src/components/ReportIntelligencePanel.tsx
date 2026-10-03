@@ -133,12 +133,12 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
 
       <section className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6" aria-label="طبقات الذكاء">
         {[
-          { label: 'تحليلي', count: intelligence.findings.length, note: 'نتائج مشتقة', tone: 'border-primary-200 bg-primary-50 text-primary-900' },
-          { label: 'تفسيري', count: intelligence.signals.filter((signal) => Boolean(signal.message && signal.soWhat)).length, note: 'WHY → SO WHAT', tone: 'border-ink-200 bg-ink-50 text-ink-900' },
+          { label: 'تحليلي', count: intelligence.findings.length, note: 'نتائج مشتقة', tone: 'border-indigo-200 bg-indigo-50 text-indigo-900' },
+          { label: 'تفسيري', count: intelligence.signals.filter((signal) => Boolean(signal.message && signal.soWhat)).length, note: 'WHY → SO WHAT', tone: 'border-slate-200 bg-slate-50 text-slate-900' },
           { label: 'تحذيري', count: intelligence.signals.filter((signal) => ['critical', 'high', 'medium'].includes(signal.severity)).length, note: 'تحتاج انتباهًا', tone: 'border-danger-200 bg-danger-50 text-danger-900' },
-          { label: 'تنبؤي', count: forecast.status === 'AVAILABLE' ? 1 : 0, note: forecast.status === 'AVAILABLE' ? 'متاح' : 'غير كافٍ', tone: 'border-warning-200 bg-warning-50 text-warning-900' },
-          { label: 'إرشادي', count: intelligence.guidance.inspect.length, note: 'خطوات فحص', tone: 'border-success-200 bg-success-50 text-success-900' },
-          { label: 'توصية', count: intelligence.recommendations.length, note: 'مقترحات مصدرية', tone: 'border-primary-200 bg-primary-50 text-primary-900' },
+          { label: 'تنبؤي', count: forecast.status === 'AVAILABLE' ? 1 : 0, note: forecast.status === 'AVAILABLE' ? 'متاح' : 'غير كافٍ', tone: 'border-amber-200 bg-amber-50 text-amber-900' },
+          { label: 'إرشادي', count: intelligence.guidance.inspect.length, note: 'خطوات فحص', tone: 'border-sky-200 bg-sky-50 text-sky-900' },
+          { label: 'توصية', count: intelligence.recommendations.length, note: 'مقترحات مصدرية', tone: 'border-indigo-200 bg-indigo-50 text-indigo-900' },
         ].map((layer) => (
           <div key={layer.label} className={'rounded-2xl border p-3 ' + layer.tone}>
             <div className="text-[9px] font-black tracking-[.08em]">{layer.label}</div>
@@ -163,7 +163,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         </div>
         <div id="source-evidence-passport" className="rounded-2xl border border-ink-200 bg-white p-4">
           <div className="flex items-center gap-2">
-            <ShieldCheck size={16} className="text-success-700" />
+            <ShieldCheck size={16} className="text-indigo-700" />
             <div className="text-[10px] font-black tracking-[0.08em] text-ink-700">EVIDENCE PASSPORT</div>
           </div>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -174,7 +174,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
           </div>
           <div className="mt-3 text-[9px] leading-5 text-ink-500">القيم أدناه تُصنّف كمشاهدة من المصدر أو مشتقة منه. لا تتحول إلى حقيقة مالية نهائية بلا Evidence مناسب.</div>
           <div className="mt-2 flex flex-wrap gap-2 text-[8px] font-black">
-            <span className="rounded-full bg-success-50 px-2 py-1 text-success-800">OBSERVED · Source</span>
+            <span className="rounded-full bg-slate-50 px-2 py-1 text-slate-800">OBSERVED · Source</span>
             <span className="rounded-full bg-primary-50 px-2 py-1 text-primary-800">DERIVED · Intelligence</span>
             <span className="rounded-full bg-warning-50 px-2 py-1 text-warning-900">RECOMMENDED · Proposal</span>
           </div>
@@ -240,7 +240,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
           </div>
           <div className="mt-3 space-y-2">
             {intelligence.signals.length === 0 ? (
-              <div className="rounded-xl border border-success-200 bg-success-50 p-3 text-xs text-success-900">لم تُثبت إشارة استثنائية من البيانات المتاحة.</div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800">لم تُثبت إشارة استثنائية من البيانات المتاحة.</div>
             ) : intelligence.signals.map((signal) => (
               <article key={signal.id} className={'rounded-xl border p-3 ' + severityClass(signal.severity)}>
                 <div className="flex flex-wrap items-center gap-2">
@@ -360,7 +360,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
       </div>
 
       <div className="grid gap-3 lg:grid-cols-[1fr_1fr]">
-        <div className="rounded-2xl border border-ink-200 bg-ink-950 p-4 text-white">
+        <div className="rounded-2xl border border-ink-200 bg-[linear-gradient(145deg,#0f172a,#1e293b)] p-4 text-white shadow-[0_18px_45px_-32px_rgba(15,23,42,.9)]">
           <div className="flex items-center gap-2">
             <TrendingUp size={16} className="text-primary-200" />
             <div className="text-sm font-black">التنبؤ / الإسقاط المشروط</div>
