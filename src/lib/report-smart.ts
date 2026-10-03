@@ -129,14 +129,18 @@ function inferSpecialtyFromAnalysis(analysis: AnalysisSnapshotLike | null | unde
   return best;
 }
 
+function resolveEffectiveSpecialty(renderedSpecialty: unknown, analysis: AnalysisSnapshotLike | null | undefined): string | null {
+  const renderedValue = renderedSpecialty == null ? null : String(renderedSpecialty).trim() || null;
+  const inferred = inferSpecialtyFromAnalysis(analysis);
+  return inferred ?? renderedValue;
+}
+
 function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapshotLike | null): SmartReportCatalogItem | null {
   const rendered = renderedOutputOf(job.evidence);
   const path = String(job.source_path ?? '');
   if (!rendered || !isReportSourcePath(path)) return null;
 
-  const specialty = rendered.sourceSpecialty == null
-    ? inferSpecialtyFromAnalysis(analysis)
-    : String(rendered.sourceSpecialty);
+  const specialty = resolveEffectiveSpecialty(rendered.sourceSpecialty, analysis);
 
   const datasets = Array.isArray(analysis?.datasets) ? analysis.datasets : [];
   const availableFields = [...new Set(datasets.flatMap((dataset) => {
@@ -434,9 +438,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
 
   const evidenceStatus = resolveReportEvidenceStatus(effectiveRendered, canonicalCommitVerified);
 
-  const specialty = effectiveRendered.sourceSpecialty == null
-    ? inferSpecialtyFromAnalysis(sourceAnalysis)
-    : String(effectiveRendered.sourceSpecialty);
+  const specialty = resolveEffectiveSpecialty(effectiveRendered.sourceSpecialty, sourceAnalysis);
 
   const baseIntelligence = deriveReportIntelligence({
     specialty,
