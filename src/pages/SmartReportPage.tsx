@@ -37,6 +37,9 @@ function stateLabel(value: string | null): string {
     INSUFFICIENT_SAMPLE: 'عينة غير كافية',
     PENDING_EVIDENCE: 'بانتظار الدليل',
     GAP_DETECTED: 'فجوة اعتماد مكتشفة',
+    SIGNALS_PRESENT: 'إشارات مثبتة',
+    NO_EXCEPTIONAL_SIGNALS: 'لا توجد إشارات استثنائية',
+    REVIEW_REQUIRED: 'المراجعة مطلوبة',
   };
   return value ? (labels[value] ?? value) : 'غير متاح';
 }
