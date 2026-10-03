@@ -160,7 +160,7 @@ export function ExecutiveCommandCenterPage() {
   if (!kpis) return <DataUnavailableState title="مركز القيادة ينتظر الحقيقة" message="لا توجد مؤشرات أساسية موثوقة تكفي لبناء صورة تنفيذية. راجع جودة المصدر قبل اتخاذ القرار." action={<Link to="/data-quality" className="btn-primary text-[11px]">مراجعة جودة البيانات</Link>} />;
 
   return (
-    <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
+    <div dir="rtl" className="ag-command-center-surface space-y-5 animate-fade-in pb-10">
       <section className="rounded-[18px] border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated lg:p-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
