@@ -165,13 +165,13 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
     archetypeId && detected.profile ? Number(detected.profile.version) : null;
 
   const normalizedEvidenceStatus =
-    rendered.evidenceStatus === 'VERIFIED' && !(
-      typeof rendered.evidenceSnapshotId === 'string' && rendered.evidenceSnapshotId.trim()
+    effectiveRendered.evidenceStatus === 'VERIFIED' && !(
+      typeof effectiveRendered.evidenceSnapshotId === 'string' && effectiveRendered.evidenceSnapshotId.trim()
     )
       ? 'AWAITING_EVIDENCE_SNAPSHOT'
-      : rendered.evidenceStatus == null
+      : effectiveRendered.evidenceStatus == null
         ? null
-        : String(rendered.evidenceStatus);
+        : String(effectiveRendered.evidenceStatus);
 
   return {
     jobId: String(job.id),
@@ -275,6 +275,45 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
 
   const rendered = renderedOutputOf(job.evidence);
   if (!rendered) throw new Error('SMART_REPORT_RENDERED_OUTPUT_MISSING');
+
+  const { data: passportRows, error: passportError } = await supabase
+    .from('report_evidence_passports')
+    .select('id,evidence_snapshot_id,verification_status,decision_readiness,updated_at')
+    .eq('company_id', companyId)
+    .eq('report_execution_job_id', job.id)
+    .eq('source_hash', job.source_hash)
+    .order('updated_at', { ascending: false })
+    .limit(1);
+
+  if (passportError) throw passportError;
+
+  const currentPassport = passportRows?.[0] ?? null;
+  const passportStatus =
+    currentPassport?.verification_status === 'VERIFIED' && currentPassport?.decision_readiness === 'READY'
+      ? 'VERIFIED'
+      : currentPassport?.verification_status === 'REVIEW'
+        ? 'REVIEW'
+        : currentPassport?.verification_status === 'BLOCKED'
+          ? 'BLOCKED'
+          : currentPassport
+            ? 'PENDING_EVIDENCE'
+            : null;
+
+  const effectiveRendered: Record<string, unknown> = currentPassport
+    ? {
+        ...rendered,
+        evidenceSnapshotId: currentPassport.evidence_snapshot_id == null ? null : String(currentPassport.evidence_snapshot_id),
+        evidencePassportId: String(currentPassport.id),
+        evidenceStatus: passportStatus,
+      }
+    : rendered.evidenceStatus === 'VERIFIED'
+      ? {
+          ...rendered,
+          evidenceSnapshotId: null,
+          evidencePassportId: null,
+          evidenceStatus: 'AWAITING_EVIDENCE_SNAPSHOT',
+        }
+      : rendered;
 
   const { data: stages, error: stageError } = await supabase
     .from('report_execution_tasks')
@@ -439,8 +478,8 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
         tenantId: companyId,
         sourceHash: String(job.source_hash ?? ''),
         reportExecutionJobId: String(job.id),
-        evidenceSnapshotId: typeof rendered.evidenceSnapshotId === 'string' ? rendered.evidenceSnapshotId : null,
-        evidencePassportId: typeof rendered.evidencePassportId === 'string' ? rendered.evidencePassportId : null,
+        evidenceSnapshotId: typeof effectiveRendered.evidenceSnapshotId === 'string' ? effectiveRendered.evidenceSnapshotId : null,
+        evidencePassportId: typeof effectiveRendered.evidencePassportId === 'string' ? effectiveRendered.evidencePassportId : null,
         sourceVersionId: typeof rendered.sourceVersionId === 'string' ? rendered.sourceVersionId : null,
       },
       availableFields,
@@ -449,9 +488,9 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
       profileVersion: detectedArchetype.profile.version,
       report: {
         specialty,
-        rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
+        rowCount: effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount),
         sourceAnalysis,
-        renderedOutput: rendered,
+        renderedOutput: effectiveRendered,
         canonicalRows,
       },
     });
