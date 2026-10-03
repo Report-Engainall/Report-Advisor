@@ -54,4 +54,4 @@ REMAINING OPEN
 - real-source 48-archetype proof remains unproven
 DO_NOT_REPEAT
 No stale PASS, no queued-run PASS, no Service Role impersonation, no new Supabase project, no tenant/RLS bypass, no fabricated corpus/archetype coverage.
-NEXT EXACT ACTION = consume the first completed CI failure on exact current execution head 694051ae661824a030e67f7fc2fc88b2edff25ff; fix only that blocker, then rerun the affected gate.
+NEXT_EXACT_ACTION = consume the first completed CI failure on exact current execution head 694051ae661824a030e67f7fc2fc88b2edff25ff; fix only that blocker, then rerun the affected gate.
