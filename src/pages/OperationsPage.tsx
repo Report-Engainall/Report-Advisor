@@ -221,7 +221,7 @@ export function OperationsPage() {
   }
 
   return (
-    <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
+    <div dir="rtl" className="ag-operations-surface space-y-5 animate-fade-in pb-10">
       <PageHeader
         title="مركز العمليات"
         subtitle="طلب → تنفيذ/مستودع → فاتورة → تحصيل، مع قراءة التسعير والموردين من المصدر."
