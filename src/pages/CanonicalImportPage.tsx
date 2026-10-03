@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, CheckCircle2, XCircle, AlertCircle, AlertTriangle, ShieldCheck, Loader2, ArrowLeft, LockKeyhole, FileCheck2, RefreshCw } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
@@ -122,6 +122,7 @@ function Stepper({ step }: { step: Step }) {
 
 export function CanonicalImportPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [step, setStep] = useState<Step>('upload');
   const [understandingConfidence, setUnderstandingConfidence] = useState(0);
   const [understandingReason, setUnderstandingReason] = useState('لم يبدأ تحليل المصدر بعد.');
@@ -209,6 +210,14 @@ export function CanonicalImportPage() {
       setError(e?.message || 'فشل قراءة الملف'); setStep('upload');
     }
   }, []);
+
+  useEffect(() => {
+    const state = location.state as { preloadedFile?: File } | null;
+    const preloadedFile = state?.preloadedFile;
+    if (!(preloadedFile instanceof File) || step !== 'upload') return;
+    navigate(location.pathname, { replace: true, state: null });
+    void handleFile(preloadedFile);
+  }, [handleFile, location.pathname, location.state, navigate, step]);
 
   const finishImportJob = async (
     importJobId: string,
