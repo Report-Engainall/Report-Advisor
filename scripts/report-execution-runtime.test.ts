@@ -100,7 +100,7 @@ assert.equal((renderResult as any).renderedOutput.sourceBound, true);
 
 const renderedSource = buildRenderedOutput({
   importId: 'import-render-test',
-  fileName: 'sales invoices.pdf',
+  fileName: 'فواتير المبيعات.pdf',
   sourceHash: 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   entityType: 'sales_invoices',
   qualityScore: 92,
