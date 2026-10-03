@@ -68,6 +68,7 @@ on:
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'scripts/real-business-e2e.mjs'
+      - 'scripts/real-48-source-matrix-preflight.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'src/pages/**'
