@@ -2,8 +2,8 @@
 SESSION_HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT EXECUTION HEAD = 4db6c1884a9892f9a6c20631c4d4836db0c7b5e7
-REPORT_FOR_HEAD = 4db6c1884a9892f9a6c20631c4d4836db0c7b5e7
+CURRENT EXECUTION HEAD = 2eabdd40837ab7a4f87a761168bd8495767d7476
+REPORT_FOR_HEAD = 2eabdd40837ab7a4f87a761168bd8495767d7476
 BRANCH = captain/phase-f-dynamic-pr-preview-20261003
 PR = #762 OPEN
 UPDATED = 2026-10-03
@@ -18,7 +18,9 @@ WHAT_ACTUALLY_HAPPENED
 5. Recovered Supabase staging project fnqbvfuwbdpwvhcgzksl to ACTIVE_HEALTHY and re-proved direct PostgreSQL connectivity.
 6. Refreshed the real report job f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0 Evidence Passport through the canonical refresh RPC: VERIFIED, READY, ACCEPTED, FULL coverage; 735 authoritative rows; quality 87.
 7. Hardened the live DB by revoking public EXECUTE from the three trigger-only Evidence Passport SECURITY DEFINER functions; verified they remain executable by postgres/service_role for trigger operation.
-8. Quality and broad certification contracts passed; the latest Final Certification blocker was reduced to persistent-session handoff metadata.
+8. Reconciled staging with the application contract by applying the atomic `create_source_intelligence_proposal` migration; authenticated EXECUTE is now present.
+9. Fixed the real Browser E2E Smart Report failure by exposing the Forecast panel with the canonical Arabic label `التنبؤ`.
+10. Quality and broad certification contracts passed; the latest Final Certification blocker was reduced to persistent-session handoff metadata.
 WHAT_IS_PROVEN
 - typecheck PASS
 - build PASS
@@ -51,4 +53,4 @@ REMAINING OPEN
 - real-source 48-archetype proof remains unproven
 DO_NOT_REPEAT
 No stale PASS, no queued-run PASS, no Service Role impersonation, no new Supabase project, no tenant/RLS bypass, no fabricated corpus/archetype coverage.
-NEXT EXACT ACTION = consume the first completed CI failure on code head 4db6c1884a9892f9a6c20631c4d4836db0c7b5e7, fix only that blocker, then rerun the affected gate.
+NEXT EXACT ACTION = consume the first completed CI failure on code head 2eabdd40837ab7a4f87a761168bd8495767d7476, fix only that blocker, then rerun the affected gate
