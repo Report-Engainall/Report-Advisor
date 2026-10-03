@@ -436,6 +436,7 @@ const { error: completeError } = await clientA.rpc('complete_decision_work_item'
   p_actual_impact: null,
   p_evidence: {
     ...exactEvidence,
+    evidence_snapshot_id: passport.evidence_snapshot_id,
     outcomeStatus: 'LIVE_GATE_PROOF',
   },
 });
