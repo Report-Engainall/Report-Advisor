@@ -137,9 +137,9 @@ function resolveEffectiveSpecialty(renderedSpecialty: unknown, analysis: Analysi
 }
 
 function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapshotLike | null): SmartReportCatalogItem | null {
-  const rendered = renderedOutputOf(job.evidence);
+  const rendered = renderedOutputOf(job.evidence) ?? {};
   const path = String(job.source_path ?? '');
-  if (!rendered || !isReportSourcePath(path)) return null;
+  if (!isReportSourcePath(path)) return null;
 
   const specialty = resolveEffectiveSpecialty(rendered.sourceSpecialty, analysis);
 
@@ -186,8 +186,8 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
     sourcePath: path || 'مصدر غير مسمى',
     sourceHash: String(job.source_hash ?? ''),
     entityType: entityTypeFrom(String(job.job_key ?? '')),
-    rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
-    qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
+    rowCount: rendered.rowCount == null && analysis && 'rowCount' in analysis ? Number((analysis as Record<string, unknown>).rowCount) : rendered.rowCount == null ? null : Number(rendered.rowCount),
+    qualityScore: rendered.qualityScore == null && analysis && 'qualityScore' in analysis ? Number((analysis as Record<string, unknown>).qualityScore) : rendered.qualityScore == null ? null : Number(rendered.qualityScore),
     trustState: rendered.trustState == null ? null : String(rendered.trustState),
     reportVerificationState: normalizedEvidenceStatus ?? 'PENDING_EVIDENCE',
     specialty,
@@ -221,7 +221,6 @@ export async function fetchSmartReportCatalog(limit = 500): Promise<SmartReportC
       .eq('company_id', companyId)
       .eq('status', 'completed')
       .like('job_key', 'canonical-import:generic:%')
-      .not('evidence->renderedOutput', 'is', null)
       .order('completed_at', { ascending: false })
       .range(offset, endRange);
 
@@ -332,10 +331,12 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
   if (jobError) throw jobError;
   if (!job || job.status !== 'completed') return null;
 
-  const rendered = renderedOutputOf(job.evidence);
-  if (!rendered) throw new Error('SMART_REPORT_RENDERED_OUTPUT_MISSING');
-
   const runtimeWarnings: string[] = [];
+  const renderedOutput = renderedOutputOf(job.evidence);
+  if (!renderedOutput) {
+    runtimeWarnings.push('لم تُحفظ renderedOutput لهذا التقرير؛ تم بناء العرض من المصدر الكانوني ولقطة التحليل المتاحة دون اختلاق مخرجات سابقة.');
+  }
+  const rendered: Record<string, unknown> = renderedOutput ?? {};
   const { data: passportRows, error: passportError } = await supabase
     .from('report_evidence_passports')
     .select('id,evidence_snapshot_id,verification_status,decision_readiness,updated_at')
@@ -419,6 +420,12 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     }
     analysis = (analyses?.[0] ?? null) as Record<string, unknown> | null;
   }
+  if (analysis) {
+    if (effectiveRendered.rowCount == null && analysis.row_count != null) effectiveRendered.rowCount = Number(analysis.row_count);
+    if (effectiveRendered.qualityScore == null && analysis.quality_score != null) effectiveRendered.qualityScore = Number(analysis.quality_score);
+    if (effectiveRendered.sourceFormat == null && analysis.source_format != null) effectiveRendered.sourceFormat = String(analysis.source_format);
+  }
+
   const { data: canonicalCommits, error: canonicalCommitError } = await supabase
     .from('canonical_import_commits')
     .select('committed_count')
