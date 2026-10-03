@@ -30,6 +30,8 @@ const results = [];
 
 for (const fileRecord of files ?? []) {
   const startedAt = new Date().toISOString();
+  let claimMetadata = null;
+  let claimAcquired = false;
   const result = {
     fileRecordId: fileRecord.id,
     companyId: fileRecord.company_id,
@@ -40,6 +42,33 @@ for (const fileRecord of files ?? []) {
   };
 
   try {
+    const metadata = (fileRecord.metadata && typeof fileRecord.metadata === 'object')
+      ? fileRecord.metadata
+      : {};
+    const claimRun = String(process.env.GITHUB_RUN_ID ?? 'local') + ':' + String(process.env.GITHUB_RUN_ATTEMPT ?? '0') + ':' + String(process.pid);
+    claimMetadata = {
+      ...metadata,
+      rehydrationClaimRun: claimRun,
+      rehydrationClaimedAt: new Date().toISOString(),
+    };
+    const { data: claimedRow, error: claimError } = await service
+      .from('file_records')
+      .update({ metadata: claimMetadata })
+      .eq('id', fileRecord.id)
+      .eq('company_id', fileRecord.company_id)
+      .eq('status', 'uploaded')
+      .is('metadata->>rehydrationClaimRun', null)
+      .select('id')
+      .maybeSingle();
+    if (claimError) throw new Error('LEGACY_CORPUS_FILE_CLAIM_FAILED:' + claimError.message);
+    if (!claimedRow) {
+      result.status = 'SKIPPED_CONCURRENT_CLAIM';
+      result.error = 'LEGACY_CORPUS_FILE_ALREADY_CLAIMED';
+      results.push({ ...result, finishedAt: new Date().toISOString() });
+      continue;
+    }
+    claimAcquired = true;
+
     const { data: importJobId, error: rehydrateError } = await service.rpc('rehydrate_legacy_import_job', {
       p_company_id: fileRecord.company_id,
       p_file_record_id: fileRecord.id,
@@ -61,10 +90,7 @@ for (const fileRecord of files ?? []) {
       ? importJob.job_type.trim()
       : 'generic:report';
 
-    const metadata = (fileRecord.metadata && typeof fileRecord.metadata === 'object')
-      ? fileRecord.metadata
-      : {};
-    const bucket = String(metadata.storage_bucket ?? 'documents');
+    const bucket = String(claimMetadata?.storage_bucket ?? 'documents');
     const storagePath = String(metadata.storage_path ?? '');
     if (bucket !== 'documents' || !storagePath.startsWith(fileRecord.company_id + '/imports/') || storagePath.includes('..')) {
       throw new Error('LEGACY_CORPUS_STORAGE_BINDING_INVALID');
@@ -132,7 +158,7 @@ for (const fileRecord of files ?? []) {
     if (!reconciled.rows.length) throw new Error('LEGACY_CORPUS_NO_RECONCILED_ROWS');
     if (reconciled.rejected.length) throw new Error('LEGACY_CORPUS_RECONCILIATION_REJECTED:' + reconciled.rejected.length);
 
-    const requestedBy = typeof metadata.uploaded_by === 'string' ? metadata.uploaded_by : null;
+    const requestedBy = typeof claimMetadata?.uploaded_by === 'string' ? claimMetadata.uploaded_by : null;
     if (!requestedBy) throw new Error('LEGACY_CORPUS_REQUESTED_BY_MISSING');
 
     const execution = await runCanonicalImportThroughDurableRunner(
@@ -161,7 +187,7 @@ for (const fileRecord of files ?? []) {
         status: 'ready',
         detected_format: detection.format,
         metadata: {
-          ...metadata,
+          ...claimMetadata,
           raw_bytes_sha256: sourceHash,
           server_rehydrated_at: new Date().toISOString(),
           server_rehydrated: true,
@@ -173,6 +199,17 @@ for (const fileRecord of files ?? []) {
     result.status = 'COMPLETED';
     result.execution = execution;
   } catch (error) {
+    if (claimAcquired && claimMetadata) {
+      const cleanupMetadata = { ...claimMetadata };
+      delete cleanupMetadata.rehydrationClaimRun;
+      delete cleanupMetadata.rehydrationClaimedAt;
+      await service
+        .from('file_records')
+        .update({ metadata: cleanupMetadata })
+        .eq('id', fileRecord.id)
+        .eq('company_id', fileRecord.company_id)
+        .eq('status', 'uploaded');
+    }
     result.status = 'FAILED';
     result.error = error instanceof Error ? error.message : String(error);
   }
