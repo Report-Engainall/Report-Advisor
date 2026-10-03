@@ -301,6 +301,9 @@ assert.match(catalogMatch[0], /const rendered = renderedOutputOf\(job\.evidence\
 
 assert.match(smartReport, /تعذر قراءة أحدث لقطة تحليل؛ استمر التقرير اعتمادًا على المخرجات المحفوظة/, 'latest analysis snapshot failure must degrade to a visible runtime warning instead of throwing');
 assert.match(smartReport, /function emptyReportIntelligence\(specialty: string \| null\)/, 'Smart Report must have a safe fallback intelligence object');
+assert.match(smartReport, /function analysisUsabilityScore\(analysis: Record<string, unknown>\)/, 'analysis selection must score snapshots by usable schema instead of timestamp alone');
+assert.match(smartReport, /function chooseBestAnalysisSnapshot\(rows: Array<Record<string, unknown>>\)/, 'analysis selection must choose the most usable snapshot deterministically');
+assert.match(smartReport, /analysis = chooseBestAnalysisSnapshot\(\(analyses \?\? \[\]\) as Array<Record<string, unknown>>\)/, 'detail fallback must use the best usable analysis snapshot');
 assert.match(smartReport, /deriveReportIntelligence\([\s\S]*?catch \(error\)/, 'intelligence derivation must be guarded against malformed runtime data');
 assert.match(smartReport, /runReportArchetype\([\s\S]*?catch \(error\)/, 'specialized archetype execution must fail soft');
 
