@@ -134,7 +134,7 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
   const path = String(job.source_path ?? '');
   if (!rendered || !isReportSourcePath(path)) return null;
 
-  const specialty = effectiveRendered.sourceSpecialty == null
+  const specialty = rendered.sourceSpecialty == null
     ? inferSpecialtyFromAnalysis(analysis)
     : String(rendered.sourceSpecialty);
 
@@ -165,20 +165,20 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
     archetypeId && detected.profile ? Number(detected.profile.version) : null;
 
   const normalizedEvidenceStatus =
-    effectiveRendered.evidenceStatus === 'VERIFIED' && !(
-      typeof effectiveRendered.evidenceSnapshotId === 'string' && effectiveRendered.evidenceSnapshotId.trim()
+    rendered.evidenceStatus === 'VERIFIED' && !(
+      typeof rendered.evidenceSnapshotId === 'string' && rendered.evidenceSnapshotId.trim()
     )
       ? 'AWAITING_EVIDENCE_SNAPSHOT'
-      : effectiveRendered.evidenceStatus == null
+      : rendered.evidenceStatus == null
         ? null
-        : String(effectiveRendered.evidenceStatus);
+        : String(rendered.evidenceStatus);
 
   return {
     jobId: String(job.id),
     sourcePath: path || 'مصدر غير مسمى',
     sourceHash: String(job.source_hash ?? ''),
     entityType: entityTypeFrom(String(job.job_key ?? '')),
-    rowCount: effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount),
+    rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
     qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
     trustState: rendered.trustState == null ? null : String(rendered.trustState),
     reportVerificationState: normalizedEvidenceStatus ?? 'PENDING_EVIDENCE',
