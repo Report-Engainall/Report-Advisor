@@ -43,13 +43,16 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
   const topSignal = signals[0] ?? null;
   const topRecommendation = recommendations[0] ?? null;
   const forecast = report.intelligence.forecast;
+  const evidenceSnapshotId = typeof report.renderedOutput?.evidenceSnapshotId === 'string'
+    ? report.renderedOutput.evidenceSnapshotId.trim()
+    : '';
   const nextHref = evidenceReady
     ? '/decision-experience?stage=decision&reportJobId=' + job + '&sourceHash=' + hash
     : '/trust?reportJobId=' + job + '&sourceHash=' + hash;
   const [caseState, setCaseState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
   const saveDecisionCase = async () => {
-    if (!topSignal || !report.sourceAnalysis?.id || !evidenceReady) return;
+    if (!topSignal || !evidenceSnapshotId || !evidenceReady) return;
     setCaseState('saving');
     try {
       const proposal = await createSourceDecisionProposal({
@@ -60,7 +63,7 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
         signalMessage: topSignal.message,
         severity: topSignal.severity,
         evidence: topSignal.evidence,
-        evidenceSnapshotId: report.sourceAnalysis.id,
+        evidenceSnapshotId,
       });
       await saveAdvisorBusinessCase({
         decisionId: proposal.id,
