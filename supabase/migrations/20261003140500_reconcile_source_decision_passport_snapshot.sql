@@ -64,12 +64,23 @@ BEGIN
     IF v_existing.recommendation_id IS NOT NULL THEN
       UPDATE public.recommendations r
          SET evidence_snapshot_id = p_evidence_snapshot_id,
-             evidence = jsonb_set(
-               coalesce(r.evidence, '{}'::jsonb),
-               '{evidenceSnapshotId}',
-               to_jsonb(p_evidence_snapshot_id::text),
-               true
-             )
+             evidence = coalesce(r.evidence, '{}'::jsonb)
+               || jsonb_build_object(
+                 'evidenceSnapshotId', p_evidence_snapshot_id,
+                 'evidencePassportId',
+                   (SELECT p.id FROM public.report_evidence_passports p
+                     WHERE p.company_id = v_company
+                       AND p.evidence_snapshot_id = p_evidence_snapshot_id
+                       AND p.report_execution_job_id = p_report_job_id
+                       AND p.source_hash = p_source_hash
+                       AND p.verification_status = 'VERIFIED'
+                       AND p.decision_readiness = 'READY'
+                     LIMIT 1),
+                 'reportExecutionJobId', p_report_job_id,
+                 'sourceHash', p_source_hash,
+                 'sourceDecisionKey', v_decision_key,
+                 'decisionBoundary', 'PROPOSED_ONLY'
+               )
        WHERE r.id = v_existing.recommendation_id
          AND r.company_id = v_company
          AND r.evidence_snapshot_id IS DISTINCT FROM p_evidence_snapshot_id
@@ -188,45 +199,3 @@ $function$;
 
 REVOKE ALL ON FUNCTION public.create_source_intelligence_proposal(uuid,text,text,text,text,text,jsonb,uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.create_source_intelligence_proposal(uuid,text,text,text,text,text,jsonb,uuid) TO authenticated;
-
--- One-time reconciliation for already persisted source decisions in the current
--- staging dataset. The same exact identity checks are enforced.
-UPDATE public.recommendations r
-   SET evidence_snapshot_id = p.evidence_snapshot_id,
-       evidence = jsonb_set(
-         coalesce(r.evidence, '{}'::jsonb),
-         '{evidenceSnapshotId}',
-         to_jsonb(p.evidence_snapshot_id::text),
-         true
-       )
-  FROM public.business_intelligence_decisions d
-  JOIN public.report_evidence_passports p
-    ON p.company_id = d.company_id
-   AND p.report_execution_job_id::text = coalesce(d.evidence->>'reportExecutionJobId','')
-   AND p.source_hash = d.evidence->>'sourceHash'
-   AND p.verification_status = 'VERIFIED'
-   AND p.decision_readiness = 'READY'
- WHERE r.id = d.recommendation_id
-   AND r.company_id = d.company_id
-   AND r.evidence_snapshot_id IS DISTINCT FROM p.evidence_snapshot_id
-   AND coalesce(r.evidence->>'reportExecutionJobId','') = p.report_execution_job_id::text
-   AND coalesce(r.evidence->>'sourceHash','') = p.source_hash
-   AND coalesce(r.evidence->>'sourceDecisionKey','') = d.decision_key
-   AND d.decision_key LIKE 'source-intelligence:%';
-
-UPDATE public.business_intelligence_decisions d
-   SET evidence = jsonb_set(
-     coalesce(d.evidence, '{}'::jsonb),
-     '{evidenceSnapshotId}',
-     to_jsonb(p.evidence_snapshot_id::text),
-     true
-   )
-  FROM public.report_evidence_passports p
- WHERE p.company_id = d.company_id
-   AND p.report_execution_job_id = coalesce(d.evidence->>'reportExecutionJobId','')::uuid
-   AND p.source_hash = d.evidence->>'sourceHash'
-   AND p.verification_status = 'VERIFIED'
-   AND p.decision_readiness = 'READY'
-   AND d.decision_key LIKE 'source-intelligence:%'
-   AND coalesce(d.evidence->>'sourceDecisionKey','') = d.decision_key
-   AND d.evidence->>'evidenceSnapshotId' IS DISTINCT FROM p.evidence_snapshot_id::text;
