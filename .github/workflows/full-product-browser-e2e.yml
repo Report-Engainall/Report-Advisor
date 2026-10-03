@@ -9,6 +9,7 @@ on:
       - 'scripts/provision-e2e-actors.mjs'
       - 'scripts/e2e-actor-provisioning-contract.test.mjs'
       - 'scripts/real-business-e2e.mjs'
+      - 'scripts/real-48-source-matrix-preflight.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
       - 'scripts/check-certification-boundary-integrity.mjs'
       - 'scripts/check-execution-enforcement-protocol.mjs'
