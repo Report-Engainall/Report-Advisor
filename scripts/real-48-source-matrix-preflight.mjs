@@ -253,8 +253,12 @@ for (const profile of profiles) {
       profileVersion: profile.version,
     });
 
+    const candidateRendered =
+      candidate.job?.evidence?.renderedOutput && typeof candidate.job.evidence.renderedOutput === 'object'
+        ? candidate.job.evidence.renderedOutput
+        : {};
     const persistedArchetypeId =
-      typeof rendered.archetypeId === 'string' ? rendered.archetypeId.trim() : null;
+      typeof candidateRendered.archetypeId === 'string' ? candidateRendered.archetypeId.trim() : null;
     const persistedArchetypeConsistency =
       !persistedArchetypeId || persistedArchetypeId === profile.id;
     const valid =
