@@ -104,7 +104,7 @@ for (const companyId of tenantIds) {
     const batch = hashes.slice(i, i + 100);
     if (!batch.length) continue;
     const url = new URL(supabaseURL + '/rest/v1/source_analysis_snapshots');
-    url.searchParams.set('select', 'source_hash,row_count,datasets,created_at');
+    url.searchParams.set('select', 'source_hash,import_job_id,row_count,datasets,created_at');
     url.searchParams.set('company_id', 'eq.' + companyId);
     url.searchParams.set('source_hash', 'in.(' + batch.map((hash) => '"' + hash.replaceAll('"', '') + '"').join(',') + ')');
     url.searchParams.set('order', 'created_at.desc');
