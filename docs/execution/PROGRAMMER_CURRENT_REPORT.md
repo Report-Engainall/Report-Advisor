@@ -10,7 +10,8 @@ UPDATED_AT = 2026-10-03T20:30:00Z
 WHAT_I_WAS_ASKED_TO_DO = استعادة نقطة التوقف الحقيقية لـPR #820، مواصلة التنفيذ الجراحي، وإغلاق Smart Report intelligence والـ48 real-source والـbrowser وPhase-F دون PASS وهمي.
 WHAT_I_ACTUALLY_DID = تحققت أن الفرع تجاوز d32bf6 إلى 8fdfc176a7f1154b74b7e37c78b433c59572b946. أصلحت سطح TOP FINDINGS، legacy inventory mapping في registry/evaluator/preflight، RPC recommendation-status compatibility، TypeScript loader في Quality، consistency proof للـlogical restore، skip للـalready-verified evidence passports في Value Cohort، وإرسال JSON صريح إلى rollback drill. تحققت أيضًا أن archetype persistence موجود في current code منذ commit 84f15f… وأن السجلات القديمة في staging لم تُكتب بها القيمة تاريخيًا.
 WHAT_IS_PROVEN = governed corpus آخر run: 63 records, 0 FAILED؛ staging: 49 VERIFIED/READY/FULL evidence passports؛ Session Handoff نجح على merge ref سابق لكنه ليس شهادة نهائية لهذا exact head؛ current 8fdfc176a7f1154b74b7e37c78b433c59572b946 لم يحصل بعد على completed exact-head PASS.
-FIRST_ACTIVE_FAILURE = CI_RECERTIFICATION_QUEUED
+FIRST_ACTIVE_FAILURE = CI_RECERTIFICATION_COMPLETED_WITH_ACTIONABLE_FAILURES
+ROOT_CAUSE = exact-head CI exposed four concrete defects: duplicate passport lookup declaration, Smart Report risk heading contract mismatch, stale handoff report missing ROOT_CAUSE field, and downstream browser evidence blocked by the canonical heart regression.
 ROOT_CAUSE_HISTORY = prior completed failures were: TypeScript runtime test without extension loader; legacy inventory evaluator semantics; logical restore count taken outside the dump snapshot boundary; rollback drill rejected the bodyless POST in the live runtime; Value Cohort refreshed already-closed passports and hit statement_timeout; stale handoff metadata pointed to PR #762.
 REMAINING_OPEN
 - Quality exact-head
