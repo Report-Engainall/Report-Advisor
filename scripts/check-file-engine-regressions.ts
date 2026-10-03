@@ -16,6 +16,7 @@ function assert(condition: unknown, message: string): asserts condition {
 assert(normalizeArabicDigits('١٢٣٤٥') === '12345', 'Arabic-Indic digits must normalize');
 assert(normalizeArabicText('آثارٌ  تجارية') === 'اثار تجاريه', 'Arabic text normalization must be deterministic');
 assert(normalizeHeader('  رَقَمُ   الصَّنْف  ') === 'رقم الصنف', 'header normalization must remove diacritics and spacing');
+assert(normalizeHeader('اﻹجمالي') === 'الاجمالي', 'Arabic presentation forms must normalize before synonym mapping');
 
 assert(parseNumber('١٬٢٣٤٫٥٠') === 1234.5, 'Arabic thousands/decimal separators');
 assert(parseNumber('1,234.50') === 1234.5, 'Western thousands/decimal separators');
