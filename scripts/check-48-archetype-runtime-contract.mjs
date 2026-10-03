@@ -77,6 +77,36 @@ for (const profile of archetypes) {
   if (result.advisory.claims.some((claim) => claim.archetypeId !== profile.id)) fail('Claim lineage lost archetype ID for ' + profile.id);
 }
 
+const legacyInventory = runReportArchetype({
+  archetypeId: 'inventory.stockout-reorder',
+  report: {
+    specialty: 'inventory',
+    rowCount: 12,
+    canonicalRows: Array.from({ length: 12 }, (_, index) => ({ data: { productCode: 'SKU-' + index, balance: 2 + index, net_sales: 4 + index } })),
+    sourceAnalysis: {
+      datasets: [{
+        columns: [
+          { name: 'رقم الصنف', mappedField: 'sku' },
+          { name: 'الرصيد', mappedField: 'balance' },
+          { name: 'صافي المبيعات', mappedField: 'net_sales' },
+        ],
+      }],
+    },
+  },
+  availableFields: ['sku', 'balance', 'net_sales'],
+  sampleSize: 12,
+  provenance: {
+    tenantId: 'semantic-legacy-tenant',
+    sourceHash: 'sha256:semantic-legacy',
+    reportExecutionJobId: 'semantic-legacy-job',
+    evidenceSnapshotId: 'semantic-legacy-snapshot',
+    evidencePassportId: 'semantic-legacy-passport',
+  },
+});
+if (legacyInventory.state !== 'SUPPORTED') fail('Legacy semantic inventory mapping must remain SUPPORTED, got ' + legacyInventory.state);
+if (!legacyInventory.intelligence.signals.some((signal) => signal.id === 'model:inventory.stockout-reorder')) fail('Legacy semantic inventory mapping lost stockout model signal');
+if (!legacyInventory.intelligence.recommendations.some((recommendation) => recommendation.id === 'rec:archetype:inventory.stockout-reorder')) fail('Legacy semantic inventory mapping lost stockout recommendation');
+
 const missingEvidence = runReportArchetype({
   archetypeId: archetypes[0].id,
   report: { specialty: archetypes[0].adapterSpecialty, rowCount: 12, canonicalRows: sampleRows, sourceAnalysis: { datasets: [{ columns: [] }] } },
