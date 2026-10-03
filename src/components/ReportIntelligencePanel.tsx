@@ -1,4 +1,5 @@
 import { AlertTriangle, ArrowUpLeft, BrainCircuit, CheckCircle2, CircleHelp, ShieldCheck, TrendingUp } from 'lucide-react';
+// PREVIEW_HEART_FORCE_REBUILD: mirrors the current main Smart Report heart without changing runtime behavior.
 import type { SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
 import { useEffect, useState } from 'react';
