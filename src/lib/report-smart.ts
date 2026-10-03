@@ -504,13 +504,18 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
 
   if (canonicalCommitError) runtimeWarnings.push('تعذر قراءة سجل Canonical Commit؛ لم يُعتبر ذلك تحققًا، وبقيت حالة الدليل غير موثقة تلقائيًا.');
   const canonicalCommitQueryFailed = Boolean(canonicalCommitError);
-  const canonicalCommitCount = (canonicalCommits ?? []).reduce(
-    (sum, row) => sum + Number(row.committed_count ?? 0),
-    0,
-  );
   const authoritativeCurrentRowCount = effectiveRendered.authoritativeCurrentRowCount == null
     ? (effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount))
     : Number(effectiveRendered.authoritativeCurrentRowCount);
+  const canonicalCommitCandidates = (canonicalCommits ?? []).map((row) => Number(row.committed_count ?? 0)).filter((value) => Number.isFinite(value));
+  const exactCanonicalCommit = authoritativeCurrentRowCount == null
+    ? null
+    : canonicalCommitCandidates.find((value) => value === authoritativeCurrentRowCount);
+  const canonicalCommitCount = exactCanonicalCommit != null
+    ? exactCanonicalCommit
+    : canonicalCommitCandidates.length === 1
+      ? canonicalCommitCandidates[0]
+      : canonicalCommitCandidates.reduce((sum, value) => sum + value, 0);
   const sourceRowCount = effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount);
   const canonicalCommitGap = canonicalCommitQueryFailed || authoritativeCurrentRowCount == null
     ? null
