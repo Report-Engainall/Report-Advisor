@@ -165,6 +165,7 @@ for (const companyId of tenantIds) {
     candidateJobs.push({
       job,
       rendered,
+      analysis,
       archetypeId: detectedArchetypeId,
       detectionEvidence: {
         sourcePath: String(job.source_path ?? ''),
