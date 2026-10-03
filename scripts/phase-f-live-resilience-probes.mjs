@@ -163,8 +163,27 @@ function runDockerPsqlFile(databaseUrl, filePath) {
     '-e', `PGURI=${databaseUrl}`,
     'postgres:17',
     'sh', '-lc',
-    'psql "$PGURI" -v ON_ERROR_STOP=1 -c "SET statement_timeout = 0" -f /tmp/phase-f-backup.sql',
+    'psql "$PGURI" -v ON_ERROR_STOP=1 -c "SET statement_timeout = 0" -c "ALTER TABLE public.recommendations DISABLE TRIGGER trg_source_recommendation_evidence" -f /tmp/phase-f-backup.sql -c "ALTER TABLE public.recommendations ENABLE TRIGGER trg_source_recommendation_evidence"',
   ]);
+}
+
+function verifyRestoredRecommendationAuthority(databaseUrl) {
+  const sql = `select count(*) from public.recommendations r
+left join public.report_evidence_passports p
+  on p.company_id = r.company_id
+ and p.evidence_snapshot_id = nullif(r.evidence->>'evidenceSnapshotId','')::uuid
+ and p.report_execution_job_id = nullif(r.evidence->>'reportExecutionJobId','')::uuid
+ and p.source_hash = nullif(trim(r.evidence->>'sourceHash'),'')
+ and p.verification_status = 'VERIFIED'
+ and p.decision_readiness = 'READY'
+where lower(coalesce(r.category,'')) = 'source-intelligence'
+  and p.id is null;`;
+  const invalidCount = Number(runDockerPsql(databaseUrl, sql));
+  if (!Number.isFinite(invalidCount) || invalidCount !== 0) {
+    throw new Error(`logical_restore_source_recommendation_integrity_failed:${invalidCount}`);
+  }
+  runDockerPsql(databaseUrl, 'select 1');
+  return true;
 }
 
 function runDockerPgDump(databaseUrl, outputPath) {
@@ -363,6 +382,7 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
     const restoreStartedAt = Date.now();
     try {
       runDockerPsqlFile(localDbUrl, backupPath);
+      verifyRestoredRecommendationAuthority(localDbUrl);
     } catch (error) {
       throw new Error(`logical_target_restore_failed:${error}`);
     }
@@ -615,13 +635,8 @@ async function probeRollbackForwardFix() {
   const name = 'rollback-forward-fix-drill';
   try {
     const response = await fetch(process.env.RESILIENCE_ROLLBACK_DRILL_URL, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'x-resilience-token': process.env.RESILIENCE_OPERATIONAL_TOKEN.trim(),
-      },
-      body: '{}',
+      method: 'GET',
+      headers: { Accept: 'application/json' },
     });
     const body = await response.text();
     let parsedBody = null;
