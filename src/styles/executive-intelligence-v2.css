@@ -1944,3 +1944,119 @@ body{
     width:100%!important;
   }
 }
+
+
+/* v3.5 — remaining client surfaces */
+.ag-main .ag-advisor-cases-surface,
+.ag-main .ag-operations-surface,
+.ag-main .ag-replay-surface,
+.ag-main .ag-benchmark-surface,
+.ag-main .ag-executive-report,
+.ag-main .ag-trust-evidence-surface,
+.ag-main .ag-analytics-surface,
+.ag-main .ag-data-quality-surface{
+  max-width:1420px!important;
+  margin-inline:auto!important;
+}
+.ag-main .ag-advisor-cases-surface > section:first-child,
+.ag-main .ag-operations-surface .ag-operational-hero,
+.ag-main .ag-replay-surface > section:first-child,
+.ag-main .ag-benchmark-surface > section:first-child{
+  overflow:hidden;
+  border-color:#dfe2ea!important;
+  border-radius:20px!important;
+}
+.ag-main .ag-advisor-cases-surface > section:first-child{
+  background:
+    radial-gradient(circle at 84% 0%,rgba(124,58,237,.18),transparent 17rem),
+    radial-gradient(circle at 8% 100%,rgba(240,185,75,.10),transparent 14rem),
+    linear-gradient(145deg,#111621,#1b2130)!important;
+}
+.ag-main .ag-advisor-cases-surface article,
+.ag-main .ag-replay-surface article,
+.ag-main .ag-benchmark-surface article{
+  border-color:#e0e3ea!important;
+  border-radius:16px!important;
+  background:#fff!important;
+  box-shadow:var(--ag-v3-shadow)!important;
+}
+.ag-main .ag-advisor-cases-surface article:hover,
+.ag-main .ag-replay-surface article:hover,
+.ag-main .ag-benchmark-surface article:hover{
+  border-color:#cfd2ea!important;
+  box-shadow:0 20px 44px -32px rgba(15,23,42,.32)!important;
+}
+.ag-main .ag-operations-surface > section,
+.ag-main .ag-replay-surface > section,
+.ag-main .ag-benchmark-surface > section,
+.ag-main .ag-advisor-cases-surface > section{
+  border-color:#dfe2e9!important;
+  box-shadow:var(--ag-v3-shadow)!important;
+}
+.ag-main .ag-executive-report .ag-exec-hero{
+  border-color:#dde1e8!important;
+  background:
+    radial-gradient(circle at 88% 0%,rgba(91,92,230,.08),transparent 15rem),
+    radial-gradient(circle at 10% 100%,rgba(240,185,75,.07),transparent 15rem),
+    linear-gradient(145deg,#fff,#f7f8fb)!important;
+  box-shadow:var(--ag-v3-shadow-lg)!important;
+}
+.ag-main .ag-executive-report .ag-exec-panel{
+  border-color:#e0e3ea!important;
+  border-radius:16px!important;
+  box-shadow:var(--ag-v3-shadow)!important;
+}
+.ag-main .ag-executive-report .ag-exec-warning{
+  border-color:#f0dfb7!important;
+  background:#fff7e7!important;
+}
+.ag-main .ag-trust-evidence-surface .ag-command-hero{
+  background:
+    radial-gradient(circle at 90% 0%,rgba(91,92,230,.22),transparent 18rem),
+    linear-gradient(145deg,#0e131e,#1a2030)!important;
+  border-color:rgba(133,135,230,.24)!important;
+}
+.ag-main .ag-trust-evidence-surface .ag-dashboard-module{
+  border-color:#dfe2e9!important;
+  border-radius:16px!important;
+  box-shadow:var(--ag-v3-shadow)!important;
+  background:#fff!important;
+}
+.ag-main .ag-analytics-surface .ag-command-hero{
+  background:
+    radial-gradient(circle at 88% 0%,rgba(124,58,237,.23),transparent 18rem),
+    radial-gradient(circle at 9% 100%,rgba(240,185,75,.11),transparent 14rem),
+    linear-gradient(145deg,#0e131e,#191f2f)!important;
+  border-color:rgba(133,135,230,.24)!important;
+}
+.ag-main .ag-analytics-surface .card,
+.ag-main .ag-data-quality-surface .card{
+  border-color:#dfe2e9!important;
+  box-shadow:var(--ag-v3-shadow)!important;
+}
+.ag-main .ag-data-quality-surface .card:hover,
+.ag-main .ag-analytics-surface .card:hover{
+  border-color:#cfd2ea!important;
+}
+.ag-main .ag-replay-surface .ag-decision-strip,
+.ag-main .ag-benchmark-surface .ag-decision-strip,
+.ag-main .ag-executive-report .ag-decision-strip,
+.ag-main .ag-trust-evidence-surface .ag-decision-strip,
+.ag-main .ag-analytics-surface .ag-decision-strip,
+.ag-main .ag-data-quality-surface .ag-decision-strip{
+  border-color:#e0e3ea!important;
+  background:#fff!important;
+  box-shadow:var(--ag-v3-shadow)!important;
+}
+@media(max-width:700px){
+  .ag-main .ag-advisor-cases-surface,
+  .ag-main .ag-operations-surface,
+  .ag-main .ag-replay-surface,
+  .ag-main .ag-benchmark-surface,
+  .ag-main .ag-executive-report,
+  .ag-main .ag-trust-evidence-surface,
+  .ag-main .ag-analytics-surface,
+  .ag-main .ag-data-quality-surface{
+    width:100%!important;
+  }
+}
