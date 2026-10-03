@@ -9,7 +9,7 @@ import { fetchDataQualitySnapshot } from '@/lib/data-quality-snapshot';
 
 type StepState = 'READY' | 'ACTION_REQUIRED' | 'UNKNOWN';
 
-type OnboardingState = { userReady: boolean; companyName: string | null; role: string | null; canonicalCommitCount: number | null; dataQualityIssues: number | null; };
+type OnboardingState = { userReady: boolean; companyName: string | null; role: string | null; canonicalCommitCount: number | null; verifiedReportCount: number | null; dataQualityIssues: number | null; };
 
 const STEPS = [
   { id: 'account', title: 'الحساب والدخول', description: 'جلسة مستخدم موثقة.', icon: ShieldCheck, href: '/settings/profile' },
@@ -28,11 +28,13 @@ function stateFor(stepId: string, data: OnboardingState): StepState {
   if (stepId === 'team') return data.role ? 'READY' : 'ACTION_REQUIRED';
   if (stepId === 'import') return data.canonicalCommitCount == null ? 'UNKNOWN' : data.canonicalCommitCount > 0 ? 'READY' : 'ACTION_REQUIRED';
   if (stepId === 'quality') return data.dataQualityIssues == null ? 'UNKNOWN' : data.dataQualityIssues === 0 ? 'READY' : 'ACTION_REQUIRED';
+  if (stepId === 'dashboard' || stepId === 'reports') return data.userReady && Boolean(data.companyName) && Number(data.canonicalCommitCount ?? 0) > 0 ? 'READY' : 'ACTION_REQUIRED';
+  if (stepId === 'decision') return Number(data.verifiedReportCount ?? 0) > 0 ? 'READY' : Number(data.canonicalCommitCount ?? 0) > 0 ? 'ACTION_REQUIRED' : 'UNKNOWN';
   return 'UNKNOWN';
 }
 
 export function OnboardingPage() {
-  const [data, setData] = useState<OnboardingState>({ userReady: false, companyName: null, role: null, canonicalCommitCount: null, dataQualityIssues: null });
+  const [data, setData] = useState<OnboardingState>({ userReady: false, companyName: null, role: null, canonicalCommitCount: null, verifiedReportCount: null, dataQualityIssues: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(async () => {
@@ -43,15 +45,17 @@ export function OnboardingPage() {
       if (!user) throw new Error('AUTH_REQUIRED');
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_REQUIRED');
-      const [{ data: company }, { data: membership }, { count: canonicalCommitCount, error: canonicalCommitError }] = await Promise.all([
+      const [{ data: company }, { data: membership }, { count: canonicalCommitCount, error: canonicalCommitError }, { count: verifiedReportCount, error: verifiedReportError }] = await Promise.all([
         supabase.from('companies').select('name').eq('id', companyId).maybeSingle(),
         supabase.from('company_memberships').select('role').eq('company_id', companyId).eq('user_id', user.id).eq('is_active', true).maybeSingle(),
         supabase.from('canonical_import_commits').select('id', { count: 'exact' }).eq('company_id', companyId).limit(1),
+        supabase.from('report_evidence_passports').select('id', { count: 'exact' }).eq('company_id', companyId).eq('verification_status', 'VERIFIED').eq('decision_readiness', 'READY').limit(1),
       ]);
       if (canonicalCommitError) throw canonicalCommitError;
+      if (verifiedReportError) throw verifiedReportError;
       const qualitySnapshot = await fetchDataQualitySnapshot();
       const dataQualityIssues = qualitySnapshot.status === 'EMPTY' ? null : qualitySnapshot.entities.reduce((total, entity) => total + entity.issues, 0);
-      setData({ userReady: true, companyName: company?.name ?? null, role: membership?.role ?? null, canonicalCommitCount: canonicalCommitCount ?? 0, dataQualityIssues });
+      setData({ userReady: true, companyName: company?.name ?? null, role: membership?.role ?? null, canonicalCommitCount: canonicalCommitCount ?? 0, verifiedReportCount: verifiedReportCount ?? 0, dataQualityIssues });
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل حالة البداية');
     } finally { setLoading(false); }
