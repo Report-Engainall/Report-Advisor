@@ -99,7 +99,18 @@ for (const companyId of tenantIds) {
   );
   proof.sourceJobsScanned += jobs.length;
 
-  const hashes = [...new Set(jobs.map((job) => String(job.source_hash ?? '')).filter(Boolean))];
+  const verifiedPassportRows = await restSelect(
+    'report_evidence_passports',
+    { company_id: companyId, verification_status: 'VERIFIED', decision_readiness: 'READY' },
+    'report_execution_job_id,source_hash,evidence_snapshot_id,id',
+    { limit: 500 },
+  );
+  const verifiedJobIds = new Set(verifiedPassportRows.map((row) => String(row.report_execution_job_id)).filter(Boolean));
+
+  const hashes = [...new Set(jobs
+    .filter((job) => verifiedJobIds.has(String(job.id)))
+    .map((job) => String(job.source_hash ?? ''))
+    .filter(Boolean))];
   const analysesByHash = new Map();
   for (let i = 0; i < hashes.length; i += 100) {
     const batch = hashes.slice(i, i + 100);
