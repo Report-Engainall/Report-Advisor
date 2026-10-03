@@ -186,7 +186,27 @@ assert.match(
 );
 assert.match(
   smartReport,
-  /renderedOutput: effectiveRendered/,
+  /renderedOutput: effectiveRendered/,,
+assert.match(
+  smartReport,
+  /const runtimeSignalStatus = intelligence\.signals\.length/,
+  'Smart Report signal status must be derived from current intelligence',
+);
+assert.match(
+  smartReport,
+  /const runtimeIntelligenceStatus/,
+  'Smart Report intelligence status must be derived from current archetype/evidence runtime state',
+);
+assert.match(
+  smartReport,
+  /signalStatus: runtimeSignalStatus/,
+  'Smart Report must expose current signal status in rendered output',
+);
+assert.match(
+  smartReport,
+  /intelligenceStatus: runtimeIntelligenceStatus/,
+  'Smart Report must expose current intelligence status in rendered output',
+);
   'Smart Report consumers must receive the Passport-refreshed provenance',
 );
 assert.match(
