@@ -7,6 +7,8 @@ REPORT_FOR_HEAD = 4db6c1884a9892f9a6c20631c4d4836db0c7b5e7
 BRANCH = captain/phase-f-dynamic-pr-preview-20261003
 PR = #762 OPEN
 UPDATED = 2026-10-03
+UPDATED_AT = 2026-10-03T13:12:00Z
+WHAT_I_WAS_ASKED_TO_DO = إكمال المشروع فعليًا بالتوازي، إزالة اختناقات Phase-F وAuth/E2E، تثبيت Evidence Passport، وإغلاق الشهادة دون PASS وهمي.
 WHAT_ACTUALLY_HAPPENED
 1. Removed stale Phase-F deploy-preview-754 targeting and replaced it with current-PR runtime resolution plus exact-head provenance checks.
 2. Aligned logical backup/restore source snapshot/count reads with Transaction Pooler :6543 while retaining pg_dump on the resolved runner source URI.
