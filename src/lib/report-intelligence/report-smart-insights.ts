@@ -822,10 +822,22 @@ function deriveBusinessFindings(report: ReportInput): {
     }
   }
 
+  const findingOrder = (id: string): number => {
+    if (id.endsWith(':total-value')) return 100;
+    if (id.endsWith(':position')) return 100;
+    if (id.endsWith(':margin')) return 100;
+    if (id.endsWith(':total-balance')) return 100;
+    if (id.endsWith(':top-party')) return 90;
+    if (id.endsWith(':change-contributor')) return 80;
+    if (id.endsWith(':period-change')) return 70;
+    return 0;
+  };
   return {
     findings: findings.sort((a, b) => {
       const rank = { high: 3, medium: 2, low: 1 } as const;
-      return rank[b.priority] - rank[a.priority] || a.title.localeCompare(b.title);
+      return findingOrder(b.id) - findingOrder(a.id)
+        || rank[b.priority] - rank[a.priority]
+        || a.title.localeCompare(b.title);
     }),
     risks: risks.sort((a, b) => {
       const rank = { high: 3, medium: 2, low: 1 } as const;
