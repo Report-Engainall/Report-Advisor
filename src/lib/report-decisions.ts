@@ -75,11 +75,22 @@ export async function createSourceDecisionProposal(input: {
   const proposal = Array.isArray(data) ? data[0] : data;
   if (!proposal?.decision_id) throw new Error('SOURCE_PROPOSAL_DECISION_ID_MISSING');
 
+  const recommendationId = proposal.recommendation_id == null ? null : String(proposal.recommendation_id);
+  if (recommendationId) {
+    const { error: provenanceRepairError } = await supabase.rpc('refresh_source_intelligence_recommendation_evidence', {
+      p_recommendation_id: recommendationId,
+      p_report_job_id: input.reportJobId,
+      p_source_hash: input.sourceHash,
+      p_evidence_snapshot_id: input.evidenceSnapshotId,
+    });
+    if (provenanceRepairError) throw provenanceRepairError;
+  }
+
   return {
     id: String(proposal.decision_id),
     status: String(proposal.decision_status ?? 'PROPOSED'),
     decisionKey,
-    recommendationId: proposal.recommendation_id == null ? null : String(proposal.recommendation_id),
+    recommendationId,
   };
 }
 
