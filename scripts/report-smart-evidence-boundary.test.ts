@@ -139,6 +139,8 @@ const intelligencePanel = fs.readFileSync(intelligencePanelPath, 'utf8');
 assert.match(intelligencePanel, /التنبؤ \/ الإسقاط المشروط/, 'smart report must render the forecast surface');
 assert.match(intelligencePanel, /GUIDANCE/, 'smart report must render the guidance surface');
 assert.match(intelligencePanel, /ما الذي ينصح به النظام؟/, 'smart report must render recommendations');
+assert.doesNotMatch(intelligencePanel, /intelligence\.signals\.slice\(0,\s*8\)/, 'smart report must not silently hide source signals behind an eight-item presentation cap');
+assert.match(intelligencePanel, /!evidenceSnapshotId \? 'الدليل غير متاح'/, 'case button state must use the canonical Evidence Snapshot gate');
 
 const advisorySurfacePath = fileURLToPath(new URL('../src/components/SmartReportAdvisorySurface.tsx', import.meta.url));
 const advisorySurface = fs.readFileSync(advisorySurfacePath, 'utf8');
