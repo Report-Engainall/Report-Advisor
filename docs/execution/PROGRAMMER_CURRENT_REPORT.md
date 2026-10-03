@@ -3,14 +3,14 @@ SESSION_HANDOFF = NOT READY
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT EXECUTION HEAD = 7adf6c0e4320f71c26d726c5b44a4804d0fff2c1
-REPORT_FOR_HEAD = 7adf6c0e4320f71c26d726c5b44a4804d0fff2c1
+CURRENT EXECUTION HEAD = 4e29b4e8281eb3b18477bc01379749fbd39ba227
+REPORT_FOR_HEAD = 4e29b4e8281eb3b18477bc01379749fbd39ba227
 BRANCH = captain/phase-f-dynamic-pr-preview-20261003
 PR = #762 OPEN
 UPDATED = 2026-10-03
-UPDATED_AT = 2026-10-03T14:00:00Z
+UPDATED_AT = 2026-10-03T14:03:00Z
 WHAT_I_WAS_ASKED_TO_DO = إكمال المشروع فعليًا بالتوازي، إزالة اختناقات Phase-F وAuth/E2E، تثبيت Evidence Passport، وإغلاق الشهادة دون PASS وهمي.
-WHAT_I_ACTUALLY_DID = أصلحت ربط حفظ القضية مع Passport snapshot الفعلي بدل Analysis snapshot، أصلحت Decision Cockpit بنفس القاعدة، أضفت regression guards، أضفت auto-refresh للـEvidence Passport عند اكتمال التقرير، وأضافت RPC repair آمن للقرارات القديمة ذات نفس job/hash/tenant.
+WHAT_I_ACTUALLY_DID = أصلحت ربط قرارات Advisor وDecision Cockpit بالـPassport snapshot الحقيقي، ومنعت استخدام analysis snapshot كدليل قرار، وجعلت Smart Report يقرأ Passport الحالي من قاعدة البيانات ويعكسه في كل surfaces.
 WHAT_ACTUALLY_HAPPENED
 1. Removed stale Phase-F deploy-preview-754 targeting and replaced it with current-PR runtime resolution plus exact-head provenance checks.
 2. Aligned logical backup/restore source snapshot/count reads with Transaction Pooler :6543 while retaining pg_dump on the resolved runner source URI.
@@ -36,10 +36,10 @@ WHAT_IS_PROVEN = typecheck/build/intelligence/evidence-passport/operational-resi
 - security-definer exposure contract PASS
 - direct Supabase DB connectivity PASS
 - real report job f0880ab8...: 735 source rows, 7 columns, PDF, quality 87, canonical coverage FULL, Evidence Passport VERIFIED/READY
-FIRST_ACTIVE_FAILURE = CI_RECERTIFICATION_IN_PROGRESS; the last completed Browser failure was a real Passport-provenance mismatch during Advisor case persistence.
+FIRST_ACTIVE_FAILURE = Browser business journey exposed Advisor-case persistence using the analysis snapshot instead of the Passport snapshot; this has been fixed across intelligence, cockpit, and Smart Report provenance.
 CI_RECERTIFICATION = IN_PROGRESS
 Previous completed failure on the current gate family was Session Handoff Contract: the parser required scalar `WHAT_IS_PROVEN = ...`, while the report only had a Markdown heading. This was a documentation-contract mismatch and is corrected in this synchronization.
-ROOT_CAUSE = the UI passed source_analysis_snapshots.id as a Passport evidence id; an existing legacy recommendation also retained the old analysis snapshot. The live RPC now repairs only exact tenant/job/hash/source-key matches to the current VERIFIED/READY Passport. Report completion now attempts Passport creation automatically and records PENDING on a real refresh error.
+ROOT_CAUSE = rendered report provenance could become stale after Evidence Passport refresh, while decision actions consumed source_analysis_snapshots.id as if it were a Passport evidence snapshot.
 The earlier runtime failures were a combination of a recovered Supabase lifecycle interruption and two stale/incorrect source-level assertions. The handoff failures are metadata synchronization failures, not product/runtime failures.
 FILES / COMMITS
 - PR #761 -> 9d78baf6... -> main 7e9cec1...
@@ -55,4 +55,4 @@ REMAINING OPEN
 - real-source 48-archetype proof remains unproven
 DO_NOT_REPEAT
 No stale PASS, no queued-run PASS, no Service Role impersonation, no new Supabase project, no tenant/RLS bypass, no fabricated corpus/archetype coverage.
-NEXT_EXACT_ACTION = consume the first completed CI failure on exact current execution head 7adf6c0e4320f71c26d726c5b44a4804d0fff2c1; if clear, advance Browser business proof through Advisor case → decision → approval → work → outcome.
+NEXT_EXACT_ACTION = certify exact head 4e29b4e8281eb3b18477bc01379749fbd39ba227; first completed failure only, then close browser business journey and Phase-F on the same head.
