@@ -67,10 +67,9 @@ export async function fetchImportRecords(limit = MAX_IMPORT_RECORD_ROWS, focusJo
 export async function markAlertRead(id: string): Promise<void> { if (!await resolveCurrentCompanyId()) throw new Error('TENANT_REQUIRED'); const { error } = await supabase.rpc('mark_alert_read', { p_alert_id: id }); if (error) throw error; }
 export async function updateRecommendationStatus(id: string, status: string): Promise<void> {
   if (!await resolveCurrentCompanyId()) throw new Error('TENANT_REQUIRED');
-  const nextStatus = status === 'accepted' ? 'open' : status;
   const { error } = await supabase.rpc('update_recommendation_status', {
     p_recommendation_id: id,
-    p_status: nextStatus,
+    p_status: status,
   });
   if (error) throw error;
 }
