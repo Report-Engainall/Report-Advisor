@@ -118,7 +118,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
   };
 
   return (
-    <section dir="rtl" className="space-y-4">
+    <section dir="rtl" className="ag-smart-advisor-surface space-y-4">
       <div className="rounded-[18px] border border-primary-200 bg-[linear-gradient(135deg,#f7fbfa,#ffffff)] p-5 shadow-card lg:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
