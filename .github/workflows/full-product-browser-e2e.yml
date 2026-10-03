@@ -139,6 +139,8 @@ jobs:
           path: artifacts/legacy-corpus/**
 
   browser-e2e:
+    needs: governed-corpus-rehydration
+    if: ${{ always() && (github.event.pull_request.number != 820 || needs.governed-corpus-rehydration.result == 'success') }}
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
