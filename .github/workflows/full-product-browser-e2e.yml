@@ -249,8 +249,8 @@ jobs:
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          E2E_ACTOR_PROVISION_DEADLINE_MS: '240000'
-          E2E_ACTOR_REQUEST_TIMEOUT_MS: '45000'
+          E2E_ACTOR_PROVISION_DEADLINE_MS: '360000'
+          E2E_ACTOR_REQUEST_TIMEOUT_MS: '15000'
           REPORT_ADVISOR_E2E_DEBUG: '1'
         shell: bash
         run: |

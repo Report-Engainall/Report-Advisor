@@ -12,13 +12,13 @@ for (const name of required) {
   if (!process.env[name]?.trim()) throw new Error('E2E_ACTOR_ENV_MISSING:' + name);
 }
 
-const REQUEST_TIMEOUT_MS = Number(process.env.E2E_ACTOR_REQUEST_TIMEOUT_MS || '30000');
+const REQUEST_TIMEOUT_MS = Number(process.env.E2E_ACTOR_REQUEST_TIMEOUT_MS || '15000');
 const ANON_KEY = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY?.trim() || '';
 if (!ANON_KEY) throw new Error('E2E_ACTOR_ENV_MISSING:REPORT_ADVISOR_SUPABASE_ANON_KEY');
 const POSTGREST_RETRYABLE_HTTP = new Set([408, 425, 429, 500, 502, 503, 504]);
 const POSTGREST_RETRY_ATTEMPTS = 12;
 const AUTH_RETRY_ATTEMPTS = 4;
-const PROVISION_DEADLINE_MS = Number(process.env.E2E_ACTOR_PROVISION_DEADLINE_MS || '120000');
+const PROVISION_DEADLINE_MS = Number(process.env.E2E_ACTOR_PROVISION_DEADLINE_MS || '360000');
 const PROVISION_DEADLINE_AT = Date.now() + PROVISION_DEADLINE_MS;
 
 function assertProvisionDeadline(step) {

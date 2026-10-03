@@ -1,7 +1,6 @@
 import { SourceBoundReportSurface } from '@/components/SourceBoundReportSurface';
 import { readActiveReportContext } from '@/lib/report-context';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ReportSourceContext } from '@/components/ReportSourceContext';
 import { Activity, AlertTriangle, CheckCircle2, Clock3, Filter, RefreshCw, ShieldCheck, XCircle } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -188,7 +187,6 @@ function WorkCenterGeneralPage() {
   if (error) return <ErrorState message={error} onRetry={load} />;
 
   return <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
-      <ReportSourceContext />
     <PageHeader
       title="مركز العمل"
       subtitle="طابور العمل والاستثناءات: ما الذي ينتظر، ما الذي يحتاج مراجعة، وما الذي اكتمل فعليًا."

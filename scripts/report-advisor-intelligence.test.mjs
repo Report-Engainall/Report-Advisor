@@ -34,6 +34,25 @@ check(sales.advisorBrief.ownerHint === 'مسؤول المبيعات', 'sales own
 check(sales.findings.find((item) => item.id === 'sales:top-party')?.evidence.some((e) => e.includes('customerField=')), 'finding must expose evidence field');
 check(sales.findings.find((item) => item.id === 'sales:top-party')?.limitation, 'finding must expose limitation');
 
+const salesNeedsAttention = deriveReportIntelligence({
+  specialty: 'sales',
+  rowCount: 10,
+  sourceAnalysis: {
+    datasets: [{
+      columns: [
+        { name: 'القيمة', mappedField: 'netAmount', nullCount: 0 },
+        { name: 'الملاحظات', mappedField: null, nullCount: 0 },
+      ],
+    }],
+  },
+  canonicalRows: Array.from({ length: 10 }, (_, index) => ({
+    row_number: index + 1,
+    data: { netAmount: index + 1, 'الملاحظات': index % 2 ? 'x' : '' },
+  })),
+});
+check(salesNeedsAttention.advisorBrief.health === 'REVIEW_REQUIRED', 'material source signal must not be presented as healthy');
+check(salesNeedsAttention.signals.some((item) => item.id === 'sales:date-missing'), 'sales date-missing signal must exist');
+
 const inventory = deriveReportIntelligence({
   specialty: 'inventory',
   rowCount: 3,

@@ -828,10 +828,16 @@ function buildAdvisorBrief(
   const topFinding = business.findings[0] ?? null;
   const topRisk = business.risks[0] ?? null;
   const topOpportunity = business.opportunities[0] ?? null;
+  const highImpactSignal = signals.some((signal) => signal.severity === 'critical' || signal.severity === 'high');
+  const materialReviewSignal = signals.some((signal) => {
+    if (signal.severity !== 'medium') return false;
+    if (signal.affectedRows == null || !report.rowCount) return true;
+    return signal.affectedRows / Math.max(1, report.rowCount) >= 0.2;
+  });
   const health: AdvisorBrief['health'] =
-    topRisk?.priority === 'high' || signals.some((signal) => signal.severity === 'critical')
+    topRisk?.priority === 'high' || highImpactSignal || materialReviewSignal
       ? 'REVIEW_REQUIRED'
-      : topRisk || signals.some((signal) => signal.severity === 'high')
+      : topRisk || signals.some((signal) => signal.severity === 'medium') || signals.length > 0
         ? 'ATTENTION'
         : 'HEALTHY';
   const recommendedAction = topRisk?.action ?? topFinding?.action ?? topOpportunity?.action ?? null;

@@ -156,6 +156,17 @@ if (!otherCompany) {
   throw new Error('LIVE_GATE_SECOND_ALLOWED_TENANT_MISSING');
 }
 
+const { data: completionSnapshots, error: completionSnapshotError } = await service
+  .from('source_analysis_snapshots')
+  .select('id')
+  .eq('company_id', passport.company_id)
+  .eq('source_hash', passport.source_hash)
+  .order('created_at', { ascending: false })
+  .limit(1);
+if (completionSnapshotError) throw completionSnapshotError;
+const completionEvidenceSnapshotId = completionSnapshots?.[0]?.id;
+if (!completionEvidenceSnapshotId) throw new Error('LIVE_GATE_SOURCE_ANALYSIS_SNAPSHOT_MISSING');
+
 const userA = await createUser('gate-auth-a');
 const userB = await createUser('gate-auth-b');
 const approver = await createUser('gate-approver');
@@ -431,11 +442,17 @@ if (validWorkError) throw validWorkError;
 assert.ok(validWorkId);
 created.work.push(String(validWorkId));
 
+const { error: startWorkError } = await clientA.rpc('start_decision_work_item', {
+  p_work_item_id: validWorkId,
+});
+if (startWorkError) throw startWorkError;
+
 const { error: completeError } = await clientA.rpc('complete_decision_work_item', {
   p_work_item_id: validWorkId,
   p_actual_impact: null,
   p_evidence: {
     ...exactEvidence,
+    evidence_snapshot_id: completionEvidenceSnapshotId,
     outcomeStatus: 'LIVE_GATE_PROOF',
   },
 });

@@ -13,9 +13,15 @@ const clientUiSettingsParityMigration = read('supabase/migrations/20260925184000
 
 
 
-// All logical source reads must use the resolved IPv4-safe runner URI, not the original host URI.
-if (!/const generatedCountSql = runDockerPsql\(runnerSource, countSql\);/.test(phaseFProbe)) {
-  throw new Error('Phase-F schema-count query must use the resolved runnerSource URI');
+// Logical source snapshot/count reads intentionally use the resolved transaction-pooler URI.
+if (!/const querySource = await preferIpv4Host\(toTransactionPooler\(runnerSource\)\);/.test(phaseFProbe)) {
+  throw new Error('Phase-F logical reads must derive an IPv4-safe transaction-pooler querySource from runnerSource');
+}
+if (!/snapshotText = runDockerPsql\(querySource, exactSnapshotSql\)/.test(phaseFProbe)) {
+  throw new Error('Phase-F source snapshot must use the resolved querySource URI');
+}
+if (!/sourceCounts = parseTableCounts\(runDockerPsql\(querySource, countSql\)\)/.test(phaseFProbe)) {
+  throw new Error('Phase-F schema-count query must use the resolved querySource URI');
 }
 if (!/const directPort = parsed\.port \|\| '5432';/.test(phaseFProbe) || !/directPort === '5432'/.test(phaseFProbe)) {
   throw new Error('Phase-F direct Supabase source fallback must treat an omitted port as the default 5432');

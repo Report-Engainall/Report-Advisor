@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AlertCircle, BarChart3, CheckCircle2, Download, FileImage, FileSpreadsheet, FileText, Loader2, ShieldCheck, Sparkles, Upload } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -31,7 +32,9 @@ function downloadCsv(dataset: Dataset) {
 }
 
 export function ExternalFileAnalysisPage() {
+  const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
+  const selectedFileRef = useRef<File | null>(null);
   const [file, setFile] = useState<{name:string;size:number;format:FileFormat;hash:string}|null>(null);
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [active, setActive] = useState(0);
@@ -50,6 +53,7 @@ export function ExternalFileAnalysisPage() {
       const hash = await computeSHA256(buffer);
       const parsed = await parseFile(buffer, selected.name, detection.format);
       if (!parsed.length) throw new Error('لم يتم العثور على بيانات قابلة للتحليل داخل الملف');
+      selectedFileRef.current = selected;
       setFile({ name:selected.name, size:selected.size, format:detection.format, hash });
       setDatasets(parsed);
     } catch (e) {
@@ -76,6 +80,25 @@ export function ExternalFileAnalysisPage() {
       <div onClick={() => inputRef.current?.click()} className="mt-5 cursor-pointer rounded-2xl border-2 border-dashed border-ink-200 p-8 text-center hover:border-primary-400 transition-colors"><Upload className="mx-auto mb-2 text-primary-500" size={30}/><b>اسحب الملف هنا أو اضغط للاختيار</b><p className="mt-1 text-xs text-ink-400">الحد الآمن {Math.round(MAX_FILE_SIZE / 1024 / 1024)} MB · لا توجد كتابة تلقائية لبيانات الأعمال</p></div>
       {error && <div className="mt-4 rounded-xl bg-danger-50 p-3 text-sm text-danger-700 flex gap-2"><AlertCircle size={17}/>{error}</div>}
     </CardBody></Card>
+    {file && datasets.length > 0 && <Card className="border-primary-200 bg-primary-50/40"><CardBody>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="min-w-0">
+          <div className="text-[10px] font-black tracking-[.08em] text-primary-700">NEXT · SMART REPORT</div>
+          <div className="mt-1 text-base font-black text-ink-950">تم التعرف على المصدر — لا تتوقف عند أخطاء الجودة</div>
+          <p className="mt-1 text-xs leading-5 text-ink-600">الجدول وإشارات الجودة هنا مرحلة فهم فقط. مرّر الملف إلى المسار الكانوني ليُبنى التقرير الذكي المرتبط بالبصمة، ثم تظهر الإشارات والتوصيات والتنبؤ المشروط والإرشادات ومسار القرار.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            const selected = selectedFileRef.current;
+            if (selected) navigate('/import', { state: { preloadedFile: selected } });
+          }}
+          className="btn-primary inline-flex items-center gap-2 whitespace-nowrap"
+        >
+          <Sparkles size={16}/> تحويل إلى تقرير ذكي
+        </button>
+      </div>
+    </CardBody></Card>}
     {file && <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{fileIcon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} · {file.size.toLocaleString()} بايت · بصمة SHA-256: {file.hash.slice(0,16)}…</div></div></div><Badge variant="success"><ShieldCheck size={13}/> اجتاز الفحص الأمني</Badge></div></CardBody></Card>}
     {datasets.length > 1 && <Card><CardBody><div className="flex gap-2 overflow-x-auto">{datasets.map((d,i)=><button key={`${d.id}-${i}`} type="button" aria-pressed={i===active} onClick={()=>setActive(i)} className={`whitespace-nowrap rounded-xl border px-4 py-2 text-xs font-semibold ${i===active?'border-primary-500 bg-primary-50 text-primary-700':'border-ink-200 bg-white text-ink-600'}`}>ورقة/مجموعة {i+1}: {d.name}</button>)}</div></CardBody></Card>}
     {dataset && <>

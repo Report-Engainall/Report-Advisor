@@ -137,6 +137,14 @@ async function preferIpv4Host(databaseUrl) {
   return databaseUrl;
 }
 
+function toTransactionPooler(databaseUrl) {
+  const parsed = new URL(databaseUrl);
+  if (parsed.hostname.endsWith('.pooler.supabase.com') && (!parsed.port || parsed.port === '5432')) {
+    parsed.port = '6543';
+  }
+  return parsed.toString();
+}
+
 function runDockerPsql(databaseUrl, sql) {
   return runCommand('docker', [
     'run', '--rm', '--network', 'host',
@@ -144,7 +152,7 @@ function runDockerPsql(databaseUrl, sql) {
     '-e', `QUERY=${sql}`,
     'postgres:17',
     'sh', '-lc',
-    'psql "$PGURI" -v ON_ERROR_STOP=1 -At -c "$QUERY"',
+    'psql "$PGURI" -v ON_ERROR_STOP=1 -At -c "SET statement_timeout = 0" -c "$QUERY"',
   ]);
 }
 
@@ -155,7 +163,7 @@ function runDockerPsqlFile(databaseUrl, filePath) {
     '-e', `PGURI=${databaseUrl}`,
     'postgres:17',
     'sh', '-lc',
-    'psql "$PGURI" -v ON_ERROR_STOP=1 -f /tmp/phase-f-backup.sql',
+    'psql "$PGURI" -v ON_ERROR_STOP=1 -c "SET statement_timeout = 0" -f /tmp/phase-f-backup.sql',
   ]);
 }
 
@@ -188,12 +196,68 @@ async function logicalBackupRestore() {
   const jitEnabled = !dbPassword && Boolean(temporaryAccessToken);
   const password = dbPassword || temporaryAccessToken;
   const querySuffix = jitEnabled ? '?options=-c%20jit%3Don' : '';
-  const source = explicitSource
-    || (password
-      ? `postgresql://postgres.${encodeURIComponent(projectRef)}:${encodeURIComponent(password)}@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres${querySuffix}`
-      : '');
-  if (!source) throw new Error('logical_backup_source_db_url_not_configured');
-  const runnerSource = await preferIpv4Host(source);
+  const poolerRegion = process.env.RESILIENCE_SUPABASE_REGION?.trim() || 'ap-southeast-2';
+  const derivedSource = password
+    ? `postgresql://postgres.${encodeURIComponent(projectRef)}:${encodeURIComponent(password)}@aws-0-${poolerRegion}.pooler.supabase.com:5432/postgres${querySuffix}`
+    : '';
+
+  if (!explicitSource && !derivedSource) {
+    throw new Error('logical_backup_source_db_url_not_configured');
+  }
+
+  const sourceCandidates = [];
+  const addCandidate = (sourceUrl, mode) => {
+    if (!sourceUrl || sourceCandidates.some(candidate => candidate.url === sourceUrl)) return;
+    sourceCandidates.push({ url: sourceUrl, mode });
+  };
+
+  addCandidate(explicitSource, 'explicit_override');
+  addCandidate(derivedSource, 'derived_project_pooler');
+
+  if (explicitSource && projectRef) {
+    try {
+      const parsedExplicit = new URL(explicitSource);
+      const directHost = `db.${projectRef}.supabase.co`;
+      const isDirectSupabaseDb = parsedExplicit.hostname === directHost;
+      if (isDirectSupabaseDb && parsedExplicit.password) {
+        const fallback = new URL(explicitSource);
+        fallback.hostname = `aws-0-${process.env.RESILIENCE_SUPABASE_REGION?.trim() || 'ap-southeast-2'}.pooler.supabase.com`;
+        fallback.port = '5432';
+        fallback.username = `postgres.${projectRef}`;
+        fallback.pathname = '/postgres';
+        addCandidate(fallback.toString(), 'explicit_to_project_pooler_fallback');
+      }
+    } catch {
+      throw new Error('logical_backup_explicit_source_invalid_url');
+    }
+  }
+
+  const probeErrors = [];
+  let runnerSource = null;
+  let sourceSelection = null;
+
+  for (const candidate of sourceCandidates) {
+    try {
+      const resolved = await preferIpv4Host(candidate.url);
+      runDockerPsql(resolved, 'select 1');
+      runnerSource = resolved;
+      sourceSelection = {
+        mode: candidate.mode,
+        candidate_count: sourceCandidates.length,
+        fallback_used: candidate.mode !== 'explicit_override',
+      };
+      break;
+    } catch (error) {
+      const message = String(error);
+      probeErrors.push(`${candidate.mode}: ${message.slice(-1800)}`);
+    }
+  }
+
+  if (!runnerSource) {
+    throw new Error(`logical_backup_source_unreachable:${probeErrors.join(' | ')}`);
+  }
+
+  const querySource = await preferIpv4Host(toTransactionPooler(runnerSource));
   const maxRpoSeconds = Number(process.env.RESILIENCE_MAX_RPO_SECONDS);
   if (!Number.isFinite(maxRpoSeconds) || maxRpoSeconds < 0) {
     throw new Error('invalid_max_rpo_seconds');
@@ -202,7 +266,27 @@ async function logicalBackupRestore() {
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'phase-f-logical-'));
   const backupPath = path.join(workDir, 'public-data.sql');
   const exactSnapshotSql = 'select clock_timestamp()::text';
-  const countSql = `select coalesce(string_agg(format('select %L as table_name, count(*) as row_count from %I.%I', table_schema || '.' || table_name, table_schema, table_name), ' union all ' order by table_name), 'select null::text as table_name, 0::bigint as row_count where false') from information_schema.tables where table_schema = 'public' and table_type = 'BASE TABLE'`;
+  const countSql = `create temp table _phase_f_counts(table_name text, row_count bigint) on commit drop;
+DO $$
+DECLARE
+  r record;
+BEGIN
+  FOR r IN
+    SELECT table_schema, table_name
+    FROM information_schema.tables
+    WHERE table_schema = 'public'
+      AND table_type = 'BASE TABLE'
+    ORDER BY table_name
+  LOOP
+    EXECUTE format(
+      'INSERT INTO _phase_f_counts(table_name, row_count) SELECT %L, count(*) FROM %I.%I',
+      r.table_schema || '.' || r.table_name,
+      r.table_schema,
+      r.table_name
+    );
+  END LOOP;
+END $$;
+SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_name;`;
 
   let localDbUrl = null;
   let localStarted = false;
@@ -225,12 +309,21 @@ async function logicalBackupRestore() {
 
     runCommand('supabase', ['db', 'reset', '--debug', '--no-seed'], { cwd: workDir });
 
-    const snapshotText = runDockerPsql(runnerSource, exactSnapshotSql);
+    let snapshotText;
+    try {
+      snapshotText = runDockerPsql(querySource, exactSnapshotSql);
+    } catch (error) {
+      throw new Error(`logical_source_snapshot_failed:${error}`);
+    }
     const snapshotAt = Date.parse(snapshotText);
     if (!Number.isFinite(snapshotAt)) throw new Error('source_snapshot_timestamp_invalid');
 
-    const generatedCountSql = runDockerPsql(runnerSource, countSql);
-    const sourceCounts = parseTableCounts(runDockerPsql(runnerSource, generatedCountSql));
+    let sourceCounts;
+    try {
+      sourceCounts = parseTableCounts(runDockerPsql(querySource, countSql));
+    } catch (error) {
+      throw new Error(`logical_source_counts_failed:${error}`);
+    }
 
     const backupStartedAt = Date.now();
     runCommand('supabase', [
@@ -249,9 +342,18 @@ async function logicalBackupRestore() {
     if (rpoSeconds > maxRpoSeconds) throw new Error(`rpo_budget_exceeded:${rpoSeconds}`);
 
     const restoreStartedAt = Date.now();
-    runDockerPsqlFile(localDbUrl, backupPath);
+    try {
+      runDockerPsqlFile(localDbUrl, backupPath);
+    } catch (error) {
+      throw new Error(`logical_target_restore_failed:${error}`);
+    }
     const restoreCompletedAt = Date.now();
-    const targetCounts = parseTableCounts(runDockerPsql(localDbUrl, generatedCountSql));
+    let targetCounts;
+    try {
+      targetCounts = parseTableCounts(runDockerPsql(localDbUrl, countSql));
+    } catch (error) {
+      throw new Error(`logical_target_counts_failed:${error}`);
+    }
     const rtoSeconds = (restoreCompletedAt - restoreStartedAt) / 1000;
 
     const mismatchTables = [...new Set([...Object.keys(sourceCounts), ...Object.keys(targetCounts)])]

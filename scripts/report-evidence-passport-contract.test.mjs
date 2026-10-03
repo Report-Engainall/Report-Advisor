@@ -15,6 +15,10 @@ const passportGates = fs.readFileSync(
 );
 const proposal = fs.readFileSync('src/lib/report-decisions.ts', 'utf8');
 const reportPage = fs.readFileSync('src/pages/SmartReportPage.tsx', 'utf8');
+const completion = fs.readFileSync('supabase/migrations/20261003141500_auto_refresh_report_evidence_passport_on_completion.sql', 'utf8');
+const provenanceRepair = fs.readFileSync('supabase/migrations/20261003140500_reconcile_source_decision_passport_snapshot.sql', 'utf8');
+const intelligencePanel = fs.readFileSync('src/components/ReportIntelligencePanel.tsx', 'utf8');
+const decisionCockpit = fs.readFileSync('src/components/ReportDecisionCockpit.tsx', 'utf8');
 
 assert.ok(passportSchema.includes('report_evidence_snapshots'));
 assert.ok(passportSchema.includes('report_evidence_passports'));
@@ -38,5 +42,13 @@ assert.ok(!proposal.includes('confidence: 0.5'));
 assert.ok(reportPage.includes('EVIDENCE PASSPORT'));
 assert.ok(reportPage.includes('legacyPriorVerification'));
 assert.ok(reportPage.includes('decisionReadiness'));
+assert.ok(completion.includes('refresh_report_evidence_passport'));
+assert.ok(completion.includes("'evidencePassportRefresh'"));
+assert.ok(provenanceRepair.includes("repairedLegacyProposal"));
+assert.ok(provenanceRepair.includes("evidencePassportId"));
+assert.ok(intelligencePanel.includes("report.renderedOutput?.evidenceSnapshotId"));
+assert.ok(!intelligencePanel.includes("evidenceSnapshotId: report.sourceAnalysis?.id"));
+assert.ok(decisionCockpit.includes("report.renderedOutput?.evidenceSnapshotId"));
+assert.ok(!decisionCockpit.includes("evidenceSnapshotId: report.sourceAnalysis.id"));
 
 console.log('REPORT_EVIDENCE_PASSPORT_CONTRACT_PASS');

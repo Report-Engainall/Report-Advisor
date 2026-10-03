@@ -13,7 +13,9 @@ if (!workflow.includes('PHASE_F_CANARY_PASSWORD_SIGNIN_FAILED')) throw new Error
 if (workflow.includes('admin.auth.admin.generateLink')) throw new Error('Phase F canary must not depend on Auth Admin generateLink for authenticated session resolution');
 if (!workflow.includes('npm run test:operational-resilience') && !workflow.includes('check-operational-resilience-contract.mjs')) throw new Error('Phase F workflow must execute the operational resilience contract');
 if (workflow.includes('deploy-preview-730--aghbari-report-advisor.netlify.app')) throw new Error('Phase F target must not use stale deploy-preview-730');
-if (!workflow.includes('deploy-preview-754--aghbari-report-advisor.netlify.app')) throw new Error('Phase F current runtime target preview missing');
+if (!workflow.includes('base="https://deploy-preview-${PR_NUMBER}--aghbari-report-advisor.netlify.app"')) throw new Error('Phase F runtime target must resolve dynamically from the PR number');
+if (!workflow.includes('PR_NUMBER: ${{ github.event.pull_request.number }}')) throw new Error('Phase F runtime target must be bound to the current PR number');
+if (workflow.includes('deploy-preview-754--aghbari-report-advisor.netlify.app')) throw new Error('Phase F workflow contains stale preview target deploy-preview-754');
 if (!workflow.includes('workflow_dispatch')) throw new Error('Phase F live resilience must remain explicitly dispatchable');
 const pkg = JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
 for (const script of ['test:operational-resilience','test:release-resilience-manifest','test:continuous-trust']) if (!pkg.scripts?.[script]) throw new Error(`Package gate missing: ${script}`);

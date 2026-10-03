@@ -210,7 +210,7 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <div className="rounded-xl border border-ink-200 bg-ink-50/60 p-4">
           <div className="text-[9px] font-black text-ink-500">EVIDENCE PASSPORT</div>
-          <div className="mt-2 text-sm font-black">{stateLabel(String(report.renderedOutput.evidenceVerificationStatus ?? report.evidenceStatus))}</div>
+          <div className="mt-2 text-sm font-black">{stateLabel(report.evidenceStatus)}</div>
           <div className="mt-1 text-[10px] text-ink-500">Acceptance: {stateLabel(String(report.renderedOutput.evidenceAcceptanceStatus ?? 'غير متاح'))} · Readiness: {stateLabel(String(report.renderedOutput.decisionReadiness ?? 'غير متاح'))}</div>
           <div className="mt-1 break-all font-mono text-[9px] text-ink-400">Snapshot: {String(report.renderedOutput.evidenceSnapshotId ?? 'غير موجود')}</div>
         </div>
@@ -699,7 +699,7 @@ export function SmartReportPage() {
       <div className="flex items-center gap-2"><ShieldCheck size={18} className="text-primary-600"/><div><div className="section-kicker">TRUTH → EVIDENCE → SIGNAL → INTELLIGENCE</div><h2 className="mt-1 text-lg font-black text-ink-950">حالة التقرير الذكي</h2></div></div>
       <div className="mt-4 grid gap-3 md:grid-cols-3">
         {(['evidenceStatus','signalStatus','intelligenceStatus'] as const).map((key) => {
-          const value = output[key] == null ? null : String(output[key]);
+          const value = key === 'evidenceStatus' ? (report.evidenceStatus == null ? null : String(report.evidenceStatus)) : (output[key] == null ? null : String(output[key]));
           return <div key={key} className={'rounded-xl border p-4 ' + statusTone(value)}><div className="text-[10px] font-black">{key}</div><div className="mt-2 text-sm font-bold">{stateLabel(value)}</div></div>;
         })}
       </div>

@@ -77,65 +77,157 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           AUTH_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
           AUTH_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          PREPROVISIONED_CANARY_TOKEN: ${{ secrets.RESILIENCE_CANARY_AUTH_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
-          token="$(node --input-type=module <<'NODE'
-          const { createClient } = await import('@supabase/supabase-js');
+          url="${SUPABASE_URL:?SUPABASE_URL_MISSING}"
+          anon_key="${SUPABASE_ANON_KEY:?SUPABASE_ANON_KEY_MISSING}"
+          email="${AUTH_EMAIL:?AUTH_EMAIL_MISSING}"
+          password="${AUTH_PASSWORD:?AUTH_PASSWORD_MISSING}"
+          auth_url="${url%/}/auth/v1/token?grant_type=password"
 
-          const url = process.env.SUPABASE_URL?.trim();
-          const anonKey = process.env.SUPABASE_ANON_KEY?.trim();
-          const email = process.env.AUTH_EMAIL?.trim();
-          const password = process.env.AUTH_PASSWORD;
-          if (!url || !anonKey || !email || !password) {
-            throw new Error('PHASE_F_CANARY_AUTH_ENV_MISSING');
+          token="${PREPROVISIONED_CANARY_TOKEN:-}"
+          if [[ -n "$token" ]]; then
+            echo "PHASE_F_CANARY_AUTH_SOURCE=preprovisioned_token"
+          else
+            # Contract: password fallback is the configured auth.signInWithPassword path.
+            echo "PHASE_F_CANARY_AUTH_SOURCE=password_fallback"
+          fi
+          last_status="000"
+          for attempt in $(seq 1 6); do
+            [[ -n "$token" ]] && break
+            body_file="$(mktemp)"
+            request_body="$(node --input-type=module -e 'process.stdout.write(JSON.stringify({email: process.env.AUTH_EMAIL, password: process.env.AUTH_PASSWORD}))')"
+            set +e
+            status="$(timeout --kill-after=5s 20s curl -sS -o "$body_file" -w '%{http_code}' \
+              --connect-timeout 5 \
+              --max-time 15 \
+              -H "apikey: $anon_key" \
+              -H "Authorization: Bearer $anon_key" \
+              -H "Content-Type: application/json" \
+              --data "$request_body" \
+              "$auth_url")"
+            curl_exit=$?
+            set -e
+            last_status="$status"
+
+            if [[ "$curl_exit" -eq 0 && "$status" == "200" ]]; then
+              token="$(node --input-type=module -e '
+                const fs = await import("node:fs");
+                const body = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+                process.stdout.write(String(body.access_token || "").trim());
+              ' "$body_file")"
+              rm -f "$body_file"
+              if [[ -n "$token" ]]; then
+                break
+              fi
+            else
+              if [[ "$status" != "408" && "$status" != "425" && "$status" != "429" && "$status" != "500" && "$status" != "502" && "$status" != "503" && "$status" != "504" && "$status" != "000" ]]; then
+                error_message="$(node --input-type=module -e '
+                  const fs = await import("node:fs");
+                  try {
+                    const body = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+                    process.stdout.write(String(body.msg || body.message || "unknown"));
+                  } catch {
+                    process.stdout.write("unknown");
+                  }
+                ' "$body_file")"
+                rm -f "$body_file"
+                echo "PHASE_F_CANARY_PASSWORD_SIGNIN_FAILED:$status:$error_message" >&2
+                exit 1
+              fi
+            fi
+
+            rm -f "$body_file"
+            if [[ "$attempt" -lt 6 ]]; then
+              sleep $((attempt * 2))
+            fi
+          done
+
+          [[ -n "$token" ]] || {
+            echo "PHASE_F_CANARY_PASSWORD_SIGNIN_FAILED:$last_status:timeout_or_no_access_token" >&2
+            exit 1
           }
 
-          const retryableStatuses = new Set([408, 425, 429, 500, 502, 503, 504]);
-          const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-          const client = createClient(url, anonKey, {
-            auth: { autoRefreshToken: false, persistSession: false },
-          });
-
-          let lastError = null;
-
-          for (let attempt = 1; attempt <= 6; attempt += 1) {
-            try {
-              const { data, error } = await client.auth.signInWithPassword({ email, password });
-              if (!error && data?.session?.access_token) {
-                process.stdout.write(data.session.access_token.trim());
-                lastError = null;
-                break;
-              }
-
-              const status = Number(error?.status ?? 0);
-              lastError = new Error(
-                'PHASE_F_CANARY_PASSWORD_SIGNIN_FAILED:' + status + ':' + (error?.message || 'unknown'),
-              );
-              if (!retryableStatuses.has(status) || attempt === 6) throw lastError;
-            } catch (error) {
-              lastError = error instanceof Error ? error : new Error(String(error));
-              const statusMatch = lastError.message.match(/PHASE_F_CANARY_PASSWORD_SIGNIN_FAILED:(\d+):/);
-              const status = statusMatch ? Number(statusMatch[1]) : 0;
-              if ((status && !retryableStatuses.has(status)) || attempt === 6) throw lastError;
-            }
-
-            await sleep(Math.min(8000, 2000 * 2 ** (attempt - 1)));
-          }
-
-          if (lastError) throw lastError;
-          NODE
-          )"
           echo "::add-mask::$token"
           printf 'RESILIENCE_CANARY_AUTH_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
+      - name: Resolve current live runtime targets
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          EXPLICIT_HEALTH_URL: ${{ secrets.RESILIENCE_HEALTH_URL || vars.RESILIENCE_HEALTH_URL }}
+          EXPLICIT_CANARY_URL: ${{ secrets.RESILIENCE_CANARY_URL || vars.RESILIENCE_CANARY_URL }}
+          EXPLICIT_BACKUP_URL: ${{ secrets.RESILIENCE_BACKUP_VERIFY_URL || vars.RESILIENCE_BACKUP_VERIFY_URL }}
+          EXPLICIT_ROLLBACK_URL: ${{ secrets.RESILIENCE_ROLLBACK_DRILL_URL || vars.RESILIENCE_ROLLBACK_DRILL_URL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -n "${PR_NUMBER:-}" ]]; then
+            base="https://deploy-preview-${PR_NUMBER}--aghbari-report-advisor.netlify.app"
+            health="$base/api/health"
+            canary="$base/api/tenant-canary"
+            backup="$base/api/backup-restore-verify"
+            rollback="$base/api/rollback-drill"
+          else
+            health="${EXPLICIT_HEALTH_URL:-}"
+            canary="${EXPLICIT_CANARY_URL:-}"
+            backup="${EXPLICIT_BACKUP_URL:-}"
+            rollback="${EXPLICIT_ROLLBACK_URL:-}"
+          fi
+
+          for pair in \
+            "RESILIENCE_HEALTH_URL=$health" \
+            "RESILIENCE_CANARY_URL=$canary" \
+            "RESILIENCE_BACKUP_VERIFY_URL=$backup" \
+            "RESILIENCE_ROLLBACK_DRILL_URL=$rollback"; do
+            name="${pair%%=*}"
+            value="${pair#*=}"
+            test -n "$value" || { echo "${name}_MISSING"; exit 1; }
+            [[ "$value" != *deploy-preview-754* ]] || { echo "${name}_STALE_PREVIEW_754"; exit 1; }
+            printf '%s=%s\n' "$name" "$value" >> "$GITHUB_ENV"
+          done
+          echo "LIVE_RUNTIME_TARGETS_RESOLVED=true"
+      - name: Verify preview runtime provenance before probes
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          RESILIENCE_HEALTH_URL: ${{ format('https://deploy-preview-{0}--aghbari-report-advisor.netlify.app/api/health', github.event.pull_request.number) }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="${EXACT_HEAD:?EXACT_HEAD_NOT_RESOLVED}"
+          for attempt in $(seq 1 36); do
+            body="$(curl -fsS --max-time 8 "$RESILIENCE_HEALTH_URL" 2>/dev/null || true)"
+            readarray -t values < <(node - "$body" <<'NODE'
+          const raw = process.argv[2] || '';
+          try {
+            const value = JSON.parse(raw);
+            process.stdout.write(String(value.source_sha ?? '') + '\n');
+            process.stdout.write(String(value.build_sha ?? '') + '\n');
+            process.stdout.write(String(value.deployment_sha ?? '') + '\n');
+          } catch {
+            process.stdout.write('\n\n\n');
+          }
+          NODE
+            )
+            source="${values[0]:-}"
+            build="${values[1]:-}"
+            deployment="${values[2]:-}"
+            if [[ "$source" == "$expected" && "$build" == "$expected" && "$deployment" == "$expected" ]]; then
+              echo "RUNTIME_PROVENANCE_MATCH=true"
+              echo "source_sha=$source"
+              echo "build_sha=$build"
+              echo "deployment_sha=$deployment"
+              exit 0
+            fi
+            echo "Runtime preview not exact yet: attempt=$attempt source=$source build=$build deployment=$deployment expected=$expected"
+            sleep 5
+          done
+          echo "PHASE_F_RUNTIME_PROVENANCE_MISMATCH"
+          exit 1
       - name: Live resilience probes
         env:
           RESILIENCE_TARGET_ENV: ${{ secrets.RESILIENCE_TARGET_ENV }}
           RESILIENCE_OPERATIONAL_TOKEN: ${{ secrets.RESILIENCE_OPERATIONAL_TOKEN }}
-          RESILIENCE_HEALTH_URL: https://deploy-preview-754--aghbari-report-advisor.netlify.app/api/health
-          RESILIENCE_CANARY_URL: https://deploy-preview-754--aghbari-report-advisor.netlify.app/api/tenant-canary
-          RESILIENCE_BACKUP_VERIFY_URL: https://deploy-preview-754--aghbari-report-advisor.netlify.app/api/backup-restore-verify
-          RESILIENCE_ROLLBACK_DRILL_URL: https://deploy-preview-754--aghbari-report-advisor.netlify.app/api/rollback-drill
           RESILIENCE_ALLOW_PRODUCTION: ${{ secrets.RESILIENCE_ALLOW_PRODUCTION }}
           RESILIENCE_BACKUP_MODE: ${{ secrets.RESILIENCE_BACKUP_MODE }}
           RESILIENCE_LOGICAL_SOURCE_DB_URL: ${{ secrets.RESILIENCE_LOGICAL_SOURCE_DB_URL || vars.RESILIENCE_LOGICAL_SOURCE_DB_URL }}

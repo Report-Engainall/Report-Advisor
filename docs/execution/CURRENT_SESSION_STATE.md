@@ -1,31 +1,60 @@
 # CURRENT SESSION STATE
-
-SESSION HANDOFF = NOT READY
-STATE_OWNER = CAPTAIN + PROGRAMMER
-CURRENT_EXACT_HEAD = 204e82f1496d37b79b52d3533073325a4b64e3ec
-CURRENT_EXECUTION_HEAD = 204e82f1496d37b79b52d3533073325a4b64e3ec
-CURRENT_MAIN_HEAD = 204e82f1496d37b79b52d3533073325a4b64e3ec
-BRANCH = main
-PR = #756 MERGED
-RUNTIME_EQUIVALENCE = 549d09 is runtime-equivalent to 8e77: three docs/execution-only commits after 8e77; no product-code delta
-PR #752 = MERGED
-PR #753 = MERGED
-PR #754 = MERGED
-PR #755 = MERGED
-PR #756 = MERGED
-PROGRAMMER_REPORT = PRESENT
-PROGRAMMER_REPORT_FOR_HEAD = 204e82f1496d37b79b52d3533073325a4b64e3ec
-ACTION_STATUS = IN_PROGRESS
-UPDATED_AT = 2026-10-02T21:24:00Z
-
-CURRENT PRODUCT HEAD = 204e82f1496d37b79b52d3533073325a4b64e3ec
-LAST CLOSED FAILURE = stale Phase F runtime target plus Auth Admin generateLink timeout.
-CURRENT ACTIVE FAILURE = Netlify current-main deploy returned HTTP 403 after successful CLI authentication; public /api/health still returns HTML fallback; prior Phase-F remains blocked by Supabase connection-pool checkout timeout.
-ROOT CAUSE = Netlify project deploy is forbidden for the authenticated CLI account, so the stale runtime cannot currently be replaced. Supabase staging is ACTIVE_HEALTHY at project level, but live SQL/backup paths have intermittent pool checkout timeouts.
-VERIFIED PREVIEW = NOT_PROVEN for 204e82; historical deployment d1738d7a896b0a2544fd080455fa08f094cd6799 remains rejected as current runtime proof.
-CURRENT RUNTIME FRONTIER = local product code is build-proven at 204e82; external current-head runtime deployment is blocked by Netlify 403. Authenticated browser business proof remains NOT_PROVEN.
-AUTHENTICATED BROWSER PROOF = NOT_PROVEN. Full Product Browser E2E run 37064389357 on f95 failed twice at E2E actor provisioning with Supabase Auth HTTP 504 after bounded retry. No stale PASS is reused.
-PRODUCTION = Vercel remains externally blocked by build-rate-limit; Netlify current-head deployment is blocked by 403.
-
-NEXT_EXACT_ACTION = resolve the Netlify project deploy permission/403, deploy exact main 204e82f1496d37b79b52d3533073325a4b64e3ec, verify JSON /api/health provenance, rerun Phase-F, fix only its first terminal failure, then continue exact-head authenticated Smart Report browser proof.
-DO_NOT_REPEAT = no old-SHA browser PASS; no queued-run PASS; no RLS/auth/evidence weakening; no fabricated real-source archetype coverage; no re-import without regression evidence.
+SESSION_HANDOFF = NOT READY
+ACTION_STATUS = ACTIVE_EXECUTION
+CURRENT_EXACT_HEAD = 9bec7dc45ba65ddd036aa02491c0b4574d579570
+CURRENT_MAIN_HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
+CURRENT_EXECUTION_HEAD = 1a38250863743edbe00682c51979954bd12cc64c
+BRANCH = captain/phase-f-dynamic-pr-preview-20261003
+PR = #762 OPEN
+PR_PRODUCT_DELTA = #761 MERGED
+PR_PRODUCT_DELTA_SHA = 9d78baf6ef00fac9c9cbd975b1ae0d737b100b23
+CURRENT_PRODUCT_MAIN = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
+CURRENT_PR_HEAD = 9bec7dc45ba65ddd036aa02491c0b4574d579570
+WHAT_ACTUALLY_HAPPENED
+- Netlify account is Owner; site is Git-connected; Production deploy remains blocked by Free-plan credit exhaustion/HTTP 403.
+- PR #761 merged an actionable tenant-context gate without weakening RLS, default tenant selection, or client tenant authority.
+- PR #762 removed stale Phase-F preview targeting, added exact-head provenance validation, bounded Auth retries, timeout-safe logical restore, and Transaction Pooler reads for source snapshot/counts.
+- Staging Supabase project recovered to ACTIVE_HEALTHY and direct PostgreSQL connectivity was re-proven.
+- Evidence Passport for the real report job f0880ab8... was refreshed through the canonical RPC and now exists as VERIFIED/READY with FULL canonical coverage.
+- A targeted migration removed public RPC execution from the three trigger-only Evidence Passport SECURITY DEFINER functions without changing trigger behavior.
+ - The live Evidence Passport gate contract was aligned with the real work-item lifecycle: start before complete, and source-analysis evidence is used for completion evidence.
+- Smart Report Advisor case persistence was corrected to use the Passport evidence snapshot from rendered provenance rather than the analysis snapshot id; a regression guard was added.
+WHAT_IS_PROVEN = typecheck/build/intelligence/evidence-passport/operational-resilience/quality contracts, real f088 Evidence Passport, and live Work Item completion gate are proven; fresh provenance/auto-Passport repair awaits exact-head CI.
+- npm run typecheck PASS.
+- npm run build PASS.
+- npm run test:report-advisor-intelligence PASS.
+- npm run test:intelligence-vertical-slice PASS.
+- npm run test:report-evidence-passport-contract PASS.
+- npm run test:operational-resilience PASS.
+- quality workflow PASS on the latest tested head before handoff-only failures.
+- Phase 10 backup/restore static contract PASS.
+- Production certification contract family PASS.
+- Security-definer exposure contract PASS.
+- Browser unauthenticated login surface PASS.
+- Real report f0880ab8...: 735 source rows, quality 87, canonical coverage FULL, Evidence Passport VERIFIED/READY.
+- Last product-code repair baseline = 2eabdd40837ab7a4f87a761168bd8495767d7476; current branch head adds only execution-state/report synchronization.
+PHASE_F_HISTORY
+- #4006: stale runtime fixed; first terminal failure was statement_timeout in logical backup/restore.
+- #4007: statement timeout fixed; first terminal failure moved to Session Pooler ECHECKOUTTIMEOUT on source snapshot.
+- #4008: Auth /token failed with 500/504 context deadline exceeded during a Supabase lifecycle interruption.
+CURRENT_ACTIVE_FAILURE
+CI_RECERTIFICATION = IN_PROGRESS
+FIRST_TERMINAL_FAILURE_TO_TRUST = completed latest-head workflow result; queued/running runs are not PASS
+PRODUCT_FRONTIER = Advisor case persistence provenance repair + automatic Passport refresh at report completion are now on the exact execution branch.
+ROOT_CAUSE_EVIDENCE
+- Earlier auth/database timeouts coincided with a project lifecycle interruption; that infrastructure condition is now recovered.
+- Two stale/incorrect static contracts were corrected to match the live Transaction Pooler/runtime design.
+OPEN
+- Finish exact-head Browser proof through Advisor case persistence and Decision → Approval → Work → Outcome.
+- Finish exact-head Phase-F live resilience evidence.
+- Close Session Handoff and Final Certification on the exact branch head.
+- Production Netlify deploy remains credit-blocked.
+- tests/fixtures/realistic-reports/ still contains no real report files beyond README; no fabricated corpus will be added.
+- Real-source 48-archetype proof remains unproven.
+DO_NOT_REPEAT
+- No stale SHA or queued-run PASS.
+- No Service Role/user-token impersonation.
+- No new Supabase project.
+- No RLS/auth/evidence weakening.
+- No fabricated real-report corpus or archetype coverage.
+NEXT_EXACT_ACTION = certify exact head 9bec7dc45ba65ddd036aa02491c0b4574d579570; authenticated Browser E2E must prove save/readback, then close Phase-F and final certification.

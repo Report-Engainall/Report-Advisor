@@ -15,7 +15,9 @@ const files = [
 ];
 for (const file of files) execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
 const phaseFProbe = fs.readFileSync('scripts/phase-f-live-resilience-probes.mjs', 'utf8');
-assert.match(phaseFProbe, /format\('select %L as table_name, count\(\*\) as row_count from %I\.%I', table_schema \|\| '\.' \|\| table_name, table_schema, table_name\)/);
+assert.match(phaseFProbe, /create temp table _phase_f_counts\(table_name text, row_count bigint\)/);
+assert.match(phaseFProbe, /EXECUTE format\(/);
+assert.match(phaseFProbe, /SELECT table_name \|\| '\|' \|\| row_count::text FROM _phase_f_counts/);
 assert.match(phaseFProbe, /const governanceHead = process\.env\.GOVERNANCE_HEAD\?\.trim\(\) \|\| exactHead/);
 assert.match(phaseFProbe, /governanceHead,/);
 
