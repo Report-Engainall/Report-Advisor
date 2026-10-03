@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import { listReportArchetypes, runReportArchetype, detectReportArchetype } from '../src/lib/report-intelligence/archetype-registry.ts';
+import { matchCanonicalField } from '../src/lib/report-intelligence/canonical-schema.ts';
 
 const baseURL = (process.env.E2E_BASE_URL || 'http://127.0.0.1:4173').replace(/\/$/, '');
 const supabaseURL = (process.env.REPORT_ADVISOR_SUPABASE_URL || '').replace(/\/$/, '');
