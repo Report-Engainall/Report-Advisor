@@ -131,8 +131,8 @@ const smartReportPagePath = fileURLToPath(new URL('../src/pages/SmartReportPage.
 const smartReportPage = fs.readFileSync(smartReportPagePath, 'utf8');
 assert.match(smartReportPage, /key === 'evidenceStatus' \? \(report\.evidenceStatus/, 'smart report status surface must use canonical evidence status instead of stale rendered output');
 assert.match(smartReportPage, /stateLabel\(report\.evidenceStatus\)/, 'evidence inspector must use canonical report verification state');
-assert.match(smartReportPage, /<ReportIntelligencePanel report=\{report\}\/>/, 'smart report must mount the intelligence panel');
-assert.match(smartReportPage, /<SmartReportAdvisorySurface report=\{report\}\/>/, 'smart report must mount the advisory surface');
+assert.match(smartReportPage, /<ReportIntelligencePanel report=\{report\}\s*\/>/, 'smart report must mount the intelligence panel');
+assert.match(smartReportPage, /<SmartReportAdvisorySurface report=\{report\}\s*\/>/, 'smart report must mount the advisory surface');
 
 const intelligencePanelPath = fileURLToPath(new URL('../src/components/ReportIntelligencePanel.tsx', import.meta.url));
 const intelligencePanel = fs.readFileSync(intelligencePanelPath, 'utf8');
