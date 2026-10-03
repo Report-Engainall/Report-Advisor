@@ -114,7 +114,10 @@ for (const companyId of tenantIds) {
     const analyses = body ? JSON.parse(body) : [];
     for (const analysis of analyses) {
       const hash = String(analysis.source_hash ?? '');
-      if (hash && !analysesByHash.has(hash)) analysesByHash.set(hash, analysis);
+      if (!hash) continue;
+      const bucket = analysesByHash.get(hash) ?? [];
+      bucket.push(analysis);
+      analysesByHash.set(hash, bucket);
     }
   }
 
