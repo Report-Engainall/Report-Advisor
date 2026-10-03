@@ -14,7 +14,7 @@ const clientUiSettingsParityMigration = read('supabase/migrations/20260925184000
 
 
 // Logical source snapshot/count reads intentionally use the resolved transaction-pooler URI.
-if (!/const querySource = await preferIpv4Host\(toTransactionPooler\(runnerSource\);/.test(phaseFProbe)) {
+if (!/const querySource = await preferIpv4Host\(toTransactionPooler\(runnerSource\)\);/.test(phaseFProbe)) {
   throw new Error('Phase-F logical reads must derive an IPv4-safe transaction-pooler querySource from runnerSource');
 }
 if (!/snapshotText = runDockerPsql\(querySource, exactSnapshotSql\)/.test(phaseFProbe)) {
