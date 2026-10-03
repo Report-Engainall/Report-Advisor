@@ -1,4 +1,4 @@
-import type { CanonicalField } from './canonical-schema';
+import { matchCanonicalField, type CanonicalField } from './canonical-schema';
 import { buildAdvisoryPacket, type AdvisoryPacket, type AdvisoryPacketInput } from './report-advisory-orchestrator';
 import { deriveReportIntelligence } from './report-smart-insights';
 import { applyArchetypeRuleSet } from './archetype-evaluator';
@@ -192,6 +192,11 @@ export function detectReportArchetype(input: {
   const specialty = normalize(input.specialty);
   const path = normalize(input.sourcePath);
   const fields = new Set(input.availableFields);
+  for (const rawField of input.availableFields) {
+    const semantic = matchCanonicalField(rawField);
+    if (semantic) fields.add(semantic);
+    if (normalize(rawField) === 'netsales' && normalize(input.specialty) === 'inventory') fields.add('salesQty');
+  }
 
   const candidates = REPORT_ARCHETYPES.filter((profile) => {
     if (!specialty) return true;
@@ -239,6 +244,11 @@ export function runReportArchetype(
   const profile = getReportArchetype(input.archetypeId);
   if (!profile) throw new Error('UNKNOWN_ARCHETYPE_ID');
   const available = new Set(input.availableFields);
+  for (const rawField of input.availableFields) {
+    const semantic = matchCanonicalField(rawField);
+    if (semantic) available.add(semantic);
+    if (normalize(rawField) === 'netsales' && profile.adapterSpecialty === 'inventory') available.add('salesQty');
+  }
   const missingRequired = profile.requiredFields.filter((field) => !available.has(field));
   const baseIntelligence = deriveReportIntelligence({ ...input.report, specialty: profile.adapterSpecialty });
   const intelligence = applyArchetypeRuleSet(profile, { ...input.report, specialty: profile.adapterSpecialty }, baseIntelligence);
