@@ -117,7 +117,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
   };
 
   return (
-    <section dir="rtl" className="space-y-4 rounded-[18px] border border-primary-200 bg-white p-5 shadow-card lg:p-6">
+    <section dir="rtl" className="ag-source-intelligence-panel space-y-4 rounded-[18px] border border-primary-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <BrainCircuit size={19} className="text-primary-700" />
