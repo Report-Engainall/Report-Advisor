@@ -1020,3 +1020,59 @@ button,input,textarea,select{font:inherit}
   .ag-main .data-table-shell tbody tr:hover{background:#eef2ff!important}
   .ag-main :is(button,.btn,.icon-button,input,select,textarea):focus-visible{outline-color:rgba(99,102,241,.42)}
 }
+
+
+@layer components{
+  /* COMMERCIAL EXECUTIVE HERO — keep the decision surface unmistakably premium */
+  .ag-main .ag-dashboard-header.ag-command-hero{
+    isolation:isolate;
+    color:#f7fffd!important;
+    border-color:#1f655d!important;
+    background:
+      radial-gradient(circle at 88% 14%,rgba(45,169,153,.18),transparent 23rem),
+      radial-gradient(circle at 8% 88%,rgba(231,181,43,.11),transparent 19rem),
+      linear-gradient(135deg,#052b29 0%,#073c37 58%,#061f1f 100%)!important;
+    box-shadow:0 28px 64px -38px rgba(0,0,0,.66)!important;
+  }
+  .ag-main .ag-dashboard-header.ag-command-hero::before{
+    width:18rem;height:18rem;top:-6rem;inset-inline-end:-5rem;
+    border-color:rgba(167,231,220,.16);
+    box-shadow:0 0 0 2.5rem rgba(45,169,153,.035),0 0 0 5rem rgba(231,181,43,.022);
+  }
+  .ag-main .ag-dashboard-header.ag-command-hero::after{
+    content:"EXECUTIVE PULSE";
+    display:block;
+    position:absolute;
+    inset-inline-start:1.5rem;
+    top:1rem;
+    width:auto;
+    height:auto;
+    background:none;
+    color:#7fb8ae;
+    font-size:8px;
+    font-weight:900;
+    letter-spacing:.2em;
+    opacity:.9;
+  }
+  .ag-main .ag-dashboard-header.ag-command-hero h1{color:#fff!important;text-shadow:0 8px 28px rgba(0,0,0,.18)}
+  .ag-main .ag-dashboard-header.ag-command-hero p{color:#c8e3de!important}
+  .ag-main .ag-dashboard-header.ag-command-hero .text-primary-700{color:#bfe7df!important}
+  .ag-main .ag-dashboard-header.ag-command-hero .text-ink-400,
+  .ag-main .ag-dashboard-header.ag-command-hero .text-ink-500{color:#a9c7c1!important}
+  .ag-main .ag-dashboard-header.ag-command-hero .border-ink-100,
+  .ag-main .ag-dashboard-header.ag-command-hero .border-ink-200{border-color:rgba(191,235,226,.13)!important}
+  .ag-main .ag-dashboard-header.ag-command-hero .btn-primary{
+    background:linear-gradient(135deg,#e7b52b,#f2ca62)!important;
+    color:#092c29!important;
+    border-color:rgba(255,255,255,.16)!important;
+    box-shadow:0 14px 28px -18px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .ag-main .ag-dashboard-header.ag-command-hero .btn-secondary{
+    background:rgba(255,255,255,.07)!important;
+    border-color:rgba(191,235,226,.2)!important;
+    color:#f7fffd!important;
+  }
+  .ag-main .ag-dashboard-header.ag-command-hero .btn-ghost{
+    color:#d7ece7!important;
+  }
+}
