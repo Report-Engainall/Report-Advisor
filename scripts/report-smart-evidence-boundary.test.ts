@@ -145,6 +145,13 @@ assert.match(advisorySurface, /TOP FINDINGS/, 'smart report must render findings
 assert.match(advisorySurface, /TOP RISKS/, 'smart report must render risks');
 assert.match(advisorySurface, /TOP OPPORTUNITIES/, 'smart report must render opportunities');
 
+const intelligencePagePath = fileURLToPath(new URL('../src/pages/IntelligencePage.tsx', import.meta.url));
+const intelligencePage = fs.readFileSync(intelligencePagePath, 'utf8');
+assert.match(intelligencePage, /SourceIntelligenceRail/, 'intelligence screens must render the source-bound intelligence rail');
+assert.match(intelligencePage, /loadOptionalSourceReport/, 'intelligence screens must load the active Report Job context');
+assert.match(intelligencePage, /intelligence\.recommendations\.length/, 'recommendation screen must expose report-bound recommendations');
+assert.match(intelligencePage, /intelligence\.forecast\.status/, 'forecast screen must expose report-bound forecast state');
+
 const reportSourceContextPath = fileURLToPath(new URL('../src/components/ReportSourceContext.tsx', import.meta.url));
 const reportSourceContext = fs.readFileSync(reportSourceContextPath, 'utf8');
 assert.match(reportSourceContext, /report\.intelligence\.signals\.length/, 'all report-aware screens must expose source-bound signals');
