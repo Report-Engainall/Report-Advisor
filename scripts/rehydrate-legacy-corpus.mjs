@@ -32,6 +32,7 @@ for (const fileRecord of files ?? []) {
   const startedAt = new Date().toISOString();
   let claimMetadata = null;
   let claimAcquired = false;
+  let rehydrationImportJobId = null;
   const result = {
     fileRecordId: fileRecord.id,
     companyId: fileRecord.company_id,
@@ -87,9 +88,10 @@ for (const fileRecord of files ?? []) {
     if (rehydrateError || !importJobId) {
       throw new Error('LEGACY_CORPUS_REHYDRATION_JOB_CREATE_FAILED:' + (rehydrateError?.message ?? 'EMPTY_JOB_ID'));
     }
+    rehydrationImportJobId = String(importJobId);
 
     const importJob = {
-      id: String(importJobId),
+      id: rehydrationImportJobId,
       company_id: fileRecord.company_id,
       file_record_id: fileRecord.id,
       job_type: typeof previousImportJob?.job_type === 'string' && previousImportJob.job_type.trim()
@@ -148,6 +150,18 @@ for (const fileRecord of files ?? []) {
         delete cleanupMetadata.rehydrationClaimedAt;
         await service.from('file_records').update({ metadata: cleanupMetadata }).eq('id', fileRecord.id).eq('company_id', fileRecord.company_id).eq('status', 'uploaded');
       }
+      if (rehydrationImportJobId) {
+        await service.from('import_jobs')
+          .update({
+            status: 'failed',
+            completed_at: new Date().toISOString(),
+            error_message: 'LEGACY_CORPUS_QUALITY_REJECTED',
+            result_summary: { ...((claimMetadata && typeof claimMetadata === 'object') ? { rehydration_claim: claimMetadata.rehydrationClaimRun ?? null } : {}), qualityScore, qualityDisposition },
+          })
+          .eq('id', rehydrationImportJobId)
+          .eq('company_id', fileRecord.company_id)
+          .eq('status', 'processing');
+      }
       result.status = 'BLOCKED';
       result.error = 'LEGACY_CORPUS_QUALITY_REJECTED';
       results.push({ ...result, finishedAt: new Date().toISOString() });
@@ -160,6 +174,18 @@ for (const fileRecord of files ?? []) {
         delete cleanupMetadata.rehydrationClaimRun;
         delete cleanupMetadata.rehydrationClaimedAt;
         await service.from('file_records').update({ metadata: cleanupMetadata }).eq('id', fileRecord.id).eq('company_id', fileRecord.company_id).eq('status', 'uploaded');
+      }
+      if (rehydrationImportJobId) {
+        await service.from('import_jobs')
+          .update({
+            status: 'failed',
+            completed_at: new Date().toISOString(),
+            error_message: 'LEGACY_CORPUS_REVIEW_REQUIRED',
+            result_summary: { ...((claimMetadata && typeof claimMetadata === 'object') ? { rehydration_claim: claimMetadata.rehydrationClaimRun ?? null } : {}), qualityScore, qualityDisposition },
+          })
+          .eq('id', rehydrationImportJobId)
+          .eq('company_id', fileRecord.company_id)
+          .eq('status', 'processing');
       }
       result.status = 'REVIEW';
       result.error = 'LEGACY_CORPUS_REVIEW_REQUIRED';
@@ -230,6 +256,17 @@ for (const fileRecord of files ?? []) {
         .eq('id', fileRecord.id)
         .eq('company_id', fileRecord.company_id)
         .eq('status', 'uploaded');
+    }
+    if (rehydrationImportJobId) {
+      await service.from('import_jobs')
+        .update({
+          status: 'failed',
+          completed_at: new Date().toISOString(),
+          error_message: error instanceof Error ? error.message : String(error),
+        })
+        .eq('id', rehydrationImportJobId)
+        .eq('company_id', fileRecord.company_id)
+        .eq('status', 'processing');
     }
     result.status = 'FAILED';
     result.error = error instanceof Error ? error.message : String(error);
