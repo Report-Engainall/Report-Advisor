@@ -173,7 +173,7 @@ function DecisionExperienceGeneralPage() {
 
   const selected = recommendations.find((item) => item.id === selectedId) ?? null;
   const currentStageIndex = Math.max(0, STAGES.findIndex((item) => item.id === stage));
-  const activeAlerts = useMemo(() => alerts.filter((item) => !item.is_read).slice(0, 6), [alerts]);
+  const activeAlerts = useMemo(() => alerts.filter((item) => !item.is_read), [alerts]);
   const selectedStatus = selected?.status ?? null;
   useEffect(() => {
     let active = true;
@@ -391,7 +391,7 @@ function DecisionExperienceGeneralPage() {
             <CardHeader title="مرشحات القرار" subtitle="التوصية هي مرشح، وليست نتيجة تنفيذية محفوظة." />
             <CardBody>
               <div className="space-y-3">
-                {recommendations.slice(0, 6).map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id)} />)}
+                {recommendations.map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id)} />)}
                 {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يتم إنشاء توصية بديلة عند غياب بيانات المصدر." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
               </div>
             </CardBody>
@@ -544,7 +544,7 @@ function DecisionExperienceGeneralPage() {
               </div>
               {relatedWorkItems.length ? (
                 <div className="mt-4 space-y-2">
-                  {relatedWorkItems.slice(0, 5).map((item) => (
+                  {relatedWorkItems.map((item) => (
                     <div key={item.id} className="rounded-xl border border-ink-200 bg-ink-50/60 p-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div><div className="text-[11px] font-black text-ink-900">{item.title}</div><div className="mt-1 font-mono text-[8px] text-ink-400">{item.id}</div></div>
