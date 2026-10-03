@@ -14,7 +14,14 @@ export async function fetchForecasts(): Promise<Forecast[]> { return canonicalFe
 export async function fetchCustomers(): Promise<Customer[]> { return canonicalFetchCustomers(); }
 export async function fetchProducts(): Promise<Product[]> { return canonicalFetchProducts(); }
 export async function markAlertRead(id: string): Promise<void> { await requireTenant(); const { error } = await supabase.rpc('mark_alert_read', { p_alert_id: id }); if (error) throw error; }
-export async function updateRecommendationStatus(id: string, status: string): Promise<void> { await requireTenant(); const { error } = await supabase.rpc('update_recommendation_status', { p_recommendation_id: id, p_status: status }); if (error) throw error; }
+export async function updateRecommendationStatus(id: string, status: string): Promise<void> {
+  await requireTenant();
+  const { error } = await supabase.rpc('update_recommendation_status', {
+    p_recommendation_id: id,
+    p_status: status,
+  });
+  if (error) throw error;
+}
 type ImportRecordInput = Omit<ImportRecord, 'id' | 'company_id' | 'created_at' | 'error_message' | 'completed_at'> & { source_object_path?: string; file_mime?: string };
 type ImportRecordPatch = Partial<Pick<ImportRecord, 'status' | 'progress' | 'error_message' | 'completed_at'>>;
 type ImportJobState = { total_rows: number | null; processed_rows: number | null; valid_rows: number | null; invalid_rows: number | null; duplicate_rows: number | null; progress: number | null; result_summary: Record<string, unknown> | null; };
