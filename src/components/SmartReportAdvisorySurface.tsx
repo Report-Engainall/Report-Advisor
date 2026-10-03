@@ -286,6 +286,52 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         ))}
       </div>
 
+      <div className="grid gap-4 xl:grid-cols-2">
+        <div className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-3"><div><div className="text-[9px] font-black tracking-[.14em] text-primary-700">SIGNALS</div><h3 className="mt-1 text-lg font-black text-ink-950">كل الإشارات والتنبيهات</h3></div><span className="rounded-full bg-ink-950 px-3 py-1 text-[9px] font-black text-white">{report.intelligence.signals.length}</span></div>
+          <div className="mt-3 space-y-2">
+            {report.intelligence.signals.length ? report.intelligence.signals.map((signal) => <article key={signal.id} className="rounded-xl border border-ink-100 bg-ink-50/40 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs font-black text-ink-950">{signal.title}</span><span className="rounded-full border border-ink-200 bg-white px-2 py-1 text-[9px] font-black text-ink-600">{signal.priority} · {signal.severity}</span></div>
+              <p className="mt-1 text-[10px] leading-5 text-ink-600">{signal.message}</p>
+              <div className="mt-2 text-[9px] text-ink-400">لماذا؟ {signal.soWhat || 'تحتاج مراجعة مرتبطة بالدليل.'} · الأثر: {signal.impact || 'غير مثبت ماليًا.'}</div>
+              <div className="mt-2 text-[9px] text-ink-400">الدليل: {signal.evidence.join(' · ')}</div>
+            </article>) : <div className="rounded-xl border border-dashed border-ink-200 p-4 text-[10px] text-ink-500">لا توجد إشارات مثبتة من المصدر الحالي.</div>}
+          </div>
+        </div>
+        <div className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-3"><div><div className="text-[9px] font-black tracking-[.14em] text-primary-700">RECOMMENDATIONS</div><h3 className="mt-1 text-lg font-black text-ink-950">كل التوصيات المؤهلة</h3></div><span className="rounded-full bg-primary-700 px-3 py-1 text-[9px] font-black text-white">{report.intelligence.recommendations.length}</span></div>
+          <div className="mt-3 space-y-2">
+            {report.intelligence.recommendations.length ? report.intelligence.recommendations.map((recommendation) => <article key={recommendation.id} className="rounded-xl border border-primary-100 bg-primary-50/40 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs font-black text-ink-950">{recommendation.title}</span><span className="rounded-full border border-primary-200 bg-white px-2 py-1 text-[9px] font-black text-primary-800">{recommendation.priority}</span></div>
+              <p className="mt-1 text-[10px] leading-5 text-ink-600">{recommendation.action}</p>
+              <div className="mt-2 text-[9px] text-ink-400">السبب: {recommendation.why} · المسؤول: {recommendation.ownerHint || 'غير محدد'}</div>
+              <div className="mt-2 text-[9px] text-ink-400">المخرج المتوقع: {recommendation.expectedOutcome}</div>
+            </article>) : <div className="rounded-xl border border-dashed border-ink-200 p-4 text-[10px] text-ink-500">لا توجد توصيات مؤهلة من الإشارات الحالية.</div>}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">FORECAST</div>
+          <h3 className="mt-1 text-lg font-black text-ink-950">الإشارة التنبئية</h3>
+          <p className="mt-2 text-xs leading-6 text-ink-600">{report.intelligence.forecast.note}</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="rounded-xl bg-ink-50 p-3"><div className="text-[9px] text-ink-400">الحالة</div><div className="mt-1 text-xs font-black">{report.intelligence.forecast.status}</div></div>
+            <div className="rounded-xl bg-ink-50 p-3"><div className="text-[9px] text-ink-400">الفترات</div><div className="mt-1 text-xs font-black">{report.intelligence.forecast.observedPeriods}</div></div>
+            <div className="rounded-xl bg-ink-50 p-3"><div className="text-[9px] text-ink-400">القيمة القادمة</div><div className="mt-1 text-xs font-black">{report.intelligence.forecast.nextValue == null ? 'غير متاح' : report.intelligence.forecast.nextValue.toLocaleString('ar-YE', { maximumFractionDigits: 2 })}</div></div>
+            <div className="rounded-xl bg-ink-50 p-3"><div className="text-[9px] text-ink-400">الاتجاه</div><div className="mt-1 text-xs font-black">{report.intelligence.forecast.direction ?? 'غير متاح'}</div></div>
+          </div>
+        </div>
+        <div className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">GUIDANCE</div>
+          <h3 className="mt-1 text-lg font-black text-ink-950">الإرشاد التالي</h3>
+          <p className="mt-2 text-sm font-black text-ink-900">{report.intelligence.guidance.focus}</p>
+          <div className="mt-2 text-[11px] leading-6 text-ink-600">الفحص: {report.intelligence.guidance.inspect.join(' · ') || 'لا توجد عناصر فحص محددة.'}</div>
+          <div className="mt-2 text-[10px] text-ink-500">المالك: {report.intelligence.guidance.ownerHint || 'غير محدد'} · الحد: {report.intelligence.guidance.boundary}</div>
+        </div>
+      </div>
+
       <div className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
         <div className="space-y-3">
           <div className="flex items-center justify-between"><div className="text-sm font-black text-ink-950">الاستنتاجات الموثقة</div><Link to={'/trust?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="inline-flex items-center gap-1 text-[10px] font-bold text-primary-700">فتح الثقة <ArrowLeft size={13}/></Link></div>
