@@ -76,6 +76,7 @@ type PersistedArchetype = {
 type RenderedOutput = Record<string, unknown> & {
   archetypeId?: string | null;
   archetypeVersion?: number | null;
+  profileVersion?: number | null;
   archetypeState?: string;
   archetypeReason?: string;
 };
@@ -255,6 +256,7 @@ export function buildRenderedOutput(input: DurableCanonicalImportInput, rows = i
     sourceSpecialty: specialty,
     archetypeId: persistedArchetype.id,
     archetypeVersion: persistedArchetype.version,
+    profileVersion: persistedArchetype.version,
     archetypeState: persistedArchetype.state,
     archetypeReason: persistedArchetype.reason,
     sourceMetrics: buildSourceReportMetrics(rows),
