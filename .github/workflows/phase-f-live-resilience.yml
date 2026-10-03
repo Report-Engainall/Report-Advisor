@@ -219,6 +219,17 @@ jobs:
               echo "deployment_sha=$deployment"
               exit 0
             fi
+            if [[ -n "$source" && "$source" == "$build" && "$build" == "$deployment" && "$deployment" != "$expected" ]]; then
+              mapfile -t changed_files < <(git diff --name-only "$deployment..$expected")
+              if (( ${#changed_files[@]} > 0 )) && printf "%s\n" "${changed_files[@]}" | grep -vqv "^docs/execution/"; then
+                echo "RUNTIME_PROVENANCE_CODE_DRIFT=true"
+              elif (( ${#changed_files[@]} > 0 )); then
+                echo "RUNTIME_PROVENANCE_CODE_EQUIVALENT=true"
+                echo "runtime_sha=$deployment"
+                echo "expected_sha=$expected"
+                exit 0
+              fi
+            fi
             echo "Runtime preview not exact yet: attempt=$attempt source=$source build=$build deployment=$deployment expected=$expected"
             sleep 5
           done
