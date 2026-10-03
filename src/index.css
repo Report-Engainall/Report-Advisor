@@ -1076,3 +1076,51 @@ button,input,textarea,select{font:inherit}
     color:#d7ece7!important;
   }
 }
+
+
+@layer components{
+  .ag-login-value{
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 78% 18%,rgba(44,173,158,.13),transparent 24rem),
+      radial-gradient(circle at 12% 84%,rgba(231,181,43,.08),transparent 20rem),
+      linear-gradient(145deg,#061f1e 0%,#082c29 56%,#061b1b 100%)!important;
+  }
+  .ag-login-value::after{
+    content:"EVIDENCE-FIRST · DECISION-READY";
+    position:absolute;
+    top:1.25rem;
+    inset-inline-end:1.5rem;
+    font-size:8px;
+    font-weight:900;
+    letter-spacing:.18em;
+    color:rgba(173,222,214,.65);
+    pointer-events:none;
+  }
+  .ag-login-value .border-ink-200{border-color:rgba(186,229,220,.12)!important}
+  .ag-login-value .text-ink-950{color:#f7fffd!important}
+  .ag-login-value .text-ink-900{color:#effbf8!important}
+  .ag-login-value .text-ink-600{color:#c7ded9!important}
+  .ag-login-value .text-ink-500{color:#a9c5bf!important}
+  .ag-login-value .text-ink-400{color:#86aaa3!important}
+  .ag-login-value .text-primary-700{color:#b8eee4!important}
+  .ag-login-value .bg-white{background:rgba(255,255,255,.055)!important}
+  .ag-login-value .bg-ink-50,
+  .ag-login-value .bg-ink-50\/70{background:rgba(255,255,255,.035)!important}
+  .ag-login-value .ring-ink-200{--tw-ring-color:rgba(186,229,220,.12)!important}
+  .ag-login-value .text-primary-700 svg{color:#b8eee4!important}
+  .ag-login-value .bg-ink-950{background:#f1c95c!important;color:#10302d!important}
+  .ag-login-value .ag-login-brand-mark{background:#f1c95c!important;color:#10302d!important}
+  .ag-login-value h1 .text-primary-700{color:#f1c95c!important}
+  .ag-login-value .section-kicker{color:#86c8be!important}
+  .ag-login-value .btn-primary{
+    background:linear-gradient(135deg,#e7b52b,#f2ca62)!important;
+    color:#0a2c29!important;
+  }
+  .ag-login-value .btn-secondary{
+    background:rgba(255,255,255,.07)!important;
+    border-color:rgba(186,229,220,.18)!important;
+    color:#effbf8!important;
+  }
+}
