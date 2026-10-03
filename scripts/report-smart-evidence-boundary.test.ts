@@ -159,6 +159,10 @@ assert.match(intelligencePage, /SourceForecastDetail/, 'forecast screen must exp
 assert.match(intelligencePage, /loadOptionalSourceReport/, 'intelligence screens must load the active Report Job context');
 assert.match(intelligencePage, /intelligence\.recommendations\.length/, 'recommendation screen must expose report-bound recommendations');
 assert.match(intelligencePage, /intelligence\.forecast\.status/, 'forecast screen must expose report-bound forecast state');
+assert.match(intelligencePage, /Promise\.allSettled\(\[/, 'intelligence center must tolerate partial generic intelligence API failures');
+assert.match(intelligencePage, /error && sourceReport \? <section/, 'source-bound intelligence must remain visible when a generic intelligence feed fails');
+assert.match(intelligencePage, /loading && !sourceReport/, 'source-bound intelligence must not remain hidden behind generic feed loading');
+
 
 const reportSourceContextPath = fileURLToPath(new URL('../src/components/ReportSourceContext.tsx', import.meta.url));
 const reportSourceContext = fs.readFileSync(reportSourceContextPath, 'utf8');

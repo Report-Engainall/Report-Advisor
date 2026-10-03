@@ -209,14 +209,19 @@ const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
       if (silent) setRefreshing(true);
       else setLoading(true);
       setError(null);
-      const [recs, nextAlerts, nextForecasts] = await Promise.all([
+      const [recs, nextAlerts, nextForecasts] = await Promise.allSettled([
         fetchRecommendations(),
         fetchAlerts(),
         fetchForecasts(),
       ]);
-      setRecommendations(recs);
-      setAlerts(nextAlerts);
-      setForecasts(nextForecasts);
+      const failures: string[] = [];
+      if (recs.status === 'fulfilled') setRecommendations(recs.value);
+      else failures.push('التوصيات العامة: ' + (recs.reason instanceof Error ? recs.reason.message : 'فشل التحميل'));
+      if (nextAlerts.status === 'fulfilled') setAlerts(nextAlerts.value);
+      else failures.push('الإشارات العامة: ' + (nextAlerts.reason instanceof Error ? nextAlerts.reason.message : 'فشل التحميل'));
+      if (nextForecasts.status === 'fulfilled') setForecasts(nextForecasts.value);
+      else failures.push('التنبؤات العامة: ' + (nextForecasts.reason instanceof Error ? nextForecasts.reason.message : 'فشل التحميل'));
+      setError(failures.length ? failures.join(' · ') : null);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل مركز الذكاء');
     } finally {
@@ -268,11 +273,12 @@ const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
     [companyForecasts],
   );
 
-  if (loading) return <LoadingState message="جارٍ تجميع الإشارات والتوصيات والتنبؤات..." />;
-  if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  if (loading && !sourceReport) return <LoadingState message="جارٍ تجميع الإشارات والتوصيات والتنبؤات..." />;
+  if (error && !sourceReport) return <ErrorState message={error} onRetry={() => void load()} />;
 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
+      {error && sourceReport ? <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900"><div className="text-[9px] font-black tracking-[.12em]">GENERIC INTELLIGENCE READBACK</div><div className="mt-1 text-sm font-black">استمر عرض ذكاء التقرير المصدرّي رغم تعطل جزء من السجل العام</div><div className="mt-2 text-[10px] leading-5">{error}</div></section> : null}
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
       {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       {sourceReport && <SourceSignalsDetail report={sourceReport} />}
@@ -578,11 +584,12 @@ const [items, setItems] = useState<Recommendation[]>([]);
     }
   };
 
-  if (loading) return <LoadingState message="جارٍ تجميع التوصيات من المصدر المعتمد..." />;
-  if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  if (loading && !sourceReport) return <LoadingState message="جارٍ تجميع التوصيات من المصدر المعتمد..." />;
+  if (error && !sourceReport) return <ErrorState message={error} onRetry={() => void load()} />;
 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
+      {error && sourceReport ? <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900"><div className="text-[9px] font-black tracking-[.12em]">GENERIC RECOMMENDATION READBACK</div><div className="mt-1 text-sm font-black">توصيات التقرير المصدرّي ظاهرة رغم تعطل سجل التوصيات العام</div><div className="mt-2 text-[10px] leading-5">{error}</div></section> : null}
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
       {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       {sourceReport && <SourceRecommendationsDetail report={sourceReport} />}
@@ -716,11 +723,12 @@ const [items, setItems] = useState<Forecast[]>([]);
   );
   const qualityBounded = useMemo(() => items.filter((item) => item.quality_score !== null).length, [items]);
 
-  if (loading) return <LoadingState message="جارٍ تجميع التنبؤات المصدرية..." />;
-  if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  if (loading && !sourceReport) return <LoadingState message="جارٍ تجميع التنبؤات المصدرية..." />;
+  if (error && !sourceReport) return <ErrorState message={error} onRetry={() => void load()} />;
 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
+      {error && sourceReport ? <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900"><div className="text-[9px] font-black tracking-[.12em]">GENERIC FORECAST READBACK</div><div className="mt-1 text-sm font-black">تنبؤ التقرير المصدرّي ظاهر رغم تعطل جدول التنبؤ العام</div><div className="mt-2 text-[10px] leading-5">{error}</div></section> : null}
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
       {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       {sourceReport && <SourceForecastDetail report={sourceReport} />}
