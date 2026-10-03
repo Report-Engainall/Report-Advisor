@@ -145,6 +145,17 @@ assert.match(advisorySurface, /TOP FINDINGS/, 'smart report must render findings
 assert.match(advisorySurface, /TOP RISKS/, 'smart report must render risks');
 assert.match(advisorySurface, /TOP OPPORTUNITIES/, 'smart report must render opportunities');
 
+const reportSourceContextPath = fileURLToPath(new URL('../src/components/ReportSourceContext.tsx', import.meta.url));
+const reportSourceContext = fs.readFileSync(reportSourceContextPath, 'utf8');
+assert.match(reportSourceContext, /report\.intelligence\.signals\.length/, 'all report-aware screens must expose source-bound signals');
+assert.match(reportSourceContext, /report\.intelligence\.recommendations\.length/, 'all report-aware screens must expose source-bound recommendations');
+assert.match(reportSourceContext, /report\.intelligence\.forecast\.status/, 'all report-aware screens must expose source-bound forecast state');
+assert.match(reportSourceContext, /report\.intelligence\.guidance\.focus/, 'all report-aware screens must expose source-bound guidance');
+
+const appPath = fileURLToPath(new URL('../src/App.tsx', import.meta.url));
+const app = fs.readFileSync(appPath, 'utf8');
+assert.match(app, /<ReportSourceContext\/>/, 'global shell must keep active report intelligence visible while navigating across screens');
+
 const smartReportPath = fileURLToPath(new URL('../src/lib/report-smart.ts', import.meta.url));
 const smartReport = fs.readFileSync(smartReportPath, 'utf8');
 
