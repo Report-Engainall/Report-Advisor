@@ -483,7 +483,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
         sourceVersionId: typeof rendered.sourceVersionId === 'string' ? rendered.sourceVersionId : null,
       },
       availableFields,
-      sampleSize: rendered.rowCount == null ? 0 : Number(rendered.rowCount),
+      sampleSize: effectiveRendered.rowCount == null ? 0 : Number(effectiveRendered.rowCount),
       archetypeId: detectedArchetype.profile.id,
       profileVersion: detectedArchetype.profile.version,
       report: {
