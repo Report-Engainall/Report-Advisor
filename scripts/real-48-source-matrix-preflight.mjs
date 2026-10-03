@@ -71,13 +71,17 @@ function requiredFieldsPresent(profile, fields) {
   return profile.requiredFields.every((required) => canonical.has(required));
 }
 
-async function selectBestAnalysis(companyId, sourceHash, renderedImportId, rowCountHint) {
+async function selectBestAnalysis(companyId, sourceHash, renderedImportId, rowCountHint, expectedAnalysisId = '') {
   const rows = await restSelect(
     'source_analysis_snapshots',
     { company_id: companyId, source_hash: sourceHash },
     'id,import_job_id,row_count,datasets,created_at',
     { order: 'created_at.desc', limit: 50 },
   );
+  const exact = expectedAnalysisId
+    ? rows.find((row) => String(row.id ?? '') === expectedAnalysisId)
+    : null;
+  if (exact) return exact;
   return rows
     .filter((row) => !renderedImportId || String(row.import_job_id ?? '') === renderedImportId)
     .sort((a, b) => {
@@ -148,11 +152,16 @@ for (const companyId of tenantIds) {
 
     const renderedImportId = typeof rendered.importId === 'string' ? rendered.importId.trim() : '';
     const rowCountHint = Number(rendered.rowCount ?? 0);
-    const analysis = await selectBestAnalysis(companyId, sourceHash, renderedImportId, rowCountHint);
-    if (!analysis?.import_job_id) continue;
-
     const snapshot = await fetchVerifiedSnapshot(companyId, String(job.id), sourceHash, passport);
     if (!snapshot) continue;
+    const analysis = await selectBestAnalysis(
+      companyId,
+      sourceHash,
+      renderedImportId,
+      rowCountHint,
+      snapshot.analysis_snapshot_id == null ? '' : String(snapshot.analysis_snapshot_id),
+    );
+    if (!analysis?.import_job_id) continue;
 
     const analysisFields = usableColumns(analysis);
     const canonicalPreview = await restSelect(
