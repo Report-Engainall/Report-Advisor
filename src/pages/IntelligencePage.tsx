@@ -513,6 +513,10 @@ function recommendationStatusLabel(status: string): string {
   if (status === 'new') return 'جديدة';
   if (status === 'accepted') return 'مقبولة';
   if (status === 'rejected') return 'مرفوضة';
+  if (status === 'approved') return 'معتمدة';
+  if (status === 'in_progress') return 'قيد التنفيذ';
+  if (status === 'completed') return 'مكتملة';
+  if (status === 'dismissed') return 'مستبعدة';
   return status;
 }
 
