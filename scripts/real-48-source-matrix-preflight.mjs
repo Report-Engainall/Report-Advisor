@@ -287,7 +287,7 @@ for (const profile of profiles) {
     evidenceSnapshotId: chosen?.snapshot?.id ?? null,
     evidencePassportId: chosen?.passport?.id ?? null,
     sourceRowCount: chosen?.sampleSize ?? null,
-    canonicalRowsRead: chosen && runtime ? runtime.canonicalRowsRead ?? sourceRowsCache.get(String(chosen.job.id))?.length ?? 0 : 0,
+    canonicalRowsRead: chosen ? sourceRowsCache.get(String(chosen.job.id))?.length ?? 0 : 0,
     runtimeState: runtime?.state ?? null,
     advisoryProofState: runtime?.advisory.proofState ?? null,
     recommendationCount: runtime?.intelligence.recommendations.length ?? 0,
