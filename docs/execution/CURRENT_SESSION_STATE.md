@@ -1,41 +1,46 @@
 # CURRENT SESSION STATE
 SESSION_HANDOFF = NOT READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 8fdfc176a7f1154b74b7e37c78b433c59572b946
+CURRENT_EXACT_HEAD = c5ecdd2563e9f4047ed06a9f70f92c1b4c60202b
 CURRENT_MAIN_HEAD = 9ecb9b831bab2beb02791d4f1eda6f4a374d4731
-CURRENT_EXECUTION_HEAD = 8fdfc176a7f1154b74b7e37c78b433c59572b946
+CURRENT_EXECUTION_HEAD = c5ecdd2563e9f4047ed06a9f70f92c1b4c60202b
 BRANCH = feat/complete-smart-intelligence-surface-20261003
 PR = #820 OPEN
-CURRENT_PR_HEAD = 8fdfc176a7f1154b74b7e37c78b433c59572b946
+CURRENT_PR_HEAD = c5ecdd2563e9f4047ed06a9f70f92c1b4c60202b
 WHAT_ACTUALLY_HAPPENED
-- Verified the previous stopping point moved from d32bf6 through the PR #820 execution branch to the current exact head 8fdfc176a7f1154b74b7e37c78b433c59572b946.
-- Governed corpus rehydration completed with 63 governed records and 0 FAILED on the last completed corpus run; no fabricated source data was introduced.
-- Closed the Smart Report TOP FINDINGS surface contract, legacy inventory semantic handling in both registry/preflight/evaluator, recommendation-status RPC compatibility, and TypeScript runtime-loader consistency.
-- Phase-F logical restore proof now records source count drift around pg_dump and accepts only an exact before-dump or after-dump snapshot match; it remains fail-closed otherwise.
-- Value Cohort now skips an already VERIFIED/READY/FULL evidence passport instead of rewriting it unnecessarily.
-- Rollback resilience probe now sends an explicit JSON request body.
-- Real-48 preflight fixed its persisted-archetype scope bug and aligns legacy/canonical field semantics; real 48/48 PASS is still unproven.
-- Durable rendered-output persistence for archetypeId is present in current code via the pre-existing 84f15f513bd682ef13c50aab57b495d4b9f87865 ancestor; staging currently has historical report jobs without persisted archetypeId, which is not evidence that the current persistence path is absent.
+- Recovered the real PR #820 stopping point and continued from d32bf6 through the current exact code head c5ecdd2563e9f4047ed06a9f70f92c1b4c60202b.
+- Governed corpus last completed proof remains 63 governed records with 0 FAILED; no fabricated corpus was introduced.
+- Closed Smart Report TOP FINDINGS/TOP RISKS contract coverage.
+- Closed legacy inventory semantic mappings across registry, evaluator and real-48 preflight.
+- Closed recommendation-status RPC compatibility and TypeScript runtime-loader consistency.
+- Hardened Phase-F logical restore snapshot comparison and rollback JSON request handling.
+- Value Cohort now skips already VERIFIED/READY/FULL passports.
+- Rewrote the staging get_report_value_cohort_candidates path to lookup joins; verified EXPLAIN runtime dropped from ~15-21s to ~133ms for 42 candidates.
+- Added repository migrations 20261003202609 and 20261003202724 matching the live staging function history.
+- Corrected the report execution runtime fixture to use 12 rows, matching the archetype minimum-sample contract.
+- Corrected the 48-archetype runtime contract to import detectReportArchetype.
 CURRENT_ACTIVE_FAILURE
-CI_RECERTIFICATION = QUEUED
-FIRST_TERMINAL_FAILURE_TO_TRUST = only a completed run on this exact head; queued/pending results are not PASS.
+CI_RECERTIFICATION = RUNNING/QUEUED ACROSS EXACT-HEAD GATES
+FIRST_TERMINAL_FAILURE_TO_TRUST = only a completed result on the latest exact HEAD; queued/pending results are not PASS.
 WHAT_IS_PROVEN
-- Supabase staging project fnqbvfuwbdpwvhcgzksl is ACTIVE_HEALTHY.
-- 49 evidence passports are currently VERIFIED/READY with FULL evidence snapshots in staging.
-- The staging data query found 48 verified/ready sources with usable fields, 44 with at least 12 rows, and 32 inventory-oriented candidates; this is eligibility evidence, not 48/48 runtime proof.
-- Previous completed corpus execution had 0 FAILED files.
+- Staging project fnqbvfuwbdpwvhcgzksl is ACTIVE_HEALTHY.
+- 49 evidence passports are VERIFIED/READY/FULL.
+- 42/42 current Value Cohort candidates are already VERIFIED/READY/FULL.
+- The optimized candidate RPC returns 42 rows in ~133ms on EXPLAIN with no change to evidence semantics.
+- Previous governed corpus run: 63 records, 0 FAILED.
 OPEN
 - Exact-head Quality certification.
-- Exact-head Report Value Cohort certification.
-- Exact-head Phase-F live resilience.
-- Exact-head Full Product Browser E2E and authenticated business proof.
+- Exact-head Value Cohort certification.
+- Exact-head Full Product Browser E2E.
+- Exact-head Phase-F live resilience and preview provenance.
 - Exact-head Final Certification.
+- Exact-head Session Handoff.
 - Real-source 48/48 proof.
-- External production deployment constraint remains separate from PR code proof.
+- External production deployment availability.
 DO_NOT_REPEAT
 - No stale SHA PASS.
 - No queued-run PASS.
 - No fabricated corpus/archetype coverage.
 - No RLS/auth/evidence weakening.
-- No unnecessary Passport rewrites.
-NEXT_EXACT_ACTION = consume the first completed 8fdfc176a7f1154b74b7e37c78b433c59572b946 CI failure; patch only that root cause, then recertify the resulting exact HEAD.
+- No blind timeout inflation.
+NEXT_EXACT_ACTION = consume the first completed result on c5ecdd2563e9f4047ed06a9f70f92c1b4c60202b; if it fails, patch only the root cause, otherwise close handoff and final certification on the resulting exact HEAD.
