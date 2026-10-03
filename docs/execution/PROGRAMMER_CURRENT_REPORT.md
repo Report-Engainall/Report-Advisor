@@ -3,12 +3,12 @@ SESSION_HANDOFF = NOT READY
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT EXECUTION HEAD = f716fc03b2b70cc8b1e7150f7a8f1aaa072bf1eb
-REPORT_FOR_HEAD = f716fc03b2b70cc8b1e7150f7a8f1aaa072bf1eb
+CURRENT EXECUTION HEAD = 9beaaeb6f8344fd429c8036da8b365ddfe88547f
+REPORT_FOR_HEAD = 9beaaeb6f8344fd429c8036da8b365ddfe88547f
 BRANCH = captain/phase-f-dynamic-pr-preview-20261003
 PR = #762 OPEN
 UPDATED = 2026-10-03
-UPDATED_AT = 2026-10-03T13:37:00Z
+UPDATED_AT = 2026-10-03T13:39:00Z
 WHAT_I_WAS_ASKED_TO_DO = إكمال المشروع فعليًا بالتوازي، إزالة اختناقات Phase-F وAuth/E2E، تثبيت Evidence Passport، وإغلاق الشهادة دون PASS وهمي.
 WHAT_I_ACTUALLY_DID = نفذت إزالة هدف Preview قديم، إصلاح Transaction Pooler، تقوية Auth/E2E bounded recovery، استعادة Evidence Passport الحقيقي، إغلاق سطح RPC العام لدوال trigger-only، وإصلاح ربط حفظ القضية بالـPassport snapshot الفعلي مع regression guard.
 WHAT_ACTUALLY_HAPPENED
@@ -55,4 +55,4 @@ REMAINING OPEN
 - real-source 48-archetype proof remains unproven
 DO_NOT_REPEAT
 No stale PASS, no queued-run PASS, no Service Role impersonation, no new Supabase project, no tenant/RLS bypass, no fabricated corpus/archetype coverage.
-NEXT_EXACT_ACTION = certify exact product head f716fc03b2b70cc8b1e7150f7a8f1aaa072bf1eb and consume the first completed failure on that head.
+NEXT_EXACT_ACTION = certify exact product/test head 9beaaeb6f8344fd429c8036da8b365ddfe88547f and consume the first completed failure on that head.
