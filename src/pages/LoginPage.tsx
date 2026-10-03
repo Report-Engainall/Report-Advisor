@@ -49,7 +49,7 @@ export function LoginPage() {
   return (
     <main dir="rtl" className="min-h-screen bg-[#f7f7f8] text-ink-950">
       <div className="flex min-h-screen flex-col lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(420px,.85fr)]">
-        <section className="order-2 border-t border-ink-200 bg-white lg:order-1 lg:border-l lg:border-t-0">
+        <section className="ag-login-value order-2 border-t border-ink-200 bg-[#061e1d] text-white lg:order-1 lg:border-l lg:border-t-0">
           <div className="mx-auto flex min-h-full max-w-3xl flex-col px-5 py-8 sm:px-8 lg:px-12 lg:py-10">
             <div className="flex items-center justify-between border-b border-ink-200 pb-5">
               <div className="flex items-center gap-3">
