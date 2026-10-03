@@ -92,19 +92,19 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
   };
 
   return (
-    <section className="relative overflow-hidden rounded-[24px] border border-ink-200 bg-[linear-gradient(135deg,#052b29_0%,#073a35_58%,#0b403a_100%)] p-5 text-white shadow-[0_26px_70px_-40px_rgba(5,46,43,.85)] lg:p-7" aria-label="غرفة قيادة التقرير">
+    <section className="relative overflow-hidden rounded-[24px] border border-ink-200 bg-[linear-gradient(135deg,#111827_0%,#172554_56%,#312e81_100%)] p-5 text-white shadow-[0_26px_70px_-40px_rgba(15,23,42,.9)] lg:p-7" aria-label="غرفة قيادة التقرير">
       <div className="pointer-events-none absolute -left-20 -top-24 h-56 w-56 rounded-full border border-amber-200/20 shadow-[0_0_0_24px_rgba(231,181,43,.025),0_0_0_48px_rgba(231,181,43,.018)]" />
-      <div className="pointer-events-none absolute -right-28 -bottom-36 h-80 w-80 rounded-full border border-teal-200/15" />
+      <div className="pointer-events-none absolute -right-28 -bottom-36 h-80 w-80 rounded-full border border-indigo-200/15" />
       <div className="relative z-10 grid gap-6 xl:grid-cols-[1.2fr_.8fr] xl:items-end">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-200/25 bg-white/5 px-3 py-1.5 text-[9px] font-black tracking-[.16em] text-amber-100">
             <Sparkles size={13} /> AGHBARI DECISION COCKPIT
           </div>
           <h2 className="mt-3 max-w-3xl text-2xl font-black tracking-tight lg:text-4xl">{report.sourcePath}</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-7 text-teal-50/80">
+          <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-200/80">
             هذا ليس Viewer. هذه هي الهوية التشغيلية للتقرير: المصدر، الحقيقة، الدليل، الإشارة، والقرار على نفس Report Job.
           </p>
-          <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] text-teal-50/75">
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] text-slate-200/75">
             <span>Job: <b className="font-mono text-white/90">{report.jobId.slice(0, 12)}…</b></span>
             <span>•</span>
             <span>Hash: <b className="font-mono text-white/90">{report.sourceHash.slice(0, 14)}…</b></span>
@@ -127,24 +127,24 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-2xl border border-white/10 bg-white/[.06] p-4 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-teal-100/70"><ShieldCheck size={13}/> TRUTH</div>
+            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-slate-200/70"><ShieldCheck size={13}/> TRUTH</div>
             <div className="mt-2 text-lg font-black">{label(report.trustState)}</div>
-            <div className="mt-1 text-[10px] text-teal-50/60">Verification: {label(report.reportVerificationState)}</div>
+            <div className="mt-1 text-[10px] text-slate-200/60">Verification: {label(report.reportVerificationState)}</div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[.06] p-4 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-teal-100/70"><FileSearch size={13}/> EVIDENCE</div>
+            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-slate-200/70"><FileSearch size={13}/> EVIDENCE</div>
             <div className="mt-2 text-lg font-black">{label(report.evidenceStatus)}</div>
-            <div className="mt-1 text-[10px] text-teal-50/60">{gap > 0 ? 'فجوة تغطية: ' + formatNumber(gap) : 'لا توجد فجوة تغطية مسجلة'}</div>
+            <div className="mt-1 text-[10px] text-slate-200/60">{gap > 0 ? 'فجوة تغطية: ' + formatNumber(gap) : 'لا توجد فجوة تغطية مسجلة'}</div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[.06] p-4 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-teal-100/70"><Target size={13}/> DECISION</div>
+            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-slate-200/70"><Target size={13}/> DECISION</div>
             <div className="mt-2 text-lg font-black">{label(report.renderedOutput.decisionStatus)}</div>
-            <div className="mt-1 text-[10px] text-teal-50/60">Action: {label(report.renderedOutput.actionStatus)}</div>
+            <div className="mt-1 text-[10px] text-slate-200/60">Action: {label(report.renderedOutput.actionStatus)}</div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[.06] p-4 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-teal-100/70"><CheckCircle2 size={13}/> OUTCOME</div>
+            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-slate-200/70"><CheckCircle2 size={13}/> OUTCOME</div>
             <div className="mt-2 text-lg font-black">{label(report.renderedOutput.outcomeStatus)}</div>
-            <div className="mt-1 text-[10px] text-teal-50/60">Learning: {label(report.renderedOutput.learningStatus)}</div>
+            <div className="mt-1 text-[10px] text-slate-200/60">Learning: {label(report.renderedOutput.learningStatus)}</div>
           </div>
         </div>
       </div>
@@ -160,10 +160,10 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
           <div key={String(stage)} className="flex items-center gap-2 rounded-xl px-3 py-2.5">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/10 text-[9px] font-black">{index + 1}</span>
             <div className="min-w-0">
-              <div className="text-[8px] font-black tracking-[.12em] text-teal-100/55">{stage}</div>
+              <div className="text-[8px] font-black tracking-[.12em] text-slate-300/55">{stage}</div>
               <div className="truncate text-[10px] font-bold text-white/90">{label(value)}</div>
             </div>
-            {index < 4 && <span className="mr-auto hidden text-teal-100/35 sm:block">←</span>}
+            {index < 4 && <span className="mr-auto hidden text-slate-300/35 sm:block">←</span>}
           </div>
         ))}
       </div>
@@ -174,22 +174,22 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
             <div className="flex items-center gap-2 text-[9px] font-black tracking-[.14em] text-amber-100/75">
               <Lightbulb size={14}/> WHAT NEXT / DECISION BRIEF
             </div>
-            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[8px] font-black text-teal-50/60">RECOMMENDED</span>
+            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[8px] font-black text-slate-200/60">RECOMMENDED</span>
           </div>
           <div className="mt-3 text-sm font-black text-white">
             {topRecommendation?.title ?? 'لا توجد توصية قابلة للتنفيذ مثبتة من المصدر الحالي.'}
           </div>
-          <div className="mt-2 text-[10px] leading-6 text-teal-50/70">
+          <div className="mt-2 text-[10px] leading-6 text-slate-200/70">
             {topRecommendation?.action ?? 'يبقى الإجراء محجوبًا حتى تظهر إشارة تستند إلى دليل كافٍ.'}
           </div>
           {topRecommendation && (
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               <div className="rounded-xl border border-white/8 bg-black/10 p-3">
-                <div className="text-[8px] font-black tracking-[.12em] text-teal-100/50">WHY</div>
+                <div className="text-[8px] font-black tracking-[.12em] text-slate-300/50">WHY</div>
                 <div className="mt-1 text-[10px] leading-5 text-white/80">{topRecommendation.why}</div>
               </div>
               <div className="rounded-xl border border-white/8 bg-black/10 p-3">
-                <div className="text-[8px] font-black tracking-[.12em] text-teal-100/50">EXPECTED OUTCOME</div>
+                <div className="text-[8px] font-black tracking-[.12em] text-slate-300/50">EXPECTED OUTCOME</div>
                 <div className="mt-1 text-[10px] leading-5 text-white/80">{topRecommendation.expectedOutcome}</div>
               </div>
             </div>
@@ -199,12 +199,12 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
               {evidenceReady ? 'تحويل التوصية إلى قرار' : 'افتح الدليل قبل القرار'}
               <ArrowLeft size={13}/>
             </Link>
-            {topSignal && <span className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-[10px] font-bold text-teal-50/75">الإشارة: {topSignal.title}</span>}
+            {topSignal && <span className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-[10px] font-bold text-slate-200/75">الإشارة: {topSignal.title}</span>}
             <button
               type="button"
               onClick={() => void saveDecisionCase()}
               disabled={!evidenceReady || !topSignal || !report.sourceAnalysis?.id || caseState === 'saving' || caseState === 'saved'}
-              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-emerald-200/20 bg-emerald-100/[.08] px-3.5 py-2 text-[10px] font-black text-emerald-50 disabled:opacity-45"
+              className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-indigo-200/20 bg-indigo-100/[.08] px-3.5 py-2 text-[10px] font-black text-indigo-50 disabled:opacity-45"
               data-testid="save-decision-case"
             >
               {caseState === 'saving' ? 'جارٍ حفظ القضية...' : caseState === 'saved' ? 'القضية محفوظة وتُتابع' : 'حفظ كقضية أعمال'}
@@ -268,22 +268,22 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
         <Link to={specialtyHref + '?' + identity.slice(1)} className="group rounded-2xl border border-white/10 bg-white/[.06] p-3 hover:bg-white/[.1]">
           <div className="flex items-center justify-between gap-3"><BarChart3 size={16} className="text-amber-200"/><ArrowUpRight size={14} className="text-white/35 group-hover:text-white"/></div>
           <div className="mt-2 text-xs font-black text-white">التحليل التخصصي</div>
-          <div className="mt-1 text-[10px] text-teal-50/60">{label(report.specialty || 'intelligence')}</div>
+          <div className="mt-1 text-[10px] text-slate-200/60">{label(report.specialty || 'intelligence')}</div>
         </Link>
         <Link to={'/work-center?' + identity.slice(1)} className="group rounded-2xl border border-white/10 bg-white/[.06] p-3 hover:bg-white/[.1]">
           <div className="flex items-center justify-between gap-3"><BriefcaseBusiness size={16} className="text-amber-200"/><ArrowUpRight size={14} className="text-white/35 group-hover:text-white"/></div>
           <div className="mt-2 text-xs font-black text-white">Work Center</div>
-          <div className="mt-1 text-[10px] text-teal-50/60">{recommendations.length ? 'توصيات قابلة للتحويل إلى عمل' : 'متابعة أعمال التقرير'}</div>
+          <div className="mt-1 text-[10px] text-slate-200/60">{recommendations.length ? 'توصيات قابلة للتحويل إلى عمل' : 'متابعة أعمال التقرير'}</div>
         </Link>
         <Link to={'/benchmark?' + identity.slice(1)} className="group rounded-2xl border border-white/10 bg-white/[.06] p-3 hover:bg-white/[.1]">
           <div className="flex items-center justify-between gap-3"><Target size={16} className="text-amber-200"/><ArrowUpRight size={14} className="text-white/35 group-hover:text-white"/></div>
           <div className="mt-2 text-xs font-black text-white">Benchmark</div>
-          <div className="mt-1 text-[10px] text-teal-50/60">{forecast.status === 'INSUFFICIENT_SAMPLE' ? 'العينة غير كافية — لا مقارنة مصطنعة' : 'فتح أهلية المقارنة'}</div>
+          <div className="mt-1 text-[10px] text-slate-200/60">{forecast.status === 'INSUFFICIENT_SAMPLE' ? 'العينة غير كافية — لا مقارنة مصطنعة' : 'فتح أهلية المقارنة'}</div>
         </Link>
         <Link to={'/reports/smart/' + job + '?sourceHash=' + hash} className="group rounded-2xl border border-white/10 bg-white/[.06] p-3 hover:bg-white/[.1]">
           <div className="flex items-center justify-between gap-3"><FileSearch size={16} className="text-amber-200"/><ArrowUpRight size={14} className="text-white/35 group-hover:text-white"/></div>
           <div className="mt-2 text-xs font-black text-white">Report 360</div>
-          <div className="mt-1 text-[10px] text-teal-50/60">{formatNumber(report.canonicalCommitCount)} سجل مثبت</div>
+          <div className="mt-1 text-[10px] text-slate-200/60">{formatNumber(report.canonicalCommitCount)} سجل مثبت</div>
         </Link>
       </div>
     </section>
