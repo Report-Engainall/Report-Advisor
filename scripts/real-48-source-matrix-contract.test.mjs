@@ -12,6 +12,8 @@ for (const marker of [
   "runReportArchetype",
   "claim.archetypeId === profile.id",
   "claim.evidenceSnapshotId === candidate.snapshot.id",
+  "persistedArchetypeConsistency",
+  "persistedArchetypeId",
   "status: supported === profiles.length ? 'PASS' : 'NOT_PROVEN'",
   "canonicalRowsRead: chosen ? sourceRowsCache.get(String(chosen.job.id))?.length ?? 0 : 0,",
 ]) {
