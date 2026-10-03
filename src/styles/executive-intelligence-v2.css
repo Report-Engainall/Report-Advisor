@@ -2060,3 +2060,84 @@ body{
     width:100%!important;
   }
 }
+
+
+/* v3.6 — operating shell completion */
+.ag-main .ag-suppliers-surface,
+.ag-main .ag-decision-inbox-surface,
+.ag-main .ag-entity-page-surface,
+.ag-main .ag-import-value-surface,
+.ag-main .ag-connections-surface,
+.ag-main .ag-master-data-surface{
+  max-width:1420px!important;
+  margin-inline:auto!important;
+}
+.ag-main .ag-suppliers-surface > section,
+.ag-main .ag-decision-inbox-surface > section,
+.ag-main .ag-entity-page-surface > section,
+.ag-main .ag-connections-surface > section,
+.ag-main .ag-master-data-surface > section{
+  border-color:#dfe2e9!important;
+  box-shadow:var(--ag-v3-shadow)!important;
+}
+.ag-main .ag-suppliers-surface .card,
+.ag-main .ag-decision-inbox-surface .card,
+.ag-main .ag-entity-page-surface .card,
+.ag-main .ag-master-data-surface .card{
+  border-color:#dfe2e9!important;
+  box-shadow:var(--ag-v3-shadow)!important;
+}
+.ag-main .ag-suppliers-surface .card:hover,
+.ag-main .ag-decision-inbox-surface .card:hover,
+.ag-main .ag-entity-page-surface .card:hover,
+.ag-main .ag-master-data-surface .card:hover{
+  border-color:#cfd2ea!important;
+}
+.ag-main .ag-decision-inbox-surface .bg-ink-950{
+  background:
+    radial-gradient(circle at 88% 0%,rgba(124,58,237,.22),transparent 17rem),
+    linear-gradient(145deg,#0e131e,#1a2030)!important;
+}
+.ag-main .ag-decision-inbox-surface .border-primary-200{
+  border-color:#d7d9f5!important;
+}
+.ag-main .ag-decision-inbox-surface .bg-primary-50{
+  background:#eef0ff!important;
+}
+.ag-main .ag-decision-inbox-surface .text-primary-700,
+.ag-main .ag-decision-inbox-surface .text-primary-800{
+  color:#4f52bf!important;
+}
+.ag-main .ag-suppliers-surface .ag-command-hero,
+.ag-main .ag-entity-page-surface .ag-command-hero{
+  background:
+    radial-gradient(circle at 88% 0%,rgba(91,92,230,.18),transparent 17rem),
+    radial-gradient(circle at 10% 100%,rgba(240,185,75,.09),transparent 14rem),
+    linear-gradient(145deg,#101521,#1a2030)!important;
+}
+.ag-main .ag-import-value-surface .ag-import-dropzone{
+  border-color:#d3d7e3!important;
+  background:
+    radial-gradient(circle at 50% 12%,rgba(91,92,230,.075),transparent 14rem),
+    linear-gradient(145deg,#fff,#f7f8fb)!important;
+  box-shadow:var(--ag-v3-shadow)!important;
+}
+.ag-main .ag-import-value-surface .ag-import-dropzone:hover{
+  border-color:#bfc2e8!important;
+  background:#fff!important;
+}
+.ag-main .ag-connections-surface .ag-connection-hero{
+  background:
+    radial-gradient(circle at 88% 0%,rgba(124,58,237,.18),transparent 17rem),
+    linear-gradient(145deg,#111621,#1b2130)!important;
+}
+@media(max-width:700px){
+  .ag-main .ag-suppliers-surface,
+  .ag-main .ag-decision-inbox-surface,
+  .ag-main .ag-entity-page-surface,
+  .ag-main .ag-import-value-surface,
+  .ag-main .ag-connections-surface,
+  .ag-main .ag-master-data-surface{
+    width:100%!important;
+  }
+}
