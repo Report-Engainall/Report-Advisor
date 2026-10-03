@@ -1,4 +1,5 @@
 import { deriveReportIntelligence, type ReportIntelligence, type BusinessFinding, type ReportSignal, type ReportRecommendation } from './report-smart-insights';
+import { matchCanonicalField } from './canonical-schema';
 
 type RuleProfile = {
   id: string;
@@ -36,7 +37,30 @@ function columnKey(report: RuleReport, field: string): string | null {
     const columns = Array.isArray((dataset as Record<string, unknown>).columns)
       ? (dataset as Record<string, unknown>).columns as Array<Record<string, unknown>>
       : [];
-    const found = columns.find((column) => norm(column.mappedField) === norm(field));
+    for (const column of columns) {
+      const mappedField = text(column.mappedField);
+      const columnName = text(column.name);
+      if (norm(mappedField) === norm(field)) return mappedField || columnName;
+      if (matchCanonicalField(mappedField) === field || matchCanonicalField(columnName) === field) {
+        return mappedField || columnName;
+      }
+    }
+  }
+  return null;
+}
+
+function rawColumnKey(report: RuleReport, aliases: string[]): string | null {
+  const datasets = Array.isArray(report.sourceAnalysis?.datasets) ? report.sourceAnalysis.datasets : [];
+  for (const dataset of datasets) {
+    if (!dataset || typeof dataset !== 'object') continue;
+    const columns = Array.isArray((dataset as Record<string, unknown>).columns)
+      ? (dataset as Record<string, unknown>).columns as Array<Record<string, unknown>>
+      : [];
+    const found = columns.find((column) => {
+      const mapped = norm(text(column.mappedField));
+      const name = norm(text(column.name));
+      return aliases.some((alias) => mapped === norm(alias) || name === norm(alias));
+    });
     if (found) return text(found.mappedField ?? found.name);
   }
   return null;
@@ -681,7 +705,7 @@ export function applyArchetypeRuleSet(
 
   if (!modelFinding && family === 'inventory-velocity') {
     const dateKey = columnKey(report, 'documentDate');
-    const salesKey = columnKey(report, 'salesQty');
+    const salesKey = columnKey(report, 'salesQty') ?? ((family === 'coverage' || family === 'stockout-reorder' || family === 'inventory-velocity' || family === 'demand') && text(report.specialty) === 'inventory' ? rawColumnKey(report, ['net_sales', 'صافي المبيعات']) : null);
     if (dateKey && salesKey) {
       const trend = dateValue(rows, dateKey, salesKey);
       if (trend) {
