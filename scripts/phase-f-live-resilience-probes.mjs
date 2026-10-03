@@ -167,13 +167,26 @@ function runDockerPsqlFile(databaseUrl, filePath) {
   ]);
 }
 
+function runDockerPgDump(databaseUrl, outputPath) {
+  const containerPath = '/tmp/phase-f-backup.sql';
+  runCommand('docker', [
+    'run', '--rm', '--network', 'host',
+    '-v', `${path.resolve(outputPath)}:${containerPath}`,
+    '-e', `PGURI=${databaseUrl}`,
+    'postgres:17',
+    'sh', '-lc', `pg_dump "$PGURI" --schema=public --data-only --no-owner --no-privileges --serializable-deferrable --format=plain --file=${containerPath}`,
+  ]);
+}
+
 const VOLATILE_RESTORE_TABLES = new Set(['public.operational_health_snapshots']);
 
 function parseTableCounts(raw) {
   const result = {};
   for (const line of raw.split(/\r?\n/).map(value => value.trim()).filter(Boolean)) {
-    const [tableName, rowCount] = line.split('|');
-    if (!tableName || VOLATILE_RESTORE_TABLES.has(tableName)) continue;
+    const match = line.match(/^(public\.[^|]+)\|(-?\d+)$/);
+    if (!match) continue;
+    const [, tableName, rowCount] = match;
+    if (VOLATILE_RESTORE_TABLES.has(tableName)) continue;
     result[tableName] = Number(rowCount);
   }
   return result;
@@ -326,14 +339,7 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
     }
 
     const backupStartedAt = Date.now();
-    runCommand('supabase', [
-      'db', 'dump',
-      '--db-url', runnerSource,
-      '--schema', 'public',
-      '--data-only',
-      '--use-copy',
-      '-f', backupPath,
-    ]);
+    runDockerPgDump(runnerSource, backupPath);
     const backupCompletedAt = Date.now();
 
     let sourceCountsAfter;
