@@ -119,28 +119,29 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
 
   return (
     <section dir="rtl" className="ag-smart-advisor-surface space-y-4">
-      <div className="rounded-[18px] border border-primary-200 bg-[linear-gradient(135deg,#f7fbfa,#ffffff)] p-5 shadow-card lg:p-6">
+      <div className="overflow-hidden rounded-[22px] border border-primary-400/30 bg-ink-950 p-5 text-white shadow-card lg:p-7">
+        <div className="pointer-events-none absolute" aria-hidden="true" />
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.15em] text-primary-700"><BrainCircuit size={15}/> ADVISORY INTELLIGENCE</div>
-            <h2 className="mt-1 text-xl font-black text-ink-950">من التقرير إلى الفهم والقرار</h2>
-            <p className="mt-2 max-w-3xl text-xs leading-6 text-ink-600">هذه الطبقة تجمع الإشارات والتوصيات والأسئلة وحالة الدليل في مسار واحد، مع إبقاء ما لم يُثبت معلنًا.</p>
+            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.18em] text-primary-300"><BrainCircuit size={15}/> ADVISORY INTELLIGENCE</div>
+            <h2 className="mt-1 text-2xl font-black tracking-tight text-white lg:text-3xl">من التقرير إلى الفهم والقرار</h2>
+            <p className="mt-2 max-w-3xl text-xs leading-6 text-ink-200">مسار واحد يربط الإشارة بالدليل والسؤال والتوصية والقرار، ويُظهر حدود ما يمكن إثباته بدل إخفائها.</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-white px-3 py-1.5 text-[9px] font-black text-ink-700"><ShieldCheck size={13}/> {packet.proofState === 'VERIFIED' ? 'الدليل مرتبط' : 'المراجعة مطلوبة'}</span>
-            <span className="inline-flex items-center rounded-full border border-primary-200 bg-primary-50 px-3 py-1.5 text-[9px] font-black text-primary-800">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black text-ink-100"><ShieldCheck size={13}/> {packet.proofState === 'VERIFIED' ? 'الدليل مرتبط' : 'المراجعة مطلوبة'}</span>
+            <span className="inline-flex items-center rounded-full border border-primary-300/30 bg-primary-400/10 px-3 py-1.5 text-[9px] font-black text-primary-200">
               {archetypeResolution.profile ? 'ARCHETYPE ' + String(archetypeResolution.profile.number).padStart(2, '0') + ' · V' + archetypeResolution.profile.version : 'ARCHETYPE · ' + archetypeResolution.state}
             </span>
           </div>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-xl bg-white p-4 border border-ink-100"><div className="text-[9px] font-black text-ink-500">CLAIMS</div><div className="mt-1 text-2xl font-black">{packet.claims.length}</div><div className="mt-1 text-[10px] text-ink-500">نتائج قابلة للتتبع</div></div>
-          <div className="rounded-xl bg-white p-4 border border-ink-100"><div className="text-[9px] font-black text-ink-500">QUESTIONS</div><div className="mt-1 text-2xl font-black">{packet.questions.length}</div><div className="mt-1 text-[10px] text-ink-500">أسئلة أعمال</div></div>
-          <div className="rounded-xl bg-white p-4 border border-ink-100"><div className="text-[9px] font-black text-ink-500">ACTION STATE</div><div className="mt-1 text-lg font-black">{packet.actionState === 'ACTIONABLE' ? 'قابل للمراجعة والتنفيذ' : packet.actionState === 'REVIEW_REQUIRED' ? 'مراجعة مطلوبة' : 'غير متاح'}</div><div className="mt-1 text-[10px] text-ink-500">لا تنفيذ تلقائي</div></div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"><div className="text-[9px] font-black text-ink-300">CLAIMS</div><div className="mt-1 text-2xl font-black text-white">{packet.claims.length}</div><div className="mt-1 text-[10px] text-ink-300">نتائج قابلة للتتبع</div></div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"><div className="text-[9px] font-black text-ink-300">QUESTIONS</div><div className="mt-1 text-2xl font-black text-white">{packet.questions.length}</div><div className="mt-1 text-[10px] text-ink-300">أسئلة أعمال</div></div>
+          <div className="rounded-2xl border border-primary-300/20 bg-primary-400/10 p-4 backdrop-blur"><div className="text-[9px] font-black text-primary-200">ACTION STATE</div><div className="mt-1 text-lg font-black text-white">{packet.actionState === 'ACTIONABLE' ? 'قابل للمراجعة والتنفيذ' : packet.actionState === 'REVIEW_REQUIRED' ? 'مراجعة مطلوبة' : 'غير متاح'}</div><div className="mt-1 text-[10px] text-ink-200">لا تنفيذ تلقائي</div></div>
         </div>
       </div>
 
-      <div className="rounded-[20px] border border-ink-200 bg-ink-950 p-5 text-white shadow-card lg:p-6">
+      <div className="rounded-[22px] border border-white/10 bg-[linear-gradient(135deg,#071318,#0b2024)] p-5 text-white shadow-card lg:p-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <div className="text-[9px] font-black tracking-[.16em] text-primary-300">INTELLIGENCE INVENTORY</div>
@@ -157,7 +158,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
             ['مخاطر', risks.length],
             ['فرص', opportunities.length],
             ['أسئلة', packet.questions.length],
-          ].map(([label, count]) => <div key={String(label)} className="rounded-xl border border-white/10 bg-white/5 p-3"><div className="text-[9px] font-black text-ink-300">{label}</div><div className="mt-1 text-2xl font-black">{count}</div></div>)}
+          ].map(([label, count]) => <div key={String(label)} className="rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:border-primary-300/30 hover:bg-primary-400/10"><div className="text-[9px] font-black text-ink-300">{label}</div><div className="mt-1 text-2xl font-black text-white">{count}</div></div>)}
         </div>
       </div>
 
