@@ -96,4 +96,28 @@ assert.doesNotMatch(
   'decision cockpit must not use the analysis snapshot as Passport evidence',
 );
 
-console.log('PASS: canonical commit/evidence verification and Advisor decision provenance remain independent and fail closed.');
+const smartReportPath = fileURLToPath(new URL('../src/lib/report-smart.ts', import.meta.url));
+const smartReport = fs.readFileSync(smartReportPath, 'utf8');
+
+assert.match(
+  smartReport,
+  /from\('report_evidence_passports'\)/,
+  'Smart Report must consult the current Evidence Passport instead of trusting stale rendered provenance',
+);
+assert.match(
+  smartReport,
+  /const effectiveRendered: Record<string, unknown> = currentPassport/,
+  'Smart Report must derive its effective provenance from the current Passport',
+);
+assert.match(
+  smartReport,
+  /renderedOutput: effectiveRendered/,
+  'Smart Report consumers must receive the Passport-refreshed provenance',
+);
+assert.match(
+  smartReport,
+  /evidenceSnapshotId: currentPassport\.evidence_snapshot_id/,
+  'Smart Report must bind decision provenance to the Passport snapshot',
+);
+
+console.log('PASS: evidence verification, Advisor decision provenance, and live Passport readback remain fail-closed.');
