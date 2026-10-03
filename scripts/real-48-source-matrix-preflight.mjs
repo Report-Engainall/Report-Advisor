@@ -74,10 +74,9 @@ function canonicalFieldSet(fields) {
   return new Set(fields.flatMap((field) => {
     const value = String(field);
     const semantic = matchCanonicalField(value);
-    if (semantic) return [semantic];
     const normalized = value.trim().toLowerCase().normalize('NFKC').replace(/[\s_\-./]+/g, '');
     const legacy = legacyAliases.get(normalized);
-    return legacy ? [legacy] : [value];
+    return [...new Set([semantic, legacy, value].filter(Boolean))];
   }));
 }
 
