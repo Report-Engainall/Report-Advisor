@@ -134,7 +134,7 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
   const path = String(job.source_path ?? '');
   if (!rendered || !isReportSourcePath(path)) return null;
 
-  const specialty = rendered.sourceSpecialty == null
+  const specialty = effectiveRendered.sourceSpecialty == null
     ? inferSpecialtyFromAnalysis(analysis)
     : String(rendered.sourceSpecialty);
 
@@ -178,7 +178,7 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
     sourcePath: path || 'مصدر غير مسمى',
     sourceHash: String(job.source_hash ?? ''),
     entityType: entityTypeFrom(String(job.job_key ?? '')),
-    rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
+    rowCount: effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount),
     qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
     trustState: rendered.trustState == null ? null : String(rendered.trustState),
     reportVerificationState: normalizedEvidenceStatus ?? 'PENDING_EVIDENCE',
@@ -329,7 +329,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
   // report's full 7-column analysis). Using the latest snapshot by time alone can silently
   // drop source-quality signals needed by Advisor.
   let analysis: Record<string, unknown> | null = null;
-  const renderedImportId = rendered.importId == null ? '' : String(rendered.importId).trim();
+  const renderedImportId = effectiveRendered.importId == null ? '' : String(effectiveRendered.importId).trim();
 
   if (renderedImportId) {
     const { data: importAnalyses, error: importAnalysisError } = await supabase
@@ -369,10 +369,10 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     (sum, row) => sum + Number(row.committed_count ?? 0),
     0,
   );
-  const authoritativeCurrentRowCount = rendered.authoritativeCurrentRowCount == null
-    ? (rendered.rowCount == null ? null : Number(rendered.rowCount))
+  const authoritativeCurrentRowCount = effectiveRendered.authoritativeCurrentRowCount == null
+    ? (effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount))
     : Number(rendered.authoritativeCurrentRowCount);
-  const sourceRowCount = rendered.rowCount == null ? null : Number(rendered.rowCount);
+  const sourceRowCount = effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount);
   const canonicalCommitGap = authoritativeCurrentRowCount == null
     ? null
     : Math.max(0, authoritativeCurrentRowCount - canonicalCommitCount);
@@ -432,17 +432,17 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     datasets: Array.isArray(analysis.datasets) ? analysis.datasets : [],
   } : null;
 
-  const evidenceStatus = resolveReportEvidenceStatus(rendered, canonicalCommitVerified);
+  const evidenceStatus = resolveReportEvidenceStatus(effectiveRendered, canonicalCommitVerified);
 
-  const specialty = rendered.sourceSpecialty == null
+  const specialty = effectiveRendered.sourceSpecialty == null
     ? inferSpecialtyFromAnalysis(sourceAnalysis)
     : String(rendered.sourceSpecialty);
 
   const baseIntelligence = deriveReportIntelligence({
     specialty,
-    rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
+    rowCount: effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount),
     sourceAnalysis,
-    renderedOutput: rendered,
+    renderedOutput: effectiveRendered,
     canonicalRows,
   });
 
@@ -537,7 +537,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     sourcePath: String(job.source_path ?? 'مصدر غير مسمى'),
     sourceHash: String(job.source_hash ?? ''),
     entityType: entityTypeFrom(String(job.job_key ?? '')),
-    rowCount: rendered.rowCount == null ? null : Number(rendered.rowCount),
+    rowCount: effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount),
     qualityScore: rendered.qualityScore == null ? null : Number(rendered.qualityScore),
     trustState: rendered.trustState == null ? null : String(rendered.trustState),
     specialty,
@@ -547,7 +547,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     completedAt: job.completed_at == null ? null : String(job.completed_at),
     importId: rendered.importId == null ? null : String(rendered.importId),
     checkpointStage: job.checkpoint?.stage == null ? null : String(job.checkpoint.stage),
-    renderedOutput: rendered,
+    renderedOutput: effectiveRendered,
     sourceAnalysis,
     authoritativeCurrentRowCount,
     canonicalCommitGap,
