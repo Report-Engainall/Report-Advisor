@@ -23,10 +23,17 @@ function json(body, status) {
 export default async function handler(request) {
   if (request.method !== 'POST') return json({ status: 'method_not_allowed', allowed: ['POST'] }, 405);
 
-  const expectedToken = process.env.RESILIENCE_OPERATIONAL_TOKEN?.trim() || '';
-  const receivedToken = request.headers.get('x-resilience-token')?.trim() || '';
-  if (!expectedToken) return json({ status: 'unavailable', reason: 'operational_token_not_configured' }, 503);
-  if (!receivedToken || receivedToken !== expectedToken) return json({ status: 'unauthorized' }, 401);
+  const operationalToken = process.env.RESILIENCE_OPERATIONAL_TOKEN?.trim() || '';
+  const canaryToken = process.env.RESILIENCE_CANARY_AUTH_TOKEN?.trim() || '';
+  const receivedOperationalToken = request.headers.get('x-resilience-token')?.trim() || '';
+  const receivedCanaryToken = request.headers.get('x-canary-auth-token')?.trim() || '';
+  const authorized =
+    (operationalToken && receivedOperationalToken === operationalToken)
+    || (canaryToken && receivedCanaryToken === canaryToken);
+  if (!operationalToken && !canaryToken) {
+    return json({ status: 'unavailable', reason: 'rollback_drill_token_not_configured' }, 503);
+  }
+  if (!authorized) return json({ status: 'unauthorized' }, 401);
 
   try {
     const payload = request.body ? await request.json() : {};
