@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+
 import {
   listReportArchetypes,
   getReportArchetypeByNumber,
@@ -8,6 +10,11 @@ import {
 } from '../src/lib/report-intelligence/archetype-registry.ts';
 
 const fail = (message) => { throw new Error(message); };
+const evaluatorSource = fs.readFileSync(new URL('../src/lib/report-intelligence/archetype-evaluator.ts', import.meta.url), 'utf8');
+const insightsSource = fs.readFileSync(new URL('../src/lib/report-intelligence/report-smart-insights.ts', import.meta.url), 'utf8');
+if (evaluatorSource.includes('Date.now()')) fail('RFM/archetype runtime must not use wall-clock time for source-derived recency');
+if (!insightsSource.includes('date.getUTCFullYear()') || !insightsSource.includes('date.getUTCMonth()')) fail('Forecast month bucketing must be UTC/source deterministic');
+
 const archetypes = listReportArchetypes();
 
 if (REPORT_ARCHETYPE_CATALOG_ID !== 'report-intelligence.48') fail('Canonical catalog id mismatch');

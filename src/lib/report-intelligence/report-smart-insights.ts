@@ -411,7 +411,7 @@ function deriveForecast(report: ReportInput): ReportForecast {
     const date = parseDate(row.data?.[dateKey]);
     const value = numeric(row.data?.[valueKey]);
     if (!date || value == null) continue;
-    const month = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+    const month = date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0');
     byMonth.set(month, (byMonth.get(month) ?? 0) + value);
   }
   const points = [...byMonth.entries()].sort(([a], [b]) => a.localeCompare(b));
