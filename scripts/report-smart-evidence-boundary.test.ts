@@ -307,6 +307,8 @@ assert.match(smartReport, /analysis = chooseBestAnalysisSnapshot\(\(analyses \?\
 assert.match(smartReport, /deriveReportIntelligence\([\s\S]*?catch \(error\)/, 'intelligence derivation must be guarded against malformed runtime data');
 assert.match(smartReport, /runReportArchetype\([\s\S]*?catch \(error\)/, 'specialized archetype execution must fail soft');
 assert.match(smartReport, /function resolveImportJobId\([\s\S]*evidenceKeys[\s\S]*startsWith\('import:'\)/, 'Smart Report must prefer execution checkpoint import lineage over an unrelated analysis snapshot import id');
+assert.match(smartReport, /const exactCanonicalCommit = authoritativeCurrentRowCount == null/, 'canonical commit selection must avoid double counting repeated imports when an exact authoritative count exists');
+
 assert.match(smartReport, /const canonicalImportJobId = renderedImportId \|\|/, 'canonical rows must prefer the active import job identity');
 assert.match(smartReport, /canonicalSourceQuery\.eq\('import_job_id', canonicalImportJobId\)/, 'canonical row reads must scope to the active import job');
 
