@@ -368,7 +368,13 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
 }
 
 function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] {
-  return signals.filter((signal) => signal.severity !== 'info').slice(0, 8).map((signal) => {
+  return signals
+    .filter((signal) => signal.severity !== 'info')
+    .sort((a, b) => {
+      const rank: Record<ReportSignalSeverity, number> = { critical: 5, high: 4, medium: 3, low: 2, info: 1 };
+      return rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title);
+    })
+    .map((signal) => {
     let action = 'افحص الدليل المرتبط بهذا الاستثناء ثم قرر الإجراء المناسب.';
     if (signal.id.includes('missing-price')) action = 'افتح صفوف المصدر التي بلا سعر وراجع التسعير قبل الاعتماد.';
     else if (signal.id.includes('missing-name')) action = 'ثبّت أسماء الأصناف وربطها بمفتاح الصنف قبل المقارنة أو التنبؤ.';
@@ -817,9 +823,18 @@ function deriveBusinessFindings(report: ReportInput): {
   }
 
   return {
-    findings: findings.slice(0, 8),
-    risks: risks.slice(0, 6),
-    opportunities: opportunities.slice(0, 6),
+    findings: findings.sort((a, b) => {
+      const rank = { high: 3, medium: 2, low: 1 } as const;
+      return rank[b.priority] - rank[a.priority] || a.title.localeCompare(b.title);
+    }),
+    risks: risks.sort((a, b) => {
+      const rank = { high: 3, medium: 2, low: 1 } as const;
+      return rank[b.priority] - rank[a.priority] || a.title.localeCompare(b.title);
+    }),
+    opportunities: opportunities.sort((a, b) => {
+      const rank = { high: 3, medium: 2, low: 1 } as const;
+      return rank[b.priority] - rank[a.priority] || a.title.localeCompare(b.title);
+    }),
   };
 }
 
