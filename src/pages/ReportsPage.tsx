@@ -135,7 +135,7 @@ function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report
     />
     {!actualMatches && <div className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">هذا المصدر مصنّف كـ{specialtyLabel[report.specialty ?? ''] ?? 'مصدر عام'} وليس {title}. لم يتم تحويله إلى حقيقة تخص هذا التخصص.</div>}
         <ReportIntelligencePanel report={report} />
-    <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+    <section className="ag-reports-smart-section rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="section-kicker">SOURCE-BOUND DOMAIN ANALYSIS</div>
       <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
         <h2 className="text-xl font-black text-ink-950">{actualMatches ? 'التحليل المتخصص من المصدر' : 'التحليل العام للمصدر'}</h2>
@@ -237,7 +237,7 @@ export function ReportsCenterPage() {
       actions={<div className="flex items-center gap-2"><span className={`badge ${truthClass}`}>{truthLabel}</span><button type="button" onClick={() => void load(true)} disabled={refreshing} className="btn-secondary inline-flex items-center gap-2 text-xs">{refreshing ? 'جارٍ التحديث' : 'تحديث اللقطة'}</button></div>}
     />
 
-    <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6" aria-label="اللقطة التنفيذية الحالية">
+    <section className="ag-reports-snapshot rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6" aria-label="اللقطة التنفيذية الحالية">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-stretch xl:justify-between">
         <div className="min-w-0 flex-1">
           <div className="section-kicker">لقطة تجارية موثقة · آخر {months} أشهر</div>
@@ -277,7 +277,7 @@ export function ReportsCenterPage() {
       </div>
     </section>
 
-    <section className="grid gap-4 lg:grid-cols-[1.4fr_.6fr] items-end">
+    <section className="ag-reports-explain grid gap-4 lg:grid-cols-[1.4fr_.6fr] items-end">
       <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
         <div className="section-kicker">بيانات → دليل → قرار</div>
         <h1 className="mt-1 text-[22px] font-black tracking-tight text-ink-950 lg:text-[28px]">التقرير ليس شاشة أرقام؛ إنه حزمة أدلة قابلة للمراجعة.</h1>
@@ -289,7 +289,7 @@ export function ReportsCenterPage() {
       </div>
     </section>
 
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <div className="ag-reports-domain-grid grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {reportCards.map((r) => <Link key={r.path} to={r.path} className="group">
         <Card className="ag-report-card h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-xl">
           <CardBody>
@@ -325,7 +325,7 @@ export function ReportsCenterPage() {
         </div>
       ) : (
         <>
-          <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="ag-reports-smart-metrics mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
             {[
               ['نماذج مكتشفة', smartReports.filter((r) => Boolean(r.archetypeId)).length, 'كل مصدر يمر على هوية نموذجية واضحة أو حالة مراجعة.'],
               ['موثقة', smartReports.filter((r) => r.evidenceStatus === 'VERIFIED').length, 'دليل مصدر قابل للمراجعة.'],
@@ -356,7 +356,7 @@ export function ReportsCenterPage() {
                 ['نتيجة', report.outcomeStatus],
               ];
               return (
-                <Link key={report.jobId} to={'/reports/smart/' + report.jobId} className="group rounded-2xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
+                <Link key={report.jobId} to={'/reports/smart/' + report.jobId} className="ag-smart-report-card group rounded-2xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="truncate text-sm font-black text-ink-950" title={report.sourcePath}>{report.sourcePath}</div>
@@ -400,7 +400,7 @@ export function ReportsCenterPage() {
       )}
     </section>
 
-    <section className="grid gap-4 lg:grid-cols-3">
+    <section className="ag-reports-output-grid grid gap-4 lg:grid-cols-3">
       <Link to="/reports/executive" className="card card-hover p-4">
         <div className="text-[9px] font-black tracking-[.12em] text-primary-700">DECISION OUTPUT</div>
         <h3 className="mt-2 text-sm font-black text-ink-900">تقارير القرار والتوصية</h3>
