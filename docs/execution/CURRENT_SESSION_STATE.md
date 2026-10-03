@@ -1,7 +1,7 @@
 # CURRENT SESSION STATE
 SESSION_HANDOFF = NOT READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 9beaaeb6f8344fd429c8036da8b365ddfe88547f
+CURRENT_EXACT_HEAD = 9aaf4362309c0e99af74c8ca8d7f829eb2924c70
 CURRENT_MAIN_HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
 CURRENT_EXECUTION_HEAD = 1a38250863743edbe00682c51979954bd12cc64c
 BRANCH = captain/phase-f-dynamic-pr-preview-20261003
@@ -9,7 +9,7 @@ PR = #762 OPEN
 PR_PRODUCT_DELTA = #761 MERGED
 PR_PRODUCT_DELTA_SHA = 9d78baf6ef00fac9c9cbd975b1ae0d737b100b23
 CURRENT_PRODUCT_MAIN = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT_PR_HEAD = 9beaaeb6f8344fd429c8036da8b365ddfe88547f
+CURRENT_PR_HEAD = 9aaf4362309c0e99af74c8ca8d7f829eb2924c70
 WHAT_ACTUALLY_HAPPENED
 - Netlify account is Owner; site is Git-connected; Production deploy remains blocked by Free-plan credit exhaustion/HTTP 403.
 - PR #761 merged an actionable tenant-context gate without weakening RLS, default tenant selection, or client tenant authority.
@@ -19,7 +19,7 @@ WHAT_ACTUALLY_HAPPENED
 - A targeted migration removed public RPC execution from the three trigger-only Evidence Passport SECURITY DEFINER functions without changing trigger behavior.
  - The live Evidence Passport gate contract was aligned with the real work-item lifecycle: start before complete, and source-analysis evidence is used for completion evidence.
 - Smart Report Advisor case persistence was corrected to use the Passport evidence snapshot from rendered provenance rather than the analysis snapshot id; a regression guard was added.
-WHAT_IS_PROVEN = typecheck/build/intelligence/evidence-passport/operational-resilience/quality contracts and real f088 Evidence Passport are proven; fresh browser, Phase-F, and final certification remain under recertification.
+WHAT_IS_PROVEN = typecheck/build/intelligence/evidence-passport/operational-resilience/quality contracts and live Evidence Passport/Work-Item gate runs are proven; fresh browser, Phase-F, and final certification remain under recertification.
 - npm run typecheck PASS.
 - npm run build PASS.
 - npm run test:report-advisor-intelligence PASS.
@@ -59,4 +59,4 @@ DO_NOT_REPEAT
 - No new Supabase project.
 - No RLS/auth/evidence weakening.
 - No fabricated real-report corpus or archetype coverage.
-NEXT_EXACT_ACTION = certify exact product/test head 9beaaeb6f8344fd429c8036da8b365ddfe88547f and consume the first completed failure on that head.
+NEXT_EXACT_ACTION = certify exact product/test head 9aaf4362309c0e99af74c8ca8d7f829eb2924c70 and consume the first completed failure on that head.
