@@ -59,10 +59,25 @@ function usableColumns(analysis) {
 }
 
 function canonicalFieldSet(fields) {
+  const legacyAliases = new Map([
+    ['sku', 'productCode'],
+    ['itemcode', 'productCode'],
+    ['item_code', 'productCode'],
+    ['balance', 'currentStock'],
+    ['stock', 'currentStock'],
+    ['onhand', 'currentStock'],
+    ['on_hand', 'currentStock'],
+    ['net_sales', 'salesQty'],
+    ['netsales', 'salesQty'],
+    ['sales_qty', 'salesQty'],
+  ]);
   return new Set(fields.flatMap((field) => {
     const value = String(field);
     const semantic = matchCanonicalField(value);
-    return semantic ? [semantic] : [value];
+    if (semantic) return [semantic];
+    const normalized = value.trim().toLowerCase().normalize('NFKC').replace(/[\s_\-./]+/g, '');
+    const legacy = legacyAliases.get(normalized);
+    return legacy ? [legacy] : [value];
   }));
 }
 
