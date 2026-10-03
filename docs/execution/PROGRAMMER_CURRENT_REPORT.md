@@ -3,14 +3,14 @@ SESSION_HANDOFF = NOT READY
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT EXECUTION HEAD = 6250ef6f885511881f435b479bd97e76128d741e
-REPORT_FOR_HEAD = 6250ef6f885511881f435b479bd97e76128d741e
+CURRENT EXECUTION HEAD = 9bec7dc45ba65ddd036aa02491c0b4574d579570
+REPORT_FOR_HEAD = 9bec7dc45ba65ddd036aa02491c0b4574d579570
 BRANCH = captain/phase-f-dynamic-pr-preview-20261003
 PR = #762 OPEN
 UPDATED = 2026-10-03
-UPDATED_AT = 2026-10-03T14:20:00Z
+UPDATED_AT = 2026-10-03T14:24:00Z
 WHAT_I_WAS_ASKED_TO_DO = إكمال المشروع فعليًا بالتوازي، إزالة اختناقات Phase-F وAuth/E2E، تثبيت Evidence Passport، وإغلاق الشهادة دون PASS وهمي.
-WHAT_I_ACTUALLY_DID = ربطت Smart Report وAdvisor/Decision Cockpit بالـPassport الحالي، أضفت readback حيًا للـPassport، واعتمدت reconciliation الموجود أصلًا على Staging بدل إضافة RPC/migration مكرر.
+WHAT_I_ACTUALLY_DID = أصلحت provenance في Smart Report وDecision Cockpit، وثبتُّ live create_source_intelligence_proposal على reconciliation المتوافق مع Passport، ثم تحققت من أن anon لا يملك EXECUTE وأن authenticated هو المسار الوحيد.
 WHAT_ACTUALLY_HAPPENED
 1. Removed stale Phase-F deploy-preview-754 targeting and replaced it with current-PR runtime resolution plus exact-head provenance checks.
 2. Aligned logical backup/restore source snapshot/count reads with Transaction Pooler :6543 while retaining pg_dump on the resolved runner source URI.
@@ -36,10 +36,10 @@ WHAT_IS_PROVEN = typecheck/build/intelligence/evidence-passport/operational-resi
 - security-definer exposure contract PASS
 - direct Supabase DB connectivity PASS
 - real report job f0880ab8...: 735 source rows, 7 columns, PDF, quality 87, canonical coverage FULL, Evidence Passport VERIFIED/READY
-FIRST_ACTIVE_FAILURE = Browser business journey had persisted source decision data but timed out because decision action provenance used analysis snapshot IDs; stale recommendation provenance could also survive Passport refresh.
+FIRST_ACTIVE_FAILURE = live source proposal function had drifted back to the pre-reconciliation body despite migration history; current staging function is now reasserted with Passport reconciliation.
 CI_RECERTIFICATION = IN_PROGRESS
 Previous completed failure on the current gate family was Session Handoff Contract: the parser required scalar `WHAT_IS_PROVEN = ...`, while the report only had a Markdown heading. This was a documentation-contract mismatch and is corrected in this synchronization.
-ROOT_CAUSE = rendered report provenance كان يمكن أن يصبح stale بعد تحديث Evidence Passport، بينما بعض surfaces استخدمت analysis snapshot كمرجع قرار؛ canonical source-proposal reconciliation الموجود على Staging يعالج legacy bindings.
+ROOT_CAUSE = migration history alone did not guarantee the live function body; later drift overrode create_source_intelligence_proposal, leaving authenticated proposal reuse on stale evidence provenance.
 The earlier runtime failures were a combination of a recovered Supabase lifecycle interruption and two stale/incorrect source-level assertions. The handoff failures are metadata synchronization failures, not product/runtime failures.
 FILES / COMMITS
 - PR #761 -> 9d78baf6... -> main 7e9cec1...
@@ -55,4 +55,4 @@ REMAINING OPEN
 - real-source 48-archetype proof remains unproven
 DO_NOT_REPEAT
 No stale PASS, no queued-run PASS, no Service Role impersonation, no new Supabase project, no tenant/RLS bypass, no fabricated corpus/archetype coverage.
-NEXT_EXACT_ACTION = certify exact head 6250ef6f885511881f435b479bd97e76128d741e; consume first completed failure only, then close Browser business journey and Phase-F.
+NEXT_EXACT_ACTION = certify exact head 9bec7dc45ba65ddd036aa02491c0b4574d579570; authenticated Browser E2E must prove save/readback, then close Phase-F and final certification.
