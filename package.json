@@ -193,6 +193,7 @@
     "test:advisory-surface-retention": "node scripts/advisory-surface-retention.test.mjs",
     "test:decision-cockpit-retention": "node scripts/decision-cockpit-retention.test.mjs",
     "test:command-decision-intelligence-retention": "node scripts/command-decision-intelligence-retention.test.mjs",
-    "test:intelligence-executive-report-retention": "node scripts/intelligence-executive-report-retention.test.mjs"
+    "test:intelligence-executive-report-retention": "node scripts/intelligence-executive-report-retention.test.mjs",
+    "test:source-metrics-retention": "node scripts/source-metrics-retention.test.mjs"
   }
 }
