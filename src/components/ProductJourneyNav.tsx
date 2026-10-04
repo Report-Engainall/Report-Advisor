@@ -1,17 +1,24 @@
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, BookOpen, FileSearch, FileInput, Lightbulb, Route, ShieldCheck, Target } from 'lucide-react';
+import { ArrowLeft, BookOpen, FileSearch, FileInput, Lightbulb, Route, ShieldCheck, Target, Sparkles, BriefcaseBusiness } from 'lucide-react';
 
 type JourneyStep = { path: string; label: string; description: string; icon: typeof Lightbulb; stage?: string };
 
 const steps: JourneyStep[] = [
   { path: '/command-center', label: 'الصورة', description: 'حالة النشاط والأولوية', icon: Lightbulb },
-  { path: '/import', label: 'المصدر', description: 'مستند → استخراج', icon: FileInput },
-  { path: '/decision-experience', label: 'الدليل', description: 'Evidence → Recommendation', icon: FileSearch, stage: 'evidence' },
-  { path: '/decision-experience', label: 'الموافقة', description: 'قرار موثق', icon: ShieldCheck, stage: 'approval' },
-  { path: '/decision-experience', label: 'الإجراء', description: 'Work → Next Action', icon: Target, stage: 'work' },
-  { path: '/decision-experience', label: 'التعلّم', description: 'Expected → Actual', icon: BookOpen, stage: 'outcome' },
+  { path: '/import', label: 'المصدر', description: 'مستند → حقيقة', icon: FileInput },
+  { path: '/trust', label: 'الدليل', description: 'Evidence → Trust', icon: FileSearch },
+  { path: '/intelligence', label: 'الإشارة', description: 'Signal → Why → So What', icon: Sparkles },
+  { path: '/advisor-cases', label: 'المستشار', description: 'Recommendation → Case', icon: BriefcaseBusiness },
+  { path: '/decision-experience', label: 'القرار', description: 'Decision → Approval', icon: ShieldCheck, stage: 'decision' },
+  { path: '/work-center', label: 'التنفيذ', description: 'Work → Next Action', icon: Target },
+  { path: '/decision-experience', label: 'النتيجة', description: 'Expected → Actual', icon: CheckCircle2Compat, stage: 'outcome' },
+  { path: '/replay', label: 'التعلّم', description: 'Replay → Learning', icon: BookOpen },
   { path: '/reports/executive', label: 'المخرجات', description: 'Executive report', icon: Route },
 ];
+
+function CheckCircle2Compat(props: { size?: number }) {
+  return <span className="inline-flex items-center justify-center" aria-hidden="true"><span className="h-3.5 w-3.5 rounded-full border-2 border-current" style={{ width: props.size ? props.size - 1 : 13, height: props.size ? props.size - 1 : 13 }} /></span>;
+}
 
 export function ProductJourneyNav() {
   const location = useLocation();

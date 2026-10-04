@@ -1554,3 +1554,287 @@ button,input,textarea,select{font:inherit}
   .border-success-300{border-color:#a5b4fc!important}
   .ring-success-100{--tw-ring-color:#e0e7ff!important}
 }
+
+
+/* SELLABLE PRODUCT POLISH PASS — 2026-10-04
+   One visual language across command, evidence, intelligence, decision and operations.
+   Primary palette: midnight navy + indigo + restrained brass. */
+@layer components{
+  .ag-main{
+    position:relative;
+    isolation:isolate;
+  }
+
+  /* Keep the decision rail visible without taking over the screen. */
+  .ag-journey{
+    position:sticky;
+    top:60px;
+    z-index:22;
+    margin-inline:-4px;
+  }
+  .ag-journey-track{
+    gap:5px!important;
+    padding:5px!important;
+    border-color:#dbe2ea!important;
+    border-radius:17px!important;
+    background:rgba(255,255,255,.90)!important;
+    box-shadow:0 14px 30px -26px rgba(15,23,42,.34)!important;
+    backdrop-filter:blur(18px);
+  }
+  .ag-journey-brand{
+    color:#334155!important;
+    padding-inline:10px!important;
+  }
+  .ag-journey-brand-mark{
+    background:linear-gradient(145deg,#0b1020,#312e81)!important;
+    color:#f5b546!important;
+    box-shadow:0 7px 16px -12px rgba(49,46,129,.75);
+  }
+  .ag-journey-link{
+    min-width:118px!important;
+    min-height:43px!important;
+    border-color:transparent!important;
+    color:#64748b!important;
+  }
+  .ag-journey-link:hover{
+    border-color:#dbe2ea!important;
+    background:#f8f9ff!important;
+    color:#312e81!important;
+  }
+  .ag-journey-link-active{
+    border-color:#c7d2fe!important;
+    background:linear-gradient(145deg,#0b1020,#1e293b 55%,#312e81)!important;
+    color:#fff!important;
+    box-shadow:0 12px 24px -20px rgba(15,23,42,.62)!important;
+  }
+  .ag-journey-index{color:#94a3b8!important;font-variant-numeric:tabular-nums}
+  .ag-journey-link-active .ag-journey-index{color:#f5b546!important}
+  .ag-journey-icon{
+    background:#eef2ff!important;
+    color:#4f46e5!important;
+    border:1px solid #e0e7ff;
+  }
+  .ag-journey-icon-active{
+    background:#6366f1!important;
+    color:#fff!important;
+    border-color:#818cf8!important;
+  }
+  .ag-journey-description{color:#94a3b8!important}
+  .ag-journey-link-active .ag-journey-description{color:#cbd5e1!important}
+  .ag-journey-arrow{color:#cbd5e1!important}
+
+  /* Premium page headers: clear hierarchy without the old green wash. */
+  .ag-main .ag-page-header{
+    position:relative;
+    overflow:hidden;
+    isolation:isolate;
+    min-height:112px;
+    margin-bottom:1.25rem!important;
+    padding:1.15rem 1.25rem!important;
+    border:1px solid rgba(165,180,252,.18)!important;
+    border-radius:20px!important;
+    color:#fff!important;
+    background:
+      radial-gradient(circle at 92% 10%,rgba(99,102,241,.28),transparent 24rem),
+      radial-gradient(circle at 8% 88%,rgba(245,181,70,.10),transparent 18rem),
+      linear-gradient(135deg,#0b1020 0%,#111827 52%,#312e81 100%)!important;
+    box-shadow:0 28px 60px -42px rgba(15,23,42,.82),inset 0 1px 0 rgba(255,255,255,.08)!important;
+  }
+  .ag-main .ag-page-header::before{
+    content:"";
+    position:absolute;
+    inset:auto -18% -72% auto;
+    width:32rem;
+    height:18rem;
+    border:1px solid rgba(165,180,252,.14);
+    border-radius:50%;
+    box-shadow:0 0 0 2rem rgba(99,102,241,.025),0 0 0 4rem rgba(245,181,70,.018);
+    transform:rotate(-8deg);
+    pointer-events:none;
+  }
+  .ag-main .ag-page-header::after{
+    content:"";
+    position:absolute;
+    inset:0 auto 0 0;
+    width:4px;
+    background:linear-gradient(180deg,#f5b546,#a5b4fc,#6366f1);
+    box-shadow:0 0 18px rgba(245,181,70,.22);
+    pointer-events:none;
+  }
+  .ag-main .ag-page-header .ag-page-kicker{
+    color:#c7d2fe!important;
+    font-size:9px!important;
+    letter-spacing:.08em;
+  }
+  .ag-main .ag-page-header .ag-page-kicker-dot{
+    background:#f5b546!important;
+    box-shadow:0 0 0 4px rgba(245,181,70,.13)!important;
+  }
+  .ag-main .ag-page-header h1{
+    color:#fff!important;
+    font-size:clamp(1.35rem,2vw,1.85rem)!important;
+    letter-spacing:-.025em;
+  }
+  .ag-main .ag-page-header p{
+    color:#cbd5e1!important;
+    max-width:52rem!important;
+  }
+  .ag-main .ag-page-header .btn-primary{
+    background:linear-gradient(135deg,#f5b546,#ffd77c)!important;
+    color:#17120a!important;
+    border-color:rgba(255,255,255,.12)!important;
+    box-shadow:0 16px 28px -20px rgba(245,181,70,.56)!important;
+  }
+  .ag-main .ag-page-header .btn-primary:hover{background:linear-gradient(135deg,#e9a82d,#ffd36a)!important}
+  .ag-main .ag-page-header .btn-secondary{
+    background:rgba(255,255,255,.08)!important;
+    border-color:rgba(199,210,254,.20)!important;
+    color:#f8fafc!important;
+  }
+  .ag-main .ag-page-header .btn-secondary:hover{background:rgba(255,255,255,.13)!important;border-color:rgba(165,180,252,.34)!important;color:#fff!important}
+
+  /* Cards and content blocks read as one product system. */
+  .ag-main .card{
+    border-radius:18px!important;
+    border-color:#e2e8f0!important;
+    background:rgba(255,255,255,.96)!important;
+    box-shadow:0 16px 36px -30px rgba(15,23,42,.24)!important;
+  }
+  .ag-main .card-header{
+    background:linear-gradient(180deg,rgba(248,250,252,.88),rgba(255,255,255,.94))!important;
+    border-bottom-color:#edf1f5!important;
+  }
+  .ag-main .card-subtle{
+    border-color:#e2e8f0!important;
+    background:linear-gradient(145deg,#f8fafc,#fff)!important;
+    border-radius:14px!important;
+  }
+  .ag-main .card-hover:hover,
+  .ag-main .ag-card-interactive:hover{
+    transform:translateY(-1px);
+    border-color:#c7d2fe!important;
+    box-shadow:0 22px 42px -30px rgba(79,70,229,.24)!important;
+  }
+
+  /* Stronger data density without making tables look like admin CRUD. */
+  .ag-main .data-table-shell,
+  .ag-main .ag-data-table{
+    border:1px solid #e2e8f0!important;
+    border-radius:16px!important;
+    background:#fff!important;
+    box-shadow:0 10px 24px -24px rgba(15,23,42,.24);
+  }
+  .ag-main .ag-data-table thead th{
+    background:linear-gradient(180deg,#fafbff,#f1f5f9)!important;
+    color:#475569!important;
+    font-size:9px!important;
+    letter-spacing:.06em!important;
+    text-transform:none!important;
+    border-bottom-color:#e2e8f0!important;
+  }
+  .ag-main .ag-data-table tbody td{
+    color:#334155!important;
+  }
+  .ag-main .ag-data-table tbody tr:hover{
+    background:linear-gradient(90deg,#f8f8ff,#fff)!important;
+  }
+  .ag-main .ag-table-empty{
+    border-radius:16px!important;
+    border:1px dashed #cbd5e1!important;
+    background:linear-gradient(145deg,#f8fafc,#fff)!important;
+  }
+  .ag-main .ag-table-empty-icon{
+    width:42px!important;height:42px!important;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:12px;
+    background:#eef2ff!important;
+    color:#4f46e5!important;
+    margin-inline:auto;
+  }
+  .ag-main .ag-table-empty-title{color:#1e293b!important;font-weight:900!important}
+  .ag-main .ag-table-empty-copy{color:#64748b!important}
+
+  /* Forms: make inputs feel product-grade rather than browser-default. */
+  .ag-main .input{
+    min-height:44px;
+    border:1px solid #dbe2ea!important;
+    border-radius:12px!important;
+    background:#fff!important;
+    color:#0f172a!important;
+    box-shadow:0 1px 2px rgba(15,23,42,.03);
+    transition:border-color .16s ease,box-shadow .16s ease,background .16s ease;
+  }
+  .ag-main .input:hover{border-color:#cbd5e1!important}
+  .ag-main .input:focus{
+    border-color:#6366f1!important;
+    box-shadow:0 0 0 4px rgba(99,102,241,.10),0 8px 18px -16px rgba(79,70,229,.22)!important;
+    outline:none!important;
+  }
+  .ag-main textarea.input{min-height:112px}
+  .ag-main select.input{cursor:pointer}
+
+  /* States are intentional surfaces, not dead ends. */
+  .ag-main .ag-state{
+    border-radius:18px!important;
+    border:1px solid #e2e8f0!important;
+    background:linear-gradient(145deg,#fff,#f8fafc)!important;
+    box-shadow:0 16px 34px -30px rgba(15,23,42,.22);
+  }
+  .ag-main .ag-state-loading{background:linear-gradient(145deg,#fff,#f7f8ff)!important}
+  .ag-main .ag-state-loading .ag-state-icon{
+    width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+    border-radius:14px;background:#eef2ff!important;color:#4f46e5!important;
+  }
+  .ag-main .ag-state-title{color:#0f172a!important;font-weight:900}
+  .ag-main .ag-state-copy{color:#64748b!important}
+
+  /* Alerts, assistant and overlays share the same premium depth. */
+  .ag-alert-panel,
+  #ag-global-advisor{
+    border-color:#dbe2ea!important;
+    box-shadow:0 30px 80px -40px rgba(15,23,42,.68)!important;
+  }
+  .ag-alert-head{background:linear-gradient(145deg,#f8fafc,#fff)!important}
+  #ag-global-advisor > div:first-child{
+    padding:.35rem .25rem .5rem!important;
+    border-bottom:1px solid #eef2f7;
+  }
+
+  /* Authenticated advisor launcher reads as part of the brand. */
+  body > .fixed button[aria-controls="ag-global-advisor"]{
+    background:linear-gradient(135deg,#0b1020,#312e81)!important;
+    border-color:#4f46e5!important;
+    box-shadow:0 18px 34px -24px rgba(49,46,129,.75)!important;
+  }
+
+  /* Operational and executive hero blocks get consistent depth. */
+  .ag-main :is(.ag-command-hero,.ag-operational-hero,.ag-exec-hero,.ag-connection-hero,.ag-report-hero,.ag-import-value-header,.ag-governance-hero){
+    border-radius:20px!important;
+    box-shadow:0 24px 58px -42px rgba(15,23,42,.42)!important;
+  }
+
+  /* Gold is an accent, not a success color; success stays cool/quiet. */
+  .ag-main .badge-success,
+  .ag-main .text-success-700,
+  .ag-main .text-success-800,
+  .ag-main .text-success-900{color:#3730a3!important}
+  .ag-main .bg-success-50{background:#eef2ff!important}
+  .ag-main .bg-success-100{background:#e0e7ff!important}
+  .ag-main .border-success-200{border-color:#c7d2fe!important}
+
+  /* Respect small screens: keep the rail usable and preserve the mobile action bar. */
+  @media (max-width:767px){
+    .ag-journey{top:56px;margin-inline:-1px}
+    .ag-journey-track{border-radius:14px!important}
+    .ag-journey-brand{display:none}
+    .ag-journey-link{min-width:108px!important}
+    .ag-main .ag-page-header{min-height:0;padding:1rem!important;border-radius:16px!important}
+    .ag-main .ag-page-header h1{font-size:1.35rem!important}
+    .ag-main .card{border-radius:16px!important}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .ag-main .card-hover:hover,
+    .ag-main .ag-card-interactive:hover{transform:none}
+    .ag-journey-link,.ag-main .input{transition:none}
+  }
+}
