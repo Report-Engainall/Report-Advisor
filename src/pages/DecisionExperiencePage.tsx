@@ -140,6 +140,7 @@ function DecisionExperienceGeneralPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [decisionContext, setDecisionContext] = useState<RuntimeDecisionContext>({ decision: null, approval: null });
+  const [recommendationContext, setRecommendationContext] = useState<Record<string, string> | null>(null);
   const [decisionContextLoading, setDecisionContextLoading] = useState(false);
   const [decisionBusy, setDecisionBusy] = useState(false);
   const [decisionError, setDecisionError] = useState<string | null>(null);
@@ -191,17 +192,31 @@ function DecisionExperienceGeneralPage() {
   useEffect(() => {
     let active = true;
     setDecisionError(null);
+    setRecommendationContext(null);
     if (!selectedId) {
       setDecisionContext({ decision: null, approval: null });
       setDecisionContextLoading(false);
       return () => { active = false; };
     }
     setDecisionContextLoading(true);
-    void loadRuntimeDecisionContext(selectedId)
-      .then((context) => { if (active) setDecisionContext(context); })
+    void Promise.all([
+      loadRuntimeDecisionContext(selectedId),
+      loadRuntimeRecommendationEvidence(selectedId),
+    ])
+      .then(([context, recommendationEvidence]) => {
+        if (!active) return;
+        setDecisionContext(context);
+        const evidenceContext = recommendationEvidence.evidence?.recommendationContext;
+        setRecommendationContext(
+          evidenceContext && typeof evidenceContext === 'object'
+            ? Object.fromEntries(Object.entries(evidenceContext).map(([key, value]) => [key, String(value ?? '')]))
+            : null,
+        );
+      })
       .catch((cause) => {
         if (active) {
           setDecisionContext({ decision: null, approval: null });
+          setRecommendationContext(null);
           setDecisionError(cause instanceof Error ? cause.message : 'تعذر قراءة مسار القرار المحفوظ');
         }
       })
@@ -434,6 +449,25 @@ function DecisionExperienceGeneralPage() {
                     <div className="surface-label">موضوع القرار</div>
                     <h2 className="mt-1 text-lg font-black text-ink-950">{selected.title}</h2>
                     {selected.description && <p className="mt-2 text-[12px] leading-6 text-ink-600">{selected.description}</p>}
+                    {recommendationContext && (
+                      <div className="mt-4 rounded-xl border border-primary-100 bg-primary-50/40 p-3">
+                        <div className="text-[9px] font-black tracking-[.08em] text-primary-700">RECOMMENDATION CONTEXT</div>
+                        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                          {[
+                            ['WHY NOW', recommendationContext.whyNow],
+                            ['MEASUREMENT', recommendationContext.measurement],
+                            ['RISK', recommendationContext.risk],
+                            ['BLOCKER', recommendationContext.blocker],
+                            ['LIMITATION', recommendationContext.limitation],
+                          ].filter(([, value]) => value).map(([label, value]) => (
+                            <div key={label} className="rounded-lg border border-white/70 bg-white p-2.5">
+                              <div className="text-[9px] font-black text-ink-400">{label}</div>
+                              <div className="mt-1 text-[10px] leading-5 text-ink-700">{value}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="grid gap-3 sm:grid-cols-3">
                     <div className="rounded-[12px] border border-ink-100 bg-white p-3"><div className="text-[10px] text-ink-400">الحالة</div><div className="mt-1 text-[12px] font-black text-ink-900">{selectedStatus ?? 'غير متاح'}</div></div>
@@ -460,6 +494,24 @@ function DecisionExperienceGeneralPage() {
                     <div className="flex flex-wrap items-center gap-2"><span className="text-[10px] font-black text-primary-700">التوصية المختارة</span><PriorityBadge priority={selected.priority}/><ConfidenceBadge confidence={selected.confidence}/></div>
                     <h2 className="mt-2 text-lg font-black text-ink-950">{selected.title}</h2>
                     {selected.description && <p className="mt-1 text-[11px] leading-5 text-ink-600">{selected.description}</p>}
+                    {recommendationContext && (
+                      <div className="mt-4 grid gap-2 sm:grid-cols-2" aria-label="سياق التوصية">
+                        {[
+                          ['WHY NOW', recommendationContext.whyNow],
+                          ['EXPECTED OUTCOME', recommendationContext.expectedOutcome],
+                          ['OWNER', recommendationContext.owner],
+                          ['MEASUREMENT', recommendationContext.measurement],
+                          ['RISK', recommendationContext.risk],
+                          ['BLOCKER', recommendationContext.blocker],
+                          ['LIMITATION', recommendationContext.limitation],
+                        ].filter(([, value]) => value).map(([label, value]) => (
+                          <div key={label} className="rounded-xl border border-ink-100 bg-white p-3">
+                            <div className="text-[9px] font-black tracking-[.08em] text-ink-400">{label}</div>
+                            <div className="mt-1 text-[10px] leading-5 text-ink-700">{value}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">ما نعرفه</div><div className="mt-2 text-[12px] font-bold text-ink-900">{statusLabel(selected.status)}</div></div>
