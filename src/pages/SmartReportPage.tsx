@@ -215,6 +215,26 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
     })
     .filter((item) => item.sum != null || item.mean != null);
 
+  const dimensionColumn = columns.find((column) =>
+    ['customer_name','supplier_name','product_name','category','warehouse','invoice_number'].includes(
+      String(column.mappedField ?? canonicalFieldName(column.name) ?? ''),
+    ),
+  );
+  const amountColumnForRanking = columns.find((column) =>
+    ['net_amount','total','total_amount','amount','value','balance','outstanding_balance','paid_amount'].includes(
+      String(column.mappedField ?? canonicalFieldName(column.name) ?? ''),
+    ),
+  );
+  const topRows = dimensionColumn && amountColumnForRanking
+    ? rows.map((row) => ({
+        name: String(valueForColumn(row, String(dimensionColumn.mappedField ?? dimensionColumn.name ?? '')) ?? 'غير مسمى').trim() || 'غير مسمى',
+        value: parseNumber(valueForColumn(row, String(amountColumnForRanking.mappedField ?? amountColumnForRanking.name ?? ''))),
+      }))
+      .filter((item): item is {name:string; value:number} => item.value != null && Number.isFinite(item.value))
+      .sort((a,b) => Math.abs(b.value) - Math.abs(a.value))
+      .slice(0, 5)
+    : [];
+
   const completeness = rows.length && columns.length
     ? Math.round(Math.max(0, 100 - (
       columns.reduce((sum, column) => {
@@ -281,7 +301,7 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
     });
   }
 
-  return { columns, preview: [], numeric, completeness, metrics, topRows: [] };
+  return { columns, preview: [], numeric, completeness, metrics, topRows };
 }
 
 function reportVerificationLabel(value: string): string {
