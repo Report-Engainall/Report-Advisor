@@ -1,3 +1,5 @@
+import { parseDate, parseNumber } from '../file-engine/normalizer.ts';
+
 export type ReportSignalSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 
 export type ReportSignalDriver = {
@@ -117,11 +119,7 @@ type ReportInput = {
 function text(value: unknown): string { return String(value ?? '').trim(); }
 function normalized(value: unknown): string { return text(value).toLowerCase().normalize('NFKC').replace(/[\s_\-./]+/g, ''); }
 function numeric(value: unknown): number | null {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  const raw = text(value).replace(/,/g, '');
-  if (!raw) return null;
-  const n = Number(raw);
-  return Number.isFinite(n) ? n : null;
+  return parseNumber(value);
 }
 
 function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
@@ -379,6 +377,7 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
       const rank: Record<ReportSignalSeverity, number> = { critical: 5, high: 4, medium: 3, low: 2, info: 1 };
       return rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title);
     })
+    .slice(0, 1)
     .map((signal) => {
     let action = 'افحص الدليل المرتبط بهذا الاستثناء ثم قرر الإجراء المناسب.';
     if (signal.id.includes('missing-price')) action = 'افتح صفوف المصدر التي بلا سعر وراجع التسعير قبل الاعتماد.';
@@ -415,10 +414,10 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
   });
 }
 
-function parseDate(value: unknown): Date | null {
-  const raw = text(value);
-  if (!raw) return null;
-  const parsed = new Date(raw);
+function parseDateValue(value: unknown): Date | null {
+  const normalized = parseDate(value);
+  if (!normalized) return null;
+  const parsed = new Date(normalized + 'T00:00:00Z');
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
@@ -434,7 +433,7 @@ function deriveForecast(report: ReportInput): ReportForecast {
   }
   const byMonth = new Map<string, number>();
   for (const row of rows) {
-    const date = parseDate(row.data?.[dateKey]);
+    const date = parseDateValue(row.data?.[dateKey]);
     const value = numeric(row.data?.[valueKey]);
     if (!date || value == null) continue;
     const month = date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0');
