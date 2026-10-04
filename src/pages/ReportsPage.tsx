@@ -125,7 +125,7 @@ function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report
       title={title + ' — تقرير المصدر'}
       subtitle={report.sourcePath + ' · هذه الشاشة مربوطة مباشرة بنتيجة التقرير وبصمته، وليست لقطة الشركة العامة.'}
       actions={<div className="flex flex-wrap gap-2">
-        <Link to={'/reports/smart/' + report.jobId} className="btn-secondary text-xs">التقرير الذكي</Link>
+        <Link to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary text-xs">التقرير الذكي</Link>
         <Link to={sourceBoundHref('/trust', report)} className="btn-secondary text-xs">الدليل</Link>
         <Link to={sourceBoundHref('/decision-experience?stage=evidence', report)} className="btn-primary text-xs">مساحة القرار</Link>
       </div>}
@@ -353,7 +353,7 @@ export function ReportsCenterPage() {
                 ['نتيجة', report.outcomeStatus],
               ];
               return (
-                <Link key={report.jobId} to={'/reports/smart/' + report.jobId} className="ag-smart-report-card group rounded-2xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
+                <Link key={report.jobId + ':' + report.sourceHash} to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="ag-smart-report-card group rounded-2xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="truncate text-sm font-black text-ink-950" title={report.sourcePath}>{report.sourcePath}</div>
