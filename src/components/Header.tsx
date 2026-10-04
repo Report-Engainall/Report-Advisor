@@ -121,7 +121,7 @@ export function Header({
     AlertTriangle;
 
   const healthClass =
-    health === 'healthy' ? 'text-success-600' :
+    health === 'healthy' ? 'text-primary-600' :
     health === 'checking' ? 'text-ink-400' :
     'text-warning-600';
 

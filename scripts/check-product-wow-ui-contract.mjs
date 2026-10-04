@@ -346,6 +346,12 @@ const loginSurface = fs.readFileSync('src/pages/LoginPage.tsx', 'utf8');
 assert.ok(loginSurface.includes('to="/proposal-demo"'), 'login must expose the public proposal demo entry');
 assert.ok(loginSurface.includes('مشاهدة العرض الحي أولًا'), 'login must label the public proposal demo clearly');
 
+const headerSurface = fs.readFileSync('src/components/Header.tsx', 'utf8');
+assert.ok(!headerSurface.includes('text-success-600'), 'healthy connection state must not reintroduce the deprecated green accent');
+const appErrorSurface = fs.readFileSync('src/App.tsx', 'utf8');
+assert.ok(appErrorSurface.includes('AGHBARI · RECOVERY'), 'global error recovery must use the executive recovery surface');
+assert.ok(appErrorSurface.includes('bg-[#0b1020]'), 'loading/error shell fallbacks must use midnight navy');
+
 const proposalSurface = fs.readFileSync('src/pages/ProposalDemoPage.tsx', 'utf8');
 assert.ok(proposalSurface.includes('CommercialValueChain'), 'proposal demo must expose the product value chain');
 assert.ok((proposalSurface.match(/englishLabel:/g) || []).length >= 8, 'proposal demo must expose all eight value stages');
