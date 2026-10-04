@@ -16,9 +16,9 @@ const states = [
 ] as const;
 
 const evidenceSurfaces = [
-  { title: 'Evidence Passport', detail: 'هوية الدليل ومصدره وسياقه عند توفر السجل.', path: '/import/analyze', available: true, icon: Landmark },
+  { title: 'حالة الدليل', detail: 'هوية الدليل ومصدره وسياقه عند توفر السجل.', path: '/import/analyze', available: true, icon: Landmark },
   { title: 'Provenance / Lineage', detail: 'تتبع انتقال الحقيقة من المصدر إلى التحليل.', path: '/data-quality', available: true, icon: GitBranch },
-  { title: 'Snapshots / As-of', detail: 'السجل الزمني المعتمد ليس شاشة مستقلة مثبتة حاليًا.', path: '', available: false, icon: History },
+  { title: 'السجل الزمني', detail: 'السجل الزمني المعتمد ليس شاشة مستقلة مثبتة حاليًا.', path: '', available: false, icon: History },
   { title: 'Decision Evidence', detail: 'الدليل المرتبط بمساحة القرار الحالية.', path: '/decision-inbox', available: true, icon: ShieldCheck },
   { title: 'Benchmark Governance', detail: 'يتطلب سجل مقارنة وعينة كافية؛ لا تُعرض نتيجة مختلقة.', path: '', available: false, icon: FileSearch },
   { title: 'Metric Inspector', detail: 'فحص المؤشر وحدود الحساب ومصدره.', path: '/metrics', available: true, icon: Eye },
@@ -97,7 +97,7 @@ function TrustEvidenceGeneralPage() {
       <div className="mt-6 grid gap-3 sm:grid-cols-4" role="status" aria-live="polite">
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CURRENT STATUS</div><div className="mt-1 text-lg font-black">{statusLabel}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">RECORDS CHECKED</div><div className="mt-1 text-lg font-black">{totalRecords == null ? 'غير متاح' : totalRecords}</div></div>
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">ISSUES REPORTED</div><div className="mt-1 text-lg font-black">{issueTotal ?? 'غير متاح'}</div></div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">المشكلات المرصودة</div><div className="mt-1 text-lg font-black">{issueTotal ?? 'غير متاح'}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CRITICAL</div><div className="mt-1 text-lg font-black">{criticalIssueTotal}</div></div>
       </div>
     </section>
@@ -157,13 +157,13 @@ function TrustEvidenceGeneralPage() {
 
     <Link to={nextStep.path} className="block rounded-[16px] border border-primary-200 bg-primary-50/60 p-4 transition hover:border-primary-300 hover:bg-primary-50" aria-label={'الخطوة التالية: ' + nextStep.label}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">NEXT TRUST ACTION</div><div className="mt-1 text-sm font-black text-ink-950">{nextStep.label}</div><div className="mt-1 text-[10px] leading-5 text-ink-600">{nextStep.detail}</div></div>
+        <div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">الخطوة التالية للثقة</div><div className="mt-1 text-sm font-black text-ink-950">{nextStep.label}</div><div className="mt-1 text-[10px] leading-5 text-ink-600">{nextStep.detail}</div></div>
         <span className="inline-flex items-center gap-2 rounded-xl bg-ink-950 px-3 py-2 text-[10px] font-black text-white">فتح الآن <ArrowLeft size={13}/></span>
       </div>
     </Link>
 
     <div className="rounded-2xl border border-warning-200 bg-warning-50/60 p-4 text-xs leading-6 text-warning-800">
-      الثقة لا تُستنتج من شكل الواجهة. أي غياب في المصدر أو السلسلة أو العينة يبقى ظاهرًا كـ REVIEW / BLOCKED / INSUFFICIENT DATA.
+      الثقة لا تُستنتج من شكل الواجهة. أي نقص في المصدر أو السلسلة أو العينة يبقى معلنًا كحالة تحتاج مراجعة أو تمنع الاعتماد.
     </div>
   </div>;
 }
