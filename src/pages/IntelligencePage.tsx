@@ -355,7 +355,7 @@ const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
           <p className="mt-1 text-[10px] leading-5 text-ink-500">انتقل إلى حارس السيناريوهات مع بقاء شروط الحقيقة والحساب الحتمي في المقدمة.</p>
         </Link>
         <div className="card p-4">
-          <div className="flex items-center justify-between"><Sparkles size={17} className="text-warning-700"/><span className="badge-warning">NOT AVAILABLE</span></div>
+          <div className="flex items-center justify-between"><Sparkles size={17} className="text-warning-700"/><span className="badge-warning">غير متاح</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Decision Playbooks</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">قوالب اللعبات التنفيذية تحتاج مسار سجل مستقل؛ لن تُعرض كقوالب جاهزة مزيفة.</p>
         </div>
@@ -437,7 +437,7 @@ const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
                         >
                           <XCircle size={13} /> {decisionId === recommendation.id ? 'جارٍ الحفظ…' : 'رفض'}
                         </button>
-                        <Link to="/decision-experience?stage=decision" className="btn-ghost text-[11px]">فتح القرار</Link>
+                        <Link to="/decision-inbox" className="btn-ghost text-[11px]">مركز القرارات</Link>
                       </div>
                     </div>
                   </div>
@@ -678,7 +678,7 @@ const [items, setItems] = useState<Recommendation[]>([]);
                         <button type="button" disabled={pendingId === item.id} onClick={() => void handleStatus(item.id, 'accepted')} className="btn-primary text-xs"><CheckCircle2 size={14}/>قبول</button>
                         <button type="button" disabled={pendingId === item.id} onClick={() => void handleStatus(item.id, 'rejected')} className="btn-secondary text-xs"><XCircle size={14}/>رفض</button>
                       </>}
-                      <Link to={'/decision-experience?stage=evidence&recommendationId=' + encodeURIComponent(item.id)} className="inline-flex items-center gap-1.5 rounded-xl border border-ink-200 px-3 py-2 text-xs font-semibold text-ink-700 hover:bg-ink-50">مساحة الدليل <ArrowLeft size={14}/></Link>
+                      <Link to="/decision-inbox" className="inline-flex items-center gap-1.5 rounded-xl border border-ink-200 px-3 py-2 text-xs font-semibold text-ink-700 hover:bg-ink-50">مساحة الدليل <ArrowLeft size={14}/></Link>
                     </div>
                   </div>
                 </article>
