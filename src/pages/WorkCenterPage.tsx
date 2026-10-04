@@ -148,7 +148,11 @@ function WorkCenterGeneralPage() {
   };
 
   const workStatusLabel = (status: string) =>
-    status === 'OPEN' ? 'مفتوح' : status === 'IN_PROGRESS' ? 'قيد التنفيذ' : status === 'COMPLETED' ? 'مكتمل' : status;
+    status === 'OPEN' ? 'مفتوح' : status === 'IN_PROGRESS' ? 'قيد التنفيذ' : status === 'COMPLETED' ? 'مكتمل' : status === 'CANCELLED' ? 'ملغى' : 'يحتاج مراجعة';
+  const priorityLabel = (priority: unknown) => {
+    const value = String(priority ?? '').toUpperCase();
+    return value === 'URGENT' || value === 'P0' ? 'عاجل' : value === 'HIGH' || value === 'P1' ? 'مرتفع' : value === 'MEDIUM' || value === 'P2' ? 'متوسط' : value === 'LOW' || value === 'P3' ? 'منخفض' : 'غير محدد';
+  };
   const queueEmptyState = rows.length === 0
     ? { title: 'لا توجد عمليات تشغيل مثبتة', message: 'لا توجد عمليات استيراد مسجلة لهذا المستأجر حتى الآن؛ ابدأ بالمصدر الموحد لبناء أول دورة تشغيل قابلة للتتبع.' }
     : { title: 'لا توجد عمليات مطابقة', message: 'غيّر عامل التصفية أو اعرض السجل الكامل للوصول إلى العمليات المسجلة.' };
@@ -341,11 +345,11 @@ function WorkCenterGeneralPage() {
                   <tr key={item.id} className="border-t border-ink-100">
                     <td className="max-w-[280px] px-3 py-3">
                       <div className="font-black text-ink-900">{item.title}</div>
-                      <div className="mt-1 font-mono text-[8px] text-ink-400">{item.id}</div>
+                      <div className="mt-1 text-[8px] text-ink-400">مسار العمل محفوظ ومربوط بالتقرير</div>
                     </td>
                     <td className="px-3 py-3"><span className="rounded-full bg-ink-50 px-2 py-1 font-bold text-ink-700">{workStatusLabel(item.status)}</span></td>
                     <td className="px-3 py-3 text-ink-600">{item.assigneeLabel ?? 'غير متاح'}</td>
-                    <td className="px-3 py-3 text-ink-600">{item.priority}</td>
+                    <td className="px-3 py-3 text-ink-600">{priorityLabel(item.priority)}</td>
                     <td className="px-3 py-3 text-ink-600">{item.dueAt ? new Date(item.dueAt).toLocaleDateString('ar-YE') : 'غير محدد'}</td>
                     <td className="px-3 py-3 text-ink-600">
                       <div>{item.actualImpact != null ? formatNumber(item.actualImpact) : item.expectedImpact != null ? 'متوقع ' + formatNumber(item.expectedImpact) : 'غير متاح'}</div>
@@ -483,10 +487,10 @@ function WorkCenterGeneralPage() {
                   <span className={'rounded-full px-2 py-1 text-[9px] font-black ' + (outcome.label === 'correct' ? 'bg-success-50 text-success-800' : outcome.label === 'incorrect' ? 'bg-danger-50 text-danger-800' : outcome.label === 'partial' ? 'bg-warning-50 text-warning-900' : 'bg-ink-100 text-ink-600')}>{label}</span>
                   <span className="text-[9px] text-ink-400">{new Date(outcome.observedAt).toLocaleString('ar-YE')}</span>
                 </div>
-                <div className="mt-3 text-[9px] font-mono text-ink-400 break-all">{outcome.decisionFingerprint}</div>
+                <div className="mt-3 text-[9px] text-ink-400">بصمة القرار محفوظة للتتبع الداخلي</div>
                 <div className="mt-3 grid grid-cols-2 gap-2">
-                  <div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">المتوقع</div><div className="mt-1 text-xs font-black text-ink-900">{outcome.expectedValue == null ? 'NOT AVAILABLE' : formatNumber(outcome.expectedValue)}</div></div>
-                  <div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الفعلي</div><div className="mt-1 text-xs font-black text-ink-900">{outcome.actualValue == null ? 'NOT AVAILABLE' : formatNumber(outcome.actualValue)}</div></div>
+                  <div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">المتوقع</div><div className="mt-1 text-xs font-black text-ink-900">{outcome.expectedValue == null ? 'غير متاح' : formatNumber(outcome.expectedValue)}</div></div>
+                  <div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الفعلي</div><div className="mt-1 text-xs font-black text-ink-900">{outcome.actualValue == null ? 'غير متاح' : formatNumber(outcome.actualValue)}</div></div>
                 </div>
                 <div className="mt-2 rounded-lg border border-primary-100 bg-primary-50/60 p-2 text-[9px] leading-5 text-primary-900">
                   <strong>تعلم قابل للتتبع:</strong> {delta == null ? 'لا توجد قيمة كافية لاستخراج فرق؛ تبقى الحالة غير مكتملة.' : 'فرق النتيجة عن المتوقع = ' + formatNumber(delta)}
