@@ -138,9 +138,6 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
                 </span>
                 <span className="mt-0.5 block truncate text-[9px] font-medium text-ink-400">{meta.hint}</span>
               </span>
-              {section.id === 'decision-center' && alertCount > 0 && (
-                <span className="min-w-4 rounded-full bg-danger-600 px-1 text-center text-[9px] font-black text-white">{alertCount}</span>
-              )}
               <ChevronDown size={14} className={'shrink-0 text-ink-300 transition-transform ' + (open ? '' : '-rotate-90')} />
             </button>
             <div id={`nav-section-${section.id}`} hidden={!open} className="ag-nav-sublist mr-3 mt-0.5 space-y-0.5 pr-2">
