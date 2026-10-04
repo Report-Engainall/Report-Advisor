@@ -59,7 +59,7 @@ export function BenchmarkPage() {
         <div className="rounded-2xl border border-ink-200 bg-white p-4">
           <div className="flex items-center gap-2 text-[10px] text-ink-500"><ShieldCheck size={14}/> حالة الشبكة</div>
           <div className="mt-2 text-xl font-black text-warning-800">عينة غير كافية</div>
-          <div className="mt-1 text-[10px] text-ink-500">INSUFFICIENT_SAMPLE</div>
+          <div className="mt-1 text-[10px] text-ink-500">العينة غير كافية</div>
         </div>
         <div className="rounded-2xl border border-ink-200 bg-white p-4">
           <div className="flex items-center gap-2 text-[10px] text-ink-500"><Users size={14}/> سياق داخلي</div>
@@ -77,7 +77,7 @@ export function BenchmarkPage() {
         <h2 className="text-lg font-black text-warning-950">لماذا لا توجد مقارنة الآن؟</h2>
         <p className="mt-2 text-sm leading-7 text-warning-900">
           لا يوجد في البنية الحالية Cohort شبكي موثوق يتيح مقارنة هذا التقرير مع شركات/مساحات أخرى وفق نفس التعريفات والفترات وجودة البيانات.
-          لذلك لا يتم اختلاق متوسط أو ترتيب أو نسبة تفوق. ستبقى الحالة {networkStatus} حتى تتوفر طبقة Cohort معزولة ومطابقة للسياسة.
+          لذلك لا يتم اختلاق متوسط أو ترتيب أو نسبة تفوق. ستبقى الحالة: العينة غير كافية حتى تتوفر طبقة Cohort معزولة ومطابقة للسياسة.
         </p>
       </section>
 
