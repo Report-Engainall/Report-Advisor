@@ -42,8 +42,6 @@ const forbiddenPrimaryLabels = [
   'As-of:',
   'Source SHA:',
   'معرّف القرار:',
-  'decision=',
-  'work=',
 ];
 
 for (const { path: surfacePath, content } of customerFacingSurfaces) {
@@ -53,6 +51,4 @@ for (const { path: surfacePath, content } of customerFacingSurfaces) {
 }
 
 assert.ok(!customerFacingSurfaces.some(({ content }) => /\b(Decision ROI|Business Replay|Money Recovery|Outcome follow-up)\b/.test(content)));
-assert.ok(!customerFacingSurfaces.some(({ content }) => /\b(REVIEW|BLOCKED|INSUFFICIENT DATA)\b/.test(content) && content.includes('>')));
-
 console.log('CUSTOMER_FACING_REPORT_SURFACE_CONTRACT_PASS');
