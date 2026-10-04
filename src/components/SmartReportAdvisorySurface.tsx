@@ -82,7 +82,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
     } catch (error) {
       setDecisionError(error instanceof Error ? error.message : 'تعذر قراءة قرار المصدر');
     }
-  }, [report.sourceHash]);
+  }, [report.sourceHash, report.jobId]);
 
   useEffect(() => { void refreshDecisionProposal(); }, [refreshDecisionProposal]);
 
