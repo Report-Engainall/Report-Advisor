@@ -41,6 +41,12 @@ function errorMessage(error: unknown): string {
   return userFacingError(raw);
 }
 
+function specialtyLabel(value: unknown): string {
+  const key = String(value ?? '').trim().toLowerCase();
+  const labels: Record<string, string> = { sales: 'مبيعات', purchases: 'مشتريات', inventory: 'مخزون', receivables: 'ذمم وتحصيل', profitability: 'ربحية', payments: 'سيولة ومدفوعات' };
+  return labels[key] ?? 'أعمال';
+}
+
 function reportStateLabel(value: unknown): string {
   const key = String(value ?? '').trim();
   const labels: Record<string,string> = {
@@ -206,7 +212,7 @@ export function ReportsCenterPage() {
             </div>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] text-ink-500">
-            <span>As of: {asOf}</span>
+            <span>حتى: {asOf}</span>
             <span>•</span>
             <span>أعمار الذمم: {aging.status === 'CALCULATED' ? 'قابلة للحساب' : aging.status === 'NO_DATA' ? 'لا توجد بيانات' : 'بيانات غير كافية'}</span>
             {aging.unknownRows > 0 && <><span>•</span><span className="font-semibold text-warning-700">{formatNumber(aging.unknownRows)} صفوف خارج الحكم</span></>}
@@ -214,7 +220,7 @@ export function ReportsCenterPage() {
         </div>
         <div className="flex min-w-[220px] flex-col justify-between rounded-2xl bg-ink-950 p-4 text-white">
           <div>
-            <div className="text-[9px] font-black tracking-[.12em] text-primary-200">NEXT ACTION</div>
+            <div className="text-[9px] font-black tracking-[.08em] text-primary-200">الخطوة التالية</div>
             <div className="mt-2 text-sm font-black">{nextLabel}</div>
             <p className="mt-2 text-[10px] leading-5 text-ink-300">المؤشرات المعروضة تعكس اللقطة الحالية فقط؛ غياب القيمة يبقى ظاهرًا ولا يُستبدل بتقدير.</p>
           </div>
@@ -258,9 +264,9 @@ export function ReportsCenterPage() {
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <div className="section-kicker">SMART ADVISOR REPORTS</div>
-          <h2 className="mt-1 text-lg font-black text-ink-950">كل التقارير التي عولجت واستخرج منها المستشار فهمًا</h2>
-          <p className="mt-1 max-w-3xl text-[10px] leading-5 text-ink-500">هذه ليست قائمة ملفات: كل بطاقة تمثل مصدرًا معالجًا، نموذج التقرير الذي تعرّف عليه النظام، وحالة انتقاله من الحقيقة إلى الدليل والتوصية والقرار والعمل والنتيجة.</p>
+          <div className="section-kicker">التقارير الذكية</div>
+          <h2 className="mt-1 text-lg font-black text-ink-950">مصادر حقيقية تحولت إلى قراءة أعمال قابلة للمتابعة</h2>
+          <p className="mt-1 max-w-3xl text-[10px] leading-5 text-ink-500">كل بطاقة تبدأ من مصدر موثق ثم تعرض ما أصبح متاحًا للقرار وما يحتاج متابعة، من دون إغراق العميل في تفاصيل تقنية.</p>
         </div>
         <span className="rounded-full bg-primary-50 px-3 py-1 text-[10px] font-black text-primary-700">{smartReports.length} مصدرًا ذكيًا</span>
       </div>
@@ -271,14 +277,11 @@ export function ReportsCenterPage() {
         </div>
       ) : (
         <>
-          <div className="ag-reports-smart-metrics mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="ag-reports-smart-metrics mt-4 grid gap-2 sm:grid-cols-3">
             {[
-              ['نماذج مكتشفة', smartReports.filter((r) => Boolean(r.archetypeId)).length, 'كل مصدر يمر على هوية نموذجية واضحة أو حالة مراجعة.'],
-              ['موثقة', smartReports.filter((r) => r.evidenceStatus === 'VERIFIED').length, 'دليل مصدر قابل للمراجعة.'],
-              ['توصيات', smartReports.filter((r) => Boolean(r.recommendationStatus)).length, 'وجود مخرج توصية في التقرير.'],
-              ['قرارات', smartReports.filter((r) => Boolean(r.decisionStatus)).length, 'وجود حالة قرار مرتبطة بالتقرير.'],
-              ['عمل', smartReports.filter((r) => Boolean(r.actionStatus)).length, 'وجود حالة تنفيذ/عمل.'],
-              ['نتائج', smartReports.filter((r) => Boolean(r.outcomeStatus)).length, 'وجود حالة نتيجة؛ لا تعني أنها مثبتة دائمًا.'],
+              ['مصادر موثقة', smartReports.filter((r) => r.evidenceStatus === 'VERIFIED' || r.trustState === 'TRUSTED').length, 'مصادر يمكن الاعتماد عليها في القراءة الحالية.'],
+              ['جاهزة للقرار', smartReports.filter((r) => r.decisionStatus === 'APPROVED' || r.recommendationStatus === 'PROPOSED').length, 'لديها مخرج واضح يمكن متابعته ضمن المسار.'],
+              ['تحتاج انتباهًا', smartReports.filter((r) => ['REVIEW','REVIEW_REQUIRED','PENDING','INSUFFICIENT_DATA','GAP_DETECTED'].includes(String(r.trustState ?? r.reportVerificationState))).length, 'نقص أو مراجعة يجب رؤيتها قبل الاعتماد.'],
             ].map(([label, value, note]) => (
               <div key={String(label)} className="rounded-xl border border-ink-100 bg-ink-50/70 p-3">
                 <div className="text-[9px] font-black text-ink-500">{label}</div>
@@ -308,13 +311,13 @@ export function ReportsCenterPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="truncate text-sm font-black text-ink-950">{report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي'}</div>
-                      <div className="mt-1 text-[10px] text-ink-500">{report.rowCount == null ? 'عدد الصفوف غير متاح' : formatNumber(report.rowCount) + ' صف'} · {report.specialty ?? 'عام'}</div>
+                      <div className="mt-1 text-[10px] text-ink-500">{report.rowCount == null ? 'حجم المصدر غير متاح' : formatNumber(report.rowCount) + ' سجل'} · {specialtyLabel(report.specialty)}</div>
                     </div>
                     <span className={'shrink-0 rounded-full px-2 py-1 text-[9px] font-black ' + (report.trustState === 'TRUSTED' ? 'bg-indigo-50 text-indigo-800' : 'bg-warning-50 text-warning-800')}>{report.trustState === 'TRUSTED' ? 'موثوق' : report.trustState === 'VERIFIED' ? 'موثق' : report.trustState === 'REVIEW' || report.trustState === 'REVIEW_REQUIRED' ? 'مراجعة مطلوبة' : 'غير مكتمل'}</span>
                   </div>
 
                   <div className="mt-3 rounded-xl border border-primary-100 bg-primary-50/60 p-3">
-                    <div className="text-[9px] font-black tracking-[.08em] text-primary-700">نوع التحليل</div>
+                    <div className="text-[9px] font-black tracking-[.08em] text-primary-700">قراءة التقرير</div>
                     <div className="mt-1 truncate text-[11px] font-black text-ink-950" title={modelLabel}>{modelLabel}</div>
                     <div className="mt-1 text-[9px] text-ink-500">الحالة: {report.archetypeState === 'REVIEW_REQUIRED' ? 'يحتاج مراجعة' : report.archetypeState === 'SUPPORTED' ? 'جاهز' : 'غير متاح'}</div>
                   </div>
@@ -324,16 +327,16 @@ export function ReportsCenterPage() {
                     <span className="rounded-lg bg-ink-50 px-2 py-1">حالة التقرير: {reportStateLabel(report.reportVerificationState)}</span>
                   </div>
 
-                  <div className="mt-3 grid grid-cols-3 gap-1.5">
-                    {flow.map(([stage, state]) => (
-                      <span key={stage} className={'rounded-lg border px-2 py-1 text-center font-bold ' + (
-                        state === 'VERIFIED' || state === 'APPROVED' || state === 'COMPLETED' ? 'border-success-200 bg-success-50 text-success-800'
-                        : state === 'REVIEW_REQUIRED' || state === 'PENDING' || state === 'PROPOSED' ? 'border-warning-200 bg-warning-50 text-warning-800'
-                        : 'border-ink-100 bg-ink-50 text-ink-500'
-                      )}>
-                        {stage}: {state === 'VERIFIED' ? 'موثق' : state === 'APPROVED' ? 'معتمد' : state === 'COMPLETED' ? 'مكتمل' : state === 'PROPOSED' ? 'مقترح' : state === 'PENDING' || state === 'REVIEW_REQUIRED' ? 'مراجعة' : state === 'IN_PROGRESS' ? 'قيد التنفيذ' : state === 'OPEN' ? 'مفتوح' : 'غير متاح'}
-                      </span>
-                    ))}
+                  <div className="mt-3 flex flex-wrap items-center gap-2 text-[9px]">
+                    <span className="rounded-full border border-ink-200 bg-ink-50 px-2.5 py-1 font-bold text-ink-600">
+                      الدليل: {report.evidenceStatus === 'VERIFIED' ? 'موثق' : report.evidenceStatus ? reportStateLabel(report.evidenceStatus) : 'غير متاح'}
+                    </span>
+                    <span className="rounded-full border border-ink-200 bg-ink-50 px-2.5 py-1 font-bold text-ink-600">
+                      التوصية: {report.recommendationStatus === 'PROPOSED' ? 'مقترحة' : report.recommendationStatus === 'APPROVED' ? 'معتمدة' : report.recommendationStatus === 'COMPLETED' ? 'منفذة' : 'غير متاحة'}
+                    </span>
+                    <span className="rounded-full border border-ink-200 bg-ink-50 px-2.5 py-1 font-bold text-ink-600">
+                      النتيجة: {report.outcomeStatus === 'MEASURED' || report.outcomeStatus === 'OBSERVED' ? 'مرصودة' : 'لم تُسجل بعد'}
+                    </span>
                   </div>
 
                   <div className="mt-3 flex items-center justify-between gap-2">
@@ -350,12 +353,12 @@ export function ReportsCenterPage() {
 
     <section className="ag-reports-output-grid grid gap-4 lg:grid-cols-3">
       <Link to="/reports/executive" className="card card-hover p-4">
-        <div className="text-[9px] font-black tracking-[.12em] text-primary-700">DECISION OUTPUT</div>
+        <div className="text-[9px] font-black tracking-[.08em] text-primary-700">مخرجات القرار</div>
         <h3 className="mt-2 text-sm font-black text-ink-900">تقارير القرار والتوصية</h3>
         <p className="mt-1 text-[10px] leading-5 text-ink-500">استخدم التقرير التنفيذي كسطح مخرجات القرار الحالي، مع بقاء الدليل والسياق ظاهرين.</p>
       </Link>
       <Link to="/data-quality" className="card card-hover p-4">
-        <div className="text-[9px] font-black tracking-[.12em] text-primary-700">AUDIT OUTPUT</div>
+        <div className="text-[9px] font-black tracking-[.08em] text-primary-700">جودة الدليل</div>
         <h3 className="mt-2 text-sm font-black text-ink-900">جودة البيانات والتدقيق</h3>
         <p className="mt-1 text-[10px] leading-5 text-ink-500">مسار الجودة هو المصدر الحالي لمراجعة الحالات بدل إنشاء تقرير تدقيق منفصل ببيانات مكررة.</p>
       </Link>
