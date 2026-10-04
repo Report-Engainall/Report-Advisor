@@ -521,9 +521,11 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     .eq('source_hash', job.source_hash)
     .eq('import_job_id', renderedImportId)
     .order('created_at', { ascending: false })
-    .limit(1);
+    .limit(100);
 
-  let analysis = (importAnalyses?.[0] ?? null) as Record<string, unknown> | null;
+  let analysis = chooseBestAnalysisSnapshot(
+    (importAnalyses ?? []) as Array<Record<string, unknown>>,
+  );
   if (importAnalysisError) {
     runtimeWarnings.push('تعذر قراءة لقطات التحليل البديلة؛ استمر التقرير اعتمادًا على المخرجات المحفوظة والصفوف الكانونية المتاحة.');
     analysis = null;
