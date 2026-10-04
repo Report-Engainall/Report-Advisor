@@ -1,41 +1,51 @@
 # CURRENT SESSION STATE
 SESSION HANDOFF = NOT READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = ba6f2d4e6c89b1b918896ebde6489d5b0641ecfb
+CURRENT_EXACT_HEAD = 4d495664bd881b9d950ca9fb82751a5910acc3b1
 CURRENT_MAIN_HEAD = 9ecb9b831bab2beb02791d4f1eda6f4a374d4731
-CURRENT_EXECUTION_HEAD = 4ab7a699ff6364fd64e2f4cbfd252964a0d31f57
+CURRENT_EXECUTION_HEAD = 4d495664bd881b9d950ca9fb82751a5910acc3b1
 BRANCH = feat/complete-smart-intelligence-surface-20261003
 PR = #820 OPEN
-CURRENT_PR_HEAD = ba6f2d4e6c89b1b918896ebde6489d5b0641ecfb
+CURRENT_PR_HEAD = 4d495664bd881b9d950ca9fb82751a5910acc3b1
+
 WHAT_ACTUALLY_HAPPENED
-- Continued PR #820 from the real execution point and consumed completed CI failures only on their exact HEADs.
-- Repaired the single live legacy source-intelligence recommendation that failed Phase-F restore integrity through the governed tenant-bound provenance repair RPC; invalid source-intelligence recommendations now count 0.
-- Added and applied the matching provenance-repair migration; repository migration filename is aligned to Supabase migration version 20261004132454.
-- Replaced the primary executive visual chrome from green/teal to midnight-indigo with restrained amber CTA accents; green remains semantic success only.
-- Added a customer-facing Smart Report value chain from SOURCE → EVIDENCE → SIGNALS → ADVISOR → DECISION → WORK → OUTCOME → LEARNING.
-- Hardened the real-48 proof artifact to emit candidate counts, missing required fields, runtime/provenance failure reasons, and candidate diagnostics.
-- Repaired Smart Report regression contracts without changing business truth.
-- Hardened Phase-F logical backup/restore, preview rollback provenance proof, and exact runtime identity checks.
-- Added authenticated SELECT permission for report_evidence_snapshots with RLS tenant policy preserved.
-- Moved the 48-archetype fixture seed into the governed corpus rehydration path and removed the standalone tenant-consumer seed script.
-- Current exact code head has Quality, Value Cohort, and Evidence Passport green; Phase-F and Full Product Browser E2E remain live; Final Certification is blocked only by the current live evidence and this handoff synchronization.
-CURRENT_ACTIVE_FAILURE = CI_RECERTIFICATION: exact-head certification workflows for ba6f2d4e6c89b1b918896ebde6489d5b0641ecfb are queued/pending; no terminal PASS is trusted yet.
-FIRST_TERMINAL_FAILURE_TO_TRUST = only a completed result on the latest exact HEAD; queued/pending results are not PASS.
+- Repaired the legacy source-intelligence provenance defect through the governed tenant-bound repair RPC; invalid source-intelligence recommendations are 0.
+- Applied the matching provenance-repair migration 20261004132454.
+- Replaced the executive visual system with Midnight Navy + Indigo + restrained Brass/Amber; green is reserved for semantic success states.
+- Replaced green trusted-state styling in the Smart Report value chain with Indigo.
+- Fixed login dark-surface contrast after the palette migration.
+- Added a regression contract that asserts the premium visual system tokens and shell/CTA treatment.
+- Smart Report already exposes SOURCE → EVIDENCE → SIGNALS → ADVISOR → DECISION → WORK → OUTCOME → LEARNING, with Decision Cockpit, Evidence Gate, Advisor/Case persistence, Forecast, Signals, Recommendations, Work Center, Replay, Benchmark and source-bound drill-down.
+- Hardening for the 48-archetype gate remains fail-closed and emits per-candidate diagnostics; no fabricated 48/48 claim.
+
 WHAT_IS_PROVEN
-- Staging project fnqbvfuwbdpwvhcgzksl is ACTIVE_HEALTHY.
-- 49 evidence passports are VERIFIED/READY/FULL.
-- 42/42 current Value Cohort candidates are already VERIFIED/READY/FULL.
-- The optimized candidate RPC returns 42 rows in ~133ms on EXPLAIN with no change to evidence semantics.
-- Previous governed corpus run: 63 records, 0 FAILED.
+- PR #820 is OPEN and currently mergeable.
+- Latest Netlify preview deploy for the exact current HEAD is READY with no deploy error.
+- Netlify preview URL: https://deploy-preview-820--aghbari-report-advisor.netlify.app
+- Latest exact-head Netlify deploy id: 6ac2579b7e41720008fc5199.
+- The deploy uploaded 81 new files/assets and deployed 4 functions successfully.
+- CodeRabbit status is success.
+- The current preview path is therefore usable as the customer-facing validation surface even while other providers remain pending.
+- Vercel is not the product blocker: its latest bot message reported the free-plan daily deployment rate limit.
+
+CURRENT_ACTIVE_FAILURE
+- CI_RECERTIFICATION = exact-head certification workflows are still queued/pending on 4d495664bd881b9d950ca9fb82751a5910acc3b1.
+- Full Product Browser E2E, Phase-F live resilience, Value Cohort, Commercial Product Creation E2E, Device-Independent Browser E2E, Session Handoff and Final Certification are not terminal yet.
+- No queued/pending workflow is treated as PASS.
+- Real-source 48/48 proof remains unproven.
+
 OPEN
-- Consume exact-head Quality, Value Cohort, Full Product Browser E2E, Phase-F, and Final Certification results on ba6f2d4e6c89b1b918896ebde6489d5b0641ecfb; code preview under test is 4ab7a699ff6364fd64e2f4cbfd252964a0d31f57.
-- Real-source 48/48 proof remains unproven; the gate now emits per-candidate diagnostic reasons instead of opaque NOT_PROVEN results.
-- External production deployment availability.
-- Netlify preview for 4ab7a699ff6364fd64e2f4cbfd252964a0d31f57 is READY; Vercel is still BUILDING/PENDING on its connected preview.
+- Consume the first terminal exact-head certification result; patch only its first root cause.
+- Close Full Product Browser E2E + Phase-F + Session Handoff + Final Certification on the exact HEAD.
+- Finish real-source 48/48 proof without fabricating coverage.
+- Promote a production release only after the governed certification path is terminal.
+
 DO_NOT_REPEAT
 - No stale SHA PASS.
 - No queued-run PASS.
 - No fabricated corpus/archetype coverage.
 - No RLS/auth/evidence weakening.
 - No blind timeout inflation.
-NEXT_EXACT_ACTION = consume the first terminal exact-head certification result on ba6f2d4e6c89b1b918896ebde6489d5b0641ecfb; patch only the first root cause, then rerun the closed gate family and close Session Handoff
+- No promotion of main from a PR branch.
+
+NEXT_EXACT_ACTION = consume the first terminal exact-head certification result on 4d495664bd881b9d950ca9fb82751a5910acc3b1; patch only its first root cause, then rerun the closed gate family and close Session Handoff + Final Certification.
