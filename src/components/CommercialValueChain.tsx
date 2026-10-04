@@ -11,7 +11,7 @@ export type CommercialValueStage = {
 };
 
 const toneClasses: Record<NonNullable<CommercialValueStage['tone']>, string> = {
-  trusted: 'border-emerald-200 bg-emerald-50/70 text-emerald-950',
+  trusted: 'border-indigo-200 bg-indigo-50/80 text-indigo-950',
   active: 'border-indigo-200 bg-indigo-50/80 text-indigo-950',
   attention: 'border-amber-200 bg-amber-50/80 text-amber-950',
   neutral: 'border-slate-200 bg-slate-50 text-slate-900',
