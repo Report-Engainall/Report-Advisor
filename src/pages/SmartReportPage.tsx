@@ -389,7 +389,7 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
           <div className="rounded-xl bg-white p-3">
             <div className="text-[8px] font-black text-ink-400">التغطية الكانونية</div>
-            <div className="mt-1 text-[10px] font-black text-ink-900">{gap > 0 ? `فجوة ${formatNumber(gap)} صف` : report.canonicalCommitVerified ? 'مغطى' : 'غير مثبت'}</div>
+            <div className="mt-1 text-[10px] font-black text-ink-900">{gap == null ? 'غير متاح' : gap > 0 ? `فجوة ${formatNumber(gap)} صف` : report.canonicalCommitVerified ? 'مغطى' : 'غير مثبت'}</div>
           </div>
           <div className="rounded-xl bg-white p-3">
             <div className="text-[8px] font-black text-ink-400">لقطة الدليل</div>
