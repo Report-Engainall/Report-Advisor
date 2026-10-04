@@ -306,9 +306,9 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
 }
 
 function reportVerificationLabel(value: string): string {
-  if (value === 'VERIFIED') return 'Verified';
-  if (value === 'GAP_DETECTED') return 'Gap Detected';
-  return 'Pending Evidence';
+  if (value === 'VERIFIED') return 'موثق';
+  if (value === 'GAP_DETECTED') return 'فجوة تحتاج مراجعة';
+  return 'بانتظار الدليل';
 }
 
 function EvidenceInspector({ report }: { report: SmartReportDetail }) {
@@ -323,9 +323,9 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="section-kicker">EVIDENCE INSPECTOR</div>
+          <div className="section-kicker">فحص الدليل</div>
           <h2 className="mt-1 text-lg font-black text-ink-950">سلسلة الثقة لهذا التقرير</h2>
-          <p className="mt-1 text-xs leading-6 text-ink-500">Trusted Source لا تعني Verified Report. الاعتماد الكانوني دليل تغطية للبيانات، وليس قبولًا نهائيًا للدليل.</p>
+          <p className="mt-1 text-xs leading-6 text-ink-500">المصدر الموثوق لا يعني أن التقرير موثق نهائيًا. الاعتماد الكانوني يثبت تغطية البيانات، بينما قبول الدليل مرحلة مستقلة.</p>
         </div>
         <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black ${verificationClass}`}>{reportVerificationLabel(verification)}</span>
       </div>
@@ -337,15 +337,15 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
       </div>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <div className="rounded-xl border border-ink-200 bg-ink-50/60 p-4">
-          <div className="text-[9px] font-black text-ink-500">EVIDENCE PASSPORT</div>
+          <div className="text-[9px] font-black text-ink-500">حالة الدليل</div>
           <div className="mt-2 text-sm font-black">{stateLabel(report.evidenceStatus)}</div>
-          <div className="mt-1 text-[10px] text-ink-500">Acceptance: {stateLabel(String(report.renderedOutput.evidenceAcceptanceStatus ?? 'غير متاح'))} · Readiness: {stateLabel(String(report.renderedOutput.decisionReadiness ?? 'غير متاح'))}</div>
-          <div className="mt-1 break-all font-mono text-[9px] text-ink-400">Snapshot: {String(report.renderedOutput.evidenceSnapshotId ?? 'غير موجود')}</div>
+          <div className="mt-1 text-[10px] text-ink-500">القبول: {stateLabel(String(report.renderedOutput.evidenceAcceptanceStatus ?? 'غير متاح'))} · الجاهزية: {stateLabel(String(report.renderedOutput.decisionReadiness ?? 'غير متاح'))}</div>
+          
         </div>
         <div className={`rounded-xl border p-4 ${verificationClass}`}>
-          <div className="text-[9px] font-black">VERIFICATION STATE</div>
+          <div className="text-[9px] font-black">حالة التوثيق</div>
           <div className="mt-2 text-sm font-black">{reportVerificationLabel(verification)}</div>
-          <div className="mt-1 text-[10px]">Source trust: {stateLabel(report.sourceTrustState ?? report.trustState)} · Report verification: {reportVerificationLabel(verification)}</div>
+          <div className="mt-1 text-[10px]">ثقة المصدر: {stateLabel(report.sourceTrustState ?? report.trustState)} · توثيق التقرير: {reportVerificationLabel(verification)}</div>
           {report.renderedOutput.legacyPriorVerification === true ? <div className="mt-2 rounded-lg border border-warning-300 bg-warning-50 px-2 py-1 text-[9px] font-bold text-warning-900">حالة VERIFIED القديمة تم استبدالها بدليل Passport مستقل.</div> : null}
         </div>
       </div>
@@ -353,16 +353,16 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
         <summary className="cursor-pointer text-[10px] font-black text-ink-700">تفاصيل التدقيق الفني</summary>
         <div className="mt-3 grid gap-3 md:grid-cols-2">
           <div className="rounded-xl bg-white p-3"><div className="text-[9px] font-black text-ink-500">بصمة المصدر</div><div className="mt-1 break-all font-mono text-[9px] text-ink-500">{report.sourceHash}</div></div>
-          <div className="rounded-xl bg-white p-3"><div className="text-[9px] font-black text-ink-500">Report Job</div><div className="mt-1 break-all font-mono text-[9px] text-ink-500">{report.jobId}</div></div>
+          <div className="rounded-xl bg-white p-3"><div className="text-[9px] font-black text-ink-500">عملية التقرير</div><div className="mt-1 break-all font-mono text-[9px] text-ink-500">{report.jobId}</div></div>
           <div className="rounded-xl bg-white p-3"><div className="text-[9px] font-black text-ink-500">الاستيراد الكانوني</div><div className="mt-1 text-[10px] text-ink-500">{report.canonicalAnalysisScope === 'FULL_SOURCE' ? 'المصدر الكامل' : 'قراءة جزئية تحتاج مراجعة'}</div></div>
-          <div className="rounded-xl bg-white p-3"><div className="text-[9px] font-black text-ink-500">Evidence Snapshot</div><div className="mt-1 break-all font-mono text-[9px] text-ink-500">{String(report.renderedOutput.evidenceSnapshotId ?? 'غير موجود')}</div></div>
+          <div className="rounded-xl bg-white p-3"><div className="text-[9px] font-black text-ink-500">لقطة الدليل</div><div className="mt-1 break-all font-mono text-[9px] text-ink-500">{String(report.renderedOutput.evidenceSnapshotId ?? 'غير موجود')}</div></div>
         </div>
       </details>
 
       <div className="mt-3 rounded-2xl border border-primary-200 bg-primary-50/45 p-4" aria-label="بوابة الدليل قبل القرار">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <div className="text-[9px] font-black tracking-[0.12em] text-primary-700">EVIDENCE GATE</div>
+            <div className="text-[9px] font-black tracking-[0.12em] text-primary-700">بوابة الدليل</div>
             <h3 className="mt-1 text-sm font-black text-ink-950">الاعتماد الكانوني والدليل النهائي مرحلتان منفصلتان</h3>
             <p className="mt-1 text-[10px] leading-5 text-ink-600">اكتمال Commit يثبت تغطية البيانات الكانونية فقط. لا تصبح النتيجة Verified إلا بعد وجود Evidence Snapshot صريح مرتبط بالمصدر.</p>
           </div>
@@ -372,15 +372,15 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
         </div>
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
           <div className="rounded-xl bg-white p-3">
-            <div className="text-[8px] font-black text-ink-400">CANONICAL COMMIT</div>
+            <div className="text-[8px] font-black text-ink-400">التغطية الكانونية</div>
             <div className="mt-1 text-[10px] font-black text-ink-900">{gap > 0 ? `فجوة ${formatNumber(gap)} صف` : report.canonicalCommitVerified ? 'مغطى' : 'غير مثبت'}</div>
           </div>
           <div className="rounded-xl bg-white p-3">
-            <div className="text-[8px] font-black text-ink-400">EVIDENCE SNAPSHOT</div>
+            <div className="text-[8px] font-black text-ink-400">لقطة الدليل</div>
             <div className="mt-1 text-[10px] font-black text-ink-900">{verification === 'VERIFIED' ? 'موجود ومثبت' : report.evidenceStatus === 'AWAITING_EVIDENCE_SNAPSHOT' ? 'بانتظار لقطة دليل' : stateLabel(report.evidenceStatus)}</div>
           </div>
           <div className="rounded-xl bg-white p-3">
-            <div className="text-[8px] font-black text-ink-400">DECISION READINESS</div>
+            <div className="text-[8px] font-black text-ink-400">جاهزية القرار</div>
             <div className="mt-1 text-[10px] font-black text-ink-900">{verification === 'VERIFIED' ? 'الدليل متاح للمراجعة' : 'لا يوجد اعتماد دليلي نهائي بعد'}</div>
           </div>
         </div>
@@ -783,8 +783,8 @@ export function SmartReportPage() {
           {copied ? 'تم نسخ الرابط' : 'نسخ رابط التقرير'}
         </button>
         <Link to={'/work-center?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary inline-flex items-center gap-2 text-xs">مركز العمل</Link>
-        <Link to={'/replay?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary inline-flex items-center gap-2 text-xs">Replay</Link>
-        <Link to={'/benchmark?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary inline-flex items-center gap-2 text-xs">Benchmark</Link>
+        <Link to={'/replay?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary inline-flex items-center gap-2 text-xs">إعادة التشغيل</Link>
+        <Link to={'/benchmark?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary inline-flex items-center gap-2 text-xs">المقارنة</Link>
         <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-primary inline-flex items-center gap-2 text-xs">مسار القرار</Link>
         <Link to="/reports" className="btn-secondary inline-flex items-center gap-2 text-xs"><ArrowLeft size={14}/> مركز التقارير</Link>
       </div>}
@@ -990,7 +990,7 @@ export function SmartReportPage() {
     </section>
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="flex items-center gap-2"><ShieldCheck size={18} className="text-primary-600"/><div><div className="section-kicker">TRUTH → EVIDENCE → SIGNAL → INTELLIGENCE</div><h2 className="mt-1 text-lg font-black text-ink-950">حالة التقرير الذكي</h2></div></div>
+      <div className="flex items-center gap-2"><ShieldCheck size={18} className="text-primary-600"/><div><div className="section-kicker">الحقيقة → الدليل → الإشارة → الذكاء</div><h2 className="mt-1 text-lg font-black text-ink-950">حالة التقرير الذكي</h2></div></div>
       <div className="mt-4 grid gap-3 md:grid-cols-3">
         {(['evidenceStatus','signalStatus','intelligenceStatus'] as const).map((key) => {
           const value = key === 'evidenceStatus' ? (report.evidenceStatus == null ? null : String(report.evidenceStatus)) : (output[key] == null ? null : String(output[key]));
@@ -1000,17 +1000,17 @@ export function SmartReportPage() {
     </section>
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="flex items-center gap-2"><FileSearch size={18} className="text-primary-600"/><div><div className="section-kicker">DECISION → ACTION → OUTCOME → LEARNING → BENCHMARK</div><h2 className="mt-1 text-lg font-black">ما الذي ثبت وما الذي لم يُثبت</h2></div></div>
+      <div className="flex items-center gap-2"><FileSearch size={18} className="text-primary-600"/><div><div className="section-kicker">القرار → التنفيذ → النتيجة → التعلّم → المقارنة</div><h2 className="mt-1 text-lg font-black">ما الذي ثبت وما الذي لم يُثبت</h2></div></div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {decisionKeys.map((key) => <div key={key} className="rounded-xl border border-ink-100 bg-ink-50/70 p-4"><div className="text-[10px] font-black text-ink-500">{key}</div><div className="mt-2 text-sm font-bold text-ink-900">{stateLabel(output[key] == null ? null : String(output[key]))}</div></div>)}
       </div>
     </section>
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="flex items-center gap-2"><CheckCircle2 size={18} className="text-primary-600"/><div><div className="section-kicker">RENDERED SURFACES</div><h2 className="mt-1 text-lg font-black">الأسطح التي أنشأها مسار التقرير</h2></div></div>
+      <div className="flex items-center gap-2"><CheckCircle2 size={18} className="text-primary-600"/><div><div className="section-kicker">المخرجات المتاحة</div><h2 className="mt-1 text-lg font-black">الأسطح التي أنشأها مسار التقرير</h2></div></div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {surfaceLinks.map((surface, index) => <Link key={String(surface.key ?? index)} to={String(surface.path) + '?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="rounded-xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
-          <div className="text-[9px] font-black tracking-[.12em] text-primary-700">{String(surface.stage ?? 'OUTPUT')}</div>
+          <div className="text-[9px] font-black tracking-[.12em] text-primary-700">{String(surface.stage ?? 'مخرج')}</div>
           <div className="mt-2 text-sm font-black text-ink-950">{String(surface.label ?? surface.key ?? 'سطح')}</div>
           <div className="mt-2 text-[10px] text-ink-500">مرتبط بالتقرير الحالي · تفاصيل المصدر محفوظة</div>
         </Link>)}
@@ -1019,7 +1019,7 @@ export function SmartReportPage() {
 
     {smartAnalysis.topRows.length > 0 && (
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-        <div className="section-kicker">{report.specialty === 'receivables' ? 'TOP EXPOSURES' : 'TOP SOURCE ITEMS'}</div>
+        <div className="section-kicker">{report.specialty === 'receivables' ? 'أعلى مواضع التعرض' : 'أعلى البنود'}</div>
         <h2 className="mt-1 text-lg font-black">أعلى البنود الظاهرة في العينة</h2>
         <div className="mt-4 grid gap-2">
           {smartAnalysis.topRows.map((row, index) => (
@@ -1040,16 +1040,15 @@ export function SmartReportPage() {
       {previewRows.length === 0 ? <div className="mt-4 rounded-xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">لا توجد عينة صفوف في لقطة التحليل؛ لا يتم اختلاقها.</div> : <div className="mt-4 overflow-x-auto rounded-xl border border-ink-200"><table className="min-w-full text-right text-[11px]"><thead className="bg-ink-50"><tr>{columns.map((column) => <th key={column} className="whitespace-nowrap px-3 py-2 font-black text-ink-600">{column}</th>)}</tr></thead><tbody>{previewRows.map((row, index) => <tr key={index} className="border-t border-ink-100">{columns.map((column) => <td key={column} className="max-w-[240px] truncate whitespace-nowrap px-3 py-2 text-ink-800">{textValue(row[column])}</td>)}</tr>)}</tbody></table></div>}
     </section>
 
-    <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="text-[9px] font-black tracking-[.12em] text-ink-500">PROVENANCE</div>
+    <details className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+      <summary className="cursor-pointer text-[10px] font-black text-ink-600">تفاصيل التتبع الفني</summary>
       <dl className="mt-3 grid gap-3 text-[11px] sm:grid-cols-2">
         <div><dt className="font-bold text-ink-500">Job</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.jobId}</dd></div>
         <div><dt className="font-bold text-ink-500">Import</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.importId ?? 'غير متاح'}</dd></div>
         <div><dt className="font-bold text-ink-500">Source hash</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.sourceHash}</dd></div>
         <div><dt className="font-bold text-ink-500">Analysis snapshot</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.sourceAnalysis?.id ?? 'غير متاح'}</dd></div>
       </dl>
-    </section>
-      </div>
     </details>
+      </div>
   </div>;
 }
