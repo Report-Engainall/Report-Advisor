@@ -215,19 +215,19 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
-          <div className="text-[9px] font-black tracking-[.14em] text-teal-100/60">TRUTH LABELS</div>
+          <div className="text-[9px] font-black tracking-[.14em] text-indigo-100/65">TRUTH LABELS</div>
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-teal-100/45">OBSERVED</div><div className="mt-1 text-sm font-black text-white">{formatNumber(report.rowCount ?? 0)} صف</div></div>
-            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-teal-100/45">DERIVED</div><div className="mt-1 text-sm font-black text-white">{signals.length} إشارات</div></div>
-            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-teal-100/45">RECOMMENDED</div><div className="mt-1 text-sm font-black text-white">{recommendations.length} توصيات</div></div>
-            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-teal-100/45">PROJECTED</div><div className="mt-1 text-sm font-black text-white">{forecast.status === 'AVAILABLE' ? formatNumber(forecast.nextValue ?? 0) : 'غير متاح'}</div></div>
-            <div className="col-span-2 rounded-xl border border-white/8 bg-white/[.03] p-3"><div className="text-[8px] text-teal-100/45">UNKNOWN / LIMITATION</div><div className="mt-1 text-[10px] leading-5 text-white/70">{forecast.status === 'INSUFFICIENT_SAMPLE' ? forecast.note : (topSignal?.impact || 'الأثر المالي النهائي غير مثبت من المصدر الحالي.')}</div></div>
+            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-indigo-100/45">OBSERVED</div><div className="mt-1 text-sm font-black text-white">{formatNumber(report.rowCount ?? 0)} صف</div></div>
+            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-indigo-100/45">DERIVED</div><div className="mt-1 text-sm font-black text-white">{signals.length} إشارات</div></div>
+            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-indigo-100/45">RECOMMENDED</div><div className="mt-1 text-sm font-black text-white">{recommendations.length} توصيات</div></div>
+            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-indigo-100/45">PROJECTED</div><div className="mt-1 text-sm font-black text-white">{forecast.status === 'AVAILABLE' ? formatNumber(forecast.nextValue ?? 0) : 'غير متاح'}</div></div>
+            <div className="col-span-2 rounded-xl border border-white/8 bg-white/[.03] p-3"><div className="text-[8px] text-indigo-100/45">UNKNOWN / LIMITATION</div><div className="mt-1 text-[10px] leading-5 text-white/70">{forecast.status === 'INSUFFICIENT_SAMPLE' ? forecast.note : (topSignal?.impact || 'الأثر المالي النهائي غير مثبت من المصدر الحالي.')}</div></div>
           </div>
         </div>
       </div>
       <div className="relative z-10 mt-5 grid gap-3 lg:grid-cols-[1.1fr_.9fr]">
         <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
-          <div className="flex items-center gap-2 text-[9px] font-black tracking-[.14em] text-teal-100/60">
+          <div className="flex items-center gap-2 text-[9px] font-black tracking-[.14em] text-indigo-100/65">
             <Lightbulb size={14}/> SIGNALS
           </div>
           {signals.length ? (
@@ -237,7 +237,7 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-xs font-black text-white">{signal.title}</div>
-                      <div className="mt-1 text-[10px] leading-5 text-teal-50/65">{signal.message}</div>
+                      <div className="mt-1 text-[10px] leading-5 text-slate-200/65">{signal.message}</div>
                     </div>
                     <span className="shrink-0 rounded-full border border-amber-100/15 bg-amber-100/5 px-2 py-1 text-[8px] font-black text-amber-100">{signal.severity}</span>
                   </div>
@@ -245,20 +245,20 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
               ))}
             </div>
           ) : (
-            <div className="mt-3 rounded-xl border border-white/8 bg-white/[.045] p-3 text-[10px] text-teal-50/65">لا توجد إشارة إضافية مثبتة من المصدر.</div>
+            <div className="mt-3 rounded-xl border border-white/8 bg-white/[.045] p-3 text-[10px] text-slate-200/65">لا توجد إشارة إضافية مثبتة من المصدر.</div>
           )}
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
-          <div className="flex items-center gap-2 text-[9px] font-black tracking-[.14em] text-teal-100/60">
+          <div className="flex items-center gap-2 text-[9px] font-black tracking-[.14em] text-indigo-100/65">
             <TrendingUp size={14}/> FORECAST
           </div>
           <div className="mt-3 rounded-xl border border-white/8 bg-white/[.045] p-3">
             <div className="text-sm font-black text-white">{label(forecast.status)}</div>
-            <div className="mt-1 text-[10px] leading-5 text-teal-50/65">{forecast.note}</div>
+            <div className="mt-1 text-[10px] leading-5 text-slate-200/65">{forecast.note}</div>
             <div className="mt-3 grid grid-cols-2 gap-2">
-              <div className="rounded-lg bg-white/[.04] p-2"><div className="text-[8px] text-teal-100/45">الفترات</div><div className="mt-1 text-sm font-black text-white">{formatNumber(forecast.observedPeriods)}</div></div>
-              <div className="rounded-lg bg-white/[.04] p-2"><div className="text-[8px] text-teal-100/45">القيمة التالية</div><div className="mt-1 text-sm font-black text-white">{forecast.nextValue == null ? '—' : formatNumber(forecast.nextValue)}</div></div>
+              <div className="rounded-lg bg-white/[.04] p-2"><div className="text-[8px] text-indigo-100/45">الفترات</div><div className="mt-1 text-sm font-black text-white">{formatNumber(forecast.observedPeriods)}</div></div>
+              <div className="rounded-lg bg-white/[.04] p-2"><div className="text-[8px] text-indigo-100/45">القيمة التالية</div><div className="mt-1 text-sm font-black text-white">{forecast.nextValue == null ? '—' : formatNumber(forecast.nextValue)}</div></div>
             </div>
           </div>
         </div>
