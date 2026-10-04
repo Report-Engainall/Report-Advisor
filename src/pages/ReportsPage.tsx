@@ -9,6 +9,7 @@ import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/u
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
 import { fetchSmartReport, fetchSmartReportCatalog, type SmartReportCatalogItem, type SmartReportDetail } from '@/lib/report-smart';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
+import { CustomerReportSurface } from '@/components/CustomerReportSurface';
 import { fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
@@ -113,86 +114,8 @@ function sourceBoundHref(path: string, report: SmartReportDetail): string {
 }
 
 function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report: SmartReportDetail; expectedSpecialty: string; title: string }) {
-  const dataset = report.sourceAnalysis?.datasets?.[0];
-  const objectDataset = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : {};
-  const columns = Array.isArray(objectDataset.columns) ? objectDataset.columns : [];
-  const preview = Array.isArray(objectDataset.preview) ? objectDataset.preview.filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === 'object').slice(0, 12) : [];
-  const fullRows = report.canonicalRows
-    .filter((row) => row && row.data && typeof row.data === 'object')
-    .map((row) => row.data);
-  const analyzedRows = report.rowCount == null ? fullRows.length : report.rowCount;
-  const fullSourceCoverage = report.rowCount == null ? true : fullRows.length >= report.rowCount;
-  const amount = sourceValue(columns, 'outstanding_balance', 'local_amount', 'total_amount', 'net_amount', 'total', 'amount', 'value', 'sales', 'purchase');
-  const quantity = sourceValue(columns, 'quantity', 'qty', 'current_stock', 'stock');
-  const profit = sourceValue(columns, 'profit', 'gross_profit');
-  const margin = sourceValue(columns, 'margin', 'gross_margin');
-  const age120 = sourceValue(columns, 'age_over_120', 'over_120');
-  const age30 = sourceValue(columns, 'age_0_30', '0_30', 'age030');
-  const paid = sourceValue(columns, 'paid_amount', 'paid');
-  const nameColumn = sourceValue(columns, 'customer_name', 'customer', 'supplier_name', 'supplier', 'product_name', 'product', 'item', 'name');
-  const metricColumns = [amount, quantity, profit, margin, age120, age30, paid].filter(Boolean);
-  const rows = fullRows.map((row) => {
-    const name = String(row[nameColumn?.name ?? ''] ?? row.name ?? 'غير مسمى');
-    const raw = row[amount?.name ?? ''] ?? row[quantity?.name ?? ''] ?? row[profit?.name ?? ''] ?? row[margin?.name ?? ''];
-    const value = typeof raw === 'number' ? raw : Number(String(raw ?? '').replace(/,/g, ''));
-    return { name, value: Number.isFinite(value) ? value : null };
-  }).filter((row) => row.value != null).sort((a, b) => Number(b.value) - Number(a.value)).slice(0, 8);
-  const actualMatches = report.specialty === expectedSpecialty;
-  const specialtyLabel: Record<string, string> = { sales:'المبيعات', purchases:'المشتريات', inventory:'المخزون', receivables:'الذمم المدينة', profitability:'الربحية', payments:'المدفوعات والسيولة' };
-
-  return <div dir="rtl" className="report-page space-y-5 animate-fade-in pb-10">
-    <PageHeader
-      title={title + ' — تقرير المصدر'}
-      subtitle={report.sourcePath + ' · هذه الشاشة مربوطة مباشرة بنتيجة التقرير وبصمته، وليست لقطة الشركة العامة.'}
-      actions={<div className="flex flex-wrap gap-2">
-        <Link to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary text-xs">التقرير الذكي</Link>
-        <Link to={sourceBoundHref('/trust', report)} className="btn-secondary text-xs">الدليل</Link>
-        <Link to={sourceBoundHref('/decision-experience?stage=evidence', report)} className="btn-primary text-xs">مساحة القرار</Link>
-      </div>}
-    />
-    {!actualMatches && <div className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">هذا المصدر مصنّف كـ{specialtyLabel[report.specialty ?? ''] ?? 'مصدر عام'} وليس {title}. لم يتم تحويله إلى حقيقة تخص هذا التخصص.</div>}
-        <ReportIntelligencePanel report={report} />
-    <section className="ag-reports-smart-section rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="section-kicker">SOURCE-BOUND DOMAIN ANALYSIS</div>
-      <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
-        <h2 className="text-xl font-black text-ink-950">{actualMatches ? 'التحليل المتخصص من المصدر' : 'التحليل العام للمصدر'}</h2>
-        <span className="text-[10px] text-ink-500">{formatNumber(report.rowCount ?? 0)} صف · {columns.length} أعمدة · محلل فعليًا: {formatNumber(analyzedRows)}</span>
-      </div>
-      <div className={`mt-3 rounded-xl border p-3 text-[11px] ${fullSourceCoverage ? 'border-success-200 bg-success-50 text-success-900' : 'border-warning-200 bg-warning-50 text-warning-900'}`}>
-        {fullSourceCoverage
-          ? 'التحليل المتخصص يستخدم مجموعة الصفوف الكانونية الكاملة لهذا التقرير، وليس معاينة الشاشة.'
-          : 'التحليل المتخصص غير مكتمل لهذا المصدر؛ لن تُرفع الاستنتاجات إلى حقيقة كاملة.'}
-      </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {(metricColumns.length ? metricColumns : [{name:'metric'} as any]).map((column:any,index:number) => {
-          const label = String(column.mappedField ?? column.name ?? 'مؤشر').replace(/_/g,' ');
-          const value = sourceNumber(column, 'sum') ?? sourceNumber(column, 'mean');
-          return <div key={String(column.name ?? index)} className="rounded-2xl border border-ink-100 bg-ink-50 p-4"><div className="text-[10px] text-ink-500">{label}</div><div className="mt-2 text-xl font-black text-ink-950">{value == null ? 'غير متاح' : formatNumber(value)}</div><div className="mt-1 text-[9px] text-ink-400">من إحصائية العمود الكانوني للمصدر</div></div>;
-        })}
-      </div>
-    </section>
-    <section className="grid gap-4 lg:grid-cols-[1fr_.8fr]">
-      <Card><CardHeader title="أهم البنود من هذا المصدر" subtitle="أعلى القيم في العينة المقروءة — ليست قرارًا منفذًا."/><CardBody>
-        {rows.length ? <div className="space-y-2">{rows.map((row,index)=><div key={row.name + index} className="flex items-center justify-between gap-3 rounded-xl bg-ink-50 px-3 py-2.5"><span className="truncate text-xs font-bold text-ink-900">{row.name}</span><span className="shrink-0 text-xs font-black text-ink-950">{formatNumber(row.value ?? 0)}</span></div>)}</div> : <div className="text-sm text-ink-500">لا يوجد عمود رقمي مناسب للترتيب في المصدر الحالي.</div>}
-      </CardBody></Card>
-      <Card><CardHeader title="حدود الحقيقة"/><CardBody>
-        <div className="space-y-2 text-xs leading-5 text-ink-600">
-          <div>الثقة: <b>{report.trustState ?? 'غير متاح'}</b></div>
-          <div>الدليل: <b>{report.evidenceStatus === 'VERIFIED' ? 'موثق' : report.evidenceStatus === 'AWAITING_EVIDENCE_SNAPSHOT' ? 'بانتظار الدليل' : 'يحتاج مراجعة'}</b></div>
-          <div>القرار: <b>{businessLifecycleLabel(report.renderedOutput.decisionStatus)}</b></div>
-          <div>الإجراء: <b>{businessLifecycleLabel(report.renderedOutput.actionStatus)}</b></div>
-          <div>النتيجة: <b>{businessLifecycleLabel(report.renderedOutput.outcomeStatus)}</b></div>
-          <div>التعلم: <b>{businessLifecycleLabel(report.renderedOutput.learningStatus)}</b></div>
-          <div>المعيار المقارن: <b>{report.renderedOutput.benchmarkStatus === 'INSUFFICIENT_SAMPLE' ? 'العينة غير كافية' : 'غير متاح'}</b></div>
-        </div>
-      </CardBody></Card>
-    </section>
-    <Card><CardHeader title="معاينة المصدر" subtitle={`تعرض ${formatNumber(preview.length)} صفوف للمعاينة فقط؛ التحليل أعلاه مبني على ${formatNumber(analyzedRows)} صفًا كانونـيًا.`}/><CardBody>
-      {preview.length ? <div className="overflow-x-auto"><table className="min-w-full text-xs"><thead><tr className="border-b border-ink-100">{Object.keys(preview[0]).slice(0,8).map((key)=><th key={key} className="p-2 text-right">{key}</th>)}</tr></thead><tbody>{preview.map((row,index)=><tr key={index} className="border-b border-ink-50">{Object.keys(preview[0]).slice(0,8).map((key)=><td key={key} className="p-2">{String(row[key] ?? '—')}</td>)}</tr>)}</tbody></table></div> : <div className="text-sm text-ink-500">لا توجد معاينة مثبتة لهذا المصدر.</div>}
-    </CardBody></Card>
-  </div>;
+  return <CustomerReportSurface report={report} expectedSpecialty={expectedSpecialty} title={title} />;
 }
-
 const reportCards = [
   { path:'/reports/sales', title:'المبيعات', stage:'قياس', desc:'حركة المبيعات والفواتير والعملاء والمنتجات.', icon:ShoppingCart, iconClass:'bg-primary-50 text-primary-600' },
   { path:'/reports/purchases', title:'المشتريات', stage:'مصدر', desc:'المشتريات والموردون والتدفقات الداخلة.', icon:FileBarChart, iconClass:'bg-accent-50 text-accent-600' },
@@ -361,9 +284,11 @@ export function ReportsCenterPage() {
 
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {smartReports.map((report) => {
-              const modelLabel = report.archetypeId
-                ? report.archetypeId + (report.archetypeVersion ? ' · v' + report.archetypeVersion : '')
-                : report.archetypeState === 'REVIEW_REQUIRED' ? 'يحتاج مراجعة النموذج' : 'النموذج غير متاح';
+              const modelLabel = report.archetypeState === 'SUPPORTED'
+                ? 'نموذج أعمال معتمد'
+                : report.archetypeState === 'REVIEW_REQUIRED'
+                  ? 'مراجعة نموذج التقرير'
+                  : 'تصنيف التقرير غير مكتمل';
               const flow = [
                 ['دليل', report.evidenceStatus],
                 ['توصية', report.recommendationStatus],
@@ -376,7 +301,7 @@ export function ReportsCenterPage() {
                 <Link key={report.jobId + ':' + report.sourceHash} to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="ag-smart-report-card group rounded-2xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-black text-ink-950" title={report.sourcePath}>{report.sourcePath}</div>
+                      <div className="truncate text-sm font-black text-ink-950">{report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي'}</div>
                       <div className="mt-1 text-[10px] text-ink-500">{report.rowCount == null ? 'عدد الصفوف غير متاح' : formatNumber(report.rowCount) + ' صف'} · {report.specialty ?? 'عام'}</div>
                     </div>
                     <span className={'shrink-0 rounded-full px-2 py-1 text-[9px] font-black ' + (report.trustState === 'TRUSTED' ? 'bg-success-50 text-success-800' : 'bg-warning-50 text-warning-800')}>{report.trustState ?? 'غير متاح'}</span>
@@ -400,7 +325,7 @@ export function ReportsCenterPage() {
                         : state === 'REVIEW_REQUIRED' || state === 'PENDING' || state === 'PROPOSED' ? 'border-warning-200 bg-warning-50 text-warning-800'
                         : 'border-ink-100 bg-ink-50 text-ink-500'
                       )}>
-                        {stage}: {state ?? '—'}
+                        {stage}: {state === 'VERIFIED' ? 'موثق' : state === 'APPROVED' ? 'معتمد' : state === 'COMPLETED' ? 'مكتمل' : state === 'PROPOSED' ? 'مقترح' : state === 'PENDING' || state === 'REVIEW_REQUIRED' ? 'مراجعة' : state === 'IN_PROGRESS' ? 'قيد التنفيذ' : state === 'OPEN' ? 'مفتوح' : 'غير متاح'}
                       </span>
                     ))}
                   </div>
