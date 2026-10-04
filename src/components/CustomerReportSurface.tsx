@@ -1,6 +1,7 @@
 import { AlertTriangle, ArrowLeft, FileText, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatCurrency, formatNumber } from '@/lib/format';
+import { parseNumber } from '@/lib/file-engine/normalizer';
 import type { SmartReportDetail } from '@/lib/report-smart';
 
 const SPECIALTY_LABELS: Record<string, string> = {
@@ -92,16 +93,7 @@ function friendlyState(value: unknown): string {
 }
 
 function parseNumeric(value: unknown): number | null {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'string') {
-    const normalized = value
-      .replace(/٬/g, '')
-      .replace(/,/g, '')
-      .replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
-    const number = Number(normalized);
-    return Number.isFinite(number) ? number : null;
-  }
-  return null;
+  return parseNumber(value);
 }
 
 function numericColumns(report: SmartReportDetail) {
