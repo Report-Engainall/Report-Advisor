@@ -364,7 +364,7 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
           <div>
             <div className="text-[9px] font-black tracking-[0.12em] text-primary-700">بوابة الدليل</div>
             <h3 className="mt-1 text-sm font-black text-ink-950">الاعتماد الكانوني والدليل النهائي مرحلتان منفصلتان</h3>
-            <p className="mt-1 text-[10px] leading-5 text-ink-600">اكتمال Commit يثبت تغطية البيانات الكانونية فقط. لا تصبح النتيجة Verified إلا بعد وجود Evidence Snapshot صريح مرتبط بالمصدر.</p>
+            <p className="mt-1 text-[10px] leading-5 text-ink-600">اكتمال Commit يثبت تغطية البيانات الكانونية فقط. لا تصبح النتيجة Verified إلا بعد وجود لقطة الدليل صريح مرتبط بالمصدر.</p>
           </div>
           {verification !== 'VERIFIED' ? (
             <Link to="/trust" className="btn-secondary text-[10px]">فتح بوابة الأدلة <ArrowLeft size={12} /></Link>
@@ -870,7 +870,7 @@ export function SmartReportPage() {
           </div>
         </div>
         <div className="rounded-2xl border border-amber-400/25 bg-amber-300/10 p-4">
-          <div className="text-[10px] font-black tracking-[.14em] text-amber-300">WHAT NEXT</div>
+          <div className="text-[10px] font-black tracking-[.14em] text-amber-300">الخطوة التالية</div>
           <div className="mt-2 text-lg font-black">{primaryRecommendation?.title ?? 'لا يوجد إجراء موصى به للاعتماد الآن'}</div>
           <p className="mt-2 text-xs leading-6 text-slate-300">{primaryRecommendation?.action ?? report.intelligence.advisorBrief.recommendedAction ?? 'يجب التحقق من المصدر قبل تحويله إلى قرار.'}</p>
           <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-2.5 text-xs font-black text-slate-950">افتح الدليل ثم القرار</Link>
@@ -1045,7 +1045,7 @@ export function SmartReportPage() {
       <dl className="mt-3 grid gap-3 text-[11px] sm:grid-cols-2">
         <div><dt className="font-bold text-ink-500">Job</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.jobId}</dd></div>
         <div><dt className="font-bold text-ink-500">Import</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.importId ?? 'غير متاح'}</dd></div>
-        <div><dt className="font-bold text-ink-500">Source hash</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.sourceHash}</dd></div>
+        <div><dt className="font-bold text-ink-500">بصمة المصدر</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.sourceHash}</dd></div>
         <div><dt className="font-bold text-ink-500">Analysis snapshot</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.sourceAnalysis?.id ?? 'غير متاح'}</dd></div>
       </dl>
     </details>
