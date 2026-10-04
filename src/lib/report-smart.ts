@@ -86,7 +86,7 @@ type AnalysisSnapshotLike = {
 };
 
 function normalizeBusinessField(value: unknown): string | null {
-  const key = String(value ?? '').trim().toLowerCase().normalize('NFKC').replace(/[\\s_-]+/g, '');
+  const key = String(value ?? '').trim().toLowerCase().normalize('NFKC').replace(/[\s_-]+/g, '');
   const aliases: Array<[string,string[]]> = [
     ['date',['date','التاريخ','تاريخالفاتورة','التاريخ2026']],
     ['invoice_number',['invoice_number','invoice number','رقمالفاتورة','رقمالفاتوره']],
@@ -103,7 +103,7 @@ function normalizeBusinessField(value: unknown): string | null {
     ['quantity',['quantity','qty','الكمية','العدد']],
   ];
   for (const [canonical, candidates] of aliases) {
-    if (candidates.some((candidate) => candidate.toLowerCase().normalize('NFKC').replace(/[\\s_-]+/g,'') === key)) return canonical;
+    if (candidates.some((candidate) => candidate.toLowerCase().normalize('NFKC').replace(/[\s_-]+/g,'') === key)) return canonical;
   }
   return null;
 }
