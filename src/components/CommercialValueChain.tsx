@@ -38,7 +38,7 @@ export function CommercialValueChain({
     <section dir="rtl" aria-label="مسار القيمة من المصدر إلى النتيجة" className="ag-value-chain rounded-[20px] border border-slate-200 bg-white p-4 shadow-[0_22px_55px_-34px_rgba(15,23,42,.26)] lg:p-5">
       <div className="flex flex-col gap-1.5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="section-kicker">VALUE OPERATING SYSTEM</div>
+          <div className="section-kicker">نظام تشغيل القيمة</div>
           <h2 className="mt-1 text-lg font-black text-slate-950 lg:text-xl">{title}</h2>
         </div>
         <p className="max-w-3xl text-[10px] leading-5 text-slate-500 lg:text-[11px]">{subtitle}</p>
