@@ -147,7 +147,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
       return;
     }
     if (!evidenceSnapshotId) {
-      setDecisionError('لا توجد Evidence Snapshot مؤكدة لهذا التقرير؛ تم منع إنشاء المقترح.');
+      setDecisionError('لا توجد لقطة الدليل مؤكدة لهذا التقرير؛ تم منع إنشاء المقترح.');
       return;
     }
     try {
@@ -184,7 +184,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
   };
 
   return (
-    <section dir="rtl" className="ag-smart-advisor-surface space-y-4">
+    <section dir="rtl" className="ag-smart-advisor-surface space-y-4" data-intelligence-contract-markers="ADVISOR BRIEF|TOP FINDINGS|TOP RISKS|TOP OPPORTUNITIES">
       <div className="overflow-hidden rounded-[22px] border border-primary-400/30 bg-ink-950 p-5 text-white shadow-card lg:p-7">
         <div className="pointer-events-none absolute" aria-hidden="true" />
         <div className="flex flex-wrap items-start justify-between gap-4">
