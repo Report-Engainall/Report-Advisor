@@ -483,7 +483,7 @@ function parseDateValue(value: unknown): Date | null {
 }
 
 function deriveForecast(report: ReportInput): ReportForecast {
-  const rows = report.canonicalRows ?? [];
+  const rows = metricRows(report);
   const columns = columnsOf(report);
   const dateColumn = findColumn(columns, ['invoice_date', 'date', 'due_date', 'التاريخ']);
   const valueColumn = findColumn(columns, ['total_amount', 'net_amount', 'total', 'amount', 'sales', 'purchase', 'balance']);
@@ -534,6 +534,29 @@ function ownerForSpecialty(specialty: string): string {
   return 'المسؤول التشغيلي المناسب للمصدر';
 }
 
+function isAggregateRow(data: Record<string, unknown> | null | undefined): boolean {
+  if (!data) return false;
+  const label = text(
+    data.customer_name ??
+    data['اسم العميل'] ??
+    data.supplier_name ??
+    data['اسم المورد'] ??
+    data.invoice_type ??
+    data['نوع الفاتوره'] ??
+    '',
+  );
+  if (/^(?:الإجمالي|اجمالي|المجموع|total|grand\s+total)\s*:?[\s]*$/iu.test(label)) return true;
+
+  const invoice = text(data.invoice_number ?? data['رقم الفاتوره']);
+  const date = text(data.date ?? data.invoice_date ?? data['التاريخ']);
+  const amount = numeric(data.total ?? data.total_amount ?? data['اجمالي الفاتوره'] ?? data.net_amount ?? data['مبلغ الصافي بالمحلي']);
+  return !invoice && !date && amount != null;
+}
+
+function metricRows(report: ReportInput): Array<{ row_number?: number; data?: Record<string, unknown> | null }> {
+  return (report.canonicalRows ?? []).filter((row) => !isAggregateRow(row.data));
+}
+
 function groupSum(rows: Array<{ data?: Record<string, unknown> | null }>, dimensionKey: string, valueKey: string): Array<{ dimension: string; value: number; rows: number }> {
   const groups = new Map<string, { value: number; rows: number }>();
   for (const row of rows) {
@@ -555,7 +578,9 @@ function deriveBusinessFindings(report: ReportInput): {
   risks: BusinessFinding[];
   opportunities: BusinessFinding[];
 } {
-  const rows = report.canonicalRows ?? [];
+  const sourceRows = report.canonicalRows ?? [];
+  const rows = metricRows(report);
+  const aggregateRowCount = sourceRows.length - rows.length;
   const columns = columnsOf(report);
   const specialty = text(report.specialty);
   const findings: BusinessFinding[] = [];
@@ -574,6 +599,21 @@ function deriveBusinessFindings(report: ReportInput): {
   const quantityColumn = findColumn(columns, ['current_stock', 'stock', 'quantity', 'qty', 'الرصيد', 'الكمية']);
   const priceColumn = findColumn(columns, ['selling_price', 'price', 'cost', 'السعر', 'التكلفة']);
   const balanceColumn = findColumn(columns, ['outstanding_balance', 'receivable', 'balance', 'الرصيد المستحق', 'المتبقي']);
+
+  if (aggregateRowCount > 0) {
+    findings.push({
+      id: specialty + ':aggregate-rows-excluded',
+      kind: 'FINDING',
+      priority: 'low',
+      title: 'صفوف تلخيص مستبعدة من المؤشرات',
+      statement: 'تم استبعاد ' + aggregateRowCount + ' صفوف تلخيص/إجمالي من المؤشرات التنفيذية حتى لا تُحسب كمعاملات فعلية.',
+      value: aggregateRowCount,
+      unit: 'صف',
+      evidence: ['aggregateRows=' + aggregateRowCount, 'sourceRows=' + sourceRows.length, 'metricRows=' + rows.length],
+      limitation: 'الاستبعاد يخص الحسابات التنفيذية فقط؛ الصفوف الأصلية تبقى محفوظة ضمن المصدر والأدلة.',
+      action: 'راجع صفوف التلخيص في مسار الدليل عند الحاجة إلى مطابقة الإجمالي الظاهر في المستند الأصلي.',
+    });
+  }
 
   if (!rows.length) {
     return { findings, risks, opportunities };
