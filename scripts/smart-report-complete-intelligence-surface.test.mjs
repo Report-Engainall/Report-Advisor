@@ -26,3 +26,11 @@ if (signalBlock.includes('signals.slice(')) throw new Error('Signals must not be
 if (recommendationBlock.includes('recommendations.slice(')) throw new Error('Recommendations must not be artificially truncated');
 
 console.log('smart-report-complete-intelligence-surface: PASS');
+
+const smartReportSource = fs.readFileSync(new URL('../src/lib/report-smart.ts', import.meta.url), 'utf8');
+const fetchStart = smartReportSource.indexOf('export async function fetchSmartReport');
+const fetchBlock = fetchStart >= 0 ? smartReportSource.slice(fetchStart) : '';
+if (!fetchBlock.includes('const resolvedSourceHash')) throw new Error('Smart report must resolve source hash from the tenant-scoped job lineage');
+if (fetchBlock.includes(".eq('source_hash', sourceHash)")) throw new Error('Smart report contains an unbound sourceHash query reference');
+if (!fetchBlock.includes('if (normalizedSourceHash && resolvedSourceHash !== normalizedSourceHash)')) throw new Error('Explicit source hash mismatch must still be rejected');
+console.log('smart-report-context-lineage: PASS');
