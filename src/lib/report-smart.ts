@@ -523,15 +523,18 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     .order('created_at', { ascending: false })
     .limit(1);
 
-  if (importAnalysisError) throw importAnalysisError;
-  const analysis = (importAnalyses?.[0] ?? null) as Record<string, unknown> | null;
-  if (!analysis || String(analysis.import_job_id ?? '') !== renderedImportId) {
-    throw new Error('INVALID_REPORT_CONTEXT');
+  let analysis = (importAnalyses?.[0] ?? null) as Record<string, unknown> | null;
+  if (importAnalysisError) {
+    runtimeWarnings.push('تعذر قراءة لقطات التحليل البديلة؛ استمر التقرير اعتمادًا على المخرجات المحفوظة والصفوف الكانونية المتاحة.');
+    analysis = null;
+  } else if (!analysis || String(analysis.import_job_id ?? '') !== renderedImportId) {
+    runtimeWarnings.push('لم تتوفر لقطة تحليل صالحة لهذا الاستيراد؛ تم إبقاء القراءة في حالة مراجعة دون إيقاف التقرير.');
+    analysis = null;
   }
 
-  if (effectiveRendered.rowCount == null && analysis.row_count != null) effectiveRendered.rowCount = Number(analysis.row_count);
-  if (effectiveRendered.qualityScore == null && analysis.quality_score != null) effectiveRendered.qualityScore = Number(analysis.quality_score);
-  if (effectiveRendered.sourceFormat == null && analysis.source_format != null) effectiveRendered.sourceFormat = String(analysis.source_format);
+  if (effectiveRendered.rowCount == null && analysis?.row_count != null) effectiveRendered.rowCount = Number(analysis.row_count);
+  if (effectiveRendered.qualityScore == null && analysis?.quality_score != null) effectiveRendered.qualityScore = Number(analysis.quality_score);
+  if (effectiveRendered.sourceFormat == null && analysis?.source_format != null) effectiveRendered.sourceFormat = String(analysis.source_format);
 
   const currentPassportLineage =
     currentPassport?.lineage && typeof currentPassport.lineage === 'object'
@@ -668,9 +671,11 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     canonicalCoverageUnavailable || effectiveRendered.rowCount == null
       ? null
       : Math.max(0, Number(effectiveRendered.rowCount) - actualCanonicalRowCount);
+  const canonicalCommitReadBackMatches = canonicalCommitCount === authoritativeCurrentRowCount;
   const canonicalCommitVerified =
     currentPassport?.verification_status === 'VERIFIED' &&
     currentPassport?.decision_readiness === 'READY' &&
+    canonicalCommitReadBackMatches &&
     canonicalCommitLineageCount != null &&
     effectiveRendered.rowCount != null &&
     actualCanonicalRowCount === Number(effectiveRendered.rowCount) &&
