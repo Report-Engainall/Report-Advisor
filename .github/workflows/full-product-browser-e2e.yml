@@ -51,6 +51,7 @@ on:
       - 'scripts/source-decision-work-item-contract.test.mjs'
       - 'scripts/source-work-execution-lifecycle-contract.test.mjs'
       - 'scripts/work-center-decision-queue-contract.test.mjs'
+      - 'scripts/report-smart-evidence-boundary.test.ts'
       - 'scripts/business-replay-contract.test.mjs'
       - 'scripts/benchmark-fail-closed-contract.test.mjs'
       - 'scripts/resume-open-report-server-proof.mjs'
