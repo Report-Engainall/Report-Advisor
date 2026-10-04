@@ -59,7 +59,7 @@ function AlertRow({ alert }: { alert: Alert }) {
             <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">WHAT NEXT</div><div className="mt-1 font-bold text-ink-800">مراجعة القياس ثم فتح سياق القرار</div></div>
           </div>
           <div className="mt-3 flex gap-2">
-            <Link to="/decision-experience" className="btn-secondary text-[11px]">افتح السياق <ArrowUpLeft size={13}/></Link>
+            <Link to="/decision-inbox" className="btn-secondary text-[11px]">مركز القرارات <ArrowUpLeft size={13}/></Link>
             <Link to="/metrics" className="btn-ghost text-[11px]">افحص القياس</Link>
           </div>
         </div>
@@ -78,9 +78,9 @@ function DecisionRow({ recommendation }: { recommendation: Recommendation }) {
           <div className="mt-2 text-[13px] font-black text-ink-900">{recommendation.title}</div>
           {recommendation.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{recommendation.description}</p>}
           <div className="mt-3 grid gap-2 sm:grid-cols-3 text-[9px]">
-            <div className="rounded-lg bg-white p-2"><div className="text-ink-400">OWNER</div><div className="mt-1 font-bold text-ink-800">{recommendation.owner ?? 'غير محدد'}</div></div>
-            <div className="rounded-lg bg-white p-2"><div className="text-ink-400">IMPACT</div><div className="mt-1 font-bold text-ink-800">{recommendation.expected_impact == null ? 'غير متاح' : formatCurrency(recommendation.expected_impact)}</div></div>
-            <div className="rounded-lg bg-white p-2"><div className="text-ink-400">STATUS</div><div className="mt-1 font-bold text-ink-800">{recommendation.status}</div></div>
+            <div className="rounded-lg bg-white p-2"><div className="text-ink-400">المسؤول</div><div className="mt-1 font-bold text-ink-800">{recommendation.owner ?? 'غير محدد'}</div></div>
+            <div className="rounded-lg bg-white p-2"><div className="text-ink-400">الأثر المتوقع</div><div className="mt-1 font-bold text-ink-800">{recommendation.expected_impact == null ? 'غير متاح' : formatCurrency(recommendation.expected_impact)}</div></div>
+            <div className="rounded-lg bg-white p-2"><div className="text-ink-400">الحالة</div><div className="mt-1 font-bold text-ink-800">{recommendation.status === 'new' ? 'جديدة' : recommendation.status === 'accepted' ? 'مقبولة' : recommendation.status === 'rejected' ? 'مرفوضة' : 'تحتاج مراجعة'}</div></div>
           </div>
           <div className="mt-3"><Link to="/decision-inbox" className="btn-primary text-[11px]">مركز القرارات <ArrowUpLeft size={13}/></Link></div>
         </div>
@@ -244,7 +244,7 @@ export function ExecutiveCommandCenterPage() {
                         <div className="text-[11px] font-black text-ink-900">{item.title}</div>
                         <div className="mt-1 text-[9px] text-ink-500">{item.department || 'قسم غير محدد'} · {item.assigneeLabel ?? 'المالك غير محدد'}</div>
                       </div>
-                      <span className="rounded-full bg-primary-50 px-2 py-1 text-[8px] font-black text-primary-800">{item.status}</span>
+                      <span className="rounded-full bg-primary-50 px-2 py-1 text-[8px] font-black text-primary-800">{item.status === 'OPEN' ? 'مفتوح' : item.status === 'IN_PROGRESS' ? 'قيد التنفيذ' : item.status === 'COMPLETED' ? 'مكتمل' : 'يحتاج مراجعة'}</span>
                     </div>
                     <div className="mt-3 grid gap-2 sm:grid-cols-3 text-[9px]">
                       <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">WHY</div><div className="mt-1 font-bold text-ink-800">{item.title}</div></div>
@@ -294,7 +294,7 @@ export function ExecutiveCommandCenterPage() {
           <div className="mt-3 text-sm font-black text-ink-900">Business Replay</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">إعادة التشغيل تحتاج snapshots وoutcomes تاريخية مثبتة؛ الواجهة لا تصنع سجلًا بديلًا.</p>
         </div>
-        <Link to="/decision-experience?stage=outcome" className="card card-hover p-4">
+        <Link to="/decision-inbox" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><CheckCircle2 size={18} className="text-primary-700"/><span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-black text-primary-700">مسار القرار</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Outcome follow-up</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">تابع نتيجة القرار من مساحة القرار مع الحفاظ على حالة الدليل وعدم تحويل التوصية إلى نجاح تلقائي.</p>
