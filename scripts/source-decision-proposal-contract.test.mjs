@@ -23,6 +23,8 @@ const proposalEnd = proposalEndMatch
 assert.ok(proposalStart >= 0 && proposalEnd > proposalStart);
 const proposalBody = bridge.slice(proposalStart, proposalEnd);
 assert.ok(!proposalBody.includes("create_decision_work_item"));
+assert.ok(!proposalBody.includes("from('recommendations')"));
+assert.ok(!proposalBody.includes("\.update({"));
 assert.ok(panel.includes("createSourceDecisionProposal"));
 assert.ok(panel.includes("حفظ القرار والقضية"));
 assert.ok(panel.includes("saveSignalAsCase"));
