@@ -1080,6 +1080,7 @@ export function SmartReportPage() {
         <div><dt className="font-bold text-ink-500">بصمة المصدر</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.sourceHash}</dd></div>
         <div><dt className="font-bold text-ink-500">Analysis snapshot</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.sourceAnalysis?.id ?? 'غير متاح'}</dd></div>
       </dl>
+      </div>
     </details>
   </div>;
 }
