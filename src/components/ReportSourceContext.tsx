@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, FileSearch, ShieldCheck, AlertTriangle, CheckCircle2, TrendingUp, Lightbulb } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
@@ -66,7 +66,7 @@ export function ReportSourceContext() {
           <ShieldCheck size={18} className="mt-0.5 shrink-0 text-warning-800" />
           <div className="min-w-0">
             <div className="text-[11px] font-black text-warning-950">سياق المصدر غير متاح</div>
-            <p className="mt-1 text-[11px] leading-5 text-warning-900/80">{error ?? 'تعذر قراءة التقرير المصدرّي الحالي.'}</p>
+            <p className="mt-1 text-[11px] leading-5 text-warning-900/80">{error === 'INVALID_REPORT_CONTEXT' ? 'تعذر تحديد سياق التقرير الحالي. افتح التقرير من مركز التقارير.' : error ?? 'تعذر قراءة التقرير المصدرّي الحالي.'}</p>
             <Link to="/reports" className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-[10px] font-black text-warning-950">العودة إلى مركز التقارير <ArrowLeft size={13}/></Link>
           </div>
         </div>
