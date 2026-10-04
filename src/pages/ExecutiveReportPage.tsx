@@ -82,9 +82,9 @@ function ExecutiveReportGeneralPage() {
   const nextAction = kpis?.status !== 'CALCULATED'
     ? { to: '/data-quality', label: 'مراجعة جودة البيانات', reason: 'الحقيقة المالية أو التشغيلية غير مكتملة بعد.' }
     : data?.alerts.length
-      ? { to: '/decision-experience?stage=decision', label: 'فتح سياق القرار', reason: 'هناك تنبيهات مصدرية تحتاج إلى متابعة.' }
+      ? { to: '/decision-inbox', label: 'فتح مركز القرارات', reason: 'هناك تنبيهات مصدرية تحتاج إلى متابعة.' }
       : recommendations.length
-        ? { to: '/decision-experience', label: 'مراجعة التوصيات', reason: 'هناك توصيات مصدرية جاهزة للمراجعة.' }
+        ? { to: '/decision-inbox', label: 'مراجعة القرارات', reason: 'هناك توصيات مصدرية جاهزة للمراجعة.' }
         : { to: '/trust', label: 'فحص الدليل', reason: 'لا توجد عناصر قرار نشطة؛ راجع مصدر الحقيقة قبل الانتقال.' };
 
   return <div dir="rtl" className="ag-executive-report report-page space-y-5 pb-10 print:space-y-3">
@@ -112,7 +112,7 @@ function ExecutiveReportGeneralPage() {
         <div className="ag-decision-cell"><span className="ag-decision-label">الهامش</span><span className="ag-decision-value">{kpis?.grossMargin == null ? 'غير متاح' : `${kpis.grossMargin.toFixed(1)}%`}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">التحصيل</span><span className="ag-decision-value">{kpis?.collectionRate == null ? 'غير متاح' : `${kpis.collectionRate.toFixed(1)}%`}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">التنبيهات</span><span className="ag-decision-value">{data?.alerts.length ?? 0}</span></div>
-        <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{kpis?.status ?? 'INSUFFICIENT_DATA'}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{kpis?.status === 'CALCULATED' ? 'محسوبة' : kpis?.status === 'INSUFFICIENT_DATA' ? 'البيانات غير كافية' : kpis?.status ? 'تحتاج مراجعة' : 'غير متاح'}</span></div>
       </section>
 
       <TruthContextStrip months={6} status={kpis?.status ?? 'INSUFFICIENT_DATA'} asOf={asOf} />
@@ -141,7 +141,7 @@ function ExecutiveReportGeneralPage() {
       <section className="grid gap-5 lg:grid-cols-2">
         <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-danger-600">الانتباه</p><h2 className="mt-1 text-lg font-black">أهم التنبيهات</h2></div><span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700">{formatNumber(data?.alerts.length ?? 0)}</span></div>
-          <div className="mt-4 space-y-3">{(data?.alerts ?? []).map((alert) => <article key={alert.id} className="rounded-xl border border-ink-100 p-4"><p className="font-bold text-ink-900">{alert.title}</p><Link to="/decision-experience?stage=decision" className="mt-2 inline-flex min-h-11 items-center gap-1 text-xs font-bold text-primary-700">فتح سياق القرار <ArrowLeft size={13} /></Link></article>)}{!(data?.alerts?.length) && <EmptyState title="لا توجد تنبيهات مصدرية حاليًا." message="لا يتم تصنيع تنبيه عند غياب الإشارة المثبتة." action={<Link to="/trust" className="btn-secondary min-h-11">فحص الدليل</Link>} />}</div>
+          <div className="mt-4 space-y-3">{(data?.alerts ?? []).map((alert) => <article key={alert.id} className="rounded-xl border border-ink-100 p-4"><p className="font-bold text-ink-900">{alert.title}</p><Link to="/decision-inbox" className="mt-2 inline-flex min-h-11 items-center gap-1 text-xs font-bold text-primary-700">فتح مركز القرارات <ArrowLeft size={13} /></Link></article>)}{!(data?.alerts?.length) && <EmptyState title="لا توجد تنبيهات مصدرية حاليًا." message="لا يتم تصنيع تنبيه عند غياب الإشارة المثبتة." action={<Link to="/trust" className="btn-secondary min-h-11">فحص الدليل</Link>} />}</div>
         </div>
         <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-primary-600">الإجراء</p><h2 className="mt-1 text-lg font-black">التوصيات النشطة</h2></div><span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-bold text-primary-700">{formatNumber(data?.recommendations.length ?? 0)}</span></div>
