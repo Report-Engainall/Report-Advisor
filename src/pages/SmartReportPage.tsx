@@ -704,7 +704,7 @@ export function SmartReportPage() {
     const expectedSourceHash = searchParams.get('sourceHash')?.trim() ?? '';
     setLoading(true);
     setError(null);
-    if (!jobId?.trim() || !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash)) {
+    if (!jobId?.trim() || (expectedSourceHash && !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash))) {
       setReport(null);
       setError(userFacingError('INVALID_REPORT_CONTEXT'));
       setLoading(false);
@@ -766,7 +766,7 @@ export function SmartReportPage() {
     setLoading(true);
     setError(null);
     const expectedSourceHash = searchParams.get('sourceHash')?.trim() ?? '';
-    if (!jobId?.trim() || !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash)) {
+    if (!jobId?.trim() || (expectedSourceHash && !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash))) {
       setError('INVALID_REPORT_CONTEXT');
       setLoading(false);
       return;
