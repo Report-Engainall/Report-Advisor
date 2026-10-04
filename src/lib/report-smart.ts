@@ -501,13 +501,6 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     canonicalCommitCount === Number(effectiveRendered.rowCount);
 
   const sourceRowCount = effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount);
-  const canonicalCommitGap = canonicalCommitQueryFailed || authoritativeCurrentRowCount == null
-    ? null
-    : Math.max(0, authoritativeCurrentRowCount - canonicalCommitCount);
-  const canonicalCommitVerified =
-    !canonicalCommitQueryFailed &&
-    authoritativeCurrentRowCount != null &&
-    canonicalCommitCount === authoritativeCurrentRowCount;
 
   // Smart-report intelligence must inspect the canonical source, not an arbitrary preview.
   // Supabase REST can cap a single response; page deterministically until the full source
