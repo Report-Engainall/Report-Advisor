@@ -91,31 +91,6 @@ export async function createSourceDecisionProposal(input: {
   if (!proposal?.decision_id) throw new Error('SOURCE_PROPOSAL_DECISION_ID_MISSING');
 
   const recommendationId = proposal.recommendation_id == null ? null : String(proposal.recommendation_id);
-  if (recommendationId && input.recommendationContext) {
-    const { data: currentRecommendation, error: recommendationReadError } = await supabase
-      .from('recommendations')
-      .select('evidence')
-      .eq('company_id', companyId)
-      .eq('id', recommendationId)
-      .maybeSingle();
-    if (recommendationReadError) throw recommendationReadError;
-    const currentEvidence = currentRecommendation?.evidence && typeof currentRecommendation.evidence === 'object'
-      ? currentRecommendation.evidence as Record<string, unknown>
-      : {};
-    const { error: recommendationEnrichError } = await supabase
-      .from('recommendations')
-      .update({
-        description: input.recommendationContext.action,
-        owner: input.recommendationContext.owner,
-        evidence: {
-          ...currentEvidence,
-          recommendationContext: input.recommendationContext,
-        },
-      })
-      .eq('company_id', companyId)
-      .eq('id', recommendationId);
-    if (recommendationEnrichError) throw recommendationEnrichError;
-  }
 
   return {
     id: String(proposal.decision_id),
