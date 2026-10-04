@@ -164,6 +164,25 @@ for (const companyId of tenantIds) {
     const sourceHash = String(job.source_hash ?? passport.source_hash ?? '');
     if (!sourceHash) continue;
 
+    // Real-source proof must never select the synthetic 48-archetype fixture corpus.
+    // The governed file record is the authoritative classification boundary here.
+    const fileRecords = await restSelect(
+      'file_records',
+      { file_hash: sourceHash },
+      'id,file_name,file_hash,metadata',
+      { limit: 50 },
+    );
+    const governedRealSource = fileRecords.find((record) => {
+      const metadata = record?.metadata && typeof record.metadata === 'object' ? record.metadata : {};
+      const reportCorpus = metadata.report_corpus === true || String(metadata.report_corpus ?? '').toLowerCase() === 'true';
+      const fixtureType = String(metadata.fixture_type ?? '').trim().toLowerCase();
+      const catalogId = String(metadata.catalog_id ?? '').trim().toLowerCase();
+      return reportCorpus
+        && fixtureType !== 'synthetic-realistic'
+        && catalogId !== 'report-intelligence.48';
+    });
+    if (!governedRealSource) continue;
+
     const renderedImportId = typeof rendered.importId === 'string' ? rendered.importId.trim() : '';
     const rowCountHint = Number(rendered.rowCount ?? 0);
     const snapshot = await fetchVerifiedSnapshot(companyId, String(job.id), sourceHash, passport);
@@ -201,6 +220,7 @@ for (const companyId of tenantIds) {
       fields,
       fieldSet: canonicalFieldSet(fields),
       sampleSize: Number(analysis.row_count ?? 0),
+      sourceRecord: governedRealSource,
     });
   }
 }
@@ -342,6 +362,13 @@ for (const profile of profiles) {
     evidencePassportId: chosen?.passport?.id ?? null,
     sourceRowCount: chosen?.sampleSize ?? null,
     canonicalRowsRead: chosen ? sourceRowsCache.get(String(chosen.job.id))?.length ?? 0 : 0,
+    governedSource: chosen ? {
+      fileRecordId: chosen.sourceRecord?.id ?? null,
+      fileName: chosen.sourceRecord?.file_name ?? null,
+      sourcePath: chosen.sourceRecord?.metadata?.source_path ?? null,
+      fixtureType: chosen.sourceRecord?.metadata?.fixture_type ?? null,
+      catalogId: chosen.sourceRecord?.metadata?.catalog_id ?? null,
+    } : null,
     runtimeState: runtime?.state ?? null,
     advisoryProofState: runtime?.advisory.proofState ?? null,
     recommendationCount: runtime?.intelligence.recommendations.length ?? 0,
