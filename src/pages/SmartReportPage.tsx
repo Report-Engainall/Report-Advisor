@@ -621,6 +621,17 @@ export function SmartReportPage() {
           ? 'هذا المصدر هو تقرير مشتريات. التحليل يعرض ما ثبت في المصدر، مع إبقاء أثر القرار والتنفيذ منفصلًا.'
           : 'هذا المصدر تم تحليله من بنيته وبياناته الفعلية، وتبقى المخرجات مربوطة بالمصدر دون اختلاق حقائق غير موجودة.';
 
+  const topFinding = report.intelligence.advisorBrief.topFinding;
+  const topRisk = report.intelligence.advisorBrief.topRisk;
+  const topOpportunity = report.intelligence.advisorBrief.topOpportunity;
+  const primaryRecommendation = report.intelligence.recommendations[0] ?? null;
+  const confidenceLabel =
+    report.reportVerificationState === 'VERIFIED' && report.qualityScore != null
+      ? `ثقة المصدر ${report.qualityScore}%`
+      : report.reportVerificationState === 'PARTIAL_ANALYSIS'
+        ? 'القراءة جزئية'
+        : 'بانتظار التحقق';
+
   return <div dir="rtl" className="report-page ag-smart-report-surface space-y-5 animate-fade-in pb-10">
     <PageHeader
       title={report.sourcePath}
@@ -711,9 +722,66 @@ export function SmartReportPage() {
       ]}
     />
 
+    <section id="executive-layer" className="executive-hero rounded-[24px] border border-slate-700/70 bg-[linear-gradient(135deg,#0b1020_0%,#111827_58%,#15111f_100%)] p-5 text-white shadow-[0_28px_80px_-38px_rgba(15,23,42,.9)] lg:p-7">
+      <div className="grid gap-5 xl:grid-cols-[1.25fr_.75fr]">
+        <div>
+          <div className="text-[10px] font-black tracking-[.18em] text-amber-300">EXECUTIVE DECISION LAYER</div>
+          <h2 className="mt-2 text-2xl font-black leading-tight lg:text-3xl">ماذا يحدث في هذا التقرير؟</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{report.intelligence.advisorBrief.headline || businessSummary}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{confidenceLabel}</span>
+            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{formatNumber(report.rowCount ?? 0)} صفًا</span>
+            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{report.specialty ?? 'تحليل عام'}</span>
+          </div>
+        </div>
+        <div className="rounded-2xl border border-amber-400/25 bg-amber-300/10 p-4">
+          <div className="text-[10px] font-black tracking-[.14em] text-amber-300">WHAT NEXT</div>
+          <div className="mt-2 text-lg font-black">{primaryRecommendation?.title ?? 'لا يوجد إجراء موصى به للاعتماد الآن'}</div>
+          <p className="mt-2 text-xs leading-6 text-slate-300">{primaryRecommendation?.action ?? report.intelligence.advisorBrief.recommendedAction ?? 'يجب التحقق من المصدر قبل تحويله إلى قرار.'}</p>
+          <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-2.5 text-xs font-black text-slate-950">افتح الدليل ثم القرار</Link>
+        </div>
+      </div>
+      <div className="mt-5 grid gap-3 md:grid-cols-3">
+        <div className="rounded-2xl border border-slate-700 bg-white/[.035] p-4">
+          <div className="text-[9px] font-black text-slate-400">أهم نتيجة</div>
+          <div className="mt-2 text-sm font-black">{topFinding?.title ?? 'لا توجد نتيجة مثبتة بعد'}</div>
+          <div className="mt-1 text-[10px] leading-5 text-slate-400">{topFinding?.statement ?? 'لا يتم اختلاق نتيجة عندما لا يثبتها المصدر.'}</div>
+        </div>
+        <div className="rounded-2xl border border-rose-400/20 bg-rose-400/[.06] p-4">
+          <div className="text-[9px] font-black text-rose-200">أهم خطر</div>
+          <div className="mt-2 text-sm font-black">{topRisk?.title ?? 'لا يوجد خطر مثبت'}</div>
+          <div className="mt-1 text-[10px] leading-5 text-slate-400">{topRisk?.statement ?? 'لا توجد إشارة خطر مثبتة من المصدر الحالي.'}</div>
+        </div>
+        <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/[.05] p-4">
+          <div className="text-[9px] font-black text-cyan-200">أهم فرصة</div>
+          <div className="mt-2 text-sm font-black">{topOpportunity?.title ?? 'لا توجد فرصة مثبتة'}</div>
+          <div className="mt-1 text-[10px] leading-5 text-slate-400">{topOpportunity?.statement ?? 'لا يتم إنشاء فرصة من دون دليل.'}</div>
+        </div>
+      </div>
+    </section>
+
     <ReportDecisionCockpit report={report}/>
 
-    <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+    <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
+      <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <div className="section-kicker">SOURCE · PROOF · DETAILS</div>
+            <div className="mt-1 text-base font-black text-ink-950">التفاصيل الكاملة للتقرير</div>
+            <div className="mt-1 text-[10px] leading-5 text-ink-500">افتحها فقط عندما تحتاج إلى التحقق أو استكشاف البيانات أو المخرجات المتقدمة.</div>
+          </div>
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">استكشاف التفاصيل</span>
+        </div>
+      </summary>
+      <div className="space-y-5 border-t border-ink-100 p-5 lg:p-6">
+        <section className="rounded-[18px] border border-ink-200 bg-ink-50/30 p-5">
+          <div className="grid gap-3 md:grid-cols-4">
+            <div className="rounded-2xl bg-[linear-gradient(145deg,#111827,#1e293b)] p-4 text-white shadow-[0_16px_40px_-28px_rgba(15,23,42,.7)]"><div className="text-[9px] font-black tracking-[.12em] text-primary-200">TRUST</div><div className="mt-2 text-xl font-black">{stateLabel(report.trustState)}</div><div className="mt-1 text-[10px] text-ink-300">جودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">SOURCE</div><div className="mt-2 font-black text-ink-950">{report.sourceHash.slice(0, 24)}…</div><div className="mt-1 text-[10px] text-ink-500">نوع الملف: {report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">ROWS</div><div className="mt-2 text-xl font-black text-ink-950">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div><div className="mt-1 text-[10px] text-ink-500">المعتمد: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)}</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">SPECIALTY</div><div className="mt-2 text-xl font-black text-ink-950">{report.specialty ?? 'عام'}</div><div className="mt-1 text-[10px] text-ink-500">مبني على بنية المصدر الفعلية.</div></div>
+          </div>
+        </section>
       <div className="grid gap-3 md:grid-cols-4">
         <div className="rounded-2xl bg-[linear-gradient(145deg,#111827,#1e293b)] p-4 text-white shadow-[0_16px_40px_-28px_rgba(15,23,42,.7)]"><div className="text-[9px] font-black tracking-[.12em] text-primary-200">TRUST</div><div className="mt-2 text-xl font-black">{stateLabel(report.trustState)}</div><div className="mt-1 text-[10px] text-ink-300">جودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div></div>
         <div className="rounded-2xl bg-ink-50 p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">SOURCE</div><div className="mt-2 font-black text-ink-950">{report.sourceHash.slice(0, 24)}…</div><div className="mt-1 text-[10px] text-ink-500">نوع الملف: {report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
@@ -844,5 +912,7 @@ export function SmartReportPage() {
         <div><dt className="font-bold text-ink-500">Analysis snapshot</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.sourceAnalysis?.id ?? 'غير متاح'}</dd></div>
       </dl>
     </section>
+      </div>
+    </details>
   </div>;
 }
