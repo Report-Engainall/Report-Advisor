@@ -554,7 +554,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <div className="section-kicker">REPORT WORKSPACE</div>
+          <div className="section-kicker">مساحة بيانات التقرير</div>
           <h2 className="mt-1 text-lg font-black text-ink-950">استكشاف البيانات الحقيقية</h2>
           <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-500">البحث والفرز وإظهار الأعمدة والتصدير تعمل على الصفوف الكانونية لهذا التقرير، لا على معاينة منفصلة.</p>
         </div>
@@ -815,8 +815,6 @@ export function SmartReportPage() {
           {copied ? 'تم نسخ الرابط' : 'نسخ رابط التقرير'}
         </button>
         <Link to={'/work-center?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary inline-flex items-center gap-2 text-xs">مركز العمل</Link>
-        <Link to={'/replay?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary inline-flex items-center gap-2 text-xs">إعادة التشغيل</Link>
-        <Link to={'/benchmark?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary inline-flex items-center gap-2 text-xs">المقارنة</Link>
         <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-primary inline-flex items-center gap-2 text-xs">مسار القرار</Link>
         <Link to="/reports" className="btn-secondary inline-flex items-center gap-2 text-xs"><ArrowLeft size={14}/> مركز التقارير</Link>
       </div>}
@@ -925,6 +923,15 @@ export function SmartReportPage() {
           <div className="mt-1 text-[10px] leading-5 text-slate-400">{topOpportunity?.statement ?? 'لا يتم إنشاء فرصة من دون دليل.'}</div>
         </div>
       </div>
+      <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        {smartAnalysis.metrics.slice(0, 4).map((metric) => (
+          <div key={metric.label} className="rounded-2xl border border-white/10 bg-white/[.045] p-3.5">
+            <div className="text-[9px] font-bold text-slate-400">{metric.label}</div>
+            <div className="mt-1.5 text-lg font-black text-white">{metric.value}</div>
+            <div className="mt-1 truncate text-[9px] text-slate-400">{metric.detail}</div>
+          </div>
+        ))}
+      </div>
     </section>
 
     <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
@@ -1003,23 +1010,6 @@ export function SmartReportPage() {
     <SmartReportAdvisorySurface report={report} />
 
     <SourceDataWorkspace report={report} initialSearch={searchParams.get('focus') ?? ''}/>
-
-    <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="section-kicker">REAL BUSINESS METRICS</div>
-      <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
-        <h2 className="text-lg font-black text-ink-950">مؤشرات مستخرجة من هذا المصدر</h2>
-        <span className="text-[10px] text-ink-500">{smartAnalysis.columns.length} أعمدة · {smartAnalysis.numeric.length} مؤشرات رقمية</span>
-      </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {smartAnalysis.metrics.map(metric => (
-          <div key={metric.label} className="rounded-2xl border border-ink-100 bg-ink-50 p-4">
-            <div className="text-[10px] font-bold text-ink-500">{metric.label}</div>
-            <div className="mt-2 text-xl font-black text-ink-950">{metric.value}</div>
-            <div className="mt-1 truncate text-[9px] text-ink-400">{metric.detail}</div>
-          </div>
-        ))}
-      </div>
-    </section>
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex items-center gap-2"><ShieldCheck size={18} className="text-primary-600"/><div><div className="section-kicker">الحقيقة → الدليل → الإشارة → الذكاء</div><h2 className="mt-1 text-lg font-black text-ink-950">حالة التقرير الذكي</h2></div></div>
