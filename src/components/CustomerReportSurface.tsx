@@ -287,7 +287,7 @@ export function CustomerReportSurface({
 
       <section className="grid gap-4 xl:grid-cols-[1.35fr_.65fr]">
         <div className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm lg:p-6">
-          <div className="flex items-center gap-2 text-[10px] font-black tracking-[.12em] text-indigo-700"><Sparkles size={15} /> EXECUTIVE READ</div>
+          <div className="flex items-center gap-2 text-[10px] font-black tracking-[.12em] text-indigo-700"><Sparkles size={15} /> القراءة التنفيذية</div>
           <h2 className="mt-2 text-xl font-black text-slate-950">ماذا يعني التقرير للإدارة؟</h2>
           <p className="mt-2 text-sm leading-7 text-slate-600">{advisor?.headline ?? 'لا توجد خلاصة استشارية مثبتة بعد؛ يعرض النظام ما يمكن إثباته فقط ولا يملأ الفراغ بتخمين.'}</p>
           <div className="mt-4 grid gap-3 md:grid-cols-3">
@@ -314,7 +314,7 @@ export function CustomerReportSurface({
 
       <section className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm lg:p-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div><div className="text-[10px] font-black tracking-[.12em] text-indigo-700">BUSINESS METRICS</div><h2 className="mt-1 text-xl font-black text-slate-950">الأرقام التي تهم القرار</h2><p className="mt-1 text-[10px] text-slate-500">تُعرض بأسماء أعمال مفهومة بدل أسماء الأعمدة الخام.</p></div>
+          <div><div className="text-[10px] font-black tracking-[.12em] text-indigo-700">المؤشرات التجارية</div><h2 className="mt-1 text-xl font-black text-slate-950">الأرقام التي تهم القرار</h2><p className="mt-1 text-[10px] text-slate-500">تُعرض بأسماء أعمال مفهومة بدل أسماء الأعمدة الخام.</p></div>
           <div className="text-[10px] font-bold text-slate-400">{metrics.length} مؤشرات رئيسية</div>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -330,7 +330,7 @@ export function CustomerReportSurface({
 
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="text-[10px] font-black tracking-[.12em] text-indigo-700">DECISION PATH</div>
+          <div className="text-[10px] font-black tracking-[.12em] text-indigo-700">مسار القرار</div>
           <h2 className="mt-1 text-xl font-black text-slate-950">من الحقيقة إلى التنفيذ</h2>
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {[
@@ -354,7 +354,7 @@ export function CustomerReportSurface({
           <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
             <div className="text-sm font-black">{topSignal?.title ?? 'لا توجد إشارة استثنائية مثبتة'}</div>
             <p className="mt-2 text-[11px] leading-6 text-slate-300">{topSignal?.message ?? 'المصدر الحالي لم يثبت انحرافًا يستحق رفعه كتنبيه.'}</p>
-            <div className="mt-3 rounded-xl bg-white/5 p-3"><div className="text-[9px] font-black text-amber-200">WHAT NEXT</div><div className="mt-1 text-[10px] leading-5 text-slate-200">{topRecommendation?.action ?? 'لا إجراء قبل مراجعة الدليل.'}</div></div>
+            <div className="mt-3 rounded-xl bg-white/5 p-3"><div className="text-[9px] font-black text-amber-200">الخطوة التالية</div><div className="mt-1 text-[10px] leading-5 text-slate-200">{topRecommendation?.action ?? 'لا إجراء قبل مراجعة الدليل.'}</div></div>
           </div>
         </div>
       </section>
