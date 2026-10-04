@@ -319,7 +319,7 @@ export function CustomerReportSurface({
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {metrics.slice(0, 4).map(({ mappedField, value }, index) => (
-            <div key={mappedField + index} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div key={(mappedField ?? 'field') + index} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
               <div className="text-[10px] font-bold text-slate-500">{compactFieldLabel(mappedField ?? '')}</div>
               <div className="mt-2 text-2xl font-black tabular-nums text-slate-950">{/amount|total|sales|purchase|profit|value|balance|cost|revenue|مبلغ|إجمالي|مبيعات|مشتريات|ربح|قيمة|رصيد|تكلفة/i.test(mappedField ?? '') ? formatCurrency(value) : formatNumber(value)}</div>
             </div>
