@@ -11,12 +11,62 @@ import type { CanonicalField } from '@/lib/report-intelligence/canonical-schema'
 
 function canonicalFields(report: SmartReportDetail): CanonicalField[] {
   const dataset = report.sourceAnalysis?.datasets?.[0];
-  if (!dataset || typeof dataset !== 'object') return [];
-  const columns = (dataset as Record<string, unknown>).columns;
-  if (!Array.isArray(columns)) return [];
-  return columns
-    .map((column) => typeof column === 'object' && column ? String((column as Record<string, unknown>).mappedField ?? '') : '')
-    .filter(Boolean) as CanonicalField[];
+  const declared = dataset && typeof dataset === 'object' && Array.isArray((dataset as Record<string, unknown>).columns)
+    ? (dataset as Record<string, unknown>).columns as unknown[]
+    : [];
+  const fields = new Set<string>();
+
+  for (const column of declared) {
+    if (column && typeof column === 'object') {
+      const item = column as Record<string, unknown>;
+      const mapped = String(item.mappedField ?? '').trim();
+      const name = String(item.name ?? '').trim();
+      if (mapped) fields.add(mapped);
+      else if (name) {
+        const key = name.toLowerCase().replace(/[\s_-]+/g, '');
+        const aliases: Array<[string,string[]]> = [
+          ['date',['date','التاريخ','التاريخ 2026-']],
+          ['invoice_number',['invoice_number','رقم الفاتورة','رقم الفاتوره']],
+          ['invoice_type',['invoice_type','نوع الفاتورة','نوع الفاتوره']],
+          ['customer_name',['customer_name','اسم العميل','العميل']],
+          ['supplier_name',['supplier_name','اسم المورد','المورد']],
+          ['product_name',['product_name','اسم الصنف','اسم المنتج','الصنف']],
+          ['total',['total','الإجمالي','الاجمالي','اجمالي الفاتورة','اجمالي الفاتوره']],
+          ['net_amount',['net_amount','مبلغ الصافي بالمحلي','الصافي بالمحلي']],
+          ['balance',['balance','الرصيد','الرصيد المستحق']],
+          ['credit',['credit','دائن']],
+          ['debit',['debit','مدين']],
+          ['quantity',['quantity','qty','الكمية']],
+        ];
+        const match = aliases.find(([, names]) => names.some(candidate => candidate.toLowerCase().replace(/[\s_-]+/g, '') === key));
+        if (match) fields.add(match[0]);
+      }
+    } else if (String(column ?? '').trim()) {
+      const raw = String(column).trim();
+      const key = raw.toLowerCase().replace(/[\s_-]+/g, '');
+      if (key === 'date' || key === 'التاريخ') fields.add('date');
+      else if (key === 'customer_name' || key === 'اسم العميل') fields.add('customer_name');
+      else if (key === 'total' || key === 'الإجمالي' || key === 'الاجمالي' || key === 'اجمالي الفاتوره') fields.add('total');
+      else if (key === 'invoice_number' || key === 'رقم الفاتوره') fields.add('invoice_number');
+      else if (key === 'invoice_type' || key === 'نوع الفاتوره') fields.add('invoice_type');
+    }
+  }
+
+  for (const row of report.canonicalRows.slice(0, 500)) {
+    for (const key of Object.keys(row.data ?? {})) {
+      const normalized = key.toLowerCase().replace(/[\s_-]+/g, '');
+      if (normalized === 'date' || normalized === 'التاريخ' || normalized === 'التاريخ2026') fields.add('date');
+      if (normalized === 'customer_name' || normalized === 'customer') fields.add('customer_name');
+      if (normalized === 'total' || normalized === 'total_amount') fields.add('total');
+      if (normalized === 'invoice_number') fields.add('invoice_number');
+      if (normalized === 'invoice_type') fields.add('invoice_type');
+      if (normalized === 'balance' || normalized === 'الرصيد') fields.add('balance');
+      if (normalized === 'credit' || normalized === 'دائن') fields.add('credit');
+      if (normalized === 'debit' || normalized === 'مدين') fields.add('debit');
+      if (normalized === 'quantity' || normalized === 'qty' || normalized === 'الكمية') fields.add('quantity');
+    }
+  }
+  return [...fields] as CanonicalField[];
 }
 
 export function SmartReportAdvisorySurface({ report }: { report: SmartReportDetail }) {
