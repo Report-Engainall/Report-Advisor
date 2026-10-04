@@ -29,8 +29,6 @@ export function Header({
   const alertRestoreFocusRef = useRef<HTMLElement | null>(null);
   const [health, setHealth] = useState<HealthState>('checking');
   const location = useLocation();
-  const buildSha = String(import.meta.env.VITE_BUILD_SHA ?? '').trim();
-  const buildLabel = buildSha ? buildSha.slice(0, 8) : 'dev';
   const unreadAlerts = alerts.filter((alert) => !alert.is_read);
 
   const currentNavigation = useMemo(() => resolveNavigationItem(location.pathname), [location.pathname]);
