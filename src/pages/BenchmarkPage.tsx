@@ -3,14 +3,12 @@ import { ArrowLeft, Database, ShieldCheck, Users } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchSmartReport, fetchSmartReportCatalog, type SmartReportDetail, type SmartReportCatalogItem } from '@/lib/report-smart';
-import { readActiveReportContext } from '@/lib/report-context';
 import { formatNumber } from '@/lib/format';
 
 export function BenchmarkPage() {
   const [params] = useSearchParams();
-  const saved = readActiveReportContext();
-  const jobId = params.get('reportJobId')?.trim() || saved?.jobId || '';
-  const sourceHash = params.get('sourceHash')?.trim() || saved?.sourceHash || '';
+  const jobId = params.get('reportJobId')?.trim() || '';
+  const sourceHash = params.get('sourceHash')?.trim() || '';
   const [report, setReport] = useState<SmartReportDetail | null>(null);
   const [catalog, setCatalog] = useState<SmartReportCatalogItem[]>([]);
   const [loading, setLoading] = useState(Boolean(jobId));
@@ -23,7 +21,7 @@ export function BenchmarkPage() {
       return;
     }
     let active = true;
-    void Promise.all([fetchSmartReport(jobId), fetchSmartReportCatalog(100)]).then(([next, items]) => {
+    void Promise.all([fetchSmartReport(jobId, sourceHash), fetchSmartReportCatalog(100)]).then(([next, items]) => {
       if (!active) return;
       if (!next) throw new Error('REPORT_SOURCE_NOT_FOUND');
       if (next.sourceHash !== sourceHash) throw new Error('REPORT_SOURCE_HASH_MISMATCH');
