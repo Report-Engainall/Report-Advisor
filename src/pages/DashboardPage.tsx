@@ -190,7 +190,7 @@ export function DashboardPage() {
     }
     if (decisionAccountability.pending > 0) {
       return {
-        to: '/decision-experience?stage=decision',
+        to: '/decision-inbox',
         label: 'مراجعة القرارات',
         title: decisionAccountability.pending + ' توصية جديدة تنتظر المراجعة',
         description: 'هناك توصيات دخلت مرحلة القرار ولم تُحسم بعد؛ راجع الأدلة والمالك والأثر المتوقع قبل الإجراء.',
@@ -325,7 +325,7 @@ export function DashboardPage() {
                 </div>
                 <div className="mt-0.5 text-[9px] text-ink-400">{decisionAccountability.outcomes}/{decisionAccountability.total || 0}</div>
               </div>
-              <Link to="/decision-experience?stage=decision" className="rounded-xl border border-primary-100 bg-primary-50/60 p-2.5 transition-colors hover:bg-primary-100">
+              <Link to="/decision-inbox" className="rounded-xl border border-primary-100 bg-primary-50/60 p-2.5 transition-colors hover:bg-primary-100">
                 <div className="text-[9px] font-black text-primary-700">تحتاج مراجعة</div>
                 <div className="mt-1 text-sm font-black text-ink-900">{decisionAccountability.pending}</div>
                 <div className="mt-0.5 inline-flex items-center gap-1 text-[9px] font-bold text-primary-700">افتح المسار <ArrowUpLeft size={11} /></div>
