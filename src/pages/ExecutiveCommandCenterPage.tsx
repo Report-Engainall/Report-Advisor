@@ -292,7 +292,7 @@ export function ExecutiveCommandCenterPage() {
         <div className="card p-4">
           <div className="flex items-center justify-between gap-3"><FileSearch size={18} className="text-ink-500"/><span className="rounded-full bg-ink-100 px-2 py-1 text-[9px] font-black text-ink-600">غير متاح</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">إعادة تشغيل القرار</div>
-          <p className="mt-1 text-[10px] leading-5 text-ink-500">إعادة التشغيل تحتاج snapshots وoutcomes تاريخية مثبتة؛ الواجهة لا تصنع سجلًا بديلًا.</p>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">إعادة التشغيل تحتاج لقطات ونتائج تاريخية مثبتة؛ الواجهة لا تصنع سجلًا بديلًا.</p>
         </div>
         <Link to="/decision-inbox" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><CheckCircle2 size={18} className="text-primary-700"/><span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-black text-primary-700">مسار القرار</span></div>
