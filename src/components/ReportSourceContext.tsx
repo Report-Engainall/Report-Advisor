@@ -3,7 +3,6 @@ import { ArrowLeft, FileSearch, ShieldCheck, AlertTriangle, CheckCircle2, Trendi
 import { Link, useSearchParams } from 'react-router-dom';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
-import { readActiveReportContext, saveActiveReportContext } from '@/lib/report-context';
 
 const DOMAIN_PATHS: Record<string, { path: string; label: string }> = {
   sales: { path: '/reports/sales', label: 'تقرير المبيعات' },
@@ -30,21 +29,21 @@ function stateLabel(value: string | null): string {
 
 export function ReportSourceContext() {
   const [params] = useSearchParams();
-  const saved = readActiveReportContext();
-  const jobId = params.get('reportJobId')?.trim() || saved?.jobId || '';
-  const sourceHash = params.get('sourceHash')?.trim() || saved?.sourceHash || '';
+  const jobId = params.get('reportJobId')?.trim() || '';
+  const sourceHash = params.get('sourceHash')?.trim() || '';
+  const validSourceHash = /^sha256:[0-9a-fA-F]{64}$/.test(sourceHash);
   const [report, setReport] = useState<SmartReportDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!jobId) {
+    if (!jobId || !validSourceHash) {
       setReport(null);
-      setError(null);
+      setError(jobId ? 'مصدر التقرير يحتاج بصمة صالحة.' : null);
       return;
     }
     let active = true;
     setError(null);
-    void fetchSmartReport(jobId).then((value) => {
+    void fetchSmartReport(jobId, sourceHash).then((value) => {
       if (!active) return;
       if (value && sourceHash && value.sourceHash !== sourceHash) {
         setReport(null);
@@ -52,14 +51,13 @@ export function ReportSourceContext() {
         return;
       }
       setReport(value);
-      if (value) saveActiveReportContext({ jobId: value.jobId, sourceHash: value.sourceHash });
     }).catch((cause) => {
       if (active) setError(cause instanceof Error ? cause.message : String(cause));
     });
     return () => { active = false; };
-  }, [jobId, sourceHash]);
+  }, [jobId, sourceHash, validSourceHash]);
 
-  if (!jobId) return null;
+  if (!jobId || !validSourceHash) return null;
 
   if (error || !report) {
     return (
