@@ -85,6 +85,59 @@ type AnalysisSnapshotLike = {
   datasets?: unknown;
 };
 
+function normalizeBusinessField(value: unknown): string | null {
+  const key = String(value ?? '').trim().toLowerCase().normalize('NFKC').replace(/[\\s_-]+/g, '');
+  const aliases: Array<[string,string[]]> = [
+    ['date',['date','التاريخ','تاريخالفاتورة','التاريخ2026']],
+    ['invoice_number',['invoice_number','invoice number','رقمالفاتورة','رقمالفاتوره']],
+    ['invoice_type',['invoice_type','invoice type','نوعالفاتورة','نوعالفاتوره']],
+    ['customer_name',['customer_name','customer','اسم العميل','العميل']],
+    ['supplier_name',['supplier_name','supplier','اسم المورد','المورد']],
+    ['product_name',['product_name','product','item_name','item','اسم الصنف','اسم المنتج','الصنف']],
+    ['total',['total','total_amount','الإجمالي','الاجمالي','اجماليالفاتورة','اجماليالفاتوره']],
+    ['net_amount',['net_amount','مبلغالصافيبالمحلي','مبلغصافالمحلي','الصافيبالمحلي']],
+    ['paid_amount',['paid_amount','paid','المدفوع']],
+    ['balance',['balance','الرصيد','الرصيدالمستحق','outstanding_balance']],
+    ['credit',['credit','دائن']],
+    ['debit',['debit','مدين']],
+    ['quantity',['quantity','qty','الكمية','العدد']],
+  ];
+  for (const [canonical, candidates] of aliases) {
+    if (candidates.some((candidate) => candidate.toLowerCase().normalize('NFKC').replace(/[\\s_-]+/g,'') === key)) return canonical;
+  }
+  return null;
+}
+
+function sourceColumnDescriptors(analysis: AnalysisSnapshotLike | null | undefined, canonicalRows: Array<{data:Record<string,unknown>}> = []) {
+  const output = new Map<string, Record<string, unknown>>();
+  const datasets = Array.isArray(analysis?.datasets) ? analysis.datasets : [];
+  for (const dataset of datasets) {
+    if (!dataset || typeof dataset !== 'object') continue;
+    const columns = Array.isArray((dataset as Record<string, unknown>).columns) ? (dataset as Record<string, unknown>).columns as unknown[] : [];
+    for (const column of columns) {
+      if (column && typeof column === 'object') {
+        const item = column as Record<string, unknown>;
+        const name = String(item.name ?? item.mappedField ?? '').trim();
+        if (!name) continue;
+        const mapped = String(item.mappedField ?? normalizeBusinessField(name) ?? '').trim();
+        output.set(mapped || name, { ...item, name, mappedField: mapped || null });
+      } else {
+        const name = String(column ?? '').trim();
+        if (!name) continue;
+        const mapped = normalizeBusinessField(name);
+        output.set(mapped || name, { name, mappedField: mapped, mappingConfidence: mapped ? 85 : 0 });
+      }
+    }
+  }
+  for (const row of canonicalRows.slice(0, 500)) {
+    for (const name of Object.keys(row.data ?? {})) {
+      const mapped = normalizeBusinessField(name);
+      if (mapped && !output.has(mapped)) output.set(mapped, { name, mappedField: mapped, mappingConfidence: 80 });
+    }
+  }
+  return [...output.values()];
+}
+
 function inferSpecialtyFromAnalysis(analysis: AnalysisSnapshotLike | null | undefined): string | null {
   const datasets = Array.isArray(analysis?.datasets) ? analysis.datasets : [];
   const parts: string[] = [];
@@ -93,9 +146,12 @@ function inferSpecialtyFromAnalysis(analysis: AnalysisSnapshotLike | null | unde
     const row = dataset as Record<string, unknown>;
     const columns = Array.isArray(row.columns) ? row.columns : [];
     for (const column of columns) {
-      if (!column || typeof column !== 'object') continue;
-      const item = column as Record<string, unknown>;
-      parts.push(String(item.name ?? ''), String(item.mappedField ?? ''));
+      if (column && typeof column === 'object') {
+        const item = column as Record<string, unknown>;
+        parts.push(String(item.name ?? ''), String(item.mappedField ?? ''));
+      } else {
+        parts.push(String(column ?? ''), normalizeBusinessField(column) ?? '');
+      }
     }
     const preview = Array.isArray(row.preview) ? row.preview.slice(0, 100) : [];
     for (const sample of preview) {
@@ -588,10 +644,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const sourceAnalysisDatasets = Array.isArray(analysis?.datasets)
     ? analysis.datasets.filter((dataset): dataset is Record<string, unknown> => Boolean(dataset) && typeof dataset === 'object')
     : [];
-  const sourceColumns = sourceAnalysisDatasets.flatMap((dataset) => {
-    const cols = Array.isArray(dataset.columns) ? dataset.columns : [];
-    return cols.filter((column): column is Record<string, unknown> => Boolean(column) && typeof column === 'object');
-  });
+  const sourceColumns = sourceColumnDescriptors(sourceAnalysis, canonicalRows);
   const reviewColumns = sourceColumns.filter((column) => column.requiresReview === true);
   const qualityIssueColumns = sourceColumns.filter((column) => Array.isArray(column.qualityIssues) && column.qualityIssues.length > 0);
   const specialtyRequiredFields: Record<string, string[]> = {
@@ -602,7 +655,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     inventory: ['sku', 'product_name', 'quantity'],
   };
   const requiredFields = specialtyRequiredFields[specialty ?? ''] ?? [];
-  const mappedFields = new Set(sourceColumns.map((column) => String(column.mappedField ?? '').trim()).filter(Boolean));
+  const mappedFields = new Set(sourceColumns.map((column) => String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim()).filter(Boolean));
   const missingRequiredFields = requiredFields.filter((field) => !mappedFields.has(field));
   const intelligenceGateReasons: string[] = [];
   if (!analysis || String(analysis.analysis_status ?? '') !== 'analyzed') intelligenceGateReasons.push('التحليل المصدرّي غير مكتمل');
@@ -644,17 +697,10 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   );
   if (!catalogItem) throw new Error('SMART_REPORT_CATALOG_ITEM_UNAVAILABLE');
 
-  const availableFields = [...new Set((Array.isArray(sourceAnalysis?.datasets) ? sourceAnalysis.datasets : []).flatMap((dataset) => {
-    if (!dataset || typeof dataset !== 'object') return [];
-    const columns = (dataset as Record<string, unknown>).columns;
-    if (!Array.isArray(columns)) return [];
-    return columns
-      .filter((column): column is Record<string, unknown> => Boolean(column) && typeof column === 'object')
-      .flatMap((column) => {
-        const mapped = String(column.mappedField ?? '').trim();
-        const name = String(column.name ?? '').trim();
-        return [mapped, name].filter(Boolean);
-      });
+  const availableFields = [...new Set(sourceColumnDescriptors(sourceAnalysis, canonicalRows).flatMap((column) => {
+    const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
+    const name = String(column.name ?? '').trim();
+    return [mapped, name].filter(Boolean);
   }))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
 
   const detectedArchetype = detectReportArchetype({
