@@ -180,7 +180,7 @@ function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
         if (!name || isExtractionArtifactHeader(name)) return null;
         const declaredMapped = text(column.mappedField);
         const semanticMapped = canonicalSourceField(name);
-        const mappedField = semanticMapped || declaredMapped;
+        const mappedField = declaredMapped || semanticMapped;
         return { ...column, name, mappedField: mappedField || null };
       }
       const name = text(item);
