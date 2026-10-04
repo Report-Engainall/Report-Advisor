@@ -54,9 +54,9 @@ const FIELD_LABELS: Record<string, string> = {
 function compactFieldLabel(value: unknown): string {
   const key = String(value ?? '').trim();
   if (!key) return 'حقل';
-  const normalized = key.toLowerCase().replace(/[\\s_-]+/g, '');
+  const normalized = key.toLowerCase().replace(/[\s_-]+/g, '');
   const match = Object.entries(FIELD_LABELS).find(([candidate]) =>
-    normalized === candidate.toLowerCase().replace(/[\\s_-]+/g, ''),
+    normalized === candidate.toLowerCase().replace(/[\s_-]+/g, ''),
   );
   return match?.[1] ?? 'مؤشر تشغيلي';
 }
