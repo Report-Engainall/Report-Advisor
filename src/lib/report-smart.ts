@@ -514,20 +514,31 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const renderedImportId = resolveImportJobId(job as Record<string, unknown>, effectiveRendered, null);
   if (!renderedImportId) throw new Error('INVALID_REPORT_CONTEXT');
 
-  const { data: importAnalyses, error: importAnalysisError } = await supabase
-    .from('source_analysis_snapshots')
-    .select('id,import_job_id,source_hash,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
-    .eq('company_id', companyId)
-    .eq('source_hash', job.source_hash)
-    .eq('import_job_id', renderedImportId)
-    .order('created_at', { ascending: false })
-    .limit(1);
-
-  if (importAnalysisError) throw importAnalysisError;
-  const analysis = (importAnalyses?.[0] ?? null) as Record<string, unknown> | null;
-  if (!analysis || String(analysis.import_job_id ?? '') !== renderedImportId) {
-    throw new Error('INVALID_REPORT_CONTEXT');
+  let analyses: Array<Record<string, unknown>> = [];
+  let importAnalysisError: unknown = null;
+  try {
+    const { data, error } = await supabase
+      .from('source_analysis_snapshots')
+      .select('id,import_job_id,source_hash,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
+      .eq('company_id', companyId)
+      .eq('source_hash', job.source_hash)
+      .eq('import_job_id', renderedImportId)
+      .order('created_at', { ascending: false })
+      .limit(12);
+    if (error) {
+      importAnalysisError = error;
+    } else {
+      analyses = (data ?? []).filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === 'object');
+    }
+  } catch (error) {
+    importAnalysisError = error;
   }
+
+  if (importAnalysisError) {
+    runtimeWarnings.push('تعذر قراءة لقطات التحليل البديلة؛ استمر التقرير اعتمادًا على المخرجات المحفوظة والصفوف الكانونية المتاحة.');
+  }
+
+  const analysis = chooseBestAnalysisSnapshot((analyses ?? []) as Array<Record<string, unknown>>);
 
   if (effectiveRendered.rowCount == null && analysis.row_count != null) effectiveRendered.rowCount = Number(analysis.row_count);
   if (effectiveRendered.qualityScore == null && analysis.quality_score != null) effectiveRendered.qualityScore = Number(analysis.quality_score);
