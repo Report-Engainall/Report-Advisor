@@ -53,6 +53,7 @@ export async function createSourceDecisionProposal(input: {
 
   const decisionKey = [
     'source-intelligence',
+    input.reportJobId,
     input.sourceHash,
     input.signalId,
   ].join(':');
@@ -126,20 +127,27 @@ export type SourceDecisionState = SourceDecisionProposal & {
   approvalDecidedBy: string | null;
 };
 
-export async function fetchSourceDecisionProposals(sourceHash: string): Promise<SourceDecisionState[]> {
+export async function fetchSourceDecisionProposals(sourceHash: string, reportJobId: string): Promise<SourceDecisionState[]> {
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
+  const normalizedHash = sourceHash.trim();
+  const normalizedJobId = reportJobId.trim();
+  if (!normalizedHash || !normalizedJobId) throw new Error('INVALID_REPORT_CONTEXT');
 
   const { data, error } = await supabase
     .from('business_intelligence_decisions')
     .select('id,decision_key,status,created_at,approved_at,approved_by,recommendation_id,evidence')
     .eq('company_id', companyId)
-    .like('decision_key', 'source-intelligence:' + sourceHash + ':%')
+    .like('decision_key', 'source-intelligence:' + normalizedJobId + ':' + normalizedHash + ':%')
     .order('created_at', { ascending: false });
 
   if (error) throw error;
 
-  const decisionRows = data ?? [];
+  const decisionRows = (data ?? []).filter((row) => {
+    const evidence = row.evidence && typeof row.evidence === 'object' ? row.evidence as Record<string, unknown> : {};
+    return String(evidence.reportExecutionJobId ?? '') === normalizedJobId
+      && String(evidence.sourceHash ?? '') === normalizedHash;
+  });
   const decisionIds = decisionRows.map((row) => String(row.id));
 
   const recommendationIds = decisionRows
