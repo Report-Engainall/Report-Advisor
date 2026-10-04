@@ -345,7 +345,7 @@ function WorkCenterGeneralPage() {
                   <tr key={item.id} className="border-t border-ink-100">
                     <td className="max-w-[280px] px-3 py-3">
                       <div className="font-black text-ink-900">{item.title}</div>
-                      <div className="mt-1 text-[8px] text-ink-400">مسار العمل محفوظ ومربوط بالتقرير</div>
+                      <div className="mt-1 text-[8px] text-ink-400">مرتبط بالتقرير والدليل</div>
                     </td>
                     <td className="px-3 py-3"><span className="rounded-full bg-ink-50 px-2 py-1 font-bold text-ink-700">{workStatusLabel(item.status)}</span></td>
                     <td className="px-3 py-3 text-ink-600">{item.assigneeLabel ?? 'غير متاح'}</td>
@@ -361,7 +361,7 @@ function WorkCenterGeneralPage() {
                     </td>
                     <td className="px-3 py-3">
                       {reportJobIdValue && sourceHashValue
-                        ? <span className="font-mono text-[8px] text-ink-400">{sourceHashValue.slice(0, 22)}…</span>
+                        ? <span className="text-[9px] text-ink-500">مرتبط بالمصدر الأصلي</span>
                         : <span className="text-ink-400">غير مربوط</span>}
                     </td>
                     <td className="px-3 py-3">
@@ -425,7 +425,7 @@ function WorkCenterGeneralPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="text-[11px] font-black text-ink-900">{item.title}</div>
-                    <div className="mt-1 break-all font-mono text-[8px] text-ink-400">{item.id}</div>
+                    <div className="mt-1 text-[8px] text-ink-400">مسار عمل محفوظ وقابل للتتبع</div>
                   </div>
                   <span className="shrink-0 rounded-full bg-primary-50 px-2 py-1 text-[8px] font-black text-primary-800">{workStatusLabel(item.status)}</span>
                 </div>
