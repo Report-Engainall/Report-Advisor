@@ -476,8 +476,8 @@ export function CanonicalImportPage() {
       const metrics = rendered.sourceMetrics ?? {};
       const outputs = Array.isArray(rendered.outputs) ? rendered.outputs : [];
       const trustLabel = rendered.trustState === 'TRUSTED' ? 'موثوق' : rendered.trustState === 'REVIEW' ? 'مراجعة' : rendered.trustState === 'BLOCKED' ? 'محظور' : 'غير محدد';
-      const benchmarkLabel = rendered.benchmarkStatus === 'INSUFFICIENT_SAMPLE' ? 'العينة غير كافية' : String(rendered.benchmarkStatus ?? 'غير متاح');
-      const evidenceLabel = rendered.evidenceStatus === 'AWAITING_EVIDENCE_SNAPSHOT' ? 'بانتظار لقطة الدليل' : String(rendered.evidenceStatus ?? 'غير متاح');
+      const benchmarkLabel = rendered.benchmarkStatus === 'INSUFFICIENT_SAMPLE' ? 'العينة غير كافية' : rendered.benchmarkStatus === 'AVAILABLE' ? 'متاح' : 'غير متاح';
+      const evidenceLabel = rendered.evidenceStatus === 'AWAITING_EVIDENCE_SNAPSHOT' ? 'بانتظار لقطة الدليل' : rendered.evidenceStatus === 'VERIFIED' ? 'موثق' : 'يحتاج مراجعة';
       const specialtyLabel: Record<string, string> = { sales: 'المبيعات', purchases: 'المشتريات', inventory: 'المخزون', payments: 'السيولة والمدفوعات', receivables: 'الذمم المدينة', profitability: 'الربحية' };
       const metricValue = (value: unknown, suffix = '') => value == null ? 'غير متاح' : `${formatNumber(Number(value))}${suffix}`;
       return <div className="space-y-4">
