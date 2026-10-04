@@ -107,71 +107,140 @@ function displayColumnLabel(column: string): string {
   return 'مؤشر تشغيلي';
 }
 
-function buildSmartAnalysis(report: SmartReportDetail | null) {
+
+function canonicalFieldName(value: unknown): string | null {
+  const raw = String(value ?? '').trim();
+  if (!raw) return null;
+  const key = normalizeKey(raw);
+  const aliases: Array<[string,string[]]> = [
+    ['date',['date','invoice_date','التاريخ','تاريخ الفاتورة','التاريخ 2026-']],
+    ['invoice_number',['invoice_number','invoice number','رقم الفاتورة','رقم الفاتوره']],
+    ['invoice_type',['invoice_type','invoice type','نوع الفاتورة','نوع الفاتوره']],
+    ['customer_name',['customer_name','customer','client','اسم العميل','العميل']],
+    ['supplier_name',['supplier_name','supplier','اسم المورد','المورد']],
+    ['product_name',['product_name','product','item_name','item','name','اسم الصنف','اسم المنتج','الصنف','المادة','اسم المادة','الخامة','اسم الخامة']],
+    ['total',['total','total_amount','اجمالي الفاتورة','اجمالي الفاتوره','الإجمالي','الاجمالي']],
+    ['net_amount',['net_amount','مبلغ الصافي بالمحلي','مبلغ صافي المحلي','الصافي بالمحلي']],
+    ['paid_amount',['paid_amount','paid','المدفوع']],
+    ['balance',['balance','الرصيد','الرصيد المستحق','outstanding_balance']],
+    ['credit',['credit','دائن']],
+    ['debit',['debit','مدين']],
+    ['quantity',['quantity','qty','الكمية','العدد']],
+    ['unit_price',['unit_price','سعر الوحدة']],
+    ['cost',['cost','cost_price','التكلفة']],
+    ['price',['price','السعر']],
+    ['category',['category','الفئة','التصنيف']],
+    ['warehouse',['warehouse','المستودع','المخزن']],
+  ];
+  for (const [canonical, candidates] of aliases) {
+    if (candidates.some(candidate => normalizeKey(candidate) === key)) return canonical;
+  }
+  return null;
+}
+
+function valueForColumn(row: Record<string, unknown>, column: string): unknown {
+  if (Object.prototype.hasOwnProperty.call(row, column) && row[column] != null && row[column] !== '') return row[column];
+  const target = canonicalFieldName(column);
+  if (!target) return row[column];
+  for (const [key, value] of Object.entries(row)) {
+    if (canonicalFieldName(key) === target && value != null && value !== '') return value;
+  }
+  return row[column];
+}
+
+function normalizedDatasetColumns(report: SmartReportDetail | null): SmartColumn[] {
   const dataset = report?.sourceAnalysis?.datasets?.[0];
-  const objectDataset = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : null;
-  const columns = Array.isArray(objectDataset?.columns)
-    ? objectDataset.columns.filter((row): row is SmartColumn => Boolean(row) && typeof row === 'object')
+  if (!dataset || typeof dataset !== 'object') return [];
+  const rawColumns = Array.isArray((dataset as Record<string, unknown>).columns)
+    ? (dataset as Record<string, unknown>).columns as unknown[]
     : [];
-  const preview = Array.isArray(objectDataset?.preview)
-    ? objectDataset.preview.filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === 'object')
-    : [];
-  const fullRows = (report?.canonicalRows ?? []).filter((row) => row && typeof row.data === 'object' && row.data !== null);
+  return rawColumns.map((column): SmartColumn | null => {
+    if (column && typeof column === 'object') {
+      const item = column as Record<string, unknown>;
+      const sourceName = String(item.name ?? item.mappedField ?? '').trim();
+      if (!sourceName) return null;
+      return {
+        name: sourceName,
+        mappedField: String(item.mappedField ?? canonicalFieldName(sourceName) ?? '').trim() || null,
+        dataType: String(item.dataType ?? ''),
+        nullCount: Number.isFinite(Number(item.nullCount)) ? Number(item.nullCount) : undefined,
+        mappingConfidence: Number.isFinite(Number(item.mappingConfidence)) ? Number(item.mappingConfidence) : undefined,
+        statistics: item.statistics && typeof item.statistics === 'object'
+          ? item.statistics as SmartColumn['statistics']
+          : undefined,
+      };
+    }
+    const sourceName = String(column ?? '').trim();
+    return sourceName ? {
+      name: sourceName,
+      mappedField: canonicalFieldName(sourceName),
+      mappingConfidence: canonicalFieldName(sourceName) ? 85 : 0,
+    } : null;
+  }).filter((item): item is SmartColumn => Boolean(item));
+}
+
+function uniqueBusinessColumns(columns: SmartColumn[], rows: Array<Record<string, unknown>>): SmartColumn[] {
+  const byKey = new Map<string, SmartColumn>();
+  const add = (column: SmartColumn) => {
+    const key = String(column.mappedField ?? canonicalFieldName(column.name) ?? column.name ?? '').trim();
+    if (!key) return;
+    const current = byKey.get(key);
+    if (!current || Number(column.mappingConfidence ?? 0) > Number(current.mappingConfidence ?? 0)) byKey.set(key, column);
+  };
+  columns.forEach(add);
+  for (const row of rows.slice(0, 500)) {
+    for (const key of Object.keys(row)) {
+      if (/^(page_number|line_number|visual_cell_\d+)$/i.test(key)) continue;
+      const mapped = canonicalFieldName(key);
+      if (mapped && !byKey.has(mapped)) add({ name: key, mappedField: mapped, mappingConfidence: 80 });
+    }
+  }
+  return [...byKey.values()];
+}
+
+function buildSmartAnalysis(report: SmartReportDetail | null) {
+  const rows = (report?.canonicalRows ?? [])
+    .filter((row) => row && row.data && typeof row.data === 'object')
+    .map((row) => row.data as Record<string, unknown>);
+  const columns = uniqueBusinessColumns(normalizedDatasetColumns(report), rows);
 
   const numeric = columns
-    .map(column => ({ column, sum: numberValue(column.statistics?.sum), mean: numberValue(column.statistics?.mean) }))
-    .filter(item => item.sum != null || item.mean != null);
+    .map((column) => {
+      const field = String(column.mappedField ?? column.name ?? '').trim();
+      const values = rows.map((row) => parseNumber(valueForColumn(row, field))).filter((value): value is number => value != null);
+      const sourceStatSum = numberValue(column.statistics?.sum);
+      const sum = sourceStatSum != null ? sourceStatSum : values.reduce((total, value) => total + value, 0);
+      const mean = numberValue(column.statistics?.mean) ?? (values.length ? sum / values.length : null);
+      return { column, sum: values.length || sourceStatSum != null ? sum : null, mean };
+    })
+    .filter((item) => item.sum != null || item.mean != null);
 
-  const completeness = report?.rowCount && columns.length
-    ? Math.round(
-        Math.max(0, 100 - (
-          columns.reduce((sum, column) => sum + Math.min(report.rowCount ?? 0, Math.max(0, Number(column.nullCount ?? 0))), 0)
-          / Math.max(1, (report.rowCount ?? 0) * columns.length)
-        ) * 100)
-      )
-    : null;
+  const completeness = rows.length && columns.length
+    ? Math.round(Math.max(0, 100 - (
+      columns.reduce((sum, column) => {
+        const field = String(column.mappedField ?? column.name ?? '');
+        return sum + rows.filter((row) => {
+          const value = valueForColumn(row, field);
+          return value === null || value === undefined || value === '';
+        }).length;
+      }, 0) / Math.max(1, rows.length * columns.length) * 100
+    )))
+    : report?.qualityScore ?? null;
 
   const findColumn = (...names: string[]) =>
-    columns.find(column => {
-      const key = normalizeKey(column.mappedField ?? column.name);
-      return names.some(name => key.includes(normalizeKey(name)));
-    });
+    columns.find((column) => names.some((name) => canonicalFieldName(column.mappedField ?? column.name) === canonicalFieldName(name)));
 
-  const amountColumn = findColumn('outstanding_balance', 'local_amount', 'total_amount', 'total', 'net_amount', 'amount', 'value');
-  const age120Column = findColumn('age_over_120', 'over_120');
-  const age30Column = findColumn('age_0_30', '0_30', 'age030');
-  const paidColumn = findColumn('paid_amount', 'paid');
-  const quantityColumn = findColumn('quantity', 'qty', 'stock', 'current_stock');
-  const customerColumn = findColumn('customer_name', 'customer', 'client');
-  const productColumn = findColumn('product_name', 'product', 'item', 'sku');
-
-  const customerKey = dataKey(customerColumn);
-  const productKey = dataKey(productColumn);
-  const amountKey = dataKey(amountColumn);
-
-  const topRows = fullRows
-    .map(record => ({
-      name: String(record.data[customerKey] ?? record.data[productKey] ?? record.data.name ?? record.data.sku ?? 'غير مسمى'),
-      value: numberValue(
-        record.data[amountKey] ??
-        record.data.outstanding_balance ??
-        record.data.local_amount ??
-        record.data.total ??
-        record.data.amount ??
-        record.data.value ??
-        record.data.price ??
-        record.data['السعر']
-      ),
-    }))
-    .filter(row => row.value != null)
-    .sort((a, b) => Number(b.value) - Number(a.value))
-    .slice(0, 5);
+  const amountColumn = findColumn('net_amount','total','total_amount','amount','value','outstanding_balance','balance');
+  const age120Column = findColumn('age_over_120','over_120');
+  const age30Column = findColumn('age_0_30','0_30','age030');
+  const paidColumn = findColumn('paid_amount','paid');
+  const quantityColumn = findColumn('quantity','qty','stock','current_stock');
 
   const metrics = [
     {
       label: report?.specialty === 'receivables' ? 'إجمالي الرصيد المستحق' : 'أهم قيمة مالية',
-      value: formatMetric(amountColumn?.statistics?.sum == null ? null : Number(amountColumn.statistics.sum)),
-      detail: displayColumnLabel(String(amountColumn?.mappedField ?? amountColumn?.name ?? '')),
+      value: formatMetric(amountColumn ? (numberValue(amountColumn.statistics?.sum) ?? numeric.find((item) => item.column === amountColumn)?.sum ?? null) : null),
+      detail: amountColumn ? displayColumnLabel(String(amountColumn.mappedField ?? amountColumn.name ?? '')) : 'لا توجد قيمة مالية مثبتة',
     },
     {
       label: 'عدد الصفوف',
@@ -181,12 +250,14 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
     {
       label: 'اكتمال البيانات',
       value: completeness == null ? 'غير متاح' : `${completeness}%`,
-      detail: 'محسوب من القيم غير الفارغة',
+      detail: 'محسوب من الحقول المعروضة',
     },
     {
       label: report?.specialty === 'receivables' ? 'أكثر من 120 يومًا' : 'مؤشر عددي رئيسي',
-      value: formatMetric(age120Column?.statistics?.sum == null ? (numeric[0]?.sum ?? null) : Number(age120Column.statistics.sum)),
-      detail: displayColumnLabel(String(age120Column?.mappedField ?? age120Column?.name ?? (numeric[0]?.column.mappedField ?? numeric[0]?.column.name ?? ''))),
+      value: formatMetric(age120Column ? numberValue(age120Column.statistics?.sum) : (numeric[0]?.sum ?? null)),
+      detail: age120Column
+        ? displayColumnLabel(String(age120Column.mappedField ?? age120Column.name ?? ''))
+        : (numeric[0] ? displayColumnLabel(String(numeric[0].column.mappedField ?? numeric[0].column.name ?? '')) : 'غير متاح'),
     },
   ];
 
@@ -210,7 +281,7 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
     });
   }
 
-  return { columns, preview, numeric, completeness, metrics, topRows };
+  return { columns, preview: [], numeric, completeness, metrics, topRows: [] };
 }
 
 function reportVerificationLabel(value: string): string {
