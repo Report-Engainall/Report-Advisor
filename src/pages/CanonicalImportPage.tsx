@@ -493,7 +493,18 @@ export function CanonicalImportPage() {
           </div>
         </div>
       )}
-      {error && <div className="mt-4 p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
+      {error && failurePresentation && (
+        <div className="mt-4 rounded-[14px] border border-danger-200 bg-danger-50 p-4 text-danger-900">
+          <div className="flex items-start gap-3">
+            <AlertCircle size={18} className="mt-0.5 shrink-0" />
+            <div>
+              <div className="text-xs font-black">العطل الفعلي: {failurePresentation.title}</div>
+              <p className="mt-1 text-[11px] leading-5">{failurePresentation.detail}</p>
+              <p className="mt-2 text-[10px] font-bold">الإجراء المقترح: {failurePresentation.action}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </CardBody></Card>}
 
     {step === 'scanning' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><div className="text-center"><b>جارٍ فحص وتحليل الملف</b><p className="text-sm text-ink-500 mt-1">أمان الملف، الصيغة، البصمة، التكرار وجودة البيانات</p></div></div></CardBody></Card>}
