@@ -1876,3 +1876,36 @@ button,input,textarea,select{font:inherit}
   .ag-smart-report-surface .data-table-shell tbody td{max-width:none!important;white-space:normal!important;padding:.65rem .8rem;border-bottom:1px solid #eef2f7}
   .ag-smart-report-surface .data-table-shell tbody td:last-child{border-bottom:0}
 }
+
+/* Final executive shell refinement — hierarchy first, technical density second */
+@layer components{
+  .ag-sidebar .nav-item-active{
+    background:linear-gradient(90deg,rgba(79,70,229,.18),rgba(30,41,59,.72))!important;
+    border-color:rgba(129,140,248,.24)!important;
+    color:#fff!important;
+    box-shadow:inset 3px 0 0 #d6a11e,0 8px 20px -18px rgba(2,6,23,.78)!important;
+  }
+  .ag-sidebar .ag-section-toggle-active{
+    background:linear-gradient(90deg,rgba(79,70,229,.14),rgba(30,41,59,.76))!important;
+    border-color:rgba(129,140,248,.22)!important;
+    box-shadow:inset 3px 0 0 #d6a11e!important;
+  }
+  .ag-sidebar .nav-item-inactive:hover{background:rgba(79,70,229,.10)!important;color:#fff!important}
+  .ag-journey-track{gap:2px;padding:3px;border-color:#dbe2ea;background:rgba(255,255,255,.92);box-shadow:0 8px 22px -20px rgba(15,23,42,.38)}
+  .ag-journey-brand{padding:0 7px;color:#334155;font-size:9px}
+  .ag-journey-brand-mark{width:24px;height:24px;border-radius:7px;background:#0b1020;color:#d6a11e}
+  .ag-journey-link{min-width:92px;min-height:34px;padding:3px 7px;border-radius:9px;gap:5px}
+  .ag-journey-index{display:none}
+  .ag-journey-description{display:none}
+  .ag-journey-label{font-size:10px}
+  .ag-journey-icon{width:24px;height:24px;border-radius:7px}
+  .ag-journey-arrow{opacity:.45}
+  .ag-journey-link-active{background:linear-gradient(135deg,#111827,#1e1b4b);border-color:#312e81;color:#fff;box-shadow:inset 0 0 0 1px rgba(165,180,252,.15),0 10px 20px -18px rgba(15,23,42,.8)}
+}
+@media(max-width:640px){
+  .ag-journey-track{margin-inline:-.25rem;padding:2px}
+  .ag-journey-link{min-width:74px;justify-content:center}
+  .ag-journey-copy{align-items:center}
+  .ag-journey-brand{padding-inline:5px}
+  .ag-journey-brand span:last-child{display:none}
+}
