@@ -834,7 +834,7 @@ export function SmartReportPage() {
           label: 'المصدر',
           englishLabel: 'المصدر',
           status: stateLabel(report.sourceTrustState ?? report.trustState),
-          detail: (report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي') + ' · ' + formatNumber(report.rowCount ?? 0) + ' سجل · ' + (report.sourceAnalysis?.sourceFormat ?? 'غير متاح'),
+          detail: (report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي') + ' · ' + reportRowCountLabel(report.rowCount) + ' · ' + (report.sourceAnalysis?.sourceFormat ?? 'غير متاح'),
           tone: report.sourceTrustState === 'VERIFIED' || report.trustState === 'TRUSTED' ? 'trusted' : 'active',
         },
         {
