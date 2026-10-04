@@ -6,6 +6,8 @@ const dashboard = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 const entities = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
 const dataTable = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
 const smartReport = fs.readFileSync('src/pages/SmartReportPage.tsx', 'utf8');
+assert.ok(smartReport.includes('CommercialValueChain'), 'smart report must expose the customer-facing value operating chain');
+assert.ok(smartReport.includes('VALUE OPERATING SYSTEM'), 'smart report value chain must be visibly branded as the operating path');
 for (const token of [
   'EVIDENCE GATE',
   'Evidence Snapshot',
