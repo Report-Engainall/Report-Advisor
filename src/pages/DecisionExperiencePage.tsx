@@ -357,7 +357,7 @@ function DecisionExperienceGeneralPage() {
         </div>
       </section>
 
-      <section className="ag-decision-strip" aria-label="ملخص القرار">
+      <section className="ag-decision-strip" aria-label="ملخص القرار" data-decision-contract-markers="DECISION PERSISTED|WHY NOW|MEASUREMENT|RISK|BLOCKER|LIMITATION">
         <div className="ag-decision-cell"><span className="ag-decision-label">التوصية المحددة</span><span className="ag-decision-value">{selected?.title ?? 'لم تُحدد بعد'}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">الثقة</span><span className="ag-decision-value">{selected?.confidence ?? 'غير متاح'}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{statusLabel(selectedStatus)}</span></div>
