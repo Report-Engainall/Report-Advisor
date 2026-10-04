@@ -65,9 +65,13 @@ function operationalErrorMessage(cause: unknown, fallback: string): string {
   const code = typeof candidate?.code === 'string' ? candidate.code : '';
   const status = Number(candidate?.status ?? 0);
   if (code === '42501' || code === 'PGRST301' || status === 401 || status === 403) {
-    return 'PERMISSION_DENIED: لا تملك صلاحية تنفيذ هذا الإجراء ضمن tenant الحالي.';
+    return 'لا تملك صلاحية تنفيذ هذا الإجراء ضمن مساحة العمل الحالية.';
   }
-  if (cause instanceof Error && cause.message.trim()) return cause.message;
+  if (cause instanceof Error && cause.message.trim()) {
+    const raw = cause.message;
+    if (/INVALID_|TENANT_|PGRST|permission|forbidden|unauthorized/i.test(raw)) return fallback;
+    return raw;
+  }
   return fallback;
 }
 
@@ -277,7 +281,7 @@ export function OperationsPage() {
                 <div>
                   <div className="section-kicker">ORDER HISTORY / READBACK</div>
                   <h3 className="mt-1 text-sm font-black text-primary-950">مسار الطلب المحفوظ</h3>
-                  <p className="mt-1 text-[10px] leading-5 text-ink-600">الحالة هنا تُقرأ من <span className="font-mono">order_status_history</span> للـtenant الحالي، وليست حالة محلية.</p>
+                  <p className="mt-1 text-[10px] leading-5 text-ink-600">الحالة هنا تُقرأ من السجل التشغيلي المحفوظ، وليست حالة مؤقتة على الشاشة.</p>
                 </div>
                 <Badge variant="neutral">{orderHistory.length} انتقال</Badge>
               </div>
@@ -353,9 +357,8 @@ export function OperationsPage() {
               {auditTrace.slice(0, 8).map((entry) => (
                 <div key={entry.id} className="py-3 first:pt-0 last:pb-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant={entry.action.endsWith(':insert') ? 'success' : entry.action.endsWith(':update') ? 'warning' : 'danger'}>{entry.action}</Badge>
-                    {entry.entityType && <span className="text-[10px] font-black text-ink-700">{entry.entityType}</span>}
-                    {entry.entityId && <span className="font-mono text-[9px] text-ink-400">{entry.entityId.slice(0, 8)}…</span>}
+                    <Badge variant={entry.action.endsWith(':insert') ? 'success' : entry.action.endsWith(':update') ? 'warning' : 'danger'}>{entry.action.endsWith(':insert') ? 'إنشاء' : entry.action.endsWith(':update') ? 'تحديث' : 'إجراء'}</Badge>
+                    {entry.entityType && <span className="text-[10px] font-black text-ink-700">{entry.entityType.includes('order') ? 'طلب' : entry.entityType.includes('invoice') ? 'فاتورة' : entry.entityType.includes('payment') ? 'تحصيل' : 'عملية'}</span>}
                   </div>
                   <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[9px] text-ink-400">
                     <span>{new Date(entry.createdAt).toLocaleString('ar-YE')}</span>
