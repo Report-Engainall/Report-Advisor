@@ -191,6 +191,7 @@ function uniqueBusinessColumns(columns: SmartColumn[], rows: Array<Record<string
   for (const row of rows.slice(0, 500)) {
     for (const key of Object.keys(row)) {
       if (/^(page_number|line_number|visual_cell_\d+)$/i.test(key)) continue;
+      if (/^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/.test(key.trim()) || /^20\d{2}-?$/.test(key.trim())) continue;
       const mapped = canonicalFieldName(key);
       if (mapped && !byKey.has(mapped)) add({ name: key, mappedField: mapped, mappingConfidence: 80 });
     }
