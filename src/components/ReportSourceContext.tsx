@@ -84,9 +84,9 @@ export function ReportSourceContext() {
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-ink-950 px-2.5 py-1 text-[9px] font-black text-white">السياق الحالي</span>
-            <span className="truncate text-sm font-black text-ink-950" title={report.sourcePath}>{report.sourcePath}</span>
+            <span className="truncate text-sm font-black text-ink-950">{report.specialty ? (DOMAIN_PATHS[report.specialty]?.label ?? 'تحليل أعمال') : 'تحليل أعمال ذكي'}</span>
             <span className="text-[10px] text-ink-400">·</span>
-            <span className="text-[10px] font-bold text-ink-600">{report.specialty ? (DOMAIN_PATHS[report.specialty]?.label ?? report.specialty) : 'تحليل عام'}</span>
+            <span className="text-[10px] font-bold text-ink-600">{report.rowCount == null ? 'حجم المصدر غير متاح' : formatNumber(report.rowCount) + ' صفًا'}</span>
           </div>
           <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-ink-500">
             <span>{report.rowCount == null ? 'عدد الصفوف غير متاح' : formatNumber(report.rowCount) + ' صف'}</span>
@@ -96,6 +96,8 @@ export function ReportSourceContext() {
             <span>الثقة {stateLabel(report.trustState)}</span>
             <span>·</span>
             <span>الدليل {stateLabel(report.evidenceStatus)}</span>
+            <span>·</span>
+            <span>المصدر الأصلي محفوظ للتدقيق</span>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
