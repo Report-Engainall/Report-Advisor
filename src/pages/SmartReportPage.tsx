@@ -52,7 +52,6 @@ function stateLabel(value: string | null): string {
     REVIEW_REQUIRED: 'المراجعة مطلوبة',
     PROPOSED: 'مقترح',
     PARTIAL_ANALYSIS: 'تحليل جزئي',
-    BLOCKED: 'محظور',
     INSUFFICIENT_DATA: 'البيانات غير كافية',
     NOT_READY: 'غير جاهز',
   };
