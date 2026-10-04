@@ -118,7 +118,7 @@ function displayColumnLabel(column: string): string {
   if (/الرصيد/.test(key)) return 'الرصيد';
   if (/دائن/.test(key)) return 'دائن';
   if (/مدين/.test(key)) return 'مدين';
-  return 'مؤشر تشغيلي';
+  return key || 'حقل المصدر';
 }
 
 
@@ -296,12 +296,22 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
     const key = dataKey(coverage);
     return rows.filter((row) => { const value = numberValue(valueForColumn(row, key)); return value != null && value >= 0 && value <= 30; }).length;
   })() : 0;
+  const inventoryStockSum = report?.specialty === 'inventory' && inventoryStockColumn
+    ? rows.reduce((sum, row) => {
+        const value = numberValue(valueForColumn(row, inventoryStockKey));
+        return sum + (value == null ? 0 : value);
+      }, 0)
+    : null;
   const primaryMetricColumn = report?.specialty === 'inventory' ? inventoryStockColumn : (amountColumn ?? null);
 
   const metrics = [
     {
       label: report?.specialty === 'receivables' ? 'إجمالي الرصيد المستحق' : report?.specialty === 'inventory' ? 'إجمالي الرصيد الحالي' : 'أهم قيمة مالية',
-      value: formatMetric(primaryMetricColumn ? (numberValue(primaryMetricColumn.statistics?.sum) ?? numeric.find((item) => item.column === primaryMetricColumn)?.sum ?? null) : null),
+      value: formatMetric(report?.specialty === 'inventory'
+        ? inventoryStockSum
+        : primaryMetricColumn
+          ? (numberValue(primaryMetricColumn.statistics?.sum) ?? numeric.find((item) => item.column === primaryMetricColumn)?.sum ?? null)
+          : null),
       detail: primaryMetricColumn ? displayColumnLabel(String(primaryMetricColumn.mappedField ?? primaryMetricColumn.name ?? '')) : 'لا توجد قيمة رقمية مثبتة',
     },
     {
