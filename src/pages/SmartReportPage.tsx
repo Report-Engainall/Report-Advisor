@@ -8,6 +8,7 @@ import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { SmartReportAdvisorySurface } from '@/components/SmartReportAdvisorySurface';
 import { ReportDecisionCockpit } from '@/components/ReportDecisionCockpit';
 import { formatNumber } from '@/lib/format';
+import { parseNumber } from '@/lib/file-engine/normalizer';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 
 function textValue(value: unknown): string {
@@ -60,12 +61,7 @@ type SmartColumn = {
 };
 
 function numberValue(value: unknown): number | null {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'string' && value.trim()) {
-    const parsed = Number(value.replace(/,/g, ''));
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-  return null;
+  return parseNumber(value);
 }
 
 function normalizeKey(value: unknown): string {
@@ -78,6 +74,17 @@ function formatMetric(value: number | null): string {
 
 function dataKey(column: SmartColumn | null | undefined): string {
   return String(column?.mappedField ?? column?.name ?? '').trim();
+}
+
+function displayColumnLabel(column: string): string {
+  const labels: Record<string, string> = {
+    balance: 'الرصيد', credit: 'دائن', debit: 'مدين', amount: 'المبلغ', total: 'الإجمالي',
+    net_amount: 'صافي المبلغ', gross_amount: 'الإجمالي قبل الخصم', subtotal: 'المجموع الفرعي',
+    tax_amount: 'الضريبة', paid_amount: 'المدفوع', invoice_number: 'رقم الفاتورة', invoice_date: 'تاريخ الفاتورة',
+    customer_name: 'اسم العميل', supplier_name: 'اسم المورد', product_name: 'اسم الصنف', quantity: 'الكمية',
+    date: 'التاريخ', currency: 'العملة', invoice_type: 'نوع الفاتورة', unit_price: 'سعر الوحدة', price: 'السعر',
+  };
+  return labels[column] ?? column;
 }
 
 function buildSmartAnalysis(report: SmartReportDetail | null) {
@@ -278,9 +285,21 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
   }, [dataset]);
   const rows = useMemo(() => report.canonicalRows.map((row) => row.data), [report.canonicalRows]);
   const discoveredColumns = useMemo(() => {
-    const fromDefinition = definitionColumns.map((column) => String(column.name ?? '')).filter(Boolean);
-    const fromRows = rows.slice(0, 200).flatMap((row) => Object.keys(row));
-    return [...new Set([...fromDefinition, ...fromRows])];
+    const technical = /^(page_number|line_number|visual_cell_\\d+)$/i;
+    const mappedColumns = definitionColumns
+      .map((column) => ({
+        name: String(column.name ?? '').trim(),
+        mappedField: String(column.mappedField ?? '').trim(),
+        confidence: Number(column.mappingConfidence ?? 0),
+      }))
+      .filter((column) => column.name && !technical.test(column.name))
+      .map((column) => column.mappedField && column.confidence >= 80 ? column.mappedField : column.name)
+      .filter((column) => !technical.test(column));
+
+    const fromRows = rows.slice(0, 200).flatMap((row) => Object.keys(row))
+      .filter((column) => !technical.test(column));
+    const candidates = [...mappedColumns, ...fromRows];
+    return [...new Set(candidates)].filter((column) => rows.some((row) => Object.prototype.hasOwnProperty.call(row, column)));
   }, [definitionColumns, rows]);
 
   const numericColumns = useMemo(() => discoveredColumns.filter((column) => {
@@ -437,7 +456,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
         <label className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-ink-200 bg-ink-50 px-3 text-[10px] font-bold text-ink-600">
           ترتيب
           <select value={sortColumn} onChange={(event) => { setSortColumn(event.target.value); setPage(0); }} className="bg-transparent outline-none">
-            {discoveredColumns.map((column) => <option key={column} value={column}>{column}</option>)}
+            {discoveredColumns.map((column) => <option key={column} value={column}>{displayColumnLabel(column)}</option>)}
           </select>
           <button type="button" onClick={() => setSortDirection((value) => value === 'asc' ? 'desc' : 'asc')} aria-label="عكس اتجاه الترتيب" className="rounded-lg p-1 hover:bg-white"><ArrowDownUp size={14}/></button>
         </label>
@@ -504,7 +523,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
       <div className="mt-4 overflow-x-auto rounded-xl border border-ink-200">
         {visibleRows.length ? (
           <table className="min-w-full text-right text-[10px]">
-            <thead className="bg-ink-50"><tr><th className="sticky right-0 bg-ink-50 px-3 py-2 text-ink-400">#</th>{visibleColumns.map((column) => <th key={column} className="whitespace-nowrap px-3 py-2 font-black text-ink-600">{column}</th>)}</tr></thead>
+            <thead className="bg-ink-50"><tr><th className="sticky right-0 bg-ink-50 px-3 py-2 text-ink-400">#</th>{visibleColumns.map((column) => <th key={column} className="whitespace-nowrap px-3 py-2 font-black text-ink-600">{displayColumnLabel(column)}</th>)}</tr></thead>
             <tbody>{visibleRows.map((row, index) => {
               const rowNumber = safePage * pageSize + index + 1;
               const active = selectedRowNumber === rowNumber;
