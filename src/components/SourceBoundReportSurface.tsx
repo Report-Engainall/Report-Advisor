@@ -340,8 +340,8 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             <StatusCell label="Outcome" value={output.outcomeStatus}/>
-            <StatusCell label="Learning" value={output.learningStatus}/>
-            <StatusCell label="Benchmark" value={output.benchmarkStatus}/>
+            <StatusCell label="التعلّم" value={output.learningStatus}/>
+            <StatusCell label="المعيار المقارن" value={output.benchmarkStatus}/>
           </div>
         </div>
       </section>
@@ -363,22 +363,22 @@ function TrustMode({ report }: { report: SmartReportDetail }) {
     <>
       <ReportIntelligencePanel report={report} />
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatusCell label="Truth" value={report.trustState}/>
-        <StatusCell label="Evidence" value={report.evidenceStatus}/>
-        <StatusCell label="Verification" value={report.reportVerificationState}/>
-        <StatusCell label="Analysis" value={report.sourceAnalysis?.analysisStatus}/>
-        <StatusCell label="Canonical" value={report.canonicalCommitVerified ? 'VERIFIED' : 'NOT_COMMITTED'}/>
+        <StatusCell label="الثقة" value={report.trustState}/>
+        <StatusCell label="الدليل" value={report.evidenceStatus}/>
+        <StatusCell label="التوثيق" value={report.reportVerificationState}/>
+        <StatusCell label="التحليل" value={report.sourceAnalysis?.analysisStatus}/>
+        <StatusCell label="التغطية الكانونية" value={report.canonicalCommitVerified ? 'VERIFIED' : 'NOT_COMMITTED'}/>
       </section>
       <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
         <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
           <div className="text-[9px] font-black tracking-[.12em] text-primary-700">EVIDENCE PASSPORT</div>
-          <h2 className="mt-1 text-xl font-black">هوية الدليل</h2>
+          <h2 className="mt-1 text-xl font-black">حالة الدليل</h2>
           <dl className="mt-4 grid gap-2 text-xs">
-            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>المصدر</dt><dd className="max-w-[70%] break-all font-mono text-right">{report.sourcePath}</dd></div>
-            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>البصمة</dt><dd className="max-w-[70%] break-all font-mono text-right">{report.sourceHash}</dd></div>
-            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>التحليل</dt><dd>{report.sourceAnalysis?.analysisStatus ?? 'غير متاح'}</dd></div>
+            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>الثقة</dt><dd>{stateLabel(report.trustState ?? report.sourceTrustState)}</dd></div>
+            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>التوثيق</dt><dd>{stateLabel(report.reportVerificationState)}</dd></div>
             <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>الجودة</dt><dd>{report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</dd></div>
-            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>الصفوف × الأعمدة</dt><dd>{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)} × {report.sourceAnalysis?.columnCount ?? 'غير متاح'}</dd></div>
+            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>التغطية</dt><dd>{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount) + ' سجل'}</dd></div>
+            <details className="rounded-lg bg-ink-50 p-3"><summary className="cursor-pointer font-bold">تفاصيل المصدر الفنية</summary><div className="mt-2 break-all text-[9px] text-ink-400">الملف الأصلي: {report.sourcePath}<br/>البصمة: {report.sourceHash}</div></details>
           </dl>
         </div>
         <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
@@ -599,8 +599,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
                     </div>
                   )}
                   <div className="mt-2 flex flex-wrap gap-2 text-[8px] text-ink-400">
-                    <span className="font-mono">decision={decision.id}</span>
-                    {decision.workItemId && <span className="font-mono">work={decision.workItemId}</span>}
+                    <span>السجل محفوظ وقابل للتتبع</span>
                   </div>
                 </div>
 
@@ -613,7 +612,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
 
                   {decision.status === 'PROPOSED' && decision.approvalStatus === 'PENDING' && (
                     currentUserId === decision.approvalRequestedBy ? (
-                      <span className="rounded-lg border border-warning-200 bg-warning-50 px-2.5 py-2 text-[9px] font-black text-warning-900">PENDING · بانتظار صاحب صلاحية آخر — يمنع الاعتماد الذاتي</span>
+                      <span className="rounded-lg border border-warning-200 bg-warning-50 px-2.5 py-2 text-[9px] font-black text-warning-900">بانتظار صاحب صلاحية آخر — يمنع الاعتماد الذاتي</span>
                     ) : (
                       <div className="flex flex-wrap gap-2">
                         <button type="button" onClick={() => decideApproval(decision, true)} disabled={!decision.approvalId || decisionAction[decision.id] === 'approving'} className="btn-primary text-[10px] disabled:opacity-50" data-testid={'approve-decision-' + decision.id}>
