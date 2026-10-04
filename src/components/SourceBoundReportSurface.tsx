@@ -62,7 +62,7 @@ function specialtyPath(specialty: string | null): string | null {
 }
 
 function buildMetrics(report: SmartReportDetail) {
-  const dataset = report.sourceالتحليل?.datasets?.[0];
+  const dataset = report.sourceAnalysis?.datasets?.[0];
   const obj = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : null;
   const raw = Array.isArray(obj?.columns) ? obj.columns as unknown[] : [];
   const labels: Record<string,string> = {
@@ -325,8 +325,8 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
           <div className="text-[9px] font-black tracking-[.12em] text-primary-200">حقائق المصدر</div>
           <div className="mt-3 grid grid-cols-2 gap-2">
             <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">الصفوف</div><div className="mt-1 text-lg font-black">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div></div>
-            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">حقول المصدر</div><div className="mt-1 text-lg font-black">{report.sourceالتحليل?.columnCount ?? 'غير متاح'}</div></div>
-            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">نوع المصدر</div><div className="mt-1 text-sm font-black">{report.sourceالتحليل?.sourceFormat ?? 'غير متاح'}</div></div>
+            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">حقول المصدر</div><div className="mt-1 text-lg font-black">{report.sourceAnalysis?.columnCount ?? 'غير متاح'}</div></div>
+            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">نوع المصدر</div><div className="mt-1 text-sm font-black">{report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
             <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">حالة المعالجة</div><div className="mt-1 text-sm font-black">{STAGE_LABELS[report.checkpointStage ?? ''] ?? report.checkpointStage ?? 'غير متاح'}</div></div>
           </div>
         </div>
@@ -358,7 +358,7 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
 }
 
 function TrustMode({ report }: { report: SmartReportDetail }) {
-  const warnings = report.sourceالتحليل?.datasets?.length ? report.sourceالتحليل.datasets.length : 0;
+  const warnings = report.sourceAnalysis?.datasets?.length ? report.sourceAnalysis.datasets.length : 0;
   return (
     <>
       <ReportIntelligencePanel report={report} />
@@ -366,7 +366,7 @@ function TrustMode({ report }: { report: SmartReportDetail }) {
         <StatusCell label="الثقة" value={report.trustState}/>
         <StatusCell label="الدليل" value={report.evidenceStatus}/>
         <StatusCell label="التوثيق" value={report.reportالتوثيقState}/>
-        <StatusCell label="التحليل" value={report.sourceالتحليل?.analysisStatus}/>
+        <StatusCell label="التحليل" value={report.sourceAnalysis?.analysisStatus}/>
         <StatusCell label="التغطية الكانونية" value={report.canonicalCommitVerified ? 'VERIFIED' : 'NOT_COMMITTED'}/>
       </section>
       <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
@@ -472,7 +472,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
       signalMessage: decision.signalMessage,
       signalSeverity: decision.signalSeverity,
       recommendationId: decision.recommendationId,
-      evidenceSnapshotId: report.sourceالتحليل?.id ?? null,
+      evidenceSnapshotId: report.sourceAnalysis?.id ?? null,
       department,
       dueAt: workDueAt[decision.id] ? new Date(workDueAt[decision.id]).toISOString() : null,
     }).then((workItemId) => {
@@ -711,8 +711,8 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
               key: 'source',
               label: 'Source Report',
               value: report.sourceHash.slice(0, 24) + '…',
-              detail: report.sourceالتحليل?.id ? 'الدليل Snapshot: ' + report.sourceالتحليل.id : 'الدليل Snapshot: غير متاح',
-              tone: report.sourceالتحليل?.id ? 'success' : 'warning',
+              detail: report.sourceAnalysis?.id ? 'الدليل Snapshot: ' + report.sourceAnalysis.id : 'الدليل Snapshot: غير متاح',
+              tone: report.sourceAnalysis?.id ? 'success' : 'warning',
             },
             {
               key: 'recommendation',
