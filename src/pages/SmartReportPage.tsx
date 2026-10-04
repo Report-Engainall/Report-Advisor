@@ -77,14 +77,28 @@ function dataKey(column: SmartColumn | null | undefined): string {
 }
 
 function displayColumnLabel(column: string): string {
+  const key = String(column ?? '').trim();
+  const normalized = key.toLowerCase().replace(/[\\s_-]+/g, '');
   const labels: Record<string, string> = {
     balance: 'الرصيد', credit: 'دائن', debit: 'مدين', amount: 'المبلغ', total: 'الإجمالي',
     net_amount: 'صافي المبلغ', gross_amount: 'الإجمالي قبل الخصم', subtotal: 'المجموع الفرعي',
     tax_amount: 'الضريبة', paid_amount: 'المدفوع', invoice_number: 'رقم الفاتورة', invoice_date: 'تاريخ الفاتورة',
     customer_name: 'اسم العميل', supplier_name: 'اسم المورد', product_name: 'اسم الصنف', quantity: 'الكمية',
     date: 'التاريخ', currency: 'العملة', invoice_type: 'نوع الفاتورة', unit_price: 'سعر الوحدة', price: 'السعر',
+    item_name: 'اسم الصنف', sku: 'رمز الصنف', warehouse: 'المستودع', category: 'الفئة',
+    description: 'الوصف', account_name: 'الحساب', account_number: 'رقم الحساب', movement_number: 'رقم الحركة',
+    'دائن': 'دائن', 'الرصيد': 'الرصيد', 'مدين': 'مدين',
   };
-  return labels[column] ?? column;
+  const exact = labels[key] ?? labels[normalized];
+  if (exact) return exact;
+  if (/التاريخ/.test(key)) return 'التاريخ';
+  if (/اسم.?الصنف|الخامة/.test(key)) return 'اسم الصنف';
+  if (/اسم.?العميل/.test(key)) return 'اسم العميل';
+  if (/اسم.?المورد/.test(key)) return 'اسم المورد';
+  if (/الرصيد/.test(key)) return 'الرصيد';
+  if (/دائن/.test(key)) return 'دائن';
+  if (/مدين/.test(key)) return 'مدين';
+  return 'مؤشر تشغيلي';
 }
 
 function buildSmartAnalysis(report: SmartReportDetail | null) {
