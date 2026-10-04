@@ -139,28 +139,27 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         <div className="pointer-events-none absolute" aria-hidden="true" />
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.18em] text-primary-300"><BrainCircuit size={15}/> ADVISORY INTELLIGENCE</div>
+            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.18em] text-primary-300"><BrainCircuit size={15}/> قراءة المستشار</div>
             <h2 className="mt-1 text-2xl font-black tracking-tight text-white lg:text-3xl">من التقرير إلى الفهم والقرار</h2>
             <p className="mt-2 max-w-3xl text-xs leading-6 text-ink-200">مسار واحد يربط الإشارة بالدليل والسؤال والتوصية والقرار، ويُظهر حدود ما يمكن إثباته بدل إخفائها.</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black text-ink-100"><ShieldCheck size={13}/> {packet.proofState === 'VERIFIED' ? 'الدليل مرتبط' : 'المراجعة مطلوبة'}</span>
             <span className="inline-flex items-center rounded-full border border-primary-300/30 bg-primary-400/10 px-3 py-1.5 text-[9px] font-black text-primary-200">
-              {archetypeResolution.profile ? 'ARCHETYPE ' + String(archetypeResolution.profile.number).padStart(2, '0') + ' · V' + archetypeResolution.profile.version : 'ARCHETYPE · ' + archetypeResolution.state}
+              {packet.actionState === 'ACTIONABLE' ? 'قابل للتحويل إلى عمل' : packet.actionState === 'REVIEW_REQUIRED' ? 'المراجعة مطلوبة' : 'جاهزية الإجراء غير مكتملة'}
             </span>
           </div>
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black text-ink-100">الدليل: {packet.proofState === 'VERIFIED' ? 'مرتبط' : 'مراجعة مطلوبة'}</span>
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black text-ink-100">القضايا الرئيسية: {findings.length + risks.length + opportunities.length > 0 ? 'موجودة' : 'غير مثبتة'}</span>
-          <span className="rounded-full border border-primary-300/20 bg-primary-400/10 px-3 py-1.5 text-[9px] font-black text-primary-200">{packet.actionState === 'ACTIONABLE' ? 'جاهز للمراجعة والتنفيذ' : packet.actionState === 'REVIEW_REQUIRED' ? 'المراجعة مطلوبة' : 'غير متاح'}</span>
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black text-ink-100">القضايا المثبتة: {findings.length + risks.length + opportunities.length > 0 ? 'نعم' : 'لا'}</span>
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black text-ink-100">الدليل: {packet.proofState === 'VERIFIED' ? 'موثق' : 'مراجعة مطلوبة'}</span>
         </div>
       </div>
 
       <div className="rounded-[18px] border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <div className="text-[9px] font-black tracking-[.16em] text-primary-700">PRIMARY BUSINESS ISSUE</div>
+            <div className="text-[9px] font-black tracking-[.16em] text-primary-700">أهم قضية الآن</div>
             <h3 className="mt-1 text-xl font-black text-ink-950">القضية التي تستحق انتباه الإدارة الآن</h3>
             <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-500">يظهر هنا الاستنتاج الأقوى فقط. بقية الإشارات والتحليلات تبقى متاحة عند الحاجة دون إغراق الشاشة الرئيسية.</p>
           </div>
@@ -168,7 +167,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         </div>
         <div className="mt-4 grid gap-3 lg:grid-cols-[1.25fr_.75fr]">
           <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-            <div className="text-[9px] font-black text-slate-500">SIGNAL</div>
+            <div className="text-[9px] font-black text-slate-500">الإشارة الأقوى</div>
             <div className="mt-2 text-base font-black text-slate-950">{primarySignal?.title ?? 'لا توجد قضية مثبتة من المصدر الحالي'}</div>
             <p className="mt-2 text-xs leading-6 text-slate-600">{primarySignal?.message ?? 'لن يتم توليد قضية بديلة عندما لا يثبت المصدر نتيجة واضحة.'}</p>
             {primarySignal ? <div className="mt-3 text-[10px] leading-5 text-slate-500"><span className="font-black text-slate-700">الدليل:</span> {primarySignal.evidence.join(' · ')}</div> : null}
