@@ -1128,7 +1128,6 @@ button,input,textarea,select{font:inherit}
 
 /* FINAL CUSTOMER-FACING EXECUTIVE SYSTEM — indigo / midnight / amber.
    Green is reserved for semantic success only. */
-@layer components {
   :root {
     --ag-color-canvas: #f7f8fc;
     --ag-color-surface: #ffffff;
@@ -1339,8 +1338,6 @@ button,input,textarea,select{font:inherit}
     border-color: #c7d2fe !important;
     background: linear-gradient(145deg,#eef2ff,#ffffff) !important;
   }
-}
-
 @media (max-width: 767px) {
   .ag-page-header { border-radius: 16px !important; padding: 1rem !important; }
   .ag-main .ag-value-chain { border-radius: 16px !important; }
