@@ -85,6 +85,11 @@ type AnalysisSnapshotLike = {
   datasets?: unknown;
 };
 
+function isExtractionArtifactHeader(value: unknown): boolean {
+  const key = String(value ?? '').trim();
+  return /^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/.test(key) || /^20\d{2}-?$/.test(key);
+}
+
 function normalizeBusinessField(value: unknown): string | null {
   const key = String(value ?? '').trim().toLowerCase().normalize('NFKC').replace(/[\s_-]+/g, '');
   const aliases: Array<[string,string[]]> = [
@@ -118,12 +123,12 @@ function sourceColumnDescriptors(analysis: AnalysisSnapshotLike | null | undefin
       if (column && typeof column === 'object') {
         const item = column as Record<string, unknown>;
         const name = String(item.name ?? item.mappedField ?? '').trim();
-        if (!name) continue;
+        if (!name || isExtractionArtifactHeader(name)) continue;
         const mapped = String(item.mappedField ?? normalizeBusinessField(name) ?? '').trim();
         output.set(mapped || name, { ...item, name, mappedField: mapped || null });
       } else {
         const name = String(column ?? '').trim();
-        if (!name) continue;
+        if (!name || isExtractionArtifactHeader(name)) continue;
         const mapped = normalizeBusinessField(name);
         output.set(mapped || name, { name, mappedField: mapped, mappingConfidence: mapped ? 85 : 0 });
       }
