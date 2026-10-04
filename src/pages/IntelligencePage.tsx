@@ -617,7 +617,7 @@ const [items, setItems] = useState<Recommendation[]>([]);
 
   return (
     <div dir="rtl" className="ag-intelligence-suite-surface space-y-5 animate-fade-in pb-10">
-      {error && sourceReport ? <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900"><div className="text-[9px] font-black tracking-[.12em]">GENERIC RECOMMENDATION READBACK</div><div className="mt-1 text-sm font-black">توصيات التقرير المصدرّي ظاهرة رغم تعطل سجل التوصيات العام</div><div className="mt-2 text-[10px] leading-5">{error}</div></section> : null}
+      {error && sourceReport ? <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900"><div className="text-[9px] font-black tracking-[.12em]">قراءة التوصيات العامة</div><div className="mt-1 text-sm font-black">توصيات التقرير المصدرّي ظاهرة رغم تعطل سجل التوصيات العام</div><div className="mt-2 text-[10px] leading-5">{error}</div></section> : null}
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
       {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       {sourceReport && <SourceRecommendationsDetail report={sourceReport} />}
@@ -756,7 +756,7 @@ const [items, setItems] = useState<Forecast[]>([]);
 
   return (
     <div dir="rtl" className="ag-intelligence-suite-surface space-y-5 animate-fade-in pb-10">
-      {error && sourceReport ? <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900"><div className="text-[9px] font-black tracking-[.12em]">GENERIC FORECAST READBACK</div><div className="mt-1 text-sm font-black">تنبؤ التقرير المصدرّي ظاهر رغم تعطل جدول التنبؤ العام</div><div className="mt-2 text-[10px] leading-5">{error}</div></section> : null}
+      {error && sourceReport ? <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900"><div className="text-[9px] font-black tracking-[.12em]">قراءة التنبؤات العامة</div><div className="mt-1 text-sm font-black">تنبؤ التقرير المصدرّي ظاهر رغم تعطل جدول التنبؤ العام</div><div className="mt-2 text-[10px] leading-5">{error}</div></section> : null}
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
       {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       {sourceReport && <SourceForecastDetail report={sourceReport} />}
@@ -781,7 +781,7 @@ const [items, setItems] = useState<Forecast[]>([]);
       <section className="rounded-[16px] border border-warning-200 bg-warning-50/70 p-4">
         <div className="flex items-start gap-3">
           <Target size={17} className="mt-0.5 shrink-0 text-warning-700"/>
-          <div><div className="text-xs font-black text-warning-900">FORECAST — ليست حقيقة تنفيذية</div><p className="mt-1 text-[10px] leading-5 text-warning-800">تستخدم هذه المساحة للاتجاه والتخطيط. القرار التنفيذي يجب أن يقرأ التنبؤ مع المصدر والثقة ونطاق عدم اليقين، ثم ينتقل إلى مساحة القرار.</p></div>
+          <div><div className="text-xs font-black text-warning-900">التنبؤ — ليس حقيقة تنفيذية</div><p className="mt-1 text-[10px] leading-5 text-warning-800">تستخدم هذه المساحة للاتجاه والتخطيط. القرار التنفيذي يجب أن يقرأ التنبؤ مع المصدر والثقة ونطاق عدم اليقين، ثم ينتقل إلى مساحة القرار.</p></div>
         </div>
       </section>
 
@@ -791,9 +791,9 @@ const [items, setItems] = useState<Forecast[]>([]);
       </Card>
 
       <div className="grid gap-3 md:grid-cols-3">
-        <Link to="/decision-experience" className="card card-hover p-4"><div className="flex items-center justify-between"><Sparkles size={17} className="text-primary-700"/><span className="badge-primary">DECISION</span></div><div className="mt-3 text-sm font-black text-ink-900">انقل الإشارة إلى القرار</div><p className="mt-1 text-[10px] leading-5 text-ink-500">استخدم التنبؤ كمدخل للسياق والسيناريو، لا كبديل عن الحقيقة الكانونية.</p><div className="mt-3 text-[10px] font-bold text-primary-700">فتح مساحة القرار <ArrowUpLeft size={12} className="inline"/></div></Link>
-        <Link to="/trust" className="card card-hover p-4"><div className="flex items-center justify-between"><CircleAlert size={17} className="text-warning-700"/><span className="badge-warning">TRUST</span></div><div className="mt-3 text-sm font-black text-ink-900">افحص الثقة والسياق</div><p className="mt-1 text-[10px] leading-5 text-ink-500">راجع حالة المصدر قبل التعامل مع التنبؤ كمدخل قرار.</p><div className="mt-3 text-[10px] font-bold text-primary-700">فتح الثقة <ArrowUpLeft size={12} className="inline"/></div></Link>
-        <Link to="/analytics" className="card card-hover p-4"><div className="flex items-center justify-between"><TrendingUp size={17} className="text-primary-700"/><span className="badge-neutral">ANALYTICS</span></div><div className="mt-3 text-sm font-black text-ink-900">ارجع إلى المؤشرات</div><p className="mt-1 text-[10px] leading-5 text-ink-500">قارن التوجه المستقبلي مع الأنماط الكانونية التي سبقت التنبؤ.</p><div className="mt-3 text-[10px] font-bold text-primary-700">مركز التحليلات <ArrowUpLeft size={12} className="inline"/></div></Link>
+        <Link to="/decision-experience" className="card card-hover p-4"><div className="flex items-center justify-between"><Sparkles size={17} className="text-primary-700"/><span className="badge-primary">القرار</span></div><div className="mt-3 text-sm font-black text-ink-900">انقل الإشارة إلى القرار</div><p className="mt-1 text-[10px] leading-5 text-ink-500">استخدم التنبؤ كمدخل للسياق والسيناريو، لا كبديل عن الحقيقة الكانونية.</p><div className="mt-3 text-[10px] font-bold text-primary-700">فتح مساحة القرار <ArrowUpLeft size={12} className="inline"/></div></Link>
+        <Link to="/trust" className="card card-hover p-4"><div className="flex items-center justify-between"><CircleAlert size={17} className="text-warning-700"/><span className="badge-warning">الثقة</span></div><div className="mt-3 text-sm font-black text-ink-900">افحص الثقة والسياق</div><p className="mt-1 text-[10px] leading-5 text-ink-500">راجع حالة المصدر قبل التعامل مع التنبؤ كمدخل قرار.</p><div className="mt-3 text-[10px] font-bold text-primary-700">فتح الثقة <ArrowUpLeft size={12} className="inline"/></div></Link>
+        <Link to="/analytics" className="card card-hover p-4"><div className="flex items-center justify-between"><TrendingUp size={17} className="text-primary-700"/><span className="badge-neutral">التحليلات</span></div><div className="mt-3 text-sm font-black text-ink-900">ارجع إلى المؤشرات</div><p className="mt-1 text-[10px] leading-5 text-ink-500">قارن التوجه المستقبلي مع الأنماط الكانونية التي سبقت التنبؤ.</p><div className="mt-3 text-[10px] font-bold text-primary-700">مركز التحليلات <ArrowUpLeft size={12} className="inline"/></div></Link>
       </div>
     </div>
   );
