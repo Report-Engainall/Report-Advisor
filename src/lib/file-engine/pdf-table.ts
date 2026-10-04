@@ -347,6 +347,7 @@ function selectHeaderCandidate(
 ): { pageNumber: number; candidate: HeaderCandidate; matrix: string[][] } | null {
   return [...candidates]
     .filter((entry) => entry.candidate.headers.length >= 2)
+    .filter((entry) => !entry.candidate.structurallySuspicious)
     .filter((entry) => entry.matrix.length > entry.candidate.rowIndex + 1)
     .sort((a, b) => {
       const aRows = a.matrix.length - a.candidate.rowIndex - 1;
