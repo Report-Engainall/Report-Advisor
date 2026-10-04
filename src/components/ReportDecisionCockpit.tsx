@@ -19,8 +19,14 @@ function label(value: unknown) {
     NOT_AVAILABLE: 'غير متاح',
     INSUFFICIENT_SAMPLE: 'عينة غير كافية',
     AVAILABLE_FROM_CANONICAL_ANALYSIS: 'متاح من التحليل الكانوني',
+    PROPOSED: 'مقترح',
+    REVIEW_REQUIRED: 'المراجعة مطلوبة',
+    SIGNALS_PRESENT: 'إشارات مثبتة',
+    NO_EXCEPTIONAL_SIGNALS: 'لا توجد إشارات استثنائية',
+    PARTIAL_ANALYSIS: 'تحليل جزئي',
+    NOT_AVAILABLE: 'غير متاح',
   };
-  return map[text] ?? (text || 'غير متاح');
+  return map[text] ?? (text ? (text.includes('_') ? 'حالة تحتاج مراجعة' : text) : 'غير متاح');
 }
 
 export function ReportDecisionCockpit({ report }: { report: SmartReportDetail }) {
