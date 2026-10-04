@@ -64,6 +64,9 @@ function operationalErrorMessage(cause: unknown, fallback: string): string {
   const candidate = cause && typeof cause === 'object' ? cause as Record<string, unknown> : null;
   const code = typeof candidate?.code === 'string' ? candidate.code : '';
   const status = Number(candidate?.status ?? 0);
+  if (code === 'PERMISSION_DENIED') {
+    return 'لا تملك صلاحية تنفيذ هذا الإجراء ضمن مساحة العمل الحالية.';
+  }
   if (code === '42501' || code === 'PGRST301' || status === 401 || status === 403) {
     return 'لا تملك صلاحية تنفيذ هذا الإجراء ضمن مساحة العمل الحالية.';
   }
