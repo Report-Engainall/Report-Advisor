@@ -361,7 +361,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
 
       <div className="grid gap-3 lg:grid-cols-3">
         {([
-          { label: 'TOP FINDINGS', items: findings, subtitle: 'نتائج محسوبة مباشرة من الصفوف الكانونية' },
+          { label: 'أهم النتائج', items: findings, subtitle: 'نتائج محسوبة مباشرة من الصفوف الكانونية' },
           { label: 'TOP RISKS', items: risks, subtitle: 'مخاطر لا تظهر إلا عندما يدعمها المصدر' },
           { label: 'TOP OPPORTUNITIES', items: opportunities, subtitle: 'فرص مبنية على مؤشرات قابلة للحساب' },
         ] as const).map(({ label, items, subtitle }) => (
@@ -408,7 +408,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
               <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs font-black text-ink-950">{recommendation.title}</span><span className="rounded-full border border-primary-200 bg-white px-2 py-1 text-[9px] font-black text-primary-800">{recommendation.priority}</span></div>
               <p className="mt-1 text-[10px] leading-5 text-ink-600">{recommendation.action}</p>
               <div className="mt-2 grid gap-1.5 text-[9px] leading-5 text-ink-500 sm:grid-cols-2">
-                <div><span className="font-black text-ink-700">WHY:</span> {recommendation.why}</div>
+                <div><span className="font-black text-ink-700">لماذا:</span> {recommendation.why}</div>
                 <div><span className="font-black text-ink-700">لماذا الآن:</span> {recommendation.whyNow}</div>
                 <div><span className="font-black text-ink-700">المسؤول:</span> {recommendation.ownerHint || 'غير محدد'}</div>
                 <div><span className="font-black text-ink-700">الأثر:</span> {recommendation.impact}</div>
