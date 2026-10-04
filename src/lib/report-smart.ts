@@ -485,21 +485,10 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const canonical = currentPassportLineage.canonical && typeof currentPassportLineage.canonical === 'object'
     ? currentPassportLineage.canonical as Record<string, unknown>
     : {};
-  const canonicalCommitCount = Number.isFinite(Number(canonical.committedRows))
+  const canonicalCommitLineageCount = Number.isFinite(Number(canonical.committedRows))
     ? Number(canonical.committedRows)
     : null;
-  const authoritativeCurrentRowCount = canonicalCommitCount;
   const canonicalCommitQueryFailed = false;
-  const canonicalCommitGap =
-    effectiveRendered.rowCount == null || canonicalCommitCount == null
-      ? null
-      : Math.max(0, Number(effectiveRendered.rowCount) - canonicalCommitCount);
-  const canonicalCommitVerified =
-    currentPassport?.verification_status === 'VERIFIED' &&
-    currentPassport?.decision_readiness === 'READY' &&
-    canonicalCommitCount != null &&
-    effectiveRendered.rowCount != null &&
-    canonicalCommitCount === Number(effectiveRendered.rowCount);
 
   const sourceRowCount = effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount);
 
@@ -554,6 +543,33 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       : sourceRowCount != null && sourceRowCount > canonicalFetchLimit
         ? 'PARTIAL_FETCH_CEILING'
         : 'FULL_SOURCE';
+
+  // The database read-back is the authoritative truth for canonical coverage.
+  // Passport metadata may be stale; it must never upgrade an empty/missing canonical
+  // table into a VERIFIED/READY state.
+  const actualCanonicalRowCount = canonicalRowsComplete ? canonicalRows.length : canonicalRows.length;
+  const canonicalCommitCount = actualCanonicalRowCount;
+  const authoritativeCurrentRowCount = actualCanonicalRowCount;
+  const passportCommitGap =
+    canonicalCommitLineageCount == null ? null : Math.max(0, canonicalCommitLineageCount - actualCanonicalRowCount);
+  const canonicalCommitGap =
+    effectiveRendered.rowCount == null
+      ? null
+      : Math.max(0, Number(effectiveRendered.rowCount) - actualCanonicalRowCount);
+  const canonicalCommitVerified =
+    currentPassport?.verification_status === 'VERIFIED' &&
+    currentPassport?.decision_readiness === 'READY' &&
+    canonicalCommitLineageCount != null &&
+    effectiveRendered.rowCount != null &&
+    actualCanonicalRowCount === Number(effectiveRendered.rowCount) &&
+    canonicalCommitLineageCount === actualCanonicalRowCount &&
+    !canonicalRowsPartial;
+
+  if (canonicalCommitLineageCount != null && canonicalCommitLineageCount !== actualCanonicalRowCount) {
+    runtimeWarnings.push(
+      `تعارض في تغطية المصدر: Passport يثبت ${canonicalCommitLineageCount} صفًا بينما القراءة الكانونية الفعلية أعادت ${actualCanonicalRowCount} صفًا. تم خفض الاعتماد على Passport وعدم اعتبار التقرير مكتمل التغطية.`,
+    );
+  }
 
   const sourceAnalysis = analysis ? {
     id: String(analysis.id),
