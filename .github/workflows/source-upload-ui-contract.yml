@@ -1,0 +1,28 @@
+name: Source Upload UI Contract
+
+on:
+  pull_request:
+    paths:
+      - "src/pages/CanonicalImportPage.tsx"
+      - "scripts/source-upload-ui-contract.test.mjs"
+      - ".github/workflows/source-upload-ui-contract.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/pages/CanonicalImportPage.tsx"
+      - "scripts/source-upload-ui-contract.test.mjs"
+      - ".github/workflows/source-upload-ui-contract.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  source-upload-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify source upload contract
+        run: node scripts/source-upload-ui-contract.test.mjs
