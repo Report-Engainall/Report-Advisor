@@ -366,21 +366,34 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
             فتح مساحة القرار <ArrowLeft size={14}/>
           </Link>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-6" aria-label="رحلة القرار">
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7" aria-label="رحلة القرار">
           {[
-            ['1', 'الدليل', packet.proofState === 'VERIFIED'],
-            ['2', 'الفهم', packet.claims.length > 0],
-            ['3', 'التوصية', Boolean(packet.nextRecommendation)],
-            ['4', 'القرار', false],
-            ['5', 'العمل', false],
-            ['6', 'النتيجة', packet.outcomeState === 'OBSERVED'],
-          ].map(([step, label, done]) => (
+            ['1', 'الدليل', packet.proofState === 'VERIFIED', packet.proofState === 'VERIFIED' ? 'متحقق' : 'لم يُثبت بعد'],
+            ['2', 'الفهم', packet.claims.length > 0, packet.claims.length > 0 ? 'متحقق' : 'لم يُثبت بعد'],
+            ['3', 'التوصية', Boolean(packet.nextRecommendation), packet.nextRecommendation ? 'مؤهلة' : 'لم تُثبت'],
+            ['4', 'القرار',
+              Boolean(decisionProposal && ['APPROVED', 'COMMITTED', 'DECIDED'].includes(String(decisionProposal.status).toUpperCase())),
+              decisionProposal ? String(decisionProposal.status) : 'لم يُنشأ'
+            ],
+            ['5', 'الاعتماد',
+              Boolean(decisionProposal?.approvalStatus && String(decisionProposal.approvalStatus).toUpperCase() === 'APPROVED'),
+              decisionProposal?.approvalStatus ? String(decisionProposal.approvalStatus) : 'لم يُطلب'
+            ],
+            ['6', 'العمل',
+              Boolean(decisionProposal?.workItemId),
+              decisionProposal?.workItemStatus ? String(decisionProposal.workItemStatus) : 'لم يُنشأ'
+            ],
+            ['7', 'النتيجة',
+              Boolean(decisionProposal?.outcomeStatus && ['OBSERVED', 'COMPLETED'].includes(String(decisionProposal.outcomeStatus).toUpperCase())),
+              decisionProposal?.outcomeStatus ? String(decisionProposal.outcomeStatus) : 'لم تُسجل'
+            ],
+          ].map(([step, label, done, status]) => (
             <div key={String(step)} className="rounded-xl border border-ink-100 bg-white px-2 py-3 text-center">
               <div className={"mx-auto flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-black " + (done ? "bg-primary-100 text-primary-800" : "bg-ink-100 text-ink-500")}>
                 {done ? '✓' : step}
               </div>
               <div className="mt-2 text-[10px] font-bold text-ink-700">{label}</div>
-              <div className="mt-1 text-[9px] text-ink-400">{done ? 'متحقق' : 'لم يُثبت بعد'}</div>
+              <div className="mt-1 text-[9px] text-ink-400">{status}</div>
             </div>
           ))}
         </div>
