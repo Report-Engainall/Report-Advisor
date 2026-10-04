@@ -107,7 +107,7 @@ function SourceRecommendationsDetail({ report }: { report: SmartReportDetail }) 
           <article key={item.id} className="rounded-xl border border-ink-200 bg-ink-50/60 p-3">
             <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-primary-100 px-2 py-1 text-[8px] font-black text-primary-800">{priorityLabel[item.priority] ?? item.priority}</span><span className="text-xs font-black text-ink-900">{item.title}</span></div>
             <div className="mt-2 text-[10px] leading-5 text-ink-700">{item.action}</div>
-            <div className="mt-2 grid gap-2 sm:grid-cols-2 text-[9px]"><div className="rounded-lg bg-white p-2"><b>WHY</b><div className="mt-1 text-ink-600">{item.why}</div></div><div className="rounded-lg bg-white p-2"><b>OWNER / OUTCOME</b><div className="mt-1 text-ink-600">{item.ownerHint} · {item.expectedOutcome}</div></div></div>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2 text-[9px]"><div className="rounded-lg bg-white p-2"><b>لماذا</b><div className="mt-1 text-ink-600">{item.why}</div></div><div className="rounded-lg bg-white p-2"><b>المسؤول والنتيجة</b><div className="mt-1 text-ink-600">{item.ownerHint} · {item.expectedOutcome}</div></div></div>
             <details className="mt-2 rounded-lg border border-ink-100 bg-ink-50/50 px-2.5 py-2">
               <summary className="cursor-pointer text-[8px] font-black text-ink-400">عرض الدليل</summary>
               <div className="mt-1 text-[9px] leading-4 text-ink-500">{item.evidence.join(' · ')}</div>
