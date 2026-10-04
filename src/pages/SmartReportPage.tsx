@@ -229,7 +229,7 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
     ),
   );
   const amountColumnForRanking = columns.find((column) =>
-    ['net_amount','total','total_amount','amount','value','balance','outstanding_balance','paid_amount'].includes(
+    ['net_amount','total','total_amount','amount','value','balance','outstanding_balance','paid_amount','quantity','current_stock','stock'].includes(
       String(column.mappedField ?? canonicalFieldName(column.name) ?? ''),
     ),
   );
@@ -267,12 +267,13 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
   const age30Column = findColumn('age_0_30','0_30','age030');
   const paidColumn = findColumn('paid_amount','paid');
   const quantityColumn = findColumn('quantity','qty','stock','current_stock');
+  const primaryMetricColumn = amountColumn ?? (report?.specialty === 'inventory' ? quantityColumn : null);
 
   const metrics = [
     {
-      label: report?.specialty === 'receivables' ? 'إجمالي الرصيد المستحق' : 'أهم قيمة مالية',
-      value: formatMetric(amountColumn ? (numberValue(amountColumn.statistics?.sum) ?? numeric.find((item) => item.column === amountColumn)?.sum ?? null) : null),
-      detail: amountColumn ? displayColumnLabel(String(amountColumn.mappedField ?? amountColumn.name ?? '')) : 'لا توجد قيمة مالية مثبتة',
+      label: report?.specialty === 'receivables' ? 'إجمالي الرصيد المستحق' : report?.specialty === 'inventory' && !amountColumn ? 'إجمالي الكمية المثبتة' : 'أهم قيمة مالية',
+      value: formatMetric(primaryMetricColumn ? (numberValue(primaryMetricColumn.statistics?.sum) ?? numeric.find((item) => item.column === primaryMetricColumn)?.sum ?? null) : null),
+      detail: primaryMetricColumn ? displayColumnLabel(String(primaryMetricColumn.mappedField ?? primaryMetricColumn.name ?? '')) : 'لا توجد قيمة رقمية مثبتة',
     },
     {
       label: 'عدد الصفوف',
@@ -893,7 +894,7 @@ export function SmartReportPage() {
     <section id="executive-layer" className="executive-hero rounded-[24px] border border-slate-700/70 bg-[linear-gradient(135deg,#0b1020_0%,#111827_58%,#15111f_100%)] p-5 text-white shadow-[0_28px_80px_-38px_rgba(15,23,42,.9)] lg:p-7">
       <div className="grid gap-5 xl:grid-cols-[1.25fr_.75fr]">
         <div>
-          <div className="text-[10px] font-black tracking-[.18em] text-amber-300">EXECUTIVE DECISION LAYER</div>
+          <div className="text-[10px] font-black tracking-[.12em] text-amber-300">لوحة القرار التنفيذي</div>
           <h2 className="mt-2 text-2xl font-black leading-tight lg:text-3xl">ماذا يحدث في هذا التقرير؟</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{report.intelligence.advisorBrief.headline || businessSummary}</p>
           <div className="mt-4 flex flex-wrap gap-2">
