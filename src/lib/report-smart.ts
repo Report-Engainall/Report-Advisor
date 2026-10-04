@@ -514,7 +514,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const renderedImportId = resolveImportJobId(job as Record<string, unknown>, effectiveRendered, null);
   if (!renderedImportId) throw new Error('INVALID_REPORT_CONTEXT');
 
-  const { data: importAnalyses, error: importAnalysisError } = await supabase
+  const { data: analyses, error: importAnalysisError } = await supabase
     .from('source_analysis_snapshots')
     .select('id,import_job_id,source_hash,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
     .eq('company_id', companyId)
@@ -523,7 +523,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     .order('created_at', { ascending: false })
     .limit(100);
 
-  let analysis = chooseBestAnalysisSnapshot((importAnalyses ?? []) as Array<Record<string, unknown>>);
+  let analysis = chooseBestAnalysisSnapshot((analyses ?? []) as Array<Record<string, unknown>>);
   if (importAnalysisError) {
     runtimeWarnings.push('تعذر قراءة لقطات التحليل البديلة؛ استمر التقرير اعتمادًا على المخرجات المحفوظة والصفوف الكانونية المتاحة.');
     analysis = null;
