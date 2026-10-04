@@ -32,12 +32,23 @@ export function requireOperationalToken(req, res) {
 }
 
 export function runtimeIdentity() {
+  const deploymentId = process.env.VERCEL_DEPLOYMENT_ID?.trim()
+    || process.env.NETLIFY_DEPLOY_ID?.trim()
+    || process.env.DEPLOY_ID?.trim()
+    || null;
+  const deploymentSha = process.env.VERCEL_GIT_COMMIT_SHA?.trim()
+    || process.env.COMMIT_REF?.trim()
+    || process.env.CACHED_COMMIT_REF?.trim()
+    || null;
+  const runtimeEnvironment = process.env.VERCEL_ENV?.trim()
+    || process.env.CONTEXT?.trim()
+    || null;
   return {
-    deployment_id: process.env.VERCEL_DEPLOYMENT_ID?.trim() || null,
-    deployment_sha: process.env.VERCEL_GIT_COMMIT_SHA?.trim() || null,
-    target_env: process.env.RESILIENCE_TARGET_ENV?.trim() || null,
-    runtime_environment: process.env.VERCEL_ENV?.trim() || null,
-    provenance_contract_version: '3',
+    deployment_id: deploymentId,
+    deployment_sha: deploymentSha,
+    target_env: process.env.RESILIENCE_TARGET_ENV?.trim() || runtimeEnvironment,
+    runtime_environment: runtimeEnvironment,
+    provenance_contract_version: '4',
   };
 }
 
