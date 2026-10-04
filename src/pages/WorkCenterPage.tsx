@@ -309,7 +309,7 @@ function WorkCenterGeneralPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Link to="/command-center" className="btn-secondary text-[9px]">مركز القيادة</Link>
-            <Link to="/decision-experience?stage=decision" className="btn-ghost text-[9px]">مساحة القرار</Link>
+            <Link to="/decision-inbox" className="btn-ghost text-[9px]">مركز القرارات</Link>
           </div>
         </div>
       </div>
@@ -472,7 +472,7 @@ function WorkCenterGeneralPage() {
       </div>
       {outcomes.length === 0 ? (
         <div className="mt-4 rounded-xl border border-dashed border-ink-200 bg-ink-50/60 p-5 text-center text-[10px] leading-5 text-ink-500">
-          لا توجد نتيجة موثقة كافية حتى الآن. الحالة الصحيحة: <strong>NOT AVAILABLE</strong> — لا يتم إنشاء تعلم بديل.
+          لا توجد نتيجة موثقة كافية حتى الآن. الحالة: <strong>غير متاح</strong> — لا يتم إنشاء تعلم بديل.
         </div>
       ) : (
         <div className="mt-4 grid gap-3 lg:grid-cols-3">
