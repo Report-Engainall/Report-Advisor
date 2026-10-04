@@ -672,7 +672,7 @@ export function SmartReportPage() {
 
   return <div dir="rtl" className="report-page ag-smart-report-surface space-y-5 animate-fade-in pb-10">
     <PageHeader
-      title={report.sourcePath}
+      title={report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي'}
       subtitle="تقرير ذكي مربوط بالبصمة الأصلية، وليس نسخة تجريبية أو تقريرًا عامًا."
       actions={<div className="flex flex-wrap gap-2">
         <button
@@ -699,7 +699,7 @@ export function SmartReportPage() {
           label: 'المصدر',
           englishLabel: 'SOURCE',
           status: stateLabel(report.sourceTrustState ?? report.trustState),
-          detail: report.sourcePath + ' · ' + formatNumber(report.rowCount ?? 0) + ' صف · ' + (report.sourceAnalysis?.sourceFormat ?? 'غير متاح'),
+          detail: (report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي') + ' · ' + formatNumber(report.rowCount ?? 0) + ' سجل · ' + (report.sourceAnalysis?.sourceFormat ?? 'غير متاح'),
           tone: report.sourceTrustState === 'VERIFIED' || report.trustState === 'TRUSTED' ? 'trusted' : 'active',
         },
         {
