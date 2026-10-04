@@ -162,9 +162,9 @@ function ExecutiveReportGeneralPage() {
       <section className="ag-exec-panel rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-center gap-2"><ShieldCheck size={18} className="text-primary-600" /><h2 className="text-lg font-black">القرار والمساءلة والنتيجة</h2></div>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Decision</p><p className="mt-1 text-lg font-black">{activeDecisionCount}</p><p className="mt-1 text-[10px] text-ink-500">{accountableDecisionCount} منها لها مسؤول مسجل</p></div>
-          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Actual Outcome</p><p className="mt-1 text-lg font-black">{recordedOutcomeCount}</p><p className="mt-1 text-[10px] text-ink-500">توصية لديها أثر فعلي مسجل</p></div>
-          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Learning</p><p className="mt-1 font-bold">{recordedOutcomeCount ? 'يوجد أثر يحتاج مراجعة' : 'لا يوجد أثر فعلي مثبت بعد'}</p><p className="mt-1 text-[10px] text-ink-500">لا تُستنتج نتيجة من غياب السجل</p></div>
+          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">القرار</p><p className="mt-1 text-lg font-black">{activeDecisionCount}</p><p className="mt-1 text-[10px] text-ink-500">{accountableDecisionCount} منها لها مسؤول مسجل</p></div>
+          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">النتيجة الفعلية</p><p className="mt-1 text-lg font-black">{recordedOutcomeCount}</p><p className="mt-1 text-[10px] text-ink-500">توصية لديها أثر فعلي مسجل</p></div>
+          <div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">التعلّم</p><p className="mt-1 font-bold">{recordedOutcomeCount ? 'يوجد أثر يحتاج مراجعة' : 'لا يوجد أثر فعلي مثبت بعد'}</p><p className="mt-1 text-[10px] text-ink-500">لا تُستنتج نتيجة من غياب السجل</p></div>
         </div>
         <Link to="/decision-experience" className="mt-4 inline-flex rounded-xl bg-ink-950 px-4 py-2.5 text-xs font-bold text-white">فتح مساحة القرار</Link>
       </section>
