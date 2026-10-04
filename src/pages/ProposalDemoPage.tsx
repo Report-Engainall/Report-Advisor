@@ -43,9 +43,9 @@ function scoreCapability(requirement: string, capability: Capability): number {
 }
 
 export function ProposalDemoPage() {
-  const [jobTitle, setJobTitle] = useState('Business Intelligence / Data Analytics Project');
-  const [client, setClient] = useState('Prospective Client');
-  const [requirements, setRequirements] = useState('Dashboard with sales and financial KPIs\nExcel/CSV import and validation\nReceivables and aging analysis\nInventory and demand forecasting\nRecommendations and decision support');
+  const [jobTitle, setJobTitle] = useState('مشروع ذكاء الأعمال وتحليل البيانات');
+  const [client, setClient] = useState('عميل محتمل');
+  const [requirements, setRequirements] = useState('لوحة قيادة للمبيعات والمؤشرات المالية\nرفع Excel وCSV والتحقق من الجودة\nتحليل الذمم وأعمار التحصيل\nتحليل المخزون والتنبؤ بالطلب\nتوصيات ودعم القرار');
 
   const mapped = useMemo(() => requirements.split(/\r?\n/).map(value => value.trim()).filter(Boolean).map(requirement => {
     const ranked = CAPABILITIES.map(capability => ({ capability, score: scoreCapability(requirement, capability) })).sort((a, b) => b.score - a.score);
@@ -60,9 +60,9 @@ export function ProposalDemoPage() {
     <div dir="rtl" className="space-y-6 print:bg-white print:text-black">
       <div className="flex flex-col gap-4 rounded-[22px] border border-indigo-300/20 bg-[linear-gradient(135deg,#0b1020_0%,#172554_56%,#312e81_100%)] p-6 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.8)] sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="mb-2 flex items-center gap-2 text-sm text-primary-100"><Wand2 size={16} /> العرض التجاري · المنتج الحقيقي</div>
+          <div className="mb-2 flex items-center gap-2 text-sm text-primary-100"><Wand2 size={16} /> العرض التجاري · المنتج الفعلي</div>
           <h1 className="text-2xl font-black sm:text-3xl">من تقرير حقيقي إلى قرار يمكن تنفيذه وقياس نتيجته.</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-primary-100">هذه ليست شاشة Mockup منفصلة. كل خطوة أدناه تفتح وحدة حقيقية من Report-Advisor، مع الحفاظ على المصدر والدليل وحالة القرار والتنفيذ والنتيجة.</p>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-primary-100">هذه ليست شاشة شكلية منفصلة. كل خطوة أدناه تفتح مساحة فعلية من المنصة، مع الحفاظ على المصدر والدليل وحالة القرار والتنفيذ والنتيجة.</p>
         </div>
         <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-primary-900 hover:bg-primary-50 print:hidden"><Printer size={16} /> طباعة / PDF</button>
         <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
@@ -83,16 +83,16 @@ export function ProposalDemoPage() {
 
       <CommercialValueChain
         title="ما الذي يراه العميل عندما يشتري الأغبري؟"
-        subtitle="عرض واحد يربط إدخال المصدر بالدليل والذكاء والقرار والتنفيذ والنتيجة؛ كل مرحلة تقود إلى مساحة حقيقية داخل المنتج."
+        subtitle="عرض واحد يربط إدخال المصدر بالدليل والذكاء والقرار والتنفيذ والنتيجة؛ كل مرحلة تقود إلى مساحة فعلية داخل المنصة."
         stages={[
           { label: 'المصدر', englishLabel: 'SOURCE', status: 'مسار فعلي', detail: 'إدخال Excel / CSV / مستندات عبر المسار الموحد.', href: '/import', tone: 'active' },
-          { label: 'الدليل', englishLabel: 'EVIDENCE', status: 'Evidence-first', detail: 'فحص الثقة واللقطات والبصمة قبل اعتماد الاستنتاج.', href: '/trust', tone: 'active' },
-          { label: 'الإشارة', englishLabel: 'SIGNAL', status: 'Intelligence', detail: 'إشارات ومخاطر وفرص وتوقعات مرتبطة بالمصدر.', href: '/intelligence', tone: 'active' },
-          { label: 'المستشار', englishLabel: 'ADVISOR', status: 'Advisor Brief', detail: 'أهم نتيجة، لماذا، ماذا بعد، المالك، وحدود الدليل.', href: '/advisor-cases', tone: 'active' },
-          { label: 'القرار', englishLabel: 'DECISION', status: 'Approval', detail: 'قرار مستقل عن التوصية وقابل للتدقيق والاعتماد.', href: '/decision-inbox', tone: 'attention' },
-          { label: 'التنفيذ', englishLabel: 'WORK', status: 'Work Center', detail: 'تحويل القرار إلى عمل ومتابعة حالة التنفيذ.', href: '/work-center', tone: 'neutral' },
-          { label: 'النتيجة', englishLabel: 'OUTCOME', status: 'Readback', detail: 'قراءة ما حدث فعليًا دون تحويل المتوقع إلى نتيجة.', href: '/decision-inbox', tone: 'neutral' },
-          { label: 'التعلم', englishLabel: 'LEARNING', status: 'Replay', detail: 'استخراج ما ثبت بعد التنفيذ وإعادة استخدامه في القرار القادم.', href: '/replay', tone: 'neutral' },
+          { label: 'الدليل', englishLabel: 'EVIDENCE', status: 'مبني على الدليل', detail: 'فحص الثقة واللقطات والبصمة قبل اعتماد الاستنتاج.', href: '/trust', tone: 'active' },
+          { label: 'الإشارة', englishLabel: 'SIGNAL', status: 'ذكاء مرتبط بالمصدر', detail: 'إشارات ومخاطر وفرص وتوقعات مرتبطة بالمصدر.', href: '/intelligence', tone: 'active' },
+          { label: 'المستشار', englishLabel: 'ADVISOR', status: 'ملخص المستشار', detail: 'أهم نتيجة، لماذا، ماذا بعد، المالك، وحدود الدليل.', href: '/advisor-cases', tone: 'active' },
+          { label: 'القرار', englishLabel: 'DECISION', status: 'اعتماد مستقل', detail: 'قرار مستقل عن التوصية وقابل للتدقيق والاعتماد.', href: '/decision-inbox', tone: 'attention' },
+          { label: 'التنفيذ', englishLabel: 'WORK', status: 'مركز العمل', detail: 'تحويل القرار إلى عمل ومتابعة حالة التنفيذ.', href: '/work-center', tone: 'neutral' },
+          { label: 'النتيجة', englishLabel: 'OUTCOME', status: 'قراءة النتيجة', detail: 'قراءة ما حدث فعليًا دون تحويل المتوقع إلى نتيجة.', href: '/decision-inbox', tone: 'neutral' },
+          { label: 'التعلم', englishLabel: 'LEARNING', status: 'إعادة التتبع', detail: 'استخراج ما ثبت بعد التنفيذ وإعادة استخدامه في القرار القادم.', href: '/replay', tone: 'neutral' },
         ]}
       />
 
@@ -126,7 +126,7 @@ export function ProposalDemoPage() {
       </div>
 
       <Card>
-        <CardHeader title="Capability Mapping" subtitle="المطابقة حتمية ومقيدة بكتالوج مسارات المنتج الحالية." />
+        <CardHeader title="مطابقة قدرات المنصة" subtitle="كل مطلب يرتبط بمسار فعلي داخل المنصة، وما لا يطابقه النظام يبقى واضحًا للمراجعة." />
         <CardBody className="space-y-3">
           {mapped.length === 0 && <div className="rounded-xl border border-dashed border-ink-200 p-6 text-center text-sm text-ink-400">أدخل متطلبات الوظيفة للبدء.</div>}
           {mapped.map(item => (
@@ -149,7 +149,7 @@ export function ProposalDemoPage() {
         </CardBody>
       </Card>
 
-      <div className="text-xs leading-5 text-ink-400">لا تُنشئ هذه الشاشة بيانات أعمال اصطناعية ولا تنقل Evidence من SHA إلى SHA. كل رابط يفتح الوحدة الفعلية في Report-Advisor، وتبقى نتائج الأعمال والقيم الرقمية تحت مصدر الحقيقة والشركة الحالية.</div>
+      <div className="text-xs leading-5 text-ink-400">لا تُنشئ هذه الشاشة بيانات أعمال اصطناعية، ولا تنقل الدليل أو النتيجة بين مصادر مختلفة. كل رابط يفتح الوحدة الفعلية داخل المنصة، وتبقى القيم والنتائج تحت مصدر الحقيقة والشركة الحالية.</div>
     </div>
   );
 }
