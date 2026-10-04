@@ -367,7 +367,6 @@ function statusTone(value: string | null): string {
 
 function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDetail; initialSearch?: string }) {
   const dataset = report.sourceAnalysis?.datasets?.[0];
-  const objectDataset = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : {};
   const definitionColumns = useMemo(() => normalizedDatasetColumns(report), [report, dataset]);
   const rows = useMemo(() => report.canonicalRows.map((row) => row.data), [report.canonicalRows]);
   const discoveredColumns = useMemo(() => {
