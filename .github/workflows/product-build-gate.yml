@@ -1,0 +1,35 @@
+name: Product Build Gate
+
+on:
+  pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Production build
+        run: npm run build
+      - name: Smart report surface contract
+        run: node scripts/smart-report-complete-intelligence-surface.test.mjs
+      - name: Customer-facing report surface contract
+        run: node scripts/customer-facing-report-surface-contract.test.mjs
+      - name: Source upload UI contract
+        run: node scripts/source-upload-ui-contract.test.mjs

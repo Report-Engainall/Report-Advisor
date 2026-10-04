@@ -12,19 +12,19 @@ const principles = [
 ];
 
 const customerValueLanes = [
-  { title: 'تقارير تفهمها الإدارة', text: 'من المصدر إلى المؤشرات، الإشارات، المخاطر والفرص داخل تقرير واحد.', state: 'Evidence-first' },
-  { title: 'دليل لا يضيع', text: 'كل نتيجة تبقى مربوطة بالمصدر والبصمة ولقطة الدليل وحالة الثقة.', state: 'Provenance' },
-  { title: 'قرار بدل شاشة', text: 'التوصية لا تتوقف عند التحليل؛ تنتقل إلى مساحة قرار وموافقة منفصلة.', state: 'Decision' },
-  { title: 'إجراء ونتيجة', text: 'ينتقل السياق إلى العمل ثم يعود بنتيجة فعلية عندما تُسجل، بلا تخمين.', state: 'Outcome' },
-  { title: 'عربي أصيل', text: 'RTL أصلية ومسارات تشغيلية مترابطة، وليست ترجمة سطحية لواجهة أجنبية.', state: 'Arabic-first' },
+  { title: 'تقارير تفهمها الإدارة', text: 'من المصدر إلى المؤشرات، الإشارات، المخاطر والفرص داخل تقرير واحد.', state: 'مبني على الدليل' },
+  { title: 'دليل لا يضيع', text: 'كل نتيجة تبقى مربوطة بالمصدر والبصمة ولقطة الدليل وحالة الثقة.', state: 'تتبع المصدر' },
+  { title: 'قرار بدل شاشة', text: 'التوصية لا تتوقف عند التحليل؛ تنتقل إلى مساحة قرار وموافقة منفصلة.', state: 'القرار' },
+  { title: 'إجراء ونتيجة', text: 'ينتقل السياق إلى العمل ثم يعود بنتيجة فعلية عندما تُسجل، بلا تخمين.', state: 'النتيجة' },
+  { title: 'عربي أصيل', text: 'RTL أصلية ومسارات تشغيلية مترابطة، وليست ترجمة سطحية لواجهة أجنبية.', state: 'العربية أولًا' },
 ];
 
 const competitiveProofLanes = [
-  { title: 'Evidence-First BI', text: 'التحليل يبدأ من المصدر الموثق، ويحافظ على البصمة ولقطة الدليل قبل الاستنتاج.', state: 'ميزة جوهرية' },
-  { title: 'Governed Excel / CSV', text: 'ملفات العمل اليومية تدخل مسارًا محكومًا للتطبيع والجودة والتتبع بدل أن تصبح أرقامًا بلا أصل.', state: 'ميزة تشغيلية' },
-  { title: 'Arabic RTL B2B UX', text: 'القرار والتنفيذ والإثبات مصممة أصلًا بالعربية وRTL، لا كتجربة مترجمة فوق واجهة عامة.', state: 'ميزة تجربة' },
-  { title: 'Inventory / Receivables', text: 'المنتج يربط ذكاء المخزون والتحصيل بالإشارة والقرار والعمل، بدل فصل كل تقرير في شاشة مستقلة.', state: 'ميزة نطاق' },
-  { title: 'Supabase Tenant Security', text: 'عزل الشركة والصلاحيات وحدود الكتابة جزء من المسار التشغيلي، لا طبقة لاحقة بعد الواجهة.', state: 'ميزة ثقة' },
+  { title: 'ذكاء أعمال مبني على الدليل', text: 'التحليل يبدأ من المصدر الموثق، ويحافظ على البصمة ولقطة الدليل قبل الاستنتاج.', state: 'ميزة جوهرية' },
+  { title: 'ملفات أعمال محكومة', text: 'ملفات العمل اليومية تدخل مسارًا محكومًا للتطبيع والجودة والتتبع بدل أن تصبح أرقامًا بلا أصل.', state: 'ميزة تشغيلية' },
+  { title: 'تجربة أعمال عربية وRTL', text: 'القرار والتنفيذ والإثبات مصممة أصلًا بالعربية وRTL، لا كتجربة مترجمة فوق واجهة عامة.', state: 'ميزة تجربة' },
+  { title: 'المخزون والتحصيل', text: 'المنتج يربط ذكاء المخزون والتحصيل بالإشارة والقرار والعمل، بدل فصل كل تقرير في شاشة مستقلة.', state: 'ميزة نطاق' },
+  { title: 'عزل الشركة وأمن البيانات', text: 'عزل الشركة والصلاحيات وحدود الكتابة جزء من المسار التشغيلي، لا طبقة لاحقة بعد الواجهة.', state: 'ميزة ثقة' },
 ];
 
 export function LoginPage() {
@@ -65,7 +65,7 @@ export function LoginPage() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-[9px] bg-ink-950 text-sm font-black text-white">أ</div>
                 <div>
                   <div className="text-[14px] font-black">الأغبري</div>
-                  <div className="text-[10px] text-ink-400">Business & Decision Intelligence</div>
+                  <div className="text-[10px] text-ink-400">ذكاء الأعمال والقرار</div>
                 </div>
               </div>
               <LanguageToggle />
@@ -73,7 +73,7 @@ export function LoginPage() {
 
             <div className="flex-1 py-10 lg:py-14">
               <div className="max-w-2xl">
-                <div className="section-kicker">منصة أعمال · Evidence-first</div>
+                <div className="section-kicker">منصة أعمال · مبني على الدليل</div>
                 <h1 className="mt-3 text-[34px] font-black leading-[1.18] tracking-tight text-ink-950 sm:text-[44px]">
                   من أول تقرير.
                   <span className="block text-primary-700">إلى قرار يمكن متابعته وقياسه.</span>

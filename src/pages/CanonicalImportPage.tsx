@@ -143,8 +143,11 @@ export function CanonicalImportPage() {
   const [history, setHistory] = useState<any[]>([]);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [queuedFiles, setQueuedFiles] = useState<File[]>([]);
+  const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedFileRef = useRef<File | null>(null);
+  const batchModeRef = useRef(false);
 
   const loadHistory = useCallback(async () => {
     setLoadingHistory(true);
@@ -160,6 +163,18 @@ export function CanonicalImportPage() {
     }
   }, []);
   useEffect(() => { void loadHistory(); }, [loadHistory]);
+
+  const queueFiles = useCallback((incoming: File[]) => {
+    const next = incoming.filter((candidate) => candidate && candidate.size > 0);
+    if (!next.length) return;
+    setQueuedFiles((current) => {
+      const seen = new Set(current.map((candidate) => candidate.name + ':' + candidate.size + ':' + candidate.lastModified));
+      const merged = [...current, ...next.filter((candidate) => !seen.has(candidate.name + ':' + candidate.size + ':' + candidate.lastModified))].slice(0, 12);
+      if (merged.length > 1) batchModeRef.current = true;
+      return merged;
+    });
+    setError(null);
+  }, []);
 
   const handleFile = useCallback(async (selected: File) => {
     setError(null); setWarnings([]); setDuplicate(false); setExistingSmartReportJobId(null); setSecurityPassed(false); setQualityApproved(false); setStep('scanning');
@@ -210,6 +225,11 @@ export function CanonicalImportPage() {
       setError(e?.message || 'فشل قراءة الملف'); setStep('upload');
     }
   }, []);
+
+  const analyzeQueuedFile = useCallback((queued: File) => {
+    setQueuedFiles((current) => current.filter((candidate) => candidate !== queued));
+    void handleFile(queued);
+  }, [handleFile]);
 
   useEffect(() => {
     const state = location.state as { preloadedFile?: File } | null;
@@ -366,6 +386,10 @@ export function CanonicalImportPage() {
         renderedOutput: execution.renderedOutput ?? null,
       });
       await loadHistory();
+      if (batchModeRef.current) {
+        setStep('done');
+        return;
+      }
       navigate('/reports/smart/' + String(execution.jobId), { replace: true });
       return;
     } catch (cause) {
@@ -396,7 +420,8 @@ export function CanonicalImportPage() {
     understandingReason, loadHistory,
   ]);
 
-  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setExistingSmartReportJobId(null); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); if (inputRef.current) inputRef.current.value = ''; };
+  const reset = () => { selectedFileRef.current = null; batchModeRef.current = false; setQueuedFiles([]); setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setExistingSmartReportJobId(null); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); if (inputRef.current) inputRef.current.value = ''; };
+  const clearQueuedFiles = () => { batchModeRef.current = false; setQueuedFiles([]); };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
@@ -422,7 +447,52 @@ export function CanonicalImportPage() {
           </div>
         </div>
       </div>
-      <div onClick={() => inputRef.current?.click()} className="ag-import-dropzone border-2 border-dashed rounded-[18px] p-10 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/20 transition-colors"><input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} /><Upload className="mx-auto text-primary-500 mb-3" size={30}/><h3 className="font-semibold">اختر ملفًا أو اسحبه إلى هنا</h3><p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p><p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB</p></div>
+      <div
+        onClick={() => inputRef.current?.click()}
+        onDragOver={(event) => { event.preventDefault(); setDragActive(true); }}
+        onDragLeave={(event) => { event.preventDefault(); setDragActive(false); }}
+        onDrop={(event) => { event.preventDefault(); setDragActive(false); queueFiles(Array.from(event.dataTransfer.files ?? [])); }}
+        className={'ag-import-dropzone rounded-[18px] border-2 border-dashed p-8 text-center cursor-pointer transition-colors ' + (dragActive ? 'border-primary-500 bg-primary-50/60' : 'border-ink-200 hover:border-primary-400 hover:bg-primary-50/20')}
+      >
+        <input
+          ref={inputRef}
+          type="file"
+          multiple
+          className="hidden"
+          accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp"
+          onChange={(event) => { queueFiles(Array.from(event.target.files ?? [])); event.currentTarget.value = ''; }}
+        />
+        <Upload className="mx-auto text-primary-500 mb-3" size={30}/>
+        <h3 className="font-semibold">{dragActive ? 'أفلت المصادر هنا' : 'اختر تقريرًا أو عدة تقارير'}</h3>
+        <p className="text-sm text-ink-500 mt-1">يمكن رفع عدة مصادر معًا، لكن كل تقرير يبقى مستقلًا بسياقه وبصمته ونتيجته.</p>
+        <p className="text-xs text-ink-300 mt-3">Excel، CSV، JSON، PDF، Word والصور · {MAX_FILE_SIZE / 1024 / 1024} MB كحد أقصى لكل ملف</p>
+      </div>
+
+      {queuedFiles.length > 0 && (
+        <div className="mt-4 rounded-[16px] border border-primary-100 bg-primary-50/40 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div className="text-sm font-black text-ink-950">سلة المصادر</div>
+              <div className="mt-1 text-[10px] leading-5 text-ink-500">لن يتم دمج هذه التقارير. عند اختيار عدة مصادر يتم تحليل مصدر واحد في كل مرة مع بقاء كل نتيجة مرتبطة بسياقها وبصمتها.</div>
+            </div>
+            <button type="button" onClick={clearQueuedFiles} className="btn-secondary text-[10px]">إفراغ السلة</button>
+          </div>
+          <div className="mt-3 grid gap-2">
+            {queuedFiles.map((queued) => (
+              <div key={queued.name + ':' + queued.size + ':' + queued.lastModified} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-ink-200 bg-white px-3 py-2.5">
+                <div className="min-w-0">
+                  <div className="truncate text-xs font-black text-ink-900">{queued.name}</div>
+                  <div className="mt-0.5 text-[10px] text-ink-400">{String(queued.name.split('.').pop() ?? 'مصدر').toUpperCase()} · {formatNumber(queued.size)} بايت</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button type="button" onClick={() => analyzeQueuedFile(queued)} className="btn-primary text-[10px]">تحليل هذا المصدر</button>
+                  <button type="button" onClick={() => setQueuedFiles((current) => current.filter((candidate) => candidate !== queued))} className="btn-secondary text-[10px]">إزالة</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {error && <div className="mt-4 p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
     </CardBody></Card>}
 
@@ -522,7 +592,15 @@ export function CanonicalImportPage() {
         <Card><CardBody>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div><div className="text-sm font-black text-ink-950">ماذا يعني الإغلاق هنا؟</div><p className="mt-1 text-xs leading-5 text-ink-500">تم حفظ المصدر والصفوف الكانونية ونتيجة الـrendered output. لا يتم تحويل غياب الأدلة أو القرار أو النتيجة أو العينة إلى نجاح.</p></div>
-            <button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Link to={'/reports/smart/' + encodeURIComponent(String(result?.jobId ?? ''))} className="btn-primary"><ArrowLeft size={14}/> فتح التقرير الذكي</Link>
+              {queuedFiles.length > 0 && <button type="button" onClick={() => {
+                const next = queuedFiles[0];
+                setQueuedFiles((current) => current.slice(1));
+                if (next) void handleFile(next);
+              }} className="btn-secondary"><Upload size={14}/> تحليل المصدر التالي ({queuedFiles.length})</button>}
+              <button type="button" onClick={reset} className="btn-secondary"><Upload size={14}/> بدء مصادر جديدة</button>
+            </div>
           </div>
         </CardBody></Card>
       </div>;
