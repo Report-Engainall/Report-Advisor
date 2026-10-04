@@ -22,4 +22,37 @@ assert.ok(smart.includes('التقرير الذكي'));
 assert.ok(smart.includes("report.specialty === 'sales' ? 'المبيعات'"));
 assert.ok(smart.includes('تصدير XLSX'));
 
+const customerFacingSurfaces = [
+  'src/pages/DashboardPage.tsx',
+  'src/pages/ExecutiveCommandCenterPage.tsx',
+  'src/pages/TrustEvidencePage.tsx',
+  'src/pages/CanonicalImportPage.tsx',
+  'src/pages/DecisionExperiencePage.tsx',
+  'src/pages/DecisionInboxPage.tsx',
+  'src/pages/WorkCenterPage.tsx',
+  'src/pages/IntelligencePage.tsx',
+  'src/components/SourceBoundReportSurface.tsx',
+].map((path) => ({ path, content: fs.readFileSync(path, 'utf8') }));
+
+const forbiddenPrimaryLabels = [
+  '>WHY<',
+  '>EVIDENCE<',
+  '>WHAT NEXT<',
+  '>OUTCOME<',
+  'As-of:',
+  'Source SHA:',
+  'معرّف القرار:',
+  'decision=',
+  'work=',
+];
+
+for (const { path: surfacePath, content } of customerFacingSurfaces) {
+  for (const forbidden of forbiddenPrimaryLabels) {
+    assert.ok(!content.includes(forbidden), surfacePath + ' must not expose primary technical label: ' + forbidden);
+  }
+}
+
+assert.ok(!customerFacingSurfaces.some(({ content }) => /\b(Decision ROI|Business Replay|Money Recovery|Outcome follow-up)\b/.test(content)));
+assert.ok(!customerFacingSurfaces.some(({ content }) => /\b(REVIEW|BLOCKED|INSUFFICIENT DATA)\b/.test(content) && content.includes('>')));
+
 console.log('CUSTOMER_FACING_REPORT_SURFACE_CONTRACT_PASS');
