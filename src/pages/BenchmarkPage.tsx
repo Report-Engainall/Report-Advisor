@@ -88,7 +88,7 @@ export function BenchmarkPage() {
             ['تعريف المقياس', 'يجب أن يكون التعريف الكانوني نفسه لكل عضو في Cohort.'],
             ['الفترة', 'يجب أن تكون الفترات الزمنية قابلة للمقارنة.'],
             ['الحقيقة والدليل', 'لا يدخل المصدر غير الموثوق إلى نتيجة Benchmark موثقة.'],
-            ['العينة', 'العينة الصغيرة تبقى INSUFFICIENT_SAMPLE ولا تنتج ترتيبًا.'],
+            ['العينة', 'العينة الصغيرة تبقى غير كافية ولا تنتج ترتيبًا.'],
           ].map(([title, detail]) => <div key={title} className="rounded-xl bg-ink-50 p-4"><div className="text-xs font-black text-ink-900">{title}</div><div className="mt-1 text-[10px] leading-5 text-ink-600">{detail}</div></div>)}
         </div>
       </section>
