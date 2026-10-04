@@ -11,7 +11,7 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { ConfidenceBadge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchAlerts, fetchRecommendations } from '@/lib/queries';
-import { fetchDecisionWorkItems, type DecisionWorkItemRecord } from '@/lib/report-decisions';
+import { fetchDecisionWorkItems, fetchSourceDecisionProposals, type DecisionWorkItemRecord } from '@/lib/report-decisions';
 import { loadPersistedOutcomes, type DecisionOutcome } from '@/lib/analytics/outcome-feedback';
 import { resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatCurrency, relativeTime } from '@/lib/format';
@@ -131,6 +131,8 @@ function RecommendationCard({
 function DecisionExperienceGeneralPage() {
   const [params, setParams] = useSearchParams();
   const requestedStage = params.get('stage') as Stage | null;
+  const sourceDecisionId = params.get('sourceDecisionId');
+  const sourceHashParam = params.get('sourceHash');
   const [stage, setStage] = useState<Stage>(STAGES.some((item) => item.id === requestedStage) ? requestedStage! : 'command');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -150,17 +152,28 @@ function DecisionExperienceGeneralPage() {
       setError(null);
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_REQUIRED');
-      const [nextRecommendations, nextAlerts, nextWorkItems, nextOutcomes] = await Promise.all([
+      const [nextRecommendations, nextAlerts, nextWorkItems, nextOutcomes, sourceProposals] = await Promise.all([
         fetchRecommendations(),
         fetchAlerts(),
         fetchDecisionWorkItems(200),
         loadPersistedOutcomes(companyId),
+        sourceHashParam && sourceDecisionId ? fetchSourceDecisionProposals(sourceHashParam) : Promise.resolve([]),
       ]);
+      const sourceProposal = sourceDecisionId
+        ? sourceProposals.find((proposal) => proposal.id === sourceDecisionId)
+        : null;
+      const linkedRecommendationId = sourceProposal?.recommendationId ?? null;
       setRecommendations(nextRecommendations);
       setAlerts(nextAlerts);
       setDecisionWorkItems(nextWorkItems);
       setOutcomes(nextOutcomes);
-      setSelectedId((current) => current && nextRecommendations.some((item) => item.id === current) ? current : nextRecommendations[0]?.id ?? null);
+      setSelectedId((current) => (
+        current && nextRecommendations.some((item) => item.id === current)
+          ? current
+          : linkedRecommendationId && nextRecommendations.some((item) => item.id === linkedRecommendationId)
+            ? linkedRecommendationId
+            : nextRecommendations[0]?.id ?? null
+      ));
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل سياق القرار');
     } finally {
