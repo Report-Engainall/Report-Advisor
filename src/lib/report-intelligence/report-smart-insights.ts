@@ -621,7 +621,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
   });
   return enriched
     .sort((a, b) => rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title))
-    .slice(0, 12);
+    .slice(0, 24);
 }
 
 function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] {
