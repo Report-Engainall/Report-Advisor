@@ -38,6 +38,11 @@ export type ReportRecommendation = {
   ownerHint: string;
   impact: string;
   expectedOutcome: string;
+  whyNow: string;
+  measurement: string;
+  risk: string;
+  blocker: string;
+  limitation: string;
 };
 
 export type ReportForecast = {
@@ -395,6 +400,17 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
       ownerHint: signal.ownerHint,
       impact: signal.impact,
       expectedOutcome: 'افحص الدليل المرتبط بهذا الاستثناء، نفّذ الإجراء بعد الاعتماد، ثم أعد القياس بنفس المصدر.',
+      whyNow: signal.severity === 'critical' || signal.severity === 'high'
+        ? 'تستحق هذه الإشارة أولوية الآن قبل اعتماد قرار مبني على المصدر الحالي.'
+        : 'تستحق هذه الإشارة المراجعة قبل تحويل التحليل إلى قرار تنفيذي.',
+      measurement: signal.affectedRows == null
+        ? 'أعد تشغيل القاعدة نفسها بعد المعالجة ودوّن عدد السجلات التي ما تزال تطابق الإشارة.'
+        : 'أعد القياس على القاعدة نفسها وسجّل عدد السجلات المتأثرة قبل/بعد المعالجة؛ المصدر الحالي يثبت ' + signal.affectedRows + ' سجلًا متأثرًا.',
+      risk: 'خطر القرار قبل المراجعة: قد يُعتمد استنتاج أو إجراء فوق استثناء مصدر لم يُعالج أو يُفسر بعد.',
+      blocker: signal.evidence.length > 0
+        ? 'الحاجز الحالي هو تفسير الدليل المرتبط بالإشارة والتحقق منه قبل الاعتماد.'
+        : 'لا يوجد دليل مصدرّي كافٍ للاعتماد؛ يجب إيقاف التحويل إلى قرار حتى يظهر الدليل المطلوب.',
+      limitation: signal.impact || 'لا يمكن إثبات أثر مالي أو سببي أوسع من المصدر الحالي.',
     };
   });
 }
