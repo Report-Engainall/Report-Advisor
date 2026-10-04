@@ -331,9 +331,9 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
       </div>
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">REPORT</div><div className="mt-2 text-sm font-black">{report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : 'تقرير أعمال ذكي'}</div><div className="mt-1 text-[10px] text-ink-500">الثقة: {stateLabel(report.sourceTrustState ?? report.trustState)}</div></div>
-        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">FINGERPRINT</div><div className="mt-2 break-all font-mono text-[10px]">{report.sourceHash}</div></div>
-        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">CANONICAL COMMIT</div><div className="mt-2 text-sm font-black">{formatNumber(report.canonicalCommitCount)} / {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)}</div><div className="mt-1 text-[10px] text-ink-500">{gap > 0 ? `Gap: ${formatNumber(gap)}` : 'No canonical coverage gap'}</div></div>
-        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">ANALYSIS</div><div className="mt-2 text-sm font-black">{report.sourceAnalysis?.analysisStatus ?? 'غير متاح'}</div><div className="mt-1 text-[10px] text-ink-500">{report.sourceAnalysis?.rowCount == null ? 'غير متاح' : formatNumber(report.sourceAnalysis.rowCount)} rows</div></div>
+        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">ارتباط المصدر</div><div className="mt-2 text-sm font-black">مرتبط بالمصدر الأصلي</div><div className="mt-1 text-[10px] text-ink-500">البصمة الكاملة متاحة في تفاصيل التدقيق.</div></div>
+        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">تغطية البيانات</div><div className="mt-2 text-sm font-black">{formatNumber(report.canonicalCommitCount)} سجل</div><div className="mt-1 text-[10px] text-ink-500">{gap > 0 ? `فجوة: ${formatNumber(gap)} سجل` : 'التغطية الكانونية مكتملة'}</div></div>
+        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">حالة التحليل</div><div className="mt-2 text-sm font-black">{stateLabel(report.sourceAnalysis?.analysisStatus ?? 'غير متاح')}</div><div className="mt-1 text-[10px] text-ink-500">{report.sourceAnalysis?.rowCount == null ? 'غير متاح' : `${formatNumber(report.sourceAnalysis.rowCount)} سجلًا محللًا`}</div></div>
       </div>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <div className="rounded-xl border border-ink-200 bg-ink-50/60 p-4">
@@ -349,6 +349,16 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
           {report.renderedOutput.legacyPriorVerification === true ? <div className="mt-2 rounded-lg border border-warning-300 bg-warning-50 px-2 py-1 text-[9px] font-bold text-warning-900">حالة VERIFIED القديمة تم استبدالها بدليل Passport مستقل.</div> : null}
         </div>
       </div>
+      <details className="mt-3 rounded-2xl border border-ink-200 bg-ink-50/70 p-4">
+        <summary className="cursor-pointer text-[10px] font-black text-ink-700">تفاصيل التدقيق الفني</summary>
+        <div className="mt-3 grid gap-3 md:grid-cols-2">
+          <div className="rounded-xl bg-white p-3"><div className="text-[9px] font-black text-ink-500">بصمة المصدر</div><div className="mt-1 break-all font-mono text-[9px] text-ink-500">{report.sourceHash}</div></div>
+          <div className="rounded-xl bg-white p-3"><div className="text-[9px] font-black text-ink-500">Report Job</div><div className="mt-1 break-all font-mono text-[9px] text-ink-500">{report.jobId}</div></div>
+          <div className="rounded-xl bg-white p-3"><div className="text-[9px] font-black text-ink-500">الاستيراد الكانوني</div><div className="mt-1 text-[10px] text-ink-500">{report.canonicalAnalysisScope === 'FULL_SOURCE' ? 'المصدر الكامل' : 'قراءة جزئية تحتاج مراجعة'}</div></div>
+          <div className="rounded-xl bg-white p-3"><div className="text-[9px] font-black text-ink-500">Evidence Snapshot</div><div className="mt-1 break-all font-mono text-[9px] text-ink-500">{String(report.renderedOutput.evidenceSnapshotId ?? 'غير موجود')}</div></div>
+        </div>
+      </details>
+
       <div className="mt-3 rounded-2xl border border-primary-200 bg-primary-50/45 p-4" aria-label="بوابة الدليل قبل القرار">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -684,7 +694,7 @@ export function SmartReportPage() {
     setError(null);
     if (!jobId?.trim() || !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash)) {
       setReport(null);
-      setError('INVALID_REPORT_CONTEXT');
+      setError(userFacingError('INVALID_REPORT_CONTEXT'));
       setLoading(false);
       return () => { active = false; };
     }
