@@ -367,7 +367,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
       impact: signal.affectedRows == null ? 'الأثر المالي غير مثبت من المصدر الحالي.' : 'الأثر المثبت حاليًا هو نطاق السجلات المتأثرة؛ لا يتم افتراض قيمة مالية.',
     };
   });
-  return enriched.sort((a, b) => rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title));
+  return enriched.sort((a, b) => rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title)).slice(0, 1);
 }
 
 function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] {
