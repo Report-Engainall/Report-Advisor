@@ -55,9 +55,9 @@ export function LoginPage() {
   }
 
   return (
-    <main dir="rtl" className="min-h-screen bg-[#f7f7f8] text-ink-950">
+    <main dir="rtl" className="min-h-screen bg-[#f6f7fb] text-ink-950">
       <div className="flex min-h-screen flex-col lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(420px,.85fr)]">
-        <section className="ag-login-value order-2 border-t border-ink-200 bg-[#061e1d] text-white lg:order-1 lg:border-l lg:border-t-0">
+        <section className="ag-login-value order-2 border-t border-slate-800 bg-[#0b1020] text-white lg:order-1 lg:border-l border-slate-800 lg:border-t-0">
           <div className="mx-auto flex min-h-full max-w-3xl flex-col px-5 py-8 sm:px-8 lg:px-12 lg:py-10">
             <div className="flex items-center justify-between border-b border-ink-200 pb-5">
               <div className="flex items-center gap-3">
@@ -120,7 +120,7 @@ export function LoginPage() {
           </div>
         </section>
 
-        <section className="order-1 flex items-center border-b border-ink-200 bg-[#f7f7f8] px-5 py-8 sm:px-8 lg:order-2 lg:border-b-0 lg:px-12">
+        <section className="order-1 flex items-center border-b border-ink-200 bg-[#f6f7fb] px-5 py-8 sm:px-8 lg:order-2 lg:border-b-0 lg:px-12">
           <div className="mx-auto w-full max-w-[430px]">
             <div className="mb-7 lg:hidden"><div className="flex items-center justify-between"><div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-[9px] bg-ink-950 text-sm font-black text-white">أ</div><div><div className="text-[14px] font-black">الأغبري</div><div className="text-[10px] text-ink-400">مساحة العمل</div></div></div><LanguageToggle/></div></div>
             <div className="rounded-[14px] border border-ink-200 bg-white p-6 shadow-card sm:p-7">
