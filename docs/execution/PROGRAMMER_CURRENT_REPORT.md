@@ -2,16 +2,16 @@
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = 9ecb9b831bab2beb02791d4f1eda6f4a374d4731
-CURRENT EXECUTION HEAD = 793774a855aa8e09e8fec5aa9b6dbe3b2ec48ba7
-REPORT_FOR_HEAD = 793774a855aa8e09e8fec5aa9b6dbe3b2ec48ba7
+CURRENT EXECUTION HEAD = 37131d8762d2360c06e924be83ccf8b563390058
+REPORT_FOR_HEAD = 37131d8762d2360c06e924be83ccf8b563390058
 BRANCH = feat/complete-smart-intelligence-surface-20261003
 PR = #820
-UPDATED_AT = 2026-10-03T23:18:47.858Z
-WHAT_I_WAS_ASKED_TO_DO = مواصلة الإغلاق الفعلي لـPR #820 من نقطة التوقف السابقة، وإغلاق Smart Report intelligence والـ48 real-source والـbrowser وPhase-F دون PASS وهمي.
-WHAT_I_ACTUALLY_DID = repaired Smart Report contracts; hardened Phase-F dump/restore and rollback provenance; restored authenticated report_evidence_snapshots read access without weakening RLS; embedded 48-archetype fixture seeding into governed corpus rehydration; synchronized execution state to the current exact code head.
-WHAT_IS_PROVEN = staging ACTIVE_HEALTHY; Quality SUCCESS; Value Cohort SUCCESS; Evidence Passport Gate SUCCESS; final 48/48 real-source and Browser proof remain pending current exact-head completion.
-FIRST_ACTIVE_FAILURE = CI_RECERTIFICATION = Phase-F and Full Product Browser E2E still running on the exact head.
-ROOT_CAUSE = Terminal failures already consumed were root-caused and patched: Smart Report contract drift, evidence snapshot SELECT grant, tenant-consumer placement of fixture seed, rehydration artifact initialization, and Phase-F restore ordering. Current live proof remains open.
+UPDATED_AT = 2026-10-04T13:30:00Z
+WHAT_I_WAS_ASKED_TO_DO = إكمال PR #820 كمنتج قابل للبيع أمام العميل: إصلاح عنق التشغيل الحقيقي، رفع القيمة الظاهرة، واستكمال النظام البصري دون PASS وهمي.
+WHAT_I_ACTUALLY_DID = repaired the live legacy source-intelligence provenance failure through the governed tenant-bound repair RPC; applied and mirrored the repair migration; replaced green/teal executive chrome with midnight-indigo and amber CTA accents; added the Smart Report SOURCE→EVIDENCE→SIGNALS→ADVISOR→DECISION→WORK→OUTCOME→LEARNING value chain; and hardened the real-48 gate to emit diagnostic failure reasons.
+WHAT_IS_PROVEN = live staging source-intelligence provenance integrity is clean (invalid_source_recommendations=0); Supabase migration 20261004132454 is applied; current exact code is 55201964303602c0a52d63e0cc9bd9881a864530; the visual/value-chain code is committed; exact-head CI recertification is not yet terminal and therefore is not called PASS.
+FIRST_ACTIVE_FAILURE = no terminal failure is trusted on the newest exact head yet; Quality, Phase-F, Full Product Browser E2E and Final Certification are still queued/pending for the newer HEAD.
+ROOT_CAUSE = the previous Phase-F failure was a single legacy source-intelligence recommendation missing evidenceSnapshotId despite a current VERIFIED/READY passport; direct UPDATE was correctly blocked by enforce_source_recommendation_evidence, so the governed refresh_source_intelligence_recommendation_evidence boundary was used.
 REMAINING_OPEN
 - Quality exact-head
 - Value Cohort exact-head
@@ -23,4 +23,4 @@ REMAINING_OPEN
 - external production deployment
 DO_NOT_REPEAT
 No stale PASS, no queued PASS, no fabricated corpus, no blind timeout increase, no RLS/auth/evidence weakening.
-NEXT_EXACT_ACTION = consume the first completed Phase-F or Full Product Browser E2E result on the exact head; patch only its root cause, then run final certification and handoff
+NEXT_EXACT_ACTION = consume the first terminal exact-head result, patch only its root cause, then rerun that gate family and close Session Handoff.
