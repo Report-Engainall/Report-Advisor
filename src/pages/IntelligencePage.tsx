@@ -18,7 +18,6 @@ import {
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Recommendation, Alert, Forecast } from '@/lib/types';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
-import { readActiveReportContext } from '@/lib/report-context';
 
 function MetricStrip({
   label,
@@ -45,13 +44,12 @@ function MetricStrip({
 
 
 async function loadOptionalSourceReport(params: URLSearchParams): Promise<SmartReportDetail | null> {
-  const saved = readActiveReportContext();
-  const jobId = params.get('reportJobId')?.trim() || saved?.jobId || '';
-  const sourceHash = params.get('sourceHash')?.trim() || saved?.sourceHash || '';
-  if (!jobId) return null;
-  const report = await fetchSmartReport(jobId);
+  const jobId = params.get('reportJobId')?.trim() || '';
+  const sourceHash = params.get('sourceHash')?.trim() || '';
+  if (!jobId || !/^sha256:[0-9a-fA-F]{64}$/.test(sourceHash)) return null;
+  const report = await fetchSmartReport(jobId, sourceHash);
   if (!report) return null;
-  if (sourceHash && report.sourceHash !== sourceHash) throw new Error('REPORT_SOURCE_HASH_MISMATCH');
+  if (report.sourceHash !== sourceHash) throw new Error('INVALID_REPORT_CONTEXT');
   return report;
 }
 
