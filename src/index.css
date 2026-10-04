@@ -1952,3 +1952,35 @@ button,input,textarea,select{font:inherit}
   .ag-smart-report-surface .data-table-shell th,
   .ag-smart-report-surface .data-table-shell td{display:table-cell!important;width:auto!important;max-width:22rem!important;white-space:nowrap!important}
 }
+
+
+/* Executive canvas: calm density, full-width use, result-first hierarchy. */
+@layer components{
+  .executive-canvas{background:linear-gradient(180deg,#f7f9fc 0%,#f5f7fa 100%)}
+  .executive-canvas > *{width:100%;min-width:0}
+  .executive-canvas .space-y-6 > :not([hidden])~:not([hidden]){margin-top:1rem}
+  .executive-canvas .space-y-5 > :not([hidden])~:not([hidden]){margin-top:.9rem}
+  .executive-canvas .space-y-4 > :not([hidden])~:not([hidden]){margin-top:.75rem}
+  .executive-canvas .card,
+  .executive-canvas .shell-surface,
+  .executive-canvas .page-surface,
+  .executive-canvas .hero-surface{border-radius:16px;box-shadow:0 10px 28px -24px rgba(15,23,42,.42)}
+  .executive-canvas h1{font-size:clamp(1.55rem,2vw,2.15rem);line-height:1.2}
+  .executive-canvas h2{font-size:clamp(1.05rem,1.45vw,1.35rem);line-height:1.3}
+  .executive-canvas h3{line-height:1.35}
+  .executive-canvas .section-kicker{font-size:9px;color:#74837e}
+  .executive-canvas .ag-command-hero{padding:clamp(1rem,2vw,1.5rem)}
+  .executive-canvas .ag-decision-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:100%;border-radius:14px}
+  .executive-canvas .ag-dashboard-kpi{min-width:0}
+  .executive-canvas .ag-dashboard-kpi .metric-value{font-size:clamp(1.15rem,1.8vw,1.6rem)}
+  .executive-canvas table{font-size:11px}
+  .executive-canvas th{font-size:10px;font-weight:800}
+  .executive-canvas .font-mono{font-family:'IBM Plex Mono','IBM Plex Sans Arabic',ui-monospace,monospace}
+}
+@media(max-width:1100px){
+  .executive-canvas .ag-decision-strip{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .executive-canvas .ag-decision-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .executive-canvas .ag-decision-cell{min-width:0}
+}
