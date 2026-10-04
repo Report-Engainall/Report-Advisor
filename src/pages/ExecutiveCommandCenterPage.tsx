@@ -54,9 +54,9 @@ function AlertRow({ alert }: { alert: Alert }) {
           <div className="mt-2 text-[13px] font-black text-ink-900">{alert.title}</div>
           {alert.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{alert.description}</p>}
           <div className="mt-3 grid gap-2 sm:grid-cols-3 text-[9px]">
-            <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">WHY</div><div className="mt-1 font-bold text-ink-800">{alert.description ?? 'سبب التنبيه غير متاح؛ راجع الدليل.'}</div></div>
-            <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">EVIDENCE</div><div className="mt-1 font-bold text-ink-800">{alert.metric_value == null ? 'قيمة القياس غير متاحة' : formatNumber(alert.metric_value)}{alert.threshold == null ? '' : ' · الحد ' + formatNumber(alert.threshold)}</div></div>
-            <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">WHAT NEXT</div><div className="mt-1 font-bold text-ink-800">مراجعة القياس ثم فتح سياق القرار</div></div>
+            <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">لماذا</div><div className="mt-1 font-bold text-ink-800">{alert.description ?? 'سبب التنبيه غير متاح؛ راجع الدليل.'}</div></div>
+            <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">الدليل</div><div className="mt-1 font-bold text-ink-800">{alert.metric_value == null ? 'قيمة القياس غير متاحة' : formatNumber(alert.metric_value)}{alert.threshold == null ? '' : ' · الحد ' + formatNumber(alert.threshold)}</div></div>
+            <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">الخطوة التالية</div><div className="mt-1 font-bold text-ink-800">مراجعة القياس ثم فتح سياق القرار</div></div>
           </div>
           <div className="mt-3 flex gap-2">
             <Link to="/decision-inbox" className="btn-secondary text-[11px]">مركز القرارات <ArrowUpLeft size={13}/></Link>
@@ -185,7 +185,7 @@ export function ExecutiveCommandCenterPage() {
         <div className="ag-decision-cell"><span className="ag-decision-label">تغطية القياسات</span><span className="ag-decision-value">{coverage}%</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">إشارات مفتوحة</span><span className="ag-decision-value">{alerts.length}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">توصيات للمراجعة</span><span className="ag-decision-value">{recommendations.length}</span></div>
-        <div className="ag-decision-cell"><span className="ag-decision-label">As-of</span><span className="ag-decision-value">{asOf ?? 'غير متاح'}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">حتى تاريخ</span><span className="ag-decision-value">{asOf ?? 'غير متاح'}</span></div>
       </div>
       <div className="ag-action-cluster">
         <Link to={alerts.length ? '/intelligence' : '/decision-inbox'} className="btn-primary text-[11px]">
@@ -225,7 +225,7 @@ export function ExecutiveCommandCenterPage() {
       <section aria-label="من الانتباه إلى الإجراء">
         <Card variant="evidence">
           <CardHeader
-            kicker="ATTENTION → ACTION"
+            kicker="من الانتباه إلى الإجراء"
             title="من الانتباه إلى الإجراء"
             subtitle="العناصر التالية هي سجلات عمل محفوظة؛ كل بطاقة تكشف السبب، الدليل، المالك، الحالة، وما حدث بعدها."
             action={<Link to="/work-center" className="btn-ghost text-[10px]">فتح كل الأعمال <ArrowUpLeft size={13}/></Link>}
@@ -247,9 +247,9 @@ export function ExecutiveCommandCenterPage() {
                       <span className="rounded-full bg-primary-50 px-2 py-1 text-[8px] font-black text-primary-800">{item.status === 'OPEN' ? 'مفتوح' : item.status === 'IN_PROGRESS' ? 'قيد التنفيذ' : item.status === 'COMPLETED' ? 'مكتمل' : 'يحتاج مراجعة'}</span>
                     </div>
                     <div className="mt-3 grid gap-2 sm:grid-cols-3 text-[9px]">
-                      <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">WHY</div><div className="mt-1 font-bold text-ink-800">{item.title}</div></div>
-                      <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">EVIDENCE</div><div className="mt-1 font-bold text-ink-800">{item.evidenceSnapshotId ? 'مثبت' : 'غير متاح'}</div></div>
-                      <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">OUTCOME</div><div className="mt-1 font-bold text-ink-800">{item.actualImpact == null ? 'لم تُسجل نتيجة بعد' : formatCurrency(item.actualImpact)}</div></div>
+                      <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">لماذا</div><div className="mt-1 font-bold text-ink-800">{item.title}</div></div>
+                      <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">الدليل</div><div className="mt-1 font-bold text-ink-800">{item.evidenceSnapshotId ? 'مثبت' : 'غير متاح'}</div></div>
+                      <div className="rounded-lg bg-ink-50 p-2"><div className="text-ink-400">النتيجة</div><div className="mt-1 font-bold text-ink-800">{item.actualImpact == null ? 'لم تُسجل نتيجة بعد' : formatCurrency(item.actualImpact)}</div></div>
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Link to={'/work-center?decisionWorkFilter=' + (item.status === 'OPEN' ? 'open' : 'in_progress')} className="btn-primary text-[9px]">فتح الإجراء <ArrowUpLeft size={12}/></Link>
@@ -267,7 +267,7 @@ export function ExecutiveCommandCenterPage() {
 
       <section className="ag-fast-actions" aria-label="إجراءات سريعة">
         <div>
-          <div className="section-kicker">FAST ACTIONS</div>
+          <div className="section-kicker">إجراءات سريعة</div>
           <h2 className="mt-1 text-sm font-black text-ink-950">انتقل مباشرة إلى العمل</h2>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -280,23 +280,23 @@ export function ExecutiveCommandCenterPage() {
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <Link to="/reports/receivables" className="card card-hover p-4">
-          <div className="flex items-center justify-between gap-3"><WalletCards size={18} className="text-primary-700"/><span className="rounded-full bg-success-50 px-2 py-1 text-[9px] font-black text-success-700">{kpis.totalReceivables === null ? 'INSUFFICIENT DATA' : 'بيانات الذمم متاحة'}</span></div>
-          <div className="mt-3 text-sm font-black text-ink-900">Money Recovery</div>
+          <div className="flex items-center justify-between gap-3"><WalletCards size={18} className="text-primary-700"/><span className="rounded-full bg-success-50 px-2 py-1 text-[9px] font-black text-success-700">{kpis.totalReceivables === null ? 'بيانات غير كافية' : 'بيانات الذمم متاحة'}</span></div>
+          <div className="mt-3 text-sm font-black text-ink-900">استرداد الأموال</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">ابدأ من الذمم والتحصيل للتحقق من الأموال القابلة للاسترداد؛ لا يتم احتساب فرصة مالية إضافية هنا دون ledger موثّق.</p>
         </Link>
         <div className="card p-4">
-          <div className="flex items-center justify-between gap-3"><BarChart3 size={18} className="text-warning-700"/><span className="rounded-full bg-warning-50 px-2 py-1 text-[9px] font-black text-warning-800">INSUFFICIENT DATA</span></div>
-          <div className="mt-3 text-sm font-black text-ink-900">Decision ROI</div>
+          <div className="flex items-center justify-between gap-3"><BarChart3 size={18} className="text-warning-700"/><span className="rounded-full bg-warning-50 px-2 py-1 text-[9px] font-black text-warning-800">بيانات غير كافية</span></div>
+          <div className="mt-3 text-sm font-black text-ink-900">عائد القرار</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">لا يوجد في هذا السطح سجل نتائج مالي موثّق يسمح بحساب عائد القرار دون اختلاق أثر.</p>
         </div>
         <div className="card p-4">
           <div className="flex items-center justify-between gap-3"><FileSearch size={18} className="text-ink-500"/><span className="rounded-full bg-ink-100 px-2 py-1 text-[9px] font-black text-ink-600">غير متاح</span></div>
-          <div className="mt-3 text-sm font-black text-ink-900">Business Replay</div>
+          <div className="mt-3 text-sm font-black text-ink-900">إعادة تشغيل القرار</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">إعادة التشغيل تحتاج snapshots وoutcomes تاريخية مثبتة؛ الواجهة لا تصنع سجلًا بديلًا.</p>
         </div>
         <Link to="/decision-inbox" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><CheckCircle2 size={18} className="text-primary-700"/><span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-black text-primary-700">مسار القرار</span></div>
-          <div className="mt-3 text-sm font-black text-ink-900">Outcome follow-up</div>
+          <div className="mt-3 text-sm font-black text-ink-900">متابعة النتيجة</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">تابع نتيجة القرار من مساحة القرار مع الحفاظ على حالة الدليل وعدم تحويل التوصية إلى نجاح تلقائي.</p>
         </Link>
       </section>
@@ -348,7 +348,7 @@ export function ExecutiveCommandCenterPage() {
             <div className="rounded-xl border border-ink-100 bg-ink-50 p-3"><div className="text-[9px] text-ink-400">OPEN</div><div className="mt-1 text-lg font-black text-ink-900">{executionSummary.open}</div></div>
             <div className="rounded-xl border border-primary-100 bg-primary-50 p-3"><div className="text-[9px] text-primary-700">IN PROGRESS</div><div className="mt-1 text-lg font-black text-primary-950">{executionSummary.inProgress}</div></div>
             <div className="rounded-xl border border-success-100 bg-success-50 p-3"><div className="text-[9px] text-success-700">COMPLETED</div><div className="mt-1 text-lg font-black text-success-950">{executionSummary.completed}</div></div>
-            <div className="rounded-xl border border-primary-100 bg-primary-50 p-3"><div className="text-[9px] text-primary-700">OUTCOMES</div><div className="mt-1 text-lg font-black text-primary-950">{executionSummary.outcomes}</div></div>
+            <div className="rounded-xl border border-primary-100 bg-primary-50 p-3"><div className="text-[9px] text-primary-700">النتائج المسجلة</div><div className="mt-1 text-lg font-black text-primary-950">{executionSummary.outcomes}</div></div>
           </div>
           {workItems.length === 0
             ? <div className="mt-3 rounded-xl border border-dashed border-ink-200 p-4 text-center text-[10px] text-ink-500">لا توجد عناصر عمل محفوظة للـtenant الحالي. لا يتم اختلاق طابور بديل.</div>
