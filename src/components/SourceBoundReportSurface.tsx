@@ -27,13 +27,30 @@ const STATE_LABELS: Record<string, string> = {
   VERIFIED: 'موثق',
   REVIEW: 'مراجعة',
   BLOCKED: 'محظور',
+  PARTIAL: 'جزئي',
+  GAP_DETECTED: 'فجوة اعتماد مكتشفة',
   NO_DECISION_COMMITTED: 'لا قرار معتمد',
   NO_ACTION_COMMITTED: 'لا إجراء معتمد',
   NOT_AVAILABLE: 'غير متاح',
   INSUFFICIENT_SAMPLE: 'عينة غير كافية',
-  NOT_COMMITTED: 'غير معتمد',
+  INSUFFICIENT_DATA: 'بيانات غير كافية',
   PENDING_EVIDENCE: 'بانتظار الدليل',
-  GAP_DETECTED: 'فجوة اعتماد مكتشفة',
+  PENDING: 'قيد المراجعة',
+  PROPOSED: 'مقترح',
+  APPROVED: 'معتمد',
+  REJECTED: 'مرفوض',
+  CANCELLED: 'ملغى',
+  OPEN: 'مفتوح',
+  IN_PROGRESS: 'قيد التنفيذ',
+  COMPLETED: 'مكتمل',
+  FAILED: 'فشل',
+  NOT_COMMITTED: 'غير معتمد',
+  CALCULATED: 'محسوب',
+  AVAILABLE: 'متاح',
+  UNAVAILABLE: 'غير متاح',
+  AWAITING_EVIDENCE_SNAPSHOT: 'بانتظار لقطة الدليل',
+  NOT_PROVEN: 'غير مثبت',
+  READY: 'جاهز',
 };
 
 function stateLabel(value: unknown): string {
@@ -64,15 +81,45 @@ function specialtyPath(specialty: string | null): string | null {
 function buildMetrics(report: SmartReportDetail) {
   const dataset = report.sourceAnalysis?.datasets?.[0];
   const obj = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : null;
-  const columns = Array.isArray(obj?.columns)
-    ? obj.columns.filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === 'object')
-    : [];
-  return columns
-    .map((column) => ({
-      label: String(column.mappedField ?? column.name ?? 'حقل'),
-      value: numberValue((column.statistics as Record<string, unknown> | undefined)?.sum ?? null),
-    }))
-    .filter((metric) => metric.value != null);
+  const raw = Array.isArray(obj?.columns) ? obj.columns as unknown[] : [];
+  const labels: Record<string,string> = {
+    total:'الإجمالي',
+    net_amount:'صافي المبيعات',
+    paid_amount:'المدفوع',
+    balance:'الرصيد المستحق',
+    credit:'الدائن',
+    debit:'المدين',
+    profit:'الربح',
+    margin:'الهامش',
+    quantity:'الكمية',
+    value:'القيمة',
+  };
+  const preference = report.specialty === 'sales' || report.specialty === 'purchases'
+    ? ['total','net_amount','paid_amount','profit','margin','quantity']
+    : report.specialty === 'receivables'
+      ? ['balance','paid_amount','credit','debit']
+      : report.specialty === 'payments'
+        ? ['balance','credit','debit']
+        : report.specialty === 'inventory'
+          ? ['value','quantity','price','cost']
+          : ['total','value','balance','profit','paid_amount','quantity'];
+  const rank = (field: string) => {
+    const index = preference.indexOf(field);
+    return index >= 0 ? index : 999;
+  };
+  return raw
+    .map((column) => {
+      if (!column || typeof column !== 'object') return null;
+      const item = column as Record<string, unknown>;
+      const field = String(item.mappedField ?? item.name ?? '').trim();
+      const value = numberValue((item.statistics as Record<string, unknown> | undefined)?.sum ?? null);
+      if (!field || value == null) return null;
+      return { field, value, priority: rank(field) };
+    })
+    .filter((metric): metric is {field:string;value:number;priority:number} => Boolean(metric))
+    .sort((a,b) => a.priority-b.priority || Math.abs(b.value)-Math.abs(a.value))
+    .slice(0,4)
+    .map(({field,value}) => ({label: labels[field] ?? 'مؤشر', value}));
 }
 
 function ContinuationRail({ report, decision }: { report: SmartReportDetail; decision: SourceDecisionState }) {
@@ -99,7 +146,7 @@ function ContinuationRail({ report, decision }: { report: SmartReportDetail; dec
       </div>
       <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
         <Link to={'/decision-experience?stage=decision' + recommendationQuery} className="rounded-xl border border-primary-200 bg-white p-3 hover:border-primary-400" aria-label="متابعة القرار">
-          <div className="text-[9px] font-black text-primary-800">DECISION</div>
+          <div className="text-[9px] font-black text-primary-800">القرار</div>
           <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.status)}</div>
           <div className="mt-1 text-[9px] text-ink-500">الدليل → التوصية → القرار</div>
         </Link>
@@ -112,7 +159,7 @@ function ContinuationRail({ report, decision }: { report: SmartReportDetail; dec
           <Link to={'/work-center?decisionWorkFilter=' + workFilter} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة التنفيذ">
             <div className="text-[9px] font-black text-ink-600">WORK</div>
             <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.workItemStatus)}</div>
-            <div className="mt-1 text-[9px] text-ink-500">عنصر العمل {decision.workItemId.slice(0, 8)}…</div>
+            <div className="mt-1 text-[9px] text-ink-500">عنصر عمل مرتبط</div>
           </Link>
         ) : (
           <div className="rounded-xl border border-warning-200 bg-warning-50/70 p-3" aria-label="التنفيذ غير متاح">
@@ -122,7 +169,7 @@ function ContinuationRail({ report, decision }: { report: SmartReportDetail; dec
           </div>
         )}
         <Link to={'/decision-experience?stage=outcome' + recommendationQuery} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة النتيجة والتعلم">
-          <div className="text-[9px] font-black text-ink-600">OUTCOME / LEARNING</div>
+          <div className="text-[9px] font-black text-ink-600">النتيجة والتعلّم</div>
           <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.outcomeStatus)}</div>
           <div className="mt-1 text-[9px] text-ink-500">النتيجة والتعلم</div>
         </Link>
@@ -162,7 +209,7 @@ function BusinessJourneyRail({
     { key: 'DATA', label: 'البيانات', value: report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount) + ' صف', state: report.rowCount == null ? 'neutral' : 'good' },
     { key: 'TRUTH', label: 'الحقيقة', value: report.sourceTrustState ?? report.evidenceStatus ?? 'غير مثبت', state: report.sourceTrustState === 'TRUSTED' || report.evidenceStatus === 'VERIFIED' ? 'good' : 'neutral' },
     { key: 'SIGNAL', label: 'الإشارة', value: signalCount ? formatNumber(signalCount) + ' إشارة' : 'لا توجد إشارة', state: signalCount ? 'attention' : 'neutral' },
-    { key: 'DECISION', label: 'القرار', value: decision ? stateLabel(decision.status) : stateLabel(output.decisionStatus), state: decision ? 'good' : 'neutral' },
+    { key: 'القرار', label: 'القرار', value: decision ? stateLabel(decision.status) : stateLabel(output.decisionStatus), state: decision ? 'good' : 'neutral' },
     { key: 'APPROVAL', label: 'الموافقة', value: decision?.approvalStatus ?? stateLabel(output.approvalStatus), state: decision?.approvalStatus === 'APPROVED' ? 'good' : decision?.approvalStatus === 'PENDING' ? 'attention' : 'neutral' },
     { key: 'WORK', label: 'العمل', value: decision?.workItemStatus ?? stateLabel(output.actionStatus), state: decision?.workItemStatus === 'COMPLETED' ? 'good' : decision?.workItemStatus === 'IN_PROGRESS' ? 'attention' : 'neutral' },
     { key: 'OUTCOME', label: 'النتيجة', value: decision?.outcomeStatus ?? stateLabel(output.outcomeStatus), state: decision?.outcomeStatus ? 'good' : 'neutral' },
@@ -233,40 +280,38 @@ function BusinessJourneyRail({
         <span className="rounded-full bg-success-50 px-2.5 py-1 text-success-800">OBSERVED / PROVEN</span>
         <span className="rounded-full bg-warning-50 px-2.5 py-1 text-warning-900">ATTENTION / ACTION</span>
         <span className="rounded-full bg-ink-50 px-2.5 py-1 text-ink-600">UNKNOWN / NOT AVAILABLE</span>
-        <span className="mr-auto rounded-full bg-ink-50 px-2.5 py-1 font-mono text-ink-600">source: {report.sourceHash ? report.sourceHash.slice(0, 26) + '…' : 'غير متاح'}</span>
+        <span className="mr-auto rounded-full bg-ink-50 px-2.5 py-1 text-ink-600">المصدر محفوظ للتدقيق</span>
       </div>
     </section>
   );
 }
 
 function SourceHeader({ report }: { report: SmartReportDetail }) {
-  const domain = specialtyPath(report.specialty);
+  const labels: Record<string, string> = {
+    sales: 'المبيعات',
+    purchases: 'المشتريات',
+    inventory: 'المخزون',
+    receivables: 'الذمم والتحصيل',
+    profitability: 'الربحية',
+    payments: 'السيولة والمدفوعات',
+  };
+  const title = labels[report.specialty ?? ''] ? 'تقرير ' + labels[report.specialty ?? ''] : 'تقرير أعمال ذكي';
   return (
-    <section className="rounded-[18px] border border-primary-200 bg-primary-50/60 p-5 shadow-sm">
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="min-w-0">
-          <div className="text-[9px] font-black tracking-[.14em] text-primary-800">SOURCE-BOUND RESULT</div>
-          <h1 className="mt-1 truncate text-lg font-black text-ink-950" title={report.sourcePath}>{report.sourcePath}</h1>
-          <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-ink-600">
-            <span>التخصص: {report.specialty ?? 'عام'}</span>
-            <span>•</span>
-            <span>الصفوف المصدرية: {report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</span>
-            <span>•</span>
-            <span>الصفوف المعتمدة: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)}</span>
-            <span>•</span>
-            <span>الجودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</span>
-            <span>•</span>
-            <span>الثقة: {stateLabel(report.trustState)}</span>
-            <span>•</span>
-            <span>المصدر: {stateLabel(report.sourceTrustState ?? report.trustState)}</span>
-            <span>•</span>
-            <span>التحقق: {report.reportVerificationState === 'VERIFIED' ? 'موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'فجوة اعتماد' : 'بانتظار الدليل'}</span>
+    <section className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[#0d1424] p-5 text-white shadow-[0_24px_70px_-36px_rgba(15,23,42,.9)]">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <div className="text-[9px] font-black tracking-[.16em] text-amber-200">REPORT ADVISOR</div>
+          <h1 className="mt-2 text-2xl font-black tracking-tight lg:text-3xl">{title}</h1>
+          <p className="mt-1 text-[11px] leading-6 text-slate-300">هذا السطح يعرض معنى التقرير وقرار الأعمال، بينما تبقى تفاصيل الملف الخام داخل طبقة الدليل.</p>
+          <div className="mt-3 flex flex-wrap gap-2 text-[10px] text-slate-300">
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">السجلات: {report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</span>
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">الجودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</span>
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">الثقة: {stateLabel(report.trustState ?? report.sourceTrustState)}</span>
           </div>
-          <div className="mt-2 break-all font-mono text-[9px] text-ink-400">{report.sourceHash}</div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link to={'/reports/smart/' + report.jobId} className="btn-primary text-[10px]">التقرير الذكي <ArrowLeft size={12}/></Link>
-          {domain && <Link to={domain + '?reportJobId=' + report.jobId + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary text-[10px]">التخصص <ArrowLeft size={12}/></Link>}
+          <Link to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="inline-flex items-center gap-2 rounded-xl bg-amber-300 px-4 py-2.5 text-xs font-black text-[#111827]">التقرير الذكي <ArrowLeft size={13}/></Link>
+          <Link to={'/decision-experience?stage=evidence&reportJobId=' + report.jobId + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-black text-white">الدليل والقرار <ArrowLeft size={13}/></Link>
         </div>
       </div>
     </section>
@@ -279,10 +324,10 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
   return (
     <>
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatusCell label="Source Trust" value={report.sourceTrustState ?? report.trustState}/>
-        <StatusCell label="Report Verification" value={report.reportVerificationState}/>
-        <StatusCell label="Decision" value={output.decisionStatus}/>
-        <StatusCell label="Benchmark" value={output.benchmarkStatus}/>
+        <StatusCell label="ثقة المصدر" value={report.sourceTrustState ?? report.trustState}/>
+        <StatusCell label="حالة التوثيق" value={report.reportVerificationState}/>
+        <StatusCell label="القرار" value={output.decisionStatus}/>
+        <StatusCell label="المعيار المقارن" value={output.benchmarkStatus}/>
       </section>
       <section className="grid gap-4 xl:grid-cols-[1.2fr_.8fr]">
         <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
@@ -294,12 +339,12 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
           </p>
         </div>
         <div className="rounded-[18px] border border-ink-200 bg-ink-950 p-5 text-white shadow-sm">
-          <div className="text-[9px] font-black tracking-[.12em] text-primary-200">SOURCE FACTS</div>
+          <div className="text-[9px] font-black tracking-[.12em] text-primary-200">حقائق المصدر</div>
           <div className="mt-3 grid grid-cols-2 gap-2">
             <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">الصفوف</div><div className="mt-1 text-lg font-black">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div></div>
-            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">الأعمدة</div><div className="mt-1 text-lg font-black">{report.sourceAnalysis?.columnCount ?? 'غير متاح'}</div></div>
-            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">الصيغة</div><div className="mt-1 text-sm font-black">{report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
-            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">مرحلة</div><div className="mt-1 text-sm font-black">{STAGE_LABELS[report.checkpointStage ?? ''] ?? report.checkpointStage ?? 'غير متاح'}</div></div>
+            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">حقول المصدر</div><div className="mt-1 text-lg font-black">{report.sourceAnalysis?.columnCount ?? 'غير متاح'}</div></div>
+            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">نوع المصدر</div><div className="mt-1 text-sm font-black">{report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
+            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">حالة المعالجة</div><div className="mt-1 text-sm font-black">{STAGE_LABELS[report.checkpointStage ?? ''] ?? report.checkpointStage ?? 'غير متاح'}</div></div>
           </div>
         </div>
       </section>
@@ -311,16 +356,16 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
             <p className="mt-1 text-[10px] leading-5 text-ink-600">حالة التعلم تُقرأ من سجل النتيجة المرتبط بالقرار والدليل. عند غياب سجل موثوق تبقى الحالة NOT AVAILABLE.</p>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            <StatusCell label="Outcome" value={output.outcomeStatus}/>
-            <StatusCell label="Learning" value={output.learningStatus}/>
-            <StatusCell label="Benchmark" value={output.benchmarkStatus}/>
+            <StatusCell label="النتيجة" value={output.outcomeStatus}/>
+            <StatusCell label="التعلّم" value={output.learningStatus}/>
+            <StatusCell label="المعيار المقارن" value={output.benchmarkStatus}/>
           </div>
         </div>
       </section>
       <ReportIntelligencePanel report={report} />
 
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
-        <div className="text-[9px] font-black tracking-[.12em] text-primary-700">SOURCE METRICS</div>
+        <div className="text-[9px] font-black tracking-[.12em] text-primary-700">مؤشرات المصدر</div>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {metrics.length ? metrics.map((metric) => <div key={metric.label} className="rounded-xl bg-ink-50 p-3"><div className="text-[10px] text-ink-500">{metric.label}</div><div className="mt-1 text-base font-black">{/amount|price|total|value|cost|sales|paid|balance|revenue|profit|ربح|قيمة|سعر|مبلغ/i.test(metric.label) ? formatCurrency(metric.value) : formatNumber(metric.value)}</div></div>) : <div className="rounded-xl border border-warning-200 bg-warning-50 p-4 text-xs text-warning-900">لا توجد قيمة رقمية كافية للعرض من المصدر الحالي.</div>}
         </div>
@@ -335,35 +380,35 @@ function TrustMode({ report }: { report: SmartReportDetail }) {
     <>
       <ReportIntelligencePanel report={report} />
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatusCell label="Truth" value={report.trustState}/>
-        <StatusCell label="Evidence" value={report.evidenceStatus}/>
-        <StatusCell label="Verification" value={report.reportVerificationState}/>
-        <StatusCell label="Analysis" value={report.sourceAnalysis?.analysisStatus}/>
-        <StatusCell label="Canonical" value={report.canonicalCommitVerified ? 'VERIFIED' : 'NOT_COMMITTED'}/>
+        <StatusCell label="الثقة" value={report.trustState}/>
+        <StatusCell label="الدليل" value={report.evidenceStatus}/>
+        <StatusCell label="التوثيق" value={report.reportVerificationState}/>
+        <StatusCell label="التحليل" value={report.sourceAnalysis?.analysisStatus}/>
+        <StatusCell label="التغطية الكانونية" value={report.canonicalCommitVerified ? 'VERIFIED' : 'NOT_COMMITTED'}/>
       </section>
       <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
         <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
-          <div className="text-[9px] font-black tracking-[.12em] text-primary-700">EVIDENCE PASSPORT</div>
-          <h2 className="mt-1 text-xl font-black">هوية الدليل</h2>
+          <div className="text-[9px] font-black tracking-[.12em] text-primary-700">حالة الدليل</div>
+          <h2 className="mt-1 text-xl font-black">حالة الدليل</h2>
           <dl className="mt-4 grid gap-2 text-xs">
-            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>المصدر</dt><dd className="max-w-[70%] break-all font-mono text-right">{report.sourcePath}</dd></div>
-            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>البصمة</dt><dd className="max-w-[70%] break-all font-mono text-right">{report.sourceHash}</dd></div>
-            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>التحليل</dt><dd>{report.sourceAnalysis?.analysisStatus ?? 'غير متاح'}</dd></div>
+            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>الثقة</dt><dd>{stateLabel(report.trustState ?? report.sourceTrustState)}</dd></div>
+            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>التوثيق</dt><dd>{stateLabel(report.reportVerificationState)}</dd></div>
             <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>الجودة</dt><dd>{report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</dd></div>
-            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>الصفوف × الأعمدة</dt><dd>{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)} × {report.sourceAnalysis?.columnCount ?? 'غير متاح'}</dd></div>
+            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>التغطية</dt><dd>{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount) + ' سجل'}</dd></div>
+            <details className="rounded-lg bg-ink-50 p-3"><summary className="cursor-pointer font-bold">تفاصيل المصدر الفنية</summary><div className="mt-2 break-all text-[9px] text-ink-400">الملف الأصلي: {report.sourcePath}<br/>البصمة: {report.sourceHash}</div></details>
           </dl>
         </div>
         <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
-          <div className="text-[9px] font-black tracking-[.12em] text-primary-700">EVIDENCE BOUNDARY</div>
+          <div className="text-[9px] font-black tracking-[.12em] text-primary-700">حدود الدليل</div>
           <h2 className="mt-1 text-xl font-black">ما الذي ثبت وما الذي لم يثبت؟</h2>
           <div className="mt-4 space-y-2">
             <div className={`rounded-xl border p-3 text-xs ${report.canonicalCommitVerified ? 'border-success-200 bg-success-50' : 'border-warning-200 bg-warning-50 text-warning-900'}`}>
               {report.canonicalCommitVerified ? `الاعتماد الكانوني مثبت: ${formatNumber(report.canonicalCommitCount)} سجل.` : 'الاعتماد الكانوني غير مثبت لهذا المصدر؛ لا تُرفع الثقة بالاستنتاج.'}
               {report.canonicalCommitGap != null && report.canonicalCommitGap > 0 && <span className="mr-2 font-bold text-warning-900">فجوة الاعتماد: {formatNumber(report.canonicalCommitGap)} صف.</span>}
             </div>
-            <div className="rounded-xl border border-warning-200 bg-warning-50 p-3 text-xs text-warning-900">Trusted Source لا تعني Verified Report. حالة الدليل النهائية تعتمد على evidence acceptance مستقل.</div>
+            <div className="rounded-xl border border-warning-200 bg-warning-50 p-3 text-xs text-warning-900">المصدر الموثوق لا تعني التقرير الموثق. حالة الدليل النهائية تعتمد على evidence acceptance مستقل.</div>
             <div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">حالة التحقق: {report.reportVerificationState === 'VERIFIED' ? 'موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'فجوة اعتماد' : 'بانتظار الدليل'}</div>
-            <div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">Benchmark: {stateLabel(report.renderedOutput.benchmarkStatus)} — لا يتم اختلاق مقارنة عند نقص العينة.</div>
+            <div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">المعيار المقارن: {stateLabel(report.renderedOutput.benchmarkStatus)} — لا يتم اختلاق مقارنة عند نقص العينة.</div>
           </div>
         </div>
       </section>
@@ -529,11 +574,11 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
   return (
     <>
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <StatusCell label="Decision" value={output.decisionStatus}/>
-        <StatusCell label="Approval" value={output.approvalStatus}/>
+        <StatusCell label="القرار" value={output.decisionStatus}/>
+        <StatusCell label="الموافقة" value={output.approvalStatus}/>
         <StatusCell label="Action" value={output.actionStatus}/>
-        <StatusCell label="Outcome" value={output.outcomeStatus}/>
-        <StatusCell label="Learning" value={output.learningStatus}/>
+        <StatusCell label="النتيجة" value={output.outcomeStatus}/>
+        <StatusCell label="التعلّم" value={output.learningStatus}/>
       </section>
       <BusinessJourneyRail report={report} output={output} decision={decisions[0] ?? null} />
       <ReportIntelligencePanel report={report} />
@@ -558,8 +603,8 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-xs font-black text-ink-900">{decision.signalTitle ?? decision.decisionKey}</span>
                     <span className="rounded-full bg-white px-2 py-1 text-[9px] font-bold text-ink-600">{stateLabel(decision.status)}</span>
-                    {decision.workItemStatus && <span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-bold text-primary-800">Work: {decision.workItemStatus}</span>}
-                    {decision.outcomeStatus && <span className="rounded-full bg-success-50 px-2 py-1 text-[9px] font-bold text-success-800">Outcome: {decision.outcomeStatus}</span>}
+                    {decision.workItemStatus && <span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-bold text-primary-800">العمل: {decision.workItemStatus}</span>}
+                    {decision.outcomeStatus && <span className="rounded-full bg-success-50 px-2 py-1 text-[9px] font-bold text-success-800">النتيجة: {decision.outcomeStatus}</span>}
                   </div>
                   <p className="mt-1 text-[10px] leading-5 text-ink-600">{decision.signalMessage ?? 'إشارة مصدرية مرتبطة بهذا القرار.'}</p>
                   {(decision.actualImpact != null || decision.expectedImpact != null || decision.outcomeStatus) && (
@@ -571,8 +616,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
                     </div>
                   )}
                   <div className="mt-2 flex flex-wrap gap-2 text-[8px] text-ink-400">
-                    <span className="font-mono">decision={decision.id}</span>
-                    {decision.workItemId && <span className="font-mono">work={decision.workItemId}</span>}
+                    <span>السجل محفوظ وقابل للتتبع</span>
                   </div>
                 </div>
 
@@ -585,7 +629,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
 
                   {decision.status === 'PROPOSED' && decision.approvalStatus === 'PENDING' && (
                     currentUserId === decision.approvalRequestedBy ? (
-                      <span className="rounded-lg border border-warning-200 bg-warning-50 px-2.5 py-2 text-[9px] font-black text-warning-900">PENDING · بانتظار صاحب صلاحية آخر — يمنع الاعتماد الذاتي</span>
+                      <span className="rounded-lg border border-warning-200 bg-warning-50 px-2.5 py-2 text-[9px] font-black text-warning-900">بانتظار صاحب صلاحية آخر — يمنع الاعتماد الذاتي</span>
                     ) : (
                       <div className="flex flex-wrap gap-2">
                         <button type="button" onClick={() => decideApproval(decision, true)} disabled={!decision.approvalId || decisionAction[decision.id] === 'approving'} className="btn-primary text-[10px] disabled:opacity-50" data-testid={'approve-decision-' + decision.id}>
@@ -647,14 +691,14 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
               {decisionAction[decision.id] === 'start-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر بدء التنفيذ؛ تحقق من المكلّف وحالة القرار.</div>}
               {decisionAction[decision.id] === 'impact-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">الأثر الفعلي يجب أن يكون رقمًا صالحًا.</div>}
               {decisionAction[decision.id] === 'complete-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر إغلاق التنفيذ؛ يحتاج المسار إلى قرار معتمد ودليل مصدر صالح.</div>}
-              {decisionAction[decision.id] === 'evidence-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">لا توجد Evidence Snapshot حقيقية مرتبطة بالتقرير؛ تم منع إغلاق التنفيذ.</div>}
+              {decisionAction[decision.id] === 'evidence-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">لا توجد الدليل Snapshot حقيقية مرتبطة بالتقرير؛ تم منع إغلاق التنفيذ.</div>}
               {decisionAction[decision.id] === 'work-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر إنشاء عنصر العمل؛ تحقق من الصلاحية وأن القرار معتمد.</div>}
               {decisionAction[decision.id] === 'error' && <div role="alert" className="mt-3 text-[9px] font-bold text-danger-700">تعذر طلب الموافقة؛ الصلاحية أو حالة القرار تحتاج مراجعة.</div>}
               {decisionAction[decision.id] === 'approval-error' && <div role="alert" className="mt-3 text-[9px] font-bold text-danger-700">تعذر اعتماد/رفض القرار؛ تحقق من الصلاحية وحالة الموافقة.</div>}
               {decision.status === 'REJECTED' && <div className="mt-3 rounded-lg border border-danger-200 bg-danger-50 p-3 text-[9px] font-bold text-danger-800">REJECTED · القرار لم ينتقل إلى التنفيذ.</div>}
               {decision.workItemStatus === 'IN_PROGRESS' && (
                 <div className="mt-3 rounded-lg border border-warning-200 bg-warning-50 p-3 text-[9px] leading-5 text-warning-900">
-                  لقطة الدليل المطلوبة للإغلاق: {evidenceSnapshotId || 'غير متاحة'} — لا يمكن إغلاق المهمة دون Evidence Snapshot حقيقية.
+                  لقطة الدليل المطلوبة للإغلاق: {evidenceSnapshotId || 'غير متاحة'} — لا يمكن إغلاق المهمة دون الدليل Snapshot حقيقية.
                 </div>
               )}
             </article>
@@ -667,7 +711,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
       <section id="decision-evidence-inspector" className="rounded-[18px] border border-primary-200 bg-primary-50/40 p-5 shadow-sm" aria-label="مفتش القرار والدليل">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <div className="section-kicker">EVIDENCE / DECISION INSPECTOR</div>
+            <div className="section-kicker">EVIDENCE / القرار INSPECTOR</div>
             <h3 className="mt-1 text-lg font-black text-ink-950">سلسلة التتبع الكاملة</h3>
             <p className="mt-1 text-[10px] leading-5 text-ink-600">كل عقدة هنا تأتي من سجل canonical مرتبط بنفس المصدر والمستأجر؛ عند غياب العقدة تظهر كغير متاح بدل إنشاء قيمة بديلة.</p>
           </div>
@@ -684,7 +728,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
               key: 'source',
               label: 'Source Report',
               value: report.sourceHash.slice(0, 24) + '…',
-              detail: report.sourceAnalysis?.id ? 'Evidence Snapshot: ' + report.sourceAnalysis.id : 'Evidence Snapshot: غير متاح',
+              detail: report.sourceAnalysis?.id ? 'الدليل Snapshot: ' + report.sourceAnalysis.id : 'الدليل Snapshot: غير متاح',
               tone: report.sourceAnalysis?.id ? 'success' : 'warning',
             },
             {
@@ -722,7 +766,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
               label: 'Outcome',
               value: traced.outcomeStatus ?? 'NOT AVAILABLE',
               detail: traced.outcomeId
-                ? 'id=' + traced.outcomeId + ' · Evidence: ' + (traced.outcomeEvidenceSnapshotId ?? 'غير متاح')
+                ? 'id=' + traced.outcomeId + ' · الدليل: ' + (traced.outcomeEvidenceSnapshotId ?? 'غير متاح')
                 : 'لا توجد نتيجة محفوظة بعد',
               tone: traced.outcomeStatus === 'positive' ? 'success' : traced.outcomeStatus === 'negative' ? 'danger' : traced.outcomeStatus ? 'warning' : 'neutral',
             },
@@ -750,7 +794,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
           );
         })() : (
           <div className="mt-4 rounded-xl border border-dashed border-ink-200 bg-white p-5 text-center text-[10px] text-ink-500">
-            لا يوجد Decision مرتبط بهذا المصدر حتى الآن؛ تبقى السلسلة عند Evidence ولا يتم اختراع Recommendation أو Action.
+            لا يوجد Decision مرتبط بهذا المصدر حتى الآن؛ تبقى السلسلة عند الدليل ولا يتم اختراع Recommendation أو Action.
           </div>
         )}
       </section>
@@ -759,7 +803,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
         <div className="flex items-start gap-3">
           <ShieldCheck size={19} className="mt-0.5 text-primary-700"/>
           <div>
-            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">DECISION EVIDENCE</div>
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">القرار EVIDENCE</div>
             <h2 className="mt-1 text-xl font-black">مسار القرار لهذا التقرير فقط</h2>
             <p className="mt-2 text-sm leading-7 text-ink-600">
               القرار الحالي: <strong>{stateLabel(output.decisionStatus)}</strong>. الموافقة: <strong>{stateLabel(output.approvalStatus)}</strong>. التنفيذ: <strong>{stateLabel(output.actionStatus)}</strong>. النتيجة: <strong>{stateLabel(output.outcomeStatus)}</strong>.
@@ -769,10 +813,10 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
         </div>
       </section>
       <section className="grid gap-3 sm:grid-cols-2">
-        <StatusCell label="Learning" value={output.learningStatus}/>
+        <StatusCell label="التعلّم" value={output.learningStatus}/>
         <StatusCell label="Replay" value={output.replayStatus}/>
-        <StatusCell label="Benchmark" value={output.benchmarkStatus}/>
-        <StatusCell label="Evidence" value={report.evidenceStatus}/>
+        <StatusCell label="المعيار المقارن" value={output.benchmarkStatus}/>
+        <StatusCell label="الدليل" value={report.evidenceStatus}/>
       </section>
       <Link to={'/decision-experience?reportJobId=' + report.jobId + '&sourceHash=' + encodeURIComponent(report.sourceHash) + '&stage=evidence'} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-ink-950 px-4 text-xs font-black text-white">فتح مسار القرار <ArrowLeft size={13}/></Link>
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm" aria-label="سجل نشاط القرار">
@@ -818,8 +862,8 @@ function WorkMode({ report }: { report: SmartReportDetail }) {
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatusCell label="Job" value={report.checkpointStage ?? lastStage?.status}/>
         <StatusCell label="Action" value={report.renderedOutput.actionStatus}/>
-        <StatusCell label="Outcome" value={report.renderedOutput.outcomeStatus}/>
-        <StatusCell label="Learning" value={report.renderedOutput.learningStatus}/>
+        <StatusCell label="النتيجة" value={report.renderedOutput.outcomeStatus}/>
+        <StatusCell label="التعلّم" value={report.renderedOutput.learningStatus}/>
       </section>
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="text-[9px] font-black tracking-[.12em] text-primary-700">DURABLE LIFECYCLE</div>
@@ -854,7 +898,9 @@ export function SourceBoundReportSurface({ mode, jobId, expectedSourceHash }: { 
     setLoading(true);
     setError(null);
     try {
-      const next = await fetchSmartReport(jobId);
+      const hash = expectedSourceHash?.trim() ?? '';
+      if (!hash) throw new Error('INVALID_REPORT_CONTEXT');
+      const next = await fetchSmartReport(jobId, hash);
       if (!next) throw new Error('REPORT_SOURCE_NOT_FOUND');
       if (expectedSourceHash && next.sourceHash !== expectedSourceHash) throw new Error('REPORT_SOURCE_HASH_MISMATCH');
       setReport(next);
@@ -867,10 +913,16 @@ export function SourceBoundReportSurface({ mode, jobId, expectedSourceHash }: { 
 
   useEffect(() => {
     let active = true;
-    void fetchSmartReport(jobId).then((next) => {
+    const hash = expectedSourceHash?.trim() ?? '';
+    if (!hash) {
+      setError('INVALID_REPORT_CONTEXT');
+      setLoading(false);
+      return () => { active = false; };
+    }
+    void fetchSmartReport(jobId, hash).then((next) => {
       if (!active) return;
       if (!next) throw new Error('REPORT_SOURCE_NOT_FOUND');
-      if (expectedSourceHash && next.sourceHash !== expectedSourceHash) throw new Error('REPORT_SOURCE_HASH_MISMATCH');
+      if (next.sourceHash !== hash) throw new Error('INVALID_REPORT_CONTEXT');
       setReport(next);
     }).catch((cause) => {
       if (active) setError(cause instanceof Error ? cause.message : String(cause));

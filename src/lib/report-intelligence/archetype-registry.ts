@@ -108,7 +108,7 @@ const REPORT_ARCHETYPES_RAW: readonly ArchetypeProfile[] = [
   p(25,'inventory.aging','أعمار المخزون والراكد','inventory','inventory',['inventory aging','الراكد'],'product-aging',['productCode','currentStock','documentDate'],['productName','documentDate','cost','warehouse','salesQty'],12,['aging-bands','dead-slow','value-at-risk','liquidation-candidates'],['مراجعة رأس المال المجمد وفرص التصفية']),
   p(26,'inventory.velocity','سرعة دوران الأصناف','inventory','inventory',['inventory velocity','سرعة الدوران'],'product-period',['productCode','salesQty','documentDate'],['documentDate','currentStock','warehouse','quantity'],12,['velocity','movement-class','trend','seasonality','stock-linkage'],['مراجعة المنتجات السريعة والبطيئة']),
   p(27,'inventory.coverage','تغطية المخزون','inventory','inventory',['stock coverage','تغطية المخزون'],'product-period',['productCode','currentStock','salesQty'],['documentDate','warehouse','quantity'],12,['days-weeks-cover','excess-shortage','coverage-risk'],['مراجعة الأصناف المعرضة للنفاد أو التكدس']),
-  p(28,'inventory.stockout-reorder','نفاد المخزون وإعادة الطلب','inventory','inventory',['stockout reorder','إعادة الطلب'],'product-period',['productCode','currentStock','salesQty'],['documentDate','supplierCode','quantity','dueDate'],12,['stockout-risk','reorder-point','suggested-quantity-when-valid','priority-queue'],['مراجعة أولوية إعادة الطلب']),
+  p(28,'inventory.stockout-reorder','نفاد المخزون وإعادة الطلب','inventory','inventory',['stockout reorder','إعادة الطلب','الفترة المتوقعة لنفاد الكمية','expected stockout period'],'product-period',['productCode','currentStock','salesQty'],['documentDate','supplierCode','quantity','dueDate','leadTimeDays'],12,['stockout-risk','reorder-point','suggested-quantity-when-valid','priority-queue'],['مراجعة أولوية إعادة الطلب']),
   p(29,'inventory.valuation','تقييم المخزون','inventory','inventory',['inventory valuation','تقييم المخزون'],'product-location',['productCode','currentStock','cost'],['productName','warehouse'],12,['quantity-cost-value','concentration','valuation-anomaly','reconciliation'],['مراجعة قيمة المخزون وتعرضه']),
   p(30,'inventory.location-comparison','مقارنة المخازن/الفروع','inventory','inventory',['warehouse comparison','مقارنة المخازن'],'product-location',['warehouse','productCode','currentStock'],['salesQty','cost','netAmount'],12,['imbalance','over-understock','transfer-candidates','concentration'],['مراجعة فرص إعادة التوزيع']),
   p(31,'inventory.abnormal-adjustments','تسويات/حركات غير طبيعية للمخزون','inventory','inventory',['inventory adjustments','تسويات المخزون'],'movement-line',['productCode','quantity'],['documentDate','warehouse','inbound','outbound','currentStock'],12,['unusual-adjustments','negative-balances','spikes','duplicate-like','investigation'],['مراجعة الحركات غير الطبيعية قبل اعتماد قرار']),
@@ -196,6 +196,10 @@ export function detectReportArchetype(input: {
     const semantic = matchCanonicalField(rawField);
     if (semantic) fields.add(semantic);
     const normalizedRaw = normalize(rawField);
+    if (normalize(input.specialty) === 'inventory') {
+      if (normalizedRaw === 'sku') fields.add('productCode');
+      if (normalizedRaw === 'balance' || normalizedRaw === 'stock') fields.add('currentStock');
+    }
     if (normalize(input.specialty) === 'inventory' && (normalizedRaw === 'netsales' || normalizedRaw.includes('صافيالمبيعات'))) fields.add('salesQty');
   }
 
@@ -205,6 +209,23 @@ export function detectReportArchetype(input: {
   });
 
   if (!candidates.length) return { profile: null, state: 'NOT_AVAILABLE', reason: 'NO_ARCHETYPE_CANDIDATES' };
+
+  const invoiceDetailCandidate = candidates.find((profile) => profile.id === `${specialty}.invoice-detail`);
+  const invoiceDetailSignalFields: CanonicalField[] = ['unitPrice', 'grossAmount', 'discount', 'cost'];
+  const invoiceDetailSignals = invoiceDetailSignalFields.filter((field) => fields.has(field)).length;
+  if (
+    invoiceDetailCandidate &&
+    fields.has('documentNo') &&
+    fields.has('documentDate') &&
+    fields.has('netAmount') &&
+    invoiceDetailSignals >= 2
+  ) {
+    return {
+      profile: invoiceDetailCandidate,
+      state: 'SUPPORTED',
+      reason: 'INVOICE_DETAIL_CANONICAL_CLUSTER',
+    };
+  }
 
   const scored = candidates.map((profile) => {
     const requiredHits = profile.requiredFields.filter((field) => fields.has(field)).length;
@@ -221,7 +242,15 @@ export function detectReportArchetype(input: {
     }).length;
     const titleTokens = normalize(profile.title).split(/[^\p{L}\p{N}]+/u).filter((token) => token.length >= 4);
     const titleFieldHits = titleTokens.filter((token) => fieldLabels.some((field) => field.includes(token))).length;
-    const score = aliasHits * 8 + fieldAliasHits * 5 + titleFieldHits * 4 + requiredHits * 3 + optionalHits + requiredCoverage * 2;
+    const invoiceDetailBonus =
+      profile.id.endsWith('.invoice-detail') &&
+      fields.has('documentNo') &&
+      fields.has('documentDate') &&
+      fields.has('netAmount') &&
+      invoiceDetailSignals >= 2
+        ? 24
+        : 0;
+    const score = aliasHits * 8 + fieldAliasHits * 5 + titleFieldHits * 4 + requiredHits * 3 + optionalHits + requiredCoverage * 2 + invoiceDetailBonus;
     return { profile, score, requiredHits, aliasHits, fieldAliasHits, titleFieldHits };
   }).sort((a, b) => b.score - a.score || b.requiredHits - a.requiredHits || b.aliasHits - a.aliasHits);
 
@@ -256,6 +285,10 @@ export function runReportArchetype(
     const semantic = matchCanonicalField(rawField);
     if (semantic) available.add(semantic);
     const normalizedRaw = normalize(rawField);
+    if (profile.adapterSpecialty === 'inventory') {
+      if (normalizedRaw === 'sku') available.add('productCode');
+      if (normalizedRaw === 'balance' || normalizedRaw === 'stock') available.add('currentStock');
+    }
     if (profile.adapterSpecialty === 'inventory' && (normalizedRaw === 'netsales' || normalizedRaw === 'صافياالمبيعات' || normalizedRaw === 'صافيالمبيعات')) available.add('salesQty');
   }
   const missingRequired = profile.requiredFields.filter((field) => !available.has(field));

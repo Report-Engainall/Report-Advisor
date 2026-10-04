@@ -1,0 +1,33 @@
+name: One-off real report parser reprocess
+
+on:
+  push:
+    branches:
+      - feat/complete-smart-intelligence-surface-20261003
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: contains(github.event.head_commit.message, 'bootstrap real report repair')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Reprocess authoritative source through production parser and repair commit
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/reprocess-real-report.mjs
+      - name: Remove one-off repair runner
+        run: |
+          git config user.name "report-advisor-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/real-report-reprocess.yml scripts/reprocess-real-report.mjs .github/REAL_REPORT_REPROCESS_TRIGGER.txt
+          git commit -m "chore: remove one-off real report repair runner"
+          git push

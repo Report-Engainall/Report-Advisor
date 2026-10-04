@@ -4,7 +4,6 @@ import { ChevronLeft, CreditCard, PackageCheck, ReceiptText, RefreshCw, Tags, Tr
 import { PageHeader } from '@/components/ui/States';
 import { Badge } from '@/components/ui/Badge';
 import { formatCurrency, formatNumber } from '@/lib/format';
-import { readActiveReportContext, type ActiveReportContext } from '@/lib/report-context';
 import {
   createInvoiceFromOperationalOrder,
   fetchOperationalAuditTrace,
@@ -66,9 +65,13 @@ function operationalErrorMessage(cause: unknown, fallback: string): string {
   const code = typeof candidate?.code === 'string' ? candidate.code : '';
   const status = Number(candidate?.status ?? 0);
   if (code === '42501' || code === 'PGRST301' || status === 401 || status === 403) {
-    return 'PERMISSION_DENIED: لا تملك صلاحية تنفيذ هذا الإجراء ضمن tenant الحالي.';
+    return 'لا تملك صلاحية تنفيذ هذا الإجراء ضمن مساحة العمل الحالية.';
   }
-  if (cause instanceof Error && cause.message.trim()) return cause.message;
+  if (cause instanceof Error && cause.message.trim()) {
+    const raw = cause.message;
+    if (/INVALID_|TENANT_|PGRST|permission|forbidden|unauthorized/i.test(raw)) return fallback;
+    return raw;
+  }
   return fallback;
 }
 
@@ -91,7 +94,6 @@ export function OperationsPage() {
   const [paymentReference, setPaymentReference] = useState('');
   const [paymentDate, setPaymentDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [activeReportContext] = useState<ActiveReportContext | null>(() => readActiveReportContext());
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -227,23 +229,6 @@ export function OperationsPage() {
         subtitle="طلب → تنفيذ/مستودع → فاتورة → تحصيل، مع قراءة التسعير والموردين من المصدر."
         actions={<button type="button" onClick={() => void load()} disabled={busy !== null} className="btn-secondary inline-flex items-center gap-2 text-xs"><RefreshCw size={14}/> تحديث</button>}
       />
-      {activeReportContext && (
-        <section className="rounded-xl border border-primary-200 bg-primary-50/50 p-3" aria-label="استمرار آخر مصدر">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="min-w-0">
-              <div className="section-kicker">RETURN / CONTINUE</div>
-              <div className="mt-1 text-[11px] font-black text-primary-950">متابعة آخر مصدر مفتوح بدل إعادة اكتشاف السياق</div>
-              <div className="mt-1 break-all font-mono text-[8px] text-primary-800">job:{activeReportContext.jobId} · hash:{activeReportContext.sourceHash.slice(0, 20)}…</div>
-            </div>
-            <Link
-              to={'/reports/smart/' + activeReportContext.jobId + '?sourceHash=' + encodeURIComponent(activeReportContext.sourceHash) + '#decision-evidence-inspector'}
-              className="btn-primary shrink-0 text-[10px]"
-            >
-              العودة إلى المصدر والدليل <ChevronLeft size={13}/>
-            </Link>
-          </div>
-        </section>
-      )}
       {feedback && <div className="rounded-xl border border-primary-200 bg-primary-50 px-4 py-3 text-xs font-bold text-primary-900" role="status">{feedback}</div>}
 
       <section className="grid gap-3 md:grid-cols-5">
@@ -296,7 +281,7 @@ export function OperationsPage() {
                 <div>
                   <div className="section-kicker">ORDER HISTORY / READBACK</div>
                   <h3 className="mt-1 text-sm font-black text-primary-950">مسار الطلب المحفوظ</h3>
-                  <p className="mt-1 text-[10px] leading-5 text-ink-600">الحالة هنا تُقرأ من <span className="font-mono">order_status_history</span> للـtenant الحالي، وليست حالة محلية.</p>
+                  <p className="mt-1 text-[10px] leading-5 text-ink-600">الحالة هنا تُقرأ من السجل التشغيلي المحفوظ، وليست حالة مؤقتة على الشاشة.</p>
                 </div>
                 <Badge variant="neutral">{orderHistory.length} انتقال</Badge>
               </div>
@@ -372,9 +357,8 @@ export function OperationsPage() {
               {auditTrace.slice(0, 8).map((entry) => (
                 <div key={entry.id} className="py-3 first:pt-0 last:pb-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant={entry.action.endsWith(':insert') ? 'success' : entry.action.endsWith(':update') ? 'warning' : 'danger'}>{entry.action}</Badge>
-                    {entry.entityType && <span className="text-[10px] font-black text-ink-700">{entry.entityType}</span>}
-                    {entry.entityId && <span className="font-mono text-[9px] text-ink-400">{entry.entityId.slice(0, 8)}…</span>}
+                    <Badge variant={entry.action.endsWith(':insert') ? 'success' : entry.action.endsWith(':update') ? 'warning' : 'danger'}>{entry.action.endsWith(':insert') ? 'إنشاء' : entry.action.endsWith(':update') ? 'تحديث' : 'إجراء'}</Badge>
+                    {entry.entityType && <span className="text-[10px] font-black text-ink-700">{entry.entityType.includes('order') ? 'طلب' : entry.entityType.includes('invoice') ? 'فاتورة' : entry.entityType.includes('payment') ? 'تحصيل' : 'عملية'}</span>}
                   </div>
                   <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[9px] text-ink-400">
                     <span>{new Date(entry.createdAt).toLocaleString('ar-YE')}</span>

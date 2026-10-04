@@ -3,6 +3,7 @@ import { ArrowUpRight, CheckCircle2, FileText, Printer, Target, Wand2 } from 'lu
 import { Link } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/States';
+import { CommercialValueChain } from '@/components/CommercialValueChain';
 
 type Capability = {
   id: string;
@@ -57,14 +58,43 @@ export function ProposalDemoPage() {
 
   return (
     <div dir="rtl" className="space-y-6 print:bg-white print:text-black">
-      <div className="flex flex-col gap-4 rounded-2xl border border-ink-100 bg-gradient-to-br from-primary-950 via-primary-900 to-ink-900 p-6 text-white shadow-sm sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-4 rounded-[22px] border border-indigo-300/20 bg-[linear-gradient(135deg,#0b1020_0%,#172554_56%,#312e81_100%)] p-6 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.8)] sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="mb-2 flex items-center gap-2 text-sm text-primary-100"><Wand2 size={16} /> مطابقة وظيفة Upwork / وضع العرض التقديمي</div>
-          <h1 className="text-2xl font-black sm:text-3xl">حوّل متطلبات الوظيفة إلى عرض حي مبني على قدرات المنتج الفعلية</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-primary-100">هذه الشاشة لا تنشئ Mockup مستقلًا. إنها تربط متطلبات العميل بوحدات Report-Advisor الموجودة فعليًا وتفتح نفس مسارات المنتج الحية للعرض.</p>
+          <div className="mb-2 flex items-center gap-2 text-sm text-primary-100"><Wand2 size={16} /> العرض التجاري · المنتج الحقيقي</div>
+          <h1 className="text-2xl font-black sm:text-3xl">من تقرير حقيقي إلى قرار يمكن تنفيذه وقياس نتيجته.</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-primary-100">هذه ليست شاشة Mockup منفصلة. كل خطوة أدناه تفتح وحدة حقيقية من Report-Advisor، مع الحفاظ على المصدر والدليل وحالة القرار والتنفيذ والنتيجة.</p>
         </div>
         <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-primary-900 hover:bg-primary-50 print:hidden"><Printer size={16} /> طباعة / PDF</button>
+        <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            ['01','المصدر → الدليل','الأصل والبصمة والثقة قبل الاستنتاج.'],
+            ['02','الإشارة → المستشار','سبب وأولوية وتوصية مرتبطة بالدليل.'],
+            ['03','القرار → التنفيذ','اعتماد مستقل ثم انتقال السياق إلى العمل.'],
+            ['04','النتيجة → التعلم','قراءة ما حدث فعليًا دون تخمين.'],
+          ].map(([index, label, detail]) => (
+            <div key={index} className="rounded-2xl border border-ink-200 bg-white p-3.5 shadow-sm">
+              <div className="text-[9px] font-black tracking-[.12em] text-indigo-600">{index}</div>
+              <div className="mt-1.5 text-[11px] font-black text-ink-900">{label}</div>
+              <div className="mt-1 text-[9px] leading-5 text-ink-500">{detail}</div>
+            </div>
+          ))}
+        </div>
       </div>
+
+      <CommercialValueChain
+        title="ما الذي يراه العميل عندما يشتري الأغبري؟"
+        subtitle="عرض واحد يربط إدخال المصدر بالدليل والذكاء والقرار والتنفيذ والنتيجة؛ كل مرحلة تقود إلى مساحة حقيقية داخل المنتج."
+        stages={[
+          { label: 'المصدر', englishLabel: 'SOURCE', status: 'مسار فعلي', detail: 'إدخال Excel / CSV / مستندات عبر المسار الموحد.', href: '/import', tone: 'active' },
+          { label: 'الدليل', englishLabel: 'EVIDENCE', status: 'Evidence-first', detail: 'فحص الثقة واللقطات والبصمة قبل اعتماد الاستنتاج.', href: '/trust', tone: 'active' },
+          { label: 'الإشارة', englishLabel: 'SIGNAL', status: 'Intelligence', detail: 'إشارات ومخاطر وفرص وتوقعات مرتبطة بالمصدر.', href: '/intelligence', tone: 'active' },
+          { label: 'المستشار', englishLabel: 'ADVISOR', status: 'Advisor Brief', detail: 'أهم نتيجة، لماذا، ماذا بعد، المالك، وحدود الدليل.', href: '/advisor-cases', tone: 'active' },
+          { label: 'القرار', englishLabel: 'DECISION', status: 'Approval', detail: 'قرار مستقل عن التوصية وقابل للتدقيق والاعتماد.', href: '/decision-inbox', tone: 'attention' },
+          { label: 'التنفيذ', englishLabel: 'WORK', status: 'Work Center', detail: 'تحويل القرار إلى عمل ومتابعة حالة التنفيذ.', href: '/work-center', tone: 'neutral' },
+          { label: 'النتيجة', englishLabel: 'OUTCOME', status: 'Readback', detail: 'قراءة ما حدث فعليًا دون تحويل المتوقع إلى نتيجة.', href: '/decision-inbox', tone: 'neutral' },
+          { label: 'التعلم', englishLabel: 'LEARNING', status: 'Replay', detail: 'استخراج ما ثبت بعد التنفيذ وإعادة استخدامه في القرار القادم.', href: '/replay', tone: 'neutral' },
+        ]}
+      />
 
       <div className="grid gap-4 lg:grid-cols-[1fr_1.5fr]">
         <Card>
@@ -84,7 +114,7 @@ export function ProposalDemoPage() {
               <div className="mt-4 text-xs text-ink-400">الوظيفة</div><div className="mt-1 text-base font-semibold text-ink-800">{jobTitle}</div>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-success-200 bg-success-50 p-4"><div className="text-xs text-success-700">المطابق</div><div className="mt-1 text-2xl font-black text-success-800">{matched.length}</div></div>
+              <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-4"><div className="text-xs text-indigo-700">المطابق</div><div className="mt-1 text-2xl font-black text-indigo-800">{matched.length}</div></div>
               <div className="rounded-xl border border-warning-200 bg-warning-50 p-4"><div className="text-xs text-warning-700">يحتاج مراجعة</div><div className="mt-1 text-2xl font-black text-warning-800">{unmatched.length}</div></div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2 print:hidden">
@@ -103,7 +133,7 @@ export function ProposalDemoPage() {
             <div key={item.requirement} className="rounded-xl border border-ink-100 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="min-w-0"><div className="text-sm font-semibold text-ink-800">{item.requirement}</div>{item.match && <div className="mt-1 text-xs text-ink-400">مرتبط بـ: {item.match.title}</div>}</div>
-                {item.match ? <div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-700"><CheckCircle2 size={14} /> قدرة موجودة</span><Link to={item.match.path} className="inline-flex items-center gap-1.5 rounded-lg border border-ink-200 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50 print:hidden">العرض الحي <ArrowUpRight size={14} /></Link></div> : <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-50 px-3 py-1 text-xs font-medium text-warning-700">يحتاج مراجعة بشرية</span>}
+                {item.match ? <div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700"><CheckCircle2 size={14} /> قدرة موجودة</span><Link to={item.match.path} className="inline-flex items-center gap-1.5 rounded-lg border border-ink-200 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50 print:hidden">العرض الحي <ArrowUpRight size={14} /></Link></div> : <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-50 px-3 py-1 text-xs font-medium text-warning-700">يحتاج مراجعة بشرية</span>}
               </div>
             </div>
           ))}

@@ -1,5 +1,4 @@
 import { SourceBoundReportSurface } from '@/components/SourceBoundReportSurface';
-import { readActiveReportContext } from '@/lib/report-context';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ReportSourceContext } from '@/components/ReportSourceContext';
 import {
@@ -11,7 +10,7 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { ConfidenceBadge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchAlerts, fetchRecommendations } from '@/lib/queries';
-import { fetchDecisionWorkItems, type DecisionWorkItemRecord } from '@/lib/report-decisions';
+import { fetchDecisionWorkItems, fetchSourceDecisionProposals, type DecisionWorkItemRecord } from '@/lib/report-decisions';
 import { loadPersistedOutcomes, type DecisionOutcome } from '@/lib/analytics/outcome-feedback';
 import { resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatCurrency, relativeTime } from '@/lib/format';
@@ -131,6 +130,9 @@ function RecommendationCard({
 function DecisionExperienceGeneralPage() {
   const [params, setParams] = useSearchParams();
   const requestedStage = params.get('stage') as Stage | null;
+  const sourceDecisionId = params.get('sourceDecisionId');
+  const sourceHashParam = params.get('sourceHash');
+  const reportJobIdParam = params.get('reportJobId');
   const [stage, setStage] = useState<Stage>(STAGES.some((item) => item.id === requestedStage) ? requestedStage! : 'command');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -138,6 +140,7 @@ function DecisionExperienceGeneralPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [decisionContext, setDecisionContext] = useState<RuntimeDecisionContext>({ decision: null, approval: null });
+  const [recommendationContext, setRecommendationContext] = useState<Record<string, string> | null>(null);
   const [decisionContextLoading, setDecisionContextLoading] = useState(false);
   const [decisionBusy, setDecisionBusy] = useState(false);
   const [decisionError, setDecisionError] = useState<string | null>(null);
@@ -148,19 +151,33 @@ function DecisionExperienceGeneralPage() {
     try {
       setLoading(true);
       setError(null);
+      if (!reportJobIdParam || !sourceHashParam || !/^sha256:[0-9a-fA-F]{64}$/.test(sourceHashParam)) {
+        throw new Error('INVALID_REPORT_CONTEXT');
+      }
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_REQUIRED');
-      const [nextRecommendations, nextAlerts, nextWorkItems, nextOutcomes] = await Promise.all([
+      const [nextRecommendations, nextAlerts, nextWorkItems, nextOutcomes, sourceProposals] = await Promise.all([
         fetchRecommendations(),
         fetchAlerts(),
         fetchDecisionWorkItems(200),
         loadPersistedOutcomes(companyId),
+        sourceHashParam && sourceDecisionId && reportJobIdParam ? fetchSourceDecisionProposals(sourceHashParam, reportJobIdParam) : Promise.resolve([]),
       ]);
+      const sourceProposal = sourceDecisionId
+        ? sourceProposals.find((proposal) => proposal.id === sourceDecisionId)
+        : null;
+      const linkedRecommendationId = sourceProposal?.recommendationId ?? null;
       setRecommendations(nextRecommendations);
       setAlerts(nextAlerts);
       setDecisionWorkItems(nextWorkItems);
       setOutcomes(nextOutcomes);
-      setSelectedId((current) => current && nextRecommendations.some((item) => item.id === current) ? current : nextRecommendations[0]?.id ?? null);
+      setSelectedId((current) => (
+        current && nextRecommendations.some((item) => item.id === current)
+          ? current
+          : linkedRecommendationId && nextRecommendations.some((item) => item.id === linkedRecommendationId)
+            ? linkedRecommendationId
+            : nextRecommendations[0]?.id ?? null
+      ));
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل سياق القرار');
     } finally {
@@ -178,17 +195,31 @@ function DecisionExperienceGeneralPage() {
   useEffect(() => {
     let active = true;
     setDecisionError(null);
+    setRecommendationContext(null);
     if (!selectedId) {
       setDecisionContext({ decision: null, approval: null });
       setDecisionContextLoading(false);
       return () => { active = false; };
     }
     setDecisionContextLoading(true);
-    void loadRuntimeDecisionContext(selectedId)
-      .then((context) => { if (active) setDecisionContext(context); })
+    void Promise.all([
+      loadRuntimeDecisionContext(selectedId),
+      loadRuntimeRecommendationEvidence(selectedId),
+    ])
+      .then(([context, recommendationEvidence]) => {
+        if (!active) return;
+        setDecisionContext(context);
+        const evidenceContext = recommendationEvidence.evidence?.recommendationContext;
+        setRecommendationContext(
+          evidenceContext && typeof evidenceContext === 'object'
+            ? Object.fromEntries(Object.entries(evidenceContext).map(([key, value]) => [key, String(value ?? '')]))
+            : null,
+        );
+      })
       .catch((cause) => {
         if (active) {
           setDecisionContext({ decision: null, approval: null });
+          setRecommendationContext(null);
           setDecisionError(cause instanceof Error ? cause.message : 'تعذر قراءة مسار القرار المحفوظ');
         }
       })
@@ -242,7 +273,6 @@ function DecisionExperienceGeneralPage() {
         throw new Error('DECISION_EVIDENCE_SNAPSHOT_REQUIRED');
       }
 
-      const reportContext = readActiveReportContext();
       const decisionId = await createRuntimeDecision({
         decisionKey: 'recommendation:' + selected.id,
         decisionType: 'recommendation:' + selected.category,
@@ -259,8 +289,8 @@ function DecisionExperienceGeneralPage() {
           sourceEvidence: recommendationEvidence.evidence,
           evidenceSnapshotId: recommendationEvidence.evidenceSnapshotId,
           metricVersions: recommendationEvidence.metricVersions,
-          reportJobId: reportContext?.jobId ?? null,
-          sourceHash: reportContext?.sourceHash ?? null,
+          reportJobId: reportJobIdParam,
+          sourceHash: sourceHashParam,
         },
       });
       await linkRecommendationToDecision(selected.id, decisionId);
@@ -350,7 +380,7 @@ function DecisionExperienceGeneralPage() {
           <section className="rounded-[16px] border border-ink-200 bg-white p-4 shadow-card">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
-              <div className="section-kicker">DECISION READINESS</div>
+              <div className="section-kicker">جاهزية القرار</div>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <span className={`rounded-full px-2.5 py-1 text-[10px] font-black ${readiness.tone}`}>{readiness.label}</span>
                 <span className="text-[10px] text-ink-400">{readiness.detail}</span>
@@ -421,6 +451,25 @@ function DecisionExperienceGeneralPage() {
                     <div className="surface-label">موضوع القرار</div>
                     <h2 className="mt-1 text-lg font-black text-ink-950">{selected.title}</h2>
                     {selected.description && <p className="mt-2 text-[12px] leading-6 text-ink-600">{selected.description}</p>}
+                    {recommendationContext && (
+                      <div className="mt-4 rounded-xl border border-primary-100 bg-primary-50/40 p-3">
+                        <div className="text-[9px] font-black tracking-[.08em] text-primary-700">RECOMMENDATION CONTEXT</div>
+                        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                          {[
+                            ['لماذا الآن', recommendationContext.whyNow],
+                            ['MEASUREMENT', recommendationContext.measurement],
+                            ['RISK', recommendationContext.risk],
+                            ['BLOCKER', recommendationContext.blocker],
+                            ['LIMITATION', recommendationContext.limitation],
+                          ].filter(([, value]) => value).map(([label, value]) => (
+                            <div key={label} className="rounded-lg border border-white/70 bg-white p-2.5">
+                              <div className="text-[9px] font-black text-ink-400">{label}</div>
+                              <div className="mt-1 text-[10px] leading-5 text-ink-700">{value}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="grid gap-3 sm:grid-cols-3">
                     <div className="rounded-[12px] border border-ink-100 bg-white p-3"><div className="text-[10px] text-ink-400">الحالة</div><div className="mt-1 text-[12px] font-black text-ink-900">{selectedStatus ?? 'غير متاح'}</div></div>
@@ -447,6 +496,24 @@ function DecisionExperienceGeneralPage() {
                     <div className="flex flex-wrap items-center gap-2"><span className="text-[10px] font-black text-primary-700">التوصية المختارة</span><PriorityBadge priority={selected.priority}/><ConfidenceBadge confidence={selected.confidence}/></div>
                     <h2 className="mt-2 text-lg font-black text-ink-950">{selected.title}</h2>
                     {selected.description && <p className="mt-1 text-[11px] leading-5 text-ink-600">{selected.description}</p>}
+                    {recommendationContext && (
+                      <div className="mt-4 grid gap-2 sm:grid-cols-2" aria-label="سياق التوصية">
+                        {[
+                          ['لماذا الآن', recommendationContext.whyNow],
+                          ['النتيجة المتوقعة', recommendationContext.expectedOutcome],
+                          ['OWNER', recommendationContext.owner],
+                          ['MEASUREMENT', recommendationContext.measurement],
+                          ['RISK', recommendationContext.risk],
+                          ['BLOCKER', recommendationContext.blocker],
+                          ['LIMITATION', recommendationContext.limitation],
+                        ].filter(([, value]) => value).map(([label, value]) => (
+                          <div key={label} className="rounded-xl border border-ink-100 bg-white p-3">
+                            <div className="text-[9px] font-black tracking-[.08em] text-ink-400">{label}</div>
+                            <div className="mt-1 text-[10px] leading-5 text-ink-700">{value}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">ما نعرفه</div><div className="mt-2 text-[12px] font-bold text-ink-900">{statusLabel(selected.status)}</div></div>
@@ -465,10 +532,10 @@ function DecisionExperienceGeneralPage() {
                 <div className="text-[11px] text-primary-900">جارٍ قراءة مسار القرار المحفوظ...</div>
               ) : decisionContext.decision ? (
                 <>
-                  <div className="text-[10px] font-black text-primary-800">DECISION PERSISTED</div>
-                  <div className="mt-2 text-[12px] font-black text-ink-950">معرّف القرار: <span className="font-mono">{decisionContext.decision.id}</span></div>
+                  <div className="text-[10px] font-black text-primary-800">القرار محفوظ</div>
+                  <div className="mt-2 text-[12px] font-black text-ink-950">القرار: <span className="font-black">محفوظ وقابل للتتبع</span></div>
                   <div className="mt-1 text-[10px] text-ink-500">الحالة: {statusLabel(decisionContext.decision.status)} · الثقة: {decisionContext.decision.confidence ?? 'غير متاحة'}</div>
-                  {decisionContext.approval && <div className="mt-1 text-[10px] text-ink-500">الموافقة: {statusLabel(decisionContext.approval.status)} · <span className="font-mono">{decisionContext.approval.id}</span></div>}
+                  {decisionContext.approval && <div className="mt-1 text-[10px] text-ink-500">الموافقة: {statusLabel(decisionContext.approval.status)}</div>}
                 </>
               ) : (
                 <>
@@ -502,11 +569,11 @@ function DecisionExperienceGeneralPage() {
               {decisionContextLoading && <div className="text-[11px] text-ink-500">جارٍ قراءة القرار والموافقة...</div>}
               {!decisionContextLoading && decisionContext.decision && (
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">القرار</div><div className="mt-2 text-[11px] font-mono font-black text-ink-900">{decisionContext.decision.id}</div></div>
+                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">القرار</div><div className="mt-2 text-[11px] font-black text-ink-900">محفوظ وقابل للتتبع</div></div>
                   <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">حالة القرار</div><div className="mt-2 text-[12px] font-black text-ink-900">{statusLabel(decisionContext.decision.status)}</div></div>
-                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">طلب الموافقة</div><div className="mt-2 text-[11px] font-mono font-black text-ink-900">{decisionContext.approval?.id ?? 'غير موجود'}</div></div>
+                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">طلب الموافقة</div><div className="mt-2 text-[11px] font-black text-ink-900">{decisionContext.approval ? 'محفوظ' : 'غير موجود'}</div></div>
                   <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">حالة الموافقة</div><div className="mt-2 text-[12px] font-black text-ink-900">{decisionContext.approval ? statusLabel(decisionContext.approval.status) : 'غير موجود'}</div></div>
-                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">طالب الموافقة</div><div className="mt-2 text-[11px] font-mono font-black text-ink-900">{decisionContext.approval?.requestedBy ?? 'غير متاح'}</div></div>
+                  <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">طالب الموافقة</div><div className="mt-2 text-[11px] font-black text-ink-900">{decisionContext.approval ? 'مسجل في السجل' : 'غير متاح'}</div></div>
                   <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">وقت الطلب</div><div className="mt-2 text-[12px] font-black text-ink-900">{decisionContext.approval?.requestedAt ? new Date(decisionContext.approval.requestedAt).toLocaleString('ar-YE') : 'غير متاح'}</div></div>
                 </div>
               )}
@@ -528,7 +595,7 @@ function DecisionExperienceGeneralPage() {
       {stage === 'work' && (
         <section className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
           <Card variant="action">
-            <CardHeader kicker="WORK / READBACK" title="التنفيذ والمتابعة" subtitle="حالة العمل تُقرأ من decision_work_items، لا من حالة الواجهة المحلية." />
+            <CardHeader kicker="التنفيذ والقراءة الفعلية" title="التنفيذ والمتابعة" subtitle="حالة العمل تُقرأ من decision_work_items، لا من حالة الواجهة المحلية." />
             <CardBody>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {[
@@ -573,7 +640,7 @@ function DecisionExperienceGeneralPage() {
       {stage === 'outcome' && (
         <section className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
           <Card variant="activity">
-            <CardHeader kicker="OUTCOME / LEARNING" title="النتيجة والتعلّم" subtitle="القراءة تأتي من recommendation_outcomes ولا تتحول القيم المفقودة إلى نجاح." />
+            <CardHeader kicker="النتيجة والتعلّم" title="النتيجة والتعلّم" subtitle="القراءة تأتي من recommendation_outcomes ولا تتحول القيم المفقودة إلى نجاح." />
             <CardBody>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {[
@@ -582,7 +649,7 @@ function DecisionExperienceGeneralPage() {
                   ['الفارق', relatedOutcome?.expectedValue != null && relatedOutcome.actualValue != null ? formatCurrency(relatedOutcome.actualValue - relatedOutcome.expectedValue) : 'لا يمكن حسابه'],
                   ['جودة النتيجة', relatedOutcome?.label === 'correct' ? 'إيجابية' : relatedOutcome?.label === 'partial' ? 'جزئية' : relatedOutcome?.label === 'incorrect' ? 'سلبية' : 'غير متاحة'],
                   ['ملاحظات التنفيذ', relatedOutcome?.notes ?? 'غير متاحة'],
-                  ['Evidence', relatedOutcome?.evidenceSnapshotId ? 'مثبت' : 'غير متاح'],
+                  ['الدليل', relatedOutcome?.evidenceSnapshotId ? 'مثبت' : 'غير متاح'],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4">
                     <div className="text-[10px] text-ink-400">{label}</div>
@@ -605,7 +672,7 @@ function DecisionExperienceGeneralPage() {
                 <div className="space-y-3">
                   <div className="rounded-xl border border-primary-100 bg-primary-50/60 p-3 text-[10px] leading-5 text-primary-950">النتيجة موثقة، لذا يمكن مقارنة المتوقع بالفعلي وربطها بالقرار. لا يتم اشتقاق benchmark بلا cohort حقيقي.</div>
                   <div className="rounded-xl border border-ink-200 bg-ink-50/60 p-3">
-                    <div className="text-[9px] font-black text-ink-500">DECISION FINGERPRINT</div>
+                    <div className="text-[9px] font-black text-ink-500">بصمة تتبع فنية</div>
                     <div className="mt-1 break-all font-mono text-[9px] text-ink-700">{relatedOutcome.decisionFingerprint}</div>
                   </div>
                   <div className="text-[9px] text-ink-500">وقت الرصد: {new Date(relatedOutcome.observedAt).toLocaleString('ar-YE')}</div>
@@ -630,9 +697,8 @@ function DecisionExperienceGeneralPage() {
 
 export function DecisionExperiencePage() {
   const [params] = useSearchParams();
-  const saved = readActiveReportContext();
-  const reportJobId = params.get('reportJobId') || saved?.jobId;
-  const sourceHash = params.get('sourceHash') || saved?.sourceHash;
+  const reportJobId = params.get('reportJobId')?.trim() ?? '';
+  const sourceHash = params.get('sourceHash')?.trim() ?? '';
   if (reportJobId) {
     return <SourceBoundReportSurface mode="decision" jobId={reportJobId} expectedSourceHash={sourceHash} />;
   }

@@ -29,8 +29,6 @@ export function Header({
   const alertRestoreFocusRef = useRef<HTMLElement | null>(null);
   const [health, setHealth] = useState<HealthState>('checking');
   const location = useLocation();
-  const buildSha = String(import.meta.env.VITE_BUILD_SHA ?? '').trim();
-  const buildLabel = buildSha ? buildSha.slice(0, 8) : 'dev';
   const unreadAlerts = alerts.filter((alert) => !alert.is_read);
 
   const currentNavigation = useMemo(() => resolveNavigationItem(location.pathname), [location.pathname]);
@@ -121,7 +119,7 @@ export function Header({
     AlertTriangle;
 
   const healthClass =
-    health === 'healthy' ? 'text-success-600' :
+    health === 'healthy' ? 'text-primary-600' :
     health === 'checking' ? 'text-ink-400' :
     'text-warning-600';
 
@@ -224,13 +222,6 @@ export function Header({
           </div>
 
           <div className="hidden items-center gap-2 border-r border-ink-200 pr-2.5 lg:flex">
-            <span
-              className="inline-flex items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-2.5 py-1 text-[9px] font-black text-primary-800"
-              title={buildSha ? 'Build SHA: ' + buildSha : 'Local development build'}
-              data-testid="build-provenance-pill"
-            >
-              BUILD · {buildLabel}
-            </span>
             <div className="ag-health-pill flex items-center gap-1.5" role="status" aria-live="polite" title={healthLabel}>
               <HealthIcon size={14} className={healthClass} />
               <span className="text-[11px] font-semibold text-ink-500">{healthLabel}</span>

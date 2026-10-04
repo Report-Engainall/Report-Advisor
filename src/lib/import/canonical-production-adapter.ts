@@ -4,7 +4,8 @@ import { SupabaseReportExecutionStore } from '../report-execution/durable-worker
 import { runDurableProductionLifecycle } from '../report-execution/durable-production-runner.ts';
 import type { CanonicalImportEntityType, ReconciledCanonicalImportRow } from './canonical-truth-boundary';
 import { commitImportBatch } from './canonical-commit.ts';
-import { detectReportArchetype } from '../report-intelligence/archetype-registry.ts';
+import { detectReportArchetype, getReportArchetype } from '../report-intelligence/archetype-registry.ts';
+import { matchCanonicalField, type CanonicalField } from '../report-intelligence/canonical-schema.ts';
 
 export interface DurableCanonicalImportInput {
   importId: string;
@@ -238,11 +239,40 @@ export function buildRenderedOutput(input: DurableCanonicalImportInput, rows = i
     specialty,
     availableFields,
   });
+
+  const canonicalFieldSet = new Set<CanonicalField>(
+    availableFields
+      .map((field) => matchCanonicalField(field))
+      .filter((field): field is CanonicalField => Boolean(field)),
+  );
+  const invoiceDetailProfile = input.entityType === 'sales_invoices'
+    ? getReportArchetype('sales.invoice-detail')
+    : specialty
+      ? getReportArchetype(`${specialty}.invoice-detail`)
+      : null;
+  const invoiceDetailSignalCount = ['unitPrice', 'grossAmount', 'discount', 'cost']
+    .filter((field) => canonicalFieldSet.has(field as CanonicalField))
+    .length;
+  const persistedResolution =
+    archetype.profile
+      ? archetype
+      : invoiceDetailProfile &&
+          canonicalFieldSet.has('documentNo') &&
+          canonicalFieldSet.has('documentDate') &&
+          canonicalFieldSet.has('netAmount') &&
+          invoiceDetailSignalCount >= 2
+        ? {
+            profile: invoiceDetailProfile,
+            state: 'SUPPORTED' as const,
+            reason: 'INVOICE_DETAIL_CANONICAL_CLUSTER',
+          }
+        : archetype;
+
   const persistedArchetype: PersistedArchetype = {
-    id: archetype.profile?.id ?? null,
-    version: archetype.profile?.version ?? null,
-    state: archetype.state,
-    reason: archetype.reason,
+    id: persistedResolution.profile?.id ?? null,
+    version: persistedResolution.profile?.version ?? null,
+    state: persistedResolution.state,
+    reason: persistedResolution.reason,
   };
 
   return {
@@ -539,7 +569,7 @@ export async function runCanonicalImportThroughDurableRunner(
       }
       if (stage === 'analyzed' && !currentRows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
       if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
-      if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId: authoritativeCompanyId, importJobId: input.importId });
+      if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId: authoritativeCompanyId, importJobId: input.importId, repairExistingSource: input.repairExistingSource === true });
       if (stage === 'rendered') return buildRenderedOutput(input);
     },
   }, store);

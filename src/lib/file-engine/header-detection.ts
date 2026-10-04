@@ -5,6 +5,7 @@ export type HeaderCandidate = {
   score: number;
   headers: string[];
   reasons: string[];
+  structurallySuspicious?: boolean;
 };
 
 const HEADER_HINTS = [
@@ -14,6 +15,41 @@ const HEADER_HINTS = [
 
 function nonEmpty(values: unknown[]): string[] {
   return values.map(v => String(v ?? '').trim()).filter(Boolean);
+}
+
+const DATE_HEADER_PATTERN = /^(.*?التاريخ.*?)\s+(20\d{2})-\s*$/u;
+
+function normalizeReconstructedHeader(value: string): { header: string; year: string | null } {
+  const compact = value.replace(/\s+/g, ' ').trim();
+  const match = compact.match(DATE_HEADER_PATTERN);
+  if (match) return { header: match[1].trim(), year: match[2] };
+  return { header: compact, year: null };
+}
+
+function isRepeatedHeaderRow(row: unknown[], headers: string[]): boolean {
+  const values = nonEmpty(row);
+  if (!values.length || values.length !== headers.length) return false;
+  return values.every((value, index) => {
+    const left = normalizeColumnName(value);
+    const right = normalizeColumnName(headers[index]);
+    return left === right || left.includes(right) || right.includes(left);
+  });
+}
+
+function reconstructCellValue(header: string, value: unknown, headerYear: string | null): unknown {
+  const text = String(value ?? '').trim();
+  if (!text) return value;
+  const normalizedHeader = normalizeColumnName(header);
+  if (headerYear && normalizedHeader.includes('التاريخ') && /^\d{1,2}[-/]\d{1,2}$/.test(text)) {
+    const [month, day] = text.split(/[-/]/).map((part) => Number(part));
+    if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      const candidate = new Date(Date.UTC(Number(headerYear), month - 1, day));
+      if (candidate.getUTCFullYear() === Number(headerYear) && candidate.getUTCMonth() === month - 1 && candidate.getUTCDate() === day) {
+        return `${headerYear}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      }
+    }
+  }
+  return value;
 }
 
 function uniqueRatio(values: string[]): number {
@@ -43,11 +79,18 @@ export function detectHeaderRow(rows: unknown[][], maxRows = Math.min(rows.lengt
 
     const textLike = headers.filter(v => /[^\d.,%\-+\s]/u.test(v)).length / headers.length;
     const unique = uniqueRatio(headers);
-    const hints = normalized.filter(h => HEADER_HINTS.some(x => h.includes(normalizeColumnName(x)))).length;
+    const hintCounts = normalized.map(h => HEADER_HINTS.filter(x => h.includes(normalizeColumnName(x))).length);
+    const hints = hintCounts.filter(Boolean).length;
+    const compositeCells = hintCounts.filter((count) => count >= 2).length;
+    const structurallySuspicious = compositeCells > 0;
     const nextWidth = next.length;
 
     let score = 0;
     const reasons: string[] = [];
+    if (structurallySuspicious) {
+      score -= 35;
+      reasons.push('composite header cell — structure not proven');
+    }
     score += Math.min(headers.length, 12) * 3;
     if (textLike >= 0.6) { score += 15; reasons.push('text-like headers'); }
     if (unique >= 0.8) { score += 15; reasons.push('unique headers'); }
@@ -58,7 +101,7 @@ export function detectHeaderRow(rows: unknown[][], maxRows = Math.min(rows.lengt
     if (rowIndex === 0) score += 5;
     if (rowIndex > 0) score -= Math.min(rowIndex, 10);
 
-    candidates.push({ rowIndex, score, headers, reasons });
+    candidates.push({ rowIndex, score, headers, reasons, structurallySuspicious });
   }
 
   candidates.sort((a, b) => b.score - a.score || a.rowIndex - b.rowIndex);
@@ -66,8 +109,18 @@ export function detectHeaderRow(rows: unknown[][], maxRows = Math.min(rows.lengt
 }
 
 export function rowsFromDetectedHeader(rows: unknown[][], candidate: HeaderCandidate): Record<string, unknown>[] {
-  const headers = candidate.headers.map((h, i) => h || `column_${i + 1}`);
-  return rows.slice(candidate.rowIndex + 1).map(row =>
-    Object.fromEntries(headers.map((header, i) => [header, row?.[i] ?? '']))
-  );
+  const reconstructed = candidate.headers.map((header, index) => {
+    const value = header || `column_${index + 1}`;
+    return normalizeReconstructedHeader(value);
+  });
+  const headers = reconstructed.map((item, index) => item.header || `column_${index + 1}`);
+  const dateYear = reconstructed.find((item) => item.year)?.year ?? null;
+  return rows
+    .slice(candidate.rowIndex + 1)
+    .filter((row) => !isRepeatedHeaderRow(row, headers))
+    .map((row) =>
+      Object.fromEntries(
+        headers.map((header, i) => [header, reconstructCellValue(header, row?.[i] ?? '', dateYear)])
+      )
+    );
 }

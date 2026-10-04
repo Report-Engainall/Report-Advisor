@@ -1,3 +1,5 @@
+import { parseDate, parseNumber } from '../file-engine/normalizer.ts';
+
 export type ReportSignalSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 
 export type ReportSignalDriver = {
@@ -38,6 +40,11 @@ export type ReportRecommendation = {
   ownerHint: string;
   impact: string;
   expectedOutcome: string;
+  whyNow: string;
+  measurement: string;
+  risk: string;
+  blocker: string;
+  limitation: string;
 };
 
 export type ReportForecast = {
@@ -112,29 +119,98 @@ type ReportInput = {
 function text(value: unknown): string { return String(value ?? '').trim(); }
 function normalized(value: unknown): string { return text(value).toLowerCase().normalize('NFKC').replace(/[\s_\-./]+/g, ''); }
 function numeric(value: unknown): number | null {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  const raw = text(value).replace(/,/g, '');
-  if (!raw) return null;
-  const n = Number(raw);
-  return Number.isFinite(n) ? n : null;
+  return parseNumber(value);
+}
+
+function isExtractionArtifactHeader(value: unknown): boolean {
+  const key = text(value);
+  return /^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/.test(key) || /^20\d{2}-?$/.test(key);
+}
+
+function canonicalSourceField(value: unknown): string | null {
+  const key = normalized(value);
+  const aliases: Array<[string, string[]]> = [
+    ['date', ['date','invoice_date','التاريخ','تاريخالفاتورة','التاريخ2026']],
+    ['invoice_number', ['invoice_number','invoice number','invoice_no','رقمالفاتورة','رقمالفاتوره']],
+    ['invoice_type', ['invoice_type','invoice type','نوعالفاتورة','نوعالفاتوره']],
+    ['customer_name', ['customer_name','customer','client','اسم العميل','العميل']],
+    ['supplier_name', ['supplier_name','supplier','اسم المورد','المورد']],
+    ['product_name', ['product_name','product','item_name','item','name','اسم الصنف','اسم المنتج','الصنف']],
+    ['total', ['total','total_amount','sales','purchase','amount','الإجمالي','الاجمالي','اجماليالفاتورة','اجماليالفاتوره']],
+    ['net_amount', ['net_amount','مبلغالصافيبالمحلي','مبلغصافالمحلي','الصافيبالمحلي']],
+    ['paid_amount', ['paid_amount','paid','المدفوع','المبلغالمدفوع']],
+    ['balance', ['balance','outstanding_balance','الرصيد','الرصيدالمستحق','المتبقي']],
+    ['credit', ['credit','دائن']],
+    ['debit', ['debit','مدين']],
+    ['quantity', ['quantity','qty','الكمية','العدد']],
+    ['unit_price', ['unit_price','سعرالوحدة']],
+    ['cost', ['cost','cost_price','التكلفة']],
+    ['price', ['price','السعر']],
+    ['sku', ['sku','item_code','product_code','رمزالصنف','كودالصنف']],
+    ['category', ['category','الفئة','التصنيف']],
+    ['warehouse', ['warehouse','المستودع','المخزن']],
+  ];
+  for (const [canonical, candidates] of aliases) {
+    if (candidates.some((candidate) => normalized(candidate) === key)) return canonical;
+  }
+  return null;
 }
 
 function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
   const dataset = report.sourceAnalysis?.datasets?.[0];
   if (!dataset || typeof dataset !== 'object') return [];
   const columns = (dataset as Record<string, unknown>).columns;
-  return Array.isArray(columns) ? columns.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object') : [];
+  if (!Array.isArray(columns)) return [];
+
+  const descriptors = columns
+    .map((item): Record<string, unknown> | null => {
+      if (item && typeof item === 'object') {
+        const column = item as Record<string, unknown>;
+        const name = text(column.name ?? column.mappedField);
+        if (!name || isExtractionArtifactHeader(name)) return null;
+        const mappedField = text(column.mappedField) || canonicalSourceField(name);
+        return { ...column, name, mappedField: mappedField || null };
+      }
+      const name = text(item);
+      if (!name || isExtractionArtifactHeader(name)) return null;
+      const mappedField = canonicalSourceField(name);
+      return {
+        name,
+        mappedField,
+        mappingConfidence: mappedField ? 85 : 0,
+      };
+    })
+    .filter((item): item is Record<string, unknown> => item !== null);
+
+  const rows = report.canonicalRows ?? [];
+  return descriptors.map((column) => {
+    if (!rows.length) return column;
+    const key = dataKey(column);
+    const nullCount = rows.reduce((count, row) => {
+      const value = row.data?.[key];
+      return count + (value == null || String(value).trim() === '' ? 1 : 0);
+    }, 0);
+    if (column.nullCount == null) return { ...column, nullCount };
+    return column;
+  });
 }
 
 function findColumn(columns: Array<Record<string, unknown>>, aliases: string[]): Record<string, unknown> | null {
-  return columns.find((column) => {
+  let best: Record<string, unknown> | null = null;
+  let bestRank = Number.POSITIVE_INFINITY;
+  columns.forEach((column) => {
     const mappedKey = normalized(column.mappedField);
     const rawKey = normalized(column.name);
-    return aliases.some((alias) => {
+    aliases.forEach((alias, rank) => {
       const token = normalized(alias);
-      return (mappedKey && mappedKey.includes(token)) || (rawKey && rawKey.includes(token));
+      const matches = Boolean((mappedKey && mappedKey === token) || (rawKey && rawKey === token) || (mappedKey && mappedKey.includes(token)) || (rawKey && rawKey.includes(token)));
+      if (matches && rank < bestRank) {
+        best = column;
+        bestRank = rank;
+      }
     });
-  }) ?? null;
+  });
+  return best;
 }
 
 function dataKey(column: Record<string, unknown> | null | undefined): string {
@@ -364,7 +440,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
       impact: signal.affectedRows == null ? 'الأثر المالي غير مثبت من المصدر الحالي.' : 'الأثر المثبت حاليًا هو نطاق السجلات المتأثرة؛ لا يتم افتراض قيمة مالية.',
     };
   });
-  return enriched.sort((a, b) => rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title));
+  return enriched.sort((a, b) => rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title)).slice(0, 1);
 }
 
 function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] {
@@ -374,6 +450,7 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
       const rank: Record<ReportSignalSeverity, number> = { critical: 5, high: 4, medium: 3, low: 2, info: 1 };
       return rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title);
     })
+    .slice(0, 1)
     .map((signal) => {
     let action = 'افحص الدليل المرتبط بهذا الاستثناء ثم قرر الإجراء المناسب.';
     if (signal.id.includes('missing-price')) action = 'افتح صفوف المصدر التي بلا سعر وراجع التسعير قبل الاعتماد.';
@@ -395,22 +472,33 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
       ownerHint: signal.ownerHint,
       impact: signal.impact,
       expectedOutcome: 'افحص الدليل المرتبط بهذا الاستثناء، نفّذ الإجراء بعد الاعتماد، ثم أعد القياس بنفس المصدر.',
+      whyNow: signal.severity === 'critical' || signal.severity === 'high'
+        ? 'تستحق هذه الإشارة أولوية الآن قبل اعتماد قرار مبني على المصدر الحالي.'
+        : 'تستحق هذه الإشارة المراجعة قبل تحويل التحليل إلى قرار تنفيذي.',
+      measurement: signal.affectedRows == null
+        ? 'أعد تشغيل القاعدة نفسها بعد المعالجة ودوّن عدد السجلات التي ما تزال تطابق الإشارة.'
+        : 'أعد القياس على القاعدة نفسها وسجّل عدد السجلات المتأثرة قبل/بعد المعالجة؛ المصدر الحالي يثبت ' + signal.affectedRows + ' سجلًا متأثرًا.',
+      risk: 'خطر القرار قبل المراجعة: قد يُعتمد استنتاج أو إجراء فوق استثناء مصدر لم يُعالج أو يُفسر بعد.',
+      blocker: signal.evidence.length > 0
+        ? 'الحاجز الحالي هو تفسير الدليل المرتبط بالإشارة والتحقق منه قبل الاعتماد.'
+        : 'لا يوجد دليل مصدرّي كافٍ للاعتماد؛ يجب إيقاف التحويل إلى قرار حتى يظهر الدليل المطلوب.',
+      limitation: signal.impact || 'لا يمكن إثبات أثر مالي أو سببي أوسع من المصدر الحالي.',
     };
   });
 }
 
-function parseDate(value: unknown): Date | null {
-  const raw = text(value);
-  if (!raw) return null;
-  const parsed = new Date(raw);
+function parseDateValue(value: unknown): Date | null {
+  const normalized = parseDate(value);
+  if (!normalized) return null;
+  const parsed = new Date(normalized + 'T00:00:00Z');
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
 function deriveForecast(report: ReportInput): ReportForecast {
-  const rows = report.canonicalRows ?? [];
+  const rows = metricRows(report);
   const columns = columnsOf(report);
   const dateColumn = findColumn(columns, ['invoice_date', 'date', 'due_date', 'التاريخ']);
-  const valueColumn = findColumn(columns, ['total_amount', 'net_amount', 'total', 'amount', 'sales', 'purchase', 'balance']);
+  const valueColumn = findColumn(columns, ['total', 'total_amount', 'amount', 'sales', 'purchase', 'net_amount', 'balance']);
   const dateKey = dataKey(dateColumn);
   const valueKey = dataKey(valueColumn);
   if (!dateKey || !valueKey || rows.length < 12) {
@@ -418,7 +506,7 @@ function deriveForecast(report: ReportInput): ReportForecast {
   }
   const byMonth = new Map<string, number>();
   for (const row of rows) {
-    const date = parseDate(row.data?.[dateKey]);
+    const date = parseDateValue(row.data?.[dateKey]);
     const value = numeric(row.data?.[valueKey]);
     if (!date || value == null) continue;
     const month = date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0');
@@ -458,6 +546,29 @@ function ownerForSpecialty(specialty: string): string {
   return 'المسؤول التشغيلي المناسب للمصدر';
 }
 
+function isAggregateRow(data: Record<string, unknown> | null | undefined): boolean {
+  if (!data) return false;
+  const label = text(
+    data.customer_name ??
+    data['اسم العميل'] ??
+    data.supplier_name ??
+    data['اسم المورد'] ??
+    data.invoice_type ??
+    data['نوع الفاتوره'] ??
+    '',
+  );
+  if (/^(?:الإجمالي|اجمالي|المجموع|total|grand\s+total)\s*:?[\s]*$/iu.test(label)) return true;
+
+  const invoice = text(data.invoice_number ?? data['رقم الفاتوره']);
+  const date = text(data.date ?? data.invoice_date ?? data['التاريخ']);
+  const amount = numeric(data.total ?? data.total_amount ?? data['اجمالي الفاتوره'] ?? data.net_amount ?? data['مبلغ الصافي بالمحلي']);
+  return !invoice && !date && amount != null;
+}
+
+function metricRows(report: ReportInput): Array<{ row_number?: number; data?: Record<string, unknown> | null }> {
+  return (report.canonicalRows ?? []).filter((row) => !isAggregateRow(row.data));
+}
+
 function groupSum(rows: Array<{ data?: Record<string, unknown> | null }>, dimensionKey: string, valueKey: string): Array<{ dimension: string; value: number; rows: number }> {
   const groups = new Map<string, { value: number; rows: number }>();
   for (const row of rows) {
@@ -479,7 +590,9 @@ function deriveBusinessFindings(report: ReportInput): {
   risks: BusinessFinding[];
   opportunities: BusinessFinding[];
 } {
-  const rows = report.canonicalRows ?? [];
+  const sourceRows = report.canonicalRows ?? [];
+  const rows = metricRows(report);
+  const aggregateRowCount = sourceRows.length - rows.length;
   const columns = columnsOf(report);
   const specialty = text(report.specialty);
   const findings: BusinessFinding[] = [];
@@ -487,7 +600,7 @@ function deriveBusinessFindings(report: ReportInput): {
   const opportunities: BusinessFinding[] = [];
 
   const amountColumn = findColumn(columns, [
-    'net_amount', 'total_amount', 'total', 'amount', 'sales', 'purchase',
+    'total', 'total_amount', 'amount', 'sales', 'purchase', 'net_amount',
     'outstanding_balance', 'balance', 'local_amount', 'value',
   ]);
   const partyColumn = specialty === 'purchases'
@@ -498,6 +611,21 @@ function deriveBusinessFindings(report: ReportInput): {
   const quantityColumn = findColumn(columns, ['current_stock', 'stock', 'quantity', 'qty', 'الرصيد', 'الكمية']);
   const priceColumn = findColumn(columns, ['selling_price', 'price', 'cost', 'السعر', 'التكلفة']);
   const balanceColumn = findColumn(columns, ['outstanding_balance', 'receivable', 'balance', 'الرصيد المستحق', 'المتبقي']);
+
+  if (aggregateRowCount > 0) {
+    findings.push({
+      id: specialty + ':aggregate-rows-excluded',
+      kind: 'FINDING',
+      priority: 'low',
+      title: 'صفوف تلخيص مستبعدة من المؤشرات',
+      statement: 'تم استبعاد ' + aggregateRowCount + ' صفوف تلخيص/إجمالي من المؤشرات التنفيذية حتى لا تُحسب كمعاملات فعلية.',
+      value: aggregateRowCount,
+      unit: 'صف',
+      evidence: ['aggregateRows=' + aggregateRowCount, 'sourceRows=' + sourceRows.length, 'metricRows=' + rows.length],
+      limitation: 'الاستبعاد يخص الحسابات التنفيذية فقط؛ الصفوف الأصلية تبقى محفوظة ضمن المصدر والأدلة.',
+      action: 'راجع صفوف التلخيص في مسار الدليل عند الحاجة إلى مطابقة الإجمالي الظاهر في المستند الأصلي.',
+    });
+  }
 
   if (!rows.length) {
     return { findings, risks, opportunities };
@@ -822,10 +950,22 @@ function deriveBusinessFindings(report: ReportInput): {
     }
   }
 
+  const findingOrder = (id: string): number => {
+    if (id.endsWith(':total-value')) return 100;
+    if (id.endsWith(':position')) return 100;
+    if (id.endsWith(':margin')) return 100;
+    if (id.endsWith(':total-balance')) return 100;
+    if (id.endsWith(':top-party')) return 90;
+    if (id.endsWith(':change-contributor')) return 80;
+    if (id.endsWith(':period-change')) return 70;
+    return 0;
+  };
   return {
     findings: findings.sort((a, b) => {
       const rank = { high: 3, medium: 2, low: 1 } as const;
-      return rank[b.priority] - rank[a.priority] || a.title.localeCompare(b.title);
+      return findingOrder(b.id) - findingOrder(a.id)
+        || rank[b.priority] - rank[a.priority]
+        || a.title.localeCompare(b.title);
     }),
     risks: risks.sort((a, b) => {
       const rank = { high: 3, medium: 2, low: 1 } as const;
@@ -853,12 +993,15 @@ function buildAdvisorBrief(
     if (signal.affectedRows == null || !report.rowCount) return true;
     return signal.affectedRows / Math.max(1, report.rowCount) >= 0.2;
   });
+  const sourceRowCount = Number(report.rowCount ?? 0);
   const health: AdvisorBrief['health'] =
-    topRisk?.priority === 'high' || highImpactSignal || materialReviewSignal
-      ? 'REVIEW_REQUIRED'
-      : topRisk || signals.some((signal) => signal.severity === 'medium') || signals.length > 0
-        ? 'ATTENTION'
-        : 'HEALTHY';
+    sourceRowCount <= 0
+      ? 'HEALTHY'
+      : topRisk?.priority === 'high' || highImpactSignal || materialReviewSignal
+        ? 'REVIEW_REQUIRED'
+        : topRisk || signals.some((signal) => signal.severity === 'medium') || signals.length > 0
+          ? 'ATTENTION'
+          : 'HEALTHY';
   const recommendedAction = topRisk?.action ?? topFinding?.action ?? topOpportunity?.action ?? null;
   const headline = topRisk
     ? topRisk.statement

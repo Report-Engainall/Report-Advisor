@@ -1,58 +1,30 @@
 # PROGRAMMER CURRENT REPORT
-SESSION_HANDOFF = NOT READY
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = 7e9cec1b8ee318520702c8b29ae1ec14aa2d5ff6
-CURRENT EXECUTION HEAD = 9bec7dc45ba65ddd036aa02491c0b4574d579570
-REPORT_FOR_HEAD = 9bec7dc45ba65ddd036aa02491c0b4574d579570
-BRANCH = captain/phase-f-dynamic-pr-preview-20261003
-PR = #762 OPEN
-UPDATED = 2026-10-03
-UPDATED_AT = 2026-10-03T14:24:00Z
-WHAT_I_WAS_ASKED_TO_DO = إكمال المشروع فعليًا بالتوازي، إزالة اختناقات Phase-F وAuth/E2E، تثبيت Evidence Passport، وإغلاق الشهادة دون PASS وهمي.
-WHAT_I_ACTUALLY_DID = أصلحت provenance في Smart Report وDecision Cockpit، وثبتُّ live create_source_intelligence_proposal على reconciliation المتوافق مع Passport، ثم تحققت من أن anon لا يملك EXECUTE وأن authenticated هو المسار الوحيد.
-WHAT_ACTUALLY_HAPPENED
-1. Removed stale Phase-F deploy-preview-754 targeting and replaced it with current-PR runtime resolution plus exact-head provenance checks.
-2. Aligned logical backup/restore source snapshot/count reads with Transaction Pooler :6543 while retaining pg_dump on the resolved runner source URI.
-3. Increased bounded Auth actor-provisioning recovery to 360s overall with 15s per-request timeouts across browser E2E workflows and the provisioner.
-4. Corrected the Phase-F static contract matcher so it validates the actual nested Transaction Pooler expression.
-5. Recovered Supabase staging project fnqbvfuwbdpwvhcgzksl to ACTIVE_HEALTHY and re-proved direct PostgreSQL connectivity.
-6. Refreshed the real report job f0880ab8-8c7c-4c26-b5b6-edf8d3bb25c0 Evidence Passport through the canonical refresh RPC: VERIFIED, READY, ACCEPTED, FULL coverage; 735 authoritative rows; quality 87.
-7. Hardened the live DB by revoking public EXECUTE from the three trigger-only Evidence Passport SECURITY DEFINER functions; verified they remain executable by postgres/service_role for trigger operation.
-8. Reconciled staging with the application contract by applying the atomic `create_source_intelligence_proposal` migration; authenticated EXECUTE is now present.
-9. Fixed the real Browser E2E Smart Report failure by exposing the Forecast panel with the canonical Arabic label `التنبؤ`.
-10. Quality and broad certification contracts passed; the latest Final Certification blocker was reduced to persistent-session handoff metadata.
-WHAT_IS_PROVEN = typecheck/build/intelligence/evidence-passport/operational-resilience/quality contracts, real f088 Evidence Passport, live Work Item completion gate, and database hardening are proven; the new provenance/auto-Passport fix is awaiting fresh exact-head CI.
-- typecheck PASS
-- build PASS
-- report-advisor intelligence PASS
-- intelligence vertical slice PASS
-- evidence passport contract PASS
-- operational resilience PASS
-- quality workflow PASS on the latest completed quality run
-- Phase 10 backup/restore contract PASS
-- P0/P1 family gates PASS
-- production certification contract PASS
-- security-definer exposure contract PASS
-- direct Supabase DB connectivity PASS
-- real report job f0880ab8...: 735 source rows, 7 columns, PDF, quality 87, canonical coverage FULL, Evidence Passport VERIFIED/READY
-FIRST_ACTIVE_FAILURE = live source proposal function had drifted back to the pre-reconciliation body despite migration history; current staging function is now reasserted with Passport reconciliation.
-CI_RECERTIFICATION = IN_PROGRESS
-Previous completed failure on the current gate family was Session Handoff Contract: the parser required scalar `WHAT_IS_PROVEN = ...`, while the report only had a Markdown heading. This was a documentation-contract mismatch and is corrected in this synchronization.
-ROOT_CAUSE = migration history alone did not guarantee the live function body; later drift overrode create_source_intelligence_proposal, leaving authenticated proposal reuse on stale evidence provenance.
-The earlier runtime failures were a combination of a recovered Supabase lifecycle interruption and two stale/incorrect source-level assertions. The handoff failures are metadata synchronization failures, not product/runtime failures.
-FILES / COMMITS
-- PR #761 -> 9d78baf6... -> main 7e9cec1...
-- PR #762 product-code repair baseline -> 2eabdd40837ab7a4f87a761168bd8495767d7476
-- PR #762 latest execution/test head before this docs synchronization -> 694051ae661824a030e67f7fc2fc88b2edff25ff
-- Evidence Passport hardening migration -> 20261003130700_restrict_evidence_gate_trigger_execute.sql
-REMAINING OPEN
-- finish latest-head Phase-F live resilience evidence
-- finish authenticated Chromium Auth/Tenant/Product/Import/Smart Report proof
-- close Session Handoff and Final Certification
-- Production Netlify deploy remains credit-blocked
-- realistic-report corpus remains empty except README; no fabricated corpus will be added
-- real-source 48-archetype proof remains unproven
-DO_NOT_REPEAT
-No stale PASS, no queued-run PASS, no Service Role impersonation, no new Supabase project, no tenant/RLS bypass, no fabricated corpus/archetype coverage.
-NEXT_EXACT_ACTION = certify exact head 9bec7dc45ba65ddd036aa02491c0b4574d579570; authenticated Browser E2E must prove save/readback, then close Phase-F and final certification.
+CURRENT MAIN HEAD = 9ecb9b831bab2beb02791d4f1eda6f4a374d4731
+REFERENCE START HEAD = 509a69aeca9f5a5dbfe8cbef24dad92be2017554
+CURRENT EXECUTION HEAD = 5b779148ff95f390ec7f6fca8290c5019be0bb32
+REPORT_FOR_HEAD = 5b779148ff95f390ec7f6fca8290c5019be0bb32
+BRANCH = feat/complete-smart-intelligence-surface-20261003
+PR = #820
+UPDATED_AT = 2026-10-04T15:15:00Z
+
+WHAT_I_WAS_ASKED_TO_DO = تنفيذ جراحة شاملة للمنتج بالتوازي: عزل كل Report Job، إصلاح parser قبل intelligence، خفض ضجيج الذكاء، إعادة بناء Executive UX، دعم mobile/desktop، ثم إثبات الرحلة على exact HEAD دون PASS وهمي.
+
+WHAT_I_ACTUALLY_DID = أغلقت active-report fallback، فرضت jobId+sourceHash في Smart Report والواجهات source-bound، عزلت decision proposal identity بالـreportJobId، طبقت migration الحي، أضفت semantic parsing/quality gates، أصلحت split PDF headers والـlocale numerics، أضفت composite-header rejection، خفضت recommendations إلى الأقوى فقط، وأعدت ترتيب Smart Report إلى Executive-first مع progressive disclosure ونظام بصري Ink/Indigo/Brass responsive.
+
+WHAT_ACTUALLY_HAPPENED = فحص Supabase الحي أعاد إنتاج عيوب parser حقيقية: الصراف المنتاب يحتوي التاريخ "2026-" مع 115 من 132 قيمة غير قابلة للاعتماد، وأرقامًا مثل "2,275,00". تقرير PDF آخر يحتوي رؤوسًا مدمجة مثل "العملة نوع الفاتورة التاريخ رقم الفاتورة" وأدى إلى mapping ملوث. لذلك تم إصلاح طبقة parser/validation نفسها، وليس النصوص فقط.
+
+WHAT_IS_PROVEN = تم تطبيق عزل source-intelligence حسب report job حيًا في Supabase. Netlify بدأ deploy exact-head للـexecution head قبل تحديث هذا الملف وكان building؛ أحدث SHA الحالي لهذا الملف هو 5b779148ff95f390ec7f6fca8290c5019be0bb32، لذلك لا توجد runtime proof على هذا SHA بعد. GitHub Actions على SHA السابق في الدفعة بدأت parser/header/quality/browser/certification gates وكانت queued/pending؛ لا يوجد certification PASS نهائي.
+
+CURRENT_ACTIVE_FAILURE = لا توجد نتيجة terminal فاشلة مثبتة على HEAD الحالي؛ blocker الحالي هو أن docs checkpoint نفسه دفع HEAD جديدًا، وبالتالي يلزم fresh CI/runtime proof على SHA الحالي.
+
+FIRST_ACTIVE_FAILURE = Link غير مستورد في LoginPage أسقط typecheck في الجولة السابقة، ثم كشف الفحص الجذري مشكلة أعمق في report context وPDF reconstruction.
+
+ROOT_CAUSE = global persisted report context + source-hash-only lookup + permissive PDF header/semantic mapping سمحت بمرور بيانات مشوهة إلى canonical/analysis/intelligence.
+
+REMAINING_OPEN = fresh exact-head CI terminal results؛ fresh Netlify READY/runtime/content proof على SHA الحالي؛ real-source corpus rehydration للتقارير المتأثرة؛ A/B context browser scenarios؛ 390x844 وdesktop visual evidence؛ final certification؛ production promotion؛ real-source 48/48.
+
+DO_NOT_REPEAT = no stale SHA PASS; no queued/pending/cancelled PASS; no last/first report fallback; no source-hash-only report identity; no synthetic corpus proof; no fake outcome/benchmark; no blind Vercel retries.
+
+NEXT_EXACT_ACTION = لا تعدل الكود بلا سبب. أولاً استهلك terminal result على SHA الحالي؛ عند failure أصلح root cause واحدًا فقط. بعد READY Netlify نفذ fresh /api/health والصفحة الرئيسية وproposal-demo ومسار report source-bound، ثم استخدم governed corpus rehydration/browser results للإغلاق النهائي.

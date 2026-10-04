@@ -31,7 +31,13 @@ export function normalizeWhitespace(text: string): string {
 
 /** Canonical header normalization used by schema discovery and column mapping. */
 export function normalizeHeader(name: string): string {
-  return normalizeArabicText(normalizeWhitespace(normalizeArabicDigits(name))).toLowerCase();
+  const normalized = normalizeArabicText(normalizeWhitespace(normalizeArabicDigits(name))).toLowerCase();
+  // PDF table extractors sometimes append the reporting year as a fragmented
+  // header (for example: "التاريخ 2026-"). That suffix belongs to the
+  // reconstructed date value, not to the business field identity.
+  return normalized
+    .replace(/^(التاريخ|date)(?:\s+20\d{2}-?)$/u, '$1')
+    .replace(/\s+(20\d{2})-?$/u, ' $1');
 }
 
 export function normalizeValue(value: unknown): unknown {
@@ -93,10 +99,19 @@ export function parseNumber(value: unknown): number | null {
   const comma = normalized.lastIndexOf(',');
   const dot = normalized.lastIndexOf('.');
   if (comma >= 0 && dot >= 0) {
-    normalized = comma > dot ? normalized.replace(/\./g, '').replace(',', '.') : normalized.replace(/,/g, '');
+    normalized = comma > dot ? normalized.replace(/\./g, '').replace(/,/g, '.') : normalized.replace(/,/g, '');
   } else if (comma >= 0) {
-    const fractionalDigits = normalized.length - comma - 1;
-    normalized = fractionalDigits > 0 && fractionalDigits <= 2 ? normalized.replace(',', '.') : normalized.replace(/,/g, '');
+    const commaParts = normalized.split(',');
+    const lastPart = commaParts[commaParts.length - 1] ?? '';
+    if (commaParts.length > 1 && /^\d{1,2}$/.test(lastPart)) {
+      // ERP/PDF sources may render grouped amounts like 2,275,00.
+      // Interpret the final two digits as decimals and the earlier commas as grouping.
+      normalized = commaParts.slice(0, -1).join('') + '.' + lastPart;
+    } else if (commaParts.length === 2 && lastPart.length === 1) {
+      normalized = commaParts[0] + '.' + lastPart;
+    } else {
+      normalized = commaParts.join('');
+    }
   } else if ((normalized.match(/\./g) || []).length > 1) {
     normalized = normalized.replace(/\./g, '');
   }

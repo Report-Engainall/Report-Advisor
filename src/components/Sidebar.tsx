@@ -90,7 +90,7 @@ const sectionMeta = {
 
 export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNavigate?:()=>void;user?:User|null}){
  const{language}=useLanguage();const location=useLocation();const[workspaceMode,setWorkspaceMode]=useState<WorkspaceMode>(readWorkspaceMode);
- const [workspacePreferences,setWorkspacePreferences]=useState<WorkspacePreferences>(readWorkspacePreferences); const visibleSections=useMemo(()=>navSections.map(s=>({...s,items:s.items.filter(i=>isWorkspacePathVisible(i.path,workspaceMode,workspacePreferences))})).filter(s=>s.items.length).sort((a,b)=>workspacePreferences.sectionOrder.indexOf(a.id)-workspacePreferences.sectionOrder.indexOf(b.id)),[workspaceMode,workspacePreferences]); const favoriteItems=useMemo(()=>{const visible=new Map(navSections.flatMap(section=>section.items).map(item=>[item.path,item]));return workspacePreferences.favoritePaths.map(path=>visible.get(path)).filter((item):item is NavItem=>item !== undefined).filter(item=>isWorkspacePathVisible(item.path,workspaceMode,workspacePreferences)).slice(0,4)},[workspacePreferences,workspaceMode]);
+ const [workspacePreferences,setWorkspacePreferences]=useState<WorkspacePreferences>(readWorkspacePreferences); const visibleSections=useMemo(()=>navSections.map(s=>({...s,items:s.items.filter(i=>isWorkspacePathVisible(i.path,workspaceMode,workspacePreferences))})).filter(s=>s.items.length).sort((a,b)=>workspacePreferences.sectionOrder.indexOf(a.id)-workspacePreferences.sectionOrder.indexOf(b.id)),[workspaceMode,workspacePreferences]);;
  const activeSection=useMemo(()=>resolveNavigationItem(location.pathname)?.section ?? 'decision-center',[location.pathname]);
  const[expandedSection,setExpandedSection]=useState<NavigationSectionId | ''>(activeSection);
  useEffect(()=>{const sync=()=>{setWorkspaceMode(readWorkspaceMode());setWorkspacePreferences(readWorkspacePreferences())};window.addEventListener('storage',sync);window.addEventListener('report-advisor:workspace-mode',sync);window.addEventListener('report-advisor:workspace-preferences',sync);return()=>{window.removeEventListener('storage',sync);window.removeEventListener('report-advisor:workspace-mode',sync);window.removeEventListener('report-advisor:workspace-preferences',sync)}},[]);
@@ -112,10 +112,6 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
         <Link to="/import" onClick={onNavigate} className="flex items-center justify-center gap-1 rounded-[8px] border border-ink-200 bg-white px-2 py-2 text-[10px] font-black text-ink-700 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800"><Upload size={12}/> إدخال البيانات</Link>
       </div>
     </div>
-  </div>
-  <div className="ag-sidebar-shortcuts px-3 pb-1">
-    <div className="flex items-center justify-between px-2 pb-2"><div className="section-kicker">أدلة سريعة</div><span className="text-[9px] font-black text-ink-500">EVIDENCE</span></div>
-    <div className="grid grid-cols-2 gap-1.5">{(favoriteItems.length?favoriteItems:navSections.flatMap(section=>section.items).filter(item=>isWorkspacePathVisible(item.path,workspaceMode,workspacePreferences)).slice(0,4)).map(item=><Link key={item.path} to={item.path} onClick={onNavigate} className="flex items-center gap-1.5 rounded-[8px] border border-ink-200 bg-white px-2 py-2 text-[11px] font-semibold text-ink-600 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800">{item.iconNode}<span className="truncate">{language==='ar'?item.label:item.enLabel}</span></Link>)}</div>
   </div>
   <nav className="flex-1 overflow-y-auto px-3 py-3" aria-label={language==='ar'?'التنقل الرئيسي للمنصة':'Primary analytics navigation'}>
     <div className="space-y-1">
@@ -141,12 +137,6 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
                   <span className="ag-section-tag">{meta.tag}</span>
                 </span>
                 <span className="mt-0.5 block truncate text-[9px] font-medium text-ink-400">{meta.hint}</span>
-              </span>
-              {section.id === 'decision-center' && alertCount > 0 && (
-                <span className="min-w-4 rounded-full bg-danger-600 px-1 text-center text-[9px] font-black text-white">{alertCount}</span>
-              )}
-              <span className="flex h-6 min-w-6 items-center justify-center rounded-full border border-ink-200 bg-white/70 text-[9px] font-black text-ink-400">
-                {section.items.length}
               </span>
               <ChevronDown size={14} className={'shrink-0 text-ink-300 transition-transform ' + (open ? '' : '-rotate-90')} />
             </button>

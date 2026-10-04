@@ -18,7 +18,6 @@ import {
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Recommendation, Alert, Forecast } from '@/lib/types';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
-import { readActiveReportContext } from '@/lib/report-context';
 
 function MetricStrip({
   label,
@@ -45,13 +44,12 @@ function MetricStrip({
 
 
 async function loadOptionalSourceReport(params: URLSearchParams): Promise<SmartReportDetail | null> {
-  const saved = readActiveReportContext();
-  const jobId = params.get('reportJobId')?.trim() || saved?.jobId || '';
-  const sourceHash = params.get('sourceHash')?.trim() || saved?.sourceHash || '';
-  if (!jobId) return null;
-  const report = await fetchSmartReport(jobId);
+  const jobId = params.get('reportJobId')?.trim() || '';
+  const sourceHash = params.get('sourceHash')?.trim() || '';
+  if (!jobId || !/^sha256:[0-9a-fA-F]{64}$/.test(sourceHash)) return null;
+  const report = await fetchSmartReport(jobId, sourceHash);
   if (!report) return null;
-  if (sourceHash && report.sourceHash !== sourceHash) throw new Error('REPORT_SOURCE_HASH_MISMATCH');
+  if (report.sourceHash !== sourceHash) throw new Error('INVALID_REPORT_CONTEXT');
   return report;
 }
 
@@ -64,8 +62,8 @@ function SourceIntelligenceRail({ report }: { report: SmartReportDetail }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="text-[9px] font-black tracking-[.12em] text-primary-800">SOURCE-BOUND INTELLIGENCE</div>
-          <h2 className="mt-1 text-base font-black text-ink-950">{report.sourcePath}</h2>
-          <div className="mt-1 text-[10px] text-ink-500">{report.specialty ?? 'عام'} · {report.rowCount ?? 0} صف · {report.sourceHash.slice(0, 20)}…</div>
+          <h2 className="mt-1 text-base font-black text-ink-950">{report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : 'تقرير أعمال ذكي'}</h2>
+          <div className="mt-1 text-[10px] text-ink-500">تحليل مصدر محدد · {report.rowCount ?? 0} سجل · الدليل مرتبط بالتقرير الحالي</div>
         </div>
         <Link to={'/reports/smart/' + encodeURIComponent(report.jobId) + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-primary text-[10px]">افتح التقرير الذكي <ArrowUpLeft size={12}/></Link>
       </div>
@@ -96,6 +94,7 @@ function SourceIntelligenceRail({ report }: { report: SmartReportDetail }) {
 }
 
 function SourceRecommendationsDetail({ report }: { report: SmartReportDetail }) {
+  const priorityLabel: Record<string,string> = { urgent:'عاجل', high:'مرتفع', medium:'متوسط', low:'منخفض' };
   const items = report.intelligence.recommendations;
   return (
     <section dir="rtl" className="rounded-[18px] border border-primary-200 bg-white p-4 shadow-sm">
@@ -106,10 +105,13 @@ function SourceRecommendationsDetail({ report }: { report: SmartReportDetail }) 
       <div className="mt-3 grid gap-2 lg:grid-cols-2">
         {items.length ? items.map((item) => (
           <article key={item.id} className="rounded-xl border border-ink-200 bg-ink-50/60 p-3">
-            <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-primary-100 px-2 py-1 text-[8px] font-black text-primary-800">{item.priority}</span><span className="text-xs font-black text-ink-900">{item.title}</span></div>
+            <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-primary-100 px-2 py-1 text-[8px] font-black text-primary-800">{priorityLabel[item.priority] ?? item.priority}</span><span className="text-xs font-black text-ink-900">{item.title}</span></div>
             <div className="mt-2 text-[10px] leading-5 text-ink-700">{item.action}</div>
-            <div className="mt-2 grid gap-2 sm:grid-cols-2 text-[9px]"><div className="rounded-lg bg-white p-2"><b>WHY</b><div className="mt-1 text-ink-600">{item.why}</div></div><div className="rounded-lg bg-white p-2"><b>OWNER / OUTCOME</b><div className="mt-1 text-ink-600">{item.ownerHint} · {item.expectedOutcome}</div></div></div>
-            <div className="mt-2 text-[8px] font-mono text-ink-400">{item.evidence.join(' · ')}</div>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2 text-[9px]"><div className="rounded-lg bg-white p-2"><b>لماذا</b><div className="mt-1 text-ink-600">{item.why}</div></div><div className="rounded-lg bg-white p-2"><b>المسؤول والنتيجة</b><div className="mt-1 text-ink-600">{item.ownerHint} · {item.expectedOutcome}</div></div></div>
+            <details className="mt-2 rounded-lg border border-ink-100 bg-ink-50/50 px-2.5 py-2">
+              <summary className="cursor-pointer text-[8px] font-black text-ink-400">عرض الدليل</summary>
+              <div className="mt-1 text-[9px] leading-4 text-ink-500">{item.evidence.join(' · ')}</div>
+            </details>
           </article>
         )) : <div className="rounded-xl border border-dashed border-ink-200 p-4 text-[10px] text-ink-500">لا توجد توصية مصدرية كافية حاليًا.</div>}
       </div>
@@ -118,6 +120,7 @@ function SourceRecommendationsDetail({ report }: { report: SmartReportDetail }) 
 }
 
 function SourceSignalsDetail({ report }: { report: SmartReportDetail }) {
+  const priorityLabel: Record<string,string> = { P0:'عاجل', P1:'مرتفع', P2:'متوسط', P3:'منخفض' };
   const signals = report.intelligence.signals;
   const severityLabel: Record<string, string> = {
     critical: 'حرج',
@@ -140,7 +143,7 @@ function SourceSignalsDetail({ report }: { report: SmartReportDetail }) {
           <article key={signal.id} className="rounded-xl border border-ink-200 bg-ink-50/60 p-3">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-warning-100 px-2 py-1 text-[8px] font-black text-warning-900">{severityLabel[signal.severity] ?? signal.severity}</span>
-              <span className="rounded-full bg-ink-100 px-2 py-1 text-[8px] font-black text-ink-700">{signal.priority}</span>
+              <span className="rounded-full bg-ink-100 px-2 py-1 text-[8px] font-black text-ink-700">{priorityLabel[signal.priority] ?? signal.priority}</span>
               <span className="text-xs font-black text-ink-900">{signal.title}</span>
             </div>
             <p className="mt-2 text-[10px] leading-5 text-ink-700">{signal.message}</p>
@@ -148,7 +151,10 @@ function SourceSignalsDetail({ report }: { report: SmartReportDetail }) {
               <div className="rounded-lg bg-white p-2"><b>SO WHAT</b><div className="mt-1 text-ink-600">{signal.soWhat}</div></div>
               <div className="rounded-lg bg-white p-2"><b>IMPACT / OWNER</b><div className="mt-1 text-ink-600">{signal.impact} · {signal.ownerHint}</div></div>
             </div>
-            <div className="mt-2 text-[8px] font-mono leading-4 text-ink-400">{signal.evidence.join(' · ')}</div>
+            <details className="mt-2 rounded-lg border border-ink-100 bg-ink-50/50 px-2.5 py-2">
+              <summary className="cursor-pointer text-[8px] font-black text-ink-400">عرض الدليل</summary>
+              <div className="mt-1 text-[9px] leading-4 text-ink-500">{signal.evidence.join(' · ')}</div>
+            </details>
           </article>
         )) : <div className="rounded-xl border border-dashed border-ink-200 p-4 text-[10px] text-ink-500">لا توجد إشارة استثنائية مثبتة من هذا المصدر.</div>}
       </div>
@@ -260,6 +266,8 @@ const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
     () => forecasts.filter((item) => item.entity_type === 'company'),
     [forecasts],
   );
+  const visibleActiveAlerts = useMemo(() => activeAlerts.slice(0, 24), [activeAlerts]);
+  const visibleNewRecommendations = useMemo(() => newRecommendations.slice(0, 24), [newRecommendations]);
 
   const decideRecommendation = useCallback(async (recommendationId: string, status: 'accepted' | 'rejected') => {
     if (decisionId) return;
@@ -355,7 +363,7 @@ const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
           <p className="mt-1 text-[10px] leading-5 text-ink-500">انتقل إلى حارس السيناريوهات مع بقاء شروط الحقيقة والحساب الحتمي في المقدمة.</p>
         </Link>
         <div className="card p-4">
-          <div className="flex items-center justify-between"><Sparkles size={17} className="text-warning-700"/><span className="badge-warning">NOT AVAILABLE</span></div>
+          <div className="flex items-center justify-between"><Sparkles size={17} className="text-warning-700"/><span className="badge-warning">غير متاح</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Decision Playbooks</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">قوالب اللعبات التنفيذية تحتاج مسار سجل مستقل؛ لن تُعرض كقوالب جاهزة مزيفة.</p>
         </div>
@@ -370,7 +378,7 @@ const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
           />
           <CardBody>
             <div className="space-y-3">
-              {activeAlerts.map((alert) => (
+              {visibleActiveAlerts.map((alert) => (
                 <article key={alert.id} className="rounded-[14px] border border-ink-200 bg-white p-4">
                   <div className="flex items-start gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-danger-50 text-danger-700">
@@ -404,7 +412,7 @@ const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
           />
           <CardBody>
             <div className="space-y-3">
-              {newRecommendations.map((recommendation) => (
+              {visibleNewRecommendations.map((recommendation) => (
                 <article key={recommendation.id} className="rounded-[14px] border border-primary-100 bg-primary-50/25 p-4">
                   <div className="flex items-start gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-100 text-primary-700">
@@ -437,7 +445,7 @@ const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
                         >
                           <XCircle size={13} /> {decisionId === recommendation.id ? 'جارٍ الحفظ…' : 'رفض'}
                         </button>
-                        <Link to="/decision-experience?stage=decision" className="btn-ghost text-[11px]">فتح القرار</Link>
+                        <Link to="/decision-inbox" className="btn-ghost text-[11px]">مركز القرارات</Link>
                       </div>
                     </div>
                   </div>
@@ -609,7 +617,7 @@ const [items, setItems] = useState<Recommendation[]>([]);
 
   return (
     <div dir="rtl" className="ag-intelligence-suite-surface space-y-5 animate-fade-in pb-10">
-      {error && sourceReport ? <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900"><div className="text-[9px] font-black tracking-[.12em]">GENERIC RECOMMENDATION READBACK</div><div className="mt-1 text-sm font-black">توصيات التقرير المصدرّي ظاهرة رغم تعطل سجل التوصيات العام</div><div className="mt-2 text-[10px] leading-5">{error}</div></section> : null}
+      {error && sourceReport ? <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900"><div className="text-[9px] font-black tracking-[.12em]">قراءة التوصيات العامة</div><div className="mt-1 text-sm font-black">توصيات التقرير المصدرّي ظاهرة رغم تعطل سجل التوصيات العام</div><div className="mt-2 text-[10px] leading-5">{error}</div></section> : null}
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
       {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       {sourceReport && <SourceRecommendationsDetail report={sourceReport} />}
@@ -678,7 +686,7 @@ const [items, setItems] = useState<Recommendation[]>([]);
                         <button type="button" disabled={pendingId === item.id} onClick={() => void handleStatus(item.id, 'accepted')} className="btn-primary text-xs"><CheckCircle2 size={14}/>قبول</button>
                         <button type="button" disabled={pendingId === item.id} onClick={() => void handleStatus(item.id, 'rejected')} className="btn-secondary text-xs"><XCircle size={14}/>رفض</button>
                       </>}
-                      <Link to={'/decision-experience?stage=evidence&recommendationId=' + encodeURIComponent(item.id)} className="inline-flex items-center gap-1.5 rounded-xl border border-ink-200 px-3 py-2 text-xs font-semibold text-ink-700 hover:bg-ink-50">مساحة الدليل <ArrowLeft size={14}/></Link>
+                      <Link to="/decision-inbox" className="inline-flex items-center gap-1.5 rounded-xl border border-ink-200 px-3 py-2 text-xs font-semibold text-ink-700 hover:bg-ink-50">مساحة الدليل <ArrowLeft size={14}/></Link>
                     </div>
                   </div>
                 </article>
@@ -748,7 +756,7 @@ const [items, setItems] = useState<Forecast[]>([]);
 
   return (
     <div dir="rtl" className="ag-intelligence-suite-surface space-y-5 animate-fade-in pb-10">
-      {error && sourceReport ? <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900"><div className="text-[9px] font-black tracking-[.12em]">GENERIC FORECAST READBACK</div><div className="mt-1 text-sm font-black">تنبؤ التقرير المصدرّي ظاهر رغم تعطل جدول التنبؤ العام</div><div className="mt-2 text-[10px] leading-5">{error}</div></section> : null}
+      {error && sourceReport ? <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900"><div className="text-[9px] font-black tracking-[.12em]">قراءة التنبؤات العامة</div><div className="mt-1 text-sm font-black">تنبؤ التقرير المصدرّي ظاهر رغم تعطل جدول التنبؤ العام</div><div className="mt-2 text-[10px] leading-5">{error}</div></section> : null}
       {sourceReportError && <ErrorState message={sourceReportError} onRetry={() => void loadOptionalSourceReport(new URLSearchParams(sourceQueryKey)).then(setSourceReport).catch((cause) => setSourceReportError(cause instanceof Error ? cause.message : String(cause)))} />}
       {sourceReport && <SourceIntelligenceRail report={sourceReport} />}
       {sourceReport && <SourceForecastDetail report={sourceReport} />}
@@ -773,7 +781,7 @@ const [items, setItems] = useState<Forecast[]>([]);
       <section className="rounded-[16px] border border-warning-200 bg-warning-50/70 p-4">
         <div className="flex items-start gap-3">
           <Target size={17} className="mt-0.5 shrink-0 text-warning-700"/>
-          <div><div className="text-xs font-black text-warning-900">FORECAST — ليست حقيقة تنفيذية</div><p className="mt-1 text-[10px] leading-5 text-warning-800">تستخدم هذه المساحة للاتجاه والتخطيط. القرار التنفيذي يجب أن يقرأ التنبؤ مع المصدر والثقة ونطاق عدم اليقين، ثم ينتقل إلى مساحة القرار.</p></div>
+          <div><div className="text-xs font-black text-warning-900">التنبؤ — ليس حقيقة تنفيذية</div><p className="mt-1 text-[10px] leading-5 text-warning-800">تستخدم هذه المساحة للاتجاه والتخطيط. القرار التنفيذي يجب أن يقرأ التنبؤ مع المصدر والثقة ونطاق عدم اليقين، ثم ينتقل إلى مساحة القرار.</p></div>
         </div>
       </section>
 
@@ -783,9 +791,9 @@ const [items, setItems] = useState<Forecast[]>([]);
       </Card>
 
       <div className="grid gap-3 md:grid-cols-3">
-        <Link to="/decision-experience" className="card card-hover p-4"><div className="flex items-center justify-between"><Sparkles size={17} className="text-primary-700"/><span className="badge-primary">DECISION</span></div><div className="mt-3 text-sm font-black text-ink-900">انقل الإشارة إلى القرار</div><p className="mt-1 text-[10px] leading-5 text-ink-500">استخدم التنبؤ كمدخل للسياق والسيناريو، لا كبديل عن الحقيقة الكانونية.</p><div className="mt-3 text-[10px] font-bold text-primary-700">فتح مساحة القرار <ArrowUpLeft size={12} className="inline"/></div></Link>
-        <Link to="/trust" className="card card-hover p-4"><div className="flex items-center justify-between"><CircleAlert size={17} className="text-warning-700"/><span className="badge-warning">TRUST</span></div><div className="mt-3 text-sm font-black text-ink-900">افحص الثقة والسياق</div><p className="mt-1 text-[10px] leading-5 text-ink-500">راجع حالة المصدر قبل التعامل مع التنبؤ كمدخل قرار.</p><div className="mt-3 text-[10px] font-bold text-primary-700">فتح الثقة <ArrowUpLeft size={12} className="inline"/></div></Link>
-        <Link to="/analytics" className="card card-hover p-4"><div className="flex items-center justify-between"><TrendingUp size={17} className="text-primary-700"/><span className="badge-neutral">ANALYTICS</span></div><div className="mt-3 text-sm font-black text-ink-900">ارجع إلى المؤشرات</div><p className="mt-1 text-[10px] leading-5 text-ink-500">قارن التوجه المستقبلي مع الأنماط الكانونية التي سبقت التنبؤ.</p><div className="mt-3 text-[10px] font-bold text-primary-700">مركز التحليلات <ArrowUpLeft size={12} className="inline"/></div></Link>
+        <Link to="/decision-experience" className="card card-hover p-4"><div className="flex items-center justify-between"><Sparkles size={17} className="text-primary-700"/><span className="badge-primary">القرار</span></div><div className="mt-3 text-sm font-black text-ink-900">انقل الإشارة إلى القرار</div><p className="mt-1 text-[10px] leading-5 text-ink-500">استخدم التنبؤ كمدخل للسياق والسيناريو، لا كبديل عن الحقيقة الكانونية.</p><div className="mt-3 text-[10px] font-bold text-primary-700">فتح مساحة القرار <ArrowUpLeft size={12} className="inline"/></div></Link>
+        <Link to="/trust" className="card card-hover p-4"><div className="flex items-center justify-between"><CircleAlert size={17} className="text-warning-700"/><span className="badge-warning">الثقة</span></div><div className="mt-3 text-sm font-black text-ink-900">افحص الثقة والسياق</div><p className="mt-1 text-[10px] leading-5 text-ink-500">راجع حالة المصدر قبل التعامل مع التنبؤ كمدخل قرار.</p><div className="mt-3 text-[10px] font-bold text-primary-700">فتح الثقة <ArrowUpLeft size={12} className="inline"/></div></Link>
+        <Link to="/analytics" className="card card-hover p-4"><div className="flex items-center justify-between"><TrendingUp size={17} className="text-primary-700"/><span className="badge-neutral">التحليلات</span></div><div className="mt-3 text-sm font-black text-ink-900">ارجع إلى المؤشرات</div><p className="mt-1 text-[10px] leading-5 text-ink-500">قارن التوجه المستقبلي مع الأنماط الكانونية التي سبقت التنبؤ.</p><div className="mt-3 text-[10px] font-bold text-primary-700">مركز التحليلات <ArrowUpLeft size={12} className="inline"/></div></Link>
       </div>
     </div>
   );

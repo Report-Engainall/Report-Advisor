@@ -6,6 +6,8 @@ const dashboard = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 const entities = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
 const dataTable = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
 const smartReport = fs.readFileSync('src/pages/SmartReportPage.tsx', 'utf8');
+assert.ok(smartReport.includes('CommercialValueChain'), 'smart report must expose the customer-facing value operating chain');
+assert.ok(smartReport.includes('VALUE OPERATING SYSTEM'), 'smart report value chain must be visibly branded as the operating path');
 for (const token of [
   'EVIDENCE GATE',
   'Evidence Snapshot',
@@ -324,4 +326,44 @@ assert.ok(inventoryUnavailable.includes('if (!snapshot) return <DataUnavailableS
 const canonicalProfitability = fs.readFileSync('src/pages/ProfitabilityReportCanonicalPage.tsx', 'utf8');
 assert.ok(canonicalProfitability.includes('DataUnavailableState'), 'canonical profitability must expose a governed unavailable-data state');
 assert.ok(canonicalProfitability.includes('<Link to="/import"'), 'canonical profitability unavailable state must use the unified import route');
-console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
+
+const visualSystem = fs.readFileSync('src/index.css', 'utf8');
+assert.ok(visualSystem.includes('EXECUTIVE VISUAL SYSTEM'), 'visual system must expose the current executive design contract');
+assert.ok(visualSystem.includes('--ag-color-brand:#4f46e5'), 'brand token must be indigo, not green');
+assert.ok(visualSystem.includes('--ag-color-shell:#0b1020'), 'shell token must be midnight navy');
+assert.ok(visualSystem.includes('.ag-app-shell{'), 'application shell must have an explicit premium visual treatment');
+assert.ok(visualSystem.includes('linear-gradient(135deg,#080b16 0%,#0b1020 54%,#11162a 100%)'), 'application shell must use the midnight visual palette');
+assert.ok(visualSystem.includes('.ag-sidebar{'), 'sidebar must have an explicit executive visual treatment');
+assert.ok(visualSystem.includes('linear-gradient(180deg,#0a0f1e 0%,#0d1426 58%,#090d18 100%)'), 'sidebar must use midnight navy rather than green');
+assert.ok(visualSystem.includes('.nav-item-active{'), 'active navigation must have a visible indigo state');
+assert.ok(visualSystem.includes('.btn-primary{'), 'primary actions must have a premium indigo treatment');
+
+
+const appSurface = fs.readFileSync('src/App.tsx', 'utf8');
+assert.ok(appSurface.includes('<Route path="/proposal-demo" element={<ProposalDemoPage />} />'), 'proposal demo must be explicitly exposed as a public route before authentication');
+
+const loginSurface = fs.readFileSync('src/pages/LoginPage.tsx', 'utf8');
+assert.ok(loginSurface.includes('to="/proposal-demo"'), 'login must expose the public proposal demo entry');
+assert.ok(loginSurface.includes('مشاهدة العرض الحي أولًا'), 'login must label the public proposal demo clearly');
+
+const headerSurface = fs.readFileSync('src/components/Header.tsx', 'utf8');
+assert.ok(!headerSurface.includes('text-success-600'), 'healthy connection state must not reintroduce the deprecated green accent');
+const appErrorSurface = fs.readFileSync('src/App.tsx', 'utf8');
+assert.ok(appErrorSurface.includes('AGHBARI · RECOVERY'), 'global error recovery must use the executive recovery surface');
+assert.ok(appErrorSurface.includes('bg-[#0b1020]'), 'loading/error shell fallbacks must use midnight navy');
+
+const proposalSurface = fs.readFileSync('src/pages/ProposalDemoPage.tsx', 'utf8');
+assert.ok(proposalSurface.includes('CommercialValueChain'), 'proposal demo must expose the product value chain');
+assert.ok((proposalSurface.match(/englishLabel:/g) || []).length >= 8, 'proposal demo must expose all eight value stages');
+assert.ok(proposalSurface.includes('ما الذي يراه العميل عندما يشتري الأغبري؟'), 'proposal demo must frame the value chain as a customer-facing product story');
+
+const journeySurface = fs.readFileSync('src/components/ProductJourneyNav.tsx', 'utf8');
+assert.ok((journeySurface.match(/label: '/g) || []).length >= 10, 'product journey must expose a complete end-to-end customer path'); 
+assert.ok(journeySurface.includes("path: '/trust'"), 'product journey must expose the evidence/trust stage');
+assert.ok(journeySurface.includes("path: '/intelligence'"), 'product journey must expose the signal/intelligence stage');
+assert.ok(journeySurface.includes("path: '/advisor-cases'"), 'product journey must expose the advisor case stage');
+assert.ok(journeySurface.includes("path: '/work-center'"), 'product journey must expose the execution stage');
+assert.ok(journeySurface.includes("path: '/replay'"), 'product journey must expose the learning/replay stage');
+assert.ok(visualSystem.includes('SELLABLE PRODUCT POLISH PASS'), 'visual system must include the final sellable polish layer');
+
+console.log('Product wow UI contract: PASS (public proof theater + end-to-end journey + executive visual system)');

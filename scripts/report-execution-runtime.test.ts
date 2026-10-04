@@ -100,23 +100,37 @@ assert.equal((renderResult as any).renderedOutput.sourceBound, true);
 
 const renderedSource = buildRenderedOutput({
   importId: 'import-render-test',
-  fileName: 'sales invoices.pdf',
+  fileName: 'فواتير المبيعات.pdf',
   sourceHash: 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   entityType: 'sales_invoices',
   qualityScore: 92,
   qualityApproved: true,
-  rows: [{
-    rowNumber: 1,
-    data: { total: 10, net_sales: 10, invoice_number: 101, customer_name: 'عميل', invoice_type: 'آجل', date: '2026-01-02' },
+  rows: Array.from({ length: 12 }, (_, index) => ({
+    rowNumber: index + 1,
+    data: {
+      total: index === 0 ? 10 : 0,
+      net_sales: index === 0 ? 10 : 0,
+      invoice_number: 101,
+      customer_name: 'عميل',
+      invoice_type: 'آجل',
+      date: '2026-01-02',
+      documentNo: 'INV-101',
+      documentDate: '2026-01-02',
+      netAmount: 10,
+      unitPrice: 10,
+      grossAmount: 10,
+      discount: 0,
+      cost: 6,
+    },
     provenance: {
       sourceHash: 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      sourceId: 'source-1',
-      sourceDocumentId: 'doc-1',
-      evidenceId: 'evidence-1',
+      sourceId: 'source-' + String(index + 1),
+      sourceDocumentId: 'doc-' + String(index + 1),
+      evidenceId: 'evidence-' + String(index + 1),
       tenantId: 'tenant-test',
-      lineageId: 'line-1',
+      lineageId: 'line-' + String(index + 1),
     },
-  }],
+  })),
 });
 assert.equal(renderedSource.sourceMetrics.totalAmount, 10);
 assert.equal(renderedSource.sourceMetrics.uniqueInvoiceCount, 1);

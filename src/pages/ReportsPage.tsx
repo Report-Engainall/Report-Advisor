@@ -3,21 +3,61 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { FileBarChart, ShoppingCart, Package, Receipt, TrendingUp } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/States';
+import { PageHeader, LoadingState, ErrorState, DataUnavailableState, userFacingError } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
 import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
 import { fetchSmartReport, fetchSmartReportCatalog, type SmartReportCatalogItem, type SmartReportDetail } from '@/lib/report-smart';
-import { readActiveReportContext, saveActiveReportContext } from '@/lib/report-context';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
+import { CustomerReportSurface } from '@/components/CustomerReportSurface';
 import { fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 import type { SalesInvoice, PurchaseInvoice } from '@/lib/types';
 import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingBucket, InventoryReportRow } from '@/lib/dashboard-canonical';
 
+function businessLifecycleLabel(value: unknown): string {
+  const key = String(value ?? '').trim();
+  const labels: Record<string, string> = {
+    NOT_COMMITTED: 'لم يُعتمد بعد',
+    PROPOSED: 'توصية بانتظار القرار',
+    APPROVED: 'معتمد',
+    REJECTED: 'مرفوض',
+    NO_ACTION_COMMITTED: 'لا يوجد إجراء موثق بعد',
+    ACTIONABLE: 'قابل للتحويل إلى عمل',
+    IN_PROGRESS: 'قيد التنفيذ',
+    COMPLETED: 'مكتمل',
+    NOT_RECORDED: 'لم تُسجل نتيجة',
+    OBSERVED: 'نتيجة مرصودة',
+    MEASURED: 'نتيجة مقاسة',
+    LEARNING_PENDING: 'بانتظار التعلم',
+    LEARNED: 'تم تسجيل التعلم',
+  };
+  return labels[key] ?? (key ? 'حالة تحتاج مراجعة' : 'غير متاح');
+}
+
 function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+  const raw = error instanceof Error ? error.message : String(error);
+  return userFacingError(raw);
+}
+
+function reportStateLabel(value: unknown): string {
+  const key = String(value ?? '').trim();
+  const labels: Record<string,string> = {
+    VERIFIED: 'موثق',
+    TRUSTED: 'موثوق',
+    PENDING_EVIDENCE: 'بانتظار اكتمال الدليل',
+    AWAITING_EVIDENCE_SNAPSHOT: 'بانتظار لقطة الدليل',
+    SIGNALS_PRESENT: 'إشارات مثبتة',
+    READY: 'جاهز للقرار',
+    PARTIAL_ANALYSIS: 'تحليل جزئي',
+    GAP_DETECTED: 'فجوة في التغطية',
+    REVIEW_REQUIRED: 'مراجعة مطلوبة',
+    INSUFFICIENT_DATA: 'بيانات غير كافية',
+    CALCULATED: 'محسوب',
+    CONFIRMED: 'مثبت',
+  };
+  return labels[key] ?? (key ? 'يحتاج مراجعة' : 'غير متاح');
 }
 
 function ReportTruthBar({ status, asOf, period, note }: { status: string; asOf?: string; period: string; note?: string }) {
@@ -27,10 +67,11 @@ function ReportTruthBar({ status, asOf, period, note }: { status: string; asOf?:
     : normalized === 'CALCULATED'
       ? 'border-primary-200 bg-primary-50 text-primary-800'
       : 'border-warning-200 bg-warning-50 text-warning-900';
+  const statusLabel = normalized === 'CONFIRMED' ? 'مثبت' : normalized === 'CALCULATED' ? 'محسوب' : 'بيانات غير كافية';
   return <section aria-label="سياق حقيقة التقرير" className={'flex flex-wrap items-center gap-2 rounded-[12px] border px-3 py-2.5 text-[10px] ' + tone}>
-    <span className="font-black">{normalized}</span>
+    <span className="font-black">{statusLabel}</span>
     <span>الفترة: {period}</span>
-    {asOf && <span>As-of: {asOf}</span>}
+    {asOf && <span>حتى: {asOf}</span>}
     {note && <span className="text-current/70">{note}</span>}
     <span className="mr-auto font-semibold">القيم غير المتاحة تبقى غير متاحة ولا تُستبدل بتقديرات.</span>
   </section>;
@@ -38,9 +79,8 @@ function ReportTruthBar({ status, asOf, period, note }: { status: string; asOf?:
 
 function useOptionalSourceReport() {
   const [params] = useSearchParams();
-  const saved = readActiveReportContext();
-  const jobId = params.get('reportJobId')?.trim() || saved?.jobId || '';
-  const expectedSourceHash = params.get('sourceHash')?.trim() || saved?.sourceHash || '';
+  const jobId = params.get('reportJobId')?.trim() || '';
+  const expectedSourceHash = params.get('sourceHash')?.trim() || '';
   const [report, setReport] = useState<SmartReportDetail | null>(null);
   const [loading, setLoading] = useState(Boolean(jobId));
   const [error, setError] = useState<string | null>(null);
@@ -58,13 +98,12 @@ function useOptionalSourceReport() {
     setLoading(true);
     setError(null);
     try {
-      const next = await fetchSmartReport(jobId);
+      const next = await fetchSmartReport(jobId, expectedSourceHash);
       if (version !== requestVersion.current) return;
       if (next && expectedSourceHash && next.sourceHash !== expectedSourceHash) {
         throw new Error('REPORT_SOURCE_HASH_MISMATCH');
       }
       setReport(next);
-      if (next) saveActiveReportContext({ jobId: next.jobId, sourceHash: next.sourceHash });
     } catch (cause) {
       if (version !== requestVersion.current) return;
       setError(errorMessage(cause));
@@ -80,102 +119,9 @@ function useOptionalSourceReport() {
   return { jobId, report, loading, error, retry: load };
 }
 
-function sourceValue(columns: Array<any>, ...tokens: string[]): any {
-  return columns.find((column) => tokens.some((token) => String(column.mappedField ?? column.name ?? '').toLowerCase().replace(/[\\s_-]+/g, '').includes(token.toLowerCase().replace(/[\\s_-]+/g, ''))));
-}
-
-function sourceNumber(column: any, stat: 'sum' | 'mean' | 'max' = 'sum'): number | null {
-  const value = column?.statistics?.[stat];
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
-
-function sourceBoundHref(path: string, report: SmartReportDetail): string {
-  return path + (path.includes('?') ? '&' : '?')
-    + 'reportJobId=' + encodeURIComponent(report.jobId)
-    + '&sourceHash=' + encodeURIComponent(report.sourceHash);
-}
-
 function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report: SmartReportDetail; expectedSpecialty: string; title: string }) {
-  const dataset = report.sourceAnalysis?.datasets?.[0];
-  const objectDataset = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : {};
-  const columns = Array.isArray(objectDataset.columns) ? objectDataset.columns : [];
-  const preview = Array.isArray(objectDataset.preview) ? objectDataset.preview.filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === 'object').slice(0, 12) : [];
-  const fullRows = report.canonicalRows
-    .filter((row) => row && row.data && typeof row.data === 'object')
-    .map((row) => row.data);
-  const analyzedRows = report.rowCount == null ? fullRows.length : report.rowCount;
-  const fullSourceCoverage = report.rowCount == null ? true : fullRows.length >= report.rowCount;
-  const amount = sourceValue(columns, 'outstanding_balance', 'local_amount', 'total_amount', 'net_amount', 'total', 'amount', 'value', 'sales', 'purchase');
-  const quantity = sourceValue(columns, 'quantity', 'qty', 'current_stock', 'stock');
-  const profit = sourceValue(columns, 'profit', 'gross_profit');
-  const margin = sourceValue(columns, 'margin', 'gross_margin');
-  const age120 = sourceValue(columns, 'age_over_120', 'over_120');
-  const age30 = sourceValue(columns, 'age_0_30', '0_30', 'age030');
-  const paid = sourceValue(columns, 'paid_amount', 'paid');
-  const nameColumn = sourceValue(columns, 'customer_name', 'customer', 'supplier_name', 'supplier', 'product_name', 'product', 'item', 'name');
-  const metricColumns = [amount, quantity, profit, margin, age120, age30, paid].filter(Boolean);
-  const rows = fullRows.map((row) => {
-    const name = String(row[nameColumn?.name ?? ''] ?? row.name ?? 'غير مسمى');
-    const raw = row[amount?.name ?? ''] ?? row[quantity?.name ?? ''] ?? row[profit?.name ?? ''] ?? row[margin?.name ?? ''];
-    const value = typeof raw === 'number' ? raw : Number(String(raw ?? '').replace(/,/g, ''));
-    return { name, value: Number.isFinite(value) ? value : null };
-  }).filter((row) => row.value != null).sort((a, b) => Number(b.value) - Number(a.value)).slice(0, 8);
-  const actualMatches = report.specialty === expectedSpecialty;
-  const specialtyLabel: Record<string, string> = { sales:'المبيعات', purchases:'المشتريات', inventory:'المخزون', receivables:'الذمم المدينة', profitability:'الربحية', payments:'المدفوعات والسيولة' };
-
-  return <div dir="rtl" className="report-page space-y-5 animate-fade-in pb-10">
-    <PageHeader
-      title={title + ' — تقرير المصدر'}
-      subtitle={report.sourcePath + ' · هذه الشاشة مربوطة مباشرة بنتيجة التقرير وبصمته، وليست لقطة الشركة العامة.'}
-      actions={<div className="flex flex-wrap gap-2">
-        <Link to={'/reports/smart/' + report.jobId} className="btn-secondary text-xs">التقرير الذكي</Link>
-        <Link to={sourceBoundHref('/trust', report)} className="btn-secondary text-xs">الدليل</Link>
-        <Link to={sourceBoundHref('/decision-experience?stage=evidence', report)} className="btn-primary text-xs">مساحة القرار</Link>
-      </div>}
-    />
-    {!actualMatches && <div className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">هذا المصدر مصنّف كـ{specialtyLabel[report.specialty ?? ''] ?? 'مصدر عام'} وليس {title}. لم يتم تحويله إلى حقيقة تخص هذا التخصص.</div>}
-        <ReportIntelligencePanel report={report} />
-    <section className="ag-reports-smart-section rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="section-kicker">SOURCE-BOUND DOMAIN ANALYSIS</div>
-      <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
-        <h2 className="text-xl font-black text-ink-950">{actualMatches ? 'التحليل المتخصص من المصدر' : 'التحليل العام للمصدر'}</h2>
-        <span className="text-[10px] text-ink-500">{formatNumber(report.rowCount ?? 0)} صف · {columns.length} أعمدة · محلل فعليًا: {formatNumber(analyzedRows)}</span>
-      </div>
-      <div className={`mt-3 rounded-xl border p-3 text-[11px] ${fullSourceCoverage ? 'border-success-200 bg-success-50 text-success-900' : 'border-warning-200 bg-warning-50 text-warning-900'}`}>
-        {fullSourceCoverage
-          ? 'التحليل المتخصص يستخدم مجموعة الصفوف الكانونية الكاملة لهذا التقرير، وليس معاينة الشاشة.'
-          : 'التحليل المتخصص غير مكتمل لهذا المصدر؛ لن تُرفع الاستنتاجات إلى حقيقة كاملة.'}
-      </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {(metricColumns.length ? metricColumns : [{name:'metric'} as any]).map((column:any,index:number) => {
-          const label = String(column.mappedField ?? column.name ?? 'مؤشر').replace(/_/g,' ');
-          const value = sourceNumber(column, 'sum') ?? sourceNumber(column, 'mean');
-          return <div key={String(column.name ?? index)} className="rounded-2xl border border-ink-100 bg-ink-50 p-4"><div className="text-[10px] text-ink-500">{label}</div><div className="mt-2 text-xl font-black text-ink-950">{value == null ? 'غير متاح' : formatNumber(value)}</div><div className="mt-1 text-[9px] text-ink-400">من إحصائية العمود الكانوني للمصدر</div></div>;
-        })}
-      </div>
-    </section>
-    <section className="grid gap-4 lg:grid-cols-[1fr_.8fr]">
-      <Card><CardHeader title="أهم البنود من هذا المصدر" subtitle="أعلى القيم في العينة المقروءة — ليست قرارًا منفذًا."/><CardBody>
-        {rows.length ? <div className="space-y-2">{rows.map((row,index)=><div key={row.name + index} className="flex items-center justify-between gap-3 rounded-xl bg-ink-50 px-3 py-2.5"><span className="truncate text-xs font-bold text-ink-900">{row.name}</span><span className="shrink-0 text-xs font-black text-ink-950">{formatNumber(row.value ?? 0)}</span></div>)}</div> : <div className="text-sm text-ink-500">لا يوجد عمود رقمي مناسب للترتيب في المصدر الحالي.</div>}
-      </CardBody></Card>
-      <Card><CardHeader title="حدود الحقيقة"/><CardBody>
-        <div className="space-y-2 text-xs leading-5 text-ink-600">
-          <div>الثقة: <b>{report.trustState ?? 'غير متاح'}</b></div>
-          <div>الدليل: <b>{report.evidenceStatus ?? 'غير متاح'}</b></div>
-          <div>القرار: <b>{String(report.renderedOutput.decisionStatus ?? 'غير متاح')}</b></div>
-          <div>الإجراء: <b>{String(report.renderedOutput.actionStatus ?? 'غير متاح')}</b></div>
-          <div>النتيجة: <b>{String(report.renderedOutput.outcomeStatus ?? 'غير متاح')}</b></div>
-          <div>التعلم: <b>{String(report.renderedOutput.learningStatus ?? 'غير متاح')}</b></div>
-          <div>Benchmark: <b>{String(report.renderedOutput.benchmarkStatus ?? 'غير متاح')}</b></div>
-        </div>
-      </CardBody></Card>
-    </section>
-    <Card><CardHeader title="معاينة المصدر" subtitle={`تعرض ${formatNumber(preview.length)} صفوف للمعاينة فقط؛ التحليل أعلاه مبني على ${formatNumber(analyzedRows)} صفًا كانونـيًا.`}/><CardBody>
-      {preview.length ? <div className="overflow-x-auto"><table className="min-w-full text-xs"><thead><tr className="border-b border-ink-100">{Object.keys(preview[0]).slice(0,8).map((key)=><th key={key} className="p-2 text-right">{key}</th>)}</tr></thead><tbody>{preview.map((row,index)=><tr key={index} className="border-b border-ink-50">{Object.keys(preview[0]).slice(0,8).map((key)=><td key={key} className="p-2">{String(row[key] ?? '—')}</td>)}</tr>)}</tbody></table></div> : <div className="text-sm text-ink-500">لا توجد معاينة مثبتة لهذا المصدر.</div>}
-    </CardBody></Card>
-  </div>;
+  return <CustomerReportSurface report={report} expectedSpecialty={expectedSpecialty} title={title} />;
 }
-
 const reportCards = [
   { path:'/reports/sales', title:'المبيعات', stage:'قياس', desc:'حركة المبيعات والفواتير والعملاء والمنتجات.', icon:ShoppingCart, iconClass:'bg-primary-50 text-primary-600' },
   { path:'/reports/purchases', title:'المشتريات', stage:'مصدر', desc:'المشتريات والموردون والتدفقات الداخلة.', icon:FileBarChart, iconClass:'bg-accent-50 text-accent-600' },
@@ -344,9 +290,11 @@ export function ReportsCenterPage() {
 
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {smartReports.map((report) => {
-              const modelLabel = report.archetypeId
-                ? report.archetypeId + (report.archetypeVersion ? ' · v' + report.archetypeVersion : '')
-                : report.archetypeState === 'REVIEW_REQUIRED' ? 'يحتاج مراجعة النموذج' : 'النموذج غير متاح';
+              const modelLabel = report.archetypeState === 'SUPPORTED'
+                ? 'تحليل متخصص جاهز'
+                : report.archetypeState === 'REVIEW_REQUIRED'
+                  ? 'التحليل يحتاج مراجعة'
+                  : 'تحليل المصدر';
               const flow = [
                 ['دليل', report.evidenceStatus],
                 ['توصية', report.recommendationStatus],
@@ -356,24 +304,24 @@ export function ReportsCenterPage() {
                 ['نتيجة', report.outcomeStatus],
               ];
               return (
-                <Link key={report.jobId} to={'/reports/smart/' + report.jobId} className="ag-smart-report-card group rounded-2xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
+                <Link key={report.jobId + ':' + report.sourceHash} to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="ag-smart-report-card group rounded-2xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-black text-ink-950" title={report.sourcePath}>{report.sourcePath}</div>
+                      <div className="truncate text-sm font-black text-ink-950">{report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي'}</div>
                       <div className="mt-1 text-[10px] text-ink-500">{report.rowCount == null ? 'عدد الصفوف غير متاح' : formatNumber(report.rowCount) + ' صف'} · {report.specialty ?? 'عام'}</div>
                     </div>
-                    <span className={'shrink-0 rounded-full px-2 py-1 text-[9px] font-black ' + (report.trustState === 'TRUSTED' ? 'bg-success-50 text-success-800' : 'bg-warning-50 text-warning-800')}>{report.trustState ?? 'غير متاح'}</span>
+                    <span className={'shrink-0 rounded-full px-2 py-1 text-[9px] font-black ' + (report.trustState === 'TRUSTED' ? 'bg-indigo-50 text-indigo-800' : 'bg-warning-50 text-warning-800')}>{report.trustState === 'TRUSTED' ? 'موثوق' : report.trustState === 'VERIFIED' ? 'موثق' : report.trustState === 'REVIEW' || report.trustState === 'REVIEW_REQUIRED' ? 'مراجعة مطلوبة' : 'غير مكتمل'}</span>
                   </div>
 
                   <div className="mt-3 rounded-xl border border-primary-100 bg-primary-50/60 p-3">
-                    <div className="text-[9px] font-black tracking-[.08em] text-primary-700">ADVISOR MODEL</div>
+                    <div className="text-[9px] font-black tracking-[.08em] text-primary-700">نوع التحليل</div>
                     <div className="mt-1 truncate text-[11px] font-black text-ink-950" title={modelLabel}>{modelLabel}</div>
-                    <div className="mt-1 text-[9px] text-ink-500">الحالة: {report.archetypeState ?? 'غير متاح'}</div>
+                    <div className="mt-1 text-[9px] text-ink-500">الحالة: {report.archetypeState === 'REVIEW_REQUIRED' ? 'يحتاج مراجعة' : report.archetypeState === 'SUPPORTED' ? 'جاهز' : 'غير متاح'}</div>
                   </div>
 
                   <div className="mt-3 grid grid-cols-2 gap-2 text-[9px]">
                     <span className="rounded-lg bg-ink-50 px-2 py-1">الجودة: {report.qualityScore == null ? '—' : report.qualityScore + '%'}</span>
-                    <span className="rounded-lg bg-ink-50 px-2 py-1">حقيقة: {report.reportVerificationState ?? '—'}</span>
+                    <span className="rounded-lg bg-ink-50 px-2 py-1">حالة التقرير: {reportStateLabel(report.reportVerificationState)}</span>
                   </div>
 
                   <div className="mt-3 grid grid-cols-3 gap-1.5">
@@ -383,7 +331,7 @@ export function ReportsCenterPage() {
                         : state === 'REVIEW_REQUIRED' || state === 'PENDING' || state === 'PROPOSED' ? 'border-warning-200 bg-warning-50 text-warning-800'
                         : 'border-ink-100 bg-ink-50 text-ink-500'
                       )}>
-                        {stage}: {state ?? '—'}
+                        {stage}: {state === 'VERIFIED' ? 'موثق' : state === 'APPROVED' ? 'معتمد' : state === 'COMPLETED' ? 'مكتمل' : state === 'PROPOSED' ? 'مقترح' : state === 'PENDING' || state === 'REVIEW_REQUIRED' ? 'مراجعة' : state === 'IN_PROGRESS' ? 'قيد التنفيذ' : state === 'OPEN' ? 'مفتوح' : 'غير متاح'}
                       </span>
                     ))}
                   </div>
@@ -411,11 +359,7 @@ export function ReportsCenterPage() {
         <h3 className="mt-2 text-sm font-black text-ink-900">جودة البيانات والتدقيق</h3>
         <p className="mt-1 text-[10px] leading-5 text-ink-500">مسار الجودة هو المصدر الحالي لمراجعة الحالات بدل إنشاء تقرير تدقيق منفصل ببيانات مكررة.</p>
       </Link>
-      <div className="card p-4 border-warning-200 bg-warning-50/35">
-        <div className="text-[9px] font-black tracking-[.12em] text-warning-800">NOT AVAILABLE</div>
-        <h3 className="mt-2 text-sm font-black text-ink-900">Report Builder</h3>
-        <p className="mt-1 text-[10px] leading-5 text-warning-900">لا توجد شاشة بناء تقارير مستقلة مثبتة في المسار الحالي؛ لا يتم محاكاة محرر لا يملك مسارًا حقيقيًا.</p>
-      </div>
+
     </section>
   </div>;
 }

@@ -67,7 +67,7 @@ export function LiquidityPage() {
           <h2 className="mt-2 text-2xl font-black lg:text-3xl">اعرف أين يتركز التعرض قبل أن تبحث عن النقد.</h2>
           <p className="mt-2 text-sm leading-7 text-slate-300">المسار الحالي يثبت ما هو مستحق للتحصيل وما هو مستحق للدفع ومعدل التحصيل. لا يتم تحويل ذلك إلى رصيد نقدي أو تدفق مصرفي غير موجود في المصدر.</p>
         </div>
-        <Badge variant={kpis.status === 'CONFIRMED' ? 'success' : kpis.status === 'CALCULATED' ? 'primary' : 'warning'}>{kpis.status}</Badge>
+        <Badge variant={kpis.status === 'CONFIRMED' ? 'success' : kpis.status === 'CALCULATED' ? 'primary' : 'warning'}>{kpis.status === 'CONFIRMED' ? 'مؤكد' : kpis.status === 'CALCULATED' ? 'محسوب' : 'البيانات غير كافية'}</Badge>
       </div>
       <div className="mt-5 text-[10px] text-ink-300">As Of: {asOf}</div>
     </section>
@@ -99,7 +99,7 @@ export function LiquidityPage() {
       </div>
       <div className="ag-decision-cell">
         <span className="ag-decision-label">الحالة</span>
-        <span className="ag-decision-value">{kpis.status}</span>
+        <span className="ag-decision-value">{kpis.status === "CONFIRMED" ? "مؤكد" : kpis.status === "CALCULATED" ? "محسوب" : "البيانات غير كافية"}</span>
       </div>
       <div className="ag-decision-cell">
         <span className="ag-decision-label">الخطوة التالية</span>

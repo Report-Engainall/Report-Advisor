@@ -4,43 +4,28 @@ export type ActiveReportContext = {
   savedAt: number;
 };
 
-const KEY = 'aghbari.active-report-context.v1';
-
-export function saveActiveReportContext(context: Omit<ActiveReportContext, 'savedAt'>): void {
-  if (!context.jobId.trim() || !context.sourceHash.trim() || typeof window === 'undefined') return;
-  try {
-    const value = JSON.stringify({ ...context, savedAt: Date.now() });
-    window.sessionStorage.setItem(KEY, value);
-    window.localStorage.setItem(KEY, value);
-  } catch {
-    // Best effort only; the source-bound URL remains authoritative.
-  }
+/**
+ * Report context is authoritative only when it is explicit in the current URL.
+ * This module intentionally does not persist or restore a global "active report".
+ * A previous report must never become the context of a new route implicitly.
+ */
+export function saveActiveReportContext(_context: Omit<ActiveReportContext, 'savedAt'>): void {
+  // Deliberately disabled: persisted global report context is a cross-report
+  // contamination vector. Keep the function for source compatibility only.
 }
 
 export function readActiveReportContext(): ActiveReportContext | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    const raw = window.sessionStorage.getItem(KEY) || window.localStorage.getItem(KEY);
-    if (!raw) return null;
-    const value: unknown = JSON.parse(raw);
-    if (!value || typeof value !== 'object') return null;
-    const record = value as Record<string, unknown>;
-    const jobId = typeof record.jobId === 'string' ? record.jobId.trim() : '';
-    const sourceHash = typeof record.sourceHash === 'string' ? record.sourceHash.trim() : '';
-    const savedAt = typeof record.savedAt === 'number' ? record.savedAt : 0;
-    if (!jobId || !sourceHash || !savedAt) return null;
-    return { jobId, sourceHash, savedAt };
-  } catch {
-    return null;
-  }
+  // Deliberately fail closed. Source-bound routes must receive reportJobId +
+  // sourceHash explicitly in their route/search params.
+  return null;
 }
 
 export function clearActiveReportContext(): void {
   if (typeof window === 'undefined') return;
   try {
-    window.sessionStorage.removeItem(KEY);
-    window.localStorage.removeItem(KEY);
+    window.sessionStorage.removeItem('aghbari.active-report-context.v1');
+    window.localStorage.removeItem('aghbari.active-report-context.v1');
   } catch {
-    // Best effort.
+    // Best effort cleanup of legacy persisted context.
   }
 }

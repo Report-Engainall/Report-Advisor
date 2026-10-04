@@ -1,13 +1,14 @@
+import { CommercialValueChain } from '@/components/CommercialValueChain';
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, CheckCircle2, FileSearch, ShieldCheck, Search, Columns3, ArrowDownUp, Download, RotateCcw } from 'lucide-react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
+import { ErrorState, LoadingState, PageHeader, userFacingError } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
-import { saveActiveReportContext } from '@/lib/report-context';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { SmartReportAdvisorySurface } from '@/components/SmartReportAdvisorySurface';
 import { ReportDecisionCockpit } from '@/components/ReportDecisionCockpit';
 import { formatNumber } from '@/lib/format';
+import { parseNumber } from '@/lib/file-engine/normalizer';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 
 function textValue(value: unknown): string {
@@ -26,6 +27,14 @@ function stateLabel(value: string | null): string {
     UNVERIFIED: 'غير موثق بعد',
     LEGACY_UNRESOLVED: 'تحقق تاريخي يحتاج إعادة إثبات',
     READY: 'جاهز للقرار',
+    OPEN: 'مفتوح',
+    IN_PROGRESS: 'قيد التنفيذ',
+    COMPLETED: 'مكتمل',
+    FAILED: 'فشل',
+    PENDING: 'قيد المراجعة',
+    AVAILABLE: 'متاح',
+    CALCULATED: 'محسوب',
+    OBSERVED: 'مرصود',
     FULL_SOURCE: 'المصدر كامل',
     PARTIAL_FETCH_CEILING: 'تحليل جزئي — حد القراءة 50,000',
     PARTIAL_FETCH_ERROR: 'تحليل جزئي — تعذر قراءة جزء من المصدر',
@@ -41,8 +50,12 @@ function stateLabel(value: string | null): string {
     SIGNALS_PRESENT: 'إشارات مثبتة',
     NO_EXCEPTIONAL_SIGNALS: 'لا توجد إشارات استثنائية',
     REVIEW_REQUIRED: 'المراجعة مطلوبة',
+    PROPOSED: 'مقترح',
+    PARTIAL_ANALYSIS: 'تحليل جزئي',
+    INSUFFICIENT_DATA: 'البيانات غير كافية',
+    NOT_READY: 'غير جاهز',
   };
-  return value ? (labels[value] ?? value) : 'غير متاح';
+  return value ? (labels[value] ?? (value.includes('_') ? 'حالة تحتاج مراجعة' : value)) : 'غير متاح';
 }
 
 type SmartColumn = {
@@ -55,12 +68,7 @@ type SmartColumn = {
 };
 
 function numberValue(value: unknown): number | null {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'string' && value.trim()) {
-    const parsed = Number(value.replace(/,/g, ''));
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-  return null;
+  return parseNumber(value);
 }
 
 function normalizeKey(value: unknown): string {
@@ -75,71 +83,197 @@ function dataKey(column: SmartColumn | null | undefined): string {
   return String(column?.mappedField ?? column?.name ?? '').trim();
 }
 
-function buildSmartAnalysis(report: SmartReportDetail | null) {
+function displayColumnLabel(column: string): string {
+  const key = String(column ?? '').trim();
+  const normalized = key.toLowerCase().replace(/[\s_-]+/g, '');
+  const labels: Record<string, string> = {
+    balance: 'الرصيد', credit: 'دائن', debit: 'مدين', amount: 'المبلغ', total: 'الإجمالي',
+    net_amount: 'صافي المبلغ', gross_amount: 'الإجمالي قبل الخصم', subtotal: 'المجموع الفرعي',
+    tax_amount: 'الضريبة', paid_amount: 'المدفوع', invoice_number: 'رقم الفاتورة', invoice_date: 'تاريخ الفاتورة',
+    customer_name: 'اسم العميل', supplier_name: 'اسم المورد', product_name: 'اسم الصنف', quantity: 'الكمية',
+    date: 'التاريخ', currency: 'العملة', invoice_type: 'نوع الفاتورة', unit_price: 'سعر الوحدة', price: 'السعر',
+    item_name: 'اسم الصنف', sku: 'رمز الصنف', warehouse: 'المستودع', category: 'الفئة',
+    description: 'الوصف', account_name: 'الحساب', account_number: 'رقم الحساب', movement_number: 'رقم الحركة',
+    'دائن': 'دائن', 'الرصيد': 'الرصيد', 'مدين': 'مدين',
+    'الصنف': 'اسم الصنف', 'اسم الصنف': 'اسم الصنف', 'المادة': 'اسم الصنف', 'اسم المادة': 'اسم الصنف',
+    'الخامة': 'اسم الصنف', 'اسم الخامة': 'اسم الصنف', 'الخامات': 'اسم الصنف',
+    'العميل': 'اسم العميل', 'اسم العميل': 'اسم العميل', 'المورد': 'اسم المورد', 'اسم المورد': 'اسم المورد',
+    'رقم الصنف': 'رمز الصنف', 'كود الصنف': 'رمز الصنف', 'رمز الصنف': 'رمز الصنف', 'الوحدة': 'الوحدة',
+    'البيان': 'الوصف', 'الوصف': 'الوصف', 'التاريخ 2026-': 'التاريخ',
+    'رقم الحركة': 'رقم الحركة', 'رقم السند': 'رقم المستند',
+  };
+  const exact = labels[key] ?? labels[normalized];
+  if (exact) return exact;
+  if (/التاريخ/.test(key)) return 'التاريخ';
+  if (/اسم.?الصنف|الخامة/.test(key)) return 'اسم الصنف';
+  if (/اسم.?العميل/.test(key)) return 'اسم العميل';
+  if (/اسم.?المورد/.test(key)) return 'اسم المورد';
+  if (/الرصيد/.test(key)) return 'الرصيد';
+  if (/دائن/.test(key)) return 'دائن';
+  if (/مدين/.test(key)) return 'مدين';
+  return 'مؤشر تشغيلي';
+}
+
+
+function canonicalFieldName(value: unknown): string | null {
+  const raw = String(value ?? '').trim();
+  if (!raw) return null;
+  const key = normalizeKey(raw);
+  const aliases: Array<[string,string[]]> = [
+    ['date',['date','invoice_date','التاريخ','تاريخ الفاتورة','التاريخ 2026-']],
+    ['invoice_number',['invoice_number','invoice number','رقم الفاتورة','رقم الفاتوره']],
+    ['invoice_type',['invoice_type','invoice type','نوع الفاتورة','نوع الفاتوره']],
+    ['customer_name',['customer_name','customer','client','اسم العميل','العميل']],
+    ['supplier_name',['supplier_name','supplier','اسم المورد','المورد']],
+    ['product_name',['product_name','product','item_name','item','name','اسم الصنف','اسم المنتج','الصنف','المادة','اسم المادة','الخامة','اسم الخامة']],
+    ['total',['total','total_amount','اجمالي الفاتورة','اجمالي الفاتوره','الإجمالي','الاجمالي']],
+    ['net_amount',['net_amount','مبلغ الصافي بالمحلي','مبلغ صافي المحلي','الصافي بالمحلي']],
+    ['paid_amount',['paid_amount','paid','المدفوع']],
+    ['balance',['balance','الرصيد','الرصيد المستحق','outstanding_balance']],
+    ['credit',['credit','دائن']],
+    ['debit',['debit','مدين']],
+    ['quantity',['quantity','qty','الكمية','العدد']],
+    ['unit_price',['unit_price','سعر الوحدة']],
+    ['cost',['cost','cost_price','التكلفة']],
+    ['price',['price','السعر']],
+    ['category',['category','الفئة','التصنيف']],
+    ['warehouse',['warehouse','المستودع','المخزن']],
+  ];
+  for (const [canonical, candidates] of aliases) {
+    if (candidates.some(candidate => normalizeKey(candidate) === key)) return canonical;
+  }
+  return null;
+}
+
+function valueForColumn(row: Record<string, unknown>, column: string): unknown {
+  if (Object.prototype.hasOwnProperty.call(row, column) && row[column] != null && row[column] !== '') return row[column];
+  const target = canonicalFieldName(column);
+  if (!target) return row[column];
+  for (const [key, value] of Object.entries(row)) {
+    if (canonicalFieldName(key) === target && value != null && value !== '') return value;
+  }
+  return row[column];
+}
+
+function normalizedDatasetColumns(report: SmartReportDetail | null): SmartColumn[] {
   const dataset = report?.sourceAnalysis?.datasets?.[0];
-  const objectDataset = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : null;
-  const columns = Array.isArray(objectDataset?.columns)
-    ? objectDataset.columns.filter((row): row is SmartColumn => Boolean(row) && typeof row === 'object')
+  if (!dataset || typeof dataset !== 'object') return [];
+  const rawColumns = Array.isArray((dataset as Record<string, unknown>).columns)
+    ? (dataset as Record<string, unknown>).columns as unknown[]
     : [];
-  const preview = Array.isArray(objectDataset?.preview)
-    ? objectDataset.preview.filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === 'object')
-    : [];
-  const fullRows = (report?.canonicalRows ?? []).filter((row) => row && typeof row.data === 'object' && row.data !== null);
+  return rawColumns.map((column): SmartColumn | null => {
+    if (column && typeof column === 'object') {
+      const item = column as Record<string, unknown>;
+      const sourceName = String(item.name ?? item.mappedField ?? '').trim();
+      if (!sourceName) return null;
+      return {
+        name: sourceName,
+        mappedField: String(item.mappedField ?? canonicalFieldName(sourceName) ?? '').trim() || null,
+        dataType: String(item.dataType ?? ''),
+        nullCount: Number.isFinite(Number(item.nullCount)) ? Number(item.nullCount) : undefined,
+        mappingConfidence: Number.isFinite(Number(item.mappingConfidence)) ? Number(item.mappingConfidence) : undefined,
+        statistics: item.statistics && typeof item.statistics === 'object'
+          ? item.statistics as SmartColumn['statistics']
+          : undefined,
+      };
+    }
+    const sourceName = String(column ?? '').trim();
+    return sourceName ? {
+      name: sourceName,
+      mappedField: canonicalFieldName(sourceName),
+      mappingConfidence: canonicalFieldName(sourceName) ? 85 : 0,
+    } : null;
+  }).filter((item): item is SmartColumn => Boolean(item));
+}
+
+function uniqueBusinessColumns(columns: SmartColumn[], rows: Array<Record<string, unknown>>): SmartColumn[] {
+  const byKey = new Map<string, SmartColumn>();
+  const add = (column: SmartColumn) => {
+    const key = String(column.mappedField ?? canonicalFieldName(column.name) ?? column.name ?? '').trim();
+    if (!key) return;
+    const current = byKey.get(key);
+    if (!current || Number(column.mappingConfidence ?? 0) > Number(current.mappingConfidence ?? 0)) byKey.set(key, column);
+  };
+  columns.forEach(add);
+  for (const row of rows.slice(0, 500)) {
+    for (const key of Object.keys(row)) {
+      if (/^(page_number|line_number|visual_cell_\d+)$/i.test(key)) continue;
+      if (/^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/.test(key.trim()) || /^20\d{2}-?$/.test(key.trim())) continue;
+      const mapped = canonicalFieldName(key);
+      if (mapped && !byKey.has(mapped)) add({ name: key, mappedField: mapped, mappingConfidence: 80 });
+    }
+  }
+  return [...byKey.values()];
+}
+
+function buildSmartAnalysis(report: SmartReportDetail | null) {
+  const rows = (report?.canonicalRows ?? [])
+    .filter((row) => row && row.data && typeof row.data === 'object')
+    .map((row) => row.data as Record<string, unknown>);
+  const columns = uniqueBusinessColumns(normalizedDatasetColumns(report), rows);
 
   const numeric = columns
-    .map(column => ({ column, sum: numberValue(column.statistics?.sum), mean: numberValue(column.statistics?.mean) }))
-    .filter(item => item.sum != null || item.mean != null);
+    .map((column) => {
+      const field = String(column.mappedField ?? column.name ?? '').trim();
+      const values = rows.map((row) => parseNumber(valueForColumn(row, field))).filter((value): value is number => value != null);
+      const sourceStatSum = numberValue(column.statistics?.sum);
+      const sum = sourceStatSum != null ? sourceStatSum : values.reduce((total, value) => total + value, 0);
+      const mean = numberValue(column.statistics?.mean) ?? (values.length ? sum / values.length : null);
+      return { column, sum: values.length || sourceStatSum != null ? sum : null, mean };
+    })
+    .filter((item) => item.sum != null || item.mean != null);
 
-  const completeness = report?.rowCount && columns.length
-    ? Math.round(
-        Math.max(0, 100 - (
-          columns.reduce((sum, column) => sum + Math.min(report.rowCount ?? 0, Math.max(0, Number(column.nullCount ?? 0))), 0)
-          / Math.max(1, (report.rowCount ?? 0) * columns.length)
-        ) * 100)
-      )
-    : null;
+  const dimensionColumn = columns.find((column) =>
+    ['customer_name','supplier_name','product_name','category','warehouse','invoice_number'].includes(
+      String(column.mappedField ?? canonicalFieldName(column.name) ?? ''),
+    ),
+  );
+  const amountColumnForRanking = columns.find((column) =>
+    ['net_amount','total','total_amount','amount','value','balance','outstanding_balance','paid_amount','quantity','current_stock','stock'].includes(
+      String(column.mappedField ?? canonicalFieldName(column.name) ?? ''),
+    ),
+  );
+  const aggregateNamePattern = /^(?:الإجمالي|اجمالي|المجموع|المجموع الكلي|الإجمالي الكلي|total|grand total|subtotal|summary|ملخص)$/i;
+  const topRows = dimensionColumn && amountColumnForRanking
+    ? [...rows.reduce((groups, row) => {
+        const name = String(valueForColumn(row, String(dimensionColumn.mappedField ?? dimensionColumn.name ?? '')) ?? 'غير مسمى').trim() || 'غير مسمى';
+        const value = parseNumber(valueForColumn(row, String(amountColumnForRanking.mappedField ?? amountColumnForRanking.name ?? '')));
+        if (aggregateNamePattern.test(name) || value == null || !Number.isFinite(value)) return groups;
+        groups.set(name, (groups.get(name) ?? 0) + value);
+        return groups;
+      }, new Map<string, number>()).entries()]
+      .map(([name, value]) => ({ name, value }))
+      .sort((a,b) => Math.abs(b.value) - Math.abs(a.value))
+      .slice(0, 5)
+    : [];
+
+  const completeness = rows.length && columns.length
+    ? Math.round(Math.max(0, 100 - (
+      columns.reduce((sum, column) => {
+        const field = String(column.mappedField ?? column.name ?? '');
+        return sum + rows.filter((row) => {
+          const value = valueForColumn(row, field);
+          return value === null || value === undefined || value === '';
+        }).length;
+      }, 0) / Math.max(1, rows.length * columns.length) * 100
+    )))
+    : report?.qualityScore ?? null;
 
   const findColumn = (...names: string[]) =>
-    columns.find(column => {
-      const key = normalizeKey(column.mappedField ?? column.name);
-      return names.some(name => key.includes(normalizeKey(name)));
-    });
+    columns.find((column) => names.some((name) => canonicalFieldName(column.mappedField ?? column.name) === canonicalFieldName(name)));
 
-  const amountColumn = findColumn('outstanding_balance', 'local_amount', 'total_amount', 'total', 'net_amount', 'amount', 'value');
-  const age120Column = findColumn('age_over_120', 'over_120');
-  const age30Column = findColumn('age_0_30', '0_30', 'age030');
-  const paidColumn = findColumn('paid_amount', 'paid');
-  const quantityColumn = findColumn('quantity', 'qty', 'stock', 'current_stock');
-  const customerColumn = findColumn('customer_name', 'customer', 'client');
-  const productColumn = findColumn('product_name', 'product', 'item', 'sku');
-
-  const customerKey = dataKey(customerColumn);
-  const productKey = dataKey(productColumn);
-  const amountKey = dataKey(amountColumn);
-
-  const topRows = fullRows
-    .map(record => ({
-      name: String(record.data[customerKey] ?? record.data[productKey] ?? record.data.name ?? record.data.sku ?? 'غير مسمى'),
-      value: numberValue(
-        record.data[amountKey] ??
-        record.data.outstanding_balance ??
-        record.data.local_amount ??
-        record.data.total ??
-        record.data.amount ??
-        record.data.value ??
-        record.data.price ??
-        record.data['السعر']
-      ),
-    }))
-    .filter(row => row.value != null)
-    .sort((a, b) => Number(b.value) - Number(a.value))
-    .slice(0, 5);
+  const amountColumn = findColumn('total','total_amount','amount','value','net_amount','outstanding_balance','balance');
+  const age120Column = findColumn('age_over_120','over_120');
+  const age30Column = findColumn('age_0_30','0_30','age030');
+  const paidColumn = findColumn('paid_amount','paid');
+  const quantityColumn = findColumn('quantity','qty','stock','current_stock');
+  const primaryMetricColumn = amountColumn ?? (report?.specialty === 'inventory' ? quantityColumn : null);
 
   const metrics = [
     {
-      label: report?.specialty === 'receivables' ? 'إجمالي الرصيد المستحق' : 'أهم قيمة مالية',
-      value: formatMetric(amountColumn?.statistics?.sum == null ? null : Number(amountColumn.statistics.sum)),
-      detail: amountColumn?.mappedField ?? amountColumn?.name ?? 'غير متاح',
+      label: report?.specialty === 'receivables' ? 'إجمالي الرصيد المستحق' : report?.specialty === 'inventory' && !amountColumn ? 'إجمالي الكمية المثبتة' : 'أهم قيمة مالية',
+      value: formatMetric(primaryMetricColumn ? (numberValue(primaryMetricColumn.statistics?.sum) ?? numeric.find((item) => item.column === primaryMetricColumn)?.sum ?? null) : null),
+      detail: primaryMetricColumn ? displayColumnLabel(String(primaryMetricColumn.mappedField ?? primaryMetricColumn.name ?? '')) : 'لا توجد قيمة رقمية مثبتة',
     },
     {
       label: 'عدد الصفوف',
@@ -149,12 +283,14 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
     {
       label: 'اكتمال البيانات',
       value: completeness == null ? 'غير متاح' : `${completeness}%`,
-      detail: 'محسوب من القيم غير الفارغة',
+      detail: 'محسوب من الحقول المعروضة',
     },
     {
       label: report?.specialty === 'receivables' ? 'أكثر من 120 يومًا' : 'مؤشر عددي رئيسي',
-      value: formatMetric(age120Column?.statistics?.sum == null ? (numeric[0]?.sum ?? null) : Number(age120Column.statistics.sum)),
-      detail: age120Column?.mappedField ?? age120Column?.name ?? (numeric[0]?.column.mappedField ?? numeric[0]?.column.name ?? 'غير متاح'),
+      value: formatMetric(age120Column ? numberValue(age120Column.statistics?.sum) : (numeric[0]?.sum ?? null)),
+      detail: age120Column
+        ? displayColumnLabel(String(age120Column.mappedField ?? age120Column.name ?? ''))
+        : (numeric[0] ? displayColumnLabel(String(numeric[0].column.mappedField ?? numeric[0].column.name ?? '')) : 'غير متاح'),
     },
   ];
 
@@ -162,29 +298,29 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
     metrics.push({
       label: '0–30 يومًا',
       value: formatMetric(numberValue(age30Column.statistics?.sum)),
-      detail: age30Column.mappedField ?? age30Column.name ?? 'age_0_30',
+      detail: displayColumnLabel(String(age30Column.mappedField ?? age30Column.name ?? '')),
     });
   } else if (report?.specialty === 'inventory' && quantityColumn) {
     metrics.push({
       label: 'الكمية',
       value: formatMetric(numberValue(quantityColumn.statistics?.sum)),
-      detail: quantityColumn.mappedField ?? quantityColumn.name ?? 'quantity',
+      detail: displayColumnLabel(String(quantityColumn.mappedField ?? quantityColumn.name ?? '')),
     });
   } else if (paidColumn) {
     metrics.push({
       label: 'المدفوع',
       value: formatMetric(numberValue(paidColumn.statistics?.sum)),
-      detail: paidColumn.mappedField ?? paidColumn.name ?? 'paid_amount',
+      detail: displayColumnLabel(String(paidColumn.mappedField ?? paidColumn.name ?? '')),
     });
   }
 
-  return { columns, preview, numeric, completeness, metrics, topRows };
+  return { columns, preview: [], numeric, completeness, metrics, topRows };
 }
 
 function reportVerificationLabel(value: string): string {
-  if (value === 'VERIFIED') return 'Verified';
-  if (value === 'GAP_DETECTED') return 'Gap Detected';
-  return 'Pending Evidence';
+  if (value === 'VERIFIED') return 'موثق';
+  if (value === 'GAP_DETECTED') return 'فجوة تحتاج مراجعة';
+  return 'بانتظار الدليل';
 }
 
 function EvidenceInspector({ report }: { report: SmartReportDetail }) {
@@ -199,38 +335,48 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="section-kicker">EVIDENCE INSPECTOR</div>
+          <div className="section-kicker">فحص الدليل</div>
           <h2 className="mt-1 text-lg font-black text-ink-950">سلسلة الثقة لهذا التقرير</h2>
-          <p className="mt-1 text-xs leading-6 text-ink-500">Trusted Source لا تعني Verified Report. الاعتماد الكانوني دليل تغطية للبيانات، وليس قبولًا نهائيًا للدليل.</p>
+          <p className="mt-1 text-xs leading-6 text-ink-500">المصدر الموثوق لا يعني أن التقرير موثق نهائيًا. الاعتماد الكانوني يثبت تغطية البيانات، بينما قبول الدليل مرحلة مستقلة.</p>
         </div>
         <span className={`rounded-full border px-3 py-1.5 text-[10px] font-black ${verificationClass}`}>{reportVerificationLabel(verification)}</span>
       </div>
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">SOURCE</div><div className="mt-2 text-sm font-black">{report.sourcePath}</div><div className="mt-1 text-[10px] text-ink-500">Trust: {stateLabel(report.sourceTrustState ?? report.trustState)}</div></div>
-        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">FINGERPRINT</div><div className="mt-2 break-all font-mono text-[10px]">{report.sourceHash}</div></div>
-        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">CANONICAL COMMIT</div><div className="mt-2 text-sm font-black">{formatNumber(report.canonicalCommitCount)} / {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)}</div><div className="mt-1 text-[10px] text-ink-500">{gap > 0 ? `Gap: ${formatNumber(gap)}` : 'No canonical coverage gap'}</div></div>
-        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">ANALYSIS</div><div className="mt-2 text-sm font-black">{report.sourceAnalysis?.analysisStatus ?? 'غير متاح'}</div><div className="mt-1 text-[10px] text-ink-500">{report.sourceAnalysis?.rowCount == null ? 'غير متاح' : formatNumber(report.sourceAnalysis.rowCount)} rows</div></div>
+        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">REPORT</div><div className="mt-2 text-sm font-black">{report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : 'تقرير أعمال ذكي'}</div><div className="mt-1 text-[10px] text-ink-500">الثقة: {stateLabel(report.sourceTrustState ?? report.trustState)}</div></div>
+        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">ارتباط المصدر</div><div className="mt-2 text-sm font-black">مرتبط بالمصدر الأصلي</div><div className="mt-1 text-[10px] text-ink-500">البصمة الكاملة متاحة في تفاصيل التدقيق.</div></div>
+        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">تغطية البيانات</div><div className="mt-2 text-sm font-black">{formatNumber(report.canonicalCommitCount)} سجل</div><div className="mt-1 text-[10px] text-ink-500">{gap > 0 ? `فجوة: ${formatNumber(gap)} سجل` : 'التغطية الكانونية مكتملة'}</div></div>
+        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">حالة التحليل</div><div className="mt-2 text-sm font-black">{stateLabel(report.sourceAnalysis?.analysisStatus ?? 'غير متاح')}</div><div className="mt-1 text-[10px] text-ink-500">{report.sourceAnalysis?.rowCount == null ? 'غير متاح' : `${formatNumber(report.sourceAnalysis.rowCount)} سجلًا محللًا`}</div></div>
       </div>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <div className="rounded-xl border border-ink-200 bg-ink-50/60 p-4">
-          <div className="text-[9px] font-black text-ink-500">EVIDENCE PASSPORT</div>
+          <div className="text-[9px] font-black text-ink-500">حالة الدليل</div>
           <div className="mt-2 text-sm font-black">{stateLabel(report.evidenceStatus)}</div>
-          <div className="mt-1 text-[10px] text-ink-500">Acceptance: {stateLabel(String(report.renderedOutput.evidenceAcceptanceStatus ?? 'غير متاح'))} · Readiness: {stateLabel(String(report.renderedOutput.decisionReadiness ?? 'غير متاح'))}</div>
-          <div className="mt-1 break-all font-mono text-[9px] text-ink-400">Snapshot: {String(report.renderedOutput.evidenceSnapshotId ?? 'غير موجود')}</div>
+          <div className="mt-1 text-[10px] text-ink-500">القبول: {stateLabel(String(report.renderedOutput.evidenceAcceptanceStatus ?? 'غير متاح'))} · الجاهزية: {stateLabel(String(report.renderedOutput.decisionReadiness ?? 'غير متاح'))}</div>
+          
         </div>
         <div className={`rounded-xl border p-4 ${verificationClass}`}>
-          <div className="text-[9px] font-black">VERIFICATION STATE</div>
+          <div className="text-[9px] font-black">حالة التوثيق</div>
           <div className="mt-2 text-sm font-black">{reportVerificationLabel(verification)}</div>
-          <div className="mt-1 text-[10px]">Source trust: {stateLabel(report.sourceTrustState ?? report.trustState)} · Report verification: {reportVerificationLabel(verification)}</div>
+          <div className="mt-1 text-[10px]">ثقة المصدر: {stateLabel(report.sourceTrustState ?? report.trustState)} · توثيق التقرير: {reportVerificationLabel(verification)}</div>
           {report.renderedOutput.legacyPriorVerification === true ? <div className="mt-2 rounded-lg border border-warning-300 bg-warning-50 px-2 py-1 text-[9px] font-bold text-warning-900">حالة VERIFIED القديمة تم استبدالها بدليل Passport مستقل.</div> : null}
         </div>
       </div>
+      <details className="mt-3 rounded-2xl border border-ink-200 bg-ink-50/70 p-4">
+        <summary className="cursor-pointer text-[10px] font-black text-ink-700">تفاصيل التدقيق الفني</summary>
+        <div className="mt-3 grid gap-3 md:grid-cols-2">
+          <div className="rounded-xl bg-white p-3"><div className="text-[9px] font-black text-ink-500">بصمة المصدر</div><div className="mt-1 break-all font-mono text-[9px] text-ink-500">{report.sourceHash}</div></div>
+          <div className="rounded-xl bg-white p-3"><div className="text-[9px] font-black text-ink-500">عملية التقرير</div><div className="mt-1 break-all font-mono text-[9px] text-ink-500">{report.jobId}</div></div>
+          <div className="rounded-xl bg-white p-3"><div className="text-[9px] font-black text-ink-500">الاستيراد الكانوني</div><div className="mt-1 text-[10px] text-ink-500">{report.canonicalAnalysisScope === 'FULL_SOURCE' ? 'المصدر الكامل' : 'قراءة جزئية تحتاج مراجعة'}</div></div>
+          <div className="rounded-xl bg-white p-3"><div className="text-[9px] font-black text-ink-500">لقطة الدليل</div><div className="mt-1 break-all font-mono text-[9px] text-ink-500">{String(report.renderedOutput.evidenceSnapshotId ?? 'غير موجود')}</div></div>
+        </div>
+      </details>
+
       <div className="mt-3 rounded-2xl border border-primary-200 bg-primary-50/45 p-4" aria-label="بوابة الدليل قبل القرار">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <div className="text-[9px] font-black tracking-[0.12em] text-primary-700">EVIDENCE GATE</div>
+            <div className="text-[9px] font-black tracking-[0.12em] text-primary-700">بوابة الدليل</div>
             <h3 className="mt-1 text-sm font-black text-ink-950">الاعتماد الكانوني والدليل النهائي مرحلتان منفصلتان</h3>
-            <p className="mt-1 text-[10px] leading-5 text-ink-600">اكتمال Commit يثبت تغطية البيانات الكانونية فقط. لا تصبح النتيجة Verified إلا بعد وجود Evidence Snapshot صريح مرتبط بالمصدر.</p>
+            <p className="mt-1 text-[10px] leading-5 text-ink-600">اكتمال Commit يثبت تغطية البيانات الكانونية فقط. لا تصبح النتيجة Verified إلا بعد وجود لقطة الدليل صريح مرتبط بالمصدر.</p>
           </div>
           {verification !== 'VERIFIED' ? (
             <Link to="/trust" className="btn-secondary text-[10px]">فتح بوابة الأدلة <ArrowLeft size={12} /></Link>
@@ -238,15 +384,15 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
         </div>
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
           <div className="rounded-xl bg-white p-3">
-            <div className="text-[8px] font-black text-ink-400">CANONICAL COMMIT</div>
+            <div className="text-[8px] font-black text-ink-400">التغطية الكانونية</div>
             <div className="mt-1 text-[10px] font-black text-ink-900">{gap > 0 ? `فجوة ${formatNumber(gap)} صف` : report.canonicalCommitVerified ? 'مغطى' : 'غير مثبت'}</div>
           </div>
           <div className="rounded-xl bg-white p-3">
-            <div className="text-[8px] font-black text-ink-400">EVIDENCE SNAPSHOT</div>
+            <div className="text-[8px] font-black text-ink-400">لقطة الدليل</div>
             <div className="mt-1 text-[10px] font-black text-ink-900">{verification === 'VERIFIED' ? 'موجود ومثبت' : report.evidenceStatus === 'AWAITING_EVIDENCE_SNAPSHOT' ? 'بانتظار لقطة دليل' : stateLabel(report.evidenceStatus)}</div>
           </div>
           <div className="rounded-xl bg-white p-3">
-            <div className="text-[8px] font-black text-ink-400">DECISION READINESS</div>
+            <div className="text-[8px] font-black text-ink-400">جاهزية القرار</div>
             <div className="mt-1 text-[10px] font-black text-ink-900">{verification === 'VERIFIED' ? 'الدليل متاح للمراجعة' : 'لا يوجد اعتماد دليلي نهائي بعد'}</div>
           </div>
         </div>
@@ -264,18 +410,19 @@ function statusTone(value: string | null): string {
 
 function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDetail; initialSearch?: string }) {
   const dataset = report.sourceAnalysis?.datasets?.[0];
-  const objectDataset = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : {};
-  const definitionColumns = useMemo(() => {
-    const raw = objectDataset.columns;
-    return Array.isArray(raw)
-      ? raw.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object')
-      : [];
-  }, [dataset]);
+  const definitionColumns = useMemo(() => normalizedDatasetColumns(report), [report, dataset]);
   const rows = useMemo(() => report.canonicalRows.map((row) => row.data), [report.canonicalRows]);
   const discoveredColumns = useMemo(() => {
-    const fromDefinition = definitionColumns.map((column) => String(column.name ?? '')).filter(Boolean);
-    const fromRows = rows.slice(0, 200).flatMap((row) => Object.keys(row));
-    return [...new Set([...fromDefinition, ...fromRows])];
+    const technical = /^(page_number|line_number|visual_cell_\\d+)$/i;
+    const businessColumns = uniqueBusinessColumns(definitionColumns, rows);
+    return businessColumns
+      .map((column) => String(column.mappedField ?? canonicalFieldName(column.name) ?? column.name ?? '').trim())
+      .filter(Boolean)
+      .filter((column, index, all) => all.indexOf(column) === index)
+      .filter((column) => !technical.test(column) && (rows.length === 0 || rows.some((row) => {
+        const value = valueForColumn(row, column);
+        return value !== null && value !== undefined && value !== '';
+      })));
   }, [definitionColumns, rows]);
 
   const numericColumns = useMemo(() => discoveredColumns.filter((column) => {
@@ -283,7 +430,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
     return values.length >= 3;
   }), [discoveredColumns, rows]);
 
-  const storageKey = 'aghbari.report-view.' + report.sourceHash;
+  const storageKey = 'aghbari.report-view.v2.' + report.jobId + '.' + report.sourceHash;
   const [search, setSearch] = useState('');
   const [sortColumn, setSortColumn] = useState(discoveredColumns[0] ?? '');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
@@ -343,8 +490,8 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
   const orderedRows = useMemo(() => {
     if (!sortColumn) return filteredRows;
     return [...filteredRows].sort((left, right) => {
-      const a = left[sortColumn];
-      const b = right[sortColumn];
+      const a = valueForColumn(left, sortColumn);
+      const b = valueForColumn(right, sortColumn);
       const an = numberValue(a);
       const bn = numberValue(b);
       const comparison = an != null && bn != null ? an - bn : String(a ?? '').localeCompare(String(b ?? ''), 'ar');
@@ -356,8 +503,8 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
     if (!groupColumn || !aggregateColumn) return [];
     const groups = new Map<string, { key: string; count: number; sum: number }>();
     for (const row of filteredRows) {
-      const key = String(row[groupColumn] ?? 'غير محدد').trim() || 'غير محدد';
-      const value = numberValue(row[aggregateColumn]);
+      const key = String(valueForColumn(row, groupColumn) ?? 'غير محدد').trim() || 'غير محدد';
+      const value = numberValue(valueForColumn(row, aggregateColumn));
       const current = groups.get(key) ?? { key, count: 0, sum: 0 };
       current.count += 1;
       if (value != null) current.sum += value;
@@ -383,7 +530,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
     window.localStorage.removeItem(storageKey);
   };
   const exportRows = () => {
-    const body = orderedRows.map((row) => visibleColumns.map((column) => '"' + String(row[column] ?? '').replace(/"/g, '""') + '"').join(','));
+    const body = orderedRows.map((row) => visibleColumns.map((column) => '"' + String(valueForColumn(row, column) ?? '').replace(/"/g, '""') + '"').join(','));
     const csv = '\uFEFF' + [visibleColumns.map((value) => '"' + value.replace(/"/g, '""') + '"').join(','), ...body].join('\r\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -400,7 +547,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
       report.sourcePath,
       visibleColumns,
       orderedRows.map((row) => visibleColumns.reduce<Record<string, unknown>>((result, column) => {
-        result[column] = row[column] ?? '';
+        result[column] = valueForColumn(row, column) ?? '';
         return result;
       }, {})),
       'xlsx',
@@ -411,7 +558,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <div className="section-kicker">REPORT WORKSPACE</div>
+          <div className="section-kicker">مساحة بيانات التقرير</div>
           <h2 className="mt-1 text-lg font-black text-ink-950">استكشاف البيانات الحقيقية</h2>
           <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-500">البحث والفرز وإظهار الأعمدة والتصدير تعمل على الصفوف الكانونية لهذا التقرير، لا على معاينة منفصلة.</p>
         </div>
@@ -432,7 +579,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
         <label className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-ink-200 bg-ink-50 px-3 text-[10px] font-bold text-ink-600">
           ترتيب
           <select value={sortColumn} onChange={(event) => { setSortColumn(event.target.value); setPage(0); }} className="bg-transparent outline-none">
-            {discoveredColumns.map((column) => <option key={column} value={column}>{column}</option>)}
+            {discoveredColumns.map((column) => <option key={column} value={column}>{displayColumnLabel(column)}</option>)}
           </select>
           <button type="button" onClick={() => setSortDirection((value) => value === 'asc' ? 'desc' : 'asc')} aria-label="عكس اتجاه الترتيب" className="rounded-lg p-1 hover:bg-white"><ArrowDownUp size={14}/></button>
         </label>
@@ -449,14 +596,14 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
           تجميع
           <select value={groupColumn} onChange={(event) => setGroupColumn(event.target.value)} className="bg-transparent outline-none">
             <option value="">بدون تجميع</option>
-            {discoveredColumns.map((column) => <option key={column} value={column}>{column}</option>)}
+            {discoveredColumns.map((column) => <option key={column} value={column}>{displayColumnLabel(column)}</option>)}
           </select>
         </label>
         {groupColumn && (
           <label className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-ink-200 bg-ink-50 px-3 text-[10px] font-bold text-ink-600">
             التجميع المالي
             <select value={aggregateColumn} onChange={(event) => setAggregateColumn(event.target.value)} className="bg-transparent outline-none">
-              {numericColumns.map((column) => <option key={column} value={column}>{column}</option>)}
+              {numericColumns.map((column) => <option key={column} value={column}>{displayColumnLabel(column)}</option>)}
             </select>
           </label>
         )}
@@ -490,7 +637,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {discoveredColumns.map((column) => {
               const active = visibleColumns.includes(column);
-              return <label key={column} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-[10px] font-bold text-ink-700"><input type="checkbox" checked={active} onChange={() => setVisibleColumns((current) => active ? current.filter((item) => item !== column) : [...current, column])}/><span className="min-w-0 truncate">{column}</span></label>;
+              return <label key={column} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-[10px] font-bold text-ink-700"><input type="checkbox" checked={active} onChange={() => setVisibleColumns((current) => active ? current.filter((item) => item !== column) : [...current, column])}/><span className="min-w-0 truncate">{displayColumnLabel(column)}</span></label>;
             })}
           </div>
         </div>
@@ -499,13 +646,13 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
       <div className="mt-4 overflow-x-auto rounded-xl border border-ink-200">
         {visibleRows.length ? (
           <table className="min-w-full text-right text-[10px]">
-            <thead className="bg-ink-50"><tr><th className="sticky right-0 bg-ink-50 px-3 py-2 text-ink-400">#</th>{visibleColumns.map((column) => <th key={column} className="whitespace-nowrap px-3 py-2 font-black text-ink-600">{column}</th>)}</tr></thead>
+            <thead className="bg-ink-50"><tr><th className="sticky right-0 bg-ink-50 px-3 py-2 text-ink-400">#</th>{visibleColumns.map((column) => <th key={column} className="whitespace-nowrap px-3 py-2 font-black text-ink-600">{displayColumnLabel(column)}</th>)}</tr></thead>
             <tbody>{visibleRows.map((row, index) => {
               const rowNumber = safePage * pageSize + index + 1;
               const active = selectedRowNumber === rowNumber;
               return <tr key={rowNumber} onClick={() => setSelectedRowNumber(rowNumber)} className={'cursor-pointer border-t border-ink-100 ' + (active ? 'bg-primary-50/60' : 'hover:bg-ink-50/70')} aria-selected={active}>
                 <td className={'sticky right-0 px-3 py-2 font-mono ' + (active ? 'bg-primary-50/80 text-primary-700' : 'bg-white text-ink-400')}>{rowNumber}</td>
-                {visibleColumns.map((column) => <td key={column} className="max-w-[280px] whitespace-nowrap px-3 py-2 text-ink-800">{textValue(row[column])}</td>)}
+                {visibleColumns.map((column) => <td key={column} className="max-w-[280px] whitespace-nowrap px-3 py-2 text-ink-800">{textValue(valueForColumn(row, column))}</td>)}
               </tr>;
             })}</tbody>
           </table>
@@ -526,10 +673,10 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
             </div>
           </div>
           <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {Object.entries(orderedRows[selectedRowNumber - 1]).map(([key, value]) => (
+            {Object.keys(orderedRows[selectedRowNumber - 1]).filter((key) => !/^(page_number|line_number|visual_cell_\d+)$/i.test(key)).map((key) => (
               <div key={key} className="rounded-lg border border-ink-100 bg-white p-3">
-                <div className="text-[9px] font-black text-ink-400">{key}</div>
-                <div className="mt-1 break-words text-[11px] font-bold text-ink-800">{textValue(value)}</div>
+                <div className="text-[9px] font-black text-ink-400">{displayColumnLabel(key)}</div>
+                <div className="mt-1 break-words text-[11px] font-bold text-ink-800">{textValue(valueForColumn(orderedRows[selectedRowNumber - 1], key))}</div>
               </div>
             ))}
           </div>
@@ -554,20 +701,24 @@ export function SmartReportPage() {
 
   useEffect(() => {
     let active = true;
+    const expectedSourceHash = searchParams.get('sourceHash')?.trim() ?? '';
     setLoading(true);
     setError(null);
-    void fetchSmartReport(jobId ?? '').then((next) => {
-      if (active) {
-        setReport(next);
-        if (next) saveActiveReportContext({ jobId: next.jobId, sourceHash: next.sourceHash });
-      }
+    if (!jobId?.trim() || !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash)) {
+      setReport(null);
+      setError(userFacingError('INVALID_REPORT_CONTEXT'));
+      setLoading(false);
+      return () => { active = false; };
+    }
+    void fetchSmartReport(jobId, expectedSourceHash).then((next) => {
+      if (active) setReport(next)
     }).catch((reason) => {
-      if (active) setError(reason instanceof Error ? reason.message : String(reason));
+      if (active) setError(userFacingError(reason instanceof Error ? reason.message : String(reason)));
     }).finally(() => {
       if (active) setLoading(false);
     });
     return () => { active = false; };
-  }, [jobId]);
+  }, [jobId, searchParams]);
 
   const dataset = useMemo(() => {
     const first = report?.sourceAnalysis?.datasets?.[0];
@@ -583,6 +734,30 @@ export function SmartReportPage() {
     const first = previewRows[0];
     return first ? Object.keys(first).slice(0, 8) : [];
   }, [previewRows]);
+  const columnLabel = (column: string): string => {
+    const labels: Record<string,string> = {
+      invoice_number:'رقم الفاتورة',
+      invoice_type:'نوع الفاتورة',
+      customer:'العميل',
+      customer_name:'العميل',
+      date:'التاريخ',
+      invoice_date:'تاريخ الفاتورة',
+      total:'الإجمالي',
+      net_amount:'صافي القيمة',
+      paid_amount:'المدفوع',
+      balance:'الرصيد المستحق',
+      credit:'الدائن',
+      debit:'المدين',
+      quantity:'الكمية',
+      unit_price:'سعر الوحدة',
+      product:'الصنف',
+      product_name:'الصنف',
+      supplier:'المورد',
+      warehouse:'المستودع',
+      status:'الحالة',
+    };
+    return labels[column] ?? displayColumnLabel(column);
+  };
 
   const smartAnalysis = useMemo(() => buildSmartAnalysis(report), [report]);
 
@@ -590,17 +765,22 @@ export function SmartReportPage() {
   if (error) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={() => {
     setLoading(true);
     setError(null);
-    void fetchSmartReport(jobId ?? '').then((next) => {
+    const expectedSourceHash = searchParams.get('sourceHash')?.trim() ?? '';
+    if (!jobId?.trim() || !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash)) {
+      setError('INVALID_REPORT_CONTEXT');
+      setLoading(false);
+      return;
+    }
+    void fetchSmartReport(jobId, expectedSourceHash).then((next) => {
       setReport(next);
-      if (next) saveActiveReportContext({ jobId: next.jobId, sourceHash: next.sourceHash });
-    }).catch((reason) => setError(reason instanceof Error ? reason.message : String(reason))).finally(() => setLoading(false));
+    }).catch((reason) => setError(userFacingError(reason instanceof Error ? reason.message : String(reason)))).finally(() => setLoading(false));
   }} /></div>;
   if (!report) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="التقرير المطلوب غير موجود أو غير مكتمل." /><div className="rounded-2xl border border-warning-200 bg-warning-50 p-5 text-sm text-warning-900">لا توجد مخرجات ذكية مثبتة لهذا التقرير.</div></div>;
 
   const output = report.renderedOutput;
   const outputs = Array.isArray(output.outputs) ? output.outputs.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object') : [];
   const surfaceLinks = outputs.filter((item) => typeof item.path === 'string');
-  const decisionKeys = ['recommendationStatus','decisionStatus','approvalStatus','actionStatus','outcomeStatus','learningStatus','benchmarkStatus','replayStatus'];
+  const decisionKeys: Array<[string,string]> = [['recommendationStatus','التوصية'],['decisionStatus','القرار'],['approvalStatus','الموافقة'],['actionStatus','التنفيذ'],['outcomeStatus','النتيجة'],['learningStatus','التعلّم'],['benchmarkStatus','المقارنة'],['replayStatus','إعادة التشغيل']];
   const sourceIsVerified = report.reportVerificationState === 'VERIFIED';
   const businessSummary = report.specialty === 'receivables'
     ? 'هذا المصدر هو تقرير ذمم مدينة. تمت قراءة أرصدة العملاء وشرائح الأعمار من المصدر الكانوني؛ القرارات والتحصيل الفعلي لا تُنسب للمصدر ما لم توجد معاملة موثقة.'
@@ -612,9 +792,20 @@ export function SmartReportPage() {
           ? 'هذا المصدر هو تقرير مشتريات. التحليل يعرض ما ثبت في المصدر، مع إبقاء أثر القرار والتنفيذ منفصلًا.'
           : 'هذا المصدر تم تحليله من بنيته وبياناته الفعلية، وتبقى المخرجات مربوطة بالمصدر دون اختلاق حقائق غير موجودة.';
 
+  const topFinding = report.intelligence.advisorBrief.topFinding;
+  const topRisk = report.intelligence.advisorBrief.topRisk;
+  const topOpportunity = report.intelligence.advisorBrief.topOpportunity;
+  const primaryRecommendation = report.intelligence.recommendations[0] ?? null;
+  const confidenceLabel =
+    report.reportVerificationState === 'VERIFIED' && report.qualityScore != null
+      ? `ثقة المصدر ${report.qualityScore}%`
+      : report.reportVerificationState === 'PARTIAL_ANALYSIS'
+        ? 'القراءة جزئية'
+        : 'بانتظار التحقق';
+
   return <div dir="rtl" className="report-page ag-smart-report-surface space-y-5 animate-fade-in pb-10">
     <PageHeader
-      title={report.sourcePath}
+      title={report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي'}
       subtitle="تقرير ذكي مربوط بالبصمة الأصلية، وليس نسخة تجريبية أو تقريرًا عامًا."
       actions={<div className="flex flex-wrap gap-2">
         <button
@@ -628,24 +819,157 @@ export function SmartReportPage() {
           {copied ? 'تم نسخ الرابط' : 'نسخ رابط التقرير'}
         </button>
         <Link to={'/work-center?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary inline-flex items-center gap-2 text-xs">مركز العمل</Link>
-        <Link to={'/replay?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary inline-flex items-center gap-2 text-xs">Replay</Link>
-        <Link to={'/benchmark?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary inline-flex items-center gap-2 text-xs">Benchmark</Link>
         <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-primary inline-flex items-center gap-2 text-xs">مسار القرار</Link>
         <Link to="/reports" className="btn-secondary inline-flex items-center gap-2 text-xs"><ArrowLeft size={14}/> مركز التقارير</Link>
       </div>}
     />
 
-    <ReportDecisionCockpit report={report}/>
+    <CommercialValueChain
+      stages={[
+        {
+          label: 'المصدر',
+          englishLabel: 'المصدر',
+          status: stateLabel(report.sourceTrustState ?? report.trustState),
+          detail: (report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي') + ' · ' + formatNumber(report.rowCount ?? 0) + ' سجل · ' + (report.sourceAnalysis?.sourceFormat ?? 'غير متاح'),
+          tone: report.sourceTrustState === 'VERIFIED' || report.trustState === 'TRUSTED' ? 'trusted' : 'active',
+        },
+        {
+          label: 'الدليل',
+          englishLabel: 'الدليل',
+          status: report.reportVerificationState === 'VERIFIED' ? 'موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'مراجعة' : 'بانتظار الدليل',
+          detail: 'لقطة الدليل والاعتماد الكانوني منفصلان عن مجرد قراءة المصدر.',
+          href: '/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
+          tone: report.reportVerificationState === 'VERIFIED' ? 'trusted' : 'attention',
+        },
+        {
+          label: 'الإشارات',
+          englishLabel: 'الإشارات',
+          status: report.intelligence.signals.length ? report.intelligence.signals.length + ' مثبتة' : 'لا توجد',
+          detail: report.intelligence.signals[0]?.title ?? 'لا توجد إشارة استثنائية مثبتة في المصدر الحالي.',
+          tone: report.intelligence.signals.length ? 'active' : 'neutral',
+        },
+        {
+          label: 'المستشار',
+          englishLabel: 'المستشار',
+          status: report.intelligence.recommendations.length ? report.intelligence.recommendations.length + ' توصية' : 'غير متاح',
+          detail: report.intelligence.advisorBrief.recommendedAction ?? report.intelligence.guidance.focus ?? 'لا توجد توصية مصدرية كافية حاليًا.',
+          tone: report.intelligence.recommendations.length ? 'active' : 'neutral',
+          href: '#smart-report-intelligence',
+        },
+        {
+          label: 'القرار',
+          englishLabel: 'القرار',
+          status: stateLabel(output.decisionStatus == null ? null : String(output.decisionStatus)),
+          detail: 'القرار المعتمد لا يُستنتج تلقائيًا من التوصية؛ يبقى منفصلًا وقابلًا للتدقيق.',
+          href: '/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
+          tone: output.decisionStatus === 'APPROVED' || output.decisionStatus === 'COMMITTED' ? 'trusted' : 'attention',
+        },
+        {
+          label: 'التنفيذ',
+          englishLabel: 'التنفيذ',
+          status: stateLabel(output.actionStatus == null ? null : String(output.actionStatus)),
+          detail: 'مركز العمل هو طبقة التنفيذ؛ لا نخلط بين توصية ذكية وتنفيذ فعلي.',
+          href: '/work-center?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
+          tone: output.actionStatus === 'COMPLETED' || output.actionStatus === 'IN_PROGRESS' ? 'active' : 'neutral',
+        },
+        {
+          label: 'النتيجة',
+          englishLabel: 'النتيجة',
+          status: stateLabel(output.outcomeStatus == null ? null : String(output.outcomeStatus)),
+          detail: output.actualImpact == null ? 'لم تُسجل نتيجة فعلية بعد.' : 'الأثر الفعلي: ' + formatMetric(numberValue(output.actualImpact)),
+          href: '/replay?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
+          tone: output.outcomeStatus === 'OBSERVED' || output.outcomeStatus === 'COMPLETED' ? 'trusted' : 'neutral',
+        },
+        {
+          label: 'التعلم',
+          englishLabel: 'التعلّم',
+          status: stateLabel(output.learningStatus == null ? null : String(output.learningStatus)),
+          detail: 'يظهر هنا فقط ما تم رصده وتثبيته بعد التنفيذ؛ لا تُصنع نتيجة مستقبلية.',
+          href: '/benchmark?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
+          tone: output.learningStatus === 'OBSERVED' || output.learningStatus === 'READY' ? 'trusted' : 'neutral',
+        },
+      ]}
+    />
 
-    <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="grid gap-3 md:grid-cols-4">
-        <div className="rounded-2xl bg-[linear-gradient(145deg,#111827,#1e293b)] p-4 text-white shadow-[0_16px_40px_-28px_rgba(15,23,42,.7)]"><div className="text-[9px] font-black tracking-[.12em] text-primary-200">TRUST</div><div className="mt-2 text-xl font-black">{stateLabel(report.trustState)}</div><div className="mt-1 text-[10px] text-ink-300">جودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div></div>
-        <div className="rounded-2xl bg-ink-50 p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">SOURCE</div><div className="mt-2 font-black text-ink-950">{report.sourceHash.slice(0, 24)}…</div><div className="mt-1 text-[10px] text-ink-500">نوع الملف: {report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
-        <div className="rounded-2xl bg-ink-50 p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">ROWS</div><div className="mt-2 text-xl font-black text-ink-950">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div><div className="mt-1 text-[10px] text-ink-500">المعتمد: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)} · النطاق: {report.canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING' ? 'تحليل جزئي / حد 50,000' : 'المصدر كامل'}</div></div>
-        <div className="rounded-2xl bg-ink-50 p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">SPECIALTY</div><div className="mt-2 text-xl font-black text-ink-950">{report.specialty ?? 'عام'}</div><div className="mt-1 text-[10px] text-ink-500">التخصص يظهر فقط عند توفر دليل كافٍ من المصدر.</div></div>
+    <section id="executive-layer" className="executive-hero rounded-[24px] border border-slate-700/70 bg-[linear-gradient(135deg,#0b1020_0%,#111827_58%,#15111f_100%)] p-5 text-white shadow-[0_28px_80px_-38px_rgba(15,23,42,.9)] lg:p-7">
+      <div className="grid gap-5 xl:grid-cols-[1.25fr_.75fr]">
+        <div>
+          <div className="text-[10px] font-black tracking-[.12em] text-amber-300">لوحة القرار التنفيذي</div>
+          <h2 className="mt-2 text-2xl font-black leading-tight lg:text-3xl">ماذا يحدث في هذا التقرير؟</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{report.intelligence.advisorBrief.headline || businessSummary}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{confidenceLabel}</span>
+            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{formatNumber(report.rowCount ?? 0)} صفًا</span>
+            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{report.specialty === 'sales' ? 'المبيعات' : report.specialty === 'purchases' ? 'المشتريات' : report.specialty === 'inventory' ? 'المخزون' : report.specialty === 'receivables' ? 'الذمم والتحصيل' : report.specialty === 'profitability' ? 'الربحية' : 'تحليل عام'}</span>
+          </div>
+        </div>
+        <div className="rounded-2xl border border-amber-400/25 bg-amber-300/10 p-4">
+          <div className="text-[10px] font-black tracking-[.14em] text-amber-300">الخطوة التالية</div>
+          <div className="mt-2 text-lg font-black">{primaryRecommendation?.title ?? 'لا يوجد إجراء موصى به للاعتماد الآن'}</div>
+          <p className="mt-2 text-xs leading-6 text-slate-300">{primaryRecommendation?.action ?? report.intelligence.advisorBrief.recommendedAction ?? 'يجب التحقق من المصدر قبل تحويله إلى قرار.'}</p>
+          <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-2.5 text-xs font-black text-slate-950">افتح الدليل ثم القرار</Link>
+        </div>
+      </div>
+      <div className="mt-5 grid gap-3 md:grid-cols-3">
+        <div className="rounded-2xl border border-slate-700 bg-white/[.035] p-4">
+          <div className="text-[9px] font-black text-slate-400">أهم نتيجة</div>
+          <div className="mt-2 text-sm font-black">{topFinding?.title ?? 'لا توجد نتيجة مثبتة بعد'}</div>
+          <div className="mt-1 text-[10px] leading-5 text-slate-400">{topFinding?.statement ?? 'لا يتم اختلاق نتيجة عندما لا يثبتها المصدر.'}</div>
+        </div>
+        <div className="rounded-2xl border border-rose-400/20 bg-rose-400/[.06] p-4">
+          <div className="text-[9px] font-black text-rose-200">أهم خطر</div>
+          <div className="mt-2 text-sm font-black">{topRisk?.title ?? 'لا يوجد خطر مثبت'}</div>
+          <div className="mt-1 text-[10px] leading-5 text-slate-400">{topRisk?.statement ?? 'لا توجد إشارة خطر مثبتة من المصدر الحالي.'}</div>
+        </div>
+        <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/[.05] p-4">
+          <div className="text-[9px] font-black text-cyan-200">أهم فرصة</div>
+          <div className="mt-2 text-sm font-black">{topOpportunity?.title ?? 'لا توجد فرصة مثبتة'}</div>
+          <div className="mt-1 text-[10px] leading-5 text-slate-400">{topOpportunity?.statement ?? 'لا يتم إنشاء فرصة من دون دليل.'}</div>
+        </div>
+      </div>
+      <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        {smartAnalysis.metrics.slice(0, 4).map((metric) => (
+          <div key={metric.label} className="rounded-2xl border border-white/10 bg-white/[.045] p-3.5">
+            <div className="text-[9px] font-bold text-slate-400">{metric.label}</div>
+            <div className="mt-1.5 text-lg font-black text-white">{metric.value}</div>
+            <div className="mt-1 truncate text-[9px] text-slate-400">{metric.detail}</div>
+          </div>
+        ))}
       </div>
     </section>
 
+    <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
+      <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
+        <div className="flex items-center justify-between gap-4">
+          <div><div className="section-kicker">DECISION COCKPIT</div><div className="mt-1 text-base font-black text-ink-950">التفاصيل التنفيذية لمسار القرار</div><div className="mt-1 text-[10px] leading-5 text-ink-500">فتح الـCockpit الكامل متاح عند الحاجة، بينما يبقى الملخص التنفيذي هو نقطة البداية.</div></div>
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">فتح</span>
+        </div>
+      </summary>
+      <div className="border-t border-ink-100 p-3 lg:p-4">
+        <ReportDecisionCockpit report={report}/>
+      </div>
+    </details>
+
+    <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
+      <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <div className="section-kicker">SOURCE · PROOF · DETAILS</div>
+            <div className="mt-1 text-base font-black text-ink-950">التفاصيل الكاملة للتقرير</div>
+            <div className="mt-1 text-[10px] leading-5 text-ink-500">افتحها فقط عندما تحتاج إلى التحقق أو استكشاف البيانات أو المخرجات المتقدمة.</div>
+          </div>
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">استكشاف التفاصيل</span>
+        </div>
+      </summary>
+      <div className="space-y-5 border-t border-ink-100 p-5 lg:p-6">
+        <section className="rounded-[18px] border border-ink-200 bg-ink-50/30 p-5">
+          <div className="grid gap-3 md:grid-cols-4">
+            <div className="rounded-2xl bg-[linear-gradient(145deg,#111827,#1e293b)] p-4 text-white shadow-[0_16px_40px_-28px_rgba(15,23,42,.7)]"><div className="text-[9px] font-black tracking-[.12em] text-primary-200">TRUST</div><div className="mt-2 text-xl font-black">{stateLabel(report.trustState)}</div><div className="mt-1 text-[10px] text-ink-300">جودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">SOURCE</div><div className="mt-2 font-black text-ink-950">{report.sourceHash.slice(0, 24)}…</div><div className="mt-1 text-[10px] text-ink-500">نوع الملف: {report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">ROWS</div><div className="mt-2 text-xl font-black text-ink-950">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div><div className="mt-1 text-[10px] text-ink-500">المعتمد: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)}</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">SPECIALTY</div><div className="mt-2 text-xl font-black text-ink-950">{report.specialty ?? 'عام'}</div><div className="mt-1 text-[10px] text-ink-500">مبني على بنية المصدر الفعلية.</div></div>
+          </div>
+        </section>
     <section className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
       <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
         <div className="section-kicker">EXECUTIVE BRIEF</div>
@@ -663,7 +987,7 @@ export function SmartReportPage() {
         <p className="mt-3 text-[12px] leading-6 text-ink-300">
           {report.renderedOutput.actionStatus === 'NO_ACTION_COMMITTED' ? 'لا توجد عملية تنفيذية موثقة نُفذت بعد؛ يمكن استخدام التقرير كمدخل لمراجعة القرار.' : stateLabel(String(report.renderedOutput.actionStatus ?? null))}
         </p>
-        <Link to="/decision-experience?stage=evidence" className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-2.5 text-xs font-black text-ink-950">افتح مسار القرار الموثق ←</Link>
+        <Link to={"/decision-experience?stage=evidence&reportJobId=" + encodeURIComponent(report.jobId) + "&sourceHash=" + encodeURIComponent(report.sourceHash)} className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-2.5 text-xs font-black text-ink-950">افتح مسار القرار الموثق ←</Link>
       </div>
     </section>
 
@@ -692,24 +1016,7 @@ export function SmartReportPage() {
     <SourceDataWorkspace report={report} initialSearch={searchParams.get('focus') ?? ''}/>
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="section-kicker">REAL BUSINESS METRICS</div>
-      <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
-        <h2 className="text-lg font-black text-ink-950">مؤشرات مستخرجة من هذا المصدر</h2>
-        <span className="text-[10px] text-ink-500">{smartAnalysis.columns.length} أعمدة · {smartAnalysis.numeric.length} مؤشرات رقمية</span>
-      </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {smartAnalysis.metrics.map(metric => (
-          <div key={metric.label} className="rounded-2xl border border-ink-100 bg-ink-50 p-4">
-            <div className="text-[10px] font-bold text-ink-500">{metric.label}</div>
-            <div className="mt-2 text-xl font-black text-ink-950">{metric.value}</div>
-            <div className="mt-1 truncate text-[9px] text-ink-400">{metric.detail}</div>
-          </div>
-        ))}
-      </div>
-    </section>
-
-    <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="flex items-center gap-2"><ShieldCheck size={18} className="text-primary-600"/><div><div className="section-kicker">TRUTH → EVIDENCE → SIGNAL → INTELLIGENCE</div><h2 className="mt-1 text-lg font-black text-ink-950">حالة التقرير الذكي</h2></div></div>
+      <div className="flex items-center gap-2"><ShieldCheck size={18} className="text-primary-600"/><div><div className="section-kicker">الحقيقة → الدليل → الإشارة → الذكاء</div><h2 className="mt-1 text-lg font-black text-ink-950">حالة التقرير الذكي</h2></div></div>
       <div className="mt-4 grid gap-3 md:grid-cols-3">
         {(['evidenceStatus','signalStatus','intelligenceStatus'] as const).map((key) => {
           const value = key === 'evidenceStatus' ? (report.evidenceStatus == null ? null : String(report.evidenceStatus)) : (output[key] == null ? null : String(output[key]));
@@ -719,26 +1026,26 @@ export function SmartReportPage() {
     </section>
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="flex items-center gap-2"><FileSearch size={18} className="text-primary-600"/><div><div className="section-kicker">DECISION → ACTION → OUTCOME → LEARNING → BENCHMARK</div><h2 className="mt-1 text-lg font-black">ما الذي ثبت وما الذي لم يُثبت</h2></div></div>
+      <div className="flex items-center gap-2"><FileSearch size={18} className="text-primary-600"/><div><div className="section-kicker">القرار → التنفيذ → النتيجة → التعلّم → المقارنة</div><h2 className="mt-1 text-lg font-black">ما الذي ثبت وما الذي لم يُثبت</h2></div></div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {decisionKeys.map((key) => <div key={key} className="rounded-xl border border-ink-100 bg-ink-50/70 p-4"><div className="text-[10px] font-black text-ink-500">{key}</div><div className="mt-2 text-sm font-bold text-ink-900">{stateLabel(output[key] == null ? null : String(output[key]))}</div></div>)}
+        {decisionKeys.map(([key, label]) => <div key={key} className="rounded-xl border border-ink-100 bg-ink-50/70 p-4"><div className="text-[10px] font-black text-ink-500">{label}</div><div className="mt-2 text-sm font-bold text-ink-900">{stateLabel(output[key] == null ? null : String(output[key]))}</div></div>)}
       </div>
     </section>
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="flex items-center gap-2"><CheckCircle2 size={18} className="text-primary-600"/><div><div className="section-kicker">RENDERED SURFACES</div><h2 className="mt-1 text-lg font-black">الأسطح التي أنشأها مسار التقرير</h2></div></div>
+      <div className="flex items-center gap-2"><CheckCircle2 size={18} className="text-primary-600"/><div><div className="section-kicker">المخرجات المتاحة</div><h2 className="mt-1 text-lg font-black">الأسطح التي أنشأها مسار التقرير</h2></div></div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {surfaceLinks.map((surface, index) => <Link key={String(surface.key ?? index)} to={String(surface.path) + '?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="rounded-xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
-          <div className="text-[9px] font-black tracking-[.12em] text-primary-700">{String(surface.stage ?? 'OUTPUT')}</div>
+          <div className="text-[9px] font-black tracking-[.12em] text-primary-700">{String(surface.stage ?? 'مخرج')}</div>
           <div className="mt-2 text-sm font-black text-ink-950">{String(surface.label ?? surface.key ?? 'سطح')}</div>
-          <div className="mt-2 text-[10px] text-ink-500">sourceBound={String(surface.sourceBound)} · hash={String(surface.sourceHash).slice(0, 14)}…</div>
+          <div className="mt-2 text-[10px] text-ink-500">مرتبط بالتقرير الحالي · تفاصيل المصدر محفوظة</div>
         </Link>)}
       </div>
     </section>
 
     {smartAnalysis.topRows.length > 0 && (
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-        <div className="section-kicker">{report.specialty === 'receivables' ? 'TOP EXPOSURES' : 'TOP SOURCE ITEMS'}</div>
+        <div className="section-kicker">{report.specialty === 'receivables' ? 'أعلى مواضع التعرض' : 'أعلى البنود'}</div>
         <h2 className="mt-1 text-lg font-black">أعلى البنود الظاهرة في العينة</h2>
         <div className="mt-4 grid gap-2">
           {smartAnalysis.topRows.map((row, index) => (
@@ -756,17 +1063,19 @@ export function SmartReportPage() {
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex items-center justify-between gap-3"><div><div className="section-kicker">CANONICAL SOURCE</div><h2 className="mt-1 text-lg font-black">عينة فعلية من التقرير</h2></div><div className="text-[10px] text-ink-500">{formatNumber(previewRows.length)} صفوف معروضة من العينة</div></div>
-      {previewRows.length === 0 ? <div className="mt-4 rounded-xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">لا توجد عينة صفوف في لقطة التحليل؛ لا يتم اختلاقها.</div> : <div className="mt-4 overflow-x-auto rounded-xl border border-ink-200"><table className="min-w-full text-right text-[11px]"><thead className="bg-ink-50"><tr>{columns.map((column) => <th key={column} className="whitespace-nowrap px-3 py-2 font-black text-ink-600">{column}</th>)}</tr></thead><tbody>{previewRows.map((row, index) => <tr key={index} className="border-t border-ink-100">{columns.map((column) => <td key={column} className="max-w-[240px] truncate whitespace-nowrap px-3 py-2 text-ink-800">{textValue(row[column])}</td>)}</tr>)}</tbody></table></div>}
+      {previewRows.length === 0 ? <div className="mt-4 rounded-xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">لا توجد عينة صفوف في لقطة التحليل؛ لا يتم اختلاقها.</div> : <div className="mt-4 overflow-x-auto rounded-xl border border-ink-200"><table className="min-w-full text-right text-[11px]"><thead className="bg-ink-50"><tr>{columns.map((column) => <th key={column} className="whitespace-nowrap px-3 py-2 font-black text-ink-600">{columnLabel(column)}</th>)}</tr></thead><tbody>{previewRows.map((row, index) => <tr key={index} className="border-t border-ink-100">{columns.map((column) => <td key={column} className="max-w-[240px] truncate whitespace-nowrap px-3 py-2 text-ink-800">{textValue(row[column])}</td>)}</tr>)}</tbody></table></div>}
     </section>
 
-    <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="text-[9px] font-black tracking-[.12em] text-ink-500">PROVENANCE</div>
+    <details className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+      <summary className="cursor-pointer text-[10px] font-black text-ink-600">تفاصيل التتبع الفني</summary>
       <dl className="mt-3 grid gap-3 text-[11px] sm:grid-cols-2">
         <div><dt className="font-bold text-ink-500">Job</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.jobId}</dd></div>
         <div><dt className="font-bold text-ink-500">Import</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.importId ?? 'غير متاح'}</dd></div>
-        <div><dt className="font-bold text-ink-500">Source hash</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.sourceHash}</dd></div>
+        <div><dt className="font-bold text-ink-500">بصمة المصدر</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.sourceHash}</dd></div>
         <div><dt className="font-bold text-ink-500">Analysis snapshot</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.sourceAnalysis?.id ?? 'غير متاح'}</dd></div>
       </dl>
-    </section>
+    </details>
+      </div>
+    </details>
   </div>;
 }

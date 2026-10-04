@@ -1,5 +1,4 @@
 import { SourceBoundReportSurface } from '@/components/SourceBoundReportSurface';
-import { readActiveReportContext } from '@/lib/report-context';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Activity, AlertTriangle, CheckCircle2, Clock3, Filter, RefreshCw, ShieldCheck, XCircle } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
@@ -149,7 +148,11 @@ function WorkCenterGeneralPage() {
   };
 
   const workStatusLabel = (status: string) =>
-    status === 'OPEN' ? 'مفتوح' : status === 'IN_PROGRESS' ? 'قيد التنفيذ' : status === 'COMPLETED' ? 'مكتمل' : status;
+    status === 'OPEN' ? 'مفتوح' : status === 'IN_PROGRESS' ? 'قيد التنفيذ' : status === 'COMPLETED' ? 'مكتمل' : status === 'CANCELLED' ? 'ملغى' : 'يحتاج مراجعة';
+  const priorityLabel = (priority: unknown) => {
+    const value = String(priority ?? '').toUpperCase();
+    return value === 'URGENT' || value === 'P0' ? 'عاجل' : value === 'HIGH' || value === 'P1' ? 'مرتفع' : value === 'MEDIUM' || value === 'P2' ? 'متوسط' : value === 'LOW' || value === 'P3' ? 'منخفض' : 'غير محدد';
+  };
   const queueEmptyState = rows.length === 0
     ? { title: 'لا توجد عمليات تشغيل مثبتة', message: 'لا توجد عمليات استيراد مسجلة لهذا المستأجر حتى الآن؛ ابدأ بالمصدر الموحد لبناء أول دورة تشغيل قابلة للتتبع.' }
     : { title: 'لا توجد عمليات مطابقة', message: 'غيّر عامل التصفية أو اعرض السجل الكامل للوصول إلى العمليات المسجلة.' };
@@ -284,7 +287,7 @@ function WorkCenterGeneralPage() {
     <section className="rounded-[18px] border border-primary-200 bg-primary-50/40 p-5 shadow-sm">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <div className="section-kicker">DECISION WORK</div>
+          <div className="section-kicker">تنفيذ القرارات</div>
           <h2 className="mt-1 text-lg font-black text-ink-950">قرارات تحولت إلى عمل</h2>
           <p className="mt-1 text-[11px] leading-5 text-ink-600">هذه المهام محفوظة في النظام الحاكم ومربوطة بمصدرها. مركز العمل يعرض الحالة؛ تفاصيل البدء والإغلاق والدليل تبقى مرتبطة بالتقرير.</p>
         </div>
@@ -300,13 +303,13 @@ function WorkCenterGeneralPage() {
       <div className="mt-4 rounded-xl border border-primary-100 bg-primary-50/50 p-3" aria-label="سياق العمل الحالي">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <div className="section-kicker">WHY · EVIDENCE · ACTION · OUTCOME</div>
+            <div className="section-kicker">لماذا · الدليل · الإجراء · النتيجة</div>
             <div className="mt-1 text-[11px] font-black text-ink-900">مركز العمل يربط المهمة بالدليل، الإجراء، والنتيجة المسجلة.</div>
             <p className="mt-1 text-[9px] leading-5 text-ink-500">ابدأ المهمة فقط عندما تكون الحالة مفتوحة، وأغلقها بعد إدخال الأثر الفعلي مع Evidence مثبت. النتيجة والتعلّم تظهران من السجل المحفوظ.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link to="/command-center" className="btn-secondary text-[9px]">مركز القيادة</Link>
-            <Link to="/decision-experience?stage=decision" className="btn-ghost text-[9px]">مساحة القرار</Link>
+            <Link to="/decision-inbox" className="btn-ghost text-[9px]">مركز القرارات</Link>
           </div>
         </div>
       </div>
@@ -342,11 +345,11 @@ function WorkCenterGeneralPage() {
                   <tr key={item.id} className="border-t border-ink-100">
                     <td className="max-w-[280px] px-3 py-3">
                       <div className="font-black text-ink-900">{item.title}</div>
-                      <div className="mt-1 font-mono text-[8px] text-ink-400">{item.id}</div>
+                      <div className="mt-1 text-[8px] text-ink-400">مرتبط بالتقرير والدليل</div>
                     </td>
                     <td className="px-3 py-3"><span className="rounded-full bg-ink-50 px-2 py-1 font-bold text-ink-700">{workStatusLabel(item.status)}</span></td>
                     <td className="px-3 py-3 text-ink-600">{item.assigneeLabel ?? 'غير متاح'}</td>
-                    <td className="px-3 py-3 text-ink-600">{item.priority}</td>
+                    <td className="px-3 py-3 text-ink-600">{priorityLabel(item.priority)}</td>
                     <td className="px-3 py-3 text-ink-600">{item.dueAt ? new Date(item.dueAt).toLocaleDateString('ar-YE') : 'غير محدد'}</td>
                     <td className="px-3 py-3 text-ink-600">
                       <div>{item.actualImpact != null ? formatNumber(item.actualImpact) : item.expectedImpact != null ? 'متوقع ' + formatNumber(item.expectedImpact) : 'غير متاح'}</div>
@@ -358,7 +361,7 @@ function WorkCenterGeneralPage() {
                     </td>
                     <td className="px-3 py-3">
                       {reportJobIdValue && sourceHashValue
-                        ? <span className="font-mono text-[8px] text-ink-400">{sourceHashValue.slice(0, 22)}…</span>
+                        ? <span className="text-[9px] text-ink-500">مرتبط بالمصدر الأصلي</span>
                         : <span className="text-ink-400">غير مربوط</span>}
                     </td>
                     <td className="px-3 py-3">
@@ -396,7 +399,7 @@ function WorkCenterGeneralPage() {
                           </div>
                         )}
                         {item.status === 'IN_PROGRESS' && !item.evidenceSnapshotId && (
-                          <span className="rounded-lg border border-warning-200 bg-warning-50 px-2 py-1 text-[8px] font-bold text-warning-900">Evidence غير متاح — افتح المصدر</span>
+                          <span className="rounded-lg border border-warning-200 bg-warning-50 px-2 py-1 text-[8px] font-bold text-warning-900">الدليل غير متاح — افتح المصدر</span>
                         )}
                         {reportJobIdValue && sourceHashValue
                           ? <>
@@ -422,7 +425,7 @@ function WorkCenterGeneralPage() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <div className="text-[11px] font-black text-ink-900">{item.title}</div>
-                    <div className="mt-1 break-all font-mono text-[8px] text-ink-400">{item.id}</div>
+                    <div className="mt-1 text-[8px] text-ink-400">مسار عمل محفوظ وقابل للتتبع</div>
                   </div>
                   <span className="shrink-0 rounded-full bg-primary-50 px-2 py-1 text-[8px] font-black text-primary-800">{workStatusLabel(item.status)}</span>
                 </div>
@@ -456,7 +459,7 @@ function WorkCenterGeneralPage() {
     <section className="rounded-[18px] border border-primary-200 bg-white p-5 shadow-sm" aria-label="نتائج القرار والتعلم">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <div className="section-kicker">OUTCOME → LEARNING</div>
+          <div className="section-kicker">النتيجة → التعلّم</div>
           <h2 className="mt-1 text-lg font-black text-ink-950">ما الذي تعلّمناه من التنفيذ؟</h2>
           <p className="mt-1 text-[11px] leading-5 text-ink-600">هذه قراءة من سجلات النتائج المحفوظة لنفس المستأجر. لا يتم تحويل غياب النتيجة إلى نجاح أو تقدير.</p>
         </div>
@@ -469,7 +472,7 @@ function WorkCenterGeneralPage() {
       </div>
       {outcomes.length === 0 ? (
         <div className="mt-4 rounded-xl border border-dashed border-ink-200 bg-ink-50/60 p-5 text-center text-[10px] leading-5 text-ink-500">
-          لا توجد نتيجة موثقة كافية حتى الآن. الحالة الصحيحة: <strong>NOT AVAILABLE</strong> — لا يتم إنشاء تعلم بديل.
+          لا توجد نتيجة موثقة كافية حتى الآن. الحالة: <strong>غير متاح</strong> — لا يتم إنشاء تعلم بديل.
         </div>
       ) : (
         <div className="mt-4 grid gap-3 lg:grid-cols-3">
@@ -484,15 +487,15 @@ function WorkCenterGeneralPage() {
                   <span className={'rounded-full px-2 py-1 text-[9px] font-black ' + (outcome.label === 'correct' ? 'bg-success-50 text-success-800' : outcome.label === 'incorrect' ? 'bg-danger-50 text-danger-800' : outcome.label === 'partial' ? 'bg-warning-50 text-warning-900' : 'bg-ink-100 text-ink-600')}>{label}</span>
                   <span className="text-[9px] text-ink-400">{new Date(outcome.observedAt).toLocaleString('ar-YE')}</span>
                 </div>
-                <div className="mt-3 text-[9px] font-mono text-ink-400 break-all">{outcome.decisionFingerprint}</div>
+                <div className="mt-3 text-[9px] text-ink-400">بصمة القرار محفوظة للتتبع الداخلي</div>
                 <div className="mt-3 grid grid-cols-2 gap-2">
-                  <div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">المتوقع</div><div className="mt-1 text-xs font-black text-ink-900">{outcome.expectedValue == null ? 'NOT AVAILABLE' : formatNumber(outcome.expectedValue)}</div></div>
-                  <div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الفعلي</div><div className="mt-1 text-xs font-black text-ink-900">{outcome.actualValue == null ? 'NOT AVAILABLE' : formatNumber(outcome.actualValue)}</div></div>
+                  <div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">المتوقع</div><div className="mt-1 text-xs font-black text-ink-900">{outcome.expectedValue == null ? 'غير متاح' : formatNumber(outcome.expectedValue)}</div></div>
+                  <div className="rounded-lg bg-white p-2"><div className="text-[8px] text-ink-400">الفعلي</div><div className="mt-1 text-xs font-black text-ink-900">{outcome.actualValue == null ? 'غير متاح' : formatNumber(outcome.actualValue)}</div></div>
                 </div>
                 <div className="mt-2 rounded-lg border border-primary-100 bg-primary-50/60 p-2 text-[9px] leading-5 text-primary-900">
                   <strong>تعلم قابل للتتبع:</strong> {delta == null ? 'لا توجد قيمة كافية لاستخراج فرق؛ تبقى الحالة غير مكتملة.' : 'فرق النتيجة عن المتوقع = ' + formatNumber(delta)}
                 </div>
-                <div className="mt-2 text-[9px] text-ink-500">Evidence: {outcome.evidenceSnapshotId ? 'موجود' : 'غير متاح'} · Action: {outcome.actionId ?? 'غير متاح'}</div>
+                <div className="mt-2 text-[9px] text-ink-500">الدليل: {outcome.evidenceSnapshotId ? 'موجود' : 'غير متاح'} · الإجراء: {outcome.actionId ?? 'غير متاح'}</div>
               </article>
             );
           })}
@@ -554,9 +557,8 @@ function WorkCenterGeneralPage() {
 
 export function WorkCenterPage() {
   const [params] = useSearchParams();
-  const saved = readActiveReportContext();
-  const reportJobId = params.get('reportJobId') || saved?.jobId;
-  const sourceHash = params.get('sourceHash') || saved?.sourceHash;
+  const reportJobId = params.get('reportJobId')?.trim() ?? '';
+  const sourceHash = params.get('sourceHash')?.trim() ?? '';
   if (reportJobId) {
     return <SourceBoundReportSurface mode="work" jobId={reportJobId} expectedSourceHash={sourceHash} />;
   }

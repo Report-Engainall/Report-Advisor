@@ -31,6 +31,12 @@ function norm(value: unknown): string {
 }
 
 function columnKey(report: RuleReport, field: string): string | null {
+  const legacyAliases: Record<string, string[]> = {
+    productCode: ['sku', 'itemcode', 'item_code'],
+    currentStock: ['balance', 'stock', 'onhand', 'on_hand'],
+    salesQty: ['net_sales', 'netsales', 'sales', 'sales_qty', 'صافيالمبيعات'],
+  };
+  const aliases = legacyAliases[field] ?? [];
   const datasets = Array.isArray(report.sourceAnalysis?.datasets) ? report.sourceAnalysis.datasets : [];
   for (const dataset of datasets) {
     if (!dataset || typeof dataset !== 'object') continue;
@@ -41,6 +47,9 @@ function columnKey(report: RuleReport, field: string): string | null {
       const mappedField = text(column.mappedField);
       const columnName = text(column.name);
       if (norm(mappedField) === norm(field)) return mappedField || columnName;
+      if (
+        aliases.some((alias) => norm(mappedField) === norm(alias) || norm(columnName) === norm(alias))
+      ) return mappedField || columnName;
       if (matchCanonicalField(mappedField) === field || matchCanonicalField(columnName) === field) {
         return mappedField || columnName;
       }
@@ -165,6 +174,15 @@ function addModelRecommendation(intelligence: ReportIntelligence, profile: RuleP
     ownerHint: baseOwnerHint(profile),
     impact: finding.value == null ? 'الأثر المالي غير مثبت من المصدر الحالي.' : 'الأثر المثبت حاليًا مرتبط بالقيمة/النطاق الظاهر في الدليل.',
     expectedOutcome: 'إعادة القياس بعد تنفيذ الإجراء مع نفس source/job/evidence lineage.',
+    whyNow: finding.priority === 'high'
+      ? 'هذه النتيجة تستحق المراجعة الآن قبل تحويل المصدر إلى قرار تنفيذي.'
+      : 'هذه النتيجة تستحق المراجعة قبل اعتماد أي إجراء مبني عليها.',
+    measurement: 'أعد قياس المؤشر نفسه بعد الإجراء مع الاحتفاظ بنفس source/job/evidence lineage.',
+    risk: 'خطر القرار المبكر هو اعتماد استنتاج فوق نتيجة تحتاج تحققًا أو تفسيرًا إضافيًا.',
+    blocker: finding.evidence.length > 0
+      ? 'اعتماد القرار متوقف على مطابقة الدليل المرتبط بهذه النتيجة.'
+      : 'لا يوجد دليل كافٍ للاعتماد؛ يجب إيقاف التحويل إلى قرار حتى يظهر الدليل المطلوب.',
+    limitation: finding.limitation || 'لا يثبت المصدر الحالي أثرًا سببيًا أو ماليًا أوسع من النتيجة المرصودة.',
   };
   return {
     ...intelligence,
@@ -705,7 +723,7 @@ export function applyArchetypeRuleSet(
 
   if (!modelFinding && family === 'inventory-velocity') {
     const dateKey = columnKey(report, 'documentDate');
-    const salesKey = columnKey(report, 'salesQty') ?? ((family === 'coverage' || family === 'stockout-reorder' || family === 'inventory-velocity' || family === 'demand') && text(report.specialty) === 'inventory' ? rawColumnKey(report, ['net_sales', 'صافي المبيعات']) : null);
+    const salesKey = columnKey(report, 'salesQty') ?? (text(report.specialty) === 'inventory' ? rawColumnKey(report, ['net_sales', 'صافي المبيعات']) : null);
     if (dateKey && salesKey) {
       const trend = dateValue(rows, dateKey, salesKey);
       if (trend) {

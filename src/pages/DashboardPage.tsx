@@ -190,7 +190,7 @@ export function DashboardPage() {
     }
     if (decisionAccountability.pending > 0) {
       return {
-        to: '/decision-experience?stage=decision',
+        to: '/decision-inbox',
         label: 'مراجعة القرارات',
         title: decisionAccountability.pending + ' توصية جديدة تنتظر المراجعة',
         description: 'هناك توصيات دخلت مرحلة القرار ولم تُحسم بعد؛ راجع الأدلة والمالك والأثر المتوقع قبل الإجراء.',
@@ -241,15 +241,15 @@ export function DashboardPage() {
 
   return (
     <div dir="rtl" className="animate-fade-in space-y-5 pb-10">
-      <section className="ag-dashboard-header ag-command-hero rounded-[20px] border border-[#1d5f58] px-5 py-6 shadow-elevated lg:px-7 lg:py-7">
+      <section className="ag-dashboard-header ag-command-hero rounded-[20px] border border-[#394267] px-5 py-6 shadow-elevated lg:px-7 lg:py-7">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 text-[10px] font-black tracking-[0.12em] text-[#9fe7d9]">
+            <div className="flex items-center gap-2 text-[10px] font-black tracking-[0.12em] text-[#c7d2fe]">
               <Sparkles size={15} />
               لوحة ذكاء الأعمال · الأغبري
             </div>
             <h1 className="mt-2 max-w-3xl text-[27px] font-black tracking-tight text-white lg:text-[34px]">نبض الأعمال</h1>
-            <p className="mt-2 max-w-3xl text-[12px] leading-6 text-[#c8e3de]">
+            <p className="mt-2 max-w-3xl text-[12px] leading-6 text-[#cbd5e1]">
               صورة تنفيذية موثقة لأداء العمل اليوم — من البيانات إلى التحليل ثم الإشارة والقرار. لا تعرض المنصة رقمًا غير مدعوم بمصدره وحالته.
             </p>
           </div>
@@ -262,7 +262,7 @@ export function DashboardPage() {
         <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-white/10 pt-4">
           <StatusLine status={kpis.status} text={kpis.status === 'INSUFFICIENT_DATA' ? 'الصورة تحتاج مراجعة' : 'الصورة صالحة للاستخدام'} />
           <span className="rounded-full border border-ink-200 bg-ink-50 px-2.5 py-1 text-[10px] font-semibold text-ink-500">تغطية المؤشرات {coverage}%</span>
-          <span className="rounded-full border border-ink-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-ink-400">As-of: {snapshotAsOf ?? 'غير متاح'}</span>
+          <span className="rounded-full border border-ink-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-ink-400">حتى: {snapshotAsOf ?? 'غير متاح'}</span>
           <button type="button" onClick={() => void load(true)} disabled={refreshing} className="mr-auto inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-2.5 py-1 text-[10px] font-bold text-primary-800 hover:bg-primary-100 disabled:opacity-60">
             <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
             تحديث الصورة
@@ -325,7 +325,7 @@ export function DashboardPage() {
                 </div>
                 <div className="mt-0.5 text-[9px] text-ink-400">{decisionAccountability.outcomes}/{decisionAccountability.total || 0}</div>
               </div>
-              <Link to="/decision-experience?stage=decision" className="rounded-xl border border-primary-100 bg-primary-50/60 p-2.5 transition-colors hover:bg-primary-100">
+              <Link to="/decision-inbox" className="rounded-xl border border-primary-100 bg-primary-50/60 p-2.5 transition-colors hover:bg-primary-100">
                 <div className="text-[9px] font-black text-primary-700">تحتاج مراجعة</div>
                 <div className="mt-1 text-sm font-black text-ink-900">{decisionAccountability.pending}</div>
                 <div className="mt-0.5 inline-flex items-center gap-1 text-[9px] font-bold text-primary-700">افتح المسار <ArrowUpLeft size={11} /></div>
@@ -345,7 +345,7 @@ export function DashboardPage() {
       <section className="space-y-3">
         <div className="flex items-end justify-between gap-3">
           <div>
-            <div className="section-kicker">ACTIONABLE INTELLIGENCE</div>
+            <div className="section-kicker">الذكاء القابل للتنفيذ</div>
             <h2 className="mt-1 text-[17px] font-black text-ink-950">التنبيهات والتوصيات والقرارات</h2>
           </div>
           <Link to="/command-center" className="btn-ghost text-[11px]">فتح مركز القرار <ArrowUpLeft size={13} /></Link>
@@ -379,7 +379,7 @@ export function DashboardPage() {
           <section className="space-y-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="section-kicker">BUSINESS PULSE</div>
+              <div className="section-kicker">نبض الأعمال</div>
               <h2 className="mt-1 text-lg font-black text-ink-950">الحركة التي تهم القرار</h2>
               <p className="mt-1 text-xs text-ink-500">اتجاه المبيعات والربح من المصدر الكانوني، مع إمكانية تغيير الفترة.</p>
             </div>
@@ -412,10 +412,10 @@ export function DashboardPage() {
               </CardBody>
             </Card>
             <Card>
-              <CardHeader title="تركيب النشاط" subtitle="الفئات القادمة من المصدر الكانوني" />
+              <CardHeader title="تركيب النشاط" subtitle="الفئات المثبتة في المصدر" />
               <CardBody>
                 {categories.length
-                  ? <CategoryPieChart data={categories.map((item) => ({ ...item, name: item.categoryStatus === 'UNKNOWN' ? 'UNKNOWN' : item.name ?? 'UNKNOWN' }))} />
+                  ? <CategoryPieChart data={categories.map((item) => ({ ...item, name: item.categoryStatus === 'UNKNOWN' ? 'غير محدد' : item.name ?? 'غير محدد' }))} />
                   : <div className="rounded-[14px] border border-warning-100 bg-warning-50/55 p-5">
                       <div className="text-sm font-black text-ink-800">لا توجد بيانات فئات.</div>
                       <p className="mt-1 text-[10px] leading-5 text-ink-500">لا يتم تصنيع تركيب للفئات عند غياب المصدر الكانوني.</p>
@@ -456,10 +456,10 @@ export function DashboardPage() {
               {aging.rows.map((bucket) => (
                 <div key={bucket.bucket} className="flex items-center justify-between border-b border-ink-100 py-2.5 last:border-b-0">
                   <span className="text-xs font-semibold text-ink-600">{bucket.bucket}</span>
-                  <span className="text-xs tabular-nums text-ink-500">{bucket.amount === null ? 'UNKNOWN' : formatCurrency(bucket.amount)} · {bucket.count} فاتورة</span>
+                  <span className="text-xs tabular-nums text-ink-500">{bucket.amount === null ? 'غير متاح' : formatCurrency(bucket.amount)} · {bucket.count} فاتورة</span>
                 </div>
               ))}
-              {aging.unknownRows > 0 && <div className="pt-3 text-[11px] text-ink-400">UNKNOWN: {aging.unknownRows} فاتورة بلا تاريخ استحقاق.</div>}
+              {aging.unknownRows > 0 && <div className="pt-3 text-[11px] text-ink-400">سجلات بلا تاريخ استحقاق: {aging.unknownRows} فاتورة.</div>}
             </div>
             <Link to="/reports/receivables" className="mt-3 flex items-center justify-center gap-1 text-[11px] font-bold text-primary-700">فتح التحصيل <ArrowUpLeft size={13} /></Link>
           </CardBody>
@@ -470,7 +470,7 @@ export function DashboardPage() {
       <section className="rounded-[14px] border border-primary-100 bg-primary-50/35 p-4 shadow-card">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
-            <div className="section-kicker">NEXT ACTION · FROM CURRENT TRUTH</div>
+            <div className="section-kicker">الخطوة التالية · من الحقيقة الحالية</div>
             <h2 className="mt-1 text-base font-black text-ink-950">{dashboardNextAction.title}</h2>
             <p className="mt-1 max-w-3xl text-xs leading-5 text-ink-500">{dashboardNextAction.description}</p>
           </div>

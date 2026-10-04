@@ -14,16 +14,77 @@ function isRecord(value: unknown): value is Row { return typeof value === 'objec
 type PdfDocument = Awaited<ReturnType<typeof import('pdfjs-dist').getDocument>['promise']>;
 
 function buildColumnProfiles(rows: Row[], columns: string[], mappings: Awaited<ReturnType<typeof mapColumns>>): ColumnProfile[] {
+  const numericFields = new Set([
+    'balance','credit','debit','amount','total','net_amount','gross_amount','subtotal',
+    'tax','tax_amount','discount','paid_amount','price','unit_price','cost','cost_price',
+    'selling_price','quantity','stock','reorder_point','min_stock',
+  ]);
+  const dateFields = new Set(['date','invoice_date','document_date','due_date','payment_date']);
+  const textFields = new Set([
+    'name','customer_name','supplier_name','product_name','description','status','unit','invoice_type',
+  ]);
+
   return columns.map((col, idx) => {
     const mapping = mappings[idx];
     const values = rows.map((row) => row[col]).filter((value) => value !== null && value !== undefined && value !== '');
     const sample = values.slice(0, 200);
-    const dataType = mapping?.mappedField ? detectColumnDataType(sample, mapping.mappedField) : detectColumnDataType(sample, col);
+    const mappedField = mapping?.mappedField ?? null;
+    const inferredType = detectColumnDataType(sample, mappedField || col);
+    const dataType = mappedField && numericFields.has(mappedField)
+      ? (mappedField === 'quantity' || mappedField === 'stock' || mappedField === 'reorder_point' || mappedField === 'min_stock' ? 'decimal' : 'currency')
+      : mappedField && dateFields.has(mappedField)
+        ? 'date'
+        : mappedField && textFields.has(mappedField)
+          ? 'text'
+          : inferredType;
     const nullCount = rows.filter((row) => row[col] === null || row[col] === undefined || row[col] === '').length;
     const uniqueCount = new Set(values.map((value) => String(value))).size;
     const uniqueRatio = values.length ? uniqueCount / values.length : 0;
     const mappingConfidence = mapping?.confidence ?? 0;
-    const requiresReview = mapping?.requiresReview ?? true;
+    let requiresReview = mapping?.requiresReview ?? true;
+    const qualityIssues: string[] = [];
+
+    if (nullCount > rows.length * 0.5) {
+      qualityIssues.push('أكثر من 50% من القيم فارغة');
+      requiresReview = true;
+    }
+
+    if (!mappedField) {
+      qualityIssues.push('لم يتم تعريف العمود');
+      requiresReview = true;
+    }
+
+    if (mappedField && numericFields.has(mappedField)) {
+      const parsed = values.map(parseNumber);
+      const successRatio = values.length ? parsed.filter((value) => value !== null).length / values.length : 0;
+      if (successRatio < 0.9) {
+        qualityIssues.push('القيم الرقمية لا تتطابق مع نوع الحقل الكانوني');
+        requiresReview = true;
+      }
+    }
+
+    if (mappedField && dateFields.has(mappedField)) {
+      const parsed = values.map((value) => {
+        const normalized = String(value ?? '').trim();
+        return /^\d{4}-\d{2}-\d{2}$/.test(normalized) ? normalized : null;
+      });
+      const successRatio = values.length ? parsed.filter(Boolean).length / values.length : 0;
+      if (successRatio < 0.9) {
+        qualityIssues.push('قيم التاريخ غير مكتملة أو غير قابلة للتحقق');
+        requiresReview = true;
+      }
+    }
+
+    if (mappedField && textFields.has(mappedField)) {
+      const numericRatio = values.length
+        ? values.filter((value) => parseNumber(value) !== null && /^[-+]?\\d/.test(String(value).trim())).length / values.length
+        : 0;
+      if (numericRatio > 0.2) {
+        qualityIssues.push('نوع الحقل النصي لا يتوافق مع القيم المستخرجة');
+        requiresReview = true;
+      }
+    }
+
     const statistics: ColumnStatistics = { count: values.length };
     if (['integer', 'decimal', 'currency', 'percentage'].includes(dataType)) {
       const nums = values.map(parseNumber).filter((n): n is number => n !== null);
@@ -34,9 +95,15 @@ function buildColumnProfiles(rows: Row[], columns: string[], mappings: Awaited<R
         statistics.median = sorted.length % 2 === 0 ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2 : sorted[Math.floor(sorted.length / 2)];
       }
     }
-    return { name: col, mappedField: mapping?.mappedField ?? null, mappingConfidence, requiresReview,
-      mappingEvidence: { sourceHeader: col, normalizedHeader: normalizeColumnName(col), matchedBy: mapping?.mappedField ? (mappingConfidence >= 80 ? 'exact' : 'partial') : 'unmapped', canonicalField: mapping?.mappedField ?? null, confidence: mappingConfidence, requiresReview },
-      dataType, nullCount, uniqueCount, uniqueRatio, sampleValues: values.slice(0, 5), statistics, qualityIssues: [] };
+    return {
+      name: col, mappedField, mappingConfidence, requiresReview,
+      mappingEvidence: {
+        sourceHeader: col, normalizedHeader: normalizeColumnName(col),
+        matchedBy: mappedField ? (mappingConfidence >= 80 ? 'exact' : 'partial') : 'unmapped',
+        canonicalField: mappedField, confidence: mappingConfidence, requiresReview,
+      },
+      dataType, nullCount, uniqueCount, uniqueRatio, sampleValues: values.slice(0, 5), statistics, qualityIssues,
+    };
   });
 }
 
@@ -53,7 +120,9 @@ async function buildDataset(rows: Row[], name: string, source: string, sheet?: s
   for (const col of columnProfiles) { if (col.nullCount > normalized.length * 0.5) col.qualityIssues.push('أكثر من 50% من القيم فارغة'); if (col.mappingConfidence < 80 && col.mappedField) col.qualityIssues.push('تعيين منخفض الثقة — يحتاج مراجعة'); if (!col.mappedField) col.qualityIssues.push('لم يتم تعريف العمود'); }
   const cleanedRows = normalized.map((row) => Object.fromEntries(columnProfiles.map((col) => [col.name, cleanValue(row[col.name], col.dataType)])) as Row);
   const canonicalRows = materializeCanonicalFields(cleanedRows, columnProfiles);
-  const qualityScore = columnProfiles.length ? Math.round(columnProfiles.reduce((s, c) => s + c.mappingConfidence, 0) / columnProfiles.length) : 0;
+  const mappingBase = columnProfiles.length ? columnProfiles.reduce((s, c) => s + c.mappingConfidence, 0) / columnProfiles.length : 0;
+  const reviewPenalty = columnProfiles.reduce((sum, column) => sum + (column.requiresReview ? 15 : 0), 0);
+  const qualityScore = Math.max(0, Math.min(100, Math.round(mappingBase - reviewPenalty)));
   return { id: generateId(), name, source, sheet, rowCount: canonicalRows.length, columnCount: columns.length, columns: columnProfiles, rows: canonicalRows, preview: canonicalRows.slice(0, 50), qualityScore };
 }
 

@@ -10,6 +10,8 @@ on:
       - 'scripts/e2e-actor-provisioning-contract.test.mjs'
       - 'scripts/real-business-e2e.mjs'
       - 'scripts/real-48-source-matrix-preflight.mjs'
+      - 'scripts/phase-f-live-resilience-probes.mjs'
+      - 'scripts/rehydrate-legacy-corpus.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
       - 'scripts/check-certification-boundary-integrity.mjs'
       - 'scripts/check-execution-enforcement-protocol.mjs'
@@ -95,6 +97,10 @@ on:
       - 'package-lock.json'
   workflow_dispatch:
 
+concurrency:
+  group: full-product-browser-e2e-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -102,7 +108,47 @@ env:
   EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
 
 jobs:
+  governed-corpus-rehydration:
+    if: ${{ github.event.pull_request.number == 820 }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install application dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${EXACT_HEAD}"
+          test -z "$(git status --porcelain)"
+      - name: Rehydrate governed report corpus for archetype persistence
+        env:
+          SEED_48_ARCHETYPES: 'true'
+        run: node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/rehydrate-legacy-corpus.mjs
+      - name: Upload governed corpus evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: governed-corpus-rehydration-${{ github.run_id }}
+          if-no-files-found: warn
+          path: artifacts/legacy-corpus/**
+
   browser-e2e:
+    needs: governed-corpus-rehydration
+    if: ${{ always() && (github.event.pull_request.number != 820 || needs.governed-corpus-rehydration.result == 'success') }}
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -153,6 +199,7 @@ jobs:
           npm run test:pdf-arabic-sales-layout
           npm run test:report-intelligence-inventory-grain
           npm run test:report-smart-evidence-boundary
+          npm run test:smart-report-complete-intelligence-surface
           npm run test:report-evidence-passport-contract
           npm run test:document-intelligence-lines
           npm run test:report-intelligence-contradictions
@@ -270,7 +317,7 @@ jobs:
           set -euo pipefail
           test -n "${TEST_USER_A_EMAIL}"
           test -n "${TEST_USER_A_PASSWORD}"
-          node scripts/real-48-source-matrix-preflight.mjs
+          node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs
 
       - name: Resume and prove the real open report
         env:

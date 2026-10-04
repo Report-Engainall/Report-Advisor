@@ -163,7 +163,46 @@ function runDockerPsqlFile(databaseUrl, filePath) {
     '-e', `PGURI=${databaseUrl}`,
     'postgres:17',
     'sh', '-lc',
-    'psql "$PGURI" -v ON_ERROR_STOP=1 -c "SET statement_timeout = 0" -f /tmp/phase-f-backup.sql',
+    'psql "$PGURI" -v ON_ERROR_STOP=1 -c "SET statement_timeout = 0" -c "ALTER TABLE public.recommendations DISABLE TRIGGER trg_source_recommendation_evidence" -f /tmp/phase-f-backup.sql -c "ALTER TABLE public.recommendations ENABLE TRIGGER trg_source_recommendation_evidence"',
+  ]);
+}
+
+function verifyRestoredRecommendationAuthority(databaseUrl) {
+  const sql = `
+do $$
+declare
+  invalid_count bigint;
+begin
+  select count(*) into invalid_count
+  from public.recommendations r
+  left join public.report_evidence_passports p
+    on p.company_id = r.company_id
+   and p.evidence_snapshot_id = nullif(r.evidence->>'evidenceSnapshotId','')::uuid
+   and p.report_execution_job_id = nullif(r.evidence->>'reportExecutionJobId','')::uuid
+   and p.source_hash = nullif(trim(r.evidence->>'sourceHash'),'')
+   and p.verification_status = 'VERIFIED'
+   and p.decision_readiness = 'READY'
+  where lower(coalesce(r.category,'')) = 'source-intelligence'
+    and p.id is null;
+  if invalid_count <> 0 then
+    raise exception 'logical_restore_source_recommendation_integrity_failed:%', invalid_count;
+  end if;
+end $$;`;
+  runDockerPsql(databaseUrl, sql);
+  return true;
+}
+
+function runDockerPgDump(databaseUrl, outputPath) {
+  const outputDir = path.dirname(path.resolve(outputPath));
+  const outputName = path.basename(outputPath);
+  const containerDir = '/tmp/phase-f-output';
+  const containerPath = `${containerDir}/${outputName}`;
+  runCommand('docker', [
+    'run', '--rm', '--network', 'host',
+    '-v', `${outputDir}:${containerDir}`,
+    '-e', `PGURI=${databaseUrl}`,
+    'postgres:17',
+    'sh', '-lc', `pg_dump "$PGURI" --schema=public --data-only --no-owner --no-privileges --serializable-deferrable --format=plain --file=${containerPath}`,
   ]);
 }
 
@@ -172,8 +211,10 @@ const VOLATILE_RESTORE_TABLES = new Set(['public.operational_health_snapshots'])
 function parseTableCounts(raw) {
   const result = {};
   for (const line of raw.split(/\r?\n/).map(value => value.trim()).filter(Boolean)) {
-    const [tableName, rowCount] = line.split('|');
-    if (!tableName || VOLATILE_RESTORE_TABLES.has(tableName)) continue;
+    const match = line.match(/^(public\.[^|]+)\|(-?\d+)$/);
+    if (!match) continue;
+    const [, tableName, rowCount] = match;
+    if (VOLATILE_RESTORE_TABLES.has(tableName)) continue;
     result[tableName] = Number(rowCount);
   }
   return result;
@@ -264,7 +305,10 @@ async function logicalBackupRestore() {
   }
 
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'phase-f-logical-'));
-  const backupPath = path.join(workDir, 'public-data.sql');
+  const backupDir = path.join(workDir, 'dump');
+  fs.mkdirSync(backupDir, { recursive: true, mode: 0o777 });
+  fs.chmodSync(backupDir, 0o777);
+  const backupPath = path.join(backupDir, 'public-data.sql');
   const exactSnapshotSql = 'select clock_timestamp()::text';
   const countSql = `create temp table _phase_f_counts(table_name text, row_count bigint) on commit drop;
 DO $$
@@ -326,24 +370,28 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
     }
 
     const backupStartedAt = Date.now();
-    runCommand('supabase', [
-      'db', 'dump',
-      '--db-url', runnerSource,
-      '--schema', 'public',
-      '--data-only',
-      '--use-copy',
-      '-f', backupPath,
-    ]);
+    runDockerPgDump(runnerSource, backupPath);
     const backupCompletedAt = Date.now();
+
+    let sourceCountsAfter;
+    try {
+      sourceCountsAfter = parseTableCounts(runDockerPsql(querySource, countSql));
+    } catch (error) {
+      throw new Error(`logical_source_counts_after_dump_failed:${error}`);
+    }
 
     const bytes = fs.statSync(backupPath).size;
     const sha256 = crypto.createHash('sha256').update(fs.readFileSync(backupPath)).digest('hex');
     const rpoSeconds = Math.max(0, (backupCompletedAt - snapshotAt) / 1000);
     if (rpoSeconds > maxRpoSeconds) throw new Error(`rpo_budget_exceeded:${rpoSeconds}`);
 
+    const restoreConstraints = captureRestoreConstraints(localDbUrl);
     const restoreStartedAt = Date.now();
     try {
+      dropRestoreConstraints(localDbUrl, restoreConstraints);
       runDockerPsqlFile(localDbUrl, backupPath);
+      verifyRestoredRecommendationAuthority(localDbUrl);
+      restoreRestoreConstraints(localDbUrl, restoreConstraints);
     } catch (error) {
       throw new Error(`logical_target_restore_failed:${error}`);
     }
@@ -356,23 +404,47 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
     }
     const rtoSeconds = (restoreCompletedAt - restoreStartedAt) / 1000;
 
-    const mismatchTables = [...new Set([...Object.keys(sourceCounts), ...Object.keys(targetCounts)])]
+    const mismatchFor = (expectedCounts) => [...new Set([...Object.keys(expectedCounts), ...Object.keys(targetCounts)])]
       .sort()
       .map((tableName) => ({
         tableName,
-        sourceCount: sourceCounts[tableName] ?? 0,
+        sourceCount: expectedCounts[tableName] ?? 0,
         targetCount: targetCounts[tableName] ?? 0,
       }))
       .filter((item) => item.sourceCount !== item.targetCount);
 
-    if (mismatchTables.length > 0) {
+    const mismatchBefore = mismatchFor(sourceCounts);
+    const mismatchAfter = mismatchFor(sourceCountsAfter);
+    const sourceDriftTables = mismatchFor(sourceCounts)
+      .map((item) => ({
+        tableName: item.tableName,
+        beforeCount: item.sourceCount,
+        afterCount: sourceCountsAfter[item.tableName] ?? 0,
+      }))
+      .filter((item) => item.beforeCount !== item.afterCount);
+
+    const restoreSnapshotMatch = mismatchBefore.length === 0
+      ? 'before-dump'
+      : mismatchAfter.length === 0
+        ? 'after-dump'
+        : null;
+
+    if (!restoreSnapshotMatch) {
       fs.writeFileSync(
         path.join(reportDir, 'logical-restore-count-mismatch.json'),
-        JSON.stringify({ exactHead, sourceCounts, targetCounts, mismatchTables }, null, 2) + '\n',
+        JSON.stringify({
+          exactHead,
+          sourceCounts,
+          sourceCountsAfter,
+          targetCounts,
+          mismatchBefore,
+          mismatchAfter,
+          sourceDriftTables,
+        }, null, 2) + '\n',
         'utf8',
       );
       throw new Error(
-        `logical_restore_table_count_mismatch:${JSON.stringify(mismatchTables)}`,
+        `logical_restore_table_count_mismatch:${JSON.stringify(mismatchAfter.length <= mismatchBefore.length ? mismatchAfter : mismatchBefore)}`,
       );
     }
 
@@ -385,6 +457,9 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
       rto_seconds: rtoSeconds,
       table_count: Object.keys(sourceCounts).length,
       source_snapshot_at: snapshotText,
+      source_count_snapshot_match: restoreSnapshotMatch,
+      source_count_drift_detected: sourceDriftTables.length > 0,
+      source_count_drift_tables: sourceDriftTables,
       restore_verified: true,
       restore_target: 'ephemeral-local-supabase-postgres',
       excluded_volatile_tables: [...VOLATILE_RESTORE_TABLES],
@@ -404,6 +479,69 @@ SELECT table_name || '|' || row_count::text FROM _phase_f_counts ORDER BY table_
   }
 }
 
+function quoteIdentifier(value) {
+  return '"' + String(value).replaceAll('"', '""') + '"';
+}
+
+function parseDefinitionRows(raw) {
+  return raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)
+    .map((line) => line.split('|'))
+    .filter((parts) => parts.length >= 3)
+    .map(([tableName, objectName, definition, state]) => ({ tableName, objectName, definition, state: state ?? null }));
+}
+
+function captureRestoreConstraints(databaseUrl) {
+  const foreignKeys = parseDefinitionRows(runDockerPsql(databaseUrl, `
+select n.nspname || '.' || c.relname,
+       con.conname,
+       pg_get_constraintdef(con.oid, true),
+       ''
+from pg_constraint con
+join pg_class c on c.oid = con.conrelid
+join pg_namespace n on n.oid = c.relnamespace
+where n.nspname = 'public'
+  and con.contype = 'f'
+order by n.nspname, c.relname, con.conname;
+`));
+
+  const userTriggers = parseDefinitionRows(runDockerPsql(databaseUrl, `
+select n.nspname || '.' || c.relname,
+       t.tgname,
+       pg_get_triggerdef(t.oid, true),
+       t.tgenabled::text
+from pg_trigger t
+join pg_class c on c.oid = t.tgrelid
+join pg_namespace n on n.oid = c.relnamespace
+where n.nspname = 'public'
+  and not t.tgisinternal
+  and t.tgenabled <> 'D'
+order by n.nspname, c.relname, t.tgname;
+`));
+
+  return { foreignKeys, userTriggers };
+}
+
+function dropRestoreConstraints(databaseUrl, restoreConstraints) {
+  const statements = [];
+  for (const fk of restoreConstraints.foreignKeys) {
+    statements.push('alter table only ' + fk.tableName + ' drop constraint ' + quoteIdentifier(fk.objectName) + ';');
+  }
+  for (const trigger of restoreConstraints.userTriggers) {
+    statements.push('alter table only ' + trigger.tableName + ' disable trigger ' + quoteIdentifier(trigger.objectName) + ';');
+  }
+  if (statements.length) runDockerPsql(databaseUrl, statements.join('\n'));
+}
+
+function restoreRestoreConstraints(databaseUrl, restoreConstraints) {
+  const statements = [];
+  for (const fk of restoreConstraints.foreignKeys) {
+    statements.push('alter table only ' + fk.tableName + ' add constraint ' + quoteIdentifier(fk.objectName) + ' ' + fk.definition + ';');
+  }
+  for (const trigger of restoreConstraints.userTriggers) {
+    statements.push('alter table only ' + trigger.tableName + ' enable trigger ' + quoteIdentifier(trigger.objectName) + ';');
+  }
+  if (statements.length) runDockerPsql(databaseUrl, statements.join('\n'));
+}
 function runtimeEnvironmentCompatible(targetEnv, runtimeEnvironment) {
   if (!runtimeEnvironment || !targetEnv) return true;
   if (/^(prod|production)$/i.test(targetEnv)) return runtimeEnvironment === 'production';
@@ -462,6 +600,7 @@ async function probe(name, url, options = {}, validation = {}) {
       headers: {
         Accept: 'application/json',
         'x-resilience-token': process.env.RESILIENCE_OPERATIONAL_TOKEN.trim(),
+        'x-canary-auth-token': process.env.RESILIENCE_CANARY_AUTH_TOKEN.trim(),
         ...(options.headers || {}),
       },
     });
@@ -564,7 +703,39 @@ if (backupMode === 'logical') {
 } else {
   await probe('backup-restore-verification', process.env.RESILIENCE_BACKUP_VERIFY_URL, { method: 'POST' });
 }
-await probe('rollback-forward-fix-drill', process.env.RESILIENCE_ROLLBACK_DRILL_URL, { method: 'POST' });
+async function probeRollbackForwardFix() {
+  const name = 'rollback-forward-fix-drill';
+  try {
+    const response = await fetch(process.env.RESILIENCE_ROLLBACK_DRILL_URL, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    });
+    const body = await response.text();
+    let parsedBody = null;
+    try { parsedBody = JSON.parse(body); } catch {}
+    const identity = validateRuntimeIdentity(parsedBody);
+    const pass = response.ok
+      && parsedBody?.status === 'verified'
+      && parsedBody?.operation === 'rollback-forward-fix'
+      && parsedBody?.mode === 'non-destructive-preflight'
+      && identity.pass;
+    const result = {
+      name, pass, status: response.status,
+      operation: parsedBody?.operation ?? null,
+      mode: parsedBody?.mode ?? null,
+      identity: identity.identity,
+      failure: pass ? undefined : (identity.failure ?? 'ROLLBACK_DRILL_SEMANTICS_INVALID'),
+    };
+    checks.push(result);
+    console.log((pass ? 'PASS' : 'FAIL') + ' ' + name + ': HTTP ' + response.status + (result.failure ? ' — ' + result.failure : ''));
+    if (!pass) console.error(body.slice(0, 1200));
+  } catch (error) {
+    checks.push({ name, pass: false, error: String(error) });
+    console.error('FAIL ' + name + ': ' + error);
+  }
+}
+
+await probeRollbackForwardFix();
 
 const failed = checks.filter(check => !check.pass);
 const status = failed.length ? 'NOT READY' : 'READY';

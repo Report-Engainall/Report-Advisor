@@ -100,7 +100,7 @@ const externalAnalysisPath = fileURLToPath(new URL('../src/pages/ExternalFileAna
 const externalAnalysis = fs.readFileSync(externalAnalysisPath, 'utf8');
 assert.match(
   externalAnalysis,
-  /navigate\('\\/import',\s*\{ state: \{ preloadedFile: selected \} \}\)/,
+  /navigate\('\/import',\s*\{ state: \{ preloadedFile: selected \} \}\)/,
   'external file analysis must hand the original File into the canonical importer instead of ending at local-only quality output',
 );
 assert.match(
@@ -131,8 +131,8 @@ const smartReportPagePath = fileURLToPath(new URL('../src/pages/SmartReportPage.
 const smartReportPage = fs.readFileSync(smartReportPagePath, 'utf8');
 assert.match(smartReportPage, /key === 'evidenceStatus' \? \(report\.evidenceStatus/, 'smart report status surface must use canonical evidence status instead of stale rendered output');
 assert.match(smartReportPage, /stateLabel\(report\.evidenceStatus\)/, 'evidence inspector must use canonical report verification state');
-assert.match(smartReportPage, /<ReportIntelligencePanel report=\{report\}\/>/, 'smart report must mount the intelligence panel');
-assert.match(smartReportPage, /<SmartReportAdvisorySurface report=\{report\}\/>/, 'smart report must mount the advisory surface');
+assert.match(smartReportPage, /<ReportIntelligencePanel report=\{report\}\s*\/>/, 'smart report must mount the intelligence panel');
+assert.match(smartReportPage, /<SmartReportAdvisorySurface report=\{report\}\s*\/>/, 'smart report must mount the advisory surface');
 
 const intelligencePanelPath = fileURLToPath(new URL('../src/components/ReportIntelligencePanel.tsx', import.meta.url));
 const intelligencePanel = fs.readFileSync(intelligencePanelPath, 'utf8');
@@ -297,9 +297,9 @@ assert.doesNotMatch(
   /effectiveRendered/,
   'catalog mapping must use its local rendered output; Passport-refreshed effectiveRendered exists only inside fetchSmartReport',
 );
-assert.match(catalogMatch[0], /const rendered = renderedOutputOf\(job\.evidence\) \\?\\? \{\\};/, 'catalog must render completed report sources even when prior renderedOutput is absent');
+assert.match(catalogMatch[0], /const rendered = renderedOutputOf\(job\.evidence\) \?\? \{\};/, 'catalog must render completed report sources even when prior renderedOutput is absent');
 
-assert.match(smartReport, /تعذر قراءة أحدث لقطة تحليل؛ استمر التقرير اعتمادًا على المخرجات المحفوظة/, 'latest analysis snapshot failure must degrade to a visible runtime warning instead of throwing');
+assert.match(smartReport, /runtimeWarnings\.push\('تعذر قراءة لقطات التحليل البديلة؛ استمر التقرير اعتمادًا على المخرجات المحفوظة والصفوف الكانونية المتاحة.'\)/, 'latest analysis snapshot failure must degrade to a visible runtime warning instead of throwing');
 assert.match(smartReport, /function emptyReportIntelligence\(specialty: string \| null\)/, 'Smart Report must have a safe fallback intelligence object');
 assert.match(smartReport, /function analysisUsabilityScore\(analysis: Record<string, unknown>\)/, 'analysis selection must score snapshots by usable schema instead of timestamp alone');
 assert.match(smartReport, /function chooseBestAnalysisSnapshot\(rows: Array<Record<string, unknown>>\)/, 'analysis selection must choose the most usable snapshot deterministically');

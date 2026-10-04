@@ -11,15 +11,66 @@ import type { CanonicalField } from '@/lib/report-intelligence/canonical-schema'
 
 function canonicalFields(report: SmartReportDetail): CanonicalField[] {
   const dataset = report.sourceAnalysis?.datasets?.[0];
-  if (!dataset || typeof dataset !== 'object') return [];
-  const columns = (dataset as Record<string, unknown>).columns;
-  if (!Array.isArray(columns)) return [];
-  return columns
-    .map((column) => typeof column === 'object' && column ? String((column as Record<string, unknown>).mappedField ?? '') : '')
-    .filter(Boolean) as CanonicalField[];
+  const declared = dataset && typeof dataset === 'object' && Array.isArray((dataset as Record<string, unknown>).columns)
+    ? (dataset as Record<string, unknown>).columns as unknown[]
+    : [];
+  const fields = new Set<string>();
+
+  for (const column of declared) {
+    if (column && typeof column === 'object') {
+      const item = column as Record<string, unknown>;
+      const mapped = String(item.mappedField ?? '').trim();
+      const name = String(item.name ?? '').trim();
+      if (mapped) fields.add(mapped);
+      else if (name) {
+        const key = name.toLowerCase().replace(/[\s_-]+/g, '');
+        const aliases: Array<[string,string[]]> = [
+          ['date',['date','التاريخ','التاريخ 2026-']],
+          ['invoice_number',['invoice_number','رقم الفاتورة','رقم الفاتوره']],
+          ['invoice_type',['invoice_type','نوع الفاتورة','نوع الفاتوره']],
+          ['customer_name',['customer_name','اسم العميل','العميل']],
+          ['supplier_name',['supplier_name','اسم المورد','المورد']],
+          ['product_name',['product_name','اسم الصنف','اسم المنتج','الصنف']],
+          ['total',['total','الإجمالي','الاجمالي','اجمالي الفاتورة','اجمالي الفاتوره']],
+          ['net_amount',['net_amount','مبلغ الصافي بالمحلي','الصافي بالمحلي']],
+          ['balance',['balance','الرصيد','الرصيد المستحق']],
+          ['credit',['credit','دائن']],
+          ['debit',['debit','مدين']],
+          ['quantity',['quantity','qty','الكمية']],
+        ];
+        const match = aliases.find(([, names]) => names.some(candidate => candidate.toLowerCase().replace(/[\s_-]+/g, '') === key));
+        if (match) fields.add(match[0]);
+      }
+    } else if (String(column ?? '').trim()) {
+      const raw = String(column).trim();
+      const key = raw.toLowerCase().replace(/[\s_-]+/g, '');
+      if (key === 'date' || key === 'التاريخ') fields.add('date');
+      else if (key === 'customer_name' || key === 'اسم العميل') fields.add('customer_name');
+      else if (key === 'total' || key === 'الإجمالي' || key === 'الاجمالي' || key === 'اجمالي الفاتوره') fields.add('total');
+      else if (key === 'invoice_number' || key === 'رقم الفاتوره') fields.add('invoice_number');
+      else if (key === 'invoice_type' || key === 'نوع الفاتوره') fields.add('invoice_type');
+    }
+  }
+
+  for (const row of report.canonicalRows.slice(0, 500)) {
+    for (const key of Object.keys(row.data ?? {})) {
+      const normalized = key.toLowerCase().replace(/[\s_-]+/g, '');
+      if (normalized === 'date' || normalized === 'التاريخ' || normalized === 'التاريخ2026') fields.add('date');
+      if (normalized === 'customer_name' || normalized === 'customer') fields.add('customer_name');
+      if (normalized === 'total' || normalized === 'total_amount') fields.add('total');
+      if (normalized === 'invoice_number') fields.add('invoice_number');
+      if (normalized === 'invoice_type') fields.add('invoice_type');
+      if (normalized === 'balance' || normalized === 'الرصيد') fields.add('balance');
+      if (normalized === 'credit' || normalized === 'دائن') fields.add('credit');
+      if (normalized === 'debit' || normalized === 'مدين') fields.add('debit');
+      if (normalized === 'quantity' || normalized === 'qty' || normalized === 'الكمية') fields.add('quantity');
+    }
+  }
+  return [...fields] as CanonicalField[];
 }
 
 export function SmartReportAdvisorySurface({ report }: { report: SmartReportDetail }) {
+  const primarySignal = report.intelligence.signals[0] ?? null;
   const evidencePassportId = typeof report.renderedOutput.evidencePassportId === 'string'
     ? report.renderedOutput.evidencePassportId
     : null;
@@ -76,18 +127,21 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
 
   const refreshDecisionProposal = useCallback(async () => {
     try {
-      const proposals = await fetchSourceDecisionProposals(report.sourceHash);
+      const proposals = await fetchSourceDecisionProposals(report.sourceHash, report.jobId);
       setDecisionProposal(proposals[0] ?? null);
     } catch (error) {
       setDecisionError(error instanceof Error ? error.message : 'تعذر قراءة قرار المصدر');
     }
-  }, [report.sourceHash]);
+  }, [report.sourceHash, report.jobId]);
 
   useEffect(() => { void refreshDecisionProposal(); }, [refreshDecisionProposal]);
 
   const createDecisionProposal = async () => {
     const basis = advisorBrief.topRisk ?? advisorBrief.topFinding ?? advisorBrief.topOpportunity;
     if (!basis) return;
+    const recommendation = report.intelligence.recommendations.find((item) => item.id === 'rec:' + basis.id)
+      ?? report.intelligence.recommendations[0]
+      ?? null;
     if (packet.proofState !== 'VERIFIED') {
       setDecisionError('لا يمكن إنشاء قرار من دليل غير مثبت.');
       return;
@@ -108,6 +162,18 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         severity: basis.priority,
         evidence: basis.evidence,
         evidenceSnapshotId: evidenceSnapshotId ?? '',
+        recommendationContext: recommendation ? {
+          action: recommendation.action,
+          why: recommendation.why,
+          whyNow: recommendation.whyNow,
+          expectedOutcome: recommendation.expectedOutcome,
+          owner: recommendation.ownerHint || null,
+          impact: recommendation.impact,
+          measurement: recommendation.measurement,
+          risk: recommendation.risk,
+          blocker: recommendation.blocker,
+          limitation: recommendation.limitation,
+        } : null,
       });
       await refreshDecisionProposal();
     } catch (error) {
@@ -119,24 +185,80 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
 
   return (
     <section dir="rtl" className="ag-smart-advisor-surface space-y-4">
-      <div className="rounded-[18px] border border-primary-200 bg-[linear-gradient(135deg,#f7fbfa,#ffffff)] p-5 shadow-card lg:p-6">
+      <div className="overflow-hidden rounded-[22px] border border-primary-400/30 bg-ink-950 p-5 text-white shadow-card lg:p-7">
+        <div className="pointer-events-none absolute" aria-hidden="true" />
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.15em] text-primary-700"><BrainCircuit size={15}/> ADVISORY INTELLIGENCE</div>
-            <h2 className="mt-1 text-xl font-black text-ink-950">من التقرير إلى الفهم والقرار</h2>
-            <p className="mt-2 max-w-3xl text-xs leading-6 text-ink-600">هذه الطبقة تجمع الإشارات والتوصيات والأسئلة وحالة الدليل في مسار واحد، مع إبقاء ما لم يُثبت معلنًا.</p>
+            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.18em] text-primary-300"><BrainCircuit size={15}/> قراءة المستشار</div>
+            <h2 className="mt-1 text-2xl font-black tracking-tight text-white lg:text-3xl">من التقرير إلى الفهم والقرار</h2>
+            <p className="mt-2 max-w-3xl text-xs leading-6 text-ink-200">مسار واحد يربط الإشارة بالدليل والسؤال والتوصية والقرار، ويُظهر حدود ما يمكن إثباته بدل إخفائها.</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-white px-3 py-1.5 text-[9px] font-black text-ink-700"><ShieldCheck size={13}/> {packet.proofState === 'VERIFIED' ? 'الدليل مرتبط' : 'المراجعة مطلوبة'}</span>
-            <span className="inline-flex items-center rounded-full border border-primary-200 bg-primary-50 px-3 py-1.5 text-[9px] font-black text-primary-800">
-              {archetypeResolution.profile ? 'ARCHETYPE ' + String(archetypeResolution.profile.number).padStart(2, '0') + ' · V' + archetypeResolution.profile.version : 'ARCHETYPE · ' + archetypeResolution.state}
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black text-ink-100"><ShieldCheck size={13}/> {packet.proofState === 'VERIFIED' ? 'الدليل مرتبط' : 'المراجعة مطلوبة'}</span>
+            <span className="inline-flex items-center rounded-full border border-primary-300/30 bg-primary-400/10 px-3 py-1.5 text-[9px] font-black text-primary-200">
+              {packet.actionState === 'ACTIONABLE' ? 'قابل للتحويل إلى عمل' : packet.actionState === 'REVIEW_REQUIRED' ? 'المراجعة مطلوبة' : 'جاهزية الإجراء غير مكتملة'}
             </span>
           </div>
         </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-xl bg-white p-4 border border-ink-100"><div className="text-[9px] font-black text-ink-500">CLAIMS</div><div className="mt-1 text-2xl font-black">{packet.claims.length}</div><div className="mt-1 text-[10px] text-ink-500">نتائج قابلة للتتبع</div></div>
-          <div className="rounded-xl bg-white p-4 border border-ink-100"><div className="text-[9px] font-black text-ink-500">QUESTIONS</div><div className="mt-1 text-2xl font-black">{packet.questions.length}</div><div className="mt-1 text-[10px] text-ink-500">أسئلة أعمال</div></div>
-          <div className="rounded-xl bg-white p-4 border border-ink-100"><div className="text-[9px] font-black text-ink-500">ACTION STATE</div><div className="mt-1 text-lg font-black">{packet.actionState === 'ACTIONABLE' ? 'قابل للمراجعة والتنفيذ' : packet.actionState === 'REVIEW_REQUIRED' ? 'مراجعة مطلوبة' : 'غير متاح'}</div><div className="mt-1 text-[10px] text-ink-500">لا تنفيذ تلقائي</div></div>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black text-ink-100">القضايا المثبتة: {findings.length + risks.length + opportunities.length > 0 ? 'نعم' : 'لا'}</span>
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black text-ink-100">الدليل: {packet.proofState === 'VERIFIED' ? 'موثق' : 'مراجعة مطلوبة'}</span>
+        </div>
+      </div>
+
+      <div className="rounded-[18px] border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="text-[9px] font-black tracking-[.16em] text-primary-700">أهم قضية الآن</div>
+            <h3 className="mt-1 text-xl font-black text-ink-950">القضية التي تستحق انتباه الإدارة الآن</h3>
+            <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-500">يظهر هنا الاستنتاج الأقوى فقط. بقية الإشارات والتحليلات تبقى متاحة عند الحاجة دون إغراق الشاشة الرئيسية.</p>
+          </div>
+          <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[9px] font-black text-slate-600">{report.intelligence.signals.length ? 'إشارة مثبتة' : 'لا توجد إشارة مثبتة'}</span>
+        </div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-[1.25fr_.75fr]">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+            <div className="text-[9px] font-black text-slate-500">الإشارة الأقوى</div>
+            <div className="mt-2 text-base font-black text-slate-950">{primarySignal?.title ?? 'لا توجد قضية مثبتة من المصدر الحالي'}</div>
+            <p className="mt-2 text-xs leading-6 text-slate-600">{primarySignal?.message ?? 'لن يتم توليد قضية بديلة عندما لا يثبت المصدر نتيجة واضحة.'}</p>
+            {primarySignal ? <div className="mt-3 text-[10px] leading-5 text-slate-500"><span className="font-black text-slate-700">الدليل:</span> {primarySignal.evidence.join(' · ')}</div> : null}
+          </div>
+          <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4">
+            <div className="text-[9px] font-black text-amber-700">WHAT NEXT</div>
+            <div className="mt-2 text-sm font-black text-amber-950">{report.intelligence.recommendations[0]?.title ?? 'تحقق من المصدر أولًا'}</div>
+            <p className="mt-2 text-[10px] leading-5 text-amber-900">{report.intelligence.recommendations[0]?.action ?? advisorBrief.recommendedAction ?? 'لا إجراء تنفيذي قبل اكتمال التحقق.'}</p>
+          </div>
+        </div>
+      </div>
+
+      <details className="rounded-[18px] border border-slate-200 bg-white shadow-sm">
+        <summary className="cursor-pointer list-none px-5 py-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-[9px] font-black tracking-[.14em] text-slate-500">DEEP ANALYSIS</div>
+              <div className="mt-1 text-base font-black text-slate-950">استكشاف بقية التحليل</div>
+              <div className="mt-1 text-[10px] text-slate-500">الإشارات الثانوية، الأسئلة، التوقع، والإرشاد تظهر هنا فقط عند الطلب.</div>
+            </div>
+            <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[9px] font-black text-slate-600">{Math.max(0, report.intelligence.signals.length - 1)} ثانوي</span>
+          </div>
+        </summary>
+        <div className="space-y-4 border-t border-slate-100 p-5">      <div className="rounded-[22px] border border-white/10 bg-[linear-gradient(135deg,#071318,#0b2024)] p-5 text-white shadow-card lg:p-6">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="text-[9px] font-black tracking-[.16em] text-primary-300">INTELLIGENCE INVENTORY</div>
+            <h3 className="mt-1 text-xl font-black tracking-tight">كل ما اكتشفه التقرير</h3>
+            <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-200">الإشارات، التوصيات، التوقع، الإرشاد، والنتائج تعرض كاملة من نفس حزمة التقرير. لا يوجد حد عرض مصطنع.</p>
+          </div>
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black text-ink-100">{packet.proofState === 'VERIFIED' ? 'دليل مرتبط' : 'مراجعة مطلوبة'} · {report.rowCount ?? 0} سجل</span>
+        </div>
+        <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          {[
+            ['إشارات', report.intelligence.signals.length],
+            ['توصيات', report.intelligence.recommendations.length],
+            ['نتائج', findings.length],
+            ['مخاطر', risks.length],
+            ['فرص', opportunities.length],
+            ['أسئلة', packet.questions.length],
+          ].map(([label, count]) => <div key={String(label)} className="rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:border-primary-300/30 hover:bg-primary-400/10"><div className="text-[9px] font-black text-ink-300">{label}</div><div className="mt-1 text-2xl font-black text-white">{count}</div></div>)}
         </div>
       </div>
 
@@ -235,11 +357,13 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         </div>
       )}
 
+      <div className="rounded-[16px] border border-primary-200 bg-primary-50/60 px-4 py-3"><div className="text-[9px] font-black tracking-[.14em] text-primary-700">TOP FINDINGS</div><div className="mt-1 text-sm font-black text-ink-950">أهم النتائج التي تستحق انتباه الإدارة</div></div>
+
       <div className="grid gap-3 lg:grid-cols-3">
         {([
-          { label: 'FINDINGS', items: findings, subtitle: 'نتائج محسوبة مباشرة من الصفوف الكانونية' },
-          { label: 'RISKS', items: risks, subtitle: 'مخاطر لا تظهر إلا عندما يدعمها المصدر' },
-          { label: 'OPPORTUNITIES', items: opportunities, subtitle: 'فرص مبنية على مؤشرات قابلة للحساب' },
+          { label: 'TOP FINDINGS', items: findings, subtitle: 'نتائج محسوبة مباشرة من الصفوف الكانونية' },
+          { label: 'TOP RISKS', items: risks, subtitle: 'مخاطر لا تظهر إلا عندما يدعمها المصدر' },
+          { label: 'TOP OPPORTUNITIES', items: opportunities, subtitle: 'فرص مبنية على مؤشرات قابلة للحساب' },
         ] as const).map(({ label, items, subtitle }) => (
           <div key={label} className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
             <div className="text-[9px] font-black tracking-[.12em] text-primary-700">{label}</div>
@@ -265,6 +389,64 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         ))}
       </div>
 
+      <div className="grid gap-4 xl:grid-cols-2">
+        <div className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-3"><div><div className="text-[9px] font-black tracking-[.14em] text-primary-700">SIGNALS</div><h3 className="mt-1 text-lg font-black text-ink-950">كل الإشارات والتنبيهات</h3></div><span className="rounded-full bg-ink-950 px-3 py-1 text-[9px] font-black text-white">{report.intelligence.signals.length}</span></div>
+          <div className="mt-3 space-y-2">
+            {report.intelligence.signals.length ? report.intelligence.signals.map((signal) => <article key={signal.id} className="rounded-xl border border-ink-100 bg-ink-50/40 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs font-black text-ink-950">{signal.title}</span><span className="rounded-full border border-ink-200 bg-white px-2 py-1 text-[9px] font-black text-ink-600">{signal.priority} · {signal.severity}</span></div>
+              <p className="mt-1 text-[10px] leading-5 text-ink-600">{signal.message}</p>
+              <div className="mt-2 text-[9px] text-ink-400">لماذا؟ {signal.soWhat || 'تحتاج مراجعة مرتبطة بالدليل.'} · الأثر: {signal.impact || 'غير مثبت ماليًا.'}</div>
+              <div className="mt-2 text-[9px] text-ink-400">الدليل: {signal.evidence.join(' · ')}</div>
+            </article>) : <div className="rounded-xl border border-dashed border-ink-200 p-4 text-[10px] text-ink-500">لا توجد إشارات مثبتة من المصدر الحالي.</div>}
+          </div>
+        </div>
+        <div className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-3"><div><div className="text-[9px] font-black tracking-[.14em] text-primary-700">RECOMMENDATIONS</div><h3 className="mt-1 text-lg font-black text-ink-950">كل التوصيات المؤهلة</h3></div><span className="rounded-full bg-primary-700 px-3 py-1 text-[9px] font-black text-white">{report.intelligence.recommendations.length}</span></div>
+          <div className="mt-3 space-y-2">
+            {report.intelligence.recommendations.length ? report.intelligence.recommendations.map((recommendation) => <article key={recommendation.id} className="rounded-xl border border-primary-100 bg-primary-50/40 p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs font-black text-ink-950">{recommendation.title}</span><span className="rounded-full border border-primary-200 bg-white px-2 py-1 text-[9px] font-black text-primary-800">{recommendation.priority}</span></div>
+              <p className="mt-1 text-[10px] leading-5 text-ink-600">{recommendation.action}</p>
+              <div className="mt-2 grid gap-1.5 text-[9px] leading-5 text-ink-500 sm:grid-cols-2">
+                <div><span className="font-black text-ink-700">WHY:</span> {recommendation.why}</div>
+                <div><span className="font-black text-ink-700">WHY NOW:</span> {recommendation.whyNow}</div>
+                <div><span className="font-black text-ink-700">OWNER:</span> {recommendation.ownerHint || 'غير محدد'}</div>
+                <div><span className="font-black text-ink-700">IMPACT:</span> {recommendation.impact}</div>
+                <div><span className="font-black text-ink-700">RISK:</span> {recommendation.risk}</div>
+                <div><span className="font-black text-ink-700">BLOCKER:</span> {recommendation.blocker}</div>
+                <div><span className="font-black text-ink-700">MEASUREMENT:</span> {recommendation.measurement}</div>
+                <div><span className="font-black text-ink-700">LIMITATION:</span> {recommendation.limitation}</div>
+              </div>
+              <div className="mt-2 text-[9px] text-ink-400">المخرج المتوقع: {recommendation.expectedOutcome}</div>
+            </article>) : <div className="rounded-xl border border-dashed border-ink-200 p-4 text-[10px] text-ink-500">لا توجد توصيات مؤهلة من الإشارات الحالية.</div>}
+          </div>
+        </div>
+      </div>
+
+      </div>
+      </details>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">FORECAST</div>
+          <h3 className="mt-1 text-lg font-black text-ink-950">الإشارة التنبئية</h3>
+          <p className="mt-2 text-xs leading-6 text-ink-600">{report.intelligence.forecast.note}</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="rounded-xl bg-ink-50 p-3"><div className="text-[9px] text-ink-400">الحالة</div><div className="mt-1 text-xs font-black">{report.intelligence.forecast.status}</div></div>
+            <div className="rounded-xl bg-ink-50 p-3"><div className="text-[9px] text-ink-400">الفترات</div><div className="mt-1 text-xs font-black">{report.intelligence.forecast.observedPeriods}</div></div>
+            <div className="rounded-xl bg-ink-50 p-3"><div className="text-[9px] text-ink-400">القيمة القادمة</div><div className="mt-1 text-xs font-black">{report.intelligence.forecast.nextValue == null ? 'غير متاح' : report.intelligence.forecast.nextValue.toLocaleString('ar-YE', { maximumFractionDigits: 2 })}</div></div>
+            <div className="rounded-xl bg-ink-50 p-3"><div className="text-[9px] text-ink-400">الاتجاه</div><div className="mt-1 text-xs font-black">{report.intelligence.forecast.direction ?? 'غير متاح'}</div></div>
+          </div>
+        </div>
+        <div className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">GUIDANCE</div>
+          <h3 className="mt-1 text-lg font-black text-ink-950">الإرشاد التالي</h3>
+          <p className="mt-2 text-sm font-black text-ink-900">{report.intelligence.guidance.focus}</p>
+          <div className="mt-2 text-[11px] leading-6 text-ink-600">الفحص: {report.intelligence.guidance.inspect.join(' · ') || 'لا توجد عناصر فحص محددة.'}</div>
+          <div className="mt-2 text-[10px] text-ink-500">المالك: {report.intelligence.guidance.ownerHint || 'غير محدد'} · الحد: {report.intelligence.guidance.boundary}</div>
+        </div>
+      </div>
+
       <div className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
         <div className="space-y-3">
           <div className="flex items-center justify-between"><div className="text-sm font-black text-ink-950">الاستنتاجات الموثقة</div><Link to={'/trust?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="inline-flex items-center gap-1 text-[10px] font-bold text-primary-700">فتح الثقة <ArrowLeft size={13}/></Link></div>
@@ -287,21 +469,34 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
             فتح مساحة القرار <ArrowLeft size={14}/>
           </Link>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-6" aria-label="رحلة القرار">
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7" aria-label="رحلة القرار">
           {[
-            ['1', 'الدليل', packet.proofState === 'VERIFIED'],
-            ['2', 'الفهم', packet.claims.length > 0],
-            ['3', 'التوصية', Boolean(packet.nextRecommendation)],
-            ['4', 'القرار', false],
-            ['5', 'العمل', false],
-            ['6', 'النتيجة', packet.outcomeState === 'OBSERVED'],
-          ].map(([step, label, done]) => (
+            ['1', 'الدليل', packet.proofState === 'VERIFIED', packet.proofState === 'VERIFIED' ? 'متحقق' : 'لم يُثبت بعد'],
+            ['2', 'الفهم', packet.claims.length > 0, packet.claims.length > 0 ? 'متحقق' : 'لم يُثبت بعد'],
+            ['3', 'التوصية', Boolean(packet.nextRecommendation), packet.nextRecommendation ? 'مؤهلة' : 'لم تُثبت'],
+            ['4', 'القرار',
+              Boolean(decisionProposal && ['APPROVED', 'COMMITTED', 'DECIDED'].includes(String(decisionProposal.status).toUpperCase())),
+              decisionProposal ? String(decisionProposal.status) : 'لم يُنشأ'
+            ],
+            ['5', 'الاعتماد',
+              Boolean(decisionProposal?.approvalStatus && String(decisionProposal.approvalStatus).toUpperCase() === 'APPROVED'),
+              decisionProposal?.approvalStatus ? String(decisionProposal.approvalStatus) : 'لم يُطلب'
+            ],
+            ['6', 'العمل',
+              Boolean(decisionProposal?.workItemId),
+              decisionProposal?.workItemStatus ? String(decisionProposal.workItemStatus) : 'لم يُنشأ'
+            ],
+            ['7', 'النتيجة',
+              Boolean(decisionProposal?.outcomeStatus && ['OBSERVED', 'COMPLETED'].includes(String(decisionProposal.outcomeStatus).toUpperCase())),
+              decisionProposal?.outcomeStatus ? String(decisionProposal.outcomeStatus) : 'لم تُسجل'
+            ],
+          ].map(([step, label, done, status]) => (
             <div key={String(step)} className="rounded-xl border border-ink-100 bg-white px-2 py-3 text-center">
               <div className={"mx-auto flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-black " + (done ? "bg-primary-100 text-primary-800" : "bg-ink-100 text-ink-500")}>
                 {done ? '✓' : step}
               </div>
               <div className="mt-2 text-[10px] font-bold text-ink-700">{label}</div>
-              <div className="mt-1 text-[9px] text-ink-400">{done ? 'متحقق' : 'لم يُثبت بعد'}</div>
+              <div className="mt-1 text-[9px] text-ink-400">{status}</div>
             </div>
           ))}
         </div>

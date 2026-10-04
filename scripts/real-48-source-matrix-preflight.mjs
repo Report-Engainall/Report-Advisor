@@ -59,10 +59,24 @@ function usableColumns(analysis) {
 }
 
 function canonicalFieldSet(fields) {
+  const legacyAliases = new Map([
+    ['sku', 'productCode'],
+    ['itemcode', 'productCode'],
+    ['item_code', 'productCode'],
+    ['balance', 'currentStock'],
+    ['stock', 'currentStock'],
+    ['onhand', 'currentStock'],
+    ['on_hand', 'currentStock'],
+    ['net_sales', 'salesQty'],
+    ['netsales', 'salesQty'],
+    ['sales_qty', 'salesQty'],
+  ]);
   return new Set(fields.flatMap((field) => {
     const value = String(field);
     const semantic = matchCanonicalField(value);
-    return semantic ? [semantic] : [value];
+    const normalized = value.trim().toLowerCase().normalize('NFKC').replace(/[\s_\-./]+/g, '');
+    const legacy = legacyAliases.get(normalized);
+    return [...new Set([semantic, legacy, value].filter(Boolean))];
   }));
 }
 
@@ -150,6 +164,25 @@ for (const companyId of tenantIds) {
     const sourceHash = String(job.source_hash ?? passport.source_hash ?? '');
     if (!sourceHash) continue;
 
+    // Real-source proof must never select the synthetic 48-archetype fixture corpus.
+    // The governed file record is the authoritative classification boundary here.
+    const fileRecords = await restSelect(
+      'file_records',
+      { file_hash: sourceHash },
+      'id,file_name,file_hash,metadata',
+      { limit: 50 },
+    );
+    const governedRealSource = fileRecords.find((record) => {
+      const metadata = record?.metadata && typeof record.metadata === 'object' ? record.metadata : {};
+      const reportCorpus = metadata.report_corpus === true || String(metadata.report_corpus ?? '').toLowerCase() === 'true';
+      const fixtureType = String(metadata.fixture_type ?? '').trim().toLowerCase();
+      const catalogId = String(metadata.catalog_id ?? '').trim().toLowerCase();
+      return reportCorpus
+        && fixtureType !== 'synthetic-realistic'
+        && catalogId !== 'report-intelligence.48';
+    });
+    if (!governedRealSource) continue;
+
     const renderedImportId = typeof rendered.importId === 'string' ? rendered.importId.trim() : '';
     const rowCountHint = Number(rendered.rowCount ?? 0);
     const snapshot = await fetchVerifiedSnapshot(companyId, String(job.id), sourceHash, passport);
@@ -187,6 +220,7 @@ for (const companyId of tenantIds) {
       fields,
       fieldSet: canonicalFieldSet(fields),
       sampleSize: Number(analysis.row_count ?? 0),
+      sourceRecord: governedRealSource,
     });
   }
 }
@@ -227,11 +261,19 @@ for (const profile of profiles) {
       return b.sampleSize - a.sampleSize;
     });
 
+  const candidateDiagnostics = [];
   let chosen = null;
   let runtime = null;
   for (const candidate of candidates) {
     const rows = await sourceRowsFor(candidate);
-    if (rows.length < profile.minimumSample) continue;
+    if (rows.length < profile.minimumSample) {
+      candidateDiagnostics.push({
+        reportJobId: candidate.job.id,
+        sourcePath: candidate.job.source_path,
+        reasons: ['CANONICAL_SAMPLE_BELOW_MINIMUM:' + rows.length + '<' + profile.minimumSample],
+      });
+      continue;
+    }
     const result = runReportArchetype({
       archetypeId: profile.id,
       report: {
@@ -253,32 +295,59 @@ for (const profile of profiles) {
       profileVersion: profile.version,
     });
 
+    const candidateRendered =
+      candidate.job?.evidence?.renderedOutput && typeof candidate.job.evidence.renderedOutput === 'object'
+        ? candidate.job.evidence.renderedOutput
+        : {};
     const persistedArchetypeId =
-      typeof rendered.archetypeId === 'string' ? rendered.archetypeId.trim() : null;
+      typeof candidateRendered.archetypeId === 'string' ? candidateRendered.archetypeId.trim() : null;
     const persistedArchetypeConsistency =
       !persistedArchetypeId || persistedArchetypeId === profile.id;
-    const valid =
-      result.state === 'SUPPORTED' &&
-      result.advisory.proofState === 'VERIFIED' &&
-      result.advisory.questions.length > 0 &&
-      result.advisory.claims.length > 0 &&
-      persistedArchetypeConsistency &&
-      result.advisory.claims.every((claim) =>
-        claim.archetypeId === profile.id &&
-        claim.tenantId === candidate.companyId &&
-        claim.sourceHash === candidate.job.source_hash &&
-        claim.reportExecutionJobId === candidate.job.id &&
-        claim.evidenceSnapshotId === candidate.snapshot.id
-      ) &&
-      result.intelligence.signals.some((signal) => signal.id === 'model:' + profile.id) &&
-      result.intelligence.recommendations.some((recommendation) => recommendation.id === 'rec:archetype:' + profile.id);
 
-    if (valid) {
+    const claimProvenanceValid = result.advisory.claims.every((claim) =>
+      claim.archetypeId === profile.id &&
+      claim.tenantId === candidate.companyId &&
+      claim.sourceHash === candidate.job.source_hash &&
+      claim.reportExecutionJobId === candidate.job.id &&
+      claim.evidenceSnapshotId === candidate.snapshot.id
+    );
+
+    const reasons = [];
+    if (result.state !== 'SUPPORTED') reasons.push('STATE:' + String(result.state ?? 'UNKNOWN'));
+    if (result.advisory.proofState !== 'VERIFIED') reasons.push('ADVISORY_PROOF:' + String(result.advisory.proofState ?? 'UNKNOWN'));
+    if (result.advisory.questions.length === 0) reasons.push('NO_ADVISORY_QUESTIONS');
+    if (result.advisory.claims.length === 0) reasons.push('NO_ADVISORY_CLAIMS');
+    if (!persistedArchetypeConsistency) reasons.push('PERSISTED_ARCHETYPE_CONFLICT:' + persistedArchetypeId);
+    if (result.advisory.claims.length > 0 && !claimProvenanceValid) reasons.push('CLAIM_PROVENANCE_MISMATCH');
+    if (!result.intelligence.signals.some((signal) => signal.id === 'model:' + profile.id)) reasons.push('MODEL_SIGNAL_MISSING');
+    if (!result.intelligence.recommendations.some((recommendation) => recommendation.id === 'rec:archetype:' + profile.id)) reasons.push('ARCHETYPE_RECOMMENDATION_MISSING');
+
+    candidateDiagnostics.push({
+      reportJobId: candidate.job.id,
+      sourcePath: candidate.job.source_path,
+      sampleSize: rows.length,
+      reasons,
+    });
+
+    if (reasons.length === 0) {
       chosen = candidate;
       runtime = result;
       break;
     }
   }
+
+  const missingRequiredFields = candidates.length === 0
+    ? sourceRecords
+      .slice()
+      .sort((a, b) => b.sampleSize - a.sampleSize)
+      .slice(0, 5)
+      .map((source) => ({
+        reportJobId: source.job.id,
+        sourcePath: source.job.source_path,
+        sampleSize: source.sampleSize,
+        missingFields: profile.requiredFields.filter((field) => !source.fieldSet.has(field)),
+      }))
+    : [];
 
   results.push({
     number: profile.number,
@@ -293,10 +362,25 @@ for (const profile of profiles) {
     evidencePassportId: chosen?.passport?.id ?? null,
     sourceRowCount: chosen?.sampleSize ?? null,
     canonicalRowsRead: chosen ? sourceRowsCache.get(String(chosen.job.id))?.length ?? 0 : 0,
+    governedSource: chosen ? {
+      fileRecordId: chosen.sourceRecord?.id ?? null,
+      fileName: chosen.sourceRecord?.file_name ?? null,
+      sourcePath: chosen.sourceRecord?.metadata?.source_path ?? null,
+      fixtureType: chosen.sourceRecord?.metadata?.fixture_type ?? null,
+      catalogId: chosen.sourceRecord?.metadata?.catalog_id ?? null,
+    } : null,
     runtimeState: runtime?.state ?? null,
     advisoryProofState: runtime?.advisory.proofState ?? null,
     recommendationCount: runtime?.intelligence.recommendations.length ?? 0,
     claimCount: runtime?.advisory.claims.length ?? 0,
+    candidateCount: candidates.length,
+    notProvenReason: chosen
+      ? null
+      : candidates.length === 0
+        ? 'NO_ELIGIBLE_REAL_SOURCE'
+        : (candidateDiagnostics.flatMap((candidate) => candidate.reasons).find(Boolean) ?? 'RUNTIME_OR_PROVENANCE_GATE'),
+    candidateDiagnostics: candidateDiagnostics.slice(0, 8),
+    missingRequiredFields,
     persistedArchetypeId: chosen?.job?.evidence?.renderedOutput?.archetypeId ?? null,
     persistedArchetypeConsistency: chosen
       ? (typeof chosen.job?.evidence?.renderedOutput?.archetypeId !== 'string'

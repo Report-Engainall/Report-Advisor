@@ -1,4 +1,5 @@
 import { FormEvent, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { AlertCircle, ArrowLeft, Brain, CheckCircle2, FileSearch, Loader2, LogIn, ShieldCheck, Sparkles, Upload } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { LanguageToggle } from '@/components/LanguageToggle';
@@ -16,6 +17,14 @@ const customerValueLanes = [
   { title: 'قرار بدل شاشة', text: 'التوصية لا تتوقف عند التحليل؛ تنتقل إلى مساحة قرار وموافقة منفصلة.', state: 'Decision' },
   { title: 'إجراء ونتيجة', text: 'ينتقل السياق إلى العمل ثم يعود بنتيجة فعلية عندما تُسجل، بلا تخمين.', state: 'Outcome' },
   { title: 'عربي أصيل', text: 'RTL أصلية ومسارات تشغيلية مترابطة، وليست ترجمة سطحية لواجهة أجنبية.', state: 'Arabic-first' },
+];
+
+const competitiveProofLanes = [
+  { title: 'Evidence-First BI', text: 'التحليل يبدأ من المصدر الموثق، ويحافظ على البصمة ولقطة الدليل قبل الاستنتاج.', state: 'ميزة جوهرية' },
+  { title: 'Governed Excel / CSV', text: 'ملفات العمل اليومية تدخل مسارًا محكومًا للتطبيع والجودة والتتبع بدل أن تصبح أرقامًا بلا أصل.', state: 'ميزة تشغيلية' },
+  { title: 'Arabic RTL B2B UX', text: 'القرار والتنفيذ والإثبات مصممة أصلًا بالعربية وRTL، لا كتجربة مترجمة فوق واجهة عامة.', state: 'ميزة تجربة' },
+  { title: 'Inventory / Receivables', text: 'المنتج يربط ذكاء المخزون والتحصيل بالإشارة والقرار والعمل، بدل فصل كل تقرير في شاشة مستقلة.', state: 'ميزة نطاق' },
+  { title: 'Supabase Tenant Security', text: 'عزل الشركة والصلاحيات وحدود الكتابة جزء من المسار التشغيلي، لا طبقة لاحقة بعد الواجهة.', state: 'ميزة ثقة' },
 ];
 
 export function LoginPage() {
@@ -47,9 +56,9 @@ export function LoginPage() {
   }
 
   return (
-    <main dir="rtl" className="min-h-screen bg-[#f7f7f8] text-ink-950">
+    <main dir="rtl" className="min-h-screen bg-[#f6f7fb] text-ink-950">
       <div className="flex min-h-screen flex-col lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(420px,.85fr)]">
-        <section className="ag-login-value order-2 border-t border-ink-200 bg-[#061e1d] text-white lg:order-1 lg:border-l lg:border-t-0">
+        <section className="ag-login-value order-2 border-t border-slate-800 bg-[#0b1020] text-white lg:order-1 lg:border-l border-slate-800 lg:border-t-0">
           <div className="mx-auto flex min-h-full max-w-3xl flex-col px-5 py-8 sm:px-8 lg:px-12 lg:py-10">
             <div className="flex items-center justify-between border-b border-ink-200 pb-5">
               <div className="flex items-center gap-3">
@@ -83,6 +92,18 @@ export function LoginPage() {
                 </div>
 
                 <div className="mt-8">
+                  <div className="flex items-center gap-2 text-[12px] font-black text-ink-900"><Sparkles size={15} className="text-primary-700"/>خمس طرق محددة لمنافسة المشاريع الأكبر</div>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {competitiveProofLanes.map(lane => (
+                      <div key={lane.title} className="rounded-[10px] border border-primary-100 bg-primary-50/40 p-3.5">
+                        <div className="flex items-center justify-between gap-2"><div className="text-[11px] font-black text-ink-900">{lane.title}</div><span className="rounded-full bg-white px-2 py-1 text-[9px] font-bold text-primary-700 ring-1 ring-inset ring-primary-200">{lane.state}</span></div>
+                        <p className="mt-1.5 text-[10px] leading-5 text-ink-600">{lane.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-8">
                   <div className="flex items-center gap-2 text-[12px] font-black text-ink-900"><Sparkles size={15} className="text-primary-700"/>ما الذي يحصل عليه العميل</div>
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     {customerValueLanes.map(lane => (
@@ -100,7 +121,7 @@ export function LoginPage() {
           </div>
         </section>
 
-        <section className="order-1 flex items-center border-b border-ink-200 bg-[#f7f7f8] px-5 py-8 sm:px-8 lg:order-2 lg:border-b-0 lg:px-12">
+        <section className="order-1 flex items-center border-b border-ink-200 bg-[#f6f7fb] px-5 py-8 sm:px-8 lg:order-2 lg:border-b-0 lg:px-12">
           <div className="mx-auto w-full max-w-[430px]">
             <div className="mb-7 lg:hidden"><div className="flex items-center justify-between"><div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-[9px] bg-ink-950 text-sm font-black text-white">أ</div><div><div className="text-[14px] font-black">الأغبري</div><div className="text-[10px] text-ink-400">مساحة العمل</div></div></div><LanguageToggle/></div></div>
             <div className="rounded-[14px] border border-ink-200 bg-white p-6 shadow-card sm:p-7">
@@ -114,7 +135,13 @@ export function LoginPage() {
                 <button type="submit" disabled={submitting} className="btn-primary min-h-12 w-full justify-center text-[13px]">{submitting ? <Loader2 size={17} className="animate-spin"/> : <ArrowLeft size={17}/>} {submitting ? 'جارٍ التحقق…' : 'الدخول إلى مساحة العمل'}</button>
               </form>
               <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-[9px] border border-ink-200 bg-ink-200"><div className="bg-white px-3 py-2.5 text-center text-[10px] font-semibold text-ink-500">هوية موثقة</div><div className="bg-white px-3 py-2.5 text-center text-[10px] font-semibold text-ink-500">شركة معزولة</div></div>
-              <p className="mt-5 text-center text-[10px] leading-5 text-ink-400">لا يوجد حساب تجريبي افتراضي. بعد الدخول تُحدد الشركة والصلاحيات من الحساب الفعلي.</p>
+              <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                <Link to="/proposal-demo" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-[11px] font-black text-indigo-800 transition hover:border-indigo-300 hover:bg-indigo-100">
+                  <Sparkles size={14}/> مشاهدة العرض الحي أولًا
+                </Link>
+                <div className="flex min-h-11 items-center justify-center rounded-xl border border-ink-200 bg-ink-50 px-3 py-2.5 text-center text-[10px] font-semibold text-ink-500">بدون بيانات أعمال تجريبية</div>
+              </div>
+              <p className="mt-4 text-center text-[10px] leading-5 text-ink-400">العرض الحي يشرح قيمة المنتج ومسار القرار فقط؛ بيانات الأعمال الحقيقية لا تظهر إلا داخل شركة وحساب مصرحين.</p>
             </div>
           </div>
         </section>
