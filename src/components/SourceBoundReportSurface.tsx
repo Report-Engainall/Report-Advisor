@@ -27,7 +27,7 @@ const STATE_LABELS: Record<string, string> = {
   VERIFIED: 'موثق',
   REVIEW: 'مراجعة',
   BLOCKED: 'محظور',
-  NO_القرار_COMMITTED: 'لا قرار معتمد',
+  NO_DECISION_COMMITTED: 'لا قرار معتمد',
   NO_ACTION_COMMITTED: 'لا إجراء معتمد',
   NOT_AVAILABLE: 'غير متاح',
   INSUFFICIENT_SAMPLE: 'عينة غير كافية',
@@ -308,7 +308,7 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
     <>
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatusCell label="ثقة المصدر" value={report.sourceTrustState ?? report.trustState}/>
-        <StatusCell label="حالة التوثيق" value={report.reportالتوثيقState}/>
+        <StatusCell label="حالة التوثيق" value={report.reportVerificationState}/>
         <StatusCell label="القرار" value={output.decisionStatus}/>
         <StatusCell label="المعيار المقارن" value={output.benchmarkStatus}/>
       </section>
@@ -365,7 +365,7 @@ function TrustMode({ report }: { report: SmartReportDetail }) {
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatusCell label="الثقة" value={report.trustState}/>
         <StatusCell label="الدليل" value={report.evidenceStatus}/>
-        <StatusCell label="التوثيق" value={report.reportالتوثيقState}/>
+        <StatusCell label="التوثيق" value={report.reportVerificationState}/>
         <StatusCell label="التحليل" value={report.sourceAnalysis?.analysisStatus}/>
         <StatusCell label="التغطية الكانونية" value={report.canonicalCommitVerified ? 'VERIFIED' : 'NOT_COMMITTED'}/>
       </section>
@@ -375,7 +375,7 @@ function TrustMode({ report }: { report: SmartReportDetail }) {
           <h2 className="mt-1 text-xl font-black">حالة الدليل</h2>
           <dl className="mt-4 grid gap-2 text-xs">
             <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>الثقة</dt><dd>{stateLabel(report.trustState ?? report.sourceTrustState)}</dd></div>
-            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>التوثيق</dt><dd>{stateLabel(report.reportالتوثيقState)}</dd></div>
+            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>التوثيق</dt><dd>{stateLabel(report.reportVerificationState)}</dd></div>
             <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>الجودة</dt><dd>{report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</dd></div>
             <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>التغطية</dt><dd>{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount) + ' سجل'}</dd></div>
             <details className="rounded-lg bg-ink-50 p-3"><summary className="cursor-pointer font-bold">تفاصيل المصدر الفنية</summary><div className="mt-2 break-all text-[9px] text-ink-400">الملف الأصلي: {report.sourcePath}<br/>البصمة: {report.sourceHash}</div></details>
@@ -390,7 +390,7 @@ function TrustMode({ report }: { report: SmartReportDetail }) {
               {report.canonicalCommitGap != null && report.canonicalCommitGap > 0 && <span className="mr-2 font-bold text-warning-900">فجوة الاعتماد: {formatNumber(report.canonicalCommitGap)} صف.</span>}
             </div>
             <div className="rounded-xl border border-warning-200 bg-warning-50 p-3 text-xs text-warning-900">المصدر الموثوق لا تعني التقرير الموثق. حالة الدليل النهائية تعتمد على evidence acceptance مستقل.</div>
-            <div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">حالة التحقق: {report.reportالتوثيقState === 'VERIFIED' ? 'موثق' : report.reportالتوثيقState === 'GAP_DETECTED' ? 'فجوة اعتماد' : 'بانتظار الدليل'}</div>
+            <div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">حالة التحقق: {report.reportVerificationState === 'VERIFIED' ? 'موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'فجوة اعتماد' : 'بانتظار الدليل'}</div>
             <div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">المعيار المقارن: {stateLabel(report.renderedOutput.benchmarkStatus)} — لا يتم اختلاق مقارنة عند نقص العينة.</div>
           </div>
         </div>
@@ -571,7 +571,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">GOVERNED القرارS</div>
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">GOVERNED DECISIONS</div>
             <h2 className="mt-1 text-lg font-black text-ink-950">القرارات المقترحة والتنفيذ المرتبط بهذا المصدر</h2>
             <p className="mt-1 text-[10px] leading-5 text-ink-500">المسار المحكوم: مقترح → موافقة → عنصر عمل → بدء → إغلاق بدليل. لا يوجد تنفيذ تلقائي ولا انتقال صامت بين الحالات.</p>
           </div>
@@ -749,7 +749,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
               label: 'Outcome',
               value: traced.outcomeStatus ?? 'NOT AVAILABLE',
               detail: traced.outcomeId
-                ? 'id=' + traced.outcomeId + ' · الدليل: ' + (traced.outcomeالدليلSnapshotId ?? 'غير متاح')
+                ? 'id=' + traced.outcomeId + ' · الدليل: ' + (traced.outcomeEvidenceSnapshotId ?? 'غير متاح')
                 : 'لا توجد نتيجة محفوظة بعد',
               tone: traced.outcomeStatus === 'positive' ? 'success' : traced.outcomeStatus === 'negative' ? 'danger' : traced.outcomeStatus ? 'warning' : 'neutral',
             },
