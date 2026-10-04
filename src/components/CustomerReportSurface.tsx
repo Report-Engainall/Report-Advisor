@@ -176,16 +176,29 @@ function executableRows(report: SmartReportDetail) {
 
 function numericColumns(report: SmartReportDetail) {
   const rows = executableRows(report);
+  const preferences: Record<string, string[]> = {
+    sales: ['total', 'paid_amount', 'profit', 'margin', 'quantity', 'balance'],
+    purchases: ['total', 'paid_amount', 'profit', 'margin', 'quantity', 'balance'],
+    receivables: ['balance', 'age_over_120', 'age_90_120', 'age_61_90', 'age_31_60'],
+    payments: ['balance', 'credit', 'debit'],
+    inventory: ['value', 'quantity', 'current_stock', 'price', 'cost'],
+  };
+  const preferred = preferences[report.specialty ?? ''] ?? ['total','amount','value','balance','paid_amount','quantity','profit','margin'];
+  const rank = (field: string | null) => {
+    const key = String(field ?? '');
+    const index = preferred.indexOf(key);
+    return index >= 0 ? index : 999;
+  };
   return reportColumns(report)
     .map((column) => {
-      const values = rows.map((row) => parseNumeric(rowValue(row, column.mappedField ?? column.key))).filter((value): value is number => value != null);
-      const sourceSum = parseNumeric(column.statistics?.sum);
-      if (!values.length && sourceSum == null) return null;
-      return { ...column, value: sourceSum ?? values.reduce((sum, value) => sum + value, 0) };
+      const field = column.mappedField ?? column.key;
+      const values = rows.map((row) => parseNumeric(rowValue(row, field))).filter((value): value is number => value != null);
+      if (!values.length) return null;
+      return { ...column, value: values.reduce((sum, value) => sum + value, 0), priority: rank(column.mappedField) };
     })
-    .filter((item): item is { key: string; name: string; mappedField: string | null; value: number; statistics?: Record<string, unknown> } => Boolean(item))
-    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
-    .slice(0, 8);
+    .filter((item): item is { key: string; name: string; mappedField: string | null; value: number; priority: number; statistics?: Record<string, unknown> } => Boolean(item))
+    .sort((a, b) => a.priority - b.priority || Math.abs(b.value) - Math.abs(a.value))
+    .slice(0, 4);
 }
 
 function contributionRows(report: SmartReportDetail) {
