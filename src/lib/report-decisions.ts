@@ -8,6 +8,19 @@ export type SourceDecisionProposal = {
   decisionKey: string;
   recommendationId: string | null;
 };
+export type SourceRecommendationContext = {
+  action: string;
+  why: string;
+  whyNow: string;
+  expectedOutcome: string;
+  owner: string | null;
+  impact: string;
+  measurement: string;
+  risk: string;
+  blocker: string;
+  limitation: string;
+};
+
 
 export async function createSourceDecisionProposal(input: {
   reportJobId: string;
@@ -18,6 +31,7 @@ export async function createSourceDecisionProposal(input: {
   severity: string;
   evidence: string[];
   evidenceSnapshotId: string;
+  recommendationContext?: SourceRecommendationContext | null;
 }): Promise<SourceDecisionProposal> {
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
@@ -59,6 +73,7 @@ export async function createSourceDecisionProposal(input: {
     confidence: null,
     confidenceSemantics: 'NOT_ASSESSED',
     expectedImpactStatus: 'NOT_AVAILABLE',
+    recommendationContext: input.recommendationContext ?? null,
   };
 
   const { data, error } = await supabase.rpc('create_source_intelligence_proposal', {
@@ -75,11 +90,38 @@ export async function createSourceDecisionProposal(input: {
   const proposal = Array.isArray(data) ? data[0] : data;
   if (!proposal?.decision_id) throw new Error('SOURCE_PROPOSAL_DECISION_ID_MISSING');
 
+  const recommendationId = proposal.recommendation_id == null ? null : String(proposal.recommendation_id);
+  if (recommendationId && input.recommendationContext) {
+    const { data: currentRecommendation, error: recommendationReadError } = await supabase
+      .from('recommendations')
+      .select('evidence')
+      .eq('company_id', companyId)
+      .eq('id', recommendationId)
+      .maybeSingle();
+    if (recommendationReadError) throw recommendationReadError;
+    const currentEvidence = currentRecommendation?.evidence && typeof currentRecommendation.evidence === 'object'
+      ? currentRecommendation.evidence as Record<string, unknown>
+      : {};
+    const { error: recommendationEnrichError } = await supabase
+      .from('recommendations')
+      .update({
+        description: input.recommendationContext.action,
+        owner: input.recommendationContext.owner,
+        evidence: {
+          ...currentEvidence,
+          recommendationContext: input.recommendationContext,
+        },
+      })
+      .eq('company_id', companyId)
+      .eq('id', recommendationId);
+    if (recommendationEnrichError) throw recommendationEnrichError;
+  }
+
   return {
     id: String(proposal.decision_id),
     status: String(proposal.decision_status ?? 'PROPOSED'),
     decisionKey,
-    recommendationId: proposal.recommendation_id == null ? null : String(proposal.recommendation_id),
+    recommendationId,
   };
 }
 
