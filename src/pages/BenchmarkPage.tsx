@@ -68,7 +68,7 @@ export function BenchmarkPage() {
         </div>
         <div className="rounded-2xl border border-ink-200 bg-white p-4">
           <div className="flex items-center gap-2 text-[10px] text-ink-500"><Database size={14}/> التخصص</div>
-          <div className="mt-2 text-xl font-black">{report.specialty ?? 'عام'}</div>
+          <div className="mt-2 text-xl font-black">{({sales:'المبيعات',purchases:'المشتريات',inventory:'المخزون',receivables:'الذمم والتحصيل',profitability:'الربحية',payments:'السيولة والمدفوعات'} as Record<string,string>)[report.specialty ?? ''] ?? 'عام'}</div>
           <div className="mt-1 text-[10px] text-ink-500">التشابه داخل مساحة العمل لا يُعرض كمقارنة خارجية</div>
         </div>
       </section>
