@@ -241,11 +241,19 @@ for (const profile of profiles) {
       return b.sampleSize - a.sampleSize;
     });
 
+  const candidateDiagnostics = [];
   let chosen = null;
   let runtime = null;
   for (const candidate of candidates) {
     const rows = await sourceRowsFor(candidate);
-    if (rows.length < profile.minimumSample) continue;
+    if (rows.length < profile.minimumSample) {
+      candidateDiagnostics.push({
+        reportJobId: candidate.job.id,
+        sourcePath: candidate.job.source_path,
+        reasons: ['CANONICAL_SAMPLE_BELOW_MINIMUM:' + rows.length + '<' + profile.minimumSample],
+      });
+      continue;
+    }
     const result = runReportArchetype({
       archetypeId: profile.id,
       report: {
@@ -275,28 +283,51 @@ for (const profile of profiles) {
       typeof candidateRendered.archetypeId === 'string' ? candidateRendered.archetypeId.trim() : null;
     const persistedArchetypeConsistency =
       !persistedArchetypeId || persistedArchetypeId === profile.id;
-    const valid =
-      result.state === 'SUPPORTED' &&
-      result.advisory.proofState === 'VERIFIED' &&
-      result.advisory.questions.length > 0 &&
-      result.advisory.claims.length > 0 &&
-      persistedArchetypeConsistency &&
-      result.advisory.claims.every((claim) =>
-        claim.archetypeId === profile.id &&
-        claim.tenantId === candidate.companyId &&
-        claim.sourceHash === candidate.job.source_hash &&
-        claim.reportExecutionJobId === candidate.job.id &&
-        claim.evidenceSnapshotId === candidate.snapshot.id
-      ) &&
-      result.intelligence.signals.some((signal) => signal.id === 'model:' + profile.id) &&
-      result.intelligence.recommendations.some((recommendation) => recommendation.id === 'rec:archetype:' + profile.id);
 
-    if (valid) {
+    const claimProvenanceValid = result.advisory.claims.every((claim) =>
+      claim.archetypeId === profile.id &&
+      claim.tenantId === candidate.companyId &&
+      claim.sourceHash === candidate.job.source_hash &&
+      claim.reportExecutionJobId === candidate.job.id &&
+      claim.evidenceSnapshotId === candidate.snapshot.id
+    );
+
+    const reasons = [];
+    if (result.state !== 'SUPPORTED') reasons.push('STATE:' + String(result.state ?? 'UNKNOWN'));
+    if (result.advisory.proofState !== 'VERIFIED') reasons.push('ADVISORY_PROOF:' + String(result.advisory.proofState ?? 'UNKNOWN'));
+    if (result.advisory.questions.length === 0) reasons.push('NO_ADVISORY_QUESTIONS');
+    if (result.advisory.claims.length === 0) reasons.push('NO_ADVISORY_CLAIMS');
+    if (!persistedArchetypeConsistency) reasons.push('PERSISTED_ARCHETYPE_CONFLICT:' + persistedArchetypeId);
+    if (result.advisory.claims.length > 0 && !claimProvenanceValid) reasons.push('CLAIM_PROVENANCE_MISMATCH');
+    if (!result.intelligence.signals.some((signal) => signal.id === 'model:' + profile.id)) reasons.push('MODEL_SIGNAL_MISSING');
+    if (!result.intelligence.recommendations.some((recommendation) => recommendation.id === 'rec:archetype:' + profile.id)) reasons.push('ARCHETYPE_RECOMMENDATION_MISSING');
+
+    candidateDiagnostics.push({
+      reportJobId: candidate.job.id,
+      sourcePath: candidate.job.source_path,
+      sampleSize: rows.length,
+      reasons,
+    });
+
+    if (reasons.length === 0) {
       chosen = candidate;
       runtime = result;
       break;
     }
   }
+
+  const missingRequiredFields = candidates.length === 0
+    ? sourceRecords
+      .slice()
+      .sort((a, b) => b.sampleSize - a.sampleSize)
+      .slice(0, 5)
+      .map((source) => ({
+        reportJobId: source.job.id,
+        sourcePath: source.job.source_path,
+        sampleSize: source.sampleSize,
+        missingFields: profile.requiredFields.filter((field) => !source.fieldSet.has(field)),
+      }))
+    : [];
 
   results.push({
     number: profile.number,
@@ -315,6 +346,14 @@ for (const profile of profiles) {
     advisoryProofState: runtime?.advisory.proofState ?? null,
     recommendationCount: runtime?.intelligence.recommendations.length ?? 0,
     claimCount: runtime?.advisory.claims.length ?? 0,
+    candidateCount: candidates.length,
+    notProvenReason: chosen
+      ? null
+      : candidates.length === 0
+        ? 'NO_ELIGIBLE_REAL_SOURCE'
+        : (candidateDiagnostics.flatMap((candidate) => candidate.reasons).find(Boolean) ?? 'RUNTIME_OR_PROVENANCE_GATE'),
+    candidateDiagnostics: candidateDiagnostics.slice(0, 8),
+    missingRequiredFields,
     persistedArchetypeId: chosen?.job?.evidence?.renderedOutput?.archetypeId ?? null,
     persistedArchetypeConsistency: chosen
       ? (typeof chosen.job?.evidence?.renderedOutput?.archetypeId !== 'string'
