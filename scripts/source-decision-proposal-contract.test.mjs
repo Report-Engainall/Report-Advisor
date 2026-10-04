@@ -8,6 +8,7 @@ assert.ok(bridge.includes("createRuntimeRecommendation"));
 assert.ok(bridge.includes("createRuntimeDecision"));
 assert.ok(bridge.includes("linkRecommendationToDecision"));
 assert.ok(bridge.includes("recommendationId"));
+assert.ok(bridge.includes("proposal.recommendation_id == null ? null : String(proposal.recommendation_id)"));
 assert.ok(bridge.includes("reportExecutionJobId"));
 assert.ok(bridge.includes("sourceHash"));
 assert.ok(bridge.includes("PROPOSED_ONLY"));
