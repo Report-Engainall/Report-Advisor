@@ -1,5 +1,4 @@
 import { SourceBoundReportSurface } from '@/components/SourceBoundReportSurface';
-import { readActiveReportContext } from '@/lib/report-context';
 import { ArrowLeft, CheckCircle2, Eye, FileSearch, GitBranch, History, Landmark, RefreshCw, ShieldCheck } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -171,9 +170,8 @@ function TrustEvidenceGeneralPage() {
 
 export function TrustEvidencePage() {
   const [params] = useSearchParams();
-  const saved = readActiveReportContext();
-  const reportJobId = params.get('reportJobId') || saved?.jobId;
-  const sourceHash = params.get('sourceHash') || saved?.sourceHash;
+  const reportJobId = params.get('reportJobId')?.trim() ?? '';
+  const sourceHash = params.get('sourceHash')?.trim() ?? '';
   if (reportJobId) {
     return <SourceBoundReportSurface mode="trust" jobId={reportJobId} expectedSourceHash={sourceHash} />;
   }
