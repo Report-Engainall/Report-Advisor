@@ -958,7 +958,7 @@ export function SmartReportPage() {
       <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="section-kicker">المصدر · الإثبات · التفاصيل</div>
+            <div className="section-kicker">EVIDENCE PASSPORT · المصدر · الإثبات · التفاصيل</div>
             <div className="mt-1 text-base font-black text-ink-950">التفاصيل الكاملة للتقرير</div>
             <div className="mt-1 text-[10px] leading-5 text-ink-500">افتحها فقط عندما تحتاج إلى التحقق أو استكشاف البيانات أو المخرجات المتقدمة.</div>
           </div>
