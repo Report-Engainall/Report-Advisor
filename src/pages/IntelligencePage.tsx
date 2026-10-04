@@ -62,8 +62,8 @@ function SourceIntelligenceRail({ report }: { report: SmartReportDetail }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="text-[9px] font-black tracking-[.12em] text-primary-800">SOURCE-BOUND INTELLIGENCE</div>
-          <h2 className="mt-1 text-base font-black text-ink-950">{report.sourcePath}</h2>
-          <div className="mt-1 text-[10px] text-ink-500">{report.specialty ?? 'عام'} · {report.rowCount ?? 0} صف · {report.sourceHash.slice(0, 20)}…</div>
+          <h2 className="mt-1 text-base font-black text-ink-950">{report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : 'تقرير أعمال ذكي'}</h2>
+          <div className="mt-1 text-[10px] text-ink-500">تحليل مصدر محدد · {report.rowCount ?? 0} سجل · الدليل مرتبط بالتقرير الحالي</div>
         </div>
         <Link to={'/reports/smart/' + encodeURIComponent(report.jobId) + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-primary text-[10px]">افتح التقرير الذكي <ArrowUpLeft size={12}/></Link>
       </div>
