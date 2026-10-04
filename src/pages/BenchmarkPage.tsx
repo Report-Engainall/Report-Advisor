@@ -47,9 +47,9 @@ export function BenchmarkPage() {
       <section className="rounded-[18px] border border-primary-200 bg-primary-50/60 p-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <div className="text-[9px] font-black tracking-[.14em] text-primary-800">BENCHMARK NETWORK</div>
+            <div className="text-[9px] font-black tracking-[.14em] text-primary-800">أهلية المقارنة</div>
             <h1 className="mt-1 text-xl font-black text-ink-950">أهلية المقارنة لهذا التقرير</h1>
-            <p className="mt-1 text-[11px] leading-6 text-ink-600">التقرير: {report.sourcePath} — لا يتم تقديم مقارنة شبكية ما لم يتوفر Cohort حقيقي قابل للمطابقة.</p>
+            <p className="mt-1 text-[11px] leading-6 text-ink-600">هذا التقرير جاهز لفحص أهلية المقارنة، لكن لا توجد عينة مقارنة موثوقة كافية لإصدار ترتيب أو متوسط.</p>
           </div>
           <Link to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary inline-flex items-center gap-2 text-xs">العودة للتقرير <ArrowLeft size={13}/></Link>
         </div>
@@ -69,20 +69,20 @@ export function BenchmarkPage() {
         <div className="rounded-2xl border border-ink-200 bg-white p-4">
           <div className="flex items-center gap-2 text-[10px] text-ink-500"><Database size={14}/> التخصص</div>
           <div className="mt-2 text-xl font-black">{report.specialty ?? 'عام'}</div>
-          <div className="mt-1 text-[10px] text-ink-500">لا يتحول التشابه الداخلي إلى Benchmark شبكي</div>
+          <div className="mt-1 text-[10px] text-ink-500">التشابه داخل مساحة العمل لا يُعرض كمقارنة خارجية</div>
         </div>
       </section>
 
       <section className="rounded-[18px] border border-warning-200 bg-warning-50 p-5">
         <h2 className="text-lg font-black text-warning-950">لماذا لا توجد مقارنة الآن؟</h2>
         <p className="mt-2 text-sm leading-7 text-warning-900">
-          لا يوجد في البنية الحالية Cohort شبكي موثوق يتيح مقارنة هذا التقرير مع شركات/مساحات أخرى وفق نفس التعريفات والفترات وجودة البيانات.
-          لذلك لا يتم اختلاق متوسط أو ترتيب أو نسبة تفوق. ستبقى الحالة: العينة غير كافية حتى تتوفر طبقة Cohort معزولة ومطابقة للسياسة.
+          لا توجد حاليًا عينة مقارنة موثوقة تسمح بمقارنة هذا التقرير مع أعمال أخرى وفق نفس التعريفات والفترات وجودة البيانات.
+          لذلك لا يتم اختلاق متوسط أو ترتيب أو نسبة تفوق. ستبقى الحالة: العينة غير كافية حتى تتوفر عينة مقارنة معزولة ومطابقة للسياسة.
         </p>
       </section>
 
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
-        <div className="text-[9px] font-black tracking-[.12em] text-primary-700">COHORT READINESS</div>
+        <div className="text-[9px] font-black tracking-[.12em] text-primary-700">جاهزية المقارنة</div>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {[
             ['تعريف المقياس', 'يجب أن يكون التعريف الكانوني نفسه لكل عضو في Cohort.'],
