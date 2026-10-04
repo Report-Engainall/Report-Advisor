@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { CommercialValueChain } from '@/components/CommercialValueChain';\nimport { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, CheckCircle2, FileSearch, ShieldCheck, Search, Columns3, ArrowDownUp, Download, RotateCcw } from 'lucide-react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
@@ -633,6 +633,73 @@ export function SmartReportPage() {
         <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-primary inline-flex items-center gap-2 text-xs">مسار القرار</Link>
         <Link to="/reports" className="btn-secondary inline-flex items-center gap-2 text-xs"><ArrowLeft size={14}/> مركز التقارير</Link>
       </div>}
+    />
+
+    <CommercialValueChain
+      stages={[
+        {
+          label: 'المصدر',
+          englishLabel: 'SOURCE',
+          status: stateLabel(report.sourceTrustState ?? report.trustState),
+          detail: report.sourcePath + ' · ' + formatNumber(report.rowCount ?? 0) + ' صف · ' + (report.sourceAnalysis?.sourceFormat ?? 'غير متاح'),
+          tone: report.sourceTrustState === 'VERIFIED' || report.trustState === 'TRUSTED' ? 'trusted' : 'active',
+        },
+        {
+          label: 'الدليل',
+          englishLabel: 'EVIDENCE',
+          status: report.reportVerificationState === 'VERIFIED' ? 'VERIFIED' : report.reportVerificationState === 'GAP_DETECTED' ? 'REVIEW' : 'PENDING',
+          detail: 'لقطة الدليل والاعتماد الكانوني منفصلان عن مجرد قراءة المصدر.',
+          href: '/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
+          tone: report.reportVerificationState === 'VERIFIED' ? 'trusted' : 'attention',
+        },
+        {
+          label: 'الإشارات',
+          englishLabel: 'SIGNALS',
+          status: report.intelligence.signals.length ? report.intelligence.signals.length + ' مثبتة' : 'لا توجد',
+          detail: report.intelligence.signals[0]?.title ?? 'لا توجد إشارة استثنائية مثبتة في المصدر الحالي.',
+          tone: report.intelligence.signals.length ? 'active' : 'neutral',
+        },
+        {
+          label: 'المستشار',
+          englishLabel: 'ADVISOR',
+          status: report.intelligence.recommendations.length ? report.intelligence.recommendations.length + ' توصية' : 'غير متاح',
+          detail: report.intelligence.advisorBrief.recommendedAction ?? report.intelligence.guidance.focus ?? 'لا توجد توصية مصدرية كافية حاليًا.',
+          tone: report.intelligence.recommendations.length ? 'active' : 'neutral',
+          href: '#smart-report-intelligence',
+        },
+        {
+          label: 'القرار',
+          englishLabel: 'DECISION',
+          status: stateLabel(output.decisionStatus == null ? null : String(output.decisionStatus)),
+          detail: 'القرار المعتمد لا يُستنتج تلقائيًا من التوصية؛ يبقى منفصلًا وقابلًا للتدقيق.',
+          href: '/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
+          tone: output.decisionStatus === 'APPROVED' || output.decisionStatus === 'COMMITTED' ? 'trusted' : 'attention',
+        },
+        {
+          label: 'التنفيذ',
+          englishLabel: 'WORK',
+          status: stateLabel(output.actionStatus == null ? null : String(output.actionStatus)),
+          detail: 'مركز العمل هو طبقة التنفيذ؛ لا نخلط بين توصية ذكية وتنفيذ فعلي.',
+          href: '/work-center?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
+          tone: output.actionStatus === 'COMPLETED' || output.actionStatus === 'IN_PROGRESS' ? 'active' : 'neutral',
+        },
+        {
+          label: 'النتيجة',
+          englishLabel: 'OUTCOME',
+          status: stateLabel(output.outcomeStatus == null ? null : String(output.outcomeStatus)),
+          detail: output.actualImpact == null ? 'لم تُسجل نتيجة فعلية بعد.' : 'الأثر الفعلي: ' + formatMetric(numberValue(output.actualImpact)),
+          href: '/replay?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
+          tone: output.outcomeStatus === 'OBSERVED' || output.outcomeStatus === 'COMPLETED' ? 'trusted' : 'neutral',
+        },
+        {
+          label: 'التعلم',
+          englishLabel: 'LEARNING',
+          status: stateLabel(output.learningStatus == null ? null : String(output.learningStatus)),
+          detail: 'يظهر هنا فقط ما تم رصده وتثبيته بعد التنفيذ؛ لا تُصنع نتيجة مستقبلية.',
+          href: '/benchmark?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
+          tone: output.learningStatus === 'OBSERVED' || output.learningStatus === 'READY' ? 'trusted' : 'neutral',
+        },
+      ]}
     />
 
     <ReportDecisionCockpit report={report}/>
