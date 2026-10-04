@@ -384,9 +384,11 @@ function emptyReportIntelligence(specialty: string | null): ReportIntelligence {
   };
 }
 
-export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail | null> {
+export async function fetchSmartReport(jobId: string, expectedSourceHash: string): Promise<SmartReportDetail | null> {
   const normalizedJobId = jobId.trim();
-  if (!normalizedJobId) throw new Error('REPORT_QUERY_INVALID_SMART_REPORT_ID');
+  const normalizedSourceHash = expectedSourceHash.trim();
+  if (!normalizedJobId) throw new Error('INVALID_REPORT_CONTEXT');
+  if (!/^sha256:[0-9a-fA-F]{64}$/.test(normalizedSourceHash)) throw new Error('INVALID_REPORT_CONTEXT');
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
@@ -398,7 +400,8 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
     .maybeSingle();
 
   if (jobError) throw jobError;
-  if (!job || job.status !== 'completed') return null;
+  if (!job || job.status !== 'completed') throw new Error('INVALID_REPORT_CONTEXT');
+  if (String(job.source_hash ?? '').trim() !== normalizedSourceHash) throw new Error('INVALID_REPORT_CONTEXT');
 
   const runtimeWarnings: string[] = [];
   const renderedOutput = renderedOutputOf(job.evidence);
@@ -534,9 +537,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
   const canonicalImportJobId = renderedImportId || (
     analysis?.import_job_id == null ? '' : String(analysis.import_job_id).trim()
   );
-  if (!canonicalImportJobId) {
-    runtimeWarnings.push('لم تتوفر import_job_id لهذا التشغيل؛ استُخدم sourceHash كحد أدنى للقراءة الكانونية، وقد تكون هناك لقطات تاريخية إضافية لنفس الملف.');
-  }
+  if (!canonicalImportJobId) throw new Error('INVALID_REPORT_CONTEXT');
   let canonicalOffset = 0;
   let canonicalFetchError = false;
 
@@ -545,9 +546,7 @@ export async function fetchSmartReport(jobId: string): Promise<SmartReportDetail
       .from('canonical_dataset_records')
       .select('row_number,data')
       .eq('company_id', companyId);
-    const canonicalScopedQuery = canonicalImportJobId
-      ? canonicalSourceQuery.eq('import_job_id', canonicalImportJobId)
-      : canonicalSourceQuery.eq('source_hash', job.source_hash);
+    const canonicalScopedQuery = canonicalSourceQuery.eq('import_job_id', canonicalImportJobId);
     const { data: pageRows, error: pageError } = await canonicalScopedQuery
       .order('row_number', { ascending: true })
       .range(canonicalOffset, canonicalOffset + canonicalFetchPageSize - 1);
