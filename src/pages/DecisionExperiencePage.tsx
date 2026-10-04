@@ -151,6 +151,9 @@ function DecisionExperienceGeneralPage() {
     try {
       setLoading(true);
       setError(null);
+      if (!reportJobIdParam || !sourceHashParam || !/^sha256:[0-9a-fA-F]{64}$/.test(sourceHashParam)) {
+        throw new Error('INVALID_REPORT_CONTEXT');
+      }
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_REQUIRED');
       const [nextRecommendations, nextAlerts, nextWorkItems, nextOutcomes, sourceProposals] = await Promise.all([
@@ -270,7 +273,6 @@ function DecisionExperienceGeneralPage() {
         throw new Error('DECISION_EVIDENCE_SNAPSHOT_REQUIRED');
       }
 
-      const reportContext = readActiveReportContext();
       const decisionId = await createRuntimeDecision({
         decisionKey: 'recommendation:' + selected.id,
         decisionType: 'recommendation:' + selected.category,
@@ -287,8 +289,8 @@ function DecisionExperienceGeneralPage() {
           sourceEvidence: recommendationEvidence.evidence,
           evidenceSnapshotId: recommendationEvidence.evidenceSnapshotId,
           metricVersions: recommendationEvidence.metricVersions,
-          reportJobId: reportContext?.jobId ?? null,
-          sourceHash: reportContext?.sourceHash ?? null,
+          reportJobId: reportJobIdParam,
+          sourceHash: sourceHashParam,
         },
       });
       await linkRecommendationToDecision(selected.id, decisionId);
