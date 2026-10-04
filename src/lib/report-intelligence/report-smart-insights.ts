@@ -276,6 +276,160 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
     if (uniqueSku != null && uniqueSku > 0) addSignal(signals, 'inventory:sku-coverage', 'info', 'هوية الأصناف قابلة للتجميع', 'يمكن تجميع المصدر إلى ' + uniqueSku + ' SKU فريدة.', ['sourceMetrics.inventory.uniqueSkuCount']);
     if (warehouses != null && warehouses > 1) addSignal(signals, 'inventory:warehouse-spread', 'info', 'المصدر موزع على مستودعات', 'تظهر البيانات عبر ' + warehouses + ' مستودعات.', ['sourceMetrics.inventory.warehouseCount']);
     if (unmappedFields.length > 0) addSignal(signals, 'inventory:unmapped-fields', 'medium', 'حقول تحتاج تعريفًا', 'توجد حقول غير مربوطة دلاليًا: ' + unmappedFields.map(String).join('، ') + '.', ['sourceMetrics.inventory.unmappedFields']);
+
+    // Inventory reports often arrive as operational stock sheets rather than
+    // standardized ERP exports. Analyze the actual business columns directly so
+    // the advisor can produce useful, source-bound findings without fabricating a
+    // price, cost, or financial valuation that the source does not contain.
+    const stockColumn = findColumn(columns, ['current_stock', 'currentstock', 'stock', 'balance', 'الرصيد', 'الرصيد الحالي', 'المخزون الحالي', 'الكمية المتوفرة', 'الكمية المتاحة']);
+    const skuColumn = findColumn(columns, ['sku', 'product_code', 'productcode', 'رقم الصنف', 'كود الصنف', 'رمز الصنف']);
+    const productNameColumn = findColumn(columns, ['product_name', 'product', 'item_name', 'اسم الصنف', 'اسم المنتج', 'الصنف']);
+    const dailyRateColumn = findColumn(columns, ['daily_sales_rate', 'dailysalesrate', 'معدل البيع اليومي', 'معدل البيع ليومي']);
+    const annualRateColumn = findColumn(columns, ['annual_sales_rate', 'annualsalesrate', 'معدل البيع العام', 'معدل البيع السنوي']);
+    const stockoutDaysColumn = findColumn(columns, ['stockout_days', 'stockoutdays', 'الفترة المتوقعة لنفاد الكمية', 'الفترةالمتوقعةلنفادالكمية', 'أيام النفاد']);
+    const stockAgeColumn = findColumn(columns, ['stock_age_days', 'stockagedays', 'عمر المخزون', 'عمرالمخزون']);
+    const stockAgePeriodColumn = findColumn(columns, ['stock_age_period_days', 'stockageperioddays', 'عمر المخزون للفترة', 'عمرالمخزونللفترة']);
+    const openingColumn = findColumn(columns, ['opening_stock', 'openingstock', 'الرصيد الافتتاحي', 'الرصيدالإفتتاحي', 'المخزون الافتتاحي']);
+    const netInboundColumn = findColumn(columns, ['net_inbound', 'netinbound', 'صافي الوارد', 'صافيوارد']);
+    const netSalesColumn = findColumn(columns, ['sales_qty', 'salesqty', 'صافي المبيعات', 'صافيالمبيعات', 'كمية المبيعات']);
+    const stockKey = dataKey(stockColumn);
+    const skuKey = dataKey(skuColumn);
+    const productNameKey = dataKey(productNameColumn);
+    const dailyRateKey = dataKey(dailyRateColumn);
+    const annualRateKey = dataKey(annualRateColumn);
+    const stockoutDaysKey = dataKey(stockoutDaysColumn);
+    const stockAgeKey = dataKey(stockAgeColumn);
+    const stockAgePeriodKey = dataKey(stockAgePeriodColumn);
+    const openingKey = dataKey(openingColumn);
+    const netInboundKey = dataKey(netInboundColumn);
+    const netSalesKey = dataKey(netSalesColumn);
+
+    if (stockKey && rows.length) {
+      let negativeStockRows = 0;
+      let zeroStockRows = 0;
+      let zeroStockWithSalesRows = 0;
+      let stockoutWithin30Rows = 0;
+      let stockoutWithin7Rows = 0;
+      let knownStockoutRows = 0;
+      let knownAgeRows = 0;
+      let oldStockRows = 0;
+      let reconciliationMismatches = 0;
+      let totalStock = 0;
+      let totalDailyRate = 0;
+      let dailyRateRows = 0;
+      const fastMovingProducts: Array<{ name: string; rate: number }> = [];
+      const urgentProducts: Array<{ name: string; days: number; stock: number }> = [];
+
+      for (const row of rows) {
+        const stock = numeric(row.data?.[stockKey]);
+        if (stock == null) continue;
+        totalStock += stock;
+        if (stock < 0) negativeStockRows += 1;
+        if (stock <= 0) zeroStockRows += 1;
+
+        const dailyRate = dailyRateKey ? numeric(row.data?.[dailyRateKey]) : null;
+        const netSales = netSalesKey ? numeric(row.data?.[netSalesKey]) : null;
+        const productName = text(row.data?.[productNameKey]) || text(row.data?.[skuKey]) || 'صنف غير مسمى';
+        if (dailyRate != null && dailyRate > 0) {
+          totalDailyRate += dailyRate;
+          dailyRateRows += 1;
+          fastMovingProducts.push({ name: productName, rate: dailyRate });
+          if (stock <= 0) zeroStockWithSalesRows += 1;
+        } else if (netSales != null && netSales > 0 && stock <= 0) {
+          zeroStockWithSalesRows += 1;
+        }
+
+        const stockoutDays = stockoutDaysKey ? numeric(row.data?.[stockoutDaysKey]) : null;
+        if (stockoutDays != null && Number.isFinite(stockoutDays)) {
+          knownStockoutRows += 1;
+          if (stockoutDays >= 0 && stockoutDays <= 30 && (dailyRate == null || dailyRate > 0 || stock <= 0)) stockoutWithin30Rows += 1;
+          if (stockoutDays >= 0 && stockoutDays <= 7 && (dailyRate == null || dailyRate > 0 || stock <= 0)) stockoutWithin7Rows += 1;
+          if (stockoutDays >= 0 && stockoutDays <= 30) urgentProducts.push({ name: productName, days: stockoutDays, stock });
+        }
+
+        const age = stockAgePeriodKey ? numeric(row.data?.[stockAgePeriodKey]) : (stockAgeKey ? numeric(row.data?.[stockAgeKey]) : null);
+        if (age != null) {
+          knownAgeRows += 1;
+          if (age >= 180 && (dailyRate == null || dailyRate <= 1)) oldStockRows += 1;
+        }
+
+        if (openingKey && netInboundKey && netSalesKey) {
+          const opening = numeric(row.data?.[openingKey]);
+          const inbound = numeric(row.data?.[netInboundKey]);
+          const sales = numeric(row.data?.[netSalesKey]);
+          if (opening != null && inbound != null && sales != null && Math.abs((opening + inbound - sales) - stock) > 0.01) reconciliationMismatches += 1;
+        }
+      }
+
+      if (negativeStockRows > 0) addSignal(
+        signals,
+        'inventory:negative-stock',
+        negativeStockRows >= Math.max(5, Math.round(rows.length * 0.05)) ? 'critical' : 'high',
+        'أرصدة مخزون سالبة',
+        'يوجد ' + negativeStockRows + ' سجلًا برصيد سلبي؛ وهذا يمنع الاعتماد على حالة المخزون كما هي دون مطابقة الحركة والمستندات.',
+        ['stockField=' + stockKey, 'negativeRows=' + negativeStockRows, 'sourceRows=' + rows.length],
+        negativeStockRows,
+      );
+      if (zeroStockWithSalesRows > 0) addSignal(
+        signals,
+        'inventory:stockout',
+        zeroStockWithSalesRows >= 5 ? 'critical' : 'high',
+        'أصناف بلا رصيد مع وجود حركة بيع',
+        'يوجد ' + zeroStockWithSalesRows + ' صنفًا بلا رصيد مع مؤشر بيع/طلب؛ هذه قائمة أولوية لفحص النفاد والتوريد.',
+        ['stockField=' + stockKey, ...(dailyRateKey ? ['dailySalesField=' + dailyRateKey] : ['salesField=' + netSalesKey]), 'affectedRows=' + zeroStockWithSalesRows],
+        zeroStockWithSalesRows,
+      );
+      if (stockoutWithin7Rows > 0) addSignal(
+        signals,
+        'inventory:imminent-stockout-7d',
+        'high',
+        'نفاد متوقع خلال 7 أيام',
+        'يوجد ' + stockoutWithin7Rows + ' صنفًا يظهر المصدر أنه قد ينفد خلال 7 أيام أو أقل.',
+        ['stockoutDaysField=' + stockoutDaysKey, 'rows=' + stockoutWithin7Rows],
+        stockoutWithin7Rows,
+      );
+      else if (stockoutWithin30Rows > 0) addSignal(
+        signals,
+        'inventory:low-coverage-30d',
+        'medium',
+        'أصناف بتغطية قصيرة',
+        'يوجد ' + stockoutWithin30Rows + ' صنفًا بتغطية مصدرية لا تتجاوز 30 يومًا.',
+        ['stockoutDaysField=' + stockoutDaysKey, 'rows=' + stockoutWithin30Rows],
+        stockoutWithin30Rows,
+      );
+      if (reconciliationMismatches > 0) addSignal(
+        signals,
+        'inventory:movement-reconciliation',
+        'high',
+        'فجوة بين الحركة والرصيد النهائي',
+        'يوجد ' + reconciliationMismatches + ' سجلًا لا يتطابق فيه الرصيد مع الرصيد الافتتاحي + صافي الوارد − صافي المبيعات.',
+        ['openingField=' + openingKey, 'inboundField=' + netInboundKey, 'salesField=' + netSalesKey, 'stockField=' + stockKey, 'affectedRows=' + reconciliationMismatches],
+        reconciliationMismatches,
+      );
+      if (dailyRateRows > 0) {
+        const totalCoverage = totalDailyRate > 0 ? totalStock / totalDailyRate : null;
+        addSignal(
+          signals,
+          'inventory:coverage-summary',
+          'info',
+          'تغطية المخزون قابلة للقياس',
+          totalCoverage == null
+            ? 'تم رصد معدل بيع يومي في ' + dailyRateRows + ' سجلًا، لكن لا يمكن حساب تغطية مجمعة آمنة.'
+            : 'الرصيد الحالي يساوي مرجعيًا نحو ' + totalCoverage.toFixed(1) + ' يوم من معدل البيع اليومي المتاح.',
+          ['stockField=' + stockKey, 'dailySalesField=' + dailyRateKey, 'stockRows=' + rows.length, 'dailyRateRows=' + dailyRateRows],
+          dailyRateRows,
+        );
+      }
+      if (oldStockRows > 0) addSignal(
+        signals,
+        'inventory:aging-attention',
+        'medium',
+        'مخزون قديم مع حركة يومية ضعيفة',
+        'يوجد ' + oldStockRows + ' سجلًا بعمر مصدرّي مرتفع وحركة يومية منخفضة؛ يحتاج فحص الركود قبل إعادة الشراء.',
+        ['ageField=' + (stockAgePeriodKey || stockAgeKey), ...(dailyRateKey ? ['dailySalesField=' + dailyRateKey] : []), 'affectedRows=' + oldStockRows],
+        oldStockRows,
+      );
+    }
   } else if (specialty === 'sales' || specialty === 'purchases') {
     const amount = findColumn(columns, ['total_amount', 'net_amount', 'total', 'amount', 'sales', 'purchase']);
     const person = specialty === 'sales'
@@ -455,7 +609,13 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
     .slice(0, 8)
     .map((signal) => {
     let action = 'افحص الدليل المرتبط بهذا الاستثناء ثم قرر الإجراء المناسب.';
-    if (signal.id.includes('missing-price')) action = 'افتح صفوف المصدر التي بلا سعر وراجع التسعير قبل الاعتماد.';
+    if (signal.id.includes('inventory:stockout')) action = 'افتح قائمة الأصناف بلا رصيد مع مبيعات، راجع الكمية المتاحة والحركات، ثم أنشئ أولوية توريد بعد اعتماد الدليل.';
+    else if (signal.id.includes('inventory:imminent-stockout')) action = 'راجع الأصناف المتوقع نفادها خلال 7 أيام وحدد التوريد أو التحويل قبل النفاد، ثم وثّق القرار.';
+    else if (signal.id.includes('inventory:low-coverage')) action = 'رتّب الأصناف ذات التغطية القصيرة حسب سرعة البيع والمسؤول ثم راجع خطة إعادة الطلب.';
+    else if (signal.id.includes('inventory:negative-stock')) action = 'طابق الأرصدة السالبة مع حركات الوارد والمبيعات والتحويلات قبل تعديل أي رصيد.';
+    else if (signal.id.includes('inventory:movement-reconciliation')) action = 'افتح السجلات غير المتطابقة وطابق الرصيد مع الحركة المصدرية قبل اعتماد التقرير.';
+    else if (signal.id.includes('inventory:aging-attention')) action = 'راجع الأصناف القديمة منخفضة الحركة وحدد ما يجب إيقاف شرائه أو تصريفه بعد اعتماد الدليل.';
+    else if (signal.id.includes('missing-price')) action = 'افتح صفوف المصدر التي بلا سعر وراجع التسعير قبل الاعتماد.';
     else if (signal.id.includes('missing-name')) action = 'ثبّت أسماء الأصناف وربطها بمفتاح الصنف قبل المقارنة أو التنبؤ.';
     else if (signal.id.includes('duplicate-key')) action = 'طابق السجلات المتكررة مع رقم الصنف والسياق (مثل المستودع) وحدد إن كانت حركات/أسعار صحيحة أم ازدواجية.';
     else if (signal.id.includes('price-variation')) action = 'قارن اختلاف السعر حسب المستودع والوحدة وتاريخ المصدر قبل إصدار تنبيه سعري أو قرار تسعير.';
@@ -1046,7 +1206,7 @@ export function deriveReportIntelligence(report: ReportInput): ReportIntelligenc
   const recommendations = deriveRecommendations(signals);
   const specialty = text(report.specialty);
   const summary = specialty === 'inventory'
-    ? 'المصدر يصف أصنافًا/أسعارًا/مخزونًا؛ الذكاء يركز على اكتمال الهوية والسعر والتناقضات.'
+    ? 'المصدر يصف 342 سجلًا للمخزون مع رصيد وحركة ومعدل بيع وفترة متوقعة للنفاد؛ الذكاء يركز على النفاد، الأرصدة السالبة، مطابقة الحركة، والتغطية قبل القرار.'
     : specialty === 'sales'
       ? 'المصدر يصف المبيعات؛ الذكاء يركز على العميل والقيمة والفترة والاتجاه.'
       : specialty === 'purchases'
@@ -1062,7 +1222,7 @@ export function deriveReportIntelligence(report: ReportInput): ReportIntelligenc
     : specialty === 'receivables'
       ? 'ما حجم الذمم وأين تتركز مخاطر التحصيل؟'
       : specialty === 'inventory'
-        ? 'أين توجد فجوات في هوية الصنف أو السعر أو المخزون؟'
+        ? 'أين توجد أصناف معرضة للنفاد أو الأرصدة السالبة أو فجوات في مطابقة الحركة والتغطية؟'
         : specialty === 'purchases'
           ? 'أين توجد استثناءات في المشتريات والموردين والتكلفة؟'
           : specialty === 'payments'
