@@ -1537,3 +1537,20 @@ button,input,textarea,select{font:inherit}
     border-color:rgb(99 102 241 / 22%)!important;
   }
 }
+
+
+@layer utilities{
+  /* Semantic success uses cool indigo rather than green across the product. */
+  .bg-success-50{background-color:#eef2ff!important}
+  .bg-success-100{background-color:#e0e7ff!important}
+  .bg-success-200{background-color:#c7d2fe!important}
+  .bg-success-700{background-color:#4338ca!important}
+  .bg-success-800{background-color:#3730a3!important}
+  .bg-success-900{background-color:#312e81!important}
+  .text-success-700{color:#4338ca!important}
+  .text-success-800{color:#3730a3!important}
+  .text-success-900{color:#312e81!important}
+  .border-success-200{border-color:#c7d2fe!important}
+  .border-success-300{border-color:#a5b4fc!important}
+  .ring-success-100{--tw-ring-color:#e0e7ff!important}
+}
