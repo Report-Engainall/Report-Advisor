@@ -313,7 +313,7 @@ export function ReportsCenterPage() {
                   <div className="mt-3 rounded-xl border border-primary-100 bg-primary-50/60 p-3">
                     <div className="text-[9px] font-black tracking-[.08em] text-primary-700">نوع التحليل</div>
                     <div className="mt-1 truncate text-[11px] font-black text-ink-950" title={modelLabel}>{modelLabel}</div>
-                    <div className="mt-1 text-[9px] text-ink-500">الحالة: {report.archetypeState === 'REVIEW_REQUIRED' ? 'يحتاج مراجعة النموذج' : report.archetypeState === 'SUPPORTED' ? 'النموذج صالح' : 'غير متاح'}</div>
+                    <div className="mt-1 text-[9px] text-ink-500">الحالة: {report.archetypeState === 'REVIEW_REQUIRED' ? 'يحتاج مراجعة' : report.archetypeState === 'SUPPORTED' ? 'جاهز' : 'غير متاح'}</div>
                   </div>
 
                   <div className="mt-3 grid grid-cols-2 gap-2 text-[9px]">
