@@ -4,7 +4,6 @@ import { ArrowLeft, CheckCircle2, FileSearch, ShieldCheck, Search, Columns3, Arr
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
-import { saveActiveReportContext } from '@/lib/report-context';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { SmartReportAdvisorySurface } from '@/components/SmartReportAdvisorySurface';
 import { ReportDecisionCockpit } from '@/components/ReportDecisionCockpit';
@@ -284,7 +283,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
     return values.length >= 3;
   }), [discoveredColumns, rows]);
 
-  const storageKey = 'aghbari.report-view.' + report.sourceHash;
+  const storageKey = 'aghbari.report-view.v2.' + report.jobId + '.' + report.sourceHash;
   const [search, setSearch] = useState('');
   const [sortColumn, setSortColumn] = useState(discoveredColumns[0] ?? '');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
@@ -555,20 +554,24 @@ export function SmartReportPage() {
 
   useEffect(() => {
     let active = true;
+    const expectedSourceHash = searchParams.get('sourceHash')?.trim() ?? '';
     setLoading(true);
     setError(null);
-    void fetchSmartReport(jobId ?? '').then((next) => {
-      if (active) {
-        setReport(next);
-        if (next) saveActiveReportContext({ jobId: next.jobId, sourceHash: next.sourceHash });
-      }
+    if (!jobId?.trim() || !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash)) {
+      setReport(null);
+      setError('INVALID_REPORT_CONTEXT');
+      setLoading(false);
+      return () => { active = false; };
+    }
+    void fetchSmartReport(jobId, expectedSourceHash).then((next) => {
+      if (active) setReport(next)
     }).catch((reason) => {
       if (active) setError(reason instanceof Error ? reason.message : String(reason));
     }).finally(() => {
       if (active) setLoading(false);
     });
     return () => { active = false; };
-  }, [jobId]);
+  }, [jobId, searchParams]);
 
   const dataset = useMemo(() => {
     const first = report?.sourceAnalysis?.datasets?.[0];
@@ -591,9 +594,14 @@ export function SmartReportPage() {
   if (error) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="تعذر قراءة نتيجة التقرير المربوطة بالمصدر." /><ErrorState message={error} onRetry={() => {
     setLoading(true);
     setError(null);
-    void fetchSmartReport(jobId ?? '').then((next) => {
+    const expectedSourceHash = searchParams.get('sourceHash')?.trim() ?? '';
+    if (!jobId?.trim() || !/^sha256:[0-9a-fA-F]{64}$/.test(expectedSourceHash)) {
+      setError('INVALID_REPORT_CONTEXT');
+      setLoading(false);
+      return;
+    }
+    void fetchSmartReport(jobId, expectedSourceHash).then((next) => {
       setReport(next);
-      if (next) saveActiveReportContext({ jobId: next.jobId, sourceHash: next.sourceHash });
     }).catch((reason) => setError(reason instanceof Error ? reason.message : String(reason))).finally(() => setLoading(false));
   }} /></div>;
   if (!report) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="التقرير المطلوب غير موجود أو غير مكتمل." /><div className="rounded-2xl border border-warning-200 bg-warning-50 p-5 text-sm text-warning-900">لا توجد مخرجات ذكية مثبتة لهذا التقرير.</div></div>;
