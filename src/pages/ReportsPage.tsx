@@ -115,21 +115,6 @@ function useOptionalSourceReport() {
   return { jobId, report, loading, error, retry: load };
 }
 
-function sourceValue(columns: Array<any>, ...tokens: string[]): any {
-  return columns.find((column) => tokens.some((token) => String(column.mappedField ?? column.name ?? '').toLowerCase().replace(/[\\s_-]+/g, '').includes(token.toLowerCase().replace(/[\\s_-]+/g, ''))));
-}
-
-function sourceNumber(column: any, stat: 'sum' | 'mean' | 'max' = 'sum'): number | null {
-  const value = column?.statistics?.[stat];
-  return typeof value === 'number' && Number.isFinite(value) ? value : null;
-}
-
-function sourceBoundHref(path: string, report: SmartReportDetail): string {
-  return path + (path.includes('?') ? '&' : '?')
-    + 'reportJobId=' + encodeURIComponent(report.jobId)
-    + '&sourceHash=' + encodeURIComponent(report.sourceHash);
-}
-
 function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report: SmartReportDetail; expectedSpecialty: string; title: string }) {
   return <CustomerReportSurface report={report} expectedSpecialty={expectedSpecialty} title={title} />;
 }
