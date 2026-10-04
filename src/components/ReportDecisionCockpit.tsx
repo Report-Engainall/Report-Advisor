@@ -64,6 +64,18 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
         severity: topSignal.severity,
         evidence: topSignal.evidence,
         evidenceSnapshotId,
+        recommendationContext: topRecommendation ? {
+          action: topRecommendation.action,
+          why: topRecommendation.why,
+          whyNow: topRecommendation.whyNow,
+          expectedOutcome: topRecommendation.expectedOutcome,
+          owner: topRecommendation.ownerHint || null,
+          impact: topRecommendation.impact,
+          measurement: topRecommendation.measurement,
+          risk: topRecommendation.risk,
+          blocker: topRecommendation.blocker,
+          limitation: topRecommendation.limitation,
+        } : null,
       });
       await saveAdvisorBusinessCase({
         decisionId: proposal.id,
