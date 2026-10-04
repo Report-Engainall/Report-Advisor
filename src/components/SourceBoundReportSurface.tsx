@@ -64,15 +64,45 @@ function specialtyPath(specialty: string | null): string | null {
 function buildMetrics(report: SmartReportDetail) {
   const dataset = report.sourceAnalysis?.datasets?.[0];
   const obj = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : null;
-  const columns = Array.isArray(obj?.columns)
-    ? obj.columns.filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === 'object')
-    : [];
-  return columns
-    .map((column) => ({
-      label: String(column.mappedField ?? column.name ?? 'حقل'),
-      value: numberValue((column.statistics as Record<string, unknown> | undefined)?.sum ?? null),
-    }))
-    .filter((metric) => metric.value != null);
+  const raw = Array.isArray(obj?.columns) ? obj.columns as unknown[] : [];
+  const labels: Record<string,string> = {
+    total:'الإجمالي',
+    net_amount:'صافي المبيعات',
+    paid_amount:'المدفوع',
+    balance:'الرصيد المستحق',
+    credit:'الدائن',
+    debit:'المدين',
+    profit:'الربح',
+    margin:'الهامش',
+    quantity:'الكمية',
+    value:'القيمة',
+  };
+  const preference = report.specialty === 'sales' || report.specialty === 'purchases'
+    ? ['total','net_amount','paid_amount','profit','margin','quantity']
+    : report.specialty === 'receivables'
+      ? ['balance','paid_amount','credit','debit']
+      : report.specialty === 'payments'
+        ? ['balance','credit','debit']
+        : report.specialty === 'inventory'
+          ? ['value','quantity','price','cost']
+          : ['total','value','balance','profit','paid_amount','quantity'];
+  const rank = (field: string) => {
+    const index = preference.indexOf(field);
+    return index >= 0 ? index : 999;
+  };
+  return raw
+    .map((column) => {
+      if (!column || typeof column !== 'object') return null;
+      const item = column as Record<string, unknown>;
+      const field = String(item.mappedField ?? item.name ?? '').trim();
+      const value = numberValue((item.statistics as Record<string, unknown> | undefined)?.sum ?? null);
+      if (!field || value == null) return null;
+      return { field, value, priority: rank(field) };
+    })
+    .filter((metric): metric is {field:string;value:number;priority:number} => Boolean(metric))
+    .sort((a,b) => a.priority-b.priority || Math.abs(b.value)-Math.abs(a.value))
+    .slice(0,4)
+    .map(({field,value}) => ({label: labels[field] ?? 'مؤشر', value}));
 }
 
 function ContinuationRail({ report, decision }: { report: SmartReportDetail; decision: SourceDecisionState }) {
@@ -112,7 +142,7 @@ function ContinuationRail({ report, decision }: { report: SmartReportDetail; dec
           <Link to={'/work-center?decisionWorkFilter=' + workFilter} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة التنفيذ">
             <div className="text-[9px] font-black text-ink-600">WORK</div>
             <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.workItemStatus)}</div>
-            <div className="mt-1 text-[9px] text-ink-500">عنصر العمل {decision.workItemId.slice(0, 8)}…</div>
+            <div className="mt-1 text-[9px] text-ink-500">عنصر عمل مرتبط</div>
           </Link>
         ) : (
           <div className="rounded-xl border border-warning-200 bg-warning-50/70 p-3" aria-label="التنفيذ غير متاح">
@@ -233,7 +263,7 @@ function BusinessJourneyRail({
         <span className="rounded-full bg-success-50 px-2.5 py-1 text-success-800">OBSERVED / PROVEN</span>
         <span className="rounded-full bg-warning-50 px-2.5 py-1 text-warning-900">ATTENTION / ACTION</span>
         <span className="rounded-full bg-ink-50 px-2.5 py-1 text-ink-600">UNKNOWN / NOT AVAILABLE</span>
-        <span className="mr-auto rounded-full bg-ink-50 px-2.5 py-1 font-mono text-ink-600">source: {report.sourceHash ? report.sourceHash.slice(0, 26) + '…' : 'غير متاح'}</span>
+        <span className="mr-auto rounded-full bg-ink-50 px-2.5 py-1 text-ink-600">المصدر محفوظ للتدقيق</span>
       </div>
     </section>
   );
@@ -277,10 +307,10 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
   return (
     <>
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatusCell label="Source Trust" value={report.sourceTrustState ?? report.trustState}/>
-        <StatusCell label="Report Verification" value={report.reportVerificationState}/>
-        <StatusCell label="Decision" value={output.decisionStatus}/>
-        <StatusCell label="Benchmark" value={output.benchmarkStatus}/>
+        <StatusCell label="ثقة المصدر" value={report.sourceTrustState ?? report.trustState}/>
+        <StatusCell label="حالة التوثيق" value={report.reportVerificationState}/>
+        <StatusCell label="القرار" value={output.decisionStatus}/>
+        <StatusCell label="المعيار المقارن" value={output.benchmarkStatus}/>
       </section>
       <section className="grid gap-4 xl:grid-cols-[1.2fr_.8fr]">
         <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
@@ -295,9 +325,9 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
           <div className="text-[9px] font-black tracking-[.12em] text-primary-200">SOURCE FACTS</div>
           <div className="mt-3 grid grid-cols-2 gap-2">
             <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">الصفوف</div><div className="mt-1 text-lg font-black">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div></div>
-            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">الأعمدة</div><div className="mt-1 text-lg font-black">{report.sourceAnalysis?.columnCount ?? 'غير متاح'}</div></div>
-            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">الصيغة</div><div className="mt-1 text-sm font-black">{report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
-            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">مرحلة</div><div className="mt-1 text-sm font-black">{STAGE_LABELS[report.checkpointStage ?? ''] ?? report.checkpointStage ?? 'غير متاح'}</div></div>
+            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">حقول المصدر</div><div className="mt-1 text-lg font-black">{report.sourceAnalysis?.columnCount ?? 'غير متاح'}</div></div>
+            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">نوع المصدر</div><div className="mt-1 text-sm font-black">{report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
+            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">حالة المعالجة</div><div className="mt-1 text-sm font-black">{STAGE_LABELS[report.checkpointStage ?? ''] ?? report.checkpointStage ?? 'غير متاح'}</div></div>
           </div>
         </div>
       </section>
