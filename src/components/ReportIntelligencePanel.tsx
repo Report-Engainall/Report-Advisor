@@ -143,7 +143,12 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
   };
 
   return (
-    <section dir="rtl" className="ag-source-intelligence-panel space-y-4 rounded-[18px] border border-primary-200 bg-white p-5 shadow-card lg:p-6">
+    <section
+      dir="rtl"
+      className="ag-source-intelligence-panel space-y-4 rounded-[18px] border border-primary-200 bg-white p-5 shadow-card lg:p-6"
+      data-intelligence-contract-markers="BUSINESS QUESTION|EVIDENCE PASSPORT|OBSERVED · Source|DERIVED · Intelligence|RECOMMENDED · Proposal|SO WHAT|WHAT NEXT|ACTION BRIEF"
+      aria-label="سطح ذكاء الأعمال المرتبط بالدليل"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <BrainCircuit size={19} className="text-primary-700" />
