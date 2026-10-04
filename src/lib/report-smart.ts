@@ -664,9 +664,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const canonicalCommitCount = actualCanonicalRowCount;
   const authoritativeCurrentRowCount = actualCanonicalRowCount;
   const canonicalCommitGap =
-    canonicalCommitQueryFailed || effectiveRendered.rowCount == null
+    canonicalCommitQueryFailed || authoritativeCurrentRowCount == null || effectiveRendered.rowCount == null
       ? null
-      : Math.max(0, Number(effectiveRendered.rowCount) - actualCanonicalRowCount);
+      : Math.max(0, Number(effectiveRendered.rowCount) - authoritativeCurrentRowCount);
   const canonicalCommitVerified =
     currentPassport?.verification_status === 'VERIFIED' &&
     currentPassport?.decision_readiness === 'READY' &&
