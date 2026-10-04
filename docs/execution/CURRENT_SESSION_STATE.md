@@ -1,12 +1,12 @@
 # CURRENT SESSION STATE
 SESSION HANDOFF = NOT READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 9c38d2309e87bd21f871f4fd293e5eb0afc349b4
+CURRENT_EXACT_HEAD = ba6f2d4e6c89b1b918896ebde6489d5b0641ecfb
 CURRENT_MAIN_HEAD = 9ecb9b831bab2beb02791d4f1eda6f4a374d4731
-CURRENT_EXECUTION_HEAD = 9c38d2309e87bd21f871f4fd293e5eb0afc349b4
+CURRENT_EXECUTION_HEAD = 4ab7a699ff6364fd64e2f4cbfd252964a0d31f57
 BRANCH = feat/complete-smart-intelligence-surface-20261003
 PR = #820 OPEN
-CURRENT_PR_HEAD = 9c38d2309e87bd21f871f4fd293e5eb0afc349b4
+CURRENT_PR_HEAD = ba6f2d4e6c89b1b918896ebde6489d5b0641ecfb
 WHAT_ACTUALLY_HAPPENED
 - Continued PR #820 from the real execution point and consumed completed CI failures only on their exact HEADs.
 - Repaired the single live legacy source-intelligence recommendation that failed Phase-F restore integrity through the governed tenant-bound provenance repair RPC; invalid source-intelligence recommendations now count 0.
@@ -19,7 +19,7 @@ WHAT_ACTUALLY_HAPPENED
 - Added authenticated SELECT permission for report_evidence_snapshots with RLS tenant policy preserved.
 - Moved the 48-archetype fixture seed into the governed corpus rehydration path and removed the standalone tenant-consumer seed script.
 - Current exact code head has Quality, Value Cohort, and Evidence Passport green; Phase-F and Full Product Browser E2E remain live; Final Certification is blocked only by the current live evidence and this handoff synchronization.
-CURRENT_ACTIVE_FAILURE = CI_RECERTIFICATION: latest exact-head certification workflows are queued/pending; no terminal result on 0ab26d34fe2ff655329eac4af952862d83ee5b08 is trusted yet.
+CURRENT_ACTIVE_FAILURE = CI_RECERTIFICATION: exact-head certification workflows for ba6f2d4e6c89b1b918896ebde6489d5b0641ecfb are queued/pending; no terminal PASS is trusted yet.
 FIRST_TERMINAL_FAILURE_TO_TRUST = only a completed result on the latest exact HEAD; queued/pending results are not PASS.
 WHAT_IS_PROVEN
 - Staging project fnqbvfuwbdpwvhcgzksl is ACTIVE_HEALTHY.
@@ -28,14 +28,14 @@ WHAT_IS_PROVEN
 - The optimized candidate RPC returns 42 rows in ~133ms on EXPLAIN with no change to evidence semantics.
 - Previous governed corpus run: 63 records, 0 FAILED.
 OPEN
-- Consume exact-head Quality, Value Cohort, Full Product Browser E2E, Phase-F, and Final Certification results on 55201964303602c0a52d63e0cc9bd9881a864530.
+- Consume exact-head Quality, Value Cohort, Full Product Browser E2E, Phase-F, and Final Certification results on ba6f2d4e6c89b1b918896ebde6489d5b0641ecfb; code preview under test is 4ab7a699ff6364fd64e2f4cbfd252964a0d31f57.
 - Real-source 48/48 proof remains unproven; the gate now emits per-candidate diagnostic reasons instead of opaque NOT_PROVEN results.
 - External production deployment availability.
-- Vercel preview build for 55201964303602c0a52d63e0cc9bd9881a864530 is still BUILDING.
+- Netlify preview for 4ab7a699ff6364fd64e2f4cbfd252964a0d31f57 is READY; Vercel is still BUILDING/PENDING on its connected preview.
 DO_NOT_REPEAT
 - No stale SHA PASS.
 - No queued-run PASS.
 - No fabricated corpus/archetype coverage.
 - No RLS/auth/evidence weakening.
 - No blind timeout inflation.
-NEXT_EXACT_ACTION = consume the first terminal exact-head certification result on 0ab26d34fe2ff655329eac4af952862d83ee5b08; patch only the first root cause, then rerun the closed gate family and close Session Handoff
+NEXT_EXACT_ACTION = consume the first terminal exact-head certification result on ba6f2d4e6c89b1b918896ebde6489d5b0641ecfb; patch only the first root cause, then rerun the closed gate family and close Session Handoff
