@@ -1,12 +1,12 @@
 # PROGRAMMER CURRENT REPORT
 SESSION HANDOFF = NOT READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = 9ecb9b831bab2beb02791d4f1eda6f4a374d4731
+CURRENT MAIN HEAD = c98dacac4a869b5ef6dce720b085b06049594502
 REFERENCE START HEAD = 509a69aeca9f5a5dbfe8cbef24dad92be2017554
-CURRENT EXECUTION HEAD = 5b779148ff95f390ec7f6fca8290c5019be0bb32
-REPORT_FOR_HEAD = 5b779148ff95f390ec7f6fca8290c5019be0bb32
-BRANCH = feat/complete-smart-intelligence-surface-20261003
-PR = #820
+CURRENT EXECUTION HEAD = aa17033a1e7225e3b81d5151044645e8434e37ff
+REPORT_FOR_HEAD = aa17033a1e7225e3b81d5151044645e8434e37ff
+BRANCH = fix/sellable-proposal-surface-20261004
+PR = #833 OPEN
 UPDATED_AT = 2026-10-04T15:15:00Z
 
 WHAT_I_WAS_ASKED_TO_DO = تنفيذ جراحة شاملة للمنتج بالتوازي: عزل كل Report Job، إصلاح parser قبل intelligence، خفض ضجيج الذكاء، إعادة بناء Executive UX، دعم mobile/desktop، ثم إثبات الرحلة على exact HEAD دون PASS وهمي.
