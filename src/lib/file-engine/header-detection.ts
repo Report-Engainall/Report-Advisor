@@ -16,10 +16,10 @@ function nonEmpty(values: unknown[]): string[] {
   return values.map(v => String(v ?? '').trim()).filter(Boolean);
 }
 
-const DATE_HEADER_PATTERN = /^(.*?التاريخ.*?)\\s+(20\\d{2})-\\s*$/u;
+const DATE_HEADER_PATTERN = /^(.*?التاريخ.*?)\s+(20\d{2})-\s*$/u;
 
 function normalizeReconstructedHeader(value: string): { header: string; year: string | null } {
-  const compact = value.replace(/\\s+/g, ' ').trim();
+  const compact = value.replace(/\s+/g, ' ').trim();
   const match = compact.match(DATE_HEADER_PATTERN);
   if (match) return { header: match[1].trim(), year: match[2] };
   return { header: compact, year: null };
@@ -39,7 +39,7 @@ function reconstructCellValue(header: string, value: unknown, headerYear: string
   const text = String(value ?? '').trim();
   if (!text) return value;
   const normalizedHeader = normalizeColumnName(header);
-  if (headerYear && normalizedHeader.includes('التاريخ') && /^\\d{1,2}[-/]\\d{1,2}$/.test(text)) {
+  if (headerYear && normalizedHeader.includes('التاريخ') && /^\d{1,2}[-/]\d{1,2}$/.test(text)) {
     const [month, day] = text.split(/[-/]/).map((part) => Number(part));
     if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
       const candidate = new Date(Date.UTC(Number(headerYear), month - 1, day));
