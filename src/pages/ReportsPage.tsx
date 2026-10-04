@@ -304,7 +304,7 @@ export function ReportsCenterPage() {
                       <div className="truncate text-sm font-black text-ink-950">{report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي'}</div>
                       <div className="mt-1 text-[10px] text-ink-500">{report.rowCount == null ? 'عدد الصفوف غير متاح' : formatNumber(report.rowCount) + ' صف'} · {report.specialty ?? 'عام'}</div>
                     </div>
-                    <span className={'shrink-0 rounded-full px-2 py-1 text-[9px] font-black ' + (report.trustState === 'TRUSTED' ? 'bg-success-50 text-success-800' : 'bg-warning-50 text-warning-800')}>{report.trustState ?? 'غير متاح'}</span>
+                    <span className={'shrink-0 rounded-full px-2 py-1 text-[9px] font-black ' + (report.trustState === 'TRUSTED' ? 'bg-indigo-50 text-indigo-800' : 'bg-warning-50 text-warning-800')}>{report.trustState === 'TRUSTED' ? 'موثوق' : report.trustState === 'VERIFIED' ? 'موثق' : report.trustState === 'REVIEW' || report.trustState === 'REVIEW_REQUIRED' ? 'مراجعة مطلوبة' : 'غير مكتمل'}</span>
                   </div>
 
                   <div className="mt-3 rounded-xl border border-primary-100 bg-primary-50/60 p-3">
