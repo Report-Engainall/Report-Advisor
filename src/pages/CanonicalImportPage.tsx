@@ -147,6 +147,7 @@ export function CanonicalImportPage() {
   const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const selectedFileRef = useRef<File | null>(null);
+  const batchModeRef = useRef(false);
 
   const loadHistory = useCallback(async () => {
     setLoadingHistory(true);
@@ -168,7 +169,9 @@ export function CanonicalImportPage() {
     if (!next.length) return;
     setQueuedFiles((current) => {
       const seen = new Set(current.map((candidate) => candidate.name + ':' + candidate.size + ':' + candidate.lastModified));
-      return [...current, ...next.filter((candidate) => !seen.has(candidate.name + ':' + candidate.size + ':' + candidate.lastModified))].slice(0, 12);
+      const merged = [...current, ...next.filter((candidate) => !seen.has(candidate.name + ':' + candidate.size + ':' + candidate.lastModified))].slice(0, 12);
+      if (merged.length > 1) batchModeRef.current = true;
+      return merged;
     });
     setError(null);
   }, []);
@@ -383,6 +386,10 @@ export function CanonicalImportPage() {
         renderedOutput: execution.renderedOutput ?? null,
       });
       await loadHistory();
+      if (batchModeRef.current) {
+        setStep('done');
+        return;
+      }
       navigate('/reports/smart/' + String(execution.jobId), { replace: true });
       return;
     } catch (cause) {
@@ -413,8 +420,8 @@ export function CanonicalImportPage() {
     understandingReason, loadHistory,
   ]);
 
-  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setExistingSmartReportJobId(null); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); if (inputRef.current) inputRef.current.value = ''; };
-  const clearQueuedFiles = () => setQueuedFiles([]);
+  const reset = () => { selectedFileRef.current = null; batchModeRef.current = false; setQueuedFiles([]); setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setExistingSmartReportJobId(null); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); if (inputRef.current) inputRef.current.value = ''; };
+  const clearQueuedFiles = () => { batchModeRef.current = false; setQueuedFiles([]); };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
@@ -466,7 +473,7 @@ export function CanonicalImportPage() {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <div className="text-sm font-black text-ink-950">سلة المصادر</div>
-              <div className="mt-1 text-[10px] leading-5 text-ink-500">لن يتم دمج هذه التقارير. اختر التقرير الذي تريد تحليله، ثم تبقى التقارير الأخرى محفوظة في السلة.</div>
+              <div className="mt-1 text-[10px] leading-5 text-ink-500">لن يتم دمج هذه التقارير. عند اختيار عدة مصادر يتم تحليل مصدر واحد في كل مرة مع بقاء كل نتيجة مرتبطة بسياقها وبصمتها.</div>
             </div>
             <button type="button" onClick={clearQueuedFiles} className="btn-secondary text-[10px]">إفراغ السلة</button>
           </div>
@@ -585,7 +592,15 @@ export function CanonicalImportPage() {
         <Card><CardBody>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div><div className="text-sm font-black text-ink-950">ماذا يعني الإغلاق هنا؟</div><p className="mt-1 text-xs leading-5 text-ink-500">تم حفظ المصدر والصفوف الكانونية ونتيجة الـrendered output. لا يتم تحويل غياب الأدلة أو القرار أو النتيجة أو العينة إلى نجاح.</p></div>
-            <button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Link to={'/reports/smart/' + encodeURIComponent(String(result?.jobId ?? ''))} className="btn-primary"><ArrowLeft size={14}/> فتح التقرير الذكي</Link>
+              {queuedFiles.length > 0 && <button type="button" onClick={() => {
+                const next = queuedFiles[0];
+                setQueuedFiles((current) => current.slice(1));
+                if (next) void handleFile(next);
+              }} className="btn-secondary"><Upload size={14}/> تحليل المصدر التالي ({queuedFiles.length})</button>}
+              <button type="button" onClick={reset} className="btn-secondary"><Upload size={14}/> بدء مصادر جديدة</button>
+            </div>
           </div>
         </CardBody></Card>
       </div>;
