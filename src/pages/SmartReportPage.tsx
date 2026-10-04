@@ -101,6 +101,13 @@ function displayColumnLabel(column: string): string {
     'رقم الصنف': 'رمز الصنف', 'كود الصنف': 'رمز الصنف', 'رمز الصنف': 'رمز الصنف', 'الوحدة': 'الوحدة',
     'البيان': 'الوصف', 'الوصف': 'الوصف', 'التاريخ 2026-': 'التاريخ',
     'رقم الحركة': 'رقم الحركة', 'رقم السند': 'رقم المستند',
+    current_stock: 'الرصيد الحالي', opening_stock: 'الرصيد الافتتاحي', inbound: 'الوارد', net_inbound: 'صافي الوارد',
+    transfers_pending: 'تحويل غير مستلم', sales_qty: 'صافي المبيعات', daily_sales_rate: 'معدل البيع اليومي', annual_sales_rate: 'معدل البيع العام',
+    stockout_days: 'الفترة المتوقعة للنفاد (يوم)', stock_age_days: 'عمر المخزون', stock_age_period_days: 'عمر المخزون للفترة',
+    'العبوه': 'العبوة', 'العبوة': 'العبوة', 'الرصيد الإفتتاحي': 'الرصيد الافتتاحي', 'الـوارد': 'الوارد',
+    'تحويل غير مستلم': 'تحويل غير مستلم', 'صافي الوارد': 'صافي الوارد', 'صافي مبيعات مرحل': 'صافي مبيعات مرحل', 'صافي مبيعات لم يرحل': 'صافي مبيعات لم يرحل',
+    'صافي المبيعات': 'صافي المبيعات', 'معدل البيع ليومي': 'معدل البيع اليومي', 'معدل البيع العام': 'معدل البيع العام',
+    'الفترةالمتوقعةلنفادالكمية': 'الفترة المتوقعة للنفاد (يوم)', 'عمرالمخزون': 'عمر المخزون', 'عمرالمخزونللفترة': 'عمر المخزون للفترة',
   };
   const exact = labels[key] ?? labels[normalized];
   if (exact) return exact;
@@ -126,6 +133,13 @@ function canonicalFieldName(value: unknown): string | null {
     ['customer_name',['customer_name','customer','client','اسم العميل','العميل']],
     ['supplier_name',['supplier_name','supplier','اسم المورد','المورد']],
     ['product_name',['product_name','product','item_name','item','name','اسم الصنف','اسم المنتج','الصنف','المادة','اسم المادة','الخامة','اسم الخامة']],
+    ['sku',['sku','product_code','productcode','item_code','رقم الصنف','كود الصنف','رمز الصنف']],
+    ['current_stock',['current_stock','currentstock','stock','balance','الرصيد','الرصيد الحالي','المخزون الحالي','الكمية المتوفرة','الكمية المتاحة']],
+    ['daily_sales_rate',['daily_sales_rate','dailysalesrate','معدل البيع اليومي','معدل البيع ليومي']],
+    ['annual_sales_rate',['annual_sales_rate','annualsalesrate','معدل البيع العام','معدل البيع السنوي']],
+    ['stockout_days',['stockout_days','stockoutdays','الفترة المتوقعة لنفاد الكمية','الفترةالمتوقعةلنفادالكمية','أيام النفاد']],
+    ['stock_age_days',['stock_age_days','stockagedays','عمر المخزون','عمرالمخزون']],
+    ['stock_age_period_days',['stock_age_period_days','stockageperioddays','عمر المخزون للفترة','عمرالمخزونللفترة']],
     ['total',['total','total_amount','اجمالي الفاتورة','اجمالي الفاتوره','الإجمالي','الاجمالي']],
     ['net_amount',['net_amount','مبلغ الصافي بالمحلي','مبلغ صافي المحلي','الصافي بالمحلي']],
     ['paid_amount',['paid_amount','paid','المدفوع']],
@@ -138,6 +152,9 @@ function canonicalFieldName(value: unknown): string | null {
     ['price',['price','السعر']],
     ['category',['category','الفئة','التصنيف']],
     ['warehouse',['warehouse','المستودع','المخزن']],
+    ['opening_stock',['opening_stock','openingstock','الرصيد الافتتاحي','الرصيدالإفتتاحي','المخزون الافتتاحي']],
+    ['net_inbound',['net_inbound','netinbound','صافي الوارد','صافيوارد']],
+    ['sales_qty',['sales_qty','salesqty','صافي المبيعات','صافيالمبيعات','كمية المبيعات']],
   ];
   for (const [canonical, candidates] of aliases) {
     if (candidates.some(candidate => normalizeKey(candidate) === key)) return canonical;
@@ -168,7 +185,7 @@ function normalizedDatasetColumns(report: SmartReportDetail | null): SmartColumn
       if (!sourceName) return null;
       return {
         name: sourceName,
-        mappedField: String(item.mappedField ?? canonicalFieldName(sourceName) ?? '').trim() || null,
+        mappedField: String(canonicalFieldName(sourceName) ?? item.mappedField ?? '').trim() || null,
         dataType: String(item.dataType ?? ''),
         nullCount: Number.isFinite(Number(item.nullCount)) ? Number(item.nullCount) : undefined,
         mappingConfidence: Number.isFinite(Number(item.mappingConfidence)) ? Number(item.mappingConfidence) : undefined,
@@ -266,12 +283,24 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
   const age120Column = findColumn('age_over_120','over_120');
   const age30Column = findColumn('age_0_30','0_30','age030');
   const paidColumn = findColumn('paid_amount','paid');
-  const quantityColumn = findColumn('quantity','qty','stock','current_stock');
-  const primaryMetricColumn = amountColumn ?? (report?.specialty === 'inventory' ? quantityColumn : null);
+  const quantityColumn = findColumn('quantity','qty','stock','current_stock','balance');
+  const inventoryStockColumn = report?.specialty === 'inventory' ? findColumn('current_stock','stock','balance','quantity','الرصيد','الرصيد الحالي') : null;
+  const inventoryStockKey = inventoryStockColumn ? dataKey(inventoryStockColumn) : '';
+  const inventoryZeroCount = report?.specialty === 'inventory' ? rows.filter((row) => {
+    const value = numberValue(valueForColumn(row, inventoryStockKey));
+    return value != null && value <= 0;
+  }).length : 0;
+  const inventoryLowCoverageCount = report?.specialty === 'inventory' ? (() => {
+    const coverage = findColumn('stockout_days','الفترة المتوقعة لنفاد الكمية','أيام النفاد');
+    if (!coverage) return 0;
+    const key = dataKey(coverage);
+    return rows.filter((row) => { const value = numberValue(valueForColumn(row, key)); return value != null && value >= 0 && value <= 30; }).length;
+  })() : 0;
+  const primaryMetricColumn = report?.specialty === 'inventory' ? inventoryStockColumn : (amountColumn ?? null);
 
   const metrics = [
     {
-      label: report?.specialty === 'receivables' ? 'إجمالي الرصيد المستحق' : report?.specialty === 'inventory' && !amountColumn ? 'إجمالي الكمية المثبتة' : 'أهم قيمة مالية',
+      label: report?.specialty === 'receivables' ? 'إجمالي الرصيد المستحق' : report?.specialty === 'inventory' ? 'إجمالي الرصيد الحالي' : 'أهم قيمة مالية',
       value: formatMetric(primaryMetricColumn ? (numberValue(primaryMetricColumn.statistics?.sum) ?? numeric.find((item) => item.column === primaryMetricColumn)?.sum ?? null) : null),
       detail: primaryMetricColumn ? displayColumnLabel(String(primaryMetricColumn.mappedField ?? primaryMetricColumn.name ?? '')) : 'لا توجد قيمة رقمية مثبتة',
     },
@@ -287,10 +316,10 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
     },
     {
       label: report?.specialty === 'receivables' ? 'أكثر من 120 يومًا' : 'مؤشر عددي رئيسي',
-      value: formatMetric(age120Column ? numberValue(age120Column.statistics?.sum) : (numeric[0]?.sum ?? null)),
-      detail: age120Column
+      value: report?.specialty === 'inventory' ? formatMetric(inventoryZeroCount) : formatMetric(age120Column ? numberValue(age120Column.statistics?.sum) : (numeric[0]?.sum ?? null)),
+      detail: report?.specialty === 'inventory' ? 'أصناف بلا رصيد' : (age120Column
         ? displayColumnLabel(String(age120Column.mappedField ?? age120Column.name ?? ''))
-        : (numeric[0] ? displayColumnLabel(String(numeric[0].column.mappedField ?? numeric[0].column.name ?? '')) : 'غير متاح'),
+        : (numeric[0] ? displayColumnLabel(String(numeric[0].column.mappedField ?? numeric[0].column.name ?? '')) : 'غير متاح')),
     },
   ];
 
@@ -300,11 +329,11 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
       value: formatMetric(numberValue(age30Column.statistics?.sum)),
       detail: displayColumnLabel(String(age30Column.mappedField ?? age30Column.name ?? '')),
     });
-  } else if (report?.specialty === 'inventory' && quantityColumn) {
+  } else if (report?.specialty === 'inventory') {
     metrics.push({
-      label: 'الكمية',
-      value: formatMetric(numberValue(quantityColumn.statistics?.sum)),
-      detail: displayColumnLabel(String(quantityColumn.mappedField ?? quantityColumn.name ?? '')),
+      label: 'تغطية ≤ 30 يومًا',
+      value: formatMetric(inventoryLowCoverageCount),
+      detail: 'عدد الأصناف ذات فترة نفاد مصدرية قصيرة',
     });
   } else if (paidColumn) {
     metrics.push({
