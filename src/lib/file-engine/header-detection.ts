@@ -5,6 +5,7 @@ export type HeaderCandidate = {
   score: number;
   headers: string[];
   reasons: string[];
+  structurallySuspicious?: boolean;
 };
 
 const HEADER_HINTS = [
@@ -78,11 +79,18 @@ export function detectHeaderRow(rows: unknown[][], maxRows = Math.min(rows.lengt
 
     const textLike = headers.filter(v => /[^\d.,%\-+\s]/u.test(v)).length / headers.length;
     const unique = uniqueRatio(headers);
-    const hints = normalized.filter(h => HEADER_HINTS.some(x => h.includes(normalizeColumnName(x)))).length;
+    const hintCounts = normalized.map(h => HEADER_HINTS.filter(x => h.includes(normalizeColumnName(x))).length);
+    const hints = hintCounts.filter(Boolean).length;
+    const compositeCells = hintCounts.filter((count) => count >= 2).length;
+    const structurallySuspicious = compositeCells > 0;
     const nextWidth = next.length;
 
     let score = 0;
     const reasons: string[] = [];
+    if (structurallySuspicious) {
+      score -= 35;
+      reasons.push('composite header cell — structure not proven');
+    }
     score += Math.min(headers.length, 12) * 3;
     if (textLike >= 0.6) { score += 15; reasons.push('text-like headers'); }
     if (unique >= 0.8) { score += 15; reasons.push('unique headers'); }
@@ -93,7 +101,7 @@ export function detectHeaderRow(rows: unknown[][], maxRows = Math.min(rows.lengt
     if (rowIndex === 0) score += 5;
     if (rowIndex > 0) score -= Math.min(rowIndex, 10);
 
-    candidates.push({ rowIndex, score, headers, reasons });
+    candidates.push({ rowIndex, score, headers, reasons, structurallySuspicious });
   }
 
   candidates.sort((a, b) => b.score - a.score || a.rowIndex - b.rowIndex);
