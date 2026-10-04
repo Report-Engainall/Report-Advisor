@@ -107,6 +107,24 @@ export function ReportSourceContext() {
           {domain ? <Link to={domain.path + '?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary text-[10px]">{domain.label}</Link> : null}
         </div>
       </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4" data-report-intelligence-context="signals|recommendations|forecast|guidance">
+        <Link to={'/intelligence?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="rounded-xl border border-ink-100 bg-ink-50/60 px-3 py-2 text-right transition hover:border-primary-200 hover:bg-white">
+          <div className="text-[9px] font-black text-ink-500">الإشارات</div>
+          <div className="mt-1 text-sm font-black text-ink-950">{report.intelligence.signals.length} مثبتة</div>
+        </Link>
+        <Link to={'/intelligence/recommendations?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="rounded-xl border border-ink-100 bg-ink-50/60 px-3 py-2 text-right transition hover:border-primary-200 hover:bg-white">
+          <div className="text-[9px] font-black text-ink-500">التوصيات</div>
+          <div className="mt-1 text-sm font-black text-ink-950">{report.intelligence.recommendations.length} متاحة</div>
+        </Link>
+        <Link to={'/intelligence/forecasts?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="rounded-xl border border-ink-100 bg-ink-50/60 px-3 py-2 text-right transition hover:border-primary-200 hover:bg-white">
+          <div className="text-[9px] font-black text-ink-500">التنبؤ</div>
+          <div className="mt-1 text-sm font-black text-ink-950">{report.intelligence.forecast.status === 'AVAILABLE' ? 'متاح من السلسلة الحالية' : 'عينة غير كافية'}</div>
+        </Link>
+        <Link to={'/intelligence?mode=guidance&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="rounded-xl border border-ink-100 bg-ink-50/60 px-3 py-2 text-right transition hover:border-primary-200 hover:bg-white">
+          <div className="text-[9px] font-black text-ink-500">الإرشاد</div>
+          <div className="mt-1 truncate text-sm font-black text-ink-950">{report.intelligence.guidance.focus || 'الإرشاد مرتبط بالتقرير الحالي'}</div>
+        </Link>
+      </div>
     </section>
   );
 }
