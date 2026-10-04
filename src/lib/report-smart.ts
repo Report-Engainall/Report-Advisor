@@ -514,24 +514,35 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const renderedImportId = resolveImportJobId(job as Record<string, unknown>, effectiveRendered, null);
   if (!renderedImportId) throw new Error('INVALID_REPORT_CONTEXT');
 
-  const { data: importAnalyses, error: importAnalysisError } = await supabase
-    .from('source_analysis_snapshots')
-    .select('id,import_job_id,source_hash,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
-    .eq('company_id', companyId)
-    .eq('source_hash', job.source_hash)
-    .eq('import_job_id', renderedImportId)
-    .order('created_at', { ascending: false })
-    .limit(1);
-
-  if (importAnalysisError) throw importAnalysisError;
-  const analysis = (importAnalyses?.[0] ?? null) as Record<string, unknown> | null;
-  if (!analysis || String(analysis.import_job_id ?? '') !== renderedImportId) {
-    throw new Error('INVALID_REPORT_CONTEXT');
+  let analyses: Array<Record<string, unknown>> = [];
+  let importAnalysisError: unknown = null;
+  try {
+    const { data, error } = await supabase
+      .from('source_analysis_snapshots')
+      .select('id,import_job_id,source_hash,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
+      .eq('company_id', companyId)
+      .eq('source_hash', job.source_hash)
+      .eq('import_job_id', renderedImportId)
+      .order('created_at', { ascending: false })
+      .limit(12);
+    if (error) {
+      importAnalysisError = error;
+    } else {
+      analyses = (data ?? []) as Array<Record<string, unknown>>;
+    }
+  } catch (error) {
+    importAnalysisError = error;
   }
 
-  if (effectiveRendered.rowCount == null && analysis.row_count != null) effectiveRendered.rowCount = Number(analysis.row_count);
-  if (effectiveRendered.qualityScore == null && analysis.quality_score != null) effectiveRendered.qualityScore = Number(analysis.quality_score);
-  if (effectiveRendered.sourceFormat == null && analysis.source_format != null) effectiveRendered.sourceFormat = String(analysis.source_format);
+  if (importAnalysisError) {
+    runtimeWarnings.push('تعذر قراءة لقطات التحليل البديلة؛ استمر التقرير اعتمادًا على المخرجات المحفوظة والصفوف الكانونية المتاحة.');
+  }
+
+  const analysis = chooseBestAnalysisSnapshot((analyses ?? []) as Array<Record<string, unknown>>);
+
+  if (effectiveRendered.rowCount == null && analysis?.row_count != null) effectiveRendered.rowCount = Number(analysis.row_count);
+  if (effectiveRendered.qualityScore == null && analysis?.quality_score != null) effectiveRendered.qualityScore = Number(analysis.quality_score);
+  if (effectiveRendered.sourceFormat == null && analysis?.source_format != null) effectiveRendered.sourceFormat = String(analysis.source_format);
 
   const currentPassportLineage =
     currentPassport?.lineage && typeof currentPassport.lineage === 'object'
@@ -543,7 +554,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const canonicalCommitLineageCount = Number.isFinite(Number(canonical.committedRows))
     ? Number(canonical.committedRows)
     : null;
-  const canonicalCommitQueryFailed = false;
+  let canonicalCommitError: unknown = null;
 
   const sourceRowCount = effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount);
 
@@ -562,7 +573,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   let canonicalImportJobId = reportImportJobId;
   let canonicalResolvedFromCommit = false;
   try {
-    const { data: latestCommit } = await supabase
+    const { data: latestCommit, error: latestCommitError } = await supabase
       .from('canonical_import_commits')
       .select('committed_ids')
       .eq('company_id', companyId)
@@ -571,26 +582,40 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       .limit(1)
       .maybeSingle();
 
-    const committedIds = latestCommit?.committed_ids;
-    const firstCommittedId = Array.isArray(committedIds) && committedIds.length > 0
-      ? String(committedIds[0] ?? '').trim()
-      : '';
+    if (latestCommitError) {
+      canonicalCommitError = latestCommitError;
+    } else {
+      const committedIds = latestCommit?.committed_ids;
+      const firstCommittedId = Array.isArray(committedIds) && committedIds.length > 0
+        ? String(committedIds[0] ?? '').trim()
+        : '';
 
-    if (firstCommittedId) {
-      const { data: anchor } = await supabase
-        .from('canonical_dataset_records')
-        .select('import_job_id')
-        .eq('company_id', companyId)
-        .eq('id', firstCommittedId)
-        .maybeSingle();
-      const resolved = String(anchor?.import_job_id ?? '').trim();
-      if (resolved) {
-        canonicalImportJobId = resolved;
-        canonicalResolvedFromCommit = resolved !== reportImportJobId;
+      if (firstCommittedId) {
+        const { data: anchor, error: anchorError } = await supabase
+          .from('canonical_dataset_records')
+          .select('import_job_id')
+          .eq('company_id', companyId)
+          .eq('id', firstCommittedId)
+          .maybeSingle();
+        if (anchorError) {
+          canonicalCommitError = anchorError;
+        } else {
+          const resolved = String(anchor?.import_job_id ?? '').trim();
+          if (resolved) {
+            canonicalImportJobId = resolved;
+            canonicalResolvedFromCommit = resolved !== reportImportJobId;
+          }
+        }
       }
     }
   } catch (error) {
+    canonicalCommitError = error;
     console.warn('[SmartReport] canonical commit anchor lookup failed; continuing with report import id', error);
+  }
+
+  const canonicalCommitQueryFailed = Boolean(canonicalCommitError);
+  if (canonicalCommitQueryFailed) {
+    runtimeWarnings.push('تعذر قراءة سجل الاعتماد الكانوني؛ تم فصل فشل القراءة عن فجوة البيانات وخفض حالة الثقة بدل اختلاق تغطية.');
   }
 
   if (canonicalResolvedFromCommit) {
@@ -650,9 +675,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const canonicalCommitCount = actualCanonicalRowCount;
   const authoritativeCurrentRowCount = actualCanonicalRowCount;
   const canonicalCommitGap =
-    effectiveRendered.rowCount == null
+    canonicalCommitQueryFailed || authoritativeCurrentRowCount == null || effectiveRendered.rowCount == null
       ? null
-      : Math.max(0, Number(effectiveRendered.rowCount) - actualCanonicalRowCount);
+      : Math.max(0, Number(effectiveRendered.rowCount) - authoritativeCurrentRowCount);
   const canonicalCommitVerified =
     currentPassport?.verification_status === 'VERIFIED' &&
     currentPassport?.decision_readiness === 'READY' &&
