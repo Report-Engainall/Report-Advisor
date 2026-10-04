@@ -134,7 +134,13 @@ export function LoginPage() {
                 <button type="submit" disabled={submitting} className="btn-primary min-h-12 w-full justify-center text-[13px]">{submitting ? <Loader2 size={17} className="animate-spin"/> : <ArrowLeft size={17}/>} {submitting ? 'جارٍ التحقق…' : 'الدخول إلى مساحة العمل'}</button>
               </form>
               <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-[9px] border border-ink-200 bg-ink-200"><div className="bg-white px-3 py-2.5 text-center text-[10px] font-semibold text-ink-500">هوية موثقة</div><div className="bg-white px-3 py-2.5 text-center text-[10px] font-semibold text-ink-500">شركة معزولة</div></div>
-              <p className="mt-5 text-center text-[10px] leading-5 text-ink-400">لا يوجد حساب تجريبي افتراضي. بعد الدخول تُحدد الشركة والصلاحيات من الحساب الفعلي.</p>
+              <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                <Link to="/proposal-demo" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-[11px] font-black text-indigo-800 transition hover:border-indigo-300 hover:bg-indigo-100">
+                  <Sparkles size={14}/> مشاهدة العرض الحي أولًا
+                </Link>
+                <div className="flex min-h-11 items-center justify-center rounded-xl border border-ink-200 bg-ink-50 px-3 py-2.5 text-center text-[10px] font-semibold text-ink-500">بدون بيانات أعمال تجريبية</div>
+              </div>
+              <p className="mt-4 text-center text-[10px] leading-5 text-ink-400">العرض الحي يشرح قيمة المنتج ومسار القرار فقط؛ بيانات الأعمال الحقيقية لا تظهر إلا داخل شركة وحساب مصرحين.</p>
             </div>
           </div>
         </section>
