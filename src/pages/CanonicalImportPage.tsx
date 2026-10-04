@@ -475,7 +475,7 @@ export function CanonicalImportPage() {
               <div key={queued.name + ':' + queued.size + ':' + queued.lastModified} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-ink-200 bg-white px-3 py-2.5">
                 <div className="min-w-0">
                   <div className="truncate text-xs font-black text-ink-900">{queued.name}</div>
-                  <div className="mt-0.5 text-[10px] text-ink-400">{FORMAT_LABELS[detectFormat(queued, new ArrayBuffer(0)).format] ?? 'مصدر'} · {formatNumber(queued.size)} بايت</div>
+                  <div className="mt-0.5 text-[10px] text-ink-400">{String(queued.name.split('.').pop() ?? 'مصدر').toUpperCase()} · {formatNumber(queued.size)} بايت</div>
                 </div>
                 <div className="flex items-center gap-2">
                   <button type="button" onClick={() => analyzeQueuedFile(queued)} className="btn-primary text-[10px]">تحليل هذا المصدر</button>
