@@ -8,7 +8,6 @@ import { DataTable } from '@/components/ui/DataTable';
 import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
 import { fetchSmartReport, fetchSmartReportCatalog, type SmartReportCatalogItem, type SmartReportDetail } from '@/lib/report-smart';
-import { readActiveReportContext, saveActiveReportContext } from '@/lib/report-context';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
@@ -38,9 +37,8 @@ function ReportTruthBar({ status, asOf, period, note }: { status: string; asOf?:
 
 function useOptionalSourceReport() {
   const [params] = useSearchParams();
-  const saved = readActiveReportContext();
-  const jobId = params.get('reportJobId')?.trim() || saved?.jobId || '';
-  const expectedSourceHash = params.get('sourceHash')?.trim() || saved?.sourceHash || '';
+  const jobId = params.get('reportJobId')?.trim() || '';
+  const expectedSourceHash = params.get('sourceHash')?.trim() || '';
   const [report, setReport] = useState<SmartReportDetail | null>(null);
   const [loading, setLoading] = useState(Boolean(jobId));
   const [error, setError] = useState<string | null>(null);
@@ -58,13 +56,12 @@ function useOptionalSourceReport() {
     setLoading(true);
     setError(null);
     try {
-      const next = await fetchSmartReport(jobId);
+      const next = await fetchSmartReport(jobId, expectedSourceHash);
       if (version !== requestVersion.current) return;
       if (next && expectedSourceHash && next.sourceHash !== expectedSourceHash) {
         throw new Error('REPORT_SOURCE_HASH_MISMATCH');
       }
       setReport(next);
-      if (next) saveActiveReportContext({ jobId: next.jobId, sourceHash: next.sourceHash });
     } catch (cause) {
       if (version !== requestVersion.current) return;
       setError(errorMessage(cause));
