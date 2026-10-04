@@ -82,15 +82,15 @@ function nextAction(item: InboxItem): { label: string; href: string } {
     return { label: 'متابعة الاعتماد', href: '/decision-experience?stage=approval&decisionId=' + encodeURIComponent(item.decisionId) + context };
   }
   if (item.status === 'APPROVED' && !item.workItemId) {
-    return { label: 'فتح العمل', href: '/work-center?decisionId=' + encodeURIComponent(item.decisionId) };
+    return { label: 'فتح العمل', href: '/work-center?decisionId=' + encodeURIComponent(item.decisionId) + context };
   }
   if (item.workItemId && item.workItemStatus !== 'COMPLETED') {
-    return { label: 'متابعة العمل', href: '/work-center?decisionWorkFilter=' + (item.workItemStatus === 'IN_PROGRESS' ? 'in_progress' : 'open') };
+    return { label: 'متابعة العمل', href: '/work-center?decisionWorkFilter=' + (item.workItemStatus === 'IN_PROGRESS' ? 'in_progress' : 'open') + context };
   }
   if (item.workItemId && !item.outcomeId) {
     return { label: 'تسجيل النتيجة', href: '/decision-experience?stage=outcome&decisionId=' + encodeURIComponent(item.decisionId) + context };
   }
-  return { label: 'إعادة التشغيل', href: '/replay?decisionId=' + encodeURIComponent(item.decisionId) };
+  return { label: 'إعادة التشغيل', href: '/replay?decisionId=' + encodeURIComponent(item.decisionId) + context };
 }
 
 function filterItem(item: InboxItem, filter: InboxFilter): boolean {
