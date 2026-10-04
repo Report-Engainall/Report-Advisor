@@ -135,6 +135,7 @@ function rowValue(row: Record<string, unknown>, field: string): unknown {
 }
 
 function reportColumns(report: SmartReportDetail) {
+  const isArtifactHeader = (value: string) => /^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/.test(value.trim()) || /^20\d{2}-?$/.test(value.trim());
   const dataset = report.sourceAnalysis?.datasets?.[0];
   const columns = dataset && typeof dataset === 'object' && Array.isArray((dataset as Record<string, unknown>).columns)
     ? (dataset as Record<string, unknown>).columns as unknown[]
@@ -144,7 +145,7 @@ function reportColumns(report: SmartReportDetail) {
   for (const item of columns) {
     const column = item && typeof item === 'object' ? item as Record<string, unknown> : { name: String(item ?? '') };
     const name = String(column.name ?? column.mappedField ?? '').trim();
-    if (!name) continue;
+    if (!name || isArtifactHeader(name)) continue;
     const mapped = String(column.mappedField ?? businessField(name) ?? '').trim() || null;
     const key = mapped ?? name;
     if (!result.has(key)) result.set(key, { key, name, mappedField: mapped, statistics: column.statistics && typeof column.statistics === 'object' ? column.statistics as Record<string, unknown> : undefined });
