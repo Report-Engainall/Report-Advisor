@@ -206,7 +206,12 @@ function runDockerPgDump(databaseUrl, outputPath) {
   ]);
 }
 
-const VOLATILE_RESTORE_TABLES = new Set(['public.operational_health_snapshots']);
+const VOLATILE_RESTORE_TABLES = new Set([
+  'public.operational_health_snapshots',
+  // User session/cart state depends on auth.users, which is outside the public data-only dump.
+  // It is operational convenience state, not business truth required for report/decision recovery.
+  'public.carts',
+]);
 
 function parseTableCounts(raw) {
   const result = {};
