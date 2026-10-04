@@ -8,6 +8,7 @@
 DO $$
 DECLARE
   r record;
+  v_user uuid;
 BEGIN
   FOR r IN
     SELECT
@@ -28,6 +29,27 @@ BEGIN
       AND NULLIF(rec.evidence->>'reportExecutionJobId','') IS NOT NULL
       AND NULLIF(TRIM(rec.evidence->>'sourceHash'),'') IS NOT NULL
   LOOP
+    SELECT m.user_id
+      INTO v_user
+      FROM public.company_memberships m
+     WHERE m.company_id = r.company_id
+       AND m.is_active = true
+     ORDER BY m.is_default DESC, (m.role = 'admin') DESC, m.created_at
+     LIMIT 1;
+
+    IF v_user IS NULL THEN
+      RAISE EXCEPTION 'SOURCE_PROVENANCE_REPAIR_AUTHORITY_MISSING:%', r.company_id;
+    END IF;
+
+    PERFORM set_config(
+      'request.jwt.claims',
+      json_build_object(
+        'sub', v_user,
+        'role', 'authenticated'
+      )::text,
+      true
+    );
+
     -- This function is the governed provenance repair boundary. It verifies
     -- the current tenant, the live VERIFIED/READY passport, and source identity
     -- before touching the recommendation.
