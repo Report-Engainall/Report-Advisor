@@ -1499,3 +1499,41 @@ button,input,textarea,select{font:inherit}
   .ag-login-value p{color:#cbd5e1!important}
   .ag-login-value .border-ink-200{border-color:rgba(148,163,184,.2)!important}
 }
+
+
+@layer base{
+  :root{
+    --ag-brand-ink:#0b1020;
+    --ag-brand-deep:#172554;
+    --ag-brand-teal:#4f46e5;
+    --ag-brand-mint:#6366f1;
+    --ag-surface-0:#f6f7fb;
+    --ag-surface-1:#ffffff;
+    --ag-surface-2:#f8fafc;
+    --ag-surface-3:#eef2f7;
+    --ag-text-strong:#0f172a;
+    --ag-text-body:#334155;
+    --ag-text-muted:#64748b;
+    --ag-text-faint:#94a3b8;
+    --ag-border:rgb(148 163 184 / 22%);
+    --ag-border-strong:rgb(99 102 241 / 34%);
+    --ag-shadow-soft:0 10px 30px -24px rgb(15 23 42 / 18%);
+    --ag-shadow-elevated:0 24px 52px -34px rgb(15 23 42 / 28%);
+  }
+}
+@layer components{
+  .ag-focus-ring:focus-visible{
+    outline:2px solid #6366f1!important;
+    outline-offset:3px;
+    box-shadow:0 0 0 5px rgb(99 102 241 / 12%)!important;
+  }
+  .ag-decision-strip{background:#e2e8f0!important}
+  .ag-decision-cell{background:#fff!important}
+  .ag-state-surface[data-state="insufficient"]{background:linear-gradient(145deg,#fff,#f8fafc)!important}
+  .ag-card-kpi::before{background:linear-gradient(180deg,#d6a11e,#6366f1)!important}
+  .ag-card-insight{background:linear-gradient(145deg,#fff,#f8f9ff)!important}
+  .ag-card-decision{
+    background:linear-gradient(135deg,#fbfcff 0%,#eef2ff 72%,#fffdf6 100%)!important;
+    border-color:rgb(99 102 241 / 22%)!important;
+  }
+}
