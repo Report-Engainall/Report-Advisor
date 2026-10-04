@@ -47,7 +47,13 @@ function TrustEvidenceGeneralPage() {
   }, [loadSnapshot]);
 
   const status = snapshot?.status ?? 'INSUFFICIENT DATA';
-  const statusLabel = status === 'OK' ? 'الحالة قابلة للاستخدام' : status === 'EMPTY' ? 'لا توجد بيانات مثبتة بعد' : status;
+  const statusLabel = status === 'OK'
+    ? 'الحالة قابلة للاستخدام'
+    : status === 'EMPTY'
+      ? 'لا توجد بيانات مثبتة بعد'
+      : status === 'INSUFFICIENT_DATA'
+        ? 'بيانات غير كافية'
+        : 'الحالة تحتاج مراجعة';
   const issueTotal = useMemo(
     () => snapshot?.entities?.reduce((sum, entity) => sum + (entity.issues ?? 0), 0) ?? null,
     [snapshot],
