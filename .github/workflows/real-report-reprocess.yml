@@ -28,6 +28,6 @@ jobs:
         run: |
           git config user.name "report-advisor-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git rm .github/workflows/real-report-reprocess.yml scripts/reprocess-real-report.mjs
+          git rm .github/workflows/real-report-reprocess.yml scripts/reprocess-real-report.mjs .github/REAL_REPORT_REPROCESS_TRIGGER.txt
           git commit -m "chore: remove one-off real report repair runner"
           git push
