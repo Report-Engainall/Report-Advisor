@@ -251,7 +251,7 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
   const findColumn = (...names: string[]) =>
     columns.find((column) => names.some((name) => canonicalFieldName(column.mappedField ?? column.name) === canonicalFieldName(name)));
 
-  const amountColumn = findColumn('net_amount','total','total_amount','amount','value','outstanding_balance','balance');
+  const amountColumn = findColumn('total','total_amount','amount','value','net_amount','outstanding_balance','balance');
   const age120Column = findColumn('age_over_120','over_120');
   const age30Column = findColumn('age_0_30','0_30','age030');
   const paidColumn = findColumn('paid_amount','paid');
