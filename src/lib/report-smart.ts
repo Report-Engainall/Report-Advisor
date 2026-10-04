@@ -543,7 +543,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const canonicalCommitLineageCount = Number.isFinite(Number(canonical.committedRows))
     ? Number(canonical.committedRows)
     : null;
-  const canonicalCommitQueryFailed = false;
+  let canonicalCommitError: unknown = null;
 
   const sourceRowCount = effectiveRendered.rowCount == null ? null : Number(effectiveRendered.rowCount);
 
@@ -562,7 +562,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   let canonicalImportJobId = reportImportJobId;
   let canonicalResolvedFromCommit = false;
   try {
-    const { data: latestCommit } = await supabase
+    const { data: latestCommit, error: latestCommitError } = await supabase
       .from('canonical_import_commits')
       .select('committed_ids')
       .eq('company_id', companyId)
@@ -571,26 +571,40 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       .limit(1)
       .maybeSingle();
 
-    const committedIds = latestCommit?.committed_ids;
-    const firstCommittedId = Array.isArray(committedIds) && committedIds.length > 0
-      ? String(committedIds[0] ?? '').trim()
-      : '';
+    if (latestCommitError) {
+      canonicalCommitError = latestCommitError;
+    } else {
+      const committedIds = latestCommit?.committed_ids;
+      const firstCommittedId = Array.isArray(committedIds) && committedIds.length > 0
+        ? String(committedIds[0] ?? '').trim()
+        : '';
 
-    if (firstCommittedId) {
-      const { data: anchor } = await supabase
-        .from('canonical_dataset_records')
-        .select('import_job_id')
-        .eq('company_id', companyId)
-        .eq('id', firstCommittedId)
-        .maybeSingle();
-      const resolved = String(anchor?.import_job_id ?? '').trim();
-      if (resolved) {
-        canonicalImportJobId = resolved;
-        canonicalResolvedFromCommit = resolved !== reportImportJobId;
+      if (firstCommittedId) {
+        const { data: anchor, error: anchorError } = await supabase
+          .from('canonical_dataset_records')
+          .select('import_job_id')
+          .eq('company_id', companyId)
+          .eq('id', firstCommittedId)
+          .maybeSingle();
+        if (anchorError) {
+          canonicalCommitError = anchorError;
+        } else {
+          const resolved = String(anchor?.import_job_id ?? '').trim();
+          if (resolved) {
+            canonicalImportJobId = resolved;
+            canonicalResolvedFromCommit = resolved !== reportImportJobId;
+          }
+        }
       }
     }
   } catch (error) {
+    canonicalCommitError = error;
     console.warn('[SmartReport] canonical commit anchor lookup failed; continuing with report import id', error);
+  }
+
+  const canonicalCommitQueryFailed = Boolean(canonicalCommitError);
+  if (canonicalCommitQueryFailed) {
+    runtimeWarnings.push('تعذر قراءة سجل الاعتماد الكانوني؛ تم فصل فشل القراءة عن فجوة البيانات وعدم إصدار فجوة رقمية مصطنعة.');
   }
 
   if (canonicalResolvedFromCommit) {
@@ -649,8 +663,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const actualCanonicalRowCount = canonicalRows.length;
   const canonicalCommitCount = actualCanonicalRowCount;
   const authoritativeCurrentRowCount = actualCanonicalRowCount;
+  const canonicalCoverageUnavailable = canonicalCommitQueryFailed || authoritativeCurrentRowCount == null;
   const canonicalCommitGap =
-    effectiveRendered.rowCount == null
+    canonicalCoverageUnavailable || effectiveRendered.rowCount == null
       ? null
       : Math.max(0, Number(effectiveRendered.rowCount) - actualCanonicalRowCount);
   const canonicalCommitVerified =
