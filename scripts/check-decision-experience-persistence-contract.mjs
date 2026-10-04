@@ -21,6 +21,9 @@ for (const marker of [
   'RISK',
   'BLOCKER',
   'LIMITATION',
+  'reportJobIdParam',
+  'sourceHashParam',
+  'INVALID_REPORT_CONTEXT',
 ]) {
   assert.ok(page.includes(marker) || runtime.includes(marker), 'decision persistence marker missing: ' + marker);
 }
@@ -30,4 +33,8 @@ for (const marker of ['business_intelligence_decisions','decision_approvals','re
 }
 
 assert.match(existing, /request_decision_approval/);
+assert.ok(!page.includes('readActiveReportContext'), 'decision experience must not restore a previous report context');
+assert.ok(!page.includes('saveActiveReportContext'), 'decision experience must not persist a global report context');
+assert.match(page, /if \(!reportJobIdParam \|\| !sourceHashParam/);
+assert.match(page, /fetchSourceDecisionProposals\(sourceHashParam, reportJobIdParam\)/);
 console.log('PASS: decision experience persists canonical decision + approval request and reads it back tenant-scoped.');
