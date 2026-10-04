@@ -2,7 +2,7 @@ import { CommercialValueChain } from '@/components/CommercialValueChain';
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, CheckCircle2, FileSearch, ShieldCheck, Search, Columns3, ArrowDownUp, Download, RotateCcw } from 'lucide-react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
+import { ErrorState, LoadingState, PageHeader, userFacingError } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { SmartReportAdvisorySurface } from '@/components/SmartReportAdvisorySurface';
@@ -691,7 +691,7 @@ export function SmartReportPage() {
     void fetchSmartReport(jobId, expectedSourceHash).then((next) => {
       if (active) setReport(next)
     }).catch((reason) => {
-      if (active) setError(reason instanceof Error ? reason.message : String(reason));
+      if (active) setError(userFacingError(reason instanceof Error ? reason.message : String(reason)));
     }).finally(() => {
       if (active) setLoading(false);
     });
@@ -727,7 +727,7 @@ export function SmartReportPage() {
     }
     void fetchSmartReport(jobId, expectedSourceHash).then((next) => {
       setReport(next);
-    }).catch((reason) => setError(reason instanceof Error ? reason.message : String(reason))).finally(() => setLoading(false));
+    }).catch((reason) => setError(userFacingError(reason instanceof Error ? reason.message : String(reason)))).finally(() => setLoading(false));
   }} /></div>;
   if (!report) return <div dir="rtl" className="space-y-5"><PageHeader title="التقرير الذكي" subtitle="التقرير المطلوب غير موجود أو غير مكتمل." /><div className="rounded-2xl border border-warning-200 bg-warning-50 p-5 text-sm text-warning-900">لا توجد مخرجات ذكية مثبتة لهذا التقرير.</div></div>;
 
