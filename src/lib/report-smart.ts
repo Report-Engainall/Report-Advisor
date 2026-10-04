@@ -259,18 +259,10 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
 
   const specialty = resolveEffectiveSpecialty(rendered.sourceSpecialty, analysis);
 
-  const datasets = Array.isArray(analysis?.datasets) ? analysis.datasets : [];
-  const availableFields = [...new Set(datasets.flatMap((dataset) => {
-    if (!dataset || typeof dataset !== 'object') return [];
-    const columns = (dataset as Record<string, unknown>).columns;
-    if (!Array.isArray(columns)) return [];
-    return columns
-      .filter((column): column is Record<string, unknown> => Boolean(column) && typeof column === 'object')
-      .flatMap((column) => {
-        const mapped = String(column.mappedField ?? '').trim();
-        const name = String(column.name ?? '').trim();
-        return [mapped, name].filter(Boolean);
-      });
+  const availableFields = [...new Set(sourceColumnDescriptors(analysis).flatMap((column) => {
+    const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
+    const name = String(column.name ?? '').trim();
+    return [mapped, name].filter(Boolean);
   }))] as Parameters<typeof detectReportArchetype>[0]['availableFields'];
 
   const detected = detectReportArchetype({
