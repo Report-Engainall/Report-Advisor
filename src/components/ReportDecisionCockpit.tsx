@@ -24,7 +24,6 @@ function label(value: unknown) {
     SIGNALS_PRESENT: 'إشارات مثبتة',
     NO_EXCEPTIONAL_SIGNALS: 'لا توجد إشارات استثنائية',
     PARTIAL_ANALYSIS: 'تحليل جزئي',
-    NOT_AVAILABLE: 'غير متاح',
   };
   return map[text] ?? (text ? (text.includes('_') ? 'حالة تحتاج مراجعة' : text) : 'غير متاح');
 }
