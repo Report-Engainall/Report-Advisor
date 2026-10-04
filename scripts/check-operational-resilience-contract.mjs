@@ -2,6 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 const root = process.cwd();
 const migration = path.join(root,'supabase/migrations/20260825050000_operational_resilience_trust.sql');
+const resilienceRuntime = fs.readFileSync(path.join(root,'src/server/resilience-runtime.mjs'),'utf8');
+for (const token of ['NETLIFY_DEPLOY_ID','COMMIT_REF','VERCEL_DEPLOYMENT_ID','VERCEL_GIT_COMMIT_SHA']) {
+  if (!resilienceRuntime.includes(token)) throw new Error(`Runtime provenance fallback missing: ${token}`);
+}
 const failureObservabilityMigration = path.join(root,'supabase/migrations/20260917184216_harden_report_execution_failure_observability_20260917190000.sql');
 if (!fs.existsSync(migration)) throw new Error('Operational resilience migration missing');
 if (!fs.existsSync(failureObservabilityMigration)) throw new Error('Report execution failure observability migration missing');
