@@ -11,6 +11,11 @@ for (const marker of [
   'كل التوصيات المؤهلة',
   'الإشارة التنبئية',
   'الإرشاد التالي',
+  'WHY NOW:',
+  'RISK:',
+  'BLOCKER:',
+  'MEASUREMENT:',
+  'LIMITATION:',
 ]) {
   if (!source.includes(marker)) throw new Error('Missing complete smart intelligence surface marker: ' + marker);
 }
