@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { FileBarChart, ShoppingCart, Package, Receipt, TrendingUp } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/States';
+import { PageHeader, LoadingState, ErrorState, DataUnavailableState, userFacingError } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
 import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
@@ -37,7 +37,8 @@ function businessLifecycleLabel(value: unknown): string {
 }
 
 function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+  const raw = error instanceof Error ? error.message : String(error);
+  return userFacingError(raw);
 }
 
 function reportStateLabel(value: unknown): string {
