@@ -3,7 +3,6 @@ import { ArrowLeft, CheckCircle2, Clock3, FileSearch, ShieldCheck, Target } from
 import { Link, useSearchParams } from 'react-router-dom';
 import { ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchBusinessReplay, type BusinessReplay, type ReplayEvent } from '@/lib/business-replay';
-import { readActiveReportContext } from '@/lib/report-context';
 import { formatNumber } from '@/lib/format';
 
 function eventTone(event: ReplayEvent): string {
@@ -16,9 +15,8 @@ function eventTone(event: ReplayEvent): string {
 
 export function BusinessReplayPage() {
   const [params] = useSearchParams();
-  const saved = readActiveReportContext();
-  const jobId = params.get('reportJobId')?.trim() || saved?.jobId || '';
-  const sourceHash = params.get('sourceHash')?.trim() || saved?.sourceHash || '';
+  const jobId = params.get('reportJobId')?.trim() || '';
+  const sourceHash = params.get('sourceHash')?.trim() || '';
   const [replay, setReplay] = useState<BusinessReplay | null>(null);
   const [loading, setLoading] = useState(Boolean(jobId));
   const [error, setError] = useState<string | null>(null);
