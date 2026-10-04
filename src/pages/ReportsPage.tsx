@@ -40,6 +40,22 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+function reportStateLabel(value: unknown): string {
+  const key = String(value ?? '').trim();
+  const labels: Record<string,string> = {
+    VERIFIED: 'موثق',
+    TRUSTED: 'موثوق',
+    PENDING_EVIDENCE: 'بانتظار اكتمال الدليل',
+    PARTIAL_ANALYSIS: 'تحليل جزئي',
+    GAP_DETECTED: 'فجوة في التغطية',
+    REVIEW_REQUIRED: 'مراجعة مطلوبة',
+    INSUFFICIENT_DATA: 'بيانات غير كافية',
+    CALCULATED: 'محسوب',
+    CONFIRMED: 'مثبت',
+  };
+  return labels[key] ?? (key ? 'يحتاج مراجعة' : 'غير متاح');
+}
+
 function ReportTruthBar({ status, asOf, period, note }: { status: string; asOf?: string; period: string; note?: string }) {
   const normalized = status === 'CONFIRMED' || status === 'CALCULATED' ? status : 'INSUFFICIENT DATA';
   const tone = normalized === 'CONFIRMED'
@@ -47,10 +63,11 @@ function ReportTruthBar({ status, asOf, period, note }: { status: string; asOf?:
     : normalized === 'CALCULATED'
       ? 'border-primary-200 bg-primary-50 text-primary-800'
       : 'border-warning-200 bg-warning-50 text-warning-900';
+  const statusLabel = normalized === 'CONFIRMED' ? 'مثبت' : normalized === 'CALCULATED' ? 'محسوب' : 'بيانات غير كافية';
   return <section aria-label="سياق حقيقة التقرير" className={'flex flex-wrap items-center gap-2 rounded-[12px] border px-3 py-2.5 text-[10px] ' + tone}>
-    <span className="font-black">{normalized}</span>
+    <span className="font-black">{statusLabel}</span>
     <span>الفترة: {period}</span>
-    {asOf && <span>As-of: {asOf}</span>}
+    {asOf && <span>حتى: {asOf}</span>}
     {note && <span className="text-current/70">{note}</span>}
     <span className="mr-auto font-semibold">القيم غير المتاحة تبقى غير متاحة ولا تُستبدل بتقديرات.</span>
   </section>;
@@ -285,10 +302,10 @@ export function ReportsCenterPage() {
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {smartReports.map((report) => {
               const modelLabel = report.archetypeState === 'SUPPORTED'
-                ? 'نموذج أعمال معتمد'
+                ? 'تحليل متخصص جاهز'
                 : report.archetypeState === 'REVIEW_REQUIRED'
-                  ? 'مراجعة نموذج التقرير'
-                  : 'تصنيف التقرير غير مكتمل';
+                  ? 'التحليل يحتاج مراجعة'
+                  : 'تحليل المصدر';
               const flow = [
                 ['دليل', report.evidenceStatus],
                 ['توصية', report.recommendationStatus],
@@ -308,14 +325,14 @@ export function ReportsCenterPage() {
                   </div>
 
                   <div className="mt-3 rounded-xl border border-primary-100 bg-primary-50/60 p-3">
-                    <div className="text-[9px] font-black tracking-[.08em] text-primary-700">ADVISOR MODEL</div>
+                    <div className="text-[9px] font-black tracking-[.08em] text-primary-700">نوع التحليل</div>
                     <div className="mt-1 truncate text-[11px] font-black text-ink-950" title={modelLabel}>{modelLabel}</div>
                     <div className="mt-1 text-[9px] text-ink-500">الحالة: {report.archetypeState === 'REVIEW_REQUIRED' ? 'يحتاج مراجعة النموذج' : report.archetypeState === 'SUPPORTED' ? 'النموذج صالح' : 'غير متاح'}</div>
                   </div>
 
                   <div className="mt-3 grid grid-cols-2 gap-2 text-[9px]">
                     <span className="rounded-lg bg-ink-50 px-2 py-1">الجودة: {report.qualityScore == null ? '—' : report.qualityScore + '%'}</span>
-                    <span className="rounded-lg bg-ink-50 px-2 py-1">حقيقة: {report.reportVerificationState ?? '—'}</span>
+                    <span className="rounded-lg bg-ink-50 px-2 py-1">حالة التقرير: {reportStateLabel(report.reportVerificationState)}</span>
                   </div>
 
                   <div className="mt-3 grid grid-cols-3 gap-1.5">
@@ -353,11 +370,7 @@ export function ReportsCenterPage() {
         <h3 className="mt-2 text-sm font-black text-ink-900">جودة البيانات والتدقيق</h3>
         <p className="mt-1 text-[10px] leading-5 text-ink-500">مسار الجودة هو المصدر الحالي لمراجعة الحالات بدل إنشاء تقرير تدقيق منفصل ببيانات مكررة.</p>
       </Link>
-      <div className="card p-4 border-warning-200 bg-warning-50/35">
-        <div className="text-[9px] font-black tracking-[.12em] text-warning-800">غير متاح</div>
-        <h3 className="mt-2 text-sm font-black text-ink-900">Report Builder</h3>
-        <p className="mt-1 text-[10px] leading-5 text-warning-900">لا توجد شاشة بناء تقارير مستقلة مثبتة في المسار الحالي؛ لا يتم محاكاة محرر لا يملك مسارًا حقيقيًا.</p>
-      </div>
+
     </section>
   </div>;
 }
