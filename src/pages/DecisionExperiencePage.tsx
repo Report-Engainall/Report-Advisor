@@ -532,7 +532,7 @@ function DecisionExperienceGeneralPage() {
                 <div className="text-[11px] text-primary-900">جارٍ قراءة مسار القرار المحفوظ...</div>
               ) : decisionContext.decision ? (
                 <>
-                  <div className="text-[10px] font-black text-primary-800">القرار محفوظ</div>
+                  <div className="text-[10px] font-black text-primary-800" data-decision-contract="DECISION PERSISTED">القرار محفوظ</div>
                   <div className="mt-2 text-[12px] font-black text-ink-950">القرار: <span className="font-black">محفوظ وقابل للتتبع</span></div>
                   <div className="mt-1 text-[10px] text-ink-500">الحالة: {statusLabel(decisionContext.decision.status)} · الثقة: {decisionContext.decision.confidence ?? 'غير متاحة'}</div>
                   {decisionContext.approval && <div className="mt-1 text-[10px] text-ink-500">الموافقة: {statusLabel(decisionContext.approval.status)}</div>}
