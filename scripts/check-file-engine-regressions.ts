@@ -47,9 +47,18 @@ const headerMatrix = [
 ];
 const headerCandidate = detectHeaderRow(headerMatrix);
 assert(headerCandidate !== null, 'header detector must identify the business header');
+assert(headerCandidate?.structurallySuspicious === false, 'normal split date header must not be marked composite');
 const reconstructedRows = rowsFromDetectedHeader(headerMatrix, headerCandidate!);
 assert(reconstructedRows.length === 2, 'repeated PDF page headers must be suppressed');
 assert(reconstructedRows[0]?.['التاريخ'] === '2026-08-16', 'date year fragment must be reconstructed only from explicit header context');
 assert(reconstructedRows[1]?.['التاريخ'] === '2026-08-17', 'second date must use the same explicit header year');
+
+const compositeHeaderMatrix = [
+  ['مبلغ الصافي بالمحلي اجمالي الفاتورة الضريبة اﻷعباء', 'العملة نوع الفاتورة التاريخ رقم الفاتورة'],
+  ['1630000.0001012026', 'YER نقد 2026-08-01 1012026'],
+  ['1630000.0001012026', 'YER نقد 2026-08-02 1012027'],
+];
+const compositeCandidate = detectHeaderRow(compositeHeaderMatrix);
+assert(compositeCandidate?.structurallySuspicious === true, 'merged multi-field PDF headers must be marked structurally suspicious');
 
 console.log('File-engine behavioral regressions: PASS');
