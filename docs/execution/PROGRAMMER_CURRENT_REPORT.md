@@ -9,9 +9,9 @@ BRANCH = feat/complete-smart-intelligence-surface-20261003
 PR = #820
 UPDATED_AT = 2026-10-04T14:20:00Z
 
-WHAT_I_WAS_ASKED_TO_DO = إكمال المنتج فعليًا ليكون مقنعًا للبيع: القيمة أمام العميل، المسار من التقرير إلى القرار والتنفيذ، الهوية البصرية، وعدم ترك أي عائق تقني يحول دون الوصول إلى أفضل حالة ممكنة.
+WHAT_I_WAS_ASKED_TO_DO = إغلاق Report-Advisor كمنتج حقيقي قابل للبيع: الحقيقة والدليل والذكاء والتوصية والقرار والعمل والنتيجة، مع إغلاق الأمن والجودة والـruntime والـbrowser وإثبات المصدر الحقيقي دون PASS وهمي.
 
-WHAT_I_ACTUALLY_DID = أصلحت provenance في Smart Report/legacy source-intelligence عبر الحدود المحكومة، مع invalid_source_recommendations = 0 في حالة الإصلاح السابقة.
+WHAT_I_ACTUALLY_DID = ثبّتُّ مسار Smart Report والـProposal Demo والهوية التنفيذية، وأغلقت أول failure حقيقي في LoginPage بإعادة import لـLink، وصححت handoff metadata ليصبح قابلًا للقراءة آليًا على HEAD الحالي.
 - استبدلت الهوية التنفيذية من الأخضر/teal إلى Midnight Navy + Indigo + restrained Brass/Amber.
 - أزلت Emerald من trusted-state في CommercialValueChain.
 - غيّرت semantic success palette العامة من green إلى indigo، وأصلحت Mint/Teal tokens وfocus rings القديمة.
@@ -22,13 +22,13 @@ WHAT_I_ACTUALLY_DID = أصلحت provenance في Smart Report/legacy source-inte
 - أضفت regression contract يثبت route العام، سلسلة القيمة ذات 8 مراحل، ونظام التصميم التنفيذي.
 - أبقيت Evidence/Archetype gates fail-closed ولم أختلق 48/48.
 
-WHAT_IS_PROVEN = PR #820 على HEAD 509a69aeca9f5a5dbfe8cbef24dad92be2017554 ومقابل main هو mergeable.
+WHAT_IS_PROVEN = على آخر HEAD مثبت قبل هذه الجولة: 19/20 من مراحل Release Readiness نجحت، مع نجاح RLS وAuth/Tenant وImport security وEvidence Integrity وDecision/Work boundaries؛ أما typecheck والـBrowser التجاري وPhase-F وFinal Certification فكانت متأثرة مباشرة بخطأ Link أو runtime stale.
 - Preview Netlify على HEAD السابق a12fb71708507eed1773e9bc796c4079e6f28f11 كان READY بلا error، مع 81 ملف/asset و4 Functions.
 - Vercel مساره الحالي متأثر بحد النشر اليومي للخطة المجانية، وليس بعطل application؛ Netlify هو مسار المعاينة الأساسي.
 - لا توجد نتيجة certification terminal معتبرة بعد للـHEAD الحالي.
 - Full Product Browser E2E على HEAD أقدم تم إلغاؤه بسبب وصول HEAD أحدث؛ الإلغاء ليس PASS ولا دليل فشل منتج.
 
-CURRENT_ACTIVE_FAILURE = CI_RECERTIFICATION = في انتظار أول نتيجة terminal للـHEAD الحالي 509a69aeca9f5a5dbfe8cbef24dad92be2017554.
+CURRENT_ACTIVE_FAILURE = انتظار إعادة بوابات CI على HEAD الحالي بعد إصلاح LoginPage؛ الفشل السابق المثبت كان TS2304/ReferenceError: Link is not defined.
 
 CURRENT_OPEN_GATES = Full Product Browser E2E
 - Phase-F live resilience
@@ -47,4 +47,8 @@ No RLS/auth/evidence weakening.
 No blind timeout inflation.
 No additional product pushes until the current exact HEAD yields terminal certification evidence, unless a verified root-cause failure requires a surgical patch.
 
-NEXT_EXACT_ACTION = Consume the first terminal certification result for 509a69aeca9f5a5dbfe8cbef24dad92be2017554. On failure, patch only that root cause and restart the affected gate family; on success, close Session Handoff and Final Certification, then move to production promotion.
+NEXT_EXACT_ACTION = إعادة قراءة CI للـHEAD الحالي؛ عند أول gate failure جديد أصلح السبب الجذري الوحيد ثم أعد تشغيل عائلة البوابة المتأثرة، وبعد استقرارها أغلق Browser/Phase-F/Real-source/Cerification بالتتابع.
+
+FIRST_ACTIVE_FAILURE = LoginPage.tsx كان يستخدم Link دون import، مما أسقط typecheck وكسر Browser/Product E2E عبر ReferenceError: Link is not defined.
+
+ROOT_CAUSE = إضافة CTA /proposal-demo في شاشة الدخول سبقت إضافة import الخاص بـreact-router-dom.
