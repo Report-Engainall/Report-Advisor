@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { Loader2, AlertTriangle, Inbox } from 'lucide-react';
 
-function userFacingError(message: string): string {
+export function userFacingError(message: string): string {
   const text = String(message ?? '').trim();
   const labels: Record<string, string> = {
     INVALID_REPORT_CONTEXT: 'تعذر تحديد سياق التقرير المطلوب. افتح التقرير من مركز التقارير ثم أعد المحاولة.',
