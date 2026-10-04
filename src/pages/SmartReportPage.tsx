@@ -233,12 +233,16 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
       String(column.mappedField ?? canonicalFieldName(column.name) ?? ''),
     ),
   );
+  const aggregateNamePattern = /^(?:الإجمالي|اجمالي|المجموع|المجموع الكلي|الإجمالي الكلي|total|grand total|subtotal|summary|ملخص)$/i;
   const topRows = dimensionColumn && amountColumnForRanking
-    ? rows.map((row) => ({
-        name: String(valueForColumn(row, String(dimensionColumn.mappedField ?? dimensionColumn.name ?? '')) ?? 'غير مسمى').trim() || 'غير مسمى',
-        value: parseNumber(valueForColumn(row, String(amountColumnForRanking.mappedField ?? amountColumnForRanking.name ?? ''))),
-      }))
-      .filter((item): item is {name:string; value:number} => item.value != null && Number.isFinite(item.value))
+    ? [...rows.reduce((groups, row) => {
+        const name = String(valueForColumn(row, String(dimensionColumn.mappedField ?? dimensionColumn.name ?? '')) ?? 'غير مسمى').trim() || 'غير مسمى';
+        const value = parseNumber(valueForColumn(row, String(amountColumnForRanking.mappedField ?? amountColumnForRanking.name ?? '')));
+        if (aggregateNamePattern.test(name) || value == null || !Number.isFinite(value)) return groups;
+        groups.set(name, (groups.get(name) ?? 0) + value);
+        return groups;
+      }, new Map<string, number>()).entries()]
+      .map(([name, value]) => ({ name, value }))
       .sort((a,b) => Math.abs(b.value) - Math.abs(a.value))
       .slice(0, 5)
     : [];
