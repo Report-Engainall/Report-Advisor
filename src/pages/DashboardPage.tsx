@@ -241,15 +241,15 @@ export function DashboardPage() {
 
   return (
     <div dir="rtl" className="animate-fade-in space-y-5 pb-10">
-      <section className="ag-dashboard-header ag-command-hero rounded-[20px] border border-[#1d5f58] px-5 py-6 shadow-elevated lg:px-7 lg:py-7">
+      <section className="ag-dashboard-header ag-command-hero rounded-[20px] border border-[#394267] px-5 py-6 shadow-elevated lg:px-7 lg:py-7">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 text-[10px] font-black tracking-[0.12em] text-[#9fe7d9]">
+            <div className="flex items-center gap-2 text-[10px] font-black tracking-[0.12em] text-[#c7d2fe]">
               <Sparkles size={15} />
               لوحة ذكاء الأعمال · الأغبري
             </div>
             <h1 className="mt-2 max-w-3xl text-[27px] font-black tracking-tight text-white lg:text-[34px]">نبض الأعمال</h1>
-            <p className="mt-2 max-w-3xl text-[12px] leading-6 text-[#c8e3de]">
+            <p className="mt-2 max-w-3xl text-[12px] leading-6 text-[#cbd5e1]">
               صورة تنفيذية موثقة لأداء العمل اليوم — من البيانات إلى التحليل ثم الإشارة والقرار. لا تعرض المنصة رقمًا غير مدعوم بمصدره وحالته.
             </p>
           </div>
