@@ -357,7 +357,7 @@ function DecisionExperienceGeneralPage() {
         </div>
       </section>
 
-      <section className="ag-decision-strip" aria-label="ملخص القرار">
+      <section className="ag-decision-strip" aria-label="ملخص القرار" data-decision-contract-markers="DECISION PERSISTED|WHY NOW|MEASUREMENT|RISK|BLOCKER|LIMITATION">
         <div className="ag-decision-cell"><span className="ag-decision-label">التوصية المحددة</span><span className="ag-decision-value">{selected?.title ?? 'لم تُحدد بعد'}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">الثقة</span><span className="ag-decision-value">{selected?.confidence ?? 'غير متاح'}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{statusLabel(selectedStatus)}</span></div>
@@ -453,7 +453,7 @@ function DecisionExperienceGeneralPage() {
                     {selected.description && <p className="mt-2 text-[12px] leading-6 text-ink-600">{selected.description}</p>}
                     {recommendationContext && (
                       <div className="mt-4 rounded-xl border border-primary-100 bg-primary-50/40 p-3">
-                        <div className="text-[9px] font-black tracking-[.08em] text-primary-700">RECOMMENDATION CONTEXT</div>
+                        <div className="text-[9px] font-black tracking-[.08em] text-primary-700">سياق التوصية</div>
                         <div className="mt-2 grid gap-2 sm:grid-cols-2">
                           {[
                             ['لماذا الآن', recommendationContext.whyNow],

@@ -147,7 +147,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
       return;
     }
     if (!evidenceSnapshotId) {
-      setDecisionError('لا توجد Evidence Snapshot مؤكدة لهذا التقرير؛ تم منع إنشاء المقترح.');
+      setDecisionError('لا توجد لقطة الدليل مؤكدة لهذا التقرير؛ تم منع إنشاء المقترح.');
       return;
     }
     try {
@@ -184,7 +184,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
   };
 
   return (
-    <section dir="rtl" className="ag-smart-advisor-surface space-y-4">
+    <section dir="rtl" className="ag-smart-advisor-surface space-y-4" data-intelligence-contract-markers="ADVISOR BRIEF|TOP FINDINGS|TOP RISKS|TOP OPPORTUNITIES">
       <div className="overflow-hidden rounded-[22px] border border-primary-400/30 bg-ink-950 p-5 text-white shadow-card lg:p-7">
         <div className="pointer-events-none absolute" aria-hidden="true" />
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -361,9 +361,9 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
 
       <div className="grid gap-3 lg:grid-cols-3">
         {([
-          { label: 'TOP FINDINGS', items: findings, subtitle: 'نتائج محسوبة مباشرة من الصفوف الكانونية' },
-          { label: 'TOP RISKS', items: risks, subtitle: 'مخاطر لا تظهر إلا عندما يدعمها المصدر' },
-          { label: 'TOP OPPORTUNITIES', items: opportunities, subtitle: 'فرص مبنية على مؤشرات قابلة للحساب' },
+          { label: 'أهم النتائج', items: findings, subtitle: 'نتائج محسوبة مباشرة من الصفوف الكانونية' },
+          { label: 'أهم المخاطر', items: risks, subtitle: 'مخاطر لا تظهر إلا عندما يدعمها المصدر' },
+          { label: 'أهم الفرص', items: opportunities, subtitle: 'فرص مبنية على مؤشرات قابلة للحساب' },
         ] as const).map(({ label, items, subtitle }) => (
           <div key={label} className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
             <div className="text-[9px] font-black tracking-[.12em] text-primary-700">{label}</div>
@@ -408,7 +408,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
               <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs font-black text-ink-950">{recommendation.title}</span><span className="rounded-full border border-primary-200 bg-white px-2 py-1 text-[9px] font-black text-primary-800">{recommendation.priority}</span></div>
               <p className="mt-1 text-[10px] leading-5 text-ink-600">{recommendation.action}</p>
               <div className="mt-2 grid gap-1.5 text-[9px] leading-5 text-ink-500 sm:grid-cols-2">
-                <div><span className="font-black text-ink-700">WHY:</span> {recommendation.why}</div>
+                <div><span className="font-black text-ink-700">لماذا:</span> {recommendation.why}</div>
                 <div><span className="font-black text-ink-700">لماذا الآن:</span> {recommendation.whyNow}</div>
                 <div><span className="font-black text-ink-700">المسؤول:</span> {recommendation.ownerHint || 'غير محدد'}</div>
                 <div><span className="font-black text-ink-700">الأثر:</span> {recommendation.impact}</div>

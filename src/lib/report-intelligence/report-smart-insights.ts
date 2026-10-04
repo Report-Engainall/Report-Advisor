@@ -440,7 +440,9 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
       impact: signal.affectedRows == null ? 'الأثر المالي غير مثبت من المصدر الحالي.' : 'الأثر المثبت حاليًا هو نطاق السجلات المتأثرة؛ لا يتم افتراض قيمة مالية.',
     };
   });
-  return enriched.sort((a, b) => rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title)).slice(0, 1);
+  return enriched
+    .sort((a, b) => rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title))
+    .slice(0, 12);
 }
 
 function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] {
@@ -450,7 +452,7 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
       const rank: Record<ReportSignalSeverity, number> = { critical: 5, high: 4, medium: 3, low: 2, info: 1 };
       return rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title);
     })
-    .slice(0, 1)
+    .slice(0, 8)
     .map((signal) => {
     let action = 'افحص الدليل المرتبط بهذا الاستثناء ثم قرر الإجراء المناسب.';
     if (signal.id.includes('missing-price')) action = 'افتح صفوف المصدر التي بلا سعر وراجع التسعير قبل الاعتماد.';

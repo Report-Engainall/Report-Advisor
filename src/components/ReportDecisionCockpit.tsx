@@ -68,7 +68,6 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
         signalMessage: topSignal.message,
         severity: topSignal.severity,
         evidence: topSignal.evidence,
-        evidenceSnapshotId,
         recommendationContext: topRecommendation ? {
           action: topRecommendation.action,
           why: topRecommendation.why,
@@ -81,6 +80,7 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
           blocker: topRecommendation.blocker,
           limitation: topRecommendation.limitation,
         } : null,
+        evidenceSnapshotId,
       });
       await saveAdvisorBusinessCase({
         decisionId: proposal.id,
@@ -144,22 +144,22 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="rounded-2xl border border-white/10 bg-white/[.06] p-4 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-slate-200/70"><ShieldCheck size={13}/> TRUTH</div>
+            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-slate-200/70"><ShieldCheck size={13}/> الحقيقة</div>
             <div className="mt-2 text-lg font-black">{label(report.trustState)}</div>
             <div className="mt-1 text-[10px] text-slate-200/60">Verification: {label(report.reportVerificationState)}</div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[.06] p-4 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-slate-200/70"><FileSearch size={13}/> EVIDENCE</div>
+            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-slate-200/70"><FileSearch size={13}/> الدليل</div>
             <div className="mt-2 text-lg font-black">{label(report.evidenceStatus)}</div>
             <div className="mt-1 text-[10px] text-slate-200/60">{gap > 0 ? 'فجوة تغطية: ' + formatNumber(gap) : 'لا توجد فجوة تغطية مسجلة'}</div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[.06] p-4 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-slate-200/70"><Target size={13}/> DECISION</div>
+            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-slate-200/70"><Target size={13}/> القرار</div>
             <div className="mt-2 text-lg font-black">{label(report.renderedOutput.decisionStatus)}</div>
             <div className="mt-1 text-[10px] text-slate-200/60">Action: {label(report.renderedOutput.actionStatus)}</div>
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[.06] p-4 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-slate-200/70"><CheckCircle2 size={13}/> OUTCOME</div>
+            <div className="flex items-center gap-2 text-[9px] font-black tracking-[.12em] text-slate-200/70"><CheckCircle2 size={13}/> النتيجة</div>
             <div className="mt-2 text-lg font-black">{label(report.renderedOutput.outcomeStatus)}</div>
             <div className="mt-1 text-[10px] text-slate-200/60">Learning: {label(report.renderedOutput.learningStatus)}</div>
           </div>
@@ -191,7 +191,7 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
             <div className="flex items-center gap-2 text-[9px] font-black tracking-[.14em] text-amber-100/75">
               <Lightbulb size={14}/> WHAT NEXT / DECISION BRIEF
             </div>
-            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[8px] font-black text-slate-200/60">RECOMMENDED</span>
+            <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[8px] font-black text-slate-200/60">موصى به</span>
           </div>
           <div className="mt-3 text-sm font-black text-white">
             {topRecommendation?.title ?? 'لا توجد توصية قابلة للتنفيذ مثبتة من المصدر الحالي.'}
@@ -206,7 +206,7 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
                 <div className="mt-1 text-[10px] leading-5 text-white/80">{topRecommendation.why}</div>
               </div>
               <div className="rounded-xl border border-white/8 bg-black/10 p-3">
-                <div className="text-[8px] font-black tracking-[.12em] text-slate-300/50">EXPECTED OUTCOME</div>
+                <div className="text-[8px] font-black tracking-[.12em] text-slate-300/50">EXPECTED النتيجة</div>
                 <div className="mt-1 text-[10px] leading-5 text-white/80">{topRecommendation.expectedOutcome}</div>
               </div>
             </div>
@@ -232,13 +232,13 @@ export function ReportDecisionCockpit({ report }: { report: SmartReportDetail })
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-black/10 p-4">
-          <div className="text-[9px] font-black tracking-[.14em] text-indigo-100/65">TRUTH LABELS</div>
+          <div className="text-[9px] font-black tracking-[.14em] text-indigo-100/65">حالات الحقيقة</div>
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-indigo-100/45">OBSERVED</div><div className="mt-1 text-sm font-black text-white">{formatNumber(report.rowCount ?? 0)} صف</div></div>
-            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-indigo-100/45">DERIVED</div><div className="mt-1 text-sm font-black text-white">{signals.length} إشارات</div></div>
-            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-indigo-100/45">RECOMMENDED</div><div className="mt-1 text-sm font-black text-white">{recommendations.length} توصيات</div></div>
-            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-indigo-100/45">PROJECTED</div><div className="mt-1 text-sm font-black text-white">{forecast.status === 'AVAILABLE' ? formatNumber(forecast.nextValue ?? 0) : 'غير متاح'}</div></div>
-            <div className="col-span-2 rounded-xl border border-white/8 bg-white/[.03] p-3"><div className="text-[8px] text-indigo-100/45">UNKNOWN / LIMITATION</div><div className="mt-1 text-[10px] leading-5 text-white/70">{forecast.status === 'INSUFFICIENT_SAMPLE' ? forecast.note : (topSignal?.impact || 'الأثر المالي النهائي غير مثبت من المصدر الحالي.')}</div></div>
+            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-indigo-100/45">مرصود</div><div className="mt-1 text-sm font-black text-white">{formatNumber(report.rowCount ?? 0)} صف</div></div>
+            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-indigo-100/45">مشتق</div><div className="mt-1 text-sm font-black text-white">{signals.length} إشارات</div></div>
+            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-indigo-100/45">موصى به</div><div className="mt-1 text-sm font-black text-white">{recommendations.length} توصيات</div></div>
+            <div className="rounded-xl bg-white/[.04] p-3"><div className="text-[8px] text-indigo-100/45">متوقع</div><div className="mt-1 text-sm font-black text-white">{forecast.status === 'AVAILABLE' ? formatNumber(forecast.nextValue ?? 0) : 'غير متاح'}</div></div>
+            <div className="col-span-2 rounded-xl border border-white/8 bg-white/[.03] p-3"><div className="text-[8px] text-indigo-100/45">غير معلوم / الحدود</div><div className="mt-1 text-[10px] leading-5 text-white/70">{forecast.status === 'INSUFFICIENT_SAMPLE' ? forecast.note : (topSignal?.impact || 'الأثر المالي النهائي غير مثبت من المصدر الحالي.')}</div></div>
           </div>
         </div>
       </div>
