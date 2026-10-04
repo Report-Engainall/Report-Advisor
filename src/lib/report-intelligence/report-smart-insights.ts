@@ -191,14 +191,21 @@ function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
 }
 
 function findColumn(columns: Array<Record<string, unknown>>, aliases: string[]): Record<string, unknown> | null {
-  return columns.find((column) => {
+  let best: Record<string, unknown> | null = null;
+  let bestRank = Number.POSITIVE_INFINITY;
+  columns.forEach((column) => {
     const mappedKey = normalized(column.mappedField);
     const rawKey = normalized(column.name);
-    return aliases.some((alias) => {
+    aliases.forEach((alias, rank) => {
       const token = normalized(alias);
-      return (mappedKey && mappedKey.includes(token)) || (rawKey && rawKey.includes(token));
+      const matches = Boolean((mappedKey && mappedKey === token) || (rawKey && rawKey === token) || (mappedKey && mappedKey.includes(token)) || (rawKey && rawKey.includes(token)));
+      if (matches && rank < bestRank) {
+        best = column;
+        bestRank = rank;
+      }
     });
-  }) ?? null;
+  });
+  return best;
 }
 
 function dataKey(column: Record<string, unknown> | null | undefined): string {
@@ -486,7 +493,7 @@ function deriveForecast(report: ReportInput): ReportForecast {
   const rows = metricRows(report);
   const columns = columnsOf(report);
   const dateColumn = findColumn(columns, ['invoice_date', 'date', 'due_date', 'التاريخ']);
-  const valueColumn = findColumn(columns, ['total_amount', 'net_amount', 'total', 'amount', 'sales', 'purchase', 'balance']);
+  const valueColumn = findColumn(columns, ['total', 'total_amount', 'amount', 'sales', 'purchase', 'net_amount', 'balance']);
   const dateKey = dataKey(dateColumn);
   const valueKey = dataKey(valueColumn);
   if (!dateKey || !valueKey || rows.length < 12) {
@@ -588,7 +595,7 @@ function deriveBusinessFindings(report: ReportInput): {
   const opportunities: BusinessFinding[] = [];
 
   const amountColumn = findColumn(columns, [
-    'net_amount', 'total_amount', 'total', 'amount', 'sales', 'purchase',
+    'total', 'total_amount', 'amount', 'sales', 'purchase', 'net_amount',
     'outstanding_balance', 'balance', 'local_amount', 'value',
   ]);
   const partyColumn = specialty === 'purchases'
