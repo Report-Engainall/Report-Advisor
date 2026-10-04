@@ -546,17 +546,60 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const canonicalRows: Array<{ row_number: number; data: Record<string, unknown> }> = [];
   const canonicalFetchPageSize = 1000;
   const canonicalFetchLimit = 50000;
-  const canonicalImportJobId = renderedImportId;
-  if (!canonicalImportJobId) throw new Error('INVALID_REPORT_CONTEXT');
+  const reportImportJobId = renderedImportId;
+  if (!reportImportJobId) throw new Error('INVALID_REPORT_CONTEXT');
+
+  // A durable Report Job and the canonical Import Job are not always the same
+  // identifier after recovery/replay. Bind canonical data by source hash first,
+  // and use the canonical commit ledger to resolve the actual committed import.
+  let canonicalImportJobId = reportImportJobId;
+  let canonicalResolvedFromCommit = false;
+  try {
+    const { data: latestCommit } = await supabase
+      .from('canonical_import_commits')
+      .select('committed_ids')
+      .eq('company_id', companyId)
+      .eq('source_hash', sourceHash)
+      .order('committed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const committedIds = latestCommit?.committed_ids;
+    const firstCommittedId = Array.isArray(committedIds) && committedIds.length > 0
+      ? String(committedIds[0] ?? '').trim()
+      : '';
+
+    if (firstCommittedId) {
+      const { data: anchor } = await supabase
+        .from('canonical_dataset_records')
+        .select('import_job_id')
+        .eq('company_id', companyId)
+        .eq('id', firstCommittedId)
+        .maybeSingle();
+      const resolved = String(anchor?.import_job_id ?? '').trim();
+      if (resolved) {
+        canonicalImportJobId = resolved;
+        canonicalResolvedFromCommit = resolved !== reportImportJobId;
+      }
+    }
+  } catch (error) {
+    console.warn('[SmartReport] canonical commit anchor lookup failed; continuing with report import id', error);
+  }
+
+  if (canonicalResolvedFromCommit) {
+    runtimeWarnings.push('تم ربط التقرير بالاستيراد الكانوني الفعلي من سجل الاعتماد لنفس بصمة المصدر؛ معرف تنفيذ التقرير مختلف عن معرف الاستيراد الكانوني.');
+  }
+
   let canonicalOffset = 0;
   let canonicalFetchError = false;
 
   while (canonicalOffset < canonicalFetchLimit) {
     const canonicalSourceQuery = supabase
       .from('canonical_dataset_records')
-      .select('row_number,data')
+      .select('row_number,data,import_job_id')
       .eq('company_id', companyId)
       .eq('source_hash', sourceHash);
+
     const canonicalScopedQuery = canonicalSourceQuery.eq('import_job_id', canonicalImportJobId);
     const { data: pageRows, error: pageError } = await canonicalScopedQuery
       .order('row_number', { ascending: true })
