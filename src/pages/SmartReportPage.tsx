@@ -1,4 +1,5 @@
-import { CommercialValueChain } from '@/components/CommercialValueChain';\nimport { useEffect, useMemo, useState } from 'react';
+import { CommercialValueChain } from '@/components/CommercialValueChain';
+import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, CheckCircle2, FileSearch, ShieldCheck, Search, Columns3, ArrowDownUp, Download, RotateCcw } from 'lucide-react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
