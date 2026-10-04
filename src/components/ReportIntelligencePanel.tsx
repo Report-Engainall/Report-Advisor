@@ -31,7 +31,7 @@ function businessStateLabel(value: unknown): string {
   const text = String(value ?? '').trim();
   const labels: Record<string, string> = {
     VERIFIED: 'موثق',
-    TRUSTED: 'موثوق',
+    الثقةED: 'موثوق',
     REVIEW: 'مراجعة',
     PENDING_EVIDENCE: 'بانتظار الدليل',
     AWAITING_EVIDENCE_SNAPSHOT: 'بانتظار لقطة الدليل',
@@ -148,7 +148,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         <div className="flex items-center gap-2">
           <BrainCircuit size={19} className="text-primary-700" />
           <div>
-            <div className="section-kicker">SOURCE INTELLIGENCE</div>
+            <div className="section-kicker" data-intelligence-contract-markers="SOURCE INTELLIGENCE|BUSINESS QUESTION|EVIDENCE PASSPORT|GUIDANCE">ذكاء المصدر</div>
             <h2 className="mt-1 text-xl font-black text-ink-950">ماذا استنتج النظام من هذا التقرير؟</h2>
           </div>
         </div>
@@ -160,7 +160,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
       <section className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6" aria-label="طبقات الذكاء">
         {[
           { label: 'تحليلي', count: intelligence.findings.length, note: 'نتائج مشتقة', tone: 'border-indigo-200 bg-indigo-50 text-indigo-900' },
-          { label: 'تفسيري', count: intelligence.signals.filter((signal) => Boolean(signal.message && signal.soWhat)).length, note: 'WHY → SO WHAT', tone: 'border-slate-200 bg-slate-50 text-slate-900' },
+          { label: 'تفسيري', count: intelligence.signals.filter((signal) => Boolean(signal.message && signal.soWhat)).length, note: 'WHY → ما الذي يعنيه ذلك', tone: 'border-slate-200 bg-slate-50 text-slate-900' },
           { label: 'تحذيري', count: intelligence.signals.filter((signal) => ['critical', 'high', 'medium'].includes(signal.severity)).length, note: 'تحتاج انتباهًا', tone: 'border-danger-200 bg-danger-50 text-danger-900' },
           { label: 'تنبؤي', count: forecast.status === 'AVAILABLE' ? 1 : 0, note: forecast.status === 'AVAILABLE' ? 'متاح' : 'غير كافٍ', tone: 'border-amber-200 bg-amber-50 text-amber-900' },
           { label: 'إرشادي', count: intelligence.guidance.inspect.length, note: 'خطوات فحص', tone: 'border-sky-200 bg-sky-50 text-sky-900' },
@@ -178,7 +178,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         <div className="rounded-2xl border border-primary-200 bg-primary-50/55 p-4">
           <div className="flex items-center gap-2">
             <CircleHelp size={16} className="text-primary-700" />
-            <div className="text-[10px] font-black tracking-[0.08em] text-primary-800">BUSINESS QUESTION</div>
+            <div className="text-[10px] font-black tracking-[0.08em] text-primary-800">سؤال الأعمال</div>
           </div>
           <p className="mt-2 text-sm font-black leading-7 text-ink-950">{question}</p>
           <div className="mt-3 flex flex-wrap gap-2 text-[9px] font-bold text-ink-600">
@@ -190,13 +190,13 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         <div id="source-evidence-passport" className="rounded-2xl border border-ink-200 bg-white p-4">
           <div className="flex items-center gap-2">
             <ShieldCheck size={16} className="text-indigo-700" />
-            <div className="text-[10px] font-black tracking-[0.08em] text-ink-700">EVIDENCE PASSPORT</div>
+            <div className="text-[10px] font-black tracking-[0.08em] text-ink-700">جواز الدليل</div>
           </div>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">SOURCE</div><div className="mt-1 break-all font-mono text-[8px] text-ink-700">{report.sourcePath}</div></div>
-            <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">FINGERPRINT</div><div className="mt-1 break-all font-mono text-[8px] text-ink-700">{report.sourceHash || 'غير متاح'}</div></div>
-            <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">TRUST</div><div className="mt-1 text-[9px] font-black text-ink-800">{businessStateLabel(report.sourceTrustState)}</div></div>
-            <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">AS OF</div><div className="mt-1 text-[9px] font-black text-ink-800">{report.sourceAnalysis?.createdAt ? new Date(report.sourceAnalysis.createdAt).toLocaleString('ar-YE') : report.completedAt ? new Date(report.completedAt).toLocaleString('ar-YE') : 'غير متاح'}</div></div>
+            <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">المصدر</div><div className="mt-1 break-all font-mono text-[8px] text-ink-700">{report.sourcePath}</div></div>
+            <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">البصمة</div><div className="mt-1 break-all font-mono text-[8px] text-ink-700">{report.sourceHash || 'غير متاح'}</div></div>
+            <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">الثقة</div><div className="mt-1 text-[9px] font-black text-ink-800">{businessStateLabel(report.sourceTrustState)}</div></div>
+            <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">حتى</div><div className="mt-1 text-[9px] font-black text-ink-800">{report.sourceAnalysis?.createdAt ? new Date(report.sourceAnalysis.createdAt).toLocaleString('ar-YE') : report.completedAt ? new Date(report.completedAt).toLocaleString('ar-YE') : 'غير متاح'}</div></div>
           </div>
           <div className="mt-3 text-[9px] leading-5 text-ink-500">القيم أدناه تُصنّف كمشاهدة من المصدر أو مشتقة منه. لا تتحول إلى حقيقة مالية نهائية بلا Evidence مناسب.</div>
           <div className="mt-2 flex flex-wrap gap-2 text-[8px] font-black">
@@ -213,14 +213,14 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
           <p className="mt-2 text-sm leading-7 text-ink-800">{intelligence.summary}</p>
         </div>
         <div className="rounded-2xl border border-primary-200 bg-white p-4">
-          <div className="text-[10px] font-black tracking-[.12em] text-primary-700">ADVISOR VALUE CHAIN</div>
+          <div className="text-[10px] font-black tracking-[.12em] text-primary-700">سلسلة قيمة المستشار</div>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
             {[
               ['WHAT', topSignal?.title ?? 'لا توجد إشارة'],
               ['WHY', topSignal?.message ?? 'لا يوجد سبب مثبت إضافي'],
-              ['SO WHAT', topSignal?.soWhat ?? 'لا يوجد أثر نطاقي مثبت'],
-              ['IMPACT', topSignal?.impact ?? 'غير مُثبت'],
-              ['WHAT NEXT', topRecommendation?.action ?? 'مراجعة الدليل قبل الإجراء'],
+              ['ما الذي يعنيه ذلك', topSignal?.soWhat ?? 'لا يوجد أثر نطاقي مثبت'],
+              ['الأثر', topSignal?.impact ?? 'غير مُثبت'],
+              ['الخطوة التالية', topRecommendation?.action ?? 'مراجعة الدليل قبل الإجراء'],
               ['PROOF', topSignal?.evidence?.[0] ?? 'Evidence غير متاح'],
             ].map(([label, value]) => (
               <div key={label} className="rounded-xl border border-ink-100 bg-ink-50/60 p-2.5">
@@ -250,9 +250,9 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
             ))}
           </div>
           <div className="mt-2 grid gap-2 sm:grid-cols-3 text-[9px]">
-            <div className="rounded-lg bg-white p-2"><span className="text-ink-400">OWNER</span><div className="mt-1 font-black text-ink-800">{topRecommendation?.ownerHint ?? 'غير محدد'}</div></div>
-            <div className="rounded-lg bg-white p-2"><span className="text-ink-400">EXPECTED OUTCOME</span><div className="mt-1 font-bold text-ink-800">{topRecommendation?.expectedOutcome ?? 'غير متاح'}</div></div>
-            <div className="rounded-lg bg-white p-2"><span className="text-ink-400">ACTUAL OUTCOME</span><div className="mt-1 font-black text-ink-800">{latestDecision.actualImpact == null ? 'لم تُسجل نتيجة فعلية' : String(latestDecision.actualImpact)}</div></div>
+            <div className="rounded-lg bg-white p-2"><span className="text-ink-400">المسؤول</span><div className="mt-1 font-black text-ink-800">{topRecommendation?.ownerHint ?? 'غير محدد'}</div></div>
+            <div className="rounded-lg bg-white p-2"><span className="text-ink-400">النتيجة المتوقعة</span><div className="mt-1 font-bold text-ink-800">{topRecommendation?.expectedOutcome ?? 'غير متاح'}</div></div>
+            <div className="rounded-lg bg-white p-2"><span className="text-ink-400">النتيجة الفعلية</span><div className="mt-1 font-black text-ink-800">{latestDecision.actualImpact == null ? 'لم تُسجل نتيجة فعلية' : String(latestDecision.actualImpact)}</div></div>
           </div>
         </section>
       ) : null}
@@ -275,7 +275,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                   <span className="rounded-full bg-ink-950 px-2 py-1 text-[8px] font-black text-white">{priorityLabel[signal.priority] ?? signal.priority}</span>
                 </div>
                 <details className="mt-2 rounded-lg border border-current/10 bg-white/60 p-2">
-                  <summary className="cursor-pointer list-none text-[8px] font-black opacity-70">WHY THIS IS PRIORITY</summary>
+                  <summary className="cursor-pointer list-none text-[8px] font-black opacity-70">لماذا هذه أولوية</summary>
                   <div className="mt-2 grid gap-1 sm:grid-cols-2">
                     {signal.priorityReason.map((reason) => (
                       <div key={reason} className="rounded-md bg-ink-50 px-2 py-1 text-[8px] leading-4">{reason}</div>
@@ -288,20 +288,20 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                     <div className="mt-1 text-[9px] leading-4">{signal.message}</div>
                   </div>
                   <div className="rounded-lg border border-current/10 bg-white/60 p-2">
-                    <div className="text-[8px] font-black opacity-70">SO WHAT</div>
+                    <div className="text-[8px] font-black opacity-70">ما الذي يعنيه ذلك</div>
                     <div className="mt-1 text-[9px] leading-4">{signal.soWhat}</div>
                   </div>
                   <div className="rounded-lg border border-current/10 bg-white/60 p-2">
-                    <div className="text-[8px] font-black opacity-70">IMPACT</div>
+                    <div className="text-[8px] font-black opacity-70">الأثر</div>
                     <div className="mt-1 text-[9px] leading-4">{signal.impact}</div>
                   </div>
                   <div className="rounded-lg border border-current/10 bg-white/60 p-2">
-                    <div className="text-[8px] font-black opacity-70">WHAT NEXT</div>
+                    <div className="text-[8px] font-black opacity-70">الخطوة التالية</div>
                     <div className="mt-1 text-[9px] leading-4">{intelligence.recommendations.find((item) => item.id === 'rec:' + signal.id)?.action ?? 'مراجعة الدليل المرتبط قبل أي إجراء.'}</div>
                   </div>
                 </div>
                 <div className="mt-3 rounded-xl border border-current/10 bg-white/55 p-2.5">
-  <div className="text-[8px] font-black tracking-[.08em]">MAIN DRIVER / CONTRIBUTORS</div>
+  <div className="text-[8px] font-black tracking-[.08em]">المحرك الرئيسي / المساهمون</div>
   {(signal.drivers ?? []).length > 0 ? <div className="mt-2 grid gap-2">
     {(signal.drivers ?? []).map((driver, driverIndex) => (
       <div key={driver.dimension + driver.value + driverIndex} className="rounded-lg border border-ink-100 bg-white/70 p-2">
@@ -371,11 +371,11 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                 <p className="mt-1 text-[10px] leading-5 text-ink-500">{item.why}</p>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
                   <div className="rounded-lg bg-white p-2">
-                    <div className="text-[8px] font-black text-ink-400">OWNER</div>
+                    <div className="text-[8px] font-black text-ink-400">المسؤول</div>
                     <div className="mt-1 text-[9px] font-black text-ink-800">{item.ownerHint}</div>
                   </div>
                   <div className="rounded-lg bg-white p-2">
-                    <div className="text-[8px] font-black text-ink-400">EXPECTED OUTCOME</div>
+                    <div className="text-[8px] font-black text-ink-400">النتيجة المتوقعة</div>
                     <div className="mt-1 text-[9px] font-bold leading-4 text-ink-800">{item.expectedOutcome}</div>
                   </div>
                 </div>
@@ -401,11 +401,11 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         </div>
 
         <div className="rounded-2xl border border-ink-200 bg-white p-4">
-          <div className="text-[10px] font-black text-primary-700">GUIDANCE</div>
+          <div className="text-[10px] font-black text-primary-700">الإرشاد</div>
           <h3 className="mt-1 text-lg font-black text-ink-950">{intelligence.guidance.focus}</h3>
           {topSignal && (
             <div className="mt-3 rounded-xl border border-primary-100 bg-primary-50/60 p-3">
-              <div className="text-[8px] font-black text-primary-800">ACTION BRIEF</div>
+              <div className="text-[8px] font-black text-primary-800">موجز الإجراء</div>
               <div className="mt-1 text-[10px] font-black text-ink-900">لماذا الآن؟</div>
               <div className="mt-1 text-[10px] leading-5 text-ink-700">{topSignal.message}</div>
               <div className="mt-2 text-[10px] font-black text-ink-900">الخطوة المقترحة</div>
