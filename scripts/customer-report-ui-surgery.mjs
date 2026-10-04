@@ -99,3 +99,5 @@ assert(!reports.includes('title={report.sourcePath}>{report.sourcePath}'), 'Raw 
 assert(!sourceSurface.includes('title={report.sourcePath}>{report.sourcePath}'), 'Raw source title remains in SourceBoundReportSurface');
 
 console.log('customer report UI surgery applied successfully');
+
+// current-head-bootstrap: run the customer-facing report surgery on the exact branch HEAD.
