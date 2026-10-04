@@ -285,8 +285,8 @@ export function DecisionInboxPage() {
         impact: item.actualImpact == null ? 'الأثر المالي غير مثبت بعد.' : 'الأثر الفعلي المسجل: ' + item.actualImpact,
         evidence: [
           'التقرير المرتبط بالقرار',
-          item.evidenceSnapshotId ? 'Evidence Snapshot: ' + item.evidenceSnapshotId : 'لا توجد لقطة دليل',
-          item.sourceHash ?? 'لا يوجد source hash',
+          item.evidenceSnapshotId ? 'لقطة دليل مثبتة' : 'لا توجد لقطة دليل',
+          item.sourceHash ? 'مصدر التقرير مرتبط' : 'لا يوجد مصدر تقرير مرتبط',
         ],
         whatNext: nextAction(item).label,
         recommendation: item.recommendationTitle ?? 'لا توجد توصية منفصلة.',
@@ -397,16 +397,16 @@ export function DecisionInboxPage() {
                     <p className="mt-1 text-[11px] leading-6 text-ink-500">{item.signalMessage}</p>
 
                     <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-4">
-                      <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">EVIDENCE</div><div className="mt-1 text-[10px] font-bold text-ink-800">تقرير أعمال مرتبط بالقضية</div><div className="mt-1 text-[8px] text-ink-400">{item.passportStatus === 'VERIFIED' ? 'الدليل موثق' : 'الدليل يحتاج مراجعة'} · {item.passportReadiness === 'READY' ? 'جاهز للقرار' : 'الجاهزية غير مكتملة'}</div></div>
+                      <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">الدليل</div><div className="mt-1 text-[10px] font-bold text-ink-800">تقرير أعمال مرتبط بالقضية</div><div className="mt-1 text-[8px] text-ink-400">{item.passportStatus === 'VERIFIED' ? 'الدليل موثق' : 'الدليل يحتاج مراجعة'} · {item.passportReadiness === 'READY' ? 'جاهز للقرار' : 'الجاهزية غير مكتملة'}</div></div>
                       <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">OWNER</div><div className="mt-1 flex items-center gap-1 text-[10px] font-bold text-ink-800"><UserRound size={12}/>{item.owner}</div><div className="mt-1 text-[8px] text-ink-400">الموعد: {formatDate(item.deadline)}</div></div>
                       <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">الحالة</div><div className="mt-1 text-[10px] font-bold text-ink-800">{item.status === 'PROPOSED' ? 'مقترح' : item.status === 'APPROVED' ? 'معتمد' : item.status === 'REJECTED' ? 'مرفوض' : item.status === 'COMPLETED' ? 'مكتمل' : 'قيد المتابعة'}</div><div className="mt-1 text-[8px] text-ink-400">{item.workItemStatus === 'IN_PROGRESS' ? 'قيد التنفيذ' : item.workItemStatus === 'COMPLETED' ? 'مكتمل' : item.workItemStatus ? 'عنصر عمل مفتوح' : 'لا يوجد عمل بعد'}</div></div>
-                      <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">OUTCOME</div><div className="mt-1 text-[10px] font-bold text-ink-800">{item.outcomeId ? (item.outcomeStatus === 'OBSERVED' ? 'نتيجة مرصودة' : item.outcomeStatus === 'COMPLETED' ? 'مكتملة' : 'مقاسة') : 'لم تسجل نتيجة'}</div><div className="mt-1 text-[8px] text-ink-400">{item.actualImpact == null ? 'الأثر غير مثبت' : 'الأثر الفعلي: ' + item.actualImpact}</div></div>
+                      <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">النتيجة</div><div className="mt-1 text-[10px] font-bold text-ink-800">{item.outcomeId ? (item.outcomeStatus === 'OBSERVED' ? 'نتيجة مرصودة' : item.outcomeStatus === 'COMPLETED' ? 'مكتملة' : 'مقاسة') : 'لم تسجل نتيجة'}</div><div className="mt-1 text-[8px] text-ink-400">{item.actualImpact == null ? 'الأثر غير مثبت' : 'الأثر الفعلي: ' + item.actualImpact}</div></div>
                     </div>
                   </div>
 
                   <aside className="w-full shrink-0 xl:w-[250px]">
                     <div className="rounded-[14px] border border-ink-200 bg-ink-950 p-3 text-white">
-                      <div className="text-[9px] font-black text-primary-300">WHAT NEXT</div>
+                      <div className="text-[9px] font-black text-primary-300">الخطوة التالية</div>
                       <div className="mt-2 text-[11px] font-black">{action.label}</div>
                       <Link to={action.href} className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white px-3 py-2 text-[10px] font-black text-ink-950 hover:bg-primary-50"><ArrowUpLeft size={12}/> افتح الإجراء</Link>
                     </div>
