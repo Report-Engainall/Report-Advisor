@@ -307,7 +307,16 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
             {report.intelligence.recommendations.length ? report.intelligence.recommendations.map((recommendation) => <article key={recommendation.id} className="rounded-xl border border-primary-100 bg-primary-50/40 p-3">
               <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs font-black text-ink-950">{recommendation.title}</span><span className="rounded-full border border-primary-200 bg-white px-2 py-1 text-[9px] font-black text-primary-800">{recommendation.priority}</span></div>
               <p className="mt-1 text-[10px] leading-5 text-ink-600">{recommendation.action}</p>
-              <div className="mt-2 text-[9px] text-ink-400">السبب: {recommendation.why} · المسؤول: {recommendation.ownerHint || 'غير محدد'}</div>
+              <div className="mt-2 grid gap-1.5 text-[9px] leading-5 text-ink-500 sm:grid-cols-2">
+                <div><span className="font-black text-ink-700">WHY:</span> {recommendation.why}</div>
+                <div><span className="font-black text-ink-700">WHY NOW:</span> {recommendation.whyNow}</div>
+                <div><span className="font-black text-ink-700">OWNER:</span> {recommendation.ownerHint || 'غير محدد'}</div>
+                <div><span className="font-black text-ink-700">IMPACT:</span> {recommendation.impact}</div>
+                <div><span className="font-black text-ink-700">RISK:</span> {recommendation.risk}</div>
+                <div><span className="font-black text-ink-700">BLOCKER:</span> {recommendation.blocker}</div>
+                <div><span className="font-black text-ink-700">MEASUREMENT:</span> {recommendation.measurement}</div>
+                <div><span className="font-black text-ink-700">LIMITATION:</span> {recommendation.limitation}</div>
+              </div>
               <div className="mt-2 text-[9px] text-ink-400">المخرج المتوقع: {recommendation.expectedOutcome}</div>
             </article>) : <div className="rounded-xl border border-dashed border-ink-200 p-4 text-[10px] text-ink-500">لا توجد توصيات مؤهلة من الإشارات الحالية.</div>}
           </div>
