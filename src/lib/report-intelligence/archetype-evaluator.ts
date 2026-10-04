@@ -174,6 +174,15 @@ function addModelRecommendation(intelligence: ReportIntelligence, profile: RuleP
     ownerHint: baseOwnerHint(profile),
     impact: finding.value == null ? 'الأثر المالي غير مثبت من المصدر الحالي.' : 'الأثر المثبت حاليًا مرتبط بالقيمة/النطاق الظاهر في الدليل.',
     expectedOutcome: 'إعادة القياس بعد تنفيذ الإجراء مع نفس source/job/evidence lineage.',
+    whyNow: finding.priority === 'high'
+      ? 'هذه النتيجة تستحق المراجعة الآن قبل تحويل المصدر إلى قرار تنفيذي.'
+      : 'هذه النتيجة تستحق المراجعة قبل اعتماد أي إجراء مبني عليها.',
+    measurement: 'أعد قياس المؤشر نفسه بعد الإجراء مع الاحتفاظ بنفس source/job/evidence lineage.',
+    risk: 'خطر القرار المبكر هو اعتماد استنتاج فوق نتيجة تحتاج تحققًا أو تفسيرًا إضافيًا.',
+    blocker: finding.evidence.length > 0
+      ? 'اعتماد القرار متوقف على مطابقة الدليل المرتبط بهذه النتيجة.'
+      : 'لا يوجد دليل كافٍ للاعتماد؛ يجب إيقاف التحويل إلى قرار حتى يظهر الدليل المطلوب.',
+    limitation: finding.limitation || 'لا يثبت المصدر الحالي أثرًا سببيًا أو ماليًا أوسع من النتيجة المرصودة.',
   };
   return {
     ...intelligence,
