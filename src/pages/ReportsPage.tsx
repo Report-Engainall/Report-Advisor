@@ -177,7 +177,7 @@ export function ReportsCenterPage() {
   if (!snapshot) return <DataUnavailableState title="مركز التقارير ينتظر اللقطة" message="لم تصل اللقطة الكانونية الحالية؛ لا يتم عرض مركز فارغ أو أرقام غير مثبتة." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
 
   const { kpis, aging, asOf, months } = snapshot;
-  const truthLabel = kpis.status === 'CONFIRMED' ? 'VERIFIED' : kpis.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA';
+  const truthLabel = kpis.status === 'CONFIRMED' ? 'مثبت' : kpis.status === 'CALCULATED' ? 'محسوب' : 'بيانات غير كافية';
   const truthClass = kpis.status === 'CONFIRMED' ? 'badge-success' : kpis.status === 'CALCULATED' ? 'badge-primary' : 'badge-warning';
   const nextPath = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' ? '/data-quality' : '/reports/executive';
   const nextLabel = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' ? 'افحص جودة البيانات' : 'افتح التقرير التنفيذي';
@@ -298,14 +298,6 @@ export function ReportsCenterPage() {
                 : report.archetypeState === 'REVIEW_REQUIRED'
                   ? 'التحليل يحتاج مراجعة'
                   : 'تحليل المصدر';
-              const flow = [
-                ['دليل', report.evidenceStatus],
-                ['توصية', report.recommendationStatus],
-                ['قرار', report.decisionStatus],
-                ['اعتماد', report.approvalStatus],
-                ['عمل', report.actionStatus],
-                ['نتيجة', report.outcomeStatus],
-              ];
               return (
                 <Link key={report.jobId + ':' + report.sourceHash} to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="ag-smart-report-card group rounded-2xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
                   <div className="flex items-start justify-between gap-3">
