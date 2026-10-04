@@ -159,8 +159,23 @@ function reportColumns(report: SmartReportDetail) {
   return [...result.values()];
 }
 
+function isAggregateCustomerRow(row: Record<string, unknown>): boolean {
+  const label = String(row.customer_name ?? row['اسم العميل'] ?? row.supplier_name ?? row['اسم المورد'] ?? '').trim();
+  if (/^(?:الإجمالي|اجمالي|المجموع|total|grand\s+total)\s*:?[\s]*$/iu.test(label)) return true;
+  const invoice = String(row.invoice_number ?? row['رقم الفاتوره'] ?? '').trim();
+  const date = String(row.date ?? row.invoice_date ?? row['التاريخ'] ?? '').trim();
+  const amount = parseNumeric(row.total ?? row.total_amount ?? row['اجمالي الفاتوره'] ?? row.net_amount ?? row['مبلغ الصافي بالمحلي']);
+  return !invoice && !date && amount != null;
+}
+
+function executableRows(report: SmartReportDetail) {
+  return report.canonicalRows
+    .map((row) => row.data)
+    .filter((row) => !isAggregateCustomerRow(row));
+}
+
 function numericColumns(report: SmartReportDetail) {
-  const rows = report.canonicalRows.map((row) => row.data);
+  const rows = executableRows(report);
   return reportColumns(report)
     .map((column) => {
       const values = rows.map((row) => parseNumeric(rowValue(row, column.mappedField ?? column.key))).filter((value): value is number => value != null);
@@ -174,7 +189,7 @@ function numericColumns(report: SmartReportDetail) {
 }
 
 function contributionRows(report: SmartReportDetail) {
-  const rows = report.canonicalRows.map((row) => row.data);
+  const rows = executableRows(report);
   const fields = reportColumns(report);
   const dimension = fields.find((column) => ['customer_name','supplier_name','product_name','category','warehouse'].includes(String(column.mappedField)));
   const measure = fields.find((column) => ['net_amount','total','sales','purchases','profit','balance','value','outstanding_balance'].includes(String(column.mappedField)));
