@@ -150,10 +150,10 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
             </span>
           </div>
         </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"><div className="text-[9px] font-black text-ink-300">CLAIMS</div><div className="mt-1 text-2xl font-black text-white">{packet.claims.length}</div><div className="mt-1 text-[10px] text-ink-300">نتائج قابلة للتتبع</div></div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"><div className="text-[9px] font-black text-ink-300">QUESTIONS</div><div className="mt-1 text-2xl font-black text-white">{packet.questions.length}</div><div className="mt-1 text-[10px] text-ink-300">أسئلة أعمال</div></div>
-          <div className="rounded-2xl border border-primary-300/20 bg-primary-400/10 p-4 backdrop-blur"><div className="text-[9px] font-black text-primary-200">ACTION STATE</div><div className="mt-1 text-lg font-black text-white">{packet.actionState === 'ACTIONABLE' ? 'قابل للمراجعة والتنفيذ' : packet.actionState === 'REVIEW_REQUIRED' ? 'مراجعة مطلوبة' : 'غير متاح'}</div><div className="mt-1 text-[10px] text-ink-200">لا تنفيذ تلقائي</div></div>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black text-ink-100">الدليل: {packet.proofState === 'VERIFIED' ? 'مرتبط' : 'مراجعة مطلوبة'}</span>
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[9px] font-black text-ink-100">القضايا الرئيسية: {findings.length + risks.length + opportunities.length > 0 ? 'موجودة' : 'غير مثبتة'}</span>
+          <span className="rounded-full border border-primary-300/20 bg-primary-400/10 px-3 py-1.5 text-[9px] font-black text-primary-200">{packet.actionState === 'ACTIONABLE' ? 'جاهز للمراجعة والتنفيذ' : packet.actionState === 'REVIEW_REQUIRED' ? 'المراجعة مطلوبة' : 'غير متاح'}</span>
         </div>
       </div>
 
