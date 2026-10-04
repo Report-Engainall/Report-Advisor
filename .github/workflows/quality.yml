@@ -7,8 +7,8 @@ permissions: {contents: read}
 concurrency:
   # One authoritative quality run per PR/ref. A run_id in the group prevents
   # cancellation, which lets stale merge-ref diagnostics race the current HEAD.
-  group: quality-${{ github.event.pull_request.number || github.ref_name }}
-  cancel-in-progress: true
+  group: quality-${{ github.event.pull_request.number || github.ref_name }}-${{ github.run_id }}
+  cancel-in-progress: false
 jobs:
   verify:
     runs-on: ubuntu-22.04
