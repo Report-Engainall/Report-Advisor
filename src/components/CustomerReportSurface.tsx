@@ -204,8 +204,12 @@ function numericColumns(report: SmartReportDetail) {
 function contributionRows(report: SmartReportDetail) {
   const rows = executableRows(report);
   const fields = reportColumns(report);
-  const dimension = fields.find((column) => ['customer_name','supplier_name','product_name','category','warehouse'].includes(String(column.mappedField)));
-  const measure = fields.find((column) => ['net_amount','total','sales','purchases','profit','balance','value','outstanding_balance'].includes(String(column.mappedField)));
+  const dimension = ['customer_name','supplier_name','product_name','category','warehouse']
+    .map((field) => fields.find((column) => String(column.mappedField) === field))
+    .find(Boolean);
+  const measure = ['total','sales','purchases','profit','balance','value','outstanding_balance','net_amount']
+    .map((field) => fields.find((column) => String(column.mappedField) === field))
+    .find(Boolean);
   if (!dimension || !measure) return [];
   const grouped = new Map<string, number>();
   for (const row of rows) {
