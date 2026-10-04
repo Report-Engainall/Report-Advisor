@@ -171,7 +171,7 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
     {
       label: report?.specialty === 'receivables' ? 'إجمالي الرصيد المستحق' : 'أهم قيمة مالية',
       value: formatMetric(amountColumn?.statistics?.sum == null ? null : Number(amountColumn.statistics.sum)),
-      detail: amountColumn?.mappedField ?? amountColumn?.name ?? 'غير متاح',
+      detail: displayColumnLabel(String(amountColumn?.mappedField ?? amountColumn?.name ?? '')),
     },
     {
       label: 'عدد الصفوف',
@@ -186,7 +186,7 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
     {
       label: report?.specialty === 'receivables' ? 'أكثر من 120 يومًا' : 'مؤشر عددي رئيسي',
       value: formatMetric(age120Column?.statistics?.sum == null ? (numeric[0]?.sum ?? null) : Number(age120Column.statistics.sum)),
-      detail: age120Column?.mappedField ?? age120Column?.name ?? (numeric[0]?.column.mappedField ?? numeric[0]?.column.name ?? 'غير متاح'),
+      detail: displayColumnLabel(String(age120Column?.mappedField ?? age120Column?.name ?? (numeric[0]?.column.mappedField ?? numeric[0]?.column.name ?? ''))),
     },
   ];
 
@@ -194,19 +194,19 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
     metrics.push({
       label: '0–30 يومًا',
       value: formatMetric(numberValue(age30Column.statistics?.sum)),
-      detail: age30Column.mappedField ?? age30Column.name ?? 'age_0_30',
+      detail: displayColumnLabel(String(age30Column.mappedField ?? age30Column.name ?? '')),
     });
   } else if (report?.specialty === 'inventory' && quantityColumn) {
     metrics.push({
       label: 'الكمية',
       value: formatMetric(numberValue(quantityColumn.statistics?.sum)),
-      detail: quantityColumn.mappedField ?? quantityColumn.name ?? 'quantity',
+      detail: displayColumnLabel(String(quantityColumn.mappedField ?? quantityColumn.name ?? '')),
     });
   } else if (paidColumn) {
     metrics.push({
       label: 'المدفوع',
       value: formatMetric(numberValue(paidColumn.statistics?.sum)),
-      detail: paidColumn.mappedField ?? paidColumn.name ?? 'paid_amount',
+      detail: displayColumnLabel(String(paidColumn.mappedField ?? paidColumn.name ?? '')),
     });
   }
 
@@ -493,14 +493,14 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
           تجميع
           <select value={groupColumn} onChange={(event) => setGroupColumn(event.target.value)} className="bg-transparent outline-none">
             <option value="">بدون تجميع</option>
-            {discoveredColumns.map((column) => <option key={column} value={column}>{column}</option>)}
+            {discoveredColumns.map((column) => <option key={column} value={column}>{displayColumnLabel(column)}</option>)}
           </select>
         </label>
         {groupColumn && (
           <label className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-ink-200 bg-ink-50 px-3 text-[10px] font-bold text-ink-600">
             التجميع المالي
             <select value={aggregateColumn} onChange={(event) => setAggregateColumn(event.target.value)} className="bg-transparent outline-none">
-              {numericColumns.map((column) => <option key={column} value={column}>{column}</option>)}
+              {numericColumns.map((column) => <option key={column} value={column}>{displayColumnLabel(column)}</option>)}
             </select>
           </label>
         )}
@@ -534,7 +534,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {discoveredColumns.map((column) => {
               const active = visibleColumns.includes(column);
-              return <label key={column} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-[10px] font-bold text-ink-700"><input type="checkbox" checked={active} onChange={() => setVisibleColumns((current) => active ? current.filter((item) => item !== column) : [...current, column])}/><span className="min-w-0 truncate">{column}</span></label>;
+              return <label key={column} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-[10px] font-bold text-ink-700"><input type="checkbox" checked={active} onChange={() => setVisibleColumns((current) => active ? current.filter((item) => item !== column) : [...current, column])}/><span className="min-w-0 truncate">{displayColumnLabel(column)}</span></label>;
             })}
           </div>
         </div>
@@ -572,7 +572,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
           <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {Object.entries(orderedRows[selectedRowNumber - 1]).map(([key, value]) => (
               <div key={key} className="rounded-lg border border-ink-100 bg-white p-3">
-                <div className="text-[9px] font-black text-ink-400">{key}</div>
+                <div className="text-[9px] font-black text-ink-400">{displayColumnLabel(key)}</div>
                 <div className="mt-1 break-words text-[11px] font-bold text-ink-800">{textValue(value)}</div>
               </div>
             ))}
@@ -775,7 +775,7 @@ export function SmartReportPage() {
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{confidenceLabel}</span>
             <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{formatNumber(report.rowCount ?? 0)} صفًا</span>
-            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{report.specialty ?? 'تحليل عام'}</span>
+            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{report.specialty === 'sales' ? 'المبيعات' : report.specialty === 'purchases' ? 'المشتريات' : report.specialty === 'inventory' ? 'المخزون' : report.specialty === 'receivables' ? 'الذمم والتحصيل' : report.specialty === 'profitability' ? 'الربحية' : 'تحليل عام'}</span>
           </div>
         </div>
         <div className="rounded-2xl border border-amber-400/25 bg-amber-300/10 p-4">
