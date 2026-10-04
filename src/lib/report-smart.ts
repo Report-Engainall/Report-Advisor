@@ -528,7 +528,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     if (error) {
       importAnalysisError = error;
     } else {
-      analyses = (data ?? []).filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === 'object');
+      analyses = (data ?? []) as Array<Record<string, unknown>>;
     }
   } catch (error) {
     importAnalysisError = error;
@@ -540,9 +540,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
 
   const analysis = chooseBestAnalysisSnapshot((analyses ?? []) as Array<Record<string, unknown>>);
 
-  if (effectiveRendered.rowCount == null && analysis.row_count != null) effectiveRendered.rowCount = Number(analysis.row_count);
-  if (effectiveRendered.qualityScore == null && analysis.quality_score != null) effectiveRendered.qualityScore = Number(analysis.quality_score);
-  if (effectiveRendered.sourceFormat == null && analysis.source_format != null) effectiveRendered.sourceFormat = String(analysis.source_format);
+  if (effectiveRendered.rowCount == null && analysis?.row_count != null) effectiveRendered.rowCount = Number(analysis.row_count);
+  if (effectiveRendered.qualityScore == null && analysis?.quality_score != null) effectiveRendered.qualityScore = Number(analysis.quality_score);
+  if (effectiveRendered.sourceFormat == null && analysis?.source_format != null) effectiveRendered.sourceFormat = String(analysis.source_format);
 
   const currentPassportLineage =
     currentPassport?.lineage && typeof currentPassport.lineage === 'object'
