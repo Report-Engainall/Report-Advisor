@@ -257,7 +257,7 @@ export function CustomerReportSurface({
         <div className="pointer-events-none absolute -right-16 bottom-0 h-52 w-52 rounded-full bg-indigo-500/15 blur-3xl" />
         <div className="relative">
           <div className="flex flex-wrap items-center gap-2 text-[9px] font-black tracking-[.16em] text-amber-200">
-            <FileText size={14} /> REPORT ADVISOR
+            <FileText size={14} /> الأغبري · مستشار الأعمال
             <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 tracking-normal text-slate-300">مصدر محدد</span>
           </div>
           <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -362,7 +362,7 @@ export function CustomerReportSurface({
       <details className="group rounded-[22px] border border-slate-200 bg-white shadow-sm">
         <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div><div className="text-[10px] font-black tracking-[.12em] text-slate-500">EVIDENCE DETAIL</div><div className="mt-1 text-base font-black text-slate-950">تفاصيل المصدر عند الحاجة فقط</div><div className="mt-1 text-[10px] text-slate-500">التفاصيل الخام ليست الواجهة الرئيسية للعميل.</div></div>
+            <div><div className="text-[10px] font-black tracking-[.12em] text-slate-500">تفاصيل الدليل</div><div className="mt-1 text-base font-black text-slate-950">تفاصيل المصدر عند الحاجة فقط</div><div className="mt-1 text-[10px] text-slate-500">التفاصيل الخام ليست الواجهة الرئيسية للعميل.</div></div>
             <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[9px] font-black text-slate-600">عرض الدليل</span>
           </div>
         </summary>
