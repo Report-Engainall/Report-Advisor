@@ -1909,3 +1909,46 @@ button,input,textarea,select{font:inherit}
   .ag-journey-brand{padding-inline:5px}
   .ag-journey-brand span:last-child{display:none}
 }
+
+
+/* Closure pass: fluid shell, stable tables, and no black/empty canvas on narrow widths. */
+@layer components{
+  html, body, #root{width:100%;min-width:0;min-height:100%}
+  body{overflow-x:hidden}
+  .ag-app-shell,.ag-main,.ag-main > *,.ag-topbar > div{min-width:0}
+  .ag-main{width:100%;max-width:none;overflow-x:clip}
+  .ag-main .ag-page-header,
+  .ag-main section,
+  .ag-main article,
+  .ag-main [role="region"]{min-width:0}
+  .ag-main .overflow-x-auto{max-width:100%;overscroll-behavior-x:contain}
+  .ag-main table{border-collapse:separate;border-spacing:0}
+  .ag-main th,.ag-main td{max-width:32rem}
+  .ag-main .ag-journey{max-width:100%;overflow:hidden}
+  .ag-main .ag-journey-track{max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+  .ag-main .ag-journey-link{flex:0 0 auto}
+  .ag-smart-report-surface .data-table-shell,
+  .ag-smart-report-surface .overflow-x-auto{max-width:100%;overflow-x:auto}
+  .ag-smart-report-surface table{min-width:max-content}
+}
+@media(max-width:1279px){
+  .ag-main{padding-inline:clamp(.75rem,2vw,1.25rem)!important}
+}
+@media(max-width:767px){
+  .ag-main{padding-bottom:5rem!important}
+  .ag-main .grid{min-width:0}
+  .ag-main .flex{min-width:0}
+  .ag-main .ag-page-header > *{min-width:0}
+  .ag-main .ag-page-header .flex{width:100%}
+  .ag-main .ag-journey-track{scroll-snap-type:x proximity}
+  .ag-main .ag-journey-link{scroll-snap-align:start;min-width:7.5rem!important}
+  .ag-smart-report-surface .data-table-shell{border-radius:14px!important}
+  .ag-smart-report-surface .data-table-shell table{min-width:max-content!important;width:max-content!important}
+  .ag-smart-report-surface .data-table-shell thead{display:table-header-group}
+  .ag-smart-report-surface .data-table-shell tbody,
+  .ag-smart-report-surface .data-table-shell tr,
+  .ag-smart-report-surface .data-table-shell td{display:table-row-group}
+  .ag-smart-report-surface .data-table-shell tr{display:table-row!important;border:0!important;margin:0!important}
+  .ag-smart-report-surface .data-table-shell th,
+  .ag-smart-report-surface .data-table-shell td{display:table-cell!important;width:auto!important;max-width:22rem!important;white-space:nowrap!important}
+}
