@@ -108,7 +108,10 @@ function SourceRecommendationsDetail({ report }: { report: SmartReportDetail }) 
             <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-primary-100 px-2 py-1 text-[8px] font-black text-primary-800">{priorityLabel[item.priority] ?? item.priority}</span><span className="text-xs font-black text-ink-900">{item.title}</span></div>
             <div className="mt-2 text-[10px] leading-5 text-ink-700">{item.action}</div>
             <div className="mt-2 grid gap-2 sm:grid-cols-2 text-[9px]"><div className="rounded-lg bg-white p-2"><b>WHY</b><div className="mt-1 text-ink-600">{item.why}</div></div><div className="rounded-lg bg-white p-2"><b>OWNER / OUTCOME</b><div className="mt-1 text-ink-600">{item.ownerHint} · {item.expectedOutcome}</div></div></div>
-            <div className="mt-2 text-[8px] font-mono text-ink-400">{item.evidence.join(' · ')}</div>
+            <details className="mt-2 rounded-lg border border-ink-100 bg-ink-50/50 px-2.5 py-2">
+              <summary className="cursor-pointer text-[8px] font-black text-ink-400">عرض الدليل</summary>
+              <div className="mt-1 text-[9px] leading-4 text-ink-500">{item.evidence.join(' · ')}</div>
+            </details>
           </article>
         )) : <div className="rounded-xl border border-dashed border-ink-200 p-4 text-[10px] text-ink-500">لا توجد توصية مصدرية كافية حاليًا.</div>}
       </div>
@@ -148,7 +151,10 @@ function SourceSignalsDetail({ report }: { report: SmartReportDetail }) {
               <div className="rounded-lg bg-white p-2"><b>SO WHAT</b><div className="mt-1 text-ink-600">{signal.soWhat}</div></div>
               <div className="rounded-lg bg-white p-2"><b>IMPACT / OWNER</b><div className="mt-1 text-ink-600">{signal.impact} · {signal.ownerHint}</div></div>
             </div>
-            <div className="mt-2 text-[8px] font-mono leading-4 text-ink-400">{signal.evidence.join(' · ')}</div>
+            <details className="mt-2 rounded-lg border border-ink-100 bg-ink-50/50 px-2.5 py-2">
+              <summary className="cursor-pointer text-[8px] font-black text-ink-400">عرض الدليل</summary>
+              <div className="mt-1 text-[9px] leading-4 text-ink-500">{signal.evidence.join(' · ')}</div>
+            </details>
           </article>
         )) : <div className="rounded-xl border border-dashed border-ink-200 p-4 text-[10px] text-ink-500">لا توجد إشارة استثنائية مثبتة من هذا المصدر.</div>}
       </div>
