@@ -290,52 +290,49 @@ export async function fetchSmartReportCatalog(limit = 500): Promise<SmartReportC
     if (data.length < endRange - offset + 1) break;
   }
 
-  const sourceHashes = [...new Set(jobs
-    .map(job => String(job.source_hash ?? ''))
-    .filter(Boolean))];
-  const analysesByHash = new Map<string, Record<string, unknown>>();
+  const jobsWithImportIds = jobs.map((job) => ({
+    job,
+    importJobId: resolveImportJobId(job, renderedOutputOf(job.evidence) ?? {}, null),
+  })).filter((entry) => entry.importJobId);
 
-  for (let i = 0; i < sourceHashes.length; i += 100) {
-    const batch = sourceHashes.slice(i, i + 100);
+  const importJobIds = [...new Set(jobsWithImportIds.map((entry) => entry.importJobId))];
+  const analysesByImportId = new Map<string, Record<string, unknown>>();
+
+  for (let i = 0; i < importJobIds.length; i += 100) {
+    const batch = importJobIds.slice(i, i + 100);
     if (!batch.length) continue;
     const { data: analyses, error: analysisError } = await supabase
       .from('source_analysis_snapshots')
-      .select('source_hash,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
+      .select('import_job_id,source_hash,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
       .eq('company_id', companyId)
-      .in('source_hash', batch)
+      .in('import_job_id', batch)
       .order('created_at', { ascending: false })
       .limit(1000);
 
-    if (analysisError) {
-      // Catalog reads must never freeze the reports center when an optional analysis snapshot is unavailable.
-      continue;
-    }
-    const byHash = new Map<string, Record<string, unknown>[]>();
+    if (analysisError) throw analysisError;
+    const byImportId = new Map<string, Record<string, unknown>[]>();
     for (const analysis of analyses ?? []) {
-      const hash = String(analysis.source_hash ?? '');
-      if (!hash) continue;
-      const rows = byHash.get(hash) ?? [];
+      const importId = String(analysis.import_job_id ?? '').trim();
+      if (!importId) continue;
+      const rows = byImportId.get(importId) ?? [];
       rows.push(analysis as Record<string, unknown>);
-      byHash.set(hash, rows);
+      byImportId.set(importId, rows);
     }
-    for (const [hash, rows] of byHash) {
+    for (const [importId, rows] of byImportId) {
       const best = chooseBestAnalysisSnapshot(rows);
-      if (best) analysesByHash.set(hash, best);
+      if (best) analysesByImportId.set(importId, best);
     }
   }
 
-  const latestBySourceHash = new Map<string, SmartReportCatalogItem>();
-  for (const job of jobs) {
-    const item = mapCatalogItem(
-      job,
-      analysesByHash.get(String(job.source_hash ?? '')) ?? null,
-    );
-    if (!item || !item.sourceHash) continue;
-    if (!latestBySourceHash.has(item.sourceHash)) latestBySourceHash.set(item.sourceHash, item);
-  }
+  const catalog = jobsWithImportIds
+    .map(({ job, importJobId }) => {
+      const analysis = analysesByImportId.get(importJobId) ?? null;
+      if (analysis && String(analysis.source_hash ?? '') !== String(job.source_hash ?? '')) return null;
+      return mapCatalogItem(job, analysis);
+    })
+    .filter((item): item is SmartReportCatalogItem => Boolean(item && item.sourceHash));
 
-  return [...latestBySourceHash.values()].slice(0, limit);
-}
+  return catalog.slice(0, limit);}
 function emptyReportIntelligence(specialty: string | null): ReportIntelligence {
   const owner =
     specialty === 'inventory' ? 'مسؤول المخزون' :
