@@ -1,5 +1,4 @@
 import { SourceBoundReportSurface } from '@/components/SourceBoundReportSurface';
-import { readActiveReportContext } from '@/lib/report-context';
 import { useCallback, useEffect, useState } from 'react';
 import { ReportSourceContext } from '@/components/ReportSourceContext';
 import { ArrowLeft, FileText, Printer, RefreshCw, ShieldCheck, Target, TrendingUp } from 'lucide-react';
@@ -175,9 +174,8 @@ function ExecutiveReportGeneralPage() {
 
 export function ExecutiveReportPage() {
   const [params] = useSearchParams();
-  const saved = readActiveReportContext();
-  const reportJobId = params.get('reportJobId') || saved?.jobId;
-  const sourceHash = params.get('sourceHash') || saved?.sourceHash;
+  const reportJobId = params.get('reportJobId')?.trim() ?? '';
+  const sourceHash = params.get('sourceHash')?.trim() ?? '';
   if (reportJobId) {
     return <SourceBoundReportSurface mode="executive" jobId={reportJobId} expectedSourceHash={sourceHash} />;
   }
