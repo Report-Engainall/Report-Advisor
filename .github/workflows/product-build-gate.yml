@@ -29,6 +29,8 @@ jobs:
         run: npm run build
       - name: Smart report surface contract
         run: node scripts/smart-report-complete-intelligence-surface.test.mjs
+      - name: Smart report evidence boundary contract
+        run: node --experimental-strip-types scripts/report-smart-evidence-boundary.test.ts
       - name: Customer-facing report surface contract
         run: node scripts/customer-facing-report-surface-contract.test.mjs
       - name: Source upload UI contract
