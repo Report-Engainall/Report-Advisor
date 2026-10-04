@@ -72,11 +72,14 @@ function formatDate(value: string | null): string {
 }
 
 function nextAction(item: InboxItem): { label: string; href: string } {
+  const context = item.reportJobId && item.sourceHash
+    ? '&reportJobId=' + encodeURIComponent(item.reportJobId) + '&sourceHash=' + encodeURIComponent(item.sourceHash)
+    : '';
   if (item.status === 'PROPOSED' && !item.approvalStatus) {
-    return { label: 'بدء القرار', href: '/decision-experience?stage=decision&decisionId=' + encodeURIComponent(item.decisionId) };
+    return { label: 'بدء القرار', href: '/decision-experience?stage=decision&decisionId=' + encodeURIComponent(item.decisionId) + context };
   }
   if (item.approvalStatus === 'PENDING') {
-    return { label: 'متابعة الاعتماد', href: '/decision-experience?stage=approval&decisionId=' + encodeURIComponent(item.decisionId) };
+    return { label: 'متابعة الاعتماد', href: '/decision-experience?stage=approval&decisionId=' + encodeURIComponent(item.decisionId) + context };
   }
   if (item.status === 'APPROVED' && !item.workItemId) {
     return { label: 'فتح العمل', href: '/work-center?decisionId=' + encodeURIComponent(item.decisionId) };
@@ -85,7 +88,7 @@ function nextAction(item: InboxItem): { label: string; href: string } {
     return { label: 'متابعة العمل', href: '/work-center?decisionWorkFilter=' + (item.workItemStatus === 'IN_PROGRESS' ? 'in_progress' : 'open') };
   }
   if (item.workItemId && !item.outcomeId) {
-    return { label: 'تسجيل النتيجة', href: '/decision-experience?stage=outcome&decisionId=' + encodeURIComponent(item.decisionId) };
+    return { label: 'تسجيل النتيجة', href: '/decision-experience?stage=outcome&decisionId=' + encodeURIComponent(item.decisionId) + context };
   }
   return { label: 'إعادة التشغيل', href: '/replay?decisionId=' + encodeURIComponent(item.decisionId) };
 }
