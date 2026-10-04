@@ -82,7 +82,7 @@ function DecisionRow({ recommendation }: { recommendation: Recommendation }) {
             <div className="rounded-lg bg-white p-2"><div className="text-ink-400">IMPACT</div><div className="mt-1 font-bold text-ink-800">{recommendation.expected_impact == null ? 'غير متاح' : formatCurrency(recommendation.expected_impact)}</div></div>
             <div className="rounded-lg bg-white p-2"><div className="text-ink-400">STATUS</div><div className="mt-1 font-bold text-ink-800">{recommendation.status}</div></div>
           </div>
-          <div className="mt-3"><Link to="/decision-experience?stage=decision" className="btn-primary text-[11px]">فتح القرار <ArrowUpLeft size={13}/></Link></div>
+          <div className="mt-3"><Link to="/decision-inbox" className="btn-primary text-[11px]">مركز القرارات <ArrowUpLeft size={13}/></Link></div>
         </div>
       </div>
     </article>
@@ -188,7 +188,7 @@ export function ExecutiveCommandCenterPage() {
         <div className="ag-decision-cell"><span className="ag-decision-label">As-of</span><span className="ag-decision-value">{asOf ?? 'غير متاح'}</span></div>
       </div>
       <div className="ag-action-cluster">
-        <Link to={alerts.length ? '/intelligence' : '/decision-experience?stage=decision'} className="btn-primary text-[11px]">
+        <Link to={alerts.length ? '/intelligence' : '/decision-inbox'} className="btn-primary text-[11px]">
           {alerts.length ? 'فحص الإشارات' : 'فتح مساحة القرار'} <ArrowUpLeft size={13}/>
         </Link>
         <Link to="/data-quality" className="btn-secondary text-[11px]">مراجعة جودة البيانات</Link>
@@ -201,7 +201,7 @@ export function ExecutiveCommandCenterPage() {
           <CardHeader kicker="WHAT NEEDS ATTENTION" title="ما يحتاج انتباهًا" subtitle="هذه الأولويات تُبنى فقط من السجلات الحالية؛ لا يوجد KPI اصطناعي." />
           <CardBody>
             <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-              <Link to="/decision-experience?stage=approval" className="ag-attention-card">
+              <Link to="/decision-inbox" className="ag-attention-card">
                 <span className="ag-attention-icon ag-attention-warning"><ShieldCheck size={15}/></span>
                 <span><span className="ag-attention-label">اعتمادات معلقة</span><span className="ag-attention-value">{pendingApprovals}</span><span className="ag-attention-note">تحتاج صاحب صلاحية</span></span>
               </Link>
@@ -290,7 +290,7 @@ export function ExecutiveCommandCenterPage() {
           <p className="mt-1 text-[10px] leading-5 text-ink-500">لا يوجد في هذا السطح سجل نتائج مالي موثّق يسمح بحساب عائد القرار دون اختلاق أثر.</p>
         </div>
         <div className="card p-4">
-          <div className="flex items-center justify-between gap-3"><FileSearch size={18} className="text-ink-500"/><span className="rounded-full bg-ink-100 px-2 py-1 text-[9px] font-black text-ink-600">NOT AVAILABLE</span></div>
+          <div className="flex items-center justify-between gap-3"><FileSearch size={18} className="text-ink-500"/><span className="rounded-full bg-ink-100 px-2 py-1 text-[9px] font-black text-ink-600">غير متاح</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Business Replay</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">إعادة التشغيل تحتاج snapshots وoutcomes تاريخية مثبتة؛ الواجهة لا تصنع سجلًا بديلًا.</p>
         </div>
