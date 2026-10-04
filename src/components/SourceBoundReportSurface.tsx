@@ -265,7 +265,7 @@ function SourceHeader({ report }: { report: SmartReportDetail }) {
           <div className="mt-2 break-all font-mono text-[9px] text-ink-400">{report.sourceHash}</div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link to={'/reports/smart/' + report.jobId} className="btn-primary text-[10px]">التقرير الذكي <ArrowLeft size={12}/></Link>
+          <Link to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-primary text-[10px]">التقرير الذكي <ArrowLeft size={12}/></Link>
           {domain && <Link to={domain + '?reportJobId=' + report.jobId + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary text-[10px]">التخصص <ArrowLeft size={12}/></Link>}
         </div>
       </div>
