@@ -287,7 +287,7 @@ function WorkCenterGeneralPage() {
     <section className="rounded-[18px] border border-primary-200 bg-primary-50/40 p-5 shadow-sm">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <div className="section-kicker">DECISION WORK</div>
+          <div className="section-kicker">تنفيذ القرارات</div>
           <h2 className="mt-1 text-lg font-black text-ink-950">قرارات تحولت إلى عمل</h2>
           <p className="mt-1 text-[11px] leading-5 text-ink-600">هذه المهام محفوظة في النظام الحاكم ومربوطة بمصدرها. مركز العمل يعرض الحالة؛ تفاصيل البدء والإغلاق والدليل تبقى مرتبطة بالتقرير.</p>
         </div>
@@ -303,7 +303,7 @@ function WorkCenterGeneralPage() {
       <div className="mt-4 rounded-xl border border-primary-100 bg-primary-50/50 p-3" aria-label="سياق العمل الحالي">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <div className="section-kicker">WHY · EVIDENCE · ACTION · OUTCOME</div>
+            <div className="section-kicker">لماذا · الدليل · الإجراء · النتيجة</div>
             <div className="mt-1 text-[11px] font-black text-ink-900">مركز العمل يربط المهمة بالدليل، الإجراء، والنتيجة المسجلة.</div>
             <p className="mt-1 text-[9px] leading-5 text-ink-500">ابدأ المهمة فقط عندما تكون الحالة مفتوحة، وأغلقها بعد إدخال الأثر الفعلي مع Evidence مثبت. النتيجة والتعلّم تظهران من السجل المحفوظ.</p>
           </div>
@@ -399,7 +399,7 @@ function WorkCenterGeneralPage() {
                           </div>
                         )}
                         {item.status === 'IN_PROGRESS' && !item.evidenceSnapshotId && (
-                          <span className="rounded-lg border border-warning-200 bg-warning-50 px-2 py-1 text-[8px] font-bold text-warning-900">Evidence غير متاح — افتح المصدر</span>
+                          <span className="rounded-lg border border-warning-200 bg-warning-50 px-2 py-1 text-[8px] font-bold text-warning-900">الدليل غير متاح — افتح المصدر</span>
                         )}
                         {reportJobIdValue && sourceHashValue
                           ? <>
@@ -459,7 +459,7 @@ function WorkCenterGeneralPage() {
     <section className="rounded-[18px] border border-primary-200 bg-white p-5 shadow-sm" aria-label="نتائج القرار والتعلم">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <div className="section-kicker">OUTCOME → LEARNING</div>
+          <div className="section-kicker">النتيجة → التعلّم</div>
           <h2 className="mt-1 text-lg font-black text-ink-950">ما الذي تعلّمناه من التنفيذ؟</h2>
           <p className="mt-1 text-[11px] leading-5 text-ink-600">هذه قراءة من سجلات النتائج المحفوظة لنفس المستأجر. لا يتم تحويل غياب النتيجة إلى نجاح أو تقدير.</p>
         </div>
@@ -495,7 +495,7 @@ function WorkCenterGeneralPage() {
                 <div className="mt-2 rounded-lg border border-primary-100 bg-primary-50/60 p-2 text-[9px] leading-5 text-primary-900">
                   <strong>تعلم قابل للتتبع:</strong> {delta == null ? 'لا توجد قيمة كافية لاستخراج فرق؛ تبقى الحالة غير مكتملة.' : 'فرق النتيجة عن المتوقع = ' + formatNumber(delta)}
                 </div>
-                <div className="mt-2 text-[9px] text-ink-500">Evidence: {outcome.evidenceSnapshotId ? 'موجود' : 'غير متاح'} · Action: {outcome.actionId ?? 'غير متاح'}</div>
+                <div className="mt-2 text-[9px] text-ink-500">الدليل: {outcome.evidenceSnapshotId ? 'موجود' : 'غير متاح'} · الإجراء: {outcome.actionId ?? 'غير متاح'}</div>
               </article>
             );
           })}
