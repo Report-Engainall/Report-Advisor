@@ -66,7 +66,7 @@ function buildColumnProfiles(rows: Row[], columns: string[], mappings: Awaited<R
     if (mappedField && dateFields.has(mappedField)) {
       const parsed = values.map((value) => {
         const normalized = String(value ?? '').trim();
-        return /^\\d{4}-\\d{2}-\\d{2}$/.test(normalized) ? normalized : null;
+        return /^\d{4}-\d{2}-\d{2}$/.test(normalized) ? normalized : null;
       });
       const successRatio = values.length ? parsed.filter(Boolean).length / values.length : 0;
       if (successRatio < 0.9) {
