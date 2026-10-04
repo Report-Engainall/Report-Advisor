@@ -175,10 +175,11 @@ assert.match(intelligencePage, /loading && !sourceReport/, 'source-bound intelli
 
 const reportSourceContextPath = fileURLToPath(new URL('../src/components/ReportSourceContext.tsx', import.meta.url));
 const reportSourceContext = fs.readFileSync(reportSourceContextPath, 'utf8');
-assert.match(reportSourceContext, /report\.intelligence\.signals\.length/, 'all report-aware screens must expose source-bound signals');
-assert.match(reportSourceContext, /report\.intelligence\.recommendations\.length/, 'all report-aware screens must expose source-bound recommendations');
-assert.match(reportSourceContext, /report\.intelligence\.forecast\.status/, 'all report-aware screens must expose source-bound forecast state');
-assert.match(reportSourceContext, /report\.intelligence\.guidance\.focus/, 'all report-aware screens must expose source-bound guidance');
+assert.match(reportSourceContext, /reportJobId/, 'report-aware shell must preserve the active report job context');
+assert.match(reportSourceContext, /sourceHash/, 'report-aware shell must preserve the active source hash context');
+assert.match(reportSourceContext, /\/reports\/smart\//, 'report-aware shell must link back to the smart report');
+assert.match(reportSourceContext, /\/trust\?reportJobId=/, 'report-aware shell must preserve the source-bound evidence route');
+assert.match(reportSourceContext, /\/decision-experience\?stage=evidence&reportJobId=/, 'report-aware shell must preserve the source-bound decision route');
 
 const appPath = fileURLToPath(new URL('../src/App.tsx', import.meta.url));
 const app = fs.readFileSync(appPath, 'utf8');
