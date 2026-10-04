@@ -15,6 +15,12 @@ for (const marker of [
   'DECISION_EVIDENCE_SNAPSHOT_REQUIRED',
   'DECISION PERSISTED',
   'PENDING',
+  'recommendationContext',
+  'WHY NOW',
+  'MEASUREMENT',
+  'RISK',
+  'BLOCKER',
+  'LIMITATION',
 ]) {
   assert.ok(page.includes(marker) || runtime.includes(marker), 'decision persistence marker missing: ' + marker);
 }
