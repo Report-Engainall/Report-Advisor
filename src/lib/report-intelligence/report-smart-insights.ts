@@ -122,6 +122,11 @@ function numeric(value: unknown): number | null {
   return parseNumber(value);
 }
 
+function isExtractionArtifactHeader(value: unknown): boolean {
+  const key = text(value);
+  return /^\d{1,2}[./-]\d{1,2}[./-]\d{2,4}$/.test(key) || /^20\d{2}-?$/.test(key);
+}
+
 function canonicalSourceField(value: unknown): string | null {
   const key = normalized(value);
   const aliases: Array<[string, string[]]> = [
@@ -162,12 +167,12 @@ function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
       if (item && typeof item === 'object') {
         const column = item as Record<string, unknown>;
         const name = text(column.name ?? column.mappedField);
-        if (!name) return null;
+        if (!name || isExtractionArtifactHeader(name)) return null;
         const mappedField = text(column.mappedField) || canonicalSourceField(name);
         return { ...column, name, mappedField: mappedField || null };
       }
       const name = text(item);
-      if (!name) return null;
+      if (!name || isExtractionArtifactHeader(name)) return null;
       const mappedField = canonicalSourceField(name);
       return {
         name,
