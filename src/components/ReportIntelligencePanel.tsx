@@ -26,6 +26,32 @@ function severityClass(value: string): string {
   return 'border-ink-200 bg-ink-50 text-ink-700';
 }
 
+
+function businessStateLabel(value: unknown): string {
+  const text = String(value ?? '').trim();
+  const labels: Record<string, string> = {
+    VERIFIED: 'موثق',
+    TRUSTED: 'موثوق',
+    REVIEW: 'مراجعة',
+    PENDING_EVIDENCE: 'بانتظار الدليل',
+    AWAITING_EVIDENCE_SNAPSHOT: 'بانتظار لقطة الدليل',
+    READY: 'جاهز للقرار',
+    REVIEW_REQUIRED: 'المراجعة مطلوبة',
+    PROPOSED: 'مقترح',
+    APPROVED: 'معتمد',
+    COMMITTED: 'معتمد ومنفذ',
+    OPEN: 'مفتوح',
+    IN_PROGRESS: 'قيد التنفيذ',
+    COMPLETED: 'مكتمل',
+    NOT_AVAILABLE: 'غير متاح',
+    INSUFFICIENT_SAMPLE: 'عينة غير كافية',
+  };
+  if (labels[text]) return labels[text];
+  if (text === 'NO_DECISION_COMMITTED') return 'لا قرار معتمد';
+  if (text === 'NO_ACTION_COMMITTED') return 'لا إجراء منفذ';
+  return text || 'غير متاح';
+}
+
 function number(value: number | null): string {
   return value == null ? 'غير متاح' : new Intl.NumberFormat('ar-YE', { maximumFractionDigits: 2 }).format(value);
 }
@@ -42,11 +68,11 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
 
   useEffect(() => {
     let active = true;
-    void fetchSourceDecisionProposals(report.sourceHash)
+    void fetchSourceDecisionProposals(report.sourceHash, report.jobId)
       .then((rows) => { if (active) setDecisionTrace(rows); })
       .catch(() => { if (active) setDecisionTrace([]); });
     return () => { active = false; };
-  }, [report.sourceHash]);
+  }, [report.sourceHash, report.jobId]);
   const specialtyLabel: Record<string, string> = {
     inventory: 'المخزون',
     sales: 'المبيعات',
@@ -108,7 +134,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
       });
       setProposalState((current) => ({ ...current, [signal.id]: 'proposed' }));
       setCaseState((current) => ({ ...current, [signal.id]: 'saved' }));
-      const rows = await fetchSourceDecisionProposals(report.sourceHash);
+      const rows = await fetchSourceDecisionProposals(report.sourceHash, report.jobId);
       setDecisionTrace(rows);
     } catch {
       setProposalState((current) => ({ ...current, [signal.id]: 'error' }));
@@ -157,7 +183,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
           <p className="mt-2 text-sm font-black leading-7 text-ink-950">{question}</p>
           <div className="mt-3 flex flex-wrap gap-2 text-[9px] font-bold text-ink-600">
             <span className="rounded-full bg-white px-2.5 py-1">المجال: {domain}</span>
-            <span className="rounded-full bg-white px-2.5 py-1">الحالة: {report.evidenceStatus ?? 'غير مثبت'}</span>
+            <span className="rounded-full bg-white px-2.5 py-1">الحالة: {businessStateLabel(report.evidenceStatus)}</span>
             <span className="rounded-full bg-white px-2.5 py-1">{report.rowCount == null ? 'عدد الصفوف غير متاح' : formatNumber(report.rowCount) + ' صف'}</span>
           </div>
         </div>
@@ -169,7 +195,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">SOURCE</div><div className="mt-1 break-all font-mono text-[8px] text-ink-700">{report.sourcePath}</div></div>
             <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">FINGERPRINT</div><div className="mt-1 break-all font-mono text-[8px] text-ink-700">{report.sourceHash || 'غير متاح'}</div></div>
-            <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">TRUST</div><div className="mt-1 text-[9px] font-black text-ink-800">{report.sourceTrustState ?? 'غير مثبت'}</div></div>
+            <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">TRUST</div><div className="mt-1 text-[9px] font-black text-ink-800">{businessStateLabel(report.sourceTrustState)}</div></div>
             <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] text-ink-400">AS OF</div><div className="mt-1 text-[9px] font-black text-ink-800">{report.sourceAnalysis?.createdAt ? new Date(report.sourceAnalysis.createdAt).toLocaleString('ar-YE') : report.completedAt ? new Date(report.completedAt).toLocaleString('ar-YE') : 'غير متاح'}</div></div>
           </div>
           <div className="mt-3 text-[9px] leading-5 text-ink-500">القيم أدناه تُصنّف كمشاهدة من المصدر أو مشتقة منه. لا تتحول إلى حقيقة مالية نهائية بلا Evidence مناسب.</div>
@@ -246,7 +272,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[9px] font-black">{severityLabel[signal.severity] ?? signal.severity}</span>
                   <span className="text-xs font-black">{signal.title}</span>
-                  <span className="rounded-full bg-ink-950 px-2 py-1 text-[8px] font-black text-white">{signal.priority}</span>
+                  <span className="rounded-full bg-ink-950 px-2 py-1 text-[8px] font-black text-white">{priorityLabel[signal.priority] ?? signal.priority}</span>
                 </div>
                 <details className="mt-2 rounded-lg border border-current/10 bg-white/60 p-2">
                   <summary className="cursor-pointer list-none text-[8px] font-black opacity-70">WHY THIS IS PRIORITY</summary>
