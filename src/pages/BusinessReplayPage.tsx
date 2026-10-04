@@ -105,7 +105,7 @@ export function BusinessReplayPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full bg-white px-2 py-1 text-[9px] font-black text-ink-600">{index + 1}</span>
                     <span className="text-xs font-black text-ink-900">{event.title}</span>
-                    <span className="rounded-full bg-white px-2 py-1 text-[9px] font-bold text-ink-600">{event.status}</span>
+                    <span className="rounded-full bg-white px-2 py-1 text-[9px] font-bold text-ink-600">{stateLabel(event.status)}</span>
                     {event.at && <span className="text-[9px] text-ink-400">{new Date(event.at).toLocaleString('ar-YE')}</span>}
                   </div>
                   <div className="mt-2 text-[11px] leading-6 text-ink-700">{event.detail}</div>
