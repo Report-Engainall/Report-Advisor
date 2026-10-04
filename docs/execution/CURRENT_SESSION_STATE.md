@@ -19,7 +19,7 @@ WHAT_ACTUALLY_HAPPENED
 - Added authenticated SELECT permission for report_evidence_snapshots with RLS tenant policy preserved.
 - Moved the 48-archetype fixture seed into the governed corpus rehydration path and removed the standalone tenant-consumer seed script.
 - Current exact code head has Quality, Value Cohort, and Evidence Passport green; Phase-F and Full Product Browser E2E remain live; Final Certification is blocked only by the current live evidence and this handoff synchronization.
-CURRENT_ACTIVE_FAILURE = CI_RECERTIFICATION: latest exact-head certification workflows are queued/pending; no terminal result on 55201964303602c0a52d63e0cc9bd9881a864530 is trusted yet.
+CURRENT_ACTIVE_FAILURE = CI_RECERTIFICATION: latest exact-head certification workflows are queued/pending; no terminal result on 0ab26d34fe2ff655329eac4af952862d83ee5b08 is trusted yet.
 FIRST_TERMINAL_FAILURE_TO_TRUST = only a completed result on the latest exact HEAD; queued/pending results are not PASS.
 WHAT_IS_PROVEN
 - Staging project fnqbvfuwbdpwvhcgzksl is ACTIVE_HEALTHY.
@@ -38,4 +38,4 @@ DO_NOT_REPEAT
 - No fabricated corpus/archetype coverage.
 - No RLS/auth/evidence weakening.
 - No blind timeout inflation.
-NEXT_EXACT_ACTION = consume the first terminal exact-head certification result on 55201964303602c0a52d63e0cc9bd9881a864530; patch only the first root cause, then rerun the closed gate family and close Session Handoff
+NEXT_EXACT_ACTION = consume the first terminal exact-head certification result on 0ab26d34fe2ff655329eac4af952862d83ee5b08; patch only the first root cause, then rerun the closed gate family and close Session Handoff
