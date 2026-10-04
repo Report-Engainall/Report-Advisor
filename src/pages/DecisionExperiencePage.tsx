@@ -1,5 +1,4 @@
 import { SourceBoundReportSurface } from '@/components/SourceBoundReportSurface';
-import { readActiveReportContext } from '@/lib/report-context';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ReportSourceContext } from '@/components/ReportSourceContext';
 import {
@@ -133,6 +132,7 @@ function DecisionExperienceGeneralPage() {
   const requestedStage = params.get('stage') as Stage | null;
   const sourceDecisionId = params.get('sourceDecisionId');
   const sourceHashParam = params.get('sourceHash');
+  const reportJobIdParam = params.get('reportJobId');
   const [stage, setStage] = useState<Stage>(STAGES.some((item) => item.id === requestedStage) ? requestedStage! : 'command');
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -158,7 +158,7 @@ function DecisionExperienceGeneralPage() {
         fetchAlerts(),
         fetchDecisionWorkItems(200),
         loadPersistedOutcomes(companyId),
-        sourceHashParam && sourceDecisionId ? fetchSourceDecisionProposals(sourceHashParam) : Promise.resolve([]),
+        sourceHashParam && sourceDecisionId && reportJobIdParam ? fetchSourceDecisionProposals(sourceHashParam, reportJobIdParam) : Promise.resolve([]),
       ]);
       const sourceProposal = sourceDecisionId
         ? sourceProposals.find((proposal) => proposal.id === sourceDecisionId)
@@ -695,9 +695,8 @@ function DecisionExperienceGeneralPage() {
 
 export function DecisionExperiencePage() {
   const [params] = useSearchParams();
-  const saved = readActiveReportContext();
-  const reportJobId = params.get('reportJobId') || saved?.jobId;
-  const sourceHash = params.get('sourceHash') || saved?.sourceHash;
+  const reportJobId = params.get('reportJobId')?.trim() ?? '';
+  const sourceHash = params.get('sourceHash')?.trim() ?? '';
   if (reportJobId) {
     return <SourceBoundReportSurface mode="decision" jobId={reportJobId} expectedSourceHash={sourceHash} />;
   }
