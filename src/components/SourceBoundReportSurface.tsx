@@ -429,7 +429,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
   const [auditLoading, setAuditLoading] = useState(false);
 
   const refreshDecisions = useCallback(async () => {
-    const rows = await fetchSourceDecisionProposals(report.sourceHash);
+    const rows = await fetchSourceDecisionProposals(report.sourceHash, report.jobId);
     setDecisions(rows);
   }, [report.sourceHash]);
 

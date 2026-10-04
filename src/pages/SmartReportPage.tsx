@@ -323,8 +323,12 @@ function reportVerificationLabel(value: string): string {
   return 'بانتظار الدليل';
 }
 
+function reportRowCountLabel(value: number | null | undefined): string {
+  return value == null ? 'عدد السجلات غير متاح' : formatNumber(value) + ' سجل';
+}
+
 function EvidenceInspector({ report }: { report: SmartReportDetail }) {
-  const gap = report.canonicalCommitGap ?? 0;
+  const gap = report.canonicalCommitGap;
   const verification = report.reportVerificationState;
   const verificationClass = verification === 'VERIFIED'
     ? 'border-indigo-200 bg-indigo-50 text-indigo-900'
@@ -344,7 +348,7 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">نوع التقرير</div><div className="mt-2 text-sm font-black">{report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : 'تقرير أعمال ذكي'}</div><div className="mt-1 text-[10px] text-ink-500">الثقة: {stateLabel(report.sourceTrustState ?? report.trustState)}</div></div>
         <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">ارتباط المصدر</div><div className="mt-2 text-sm font-black">مرتبط بالمصدر الأصلي</div><div className="mt-1 text-[10px] text-ink-500">البصمة الكاملة متاحة في تفاصيل التدقيق.</div></div>
-        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">تغطية البيانات</div><div className="mt-2 text-sm font-black">{formatNumber(report.canonicalCommitCount)} سجل</div><div className="mt-1 text-[10px] text-ink-500">{gap > 0 ? `فجوة: ${formatNumber(gap)} سجل` : 'التغطية الكانونية مكتملة'}</div></div>
+        <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">تغطية البيانات</div><div className="mt-2 text-sm font-black">{formatNumber(report.canonicalCommitCount)} سجل</div><div className="mt-1 text-[10px] text-ink-500">{gap == null ? 'حالة الفجوة غير متاحة' : gap > 0 ? `فجوة: ${formatNumber(gap)} سجل` : 'التغطية الكانونية مكتملة'}</div></div>
         <div className="rounded-xl bg-ink-50 p-4"><div className="text-[9px] font-black text-ink-500">حالة التحليل</div><div className="mt-2 text-sm font-black">{stateLabel(report.sourceAnalysis?.analysisStatus ?? 'غير متاح')}</div><div className="mt-1 text-[10px] text-ink-500">{report.sourceAnalysis?.rowCount == null ? 'غير متاح' : `${formatNumber(report.sourceAnalysis.rowCount)} سجلًا محللًا`}</div></div>
       </div>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
@@ -385,7 +389,7 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
           <div className="rounded-xl bg-white p-3">
             <div className="text-[8px] font-black text-ink-400">التغطية الكانونية</div>
-            <div className="mt-1 text-[10px] font-black text-ink-900">{gap > 0 ? `فجوة ${formatNumber(gap)} صف` : report.canonicalCommitVerified ? 'مغطى' : 'غير مثبت'}</div>
+            <div className="mt-1 text-[10px] font-black text-ink-900">{gap == null ? 'غير متاح' : gap > 0 ? `فجوة ${formatNumber(gap)} صف` : report.canonicalCommitVerified ? 'مغطى' : 'غير مثبت'}</div>
           </div>
           <div className="rounded-xl bg-white p-3">
             <div className="text-[8px] font-black text-ink-400">لقطة الدليل</div>
@@ -830,7 +834,7 @@ export function SmartReportPage() {
           label: 'المصدر',
           englishLabel: 'المصدر',
           status: stateLabel(report.sourceTrustState ?? report.trustState),
-          detail: (report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي') + ' · ' + formatNumber(report.rowCount ?? 0) + ' سجل · ' + (report.sourceAnalysis?.sourceFormat ?? 'غير متاح'),
+          detail: (report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي') + ' · ' + reportRowCountLabel(report.rowCount) + ' · ' + (report.sourceAnalysis?.sourceFormat ?? 'غير متاح'),
           tone: report.sourceTrustState === 'VERIFIED' || report.trustState === 'TRUSTED' ? 'trusted' : 'active',
         },
         {
@@ -899,7 +903,7 @@ export function SmartReportPage() {
           <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{report.intelligence.advisorBrief.headline || businessSummary}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{confidenceLabel}</span>
-            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{formatNumber(report.rowCount ?? 0)} صفًا</span>
+            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{reportRowCountLabel(report.rowCount)}</span>
             <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{report.specialty === 'sales' ? 'المبيعات' : report.specialty === 'purchases' ? 'المشتريات' : report.specialty === 'inventory' ? 'المخزون' : report.specialty === 'receivables' ? 'الذمم والتحصيل' : report.specialty === 'profitability' ? 'الربحية' : 'تحليل عام'}</span>
           </div>
         </div>
@@ -954,7 +958,7 @@ export function SmartReportPage() {
       <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="section-kicker">المصدر · الإثبات · التفاصيل</div>
+            <div className="section-kicker">EVIDENCE PASSPORT · المصدر · الإثبات · التفاصيل</div>
             <div className="mt-1 text-base font-black text-ink-950">التفاصيل الكاملة للتقرير</div>
             <div className="mt-1 text-[10px] leading-5 text-ink-500">افتحها فقط عندما تحتاج إلى التحقق أو استكشاف البيانات أو المخرجات المتقدمة.</div>
           </div>
@@ -965,7 +969,7 @@ export function SmartReportPage() {
         <section className="rounded-[18px] border border-ink-200 bg-ink-50/30 p-5">
           <div className="grid gap-3 md:grid-cols-4">
             <div className="rounded-2xl bg-[linear-gradient(145deg,#111827,#1e293b)] p-4 text-white shadow-[0_16px_40px_-28px_rgba(15,23,42,.7)]"><div className="text-[9px] font-black tracking-[.12em] text-primary-200">الثقة</div><div className="mt-2 text-xl font-black">{stateLabel(report.trustState)}</div><div className="mt-1 text-[10px] text-ink-300">جودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div></div>
-            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">المصدر</div><div className="mt-2 font-black text-ink-950">{report.sourceHash.slice(0, 24)}…</div><div className="mt-1 text-[10px] text-ink-500">نوع الملف: {report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">المصدر</div><div className="mt-2 font-black text-ink-950">مرتبط بالمصدر الأصلي</div><div className="mt-1 text-[10px] text-ink-500">نوع الملف: {report.sourceAnalysis?.sourceFormat ?? 'غير متاح'} · البصمة محفوظة ضمن سجل التدقيق</div></div>
             <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">السجلات</div><div className="mt-2 text-xl font-black text-ink-950">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div><div className="mt-1 text-[10px] text-ink-500">المعتمد: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)}</div></div>
             <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">نوع التقرير</div><div className="mt-2 text-xl font-black text-ink-950">{report.specialty ?? 'عام'}</div><div className="mt-1 text-[10px] text-ink-500">مبني على بنية المصدر الفعلية.</div></div>
           </div>
@@ -977,7 +981,7 @@ export function SmartReportPage() {
         <p className="mt-3 text-sm leading-7 text-ink-600">{businessSummary}</p>
         <div className="mt-4 flex flex-wrap gap-2 text-[10px]">
           <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 font-bold">التخصص: {report.specialty ?? 'عام'}</span>
-          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 font-bold">الصفوف: {formatNumber(report.rowCount ?? 0)}</span>
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 font-bold">الصفوف: {reportRowCountLabel(report.rowCount)}</span>
           <span className={'badge ' + (sourceIsVerified ? 'badge-success' : 'badge-warning')}>{sourceIsVerified ? 'التقرير موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'فجوة اعتماد' : 'بانتظار الدليل'}</span>
         </div>
       </div>

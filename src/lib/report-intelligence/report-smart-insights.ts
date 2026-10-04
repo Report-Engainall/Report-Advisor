@@ -680,9 +680,10 @@ function deriveBusinessFindings(report: ReportInput): {
       const dateKey = dataKey(dateColumn);
       const monthly = new Map<string, number>();
       for (const row of rows) {
-        const date = parseDate(row.data?.[dateKey]);
+        const parsedDate = parseDate(row.data?.[dateKey]);
+        const date = parsedDate ? new Date(parsedDate) : null;
         const value = numeric(row.data?.[amountKey]);
-        if (!date || value == null) continue;
+        if (!date || Number.isNaN(date.getTime()) || value == null) continue;
         const month = date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0');
         monthly.set(month, (monthly.get(month) ?? 0) + value);
       }
@@ -696,9 +697,10 @@ function deriveBusinessFindings(report: ReportInput): {
           const partyKey = dataKey(partyColumn);
           const byPeriod = new Map<string, Map<string, number>>();
           for (const row of rows) {
-            const date = parseDate(row.data?.[dateKey]);
+            const parsedDate = parseDate(row.data?.[dateKey]);
+            const date = parsedDate ? new Date(parsedDate) : null;
             const value = numeric(row.data?.[amountKey]);
-            if (!date || value == null) continue;
+            if (!date || Number.isNaN(date.getTime()) || value == null) continue;
             const month = date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0');
             const party = text(row.data?.[partyKey]) || 'غير محدد';
             const bucket = byPeriod.get(month) ?? new Map<string, number>();

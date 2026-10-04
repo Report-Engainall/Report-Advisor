@@ -51,7 +51,7 @@ function TrustEvidenceGeneralPage() {
     ? 'الحالة قابلة للاستخدام'
     : status === 'EMPTY'
       ? 'لا توجد بيانات مثبتة بعد'
-      : status === 'INSUFFICIENT_DATA'
+      : status === 'INSUFFICIENT DATA'
         ? 'بيانات غير كافية'
         : 'الحالة تحتاج مراجعة';
   const issueTotal = useMemo(

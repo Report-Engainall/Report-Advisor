@@ -27,11 +27,11 @@ export async function fetchBusinessReplay(jobId: string, sourceHash: string): Pr
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
-  const report = await fetchSmartReport(jobId);
+  const report = await fetchSmartReport(jobId, sourceHash);
   if (!report) throw new Error('REPORT_SOURCE_NOT_FOUND');
   if (report.sourceHash !== sourceHash) throw new Error('REPORT_SOURCE_HASH_MISMATCH');
 
-  const decisions = await fetchSourceDecisionProposals(sourceHash);
+  const decisions = await fetchSourceDecisionProposals(sourceHash, jobId);
   const events: ReplayEvent[] = [];
 
   events.push({
