@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
 import { formatNumber } from '@/lib/format';
@@ -29,6 +29,7 @@ function stateLabel(value: string | null): string {
 
 export function ReportSourceContext() {
   const [params] = useSearchParams();
+  const location = useLocation();
   const jobId = params.get('reportJobId')?.trim() || '';
   const sourceHash = params.get('sourceHash')?.trim() || '';
   const validSourceHash = /^sha256:[0-9a-fA-F]{64}$/.test(sourceHash);
@@ -74,7 +75,6 @@ export function ReportSourceContext() {
     );
   }
 
-  const location = useLocation();
   if (location.pathname.startsWith('/reports/smart/')) return null;
 
   const domain = report?.specialty ? DOMAIN_PATHS[report.specialty] : null;
