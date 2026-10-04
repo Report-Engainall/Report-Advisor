@@ -89,9 +89,9 @@ export function ProposalDemoPage() {
           { label: 'الدليل', englishLabel: 'EVIDENCE', status: 'Evidence-first', detail: 'فحص الثقة واللقطات والبصمة قبل اعتماد الاستنتاج.', href: '/trust', tone: 'active' },
           { label: 'الإشارة', englishLabel: 'SIGNAL', status: 'Intelligence', detail: 'إشارات ومخاطر وفرص وتوقعات مرتبطة بالمصدر.', href: '/intelligence', tone: 'active' },
           { label: 'المستشار', englishLabel: 'ADVISOR', status: 'Advisor Brief', detail: 'أهم نتيجة، لماذا، ماذا بعد، المالك، وحدود الدليل.', href: '/advisor-cases', tone: 'active' },
-          { label: 'القرار', englishLabel: 'DECISION', status: 'Approval', detail: 'قرار مستقل عن التوصية وقابل للتدقيق والاعتماد.', href: '/decision-experience?stage=decision', tone: 'attention' },
+          { label: 'القرار', englishLabel: 'DECISION', status: 'Approval', detail: 'قرار مستقل عن التوصية وقابل للتدقيق والاعتماد.', href: '/decision-inbox', tone: 'attention' },
           { label: 'التنفيذ', englishLabel: 'WORK', status: 'Work Center', detail: 'تحويل القرار إلى عمل ومتابعة حالة التنفيذ.', href: '/work-center', tone: 'neutral' },
-          { label: 'النتيجة', englishLabel: 'OUTCOME', status: 'Readback', detail: 'قراءة ما حدث فعليًا دون تحويل المتوقع إلى نتيجة.', href: '/decision-experience?stage=outcome', tone: 'neutral' },
+          { label: 'النتيجة', englishLabel: 'OUTCOME', status: 'Readback', detail: 'قراءة ما حدث فعليًا دون تحويل المتوقع إلى نتيجة.', href: '/decision-inbox', tone: 'neutral' },
           { label: 'التعلم', englishLabel: 'LEARNING', status: 'Replay', detail: 'استخراج ما ثبت بعد التنفيذ وإعادة استخدامه في القرار القادم.', href: '/replay', tone: 'neutral' },
         ]}
       />
