@@ -27,6 +27,14 @@ function stateLabel(value: string | null): string {
     UNVERIFIED: 'غير موثق بعد',
     LEGACY_UNRESOLVED: 'تحقق تاريخي يحتاج إعادة إثبات',
     READY: 'جاهز للقرار',
+    OPEN: 'مفتوح',
+    IN_PROGRESS: 'قيد التنفيذ',
+    COMPLETED: 'مكتمل',
+    FAILED: 'فشل',
+    PENDING: 'قيد المراجعة',
+    AVAILABLE: 'متاح',
+    CALCULATED: 'محسوب',
+    OBSERVED: 'مرصود',
     FULL_SOURCE: 'المصدر كامل',
     PARTIAL_FETCH_CEILING: 'تحليل جزئي — حد القراءة 50,000',
     PARTIAL_FETCH_ERROR: 'تحليل جزئي — تعذر قراءة جزء من المصدر',
@@ -722,6 +730,30 @@ export function SmartReportPage() {
     const first = previewRows[0];
     return first ? Object.keys(first).slice(0, 8) : [];
   }, [previewRows]);
+  const columnLabel = (column: string): string => {
+    const labels: Record<string,string> = {
+      invoice_number:'رقم الفاتورة',
+      invoice_type:'نوع الفاتورة',
+      customer:'العميل',
+      customer_name:'العميل',
+      date:'التاريخ',
+      invoice_date:'تاريخ الفاتورة',
+      total:'الإجمالي',
+      net_amount:'صافي القيمة',
+      paid_amount:'المدفوع',
+      balance:'الرصيد المستحق',
+      credit:'الدائن',
+      debit:'المدين',
+      quantity:'الكمية',
+      unit_price:'سعر الوحدة',
+      product:'الصنف',
+      product_name:'الصنف',
+      supplier:'المورد',
+      warehouse:'المستودع',
+      status:'الحالة',
+    };
+    return labels[column] ?? displayColumnLabel(column);
+  };
 
   const smartAnalysis = useMemo(() => buildSmartAnalysis(report), [report]);
 
@@ -1037,7 +1069,7 @@ export function SmartReportPage() {
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex items-center justify-between gap-3"><div><div className="section-kicker">CANONICAL SOURCE</div><h2 className="mt-1 text-lg font-black">عينة فعلية من التقرير</h2></div><div className="text-[10px] text-ink-500">{formatNumber(previewRows.length)} صفوف معروضة من العينة</div></div>
-      {previewRows.length === 0 ? <div className="mt-4 rounded-xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">لا توجد عينة صفوف في لقطة التحليل؛ لا يتم اختلاقها.</div> : <div className="mt-4 overflow-x-auto rounded-xl border border-ink-200"><table className="min-w-full text-right text-[11px]"><thead className="bg-ink-50"><tr>{columns.map((column) => <th key={column} className="whitespace-nowrap px-3 py-2 font-black text-ink-600">{column}</th>)}</tr></thead><tbody>{previewRows.map((row, index) => <tr key={index} className="border-t border-ink-100">{columns.map((column) => <td key={column} className="max-w-[240px] truncate whitespace-nowrap px-3 py-2 text-ink-800">{textValue(row[column])}</td>)}</tr>)}</tbody></table></div>}
+      {previewRows.length === 0 ? <div className="mt-4 rounded-xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">لا توجد عينة صفوف في لقطة التحليل؛ لا يتم اختلاقها.</div> : <div className="mt-4 overflow-x-auto rounded-xl border border-ink-200"><table className="min-w-full text-right text-[11px]"><thead className="bg-ink-50"><tr>{columns.map((column) => <th key={column} className="whitespace-nowrap px-3 py-2 font-black text-ink-600">{columnLabel(column)}</th>)}</tr></thead><tbody>{previewRows.map((row, index) => <tr key={index} className="border-t border-ink-100">{columns.map((column) => <td key={column} className="max-w-[240px] truncate whitespace-nowrap px-3 py-2 text-ink-800">{textValue(row[column])}</td>)}</tr>)}</tbody></table></div>}
     </section>
 
     <details className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
