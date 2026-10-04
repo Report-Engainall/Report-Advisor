@@ -122,11 +122,60 @@ function numeric(value: unknown): number | null {
   return parseNumber(value);
 }
 
+function canonicalSourceField(value: unknown): string | null {
+  const key = normalized(value);
+  const aliases: Array<[string, string[]]> = [
+    ['date', ['date','invoice_date','التاريخ','تاريخالفاتورة','التاريخ2026']],
+    ['invoice_number', ['invoice_number','invoice number','invoice_no','رقمالفاتورة','رقمالفاتوره']],
+    ['invoice_type', ['invoice_type','invoice type','نوعالفاتورة','نوعالفاتوره']],
+    ['customer_name', ['customer_name','customer','client','اسم العميل','العميل']],
+    ['supplier_name', ['supplier_name','supplier','اسم المورد','المورد']],
+    ['product_name', ['product_name','product','item_name','item','name','اسم الصنف','اسم المنتج','الصنف']],
+    ['total', ['total','total_amount','sales','purchase','amount','الإجمالي','الاجمالي','اجماليالفاتورة','اجماليالفاتوره']],
+    ['net_amount', ['net_amount','مبلغالصافيبالمحلي','مبلغصافالمحلي','الصافيبالمحلي']],
+    ['paid_amount', ['paid_amount','paid','المدفوع','المبلغالمدفوع']],
+    ['balance', ['balance','outstanding_balance','الرصيد','الرصيدالمستحق','المتبقي']],
+    ['credit', ['credit','دائن']],
+    ['debit', ['debit','مدين']],
+    ['quantity', ['quantity','qty','الكمية','العدد']],
+    ['unit_price', ['unit_price','سعرالوحدة']],
+    ['cost', ['cost','cost_price','التكلفة']],
+    ['price', ['price','السعر']],
+    ['sku', ['sku','item_code','product_code','رمزالصنف','كودالصنف']],
+    ['category', ['category','الفئة','التصنيف']],
+    ['warehouse', ['warehouse','المستودع','المخزن']],
+  ];
+  for (const [canonical, candidates] of aliases) {
+    if (candidates.some((candidate) => normalized(candidate) === key)) return canonical;
+  }
+  return null;
+}
+
 function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
   const dataset = report.sourceAnalysis?.datasets?.[0];
   if (!dataset || typeof dataset !== 'object') return [];
   const columns = (dataset as Record<string, unknown>).columns;
-  return Array.isArray(columns) ? columns.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object') : [];
+  if (!Array.isArray(columns)) return [];
+
+  return columns
+    .map((item): Record<string, unknown> | null => {
+      if (item && typeof item === 'object') {
+        const column = item as Record<string, unknown>;
+        const name = text(column.name ?? column.mappedField);
+        if (!name) return null;
+        const mappedField = text(column.mappedField) || canonicalSourceField(name);
+        return { ...column, name, mappedField: mappedField || null };
+      }
+      const name = text(item);
+      if (!name) return null;
+      const mappedField = canonicalSourceField(name);
+      return {
+        name,
+        mappedField,
+        mappingConfidence: mappedField ? 85 : 0,
+      };
+    })
+    .filter((item): item is Record<string, unknown> => item !== null);
 }
 
 function findColumn(columns: Array<Record<string, unknown>>, aliases: string[]): Record<string, unknown> | null {
