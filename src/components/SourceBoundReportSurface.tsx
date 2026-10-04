@@ -916,7 +916,7 @@ export function SourceBoundReportSurface({ mode, jobId, expectedSourceHash }: { 
     void fetchSmartReport(jobId, hash).then((next) => {
       if (!active) return;
       if (!next) throw new Error('REPORT_SOURCE_NOT_FOUND');
-      if (next.sourceHash !== hash) throw new Error('INVALID_REPORT_CONTEXT');
+      if (hash && next.sourceHash !== hash) throw new Error('INVALID_REPORT_CONTEXT');
       setReport(next);
     }).catch((cause) => {
       if (active) setError(cause instanceof Error ? cause.message : String(cause));
