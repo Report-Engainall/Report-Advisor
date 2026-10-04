@@ -453,7 +453,7 @@ function DecisionExperienceGeneralPage() {
                     {selected.description && <p className="mt-2 text-[12px] leading-6 text-ink-600">{selected.description}</p>}
                     {recommendationContext && (
                       <div className="mt-4 rounded-xl border border-primary-100 bg-primary-50/40 p-3">
-                        <div className="text-[9px] font-black tracking-[.08em] text-primary-700">RECOMMENDATION CONTEXT</div>
+                        <div className="text-[9px] font-black tracking-[.08em] text-primary-700">سياق التوصية</div>
                         <div className="mt-2 grid gap-2 sm:grid-cols-2">
                           {[
                             ['لماذا الآن', recommendationContext.whyNow],
