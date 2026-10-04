@@ -78,7 +78,7 @@ function dataKey(column: SmartColumn | null | undefined): string {
 
 function displayColumnLabel(column: string): string {
   const key = String(column ?? '').trim();
-  const normalized = key.toLowerCase().replace(/[\\s_-]+/g, '');
+  const normalized = key.toLowerCase().replace(/[\s_-]+/g, '');
   const labels: Record<string, string> = {
     balance: 'الرصيد', credit: 'دائن', debit: 'مدين', amount: 'المبلغ', total: 'الإجمالي',
     net_amount: 'صافي المبلغ', gross_amount: 'الإجمالي قبل الخصم', subtotal: 'المجموع الفرعي',
@@ -368,29 +368,19 @@ function statusTone(value: string | null): string {
 function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDetail; initialSearch?: string }) {
   const dataset = report.sourceAnalysis?.datasets?.[0];
   const objectDataset = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : {};
-  const definitionColumns = useMemo(() => {
-    const raw = objectDataset.columns;
-    return Array.isArray(raw)
-      ? raw.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object')
-      : [];
-  }, [dataset]);
+  const definitionColumns = useMemo(() => normalizedDatasetColumns(report), [report, dataset]);
   const rows = useMemo(() => report.canonicalRows.map((row) => row.data), [report.canonicalRows]);
   const discoveredColumns = useMemo(() => {
     const technical = /^(page_number|line_number|visual_cell_\\d+)$/i;
-    const mappedColumns = definitionColumns
-      .map((column) => ({
-        name: String(column.name ?? '').trim(),
-        mappedField: String(column.mappedField ?? '').trim(),
-        confidence: Number(column.mappingConfidence ?? 0),
-      }))
-      .filter((column) => column.name && !technical.test(column.name))
-      .map((column) => column.mappedField && column.confidence >= 80 ? column.mappedField : column.name)
-      .filter((column) => !technical.test(column));
-
-    const fromRows = rows.slice(0, 200).flatMap((row) => Object.keys(row))
-      .filter((column) => !technical.test(column));
-    const candidates = [...mappedColumns, ...fromRows];
-    return [...new Set(candidates)].filter((column) => rows.some((row) => Object.prototype.hasOwnProperty.call(row, column)));
+    const businessColumns = uniqueBusinessColumns(definitionColumns, rows);
+    return businessColumns
+      .map((column) => String(column.mappedField ?? canonicalFieldName(column.name) ?? column.name ?? '').trim())
+      .filter(Boolean)
+      .filter((column, index, all) => all.indexOf(column) === index)
+      .filter((column) => !technical.test(column) && (rows.length === 0 || rows.some((row) => {
+        const value = valueForColumn(row, column);
+        return value !== null && value !== undefined && value !== '';
+      })));
   }, [definitionColumns, rows]);
 
   const numericColumns = useMemo(() => discoveredColumns.filter((column) => {
@@ -458,8 +448,8 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
   const orderedRows = useMemo(() => {
     if (!sortColumn) return filteredRows;
     return [...filteredRows].sort((left, right) => {
-      const a = left[sortColumn];
-      const b = right[sortColumn];
+      const a = valueForColumn(left, sortColumn);
+      const b = valueForColumn(right, sortColumn);
       const an = numberValue(a);
       const bn = numberValue(b);
       const comparison = an != null && bn != null ? an - bn : String(a ?? '').localeCompare(String(b ?? ''), 'ar');
@@ -471,8 +461,8 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
     if (!groupColumn || !aggregateColumn) return [];
     const groups = new Map<string, { key: string; count: number; sum: number }>();
     for (const row of filteredRows) {
-      const key = String(row[groupColumn] ?? 'غير محدد').trim() || 'غير محدد';
-      const value = numberValue(row[aggregateColumn]);
+      const key = String(valueForColumn(row, groupColumn) ?? 'غير محدد').trim() || 'غير محدد';
+      const value = numberValue(valueForColumn(row, aggregateColumn));
       const current = groups.get(key) ?? { key, count: 0, sum: 0 };
       current.count += 1;
       if (value != null) current.sum += value;
@@ -498,7 +488,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
     window.localStorage.removeItem(storageKey);
   };
   const exportRows = () => {
-    const body = orderedRows.map((row) => visibleColumns.map((column) => '"' + String(row[column] ?? '').replace(/"/g, '""') + '"').join(','));
+    const body = orderedRows.map((row) => visibleColumns.map((column) => '"' + String(valueForColumn(row, column) ?? '').replace(/"/g, '""') + '"').join(','));
     const csv = '\uFEFF' + [visibleColumns.map((value) => '"' + value.replace(/"/g, '""') + '"').join(','), ...body].join('\r\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -515,7 +505,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
       report.sourcePath,
       visibleColumns,
       orderedRows.map((row) => visibleColumns.reduce<Record<string, unknown>>((result, column) => {
-        result[column] = row[column] ?? '';
+        result[column] = valueForColumn(row, column) ?? '';
         return result;
       }, {})),
       'xlsx',
@@ -620,7 +610,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
               const active = selectedRowNumber === rowNumber;
               return <tr key={rowNumber} onClick={() => setSelectedRowNumber(rowNumber)} className={'cursor-pointer border-t border-ink-100 ' + (active ? 'bg-primary-50/60' : 'hover:bg-ink-50/70')} aria-selected={active}>
                 <td className={'sticky right-0 px-3 py-2 font-mono ' + (active ? 'bg-primary-50/80 text-primary-700' : 'bg-white text-ink-400')}>{rowNumber}</td>
-                {visibleColumns.map((column) => <td key={column} className="max-w-[280px] whitespace-nowrap px-3 py-2 text-ink-800">{textValue(row[column])}</td>)}
+                {visibleColumns.map((column) => <td key={column} className="max-w-[280px] whitespace-nowrap px-3 py-2 text-ink-800">{textValue(valueForColumn(row, column))}</td>)}
               </tr>;
             })}</tbody>
           </table>
@@ -641,10 +631,10 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
             </div>
           </div>
           <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {Object.entries(orderedRows[selectedRowNumber - 1]).map(([key, value]) => (
+            {Object.keys(orderedRows[selectedRowNumber - 1]).filter((key) => !/^(page_number|line_number|visual_cell_\d+)$/i.test(key)).map((key) => (
               <div key={key} className="rounded-lg border border-ink-100 bg-white p-3">
                 <div className="text-[9px] font-black text-ink-400">{displayColumnLabel(key)}</div>
-                <div className="mt-1 break-words text-[11px] font-bold text-ink-800">{textValue(value)}</div>
+                <div className="mt-1 break-words text-[11px] font-bold text-ink-800">{textValue(valueForColumn(orderedRows[selectedRowNumber - 1], key))}</div>
               </div>
             ))}
           </div>
