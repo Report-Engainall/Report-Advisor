@@ -94,6 +94,7 @@ function SourceIntelligenceRail({ report }: { report: SmartReportDetail }) {
 }
 
 function SourceRecommendationsDetail({ report }: { report: SmartReportDetail }) {
+  const priorityLabel: Record<string,string> = { urgent:'عاجل', high:'مرتفع', medium:'متوسط', low:'منخفض' };
   const items = report.intelligence.recommendations;
   return (
     <section dir="rtl" className="rounded-[18px] border border-primary-200 bg-white p-4 shadow-sm">
@@ -104,7 +105,7 @@ function SourceRecommendationsDetail({ report }: { report: SmartReportDetail }) 
       <div className="mt-3 grid gap-2 lg:grid-cols-2">
         {items.length ? items.map((item) => (
           <article key={item.id} className="rounded-xl border border-ink-200 bg-ink-50/60 p-3">
-            <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-primary-100 px-2 py-1 text-[8px] font-black text-primary-800">{item.priority}</span><span className="text-xs font-black text-ink-900">{item.title}</span></div>
+            <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-primary-100 px-2 py-1 text-[8px] font-black text-primary-800">{priorityLabel[item.priority] ?? item.priority}</span><span className="text-xs font-black text-ink-900">{item.title}</span></div>
             <div className="mt-2 text-[10px] leading-5 text-ink-700">{item.action}</div>
             <div className="mt-2 grid gap-2 sm:grid-cols-2 text-[9px]"><div className="rounded-lg bg-white p-2"><b>WHY</b><div className="mt-1 text-ink-600">{item.why}</div></div><div className="rounded-lg bg-white p-2"><b>OWNER / OUTCOME</b><div className="mt-1 text-ink-600">{item.ownerHint} · {item.expectedOutcome}</div></div></div>
             <div className="mt-2 text-[8px] font-mono text-ink-400">{item.evidence.join(' · ')}</div>
@@ -116,6 +117,7 @@ function SourceRecommendationsDetail({ report }: { report: SmartReportDetail }) 
 }
 
 function SourceSignalsDetail({ report }: { report: SmartReportDetail }) {
+  const priorityLabel: Record<string,string> = { P0:'عاجل', P1:'مرتفع', P2:'متوسط', P3:'منخفض' };
   const signals = report.intelligence.signals;
   const severityLabel: Record<string, string> = {
     critical: 'حرج',
@@ -138,7 +140,7 @@ function SourceSignalsDetail({ report }: { report: SmartReportDetail }) {
           <article key={signal.id} className="rounded-xl border border-ink-200 bg-ink-50/60 p-3">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-warning-100 px-2 py-1 text-[8px] font-black text-warning-900">{severityLabel[signal.severity] ?? signal.severity}</span>
-              <span className="rounded-full bg-ink-100 px-2 py-1 text-[8px] font-black text-ink-700">{signal.priority}</span>
+              <span className="rounded-full bg-ink-100 px-2 py-1 text-[8px] font-black text-ink-700">{priorityLabel[signal.priority] ?? signal.priority}</span>
               <span className="text-xs font-black text-ink-900">{signal.title}</span>
             </div>
             <p className="mt-2 text-[10px] leading-5 text-ink-700">{signal.message}</p>
