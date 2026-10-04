@@ -27,7 +27,7 @@ const STATE_LABELS: Record<string, string> = {
   VERIFIED: 'موثق',
   REVIEW: 'مراجعة',
   BLOCKED: 'محظور',
-  NO_DECISION_COMMITTED: 'لا قرار معتمد',
+  NO_القرار_COMMITTED: 'لا قرار معتمد',
   NO_ACTION_COMMITTED: 'لا إجراء معتمد',
   NOT_AVAILABLE: 'غير متاح',
   INSUFFICIENT_SAMPLE: 'عينة غير كافية',
@@ -62,7 +62,7 @@ function specialtyPath(specialty: string | null): string | null {
 }
 
 function buildMetrics(report: SmartReportDetail) {
-  const dataset = report.sourceAnalysis?.datasets?.[0];
+  const dataset = report.sourceالتحليل?.datasets?.[0];
   const obj = dataset && typeof dataset === 'object' ? dataset as Record<string, unknown> : null;
   const raw = Array.isArray(obj?.columns) ? obj.columns as unknown[] : [];
   const labels: Record<string,string> = {
@@ -129,7 +129,7 @@ function ContinuationRail({ report, decision }: { report: SmartReportDetail; dec
       </div>
       <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
         <Link to={'/decision-experience?stage=decision' + recommendationQuery} className="rounded-xl border border-primary-200 bg-white p-3 hover:border-primary-400" aria-label="متابعة القرار">
-          <div className="text-[9px] font-black text-primary-800">DECISION</div>
+          <div className="text-[9px] font-black text-primary-800">القرار</div>
           <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.status)}</div>
           <div className="mt-1 text-[9px] text-ink-500">الدليل → التوصية → القرار</div>
         </Link>
@@ -152,7 +152,7 @@ function ContinuationRail({ report, decision }: { report: SmartReportDetail; dec
           </div>
         )}
         <Link to={'/decision-experience?stage=outcome' + recommendationQuery} className="rounded-xl border border-ink-200 bg-white p-3 hover:border-primary-300" aria-label="متابعة النتيجة والتعلم">
-          <div className="text-[9px] font-black text-ink-600">OUTCOME / LEARNING</div>
+          <div className="text-[9px] font-black text-ink-600">النتيجة والتعلّم</div>
           <div className="mt-1 text-xs font-black text-ink-900">{stateLabel(decision.outcomeStatus)}</div>
           <div className="mt-1 text-[9px] text-ink-500">النتيجة والتعلم</div>
         </Link>
@@ -192,7 +192,7 @@ function BusinessJourneyRail({
     { key: 'DATA', label: 'البيانات', value: report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount) + ' صف', state: report.rowCount == null ? 'neutral' : 'good' },
     { key: 'TRUTH', label: 'الحقيقة', value: report.sourceTrustState ?? report.evidenceStatus ?? 'غير مثبت', state: report.sourceTrustState === 'TRUSTED' || report.evidenceStatus === 'VERIFIED' ? 'good' : 'neutral' },
     { key: 'SIGNAL', label: 'الإشارة', value: signalCount ? formatNumber(signalCount) + ' إشارة' : 'لا توجد إشارة', state: signalCount ? 'attention' : 'neutral' },
-    { key: 'DECISION', label: 'القرار', value: decision ? stateLabel(decision.status) : stateLabel(output.decisionStatus), state: decision ? 'good' : 'neutral' },
+    { key: 'القرار', label: 'القرار', value: decision ? stateLabel(decision.status) : stateLabel(output.decisionStatus), state: decision ? 'good' : 'neutral' },
     { key: 'APPROVAL', label: 'الموافقة', value: decision?.approvalStatus ?? stateLabel(output.approvalStatus), state: decision?.approvalStatus === 'APPROVED' ? 'good' : decision?.approvalStatus === 'PENDING' ? 'attention' : 'neutral' },
     { key: 'WORK', label: 'العمل', value: decision?.workItemStatus ?? stateLabel(output.actionStatus), state: decision?.workItemStatus === 'COMPLETED' ? 'good' : decision?.workItemStatus === 'IN_PROGRESS' ? 'attention' : 'neutral' },
     { key: 'OUTCOME', label: 'النتيجة', value: decision?.outcomeStatus ?? stateLabel(output.outcomeStatus), state: decision?.outcomeStatus ? 'good' : 'neutral' },
@@ -308,7 +308,7 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
     <>
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatusCell label="ثقة المصدر" value={report.sourceTrustState ?? report.trustState}/>
-        <StatusCell label="حالة التوثيق" value={report.reportVerificationState}/>
+        <StatusCell label="حالة التوثيق" value={report.reportالتوثيقState}/>
         <StatusCell label="القرار" value={output.decisionStatus}/>
         <StatusCell label="المعيار المقارن" value={output.benchmarkStatus}/>
       </section>
@@ -322,11 +322,11 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
           </p>
         </div>
         <div className="rounded-[18px] border border-ink-200 bg-ink-950 p-5 text-white shadow-sm">
-          <div className="text-[9px] font-black tracking-[.12em] text-primary-200">SOURCE FACTS</div>
+          <div className="text-[9px] font-black tracking-[.12em] text-primary-200">حقائق المصدر</div>
           <div className="mt-3 grid grid-cols-2 gap-2">
             <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">الصفوف</div><div className="mt-1 text-lg font-black">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div></div>
-            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">حقول المصدر</div><div className="mt-1 text-lg font-black">{report.sourceAnalysis?.columnCount ?? 'غير متاح'}</div></div>
-            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">نوع المصدر</div><div className="mt-1 text-sm font-black">{report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
+            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">حقول المصدر</div><div className="mt-1 text-lg font-black">{report.sourceالتحليل?.columnCount ?? 'غير متاح'}</div></div>
+            <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">نوع المصدر</div><div className="mt-1 text-sm font-black">{report.sourceالتحليل?.sourceFormat ?? 'غير متاح'}</div></div>
             <div className="rounded-xl bg-white/5 p-3"><div className="text-[9px] text-ink-300">حالة المعالجة</div><div className="mt-1 text-sm font-black">{STAGE_LABELS[report.checkpointStage ?? ''] ?? report.checkpointStage ?? 'غير متاح'}</div></div>
           </div>
         </div>
@@ -339,7 +339,7 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
             <p className="mt-1 text-[10px] leading-5 text-ink-600">حالة التعلم تُقرأ من سجل النتيجة المرتبط بالقرار والدليل. عند غياب سجل موثوق تبقى الحالة NOT AVAILABLE.</p>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            <StatusCell label="Outcome" value={output.outcomeStatus}/>
+            <StatusCell label="النتيجة" value={output.outcomeStatus}/>
             <StatusCell label="التعلّم" value={output.learningStatus}/>
             <StatusCell label="المعيار المقارن" value={output.benchmarkStatus}/>
           </div>
@@ -348,7 +348,7 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
       <ReportIntelligencePanel report={report} />
 
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
-        <div className="text-[9px] font-black tracking-[.12em] text-primary-700">SOURCE METRICS</div>
+        <div className="text-[9px] font-black tracking-[.12em] text-primary-700">مؤشرات المصدر</div>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {metrics.length ? metrics.map((metric) => <div key={metric.label} className="rounded-xl bg-ink-50 p-3"><div className="text-[10px] text-ink-500">{metric.label}</div><div className="mt-1 text-base font-black">{/amount|price|total|value|cost|sales|paid|balance|revenue|profit|ربح|قيمة|سعر|مبلغ/i.test(metric.label) ? formatCurrency(metric.value) : formatNumber(metric.value)}</div></div>) : <div className="rounded-xl border border-warning-200 bg-warning-50 p-4 text-xs text-warning-900">لا توجد قيمة رقمية كافية للعرض من المصدر الحالي.</div>}
         </div>
@@ -358,40 +358,40 @@ function ExecutiveMode({ report }: { report: SmartReportDetail }) {
 }
 
 function TrustMode({ report }: { report: SmartReportDetail }) {
-  const warnings = report.sourceAnalysis?.datasets?.length ? report.sourceAnalysis.datasets.length : 0;
+  const warnings = report.sourceالتحليل?.datasets?.length ? report.sourceالتحليل.datasets.length : 0;
   return (
     <>
       <ReportIntelligencePanel report={report} />
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatusCell label="الثقة" value={report.trustState}/>
         <StatusCell label="الدليل" value={report.evidenceStatus}/>
-        <StatusCell label="التوثيق" value={report.reportVerificationState}/>
-        <StatusCell label="التحليل" value={report.sourceAnalysis?.analysisStatus}/>
+        <StatusCell label="التوثيق" value={report.reportالتوثيقState}/>
+        <StatusCell label="التحليل" value={report.sourceالتحليل?.analysisStatus}/>
         <StatusCell label="التغطية الكانونية" value={report.canonicalCommitVerified ? 'VERIFIED' : 'NOT_COMMITTED'}/>
       </section>
       <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
         <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
-          <div className="text-[9px] font-black tracking-[.12em] text-primary-700">EVIDENCE PASSPORT</div>
+          <div className="text-[9px] font-black tracking-[.12em] text-primary-700">حالة الدليل</div>
           <h2 className="mt-1 text-xl font-black">حالة الدليل</h2>
           <dl className="mt-4 grid gap-2 text-xs">
             <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>الثقة</dt><dd>{stateLabel(report.trustState ?? report.sourceTrustState)}</dd></div>
-            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>التوثيق</dt><dd>{stateLabel(report.reportVerificationState)}</dd></div>
+            <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>التوثيق</dt><dd>{stateLabel(report.reportالتوثيقState)}</dd></div>
             <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>الجودة</dt><dd>{report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</dd></div>
             <div className="flex justify-between gap-3 rounded-lg bg-ink-50 p-3"><dt>التغطية</dt><dd>{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount) + ' سجل'}</dd></div>
             <details className="rounded-lg bg-ink-50 p-3"><summary className="cursor-pointer font-bold">تفاصيل المصدر الفنية</summary><div className="mt-2 break-all text-[9px] text-ink-400">الملف الأصلي: {report.sourcePath}<br/>البصمة: {report.sourceHash}</div></details>
           </dl>
         </div>
         <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
-          <div className="text-[9px] font-black tracking-[.12em] text-primary-700">EVIDENCE BOUNDARY</div>
+          <div className="text-[9px] font-black tracking-[.12em] text-primary-700">حدود الدليل</div>
           <h2 className="mt-1 text-xl font-black">ما الذي ثبت وما الذي لم يثبت؟</h2>
           <div className="mt-4 space-y-2">
             <div className={`rounded-xl border p-3 text-xs ${report.canonicalCommitVerified ? 'border-success-200 bg-success-50' : 'border-warning-200 bg-warning-50 text-warning-900'}`}>
               {report.canonicalCommitVerified ? `الاعتماد الكانوني مثبت: ${formatNumber(report.canonicalCommitCount)} سجل.` : 'الاعتماد الكانوني غير مثبت لهذا المصدر؛ لا تُرفع الثقة بالاستنتاج.'}
               {report.canonicalCommitGap != null && report.canonicalCommitGap > 0 && <span className="mr-2 font-bold text-warning-900">فجوة الاعتماد: {formatNumber(report.canonicalCommitGap)} صف.</span>}
             </div>
-            <div className="rounded-xl border border-warning-200 bg-warning-50 p-3 text-xs text-warning-900">Trusted Source لا تعني Verified Report. حالة الدليل النهائية تعتمد على evidence acceptance مستقل.</div>
-            <div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">حالة التحقق: {report.reportVerificationState === 'VERIFIED' ? 'موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'فجوة اعتماد' : 'بانتظار الدليل'}</div>
-            <div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">Benchmark: {stateLabel(report.renderedOutput.benchmarkStatus)} — لا يتم اختلاق مقارنة عند نقص العينة.</div>
+            <div className="rounded-xl border border-warning-200 bg-warning-50 p-3 text-xs text-warning-900">المصدر الموثوق لا تعني التقرير الموثق. حالة الدليل النهائية تعتمد على evidence acceptance مستقل.</div>
+            <div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">حالة التحقق: {report.reportالتوثيقState === 'VERIFIED' ? 'موثق' : report.reportالتوثيقState === 'GAP_DETECTED' ? 'فجوة اعتماد' : 'بانتظار الدليل'}</div>
+            <div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-xs text-ink-700">المعيار المقارن: {stateLabel(report.renderedOutput.benchmarkStatus)} — لا يتم اختلاق مقارنة عند نقص العينة.</div>
           </div>
         </div>
       </section>
@@ -472,7 +472,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
       signalMessage: decision.signalMessage,
       signalSeverity: decision.signalSeverity,
       recommendationId: decision.recommendationId,
-      evidenceSnapshotId: report.sourceAnalysis?.id ?? null,
+      evidenceSnapshotId: report.sourceالتحليل?.id ?? null,
       department,
       dueAt: workDueAt[decision.id] ? new Date(workDueAt[decision.id]).toISOString() : null,
     }).then((workItemId) => {
@@ -557,11 +557,11 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
   return (
     <>
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <StatusCell label="Decision" value={output.decisionStatus}/>
-        <StatusCell label="Approval" value={output.approvalStatus}/>
+        <StatusCell label="القرار" value={output.decisionStatus}/>
+        <StatusCell label="الموافقة" value={output.approvalStatus}/>
         <StatusCell label="Action" value={output.actionStatus}/>
-        <StatusCell label="Outcome" value={output.outcomeStatus}/>
-        <StatusCell label="Learning" value={output.learningStatus}/>
+        <StatusCell label="النتيجة" value={output.outcomeStatus}/>
+        <StatusCell label="التعلّم" value={output.learningStatus}/>
       </section>
       <BusinessJourneyRail report={report} output={output} decision={decisions[0] ?? null} />
       <ReportIntelligencePanel report={report} />
@@ -571,7 +571,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">GOVERNED DECISIONS</div>
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">GOVERNED القرارS</div>
             <h2 className="mt-1 text-lg font-black text-ink-950">القرارات المقترحة والتنفيذ المرتبط بهذا المصدر</h2>
             <p className="mt-1 text-[10px] leading-5 text-ink-500">المسار المحكوم: مقترح → موافقة → عنصر عمل → بدء → إغلاق بدليل. لا يوجد تنفيذ تلقائي ولا انتقال صامت بين الحالات.</p>
           </div>
@@ -586,8 +586,8 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-xs font-black text-ink-900">{decision.signalTitle ?? decision.decisionKey}</span>
                     <span className="rounded-full bg-white px-2 py-1 text-[9px] font-bold text-ink-600">{stateLabel(decision.status)}</span>
-                    {decision.workItemStatus && <span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-bold text-primary-800">Work: {decision.workItemStatus}</span>}
-                    {decision.outcomeStatus && <span className="rounded-full bg-success-50 px-2 py-1 text-[9px] font-bold text-success-800">Outcome: {decision.outcomeStatus}</span>}
+                    {decision.workItemStatus && <span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-bold text-primary-800">العمل: {decision.workItemStatus}</span>}
+                    {decision.outcomeStatus && <span className="rounded-full bg-success-50 px-2 py-1 text-[9px] font-bold text-success-800">النتيجة: {decision.outcomeStatus}</span>}
                   </div>
                   <p className="mt-1 text-[10px] leading-5 text-ink-600">{decision.signalMessage ?? 'إشارة مصدرية مرتبطة بهذا القرار.'}</p>
                   {(decision.actualImpact != null || decision.expectedImpact != null || decision.outcomeStatus) && (
@@ -674,14 +674,14 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
               {decisionAction[decision.id] === 'start-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر بدء التنفيذ؛ تحقق من المكلّف وحالة القرار.</div>}
               {decisionAction[decision.id] === 'impact-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">الأثر الفعلي يجب أن يكون رقمًا صالحًا.</div>}
               {decisionAction[decision.id] === 'complete-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر إغلاق التنفيذ؛ يحتاج المسار إلى قرار معتمد ودليل مصدر صالح.</div>}
-              {decisionAction[decision.id] === 'evidence-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">لا توجد Evidence Snapshot حقيقية مرتبطة بالتقرير؛ تم منع إغلاق التنفيذ.</div>}
+              {decisionAction[decision.id] === 'evidence-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">لا توجد الدليل Snapshot حقيقية مرتبطة بالتقرير؛ تم منع إغلاق التنفيذ.</div>}
               {decisionAction[decision.id] === 'work-error' && <div className="mt-3 text-[9px] font-bold text-danger-700">تعذر إنشاء عنصر العمل؛ تحقق من الصلاحية وأن القرار معتمد.</div>}
               {decisionAction[decision.id] === 'error' && <div role="alert" className="mt-3 text-[9px] font-bold text-danger-700">تعذر طلب الموافقة؛ الصلاحية أو حالة القرار تحتاج مراجعة.</div>}
               {decisionAction[decision.id] === 'approval-error' && <div role="alert" className="mt-3 text-[9px] font-bold text-danger-700">تعذر اعتماد/رفض القرار؛ تحقق من الصلاحية وحالة الموافقة.</div>}
               {decision.status === 'REJECTED' && <div className="mt-3 rounded-lg border border-danger-200 bg-danger-50 p-3 text-[9px] font-bold text-danger-800">REJECTED · القرار لم ينتقل إلى التنفيذ.</div>}
               {decision.workItemStatus === 'IN_PROGRESS' && (
                 <div className="mt-3 rounded-lg border border-warning-200 bg-warning-50 p-3 text-[9px] leading-5 text-warning-900">
-                  لقطة الدليل المطلوبة للإغلاق: {evidenceSnapshotId || 'غير متاحة'} — لا يمكن إغلاق المهمة دون Evidence Snapshot حقيقية.
+                  لقطة الدليل المطلوبة للإغلاق: {evidenceSnapshotId || 'غير متاحة'} — لا يمكن إغلاق المهمة دون الدليل Snapshot حقيقية.
                 </div>
               )}
             </article>
@@ -694,7 +694,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
       <section id="decision-evidence-inspector" className="rounded-[18px] border border-primary-200 bg-primary-50/40 p-5 shadow-sm" aria-label="مفتش القرار والدليل">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <div className="section-kicker">EVIDENCE / DECISION INSPECTOR</div>
+            <div className="section-kicker">EVIDENCE / القرار INSPECTOR</div>
             <h3 className="mt-1 text-lg font-black text-ink-950">سلسلة التتبع الكاملة</h3>
             <p className="mt-1 text-[10px] leading-5 text-ink-600">كل عقدة هنا تأتي من سجل canonical مرتبط بنفس المصدر والمستأجر؛ عند غياب العقدة تظهر كغير متاح بدل إنشاء قيمة بديلة.</p>
           </div>
@@ -711,8 +711,8 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
               key: 'source',
               label: 'Source Report',
               value: report.sourceHash.slice(0, 24) + '…',
-              detail: report.sourceAnalysis?.id ? 'Evidence Snapshot: ' + report.sourceAnalysis.id : 'Evidence Snapshot: غير متاح',
-              tone: report.sourceAnalysis?.id ? 'success' : 'warning',
+              detail: report.sourceالتحليل?.id ? 'الدليل Snapshot: ' + report.sourceالتحليل.id : 'الدليل Snapshot: غير متاح',
+              tone: report.sourceالتحليل?.id ? 'success' : 'warning',
             },
             {
               key: 'recommendation',
@@ -749,7 +749,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
               label: 'Outcome',
               value: traced.outcomeStatus ?? 'NOT AVAILABLE',
               detail: traced.outcomeId
-                ? 'id=' + traced.outcomeId + ' · Evidence: ' + (traced.outcomeEvidenceSnapshotId ?? 'غير متاح')
+                ? 'id=' + traced.outcomeId + ' · الدليل: ' + (traced.outcomeالدليلSnapshotId ?? 'غير متاح')
                 : 'لا توجد نتيجة محفوظة بعد',
               tone: traced.outcomeStatus === 'positive' ? 'success' : traced.outcomeStatus === 'negative' ? 'danger' : traced.outcomeStatus ? 'warning' : 'neutral',
             },
@@ -777,7 +777,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
           );
         })() : (
           <div className="mt-4 rounded-xl border border-dashed border-ink-200 bg-white p-5 text-center text-[10px] text-ink-500">
-            لا يوجد Decision مرتبط بهذا المصدر حتى الآن؛ تبقى السلسلة عند Evidence ولا يتم اختراع Recommendation أو Action.
+            لا يوجد Decision مرتبط بهذا المصدر حتى الآن؛ تبقى السلسلة عند الدليل ولا يتم اختراع Recommendation أو Action.
           </div>
         )}
       </section>
@@ -786,7 +786,7 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
         <div className="flex items-start gap-3">
           <ShieldCheck size={19} className="mt-0.5 text-primary-700"/>
           <div>
-            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">DECISION EVIDENCE</div>
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-700">القرار EVIDENCE</div>
             <h2 className="mt-1 text-xl font-black">مسار القرار لهذا التقرير فقط</h2>
             <p className="mt-2 text-sm leading-7 text-ink-600">
               القرار الحالي: <strong>{stateLabel(output.decisionStatus)}</strong>. الموافقة: <strong>{stateLabel(output.approvalStatus)}</strong>. التنفيذ: <strong>{stateLabel(output.actionStatus)}</strong>. النتيجة: <strong>{stateLabel(output.outcomeStatus)}</strong>.
@@ -796,10 +796,10 @@ function DecisionMode({ report }: { report: SmartReportDetail }) {
         </div>
       </section>
       <section className="grid gap-3 sm:grid-cols-2">
-        <StatusCell label="Learning" value={output.learningStatus}/>
+        <StatusCell label="التعلّم" value={output.learningStatus}/>
         <StatusCell label="Replay" value={output.replayStatus}/>
-        <StatusCell label="Benchmark" value={output.benchmarkStatus}/>
-        <StatusCell label="Evidence" value={report.evidenceStatus}/>
+        <StatusCell label="المعيار المقارن" value={output.benchmarkStatus}/>
+        <StatusCell label="الدليل" value={report.evidenceStatus}/>
       </section>
       <Link to={'/decision-experience?reportJobId=' + report.jobId + '&sourceHash=' + encodeURIComponent(report.sourceHash) + '&stage=evidence'} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-ink-950 px-4 text-xs font-black text-white">فتح مسار القرار <ArrowLeft size={13}/></Link>
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm" aria-label="سجل نشاط القرار">
@@ -845,8 +845,8 @@ function WorkMode({ report }: { report: SmartReportDetail }) {
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatusCell label="Job" value={report.checkpointStage ?? lastStage?.status}/>
         <StatusCell label="Action" value={report.renderedOutput.actionStatus}/>
-        <StatusCell label="Outcome" value={report.renderedOutput.outcomeStatus}/>
-        <StatusCell label="Learning" value={report.renderedOutput.learningStatus}/>
+        <StatusCell label="النتيجة" value={report.renderedOutput.outcomeStatus}/>
+        <StatusCell label="التعلّم" value={report.renderedOutput.learningStatus}/>
       </section>
       <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
         <div className="text-[9px] font-black tracking-[.12em] text-primary-700">DURABLE LIFECYCLE</div>
