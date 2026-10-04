@@ -96,51 +96,98 @@ function parseNumeric(value: unknown): number | null {
   return parseNumber(value);
 }
 
-function numericColumns(report: SmartReportDetail) {
+function normalizeBusinessKey(value: unknown): string {
+  return String(value ?? '').trim().toLowerCase().replace(/[\s_-]+/g, '');
+}
+
+function businessField(value: unknown): string | null {
+  const key = normalizeBusinessKey(value);
+  const aliases: Record<string,string[]> = {
+    date: ['date','invoice_date','التاريخ','تاريخ الفاتورة'],
+    invoice_number: ['invoice_number','invoice number','رقم الفاتورة','رقم الفاتوره'],
+    invoice_type: ['invoice_type','invoice type','نوع الفاتورة','نوع الفاتوره'],
+    customer_name: ['customer_name','customer','اسم العميل','العميل'],
+    supplier_name: ['supplier_name','supplier','اسم المورد','المورد'],
+    product_name: ['product_name','product','item_name','item','name','اسم الصنف','اسم المنتج','الصنف'],
+    total: ['total','total_amount','الإجمالي','الاجمالي','اجمالي الفاتورة','اجمالي الفاتوره'],
+    net_amount: ['net_amount','مبلغ الصافي بالمحلي','الصافي بالمحلي'],
+    balance: ['balance','الرصيد','الرصيد المستحق','outstanding_balance'],
+    credit: ['credit','دائن'],
+    debit: ['debit','مدين'],
+    quantity: ['quantity','qty','الكمية','العدد'],
+    price: ['price','السعر'],
+    cost: ['cost','التكلفة'],
+    profit: ['profit','الربح'],
+    margin: ['margin','الهامش'],
+  };
+  for (const [canonical, values] of Object.entries(aliases)) {
+    if (values.some((candidate) => normalizeBusinessKey(candidate) === key)) return canonical;
+  }
+  return null;
+}
+
+function rowValue(row: Record<string, unknown>, field: string): unknown {
+  if (row[field] != null && row[field] !== '') return row[field];
+  const target = businessField(field);
+  if (!target) return row[field];
+  const entry = Object.entries(row).find(([key, value]) => businessField(key) === target && value != null && value !== '');
+  return entry?.[1] ?? row[field];
+}
+
+function reportColumns(report: SmartReportDetail) {
   const dataset = report.sourceAnalysis?.datasets?.[0];
   const columns = dataset && typeof dataset === 'object' && Array.isArray((dataset as Record<string, unknown>).columns)
-    ? (dataset as Record<string, unknown>).columns as Array<Record<string, unknown>>
+    ? (dataset as Record<string, unknown>).columns as unknown[]
     : [];
+  const rows = report.canonicalRows.map((row) => row.data);
+  const result = new Map<string, { key: string; name: string; mappedField: string | null; statistics?: Record<string, unknown> }>();
+  for (const item of columns) {
+    const column = item && typeof item === 'object' ? item as Record<string, unknown> : { name: String(item ?? '') };
+    const name = String(column.name ?? column.mappedField ?? '').trim();
+    if (!name) continue;
+    const mapped = String(column.mappedField ?? businessField(name) ?? '').trim() || null;
+    const key = mapped ?? name;
+    if (!result.has(key)) result.set(key, { key, name, mappedField: mapped, statistics: column.statistics && typeof column.statistics === 'object' ? column.statistics as Record<string, unknown> : undefined });
+  }
+  for (const row of rows.slice(0, 500)) {
+    for (const name of Object.keys(row)) {
+      const mapped = businessField(name);
+      if (mapped && !result.has(mapped)) result.set(mapped, { key: mapped, name, mappedField: mapped });
+    }
+  }
+  return [...result.values()];
+}
 
-  return columns
+function numericColumns(report: SmartReportDetail) {
+  const rows = report.canonicalRows.map((row) => row.data);
+  return reportColumns(report)
     .map((column) => {
-      const statistics = column.statistics && typeof column.statistics === 'object' ? column.statistics as Record<string, unknown> : {};
-      const value = parseNumeric(statistics.sum ?? statistics.mean);
-      const mappedField = String(column.mappedField ?? column.name ?? '').trim();
-      return { column, mappedField, value };
+      const values = rows.map((row) => parseNumeric(rowValue(row, column.mappedField ?? column.key))).filter((value): value is number => value != null);
+      const sourceSum = parseNumeric(column.statistics?.sum);
+      if (!values.length && sourceSum == null) return null;
+      return { ...column, value: sourceSum ?? values.reduce((sum, value) => sum + value, 0) };
     })
-    .filter((item) => item.value != null && item.mappedField)
+    .filter((item): item is { key: string; name: string; mappedField: string | null; value: number; statistics?: Record<string, unknown> } => Boolean(item))
+    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
     .slice(0, 8);
 }
 
 function contributionRows(report: SmartReportDetail) {
-  const dataset = report.sourceAnalysis?.datasets?.[0];
-  const columns = dataset && typeof dataset === 'object' && Array.isArray((dataset as Record<string, unknown>).columns)
-    ? (dataset as Record<string, unknown>).columns as Array<Record<string, unknown>>
-    : [];
-  const rows = report.canonicalRows
-    .filter((row) => row && row.data && typeof row.data === 'object')
-    .map((row) => row.data as Record<string, unknown>);
-
-  const dimension = columns.find((column) => {
-    const mapped = String(column.mappedField ?? '').toLowerCase();
-    return ['product_name', 'item_name', 'customer_name', 'supplier_name', 'category', 'warehouse'].includes(mapped);
-  });
-  const measure = columns.find((column) => {
-    const mapped = String(column.mappedField ?? '').toLowerCase();
-    return ['amount', 'total_amount', 'local_amount', 'sales', 'purchase', 'profit', 'value', 'outstanding_balance'].includes(mapped);
-  });
-
+  const rows = report.canonicalRows.map((row) => row.data);
+  const fields = reportColumns(report);
+  const dimension = fields.find((column) => ['customer_name','supplier_name','product_name','category','warehouse'].includes(String(column.mappedField)));
+  const measure = fields.find((column) => ['net_amount','total','sales','purchases','profit','balance','value','outstanding_balance'].includes(String(column.mappedField)));
   if (!dimension || !measure) return [];
-  const dimensionKey = String(dimension.name ?? dimension.mappedField ?? '');
-  const measureKey = String(measure.name ?? measure.mappedField ?? '');
-  return rows
-    .map((row) => ({
-      name: String(row[dimensionKey] ?? '').trim(),
-      value: parseNumeric(row[measureKey]),
-    }))
-    .filter((row) => row.name && row.value != null)
-    .sort((a, b) => Number(b.value) - Number(a.value))
+  const grouped = new Map<string, number>();
+  for (const row of rows) {
+    const name = String(rowValue(row, dimension.mappedField ?? dimension.key) ?? '').trim();
+    const value = parseNumeric(rowValue(row, measure.mappedField ?? measure.key));
+    if (!name || value == null) continue;
+    grouped.set(name, (grouped.get(name) ?? 0) + value);
+  }
+  return [...grouped.entries()]
+    .map(([name, value]) => ({ name, value }))
+    .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
     .slice(0, 6);
 }
 
