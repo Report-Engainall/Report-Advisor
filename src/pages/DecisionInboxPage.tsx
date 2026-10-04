@@ -284,7 +284,7 @@ export function DecisionInboxPage() {
         why: item.signalMessage,
         impact: item.actualImpact == null ? 'الأثر المالي غير مثبت بعد.' : 'الأثر الفعلي المسجل: ' + item.actualImpact,
         evidence: [
-          item.sourcePath ?? 'مصدر غير مسجل',
+          'التقرير المرتبط بالقرار'
           item.evidenceSnapshotId ? 'Evidence Snapshot: ' + item.evidenceSnapshotId : 'لا توجد لقطة دليل',
           item.sourceHash ?? 'لا يوجد source hash',
         ],
@@ -397,9 +397,9 @@ export function DecisionInboxPage() {
                     <p className="mt-1 text-[11px] leading-6 text-ink-500">{item.signalMessage}</p>
 
                     <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-4">
-                      <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">EVIDENCE</div><div className="mt-1 text-[10px] font-bold text-ink-800">{item.sourcePath ?? 'مصدر غير متاح'}</div><div className="mt-1 text-[8px] text-ink-400">{item.passportStatus === 'VERIFIED' ? 'الدليل موثق' : 'الدليل يحتاج مراجعة'} · {item.passportReadiness === 'READY' ? 'جاهز للقرار' : 'الجاهزية غير مكتملة'}</div></div>
+                      <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">EVIDENCE</div><div className="mt-1 text-[10px] font-bold text-ink-800">تقرير أعمال مرتبط بالقضية</div><div className="mt-1 text-[8px] text-ink-400">{item.passportStatus === 'VERIFIED' ? 'الدليل موثق' : 'الدليل يحتاج مراجعة'} · {item.passportReadiness === 'READY' ? 'جاهز للقرار' : 'الجاهزية غير مكتملة'}</div></div>
                       <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">OWNER</div><div className="mt-1 flex items-center gap-1 text-[10px] font-bold text-ink-800"><UserRound size={12}/>{item.owner}</div><div className="mt-1 text-[8px] text-ink-400">الموعد: {formatDate(item.deadline)}</div></div>
-                      <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">STATUS</div><div className="mt-1 text-[10px] font-bold text-ink-800">{item.status} {item.approvalStatus ? '· approval ' + item.approvalStatus : ''}</div><div className="mt-1 text-[8px] text-ink-400">{item.workItemStatus ? 'work ' + item.workItemStatus : 'لا يوجد عمل بعد'}</div></div>
+                      <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">الحالة</div><div className="mt-1 text-[10px] font-bold text-ink-800">{item.status === 'PROPOSED' ? 'مقترح' : item.status === 'APPROVED' ? 'معتمد' : item.status === 'REJECTED' ? 'مرفوض' : item.status === 'COMPLETED' ? 'مكتمل' : 'قيد المتابعة'}</div><div className="mt-1 text-[8px] text-ink-400">{item.workItemStatus === 'IN_PROGRESS' ? 'قيد التنفيذ' : item.workItemStatus === 'COMPLETED' ? 'مكتمل' : item.workItemStatus ? 'عنصر عمل مفتوح' : 'لا يوجد عمل بعد'}</div></div>
                       <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">OUTCOME</div><div className="mt-1 text-[10px] font-bold text-ink-800">{item.outcomeId ? (item.outcomeStatus === 'OBSERVED' ? 'نتيجة مرصودة' : item.outcomeStatus === 'COMPLETED' ? 'مكتملة' : 'مقاسة') : 'لم تسجل نتيجة'}</div><div className="mt-1 text-[8px] text-ink-400">{item.actualImpact == null ? 'الأثر غير مثبت' : 'الأثر الفعلي: ' + item.actualImpact}</div></div>
                     </div>
                   </div>
