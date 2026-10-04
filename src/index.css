@@ -1838,3 +1838,41 @@ button,input,textarea,select{font:inherit}
     .ag-journey-link,.ag-main .input{transition:none}
   }
 }
+
+/* Executive product system — restrained indigo/ink + brass hierarchy */
+@layer components{
+  .ag-app-shell{
+    background:
+      radial-gradient(circle at 8% 8%,rgba(214,161,30,.10),transparent 22rem),
+      radial-gradient(circle at 92% 92%,rgba(99,102,241,.10),transparent 28rem),
+      linear-gradient(135deg,#070b17 0%,#0b1020 54%,#111827 100%)!important;
+  }
+  .ag-sidebar{
+    background:linear-gradient(180deg,#090e1c 0%,#0b1020 58%,#111827 100%)!important;
+    border-color:rgba(226,232,240,.10)!important;
+  }
+  .ag-main{
+    background:linear-gradient(180deg,#f7f8fb 0%,#eef1f6 100%)!important;
+  }
+  .ag-main .section-kicker,.ag-main .surface-label{color:#64748b}
+  .executive-hero{position:relative;overflow:hidden}
+  .executive-hero::after{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#d6a11e,#6366f1);opacity:.95}
+  .progressive-disclosure>summary::-webkit-details-marker{display:none}
+  .progressive-disclosure>summary{position:relative}
+  .progressive-disclosure>summary::after{content:"⌄";position:absolute;inset-inline-start:1.25rem;top:50%;transform:translateY(-55%);color:#94a3b8;font-size:15px;transition:transform .15s ease}
+  .progressive-disclosure[open]>summary::after{transform:translateY(-55%) rotate(180deg)}
+  .ag-smart-report-surface .data-table-shell{border-radius:16px;overflow:hidden}
+  .ag-smart-report-surface table{font-variant-numeric:tabular-nums}
+}
+@media(max-width:640px){
+  .ag-main{padding-inline:.65rem!important}
+  .executive-hero{border-radius:20px!important}
+  .executive-hero .text-2xl{font-size:1.35rem;line-height:1.35}
+  .ag-smart-report-surface .data-table-shell{overflow:visible}
+  .ag-smart-report-surface .data-table-shell table{min-width:0!important;width:100%!important}
+  .ag-smart-report-surface .data-table-shell thead{display:none}
+  .ag-smart-report-surface .data-table-shell tbody,.ag-smart-report-surface .data-table-shell tr,.ag-smart-report-surface .data-table-shell td{display:block;width:100%}
+  .ag-smart-report-surface .data-table-shell tbody tr{margin:0 0 .65rem;border:1px solid #e2e8f0;border-radius:12px;background:#fff;overflow:hidden}
+  .ag-smart-report-surface .data-table-shell tbody td{max-width:none!important;white-space:normal!important;padding:.65rem .8rem;border-bottom:1px solid #eef2f7}
+  .ag-smart-report-surface .data-table-shell tbody td:last-child{border-bottom:0}
+}
