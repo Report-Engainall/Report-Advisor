@@ -559,10 +559,10 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const reportImportJobId = renderedImportId;
   if (!reportImportJobId) throw new Error('INVALID_REPORT_CONTEXT');
 
-  // A durable Report Job and the canonical Import Job are not always the same
-  // identifier after recovery/replay. Bind canonical data by source hash first,
-  // and use the canonical commit ledger to resolve the actual committed import.
-  let canonicalImportJobId = reportImportJobId;
+  // Canonical row reads remain bound to the active import job identity from the
+  // durable execution checkpoint. A commit anchor can be inspected for warnings,
+  // but must not silently redirect a report to a repeated/foreign import.
+  const canonicalImportJobId = renderedImportId || reportImportJobId;
   let canonicalResolvedFromCommit = false;
   try {
     const { data: latestCommit, error: latestCommitError } = await supabase
@@ -594,8 +594,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
         } else {
           const resolved = String(anchor?.import_job_id ?? '').trim();
           if (resolved) {
-            canonicalImportJobId = resolved;
-            canonicalResolvedFromCommit = resolved !== reportImportJobId;
+            canonicalResolvedFromCommit = resolved !== canonicalImportJobId;
           }
         }
       }
