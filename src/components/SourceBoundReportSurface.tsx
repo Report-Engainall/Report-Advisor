@@ -240,33 +240,31 @@ function BusinessJourneyRail({
 }
 
 function SourceHeader({ report }: { report: SmartReportDetail }) {
-  const domain = specialtyPath(report.specialty);
+  const labels: Record<string, string> = {
+    sales: 'المبيعات',
+    purchases: 'المشتريات',
+    inventory: 'المخزون',
+    receivables: 'الذمم والتحصيل',
+    profitability: 'الربحية',
+    payments: 'السيولة والمدفوعات',
+  };
+  const title = labels[report.specialty ?? ''] ? 'تقرير ' + labels[report.specialty ?? ''] : 'تقرير أعمال ذكي';
   return (
-    <section className="rounded-[18px] border border-primary-200 bg-primary-50/60 p-5 shadow-sm">
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="min-w-0">
-          <div className="text-[9px] font-black tracking-[.14em] text-primary-800">SOURCE-BOUND RESULT</div>
-          <h1 className="mt-1 truncate text-lg font-black text-ink-950" title={report.sourcePath}>{report.sourcePath}</h1>
-          <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-ink-600">
-            <span>التخصص: {report.specialty ?? 'عام'}</span>
-            <span>•</span>
-            <span>الصفوف المصدرية: {report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</span>
-            <span>•</span>
-            <span>الصفوف المعتمدة: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)}</span>
-            <span>•</span>
-            <span>الجودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</span>
-            <span>•</span>
-            <span>الثقة: {stateLabel(report.trustState)}</span>
-            <span>•</span>
-            <span>المصدر: {stateLabel(report.sourceTrustState ?? report.trustState)}</span>
-            <span>•</span>
-            <span>التحقق: {report.reportVerificationState === 'VERIFIED' ? 'موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'فجوة اعتماد' : 'بانتظار الدليل'}</span>
+    <section className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[#0d1424] p-5 text-white shadow-[0_24px_70px_-36px_rgba(15,23,42,.9)]">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <div className="text-[9px] font-black tracking-[.16em] text-amber-200">REPORT ADVISOR</div>
+          <h1 className="mt-2 text-2xl font-black tracking-tight lg:text-3xl">{title}</h1>
+          <p className="mt-1 text-[11px] leading-6 text-slate-300">هذا السطح يعرض معنى التقرير وقرار الأعمال، بينما تبقى تفاصيل الملف الخام داخل طبقة الدليل.</p>
+          <div className="mt-3 flex flex-wrap gap-2 text-[10px] text-slate-300">
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">السجلات: {report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</span>
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">الجودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</span>
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">الثقة: {stateLabel(report.trustState ?? report.sourceTrustState)}</span>
           </div>
-          <div className="mt-2 break-all font-mono text-[9px] text-ink-400">{report.sourceHash}</div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-primary text-[10px]">التقرير الذكي <ArrowLeft size={12}/></Link>
-          {domain && <Link to={domain + '?reportJobId=' + report.jobId + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="btn-secondary text-[10px]">التخصص <ArrowLeft size={12}/></Link>}
+          <Link to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="inline-flex items-center gap-2 rounded-xl bg-amber-300 px-4 py-2.5 text-xs font-black text-[#111827]">التقرير الذكي <ArrowLeft size={13}/></Link>
+          <Link to={'/decision-experience?stage=evidence&reportJobId=' + report.jobId + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-black text-white">الدليل والقرار <ArrowLeft size={13}/></Link>
         </div>
       </div>
     </section>
