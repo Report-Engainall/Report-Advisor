@@ -99,13 +99,24 @@ function normalizeBusinessField(value: unknown): string | null {
     ['customer_name',['customer_name','customer','اسم العميل','العميل']],
     ['supplier_name',['supplier_name','supplier','اسم المورد','المورد']],
     ['product_name',['product_name','product','item_name','item','اسم الصنف','اسم المنتج','الصنف']],
+    ['sku',['sku','product_code','productcode','item_code','رمز الصنف','كود الصنف','رقم الصنف']],
     ['total',['total','total_amount','الإجمالي','الاجمالي','اجماليالفاتورة','اجماليالفاتوره']],
     ['net_amount',['net_amount','مبلغالصافيبالمحلي','مبلغصافالمحلي','الصافيبالمحلي']],
     ['paid_amount',['paid_amount','paid','المدفوع']],
     ['balance',['balance','الرصيد','الرصيدالمستحق','outstanding_balance']],
+    ['current_stock',['current_stock','currentstock','stock','on_hand','onhand','الرصيدالحالي','المخزونالحالي','الكميةالمتوفرة','الكميةالمتاحة']],
     ['credit',['credit','دائن']],
     ['debit',['debit','مدين']],
     ['quantity',['quantity','qty','الكمية','العدد']],
+    ['daily_sales_rate',['daily_sales_rate','dailysalesrate','معدل البيع اليومي','معدل البيع ليومي','معدل البيعيومي','متوسط البيع اليومي']],
+    ['annual_sales_rate',['annual_sales_rate','annualsalesrate','معدل البيع العام','معدل البيع السنوي']],
+    ['sales_qty',['sales_qty','salesqty','كمية المبيعات','الكميةالمباعة','صافي المبيعات','صافيالمبيعات']],
+    ['stockout_days',['stockout_days','stockoutdays','أيام النفاد','فترة النفاد','الفترة المتوقعة لنفاد الكمية','الفترةالمتوقعةلنفادالكمية']],
+    ['stock_age_days',['stock_age_days','stockagedays','عمر المخزون','عمرالمخزون']],
+    ['stock_age_period_days',['stock_age_period_days','stockageperioddays','عمر المخزون للفترة','عمرالمخزونللفترة']],
+    ['opening_stock',['opening_stock','openingstock','الرصيد الافتتاحي','الرصيدالإفتتاحي','المخزون الافتتاحي']],
+    ['net_inbound',['net_inbound','netinbound','صافي الوارد','صافيوارد']],
+    ['transfers_pending',['transfers_pending','pending_transfer','تحويل غير مستلم','تحويلغيرمستلم']],
   ];
   for (const [canonical, candidates] of aliases) {
     if (candidates.some((candidate) => candidate.toLowerCase().normalize('NFKC').replace(/[\s_-]+/g,'') === key)) return canonical;
@@ -124,7 +135,9 @@ function sourceColumnDescriptors(analysis: AnalysisSnapshotLike | null | undefin
         const item = column as Record<string, unknown>;
         const name = String(item.name ?? item.mappedField ?? '').trim();
         if (!name || isExtractionArtifactHeader(name)) continue;
-        const mapped = String(item.mappedField ?? normalizeBusinessField(name) ?? '').trim();
+        const declaredMapped = String(item.mappedField ?? '').trim();
+        const semanticMapped = normalizeBusinessField(name);
+        const mapped = String(semanticMapped ?? declaredMapped ?? '').trim();
         output.set(mapped || name, { ...item, name, mappedField: mapped || null });
       } else {
         const name = String(column ?? '').trim();
@@ -715,11 +728,14 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     sales: ['date', 'invoice_number', 'customer_name', 'total'],
     purchases: ['date', 'supplier_name', 'total'],
     receivables: ['date', 'balance'],
-    inventory: ['sku', 'product_name', 'quantity'],
+    inventory: ['sku', 'product_name'],
   };
   const requiredFields = specialtyRequiredFields[specialty ?? ''] ?? [];
   const mappedFields = new Set(sourceColumns.map((column) => String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim()).filter(Boolean));
   const missingRequiredFields = requiredFields.filter((field) => !mappedFields.has(field));
+  if (specialty === 'inventory' && !['current_stock', 'quantity', 'balance'].some((field) => mappedFields.has(field))) {
+    missingRequiredFields.push('current_stock');
+  }
   const intelligenceGateReasons: string[] = [];
   if (!analysis || String(analysis.analysis_status ?? '') !== 'analyzed') intelligenceGateReasons.push('التحليل المصدرّي غير مكتمل');
   if (Number(analysis?.quality_score ?? 0) < 85) intelligenceGateReasons.push('جودة المصدر أقل من حد الاعتماد الذكي');
