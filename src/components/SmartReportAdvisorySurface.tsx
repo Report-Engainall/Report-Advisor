@@ -20,6 +20,7 @@ function canonicalFields(report: SmartReportDetail): CanonicalField[] {
 }
 
 export function SmartReportAdvisorySurface({ report }: { report: SmartReportDetail }) {
+  const primarySignal = report.intelligence.signals[0] ?? null;
   const evidencePassportId = typeof report.renderedOutput.evidencePassportId === 'string'
     ? report.renderedOutput.evidencePassportId
     : null;
@@ -156,7 +157,42 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         </div>
       </div>
 
-      <div className="rounded-[22px] border border-white/10 bg-[linear-gradient(135deg,#071318,#0b2024)] p-5 text-white shadow-card lg:p-6">
+      <div className="rounded-[18px] border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="text-[9px] font-black tracking-[.16em] text-primary-700">PRIMARY BUSINESS ISSUE</div>
+            <h3 className="mt-1 text-xl font-black text-ink-950">القضية التي تستحق انتباه الإدارة الآن</h3>
+            <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-500">يظهر هنا الاستنتاج الأقوى فقط. بقية الإشارات والتحليلات تبقى متاحة عند الحاجة دون إغراق الشاشة الرئيسية.</p>
+          </div>
+          <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[9px] font-black text-slate-600">{report.intelligence.signals.length ? 'إشارة مثبتة' : 'لا توجد إشارة مثبتة'}</span>
+        </div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-[1.25fr_.75fr]">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+            <div className="text-[9px] font-black text-slate-500">SIGNAL</div>
+            <div className="mt-2 text-base font-black text-slate-950">{primarySignal?.title ?? 'لا توجد قضية مثبتة من المصدر الحالي'}</div>
+            <p className="mt-2 text-xs leading-6 text-slate-600">{primarySignal?.message ?? 'لن يتم توليد قضية بديلة عندما لا يثبت المصدر نتيجة واضحة.'}</p>
+            {primarySignal ? <div className="mt-3 text-[10px] leading-5 text-slate-500"><span className="font-black text-slate-700">الدليل:</span> {primarySignal.evidence.join(' · ')}</div> : null}
+          </div>
+          <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4">
+            <div className="text-[9px] font-black text-amber-700">WHAT NEXT</div>
+            <div className="mt-2 text-sm font-black text-amber-950">{report.intelligence.recommendations[0]?.title ?? 'تحقق من المصدر أولًا'}</div>
+            <p className="mt-2 text-[10px] leading-5 text-amber-900">{report.intelligence.recommendations[0]?.action ?? advisorBrief.recommendedAction ?? 'لا إجراء تنفيذي قبل اكتمال التحقق.'}</p>
+          </div>
+        </div>
+      </div>
+
+      <details className="rounded-[18px] border border-slate-200 bg-white shadow-sm">
+        <summary className="cursor-pointer list-none px-5 py-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-[9px] font-black tracking-[.14em] text-slate-500">DEEP ANALYSIS</div>
+              <div className="mt-1 text-base font-black text-slate-950">استكشاف بقية التحليل</div>
+              <div className="mt-1 text-[10px] text-slate-500">الإشارات الثانوية، الأسئلة، التوقع، والإرشاد تظهر هنا فقط عند الطلب.</div>
+            </div>
+            <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[9px] font-black text-slate-600">{Math.max(0, report.intelligence.signals.length - 1)} ثانوي</span>
+          </div>
+        </summary>
+        <div className="space-y-4 border-t border-slate-100 p-5">      <div className="rounded-[22px] border border-white/10 bg-[linear-gradient(135deg,#071318,#0b2024)] p-5 text-white shadow-card lg:p-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <div className="text-[9px] font-black tracking-[.16em] text-primary-300">INTELLIGENCE INVENTORY</div>
@@ -337,6 +373,9 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
           </div>
         </div>
       </div>
+
+      </div>
+      </details>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
