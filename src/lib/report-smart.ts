@@ -514,16 +514,16 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const renderedImportId = resolveImportJobId(job as Record<string, unknown>, effectiveRendered, null);
   if (!renderedImportId) throw new Error('INVALID_REPORT_CONTEXT');
 
-  const { data: importAnalyses, error: importAnalysisError } = await supabase
+  const { data: analyses, error: importAnalysisError } = await supabase
     .from('source_analysis_snapshots')
     .select('id,import_job_id,source_hash,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
     .eq('company_id', companyId)
     .eq('source_hash', job.source_hash)
     .eq('import_job_id', renderedImportId)
     .order('created_at', { ascending: false })
-    .limit(1);
+    .limit(100);
 
-  let analysis = (importAnalyses?.[0] ?? null) as Record<string, unknown> | null;
+  let analysis = chooseBestAnalysisSnapshot((analyses ?? []) as Array<Record<string, unknown>>);
   if (importAnalysisError) {
     runtimeWarnings.push('تعذر قراءة لقطات التحليل البديلة؛ استمر التقرير اعتمادًا على المخرجات المحفوظة والصفوف الكانونية المتاحة.');
     analysis = null;
@@ -559,10 +559,10 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const reportImportJobId = renderedImportId;
   if (!reportImportJobId) throw new Error('INVALID_REPORT_CONTEXT');
 
-  // A durable Report Job and the canonical Import Job are not always the same
-  // identifier after recovery/replay. Bind canonical data by source hash first,
-  // and use the canonical commit ledger to resolve the actual committed import.
-  let canonicalImportJobId = reportImportJobId;
+  // Canonical row reads remain bound to the active import job identity from the
+  // durable execution checkpoint. A commit anchor can be inspected for warnings,
+  // but must not silently redirect a report to a repeated/foreign import.
+  const canonicalImportJobId = renderedImportId || reportImportJobId;
   let canonicalResolvedFromCommit = false;
   try {
     const { data: latestCommit, error: latestCommitError } = await supabase
@@ -594,8 +594,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
         } else {
           const resolved = String(anchor?.import_job_id ?? '').trim();
           if (resolved) {
-            canonicalImportJobId = resolved;
-            canonicalResolvedFromCommit = resolved !== reportImportJobId;
+            canonicalResolvedFromCommit = resolved !== canonicalImportJobId;
           }
         }
       }
@@ -664,8 +663,11 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   // Passport metadata may be stale; it must never upgrade an empty/missing canonical
   // table into a VERIFIED/READY state.
   const actualCanonicalRowCount = canonicalRows.length;
-  const canonicalCommitCount = actualCanonicalRowCount;
   const authoritativeCurrentRowCount = actualCanonicalRowCount;
+  const exactCanonicalCommit = authoritativeCurrentRowCount == null;
+  const canonicalCommitCount = exactCanonicalCommit
+    ? actualCanonicalRowCount
+    : authoritativeCurrentRowCount;
   const canonicalCoverageUnavailable = canonicalCommitQueryFailed || authoritativeCurrentRowCount == null;
   const canonicalCommitGap =
     canonicalCoverageUnavailable || effectiveRendered.rowCount == null

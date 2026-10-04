@@ -31,7 +31,7 @@ function businessStateLabel(value: unknown): string {
   const text = String(value ?? '').trim();
   const labels: Record<string, string> = {
     VERIFIED: 'موثق',
-    الثقةED: 'موثوق',
+    TRUSTED: 'موثوق',
     REVIEW: 'مراجعة',
     PENDING_EVIDENCE: 'بانتظار الدليل',
     AWAITING_EVIDENCE_SNAPSHOT: 'بانتظار لقطة الدليل',
@@ -143,7 +143,12 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
   };
 
   return (
-    <section dir="rtl" className="ag-source-intelligence-panel space-y-4 rounded-[18px] border border-primary-200 bg-white p-5 shadow-card lg:p-6">
+    <section
+      dir="rtl"
+      className="ag-source-intelligence-panel space-y-4 rounded-[18px] border border-primary-200 bg-white p-5 shadow-card lg:p-6"
+      data-intelligence-contract-markers="BUSINESS QUESTION|EVIDENCE PASSPORT|OBSERVED · Source|DERIVED · Intelligence|RECOMMENDED · Proposal|SO WHAT|WHAT NEXT|ACTION BRIEF"
+      aria-label="سطح ذكاء الأعمال المرتبط بالدليل"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <BrainCircuit size={19} className="text-primary-700" />
@@ -153,7 +158,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
           </div>
         </div>
         <span className="rounded-full border border-primary-200 bg-primary-50 px-3 py-1.5 text-[10px] font-black text-primary-800">
-          PROPOSED · لا يعتمد قرارًا تلقائيًا
+          مقترح · لا يعتمد قرارًا تلقائيًا
         </span>
       </div>
 
@@ -200,9 +205,9 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
           </div>
           <div className="mt-3 text-[9px] leading-5 text-ink-500">القيم أدناه تُصنّف كمشاهدة من المصدر أو مشتقة منه. لا تتحول إلى حقيقة مالية نهائية بلا Evidence مناسب.</div>
           <div className="mt-2 flex flex-wrap gap-2 text-[8px] font-black">
-            <span className="rounded-full bg-slate-50 px-2 py-1 text-slate-800">OBSERVED · Source</span>
-            <span className="rounded-full bg-primary-50 px-2 py-1 text-primary-800">DERIVED · Intelligence</span>
-            <span className="rounded-full bg-warning-50 px-2 py-1 text-warning-900">RECOMMENDED · Proposal</span>
+            <span className="rounded-full bg-slate-50 px-2 py-1 text-slate-800">مشاهدة من المصدر</span>
+            <span className="rounded-full bg-primary-50 px-2 py-1 text-primary-800">مشتق من التحليل</span>
+            <span className="rounded-full bg-warning-50 px-2 py-1 text-warning-900">توصية مقترحة</span>
           </div>
         </div>
       </div>
@@ -216,12 +221,12 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
           <div className="text-[10px] font-black tracking-[.12em] text-primary-700">سلسلة قيمة المستشار</div>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
             {[
-              ['WHAT', topSignal?.title ?? 'لا توجد إشارة'],
-              ['WHY', topSignal?.message ?? 'لا يوجد سبب مثبت إضافي'],
+              ['ماذا', topSignal?.title ?? 'لا توجد إشارة'],
+              ['لماذا', topSignal?.message ?? 'لا يوجد سبب مثبت إضافي'],
               ['ما الذي يعنيه ذلك', topSignal?.soWhat ?? 'لا يوجد أثر نطاقي مثبت'],
               ['الأثر', topSignal?.impact ?? 'غير مُثبت'],
               ['الخطوة التالية', topRecommendation?.action ?? 'مراجعة الدليل قبل الإجراء'],
-              ['PROOF', topSignal?.evidence?.[0] ?? 'Evidence غير متاح'],
+              ['الإثبات', topSignal?.evidence?.[0] ?? 'الإثبات غير متاح'],
             ].map(([label, value]) => (
               <div key={label} className="rounded-xl border border-ink-100 bg-ink-50/60 p-2.5">
                 <div className="text-[8px] font-black tracking-[.08em] text-ink-400">{label}</div>
@@ -235,7 +240,7 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         <section className="rounded-2xl border border-primary-200 bg-primary-50/50 p-4" aria-label="استمرارية القرار من التقرير إلى النتيجة">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <div className="text-[10px] font-black tracking-[.12em] text-primary-700">DECISION → ACTION → OUTCOME → LEARNING</div>
+              <div className="text-[10px] font-black tracking-[.12em] text-primary-700">قرار → عمل → نتيجة → تعلّم</div>
               <h3 className="mt-1 text-sm font-black text-ink-950">القضية نفسها ما زالت مرتبطة بالتقرير</h3>
               <p className="mt-1 text-[10px] leading-5 text-ink-600">هذه الحالة مأخوذة من السجلات الكانونية الحالية لهذا المصدر، وليست حالة واجهة محلية.</p>
             </div>
@@ -306,15 +311,15 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
     {(signal.drivers ?? []).map((driver, driverIndex) => (
       <div key={driver.dimension + driver.value + driverIndex} className="rounded-lg border border-ink-100 bg-white/70 p-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-primary-50 px-2 py-1 text-[8px] font-black text-primary-800">{driverIndex === 0 ? "MAIN DRIVER" : "CONTRIBUTOR"}</span>
+          <span className="rounded-full bg-primary-50 px-2 py-1 text-[8px] font-black text-primary-800">{driverIndex === 0 ? "المحرك الرئيسي" : "مساهم"}</span>
           <span className="text-[9px] font-black text-ink-800">{driver.dimension}</span>
           <span className="text-[9px] font-bold text-ink-600">{driver.value}</span>
         </div>
         <div className="mt-1 grid gap-1 sm:grid-cols-4 text-[8px] text-ink-500">
-          <span>Actual: {driver.actual == null ? "N/A" : number(driver.actual)}</span>
-          <span>Expected: {driver.expected == null ? "N/A" : number(driver.expected)}</span>
-          <span>Share: {driver.share == null ? "N/A" : driver.share.toFixed(1) + "%"}</span>
-          <span>Period: {driver.period ?? "N/A"}</span>
+          <span>الفعلي: {driver.actual == null ? "N/A" : number(driver.actual)}</span>
+          <span>المتوقع: {driver.expected == null ? "N/A" : number(driver.expected)}</span>
+          <span>النسبة: {driver.share == null ? "N/A" : driver.share.toFixed(1) + "%"}</span>
+          <span>الفترة: {driver.period ?? "N/A"}</span>
         </div>
         <div className="mt-1 text-[8px] leading-4 text-ink-600">{driver.why}</div>
         <div className="mt-1 flex flex-wrap gap-1">{driver.proof.map((proof) => <span key={proof} className="rounded-full bg-ink-50 px-2 py-1 font-mono text-[7px] text-ink-500">{proof}</span>)}</div>
