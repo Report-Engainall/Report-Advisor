@@ -31,7 +31,13 @@ export function normalizeWhitespace(text: string): string {
 
 /** Canonical header normalization used by schema discovery and column mapping. */
 export function normalizeHeader(name: string): string {
-  return normalizeArabicText(normalizeWhitespace(normalizeArabicDigits(name))).toLowerCase();
+  const normalized = normalizeArabicText(normalizeWhitespace(normalizeArabicDigits(name))).toLowerCase();
+  // PDF table extractors sometimes append the reporting year as a fragmented
+  // header (for example: "التاريخ 2026-"). That suffix belongs to the
+  // reconstructed date value, not to the business field identity.
+  return normalized
+    .replace(/^(التاريخ|date)(?:\s+20\d{2}-?)$/u, '$1')
+    .replace(/\s+(20\d{2})-?$/u, ' $1');
 }
 
 export function normalizeValue(value: unknown): unknown {
