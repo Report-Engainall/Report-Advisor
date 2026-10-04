@@ -223,7 +223,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
             {primarySignal ? <div className="mt-3 text-[10px] leading-5 text-slate-500"><span className="font-black text-slate-700">الدليل:</span> {primarySignal.evidence.join(' · ')}</div> : null}
           </div>
           <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-4">
-            <div className="text-[9px] font-black text-amber-700">WHAT NEXT</div>
+            <div className="text-[9px] font-black text-amber-700">الخطوة التالية</div>
             <div className="mt-2 text-sm font-black text-amber-950">{report.intelligence.recommendations[0]?.title ?? 'تحقق من المصدر أولًا'}</div>
             <p className="mt-2 text-[10px] leading-5 text-amber-900">{report.intelligence.recommendations[0]?.action ?? advisorBrief.recommendedAction ?? 'لا إجراء تنفيذي قبل اكتمال التحقق.'}</p>
           </div>
@@ -234,7 +234,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         <summary className="cursor-pointer list-none px-5 py-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <div className="text-[9px] font-black tracking-[.14em] text-slate-500">DEEP ANALYSIS</div>
+              <div className="text-[9px] font-black tracking-[.14em] text-slate-500">التحليل المتقدم</div>
               <div className="mt-1 text-base font-black text-slate-950">استكشاف بقية التحليل</div>
               <div className="mt-1 text-[10px] text-slate-500">الإشارات الثانوية، الأسئلة، التوقع، والإرشاد تظهر هنا فقط عند الطلب.</div>
             </div>
@@ -244,7 +244,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         <div className="space-y-4 border-t border-slate-100 p-5">      <div className="rounded-[22px] border border-white/10 bg-[linear-gradient(135deg,#071318,#0b2024)] p-5 text-white shadow-card lg:p-6">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <div className="text-[9px] font-black tracking-[.16em] text-primary-300">INTELLIGENCE INVENTORY</div>
+            <div className="text-[9px] font-black tracking-[.16em] text-primary-300">مشهد الذكاء</div>
             <h3 className="mt-1 text-xl font-black tracking-tight">كل ما اكتشفه التقرير</h3>
             <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-200">الإشارات، التوصيات، التوقع، الإرشاد، والنتائج تعرض كاملة من نفس حزمة التقرير. لا يوجد حد عرض مصطنع.</p>
           </div>
@@ -265,7 +265,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
       <div className="rounded-[20px] border border-primary-200 bg-[linear-gradient(135deg,#f7fbfa,#ffffff)] p-5 shadow-card lg:p-6">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div>
-            <div className="text-[9px] font-black tracking-[.16em] text-primary-700">ADVISOR BRIEF</div>
+            <div className="text-[9px] font-black tracking-[.16em] text-primary-700">ملخص المستشار</div>
             <h3 className="mt-1 text-2xl font-black tracking-tight text-ink-950">ماذا يريد الأغبري أن يقول للإدارة؟</h3>
             <p className="mt-2 max-w-3xl text-xs leading-6 text-ink-600">{advisorBrief.headline}</p>
           </div>
@@ -321,7 +321,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <div className="text-[9px] font-black tracking-[.14em] text-primary-700">OUTCOME READBACK</div>
+              <div className="text-[9px] font-black tracking-[.14em] text-primary-700">قراءة النتيجة</div>
               <h3 className="mt-1 text-lg font-black text-ink-950">ماذا حدث بعد القرار؟</h3>
               <p className="mt-1 text-xs leading-6 text-ink-500">قراءة للحالة المحفوظة من مسار القرار/العمل، دون استنتاج نتيجة لم تُسجل.</p>
             </div>
@@ -458,7 +458,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
       <div className="rounded-2xl border border-primary-200 bg-[linear-gradient(135deg,#ffffff,#f5faf8)] p-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="text-[9px] font-black tracking-[.14em] text-primary-700">DECISION PATH</div>
+            <div className="text-[9px] font-black tracking-[.14em] text-primary-700">مسار القرار</div>
             <div className="mt-1 text-sm font-black text-ink-950">لا تتوقف عند التوصية — تابعها حتى العمل والنتيجة</div>
             <p className="mt-1 text-[11px] leading-5 text-ink-600">الانتقال إلى مساحة القرار يبقى مربوطًا بهذا التقرير ومصدره؛ لا يتم إنشاء قرار أو أثر تنفيذي تلقائيًا من هذه الشاشة.</p>
           </div>
