@@ -1483,3 +1483,19 @@ button,input,textarea,select{font:inherit}
   .command-strip{border-color:#e2e8f0!important;background:#fff!important}
   .ag-command-overlay{background:rgba(2,6,23,.68)!important}
 }
+
+
+@layer components{
+  .ag-login-value{
+    background:
+      radial-gradient(circle at 86% 8%,rgba(99,102,241,.18),transparent 22rem),
+      radial-gradient(circle at 12% 86%,rgba(214,161,30,.08),transparent 18rem),
+      linear-gradient(145deg,#0b1020 0%,#111827 62%,#172554 100%)!important;
+    border-color:#1e293b!important;
+  }
+  .ag-login-value h1{color:#fff!important}
+  .ag-login-value h1 .text-primary-700{color:#a5b4fc!important}
+  .ag-login-value .section-kicker{color:#a5b4fc!important}
+  .ag-login-value p{color:#cbd5e1!important}
+  .ag-login-value .border-ink-200{border-color:rgba(148,163,184,.2)!important}
+}
