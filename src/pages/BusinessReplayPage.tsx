@@ -5,6 +5,13 @@ import { ErrorState, LoadingState } from '@/components/ui/States';
 import { fetchBusinessReplay, type BusinessReplay, type ReplayEvent } from '@/lib/business-replay';
 import { formatNumber } from '@/lib/format';
 
+function stateLabel(value: unknown): string {
+  const labels: Record<string,string> = { TRUSTED:'موثوق', VERIFIED:'موثق', REVIEW:'مراجعة', BLOCKED:'محظور', INSUFFICIENT_DATA:'بيانات غير كافية', PENDING_EVIDENCE:'بانتظار الدليل', COMPLETED:'مكتمل', IN_PROGRESS:'قيد التنفيذ', OPEN:'مفتوح' };
+  if (value == null || value === '') return 'غير متاح';
+  return labels[String(value)] ?? 'غير متاح';
+}
+
+
 function eventTone(event: ReplayEvent): string {
   if (event.kind === 'outcome') return 'border-success-200 bg-success-50';
   if (event.kind === 'work') return 'border-primary-200 bg-primary-50';
@@ -51,16 +58,16 @@ export function BusinessReplayPage() {
       <section className="rounded-[18px] border border-primary-200 bg-primary-50/60 p-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
-            <div className="text-[9px] font-black tracking-[.14em] text-primary-800">BUSINESS REPLAY</div>
-            <h1 className="mt-1 truncate text-xl font-black text-ink-950">{source.sourcePath}</h1>
+            <div className="text-[9px] font-black tracking-[.14em] text-primary-800">إعادة تشغيل مسار القرار</div>
+            <h1 className="mt-1 text-xl font-black text-ink-950">إعادة تشغيل مسار القرار لهذا التقرير</h1>
             <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-ink-600">
               <span>الصفوف: {source.rowCount == null ? 'غير متاح' : formatNumber(source.rowCount)}</span>
               <span>•</span>
-              <span>الحقيقة: {source.trustState ?? 'غير متاح'}</span>
+              <span>الثقة: {stateLabel(source.trustState)}</span>
               <span>•</span>
-              <span>الدليل: {source.evidenceStatus ?? 'غير متاح'}</span>
+              <span>الدليل: {stateLabel(source.evidenceStatus)}</span>
             </div>
-            <div className="mt-2 break-all font-mono text-[8px] text-ink-400">{source.sourceHash}</div>
+            
           </div>
           <div className="flex flex-wrap gap-2">
             <Link to={'/reports/smart/' + source.jobId + '?sourceHash=' + encodeURIComponent(source.sourceHash)} className="btn-primary text-[10px]">التقرير الذكي <ArrowLeft size={12}/></Link>
@@ -79,7 +86,7 @@ export function BusinessReplayPage() {
         <div className="flex items-center gap-2">
           <ShieldCheck size={18} className="text-primary-700"/>
           <div>
-            <div className="section-kicker">SOURCE-BOUND TIMELINE</div>
+            <div className="section-kicker">السجل الزمني المربوط بالتقرير</div>
             <h2 className="mt-1 text-lg font-black">ما الذي حدث فعليًا لهذا التقرير؟</h2>
           </div>
         </div>
