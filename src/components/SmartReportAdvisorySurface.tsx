@@ -76,7 +76,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
 
   const refreshDecisionProposal = useCallback(async () => {
     try {
-      const proposals = await fetchSourceDecisionProposals(report.sourceHash);
+      const proposals = await fetchSourceDecisionProposals(report.sourceHash, report.jobId);
       setDecisionProposal(proposals[0] ?? null);
     } catch (error) {
       setDecisionError(error instanceof Error ? error.message : 'تعذر قراءة قرار المصدر');
