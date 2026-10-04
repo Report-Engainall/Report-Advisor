@@ -574,6 +574,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   } : null;
 
   const evidenceStatus = resolveReportEvidenceStatus(effectiveRendered, canonicalCommitVerified);
+  const specialty = resolveEffectiveSpecialty(effectiveRendered.sourceSpecialty, sourceAnalysis);
   const sourceAnalysisDatasets = Array.isArray(analysis?.datasets)
     ? analysis.datasets.filter((dataset): dataset is Record<string, unknown> => Boolean(dataset) && typeof dataset === 'object')
     : [];
@@ -602,8 +603,6 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   if (!canonicalRowsComplete || canonicalRowsPartial) intelligenceGateReasons.push('الصفوف الكانونية غير مكتملة');
   if (canonicalCommitGap != null && canonicalCommitGap > 0) intelligenceGateReasons.push('يوجد فجوة بين الصفوف المصدرية والصفوف الكانونية');
   const intelligenceEligible = intelligenceGateReasons.length === 0;
-
-  const specialty = resolveEffectiveSpecialty(effectiveRendered.sourceSpecialty, sourceAnalysis);
 
   let baseIntelligence: ReportIntelligence;
   if (!intelligenceEligible) {
