@@ -146,7 +146,7 @@ function canonicalSourceField(value: unknown): string | null {
     ['unit_price', ['unit_price','سعرالوحدة']],
     ['cost', ['cost','cost_price','التكلفة']],
     ['price', ['price','السعر']],
-    ['sku', ['sku','item_code','product_code','رمزالصنف','كودالصنف']],
+    ['sku', ['sku','item_code','product_code','productcode','رقم الصنف','رقمالصنف','رمز الصنف','رمزالصنف','كود الصنف','كودالصنف']],
     ['category', ['category','الفئة','التصنيف']],
     ['warehouse', ['warehouse','المستودع','المخزن']],
   ];
@@ -168,7 +168,9 @@ function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
         const column = item as Record<string, unknown>;
         const name = text(column.name ?? column.mappedField);
         if (!name || isExtractionArtifactHeader(name)) return null;
-        const mappedField = text(column.mappedField) || canonicalSourceField(name);
+        const declaredMapped = text(column.mappedField);
+        const semanticMapped = canonicalSourceField(name);
+        const mappedField = semanticMapped || declaredMapped;
         return { ...column, name, mappedField: mappedField || null };
       }
       const name = text(item);
@@ -187,7 +189,7 @@ function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
     if (!rows.length) return column;
     const key = dataKey(column);
     const nullCount = rows.reduce((count, row) => {
-      const value = row.data?.[key];
+      const value = rowValue(row.data, key);
       return count + (value == null || String(value).trim() === '' ? 1 : 0);
     }, 0);
     if (column.nullCount == null) return { ...column, nullCount };
@@ -214,8 +216,21 @@ function findColumn(columns: Array<Record<string, unknown>>, aliases: string[]):
 }
 
 function dataKey(column: Record<string, unknown> | null | undefined): string {
+  const name = text(column?.name);
   const mapped = text(column?.mappedField);
-  return mapped || text(column?.name);
+  return name || mapped;
+}
+
+function rowValue(row: Record<string, unknown> | null | undefined, key: string): unknown {
+  if (!row || !key) return undefined;
+  if (Object.prototype.hasOwnProperty.call(row, key)) return row[key];
+  const target = normalized(key);
+  const semantic = canonicalSourceField(key);
+  for (const [rawKey, value] of Object.entries(row)) {
+    if (normalized(rawKey) === target) return value;
+    if (semantic && canonicalSourceField(rawKey) === semantic) return value;
+  }
+  return undefined;
 }
 
 function makePriority(severity: ReportSignalSeverity): ReportRecommendation['priority'] {
@@ -321,15 +336,15 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
       const urgentProducts: Array<{ name: string; days: number; stock: number }> = [];
 
       for (const row of rows) {
-        const stock = numeric(row.data?.[stockKey]);
+        const stock = numeric(rowValue(row.data, stockKey));
         if (stock == null) continue;
         totalStock += stock;
         if (stock < 0) negativeStockRows += 1;
         if (stock <= 0) zeroStockRows += 1;
 
-        const dailyRate = dailyRateKey ? numeric(row.data?.[dailyRateKey]) : null;
-        const netSales = netSalesKey ? numeric(row.data?.[netSalesKey]) : null;
-        const productName = text(row.data?.[productNameKey]) || text(row.data?.[skuKey]) || 'صنف غير مسمى';
+        const dailyRate = dailyRateKey ? numeric(rowValue(row.data, dailyRateKey)) : null;
+        const netSales = netSalesKey ? numeric(rowValue(row.data, netSalesKey)) : null;
+        const productName = text(rowValue(row.data, productNameKey)) || text(rowValue(row.data, skuKey)) || 'صنف غير مسمى';
         if (dailyRate != null && dailyRate > 0) {
           totalDailyRate += dailyRate;
           dailyRateRows += 1;
@@ -339,7 +354,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
           zeroStockWithSalesRows += 1;
         }
 
-        const stockoutDays = stockoutDaysKey ? numeric(row.data?.[stockoutDaysKey]) : null;
+        const stockoutDays = stockoutDaysKey ? numeric(rowValue(row.data, stockoutDaysKey)) : null;
         if (stockoutDays != null && Number.isFinite(stockoutDays)) {
           knownStockoutRows += 1;
           if (stockoutDays >= 0 && stockoutDays <= 30 && (dailyRate == null || dailyRate > 0 || stock <= 0)) stockoutWithin30Rows += 1;
@@ -347,16 +362,16 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
           if (stockoutDays >= 0 && stockoutDays <= 30) urgentProducts.push({ name: productName, days: stockoutDays, stock });
         }
 
-        const age = stockAgePeriodKey ? numeric(row.data?.[stockAgePeriodKey]) : (stockAgeKey ? numeric(row.data?.[stockAgeKey]) : null);
+        const age = stockAgePeriodKey ? numeric(rowValue(row.data, stockAgePeriodKey)) : (stockAgeKey ? numeric(rowValue(row.data, stockAgeKey)) : null);
         if (age != null) {
           knownAgeRows += 1;
           if (age >= 180 && (dailyRate == null || dailyRate <= 1)) oldStockRows += 1;
         }
 
         if (openingKey && netInboundKey && netSalesKey) {
-          const opening = numeric(row.data?.[openingKey]);
-          const inbound = numeric(row.data?.[netInboundKey]);
-          const sales = numeric(row.data?.[netSalesKey]);
+          const opening = numeric(rowValue(row.data, openingKey));
+          const inbound = numeric(rowValue(row.data, netInboundKey));
+          const sales = numeric(rowValue(row.data, netSalesKey));
           if (opening != null && inbound != null && sales != null && Math.abs((opening + inbound - sales) - stock) > 0.01) reconciliationMismatches += 1;
         }
       }
@@ -449,11 +464,11 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
   const textColumn = findColumn(columns, ['text', 'النص']);
   if (textColumn && rows.length) {
     const textKey = dataKey(textColumn);
-    const lines = rows.map((row) => text(row.data?.[textKey])).filter(Boolean);
+    const lines = rows.map((row) => text(rowValue(row.data, textKey))).filter(Boolean);
     const pageColumn = findColumn(columns, ['page_number', 'page', 'الصفحة']);
     const pageKey = dataKey(pageColumn);
     const pages = pageKey
-      ? new Set(rows.map((row) => text(row.data?.[pageKey])).filter(Boolean)).size
+      ? new Set(rows.map((row) => text(rowValue(row.data, pageKey))).filter(Boolean)).size
       : null;
     const dateHits = lines.filter((line) => /(?:19|20)\d{2}[\/-]\d{1,2}[\/-]\d{1,2}|\b\d{1,2}[\/-]\d{1,2}[\/-](?:19|20)?\d{2}\b/.test(line)).length;
     const amountHits = lines.filter((line) => /(?:\d[\d,٬.]*)\s*(?:ريال|ر\.ي|YER|USD|دولار)?\b/i.test(line)).length;
@@ -479,12 +494,12 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
     let paidAboveTotal = 0;
     const invoiceTotals = new Map<string, Set<number>>();
     for (const row of rows) {
-      const totalValue = totalKey ? numeric(row.data?.[totalKey]) : null;
-      const paidValue = paidKey ? numeric(row.data?.[paidKey]) : null;
+      const totalValue = totalKey ? numeric(rowValue(row.data, totalKey)) : null;
+      const paidValue = paidKey ? numeric(rowValue(row.data, paidKey)) : null;
       if (totalValue != null && paidValue != null && paidValue > totalValue + 0.01) paidAboveTotal += 1;
 
       if (invoiceKey && totalValue != null) {
-        const invoice = text(row.data?.[invoiceKey]);
+        const invoice = text(rowValue(row.data, invoiceKey));
         if (invoice) {
           const values = invoiceTotals.get(invoice) ?? new Set<number>();
           values.add(totalValue);
@@ -530,18 +545,18 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
     const pricesBySku = new Map<string, Set<number>>();
     let duplicateCount = 0;
     for (const row of rows) {
-      const value = text(row.data?.[keyName]);
+      const value = text(rowValue(row.data, keyName));
       if (!value) continue;
       // Repeating a SKU across warehouses is a legitimate inventory grain.
       // Only flag a duplicate when it repeats within the same source context.
-      const warehouse = warehouseName ? text(row.data?.[warehouseName]) : '';
+      const warehouse = warehouseName ? text(rowValue(row.data, warehouseName)) : '';
       const scopedKey = warehouse ? value + '|' + warehouse : value;
       const next = (seen.get(scopedKey) ?? 0) + 1;
       seen.set(scopedKey, next);
       if (next === 2) duplicateCount += 1;
 
       if (priceName) {
-        const price = numeric(row.data?.[priceName]);
+        const price = numeric(rowValue(row.data, priceName));
         if (price != null) {
           const values = pricesBySku.get(value) ?? new Set<number>();
           values.add(price);
@@ -668,8 +683,8 @@ function deriveForecast(report: ReportInput): ReportForecast {
   }
   const byMonth = new Map<string, number>();
   for (const row of rows) {
-    const date = parseDateValue(row.data?.[dateKey]);
-    const value = numeric(row.data?.[valueKey]);
+    const date = parseDateValue(rowValue(row.data, dateKey));
+    const value = numeric(rowValue(row.data, valueKey));
     if (!date || value == null) continue;
     const month = date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0');
     byMonth.set(month, (byMonth.get(month) ?? 0) + value);
@@ -734,8 +749,8 @@ function metricRows(report: ReportInput): Array<{ row_number?: number; data?: Re
 function groupSum(rows: Array<{ data?: Record<string, unknown> | null }>, dimensionKey: string, valueKey: string): Array<{ dimension: string; value: number; rows: number }> {
   const groups = new Map<string, { value: number; rows: number }>();
   for (const row of rows) {
-    const dimension = text(row.data?.[dimensionKey]) || 'غير محدد';
-    const value = numeric(row.data?.[valueKey]);
+    const dimension = text(rowValue(row.data, dimensionKey)) || 'غير محدد';
+    const value = numeric(rowValue(row.data, valueKey));
     if (value == null) continue;
     const current = groups.get(dimension) ?? { value: 0, rows: 0 };
     current.value += value;
@@ -795,7 +810,7 @@ function deriveBusinessFindings(report: ReportInput): {
 
   if ((specialty === 'sales' || specialty === 'purchases') && amountColumn) {
     const amountKey = dataKey(amountColumn);
-    const amounts = rows.map((row) => numeric(row.data?.[amountKey])).filter((value): value is number => value != null);
+    const amounts = rows.map((row) => numeric(rowValue(row.data, amountKey))).filter((value): value is number => value != null);
     const total = amounts.reduce((sum, value) => sum + value, 0);
 
     if (total !== 0) {
@@ -842,9 +857,9 @@ function deriveBusinessFindings(report: ReportInput): {
       const dateKey = dataKey(dateColumn);
       const monthly = new Map<string, number>();
       for (const row of rows) {
-        const parsedDate = parseDate(row.data?.[dateKey]);
+        const parsedDate = parseDate(rowValue(row.data, dateKey));
         const date = parsedDate ? new Date(parsedDate) : null;
-        const value = numeric(row.data?.[amountKey]);
+        const value = numeric(rowValue(row.data, amountKey));
         if (!date || Number.isNaN(date.getTime()) || value == null) continue;
         const month = date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0');
         monthly.set(month, (monthly.get(month) ?? 0) + value);
@@ -859,12 +874,12 @@ function deriveBusinessFindings(report: ReportInput): {
           const partyKey = dataKey(partyColumn);
           const byPeriod = new Map<string, Map<string, number>>();
           for (const row of rows) {
-            const parsedDate = parseDate(row.data?.[dateKey]);
+            const parsedDate = parseDate(rowValue(row.data, dateKey));
             const date = parsedDate ? new Date(parsedDate) : null;
-            const value = numeric(row.data?.[amountKey]);
+            const value = numeric(rowValue(row.data, amountKey));
             if (!date || Number.isNaN(date.getTime()) || value == null) continue;
             const month = date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0');
-            const party = text(row.data?.[partyKey]) || 'غير محدد';
+            const party = text(rowValue(row.data, partyKey)) || 'غير محدد';
             const bucket = byPeriod.get(month) ?? new Map<string, number>();
             bucket.set(party, (bucket.get(party) ?? 0) + value);
             byPeriod.set(month, bucket);
@@ -950,16 +965,16 @@ function deriveBusinessFindings(report: ReportInput): {
     const valueByProduct = new Map<string, number>();
 
     for (const row of rows) {
-      const quantity = numeric(row.data?.[quantityKey]);
+      const quantity = numeric(rowValue(row.data, quantityKey));
       if (quantity == null) continue;
       if (quantity < 0) negative += 1;
       if (quantity === 0) zero += 1;
-      const price = priceKey ? numeric(row.data?.[priceKey]) : null;
+      const price = priceKey ? numeric(rowValue(row.data, priceKey)) : null;
       if (price != null) {
         const value = quantity * price;
         inventoryValue += value;
         valuedRows += 1;
-        const key = productColumn ? text(row.data?.[dataKey(productColumn)]) || 'غير محدد' : 'غير محدد';
+        const key = productColumn ? text(rowValue(row.data, dataKey(productColumn))) || 'غير محدد' : 'غير محدد';
         valueByProduct.set(key, (valueByProduct.get(key) ?? 0) + value);
       }
     }
@@ -1016,7 +1031,7 @@ function deriveBusinessFindings(report: ReportInput): {
 
   if (specialty === 'receivables' && balanceColumn) {
     const balanceKey = dataKey(balanceColumn);
-    const balances = rows.map((row) => numeric(row.data?.[balanceKey])).filter((value): value is number => value != null);
+    const balances = rows.map((row) => numeric(rowValue(row.data, balanceKey))).filter((value): value is number => value != null);
     const totalBalance = balances.reduce((sum, value) => sum + value, 0);
     findings.push({
       id: 'receivables:total-balance',
@@ -1064,8 +1079,8 @@ function deriveBusinessFindings(report: ReportInput): {
       let cost = 0;
       let usable = 0;
       for (const row of rows) {
-        const r = numeric(row.data?.[revenueKey]);
-        const k = numeric(row.data?.[costKey]);
+        const r = numeric(rowValue(row.data, revenueKey));
+        const k = numeric(rowValue(row.data, costKey));
         if (r == null || k == null) continue;
         revenue += r;
         cost += k;
