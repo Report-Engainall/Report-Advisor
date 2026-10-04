@@ -88,6 +88,9 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
   const createDecisionProposal = async () => {
     const basis = advisorBrief.topRisk ?? advisorBrief.topFinding ?? advisorBrief.topOpportunity;
     if (!basis) return;
+    const recommendation = report.intelligence.recommendations.find((item) => item.id === 'rec:' + basis.id)
+      ?? report.intelligence.recommendations[0]
+      ?? null;
     if (packet.proofState !== 'VERIFIED') {
       setDecisionError('لا يمكن إنشاء قرار من دليل غير مثبت.');
       return;
@@ -108,6 +111,18 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         severity: basis.priority,
         evidence: basis.evidence,
         evidenceSnapshotId: evidenceSnapshotId ?? '',
+        recommendationContext: recommendation ? {
+          action: recommendation.action,
+          why: recommendation.why,
+          whyNow: recommendation.whyNow,
+          expectedOutcome: recommendation.expectedOutcome,
+          owner: recommendation.ownerHint || null,
+          impact: recommendation.impact,
+          measurement: recommendation.measurement,
+          risk: recommendation.risk,
+          blocker: recommendation.blocker,
+          limitation: recommendation.limitation,
+        } : null,
       });
       await refreshDecisionProposal();
     } catch (error) {
