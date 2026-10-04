@@ -869,10 +869,16 @@ export function SourceBoundReportSurface({ mode, jobId, expectedSourceHash }: { 
 
   useEffect(() => {
     let active = true;
-    void fetchSmartReport(jobId).then((next) => {
+    const hash = expectedSourceHash?.trim() ?? '';
+    if (!hash) {
+      setError('INVALID_REPORT_CONTEXT');
+      setLoading(false);
+      return () => { active = false; };
+    }
+    void fetchSmartReport(jobId, hash).then((next) => {
       if (!active) return;
       if (!next) throw new Error('REPORT_SOURCE_NOT_FOUND');
-      if (expectedSourceHash && next.sourceHash !== expectedSourceHash) throw new Error('REPORT_SOURCE_HASH_MISMATCH');
+      if (next.sourceHash !== hash) throw new Error('INVALID_REPORT_CONTEXT');
       setReport(next);
     }).catch((cause) => {
       if (active) setError(cause instanceof Error ? cause.message : String(cause));
