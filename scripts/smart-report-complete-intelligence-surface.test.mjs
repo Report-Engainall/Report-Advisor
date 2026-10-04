@@ -11,17 +11,21 @@ for (const marker of [
   'كل التوصيات المؤهلة',
   'الإشارة التنبئية',
   'الإرشاد التالي',
-  'WHY NOW:',
-  'RISK:',
-  'BLOCKER:',
-  'MEASUREMENT:',
-  'LIMITATION:',
+  'لماذا الآن:',
+  'المخاطر:',
+  'العائق:',
+  'القياس:',
+  'الحدود:',
 ]) {
   if (!source.includes(marker)) throw new Error('Missing complete smart intelligence surface marker: ' + marker);
 }
 
-const signalBlock = source.slice(source.indexOf('SIGNALS'), source.indexOf('RECOMMENDATIONS'));
-const recommendationBlock = source.slice(source.indexOf('RECOMMENDATIONS'), source.indexOf('FORECAST'));
+const signalStart = source.indexOf('الإشارات');
+const recommendationStart = source.indexOf('التوصيات');
+const forecastStart = source.indexOf('التنبؤ');
+if (signalStart < 0 || recommendationStart < 0 || forecastStart < 0) throw new Error('Missing Arabic intelligence surface section boundaries');
+const signalBlock = source.slice(signalStart, recommendationStart);
+const recommendationBlock = source.slice(recommendationStart, forecastStart);
 if (signalBlock.includes('signals.slice(')) throw new Error('Signals must not be artificially truncated');
 if (recommendationBlock.includes('recommendations.slice(')) throw new Error('Recommendations must not be artificially truncated');
 
