@@ -391,16 +391,16 @@ export function DecisionInboxPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <PriorityBadge priority={item.priority === 'P0' ? 'critical' : item.priority === 'P1' ? 'high' : item.priority === 'P2' ? 'medium' : 'low'} />
                       <SeverityBadge severity={item.severity} />
-                      <span className="text-[9px] font-mono text-ink-400">{item.decisionType}</span>
+                      
                     </div>
                     <h2 className="mt-2 text-[15px] font-black text-ink-950">{item.signalTitle}</h2>
                     <p className="mt-1 text-[11px] leading-6 text-ink-500">{item.signalMessage}</p>
 
                     <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-4">
-                      <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">EVIDENCE</div><div className="mt-1 text-[10px] font-bold text-ink-800">{item.sourcePath ?? 'مصدر غير متاح'}</div><div className="mt-1 text-[8px] text-ink-400">{item.passportStatus} · {item.passportReadiness}</div></div>
-                      <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">OWNER</div><div className="mt-1 flex items-center gap-1 text-[10px] font-bold text-ink-800"><UserRound size={12}/>{item.owner}</div><div className="mt-1 text-[8px] text-ink-400">Deadline: {formatDate(item.deadline)}</div></div>
+                      <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">EVIDENCE</div><div className="mt-1 text-[10px] font-bold text-ink-800">{item.sourcePath ?? 'مصدر غير متاح'}</div><div className="mt-1 text-[8px] text-ink-400">{item.passportStatus === 'VERIFIED' ? 'الدليل موثق' : 'الدليل يحتاج مراجعة'} · {item.passportReadiness === 'READY' ? 'جاهز للقرار' : 'الجاهزية غير مكتملة'}</div></div>
+                      <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">OWNER</div><div className="mt-1 flex items-center gap-1 text-[10px] font-bold text-ink-800"><UserRound size={12}/>{item.owner}</div><div className="mt-1 text-[8px] text-ink-400">الموعد: {formatDate(item.deadline)}</div></div>
                       <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">STATUS</div><div className="mt-1 text-[10px] font-bold text-ink-800">{item.status} {item.approvalStatus ? '· approval ' + item.approvalStatus : ''}</div><div className="mt-1 text-[8px] text-ink-400">{item.workItemStatus ? 'work ' + item.workItemStatus : 'لا يوجد عمل بعد'}</div></div>
-                      <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">OUTCOME</div><div className="mt-1 text-[10px] font-bold text-ink-800">{item.outcomeId ? item.outcomeStatus : 'لم تسجل نتيجة'}</div><div className="mt-1 text-[8px] text-ink-400">{item.actualImpact == null ? 'الأثر غير مثبت' : 'Actual: ' + item.actualImpact}</div></div>
+                      <div className="rounded-xl bg-ink-50 p-2.5"><div className="text-[8px] font-black text-ink-400">OUTCOME</div><div className="mt-1 text-[10px] font-bold text-ink-800">{item.outcomeId ? (item.outcomeStatus === 'OBSERVED' ? 'نتيجة مرصودة' : item.outcomeStatus === 'COMPLETED' ? 'مكتملة' : 'مقاسة') : 'لم تسجل نتيجة'}</div><div className="mt-1 text-[8px] text-ink-400">{item.actualImpact == null ? 'الأثر غير مثبت' : 'الأثر الفعلي: ' + item.actualImpact}</div></div>
                     </div>
                   </div>
 
