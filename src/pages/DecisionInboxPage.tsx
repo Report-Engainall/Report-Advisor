@@ -284,7 +284,7 @@ export function DecisionInboxPage() {
         why: item.signalMessage,
         impact: item.actualImpact == null ? 'الأثر المالي غير مثبت بعد.' : 'الأثر الفعلي المسجل: ' + item.actualImpact,
         evidence: [
-          'التقرير المرتبط بالقرار'
+          'التقرير المرتبط بالقرار',
           item.evidenceSnapshotId ? 'Evidence Snapshot: ' + item.evidenceSnapshotId : 'لا توجد لقطة دليل',
           item.sourceHash ?? 'لا يوجد source hash',
         ],
