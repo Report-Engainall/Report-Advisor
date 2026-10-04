@@ -438,7 +438,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const normalizedJobId = jobId.trim();
   const normalizedSourceHash = expectedSourceHash.trim();
   if (!normalizedJobId) throw new Error('INVALID_REPORT_CONTEXT');
-  if (!/^sha256:[0-9a-fA-F]{64}$/.test(normalizedSourceHash)) throw new Error('INVALID_REPORT_CONTEXT');
+  if (normalizedSourceHash && !/^sha256:[0-9a-fA-F]{64}$/.test(normalizedSourceHash)) throw new Error('INVALID_REPORT_CONTEXT');
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
@@ -451,7 +451,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
 
   if (jobError) throw jobError;
   if (!job || job.status !== 'completed') throw new Error('INVALID_REPORT_CONTEXT');
-  if (String(job.source_hash ?? '').trim() !== normalizedSourceHash) throw new Error('INVALID_REPORT_CONTEXT');
+  const resolvedSourceHash = String(job.source_hash ?? '').trim();
+  if (!/^sha256:[0-9a-fA-F]{64}$/.test(resolvedSourceHash)) throw new Error('INVALID_REPORT_CONTEXT');
+  if (normalizedSourceHash && resolvedSourceHash !== normalizedSourceHash) throw new Error('INVALID_REPORT_CONTEXT');
 
   const runtimeWarnings: string[] = [];
   const renderedOutput = renderedOutputOf(job.evidence);
@@ -564,7 +566,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       .from('canonical_import_commits')
       .select('committed_ids')
       .eq('company_id', companyId)
-      .eq('source_hash', sourceHash)
+      .eq('source_hash', resolvedSourceHash)
       .order('committed_at', { ascending: false })
       .limit(1)
       .maybeSingle();
@@ -603,7 +605,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       .from('canonical_dataset_records')
       .select('row_number,data,import_job_id')
       .eq('company_id', companyId)
-      .eq('source_hash', sourceHash);
+      .eq('source_hash', resolvedSourceHash);
 
     const canonicalScopedQuery = canonicalSourceQuery.eq('import_job_id', canonicalImportJobId);
     const { data: pageRows, error: pageError } = await canonicalScopedQuery
