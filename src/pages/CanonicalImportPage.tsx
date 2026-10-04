@@ -176,11 +176,6 @@ export function CanonicalImportPage() {
     setError(null);
   }, []);
 
-  const analyzeQueuedFile = useCallback((queued: File) => {
-    setQueuedFiles((current) => current.filter((candidate) => candidate !== queued));
-    void handleFile(queued);
-  }, [handleFile]);
-
   const handleFile = useCallback(async (selected: File) => {
     setError(null); setWarnings([]); setDuplicate(false); setExistingSmartReportJobId(null); setSecurityPassed(false); setQualityApproved(false); setStep('scanning');
     try {
@@ -230,6 +225,11 @@ export function CanonicalImportPage() {
       setError(e?.message || 'فشل قراءة الملف'); setStep('upload');
     }
   }, []);
+
+  const analyzeQueuedFile = useCallback((queued: File) => {
+    setQueuedFiles((current) => current.filter((candidate) => candidate !== queued));
+    void handleFile(queued);
+  }, [handleFile]);
 
   useEffect(() => {
     const state = location.state as { preloadedFile?: File } | null;
