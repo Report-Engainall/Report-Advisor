@@ -158,12 +158,12 @@ function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report
       <Card><CardHeader title="حدود الحقيقة"/><CardBody>
         <div className="space-y-2 text-xs leading-5 text-ink-600">
           <div>الثقة: <b>{report.trustState ?? 'غير متاح'}</b></div>
-          <div>الدليل: <b>{report.evidenceStatus ?? 'غير متاح'}</b></div>
+          <div>الدليل: <b>{report.evidenceStatus === 'VERIFIED' ? 'موثق' : report.evidenceStatus === 'AWAITING_EVIDENCE_SNAPSHOT' ? 'بانتظار الدليل' : 'يحتاج مراجعة'}</b></div>
           <div>القرار: <b>{String(report.renderedOutput.decisionStatus ?? 'غير متاح')}</b></div>
           <div>الإجراء: <b>{String(report.renderedOutput.actionStatus ?? 'غير متاح')}</b></div>
           <div>النتيجة: <b>{String(report.renderedOutput.outcomeStatus ?? 'غير متاح')}</b></div>
           <div>التعلم: <b>{String(report.renderedOutput.learningStatus ?? 'غير متاح')}</b></div>
-          <div>Benchmark: <b>{String(report.renderedOutput.benchmarkStatus ?? 'غير متاح')}</b></div>
+          <div>المعيار المقارن: <b>{report.renderedOutput.benchmarkStatus === 'INSUFFICIENT_SAMPLE' ? 'العينة غير كافية' : 'غير متاح'}</b></div>
         </div>
       </CardBody></Card>
     </section>
@@ -365,7 +365,7 @@ export function ReportsCenterPage() {
                   <div className="mt-3 rounded-xl border border-primary-100 bg-primary-50/60 p-3">
                     <div className="text-[9px] font-black tracking-[.08em] text-primary-700">ADVISOR MODEL</div>
                     <div className="mt-1 truncate text-[11px] font-black text-ink-950" title={modelLabel}>{modelLabel}</div>
-                    <div className="mt-1 text-[9px] text-ink-500">الحالة: {report.archetypeState ?? 'غير متاح'}</div>
+                    <div className="mt-1 text-[9px] text-ink-500">الحالة: {report.archetypeState === 'REVIEW_REQUIRED' ? 'يحتاج مراجعة النموذج' : report.archetypeState === 'SUPPORTED' ? 'النموذج صالح' : 'غير متاح'}</div>
                   </div>
 
                   <div className="mt-3 grid grid-cols-2 gap-2 text-[9px]">
@@ -409,7 +409,7 @@ export function ReportsCenterPage() {
         <p className="mt-1 text-[10px] leading-5 text-ink-500">مسار الجودة هو المصدر الحالي لمراجعة الحالات بدل إنشاء تقرير تدقيق منفصل ببيانات مكررة.</p>
       </Link>
       <div className="card p-4 border-warning-200 bg-warning-50/35">
-        <div className="text-[9px] font-black tracking-[.12em] text-warning-800">NOT AVAILABLE</div>
+        <div className="text-[9px] font-black tracking-[.12em] text-warning-800">غير متاح</div>
         <h3 className="mt-2 text-sm font-black text-ink-900">Report Builder</h3>
         <p className="mt-1 text-[10px] leading-5 text-warning-900">لا توجد شاشة بناء تقارير مستقلة مثبتة في المسار الحالي؛ لا يتم محاكاة محرر لا يملك مسارًا حقيقيًا.</p>
       </div>
