@@ -744,7 +744,7 @@ export function SmartReportPage() {
   const output = report.renderedOutput;
   const outputs = Array.isArray(output.outputs) ? output.outputs.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object') : [];
   const surfaceLinks = outputs.filter((item) => typeof item.path === 'string');
-  const decisionKeys = ['recommendationStatus','decisionStatus','approvalStatus','actionStatus','outcomeStatus','learningStatus','benchmarkStatus','replayStatus'];
+  const decisionKeys: Array<[string,string]> = [['recommendationStatus','التوصية'],['decisionStatus','القرار'],['approvalStatus','الموافقة'],['actionStatus','التنفيذ'],['outcomeStatus','النتيجة'],['learningStatus','التعلّم'],['benchmarkStatus','المقارنة'],['replayStatus','إعادة التشغيل']];
   const sourceIsVerified = report.reportVerificationState === 'VERIFIED';
   const businessSummary = report.specialty === 'receivables'
     ? 'هذا المصدر هو تقرير ذمم مدينة. تمت قراءة أرصدة العملاء وشرائح الأعمار من المصدر الكانوني؛ القرارات والتحصيل الفعلي لا تُنسب للمصدر ما لم توجد معاملة موثقة.'
@@ -794,29 +794,29 @@ export function SmartReportPage() {
       stages={[
         {
           label: 'المصدر',
-          englishLabel: 'SOURCE',
+          englishLabel: 'المصدر',
           status: stateLabel(report.sourceTrustState ?? report.trustState),
           detail: (report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي') + ' · ' + formatNumber(report.rowCount ?? 0) + ' سجل · ' + (report.sourceAnalysis?.sourceFormat ?? 'غير متاح'),
           tone: report.sourceTrustState === 'VERIFIED' || report.trustState === 'TRUSTED' ? 'trusted' : 'active',
         },
         {
           label: 'الدليل',
-          englishLabel: 'EVIDENCE',
-          status: report.reportVerificationState === 'VERIFIED' ? 'VERIFIED' : report.reportVerificationState === 'GAP_DETECTED' ? 'REVIEW' : 'PENDING',
+          englishLabel: 'الدليل',
+          status: report.reportVerificationState === 'VERIFIED' ? 'موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'مراجعة' : 'بانتظار الدليل',
           detail: 'لقطة الدليل والاعتماد الكانوني منفصلان عن مجرد قراءة المصدر.',
           href: '/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
           tone: report.reportVerificationState === 'VERIFIED' ? 'trusted' : 'attention',
         },
         {
           label: 'الإشارات',
-          englishLabel: 'SIGNALS',
+          englishLabel: 'الإشارات',
           status: report.intelligence.signals.length ? report.intelligence.signals.length + ' مثبتة' : 'لا توجد',
           detail: report.intelligence.signals[0]?.title ?? 'لا توجد إشارة استثنائية مثبتة في المصدر الحالي.',
           tone: report.intelligence.signals.length ? 'active' : 'neutral',
         },
         {
           label: 'المستشار',
-          englishLabel: 'ADVISOR',
+          englishLabel: 'المستشار',
           status: report.intelligence.recommendations.length ? report.intelligence.recommendations.length + ' توصية' : 'غير متاح',
           detail: report.intelligence.advisorBrief.recommendedAction ?? report.intelligence.guidance.focus ?? 'لا توجد توصية مصدرية كافية حاليًا.',
           tone: report.intelligence.recommendations.length ? 'active' : 'neutral',
@@ -824,7 +824,7 @@ export function SmartReportPage() {
         },
         {
           label: 'القرار',
-          englishLabel: 'DECISION',
+          englishLabel: 'القرار',
           status: stateLabel(output.decisionStatus == null ? null : String(output.decisionStatus)),
           detail: 'القرار المعتمد لا يُستنتج تلقائيًا من التوصية؛ يبقى منفصلًا وقابلًا للتدقيق.',
           href: '/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
@@ -832,7 +832,7 @@ export function SmartReportPage() {
         },
         {
           label: 'التنفيذ',
-          englishLabel: 'WORK',
+          englishLabel: 'التنفيذ',
           status: stateLabel(output.actionStatus == null ? null : String(output.actionStatus)),
           detail: 'مركز العمل هو طبقة التنفيذ؛ لا نخلط بين توصية ذكية وتنفيذ فعلي.',
           href: '/work-center?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
@@ -840,7 +840,7 @@ export function SmartReportPage() {
         },
         {
           label: 'النتيجة',
-          englishLabel: 'OUTCOME',
+          englishLabel: 'النتيجة',
           status: stateLabel(output.outcomeStatus == null ? null : String(output.outcomeStatus)),
           detail: output.actualImpact == null ? 'لم تُسجل نتيجة فعلية بعد.' : 'الأثر الفعلي: ' + formatMetric(numberValue(output.actualImpact)),
           href: '/replay?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
@@ -848,7 +848,7 @@ export function SmartReportPage() {
         },
         {
           label: 'التعلم',
-          englishLabel: 'LEARNING',
+          englishLabel: 'التعلّم',
           status: stateLabel(output.learningStatus == null ? null : String(output.learningStatus)),
           detail: 'يظهر هنا فقط ما تم رصده وتثبيته بعد التنفيذ؛ لا تُصنع نتيجة مستقبلية.',
           href: '/benchmark?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
@@ -1002,7 +1002,7 @@ export function SmartReportPage() {
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex items-center gap-2"><FileSearch size={18} className="text-primary-600"/><div><div className="section-kicker">القرار → التنفيذ → النتيجة → التعلّم → المقارنة</div><h2 className="mt-1 text-lg font-black">ما الذي ثبت وما الذي لم يُثبت</h2></div></div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {decisionKeys.map((key) => <div key={key} className="rounded-xl border border-ink-100 bg-ink-50/70 p-4"><div className="text-[10px] font-black text-ink-500">{key}</div><div className="mt-2 text-sm font-bold text-ink-900">{stateLabel(output[key] == null ? null : String(output[key]))}</div></div>)}
+        {decisionKeys.map(([key, label]) => <div key={key} className="rounded-xl border border-ink-100 bg-ink-50/70 p-4"><div className="text-[10px] font-black text-ink-500">{label}</div><div className="mt-2 text-sm font-bold text-ink-900">{stateLabel(output[key] == null ? null : String(output[key]))}</div></div>)}
       </div>
     </section>
 
@@ -1049,6 +1049,5 @@ export function SmartReportPage() {
         <div><dt className="font-bold text-ink-500">Analysis snapshot</dt><dd className="mt-1 break-all font-mono text-ink-900">{report.sourceAnalysis?.id ?? 'غير متاح'}</dd></div>
       </dl>
     </details>
-      </div>
   </div>;
 }
