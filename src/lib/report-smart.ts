@@ -555,7 +555,8 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     const canonicalSourceQuery = supabase
       .from('canonical_dataset_records')
       .select('row_number,data')
-      .eq('company_id', companyId);
+      .eq('company_id', companyId)
+      .eq('source_hash', sourceHash);
     const canonicalScopedQuery = canonicalSourceQuery.eq('import_job_id', canonicalImportJobId);
     const { data: pageRows, error: pageError } = await canonicalScopedQuery
       .order('row_number', { ascending: true })
@@ -595,11 +596,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   // The database read-back is the authoritative truth for canonical coverage.
   // Passport metadata may be stale; it must never upgrade an empty/missing canonical
   // table into a VERIFIED/READY state.
-  const actualCanonicalRowCount = canonicalRowsComplete ? canonicalRows.length : canonicalRows.length;
+  const actualCanonicalRowCount = canonicalRows.length;
   const canonicalCommitCount = actualCanonicalRowCount;
   const authoritativeCurrentRowCount = actualCanonicalRowCount;
-  const passportCommitGap =
-    canonicalCommitLineageCount == null ? null : Math.max(0, canonicalCommitLineageCount - actualCanonicalRowCount);
   const canonicalCommitGap =
     effectiveRendered.rowCount == null
       ? null
