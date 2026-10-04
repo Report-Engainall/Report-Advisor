@@ -157,7 +157,7 @@ function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
   const columns = (dataset as Record<string, unknown>).columns;
   if (!Array.isArray(columns)) return [];
 
-  return columns
+  const descriptors = columns
     .map((item): Record<string, unknown> | null => {
       if (item && typeof item === 'object') {
         const column = item as Record<string, unknown>;
@@ -176,6 +176,18 @@ function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
       };
     })
     .filter((item): item is Record<string, unknown> => item !== null);
+
+  const rows = report.canonicalRows ?? [];
+  return descriptors.map((column) => {
+    if (!rows.length) return column;
+    const key = dataKey(column);
+    const nullCount = rows.reduce((count, row) => {
+      const value = row.data?.[key];
+      return count + (value == null || String(value).trim() === '' ? 1 : 0);
+    }, 0);
+    if (column.nullCount == null) return { ...column, nullCount };
+    return column;
+  });
 }
 
 function findColumn(columns: Array<Record<string, unknown>>, aliases: string[]): Record<string, unknown> | null {
