@@ -326,4 +326,16 @@ assert.ok(inventoryUnavailable.includes('if (!snapshot) return <DataUnavailableS
 const canonicalProfitability = fs.readFileSync('src/pages/ProfitabilityReportCanonicalPage.tsx', 'utf8');
 assert.ok(canonicalProfitability.includes('DataUnavailableState'), 'canonical profitability must expose a governed unavailable-data state');
 assert.ok(canonicalProfitability.includes('<Link to="/import"'), 'canonical profitability unavailable state must use the unified import route');
+
+const visualSystem = fs.readFileSync('src/index.css', 'utf8');
+assert.ok(visualSystem.includes('EXECUTIVE VISUAL SYSTEM'), 'visual system must expose the current executive design contract');
+assert.ok(visualSystem.includes('--ag-color-brand:#4f46e5'), 'brand token must be indigo, not green');
+assert.ok(visualSystem.includes('--ag-color-shell:#0b1020'), 'shell token must be midnight navy');
+assert.ok(visualSystem.includes('.ag-app-shell{'), 'application shell must have an explicit premium visual treatment');
+assert.ok(visualSystem.includes('linear-gradient(135deg,#080b16 0%,#0b1020 54%,#11162a 100%)'), 'application shell must use the midnight visual palette');
+assert.ok(visualSystem.includes('.ag-sidebar{'), 'sidebar must have an explicit executive visual treatment');
+assert.ok(visualSystem.includes('linear-gradient(180deg,#0a0f1e 0%,#0d1426 58%,#090d18 100%)'), 'sidebar must use midnight navy rather than green');
+assert.ok(visualSystem.includes('.nav-item-active{'), 'active navigation must have a visible indigo state');
+assert.ok(visualSystem.includes('.btn-primary{'), 'primary actions must have a premium indigo treatment');
+
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
