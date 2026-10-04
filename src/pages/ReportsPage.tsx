@@ -15,6 +15,26 @@ import { downloadReportArtifact } from '@/lib/report-execution/download';
 import type { SalesInvoice, PurchaseInvoice } from '@/lib/types';
 import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingBucket, InventoryReportRow } from '@/lib/dashboard-canonical';
 
+function businessLifecycleLabel(value: unknown): string {
+  const key = String(value ?? '').trim();
+  const labels: Record<string, string> = {
+    NOT_COMMITTED: 'لم يُعتمد بعد',
+    PROPOSED: 'توصية بانتظار القرار',
+    APPROVED: 'معتمد',
+    REJECTED: 'مرفوض',
+    NO_ACTION_COMMITTED: 'لا يوجد إجراء موثق بعد',
+    ACTIONABLE: 'قابل للتحويل إلى عمل',
+    IN_PROGRESS: 'قيد التنفيذ',
+    COMPLETED: 'مكتمل',
+    NOT_RECORDED: 'لم تُسجل نتيجة',
+    OBSERVED: 'نتيجة مرصودة',
+    MEASURED: 'نتيجة مقاسة',
+    LEARNING_PENDING: 'بانتظار التعلم',
+    LEARNED: 'تم تسجيل التعلم',
+  };
+  return labels[key] ?? (key ? 'حالة تحتاج مراجعة' : 'غير متاح');
+}
+
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
@@ -159,10 +179,10 @@ function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report
         <div className="space-y-2 text-xs leading-5 text-ink-600">
           <div>الثقة: <b>{report.trustState ?? 'غير متاح'}</b></div>
           <div>الدليل: <b>{report.evidenceStatus === 'VERIFIED' ? 'موثق' : report.evidenceStatus === 'AWAITING_EVIDENCE_SNAPSHOT' ? 'بانتظار الدليل' : 'يحتاج مراجعة'}</b></div>
-          <div>القرار: <b>{String(report.renderedOutput.decisionStatus ?? 'غير متاح')}</b></div>
-          <div>الإجراء: <b>{String(report.renderedOutput.actionStatus ?? 'غير متاح')}</b></div>
-          <div>النتيجة: <b>{String(report.renderedOutput.outcomeStatus ?? 'غير متاح')}</b></div>
-          <div>التعلم: <b>{String(report.renderedOutput.learningStatus ?? 'غير متاح')}</b></div>
+          <div>القرار: <b>{businessLifecycleLabel(report.renderedOutput.decisionStatus)}</b></div>
+          <div>الإجراء: <b>{businessLifecycleLabel(report.renderedOutput.actionStatus)}</b></div>
+          <div>النتيجة: <b>{businessLifecycleLabel(report.renderedOutput.outcomeStatus)}</b></div>
+          <div>التعلم: <b>{businessLifecycleLabel(report.renderedOutput.learningStatus)}</b></div>
           <div>المعيار المقارن: <b>{report.renderedOutput.benchmarkStatus === 'INSUFFICIENT_SAMPLE' ? 'العينة غير كافية' : 'غير متاح'}</b></div>
         </div>
       </CardBody></Card>
