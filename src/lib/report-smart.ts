@@ -138,7 +138,34 @@ function sourceColumnDescriptors(analysis: AnalysisSnapshotLike | null | undefin
         const declaredMapped = String(item.mappedField ?? '').trim();
         const semanticMapped = normalizeBusinessField(name);
         const mapped = String(semanticMapped ?? declaredMapped ?? '').trim();
-        output.set(mapped || name, { ...item, name, mappedField: mapped || null });
+        const originalQualityIssues = Array.isArray(item.qualityIssues)
+          ? item.qualityIssues.map(String)
+          : [];
+        const qualityIssues = semanticMapped
+          ? originalQualityIssues.filter((issue) => issue !== 'لم يتم تعريف العمود')
+          : originalQualityIssues;
+        const requiresReview = semanticMapped
+          ? Boolean(item.requiresReview) && qualityIssues.length > 0
+          : Boolean(item.requiresReview);
+        output.set(mapped || name, {
+          ...item,
+          name,
+          mappedField: mapped || null,
+          qualityIssues,
+          requiresReview,
+          mappingConfidence: semanticMapped
+            ? Math.max(Number(item.mappingConfidence ?? 0), 85)
+            : item.mappingConfidence,
+          mappingEvidence: semanticMapped
+            ? {
+                ...(item.mappingEvidence && typeof item.mappingEvidence === 'object'
+                  ? item.mappingEvidence as Record<string, unknown>
+                  : {}),
+                semanticMapped: true,
+                originalMappedField: item.mappedField ?? null,
+              }
+            : item.mappingEvidence,
+        });
       } else {
         const name = String(column ?? '').trim();
         if (!name || isExtractionArtifactHeader(name)) continue;
@@ -721,30 +748,71 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     ? analysis.datasets.filter((dataset): dataset is Record<string, unknown> => Boolean(dataset) && typeof dataset === 'object')
     : [];
   const sourceColumns = sourceColumnDescriptors(sourceAnalysis, canonicalRows);
-  const reviewColumns = sourceColumns.filter((column) => column.requiresReview === true);
-  const qualityIssueColumns = sourceColumns.filter((column) => Array.isArray(column.qualityIssues) && column.qualityIssues.length > 0);
-  const specialtyRequiredFields: Record<string, string[]> = {
+  const specialtyCoreFields: Record<string, string[]> = {
     payments: ['date', 'balance', 'credit'],
     sales: ['date', 'invoice_number', 'customer_name', 'total'],
     purchases: ['date', 'supplier_name', 'total'],
     receivables: ['date', 'balance'],
-    inventory: ['sku', 'product_name'],
+    inventory: ['sku', 'product_name', 'current_stock'],
   };
-  const requiredFields = specialtyRequiredFields[specialty ?? ''] ?? [];
-  const mappedFields = new Set(sourceColumns.map((column) => String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim()).filter(Boolean));
+  const requiredFields = specialtyCoreFields[specialty ?? ''] ?? [];
+  const mappedFields = new Set(
+    sourceColumns
+      .map((column) => String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim())
+      .filter(Boolean),
+  );
   const missingRequiredFields = requiredFields.filter((field) => !mappedFields.has(field));
   if (specialty === 'inventory' && !['current_stock', 'quantity', 'balance'].some((field) => mappedFields.has(field))) {
     missingRequiredFields.push('current_stock');
   }
+
+  // Optional/legacy source issues must not suppress useful intelligence when the
+  // core fields are valid. Only issues on core reasoning fields can hard-block.
+  const coreFieldSet = new Set((specialtyCoreFields[specialty ?? ''] ?? []).map(String));
+  if (specialty === 'inventory') {
+    coreFieldSet.add('quantity');
+    coreFieldSet.add('balance');
+  }
+  const blockingReviewColumns = sourceColumns.filter((column) => {
+    if (column.requiresReview !== true) return false;
+    const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
+    return !mapped || coreFieldSet.has(mapped);
+  });
+  const blockingQualityIssueColumns = sourceColumns.filter((column) => {
+    const issues = Array.isArray(column.qualityIssues) ? column.qualityIssues : [];
+    if (!issues.length) return false;
+    const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
+    return !mapped || coreFieldSet.has(mapped);
+  });
+
   const intelligenceGateReasons: string[] = [];
   if (!analysis || String(analysis.analysis_status ?? '') !== 'analyzed') intelligenceGateReasons.push('التحليل المصدرّي غير مكتمل');
   if (Number(analysis?.quality_score ?? 0) < 85) intelligenceGateReasons.push('جودة المصدر أقل من حد الاعتماد الذكي');
-  if (reviewColumns.length > 0) intelligenceGateReasons.push('توجد أعمدة تحتاج مراجعة بنيوية أو دلالية');
-  if (qualityIssueColumns.length > 0) intelligenceGateReasons.push('توجد مشكلات جودة في أعمدة المصدر');
+  if (blockingReviewColumns.length > 0) {
+    intelligenceGateReasons.push('توجد مراجعة لازمة في حقول أساسية: ' + blockingReviewColumns.map((column) => String(column.name ?? column.mappedField ?? 'غير مسمى')).join('، '));
+  }
+  if (blockingQualityIssueColumns.length > 0) {
+    intelligenceGateReasons.push('توجد مشكلة جودة في حقول أساسية: ' + blockingQualityIssueColumns.map((column) => String(column.name ?? column.mappedField ?? 'غير مسمى')).join('، '));
+  }
   if (missingRequiredFields.length > 0) intelligenceGateReasons.push('حقول أساسية مفقودة: ' + missingRequiredFields.join(', '));
   if (!canonicalRowsComplete || canonicalRowsPartial) intelligenceGateReasons.push('الصفوف الكانونية غير مكتملة');
   if (canonicalCommitGap != null && canonicalCommitGap > 0) intelligenceGateReasons.push('يوجد فجوة بين الصفوف المصدرية والصفوف الكانونية');
   const intelligenceEligible = intelligenceGateReasons.length === 0;
+
+  const nonBlockingQualityWarnings = sourceColumns
+    .filter((column) => {
+      const issues = Array.isArray(column.qualityIssues) ? column.qualityIssues : [];
+      if (!issues.length) return false;
+      const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
+      return Boolean(mapped && !coreFieldSet.has(mapped));
+    })
+    .map((column) => String(column.name ?? column.mappedField ?? 'غير مسمى'));
+
+  if (nonBlockingQualityWarnings.length > 0) {
+    runtimeWarnings.push(
+      'ملاحظات غير مانعة في حقول مساندة: ' + nonBlockingQualityWarnings.slice(0, 8).join('، '),
+    );
+  }
 
   let baseIntelligence: ReportIntelligence;
   if (!intelligenceEligible) {

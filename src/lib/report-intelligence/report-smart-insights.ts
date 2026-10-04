@@ -143,6 +143,16 @@ function canonicalSourceField(value: unknown): string | null {
     ['credit', ['credit','دائن']],
     ['debit', ['debit','مدين']],
     ['quantity', ['quantity','qty','الكمية','العدد']],
+    ['current_stock', ['current_stock','currentstock','stock','on_hand','onhand','الرصيدالحالي','المخزونالحالي','الكميةالمتوفرة','الكميةالمتاحة']],
+    ['daily_sales_rate', ['daily_sales_rate','dailysalesrate','معدل البيع اليومي','معدل البيع ليومي','معدل البيعيومي','متوسط البيع اليومي']],
+    ['annual_sales_rate', ['annual_sales_rate','annualsalesrate','معدل البيع العام','معدل البيع السنوي']],
+    ['sales_qty', ['sales_qty','salesqty','كمية المبيعات','الكميةالمباعة','صافي المبيعات','صافيالمبيعات']],
+    ['stockout_days', ['stockout_days','stockoutdays','أيام النفاد','فترة النفاد','الفترة المتوقعة لنفاد الكمية','الفترةالمتوقعةلنفادالكمية']],
+    ['stock_age_days', ['stock_age_days','stockagedays','عمر المخزون','عمرالمخزون']],
+    ['stock_age_period_days', ['stock_age_period_days','stockageperioddays','عمر المخزون للفترة','عمرالمخزونللفترة']],
+    ['opening_stock', ['opening_stock','openingstock','الرصيد الافتتاحي','الرصيدالإفتتاحي','المخزون الافتتاحي']],
+    ['net_inbound', ['net_inbound','netinbound','صافي الوارد','صافيوارد']],
+    ['transfers_pending', ['transfers_pending','pending_transfer','تحويل غير مستلم','تحويلغيرمستلم']],
     ['unit_price', ['unit_price','سعرالوحدة']],
     ['cost', ['cost','cost_price','التكلفة']],
     ['price', ['price','السعر']],
@@ -170,7 +180,7 @@ function columnsOf(report: ReportInput): Array<Record<string, unknown>> {
         if (!name || isExtractionArtifactHeader(name)) return null;
         const declaredMapped = text(column.mappedField);
         const semanticMapped = canonicalSourceField(name);
-        const mappedField = semanticMapped || declaredMapped;
+        const mappedField = declaredMapped || semanticMapped;
         return { ...column, name, mappedField: mappedField || null };
       }
       const name = text(item);
@@ -218,7 +228,7 @@ function findColumn(columns: Array<Record<string, unknown>>, aliases: string[]):
 function dataKey(column: Record<string, unknown> | null | undefined): string {
   const name = text(column?.name);
   const mapped = text(column?.mappedField);
-  return name || mapped;
+  return mapped || name;
 }
 
 function rowValue(row: Record<string, unknown> | null | undefined, key: string): unknown {
@@ -611,7 +621,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
   });
   return enriched
     .sort((a, b) => rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title))
-    .slice(0, 12);
+    .slice(0, 24);
 }
 
 function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] {
@@ -621,7 +631,7 @@ function deriveRecommendations(signals: ReportSignal[]): ReportRecommendation[] 
       const rank: Record<ReportSignalSeverity, number> = { critical: 5, high: 4, medium: 3, low: 2, info: 1 };
       return rank[b.severity] - rank[a.severity] || a.title.localeCompare(b.title);
     })
-    .slice(0, 8)
+    .slice(0, 24)
     .map((signal) => {
     let action = 'افحص الدليل المرتبط بهذا الاستثناء ثم قرر الإجراء المناسب.';
     if (signal.id.includes('inventory:stockout')) action = 'افتح قائمة الأصناف بلا رصيد مع مبيعات، راجع الكمية المتاحة والحركات، ثم أنشئ أولوية توريد بعد اعتماد الدليل.';
@@ -727,18 +737,29 @@ function isAggregateRow(data: Record<string, unknown> | null | undefined): boole
   if (!data) return false;
   const label = text(
     data.customer_name ??
+    data.customerName ??
     data['اسم العميل'] ??
     data.supplier_name ??
+    data.supplierName ??
     data['اسم المورد'] ??
     data.invoice_type ??
+    data.invoiceType ??
     data['نوع الفاتوره'] ??
     '',
   );
-  if (/^(?:الإجمالي|اجمالي|المجموع|total|grand\s+total)\s*:?[\s]*$/iu.test(label)) return true;
+  if (/^(?:الإجمالي|اجمالي|المجموع|total|grand\\s+total)\\s*:?[s]*$/iu.test(label)) return true;
 
-  const invoice = text(data.invoice_number ?? data['رقم الفاتوره']);
-  const date = text(data.date ?? data.invoice_date ?? data['التاريخ']);
-  const amount = numeric(data.total ?? data.total_amount ?? data['اجمالي الفاتوره'] ?? data.net_amount ?? data['مبلغ الصافي بالمحلي']);
+  const invoice = text(data.invoice_number ?? data.invoiceNumber ?? data.invoiceNo ?? data['رقم الفاتوره']);
+  const date = text(data.date ?? data.invoice_date ?? data.invoiceDate ?? data.transactionDate ?? data['التاريخ']);
+  const amount = numeric(
+    data.total ??
+    data.total_amount ??
+    data.totalAmount ??
+    data['اجمالي الفاتوره'] ??
+    data.net_amount ??
+    data.netAmount ??
+    data['مبلغ الصافي بالمحلي'],
+  );
   return !invoice && !date && amount != null;
 }
 
