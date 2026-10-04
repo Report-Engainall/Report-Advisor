@@ -41,8 +41,13 @@ function stateLabel(value: string | null): string {
     SIGNALS_PRESENT: 'إشارات مثبتة',
     NO_EXCEPTIONAL_SIGNALS: 'لا توجد إشارات استثنائية',
     REVIEW_REQUIRED: 'المراجعة مطلوبة',
+    PROPOSED: 'مقترح',
+    PARTIAL_ANALYSIS: 'تحليل جزئي',
+    BLOCKED: 'محظور',
+    INSUFFICIENT_DATA: 'البيانات غير كافية',
+    NOT_READY: 'غير جاهز',
   };
-  return value ? (labels[value] ?? value) : 'غير متاح';
+  return value ? (labels[value] ?? (value.includes('_') ? 'حالة تحتاج مراجعة' : value)) : 'غير متاح';
 }
 
 type SmartColumn = {
