@@ -1148,8 +1148,8 @@ body{
   background:linear-gradient(145deg,#f2c763,#d99b2c)!important;
   color:#16140e!important;box-shadow:0 8px 22px -14px rgba(240,185,75,.8)!important;
 }
-.ag-sidebar a[href="/"] .text-[14px]{color:#f5f7fb!important}
-.ag-sidebar a[href="/"] .text-[10px]{color:#9ca6b8!important}
+.ag-sidebar a[href="/"] .text-\[14px\]{color:#f5f7fb!important}
+.ag-sidebar a[href="/"] .text-\[10px\]{color:#9ca6b8!important}
 .ag-sidebar-workspace{
   border-color:#252c39!important;
   background:
