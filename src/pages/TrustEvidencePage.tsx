@@ -7,21 +7,21 @@ import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/u
 import { fetchDataQualitySnapshot } from '@/lib/data-quality-snapshot';
 
 const states = [
-  { title: 'VERIFIED', text: 'بيانات قابلة للإثبات من المسار الكانوني.', tone: 'bg-success-50 text-success-700', icon: CheckCircle2 },
-  { title: 'TRUSTED', text: 'حالة ثقة قابلة للاستخدام عندما يثبت المصدر والسياق المطلوب.', tone: 'bg-primary-50 text-primary-700', icon: ShieldCheck },
-  { title: 'PARTIAL', text: 'متاحة جزئيًا مع حدود معلنة.', tone: 'bg-primary-50 text-primary-700', icon: GitBranch },
-  { title: 'REVIEW', text: 'تحتاج مراجعة قبل استخدامها في قرار.', tone: 'bg-warning-50 text-warning-700', icon: FileSearch },
-  { title: 'BLOCKED', text: 'محجوبة عن القرار حتى معالجة السبب.', tone: 'bg-danger-50 text-danger-700', icon: ShieldCheck },
-  { title: 'INSUFFICIENT DATA', text: 'المصدر الحالي لا يملك ما يكفي لإصدار نتيجة موثوقة.', tone: 'bg-ink-100 text-ink-700', icon: Eye },
+  { title: 'موثق', text: 'بيانات قابلة للإثبات من المسار الكانوني.', tone: 'bg-success-50 text-success-700', icon: CheckCircle2 },
+  { title: 'موثوق', text: 'حالة ثقة قابلة للاستخدام عندما يثبت المصدر والسياق المطلوب.', tone: 'bg-primary-50 text-primary-700', icon: ShieldCheck },
+  { title: 'جزئي', text: 'متاحة جزئيًا مع حدود معلنة.', tone: 'bg-primary-50 text-primary-700', icon: GitBranch },
+  { title: 'تحتاج مراجعة', text: 'تحتاج مراجعة قبل استخدامها في قرار.', tone: 'bg-warning-50 text-warning-700', icon: FileSearch },
+  { title: 'محظور', text: 'محجوبة عن القرار حتى معالجة السبب.', tone: 'bg-danger-50 text-danger-700', icon: ShieldCheck },
+  { title: 'بيانات غير كافية', text: 'المصدر الحالي لا يملك ما يكفي لإصدار نتيجة موثوقة.', tone: 'bg-ink-100 text-ink-700', icon: Eye },
 ] as const;
 
 const evidenceSurfaces = [
   { title: 'حالة الدليل', detail: 'هوية الدليل ومصدره وسياقه عند توفر السجل.', path: '/import/analyze', available: true, icon: Landmark },
-  { title: 'Provenance / Lineage', detail: 'تتبع انتقال الحقيقة من المصدر إلى التحليل.', path: '/data-quality', available: true, icon: GitBranch },
+  { title: 'سلسلة المصدر والتتبع', detail: 'تتبع انتقال الحقيقة من المصدر إلى التحليل.', path: '/data-quality', available: true, icon: GitBranch },
   { title: 'السجل الزمني', detail: 'السجل الزمني المعتمد ليس شاشة مستقلة مثبتة حاليًا.', path: '', available: false, icon: History },
-  { title: 'Decision Evidence', detail: 'الدليل المرتبط بمساحة القرار الحالية.', path: '/decision-inbox', available: true, icon: ShieldCheck },
-  { title: 'Benchmark Governance', detail: 'يتطلب سجل مقارنة وعينة كافية؛ لا تُعرض نتيجة مختلقة.', path: '', available: false, icon: FileSearch },
-  { title: 'Metric Inspector', detail: 'فحص المؤشر وحدود الحساب ومصدره.', path: '/metrics', available: true, icon: Eye },
+  { title: 'دليل القرار', detail: 'الدليل المرتبط بمساحة القرار الحالية.', path: '/decision-inbox', available: true, icon: ShieldCheck },
+  { title: 'حوكمة المقارنة', detail: 'يتطلب سجل مقارنة وعينة كافية؛ لا تُعرض نتيجة مختلقة.', path: '', available: false, icon: FileSearch },
+  { title: 'فحص المؤشر', detail: 'فحص المؤشر وحدود الحساب ومصدره.', path: '/metrics', available: true, icon: Eye },
 ];
 
 function TrustEvidenceGeneralPage() {
