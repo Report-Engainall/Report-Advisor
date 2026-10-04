@@ -270,7 +270,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
             <p className="mt-2 max-w-3xl text-xs leading-6 text-ink-600">{advisorBrief.headline}</p>
           </div>
           <div className="rounded-2xl border border-ink-200 bg-white px-4 py-3 text-right">
-            <div className="text-[9px] font-black text-ink-400">HEALTH</div>
+            <div className="text-[9px] font-black text-ink-400">الحالة</div>
             <div className="mt-1 text-sm font-black text-ink-900">{advisorBrief.health === 'HEALTHY' ? 'سليم من الإشارات الحالية' : advisorBrief.health === 'ATTENTION' ? 'يحتاج انتباهًا' : 'المراجعة مطلوبة'}</div>
             <div className="mt-1 text-[10px] text-ink-500">{advisorBrief.ownerHint}</div>
           </div>
@@ -331,19 +331,19 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
           </div>
           <div className="mt-4 grid gap-3 md:grid-cols-4">
             <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3">
-              <div className="text-[9px] font-black text-ink-400">DECISION</div>
+              <div className="text-[9px] font-black text-ink-400">القرار</div>
               <div className="mt-1 text-xs font-black text-ink-900">{decisionProposal.status}</div>
             </div>
             <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3">
-              <div className="text-[9px] font-black text-ink-400">WORK</div>
+              <div className="text-[9px] font-black text-ink-400">العمل</div>
               <div className="mt-1 text-xs font-black text-ink-900">{decisionProposal.workItemStatus ?? 'لم يُنشأ'}</div>
             </div>
             <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3">
-              <div className="text-[9px] font-black text-ink-400">EXPECTED IMPACT</div>
+              <div className="text-[9px] font-black text-ink-400">الأثر المتوقع</div>
               <div className="mt-1 text-xs font-black text-ink-900">{decisionProposal.expectedImpact == null ? 'غير مسجل' : String(decisionProposal.expectedImpact)}</div>
             </div>
             <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-3">
-              <div className="text-[9px] font-black text-ink-400">ACTUAL IMPACT</div>
+              <div className="text-[9px] font-black text-ink-400">الأثر المرصود</div>
               <div className="mt-1 text-xs font-black text-ink-900">{decisionProposal.actualImpact == null ? 'غير مقاس' : String(decisionProposal.actualImpact)}</div>
             </div>
           </div>
@@ -357,7 +357,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
         </div>
       )}
 
-      <div className="rounded-[16px] border border-primary-200 bg-primary-50/60 px-4 py-3"><div className="text-[9px] font-black tracking-[.14em] text-primary-700">TOP FINDINGS</div><div className="mt-1 text-sm font-black text-ink-950">أهم النتائج التي تستحق انتباه الإدارة</div></div>
+      <div className="rounded-[16px] border border-primary-200 bg-primary-50/60 px-4 py-3"><div className="text-[9px] font-black tracking-[.14em] text-primary-700">أهم النتائج</div><div className="mt-1 text-sm font-black text-ink-950">أهم النتائج التي تستحق انتباه الإدارة</div></div>
 
       <div className="grid gap-3 lg:grid-cols-3">
         {([
@@ -391,7 +391,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
 
       <div className="grid gap-4 xl:grid-cols-2">
         <div className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-3"><div><div className="text-[9px] font-black tracking-[.14em] text-primary-700">SIGNALS</div><h3 className="mt-1 text-lg font-black text-ink-950">كل الإشارات والتنبيهات</h3></div><span className="rounded-full bg-ink-950 px-3 py-1 text-[9px] font-black text-white">{report.intelligence.signals.length}</span></div>
+          <div className="flex items-center justify-between gap-3"><div><div className="text-[9px] font-black tracking-[.14em] text-primary-700">الإشارات</div><h3 className="mt-1 text-lg font-black text-ink-950">كل الإشارات والتنبيهات</h3></div><span className="rounded-full bg-ink-950 px-3 py-1 text-[9px] font-black text-white">{report.intelligence.signals.length}</span></div>
           <div className="mt-3 space-y-2">
             {report.intelligence.signals.length ? report.intelligence.signals.map((signal) => <article key={signal.id} className="rounded-xl border border-ink-100 bg-ink-50/40 p-3">
               <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs font-black text-ink-950">{signal.title}</span><span className="rounded-full border border-ink-200 bg-white px-2 py-1 text-[9px] font-black text-ink-600">{signal.priority} · {signal.severity}</span></div>
@@ -402,20 +402,20 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
           </div>
         </div>
         <div className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-3"><div><div className="text-[9px] font-black tracking-[.14em] text-primary-700">RECOMMENDATIONS</div><h3 className="mt-1 text-lg font-black text-ink-950">كل التوصيات المؤهلة</h3></div><span className="rounded-full bg-primary-700 px-3 py-1 text-[9px] font-black text-white">{report.intelligence.recommendations.length}</span></div>
+          <div className="flex items-center justify-between gap-3"><div><div className="text-[9px] font-black tracking-[.14em] text-primary-700">التوصيات</div><h3 className="mt-1 text-lg font-black text-ink-950">كل التوصيات المؤهلة</h3></div><span className="rounded-full bg-primary-700 px-3 py-1 text-[9px] font-black text-white">{report.intelligence.recommendations.length}</span></div>
           <div className="mt-3 space-y-2">
             {report.intelligence.recommendations.length ? report.intelligence.recommendations.map((recommendation) => <article key={recommendation.id} className="rounded-xl border border-primary-100 bg-primary-50/40 p-3">
               <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs font-black text-ink-950">{recommendation.title}</span><span className="rounded-full border border-primary-200 bg-white px-2 py-1 text-[9px] font-black text-primary-800">{recommendation.priority}</span></div>
               <p className="mt-1 text-[10px] leading-5 text-ink-600">{recommendation.action}</p>
               <div className="mt-2 grid gap-1.5 text-[9px] leading-5 text-ink-500 sm:grid-cols-2">
                 <div><span className="font-black text-ink-700">WHY:</span> {recommendation.why}</div>
-                <div><span className="font-black text-ink-700">WHY NOW:</span> {recommendation.whyNow}</div>
-                <div><span className="font-black text-ink-700">OWNER:</span> {recommendation.ownerHint || 'غير محدد'}</div>
-                <div><span className="font-black text-ink-700">IMPACT:</span> {recommendation.impact}</div>
-                <div><span className="font-black text-ink-700">RISK:</span> {recommendation.risk}</div>
-                <div><span className="font-black text-ink-700">BLOCKER:</span> {recommendation.blocker}</div>
-                <div><span className="font-black text-ink-700">MEASUREMENT:</span> {recommendation.measurement}</div>
-                <div><span className="font-black text-ink-700">LIMITATION:</span> {recommendation.limitation}</div>
+                <div><span className="font-black text-ink-700">لماذا الآن:</span> {recommendation.whyNow}</div>
+                <div><span className="font-black text-ink-700">المسؤول:</span> {recommendation.ownerHint || 'غير محدد'}</div>
+                <div><span className="font-black text-ink-700">الأثر:</span> {recommendation.impact}</div>
+                <div><span className="font-black text-ink-700">المخاطر:</span> {recommendation.risk}</div>
+                <div><span className="font-black text-ink-700">العائق:</span> {recommendation.blocker}</div>
+                <div><span className="font-black text-ink-700">القياس:</span> {recommendation.measurement}</div>
+                <div><span className="font-black text-ink-700">الحدود:</span> {recommendation.limitation}</div>
               </div>
               <div className="mt-2 text-[9px] text-ink-400">المخرج المتوقع: {recommendation.expectedOutcome}</div>
             </article>) : <div className="rounded-xl border border-dashed border-ink-200 p-4 text-[10px] text-ink-500">لا توجد توصيات مؤهلة من الإشارات الحالية.</div>}
@@ -428,7 +428,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
-          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">FORECAST</div>
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">التنبؤ</div>
           <h3 className="mt-1 text-lg font-black text-ink-950">الإشارة التنبئية</h3>
           <p className="mt-2 text-xs leading-6 text-ink-600">{report.intelligence.forecast.note}</p>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -439,7 +439,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
           </div>
         </div>
         <div className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-sm">
-          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">GUIDANCE</div>
+          <div className="text-[9px] font-black tracking-[.14em] text-primary-700">الإرشاد</div>
           <h3 className="mt-1 text-lg font-black text-ink-950">الإرشاد التالي</h3>
           <p className="mt-2 text-sm font-black text-ink-900">{report.intelligence.guidance.focus}</p>
           <div className="mt-2 text-[11px] leading-6 text-ink-600">الفحص: {report.intelligence.guidance.inspect.join(' · ') || 'لا توجد عناصر فحص محددة.'}</div>
@@ -503,7 +503,7 @@ export function SmartReportAdvisorySurface({ report }: { report: SmartReportDeta
       </div>
 
       <div className="rounded-2xl border border-ink-200 bg-white p-4">
-        <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-primary-700"/><div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">NEXT</div><div className="mt-1 text-sm font-black">الخطوة التالية</div></div></div>
+        <div className="flex items-center gap-2"><CheckCircle2 size={16} className="text-primary-700"/><div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">التالي</div><div className="mt-1 text-sm font-black">الخطوة التالية</div></div></div>
         <p className="mt-2 text-xs leading-6 text-ink-600">{packet.nextRecommendation?.statement ?? 'لا توجد توصية مثبتة قابلة للتحويل إلى خطوة الآن.'}</p>
       </div>
     </section>
