@@ -323,8 +323,12 @@ function reportVerificationLabel(value: string): string {
   return 'بانتظار الدليل';
 }
 
+function reportRowCountLabel(value: number | null | undefined): string {
+  return value == null ? 'عدد السجلات غير متاح' : formatNumber(value) + ' سجل';
+}
+
 function EvidenceInspector({ report }: { report: SmartReportDetail }) {
-  const gap = report.canonicalCommitGap ?? 0;
+  const gap = report.canonicalCommitGap;
   const verification = report.reportVerificationState;
   const verificationClass = verification === 'VERIFIED'
     ? 'border-indigo-200 bg-indigo-50 text-indigo-900'
@@ -899,7 +903,7 @@ export function SmartReportPage() {
           <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{report.intelligence.advisorBrief.headline || businessSummary}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{confidenceLabel}</span>
-            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{formatNumber(report.rowCount ?? 0)} صفًا</span>
+            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{reportRowCountLabel(report.rowCount)}</span>
             <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{report.specialty === 'sales' ? 'المبيعات' : report.specialty === 'purchases' ? 'المشتريات' : report.specialty === 'inventory' ? 'المخزون' : report.specialty === 'receivables' ? 'الذمم والتحصيل' : report.specialty === 'profitability' ? 'الربحية' : 'تحليل عام'}</span>
           </div>
         </div>
@@ -977,7 +981,7 @@ export function SmartReportPage() {
         <p className="mt-3 text-sm leading-7 text-ink-600">{businessSummary}</p>
         <div className="mt-4 flex flex-wrap gap-2 text-[10px]">
           <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 font-bold">التخصص: {report.specialty ?? 'عام'}</span>
-          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 font-bold">الصفوف: {formatNumber(report.rowCount ?? 0)}</span>
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 font-bold">الصفوف: {reportRowCountLabel(report.rowCount)}</span>
           <span className={'badge ' + (sourceIsVerified ? 'badge-success' : 'badge-warning')}>{sourceIsVerified ? 'التقرير موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'فجوة اعتماد' : 'بانتظار الدليل'}</span>
         </div>
       </div>
