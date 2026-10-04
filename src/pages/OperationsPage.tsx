@@ -4,7 +4,6 @@ import { ChevronLeft, CreditCard, PackageCheck, ReceiptText, RefreshCw, Tags, Tr
 import { PageHeader } from '@/components/ui/States';
 import { Badge } from '@/components/ui/Badge';
 import { formatCurrency, formatNumber } from '@/lib/format';
-import { readActiveReportContext, type ActiveReportContext } from '@/lib/report-context';
 import {
   createInvoiceFromOperationalOrder,
   fetchOperationalAuditTrace,
@@ -91,7 +90,6 @@ export function OperationsPage() {
   const [paymentReference, setPaymentReference] = useState('');
   const [paymentDate, setPaymentDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [activeReportContext] = useState<ActiveReportContext | null>(() => readActiveReportContext());
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -227,23 +225,6 @@ export function OperationsPage() {
         subtitle="طلب → تنفيذ/مستودع → فاتورة → تحصيل، مع قراءة التسعير والموردين من المصدر."
         actions={<button type="button" onClick={() => void load()} disabled={busy !== null} className="btn-secondary inline-flex items-center gap-2 text-xs"><RefreshCw size={14}/> تحديث</button>}
       />
-      {activeReportContext && (
-        <section className="rounded-xl border border-primary-200 bg-primary-50/50 p-3" aria-label="استمرار آخر مصدر">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="min-w-0">
-              <div className="section-kicker">RETURN / CONTINUE</div>
-              <div className="mt-1 text-[11px] font-black text-primary-950">متابعة آخر مصدر مفتوح بدل إعادة اكتشاف السياق</div>
-              <div className="mt-1 break-all font-mono text-[8px] text-primary-800">job:{activeReportContext.jobId} · hash:{activeReportContext.sourceHash.slice(0, 20)}…</div>
-            </div>
-            <Link
-              to={'/reports/smart/' + activeReportContext.jobId + '?sourceHash=' + encodeURIComponent(activeReportContext.sourceHash) + '#decision-evidence-inspector'}
-              className="btn-primary shrink-0 text-[10px]"
-            >
-              العودة إلى المصدر والدليل <ChevronLeft size={13}/>
-            </Link>
-          </div>
-        </section>
-      )}
       {feedback && <div className="rounded-xl border border-primary-200 bg-primary-50 px-4 py-3 text-xs font-bold text-primary-900" role="status">{feedback}</div>}
 
       <section className="grid gap-3 md:grid-cols-5">
