@@ -488,6 +488,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const canonicalCommitCount = Number.isFinite(Number(canonical.committedRows))
     ? Number(canonical.committedRows)
     : null;
+  const authoritativeCurrentRowCount = canonicalCommitCount;
   const canonicalCommitQueryFailed = false;
   const canonicalCommitGap =
     effectiveRendered.rowCount == null || canonicalCommitCount == null
