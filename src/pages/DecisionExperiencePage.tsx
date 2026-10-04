@@ -19,7 +19,7 @@ import {
   createRuntimeDecision,
   linkRecommendationToDecision,
   loadRuntimeDecisionContext,
-  loadRuntimeRecommendationالدليل,
+  loadRuntimeRecommendationEvidence,
   requestRuntimeApproval,
   type RuntimeDecisionContext,
 } from '@/lib/decision-automation/vertical-slice-runtime';
@@ -204,12 +204,12 @@ function DecisionExperienceGeneralPage() {
     setDecisionContextLoading(true);
     void Promise.all([
       loadRuntimeDecisionContext(selectedId),
-      loadRuntimeRecommendationالدليل(selectedId),
+      loadRuntimeRecommendationEvidence(selectedId),
     ])
-      .then(([context, recommendationالدليل]) => {
+      .then(([context, recommendationEvidence]) => {
         if (!active) return;
         setDecisionContext(context);
-        const evidenceContext = recommendationالدليل.evidence?.recommendationContext;
+        const evidenceContext = recommendationEvidence.evidence?.recommendationContext;
         setRecommendationContext(
           evidenceContext && typeof evidenceContext === 'object'
             ? Object.fromEntries(Object.entries(evidenceContext).map(([key, value]) => [key, String(value ?? '')]))
@@ -268,8 +268,8 @@ function DecisionExperienceGeneralPage() {
         return;
       }
 
-      const recommendationالدليل = await loadRuntimeRecommendationالدليل(selected.id);
-      if (!recommendationالدليل.evidenceSnapshotId || !recommendationالدليل.evidence) {
+      const recommendationEvidence = await loadRuntimeRecommendationEvidence(selected.id);
+      if (!recommendationEvidence.evidenceSnapshotId || !recommendationEvidence.evidence) {
         throw new Error('DECISION_EVIDENCE_SNAPSHOT_REQUIRED');
       }
 
@@ -286,9 +286,9 @@ function DecisionExperienceGeneralPage() {
           priority: selected.priority,
           owner: selected.owner ?? null,
           deadline: selected.deadline ?? null,
-          sourceالدليل: recommendationالدليل.evidence,
-          evidenceSnapshotId: recommendationالدليل.evidenceSnapshotId,
-          metricVersions: recommendationالدليل.metricVersions,
+          sourceEvidence: recommendationEvidence.evidence,
+          evidenceSnapshotId: recommendationEvidence.evidenceSnapshotId,
+          metricVersions: recommendationEvidence.metricVersions,
           reportJobId: reportJobIdParam,
           sourceHash: sourceHashParam,
         },
