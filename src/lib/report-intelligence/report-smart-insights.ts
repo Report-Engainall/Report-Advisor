@@ -143,6 +143,16 @@ function canonicalSourceField(value: unknown): string | null {
     ['credit', ['credit','دائن']],
     ['debit', ['debit','مدين']],
     ['quantity', ['quantity','qty','الكمية','العدد']],
+    ['current_stock', ['current_stock','currentstock','stock','on_hand','onhand','الرصيدالحالي','المخزونالحالي','الكميةالمتوفرة','الكميةالمتاحة']],
+    ['daily_sales_rate', ['daily_sales_rate','dailysalesrate','معدل البيع اليومي','معدل البيع ليومي','معدل البيعيومي','متوسط البيع اليومي']],
+    ['annual_sales_rate', ['annual_sales_rate','annualsalesrate','معدل البيع العام','معدل البيع السنوي']],
+    ['sales_qty', ['sales_qty','salesqty','كمية المبيعات','الكميةالمباعة','صافي المبيعات','صافيالمبيعات']],
+    ['stockout_days', ['stockout_days','stockoutdays','أيام النفاد','فترة النفاد','الفترة المتوقعة لنفاد الكمية','الفترةالمتوقعةلنفادالكمية']],
+    ['stock_age_days', ['stock_age_days','stockagedays','عمر المخزون','عمرالمخزون']],
+    ['stock_age_period_days', ['stock_age_period_days','stockageperioddays','عمر المخزون للفترة','عمرالمخزونللفترة']],
+    ['opening_stock', ['opening_stock','openingstock','الرصيد الافتتاحي','الرصيدالإفتتاحي','المخزون الافتتاحي']],
+    ['net_inbound', ['net_inbound','netinbound','صافي الوارد','صافيوارد']],
+    ['transfers_pending', ['transfers_pending','pending_transfer','تحويل غير مستلم','تحويلغيرمستلم']],
     ['unit_price', ['unit_price','سعرالوحدة']],
     ['cost', ['cost','cost_price','التكلفة']],
     ['price', ['price','السعر']],
@@ -218,7 +228,7 @@ function findColumn(columns: Array<Record<string, unknown>>, aliases: string[]):
 function dataKey(column: Record<string, unknown> | null | undefined): string {
   const name = text(column?.name);
   const mapped = text(column?.mappedField);
-  return name || mapped;
+  return mapped || name;
 }
 
 function rowValue(row: Record<string, unknown> | null | undefined, key: string): unknown {
