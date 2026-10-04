@@ -664,8 +664,11 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   // Passport metadata may be stale; it must never upgrade an empty/missing canonical
   // table into a VERIFIED/READY state.
   const actualCanonicalRowCount = canonicalRows.length;
-  const canonicalCommitCount = actualCanonicalRowCount;
   const authoritativeCurrentRowCount = actualCanonicalRowCount;
+  const exactCanonicalCommit = authoritativeCurrentRowCount == null;
+  const canonicalCommitCount = exactCanonicalCommit
+    ? actualCanonicalRowCount
+    : authoritativeCurrentRowCount;
   const canonicalCoverageUnavailable = canonicalCommitQueryFailed || authoritativeCurrentRowCount == null;
   const canonicalCommitGap =
     canonicalCoverageUnavailable || effectiveRendered.rowCount == null
