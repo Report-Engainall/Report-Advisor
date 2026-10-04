@@ -615,7 +615,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
         <section className="mt-3 rounded-xl border border-primary-200 bg-primary-50/40 p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <div className="section-kicker">GROUPED ANALYSIS</div>
+              <div className="section-kicker">التحليل المجمع</div>
               <div className="mt-1 text-sm font-black text-ink-950">ملخص التجميع الكانوني</div>
               <div className="mt-1 text-[10px] text-ink-600">التجميع يحسب من الصفوف المفلترة الحالية، وليس من المعاينة.</div>
             </div>
@@ -663,7 +663,7 @@ function SourceDataWorkspace({ report, initialSearch }: { report: SmartReportDet
         <aside className="mt-4 rounded-xl border border-primary-200 bg-primary-50/50 p-4" aria-label="تفاصيل الصف المحدد">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <div className="section-kicker">ROW INSPECTOR</div>
+              <div className="section-kicker">فحص السجل</div>
               <div className="mt-1 text-sm font-black text-ink-950">تفاصيل الصف #{selectedRowNumber}</div>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -941,7 +941,7 @@ export function SmartReportPage() {
     <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
       <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
         <div className="flex items-center justify-between gap-4">
-          <div><div className="section-kicker">DECISION COCKPIT</div><div className="mt-1 text-base font-black text-ink-950">التفاصيل التنفيذية لمسار القرار</div><div className="mt-1 text-[10px] leading-5 text-ink-500">فتح الـCockpit الكامل متاح عند الحاجة، بينما يبقى الملخص التنفيذي هو نقطة البداية.</div></div>
+          <div><div className="section-kicker">واجهة القرار</div><div className="mt-1 text-base font-black text-ink-950">التفاصيل التنفيذية لمسار القرار</div><div className="mt-1 text-[10px] leading-5 text-ink-500">فتح واجهة القرار الكاملة متاح عند الحاجة، بينما يبقى الملخص التنفيذي هو نقطة البداية.</div></div>
           <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 text-[10px] font-black text-ink-600">فتح</span>
         </div>
       </summary>
@@ -954,7 +954,7 @@ export function SmartReportPage() {
       <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="section-kicker">SOURCE · PROOF · DETAILS</div>
+            <div className="section-kicker">المصدر · الإثبات · التفاصيل</div>
             <div className="mt-1 text-base font-black text-ink-950">التفاصيل الكاملة للتقرير</div>
             <div className="mt-1 text-[10px] leading-5 text-ink-500">افتحها فقط عندما تحتاج إلى التحقق أو استكشاف البيانات أو المخرجات المتقدمة.</div>
           </div>
@@ -965,14 +965,14 @@ export function SmartReportPage() {
         <section className="rounded-[18px] border border-ink-200 bg-ink-50/30 p-5">
           <div className="grid gap-3 md:grid-cols-4">
             <div className="rounded-2xl bg-[linear-gradient(145deg,#111827,#1e293b)] p-4 text-white shadow-[0_16px_40px_-28px_rgba(15,23,42,.7)]"><div className="text-[9px] font-black tracking-[.12em] text-primary-200">الثقة<//div><div className="mt-2 text-xl font-black">{stateLabel(report.trustState)}</div><div className="mt-1 text-[10px] text-ink-300">جودة: {report.qualityScore == null ? 'غير متاح' : report.qualityScore + '%'}</div></div>
-            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">SOURCE</div><div className="mt-2 font-black text-ink-950">{report.sourceHash.slice(0, 24)}…</div><div className="mt-1 text-[10px] text-ink-500">نوع الملف: {report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
-            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">ROWS</div><div className="mt-2 text-xl font-black text-ink-950">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div><div className="mt-1 text-[10px] text-ink-500">المعتمد: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)}</div></div>
-            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">SPECIALTY</div><div className="mt-2 text-xl font-black text-ink-950">{report.specialty ?? 'عام'}</div><div className="mt-1 text-[10px] text-ink-500">مبني على بنية المصدر الفعلية.</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">المصدر</div><div className="mt-2 font-black text-ink-950">{report.sourceHash.slice(0, 24)}…</div><div className="mt-1 text-[10px] text-ink-500">نوع الملف: {report.sourceAnalysis?.sourceFormat ?? 'غير متاح'}</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">السجلات</div><div className="mt-2 text-xl font-black text-ink-950">{report.rowCount == null ? 'غير متاح' : formatNumber(report.rowCount)}</div><div className="mt-1 text-[10px] text-ink-500">المعتمد: {report.authoritativeCurrentRowCount == null ? 'غير متاح' : formatNumber(report.authoritativeCurrentRowCount)}</div></div>
+            <div className="rounded-2xl bg-white p-4"><div className="text-[9px] font-black tracking-[.12em] text-ink-500">نوع التقرير</div><div className="mt-2 text-xl font-black text-ink-950">{report.specialty ?? 'عام'}</div><div className="mt-1 text-[10px] text-ink-500">مبني على بنية المصدر الفعلية.</div></div>
           </div>
         </section>
     <section className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
       <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-        <div className="section-kicker">EXECUTIVE BRIEF</div>
+        <div className="section-kicker">الملخص التنفيذي</div>
         <h2 className="mt-1 text-xl font-black text-ink-950">ماذا يقول هذا التقرير فعليًا؟</h2>
         <p className="mt-3 text-sm leading-7 text-ink-600">{businessSummary}</p>
         <div className="mt-4 flex flex-wrap gap-2 text-[10px]">
@@ -982,7 +982,7 @@ export function SmartReportPage() {
         </div>
       </div>
       <div className="rounded-[18px] border border-ink-200 bg-ink-950 p-5 text-white shadow-card lg:p-6">
-        <div className="section-kicker text-primary-200">NEXT ACTION</div>
+        <div className="section-kicker text-primary-200">الخطوة التالية</div>
         <h2 className="mt-1 text-lg font-black">ما الذي يمكن فعله الآن؟</h2>
         <p className="mt-3 text-[12px] leading-6 text-ink-300">
           {report.renderedOutput.actionStatus === 'NO_ACTION_COMMITTED' ? 'لا توجد عملية تنفيذية موثقة نُفذت بعد؛ يمكن استخدام التقرير كمدخل لمراجعة القرار.' : stateLabel(String(report.renderedOutput.actionStatus ?? null))}
@@ -994,7 +994,7 @@ export function SmartReportPage() {
     <EvidenceInspector report={report}/>
     {report.runtimeWarnings?.length ? (
       <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900" aria-label="تحذيرات التشغيل">
-        <div className="text-[9px] font-black tracking-[.12em]">RUNTIME READBACK</div>
+        <div className="text-[9px] font-black tracking-[.12em]">قراءة النظام</div>
         <div className="mt-1 text-sm font-black">التقرير استمر رغم وجود أجزاء تعذر قراءتها</div>
         <div className="mt-2 space-y-1">
           {report.runtimeWarnings.map((warning) => <div key={warning} className="text-[10px] leading-5">• {warning}</div>)}
@@ -1004,7 +1004,7 @@ export function SmartReportPage() {
 
     {report.canonicalAnalysisScope === 'PARTIAL_FETCH_CEILING' ? (
       <section className="rounded-2xl border border-warning-200 bg-warning-50 p-4 text-warning-900" aria-label="حد نطاق التحليل">
-        <div className="text-[9px] font-black tracking-[.12em]">ANALYSIS SCOPE</div>
+        <div className="text-[9px] font-black tracking-[.12em]">نطاق التحليل</div>
         <div className="mt-1 text-sm font-black">التحليل هنا جزئي؛ المصدر يتجاوز حد القراءة المباشرة 50,000 صف.</div>
         <div className="mt-1 text-[10px] leading-5">المخرجات المعروضة لا تمثل كامل المصدر. يجب الاعتماد على تجميعات خادمية موثقة قبل أي قرار شامل.</div>
       </section>
@@ -1062,7 +1062,7 @@ export function SmartReportPage() {
     )}
 
     <section className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="flex items-center justify-between gap-3"><div><div className="section-kicker">CANONICAL SOURCE</div><h2 className="mt-1 text-lg font-black">عينة فعلية من التقرير</h2></div><div className="text-[10px] text-ink-500">{formatNumber(previewRows.length)} صفوف معروضة من العينة</div></div>
+      <div className="flex items-center justify-between gap-3"><div><div className="section-kicker">المصدر المعتمد</div><h2 className="mt-1 text-lg font-black">عينة فعلية من التقرير</h2></div><div className="text-[10px] text-ink-500">{formatNumber(previewRows.length)} صفوف معروضة من العينة</div></div>
       {previewRows.length === 0 ? <div className="mt-4 rounded-xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-900">لا توجد عينة صفوف في لقطة التحليل؛ لا يتم اختلاقها.</div> : <div className="mt-4 overflow-x-auto rounded-xl border border-ink-200"><table className="min-w-full text-right text-[11px]"><thead className="bg-ink-50"><tr>{columns.map((column) => <th key={column} className="whitespace-nowrap px-3 py-2 font-black text-ink-600">{columnLabel(column)}</th>)}</tr></thead><tbody>{previewRows.map((row, index) => <tr key={index} className="border-t border-ink-100">{columns.map((column) => <td key={column} className="max-w-[240px] truncate whitespace-nowrap px-3 py-2 text-ink-800">{textValue(row[column])}</td>)}</tr>)}</tbody></table></div>}
     </section>
 
