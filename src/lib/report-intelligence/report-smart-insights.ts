@@ -727,18 +727,29 @@ function isAggregateRow(data: Record<string, unknown> | null | undefined): boole
   if (!data) return false;
   const label = text(
     data.customer_name ??
+    data.customerName ??
     data['اسم العميل'] ??
     data.supplier_name ??
+    data.supplierName ??
     data['اسم المورد'] ??
     data.invoice_type ??
+    data.invoiceType ??
     data['نوع الفاتوره'] ??
     '',
   );
-  if (/^(?:الإجمالي|اجمالي|المجموع|total|grand\s+total)\s*:?[\s]*$/iu.test(label)) return true;
+  if (/^(?:الإجمالي|اجمالي|المجموع|total|grand\\s+total)\\s*:?[s]*$/iu.test(label)) return true;
 
-  const invoice = text(data.invoice_number ?? data['رقم الفاتوره']);
-  const date = text(data.date ?? data.invoice_date ?? data['التاريخ']);
-  const amount = numeric(data.total ?? data.total_amount ?? data['اجمالي الفاتوره'] ?? data.net_amount ?? data['مبلغ الصافي بالمحلي']);
+  const invoice = text(data.invoice_number ?? data.invoiceNumber ?? data.invoiceNo ?? data['رقم الفاتوره']);
+  const date = text(data.date ?? data.invoice_date ?? data.invoiceDate ?? data.transactionDate ?? data['التاريخ']);
+  const amount = numeric(
+    data.total ??
+    data.total_amount ??
+    data.totalAmount ??
+    data['اجمالي الفاتوره'] ??
+    data.net_amount ??
+    data.netAmount ??
+    data['مبلغ الصافي بالمحلي'],
+  );
   return !invoice && !date && amount != null;
 }
 
