@@ -338,4 +338,17 @@ assert.ok(visualSystem.includes('linear-gradient(180deg,#0a0f1e 0%,#0d1426 58%,#
 assert.ok(visualSystem.includes('.nav-item-active{'), 'active navigation must have a visible indigo state');
 assert.ok(visualSystem.includes('.btn-primary{'), 'primary actions must have a premium indigo treatment');
 
+
+const appSurface = fs.readFileSync('src/App.tsx', 'utf8');
+assert.ok(appSurface.includes('<Route path="/proposal-demo" element={<ProposalDemoPage />} />'), 'proposal demo must be explicitly exposed as a public route before authentication');
+
+const loginSurface = fs.readFileSync('src/pages/LoginPage.tsx', 'utf8');
+assert.ok(loginSurface.includes('to="/proposal-demo"'), 'login must expose the public proposal demo entry');
+assert.ok(loginSurface.includes('مشاهدة العرض الحي أولًا'), 'login must label the public proposal demo clearly');
+
+const proposalSurface = fs.readFileSync('src/pages/ProposalDemoPage.tsx', 'utf8');
+assert.ok(proposalSurface.includes('CommercialValueChain'), 'proposal demo must expose the product value chain');
+assert.ok((proposalSurface.match(/englishLabel:/g) || []).length >= 8, 'proposal demo must expose all eight value stages');
+assert.ok(proposalSurface.includes('ما الذي يراه العميل عندما يشتري الأغبري؟'), 'proposal demo must frame the value chain as a customer-facing product story');
+
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
