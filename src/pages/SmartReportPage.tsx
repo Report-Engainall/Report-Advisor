@@ -326,7 +326,7 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
       detail: 'محسوب من الحقول المعروضة',
     },
     {
-      label: report?.specialty === 'receivables' ? 'أكثر من 120 يومًا' : 'مؤشر عددي رئيسي',
+      label: report?.specialty === 'receivables' ? 'أكثر من 120 يومًا' : report?.specialty === 'inventory' ? 'أصناف بلا رصيد' : 'مؤشر عددي رئيسي',
       value: report?.specialty === 'inventory' ? formatMetric(inventoryZeroCount) : formatMetric(age120Column ? numberValue(age120Column.statistics?.sum) : (numeric[0]?.sum ?? null)),
       detail: report?.specialty === 'inventory' ? 'أصناف بلا رصيد' : (age120Column
         ? displayColumnLabel(String(age120Column.mappedField ?? age120Column.name ?? ''))
@@ -935,8 +935,8 @@ export function SmartReportPage() {
         {
           label: 'الدليل',
           englishLabel: 'الدليل',
-          status: report.reportVerificationState === 'VERIFIED' ? 'موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'مراجعة' : 'بانتظار الدليل',
-          detail: 'لقطة الدليل والاعتماد الكانوني منفصلان عن مجرد قراءة المصدر.',
+          status: report.reportVerificationState === 'VERIFIED' ? 'الدليل النهائي موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'فجوة في الإثبات' : 'الدليل النهائي غير مثبت',
+          detail: 'الذكاء المصدرّي متاح للمراجعة؛ الاعتماد النهائي يحتاج لقطة دليل مثبتة.',
           href: '/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
           tone: report.reportVerificationState === 'VERIFIED' ? 'trusted' : 'attention',
         },
