@@ -48,6 +48,42 @@ async function serviceRestSelect(table, filters, select, options = {}) {
   return body ? JSON.parse(body) : [];
 }
 
+async function authenticatedUserId(accessToken) {
+  const user = await fetchJson(supabaseURL + '/auth/v1/user', {
+    headers: { Authorization: 'Bearer ' + accessToken },
+  });
+  const id = user?.id ? String(user.id) : '';
+  if (!id) throw new Error('REAL_48_AUTH_USER_ID_MISSING');
+  return id;
+}
+
+async function servicePatch(table, queryParams, payload) {
+  if (!serviceRoleKey) throw new Error('REAL_48_SERVICE_ROLE_REQUIRED_FOR_TENANT_SWITCH');
+  const url = new URL(supabaseURL + '/rest/v1/' + table);
+  for (const [column, value] of Object.entries(queryParams)) url.searchParams.set(column, 'eq.' + value);
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: 'Bearer ' + serviceRoleKey,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal',
+    },
+    body: JSON.stringify(payload),
+  });
+  const body = await response.text();
+  if (!response.ok) throw new Error('SERVICE_PATCH_' + table + '_HTTP_' + response.status + ':' + body.slice(0, 800));
+}
+
+async function switchDefaultTenant(userId, tenantId) {
+  await servicePatch('company_memberships', { user_id: userId, is_active: 'true' }, { is_default: false });
+  await servicePatch('company_memberships', { user_id: userId, company_id: tenantId, is_active: 'true' }, { is_default: true });
+  const current = await rpcCurrentCompany(accessToken);
+  if (String(current) !== String(tenantId)) {
+    throw new Error('REAL_48_TENANT_SWITCH_FAILED:' + tenantId + '!=' + current);
+  }
+}
+
 async function buildSelectionDiagnostics(actorCompanyId) {
   if (!serviceRoleKey) return { serviceRole: 'NOT_AVAILABLE' };
   const [targetJobs, targetPassports, targetFiles, actorJobs, actorPassports, actorFiles] = await Promise.all([
@@ -97,7 +133,15 @@ async function signIn() {
 }
 
 const accessToken = await signIn();
+const actorUserId = await authenticatedUserId(accessToken);
 const actorCompanyId = await rpcCurrentCompany(accessToken);
+const configuredTenantIds = [...new Set(
+  String(process.env.E2E_CORPUS_TENANT_IDS || actorCompanyId || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean),
+)];
+if (!configuredTenantIds.length) throw new Error('REAL_48_CORPUS_TENANT_IDS_MISSING');
 const selectionDiagnostics = await buildSelectionDiagnostics(actorCompanyId);
 
 async function restSelect(table, filters, select, options = {}) {
@@ -196,13 +240,12 @@ async function fetchVerifiedSnapshot(companyId, jobId, sourceHash, passport) {
   ) ?? null;
 }
 
-const companies = await restSelect('report_execution_jobs', { status: 'completed' }, 'company_id', { limit: 1000 });
-const tenantIds = [...new Set(companies.map((row) => row.company_id).filter(Boolean))];
 const profiles = listReportArchetypes();
 const sourceRecords = [];
 const sourceRowsCache = new Map();
 
-for (const companyId of tenantIds) {
+for (const companyId of configuredTenantIds) {
+  await switchDefaultTenant(actorUserId, companyId);
   const passports = await restSelect(
     'report_evidence_passports',
     { company_id: companyId, verification_status: 'VERIFIED', decision_readiness: 'READY' },
@@ -312,6 +355,11 @@ async function sourceRowsFor(source) {
 }
 
 const results = [];
+
+await switchDefaultTenant(
+  actorUserId,
+  String(process.env.E2E_CORPUS_TENANT_ID || configuredTenantIds[0]),
+);
 
 for (const profile of profiles) {
   const candidates = sourceRecords
