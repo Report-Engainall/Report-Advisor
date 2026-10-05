@@ -602,7 +602,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   // Canonical row reads remain bound to the active import job identity from the
   // durable execution checkpoint. A commit anchor can be inspected for warnings,
   // but must not silently redirect a report to a repeated/foreign import.
-  const canonicalImportJobId = renderedImportId || reportImportJobId;
+  let canonicalImportJobId = renderedImportId || reportImportJobId;
   let canonicalResolvedFromCommit = false;
   try {
     const { data: latestCommit, error: latestCommitError } = await supabase
@@ -634,7 +634,8 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
         } else {
           const resolved = String(anchor?.import_job_id ?? '').trim();
           if (resolved) {
-            canonicalResolvedFromCommit = resolved !== canonicalImportJobId;
+            canonicalImportJobId = resolved;
+            canonicalResolvedFromCommit = resolved !== reportImportJobId;
           }
         }
       }
