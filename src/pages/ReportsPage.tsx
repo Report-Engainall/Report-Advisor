@@ -128,6 +128,18 @@ function useOptionalSourceReport() {
 function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report: SmartReportDetail; expectedSpecialty: string; title: string }) {
   return <CustomerReportSurface report={report} expectedSpecialty={expectedSpecialty} title={title} />;
 }
+const PRIMARY_SMART_REPORT_JOB_ID = 'c42fb0e1-75f2-4727-8c3e-470ae1a804fa';
+const PRIMARY_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
+
+function withDeadline<T>(promise: Promise<T>, label: string, milliseconds: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      window.setTimeout(() => reject(new Error('REPORT_UI_TIMEOUT:' + label)), milliseconds);
+    }),
+  ]);
+}
+
 const reportCards = [
   { path:'/reports/sales', title:'المبيعات', stage:'قياس', desc:'حركة المبيعات والفواتير والعملاء والمنتجات.', icon:ShoppingCart, iconClass:'bg-primary-50 text-primary-600' },
   { path:'/reports/purchases', title:'المشتريات', stage:'مصدر', desc:'المشتريات والموردون والتدفقات الداخلة.', icon:FileBarChart, iconClass:'bg-accent-50 text-accent-600' },
@@ -143,40 +155,75 @@ export function ReportsCenterPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [smartReports, setSmartReports] = useState<SmartReportCatalogItem[]>([]);
 
+  const [primarySmartReport, setPrimarySmartReport] = useState<SmartReportDetail | null>(null);
+  const [primarySmartReportError, setPrimarySmartReportError] = useState<string | null>(null);
+
   const load = useCallback(async (silent = false) => {
     if (silent) setRefreshing(true); else setLoading(true);
     setError(null);
+    setPrimarySmartReportError(null);
 
-    const [dashboardResult, catalogResult] = await Promise.allSettled([
-      fetchDashboardSnapshot(6),
-      fetchSmartReportCatalog(60),
-    ]);
+    // The report center must not wait for the dashboard RPC. Previously a single
+    // Promise.allSettled left the entire customer surface behind a slow/hung KPI
+    // request even after real report jobs were already readable.
+    const dashboardPromise = withDeadline(fetchDashboardSnapshot(6), 'dashboard', 8000);
+    const catalogPromise = withDeadline(fetchSmartReportCatalog(60), 'catalog', 12000);
+    const [dashboardResult, catalogResult] = await Promise.allSettled([dashboardPromise, catalogPromise]);
 
     const catalog = catalogResult.status === 'fulfilled' ? catalogResult.value : [];
-    if (dashboardResult.status === 'fulfilled') {
-      setSnapshot(dashboardResult.value);
-    } else {
-      setSnapshot(null);
-    }
-    setSmartReports(catalog);
+    setSnapshot(dashboardResult.status === 'fulfilled' ? dashboardResult.value : null);
 
-    // The report center is a product surface, not a dashboard gate:
-    // a slow/failing KPI snapshot must not hide real completed report jobs.
-    if (dashboardResult.status === 'rejected' && catalogResult.status === 'rejected') {
+    let nextCatalog = catalog;
+    const catalogTarget = catalog.find((report) => report.jobId === PRIMARY_SMART_REPORT_JOB_ID) ?? null;
+
+    // The buyer path is anchored to the certified real source. If the job is
+    // older than the first catalog page, read that exact job directly and place
+    // it first rather than silently selecting an unrelated recent report.
+    if (!catalogTarget) {
+      try {
+        const exact = await withDeadline(
+          fetchSmartReport(PRIMARY_SMART_REPORT_JOB_ID, PRIMARY_SMART_REPORT_SOURCE_HASH),
+          'primary-smart-report',
+          15000,
+        );
+        if (exact) nextCatalog = [exact, ...catalog.filter((report) => report.jobId !== exact.jobId)];
+      } catch (cause) {
+        setPrimarySmartReportError(errorMessage(cause));
+      }
+    }
+
+    setSmartReports(nextCatalog);
+
+    if (dashboardResult.status === 'rejected' && catalogResult.status === 'rejected' && nextCatalog.length === 0) {
       setError(errorMessage(dashboardResult.reason));
-    } else if (dashboardResult.status === 'rejected' && catalog.length > 0) {
-      setError(null);
-    } else if (catalogResult.status === 'rejected' && dashboardResult.status === 'fulfilled') {
+    } else {
+      // Background KPI/catalog failures must never erase a successfully read
+      // report. The visible state says what is unavailable instead of spinning.
       setError(null);
     }
 
     const persistedSmartJobId = window.sessionStorage.getItem('aghbari:last-smart-report-job')?.trim() ?? '';
-    const selectedSmartReport = (persistedSmartJobId
-      ? catalog.find((report) => report.jobId === persistedSmartJobId) ?? null
-      : null) ?? catalog[0] ?? null;
+    const selectedSmartReport = nextCatalog.find((report) => report.jobId === PRIMARY_SMART_REPORT_JOB_ID)
+      ?? (persistedSmartJobId ? nextCatalog.find((report) => report.jobId === persistedSmartJobId) ?? null : null)
+      ?? nextCatalog[0]
+      ?? null;
+
     if (selectedSmartReport) {
       window.sessionStorage.setItem('aghbari:last-smart-report-job', selectedSmartReport.jobId);
       window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', selectedSmartReport.sourceHash);
+
+      try {
+        const detail = await withDeadline(
+          selectedSmartReport.jobId === PRIMARY_SMART_REPORT_JOB_ID
+            ? fetchSmartReport(selectedSmartReport.jobId, selectedSmartReport.sourceHash)
+            : fetchSmartReport(selectedSmartReport.jobId, selectedSmartReport.sourceHash),
+          'primary-smart-readback',
+          15000,
+        );
+        if (detail) setPrimarySmartReport(detail);
+      } catch (cause) {
+        setPrimarySmartReportError(errorMessage(cause));
+      }
     }
 
     setLoading(false);
@@ -213,14 +260,12 @@ export function ReportsCenterPage() {
   const months = snapshot?.months ?? null;
   const truthLabel = kpis ? (kpis.status === 'CONFIRMED' ? 'مثبت' : kpis.status === 'CALCULATED' ? 'محسوب' : 'بيانات غير كافية') : 'مصادر حقيقية محمّلة';
   const truthClass = kpis ? (kpis.status === 'CONFIRMED' ? 'badge-success' : kpis.status === 'CALCULATED' ? 'badge-primary' : 'badge-warning') : 'badge-primary';
-  const nextPath = kpis
-    ? (kpis.status === 'INSUFFICIENT_DATA' || aging?.status === 'INSUFFICIENT_DATA' ? '/data-quality' : '/reports/executive')
-    : firstSmartReport
-      ? '/reports/smart/' + firstSmartReport.jobId + '?sourceHash=' + encodeURIComponent(firstSmartReport.sourceHash)
-      : '/import';
-  const nextLabel = kpis
-    ? (kpis.status === 'INSUFFICIENT_DATA' || aging?.status === 'INSUFFICIENT_DATA' ? 'افحص جودة البيانات' : 'افتح التقرير التنفيذي')
-    : firstSmartReport ? 'افتح أول تقرير ذكي' : 'إضافة مصدر';
+  const nextPath = firstSmartReport
+    ? '/reports/smart/' + firstSmartReport.jobId + '?sourceHash=' + encodeURIComponent(firstSmartReport.sourceHash)
+    : (kpis && (kpis.status === 'INSUFFICIENT_DATA' || aging?.status === 'INSUFFICIENT_DATA') ? '/data-quality' : '/import');
+  const nextLabel = firstSmartReport
+    ? 'افتح أول تقرير ذكي'
+    : (kpis && (kpis.status === 'INSUFFICIENT_DATA' || aging?.status === 'INSUFFICIENT_DATA') ? 'افحص جودة البيانات' : 'إضافة مصدر');
 
   return <div dir="rtl" className="ag-reports-center-surface space-y-5 animate-fade-in pb-10">
     <PageHeader
@@ -361,10 +406,32 @@ export function ReportsCenterPage() {
                     <span className={'shrink-0 rounded-full px-2 py-1 text-[9px] font-black ' + (report.trustState === 'TRUSTED' ? 'bg-indigo-50 text-indigo-800' : 'bg-warning-50 text-warning-800')}>{report.trustState === 'TRUSTED' ? 'موثوق' : report.trustState === 'VERIFIED' ? 'موثق' : report.trustState === 'REVIEW' || report.trustState === 'REVIEW_REQUIRED' ? 'مراجعة مطلوبة' : 'غير مكتمل'}</span>
                   </div>
 
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    <div className="rounded-xl border border-ink-100 bg-ink-50/70 p-3">
+                      <div className="text-[9px] font-black text-ink-400">المصدر</div>
+                      <div className="mt-1 truncate text-[10px] font-bold text-ink-800" title={report.sourcePath}>{report.sourcePath || 'مصدر غير مسمى'}</div>
+                    </div>
+                    <div className="rounded-xl border border-ink-100 bg-ink-50/70 p-3">
+                      <div className="text-[9px] font-black text-ink-400">الفترة</div>
+                      <div className="mt-1 text-[10px] font-bold text-ink-800">غير محددة في المصدر</div>
+                    </div>
+                  </div>
+
                   <div className="mt-3 rounded-xl border border-primary-100 bg-primary-50/60 p-3">
                     <div className="text-[9px] font-black tracking-[.08em] text-primary-700">قراءة التقرير</div>
                     <div className="mt-1 truncate text-[11px] font-black text-ink-950" title={modelLabel}>{modelLabel}</div>
                     <div className="mt-1 text-[9px] text-ink-500">الحالة: {report.archetypeState === 'REVIEW_REQUIRED' ? 'يحتاج مراجعة' : report.archetypeState === 'SUPPORTED' ? 'جاهز' : 'غير متاح'}</div>
+                  </div>
+
+                  <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/70 p-3">
+                    <div className="text-[9px] font-black text-amber-700">أهم نتيجة مثبتة</div>
+                    <div className="mt-1 text-[10px] font-bold leading-5 text-ink-900">
+                      {primarySmartReport && report.jobId === primarySmartReport.jobId
+                        ? (primarySmartReport.intelligence.advisorBrief.topFinding?.statement
+                          || primarySmartReport.intelligence.advisorBrief.headline
+                          || primarySmartReport.intelligence.summary)
+                        : 'افتح التقرير الذكي لقراءة النتيجة المصدرية كاملة دون اختلاق ملخص.'}
+                    </div>
                   </div>
 
                   <div className="mt-3 grid grid-cols-2 gap-2 text-[9px]">
