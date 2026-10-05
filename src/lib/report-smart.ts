@@ -811,13 +811,15 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const blockingReviewColumns = sourceColumns.filter((column) => {
     if (column.requiresReview !== true) return false;
     const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
-    return !mapped || coreFieldSet.has(mapped);
+    // Unknown/support columns may remain unmapped without blocking a specialized
+    // result. Only a mapped core reasoning field can hard-block intelligence.
+    return Boolean(mapped && coreFieldSet.has(mapped));
   });
   const blockingQualityIssueColumns = sourceColumns.filter((column) => {
     const issues = Array.isArray(column.qualityIssues) ? column.qualityIssues : [];
     if (!issues.length) return false;
     const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
-    return !mapped || coreFieldSet.has(mapped);
+    return Boolean(mapped && coreFieldSet.has(mapped));
   });
 
   const intelligenceGateReasons: string[] = [];

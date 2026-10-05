@@ -934,6 +934,24 @@ export function SmartReportPage() {
       ]}
     />
 
+    <section aria-label="سياق التقرير والدليل" className="rounded-[16px] border border-slate-700 bg-[#0b1020] p-4 text-white shadow-card">
+      <div className="grid gap-3 md:grid-cols-3">
+        <div>
+          <div className="text-[9px] font-black tracking-[.12em] text-slate-400">REPORT JOB ID</div>
+          <div data-testid="smart-report-job-id" className="mt-1 break-all font-mono text-[10px] text-white">{report.jobId}</div>
+        </div>
+        <div>
+          <div className="text-[9px] font-black tracking-[.12em] text-slate-400">SOURCE HASH</div>
+          <div data-testid="smart-report-source-hash" className="mt-1 break-all font-mono text-[10px] text-white">{report.sourceHash}</div>
+        </div>
+        <div>
+          <div className="text-[9px] font-black tracking-[.12em] text-slate-400">SOURCE</div>
+          <div className="mt-1 text-[10px] font-bold text-white">{report.sourcePath}</div>
+          <div className="mt-1 text-[9px] text-slate-400">الفترة: غير محددة في المصدر ما لم يثبتها الملف.</div>
+        </div>
+      </div>
+    </section>
+
     <section id="decision-chain" data-testid="smart-report-decision-chain" className="rounded-[20px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
