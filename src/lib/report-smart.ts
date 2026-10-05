@@ -185,7 +185,8 @@ function sourceColumnDescriptors(analysis: AnalysisSnapshotLike | null | undefin
 
 function inferSpecialtyFromAnalysis(analysis: AnalysisSnapshotLike | null | undefined): string | null {
   const datasets = Array.isArray(analysis?.datasets) ? analysis.datasets : [];
-  const parts: string[] = [];
+  const fields: Array<{ name: string; mapped: string }> = [];
+
   for (const dataset of datasets) {
     if (!dataset || typeof dataset !== 'object') continue;
     const row = dataset as Record<string, unknown>;
@@ -193,33 +194,62 @@ function inferSpecialtyFromAnalysis(analysis: AnalysisSnapshotLike | null | unde
     for (const column of columns) {
       if (column && typeof column === 'object') {
         const item = column as Record<string, unknown>;
-        parts.push(String(item.name ?? ''), String(item.mappedField ?? ''));
+        const name = String(item.name ?? '').trim().toLowerCase().normalize('NFKC');
+        const semanticMapped = normalizeBusinessField(name);
+        const mapped = String(semanticMapped ?? item.mappedField ?? '').trim().toLowerCase().normalize('NFKC');
+        if (name || mapped) fields.push({ name, mapped });
       } else {
-        parts.push(String(column ?? ''), normalizeBusinessField(column) ?? '');
-      }
-    }
-    const preview = Array.isArray(row.preview) ? row.preview.slice(0, 100) : [];
-    for (const sample of preview) {
-      if (!sample || typeof sample !== 'object') continue;
-      for (const [key, value] of Object.entries(sample as Record<string, unknown>)) {
-        parts.push(key, String(value ?? ''));
+        const name = String(column ?? '').trim().toLowerCase().normalize('NFKC');
+        const mapped = String(normalizeBusinessField(name) ?? '').trim().toLowerCase().normalize('NFKC');
+        if (name || mapped) fields.push({ name, mapped });
       }
     }
   }
 
-  const text = parts.join(' ').toLowerCase().normalize('NFKC');
-  if (!text.trim()) return null;
+  if (!fields.length) return null;
 
-  const score = (tokens: string[]) =>
-    tokens.reduce((sum, token) => sum + (text.includes(token.toLowerCase()) ? 1 : 0), 0);
+  const score = (tokens: string[]) => {
+    const normalizedTokens = tokens.map((token) => token.toLowerCase().normalize('NFKC').replace(/[\s_-]+/g, ''));
+    return fields.reduce((sum, field) => {
+      const mappedKey = field.mapped.replace(/[\s_-]+/g, '');
+      const nameKey = field.name.replace(/[\s_-]+/g, '');
+      return sum
+        + normalizedTokens.reduce((inner, token) => {
+          if (!token) return inner;
+          if (mappedKey === token) return inner + 3;
+          if (nameKey === token) return inner + 1;
+          return inner;
+        }, 0);
+    }, 0);
+  };
 
   const scores = {
-    inventory: score(['sku', 'productcode', 'productname', 'itemname', 'رقم الصنف', 'الصنف', 'مخزون', 'المخزن', 'كمية', 'warehouse', 'stock']),
-    sales: score(['sales', 'sale', 'المبيعات', 'فاتورة', 'customer', 'العميل', 'total_amount', 'net_amount']),
-    purchases: score(['purchase', 'purchases', 'المشتريات', 'supplier', 'المورد', 'cost']),
-    receivables: score(['receivable', 'receivables', 'ذمم', 'العملاء الآجل', 'الرصيد المستحق', 'debit', 'credit', 'due']),
-    payments: score(['payments', 'payment', 'الصراف', 'النقد', 'البنك', 'cash', 'bank']),
-    profitability: score(['profit', 'profitability', 'margin', 'الربح', 'الأرباح', 'الهامش']),
+    inventory: score([
+      'sku', 'productcode', 'productname', 'itemname', 'رقم الصنف', 'الصنف',
+      'balance', 'current_stock', 'opening_balance', 'opening_stock', 'incoming',
+      'net_inbound', 'sales_qty', 'warehouse', 'stockout_days', 'stock_age_days',
+      'stock_age_period_days', 'daily_sales_rate', 'annual_sales_rate',
+    ]),
+    sales: score([
+      'invoice_number', 'customer_name', 'total', 'net_amount', 'date',
+      'sales_qty', 'sales', 'المبيعات', 'فاتورة', 'العميل', 'الإجمالي',
+    ]),
+    purchases: score([
+      'invoice_number', 'supplier_name', 'total', 'purchase_qty', 'cost',
+      'date', 'المشتريات', 'المورد',
+    ]),
+    receivables: score([
+      'balance', 'due', 'due_date', 'customer_name', 'receivable',
+      'receivables', 'ذمم', 'الرصيد المستحق',
+    ]),
+    payments: score([
+      'payment', 'payment_method', 'paid_amount', 'cash', 'bank',
+      'الصراف', 'النقد', 'البنك',
+    ]),
+    profitability: score([
+      'profit', 'margin', 'cost', 'revenue', 'gross_amount', 'net_amount',
+      'الربح', 'الهامش', 'التكلفة',
+    ]),
   } as const;
 
   const ranked = (Object.entries(scores) as Array<[string, number]>)
@@ -227,16 +257,16 @@ function inferSpecialtyFromAnalysis(analysis: AnalysisSnapshotLike | null | unde
   const [best, bestScore] = ranked[0] ?? [null, 0];
   const secondScore = ranked[1]?.[1] ?? 0;
 
-  if (!best || bestScore < 2 || bestScore === secondScore) return null;
+  if (!best || bestScore < 4 || bestScore === secondScore) return null;
   return best;
 }
 
 function resolveEffectiveSpecialty(renderedSpecialty: unknown, analysis: AnalysisSnapshotLike | null | undefined): string | null {
   const renderedValue = renderedSpecialty == null ? null : String(renderedSpecialty).trim() || null;
   const inferred = inferSpecialtyFromAnalysis(analysis);
-  // The source-bound rendered specialty is authoritative. Inference may be used
-  // only when the persisted source identity does not provide a specialty.
-  return renderedValue ?? inferred;
+  // Persisted specialty can be stale after source reclassification. A strong
+  // semantic inference from the actual analysis columns is more trustworthy.
+  return inferred ?? renderedValue;
 }
 
 function analysisUsabilityScore(analysis: Record<string, unknown>): number {
@@ -756,7 +786,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     sales: ['date', 'invoice_number', 'customer_name', 'total'],
     purchases: ['date', 'supplier_name', 'total'],
     receivables: ['date', 'balance'],
-    inventory: ['sku', 'product_name', 'current_stock'],
+    // Inventory reports vary by source vocabulary. Stock quantity may be
+    // represented by current_stock, balance, or quantity.
+    inventory: ['sku', 'product_name'],
   };
   const requiredFields = specialtyCoreFields[specialty ?? ''] ?? [];
   const mappedFields = new Set(

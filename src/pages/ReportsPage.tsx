@@ -170,10 +170,13 @@ export function ReportsCenterPage() {
       setError(null);
     }
 
-    const firstSmartReport = catalog[0];
-    if (firstSmartReport) {
-      window.sessionStorage.setItem('aghbari:last-smart-report-job', firstSmartReport.jobId);
-      window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', firstSmartReport.sourceHash);
+    const persistedSmartJobId = window.sessionStorage.getItem('aghbari:last-smart-report-job')?.trim() ?? '';
+    const selectedSmartReport = (persistedSmartJobId
+      ? catalog.find((report) => report.jobId === persistedSmartJobId) ?? null
+      : null) ?? catalog[0] ?? null;
+    if (selectedSmartReport) {
+      window.sessionStorage.setItem('aghbari:last-smart-report-job', selectedSmartReport.jobId);
+      window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', selectedSmartReport.sourceHash);
     }
 
     setLoading(false);
@@ -198,7 +201,12 @@ export function ReportsCenterPage() {
   }
   if (!snapshot && smartReports.length === 0) return <DataUnavailableState title="مركز التقارير ينتظر المصدر" message="لا توجد لقطة تنفيذية ولا تقارير مكتملة للعرض بعد؛ لم يتم اختلاق أي بطاقة أو رقم." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
 
-  const firstSmartReport = smartReports[0] ?? null;
+  const persistedSmartJobId = typeof window !== 'undefined'
+    ? window.sessionStorage.getItem('aghbari:last-smart-report-job')?.trim() ?? ''
+    : '';
+  const firstSmartReport = (persistedSmartJobId
+    ? smartReports.find((report) => report.jobId === persistedSmartJobId) ?? null
+    : null) ?? smartReports[0] ?? null;
   const kpis = snapshot?.kpis ?? null;
   const aging = snapshot?.aging ?? null;
   const asOf = snapshot?.asOf ?? null;
