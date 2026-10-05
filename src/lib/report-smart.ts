@@ -234,7 +234,9 @@ function inferSpecialtyFromAnalysis(analysis: AnalysisSnapshotLike | null | unde
 function resolveEffectiveSpecialty(renderedSpecialty: unknown, analysis: AnalysisSnapshotLike | null | undefined): string | null {
   const renderedValue = renderedSpecialty == null ? null : String(renderedSpecialty).trim() || null;
   const inferred = inferSpecialtyFromAnalysis(analysis);
-  return inferred ?? renderedValue;
+  // The source-bound rendered specialty is authoritative. Inference may be used
+  // only when the persisted source identity does not provide a specialty.
+  return renderedValue ?? inferred;
 }
 
 function analysisUsabilityScore(analysis: Record<string, unknown>): number {
