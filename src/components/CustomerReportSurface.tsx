@@ -7,6 +7,12 @@ import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/repo
 
 const SPECIALTY_LABELS: Record<string, string> = {
   sales: 'المبيعات',
+  sales_qty: 'صافي المبيعات',
+  incoming: 'الوارد',
+  net_inbound: 'صافي الوارد',
+  opening_stock: 'الرصيد الافتتاحي',
+  daily_sales_rate: 'معدل البيع اليومي',
+  stockout_days: 'أيام حتى النفاد',
   purchases: 'المشتريات',
   inventory: 'المخزون',
   receivables: 'الذمم والتحصيل',
@@ -33,7 +39,7 @@ const FIELD_LABELS: Record<string, string> = {
   local_amount: 'الإجمالي',
   total: 'الإجمالي',
   paid_amount: 'المدفوع',
-  balance: 'المتبقي',
+  balance: 'الرصيد',
   outstanding_balance: 'الرصيد المستحق',
   current_stock: 'المخزون الحالي',
   stock: 'المخزون',
@@ -187,7 +193,7 @@ function numericColumns(report: SmartReportDetail) {
     purchases: ['total', 'paid_amount', 'profit', 'margin', 'quantity', 'balance'],
     receivables: ['balance', 'age_over_120', 'age_90_120', 'age_61_90', 'age_31_60'],
     payments: ['balance', 'credit', 'debit'],
-    inventory: ['value', 'quantity', 'current_stock', 'price', 'cost'],
+    inventory: ['balance', 'current_stock', 'sales_qty', 'incoming', 'net_inbound', 'opening_stock', 'quantity', 'value', 'price', 'cost'],
   };
   const preferred = preferences[report.specialty ?? ''] ?? ['total','amount','value','balance','paid_amount','quantity','profit','margin'];
   const rank = (field: string | null) => {
