@@ -325,7 +325,11 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       method: request.method(),
       url: request.url(),
     }));
+    const isReportsCenter = route === '/reports';
     const isSmartReport = route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID);
+    const realReportOnCenterPresent =
+      !isReportsCenter ||
+      (state.smartJobIdPresent && state.text.includes?.(REAL_SMART_REPORT_JOB_ID) && state.text.includes?.('تقارير ادارية.xlsx'));
     const smartSignalSurfacePresent = !isSmartReport || state.smartSignalSurfacePresent;
     const smartAdvisorSurfacePresent = !isSmartReport || state.smartAdvisorSurfacePresent;
     const smartDecisionChainPresent = !isSmartReport || state.smartDecisionChainPresent;
@@ -346,7 +350,8 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       smartDecisionChainPresent &&
       smartDecisionCardsComplete &&
       smartJobIdPresent &&
-      smartSourceHashPresent;
+      smartSourceHashPresent &&
+      realReportOnCenterPresent;
 
     lastState = {
       ...state,
