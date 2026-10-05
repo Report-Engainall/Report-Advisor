@@ -34,7 +34,7 @@ const STATE_LABELS: Record<string, string> = {
   NOT_AVAILABLE: 'غير متاح',
   INSUFFICIENT_SAMPLE: 'عينة غير كافية',
   INSUFFICIENT_DATA: 'بيانات غير كافية',
-  PENDING_EVIDENCE: 'بانتظار الدليل',
+  PENDING_EVIDENCE: 'الدليل النهائي غير مثبت',
   PENDING: 'قيد المراجعة',
   PROPOSED: 'مقترح',
   APPROVED: 'معتمد',
@@ -48,7 +48,7 @@ const STATE_LABELS: Record<string, string> = {
   CALCULATED: 'محسوب',
   AVAILABLE: 'متاح',
   UNAVAILABLE: 'غير متاح',
-  AWAITING_EVIDENCE_SNAPSHOT: 'بانتظار لقطة الدليل',
+  AWAITING_EVIDENCE_SNAPSHOT: 'لا توجد لقطة دليل مثبتة',
   NOT_PROVEN: 'غير مثبت',
   READY: 'جاهز',
 };
