@@ -34,69 +34,90 @@ function isGovernedReal(metadata) {
   return corpus && fixtureType !== 'synthetic-realistic' && catalogId !== 'report-intelligence.48';
 }
 
-const configuredTenantId = process.env.E2E_CORPUS_TENANT_ID?.trim() || '';
-const companies = configuredTenantId
-  ? await rest('/rest/v1/companies?select=id,name,created_at&id=eq.' + encodeURIComponent(configuredTenantId) + '&limit=1')
-  : await rest('/rest/v1/companies?select=id,name,created_at&name=like.Aghbari%20Report%20Corpus%20CI%20%25&order=created_at.desc&limit=1');
-const company = companies?.[0];
-if (!company?.id) throw new Error('REAL_CORPUS_TENANT_NOT_FOUND');
-
-const files = await rest(
-  '/rest/v1/file_records?company_id=eq.' + encodeURIComponent(company.id) +
-  '&metadata-%3E%3Ereport_corpus=eq.true' +
-  '&select=id,file_name,file_hash,status,metadata' +
-  '&order=created_at.asc&limit=500'
-);
-const governedFiles = (files || []).filter(file => isGovernedReal(file.metadata));
-const results = [];
-
-for (const file of governedFiles) {
-  const jobs = await rest(
-    '/rest/v1/report_execution_jobs?company_id=eq.' + encodeURIComponent(company.id) +
-    '&source_hash=eq.' + encodeURIComponent(String(file.file_hash || '')) +
-    '&status=eq.completed' +
-    '&checkpoint-%3E%3Estage=eq.rendered' +
-    '&select=id,company_id,source_path,source_hash,status,checkpoint,evidence' +
-    '&order=updated_at.desc&limit=50'
-  );
-
-  for (const job of jobs || []) {
-    try {
-      const refreshed = await rest('/rest/v1/rpc/refresh_report_evidence_passport', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ p_company_id: company.id, p_job_id: job.id }),
-      });
-      results.push({
-        fileRecordId: file.id,
-        fileName: file.file_name,
-        reportJobId: job.id,
-        sourceHash: file.file_hash,
-        verificationStatus: refreshed?.verificationStatus ?? null,
-        decisionReadiness: refreshed?.decisionReadiness ?? null,
-        canonicalCoverage: refreshed?.canonicalCoverage ?? null,
-        status: 'REFRESHED',
-      });
-    } catch (error) {
-      results.push({
-        fileRecordId: file.id,
-        fileName: file.file_name,
-        reportJobId: job.id,
-        sourceHash: file.file_hash,
-        status: 'FAILED',
-        error: error instanceof Error ? error.message : String(error),
-      });
-    }
-  }
+const configuredTenantIds = [...new Set(
+  String(process.env.E2E_CORPUS_TENANT_IDS || process.env.E2E_CORPUS_TENANT_ID || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean),
+)];
+const targetTenantIds = configuredTenantIds.length ? configuredTenantIds : [];
+if (!targetTenantIds.length) {
+  throw new Error('REAL_CORPUS_TENANT_IDS_REQUIRED');
 }
 
-const ready = results.filter(row => row.status === 'REFRESHED' && row.verificationStatus === 'VERIFIED' && row.decisionReadiness === 'READY');
+const tenantResults = [];
+const results = [];
+
+for (const tenantId of targetTenantIds) {
+  const companies = await rest('/rest/v1/companies?select=id,name,created_at&id=eq.' + encodeURIComponent(tenantId) + '&limit=1');
+  const company = companies?.[0];
+  if (!company?.id) throw new Error('REAL_CORPUS_TENANT_NOT_FOUND:' + tenantId);
+
+  const files = await rest(
+    '/rest/v1/file_records?company_id=eq.' + encodeURIComponent(company.id) +
+    '&metadata-%3E%3Ereport_corpus=eq.true' +
+    '&select=id,file_name,file_hash,status,metadata' +
+    '&order=created_at.asc&limit=500'
+  );
+  const governedFiles = (files || []).filter(file => isGovernedReal(file.metadata));
+
+  for (const file of governedFiles) {
+    const jobs = await rest(
+      '/rest/v1/report_execution_jobs?company_id=eq.' + encodeURIComponent(company.id) +
+      '&source_hash=eq.' + encodeURIComponent(String(file.file_hash || '')) +
+      '&status=eq.completed' +
+      '&checkpoint-%3E%3Estage=eq.rendered' +
+      '&select=id,company_id,source_path,source_hash,status,checkpoint,evidence' +
+      '&order=updated_at.desc&limit=50'
+    );
+
+    for (const job of jobs || []) {
+      try {
+        const refreshed = await rest('/rest/v1/rpc/refresh_report_evidence_passport', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ p_company_id: company.id, p_job_id: job.id }),
+        });
+        results.push({
+          tenantId: company.id,
+          tenantName: company.name,
+          fileRecordId: file.id,
+          fileName: file.file_name,
+          reportJobId: job.id,
+          sourceHash: file.file_hash,
+          verificationStatus: refreshed?.verificationStatus ?? null,
+          decisionReadiness: refreshed?.decisionReadiness ?? null,
+          canonicalCoverage: refreshed?.canonicalCoverage ?? null,
+          status: 'REFRESHED',
+        });
+      } catch (error) {
+        results.push({
+          tenantId: company.id,
+          tenantName: company.name,
+          fileRecordId: file.id,
+          fileName: file.file_name,
+          reportJobId: job.id,
+          sourceHash: file.file_hash,
+          status: 'FAILED',
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+  }
+
+  tenantResults.push({
+    tenantId: company.id,
+    tenantName: company.name,
+    governedRealFiles: governedFiles.length,
+    renderedCompletedJobsVisited: results.filter(row => row.tenantId === company.id).length,
+  });
+}const ready = results.filter(row => row.status === 'REFRESHED' && row.verificationStatus === 'VERIFIED' && row.decisionReadiness === 'READY');
 const failed = results.filter(row => row.status === 'FAILED');
 
 const summary = {
   exactHead: EXACT_HEAD,
-  tenant: { id: company.id, name: company.name },
-  discoveredGovernedRealFiles: governedFiles.length,
+  tenants: tenantResults,
+  discoveredGovernedRealFiles: tenantResults.reduce((sum, tenant) => sum + tenant.governedRealFiles, 0),
   renderedCompletedJobsVisited: results.length,
   readyPassports: ready.length,
   failedRefreshes: failed.length,
