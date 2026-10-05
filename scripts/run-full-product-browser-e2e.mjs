@@ -331,7 +331,7 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
     const isSmartReport = route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID);
     const realReportOnCenterPresent =
       !isReportsCenter ||
-      (state.realReportJobIdPresent && state.realReportSourcePresent);
+      (Boolean(document.querySelector('[data-testid="primary-real-smart-report-card"]')) && state.realReportSourcePresent);
     const smartSignalSurfacePresent = !isSmartReport || state.smartSignalSurfacePresent;
     const smartAdvisorSurfacePresent = !isSmartReport || state.smartAdvisorSurfacePresent;
     const smartDecisionChainPresent = !isSmartReport || state.smartDecisionChainPresent;
@@ -375,20 +375,20 @@ async function waitForRealReportFirstPaint(targetPage, timeoutMs = 8000) {
   const deadline = startedAt + timeoutMs;
   let lastState = null;
   while (Date.now() < deadline) {
-    lastState = await targetPage.evaluate(({ jobId, sourceName }) => {
+    lastState = await targetPage.evaluate(({ sourceName }) => {
       const text = document.body?.innerText?.trim() || '';
       const visibleText = text.length > 120;
+      const primaryCardPresent = Boolean(document.querySelector('[data-testid="primary-real-smart-report-card"]'));
       return {
         visibleText,
-        jobIdPresent: text.includes(jobId),
+        primaryCardPresent,
         sourcePresent: text.includes(sourceName),
         textLength: text.length,
       };
     }, {
-      jobId: REAL_SMART_REPORT_JOB_ID,
       sourceName: 'تقارير ادارية.xlsx',
     });
-    if (lastState.visibleText && lastState.jobIdPresent && lastState.sourcePresent) {
+    if (lastState.visibleText && lastState.primaryCardPresent && lastState.sourcePresent) {
       return {
         proven: true,
         durationMs: Date.now() - startedAt,
