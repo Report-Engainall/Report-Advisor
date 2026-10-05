@@ -122,6 +122,7 @@ function normalizeBusinessField(value: unknown): string | null {
     ['stock_age_days',['stock_age_days','stockagedays','عمر المخزون','عمرالمخزون']],
     ['stock_age_period_days',['stock_age_period_days','stockageperioddays','عمر المخزون للفترة','عمرالمخزونللفترة']],
     ['opening_stock',['opening_stock','openingstock','الرصيد الافتتاحي','الرصيدالإفتتاحي','المخزون الافتتاحي']],
+    ['incoming',['incoming','inbound','الوارد','الـوارد']],
     ['net_inbound',['net_inbound','netinbound','صافي الوارد','صافيوارد']],
     ['transfers_pending',['transfers_pending','pending_transfer','تحويل غير مستلم','تحويلغيرمستلم']],
   ];
