@@ -1,18 +1,19 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 4d6d8a91e94b27d4c6087a8f10f171bc37fe93c8
-CURRENT_MAIN_HEAD = 4d6d8a91e94b27d4c6087a8f10f171bc37fe93c8
-CURRENT_EXECUTION_HEAD = 4d6d8a91e94b27d4c6087a8f10f171bc37fe93c8
+CURRENT_EXACT_HEAD = 687264d5af61b25123d443365ef4a980921a64e4
+CURRENT_MAIN_HEAD = 687264d5af61b25123d443365ef4a980921a64e4
+CURRENT_EXECUTION_HEAD = 687264d5af61b25123d443365ef4a980921a64e4
 BRANCH = main
 PR = N/A
 CURRENT_PR_HEAD = N/A
 
 WHAT_ACTUALLY_HAPPENED
-- Added a contract-compatible overload to fetchSmartReport while retaining the optional AbortSignal path.
-- Changed Reports Center loading so the exact real Smart Report, catalog, and dashboard publish independently; the slowest read no longer blocks first paint.
-- Fixed strict TypeScript narrowing in the async publish/reconciliation path.
-- Verified the real report job c42fb0e1-75f2-4727-8c3e-470ae1a804fa exists in Supabase with source تقارير ادارية.xlsx and the expected SHA-256 hash.
-- Vercel production deployment for the preceding code revision was READY; the new exact HEAD is queued/building through the normal deployment path.
+- Bound Smart Report proof to the real primary report c42fb0e1-75f2-4727-8c3e-470ae1a804fa (تقارير ادارية.xlsx).
+- Added a visible primary real-report card test anchor without exposing internal UUIDs in the customer UI.
+- Added a 12-second safety bound to canonical tenant resolution for unbounded browser readback recovery.
+- Corrected the business proof contract from 7 to 18 columns for the actual primary source.
+- Separated 48/48 archetype ENGINE runtime proof from real-source archetype coverage. Synthetic-realistic fixtures remain engine-only and are never treated as real-source evidence.
+- Real-source coverage remains a separate diagnostic currently below 48/48.
 
 WHAT_IS_PROVEN
 - Supabase real report execution job is completed.
