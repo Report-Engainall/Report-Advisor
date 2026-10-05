@@ -370,6 +370,40 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
   return lastState || { dataRequestsSeenSinceRoute: dataRequestsSeen - dataBaseline, pendingDataRequests: pendingDataRequests.size, settled: false };
 }
 
+async function waitForRealReportFirstPaint(targetPage, timeoutMs = 8000) {
+  const startedAt = Date.now();
+  const deadline = startedAt + timeoutMs;
+  let lastState = null;
+  while (Date.now() < deadline) {
+    lastState = await targetPage.evaluate(({ jobId, sourceName }) => {
+      const text = document.body?.innerText?.trim() || '';
+      const visibleText = text.length > 120;
+      return {
+        visibleText,
+        jobIdPresent: text.includes(jobId),
+        sourcePresent: text.includes(sourceName),
+        textLength: text.length,
+      };
+    }, {
+      jobId: REAL_SMART_REPORT_JOB_ID,
+      sourceName: 'تقارير ادارية.xlsx',
+    });
+    if (lastState.visibleText && lastState.jobIdPresent && lastState.sourcePresent) {
+      return {
+        proven: true,
+        durationMs: Date.now() - startedAt,
+        ...lastState,
+      };
+    }
+    await targetPage.waitForTimeout(200);
+  }
+  return {
+    proven: false,
+    durationMs: Date.now() - startedAt,
+    ...(lastState || { visibleText: false, jobIdPresent: false, sourcePresent: false, textLength: 0 }),
+  };
+}
+
 async function runWorkspacePersonalizationProbe(targetPage) {
   let convergenceRecovery = false;
 
@@ -647,6 +681,14 @@ try {
         try {
           const response = await routePage.goto(baseURL + route, { waitUntil: 'domcontentloaded', timeout: 30000 });
           await routePage.waitForTimeout(250);
+          let firstPaint = null;
+          if (route === '/reports') {
+            firstPaint = await waitForRealReportFirstPaint(routePage, 8000);
+            if (!firstPaint.proven) {
+              status = 'NOT_PROVEN';
+              reason = '/reports: real report content did not become visible within the first-paint budget.';
+            }
+          }
           settlement = await waitForReportSettled(routePage, route, dataBaseline);
           const bodyText = (await routePage.locator('body').innerText()).trim();
           const appError = await routePage.getByText('حدث خطأ غير متوقع').count();
@@ -689,13 +731,13 @@ try {
         const routeErrors = consoleErrors.slice(beforeErrors);
         const routeFailed = failedRequests.slice(beforeFailed);
         const routeFailedResponses = failedResponses.slice(beforeFailedResponses);
-        result.routes.push({ route, status, reason, durationMs: Date.now() - started, screenshot, settlement, readback,
+        result.routes.push({ route, status, reason, durationMs: Date.now() - started, screenshot, firstPaint, settlement, readback,
           consoleErrors: routeErrors, failedRequests: routeFailed, failedResponses: routeFailedResponses, requests: routeRequests, interaction: inspection,
           proofTenant: usesReportProofTenant ? reportProofTenant : result.tenantA });
         result.actions.push({ route, buttonCount: inspection?.buttonCount ?? 0, buttons: inspection?.buttons ?? [],
           inputCount: inspection?.inputCount ?? 0, linkCount: inspection?.linkCount ?? 0 });
         if (status === 'FAIL') addFinding('E2E-ROUTE-' + String(i + 1).padStart(3, '0'), 'FAIL', 'P1', route + ': ' + reason);
-        if (status === 'NOT_PROVEN') addFinding('E2E-REPORT-' + String(i + 1).padStart(3, '0'), 'NOT_PROVEN', 'P0', reason, { settlement });
+        if (status === 'NOT_PROVEN') addFinding('E2E-REPORT-' + String(i + 1).padStart(3, '0'), 'NOT_PROVEN', 'P0', reason, { firstPaint, settlement });
         if (routeFailed.length) addFinding('E2E-NET-' + String(i + 1).padStart(3, '0'), 'FAIL', 'P1',
           route + ': ' + routeFailed.length + ' browser network request(s) failed.', { requests: routeFailed });
         if (routeFailedResponses.length) addFinding('E2E-HTTP-' + String(i + 1).padStart(3, '0'), 'FAIL', 'P1',
