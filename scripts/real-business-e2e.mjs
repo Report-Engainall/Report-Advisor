@@ -352,7 +352,7 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     /\/reports\/smart\/[^/]+/.test(page.url()),
     'SMART_REPORT_BROWSER_ROUTE_MUST_REMAIN_SOURCE_BOUND'
   );
-  await page.getByText('EVIDENCE PASSPORT', { exact: false }).waitFor({
+  await page.getByText('EVIDENCE PASSPORT', { exact: false }).first().waitFor({
     state: 'visible',
     timeout: 30000,
   });
