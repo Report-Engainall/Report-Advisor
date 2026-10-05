@@ -1,11 +1,11 @@
 ﻿SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = d405e66d30eafd242ca7d6f34a355b9c1d64b6ba
+CURRENT_EXACT_HEAD = f83bc240f4bafd0c78cdf287176a64639e912584
 CURRENT_MAIN_HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
-CURRENT_EXECUTION_HEAD = d405e66d30eafd242ca7d6f34a355b9c1d64b6ba
+CURRENT_EXECUTION_HEAD = f83bc240f4bafd0c78cdf287176a64639e912584
 BRANCH = exec/final-reconcile-20261005
 PR = #841 OPEN
-CURRENT_PR_HEAD = d405e66d30eafd242ca7d6f34a355b9c1d64b6ba
+CURRENT_PR_HEAD = f83bc240f4bafd0c78cdf287176a64639e912584
 
 WHAT_ACTUALLY_HAPPENED
 - طھظ… ط¥طµظ„ط§ط­ ظ…ط³ط§ط±ط§طھ ط¹ط±ط¶ ط§ظ„طھظ‚ط§ط±ظٹط± ط¨ط­ظٹط« ظ„ط§ ظٹط­ط¬ط¨ ظƒطھط§ظ„ظˆط¬ ط§ظ„طھظ‚ط§ط±ظٹط± ط£ظˆ ط·ظ„ط¨ط§طھ ط§ظ„ط®ظ„ظپظٹط© ظˆطµظˆظ„ ط§ظ„ظ„ظ‚ط·ط© ط§ظ„ط­ظ‚ظٹظ‚ظٹط© ط¥ظ„ظ‰ ط§ظ„ظˆط§ط¬ظ‡ط©.
