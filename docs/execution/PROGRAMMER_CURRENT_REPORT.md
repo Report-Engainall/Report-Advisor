@@ -6,13 +6,13 @@ CURRENT EXECUTION HEAD = 5d1e69afc04af897bcbfd88c7bffdef1bc3fba1
 REPORT_FOR_HEAD = 5d1e69afc04af897bcbfd88c7bffdef1bc3fba1
 BRANCH = main
 PR = N/A
-UPDATED_AT = 2026-10-05T23:02:00+03:00
+UPDATED_AT = 2026-10-05T23:08:00+03:00
 
 WHAT_I_WAS_ASKED_TO_DO = Continue execution until the real report center and Smart Report are customer-visible and proven, not merely route-loaded or test-only.
 
 OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
 
-WHAT_I_ACTUALLY_DID = Reconciled duplicate source lineage for تقارير ادارية.xlsx; selected the authoritative inventory execution and evidence passport; switched the Reports Center primary binding to job 16709d80-e012-40ef-9c12-6fd8255897f8; changed the Reports Center first customer surface so the source-bound Smart Report is the primary hero instead of generic dashboard KPIs; added a public verified real-report proof block to /proposal-demo and stabilized its commercial hero layout; aligned browser/business E2E contracts to the same 332-row authoritative report; removed the duplicate SourceBoundReportSurface import; and kept governance synchronized to the current main head.
+WHAT_I_ACTUALLY_DID = Reconciled duplicate source lineage for تقارير ادارية.xlsx; selected the authoritative inventory execution and evidence passport; switched the Reports Center primary binding to job 16709d80-e012-40ef-9c12-6fd8255897f8; changed the Reports Center first customer surface so the source-bound Smart Report is the primary hero instead of generic dashboard KPIs; added a public verified real-report proof block to /proposal-demo and stabilized its commercial hero layout; converted the redundant token-based Vercel Actions workflow to manual-only; aligned browser/business E2E contracts to the same 332-row authoritative report; removed the duplicate SourceBoundReportSurface import; and kept governance synchronized to the current main head.
 
 WHAT_IS_PROVEN = Supabase contains the authoritative completed inventory report 16709d80-e012-40ef-9c12-6fd8255897f8 for source تقارير ادارية.xlsx and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313. Its evidence passport is ACCEPTED + VERIFIED + READY with 332 canonical/committed/authoritative rows and quality score 98. The product build succeeded on the preceding exact-head CI cycle. The current Vercel production is reachable at report-advisor.vercel.app and is on 61d288b70f59cf9b7bcaad2179297b0bda8e99bd; later main commits are awaiting a fresh deployment because the Vercel free API deployment quota is currently exhausted.
 

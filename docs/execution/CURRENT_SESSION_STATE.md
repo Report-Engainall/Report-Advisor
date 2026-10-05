@@ -1,8 +1,8 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 5d1e69afc04af897bcbfd88c7bffdef1bc3fba1b
-CURRENT_MAIN_HEAD = 5d1e69afc04af897bcbfd88c7bffdef1bc3fba1b
-CURRENT_EXECUTION_HEAD = 5d1e69afc04af897bcbfd88c7bffdef1bc3fba1b
+CURRENT_EXACT_HEAD = 43af0fd3015f7059602e99a594844157e595b433
+CURRENT_MAIN_HEAD = 43af0fd3015f7059602e99a594844157e595b433
+CURRENT_EXECUTION_HEAD = 43af0fd3015f7059602e99a594844157e595b433
 BRANCH = main
 PR = N/A
 CURRENT_PR_HEAD = N/A
@@ -13,6 +13,7 @@ WHAT_ACTUALLY_HAPPENED
 - Corrected the primary customer path and redesigned the Reports Center first paint so the source-bound Smart Report is the hero surface; generic sales/receivables KPIs no longer displace the active inventory report.
 - Added a public commercial proof section to /proposal-demo using verified source-bound inventory findings: 332 rows, quality 98, 140 zero/negative-stock rows with sales, 44 stockout-within-7-days rows, 155 old-stock rows with daily movement, 15 negative-stock rows, and 12 explicit-incoming reconciliation gaps.
 - Stabilized the commercial hero layout so the proof sequence and print action remain balanced from mobile through desktop.
+- Converted the redundant token-based Vercel GitHub Actions deployment workflow to manual-only because the Vercel project already deploys from GitHub directly and the CI secrets are intentionally unavailable.
 - Corrected browser/business proof contracts from the stale 342-row sales job to the authoritative 332-row inventory execution.
 - Removed the duplicate SourceBoundReportSurface import that previously failed TypeScript.
 - Rebound session governance documents to this exact head.
@@ -45,4 +46,4 @@ ROOT_CAUSE
 - Browser-proof contracts lagged behind the authoritative report lineage.
 - Governance documents were stale relative to mainline changes.
 
-NEXT_EXACT_ACTION = Consume terminal CI results for 5d1e69afc04af897bcbfd88c7bffdef1bc3fba1b; fix only the first newly proven failure, then consume same-head Chromium Smart Report evidence and certification. No sale-ready claim before same-head browser proof plus 48/48 plus final certification.
+NEXT_EXACT_ACTION = Consume terminal CI results for 43af0fd3015f7059602e99a594844157e595b433; fix only the first newly proven failure, then consume same-head Chromium Smart Report evidence and certification. No sale-ready claim before same-head browser proof plus 48/48 plus final certification.
