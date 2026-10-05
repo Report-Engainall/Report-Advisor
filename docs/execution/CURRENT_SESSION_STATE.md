@@ -1,26 +1,27 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = db888bf177262302ff42b729697d45c60e7b2cf0
-CURRENT_MAIN_HEAD = db888bf177262302ff42b729697d45c60e7b2cf0
-CURRENT_EXECUTION_HEAD = db888bf177262302ff42b729697d45c60e7b2cf0
+CURRENT_EXACT_HEAD = 44232f8198b09c453c178bf0b910a6daab74f628
+CURRENT_MAIN_HEAD = 44232f8198b09c453c178bf0b910a6daab74f628
+CURRENT_EXECUTION_HEAD = 44232f8198b09c453c178bf0b910a6daab74f628
 BRANCH = main
 PR = N/A
 CURRENT_PR_HEAD = N/A
 
 WHAT_ACTUALLY_HAPPENED
-- Rebound the Reports Center primary Smart Report from the stale sales execution job c42fb0e1-75f2-4727-8c3e-470ae1a804fa to the authoritative inventory execution job 16709d80-e012-40ef-9c12-6fd8255897f8 for تقارير ادارية.xlsx.
+- Rebound the Reports Center primary Smart Report from stale sales execution job c42fb0e1-75f2-4727-8c3e-470ae1a804fa to authoritative inventory execution job 16709d80-e012-40ef-9c12-6fd8255897f8 for تقارير ادارية.xlsx.
 - Confirmed the same source hash has two canonical variants: stale sales (342 rows, quality 87) and authoritative inventory (332 rows, quality 98, VERIFIED/READY).
-- Corrected the primary customer path so the report opened first is the authoritative inventory report rather than the stale sales interpretation.
-- Preserved sourceHash-bound navigation and the existing source-bound intelligence/evidence controls.
-- Rebound session governance documents to this exact head so the handoff contract reflects the actual code now on main.
+- Corrected the primary customer path and then redesigned the Reports Center first paint so the source-bound Smart Report is the hero surface; generic sales/receivables KPIs no longer displace the active inventory report.
+- Corrected browser/business proof contracts from the stale 342-row sales job to the authoritative 332-row inventory execution.
+- Removed the duplicate SourceBoundReportSurface import that previously failed TypeScript.
+- Rebound session governance documents to this exact head.
 
 WHAT_IS_PROVEN
 - Supabase real report execution job 16709d80-e012-40ef-9c12-6fd8255897f8 is completed for تقارير ادارية.xlsx.
-- Its source hash is sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313.
-- Its authoritative inventory evidence passport is ACCEPTED + VERIFIED + READY with 332 canonical/committed/authoritative rows and quality score 98.
-- The main product and browser-proof fixes are committed at CURRENT_EXACT_HEAD above.
-- The current GitHub Pages static build was proven as an artifact; public Pages publication is still unavailable because repository Pages is not enabled.
-- Current CI includes exact-head Browser E2E, quality, build, Pages artifact, and Vercel deployment jobs; these remain unclaimed until terminal evidence is available.
+- Source hash: sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313.
+- Authoritative inventory evidence passport: ACCEPTED + VERIFIED + READY, 332 canonical/committed/authoritative rows, quality score 98.
+- Exact-head product build succeeded on the preceding CI cycle; the latest main changes are queued for fresh CI.
+- Current live Vercel production remains on 61d288b70f59cf9b7bcaad2179297b0bda8e99bd, whose parent chain contains the customer-facing primary-report binding. A fresh deploy of later commits is blocked temporarily by Vercel's free 100-deploy/day API limit.
+- GitHub Pages artifact generation has been proven; public Pages publication remains unavailable because repository Pages is not enabled.
 
 CURRENT_OPEN_GATES
 - Session Handoff Contract on this exact head.
@@ -29,14 +30,17 @@ CURRENT_OPEN_GATES
 - 48/48 archetype evidence gate on this exact head.
 - Final Certification Gate on this exact head.
 - Customer-side screenshots remain unproven until the exact-head browser job produces artifacts.
-- Public hosting still depends on a deploy route that can publish the current exact head.
+- Latest customer-facing UI commit is not yet deployed to the public Vercel URL because of the free deployment limit.
 
 CURRENT_ACTIVE_FAILURE
-- The immediately prior product failure was a duplicate SourceBoundReportSurface import in src/pages/ExecutiveReportPage.tsx. It has been removed on the current product head. Session governance remains rebound to the current product head.
-- No new product failure is asserted until the exact-head jobs reach terminal state.
+- Previous exact-head failure: duplicate SourceBoundReportSurface import in ExecutiveReportPage.tsx. Fixed.
+- Previous browser-proof failure: E2E contracts referenced the stale sales job and 342 rows. Fixed to the authoritative inventory job and 332 rows.
+- No new product failure is asserted until the exact-head CI jobs reach terminal state.
 
 ROOT_CAUSE
-- Reports Center hardcoded the stale 342-row sales job as the primary customer report even when the same source hash had a newer, higher-quality inventory execution and verified evidence passport.
-- Session governance documents were not advanced alongside the latest product code changes.
+- The Reports Center originally treated a stale sales execution as the primary report despite a higher-quality verified inventory execution for the same source hash.
+- The customer surface still prioritized generic dashboard KPIs over the actual source-bound report.
+- Browser-proof contracts lagged behind the authoritative report lineage.
+- Governance documents were stale relative to mainline changes.
 
-NEXT_EXACT_ACTION = Consume the terminal CI results for this exact head; fix only the first newly proven failure, then consume Browser Smart Report evidence and certification. No sale-ready claim before same-head Chromium proof plus 48/48 plus final certification.
+NEXT_EXACT_ACTION = Consume terminal CI results for 44232f8198b09c453c178bf0b910a6daab74f628; fix only the first newly proven failure, then consume same-head Chromium Smart Report evidence and certification. No sale-ready claim before same-head browser proof plus 48/48 plus final certification.
