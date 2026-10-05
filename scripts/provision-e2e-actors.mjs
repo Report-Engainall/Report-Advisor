@@ -290,7 +290,11 @@ function ensureApproverCredentials() {
 
 async function findTenantB() {
   assertProvisionDeadline('find-tenant-b');
+  const realSmartReportCompanyId = process.env.REAL_SMART_REPORT_COMPANY_ID?.trim();
   const configuredId = process.env.E2E_CORPUS_TENANT_ID?.trim();
+  if (configuredId && realSmartReportCompanyId && configuredId === realSmartReportCompanyId) {
+    throw new Error('E2E_CORPUS_TENANT_ID_MUST_DIFFER_FROM_REAL_SMART_REPORT_COMPANY');
+  }
   if (configuredId) {
     const { data, error } = await supabase
       .from('companies')
