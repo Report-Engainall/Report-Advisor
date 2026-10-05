@@ -53,7 +53,7 @@ const REPORT_EXPECTATIONS = new Map([
   ['/reports/demand-velocity', ['حركة الطلب وسرعة الأصناف']],
   ['/reports/receivables', ['تقرير الذمم والتحصيل', 'إجمالي الذمم']],
   ['/reports/profitability', ['تقرير الأرباح والربحية', 'التكلفة']],
-  ['/reports/smart/' + REAL_SMART_REPORT_JOB_ID + '?sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['سلسلة الثقة لهذا التقرير', 'التفاصيل الكاملة للتقرير', 'مسار القرار', 'المصدر']],
+  ['/reports/smart/' + REAL_SMART_REPORT_JOB_ID + '?sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF', 'التفاصيل الكاملة للتقرير', 'مسار القرار', 'المصدر']],
   ['/decision-experience?stage=evidence&reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['مساحة القرار', 'الدليل']],
   ['/work-center?reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['مركز العمل']],
 ]);
@@ -291,12 +291,24 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
         busy,
         smartSignalSurfacePresent: text.includes('الإشارات'),
         smartAdvisorSurfacePresent: text.includes('المستشار'),
+        smartDecisionChainPresent: Boolean(document.querySelector('[data-testid="smart-report-decision-chain"]')),
+        smartDecisionCards: ['what','why','so-what','impact','what-next','proof'].filter(key => Boolean(document.querySelector('[data-testid="smart-report-' + key + '"]'))),
+        smartJobIdPresent: text.includes(REAL_SMART_REPORT_JOB_ID),
+        smartSourceHashPresent: text.includes(REAL_SMART_REPORT_SOURCE_HASH),
       };
     }, { expected, loadingMarkers: REPORT_LOADING_MARKERS });
 
     const dataRequestsSeenSinceRoute = dataRequestsSeen - dataBaseline;
     const allExpectedFound = state.matches.every(item => item.found);
-    const dataComplete = dataRequestsSeenSinceRoute > 0 && pendingDataRequests.size === 0;
+    const optionalBackgroundRequest = request => {
+      if (route === '/reports') {
+        const url = request.url();
+        return url.includes('/rest/v1/report_execution_jobs') || url.includes('/rest/v1/source_analysis_snapshots');
+      }
+      return false;
+    };
+    const criticalPendingDataRequests = [...pendingDataRequests].filter(request => !optionalBackgroundRequest(request));
+    const dataComplete = dataRequestsSeenSinceRoute > 0 && criticalPendingDataRequests.length === 0;
     const pendingDataRequestDetails = [...pendingDataRequests].slice(0, 20).map(request => ({
       method: request.method(),
       url: request.url(),
@@ -304,6 +316,10 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
     const isSmartReport = route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID);
     const smartSignalSurfacePresent = !isSmartReport || state.smartSignalSurfacePresent;
     const smartAdvisorSurfacePresent = !isSmartReport || state.smartAdvisorSurfacePresent;
+    const smartDecisionChainPresent = !isSmartReport || state.smartDecisionChainPresent;
+    const smartDecisionCardsComplete = !isSmartReport || state.smartDecisionCards.length === 6;
+    const smartJobIdPresent = !isSmartReport || state.smartJobIdPresent;
+    const smartSourceHashPresent = !isSmartReport || state.smartSourceHashPresent;
     const noLoading = state.loading.length === 0;
     const noVisibleError = state.errors.length === 0;
     const settled =
@@ -314,12 +330,17 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       noVisibleError &&
       !state.busy &&
       smartSignalSurfacePresent &&
-      smartAdvisorSurfacePresent;
+      smartAdvisorSurfacePresent &&
+      smartDecisionChainPresent &&
+      smartDecisionCardsComplete &&
+      smartJobIdPresent &&
+      smartSourceHashPresent;
 
     lastState = {
       ...state,
       dataRequestsSeenSinceRoute,
       pendingDataRequests: pendingDataRequests.size,
+      criticalPendingDataRequests: criticalPendingDataRequests.length,
       pendingDataRequestDetails,
       settled,
     };
