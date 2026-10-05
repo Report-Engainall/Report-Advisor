@@ -39,14 +39,14 @@ function stateLabel(value: string | null): string {
     FULL_SOURCE: 'المصدر كامل',
     PARTIAL_FETCH_CEILING: 'تحليل جزئي — حد القراءة 50,000',
     PARTIAL_FETCH_ERROR: 'تحليل جزئي — تعذر قراءة جزء من المصدر',
-    AWAITING_EVIDENCE_SNAPSHOT: 'بانتظار لقطة الدليل',
+    AWAITING_EVIDENCE_SNAPSHOT: 'الدليل النهائي غير مثبت',
     AVAILABLE_FROM_CANONICAL_ANALYSIS: 'متاح من التحليل الكانوني',
     NOT_COMMITTED: 'غير معتمد',
     NO_DECISION_COMMITTED: 'لا قرار معتمد',
     NO_ACTION_COMMITTED: 'لا إجراء معتمد',
     NOT_AVAILABLE: 'غير متاح',
     INSUFFICIENT_SAMPLE: 'عينة غير كافية',
-    PENDING_EVIDENCE: 'بانتظار الدليل',
+    PENDING_EVIDENCE: 'الدليل النهائي غير مثبت',
     GAP_DETECTED: 'فجوة اعتماد مكتشفة',
     SIGNALS_PRESENT: 'إشارات مثبتة',
     NO_EXCEPTIONAL_SIGNALS: 'لا توجد إشارات استثنائية',
@@ -358,9 +358,9 @@ function buildSmartAnalysis(report: SmartReportDetail | null) {
 }
 
 function reportVerificationLabel(value: string): string {
-  if (value === 'VERIFIED') return 'موثق';
-  if (value === 'GAP_DETECTED') return 'فجوة تحتاج مراجعة';
-  return 'بانتظار الدليل';
+  if (value === 'VERIFIED') return 'الدليل النهائي موثق';
+  if (value === 'GAP_DETECTED') return 'فجوة في الإثبات';
+  return 'الدليل النهائي غير مثبت';
 }
 
 function reportRowCountLabel(value: number | null | undefined): string {
@@ -843,10 +843,12 @@ export function SmartReportPage() {
   const primaryRecommendation = selectExecutiveRecommendation(report.intelligence, executiveSignal);
   const confidenceLabel =
     report.reportVerificationState === 'VERIFIED' && report.qualityScore != null
-      ? `ثقة المصدر ${report.qualityScore}%`
+      ? `ثقة المصدر ${report.qualityScore}% · الدليل موثق`
       : report.reportVerificationState === 'PARTIAL_ANALYSIS'
-        ? 'القراءة جزئية'
-        : 'بانتظار التحقق';
+        ? 'القراءة جزئية · الذكاء المصدرّي متاح ضمن النطاق المقروء'
+        : report.sourceTrustState === 'TRUSTED'
+          ? `المصدر موثوق${report.qualityScore != null ? ' · الجودة ' + report.qualityScore + '%' : ''} · الدليل النهائي غير مثبت`
+          : 'الذكاء المصدرّي متاح · الدليل النهائي غير مثبت';
 
   return <div dir="rtl" className="report-page ag-smart-report-surface space-y-5 animate-fade-in pb-10">
     <PageHeader
@@ -872,7 +874,10 @@ export function SmartReportPage() {
     <section id="executive-layer" className="executive-hero rounded-[24px] border border-slate-700/70 bg-[linear-gradient(135deg,#0b1020_0%,#111827_58%,#15111f_100%)] p-5 text-white shadow-[0_28px_80px_-38px_rgba(15,23,42,.9)] lg:p-7">
       <div className="grid gap-5 xl:grid-cols-[1.25fr_.75fr]">
         <div>
-          <div className="text-[10px] font-black tracking-[.12em] text-amber-300">لوحة القرار التنفيذي</div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="text-[10px] font-black tracking-[.12em] text-amber-300">لوحة القرار التنفيذي</div>
+            <span className="rounded-full border border-emerald-300/25 bg-emerald-300/10 px-2.5 py-1 text-[9px] font-black text-emerald-200">الذكاء المصدرّي متاح</span>
+          </div>
           <h2 className="mt-2 text-2xl font-black leading-tight lg:text-3xl">ماذا يحدث في هذا التقرير؟</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{executiveSignal?.message || report.intelligence.advisorBrief.headline || businessSummary}</p>
           <div className="mt-4 flex flex-wrap gap-2">
