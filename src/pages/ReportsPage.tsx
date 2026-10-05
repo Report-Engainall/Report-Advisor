@@ -173,61 +173,57 @@ export function ReportsCenterPage() {
     const catalog = catalogResult.status === 'fulfilled' ? catalogResult.value : [];
     setSnapshot(dashboardResult.status === 'fulfilled' ? dashboardResult.value : null);
 
-    let nextCatalog = catalog;
-    const catalogTarget = catalog.find((report) => report.jobId === PRIMARY_SMART_REPORT_JOB_ID) ?? null;
+    // Render the real catalog immediately. The exact certified report readback is
+    // intentionally decoupled from first paint so it cannot put the whole center
+    // back into a loading state.
+    setSmartReports(catalog);
+    setLoading(false);
+    setRefreshing(false);
 
-    // The buyer path is anchored to the certified real source. If the job is
-    // older than the first catalog page, read that exact job directly and place
-    // it first rather than silently selecting an unrelated recent report.
-    if (!catalogTarget) {
-      try {
-        const exact = await withDeadline(
-          fetchSmartReport(PRIMARY_SMART_REPORT_JOB_ID, PRIMARY_SMART_REPORT_SOURCE_HASH),
-          'primary-smart-report',
-          15000,
-        );
-        if (exact) nextCatalog = [exact, ...catalog.filter((report) => report.jobId !== exact.jobId)];
-      } catch (cause) {
-        setPrimarySmartReportError(errorMessage(cause));
-      }
-    }
-
-    setSmartReports(nextCatalog);
-
-    if (dashboardResult.status === 'rejected' && catalogResult.status === 'rejected' && nextCatalog.length === 0) {
+    if (dashboardResult.status === 'rejected' && catalogResult.status === 'rejected' && catalog.length === 0) {
       setError(errorMessage(dashboardResult.reason));
     } else {
-      // Background KPI/catalog failures must never erase a successfully read
-      // report. The visible state says what is unavailable instead of spinning.
       setError(null);
     }
 
     const persistedSmartJobId = window.sessionStorage.getItem('aghbari:last-smart-report-job')?.trim() ?? '';
-    const selectedSmartReport = nextCatalog.find((report) => report.jobId === PRIMARY_SMART_REPORT_JOB_ID)
-      ?? (persistedSmartJobId ? nextCatalog.find((report) => report.jobId === persistedSmartJobId) ?? null : null)
-      ?? nextCatalog[0]
+    const preferredId = PRIMARY_SMART_REPORT_JOB_ID;
+    const selectedSmartReport = catalog.find((report) => report.jobId === preferredId)
+      ?? (persistedSmartJobId ? catalog.find((report) => report.jobId === persistedSmartJobId) ?? null : null)
+      ?? catalog[0]
       ?? null;
 
     if (selectedSmartReport) {
       window.sessionStorage.setItem('aghbari:last-smart-report-job', selectedSmartReport.jobId);
       window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', selectedSmartReport.sourceHash);
+    } else {
+      // Keep the buyer path deterministic even before the exact readback returns.
+      window.sessionStorage.setItem('aghbari:last-smart-report-job', PRIMARY_SMART_REPORT_JOB_ID);
+      window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', PRIMARY_SMART_REPORT_SOURCE_HASH);
+    }
 
+    void (async () => {
       try {
         const detail = await withDeadline(
-          selectedSmartReport.jobId === PRIMARY_SMART_REPORT_JOB_ID
-            ? fetchSmartReport(selectedSmartReport.jobId, selectedSmartReport.sourceHash)
-            : fetchSmartReport(selectedSmartReport.jobId, selectedSmartReport.sourceHash),
+          fetchSmartReport(PRIMARY_SMART_REPORT_JOB_ID, PRIMARY_SMART_REPORT_SOURCE_HASH),
           'primary-smart-readback',
           15000,
         );
-        if (detail) setPrimarySmartReport(detail);
+        if (!detail) return;
+        setPrimarySmartReport(detail);
+        setPrimarySmartReportError(null);
+        setSmartReports((current) => {
+          if (current.some((report) => report.jobId === detail.jobId)) {
+            return current.map((report) => report.jobId === detail.jobId ? detail : report);
+          }
+          return [detail, ...current];
+        });
+        window.sessionStorage.setItem('aghbari:last-smart-report-job', detail.jobId);
+        window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', detail.sourceHash);
       } catch (cause) {
         setPrimarySmartReportError(errorMessage(cause));
       }
-    }
-
-    setLoading(false);
-    setRefreshing(false);
+    })();
   }, []);
 
   useEffect(() => { void load(); }, [load]);
