@@ -1,65 +1,51 @@
-# CURRENT SESSION STATE
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 06a9c69d9f26610eae44ced5c4859ad57635e587
+CURRENT_EXACT_HEAD = e60f4773e
 CURRENT_MAIN_HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
-CURRENT_EXECUTION_HEAD = 06a9c69d9f26610eae44ced5c4859ad57635e587
+CURRENT_EXECUTION_HEAD = e60f4773e
 BRANCH = exec/final-reconcile-20261005
 PR = #841 OPEN
-CURRENT_PR_HEAD = 06a9c69d9f26610eae44ced5c4859ad57635e587
+CURRENT_PR_HEAD = e60f4773e
 
 WHAT_ACTUALLY_HAPPENED
-- بدأت من main الحالي e1454854... ولم أعتمد CURRENT_SESSION_STATE أو PROGRAMMER_CURRENT_REPORT القديمين عند التعارض.
-- قارنت fix/sellable-proposal-surface-20261004 مع main الحالي وصنفت العمل: تغييرات العرض العربي، CI، وfail-soft كانت موجودة مسبقًا في main؛ إعادة إدخالها كانت DUPLICATE. التغيير الوظيفي الوحيد الذي احتاج reconciliation هو canonical commit/import binding، وتم دمجه مع حماية main الحالية.
-- أصلحت جسر proposal provenance ليحمل recommendationContext من الإشارة/التوصية إلى قرار PROPOSED دون تحويله تلقائيًا إلى APPROVED/WORK.
-- أصلحت عقود الاختبارات التي كانت تشير إلى أسماء/عبارات UI قديمة بينما الأسطح الحالية عربية؛ لم أضف نصوصًا وهمية إلى الواجهة.
-- أثبتت release-core والأمن وRLS ومسارات Smart Report/evidence/decision/work/replay محليًا على خط التنفيذ قبل انقطاع PC01.
-- أعيدت قراءة تقرير حقيقي من Supabase: reportJobId=c42fb0e1-75f2-4727-8c3e-470ae1a804fa، sourceHash=sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313، 342 صفًا canonical، evidence VERIFIED، decision readiness READY.
-- دفعت reconciliation إلى PR #841 على هذا الخط؛ Netlify أنشأ deploy-preview لهذا الرأس.
-- فشل Session Handoff كان بسبب docs قديمة تشير إلى aa170/PR#833 وREPORT_FOR_HEAD=82315... غير السلف الحالي. تم تحديث checkpoint ليشير إلى الرأس التنفيذي الحالي فقط.
+- استأنفت التنفيذ من خط PR الحالي ولم أعد فتح الأعمال التي كانت مثبتة قبل الانقطاع.
+- تم فك حظر عرض التقارير: مركز التقارير والمبيعات والمشتريات والذمم أصبحت تفصل المسار الحرج عن كتالوج/طلبات الخلفية حتى لا تبقى الواجهة في تحميل غير منتهٍ.
+- تم تعزيز Smart Report الحقيقي ليعرض سلسلة WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF مرتبطة بالـjob/source الحقيقي، مع عدم اختلاق Outcome/Benchmark/Impact فعلي.
+- تم تشديد Browser E2E ليشترط حالة مستقرة، عناصر Smart Report الستة، jobId وsourceHash، وعدم اعتبار route-load وحده نجاحًا.
+- تم إصلاح أسماء لقطات المتصفح حتى لا تحتوي query characters.
+- تم اكتشاف أن فشل certification-contracts كان بسبب continue-on-error في real-source 48 step؛ أزيل هذا الإضعاف وأصبح 48 proof fail-closed.
+- تم دفع الرأس الحالي e60f4773e إلى origin/exec/final-reconcile-20261005.
+- تم تحديث هذا checkpoint لأن Session Handoff القديم كان يشير إلى 06a9c69... ويصنف الملفات الجديدة غير المبلّغ عنها كعطل.
 
 WHAT_IS_PROVEN
-- release-core PASS على بيئة PC01 قبل انقطاعها، متضمنًا typecheck وعقود file-engine/coverage/security/source-report/decision/work/replay/benchmark/proof.
-- Security/RLS contracts PASS: auth-tenant convergence, tenant security, global tenant RLS, import RPC tenant context, file intelligence security, alternative-group security.
-- Smart Report intelligence/evidence/decision contracts PASS.
-- Decision intelligence closure PASS: approval/work/action-receipt lifecycle fail-closed and tenant-scoped.
-- Real Supabase report current readback: 342 canonical rows, 15 negative-balance rows, 141 zero-or-negative rows with sales, 185 stockout <=7d, 233 stockout <=30d, 64 old/low-velocity rows, 186 reconciliation mismatches, total stock 23075, positive daily-rate rows 316.
-- GitHub Actions started on exact PR head d4d96868...; Product Build Gate, Value Cohort, Device-Independent Browser E2E, storage/runtime, commercial E2E, certification and security families were queued or running at last observation.
-- CodeRabbit success on current head.
-- Netlify deploy-preview is tied to exact PR #841 head d4d96868... and was building at last observation.
+- Local workflow batch integrity PASS على 91 workflow files بعد إزالة continue-on-error.
+- Navigation/route contract PASS: لا duplicate route paths، و46 route declarations.
+- UI route completeness PASS.
+- Local release readiness: 20/20 stages PASS.
+- Exact-head Value Cohort على الرأس e60f4773e: 40/40 accepted, verified, FULL coverage، uniqueSourceHashes=40، evidencePassport=40.
+- real source cohort records كلها VERIFIED + READY + FULL؛ الأسباب PASS بعنوان PASSPORT_ALREADY_VERIFIED_READY_FULL.
+- Security phase-2 PASS وData Import Truth phase-3 PASS على الرأس الحالي.
+- Real source c42fb0e1-75f2-4727-8c3e-470ae1a804fa: 342 canonical rows, Evidence VERIFIED, Decision READY، sourceHash=sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313.
+- Browser E2E exact-head is running on e60f4773e; final browser screenshots/48/48 terminal result are not yet claimed.
 
 CURRENT_ACTIVE_FAILURE
-- No product correctness failure is currently established from the available local or CI evidence.
-- Session Handoff Contract was stale-data failure and is now reconciled in this checkpoint.
-- Browser visual proof is NOT PROVEN until authenticated browser artifacts complete and are inspected.
-- real-source 48/48 and report:value-cohort remain pending terminal evidence.
-
-FIRST_ACTIVE_FAILURE
-- The first execution failure was administrative/lineage mismatch between current main and the old sellable-proposal branch.
-- The first runtime/product defect encountered in this reconciliation was missing recommendationContext in the proposal caller plus stale contract assumptions around current UI text.
-
-ROOT_CAUSE
-- Two execution lines had diverged from current main, while session-handoff docs still anchored to an old head.
-- Proposal provenance existed in the decision bridge but the live caller did not pass the recommendation context.
-- Several contract tests asserted historical English UI labels rather than current business-language surfaces.
+- لا يوجد فشل منتج مثبت على الرأس الحالي.
+- Session Handoff القديم كان stale-doc failure؛ تم إصلاح سبب الفشل في هذا checkpoint.
+- certification-contracts القديم قبل إصلاح continue-on-error كان يفشل في check-workflow-batch-integrity؛ الرأس الجديد يزيل السبب ويعيد تشغيل الشهادة.
 
 CURRENT_OPEN_GATES
-- exact-head GitHub terminal CI
-- Device-Independent Browser E2E and authenticated screenshots/artifacts
-- Report Value Cohort terminal result
-- real-source 48/48 terminal proof
-- Netlify preview READY plus runtime/content verification
-- final certification gate
-- production promotion remains HOLD until product runtime evidence is complete
+- full authenticated browser-e2e terminal result مع screenshots.
+- real-source 48/48 terminal proof من الجولة الحالية.
+- final certification gate على الرأس الحالي.
+- Netlify preview/runtime content verification بعد اكتمال browser evidence.
+- تحديث هذا التقرير مرة أخيرة بالرأس النهائي إذا نتج commit جديد.
 
 DO_NOT_REPEAT
-- No stale SHA PASS.
-- No queued/pending/cancelled run as PASS.
-- No last/first report fallback.
-- No source-hash-only identity.
-- No synthetic 48 fixture as real-source proof.
-- No fake outcome/impact/benchmark.
-- No production migration touch.
-- No blind Vercel retries while build-rate limit persists.
+- لا stale SHA PASS.
+- لا queued/pending/cancelled كـPASS.
+- لا synthetic 48 proof.
+- لا fake outcome/impact/benchmark.
+- لا route-load-only browser PASS.
+- لا blind Vercel retries.
 
-NEXT_EXACT_ACTION = consume CI on execution head 06a9c69d...; verify file-engine regression PASS; inspect Browser E2E + Value Cohort + certification artifacts; then refresh this checkpoint with the next proven execution head.
+NEXT_EXACT_ACTION = consume browser-e2e exact-head result on e60f4773e, ثم اقرأ 48/48 + screenshots + certification terminal outputs، ولا تعلن الإقفال قبل اكتمالها.

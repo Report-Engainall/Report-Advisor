@@ -1,30 +1,27 @@
-# PROGRAMMER CURRENT REPORT
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
 REFERENCE START HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
-CURRENT EXECUTION HEAD = 06a9c69d9f26610eae44ced5c4859ad57635e587
-REPORT_FOR_HEAD = 06a9c69d9f26610eae44ced5c4859ad57635e587
+CURRENT EXECUTION HEAD = e60f4773e
+REPORT_FOR_HEAD = e60f4773e
 BRANCH = exec/final-reconcile-20261005
 PR = #841 OPEN
-UPDATED_AT = 2026-10-05T00:20:00Z
+UPDATED_AT = 2026-10-05T02:00:00Z
 
-WHAT_I_WAS_ASKED_TO_DO = تنفيذ reconciliation جراحية من main الحالي، الحفاظ على العمل الصحيح، إثبات التقرير الحقيقي والذكاء والقرار والعمل، وتشغيل release/browser/value gates دون PASS وهمي.
+WHAT_I_WAS_ASKED_TO_DO = إكمال المنتج من آخر حالة فعلية، إصلاح عرض التقارير، إثبات Smart Report الحقيقي، فك real-source eligibility للـ48، وإغلاق Quality/Certification دون PASS وهمي.
 
-WHAT_I_ACTUALLY_DID = صنفت commits الفرع القديم مقابل main الحالي؛ أثبتت أن معظمها superseded؛ نقلت فقط canonical commit/import binding المفيد؛ أصلحت recommendationContext provenance؛ حدّثت contracts لتطابق الأسطح العربية الحالية؛ وشغلت release-core/security/intelligence proof على بيئة التنفيذ المحلية.
+WHAT_I_ACTUALLY_DID = أصلحت مسارات تحميل التقارير بحيث يصبح snapshot الحقيقي هو critical render path، وأبقيت الكتالوج/السجلات الخلفية غير حاجزة للرندر؛ أضفت decision-chain تجاريًا واضحًا في Smart Report الحقيقي؛ شددت browser proof على استقرار المحتوى وعناصر WHAT/WHY/SO WHAT/IMPACT/WHAT NEXT/PROOF؛ أصلحت artifact filenames؛ أزلت continue-on-error من إثبات real-source 48؛ حدّثت session handoff إلى الرأس الحالي.
 
-WHAT_ACTUALLY_HAPPENED = Smart Report كان يقرأ canonical rows تحت import identity محفوظة في Report Job بينما سجل canonical commit قد يحدد import فعليًا مختلفًا؛ تم إصلاح الجسر ليحافظ على import identity الفعلية مع source/company binding. كذلك كان decision proposal لا يستلم recommendationContext من caller رغم وجوده في bridge.
+WHAT_IS_PROVEN = على e60f4773e: local 20-stage release readiness PASS؛ workflow batch integrity PASS؛ navigation route contract PASS بلا duplicate paths؛ UI route completeness PASS؛ exact-head Value Cohort = 40/40 accepted + verified + FULL؛ phase-2 security PASS؛ phase-3 data-import truth PASS؛ real report c42fb0e1-75f2-4727-8c3e-470ae1a804fa = 342 canonical rows + VERIFIED/READY evidence/decision state. Browser-e2e و48/48 وfinal certification ما زالت تنتظر terminal evidence الحالية.
 
-WHAT_IS_PROVEN = main exact head e1454854...؛ execution head d4d96868...؛ release-core PASS محليًا قبل انقطاع PC01؛ security/RLS and Smart Report intelligence/decision/work/replay contracts PASS؛ real Supabase report c42fb0e1... readback = 342 canonical rows, VERIFIED/READY, source-bound evidence snapshot; GitHub CI on exact PR head has Product Build Gate/Browser/Value Cohort/Certification families running or queued; CodeRabbit current-head success; Netlify preview created against d4d96868....
+CURRENT_ACTIVE_FAILURE = لا يوجد failure منتج مثبت حاليًا. الفشل الوحيد الذي عُزل وأُصلح هو certification-contracts على الرأس السابق بسبب continue-on-error=true في خطوة real-source 48.
 
-CURRENT_ACTIVE_FAILURE = production-regression-evidence failed 1/12 scenario: pdf-text, because the current header detector selected a data row instead of the composite business header.
+FIRST_ACTIVE_FAILURE = Browser proof السابق كان يرفض Smart Report بسبب marker قديم، ويرفض Decision Experience بسبب marker قديم، ثم فشل artifact upload لأن اسم screenshot احتوى '?'. لم يكن ذلك دليلًا على غياب البيانات؛ كانت الواجهة مستقرة لكن عقد الإثبات قديمًا.
 
-FIRST_ACTIVE_FAILURE = old execution branch was not based on current main, and session docs still pointed to a historical PR/head.
+ROOT_CAUSE = انفصال عقد الإثبات عن الأسطح العربية الحالية، واعتماد مسار report center على طلبات خلفية إضافية قبل إلغاء حالة loading، ووجود continue-on-error يسمح لفشل إثبات 48 بالمرور إلى مراحل الشهادة.
 
-ROOT_CAUSE = header scoring over-weighted text-like/data-like width and under-weighted canonical hints; current fix adds a deterministic penalty for data-like rows with no canonical header hints.
+REMAINING_OPEN = authenticated browser terminal result؛ real-source 48/48 terminal output؛ final certification terminal output؛ Netlify preview/runtime content proof؛ ثم تحديث التقرير النهائي بالـHEAD النهائي.
 
-REMAINING_OPEN = authenticated browser proof, value cohort terminal result, real-source 48/48, terminal certification, Netlify READY/runtime/content check, production promotion.
+DO_NOT_REPEAT = لا stale SHA؛ لا queued/pending PASS؛ لا synthetic source؛ لا fake outcome/benchmark/impact؛ لا route-load-only proof؛ لا production promotion قبل evidence.
 
-DO_NOT_REPEAT = لا stale SHA PASS، لا queued/pending PASS، لا synthetic proof، لا fallback report identity، لا fake outcome/benchmark، لا Vercel retry blind.
-
-NEXT_EXACT_ACTION = prove 06a9c69d... with file-engine regression, then consume the exact-head Browser/Value/CERT gates; no production promotion until those evidence paths are terminal.
+NEXT_EXACT_ACTION = قراءة browser-e2e الحالي على e60f4773e واستخراج route PASS/FAIL، Smart Report six-card proof، 48/48، وartifact upload، ثم إغلاق certification على نفس SHA إذا كانت كل النتائج terminal PASS.
