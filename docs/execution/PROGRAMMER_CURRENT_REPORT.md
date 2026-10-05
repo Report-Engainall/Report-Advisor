@@ -1,18 +1,18 @@
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = ff87191645eeb7f431481122fbb64f7a9a495bd1
+CURRENT MAIN HEAD = 1db9616a694dbb74e5237b58dfce724c38a6e0c8
 REFERENCE START HEAD = 9883ce3d066b32ca36cfe7dc0e3223842d701377
-CURRENT EXECUTION HEAD = ff87191645eeb7f431481122fbb64f7a9a495bd1
-REPORT_FOR_HEAD = ff87191645eeb7f431481122fbb64f7a9a495bd1
+CURRENT EXECUTION HEAD = 1db9616a694dbb74e5237b58dfce724c38a6e0c8
+REPORT_FOR_HEAD = 1db9616a694dbb74e5237b58dfce724c38a6e0c8
 BRANCH = main
 PR = N/A
-UPDATED_AT = 2026-10-05T16:57:00Z
+UPDATED_AT = 2026-10-05T16:58:00Z
 
 WHAT_I_WAS_ASKED_TO_DO = Continue execution until the real report center and Smart Report are customer-visible and proven, not merely route-loaded or test-only.
 
 OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
 
-WHAT_I_ACTUALLY_DID = Added contract-compatible Smart Report overload support, propagated abort control through the tenant lookup, decoupled Reports Center first paint from slow background reads, and fixed the resulting strict TypeScript closure-narrowing errors.
+WHAT_I_ACTUALLY_DID = Added contract-compatible Smart Report overload support, propagated abort control through tenant lookup, decoupled Reports Center first paint from slow background reads, fixed strict TypeScript closure-narrowing errors, and updated the tenant-governance checker to recognize abort-aware canonical tenant resolution.
 
 WHAT_IS_PROVEN = Supabase contains the exact completed real report c42fb0e1-75f2-4727-8c3e-470ae1a804fa with source تقارير ادارية.xlsx and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313. Existing intelligence/security/import/route contracts were proven on the preceding exact head. The new code is committed at CURRENT MAIN HEAD above.
 
