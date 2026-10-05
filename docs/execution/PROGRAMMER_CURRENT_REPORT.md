@@ -1,30 +1,50 @@
-# PROGRAMMER CURRENT REPORT
-SESSION HANDOFF = NOT READY
+﻿SESSION HANDOFF = READY
+SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = c98dacac4a869b5ef6dce720b085b06049594502
-REFERENCE START HEAD = 509a69aeca9f5a5dbfe8cbef24dad92be2017554
-CURRENT EXECUTION HEAD = aa17033a1e7225e3b81d5151044645e8434e37ff
-REPORT_FOR_HEAD = 82315d9163b29a1e200f3a9e281888039749be3a
-BRANCH = fix/sellable-proposal-surface-20261004
-PR = #833 OPEN
-UPDATED_AT = 2026-10-04T15:15:00Z
+CURRENT MAIN HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
+REFERENCE START HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
+CURRENT EXECUTION HEAD = 7e5d5f668faef4939f7fea28e07af6447509d68d
+REPORT_FOR_HEAD = 7e5d5f668faef4939f7fea28e07af6447509d68d
+BRANCH = exec/final-reconcile-20261005
+PR = #841 OPEN
+UPDATED_AT = 2026-10-05T03:42:00Z
+WHAT_I_WAS_ASKED_TO_DO = ط§ط³طھظƒظ…ط§ظ„ ط§ظ„طھظ†ظپظٹط° ظ…ظ† 06a9c69 ط¯ظˆظ† ط¥ط¹ط§ط¯ط© ط¨ظ†ط§ط، ظ…ط§ ط£ظڈظ†ط¬ط²طŒ ظˆط¥ط®ط±ط§ط¬ Report-Advisor ظƒظ…ظ†طھط¬ ظ‚ط§ط¨ظ„ ظ„ظ„ط¨ظٹط¹: ط¥طµظ„ط§ط­ ط¹ط±ط¶ ط§ظ„طھظ‚ط§ط±ظٹط± ط§ظ„ط­ظ‚ظٹظ‚ظٹطŒ ط¥ط«ط¨ط§طھ Smart Report ط§ظ„ط­ظ‚ظٹظ‚ظٹطŒ ظپظƒ real-source eligibility ظ„ظ„ظ€48طŒ ظˆط¥ط؛ظ„ط§ظ‚ Quality/Certification ط¹ظ„ظ‰ ظ†ظپط³ HEAD ط¨ط¯ظˆظ† PASS ظˆظ‡ظ…ظٹ.
 
-WHAT_I_WAS_ASKED_TO_DO = تنفيذ جراحة شاملة للمنتج بالتوازي: عزل كل Report Job، إصلاح parser قبل intelligence، خفض ضجيج الذكاء، إعادة بناء Executive UX، دعم mobile/desktop، ثم إثبات الرحلة على exact HEAD دون PASS وهمي.
+OBJECTIVE = ط¥ط؛ظ„ط§ظ‚ ظپط¬ظˆط© ط§ظ„ظ…ظ†طھط¬ ط§ظ„ظپط¹ظ„ظٹ ظ„ظ„ط¨ظٹط¹: طھظ‚ط±ظٹط± ط­ظ‚ظٹظ‚ظٹ ظٹط¸ظ‡ط± ظˆظٹظڈظپظ‡ظ… ظˆظٹظ‚ظˆط¯ ط¥ظ„ظ‰ Evidence ط«ظ… Signal ط«ظ… Recommendation ط«ظ… Decision ط«ظ… ActionطŒ ظ…ط¹ ط¥ط«ط¨ط§طھ Browser ط­ظ‚ظٹظ‚ظٹ ظˆ48 archetypes ط­ظ‚ظٹظ‚ظٹط©.
 
-WHAT_I_ACTUALLY_DID = أغلقت active-report fallback، فرضت jobId+sourceHash في Smart Report والواجهات source-bound، عزلت decision proposal identity بالـreportJobId، طبقت migration الحي، أضفت semantic parsing/quality gates، أصلحت split PDF headers والـlocale numerics، أضفت composite-header rejection، خفضت recommendations إلى الأقوى فقط، وأعدت ترتيب Smart Report إلى Executive-first مع progressive disclosure ونظام بصري Ink/Indigo/Brass responsive.
+WHAT_I_ACTUALLY_DID = Report rendering, Smart Report decision-chain, authenticated browser proof, governed real-48 eligibility, CI fail-closed hardening, dashboard-independent report catalog rendering, and semantic source-specialty correction were implemented.
+1) Report Center/Sales/Purchases/Receivables rendering: ظپطµظ„ critical snapshot ط¹ظ† background catalog/invoice hydration ط­طھظ‰ ظ„ط§ طھط¨ظ‚ظ‰ ط§ظ„ط´ط§ط´ط© ظپظٹ loading ط؛ظٹط± ظ…ظ†طھظ‡ظچ.
+2) Smart Report: ط¥ط¶ط§ظپط© decision-chain طھط¬ط§ط±ظٹ ظˆط§ط¶ط­ WHAT/WHY/SO WHAT/IMPACT/WHAT NEXT/PROOF ظˆط±ط¨ط·ظ‡ ط¨ط¨ظٹط§ظ†ط§طھ ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ط­ظ‚ظٹظ‚ظٹ.
+3) Browser proof: ط§ظ„ط§ط³طھظ‚ط±ط§ط± ط£طµط¨ط­ ط´ط±ط· ظ†ط¬ط§ط­طŒ ظˆSmart Report ظٹطھط·ظ„ط¨ ط§ظ„ط¹ظ†ط§طµط± ط§ظ„ط³طھط©طŒ jobId/sourceHashطŒ refresh readbackطŒ ظˆtelemetry ظ…ظ† طµظپط­ط© tenant ط§ظ„طµط­ظٹط­.
+4) 48 real-source proof: eligibility ط£طµط¨ط­طھ ط¹ط¨ط± corpus tenant IDs ط§ظ„ظ…طµط±ط­ ط¨ظ‡ط§طŒ service-role ظ„ظ„ط£ظ‡ظ„ظٹط© ظپظ‚ط·طŒ ظ…ط¹ same-company source bindingطŒ ظˆط¨ط¯ظˆظ† synthetic corpus.
+5) Browser Smart Report proof: tenant B ط£طµط¨ط­ ظ…ط±طھط¨ط·ظ‹ط§ ط¨ظ…ط§ظ„ظƒ ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ط­ظ‚ظٹظ‚ظٹ c42fb0e1 ط¨ط¯ظ„ tenant corpus ط§ظپطھط±ط§ط¶ظٹ ط¢ط®ط±.
+6) CI governance: real-48 ظ„ظ… ظٹط¹ط¯ continue-on-errorطŒ ظˆsession handoff ظٹظڈط­ط¯ظ‘ط« ظ…ط¹ ظƒظ„ HEAD.
 
-WHAT_ACTUALLY_HAPPENED = فحص Supabase الحي أعاد إنتاج عيوب parser حقيقية: الصراف المنتاب يحتوي التاريخ "2026-" مع 115 من 132 قيمة غير قابلة للاعتماد، وأرقامًا مثل "2,275,00". تقرير PDF آخر يحتوي رؤوسًا مدمجة مثل "العملة نوع الفاتورة التاريخ رقم الفاتورة" وأدى إلى mapping ملوث. لذلك تم إصلاح طبقة parser/validation نفسها، وليس النصوص فقط.
+WHAT_IS_PROVEN = Local typecheck/build, login commercial value contract, Smart Report/runtime surface, 48-archetype runtime contract, decision/workflow contracts, report-center UI contract, route/security/import truth, and exact-head 40/40 value cohort are proven. The previous Chromium artifact also confirmed the real /reports screen renders actual report cards; the remaining product gate was Smart Report semantic intelligence, now corrected at source-specialty detection. A/B/C actor provisioning is proven on the prior exact-head browser run. Current final gates remain real-source 48/48 + authenticated Chromium Smart Report + final certification.
+- Current HEAD: 7e5d5f668.
+- Session Handoff Contract: PASS ط¹ظ„ظ‰ HEAD ط§ظ„ط­ط§ظ„ظٹ.
+- Typecheck/local route checks: PASS.
+- Phase 2 security: PASS.
+- Phase 3 data/import truth: PASS.
+- Cloudflare branch preview deployed successfully for 9a17ec8cf.
+- Corpus inventory currently: 54 governed real files across 4 corpus tenants; 47 VERIFIED/READY passports.
+- Real certified Smart Report: c42fb0e1-75f2-4727-8c3e-470ae1a804fa, 342 canonical rows, VERIFIED evidence, READY decision.
 
-WHAT_IS_PROVEN = تم تطبيق عزل source-intelligence حسب report job حيًا في Supabase. Netlify بدأ deploy exact-head للـexecution head قبل تحديث هذا الملف وكان building؛ أحدث SHA الحالي لهذا الملف هو 5b779148ff95f390ec7f6fca8290c5019be0bb32، لذلك لا توجد runtime proof على هذا SHA بعد. GitHub Actions على SHA السابق في الدفعة بدأت parser/header/quality/browser/certification gates وكانت queued/pending؛ لا يوجد certification PASS نهائي.
+CURRENT_OPEN_GATES
+- Full Product Browser E2E terminal result on HEAD 7e5d5f668faef4939f7fea28e07af6447509d68d.
+- Real-source 48/48 terminal matrix result.
+- Chromium screenshots for reports and Smart Report.
+- Final Certification Gate on the same HEAD.
 
-CURRENT_ACTIVE_FAILURE = لا توجد نتيجة terminal فاشلة مثبتة على HEAD الحالي؛ blocker الحالي هو أن docs checkpoint نفسه دفع HEAD جديدًا، وبالتالي يلزم fresh CI/runtime proof على SHA الحالي.
+FIRST_ACTIVE_FAILURE = The latest customer-visible artifact on ccb494a showed Smart Report route loaded but semantic intelligence was blocked: the persisted specialty was sales while the actual source fields were inventory-like (sku/balance/incoming/net_sales/stock-age). Root cause was source-specialty precedence plus an overly literal inventory core-field gate. Fixed on HEAD 7e5d5f668 by deriving specialty from semantic source fields with mapped-field weighting and accepting balance/current_stock/quantity as the stock measure. Separately, the earlier real-48 selection bug was fixed by exact company_id/source_hash file-record lookup.
+- No new product failure is proven on the current candidate; the active blockers are evidence/CI sequencing.
 
-FIRST_ACTIVE_FAILURE = Link غير مستورد في LoginPage أسقط typecheck في الجولة السابقة، ثم كشف الفحص الجذري مشكلة أعمق في report context وPDF reconstruction.
+ROOT_CAUSE = The earlier actor topology issue is fixed. The remaining 17/48 issue was preflight selection logic: tenant-filtered REST queries did not produce a reliable cross-tenant corpus set. The current implementation bulk-fetches governed ready passports, completed jobs, and file records via service-role and joins by company_id/source_hash, while excluding the synthetic 48 fixture marker.
+- Real-48 was previously scoped to one tenant; browser proof also had stale markers and route-only settlement.
 
-ROOT_CAUSE = global persisted report context + source-hash-only lookup + permissive PDF header/semantic mapping سمحت بمرور بيانات مشوهة إلى canonical/analysis/intelligence.
+- Prior Browser failure: report expectations were stale and screenshot artifact names contained query characters.
+- Prior certification failure: continue-on-error in real-48 and stale session handoff.
+- Prior real-48 failure: actor tenant saw only 25 completed jobs and target report belonged to another corpus tenant; eligibility gate therefore proved 17/48, not 48/48.
+- These are addressed in the current candidate; no PASS is claimed until exact-head terminal evidence arrives.
 
-REMAINING_OPEN = fresh exact-head CI terminal results؛ fresh Netlify READY/runtime/content proof على SHA الحالي؛ real-source corpus rehydration للتقارير المتأثرة؛ A/B context browser scenarios؛ 390x844 وdesktop visual evidence؛ final certification؛ production promotion؛ real-source 48/48.
-
-DO_NOT_REPEAT = no stale SHA PASS; no queued/pending/cancelled PASS; no last/first report fallback; no source-hash-only report identity; no synthetic corpus proof; no fake outcome/benchmark; no blind Vercel retries.
-
-NEXT_EXACT_ACTION = لا تعدل الكود بلا سبب. أولاً استهلك terminal result على SHA الحالي؛ عند failure أصلح root cause واحدًا فقط. بعد READY Netlify نفذ fresh /api/health والصفحة الرئيسية وproposal-demo ومسار report source-bound، ثم استخدم governed corpus rehydration/browser results للإغلاق النهائي.
+NEXT_EXACT_ACTION = Consume the terminal Full Product Browser result on HEAD 7e5d5f668; if Smart Report still blocks, capture its first gate reason and fix only that reason. No sale-ready claim before 48/48 + Chromium Smart Report + same-head certification.

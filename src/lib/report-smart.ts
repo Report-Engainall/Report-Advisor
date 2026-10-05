@@ -3,6 +3,13 @@ import { deriveReportIntelligence, type ReportIntelligence } from './report-inte
 import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
 import { detectReportArchetype, runReportArchetype } from './report-intelligence/archetype-registry.ts';
 
+export type ReportRequestOptions = { signal?: AbortSignal };
+
+function maybeAbort<T>(query: T, signal?: AbortSignal): T {
+  if (!signal) return query;
+  return (query as T & { abortSignal: (value: AbortSignal) => T }).abortSignal(signal);
+}
+
 export type SmartReportCatalogItem = {
   jobId: string;
   sourcePath: string;
@@ -185,7 +192,8 @@ function sourceColumnDescriptors(analysis: AnalysisSnapshotLike | null | undefin
 
 function inferSpecialtyFromAnalysis(analysis: AnalysisSnapshotLike | null | undefined): string | null {
   const datasets = Array.isArray(analysis?.datasets) ? analysis.datasets : [];
-  const parts: string[] = [];
+  const fields: Array<{ name: string; mapped: string }> = [];
+
   for (const dataset of datasets) {
     if (!dataset || typeof dataset !== 'object') continue;
     const row = dataset as Record<string, unknown>;
@@ -193,33 +201,62 @@ function inferSpecialtyFromAnalysis(analysis: AnalysisSnapshotLike | null | unde
     for (const column of columns) {
       if (column && typeof column === 'object') {
         const item = column as Record<string, unknown>;
-        parts.push(String(item.name ?? ''), String(item.mappedField ?? ''));
+        const name = String(item.name ?? '').trim().toLowerCase().normalize('NFKC');
+        const semanticMapped = normalizeBusinessField(name);
+        const mapped = String(semanticMapped ?? item.mappedField ?? '').trim().toLowerCase().normalize('NFKC');
+        if (name || mapped) fields.push({ name, mapped });
       } else {
-        parts.push(String(column ?? ''), normalizeBusinessField(column) ?? '');
-      }
-    }
-    const preview = Array.isArray(row.preview) ? row.preview.slice(0, 100) : [];
-    for (const sample of preview) {
-      if (!sample || typeof sample !== 'object') continue;
-      for (const [key, value] of Object.entries(sample as Record<string, unknown>)) {
-        parts.push(key, String(value ?? ''));
+        const name = String(column ?? '').trim().toLowerCase().normalize('NFKC');
+        const mapped = String(normalizeBusinessField(name) ?? '').trim().toLowerCase().normalize('NFKC');
+        if (name || mapped) fields.push({ name, mapped });
       }
     }
   }
 
-  const text = parts.join(' ').toLowerCase().normalize('NFKC');
-  if (!text.trim()) return null;
+  if (!fields.length) return null;
 
-  const score = (tokens: string[]) =>
-    tokens.reduce((sum, token) => sum + (text.includes(token.toLowerCase()) ? 1 : 0), 0);
+  const score = (tokens: string[]) => {
+    const normalizedTokens = tokens.map((token) => token.toLowerCase().normalize('NFKC').replace(/[\s_-]+/g, ''));
+    return fields.reduce((sum, field) => {
+      const mappedKey = field.mapped.replace(/[\s_-]+/g, '');
+      const nameKey = field.name.replace(/[\s_-]+/g, '');
+      return sum
+        + normalizedTokens.reduce((inner, token) => {
+          if (!token) return inner;
+          if (mappedKey === token) return inner + 3;
+          if (nameKey === token) return inner + 1;
+          return inner;
+        }, 0);
+    }, 0);
+  };
 
   const scores = {
-    inventory: score(['sku', 'productcode', 'productname', 'itemname', 'رقم الصنف', 'الصنف', 'مخزون', 'المخزن', 'كمية', 'warehouse', 'stock']),
-    sales: score(['sales', 'sale', 'المبيعات', 'فاتورة', 'customer', 'العميل', 'total_amount', 'net_amount']),
-    purchases: score(['purchase', 'purchases', 'المشتريات', 'supplier', 'المورد', 'cost']),
-    receivables: score(['receivable', 'receivables', 'ذمم', 'العملاء الآجل', 'الرصيد المستحق', 'debit', 'credit', 'due']),
-    payments: score(['payments', 'payment', 'الصراف', 'النقد', 'البنك', 'cash', 'bank']),
-    profitability: score(['profit', 'profitability', 'margin', 'الربح', 'الأرباح', 'الهامش']),
+    inventory: score([
+      'sku', 'productcode', 'productname', 'itemname', 'رقم الصنف', 'الصنف',
+      'balance', 'current_stock', 'opening_balance', 'opening_stock', 'incoming',
+      'net_inbound', 'sales_qty', 'warehouse', 'stockout_days', 'stock_age_days',
+      'stock_age_period_days', 'daily_sales_rate', 'annual_sales_rate',
+    ]),
+    sales: score([
+      'invoice_number', 'customer_name', 'total', 'net_amount', 'date',
+      'sales_qty', 'sales', 'المبيعات', 'فاتورة', 'العميل', 'الإجمالي',
+    ]),
+    purchases: score([
+      'invoice_number', 'supplier_name', 'total', 'purchase_qty', 'cost',
+      'date', 'المشتريات', 'المورد',
+    ]),
+    receivables: score([
+      'balance', 'due', 'due_date', 'customer_name', 'receivable',
+      'receivables', 'ذمم', 'الرصيد المستحق',
+    ]),
+    payments: score([
+      'payment', 'payment_method', 'paid_amount', 'cash', 'bank',
+      'الصراف', 'النقد', 'البنك',
+    ]),
+    profitability: score([
+      'profit', 'margin', 'cost', 'revenue', 'gross_amount', 'net_amount',
+      'الربح', 'الهامش', 'التكلفة',
+    ]),
   } as const;
 
   const ranked = (Object.entries(scores) as Array<[string, number]>)
@@ -227,13 +264,15 @@ function inferSpecialtyFromAnalysis(analysis: AnalysisSnapshotLike | null | unde
   const [best, bestScore] = ranked[0] ?? [null, 0];
   const secondScore = ranked[1]?.[1] ?? 0;
 
-  if (!best || bestScore < 2 || bestScore === secondScore) return null;
+  if (!best || bestScore < 4 || bestScore === secondScore) return null;
   return best;
 }
 
 function resolveEffectiveSpecialty(renderedSpecialty: unknown, analysis: AnalysisSnapshotLike | null | undefined): string | null {
   const renderedValue = renderedSpecialty == null ? null : String(renderedSpecialty).trim() || null;
   const inferred = inferSpecialtyFromAnalysis(analysis);
+  // Persisted specialty can be stale after source reclassification. A strong
+  // semantic inference from the actual analysis columns is more trustworthy.
   return inferred ?? renderedValue;
 }
 
@@ -358,9 +397,9 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
   };
 }
 
-export async function fetchSmartReportCatalog(limit = 500): Promise<SmartReportCatalogItem[]> {
+export async function fetchSmartReportCatalog(limit = 500, options: ReportRequestOptions = {}): Promise<SmartReportCatalogItem[]> {
   if (!Number.isInteger(limit) || limit < 1 || limit > 5000) throw new Error('REPORT_QUERY_INVALID_SMART_REPORT_LIMIT');
-  const companyId = await resolveCurrentCompanyId();
+  const companyId = await resolveCurrentCompanyId(options.signal);
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
   const pageSize = 200;
@@ -368,7 +407,7 @@ export async function fetchSmartReportCatalog(limit = 500): Promise<SmartReportC
 
   for (let offset = 0; offset < limit; offset += pageSize) {
     const endRange = Math.min(offset + pageSize - 1, limit - 1);
-    const { data, error } = await supabase
+    const jobsQuery = supabase
       .from('report_execution_jobs')
       .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
       .eq('company_id', companyId)
@@ -376,6 +415,7 @@ export async function fetchSmartReportCatalog(limit = 500): Promise<SmartReportC
       .like('job_key', 'canonical-import:generic:%')
       .order('completed_at', { ascending: false })
       .range(offset, endRange);
+    const { data, error } = await maybeAbort(jobsQuery, options.signal);
 
     if (error) throw error;
     if (!data?.length) break;
@@ -394,13 +434,14 @@ export async function fetchSmartReportCatalog(limit = 500): Promise<SmartReportC
   for (let i = 0; i < importJobIds.length; i += 100) {
     const batch = importJobIds.slice(i, i + 100);
     if (!batch.length) continue;
-    const { data: analyses, error: analysisError } = await supabase
+    const analysesQuery = supabase
       .from('source_analysis_snapshots')
       .select('import_job_id,source_hash,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
       .eq('company_id', companyId)
       .in('import_job_id', batch)
       .order('created_at', { ascending: false })
       .limit(1000);
+    const { data: analyses, error: analysisError } = await maybeAbort(analysesQuery, options.signal);
 
     if (analysisError) throw analysisError;
     const byImportId = new Map<string, Record<string, unknown>[]>();
@@ -474,7 +515,7 @@ function emptyReportIntelligence(specialty: string | null): ReportIntelligence {
   };
 }
 
-export async function fetchSmartReport(jobId: string, expectedSourceHash: string): Promise<SmartReportDetail | null> {
+export async function fetchSmartReport(jobId: string, expectedSourceHash: string, options: ReportRequestOptions = {}): Promise<SmartReportDetail | null> {
   const normalizedJobId = jobId.trim();
   const normalizedSourceHash = expectedSourceHash.trim();
   if (!normalizedJobId) throw new Error('INVALID_REPORT_CONTEXT');
@@ -482,12 +523,13 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
-  const { data: job, error: jobError } = await supabase
+  const jobQuery = supabase
     .from('report_execution_jobs')
     .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
     .eq('company_id', companyId)
     .eq('id', normalizedJobId)
     .maybeSingle();
+  const { data: job, error: jobError } = await maybeAbort(jobQuery, options.signal);
 
   if (jobError) throw jobError;
   if (!job || job.status !== 'completed') throw new Error('INVALID_REPORT_CONTEXT');
@@ -501,7 +543,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     runtimeWarnings.push('لم تُحفظ renderedOutput لهذا التقرير؛ تم بناء العرض من المصدر الكانوني ولقطة التحليل المتاحة دون اختلاق مخرجات سابقة.');
   }
   const rendered: Record<string, unknown> = renderedOutput ?? {};
-  const { data: passportRows, error: passportError } = await supabase
+  const passportQuery = supabase
     .from('report_evidence_passports')
     .select('id,evidence_snapshot_id,verification_status,decision_readiness,acceptance_status,lineage,evidence,updated_at')
     .eq('company_id', companyId)
@@ -509,6 +551,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     .eq('source_hash', job.source_hash)
     .order('updated_at', { ascending: false })
     .limit(1);
+  const { data: passportRows, error: passportError } = await maybeAbort(passportQuery, options.signal);
 
   if (passportError) runtimeWarnings.push('تعذر قراءة Evidence Passport الحالي؛ تم خفض حالة الدليل إلى المراجعة بدل إيقاف التقرير.');
 
@@ -540,12 +583,13 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
         }
       : rendered;
 
-  const { data: stages, error: stageError } = await supabase
+  const stagesQuery = supabase
     .from('report_execution_tasks')
     .select('ordinal,stage,status,attempt,started_at,completed_at,last_error,evidence')
     .eq('company_id', companyId)
     .eq('report_execution_job_id', job.id)
     .order('ordinal', { ascending: true });
+  const { data: stages, error: stageError } = await maybeAbort(stagesQuery, options.signal);
 
   if (stageError) runtimeWarnings.push('تعذر قراءة مراحل التنفيذ؛ بقي التحليل الذكي منفصلًا عن حالة المراحل.');
 
@@ -554,7 +598,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const renderedImportId = resolveImportJobId(job as Record<string, unknown>, effectiveRendered, null);
   if (!renderedImportId) throw new Error('INVALID_REPORT_CONTEXT');
 
-  const { data: analyses, error: importAnalysisError } = await supabase
+  const analysisQuery = supabase
     .from('source_analysis_snapshots')
     .select('id,import_job_id,source_hash,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
     .eq('company_id', companyId)
@@ -562,6 +606,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     .eq('import_job_id', renderedImportId)
     .order('created_at', { ascending: false })
     .limit(100);
+  const { data: analyses, error: importAnalysisError } = await maybeAbort(analysisQuery, options.signal);
 
   let analysis = chooseBestAnalysisSnapshot((analyses ?? []) as Array<Record<string, unknown>>);
   if (importAnalysisError) {
@@ -602,10 +647,10 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   // Canonical row reads remain bound to the active import job identity from the
   // durable execution checkpoint. A commit anchor can be inspected for warnings,
   // but must not silently redirect a report to a repeated/foreign import.
-  const canonicalImportJobId = renderedImportId || reportImportJobId;
+  let canonicalImportJobId = renderedImportId || reportImportJobId;
   let canonicalResolvedFromCommit = false;
   try {
-    const { data: latestCommit, error: latestCommitError } = await supabase
+    const latestCommitQuery = supabase
       .from('canonical_import_commits')
       .select('committed_ids')
       .eq('company_id', companyId)
@@ -613,6 +658,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       .order('committed_at', { ascending: false })
       .limit(1)
       .maybeSingle();
+    const { data: latestCommit, error: latestCommitError } = await maybeAbort(latestCommitQuery, options.signal);
 
     if (latestCommitError) {
       canonicalCommitError = latestCommitError;
@@ -623,18 +669,20 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
         : '';
 
       if (firstCommittedId) {
-        const { data: anchor, error: anchorError } = await supabase
+        const anchorQuery = supabase
           .from('canonical_dataset_records')
           .select('import_job_id')
           .eq('company_id', companyId)
           .eq('id', firstCommittedId)
           .maybeSingle();
+        const { data: anchor, error: anchorError } = await maybeAbort(anchorQuery, options.signal);
         if (anchorError) {
           canonicalCommitError = anchorError;
         } else {
           const resolved = String(anchor?.import_job_id ?? '').trim();
           if (resolved) {
-            canonicalResolvedFromCommit = resolved !== canonicalImportJobId;
+            canonicalImportJobId = resolved;
+            canonicalResolvedFromCommit = resolved !== reportImportJobId;
           }
         }
       }
@@ -664,9 +712,10 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       .eq('source_hash', resolvedSourceHash);
 
     const canonicalScopedQuery = canonicalSourceQuery.eq('import_job_id', canonicalImportJobId);
-    const { data: pageRows, error: pageError } = await canonicalScopedQuery
+    const canonicalPageQuery = canonicalScopedQuery
       .order('row_number', { ascending: true })
       .range(canonicalOffset, canonicalOffset + canonicalFetchPageSize - 1);
+    const { data: pageRows, error: pageError } = await maybeAbort(canonicalPageQuery, options.signal);
 
     if (pageError) {
       canonicalFetchError = true;
@@ -753,7 +802,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     sales: ['date', 'invoice_number', 'customer_name', 'total'],
     purchases: ['date', 'supplier_name', 'total'],
     receivables: ['date', 'balance'],
-    inventory: ['sku', 'product_name', 'current_stock'],
+    // Inventory reports vary by source vocabulary. Stock quantity may be
+    // represented by current_stock, balance, or quantity.
+    inventory: ['sku', 'product_name'],
   };
   const requiredFields = specialtyCoreFields[specialty ?? ''] ?? [];
   const mappedFields = new Set(
@@ -776,13 +827,15 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const blockingReviewColumns = sourceColumns.filter((column) => {
     if (column.requiresReview !== true) return false;
     const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
-    return !mapped || coreFieldSet.has(mapped);
+    // Unknown/support columns may remain unmapped without blocking a specialized
+    // result. Only a mapped core reasoning field can hard-block intelligence.
+    return Boolean(mapped && coreFieldSet.has(mapped));
   });
   const blockingQualityIssueColumns = sourceColumns.filter((column) => {
     const issues = Array.isArray(column.qualityIssues) ? column.qualityIssues : [];
     if (!issues.length) return false;
     const mapped = String(column.mappedField ?? normalizeBusinessField(column.name) ?? '').trim();
-    return !mapped || coreFieldSet.has(mapped);
+    return Boolean(mapped && coreFieldSet.has(mapped));
   });
 
   const intelligenceGateReasons: string[] = [];

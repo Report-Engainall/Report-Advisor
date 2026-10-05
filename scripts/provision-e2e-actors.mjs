@@ -132,7 +132,8 @@ function runId() {
 function actorCredentials(label) {
   const normalized = label.toLowerCase();
   const suffix = runId();
-  const email = 'e2e-' + normalized + '-' + suffix + '@e2e.report-advisor.invalid';
+  const unique = randomBytes(6).toString('hex');
+  const email = 'e2e-' + normalized + '-' + suffix + '-' + unique + '@e2e.report-advisor.invalid';
   const password = 'E2e-' + normalized + '-' + randomBytes(24).toString('base64url') + '!';
   return { email, password, generated: true };
 }
@@ -142,7 +143,9 @@ function persistActorCredentials(label, email, password) {
     ? { email: 'TEST_USER_A_EMAIL', password: 'TEST_USER_A_PASSWORD' }
     : label === 'B'
       ? { email: 'TEST_USER_B_EMAIL', password: 'TEST_USER_B_PASSWORD' }
-      : { email: 'TEST_APPROVER_EMAIL', password: 'TEST_APPROVER_PASSWORD' };
+      : label === 'C'
+        ? { email: 'TEST_USER_C_EMAIL', password: 'TEST_USER_C_PASSWORD' }
+        : { email: 'TEST_APPROVER_EMAIL', password: 'TEST_APPROVER_PASSWORD' };
 
   if (process.env.GITHUB_ENV) {
     fs.appendFileSync(process.env.GITHUB_ENV, fields.email + '=' + email + '\n' + fields.password + '=' + password + '\n');
@@ -173,6 +176,19 @@ async function createActor(email, password) {
       if (!error) {
         assert.ok(data.user?.id, 'E2E_ACTOR_ID_REQUIRED');
         return data.user;
+      }
+
+      if (Number(error?.status ?? 0) === 422 && error?.code === 'email_exists') {
+        const existing = await findUserByEmail(email);
+        if (existing.user) {
+          const metadata = existing.user.user_metadata ?? {};
+          const tagged = metadata.e2e_actor === 'true' && metadata.e2e_purpose === ACTOR_METADATA.e2e_purpose;
+          if (!tagged) throw new Error('E2E_ACTOR_EMAIL_COLLISION:' + email);
+          return existing.user;
+        }
+        if (existing.lookupUnavailable) {
+          throw new Error('E2E_ACTOR_EMAIL_EXISTS_LOOKUP_UNAVAILABLE:' + email);
+        }
       }
 
       if (!isRetryableAuthLookup(error) || attempt === 4) throw error;
@@ -274,6 +290,19 @@ function ensureApproverCredentials() {
 
 async function findTenantB() {
   assertProvisionDeadline('find-tenant-b');
+  const configuredId = process.env.E2E_CORPUS_TENANT_ID?.trim();
+  if (configuredId) {
+    const { data, error } = await supabase
+      .from('companies')
+      .select('id,name,created_at')
+      .eq('id', configuredId)
+      .limit(1)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data?.id) throw new Error('E2E_CONFIGURED_CORPUS_TENANT_NOT_FOUND:' + configuredId);
+    return data;
+  }
+
   const { data, error } = await supabase
     .from('companies')
     .select('id,name,created_at')
@@ -462,6 +491,12 @@ const userB = await ensureActor(
   'B',
   process.env.TEST_USER_B_EPHEMERAL === 'true',
 );
+const userC = await ensureActor(
+  process.env.TEST_USER_C_EMAIL,
+  process.env.TEST_USER_C_PASSWORD,
+  'C',
+  process.env.TEST_USER_C_EPHEMERAL === 'true',
+);
 const approver = await ensureActor(
   approverCredentials.email,
   approverCredentials.password,
@@ -471,26 +506,49 @@ const approver = await ensureActor(
 
 assert.notEqual(userA.id, approver.id, 'APPROVER_MUST_DIFFER_FROM_REQUESTER');
 assert.notEqual(userA.id, userB.id, 'USER_A_AND_USER_B_MUST_DIFFER');
+assert.notEqual(userA.id, userC.id, 'USER_A_AND_USER_C_MUST_DIFFER');
+assert.notEqual(userB.id, userC.id, 'USER_B_AND_USER_C_MUST_DIFFER');
 assert.notEqual(userB.id, approver.id, 'USER_B_AND_APPROVER_MUST_DIFFER');
+assert.notEqual(userC.id, approver.id, 'USER_C_AND_APPROVER_MUST_DIFFER');
 
 const tenantA = await findTenantA();
 const tenantB = await findTenantB();
 assert.notEqual(String(tenantA.id), String(tenantB.id), 'TENANT_A_AND_B_MUST_BE_DISTINCT');
 
+const smartReportTenantId = String(process.env.REAL_SMART_REPORT_COMPANY_ID || '').trim();
+if (!smartReportTenantId) throw new Error('REAL_SMART_REPORT_COMPANY_ID_REQUIRED');
+assert.notEqual(String(tenantB.id), smartReportTenantId, 'REAL_SMART_REPORT_TENANT_MUST_DIFFER_FROM_B');
+
 const membershipA = await provisionMembership(tenantA.id, userA.id, 'sales', true, 'A');
 const membershipApprover = await provisionMembership(tenantA.id, approver.id, 'admin', true, 'APPROVER');
 const membershipB = await provisionMembership(tenantB.id, userB.id, 'sales', true, 'B');
+const membershipC = await provisionMembership(smartReportTenantId, userC.id, 'sales', true, 'C-REAL-REPORT');
+const corpusTenantIds = [...new Set(
+  String(process.env.E2E_CORPUS_TENANT_IDS || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean),
+)];
+const corpusTenantMemberships = [];
+for (const tenantId of corpusTenantIds) {
+  if (String(tenantId) === String(tenantB.id)) continue;
+  corpusTenantMemberships.push(
+    await provisionMembership(tenantId, userB.id, 'sales', false, 'B-CORPUS-' + tenantId.slice(0, 8)),
+  );
+}
 const transactionFixture = await prepareTransactionalFixture(tenantA.id, userA.id);
 
-const [{ data: auditA }, { data: auditApprover }, { data: auditB }] = await Promise.all([
+const [{ data: auditA }, { data: auditApprover }, { data: auditB }, { data: auditC }] = await Promise.all([
   supabase.from('audit_logs').select('id,company_id,action,entity_type,entity_id,source').eq('company_id', tenantA.id).eq('action', 'e2e_actor_membership_provisioned').eq('entity_id', membershipA.id).limit(1),
   supabase.from('audit_logs').select('id,company_id,action,entity_type,entity_id,source').eq('company_id', tenantA.id).eq('action', 'e2e_actor_membership_provisioned').eq('entity_id', membershipApprover.id).limit(1),
   supabase.from('audit_logs').select('id,company_id,action,entity_type,entity_id,source').eq('company_id', tenantB.id).eq('action', 'e2e_actor_membership_provisioned').eq('entity_id', membershipB.id).limit(1),
+  supabase.from('audit_logs').select('id,company_id,action,entity_type,entity_id,source').eq('company_id', smartReportTenantId).eq('action', 'e2e_actor_membership_provisioned').eq('entity_id', membershipC.id).limit(1),
 ]);
 
 assert.ok(auditA?.length, 'E2E_ACTOR_A_AUDIT_MISSING');
 assert.ok(auditApprover?.length, 'E2E_APPROVER_AUDIT_MISSING');
 assert.ok(auditB?.length, 'E2E_ACTOR_B_AUDIT_MISSING');
+assert.ok(auditC?.length, 'E2E_ACTOR_C_AUDIT_MISSING');
 
 const mask = (email) => email.replace(/^(.{2}).*(@.*)$/, '$1***$2');
 console.log(JSON.stringify({
@@ -507,6 +565,13 @@ console.log(JSON.stringify({
     A: { id: membershipA.id, role: membershipA.role, active: membershipA.is_active, default: membershipA.is_default },
     APPROVER: { id: membershipApprover.id, role: membershipApprover.role, active: membershipApprover.is_active, default: membershipApprover.is_default },
     B: { id: membershipB.id, role: membershipB.role, active: membershipB.is_active, default: membershipB.is_default },
+    B_CORPUS: corpusTenantMemberships.map((membership) => ({
+      id: membership.id,
+      companyId: membership.company_id,
+      role: membership.role,
+      active: membership.is_active,
+      default: membership.is_default,
+    })),
   },
   audit: { A: auditA[0].id, APPROVER: auditApprover[0].id, B: auditB[0].id },
 }, null, 2));

@@ -81,6 +81,13 @@ export function LoginPage() {
                 <p className="mt-5 max-w-2xl text-[14px] leading-7 text-ink-600">
                   ارفع تقريرك كما هو. الأغبري يحافظ على المصدر، يثبت الحقيقة، يفسر ما حدث، يبرز ما يحتاج انتباهًا، ثم يربط التوصية بالقرار والعمل والنتيجة — داخل مساحة عربية أصلية.
                 </p>
+                <div className="mt-4 flex flex-wrap gap-2" aria-label="مبادئ المنصة">
+                  <span className="rounded-full border border-primary-100 bg-primary-50 px-2.5 py-1 text-[9px] font-black text-primary-800">Evidence-first · مبني على الدليل</span>
+                  <span className="rounded-full border border-ink-200 bg-white px-2.5 py-1 text-[9px] font-black text-ink-600">Provenance · تتبع المصدر</span>
+                  <span className="rounded-full border border-ink-200 bg-white px-2.5 py-1 text-[9px] font-black text-ink-600">Decision · مسار القرار</span>
+                  <span className="rounded-full border border-ink-200 bg-white px-2.5 py-1 text-[9px] font-black text-ink-600">Outcome · النتيجة الفعلية</span>
+                  <span className="rounded-full border border-accent-200 bg-accent-50 px-2.5 py-1 text-[9px] font-black text-accent-800">Arabic-first · العربية أولًا</span>
+                </div>
 
                 <div className="mt-8 grid gap-px overflow-hidden rounded-[12px] border border-ink-200 bg-ink-200 sm:grid-cols-2">
                   {principles.map(({ icon: Icon, title, text }) => (

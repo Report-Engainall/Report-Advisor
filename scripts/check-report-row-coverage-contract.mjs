@@ -20,7 +20,7 @@ if (reportSmart.includes("rendered.canonicalCommitVerified === true\n      ? 'VE
 for (const marker of [
   'report.reportVerificationState === \'VERIFIED\'',
   "report.reportVerificationState === 'GAP_DETECTED'",
-  'Trusted Source لا تعني Verified Report',
+  'function reportVerificationLabel(value: string): string',
   'canonicalCommitGap',
 ]) {
   if (!smartPage.includes(marker) && !sourceSurface.includes(marker)) {

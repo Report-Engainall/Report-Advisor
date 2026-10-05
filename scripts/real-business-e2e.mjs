@@ -348,7 +348,11 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     waitUntil: 'networkidle',
     timeout: 30000,
   });
-  await page.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({
+  assert.ok(
+    /\/reports\/smart\/[^/]+/.test(page.url()),
+    'SMART_REPORT_BROWSER_ROUTE_MUST_REMAIN_SOURCE_BOUND'
+  );
+  await page.getByText('EVIDENCE PASSPORT', { exact: false }).waitFor({
     state: 'visible',
     timeout: 30000,
   });
@@ -369,9 +373,12 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     'Smart Report must expose the canonical pending-evidence state label'
   );
 
-  assert.ok(beforeRefreshText.includes('WHAT NEXT / DECISION BRIEF'), 'Decision Brief must be visible on the real Smart Report');
-  assert.ok(beforeRefreshText.includes('TRUTH LABELS'), 'Smart Report must expose truth-state labels');
-  assert.ok(beforeRefreshText.includes('EXPECTED OUTCOME'), 'Decision Brief must expose expected outcome');
+  assert.ok(beforeRefreshText.includes('لوحة القرار التنفيذي') || beforeRefreshText.includes('ماذا يحدث في هذا التقرير؟'), 'Executive decision summary must be visible on the real Smart Report');
+  assert.ok(beforeRefreshText.includes('ما الذي ثبت وما الذي لم يُثبت'), 'Smart Report truth-state section must be visible');
+  assert.ok(beforeRefreshText.includes('EVIDENCE PASSPORT'), 'Smart Report evidence passport must be visible');
+  assert.ok(beforeRefreshText.includes('التفاصيل الكاملة للتقرير'), 'Smart Report detailed evidence disclosure must be visible');
+  assert.ok(beforeRefreshText.includes('التوصية'), 'Smart Report recommendation state must be visible');
+  assert.ok(beforeRefreshText.includes('القرار'), 'Smart Report decision state must be visible');
 
   await page.screenshot({
     path: reportDir + '/smart-report-' + label + '-before-refresh.png',
@@ -379,7 +386,11 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
   });
 
   await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({
+  assert.ok(
+    /\/reports\/smart\/[^/]+/.test(page.url()),
+    'SMART_REPORT_REFRESH_ROUTE_MUST_REMAIN_SOURCE_BOUND'
+  );
+  await page.getByText('EVIDENCE PASSPORT', { exact: false }).waitFor({
     state: 'visible',
     timeout: 30000,
   });
@@ -390,8 +401,12 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
     'Smart Report fingerprint must survive browser refresh'
   );
   assert.ok(
-    afterRefreshText.includes('EVIDENCE'),
-    'Smart Report evidence surface must survive browser refresh'
+    afterRefreshText.includes('EVIDENCE PASSPORT'),
+    'Smart Report evidence passport must survive browser refresh'
+  );
+  assert.ok(
+    afterRefreshText.includes('ما الذي ثبت وما الذي لم يُثبت'),
+    'Smart Report truth-state section must survive browser refresh'
   );
 
   await page.screenshot({

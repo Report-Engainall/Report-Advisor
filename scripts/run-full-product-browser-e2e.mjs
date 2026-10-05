@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+﻿import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 import process from 'node:process';
 
@@ -9,11 +9,19 @@ const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e';
 await fs.mkdir(reportDir, { recursive: true });
 
+const REAL_SMART_REPORT_JOB_ID = 'c42fb0e1-75f2-4727-8c3e-470ae1a804fa';
+const REAL_SMART_REPORT_COMPANY_ID = process.env.REAL_SMART_REPORT_COMPANY_ID || 'f68a7e91-3c7e-46fb-97a8-e339bec04e13';
+const REAL_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
+
 const routes = [
   '/', '/command-center', '/onboarding', '/decision-experience', '/metrics', '/reports',
   '/reports/sales', '/reports/purchases', '/reports/inventory',
   '/reports/inventory-intelligence', '/reports/demand-velocity',
-  '/reports/receivables', '/reports/profitability', '/import', '/data-quality',
+  '/reports/receivables', '/reports/profitability',
+  '/reports/smart/' + REAL_SMART_REPORT_JOB_ID + '?sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH),
+  '/decision-experience?stage=evidence&reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH),
+  '/work-center?reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH),
+  '/import', '/data-quality',
   '/analytics', '/analytics/rfm', '/analytics/abc', '/analytics/aging',
   '/intelligence', '/intelligence/recommendations', '/intelligence/forecasts',
   '/intelligence/scenarios', '/customers', '/products', '/inventory',
@@ -34,23 +42,71 @@ const consoleErrors = [];
 const failedRequests = [];
 const failedResponses = [];
 const requests = [];
+const pendingDataRequests = new Set();
+let dataRequestsSeen = 0;
+let reportProofContext = null;
+let reportProofPage = null;
+let reportProofTenant = null;
 
-page.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
-page.on('pageerror', error => consoleErrors.push(`[pageerror] ${error.message}`));
-page.on('requestfailed', request => {
-  const error = request.failure()?.errorText || 'unknown';
-  if (error === 'net::ERR_ABORTED') return;
-  failedRequests.push({ method: request.method(), url: request.url(), error });
-});
-page.on('response', async response => {
-  if (response.status() < 400) return;
-  const url = response.url();
-  const relevant = !supabaseURL || url.startsWith(supabaseURL) || url.includes('/rest/v1/') || url.includes('/auth/v1/');
-  if (!relevant) return;
-  const body = await response.text().catch(() => '');
-  failedResponses.push({ method: response.request().method(), status: response.status(), url, body: body.slice(0, 2000) });
-});
-page.on('request', request => requests.push({ method: request.method(), url: request.url() }));
+const REPORT_EXPECTATIONS = new Map([
+  ['/reports', ['مركز التقارير', 'بيانات → دليل → قرار']],
+  ['/reports/sales', ['تقرير المبيعات', 'إجمالي المبيعات']],
+  ['/reports/purchases', ['تقرير المشتريات', 'إجمالي المشتريات']],
+  ['/reports/inventory', ['تقرير المخزون', 'عدد الأصناف']],
+  ['/reports/inventory-intelligence', ['ذكاء المخزون والمجموعات']],
+  ['/reports/demand-velocity', ['حركة الطلب وسرعة الأصناف']],
+  ['/reports/receivables', ['تقرير الذمم والتحصيل', 'إجمالي الذمم']],
+  ['/reports/profitability', ['تقرير الأرباح والربحية', 'التكلفة']],
+  ['/reports/smart/' + REAL_SMART_REPORT_JOB_ID + '?sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF', 'التفاصيل الكاملة للتقرير', 'مسار القرار', 'المصدر']],
+  ['/decision-experience?stage=evidence&reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['تجربة القرار', 'مساحة الدليل']],
+  ['/work-center?reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['مركز العمل', 'تنفيذ القرارات']],
+]);
+const REPORT_LOADING_MARKERS = [
+  'جارٍ تحميل',
+  'جارٍ التحميل',
+  'تحميل اللقطة التجارية',
+  'جارٍ تحميل نتيجة التقرير المصدرّي',
+];
+
+function isDataRequest(request) {
+  const url = request.url();
+  return Boolean(
+    (supabaseURL && url.startsWith(supabaseURL)) ||
+    url.includes('/rest/v1/') ||
+    url.includes('/auth/v1/') ||
+    url.includes('/functions/'),
+  );
+}
+
+function wirePageTelemetry(targetPage) {
+  targetPage.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
+  targetPage.on('pageerror', error => consoleErrors.push(`[pageerror] ${error.message}`));
+  targetPage.on('requestfailed', request => {
+    pendingDataRequests.delete(request);
+    const error = request.failure()?.errorText || 'unknown';
+    if (error === 'net::ERR_ABORTED') return;
+    failedRequests.push({ method: request.method(), url: request.url(), error });
+  });
+  targetPage.on('requestfinished', request => {
+    pendingDataRequests.delete(request);
+  });
+  targetPage.on('response', async response => {
+    if (response.status() < 400) return;
+    const url = response.url();
+    const relevant = !supabaseURL || url.startsWith(supabaseURL) || url.includes('/rest/v1/') || url.includes('/auth/v1/');
+    if (!relevant) return;
+    const body = await response.text().catch(() => '');
+    failedResponses.push({ method: response.request().method(), status: response.status(), url, body: body.slice(0, 2000) });
+  });
+  targetPage.on('request', request => {
+    requests.push({ method: request.method(), url: request.url() });
+    if (isDataRequest(request)) {
+      pendingDataRequests.add(request);
+      dataRequestsSeen += 1;
+    }
+  });
+}
+wirePageTelemetry(page);
 
 async function probeAuthFromNode(email, password) {
   if (!supabaseURL || !supabaseAnonKey) return { status: 'BLOCKED', reason: 'SUPABASE_RUNTIME_ENV_MISSING' };
@@ -211,6 +267,100 @@ async function inspectPage(targetPage) {
       inputCount: inputs.length, inputs: inputs.slice(0, 80),
     };
   });
+}
+
+async function waitForReportSettled(targetPage, route, dataBaseline) {
+  const expected = REPORT_EXPECTATIONS.get(route);
+  if (!expected) return null;
+
+  await targetPage.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+  const deadline = Date.now() + 25000;
+  let lastState = null;
+
+  while (Date.now() < deadline) {
+    const state = await targetPage.evaluate(({ expected, loadingMarkers, smartReportJobId, smartReportSourceHash }) => {
+      const text = document.body?.innerText?.trim() || '';
+      const loading = loadingMarkers.filter(marker => text.includes(marker));
+      const matches = expected.map(marker => ({ marker, found: text.includes(marker) }));
+      const errors = [...document.querySelectorAll('[role="alert"]')].filter(node => {
+        const rect = node.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      }).map(node => (node.textContent || '').trim()).filter(Boolean);
+      const busy = [...document.querySelectorAll('[aria-busy="true"]')].some(node => {
+        const rect = node.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      });
+      return {
+        textLength: text.length,
+        loading,
+        matches,
+        errors: errors.slice(0, 8),
+        busy,
+        smartSignalSurfacePresent: text.includes('الإشارات'),
+        smartAdvisorSurfacePresent: text.includes('المستشار'),
+        smartDecisionChainPresent: Boolean(document.querySelector('[data-testid="smart-report-decision-chain"]')),
+        smartDecisionCards: ['what','why','so-what','impact','what-next','proof'].filter(key => Boolean(document.querySelector('[data-testid="smart-report-' + key + '"]'))),
+        smartJobIdPresent: text.includes(smartReportJobId),
+        smartSourceHashPresent: text.includes(smartReportSourceHash),
+      };
+    }, {
+      expected,
+      loadingMarkers: REPORT_LOADING_MARKERS,
+      smartReportJobId: REAL_SMART_REPORT_JOB_ID,
+      smartReportSourceHash: REAL_SMART_REPORT_SOURCE_HASH,
+    });
+
+    const dataRequestsSeenSinceRoute = dataRequestsSeen - dataBaseline;
+    const allExpectedFound = state.matches.every(item => item.found);
+    const optionalBackgroundRequest = request => {
+      if (route === '/reports') {
+        const url = request.url();
+        return url.includes('/rest/v1/report_execution_jobs') || url.includes('/rest/v1/source_analysis_snapshots');
+      }
+      return false;
+    };
+    const criticalPendingDataRequests = [...pendingDataRequests].filter(request => !optionalBackgroundRequest(request));
+    const dataComplete = dataRequestsSeenSinceRoute > 0 && criticalPendingDataRequests.length === 0;
+    const pendingDataRequestDetails = [...pendingDataRequests].slice(0, 20).map(request => ({
+      method: request.method(),
+      url: request.url(),
+    }));
+    const isSmartReport = route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID);
+    const smartSignalSurfacePresent = !isSmartReport || state.smartSignalSurfacePresent;
+    const smartAdvisorSurfacePresent = !isSmartReport || state.smartAdvisorSurfacePresent;
+    const smartDecisionChainPresent = !isSmartReport || state.smartDecisionChainPresent;
+    const smartDecisionCardsComplete = !isSmartReport || state.smartDecisionCards.length === 6;
+    const smartJobIdPresent = !isSmartReport || state.smartJobIdPresent;
+    const smartSourceHashPresent = !isSmartReport || state.smartSourceHashPresent;
+    const noLoading = state.loading.length === 0;
+    const noVisibleError = state.errors.length === 0;
+    const settled =
+      state.textLength > 120 &&
+      allExpectedFound &&
+      dataComplete &&
+      noLoading &&
+      noVisibleError &&
+      !state.busy &&
+      smartSignalSurfacePresent &&
+      smartAdvisorSurfacePresent &&
+      smartDecisionChainPresent &&
+      smartDecisionCardsComplete &&
+      smartJobIdPresent &&
+      smartSourceHashPresent;
+
+    lastState = {
+      ...state,
+      dataRequestsSeenSinceRoute,
+      pendingDataRequests: pendingDataRequests.size,
+      criticalPendingDataRequests: criticalPendingDataRequests.length,
+      pendingDataRequestDetails,
+      settled,
+    };
+    if (settled) return lastState;
+    await targetPage.waitForTimeout(350);
+  }
+
+  return lastState || { dataRequestsSeenSinceRoute: dataRequestsSeen - dataBaseline, pendingDataRequests: pendingDataRequests.size, settled: false };
 }
 
 async function runWorkspacePersonalizationProbe(targetPage) {
@@ -417,6 +567,7 @@ try {
       if (emailB && passwordB && result.tenant === 'PASS') {
         const contextB = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
         const pageB = await contextB.newPage();
+        wirePageTelemetry(pageB);
         try {
           await login(pageB, emailB, passwordB);
           result.tenantB = await authenticatedTenantId(pageB);
@@ -424,54 +575,126 @@ try {
             result.tenantA === result.tenantB
               ? 'Tenant A and Tenant B browser actors resolved to the same tenant.'
               : 'Tenant A and Tenant B browser actors resolved to distinct tenant contexts.');
+          await pageB.close().catch(() => {});
+          await contextB.close().catch(() => {});
         } catch (error) {
           addFinding('E2E-TENANT-004', 'BLOCKED', 'P0', error instanceof Error ? error.message : String(error));
-        } finally { await pageB.close(); await contextB.close(); }
+          await pageB.close().catch(() => {});
+          await contextB.close().catch(() => {});
+        }
       } else {
         addFinding('E2E-TENANT-005', 'BLOCKED', 'P0', 'Tenant B credentials are not available; A/B isolation cannot be proven.');
       }
 
+      const emailC = process.env.TEST_USER_C_EMAIL;
+      const passwordC = process.env.TEST_USER_C_PASSWORD;
+      if (emailC && passwordC && result.tenant === 'PASS') {
+        reportProofContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
+        reportProofPage = await reportProofContext.newPage();
+        wirePageTelemetry(reportProofPage);
+        try {
+          await login(reportProofPage, emailC, passwordC);
+          reportProofTenant = await authenticatedTenantId(reportProofPage);
+          addFinding('E2E-REAL-REPORT-TENANT-001',
+            reportProofTenant === REAL_SMART_REPORT_COMPANY_ID ? 'PASS' : 'NOT_PROVEN',
+            'P0',
+            reportProofTenant === REAL_SMART_REPORT_COMPANY_ID
+              ? 'Dedicated Smart Report browser actor resolved to the owning tenant of the certified report job.'
+              : `Dedicated Smart Report actor tenant mismatch: expected ${REAL_SMART_REPORT_COMPANY_ID}, got ${reportProofTenant}.`,
+            { expectedTenantId: REAL_SMART_REPORT_COMPANY_ID, actualTenantId: reportProofTenant });
+          if (reportProofTenant !== REAL_SMART_REPORT_COMPANY_ID) {
+            await reportProofPage.close().catch(() => {});
+            await reportProofContext.close().catch(() => {});
+            reportProofPage = null;
+            reportProofContext = null;
+          }
+        } catch (error) {
+          addFinding('E2E-REAL-REPORT-TENANT-002', 'BLOCKED', 'P0', error instanceof Error ? error.message : String(error));
+          await reportProofPage.close().catch(() => {});
+          await reportProofContext.close().catch(() => {});
+          reportProofPage = null;
+          reportProofContext = null;
+        }
+      } else {
+        addFinding('E2E-REAL-REPORT-TENANT-003', 'BLOCKED', 'P0', 'Dedicated real-report credentials are not available.');
+      }
+
       for (let i = 0; i < routes.length; i += 1) {
         const route = routes[i];
+        const usesReportProofTenant =
+          Boolean(reportProofPage) &&
+          (route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID)
+            || route.startsWith('/decision-experience?stage=evidence&reportJobId=' + REAL_SMART_REPORT_JOB_ID)
+            || route.startsWith('/work-center?reportJobId=' + REAL_SMART_REPORT_JOB_ID));
+        const routePage = usesReportProofTenant ? reportProofPage : page;
         const beforeErrors = consoleErrors.length;
         const beforeFailed = failedRequests.length;
         const beforeFailedResponses = failedResponses.length;
         const beforeRequests = requests.length;
+        pendingDataRequests.clear();
+        const dataBaseline = dataRequestsSeen;
         const started = Date.now();
         let status = 'PASS'; let reason = '';
         let inspection = null;
+        let settlement = null;
         try {
-          const response = await page.goto(`${baseURL}${route}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-          await page.waitForTimeout(500);
-          const bodyText = (await page.locator('body').innerText()).trim();
-          const appError = await page.getByText('حدث خطأ غير متوقع').count();
-          const notFound = await page.getByText('الصفحة غير موجودة').count();
-          inspection = await inspectPage(page);
-          if (!response || response.status() >= 400) { status = 'FAIL'; reason = `HTTP ${response?.status() ?? 'NO_RESPONSE'}`; }
+          const response = await routePage.goto(baseURL + route, { waitUntil: 'domcontentloaded', timeout: 30000 });
+          await routePage.waitForTimeout(250);
+          settlement = await waitForReportSettled(routePage, route, dataBaseline);
+          const bodyText = (await routePage.locator('body').innerText()).trim();
+          const appError = await routePage.getByText('حدث خطأ غير متوقع').count();
+          const notFound = await routePage.getByText('الصفحة غير موجودة').count();
+          inspection = await inspectPage(routePage);
+          if (!response || response.status() >= 400) { status = 'FAIL'; reason = 'HTTP ' + (response?.status() ?? 'NO_RESPONSE'); }
           else if (!bodyText) { status = 'FAIL'; reason = 'Blank body'; }
           else if (appError) { status = 'FAIL'; reason = 'App error boundary'; }
           else if (notFound) { status = 'FAIL'; reason = '404 page'; }
+          else if (settlement && !settlement.settled) {
+            status = 'NOT_PROVEN';
+            reason = route + ': report state did not settle with expected content after bounded wait.';
+          } else if (settlement) {
+            reason = 'Settled report state proven: data request completed, expected customer content rendered, no loading/error state visible.';
+          }
         } catch (error) {
           status = 'FAIL'; reason = error instanceof Error ? error.message : String(error);
         }
 
-        const screenshot = `${reportDir}/${String(i + 2).padStart(2, '0')}-${route === '/' ? 'home' : route.slice(1).replaceAll('/', '-')}.png`;
-        await page.screenshot({ path: screenshot, fullPage: true }).catch(() => {});
+        let readback = null;
+        if (route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID) && status !== 'FAIL') {
+          const readbackBaseline = dataRequestsSeen;
+          try {
+            await routePage.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
+            readback = await waitForReportSettled(routePage, route, readbackBaseline);
+            if (!readback?.settled) {
+              status = 'NOT_PROVEN';
+              reason = route + ': Smart Report failed refresh readback settlement.';
+            }
+          } catch (error) {
+            status = 'FAIL';
+            reason = route + ': Smart Report refresh readback failed: ' + (error instanceof Error ? error.message : String(error));
+          }
+        }
+
+        const baseName = String(i + 2).padStart(2, '0') + '-' + (route === '/' ? 'home' : route.slice(1).replace(/[\\/?#%=&:]+/g, '-'));
+        const screenshot = settlement?.settled ? reportDir + '/' + baseName + '.png' : reportDir + '/' + baseName + '-unsettled.png';
+        await routePage.screenshot({ path: screenshot, fullPage: true }).catch(() => {});
         const routeRequests = requests.slice(beforeRequests).map(x => ({ method: x.method, url: x.url }));
         const routeErrors = consoleErrors.slice(beforeErrors);
         const routeFailed = failedRequests.slice(beforeFailed);
         const routeFailedResponses = failedResponses.slice(beforeFailedResponses);
-        result.routes.push({ route, status, reason, durationMs: Date.now() - started, screenshot,
-          consoleErrors: routeErrors, failedRequests: routeFailed, failedResponses: routeFailedResponses, requests: routeRequests, interaction: inspection });
+        result.routes.push({ route, status, reason, durationMs: Date.now() - started, screenshot, settlement, readback,
+          consoleErrors: routeErrors, failedRequests: routeFailed, failedResponses: routeFailedResponses, requests: routeRequests, interaction: inspection,
+          proofTenant: usesReportProofTenant ? reportProofTenant : result.tenantA });
         result.actions.push({ route, buttonCount: inspection?.buttonCount ?? 0, buttons: inspection?.buttons ?? [],
           inputCount: inspection?.inputCount ?? 0, linkCount: inspection?.linkCount ?? 0 });
-        if (status === 'FAIL') addFinding(`E2E-ROUTE-${String(i + 1).padStart(3, '0')}`, 'FAIL', 'P1', `${route}: ${reason}`);
-        if (routeFailed.length) addFinding(`E2E-NET-${String(i + 1).padStart(3, '0')}`, 'FAIL', 'P1',
-          `${route}: ${routeFailed.length} browser network request(s) failed.`, { requests: routeFailed });
-        if (routeFailedResponses.length) addFinding(`E2E-HTTP-${String(i + 1).padStart(3, '0')}`, 'FAIL', 'P1',
-          `${route}: ${routeFailedResponses.length} relevant HTTP response(s) returned 4xx/5xx.`, { responses: routeFailedResponses });
-        if (routeErrors.length) addFinding(`E2E-CONSOLE-${String(i + 1).padStart(3, '0')}`, 'FAIL', 'P1',
-          `${route}: browser emitted ${routeErrors.length} console/page error(s).`, { errors: routeErrors });
+        if (status === 'FAIL') addFinding('E2E-ROUTE-' + String(i + 1).padStart(3, '0'), 'FAIL', 'P1', route + ': ' + reason);
+        if (status === 'NOT_PROVEN') addFinding('E2E-REPORT-' + String(i + 1).padStart(3, '0'), 'NOT_PROVEN', 'P0', reason, { settlement });
+        if (routeFailed.length) addFinding('E2E-NET-' + String(i + 1).padStart(3, '0'), 'FAIL', 'P1',
+          route + ': ' + routeFailed.length + ' browser network request(s) failed.', { requests: routeFailed });
+        if (routeFailedResponses.length) addFinding('E2E-HTTP-' + String(i + 1).padStart(3, '0'), 'FAIL', 'P1',
+          route + ': ' + routeFailedResponses.length + ' relevant HTTP response(s) returned 4xx/5xx.', { responses: routeFailedResponses });
+        if (routeErrors.length) addFinding('E2E-CONSOLE-' + String(i + 1).padStart(3, '0'), 'FAIL', 'P1',
+          route + ': browser emitted ' + routeErrors.length + ' console/page error(s).', { errors: routeErrors });
       }
 
       try {

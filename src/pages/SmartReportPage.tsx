@@ -753,7 +753,7 @@ export function SmartReportPage() {
       setLoading(false);
       return () => { active = false; };
     }
-    void fetchSmartReport(jobId, expectedSourceHash).then((next) => {
+    void fetchSmartReport(jobId, expectedSourceHash, { signal: AbortSignal.timeout(25000) }).then((next) => {
       if (active) setReport(next)
     }).catch((reason) => {
       if (active) setError(userFacingError(reason instanceof Error ? reason.message : String(reason)));
@@ -933,6 +933,55 @@ export function SmartReportPage() {
         },
       ]}
     />
+
+    <section aria-label="سياق التقرير والدليل" className="rounded-[16px] border border-slate-700 bg-[#0b1020] p-4 text-white shadow-card">
+      <div className="grid gap-3 md:grid-cols-3">
+        <div>
+          <div className="text-[9px] font-black tracking-[.12em] text-slate-400">REPORT JOB ID</div>
+          <div data-testid="smart-report-job-id" className="mt-1 break-all font-mono text-[10px] text-white">{report.jobId}</div>
+        </div>
+        <div>
+          <div className="text-[9px] font-black tracking-[.12em] text-slate-400">SOURCE HASH</div>
+          <div data-testid="smart-report-source-hash" className="mt-1 break-all font-mono text-[10px] text-white">{report.sourceHash}</div>
+        </div>
+        <div>
+          <div className="text-[9px] font-black tracking-[.12em] text-slate-400">SOURCE</div>
+          <div className="mt-1 text-[10px] font-bold text-white">{report.sourcePath}</div>
+          <div className="mt-1 text-[9px] text-slate-400">الفترة: غير محددة في المصدر ما لم يثبتها الملف.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="decision-chain" data-testid="smart-report-decision-chain" className="rounded-[20px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div className="section-kicker">WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF</div>
+          <h2 className="mt-1 text-xl font-black text-ink-950">من الحقيقة إلى قرار قابل للتنفيذ</h2>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">كل بطاقة هنا تقرأ من ناتج التقرير الحالي؛ عندما لا توجد أدلة كافية يظهر ذلك صراحة بدل إنشاء قيمة بديلة.</p>
+        </div>
+        <span className={'badge ' + (sourceIsVerified ? 'badge-success' : 'badge-warning')}>{sourceIsVerified ? 'الدليل موثق' : stateLabel(report.reportVerificationState)}</span>
+      </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {[
+          ['WHAT','ماذا حدث؟',topFinding?.statement ?? report.intelligence.summary ?? businessSummary,'الحقيقة المثبتة من الصفوف والتحليل.'],
+          ['WHY','لماذا؟',topFinding?.evidence?.[0] ?? report.intelligence.signals[0]?.message ?? 'لا يوجد تفسير سببي مثبت في المصدر الحالي.','الدليل أو الإشارة التي تفسر النتيجة.'],
+          ['SO WHAT','ماذا يعني ذلك؟',report.intelligence.signals[0]?.soWhat ?? topFinding?.action ?? 'لا توجد دلالة تنفيذية إضافية مثبتة بعد.','المعنى التشغيلي المنضبط دون تجاوز المصدر.'],
+          ['IMPACT','ما الأثر؟',report.intelligence.signals[0]?.impact ?? primaryRecommendation?.impact ?? 'الأثر الفعلي غير متاح ما لم توجد نتيجة مسجلة.','لا نخلط الأثر المتوقع بالنتيجة الفعلية.'],
+          ['WHAT NEXT','ما الخطوة التالية؟',primaryRecommendation?.action ?? report.intelligence.advisorBrief.recommendedAction ?? 'لا توجد توصية مصدرية كافية للاعتماد الآن.','التوصية تبقى مقترحًا حتى تُعتمد في مسار القرار.'],
+          ['PROOF','ما الدليل؟',sourceIsVerified ? ('VERIFIED · ' + (typeof output.evidenceSnapshotId === 'string' && output.evidenceSnapshotId.trim() ? output.evidenceSnapshotId : 'لقطة دليل موثقة') + ' · ' + report.sourceHash) : 'حالة الدليل: ' + stateLabel(report.reportVerificationState),'المصدر والبصمة ولقطة الدليل هي مرجع الإثبات.'],
+        ].map(([english,arabic,value,detail]) => (
+          <article key={english} data-testid={'smart-report-' + english.toLowerCase().replaceAll(' ','-')} className="rounded-2xl border border-ink-200 bg-ink-50/50 p-4">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[9px] font-black tracking-[.14em] text-primary-700">{english}</span>
+              <span className="text-[9px] font-bold text-ink-400">{english === 'PROOF' ? stateLabel(report.reportVerificationState) : 'من المصدر الحالي'}</span>
+            </div>
+            <h3 className="mt-2 text-sm font-black text-ink-950">{arabic}</h3>
+            <p className="mt-2 text-[11px] leading-6 text-ink-800">{value}</p>
+            <p className="mt-2 text-[9px] leading-5 text-ink-500">{detail}</p>
+          </article>
+        ))}
+      </div>
+    </section>
 
     <section id="executive-layer" className="executive-hero rounded-[24px] border border-slate-700/70 bg-[linear-gradient(135deg,#0b1020_0%,#111827_58%,#15111f_100%)] p-5 text-white shadow-[0_28px_80px_-38px_rgba(15,23,42,.9)] lg:p-7">
       <div className="grid gap-5 xl:grid-cols-[1.25fr_.75fr]">

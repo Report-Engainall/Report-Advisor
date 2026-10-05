@@ -26,9 +26,10 @@ function finiteOrNull(value: unknown): number|null { return typeof value === 'nu
 function requiredArray<T>(value: unknown): T[] { return Array.isArray(value) ? value as T[] : []; }
 function asOfDate(): string { return new Date().toISOString().slice(0, 10); }
 
-export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
+export async function fetchDashboardSnapshot(months = 6, signal?: AbortSignal): Promise<Snapshot> {
   if (!Number.isInteger(months) || months < 1 || months > 24) throw new Error('REPORT_QUERY_INVALID_MONTHS');
-  const { data, error } = await supabase.rpc('get_dashboard_snapshot', { p_months: months, p_as_of: asOfDate() });
+  const query = supabase.rpc('get_dashboard_snapshot', { p_months: months, p_as_of: asOfDate() });
+  const { data, error } = await (signal ? query.abortSignal(signal) : query);
   if (error) throw error;
   if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: dashboard snapshot missing');
   const row = data as Record<string, unknown>;

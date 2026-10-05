@@ -10,7 +10,7 @@ assert.ok(bridge.includes("linkRecommendationToDecision"));
 assert.ok(bridge.includes("recommendationId"));
 assert.ok(bridge.includes("proposal.recommendation_id == null ? null : String(proposal.recommendation_id)"));
 assert.ok(bridge.includes("recommendationContext"));
-assert.ok(bridge.includes("input.recommendationContext.action"));
+assert.ok(panel.includes("action: recommendation.action"));
 assert.ok(bridge.includes("recommendationContext: input.recommendationContext"));
 assert.ok(bridge.includes("reportExecutionJobId"));
 assert.ok(bridge.includes("sourceHash"));

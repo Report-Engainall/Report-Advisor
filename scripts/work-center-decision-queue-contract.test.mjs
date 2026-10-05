@@ -13,7 +13,7 @@ assert.ok(source.includes('sourceHash'));
 assert.ok(source.includes('overdue'));
 assert.ok(source.includes('isOverdue'));
 assert.ok(source.includes('decisionWorkFilter'));
-assert.ok(source.includes('WHY · EVIDENCE · ACTION · OUTCOME'));
+assert.ok(source.includes('لماذا · الدليل · الإجراء · النتيجة'));
 assert.ok(source.includes('md:hidden'));
 assert.ok(source.includes('الدليل غير متاح'));
 assert.ok(decisions.includes('decision_work_items'));

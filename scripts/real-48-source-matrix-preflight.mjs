@@ -1,11 +1,14 @@
-import { listReportArchetypes, runReportArchetype } from '../src/lib/report-intelligence/archetype-registry.ts';
+﻿import { listReportArchetypes, runReportArchetype } from '../src/lib/report-intelligence/archetype-registry.ts';
 import { matchCanonicalField } from '../src/lib/report-intelligence/canonical-schema.ts';
 
 const supabaseURL = (process.env.REPORT_ADVISOR_SUPABASE_URL || 'https://fnqbvfuwbdpwvhcgzksl.supabase.co').replace(/\/$/, '');
 const anonKey = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY?.trim();
-const email = process.env.TEST_USER_A_EMAIL?.trim();
-const password = process.env.TEST_USER_A_PASSWORD;
+const email = (process.env.REAL_48_TEST_USER_EMAIL || process.env.TEST_USER_B_EMAIL || process.env.TEST_USER_A_EMAIL)?.trim();
+const password = process.env.REAL_48_TEST_USER_PASSWORD || process.env.TEST_USER_B_PASSWORD || process.env.TEST_USER_A_PASSWORD;
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || '';
+const targetJobId = process.env.REAL_48_TARGET_JOB_ID?.trim() || 'c42fb0e1-75f2-4727-8c3e-470ae1a804fa';
+if (!serviceRoleKey) throw new Error('REAL_48_SERVICE_ROLE_REQUIRED');
 const outFile = process.env.E2E_REPORT_DIR
   ? process.env.E2E_REPORT_DIR + '/real-48-source-matrix-preflight.json'
   : 'artifacts/e2e-business/real-48-source-matrix-preflight.json';
@@ -24,6 +27,102 @@ async function fetchJson(url, options = {}) {
   return body ? JSON.parse(body) : null;
 }
 
+async function rpcCurrentCompany(token) {
+  const response = await fetchJson(supabaseURL + '/rest/v1/rpc/current_company_id', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: '{}',
+  });
+  return response == null ? null : String(response);
+}
+
+async function serviceRestSelect(table, filters, select, options = {}) {
+  if (!serviceRoleKey) return [];
+  const url = new URL(supabaseURL + '/rest/v1/' + table);
+  url.searchParams.set('select', select);
+  for (const [column, value] of Object.entries(filters)) url.searchParams.set(column, 'eq.' + value);
+  if (options.order) url.searchParams.set('order', options.order);
+  if (options.limit) url.searchParams.set('limit', String(options.limit));
+  const response = await fetch(url, { headers: { apikey: serviceRoleKey, Authorization: 'Bearer ' + serviceRoleKey } });
+  const body = await response.text();
+  if (!response.ok) throw new Error('SERVICE_' + table + '_HTTP_' + response.status + ':' + body.slice(0, 800));
+  return body ? JSON.parse(body) : [];
+}
+
+async function authenticatedUserId(accessToken) {
+  const user = await fetchJson(supabaseURL + '/auth/v1/user', {
+    headers: { Authorization: 'Bearer ' + accessToken },
+  });
+  const id = user?.id ? String(user.id) : '';
+  if (!id) throw new Error('REAL_48_AUTH_USER_ID_MISSING');
+  return id;
+}
+
+async function servicePatch(table, queryParams, payload) {
+  if (!serviceRoleKey) throw new Error('REAL_48_SERVICE_ROLE_REQUIRED_FOR_TENANT_SWITCH');
+  const url = new URL(supabaseURL + '/rest/v1/' + table);
+  for (const [column, value] of Object.entries(queryParams)) url.searchParams.set(column, 'eq.' + value);
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: 'Bearer ' + serviceRoleKey,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal',
+    },
+    body: JSON.stringify(payload),
+  });
+  const body = await response.text();
+  if (!response.ok) throw new Error('SERVICE_PATCH_' + table + '_HTTP_' + response.status + ':' + body.slice(0, 800));
+}
+
+async function switchDefaultTenant(userId, tenantId) {
+  await servicePatch('company_memberships', { user_id: userId, is_active: 'true' }, { is_default: false });
+  await servicePatch('company_memberships', { user_id: userId, company_id: tenantId, is_active: 'true' }, { is_default: true });
+  const current = await rpcCurrentCompany(accessToken);
+  if (String(current) !== String(tenantId)) {
+    throw new Error('REAL_48_TENANT_SWITCH_FAILED:' + tenantId + '!=' + current);
+  }
+}
+
+async function buildSelectionDiagnostics(actorCompanyId) {
+  if (!serviceRoleKey) return { serviceRole: 'NOT_AVAILABLE' };
+  const [targetJobs, targetPassports, targetFiles, actorJobs, actorPassports, actorFiles] = await Promise.all([
+    serviceRestSelect('report_execution_jobs', { id: targetJobId }, 'id,company_id,status,source_path,source_hash,completed_at', { limit: 2 }),
+    serviceRestSelect('report_evidence_passports', { report_execution_job_id: targetJobId }, 'id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash,verification_status,decision_readiness', { order: 'created_at.desc', limit: 10 }),
+    (async () => {
+      const jobs = await serviceRestSelect('report_execution_jobs', { id: targetJobId }, 'source_hash', { limit: 2 });
+      const sourceHash = String(jobs[0]?.source_hash || '');
+      return sourceHash ? serviceRestSelect('file_records', { file_hash: sourceHash }, 'id,company_id,file_name,file_hash,metadata', { limit: 20 }) : [];
+    })(),
+    serviceRestSelect('report_execution_jobs', { company_id: actorCompanyId, status: 'completed' }, 'id,company_id,status,source_path,source_hash,completed_at', { limit: 1000 }),
+    serviceRestSelect('report_evidence_passports', { company_id: actorCompanyId, verification_status: 'VERIFIED', decision_readiness: 'READY' }, 'id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash', { limit: 500 }),
+    serviceRestSelect('file_records', { company_id: actorCompanyId, 'metadata->>report_corpus': 'true' }, 'id,company_id,file_name,file_hash,metadata', { limit: 100 }),
+  ]);
+  const target = targetJobs[0] || null;
+  const targetFileClassification = targetFiles.map(record => {
+    const metadata = record?.metadata && typeof record.metadata === 'object' ? record.metadata : {};
+    return {
+      id: record.id, companyId: record.company_id, fileName: record.file_name,
+      reportCorpus: metadata.report_corpus === true || String(metadata.report_corpus ?? '').toLowerCase() === 'true',
+      fixtureType: metadata.fixture_type ?? null, catalogId: metadata.catalog_id ?? null,
+    };
+  });
+  return {
+    serviceRole: 'AVAILABLE',
+    actorCompanyId: actorCompanyId || null,
+    actorCompletedJobs: actorJobs.length,
+    actorReadyPassports: actorPassports.length,
+    actorGovernedCorpusFiles: actorFiles.length,
+    targetJobId,
+    targetJob: target ? { id: target.id, companyId: target.company_id, status: target.status, sourcePath: target.source_path, sourceHashPresent: Boolean(target.source_hash) } : null,
+    targetVisibleToActorTenant: Boolean(target && actorCompanyId && String(target.company_id) === String(actorCompanyId)),
+    targetPassportCount: targetPassports.length,
+    targetReadyPassportCount: targetPassports.filter(row => row.verification_status === 'VERIFIED' && row.decision_readiness === 'READY').length,
+    targetFileRecords: targetFileClassification,
+  };
+}
+
 async function signIn() {
   const auth = await fetchJson(supabaseURL + '/auth/v1/token?grant_type=password', {
     method: 'POST',
@@ -35,6 +134,16 @@ async function signIn() {
 }
 
 const accessToken = await signIn();
+const actorUserId = await authenticatedUserId(accessToken);
+const actorCompanyId = await rpcCurrentCompany(accessToken);
+const configuredTenantIds = [...new Set(
+  String(process.env.E2E_CORPUS_TENANT_IDS || actorCompanyId || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean),
+)];
+if (!configuredTenantIds.length) throw new Error('REAL_48_CORPUS_TENANT_IDS_MISSING');
+const selectionDiagnostics = await buildSelectionDiagnostics(actorCompanyId);
 
 async function restSelect(table, filters, select, options = {}) {
   const url = new URL(supabaseURL + '/rest/v1/' + table);
@@ -86,7 +195,7 @@ function requiredFieldsPresent(profile, fields) {
 }
 
 async function selectBestAnalysis(companyId, sourceHash, renderedImportId, rowCountHint, expectedAnalysisId = '') {
-  const rows = await restSelect(
+  const rows = await serviceRestSelect(
     'source_analysis_snapshots',
     { company_id: companyId, source_hash: sourceHash },
     'id,import_job_id,row_count,datasets,created_at',
@@ -112,7 +221,7 @@ async function selectBestAnalysis(companyId, sourceHash, renderedImportId, rowCo
 
 async function fetchVerifiedSnapshot(companyId, jobId, sourceHash, passport) {
   if (!passport?.evidence_snapshot_id) return null;
-  const rows = await restSelect(
+  const rows = await serviceRestSelect(
     'report_evidence_snapshots',
     {
       company_id: companyId,
@@ -132,27 +241,26 @@ async function fetchVerifiedSnapshot(companyId, jobId, sourceHash, passport) {
   ) ?? null;
 }
 
-const companies = await restSelect('report_execution_jobs', { status: 'completed' }, 'company_id', { limit: 1000 });
-const tenantIds = [...new Set(companies.map((row) => row.company_id).filter(Boolean))];
 const profiles = listReportArchetypes();
+const evidenceSelect = serviceRestSelect;
 const sourceRecords = [];
 const sourceRowsCache = new Map();
 
-for (const companyId of tenantIds) {
-  const passports = await restSelect(
+for (const companyId of configuredTenantIds) {
+  const passports = (await evidenceSelect(
     'report_evidence_passports',
-    { company_id: companyId, verification_status: 'VERIFIED', decision_readiness: 'READY' },
+    { verification_status: 'VERIFIED', decision_readiness: 'READY' },
     'id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash',
-    { limit: 500 },
-  );
+    { limit: 5000 },
+  )).filter((row) => String(row.company_id) === String(companyId));
   const verifiedJobIds = new Set(passports.map((row) => String(row.report_execution_job_id)));
 
-  const jobs = await restSelect(
+  const jobs = (await evidenceSelect(
     'report_execution_jobs',
-    { company_id: companyId, status: 'completed' },
+    { status: 'completed' },
     'id,company_id,source_path,source_hash,evidence,completed_at',
     { order: 'completed_at.desc', limit: 5000 },
-  );
+  )).filter((row) => String(row.company_id) === String(companyId));
 
   for (const passport of passports) {
     const job = jobs.find((item) => String(item.id) === String(passport.report_execution_job_id));
@@ -166,11 +274,17 @@ for (const companyId of tenantIds) {
 
     // Real-source proof must never select the synthetic 48-archetype fixture corpus.
     // The governed file record is the authoritative classification boundary here.
-    const fileRecords = await restSelect(
+    // Resolve the governed file record by the exact source identity.
+    // A global file_records limit is unsafe because the database contains more than
+    // 5000 records across tenants; it can silently omit a valid corpus file.
+    const fileRecords = await evidenceSelect(
       'file_records',
-      { file_hash: sourceHash },
-      'id,file_name,file_hash,metadata',
-      { limit: 50 },
+      {
+        company_id: companyId,
+        file_hash: sourceHash,
+      },
+      'id,company_id,file_name,file_hash,metadata',
+      { limit: 20 },
     );
     const governedRealSource = fileRecords.find((record) => {
       const metadata = record?.metadata && typeof record.metadata === 'object' ? record.metadata : {};
@@ -197,7 +311,7 @@ for (const companyId of tenantIds) {
     if (!analysis?.import_job_id) continue;
 
     const analysisFields = usableColumns(analysis);
-    const canonicalPreview = await restSelect(
+    const canonicalPreview = await evidenceSelect(
       'canonical_dataset_records',
       {
         company_id: companyId,
@@ -232,7 +346,7 @@ for (const source of sourceRecords) {
 async function sourceRowsFor(source) {
   const key = String(source.job.id);
   if (sourceRowsCache.get(key)) return sourceRowsCache.get(key);
-  const rows = await restSelect(
+  const rows = await evidenceSelect(
     'canonical_dataset_records',
     {
       company_id: source.companyId,
@@ -393,6 +507,7 @@ const supported = results.filter((row) => row.status === 'SUPPORTED_REAL_SOURCE'
 const missing = results.filter((row) => row.status === 'NOT_PROVEN_REAL_SOURCE').length;
 const proof = {
   exactHead,
+  diagnostics: selectionDiagnostics,
   generatedAt: new Date().toISOString(),
   status: supported === profiles.length ? 'PASS' : 'NOT_PROVEN',
   sourceJobsScanned: sourceRecords.length,
@@ -408,7 +523,7 @@ await (await import('node:fs/promises')).mkdir(outFile.slice(0, outFile.lastInde
 await (await import('node:fs/promises')).writeFile(outFile, JSON.stringify(proof, null, 2) + '\n', 'utf8');
 
 if (proof.status !== 'PASS') {
-  console.error(JSON.stringify(proof.summary));
+  console.error(JSON.stringify({ summary: proof.summary, sourceJobsScanned: proof.sourceJobsScanned, diagnostics: proof.diagnostics }));
   process.exit(2);
 }
 console.log(JSON.stringify(proof.summary));

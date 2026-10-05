@@ -10,6 +10,6 @@ assert.ok(lib.includes('fetchSourceDecisionProposals'));
 assert.ok(lib.includes('sourceHash'));
 assert.ok(lib.includes('events'));
 assert.ok(lib.includes('decision'));
-assert.ok(page.includes('BUSINESS REPLAY'));
-assert.ok(page.includes('SOURCE-BOUND TIMELINE'));
+assert.ok(page.includes('إعادة تشغيل مسار القرار'));
+assert.ok(page.includes('السجل الزمني المربوط بالتقرير'));
 console.log('BUSINESS_REPLAY_CONTRACT_PASS');

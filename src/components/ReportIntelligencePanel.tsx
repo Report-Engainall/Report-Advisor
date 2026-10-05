@@ -110,6 +110,18 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
         signalMessage: signal.message,
         severity: signal.severity,
         evidence: signal.evidence,
+        recommendationContext: recommendation ? {
+          action: recommendation.action,
+          why: recommendation.why,
+          whyNow: recommendation.whyNow,
+          expectedOutcome: recommendation.expectedOutcome,
+          owner: recommendation.ownerHint || null,
+          impact: recommendation.impact,
+          measurement: recommendation.measurement,
+          risk: recommendation.risk,
+          blocker: recommendation.blocker,
+          limitation: recommendation.limitation,
+        } : null,
         evidenceSnapshotId,
       });
       await saveAdvisorBusinessCase({

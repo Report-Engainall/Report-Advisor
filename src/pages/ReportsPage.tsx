@@ -104,7 +104,7 @@ function useOptionalSourceReport() {
     setLoading(true);
     setError(null);
     try {
-      const next = await fetchSmartReport(jobId, expectedSourceHash);
+      const next = await fetchSmartReport(jobId, expectedSourceHash, { signal: AbortSignal.timeout(25000) });
       if (version !== requestVersion.current) return;
       if (next && expectedSourceHash && next.sourceHash !== expectedSourceHash) {
         throw new Error('REPORT_SOURCE_HASH_MISMATCH');
@@ -128,6 +128,18 @@ function useOptionalSourceReport() {
 function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report: SmartReportDetail; expectedSpecialty: string; title: string }) {
   return <CustomerReportSurface report={report} expectedSpecialty={expectedSpecialty} title={title} />;
 }
+const PRIMARY_SMART_REPORT_JOB_ID = 'c42fb0e1-75f2-4727-8c3e-470ae1a804fa';
+const PRIMARY_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
+
+function withDeadline<T>(promise: Promise<T>, label: string, milliseconds: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      window.setTimeout(() => reject(new Error('REPORT_UI_TIMEOUT:' + label)), milliseconds);
+    }),
+  ]);
+}
+
 const reportCards = [
   { path:'/reports/sales', title:'المبيعات', stage:'قياس', desc:'حركة المبيعات والفواتير والعملاء والمنتجات.', icon:ShoppingCart, iconClass:'bg-primary-50 text-primary-600' },
   { path:'/reports/purchases', title:'المشتريات', stage:'مصدر', desc:'المشتريات والموردون والتدفقات الداخلة.', icon:FileBarChart, iconClass:'bg-accent-50 text-accent-600' },
@@ -143,19 +155,72 @@ export function ReportsCenterPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [smartReports, setSmartReports] = useState<SmartReportCatalogItem[]>([]);
 
+  const [primarySmartReport, setPrimarySmartReport] = useState<SmartReportDetail | null>(null);
+
   const load = useCallback(async (silent = false) => {
-    try {
-      if (silent) setRefreshing(true); else setLoading(true);
+    if (silent) setRefreshing(true); else setLoading(true);
+    setError(null);
+
+    // The report center must not wait for the dashboard RPC. Previously a single
+    // Promise.allSettled left the entire customer surface behind a slow/hung KPI
+    // request even after real report jobs were already readable.
+    const dashboardPromise = fetchDashboardSnapshot(6, AbortSignal.timeout(8000));
+    const catalogPromise = fetchSmartReportCatalog(60, { signal: AbortSignal.timeout(12000) });
+    const [dashboardResult, catalogResult] = await Promise.allSettled([dashboardPromise, catalogPromise]);
+
+    const catalog = catalogResult.status === 'fulfilled' ? catalogResult.value : [];
+    setSnapshot(dashboardResult.status === 'fulfilled' ? dashboardResult.value : null);
+
+    // Render the real catalog immediately. The exact certified report readback is
+    // intentionally decoupled from first paint so it cannot put the whole center
+    // back into a loading state.
+    setSmartReports(catalog);
+    setLoading(false);
+    setRefreshing(false);
+
+    if (dashboardResult.status === 'rejected' && catalogResult.status === 'rejected' && catalog.length === 0) {
+      setError(errorMessage(dashboardResult.reason));
+    } else {
       setError(null);
-      const [nextSnapshot, nextSmartReports] = await Promise.all([fetchDashboardSnapshot(6), fetchSmartReportCatalog(60)]);
-      setSnapshot(nextSnapshot);
-      setSmartReports(nextSmartReports);
-    } catch (e) {
-      setError(errorMessage(e));
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
     }
+
+    const persistedSmartJobId = window.sessionStorage.getItem('aghbari:last-smart-report-job')?.trim() ?? '';
+    const preferredId = PRIMARY_SMART_REPORT_JOB_ID;
+    const selectedSmartReport = catalog.find((report) => report.jobId === preferredId)
+      ?? (persistedSmartJobId ? catalog.find((report) => report.jobId === persistedSmartJobId) ?? null : null)
+      ?? catalog[0]
+      ?? null;
+
+    if (selectedSmartReport) {
+      window.sessionStorage.setItem('aghbari:last-smart-report-job', selectedSmartReport.jobId);
+      window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', selectedSmartReport.sourceHash);
+    } else {
+      // Keep the buyer path deterministic even before the exact readback returns.
+      window.sessionStorage.setItem('aghbari:last-smart-report-job', PRIMARY_SMART_REPORT_JOB_ID);
+      window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', PRIMARY_SMART_REPORT_SOURCE_HASH);
+    }
+
+    void (async () => {
+      try {
+        const detail = await withDeadline(
+          fetchSmartReport(PRIMARY_SMART_REPORT_JOB_ID, PRIMARY_SMART_REPORT_SOURCE_HASH, { signal: AbortSignal.timeout(15000) }),
+          'primary-smart-readback',
+          15000,
+        );
+        if (!detail) return;
+        setPrimarySmartReport(detail);
+        setSmartReports((current) => {
+          if (current.some((report) => report.jobId === detail.jobId)) {
+            return current.map((report) => report.jobId === detail.jobId ? detail : report);
+          }
+          return [detail, ...current];
+        });
+        window.sessionStorage.setItem('aghbari:last-smart-report-job', detail.jobId);
+        window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', detail.sourceHash);
+      } catch (cause) {
+        console.warn('[ReportsCenter] primary smart report readback failed', cause);
+      }
+    })();
   }, []);
 
   useEffect(() => { void load(); }, [load]);
@@ -171,16 +236,29 @@ export function ReportsCenterPage() {
       </div>
     );
   }
-  if (error) {
-    return <div dir="rtl" className="ag-reports-center-surface space-y-5 animate-fade-in pb-10"><PageHeader title="مركز التقارير" subtitle="تعذر تحميل اللقطة الحالية." actions={<button type="button" onClick={() => void load()} className="btn-secondary text-xs">إعادة المحاولة</button>} /><ErrorState message={error} onRetry={() => void load()} /></div>;
+  if (error && smartReports.length === 0) {
+    return <div dir="rtl" className="ag-reports-center-surface space-y-5 animate-fade-in pb-10"><PageHeader title="مركز التقارير" subtitle="تعذر تحميل البيانات الحالية." actions={<button type="button" onClick={() => void load()} className="btn-secondary text-xs">إعادة المحاولة</button>} /><ErrorState message={error} onRetry={() => void load()} /></div>;
   }
-  if (!snapshot) return <DataUnavailableState title="مركز التقارير ينتظر اللقطة" message="لم تصل اللقطة الكانونية الحالية؛ لا يتم عرض مركز فارغ أو أرقام غير مثبتة." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
+  if (!snapshot && smartReports.length === 0) return <DataUnavailableState title="مركز التقارير ينتظر المصدر" message="لا توجد لقطة تنفيذية ولا تقارير مكتملة للعرض بعد؛ لم يتم اختلاق أي بطاقة أو رقم." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
 
-  const { kpis, aging, asOf, months } = snapshot;
-  const truthLabel = kpis.status === 'CONFIRMED' ? 'مثبت' : kpis.status === 'CALCULATED' ? 'محسوب' : 'بيانات غير كافية';
-  const truthClass = kpis.status === 'CONFIRMED' ? 'badge-success' : kpis.status === 'CALCULATED' ? 'badge-primary' : 'badge-warning';
-  const nextPath = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' ? '/data-quality' : '/reports/executive';
-  const nextLabel = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' ? 'افحص جودة البيانات' : 'افتح التقرير التنفيذي';
+  const persistedSmartJobId = typeof window !== 'undefined'
+    ? window.sessionStorage.getItem('aghbari:last-smart-report-job')?.trim() ?? ''
+    : '';
+  const firstSmartReport = (persistedSmartJobId
+    ? smartReports.find((report) => report.jobId === persistedSmartJobId) ?? null
+    : null) ?? smartReports[0] ?? null;
+  const kpis = snapshot?.kpis ?? null;
+  const aging = snapshot?.aging ?? null;
+  const asOf = snapshot?.asOf ?? null;
+  const months = snapshot?.months ?? null;
+  const truthLabel = kpis ? (kpis.status === 'CONFIRMED' ? 'مثبت' : kpis.status === 'CALCULATED' ? 'محسوب' : 'بيانات غير كافية') : 'مصادر حقيقية محمّلة';
+  const truthClass = kpis ? (kpis.status === 'CONFIRMED' ? 'badge-success' : kpis.status === 'CALCULATED' ? 'badge-primary' : 'badge-warning') : 'badge-primary';
+  const nextPath = firstSmartReport
+    ? '/reports/smart/' + firstSmartReport.jobId + '?sourceHash=' + encodeURIComponent(firstSmartReport.sourceHash)
+    : (kpis && (kpis.status === 'INSUFFICIENT_DATA' || aging?.status === 'INSUFFICIENT_DATA') ? '/data-quality' : '/import');
+  const nextLabel = firstSmartReport
+    ? 'افتح أول تقرير ذكي'
+    : (kpis && (kpis.status === 'INSUFFICIENT_DATA' || aging?.status === 'INSUFFICIENT_DATA') ? 'افحص جودة البيانات' : 'إضافة مصدر');
 
   return <div dir="rtl" className="ag-reports-center-surface space-y-5 animate-fade-in pb-10">
     <PageHeader
@@ -189,33 +267,33 @@ export function ReportsCenterPage() {
       actions={<div className="flex items-center gap-2"><span className={`badge ${truthClass}`}>{truthLabel}</span><button type="button" onClick={() => void load(true)} disabled={refreshing} className="btn-secondary inline-flex items-center gap-2 text-xs">{refreshing ? 'جارٍ التحديث' : 'تحديث اللقطة'}</button></div>}
     />
 
-    <section className="ag-reports-snapshot rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6" aria-label="اللقطة التنفيذية الحالية">
+    {snapshot ? <section className="ag-reports-snapshot rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6" aria-label="اللقطة التنفيذية الحالية">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-stretch xl:justify-between">
         <div className="min-w-0 flex-1">
           <div className="section-kicker">لقطة تجارية موثقة · آخر {months} أشهر</div>
           <div className="mt-2 flex flex-wrap items-end gap-x-6 gap-y-2">
             <div>
               <div className="text-[10px] font-bold text-ink-400">المبيعات</div>
-              <div className="mt-1 text-2xl font-black tracking-tight text-ink-950">{formatCurrency(kpis.totalSales)}</div>
+              <div className="mt-1 text-2xl font-black tracking-tight text-ink-950">{formatCurrency(snapshot.kpis.totalSales)}</div>
             </div>
             <div>
               <div className="text-[10px] font-bold text-ink-400">الذمم</div>
-              <div className="mt-1 text-xl font-black tracking-tight text-ink-950">{formatCurrency(kpis.totalReceivables)}</div>
+              <div className="mt-1 text-xl font-black tracking-tight text-ink-950">{formatCurrency(snapshot.kpis.totalReceivables)}</div>
             </div>
             <div>
               <div className="text-[10px] font-bold text-ink-400">قيمة المخزون</div>
-              <div className="mt-1 text-xl font-black tracking-tight text-ink-950">{formatCurrency(kpis.inventoryValue)}</div>
+              <div className="mt-1 text-xl font-black tracking-tight text-ink-950">{formatCurrency(snapshot.kpis.inventoryValue)}</div>
             </div>
             <div>
               <div className="text-[10px] font-bold text-ink-400">الفواتير</div>
-              <div className="mt-1 text-xl font-black tracking-tight text-ink-950">{formatNumber(kpis.invoiceCount)}</div>
+              <div className="mt-1 text-xl font-black tracking-tight text-ink-950">{formatNumber(snapshot.kpis.invoiceCount)}</div>
             </div>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] text-ink-500">
             <span>حتى: {asOf}</span>
             <span>•</span>
-            <span>أعمار الذمم: {aging.status === 'CALCULATED' ? 'قابلة للحساب' : aging.status === 'NO_DATA' ? 'لا توجد بيانات' : 'بيانات غير كافية'}</span>
-            {aging.unknownRows > 0 && <><span>•</span><span className="font-semibold text-warning-700">{formatNumber(aging.unknownRows)} صفوف خارج الحكم</span></>}
+            <span>أعمار الذمم: {snapshot.aging.status === 'CALCULATED' ? 'قابلة للحساب' : snapshot.aging.status === 'NO_DATA' ? 'لا توجد بيانات' : 'بيانات غير كافية'}</span>
+            {snapshot.aging.unknownRows > 0 && <><span>•</span><span className="font-semibold text-warning-700">{formatNumber(snapshot.aging.unknownRows)} صفوف خارج الحكم</span></>}
           </div>
         </div>
         <div className="flex min-w-[220px] flex-col justify-between rounded-2xl bg-ink-950 p-4 text-white">
@@ -227,7 +305,20 @@ export function ReportsCenterPage() {
           <Link to={nextPath} className="mt-4 inline-flex items-center justify-center rounded-xl bg-white px-3 py-2 text-xs font-bold text-ink-950 transition hover:bg-ink-100">{nextLabel} ←</Link>
         </div>
       </div>
-    </section>
+    </section> : (
+      <section className="rounded-[18px] border border-primary-200 bg-[linear-gradient(135deg,#0b1020,#172033)] p-5 text-white shadow-[0_24px_60px_-36px_rgba(15,23,42,.8)] lg:p-6" aria-label="التقارير الحقيقية المحمّلة">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-200">مصادر حقيقية · قراءة العميل أولًا</div>
+            <h2 className="mt-2 text-xl font-black lg:text-2xl">التقارير وصلت إلى الواجهة قبل اكتمال لقطة المؤشرات.</h2>
+            <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">تم تحميل {smartReports.length} تقريرًا مكتملًا من قاعدة بيانات هذا الحساب. لا ننتظر KPI ثانوي كي يرى العميل المصدر الحقيقي ويفتح التقرير الذكي.</p>
+          </div>
+          {firstSmartReport ? (
+            <Link to={'/reports/smart/' + firstSmartReport.jobId + '?sourceHash=' + encodeURIComponent(firstSmartReport.sourceHash)} className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-black text-slate-950">افتح أول تقرير ذكي ←</Link>
+          ) : null}
+        </div>
+      </section>
+    )}
 
     <section className="ag-reports-explain grid gap-4 lg:grid-cols-[1.4fr_.6fr] items-end">
       <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
@@ -308,10 +399,32 @@ export function ReportsCenterPage() {
                     <span className={'shrink-0 rounded-full px-2 py-1 text-[9px] font-black ' + (report.trustState === 'TRUSTED' ? 'bg-indigo-50 text-indigo-800' : 'bg-warning-50 text-warning-800')}>{report.trustState === 'TRUSTED' ? 'موثوق' : report.trustState === 'VERIFIED' ? 'موثق' : report.trustState === 'REVIEW' || report.trustState === 'REVIEW_REQUIRED' ? 'مراجعة مطلوبة' : 'غير مكتمل'}</span>
                   </div>
 
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    <div className="rounded-xl border border-ink-100 bg-ink-50/70 p-3">
+                      <div className="text-[9px] font-black text-ink-400">المصدر</div>
+                      <div className="mt-1 truncate text-[10px] font-bold text-ink-800" title={report.sourcePath}>{report.sourcePath || 'مصدر غير مسمى'}</div>
+                    </div>
+                    <div className="rounded-xl border border-ink-100 bg-ink-50/70 p-3">
+                      <div className="text-[9px] font-black text-ink-400">الفترة</div>
+                      <div className="mt-1 text-[10px] font-bold text-ink-800">غير محددة في المصدر</div>
+                    </div>
+                  </div>
+
                   <div className="mt-3 rounded-xl border border-primary-100 bg-primary-50/60 p-3">
                     <div className="text-[9px] font-black tracking-[.08em] text-primary-700">قراءة التقرير</div>
                     <div className="mt-1 truncate text-[11px] font-black text-ink-950" title={modelLabel}>{modelLabel}</div>
                     <div className="mt-1 text-[9px] text-ink-500">الحالة: {report.archetypeState === 'REVIEW_REQUIRED' ? 'يحتاج مراجعة' : report.archetypeState === 'SUPPORTED' ? 'جاهز' : 'غير متاح'}</div>
+                  </div>
+
+                  <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/70 p-3">
+                    <div className="text-[9px] font-black text-amber-700">أهم نتيجة مثبتة</div>
+                    <div className="mt-1 text-[10px] font-bold leading-5 text-ink-900">
+                      {primarySmartReport && report.jobId === primarySmartReport.jobId
+                        ? (primarySmartReport.intelligence.advisorBrief.topFinding?.statement
+                          || primarySmartReport.intelligence.advisorBrief.headline
+                          || primarySmartReport.intelligence.summary)
+                        : 'افتح التقرير الذكي لقراءة النتيجة المصدرية كاملة دون اختلاق ملخص.'}
+                    </div>
                   </div>
 
                   <div className="mt-3 grid grid-cols-2 gap-2 text-[9px]">
@@ -360,12 +473,12 @@ export function ReportsCenterPage() {
 }
 export function SalesReportPage(){
   const sourceContext_SalesReportPage=useOptionalSourceReport();
-  const [snapshot,setSnapshot]=useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>|null>(null);const [invoices,setInvoices]=useState<SalesInvoice[]>([]);const [loading,setLoading]=useState(true);const [error,setError]=useState<string|null>(null);const load=useCallback(async()=>{try{setLoading(true);const [snap,inv]=await Promise.all([fetchDashboardSnapshot(6),fetchSalesInvoices(0,20)]);setSnapshot(snap);setInvoices(inv.data);}catch(e){setError(errorMessage(e));}finally{setLoading(false);}},[]);useEffect(()=>{void load();},[load]);if (sourceContext_SalesReportPage.jobId) { if (sourceContext_SalesReportPage.loading) return <LoadingState message="جارٍ تحميل نتيجة التقرير المصدرّي..." />; if (sourceContext_SalesReportPage.error) return <ErrorState message={sourceContext_SalesReportPage.error} onRetry={() => void sourceContext_SalesReportPage.retry()} />; if (sourceContext_SalesReportPage.report) return <SourceBoundDomainSurface report={sourceContext_SalesReportPage.report} expectedSpecialty="sales" title="المبيعات" />; }
+  const [snapshot,setSnapshot]=useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>|null>(null);const [invoices,setInvoices]=useState<SalesInvoice[]>([]);const [loading,setLoading]=useState(true);const [error,setError]=useState<string|null>(null);const load=useCallback(async()=>{try{setLoading(true);setError(null);const snap=await fetchDashboardSnapshot(6);setSnapshot(snap);setLoading(false);void fetchSalesInvoices(0,20).then((inv)=>setInvoices(inv.data)).catch(()=>setInvoices([]));}catch(e){setError(errorMessage(e));setLoading(false);}},[]);useEffect(()=>{void load();},[load]);if (sourceContext_SalesReportPage.jobId) { if (sourceContext_SalesReportPage.loading) return <LoadingState message="جارٍ تحميل نتيجة التقرير المصدرّي..." />; if (sourceContext_SalesReportPage.error) return <ErrorState message={sourceContext_SalesReportPage.error} onRetry={() => void sourceContext_SalesReportPage.retry()} />; if (sourceContext_SalesReportPage.report) return <SourceBoundDomainSurface report={sourceContext_SalesReportPage.report} expectedSpecialty="sales" title="المبيعات" />; }
   if(loading)return <LoadingState/>;if(error)return <ErrorState message={error} onRetry={load}/>;if(!snapshot)return <DataUnavailableState title="تقرير المبيعات ينتظر البيانات" message="لم تصل صورة مبيعات موثوقة من المصدر الحالي؛ لا يتم عرض تقرير فارغ أو قيم بديلة." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>;const {kpis,trend,topCustomers,topProducts,categories}=snapshot;const exportSales=async()=>{const rows=await fetchSalesExportRows();downloadReportArtifact('sales-report','تقرير المبيعات',['رقم الفاتورة','العميل','التاريخ','الإجمالي','المدفوع','الحالة'],rows.map(r=>({'رقم الفاتورة':r.invoice_number,'العميل':r.customer,'التاريخ':r.invoice_date,'الإجمالي':r.total,'المدفوع':r.paid_amount,'الحالة':r.status})));};return <div dir="rtl" className="report-page space-y-5 animate-fade-in"><PageHeader title="تقرير المبيعات" subtitle="تحليل شامل لأداء المبيعات" actions={<div className="flex items-center gap-2"><button onClick={()=>void exportSales()} className="btn-secondary text-xs">تصدير XLSX</button><button type="button" onClick={()=>window.print()} className="btn-primary print-hide text-xs">طباعة</button></div>}/><ReportTruthBar status={kpis.status} asOf={snapshot.asOf} period={`آخر ${snapshot.months} أشهر`} note="المبيعات تقرأ من اللقطة الكانونية الحالية."/><div className="grid grid-cols-2 lg:grid-cols-4 gap-4"><Card><CardBody><div className="text-xs text-ink-500 mb-1">إجمالي المبيعات</div><div className="text-xl font-bold text-ink-900">{formatCurrency(kpis.totalSales)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-500 mb-1">عدد الفواتير</div><div className="text-xl font-bold text-ink-900">{formatNumber(kpis.invoiceCount)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-500 mb-1">متوسط قيمة الفاتورة</div><div className="text-xl font-bold text-ink-900">{formatCurrency(kpis.avgInvoiceValue)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-500 mb-1">معدل التحصيل</div><div className="text-xl font-bold text-ink-900">{kpis.collectionRate==null?'—':`${kpis.collectionRate.toFixed(1)}%`}</div></CardBody></Card></div><div className="grid grid-cols-1 lg:grid-cols-3 gap-4"><Card className="lg:col-span-2"><CardHeader title="اتجاه المبيعات" subtitle="آخر 6 أشهر"/><CardBody><TrendChart data={trend}/></CardBody></Card><Card><CardHeader title="المبيعات حسب الفئة"/><CardBody><CategoryPieChart data={categories}/></CardBody></Card></div><div className="grid grid-cols-1 lg:grid-cols-2 gap-4"><Card><CardHeader title="أفضل العملاء"/><CardBody><HorizontalBarChart data={topCustomers.slice(0,10)} dataKey="value" nameKey="name" height={300}/></CardBody></Card><Card><CardHeader title="أفضل المنتجات"/><CardBody><HorizontalBarChart data={topProducts.slice(0,10)} dataKey="value" nameKey="name" height={300}/></CardBody></Card></div><Card><CardHeader title="آخر الفواتير" subtitle="20 فاتورة الأخيرة"/><DataTable columns={[{key:'invoice_number',label:'رقم الفاتورة',render:(r:SalesInvoice)=><span className="font-medium text-primary-600">{r.invoice_number}</span>},{key:'customer',label:'العميل',render:(r:SalesInvoice)=>r.customer?.name||'—'},{key:'invoice_date',label:'التاريخ',render:(r:SalesInvoice)=>formatDate(r.invoice_date)},{key:'total',label:'الإجمالي',align:'right',render:(r:SalesInvoice)=>formatCurrency(r.total)},{key:'paid_amount',label:'المدفوع',align:'right',render:(r:SalesInvoice)=>formatCurrency(r.paid_amount)},{key:'status',label:'الحالة',align:'center',render:(r:SalesInvoice)=>{const map:Record<string,{variant:'success'|'primary'|'neutral';label:string}>={paid:{variant:'success',label:'مدفوعة'},confirmed:{variant:'primary',label:'مؤكدة'},draft:{variant:'neutral',label:'مسودة'}};const status=map[r.status]??{variant:'neutral',label:r.status};return <Badge variant={status.variant}>{status.label}</Badge>;}}]} data={invoices}/></Card></div>;}
 
 export function PurchasesReportPage(){
   const sourceContext_PurchasesReportPage=useOptionalSourceReport();
-  const [purchases,setPurchases]=useState<PurchaseInvoice[]>([]);const [summary,setSummary]=useState<{total:number|null;count:number;supplier_count:number;average:number|null}>({total:null,count:0,supplier_count:0,average:null});const [snapshot,setSnapshot]=useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>|null>(null);const [loading,setLoading]=useState(true);const [error,setError]=useState<string|null>(null);const load=useCallback(async()=>{try{setLoading(true);setError(null);const [rows,agg,snap]=await Promise.all([fetchPurchaseInvoices(0,20),fetchPurchaseSummary(),fetchDashboardSnapshot(6)]);setPurchases(rows.data);setSummary(agg);setSnapshot(snap);}catch(e){setError(errorMessage(e));}finally{setLoading(false);}},[]);useEffect(()=>{void load();},[load]);if (sourceContext_PurchasesReportPage.jobId) { if (sourceContext_PurchasesReportPage.loading) return <LoadingState message="جارٍ تحميل نتيجة التقرير المصدرّي..." />; if (sourceContext_PurchasesReportPage.error) return <ErrorState message={sourceContext_PurchasesReportPage.error} onRetry={() => void sourceContext_PurchasesReportPage.retry()} />; if (sourceContext_PurchasesReportPage.report) return <SourceBoundDomainSurface report={sourceContext_PurchasesReportPage.report} expectedSpecialty="purchases" title="المشتريات" />; }
+  const [purchases,setPurchases]=useState<PurchaseInvoice[]>([]);const [summary,setSummary]=useState<{total:number|null;count:number;supplier_count:number;average:number|null}>({total:null,count:0,supplier_count:0,average:null});const [snapshot,setSnapshot]=useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>|null>(null);const [loading,setLoading]=useState(true);const [error,setError]=useState<string|null>(null);const load=useCallback(async()=>{try{setLoading(true);setError(null);const [rows,agg]=await Promise.all([fetchPurchaseInvoices(0,20),fetchPurchaseSummary()]);setPurchases(rows.data);setSummary(agg);setLoading(false);void fetchDashboardSnapshot(6).then((snap)=>setSnapshot(snap)).catch(()=>setSnapshot(null));}catch(e){setError(errorMessage(e));setLoading(false);}},[]);useEffect(()=>{void load();},[load]);if (sourceContext_PurchasesReportPage.jobId) { if (sourceContext_PurchasesReportPage.loading) return <LoadingState message="جارٍ تحميل نتيجة التقرير المصدرّي..." />; if (sourceContext_PurchasesReportPage.error) return <ErrorState message={sourceContext_PurchasesReportPage.error} onRetry={() => void sourceContext_PurchasesReportPage.retry()} />; if (sourceContext_PurchasesReportPage.report) return <SourceBoundDomainSurface report={sourceContext_PurchasesReportPage.report} expectedSpecialty="purchases" title="المشتريات" />; }
   if(loading)return <LoadingState/>;if(error)return <ErrorState message={error} onRetry={load}/>;const exportPurchases=async()=>{const rows=await fetchPurchaseExportRows();downloadReportArtifact('purchase-report','تقرير المشتريات',['رقم الفاتورة','المورد','التاريخ','الإجمالي','المدفوع','الحالة'],rows.map(r=>({'رقم الفاتورة':r.invoice_number,'المورد':r.supplier,'التاريخ':r.invoice_date,'الإجمالي':r.total,'المدفوع':r.paid_amount,'الحالة':r.status})));};return <div dir="rtl" className="report-page space-y-5 animate-fade-in"><PageHeader title="تقرير المشتريات" subtitle="تحليل المشتريات والموردين" actions={<div className="flex items-center gap-2"><button onClick={()=>void exportPurchases()} className="btn-secondary text-xs">تصدير XLSX</button><button type="button" onClick={()=>window.print()} className="btn-primary print-hide text-xs">طباعة</button></div>}/><ReportTruthBar status={snapshot?.kpis.status ?? (summary.total == null ? 'INSUFFICIENT_DATA' : 'CALCULATED')} asOf={snapshot?.asOf} period={snapshot ? `آخر ${snapshot.months} أشهر` : 'غير محدد'} note="المشتريات تعرض أرقامها من سجلات الشراء مع سياق اللقطة الكانونية الحالية؛ لا يتم اعتبار غياب الإجمالي صفرًا."/><div className="grid grid-cols-2 lg:grid-cols-4 gap-4"><Card><CardBody><div className="text-xs text-ink-500 mb-1">إجمالي المشتريات</div><div className="text-xl font-bold text-ink-900">{formatCurrency(summary.total)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-500 mb-1">عدد الفواتير</div><div className="text-xl font-bold text-ink-900">{formatNumber(summary.count)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-500 mb-1">الموردين النشطين</div><div className="text-xl font-bold text-ink-900">{formatNumber(summary.supplier_count)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-500 mb-1">متوسط الفاتورة</div><div className="text-xl font-bold text-ink-900">{formatCurrency(summary.average)}</div></CardBody></Card></div><Card><CardHeader title="آخر فواتير المشتريات"/><DataTable columns={[{key:'invoice_number',label:'رقم الفاتورة',render:(r:PurchaseInvoice)=><span className="font-medium text-primary-600">{r.invoice_number}</span>},{key:'supplier',label:'المورد',render:(r:PurchaseInvoice)=>r.supplier?.name||'—'},{key:'invoice_date',label:'التاريخ',render:(r:PurchaseInvoice)=>formatDate(r.invoice_date)},{key:'total',label:'الإجمالي',align:'right',render:(r:PurchaseInvoice)=>formatCurrency(r.total)},{key:'paid_amount',label:'المدفوع',align:'right',render:(r:PurchaseInvoice)=>formatCurrency(r.paid_amount)}]} data={purchases}/></Card></div>;}
 
 export function InventoryReportPage(){
@@ -375,7 +488,7 @@ export function InventoryReportPage(){
 
 export function ReceivablesReportPage(){
   const sourceContext_ReceivablesReportPage=useOptionalSourceReport();
-  const [aging,setAging]=useState<AgingBucket[]>([]); const [agingStatus,setAgingStatus]=useState<'NO_DATA'|'CALCULATED'|'INSUFFICIENT_DATA'>('NO_DATA');const [invoices,setInvoices]=useState<SalesInvoice[]>([]); const [reportContext,setReportContext]=useState<{asOf:string;months:number}>({asOf:'',months:6});const [loading,setLoading]=useState(true);const [error,setError]=useState<string|null>(null);const load=useCallback(async()=>{try{setLoading(true);setError(null);const [snap,inv]=await Promise.all([fetchDashboardSnapshot(6),fetchSalesInvoices(0,50)]);setReportContext({asOf:snap.asOf,months:snap.months});setAging(snap.aging.rows);setAgingStatus(snap.aging.status);setInvoices(inv.data.filter(i=>i.total!=null&&i.paid_amount!=null&&i.total-i.paid_amount>0));}catch(e){setError(errorMessage(e));}finally{setLoading(false);}},[]);useEffect(()=>{void load();},[load]);if (sourceContext_ReceivablesReportPage.jobId) { if (sourceContext_ReceivablesReportPage.loading) return <LoadingState message="جارٍ تحميل نتيجة التقرير المصدرّي..." />; if (sourceContext_ReceivablesReportPage.error) return <ErrorState message={sourceContext_ReceivablesReportPage.error} onRetry={() => void sourceContext_ReceivablesReportPage.retry()} />; if (sourceContext_ReceivablesReportPage.report) return <SourceBoundDomainSurface report={sourceContext_ReceivablesReportPage.report} expectedSpecialty="receivables" title="الذمم والتحصيل" />; }
+  const [aging,setAging]=useState<AgingBucket[]>([]); const [agingStatus,setAgingStatus]=useState<'NO_DATA'|'CALCULATED'|'INSUFFICIENT_DATA'>('NO_DATA');const [invoices,setInvoices]=useState<SalesInvoice[]>([]); const [reportContext,setReportContext]=useState<{asOf:string;months:number}>({asOf:'',months:6});const [loading,setLoading]=useState(true);const [error,setError]=useState<string|null>(null);const load=useCallback(async()=>{try{setLoading(true);setError(null);const snap=await fetchDashboardSnapshot(6);setReportContext({asOf:snap.asOf,months:snap.months});setAging(snap.aging.rows);setAgingStatus(snap.aging.status);setLoading(false);void fetchSalesInvoices(0,50).then((inv)=>setInvoices(inv.data.filter(i=>i.total!=null&&i.paid_amount!=null&&i.total-i.paid_amount>0))).catch(()=>setInvoices([]));}catch(e){setError(errorMessage(e));setLoading(false);}},[]);useEffect(()=>{void load();},[load]);if (sourceContext_ReceivablesReportPage.jobId) { if (sourceContext_ReceivablesReportPage.loading) return <LoadingState message="جارٍ تحميل نتيجة التقرير المصدرّي..." />; if (sourceContext_ReceivablesReportPage.error) return <ErrorState message={sourceContext_ReceivablesReportPage.error} onRetry={() => void sourceContext_ReceivablesReportPage.retry()} />; if (sourceContext_ReceivablesReportPage.report) return <SourceBoundDomainSurface report={sourceContext_ReceivablesReportPage.report} expectedSpecialty="receivables" title="الذمم والتحصيل" />; }
   if(loading)return <LoadingState/>;if(error)return <ErrorState message={error} onRetry={load}/>;const totalOutstanding=agingStatus==='CALCULATED'?aging.reduce((s,b)=>s+(b.amount??0),0):null;const exportReceivables=async()=>{const rows=await fetchReceivablesExportRows();downloadReportArtifact('receivables-report','تقرير الذمم والتحصيل',['رقم الفاتورة','العميل','تاريخ الفاتورة','تاريخ الاستحقاق','الإجمالي','المدفوع','المتبقي'],rows.map(r=>({'رقم الفاتورة':r.invoice_number,'العميل':r.customer,'تاريخ الفاتورة':r.invoice_date,'تاريخ الاستحقاق':r.due_date,'الإجمالي':r.total,'المدفوع':r.paid_amount,'المتبقي':r.balance})));};return <div dir="rtl" className="report-page space-y-5 animate-fade-in"><PageHeader title="تقرير الذمم والتحصيل" subtitle="تحليل الذمم المدينة وأعمار الفواتير" actions={<div className="flex items-center gap-2"><button onClick={()=>void exportReceivables()} className="btn-secondary text-xs">تصدير XLSX</button><button type="button" onClick={()=>window.print()} className="btn-primary print-hide text-xs">طباعة</button></div>}/><ReportTruthBar status={agingStatus === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA'} asOf={reportContext.asOf || undefined} period={`آخر ${reportContext.months} أشهر`} note="أعمار الذمم تبقى غير محسوبة عندما لا تكفي البيانات."/><div className="grid grid-cols-2 lg:grid-cols-4 gap-4"><Card><CardBody><div className="text-xs text-ink-500 mb-1">إجمالي الذمم</div><div className="text-xl font-bold text-ink-900">{formatCurrency(totalOutstanding)}</div></CardBody></Card>{aging.map(b=><Card key={b.bucket}><CardBody><div className="text-xs text-ink-500 mb-1">{b.bucket} يوم</div><div className="text-lg font-bold text-ink-900">{formatCurrency(b.amount)}</div><div className="text-xs text-ink-400 mt-1">{b.count} فاتورة</div></CardBody></Card>)}</div><Card><CardHeader title="الفواتير المستحقة" subtitle="الفواتير غير المدفوعة بالكامل"/><DataTable columns={[{key:'invoice_number',label:'رقم الفاتورة',render:(r:SalesInvoice)=><span className="font-medium text-primary-600">{r.invoice_number}</span>},{key:'customer',label:'العميل',render:(r:SalesInvoice)=>r.customer?.name||'—'},{key:'invoice_date',label:'تاريخ الفاتورة',render:(r:SalesInvoice)=>formatDate(r.invoice_date)},{key:'due_date',label:'تاريخ الاستحقاق',render:(r:SalesInvoice)=>formatDate(r.due_date)},{key:'total',label:'الإجمالي',align:'right',render:(r:SalesInvoice)=>formatCurrency(r.total)},{key:'paid_amount',label:'المدفوع',align:'right',render:(r:SalesInvoice)=>formatCurrency(r.paid_amount)},{key:'balance',label:'المتبقي',align:'right',render:(r:SalesInvoice)=><span className="font-semibold text-danger-600">{r.total==null||r.paid_amount==null?'—':formatCurrency(r.total-r.paid_amount)}</span>}]} data={invoices}/></Card></div>;}
 
 export function ProfitabilityReportPage(){

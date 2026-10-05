@@ -68,7 +68,7 @@ assert.match(
 );
 assert.match(
   panel,
-  /evidenceSnapshotId,\n\s*\}\);/,
+  /evidenceSnapshotId,\r?\n\s*\}\);/,
   'createSourceDecisionProposal must receive the canonical Passport evidence snapshot',
 );
 assert.doesNotMatch(
@@ -87,7 +87,7 @@ assert.match(
 );
 assert.match(
   cockpit,
-  /evidenceSnapshotId,\n\s*\}\);/,
+  /evidenceSnapshotId,\r?\n\s*\}\);/,
   'decision cockpit must pass the canonical Passport evidence snapshot',
 );
 assert.doesNotMatch(
@@ -291,7 +291,7 @@ assert.match(
   'Smart Report must bind decision provenance to the Passport snapshot',
 );
 
-const catalogMatch = smartReport.match(/function mapCatalogItem\([\s\S]*?\n}\n\nexport async function fetchSmartReportCatalog/);
+const catalogMatch = smartReport.match(/function mapCatalogItem\([\s\S]*?\r?\n}\r?\n\r?\nexport async function fetchSmartReportCatalog/);
 assert.ok(catalogMatch, 'Smart Report catalog mapper must remain discoverable for regression checks');
 assert.doesNotMatch(
   catalogMatch[0],
@@ -310,7 +310,7 @@ assert.match(smartReport, /runReportArchetype\([\s\S]*?catch \(error\)/, 'specia
 assert.match(smartReport, /function resolveImportJobId\([\s\S]*evidenceKeys[\s\S]*startsWith\('import:'\)/, 'Smart Report must prefer execution checkpoint import lineage over an unrelated analysis snapshot import id');
 assert.match(smartReport, /const exactCanonicalCommit = authoritativeCurrentRowCount == null/, 'canonical commit selection must avoid double counting repeated imports when an exact authoritative count exists');
 
-assert.match(smartReport, /const canonicalImportJobId = renderedImportId \|\|/, 'canonical rows must prefer the active import job identity');
+assert.match(smartReport, /(?:const|let) canonicalImportJobId = renderedImportId \|\|/, 'canonical rows must prefer the active import job identity');
 assert.match(smartReport, /canonicalSourceQuery\.eq\('import_job_id', canonicalImportJobId\)/, 'canonical row reads must scope to the active import job');
 
 

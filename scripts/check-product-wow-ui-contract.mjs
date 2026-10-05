@@ -6,11 +6,12 @@ const dashboard = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 const entities = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
 const dataTable = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
 const smartReport = fs.readFileSync('src/pages/SmartReportPage.tsx', 'utf8');
+const valueChain = fs.readFileSync('src/components/CommercialValueChain.tsx', 'utf8');
 assert.ok(smartReport.includes('CommercialValueChain'), 'smart report must expose the customer-facing value operating chain');
-assert.ok(smartReport.includes('VALUE OPERATING SYSTEM'), 'smart report value chain must be visibly branded as the operating path');
+assert.ok(valueChain.includes('نظام تشغيل القيمة'), 'smart report value chain must be visibly branded as the operating path');
 for (const token of [
-  'EVIDENCE GATE',
-  'Evidence Snapshot',
+  'فحص الدليل',
+  'لقطة الدليل',
   'الاعتماد الكانوني والدليل النهائي مرحلتان منفصلتان',
   'لا يوجد اعتماد دليلي نهائي بعد',
   'فتح بوابة الأدلة',
@@ -40,11 +41,11 @@ const sidebar = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
 for (const token of [
   'competitiveProofLanes',
   'خمس طرق محددة لمنافسة المشاريع الأكبر',
-  'Evidence-First BI',
-  'Governed Excel / CSV',
-  'Arabic RTL B2B UX',
-  'Inventory / Receivables',
-  'Supabase Tenant Security',
+  'ذكاء أعمال مبني على الدليل',
+  'ملفات أعمال محكومة',
+  'تجربة أعمال عربية وRTL',
+  'المخزون والتحصيل',
+  'عزل الشركة وأمن البيانات',
 ]) assert.ok(login.includes(token), `login proof theater missing: ${token}`);
 
 for (const token of [
@@ -59,7 +60,7 @@ for (const token of [
   'توصية قابلة للتنفيذ',
 ]) assert.ok(dashboard.includes(token), `dashboard decision brief missing: ${token}`);
 
-assert.ok(!login.includes('تجريبي') || login.includes('لا يوجد حساب تجريبي افتراضي'), 'login must not imply a fake demo account');
+assert.ok(!login.includes('تجريبي') || login.includes('لا يوجد حساب تجريبي افتراضي') || login.includes('بدون بيانات أعمال تجريبية'), 'login must not imply a fake demo account');
 assert.ok(appShell.includes('ag-app-shell flex min-h-screen flex-row bg-transparent'), 'Arabic shell must use the natural RTL row so the sidebar stays on the right');
 assert.ok(!appShell.includes('ag-app-shell flex min-h-screen bg-transparent " + (language === "ar" ? "flex-row-reverse"'), 'Arabic shell must not double-reverse flex direction');
 assert.ok(sidebar.includes("dir={language==='ar'?'rtl':'ltr'}"), 'sidebar must explicitly carry the active text direction');
@@ -107,7 +108,7 @@ assert.ok(reports.includes('export function InventoryReportPage()'), 'inventory 
 assert.ok(reports.includes('export function ReceivablesReportPage()'), 'receivables report must remain guarded after retry refactor');
 assert.ok(reports.includes('export function ProfitabilityReportPage()'), 'profitability report must remain guarded after retry refactor');
 assert.ok(reports.includes('لقطة تجارية موثقة'), 'reports center must expose the current canonical snapshot');
-assert.ok(reports.includes('NEXT ACTION'), 'reports center must expose a concrete next action');
+assert.ok(reports.includes('الخطوة التالية'), 'reports center must expose a concrete next action');
 assert.ok(reports.includes('افحص جودة البيانات'), 'reports center must route insufficient truth to data quality');
 assert.ok(reports.includes('تحديث اللقطة'), 'reports center must support in-place refresh of the canonical snapshot');
 assert.ok(!reports.includes('generateSynthetic'), 'reports center must not invent business values');
