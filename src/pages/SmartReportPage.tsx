@@ -4,6 +4,7 @@ import { ArrowLeft, CheckCircle2, FileSearch, ShieldCheck, Search, Columns3, Arr
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ErrorState, LoadingState, PageHeader, userFacingError } from '@/components/ui/States';
 import { fetchSmartReport, type SmartReportDetail } from '@/lib/report-smart';
+import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
 import { SmartReportAdvisorySurface } from '@/components/SmartReportAdvisorySurface';
 import { ReportDecisionCockpit } from '@/components/ReportDecisionCockpit';
@@ -838,7 +839,8 @@ export function SmartReportPage() {
   const topFinding = report.intelligence.advisorBrief.topFinding;
   const topRisk = report.intelligence.advisorBrief.topRisk;
   const topOpportunity = report.intelligence.advisorBrief.topOpportunity;
-  const primaryRecommendation = report.intelligence.recommendations[0] ?? null;
+  const executiveSignal = selectExecutiveSignal(report.intelligence);
+  const primaryRecommendation = selectExecutiveRecommendation(report.intelligence, executiveSignal);
   const confidenceLabel =
     report.reportVerificationState === 'VERIFIED' && report.qualityScore != null
       ? `ثقة المصدر ${report.qualityScore}%`
@@ -888,7 +890,7 @@ export function SmartReportPage() {
           label: 'الإشارات',
           englishLabel: 'الإشارات',
           status: report.intelligence.signals.length ? report.intelligence.signals.length + ' مثبتة' : 'لا توجد',
-          detail: report.intelligence.signals[0]?.title ?? 'لا توجد إشارة استثنائية مثبتة في المصدر الحالي.',
+          detail: executiveSignal?.title ?? 'لا توجد إشارة استثنائية مثبتة في المصدر الحالي.',
           tone: report.intelligence.signals.length ? 'active' : 'neutral',
         },
         {
@@ -963,10 +965,10 @@ export function SmartReportPage() {
       </div>
       <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {[
-          ['WHAT','ماذا حدث؟',topFinding?.statement ?? report.intelligence.summary ?? businessSummary,'الحقيقة المثبتة من الصفوف والتحليل.'],
-          ['WHY','لماذا؟',topFinding?.evidence?.[0] ?? report.intelligence.signals[0]?.message ?? 'لا يوجد تفسير سببي مثبت في المصدر الحالي.','الدليل أو الإشارة التي تفسر النتيجة.'],
-          ['SO WHAT','ماذا يعني ذلك؟',report.intelligence.signals[0]?.soWhat ?? topFinding?.action ?? 'لا توجد دلالة تنفيذية إضافية مثبتة بعد.','المعنى التشغيلي المنضبط دون تجاوز المصدر.'],
-          ['IMPACT','ما الأثر؟',report.intelligence.signals[0]?.impact ?? primaryRecommendation?.impact ?? 'الأثر الفعلي غير متاح ما لم توجد نتيجة مسجلة.','لا نخلط الأثر المتوقع بالنتيجة الفعلية.'],
+          ['WHAT','ماذا حدث؟',executiveSignal?.message ?? topFinding?.statement ?? report.intelligence.summary ?? businessSummary,'الحقيقة المثبتة من الصفوف والتحليل.'],
+          ['WHY','لماذا؟',executiveSignal?.evidence?.[0] ?? topFinding?.evidence?.[0] ?? 'لا يوجد تفسير مصدرّي مثبت إضافي.','الدليل أو الإشارة التي تفسر النتيجة.'],
+          ['SO WHAT','ماذا يعني ذلك؟',executiveSignal?.soWhat ?? topFinding?.action ?? 'لا توجد دلالة تنفيذية إضافية مثبتة بعد.','المعنى التشغيلي المنضبط دون تجاوز المصدر.'],
+          ['IMPACT','ما الأثر؟',executiveSignal?.impact ?? primaryRecommendation?.impact ?? 'الأثر الفعلي غير متاح ما لم توجد نتيجة مسجلة.','لا نخلط الأثر المتوقع بالنتيجة الفعلية.'],
           ['WHAT NEXT','ما الخطوة التالية؟',primaryRecommendation?.action ?? report.intelligence.advisorBrief.recommendedAction ?? 'لا توجد توصية مصدرية كافية للاعتماد الآن.','التوصية تبقى مقترحًا حتى تُعتمد في مسار القرار.'],
           ['PROOF','ما الدليل؟',sourceIsVerified ? ('VERIFIED · ' + (typeof output.evidenceSnapshotId === 'string' && output.evidenceSnapshotId.trim() ? output.evidenceSnapshotId : 'لقطة دليل موثقة') + ' · ' + report.sourceHash) : 'حالة الدليل: ' + stateLabel(report.reportVerificationState),'المصدر والبصمة ولقطة الدليل هي مرجع الإثبات.'],
         ].map(([english,arabic,value,detail]) => (
@@ -1015,7 +1017,7 @@ export function SmartReportPage() {
         </div>
         <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/[.05] p-4">
           <div className="text-[9px] font-black text-cyan-200">أهم فرصة</div>
-          <div className="mt-2 text-sm font-black">{topOpportunity?.title ?? 'لا توجد فرصة مثبتة'}</div>
+          <div className="mt-2 text-sm font-black">{topOpportunity?.title ?? (executiveSignal?.priority === 'P2' || executiveSignal?.priority === 'P3' ? executiveSignal.title : 'لا توجد فرصة مثبتة')}</div>
           <div className="mt-1 text-[10px] leading-5 text-slate-400">{topOpportunity?.statement ?? 'لا يتم إنشاء فرصة من دون دليل.'}</div>
         </div>
       </div>
