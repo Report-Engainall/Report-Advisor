@@ -156,12 +156,10 @@ export function ReportsCenterPage() {
   const [smartReports, setSmartReports] = useState<SmartReportCatalogItem[]>([]);
 
   const [primarySmartReport, setPrimarySmartReport] = useState<SmartReportDetail | null>(null);
-  const [primarySmartReportError, setPrimarySmartReportError] = useState<string | null>(null);
 
   const load = useCallback(async (silent = false) => {
     if (silent) setRefreshing(true); else setLoading(true);
     setError(null);
-    setPrimarySmartReportError(null);
 
     // The report center must not wait for the dashboard RPC. Previously a single
     // Promise.allSettled left the entire customer surface behind a slow/hung KPI
@@ -211,7 +209,6 @@ export function ReportsCenterPage() {
         );
         if (!detail) return;
         setPrimarySmartReport(detail);
-        setPrimarySmartReportError(null);
         setSmartReports((current) => {
           if (current.some((report) => report.jobId === detail.jobId)) {
             return current.map((report) => report.jobId === detail.jobId ? detail : report);
@@ -221,7 +218,7 @@ export function ReportsCenterPage() {
         window.sessionStorage.setItem('aghbari:last-smart-report-job', detail.jobId);
         window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', detail.sourceHash);
       } catch (cause) {
-        setPrimarySmartReportError(errorMessage(cause));
+        console.warn('[ReportsCenter] primary smart report readback failed', cause);
       }
     })();
   }, []);
