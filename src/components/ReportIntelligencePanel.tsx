@@ -1,5 +1,6 @@
 import { AlertTriangle, ArrowUpLeft, BrainCircuit, CheckCircle2, CircleHelp, ShieldCheck, TrendingUp } from 'lucide-react';
 import type { SmartReportDetail } from '@/lib/report-smart';
+import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { formatNumber } from '@/lib/format';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -83,10 +84,8 @@ export function ReportIntelligencePanel({ report }: { report: SmartReportDetail 
   };
   const domain = report.specialty ? specialtyLabel[report.specialty] ?? report.specialty : 'لم يُحسم المجال من المحتوى';
   const question = intelligence.businessQuestion;
-  const topSignal = intelligence.signals[0] ?? null;
-  const topRecommendation = topSignal
-    ? intelligence.recommendations.find((item) => item.id === 'rec:' + topSignal.id) ?? null
-    : null;
+  const topSignal = selectExecutiveSignal(intelligence);
+  const topRecommendation = selectExecutiveRecommendation(intelligence, topSignal);
   const latestDecision = decisionTrace[0] ?? null;
   const journey = latestDecision ? [
     { label: 'التوصية', value: latestDecision.recommendationStatus ?? latestDecision.status },
