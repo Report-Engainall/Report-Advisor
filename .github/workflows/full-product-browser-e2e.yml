@@ -315,6 +315,8 @@ jobs:
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           REAL_48_TEST_USER_EMAIL: ${{ env.TEST_USER_B_EMAIL }}
           REAL_48_TEST_USER_PASSWORD: ${{ env.TEST_USER_B_PASSWORD }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REAL_48_TARGET_JOB_ID: c42fb0e1-75f2-4727-8c3e-470ae1a804fa
         shell: bash
         run: |
           set -euo pipefail
