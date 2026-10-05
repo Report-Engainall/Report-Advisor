@@ -990,7 +990,7 @@ export function SmartReportPage() {
         <div>
           <div className="text-[10px] font-black tracking-[.12em] text-amber-300">لوحة القرار التنفيذي</div>
           <h2 className="mt-2 text-2xl font-black leading-tight lg:text-3xl">ماذا يحدث في هذا التقرير؟</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{report.intelligence.advisorBrief.headline || businessSummary}</p>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{executiveSignal?.message || report.intelligence.advisorBrief.headline || businessSummary}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{confidenceLabel}</span>
             <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{reportRowCountLabel(report.rowCount)}</span>
@@ -1007,8 +1007,8 @@ export function SmartReportPage() {
       <div className="mt-5 grid gap-3 md:grid-cols-3">
         <div className="rounded-2xl border border-slate-700 bg-white/[.035] p-4">
           <div className="text-[9px] font-black text-slate-400">أهم نتيجة</div>
-          <div className="mt-2 text-sm font-black">{topFinding?.title ?? 'لا توجد نتيجة مثبتة بعد'}</div>
-          <div className="mt-1 text-[10px] leading-5 text-slate-400">{topFinding?.statement ?? 'لا يتم اختلاق نتيجة عندما لا يثبتها المصدر.'}</div>
+          <div className="mt-2 text-sm font-black">{executiveSignal?.title ?? topFinding?.title ?? 'لا توجد نتيجة مثبتة بعد'}</div>
+          <div className="mt-1 text-[10px] leading-5 text-slate-400">{executiveSignal?.message ?? topFinding?.statement ?? 'لا يتم اختلاق نتيجة عندما لا يثبتها المصدر.'}</div>
         </div>
         <div className="rounded-2xl border border-rose-400/20 bg-rose-400/[.06] p-4">
           <div className="text-[9px] font-black text-rose-200">أهم خطر</div>
