@@ -10,8 +10,8 @@ const valueChain = fs.readFileSync('src/components/CommercialValueChain.tsx', 'u
 assert.ok(smartReport.includes('CommercialValueChain'), 'smart report must expose the customer-facing value operating chain');
 assert.ok(valueChain.includes('نظام تشغيل القيمة'), 'smart report value chain must be visibly branded as the operating path');
 for (const token of [
-  'EVIDENCE GATE',
-  'Evidence Snapshot',
+  'فحص الدليل',
+  'لقطة الدليل',
   'الاعتماد الكانوني والدليل النهائي مرحلتان منفصلتان',
   'لا يوجد اعتماد دليلي نهائي بعد',
   'فتح بوابة الأدلة',
