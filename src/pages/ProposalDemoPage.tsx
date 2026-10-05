@@ -81,6 +81,37 @@ export function ProposalDemoPage() {
         </div>
       </div>
 
+      <section className="rounded-[22px] border border-ink-800 bg-[linear-gradient(135deg,#0b1020,#132235)] p-6 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.9)]">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.14em] text-primary-200">دليل بيع حقيقي · مصدر موثق</div>
+            <h2 className="mt-2 text-2xl font-black tracking-tight">هذا ما استخرجه الأغبري فعلًا من تقرير المخزون</h2>
+            <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">تقارير ادارية.xlsx · 332 صفًا موثقًا · جودة المصدر 98% · الحالة: موثق وجاهز للقرار. الأرقام التالية مأخوذة من نفس المصدر وليست بيانات تجريبية مولدة.</p>
+          </div>
+          <Link to="/reports" className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-black text-ink-950">شاهد مركز التقارير ←</Link>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          {[
+            ['140','أصناف بلا رصيد مع حركة بيع','أولوية P0'],
+            ['44','نفاد متوقع خلال 7 أيام','مخاطر إتاحة'],
+            ['155','مخزون قديم مع حركة يومية','فرصة تصريف'],
+            ['15','أرصدة سالبة','فجوة تشغيلية'],
+            ['12','فجوة حركة بعد المطابقة','مراجعة مطلوبة'],
+          ].map(([value,label,state]) => (
+            <div key={label} className="rounded-2xl border border-white/10 bg-white/[.05] p-4">
+              <div className="text-2xl font-black tracking-tight">{value}</div>
+              <div className="mt-1.5 text-[10px] font-bold text-white">{label}</div>
+              <div className="mt-1 text-[9px] text-primary-200">{state}</div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2 text-[10px] text-slate-300">
+          <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">المصدر: تقارير ادارية.xlsx</span>
+          <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">332 صفًا canonical</span>
+          <span className="rounded-full border border-white/10 bg-white/[.04] px-3 py-1.5">Evidence: ACCEPTED · VERIFIED · READY</span>
+        </div>
+      </section>
+
       <CommercialValueChain
         title="ما الذي يراه العميل عندما يشتري الأغبري؟"
         subtitle="عرض واحد يربط إدخال المصدر بالدليل والذكاء والقرار والتنفيذ والنتيجة؛ كل مرحلة تقود إلى مساحة فعلية داخل المنصة."
