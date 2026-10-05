@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const source = fs.readFileSync('src/components/ReportDecisionCockpit.tsx', 'utf8');
-const required = ['WHAT NEXT / DECISION BRIEF','OBSERVED','DERIVED','RECOMMENDED','PROJECTED','UNKNOWN / LIMITATION','EXPECTED OUTCOME','حفظ كقضية أعمال','فتح القضايا','افتح الدليل قبل القرار'];
+const required = ['WHAT NEXT / DECISION BRIEF','مرصود','مشتق','موصى به','متوقع','غير معلوم / الحدود','EXPECTED النتيجة','حفظ كقضية أعمال','فتح القضايا','افتح الدليل قبل القرار'];
 for (const token of required) assert.ok(source.includes(token), `missing cockpit value contract: ${token}`);
 assert.ok(source.includes('topRecommendation?.action'));
 assert.ok(source.includes('saveAdvisorBusinessCase'));
