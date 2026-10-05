@@ -54,8 +54,8 @@ const REPORT_EXPECTATIONS = new Map([
   ['/reports/receivables', ['تقرير الذمم والتحصيل', 'إجمالي الذمم']],
   ['/reports/profitability', ['تقرير الأرباح والربحية', 'التكلفة']],
   ['/reports/smart/' + REAL_SMART_REPORT_JOB_ID + '?sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF', 'التفاصيل الكاملة للتقرير', 'مسار القرار', 'المصدر']],
-  ['/decision-experience?stage=evidence&reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['مساحة القرار', 'الدليل']],
-  ['/work-center?reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['مركز العمل']],
+  ['/decision-experience?stage=evidence&reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['تجربة القرار', 'الدليل']],
+  ['/work-center?reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['مركز العمل', 'تنفيذ القرارات']],
 ]);
 const REPORT_LOADING_MARKERS = [
   'جارٍ تحميل',
@@ -620,7 +620,9 @@ try {
           }
         }
 
-        const baseName = String(i + 2).padStart(2, '0') + '-' + (route === '/' ? 'home' : route.slice(1).replaceAll('/', '-'));
+        const rawRouteName = route === '/' ? 'home' : route.slice(1);
+        const safeRouteName = rawRouteName.replace(/[^A-Za-z0-9_\u0600-\u06FF-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+        const baseName = String(i + 2).padStart(2, '0') + '-' + (safeRouteName || 'route');
         const screenshot = settlement?.settled ? reportDir + '/' + baseName + '.png' : reportDir + '/' + baseName + '-unsettled.png';
         await page.screenshot({ path: screenshot, fullPage: true }).catch(() => {});
         const routeRequests = requests.slice(beforeRequests).map(x => ({ method: x.method, url: x.url }));
