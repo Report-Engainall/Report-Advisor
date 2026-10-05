@@ -9,7 +9,7 @@ const navigationPaths = [...navigationRegistry.matchAll(/path:\s*'([^']+)'/g)].m
 const unique = (items) => [...new Set(items)];
 const INTERNAL_PROGRESSIVE_DISCLOSURE_ROUTES = new Set(['/proposal-demo', '/reports/smart/:jobId']);
 const duplicateNavigationPaths = navigationPaths.filter((path, index) => navigationPaths.indexOf(path) !== index);
-const missingFromSidebar = routePaths.filter((path) => path !== '*' && !navigationPaths.includes(path) && !INTERNAL_PROGRESSIVE_DISCLOSURE_ROUTES.has(path));
+const missingFromSidebar = routePaths.filter((path) => !path.startsWith('/*') && path !== '*' && !navigationPaths.includes(path) && !INTERNAL_PROGRESSIVE_DISCLOSURE_ROUTES.has(path));
 const missingRoutesForSidebar = navigationPaths.filter((path) => !routePaths.includes(path));
 
 const pageSourceByFile = new Map();
