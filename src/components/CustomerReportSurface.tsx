@@ -86,7 +86,7 @@ function friendlyState(value: unknown): string {
     OPEN: 'مفتوح',
     PENDING: 'بانتظار الإجراء',
     PENDING_EVIDENCE: 'بانتظار اكتمال الدليل',
-    AWAITING_EVIDENCE_SNAPSHOT: 'بانتظار لقطة الدليل',
+    AWAITING_EVIDENCE_SNAPSHOT: 'لا توجد لقطة دليل مثبتة',
     SIGNALS_PRESENT: 'إشارات مثبتة',
     READY: 'جاهز للقرار',
     PARTIAL_ANALYSIS: 'تحليل جزئي',
