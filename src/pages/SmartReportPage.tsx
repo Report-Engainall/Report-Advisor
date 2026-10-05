@@ -869,6 +869,55 @@ export function SmartReportPage() {
       </div>}
     />
 
+    <section id="executive-layer" className="executive-hero rounded-[24px] border border-slate-700/70 bg-[linear-gradient(135deg,#0b1020_0%,#111827_58%,#15111f_100%)] p-5 text-white shadow-[0_28px_80px_-38px_rgba(15,23,42,.9)] lg:p-7">
+      <div className="grid gap-5 xl:grid-cols-[1.25fr_.75fr]">
+        <div>
+          <div className="text-[10px] font-black tracking-[.12em] text-amber-300">لوحة القرار التنفيذي</div>
+          <h2 className="mt-2 text-2xl font-black leading-tight lg:text-3xl">ماذا يحدث في هذا التقرير؟</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{executiveSignal?.message || report.intelligence.advisorBrief.headline || businessSummary}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{confidenceLabel}</span>
+            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{reportRowCountLabel(report.rowCount)}</span>
+            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{report.specialty === 'sales' ? 'المبيعات' : report.specialty === 'purchases' ? 'المشتريات' : report.specialty === 'inventory' ? 'المخزون' : report.specialty === 'receivables' ? 'الذمم والتحصيل' : report.specialty === 'profitability' ? 'الربحية' : 'تحليل عام'}</span>
+          </div>
+        </div>
+        <div className="rounded-2xl border border-amber-400/25 bg-amber-300/10 p-4">
+          <div className="text-[10px] font-black tracking-[.14em] text-amber-300">الخطوة التالية</div>
+          <div className="mt-2 text-lg font-black">{primaryRecommendation?.title ?? 'لا يوجد إجراء موصى به للاعتماد الآن'}</div>
+          <p className="mt-2 text-xs leading-6 text-slate-300">{primaryRecommendation?.action ?? report.intelligence.advisorBrief.recommendedAction ?? 'يجب التحقق من المصدر قبل تحويله إلى قرار.'}</p>
+          <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-2.5 text-xs font-black text-slate-950">افتح الدليل ثم القرار</Link>
+        </div>
+      </div>
+      <div className="mt-5 grid gap-3 md:grid-cols-3">
+        <div className="rounded-2xl border border-slate-700 bg-white/[.035] p-4">
+          <div className="text-[9px] font-black text-slate-400">أهم نتيجة</div>
+          <div className="mt-2 text-sm font-black">{executiveSignal?.title ?? topFinding?.title ?? 'لا توجد نتيجة مثبتة بعد'}</div>
+          <div className="mt-1 text-[10px] leading-5 text-slate-400">{executiveSignal?.message ?? topFinding?.statement ?? 'لا يتم اختلاق نتيجة عندما لا يثبتها المصدر.'}</div>
+        </div>
+        <div className="rounded-2xl border border-rose-400/20 bg-rose-400/[.06] p-4">
+          <div className="text-[9px] font-black text-rose-200">أهم خطر</div>
+          <div className="mt-2 text-sm font-black">{topRisk?.title ?? 'لا يوجد خطر مثبت'}</div>
+          <div className="mt-1 text-[10px] leading-5 text-slate-400">{topRisk?.statement ?? 'لا توجد إشارة خطر مثبتة من المصدر الحالي.'}</div>
+        </div>
+        <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/[.05] p-4">
+          <div className="text-[9px] font-black text-cyan-200">أهم فرصة</div>
+          <div className="mt-2 text-sm font-black">{topOpportunity?.title ?? (executiveSignal?.priority === 'P2' || executiveSignal?.priority === 'P3' ? executiveSignal.title : 'لا توجد فرصة مثبتة')}</div>
+          <div className="mt-1 text-[10px] leading-5 text-slate-400">{topOpportunity?.statement ?? 'لا يتم إنشاء فرصة من دون دليل.'}</div>
+        </div>
+      </div>
+      <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        {smartAnalysis.metrics.slice(0, 4).map((metric) => (
+          <div key={metric.label} className="rounded-2xl border border-white/10 bg-white/[.045] p-3.5">
+            <div className="text-[9px] font-bold text-slate-400">{metric.label}</div>
+            <div className="mt-1.5 text-lg font-black text-white">{metric.value}</div>
+            <div className="mt-1 truncate text-[9px] text-slate-400">{metric.detail}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    
+
     <CommercialValueChain
       stages={[
         {
@@ -981,53 +1030,6 @@ export function SmartReportPage() {
             <p className="mt-2 text-[11px] leading-6 text-ink-800">{value}</p>
             <p className="mt-2 text-[9px] leading-5 text-ink-500">{detail}</p>
           </article>
-        ))}
-      </div>
-    </section>
-
-    <section id="executive-layer" className="executive-hero rounded-[24px] border border-slate-700/70 bg-[linear-gradient(135deg,#0b1020_0%,#111827_58%,#15111f_100%)] p-5 text-white shadow-[0_28px_80px_-38px_rgba(15,23,42,.9)] lg:p-7">
-      <div className="grid gap-5 xl:grid-cols-[1.25fr_.75fr]">
-        <div>
-          <div className="text-[10px] font-black tracking-[.12em] text-amber-300">لوحة القرار التنفيذي</div>
-          <h2 className="mt-2 text-2xl font-black leading-tight lg:text-3xl">ماذا يحدث في هذا التقرير؟</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{executiveSignal?.message || report.intelligence.advisorBrief.headline || businessSummary}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{confidenceLabel}</span>
-            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{reportRowCountLabel(report.rowCount)}</span>
-            <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{report.specialty === 'sales' ? 'المبيعات' : report.specialty === 'purchases' ? 'المشتريات' : report.specialty === 'inventory' ? 'المخزون' : report.specialty === 'receivables' ? 'الذمم والتحصيل' : report.specialty === 'profitability' ? 'الربحية' : 'تحليل عام'}</span>
-          </div>
-        </div>
-        <div className="rounded-2xl border border-amber-400/25 bg-amber-300/10 p-4">
-          <div className="text-[10px] font-black tracking-[.14em] text-amber-300">الخطوة التالية</div>
-          <div className="mt-2 text-lg font-black">{primaryRecommendation?.title ?? 'لا يوجد إجراء موصى به للاعتماد الآن'}</div>
-          <p className="mt-2 text-xs leading-6 text-slate-300">{primaryRecommendation?.action ?? report.intelligence.advisorBrief.recommendedAction ?? 'يجب التحقق من المصدر قبل تحويله إلى قرار.'}</p>
-          <Link to={'/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash)} className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-white px-4 py-2.5 text-xs font-black text-slate-950">افتح الدليل ثم القرار</Link>
-        </div>
-      </div>
-      <div className="mt-5 grid gap-3 md:grid-cols-3">
-        <div className="rounded-2xl border border-slate-700 bg-white/[.035] p-4">
-          <div className="text-[9px] font-black text-slate-400">أهم نتيجة</div>
-          <div className="mt-2 text-sm font-black">{executiveSignal?.title ?? topFinding?.title ?? 'لا توجد نتيجة مثبتة بعد'}</div>
-          <div className="mt-1 text-[10px] leading-5 text-slate-400">{executiveSignal?.message ?? topFinding?.statement ?? 'لا يتم اختلاق نتيجة عندما لا يثبتها المصدر.'}</div>
-        </div>
-        <div className="rounded-2xl border border-rose-400/20 bg-rose-400/[.06] p-4">
-          <div className="text-[9px] font-black text-rose-200">أهم خطر</div>
-          <div className="mt-2 text-sm font-black">{topRisk?.title ?? 'لا يوجد خطر مثبت'}</div>
-          <div className="mt-1 text-[10px] leading-5 text-slate-400">{topRisk?.statement ?? 'لا توجد إشارة خطر مثبتة من المصدر الحالي.'}</div>
-        </div>
-        <div className="rounded-2xl border border-cyan-400/20 bg-cyan-400/[.05] p-4">
-          <div className="text-[9px] font-black text-cyan-200">أهم فرصة</div>
-          <div className="mt-2 text-sm font-black">{topOpportunity?.title ?? (executiveSignal?.priority === 'P2' || executiveSignal?.priority === 'P3' ? executiveSignal.title : 'لا توجد فرصة مثبتة')}</div>
-          <div className="mt-1 text-[10px] leading-5 text-slate-400">{topOpportunity?.statement ?? 'لا يتم إنشاء فرصة من دون دليل.'}</div>
-        </div>
-      </div>
-      <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-        {smartAnalysis.metrics.slice(0, 4).map((metric) => (
-          <div key={metric.label} className="rounded-2xl border border-white/10 bg-white/[.045] p-3.5">
-            <div className="text-[9px] font-bold text-slate-400">{metric.label}</div>
-            <div className="mt-1.5 text-lg font-black text-white">{metric.value}</div>
-            <div className="mt-1 truncate text-[9px] text-slate-400">{metric.detail}</div>
-          </div>
         ))}
       </div>
     </section>
