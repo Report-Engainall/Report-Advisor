@@ -274,6 +274,19 @@ function ensureApproverCredentials() {
 
 async function findTenantB() {
   assertProvisionDeadline('find-tenant-b');
+  const configuredId = process.env.E2E_CORPUS_TENANT_ID?.trim();
+  if (configuredId) {
+    const { data, error } = await supabase
+      .from('companies')
+      .select('id,name,created_at')
+      .eq('id', configuredId)
+      .limit(1)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data?.id) throw new Error('E2E_CONFIGURED_CORPUS_TENANT_NOT_FOUND:' + configuredId);
+    return data;
+  }
+
   const { data, error } = await supabase
     .from('companies')
     .select('id,name,created_at')
