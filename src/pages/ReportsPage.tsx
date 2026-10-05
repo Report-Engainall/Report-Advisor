@@ -228,26 +228,26 @@ export function ReportsCenterPage() {
           <div className="mt-2 flex flex-wrap items-end gap-x-6 gap-y-2">
             <div>
               <div className="text-[10px] font-bold text-ink-400">المبيعات</div>
-              <div className="mt-1 text-2xl font-black tracking-tight text-ink-950">{formatCurrency(kpis.totalSales)}</div>
+              <div className="mt-1 text-2xl font-black tracking-tight text-ink-950">{formatCurrency(snapshot.kpis.totalSales)}</div>
             </div>
             <div>
               <div className="text-[10px] font-bold text-ink-400">الذمم</div>
-              <div className="mt-1 text-xl font-black tracking-tight text-ink-950">{formatCurrency(kpis.totalReceivables)}</div>
+              <div className="mt-1 text-xl font-black tracking-tight text-ink-950">{formatCurrency(snapshot.kpis.totalReceivables)}</div>
             </div>
             <div>
               <div className="text-[10px] font-bold text-ink-400">قيمة المخزون</div>
-              <div className="mt-1 text-xl font-black tracking-tight text-ink-950">{formatCurrency(kpis.inventoryValue)}</div>
+              <div className="mt-1 text-xl font-black tracking-tight text-ink-950">{formatCurrency(snapshot.kpis.inventoryValue)}</div>
             </div>
             <div>
               <div className="text-[10px] font-bold text-ink-400">الفواتير</div>
-              <div className="mt-1 text-xl font-black tracking-tight text-ink-950">{formatNumber(kpis.invoiceCount)}</div>
+              <div className="mt-1 text-xl font-black tracking-tight text-ink-950">{formatNumber(snapshot.kpis.invoiceCount)}</div>
             </div>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] text-ink-500">
             <span>حتى: {asOf}</span>
             <span>•</span>
-            <span>أعمار الذمم: {aging.status === 'CALCULATED' ? 'قابلة للحساب' : aging.status === 'NO_DATA' ? 'لا توجد بيانات' : 'بيانات غير كافية'}</span>
-            {aging.unknownRows > 0 && <><span>•</span><span className="font-semibold text-warning-700">{formatNumber(aging.unknownRows)} صفوف خارج الحكم</span></>}
+            <span>أعمار الذمم: {snapshot.aging.status === 'CALCULATED' ? 'قابلة للحساب' : snapshot.aging.status === 'NO_DATA' ? 'لا توجد بيانات' : 'بيانات غير كافية'}</span>
+            {snapshot.aging.unknownRows > 0 && <><span>•</span><span className="font-semibold text-warning-700">{formatNumber(snapshot.aging.unknownRows)} صفوف خارج الحكم</span></>}
           </div>
         </div>
         <div className="flex min-w-[220px] flex-col justify-between rounded-2xl bg-ink-950 p-4 text-white">
