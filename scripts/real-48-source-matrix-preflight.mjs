@@ -195,7 +195,7 @@ function requiredFieldsPresent(profile, fields) {
 }
 
 async function selectBestAnalysis(companyId, sourceHash, renderedImportId, rowCountHint, expectedAnalysisId = '') {
-  const rows = await restSelect(
+  const rows = await serviceRestSelect(
     'source_analysis_snapshots',
     { company_id: companyId, source_hash: sourceHash },
     'id,import_job_id,row_count,datasets,created_at',
@@ -221,7 +221,7 @@ async function selectBestAnalysis(companyId, sourceHash, renderedImportId, rowCo
 
 async function fetchVerifiedSnapshot(companyId, jobId, sourceHash, passport) {
   if (!passport?.evidence_snapshot_id) return null;
-  const rows = await restSelect(
+  const rows = await serviceRestSelect(
     'report_evidence_snapshots',
     {
       company_id: companyId,
@@ -242,12 +242,12 @@ async function fetchVerifiedSnapshot(companyId, jobId, sourceHash, passport) {
 }
 
 const profiles = listReportArchetypes();
+const evidenceSelect = serviceRestSelect;
 const sourceRecords = [];
 const sourceRowsCache = new Map();
 
 for (const companyId of configuredTenantIds) {
-  await switchDefaultTenant(actorUserId, companyId);
-  const passports = await restSelect(
+  const passports = await evidenceSelect(
     'report_evidence_passports',
     { company_id: companyId, verification_status: 'VERIFIED', decision_readiness: 'READY' },
     'id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash',
@@ -255,7 +255,7 @@ for (const companyId of configuredTenantIds) {
   );
   const verifiedJobIds = new Set(passports.map((row) => String(row.report_execution_job_id)));
 
-  const jobs = await restSelect(
+  const jobs = await evidenceSelect(
     'report_execution_jobs',
     { company_id: companyId, status: 'completed' },
     'id,company_id,source_path,source_hash,evidence,completed_at',
@@ -274,7 +274,7 @@ for (const companyId of configuredTenantIds) {
 
     // Real-source proof must never select the synthetic 48-archetype fixture corpus.
     // The governed file record is the authoritative classification boundary here.
-    const fileRecords = await restSelect(
+    const fileRecords = await evidenceSelect(
       'file_records',
       { company_id: companyId, file_hash: sourceHash },
       'id,file_name,file_hash,metadata',
@@ -305,7 +305,7 @@ for (const companyId of configuredTenantIds) {
     if (!analysis?.import_job_id) continue;
 
     const analysisFields = usableColumns(analysis);
-    const canonicalPreview = await restSelect(
+    const canonicalPreview = await evidenceSelect(
       'canonical_dataset_records',
       {
         company_id: companyId,
@@ -340,7 +340,7 @@ for (const source of sourceRecords) {
 async function sourceRowsFor(source) {
   const key = String(source.job.id);
   if (sourceRowsCache.get(key)) return sourceRowsCache.get(key);
-  const rows = await restSelect(
+  const rows = await evidenceSelect(
     'canonical_dataset_records',
     {
       company_id: source.companyId,
@@ -356,11 +356,6 @@ async function sourceRowsFor(source) {
 }
 
 const results = [];
-
-await switchDefaultTenant(
-  actorUserId,
-  String(process.env.E2E_CORPUS_TENANT_ID || configuredTenantIds[0]),
-);
 
 for (const profile of profiles) {
   const candidates = sourceRecords

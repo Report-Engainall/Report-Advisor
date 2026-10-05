@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+﻿import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 import process from 'node:process';
 
@@ -679,7 +679,7 @@ try {
         const routeFailedResponses = failedResponses.slice(beforeFailedResponses);
         result.routes.push({ route, status, reason, durationMs: Date.now() - started, screenshot, settlement, readback,
           consoleErrors: routeErrors, failedRequests: routeFailed, failedResponses: routeFailedResponses, requests: routeRequests, interaction: inspection,
-          proofTenant: usesReportProofTenant ? result.tenantB : result.tenantA });
+          proofTenant: usesReportProofTenant ? reportProofTenant : result.tenantA });
         result.actions.push({ route, buttonCount: inspection?.buttonCount ?? 0, buttons: inspection?.buttons ?? [],
           inputCount: inspection?.inputCount ?? 0, linkCount: inspection?.linkCount ?? 0 });
         if (status === 'FAIL') addFinding('E2E-ROUTE-' + String(i + 1).padStart(3, '0'), 'FAIL', 'P1', route + ': ' + reason);
