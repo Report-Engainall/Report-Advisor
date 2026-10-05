@@ -426,16 +426,13 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
           const netInbound = netInboundKey ? numeric(rowValue(row.data, netInboundKey)) : null;
           const sales = numeric(rowValue(row.data, netSalesKey));
           let expectedClosing: number | null = null;
-          let reconciliationMode = '';
           // "صافي الوارد" in this source already includes the opening balance.
           // When explicit opening + incoming fields exist, use opening + incoming.
           // Otherwise fall back to netInbound as the cumulative inbound figure.
           if (opening != null && incoming != null) {
             expectedClosing = opening + incoming - (sales ?? 0);
-            reconciliationMode = 'opening+incoming-sales';
           } else if (netInbound != null) {
             expectedClosing = netInbound - (sales ?? 0);
-            reconciliationMode = 'netInbound-sales';
           }
           if (expectedClosing != null && stock != null && Math.abs(expectedClosing - stock) > 0.01) {
             reconciliationMismatches += 1;
