@@ -721,12 +721,15 @@ try {
               return {
                 jobIdPresent: text.includes(jobId),
                 sourceHashPresent: text.includes(sourceHash),
+                jobIdElementPresent: Boolean(document.querySelector('[data-testid="smart-report-job-id"]')),
+                sourceHashElementPresent: Boolean(document.querySelector('[data-testid="smart-report-source-hash"]')),
+                sourcePathElementPresent: Boolean(document.querySelector('[data-testid="smart-report-source-path"]')),
                 decisionCards: cards.length,
                 trustVisible: /موثق|Verified|VERIFIED|بانتظار لقطة الدليل|بانتظار الدليل|Pending Evidence/.test(text),
                 evidencePassportVisible: text.includes('EVIDENCE PASSPORT'),
               };
             }, {jobId: REAL_SMART_REPORT_JOB_ID, sourceHash: REAL_SMART_REPORT_SOURCE_HASH});
-            if ((!readback?.settled) && !(smartDomRefreshProof.jobIdPresent && smartDomRefreshProof.sourceHashPresent && smartDomRefreshProof.decisionCards === 6 && smartDomRefreshProof.evidencePassportVisible)) {
+            if ((!readback?.settled) && !(smartDomRefreshProof.jobIdElementPresent && smartDomRefreshProof.sourceHashElementPresent && smartDomRefreshProof.sourcePathElementPresent && smartDomRefreshProof.decisionCards === 6 && smartDomRefreshProof.evidencePassportVisible)) {
               status = 'NOT_PROVEN';
               reason = route + ': Smart Report refresh readback lacked both settled request proof and complete DOM evidence proof.';
             } else if (!readback?.settled) {
