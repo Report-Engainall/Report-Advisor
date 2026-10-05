@@ -26,11 +26,12 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
  * authority. No mutable module-level tenant id, demo id, browser fallback, or
  * client-selected tenant is retained here.
  */
-export async function resolveCurrentCompanyId(): Promise<string | null> {
+export async function resolveCurrentCompanyId(signal?: AbortSignal): Promise<string | null> {
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   if (sessionError || !sessionData.session) return null;
 
-  const { data, error } = await supabase.rpc('current_company_id');
+  const tenantQuery = supabase.rpc('current_company_id');
+  const { data, error } = await (signal ? tenantQuery.abortSignal(signal) : tenantQuery);
   if (error || !data) return null;
 
   return String(data);
