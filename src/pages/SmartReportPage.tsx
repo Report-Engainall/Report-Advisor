@@ -433,7 +433,7 @@ function EvidenceInspector({ report }: { report: SmartReportDetail }) {
           </div>
           <div className="rounded-xl bg-white p-3">
             <div className="text-[8px] font-black text-ink-400">لقطة الدليل</div>
-            <div className="mt-1 text-[10px] font-black text-ink-900">{verification === 'VERIFIED' ? 'موجود ومثبت' : report.evidenceStatus === 'AWAITING_EVIDENCE_SNAPSHOT' ? 'بانتظار لقطة دليل' : stateLabel(report.evidenceStatus)}</div>
+            <div className="mt-1 text-[10px] font-black text-ink-900">{verification === 'VERIFIED' ? 'موجود ومثبت' : report.evidenceStatus === 'AWAITING_EVIDENCE_SNAPSHOT' ? 'لا توجد لقطة دليل مثبتة' : stateLabel(report.evidenceStatus)}</div>
           </div>
           <div className="rounded-xl bg-white p-3">
             <div className="text-[8px] font-black text-ink-400">جاهزية القرار</div>
@@ -1061,7 +1061,7 @@ export function SmartReportPage() {
         <div className="mt-4 flex flex-wrap gap-2 text-[10px]">
           <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 font-bold">التخصص: {report.specialty ?? 'عام'}</span>
           <span className="rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5 font-bold">الصفوف: {reportRowCountLabel(report.rowCount)}</span>
-          <span className={'badge ' + (sourceIsVerified ? 'badge-success' : 'badge-warning')}>{sourceIsVerified ? 'التقرير موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'فجوة اعتماد' : 'بانتظار الدليل'}</span>
+          <span className={'badge ' + (sourceIsVerified ? 'badge-success' : 'badge-warning')}>{sourceIsVerified ? 'التقرير موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'فجوة اعتماد' : 'الدليل النهائي غير مثبت'}</span>
         </div>
       </div>
       <div className="rounded-[18px] border border-ink-200 bg-ink-950 p-5 text-white shadow-card lg:p-6">
