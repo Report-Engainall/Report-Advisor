@@ -177,23 +177,25 @@ export function ReportsCenterPage() {
     let primary: SmartReportDetail | null = null;
     let catalog: SmartReportCatalogItem[] = [];
     let dashboard: Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null = null;
-    let primarySettled = false;
     let catalogSettled = false;
     let dashboardSettled = false;
     let firstFailure: unknown = null;
 
     const publish = () => {
-      const mergedReports = primary
-        ? [primary, ...catalog.filter((report) => report.jobId !== primary.jobId)]
-        : catalog;
+      const currentPrimary = primary;
+      const currentCatalog = catalog;
+      const currentDashboard = dashboard;
+      const mergedReports = currentPrimary
+        ? [currentPrimary, ...currentCatalog.filter((report) => report.jobId !== currentPrimary.jobId)]
+        : currentCatalog;
 
-      if (primary) {
-        setPrimarySmartReport(primary);
-        window.sessionStorage.setItem('aghbari:last-smart-report-job', primary.jobId);
-        window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', primary.sourceHash);
+      if (currentPrimary) {
+        setPrimarySmartReport(currentPrimary);
+        window.sessionStorage.setItem('aghbari:last-smart-report-job', currentPrimary.jobId);
+        window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', currentPrimary.sourceHash);
       }
-      if (catalogSettled || primary) setSmartReports(mergedReports);
-      if (dashboardSettled) setSnapshot(dashboard);
+      if (catalogSettled || currentPrimary) setSmartReports(mergedReports);
+      if (dashboardSettled) setSnapshot(currentDashboard);
 
       // Unlock the customer surface on the first meaningful successful read.
       // Slow dashboard KPIs or catalog enrichment must never keep a real report
@@ -204,11 +206,9 @@ export function ReportsCenterPage() {
     const primaryRead = primaryPromise.then(
       (result) => {
         primary = result;
-        primarySettled = true;
         publish();
       },
       (cause) => {
-        primarySettled = true;
         firstFailure ??= cause;
         console.warn('[ReportsCenter] exact primary smart report readback failed', cause);
         publish();
@@ -253,17 +253,21 @@ export function ReportsCenterPage() {
 
     // All reads have now settled. This is only the terminal reconciliation
     // step; it is deliberately not the gate for first paint.
-    if (!primary && catalog.length === 0 && !dashboard && firstFailure) {
+    const finalPrimary = primary;
+    const finalCatalog = [...catalog];
+    const finalDashboard = dashboard;
+
+    if (!finalPrimary && finalCatalog.length === 0 && !finalDashboard && firstFailure) {
       setError(errorMessage(firstFailure));
     } else {
       setError(null);
     }
 
-    if (primary) {
-      window.sessionStorage.setItem('aghbari:last-smart-report-job', primary.jobId);
-      window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', primary.sourceHash);
-    } else if (catalog.length > 0) {
-      const selected = catalog.find((report) => report.jobId === PRIMARY_SMART_REPORT_JOB_ID) ?? catalog[0];
+    if (finalPrimary) {
+      window.sessionStorage.setItem('aghbari:last-smart-report-job', finalPrimary.jobId);
+      window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', finalPrimary.sourceHash);
+    } else if (finalCatalog.length > 0) {
+      const selected = finalCatalog.find((report) => report.jobId === PRIMARY_SMART_REPORT_JOB_ID) ?? finalCatalog[0];
       window.sessionStorage.setItem('aghbari:last-smart-report-job', selected.jobId);
       window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', selected.sourceHash);
     } else {
@@ -273,7 +277,7 @@ export function ReportsCenterPage() {
     }
 
     // Terminal fallback: never leave the customer in an infinite spinner.
-    if (!primary && catalog.length === 0 && !dashboard) setLoading(false);
+    if (!finalPrimary && finalCatalog.length === 0 && !finalDashboard) setLoading(false);
     setRefreshing(false);
   }, []);
   useEffect(() => { void load(); }, [load]);
