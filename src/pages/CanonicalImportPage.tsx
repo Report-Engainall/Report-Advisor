@@ -201,7 +201,7 @@ export function CanonicalImportPage() {
         if (existingSmartJobId) {
           window.sessionStorage.setItem('aghbari:last-import-job', String(dup.existing?.id ?? ''));
           window.sessionStorage.setItem('aghbari:last-smart-report-job', existingSmartJobId);
-          navigate('/reports/smart/' + existingSmartJobId, { replace: true });
+          navigate('/reports/smart/' + existingSmartJobId + '?sourceHash=' + encodeURIComponent('sha256:' + hash), { replace: true });
           return;
         }
       }
@@ -390,7 +390,7 @@ export function CanonicalImportPage() {
         setStep('done');
         return;
       }
-      navigate('/reports/smart/' + String(execution.jobId), { replace: true });
+      navigate('/reports/smart/' + String(execution.jobId) + '?sourceHash=' + encodeURIComponent(durableSourceHash), { replace: true });
       return;
     } catch (cause) {
       const failureMessage = cause instanceof Error ? cause.message : 'تعذر اعتماد المصدر';
@@ -604,7 +604,7 @@ export function CanonicalImportPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div><div className="text-sm font-black text-ink-950">ماذا يعني الإغلاق هنا؟</div><p className="mt-1 text-xs leading-5 text-ink-500">تم حفظ المصدر والصفوف الكانونية ونتيجة الـrendered output. لا يتم تحويل غياب الأدلة أو القرار أو النتيجة أو العينة إلى نجاح.</p></div>
             <div className="flex flex-wrap items-center gap-2">
-              <Link to={'/reports/smart/' + encodeURIComponent(String(result?.jobId ?? ''))} className="btn-primary"><ArrowLeft size={14}/> فتح التقرير الذكي</Link>
+              <Link to={'/reports/smart/' + encodeURIComponent(String(result?.jobId ?? '')) + '?sourceHash=' + encodeURIComponent(String(rendered?.sourceHash ?? ''))} className="btn-primary"><ArrowLeft size={14}/> فتح التقرير الذكي</Link>
               {queuedFiles.length > 0 && <button type="button" onClick={() => {
                 const next = queuedFiles[0];
                 setQueuedFiles((current) => current.slice(1));
