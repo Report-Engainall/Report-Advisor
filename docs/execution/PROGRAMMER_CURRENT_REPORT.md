@@ -1,27 +1,25 @@
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = 688270e5e5975fdde7516603a1a5fc615b74cdb2
+CURRENT MAIN HEAD = d019627f91eba83b322a769ca4e847d3c42cd062
 REFERENCE START HEAD = 9883ce3d066b32ca36cfe7dc0e3223842d701377
-CURRENT EXECUTION HEAD = 4ab4d9bd78f29fef2356ab9a5df41cb2416dc766
-REPORT_FOR_HEAD = 688270e5e5975fdde7516603a1a5fc615b74cdb2
+CURRENT EXECUTION HEAD = d019627f91eba83b322a769ca4e847d3c42cd062
+REPORT_FOR_HEAD = d019627f91eba83b322a769ca4e847d3c42cd062
 BRANCH = main
 PR = N/A
-UPDATED_AT = 2026-10-05T17:35:00Z
+UPDATED_AT = 2026-10-05T22:18:00+03:00
 
 WHAT_I_WAS_ASKED_TO_DO = Continue execution until the real report center and Smart Report are customer-visible and proven, not merely route-loaded or test-only.
 
 OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
 
-WHAT_I_ACTUALLY_DID = Bound browser/business proof to the primary real report, fixed the primary report card proof anchor, bounded canonical tenant RPC readback, corrected the actual 18-column source contract, separated real-source coverage from the blocking 48/48 engine runtime gate, and moved the real-source diagnostic after customer/browser proof.
+WHAT_I_ACTUALLY_DID = Reconciled the duplicate source lineage for تقارير ادارية.xlsx, identified the authoritative inventory execution job and evidence passport, switched the Reports Center primary Smart Report binding from the stale sales job to the authoritative inventory job, verified the exact source hash and 332-row inventory lineage, and rebound the session handoff documents to the current main head.
 
-WHAT_IS_PROVEN = Supabase contains the exact completed real report c42fb0e1-75f2-4727-8c3e-470ae1a804fa with source تقارير ادارية.xlsx and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313. Existing intelligence/security/import/route contracts were proven on the preceding exact head. The new code is committed at CURRENT MAIN HEAD above.
+WHAT_IS_PROVEN = Supabase contains the authoritative completed inventory report 16709d80-e012-40ef-9c12-6fd8255897f8 for source تقارير ادارية.xlsx and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313. Its evidence passport is ACCEPTED + VERIFIED + READY with 332 canonical/committed/authoritative rows and quality score 98. The primary customer binding was changed on current main at d019627f91eba83b322a769ca4e847d3c42cd062. GitHub Pages artifact generation succeeded on the preceding exact head; public Pages remains disabled. Current-head browser, build, and certification jobs are still being consumed.
 
-CURRENT_OPEN_GATES = Product Build Gate; Full Product Browser E2E with authenticated Chromium; real-source 48/48; Final Certification Gate; terminal screenshot artifacts on the same HEAD.
+FIRST_ACTIVE_FAILURE = Session Handoff Contract failed because the governance documents referenced stale head 688270e5e5975fdde7516603a1a5fc615b74cdb2 while the repository had moved forward with report-readback and UI changes. That governance drift is now corrected by rebinding both session documents to d019627f91eba83b322a769ca4e847d3c42cd062.
 
-FIRST_ACTIVE_FAILURE = On the previous HEAD, TypeScript failed at three ReportsPage lines after the first-paint decoupling change. Those failures were isolated and fixed on CURRENT MAIN HEAD. No new post-fix terminal failure is asserted until the exact-head jobs complete.
+ROOT_CAUSE = Reports Center forced a stale sales execution job as the first Smart Report for the customer, despite an authoritative inventory execution with stronger source quality and verified evidence for the same source hash. Governance documents were also stale relative to mainline changes.
 
-ROOT_CAUSE = Mutable local values captured by asynchronous callbacks were not safely narrowed by TypeScript. The governance failure was a stale REPORT_FOR_HEAD in the session handoff documents.
+NEXT_EXACT_ACTION = Consume terminal CI results for d019627f91eba83b322a769ca4e847d3c42cd062 and address only the first newly proven failure. Do not declare sale-ready before same-head Chromium Smart Report evidence, 48/48, and final certification.
 
-NEXT_EXACT_ACTION = Consume terminal results for CURRENT MAIN HEAD and address only the first newly proven failure. Do not declare sale-ready before same-head Chromium Smart Report evidence, 48/48, and final certification.
-
-CHANGED_FILES_ACCOUNTED_FOR = .github/workflows/full-product-browser-e2e.yml; docs/execution/PROGRAMMER_CURRENT_REPORT.md
+CHANGED_FILES_ACCOUNTED_FOR = .github/workflows/github-pages-production.yml; docs/execution/CURRENT_SESSION_STATE.md; docs/execution/PROGRAMMER_CURRENT_REPORT.md; scripts/real-business-e2e.mjs; scripts/run-full-product-browser-e2e.mjs; src/App.tsx; src/components/CustomerReportSurface.tsx; src/components/ReportIntelligencePanel.tsx; src/components/SourceBoundReportSurface.tsx; src/lib/report-intelligence/report-smart-insights.ts; src/lib/report-smart.ts; src/pages/CanonicalImportPage.tsx; src/pages/ExecutiveReportPage.tsx; src/pages/ReportsPage.tsx; src/pages/SmartReportPage.tsx; vite.config.ts
