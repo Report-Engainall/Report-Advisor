@@ -58,27 +58,29 @@ export function ProposalDemoPage() {
 
   return (
     <div dir="rtl" className="space-y-6 print:bg-white print:text-black">
-      <div className="flex flex-col gap-4 rounded-[22px] border border-indigo-300/20 bg-[linear-gradient(135deg,#0b1020_0%,#172554_56%,#312e81_100%)] p-6 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.8)] sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-sm text-primary-100"><Wand2 size={16} /> العرض التجاري · المنتج الفعلي</div>
-          <h1 className="text-2xl font-black sm:text-3xl">من تقرير حقيقي إلى قرار يمكن تنفيذه وقياس نتيجته.</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-primary-100">هذه ليست شاشة شكلية منفصلة. كل خطوة أدناه تفتح مساحة فعلية من المنصة، مع الحفاظ على المصدر والدليل وحالة القرار والتنفيذ والنتيجة.</p>
+      <div className="flex flex-col gap-5 rounded-[22px] border border-indigo-300/20 bg-[linear-gradient(135deg,#0b1020_0%,#172554_56%,#312e81_100%)] p-6 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.8)] lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0 flex-1">
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-sm text-primary-100"><Wand2 size={16} /> العرض التجاري · المنتج الفعلي</div>
+            <h1 className="text-2xl font-black sm:text-3xl">من تقرير حقيقي إلى قرار يمكن تنفيذه وقياس نتيجته.</h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-primary-100">هذه ليست شاشة شكلية منفصلة. كل خطوة أدناه تفتح مساحة فعلية من المنصة، مع الحفاظ على المصدر والدليل وحالة القرار والتنفيذ والنتيجة.</p>
+          </div>
+          <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+            {[
+              ['01','المصدر → الدليل','الأصل والبصمة والثقة قبل الاستنتاج.'],
+              ['02','الإشارة → المستشار','سبب وأولوية وتوصية مرتبطة بالدليل.'],
+              ['03','القرار → التنفيذ','اعتماد مستقل ثم انتقال السياق إلى العمل.'],
+              ['04','النتيجة → التعلم','قراءة ما حدث فعليًا دون تخمين.'],
+            ].map(([index, label, detail]) => (
+              <div key={index} className="rounded-2xl border border-white/10 bg-white/[.06] p-3.5 shadow-sm">
+                <div className="text-[9px] font-black tracking-[.12em] text-primary-200">{index}</div>
+                <div className="mt-1.5 text-[11px] font-black text-white">{label}</div>
+                <div className="mt-1 text-[9px] leading-5 text-slate-300">{detail}</div>
+              </div>
+            ))}
+          </div>
         </div>
-        <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-primary-900 hover:bg-primary-50 print:hidden"><Printer size={16} /> طباعة / PDF</button>
-        <div className="mt-5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-          {[
-            ['01','المصدر → الدليل','الأصل والبصمة والثقة قبل الاستنتاج.'],
-            ['02','الإشارة → المستشار','سبب وأولوية وتوصية مرتبطة بالدليل.'],
-            ['03','القرار → التنفيذ','اعتماد مستقل ثم انتقال السياق إلى العمل.'],
-            ['04','النتيجة → التعلم','قراءة ما حدث فعليًا دون تخمين.'],
-          ].map(([index, label, detail]) => (
-            <div key={index} className="rounded-2xl border border-ink-200 bg-white p-3.5 shadow-sm">
-              <div className="text-[9px] font-black tracking-[.12em] text-indigo-600">{index}</div>
-              <div className="mt-1.5 text-[11px] font-black text-ink-900">{label}</div>
-              <div className="mt-1 text-[9px] leading-5 text-ink-500">{detail}</div>
-            </div>
-          ))}
-        </div>
+        <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-primary-900 hover:bg-primary-50 print:hidden lg:mt-1"><Printer size={16} /> طباعة / PDF</button>
       </div>
 
       <section className="rounded-[22px] border border-ink-800 bg-[linear-gradient(135deg,#0b1020,#132235)] p-6 text-white shadow-[0_24px_70px_-40px_rgba(15,23,42,.9)]">
