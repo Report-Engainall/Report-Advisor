@@ -954,6 +954,73 @@ export function SmartReportPage() {
       </div>
     </section>
 
+    <CommercialValueChain
+      stages={[
+        {
+          label: 'المصدر',
+          englishLabel: 'المصدر',
+          status: stateLabel(report.sourceTrustState ?? report.trustState),
+          detail: (report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي') + ' · ' + reportRowCountLabel(report.rowCount) + ' · ' + (report.sourceAnalysis?.sourceFormat ?? 'غير متاح'),
+          tone: report.sourceTrustState === 'VERIFIED' || report.trustState === 'TRUSTED' ? 'trusted' : 'active',
+        },
+        {
+          label: 'الدليل',
+          englishLabel: 'الدليل',
+          status: report.reportVerificationState === 'VERIFIED' ? 'الدليل النهائي موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'فجوة في الإثبات' : 'الدليل النهائي غير مثبت',
+          detail: 'الذكاء المصدرّي متاح للمراجعة؛ الاعتماد النهائي يحتاج لقطة دليل مثبتة.',
+          href: '/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
+          tone: report.reportVerificationState === 'VERIFIED' ? 'trusted' : 'attention',
+        },
+        {
+          label: 'الإشارات',
+          englishLabel: 'الإشارات',
+          status: report.intelligence.signals.length ? report.intelligence.signals.length + ' مثبتة' : 'لا توجد',
+          detail: executiveSignal?.title ?? 'لا توجد إشارة استثنائية مثبتة في المصدر الحالي.',
+          tone: report.intelligence.signals.length ? 'active' : 'neutral',
+        },
+        {
+          label: 'المستشار',
+          englishLabel: 'المستشار',
+          status: report.intelligence.recommendations.length ? report.intelligence.recommendations.length + ' توصية' : 'غير متاح',
+          detail: report.intelligence.advisorBrief.recommendedAction ?? report.intelligence.guidance.focus ?? 'لا توجد توصية مصدرية كافية حاليًا.',
+          tone: report.intelligence.recommendations.length ? 'active' : 'neutral',
+          href: '#smart-report-intelligence',
+        },
+        {
+          label: 'القرار',
+          englishLabel: 'القرار',
+          status: stateLabel(output.decisionStatus == null ? null : String(output.decisionStatus)),
+          detail: 'القرار المعتمد لا يُستنتج تلقائيًا من التوصية؛ يبقى منفصلًا وقابلًا للتدقيق.',
+          href: '/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
+          tone: output.decisionStatus === 'APPROVED' || output.decisionStatus === 'COMMITTED' ? 'trusted' : 'attention',
+        },
+        {
+          label: 'التنفيذ',
+          englishLabel: 'التنفيذ',
+          status: stateLabel(output.actionStatus == null ? null : String(output.actionStatus)),
+          detail: 'مركز العمل هو طبقة التنفيذ؛ لا نخلط بين توصية ذكية وتنفيذ فعلي.',
+          href: '/work-center?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
+          tone: output.actionStatus === 'COMPLETED' || output.actionStatus === 'IN_PROGRESS' ? 'active' : 'neutral',
+        },
+        {
+          label: 'النتيجة',
+          englishLabel: 'النتيجة',
+          status: stateLabel(output.outcomeStatus == null ? null : String(output.outcomeStatus)),
+          detail: output.actualImpact == null ? 'لم تُسجل نتيجة فعلية بعد.' : 'الأثر الفعلي: ' + formatMetric(numberValue(output.actualImpact)),
+          href: '/replay?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
+          tone: output.outcomeStatus === 'OBSERVED' || output.outcomeStatus === 'COMPLETED' ? 'trusted' : 'neutral',
+        },
+        {
+          label: 'التعلم',
+          englishLabel: 'التعلّم',
+          status: stateLabel(output.learningStatus == null ? null : String(output.learningStatus)),
+          detail: 'يظهر هنا فقط ما تم رصده وتثبيته بعد التنفيذ؛ لا تُصنع نتيجة مستقبلية.',
+          href: '/benchmark?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
+          tone: output.learningStatus === 'OBSERVED' || output.learningStatus === 'READY' ? 'trusted' : 'neutral',
+        },
+      ]}
+    />
+
     <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
       <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
         <div className="flex items-center justify-between gap-4">
@@ -1031,72 +1098,7 @@ export function SmartReportPage() {
 
     <SourceDataWorkspace report={report} initialSearch={searchParams.get('focus') ?? ''}/>
 
-    <CommercialValueChain
-      stages={[
-        {
-          label: 'المصدر',
-          englishLabel: 'المصدر',
-          status: stateLabel(report.sourceTrustState ?? report.trustState),
-          detail: (report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي') + ' · ' + reportRowCountLabel(report.rowCount) + ' · ' + (report.sourceAnalysis?.sourceFormat ?? 'غير متاح'),
-          tone: report.sourceTrustState === 'VERIFIED' || report.trustState === 'TRUSTED' ? 'trusted' : 'active',
-        },
-        {
-          label: 'الدليل',
-          englishLabel: 'الدليل',
-          status: report.reportVerificationState === 'VERIFIED' ? 'الدليل النهائي موثق' : report.reportVerificationState === 'GAP_DETECTED' ? 'فجوة في الإثبات' : 'الدليل النهائي غير مثبت',
-          detail: 'الذكاء المصدرّي متاح للمراجعة؛ الاعتماد النهائي يحتاج لقطة دليل مثبتة.',
-          href: '/decision-experience?stage=evidence&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
-          tone: report.reportVerificationState === 'VERIFIED' ? 'trusted' : 'attention',
-        },
-        {
-          label: 'الإشارات',
-          englishLabel: 'الإشارات',
-          status: report.intelligence.signals.length ? report.intelligence.signals.length + ' مثبتة' : 'لا توجد',
-          detail: executiveSignal?.title ?? 'لا توجد إشارة استثنائية مثبتة في المصدر الحالي.',
-          tone: report.intelligence.signals.length ? 'active' : 'neutral',
-        },
-        {
-          label: 'المستشار',
-          englishLabel: 'المستشار',
-          status: report.intelligence.recommendations.length ? report.intelligence.recommendations.length + ' توصية' : 'غير متاح',
-          detail: report.intelligence.advisorBrief.recommendedAction ?? report.intelligence.guidance.focus ?? 'لا توجد توصية مصدرية كافية حاليًا.',
-          tone: report.intelligence.recommendations.length ? 'active' : 'neutral',
-          href: '#smart-report-intelligence',
-        },
-        {
-          label: 'القرار',
-          englishLabel: 'القرار',
-          status: stateLabel(output.decisionStatus == null ? null : String(output.decisionStatus)),
-          detail: 'القرار المعتمد لا يُستنتج تلقائيًا من التوصية؛ يبقى منفصلًا وقابلًا للتدقيق.',
-          href: '/decision-experience?stage=decision&reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
-          tone: output.decisionStatus === 'APPROVED' || output.decisionStatus === 'COMMITTED' ? 'trusted' : 'attention',
-        },
-        {
-          label: 'التنفيذ',
-          englishLabel: 'التنفيذ',
-          status: stateLabel(output.actionStatus == null ? null : String(output.actionStatus)),
-          detail: 'مركز العمل هو طبقة التنفيذ؛ لا نخلط بين توصية ذكية وتنفيذ فعلي.',
-          href: '/work-center?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
-          tone: output.actionStatus === 'COMPLETED' || output.actionStatus === 'IN_PROGRESS' ? 'active' : 'neutral',
-        },
-        {
-          label: 'النتيجة',
-          englishLabel: 'النتيجة',
-          status: stateLabel(output.outcomeStatus == null ? null : String(output.outcomeStatus)),
-          detail: output.actualImpact == null ? 'لم تُسجل نتيجة فعلية بعد.' : 'الأثر الفعلي: ' + formatMetric(numberValue(output.actualImpact)),
-          href: '/replay?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
-          tone: output.outcomeStatus === 'OBSERVED' || output.outcomeStatus === 'COMPLETED' ? 'trusted' : 'neutral',
-        },
-        {
-          label: 'التعلم',
-          englishLabel: 'التعلّم',
-          status: stateLabel(output.learningStatus == null ? null : String(output.learningStatus)),
-          detail: 'يظهر هنا فقط ما تم رصده وتثبيته بعد التنفيذ؛ لا تُصنع نتيجة مستقبلية.',
-          href: '/benchmark?reportJobId=' + encodeURIComponent(report.jobId) + '&sourceHash=' + encodeURIComponent(report.sourceHash),
-          tone: output.learningStatus === 'OBSERVED' || output.learningStatus === 'READY' ? 'trusted' : 'neutral',
-        },
-      ]}
-    />
+    
 
     <section aria-label="سياق التقرير والدليل" className="rounded-[16px] border border-slate-700 bg-[#0b1020] p-4 text-white shadow-card">
       <div className="grid gap-3 md:grid-cols-3">
