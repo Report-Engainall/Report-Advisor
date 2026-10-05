@@ -515,12 +515,14 @@ function emptyReportIntelligence(specialty: string | null): ReportIntelligence {
   };
 }
 
+export function fetchSmartReport(jobId: string, expectedSourceHash: string): Promise<SmartReportDetail | null>;
+export function fetchSmartReport(jobId: string, expectedSourceHash: string, options?: ReportRequestOptions): Promise<SmartReportDetail | null>;
 export async function fetchSmartReport(jobId: string, expectedSourceHash: string, options: ReportRequestOptions = {}): Promise<SmartReportDetail | null> {
   const normalizedJobId = jobId.trim();
   const normalizedSourceHash = expectedSourceHash.trim();
   if (!normalizedJobId) throw new Error('INVALID_REPORT_CONTEXT');
   if (normalizedSourceHash && !/^sha256:[0-9a-fA-F]{64}$/.test(normalizedSourceHash)) throw new Error('INVALID_REPORT_CONTEXT');
-  const companyId = await resolveCurrentCompanyId();
+  const companyId = await resolveCurrentCompanyId(options.signal);
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
   const jobQuery = supabase
