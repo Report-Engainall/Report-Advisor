@@ -1,8 +1,8 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 44232f8198b09c453c178bf0b910a6daab74f628
-CURRENT_MAIN_HEAD = 44232f8198b09c453c178bf0b910a6daab74f628
-CURRENT_EXECUTION_HEAD = 44232f8198b09c453c178bf0b910a6daab74f628
+CURRENT_EXACT_HEAD = 1cf7cdafe44a5f6e47689fff0df68e26316de0a1
+CURRENT_MAIN_HEAD = 1cf7cdafe44a5f6e47689fff0df68e26316de0a1
+CURRENT_EXECUTION_HEAD = 1cf7cdafe44a5f6e47689fff0df68e26316de0a1
 BRANCH = main
 PR = N/A
 CURRENT_PR_HEAD = N/A
@@ -10,7 +10,8 @@ CURRENT_PR_HEAD = N/A
 WHAT_ACTUALLY_HAPPENED
 - Rebound the Reports Center primary Smart Report from stale sales execution job c42fb0e1-75f2-4727-8c3e-470ae1a804fa to authoritative inventory execution job 16709d80-e012-40ef-9c12-6fd8255897f8 for تقارير ادارية.xlsx.
 - Confirmed the same source hash has two canonical variants: stale sales (342 rows, quality 87) and authoritative inventory (332 rows, quality 98, VERIFIED/READY).
-- Corrected the primary customer path and then redesigned the Reports Center first paint so the source-bound Smart Report is the hero surface; generic sales/receivables KPIs no longer displace the active inventory report.
+- Corrected the primary customer path and redesigned the Reports Center first paint so the source-bound Smart Report is the hero surface; generic sales/receivables KPIs no longer displace the active inventory report.
+- Added a public commercial proof section to /proposal-demo using verified source-bound inventory findings: 332 rows, quality 98, 140 zero/negative-stock rows with sales, 44 stockout-within-7-days rows, 155 old-stock rows with daily movement, 15 negative-stock rows, and 12 explicit-incoming reconciliation gaps.
 - Corrected browser/business proof contracts from the stale 342-row sales job to the authoritative 332-row inventory execution.
 - Removed the duplicate SourceBoundReportSurface import that previously failed TypeScript.
 - Rebound session governance documents to this exact head.
@@ -43,4 +44,4 @@ ROOT_CAUSE
 - Browser-proof contracts lagged behind the authoritative report lineage.
 - Governance documents were stale relative to mainline changes.
 
-NEXT_EXACT_ACTION = Consume terminal CI results for 44232f8198b09c453c178bf0b910a6daab74f628; fix only the first newly proven failure, then consume same-head Chromium Smart Report evidence and certification. No sale-ready claim before same-head browser proof plus 48/48 plus final certification.
+NEXT_EXACT_ACTION = Consume terminal CI results for 1cf7cdafe44a5f6e47689fff0df68e26316de0a1; fix only the first newly proven failure, then consume same-head Chromium Smart Report evidence and certification. No sale-ready claim before same-head browser proof plus 48/48 plus final certification.
