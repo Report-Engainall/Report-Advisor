@@ -382,9 +382,9 @@ jobs:
           E2E_REPORT_DIR: artifacts/e2e-browser
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          CURRENT_REPORT_SOURCE_PATH: 'تسعيرة الاصناف حسب رقم الصنف.pdf'
-          CURRENT_REPORT_SOURCE_HASH: 'sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300'
-          CURRENT_REPORT_ROW_COUNT: '735'
+          CURRENT_REPORT_SOURCE_PATH: 'تقارير ادارية.xlsx'
+          CURRENT_REPORT_SOURCE_HASH: 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313'
+          CURRENT_REPORT_ROW_COUNT: '342'
           REAL_SMART_REPORT_COMPANY_ID: f68a7e91-3c7e-46fb-97a8-e339bec04e13
         run: node scripts/run-full-product-browser-e2e.mjs
 
