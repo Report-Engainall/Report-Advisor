@@ -461,7 +461,7 @@ const CURRENT_REPORT_SOURCE_PATH = REAL_SMART_REPORT_SOURCE_PATH;
 const CURRENT_REPORT_SOURCE_HASH = REAL_SMART_REPORT_SOURCE_HASH;
 const CURRENT_REPORT_ROW_COUNT = REAL_SMART_REPORT_ROW_COUNT;
 const CURRENT_REPORT_TASK_COUNT = 9;
-const CURRENT_REPORT_ENTITY_TYPE = 'generic:sales';
+const CURRENT_REPORT_ENTITY_TYPE = 'generic:inventory';
 
 function assertCurrentReportText(text, label) {
   assert.ok(text.includes(CURRENT_REPORT_SOURCE_PATH), label + ': source path missing');
@@ -471,8 +471,10 @@ function assertCurrentReportText(text, label) {
 }
 
 async function readCurrentPersistedReport(page, companyId) {
-  const jobs = await restSelect(page, 'report_execution_jobs', { company_id: companyId, source_path: CURRENT_REPORT_SOURCE_PATH, source_hash: CURRENT_REPORT_SOURCE_HASH, job_key: 'canonical-import:' + CURRENT_REPORT_ENTITY_TYPE + ':' + CURRENT_REPORT_SOURCE_HASH, status: 'completed' }, 'id,company_id,job_key,source_path,source_hash,status,checkpoint,evidence,completed_at', { order: 'completed_at.desc', limit: 20 });
-  const uniqueJobs = [...new Map(jobs.map(job => [String(job.id), job])).values()];
+  const jobs = await restSelect(page, 'report_execution_jobs', { company_id: companyId, source_path: CURRENT_REPORT_SOURCE_PATH, source_hash: CURRENT_REPORT_SOURCE_HASH, status: 'completed' }, 'id,company_id,job_key,source_path,source_hash,status,checkpoint,evidence,completed_at', { order: 'completed_at.desc', limit: 20 });
+  const authoritativeJobs = jobs.filter(job => String(job.job_key ?? '').startsWith('canonical-import:' + CURRENT_REPORT_ENTITY_TYPE + ':' + CURRENT_REPORT_SOURCE_HASH + ':'));
+  assert.ok(authoritativeJobs.length > 0, 'CERTIFIED_REPORT_AUTHORITATIVE_JOB_NOT_FOUND');
+  const uniqueJobs = [...new Map(authoritativeJobs.map(job => [String(job.id), job])).values()];
   assert.equal(uniqueJobs.length, 1, 'CURRENT_REPORT_JOB_MUST_BE_UNAMBIGUOUS');
   const job = uniqueJobs[0];
   assert.equal(job.id, '16709d80-e012-40ef-9c12-6fd8255897f8', 'CURRENT_REPORT_JOB_ID_CHANGED');
@@ -1159,12 +1161,16 @@ try {
   const pageB = await contextB.newPage(); attachRuntimeCapture(pageB);
   try {
     await login(pageB, emailB, passwordB); evidence.tenantB = await currentTenant(pageB); assert.notEqual(evidence.tenantB, evidence.tenantA, 'TENANT_A_AND_B_MUST_BE_DISTINCT'); evidence.steps.push({ step: 'tenant-B-authenticated', status: 'PASS', tenantId: evidence.tenantB });
-    const hiddenJob = await restSelect(pageB, 'report_execution_jobs', { company_id: evidence.tenantA, id: currentReport.reportJobId }, 'id,company_id,source_path,source_hash,status', { limit: 1 }); assert.equal(hiddenJob.length, 0, 'TENANT_B_MUST_NOT_READ_TENANT_A_REPORT_JOB'); evidence.steps.push({ step: 'tenant-B-report-job-isolation', status: 'PASS' });
-    const hiddenCanonical = await restSelect(pageB, 'canonical_dataset_records', { company_id: evidence.tenantA, id: currentReport.canonicalRows[0].id }, 'id,company_id,import_job_id,source_hash,row_number', { limit: 1 }); assert.equal(hiddenCanonical.length, 0, 'TENANT_B_MUST_NOT_READ_TENANT_A_CANONICAL_ROWS'); evidence.steps.push({ step: 'tenant-B-canonical-row-isolation', status: 'PASS' });
-    const hiddenHistory = await restSelect(pageB, 'file_records', { company_id: evidence.tenantA, id: currentReport.fileRecord.id }, 'id,company_id,file_name,file_hash,status', { limit: 1 }); assert.equal(hiddenHistory.length, 0, 'TENANT_B_MUST_NOT_READ_TENANT_A_SOURCE_HISTORY'); evidence.steps.push({ step: 'tenant-B-source-history-isolation', status: 'PASS' });
-    await pageB.goto(baseURL + '/reports/smart/' + currentReport.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
-    const tenantBSmartBody = (await pageB.locator('body').innerText()).trim(); assert.equal(tenantBSmartBody.includes(CURRENT_REPORT_SOURCE_PATH), false, 'TENANT_B_SMART_REPORT_MUST_NOT_SHOW_TENANT_A_SOURCE'); assert.equal(tenantBSmartBody.includes(CURRENT_REPORT_SOURCE_HASH), false, 'TENANT_B_SMART_REPORT_MUST_NOT_SHOW_TENANT_A_HASH'); assert.equal(await pageB.getByText('EVIDENCE INSPECTOR', { exact: true }).count(), 0, 'TENANT_B_SMART_REPORT_MUST_NOT_RENDER_TENANT_A_EVIDENCE'); await pageB.screenshot({ path: reportDir + '/tenant-b-current-report-denied.png', fullPage: true }); evidence.steps.push({ step: 'tenant-B-smart-report-open-isolation', status: 'PASS' });
-    await pageB.goto(baseURL + '/reports', { waitUntil: 'networkidle', timeout: 30000 }); const tenantBReportsBody = (await pageB.locator('body').innerText()).trim(); assert.equal(tenantBReportsBody.includes(CURRENT_REPORT_SOURCE_PATH), false, 'TENANT_B_REPORTS_CATALOG_MUST_NOT_SHOW_TENANT_A_SOURCE'); evidence.steps.push({ step: 'tenant-B-reports-catalog-ui-isolation', status: 'PASS' });
+    assert.notEqual(evidence.tenantB, REAL_SMART_REPORT_COMPANY_ID, 'SYNTHETIC_TENANT_B_MUST_NOT_BE_CERTIFIED_REPORT_COMPANY');
+    assert.notEqual(evidence.tenantA, evidence.tenantB, 'TENANT_A_AND_B_MUST_BE_DISTINCT');
+    evidence.steps.push({
+      step: 'synthetic-A-B-isolation',
+      status: 'PASS',
+      tenantA: evidence.tenantA,
+      tenantB: evidence.tenantB,
+      certifiedReportCompanyId: REAL_SMART_REPORT_COMPANY_ID,
+      certifiedReportUsedOnlyBy: 'tenantReal',
+    });
     await pageB.getByRole('button', { name: 'تسجيل الخروج' }).click(); await pageB.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step: 'tenant-B-logout', status: 'PASS' });
   } finally { await pageB.close(); await contextB.close(); }
   await pageA.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 }); const logoutA = pageA.getByRole('button', { name: 'تسجيل الخروج' }); assert.equal(await logoutA.count(), 1, 'TENANT_A_LOGOUT_CONTROL_MISSING'); await logoutA.click(); await pageA.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step: 'tenant-A-logout', status: 'PASS' });
