@@ -95,6 +95,45 @@ export type AdvisorBrief = {
   proofRequirement: string;
 };
 
+export function selectExecutiveSignal(
+  intelligence: Pick<ReportIntelligence, 'signals'>,
+): ReportSignal | null {
+  const signals = intelligence.signals ?? [];
+  const isWeak = (signal: ReportSignal) => {
+    const id = String(signal.id ?? '').trim();
+    const evidence = signal.evidence ?? [];
+    const haystack = [signal.title, signal.message, ...evidence].join(' ');
+    if (id.startsWith('unmapped:') || id.startsWith('missing:') || id.startsWith('document:')) return true;
+    if (signal.severity === 'info') return true;
+    if (/غير محدد/.test(haystack) && evidence.some((item) => /^dimensionField=|^dimensionValue=/.test(item))) return true;
+    return false;
+  };
+  const usable = signals.filter((signal) => !isWeak(signal));
+  const pool = usable.length > 0 ? usable : signals.filter((signal) => signal.severity !== 'info');
+  const priorityRank: Record<string, number> = { P0: 4, P1: 3, P2: 2, P3: 1 };
+  const severityRank: Record<ReportSignalSeverity, number> = { critical: 5, high: 4, medium: 3, low: 2, info: 1 };
+  return [...pool].sort((a, b) =>
+    (priorityRank[b.priority] ?? 0) - (priorityRank[a.priority] ?? 0)
+    || severityRank[b.severity] - severityRank[a.severity]
+    || (Number(b.affectedRows ?? -1) - Number(a.affectedRows ?? -1))
+    || a.title.localeCompare(b.title, 'ar'),
+  )[0] ?? null;
+}
+
+export function selectExecutiveRecommendation(
+  intelligence: Pick<ReportIntelligence, 'signals' | 'recommendations'>,
+  signal: ReportSignal | null = selectExecutiveSignal(intelligence),
+): ReportRecommendation | null {
+  if (signal) {
+    const matching = intelligence.recommendations.find((item) => item.id === 'rec:' + signal.id);
+    if (matching) return matching;
+  }
+  return [...(intelligence.recommendations ?? [])].sort((a, b) => {
+    const rank: Record<ReportRecommendation['priority'], number> = { urgent: 4, high: 3, medium: 2, low: 1 };
+    return (rank[b.priority] ?? 0) - (rank[a.priority] ?? 0);
+  })[0] ?? null;
+}
+
 export type ReportIntelligence = {
   businessQuestion: string;
   summary: string;
@@ -1184,7 +1223,12 @@ function buildAdvisorBrief(
   signals: ReportSignal[],
 ): AdvisorBrief {
   const specialty = text(report.specialty);
-  const topFinding = business.findings[0] ?? null;
+  const executiveSignal = selectExecutiveSignal({ signals });
+  const topFinding = business.findings.find((finding) => {
+    const evidence = finding.evidence ?? [];
+    const haystack = [finding.title, finding.statement, ...evidence].join(' ');
+    return !(/غير محدد/.test(haystack) && evidence.some((item) => /^dimensionField=|^dimensionValue=/.test(item)));
+  }) ?? null;
   const topRisk = business.risks[0] ?? null;
   const topOpportunity = business.opportunities[0] ?? null;
   const highImpactSignal = signals.some((signal) => signal.severity === 'critical' || signal.severity === 'high');
@@ -1202,14 +1246,13 @@ function buildAdvisorBrief(
         : topRisk || signals.some((signal) => signal.severity === 'medium') || signals.length > 0
           ? 'ATTENTION'
           : 'HEALTHY';
-  const recommendedAction = topRisk?.action ?? topFinding?.action ?? topOpportunity?.action ?? null;
-  const headline = topRisk
-    ? topRisk.statement
-    : topFinding
-      ? topFinding.statement
-      : topOpportunity
-        ? topOpportunity.statement
-        : signals[0]?.message ?? 'لا توجد نتيجة أعمال كافية لبناء موجز استشاري.';
+  const executiveRecommendation = selectExecutiveRecommendation({ signals, recommendations: [] }, executiveSignal);
+  const recommendedAction = executiveRecommendation?.action ?? topRisk?.action ?? topFinding?.action ?? topOpportunity?.action ?? null;
+  const headline = executiveSignal?.message
+    ?? topRisk?.statement
+    ?? topFinding?.statement
+    ?? topOpportunity?.statement
+    ?? 'لا توجد نتيجة أعمال كافية لبناء موجز استشاري.';
 
   return {
     health,
@@ -1265,7 +1308,7 @@ export function deriveReportIntelligence(report: ReportInput): ReportIntelligenc
             ? 'هل حركة التحصيل/السيولة مكتملة ويمكن تسويتها بثقة؟'
             : 'ما أهم ما تثبته بيانات المصدر، وما الذي يحتاج مراجعة قبل القرار؟';
 
-  const top = signals[0];
+  const top = selectExecutiveSignal({ signals });
   const guidance: ReportGuidance = {
     focus: top ? top.title : 'لا توجد إشارة حرجة مثبتة من البيانات المتاحة.',
     inspect: signals.slice(0, 5).map((signal) => signal.message),
