@@ -52,8 +52,8 @@ function reportStateLabel(value: unknown): string {
   const labels: Record<string,string> = {
     VERIFIED: 'موثق',
     TRUSTED: 'موثوق',
-    PENDING_EVIDENCE: 'بانتظار اكتمال الدليل',
-    AWAITING_EVIDENCE_SNAPSHOT: 'بانتظار لقطة الدليل',
+    PENDING_EVIDENCE: 'الدليل النهائي غير مثبت',
+    AWAITING_EVIDENCE_SNAPSHOT: 'لا توجد لقطة دليل مثبتة',
     SIGNALS_PRESENT: 'إشارات مثبتة',
     READY: 'جاهز للقرار',
     PARTIAL_ANALYSIS: 'تحليل جزئي',
