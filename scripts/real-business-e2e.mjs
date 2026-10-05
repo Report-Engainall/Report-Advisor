@@ -10,18 +10,32 @@ const emailA = process.env.TEST_USER_A_EMAIL?.trim();
 const passwordA = process.env.TEST_USER_A_PASSWORD;
 const emailB = process.env.TEST_USER_B_EMAIL?.trim();
 const passwordB = process.env.TEST_USER_B_PASSWORD;
+const emailC = process.env.TEST_USER_C_EMAIL?.trim();
+const passwordC = process.env.TEST_USER_C_PASSWORD;
 const approverEmail = process.env.TEST_APPROVER_EMAIL?.trim();
 const approverPassword = process.env.TEST_APPROVER_PASSWORD;
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e-business';
-for (const [name, value] of Object.entries({ supabaseURL, anonKey, emailA, passwordA, emailB, passwordB, approverEmail, approverPassword })) if (!value) throw new Error(`BUSINESS_E2E_ENV_MISSING:${name}`);
+const REAL_SMART_REPORT_COMPANY_ID = '99e33354-cc45-4317-8eb3-0d486b6c5932';
+const REAL_SMART_REPORT_JOB_ID = '16709d80-e012-40ef-9c12-6fd8255897f8';
+const REAL_SMART_REPORT_SOURCE_PATH = 'تقارير ادارية.xlsx';
+const REAL_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
+const REAL_SMART_REPORT_ROW_COUNT = 332;
+const configuredRealSmartReportCompany = process.env.REAL_SMART_REPORT_COMPANY_ID?.trim();
+if (configuredRealSmartReportCompany && configuredRealSmartReportCompany !== REAL_SMART_REPORT_COMPANY_ID) {
+  throw new Error('REAL_SMART_REPORT_COMPANY_ID_LINEAGE_DRIFT:' + configuredRealSmartReportCompany);
+}
+for (const [name, value] of Object.entries({ supabaseURL, anonKey, emailA, passwordA, emailB, passwordB, emailC, passwordC, approverEmail, approverPassword })) if (!value) throw new Error(`BUSINESS_E2E_ENV_MISSING:${name}`);
 await fs.mkdir(reportDir, { recursive: true });
-const evidence = { exactHead, baseURL, browser: 'Chromium', startedAt: new Date().toISOString(), status: 'NOT_PROVEN', tenantA: null, tenantB: null, persisted: {}, steps: [], failures: [] };
+const evidence = { exactHead, baseURL, browser: 'Chromium', startedAt: new Date().toISOString(), status: 'NOT_PROVEN', tenantA: null, tenantB: null, tenantReal: null, persisted: {}, steps: [], failures: [] };
 const browser = await chromium.launch({ headless: true });
 const contextA = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
 const pageA = await contextA.newPage();
+const contextC = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
+const pageC = await contextC.newPage();
 function attachRuntimeCapture(page) { page.on('console', msg => { if (msg.type() === 'error') evidence.failures.push(`console:${msg.text()}`); }); page.on('pageerror', error => evidence.failures.push(`pageerror:${error.message}`)); page.on('requestfailed', request => { const error = request.failure()?.errorText || 'unknown'; if (error !== 'net::ERR_ABORTED') evidence.failures.push(`request:${request.method()} ${request.url()} ${error}`); }); page.on('response', async response => { if (response.status() < 400) return; const url = response.url(); const relevant = !supabaseURL || url.startsWith(supabaseURL) || url.includes('/rest/v1/') || url.includes('/auth/v1/') || url.includes('/api/canonical-import-execute') || url.includes('/.netlify/functions/canonical-import-execute'); if (!relevant) return; const body = await response.text().catch(() => ''); evidence.failures.push(`response:${response.request().method()} ${response.status()} ${url} body=${body.slice(0, 4000)}`); }); }
 attachRuntimeCapture(pageA);
+attachRuntimeCapture(pageC);
 async function accessToken(page) { return page.evaluate(() => { const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1]; if (!raw) throw new Error('BROWSER_SESSION_NOT_FOUND'); const session = JSON.parse(raw); if (!session?.access_token) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND'); return session.access_token; }); }
 async function currentUserId(page) {
   const token = await accessToken(page);
@@ -443,9 +457,9 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
   return reportJob;
 }
 
-const CURRENT_REPORT_SOURCE_PATH = process.env.CURRENT_REPORT_SOURCE_PATH?.trim() || 'تقارير ادارية.xlsx';
-const CURRENT_REPORT_SOURCE_HASH = process.env.CURRENT_REPORT_SOURCE_HASH?.trim() || 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
-const CURRENT_REPORT_ROW_COUNT = Number(process.env.CURRENT_REPORT_ROW_COUNT || '332');
+const CURRENT_REPORT_SOURCE_PATH = REAL_SMART_REPORT_SOURCE_PATH;
+const CURRENT_REPORT_SOURCE_HASH = REAL_SMART_REPORT_SOURCE_HASH;
+const CURRENT_REPORT_ROW_COUNT = REAL_SMART_REPORT_ROW_COUNT;
 const CURRENT_REPORT_TASK_COUNT = 9;
 const CURRENT_REPORT_ENTITY_TYPE = 'generic:sales';
 
@@ -522,6 +536,11 @@ async function proveCurrentSmartReport(page, report) {
   assertCurrentReportText(before, 'current smart report');
   assert.ok(before.includes('EVIDENCE PASSPORT'));
   assert.ok(before.includes(String(Number(report.rendered.qualityScore)) + '%'));
+  assert.ok(before.includes(REAL_SMART_REPORT_JOB_ID), 'Smart Report certified job id missing from DOM');
+  assert.ok(before.includes(REAL_SMART_REPORT_SOURCE_HASH), 'Smart Report certified source hash missing from DOM');
+  assert.ok(before.includes(REAL_SMART_REPORT_SOURCE_PATH), 'Smart Report certified source path missing from DOM');
+  assert.equal(await page.locator('[data-testid="smart-report-job-id"]').count(), 1, 'Smart Report job id DOM proof missing or duplicated');
+  assert.equal(await page.locator('[data-testid="smart-report-source-hash"]').count(), 1, 'Smart Report source hash DOM proof missing or duplicated');
   assert.ok(before.includes('التقرير موثق') || before.includes('الدليل موثق') || before.includes('موثّق') || before.includes('TRUSTED'), 'Smart Report trust state missing');
   assert.ok(before.includes('WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF'), 'Smart Report decision chain missing');
   assert.ok(await page.locator('[data-testid="smart-report-decision-chain"]').count() === 1, 'Smart Report decision chain DOM surface missing');
@@ -1043,33 +1062,53 @@ async function uiSearch(page, route, placeholder, value, step) { await page.goto
 try {
   await login(pageA, emailA, passwordA);
   evidence.tenantA = await currentTenant(pageA);
-  evidence.steps.push({ step: 'tenant-A-authenticated', status: 'PASS', tenantId: evidence.tenantA });
-  const currentReport = await readCurrentPersistedReport(pageA, evidence.tenantA);
-  evidence.persisted.currentReport = { reportJobId: currentReport.reportJobId, sourcePath: CURRENT_REPORT_SOURCE_PATH, sourceHash: CURRENT_REPORT_SOURCE_HASH, sourceRowCount: CURRENT_REPORT_ROW_COUNT, authoritativeCanonicalCount: currentReport.canonicalRows.length, canonicalCommitCount: currentReport.commits.reduce((sum,row)=>sum+Number(row.committed_count||0),0), taskCount: currentReport.tasks.length, completedTaskCount: currentReport.tasks.filter(task=>task.status==='completed').length, importJobId: currentReport.importJob.id, fileRecordId: currentReport.fileRecord.id, qualityScore: Number(currentReport.rendered.qualityScore), trustState: currentReport.rendered.trustState, evidenceState: currentReport.rendered.evidenceStatus, checkpointStage: currentReport.job.checkpoint?.stage ?? null };
-  evidence.steps.push({ step: 'current-persisted-report-durable-proof', status: 'PASS', reportJobId: currentReport.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, sourcePath: CURRENT_REPORT_SOURCE_PATH, jobStatus: currentReport.job.status, durableTaskCount: currentReport.tasks.length, completedTaskCount: currentReport.tasks.filter(task=>task.status==='completed').length, sourceRowCount: CURRENT_REPORT_ROW_COUNT, authoritativeCanonicalCount: currentReport.canonicalRows.length, canonicalCommitCount: currentReport.commits.reduce((sum,row)=>sum+Number(row.committed_count||0),0), renderedOutput: true, analysisColumns: Number(currentReport.analysis.column_count), qualityScore: Number(currentReport.rendered.qualityScore), trustState: currentReport.rendered.trustState, evidenceState: currentReport.rendered.evidenceStatus });
-  await proveCurrentSmartReport(pageA, currentReport);
-  await proveSourceBoundSurface(pageA, currentReport, { label: 'executive', path: '/reports/executive' });
-  await proveSourceBoundSurface(pageA, currentReport, { label: 'trust', path: '/trust' });
-  await proveSourceBoundSurface(pageA, currentReport, { label: 'decision', path: '/decision-experience?stage=evidence' });
-  await proveDecisionActionSurface(pageA, currentReport);
-  await proveDecisionApprovalActionOutcome(pageA, currentReport);
+  assert.notEqual(evidence.tenantA, REAL_SMART_REPORT_COMPANY_ID, 'SYNTHETIC_TENANT_A_MUST_NOT_EQUAL_CERTIFIED_REPORT_COMPANY');
+  const syntheticCertifiedJobRead = await restSelect(
+    pageA,
+    'report_execution_jobs',
+    { company_id: evidence.tenantA, id: REAL_SMART_REPORT_JOB_ID },
+    'id,company_id,source_path,source_hash,status',
+    { limit: 1 },
+  );
+  assert.equal(syntheticCertifiedJobRead.length, 0, 'SYNTHETIC_TENANT_A_MUST_NOT_READ_CERTIFIED_REPORT_JOB');
+  evidence.steps.push({ step: 'tenant-A-authenticated-synthetic', status: 'PASS', tenantId: evidence.tenantA });
+  evidence.steps.push({ step: 'tenant-A-certified-report-isolation', status: 'PASS', deniedJobId: REAL_SMART_REPORT_JOB_ID, certifiedCompanyId: REAL_SMART_REPORT_COMPANY_ID });
+
+  await login(pageC, emailC, passwordC);
+  evidence.tenantReal = await currentTenant(pageC);
+  assert.equal(evidence.tenantReal, REAL_SMART_REPORT_COMPANY_ID, 'CERTIFIED_REPORT_ACTOR_MUST_RESOLVE_COMPANY_99');
+  evidence.steps.push({ step: 'certified-report-tenant-authenticated', status: 'PASS', companyId: evidence.tenantReal, reportJobId: REAL_SMART_REPORT_JOB_ID });
+
+  const currentReport = await readCurrentPersistedReport(pageC, evidence.tenantReal);
+  assert.equal(currentReport.reportJobId, REAL_SMART_REPORT_JOB_ID, 'CERTIFIED_REPORT_JOB_ID_MISMATCH');
+  assert.equal(currentReport.sourcePath, REAL_SMART_REPORT_SOURCE_PATH, 'CERTIFIED_REPORT_SOURCE_PATH_MISMATCH');
+  assert.equal(currentReport.sourceHash, REAL_SMART_REPORT_SOURCE_HASH, 'CERTIFIED_REPORT_SOURCE_HASH_MISMATCH');
+  assert.equal(currentReport.canonicalRows.length, REAL_SMART_REPORT_ROW_COUNT, 'CERTIFIED_REPORT_ROW_COUNT_MISMATCH');
+  assert.equal(Number(currentReport.analysis.quality_score), 98, 'CERTIFIED_REPORT_QUALITY_MISMATCH');
+  evidence.persisted.currentReport = { reportJobId: currentReport.reportJobId, companyId: evidence.tenantReal, sourcePath: REAL_SMART_REPORT_SOURCE_PATH, sourceHash: REAL_SMART_REPORT_SOURCE_HASH, sourceRowCount: REAL_SMART_REPORT_ROW_COUNT, authoritativeCanonicalCount: currentReport.canonicalRows.length, canonicalCommitCount: currentReport.commits.reduce((sum,row)=>sum+Number(row.committed_count||0),0), taskCount: currentReport.tasks.length, completedTaskCount: currentReport.tasks.filter(task=>task.status==='completed').length, importJobId: currentReport.importJob.id, fileRecordId: currentReport.fileRecord.id, qualityScore: Number(currentReport.rendered.qualityScore), trustState: currentReport.rendered.trustState, evidenceState: currentReport.rendered.evidenceStatus, checkpointStage: currentReport.job.checkpoint?.stage ?? null };
+  evidence.steps.push({ step: 'certified-report-durable-proof', status: 'PASS', reportJobId: currentReport.reportJobId, companyId: evidence.tenantReal, sourceHash: REAL_SMART_REPORT_SOURCE_HASH, sourcePath: REAL_SMART_REPORT_SOURCE_PATH, jobStatus: currentReport.job.status, sourceRowCount: REAL_SMART_REPORT_ROW_COUNT, authoritativeCanonicalCount: currentReport.canonicalRows.length, qualityScore: Number(currentReport.rendered.qualityScore), evidenceState: currentReport.rendered.evidenceStatus });
+
+  await proveCurrentSmartReport(pageC, currentReport);
+  await proveSourceBoundSurface(pageC, currentReport, { label: 'executive', path: '/reports/executive' });
+  await proveSourceBoundSurface(pageC, currentReport, { label: 'trust', path: '/trust' });
+  await proveSourceBoundSurface(pageC, currentReport, { label: 'decision', path: '/decision-experience?stage=evidence' });
+  await proveSourceBoundSurface(pageC, currentReport, { label: 'work', path: '/work-center' });
+  await proveSourceBoundSurface(pageC, currentReport, { label: 'inventory', path: '/reports/inventory' });
+  await pageC.goto(baseURL + '/reports/smart/' + currentReport.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
+  await pageC.reload({ waitUntil: 'networkidle', timeout: 30000 });
+  assert.equal(await currentTenant(pageC), REAL_SMART_REPORT_COMPANY_ID, 'CERTIFIED_REPORT_TENANT_CHANGED_ACROSS_REFRESH');
+  await pageC.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  const finalBody = (await pageC.locator('body').innerText()).trim();
+  assertCurrentReportText(finalBody, 'certified report final readback');
+  assert.ok(finalBody.includes('EVIDENCE INSPECTOR'));
+  assert.ok(finalBody.includes(REAL_SMART_REPORT_JOB_ID), 'CERTIFIED_REPORT_JOB_ID_NOT_VISIBLE_IN_BROWSER');
+  assert.ok(finalBody.includes(REAL_SMART_REPORT_SOURCE_HASH), 'CERTIFIED_REPORT_SOURCE_HASH_NOT_VISIBLE_IN_BROWSER');
+  assert.ok(finalBody.includes(REAL_SMART_REPORT_SOURCE_PATH), 'CERTIFIED_REPORT_SOURCE_PATH_NOT_VISIBLE_IN_BROWSER');
+  assert.equal(await pageC.locator('[data-testid="smart-report-job-id"]').count(), 1, 'CERTIFIED_REPORT_JOB_ID_DOM_PROOF_MISSING_OR_DUPLICATE');
+  assert.equal(await pageC.locator('[data-testid="smart-report-source-hash"]').count(), 1, 'CERTIFIED_REPORT_SOURCE_HASH_DOM_PROOF_MISSING_OR_DUPLICATE');
+  evidence.steps.push({ step: 'certified-report-final-refresh-readback', status: 'PASS', reportJobId: currentReport.reportJobId, companyId: evidence.tenantReal, sourcePath: REAL_SMART_REPORT_SOURCE_PATH, sourceHash: REAL_SMART_REPORT_SOURCE_HASH, rowCount: REAL_SMART_REPORT_ROW_COUNT, qualityScore: Number(currentReport.rendered.qualityScore) });
+
   await proveTransactionalMutationAndAudit(pageA);
-  await proveSourceBoundSurface(pageA, currentReport, { label: 'work', path: '/work-center' });
-  await proveSourceBoundSurface(pageA, currentReport, { label: 'inventory', path: '/reports/inventory' });
-  await pageA.goto(baseURL + '/reports/smart/' + currentReport.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
-  await pageA.reload({ waitUntil: 'networkidle', timeout: 30000 });
-  await proveContextPreservedSurface(pageA, currentReport, { label: 'executive-saved-context', path: '/reports/executive' });
-  await proveContextPreservedSurface(pageA, currentReport, { label: 'trust-saved-context', path: '/trust' });
-  await proveContextPreservedSurface(pageA, currentReport, { label: 'decision-saved-context', path: '/decision-experience?stage=evidence' });
-  await proveContextPreservedSurface(pageA, currentReport, { label: 'work-saved-context', path: '/work-center' });
-  await proveContextPreservedSurface(pageA, currentReport, { label: 'inventory-saved-context', path: '/reports/inventory' });
-  await pageA.goto(baseURL + '/reports/smart/' + currentReport.reportJobId, { waitUntil: 'networkidle', timeout: 30000 });
-  await pageA.reload({ waitUntil: 'networkidle', timeout: 30000 });
-  assert.equal(await currentTenant(pageA), evidence.tenantA, 'CURRENT_REPORT_TENANT_CHANGED_ACROSS_REFRESH');
-  await pageA.getByText('EVIDENCE INSPECTOR', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
-  const finalBody = (await pageA.locator('body').innerText()).trim();
-  assertCurrentReportText(finalBody, 'current report final readback'); assert.ok(finalBody.includes('EVIDENCE INSPECTOR'));
-  evidence.steps.push({ step: 'current-report-final-refresh-readback', status: 'PASS', reportJobId: currentReport.reportJobId, sourceHash: CURRENT_REPORT_SOURCE_HASH, rowCount: CURRENT_REPORT_ROW_COUNT });
   await pageA.goto(baseURL + '/operations', { waitUntil: 'networkidle', timeout: 30000 });
   await pageA.getByRole('heading', { name: 'مركز العمليات', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
   const operationsBody = (await pageA.locator('body').innerText()).trim();
@@ -1140,5 +1179,11 @@ try {
   if (real48.status !== 0) throw new Error('REAL_48_ARCHETYPE_PROOF_FAILED');
   evidence.status = evidence.steps.some(step=>step.status!=='PASS') ? 'NOT_PROVEN' : 'PASS';
 } catch (error) { evidence.status = error instanceof Error && /_MISSING$|NOT_PROVEN/.test(error.message) ? 'NOT_PROVEN' : 'FAIL'; evidence.error = error instanceof Error ? error.message : String(error); await pageA.screenshot({ path: reportDir + '/failure.png', fullPage: true }).catch(() => {}); }
-finally { evidence.finishedAt = new Date().toISOString(); await fs.writeFile(reportDir + '/result.json', JSON.stringify(evidence, null, 2)); await browser.close(); }
+finally {
+  evidence.finishedAt = new Date().toISOString();
+  await fs.writeFile(reportDir + '/result.json', JSON.stringify(evidence, null, 2));
+  await pageC.close().catch(() => {});
+  await contextC.close().catch(() => {});
+  await browser.close();
+}
 console.log(JSON.stringify(evidence, null, 2)); process.exitCode = evidence.status === 'PASS' ? 0 : 1;
