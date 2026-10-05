@@ -3,6 +3,13 @@ import { deriveReportIntelligence, type ReportIntelligence } from './report-inte
 import { resolveReportEvidenceStatus } from './report-smart-evidence-status.ts';
 import { detectReportArchetype, runReportArchetype } from './report-intelligence/archetype-registry.ts';
 
+export type ReportRequestOptions = { signal?: AbortSignal };
+
+function maybeAbort<T>(query: T, signal?: AbortSignal): T {
+  if (!signal) return query;
+  return (query as T & { abortSignal: (value: AbortSignal) => T }).abortSignal(signal);
+}
+
 export type SmartReportCatalogItem = {
   jobId: string;
   sourcePath: string;
@@ -390,7 +397,7 @@ function mapCatalogItem(job: Record<string, unknown>, analysis?: AnalysisSnapsho
   };
 }
 
-export async function fetchSmartReportCatalog(limit = 500): Promise<SmartReportCatalogItem[]> {
+export async function fetchSmartReportCatalog(limit = 500, options: ReportRequestOptions = {}): Promise<SmartReportCatalogItem[]> {
   if (!Number.isInteger(limit) || limit < 1 || limit > 5000) throw new Error('REPORT_QUERY_INVALID_SMART_REPORT_LIMIT');
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
@@ -400,7 +407,7 @@ export async function fetchSmartReportCatalog(limit = 500): Promise<SmartReportC
 
   for (let offset = 0; offset < limit; offset += pageSize) {
     const endRange = Math.min(offset + pageSize - 1, limit - 1);
-    const { data, error } = await supabase
+    const jobsQuery = supabase
       .from('report_execution_jobs')
       .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
       .eq('company_id', companyId)
@@ -408,6 +415,7 @@ export async function fetchSmartReportCatalog(limit = 500): Promise<SmartReportC
       .like('job_key', 'canonical-import:generic:%')
       .order('completed_at', { ascending: false })
       .range(offset, endRange);
+    const { data, error } = await maybeAbort(jobsQuery, options.signal);
 
     if (error) throw error;
     if (!data?.length) break;
@@ -426,13 +434,14 @@ export async function fetchSmartReportCatalog(limit = 500): Promise<SmartReportC
   for (let i = 0; i < importJobIds.length; i += 100) {
     const batch = importJobIds.slice(i, i + 100);
     if (!batch.length) continue;
-    const { data: analyses, error: analysisError } = await supabase
+    const analysesQuery = supabase
       .from('source_analysis_snapshots')
       .select('import_job_id,source_hash,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
       .eq('company_id', companyId)
       .in('import_job_id', batch)
       .order('created_at', { ascending: false })
       .limit(1000);
+    const { data: analyses, error: analysisError } = await maybeAbort(analysesQuery, options.signal);
 
     if (analysisError) throw analysisError;
     const byImportId = new Map<string, Record<string, unknown>[]>();
@@ -506,7 +515,7 @@ function emptyReportIntelligence(specialty: string | null): ReportIntelligence {
   };
 }
 
-export async function fetchSmartReport(jobId: string, expectedSourceHash: string): Promise<SmartReportDetail | null> {
+export async function fetchSmartReport(jobId: string, expectedSourceHash: string, options: ReportRequestOptions = {}): Promise<SmartReportDetail | null> {
   const normalizedJobId = jobId.trim();
   const normalizedSourceHash = expectedSourceHash.trim();
   if (!normalizedJobId) throw new Error('INVALID_REPORT_CONTEXT');
@@ -514,12 +523,13 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
 
-  const { data: job, error: jobError } = await supabase
+  const jobQuery = supabase
     .from('report_execution_jobs')
     .select('id,source_path,source_hash,job_key,status,checkpoint,evidence,completed_at')
     .eq('company_id', companyId)
     .eq('id', normalizedJobId)
     .maybeSingle();
+  const { data: job, error: jobError } = await maybeAbort(jobQuery, options.signal);
 
   if (jobError) throw jobError;
   if (!job || job.status !== 'completed') throw new Error('INVALID_REPORT_CONTEXT');
@@ -533,7 +543,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     runtimeWarnings.push('لم تُحفظ renderedOutput لهذا التقرير؛ تم بناء العرض من المصدر الكانوني ولقطة التحليل المتاحة دون اختلاق مخرجات سابقة.');
   }
   const rendered: Record<string, unknown> = renderedOutput ?? {};
-  const { data: passportRows, error: passportError } = await supabase
+  const passportQuery = supabase
     .from('report_evidence_passports')
     .select('id,evidence_snapshot_id,verification_status,decision_readiness,acceptance_status,lineage,evidence,updated_at')
     .eq('company_id', companyId)
@@ -541,6 +551,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     .eq('source_hash', job.source_hash)
     .order('updated_at', { ascending: false })
     .limit(1);
+  const { data: passportRows, error: passportError } = await maybeAbort(passportQuery, options.signal);
 
   if (passportError) runtimeWarnings.push('تعذر قراءة Evidence Passport الحالي؛ تم خفض حالة الدليل إلى المراجعة بدل إيقاف التقرير.');
 
@@ -572,12 +583,13 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
         }
       : rendered;
 
-  const { data: stages, error: stageError } = await supabase
+  const stagesQuery = supabase
     .from('report_execution_tasks')
     .select('ordinal,stage,status,attempt,started_at,completed_at,last_error,evidence')
     .eq('company_id', companyId)
     .eq('report_execution_job_id', job.id)
     .order('ordinal', { ascending: true });
+  const { data: stages, error: stageError } = await maybeAbort(stagesQuery, options.signal);
 
   if (stageError) runtimeWarnings.push('تعذر قراءة مراحل التنفيذ؛ بقي التحليل الذكي منفصلًا عن حالة المراحل.');
 
@@ -586,7 +598,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   const renderedImportId = resolveImportJobId(job as Record<string, unknown>, effectiveRendered, null);
   if (!renderedImportId) throw new Error('INVALID_REPORT_CONTEXT');
 
-  const { data: analyses, error: importAnalysisError } = await supabase
+  const analysisQuery = supabase
     .from('source_analysis_snapshots')
     .select('id,import_job_id,source_hash,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at')
     .eq('company_id', companyId)
@@ -594,6 +606,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
     .eq('import_job_id', renderedImportId)
     .order('created_at', { ascending: false })
     .limit(100);
+  const { data: analyses, error: importAnalysisError } = await maybeAbort(analysisQuery, options.signal);
 
   let analysis = chooseBestAnalysisSnapshot((analyses ?? []) as Array<Record<string, unknown>>);
   if (importAnalysisError) {
@@ -637,7 +650,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
   let canonicalImportJobId = renderedImportId || reportImportJobId;
   let canonicalResolvedFromCommit = false;
   try {
-    const { data: latestCommit, error: latestCommitError } = await supabase
+    const latestCommitQuery = supabase
       .from('canonical_import_commits')
       .select('committed_ids')
       .eq('company_id', companyId)
@@ -645,6 +658,7 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       .order('committed_at', { ascending: false })
       .limit(1)
       .maybeSingle();
+    const { data: latestCommit, error: latestCommitError } = await maybeAbort(latestCommitQuery, options.signal);
 
     if (latestCommitError) {
       canonicalCommitError = latestCommitError;
@@ -655,12 +669,13 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
         : '';
 
       if (firstCommittedId) {
-        const { data: anchor, error: anchorError } = await supabase
+        const anchorQuery = supabase
           .from('canonical_dataset_records')
           .select('import_job_id')
           .eq('company_id', companyId)
           .eq('id', firstCommittedId)
           .maybeSingle();
+        const { data: anchor, error: anchorError } = await maybeAbort(anchorQuery, options.signal);
         if (anchorError) {
           canonicalCommitError = anchorError;
         } else {
@@ -697,9 +712,10 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
       .eq('source_hash', resolvedSourceHash);
 
     const canonicalScopedQuery = canonicalSourceQuery.eq('import_job_id', canonicalImportJobId);
-    const { data: pageRows, error: pageError } = await canonicalScopedQuery
+    const canonicalPageQuery = canonicalScopedQuery
       .order('row_number', { ascending: true })
       .range(canonicalOffset, canonicalOffset + canonicalFetchPageSize - 1);
+    const { data: pageRows, error: pageError } = await maybeAbort(canonicalPageQuery, options.signal);
 
     if (pageError) {
       canonicalFetchError = true;
