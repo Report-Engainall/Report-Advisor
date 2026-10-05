@@ -447,7 +447,12 @@ export function ReportsCenterPage() {
                   ? 'التحليل يحتاج مراجعة'
                   : 'تحليل المصدر';
               return (
-                <Link key={report.jobId + ':' + report.sourceHash} to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)} className="ag-smart-report-card group rounded-2xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm">
+                <Link
+                  key={report.jobId + ':' + report.sourceHash}
+                  data-testid={report.jobId === PRIMARY_SMART_REPORT_JOB_ID ? 'primary-real-smart-report-card' : undefined}
+                  to={'/reports/smart/' + report.jobId + '?sourceHash=' + encodeURIComponent(report.sourceHash)}
+                  className="ag-smart-report-card group rounded-2xl border border-ink-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-sm"
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="truncate text-sm font-black text-ink-950">{report.specialty === 'sales' ? 'تقرير المبيعات' : report.specialty === 'purchases' ? 'تقرير المشتريات' : report.specialty === 'inventory' ? 'تقرير المخزون' : report.specialty === 'receivables' ? 'تقرير الذمم والتحصيل' : report.specialty === 'profitability' ? 'تقرير الربحية' : report.specialty === 'payments' ? 'تحليل السيولة والمدفوعات' : 'تقرير أعمال ذكي'}</div>
