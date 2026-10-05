@@ -322,7 +322,6 @@ jobs:
           node scripts/refresh-governed-real-corpus-passports.mjs
 
       - name: Prove real-source 48 archetype matrix
-        continue-on-error: true
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_REPORT_DIR: artifacts/e2e-business
