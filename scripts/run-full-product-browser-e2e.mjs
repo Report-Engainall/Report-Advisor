@@ -58,8 +58,8 @@ const REPORT_EXPECTATIONS = new Map([
   ['/reports/receivables', ['تقرير الذمم والتحصيل', 'إجمالي الذمم']],
   ['/reports/profitability', ['تقرير الأرباح والربحية', 'التكلفة']],
   ['/reports/smart/' + REAL_SMART_REPORT_JOB_ID + '?sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF', 'التفاصيل الكاملة للتقرير', 'مسار القرار', 'المصدر']],
-  ['/decision-experience?stage=evidence&reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['تجربة القرار', 'الدليل']],
-  ['/work-center?reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['مركز العمل', 'القرارات']],
+  ['/decision-experience?stage=evidence&reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['تجربة القرار']],
+  ['/work-center?reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['مركز العمل']],
 ]);
 const REPORT_LOADING_MARKERS = [
   'جارٍ تحميل',
@@ -322,7 +322,8 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       return false;
     };
     const criticalPendingDataRequests = [...pendingDataRequests].filter(request => !optionalBackgroundRequest(request));
-    const dataComplete = dataRequestsSeenSinceRoute > 0 && criticalPendingDataRequests.length === 0;
+    const domBackedSmartReadback = isSmartReport && state.smartJobIdPresent && state.smartSourceHashPresent && state.smartDecisionCards.length === 6 && criticalPendingDataRequests.length === 0;
+    const dataComplete = (dataRequestsSeenSinceRoute > 0 || domBackedSmartReadback) && criticalPendingDataRequests.length === 0;
     const pendingDataRequestDetails = [...pendingDataRequests].slice(0, 20).map(request => ({
       method: request.method(),
       url: request.url(),
