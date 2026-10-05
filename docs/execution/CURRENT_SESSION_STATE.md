@@ -1,8 +1,8 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = d019627f91eba83b322a769ca4e847d3c42cd062
-CURRENT_MAIN_HEAD = d019627f91eba83b322a769ca4e847d3c42cd062
-CURRENT_EXECUTION_HEAD = d019627f91eba83b322a769ca4e847d3c42cd062
+CURRENT_EXACT_HEAD = 602dcb7a0c6769831aa6f232f06d8bd797c8c2f8
+CURRENT_MAIN_HEAD = 602dcb7a0c6769831aa6f232f06d8bd797c8c2f8
+CURRENT_EXECUTION_HEAD = 602dcb7a0c6769831aa6f232f06d8bd797c8c2f8
 BRANCH = main
 PR = N/A
 CURRENT_PR_HEAD = N/A
@@ -32,7 +32,7 @@ CURRENT_OPEN_GATES
 - Public hosting still depends on a deploy route that can publish the current exact head.
 
 CURRENT_ACTIVE_FAILURE
-- The immediately prior failure was Session Handoff Contract reporting stale governance coverage because the session documents referenced an older execution head 688270e5e5975fdde7516603a1a5fc615b74cdb2. The documents are now rebound to the actual current head.
+- The immediately prior product failure was a duplicate SourceBoundReportSurface import in src/pages/ExecutiveReportPage.tsx. It has been removed on the current product head. Session governance remains rebound to the current product head.
 - No new product failure is asserted until the exact-head jobs reach terminal state.
 
 ROOT_CAUSE
