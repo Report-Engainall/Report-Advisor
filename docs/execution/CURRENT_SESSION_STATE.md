@@ -1,11 +1,11 @@
 ﻿SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 0f41ffba2fe8dabe69c3feb9fcc3b2d9566e1d75
+CURRENT_EXACT_HEAD = 7e5d5f668faef4939f7fea28e07af6447509d68d
 CURRENT_MAIN_HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
-CURRENT_EXECUTION_HEAD = 0f41ffba2fe8dabe69c3feb9fcc3b2d9566e1d75
+CURRENT_EXECUTION_HEAD = 7e5d5f668faef4939f7fea28e07af6447509d68d
 BRANCH = exec/final-reconcile-20261005
 PR = #841 OPEN
-CURRENT_PR_HEAD = 0f41ffba2fe8dabe69c3feb9fcc3b2d9566e1d75
+CURRENT_PR_HEAD = 7e5d5f668faef4939f7fea28e07af6447509d68d
 
 WHAT_ACTUALLY_HAPPENED
 - طھظ… ط¥طµظ„ط§ط­ ظ…ط³ط§ط±ط§طھ ط¹ط±ط¶ ط§ظ„طھظ‚ط§ط±ظٹط± ط¨ط­ظٹط« ظ„ط§ ظٹط­ط¬ط¨ ظƒطھط§ظ„ظˆط¬ ط§ظ„طھظ‚ط§ط±ظٹط± ط£ظˆ ط·ظ„ط¨ط§طھ ط§ظ„ط®ظ„ظپظٹط© ظˆطµظˆظ„ ط§ظ„ظ„ظ‚ط·ط© ط§ظ„ط­ظ‚ظٹظ‚ظٹط© ط¥ظ„ظ‰ ط§ظ„ظˆط§ط¬ظ‡ط©.
@@ -19,7 +19,10 @@ WHAT_ACTUALLY_HAPPENED
 - طھظ… طھط­ط¯ظٹط« ظ‡ط°ط§ handoff ظ„ظٹط؛ط·ظٹ ظƒظ„ ط§ظ„ظ…ظ„ظپط§طھ ط§ظ„ظ…ط¹ط¯ظ„ط© ط­طھظ‰ ط§ظ„ط±ط£ط³ ط§ظ„ط­ط§ظ„ظٹ.
 
 WHAT_IS_PROVEN
-- Login commercial value surface contract PASS on 0f41ffba2; visible Evidence-first, Provenance, Decision, Outcome, and Arabic-first value principles are now on the entry surface.
+- Login commercial value surface contract PASS.
+- Local typecheck/build, Smart Report intelligence surface, 48-archetype runtime, and report-center UI contracts PASS on the current candidate.
+- Reports Center no longer blocks on the executive snapshot; it can render real completed report jobs and preserve the user's last selected Smart Report.
+- Smart Report specialty classification now derives from semantic source fields and inventory stock measures accept balance/current_stock/quantity alternatives.
 - Local typecheck PASS.
 - Navigation/route contract PASS: ظ„ط§ duplicate route pathsطŒ 46 route declarations.
 - UI route completeness PASS.

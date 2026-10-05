@@ -3,16 +3,16 @@ SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
 REFERENCE START HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
-CURRENT EXECUTION HEAD = 0f41ffba2fe8dabe69c3feb9fcc3b2d9566e1d75
-REPORT_FOR_HEAD = 0f41ffba2fe8dabe69c3feb9fcc3b2d9566e1d75
+CURRENT EXECUTION HEAD = 7e5d5f668faef4939f7fea28e07af6447509d68d
+REPORT_FOR_HEAD = 7e5d5f668faef4939f7fea28e07af6447509d68d
 BRANCH = exec/final-reconcile-20261005
 PR = #841 OPEN
-UPDATED_AT = 2026-10-05T03:11:42Z
+UPDATED_AT = 2026-10-05T03:42:00Z
 WHAT_I_WAS_ASKED_TO_DO = ط§ط³طھظƒظ…ط§ظ„ ط§ظ„طھظ†ظپظٹط° ظ…ظ† 06a9c69 ط¯ظˆظ† ط¥ط¹ط§ط¯ط© ط¨ظ†ط§ط، ظ…ط§ ط£ظڈظ†ط¬ط²طŒ ظˆط¥ط®ط±ط§ط¬ Report-Advisor ظƒظ…ظ†طھط¬ ظ‚ط§ط¨ظ„ ظ„ظ„ط¨ظٹط¹: ط¥طµظ„ط§ط­ ط¹ط±ط¶ ط§ظ„طھظ‚ط§ط±ظٹط± ط§ظ„ط­ظ‚ظٹظ‚ظٹطŒ ط¥ط«ط¨ط§طھ Smart Report ط§ظ„ط­ظ‚ظٹظ‚ظٹطŒ ظپظƒ real-source eligibility ظ„ظ„ظ€48طŒ ظˆط¥ط؛ظ„ط§ظ‚ Quality/Certification ط¹ظ„ظ‰ ظ†ظپط³ HEAD ط¨ط¯ظˆظ† PASS ظˆظ‡ظ…ظٹ.
 
 OBJECTIVE = ط¥ط؛ظ„ط§ظ‚ ظپط¬ظˆط© ط§ظ„ظ…ظ†طھط¬ ط§ظ„ظپط¹ظ„ظٹ ظ„ظ„ط¨ظٹط¹: طھظ‚ط±ظٹط± ط­ظ‚ظٹظ‚ظٹ ظٹط¸ظ‡ط± ظˆظٹظڈظپظ‡ظ… ظˆظٹظ‚ظˆط¯ ط¥ظ„ظ‰ Evidence ط«ظ… Signal ط«ظ… Recommendation ط«ظ… Decision ط«ظ… ActionطŒ ظ…ط¹ ط¥ط«ط¨ط§طھ Browser ط­ظ‚ظٹظ‚ظٹ ظˆ48 archetypes ط­ظ‚ظٹظ‚ظٹط©.
 
-WHAT_I_ACTUALLY_DID = Report rendering, Smart Report decision-chain, authenticated browser proof, governed real-48 eligibility, and CI fail-closed hardening were implemented.
+WHAT_I_ACTUALLY_DID = Report rendering, Smart Report decision-chain, authenticated browser proof, governed real-48 eligibility, CI fail-closed hardening, dashboard-independent report catalog rendering, and semantic source-specialty correction were implemented.
 1) Report Center/Sales/Purchases/Receivables rendering: ظپطµظ„ critical snapshot ط¹ظ† background catalog/invoice hydration ط­طھظ‰ ظ„ط§ طھط¨ظ‚ظ‰ ط§ظ„ط´ط§ط´ط© ظپظٹ loading ط؛ظٹط± ظ…ظ†طھظ‡ظچ.
 2) Smart Report: ط¥ط¶ط§ظپط© decision-chain طھط¬ط§ط±ظٹ ظˆط§ط¶ط­ WHAT/WHY/SO WHAT/IMPACT/WHAT NEXT/PROOF ظˆط±ط¨ط·ظ‡ ط¨ط¨ظٹط§ظ†ط§طھ ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ط­ظ‚ظٹظ‚ظٹ.
 3) Browser proof: ط§ظ„ط§ط³طھظ‚ط±ط§ط± ط£طµط¨ط­ ط´ط±ط· ظ†ط¬ط§ط­طŒ ظˆSmart Report ظٹطھط·ظ„ط¨ ط§ظ„ط¹ظ†ط§طµط± ط§ظ„ط³طھط©طŒ jobId/sourceHashطŒ refresh readbackطŒ ظˆtelemetry ظ…ظ† طµظپط­ط© tenant ط§ظ„طµط­ظٹط­.
@@ -20,8 +20,8 @@ WHAT_I_ACTUALLY_DID = Report rendering, Smart Report decision-chain, authenticat
 5) Browser Smart Report proof: tenant B ط£طµط¨ط­ ظ…ط±طھط¨ط·ظ‹ط§ ط¨ظ…ط§ظ„ظƒ ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ط­ظ‚ظٹظ‚ظٹ c42fb0e1 ط¨ط¯ظ„ tenant corpus ط§ظپطھط±ط§ط¶ظٹ ط¢ط®ط±.
 6) CI governance: real-48 ظ„ظ… ظٹط¹ط¯ continue-on-errorطŒ ظˆsession handoff ظٹظڈط­ط¯ظ‘ط« ظ…ط¹ ظƒظ„ HEAD.
 
-WHAT_IS_PROVEN = Local typecheck, login commercial value contract, release-core, Smart Report/runtime, decision/workflow contracts, route/security/import truth, and exact-head 40/40 value cohort are proven. A/B/C actor provisioning is proven on the prior exact-head browser run. Current final gates remain real-source 48/48 + authenticated Chromium Smart Report + final certification.
-- Current HEAD: 0f41ffba2.
+WHAT_IS_PROVEN = Local typecheck/build, login commercial value contract, Smart Report/runtime surface, 48-archetype runtime contract, decision/workflow contracts, report-center UI contract, route/security/import truth, and exact-head 40/40 value cohort are proven. The previous Chromium artifact also confirmed the real /reports screen renders actual report cards; the remaining product gate was Smart Report semantic intelligence, now corrected at source-specialty detection. A/B/C actor provisioning is proven on the prior exact-head browser run. Current final gates remain real-source 48/48 + authenticated Chromium Smart Report + final certification.
+- Current HEAD: 7e5d5f668.
 - Session Handoff Contract: PASS ط¹ظ„ظ‰ HEAD ط§ظ„ط­ط§ظ„ظٹ.
 - Typecheck/local route checks: PASS.
 - Phase 2 security: PASS.
@@ -31,12 +31,12 @@ WHAT_IS_PROVEN = Local typecheck, login commercial value contract, release-core,
 - Real certified Smart Report: c42fb0e1-75f2-4727-8c3e-470ae1a804fa, 342 canonical rows, VERIFIED evidence, READY decision.
 
 CURRENT_OPEN_GATES
-- Full Product Browser E2E terminal result.
+- Full Product Browser E2E terminal result on HEAD 7e5d5f668faef4939f7fea28e07af6447509d68d.
 - Real-source 48/48 terminal matrix result.
 - Chromium screenshots for reports and Smart Report.
 - Final Certification Gate on the same HEAD.
 
-FIRST_ACTIVE_FAILURE = Real-source 48 failed on the exact-head run because the preflight still observed actor tenant 99e333... and only 25 source jobs despite valid ready passports across the other corpus tenants. Root cause was cross-tenant PostgREST filtering in the preflight path, not missing database evidence. This is fixed by service-role bulk fetch + in-memory tenant join; browser steps are forced to continue for evidence.
+FIRST_ACTIVE_FAILURE = The latest customer-visible artifact on ccb494a showed Smart Report route loaded but semantic intelligence was blocked: the persisted specialty was sales while the actual source fields were inventory-like (sku/balance/incoming/net_sales/stock-age). Root cause was source-specialty precedence plus an overly literal inventory core-field gate. Fixed on HEAD 7e5d5f668 by deriving specialty from semantic source fields with mapped-field weighting and accepting balance/current_stock/quantity as the stock measure. Separately, the earlier real-48 selection bug was fixed by exact company_id/source_hash file-record lookup.
 - No new product failure is proven on the current candidate; the active blockers are evidence/CI sequencing.
 
 ROOT_CAUSE = The earlier actor topology issue is fixed. The remaining 17/48 issue was preflight selection logic: tenant-filtered REST queries did not produce a reliable cross-tenant corpus set. The current implementation bulk-fetches governed ready passports, completed jobs, and file records via service-role and joins by company_id/source_hash, while excluding the synthetic 48 fixture marker.
@@ -47,4 +47,4 @@ ROOT_CAUSE = The earlier actor topology issue is fixed. The remaining 17/48 issu
 - Prior real-48 failure: actor tenant saw only 25 completed jobs and target report belonged to another corpus tenant; eligibility gate therefore proved 17/48, not 48/48.
 - These are addressed in the current candidate; no PASS is claimed until exact-head terminal evidence arrives.
 
-NEXT_EXACT_ACTION = Consume the terminal Full Product Browser result on 0f41ffba2; fix only its first active failure, then persist/readback and rerun the affected proof. No sale-ready claim before 48/48 + Chromium Smart Report + same-head certification.
+NEXT_EXACT_ACTION = Consume the terminal Full Product Browser result on HEAD 7e5d5f668; if Smart Report still blocks, capture its first gate reason and fix only that reason. No sale-ready claim before 48/48 + Chromium Smart Report + same-head certification.
