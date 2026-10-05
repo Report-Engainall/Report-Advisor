@@ -17,6 +17,7 @@ assert.match(netlifySource, /source_fingerprint: sourceSha/);
 assert.match(netlifySource, /AUTHORITATIVE_SOURCE_ANALYSIS_PERSIST_FAILED/);
 assert.doesNotMatch(netlifySource, /non-fatal snapshot persistence failure/);
 assert.match(netlifySource, /\.eq\('id', importId\)/);
+assert.match(netlifySource, /execution = await runCanonicalImportThroughDurableRunner/);
 assert.doesNotMatch(netlifySource, /\.eq\('id', payload\.importId\)/);
 assert.match(source, /computeSHA256\(buffer\)/);
 assert.match(source, /serverSourceAuthority/);
