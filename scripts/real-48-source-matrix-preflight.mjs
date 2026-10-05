@@ -274,14 +274,17 @@ for (const companyId of configuredTenantIds) {
 
     // Real-source proof must never select the synthetic 48-archetype fixture corpus.
     // The governed file record is the authoritative classification boundary here.
-    const fileRecords = (await evidenceSelect(
+    // Resolve the governed file record by the exact source identity.
+    // A global file_records limit is unsafe because the database contains more than
+    // 5000 records across tenants; it can silently omit a valid corpus file.
+    const fileRecords = await evidenceSelect(
       'file_records',
-      {},
+      {
+        company_id: companyId,
+        file_hash: sourceHash,
+      },
       'id,company_id,file_name,file_hash,metadata',
-      { limit: 5000 },
-    )).filter((record) =>
-      String(record.company_id) === String(companyId) &&
-      String(record.file_hash ?? '') === sourceHash
+      { limit: 20 },
     );
     const governedRealSource = fileRecords.find((record) => {
       const metadata = record?.metadata && typeof record.metadata === 'object' ? record.metadata : {};
