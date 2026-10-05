@@ -753,7 +753,7 @@ export function SmartReportPage() {
       setLoading(false);
       return () => { active = false; };
     }
-    void fetchSmartReport(jobId, expectedSourceHash).then((next) => {
+    void fetchSmartReport(jobId, expectedSourceHash, { signal: AbortSignal.timeout(25000) }).then((next) => {
       if (active) setReport(next)
     }).catch((reason) => {
       if (active) setError(userFacingError(reason instanceof Error ? reason.message : String(reason)));
