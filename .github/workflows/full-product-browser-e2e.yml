@@ -301,6 +301,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           E2E_ACTOR_PROVISION_DEADLINE_MS: '360000'
           E2E_ACTOR_REQUEST_TIMEOUT_MS: '15000'
+          E2E_CORPUS_TENANT_ID: '99e33354-cc45-4317-8eb3-0d486b6c5932'
           REPORT_ADVISOR_E2E_DEBUG: '1'
         shell: bash
         run: |
@@ -312,6 +313,7 @@ jobs:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          E2E_CORPUS_TENANT_ID: '99e33354-cc45-4317-8eb3-0d486b6c5932'
         shell: bash
         run: |
           set -euo pipefail
