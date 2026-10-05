@@ -445,7 +445,7 @@ async function proveSmartReportAndEvidence(page, companyId, importResult, label)
 
 const CURRENT_REPORT_SOURCE_PATH = process.env.CURRENT_REPORT_SOURCE_PATH?.trim() || 'تقارير ادارية.xlsx';
 const CURRENT_REPORT_SOURCE_HASH = process.env.CURRENT_REPORT_SOURCE_HASH?.trim() || 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
-const CURRENT_REPORT_ROW_COUNT = Number(process.env.CURRENT_REPORT_ROW_COUNT || '342');
+const CURRENT_REPORT_ROW_COUNT = Number(process.env.CURRENT_REPORT_ROW_COUNT || '332');
 const CURRENT_REPORT_TASK_COUNT = 9;
 const CURRENT_REPORT_ENTITY_TYPE = 'generic:sales';
 
