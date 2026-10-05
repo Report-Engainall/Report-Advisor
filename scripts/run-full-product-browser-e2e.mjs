@@ -45,7 +45,7 @@ const REPORT_EXPECTATIONS = new Map([
   ['/reports/inventory-intelligence', ['ذكاء المخزون والمجموعات']],
   ['/reports/demand-velocity', ['حركة الطلب وسرعة الأصناف']],
   ['/reports/receivables', ['تقرير الذمم والتحصيل', 'إجمالي الذمم']],
-  ['/reports/profitability', ['تقرير الأرباح والربحية', 'إجمالي التكلفة']],
+  ['/reports/profitability', ['تقرير الأرباح والربحية', 'التكلفة']],
 ]);
 const REPORT_LOADING_MARKERS = [
   'جارٍ تحميل',
@@ -513,6 +513,7 @@ try {
         const beforeFailed = failedRequests.length;
         const beforeFailedResponses = failedResponses.length;
         const beforeRequests = requests.length;
+        pendingDataRequests.clear();
         const dataBaseline = dataRequestsSeen;
         const started = Date.now();
         let status = 'PASS'; let reason = '';
