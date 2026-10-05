@@ -880,6 +880,20 @@ export function SmartReportPage() {
           </div>
           <h2 className="mt-2 text-2xl font-black leading-tight lg:text-3xl">ماذا يحدث في هذا التقرير؟</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">{executiveSignal?.message || report.intelligence.advisorBrief.headline || businessSummary}</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-source">
+              <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">SOURCE</div>
+              <div className="mt-1 break-words text-[11px] font-bold text-slate-100">{report.sourcePath}</div>
+            </div>
+            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-source-hash">
+              <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">SOURCE HASH</div>
+              <div className="mt-1 break-all font-mono text-[10px] text-slate-200">{report.sourceHash}</div>
+            </div>
+            <div className="rounded-xl border border-slate-700 bg-slate-950/60 p-3" data-testid="smart-report-job-id">
+              <div className="text-[8px] font-black uppercase tracking-[.12em] text-slate-400">REPORT JOB ID</div>
+              <div className="mt-1 break-all font-mono text-[10px] text-slate-200">{report.jobId}</div>
+            </div>
+          </div>
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{confidenceLabel}</span>
             <span className="rounded-full border border-slate-600 bg-slate-900/60 px-3 py-1.5 text-[10px] font-bold text-slate-200">{reportRowCountLabel(report.rowCount)}</span>

@@ -665,7 +665,8 @@ try {
         const route = routes[i];
         const usesReportProofTenant =
           Boolean(reportProofPage) &&
-          (route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID)
+          (route === '/reports'
+            || route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID)
             || route.startsWith('/decision-experience?stage=evidence&reportJobId=' + REAL_SMART_REPORT_JOB_ID)
             || route.startsWith('/work-center?reportJobId=' + REAL_SMART_REPORT_JOB_ID));
         const routePage = usesReportProofTenant ? reportProofPage : page;

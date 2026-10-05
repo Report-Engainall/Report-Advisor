@@ -516,7 +516,7 @@ async function readCurrentPersistedReport(page, companyId) {
   assert.equal(fileRecords.length, 1);
   assert.equal(fileRecords[0].file_name, CURRENT_REPORT_SOURCE_PATH);
   assert.equal(fileRecords[0].file_hash, CURRENT_REPORT_SOURCE_HASH);
-  return { job, rendered, tasks, importJob: imports[0], canonicalRows, commits, analysis: analyses[0], fileRecord: fileRecords[0], reportJobId: job.id, sourceHash: CURRENT_REPORT_SOURCE_HASH };
+  return { job, rendered, tasks, importJob: imports[0], canonicalRows, commits, analysis: analyses[0], fileRecord: fileRecords[0], reportJobId: job.id, sourcePath: job.source_path, sourceHash: CURRENT_REPORT_SOURCE_HASH };
 }
 
 async function waitForCurrentJobResponse(page, jobId) {
