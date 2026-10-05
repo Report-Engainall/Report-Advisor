@@ -190,6 +190,7 @@ function canonicalSourceField(value: unknown): string | null {
     ['stock_age_days', ['stock_age_days','stockagedays','عمر المخزون','عمرالمخزون']],
     ['stock_age_period_days', ['stock_age_period_days','stockageperioddays','عمر المخزون للفترة','عمرالمخزونللفترة']],
     ['opening_stock', ['opening_stock','openingstock','الرصيد الافتتاحي','الرصيدالإفتتاحي','المخزون الافتتاحي']],
+    ['incoming', ['incoming','inbound','الوارد','الـوارد']],
     ['net_inbound', ['net_inbound','netinbound','صافي الوارد','صافيوارد']],
     ['transfers_pending', ['transfers_pending','pending_transfer','تحويل غير مستلم','تحويلغيرمستلم']],
     ['unit_price', ['unit_price','سعرالوحدة']],
@@ -354,6 +355,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
     const stockAgeColumn = findColumn(columns, ['stock_age_days', 'stockagedays', 'عمر المخزون', 'عمرالمخزون']);
     const stockAgePeriodColumn = findColumn(columns, ['stock_age_period_days', 'stockageperioddays', 'عمر المخزون للفترة', 'عمرالمخزونللفترة']);
     const openingColumn = findColumn(columns, ['opening_stock', 'openingstock', 'الرصيد الافتتاحي', 'الرصيدالإفتتاحي', 'المخزون الافتتاحي']);
+    const incomingColumn = findColumn(columns, ['incoming', 'inbound', 'الوارد', 'الـوارد']);
     const netInboundColumn = findColumn(columns, ['net_inbound', 'netinbound', 'صافي الوارد', 'صافيوارد']);
     const netSalesColumn = findColumn(columns, ['sales_qty', 'salesqty', 'صافي المبيعات', 'صافيالمبيعات', 'كمية المبيعات']);
     const stockKey = dataKey(stockColumn);
@@ -365,6 +367,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
     const stockAgeKey = dataKey(stockAgeColumn);
     const stockAgePeriodKey = dataKey(stockAgePeriodColumn);
     const openingKey = dataKey(openingColumn);
+    const incomingKey = dataKey(incomingColumn);
     const netInboundKey = dataKey(netInboundColumn);
     const netSalesKey = dataKey(netSalesColumn);
 
@@ -417,11 +420,26 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
           if (age >= 180 && (dailyRate == null || dailyRate <= 1)) oldStockRows += 1;
         }
 
-        if (openingKey && netInboundKey && netSalesKey) {
-          const opening = numeric(rowValue(row.data, openingKey));
-          const inbound = numeric(rowValue(row.data, netInboundKey));
+        if (netSalesKey) {
+          const opening = openingKey ? numeric(rowValue(row.data, openingKey)) : null;
+          const incoming = incomingKey ? numeric(rowValue(row.data, incomingKey)) : null;
+          const netInbound = netInboundKey ? numeric(rowValue(row.data, netInboundKey)) : null;
           const sales = numeric(rowValue(row.data, netSalesKey));
-          if (opening != null && inbound != null && sales != null && Math.abs((opening + inbound - sales) - stock) > 0.01) reconciliationMismatches += 1;
+          let expectedClosing: number | null = null;
+          let reconciliationMode = '';
+          // "صافي الوارد" in this source already includes the opening balance.
+          // When explicit opening + incoming fields exist, use opening + incoming.
+          // Otherwise fall back to netInbound as the cumulative inbound figure.
+          if (opening != null && incoming != null) {
+            expectedClosing = opening + incoming - (sales ?? 0);
+            reconciliationMode = 'opening+incoming-sales';
+          } else if (netInbound != null) {
+            expectedClosing = netInbound - (sales ?? 0);
+            reconciliationMode = 'netInbound-sales';
+          }
+          if (expectedClosing != null && stock != null && Math.abs(expectedClosing - stock) > 0.01) {
+            reconciliationMismatches += 1;
+          }
         }
       }
 
@@ -467,7 +485,7 @@ function deriveSignals(report: ReportInput): ReportSignal[] {
         'high',
         'فجوة بين الحركة والرصيد النهائي',
         'يوجد ' + reconciliationMismatches + ' سجلًا لا يتطابق فيه الرصيد مع الرصيد الافتتاحي + صافي الوارد − صافي المبيعات.',
-        ['openingField=' + openingKey, 'inboundField=' + netInboundKey, 'salesField=' + netSalesKey, 'stockField=' + stockKey, 'affectedRows=' + reconciliationMismatches],
+        ['openingField=' + openingKey, 'incomingField=' + incomingKey, 'netInboundField=' + netInboundKey, 'salesField=' + netSalesKey, 'stockField=' + stockKey, 'affectedRows=' + reconciliationMismatches],
         reconciliationMismatches,
       );
       if (dailyRateRows > 0) {
