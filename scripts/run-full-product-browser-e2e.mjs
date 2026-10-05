@@ -302,6 +302,8 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
         smartDecisionCards: ['what','why','so-what','impact','what-next','proof'].filter(key => Boolean(document.querySelector('[data-testid="smart-report-' + key + '"]'))),
         smartJobIdPresent: text.includes(smartReportJobId),
         smartSourceHashPresent: text.includes(smartReportSourceHash),
+        realReportJobIdPresent: text.includes(smartReportJobId),
+        realReportSourcePresent: text.includes('تقارير ادارية.xlsx'),
       };
     }, {
       expected,
@@ -329,7 +331,7 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
     const isSmartReport = route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID);
     const realReportOnCenterPresent =
       !isReportsCenter ||
-      (state.smartJobIdPresent && state.text.includes?.(REAL_SMART_REPORT_JOB_ID) && state.text.includes?.('تقارير ادارية.xlsx'));
+      (state.realReportJobIdPresent && state.realReportSourcePresent);
     const smartSignalSurfacePresent = !isSmartReport || state.smartSignalSurfacePresent;
     const smartAdvisorSurfacePresent = !isSmartReport || state.smartAdvisorSurfacePresent;
     const smartDecisionChainPresent = !isSmartReport || state.smartDecisionChainPresent;
