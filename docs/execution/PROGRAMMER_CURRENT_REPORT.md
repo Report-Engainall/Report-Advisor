@@ -1,18 +1,18 @@
 SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
-CURRENT MAIN HEAD = eb9c0feb3fb9ac27170ebcaec3b92cc7bd6e5142
+CURRENT MAIN HEAD = 4d6d8a91e94b27d4c6087a8f10f171bc37fe93c8
 REFERENCE START HEAD = 9883ce3d066b32ca36cfe7dc0e3223842d701377
-CURRENT EXECUTION HEAD = eb9c0feb3fb9ac27170ebcaec3b92cc7bd6e5142
-REPORT_FOR_HEAD = eb9c0feb3fb9ac27170ebcaec3b92cc7bd6e5142
+CURRENT EXECUTION HEAD = 4d6d8a91e94b27d4c6087a8f10f171bc37fe93c8
+REPORT_FOR_HEAD = 4d6d8a91e94b27d4c6087a8f10f171bc37fe93c8
 BRANCH = main
 PR = N/A
-UPDATED_AT = 2026-10-05T17:00:00Z
+UPDATED_AT = 2026-10-05T17:12:00Z
 
 WHAT_I_WAS_ASKED_TO_DO = Continue execution until the real report center and Smart Report are customer-visible and proven, not merely route-loaded or test-only.
 
 OBJECTIVE = Real source -> readable report -> evidence -> intelligence -> decision chain -> browser proof -> certification, with no fabricated outcomes or benchmark values.
 
-WHAT_I_ACTUALLY_DID = Added contract-compatible Smart Report overload support, propagated abort control through tenant lookup, decoupled Reports Center first paint from slow background reads, fixed strict TypeScript closure-narrowing errors, updated the tenant-governance checker for abort-aware canonical resolution, and added an independent Browser first-paint proof for the real report center.
+WHAT_I_ACTUALLY_DID = Bound Browser route proof to the primary real report c42fb0e1-75f2-4727-8c3e-470ae1a804fa (تقارير ادارية.xlsx, 342 rows, sha256:587f2d3d...) and fixed the Browser first-paint/business harnesses to assert the current product UI and source.
 
 WHAT_IS_PROVEN = Supabase contains the exact completed real report c42fb0e1-75f2-4727-8c3e-470ae1a804fa with source تقارير ادارية.xlsx and source hash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313. Existing intelligence/security/import/route contracts were proven on the preceding exact head. The new code is committed at CURRENT MAIN HEAD above.
 
