@@ -989,6 +989,9 @@ export async function fetchSmartReport(jobId: string, expectedSourceHash: string
           : 'REVIEW_REQUIRED';
   const runtimeRendered = {
     ...effectiveRendered,
+    // Persisted renderedOutput may carry a stale specialty from the original
+    // execution. The runtime source analysis is authoritative for classification.
+    sourceSpecialty: specialty ?? effectiveRendered.sourceSpecialty ?? null,
     archetypeId: detectedArchetype.profile?.id ?? null,
     archetypeVersion: detectedArchetype.profile?.version ?? null,
     profileVersion: detectedArchetype.profile?.version ?? null,
