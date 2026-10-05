@@ -104,7 +104,7 @@ function useOptionalSourceReport() {
     setLoading(true);
     setError(null);
     try {
-      const next = await fetchSmartReport(jobId, expectedSourceHash);
+      const next = await fetchSmartReport(jobId, expectedSourceHash, { signal: AbortSignal.timeout(25000) });
       if (version !== requestVersion.current) return;
       if (next && expectedSourceHash && next.sourceHash !== expectedSourceHash) {
         throw new Error('REPORT_SOURCE_HASH_MISMATCH');
