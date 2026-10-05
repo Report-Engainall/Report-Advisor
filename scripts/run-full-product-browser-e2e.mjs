@@ -72,8 +72,10 @@ page.on('requestfailed', request => {
   if (error === 'net::ERR_ABORTED') return;
   failedRequests.push({ method: request.method(), url: request.url(), error });
 });
+page.on('requestfinished', request => {
+  pendingDataRequests.delete(request);
+});
 page.on('response', async response => {
-  pendingDataRequests.delete(response.request());
   if (response.status() < 400) return;
   const url = response.url();
   const relevant = !supabaseURL || url.startsWith(supabaseURL) || url.includes('/rest/v1/') || url.includes('/auth/v1/');
@@ -277,11 +279,21 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
     const dataRequestsSeenSinceRoute = dataRequestsSeen - dataBaseline;
     const allExpectedFound = state.matches.every(item => item.found);
     const dataComplete = dataRequestsSeenSinceRoute > 0 && pendingDataRequests.size === 0;
+    const pendingDataRequestDetails = [...pendingDataRequests].slice(0, 20).map(request => ({
+      method: request.method(),
+      url: request.url(),
+    }));
     const noLoading = state.loading.length === 0;
     const noVisibleError = state.errors.length === 0;
     const settled = state.textLength > 120 && allExpectedFound && dataComplete && noLoading && noVisibleError && !state.busy;
 
-    lastState = { ...state, dataRequestsSeenSinceRoute, pendingDataRequests: pendingDataRequests.size, settled };
+    lastState = {
+      ...state,
+      dataRequestsSeenSinceRoute,
+      pendingDataRequests: pendingDataRequests.size,
+      pendingDataRequestDetails,
+      settled,
+    };
     if (settled) return lastState;
     await targetPage.waitForTimeout(350);
   }
