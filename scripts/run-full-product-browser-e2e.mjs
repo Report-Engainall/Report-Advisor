@@ -678,10 +678,10 @@ try {
         let status = 'PASS'; let reason = '';
         let inspection = null;
         let settlement = null;
+        let firstPaint = null;
         try {
           const response = await routePage.goto(baseURL + route, { waitUntil: 'domcontentloaded', timeout: 30000 });
           await routePage.waitForTimeout(250);
-          let firstPaint = null;
           if (route === '/reports') {
             firstPaint = await waitForRealReportFirstPaint(routePage, 8000);
             if (!firstPaint.proven) {
