@@ -322,14 +322,14 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       return false;
     };
     const criticalPendingDataRequests = [...pendingDataRequests].filter(request => !optionalBackgroundRequest(request));
+    const isReportsCenter = route === '/reports';
+    const isSmartReport = route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID);
     const domBackedSmartReadback = isSmartReport && state.smartJobIdPresent && state.smartSourceHashPresent && state.smartDecisionCards.length === 6 && criticalPendingDataRequests.length === 0;
     const dataComplete = (dataRequestsSeenSinceRoute > 0 || domBackedSmartReadback) && criticalPendingDataRequests.length === 0;
     const pendingDataRequestDetails = [...pendingDataRequests].slice(0, 20).map(request => ({
       method: request.method(),
       url: request.url(),
     }));
-    const isReportsCenter = route === '/reports';
-    const isSmartReport = route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID);
     const realReportOnCenterPresent =
       !isReportsCenter ||
       (state.textLength > 120 && state.realReportSourcePresent);
