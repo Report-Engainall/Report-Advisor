@@ -247,20 +247,20 @@ const sourceRecords = [];
 const sourceRowsCache = new Map();
 
 for (const companyId of configuredTenantIds) {
-  const passports = await evidenceSelect(
+  const passports = (await evidenceSelect(
     'report_evidence_passports',
-    { company_id: companyId, verification_status: 'VERIFIED', decision_readiness: 'READY' },
+    { verification_status: 'VERIFIED', decision_readiness: 'READY' },
     'id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash',
-    { limit: 500 },
-  );
+    { limit: 5000 },
+  )).filter((row) => String(row.company_id) === String(companyId));
   const verifiedJobIds = new Set(passports.map((row) => String(row.report_execution_job_id)));
 
-  const jobs = await evidenceSelect(
+  const jobs = (await evidenceSelect(
     'report_execution_jobs',
-    { company_id: companyId, status: 'completed' },
+    { status: 'completed' },
     'id,company_id,source_path,source_hash,evidence,completed_at',
     { order: 'completed_at.desc', limit: 5000 },
-  );
+  )).filter((row) => String(row.company_id) === String(companyId));
 
   for (const passport of passports) {
     const job = jobs.find((item) => String(item.id) === String(passport.report_execution_job_id));
@@ -274,11 +274,14 @@ for (const companyId of configuredTenantIds) {
 
     // Real-source proof must never select the synthetic 48-archetype fixture corpus.
     // The governed file record is the authoritative classification boundary here.
-    const fileRecords = await evidenceSelect(
+    const fileRecords = (await evidenceSelect(
       'file_records',
-      { company_id: companyId, file_hash: sourceHash },
-      'id,file_name,file_hash,metadata',
-      { limit: 50 },
+      {},
+      'id,company_id,file_name,file_hash,metadata',
+      { limit: 5000 },
+    )).filter((record) =>
+      String(record.company_id) === String(companyId) &&
+      String(record.file_hash ?? '') === sourceHash
     );
     const governedRealSource = fileRecords.find((record) => {
       const metadata = record?.metadata && typeof record.metadata === 'object' ? record.metadata : {};

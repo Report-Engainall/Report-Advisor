@@ -353,6 +353,7 @@ jobs:
           node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs
 
       - name: Resume and prove the real open report
+        if: ${{ always() }}
         env:
           E2E_BASE_URL: http://127.0.0.1:4173
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
@@ -363,6 +364,7 @@ jobs:
           OPEN_REPORT_FILE_NAME: 'فواتير العملاء من تاريخ 01-01 حتى 30-08-2026.pdf'
         run: node scripts/resume-open-report-server-proof.mjs
       - name: Install deterministic browser tooling
+        if: ${{ always() }}
         shell: bash
         run: |
           set -euo pipefail
@@ -373,6 +375,7 @@ jobs:
           npx playwright --version
 
       - name: Real Chromium route and authenticated browser proof
+        if: ${{ always() }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_BASE_URL: http://127.0.0.1:4173
@@ -386,6 +389,7 @@ jobs:
         run: node scripts/run-full-product-browser-e2e.mjs
 
       - name: Real Chromium business journey and smart report proof
+        if: ${{ always() }}
         env:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           E2E_BASE_URL: http://127.0.0.1:4173
