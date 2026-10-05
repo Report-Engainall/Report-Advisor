@@ -702,7 +702,8 @@ try {
             status = 'NOT_PROVEN';
             reason = route + ': report state did not settle with expected content after bounded wait.';
           } else if (settlement) {
-            reason = 'Settled report state proven: data request completed, expected customer content rendered, no loading/error state visible.';
+             status = 'PASS';
+             reason = 'Settled report state proven: data request completed, expected customer content rendered, no loading/error state visible.';
           }
         } catch (error) {
           status = 'FAIL'; reason = error instanceof Error ? error.message : String(error);
@@ -731,10 +732,14 @@ try {
             if ((!readback?.settled) && !(smartDomRefreshProof.jobIdElementPresent && smartDomRefreshProof.sourceHashElementPresent && smartDomRefreshProof.sourcePathElementPresent && smartDomRefreshProof.decisionCards === 6 && smartDomRefreshProof.evidencePassportVisible)) {
               status = 'NOT_PROVEN';
               reason = route + ': Smart Report refresh readback lacked both settled request proof and complete DOM evidence proof.';
-            } else if (!readback?.settled) {
-              readback = {...(readback || {}), settled: true, proofMode: 'DOM_SMART_REPORT_REFRESH', domRefreshProof: smartDomRefreshProof};
-              reason = route + ': Smart Report refresh proven from complete DOM evidence surface.';
-            }
+            } else if (!readback?.settled && smartDomRefreshProof.jobIdElementPresent && smartDomRefreshProof.sourceHashElementPresent && smartDomRefreshProof.sourcePathElementPresent && smartDomRefreshProof.decisionCards === 6 && smartDomRefreshProof.evidencePassportVisible) {
+               readback = {...(readback || {}), settled: true, proofMode: 'DOM_SMART_REPORT_REFRESH', domRefreshProof: smartDomRefreshProof};
+               status = 'PASS';
+               reason = route + ': Smart Report refresh proven from complete visible DOM evidence surface.';
+             } else if (readback?.settled) {
+               status = 'PASS';
+               reason = route + ': Smart Report refresh request and DOM evidence both settled successfully.';
+             }
           } catch (error) {
             status = 'FAIL';
             reason = route + ': Smart Report refresh readback failed: ' + (error instanceof Error ? error.message : String(error));
