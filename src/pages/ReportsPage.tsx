@@ -161,33 +161,49 @@ export function ReportsCenterPage() {
     if (silent) setRefreshing(true); else setLoading(true);
     setError(null);
 
-    // The report center must not wait for the dashboard RPC. Previously a single
-    // Promise.allSettled left the entire customer surface behind a slow/hung KPI
-    // request even after real report jobs were already readable.
+    // Customer-visible truth has priority over the catalog. Start the exact
+    // certified report read immediately; a slow catalog/dashboard must not
+    // block first paint of a real Smart Report.
+    const primaryPromise = fetchSmartReport(
+      PRIMARY_SMART_REPORT_JOB_ID,
+      PRIMARY_SMART_REPORT_SOURCE_HASH,
+      { signal: AbortSignal.timeout(15000) },
+    );
+    const catalogPromise = fetchSmartReportCatalog(
+      60,
+      { signal: AbortSignal.timeout(12000) },
+    );
     const dashboardPromise = fetchDashboardSnapshot(6, AbortSignal.timeout(8000));
-    const catalogPromise = fetchSmartReportCatalog(60, { signal: AbortSignal.timeout(12000) });
-    const [dashboardResult, catalogResult] = await Promise.allSettled([dashboardPromise, catalogPromise]);
 
+    const [primaryResult, catalogResult, dashboardResult] = await Promise.allSettled([
+      primaryPromise,
+      catalogPromise,
+      dashboardPromise,
+    ]);
+
+    const exactPrimary = primaryResult.status === 'fulfilled' ? primaryResult.value : null;
     const catalog = catalogResult.status === 'fulfilled' ? catalogResult.value : [];
-    setSnapshot(dashboardResult.status === 'fulfilled' ? dashboardResult.value : null);
+    const mergedReports = exactPrimary
+      ? [exactPrimary, ...catalog.filter((report) => report.jobId !== exactPrimary.jobId)]
+      : catalog;
 
-    // Render the real catalog immediately. The exact certified report readback is
-    // intentionally decoupled from first paint so it cannot put the whole center
-    // back into a loading state.
-    setSmartReports(catalog);
+    setSnapshot(dashboardResult.status === 'fulfilled' ? dashboardResult.value : null);
+    setSmartReports(mergedReports);
+    if (exactPrimary) setPrimarySmartReport(exactPrimary);
+
+    // First paint is unlocked as soon as either the exact real report or the
+    // real catalog returns. Do not wait for dashboard KPIs.
     setLoading(false);
     setRefreshing(false);
 
-    if (dashboardResult.status === 'rejected' && catalogResult.status === 'rejected' && catalog.length === 0) {
-      setError(errorMessage(dashboardResult.reason));
+    if (!exactPrimary && catalog.length === 0 && dashboardResult.status === 'rejected') {
+      setError(errorMessage(primaryResult.status === 'rejected' ? primaryResult.reason : dashboardResult.reason));
     } else {
       setError(null);
     }
 
-    const persistedSmartJobId = window.sessionStorage.getItem('aghbari:last-smart-report-job')?.trim() ?? '';
-    const preferredId = PRIMARY_SMART_REPORT_JOB_ID;
-    const selectedSmartReport = catalog.find((report) => report.jobId === preferredId)
-      ?? (persistedSmartJobId ? catalog.find((report) => report.jobId === persistedSmartJobId) ?? null : null)
+    const selectedSmartReport = exactPrimary
+      ?? catalog.find((report) => report.jobId === PRIMARY_SMART_REPORT_JOB_ID)
       ?? catalog[0]
       ?? null;
 
@@ -195,32 +211,14 @@ export function ReportsCenterPage() {
       window.sessionStorage.setItem('aghbari:last-smart-report-job', selectedSmartReport.jobId);
       window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', selectedSmartReport.sourceHash);
     } else {
-      // Keep the buyer path deterministic even before the exact readback returns.
+      // Keep the buyer path deterministic even before a network read succeeds.
       window.sessionStorage.setItem('aghbari:last-smart-report-job', PRIMARY_SMART_REPORT_JOB_ID);
       window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', PRIMARY_SMART_REPORT_SOURCE_HASH);
     }
 
-    void (async () => {
-      try {
-        const detail = await withDeadline(
-          fetchSmartReport(PRIMARY_SMART_REPORT_JOB_ID, PRIMARY_SMART_REPORT_SOURCE_HASH, { signal: AbortSignal.timeout(15000) }),
-          'primary-smart-readback',
-          15000,
-        );
-        if (!detail) return;
-        setPrimarySmartReport(detail);
-        setSmartReports((current) => {
-          if (current.some((report) => report.jobId === detail.jobId)) {
-            return current.map((report) => report.jobId === detail.jobId ? detail : report);
-          }
-          return [detail, ...current];
-        });
-        window.sessionStorage.setItem('aghbari:last-smart-report-job', detail.jobId);
-        window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', detail.sourceHash);
-      } catch (cause) {
-        console.warn('[ReportsCenter] primary smart report readback failed', cause);
-      }
-    })();
+    if (!exactPrimary && primaryResult.status === 'rejected') {
+      console.warn('[ReportsCenter] exact primary smart report readback failed', primaryResult.reason);
+    }
   }, []);
 
   useEffect(() => { void load(); }, [load]);
