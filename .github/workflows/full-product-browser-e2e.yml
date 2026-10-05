@@ -1,4 +1,5 @@
 ﻿# Exact-current-head trigger touch: re-run browser proof after customer-facing report readback hardening.
+# Certification retrigger: bind the browser evidence cycle to the latest governed main head.
 # Current PDF/Node ESM, background resume, and final proof closure wave.
 name: Full Product Browser E2E
 
