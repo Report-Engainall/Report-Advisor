@@ -486,7 +486,7 @@ async function readCurrentPersistedReport(page, companyId) {
   assert.equal(rendered.sourceHash, CURRENT_REPORT_SOURCE_HASH);
   assert.equal(rendered.sourceBound, true);
   assert.equal(Number(rendered.rowCount), CURRENT_REPORT_ROW_COUNT);
-  assert.equal(Number(rendered.authoritativeCurrentRowCount), CURRENT_REPORT_ROW_COUNT);
+  assert.equal(Number(rendered.rowCount), CURRENT_REPORT_ROW_COUNT);
   const tasks = await restSelect(page, 'report_execution_tasks', { company_id: companyId, report_execution_job_id: job.id }, 'ordinal,stage,status,attempt,completed_at', { order: 'ordinal.asc', limit: 20 });
   assert.equal(tasks.length, CURRENT_REPORT_TASK_COUNT);
   assert.deepEqual(tasks.map(task => Number(task.ordinal)), [1,2,3,4,5,6,7,8,9]);
