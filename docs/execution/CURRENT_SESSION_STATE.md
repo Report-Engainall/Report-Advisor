@@ -1,51 +1,51 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = e60f4773e
+CURRENT_EXACT_HEAD = 9a17ec8cfb1504147076fc8ae8cf2318900038b7
 CURRENT_MAIN_HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
-CURRENT_EXECUTION_HEAD = e60f4773e
+CURRENT_EXECUTION_HEAD = 9a17ec8cfb1504147076fc8ae8cf2318900038b7
 BRANCH = exec/final-reconcile-20261005
 PR = #841 OPEN
-CURRENT_PR_HEAD = e60f4773e
+CURRENT_PR_HEAD = 9a17ec8cfb1504147076fc8ae8cf2318900038b7
 
 WHAT_ACTUALLY_HAPPENED
-- استأنفت التنفيذ من خط PR الحالي ولم أعد فتح الأعمال التي كانت مثبتة قبل الانقطاع.
-- تم فك حظر عرض التقارير: مركز التقارير والمبيعات والمشتريات والذمم أصبحت تفصل المسار الحرج عن كتالوج/طلبات الخلفية حتى لا تبقى الواجهة في تحميل غير منتهٍ.
-- تم تعزيز Smart Report الحقيقي ليعرض سلسلة WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF مرتبطة بالـjob/source الحقيقي، مع عدم اختلاق Outcome/Benchmark/Impact فعلي.
-- تم تشديد Browser E2E ليشترط حالة مستقرة، عناصر Smart Report الستة، jobId وsourceHash، وعدم اعتبار route-load وحده نجاحًا.
-- تم إصلاح أسماء لقطات المتصفح حتى لا تحتوي query characters.
-- تم اكتشاف أن فشل certification-contracts كان بسبب continue-on-error في real-source 48 step؛ أزيل هذا الإضعاف وأصبح 48 proof fail-closed.
-- تم دفع الرأس الحالي e60f4773e إلى origin/exec/final-reconcile-20261005.
-- تم تحديث هذا checkpoint لأن Session Handoff القديم كان يشير إلى 06a9c69... ويصنف الملفات الجديدة غير المبلّغ عنها كعطل.
+- تم إصلاح مسارات عرض التقارير بحيث لا يحجب كتالوج التقارير أو طلبات الخلفية وصول اللقطة الحقيقية إلى الواجهة.
+- تم تعزيز Smart Report الحقيقي بسلسلة WHAT → WHY → SO WHAT → IMPACT → WHAT NEXT → PROOF، مع ربطها بالـjob والبصمة ولقطة الدليل وعدم اختلاق Outcome/Benchmark.
+- تم تشديد Browser E2E ليشترط الاستقرار والمحتوى الحقيقي بدل route-load فقط، وإثبات jobId/sourceHash وعناصر Smart Report.
+- تم إزالة continue-on-error من إثبات real-source 48 ليصبح fail-closed.
+- تم توسيع real-source 48 eligibility إلى جميع E2E_CORPUS_TENANT_IDS المصرح بها، باستخدام service-role للأهلية فقط، مع إلزام file_record بنفس company_id/source_hash لمنع خلط provenance.
+- تم جعل tenant B في browser proof هو tenant مالك Smart Report c42fb0e1، مع إبقاء tenant A/B isolation proof.
+- تم ربط browser telemetry بصفحة tenant B أيضًا حتى لا تكون نتيجة Smart Report ناقصة.
+- تم إصلاح artifact screenshot naming من query characters.
+- تم تحديث هذا handoff ليغطي كل الملفات المعدلة حتى الرأس الحالي.
 
 WHAT_IS_PROVEN
-- Local workflow batch integrity PASS على 91 workflow files بعد إزالة continue-on-error.
-- Navigation/route contract PASS: لا duplicate route paths، و46 route declarations.
+- Local typecheck PASS.
+- Navigation/route contract PASS: لا duplicate route paths، 46 route declarations.
 - UI route completeness PASS.
-- Local release readiness: 20/20 stages PASS.
-- Exact-head Value Cohort على الرأس e60f4773e: 40/40 accepted, verified, FULL coverage، uniqueSourceHashes=40، evidencePassport=40.
-- real source cohort records كلها VERIFIED + READY + FULL؛ الأسباب PASS بعنوان PASSPORT_ALREADY_VERIFIED_READY_FULL.
-- Security phase-2 PASS وData Import Truth phase-3 PASS على الرأس الحالي.
-- Real source c42fb0e1-75f2-4727-8c3e-470ae1a804fa: 342 canonical rows, Evidence VERIFIED, Decision READY، sourceHash=sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313.
-- Browser E2E exact-head is running on e60f4773e; final browser screenshots/48/48 terminal result are not yet claimed.
-
-CURRENT_ACTIVE_FAILURE
-- لا يوجد فشل منتج مثبت على الرأس الحالي.
-- Session Handoff القديم كان stale-doc failure؛ تم إصلاح سبب الفشل في هذا checkpoint.
-- certification-contracts القديم قبل إصلاح continue-on-error كان يفشل في check-workflow-batch-integrity؛ الرأس الجديد يزيل السبب ويعيد تشغيل الشهادة.
+- Session Handoff على الرأس 9a17ec8cf PASS.
+- Phase 2 security PASS.
+- Phase 3 data/import truth PASS.
+- Cloudflare preview deployment على الرأس الحالي PASS: branch preview منشور.
+- البيانات الحقيقية: 54 governed real files عبر 4 corpus tenants و47 VERIFIED/READY passports في الجرد الحالي.
+- Smart Report الحقيقي c42fb0e1-75f2-4727-8c3e-470ae1a804fa: 342 canonical rows، Evidence VERIFIED، Decision READY، sourceHash sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313.
 
 CURRENT_OPEN_GATES
-- full authenticated browser-e2e terminal result مع screenshots.
-- real-source 48/48 terminal proof من الجولة الحالية.
-- final certification gate على الرأس الحالي.
-- Netlify preview/runtime content verification بعد اكتمال browser evidence.
-- تحديث هذا التقرير مرة أخيرة بالرأس النهائي إذا نتج commit جديد.
+- Full Product Browser E2E على الرأس الحالي: قيد التنفيذ.
+- real-source 48 archetype matrix على الرأس الحالي: قيد التنفيذ ضمن Browser E2E.
+- Final Certification Gate: قيد التنفيذ.
+- لازم انتظار terminal evidence للـ48/48 وChromium screenshots وSmart Report business proof قبل إعلان الإقفال.
+- Netlify/Vercel لا يُستخدم كمرجع نجاح؛ Cloudflare preview الحالي موجود كمرجع runtime للنسخة نفسها.
+
+CURRENT_ACTIVE_FAILURE
+- failure الوحيد المثبت سابقًا كان scope خطأ في real-48: الجولة كانت ترى tenant واحدًا فقط، فدعمت 17/48. تم تعديل البوابة لتقرأ corpus tenants المصرح بها كلّها.
+- لا توجد حاليًا نتيجة نهائية 48/48 أو Browser PASS على 9a17ec8cf يجب ادعاؤها قبل اكتمال jobs الحالية.
 
 DO_NOT_REPEAT
 - لا stale SHA PASS.
 - لا queued/pending/cancelled كـPASS.
 - لا synthetic 48 proof.
-- لا fake outcome/impact/benchmark.
+- لا fake impact/outcome/benchmark.
 - لا route-load-only browser PASS.
-- لا blind Vercel retries.
+- لا blind production deploy retries.
 
-NEXT_EXACT_ACTION = consume browser-e2e exact-head result on e60f4773e, ثم اقرأ 48/48 + screenshots + certification terminal outputs، ولا تعلن الإقفال قبل اكتمالها.
+NEXT_EXACT_ACTION = انتظر terminal results للرأس 9a17ec8cf، ثم اقرأ أول failure فقط إن وجد. عند اكتمال 48/48 + Chromium screenshots + Smart Report six-card proof + certification على نفس SHA، حدّث هذا الملف مرة أخيرة بالرأس النهائي ولا تُعلن الجاهزية قبل ذلك.
