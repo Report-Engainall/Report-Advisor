@@ -2,29 +2,32 @@ import assert from 'node:assert/strict';
 
 const { runReportArchetype } = await import('../src/lib/report-intelligence/archetype-registry.ts');
 
+const canonicalRows = Array.from({ length: 20 }, (_, index) => ({
+  row_number: index + 1,
+  data: {
+    documentDate: index < 10 ? '2026-01-' + String(index + 1).padStart(2, '0') : '2026-02-' + String(index - 9).padStart(2, '0'),
+    netAmount: index < 10 ? 100 + index * 5 : 180 + index * 7,
+  },
+}));
+
 const result = runReportArchetype({
   archetypeId: 'sales.over-time',
   report: {
     specialty: 'sales',
-    rowCount: 4,
-    canonicalRows: [
-      { row_number: 1, data: { documentDate: '2026-01-01', netAmount: 100 } },
-      { row_number: 2, data: { documentDate: '2026-01-15', netAmount: 150 } },
-      { row_number: 3, data: { documentDate: '2026-02-01', netAmount: 180 } },
-      { row_number: 4, data: { documentDate: '2026-02-15', netAmount: 220 } },
-    ],
+    rowCount: canonicalRows.length,
+    canonicalRows,
     sourceAnalysis: {
       datasets: [
         {
           name: 'real-corpus-without-column-descriptors',
-          rowCount: 4,
+          rowCount: canonicalRows.length,
           columns: [],
         },
       ],
     },
   },
   availableFields: ['documentDate', 'netAmount'],
-  sampleSize: 4,
+  sampleSize: canonicalRows.length,
   provenance: {
     tenantId: 'real-corpus-test',
     sourceHash: 'sha256:' + 'a'.repeat(64),
