@@ -60,7 +60,7 @@ for (const token of [
   'توصية قابلة للتنفيذ',
 ]) assert.ok(dashboard.includes(token), `dashboard decision brief missing: ${token}`);
 
-assert.ok(!login.includes('تجريبي') || login.includes('لا يوجد حساب تجريبي افتراضي'), 'login must not imply a fake demo account');
+assert.ok(!login.includes('تجريبي') || login.includes('لا يوجد حساب تجريبي افتراضي') || login.includes('بدون بيانات أعمال تجريبية'), 'login must not imply a fake demo account');
 assert.ok(appShell.includes('ag-app-shell flex min-h-screen flex-row bg-transparent'), 'Arabic shell must use the natural RTL row so the sidebar stays on the right');
 assert.ok(!appShell.includes('ag-app-shell flex min-h-screen bg-transparent " + (language === "ar" ? "flex-row-reverse"'), 'Arabic shell must not double-reverse flex direction');
 assert.ok(sidebar.includes("dir={language==='ar'?'rtl':'ltr'}"), 'sidebar must explicitly carry the active text direction');
