@@ -1021,6 +1021,14 @@ export function SmartReportPage() {
       ]}
     />
 
+    <section aria-label="سياق التقرير والدليل" className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-card">
+      <div className="grid gap-3 md:grid-cols-[1.2fr_1fr_1fr]">
+        <div><div className="section-kicker">SOURCE</div><div data-testid="smart-report-source-path" className="mt-1 text-sm font-black text-ink-950">{report.sourcePath}</div><div className="mt-1 text-[10px] text-ink-500">المصدر الذي بُني عليه هذا التقرير الذكي.</div></div>
+        <div><div className="section-kicker">REPORT JOB ID</div><div data-testid="smart-report-job-id" className="mt-1 break-all font-mono text-[9px] text-ink-700">{report.jobId}</div></div>
+        <div><div className="section-kicker">SOURCE HASH</div><div data-testid="smart-report-source-hash" className="mt-1 break-all font-mono text-[9px] text-ink-700">{report.sourceHash}</div></div>
+      </div>
+    </section>
+
     <details className="progressive-disclosure rounded-[20px] border border-ink-200 bg-white shadow-card">
       <summary className="cursor-pointer list-none px-5 py-4 lg:px-6">
         <div className="flex items-center justify-between gap-4">
