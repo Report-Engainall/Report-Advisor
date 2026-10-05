@@ -1,8 +1,8 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 3ce9c5e00fba05261aaa0f936bef1a11dd4923c9
-CURRENT_MAIN_HEAD = 3ce9c5e00fba05261aaa0f936bef1a11dd4923c9
-CURRENT_EXECUTION_HEAD = 3ce9c5e00fba05261aaa0f936bef1a11dd4923c9
+CURRENT_EXACT_HEAD = db888bf177262302ff42b729697d45c60e7b2cf0
+CURRENT_MAIN_HEAD = db888bf177262302ff42b729697d45c60e7b2cf0
+CURRENT_EXECUTION_HEAD = db888bf177262302ff42b729697d45c60e7b2cf0
 BRANCH = main
 PR = N/A
 CURRENT_PR_HEAD = N/A
@@ -18,8 +18,8 @@ WHAT_IS_PROVEN
 - Supabase real report execution job 16709d80-e012-40ef-9c12-6fd8255897f8 is completed for تقارير ادارية.xlsx.
 - Its source hash is sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313.
 - Its authoritative inventory evidence passport is ACCEPTED + VERIFIED + READY with 332 canonical/committed/authoritative rows and quality score 98.
-- The main product fix is committed at CURRENT_EXACT_HEAD above.
-- The current GitHub Pages static build on the preceding exact head was proven as an artifact; public Pages publication is still unavailable because repository Pages is not enabled.
+- The main product and browser-proof fixes are committed at CURRENT_EXACT_HEAD above.
+- The current GitHub Pages static build was proven as an artifact; public Pages publication is still unavailable because repository Pages is not enabled.
 - Current CI includes exact-head Browser E2E, quality, build, Pages artifact, and Vercel deployment jobs; these remain unclaimed until terminal evidence is available.
 
 CURRENT_OPEN_GATES
