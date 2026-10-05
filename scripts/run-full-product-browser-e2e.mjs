@@ -278,7 +278,15 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
         const rect = node.getBoundingClientRect();
         return rect.width > 0 && rect.height > 0;
       });
-      return { textLength: text.length, loading, matches, errors: errors.slice(0, 8), busy };
+      return {
+        textLength: text.length,
+        loading,
+        matches,
+        errors: errors.slice(0, 8),
+        busy,
+        smartSignalSurfacePresent: text.includes('الإشارات'),
+        smartAdvisorSurfacePresent: text.includes('المستشار'),
+      };
     }, { expected, loadingMarkers: REPORT_LOADING_MARKERS });
 
     const dataRequestsSeenSinceRoute = dataRequestsSeen - dataBaseline;
@@ -289,8 +297,8 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       url: request.url(),
     }));
     const isSmartReport = route === '/reports/smart/' + REAL_SMART_REPORT_JOB_ID;
-    const smartSignalSurfacePresent = !isSmartReport || text.includes('الإشارات');
-    const smartAdvisorSurfacePresent = !isSmartReport || text.includes('المستشار');
+    const smartSignalSurfacePresent = !isSmartReport || state.smartSignalSurfacePresent;
+    const smartAdvisorSurfacePresent = !isSmartReport || state.smartAdvisorSurfacePresent;
     const noLoading = state.loading.length === 0;
     const noVisibleError = state.errors.length === 0;
     const settled =
@@ -569,6 +577,23 @@ try {
           status = 'FAIL'; reason = error instanceof Error ? error.message : String(error);
         }
 
+
+        let readback = null;
+        if (route === '/reports/smart/' + REAL_SMART_REPORT_JOB_ID && status !== 'FAIL') {
+          const readbackBaseline = dataRequestsSeen;
+          try {
+            await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
+            readback = await waitForReportSettled(page, route, readbackBaseline);
+            if (!readback?.settled) {
+              status = 'NOT_PROVEN';
+              reason = route + ': Smart Report failed refresh readback settlement.';
+            }
+          } catch (error) {
+            status = 'FAIL';
+            reason = route + ': Smart Report refresh readback failed: ' + (error instanceof Error ? error.message : String(error));
+          }
+        }
+
         const baseName = String(i + 2).padStart(2, '0') + '-' + (route === '/' ? 'home' : route.slice(1).replaceAll('/', '-'));
         const screenshot = settlement?.settled ? reportDir + '/' + baseName + '.png' : reportDir + '/' + baseName + '-unsettled.png';
         await page.screenshot({ path: screenshot, fullPage: true }).catch(() => {});
@@ -576,7 +601,7 @@ try {
         const routeErrors = consoleErrors.slice(beforeErrors);
         const routeFailed = failedRequests.slice(beforeFailed);
         const routeFailedResponses = failedResponses.slice(beforeFailedResponses);
-        result.routes.push({ route, status, reason, durationMs: Date.now() - started, screenshot, settlement,
+        result.routes.push({ route, status, reason, durationMs: Date.now() - started, screenshot, settlement, readback,
           consoleErrors: routeErrors, failedRequests: routeFailed, failedResponses: routeFailedResponses, requests: routeRequests, interaction: inspection });
         result.actions.push({ route, buttonCount: inspection?.buttonCount ?? 0, buttons: inspection?.buttons ?? [],
           inputCount: inspection?.inputCount ?? 0, linkCount: inspection?.linkCount ?? 0 });
