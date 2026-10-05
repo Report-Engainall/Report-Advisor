@@ -1,12 +1,12 @@
 # CURRENT SESSION STATE
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = d4d96868b7097f41aecf980f4a0f9df1968187a3
+CURRENT_EXACT_HEAD = 06a9c69d9f26610eae44ced5c4859ad57635e587
 CURRENT_MAIN_HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
-CURRENT_EXECUTION_HEAD = d4d96868b7097f41aecf980f4a0f9df1968187a3
+CURRENT_EXECUTION_HEAD = 06a9c69d9f26610eae44ced5c4859ad57635e587
 BRANCH = exec/final-reconcile-20261005
 PR = #841 OPEN
-CURRENT_PR_HEAD = d4d96868b7097f41aecf980f4a0f9df1968187a3
+CURRENT_PR_HEAD = 06a9c69d9f26610eae44ced5c4859ad57635e587
 
 WHAT_ACTUALLY_HAPPENED
 - بدأت من main الحالي e1454854... ولم أعتمد CURRENT_SESSION_STATE أو PROGRAMMER_CURRENT_REPORT القديمين عند التعارض.
@@ -62,4 +62,4 @@ DO_NOT_REPEAT
 - No production migration touch.
 - No blind Vercel retries while build-rate limit persists.
 
-NEXT_EXACT_ACTION = consume the first terminal exact-head CI results on PR #841; inspect Device-Independent Browser E2E and Report Value Cohort artifacts; fix only the first real root cause found; then re-check Netlify preview on the same exact SHA and complete final certification evidence.
+NEXT_EXACT_ACTION = consume CI on execution head 06a9c69d...; verify file-engine regression PASS; inspect Browser E2E + Value Cohort + certification artifacts; then refresh this checkpoint with the next proven execution head.
