@@ -53,11 +53,20 @@ const s = (value: unknown): string => String(value ?? '').trim();
 const norm = (value: unknown): string =>
   s(value).toLowerCase().normalize('NFKC').replace(/[إأآ]/g, 'ا').replace(/ة/g, 'ه').replace(/[\s_\-./]+/g, '');
 
-function resolveFieldKey(rows: Row[], field: CanonicalField): string | null {
+function resolveFieldKey(rows: Row[], field: CanonicalField, archetypeId?: string): string | null {
   const candidates = new Set<string>();
+  const inventory = archetypeId?.startsWith('inventory.');
+  const inventorySalesAliases = new Set(['netsales', 'صافالمبيعات', 'صافيمبيعات', 'صافيالمبيعات']);
   for (const row of rows) {
     for (const key of Object.keys(row.data ?? {})) {
-      if (key === field || matchCanonicalField(key) === field || norm(key) === norm(field)) candidates.add(key);
+      const normalizedKey = norm(key);
+      const semantic = matchCanonicalField(key);
+      if (inventory && field === 'netAmount' && inventorySalesAliases.has(normalizedKey)) continue;
+      if (inventory && field === 'salesQty' && inventorySalesAliases.has(normalizedKey)) {
+        candidates.add(key);
+        continue;
+      }
+      if (key === field || semantic === field || normalizedKey === norm(field)) candidates.add(key);
     }
   }
   return candidates.values().next().value ?? null;
@@ -160,11 +169,11 @@ function quality(rows: Row[], usable: number, minimumSample: number): number {
   return Number(Math.min(1, (usable / rows.length) * Math.min(1, rows.length / Math.max(1, minimumSample))).toFixed(4));
 }
 
-function requiredKeys(rows: Row[], fields: CanonicalField[]): { missing: CanonicalField[]; keys: Record<string,string> } {
+function requiredKeys(rows: Row[], fields: CanonicalField[], archetypeId?: string): { missing: CanonicalField[]; keys: Record<string,string> } {
   const keys: Record<string,string> = {};
   const missing: CanonicalField[] = [];
   for (const field of fields) {
-    const key = resolveFieldKey(rows, field);
+    const key = resolveFieldKey(rows, field, archetypeId);
     if (!key) missing.push(field);
     else keys[field] = key;
   }
@@ -184,7 +193,7 @@ function makeUnavailable(def: CalculationDefinition, rows: Row[], state: Calcula
 
 function evaluate(def: CalculationDefinition, rows: Row[], archetypeId: string | undefined): CalculationResult {
   if (rows.length < def.minimumSample) return makeUnavailable(def, rows, 'INSUFFICIENT_SAMPLE', def.requiredFields);
-  const req = requiredKeys(rows, def.requiredFields);
+  const req = requiredKeys(rows, def.requiredFields, archetypeId);
   if (req.missing.length) return makeUnavailable(def, rows, 'NOT_AVAILABLE', req.missing);
   if (archetypeId && !def.supportedArchetypes.includes('*') && !def.supportedArchetypes.some((item) => archetypeId.startsWith(item.replace(/\*$/, '')))) {
     return result(def, { availabilityState: 'NOT_AVAILABLE', sampleSize: rows.length, usableSample: 0, evidence: ['unsupportedArchetype=' + archetypeId], confidence: 0 });
@@ -229,7 +238,7 @@ function evaluate(def: CalculationDefinition, rows: Row[], archetypeId: string |
       return result(def, { availabilityState: 'CALCULATED', value: Number(((1 - missing / cells) * 100).toFixed(2)), unit: '%', sampleSize: rows.length, usableSample: cells - missing, sourceFields: [], evidence: ['cells=' + cells, 'missingCells=' + missing], confidence: 1, details: { cells, missingCells: missing } });
     }
     case 'data.numeric.outlier.rate': {
-      const field = (['netAmount','quantity','currentStock','cost','unitPrice'] as CanonicalField[]).map((candidate) => [candidate, resolveFieldKey(rows, candidate)] as const).find(([, key]) => key);
+      const field = (['currentStock','quantity','netAmount','cost','unitPrice'] as CanonicalField[]).map((candidate) => [candidate, resolveFieldKey(rows, candidate, archetypeId)] as const).find(([, key]) => key);
       if (!field) return makeUnavailable(def, rows, 'NOT_AVAILABLE', ['netAmount']);
       const usable = values(rows, field[1]!);
       if (usable.length < 5) return makeUnavailable(def, rows, 'INSUFFICIENT_SAMPLE', [field[0]]);
