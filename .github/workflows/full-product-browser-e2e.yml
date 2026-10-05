@@ -333,28 +333,6 @@ jobs:
           test -n "$SUPABASE_SERVICE_ROLE_KEY"
           node scripts/refresh-governed-real-corpus-passports.mjs
 
-      - name: Report real-source 48 archetype coverage (non-blocking)
-        continue-on-error: true
-        env:
-          EXACT_HEAD: ${{ env.EXACT_HEAD }}
-          E2E_REPORT_DIR: artifacts/e2e-business
-          REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
-          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          REAL_48_TEST_USER_EMAIL: ${{ env.TEST_USER_B_EMAIL }}
-          REAL_48_TEST_USER_PASSWORD: ${{ env.TEST_USER_B_PASSWORD }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          E2E_CORPUS_TENANT_IDS: '99e33354-cc45-4317-8eb3-0d486b6c5932,6426fbf9-7c4c-41b9-a6e7-9a0e58d5660b,038988ba-374a-45f8-84fe-9a4ff8a98e16,f68a7e91-3c7e-46fb-97a8-e339bec04e13,1f3298e1-b5c9-4ffd-8841-81cab095fd2b'
-          REAL_48_TARGET_JOB_ID: c42fb0e1-75f2-4727-8c3e-470ae1a804fa
-          REAL_SMART_REPORT_COMPANY_ID: f68a7e91-3c7e-46fb-97a8-e339bec04e13
-        shell: bash
-        run: |
-          set +e
-          test -n "${TEST_USER_B_EMAIL}" && test -n "${TEST_USER_B_PASSWORD}"
-          node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs
-          rc=$?
-          echo "REAL_SOURCE_48_COVERAGE_IS_NON_BLOCKING=true" >> "$GITHUB_STEP_SUMMARY"
-          echo "REAL_SOURCE_48_EXIT_CODE=$rc" >> "$GITHUB_STEP_SUMMARY"
-          exit "$rc"
 
       - name: Prove 48/48 archetype engine runtime
         env:
@@ -410,6 +388,29 @@ jobs:
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
         run: node scripts/real-business-e2e.mjs
+
+      - name: Report real-source 48 archetype coverage (non-blocking)
+        continue-on-error: true
+        env:
+          EXACT_HEAD: ${{ env.EXACT_HEAD }}
+          E2E_REPORT_DIR: artifacts/e2e-business
+          REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          REAL_48_TEST_USER_EMAIL: ${{ env.TEST_USER_B_EMAIL }}
+          REAL_48_TEST_USER_PASSWORD: ${{ env.TEST_USER_B_PASSWORD }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          E2E_CORPUS_TENANT_IDS: '99e33354-cc45-4317-8eb3-0d486b6c5932,6426fbf9-7c4c-41b9-a6e7-9a0e58d5660b,038988ba-374a-45f8-84fe-9a4ff8a98e16,f68a7e91-3c7e-46fb-97a8-e339bec04e13,1f3298e1-b5c9-4ffd-8841-81cab095fd2b'
+          REAL_48_TARGET_JOB_ID: c42fb0e1-75f2-4727-8c3e-470ae1a804fa
+          REAL_SMART_REPORT_COMPANY_ID: f68a7e91-3c7e-46fb-97a8-e339bec04e13
+        shell: bash
+        run: |
+          set +e
+          test -n "${TEST_USER_B_EMAIL}" && test -n "${TEST_USER_B_PASSWORD}"
+          node --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/real-48-source-matrix-preflight.mjs
+          rc=$?
+          echo "REAL_SOURCE_48_COVERAGE_IS_NON_BLOCKING=true" >> "$GITHUB_STEP_SUMMARY"
+          echo "REAL_SOURCE_48_EXIT_CODE=$rc" >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"
 
       - name: Fail closed on browser evidence
         if: ${{ always() }}
