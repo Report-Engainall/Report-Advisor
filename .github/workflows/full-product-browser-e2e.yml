@@ -302,7 +302,7 @@ jobs:
           E2E_ACTOR_PROVISION_DEADLINE_MS: '360000'
           E2E_ACTOR_REQUEST_TIMEOUT_MS: '15000'
           E2E_CORPUS_TENANT_IDS: '99e33354-cc45-4317-8eb3-0d486b6c5932,6426fbf9-7c4c-41b9-a6e7-9a0e58d5660b,038988ba-374a-45f8-84fe-9a4ff8a98e16,f68a7e91-3c7e-46fb-97a8-e339bec04e13,1f3298e1-b5c9-4ffd-8841-81cab095fd2b'
-          E2E_CORPUS_TENANT_ID: '99e33354-cc45-4317-8eb3-0d486b6c5932'
+          E2E_CORPUS_TENANT_ID: 'f68a7e91-3c7e-46fb-97a8-e339bec04e13'
           REPORT_ADVISOR_E2E_DEBUG: '1'
         shell: bash
         run: |
@@ -314,7 +314,7 @@ jobs:
           EXACT_HEAD: ${{ env.EXACT_HEAD }}
           REPORT_ADVISOR_SUPABASE_URL: https://fnqbvfuwbdpwvhcgzksl.supabase.co
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          E2E_CORPUS_TENANT_ID: '99e33354-cc45-4317-8eb3-0d486b6c5932'
+          E2E_CORPUS_TENANT_IDS: '99e33354-cc45-4317-8eb3-0d486b6c5932,6426fbf9-7c4c-41b9-a6e7-9a0e58d5660b,038988ba-374a-45f8-84fe-9a4ff8a98e16,f68a7e91-3c7e-46fb-97a8-e339bec04e13,1f3298e1-b5c9-4ffd-8841-81cab095fd2b'
         shell: bash
         run: |
           set -euo pipefail
@@ -331,6 +331,7 @@ jobs:
           REAL_48_TEST_USER_PASSWORD: ${{ env.TEST_USER_B_PASSWORD }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           REAL_48_TARGET_JOB_ID: c42fb0e1-75f2-4727-8c3e-470ae1a804fa
+          REAL_SMART_REPORT_COMPANY_ID: f68a7e91-3c7e-46fb-97a8-e339bec04e13
         shell: bash
         run: |
           set -euo pipefail
@@ -368,6 +369,7 @@ jobs:
           CURRENT_REPORT_SOURCE_PATH: 'تسعيرة الاصناف حسب رقم الصنف.pdf'
           CURRENT_REPORT_SOURCE_HASH: 'sha256:aeee5e6a7c5c5b23891bf68169de6acf9683267b3ac9828c6cea430128b2d300'
           CURRENT_REPORT_ROW_COUNT: '735'
+          REAL_SMART_REPORT_COMPANY_ID: f68a7e91-3c7e-46fb-97a8-e339bec04e13
         run: node scripts/run-full-product-browser-e2e.mjs
 
       - name: Real Chromium business journey and smart report proof

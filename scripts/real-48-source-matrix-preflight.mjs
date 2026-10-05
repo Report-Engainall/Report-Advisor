@@ -8,6 +8,14 @@ const password = process.env.REAL_48_TEST_USER_PASSWORD || process.env.TEST_USER
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || '';
 const targetJobId = process.env.REAL_48_TARGET_JOB_ID?.trim() || 'c42fb0e1-75f2-4727-8c3e-470ae1a804fa';
+const corpusTenantIds = [...new Set(
+  String(process.env.E2E_CORPUS_TENANT_IDS || process.env.E2E_CORPUS_TENANT_ID || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean),
+)];
+if (!serviceRoleKey) throw new Error('REAL_48_SERVICE_ROLE_REQUIRED');
+if (!corpusTenantIds.length) throw new Error('REAL_48_CORPUS_TENANT_IDS_REQUIRED');
 const outFile = process.env.E2E_REPORT_DIR
   ? process.env.E2E_REPORT_DIR + '/real-48-source-matrix-preflight.json'
   : 'artifacts/e2e-business/real-48-source-matrix-preflight.json';
@@ -116,6 +124,10 @@ async function restSelect(table, filters, select, options = {}) {
   return body ? JSON.parse(body) : [];
 }
 
+async function evidenceSelect(table, filters, select, options = {}) {
+  return serviceRestSelect(table, filters, select, options);
+}
+
 function usableColumns(analysis) {
   const datasets = Array.isArray(analysis?.datasets) ? analysis.datasets : [];
   const columns = datasets.flatMap((dataset) => Array.isArray(dataset?.columns) ? dataset.columns : []);
@@ -150,7 +162,7 @@ function requiredFieldsPresent(profile, fields) {
 }
 
 async function selectBestAnalysis(companyId, sourceHash, renderedImportId, rowCountHint, expectedAnalysisId = '') {
-  const rows = await restSelect(
+  const rows = await evidenceSelect(
     'source_analysis_snapshots',
     { company_id: companyId, source_hash: sourceHash },
     'id,import_job_id,row_count,datasets,created_at',
@@ -176,7 +188,7 @@ async function selectBestAnalysis(companyId, sourceHash, renderedImportId, rowCo
 
 async function fetchVerifiedSnapshot(companyId, jobId, sourceHash, passport) {
   if (!passport?.evidence_snapshot_id) return null;
-  const rows = await restSelect(
+  const rows = await evidenceSelect(
     'report_evidence_snapshots',
     {
       company_id: companyId,
@@ -196,14 +208,13 @@ async function fetchVerifiedSnapshot(companyId, jobId, sourceHash, passport) {
   ) ?? null;
 }
 
-const companies = await restSelect('report_execution_jobs', { status: 'completed' }, 'company_id', { limit: 1000 });
-const tenantIds = [...new Set(companies.map((row) => row.company_id).filter(Boolean))];
+const tenantIds = corpusTenantIds;
 const profiles = listReportArchetypes();
 const sourceRecords = [];
 const sourceRowsCache = new Map();
 
 for (const companyId of tenantIds) {
-  const passports = await restSelect(
+  const passports = await evidenceSelect(
     'report_evidence_passports',
     { company_id: companyId, verification_status: 'VERIFIED', decision_readiness: 'READY' },
     'id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash',
@@ -211,7 +222,7 @@ for (const companyId of tenantIds) {
   );
   const verifiedJobIds = new Set(passports.map((row) => String(row.report_execution_job_id)));
 
-  const jobs = await restSelect(
+  const jobs = await evidenceSelect(
     'report_execution_jobs',
     { company_id: companyId, status: 'completed' },
     'id,company_id,source_path,source_hash,evidence,completed_at',
@@ -230,9 +241,9 @@ for (const companyId of tenantIds) {
 
     // Real-source proof must never select the synthetic 48-archetype fixture corpus.
     // The governed file record is the authoritative classification boundary here.
-    const fileRecords = await restSelect(
+    const fileRecords = await evidenceSelect(
       'file_records',
-      { file_hash: sourceHash },
+      { company_id: companyId, file_hash: sourceHash },
       'id,file_name,file_hash,metadata',
       { limit: 50 },
     );
@@ -261,7 +272,7 @@ for (const companyId of tenantIds) {
     if (!analysis?.import_job_id) continue;
 
     const analysisFields = usableColumns(analysis);
-    const canonicalPreview = await restSelect(
+    const canonicalPreview = await evidenceSelect(
       'canonical_dataset_records',
       {
         company_id: companyId,
@@ -296,7 +307,7 @@ for (const source of sourceRecords) {
 async function sourceRowsFor(source) {
   const key = String(source.job.id);
   if (sourceRowsCache.get(key)) return sourceRowsCache.get(key);
-  const rows = await restSelect(
+  const rows = await evidenceSelect(
     'canonical_dataset_records',
     {
       company_id: source.companyId,
