@@ -1285,8 +1285,9 @@ export function deriveReportIntelligence(report: ReportInput): ReportIntelligenc
   const signals = deriveSignals(report);
   const recommendations = deriveRecommendations(signals);
   const specialty = text(report.specialty);
+  const sourceRowCount = Number(report.rowCount ?? report.canonicalRows?.length ?? 0);
   const summary = specialty === 'inventory'
-    ? 'المصدر يصف 342 سجلًا للمخزون مع رصيد وحركة ومعدل بيع وفترة متوقعة للنفاد؛ الذكاء يركز على النفاد، الأرصدة السالبة، مطابقة الحركة، والتغطية قبل القرار.'
+    ? 'المصدر يصف ' + sourceRowCount + ' سجلًا للمخزون مع رصيد وحركة ومعدل بيع وفترة متوقعة للنفاد؛ الذكاء يركز على النفاد، الأرصدة السالبة، مطابقة الحركة، والتغطية قبل القرار.'
     : specialty === 'sales'
       ? 'المصدر يصف المبيعات؛ الذكاء يركز على العميل والقيمة والفترة والاتجاه.'
       : specialty === 'purchases'
