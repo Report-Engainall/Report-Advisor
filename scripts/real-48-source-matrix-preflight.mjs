@@ -1,4 +1,4 @@
-import { listReportArchetypes, runReportArchetype } from '../src/lib/report-intelligence/archetype-registry.ts';
+﻿import { listReportArchetypes, runReportArchetype } from '../src/lib/report-intelligence/archetype-registry.ts';
 import { matchCanonicalField } from '../src/lib/report-intelligence/canonical-schema.ts';
 
 const supabaseURL = (process.env.REPORT_ADVISOR_SUPABASE_URL || 'https://fnqbvfuwbdpwvhcgzksl.supabase.co').replace(/\/$/, '');
@@ -8,14 +8,7 @@ const password = process.env.REAL_48_TEST_USER_PASSWORD || process.env.TEST_USER
 const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || '';
 const targetJobId = process.env.REAL_48_TARGET_JOB_ID?.trim() || 'c42fb0e1-75f2-4727-8c3e-470ae1a804fa';
-const corpusTenantIds = [...new Set(
-  String(process.env.E2E_CORPUS_TENANT_IDS || process.env.E2E_CORPUS_TENANT_ID || '')
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean),
-)];
 if (!serviceRoleKey) throw new Error('REAL_48_SERVICE_ROLE_REQUIRED');
-if (!corpusTenantIds.length) throw new Error('REAL_48_CORPUS_TENANT_IDS_REQUIRED');
 const outFile = process.env.E2E_REPORT_DIR
   ? process.env.E2E_REPORT_DIR + '/real-48-source-matrix-preflight.json'
   : 'artifacts/e2e-business/real-48-source-matrix-preflight.json';
@@ -54,6 +47,42 @@ async function serviceRestSelect(table, filters, select, options = {}) {
   const body = await response.text();
   if (!response.ok) throw new Error('SERVICE_' + table + '_HTTP_' + response.status + ':' + body.slice(0, 800));
   return body ? JSON.parse(body) : [];
+}
+
+async function authenticatedUserId(accessToken) {
+  const user = await fetchJson(supabaseURL + '/auth/v1/user', {
+    headers: { Authorization: 'Bearer ' + accessToken },
+  });
+  const id = user?.id ? String(user.id) : '';
+  if (!id) throw new Error('REAL_48_AUTH_USER_ID_MISSING');
+  return id;
+}
+
+async function servicePatch(table, queryParams, payload) {
+  if (!serviceRoleKey) throw new Error('REAL_48_SERVICE_ROLE_REQUIRED_FOR_TENANT_SWITCH');
+  const url = new URL(supabaseURL + '/rest/v1/' + table);
+  for (const [column, value] of Object.entries(queryParams)) url.searchParams.set(column, 'eq.' + value);
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: 'Bearer ' + serviceRoleKey,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal',
+    },
+    body: JSON.stringify(payload),
+  });
+  const body = await response.text();
+  if (!response.ok) throw new Error('SERVICE_PATCH_' + table + '_HTTP_' + response.status + ':' + body.slice(0, 800));
+}
+
+async function switchDefaultTenant(userId, tenantId) {
+  await servicePatch('company_memberships', { user_id: userId, is_active: 'true' }, { is_default: false });
+  await servicePatch('company_memberships', { user_id: userId, company_id: tenantId, is_active: 'true' }, { is_default: true });
+  const current = await rpcCurrentCompany(accessToken);
+  if (String(current) !== String(tenantId)) {
+    throw new Error('REAL_48_TENANT_SWITCH_FAILED:' + tenantId + '!=' + current);
+  }
 }
 
 async function buildSelectionDiagnostics(actorCompanyId) {
@@ -105,7 +134,15 @@ async function signIn() {
 }
 
 const accessToken = await signIn();
+const actorUserId = await authenticatedUserId(accessToken);
 const actorCompanyId = await rpcCurrentCompany(accessToken);
+const configuredTenantIds = [...new Set(
+  String(process.env.E2E_CORPUS_TENANT_IDS || actorCompanyId || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean),
+)];
+if (!configuredTenantIds.length) throw new Error('REAL_48_CORPUS_TENANT_IDS_MISSING');
 const selectionDiagnostics = await buildSelectionDiagnostics(actorCompanyId);
 
 async function restSelect(table, filters, select, options = {}) {
@@ -122,10 +159,6 @@ async function restSelect(table, filters, select, options = {}) {
   const body = await response.text();
   if (!response.ok) throw new Error(table + '_HTTP_' + response.status + ':' + body.slice(0, 1200));
   return body ? JSON.parse(body) : [];
-}
-
-async function evidenceSelect(table, filters, select, options = {}) {
-  return serviceRestSelect(table, filters, select, options);
 }
 
 function usableColumns(analysis) {
@@ -162,7 +195,7 @@ function requiredFieldsPresent(profile, fields) {
 }
 
 async function selectBestAnalysis(companyId, sourceHash, renderedImportId, rowCountHint, expectedAnalysisId = '') {
-  const rows = await evidenceSelect(
+  const rows = await restSelect(
     'source_analysis_snapshots',
     { company_id: companyId, source_hash: sourceHash },
     'id,import_job_id,row_count,datasets,created_at',
@@ -188,7 +221,7 @@ async function selectBestAnalysis(companyId, sourceHash, renderedImportId, rowCo
 
 async function fetchVerifiedSnapshot(companyId, jobId, sourceHash, passport) {
   if (!passport?.evidence_snapshot_id) return null;
-  const rows = await evidenceSelect(
+  const rows = await restSelect(
     'report_evidence_snapshots',
     {
       company_id: companyId,
@@ -208,13 +241,13 @@ async function fetchVerifiedSnapshot(companyId, jobId, sourceHash, passport) {
   ) ?? null;
 }
 
-const tenantIds = corpusTenantIds;
 const profiles = listReportArchetypes();
 const sourceRecords = [];
 const sourceRowsCache = new Map();
 
-for (const companyId of tenantIds) {
-  const passports = await evidenceSelect(
+for (const companyId of configuredTenantIds) {
+  await switchDefaultTenant(actorUserId, companyId);
+  const passports = await restSelect(
     'report_evidence_passports',
     { company_id: companyId, verification_status: 'VERIFIED', decision_readiness: 'READY' },
     'id,company_id,report_execution_job_id,evidence_snapshot_id,source_hash',
@@ -222,7 +255,7 @@ for (const companyId of tenantIds) {
   );
   const verifiedJobIds = new Set(passports.map((row) => String(row.report_execution_job_id)));
 
-  const jobs = await evidenceSelect(
+  const jobs = await restSelect(
     'report_execution_jobs',
     { company_id: companyId, status: 'completed' },
     'id,company_id,source_path,source_hash,evidence,completed_at',
@@ -241,7 +274,7 @@ for (const companyId of tenantIds) {
 
     // Real-source proof must never select the synthetic 48-archetype fixture corpus.
     // The governed file record is the authoritative classification boundary here.
-    const fileRecords = await evidenceSelect(
+    const fileRecords = await restSelect(
       'file_records',
       { company_id: companyId, file_hash: sourceHash },
       'id,file_name,file_hash,metadata',
@@ -272,7 +305,7 @@ for (const companyId of tenantIds) {
     if (!analysis?.import_job_id) continue;
 
     const analysisFields = usableColumns(analysis);
-    const canonicalPreview = await evidenceSelect(
+    const canonicalPreview = await restSelect(
       'canonical_dataset_records',
       {
         company_id: companyId,
@@ -307,7 +340,7 @@ for (const source of sourceRecords) {
 async function sourceRowsFor(source) {
   const key = String(source.job.id);
   if (sourceRowsCache.get(key)) return sourceRowsCache.get(key);
-  const rows = await evidenceSelect(
+  const rows = await restSelect(
     'canonical_dataset_records',
     {
       company_id: source.companyId,
@@ -323,6 +356,11 @@ async function sourceRowsFor(source) {
 }
 
 const results = [];
+
+await switchDefaultTenant(
+  actorUserId,
+  String(process.env.E2E_CORPUS_TENANT_ID || configuredTenantIds[0]),
+);
 
 for (const profile of profiles) {
   const candidates = sourceRecords
