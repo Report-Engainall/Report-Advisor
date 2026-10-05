@@ -1221,6 +1221,7 @@ function buildAdvisorBrief(
   report: ReportInput,
   business: { findings: BusinessFinding[]; risks: BusinessFinding[]; opportunities: BusinessFinding[] },
   signals: ReportSignal[],
+  recommendations: ReportRecommendation[],
 ): AdvisorBrief {
   const specialty = text(report.specialty);
   const executiveSignal = selectExecutiveSignal({ signals });
@@ -1246,7 +1247,7 @@ function buildAdvisorBrief(
         : topRisk || signals.some((signal) => signal.severity === 'medium') || signals.length > 0
           ? 'ATTENTION'
           : 'HEALTHY';
-  const executiveRecommendation = selectExecutiveRecommendation({ signals, recommendations: [] }, executiveSignal);
+  const executiveRecommendation = selectExecutiveRecommendation({ signals, recommendations }, executiveSignal);
   const recommendedAction = executiveRecommendation?.action ?? topRisk?.action ?? topFinding?.action ?? topOpportunity?.action ?? null;
   const headline = executiveSignal?.message
     ?? topRisk?.statement
@@ -1317,7 +1318,7 @@ export function deriveReportIntelligence(report: ReportInput): ReportIntelligenc
   };
 
   const business = deriveBusinessFindings(report);
-  const advisorBrief = buildAdvisorBrief(report, business, signals);
+  const advisorBrief = buildAdvisorBrief(report, business, signals, recommendations);
   return {
     businessQuestion,
     summary,
