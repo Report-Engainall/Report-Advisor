@@ -253,9 +253,9 @@ export function ReportsCenterPage() {
 
     // All reads have now settled. This is only the terminal reconciliation
     // step; it is deliberately not the gate for first paint.
-    const finalPrimary = primary;
-    const finalCatalog = [...catalog];
-    const finalDashboard = dashboard;
+    const finalPrimary: SmartReportDetail | null = primary as SmartReportDetail | null;
+    const finalCatalog: SmartReportCatalogItem[] = [...catalog] as SmartReportCatalogItem[];
+    const finalDashboard: Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null = dashboard;
 
     if (!finalPrimary && finalCatalog.length === 0 && !finalDashboard && firstFailure) {
       setError(errorMessage(firstFailure));
