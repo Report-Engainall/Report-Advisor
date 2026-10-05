@@ -38,10 +38,14 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm run build
 
+      - name: Prepare SPA fallback
+        run: cp dist/index.html dist/404.html
+
       - name: Ensure static artifact exists
         run: |
           set -euo pipefail
           test -f dist/index.html
+          test -f dist/404.html
           test -d dist/assets
           test -s dist/index.html
 
