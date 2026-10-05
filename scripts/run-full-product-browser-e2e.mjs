@@ -10,7 +10,7 @@ const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e';
 await fs.mkdir(reportDir, { recursive: true });
 
 const REAL_SMART_REPORT_JOB_ID = '16709d80-e012-40ef-9c12-6fd8255897f8';
-const REAL_SMART_REPORT_COMPANY_ID = process.env.REAL_SMART_REPORT_COMPANY_ID || 'f68a7e91-3c7e-46fb-97a8-e339bec04e13';
+const REAL_SMART_REPORT_COMPANY_ID = process.env.REAL_SMART_REPORT_COMPANY_ID || '99e33354-cc45-4317-8eb3-0d486b6c5932';
 const REAL_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
 
 const routes = [
