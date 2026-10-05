@@ -128,7 +128,7 @@ function useOptionalSourceReport() {
 function SourceBoundDomainSurface({ report, expectedSpecialty, title }: { report: SmartReportDetail; expectedSpecialty: string; title: string }) {
   return <CustomerReportSurface report={report} expectedSpecialty={expectedSpecialty} title={title} />;
 }
-const PRIMARY_SMART_REPORT_JOB_ID = 'c42fb0e1-75f2-4727-8c3e-470ae1a804fa';
+const PRIMARY_SMART_REPORT_JOB_ID = '16709d80-e012-40ef-9c12-6fd8255897f8';
 const PRIMARY_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
 
 function withDeadline<T>(promise: Promise<T>, label: string, milliseconds: number): Promise<T> {
