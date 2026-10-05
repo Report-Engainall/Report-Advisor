@@ -3,11 +3,11 @@ SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
 REFERENCE START HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
-CURRENT EXECUTION HEAD = f83bc240f4bafd0c78cdf287176a64639e912584
-REPORT_FOR_HEAD = f83bc240f4bafd0c78cdf287176a64639e912584
+CURRENT EXECUTION HEAD = 42e10a98e1c28566b276820721cfcaf004878f26
+REPORT_FOR_HEAD = 42e10a98e1c28566b276820721cfcaf004878f26
 BRANCH = exec/final-reconcile-20261005
 PR = #841 OPEN
-UPDATED_AT = 2026-10-05T02:33:00Z
+UPDATED_AT = 2026-10-05T02:42:00Z
 WHAT_I_WAS_ASKED_TO_DO = ط§ط³طھظƒظ…ط§ظ„ ط§ظ„طھظ†ظپظٹط° ظ…ظ† 06a9c69 ط¯ظˆظ† ط¥ط¹ط§ط¯ط© ط¨ظ†ط§ط، ظ…ط§ ط£ظڈظ†ط¬ط²طŒ ظˆط¥ط®ط±ط§ط¬ Report-Advisor ظƒظ…ظ†طھط¬ ظ‚ط§ط¨ظ„ ظ„ظ„ط¨ظٹط¹: ط¥طµظ„ط§ط­ ط¹ط±ط¶ ط§ظ„طھظ‚ط§ط±ظٹط± ط§ظ„ط­ظ‚ظٹظ‚ظٹطŒ ط¥ط«ط¨ط§طھ Smart Report ط§ظ„ط­ظ‚ظٹظ‚ظٹطŒ ظپظƒ real-source eligibility ظ„ظ„ظ€48طŒ ظˆط¥ط؛ظ„ط§ظ‚ Quality/Certification ط¹ظ„ظ‰ ظ†ظپط³ HEAD ط¨ط¯ظˆظ† PASS ظˆظ‡ظ…ظٹ.
 
 OBJECTIVE = ط¥ط؛ظ„ط§ظ‚ ظپط¬ظˆط© ط§ظ„ظ…ظ†طھط¬ ط§ظ„ظپط¹ظ„ظٹ ظ„ظ„ط¨ظٹط¹: طھظ‚ط±ظٹط± ط­ظ‚ظٹظ‚ظٹ ظٹط¸ظ‡ط± ظˆظٹظڈظپظ‡ظ… ظˆظٹظ‚ظˆط¯ ط¥ظ„ظ‰ Evidence ط«ظ… Signal ط«ظ… Recommendation ط«ظ… Decision ط«ظ… ActionطŒ ظ…ط¹ ط¥ط«ط¨ط§طھ Browser ط­ظ‚ظٹظ‚ظٹ ظˆ48 archetypes ط­ظ‚ظٹظ‚ظٹط©.
@@ -20,7 +20,7 @@ WHAT_I_ACTUALLY_DID = Report rendering, Smart Report decision-chain, authenticat
 5) Browser Smart Report proof: tenant B ط£طµط¨ط­ ظ…ط±طھط¨ط·ظ‹ط§ ط¨ظ…ط§ظ„ظƒ ط§ظ„طھظ‚ط±ظٹط± ط§ظ„ط­ظ‚ظٹظ‚ظٹ c42fb0e1 ط¨ط¯ظ„ tenant corpus ط§ظپطھط±ط§ط¶ظٹ ط¢ط®ط±.
 6) CI governance: real-48 ظ„ظ… ظٹط¹ط¯ continue-on-errorطŒ ظˆsession handoff ظٹظڈط­ط¯ظ‘ط« ظ…ط¹ ظƒظ„ HEAD.
 
-WHAT_IS_PROVEN = Local typecheck/route checks, security/import truth, exact-head 40/40 value cohort, full certification-contract gate, corpus inventory, and certified Smart Report provenance are proven; final 48/48 and authenticated Smart Report browser proof remain open.
+WHAT_IS_PROVEN = Local typecheck, 48-archetype runtime contract, route/security/import truth, and exact-head 40/40 value cohort are proven. A/B/C actor provisioning is proven on the prior exact-head browser run. Current final gates remain real-source 48/48 + authenticated Chromium Smart Report + final certification.
 - Current HEAD: 093ac3706.
 - Session Handoff Contract: PASS ط¹ظ„ظ‰ HEAD ط§ظ„ط­ط§ظ„ظٹ.
 - Typecheck/local route checks: PASS.
@@ -36,10 +36,10 @@ CURRENT_OPEN_GATES
 - Chromium screenshots for reports and Smart Report.
 - Final Certification Gate on the same HEAD.
 
-FIRST_ACTIVE_FAILURE = Previous browser run failed in E2E actor provisioning because B was incorrectly pointed at the Smart Report owner, which equals Tenant A. A dedicated C actor is now provisioned for the owner tenant; C and A are distinct users, while B remains a distinct tenant.
+FIRST_ACTIVE_FAILURE = Real-source 48 failed on the exact-head run because the preflight still observed actor tenant 99e333... and only 25 source jobs despite valid ready passports across the other corpus tenants. Root cause was cross-tenant PostgREST filtering in the preflight path, not missing database evidence. This is fixed by service-role bulk fetch + in-memory tenant join; browser steps are forced to continue for evidence.
 - No new product failure is proven on the current candidate; the active blockers are evidence/CI sequencing.
 
-ROOT_CAUSE = Real-48 was previously scoped to one tenant; browser proof had stale markers and route-only settlement; actor provisioning originally conflated Tenant B isolation with the report-owner tenant. The current code separates B tenant isolation from C report-proof identity while allowing C in the owner tenant.
+ROOT_CAUSE = The earlier actor topology issue is fixed. The remaining 17/48 issue was preflight selection logic: tenant-filtered REST queries did not produce a reliable cross-tenant corpus set. The current implementation bulk-fetches governed ready passports, completed jobs, and file records via service-role and joins by company_id/source_hash, while excluding the synthetic 48 fixture marker.
 - Real-48 was previously scoped to one tenant; browser proof also had stale markers and route-only settlement.
 
 - Prior Browser failure: report expectations were stale and screenshot artifact names contained query characters.
