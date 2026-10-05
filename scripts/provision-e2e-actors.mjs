@@ -493,6 +493,19 @@ assert.notEqual(String(tenantA.id), String(tenantB.id), 'TENANT_A_AND_B_MUST_BE_
 const membershipA = await provisionMembership(tenantA.id, userA.id, 'sales', true, 'A');
 const membershipApprover = await provisionMembership(tenantA.id, approver.id, 'admin', true, 'APPROVER');
 const membershipB = await provisionMembership(tenantB.id, userB.id, 'sales', true, 'B');
+const corpusTenantIds = [...new Set(
+  String(process.env.E2E_CORPUS_TENANT_IDS || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean),
+)];
+const corpusTenantMemberships = [];
+for (const tenantId of corpusTenantIds) {
+  if (String(tenantId) === String(tenantB.id)) continue;
+  corpusTenantMemberships.push(
+    await provisionMembership(tenantId, userB.id, 'sales', false, 'B-CORPUS-' + tenantId.slice(0, 8)),
+  );
+}
 const transactionFixture = await prepareTransactionalFixture(tenantA.id, userA.id);
 
 const [{ data: auditA }, { data: auditApprover }, { data: auditB }] = await Promise.all([
@@ -520,6 +533,13 @@ console.log(JSON.stringify({
     A: { id: membershipA.id, role: membershipA.role, active: membershipA.is_active, default: membershipA.is_default },
     APPROVER: { id: membershipApprover.id, role: membershipApprover.role, active: membershipApprover.is_active, default: membershipApprover.is_default },
     B: { id: membershipB.id, role: membershipB.role, active: membershipB.is_active, default: membershipB.is_default },
+    B_CORPUS: corpusTenantMemberships.map((membership) => ({
+      id: membership.id,
+      companyId: membership.company_id,
+      role: membership.role,
+      active: membership.is_active,
+      default: membership.is_default,
+    })),
   },
   audit: { A: auditA[0].id, APPROVER: auditApprover[0].id, B: auditB[0].id },
 }, null, 2));
