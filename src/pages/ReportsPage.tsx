@@ -144,24 +144,40 @@ export function ReportsCenterPage() {
   const [smartReports, setSmartReports] = useState<SmartReportCatalogItem[]>([]);
 
   const load = useCallback(async (silent = false) => {
-    try {
-      if (silent) setRefreshing(true); else setLoading(true);
-      setError(null);
-      const nextSnapshot = await fetchDashboardSnapshot(6);
-      setSnapshot(nextSnapshot);
-      setLoading(false);
+    if (silent) setRefreshing(true); else setLoading(true);
+    setError(null);
 
-      // The executive snapshot is the critical render path. Smart-report catalog hydration
-      // must never block the report center from becoming usable.
-      void fetchSmartReportCatalog(60)
-        .then((nextSmartReports) => setSmartReports(nextSmartReports))
-        .catch(() => setSmartReports([]));
-    } catch (e) {
-      setError(errorMessage(e));
-      setLoading(false);
-    } finally {
-      setRefreshing(false);
+    const [dashboardResult, catalogResult] = await Promise.allSettled([
+      fetchDashboardSnapshot(6),
+      fetchSmartReportCatalog(60),
+    ]);
+
+    const catalog = catalogResult.status === 'fulfilled' ? catalogResult.value : [];
+    if (dashboardResult.status === 'fulfilled') {
+      setSnapshot(dashboardResult.value);
+    } else {
+      setSnapshot(null);
     }
+    setSmartReports(catalog);
+
+    // The report center is a product surface, not a dashboard gate:
+    // a slow/failing KPI snapshot must not hide real completed report jobs.
+    if (dashboardResult.status === 'rejected' && catalogResult.status === 'rejected') {
+      setError(errorMessage(dashboardResult.reason));
+    } else if (dashboardResult.status === 'rejected' && catalog.length > 0) {
+      setError(null);
+    } else if (catalogResult.status === 'rejected' && dashboardResult.status === 'fulfilled') {
+      setError(null);
+    }
+
+    const firstSmartReport = catalog[0];
+    if (firstSmartReport) {
+      window.sessionStorage.setItem('aghbari:last-smart-report-job', firstSmartReport.jobId);
+      window.sessionStorage.setItem('aghbari:last-smart-report-source-hash', firstSmartReport.sourceHash);
+    }
+
+    setLoading(false);
+    setRefreshing(false);
   }, []);
 
   useEffect(() => { void load(); }, [load]);
@@ -177,16 +193,26 @@ export function ReportsCenterPage() {
       </div>
     );
   }
-  if (error) {
-    return <div dir="rtl" className="ag-reports-center-surface space-y-5 animate-fade-in pb-10"><PageHeader title="مركز التقارير" subtitle="تعذر تحميل اللقطة الحالية." actions={<button type="button" onClick={() => void load()} className="btn-secondary text-xs">إعادة المحاولة</button>} /><ErrorState message={error} onRetry={() => void load()} /></div>;
+  if (error && smartReports.length === 0) {
+    return <div dir="rtl" className="ag-reports-center-surface space-y-5 animate-fade-in pb-10"><PageHeader title="مركز التقارير" subtitle="تعذر تحميل البيانات الحالية." actions={<button type="button" onClick={() => void load()} className="btn-secondary text-xs">إعادة المحاولة</button>} /><ErrorState message={error} onRetry={() => void load()} /></div>;
   }
-  if (!snapshot) return <DataUnavailableState title="مركز التقارير ينتظر اللقطة" message="لم تصل اللقطة الكانونية الحالية؛ لا يتم عرض مركز فارغ أو أرقام غير مثبتة." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
+  if (!snapshot && smartReports.length === 0) return <DataUnavailableState title="مركز التقارير ينتظر المصدر" message="لا توجد لقطة تنفيذية ولا تقارير مكتملة للعرض بعد؛ لم يتم اختلاق أي بطاقة أو رقم." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
 
-  const { kpis, aging, asOf, months } = snapshot;
-  const truthLabel = kpis.status === 'CONFIRMED' ? 'مثبت' : kpis.status === 'CALCULATED' ? 'محسوب' : 'بيانات غير كافية';
-  const truthClass = kpis.status === 'CONFIRMED' ? 'badge-success' : kpis.status === 'CALCULATED' ? 'badge-primary' : 'badge-warning';
-  const nextPath = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' ? '/data-quality' : '/reports/executive';
-  const nextLabel = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' ? 'افحص جودة البيانات' : 'افتح التقرير التنفيذي';
+  const firstSmartReport = smartReports[0] ?? null;
+  const kpis = snapshot?.kpis ?? null;
+  const aging = snapshot?.aging ?? null;
+  const asOf = snapshot?.asOf ?? null;
+  const months = snapshot?.months ?? null;
+  const truthLabel = kpis ? (kpis.status === 'CONFIRMED' ? 'مثبت' : kpis.status === 'CALCULATED' ? 'محسوب' : 'بيانات غير كافية') : 'مصادر حقيقية محمّلة';
+  const truthClass = kpis ? (kpis.status === 'CONFIRMED' ? 'badge-success' : kpis.status === 'CALCULATED' ? 'badge-primary' : 'badge-warning') : 'badge-primary';
+  const nextPath = kpis
+    ? (kpis.status === 'INSUFFICIENT_DATA' || aging?.status === 'INSUFFICIENT_DATA' ? '/data-quality' : '/reports/executive')
+    : firstSmartReport
+      ? '/reports/smart/' + firstSmartReport.jobId + '?sourceHash=' + encodeURIComponent(firstSmartReport.sourceHash)
+      : '/import';
+  const nextLabel = kpis
+    ? (kpis.status === 'INSUFFICIENT_DATA' || aging?.status === 'INSUFFICIENT_DATA' ? 'افحص جودة البيانات' : 'افتح التقرير التنفيذي')
+    : firstSmartReport ? 'افتح أول تقرير ذكي' : 'إضافة مصدر';
 
   return <div dir="rtl" className="ag-reports-center-surface space-y-5 animate-fade-in pb-10">
     <PageHeader
@@ -195,7 +221,7 @@ export function ReportsCenterPage() {
       actions={<div className="flex items-center gap-2"><span className={`badge ${truthClass}`}>{truthLabel}</span><button type="button" onClick={() => void load(true)} disabled={refreshing} className="btn-secondary inline-flex items-center gap-2 text-xs">{refreshing ? 'جارٍ التحديث' : 'تحديث اللقطة'}</button></div>}
     />
 
-    <section className="ag-reports-snapshot rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6" aria-label="اللقطة التنفيذية الحالية">
+    {snapshot ? <section className="ag-reports-snapshot rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6" aria-label="اللقطة التنفيذية الحالية">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-stretch xl:justify-between">
         <div className="min-w-0 flex-1">
           <div className="section-kicker">لقطة تجارية موثقة · آخر {months} أشهر</div>
@@ -233,7 +259,20 @@ export function ReportsCenterPage() {
           <Link to={nextPath} className="mt-4 inline-flex items-center justify-center rounded-xl bg-white px-3 py-2 text-xs font-bold text-ink-950 transition hover:bg-ink-100">{nextLabel} ←</Link>
         </div>
       </div>
-    </section>
+    </section> : (
+      <section className="rounded-[18px] border border-primary-200 bg-[linear-gradient(135deg,#0b1020,#172033)] p-5 text-white shadow-[0_24px_60px_-36px_rgba(15,23,42,.8)] lg:p-6" aria-label="التقارير الحقيقية المحمّلة">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="text-[9px] font-black tracking-[.12em] text-primary-200">مصادر حقيقية · قراءة العميل أولًا</div>
+            <h2 className="mt-2 text-xl font-black lg:text-2xl">التقارير وصلت إلى الواجهة قبل اكتمال لقطة المؤشرات.</h2>
+            <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">تم تحميل {smartReports.length} تقريرًا مكتملًا من قاعدة بيانات هذا الحساب. لا ننتظر KPI ثانوي كي يرى العميل المصدر الحقيقي ويفتح التقرير الذكي.</p>
+          </div>
+          {firstSmartReport ? (
+            <Link to={'/reports/smart/' + firstSmartReport.jobId + '?sourceHash=' + encodeURIComponent(firstSmartReport.sourceHash)} className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-black text-slate-950">افتح أول تقرير ذكي ←</Link>
+          ) : null}
+        </div>
+      </section>
+    )}
 
     <section className="ag-reports-explain grid gap-4 lg:grid-cols-[1.4fr_.6fr] items-end">
       <div className="rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
