@@ -9,11 +9,15 @@ const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e';
 await fs.mkdir(reportDir, { recursive: true });
 
+const REAL_SMART_REPORT_JOB_ID = 'c42fb0e1-75f2-4727-8c3e-470ae1a804fa';
+
 const routes = [
   '/', '/command-center', '/onboarding', '/decision-experience', '/metrics', '/reports',
   '/reports/sales', '/reports/purchases', '/reports/inventory',
   '/reports/inventory-intelligence', '/reports/demand-velocity',
-  '/reports/receivables', '/reports/profitability', '/import', '/data-quality',
+  '/reports/receivables', '/reports/profitability',
+  '/reports/smart/' + REAL_SMART_REPORT_JOB_ID,
+  '/import', '/data-quality',
   '/analytics', '/analytics/rfm', '/analytics/abc', '/analytics/aging',
   '/intelligence', '/intelligence/recommendations', '/intelligence/forecasts',
   '/intelligence/scenarios', '/customers', '/products', '/inventory',
@@ -46,6 +50,7 @@ const REPORT_EXPECTATIONS = new Map([
   ['/reports/demand-velocity', ['حركة الطلب وسرعة الأصناف']],
   ['/reports/receivables', ['تقرير الذمم والتحصيل', 'إجمالي الذمم']],
   ['/reports/profitability', ['تقرير الأرباح والربحية', 'التكلفة']],
+  ['/reports/smart/' + REAL_SMART_REPORT_JOB_ID, ['حالة التقرير الذكي', 'التفاصيل الكاملة للتقرير', 'سلسلة الثقة لهذا التقرير', 'مسار القرار']],
 ]);
 const REPORT_LOADING_MARKERS = [
   'جارٍ تحميل',
@@ -283,9 +288,20 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       method: request.method(),
       url: request.url(),
     }));
+    const isSmartReport = route === '/reports/smart/' + REAL_SMART_REPORT_JOB_ID;
+    const smartSignalSurfacePresent = !isSmartReport || text.includes('الإشارات');
+    const smartAdvisorSurfacePresent = !isSmartReport || text.includes('المستشار');
     const noLoading = state.loading.length === 0;
     const noVisibleError = state.errors.length === 0;
-    const settled = state.textLength > 120 && allExpectedFound && dataComplete && noLoading && noVisibleError && !state.busy;
+    const settled =
+      state.textLength > 120 &&
+      allExpectedFound &&
+      dataComplete &&
+      noLoading &&
+      noVisibleError &&
+      !state.busy &&
+      smartSignalSurfacePresent &&
+      smartAdvisorSurfacePresent;
 
     lastState = {
       ...state,
