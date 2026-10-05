@@ -1,6 +1,7 @@
 import { SourceBoundReportSurface } from '@/components/SourceBoundReportSurface';
 import { useCallback, useEffect, useState } from 'react';
 import { ReportSourceContext } from '@/components/ReportSourceContext';
+import { SourceBoundReportSurface } from '@/components/SourceBoundReportSurface';
 import { ArrowLeft, FileText, Printer, RefreshCw, ShieldCheck, Target, TrendingUp } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs, type MonthlyTrend } from '@/lib/dashboard-canonical';
