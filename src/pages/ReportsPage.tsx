@@ -9,6 +9,7 @@ import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/u
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
 import { fetchSmartReport, fetchSmartReportCatalog, type SmartReportCatalogItem, type SmartReportDetail } from '@/lib/report-smart';
 import { ReportIntelligencePanel } from '@/components/ReportIntelligencePanel';
+import { selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 import { CustomerReportSurface } from '@/components/CustomerReportSurface';
 import { fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
@@ -324,7 +325,40 @@ export function ReportsCenterPage() {
       actions={<div className="flex items-center gap-2"><span className={`badge ${truthClass}`}>{truthLabel}</span><button type="button" onClick={() => void load(true)} disabled={refreshing} className="btn-secondary inline-flex items-center gap-2 text-xs">{refreshing ? 'جارٍ التحديث' : 'تحديث اللقطة'}</button></div>}
     />
 
-    {snapshot ? <section className="ag-reports-snapshot rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6" aria-label="اللقطة التنفيذية الحالية">
+    {primarySmartReport ? (() => {
+      const signal = selectExecutiveSignal(primarySmartReport.intelligence);
+      const specialty = specialtyLabel(primarySmartReport.specialty);
+      const quality = primarySmartReport.qualityScore == null ? 'غير متاح' : `${Math.round(primarySmartReport.qualityScore)}%`;
+      const rows = primarySmartReport.authoritativeCurrentRowCount ?? primarySmartReport.rowCount ?? 0;
+      return <section className="ag-reports-primary-source rounded-[18px] border border-ink-800 bg-[linear-gradient(135deg,#0b1020,#142034)] p-5 text-white shadow-[0_24px_70px_-36px_rgba(15,23,42,.95)] lg:p-6" aria-label="التقرير الذكي الأساسي الحالي">
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2 text-[9px] font-black tracking-[.1em] text-primary-200">
+              <span>التقرير الحقيقي أولًا</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1">موثق · المصدر الحالي</span>
+            </div>
+            <h2 className="mt-2 text-2xl font-black tracking-tight lg:text-3xl">تقرير {specialty} قابل للقرار</h2>
+            <p className="mt-2 max-w-3xl text-[11px] leading-6 text-slate-300">المصدر: {primarySmartReport.sourcePath} · {rows.toLocaleString('ar-YE')} صفًا موثقًا · جودة المصدر {quality}</p>
+            {signal ? <div className="mt-4 rounded-2xl border border-white/10 bg-white/[.06] p-4">
+              <div className="text-[9px] font-black tracking-[.08em] text-primary-200">أهم إشارة من المصدر</div>
+              <div className="mt-1 text-sm font-black text-white">{signal.title}</div>
+              <p className="mt-1 text-[10px] leading-5 text-slate-300">{signal.message}</p>
+              <div className="mt-3 flex flex-wrap gap-2 text-[10px] text-slate-300">
+                <span className="rounded-full bg-white/10 px-2 py-1">أولوية {signal.priority}</span>
+                {signal.affectedRows != null && <span className="rounded-full bg-white/10 px-2 py-1">{signal.affectedRows.toLocaleString('ar-YE')} صف متأثر</span>}
+              </div>
+            </div> : <p className="mt-4 text-[10px] text-slate-400">تم تحميل المصدر، ولا توجد إشارة تنفيذية مكتملة يمكن رفعها دون اختلاق.</p>}
+          </div>
+          <div className="flex shrink-0 flex-col gap-3 xl:w-[235px]">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="rounded-2xl border border-white/10 bg-white/[.05] p-3"><div className="text-[9px] text-slate-400">الرصيد الكانوني</div><div className="mt-1 text-lg font-black">{primarySmartReport.canonicalCommitCount.toLocaleString('ar-YE')}</div></div>
+              <div className="rounded-2xl border border-white/10 bg-white/[.05] p-3"><div className="text-[9px] text-slate-400">حالة الثقة</div><div className="mt-1 text-xs font-black">{reportStateLabel(primarySmartReport.trustState || primarySmartReport.reportVerificationState)}</div></div>
+            </div>
+            <Link to={'/reports/smart/' + primarySmartReport.jobId + '?sourceHash=' + encodeURIComponent(primarySmartReport.sourceHash)} className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-3 text-xs font-black text-ink-950 transition hover:bg-ink-100">فتح التقرير الذكي ←</Link>
+          </div>
+        </div>
+      </section>
+    })() : snapshot ? <section className="ag-reports-snapshot rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6" aria-label="اللقطة التنفيذية الحالية">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-stretch xl:justify-between">
         <div className="min-w-0 flex-1">
           <div className="section-kicker">لقطة تجارية موثقة · آخر {months} أشهر</div>
