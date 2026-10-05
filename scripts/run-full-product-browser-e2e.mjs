@@ -10,13 +10,16 @@ const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e';
 await fs.mkdir(reportDir, { recursive: true });
 
 const REAL_SMART_REPORT_JOB_ID = 'c42fb0e1-75f2-4727-8c3e-470ae1a804fa';
+const REAL_SMART_REPORT_SOURCE_HASH = 'sha256:587f2d3dbdc7ec1ccc8c988ccad72f84b6cf2b794fcbce6711ffe5ecf9d6b313';
 
 const routes = [
   '/', '/command-center', '/onboarding', '/decision-experience', '/metrics', '/reports',
   '/reports/sales', '/reports/purchases', '/reports/inventory',
   '/reports/inventory-intelligence', '/reports/demand-velocity',
   '/reports/receivables', '/reports/profitability',
-  '/reports/smart/' + REAL_SMART_REPORT_JOB_ID,
+  '/reports/smart/' + REAL_SMART_REPORT_JOB_ID + '?sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH),
+  '/decision-experience?stage=evidence&reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH),
+  '/work-center?reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH),
   '/import', '/data-quality',
   '/analytics', '/analytics/rfm', '/analytics/abc', '/analytics/aging',
   '/intelligence', '/intelligence/recommendations', '/intelligence/forecasts',
@@ -50,7 +53,9 @@ const REPORT_EXPECTATIONS = new Map([
   ['/reports/demand-velocity', ['حركة الطلب وسرعة الأصناف']],
   ['/reports/receivables', ['تقرير الذمم والتحصيل', 'إجمالي الذمم']],
   ['/reports/profitability', ['تقرير الأرباح والربحية', 'التكلفة']],
-  ['/reports/smart/' + REAL_SMART_REPORT_JOB_ID, ['حالة التقرير الذكي', 'التفاصيل الكاملة للتقرير', 'سلسلة الثقة لهذا التقرير', 'مسار القرار']],
+  ['/reports/smart/' + REAL_SMART_REPORT_JOB_ID + '?sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['سلسلة الثقة لهذا التقرير', 'التفاصيل الكاملة للتقرير', 'مسار القرار', 'المصدر']],
+  ['/decision-experience?stage=evidence&reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['مساحة القرار', 'الدليل']],
+  ['/work-center?reportJobId=' + REAL_SMART_REPORT_JOB_ID + '&sourceHash=' + encodeURIComponent(REAL_SMART_REPORT_SOURCE_HASH), ['مركز العمل']],
 ]);
 const REPORT_LOADING_MARKERS = [
   'جارٍ تحميل',
@@ -296,7 +301,7 @@ async function waitForReportSettled(targetPage, route, dataBaseline) {
       method: request.method(),
       url: request.url(),
     }));
-    const isSmartReport = route === '/reports/smart/' + REAL_SMART_REPORT_JOB_ID;
+    const isSmartReport = route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID);
     const smartSignalSurfacePresent = !isSmartReport || state.smartSignalSurfacePresent;
     const smartAdvisorSurfacePresent = !isSmartReport || state.smartAdvisorSurfacePresent;
     const noLoading = state.loading.length === 0;
@@ -579,7 +584,7 @@ try {
 
 
         let readback = null;
-        if (route === '/reports/smart/' + REAL_SMART_REPORT_JOB_ID && status !== 'FAIL') {
+        if (route.startsWith('/reports/smart/' + REAL_SMART_REPORT_JOB_ID) && status !== 'FAIL') {
           const readbackBaseline = dataRequestsSeen;
           try {
             await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
