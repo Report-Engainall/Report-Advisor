@@ -2,11 +2,12 @@ SESSION HANDOFF = READY
 PROGRAMMER_REPORT_STATUS = ACTIVE_EXECUTION
 CURRENT MAIN HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
 REFERENCE START HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
-CURRENT EXECUTION HEAD = 9a17ec8cfb1504147076fc8ae8cf2318900038b7
-REPORT_FOR_HEAD = 9a17ec8cfb1504147076fc8ae8cf2318900038b7
+CURRENT EXECUTION HEAD = b84550327cae859f8c696d61ba9323db465aa7d1
+REPORT_FOR_HEAD = b84550327cae859f8c696d61ba9323db465aa7d1
 BRANCH = exec/final-reconcile-20261005
 PR = #841 OPEN
-UPDATED_AT = 2026-10-05T02:14:30Z
+UPDATED_AT = 2026-10-05T02:16:00Z
+WHAT_I_WAS_ASKED_TO_DO = استكمال التنفيذ من 06a9c69 دون إعادة بناء ما أُنجز، وإخراج Report-Advisor كمنتج قابل للبيع: إصلاح عرض التقارير الحقيقي، إثبات Smart Report الحقيقي، فك real-source eligibility للـ48، وإغلاق Quality/Certification على نفس HEAD بدون PASS وهمي.
 
 OBJECTIVE = إغلاق فجوة المنتج الفعلي للبيع: تقرير حقيقي يظهر ويُفهم ويقود إلى Evidence ثم Signal ثم Recommendation ثم Decision ثم Action، مع إثبات Browser حقيقي و48 archetypes حقيقية.
 

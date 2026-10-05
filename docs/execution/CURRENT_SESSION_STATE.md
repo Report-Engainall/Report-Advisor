@@ -1,11 +1,11 @@
 SESSION HANDOFF = READY
 ACTION_STATUS = ACTIVE_EXECUTION
-CURRENT_EXACT_HEAD = 9a17ec8cfb1504147076fc8ae8cf2318900038b7
+CURRENT_EXACT_HEAD = b84550327cae859f8c696d61ba9323db465aa7d1
 CURRENT_MAIN_HEAD = e1454854c0d4da4bbc89bb3af724e2aabeb50262
-CURRENT_EXECUTION_HEAD = 9a17ec8cfb1504147076fc8ae8cf2318900038b7
+CURRENT_EXECUTION_HEAD = b84550327cae859f8c696d61ba9323db465aa7d1
 BRANCH = exec/final-reconcile-20261005
 PR = #841 OPEN
-CURRENT_PR_HEAD = 9a17ec8cfb1504147076fc8ae8cf2318900038b7
+CURRENT_PR_HEAD = b84550327cae859f8c696d61ba9323db465aa7d1
 
 WHAT_ACTUALLY_HAPPENED
 - تم إصلاح مسارات عرض التقارير بحيث لا يحجب كتالوج التقارير أو طلبات الخلفية وصول اللقطة الحقيقية إلى الواجهة.
@@ -38,7 +38,7 @@ CURRENT_OPEN_GATES
 
 CURRENT_ACTIVE_FAILURE
 - failure الوحيد المثبت سابقًا كان scope خطأ في real-48: الجولة كانت ترى tenant واحدًا فقط، فدعمت 17/48. تم تعديل البوابة لتقرأ corpus tenants المصرح بها كلّها.
-- لا توجد حاليًا نتيجة نهائية 48/48 أو Browser PASS على 9a17ec8cf يجب ادعاؤها قبل اكتمال jobs الحالية.
+- لا توجد حاليًا نتيجة نهائية 48/48 أو Browser PASS على b84550327 يجب ادعاؤها قبل اكتمال jobs الحالية.
 
 DO_NOT_REPEAT
 - لا stale SHA PASS.
@@ -48,4 +48,4 @@ DO_NOT_REPEAT
 - لا route-load-only browser PASS.
 - لا blind production deploy retries.
 
-NEXT_EXACT_ACTION = انتظر terminal results للرأس 9a17ec8cf، ثم اقرأ أول failure فقط إن وجد. عند اكتمال 48/48 + Chromium screenshots + Smart Report six-card proof + certification على نفس SHA، حدّث هذا الملف مرة أخيرة بالرأس النهائي ولا تُعلن الجاهزية قبل ذلك.
+NEXT_EXACT_ACTION = انتظر terminal results للرأس b84550327، ثم اقرأ أول failure فقط إن وجد. عند اكتمال 48/48 + Chromium screenshots + Smart Report six-card proof + certification على نفس SHA، حدّث هذا الملف مرة أخيرة بالرأس النهائي ولا تُعلن الجاهزية قبل ذلك.
