@@ -34,7 +34,10 @@ function isGovernedReal(metadata) {
   return corpus && fixtureType !== 'synthetic-realistic' && catalogId !== 'report-intelligence.48';
 }
 
-const companies = await rest('/rest/v1/companies?select=id,name,created_at&name=like.Aghbari%20Report%20Corpus%20CI%20%25&order=created_at.desc&limit=1');
+const configuredTenantId = process.env.E2E_CORPUS_TENANT_ID?.trim() || '';
+const companies = configuredTenantId
+  ? await rest('/rest/v1/companies?select=id,name,created_at&id=eq.' + encodeURIComponent(configuredTenantId) + '&limit=1')
+  : await rest('/rest/v1/companies?select=id,name,created_at&name=like.Aghbari%20Report%20Corpus%20CI%20%25&order=created_at.desc&limit=1');
 const company = companies?.[0];
 if (!company?.id) throw new Error('REAL_CORPUS_TENANT_NOT_FOUND');
 
