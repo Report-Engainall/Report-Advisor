@@ -46,6 +46,7 @@ const pendingDataRequests = new Set();
 let dataRequestsSeen = 0;
 let reportProofContext = null;
 let reportProofPage = null;
+let reportProofTenant = null;
 
 const REPORT_EXPECTATIONS = new Map([
   ['/reports', ['مركز التقارير', 'بيانات → دليل → قرار']],
@@ -569,20 +570,8 @@ try {
             result.tenantA === result.tenantB
               ? 'Tenant A and Tenant B browser actors resolved to the same tenant.'
               : 'Tenant A and Tenant B browser actors resolved to distinct tenant contexts.');
-          addFinding('E2E-REAL-REPORT-TENANT-001',
-            result.tenantB === REAL_SMART_REPORT_COMPANY_ID ? 'PASS' : 'NOT_PROVEN',
-            'P0',
-            result.tenantB === REAL_SMART_REPORT_COMPANY_ID
-              ? 'Real Smart Report browser proof actor resolved to the owning tenant of the certified report job.'
-              : `Real Smart Report actor tenant mismatch: expected ${REAL_SMART_REPORT_COMPANY_ID}, got ${result.tenantB}.`,
-            { expectedTenantId: REAL_SMART_REPORT_COMPANY_ID, actualTenantId: result.tenantB });
-          if (result.tenantA !== result.tenantB) {
-            reportProofContext = contextB;
-            reportProofPage = pageB;
-          } else {
-            await pageB.close();
-            await contextB.close();
-          }
+          await pageB.close().catch(() => {});
+          await contextB.close().catch(() => {});
         } catch (error) {
           addFinding('E2E-TENANT-004', 'BLOCKED', 'P0', error instanceof Error ? error.message : String(error));
           await pageB.close().catch(() => {});
@@ -590,6 +579,39 @@ try {
         }
       } else {
         addFinding('E2E-TENANT-005', 'BLOCKED', 'P0', 'Tenant B credentials are not available; A/B isolation cannot be proven.');
+      }
+
+      const emailC = process.env.TEST_USER_C_EMAIL;
+      const passwordC = process.env.TEST_USER_C_PASSWORD;
+      if (emailC && passwordC && result.tenant === 'PASS') {
+        reportProofContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
+        reportProofPage = await reportProofContext.newPage();
+        wirePageTelemetry(reportProofPage);
+        try {
+          await login(reportProofPage, emailC, passwordC);
+          reportProofTenant = await authenticatedTenantId(reportProofPage);
+          addFinding('E2E-REAL-REPORT-TENANT-001',
+            reportProofTenant === REAL_SMART_REPORT_COMPANY_ID ? 'PASS' : 'NOT_PROVEN',
+            'P0',
+            reportProofTenant === REAL_SMART_REPORT_COMPANY_ID
+              ? 'Dedicated Smart Report browser actor resolved to the owning tenant of the certified report job.'
+              : `Dedicated Smart Report actor tenant mismatch: expected ${REAL_SMART_REPORT_COMPANY_ID}, got ${reportProofTenant}.`,
+            { expectedTenantId: REAL_SMART_REPORT_COMPANY_ID, actualTenantId: reportProofTenant });
+          if (reportProofTenant !== REAL_SMART_REPORT_COMPANY_ID) {
+            await reportProofPage.close().catch(() => {});
+            await reportProofContext.close().catch(() => {});
+            reportProofPage = null;
+            reportProofContext = null;
+          }
+        } catch (error) {
+          addFinding('E2E-REAL-REPORT-TENANT-002', 'BLOCKED', 'P0', error instanceof Error ? error.message : String(error));
+          await reportProofPage.close().catch(() => {});
+          await reportProofContext.close().catch(() => {});
+          reportProofPage = null;
+          reportProofContext = null;
+        }
+      } else {
+        addFinding('E2E-REAL-REPORT-TENANT-003', 'BLOCKED', 'P0', 'Dedicated real-report credentials are not available.');
       }
 
       for (let i = 0; i < routes.length; i += 1) {

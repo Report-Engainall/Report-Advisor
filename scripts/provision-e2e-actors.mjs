@@ -475,6 +475,12 @@ const userB = await ensureActor(
   'B',
   process.env.TEST_USER_B_EPHEMERAL === 'true',
 );
+const userC = await ensureActor(
+  process.env.TEST_USER_C_EMAIL,
+  process.env.TEST_USER_C_PASSWORD,
+  'C',
+  process.env.TEST_USER_C_EPHEMERAL === 'true',
+);
 const approver = await ensureActor(
   approverCredentials.email,
   approverCredentials.password,
@@ -484,15 +490,24 @@ const approver = await ensureActor(
 
 assert.notEqual(userA.id, approver.id, 'APPROVER_MUST_DIFFER_FROM_REQUESTER');
 assert.notEqual(userA.id, userB.id, 'USER_A_AND_USER_B_MUST_DIFFER');
+assert.notEqual(userA.id, userC.id, 'USER_A_AND_USER_C_MUST_DIFFER');
+assert.notEqual(userB.id, userC.id, 'USER_B_AND_USER_C_MUST_DIFFER');
 assert.notEqual(userB.id, approver.id, 'USER_B_AND_APPROVER_MUST_DIFFER');
+assert.notEqual(userC.id, approver.id, 'USER_C_AND_APPROVER_MUST_DIFFER');
 
 const tenantA = await findTenantA();
 const tenantB = await findTenantB();
 assert.notEqual(String(tenantA.id), String(tenantB.id), 'TENANT_A_AND_B_MUST_BE_DISTINCT');
 
+const smartReportTenantId = String(process.env.REAL_SMART_REPORT_COMPANY_ID || '').trim();
+if (!smartReportTenantId) throw new Error('REAL_SMART_REPORT_COMPANY_ID_REQUIRED');
+assert.notEqual(String(tenantA.id), smartReportTenantId, 'REAL_SMART_REPORT_TENANT_MUST_DIFFER_FROM_A');
+assert.notEqual(String(tenantB.id), smartReportTenantId, 'REAL_SMART_REPORT_TENANT_MUST_DIFFER_FROM_B');
+
 const membershipA = await provisionMembership(tenantA.id, userA.id, 'sales', true, 'A');
 const membershipApprover = await provisionMembership(tenantA.id, approver.id, 'admin', true, 'APPROVER');
 const membershipB = await provisionMembership(tenantB.id, userB.id, 'sales', true, 'B');
+const membershipC = await provisionMembership(smartReportTenantId, userC.id, 'sales', true, 'C-REAL-REPORT');
 const corpusTenantIds = [...new Set(
   String(process.env.E2E_CORPUS_TENANT_IDS || '')
     .split(',')
@@ -508,15 +523,17 @@ for (const tenantId of corpusTenantIds) {
 }
 const transactionFixture = await prepareTransactionalFixture(tenantA.id, userA.id);
 
-const [{ data: auditA }, { data: auditApprover }, { data: auditB }] = await Promise.all([
+const [{ data: auditA }, { data: auditApprover }, { data: auditB }, { data: auditC }] = await Promise.all([
   supabase.from('audit_logs').select('id,company_id,action,entity_type,entity_id,source').eq('company_id', tenantA.id).eq('action', 'e2e_actor_membership_provisioned').eq('entity_id', membershipA.id).limit(1),
   supabase.from('audit_logs').select('id,company_id,action,entity_type,entity_id,source').eq('company_id', tenantA.id).eq('action', 'e2e_actor_membership_provisioned').eq('entity_id', membershipApprover.id).limit(1),
   supabase.from('audit_logs').select('id,company_id,action,entity_type,entity_id,source').eq('company_id', tenantB.id).eq('action', 'e2e_actor_membership_provisioned').eq('entity_id', membershipB.id).limit(1),
+  supabase.from('audit_logs').select('id,company_id,action,entity_type,entity_id,source').eq('company_id', smartReportTenantId).eq('action', 'e2e_actor_membership_provisioned').eq('entity_id', membershipC.id).limit(1),
 ]);
 
 assert.ok(auditA?.length, 'E2E_ACTOR_A_AUDIT_MISSING');
 assert.ok(auditApprover?.length, 'E2E_APPROVER_AUDIT_MISSING');
 assert.ok(auditB?.length, 'E2E_ACTOR_B_AUDIT_MISSING');
+assert.ok(auditC?.length, 'E2E_ACTOR_C_AUDIT_MISSING');
 
 const mask = (email) => email.replace(/^(.{2}).*(@.*)$/, '$1***$2');
 console.log(JSON.stringify({

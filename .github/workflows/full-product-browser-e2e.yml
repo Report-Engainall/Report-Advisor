@@ -223,6 +223,8 @@ jobs:
           SECRET_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
           SECRET_APPROVER_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_APPROVER_EMAIL }}
           SECRET_APPROVER_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_APPROVER_PASSWORD }}
+          SECRET_C_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_C_EMAIL }}
+          SECRET_C_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_C_PASSWORD }}
         shell: bash
         run: |
           set -euo pipefail
@@ -233,10 +235,12 @@ jobs:
           email_a="${SECRET_A_EMAIL:-report-advisor-e2e-a-${run_id}@example.com}"
           email_b="${SECRET_B_EMAIL:-report-advisor-e2e-b-${run_id}@example.com}"
           email_approver="${SECRET_APPROVER_EMAIL:-report-advisor-e2e-approver-${run_id}@example.com}"
+          email_c="${SECRET_C_EMAIL:-report-advisor-e2e-c-${run_id}@example.com}"
           password_a="${SECRET_A_PASSWORD:-$(make_password)}"
           password_b="${SECRET_B_PASSWORD:-$(make_password)}"
           password_approver="${SECRET_APPROVER_PASSWORD:-$(make_password)}"
-          for secret in "$password_a" "$password_b" "$password_approver"; do
+          password_c="${SECRET_C_PASSWORD:-$(make_password)}"
+          for secret in "$password_a" "$password_b" "$password_approver" "$password_c"; do
             echo "::add-mask::$secret"
           done
           {
@@ -246,6 +250,8 @@ jobs:
             echo "TEST_USER_B_PASSWORD=$password_b"
             echo "TEST_APPROVER_EMAIL=$email_approver"
             echo "TEST_APPROVER_PASSWORD=$password_approver"
+            echo "TEST_USER_C_EMAIL=$email_c"
+            echo "TEST_USER_C_PASSWORD=$password_c"
             if [[ -n "${SECRET_A_EMAIL}" && -n "${SECRET_A_PASSWORD}" ]]; then
               echo "TEST_USER_A_EPHEMERAL=false"
             else
@@ -255,6 +261,11 @@ jobs:
               echo "TEST_USER_B_EPHEMERAL=false"
             else
               echo "TEST_USER_B_EPHEMERAL=true"
+            fi
+            if [[ -n "${SECRET_C_EMAIL}" && -n "${SECRET_C_PASSWORD}" ]]; then
+              echo "TEST_USER_C_EPHEMERAL=false"
+            else
+              echo "TEST_USER_C_EPHEMERAL=true"
             fi
           } >> "$GITHUB_ENV"
           if [[ -n "${SECRET_APPROVER_EMAIL}" && -n "${SECRET_APPROVER_PASSWORD}" ]]; then
@@ -302,7 +313,8 @@ jobs:
           E2E_ACTOR_PROVISION_DEADLINE_MS: '360000'
           E2E_ACTOR_REQUEST_TIMEOUT_MS: '15000'
           E2E_CORPUS_TENANT_IDS: '99e33354-cc45-4317-8eb3-0d486b6c5932,6426fbf9-7c4c-41b9-a6e7-9a0e58d5660b,038988ba-374a-45f8-84fe-9a4ff8a98e16,f68a7e91-3c7e-46fb-97a8-e339bec04e13,1f3298e1-b5c9-4ffd-8841-81cab095fd2b'
-          E2E_CORPUS_TENANT_ID: 'f68a7e91-3c7e-46fb-97a8-e339bec04e13'
+          E2E_CORPUS_TENANT_ID: '99e33354-cc45-4317-8eb3-0d486b6c5932'
+          REAL_SMART_REPORT_COMPANY_ID: f68a7e91-3c7e-46fb-97a8-e339bec04e13
           REPORT_ADVISOR_E2E_DEBUG: '1'
         shell: bash
         run: |
