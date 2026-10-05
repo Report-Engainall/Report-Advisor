@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { parseNumber } from '@/lib/file-engine/normalizer';
 import type { SmartReportDetail } from '@/lib/report-smart';
+import { selectExecutiveRecommendation, selectExecutiveSignal } from '@/lib/report-intelligence/report-smart-insights';
 
 const SPECIALTY_LABELS: Record<string, string> = {
   sales: 'المبيعات',
@@ -243,8 +244,8 @@ export function CustomerReportSurface({
   const metrics = numericColumns(report);
   const contributors = contributionRows(report);
   const advisor = report.intelligence.advisorBrief;
-  const topSignal = report.intelligence.signals[0] ?? null;
-  const topRecommendation = report.intelligence.recommendations[0] ?? null;
+  const topSignal = selectExecutiveSignal(report.intelligence);
+  const topRecommendation = selectExecutiveRecommendation(report.intelligence, topSignal);
   const dataset = report.sourceAnalysis?.datasets?.[0];
   const rawColumns = dataset && typeof dataset === 'object' && Array.isArray((dataset as Record<string, unknown>).columns)
     ? (dataset as Record<string, unknown>).columns as Array<Record<string, unknown>>
