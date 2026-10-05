@@ -494,7 +494,7 @@ async function readCurrentPersistedReport(page, companyId) {
   const analyses = await restSelect(page, 'source_analysis_snapshots', { company_id: companyId, source_hash: CURRENT_REPORT_SOURCE_HASH, import_job_id: importId }, 'id,import_job_id,source_format,analysis_status,quality_score,row_count,column_count,datasets,created_at', { order: 'created_at.desc', limit: 20 });
   assert.ok(analyses.length > 0, 'CURRENT_REPORT_ANALYSIS_MISSING');
   assert.equal(Number(analyses[0].row_count), CURRENT_REPORT_ROW_COUNT);
-  assert.equal(Number(analyses[0].column_count), 7);
+  assert.equal(Number(analyses[0].column_count), 18, 'CURRENT_REPORT_COLUMN_COUNT_CHANGED');
   assert.equal(Number(analyses[0].quality_score), Number(rendered.qualityScore));
   const fileRecords = await restSelect(page, 'file_records', { company_id: companyId, id: imports[0].file_record_id }, 'id,company_id,file_name,file_hash,detected_format,status', { limit: 1 });
   assert.equal(fileRecords.length, 1);
